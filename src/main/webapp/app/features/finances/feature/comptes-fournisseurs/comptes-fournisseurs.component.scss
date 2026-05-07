@@ -11,6 +11,99 @@
   overflow: hidden;
 }
 
+// ── KPI strip ─────────────────────────────────────────────────────────────
+
+$accent-primary: #008cba;
+$accent-success: #43ac6a;
+$accent-danger:  #f04124;
+$accent-warning: #e99002;
+$text-muted-kpi: #888;
+$border-color:   #e2e8f0;
+
+.kpi-strip {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1px solid $border-color;
+  border-radius: 10px;
+  padding: 0.35rem 0.75rem;
+  margin-bottom: 0.35rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  flex-wrap: wrap;
+  gap: 0.2rem;
+}
+
+.kpi-strip-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 130px;
+  padding: 0.25rem 0.6rem 0.25rem 0.75rem;
+  border-radius: 6px;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 20%;
+    bottom: 20%;
+    width: 3px;
+    border-radius: 2px;
+  }
+
+  &.primary-accent::before { background: $accent-primary; }
+  &.success-accent::before { background: $accent-success; }
+  &.danger-accent::before  { background: $accent-danger; }
+  &.warning-accent::before { background: $accent-warning; }
+
+  > .pi {
+    font-size: 1.05rem;
+    flex-shrink: 0;
+    width: 26px;
+    text-align: center;
+  }
+}
+
+.kpi-strip-body {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.kpi-strip-label {
+  font-size: 0.67rem;
+  font-weight: 600;
+  color: $text-muted-kpi;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.kpi-strip-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.kpi-strip-sub {
+  font-size: 0.64rem;
+  color: $text-muted-kpi;
+}
+
+.kpi-strip-divider {
+  width: 1px;
+  height: 34px;
+  background: $border-color;
+  flex-shrink: 0;
+  margin: 0 0.2rem;
+}
+
+@media (max-width: 576px) {
+  .kpi-strip-divider { display: none; }
+  .kpi-strip-item    { min-width: calc(50% - 0.5rem); }
+}
+
 // ── Split container ────────────────────────────────────────────────────────
 
 .split-container {
@@ -89,7 +182,7 @@
 
 .regler-panel {
   padding: 1rem;
-  max-width: 440px;
+
 }
 
 .actions-col {

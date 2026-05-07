@@ -6,6 +6,7 @@ export interface ICompteFournisseurAP {
   fournisseurName: string;
   fournisseurCode: string;
   phone?: string;
+  mobile?: string;
   totalCommande: number;
   totalRegle: number;
   solde: number;
@@ -38,6 +39,7 @@ export interface IReglementFournisseurCommand {
   reference: string;
   modeReglement: string;
   commentaire?: string;
+  commandeId?: number;
 }
 
 export interface IReglementBL {

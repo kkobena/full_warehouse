@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Détail Compte Fournisseur</title>
+    <style th:replace="~{common/css}"></style>
+    <style>
+      .fournisseur-header { border: 1px solid #ddd; border-radius: 4px; padding: 10px 14px; margin-bottom: 12px; }
+      .fournisseur-name { font-size: 16px; font-weight: bold; margin-bottom: 4px; }
+      .fournisseur-meta { font-size: 11px; color: #555; display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 6px; }
+      .recap-row { display: flex; gap: 16px; font-size: 12px; }
+      .recap-box { flex: 1; text-align: center; border: 1px solid #eee; border-radius: 3px; padding: 6px; }
+      .recap-label { font-size: 10px; color: #666; }
+      .recap-value { font-weight: bold; }
+      .text-danger { color: #dc3545; }
+      .text-success { color: #28a745; }
+      .badge-en-attente { background-color: #6c757d; color: white; padding: 2px 6px; border-radius: 3px; font-size: 9px; }
+      .badge-partiel { background-color: #e9900a; color: white; padding: 2px 6px; border-radius: 3px; font-size: 9px; }
+      .badge-en-retard { background-color: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 9px; }
+      .badge-regle { background-color: #28a745; color: white; padding: 2px 6px; border-radius: 3px; font-size: 9px; }
+    </style>
+  </head>
+  <body>
+    <div class="invoice">
+      <header th:replace="~{common/commonheader}"></header>
+
+      <main>
+        <!-- En-tête fournisseur -->
+        <div class="fournisseur-header" th:if="${compte != null}">
+          <div class="fournisseur-name" th:text="${compte.fournisseurName}"></div>
+          <div class="fournisseur-meta">
+            <span>Code : <strong th:text="${compte.fournisseurCode}"></strong></span>
+            <span th:if="${compte.phone != null}">Tél : <strong th:text="${compte.phone}"></strong></span>
+            <span th:if="${compte.mobile != null}">Mobile : <strong th:text="${compte.mobile}"></strong></span>
+          </div>
+          <div class="recap-row">
+            <div class="recap-box">
+              <div class="recap-label">Total commandé</div>
+              <div class="recap-value" th:text="${#numbers.formatInteger(compte.totalCommande, 0, 'POINT') + ' FCFA'}"></div>
+            </div>
+            <div class="recap-box">
+              <div class="recap-label">Total réglé</div>
+              <div class="recap-value text-success" th:text="${#numbers.formatInteger(compte.totalRegle, 0, 'POINT') + ' FCFA'}"></div>
+            </div>
+            <div class="recap-box">
+              <div class="recap-label">Solde dû</div>
+              <div class="recap-value text-danger" th:text="${#numbers.formatInteger(compte.solde, 0, 'POINT') + ' FCFA'}"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tableau commandes -->
+        <table class="main-table">
+          <thead>
+            <tr>
+              <th>N° Bon</th>
+              <th>Date commande</th>
+              <th>Date échéance</th>
+              <th class="text-right">Montant</th>
+              <th class="text-right">Réglé</th>
+              <th class="text-right">Restant dû</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="l : ${lignes}">
+              <td th:text="${l.numBon}"></td>
+              <td th:text="${l.dateCommande}"></td>
+              <td th:text="${l.dateEcheance != null ? l.dateEcheance : '—'}"></td>
+              <td class="text-right" th:text="${#numbers.formatInteger(l.montant, 0, 'POINT')}"></td>
+              <td class="text-right" style="color: #28a745;" th:text="${#numbers.formatInteger(l.montantRegle, 0, 'POINT')}"></td>
+              <td class="text-right" style="font-weight: bold; color: #dc3545;" th:text="${#numbers.formatInteger(l.restantDu, 0, 'POINT')}"></td>
+              <td>
+                <span th:if="${l.statut == 'EN_ATTENTE'}" class="badge-en-attente">En attente</span>
+                <span th:if="${l.statut == 'PARTIEL'}" class="badge-partiel">Partiel</span>
+                <span th:if="${l.statut == 'EN_RETARD'}" class="badge-en-retard">En retard</span>
+                <span th:if="${l.statut == 'REGLE'}" class="badge-regle">Réglé</span>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="5" class="text-right"><strong>Restant total :</strong></td>
+              <td class="text-right" style="font-weight: bold; color: #dc3545;">
+                <span th:text="${#numbers.formatInteger(totalRestant, 0, 'POINT') + ' FCFA'}"></span>
+              </td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div style="font-size: 9px; color: #999; text-align: right; margin-top: 8px;">
+          Généré le <span th:text="${generatedAt}"></span>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

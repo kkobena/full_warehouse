@@ -33,6 +33,10 @@ public class FournisseurDTO implements Serializable {
     private Integer joursCritique;
     private Long palierRfa;
     private Integer tauxRfa;
+    private String urlPharmaMl;
+    private String codeOfficePharmaMl;
+    private String codeRecepteurPharmaMl;
+    private String idRecepteurPharmaMl;
 
     public FournisseurDTO() {}
 
@@ -53,6 +57,10 @@ public class FournisseurDTO implements Serializable {
         joursCritique = fournisseur.getJoursCritique();
         palierRfa = fournisseur.getPalierRfa();
         tauxRfa = fournisseur.getTauxRfa();
+        urlPharmaMl = fournisseur.getUrlPharmaMl();
+        codeOfficePharmaMl = fournisseur.getCodeOfficePharmaMl();
+        codeRecepteurPharmaMl = fournisseur.getCodeRecepteurPharmaMl();
+        idRecepteurPharmaMl = fournisseur.getIdRecepteurPharmaMl();
         GroupeFournisseur groupeFournisseur = fournisseur.getGroupeFournisseur();
         if (groupeFournisseur != null) {
             groupeFournisseurId = groupeFournisseur.getId();
@@ -183,6 +191,18 @@ public class FournisseurDTO implements Serializable {
 
     public Integer getTauxRfa() { return tauxRfa; }
     public void setTauxRfa(Integer tauxRfa) { this.tauxRfa = tauxRfa; }
+
+    public String getUrlPharmaMl() { return urlPharmaMl; }
+    public void setUrlPharmaMl(String urlPharmaMl) { this.urlPharmaMl = urlPharmaMl; }
+
+    public String getCodeOfficePharmaMl() { return codeOfficePharmaMl; }
+    public void setCodeOfficePharmaMl(String codeOfficePharmaMl) { this.codeOfficePharmaMl = codeOfficePharmaMl; }
+
+    public String getCodeRecepteurPharmaMl() { return codeRecepteurPharmaMl; }
+    public void setCodeRecepteurPharmaMl(String codeRecepteurPharmaMl) { this.codeRecepteurPharmaMl = codeRecepteurPharmaMl; }
+
+    public String getIdRecepteurPharmaMl() { return idRecepteurPharmaMl; }
+    public void setIdRecepteurPharmaMl(String idRecepteurPharmaMl) { this.idRecepteurPharmaMl = idRecepteurPharmaMl; }
 
     @Override
     public boolean equals(Object o) {

@@ -16,6 +16,10 @@ export interface IFournisseur {
   joursCritique?: number;
   palierRfa?: number;
   tauxRfa?: number;
+  urlPharmaMl?: string;
+  codeOfficePharmaMl?: string;
+  codeRecepteurPharmaMl?: string;
+  idRecepteurPharmaMl?: string;
 }
 
 export class Fournisseur implements IFournisseur {

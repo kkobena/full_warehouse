@@ -15,7 +15,6 @@ import { Toolbar } from 'primeng/toolbar';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { ErrorService } from '../../../../shared/error.service';
 import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
-import { handleBlobForTauri } from '../../../../shared/util/tauri-util';
 import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
 import { DATE_FORMAT_ISO_DATE } from '../../../../shared/util/warehouse-util';
 
@@ -27,6 +26,7 @@ import {
   IReglementDiffere,
   IReglementDiffereItem,
 } from '../../data-access/models';
+import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
 
 @Component({
   selector: 'app-historique-reglements-differes',
@@ -60,6 +60,7 @@ export class HistoriqueReglementsDifferesComponent implements OnInit {
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
+  private readonly blobDownload = inject(BlobDownloadService);
   private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
@@ -98,11 +99,8 @@ export class HistoriqueReglementsDifferesComponent implements OnInit {
       )
       .subscribe({
         next: blob => {
-          if (this.tauriPrinterService.isRunningInTauri()) {
-            handleBlobForTauri(blob, 'reglements-differes');
-          } else {
-            window.open(URL.createObjectURL(blob));
-          }
+          this.blobDownload.downloadPdf(blob, "reglements-differes");
+
         },
         error: err =>
           this.notificationService.error(this.errorService.getErrorMessage(err), 'Export PDF'),

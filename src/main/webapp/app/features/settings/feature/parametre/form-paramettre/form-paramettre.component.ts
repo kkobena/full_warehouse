@@ -2,22 +2,22 @@ import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { ILaboratoire } from '../../../shared/model/laboratoire.model';
+import { ILaboratoire } from '../../../../../shared/model/laboratoire.model';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { ToastAlertComponent } from '../../../../../shared/toast-alert/toast-alert.component';
 import { Card } from 'primeng/card';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ErrorService } from '../../../shared/error.service';
+import { ErrorService } from '../../../../../shared/error.service';
 import { finalize } from 'rxjs/operators';
-import { IConfiguration } from '../../../shared/model/configuration.model';
-import { ConfigurationService } from '../../../shared/configuration.service';
+import { IConfiguration } from '../../../../../shared/model/configuration.model';
+import { ConfigurationService } from '../../../../../shared/configuration.service';
 import { Checkbox } from 'primeng/checkbox';
 import { Textarea } from 'primeng/textarea';
 import { KeyFilter } from 'primeng/keyfilter';
 
 @Component({
-  selector: 'jhi-form-laboratoire',
+  selector: 'app-form-laboratoire',
   templateUrl: './form-paramettre.component.html',
   styleUrls: ['./form-paramettre.scss'],
   imports: [FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, ToastAlertComponent, Card, Checkbox, Textarea, KeyFilter],

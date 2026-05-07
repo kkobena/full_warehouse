@@ -28,8 +28,6 @@ import { FileResponseModalComponent } from "../../ui/file-response-modal/file-re
 import { showCommonModal } from "../../../../entities/sales/selling-home/sale-helper";
 import { CommandeId } from "../../../../shared/model/abstract-commande.model";
 import { CommandCommonService } from "../../../../entities/commande/command-common.service";
-import { Params } from "../../../../shared/model/enumerations/params.model";
-import { ConfigurationService } from "../../../../shared/configuration.service";
 import { NotificationService } from "../../../../shared/services/notification.service";
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { ProduitSearch } from "../../../../shared/model";
@@ -57,7 +55,6 @@ import {
 } from "ag-grid-community";
 import { AgGridAngular } from "ag-grid-angular";
 import { CommandeRequestedLineActionsComponent } from "./commande-requested-line-actions.component";
-import { IConfiguration } from "../../../../shared/model/configuration.model";
 
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
@@ -186,7 +183,7 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
       type: "numericColumn",
       cellEditor: "agNumberCellEditor",
       headerTooltip: "Prix d'achat commandé — ⚠ indique un écart avec le tarif catalogue",
-      cellEditorParams: {preventStepping: true},
+      cellEditorParams: { preventStepping: true },
       cellRenderer: (p: any) => {
         if (!p.data) return "";
         const val = p.data.orderCostAmount != null
@@ -211,7 +208,7 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
       type: "numericColumn",
       cellEditor: "agNumberCellEditor",
       headerTooltip: "Prix unitaire commandé — ⚠ indique un écart avec le tarif catalogue",
-      cellEditorParams: {preventStepping: true},
+      cellEditorParams: { preventStepping: true },
       cellRenderer: (p: any) => {
         if (!p.data) return "";
         const val = p.data.orderUnitPrice != null
@@ -233,7 +230,7 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
       headerName: "Qté",
       width: 90,
       editable: p => !this.isLocked,
-      cellEditorParams: {preventStepping: true},
+      cellEditorParams: { preventStepping: true },
       type: "numericColumn",
       cellEditor: "agNumberCellEditor"
     },
@@ -303,7 +300,6 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
   private readonly fournisseurService = inject(FournisseurService);
   private readonly modalService = inject(NgbModal);
   private readonly errorService = inject(ErrorService);
-  private readonly configurationService = inject(ConfigurationService);
   private readonly commandCommonService = inject(CommandCommonService);
 
 
@@ -581,7 +577,6 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
   }
 
 
-
   protected onAddLot(orderLine: IOrderLine): void {
     const qty = orderLine.quantityReceived || orderLine.quantityRequested;
     if (qty > 1 || (orderLine.lots?.length ?? 0) > 0) {
@@ -651,15 +646,16 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
     modalRef.componentInstance.commande = this.currentCommande;
     modalRef.result.then(
       result => {
-        if (result === 'DELETE') {
+        if (result === "DELETE") {
           this.confirmDialog.onConfirm(
             () => this.deleteCommandeApresRuptureTotale(),
-            'Suppression de la commande',
-            'Tous les produits sont en rupture. Voulez-vous supprimer définitivement cette commande ?'
+            "Suppression de la commande",
+            "Tous les produits sont en rupture. Voulez-vous supprimer définitivement cette commande ?"
           );
         }
       },
-      () => {}
+      () => {
+      }
     );
   }
 
@@ -671,9 +667,9 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
         this.orderLines = [];
         this.selectedProvider = null;
         this.commandeChange.emit(null);
-        this.notificationService.success('Commande supprimée', 'Suppression');
+        this.notificationService.success("Commande supprimée", "Suppression");
       },
-      error: err => this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur'),
+      error: err => this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur")
     });
   }
 
@@ -682,7 +678,6 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
       .query({ page: 0, size: 9999, search })
       .subscribe({ next: (res: HttpResponse<IFournisseur[]>) => (this.fournisseurs = res.body!) });
   }
-
 
 
   private reloadCommande(): void {

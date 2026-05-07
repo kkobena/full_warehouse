@@ -14,14 +14,26 @@
             <p-inputicon class="pi pi-search" />
             <input pInputText type="text" placeholder="Rechercher un fournisseur..."
                    [value]="searchText()" (input)="searchText.set($any($event.target).value)"
-                   style="width: 260px;" />
+                   style="width: 220px;" />
           </p-iconfield>
+
+          <p-datePicker [ngModel]="fromDate()" (ngModelChange)="fromDate.set($event); loadComptes()"
+                        dateFormat="dd/mm/yy" placeholder="Du" [showButtonBar]="true"
+                        appendTo="body"
+                        [showClear]="true" style="width: 130px;" />
+
+          <p-datePicker  appendTo="body" [ngModel]="toDate()" (ngModelChange)="toDate.set($event); loadComptes()"
+                        dateFormat="dd/mm/yy" placeholder="Au" [showButtonBar]="true"
+                        [showClear]="true" style="width: 130px;" />
 
         </div>
       </ng-template>
       <ng-template #end>
         <div class="pharma-toolbar-actions">
-          <p-button icon="pi pi-refresh" severity="secondary" (onClick)="loadComptes()"
+          <p-button icon="pi pi-file-pdf" label="Exporter en PDF" severity="warn" size="small"
+                    [loading]="isExporting()" pTooltip="Exporter la liste en PDF" tooltipPosition="left"
+                    (onClick)="exportPdfGlobal()" />
+          <p-button [text]="true" icon="pi pi-refresh" severity="secondary" [rounded]="true"  (onClick)="loadComptes()"
                     [loading]="isLoading()" pTooltip="Rafraîchir" tooltipPosition="left" />
         </div>
       </ng-template>
@@ -29,63 +41,66 @@
   </div>
 
   <!-- KPI Banner -->
-  <div class="row g-2 mb-2 mt-1">
-    <div class="col-xl-3 col-lg-6 col-md-6">
-      <div class="kpi-card danger-accent">
-        <div class="card-body">
-          <div class="kpi-header">
-            <div class="kpi-content">
-              <div class="kpi-label">Total dû</div>
-              <div class="kpi-value">
-                {{ formatCurrency(summary()?.totalDu ?? 0) }}
-                <span class="value-suffix">FCFA</span>
-              </div>
-            </div>
-            <div class="kpi-icon"><i class="pi pi-money-bill" style="color:#f04124;"></i></div>
+  @if (summary() === null) {
+    <div class="kpi-strip">
+      @for (_ of [1,2,3,4]; track _; let last = $last) {
+        <div class="kpi-strip-item">
+          <i class="pi pi-spin pi-spinner text-muted"></i>
+          <div class="kpi-strip-body">
+            <span class="kpi-strip-label">Chargement...</span>
+            <span class="kpi-strip-value text-muted">—</span>
           </div>
         </div>
-      </div>
+        @if (!last) { <div class="kpi-strip-divider"></div> }
+      }
     </div>
-    <div class="col-xl-3 col-lg-6 col-md-6">
-      <div class="kpi-card danger-accent">
-        <div class="card-body">
-          <div class="kpi-header">
-            <div class="kpi-content">
-              <div class="kpi-label">Échéances dépassées</div>
-              <div class="kpi-value">{{ summary()?.echeancesDepassees ?? 0 }}</div>
-            </div>
-            <div class="kpi-icon"><i class="pi pi-exclamation-circle" style="color:#f04124;"></i></div>
-          </div>
+  } @else {
+    <div class="kpi-strip">
+
+      <div class="kpi-strip-item danger-accent">
+        <i class="pi pi-money-bill text-danger"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">Total dû</span>
+          <span class="kpi-strip-value text-danger">{{ formatCurrency(summary()!.totalDu) }}</span>
+          <span class="kpi-strip-sub">FCFA</span>
         </div>
       </div>
-    </div>
-    <div class="col-xl-3 col-lg-6 col-md-6">
-      <div class="kpi-card warning-accent">
-        <div class="card-body">
-          <div class="kpi-header">
-            <div class="kpi-content">
-              <div class="kpi-label">Échéances J+7</div>
-              <div class="kpi-value">{{ summary()?.echeancesProchaines ?? 0 }}</div>
-            </div>
-            <div class="kpi-icon"><i class="pi pi-clock" style="color:#e99002;"></i></div>
-          </div>
+
+      <div class="kpi-strip-divider"></div>
+
+      <div class="kpi-strip-item danger-accent">
+        <i class="pi pi-exclamation-circle text-danger"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">Échéances dépassées</span>
+          <span class="kpi-strip-value text-danger">{{ summary()!.echeancesDepassees }}</span>
+          <span class="kpi-strip-sub">fournisseurs en retard</span>
         </div>
       </div>
-    </div>
-    <div class="col-xl-3 col-lg-6 col-md-6">
-      <div class="kpi-card primary-accent">
-        <div class="card-body">
-          <div class="kpi-header">
-            <div class="kpi-content">
-              <div class="kpi-label">Fournisseurs actifs</div>
-              <div class="kpi-value">{{ summary()?.nbFournisseursActifs ?? 0 }}</div>
-            </div>
-            <div class="kpi-icon"><i class="pi pi-truck" style="color:#008cba;"></i></div>
-          </div>
+
+      <div class="kpi-strip-divider"></div>
+
+      <div class="kpi-strip-item warning-accent">
+        <i class="pi pi-clock text-warning"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">Échéances J+7</span>
+          <span class="kpi-strip-value text-warning">{{ summary()!.echeancesProchaines }}</span>
+          <span class="kpi-strip-sub">dans 7 jours</span>
         </div>
       </div>
+
+      <div class="kpi-strip-divider"></div>
+
+      <div class="kpi-strip-item primary-accent">
+        <i class="pi pi-truck text-primary"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">Fournisseurs actifs</span>
+          <span class="kpi-strip-value text-primary">{{ summary()!.nbFournisseursActifs }}</span>
+          <span class="kpi-strip-sub">avec solde ouvert</span>
+        </div>
+      </div>
+
     </div>
-  </div>
+  }
 
   <!-- Hint premier usage -->
   @if (showHint() && !panelOpen()) {
@@ -118,10 +133,15 @@
         <ng-template #body let-c>
           <tr [class.table-row-overdue]="c.statut === 'CRITIQUE'"
               [class.table-row-warning]="c.statut === 'EN_RETARD'"
-              [class.row-selected]="selectedFournisseur()?.fournisseurId === c.fournisseurId"
+              [class.row-selected]="isSelected(c)"
               (click)="selectFournisseur(c)" style="cursor: pointer;">
             <td>
               <span class="fw-semibold">{{ c.fournisseurName }}</span>
+              @if (c.phone) {
+                <div class="text-muted" style="font-size: 0.72rem;">
+                  <i class="pi pi-phone me-1" style="font-size: 0.65rem;"></i>{{ c.phone }}
+                </div>
+              }
               @if (c.nbCommandesEnAttente > 0) {
                 <span class="badge bg-secondary ms-2">{{ c.nbCommandesEnAttente }} cmd</span>
               }
@@ -129,9 +149,10 @@
             <td><code class="pharma-code">{{ c.fournisseurCode }}</code></td>
             <td class="text-end fw-bold" [class.text-danger]="c.solde > 0">{{ formatCurrency(c.solde) }}</td>
             <td>
-              <p-tag [value]="statutLabel(c.statut)" [severity]="statutSeverity(c.statut)" />
+              <p-tag [value]="statutLabel(c.statut)" [severity]="statutSeverity(c.statut)"
+                     [pTooltip]="statutTooltip(c.statut)" tooltipPosition="left" />
             </td>
-            <td>{{ c.prochaineEcheance ?? '—' }}</td>
+            <td>{{ c.prochaineEcheance ? (c.prochaineEcheance | date:'dd/MM/yyyy') : '—' }}</td>
             <td class="text-end">
               <p-button icon="pi pi-eye" [text]="true" size="small" severity="info"
                         pTooltip="Voir règlements" tooltipPosition="left"
@@ -141,7 +162,7 @@
         </ng-template>
         <ng-template #emptymessage>
           <tr>
-            <td colspan="5" class="text-center py-4 text-secondary">Aucun compte fournisseur trouvé.</td>
+            <td colspan="6" class="text-center py-4 text-secondary">Aucun compte fournisseur trouvé.</td>
           </tr>
         </ng-template>
       </p-table>
@@ -158,7 +179,8 @@
               <div class="panel-title-block">
                 <div class="panel-libelle">{{ f.fournisseurName }}</div>
                 <div class="panel-meta">
-                  <p-tag [value]="statutLabel(f.statut)" [severity]="statutSeverity(f.statut)" />
+                  <p-tag [value]="statutLabel(f.statut)" [severity]="statutSeverity(f.statut)"
+                         [pTooltip]="statutTooltip(f.statut)" />
                   <span class="pharma-badge pharma-badge-danger ms-2">
                     Solde : {{ formatCurrency(f.solde) }} FCFA
                   </span>
@@ -167,10 +189,29 @@
                       <i class="pi pi-phone me-1"></i>{{ f.phone }}
                     </span>
                   }
+                  @if (f.mobile) {
+                    <span class="text-muted ms-2" style="font-size: 0.75rem;">
+                      <i class="pi pi-mobile me-1"></i>{{ f.mobile }}
+                    </span>
+                  }
+                </div>
+                <!-- Récapitulatif financier -->
+                <div class="d-flex gap-4 mt-1" style="font-size: 0.82rem;">
+                  <span>Commandé : <strong>{{ formatCurrency(f.totalCommande) }} FCFA</strong></span>
+                  <span>Réglé : <strong class="text-success">{{ formatCurrency(f.totalRegle) }} FCFA</strong></span>
+                  <span>Solde : <strong class="text-danger">{{ formatCurrency(f.solde) }} FCFA</strong></span>
                 </div>
               </div>
               <div class="panel-actions">
-                <p-button icon="pi pi-times" [text]="true" size="small" severity="secondary"
+                @if (f.solde > 0) {
+                  <p-button label="Régler tout" icon="pi pi-check" severity="success" size="small"
+                            pTooltip="Solder ce fournisseur en un règlement"
+                            (onClick)="regleTout()" />
+                }
+                <p-button icon="pi pi-file-pdf" [outlined]="true" size="small" label="Exporter en PDF" severity="warn"
+                          pTooltip="Exporter le détail en PDF" [loading]="isExporting()" tooltipPosition="left"
+                          (onClick)="exportPdfFournisseur()" />
+                <p-button icon="pi pi-times" [text]="true" [rounded]="true" size="small" severity="secondary"
                           pTooltip="Fermer" (onClick)="closeDetail()" />
               </div>
             </div>
@@ -185,8 +226,8 @@
                   <a class="pharma-nav-tab-link" ngbNavLink>
                     <i class="pi pi-list"></i>
                     <span>Commandes</span>
-                    @if (lignes().length > 0) {
-                      <span class="badge bg-danger ms-1">{{ lignes().length }}</span>
+                    @if (totalLignes() > 0) {
+                      <span class="badge bg-danger ms-1">{{ totalLignes() }}</span>
                     }
                   </a>
                   <ng-template ngbNavContent>
@@ -214,10 +255,7 @@
                                 [class.btn-warning]="filtreStatutLignes() === 'PARTIEL'"
                                 [class.btn-outline-warning]="filtreStatutLignes() !== 'PARTIEL'"
                                 (click)="setFiltreStatut('PARTIEL')">Partiel</button>
-                        <button type="button" class="btn btn-sm"
-                                [class.btn-success]="filtreStatutLignes() === 'REGLE'"
-                                [class.btn-outline-success]="filtreStatutLignes() !== 'REGLE'"
-                                (click)="setFiltreStatut('REGLE')">Réglé</button>
+
                       </div>
 
                       <p-table [value]="lignes()" [stripedRows]="true" class="p-datatable-sm"
@@ -227,7 +265,7 @@
                                [scrollable]="true" scrollHeight="400px"
                                [showCurrentPageReport]="true"
                                currentPageReportTemplate="{first}–{last} sur {totalRecords} commandes">
-                        <ng-template pTemplate="header">
+                        <ng-template #header>
                           <tr class="pharma-table-head">
                             <th>N° Bon</th>
                             <th>Date échéance</th>
@@ -238,20 +276,18 @@
                             <th></th>
                           </tr>
                         </ng-template>
-                        <ng-template pTemplate="body" let-l>
+                        <ng-template #body let-l>
                           <tr [class.ligne-selected]="selectedLigne()?.commandeId === l.commandeId">
                             <td><code class="pharma-code">{{ l.numBon }}</code></td>
-                            <td>{{ l.dateEcheance ?? l.dateCommande }}</td>
+                            <td>{{ (l.dateEcheance ?? l.dateCommande) | date:'dd/MM/yyyy' }}</td>
                             <td class="text-end">{{ formatCurrency(l.montant) }}</td>
                             <td class="text-end text-success">{{ formatCurrency(l.montantRegle) }}</td>
                             <td class="text-end fw-semibold text-danger">{{ formatCurrency(l.restantDu) }}</td>
                             <td>
-                              <p-tag [value]="ligneStatutLabel(l.statut)" [severity]="ligneSeverity(l.statut)" />
+                              <p-tag [value]="ligneStatutLabel(l.statut)" [severity]="ligneSeverity(l.statut)"
+                                     [pTooltip]="ligneStatutTooltip(l.statut)" tooltipPosition="left" />
                             </td>
                             <td class="actions-col">
-                              <p-button icon="pi pi-eye" [text]="true" size="small" severity="info"
-                                        pTooltip="Voir règlements" tooltipPosition="left"
-                                        (onClick)="selectLigne(l)" />
                               @if (l.statut !== 'REGLE') {
                                 <p-button icon="pi pi-money-bill" [text]="true" size="small" severity="success"
                                           pTooltip="Régler ce BL" tooltipPosition="left"
@@ -260,7 +296,7 @@
                             </td>
                           </tr>
                         </ng-template>
-                        <ng-template pTemplate="emptymessage">
+                        <ng-template #emptymessage>
                           <tr>
                             <td colspan="7" class="text-center text-muted py-3">
                               <i class="pi pi-filter-slash me-1"></i> Aucune commande pour ce filtre.
@@ -283,49 +319,62 @@
                       <div class="regler-panel">
 
                         <!-- Indicateur solde (Signal) -->
-                        <div class="solde-indicator mb-3">
-                          <span class="solde-label">Solde à régler :</span>
-                          <span class="solde-value text-danger fw-bold">{{ formatCurrency(solde()) }} FCFA</span>
+                        <div class="solde-indicator mb-2">
+                          @if (selectedLigne(); as bl) {
+                            <span class="solde-label">Restant BL <code class="pharma-code">{{ bl.numBon }}</code> :</span>
+                            <span class="solde-value text-danger fw-bold">{{ formatCurrency(bl.restantDu) }} FCFA</span>
+                            <span class="ms-3 text-muted" style="font-size: 0.8rem;">
+                              Solde global : {{ formatCurrency(solde()) }} FCFA
+                            </span>
+                          } @else {
+                            <span class="solde-label">Solde à régler :</span>
+                            <span class="solde-value text-danger fw-bold">{{ formatCurrency(solde()) }} FCFA</span>
+                          }
                         </div>
 
                         <form [formGroup]="reglementForm" (ngSubmit)="saveReglement()">
 
-                          <div class="mb-3">
-                            <p-floatlabel variant="on">
-                              <p-inputNumber inputId="montant" formControlName="montant" mode="decimal"
-                                             [minFractionDigits]="0" [maxFractionDigits]="0"
-                                             [style]="{ width: '100%' }" />
-                              <label for="montant">Montant (FCFA)</label>
-                            </p-floatlabel>
-                            @if (montantSaisi() > solde()) {
-                              <small class="text-danger">Le montant ne peut pas dépasser le solde dû.</small>
-                            }
+                          <!-- Ligne 1 : Montant | Date -->
+                          <div class="row g-2 mb-3">
+                            <div class="col-6">
+                              <p-floatlabel variant="on">
+                                <p-inputNumber inputId="montant" formControlName="montant" mode="decimal"
+                                               [minFractionDigits]="0" [maxFractionDigits]="0"
+                                               [style]="{ width: '100%' }" />
+                                <label for="montant">Montant (FCFA)</label>
+                              </p-floatlabel>
+                              @if (montantSaisi() > solde()) {
+                                <small class="text-danger">Le montant ne peut pas dépasser le solde dû.</small>
+                              }
+                            </div>
+                            <div class="col-6">
+                              <p-floatlabel variant="on">
+                                <p-datePicker inputId="dateReg" formControlName="dateReglement"
+                                              dateFormat="dd/mm/yy" [style]="{ width: '100%' }" />
+                                <label for="dateReg">Date du règlement</label>
+                              </p-floatlabel>
+                            </div>
                           </div>
 
-                          <div class="mb-3">
-                            <p-floatlabel variant="on">
-                              <p-datePicker inputId="dateReg" formControlName="dateReglement"
-                                            dateFormat="dd/mm/yy" [style]="{ width: '100%' }" />
-                              <label for="dateReg">Date du règlement</label>
-                            </p-floatlabel>
+                          <!-- Ligne 2 : Mode | Référence -->
+                          <div class="row g-2 mb-3">
+                            <div class="col-6">
+                              <p-floatlabel variant="on">
+                                <p-select inputId="modeReglement" formControlName="modeReglement"
+                                          [options]="modeReglementOptions" optionLabel="label" optionValue="value"
+                                          [style]="{ width: '100%' }" />
+                                <label for="modeReglement">Mode de règlement</label>
+                              </p-floatlabel>
+                            </div>
+                            <div class="col-6">
+                              <p-floatlabel variant="on">
+                                <input pInputText id="reference" formControlName="reference" style="width: 100%;" />
+                                <label for="reference">Référence</label>
+                              </p-floatlabel>
+                            </div>
                           </div>
 
-                          <div class="mb-3">
-                            <p-floatlabel variant="on">
-                              <p-select inputId="modeReglement" formControlName="modeReglement"
-                                        [options]="modeReglementOptions" optionLabel="label" optionValue="value"
-                                        [style]="{ width: '100%' }" />
-                              <label for="modeReglement">Mode de règlement</label>
-                            </p-floatlabel>
-                          </div>
-
-                          <div class="mb-3">
-                            <p-floatlabel variant="on">
-                              <input pInputText id="reference" formControlName="reference" style="width: 100%;" />
-                              <label for="reference">Référence</label>
-                            </p-floatlabel>
-                          </div>
-
+                          <!-- Commentaire -->
                           <div class="mb-3">
                             <p-floatlabel variant="on">
                               <input pInputText id="commentaire" formControlName="commentaire" style="width: 100%;" />
@@ -349,57 +398,7 @@
                   </ng-container>
                 }
 
-                <!-- Onglet Règlements du BL sélectionné -->
-                @if (selectedLigne()) {
-                  <ng-container ngbNavItem="reglements-bl">
-                    <a class="pharma-nav-tab-link" ngbNavLink>
-                      <i class="pi pi-history"></i>
-                      <span>Règlements — {{ selectedLigne()?.numBon }}</span>
-                    </a>
-                    <ng-template ngbNavContent>
-                      <div class="p-2">
-                        <div class="bl-detail-header mb-2">
-                          <span class="text-secondary" style="font-size: 0.82rem;">
-                            BL <code class="pharma-code">{{ selectedLigne()?.numBon }}</code>
-                            — Total : <strong>{{ formatCurrency(selectedLigne()?.montant ?? 0) }} FCFA</strong>
-                            — Restant : <strong class="text-danger">{{ formatCurrency(selectedLigne()?.restantDu ?? 0) }} FCFA</strong>
-                          </span>
-                        </div>
-                        @if (isLoadingLigneReglements()) {
-                          <div class="text-center py-4"><i class="pi pi-spin pi-spinner"></i></div>
-                        } @else {
-                          <p-table [value]="ligneReglements()" [stripedRows]="true" class="p-datatable-sm">
-                            <ng-template #header>
-                              <tr class="pharma-table-head">
-                                <th>Date</th>
-                                <th>Référence</th>
-                                <th class="text-end">Montant</th>
-                                <th>Opérateur</th>
-                                <th>Commentaire</th>
-                              </tr>
-                            </ng-template>
-                            <ng-template #body let-r>
-                              <tr>
-                                <td>{{ r.dateReglement }}</td>
-                                <td><code class="pharma-code">{{ r.reference }}</code></td>
-                                <td class="text-end fw-semibold text-success">{{ formatCurrency(r.montant) }}</td>
-                                <td>{{ r.operateur ?? '—' }}</td>
-                                <td class="text-secondary">{{ r.commentaire ?? '—' }}</td>
-                              </tr>
-                            </ng-template>
-                            <ng-template #emptymessage>
-                              <tr>
-                                <td colspan="5" class="text-center text-secondary py-3">
-                                  Aucun règlement enregistré pour ce BL.
-                                </td>
-                              </tr>
-                            </ng-template>
-                          </p-table>
-                        }
-                      </div>
-                    </ng-template>
-                  </ng-container>
-                }
+
 
               </div>
 

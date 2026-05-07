@@ -19,6 +19,7 @@ import com.kobe.warehouse.service.dto.LigneFournisseurAPDTO;
 import com.kobe.warehouse.service.dto.ReglementBLDTO;
 import com.kobe.warehouse.service.dto.ReglementFournisseurAPCommand;
 import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
+import com.kobe.warehouse.service.report.pdf.AccountsPayableApPdfExportService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -49,25 +50,28 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
     private final CashRegisterService cashRegisterService;
     private final TransactionIdGeneratorService idGenerator;
     private final AppConfigurationService appConfigurationService;
+    private final AccountsPayableApPdfExportService pdfExportService;
 
     public AccountsPayableServiceImpl(
         CommandeRepository commandeRepository,
         PaymentFournisseurRepository paymentFournisseurRepository,
         CashRegisterService cashRegisterService,
         TransactionIdGeneratorService idGenerator,
-        AppConfigurationService appConfigurationService
+        AppConfigurationService appConfigurationService,
+        AccountsPayableApPdfExportService pdfExportService
     ) {
         this.commandeRepository = commandeRepository;
         this.paymentFournisseurRepository = paymentFournisseurRepository;
         this.cashRegisterService = cashRegisterService;
         this.idGenerator = idGenerator;
         this.appConfigurationService = appConfigurationService;
+        this.pdfExportService = pdfExportService;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<CompteFournisseurAPDTO> getComptes() {
-        List<Commande> commandes = loadUnpaidCommandes(null);
+    public List<CompteFournisseurAPDTO> getComptes(LocalDate fromDate, LocalDate toDate) {
+        List<Commande> commandes = loadUnpaidCommandes(null, fromDate, toDate);
         Map<Integer, Long> paidMap = loadPaidAmounts(commandes);
 
         Map<Integer, List<Commande>> byFournisseur = commandes.stream()
@@ -83,7 +87,7 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
     @Override
     @Transactional(readOnly = true)
     public FournisseurAPSummaryDTO getSummary() {
-        List<Commande> commandes = loadUnpaidCommandes(null);
+        List<Commande> commandes = loadUnpaidCommandes(null, null, null);
         Map<Integer, Long> paidMap = loadPaidAmounts(commandes);
 
         LocalDate now = LocalDate.now();
@@ -118,7 +122,7 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
     @Override
     @Transactional(readOnly = true)
     public Page<LigneFournisseurAPDTO> getLignes(Integer fournisseurId, StatutLigneFournisseurAP statut, Pageable pageable) {
-        List<Commande> commandes = loadUnpaidCommandes(fournisseurId);
+        List<Commande> commandes = loadUnpaidCommandes(fournisseurId, null, null);
         Map<Integer, Long> paidMap = loadPaidAmounts(commandes);
 
         LocalDate now = LocalDate.now();
@@ -168,15 +172,23 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
 
     @Override
     public void enregistrerReglement(Integer fournisseurId, ReglementFournisseurAPCommand command) {
-        List<Commande> commandes = loadUnpaidCommandes(fournisseurId);
+        List<Commande> commandes = loadUnpaidCommandes(fournisseurId, null, null);
         Map<Integer, Long> paidMap = loadPaidAmounts(commandes);
 
         int remaining = command.montant();
         List<PaymentFournisseur> toSave = new ArrayList<>();
         LocalDate paymentDate = LocalDate.parse(command.dateReglement(), DateTimeFormatter.ISO_DATE);
 
+        // Si commandeId fourni, imputer sur ce BL en priorité
+        if (command.commandeId() != null) {
+            remaining = imputerSurCommande(command.commandeId(), commandes, paidMap, remaining,
+                paymentDate, command, toSave);
+        }
+
+        // Distribuer le restant sur les autres commandes (FIFO)
         for (Commande commande : commandes) {
             if (remaining <= 0) break;
+            if (command.commandeId() != null && intId(commande).equals(command.commandeId())) continue;
 
             long alreadyPaid = paidMap.getOrDefault(intId(commande), 0L);
             long restant = (long) Objects.requireNonNullElse(commande.getGrossAmount(), 0) - alreadyPaid;
@@ -184,21 +196,7 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
 
             int allocated = (int) Math.min(remaining, restant);
             remaining -= allocated;
-
-            PaymentFournisseur pf = new PaymentFournisseur();
-            pf.setId(idGenerator.nextId());
-            pf.setCommande(commande);
-            pf.setTransactionDate(paymentDate);
-            pf.setPaidAmount(allocated);
-            pf.setReelAmount(allocated);
-            pf.setExpectedAmount((int) restant);
-            pf.setMontantVerse(command.montant());
-            pf.setTypeFinancialTransaction(TypeFinancialTransaction.REGLMENT_FOURNISSEUR);
-            pf.setCashRegister(cashRegisterService.getCashRegister());
-            pf.setPaymentMode(new PaymentMode().code(command.modeReglement()));
-            pf.setTransactionNumber(command.reference());
-            pf.setCommentaire(command.commentaire());
-            toSave.add(pf);
+            toSave.add(buildPayment(commande, allocated, (int) restant, command.montant(), paymentDate, command));
 
             if (alreadyPaid + allocated >= (long) Objects.requireNonNullElse(commande.getGrossAmount(), 0)) {
                 commande.setPaimentStatut(PaimentStatut.PAID);
@@ -209,7 +207,96 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
         paymentFournisseurRepository.saveAll(toSave);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] exportComptesAsPdf(LocalDate fromDate, LocalDate toDate) {
+        List<CompteFournisseurAPDTO> comptes = getComptes(fromDate, toDate);
+        FournisseurAPSummaryDTO summary = getSummary();
+        return pdfExportService.exportGlobal(comptes, summary, fromDate, toDate);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] exportFournisseurAsPdf(Integer fournisseurId) {
+        List<Commande> commandes = loadUnpaidCommandes(fournisseurId, null, null);
+        Map<Integer, Long> paidMap = loadPaidAmounts(commandes);
+
+        if (commandes.isEmpty()) {
+            return pdfExportService.exportGlobal(List.of(), null, null, null);
+        }
+
+        CompteFournisseurAPDTO compte = buildCompteFournisseur(commandes, paidMap);
+        LocalDate now = LocalDate.now();
+        List<LigneFournisseurAPDTO> lignes = commandes.stream()
+            .map(c -> {
+                long montant = (long) Objects.requireNonNullElse(c.getGrossAmount(), 0);
+                long montantRegle = paidMap.getOrDefault(intId(c), 0L);
+                long restantDu = montant - montantRegle;
+                LocalDate ech = computeEcheance(c);
+                StatutLigneFournisseurAP s = computeStatutLigne(c.getPaimentStatut(), montantRegle, ech, now);
+                String numBon = Objects.requireNonNullElse(c.getReceiptReference(), c.getOrderReference());
+                return new LigneFournisseurAPDTO(intId(c), numBon, c.getOrderDate().toString(), ech.toString(), montant, montantRegle, restantDu, s.name());
+            })
+            .sorted(Comparator.comparing(LigneFournisseurAPDTO::dateCommande))
+            .collect(Collectors.toList());
+
+        return pdfExportService.exportFournisseur(compte, lignes);
+    }
+
     // ── Helpers ────────────────────────────────────────────────────────────────
+
+    private int imputerSurCommande(
+        Integer commandeId,
+        List<Commande> commandes,
+        Map<Integer, Long> paidMap,
+        int remaining,
+        LocalDate paymentDate,
+        ReglementFournisseurAPCommand command,
+        List<PaymentFournisseur> toSave
+    ) {
+        for (Commande commande : commandes) {
+            if (!intId(commande).equals(commandeId)) continue;
+
+            long alreadyPaid = paidMap.getOrDefault(intId(commande), 0L);
+            long restant = (long) Objects.requireNonNullElse(commande.getGrossAmount(), 0) - alreadyPaid;
+            if (restant <= 0) break;
+
+            int allocated = (int) Math.min(remaining, restant);
+            remaining -= allocated;
+            toSave.add(buildPayment(commande, allocated, (int) restant, command.montant(), paymentDate, command));
+
+            if (alreadyPaid + allocated >= (long) Objects.requireNonNullElse(commande.getGrossAmount(), 0)) {
+                commande.setPaimentStatut(PaimentStatut.PAID);
+                commandeRepository.save(commande);
+            }
+            break;
+        }
+        return remaining;
+    }
+
+    private PaymentFournisseur buildPayment(
+        Commande commande,
+        int allocated,
+        int restant,
+        int montantVerse,
+        LocalDate paymentDate,
+        ReglementFournisseurAPCommand command
+    ) {
+        PaymentFournisseur pf = new PaymentFournisseur();
+        pf.setId(idGenerator.nextId());
+        pf.setCommande(commande);
+        pf.setTransactionDate(paymentDate);
+        pf.setPaidAmount(allocated);
+        pf.setReelAmount(allocated);
+        pf.setExpectedAmount(restant);
+        pf.setMontantVerse(montantVerse);
+        pf.setTypeFinancialTransaction(TypeFinancialTransaction.REGLMENT_FOURNISSEUR);
+        pf.setCashRegister(cashRegisterService.getCashRegister());
+        pf.setPaymentMode(new PaymentMode().code(command.modeReglement()));
+        pf.setTransactionNumber(command.reference());
+        pf.setCommentaire(command.commentaire());
+        return pf;
+    }
 
     private CompteFournisseurAPDTO buildCompteFournisseur(List<Commande> fCmds, Map<Integer, Long> paidMap) {
         Fournisseur f = fCmds.getFirst().getFournisseur();
@@ -249,7 +336,7 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
             : StatutCompteFournisseur.A_JOUR;
 
         return new CompteFournisseurAPDTO(
-            f.getId(), f.getLibelle(), f.getCode(), f.getPhone(),
+            f.getId(), f.getLibelle(), f.getCode(), f.getPhone(), f.getMobile(),
             totalCommande, totalRegle, totalCommande - totalRegle,
             nbEnAttente,
             prochaineEcheance != null ? prochaineEcheance.toString() : null,
@@ -293,11 +380,12 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
         return StatutLigneFournisseurAP.EN_ATTENTE;
     }
 
-    private List<Commande> loadUnpaidCommandes(Integer fournisseurId) {
+    private List<Commande> loadUnpaidCommandes(Integer fournisseurId, LocalDate fromDate, LocalDate toDate) {
         if (fournisseurId != null) {
-            return commandeRepository.findUnpaidCommandesApByFournisseur(RECEIVED_STATUTS, PaimentStatut.PAID, fournisseurId);
+            return commandeRepository.findUnpaidCommandesApByFournisseurAndPeriod(
+                RECEIVED_STATUTS, PaimentStatut.PAID, fournisseurId, fromDate, toDate);
         }
-        return commandeRepository.findUnpaidCommandesAp(RECEIVED_STATUTS, PaimentStatut.PAID);
+        return commandeRepository.findUnpaidCommandesApByPeriod(RECEIVED_STATUTS, PaimentStatut.PAID, fromDate, toDate);
     }
 
     private Map<Integer, Long> loadPaidAmounts(List<Commande> commandes) {

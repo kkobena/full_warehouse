@@ -61,7 +61,7 @@
             @for (model of availableModels(); track model.value) {
               <div class="model-option-card" [class.selected]="selectedModel() === model.value">
                 <div class="model-option-header">
-                  <p-radioButton name="modelReappro" [value]="model.value" [(ngModel)]="selectedModel" [inputId]="'model-' + model.value" />
+                  <p-radioButton name="modelReappro" [value]="model.value" [ngModel]="selectedModel()" (ngModelChange)="selectedModel.set($event)" [inputId]="'model-' + model.value" />
                   <label [for]="'model-' + model.value" class="model-option-label">
                     {{ model.label }}
                   </label>
@@ -94,11 +94,7 @@
                       <li>Stock mini = Marge de sécurité</li>
                       <li>Quantité réappro = Stock objectif</li>
                     </ul>
-                    <div class="alert alert-warning mt-2 mb-0">
-                      <i class="pi pi-exclamation-triangle me-2"></i>
-                      <strong>Prérequis :</strong> Nécessite la configuration SEMOIS pour chaque produit (classe de criticité, délai de
-                      livraison, etc.).
-                    </div>
+
                   </div>
                 }
               </div>

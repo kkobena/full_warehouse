@@ -72,6 +72,10 @@ public class FournisseurServiceImpl implements FournisseurService {
             .setJoursCritique(fournisseurDTO.getJoursCritique())
             .setPalierRfa(fournisseurDTO.getPalierRfa())
             .setTauxRfa(fournisseurDTO.getTauxRfa())
+            .setUrlPharmaMl(fournisseurDTO.getUrlPharmaMl())
+            .setCodeOfficePharmaMl(fournisseurDTO.getCodeOfficePharmaMl())
+            .setCodeRecepteurPharmaMl(fournisseurDTO.getCodeRecepteurPharmaMl())
+            .setIdRecepteurPharmaMl(fournisseurDTO.getIdRecepteurPharmaMl())
             .groupeFournisseur(
                 new GroupeFournisseur().id(fournisseurDTO.getGroupeFournisseurId() != null ? fournisseurDTO.getGroupeFournisseurId() : 5)
             );

@@ -26,6 +26,9 @@ import { formatCurrency } from "app/shared/utils/format-utils";
 import { DATE_FORMAT_ISO_DATE } from "app/shared/util/warehouse-util";
 import { IconField } from "primeng/iconfield";
 import { InputIcon } from "primeng/inputicon";
+import { NotificationService } from "app/shared/services/notification.service";
+import { NgbConfirmDialogService } from "app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
 
 @Component({
   selector: "app-comptes-fournisseurs",
@@ -60,6 +63,7 @@ export class ComptesFournisseursComponent implements OnInit {
   isLoading = signal(false);
   isLoadingLignes = signal(false);
   isSaving = signal(false);
+  isExporting = signal(false);
 
   panelOpen = signal(false);
   activeTab = signal<string>("commandes");
@@ -71,6 +75,9 @@ export class ComptesFournisseursComponent implements OnInit {
   filtreStatutLignes = signal<StatutLigne | null>(null);
   totalLignes = signal(0);
   readonly PAGE_SIZE = 10;
+
+  fromDate = signal<Date | null>(null);
+  toDate = signal<Date | null>(null);
 
   showHint = signal<boolean>(localStorage.getItem("ap-hint-dismissed") !== "1");
 
@@ -85,6 +92,7 @@ export class ComptesFournisseursComponent implements OnInit {
     { label: "Chèque", value: "CH" },
     { label: "Virement", value: "VIREMENT" },
     { label: "Carte bancaire", value: "CB" }
+   // { label: "Traite/Effet", value: "TRAITE" }
   ];
 
   readonly reglementForm = inject(FormBuilder).group({
@@ -108,9 +116,10 @@ export class ComptesFournisseursComponent implements OnInit {
 
   private readonly api = inject(FournisseurApApiService);
   private readonly destroyRef = inject(DestroyRef);
-
+  private readonly notification = inject(NotificationService);
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
+  private readonly blobDownload = inject(BlobDownloadService);
   constructor() {
-    // Signal Forms — synchronise le signal depuis le contrôle montant
     this.reglementForm
       .get("montant")!
       .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
@@ -131,7 +140,9 @@ export class ComptesFournisseursComponent implements OnInit {
 
   loadComptes(): void {
     this.isLoading.set(true);
-    this.api.getComptes().subscribe({
+    const from = this.fromDate() ? (DATE_FORMAT_ISO_DATE(this.fromDate()!) ?? undefined) : undefined;
+    const to = this.toDate() ? (DATE_FORMAT_ISO_DATE(this.toDate()!) ?? undefined) : undefined;
+    this.api.getComptes(from, to).subscribe({
       next: res => {
         this.comptes.set(res.body ?? []);
         this.isLoading.set(false);
@@ -176,10 +187,16 @@ export class ComptesFournisseursComponent implements OnInit {
     this.reglementForm.reset({
       montant: ligne.restantDu,
       dateReglement: new Date(),
-      modeReglement: "CASH",
+      modeReglement: "CH",
       reference: null,
       commentaire: null
     });
+    this.activeTab.set("regler");
+  }
+
+  regleTout(): void {
+    this.selectedLigne.set(null);
+    this.reglementForm.patchValue({ montant: this.solde() });
     this.activeTab.set("regler");
   }
 
@@ -233,6 +250,22 @@ export class ComptesFournisseursComponent implements OnInit {
     if (!fournisseur) return;
 
     const val = this.reglementForm.getRawValue();
+    const modeLabel = this.modeReglementOptions.find(o => o.value === val.modeReglement)?.label ?? val.modeReglement;
+    const ligne = this.selectedLigne();
+    const blInfo = ligne ? ` — BL ${ligne.numBon}` : "";
+    const message = `Confirmer le règlement de ${this.formatCurrency(val.montant!)} FCFA par ${modeLabel}${blInfo} pour ${fournisseur.fournisseurName} ?`;
+
+    this.confirmDialog.onConfirm(
+      () => this.doSaveReglement(),
+      "Confirmer le règlement",
+      message
+    );
+  }
+
+  private doSaveReglement(): void {
+    const fournisseur = this.selectedFournisseur()!;
+    const val = this.reglementForm.getRawValue();
+
     this.isSaving.set(true);
     this.api
       .enregistrerReglement(fournisseur.fournisseurId, {
@@ -240,19 +273,59 @@ export class ComptesFournisseursComponent implements OnInit {
         dateReglement: DATE_FORMAT_ISO_DATE(val.dateReglement ?? new Date()),
         modeReglement: val.modeReglement!,
         reference: val.reference!,
-        commentaire: val.commentaire ?? undefined
+        commentaire: val.commentaire ?? undefined,
+        commandeId: this.selectedLigne()?.commandeId
       })
       .subscribe({
         next: () => {
           this.isSaving.set(false);
+          this.notification.success("Règlement enregistré avec succès.");
           this.activeTab.set("commandes");
+          this.selectedLigne.set(null);
           this.loadSummary();
           this.loadComptes();
           this.loadLignes(0);
         },
-        error: () => this.isSaving.set(false)
+        error: () => {
+          this.isSaving.set(false);
+          this.notification.error("Erreur lors de l'enregistrement du règlement.");
+        }
       });
   }
+
+  // ── Export ──────────────────────────────────────────────────────────────────
+  exportPdfGlobal(): void {
+    this.isExporting.set(true);
+    const from = this.fromDate() ? (DATE_FORMAT_ISO_DATE(this.fromDate()!) ?? undefined) : undefined;
+    const to = this.toDate() ? (DATE_FORMAT_ISO_DATE(this.toDate()!) ?? undefined) : undefined;
+    this.api.exportComptesAsPdf(from, to).subscribe({
+      next: blob => {
+        this.isExporting.set(false);
+        this.blobDownload.downloadPdf(blob, 'comptes-fournisseurs');
+      },
+      error: () => {
+        this.isExporting.set(false);
+        this.notification.error("Erreur lors de la génération du PDF.");
+      }
+    });
+  }
+
+  exportPdfFournisseur(): void {
+    const fournisseur = this.selectedFournisseur();
+    if (!fournisseur) return;
+    this.isExporting.set(true);
+    this.api.exportFournisseurAsPdf(fournisseur.fournisseurId).subscribe({
+      next: blob => {
+        this.isExporting.set(false);
+        this.blobDownload.downloadPdf(blob, `compte-${fournisseur.fournisseurCode}`);
+      },
+      error: () => {
+        this.isExporting.set(false);
+        this.notification.error("Erreur lors de la génération du PDF.");
+      }
+    });
+  }
+
 
   // ── Hint ───────────────────────────────────────────────────────────────────
   dismissHint(): void {
@@ -261,6 +334,10 @@ export class ComptesFournisseursComponent implements OnInit {
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
+  isSelected(c: ICompteFournisseurAP): boolean {
+    return this.selectedFournisseur()?.fournisseurId === c.fournisseurId;
+  }
+
   getFiltered(): ICompteFournisseurAP[] {
     const q = this.searchText().toLowerCase();
     if (!q) return this.comptes();
@@ -268,7 +345,8 @@ export class ComptesFournisseursComponent implements OnInit {
       c =>
         c.fournisseurName?.toLowerCase().includes(q) ||
         c.fournisseurCode?.toLowerCase().includes(q) ||
-        c.phone?.includes(q)
+        c.phone?.includes(q) ||
+        c.mobile?.includes(q)
     );
   }
 
@@ -284,6 +362,12 @@ export class ComptesFournisseursComponent implements OnInit {
     return "Critique";
   }
 
+  statutTooltip(statut: StatutFournisseur): string {
+    if (statut === "A_JOUR") return "Toutes les commandes sont dans les délais";
+    if (statut === "EN_RETARD") return "Au moins une commande dépasse la date d'échéance";
+    return "Commandes très en retard (délai critique dépassé)";
+  }
+
   ligneSeverity(statut: StatutLigne): string {
     if (statut === "EN_RETARD") return "danger";
     if (statut === "PARTIEL") return "warn";
@@ -293,14 +377,19 @@ export class ComptesFournisseursComponent implements OnInit {
 
   ligneStatutLabel(statut: StatutLigne): string {
     switch (statut) {
-      case "EN_ATTENTE":
-        return "En attente";
-      case "PARTIEL":
-        return "Partiel";
-      case "REGLE":
-        return "Réglé";
-      case "EN_RETARD":
-        return "En retard";
+      case "EN_ATTENTE": return "En attente";
+      case "PARTIEL": return "Partiel";
+      case "REGLE": return "Réglé";
+      case "EN_RETARD": return "En retard";
+    }
+  }
+
+  ligneStatutTooltip(statut: StatutLigne): string {
+    switch (statut) {
+      case "EN_ATTENTE": return "Commande reçue, paiement non encore effectué";
+      case "PARTIEL": return "Paiement partiel enregistré — solde restant";
+      case "REGLE": return "Commande intégralement réglée";
+      case "EN_RETARD": return "Date d'échéance dépassée, aucun paiement enregistré";
     }
   }
 }

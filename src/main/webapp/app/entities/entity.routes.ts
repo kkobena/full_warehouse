@@ -85,7 +85,7 @@ const routes: Routes = [
     path: "parametre",
     data: { pageTitle: "Paramètres", abilitySubject: "parametres" },
     canActivate: [AuthGuard],
-    loadChildren: () => import("./parametre/app.route")
+    loadChildren: () => import("../features/settings/feature/parametre/app.route")
   },
 
   // ── Admin — nav_items sous 'administration' ────────────────────────────────

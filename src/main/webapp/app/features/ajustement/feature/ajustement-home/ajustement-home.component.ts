@@ -135,8 +135,6 @@ export class AjustementHomeComponent implements OnInit {
     });
   }
 
-
-
   protected hasEntrees(lines: IAjustement[]): boolean {
     return lines.some(l => (l.qtyMvt ?? 0) >= 0);
   }

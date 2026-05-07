@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>État des Comptes Fournisseurs</title>
+    <style th:replace="~{common/css}"></style>
+    <style>
+      .kpi-row { display: flex; gap: 16px; margin-bottom: 12px; }
+      .kpi-box { flex: 1; border: 1px solid #ddd; border-radius: 4px; padding: 8px 12px; text-align: center; }
+      .kpi-box .kpi-label { font-size: 10px; color: #666; margin-bottom: 4px; }
+      .kpi-box .kpi-value { font-size: 14px; font-weight: bold; }
+      .kpi-danger .kpi-value { color: #dc3545; }
+      .kpi-warning .kpi-value { color: #e9900a; }
+      .kpi-info .kpi-value { color: #0077aa; }
+      .periode-label { font-size: 11px; color: #555; text-align: center; margin-bottom: 10px; }
+      .badge-critique { background-color: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 9px; }
+      .badge-retard { background-color: #e9900a; color: white; padding: 2px 6px; border-radius: 3px; font-size: 9px; }
+      .badge-ajour { background-color: #28a745; color: white; padding: 2px 6px; border-radius: 3px; font-size: 9px; }
+    </style>
+  </head>
+  <body>
+    <div class="invoice">
+      <header th:replace="~{common/commonheader}"></header>
+
+      <main>
+        <div class="periode-label" th:if="${periode}" th:text="${periode}"></div>
+
+        <!-- KPI résumé -->
+        <div class="kpi-row" th:if="${summary != null}">
+          <div class="kpi-box kpi-danger">
+            <div class="kpi-label">Total dû</div>
+            <div class="kpi-value" th:text="${#numbers.formatInteger(summary.totalDu, 0, 'POINT') + ' FCFA'}"></div>
+          </div>
+          <div class="kpi-box kpi-danger">
+            <div class="kpi-label">Échéances dépassées</div>
+            <div class="kpi-value" th:text="${summary.echeancesDepassees}"></div>
+          </div>
+          <div class="kpi-box kpi-warning">
+            <div class="kpi-label">Échéances J+7</div>
+            <div class="kpi-value" th:text="${summary.echeancesProchaines}"></div>
+          </div>
+          <div class="kpi-box kpi-info">
+            <div class="kpi-label">Fournisseurs actifs</div>
+            <div class="kpi-value" th:text="${summary.nbFournisseursActifs}"></div>
+          </div>
+        </div>
+
+        <!-- Tableau fournisseurs -->
+        <table class="main-table">
+          <thead>
+            <tr>
+              <th>Fournisseur</th>
+              <th>Code</th>
+              <th>Contact</th>
+              <th class="text-right">Total commandé</th>
+              <th class="text-right">Total réglé</th>
+              <th class="text-right">Solde dû</th>
+              <th>Statut</th>
+              <th>Prochaine échéance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="c : ${comptes}">
+              <td th:text="${c.fournisseurName}"></td>
+              <td th:text="${c.fournisseurCode}"></td>
+              <td>
+                <span th:if="${c.phone != null}" th:text="${c.phone}"></span>
+                <span th:if="${c.mobile != null and c.phone != null}"> / </span>
+                <span th:if="${c.mobile != null}" th:text="${c.mobile}"></span>
+              </td>
+              <td class="text-right" th:text="${#numbers.formatInteger(c.totalCommande, 0, 'POINT')}"></td>
+              <td class="text-right" th:text="${#numbers.formatInteger(c.totalRegle, 0, 'POINT')}"></td>
+              <td class="text-right" style="font-weight: bold; color: #dc3545;" th:text="${#numbers.formatInteger(c.solde, 0, 'POINT')}"></td>
+              <td>
+                <span th:if="${c.statut == 'CRITIQUE'}" class="badge-critique">Critique</span>
+                <span th:if="${c.statut == 'EN_RETARD'}" class="badge-retard">En retard</span>
+                <span th:if="${c.statut == 'A_JOUR'}" class="badge-ajour">À jour</span>
+              </td>
+              <td th:text="${c.prochaineEcheance != null ? c.prochaineEcheance : '—'}"></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="5" class="text-right"><strong>Total dû :</strong></td>
+              <td class="text-right" style="font-weight: bold; color: #dc3545;">
+                <span th:text="${#numbers.formatInteger(totalSolde, 0, 'POINT') + ' FCFA'}"></span>
+              </td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div style="font-size: 9px; color: #999; text-align: right; margin-top: 8px;">
+          Généré le <span th:text="${generatedAt}"></span>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

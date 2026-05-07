@@ -75,6 +75,42 @@ public interface CommandeRepository
     );
 
     @Query(
+        "SELECT c FROM Commande c " +
+        "JOIN FETCH c.fournisseur f " +
+        "LEFT JOIN FETCH f.groupeFournisseur " +
+        "WHERE c.orderStatus IN :statuts " +
+        "AND c.paimentStatut != :paid " +
+        "AND (:fromDate IS NULL OR c.orderDate >= :fromDate) " +
+        "AND (:toDate IS NULL OR c.orderDate <= :toDate) " +
+        "ORDER BY c.orderDate ASC"
+    )
+    List<Commande> findUnpaidCommandesApByPeriod(
+        @Param("statuts") Set<OrderStatut> statuts,
+        @Param("paid") PaimentStatut paid,
+        @Param("fromDate") LocalDate fromDate,
+        @Param("toDate") LocalDate toDate
+    );
+
+    @Query(
+        "SELECT c FROM Commande c " +
+        "JOIN FETCH c.fournisseur f " +
+        "LEFT JOIN FETCH f.groupeFournisseur " +
+        "WHERE c.orderStatus IN :statuts " +
+        "AND c.paimentStatut != :paid " +
+        "AND f.id = :fournisseurId " +
+        "AND (:fromDate IS NULL OR c.orderDate >= :fromDate) " +
+        "AND (:toDate IS NULL OR c.orderDate <= :toDate) " +
+        "ORDER BY c.orderDate ASC"
+    )
+    List<Commande> findUnpaidCommandesApByFournisseurAndPeriod(
+        @Param("statuts") Set<OrderStatut> statuts,
+        @Param("paid") PaimentStatut paid,
+        @Param("fournisseurId") Integer fournisseurId,
+        @Param("fromDate") LocalDate fromDate,
+        @Param("toDate") LocalDate toDate
+    );
+
+    @Query(
         "SELECT f.id, f.libelle, SUM(c.grossAmount), " +
         "COALESCE(f.palierRfa, gf.palierRfa), " +
         "COALESCE(f.tauxRfa, gf.tauxRfa) " +

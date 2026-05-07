@@ -9,5 +9,6 @@ public record ReglementFournisseurAPCommand(
     @NotBlank String dateReglement,
     @NotBlank String reference,
     @NotBlank String modeReglement,
-    String commentaire
+    String commentaire,
+    Integer commandeId
 ) {}

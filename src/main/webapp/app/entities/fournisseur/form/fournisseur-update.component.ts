@@ -41,6 +41,7 @@ export class FournisseurUpdateComponent implements OnInit, AfterViewInit {
   groupes: IGroupeFournisseur[] = [];
   header = '';
   isSaving = false;
+  protected blockSpace = /[^\s]/;
   protected fb = inject(UntypedFormBuilder);
   protected editForm = this.fb.group({
     id: [],
@@ -57,6 +58,10 @@ export class FournisseurUpdateComponent implements OnInit, AfterViewInit {
     joursCritique: [],
     palierRfa: [],
     tauxRfa: [],
+    urlPharmaMl: [],
+    codeOfficePharmaMl: [],
+    codeRecepteurPharmaMl: [],
+    idRecepteurPharmaMl: [],
   });
   private readonly entityService = inject(FournisseurService);
   private readonly activeModal = inject(NgbActiveModal);
@@ -94,6 +99,10 @@ export class FournisseurUpdateComponent implements OnInit, AfterViewInit {
       joursCritique: entity.joursCritique,
       palierRfa: entity.palierRfa,
       tauxRfa: entity.tauxRfa,
+      urlPharmaMl: entity.urlPharmaMl,
+      codeOfficePharmaMl: entity.codeOfficePharmaMl,
+      codeRecepteurPharmaMl: entity.codeRecepteurPharmaMl,
+      idRecepteurPharmaMl: entity.idRecepteurPharmaMl,
     });
   }
 
@@ -145,6 +154,10 @@ export class FournisseurUpdateComponent implements OnInit, AfterViewInit {
       joursCritique: this.editForm.get(['joursCritique']).value || null,
       palierRfa: this.editForm.get(['palierRfa']).value || null,
       tauxRfa: this.editForm.get(['tauxRfa']).value || null,
+      urlPharmaMl: this.editForm.get(['urlPharmaMl']).value || null,
+      codeOfficePharmaMl: this.editForm.get(['codeOfficePharmaMl']).value || null,
+      codeRecepteurPharmaMl: this.editForm.get(['codeRecepteurPharmaMl']).value || null,
+      idRecepteurPharmaMl: this.editForm.get(['idRecepteurPharmaMl']).value || null,
     };
   }
 

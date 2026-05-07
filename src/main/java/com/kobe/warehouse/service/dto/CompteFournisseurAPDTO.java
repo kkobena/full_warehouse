@@ -5,6 +5,7 @@ public record CompteFournisseurAPDTO(
     String fournisseurName,
     String fournisseurCode,
     String phone,
+    String mobile,
     long totalCommande,
     long totalRegle,
     long solde,

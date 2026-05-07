@@ -238,7 +238,14 @@ export class NavManagerComponent implements OnInit {
   }
 
   loadRoleItems(): void {
-    if (!this.selectedRole) return;
+    if (!this.selectedRole) {
+      this.flatItems.set([]);
+      this.rawTree.set([]);
+      this.visibleItems.set([]);
+      this.searchTerm.set('');
+      this.collapsedGroups.set(new Set());
+      return;
+    }
     this.loading.set(true);
     this.collapsedGroups.set(new Set());
     this.navApi.getAllNavItemsForRole(this.selectedRole.name).subscribe({

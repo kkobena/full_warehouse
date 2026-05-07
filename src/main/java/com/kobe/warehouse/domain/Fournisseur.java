@@ -91,6 +91,19 @@ public class Fournisseur implements Serializable {
     @Column(name = "identifiant_repartiteur")
     private String identifiantRepartiteur;
 
+    @Column(name = "url_pharma_ml", length = 150)
+    private String urlPharmaMl;
+
+    @Column(name = "code_office_pharma_ml", length = 50)
+    private String codeOfficePharmaMl;
+
+    @Column(name = "code_recepteur_pharma_ml", length = 50)
+    private String codeRecepteurPharmaMl;
+
+    /** Code de l'officine chez le grossiste dans EMETTEUR(id, Id_Client). */
+    @Column(name = "id_recepteur_pharma_ml", length = 50)
+    private String idRecepteurPharmaMl;
+
     public Integer getId() {
         return id;
     }
@@ -288,6 +301,18 @@ public class Fournisseur implements Serializable {
         this.identifiantRepartiteur = identifiantRepartiteur;
         return this;
     }
+
+    public String getUrlPharmaMl() { return urlPharmaMl; }
+    public Fournisseur setUrlPharmaMl(String urlPharmaMl) { this.urlPharmaMl = urlPharmaMl; return this; }
+
+    public String getCodeOfficePharmaMl() { return codeOfficePharmaMl; }
+    public Fournisseur setCodeOfficePharmaMl(String codeOfficePharmaMl) { this.codeOfficePharmaMl = codeOfficePharmaMl; return this; }
+
+    public String getCodeRecepteurPharmaMl() { return codeRecepteurPharmaMl; }
+    public Fournisseur setCodeRecepteurPharmaMl(String codeRecepteurPharmaMl) { this.codeRecepteurPharmaMl = codeRecepteurPharmaMl; return this; }
+
+    public String getIdRecepteurPharmaMl() { return idRecepteurPharmaMl; }
+    public Fournisseur setIdRecepteurPharmaMl(String idRecepteurPharmaMl) { this.idRecepteurPharmaMl = idRecepteurPharmaMl; return this; }
 
     @Override
     public String toString() {

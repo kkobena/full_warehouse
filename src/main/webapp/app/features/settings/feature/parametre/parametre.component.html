@@ -27,9 +27,9 @@
     </div>
 
     @if (apps.length > 0) {
-      <div class="table-responsive mt-2">
+      <div class="table-responsive mt-2" style="max-height: calc(100vh - 200px); overflow-y: auto;">
         <table class="table table-striped">
-          <thead class="pharma-table-head">
+          <thead class="pharma-table-head" style="position: sticky; top: 0; z-index: 1;">
             <tr>
               <th>description</th>
               <th>Valeur</th>

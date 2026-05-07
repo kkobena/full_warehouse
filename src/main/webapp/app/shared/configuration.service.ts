@@ -9,6 +9,17 @@ import { createRequestOption } from "./util/request-util";
 import { SessionStorageService } from "ngx-webstorage";
 import { IPoste } from "./model/poste.model";
 
+export interface ModelReapproOption {
+  value: string;
+  label: string;
+  description: string;
+}
+
+export interface ModelReapproConfig {
+  currentModel: string;
+  availableModels: ModelReapproOption[];
+}
+
 type EntityResponseType = HttpResponse<IConfiguration>;
 type EntityArrayResponseType = HttpResponse<IConfiguration[]>;
 
@@ -84,6 +95,14 @@ export class ConfigurationService {
 
   fetchCurrentPoste(): Observable<HttpResponse<IPoste>> {
     return this.http.get<IPoste>(`${SERVER_API_URL}api/postes/current`, { observe: "response" });
+  }
+
+  getModelReappro(): Observable<HttpResponse<ModelReapproConfig>> {
+    return this.http.get<ModelReapproConfig>(`${this.resourceUrl}/model-reappro`, { observe: "response" });
+  }
+
+  updateModelReappro(model: string): Observable<HttpResponse<void>> {
+    return this.http.put<void>(`${this.resourceUrl}/model-reappro`, null, { params: { model }, observe: "response" });
   }
 
 }

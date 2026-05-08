@@ -14,19 +14,6 @@
     }
     <div class="cr-header-actions">
 
-
-      @if (canReconnectScanner()) {
-        <p-button
-          (click)="reconnectScanner()"
-          icon="pi pi-refresh"
-          label="Reconnecter scanner"
-          severity="warn"
-          size="small"
-          pTooltip="Tenter de reconnecter la douchette USB (si branchée après ouverture ou sortie de veille)"
-          tooltipPosition="bottom"
-        />
-      }
-
       <!-- AX-08 — Taux de service -->
       <p-tag
         [value]="'Taux service : ' + tauxService + '%'"
@@ -140,7 +127,7 @@
           </p-iconfield>
         } @else {
           <span class="cr-serial-badge" pTooltip="Douchette USB série active — lecture automatique" tooltipPosition="bottom">
-            <i class="pi pi-wifi"></i> Scanner série actif
+            <i class="pi pi-wifi"></i>
           </span>
         }
         @if (lastScanResult() !== null) {

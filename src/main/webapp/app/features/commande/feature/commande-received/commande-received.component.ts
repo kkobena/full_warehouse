@@ -877,10 +877,7 @@ export class CommandeReceivedComponent implements OnInit {
 
   /**
    * Démarre le scanner — délègue à {@link ScanOrchestratorService}.
-   * - Récupère le poste courant
-   * - Configure les raccourcis clavier (toujours actifs, indépendants du mode scanner)
-   * - Branche les codes émis par l'orchestrateur sur {@link onScanReception}
-   * - Démarre la détection CDC (fallback HID + retry géré côté orchestrateur)
+   * Détection automatique USB (CDC/HID) sans requête DB — plug-and-play.
    */
   private setupBarcodeScanner(): void {
     this.installShortcutListener();
@@ -898,16 +895,8 @@ export class CommandeReceivedComponent implements OnInit {
       this.scanOrchestrator.teardown();
     });
 
-    if (this.tauriPrinterService.isRunningInTauri()) {
-      this.configurationService.getCurrentPoste()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (res: HttpResponse<IPoste>) => this.scanOrchestrator.setup(res.body?.id ?? undefined),
-          error: () => this.scanOrchestrator.setup()
-        });
-    } else {
-      this.scanOrchestrator.setup();
-    }
+    // L'orchestrateur détecte lui-même si Tauri est disponible et le mode USB (CDC/HID)
+    void this.scanOrchestrator.setup();
   }
 
   /** Listener clavier raccourcis — actif en permanence quel que soit le mode scanner. */

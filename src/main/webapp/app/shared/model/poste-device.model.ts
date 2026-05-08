@@ -1,5 +1,31 @@
 export type DeviceType = 'SCANNER' | 'DISPLAY' | 'PRINTER';
 
+/**
+ * Mode de connexion USB d'une douchette code-barres.
+ * Retourné par la commande Tauri `detect_scanner_usb_mode`.
+ *
+ * - `"CDC"` → scanner en mode COM série (USB CDC-ACM) : port COM créé par Windows.
+ * - `"HID"` → scanner en mode clavier virtuel (USB HID) : frappes clavier standard.
+ * - `"NOT_CONNECTED"` → aucun scanner reconnu dans le système.
+ *
+ * Un scanner CDC ne peut PAS envoyer de frappes clavier sans reconfiguration
+ * manuelle (codes-barres dans le manuel d'utilisation) — et vice-versa pour HID.
+ */
+export type ScannerUsbModeValue = 'CDC' | 'HID' | 'NOT_CONNECTED';
+
+export interface IScannerUsbMode {
+  /** `"CDC"` | `"HID"` | `"NOT_CONNECTED"` */
+  mode: ScannerUsbModeValue;
+  /** Ex: `"COM7"` — rempli uniquement si `mode === "CDC"`. */
+  portName?: string;
+  /** VID USB du device détecté (ex: `0x05E0` pour Zebra). */
+  vid?: number;
+  /** PID USB du device détecté. */
+  pid?: number;
+  /** Fabricant déduit du VID (ex: `"Zebra/Symbol"`). */
+  manufacturer?: string;
+}
+
 export interface IPosteDevice {
   id?: number;
   posteId?: number;

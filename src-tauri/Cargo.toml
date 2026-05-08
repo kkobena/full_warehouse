@@ -53,6 +53,9 @@ windows = { version = "0.62.2", features = [
   "Win32_System_Threading",
   # GetModuleHandleW — HMODULE pour WM_DEVICECHANGE (scanner.rs)
   "Win32_System_LibraryLoader",
+  # SetupDiGetClassDevsW / SetupDiEnumDeviceInfo / SPDRP_HARDWAREID
+  # — détection CDC vs HID (scanner.rs — detect_scanner_usb_mode)
+  "Win32_Devices_DeviceAndDriverInstallation",
 ] }
 
 [profile.dev]

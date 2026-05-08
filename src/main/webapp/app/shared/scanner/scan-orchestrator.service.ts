@@ -1,8 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { firstValueFrom, Observable, Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { TauriDeviceDetectionService } from '../services/tauri-device-detection.service';
-import { PosteDeviceService } from '../../features/settings/feature/poste/poste-device.service';
 import { NotificationService } from '../services/notification.service';
 
 export interface ScanOrchestratorConfig {
@@ -31,12 +30,18 @@ export interface ScanErrorPayload {
  * Orchestrateur unifié HID + Tauri SERIAL (USB CDC).
  *
  * Mécanismes :
- *  - Détection automatique du scanner CDC au démarrage
- *  - Fallback HID si aucun device CDC connecté
- *  - Retry périodique CDC (8 s × 10 max) après fallback
- *  - Reconnexion auto sur scan-error (déconnexion / veille)
- *  - Bouton reconnexion manuelle (canReconnect)
- *  - Délai de grâce 300 ms après start_scanner_listener (vide le buffer UART)
+ *  - `detectScannerUsbMode()` : détecte en ~10 ms si la douchette est en mode CDC ou HID
+ *      via les VID USB reconnus (Zebra DS2208 → 0x05E0, Honeywell → 0x0C2E, Netum → 0x28E9…).
+ *      • CDC  → connexion directe sur le port détecté (pas de requête DB).
+ *      • HID  → `setupHid('HID')` immédiat (pas de tentative port série).
+ *  - Reconnexion auto WM_DEVICECHANGE (déclencheur primaire côté Rust).
+ *  - Retry périodique CDC avec backoff exponentiel (filet de sécurité).
+ *  - Bouton reconnexion manuelle (canReconnect).
+ *  - Délai de grâce 300 ms après start_scanner_listener (vide le buffer UART).
+ *
+ * Aucune requête base de données — 100 % plug-and-play.
+ * Le paramètre `posteId` de `setup()` est conservé pour compatibilité d'API descendante
+ * mais n'est plus utilisé en interne.
  *
  * Doit être déclaré en `providers` au niveau composant — instance isolée par contexte.
  * Avant tout `setup()`, appeler `configure()` pour fournir source HID + nom d'event Tauri.
@@ -44,140 +49,96 @@ export interface ScanErrorPayload {
 @Injectable()
 export class ScanOrchestratorService {
   private readonly tauriDevice = inject(TauriDeviceDetectionService);
-  private readonly posteDevService = inject(PosteDeviceService);
   private readonly notification = inject(NotificationService);
 
   /** État interne typé. */
   readonly status = signal<ScannerStatus>('IDLE');
 
-  /** Compatibilité ascendante : 'SERIAL' | 'HID' | null (utilisé par les badges UI existants). */
+  /**
+   * Compatibilité ascendante — utilisé par les badges UI existants.
+   *  - `SERIAL`   → `'SERIAL'`
+   *  - `HID`      → `'HID'`
+   *  - `RETRYING` → `'HID'` : HID est actif comme fallback pendant les retries CDC
+   *  - `DETECTING`→ `null`  : détection en cours, aucun mode confirmé
+   *  - `IDLE`     → `null`
+   */
   readonly scannerMode = computed<'SERIAL' | 'HID' | null>(() => {
     const s = this.status();
     if (s === 'SERIAL') return 'SERIAL';
     if (s === 'HID' || s === 'RETRYING') return 'HID';
-    return null;
+    return null; // IDLE | DETECTING
   });
 
+  /**
+   * Vrai si au moins une connexion SERIAL a été établie avec succès dans cette session.
+   * Évite d'afficher le bouton "Reconnecter" quand aucun scanner n'a jamais fonctionné.
+   */
+  private readonly _hadSerial = signal(false);
+
+  /**
+   * Bouton reconnexion visible si :
+   *  - Tauri disponible (app desktop)
+   *  - Mode HID actif (= RETRYING ou HID pur)
+   *  - Une connexion SERIAL a déjà réussi dans cette session
+   *    (évite d'afficher le bouton si la douchette n'a jamais été en mode CDC)
+   */
   readonly canReconnect = computed(
-    () => this.tauriDevice.isTauriAvailable() && this.scannerMode() === 'HID' && this.currentPosteId !== null,
+    () => this.tauriDevice.isTauriAvailable() && this.scannerMode() === 'HID' && this._hadSerial(),
   );
 
   private readonly _onScan$ = new Subject<string>();
   readonly onScan$: Observable<string> = this._onScan$.asObservable();
 
   private config: ScanOrchestratorConfig | null = null;
-  private currentPosteId: number | null = null;
   private unlistenScan: (() => void) | null = null;
   private unlistenError: (() => void) | null = null;
-  /** Timer pour le prochain retry CDC (setTimeout récursif → backoff exponentiel). */
+  /** Timer retry CDC (backoff exponentiel). */
   private cdcRetryTimer: ReturnType<typeof setTimeout> | null = null;
   private cdcRetryCount = 0;
-  /**
-   * Pas de limite stricte sur le nombre de retries CDC.
-   *
-   * Justification : l'utilisateur peut rebrancher la douchette puis ne scanner
-   * que plusieurs heures plus tard (vente / réception ponctuelle). Si on
-   * abandonne après N tentatives, le scanner reste en HID jusqu'au prochain
-   * teardown manuel — le caissier doit alors cliquer sur "reconnexion".
-   *
-   * Coût d'une tentative au cap (60 s) : 1 appel `available_ports()` Windows
-   * (~5 ms) + éventuellement `serialport::open()`. Négligeable même sur la
-   * journée entière.
-   */
+
   private static readonly RETRY_MAX = Number.MAX_SAFE_INTEGER;
   /** Backoff exponentiel : delay = min(BASE × 2^attempt, CAP). */
-  private static readonly RETRY_BASE_MS = 8000;
-  private static readonly RETRY_CAP_MS = 60000;
+  private static readonly RETRY_BASE_MS = 8_000;
+  private static readonly RETRY_CAP_MS = 60_000;
   private static readonly UART_GRACE_PERIOD_MS = 300;
-  /**
-   * Cooldown après OPEN_FAILED standard : laisse le driver CDC Windows finir son initialisation.
-   * Windows peut prendre 15-30 s après reconnexion physique avant d'être prêt.
-   */
+  /** Cooldown après OPEN_FAILED standard (driver CDC pas encore prêt). */
   private static readonly OPEN_FAILED_COOLDOWN_MS = 10_000;
-  /**
-   * Back-off "filet de sécurité" pour ERROR_GEN_FAILURE (0x1F).
-   *
-   * Le déclencheur PRIMAIRE de reconnexion est l'événement Win32
-   * `WM_DEVICECHANGE / DBT_DEVICEARRIVAL` (émis par le moniteur USB côté Rust
-   * dès que la pile USB du device est prête). Le polling timé n'est qu'un
-   * fallback au cas où l'événement serait raté.
-   *
-   * Cooldowns longs (1 min → 5 min) parce que :
-   *   - chaque `serialport::open()` envoie des transferts USB de contrôle qui,
-   *     sur firmwares CDC bas de gamme, retardent la sortie de l'état
-   *     GEN_FAILURE post-rebranchement
-   *   - on ne veut PAS « poller » : on attend l'événement OS.
-   */
+  /** Cooldowns spécifiques pour ERROR_GEN_FAILURE (0x1F) — back-off long. */
   private static readonly GEN_FAILURE_COOLDOWNS_MS: readonly number[] = [
-    60_000, // 1 min
+    60_000,  // 1 min
     120_000, // 2 min
-    300_000, // 5 min — cap (filet de sécurité uniquement)
+    300_000, // 5 min — cap filet de sécurité
   ];
-  /**
-   * Nombre maximum d'OPEN_FAILED consécutifs (erreurs NON-GEN_FAILURE) avant
-   * d'abandonner et de basculer définitivement en HID (port occupé, baud rate
-   * incorrect, câble défectueux…).
-   */
+  /** Seuil d'OPEN_FAILED non-GEN avant abandon CDC → bascule HID définitive. */
   private static readonly MAX_CONSECUTIVE_OPEN_FAILED = 8;
-  /**
-   * Fragment de message Windows pour l'erreur ERROR_GEN_FAILURE (0x1F).
-   * Détecté dans le champ `details` du payload scan-error.
-   */
   private static readonly WIN_GEN_FAILURE_FRAGMENT = 'ne fonctionne pas correctement';
-  /** Compteur d'échecs OPEN_FAILED consécutifs (réinitialisé sur succès de scan ou DISCONNECTED). */
   private consecutiveOpenFailedCount = 0;
 
-  /** Port et baud rate actifs (retenus pour le watchdog et la reconnexion directe). */
+  /** Port et baud rate retenus pour la reconnexion directe après erreur. */
   private currentPortName: string | null = null;
   private currentBaudRate = 9600;
-  /**
-   * Watchdog "port silencieux" désactivé — timer conservé uniquement pour teardown/clear.
-   *
-   * Le primer CDC Rust (séquence DTR via CreateFileW) gère maintenant l'init CDC
-   * directement dans start_scanner_listener. Fermer une connexion active après 15 s
-   * d'inactivité causait une boucle ERROR_GEN_FAILURE en pharmacie (caissier inactif).
-   */
-  private staleSerialTimer: ReturnType<typeof setTimeout> | null = null;
 
-  /**
-   * Sonde FE indépendante : vérifie périodiquement que le port CDC est toujours
-   * énuméré par le système. Filet de sécurité côté frontend si le thread Rust
-   * rate la détection de débranchement (handle obsolète, heartbeat trop lent).
-   * Active uniquement en `status === 'SERIAL'`.
-   */
+  /** Sonde FE : vérifie périodiquement que le port est toujours énuméré (filet sécurité). */
   private aliveProbeTimer: ReturnType<typeof setInterval> | null = null;
   private static readonly ALIVE_PROBE_INTERVAL_MS = 5_000;
 
-  /**
-   * Écouteur Tauri pour les événements USB Windows émis par le moniteur Rust
-   * (`device_monitor` qui écoute WM_DEVICECHANGE). C'est le déclencheur
-   * primaire de reconnexion : il fire dès que `usbser.sys` a fini d'enregistrer
-   * la nouvelle énumération du device, donc l'ouverture qui suit réussit du
-   * premier coup sans avoir besoin de tirer au hasard.
-   */
+  private unlistenRawMode: (() => void) | null = null;
+  private unlistenRawByteDebug: (() => void) | null = null;
+
+  /** Écouteur WM_DEVICECHANGE/DBT_DEVICEARRIVAL — déclencheur primaire de reconnexion. */
   private unlistenUsbArrived: (() => void) | null = null;
-  /** Debounce des notifications USB (Windows émet parfois plusieurs DBT_DEVICEARRIVAL en rafale). */
+  /** Écouteur WM_DEVICECHANGE/DBT_DEVICEREMOVECOMPLETE — nettoyage immédiat. */
+  private unlistenUsbRemoved: (() => void) | null = null;
   private lastUsbArrivedAt = 0;
   private static readonly USB_ARRIVED_DEBOUNCE_MS = 1_000;
   /**
-   * Délai post-`DBT_DEVICEARRIVAL` avant la 1ère tentative d'ouverture.
-   *
-   * `DBT_DEVICEARRIVAL` fire quand `usbser.sys` enregistre l'interface PnP
-   * du device — soit AVANT que le driver ait fini son init complète. Tenter
-   * un `serialport::open()` trop tôt rate avec ERROR_GEN_FAILURE et chaque
-   * échec pollue la pile USB, retardant la récupération.
-   *
-   * 7 s = compromis pragmatique : assez long pour que la majorité des firmwares
-   * CDC standard (y compris dongles 2.4G) finissent l'init, assez court pour
-   * rester quasi-transparent pour le caissier qui rebranche puis scanne.
+   * Délai post-DBT_DEVICEARRIVAL avant ouverture : laisse usbser.sys finir son init.
+   * 7 s couvre les douchettes filaires (CDC ~200 ms) ET les dongles 2.4G (1-2 s).
    */
   private static readonly USB_ARRIVED_REOPEN_DELAY_MS = 7_000;
 
-  /** Délai de grâce après start_scanner_listener : ignore les codes du buffer UART matériel. */
   private scanReady = false;
-  /** Positionné à true dans teardown() — toutes les callbacks async vérifient ce flag. */
   private destroyed = false;
-  /** Annule la souscription HID active avant d'en créer une nouvelle (évite les doublons). */
   private readonly hidDestroyer$ = new Subject<void>();
 
   configure(config: ScanOrchestratorConfig): void {
@@ -186,27 +147,37 @@ export class ScanOrchestratorService {
 
   /**
    * Démarre le scanner.
-   * Si Tauri + posteId → tente CDC, fallback HID + retry.
-   * Sinon → HID direct.
+   *
+   * Séquence (Tauri disponible) :
+   *  1. `detectScannerUsbMode()` — détecte CDC / HID / NOT_CONNECTED en ~10 ms.
+   *     • `HID`           → `setupHid('HID')` immédiat.
+   *     • `CDC` + port    → `startSerialListener()` direct.
+   *     • `NOT_CONNECTED` → `RETRYING` + attente `WM_DEVICECHANGE`.
+   *  2. Tauri absent → `setupHid('HID')` direct (navigateur web).
+   *
+   * Le paramètre `_posteId` est conservé pour compatibilité API descendante uniquement.
    */
-  async setup(posteId?: number): Promise<void> {
+  async setup(_posteId?: number): Promise<void> {
     if (!this.config) {
       throw new Error('ScanOrchestratorService.configure() doit être appelé avant setup()');
     }
-    this.destroyed = false; // réinitialiser au cas où le composant réutilise l'instance
-    if (posteId !== undefined && posteId !== null) {
-      this.currentPosteId = posteId;
-    }
-    if (this.tauriDevice.isTauriAvailable() && this.currentPosteId) {
-      // Attache l'écouteur USB une seule fois — fire-and-forget pour ne pas
-      // bloquer le setup. Si l'attachement échoue, on retombera sur le timer
-      // de back-off, mais en pratique l'écouteur est dispo dès le boot.
+    this.destroyed = false;
+    this.stopRetry();
+    this.cdcRetryCount = 0;
+
+    if (this.tauriDevice.isTauriAvailable()) {
       void this.setupUsbDeviceListener();
       this.status.set('DETECTING');
-      const started = await this.trySetupCdc(this.currentPosteId);
-      if (started) return;
-      this.setupHid('RETRYING');
-      this.startCdcRetry(this.currentPosteId);
+
+      const started = await this.tryConnectCdc();
+      if (this.destroyed) return;
+      if (!started) {
+        // Aucun scanner CDC/HID détecté : activer HID comme fallback temporaire
+        // (saisie clavier active pendant les retries CDC).
+        // La souscription HID sera annulée par hidDestroyer$ dès que startSerialListener réussit.
+        this.setupHid('RETRYING');
+        this.scheduleRetry(); // backoff initial : 8 s
+      }
       return;
     }
     this.setupHid('HID');
@@ -214,41 +185,37 @@ export class ScanOrchestratorService {
 
   /** Stoppe proprement HID + SERIAL + retry. À appeler dans onDestroy du composant. */
   async teardown(): Promise<void> {
-    this.destroyed = true; // guard : empêche tout callback async de continuer après destroy
-    this.stopCdcRetry();
+    this.destroyed = true;
+    this.stopRetry();
     this.stopAliveProbe();
     this.detachUsbDeviceListener();
     this.hidDestroyer$.next();
     this.config?.hidDisable();
     this.unlistenScan?.();
     this.unlistenError?.();
+    this.unlistenRawMode?.();
+    this.unlistenRawByteDebug?.();
     this.unlistenScan = null;
     this.unlistenError = null;
+    this.unlistenRawMode = null;
+    this.unlistenRawByteDebug = null;
     this.scanReady = false;
     this.consecutiveOpenFailedCount = 0;
-    this.clearStaleSerialWatchdog();
-    // Toujours arrêter le thread Rust, quel que soit le statut courant :
-    // si le composant est détruit en état RETRYING, le thread Rust peut quand même
-    // être en cours (ou dans un état intermédiaire) et verrouiller le port COM.
+    this._hadSerial.set(false);
     if (this.tauriDevice.isTauriAvailable()) {
       try {
         const { invoke } = await import('@tauri-apps/api/core');
-        // Arrêt ciblé si le port est connu, sinon fallback global.
         const stopArgs = this.currentPortName ? { portName: this.currentPortName } : { portName: '' };
         await invoke('stop_scanner_listener', stopArgs);
-      } catch {
-        /* déjà fermé ou jamais démarré */
-      }
+      } catch { /* déjà fermé */ }
     }
     this.status.set('IDLE');
   }
 
   /** Reconnexion manuelle (bouton header). */
   async reconnect(): Promise<void> {
-    if (!this.currentPosteId) return;
-    this.stopCdcRetry();
     this.consecutiveOpenFailedCount = 0;
-    await this.setup(this.currentPosteId);
+    await this.setup();
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -266,71 +233,95 @@ export class ScanOrchestratorService {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Mode SERIAL (Tauri CDC)
+  // Détection + connexion CDC (utilisée par setup() ET le retry loop)
   // ─────────────────────────────────────────────────────────────────────────
 
-  private async trySetupCdc(posteId: number): Promise<boolean> {
+  /**
+   * Tente une détection + connexion en deux passes :
+   *
+   * **Passe 1 — `detectScannerUsbMode()`** (~10 ms, VID filtré côté Rust) :
+   *  - `HID`  → active la capture clavier immédiatement, retourne `true`
+   *  - `CDC`  → connexion directe sur le port détecté, retourne le résultat
+   *
+   * **Passe 2 — `listSerialPorts()` (fallback plug-and-play)** :
+   *  Exécutée si la passe 1 retourne `NOT_CONNECTED` (VID non reconnu par
+   *  `detect_scanner_usb_mode`, ou port COM non encore lié au VID dans le
+   *  registre Windows). Filtre par `suggestedRole === 'scanner'` — même logique
+   *  que l'ancienne étape 3 de `trySetupCdc()`, qui fonctionnait sur Zebra DS2208.
+   */
+  private async tryConnectCdc(): Promise<boolean> {
     if (this.destroyed) return false;
     try {
-      // 1. Device préféré (actif en base)
-      const activeRes = await firstValueFrom(this.posteDevService.getActiveDevice(posteId, 'SCANNER'));
-      if (this.destroyed) return false; // composant détruit pendant la requête HTTP
-      const device = activeRes.body;
-      if (device?.portName) {
-        const connected = await this.tauriDevice.isPortConnected(device.portName);
-        if (this.destroyed) return false;
-        if (connected) {
-          // Délai de stabilisation : le driver usbser (Windows) peut mettre 1-2 s
-          // après avoir enregistré le port avant que celui-ci soit réellement ouvrable.
-          await ScanOrchestratorService.driverStabilizationDelay();
-          if (this.destroyed) return false;
-          return this.startSerialListener(device.portName, device.baudRate ?? 9600);
-        }
-      }
-      // 2. Fallback batch sur tous les scanners du poste
-      const allRes = await firstValueFrom(this.posteDevService.fetchAll(posteId, 'SCANNER'));
+
+      const usbMode = await this.tauriDevice.detectScannerUsbMode();
       if (this.destroyed) return false;
-      const devices = (allRes.body ?? []).filter(d => d.portName);
-      if (devices.length) {
-        const statuses = await this.tauriDevice.checkPortsConnection(devices.map(d => d.portName!));
+
+      if (usbMode.mode === 'HID') {
+        const label = usbMode.manufacturer ?? `VID ${usbMode.vid?.toString(16) ?? '?'}`;
+        console.info(`[ScanOrchestrator] Scanner ${label} détecté en mode HID — saisie clavier directe`);
+        this.notification.info(`Scanner ${label} en mode clavier (HID) — scan par frappe active`, 'Scanner');
+        this.setupHid('HID');
+        return true;
+      }
+
+      if (usbMode.mode === 'CDC' && usbMode.portName) {
+        const label = usbMode.manufacturer ?? usbMode.portName;
+        console.info(`[ScanOrchestrator] Scanner CDC ${label} sur ${usbMode.portName} — connexion directe`);
+        await ScanOrchestratorService.driverStabilizationDelay();
         if (this.destroyed) return false;
-        const found = devices.find(d => statuses.some(s => s.portName === d.portName && s.connected));
-        if (found?.portName) {
-          await ScanOrchestratorService.driverStabilizationDelay();
-          if (this.destroyed) return false;
-          return this.startSerialListener(found.portName, found.baudRate ?? 9600);
-        }
+        return this.startSerialListener(usbMode.portName, 9600);
       }
     } catch (err) {
-      // Ne pas logger ni tenter de fallback si le composant a été détruit entre-temps
-      // (cas typique : NG0205 — l'injecteur Angular a été détruit pendant un await HTTP)
       if (this.destroyed) return false;
-      console.warn('[ScanOrchestrator] Erreur détection CDC, fallback HID:', err);
+      console.warn('[ScanOrchestrator] detect_scanner_usb_mode échoué, passage au fallback:', err);
     }
+
+
+    // Filet si detect_scanner_usb_mode ne reconnaît pas le VID (ex: firmware
+    // personnalisé, scanner générique, pilote virtuel COM).
+    try {
+      const systemPorts = await this.tauriDevice.listSerialPorts();
+      if (this.destroyed) return false;
+      const autoPort = systemPorts.find(p => p.suggestedRole === 'scanner');
+      if (autoPort?.portName) {
+        const label = autoPort.manufacturer ?? autoPort.portName;
+        console.info(
+          `[ScanOrchestrator] Plug-and-play fallback : ${autoPort.portName} (${label})` +
+          ` — démarrage CDC sans enregistrement préalable`,
+        );
+        await ScanOrchestratorService.driverStabilizationDelay();
+        if (this.destroyed) return false;
+        return this.startSerialListener(autoPort.portName, 9600);
+      }
+    } catch (err) {
+      if (this.destroyed) return false;
+      console.warn('[ScanOrchestrator] Fallback listSerialPorts échoué:', err);
+    }
+
+    console.info('[ScanOrchestrator] Aucun scanner détecté — attente rebranchement USB');
     return false;
   }
 
   /**
-   * Délai de stabilisation du driver usbser (Windows).
-   *
-   * 1500 ms : marge générique couvrant les douchettes filaires (CDC standard,
-   * ~200 ms) ET les douchettes 2.4G/Bluetooth dont le dongle a besoin de
-   * ré-énumérer USB + ré-appairer la radio (1-2 s).
-   * Le surcoût n'est facturé qu'à l'ouverture (setup initial / reconnexion),
-   * pas pendant la lecture.
+   * Délai de stabilisation driver usbser.
+   * 1500 ms : couvre filaires CDC (~200 ms) ET dongles 2.4G (1-2 s).
    */
   private static driverStabilizationDelay(): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, 1500));
   }
 
   /**
-   * Démarre le listener Tauri sur le port série et enregistre les unlisten callbacks.
-   * Séquence sécurisée :
-   *  1. stop_scanner_listener global (arrête TOUS les threads Rust → libère le handle)
-   *  2. Attente 800 ms — laisse le driver libérer le handle UART
-   *  3. start_scanner_listener (nouveau thread Rust)
-   *  4. Délai 300 ms → vide le buffer UART matériel
-   *  5. scanReady = true → début de la capture réelle
+   * Démarre le listener Tauri sur le port série.
+   *
+   * Séquence :
+   *  1. stop_scanner_listener ciblé → libère le handle Rust
+   *  2. 800 ms → driver usbser libère le handle UART
+   *  3. start_scanner_listener
+   *  4. 300 ms grace → vide le buffer UART matériel
+   *  5. scanReady = true
+   *
+   * @param portName - Port COM cible (ex: "COM7").
+   * @param baudRate - Baud rate (défaut 9600).
    */
   private async startSerialListener(portName: string, baudRate: number): Promise<boolean> {
     if (!this.config) return false;
@@ -338,283 +329,194 @@ export class ScanOrchestratorService {
       const { invoke } = await import('@tauri-apps/api/core');
       const { listen } = await import('@tauri-apps/api/event');
 
-      // Arrêt ciblé en priorité (Rust identifie le thread par portName).
-      // Si le portName est inconnu, on tente un arrêt global en fallback.
-      // Dans les deux cas on capture l'erreur : idempotent si déjà arrêté.
       const knownPort = this.currentPortName ?? portName;
       try {
         await invoke('stop_scanner_listener', { portName: knownPort });
       } catch {
-        try {
-          // Fallback global : arrête tous les listeners actifs
-          await invoke('stop_scanner_listener', { portName: '' });
-        } catch {
-          /* aucun listener actif — ignoré */
-        }
+        try { await invoke('stop_scanner_listener', { portName: '' }); } catch { /* ignoré */ }
       }
-      // 800 ms : laisse le driver usbser.sys / FTDI libérer le handle UART.
-      // Empiriquement nécessaire sur Windows pour éviter ERROR_GEN_FAILURE (#0x1F)
-      // quand le port était déjà détenu par un précédent thread Rust.
+
       await new Promise(resolve => setTimeout(resolve, 800));
       if (this.destroyed) return false;
       console.info(`[ScanOrchestrator] Ouverture ${portName} @ ${baudRate} bps`);
 
+      await invoke('start_scanner_listener', { portName, baudRate, eventName: this.config.eventName });
 
-      await invoke('start_scanner_listener', {
-        portName,
-        baudRate,
-        eventName: this.config.eventName,
-      });
-
-      this.stopCdcRetry();
-      this.clearStaleSerialWatchdog();
+      this.stopRetry();
       this.scanReady = false;
       this.currentPortName = portName;
       this.currentBaudRate = baudRate;
+      this._hadSerial.set(true);
       this.status.set('SERIAL');
       this.startAliveProbe();
 
-      // Nettoyage des anciens listeners avant réenregistrement (cas reconnexion)
       this.unlistenScan?.();
       this.unlistenError?.();
+      this.unlistenRawMode?.();
+      this.unlistenRawByteDebug?.();
 
       this.unlistenScan = await listen<string>(this.config.eventName, ev => {
         if (!this.scanReady) return;
-        this.clearStaleSerialWatchdog();
         if (this.consecutiveOpenFailedCount > 0 || this.cdcRetryCount > 0) {
           this.consecutiveOpenFailedCount = 0;
-          this.notification.info('Scanner CDC connecté — mode série actif', 'Scanner');
         }
         this._onScan$.next(ev.payload);
       });
 
-      // Écouter la confirmation du mode CDC brut (fallback open_raw côté Rust)
-      // Émis quand serialport::open() a échoué mais CreateFileW/ReadFile fonctionne.
-      const unlistenRaw = await listen<string>('scan-raw-mode', () => {
+      this.unlistenRawMode = await listen<string>('scan-raw-mode', () => {
         console.info(`[ScanOrchestrator] Mode CDC brut actif sur ${portName} (bypass GetCommState)`);
         this.consecutiveOpenFailedCount = 0;
-        this.notification.info(`Scanner ${portName} connecté — mode CDC brut actif`, 'Scanner');
         this.scanReady = true;
       });
 
-      // Diagnostic : premier octet reçu via ReadFile (confirme que les données circulent)
-      const unlistenRawByte = await listen<number>('scan-raw-byte', ev => {
-        console.info(`[ScanOrchestrator] Premier octet reçu en mode brut : 0x${ev.payload.toString(16)} ('${String.fromCharCode(ev.payload)}')`);
+      this.unlistenRawByteDebug = await listen<number>('scan-raw-byte', ev => {
+        console.info(
+          `[ScanOrchestrator] Premier octet brut : 0x${ev.payload.toString(16)}` +
+          ` ('${String.fromCharCode(ev.payload)}')`,
+        );
       });
 
-      const originalUnlistenScan = this.unlistenScan;
-      this.unlistenScan = () => { originalUnlistenScan?.(); unlistenRaw(); unlistenRawByte(); };
-
       this.unlistenError = await listen<ScanErrorPayload>('scan-error', ev => {
-        const { code, portName } = ev.payload;
+        const { code, portName: errPort } = ev.payload;
 
         this.scanReady = false;
         this.stopAliveProbe();
-        this.clearStaleSerialWatchdog();
-        this.unlistenScan?.();
-        this.unlistenError?.();
-        this.unlistenScan = null;
-        this.unlistenError = null;
+        this.unlistenScan?.(); this.unlistenError?.(); this.unlistenRawMode?.(); this.unlistenRawByteDebug?.();
+        this.unlistenScan = null; this.unlistenError = null; this.unlistenRawMode = null; this.unlistenRawByteDebug = null;
 
         if (code === 'OPEN_FAILED') {
           this.consecutiveOpenFailedCount++;
           const isGenFailure = ev.payload.details?.includes(ScanOrchestratorService.WIN_GEN_FAILURE_FRAGMENT) ?? false;
 
-          // ── Gestion ERROR_GEN_FAILURE ────────────────────────────────────
-          // Pas d'abandon, pas de notification utilisateur : la reconnexion
-          // est gérée par l'événement Win32 `scan-usb-arrived` (cf.
-          // setupUsbDeviceListener). Le timer de retry n'est qu'un filet
-          // de sécurité avec back-off long pour ne pas polluer la pile USB.
+          // ── GEN_FAILURE : driver CDC pas encore prêt, attente WM_DEVICECHANGE ──────
           if (isGenFailure) {
             const attempt = this.consecutiveOpenFailedCount;
-            const cooldownMs =
-              ScanOrchestratorService.GEN_FAILURE_COOLDOWNS_MS[
-                Math.min(attempt - 1, ScanOrchestratorService.GEN_FAILURE_COOLDOWNS_MS.length - 1)
-              ];
-
+            const cooldownMs = ScanOrchestratorService.GEN_FAILURE_COOLDOWNS_MS[
+              Math.min(attempt - 1, ScanOrchestratorService.GEN_FAILURE_COOLDOWNS_MS.length - 1)
+            ];
             console.warn(
-              `[ScanOrchestrator] OPEN_FAILED #${attempt} sur ${portName} ` +
-                `[ERROR_GEN_FAILURE] — attente passive de WM_DEVICECHANGE, ` +
-                `filet de sécurité dans ${cooldownMs / 1000} s.`,
+              `[ScanOrchestrator] OPEN_FAILED #${attempt} sur ${errPort} ` +
+              `[GEN_FAILURE] — filet de sécurité dans ${cooldownMs / 1000} s`,
             );
-
-            this.setupHid('RETRYING');
-            if (this.currentPosteId) {
-              this.startCdcRetry(this.currentPosteId, { resetCount: false, cooldownMs });
-            }
+            this.status.set('RETRYING');
+            this.scheduleRetry({ resetCount: false, delayMs: cooldownMs });
             return;
           }
 
+          // ── Autres OPEN_FAILED : port occupé / baud rate / câble ──────────────────
           const cooldownMs = ScanOrchestratorService.OPEN_FAILED_COOLDOWN_MS;
           console.warn(
-            `[ScanOrchestrator] OPEN_FAILED #${this.consecutiveOpenFailedCount} sur ${portName}` +
-              ` — baud rate: ${this.currentBaudRate} bps` +
-              ` — détails: ${ev.payload.details}` +
-              ` — prochain essai dans ${cooldownMs / 1000} s`,
+            `[ScanOrchestrator] OPEN_FAILED #${this.consecutiveOpenFailedCount} sur ${errPort}` +
+            ` — ${this.currentBaudRate} bps — ${ev.payload.details} — retry dans ${cooldownMs / 1000} s`,
           );
-
-          // ── Gestion des autres OPEN_FAILED (port occupé, driver, câble) ──────
-          // Aide diagnostic dès la 2e tentative
           if (this.consecutiveOpenFailedCount === 2) {
             console.info(
-              `[ScanOrchestrator] Diagnostic ${portName} : ` +
-                `vérifiez (1) qu'aucune autre application n'utilise ce port, ` +
-                `(2) que le baud rate configuré (${this.currentBaudRate} bps) correspond au scanner, ` +
-                `(3) que le câble USB est correctement branché.`,
+              `[ScanOrchestrator] Diagnostic ${errPort} : (1) port non occupé ? ` +
+              `(2) baud rate correct (${this.currentBaudRate} bps) ? (3) câble OK ?`,
             );
           }
-
-          // Seuil atteint → abandonner les retries, rester en HID (bouton reconnexion dispo)
+          // Seuil atteint → abandon CDC, bascule HID (problème permanent confirmé)
           if (this.consecutiveOpenFailedCount >= ScanOrchestratorService.MAX_CONSECUTIVE_OPEN_FAILED) {
             this.setupHid('HID');
             this.notification.warning(
-              `Scanner ${portName} : inaccessible après ${this.consecutiveOpenFailedCount} tentatives. ` +
-                `Causes possibles : port occupé par une autre application, ` +
-                `baud rate incorrect (actuel : ${this.currentBaudRate} bps), câble défectueux. ` +
-                `Cliquez sur le bouton de reconnexion après vérification.`,
+              `Scanner ${errPort} : inaccessible après ${this.consecutiveOpenFailedCount} tentatives. ` +
+              `Port occupé, baud rate incorrect (${this.currentBaudRate} bps) ou câble défectueux. ` +
+              `Cliquez sur "Reconnecter" après vérification.`,
               'Scanner',
             );
             return;
           }
+          this.status.set('RETRYING');
+          this.scheduleRetry({ resetCount: false, delayMs: cooldownMs });
 
-          this.setupHid('RETRYING');
-          if (this.currentPosteId) {
-            this.startCdcRetry(this.currentPosteId, { resetCount: false, cooldownMs });
-          }
         } else {
-          // Déconnexion réelle (câble, veille) → notifier + reset complet
+          // ── DISCONNECTED / PORT_DROPPED ───────────────────────────────────────────
+          // Si onUsbRemoved() a déjà pris la main, ce handler n'est pas atteint
+          // (listeners FE déjà nettoyés). Filet si WM_DEVICECHANGE est raté.
           this.consecutiveOpenFailedCount = 0;
-          this.notification.warning(this.formatScanErrorMessage(ev.payload), 'Scanner');
-          this.setupHid('RETRYING');
-          if (this.currentPosteId) {
-            // Attendre 5 s après la déconnexion avant le premier retry :
-            // Windows doit désenregistrer puis réenregistrer le port CDC.
-            this.startCdcRetry(this.currentPosteId, { resetCount: true, cooldownMs: 5_000 });
-          }
+          this.notification.info(this.formatScanErrorMessage(ev.payload), 'Scanner');
+          // Attente passive de DBT_DEVICEARRIVAL — pas de bascule HID.
+          this.status.set('DETECTING');
+          setTimeout(() => {
+            if (!this.destroyed && this.status() === 'DETECTING') {
+              console.info('[ScanOrchestrator] Filet DISCONNECTED — tentative auto-détection');
+              void this.setup();
+            }
+          }, 12_000);
         }
       });
 
-      // Délai de grâce : vider le buffer matériel UART
-      setTimeout(() => {
-        this.scanReady = true;
-      }, ScanOrchestratorService.UART_GRACE_PERIOD_MS);
+      setTimeout(() => { this.scanReady = true; }, ScanOrchestratorService.UART_GRACE_PERIOD_MS);
 
-      // Watchdog désactivé : voir commentaire sur STALE_SERIAL_TIMEOUT_MS.
-      // Le primer CDC Rust gère l'init sans fermer la connexion active.
-
-      // Désactiver HID pendant SERIAL
       this.hidDestroyer$.next();
       this.config.hidDisable();
-
       return true;
+
     } catch (err) {
-      console.warn('[ScanOrchestrator] Échec démarrage CDC, fallback HID:', err);
+      console.warn('[ScanOrchestrator] Échec démarrage CDC:', err);
       this.scanReady = false;
       if (this.destroyed) return false;
-      this.setupHid('RETRYING');
-      if (this.currentPosteId) {
-        this.startCdcRetry(this.currentPosteId, { resetCount: false, cooldownMs: ScanOrchestratorService.OPEN_FAILED_COOLDOWN_MS });
-      }
+      this.status.set('RETRYING');
+      this.scheduleRetry({ resetCount: false, delayMs: ScanOrchestratorService.OPEN_FAILED_COOLDOWN_MS });
       return false;
     }
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Retry automatique CDC
+  // Retry automatique CDC (backoff exponentiel)
   // ─────────────────────────────────────────────────────────────────────────
 
   /**
-   * Démarre (ou reprend) le retry CDC.
-   *
-   * @param resetCount - `true` (défaut) pour réinitialiser le compteur (après vraie
-   *   déconnexion). `false` pour conserver le compteur courant (après OPEN_FAILED :
-   *   le port est apparu mais le driver n'est pas encore prêt → on continue le compte).
-   * @param cooldownMs - Délai fixe avant la PREMIÈRE tentative (utile après OPEN_FAILED
-   *   pour laisser le driver Windows finir son initialisation).
+   * Planifie la prochaine tentative de connexion CDC.
+   * - `resetCount = true`  : repart de 0 (déconnexion franche).
+   * - `resetCount = false` : continue le backoff (OPEN_FAILED).
+   * - `delayMs`            : délai fixe prioritaire sur le backoff calculé.
    */
-  private startCdcRetry(
-    posteId: number,
-    { resetCount = true, cooldownMs = 0 }: { resetCount?: boolean; cooldownMs?: number } = {},
+  private scheduleRetry(
+    { resetCount = false, delayMs }: { resetCount?: boolean; delayMs?: number } = {},
   ): void {
-    // Ne pas démarrer un retry si une reconnexion USB est déjà en cours
     if (this.status() === 'SERIAL' || this.status() === 'DETECTING') return;
-    // Annuler le timer en cours sans toucher au compteur ici
-    if (this.cdcRetryTimer) {
-      clearTimeout(this.cdcRetryTimer);
-      this.cdcRetryTimer = null;
-    }
-    if (resetCount) {
-      this.cdcRetryCount = 0;
-    }
-    if (cooldownMs > 0) {
-      // Cooldown fixe → puis backoff exponentiel normal
-      this.cdcRetryTimer = setTimeout(() => {
-        this.cdcRetryTimer = null;
-        if (this.destroyed) return; // guard : composant détruit pendant le cooldown
-        this.scheduleNextRetry(posteId);
-      }, cooldownMs);
-    } else {
-      this.scheduleNextRetry(posteId);
-    }
-  }
+    this.stopRetry();
+    if (resetCount) this.cdcRetryCount = 0;
 
-  /** Backoff exponentiel : 8 s, 16 s, 32 s, 60 s, 60 s, … (capé par RETRY_CAP_MS). */
-  private scheduleNextRetry(posteId: number): void {
-    const delay = Math.min(
+    const backoffDelay = Math.min(
       ScanOrchestratorService.RETRY_BASE_MS * Math.pow(2, this.cdcRetryCount),
       ScanOrchestratorService.RETRY_CAP_MS,
     );
-    this.cdcRetryTimer = setTimeout(async () => {
-      this.cdcRetryTimer = null;
-      // Guard NG0205 : le composant a été détruit entre le schedule et l'exécution
-      if (this.destroyed) return;
-      // Ne pas interférer si un événement USB a déjà déclenché une reconnexion
-      if (this.status() === 'SERIAL' || this.status() === 'DETECTING') return;
+    const actualDelay = delayMs ?? backoffDelay;
 
-      this.cdcRetryCount++;
-      if (this.cdcRetryCount > ScanOrchestratorService.RETRY_MAX) {
-        // Limite atteinte — rester en mode HID, bouton reconnexion disponible
-        this.status.set('HID');
-        return;
-      }
-      try {
-        const started = await this.trySetupCdc(posteId);
-        if (started) {
-          // Ne pas notifier ici : le port n'est pas encore confirmé ouvert côté Rust.
-          // La confirmation arrivera via le premier scan reçu ou l'absence d'erreur.
-          return;
-        }
-      } catch {
-        /* silencieux — nouvelle tentative au prochain cycle */
-      }
-      if (this.status() !== 'SERIAL') {
-        this.scheduleNextRetry(posteId);
-      }
-    }, delay);
+    this.cdcRetryTimer = setTimeout(() => {
+      this.cdcRetryTimer = null;
+      if (this.destroyed) return;
+      if (this.status() === 'SERIAL' || this.status() === 'DETECTING') return;
+      void this.doRetryAttempt();
+    }, actualDelay);
   }
 
-  private stopCdcRetry(): void {
+  /** Exécute une tentative de connexion CDC et replanifie si échec. */
+  private async doRetryAttempt(): Promise<void> {
+    if (this.cdcRetryCount >= ScanOrchestratorService.RETRY_MAX) {
+      this.status.set('RETRYING'); // reste visible, bouton reconnexion dispo
+      return;
+    }
+    this.cdcRetryCount++;
+    this.status.set('DETECTING');
+    const started = await this.tryConnectCdc();
+    if (!started && !this.destroyed && this.status() !== 'SERIAL') {
+      this.status.set('RETRYING');
+      this.scheduleRetry(); // prochain backoff (count incrémenté)
+    }
+  }
+
+  private stopRetry(): void {
     if (this.cdcRetryTimer) {
       clearTimeout(this.cdcRetryTimer);
       this.cdcRetryTimer = null;
     }
-    // Ne PAS toucher à cdcRetryCount ici — le reset est explicite dans startCdcRetry.
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Watchdog (supprimé — clearStaleSerialWatchdog conservé pour teardown)
-  // ─────────────────────────────────────────────────────────────────────────
-
-
-  private clearStaleSerialWatchdog(): void {
-    if (this.staleSerialTimer) {
-      clearTimeout(this.staleSerialTimer);
-      this.staleSerialTimer = null;
-    }
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Sonde FE indépendante (détection de port disparu côté frontend)
+  // Sonde FE indépendante (filet si le thread Rust rate la déconnexion)
   // ─────────────────────────────────────────────────────────────────────────
 
   private startAliveProbe(): void {
@@ -636,55 +538,79 @@ export class ScanOrchestratorService {
   // Écouteur USB Win32 (déclencheur primaire de reconnexion)
   // ─────────────────────────────────────────────────────────────────────────
 
-  /**
-   * Attache l'écouteur de l'événement Tauri `scan-usb-arrived` (émis par le
-   * moniteur Rust à chaque WM_DEVICECHANGE / DBT_DEVICEARRIVAL sur un port
-   * COM). À la réception, déclenche immédiatement une reconnexion CDC si
-   * besoin — sans attendre le prochain tick du timer de back-off.
-   */
   private async setupUsbDeviceListener(): Promise<void> {
     if (!this.tauriDevice.isTauriAvailable() || this.unlistenUsbArrived) return;
     try {
       const { listen } = await import('@tauri-apps/api/event');
       this.unlistenUsbArrived = await listen('scan-usb-arrived', () => this.onUsbArrived());
+      this.unlistenUsbRemoved = await listen('scan-usb-removed', () => this.onUsbRemoved());
     } catch (e) {
       console.warn('[ScanOrchestrator] Échec attachement listener WM_DEVICECHANGE :', e);
     }
   }
 
   private detachUsbDeviceListener(): void {
-    this.unlistenUsbArrived?.();
-    this.unlistenUsbArrived = null;
+    this.unlistenUsbArrived?.(); this.unlistenUsbArrived = null;
+    this.unlistenUsbRemoved?.(); this.unlistenUsbRemoved = null;
   }
 
   /**
-   * Réagit à l'arrivée d'un port COM côté Windows. Annule le timer de back-off
-   * en cours et relance immédiatement la séquence de setup CDC. Premier essai
-   * d'ouverture quasi-garanti de réussir car `usbser.sys` vient juste de
-   * publier l'interface device.
+   * DBT_DEVICEARRIVAL — port CDC disponible. Lance `setup()` après le délai de stabilisation
+   * driver. `setup()` repart de zéro (reset count, detection complète).
    */
   private onUsbArrived(): void {
-    if (this.destroyed || !this.currentPosteId || this.status() === 'SERIAL') return;
-
+    if (this.destroyed || this.status() === 'SERIAL') return;
     const now = Date.now();
     if (now - this.lastUsbArrivedAt < ScanOrchestratorService.USB_ARRIVED_DEBOUNCE_MS) return;
     this.lastUsbArrivedAt = now;
 
-    console.info('[ScanOrchestrator] WM_DEVICECHANGE/DBT_DEVICEARRIVAL — reconnexion immédiate');
-    this.stopCdcRetry();
-    this.consecutiveOpenFailedCount = 0; // device fraîchement énuméré → repartir à zéro
-    this.status.set('DETECTING'); // Verrou : empêche le timer de back-off de continuer
+    console.info(
+      '[ScanOrchestrator] WM_DEVICECHANGE/DBT_DEVICEARRIVAL — reconnexion dans ' +
+      `${ScanOrchestratorService.USB_ARRIVED_REOPEN_DELAY_MS / 1000} s`,
+    );
+    this.stopRetry();
+    this.consecutiveOpenFailedCount = 0;
+    this.status.set('DETECTING');
 
     setTimeout(() => {
-      if (this.destroyed || !this.currentPosteId || this.status() === 'SERIAL') return;
-      this.setup(this.currentPosteId);
+      if (this.destroyed || this.status() === 'SERIAL') return;
+      void this.setup(); // reset count + détection complète
     }, ScanOrchestratorService.USB_ARRIVED_REOPEN_DELAY_MS);
   }
 
   /**
-   * Vérifie périodiquement la présence du port. Si le port a disparu sans que le
-   * thread Rust ne l'ait détecté, force la bascule HID + retry CDC. Mécanisme
-   * découplé du thread Rust et du modèle de douchette.
+   * DBT_DEVICEREMOVECOMPLETE — port retiré physiquement.
+   *
+   * On nettoie les listeners, on arrête le thread Rust (libère le handle COM pour la
+   * réouverture post-rebranchement) et on attend DBT_DEVICEARRIVAL.
+   */
+  private onUsbRemoved(): void {
+    if (this.destroyed || this.status() !== 'SERIAL') return;
+    console.info('[ScanOrchestrator] WM_DEVICECHANGE/DBT_DEVICEREMOVECOMPLETE — attente rebranchement');
+    this.notification.info(
+      `Scanner ${this.currentPortName} débranché — reconnexion automatique à l'insertion`,
+      'Scanner',
+    );
+
+    this.stopAliveProbe();
+    this.scanReady = false;
+    this.unlistenScan?.(); this.unlistenError?.(); this.unlistenRawMode?.(); this.unlistenRawByteDebug?.();
+    this.unlistenScan = null; this.unlistenError = null; this.unlistenRawMode = null; this.unlistenRawByteDebug = null;
+
+    const port = this.currentPortName;
+    if (port) {
+      void import('@tauri-apps/api/core').then(({ invoke }) =>
+        invoke('stop_scanner_listener', { portName: port }).catch(() => { /* idempotent */ }),
+      );
+    }
+
+    this.consecutiveOpenFailedCount = 0;
+    this.status.set('DETECTING'); // attend DBT_DEVICEARRIVAL — pas de bascule HID
+  }
+
+  /**
+   * Sonde FE : délègue à `onUsbRemoved()` si le port a disparu sans WM_DEVICECHANGE
+   * (filet si le thread Rust rate la détection).
    */
   private async checkPortAlive(): Promise<void> {
     if (this.destroyed || this.status() !== 'SERIAL' || !this.currentPortName) return;
@@ -695,44 +621,16 @@ export class ScanOrchestratorService {
       return; // erreur transitoire — réessai au prochain tick
     }
     if (alive || this.destroyed || this.status() !== 'SERIAL') return;
-
-    const lostPort = this.currentPortName;
-    console.warn(`[ScanOrchestrator] Sonde FE : ${lostPort} absent — bascule HID + retry`);
-    this.notification.warning(`Scanner ${lostPort} déconnecté — bascule mode clavier`, 'Scanner');
-
-    // Miroir de la branche DISCONNECTED du handler scan-error : on coupe les
-    // listeners FE, on stoppe le thread Rust (handle obsolète), on repasse HID.
-    this.scanReady = false;
-    this.stopAliveProbe();
-    this.unlistenScan?.();
-    this.unlistenError?.();
-    this.unlistenScan = null;
-    this.unlistenError = null;
-    try {
-      const { invoke } = await import('@tauri-apps/api/core');
-      await invoke('stop_scanner_listener', { portName: lostPort });
-    } catch {
-      /* idempotent */
-    }
-    this.consecutiveOpenFailedCount = 0;
-    this.setupHid('RETRYING');
-    if (this.currentPosteId !== null) {
-      this.startCdcRetry(this.currentPosteId, { resetCount: true, cooldownMs: 5_000 });
-    }
+    this.onUsbRemoved(); // centralise la logique de nettoyage
   }
 
-  /** Construit un message lisible à partir du payload typé scan-error. */
   private formatScanErrorMessage(payload: ScanErrorPayload): string {
     const { code, portName, details } = payload;
     switch (code) {
-      case 'PORT_DROPPED':
-        return `Scanner ${portName} : port disparu — bascule mode clavier`;
-      case 'OPEN_FAILED':
-        return `Scanner ${portName} : ouverture impossible (${details}) — bascule mode clavier`;
-      case 'DISCONNECTED':
-        return `Scanner ${portName} : déconnexion (${details}) — bascule mode clavier`;
-      default:
-        return `Scanner ${portName} déconnecté — bascule mode clavier`;
+      case 'PORT_DROPPED':   return `Scanner ${portName} : port disparu`;
+      case 'OPEN_FAILED':    return `Scanner ${portName} : ouverture impossible (${details})`;
+      case 'DISCONNECTED':   return `Scanner ${portName} : déconnexion (${details})`;
+      default:               return `Scanner ${portName} déconnecté`;
     }
   }
 }

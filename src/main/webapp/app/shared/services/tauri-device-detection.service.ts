@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { IPortConnectionStatus, ISerialPortDetail, ISystemInfo } from '../model/poste-device.model';
+import { IPortConnectionStatus, ISerialPortDetail, IScannerUsbMode, ISystemInfo } from '../model/poste-device.model';
 import { TauriPrinterService } from './tauri-printer.service';
 
 /**
@@ -120,6 +120,37 @@ export class TauriDeviceDetectionService {
     } catch (error) {
       console.error('Erreur lors de la détection des infos système:', error);
       return null;
+    }
+  }
+
+  /**
+   * Détecte si la douchette branchée est configurée en mode **CDC** (port série)
+   * ou **HID** (clavier virtuel), ou si aucune n'est connectée.
+   *
+   * Ordre de détection :
+   *  1. COM ports via `serialport::available_ports()` → `"CDC"`
+   *  2. Classe HID Windows via SetupDi (`GUID_DEVCLASS_HID`) → `"HID"`
+   *  3. Aucun scanner détecté → `"NOT_CONNECTED"`
+   *
+   * Utilisation typique :
+   * ```ts
+   * const mode = await tauriDevice.detectScannerUsbMode();
+   * if (mode.mode === 'HID') {
+   *   // Ne pas tenter de port série — capturer les frappes clavier directement
+   * } else if (mode.mode === 'CDC') {
+   *   // Ouvrir mode.portName en lecture série
+   * }
+   * ```
+   */
+  async detectScannerUsbMode(): Promise<IScannerUsbMode> {
+    if (!this.isTauriAvailable()) {
+      return { mode: 'NOT_CONNECTED' };
+    }
+    try {
+      return (await this.invoke('detect_scanner_usb_mode')) as IScannerUsbMode;
+    } catch (error) {
+      console.error('Erreur détection mode USB scanner:', error);
+      return { mode: 'NOT_CONNECTED' };
     }
   }
 

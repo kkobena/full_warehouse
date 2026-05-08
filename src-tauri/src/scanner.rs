@@ -137,7 +137,7 @@ mod cdc_primer {
     /// Ouvre le port CDC avec handle overlapped + SetCommState manuel.
     /// - FILE_FLAG_OVERLAPPED : usbser.sys route les données USB → buffer ReadFile
     /// - SetCommState sans GetCommState : configure le DCB (DTR_ENABLE, 8N1)
-    pub fn open_raw(port_name: &str) -> Option<RawCdcPort> {
+    pub fn open_raw(port_name: &str, baud_rate: u32) -> Option<RawCdcPort> {
         use windows::Win32::Devices::Communication::{DCB, SetCommState};
 
         let handle = open_handle_overlapped(port_name)?;
@@ -163,7 +163,7 @@ mod cdc_primer {
         // _bitfield = fBinary(0x0001) | fDtrControl=ENABLE(0x0010) | fRtsControl=ENABLE(0x1000)
         let dcb = DCB {
             DCBlength: core::mem::size_of::<DCB>() as u32,
-            BaudRate: 9600,
+            BaudRate: baud_rate, // utilise le baud rate fourni par l'appelant
             _bitfield: 0x1011,
             wReserved: 0,
             XonLim: 0,
@@ -264,7 +264,7 @@ mod cdc_primer {
     pub fn prime(_port_name: &str) -> bool { false }
 
     pub struct RawCdcPort;
-    pub fn open_raw(_port_name: &str) -> Option<RawCdcPort> { None }
+    pub fn open_raw(_port_name: &str, _baud_rate: u32) -> Option<RawCdcPort> { None }
     pub fn read_byte(_port: &RawCdcPort, _buf: &mut [u8; 1]) -> std::io::Result<u32> {
         Err(std::io::Error::new(std::io::ErrorKind::Unsupported, "not supported"))
     }
@@ -435,10 +435,12 @@ pub fn start_device_monitor(_app: tauri::AppHandle) {
 static SCANNER_FLAGS: LazyLock<Mutex<HashMap<String, Arc<AtomicBool>>>> =
     LazyLock::new(|| Mutex::new(HashMap::new()));
 
-/// Heartbeat : toutes les HEARTBEAT_TICKS × 100 ms (≈ 2 s) on vérifie l'état du
+/// Heartbeat : toutes les HEARTBEAT_TICKS × 100 ms on vérifie l'état du
 /// port — détecte un débranchement OU une ré-énumération USB silencieuse via
 /// la transition absence → présence (handle Windows devenu obsolète).
-const HEARTBEAT_TICKS: u32 = 20;
+/// 12 ticks × 100 ms = 1,2 s max — plus réactif que l'ancienne valeur (2 s)
+/// et la sonde FE Angular (5 s). Le côté Rust détecte donc en premier.
+const HEARTBEAT_TICKS: u32 = 12;
 
 /// Codes d'erreur typés émis sur l'event `scan-error`.
 #[derive(Serialize, Clone)]
@@ -713,7 +715,7 @@ pub async fn start_scanner_listener(
                     // Tentative avec CreateFileW + SetCommTimeouts uniquement (sans DCB).
                     #[cfg(target_os = "windows")]
                     if hit_gen_failure {
-                        if let Some(raw_port) = cdc_primer::open_raw(&port_name) {
+                        if let Some(raw_port) = cdc_primer::open_raw(&port_name, baud_rate) {
                             // Mode CDC brut actif : notifier Angular
                             app.emit("scan-raw-mode", &port_name).ok();
                             // ── Boucle de lecture brute (sans serialport) ─────────
@@ -1014,7 +1016,230 @@ pub fn send_to_display(port_name: String, message: String, baud_rate: u32) -> Re
     }
 }
 
-/// Détecte si le VID correspond à un adaptateur USB-série générique (FTDI, CH340, Prolific, CP210x).
+/// ── Détection CDC vs HID (Windows) ──────────────────────────────────────────
+///
+/// Un scanner USB peut être configuré physiquement dans deux modes :
+///   • USB CDC-ACM (COM virtuel) : apparaît dans `available_ports()` avec son VID/PID
+///   • USB HID (clavier virtuel) : apparaît dans la classe HID Windows, Hardware ID
+///     du type `HID\VID_05E0&PID_1300`. Aucun port COM n'est créé.
+///
+/// La détection s'effectue en deux étapes ordonnées :
+///   1. COM ports  → `serialport::available_ports()` + filtre VID scanner
+///   2. HID class  → `SetupDiGetClassDevsW(GUID_DEVCLASS_HID)` + parse SPDRP_HARDWAREID
+///
+/// Cette information permet à l'orchestrateur Angular de ne pas tenter d'ouvrir
+/// un port série quand le scanner est en mode HID, et inversement.
+#[cfg(target_os = "windows")]
+mod hid_detect {
+    use windows::Win32::Devices::DeviceAndDriverInstallation::{
+        SetupDiDestroyDeviceInfoList, SetupDiEnumDeviceInfo, SetupDiGetClassDevsW,
+        SetupDiGetDeviceRegistryPropertyW, DIGCF_PRESENT, SP_DEVINFO_DATA,
+        SPDRP_HARDWAREID,
+    };
+    use windows::core::GUID;
+
+    /// GUID_DEVCLASS_HID = {745A17A0-74D3-11D0-B6FE-00A0C90F57DA}
+    /// Identifie la **classe** de devices HID (pas l'interface).
+    /// Utilisé dans SetupDiGetClassDevsW SANS DIGCF_DEVICEINTERFACE.
+    const GUID_DEVCLASS_HID: GUID = GUID {
+        data1: 0x745A17A0,
+        data2: 0x74D3,
+        data3: 0x11D0,
+        data4: [0xB6, 0xFE, 0x00, 0xA0, 0xC9, 0x0F, 0x57, 0xDA],
+    };
+
+    /// VIDs USB des fabricants de scanners code-barres connus.
+    /// Identiques à ceux utilisés dans `suggest_role_by_vid_pid`.
+    const SCANNER_VIDS: &[u16] = &[
+        0x0C2E, // Honeywell (anciennement Metrologic)
+        0x05E0, 0x0536, // Zebra / Symbol / Motorola Solutions
+        0x05F9, // Datalogic
+        0x1EAB, // Newland
+        0x065A, // Opticon
+        0x27DD, // Mindeo
+        0x28E9, // Netum / GD Microelectronics
+        0x0483, // STM32 HID-CDC (Tera, WoneNice…)
+    ];
+
+    pub struct HidScannerInfo {
+        pub vid: u16,
+        pub pid: u16,
+    }
+
+    /// Cherche un scanner dans la classe HID de Windows.
+    /// Retourne `Some(HidScannerInfo)` si un device dont le VID est dans
+    /// SCANNER_VIDS est trouvé **présent** dans le système.
+    pub fn find_hid_scanner() -> Option<HidScannerInfo> {
+        unsafe {
+            // Énumère tous les devices HID présents
+            let hdevinfo = SetupDiGetClassDevsW(
+                Some(&GUID_DEVCLASS_HID),
+                None,
+                None,
+                DIGCF_PRESENT, // SANS DIGCF_DEVICEINTERFACE : on utilise le GUID_DEVCLASS
+            )
+            .ok()?;
+
+            let mut dev_info = SP_DEVINFO_DATA {
+                cbSize: std::mem::size_of::<SP_DEVINFO_DATA>() as u32,
+                ..Default::default()
+            };
+            let mut index = 0u32;
+            let mut found: Option<HidScannerInfo> = None;
+
+            loop {
+                if SetupDiEnumDeviceInfo(hdevinfo, index, &mut dev_info).is_err() {
+                    break; // fin de l'énumération
+                }
+                index += 1;
+
+                // SPDRP_HARDWAREID retourne un REG_MULTI_SZ UTF-16 LE.
+                // Taille max pratique pour un Hardware ID HID : 512 octets.
+                let mut buf = vec![0u8; 512];
+                let mut required: u32 = 0;
+
+                // SetupDiGetDeviceRegistryPropertyW peut retourner ERROR_INSUFFICIENT_BUFFER
+                // sans que cela soit fatal — on lit ce qui est dans le buffer.
+                let _ = SetupDiGetDeviceRegistryPropertyW(
+                    hdevinfo,
+                    &dev_info,
+                    SPDRP_HARDWAREID,
+                    None,
+                    Some(&mut buf),
+                    Some(&mut required),
+                );
+
+                // Interpréter le buffer comme une séquence UTF-16 LE
+                // (pairs d'octets → u16 → chaînes séparées par des NUL).
+                let words: Vec<u16> = buf
+                    .chunks_exact(2)
+                    .map(|c| u16::from_le_bytes([c[0], c[1]]))
+                    .collect();
+
+                // Itérer chaque sous-chaîne (multi-sz = plusieurs strings NUL-terminées)
+                for hw_str in words.split(|&c| c == 0).filter(|s| !s.is_empty()) {
+                    let hw_id = String::from_utf16_lossy(hw_str);
+                    // Format attendu : "HID\VID_05E0&PID_1300&REV_0009&MI_00"
+                    if let Some(info) = parse_hid_scanner_hw_id(&hw_id) {
+                        found = Some(info);
+                        break;
+                    }
+                }
+                if found.is_some() {
+                    break;
+                }
+            }
+
+            SetupDiDestroyDeviceInfoList(hdevinfo).ok();
+            found
+        }
+    }
+
+    /// Parse `"HID\VID_05E0&PID_1300..."` et retourne (vid, pid) si le VID
+    /// correspond à un scanner connu.
+    fn parse_hid_scanner_hw_id(hw_id: &str) -> Option<HidScannerInfo> {
+        let upper = hw_id.to_uppercase();
+        // Ne traiter que les devices de la classe HID proprement dite
+        if !upper.starts_with("HID\\VID_") {
+            return None;
+        }
+        let vid = parse_hex4(&upper, "VID_")?;
+        let pid = parse_hex4(&upper, "PID_")?;
+        if SCANNER_VIDS.contains(&vid) {
+            Some(HidScannerInfo { vid, pid })
+        } else {
+            None
+        }
+    }
+
+    /// Extrait 4 chiffres hex après le préfixe donné (`"VID_"`, `"PID_"`).
+    fn parse_hex4(s: &str, prefix: &str) -> Option<u16> {
+        let idx = s.find(prefix)? + prefix.len();
+        let hex: String = s[idx..].chars().take(4).collect();
+        u16::from_str_radix(hex.trim_end_matches(|c: char| !c.is_ascii_hexdigit()), 16).ok()
+    }
+}
+
+#[cfg(not(target_os = "windows"))]
+mod hid_detect {
+    pub struct HidScannerInfo { pub vid: u16, pub pid: u16 }
+    pub fn find_hid_scanner() -> Option<HidScannerInfo> { None }
+}
+
+/// Mode de connexion USB d'une douchette code-barres.
+#[derive(Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ScannerUsbMode {
+    /// `"CDC"` — scanner en mode COM série (USB CDC-ACM).
+    /// `"HID"` — scanner en mode clavier virtuel (USB HID).
+    /// `"NOT_CONNECTED"` — aucun scanner détecté dans le système.
+    pub mode: String,
+    /// Rempli si `mode === "CDC"` — nom du port COM (ex: `"COM7"`).
+    pub port_name: Option<String>,
+    /// VID USB du device détecté (hex, ex: `0x05E0` pour Zebra).
+    pub vid: Option<u16>,
+    /// PID USB du device détecté.
+    pub pid: Option<u16>,
+    /// Fabricant déduit du VID (ex: `"Zebra/Symbol"`).
+    pub manufacturer: Option<String>,
+}
+
+/// Détecte si la douchette branchée est configurée en mode **CDC** (port série)
+/// ou **HID** (clavier virtuel), ou si aucune n'est connectée.
+///
+/// Logique :
+///   1. Parcourt `available_ports()` — si un VID scanner est trouvé → `CDC`.
+///   2. Énumère la classe HID Windows — si un VID scanner est trouvé → `HID`.
+///   3. Sinon → `NOT_CONNECTED`.
+///
+/// Cette information permet à l'application de :
+///   • En mode CDC : démarrer le listener série normalement.
+///   • En mode HID : désactiver la tentative de port série (inutile) et capturer
+///     directement les frappes clavier émises par le scanner.
+///   • NOT_CONNECTED : afficher un message à l'opérateur.
+#[tauri::command]
+pub fn detect_scanner_usb_mode() -> ScannerUsbMode {
+    // ── Étape 1 : COM ports (mode CDC) ──────────────────────────────────────
+    #[cfg(feature = "serialport")]
+    if let Ok(ports) = serialport::available_ports() {
+        for port in &ports {
+            if let serialport::SerialPortType::UsbPort(info) = &port.port_type {
+                if let Some("scanner") = suggest_role_by_vid_pid(info.vid, info.pid).as_deref() {
+                    return ScannerUsbMode {
+                        mode: "CDC".to_string(),
+                        port_name: Some(port.port_name.clone()),
+                        vid: Some(info.vid),
+                        pid: Some(info.pid),
+                        manufacturer: chipset_name(Some(info.vid))
+                            .or_else(|| info.manufacturer.clone()),
+                    };
+                }
+            }
+        }
+    }
+
+    // ── Étape 2 : classe HID Windows (mode HID) ─────────────────────────────
+    if let Some(hid) = hid_detect::find_hid_scanner() {
+        return ScannerUsbMode {
+            mode: "HID".to_string(),
+            port_name: None,
+            vid: Some(hid.vid),
+            pid: Some(hid.pid),
+            manufacturer: chipset_name(Some(hid.vid)),
+        };
+    }
+
+    // ── Étape 3 : rien trouvé ───────────────────────────────────────────────
+    ScannerUsbMode {
+        mode: "NOT_CONNECTED".to_string(),
+        port_name: None,
+        vid: None,
+        pid: None,
+        manufacturer: None,
+    }
+}
+
+
 /// Ces adaptateurs peuvent avoir n'importe quel périphérique derrière → rôle non déterminable automatiquement.
 #[cfg(feature = "serialport")]
 fn is_generic_adapter(vid: Option<u16>) -> bool {

@@ -52,7 +52,6 @@ import {NotificationService} from '../../../../shared/services/notification.serv
 import {ScanAudioFeedbackService} from '../../../../shared/services/scan-audio-feedback.service';
 import {SalesScannerService} from '../../data-access/services/sales-scanner.service';
 import {ScanOrchestratorService} from '../../../../shared/scanner';
-import {ConfigurationService} from '../../../../shared/configuration.service';
 import {getNavChangeMessage, SaleType} from '../../../../entities/sales/selling-home/sale-helper';
 import {TranslateService} from '@ngx-translate/core';
 import {AuthorizationService} from '../../data-access/services/authorization.service';
@@ -134,7 +133,6 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   /** Mode scanner courant exposé au template (badge SERIAL / bouton reconnexion). */
   protected readonly scannerMode = this.salesScanner.scannerMode;
   protected readonly canReconnectScanner = this.salesScanner.canReconnect;
-  private readonly configurationService = inject(ConfigurationService);
   private produitService = inject(ProduitService);
   private notificationService = inject(NotificationService);
   private scanAudio = inject(ScanAudioFeedbackService);
@@ -182,11 +180,8 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     this.checkScreenSize();
     this.salesFacade.resetCurrentSale();
 
-    // Initialiser le scanner (HID ou SERIAL selon Tauri + device configuré)
-    this.configurationService.getCurrentPoste().subscribe({
-      next: res => this.salesScanner.setup(res.body?.id ?? undefined),
-      error: ()  => this.salesScanner.setup(),
-    });
+    // Initialiser le scanner — détection automatique USB (CDC/HID) sans requête DB
+    void this.salesScanner.setup();
     // S'abonner aux codes-barres (HID ou SERIAL — interface unifiée)
     this.salesScanner.onScan$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(code => this.enqueueScan(code));
     // Cleanup du scanner à la destruction du composant

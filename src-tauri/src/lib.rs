@@ -27,7 +27,7 @@ pub fn run() {
             scanner::is_port_connected,
             scanner::check_ports_connection,
             scanner::get_system_info,
-
+            scanner::detect_scanner_usb_mode,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

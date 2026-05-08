@@ -1,33 +1,53 @@
-import { Component, DestroyRef, effect, inject, Injector, signal, untracked, viewChild } from "@angular/core";
-import { CommonModule, DecimalPipe } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonModule } from "primeng/button";
-import { TooltipModule } from "primeng/tooltip";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
-import { InputTextModule } from "primeng/inputtext";
-import { MultiSelectModule } from "primeng/multiselect";
-import { SuggestionFacadeService } from "./data-access/suggestion-facade.service";
+import {
+  Component,
+  DestroyRef,
+  effect,
+  inject,
+  Injector,
+  signal,
+  untracked,
+  viewChild
+} from "@angular/core";
+import {CommonModule, DecimalPipe} from "@angular/common";
+import {FormsModule} from "@angular/forms";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {ButtonModule} from "primeng/button";
+import {TooltipModule} from "primeng/tooltip";
+import {IconField} from "primeng/iconfield";
+import {InputIcon} from "primeng/inputicon";
+import {InputTextModule} from "primeng/inputtext";
+import {MultiSelectModule} from "primeng/multiselect";
+import {SuggestionFacadeService} from "./data-access/suggestion-facade.service";
 import {
   SuggestionFournisseurListComponent
 } from "./ui/suggestion-fournisseur-list/suggestion-fournisseur-list.component";
-import { SuggestionProduitPanelComponent } from "./ui/suggestion-produit-panel/suggestion-produit-panel.component";
+import {
+  SuggestionProduitPanelComponent
+} from "./ui/suggestion-produit-panel/suggestion-produit-panel.component";
 import {
   SuggestionCommanderModalComponent
 } from "./ui/suggestion-commander-modal/suggestion-commander-modal.component";
-import { CommanderModalResult } from "./data-access/suggestion-commander.model";
-import { SuggestionComparaisonComponent } from "./ui/suggestion-comparaison/suggestion-comparaison.component";
-import { DispoComparaisonComponent } from "../pharmaml/ui/dispo-comparaison/dispo-comparaison.component";
-import { FournisseurSuggestionSummary, SuggestionLigneEnrichie } from "./data-access/suggestion-enrichie.model";
-import { NotificationService } from "app/shared/services/notification.service";
-import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { Toast } from "primeng/toast";
-import { FournisseurService } from "../../../../entities/fournisseur/fournisseur.service";
-import { IFournisseur } from "../../../../shared/model/fournisseur.model";
-import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
-import { combineLatest, Subject } from "rxjs";
-import { debounceTime, distinctUntilChanged, startWith } from "rxjs/operators";
+import {CommanderModalResult} from "./data-access/suggestion-commander.model";
+import {
+  SuggestionComparaisonComponent
+} from "./ui/suggestion-comparaison/suggestion-comparaison.component";
+import {
+  DispoComparaisonComponent
+} from "../pharmaml/ui/dispo-comparaison/dispo-comparaison.component";
+import {
+  FournisseurSuggestionSummary,
+  SuggestionLigneEnrichie
+} from "./data-access/suggestion-enrichie.model";
+import {NotificationService} from "app/shared/services/notification.service";
+import {
+  NgbConfirmDialogService
+} from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import {Toast} from "primeng/toast";
+import {FournisseurService} from "../../../../entities/fournisseur/fournisseur.service";
+import {IFournisseur} from "../../../../shared/model/fournisseur.model";
+import {takeUntilDestroyed, toObservable} from "@angular/core/rxjs-interop";
+import {combineLatest, Subject} from "rxjs";
+import {debounceTime, distinctUntilChanged, startWith} from "rxjs/operators";
 
 @Component({
   selector: "app-suggestion-home",
@@ -49,6 +69,14 @@ import { debounceTime, distinctUntilChanged, startWith } from "rxjs/operators";
   ]
 })
 export class SuggestionHomeComponent {
+  readonly selectedLignes = signal<SuggestionLigneEnrichie[]>([]);
+  readonly editingFournisseur = signal<FournisseurSuggestionSummary | null>(null);
+  // ── List-level filters ─────────────────────────────────────────────────────
+  readonly listSearch = signal("");
+  readonly listFournisseurIds = signal<number[]>([]);
+  readonly fournisseurOptions = signal<IFournisseur[]>([]);
+  readonly childSelectionCount = signal<number>(0);
+  readonly childCanFusionner = signal<boolean>(false);
   protected readonly facade = inject(SuggestionFacadeService);
   private readonly modalService = inject(NgbModal);
   private readonly injector = inject(Injector);
@@ -56,26 +84,14 @@ export class SuggestionHomeComponent {
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly fournisseurService = inject(FournisseurService);
   private readonly destroyRef = inject(DestroyRef);
-
-  readonly selectedLignes = signal<SuggestionLigneEnrichie[]>([]);
-  readonly editingFournisseur = signal<FournisseurSuggestionSummary | null>(null);
-
-  // ── List-level filters ─────────────────────────────────────────────────────
-  readonly listSearch = signal("");
-  readonly listFournisseurIds = signal<number[]>([]);
-  readonly fournisseurOptions = signal<IFournisseur[]>([]);
-
   private readonly listSearchSubject = new Subject<string>();
   private readonly listFournisseurIds$ = toObservable(this.listFournisseurIds);
-
   // ── Bulk actions (propagées depuis le composant enfant) ────────────────────
   private readonly sfList = viewChild(SuggestionFournisseurListComponent);
-  readonly childSelectionCount = signal<number>(0);
-  readonly childCanFusionner = signal<boolean>(false);
 
   constructor() {
     // Charge les options du multiselect une seule fois
-    this.fournisseurService.query({ page: 0, size: 999 }).subscribe({
+    this.fournisseurService.query({page: 0, size: 999}).subscribe({
       next: res => this.fournisseurOptions.set(res.body ?? [])
     });
 
@@ -184,7 +200,9 @@ export class SuggestionHomeComponent {
 
   onSanitize(): void {
     const fournisseur = this.facade.selectedFournisseur();
-    if (!fournisseur?.suggestionId) return;
+    if (!fournisseur?.suggestionId) {
+      return;
+    }
     this.facade.sanitize(fournisseur.suggestionId);
   }
 
@@ -197,7 +215,9 @@ export class SuggestionHomeComponent {
   }
 
   onComparer(ligne: SuggestionLigneEnrichie): void {
-    if (!ligne.produitId) return;
+    if (!ligne.produitId) {
+      return;
+    }
     const modalRef = this.modalService.open(SuggestionComparaisonComponent, {
       size: "lg",
       scrollable: true,
@@ -210,7 +230,9 @@ export class SuggestionHomeComponent {
 
   onValider(): void {
     const fournisseur = this.facade.selectedFournisseur();
-    if (!fournisseur?.suggestionId) return;
+    if (!fournisseur?.suggestionId) {
+      return;
+    }
 
     this.confirmDialog.onConfirm(
       () => this.facade.valider(fournisseur.suggestionId),
@@ -223,7 +245,9 @@ export class SuggestionHomeComponent {
 
   onRejeter(): void {
     const fournisseur = this.facade.selectedFournisseur();
-    if (!fournisseur?.suggestionId) return;
+    if (!fournisseur?.suggestionId) {
+      return;
+    }
     this.confirmDialog.onConfirm(
       () => this.facade.rejeter(fournisseur.suggestionId!),
       "Rejeter la suggestion",
@@ -232,7 +256,9 @@ export class SuggestionHomeComponent {
   }
 
   onLigneSupprimee(ligne: SuggestionLigneEnrichie): void {
-    if (!ligne.id) return;
+    if (!ligne.id) {
+      return;
+    }
     this.confirmDialog.onConfirm(
       () => this.facade.supprimerLigne(ligne.id!),
       "Supprimer le produit",
@@ -242,7 +268,9 @@ export class SuggestionHomeComponent {
 
   onLignesSupprimeees(lignes: SuggestionLigneEnrichie[]): void {
     const ids = lignes.map(l => l.id!).filter(id => id != null);
-    if (ids.length === 0) return;
+    if (ids.length === 0) {
+      return;
+    }
     this.confirmDialog.onConfirm(
       () => this.facade.supprimerLignes(ids),
       "Supprimer la sélection",
@@ -264,7 +292,9 @@ export class SuggestionHomeComponent {
   }
 
   onSuggestionsSupprimeees(ids: number[]): void {
-    if (ids.length === 0) return;
+    if (ids.length === 0) {
+      return;
+    }
     this.confirmDialog.onConfirm(
       () => {
         if (ids.includes(this.editingFournisseur()?.suggestionId ?? -1)) {
@@ -277,7 +307,11 @@ export class SuggestionHomeComponent {
     );
   }
 
-  onAjouterProduit(data: { produitId: number; fournisseurProduitId: number; quantite: number }): void {
+  onAjouterProduit(data: {
+    produitId: number;
+    fournisseurProduitId: number;
+    quantite: number
+  }): void {
     this.facade.ajouterProduit(data.produitId, data.fournisseurProduitId, data.quantite);
   }
 
@@ -290,6 +324,8 @@ export class SuggestionHomeComponent {
     const modalRef = this.modalService.open(DispoComparaisonComponent, {
       size: "xl",
       scrollable: true,
+      backdrop: 'static',
+      centered: true,
       injector: this.injector
     });
     modalRef.componentInstance.suggestionId = fournisseur.suggestionId;
@@ -313,7 +349,9 @@ export class SuggestionHomeComponent {
   }
 
   protected onFusionnerSuggestions(ids: number[]): void {
-    if (ids.length < 2) return;
+    if (ids.length < 2) {
+      return;
+    }
     this.confirmDialog.onConfirm(
       () => this.facade.fusionnerSuggestions(ids),
       "Fusionner les suggestions",
@@ -326,7 +364,9 @@ export class SuggestionHomeComponent {
   }
 
   protected onValiderDirect(f: FournisseurSuggestionSummary): void {
-    if (!f.suggestionId) return;
+    if (!f.suggestionId) {
+      return;
+    }
     this.confirmDialog.onConfirm(
       () => {
         this.editingFournisseur.set(f);
@@ -338,13 +378,17 @@ export class SuggestionHomeComponent {
   }
 
   protected onExportPdfDirect(f: FournisseurSuggestionSummary): void {
-    if (!f.suggestionId) return;
+    if (!f.suggestionId) {
+      return;
+    }
     this.facade.selectFournisseur(f);
     this.facade.exporterPdf();
   }
 
   protected onExportCsvDirect(f: FournisseurSuggestionSummary): void {
-    if (!f.suggestionId) return;
+    if (!f.suggestionId) {
+      return;
+    }
     this.facade.selectFournisseur(f);
     this.facade.exporterCsv();
   }
@@ -386,7 +430,9 @@ export class SuggestionHomeComponent {
 
     modalRef.result.then(
       (result: CommanderModalResult) => {
-        if (!result?.type) return;
+        if (!result?.type) {
+          return;
+        }
         if (mode === "full") {
           this.facade.commanderFull(result);
         } else {

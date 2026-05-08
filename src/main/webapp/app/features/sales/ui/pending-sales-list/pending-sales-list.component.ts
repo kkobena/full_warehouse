@@ -186,7 +186,7 @@ export class PendingSalesListComponent implements OnInit {
 
     const sellerId = this.sellerFilter();
     if (sellerId) {
-      params.sellerId = sellerId;
+      params.userId = sellerId;
     }
 
     const search = this.searchTerm();

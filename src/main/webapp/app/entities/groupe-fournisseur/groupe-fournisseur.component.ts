@@ -122,7 +122,7 @@ export class GroupeFournisseurComponent implements OnInit {
       FormGroupeFournisseurComponent,
       {
         entity,
-        header: `FORMULAIRE DE MODIFICATION DE ${entity.libelle}`,
+        title: `FORMULAIRE DE MODIFICATION DE ${entity.libelle}`,
       },
       () => {
         this.loadPage();
@@ -151,7 +151,7 @@ export class GroupeFournisseurComponent implements OnInit {
       FormGroupeFournisseurComponent,
       {
         entity: null,
-        header: 'FORMULAIRE DE CREATION DE GROUPE FOURNISSEUR ',
+        title: 'FORMULAIRE DE CREATION DE GROUPE FOURNISSEUR ',
       },
       () => {
         this.loadPage(0);

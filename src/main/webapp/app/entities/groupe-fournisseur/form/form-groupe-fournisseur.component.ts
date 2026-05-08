@@ -1,24 +1,24 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from "@angular/core";
 
-import { ErrorService } from '../../../shared/error.service';
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { Observable } from 'rxjs';
-import { HttpResponse } from '@angular/common/http';
-import { GroupeFournisseur, IGroupeFournisseur } from '../../../shared/model/groupe-fournisseur.model';
-import { GroupeFournisseurService } from '../groupe-fournisseur.service';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { RippleModule } from 'primeng/ripple';
-import { KeyFilterModule } from 'primeng/keyfilter';
-import { Card } from 'primeng/card';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { ErrorService } from "../../../shared/error.service";
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
+import { Observable } from "rxjs";
+import { HttpResponse } from "@angular/common/http";
+import { GroupeFournisseur, IGroupeFournisseur } from "../../../shared/model/groupe-fournisseur.model";
+import { GroupeFournisseurService } from "../groupe-fournisseur.service";
+import { ButtonModule } from "primeng/button";
+import { InputTextModule } from "primeng/inputtext";
+import { RippleModule } from "primeng/ripple";
+import { KeyFilterModule } from "primeng/keyfilter";
+import { Card } from "primeng/card";
+import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
+import { ToastAlertComponent } from "../../../shared/toast-alert/toast-alert.component";
+import { CommonModule } from "@angular/common";
 
 @Component({
-  selector: 'jhi-form-groupe-fournisseur',
+  selector: "jhi-form-groupe-fournisseur",
   imports: [
-    WarehouseCommonModule,
+    CommonModule,
     FormsModule,
     ReactiveFormsModule,
     ButtonModule,
@@ -26,13 +26,13 @@ import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.com
     RippleModule,
     KeyFilterModule,
     Card,
-    ToastAlertComponent,
+    ToastAlertComponent
   ],
-  templateUrl: './form-groupe-fournisseur.component.html',
-  styleUrls: ['./form-groupe-fournisseur.component.scss'],
+  templateUrl: "./form-groupe-fournisseur.component.html",
+  styleUrls: ["./form-groupe-fournisseur.component.scss"]
 })
 export class FormGroupeFournisseurComponent implements OnInit, AfterViewInit {
-  header = '';
+  title = "";
   entity?: IGroupeFournisseur;
   protected blockSpace = /[^s]/;
   protected isSaving = false;
@@ -56,13 +56,13 @@ export class FormGroupeFournisseurComponent implements OnInit, AfterViewInit {
     joursCredit: [],
     joursCritique: [],
     palierRfa: [],
-    tauxRfa: [],
+    tauxRfa: []
   });
   private readonly errorService = inject(ErrorService);
   private readonly entityService = inject(GroupeFournisseurService);
   private readonly activeModal = inject(NgbActiveModal);
-  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
-  private libelleInput = viewChild.required<ElementRef>('libelleInput');
+  private readonly alert = viewChild.required<ToastAlertComponent>("alert");
+  private libelleInput = viewChild.required<ElementRef>("libelleInput");
 
   ngOnInit(): void {
     if (this.entity) {
@@ -84,7 +84,7 @@ export class FormGroupeFournisseurComponent implements OnInit, AfterViewInit {
     this.isSaving = true;
     const entity = this.createFromForm();
 
-    if (entity.id !== undefined) {
+    if (entity.id !== undefined && entity.id !== null) {
       this.subscribeToSaveResponse(this.entityService.update(entity));
     } else {
       this.subscribeToSaveResponse(this.entityService.create(entity));
@@ -94,7 +94,7 @@ export class FormGroupeFournisseurComponent implements OnInit, AfterViewInit {
   private subscribeToSaveResponse(result: Observable<HttpResponse<IGroupeFournisseur>>): void {
     result.subscribe({
       next: res => this.onSaveSuccess(res.body),
-      error: error => this.onSaveError(error),
+      error: error => this.onSaveError(error)
     });
   }
 
@@ -121,7 +121,7 @@ export class FormGroupeFournisseurComponent implements OnInit, AfterViewInit {
       joursCredit: entity.joursCredit,
       joursCritique: entity.joursCritique,
       palierRfa: entity.palierRfa,
-      tauxRfa: entity.tauxRfa,
+      tauxRfa: entity.tauxRfa
     });
   }
 
@@ -133,23 +133,23 @@ export class FormGroupeFournisseurComponent implements OnInit, AfterViewInit {
   private createFromForm(): IGroupeFournisseur {
     return {
       ...new GroupeFournisseur(),
-      id: this.editForm.get(['id']).value,
-      libelle: this.editForm.get(['libelle']).value,
-      addresspostale: this.editForm.get(['addresspostale']).value,
-      numFaxe: this.editForm.get(['numFaxe']).value,
-      email: this.editForm.get(['email']).value,
-      tel: this.editForm.get(['tel']).value,
-      odre: this.editForm.get(['odre']).value,
-      codeRecepteurPharmaMl: this.editForm.get(['codeRecepteurPharmaMl']).value,
-      codeOfficePharmaMl: this.editForm.get(['codeOfficePharmaMl']).value,
-      urlPharmaMl: this.editForm.get(['urlPharmaMl']).value,
-      idRecepteurPharmaMl: this.editForm.get(['idRecepteurPharmaMl']).value,
-      delaiLivraisonJours: this.editForm.get(['delaiLivraisonJours']).value,
-      frequenceCommandeJours: this.editForm.get(['frequenceCommandeJours']).value,
-      joursCredit: this.editForm.get(['joursCredit']).value || null,
-      joursCritique: this.editForm.get(['joursCritique']).value || null,
-      palierRfa: this.editForm.get(['palierRfa']).value || null,
-      tauxRfa: this.editForm.get(['tauxRfa']).value || null,
+      id: this.editForm.get(["id"]).value,
+      libelle: this.editForm.get(["libelle"]).value,
+      addresspostale: this.editForm.get(["addresspostale"]).value,
+      numFaxe: this.editForm.get(["numFaxe"]).value,
+      email: this.editForm.get(["email"]).value,
+      tel: this.editForm.get(["tel"]).value,
+      odre: this.editForm.get(["odre"]).value,
+      codeRecepteurPharmaMl: this.editForm.get(["codeRecepteurPharmaMl"]).value,
+      codeOfficePharmaMl: this.editForm.get(["codeOfficePharmaMl"]).value,
+      urlPharmaMl: this.editForm.get(["urlPharmaMl"]).value,
+      idRecepteurPharmaMl: this.editForm.get(["idRecepteurPharmaMl"]).value,
+      delaiLivraisonJours: this.editForm.get(["delaiLivraisonJours"]).value,
+      frequenceCommandeJours: this.editForm.get(["frequenceCommandeJours"]).value,
+      joursCredit: this.editForm.get(["joursCredit"]).value || null,
+      joursCritique: this.editForm.get(["joursCritique"]).value || null,
+      palierRfa: this.editForm.get(["palierRfa"]).value || null,
+      tauxRfa: this.editForm.get(["tauxRfa"]).value || null
     };
   }
 }

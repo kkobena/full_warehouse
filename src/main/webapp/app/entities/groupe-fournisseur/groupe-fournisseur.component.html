@@ -63,13 +63,20 @@
         <tr class="pharma-table-head">
           <th><span>Libellé</span></th>
           <th><span>Code postale</span></th>
-          <!-- <th><span >Email</span> </th> -->
+          <th><span>Email</span></th>
           <th><span>Téléphone</span></th>
           <th><span>Numéro Faxe</span></th>
           <th><span>Ordre d'affichage</span></th>
+          <th><span>Délai livraison (j)</span></th>
+          <th><span>Fréquence commande (j)</span></th>
+          <th><span>Jours crédit</span></th>
+          <th><span>Jours critique</span></th>
+          <th><span>Palier RFA</span></th>
+          <th><span>Taux RFA (%)</span></th>
           <th><span>Url PharmaMl</span></th>
           <th><span>Code officine PharmaMl</span></th>
-          <th><span>Code Recepteur PharmaMl</span></th>
+          <th><span>Code Récepteur PharmaMl</span></th>
+          <th><span>ID Récepteur PharmaMl</span></th>
           <th style="width: 10%"></th>
         </tr>
       </ng-template>
@@ -79,13 +86,20 @@
             <div class="pharma-entity-name">{{ elRow.libelle }}</div>
           </td>
           <td>{{ elRow.addresspostale }}</td>
-          <!-- <td>{{ elRow.email }}</td> -->
+          <td>{{ elRow.email }}</td>
           <td>{{ elRow.tel }}</td>
           <td>{{ elRow.numFaxe }}</td>
           <td>{{ elRow.odre }}</td>
+          <td>{{ elRow.delaiLivraisonJours }}</td>
+          <td>{{ elRow.frequenceCommandeJours }}</td>
+          <td>{{ elRow.joursCredit }}</td>
+          <td>{{ elRow.joursCritique }}</td>
+          <td>{{ elRow.palierRfa }}</td>
+          <td>{{ elRow.tauxRfa }}</td>
           <td>{{ elRow.urlPharmaMl }}</td>
           <td>{{ elRow.codeOfficePharmaMl }}</td>
           <td>{{ elRow.codeRecepteurPharmaMl }}</td>
+          <td>{{ elRow.idRecepteurPharmaMl }}</td>
 
           <td style="text-align: right">
             <p-buttonGroup>

@@ -7,8 +7,10 @@
         <p-inputgroup>
           <p-inputgroup-addon>Vendeurs</p-inputgroup-addon>
           <p-select
-            [(ngModel)]="sellerFilter"
+            [ngModel]="sellerFilter()"
+            (ngModelChange)="sellerFilter.set($event)"
             (onChange)="onSellerChange()"
+            [showClear]="true"
             [options]="sellers()"
             optionLabel="abbrName"
             optionValue="id"
@@ -37,9 +39,11 @@
         <p-button
           icon="pi pi-refresh"
           (onClick)="onRefresh()"
-          [outlined]="true"
+          [rounded]="true"
+          [text]="true"
           severity="secondary"
           size="small"
+          tooltipPosition="left"
           pTooltip="Actualiser"
         />
       </div>
@@ -74,7 +78,8 @@
       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} ventes"
       dataKey="id"
       selectionMode="single"
-      [(selection)]="selectedSale"
+      [selection]="selectedSale()"
+      (selectionChange)="selectedSale.set($event)"
       [metaKeySelection]="false"
       class="p-datatable-sm pharma-table"
     >

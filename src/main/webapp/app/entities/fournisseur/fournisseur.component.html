@@ -61,14 +61,26 @@
     >
       <ng-template #header>
         <tr class="pharma-table-head">
-          <th scope="col" style="width: 5%"><span>Code</span></th>
-          <th scope="col" style="width: 28%"><span>Libellé</span></th>
-          <th scope="col" style="width: 10%"><span>Code postale</span></th>
-          <th scope="col" style="width: 15%"><span>Mobile</span></th>
-          <th scope="col" style="width: 14%"><span>Téléphone</span></th>
-          <!--   <th scope="col" style="width:10%"><span >Numéro Faxe</span> </th> -->
-          <th scope="col" style="width: 20%"><span>Groupe</span></th>
-          <th scope="col" style="width: 8%"></th>
+          <th scope="col"><span>Code</span></th>
+          <th scope="col"><span>Libellé</span></th>
+          <th scope="col"><span>Code postale</span></th>
+          <th scope="col"><span>Mobile</span></th>
+          <th scope="col"><span>Téléphone</span></th>
+          <th scope="col"><span>Numéro Faxe</span></th>
+          <th scope="col"><span>Site web</span></th>
+          <th scope="col"><span>Identifiant répartiteur</span></th>
+          <th scope="col"><span>Délai livraison (j)</span></th>
+          <th scope="col"><span>Fréquence commande (j)</span></th>
+          <th scope="col"><span>Jours crédit</span></th>
+          <th scope="col"><span>Jours critique</span></th>
+          <th scope="col"><span>Palier RFA</span></th>
+          <th scope="col"><span>Taux RFA (%)</span></th>
+          <th scope="col"><span>Url PharmaMl</span></th>
+          <th scope="col"><span>Code officine PharmaMl</span></th>
+          <th scope="col"><span>Code Récepteur PharmaMl</span></th>
+          <th scope="col"><span>ID Récepteur PharmaMl</span></th>
+          <th scope="col"><span>Groupe</span></th>
+          <th scope="col"></th>
         </tr>
       </ng-template>
       <ng-template let-columns="columns" let-elRow #body>
@@ -82,7 +94,19 @@
           <td>{{ elRow.addressePostal }}</td>
           <td>{{ elRow.mobile }}</td>
           <td>{{ elRow.phone }}</td>
-          <!-- <td>{{ elRow.numFaxe }}</td> -->
+          <td>{{ elRow.numFaxe }}</td>
+          <td>{{ elRow.site }}</td>
+          <td>{{ elRow.identifiantRepartiteur }}</td>
+          <td>{{ elRow.delaiLivraisonJours }}</td>
+          <td>{{ elRow.frequenceCommandeJours }}</td>
+          <td>{{ elRow.joursCredit }}</td>
+          <td>{{ elRow.joursCritique }}</td>
+          <td>{{ elRow.palierRfa }}</td>
+          <td>{{ elRow.tauxRfa }}</td>
+          <td>{{ elRow.urlPharmaMl }}</td>
+          <td>{{ elRow.codeOfficePharmaMl }}</td>
+          <td>{{ elRow.codeRecepteurPharmaMl }}</td>
+          <td>{{ elRow.idRecepteurPharmaMl }}</td>
           <td>{{ elRow.groupeFournisseurLibelle }}</td>
           <td style="text-align: center">
             <p-button

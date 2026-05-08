@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -70,7 +71,7 @@ public class GroupeFournisseurServiceImpl implements GroupeFournisseurService {
             .addresspostale(groupeFournisseurDTO.getAddresspostale())
             .email(groupeFournisseurDTO.getEmail())
             .numFaxe(groupeFournisseurDTO.getNumFaxe())
-            .odre(groupeFournisseurDTO.getOdre())
+            .odre(Objects.requireNonNullElse(groupeFournisseurDTO.getOdre(), 70))
             .setDelaiLivraisonJours(groupeFournisseurDTO.getDelaiLivraisonJours())
             .setFrequenceCommandeJours(groupeFournisseurDTO.getFrequenceCommandeJours())
             .setJoursCredit(groupeFournisseurDTO.getJoursCredit())

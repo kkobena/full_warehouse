@@ -1,5 +1,5 @@
 <div class="modal-header">
-  <h4 class="modal-title">{{ header }}</h4>
+  <h4 class="modal-title">{{ title }}</h4>
   <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button">&times;</button>
 </div>
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
@@ -153,7 +153,7 @@
 
   <div class="modal-footer">
     <p-button (click)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button"/>
-    <p-button (click)="save()" [disabled]="editForm.invalid || isSaving" [raised]="true" class="mr-2"
+    <p-button  [disabled]="editForm.invalid || isSaving" [raised]="true" class="mr-2"
               icon="pi pi-check" label="Enregistrer" severity="primary" type="submit"></p-button>
   </div>
 </form>

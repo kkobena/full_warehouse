@@ -1,0 +1,139 @@
+<div class="container-fluid">
+  <div class="pharma-smart-content p-1">
+    <div class="pharma-toolbar pharma-toolbar-compact">
+      <div class="pharma-toolbar-header">
+        <i class="pi pi-warehouse"></i>
+        <span class="pharma-toolbar-title">Ventes dépôt</span>
+      </div>
+
+      <p-toolbar>
+        <ng-template #start>
+          <div class="pharma-toolbar-filters">
+            <p-iconfield>
+              <p-inputicon class="pi pi-search" />
+              <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText placeholder="Référence..." type="text" />
+            </p-iconfield>
+
+            <p-floatlabel variant="on">
+              <p-datePicker
+                [(ngModel)]="fromDate"
+                [maxDate]="toDate"
+                [selectOtherMonths]="true"
+                [showButtonBar]="true"
+                [style]="'max-width: 140px;'"
+                appendTo="body"
+                dateFormat="dd/mm/yy"
+                id="depot-fromDate"
+              />
+              <label for="depot-fromDate">Du</label>
+            </p-floatlabel>
+
+            <p-floatlabel variant="on">
+              <p-datePicker
+                [(ngModel)]="toDate"
+                [minDate]="fromDate"
+                [selectOtherMonths]="true"
+                [showButtonBar]="true"
+                [style]="'max-width: 140px;'"
+                appendTo="body"
+                dateFormat="dd/mm/yy"
+                id="depot-toDate"
+                inputId="depot-toDate"
+              />
+              <label for="depot-toDate">Au</label>
+            </p-floatlabel>
+          </div>
+        </ng-template>
+
+        <ng-template #end>
+          <div class="pharma-toolbar-actions">
+            <p-button (click)="loadPage(0)" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
+            <p-button
+              [raised]="true"
+              [routerLink]="['/sales-home/vente-depot']"
+              icon="pi pi-plus"
+              label="Nouvelle vente dépôt"
+              severity="primary"
+            />
+          </div>
+        </ng-template>
+      </p-toolbar>
+    </div>
+
+    <div class="journal-summary-bar">
+      <div class="summary-item">
+        <i class="pi pi-list"></i>
+        <span class="summary-label">Total :</span>
+        <span class="summary-value">{{ totalItems | number }}</span>
+      </div>
+      <div class="summary-item">
+        <i class="pi pi-wallet"></i>
+        <span class="summary-label">CA page courante :</span>
+        <span class="summary-value">{{ totalAmount | number: '1.0-0' }} FCFA</span>
+      </div>
+    </div>
+
+    <div class="mt-3">
+      @if (sales && sales.length > 0) {
+        <p-table
+          (onLazyLoad)="lazyLoading($event)"
+          [lazy]="true"
+          [loading]="loading()"
+          [paginator]="true"
+          [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+          [rows]="itemsPerPage"
+          [showCurrentPageReport]="true"
+          [totalRecords]="totalItems"
+          [value]="sales"
+          class="pharma-table"
+          currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} ventes dépôt"
+          dataKey="id"
+          stripedRows="true"
+        >
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th style="width: 13%">Date</th>
+              <th style="width: 12%">Référence</th>
+              <th style="width: 18%">Dépôt</th>
+              <th style="width: 8%" class="text-right">Articles</th>
+              <th style="width: 10%" class="text-right">Montant</th>
+              <th style="width: 18%">Client</th>
+              <th style="width: 14%">Vendeur</th>
+              <th style="width: 7%"></th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-sale>
+            <tr>
+              <td>{{ sale.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td><span class="pharma-code">{{ sale.numberTransaction }}</span></td>
+              <td>{{ sale.magasin?.nom || '—' }}</td>
+              <td class="text-right">{{ sale.salesLines?.length | number }}</td>
+              <td class="text-right pharma-price">{{ sale.salesAmount | number: '1.0-0' }}</td>
+              <td class="pharma-entity-name">{{ sale.customer?.fullName || '—' }}</td>
+              <td>{{ sale.seller?.abbrName || '—' }}</td>
+              <td class="text-center">
+                <p-buttonGroup>
+                  <p-button
+                    (click)="printInvoice(sale)"
+                    [rounded]="true"
+                    [text]="true"
+                    icon="pi pi-receipt"
+                    pTooltip="Imprimer la facture"
+                    severity="secondary"
+                    tooltipPosition="left"
+                  />
+                </p-buttonGroup>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      } @else {
+        <div class="alert alert-warning text-center mt-4">
+          <span>Aucune vente dépôt trouvée</span>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<p-toast position="center" />

@@ -1,7 +1,5 @@
 package com.kobe.warehouse.service.sale.impl;
 
-import static java.util.Objects.nonNull;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.AppUser;
@@ -64,7 +62,13 @@ import com.kobe.warehouse.service.sale.ThirdPartyClientManager;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.sale.dto.UpdateSale;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -76,10 +80,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
+
+import static java.util.Objects.nonNull;
 
 @Service
 @Transactional(noRollbackFor = {PlafondVenteException.class})
@@ -106,21 +108,21 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     private final AssuredCustomerManager assuredCustomerManager;
 
     public ThirdPartySaleServiceImpl(ThirdPartySaleLineService thirdPartySaleLineService,
-        ClientTiersPayantRepository clientTiersPayantRepository,
-        SaleLineServiceFactory saleLineServiceFactory, StorageService storageService,
-        ThirdPartySaleRepository thirdPartySaleRepository,
-        AssuredCustomerRepository assuredCustomerRepository, UserRepository userRepository,
-        PaymentService paymentService, ReferenceService referenceService,
-        CashRegisterService cashRegisterService, PosteRepository posteRepository,
-        CashSaleRepository cashSaleRepository,
-        UtilisationCleSecuriteService utilisationCleSecuriteService,
-        RemiseRepository remiseRepository, CustomerDisplayService afficheurPosService,
-        LogsService logService, SaleIdGeneratorService idGeneratorService,
-        ObjectMapper objectMapper, SalesManager salesManager,
-        ThirdPartyClientManager thirdPartyClientManager,
-        ThirdPartyCalculationManager thirdPartyCalculationManager,
-        AssuredCustomerManager assuredCustomerManager,
-        com.kobe.warehouse.service.settings.AppConfigurationService appConfigurationService) {
+                                     ClientTiersPayantRepository clientTiersPayantRepository,
+                                     SaleLineServiceFactory saleLineServiceFactory, StorageService storageService,
+                                     ThirdPartySaleRepository thirdPartySaleRepository,
+                                     AssuredCustomerRepository assuredCustomerRepository, UserRepository userRepository,
+                                     PaymentService paymentService, ReferenceService referenceService,
+                                     CashRegisterService cashRegisterService, PosteRepository posteRepository,
+                                     CashSaleRepository cashSaleRepository,
+                                     UtilisationCleSecuriteService utilisationCleSecuriteService,
+                                     RemiseRepository remiseRepository, CustomerDisplayService afficheurPosService,
+                                     LogsService logService, SaleIdGeneratorService idGeneratorService,
+                                     ObjectMapper objectMapper, SalesManager salesManager,
+                                     ThirdPartyClientManager thirdPartyClientManager,
+                                     ThirdPartyCalculationManager thirdPartyCalculationManager,
+                                     AssuredCustomerManager assuredCustomerManager,
+                                     AppConfigurationService appConfigurationService) {
         super(referenceService, storageService, userRepository, saleLineServiceFactory,
             cashRegisterService, posteRepository, afficheurPosService, idGeneratorService,
             objectMapper, appConfigurationService);
@@ -199,7 +201,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     private boolean checkIfNumBonIsAlReadyUse(String numBon, Integer clientTiersPayantId,
-        Long currentSaleId) {
+                                              Long currentSaleId) {
         return thirdPartyClientManager.checkIfNumBonIsAlReadyUse(numBon, clientTiersPayantId,
             currentSaleId);
     }
@@ -255,7 +257,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
 
 
     private SaleId cloneSale(ThirdPartySales sales, boolean canceledOriginal,
-        SalesStatut salesStatut) throws CashRegisterException {
+                             SalesStatut salesStatut) throws CashRegisterException {
         List<ThirdPartySaleLine> originalThirdPartySaleLines = new ArrayList<>(new LinkedHashSet<>(
             sales.getThirdPartySaleLines()));// Utiliser LinkedHashSet pour préserver l'ordre des lignes et éviter les doublons
         Set<SalesLine> originalSalesLines = new HashSet<>(sales.getSalesLines());
@@ -294,8 +296,8 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     private void cancelSale(List<ThirdPartySaleLine> originalThirdPartySaleLines,
-        Set<SalesLine> originalSalesLines, Set<SalePayment> originalPayments, ThirdPartySales sales,
-        AppUser user, String cancelComment) throws CashRegisterException {
+                            Set<SalesLine> originalSalesLines, Set<SalePayment> originalPayments, ThirdPartySales sales,
+                            AppUser user, String cancelComment) throws CashRegisterException {
         checkOpenningCaisse();
         checkCancellationDelay(sales.getSaleDate());
         ThirdPartySales copy = (ThirdPartySales) sales.clone();
@@ -782,7 +784,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     private void updateThirdPartySaleLine(ThirdPartySaleLine thirdPartySaleLine,
-        AssuredCustomerDTO assuredCustomerDTO, ThirdPartySaleLineDTO thirdPartySaleLineDTO) {
+                                          AssuredCustomerDTO assuredCustomerDTO, ThirdPartySaleLineDTO thirdPartySaleLineDTO) {
         ClientTiersPayant clientTiersPayant = thirdPartySaleLine.getClientTiersPayant();
 
         if (clientTiersPayant.getId().compareTo(thirdPartySaleLineDTO.getClientTiersPayantId())

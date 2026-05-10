@@ -18,6 +18,7 @@ import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.id_generator.SaleLineIdGeneratorService;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.reassort.RepartitionStockService;
+import com.kobe.warehouse.service.sale.AvoirClientDocumentService;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.LotStockLocationService;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
@@ -63,6 +64,8 @@ class SalesLineServiceBaseImplTest {
     private RepartitionStockService repartitionStockService;
     @Mock
     private  LotStockLocationService lotStockLocationService;
+    @Mock
+    private AvoirClientDocumentService avoirClientDocumentService;
 
     @BeforeEach
     void setUp() {
@@ -76,7 +79,8 @@ class SalesLineServiceBaseImplTest {
             stockUpdateService,
             storageService,
             repartitionStockService,
-            lotStockLocationService
+            lotStockLocationService,
+            avoirClientDocumentService
         );
     }
 

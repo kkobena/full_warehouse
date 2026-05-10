@@ -104,12 +104,22 @@ export class SalesApiService {
     );
   }
 
-  /**
-   * Query sales with filters
-   */
   querySales(req?: any): Observable<HttpResponse<ISales[]>> {
     const options = createRequestOptions(req);
     return this.http.get<ISales[]>(this.resourceUrl, {params: options, observe: 'response'});
+  }
+
+  querySalesTotalAmount(req?: any): Observable<number> {
+    const options = createRequestOptions(req);
+    return this.http.get<number>(`${this.resourceUrl}/total-amount`, {params: options});
+  }
+
+  /**
+   * Export filtered journal to Excel
+   */
+  exportJournal(req?: any): Observable<HttpResponse<Blob>> {
+    const options = createRequestOptions(req);
+    return this.http.get(`${this.resourceUrl}/export`, {params: options, responseType: 'blob', observe: 'response'});
   }
 
   /**

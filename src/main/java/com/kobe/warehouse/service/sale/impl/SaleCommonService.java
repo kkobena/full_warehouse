@@ -1,8 +1,5 @@
 package com.kobe.warehouse.service.sale.impl;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -27,7 +24,6 @@ import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
-import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.errors.CashRegisterException;
@@ -37,7 +33,11 @@ import com.kobe.warehouse.service.errors.SaleAlreadyCloseException;
 import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
 import com.kobe.warehouse.service.sale.SalesLineService;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -46,8 +46,9 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 @Service
 public class SaleCommonService {
@@ -62,6 +63,7 @@ public class SaleCommonService {
     private final SaleIdGeneratorService idGeneratorService;
     private final ObjectMapper objectMapper;
     private final AppConfigurationService appConfigurationService;
+
 
     public SaleCommonService(
         ReferenceService referenceService,
@@ -86,6 +88,7 @@ public class SaleCommonService {
         this.idGeneratorService = idGeneratorService;
         this.objectMapper = objectMapper;
         this.appConfigurationService = appConfigurationService;
+
     }
 
     /**

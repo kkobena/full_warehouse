@@ -95,6 +95,43 @@ $gray-border: #e2e8f0;
 }
 
 // ====================================
+// SUMMARY BAR
+// ====================================
+.journal-summary-bar {
+  display: flex;
+  gap: 2rem;
+  padding: 0.5rem 1rem;
+  background: var(--surface-50, #f8f9fa);
+  border: 1px solid var(--surface-200, #e9ecef);
+  border-radius: 6px;
+  margin: 0.75rem 0 0;
+
+  .summary-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i {
+      color: var(--primary-color, #008cba);
+      font-size: 0.9rem;
+    }
+
+    .summary-label {
+      font-size: 0.8125rem;
+      color: $text-secondary;
+      font-weight: 500;
+    }
+
+    .summary-value {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: $text-primary;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+}
+
+// ====================================
 // SALES-SPECIFIC: Expanded cards grid
 // ====================================
 .expanded-cards-container {

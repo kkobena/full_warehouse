@@ -50,6 +50,14 @@ public class ReferenceService {
         return buildReference(TypeReference.REASSORT, this::formatWithDatePrefix);
     }
 
+    public String buildNumAvoirClient() {
+        return buildReference(TypeReference.AVOIR_CLIENT, this::formatSimple);
+    }
+
+    public String buildNumRetourClient() {
+        return buildReference(TypeReference.RETOUR_CLIENT, this::formatWithDatePrefix);
+    }
+
     /**
      * Generic method to build a reference number for a given type
      *

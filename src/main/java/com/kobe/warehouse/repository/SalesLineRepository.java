@@ -160,4 +160,7 @@ public interface SalesLineRepository
     default Specification<SalesLine> notImported() {
         return (root, query, cb) -> cb.isFalse(root.get(SalesLine_.sales).get(Sales_.imported));
     }
+    default Specification<SalesLine> hasAvoir() {
+        return (root, query, cb) -> cb.greaterThan(root.<Integer>get("quantityAvoir"), 0);
+    }
 }

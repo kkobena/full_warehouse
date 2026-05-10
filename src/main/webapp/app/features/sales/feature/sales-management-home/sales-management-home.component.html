@@ -67,6 +67,58 @@
                 </ng-template>
               </ng-container>
             }
+
+            @if (showAnnulations()) {
+              <ng-container ngbNavItem="annulations">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-ban"></i>
+                  <span>Annulations</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <app-sales-annulations />
+                </ng-template>
+              </ng-container>
+            }
+
+            @if (showVenteDepot()) {
+              <ng-container ngbNavItem="vente-depot">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-warehouse"></i>
+                  <span>Ventes dépôt</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <app-vente-depot-list />
+                </ng-template>
+              </ng-container>
+            }
+
+            @if (showAvoirs()) {
+              <ng-container ngbNavItem="avoirs">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-replay"></i>
+                  <span>Avoirs clients</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <app-avoirs-client-list />
+                </ng-template>
+              </ng-container>
+            }
+            @if (showRetourClient()) {
+              <ng-container ngbNavItem="retour-client">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-undo"></i>
+                  <span>Retours clients</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <app-retour-client />
+                </ng-template>
+              </ng-container>
+            }
+
           </div>
         </div>
       </div>

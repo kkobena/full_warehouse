@@ -93,6 +93,7 @@ public class SaleDTO implements Serializable {
     private List<TvaEmbeded> tvaEmbededs = new ArrayList<>();
     private String commentaire;
     private boolean canceled;
+    private int itemCount;
 
     public SaleDTO() {
     }
@@ -322,6 +323,14 @@ public class SaleDTO implements Serializable {
 
     public void setCanceled(boolean canceled) {
         this.canceled = canceled;
+    }
+
+    public int getItemCount() {
+        return itemCount;
+    }
+
+    public void setItemCount(int itemCount) {
+        this.itemCount = itemCount;
     }
 
     public List<PaymentDTO> getPayments() {

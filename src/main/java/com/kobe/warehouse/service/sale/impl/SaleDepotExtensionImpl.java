@@ -35,6 +35,7 @@ import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
+import com.kobe.warehouse.service.sale.AvoirClientDocumentService;
 import com.kobe.warehouse.service.sale.SaleDepotExtensionService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.SalesManager;
@@ -78,7 +79,9 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
         StockUpdateService stockUpdateService,
         InventoryTransactionService inventoryTransactionService,
         ObjectMapper objectMapper,
-        SalesManager salesManager, AppConfigurationService appConfigurationService
+        SalesManager salesManager,
+        AppConfigurationService appConfigurationService
+
     ) {
         super(
             referenceService,
@@ -88,7 +91,8 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
             cashRegisterService,
             posteRepository,
             afficheurPosService,
-            idGeneratorService, objectMapper, appConfigurationService
+            idGeneratorService, objectMapper,
+            appConfigurationService
         );
         this.salesLineService = saleLineServiceFactory.getService(TypeVente.VenteDepot);
         this.storageService = storageService;

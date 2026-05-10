@@ -2,9 +2,10 @@ import {Component, DestroyRef, inject, OnInit, signal, viewChild} from '@angular
 import {CommonModule} from "@angular/common";
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
+import {HttpHeaders} from '@angular/common/http';
 import {Router, RouterLink} from '@angular/router';
 import {Button} from 'primeng/button';
-import {TableModule} from 'primeng/table';
+import {TableLazyLoadEvent, TableModule} from 'primeng/table';
 import {Toolbar} from 'primeng/toolbar';
 import {Select} from 'primeng/select';
 import {IconField} from 'primeng/iconfield';
@@ -14,6 +15,7 @@ import {TooltipModule} from 'primeng/tooltip';
 
 import {ISales, SalesStatut} from '../../../../shared/model';
 import {SalesApiService} from '../../data-access/services/sales-api.service';
+import {ITEMS_PER_PAGE} from '../../../../shared/constants/pagination.constants';
 import {ConfirmDialogComponent} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import {ButtonGroup} from "primeng/buttongroup";
 import {AbilityService} from '../../../../core/auth/ability.service';
@@ -50,27 +52,55 @@ export class SalesEnCoursComponent implements OnInit {
 
   protected loading = signal(false);
   protected sales: ISales[] = [];
+  protected totalItems = 0;
+  protected page = 0;
+  protected itemsPerPage = ITEMS_PER_PAGE;
   protected typeVentes = ['TOUT', 'VNO', 'VO'];
   protected typeVenteSelected = 'TOUT';
   protected search = '';
   protected useSimpleSale = false;
 
   ngOnInit(): void {
-    this.load();
+    this.loadPage();
   }
 
-  protected load(): void {
+  protected loadPage(page?: number): void {
+    const pageToLoad = page ?? this.page;
     this.loading.set(true);
     this.api
-      .queryManagement({search: this.search || null, type: this.typeVenteSelected, statut: [SalesStatut.ACTIVE]})
+      .queryManagement({
+        page: pageToLoad,
+        size: this.itemsPerPage,
+        search: this.search || null,
+        type: this.typeVenteSelected,
+        statut: [SalesStatut.ACTIVE],
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: res => {
-          this.sales = res.body || [];
           this.loading.set(false);
+          this.onSuccess(res.body, res.headers, pageToLoad);
         },
         error: () => this.loading.set(false),
       });
+  }
+
+  private onSuccess(data: ISales[] | null, headers: HttpHeaders, page: number): void {
+    this.totalItems = Number(headers.get('X-Total-Count'));
+    this.page = page;
+    this.sales = data || [];
+  }
+
+  protected lazyLoading(event: TableLazyLoadEvent): void {
+    if (event.first != null && event.rows != null) {
+      this.page = event.first / event.rows;
+      this.itemsPerPage = event.rows;
+      this.loadPage(this.page);
+    }
+  }
+
+  protected load(): void {
+    this.loadPage(0);
   }
 
 

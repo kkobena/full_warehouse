@@ -1,0 +1,108 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-check-circle me-2"></i>
+    Clôturer l'avoir
+    <span class="avoir-ref ms-1">{{ document?.reference }}</span>
+  </h5>
+  <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button"></button>
+</div>
+<div class="modal-body">
+
+  <!-- Récap de l'avoir -->
+  <div class="avoir-summary mb-1">
+    <div class="avoir-summary-header">
+      <i class="pi pi-receipt"></i>
+      <span>Détail de l'avoir</span>
+    </div>
+
+    <div class="avoir-product-row">
+      <span class="product-name">{{ document?.produitLibelle }}</span>
+      <span class="product-cip">{{ document?.codeCip }}</span>
+    </div>
+
+    <div class="avoir-meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">Réf. vente</span>
+        <span class="meta-value meta-code">{{ document?.numberTransaction || '—' }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Créé le</span>
+        <span class="meta-value">{{ document?.createdAt | date: 'dd/MM/yyyy' }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Quantité</span>
+        <span class="meta-value meta-qty">{{ document?.quantite }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Montant</span>
+        <span class="meta-value meta-amount">{{ document?.montant | number: '1.0-0' }} FCFA</span>
+      </div>
+      @if (document?.customerName) {
+        <div class="meta-item meta-full">
+          <span class="meta-label">Client</span>
+          <span class="meta-value">{{ document?.customerName }}</span>
+        </div>
+      }
+      @if (document?.commandeReference) {
+        <div class="meta-item meta-full">
+          <span class="meta-label">Commande de réappro.</span>
+          <span class="meta-value meta-code">{{ document?.commandeReference }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Sélection du mode de clôture -->
+  <div class="mb-3">
+    <label class="form-label fw-semibold">
+      Mode de règlement <span class="text-danger">*</span>
+    </label>
+    <p-select
+      [ngModel]="modeCloture()"
+      (ngModelChange)="modeCloture.set($event)"
+      [options]="modeClotureOptions"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Choisir le mode de règlement…"
+      appendTo="body"
+      [fluid]="true"
+    />
+  </div>
+
+
+
+  <!-- Commentaire -->
+  <div class="mb-2">
+    <label class="form-label">Commentaire <span class="text-muted small">(optionnel)</span></label>
+    <textarea pTextarea
+              [ngModel]="commentaire()"
+              (ngModelChange)="commentaire.set($event)"
+              rows="2"
+              [fluid]="true"
+              maxlength="500"
+              placeholder="Note de clôture, numéro de ticket remboursement…"
+    ></textarea>
+
+  </div>
+
+  @if (error()) {
+    <div class="alert alert-danger py-2 mt-2">
+      <i class="pi pi-times-circle me-2"></i>{{ error() }}
+    </div>
+  }
+</div>
+
+<div class="modal-footer cloture-modal-footer">
+  <button (click)="cancel()" [disabled]="loading()" class="btn btn-outline-secondary" type="button">
+    <i class="pi pi-times me-1"></i>Annuler
+  </button>
+  <p-button
+    (click)="confirm()"
+    [disabled]="!canConfirm()"
+    [loading]="loading()"
+    [raised]="true"
+    icon="pi pi-check"
+    label="Confirmer la clôture"
+    severity="success"
+  />
+</div>

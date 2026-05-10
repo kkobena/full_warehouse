@@ -1,0 +1,121 @@
+
+<div class="modal-header">
+  <h5 class="modal-title"><i class="pi pi-undo me-2"></i>Nouveau retour client</h5>
+  <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button"></button>
+</div>
+<div class="modal-body">
+  <!-- Infos vente + lignes -->
+  @if (currentSale(); as sale) {
+    <div class="sale-info-bar mt-2">
+      <span><i class="pi pi-receipt me-1"></i><strong>{{ sale.numberTransaction }}</strong></span>
+      @if (sale.customerName) {
+        <span><i class="pi pi-user me-1"></i>{{ sale.customerName }}</span>
+      }
+      <span><i class="pi pi-calendar me-1"></i>{{ sale.saleDate | date:'dd/MM/yyyy' }}</span>
+    </div>
+
+    <!-- Tableau des lignes -->
+    <div class="lines-table-wrapper mt-2">
+      <table class="table table-sm table-hover mb-0">
+        <thead class="pharma-table-head">
+          <tr>
+            <th>Produit</th>
+            <th>Code CIP</th>
+            <th class="text-end">Qté vendue</th>
+            <th class="text-end">Prix unit.</th>
+            <th style="width:110px">Qté retour</th>
+            <th class="text-end">Montant</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (line of selectedLines(); track line.salesLineId) {
+            <tr>
+              <td>{{ line.produitLibelle }}</td>
+              <td><code>{{ line.codeCip ?? '—' }}</code></td>
+              <td class="text-end">{{ line.quantitySold }}</td>
+              <td class="text-end">{{ line.netUnitPrice | number:'1.0-0' }}</td>
+              <td>
+                <p-inputNumber
+                       [ngModel]="line.quantiteRetour"
+                       (ngModelChange)="updateQty(line.salesLineId, $event)"
+                       [min]="0" [max]="line.quantitySold" [showButtons]="true" buttonLayout="horizontal" inputId="horizontal" spinnerMode="horizontal" [step]="1">
+
+                <ng-template #incrementbuttonicon>
+                  <span class="pi pi-plus"></span>
+                </ng-template>
+                <ng-template #decrementbuttonicon>
+                  <span class="pi pi-minus"></span>
+                </ng-template>
+                </p-inputNumber>
+              </td>
+              <td class="text-end retour-amount">
+                {{ ((line.quantiteRetour ?? 0) * (line.netUnitPrice ?? 0)) | number:'1.0-0' }} F
+              </td>
+            </tr>
+          }
+        </tbody>
+        <tfoot>
+          <tr class="total-row">
+            <td colspan="5" class="text-end fw-bold">Total retour</td>
+            <td class="text-end retour-amount fw-bold">{{ montantTotal() | number:'1.0-0' }} F</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- Motif + mode règlement -->
+    <div class="form-row mt-3">
+      <div class="form-group">
+        <label class="form-label-sm">Motif <span class="text-danger">*</span></label>
+        <p-select [options]="motifOptions"
+                  [ngModel]="motif()"
+                  (ngModelChange)="motif.set($event)"
+                  optionLabel="label" optionValue="value"
+                  placeholder="Choisir un motif" appendTo="body"
+                  class="w-100" />
+      </div>
+      <div class="form-group">
+        <label class="form-label-sm">Mode de règlement <span class="text-danger">*</span></label>
+        <p-select [options]="modeReglementOptions"
+                  [ngModel]="modeReglement()"
+                  (ngModelChange)="modeReglement.set($event)"
+                  optionLabel="label" optionValue="value"
+                  placeholder="Remboursement ou avoir" appendTo="body"
+                  class="w-100">
+          <ng-template #selectedItem let-opt>
+            <span><i [class]="opt.icon + ' me-1'"></i>{{ opt.label }}</span>
+          </ng-template>
+          <ng-template #item let-opt>
+            <span><i [class]="opt.icon + ' me-1'"></i>{{ opt.label }}</span>
+          </ng-template>
+        </p-select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label-sm">Commentaire</label>
+      <textarea pTextarea [fluid]="true"
+                [ngModel]="commentaire()"
+                (ngModelChange)="commentaire.set($event)"
+                placeholder="Motif détaillé, informations complémentaires…">
+
+      </textarea>
+    </div>
+  }
+
+  @if (submitError()) {
+    <div class="alert alert-danger py-1 px-2 mt-2" style="font-size:.8125rem">
+      <i class="pi pi-exclamation-triangle me-1"></i>{{ submitError() }}
+    </div>
+  }
+
+</div>
+
+<div class="modal-footer">
+  <p-button label="Annuler" severity="secondary" size="small" [disabled]="submitLoading()"
+            (onClick)="cancel()" />
+  <p-button label="Valider le retour" icon="pi pi-check" size="small"
+            [disabled]="!canSubmit()"
+            [loading]="submitLoading()"
+            (onClick)="confirmerRetour()" />
+</div>

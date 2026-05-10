@@ -6,7 +6,9 @@ public enum TypeReference {
     PREVENTE_VENTE(2),
     SUGGESTION(3),
     TRANSACTION(4),
-    REASSORT(5);
+    REASSORT(5),
+    AVOIR_CLIENT(6),
+    RETOUR_CLIENT(7);
     private final int value;
 
     TypeReference(int value) {

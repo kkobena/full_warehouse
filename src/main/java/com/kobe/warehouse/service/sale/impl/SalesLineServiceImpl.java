@@ -26,8 +26,9 @@ import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.errors.StockInReserveException;
 import com.kobe.warehouse.service.id_generator.SaleLineIdGeneratorService;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
-import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.reassort.RepartitionStockService;
+import com.kobe.warehouse.service.sale.AvoirClientDocumentService;
+import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.LotStockLocationService;
 import org.springframework.stereotype.Service;
@@ -56,6 +57,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     private final StorageService storageService;
     private final RepartitionStockService repartitionStockService;
     private final LotStockLocationService lotStockLocationService;
+    private final AvoirClientDocumentService avoirClientDocumentService;
 
     protected SalesLineServiceImpl(
         ProduitRepository produitRepository,
@@ -67,7 +69,8 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         StockUpdateService stockUpdateService,
         StorageService storageService,
         RepartitionStockService repartitionStockService,
-        LotStockLocationService lotStockLocationService
+        LotStockLocationService lotStockLocationService,
+        AvoirClientDocumentService avoirClientDocumentService
     ) {
         this.produitRepository = produitRepository;
         this.salesLineRepository = salesLineRepository;
@@ -79,6 +82,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         this.storageService = storageService;
         this.repartitionStockService = repartitionStockService;
         this.lotStockLocationService = lotStockLocationService;
+        this.avoirClientDocumentService = avoirClientDocumentService;
     }
 
     private SalesLine getNew() {
@@ -312,20 +316,21 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     }
 
 
-
-
     @Override
     public void save(Set<SalesLine> salesLines, AppUser user, Integer storageId) {
-        // S0.1 v12 — suggestionAuto décommissionné : le batch SEMOIS nocturne
-        // (SemoisBatchJobService.creerSuggestionBatch) gère désormais la création
-        // des suggestions. Plus aucun appel @Async ici.
+
         if (!CollectionUtils.isEmpty(salesLines)) {
             salesLines.forEach(salesLine -> {
                 Produit p = salesLine.getProduit();
                 StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(p.getId(), storageId);
                 updateSaleLineLotSold(salesLine, stockProduit.getStorage());
+                salesLine.setQuantityAvoir(salesLine.getQuantityRequested() - salesLine.getQuantitySold());
                 save(salesLine, stockProduit);
                 this.inventoryTransactionService.save(salesLine);
+                if (salesLine.getQuantityAvoir() > 0) {
+                    avoirClientDocumentService.createAvoirsFromSale(salesLine, salesLine.getSales().getCustomer());
+                }
+
             });
         }
     }
@@ -408,6 +413,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         this.lotService.restoreLots(salesLine.getLots());
         lotStockLocationService.creditFromSold(salesLine.getLots(), stockProduit.getStorage());
         this.inventoryTransactionService.save(salesLineCopy);
+        avoirClientDocumentService.cancelAvoirsFromSale(salesLine.getId().getId());
     }
 
     private void updateItemQuantitySold(SaleLineDTO saleLineDTO, SalesLine salesLine, Integer storageId) {

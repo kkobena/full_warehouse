@@ -96,7 +96,8 @@ public class SalesDataResource {
         @RequestParam(name = "toHour", required = false) String toHour,
         @RequestParam(name = "global", required = false) Boolean global,
         @RequestParam(name = "userId", required = false) Integer userId,
-        @RequestParam(name = "type", required = false) String type,
+        @RequestParam(name = "types", required = false) Set<String> types,
+        @RequestParam(name = "statuts", required = false) Set<SalesStatut> statuts,
         @RequestParam(name = "categorieChiffreAffaires", required = false) Set<CategorieChiffreAffaire> categorieChiffreAffaires,
         Pageable pageable
     ) {
@@ -108,7 +109,8 @@ public class SalesDataResource {
             toHour,
             global,
             userId,
-            type,
+            types,
+            statuts,
             null,
             null,
             categorieChiffreAffaires,
@@ -117,6 +119,24 @@ public class SalesDataResource {
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
             ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    @GetMapping("/sales/total-amount")
+    public ResponseEntity<Long> getTotalSalesAmount(
+        @RequestParam(name = "search", required = false) String search,
+        @RequestParam(name = "fromDate", required = false) LocalDate fromDate,
+        @RequestParam(name = "toDate", required = false) LocalDate toDate,
+        @RequestParam(name = "fromHour", required = false) String fromHour,
+        @RequestParam(name = "toHour", required = false) String toHour,
+        @RequestParam(name = "global", required = false) Boolean global,
+        @RequestParam(name = "userId", required = false) Integer userId,
+        @RequestParam(name = "types", required = false) Set<String> types,
+        @RequestParam(name = "statuts", required = false) Set<SalesStatut> statuts,
+        @RequestParam(name = "categorieChiffreAffaires", required = false) Set<CategorieChiffreAffaire> categorieChiffreAffaires
+    ) {
+        return ResponseEntity.ok(saleDataService.totalVenteTerminees(
+            search, fromDate, toDate, fromHour, toHour, global, userId, types, statuts, categorieChiffreAffaires
+        ));
     }
 
     @GetMapping("/sales/print/receipt/{id}/{saleDate}")

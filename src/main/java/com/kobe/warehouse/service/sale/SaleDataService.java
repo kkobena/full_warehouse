@@ -31,7 +31,6 @@ import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypePrescription;
-import com.kobe.warehouse.repository.SalePaymentRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.SalesRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
@@ -62,7 +61,6 @@ import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
 import jakarta.validation.constraints.NotNull;
 import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -86,6 +84,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -164,7 +163,8 @@ public class SaleDataService {
         String lastName = (String) row[i++];
         String phone = (String) row[i++];
 
-        Integer customerId = asInteger(row[i]);
+        Integer customerId = asInteger(row[i++]);
+        Integer itemCount = asInteger(row[i]);
 
         return SaleDTOBuilder.of(dtype)
             .id(id, saleDate)
@@ -181,6 +181,7 @@ public class SaleDataService {
             .cassier(cassierId, cassierFirstName, cassierLastName)
             .caisses(caisseNum, caisseEndNum)
             .customer(customerId, firstName, lastName, phone)
+            .itemCount(itemCount)
             .build();
     }
 
@@ -426,11 +427,115 @@ public class SaleDataService {
         String toHour,
         Boolean global,
         Integer userId,
-        String type,
+        Set<String> types,
+        Set<SalesStatut> statuts,
         PaymentStatus paymentStatus,
         Boolean isDiffere,
         Set<CategorieChiffreAffaire> categorieChiffreAffaires,
         Pageable pageable
+    ) {
+        VentesFilter filter = buildVentesFilter(search, fromDate, toDate, fromHour, toHour, global,
+            userId, types, categorieChiffreAffaires, statuts, paymentStatus, isDiffere);
+
+        String baseJoins =
+            " FROM sales s" +
+                " JOIN app_user u ON s.user_id = u.id" +
+                " JOIN magasin m ON u.magasin_id = m.id" +
+                " JOIN app_user sel ON s.seller_id = sel.id" +
+                " JOIN app_user cas ON s.caissier_id = cas.id";
+
+        var countQuery = em.createNativeQuery(
+            "SELECT COUNT(DISTINCT s.id)" + baseJoins + filter.whereClause());
+        filter.params().forEach(countQuery::setParameter);
+        long totalCount = ((Number) countQuery.getSingleResult()).longValue();
+
+        if (totalCount == 0) {
+            return new PageImpl<>(Collections.emptyList(), pageable, totalCount);
+        }
+
+        String selectClause =
+            "SELECT s.dtype, s.id, s.sale_date, s.number_transaction," +
+                " s.discount_amount, s.sales_amount, s.amount_to_be_paid, s.rest_to_pay," +
+                " s.statut, s.payment_status, s.nature_vente, s.type_prescription," +
+                " s.differe, s.canceled, s.created_at, s.updated_at," +
+                " s.commentaire, s.monnaie, s.tvaembeded," +
+                " s.num_bon, s.part_assure, s.part_tiers_payant," +
+                " CONCAT(u.first_name, ' ', u.last_name)," +
+                " sel.id, sel.first_name, sel.last_name," +
+                " cas.id, cas.first_name, cas.last_name," +
+                " p.poste_number, lp.poste_number,c.first_name,c.last_name,c.phone,c.id," +
+                " (SELECT COUNT(*) FROM sales_line sl WHERE sl.sales_id = s.id AND sl.sales_sale_date = s.sale_date)";
+
+        String dataJoins = baseJoins +
+            " LEFT JOIN poste p ON s.caisse_id = p.id" +
+            " LEFT JOIN poste lp ON s.lastcaisse_id = lp.id" +
+            " LEFT JOIN customer c ON s.customer_id = c.id";
+
+        var dataQuery = em.createNativeQuery(
+            selectClause + dataJoins + filter.whereClause() + " ORDER BY s.updated_at DESC"
+        );
+        filter.params().forEach(dataQuery::setParameter);
+        if (pageable != null) {
+            dataQuery.setFirstResult((int) pageable.getOffset());
+            dataQuery.setMaxResults(pageable.getPageSize());
+        }
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> rows = dataQuery.getResultList();
+        return new PageImpl<>(
+            rows.stream().map(SaleDataService::mapRowToSaleDTO).toList(),
+            pageable,
+            totalCount
+        );
+    }
+
+    public long totalVenteTerminees(
+        String search,
+        LocalDate fromDate,
+        LocalDate toDate,
+        String fromHour,
+        String toHour,
+        Boolean global,
+        Integer userId,
+        Set<String> types,
+        Set<SalesStatut> statuts,
+        Set<CategorieChiffreAffaire> categorieChiffreAffaires
+    ) {
+        if (CollectionUtils.isEmpty(statuts)) {
+            statuts = Set.of(SalesStatut.CLOSED, SalesStatut.CANCELED);
+        }
+        VentesFilter filter = buildVentesFilter(search, fromDate, toDate, fromHour, toHour, global,
+            userId, types, categorieChiffreAffaires, statuts, null, null);
+
+        String baseJoins =
+            " FROM sales s" +
+                " JOIN app_user u ON s.user_id = u.id" +
+                " JOIN magasin m ON u.magasin_id = m.id" +
+                " JOIN app_user sel ON s.seller_id = sel.id" +
+                " JOIN app_user cas ON s.caissier_id = cas.id";
+
+        var sumQuery = em.createNativeQuery(
+            "SELECT COALESCE(SUM(s.sales_amount), 0)" + baseJoins + filter.whereClause());
+        filter.params().forEach(sumQuery::setParameter);
+        return ((Number) sumQuery.getSingleResult()).longValue();
+    }
+
+    private record VentesFilter(String whereClause, Map<String, Object> params) {
+    }
+
+    private VentesFilter buildVentesFilter(
+        String search,
+        LocalDate fromDate,
+        LocalDate toDate,
+        String fromHour,
+        String toHour,
+        Boolean global,
+        Integer userId,
+        Set<String> types,
+        Set<CategorieChiffreAffaire> categorieChiffreAffaires,
+        Set<SalesStatut> statuts,
+        PaymentStatus paymentStatus,
+        Boolean isDiffere
     ) {
         long userMagasinId = getUser().getMagasin().getId();
         if (CollectionUtils.isEmpty(categorieChiffreAffaires)) {
@@ -440,6 +545,9 @@ public class SaleDataService {
                 CategorieChiffreAffaire.TO_IGNORE
             );
         }
+        if (CollectionUtils.isEmpty(statuts)) {
+            statuts = Set.of(SalesStatut.CLOSED, SalesStatut.CANCELED);
+        }
 
         List<String> conditions = new ArrayList<>();
         Map<String, Object> params = new HashMap<>();
@@ -447,13 +555,23 @@ public class SaleDataService {
         String caIn = String.join(", ", categorieChiffreAffaires.stream()
             .map(ca -> "'" + ca.name() + "'").toList());
         conditions.add("s.ca IN (" + caIn + ")");
-        conditions.add("s.statut IN ('CLOSED', 'CANCELED')");
+        String statutIn = String.join(", ", statuts.stream()
+            .map(st -> "'" + st.name() + "'").toList());
+        conditions.add("s.statut IN (" + statutIn + ")");
         conditions.add("m.id = :magasinId");
         params.put("magasinId", userMagasinId);
 
-        if (StringUtils.hasLength(type) && !type.equals(EntityConstant.TOUT)) {
-            conditions.add(type.equals(EntityConstant.VO)
-                ? "s.dtype = 'ThirdPartySales'" : "s.dtype = 'CashSale'");
+        if (!CollectionUtils.isEmpty(types)) {
+            Set<String> dtypes = types.stream()
+                .filter(t -> !EntityConstant.TOUT.equals(t))
+                //  .map(t -> "VNO".equals(t) ? "CashSale" : "ThirdPartySales")
+                .collect(Collectors.toSet());
+            if (dtypes.size() == 1) {
+                conditions.add("s.nature_vente = '" + dtypes.iterator().next() + "'");
+            } else if (dtypes.size() > 1) {
+                conditions.add("s.nature_vente IN (" +
+                    String.join(", ", dtypes.stream().map(d -> "'" + d + "'").toList()) + ")");
+            }
         }
 
         if (fromDate != null && toDate != null) {
@@ -503,57 +621,7 @@ public class SaleDataService {
             params.put("isDiffere", isDiffere);
         }
 
-        String whereClause = " WHERE " + String.join(" AND ", conditions);
-
-        String baseJoins =
-            " FROM sales s" +
-                " JOIN app_user u ON s.user_id = u.id" +
-                " JOIN magasin m ON u.magasin_id = m.id" +
-                " JOIN app_user sel ON s.seller_id = sel.id" +
-                " JOIN app_user cas ON s.caissier_id = cas.id";
-
-        var countQuery = em.createNativeQuery(
-            "SELECT COUNT(DISTINCT s.id)" + baseJoins + whereClause);
-        params.forEach(countQuery::setParameter);
-        long totalCount = ((Number) countQuery.getSingleResult()).longValue();
-
-        if (totalCount == 0) {
-            return new PageImpl<>(Collections.emptyList(), pageable, totalCount);
-        }
-
-        String selectClause =
-            "SELECT s.dtype, s.id, s.sale_date, s.number_transaction," +
-                " s.discount_amount, s.sales_amount, s.amount_to_be_paid, s.rest_to_pay," +
-                " s.statut, s.payment_status, s.nature_vente, s.type_prescription," +
-                " s.differe, s.canceled, s.created_at, s.updated_at," +
-                " s.commentaire, s.monnaie, s.tvaembeded," +
-                " s.num_bon, s.part_assure, s.part_tiers_payant," +
-                " CONCAT(u.first_name, ' ', u.last_name)," +
-                " sel.id, sel.first_name, sel.last_name," +
-                " cas.id, cas.first_name, cas.last_name," +
-                " p.poste_number, lp.poste_number,c.first_name,c.last_name,c.phone,c.id";
-
-        String dataJoins = baseJoins +
-            " LEFT JOIN poste p ON s.caisse_id = p.id" +
-            " LEFT JOIN poste lp ON s.lastcaisse_id = lp.id" +
-            " LEFT JOIN customer c ON s.customer_id = c.id";
-
-        var dataQuery = em.createNativeQuery(
-            selectClause + dataJoins + whereClause + " ORDER BY s.updated_at DESC"
-        );
-        params.forEach(dataQuery::setParameter);
-        if (pageable != null) {
-            dataQuery.setFirstResult((int) pageable.getOffset());
-            dataQuery.setMaxResults(pageable.getPageSize());
-        }
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> rows = dataQuery.getResultList();
-        return new PageImpl<>(
-            rows.stream().map(SaleDataService::mapRowToSaleDTO).toList(),
-            pageable,
-            totalCount
-        );
+        return new VentesFilter(" WHERE " + String.join(" AND ", conditions), params);
     }
 
     private long countVentesDepot(
@@ -1042,6 +1110,11 @@ public class SaleDataService {
                 dto.setCustomer(customer);
             }
 
+            return this;
+        }
+
+        SaleDTOBuilder itemCount(Integer itemCount) {
+            dto.setItemCount(itemCount != null ? itemCount : 0);
             return this;
         }
 

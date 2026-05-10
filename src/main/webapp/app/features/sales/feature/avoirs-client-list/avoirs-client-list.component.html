@@ -1,0 +1,179 @@
+<div class="container-fluid">
+  <div class="pharma-smart-content p-1">
+
+    <div class="pharma-toolbar pharma-toolbar-compact">
+      <div class="pharma-toolbar-header">
+        <i class="pi pi-replay"></i>
+        <span class="pharma-toolbar-title">Avoirs clients</span>
+      </div>
+
+      <p-toolbar>
+        <ng-template #start>
+          <div class="pharma-toolbar-filters">
+            <p-select
+              [options]="statutOptions"
+              [ngModel]="statut()"
+              (ngModelChange)="onStatutChange($event)"
+              optionLabel="label"
+              optionValue="value"
+              appendTo="body"
+            />
+
+            <p-iconfield>
+              <p-inputicon class="pi pi-search" />
+              <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText placeholder="Référence, produit..." type="text" />
+            </p-iconfield>
+
+            <p-floatlabel variant="on">
+              <p-datePicker
+                [(ngModel)]="fromDate"
+                [maxDate]="toDate"
+                [selectOtherMonths]="true"
+                [showButtonBar]="true"
+                appendTo="body"
+                dateFormat="dd/mm/yy"
+                id="avoir-fromDate"
+              />
+              <label for="avoir-fromDate">Du</label>
+            </p-floatlabel>
+
+            <p-floatlabel variant="on">
+              <p-datePicker
+                [(ngModel)]="toDate"
+                [minDate]="fromDate"
+                [selectOtherMonths]="true"
+                [showButtonBar]="true"
+                appendTo="body"
+                dateFormat="dd/mm/yy"
+                id="avoir-toDate"
+              />
+              <label for="avoir-toDate">Au</label>
+            </p-floatlabel>
+          </div>
+        </ng-template>
+
+        <ng-template #end>
+          <p-button (click)="onSearch()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
+        </ng-template>
+      </p-toolbar>
+    </div>
+
+    <div class="journal-summary-bar">
+      <div class="summary-item">
+        <i class="pi pi-list"></i>
+        <span class="summary-label">Nombre total :</span>
+        <span class="summary-value">{{ documentsTotal | number }}</span>
+      </div>
+      <div class="summary-item">
+        <i class="pi pi-wallet"></i>
+        <span class="summary-label">Montant total :</span>
+        <span class="summary-value avoir-amount">{{ totalMontantDocuments | number: '1.0-0' }} FCFA</span>
+      </div>
+    </div>
+
+    <p-table
+      (onLazyLoad)="lazyLoadingDocuments($event)"
+      [lazy]="true"
+      [loading]="loading()"
+      [paginator]="true"
+      [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+      [rows]="itemsPerPage"
+      [showCurrentPageReport]="true"
+      [totalRecords]="documentsTotal"
+      [value]="documents()"
+      class="p-datatable-sm p-datatable-striped"
+      currentPageReportTemplate="{first} – {last} sur {totalRecords}"
+      dataKey="id"
+    >
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th>Référence</th>
+          <th>Créé le</th>
+          @if (statut() !== 'OUVERT') {
+            <th>Clôturé le</th>
+          }
+          <th>Produit</th>
+          <th>Code</th>
+          <th class="text-right">Qté</th>
+          <th class="text-right">Montant</th>
+          <th>Client</th>
+          @if (statut() !== 'OUVERT') {
+            <th>Mode clôture</th>
+            <th>Clôturé par</th>
+          }
+          <th class="text-center">Statut</th>
+          @if (statut() !== 'CLOTURE') {
+            <th class="text-center">Action</th>
+          }
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-doc>
+        <tr>
+          <td><span class="pharma-code">{{ doc.reference }}</span></td>
+          <td>{{ doc.createdAt | date: 'dd/MM/yyyy' }}</td>
+          @if (statut() !== 'OUVERT') {
+            <td>{{ doc.clotureLe | date: 'dd/MM/yyyy' }}</td>
+          }
+          <td class="pharma-product-name">{{ doc.produitLibelle }}</td>
+          <td><span class="pharma-code">{{ doc.codeCip }}</span></td>
+          <td class="text-right pharma-qty-value avoir-qty">{{ doc.quantite | number }}</td>
+          <td class="text-right pharma-price">{{ doc.montant | number: '1.0-0' }}</td>
+          <td class="pharma-entity-name">{{ doc.customerName || '—' }}</td>
+          @if (statut() !== 'OUVERT') {
+            <td>
+              @if (doc.modeCloture) {
+                <span class="mode-cloture-badge">
+                  <i [class]="modeClotureIconOf(doc.modeCloture) + ' me-1'"></i>
+                  {{ modeClotureLabelOf(doc.modeCloture) }}
+                </span>
+              } @else {
+                <span>—</span>
+              }
+            </td>
+            <td>{{ doc.closedByName || '—' }}</td>
+          }
+          <td class="text-center">
+            @if (doc.statut === 'OUVERT') {
+              <p-tag severity="warn" value="Ouvert" />
+            } @else {
+              <p-tag severity="success" value="Clôturé" />
+            }
+          </td>
+          @if (statut() !== 'CLOTURE') {
+            <td class="text-center">
+              @if (doc.statut === 'OUVERT') {
+                <p-button
+                  (click)="openCloturerDialog(doc)"
+                  [raised]="true"
+                  icon="pi pi-check-circle"
+                  label="Clôturer"
+                  severity="success"
+                  size="small"
+                  pTooltip="Clôturer cet avoir"
+                  tooltipPosition="left"
+                />
+              }
+            </td>
+          }
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td [attr.colspan]="statut() === null ? 12 : statut() === 'CLOTURE' ? 11 : 9"
+              style="text-align:center;padding:2rem;color:#888">
+            @if (statut() === 'OUVERT') {
+              Aucun avoir en attente de clôture
+            } @else if (statut() === 'CLOTURE') {
+              Aucun avoir clôturé pour la période sélectionnée
+            } @else {
+              Aucun avoir trouvé
+            }
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+  </div>
+</div>

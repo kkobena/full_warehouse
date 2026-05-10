@@ -50,17 +50,19 @@ import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.SalesManager;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 @Service
 @Transactional
@@ -79,16 +81,16 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     private final SalesManager salesManager;
 
     public SaleServiceImpl(SalesRepository salesRepository, UserRepository userRepository,
-        UninsuredCustomerRepository uninsuredCustomerRepository,
-        PaymentModeRepository paymentModeRepository, StorageService storageService,
-        CashSaleRepository cashSaleRepository, CashRegisterService cashRegisterService,
-        SaleLineServiceFactory saleLineServiceFactory, PaymentService paymentService,
-        ReferenceService referenceService, PosteRepository posteRepository,
-        UtilisationCleSecuriteService utilisationCleSecuriteService,
-        RemiseRepository remiseRepository, CustomerDisplayService afficheurPosService,
-        SaleIdGeneratorService idGeneratorService, ObjectMapper objectMapper,
-        SalesManager salesManager,
-        com.kobe.warehouse.service.settings.AppConfigurationService appConfigurationService) {
+                           UninsuredCustomerRepository uninsuredCustomerRepository,
+                           PaymentModeRepository paymentModeRepository, StorageService storageService,
+                           CashSaleRepository cashSaleRepository, CashRegisterService cashRegisterService,
+                           SaleLineServiceFactory saleLineServiceFactory, PaymentService paymentService,
+                           ReferenceService referenceService, PosteRepository posteRepository,
+                           UtilisationCleSecuriteService utilisationCleSecuriteService,
+                           RemiseRepository remiseRepository, CustomerDisplayService afficheurPosService,
+                           SaleIdGeneratorService idGeneratorService, ObjectMapper objectMapper,
+                           SalesManager salesManager,
+                           AppConfigurationService appConfigurationService) {
         super(referenceService, storageService, userRepository, saleLineServiceFactory,
             cashRegisterService, posteRepository, afficheurPosService, idGeneratorService,
             objectMapper, appConfigurationService);
@@ -426,7 +428,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
 
     @Override
     public List<SaleLineDTO> findBySalesIdAndSalesSaleDateOrderByProduitLibelle(Long salesId,
-        LocalDate saleDate) {
+                                                                                LocalDate saleDate) {
         return salesLineService.findBySalesIdAndSalesSaleDateOrderByProduitLibelle(salesId,
             saleDate);
     }

@@ -10,26 +10,37 @@
       <p-toolbar>
         <ng-template #start>
           <div class="pharma-toolbar-filters">
-            <p-select (onChange)="onTypeVenteChange()" [(ngModel)]="typeVenteSelected" [options]="typeVentes"
-                      appendTo="body"/>
+            <p-multiSelect
+              (onChange)="onTypeVenteChange()"
+              [(ngModel)]="typeVenteSelected"
+              [options]="typeVentes"
+              [showClear]="true"
+              optionLabel="label"
+              optionValue="value"
+              appendTo="body"
+              placeholder="Type de vente"
+            />
 
             <p-select
               #userControl
               [(ngModel)]="selectedUserId"
               [options]="users"
+              [showClear]="true"
               appendTo="body"
               id="selectedUserId"
               inputId="selectedUserId"
               optionLabel="abbrName"
               optionValue="id"
+              placeholder="Caissier"
             />
+
 
             <div class="pharma-compact-search mr-1">
               <p-inputgroup>
-                <input (keyup.enter)="onSearch()" pInputText placeholder="Rechercher..." type="text"/>
+                <input (keyup.enter)="onSearch()" pInputText placeholder="Rechercher..." type="text" />
                 <p-inputgroup-addon>
                   <p-checkbox [(ngModel)]="global" [binary]="true" id="global" inputId="global"
-                              pTooltip="Recherche globale"/>
+                              pTooltip="Recherche globale" />
                 </p-inputgroup-addon>
               </p-inputgroup>
             </div>
@@ -65,13 +76,13 @@
 
             <p-floatlabel class="pharma-hide-mobile" variant="on">
               <p-select [(ngModel)]="fromHour" [options]="hours" [style]="'max-width: 110px;'" appendTo="body"
-                        id="fromHour"/>
+                        id="fromHour" />
               <label for="fromHour">De</label>
             </p-floatlabel>
 
             <p-floatlabel class="pharma-hide-mobile" variant="on">
               <p-select [(ngModel)]="toHour" [options]="hours" [style]="'max-width: 110px;'" appendTo="body"
-                        id="toHour"/>
+                        id="toHour" />
               <label for="toHour">À</label>
             </p-floatlabel>
           </div>
@@ -80,7 +91,18 @@
         <ng-template #end>
           <div class="pharma-toolbar-actions">
             <div class="pharma-button-group pharma-hide-mobile">
-              <p-button (click)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info"/>
+              <p-button (click)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
+              <p-button
+                (click)="exportJournal()"
+                [loading]="exportLoading()"
+                [raised]="true"
+                [hidden]="true"
+                icon="pi pi-file-excel"
+                label="Exporter"
+                severity="secondary"
+                pTooltip="Exporter le journal filtré en Excel"
+                tooltipPosition="bottom"
+              />
 
 
               <div>
@@ -141,6 +163,19 @@
         </ng-template>
       </p-toolbar>
     </div>
+    <div class="journal-summary-bar">
+      <div class="summary-item">
+        <i class="pi pi-list"></i>
+        <span class="summary-label">Nombre de ventes :</span>
+        <span class="summary-value">{{ totalItems | number }}</span>
+      </div>
+      <div class="summary-item">
+        <i class="pi pi-wallet"></i>
+        <span class="summary-label">Total CA:</span>
+        <span class="summary-value">{{ totalSalesAmount() | number: '1.0-0' }} FCFA</span>
+      </div>
+    </div>
+
     <div class="mt-3 -mb-3">
       @if (sales && sales.length > 0) {
         <p-table
@@ -154,24 +189,26 @@
           [showCurrentPageReport]="true"
           [totalRecords]="totalItems"
           [value]="sales"
-          class="pharma-table"
+          class="p-datatable-sm p-datatable-striped"
           currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} ventes"
           dataKey="id"
           selectionMode="single"
           stripedRows="true"
         >
+          <p-menu #rowMenu [popup]="true" [model]="menuItems()" appendTo="body" />
+
           <ng-template #header>
             <tr class="pharma-table-head">
               <th style="width: 3%"></th>
-              <th style="width: 12%">Date</th>
-              <th style="width: 7%">Type</th>
-              <th style="width: 11%">Référence</th>
-              <!--   <th style="width: 6%">Nbre d'articles</th>-->
-              <th style="width: 8%">Montant</th>
-              <th style="width: 16%">Client</th>
-              <th style="width: 15%">Vendeur</th>
-              <th style="width: 15%">Caissier</th>
-              <th style="width: 14%"></th>
+              <th style="width: 10%">Date</th>
+              <th style="width: 9%">Type</th>
+              <th style="width: 9%">Référence</th>
+              <th style="width: 5%" class="text-right">Articles</th>
+              <th style="width: 8%" class="text-right">Montant</th>
+              <th style="width: 15%">Client</th>
+              <th style="width: 13%">Vendeur</th>
+              <th style="width: 12%">Caissier</th>
+              <th style="width: 5%"></th>
             </tr>
           </ng-template>
           <ng-template #body let-expanded="expanded" let-sale>
@@ -186,17 +223,22 @@
                 />
               </td>
               <td>{{ sale.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
-              @if (sale.natureVente === 'ASSURANCE') {
-                <td><span class="pharma-badge pharma-badge-info">Assurance</span></td>
-              } @else if (sale.natureVente === 'CARNET') {
-                <td><span class="pharma-badge pharma-badge-info">Carnet</span></td>
-              } @else {
-                <td><span class="pharma-badge pharma-badge-info" pTooltip="Vente sans ordonnance" tooltipPosition="top">Comptant</span></td>
-              }
+              <td>
+                @if (sale.natureVente === 'ASSURANCE') {
+                  <span class="pharma-badge pharma-badge-info">Assurance</span>
+                } @else if (sale.natureVente === 'CARNET') {
+                  <span class="pharma-badge pharma-badge-warning">Carnet</span>
+                } @else {
+                  <span class="pharma-badge pharma-badge-info" pTooltip="Vente sans ordonnance" tooltipPosition="top">Comptant</span>
+                }
+                @if (sale.canceled || sale.statut === SalesStatut.CANCELED) {
+                  <span class="pharma-badge pharma-badge-danger ms-1">Annulée</span>
+                }
+              </td>
               <td>
                 <span class="pharma-code">{{ sale.numberTransaction }}</span>
               </td>
-              <!--  <td class="text-right">{{ sale.salesLines.length | number }}</td>-->
+              <td class="text-right">{{ (sale.itemCount || sale.salesLines?.length )  | number }}</td>
               <td [ngClass]="sale.salesAmount < 0 || sale.canceled ? 'pharma-price-negative' : 'pharma-price'">
                 {{ sale.salesAmount | number }}
               </td>
@@ -204,88 +246,15 @@
               <td>{{ sale.seller?.abbrName }}</td>
               <td>{{ sale.cassier?.abbrName }}</td>
               <td class="text-right">
-                <p-buttonGroup>
-                  @if (canEditVente() && (sale.natureVente === 'ASSURANCE' || sale.natureVente === 'CARNET') && !sale.canceled && sale.statut !== SalesStatut.CANCELED) {
-                    <p-button
-                      (click)="confirmEdit(sale)"
-                      [text]="true"
-                      icon="pi pi-file-edit"
-                      pTooltip="Editer"
-                      rounded="true"
-                      severity="success"
-                      [rounded]="true"
-                      tooltipPosition="left"
-                    />
-                    @if (canEditVente() && !sale.canceled && sale.statut !== SalesStatut.CANCELED) {
-                      <p-button
-                        (click)="onEditCustomer(sale)"
-                        [rounded]="true"
-                        [text]="true"
-                        icon="pi pi-user-edit"
-                        pTooltip="Modifier les informations du client"
-                        severity="help"
-                        tooltipPosition="left"
-                      />
-                    }
-
-                    @if (canEditVente() && !sale.canceled && sale.statut !== SalesStatut.CANCELED) {
-                      <p-button
-                        (click)="editSaleUpdatedDate(sale)"
-                        [rounded]="true"
-                        [text]="true"
-                        icon="pi pi-calendar-plus"
-                        pTooltip="Modifier la date"
-                        severity="contrast"
-                        tooltipPosition="left"
-                      />
-                    }
-
-
-                  }
-
-                  @if (sale.customer  && !sale.canceled && sale.statut !== SalesStatut.CANCELED) {
-                    <p-button
-                      (click)="reprintReceipt(sale)"
-                      [rounded]="true"
-                      [text]="true"
-                      icon="pi pi-print"
-                      pTooltip="Imprimer"
-                      severity="secondary"
-                      tooltipPosition="left"
-                    />
-                    <p-button
-                      (click)="printInvoice(sale)"
-                      [rounded]="true"
-                      [text]="true"
-                      icon="pi pi-receipt"
-                      pTooltip="Imprimer la facture"
-                      severity="warn"
-                      tooltipPosition="left"
-                    />
-                  }
-
-                  <p-button
-                    (click)="suggerer(sale)"
-                    [hidden]="true"
-                    [rounded]="true"
-                    [text]="true"
-                    icon="pi pi-send"
-                    pTooltip="Suggérer"
-                    severity="help"
-                    tooltipPosition="left"
-                  />
-                  @if (canCancelVente() && !sale.canceled && sale.statut !== SalesStatut.CANCELED) {
-                    <p-button
-                      (click)="confirmCancel(sale)"
-                      [rounded]="true"
-                      [text]="true"
-                      icon="pi pi-trash"
-                      pTooltip="Annuler"
-                      severity="danger"
-                      tooltipPosition="left"
-                    />
-                  }</p-buttonGroup>
-
+                <p-button
+                  icon="pi pi-ellipsis-v"
+                  [rounded]="true"
+                  [text]="true"
+                  severity="secondary"
+                  pTooltip="Actions"
+                  tooltipPosition="left"
+                  (onClick)="openContextMenu($event, sale, rowMenu)"
+                />
               </td>
             </tr>
           </ng-template>
@@ -510,6 +479,6 @@
   </div>
 </div>
 
-<p-toast position="center"/>
+<p-toast position="center" />
 <ngx-spinner [fullScreen]="true" bdColor="rgba(255,255,255,0.5)" color="#f13151" name="sale-spinner" size="medium"
              type="timer"></ngx-spinner>

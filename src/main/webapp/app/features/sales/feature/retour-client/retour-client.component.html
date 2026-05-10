@@ -1,0 +1,89 @@
+<div class="pharma-smart-content p-1">
+  <div class="pharma-toolbar pharma-toolbar-compact">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-ban"></i>
+      <span class="pharma-toolbar-title">Annulations de ventes</span>
+    </div>
+
+    <p-toolbar class="mt-1">
+      <ng-template #start>
+        <p-iconfield>
+          <p-inputicon class="pi pi-search" />
+          <input pInputText type="text" [(ngModel)]="search" placeholder="Réf. retour ou vente…"
+                 (keyup.enter)="onSearch()"  />
+        </p-iconfield>
+        <p-floatlabel variant="on" [style]="{'margin-left':'.75rem'}">
+          <p-datePicker inputId="fromDate" [(ngModel)]="fromDate" dateFormat="dd/mm/yy" [showIcon]="true" appendTo="body" />
+          <label for="fromDate">Du</label>
+        </p-floatlabel>
+        <p-floatlabel variant="on" [style]="{'margin-left':'.5rem'}">
+          <p-datePicker inputId="toDate" [(ngModel)]="toDate" dateFormat="dd/mm/yy" [showIcon]="true" appendTo="body" />
+          <label for="toDate">Au</label>
+        </p-floatlabel>
+
+      </ng-template>
+      <ng-template #end>
+        <p-button icon="pi pi-search" label="Rechercher" severity="info" size="small"
+                  (onClick)="onSearch()"  />
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+
+
+
+
+
+<p-table
+  [value]="retours"
+  [lazy]="true"
+  (onLazyLoad)="lazyLoading($event)"
+  [totalRecords]="totalItems"
+  [rows]="itemsPerPage"
+  [paginator]="true"
+  [showCurrentPageReport]="true"
+  currentPageReportTemplate="{first} – {last} sur {totalRecords}"
+  [rowsPerPageOptions]="[10, 20, 50]"
+  [loading]="loading()"
+  class="p-datatable-sm p-datatable-striped"
+  dataKey="id">
+
+  <ng-template #header>
+    <tr class="pharma-table-head">
+      <th>Référence</th>
+      <th>Date</th>
+      <th>Client</th>
+      <th>Vente d'origine</th>
+      <th>Motif</th>
+      <th style="text-align:right">Montant</th>
+      <th>Mode règlement</th>
+      <th>Par</th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-r>
+    <tr>
+      <td><span class="retour-ref">{{ r.reference }}</span></td>
+      <td>{{ r.createdAt | date:'dd/MM/yyyy' }}</td>
+      <td>{{ r.customerName ?? '—' }}</td>
+      <td>{{ r.originalSaleRef ?? '—' }}</td>
+      <td>{{ motifLabelOf(r.motif) }}</td>
+      <td style="text-align:right" class="retour-amount">{{ r.montantTotal | number:'1.0-0' }} F</td>
+      <td>
+        @if (r.modeReglement) {
+          <span class="mode-badge">
+            <i [class]="modeIconOf(r.modeReglement)"></i>
+            {{ modeLabelOf(r.modeReglement) }}
+          </span>
+        }
+      </td>
+      <td>{{ r.createdByName }}</td>
+    </tr>
+  </ng-template>
+
+  <ng-template #emptymessage>
+    <tr><td colspan="8" style="text-align:center;padding:2rem;color:#888">Aucun retour trouvé</td></tr>
+  </ng-template>
+</p-table>
+
+</div>

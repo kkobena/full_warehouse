@@ -9,6 +9,7 @@ import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.ProductsToDestroy;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.RetourBonItem;
+import com.kobe.warehouse.domain.RetourClientLine;
 import com.kobe.warehouse.domain.RetourDepotItem;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.StockProduit;
@@ -148,6 +149,20 @@ public class InventoryTransactionBuilder {
                 .setUser(user)
                 .setMagasin(user.getMagasin())
                 .setRegularUnitPrice(retourDepotItem.getRegularUnitPrice());
+        } else if (entity instanceof RetourClientLine retourClientLine) {
+            Produit produit = retourClientLine.getProduit();
+            AppUser user = retourClientLine.getRetourClient().getCreatedBy();
+            inventoryTransaction = new InventoryTransaction()
+                .setProduit(produit)
+                .setMouvementType(MouvementProduit.RETOUR_CLIENT)
+                .setQuantity(retourClientLine.getQuantite())
+                .setQuantityBefor(retourClientLine.getQuantiteInit())
+                .setQuantityAfter(retourClientLine.getQuantite() + retourClientLine.getQuantiteInit())
+                .setCostAmount(retourClientLine.getPrixAchat())
+                .setEntityId(Long.parseLong(retourClientLine.getId() + ""))
+                .setUser(user)
+                .setMagasin(user.getMagasin())
+                .setRegularUnitPrice(retourClientLine.getPrixUnitaire());
         }
     }
 

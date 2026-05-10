@@ -2,9 +2,10 @@ import {Component, DestroyRef, inject, OnInit, signal, viewChild} from '@angular
 import {CommonModule} from "@angular/common";
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
+import {HttpHeaders} from '@angular/common/http';
 import {Router, RouterLink} from '@angular/router';
 import {Button} from 'primeng/button';
-import {TableModule} from 'primeng/table';
+import {TableLazyLoadEvent, TableModule} from 'primeng/table';
 import {Toolbar} from 'primeng/toolbar';
 import {Select} from 'primeng/select';
 import {IconField} from 'primeng/iconfield';
@@ -20,6 +21,7 @@ import {ConfirmDialogComponent} from '../../../../shared/dialog/confirm-dialog/c
 import {ButtonGroup} from "primeng/buttongroup";
 import {AbilityService} from '../../../../core/auth/ability.service';
 import {NgxSpinnerComponent} from "ngx-spinner";
+import {ITEMS_PER_PAGE} from '../../../../shared/constants/pagination.constants';
 
 @Component({
   selector: 'app-presale-list',
@@ -56,18 +58,24 @@ export class PresaleListComponent implements OnInit {
   protected loading = signal(false);
   protected transforming = signal(false);
   protected sales: ISales[] = [];
+  protected totalItems = 0;
+  protected page = 0;
+  protected itemsPerPage = ITEMS_PER_PAGE;
   protected typeVentes = ['TOUT', 'VNO', 'VO'];
   protected typeVenteSelected = 'TOUT';
   protected search = '';
 
   ngOnInit(): void {
-    this.load();
+    this.loadPage();
   }
 
-  protected load(): void {
+  protected loadPage(page?: number): void {
+    const pageToLoad = page ?? this.page;
     this.loading.set(true);
     this.api
       .queryManagement({
+        page: pageToLoad,
+        size: this.itemsPerPage,
         search: this.search || null,
         type: this.typeVenteSelected,
         statut: [SalesStatut.PROCESSING, SalesStatut.PENDING],
@@ -75,11 +83,29 @@ export class PresaleListComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: res => {
-          this.sales = res.body || [];
           this.loading.set(false);
+          this.onSuccess(res.body, res.headers, pageToLoad);
         },
         error: () => this.loading.set(false),
       });
+  }
+
+  private onSuccess(data: ISales[] | null, headers: HttpHeaders, page: number): void {
+    this.totalItems = Number(headers.get('X-Total-Count'));
+    this.page = page;
+    this.sales = data || [];
+  }
+
+  protected lazyLoading(event: TableLazyLoadEvent): void {
+    if (event.first != null && event.rows != null) {
+      this.page = event.first / event.rows;
+      this.itemsPerPage = event.rows;
+      this.loadPage(this.page);
+    }
+  }
+
+  protected load(): void {
+    this.loadPage(0);
   }
 
   protected editPresale(sale: ISales): void {

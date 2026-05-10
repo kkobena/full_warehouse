@@ -59,6 +59,7 @@ export interface ISales {
   remise?: IRemise;
   magasin?: IMagasin;
   canceled?: boolean;
+  itemCount?: number;
 }
 
 export class Sales implements ISales {

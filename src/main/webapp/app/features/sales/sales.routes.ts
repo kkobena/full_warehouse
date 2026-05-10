@@ -49,5 +49,6 @@ export const SALES_ROUTES: Routes = [
     loadComponent: () => import('./feature/vente-depot/vente-depot.component').then(m => m.VenteDepotComponent),
     canActivate: [AuthGuard],
     data: { pageTitle: 'Vente dépôt', abilitySubject: 'depot.liste-depots' },
-  },
+  }
+
 ];

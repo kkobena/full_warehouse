@@ -46,6 +46,7 @@ import com.kobe.warehouse.service.id_generator.OrderLineIdGeneratorService;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.reassort.SuggestionReassortService;
 import com.kobe.warehouse.service.rupture.service.RuptureService;
+import com.kobe.warehouse.service.sale.AvoirClientDocumentService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.DataMatrixParserService;
 import com.kobe.warehouse.service.stock.DataMatrixParserService.BarcodeType;
@@ -120,6 +121,7 @@ public class StockEntryServiceImpl implements StockEntryService {
     private final SuggestionReassortService suggestionReassortService;
     private final RuptureService ruptureService;
     private final DataMatrixParserService dataMatrixParserService;
+    private final AvoirClientDocumentService avoirClientDocumentService;
 
     private final Predicate<OrderLine> canEntreeStockIsAuthorize2 = orderLine -> {
         if (!BooleanUtils.isTrue(orderLine.getUpdated())) {
@@ -161,7 +163,8 @@ public class StockEntryServiceImpl implements StockEntryService {
         LotStockLocationService lotStockLocationService,
         SuggestionReassortService suggestionReassortService,
         RuptureService ruptureService,
-        DataMatrixParserService dataMatrixParserService
+        DataMatrixParserService dataMatrixParserService,
+        AvoirClientDocumentService avoirClientDocumentService
     ) {
         this.commandeRepository = commandeRepository;
         this.produitService = produitService;
@@ -184,6 +187,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         this.suggestionReassortService = suggestionReassortService;
         this.ruptureService = ruptureService;
         this.dataMatrixParserService = dataMatrixParserService;
+        this.avoirClientDocumentService = avoirClientDocumentService;
     }
 
     @Override
@@ -332,34 +336,14 @@ public class StockEntryServiceImpl implements StockEntryService {
         deliveryReceipt.setUpdatedAt(LocalDateTime.now());
         deliveryReceipt = this.commandeRepository.save(deliveryReceipt);
 
-      /*  saveLotReceptions(deliveryReceipt, receiptDate);
-        saveLotStockLocations(deliveryReceipt);*/
+
         applyPutawayPolicy(deliveryReceipt, deliveryReceiptLite);
         inventoryTransactionService.saveAll(deliveryReceipt.getOrderLines());
+        avoirClientDocumentService.linkCommandeToAvoirs(deliveryReceipt);
         return new StockEntryResultDTO(deliveryReceipt.getId(), List.of());
     }
 
-    private Commande cloneCommande(Commande commande) {
-        Commande cloned = new Commande();
-        cloned.setOrderDate(LocalDate.now());
-        cloned.setId(commandeIdGeneratorService.getNextIdAsInt());
-        cloned.setCreatedAt(LocalDateTime.now());
-        cloned.setUpdatedAt(cloned.getCreatedAt());
-        cloned.setUser(storageService.getUser());
-        cloned.setFournisseur(commande.getFournisseur());
-        cloned.setOrderReference(commande.getOrderReference());
-        cloned.setReceiptDate(commande.getReceiptDate());
-        cloned.setGrossAmount(commande.getGrossAmount());
-        cloned.setDiscountAmount(commande.getDiscountAmount());
-        cloned.setTaxAmount(commande.getTaxAmount());
-        cloned.setReceiptReference(commande.getReceiptReference());
-        cloned.setHtAmount(commande.getHtAmount());
-        cloned.setFinalAmount(commande.getFinalAmount());
-        cloned.setOrderStatus(commande.getOrderStatus());
-        cloned.setType(commande.getType());
-        commande.getOrderLines().forEach(orderLine -> cloneOrderLine(orderLine, cloned));
-        return cloned;
-    }
+
 
     private void cloneOrderLine(OrderLine orderLine, Commande commande) {
         OrderLine cloned = new OrderLine();

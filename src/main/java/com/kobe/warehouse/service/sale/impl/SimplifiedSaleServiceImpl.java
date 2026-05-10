@@ -24,11 +24,6 @@ import com.kobe.warehouse.service.sale.SimplifiedSaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
-import java.time.LocalDate;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,6 +32,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -51,13 +52,13 @@ public class SimplifiedSaleServiceImpl extends SaleCommonService implements Simp
     private final PaymentService paymentService;
 
     public SimplifiedSaleServiceImpl(PaymentService paymentService,
-        CashSaleRepository cashSaleRepository, ReferenceService referenceService,
-        StorageService storageService, UserRepository userRepository,
-        SaleLineServiceFactory saleLineServiceFactory, CashRegisterService cashRegisterService,
-        PosteRepository posteRepository, CustomerDisplayService afficheurPosService,
-        SaleIdGeneratorService idGeneratorService,
-        UninsuredCustomerRepository uninsuredCustomerRepository, ObjectMapper objectMapper,
-        AppConfigurationService appConfigurationService) {
+                                     CashSaleRepository cashSaleRepository, ReferenceService referenceService,
+                                     StorageService storageService, UserRepository userRepository,
+                                     SaleLineServiceFactory saleLineServiceFactory, CashRegisterService cashRegisterService,
+                                     PosteRepository posteRepository, CustomerDisplayService afficheurPosService,
+                                     SaleIdGeneratorService idGeneratorService,
+                                     UninsuredCustomerRepository uninsuredCustomerRepository, ObjectMapper objectMapper,
+                                     AppConfigurationService appConfigurationService) {
         super(referenceService, storageService, userRepository, saleLineServiceFactory,
             cashRegisterService, posteRepository, afficheurPosService, idGeneratorService,
             objectMapper, appConfigurationService);
@@ -108,7 +109,7 @@ public class SimplifiedSaleServiceImpl extends SaleCommonService implements Simp
 
 
     public Slice<CashSaleDTO> getList( //pour le mobile
-        String search
+                                       String search
     ) {
 
         LocalDate today = LocalDate.now();

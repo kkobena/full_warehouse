@@ -15,7 +15,13 @@ import {map} from "rxjs/operators";
 @Injectable({ providedIn: 'root' })
 export class VenteDepotApiService {
   private readonly resourceUrl = SERVER_API_URL + 'api/vente-depot';
+  private readonly stockDpotsUrl = SERVER_API_URL + 'api/stock-depots/sales';
   private readonly http = inject(HttpClient);
+
+  query(req?: any): Observable<HttpResponse<ISales[]>> {
+    const options = createRequestOptions(req);
+    return this.http.get<ISales[]>(this.stockDpotsUrl, { params: options, observe: 'response' });
+  }
 
   create(sales: ISales): Observable<HttpResponse<ISales>> {
     return this.http.post<ISales>(this.resourceUrl, sales, { observe: 'response' });

@@ -41,6 +41,9 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
     @Query("select sale from Sales sale left join fetch sale.salesLines where sale.id =:id AND sale.saleDate =:saleDate")
     Optional<Sales> findOneWithEagerSalesLines(@Param("id") Long id, @Param("saleDate") LocalDate saleDate);
 
+    @Query("select sale from Sales sale where sale.numberTransaction = :ref and sale.statut = 'CLOSED' and sale.canceled = false order by sale.saleDate desc")
+    List<Sales> findByNumberTransaction(@Param("ref") String ref);
+
     List<Sales> findSalesByIdIn(Set<Long> ids);
 
     @Query(

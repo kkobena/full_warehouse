@@ -59,6 +59,7 @@ public class JobOrchestrationService {
     private final MaterializedViewRefreshService materializedViewRefreshService;
     private final FacturationSchedulerJob facturationSchedulerJob;
     private final CertificationFneSchedulerJob certificationFneSchedulerJob;
+    private final AvoirExpirationJob avoirExpirationJob;
 
     public JobOrchestrationService(
         StockSnapshotSchedulerService stockSnapshotSchedulerService,
@@ -69,7 +70,8 @@ public class JobOrchestrationService {
         TournantSchedulerService tournantSchedulerService,
         MaterializedViewRefreshService materializedViewRefreshService,
         FacturationSchedulerJob facturationSchedulerJob,
-        CertificationFneSchedulerJob certificationFneSchedulerJob
+        CertificationFneSchedulerJob certificationFneSchedulerJob,
+        AvoirExpirationJob avoirExpirationJob
     ) {
         this.stockSnapshotSchedulerService = stockSnapshotSchedulerService;
         this.semoisBatchJobService = semoisBatchJobService;
@@ -80,6 +82,7 @@ public class JobOrchestrationService {
         this.materializedViewRefreshService = materializedViewRefreshService;
         this.facturationSchedulerJob = facturationSchedulerJob;
         this.certificationFneSchedulerJob = certificationFneSchedulerJob;
+        this.avoirExpirationJob = avoirExpirationJob;
     }
 
     // ── Types ────────────────────────────────────────────────────────────────────
@@ -93,7 +96,8 @@ public class JobOrchestrationService {
         INVENTAIRE_TOURNANT("Inventaire tournant échu"),
         REFRESH_VIEWS("Rafraîchissement vues matérialisées"),
         FACTURATION_PLANIFICATIONS("Planifications de facturation périodique"),
-        CERTIFICATION_FNE("Certification FNE des factures générées");
+        CERTIFICATION_FNE("Certification FNE des factures générées"),
+        EXPIRATION_AVOIRS("Expiration avoirs clients échus");
 
         private final String label;
 
@@ -137,6 +141,7 @@ public class JobOrchestrationService {
         JobStep.INVENTAIRE_TOURNANT,
         JobStep.FACTURATION_PLANIFICATIONS,
         JobStep.CERTIFICATION_FNE,
+        JobStep.EXPIRATION_AVOIRS,
         JobStep.REFRESH_VIEWS
     );
 
@@ -191,6 +196,7 @@ public class JobOrchestrationService {
                 case INVENTAIRE_TOURNANT -> tournantSchedulerService.executerTournantsEchus();
                 case FACTURATION_PLANIFICATIONS -> facturationSchedulerJob.executerPlanificationsEnAttente();
                 case CERTIFICATION_FNE -> certificationFneSchedulerJob.executerCertificationsPendantes();
+                case EXPIRATION_AVOIRS -> avoirExpirationJob.expireAvoirsEchus();
                 case REFRESH_VIEWS -> materializedViewRefreshService.refreshAllViews();
             }
             Duration duration = Duration.between(start, Instant.now());

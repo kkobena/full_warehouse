@@ -1,0 +1,564 @@
+<div class="container-fluid">
+  <div class="pharma-smart-content p-2">
+    <div class="produit-form-container">
+
+      <!-- En-tête toolbar -->
+      <div class="pharma-toolbar">
+        <div class="pharma-toolbar-header">
+          <i class="pi pi-box"></i>
+          <span class="pharma-toolbar-title">
+            {{ editForm.get('id')?.value ? 'Modifier' : 'Nouveau' }} Produit
+          </span>
+        </div>
+        <p-toolbar>
+          <ng-template #end>
+            <p-button icon="pi pi-arrow-left" label="Retour" severity="secondary" [text]="true"
+                      (click)="previousState()"/>
+          </ng-template>
+        </p-toolbar>
+      </div>
+
+      @if (isLoading) {
+        <div class="loading-state">
+          <i class="pi pi-spin pi-spinner loading-icon"></i>
+          <p>Chargement des données de référence...</p>
+        </div>
+      } @else {
+        <form [formGroup]="editForm" (ngSubmit)="save()" novalidate>
+          <input type="hidden" formControlName="id"/>
+
+          <!-- ╔══════════════════════════════════════════════╗ -->
+          <!-- ║  NAVIGATION — style pharma-nav commun        ║ -->
+          <!-- ╚══════════════════════════════════════════════╝ -->
+          <div class="pharma-nav-tabs-container">
+            <div #nav="ngbNav" [activeId]="activeTab" (activeIdChange)="onTabChange($event)" class="nav pharma-nav-tabs" ngbNav>
+
+              <!-- ── ONGLET 1 : ESSENTIEL ──────────────────────────────── -->
+              <ng-container ngbNavItem="essentiel">
+                <a class="pharma-nav-tab-link" ngbNavLink>
+                  <i class="pi pi-star-fill"></i>
+                  <span>Essentiel</span>
+                  @if (isTabInvalid(['codeCip','fournisseurId','libelle','costAmount','regularUnitPrice','tvaId','familleId','rayonId'])) {
+                    <span class="tab-badge-error">!</span>
+                  }
+                </a>
+                <ng-template ngbNavContent>
+                  <div class="tab-panel">
+
+                    <!-- Section 1 : Identifiants clés -->
+                    <div class="form-section-title">
+                      <span class="section-number">1</span>
+                      <span>Identifiants</span>
+                    </div>
+                    <div class="form-grid cols-2">
+                      <div class="form-field">
+                        <label for="f_codeCip">Code CIP <span class="required">*</span></label>
+                        <input pInputText pKeyFilter="int" id="f_codeCip" formControlName="codeCip"
+                               class="w-full" placeholder="3400936..." autocomplete="off"
+                               [class.ng-invalid]="editForm.get('codeCip')?.invalid && editForm.get('codeCip')?.touched"/>
+                        @if (editForm.get('codeCip')?.invalid && editForm.get('codeCip')?.touched) {
+                          <small class="p-error">Obligatoire</small>
+                        }
+                      </div>
+                      <div class="form-field">
+                        <label for="f_fournisseur">Fournisseur principal <span class="required">*</span></label>
+                        <p-select id="f_fournisseur" formControlName="fournisseurId" [options]="fournisseurs"
+                                  [filter]="true" filterBy="libelle" optionLabel="libelle" optionValue="id"
+                                  placeholder="Sélectionner un fournisseur" [fluid]="true" appendTo="body"/>
+                        @if (editForm.get('fournisseurId')?.invalid && editForm.get('fournisseurId')?.touched) {
+                          <small class="p-error">Obligatoire</small>
+                        }
+                      </div>
+                    </div>
+
+                    <!-- Section 2 : Dénominations -->
+                    <div class="form-section-title mt-section">
+                      <span class="section-number">2</span>
+                      <span>Dénomination</span>
+                    </div>
+                    <div class="form-grid cols-2">
+                      <div class="form-field">
+                        <label for="f_libelle">Dénomination officielle <span class="required">*</span></label>
+                        <input pInputText id="f_libelle" formControlName="libelle" class="w-full"
+                               placeholder="Ex : Amoxicilline 500 mg gélules" autocomplete="off"
+                               [class.ng-invalid]="editForm.get('libelle')?.invalid && editForm.get('libelle')?.touched"/>
+                        @if (editForm.get('libelle')?.invalid && editForm.get('libelle')?.touched) {
+                          <small class="p-error">Obligatoire</small>
+                        }
+                      </div>
+                      <div class="form-field">
+                        <label for="f_nomCommercial">Nom commercial</label>
+                        <input pInputText id="f_nomCommercial" formControlName="nomCommercial" class="w-full"
+                               placeholder="Ex : Clamoxyl" autocomplete="off"/>
+                        <small class="field-hint">Nom de marque distinct de la dénomination officielle</small>
+                      </div>
+                    </div>
+
+                    <!-- Section 3 : Prix & TVA -->
+                    <div class="form-section-title mt-section">
+                      <span class="section-number">3</span>
+                      <span>Prix &amp; TVA</span>
+                    </div>
+                    @if (!isPriceValid) {
+                      <div class="alert alert-warning d-flex align-items-center mb-3" role="alert">
+                        <i class="pi pi-exclamation-triangle me-2"></i>
+                        Le prix d'achat doit être inférieur au prix de vente.
+                      </div>
+                    }
+                    <div class="form-grid cols-3">
+                      <div class="form-field">
+                        <label for="f_costAmount">Prix d'achat HT <span class="required">*</span></label>
+                        <div class="input-currency">
+                          <input pInputText pKeyFilter="int" id="f_costAmount" formControlName="costAmount"
+                                 class="w-full" placeholder="" autocomplete="off"
+                                 [class.ng-invalid]="!isPriceValid || (editForm.get('costAmount')?.invalid && editForm.get('costAmount')?.touched)"/>
+                          <span class="currency-symbol">FCFA</span>
+                        </div>
+                        @if (editForm.get('costAmount')?.invalid && editForm.get('costAmount')?.touched) {
+                          <small class="p-error">Obligatoire</small>
+                        }
+                      </div>
+                      <div class="form-field">
+                        <label for="f_regularUnitPrice">Prix de vente TTC <span class="required">*</span></label>
+                        <div class="input-currency">
+                          <input pInputText pKeyFilter="int" id="f_regularUnitPrice" formControlName="regularUnitPrice"
+                                 class="w-full" placeholder="" autocomplete="off"
+                                 [class.ng-invalid]="!isPriceValid || (editForm.get('regularUnitPrice')?.invalid && editForm.get('regularUnitPrice')?.touched)"/>
+                          <span class="currency-symbol">FCFA</span>
+                        </div>
+                        @if (editForm.get('regularUnitPrice')?.invalid && editForm.get('regularUnitPrice')?.touched) {
+                          <small class="p-error">Obligatoire</small>
+                        }
+                      </div>
+                      <div class="form-field">
+                        <label for="f_tva">TVA <span class="required">*</span></label>
+                        <p-select id="f_tva" formControlName="tvaId" [options]="tvas"
+                                  optionLabel="tva" optionValue="id"
+                                  placeholder="Sélectionner" [fluid]="true" appendTo="body"/>
+                        @if (editForm.get('tvaId')?.invalid && editForm.get('tvaId')?.touched) {
+                          <small class="p-error">Obligatoire</small>
+                        }
+                      </div>
+                    </div>
+
+                    <!-- Section 4 : Rangement -->
+                    <div class="form-section-title mt-section">
+                      <span class="section-number">4</span>
+                      <span>Rangement en officine</span>
+                    </div>
+                    <div class="form-grid cols-2">
+                      <div class="form-field">
+                        <label for="f_famille">Famille thérapeutique <span class="required">*</span></label>
+                        <p-select id="f_famille" formControlName="familleId" [options]="familleProduits"
+                                  [filter]="true" filterBy="libelle" optionLabel="libelle" optionValue="id"
+                                  placeholder="Sélectionner une famille" [fluid]="true" appendTo="body"/>
+                        @if (editForm.get('familleId')?.invalid && editForm.get('familleId')?.touched) {
+                          <small class="p-error">Obligatoire</small>
+                        }
+                      </div>
+                      <div class="form-field">
+                        <label for="f_rayon">Rayon / Emplacement <span class="required">*</span></label>
+                        <p-select id="f_rayon" formControlName="rayonId" [options]="rayons"
+                                  [filter]="true" filterBy="libelle" optionLabel="libelle" optionValue="id"
+                                  placeholder="Sélectionner un rayon" [fluid]="true" appendTo="body"/>
+                        @if (editForm.get('rayonId')?.invalid && editForm.get('rayonId')?.touched) {
+                          <small class="p-error">Obligatoire</small>
+                        }
+                      </div>
+                    </div>
+
+                    <!-- Section 5 : Conditionnement -->
+                    <div class="form-section-title mt-section">
+                      <span class="section-number">5</span>
+                      <span>Conditionnement</span>
+                      <span class="section-badge-optional">optionnel</span>
+                    </div>
+                    <div class="decond-toggle-row">
+                      <p-toggleswitch #swDecond inputId="f_decond" formControlName="deconditionnable"
+                                      (onChange)="onDeconditionnable($event.checked)"/>
+                      <label for="f_decond">Produit vendable à l'unité (déconditionnement)</label>
+                    </div>
+                    @if (isDeconditionnable) {
+                      @if (!isItemPriceValid) {
+                        <div class="alert alert-warning d-flex align-items-center mb-2 mt-2" role="alert">
+                          <i class="pi pi-exclamation-triangle me-2"></i>
+                          Le prix d'achat unitaire doit être inférieur au prix de vente unitaire.
+                        </div>
+                      }
+                      <div class="form-grid cols-3 decond-fields">
+                        <div class="form-field">
+                          <label for="f_itemQty">Unités / conditionnement <span class="required">*</span></label>
+                          <input pInputText pKeyFilter="int" id="f_itemQty" formControlName="itemQty"
+                                 class="w-full" placeholder="Ex : 16" autocomplete="off"/>
+                          <small class="field-hint">Les prix unitaires sont calculés automatiquement</small>
+                        </div>
+                        <div class="form-field">
+                          <label for="f_itemCostAmount">PA unitaire <span class="required">*</span></label>
+                          <div class="input-currency">
+                            <input pInputText pKeyFilter="int" id="f_itemCostAmount" formControlName="itemCostAmount"
+                                   class="w-full" autocomplete="off" [class.ng-invalid]="!isItemPriceValid"/>
+                            <span class="currency-symbol">FCFA</span>
+                          </div>
+                        </div>
+                        <div class="form-field">
+                          <label for="f_itemRegularUnitPrice">PV unitaire <span class="required">*</span></label>
+                          <div class="input-currency">
+                            <input pInputText pKeyFilter="int" id="f_itemRegularUnitPrice"
+                                   formControlName="itemRegularUnitPrice" class="w-full" autocomplete="off"
+                                   [class.ng-invalid]="!isItemPriceValid"/>
+                            <span class="currency-symbol">FCFA</span>
+                          </div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </ng-template>
+              </ng-container>
+
+              <!-- ── ONGLET 2 : FOURNISSEURS ───────────────────────────── -->
+              <ng-container ngbNavItem="fournisseurs" [disabled]="!isEditMode && !isEssentielValid">
+                <a class="pharma-nav-tab-link" ngbNavLink>
+                  <i class="pi pi-truck"></i>
+                  <span>Fournisseurs</span>
+                  @if (!isEditMode && !isEssentielValid) {
+                    <i class="pi pi-lock tab-lock-icon"></i>
+                  }
+                  @if (!isEditMode && fournisseursSupplementaires.invalid) {
+                    <span class="tab-badge-error">!</span>
+                  }
+                </a>
+                <ng-template ngbNavContent>
+                  <div class="tab-panel tab-panel-relation">
+                    @if (isEditMode) {
+                      <app-produit-fournisseurs-tab
+                        [produit]="currentProduit()!"
+                        (refreshRequested)="onFournisseurRefresh()"
+                      />
+                    } @else {
+                      <app-produit-fournisseurs-creation
+                        [principalLibelle]="principalFournisseurLibelle"
+                        [principalCip]="principalCip"
+                        [principalPrixAchat]="principalPrixAchat"
+                        [principalPrixUni]="principalPrixUni"
+                        [principalFournisseurId]="editForm.get('fournisseurId')?.value"
+                        [fournisseurs]="fournisseurs"
+                        [formArray]="fournisseursSupplementaires"
+                      />
+                    }
+                  </div>
+                </ng-template>
+              </ng-container>
+
+              <!-- ── ONGLET 3 : RÉGLEMENTATION ──────────────────────────── -->
+              <ng-container ngbNavItem="reglementation" [disabled]="!isEditMode && !isEssentielValid">
+                <a class="pharma-nav-tab-link" ngbNavLink>
+                  <i class="pi pi-shield"></i>
+                  <span>Réglementation</span>
+                  @if (!isEditMode && !isEssentielValid) {
+                    <i class="pi pi-lock tab-lock-icon"></i>
+                  }
+                </a>
+                <ng-template ngbNavContent>
+                  <div class="tab-panel">
+                    <div class="form-section-title">
+                      <span class="section-number">1</span>
+                      <span>Statut légal de dispensation</span>
+                    </div>
+                    <div class="form-grid cols-1">
+                      <div class="form-field">
+                        <label for="f_statutLegal">Liste réglementaire</label>
+                        <p-select id="f_statutLegal" formControlName="statutLegal"
+                                  [options]="statutLegalOptions" optionLabel="label" optionValue="value"
+                                  [fluid]="true" appendTo="body">
+                          <ng-template #selectedItem let-item>
+                            <span>{{ item.label }}</span>
+                          </ng-template>
+                          <ng-template #item let-opt>
+                            <div class="statut-option">
+                              <strong>{{ opt.label }}</strong>
+                              <small>{{ opt.description }}</small>
+                            </div>
+                          </ng-template>
+                        </p-select>
+                      </div>
+                    </div>
+                    <div class="form-section-title mt-section">
+                      <span class="section-number">2</span>
+                      <span>Propriétés du produit</span>
+                    </div>
+                    <div class="bool-grid">
+                      <div class="bool-card">
+                        <div class="bool-card-header">
+                          <p-toggleswitch inputId="f_gestionLot" formControlName="gestionLot"/>
+                          <label for="f_gestionLot"><i class="pi pi-receipt"></i> Gestion par lot &amp; péremption</label>
+                        </div>
+                        <p class="bool-card-desc">Traçabilité numéro lot + date expiration obligatoire à la réception</p>
+                      </div>
+                      <div class="bool-card">
+                        <div class="bool-card-header">
+                          <p-toggleswitch inputId="f_thermosensible" formControlName="thermosensible"/>
+                          <label for="f_thermosensible"><i class="pi pi-sun"></i> Thermosensible (chaîne du froid)</label>
+                        </div>
+                        <p class="bool-card-desc">Stockage et transport à température contrôlée requis</p>
+                      </div>
+                      <div class="bool-card" [class.bool-card-active]="isRemisable">
+                        <div class="bool-card-header">
+                          <p-toggleswitch inputId="f_remisable" formControlName="remisable"
+                                          (onChange)="onRemisableChange($event.checked)"/>
+                          <label for="f_remisable"><i class="pi pi-percentage"></i> Produit remisable</label>
+                        </div>
+                        <p class="bool-card-desc">Ce produit peut bénéficier d'un code de remise fournisseur</p>
+                        @if (isRemisable) {
+                          <div class="bool-card-sub">
+                            <label for="f_remiseCode">Code de remise</label>
+                            <p-select id="f_remiseCode" formControlName="remiseCode" [options]="remisesCodes"
+                                      optionLabel="value" optionValue="value"
+                                      placeholder="Sélectionner un code" [fluid]="true" appendTo="body" [showClear]="true"/>
+                          </div>
+                        }
+                      </div>
+                      <div class="bool-card">
+                        <div class="bool-card-header">
+                          <p-toggleswitch inputId="f_medEssentiel" formControlName="estMedicamentEssentiel"/>
+                          <label for="f_medEssentiel"><i class="pi pi-heart"></i> Médicament essentiel (OMS / LGO)</label>
+                        </div>
+                        <p class="bool-card-desc">Protégé contre la descente en dessous de la classe B</p>
+                      </div>
+                      <div class="bool-card">
+                        <div class="bool-card-header">
+                          <p-toggleswitch inputId="f_garde" formControlName="estProduitGarde"/>
+                          <label for="f_garde"><i class="pi pi-clock"></i> Produit de garde officine</label>
+                        </div>
+                        <p class="bool-card-desc">Classé automatiquement en priorité maximale — toujours en stock</p>
+                      </div>
+                    </div>
+                  </div>
+                </ng-template>
+              </ng-container>
+
+              <!-- ── ONGLET 4 : APPROVISIONNEMENT ──────────────────────── -->
+              <ng-container ngbNavItem="approvisionnement" [disabled]="!isEditMode && !isEssentielValid">
+                <a class="pharma-nav-tab-link" ngbNavLink>
+                  <i class="pi pi-chart-bar"></i>
+                  <span>Approvisionnement</span>
+                  @if (!isEditMode && !isEssentielValid) {
+                    <i class="pi pi-lock tab-lock-icon"></i>
+                  }
+                </a>
+                <ng-template ngbNavContent>
+                  <div class="tab-panel">
+                    <div class="form-section-title">
+                      <span class="section-number">1</span>
+                      <span>Classe de criticité produit</span>
+                    </div>
+                    <div class="criticite-section">
+                      <div class="form-field" style="flex:1">
+                        <label for="f_criticite">Niveau de priorité</label>
+                        <p-select id="f_criticite" formControlName="classeCriticite"
+                                  [options]="classeCriticiteOptions" optionLabel="label" optionValue="value"
+                                  [fluid]="true" appendTo="body">
+                          <ng-template #item let-opt>
+                            <div class="criticite-option">
+                              <span class="criticite-badge" [ngClass]="'badge-' + opt.badge">{{ opt.value }}</span>
+                              <div>
+                                <strong>{{ opt.label }}</strong>
+                                <small>{{ opt.description }}</small>
+                              </div>
+                            </div>
+                          </ng-template>
+                        </p-select>
+                      </div>
+                      <div class="bool-switch-inline">
+                        <p-toggleswitch inputId="f_override" formControlName="isClassificationOverridden"/>
+                        <div>
+                          <label for="f_override">Verrouiller cette classe</label>
+                          <small class="field-hint d-block">Ne sera pas modifiée par le calcul automatique</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-section-title mt-section">
+                      <span class="section-number">2</span>
+                      <span>Seuils &amp; quantités de réapprovisionnement</span>
+                    </div>
+                    <div class="alert alert-info d-flex align-items-center mb-3" role="alert">
+                      <i class="pi pi-info-circle me-2"></i>
+                      Ces valeurs sont calculées automatiquement. Saisissez-les manuellement en l'absence de calcul automatique.
+                    </div>
+                    <div class="form-grid cols-3">
+                      <div class="form-field">
+                        <label for="f_qtyAppro">Qté de réappro suggérée</label>
+                        <input pInputText pKeyFilter="int" id="f_qtyAppro" formControlName="qtyAppro"
+                               class="w-full" placeholder="Auto" autocomplete="off"/>
+                      </div>
+                      <div class="form-field">
+                        <label for="f_qtySeuilMini">Seuil mini (alerte rupture)</label>
+                        <input pInputText pKeyFilter="int" id="f_qtySeuilMini" formControlName="qtySeuilMini"
+                               class="w-full" placeholder="Auto" autocomplete="off"/>
+                      </div>
+                      <div class="form-field">
+                        <label for="f_stockMaxi">Stock maxi rayon</label>
+                        <input pInputText pKeyFilter="int" id="f_stockMaxi" formControlName="stockMaxi"
+                               class="w-full" placeholder="0" autocomplete="off"/>
+                      </div>
+                      <div class="form-field">
+                        <label for="f_stockReassort">Qté réassort réserve → rayon</label>
+                        <input pInputText pKeyFilter="int" id="f_stockReassort" formControlName="stockReassort"
+                               class="w-full" placeholder="0" autocomplete="off"/>
+                      </div>
+                      <div class="form-field">
+                        <label for="f_seuilMini">Seuil mini stock réserve</label>
+                        <input pInputText pKeyFilter="int" id="f_seuilMini" formControlName="seuilMini"
+                               class="w-full" placeholder="0" autocomplete="off"/>
+                      </div>
+                    </div>
+                  </div>
+                </ng-template>
+              </ng-container>
+
+              <!-- ── ONGLET 5 : CLASSIFICATION ─────────────────────────── -->
+              <ng-container ngbNavItem="classification" [disabled]="!isEditMode && !isEssentielValid">
+                <a class="pharma-nav-tab-link" ngbNavLink>
+                  <i class="pi pi-sitemap"></i>
+                  <span>Classification</span>
+                  @if (!isEditMode && !isEssentielValid) {
+                    <i class="pi pi-lock tab-lock-icon"></i>
+                  }
+                </a>
+                <ng-template ngbNavContent>
+                  <div class="tab-panel">
+                    <div class="form-grid cols-2">
+                      <div class="form-field full-width">
+                        <label for="f_codeEanLabo">Code EAN Laboratoire</label>
+                        <input pInputText pKeyFilter="int" id="f_codeEanLabo" formControlName="codeEanLaboratoire"
+                               class="w-full" placeholder="Code EAN attribué par le fabricant" autocomplete="off"/>
+                      </div>
+                      <div class="form-field">
+                        <label for="f_labo">Laboratoire fabricant</label>
+                        <p-select id="f_labo" formControlName="laboratoireId" [options]="laboratoires"
+                                  [filter]="true" filterBy="libelle" optionLabel="libelle" optionValue="id"
+                                  placeholder="Sélectionner un laboratoire" [fluid]="true" appendTo="body" [showClear]="true"/>
+                      </div>
+                      <div class="form-field">
+                        <label for="f_forme">Forme galénique</label>
+                        <p-select id="f_forme" formControlName="formeId" [options]="formeProduits"
+                                  optionLabel="libelle" optionValue="id"
+                                  placeholder="Comprimé, gélule, sirop..." [fluid]="true" appendTo="body" [showClear]="true"/>
+                      </div>
+                      <div class="form-field">
+                        <label for="f_gamme">Gamme</label>
+                        <p-select id="f_gamme" formControlName="gammeId" [options]="gammes"
+                                  optionLabel="libelle" optionValue="id"
+                                  placeholder="Sélectionner une gamme" [fluid]="true" appendTo="body" [showClear]="true"/>
+                      </div>
+                      <div class="form-field">
+                        <label for="f_dci">DCI — Dénomination Commune Internationale</label>
+                        <p-select id="f_dci" formControlName="dciId" [options]="dcis"
+                                  [filter]="true" filterBy="libelle" optionLabel="libelle" optionValue="id"
+                                  placeholder="Ex : Amoxicilline" [fluid]="true" appendTo="body" [showClear]="true"/>
+                      </div>
+                    </div>
+                  </div>
+                </ng-template>
+              </ng-container>
+
+              <!-- ── ONGLET 6 : TARIFS ASSURANCE ───────────────────────── -->
+              <ng-container ngbNavItem="tarifs" [disabled]="!isEditMode && !isEssentielValid">
+                <a class="pharma-nav-tab-link" ngbNavLink>
+                  <i class="pi pi-building"></i>
+                  <span>Tarifs assurance</span>
+                  @if (!isEditMode && !isEssentielValid) {
+                    <i class="pi pi-lock tab-lock-icon"></i>
+                  }
+                  @if (!isEditMode && prixReferenceCreationArray.invalid) {
+                    <span class="tab-badge-error">!</span>
+                  }
+                </a>
+                <ng-template ngbNavContent>
+                  <div class="tab-panel tab-panel-relation">
+                    @if (isEditMode) {
+                      <div class="d-flex justify-content-end mb-2">
+                        <p-button icon="pi pi-plus" label="Ajouter un tarif" size="small"
+                                  severity="primary" [outlined]="true" (onClick)="onAddPrix()"/>
+                      </div>
+                      <p-table [value]="prixReferences" [loading]="isLoadingPrix"
+                               [rowHover]="true" [stripedRows]="true" class="p-datatable-sm">
+                        <ng-template #header>
+                          <tr class="pharma-table-head">
+                            <th>Tiers payant</th>
+                            <th>Option de prix</th>
+                            <th class="text-end">Prix référence</th>
+                            <th class="text-end">Taux (%)</th>
+                            <th class="text-center">Actif</th>
+                            <th style="width:120px"></th>
+                          </tr>
+                        </ng-template>
+                        <ng-template #body let-prix>
+                          <tr>
+                            <td>{{ prix.tiersPayantName }}</td>
+                            <td>{{ prix.typeLibelle }}</td>
+                            <td class="text-end">@if (prix.price) { {{ prix.price }} FCFA }</td>
+                            <td class="text-end">@if (prix.rate) { {{ prix.rate }}% }</td>
+                            <td class="text-center">
+                              <span class="badge" [class.bg-success]="prix.enabled" [class.bg-secondary]="!prix.enabled">
+                                {{ prix.enabled ? 'Actif' : 'Inactif' }}
+                              </span>
+                            </td>
+                            <td class="text-end">
+                              <div class="row-actions">
+                                <p-button icon="pi pi-pencil" [text]="true" size="small"
+                                          severity="secondary" pTooltip="Modifier" (onClick)="onEditPrix(prix)"/>
+                                <p-button [icon]="prix.enabled ? 'pi pi-ban' : 'pi pi-check'"
+                                          [text]="true" size="small"
+                                          [severity]="prix.enabled ? 'contrast' : 'info'"
+                                          [pTooltip]="prix.enabled ? 'Désactiver' : 'Activer'"
+                                          (onClick)="onTogglePrix(prix)"/>
+                                <p-button icon="pi pi-trash" [text]="true" size="small"
+                                          severity="danger" pTooltip="Supprimer" (onClick)="onDeletePrix(prix)"/>
+                              </div>
+                            </td>
+                          </tr>
+                        </ng-template>
+                        <ng-template #emptymessage>
+                          <tr>
+                            <td colspan="6">
+                              <div class="pharma-empty-content text-center py-4">
+                                <i class="pi pi-building fs-2 text-muted d-block mb-2"></i>
+                                <p class="mb-1">Aucun tarif assurance configuré</p>
+                                <small class="text-muted">Cliquez sur "Ajouter un tarif" pour en créer un</small>
+                              </div>
+                            </td>
+                          </tr>
+                        </ng-template>
+                      </p-table>
+                    } @else {
+                      <app-produit-prix-creation
+                        [tiersPayants]="tiersPayants"
+                        [formArray]="prixReferenceCreationArray"
+                      />
+                    }
+                  </div>
+                </ng-template>
+              </ng-container>
+
+            </div><!-- /pharma-nav-tabs -->
+
+            <div class="pharma-nav-tabs-outlet">
+              <div [ngbNavOutlet]="nav"></div>
+            </div>
+          </div><!-- /pharma-nav-tabs-container -->
+
+          <!-- Barre d'actions sticky -->
+          <div class="form-actions-compact">
+            <p-button label="Annuler" icon="pi pi-times" severity="secondary" [text]="true"
+                      type="button" (click)="previousState()"/>
+            <p-button label="Enregistrer" icon="pi pi-check" severity="primary" type="submit"
+                      [disabled]="editForm.invalid || isSaving || !isPriceValid"
+                      [loading]="isSaving"/>
+          </div>
+
+        </form>
+      }
+    </div>
+  </div>
+</div>
+  <p-toast position="center"/>

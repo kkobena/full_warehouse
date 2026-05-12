@@ -1,0 +1,75 @@
+<div class="creation-tab-container">
+  <!-- Fournisseurs supplémentaires -->
+  <div class="section-header-bar mt-section">
+    <div class="section-header-bar-left">
+      <span class="section-number">1</span>
+      <span class="section-label">Fournisseurs supplémentaires</span>
+    </div>
+    <p-button icon="pi pi-plus" label="Ajouter un fournisseur" [outlined]="true" severity="primary"
+              size="small" type="button" (onClick)="addRow()"/>
+  </div>
+
+  @for (row of rows; track $index) {
+    <div class="supplier-row" [formGroup]="row">
+      <div class="row-header">
+        <span class="row-index">Fournisseur n°{{ $index + 1 }}</span>
+      </div>
+      @if (!isPrixValid(row)) {
+        <div class="alert alert-warning alert-sm d-flex align-items-center mb-2">
+          <i class="pi pi-exclamation-triangle me-2"></i>
+          Le prix d'achat doit être inférieur au prix de vente.
+        </div>
+      }
+      <div class="supplier-row-fields">
+        <div class="form-field">
+          <label>Fournisseur <span class="required">*</span></label>
+          <p-select formControlName="fournisseurId" [options]="availableFournisseurs($index)"
+                    [filter]="true" filterBy="libelle" optionLabel="libelle" optionValue="id"
+                    placeholder="Sélectionner" [fluid]="true" appendTo="body"
+                    [class.ng-invalid]="row.get('fournisseurId')?.invalid && row.get('fournisseurId')?.touched"/>
+        </div>
+        <div class="form-field">
+          <label>Code CIP <span class="required">*</span></label>
+          <input pInputText pKeyFilter="int" formControlName="codeCip" class="w-full"
+                 [class.ng-invalid]="row.get('codeCip')?.invalid && row.get('codeCip')?.touched"/>
+        </div>
+        <div class="form-field">
+          <label>Prix d'achat <span class="required">*</span></label>
+          <div class="input-currency">
+            <input pInputText pKeyFilter="int" formControlName="prixAchat" class="w-full"
+                   [class.ng-invalid]="!isPrixValid(row) || (row.get('prixAchat')?.invalid && row.get('prixAchat')?.touched)"/>
+            <span class="currency-symbol">FCFA</span>
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Prix de vente <span class="required">*</span></label>
+          <div class="input-currency">
+            <input pInputText pKeyFilter="int" formControlName="prixUni" class="w-full"
+                   [class.ng-invalid]="!isPrixValid(row) || (row.get('prixUni')?.invalid && row.get('prixUni')?.touched)"/>
+            <span class="currency-symbol">FCFA</span>
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Qté/colis</label>
+          <input pInputText pKeyFilter="int" formControlName="qteColis" class="w-full" placeholder="1"/>
+        </div>
+        <div class="form-field">
+          <label>Qté min. commande</label>
+          <input pInputText pKeyFilter="int" formControlName="qteMinimaleCommande" class="w-full" placeholder="0"/>
+        </div>
+        <div class="supplier-row-actions">
+          <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true" size="small"
+                    type="button" (onClick)="removeRow($index)"/>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (rows.length === 0) {
+    <div class="pharma-empty-content text-center py-3">
+      <i class="pi pi-truck fs-2 text-muted d-block mb-2"></i>
+      <p class="mb-0 text-muted">Aucun fournisseur supplémentaire — cliquez sur <strong>Ajouter</strong> pour en rattacher un.</p>
+    </div>
+  }
+
+</div>

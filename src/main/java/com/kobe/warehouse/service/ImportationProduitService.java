@@ -23,6 +23,7 @@ import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.ImportationStatus;
 import com.kobe.warehouse.domain.enumeration.ImportationType;
+import com.kobe.warehouse.domain.enumeration.StatutLegal;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.repository.FamilleProduitRepository;
 import com.kobe.warehouse.repository.FormProduitRepository;
@@ -638,7 +639,7 @@ public class ImportationProduitService {
                             org.springframework.util.StringUtils.hasText(gamme) ? tableauCode.get(gamme) : null,
                             org.springframework.util.StringUtils.hasText(chiffre) ? Integer.parseInt(chiffre) == 1 : null,
                             org.springframework.util.StringUtils.hasText(produitAvecOrdance)
-                                ? NumberUtil.parseInt(produitAvecOrdance) == 1
+                                ? (NumberUtil.parseInt(produitAvecOrdance) == 1 ? StatutLegal.LISTE_I : StatutLegal.SANS_LISTE)
                                 : null,
                             org.springframework.util.StringUtils.hasText(cmu) ? Integer.parseInt(cmu) : 0,
                             org.springframework.util.StringUtils.hasText(checkExpiryDate)
@@ -790,8 +791,8 @@ public class ImportationProduitService {
         if (nonNull(record.chiffre())) {
             produit.setChiffre(record.chiffre());
         }
-        if (nonNull(record.scheduled())) {
-            produit.setScheduled(record.scheduled());
+        if (nonNull(record.statutLegal())) {
+            produit.setStatutLegal(record.statutLegal());
         }
         if (org.springframework.util.StringUtils.hasText(record.codeEan())) {
             produit.setCodeEanLaboratoire(record.codeEan());
@@ -880,7 +881,7 @@ public class ImportationProduitService {
                             record.laboratoireId(),
                             record.gammeId(),
                             record.chiffre(),
-                            record.scheduled(),
+                            record.statutLegal(),
                             record.cmu(),
                             record.checkExpiryDate(),
                             record.perimeAt(),
@@ -929,7 +930,7 @@ public class ImportationProduitService {
         Integer laboratoireId,
         Integer gammeId,
         Boolean chiffre,
-        Boolean scheduled,
+        StatutLegal statutLegal,
         int cmu,
         Boolean checkExpiryDate,
         LocalDate perimeAt,

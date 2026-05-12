@@ -56,8 +56,23 @@ public class RetourClientLine implements Serializable {
     @Transient
     private int prixAchat;
 
+    @Transient
+    private boolean stockRestitue = true;
+
     @Column(name = "original_sales_line_date")
     private LocalDate originalSalesLineDate;
+
+    @Column(name = "montant_tp", nullable = false, columnDefinition = "int default 0")
+    private int montantTp = 0;
+
+    @Column(name = "emballage_intact", nullable = false, columnDefinition = "boolean default true")
+    private boolean emballageIntact = true;
+
+    @Column(name = "num_lot_lisible", nullable = false, columnDefinition = "boolean default true")
+    private boolean numLotLisible = true;
+
+    @Column(name = "date_peremption_valide", nullable = false, columnDefinition = "boolean default true")
+    private boolean datePeremptionValide = true;
 
     public Integer getId() {
         return id;
@@ -148,4 +163,31 @@ public class RetourClientLine implements Serializable {
         this.originalSalesLineDate = originalSalesLineDate;
         return this;
     }
+
+    public boolean isStockRestitue() {
+        return stockRestitue;
+    }
+
+    public RetourClientLine setStockRestitue(boolean stockRestitue) {
+        this.stockRestitue = stockRestitue;
+        return this;
+    }
+
+    public int getMontantTp() {
+        return montantTp;
+    }
+
+    public RetourClientLine setMontantTp(int montantTp) {
+        this.montantTp = montantTp;
+        return this;
+    }
+
+    public boolean isEmballageIntact() { return emballageIntact; }
+    public RetourClientLine setEmballageIntact(boolean emballageIntact) { this.emballageIntact = emballageIntact; return this; }
+
+    public boolean isNumLotLisible() { return numLotLisible; }
+    public RetourClientLine setNumLotLisible(boolean numLotLisible) { this.numLotLisible = numLotLisible; return this; }
+
+    public boolean isDatePeremptionValide() { return datePeremptionValide; }
+    public RetourClientLine setDatePeremptionValide(boolean datePeremptionValide) { this.datePeremptionValide = datePeremptionValide; return this; }
 }

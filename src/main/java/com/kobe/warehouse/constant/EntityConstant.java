@@ -87,6 +87,14 @@ public final class EntityConstant {
     public static final String APP_AP_DEFAULT_CREDIT_DAYS_CACHE = "APP_AP_DEFAULT_CREDIT_DAYS_CACHE";
     public static final String APP_AP_DEFAULT_CRITIQUE_DAYS = "APP_AP_DEFAULT_CRITIQUE_DAYS"; // Délai supplémentaire (jours) après échéance avant statut CRITIQUE
     public static final String APP_AP_DEFAULT_CRITIQUE_DAYS_CACHE = "APP_AP_DEFAULT_CRITIQUE_DAYS_CACHE";
+    public static final String APP_NOTIF_AVOIR_EMAIL_ENABLED = "APP_NOTIF_AVOIR_EMAIL_ENABLED"; // Notification email client quand ses produits en avoir sont disponibles (0/1)
+    public static final String APP_NOTIF_AVOIR_EMAIL_ENABLED_CACHE = "APP_NOTIF_AVOIR_EMAIL_ENABLED_CACHE";
+    public static final String APP_NOTIF_AVOIR_SMS_ENABLED = "APP_NOTIF_AVOIR_SMS_ENABLED"; // Notification SMS client quand ses produits en avoir sont disponibles (0/1)
+    public static final String APP_NOTIF_AVOIR_SMS_ENABLED_CACHE = "APP_NOTIF_AVOIR_SMS_ENABLED_CACHE";
+    public static final String APP_DELAI_VALIDITE_AVOIR = "APP_DELAI_VALIDITE_AVOIR"; // Délai de validité d'un avoir client (jours, défaut 90)
+    public static final String APP_DELAI_VALIDITE_AVOIR_CACHE = "APP_DELAI_VALIDITE_AVOIR_CACHE";
+    public static final String APP_DELAI_RETOUR_CLIENT = "APP_DELAI_RETOUR_CLIENT"; // Délai max (jours) entre la vente et le retour client avant avertissement (défaut 30)
+    public static final String APP_DELAI_RETOUR_CLIENT_CACHE = "APP_DELAI_RETOUR_CLIENT_CACHE";
 
     // ─── Navigation dynamique ─────────────────────────────────────────────────
     /** Cache de l'arbre de navigation par utilisateur. Clé : login. */

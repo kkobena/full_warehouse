@@ -16,6 +16,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -56,6 +57,12 @@ public class AvoirClient implements Serializable {
     @NotNull
     @Column(name = "montant", nullable = false)
     private int montant;
+
+    @Column(name = "montant_utilise", nullable = false, columnDefinition = "int default 0")
+    private int montantUtilise = 0;
+
+    @Column(name = "date_expiration")
+    private LocalDate dateExpiration;
 
     @Column(name = "commentaire", length = 500)
     private String commentaire;
@@ -115,6 +122,14 @@ public class AvoirClient implements Serializable {
 
     public int getMontant() { return montant; }
     public AvoirClient setMontant(int montant) { this.montant = montant; return this; }
+
+    public int getMontantUtilise() { return montantUtilise; }
+    public AvoirClient setMontantUtilise(int montantUtilise) { this.montantUtilise = montantUtilise; return this; }
+
+    public int getMontantRestant() { return montant - montantUtilise; }
+
+    public LocalDate getDateExpiration() { return dateExpiration; }
+    public AvoirClient setDateExpiration(LocalDate dateExpiration) { this.dateExpiration = dateExpiration; return this; }
 
     public String getCommentaire() { return commentaire; }
     public AvoirClient setCommentaire(String commentaire) { this.commentaire = commentaire; return this; }

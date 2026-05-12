@@ -457,6 +457,46 @@ public class AppConfigurationService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_NOTIF_AVOIR_EMAIL_ENABLED_CACHE)
+    public boolean isNotifAvoirEmailEnabled() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_NOTIF_AVOIR_EMAIL_ENABLED)
+            .map(c -> "1".equals(c.getValue().trim()))
+            .orElse(false);
+    }
+
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_NOTIF_AVOIR_SMS_ENABLED_CACHE)
+    public boolean isNotifAvoirSmsEnabled() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_NOTIF_AVOIR_SMS_ENABLED)
+            .map(c -> "1".equals(c.getValue().trim()))
+            .orElse(false);
+    }
+
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_DELAI_RETOUR_CLIENT_CACHE)
+    public int getDelaiRetourClient() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_DELAI_RETOUR_CLIENT)
+            .map(c -> {
+                try { return Integer.parseInt(c.getValue().trim()); } catch (NumberFormatException e) { return 30; }
+            })
+            .orElse(30);
+    }
+
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_DELAI_VALIDITE_AVOIR_CACHE)
+    public int getDelaiValiditeAvoir() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_DELAI_VALIDITE_AVOIR)
+            .map(c -> {
+                try { return Integer.parseInt(c.getValue().trim()); } catch (NumberFormatException e) { return 90; }
+            })
+            .orElse(90);
+    }
+
+    @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_DELAI_REGLEMENT_FACTURE)
     public int getDelaiReglement() {
         return appConfigurationRepository

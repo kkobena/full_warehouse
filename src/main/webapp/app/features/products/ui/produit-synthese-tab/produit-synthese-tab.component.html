@@ -190,10 +190,97 @@
             ></i>
           </span>
           <p-toggleswitch
-            [checked]="produit().gestionLot ?? true"
+            [ngModel]="produit().gestionLot ?? true"
             [disabled]="!canEdit() || gestionLotPending()"
             (onChange)="onToggleGestionLot($event.checked)"
             pTooltip="{{ (produit().gestionLot ?? false) ? 'Désactiver le suivi des lots' : 'Activer le suivi des lots' }}"
+            tooltipPosition="left"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Réglementation -->
+    <div class="synthese-section">
+      <h6 class="section-title">Réglementation</h6>
+      <div class="kpi-grid">
+        <div class="kpi-item">
+          <span class="kpi-label">Statut légal</span>
+          <p-tag
+            [value]="statutLegalTag().label"
+            [severity]="statutLegalTag().severity"
+            [icon]="statutLegalTag().icon"
+          />
+        </div>
+        <div class="kpi-item kpi-item--toggle">
+          <span class="kpi-label">
+            Thermosensible
+            <i
+              class="pi pi-info-circle ms-1"
+              style="font-size: 0.7rem; color: #6b7280; cursor: help"
+              pTooltip="Produit nécessitant une conservation au froid (chaîne du froid)"
+              tooltipPosition="top"
+            ></i>
+          </span>
+          <p-toggleswitch
+            [ngModel]="produit().thermosensible ?? false"
+            [disabled]="!canEdit() || thermosensiblePending()"
+            (onChange)="onToggleThermosensible($event.checked)"
+            pTooltip="{{ (produit().thermosensible ?? false) ? 'Désactiver le flag thermosensible' : 'Activer le flag thermosensible' }}"
+            tooltipPosition="left"
+          />
+        </div>
+        <div class="kpi-item kpi-item--toggle">
+          <span class="kpi-label">
+            Médicament essentiel
+            <i
+              class="pi pi-info-circle ms-1"
+              style="font-size: 0.7rem; color: #6b7280; cursor: help"
+              pTooltip="Inscrit sur la liste des médicaments essentiels (OMS / liste nationale)"
+              tooltipPosition="top"
+            ></i>
+          </span>
+          <p-toggleswitch
+            [ngModel]="produit().estMedicamentEssentiel ?? false"
+            [disabled]="!canEdit() || medicamentEssentielPending()"
+            (onChange)="onToggleMedicamentEssentiel($event.checked)"
+            pTooltip="{{ (produit().estMedicamentEssentiel ?? false) ? 'Retirer de la liste des médicaments essentiels' : 'Marquer comme médicament essentiel' }}"
+            tooltipPosition="left"
+          />
+        </div>
+        <div class="kpi-item kpi-item--toggle">
+          <span class="kpi-label">
+            Produit de garde
+            <i
+              class="pi pi-info-circle ms-1"
+              style="font-size: 0.7rem; color: #6b7280; cursor: help"
+              pTooltip="Produit disponible lors des services de garde et d'urgence"
+              tooltipPosition="top"
+            ></i>
+          </span>
+          <p-toggleswitch
+            [ngModel]="produit().estProduitGarde ?? false"
+            [disabled]="!canEdit() || produitGardePending()"
+            (onChange)="onToggleProduitGarde($event.checked)"
+            pTooltip="{{ (produit().estProduitGarde ?? false) ? 'Retirer des produits de garde' : 'Marquer comme produit de garde' }}"
+            tooltipPosition="left"
+          />
+        </div>
+        <div class="kpi-item kpi-item--toggle">
+          <span class="kpi-label">
+            Classification personnalisée
+            <i
+              class="pi pi-info-circle ms-1"
+              style="font-size: 0.7rem; color: #6b7280; cursor: help"
+              pTooltip="La classe ABC de ce produit a été saisie manuellement et ne sera pas recalculée automatiquement"
+              tooltipPosition="top"
+            ></i>
+          </span>
+          <p-toggleswitch
+            [ngModel]="produit().isClassificationOverridden ?? false"
+            [disabled]="!canEdit() || classificationOverriddenPending()"
+            (onChange)="onToggleClassificationOverridden($event.checked)"
+            pTooltip="{{ (produit().isClassificationOverridden ?? false) ? 'Réactiver le calcul automatique de la classe ABC' : 'Figer la classe ABC manuellement' }}"
             tooltipPosition="left"
           />
         </div>

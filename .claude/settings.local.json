@@ -90,7 +90,8 @@
       "Bash(node -e \"const icons = require\\('@fortawesome/free-solid-svg-icons'\\); const needed = ['faBookmark','faSitemap','faClock','faTrash','faThLarge','faLightbulb','faArrowsRotate','faSyncAlt','faRotateLeft','faUndo','faHistory','faClockRotateLeft','faArrowsAltH','faLeftRight','faFileMinus','faFilePlus','faFileCirclePlus','faLock','faSortAmountDown','faShoppingCart','faAlignJustify','faCreditCard','faCalculator','faShield','faTags','faStar','faTableCells','faFilePen','faFileEdit','faFileAlt']; needed.forEach\\(n => console.log\\(n, !!icons[n]\\)\\)\")",
       "Bash(awk:*)",
       "Read(//mnt/c/Users/k.kobena/Documents/dev/full_warehouse/src/main/**)",
-      "Bash(npx eslint *)"
+      "Bash(npx eslint *)",
+      "Bash(node *)"
     ],
     "deny": [],
     "ask": []

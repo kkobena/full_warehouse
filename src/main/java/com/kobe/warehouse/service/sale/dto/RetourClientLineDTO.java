@@ -6,5 +6,6 @@ public record RetourClientLineDTO(
     String codeCip,
     int quantite,
     int prixUnitaire,
-    int montant
+    int montant,
+    int montantTp
 ) {}

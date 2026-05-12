@@ -114,7 +114,7 @@ public class FournisseurProduit implements Serializable {
         this.id = id;
     }
 
-    public @NotNull String getCodeCip() {
+    public String getCodeCip() {
         return codeCip;
     }
 

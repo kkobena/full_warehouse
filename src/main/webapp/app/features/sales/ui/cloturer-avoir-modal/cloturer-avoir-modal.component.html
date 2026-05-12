@@ -34,9 +34,30 @@
         <span class="meta-value meta-qty">{{ document?.quantite }}</span>
       </div>
       <div class="meta-item">
-        <span class="meta-label">Montant</span>
+        <span class="meta-label">Montant initial</span>
         <span class="meta-value meta-amount">{{ document?.montant | number: '1.0-0' }} FCFA</span>
       </div>
+      @if ((document?.montantUtilise ?? 0) > 0) {
+        <div class="meta-item">
+          <span class="meta-label">Déjà utilisé</span>
+          <span class="meta-value text-warning fw-semibold">{{ document?.montantUtilise | number: '1.0-0' }} FCFA</span>
+        </div>
+      }
+      <div class="meta-item">
+        <span class="meta-label">Solde disponible</span>
+        <span class="meta-value meta-amount fw-bold text-success">{{ montantDisponible() | number: '1.0-0' }} FCFA</span>
+      </div>
+      @if (document?.dateExpiration) {
+        <div class="meta-item">
+          <span class="meta-label">Expire le</span>
+          <span class="meta-value" [class.text-danger]="document?.procheExpiration">
+            {{ document?.dateExpiration | date: 'dd/MM/yyyy' }}
+            @if (document?.procheExpiration) {
+              <span class="badge bg-danger ms-1" style="font-size:.7rem">Bientôt expiré</span>
+            }
+          </span>
+        </div>
+      }
       @if (document?.customerName) {
         <div class="meta-item meta-full">
           <span class="meta-label">Client</span>
@@ -51,6 +72,33 @@
       }
     </div>
   </div>
+
+  <!-- Option utilisation partielle -->
+  <div class="form-check form-switch mb-3">
+    <input class="form-check-input" type="checkbox" id="partialUsageCheck"
+           [ngModel]="isPartialUsage()"
+           (ngModelChange)="isPartialUsage.set($event); montantPartiel.set(null)">
+    <label class="form-check-label" for="partialUsageCheck">
+      Utilisation partielle de l'avoir
+    </label>
+  </div>
+
+  @if (isPartialUsage()) {
+    <div class="mb-3">
+      <label class="form-label fw-semibold">
+        Montant à utiliser <span class="text-danger">*</span>
+        <span class="text-muted fw-normal small ms-1">(max. {{ montantDisponible() | number:'1.0-0' }} FCFA)</span>
+      </label>
+      <p-inputNumber
+        [ngModel]="montantPartiel()"
+        (ngModelChange)="montantPartiel.set($event)"
+        [min]="1"
+        [max]="montantDisponible()"
+        [fluid]="true"
+        suffix=" FCFA"
+        placeholder="Montant partiel…" />
+    </div>
+  }
 
   <!-- Sélection du mode de clôture -->
   <div class="mb-3">
@@ -67,9 +115,13 @@
       appendTo="body"
       [fluid]="true"
     />
+    @if (selectedModeInfo(); as info) {
+      <div class="mode-description mt-1">
+        <i [class]="info.icon + ' me-1 text-muted'"></i>
+        <span class="text-muted small">{{ info.description }}</span>
+      </div>
+    }
   </div>
-
-
 
   <!-- Commentaire -->
   <div class="mb-2">
@@ -82,7 +134,6 @@
               maxlength="500"
               placeholder="Note de clôture, numéro de ticket remboursement…"
     ></textarea>
-
   </div>
 
   @if (error()) {

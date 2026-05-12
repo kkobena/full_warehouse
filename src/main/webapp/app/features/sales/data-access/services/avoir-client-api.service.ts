@@ -21,7 +21,7 @@ export interface IAvoirClient {
   updatedAt?: string;
 }
 
-export type AvoirClientStatut = 'OUVERT' | 'CLOTURE';
+export type AvoirClientStatut = 'OUVERT' | 'CLOTURE' | 'ANNULE' | 'EXPIRE';
 export type ModeClotureAvoir =
   | 'REMBOURSEMENT_ESPECES'
   | 'REMBOURSEMENT_CB'
@@ -38,6 +38,10 @@ export interface IAvoirClientDocument {
   modeCloture?: ModeClotureAvoir;
   quantite?: number;
   montant?: number;
+  montantUtilise?: number;
+  montantRestant?: number;
+  dateExpiration?: string;
+  procheExpiration?: boolean;
   commentaire?: string;
   customerName?: string;
   produitLibelle?: string;
@@ -52,6 +56,7 @@ export interface IAvoirClientDocument {
 export interface CloturerAvoirRequest {
   modeCloture: ModeClotureAvoir;
   commentaire?: string;
+  montantUtilise?: number;
 }
 
 @Injectable({ providedIn: 'root' })

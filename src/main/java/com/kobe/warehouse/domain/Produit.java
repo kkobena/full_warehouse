@@ -3,6 +3,7 @@ package com.kobe.warehouse.domain;
 import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.Status;
+import com.kobe.warehouse.domain.enumeration.StatutLegal;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -61,6 +62,8 @@ public class Produit implements Serializable {
     @NotNull
     @Column(name = "libelle", nullable = false)
     private String libelle;
+    @Column(name = "nom_commercial")
+    private String nomCommercial;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type_produit", nullable = false, length = 15)
@@ -103,6 +106,8 @@ public class Produit implements Serializable {
 
     @Column(name = "thermosensible", columnDefinition = "boolean default false")
     private Boolean thermosensible = false;
+    @Column(name = "remisable", columnDefinition = "boolean default false")
+    private Boolean remisable = false;
 
 
     @Column(name = "chiffre", columnDefinition = "boolean default true")
@@ -113,8 +118,9 @@ public class Produit implements Serializable {
     @Column(name = "item_cost_amount", nullable = false)
     private Integer itemCostAmount = 0;
 
-    @Column(name = "scheduled", columnDefinition = "boolean default false")
-    private Boolean scheduled = false; //pour les produits avec une obligation ordonnance
+    @Enumerated(EnumType.STRING)
+    @Column(name = "statut_legal", length = 20, columnDefinition = "varchar(20) default 'SANS_LISTE'")
+    private StatutLegal statutLegal = StatutLegal.SANS_LISTE;
 
     @NotNull
     @Min(value = 0)
@@ -133,7 +139,6 @@ public class Produit implements Serializable {
     @NotNull
     @Column(name = "deconditionnable", nullable = false)
     private Boolean deconditionnable = false;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Produit parent;
@@ -273,6 +278,24 @@ public class Produit implements Serializable {
     public ClasseCriticite getEffectiveClasseCriticite() {
         return Objects.requireNonNullElse(classeCriticite, ClasseCriticite.B);
 
+    }
+
+    public String getNomCommercial() {
+        return nomCommercial;
+    }
+
+    public Produit setNomCommercial(String nomCommercial) {
+        this.nomCommercial = nomCommercial;
+        return this;
+    }
+
+    public Boolean getRemisable() {
+        return remisable;
+    }
+
+    public Produit setRemisable(Boolean remisable) {
+        this.remisable = remisable;
+        return this;
     }
 
     public Boolean getIsClassificationOverridden() {
@@ -433,13 +456,17 @@ public class Produit implements Serializable {
         this.itemCostAmount = itemCostAmount;
     }
 
-    public Boolean getScheduled() {
-        return scheduled;
+    public StatutLegal getStatutLegal() {
+        return statutLegal;
     }
 
-    public Produit setScheduled(Boolean scheduled) {
-        this.scheduled = scheduled;
+    public Produit setStatutLegal(StatutLegal statutLegal) {
+        this.statutLegal = statutLegal;
         return this;
+    }
+
+    public boolean isOrdonnanceObligatoire() {
+        return statutLegal != null && statutLegal.isOrdonnanceObligatoire();
     }
 
     public @NotNull @Min(value = 0) Integer getItemRegularUnitPrice() {

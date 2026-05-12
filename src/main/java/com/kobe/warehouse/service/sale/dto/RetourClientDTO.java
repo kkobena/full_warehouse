@@ -14,9 +14,12 @@ public record RetourClientDTO(
     ModeReglementRetour modeReglement,
     String commentaire,
     int montantTotal,
+    int montantTpTotal,
     String customerName,
     String originalSaleRef,
     LocalDate originalSaleDate,
     String createdByName,
-    List<RetourClientLineDTO> lines
+    List<RetourClientLineDTO> lines,
+    boolean avecEchange,
+    String echangeSaleRef
 ) {}

@@ -324,6 +324,15 @@ $pharma-shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.15);
           background: linear-gradient(90deg, $pharma-primary 0%, $pharma-primary-dark 100%);
         }
       }
+
+      &.disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        pointer-events: none;
+        color: $gray-400;
+
+        i { color: $gray-400; }
+      }
     }
   }
 

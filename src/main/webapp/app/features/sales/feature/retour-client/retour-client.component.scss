@@ -14,6 +14,15 @@
   font-weight: 700;
 }
 
+.toolbar-separator {
+  display: inline-block;
+  width: 1px;
+  height: 24px;
+  background: var(--surface-300, #dee2e6);
+  margin: 0 0.5rem;
+  vertical-align: middle;
+}
+
 .mode-badge {
   display: inline-flex;
   align-items: center;

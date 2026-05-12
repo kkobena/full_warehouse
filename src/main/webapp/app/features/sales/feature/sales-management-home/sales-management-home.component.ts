@@ -15,7 +15,6 @@ import { DevisListComponent } from "../devis-list/devis-list.component";
 import { SalesAnnulationsComponent } from "../sales-annulations/sales-annulations.component";
 import { VenteDepotListComponent } from "../vente-depot-list/vente-depot-list.component";
 import { AvoirsClientListComponent } from "../avoirs-client-list/avoirs-client-list.component";
-import { SalesKpiDashboardComponent } from "../sales-kpi-dashboard/sales-kpi-dashboard.component";
 import { BreadcrumbService } from "../../../../shared/components/breadcrumb/breadcrumb.service";
 import { AbilityService } from "app/core/auth/ability.service";
 import { RetourClientComponent } from "../retour-client/retour-client.component";
@@ -29,7 +28,7 @@ const TAB_LABELS: Record<SalesManagementTab, string> = {
   "vente-depot": "Ventes dépôt",
   "avoirs": "Avoirs clients",
   "kpi": "Tableau de bord",
-  "retour-client": "Retours client",
+  "retour-client": "Retours client"
 };
 
 @Component({
@@ -49,7 +48,6 @@ const TAB_LABELS: Record<SalesManagementTab, string> = {
     SalesAnnulationsComponent,
     VenteDepotListComponent,
     AvoirsClientListComponent,
-    SalesKpiDashboardComponent,
     RetourClientComponent
   ]
 })
@@ -67,7 +65,7 @@ export class SalesManagementHomeComponent implements OnInit {
   protected readonly showAnnulations = this.ability.canSignal("display", "ventes.annulations");
   protected readonly showVenteDepot = this.ability.canSignal("display", "ventes.vente-depot");
   protected readonly showAvoirs = this.ability.canSignal("display", "ventes.avoirs");
- // protected readonly showKpi = this.ability.canSignal("display", "ventes.kpi");
+  // protected readonly showKpi = this.ability.canSignal("display", "ventes.kpi");
   protected readonly showRetourClient = this.ability.canSignal("display", "ventes.retours-client");
 
   constructor() {
@@ -84,7 +82,7 @@ export class SalesManagementHomeComponent implements OnInit {
         this.active.set("devis");
       } else if (this.showEnCours()) {
         this.active.set("en-cours");
-      }else{
+      } else {
 
         //TODO: handle no access to any tab ajout d'un tab commun Access denied
       }

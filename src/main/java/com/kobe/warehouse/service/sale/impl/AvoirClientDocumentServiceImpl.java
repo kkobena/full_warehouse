@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.sale.impl;
 
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AvoirClient;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Customer;
@@ -7,13 +8,18 @@ import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.enumeration.AvoirClientStatut;
+import com.kobe.warehouse.domain.enumeration.ModeClotureAvoir;
+import com.kobe.warehouse.domain.AvoirClientUtilisation;
 import com.kobe.warehouse.repository.AvoirClientRepository;
+import com.kobe.warehouse.repository.AvoirClientUtilisationRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.sale.AvoirClientDocumentService;
+import com.kobe.warehouse.service.sale.AvoirClientNotificationService;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.sale.dto.AvoirClientDocumentDTO;
 import com.kobe.warehouse.service.sale.dto.CloturerAvoirRequest;
 import org.springframework.data.domain.Page;
@@ -37,19 +43,28 @@ public class AvoirClientDocumentServiceImpl implements AvoirClientDocumentServic
     private final ReferenceService referenceService;
     private final StorageService storageService;
     private final StockProduitRepository stockProduitRepository;
+    private final AvoirClientNotificationService avoirClientNotificationService;
+    private final AppConfigurationService appConfigurationService;
+    private final AvoirClientUtilisationRepository utilisationRepository;
 
     public AvoirClientDocumentServiceImpl(
         AvoirClientRepository avoirClientRepository,
         SalesLineRepository salesLineRepository,
         ReferenceService referenceService,
         StorageService storageService,
-        StockProduitRepository stockProduitRepository
+        StockProduitRepository stockProduitRepository,
+        AvoirClientNotificationService avoirClientNotificationService,
+        AppConfigurationService appConfigurationService,
+        AvoirClientUtilisationRepository utilisationRepository
     ) {
         this.avoirClientRepository = avoirClientRepository;
         this.salesLineRepository = salesLineRepository;
         this.referenceService = referenceService;
         this.storageService = storageService;
         this.stockProduitRepository = stockProduitRepository;
+        this.avoirClientNotificationService = avoirClientNotificationService;
+        this.appConfigurationService = appConfigurationService;
+        this.utilisationRepository = utilisationRepository;
     }
 
 
@@ -105,18 +120,44 @@ public class AvoirClientDocumentServiceImpl implements AvoirClientDocumentServic
                 );
             }
         }
-        avoir.setStatut(AvoirClientStatut.CLOTURE);
-        avoir.setModeCloture(request.modeCloture());
-        avoir.setClotureLe(LocalDateTime.now());
-        avoir.setCommentaire(request.commentaire());
-        avoir.setClosedBy(storageService.getUser());
+        AppUser user = storageService.getUser();
+        int montantAUtiliser = resoudreMontantUtilise(avoir, request);
+        int nouveauMontantUtilise = avoir.getMontantUtilise() + montantAUtiliser;
 
-        SalesLine sl = avoir.getSalesLine();
-        if (sl != null) {
-            sl.setQuantityAvoir(0);
-            salesLineRepository.save(sl);
+        avoir.setMontantUtilise(nouveauMontantUtilise);
+        avoir.setModeCloture(request.modeCloture());
+        avoir.setCommentaire(request.commentaire());
+
+        utilisationRepository.save(new AvoirClientUtilisation()
+            .setAvoirClient(avoir)
+            .setMontantUtilise(montantAUtiliser)
+            .setCommentaire(request.commentaire())
+            .setUtilisePar(user));
+
+        boolean soldeEpuise = nouveauMontantUtilise >= avoir.getMontant();
+        if (soldeEpuise) {
+            avoir.setStatut(AvoirClientStatut.CLOTURE);
+            avoir.setClotureLe(LocalDateTime.now());
+            avoir.setClosedBy(user);
+            SalesLine sl = avoir.getSalesLine();
+            if (sl != null) {
+                sl.setQuantityAvoir(0);
+                salesLineRepository.save(sl);
+            }
         }
-        return toDTO(avoirClientRepository.save(avoir));
+
+        AvoirClient saved = avoirClientRepository.save(avoir);
+        if (request.modeCloture() == ModeClotureAvoir.RETOUR_PRODUIT && soldeEpuise) {
+            avoirClientNotificationService.notifierProduitsDisponibles(saved);
+        }
+        return toDTO(saved);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AvoirClientDocumentDTO> findAllByCustomer(Integer customerId) {
+        return avoirClientRepository.findByCustomerIdOrderByCreatedAtDesc(customerId)
+            .stream().map(this::toDTO).toList();
     }
 
     @Override
@@ -130,7 +171,21 @@ public class AvoirClientDocumentServiceImpl implements AvoirClientDocumentServic
         ).map(this::toDTO);
     }
 
+    private int resoudreMontantUtilise(AvoirClient avoir, CloturerAvoirRequest request) {
+        int montantRestant = avoir.getMontantRestant();
+        if (request.montantUtilise() == null || request.montantUtilise() <= 0) {
+            return montantRestant;
+        }
+        if (request.montantUtilise() > montantRestant) {
+            throw new GenericError(
+                "Montant à utiliser (" + request.montantUtilise()
+                + ") supérieur au montant restant de l'avoir (" + montantRestant + ")");
+        }
+        return request.montantUtilise();
+    }
+
     private AvoirClient buildAvoirClientFromSale(SalesLine salesLine, Customer customer) {
+        LocalDate expiration = LocalDate.now().plusDays(appConfigurationService.getDelaiValiditeAvoir());
         return new AvoirClient()
             .setReference(referenceService.buildNumAvoirClient())
             .setSalesLine(salesLine)
@@ -139,6 +194,7 @@ public class AvoirClientDocumentServiceImpl implements AvoirClientDocumentServic
             .setCustomer(customer)
             .setQuantite(salesLine.getQuantityAvoir())
             .setMontant(salesLine.getQuantityAvoir() * salesLine.getRegularUnitPrice())
+            .setDateExpiration(expiration)
             .setCreatedBy(storageService.getUser());
     }
 
@@ -164,6 +220,12 @@ public class AvoirClientDocumentServiceImpl implements AvoirClientDocumentServic
 
         String commandeRef = ac.getCommande() != null ? ac.getCommande().getReceiptReference() : null;
 
+        LocalDate dateExpiration = ac.getDateExpiration();
+        boolean procheExpiration = dateExpiration != null
+            && ac.getStatut() == AvoirClientStatut.OUVERT
+            && !dateExpiration.isBefore(LocalDate.now())
+            && dateExpiration.isBefore(LocalDate.now().plusDays(7));
+
         return new AvoirClientDocumentDTO(
             ac.getId(),
             ac.getReference(),
@@ -181,7 +243,11 @@ public class AvoirClientDocumentServiceImpl implements AvoirClientDocumentServic
             salesLineDate,
             numberTransaction,
             commandeRef,
-            closedByName
+            closedByName,
+            dateExpiration,
+            procheExpiration,
+            ac.getMontantUtilise(),
+            ac.getMontantRestant()
         );
     }
 }

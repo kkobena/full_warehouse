@@ -54,7 +54,6 @@ public class EtatProduitServiceImpl implements EtatProduitService {
         int suggestionCount = suggestionLineRepository.countByFournisseurProduitProduitId(
             idProduit);
         int commandeCount = getCommandeCount(idProduit, OrderStatut.REQUESTED);
-        System.err.println("commandeCount ***************************   = " + commandeCount);
         boolean entree = orderLineRepository.existsByFournisseurProduitProduitIdAndCommandeOrderStatusAndCommandeOrderDateGreaterThan(
             idProduit,
             OrderStatut.RECEIVED,

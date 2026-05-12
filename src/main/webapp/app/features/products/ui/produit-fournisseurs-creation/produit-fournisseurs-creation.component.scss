@@ -1,0 +1,224 @@
+// ========================================================================
+// Conteneur principal — aligné sur tab-panel-relation du produit-form
+// ========================================================================
+.creation-tab-container {
+  padding: 0.1rem 1rem;
+}
+
+// ========================================================================
+// Titre section simple (fournisseur principal)
+// ========================================================================
+.form-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--p-text-color);
+
+  .section-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    background-color: var(--p-primary-color);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+}
+
+// ========================================================================
+// Barre de section avec bouton intégré (toujours visible en haut)
+// ========================================================================
+.section-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.2rem 0.75rem;
+  margin-bottom: 0.625rem;
+  background: var(--p-surface-50);
+  border: 1px solid var(--p-surface-border);
+  border-radius: 0.375rem;
+
+
+
+  .section-header-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .section-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    background-color: var(--p-primary-color);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .section-label {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--p-text-color);
+  }
+}
+
+// ========================================================================
+// Ligne fournisseur principal (read-only)
+// ========================================================================
+.principal-row {
+  border: 1px solid var(--p-surface-border);
+  border-radius: 0.375rem;
+  padding: 0.625rem 0.875rem;
+  background: var(--p-surface-50);
+  margin-bottom: 0.75rem;
+
+  .principal-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .principal-libelle {
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--p-text-color);
+  }
+
+  .principal-detail {
+    font-size: 0.78rem;
+    color: var(--p-text-muted-color);
+    background: var(--p-surface-100);
+    padding: 0.15rem 0.5rem;
+    border-radius: 0.25rem;
+    border: 1px solid var(--p-surface-border);
+  }
+}
+
+// ========================================================================
+// En-tête de ligne (séparateur numéroté)
+// ========================================================================
+.row-header {
+  display: flex;
+  align-items: center;
+  padding-bottom: 0.45rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--p-surface-200);
+
+  .row-index {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--p-primary-color);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+}
+
+// ========================================================================
+// Ligne fournisseur supplémentaire
+// ========================================================================
+.supplier-row {
+  border: 1px solid var(--p-surface-border);
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+  background: var(--p-surface-0);
+  margin-bottom: 0.5rem;
+  transition: border-color 0.15s;
+
+  &:hover { border-color: var(--p-surface-300); }
+
+  .alert-sm {
+    padding: 0.35rem 0.625rem;
+    font-size: 0.78rem;
+  }
+}
+
+.supplier-row-fields {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 0.75fr 0.75fr auto;
+  gap: 0.5rem;
+  align-items: end;
+}
+
+.supplier-row-actions {
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 0.1rem;
+}
+
+// ========================================================================
+// Champs de formulaire (identique produit-form)
+// ========================================================================
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+
+  label {
+    font-weight: 500;
+    font-size: 0.8rem;
+    color: var(--p-text-color);
+
+    .required { color: var(--p-red-500); font-weight: 700; margin-left: 0.1rem; }
+  }
+
+  input, p-select { width: 100%; }
+}
+
+.input-currency {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  input { padding-right: 3.25rem !important; }
+
+  .currency-symbol {
+    position: absolute;
+    right: 0.6rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--p-text-muted-color);
+    pointer-events: none;
+  }
+}
+
+// ========================================================================
+// État vide
+// ========================================================================
+.pharma-empty-content {
+  color: var(--p-text-muted-color);
+  p { font-size: 0.875rem; }
+}
+
+// ========================================================================
+// Responsive
+// ========================================================================
+@media (max-width: 1024px) {
+  .supplier-row-fields {
+    grid-template-columns: repeat(3, 1fr) auto;
+
+    .supplier-row-actions { align-self: end; }
+  }
+}
+
+@media (max-width: 768px) {
+  .supplier-row-fields {
+    grid-template-columns: 1fr 1fr;
+
+    .supplier-row-actions { grid-column: 1 / -1; justify-content: flex-end; }
+  }
+
+  .principal-row .principal-info { flex-direction: column; align-items: flex-start; gap: 0.375rem; }
+}

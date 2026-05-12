@@ -9,6 +9,7 @@ import { saveAs } from "file-saver";
 import { IProduit } from "app/shared/model/produit.model";
 import { ProductsApiService } from "../../data-access/services/products-api.service";
 import { NotificationService } from "app/shared/services/notification.service";
+import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
 
 @Component({
   selector: "app-produit-etiquette-modal",
@@ -28,6 +29,7 @@ export class ProduitEtiquetteModalComponent implements AfterViewInit{
   private readonly notificationService = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly qtyInput = viewChild.required<InputNumber>("qtyInput");
+  private readonly blobDocumentService=inject(BlobDownloadService);
   ngAfterViewInit(): void {
     setTimeout(() => {
       const el = this.qtyInput()?.input;
@@ -45,8 +47,8 @@ export class ProduitEtiquetteModalComponent implements AfterViewInit{
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (blob) => {
-          saveAs(blob, `etiquettes-${this.produit.codeCip ?? this.produit.id}.pdf`);
           this.loading.set(false);
+          this.blobDocumentService.downloadPdf(blob, `etiquettes-${this.produit.codeCip ?? this.produit.id}`);
           this.activeModal.close(true);
         },
         error: () => {

@@ -9,8 +9,8 @@ import { Dci } from '../../shared/model/produit.model';
   providedIn: 'root',
 })
 export class DciService {
-  private http = inject(HttpClient);
-  private resourceUrl = SERVER_API_URL + 'api/dci';
+  private readonly http = inject(HttpClient);
+  private readonly resourceUrl = SERVER_API_URL + 'api/dci';
 
   query(req?: any): Observable<HttpResponse<Dci[]>> {
     const options = createRequestOption(req);

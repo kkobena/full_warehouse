@@ -5,5 +5,20 @@
   @include modal-theme;
 }
 
+.produit-info-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.75rem;
+  background: var(--surface-100, #f8f9fa);
+  border: 1px solid var(--surface-200, #e9ecef);
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
 
-
+.form-label-sm {
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  color: var(--text-color-secondary, #6c757d);
+}

@@ -9,7 +9,6 @@ import { HttpErrorResponse, HttpResponse } from "@angular/common/http";
 import { Select } from "primeng/select";
 import { InputNumber } from "primeng/inputnumber";
 import { ToggleSwitch } from "primeng/toggleswitch";
-import { Card } from "primeng/card";
 import { finalize } from "rxjs/operators";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NgbConfirmDialogService } from "../../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
@@ -30,7 +29,7 @@ type PriceType = (typeof PriceTypes)[keyof typeof PriceTypes];
 
 @Component({
   selector: "app-add-prix-form",
-  imports: [ButtonModule, ReactiveFormsModule, Select, InputNumber, ToggleSwitch, Card],
+  imports: [ButtonModule, ReactiveFormsModule, Select, InputNumber, ToggleSwitch],
   templateUrl: "./add-prix-form.component.html",
   styleUrls: ["add-prix-form.scss"]
 })

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -23,6 +24,18 @@ public interface AvoirClientRepository extends JpaRepository<AvoirClient, Intege
     Optional<AvoirClient> findBySalesLineId(Long salesLineId);
 
     boolean existsByStatutAndCommandeIsNull(AvoirClientStatut statut);
+
+    List<AvoirClient> findByStatutAndDateExpirationLessThanEqual(AvoirClientStatut statut, LocalDate date);
+
+    List<AvoirClient> findByCustomerIdOrderByCreatedAtDesc(Integer customerId);
+
+    @org.springframework.data.jpa.repository.Query(
+        "SELECT COUNT(a), COALESCE(SUM(a.montant - a.montantUtilise), 0) FROM AvoirClient a WHERE a.statut = 'OUVERT'")
+    Object[] statsAvoirsOuverts();
+
+    @org.springframework.data.jpa.repository.Query(
+        "SELECT COUNT(a) FROM AvoirClient a WHERE a.statut = 'OUVERT' AND a.dateExpiration IS NOT NULL AND a.dateExpiration < :seuil")
+    long countAvoirsProchesExpiration(@org.springframework.data.repository.query.Param("seuil") java.time.LocalDate seuil);
 
     static Specification<AvoirClient> forCommande(Set<Integer> produitIds) {
         return (root, query, cb) -> cb.and(

@@ -3,3 +3,4 @@
  */
 
 export * from './track-by.utils';
+export * from './table-rows.util';

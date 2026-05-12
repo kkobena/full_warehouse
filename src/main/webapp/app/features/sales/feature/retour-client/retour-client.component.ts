@@ -1,30 +1,32 @@
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Button } from 'primeng/button';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { Toolbar } from 'primeng/toolbar';
-import { DatePicker } from 'primeng/datepicker';
-import { FloatLabel } from 'primeng/floatlabel';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { InputText } from 'primeng/inputtext';
+import { Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import { CommonModule, DatePipe } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { Button } from "primeng/button";
+import { TableLazyLoadEvent, TableModule } from "primeng/table";
+import { Toolbar } from "primeng/toolbar";
+import { DatePicker } from "primeng/datepicker";
+import { FloatLabel } from "primeng/floatlabel";
+import { IconField } from "primeng/iconfield";
+import { InputIcon } from "primeng/inputicon";
+import { InputText } from "primeng/inputtext";
 
-import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
+import { ITEMS_PER_PAGE } from "../../../../shared/constants/pagination.constants";
+import { DATE_FORMAT_ISO_DATE } from "../../../../shared/util/warehouse-util";
 import {
   IRetourClient,
   ModeReglementRetour,
   MotifRetourClient,
-  RetourClientApiService,
-} from '../../data-access/services/retour-client-api.service';
-import { RetourClientModalComponent } from '../../ui/retour-client-modal/retour-client-modal.component';
+  RetourClientApiService
+} from "../../data-access/services/retour-client-api.service";
+import { RetourClientModalComponent } from "../../ui/retour-client-modal/retour-client-modal.component";
+import { ISales } from "../../../../shared/model";
 
 @Component({
-  selector: 'app-retour-client',
-  templateUrl: './retour-client.component.html',
-  styleUrl: './retour-client.component.scss',
+  selector: "app-retour-client",
+  templateUrl: "./retour-client.component.html",
+  styleUrl: "./retour-client.component.scss",
   providers: [DatePipe],
   imports: [
     CommonModule,
@@ -36,8 +38,8 @@ import { RetourClientModalComponent } from '../../ui/retour-client-modal/retour-
     FloatLabel,
     IconField,
     InputIcon,
-    InputText,
-  ],
+    InputText
+  ]
 })
 export class RetourClientComponent implements OnInit {
   private readonly api = inject(RetourClientApiService);
@@ -51,22 +53,26 @@ export class RetourClientComponent implements OnInit {
   protected page = 0;
   protected itemsPerPage = ITEMS_PER_PAGE;
 
-  protected search = '';
+  protected search = "";
   protected fromDate: Date = new Date();
   protected toDate: Date = new Date();
 
+  protected saleIdInput: number | null = null;
+  protected saleDateInput: Date = new Date();
+  protected readonly today = new Date();
+
   protected readonly motifOptions: { label: string; value: MotifRetourClient }[] = [
-    { label: 'Erreur de dispensation', value: 'ERREUR_DISPENSATION' },
-    { label: 'Produit défectueux', value: 'PRODUIT_DEFECTUEUX' },
-    { label: 'Erreur de quantité', value: 'ERREUR_QUANTITE' },
-    { label: 'Insatisfaction client', value: 'INSATISFACTION' },
-    { label: 'Autre', value: 'AUTRE' },
+    { label: "Erreur de dispensation", value: "ERREUR_DISPENSATION" },
+    { label: "Produit défectueux", value: "PRODUIT_DEFECTUEUX" },
+    { label: "Erreur de quantité", value: "ERREUR_QUANTITE" },
+    { label: "Insatisfaction client", value: "INSATISFACTION" },
+    { label: "Autre", value: "AUTRE" }
   ];
 
   protected readonly modeReglementOptions: { label: string; value: ModeReglementRetour; icon: string }[] = [
-    { label: 'Remboursement espèces', value: 'REMBOURSEMENT_ESPECES', icon: 'pi pi-money-bill' },
-    { label: 'Remboursement CB', value: 'REMBOURSEMENT_CB', icon: 'pi pi-credit-card' },
-    { label: 'Avoir client', value: 'AVOIR_CLIENT', icon: 'pi pi-ticket' },
+    { label: "Remboursement espèces", value: "REMBOURSEMENT_ESPECES", icon: "pi pi-money-bill" },
+    { label: "Remboursement CB", value: "REMBOURSEMENT_CB", icon: "pi pi-credit-card" },
+    { label: "Avoir client", value: "AVOIR_CLIENT", icon: "pi pi-ticket" }
   ];
 
   ngOnInit(): void {
@@ -80,18 +86,18 @@ export class RetourClientComponent implements OnInit {
       page: p,
       size: this.itemsPerPage,
       search: this.search || null,
-      fromDate: this.datePipe.transform(this.fromDate, 'yyyy-MM-dd'),
-      toDate: this.datePipe.transform(this.toDate, 'yyyy-MM-dd'),
+      fromDate: this.datePipe.transform(this.fromDate, "yyyy-MM-dd"),
+      toDate: this.datePipe.transform(this.toDate, "yyyy-MM-dd")
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: res => {
           this.loading.set(false);
-          this.totalItems = Number(res.headers.get('X-Total-Count'));
+          this.totalItems = Number(res.headers.get("X-Total-Count"));
           this.page = p;
           this.retours = res.body ?? [];
         },
-        error: () => this.loading.set(false),
+        error: () => this.loading.set(false)
       });
   }
 
@@ -107,22 +113,32 @@ export class RetourClientComponent implements OnInit {
     this.loadPage(0);
   }
 
-  protected openRetourModal(): void {
-    const ref = this.modalService.open(RetourClientModalComponent, { centered: true, size: 'xl', backdrop: 'static' });
+  protected openRetourModal(sale?: ISales): void {
+    let input: ISales;
+    if (sale) {
+      input = sale;
+    } else {
+      if (!this.saleIdInput) return;
+      const saleDate = DATE_FORMAT_ISO_DATE(this.saleDateInput ?? new Date());
+      if (!saleDate) return;
+      input = { saleId: { id: this.saleIdInput, saleDate } } as ISales;
+    }
+    const ref = this.modalService.open(RetourClientModalComponent, { centered: true, size: "xl", backdrop: "static" });
+    ref.componentInstance.sale = input;
     ref.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(result => {
       if (result) this.loadPage(0);
     });
   }
 
   protected motifLabelOf(motif?: string): string {
-    return this.motifOptions.find(o => o.value === motif)?.label ?? (motif ?? '—');
+    return this.motifOptions.find(o => o.value === motif)?.label ?? (motif ?? "—");
   }
 
   protected modeLabelOf(mode?: string): string {
-    return this.modeReglementOptions.find(o => o.value === mode)?.label ?? (mode ?? '—');
+    return this.modeReglementOptions.find(o => o.value === mode)?.label ?? (mode ?? "—");
   }
 
   protected modeIconOf(mode?: string): string {
-    return this.modeReglementOptions.find(o => o.value === mode)?.icon ?? 'pi pi-undo';
+    return this.modeReglementOptions.find(o => o.value === mode)?.icon ?? "pi pi-undo";
   }
 }

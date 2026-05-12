@@ -65,6 +65,13 @@ public class AvoirClientResource {
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
+    @GetMapping("/sales/avoirs/documents/by-customer/{customerId}")
+    public ResponseEntity<List<AvoirClientDocumentDTO>> getAvoirsByCustomer(
+        @PathVariable Integer customerId
+    ) {
+        return ResponseEntity.ok(avoirClientDocumentService.findAllByCustomer(customerId));
+    }
+
     @PostMapping("/sales/avoirs/documents/{id}/cloturer")
     public ResponseEntity<AvoirClientDocumentDTO> cloturerAvoir(
         @PathVariable Integer id,

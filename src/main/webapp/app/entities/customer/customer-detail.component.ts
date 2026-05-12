@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ISales } from 'app/shared/model/sales.model';
 import { ISalesLine } from 'app/shared/model/sales-line.model';
 import { ICustomer } from 'app/shared/model/customer.model';
+import { IAvoirClientDocument } from 'app/shared/model/avoir-client-document.model';
 import { CustomerService } from './customer.service';
 import { HttpResponse } from '@angular/common/http';
 import { MagasinService } from '../magasin/magasin.service';
@@ -12,21 +13,31 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Button } from 'primeng/button';
+import { TabsModule } from 'primeng/tabs';
 
 @Component({
   selector: 'jhi-customer-detail',
 
   templateUrl: './customer-detail.component.html',
   styleUrls: ['./customer-detail.component.scss'],
-  imports: [WarehouseCommonModule, Button],
+  imports: [WarehouseCommonModule, Button, TabsModule],
 })
 export class CustomerDetailComponent implements OnInit, OnDestroy {
   customer: ICustomer | null = null;
   sales: ISales[] = [];
+  avoirs: IAvoirClientDocument[] = [];
   selectedRowIndex?: number;
   selectedRowSaleLines?: ISalesLine[] = [];
   saleSelected?: ISales;
   magasin?: IMagasin;
+
+  get avoirsOuverts(): IAvoirClientDocument[] {
+    return this.avoirs.filter(a => a.statut === 'OUVERT');
+  }
+
+  get soldeTotalAvoirs(): number {
+    return this.avoirsOuverts.reduce((sum, a) => sum + (a.montant ?? 0), 0);
+  }
   protected activatedRoute = inject(ActivatedRoute);
   protected customerService = inject(CustomerService);
   protected magasinService = inject(MagasinService);
@@ -36,6 +47,7 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ customer }) => (this.customer = customer));
     this.loadSales();
+    this.loadAvoirs();
     this.selectedRowIndex = 0;
     this.magasinService.findCurrentUserMagasin().then(magasin => {
       this.magasin = magasin;
@@ -49,6 +61,18 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
 
   previousState(): void {
     window.history.back();
+  }
+
+  loadAvoirs(): void {
+    if (!this.customer?.id) return;
+    this.customerService
+      .avoirsByCustomer(this.customer.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({ next: avoirs => (this.avoirs = avoirs), error: () => {} });
+  }
+
+  openAvoirPdf(avoirId: number): void {
+    window.open(`/api/sales/retours/avoirs/${avoirId}/pdf`, '_blank');
   }
 
   loadSales(): void {

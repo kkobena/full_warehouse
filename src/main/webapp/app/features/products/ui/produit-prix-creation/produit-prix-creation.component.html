@@ -1,0 +1,67 @@
+<div class="creation-tab-container">
+
+  <div class="section-header-bar">
+    <div class="section-header-bar-left">
+      <span class="section-number">1</span>
+      <span class="section-label">Tarifs assurance</span>
+    </div>
+    <p-button [outlined]="true" icon="pi pi-plus" label="Ajouter un tarif" severity="primary"
+              size="small" type="button" (onClick)="addRow()"/>
+  </div>
+
+  @for (row of rows; track $index) {
+    <div class="prix-row" [formGroup]="row">
+      <div class="row-header">
+        <span class="row-index">Tarif n°{{ $index + 1 }}</span>
+      </div>
+      <div class="prix-row-fields">
+        <div class="form-field">
+          <label>Tiers payant <span class="required">*</span></label>
+          <p-select formControlName="tiersPayantId" [options]="tiersPayants()"
+                    [filter]="true" filterBy="fullName" optionLabel="fullName" optionValue="id"
+                    placeholder="Sélectionner" [fluid]="true" appendTo="body"
+                    [class.ng-invalid]="row.get('tiersPayantId')?.invalid && row.get('tiersPayantId')?.touched"/>
+        </div>
+        <div class="form-field">
+          <label>Type de prix <span class="required">*</span></label>
+          <p-select formControlName="type" [options]="priceTypes"
+                    optionLabel="libelle" optionValue="code"
+                    [fluid]="true" appendTo="body"/>
+        </div>
+        @if (showPrice(row)) {
+          <div class="form-field">
+            <label>Prix de référence <span class="required">*</span></label>
+            <p-inputNumber formControlName="price" [min]="0" [fluid]="true"
+                           placeholder="0"
+                           [class.ng-invalid]="row.get('price')?.invalid && row.get('price')?.touched"/>
+          </div>
+        }
+        @if (showRate(row)) {
+          <div class="form-field">
+            <label>Taux (%) <span class="required">*</span></label>
+            <p-inputNumber formControlName="rate" [min]="0" [max]="100"
+                           [minFractionDigits]="0" [maxFractionDigits]="2"
+                           [fluid]="true" placeholder="0"
+                           [class.ng-invalid]="row.get('rate')?.invalid && row.get('rate')?.touched"/>
+          </div>
+        }
+        <div class="form-field form-field-toggle">
+          <label>Actif</label>
+          <p-toggleswitch formControlName="enabled"/>
+        </div>
+        <div class="prix-row-actions">
+          <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true" size="small"
+                    type="button" (onClick)="removeRow($index)"/>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (rows.length === 0) {
+    <div class="pharma-empty-content text-center py-3">
+      <i class="pi pi-building fs-2 text-muted d-block mb-2"></i>
+      <p class="mb-0 text-muted">Aucun tarif configuré — cliquez sur <strong>Ajouter</strong> pour en créer un.</p>
+    </div>
+  }
+
+</div>

@@ -139,6 +139,11 @@
   &:focus { border-color: var(--p-primary-color); box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.15); }
 }
 
+.mode-description {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
 .cloture-modal-footer {
   background: var(--surface-50, #f8f9fa);
   border-top: 1px solid var(--surface-200, #e9ecef);

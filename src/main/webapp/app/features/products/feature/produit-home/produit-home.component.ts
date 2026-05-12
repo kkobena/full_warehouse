@@ -22,7 +22,6 @@ import { IRayon } from "app/shared/model/rayon.model";
 import { FamilleProduitService } from "app/entities/famille-produit/famille-produit.service";
 import { RayonService } from "app/entities/rayon/rayon.service";
 import { NgbConfirmDialogService } from "app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { WarehouseCommonModule } from "app/shared/warehouse-common/warehouse-common.module";
 import { ProductsApiService } from "../../data-access/services/products-api.service";
 import { ProduitListComponent, ProduitMenuAction } from "../../ui/produit-list/produit-list.component";
 import { ProduitDetailPanelComponent } from "../../ui/produit-detail-panel/produit-detail-panel.component";
@@ -59,7 +58,6 @@ import { LotSaisieProduitModalComponent } from "../../ui/lot-saisie-produit-moda
     IconField,
     InputIcon,
     TooltipModule,
-    WarehouseCommonModule,
     ProduitListComponent,
     ProduitDetailPanelComponent
   ]
@@ -96,6 +94,9 @@ export class ProduitHomeComponent implements OnInit {
   protected sortField = "libelle";
   protected sortOrder = 1;
 
+  /** ID du produit à mettre en évidence après création/modification */
+  private pendingHighlightId: number | null = null;
+
   protected importMenuItems: MenuItem[] = [
     { label: "Nouvelle installation", icon: "pi pi-file-excel", command: () => this.onImport("NOUVELLE_INSTALLATION") },
     { label: "Basculement", icon: "pi pi-filter", command: () => this.onImport("BASCULEMENT") },
@@ -111,13 +112,23 @@ export class ProduitHomeComponent implements OnInit {
   private readonly notificationService = inject(NotificationService);
   private readonly ability = inject(AbilityService);
 
-  protected readonly canCreate = this.ability.canSignal('create', 'catalogue');
-  protected readonly canEdit   = this.ability.canSignal('edit',   'catalogue');
-  protected readonly canDelete = this.ability.canSignal('delete', 'catalogue');
+  protected readonly canCreate = this.ability.canSignal("create", "catalogue");
+  protected readonly canEdit = this.ability.canSignal("edit", "catalogue");
+  protected readonly canDelete = this.ability.canSignal("delete", "catalogue");
 
 
   ngOnInit(): void {
     this.loadReferentiels();
+
+    // Récupérer l'état de navigation (produit créé/modifié)
+    const navState = history.state as { highlightId?: number; highlightCip?: string };
+    if (navState?.highlightId && navState?.highlightCip) {
+      this.pendingHighlightId = navState.highlightId;
+      // Forcer la recherche sur le codeCip unique → produit toujours en page 0
+      this.search = navState.highlightCip;
+      this.selectedFilter = "ALL"; // Inclure produits actifs et inactifs
+    }
+
     this.loadPage();
   }
 
@@ -330,6 +341,15 @@ export class ProduitHomeComponent implements OnInit {
     this.loading.set(false);
     this.selectedProduits.set([]);
     this.clearSelectionTrigger.update(v => v + 1);
+
+    // Highlight automatique du produit créé ou modifié
+    if (this.pendingHighlightId !== null) {
+      const found = data.find(p => p.id === this.pendingHighlightId) ?? null;
+      if (found) {
+        this.selectedProduit.set(found);
+      }
+      this.pendingHighlightId = null;
+    }
   }
 
   private deleteProduit(produit: IProduit): void {

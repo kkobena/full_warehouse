@@ -1,18 +1,102 @@
 
 <div class="modal-header">
-  <h5 class="modal-title"><i class="pi pi-undo me-2"></i>Nouveau retour client</h5>
+  <h5 class="modal-title"><i class="pi pi-undo me-2"></i>Retour client</h5>
   <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button"></button>
 </div>
+
 <div class="modal-body">
-  <!-- Infos vente + lignes -->
-  @if (currentSale(); as sale) {
+
+  <!-- ===== CHARGEMENT ===== -->
+  @if (saleLoading()) {
+    <div class="d-flex align-items-center justify-content-center py-4 gap-2 text-muted">
+      <i class="pi pi-spin pi-spinner"></i>
+      <span>Chargement de la vente…</span>
+    </div>
+  }
+
+  @if (saleError()) {
+    <div class="alert alert-danger py-2 px-3 mt-2">
+      <i class="pi pi-times-circle me-1"></i>{{ saleError() }}
+    </div>
+  }
+
+  <!-- ===== RÉSULTAT PARTIEL ===== -->
+  @if (retourResult(); as result) {
+    <div class="result-panel">
+      <div class="result-success-bar">
+        <i class="pi pi-check-circle"></i>
+        <span>Retour enregistré : <strong>{{ result.retour?.reference }}</strong> — {{ result.retour?.montantTotal | number:'1.0-0' }} F</span>
+      </div>
+
+      @if (result.lignesRejetees && result.lignesRejetees.length > 0) {
+        <div class="result-section">
+          <div class="result-section-title text-danger">
+            <i class="pi pi-ban me-1"></i>Lignes non traitées — retour interdit
+          </div>
+          <ul class="result-lines-list">
+            @for (l of result.lignesRejetees; track l.codeCip) {
+              <li>
+                <span class="product-name">{{ l.produitLibelle }}</span>
+                <span class="statut-badge statut-{{ l.statutLegal?.toLowerCase() }}">{{ l.statutLegal }}</span>
+                <span class="raison">— {{ l.raison }}</span>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+
+      @if (result.lignesNonRestockees && result.lignesNonRestockees.length > 0) {
+        <div class="result-section">
+          <div class="result-section-title text-warning">
+            <i class="pi pi-exclamation-triangle me-1"></i>Lignes remboursées, non remises en stock
+          </div>
+          <ul class="result-lines-list">
+            @for (l of result.lignesNonRestockees; track l.codeCip) {
+              <li>
+                <span class="product-name">{{ l.produitLibelle }}</span>
+                <span class="raison">— {{ l.raison }}</span>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+
+      @if (result.echangeContext) {
+        <div class="result-section">
+          <div class="result-section-title text-primary">
+            <i class="pi pi-ticket me-1"></i>Avoir généré pour échange
+          </div>
+          <p class="mb-0">
+            Montant disponible : <strong>{{ result.echangeContext.montantCredit | number:'1.0-0' }} F</strong>
+            @if (result.echangeContext.avoirReferences?.length) {
+              — Réf. : <code>{{ result.echangeContext.avoirReferences!.join(', ') }}</code>
+            }
+          </p>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ===== FORMULAIRE RETOUR ===== -->
+  @if (!retourResult() && !saleLoading() && currentSale(); as sale) {
+
     <div class="sale-info-bar mt-2">
       <span><i class="pi pi-receipt me-1"></i><strong>{{ sale.numberTransaction }}</strong></span>
       @if (sale.customerName) {
         <span><i class="pi pi-user me-1"></i>{{ sale.customerName }}</span>
       }
       <span><i class="pi pi-calendar me-1"></i>{{ sale.saleDate | date:'dd/MM/yyyy' }}</span>
+      @if (sale.ancienneteJours != null) {
+        <span class="text-muted small"><i class="pi pi-clock me-1"></i>{{ sale.ancienneteJours }} j</span>
+      }
     </div>
+
+    @if (sale.depasseDelai) {
+      <div class="alert alert-warning py-1 px-2 mt-2 mb-1" style="font-size:.8125rem">
+        <i class="pi pi-exclamation-triangle me-1"></i>
+        <strong>Hors délai</strong> — cette vente a {{ sale.ancienneteJours }} jours. Le délai de retour autorisé est dépassé.
+      </div>
+    }
 
     <!-- Tableau des lignes -->
     <div class="lines-table-wrapper mt-2">
@@ -22,45 +106,111 @@
             <th>Produit</th>
             <th>Code CIP</th>
             <th class="text-end">Qté vendue</th>
-            <th class="text-end">Prix unit.</th>
-            <th style="width:110px">Qté retour</th>
+            <th class="text-end">Prix client</th>
+            <th style="width:130px">Qté retour</th>
+            <th>État produit</th>
             <th class="text-end">Montant</th>
           </tr>
         </thead>
         <tbody>
           @for (line of selectedLines(); track line.salesLineId) {
-            <tr>
-              <td>{{ line.produitLibelle }}</td>
+            <tr [class.row-forbidden]="line.retourInterdit"
+                [class.row-thermosensible]="line.thermosensible && !line.retourInterdit">
+              <td>
+                {{ line.produitLibelle }}
+                @if (line.retourInterdit) {
+                  <span class="badge bg-danger ms-1" style="font-size:.65rem">
+                    <i class="pi pi-ban"></i> {{ line.statutLegal }}
+                  </span>
+                } @else if (line.thermosensible) {
+                  <span class="badge bg-warning text-dark ms-1" style="font-size:.65rem"
+                        title="Ne sera pas remis en stock">
+                    <i class="pi pi-exclamation-triangle"></i> Thermosensible
+                  </span>
+                }
+              </td>
               <td><code>{{ line.codeCip ?? '—' }}</code></td>
               <td class="text-end">{{ line.quantitySold }}</td>
-              <td class="text-end">{{ line.netUnitPrice | number:'1.0-0' }}</td>
+              <td class="text-end">
+                {{ (line.montantRemboursableClient ?? line.netUnitPrice) | number:'1.0-0' }}
+                @if (line.montantTp && line.montantTp > 0) {
+                  <span class="tp-badge">+{{ line.montantTp | number:'1.0-0' }} TP</span>
+                }
+              </td>
               <td>
-                <p-inputNumber
-                       [ngModel]="line.quantiteRetour"
-                       (ngModelChange)="updateQty(line.salesLineId, $event)"
-                       [min]="0" [max]="line.quantitySold" [showButtons]="true" buttonLayout="horizontal" inputId="horizontal" spinnerMode="horizontal" [step]="1">
-
-                <ng-template #incrementbuttonicon>
-                  <span class="pi pi-plus"></span>
-                </ng-template>
-                <ng-template #decrementbuttonicon>
-                  <span class="pi pi-minus"></span>
-                </ng-template>
-                </p-inputNumber>
+                @if (!line.retourInterdit) {
+                  <p-inputNumber
+                    [ngModel]="line.quantiteRetour"
+                    (ngModelChange)="updateQty(line.salesLineId, $event)"
+                    [min]="0" [max]="line.quantitySold" [showButtons]="true"
+                    buttonLayout="horizontal" spinnerMode="horizontal" [step]="1">
+                    <ng-template #incrementbuttonicon><span class="pi pi-plus"></span></ng-template>
+                    <ng-template #decrementbuttonicon><span class="pi pi-minus"></span></ng-template>
+                  </p-inputNumber>
+                } @else {
+                  <span class="text-danger small"><i class="pi pi-lock me-1"></i>Interdit</span>
+                }
+              </td>
+              <td>
+                @if (!line.retourInterdit && (line.quantiteRetour ?? 0) > 0) {
+                  <div class="etat-checks">
+                    <div class="d-flex align-items-center gap-1">
+                      <p-checkbox
+                        [ngModel]="line.emballageIntact"
+                        (ngModelChange)="updateLineState(line.salesLineId, 'emballageIntact', $event)"
+                        [binary]="true"
+                        inputId="emballage-{{ line.salesLineId }}" />
+                      <label [for]="'emballage-' + line.salesLineId">Emballage intact</label>
+                    </div>
+                    <div class="d-flex align-items-center gap-1">
+                      <p-checkbox
+                        [ngModel]="line.numLotLisible"
+                        (ngModelChange)="updateLineState(line.salesLineId, 'numLotLisible', $event)"
+                        [binary]="true"
+                        inputId="lot-{{ line.salesLineId }}" />
+                      <label [for]="'lot-' + line.salesLineId">N° lot lisible</label>
+                    </div>
+                    <div class="d-flex align-items-center gap-1">
+                      <p-checkbox
+                        [ngModel]="line.datePeremptionValide"
+                        (ngModelChange)="updateLineState(line.salesLineId, 'datePeremptionValide', $event)"
+                        [binary]="true"
+                        inputId="peremption-{{ line.salesLineId }}" />
+                      <label [for]="'peremption-' + line.salesLineId">Péremption OK</label>
+                    </div>
+                  </div>
+                } @else {
+                  <span class="text-muted small">—</span>
+                }
               </td>
               <td class="text-end retour-amount">
-                {{ ((line.quantiteRetour ?? 0) * (line.netUnitPrice ?? 0)) | number:'1.0-0' }} F
+                @if (!line.retourInterdit) {
+                  {{ ((line.quantiteRetour ?? 0) * (line.montantRemboursableClient ?? line.netUnitPrice ?? 0)) | number:'1.0-0' }} F
+                } @else {
+                  <span class="text-muted">—</span>
+                }
               </td>
             </tr>
           }
         </tbody>
         <tfoot>
           <tr class="total-row">
-            <td colspan="5" class="text-end fw-bold">Total retour</td>
+            <td colspan="6" class="text-end fw-bold">Total remboursable client</td>
             <td class="text-end retour-amount fw-bold">{{ montantTotal() | number:'1.0-0' }} F</td>
           </tr>
         </tfoot>
       </table>
+    </div>
+
+    <!-- Retour avec échange -->
+    <div class="form-check form-switch mt-3">
+      <input class="form-check-input" type="checkbox" id="avecEchangeCheck"
+             [ngModel]="avecEchange()"
+             (ngModelChange)="onAvecEchangeChange($event)">
+      <label class="form-check-label fw-semibold" for="avecEchangeCheck">
+        &nbsp;&nbsp;  <i class="pi pi-arrow-right-arrow-left me-1"></i>&nbsp;&nbsp;
+        Retour avec échange — générer un avoir pour la prochaine vente
+      </label>
     </div>
 
     <!-- Motif + mode règlement -->
@@ -74,22 +224,31 @@
                   placeholder="Choisir un motif" appendTo="body"
                   class="w-100" />
       </div>
-      <div class="form-group">
-        <label class="form-label-sm">Mode de règlement <span class="text-danger">*</span></label>
-        <p-select [options]="modeReglementOptions"
-                  [ngModel]="modeReglement()"
-                  (ngModelChange)="modeReglement.set($event)"
-                  optionLabel="label" optionValue="value"
-                  placeholder="Remboursement ou avoir" appendTo="body"
-                  class="w-100">
-          <ng-template #selectedItem let-opt>
-            <span><i [class]="opt.icon + ' me-1'"></i>{{ opt.label }}</span>
-          </ng-template>
-          <ng-template #item let-opt>
-            <span><i [class]="opt.icon + ' me-1'"></i>{{ opt.label }}</span>
-          </ng-template>
-        </p-select>
-      </div>
+      @if (!avecEchange()) {
+        <div class="form-group">
+          <label class="form-label-sm">Mode de règlement <span class="text-danger">*</span></label>
+          <p-select [options]="modeReglementOptions"
+                    [ngModel]="modeReglement()"
+                    (ngModelChange)="modeReglement.set($event)"
+                    optionLabel="label" optionValue="value"
+                    placeholder="Remboursement ou avoir" appendTo="body"
+                    class="w-100">
+            <ng-template #selectedItem let-opt>
+              <span><i [class]="opt.icon + ' me-1'"></i>{{ opt.label }}</span>
+            </ng-template>
+            <ng-template #item let-opt>
+              <span><i [class]="opt.icon + ' me-1'"></i>{{ opt.label }}</span>
+            </ng-template>
+          </p-select>
+        </div>
+      } @else {
+        <div class="form-group">
+          <label class="form-label-sm">Mode de règlement</label>
+          <div class="echange-mode-badge">
+            <i class="pi pi-ticket me-1"></i>Avoir client (automatique)
+          </div>
+        </div>
+      }
     </div>
 
     <div class="form-group">
@@ -98,24 +257,28 @@
                 [ngModel]="commentaire()"
                 (ngModelChange)="commentaire.set($event)"
                 placeholder="Motif détaillé, informations complémentaires…">
-
       </textarea>
     </div>
-  }
 
-  @if (submitError()) {
-    <div class="alert alert-danger py-1 px-2 mt-2" style="font-size:.8125rem">
-      <i class="pi pi-exclamation-triangle me-1"></i>{{ submitError() }}
-    </div>
+    @if (submitError()) {
+      <div class="alert alert-danger py-1 px-2 mt-2" style="font-size:.8125rem">
+        <i class="pi pi-exclamation-triangle me-1"></i>{{ submitError() }}
+      </div>
+    }
   }
 
 </div>
 
 <div class="modal-footer">
-  <p-button label="Annuler" severity="secondary" size="small" [disabled]="submitLoading()"
-            (onClick)="cancel()" />
-  <p-button label="Valider le retour" icon="pi pi-check" size="small"
-            [disabled]="!canSubmit()"
-            [loading]="submitLoading()"
-            (onClick)="confirmerRetour()" />
+  @if (retourResult()) {
+    <p-button label="Fermer" icon="pi pi-check" size="small"
+              severity="success" (onClick)="fermerApresResultat()" />
+  } @else {
+    <p-button label="Annuler" severity="secondary" size="small" [disabled]="submitLoading()"
+              (onClick)="cancel()" />
+    <p-button label="Valider le retour" icon="pi pi-check" size="small"
+              [disabled]="!canSubmit()"
+              [loading]="submitLoading()"
+              (onClick)="confirmerRetour()" />
+  }
 </div>

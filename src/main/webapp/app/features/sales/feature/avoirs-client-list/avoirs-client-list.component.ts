@@ -69,6 +69,7 @@ export class AvoirsClientListComponent implements OnInit {
     { label: 'Tout', value: null },
     { label: 'Ouverts', value: 'OUVERT' },
     { label: 'Clôturés', value: 'CLOTURE' },
+    { label: 'Expirés', value: 'EXPIRE' },
   ];
 
   protected readonly modeClotureOptions: { label: string; value: ModeClotureAvoir; icon: string }[] = [
@@ -80,7 +81,10 @@ export class AvoirsClientListComponent implements OnInit {
   ];
 
   get totalMontantDocuments(): number {
-    return this.documents().reduce((s, d) => s + (d.montant ?? 0), 0);
+    return this.documents().reduce((s, d) => {
+      const montant = d.statut === 'OUVERT' ? (d.montantRestant ?? d.montant ?? 0) : (d.montant ?? 0);
+      return s + montant;
+    }, 0);
   }
 
   constructor() {

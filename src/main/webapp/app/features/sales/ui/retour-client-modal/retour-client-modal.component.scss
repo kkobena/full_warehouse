@@ -6,6 +6,22 @@
 }
 
 
+.sale-info-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--surface-50, #f8f9fa);
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  color: #374151;
+  flex-wrap: wrap;
+
+  i { color: #6b7280; font-size: 0.75rem; }
+  strong { color: #111827; }
+}
+
 .lines-table-wrapper {
   max-height: 280px;
   overflow-y: auto;
@@ -44,5 +60,112 @@
   gap: 0.75rem;
 }
 
+.etat-checks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.78rem;
+
+  ::ng-deep .p-checkbox-label {
+    font-size: 0.78rem;
+  }
+}
 
 
+.tp-badge {
+  font-size: 0.68rem;
+  color: #6b7280;
+  background: #f3f4f6;
+  border-radius: 3px;
+  padding: 1px 4px;
+  margin-left: 3px;
+}
+
+::ng-deep .row-forbidden td {
+  background-color: #fff1f2 !important;
+  color: #9ca3af;
+}
+
+::ng-deep .row-thermosensible td {
+  background-color: #fffbeb !important;
+}
+
+.result-panel {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+
+  .result-success-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #ecfdf5;
+    border-bottom: 1px solid #a7f3d0;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    color: #065f46;
+
+    i { font-size: 1rem; color: #10b981; }
+  }
+
+  .result-section {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f3f4f6;
+
+    &:last-child { border-bottom: none; }
+
+    .result-section-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  .result-lines-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+
+      .product-name { font-weight: 600; color: #374151; }
+      .raison { color: #6b7280; font-style: italic; }
+    }
+  }
+}
+
+.statut-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  text-transform: uppercase;
+
+  &.statut-stupefiants { background: #fee2e2; color: #991b1b; }
+  &.statut-pso { background: #fce7f3; color: #9d174d; }
+  &.statut-liste_i { background: #fef3c7; color: #92400e; }
+  &.statut-liste_ii { background: #fef9c3; color: #854d0e; }
+  &.statut-sans_liste { background: #f0fdf4; color: #166534; }
+}
+
+.echange-mode-badge {
+  display: inline-flex;
+  align-items: center;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+  border-radius: 6px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  height: 38px;
+}

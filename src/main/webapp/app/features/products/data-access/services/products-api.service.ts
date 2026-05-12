@@ -132,4 +132,10 @@ export class ProductsApiService {
       params: { active: String(active) }
     });
   }
+
+  patchFlag(id: number, flag: 'THERMOSENSIBLE' | 'MEDICAMENT_ESSENTIEL' | 'PRODUIT_GARDE' | 'CLASSIFICATION_OVERRIDDEN', value: boolean): Observable<void> {
+    return this.http.patch<void>(`${this.resourceUrl}/${id}/flags`, null, {
+      params: { flag, value: String(value) }
+    });
+  }
 }

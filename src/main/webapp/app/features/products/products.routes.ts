@@ -33,12 +33,12 @@ export const PRODUCTS_ROUTES: Routes = [
   },
   {
     path: 'new',
-    loadComponent: () => import('../../entities/produit/produit-update.component').then(m => m.ProduitUpdateComponent),
+    loadComponent: () => import('./ui/produit-form/produit-form.component').then(m => m.ProduitFormComponent),
     resolve: { produit: ProductResolve },
   },
   {
     path: ':id/edit',
-    loadComponent: () => import('../../entities/produit/produit-update.component').then(m => m.ProduitUpdateComponent),
+    loadComponent: () => import('./ui/produit-form/produit-form.component').then(m => m.ProduitFormComponent),
     resolve: { produit: ProductResolve },
   },
 ];

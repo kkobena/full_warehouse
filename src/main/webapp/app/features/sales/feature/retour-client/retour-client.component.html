@@ -2,15 +2,16 @@
   <div class="pharma-toolbar pharma-toolbar-compact">
     <div class="pharma-toolbar-header">
       <i class="pi pi-ban"></i>
-      <span class="pharma-toolbar-title">Annulations de ventes</span>
+      <span class="pharma-toolbar-title">Retours clients</span>
     </div>
 
     <p-toolbar class="mt-1">
       <ng-template #start>
+        <!-- Filtres liste des retours -->
         <p-iconfield>
           <p-inputicon class="pi pi-search" />
           <input pInputText type="text" [(ngModel)]="search" placeholder="Réf. retour ou vente…"
-                 (keyup.enter)="onSearch()"  />
+                 (keyup.enter)="onSearch()" />
         </p-iconfield>
         <p-floatlabel variant="on" [style]="{'margin-left':'.75rem'}">
           <p-datePicker inputId="fromDate" [(ngModel)]="fromDate" dateFormat="dd/mm/yy" [showIcon]="true" appendTo="body" />
@@ -21,18 +22,19 @@
           <label for="toDate">Au</label>
         </p-floatlabel>
 
+
+
       </ng-template>
+
       <ng-template #end>
         <p-button icon="pi pi-search" label="Rechercher" severity="info" size="small"
-                  (onClick)="onSearch()"  />
+                  (onClick)="onSearch()" class="mr-1" />
+        <p-button icon="pi pi-plus" label="Nouveau retour" severity="primary" size="small"
+                  [raised]="true" [disabled]="!saleIdInput"
+                  (onClick)="openRetourModal()" />
       </ng-template>
     </p-toolbar>
   </div>
-
-
-
-
-
 
 <p-table
   [value]="retours"

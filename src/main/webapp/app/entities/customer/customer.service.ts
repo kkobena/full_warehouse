@@ -8,6 +8,7 @@ import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOption } from 'app/shared/util/request-util';
 import { ICustomer } from 'app/shared/model/customer.model';
 import { IClientTiersPayant } from 'app/shared/model/client-tiers-payant.model';
+import { IAvoirClientDocument } from 'app/shared/model/avoir-client-document.model';
 
 type EntityResponseType = HttpResponse<ICustomer>;
 type EntityArrayResponseType = HttpResponse<ICustomer[]>;
@@ -155,6 +156,10 @@ export class CustomerService {
       res.body.updatedAt = res.body.updatedAt ? moment(res.body.updatedAt) : undefined;
     }
     return res;
+  }
+
+  avoirsByCustomer(customerId: number): Observable<IAvoirClientDocument[]> {
+    return this.http.get<IAvoirClientDocument[]>(`${SERVER_API_URL}api/sales/avoirs/documents/by-customer/${customerId}`);
   }
 
   protected convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {

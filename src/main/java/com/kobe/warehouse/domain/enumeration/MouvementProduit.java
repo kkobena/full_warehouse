@@ -19,7 +19,8 @@ public enum MouvementProduit {
     RETRAIT_PERIME("Retrait de produit périmé"),
     RETOUR_DEPOT("Retour de dépôt"),
     RETOUR_FOURNISSEUR("Retour fournisseur"),
-    RETOUR_CLIENT("Retour client");
+    RETOUR_CLIENT("Retour client"),
+    DESTRUCTION("Destruction produit retourné — chaîne du froid compromise");
 
     private final String value;
 

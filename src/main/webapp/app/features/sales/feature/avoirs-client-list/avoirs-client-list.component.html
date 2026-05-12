@@ -92,33 +92,62 @@
           @if (statut() !== 'OUVERT') {
             <th>Clôturé le</th>
           }
+          @if (statut() === 'OUVERT' || statut() === null) {
+            <th>Expire le</th>
+          }
           <th>Produit</th>
           <th>Code</th>
           <th class="text-right">Qté</th>
           <th class="text-right">Montant</th>
+          @if (statut() === 'OUVERT' || statut() === null) {
+            <th class="text-right">Solde</th>
+          }
           <th>Client</th>
           @if (statut() !== 'OUVERT') {
             <th>Mode clôture</th>
             <th>Clôturé par</th>
           }
           <th class="text-center">Statut</th>
-          @if (statut() !== 'CLOTURE') {
+          @if (statut() !== 'CLOTURE' && statut() !== 'EXPIRE') {
             <th class="text-center">Action</th>
           }
         </tr>
       </ng-template>
 
       <ng-template #body let-doc>
-        <tr>
+        <tr [class.row-expiring]="doc.procheExpiration">
           <td><span class="pharma-code">{{ doc.reference }}</span></td>
           <td>{{ doc.createdAt | date: 'dd/MM/yyyy' }}</td>
           @if (statut() !== 'OUVERT') {
             <td>{{ doc.clotureLe | date: 'dd/MM/yyyy' }}</td>
           }
+          @if (statut() === 'OUVERT' || statut() === null) {
+            <td>
+              @if (doc.dateExpiration) {
+                <span [class.text-danger]="doc.procheExpiration" [class.fw-semibold]="doc.procheExpiration">
+                  {{ doc.dateExpiration | date: 'dd/MM/yyyy' }}
+                </span>
+                @if (doc.procheExpiration) {
+                  <span class="badge bg-warning text-dark ms-1" style="font-size:.7rem">Bientôt</span>
+                }
+              } @else {
+                <span class="text-muted">—</span>
+              }
+            </td>
+          }
           <td class="pharma-product-name">{{ doc.produitLibelle }}</td>
           <td><span class="pharma-code">{{ doc.codeCip }}</span></td>
           <td class="text-right pharma-qty-value avoir-qty">{{ doc.quantite | number }}</td>
           <td class="text-right pharma-price">{{ doc.montant | number: '1.0-0' }}</td>
+          @if (statut() === 'OUVERT' || statut() === null) {
+            <td class="text-right pharma-price fw-semibold text-success">
+              @if (doc.statut === 'OUVERT') {
+                {{ (doc.montantRestant ?? doc.montant) | number: '1.0-0' }}
+              } @else {
+                —
+              }
+            </td>
+          }
           <td class="pharma-entity-name">{{ doc.customerName || '—' }}</td>
           @if (statut() !== 'OUVERT') {
             <td>
@@ -136,11 +165,15 @@
           <td class="text-center">
             @if (doc.statut === 'OUVERT') {
               <p-tag severity="warn" value="Ouvert" />
+            } @else if (doc.statut === 'EXPIRE') {
+              <p-tag severity="danger" value="Expiré" />
+            } @else if (doc.statut === 'ANNULE') {
+              <p-tag severity="secondary" value="Annulé" />
             } @else {
               <p-tag severity="success" value="Clôturé" />
             }
           </td>
-          @if (statut() !== 'CLOTURE') {
+          @if (statut() !== 'CLOTURE' && statut() !== 'EXPIRE') {
             <td class="text-center">
               @if (doc.statut === 'OUVERT') {
                 <p-button
@@ -161,12 +194,13 @@
 
       <ng-template #emptymessage>
         <tr>
-          <td [attr.colspan]="statut() === null ? 12 : statut() === 'CLOTURE' ? 11 : 9"
-              style="text-align:center;padding:2rem;color:#888">
+          <td [attr.colspan]="16" style="text-align:center;padding:2rem;color:#888">
             @if (statut() === 'OUVERT') {
               Aucun avoir en attente de clôture
             } @else if (statut() === 'CLOTURE') {
               Aucun avoir clôturé pour la période sélectionnée
+            } @else if (statut() === 'EXPIRE') {
+              Aucun avoir expiré pour la période sélectionnée
             } @else {
               Aucun avoir trouvé
             }

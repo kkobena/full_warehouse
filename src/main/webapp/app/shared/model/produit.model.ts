@@ -11,6 +11,14 @@ import { ITableau } from './tableau.model';
 import { EtatProduit } from './etat-produit.model';
 import { StorageType } from './magasin.model';
 
+export interface IPrixReferenceCreate {
+  tiersPayantId?: number;
+  type?: string;
+  price?: number;
+  rate?: number;
+  enabled?: boolean;
+}
+
 export interface IProduit {
   id?: number;
   libelle?: string;
@@ -88,6 +96,13 @@ export interface IProduit {
   dateperemption?: boolean;
   couvertureStockJours?: number;
   gestionLot?: boolean;
+  // Champs réglementaires et pharmaceutiques
+  thermosensible?: boolean;
+  remisable?: boolean;
+  statutLegal?: string;        // StatutLegal enum: SANS_LISTE | LISTE_I | LISTE_II | STUPEFIANTS | PSO
+  isClassificationOverridden?: boolean;
+  nomCommercial?: string;      // Nom commercial (à venir — migration V1.0.x)
+  prixReference?: IPrixReferenceCreate[];
 }
 
 export class Produit implements IProduit {

@@ -69,6 +69,12 @@ public class RetourClient implements Serializable {
     @Column(name = "original_sale_ref", length = 50)
     private String originalSaleRef;
 
+    @Column(name = "echange_sale_ref", length = 50)
+    private String echangeSaleRef;
+
+    @Column(name = "avec_echange", nullable = false, columnDefinition = "boolean default false")
+    private boolean avecEchange = false;
+
     @ManyToOne
     @JoinColumn(name = "customer_id")
     private Customer customer;
@@ -117,6 +123,12 @@ public class RetourClient implements Serializable {
 
     public String getOriginalSaleRef() { return originalSaleRef; }
     public RetourClient setOriginalSaleRef(String originalSaleRef) { this.originalSaleRef = originalSaleRef; return this; }
+
+    public String getEchangeSaleRef() { return echangeSaleRef; }
+    public RetourClient setEchangeSaleRef(String echangeSaleRef) { this.echangeSaleRef = echangeSaleRef; return this; }
+
+    public boolean isAvecEchange() { return avecEchange; }
+    public RetourClient setAvecEchange(boolean avecEchange) { this.avecEchange = avecEchange; return this; }
 
     public Customer getCustomer() { return customer; }
     public RetourClient setCustomer(Customer customer) { this.customer = customer; return this; }

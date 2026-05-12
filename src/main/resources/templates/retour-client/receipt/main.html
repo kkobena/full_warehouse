@@ -1,0 +1,211 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="fr" lang="fr">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Bon de retour client</title>
+    <style th:inline="css">
+      @page {
+        size: [(${size})];
+        margin: 2mm 2mm 3mm 2mm;
+      }
+
+      body {
+        font-size: 8px;
+        font-family: Arial, sans-serif;
+      }
+
+      .center { text-align: center; }
+      .right { text-align: right; }
+      .bold { font-weight: bold; }
+
+      .shop-name {
+        font-size: 11px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 1px;
+      }
+
+      .shop-info {
+        font-size: 7px;
+        text-align: center;
+        margin-bottom: 1px;
+      }
+
+      .doc-title {
+        font-size: 10px;
+        font-weight: bold;
+        text-align: center;
+        margin: 4px 0;
+        border-top: 0.5px solid #444;
+        border-bottom: 0.5px solid #444;
+        padding: 2px 0;
+      }
+
+      .sep {
+        border-top: 0.5px dashed #666;
+        margin: 3px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .info-table td {
+        padding: 1px 2px;
+        vertical-align: top;
+      }
+
+      .info-table td:first-child {
+        font-weight: bold;
+        width: 30%;
+        white-space: nowrap;
+      }
+
+      .lines-table th {
+        font-size: 7px;
+        font-weight: bold;
+        border-bottom: 0.5px solid #444;
+        padding: 2px 2px;
+      }
+
+      .lines-table td {
+        padding: 1px 2px;
+        font-size: 7px;
+      }
+
+      .totals-table td {
+        padding: 1px 2px;
+      }
+
+      .totals-table .label { width: 65%; }
+      .totals-table .amount { width: 35%; text-align: right; }
+      .totals-table .total-row td {
+        font-weight: bold;
+        border-top: 0.5px solid #444;
+        border-bottom: 0.5px solid #444;
+      }
+
+      .motif-block {
+        margin-top: 4px;
+        padding: 2px 4px;
+        border-left: 2px solid #555;
+        font-size: 7px;
+      }
+
+      .footer-note {
+        margin-top: 10px;
+        border-top: 0.5px solid #444;
+        text-align: center;
+        font-size: 7px;
+        padding-top: 2px;
+      }
+
+      .signature {
+        margin-top: 20px;
+        font-size: 7px;
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- En-tête pharmacie -->
+    <div class="shop-name" th:text="${magasin.name}"></div>
+    <div class="shop-info" th:if="${magasin.address != null}" th:text="${magasin.address}"></div>
+    <div class="shop-info" th:if="${magasin.phone != null}" th:text="${'Tél : ' + magasin.phone}"></div>
+
+    <!-- Titre document -->
+    <div class="doc-title">BON DE RETOUR CLIENT</div>
+
+    <!-- Informations retour -->
+    <table class="info-table">
+      <tr>
+        <td>Référence :</td>
+        <td th:text="${retour.reference}"></td>
+      </tr>
+      <tr>
+        <td>Date :</td>
+        <td th:text="${#temporals.format(retour.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+      </tr>
+      <tr th:if="${retour.customerName != null}">
+        <td>Client :</td>
+        <td th:text="${retour.customerName}"></td>
+      </tr>
+      <tr th:if="${retour.originalSaleRef != null}">
+        <td>Vente N° :</td>
+        <td th:text="${retour.originalSaleRef}"></td>
+      </tr>
+      <tr th:if="${retour.originalSaleDate != null}">
+        <td>Date vente :</td>
+        <td th:text="${#temporals.format(retour.originalSaleDate, 'dd/MM/yyyy')}"></td>
+      </tr>
+      <tr th:if="${retour.createdByName != null}">
+        <td>Opérateur :</td>
+        <td th:text="${retour.createdByName}"></td>
+      </tr>
+    </table>
+
+    <div class="sep"></div>
+
+    <!-- Tableau des produits retournés -->
+    <table class="lines-table">
+      <thead>
+        <tr>
+          <th style="text-align: left; width: 52%;">Produit</th>
+          <th style="text-align: center; width: 10%;">Qté</th>
+          <th style="text-align: right; width: 19%;">P.U. (CFA)</th>
+          <th style="text-align: right; width: 19%;">Montant (CFA)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="line : ${retour.lines}">
+          <td th:text="${line.produitLibelle}"></td>
+          <td style="text-align: center;" th:text="${line.quantite}"></td>
+          <td style="text-align: right;" th:text="${#numbers.formatDecimal(line.prixUnitaire, 1, 'COMMA', 0, 'POINT')}"></td>
+          <td style="text-align: right;" th:text="${#numbers.formatDecimal(line.montant, 1, 'COMMA', 0, 'POINT')}"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sep"></div>
+
+    <!-- Totaux -->
+    <table class="totals-table">
+      <tr th:if="${retour.montantTpTotal > 0}">
+        <td class="label">Part tiers-payant (mutuelle) :</td>
+        <td class="amount" th:text="${#numbers.formatDecimal(retour.montantTpTotal, 1, 'COMMA', 0, 'POINT')}"></td>
+      </tr>
+      <tr class="total-row">
+        <td class="label">Montant à rembourser :</td>
+        <td class="amount" th:text="${#numbers.formatDecimal(retour.montantTotal, 1, 'COMMA', 0, 'POINT')}"></td>
+      </tr>
+      <tr th:if="${retour.modeReglement != null}">
+        <td class="label">Mode de remboursement :</td>
+        <td class="amount" th:text="${retour.modeReglement.libelle}"></td>
+      </tr>
+    </table>
+
+    <!-- Motif + commentaire -->
+    <div class="motif-block" th:if="${retour.motif != null}">
+      <span class="bold">Motif : </span><span th:text="${retour.motif.libelle}"></span>
+    </div>
+    <div class="motif-block" th:if="${retour.commentaire != null}">
+      <span th:text="${retour.commentaire}"></span>
+    </div>
+
+    <!-- Signature -->
+    <table class="signature">
+      <tr>
+        <td style="width: 50%;">Signature pharmacien :</td>
+        <td style="width: 50%;">Signature client :</td>
+      </tr>
+      <tr>
+        <td style="height: 20px; border-bottom: 0.5px solid #aaa;"></td>
+        <td style="height: 20px; border-bottom: 0.5px solid #aaa;"></td>
+      </tr>
+    </table>
+
+    <!-- Pied de page -->
+    <div class="footer-note" th:if="${footer != null}" th:text="${footer}"></div>
+
+  </body>
+</html>

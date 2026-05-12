@@ -1,4 +1,5 @@
 import { Component, computed, effect, input, output, signal } from "@angular/core";
+import { injectTableRows } from "app/shared/utils";
 import { CommonModule } from "@angular/common";
 import { TableLazyLoadEvent, TableModule } from "primeng/table";
 import { ButtonModule } from "primeng/button";
@@ -35,7 +36,8 @@ export type ProduitMenuAction =
 export class ProduitListComponent {
   readonly produits = input.required<IProduit[]>();
   readonly totalItems = input<number>(0);
-  readonly rows = input<number>(15);
+  /** Pass a positive number to override; 0 (default) = auto-compute from viewport. */
+  readonly rows = input<number>(0);
   readonly loading = input<boolean>(false);
   readonly selectedProduit = input<IProduit | null>(null);
   readonly clearSelectionTrigger = input<number>(0);
@@ -49,6 +51,12 @@ export class ProduitListComponent {
   readonly deleteRequested = output<IProduit>();
   readonly menuAction = output<{ action: ProduitMenuAction; produit: IProduit }>();
   readonly selectionChanged = output<IProduit[]>();
+
+  private readonly autoRows = injectTableRows({ overhead: 220 });
+  protected readonly effectiveRows = computed(() => {
+    const r = this.rows();
+    return r > 0 ? r : this.autoRows();
+  });
 
   protected menuItems = signal<MenuItem[]>([]);
   protected selectedIds = signal<Set<number>>(new Set());
@@ -158,7 +166,7 @@ export class ProduitListComponent {
         icon: "pi pi-tag",
         command: () => this.emit("print-label")
       },
-      { separator: true },
+      { separator: true },/*
       {
         label: "Commander",
         icon: "pi pi-shopping-cart",
@@ -168,7 +176,7 @@ export class ProduitListComponent {
         label: "Génériques / substituts",
         icon: "pi pi-list",
         command: () => this.emit("generiques")
-      },
+      },*/
       {
         label: "Prix de référence",
         icon: "pi pi-euro",

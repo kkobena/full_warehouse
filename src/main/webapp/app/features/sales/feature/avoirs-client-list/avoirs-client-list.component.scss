@@ -39,3 +39,7 @@
 
   i { color: #059669; font-size: 0.75rem; }
 }
+
+::ng-deep .row-expiring td {
+  background-color: #fffbeb !important;
+}

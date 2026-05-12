@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.stock;
 
+import com.kobe.warehouse.domain.enumeration.ProduitFlag;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.service.ProductActivityService;
@@ -23,12 +24,11 @@ import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,6 +48,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RestController
 @RequestMapping("/api")
 public class ProduitResource {
+
+    /** Réponse retournée après la création d'un produit. */
+    public record ProduitCreatedResponse(Long id) {}
 
     private static final String ENTITY_NAME = "produit";
     private final Logger log = LoggerFactory.getLogger(ProduitResource.class);
@@ -82,14 +85,14 @@ public class ProduitResource {
      * produit, or with status {@code 400 (Bad Request)} if the produit has already an ID.
      */
     @PostMapping("/produits")
-    public ResponseEntity<Void> createProduit(@Valid @RequestBody ProduitDTO produitDTO) {
+    public ResponseEntity<ProduitCreatedResponse> createProduit(@Valid @RequestBody ProduitDTO produitDTO) {
         log.debug("REST request to save Produit : {}", produitDTO);
         if (produitDTO.getId() != null) {
             throw new BadRequestAlertException("A new produit cannot already have an ID",
                 ENTITY_NAME, "idexists");
         }
-        produitService.save(produitDTO);
-        return ResponseEntity.ok().build();
+        Long id = produitService.save(produitDTO);
+        return ResponseEntity.ok(new ProduitCreatedResponse(id));
     }
 
     /**
@@ -218,6 +221,17 @@ public class ProduitResource {
     ) {
         log.debug("REST request to toggle gestion_lot for Produit {} → {}", id, active);
         produitService.toggleGestionLot(id, active);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/produits/{id}/flags")
+    public ResponseEntity<Void> toggleFlag(
+        @PathVariable Integer id,
+        @RequestParam ProduitFlag flag,
+        @RequestParam boolean value
+    ) {
+        log.debug("REST request to toggle flag {} for Produit {} → {}", flag, id, value);
+        produitService.toggleFlag(id, flag, value);
         return ResponseEntity.noContent().build();
     }
 

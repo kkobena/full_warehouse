@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.stock;
 
 import com.kobe.warehouse.domain.FournisseurProduit;
+import com.kobe.warehouse.domain.enumeration.ProduitFlag;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
@@ -25,8 +26,17 @@ public interface ProduitService {
      * Save a produit.
      *
      * @param produitDTO the entity to save.
+     * @return the id of the created produit.
      */
-    void save(ProduitDTO produitDTO);
+    Long save(ProduitDTO produitDTO);
+
+    /**
+     * Save a produit detail.
+     *
+     * @param dto the entity to save.
+     * @return the id of the created produit.
+     */
+    Long saveDetail(ProduitDTO dto);
 
     /**
      * Get all the produits.
@@ -87,7 +97,7 @@ public interface ProduitService {
 
     List<ProduitSearch> searchProductsByStorage(@NotNull Integer storageId, String search, Pageable pageable);
 
-    void saveDetail(ProduitDTO produitDTO);
+    // saveDetail avec retour d'ID — voir déclaration en haut de l'interface
 
     void save(StockProduitDTO dto);
     Optional<FournisseurProduit> getFournisseurProduitByCriteria(String criteteria, Integer fournisseurId);
@@ -99,6 +109,8 @@ public interface ProduitService {
     void changeStatus(Integer id, com.kobe.warehouse.domain.enumeration.Status status);
 
     void toggleGestionLot(Integer id, boolean active);
+
+    void toggleFlag(Integer id, ProduitFlag flag, boolean value);
 
     List<SubstitutDTO> findGeneriques(Integer produitId);
 }

@@ -11,11 +11,21 @@ public record RetourClientRequest(
     MotifRetourClient motif,
     ModeReglementRetour modeReglement,
     String commentaire,
-    List<RetourLineRequest> lines
+    List<RetourLineRequest> lines,
+    boolean avecEchange
 ) {
     public record RetourLineRequest(
         Long salesLineId,
         LocalDate salesLineDate,
-        int quantite
-    ) {}
+        int quantite,
+        Boolean emballageIntact,
+        Boolean numLotLisible,
+        Boolean datePeremptionValide
+    ) {
+        public boolean etatProduitOk() {
+            return (emballageIntact == null || emballageIntact)
+                && (numLotLisible == null || numLotLisible)
+                && (datePeremptionValide == null || datePeremptionValide);
+        }
+    }
 }

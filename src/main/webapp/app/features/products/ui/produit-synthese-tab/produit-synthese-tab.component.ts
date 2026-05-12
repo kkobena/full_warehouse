@@ -1,7 +1,9 @@
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
+import { TagModule } from 'primeng/tag';
 import { ToggleSwitch } from 'primeng/toggleswitch';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { IProduit } from 'app/shared/model/produit.model';
@@ -18,7 +20,7 @@ import { NotificationService } from '../../../../shared/services/notification.se
   selector: 'app-produit-synthese-tab',
   templateUrl: './produit-synthese-tab.component.html',
   styleUrls: ['./produit-synthese-tab.scss'],
-  imports: [CommonModule, TooltipModule, ButtonModule, ToggleSwitch],
+  imports: [CommonModule, FormsModule, TooltipModule, ButtonModule, TagModule, ToggleSwitch],
 })
 export class ProduitSyntheseTabComponent {
   readonly produit = input.required<IProduit>();
@@ -31,6 +33,10 @@ export class ProduitSyntheseTabComponent {
 
   protected prixReferences = signal<PrixReference[]>([]);
   protected gestionLotPending = signal(false);
+  protected thermosensiblePending = signal(false);
+  protected medicamentEssentielPending = signal(false);
+  protected produitGardePending = signal(false);
+  protected classificationOverriddenPending = signal(false);
 
   private readonly prixReferenceService = inject(PrixReferenceService);
   private readonly modalService = inject(NgbModal);
@@ -66,6 +72,17 @@ export class ProduitSyntheseTabComponent {
     const v = this.indicateurs()?.couvertureStockJours;
     if (v == null || v < 0) return null;
     return v;
+  });
+
+  protected readonly statutLegalTag = computed((): { label: string; severity: 'success' | 'warn' | 'danger' | 'secondary'; icon: string } => {
+    switch (this.produit().statutLegal) {
+      case 'SANS_LISTE':  return { label: 'Sans liste',  severity: 'success', icon: 'pi pi-check-circle' };
+      case 'LISTE_I':     return { label: 'Liste I',     severity: 'warn',    icon: 'pi pi-exclamation-circle' };
+      case 'LISTE_II':    return { label: 'Liste II',    severity: 'warn',    icon: 'pi pi-exclamation-circle' };
+      case 'STUPEFIANTS': return { label: 'Stupéfiants', severity: 'danger',  icon: 'pi pi-ban' };
+      case 'PSO':         return { label: 'PSO',         severity: 'danger',  icon: 'pi pi-ban' };
+      default:            return { label: '—',           severity: 'secondary', icon: 'pi pi-minus' };
+    }
   });
 
   /** rotationAnnuelleQte sanitisée : null si négative */
@@ -127,6 +144,47 @@ export class ProduitSyntheseTabComponent {
       },
       error: () => {
         this.gestionLotPending.set(false);
+        this.notificationService.error('Impossible de modifier le paramètre', 'Erreur');
+      },
+    });
+  }
+
+  protected onToggleThermosensible(value: boolean): void {
+    this.toggleFlag('THERMOSENSIBLE', value, this.thermosensiblePending, 'Thermosensible');
+  }
+
+  protected onToggleMedicamentEssentiel(value: boolean): void {
+    this.toggleFlag('MEDICAMENT_ESSENTIEL', value, this.medicamentEssentielPending, 'Médicament essentiel');
+  }
+
+  protected onToggleProduitGarde(value: boolean): void {
+    this.toggleFlag('PRODUIT_GARDE', value, this.produitGardePending, 'Produit de garde');
+  }
+
+  protected onToggleClassificationOverridden(value: boolean): void {
+    this.toggleFlag('CLASSIFICATION_OVERRIDDEN', value, this.classificationOverriddenPending, 'Classification personnalisée');
+  }
+
+  private toggleFlag(
+    flag: 'THERMOSENSIBLE' | 'MEDICAMENT_ESSENTIEL' | 'PRODUIT_GARDE' | 'CLASSIFICATION_OVERRIDDEN',
+    value: boolean,
+    pending: ReturnType<typeof signal<boolean>>,
+    label: string
+  ): void {
+    const id = this.produit().id;
+    if (!id) return;
+    pending.set(true);
+    this.api.patchFlag(id, flag, value).subscribe({
+      next: () => {
+        pending.set(false);
+        this.notificationService.success(
+          `${label} ${value ? 'activé' : 'désactivé'} pour ce produit`,
+          label
+        );
+        this.refreshRequested.emit();
+      },
+      error: () => {
+        pending.set(false);
         this.notificationService.error('Impossible de modifier le paramètre', 'Erreur');
       },
     });

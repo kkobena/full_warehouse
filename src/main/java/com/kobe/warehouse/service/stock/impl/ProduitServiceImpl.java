@@ -13,10 +13,12 @@ import com.kobe.warehouse.domain.RayonProduit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.Tva;
+import com.kobe.warehouse.domain.enumeration.ProduitFlag;
 import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.repository.CustomizedProductService;
+import com.kobe.warehouse.repository.FournisseurProduitRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.SubstitutRepository;
 import com.kobe.warehouse.repository.RayonProduitRepository;
@@ -30,9 +32,12 @@ import com.kobe.warehouse.service.dto.SubstitutDTO;
 import com.kobe.warehouse.service.dto.StockProduitDTO;
 import com.kobe.warehouse.service.dto.builder.ProduitBuilder;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.produit_prix.service.PrixRererenceService;
 import com.kobe.warehouse.service.reassort.SuggestionReassortService;
 import com.kobe.warehouse.service.stock.ProduitService;
 import com.kobe.warehouse.service.stock.dto.ProduitSearch;
+import com.kobe.warehouse.service.utils.ServiceUtil;
+import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -72,13 +77,17 @@ public class ProduitServiceImpl implements ProduitService {
     private final RayonProduitRepository rayonProduitRepository;
     private final SuggestionReassortService suggestionReassortService;
     private final SubstitutRepository substitutRepository;
+    private final FournisseurProduitRepository fournisseurProduitRepository;
+    private final PrixRererenceService prixReferenceService;
 
     public ProduitServiceImpl(
         ProduitRepository produitRepository,
         CustomizedProductService customizedProductService,
         RayonRepository rayonRepository,
         ObjectMapper objectMapper, StorageService storageService, LogsService logsService, StockProduitRepository stockProduitRepository, RayonProduitRepository rayonProduitRepository, SuggestionReassortService suggestionReassortService,
-        SubstitutRepository substitutRepository
+        SubstitutRepository substitutRepository,
+        FournisseurProduitRepository fournisseurProduitRepository,
+        PrixRererenceService prixReferenceService
     ) {
 
         this.produitRepository = produitRepository;
@@ -91,6 +100,8 @@ public class ProduitServiceImpl implements ProduitService {
         this.rayonProduitRepository = rayonProduitRepository;
         this.suggestionReassortService = suggestionReassortService;
         this.substitutRepository = substitutRepository;
+        this.fournisseurProduitRepository = fournisseurProduitRepository;
+        this.prixReferenceService = prixReferenceService;
     }
 
     /**
@@ -99,20 +110,49 @@ public class ProduitServiceImpl implements ProduitService {
      * @param produitDTO the entity to save.
      */
     @Override
-    public void save(ProduitDTO produitDTO) {
+    public Long save(ProduitDTO produitDTO) {
         LOG.debug("Request to save Produit : {}", produitDTO);
         if (nonNull(produitDTO.getTypeProduit()) && produitDTO.getTypeProduit() == TypeProduit.DETAIL) {
-            saveDetail(produitDTO);
-        } else {
-            Storage reserveStorage = storageService.getDefaultConnectedUserReserveStorage();
-            Produit produit = ProduitBuilder.fromDTO(produitDTO, rayonRepository.getReferenceById(produitDTO.getRayonId()), reserveStorage);
-            save(produit);
+            return saveDetail(produitDTO);
         }
-
+        Storage reserveStorage = storageService.getDefaultConnectedUserReserveStorage();
+        Produit produit = ProduitBuilder.fromDTO(produitDTO, rayonRepository.getReferenceById(produitDTO.getRayonId()), reserveStorage);
+        produit = produitRepository.save(produit);
+        stockProduitRepository.saveAll(produit.getStockProduits());
+        saveSupplementaryFournisseurs(produit, produitDTO);
+        savePrixReferences(produit, produitDTO);
+        logsService.create(
+            TransactionType.CREATE_PRODUCT,
+            String.format("Création du produit %s", produit.getLibelle()),
+            produit.getId().toString()
+        );
+        return produit.getId().longValue();
     }
 
+    private void saveSupplementaryFournisseurs(Produit produit, ProduitDTO dto) {
+        if (CollectionUtils.isEmpty(dto.getFournisseurProduits())) return;
+        dto.getFournisseurProduits().forEach(fp -> {
+            FournisseurProduit extra = new FournisseurProduit();
+            extra.setCodeCip(ServiceUtil.buildCodeCip(fp.getCodeCip()));
+            extra.setPrixAchat(fp.getPrixAchat());
+            extra.setPrixUni(fp.getPrixUni());
+            extra.setQteColis(fp.getQteColis() != null && fp.getQteColis() > 1 ? fp.getQteColis() : 1);
+            extra.setQteMinimaleCommande(fp.getQteMinimaleCommande() != null && fp.getQteMinimaleCommande() > 0 ? fp.getQteMinimaleCommande() : 0);
+            extra.setProduit(produit);
+            extra.setFournisseur(ProduitBuilder.fournisseurFromId(fp.getFournisseurId()));
+            fournisseurProduitRepository.save(extra);
+        });
+    }
 
-    private void save(Produit produit) {
+    private void savePrixReferences(Produit produit, ProduitDTO dto) {
+        if (CollectionUtils.isEmpty(dto.getPrixReference())) return;
+        dto.getPrixReference().forEach(pr -> {
+            pr.setProduitId(produit.getId());
+            prixReferenceService.add(pr);
+        });
+    }
+
+    private Long save(Produit produit) {
         produit = produitRepository.save(produit);
         stockProduitRepository.saveAll(produit.getStockProduits());
         logsService.create(
@@ -120,14 +160,15 @@ public class ProduitServiceImpl implements ProduitService {
             String.format("Création du produit %s", produit.getLibelle()),
             produit.getId().toString()
         );
+        return produit.getId().longValue();
     }
 
     @Override
-    public void saveDetail(ProduitDTO dto) {
+    public Long saveDetail(ProduitDTO dto) {
         Produit parentProduit = produitRepository.getReferenceById(dto.getProduitId());
         Produit produit = ProduitBuilder.buildDetailFromDTO(dto, parentProduit);
         updateProduitItemQty(parentProduit, dto);
-        save(produit);
+        return save(produit);
     }
 
     /**
@@ -473,7 +514,23 @@ public class ProduitServiceImpl implements ProduitService {
     public void toggleGestionLot(Integer id, boolean active) {
         produitRepository.findById(id).ifPresent(produit -> {
             produit.setGestionLot(active);
-            produit.setUpdatedAt(java.time.LocalDateTime.now());
+            produit.setUpdatedAt(LocalDateTime.now());
+            produitRepository.save(produit);
+        });
+    }
+
+    @Override
+    @Transactional
+    @CacheEvict(cacheNames = "produits", key = "#id")
+    public void toggleFlag(Integer id, ProduitFlag flag, boolean value) {
+        produitRepository.findById(id).ifPresent(produit -> {
+            switch (flag) {
+                case THERMOSENSIBLE -> produit.setThermosensible(value);
+                case MEDICAMENT_ESSENTIEL -> produit.setEstMedicamentEssentiel(value);
+                case PRODUIT_GARDE -> produit.setEstProduitGarde(value);
+                case CLASSIFICATION_OVERRIDDEN -> produit.setIsClassificationOverridden(value);
+            }
+            produit.setUpdatedAt(LocalDateTime.now());
             produitRepository.save(produit);
         });
     }

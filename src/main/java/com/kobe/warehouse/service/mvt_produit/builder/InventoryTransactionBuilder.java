@@ -152,17 +152,32 @@ public class InventoryTransactionBuilder {
         } else if (entity instanceof RetourClientLine retourClientLine) {
             Produit produit = retourClientLine.getProduit();
             AppUser user = retourClientLine.getRetourClient().getCreatedBy();
-            inventoryTransaction = new InventoryTransaction()
-                .setProduit(produit)
-                .setMouvementType(MouvementProduit.RETOUR_CLIENT)
-                .setQuantity(retourClientLine.getQuantite())
-                .setQuantityBefor(retourClientLine.getQuantiteInit())
-                .setQuantityAfter(retourClientLine.getQuantite() + retourClientLine.getQuantiteInit())
-                .setCostAmount(retourClientLine.getPrixAchat())
-                .setEntityId(Long.parseLong(retourClientLine.getId() + ""))
-                .setUser(user)
-                .setMagasin(user.getMagasin())
-                .setRegularUnitPrice(retourClientLine.getPrixUnitaire());
+            if (retourClientLine.isStockRestitue()) {
+                inventoryTransaction = new InventoryTransaction()
+                    .setProduit(produit)
+                    .setMouvementType(MouvementProduit.RETOUR_CLIENT)
+                    .setQuantity(retourClientLine.getQuantite())
+                    .setQuantityBefor(retourClientLine.getQuantiteInit())
+                    .setQuantityAfter(retourClientLine.getQuantite() + retourClientLine.getQuantiteInit())
+                    .setCostAmount(retourClientLine.getPrixAchat())
+                    .setEntityId(Long.parseLong(retourClientLine.getId() + ""))
+                    .setUser(user)
+                    .setMagasin(user.getMagasin())
+                    .setRegularUnitPrice(retourClientLine.getPrixUnitaire());
+            } else {
+                // Produit thermosensible : retour accepté financièrement, stock inchangé
+                inventoryTransaction = new InventoryTransaction()
+                    .setProduit(produit)
+                    .setMouvementType(MouvementProduit.DESTRUCTION)
+                    .setQuantity(-retourClientLine.getQuantite())
+                    .setQuantityBefor(retourClientLine.getQuantiteInit())
+                    .setQuantityAfter(retourClientLine.getQuantiteInit())
+                    .setCostAmount(retourClientLine.getPrixAchat())
+                    .setEntityId(Long.parseLong(retourClientLine.getId() + ""))
+                    .setUser(user)
+                    .setMagasin(user.getMagasin())
+                    .setRegularUnitPrice(retourClientLine.getPrixUnitaire());
+            }
         }
     }
 

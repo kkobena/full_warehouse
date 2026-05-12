@@ -4,6 +4,8 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.domain.HistoriqueProduitInventaire;
 import com.kobe.warehouse.domain.ParcoursProduit;
 import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
+import com.kobe.warehouse.domain.enumeration.Status;
+import com.kobe.warehouse.domain.enumeration.StatutLegal;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.service.produit_prix.dto.PrixReferenceDTO;
 import org.springframework.util.CollectionUtils;
@@ -40,6 +42,7 @@ public class ProduitDTO {
     private Integer itemRegularUnitPrice;
     private Integer produitId;
     private String produitLibelle;
+    private String nomCommercial;
     private int quantityReceived;
     private List<ProduitDTO> produits = new ArrayList<>();
     private LocalDateTime lastDateOfSale;
@@ -75,7 +78,7 @@ public class ProduitDTO {
     private List<PrixReferenceDTO> prixReference = new ArrayList<>();
 
     private String codeEanLaboratoire;
-    private int status;
+    private Status status;
     private String displayStatut;
     private int saleOfPointStock;
     private int saleOfPointVirtualStock;
@@ -94,10 +97,23 @@ public class ProduitDTO {
     private ClasseCriticite classeCriticite;
     private Boolean estMedicamentEssentiel = false;
     private Boolean estProduitGarde = false;
+    private Boolean remisable ;
+    private Boolean gestionLot ;
+    private Boolean thermosensible ;
     private Integer couvertureStockJours;
+    private StatutLegal statutLegal;
+    private Boolean isClassificationOverridden ;
     private List<HistoriqueProduitInventaire> historiqueProduitInventaires = new ArrayList<>();
     private ProduitDTO parent;
 
+    public String getNomCommercial() {
+        return nomCommercial;
+    }
+
+    public ProduitDTO setNomCommercial(String nomCommercial) {
+        this.nomCommercial = nomCommercial;
+        return this;
+    }
 
     public String getRemiseCode() {
         return remiseCode;
@@ -717,11 +733,11 @@ public class ProduitDTO {
         return this;
     }
 
-    public int getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public ProduitDTO setStatus(int status) {
+    public ProduitDTO setStatus(Status status) {
         this.status = status;
         return this;
     }
@@ -849,6 +865,54 @@ public class ProduitDTO {
 
     public ProduitDTO setEstProduitGarde(Boolean estProduitGarde) {
         this.estProduitGarde = estProduitGarde;
+        return this;
+    }
+
+    public Boolean getRemisable() {
+        return remisable;
+    }
+
+    public ProduitDTO setRemisable(Boolean remisable) {
+        this.remisable = remisable;
+        return this;
+    }
+
+    public Boolean getGestionLot() {
+        return gestionLot;
+    }
+
+    public ProduitDTO setGestionLot(Boolean gestionLot) {
+        this.gestionLot = gestionLot;
+        return this;
+    }
+
+    public Boolean getThermosensible() {
+        return thermosensible;
+    }
+
+    public ProduitDTO setThermosensible(Boolean thermosensible) {
+        this.thermosensible = thermosensible;
+        return this;
+    }
+
+    public StatutLegal getStatutLegal() {
+        return statutLegal;
+    }
+
+    public ProduitDTO setStatutLegal(StatutLegal statutLegal) {
+        this.statutLegal = statutLegal;
+        return this;
+    }
+
+    public Boolean getClassificationOverridden() {
+        return isClassificationOverridden;
+    }
+    public boolean isOrdonnanceObligatoire() {
+        return statutLegal != null && statutLegal.isOrdonnanceObligatoire();
+    }
+
+    public ProduitDTO setClassificationOverridden(Boolean classificationOverridden) {
+        isClassificationOverridden = classificationOverridden;
         return this;
     }
 

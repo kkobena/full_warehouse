@@ -22,5 +22,9 @@ public record AvoirClientDocumentDTO(
     LocalDate salesLineDate,
     String numberTransaction,
     String commandeReference,
-    String closedByName
+    String closedByName,
+    LocalDate dateExpiration,
+    boolean procheExpiration,
+    int montantUtilise,
+    int montantRestant
 ) {}

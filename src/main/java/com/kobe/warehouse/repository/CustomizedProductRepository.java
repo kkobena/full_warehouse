@@ -6,6 +6,7 @@ import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.domain.FamilleProduit_;
 import com.kobe.warehouse.domain.FormProduit;
 import com.kobe.warehouse.domain.FormProduit_;
+import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.FournisseurProduit_;
 import com.kobe.warehouse.domain.Fournisseur_;
@@ -49,6 +50,7 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
+import jakarta.persistence.criteria.Subquery;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -303,8 +305,17 @@ public class CustomizedProductRepository implements CustomizedProductService {
                     cb.like(root.get(FournisseurProduit_.produit).get(Produit_.libelle), criteteria)
                 )
             );
-            predicates.add(cb.equal(root.get(FournisseurProduit_.fournisseur).get(Fournisseur_.id),
-                fournisseurId));
+            Subquery<Integer> parentSq = cq.subquery(Integer.class);
+            Root<Fournisseur> fRoot = parentSq.from(Fournisseur.class);
+            parentSq.select(fRoot.get(Fournisseur_.parent).get(Fournisseur_.id))
+                .where(cb.and(
+                    cb.equal(fRoot.get(Fournisseur_.id), fournisseurId),
+                    cb.isNotNull(fRoot.get(Fournisseur_.parent))
+                ));
+            predicates.add(cb.or(
+                cb.equal(root.get(FournisseurProduit_.fournisseur).get(Fournisseur_.id), fournisseurId),
+                cb.equal(root.get(FournisseurProduit_.fournisseur).get(Fournisseur_.id), parentSq)
+            ));
             predicates.add(cb.isNull(root.get(FournisseurProduit_.produit).get(Produit_.parent)));
             cq.where(cb.and(predicates.toArray(new Predicate[0])));
             TypedQuery<FournisseurProduit> q = em.createQuery(cq);

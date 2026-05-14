@@ -25,7 +25,6 @@ import { IFournisseur } from "app/shared/model/fournisseur.model";
 import { IOrderLine } from "app/shared/model/order-line.model";
 import { ITEMS_PER_PAGE } from "app/shared/constants/pagination.constants";
 import { DeliveryService, IDeliveryTotals } from "../../../../entities/commande/delevery/delivery.service";
-import { FournisseurService } from "../../../../entities/fournisseur/fournisseur.service";
 import { NotificationService } from "app/shared/services/notification.service";
 import { showCommonModal } from "../../../../entities/sales/selling-home/sale-helper";
 import { EtiquetteComponent } from "../delivery/etiquette/etiquette.component";
@@ -41,6 +40,7 @@ import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-d
 import { Params } from "../../../../shared/model/enumerations/params.model";
 import { IConfiguration } from "../../../../shared/model/configuration.model";
 import { ConfigurationService } from "../../../../shared/configuration.service";
+import { FournisseurSelectComponent } from "../../../partners/ui/fournisseur-select/fournisseur-select.component";
 
 @Component({
   selector: "app-list-bons",
@@ -67,7 +67,8 @@ import { ConfigurationService } from "../../../../shared/configuration.service";
     ListBonsStatutComponent,
     RetourWorkspaceComponent,
     ReconciliationWorkspaceComponent,
-    DatePipe
+    DatePipe,
+    FournisseurSelectComponent
   ]
 })
 export class AppListBonsComponent implements OnInit {
@@ -77,7 +78,6 @@ export class AppListBonsComponent implements OnInit {
   protected dtStart: Date | null = null;
   protected dtEnd: Date | null = null;
   protected selectedStatut: string | null = null;
-  protected fournisseurs: IFournisseur[] = [];
   protected deliveries: IDelivery[] = [];
   protected loading = false;
   protected itemsPerPage = ITEMS_PER_PAGE;
@@ -132,7 +132,6 @@ export class AppListBonsComponent implements OnInit {
   }
 
   private readonly entityService = inject(DeliveryService);
-  private readonly fournisseurService = inject(FournisseurService);
   private readonly modalService = inject(NgbModal);
   private readonly notificationService = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
@@ -143,11 +142,9 @@ export class AppListBonsComponent implements OnInit {
   private readonly downloadDocumentService = inject(BlobDownloadService);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly configurationService = inject(ConfigurationService);
+
   ngOnInit(): void {
     this.isLotActif();
-    this.fournisseurService
-      .query({ page: 0, size: 999 })
-      .subscribe((res: HttpResponse<IFournisseur[]>) => (this.fournisseurs = res.body ?? []));
     this.onSearch();
 
     toObservable(this.commandCommonService.pendingOpenDeliveryId, { injector: this.injector })
@@ -187,6 +184,7 @@ export class AppListBonsComponent implements OnInit {
         }
       });
   }
+
   onSearch(): void {
     this.loadPage(0);
   }
@@ -195,9 +193,9 @@ export class AppListBonsComponent implements OnInit {
     this.fetchDeliveries(page, this.itemsPerPage);
   }
 
-  onFournisseurChange(event: any): void {
-    this.selectFournisseurId = event.value ?? null;
-    setTimeout(() => this.onSearch(), 50);
+  onFournisseurChange(f: IFournisseur | null): void {
+    this.selectFournisseurId = f?.id ?? null;
+    this.onSearch();
   }
 
   protected isReceived(delivery: IDelivery): boolean {

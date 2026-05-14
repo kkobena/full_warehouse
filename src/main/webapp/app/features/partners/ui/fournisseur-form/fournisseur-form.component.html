@@ -1,0 +1,209 @@
+<div class="modal-header">
+  <h4 class="modal-title">{{ title }}</h4>
+  <button (click)="cancel()" class="btn-close" type="button">&times;</button>
+</div>
+<form (ngSubmit)="save()" [formGroup]="editForm" novalidate>
+  <div class="modal-body">
+    <input formControlName="id" type="hidden" />
+
+    <div class="card-grid-2col">
+      <!-- ── Colonne gauche : identification + coordonnées ── -->
+      <p-card>
+        <ng-template #header>
+          <div class="section-header section-header-required">
+            <i class="pi pi-exclamation-circle"></i>
+            <span>Identification</span>
+          </div>
+        </ng-template>
+        <div class="form-grid-compact">
+
+          <div class="form-field form-field-full">
+            <label for="field_libelle">Libellé <span class="required">*</span></label>
+            <input #libelleInput autocomplete="off" class="w-full" formControlName="libelle"
+                   id="field_libelle" pInputText />
+            @let libelle = editForm.get('libelle');
+            @if (libelle!.invalid && (libelle!.dirty || libelle!.touched)) {
+              @if (libelle?.errors?.['required']) {
+                <small class="form-text text-danger">Ce champ est obligatoire.</small>
+              }
+            }
+          </div>
+
+          <div class="form-field form-field-full">
+            <label for="field_code">Code</label>
+            <input autocomplete="off" class="w-full" formControlName="code" id="field_code"
+                   pInputText pKeyFilter="alphanum" />
+          </div>
+
+          @if (isAgenceMode) {
+            <div class="form-field form-field-full">
+              <label for="field_parent">Fournisseur principal</label>
+              <p-select class="w-full" [options]="parents" formControlName="parentId"
+                        id="field_parent" optionLabel="libelle" optionValue="id"
+                        placeholder="Sélectionner le fournisseur principal" size="large" />
+            </div>
+          }
+
+          <div class="form-field form-field-full mt-2">
+            <small class="text-muted fw-semibold" style="text-transform:uppercase;letter-spacing:.04em;">
+              <i class="pi pi-phone me-1"></i>Coordonnées
+            </small>
+            <hr class="mt-1 mb-2" style="opacity:.25;" />
+          </div>
+
+          <div class="form-field form-field-full">
+            <label for="field_phone">Téléphone</label>
+            <input autocomplete="off" class="w-full" formControlName="phone" id="field_phone"
+                   pInputText pKeyFilter="int" />
+          </div>
+
+          <div class="form-field form-field-full">
+            <label for="field_mobile">Mobile</label>
+            <input autocomplete="off" class="w-full" formControlName="mobile" id="field_mobile"
+                   pInputText pKeyFilter="int" />
+          </div>
+
+          <div class="form-field form-field-full">
+            <label for="field_addresspostale">Adresse postale</label>
+            <input autocomplete="off" class="w-full" formControlName="addresspostale"
+                   id="field_addresspostale" pInputText />
+          </div>
+
+          @if (!isAgenceMode) {
+            <div class="form-field form-field-full mt-2">
+              <small class="text-muted fw-semibold" style="text-transform:uppercase;letter-spacing:.04em;">
+                <i class="pi pi-truck me-1"></i>Logistique
+              </small>
+              <hr class="mt-1 mb-2" style="opacity:.25;" />
+            </div>
+            <div class="form-field form-field-full">
+              <label for="field_delaiLivraisonJours">Délai de livraison (jours)</label>
+              <input autocomplete="off" class="w-full" formControlName="delaiLivraisonJours"
+                     id="field_delaiLivraisonJours" pInputText pKeyFilter="int" />
+            </div>
+            <div class="form-field form-field-full">
+              <label for="field_frequenceCommandeJours">
+                Fréquence de commande (jours)
+                <small class="text-muted ms-1">— ex : 1 = quotidien · 7 = hebdo</small>
+              </label>
+              <input autocomplete="off" class="w-full" formControlName="frequenceCommandeJours"
+                     id="field_frequenceCommandeJours" pInputText pKeyFilter="int" />
+            </div>
+          }
+
+        </div>
+      </p-card>
+
+      <!-- ── Colonne droite ── -->
+      <p-card>
+        @if (!isAgenceMode) {
+          <ng-template #header>
+            <span class="section-header">Conditions Commerciales</span>
+          </ng-template>
+          <div class="form-grid-compact">
+
+            <div class="form-field form-field-full">
+              <label for="field_joursCredit">Délai de paiement (jours)</label>
+              <input autocomplete="off" class="w-full" formControlName="joursCredit" id="field_joursCredit"
+                     pInputText pKeyFilter="int" placeholder="Vide = valeur par défaut app" type="number" min="0" />
+            </div>
+
+            <div class="form-field form-field-full">
+              <label for="field_joursCritique">Délai critique après échéance (jours)</label>
+              <input autocomplete="off" class="w-full" formControlName="joursCritique" id="field_joursCritique"
+                     pInputText pKeyFilter="int" placeholder="Vide = valeur par défaut app" type="number" min="0" />
+            </div>
+
+            <div class="form-field form-field-full">
+              <label for="field_palierRfa">Seuil d'achat annuel — RFA (FCFA)
+                <small class="text-muted ms-1">— montant à partir duquel la remise s'applique</small>
+              </label>
+              <input autocomplete="off" class="w-full" formControlName="palierRfa" id="field_palierRfa"
+                     pInputText pKeyFilter="int" type="number" min="0" />
+            </div>
+
+            <div class="form-field form-field-full">
+              <label for="field_tauxRfa">Taux remise fin d'année — RFA (%)</label>
+              <input autocomplete="off" class="w-full" formControlName="tauxRfa" id="field_tauxRfa"
+                     pInputText pKeyFilter="int" type="number" min="0" max="100" />
+            </div>
+
+          </div>
+        } @else {
+          <ng-template #header>
+            <span class="section-header">Logistique</span>
+          </ng-template>
+          <div class="form-grid-compact">
+
+            <div class="form-field form-field-full">
+              <label for="field_delaiLivraisonJours_agence">
+                Délai de livraison (jours)
+                <small class="text-muted ms-1">— propre à cette agence</small>
+              </label>
+              <input autocomplete="off" class="w-full" formControlName="delaiLivraisonJours"
+                     id="field_delaiLivraisonJours_agence" pInputText pKeyFilter="int" />
+            </div>
+
+          </div>
+        }
+
+        <!-- ── Connexion EDI / PharmaML (commune aux deux modes) ── -->
+        <div class="form-grid-compact mt-3">
+
+          <div class="form-field form-field-full">
+            <small class="text-muted fw-semibold" style="text-transform:uppercase;letter-spacing:.04em;">
+              <i class="pi pi-link me-1"></i>Connexion (PharmaML)
+            </small>
+            <hr class="mt-1 mb-2" style="opacity:.25;" />
+          </div>
+
+          <div class="form-field form-field-full">
+            <label for="field_identifiantRepartiteur">Identifiant grossiste (répartiteur)
+              <small class="text-muted ms-1">— code attribué par le grossiste</small>
+            </label>
+            <input autocomplete="off" class="w-full" formControlName="identifiantRepartiteur"
+                   id="field_identifiantRepartiteur" pInputText pKeyFilter="alphanum" />
+          </div>
+
+          <div class="form-field form-field-full">
+            <label for="field_urlPharmaMl">Serveur de commandes (URL)</label>
+            <input [pKeyFilter]="blockSpace" autocomplete="off" class="w-full" formControlName="urlPharmaMl"
+                   id="field_urlPharmaMl" pInputText placeholder="https://..." />
+          </div>
+
+          <div class="form-field form-field-full">
+            <label for="field_codeOfficePharmaMl">Code officine
+              <small class="text-muted ms-1">— votre code chez ce fournisseur</small>
+            </label>
+            <input [pKeyFilter]="blockSpace" autocomplete="off" class="w-full" formControlName="codeOfficePharmaMl"
+                   id="field_codeOfficePharmaMl" pInputText />
+          </div>
+
+          <div class="form-field form-field-full">
+            <label for="field_codeRecepteurPharmaMl">Code établissement destinataire
+              <small class="text-muted ms-1">— code du dépôt fournisseur</small>
+            </label>
+            <input [pKeyFilter]="blockSpace" autocomplete="off" class="w-full" formControlName="codeRecepteurPharmaMl"
+                   id="field_codeRecepteurPharmaMl" pInputText />
+          </div>
+
+          <div class="form-field form-field-full">
+            <label for="field_idRecepteurPharmaMl">N° client chez le grossiste
+              <small class="text-muted ms-1">— votre compte client</small>
+            </label>
+            <input [pKeyFilter]="blockSpace" autocomplete="off" class="w-full" formControlName="idRecepteurPharmaMl"
+                   id="field_idRecepteurPharmaMl" pInputText />
+          </div>
+
+        </div>
+      </p-card>
+
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <p-button (click)="cancel()" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
+    <p-button [disabled]="editForm.invalid || isSaving" icon="pi pi-check"
+              label="Enregistrer" severity="success" type="submit" />
+  </div>
+</form>

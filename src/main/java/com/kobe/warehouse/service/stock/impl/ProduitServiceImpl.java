@@ -384,6 +384,9 @@ public class ProduitServiceImpl implements ProduitService {
             }
 
         }
+        if (stockProduit == null) {
+            throw new GenericError("Stock produit introuvable pour le produit " + produit.getLibelle());
+        }
 
         stockProduit.setUpdatedAt(LocalDateTime.now());
         stockProduit.setQtyStock(stockProduit.getQtyStock() + stockIn);

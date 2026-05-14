@@ -1,53 +1,33 @@
-import {
-  Component,
-  DestroyRef,
-  effect,
-  inject,
-  Injector,
-  signal,
-  untracked,
-  viewChild
-} from "@angular/core";
-import {CommonModule, DecimalPipe} from "@angular/common";
-import {FormsModule} from "@angular/forms";
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
-import {ButtonModule} from "primeng/button";
-import {TooltipModule} from "primeng/tooltip";
-import {IconField} from "primeng/iconfield";
-import {InputIcon} from "primeng/inputicon";
-import {InputTextModule} from "primeng/inputtext";
-import {MultiSelectModule} from "primeng/multiselect";
-import {SuggestionFacadeService} from "./data-access/suggestion-facade.service";
+import { Component, DestroyRef, effect, inject, Injector, signal, untracked, viewChild } from "@angular/core";
+import { CommonModule, DecimalPipe } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { ButtonModule } from "primeng/button";
+import { TooltipModule } from "primeng/tooltip";
+import { IconField } from "primeng/iconfield";
+import { InputIcon } from "primeng/inputicon";
+import { InputTextModule } from "primeng/inputtext";
+import { MultiSelectModule } from "primeng/multiselect";
+import { SuggestionFacadeService } from "./data-access/suggestion-facade.service";
 import {
   SuggestionFournisseurListComponent
 } from "./ui/suggestion-fournisseur-list/suggestion-fournisseur-list.component";
-import {
-  SuggestionProduitPanelComponent
-} from "./ui/suggestion-produit-panel/suggestion-produit-panel.component";
+import { SuggestionProduitPanelComponent } from "./ui/suggestion-produit-panel/suggestion-produit-panel.component";
 import {
   SuggestionCommanderModalComponent
 } from "./ui/suggestion-commander-modal/suggestion-commander-modal.component";
-import {CommanderModalResult} from "./data-access/suggestion-commander.model";
-import {
-  SuggestionComparaisonComponent
-} from "./ui/suggestion-comparaison/suggestion-comparaison.component";
-import {
-  DispoComparaisonComponent
-} from "../pharmaml/ui/dispo-comparaison/dispo-comparaison.component";
-import {
-  FournisseurSuggestionSummary,
-  SuggestionLigneEnrichie
-} from "./data-access/suggestion-enrichie.model";
-import {NotificationService} from "app/shared/services/notification.service";
-import {
-  NgbConfirmDialogService
-} from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import {Toast} from "primeng/toast";
-import {FournisseurService} from "../../../../entities/fournisseur/fournisseur.service";
-import {IFournisseur} from "../../../../shared/model/fournisseur.model";
-import {takeUntilDestroyed, toObservable} from "@angular/core/rxjs-interop";
-import {combineLatest, Subject} from "rxjs";
-import {debounceTime, distinctUntilChanged, startWith} from "rxjs/operators";
+import { CommanderModalResult } from "./data-access/suggestion-commander.model";
+import { SuggestionComparaisonComponent } from "./ui/suggestion-comparaison/suggestion-comparaison.component";
+import { DispoComparaisonComponent } from "../pharmaml/ui/dispo-comparaison/dispo-comparaison.component";
+import { FournisseurSuggestionSummary, SuggestionLigneEnrichie } from "./data-access/suggestion-enrichie.model";
+import { NotificationService } from "app/shared/services/notification.service";
+import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import { Toast } from "primeng/toast";
+import { IFournisseur } from "../../../../shared/model/fournisseur.model";
+import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
+import { combineLatest, Subject } from "rxjs";
+import { debounceTime, distinctUntilChanged, startWith } from "rxjs/operators";
+import { FournisseurApiService } from "../../../partners/data-access/services/fournisseur-api.service";
 
 @Component({
   selector: "app-suggestion-home",
@@ -82,7 +62,7 @@ export class SuggestionHomeComponent {
   private readonly injector = inject(Injector);
   private readonly notificationService = inject(NotificationService);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
-  private readonly fournisseurService = inject(FournisseurService);
+  private readonly fournisseurService = inject(FournisseurApiService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly listSearchSubject = new Subject<string>();
   private readonly listFournisseurIds$ = toObservable(this.listFournisseurIds);
@@ -91,7 +71,7 @@ export class SuggestionHomeComponent {
 
   constructor() {
     // Charge les options du multiselect une seule fois
-    this.fournisseurService.query({page: 0, size: 999}).subscribe({
+    this.fournisseurService.queryParents({ page: 0, size: 999 }).subscribe({
       next: res => this.fournisseurOptions.set(res.body ?? [])
     });
 
@@ -324,7 +304,7 @@ export class SuggestionHomeComponent {
     const modalRef = this.modalService.open(DispoComparaisonComponent, {
       size: "xl",
       scrollable: true,
-      backdrop: 'static',
+      backdrop: "static",
       centered: true,
       injector: this.injector
     });

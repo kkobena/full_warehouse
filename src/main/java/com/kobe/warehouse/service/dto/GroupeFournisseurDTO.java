@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
+import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.GroupeFournisseur;
 import jakarta.validation.constraints.NotNull;
 
@@ -40,6 +41,26 @@ public class GroupeFournisseurDTO implements Serializable {
     private Integer tauxRfa;
 
     public GroupeFournisseurDTO() {
+    }
+
+    public GroupeFournisseurDTO(Fournisseur fournisseur) {
+        id = fournisseur.getId();
+        libelle = fournisseur.getLibelle();
+        addresspostale = fournisseur.getAddressePostal();
+        numFaxe = fournisseur.getNumFaxe();
+        tel = fournisseur.getPhone();
+        email = fournisseur.getEmail();
+        odre = fournisseur.getOdre() != null ? fournisseur.getOdre() : 100;
+        codeRecepteurPharmaMl = fournisseur.getCodeRecepteurPharmaMl();
+        codeOfficePharmaMl = fournisseur.getCodeOfficePharmaMl();
+        urlPharmaMl = fournisseur.getUrlPharmaMl();
+        idRecepteurPharmaMl = fournisseur.getIdRecepteurPharmaMl();
+        delaiLivraisonJours = fournisseur.getDelaiLivraisonJours();
+        frequenceCommandeJours = fournisseur.getFrequenceCommandeJours();
+        joursCredit = fournisseur.getJoursCredit();
+        joursCritique = fournisseur.getJoursCritique();
+        palierRfa = fournisseur.getPalierRfa();
+        tauxRfa = fournisseur.getTauxRfa();
     }
 
     public GroupeFournisseurDTO(GroupeFournisseur groupeFournisseur) {

@@ -6,7 +6,6 @@ import static java.util.Objects.nonNull;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
-import com.kobe.warehouse.domain.GroupeFournisseur;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.PharmaMlEnvoi;
 import com.kobe.warehouse.domain.Produit;
@@ -156,7 +155,7 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
         PharmaMlEnvoi envoi,
         String fileName
     ) {
-        GroupeFournisseur groupeFournisseur = fournisseur.getGroupeFournisseur();
+        Fournisseur groupeFournisseur = fournisseur.getParent() != null ? fournisseur.getParent() : fournisseur;
         String xmlPayload = serializePayload(payload);
         IO.println(xmlPayload);
         saveXmlFile(payload, "C", fileName);
@@ -205,7 +204,7 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
     @Override
     public void sendSimpleMessage(CsrpEnveloppe payload, Fournisseur fournisseur, String fileName,
         String actionName) {
-        GroupeFournisseur groupeFournisseur = fournisseur.getGroupeFournisseur();
+        Fournisseur groupeFournisseur = fournisseur.getParent() != null ? fournisseur.getParent() : fournisseur;
         String xmlPayload = serializePayload(payload);
 
         if (fileName != null) {
@@ -240,7 +239,7 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
 
     @Override
     public List<InfoProduitDTO> sendInfoRequest(CsrpEnveloppe payload, Fournisseur fournisseur) {
-        GroupeFournisseur groupeFournisseur = fournisseur.getGroupeFournisseur();
+        Fournisseur groupeFournisseur = fournisseur.getParent() != null ? fournisseur.getParent() : fournisseur;
         String xmlPayload = serializePayload(payload);
         System.err.println(xmlPayload);
 

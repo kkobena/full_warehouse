@@ -80,7 +80,6 @@ public interface ProduitRepository
 
     default Specification<Produit> filterByStock() {
         return (root, query, cb) -> {
-            assert query != null;
             query.groupBy(root.get(Produit_.id));
             Join<Produit, StockProduit> stockJoin = root.join(Produit_.stockProduits);
             Expression<Integer> totalQty = cb.sum(stockJoin.get(StockProduit_.qtyStock));
@@ -193,7 +192,7 @@ public interface ProduitRepository
         SELECT DISTINCT p FROM Produit p
         LEFT JOIN FETCH p.fournisseurProduitPrincipal fp
         LEFT JOIN FETCH fp.fournisseur f
-        LEFT JOIN FETCH f.groupeFournisseur
+        LEFT JOIN FETCH f.parent
         WHERE p.status = com.kobe.warehouse.domain.enumeration.Status.ENABLE
           AND p.typeProduit <> com.kobe.warehouse.domain.enumeration.TypeProduit.DETAIL
         """,

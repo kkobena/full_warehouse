@@ -12,7 +12,7 @@ import java.time.Instant;
  * stock_actuel et quantite_a_commander sont calculés en temps réel depuis stock_produit.
  * vmm, marge_securite, stock_objectif viennent de semois_configuration (pré-calculés par le batch).
  * La classe de criticité vient de produit.classe_criticite (auto-classifié par ClassificationCriticiteService).
- * Le délai de livraison est résolu en cascade : semois_configuration → fournisseur → groupe_fournisseur → 7j.
+ * Le délai de livraison est résolu en cascade : semois_configuration → fournisseur → fournisseur parent → 7j.
  * IMPORTANT: Cette entité est IMMUTABLE (lecture seule).
  * Pour modifier les données, passer par SemoisConfiguration ou SemoisClasseConfig.
  */

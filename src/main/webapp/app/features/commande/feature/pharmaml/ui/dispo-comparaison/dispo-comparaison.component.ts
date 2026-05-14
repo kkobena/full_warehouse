@@ -1,18 +1,17 @@
-import {Component, computed, inject, OnInit, signal} from '@angular/core';
+import { Component, computed, inject, signal } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import {FormsModule} from '@angular/forms';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {TagModule} from 'primeng/tag';
-import {MultiSelectModule} from 'primeng/multiselect';
-import {ButtonModule} from 'primeng/button';
-import {TooltipModule} from 'primeng/tooltip';
-import {IDispoGrossisteResult, IInfoProduit} from '../../../../../../shared/model/pharmaml.model';
-import {IFournisseur} from '../../../../../../shared/model/fournisseur.model';
-import {CommandeId} from '../../../../../../shared/model/abstract-commande.model';
-import {FournisseurService} from '../../../../../../entities/fournisseur/fournisseur.service';
-import {PharmamlApiService} from '../../../../data-access/pharmaml-api.service';
-import {NotificationService} from "../../../../../../shared/services/notification.service";
-import {ErrorService} from "../../../../../../shared/error.service";
+import { FormsModule } from "@angular/forms";
+import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
+import { TagModule } from "primeng/tag";
+import { ButtonModule } from "primeng/button";
+import { TooltipModule } from "primeng/tooltip";
+import { IDispoGrossisteResult, IInfoProduit } from "../../../../../../shared/model/pharmaml.model";
+import { IFournisseur } from "../../../../../../shared/model/fournisseur.model";
+import { CommandeId } from "../../../../../../shared/model/abstract-commande.model";
+import { PharmamlApiService } from "../../../../data-access/pharmaml-api.service";
+import { NotificationService } from "../../../../../../shared/services/notification.service";
+import { ErrorService } from "../../../../../../shared/error.service";
+import { FournisseurSelectComponent } from "../../../../../partners/ui/fournisseur-select/fournisseur-select.component";
 
 export interface ComparaisonRow {
   codeProduit: string;
@@ -21,40 +20,27 @@ export interface ComparaisonRow {
 }
 
 @Component({
-  selector: 'app-dispo-comparaison',
-  templateUrl: './dispo-comparaison.component.html',
-  styleUrls: ['./dispo-comparaison.component.scss'],
-  imports: [CommonModule, FormsModule, TagModule, MultiSelectModule, ButtonModule, TooltipModule],
+  selector: "app-dispo-comparaison",
+  templateUrl: "./dispo-comparaison.component.html",
+  styleUrls: ["./dispo-comparaison.component.scss"],
+  imports: [CommonModule, FormsModule, TagModule, ButtonModule, TooltipModule, FournisseurSelectComponent]
 })
-export class DispoComparaisonComponent implements OnInit {
+export class DispoComparaisonComponent {
   commandeId!: CommandeId;
   suggestionId: number | null = null;
   header!: string;
 
-  readonly fournisseurs = signal<IFournisseur[]>([]);
   readonly selectedFournisseurs = signal<IFournisseur[]>([]);
   readonly rows = signal<ComparaisonRow[]>([]);
   readonly loading = signal(false);
-  readonly loadingFournisseurs = signal(true);
 
   readonly hasResults = computed(() => this.rows().length > 0);
   readonly colonnes = computed(() => this.selectedFournisseurs().filter(f => f.id != null));
 
   private readonly activeModal = inject(NgbActiveModal);
-  private readonly fournisseurService = inject(FournisseurService);
   private readonly api = inject(PharmamlApiService);
   private readonly errorService = inject(ErrorService);
   private readonly notificationService = inject(NotificationService);
-
-  ngOnInit(): void {
-    this.fournisseurService.query({page: 0, size: 999}).subscribe({
-      next: res => {
-        this.fournisseurs.set(res.body ?? []);
-        this.loadingFournisseurs.set(false);
-      },
-      error: () => this.loadingFournisseurs.set(false),
-    });
-  }
 
   comparer(): void {
     const grossistes = this.colonnes();
@@ -80,7 +66,7 @@ export class DispoComparaisonComponent implements OnInit {
               produits.set(info.codeProduit, {
                 codeProduit: info.codeProduit,
                 designation: info.designation,
-                resultats: new Map(),
+                resultats: new Map()
               });
             }
             produits.get(info.codeProduit)!.resultats.set(result.grossisteId, info);
@@ -89,14 +75,14 @@ export class DispoComparaisonComponent implements OnInit {
 
         this.rows.set(
           [...produits.values()].sort((a, b) =>
-            (a.designation ?? a.codeProduit).localeCompare(b.designation ?? b.codeProduit),
-          ),
+            (a.designation ?? a.codeProduit).localeCompare(b.designation ?? b.codeProduit)
+          )
         );
         this.loading.set(false);
       },
       error: (error) => {
         this.loading.set(false),
-          this.notificationService.error(this.errorService.getErrorMessage(error), 'Erreur');
+          this.notificationService.error(this.errorService.getErrorMessage(error), "Erreur");
       }
     });
   }
@@ -105,7 +91,6 @@ export class DispoComparaisonComponent implements OnInit {
     this.selectedFournisseurs.set(value);
     this.rows.set([]);
   }
-
 
   infoFor(row: ComparaisonRow, fournisseurId: number): IInfoProduit | undefined {
     return row.resultats.get(fournisseurId);

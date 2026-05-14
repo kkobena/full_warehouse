@@ -2,8 +2,7 @@ package com.kobe.warehouse.service.financiel_transaction;
 
 import static com.kobe.warehouse.service.financiel_transaction.TableauPharmacienConstants.*;
 
-import com.kobe.warehouse.domain.GroupeFournisseur;
-import com.kobe.warehouse.repository.GroupeFournisseurRepository;
+import com.kobe.warehouse.repository.FournisseurRepository;
 import com.kobe.warehouse.service.dto.GroupeFournisseurDTO;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -12,62 +11,43 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
-/**
- * Manages supplier group display logic
- */
 @Component
 public class GroupeFournisseurManager {
 
-    private final GroupeFournisseurRepository groupeFournisseurRepository;
+    private final FournisseurRepository fournisseurRepository;
 
-    public GroupeFournisseurManager(GroupeFournisseurRepository groupeFournisseurRepository) {
-        this.groupeFournisseurRepository = groupeFournisseurRepository;
+    public GroupeFournisseurManager(FournisseurRepository fournisseurRepository) {
+        this.fournisseurRepository = fournisseurRepository;
     }
 
-    /**
-     * Get the list of supplier groups to display in the tableau.
-     * If more than MAX_DISPLAYED_GROUPS, shows top groups + "Autres" category.
-     */
     public List<GroupeFournisseurDTO> getDisplayedSupplierGroups() {
-        List<GroupeFournisseur> allGroups = groupeFournisseurRepository.findAllByOrderByOdreAsc();
+        List<GroupeFournisseurDTO> allGroups = fournisseurRepository.findByParentIsNullOrderByOdreAsc()
+            .stream()
+            .map(GroupeFournisseurDTO::new)
+            .sorted(Comparator.comparing(GroupeFournisseurDTO::getOdre))
+            .toList();
 
         if (allGroups.size() > MAX_DISPLAYED_GROUPS) {
             return buildTopGroupsWithOthers(allGroups);
-        } else {
-            return allGroups.stream().sorted(Comparator.comparing(GroupeFournisseur::getOdre)).map(GroupeFournisseurDTO::new).toList();
         }
+        return allGroups;
     }
 
-    /**
-     * Get IDs of groups to display individually (not grouped as "Autres")
-     */
     public Set<Integer> getDisplayedGroupIds() {
         return getDisplayedSupplierGroups()
             .stream()
             .map(GroupeFournisseurDTO::getId)
-            .filter(id -> id != GROUP_OTHER_ID) // Exclude "Autres" virtual group
+            .filter(id -> id != GROUP_OTHER_ID)
             .collect(Collectors.toSet());
     }
 
-    /**
-     * Build list with top N groups + "Autres" category
-     */
-    private List<GroupeFournisseurDTO> buildTopGroupsWithOthers(List<GroupeFournisseur> allGroups) {
-        List<GroupeFournisseurDTO> displayedGroups = new ArrayList<>();
-
-        // Add top N groups
-        allGroups.stream().limit(MAX_DISPLAYED_GROUPS).map(GroupeFournisseurDTO::new).forEach(displayedGroups::add);
-
-        // Add "Autres" virtual group
-        GroupeFournisseurDTO othersGroup = new GroupeFournisseurDTO()
+    private List<GroupeFournisseurDTO> buildTopGroupsWithOthers(List<GroupeFournisseurDTO> allGroups) {
+        List<GroupeFournisseurDTO> displayedGroups = new ArrayList<>(allGroups.subList(0, MAX_DISPLAYED_GROUPS));
+        displayedGroups.add(new GroupeFournisseurDTO()
             .setId(GROUP_OTHER_ID)
             .setLibelle(GROUP_OTHER_LABEL)
-            .setOdre(GROUP_OTHER_ORDER);
-        displayedGroups.add(othersGroup);
-
-        // Sort by display order
+            .setOdre(GROUP_OTHER_ORDER));
         displayedGroups.sort(Comparator.comparing(GroupeFournisseurDTO::getOdre));
-
         return displayedGroups;
     }
 }

@@ -89,23 +89,15 @@
         Fournisseur de commande
       </label>
       <div class="d-flex align-items-center gap-2">
-        <p-select
-          [options]="fournisseurs()"
-          [ngModel]="selectedFournisseurId()"
-          (ngModelChange)="selectedFournisseurId.set($event)"
-          (onShow)="onDropdownShow($event)"
-          (onHide)="onDropdownHide($event)"
-          optionLabel="libelle"
-          optionValue="id"
-          [filter]="true"
-          [fluid]="true"
-          filterBy="libelle"
+        <app-fournisseur-select
+          [selectedId]="fournisseurId ?? null"
+          [appendTo]="null"
           placeholder="Sélectionner un fournisseur..."
-          [loading]="loadingFournisseurs()"
-          [overlayOptions]="{baseZIndex: 10050}"
-
+          (selectionChange)="onFournisseurSelected($event)"
+          (dropdownShow)="onDropdownShow($event)"
+          (dropdownHide)="onDropdownHide($event)"
         />
-        @if (selectedFournisseurId() !== fournisseurId) {
+        @if (selectedFournisseur() !== null && selectedFournisseur()!.id !== fournisseurId) {
           <span class="badge text-bg-warning d-flex align-items-center gap-1" style="font-size: 0.75rem;">
             <i class="pi pi-info-circle"></i>
             Différent de la suggestion

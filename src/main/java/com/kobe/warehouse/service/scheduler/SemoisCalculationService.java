@@ -435,9 +435,9 @@ public class SemoisCalculationService {
                 return fournisseur.getDelaiLivraisonJours();
             }
             if (fournisseur != null
-                && fournisseur.getGroupeFournisseur() != null
-                && fournisseur.getGroupeFournisseur().getDelaiLivraisonJours() != null) {
-                return fournisseur.getGroupeFournisseur().getDelaiLivraisonJours();
+                && fournisseur.getParent() != null
+                && fournisseur.getParent().getDelaiLivraisonJours() != null) {
+                return fournisseur.getParent().getDelaiLivraisonJours();
             }
         }
         return 7;
@@ -509,9 +509,9 @@ public class SemoisCalculationService {
             if (f.getFrequenceCommandeJours() != null) {
                 return f.getFrequenceCommandeJours();
             }
-            var gf = f.getGroupeFournisseur();
-            if (gf != null && gf.getFrequenceCommandeJours() != null) {
-                return gf.getFrequenceCommandeJours();
+            var parent = f.getParent();
+            if (parent != null && parent.getFrequenceCommandeJours() != null) {
+                return parent.getFrequenceCommandeJours();
             }
         }
         return 7; // commande hebdomadaire par défaut

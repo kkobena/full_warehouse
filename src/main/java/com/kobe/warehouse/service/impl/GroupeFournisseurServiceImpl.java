@@ -1,9 +1,9 @@
 package com.kobe.warehouse.service.impl;
 
-import com.kobe.warehouse.domain.GroupeFournisseur;
+import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.repository.DeliveryReceiptRepository;
-import com.kobe.warehouse.repository.GroupeFournisseurRepository;
+import com.kobe.warehouse.repository.FournisseurRepository;
 import com.kobe.warehouse.repository.util.Condition;
 import com.kobe.warehouse.repository.util.SpecificationBuilder;
 import com.kobe.warehouse.service.GroupeFournisseurService;
@@ -34,99 +34,71 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Service Implementation for managing {@link GroupeFournisseur}.
+ * Gère les fournisseurs principaux (parent_id IS NULL) — remplace l'ancienne entité GroupeFournisseur.
+ * Les endpoints REST /api/groupe-fournisseurs continuent de fonctionner via cette implémentation.
  */
 @Service
 @Transactional
 public class GroupeFournisseurServiceImpl implements GroupeFournisseurService {
 
     private final Logger log = LoggerFactory.getLogger(GroupeFournisseurServiceImpl.class);
-    private final GroupeFournisseurRepository groupeFournisseurRepository;
+    private final FournisseurRepository fournisseurRepository;
     private final DeliveryReceiptRepository deliveryReceiptRepository;
 
-    public GroupeFournisseurServiceImpl(
-        GroupeFournisseurRepository groupeFournisseurRepository,
-        DeliveryReceiptRepository deliveryReceiptRepository
-    ) {
-        this.groupeFournisseurRepository = groupeFournisseurRepository;
+    public GroupeFournisseurServiceImpl(FournisseurRepository fournisseurRepository, DeliveryReceiptRepository deliveryReceiptRepository) {
+        this.fournisseurRepository = fournisseurRepository;
         this.deliveryReceiptRepository = deliveryReceiptRepository;
     }
 
-    /**
-     * Save a groupeFournisseur.
-     *
-     * @param groupeFournisseurDTO the entity to save.
-     * @return the persisted entity.
-     */
     @Override
-    public GroupeFournisseurDTO save(GroupeFournisseurDTO groupeFournisseurDTO) {
-        log.debug("Request to save GroupeFournisseur : {}", groupeFournisseurDTO);
-        GroupeFournisseur groupeFournisseur = new GroupeFournisseur()
-            .id(groupeFournisseurDTO.getId())
-            .setCodeOfficePharmaMl(groupeFournisseurDTO.getCodeOfficePharmaMl())
-            .setCodeRecepteurPharmaMl(groupeFournisseurDTO.getCodeRecepteurPharmaMl())
-            .setUrlPharmaMl(groupeFournisseurDTO.getUrlPharmaMl())
-            .setIdRecepteurPharmaMl(groupeFournisseurDTO.getIdRecepteurPharmaMl())
-            .libelle(groupeFournisseurDTO.getLibelle())
-            .addresspostale(groupeFournisseurDTO.getAddresspostale())
-            .email(groupeFournisseurDTO.getEmail())
-            .numFaxe(groupeFournisseurDTO.getNumFaxe())
-            .odre(Objects.requireNonNullElse(groupeFournisseurDTO.getOdre(), 70))
-            .setDelaiLivraisonJours(groupeFournisseurDTO.getDelaiLivraisonJours())
-            .setFrequenceCommandeJours(groupeFournisseurDTO.getFrequenceCommandeJours())
-            .setJoursCredit(groupeFournisseurDTO.getJoursCredit())
-            .setJoursCritique(groupeFournisseurDTO.getJoursCritique())
-            .setPalierRfa(groupeFournisseurDTO.getPalierRfa())
-            .setTauxRfa(groupeFournisseurDTO.getTauxRfa())
-            .tel(groupeFournisseurDTO.getTel());
-        return new GroupeFournisseurDTO(groupeFournisseurRepository.save(groupeFournisseur));
+    public GroupeFournisseurDTO save(GroupeFournisseurDTO dto) {
+        log.debug("Request to save GroupeFournisseur (as parent Fournisseur) : {}", dto);
+        Fournisseur fournisseur = dto.getId() != null
+            ? fournisseurRepository.getReferenceById(dto.getId())
+            : new Fournisseur();
+        fournisseur
+            .libelle(dto.getLibelle())
+            .addressePostal(dto.getAddresspostale())
+            .numFaxe(dto.getNumFaxe())
+            .setEmail(dto.getEmail())
+            .phone(dto.getTel())
+            .setOdre(Objects.requireNonNullElse(dto.getOdre(), 100))
+            .setCodeOfficePharmaMl(dto.getCodeOfficePharmaMl())
+            .setCodeRecepteurPharmaMl(dto.getCodeRecepteurPharmaMl())
+            .setUrlPharmaMl(dto.getUrlPharmaMl())
+            .setIdRecepteurPharmaMl(dto.getIdRecepteurPharmaMl())
+            .setDelaiLivraisonJours(dto.getDelaiLivraisonJours())
+            .setFrequenceCommandeJours(dto.getFrequenceCommandeJours())
+            .setJoursCredit(dto.getJoursCredit())
+            .setJoursCritique(dto.getJoursCritique())
+            .setPalierRfa(dto.getPalierRfa())
+            .setTauxRfa(dto.getTauxRfa());
+        return new GroupeFournisseurDTO(fournisseurRepository.save(fournisseur));
     }
 
-    /**
-     * Get all the groupeFournisseurs.
-     *
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
     @Override
     @Transactional(readOnly = true)
     public Page<GroupeFournisseurDTO> findAll(String search, Pageable pageable) {
-        log.debug("Request to get all GroupeFournisseurs");
         Pageable page = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "libelle"));
         if (StringUtils.hasLength(search)) {
-            SpecificationBuilder<GroupeFournisseur> builder = new SpecificationBuilder<>();
-            Specification<GroupeFournisseur> spec = builder
-                .with(new String[]{"libelle"}, search + "%", Condition.OperationType.LIKE, Condition.LogicalOperatorType.END)
+            SpecificationBuilder<Fournisseur> builder = new SpecificationBuilder<>();
+            Specification<Fournisseur> spec = builder
+                .with(new String[] { "libelle" }, search + "%", Condition.OperationType.LIKE, Condition.LogicalOperatorType.END)
                 .build();
-            return groupeFournisseurRepository.findAll(spec, page).map(GroupeFournisseurDTO::new);
+            return fournisseurRepository.findByParentIsNull(spec, page).map(GroupeFournisseurDTO::new);
         }
-
-        return groupeFournisseurRepository.findAll(page).map(GroupeFournisseurDTO::new);
+        return fournisseurRepository.findByParentIsNull(page).map(GroupeFournisseurDTO::new);
     }
 
-    /**
-     * Get one groupeFournisseur by id.
-     *
-     * @param id the id of the entity.
-     * @return the entity.
-     */
     @Override
     @Transactional(readOnly = true)
     public Optional<GroupeFournisseurDTO> findOne(Integer id) {
-        log.debug("Request to get GroupeFournisseur : {}", id);
-        return groupeFournisseurRepository.findById(id).map(GroupeFournisseurDTO::new);
+        return fournisseurRepository.findById(id).map(GroupeFournisseurDTO::new);
     }
 
-    /**
-     * Delete the groupeFournisseur by id.
-     *
-     * @param id the id of the entity.
-     */
     @Override
     public void delete(Integer id) {
-        log.debug("Request to delete GroupeFournisseur : {}", id);
-
-        groupeFournisseurRepository.deleteById(id);
+        fournisseurRepository.deleteById(id);
     }
 
     @Override
@@ -135,31 +107,28 @@ public class GroupeFournisseurServiceImpl implements GroupeFournisseurService {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
             Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder().setDelimiter(';').build().parse(br);
             records.forEach(record -> {
-                var index = count.get();
-                if (index == 0) {
-                    count.incrementAndGet();
-                    return;
-                }
-                GroupeFournisseur groupeFournisseur = new GroupeFournisseur();
-                groupeFournisseur.setLibelle(record.get(0));
-                groupeFournisseur.setOdre(count.incrementAndGet());
-
-                groupeFournisseurRepository.save(groupeFournisseur);
+                if (count.getAndIncrement() == 0) return;
+                Fournisseur fournisseur = new Fournisseur();
+                fournisseur.setLibelle(record.get(0));
+                fournisseur.setOdre(count.get());
+                fournisseurRepository.save(fournisseur);
             });
         } catch (IOException e) {
-            log.error("importation : {0}", e);
+            log.error("importation : {}", e.getMessage(), e);
         }
-
         return new ResponseDTO().size(count.get());
     }
 
     @Override
     public List<GroupeFournisseurDTO> findTopNToDisplay() {
-        return groupeFournisseurRepository.findAllByOrderByOdreAsc().stream().limit(5).map(GroupeFournisseurDTO::new).toList();
+        return fournisseurRepository.findByParentIsNullOrderByOdreAsc().stream()
+            .limit(5)
+            .map(GroupeFournisseurDTO::new)
+            .toList();
     }
 
     @Override
     public Page<GroupeFournisseurAchat> fetchAchats(LocalDate fromDate, LocalDate toDate, Pageable pageable) {
-        return this.deliveryReceiptRepository.fetchAchats(fromDate, toDate, OrderStatut.CLOSED, pageable);
+        return deliveryReceiptRepository.fetchAchats(fromDate, toDate, OrderStatut.CLOSED, pageable);
     }
 }

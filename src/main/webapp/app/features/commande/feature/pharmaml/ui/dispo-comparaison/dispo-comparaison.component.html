@@ -8,19 +8,10 @@
 <div class="modal-body">
   <!-- Sélecteur de grossistes -->
   <div class="dc-selector">
-    <p-multiSelect
-      (ngModelChange)="onFournisseurChange($event)"
-      [appendTo]="'body'"
-      [filter]="true"
-      [loading]="loadingFournisseurs()"
-      [maxSelectedLabels]="4"
-      [ngModel]="selectedFournisseurs()"
-      [options]="fournisseurs()"
-      [overlayOptions]="{baseZIndex: 10000}"
-      [showClear]="true"
-      class="w-100"
-      optionLabel="libelle"
+    <app-fournisseur-select
+      [multiple]="true"
       placeholder="Choisir les grossistes à comparer..."
+      (multiSelectionChange)="onFournisseurChange($event)"
     />
     <p-button
       (onClick)="comparer()"

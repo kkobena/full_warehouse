@@ -18,7 +18,6 @@ import { ITiersPayant } from "app/shared/model/tierspayant.model";
 import { RayonService } from "app/entities/rayon/rayon.service";
 import { LaboratoireProduitService } from "app/entities/laboratoire-produit/laboratoire-produit.service";
 import { FormeProduitService } from "app/entities/forme-produit/forme-produit.service";
-import { FournisseurService } from "app/entities/fournisseur/fournisseur.service";
 import { FamilleProduitService } from "app/entities/famille-produit/famille-produit.service";
 import { GammeProduitService } from "app/entities/gamme-produit/gamme-produit.service";
 import { TvaService } from "app/entities/tva/tva.service";
@@ -37,7 +36,9 @@ import { CommonModule, NgClass } from "@angular/common";
 import { STATUT_LEGAL_OPTIONS } from "app/shared/model/enumerations/statut-legal.model";
 import { CLASSE_CRITICITE_OPTIONS } from "app/shared/model/enumerations/classe-criticite.model";
 import { ProduitFournisseursTabComponent } from "../produit-fournisseurs-tab/produit-fournisseurs-tab.component";
-import { ProduitFournisseursCreationComponent } from "../produit-fournisseurs-creation/produit-fournisseurs-creation.component";
+import {
+  ProduitFournisseursCreationComponent
+} from "../produit-fournisseurs-creation/produit-fournisseurs-creation.component";
 import { ProduitPrixCreationComponent } from "../produit-prix-creation/produit-prix-creation.component";
 import { PrixReferenceService } from "../prix-reference/prix-reference.service";
 import { PrixReference } from "../prix-reference/model/prix-reference.model";
@@ -48,6 +49,7 @@ import { Tooltip } from "primeng/tooltip";
 import { Toast } from "primeng/toast";
 import { ErrorService } from "../../../../shared/error.service";
 import { HttpErrorResponse } from "@angular/common/http";
+import { FournisseurApiService } from "../../../partners/data-access/services/fournisseur-api.service";
 
 @Component({
   selector: "app-produit-form",
@@ -103,7 +105,6 @@ export class ProduitFormComponent implements OnInit {
   // Options statiques
   protected readonly statutLegalOptions = STATUT_LEGAL_OPTIONS;
   protected readonly classeCriticiteOptions = CLASSE_CRITICITE_OPTIONS;
-  private readonly notificationService = inject(NotificationService);
   private readonly fb = inject(FormBuilder);
   private readonly produitService = inject(ProduitService);
   private readonly activatedRoute = inject(ActivatedRoute);
@@ -111,7 +112,7 @@ export class ProduitFormComponent implements OnInit {
   private readonly rayonService = inject(RayonService);
   private readonly laboratoireService = inject(LaboratoireProduitService);
   private readonly formeProduitService = inject(FormeProduitService);
-  private readonly fournisseurService = inject(FournisseurService);
+  private readonly fournisseurService = inject(FournisseurApiService);
   private readonly familleService = inject(FamilleProduitService);
   private readonly gammeProduitService = inject(GammeProduitService);
   private readonly tvaService = inject(TvaService);
@@ -121,6 +122,7 @@ export class ProduitFormComponent implements OnInit {
   private readonly modalService = inject(NgbModal);
   private readonly prixReferenceService = inject(PrixReferenceService);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
+  private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
   protected editForm = this.fb.group({
     id: this.fb.control<number | null>(null),
@@ -166,7 +168,7 @@ export class ProduitFormComponent implements OnInit {
     stockMaxi: this.fb.control<number | null>(null),
     // FormArrays rattachés pour propager leur validité au formulaire parent
     fournisseurRows: this.fournisseursSupplementaires,
-    prixRows: this.prixReferenceCreationArray,
+    prixRows: this.prixReferenceCreationArray
   });
 
   // ─── Getters ─────────────────────────────────────────────────────────────
@@ -213,7 +215,7 @@ export class ProduitFormComponent implements OnInit {
   }
 
   get isEssentielValid(): boolean {
-    const fields = ['codeCip', 'fournisseurId', 'libelle', 'costAmount', 'regularUnitPrice', 'tvaId', 'familleId', 'rayonId'];
+    const fields = ["codeCip", "fournisseurId", "libelle", "costAmount", "regularUnitPrice", "tvaId", "familleId", "rayonId"];
     return this.isPriceValid && fields.every(f => this.editForm.get(f)?.valid);
   }
 
@@ -376,7 +378,7 @@ export class ProduitFormComponent implements OnInit {
   private loadReferenceData(produit: IProduit): void {
     forkJoin({
       tvas: this.tvaService.query({ page: 0, size: 9999 }),
-      fournisseurs: this.fournisseurService.query({ page: 0, size: 9999 }),
+      fournisseurs: this.fournisseurService.queryParents({ page: 0, size: 9999 }),
       rayons: this.rayonService.query({ page: 0, size: 9999 }),
       laboratoires: this.laboratoireService.query(),
       gammes: this.gammeProduitService.query({ page: 0, size: 9999 }),
@@ -448,7 +450,7 @@ export class ProduitFormComponent implements OnInit {
       qtySeuilMini: nz(produit.qtySeuilMini),
       stockReassort: nz(produit.stockReassort),
       seuilMini: nz(produit.seuilMini),
-      stockMaxi: nz(produit.stockMaxi),
+      stockMaxi: nz(produit.stockMaxi)
     });
 
     if (produit.deconditionnable) {
@@ -459,7 +461,7 @@ export class ProduitFormComponent implements OnInit {
   private openPrixModal(entity: PrixReference | null): void {
     const produit = this.currentProduit();
     if (!produit) return;
-    const modalRef = this.modalService.open(AddPrixFormComponent, { size: "lg",centered:true, backdrop: "static" });
+    const modalRef = this.modalService.open(AddPrixFormComponent, { size: "lg", centered: true, backdrop: "static" });
     modalRef.componentInstance.produit = produit;
     modalRef.componentInstance.isFromProduit = true;
     if (entity) {
@@ -541,14 +543,14 @@ export class ProduitFormComponent implements OnInit {
         prixAchat: fp.prixAchat,
         prixUni: fp.prixUni,
         qteColis: fp.qteColis ?? 1,
-        qteMinimaleCommande: fp.qteMinimaleCommande ?? 0,
+        qteMinimaleCommande: fp.qteMinimaleCommande ?? 0
       }));
       base.prixReference = this.prixReferenceCreationArray.value.map(pr => ({
         tiersPayantId: pr.tiersPayantId,
         type: pr.type,
         price: pr.price ?? 0,
         rate: pr.rate ?? 0,
-        enabled: pr.enabled ?? true,
+        enabled: pr.enabled ?? true
       }));
     }
     return base;

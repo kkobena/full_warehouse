@@ -20,7 +20,7 @@
             label="Importer réponse"
             severity="info"
             size="small"
-            pTooltip="Importer la réponse EDI / fichier du grossiste"
+            pTooltip="Importer la réponse / fichier du grossiste"
             tooltipPosition="bottom"
             (click)="onImporterReponseCommande()"
           />
@@ -99,19 +99,12 @@
   <div [class.section-locked]="isLocked" class="add-product-bar">
     <div class="search-controls">
       <div class="fournisseur-select-input">
-        <p-select
-          #fournisseurBox
-          (onChange)="onProviderSelect()"
-          [(ngModel)]="selectedProvider"
-          [appendTo]="'body'"
+        <app-fournisseur-select
+          [grouped]="true"
           [disabled]="isLocked"
-          [filter]="true"
-          [options]="fournisseurs"
-          class="w-100"
-          inputId="fournisseur-select"
-          optionLabel="libelle"
-          optionValue="id"
+          [selectedId]="selectedProvider ?? null"
           placeholder="Sélectionner un fournisseur..."
+          (selectionChange)="onFournisseurSelected($event)"
         />
       </div>
       @if (!isLocked) {

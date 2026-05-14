@@ -1,17 +1,9 @@
-
 @import 'app/shared/scss/modal-theme';
 @import 'app/shared/scss/form-styles';
 
 :host {
   @include modal-theme;
 }
-
-
-.modal-body.overflow-visible {
-  overflow-y: visible !important;
-  overflow-x: visible !important;
-}
-
 
 ::ng-deep .p-select-overlay,
 ::ng-deep .p-select-list-container {

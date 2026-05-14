@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnInit, Renderer2, signal } from "@angular/core";
+import { Component, ElementRef, inject, Renderer2, signal } from "@angular/core";
 import { CommonModule, DatePipe, DecimalPipe } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
@@ -10,8 +10,8 @@ import { DatePicker } from "primeng/datepicker";
 import { SuggestionLigneEnrichie } from "../../data-access/suggestion-enrichie.model";
 import { TypeCommande } from "app/shared/model/pharmaml.model";
 import { CommanderModalResult } from "../../data-access/suggestion-commander.model";
-import { FournisseurService } from "app/entities/fournisseur/fournisseur.service";
 import { IFournisseur } from "app/shared/model/fournisseur.model";
+import { FournisseurSelectComponent } from "../../../../../partners/ui/fournisseur-select/fournisseur-select.component";
 
 export { CommanderModalResult } from "../../data-access/suggestion-commander.model";
 
@@ -20,11 +20,10 @@ export { CommanderModalResult } from "../../data-access/suggestion-commander.mod
   templateUrl: "./suggestion-commander-modal.component.html",
   styleUrls: ["./suggestion-commander-modal.scss"],
   providers: [DatePipe],
-  imports: [CommonModule, FormsModule, ButtonModule, TagModule, SelectModule, TextareaModule, DatePicker, DecimalPipe]
+  imports: [CommonModule, FormsModule, ButtonModule, TagModule, SelectModule, TextareaModule, DatePicker, DecimalPipe, FournisseurSelectComponent]
 })
-export class SuggestionCommanderModalComponent implements OnInit {
+export class SuggestionCommanderModalComponent {
   private readonly activeModal = inject(NgbActiveModal);
-  private readonly fournisseurService = inject(FournisseurService);
   private readonly datePipe = inject(DatePipe);
   private readonly renderer = inject(Renderer2);
   private readonly elementRef = inject(ElementRef);
@@ -39,13 +38,8 @@ export class SuggestionCommanderModalComponent implements OnInit {
   readonly modeCommande = signal<"INTERNE" | "PHARMAML">("INTERNE");
   readonly pharmamlTypeCommande = signal<TypeCommande>("NORMALE");
   readonly pharmamlCommentaire = signal("");
-  /** Date stockée sous forme objet Date pour p-datePicker. */
   readonly pharmamlDateLivraison = signal<Date | null>(null);
-
-  readonly fournisseurs = signal<IFournisseur[]>([]);
-  readonly loadingFournisseurs = signal(false);
-  /** Fournisseur sélectionné pour la commande (par défaut = fournisseur de la suggestion). */
-  readonly selectedFournisseurId = signal<number | undefined>(undefined);
+  readonly selectedFournisseur = signal<IFournisseur | null>(null);
 
   readonly minDate = new Date();
 
@@ -53,12 +47,6 @@ export class SuggestionCommanderModalComponent implements OnInit {
     { label: "Normale", value: "NORMALE" as TypeCommande },
     { label: "Exceptionnelle", value: "EXCEPTIONNELLE" as TypeCommande }
   ];
-
-  ngOnInit(): void {
-    // Initialise le fournisseur sélectionné avec celui de la suggestion
-    this.selectedFournisseurId.set(this.fournisseurId);
-    this.loadFournisseurs();
-  }
 
   get montantTotal(): number {
     return this.lignes.reduce((s, l) => s + l.quantite * l.prixAchat, 0);
@@ -69,15 +57,17 @@ export class SuggestionCommanderModalComponent implements OnInit {
   }
 
   get selectedFournisseurLibelle(): string {
-    const id = this.selectedFournisseurId();
-    if (!id) return this.fournisseurLibelle;
-    return this.fournisseurs().find(f => f.id === id)?.libelle ?? this.fournisseurLibelle;
+    return this.selectedFournisseur()?.libelle ?? this.fournisseurLibelle;
+  }
+
+  protected onFournisseurSelected(f: IFournisseur | null): void {
+    this.selectedFournisseur.set(f);
   }
 
   confirm(): void {
     const result: CommanderModalResult = {
       type: this.modeCommande(),
-      fournisseurId: this.selectedFournisseurId(),
+      fournisseurId: this.selectedFournisseur()?.id ?? this.fournisseurId,
       fournisseurLibelle: this.selectedFournisseurLibelle
     };
     if (this.modeCommande() === "PHARMAML") {
@@ -107,16 +97,5 @@ export class SuggestionCommanderModalComponent implements OnInit {
     if (modalBody) {
       this.renderer.removeClass(modalBody, "overflow-visible");
     }
-  }
-
-  private loadFournisseurs(): void {
-    this.loadingFournisseurs.set(true);
-    this.fournisseurService.query({ size: 200, sort: ["libelle,asc"] }).subscribe({
-      next: res => {
-        this.fournisseurs.set(res.body ?? []);
-        this.loadingFournisseurs.set(false);
-      },
-      error: () => this.loadingFournisseurs.set(false)
-    });
   }
 }

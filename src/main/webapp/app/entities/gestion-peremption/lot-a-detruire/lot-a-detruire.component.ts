@@ -23,7 +23,6 @@ import { SplitButton } from "primeng/splitbutton";
 import { Toolbar } from "primeng/toolbar";
 import { Params } from "../../../shared/model/enumerations/params.model";
 import { ConfigurationService } from "../../../shared/configuration.service";
-import { FournisseurService } from "../../fournisseur/fournisseur.service";
 import { RayonService } from "../../rayon/rayon.service";
 import { MagasinService } from "../../magasin/magasin.service";
 import { StorageService } from "../../storage/storage.service";
@@ -37,6 +36,7 @@ import { NgbConfirmDialogService } from "../../../shared/dialog/ngb-confirm-dial
 import { NotificationService } from "../../../shared/services/notification.service";
 import { CommonModule } from "@angular/common";
 import { BlobDownloadService } from "../../../shared/services/blob-download.service";
+import { FournisseurSelectComponent } from "../../../features/partners/ui/fournisseur-select/fournisseur-select.component";
 
 @Component({
   selector: "jhi-lot-a-detruire",
@@ -58,7 +58,8 @@ import { BlobDownloadService } from "../../../shared/services/blob-download.serv
     Tooltip,
     DatePickerComponent,
     SpinnerComponent,
-    RouterLink
+    RouterLink,
+    FournisseurSelectComponent
   ],
   templateUrl: "./lot-a-detruire.component.html",
   styleUrl: "./lot-a-detruire.component.scss"
@@ -82,7 +83,6 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
   protected storages: Storage[] = [];
   protected rayons: IRayon[] = [];
   protected magasins: IMagasin[] = [];
-  protected fournisseurs: IFournisseur[] = [];
   protected showAdvancedFilters = false;
   protected readonly itemsPerPage = ITEMS_PER_PAGE;
   protected page!: number;
@@ -109,7 +109,6 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly translate = inject(TranslateService);
   private readonly configurationService = inject(ConfigurationService);
-  private readonly fournisseurService = inject(FournisseurService);
   private readonly rayonService = inject(RayonService);
   private readonly magasinSrevice = inject(MagasinService);
   private readonly storageService = inject(StorageService);
@@ -128,7 +127,6 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.selectedType = this.types[2];
     this.findConfigStock();
-    this.fetchFournisseur();
 
     this.exportMenus = [
       {
@@ -177,6 +175,11 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
 
   protected toggleAdvancedFilters(): void {
     this.showAdvancedFilters = !this.showAdvancedFilters;
+  }
+
+  protected onFournisseurSelected(f: IFournisseur | null): void {
+    this.selectedFournisseur = f;
+    this.onSearch();
   }
 
   protected resetFilters(): void {
@@ -287,17 +290,6 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
       })
       .subscribe((res: HttpResponse<IRayon[]>) => {
         this.rayons = res.body || [];
-      });
-  }
-
-  private fetchFournisseur(): void {
-    this.fournisseurService
-      .query({
-        page: 0,
-        size: 9999
-      })
-      .subscribe((res: HttpResponse<IFournisseur[]>) => {
-        this.fournisseurs = res.body || [];
       });
   }
 

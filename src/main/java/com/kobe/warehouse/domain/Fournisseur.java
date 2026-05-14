@@ -3,21 +3,28 @@ package com.kobe.warehouse.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * A Fournisseur.
+ * Un fournisseur avec parent_id=null est un fournisseur principal (ex-GroupeFournisseur).
+ * Un fournisseur avec parent_id non-null est une agence rattachée au fournisseur principal.
+ * Les FournisseurProduit (codes/prix) sont toujours attachés au fournisseur principal.
  */
 @Entity
 @Table(name = "fournisseur")
@@ -50,16 +57,24 @@ public class Fournisseur implements Serializable {
     @Column(name = "site")
     private String site;
 
-    @NotNull
     @Size(max = 70)
     @Column(name = "code")
     private String code;
 
-    @ManyToOne(optional = false)
-    @NotNull
-    @JoinColumn(name = "groupe_pournisseur_id", referencedColumnName = "id")
-    @JsonIgnoreProperties(value = "fournisseurs", allowSetters = true)
-    private GroupeFournisseur groupeFournisseur;
+    @Column(name = "email")
+    private String email;
+
+    @Column(name = "odre")
+    private Integer odre = 100;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    @JsonIgnoreProperties(value = "agences", allowSetters = true)
+    private Fournisseur parent;
+
+    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = "parent", allowSetters = true)
+    private List<Fournisseur> agences = new ArrayList<>();
 
     /** Délai de livraison en jours. Null = utiliser le délai du groupe fournisseur. */
     @Column(name = "delai_livraison_jours")
@@ -208,20 +223,45 @@ public class Fournisseur implements Serializable {
         return this;
     }
 
-    public GroupeFournisseur getGroupeFournisseur() {
-        return groupeFournisseur;
+    public Fournisseur getParent() {
+        return parent;
     }
 
-    public void setGroupeFournisseur(GroupeFournisseur groupeFournisseur) {
-        this.groupeFournisseur = groupeFournisseur;
-    }
-
-    public Fournisseur groupeFournisseur(GroupeFournisseur groupeFournisseur) {
-        this.groupeFournisseur = groupeFournisseur;
+    public Fournisseur setParent(Fournisseur parent) {
+        this.parent = parent;
         return this;
     }
 
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
+    public List<Fournisseur> getAgences() {
+        return agences;
+    }
+
+    public Fournisseur setAgences(List<Fournisseur> agences) {
+        this.agences = agences;
+        return this;
+    }
+
+    public Integer getOdre() {
+        return odre;
+    }
+
+    public Fournisseur setOdre(Integer odre) {
+        this.odre = odre;
+        return this;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public Fournisseur setEmail(String email) {
+        this.email = email;
+        return this;
+    }
+
+    public boolean isParent() {
+        return parent == null;
+    }
 
     @Override
     public boolean equals(Object o) {

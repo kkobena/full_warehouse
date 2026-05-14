@@ -7,8 +7,10 @@ export interface IFournisseur {
   mobile?: string;
   site?: string;
   code?: string;
-  groupeFournisseurId?: number;
-  groupeFournisseurLibelle?: string;
+  email?: string;
+  odre?: number;
+  parentId?: number;
+  parentLibelle?: string;
   identifiantRepartiteur?: string;
   delaiLivraisonJours?: number;
   frequenceCommandeJours?: number;
@@ -26,14 +28,15 @@ export class Fournisseur implements IFournisseur {
   constructor(
     public id?: number,
     public libelle?: string,
-    public addresspostale?: string,
     public numFaxe?: string,
     public addressePostal?: string,
     public phone?: string,
     public mobile?: string,
     public site?: string,
     public code?: string,
-    public groupeFournisseurId?: number,
-    public groupeFournisseurLibelle?: string,
+    public email?: string,
+    public odre?: number,
+    public parentId?: number,
+    public parentLibelle?: string,
   ) {}
 }

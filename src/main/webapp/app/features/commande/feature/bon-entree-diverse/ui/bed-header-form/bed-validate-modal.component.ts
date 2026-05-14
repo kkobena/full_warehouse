@@ -1,17 +1,15 @@
-import { Component, DestroyRef, ElementRef, inject, OnInit, Renderer2, signal } from "@angular/core";
+import { Component, ElementRef, inject, Renderer2, signal } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { AutoCompleteModule } from "primeng/autocomplete";
 import { SelectModule } from "primeng/select";
 import { InputTextModule } from "primeng/inputtext";
 import { ButtonModule } from "primeng/button";
 import { Card } from "primeng/card";
-import { IBed, MotifBed, MOTIFS_BED, MOTIFS_BED_CREATION } from "../../data-access/bed.model";
+import { IBed, MotifBed, MOTIFS_BED_CREATION } from "../../data-access/bed.model";
 import { IFournisseur } from "app/shared/model/fournisseur.model";
-import { FournisseurService } from "app/entities/fournisseur/fournisseur.service";
 import { Textarea } from "primeng/textarea";
+import { FournisseurSelectComponent } from "../../../../../partners/ui/fournisseur-select/fournisseur-select.component";
 
 export interface BedValidateResult {
   motif: MotifBed;
@@ -27,40 +25,27 @@ export interface BedValidateResult {
     CommonModule,
     FormsModule,
     SelectModule,
-    AutoCompleteModule,
     InputTextModule,
     ButtonModule,
     Card,
-    Textarea
+    Textarea,
+    FournisseurSelectComponent
   ]
 })
-export class BedValidateModalComponent implements OnInit {
+export class BedValidateModalComponent {
   readonly activeModal = inject(NgbActiveModal);
-  private readonly fournisseurService = inject(FournisseurService);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly renderer = inject(Renderer2);
+  private readonly elementRef = inject(ElementRef);
 
   bed?: IBed;
 
   readonly formMotif = signal<MotifBed | null>(null);
   readonly formFournisseur = signal<IFournisseur | null>(null);
-  readonly fournisseurSuggestions = signal<IFournisseur[]>([]);
   protected commentaire = "";
-  private readonly renderer = inject(Renderer2);
-  private readonly elementRef = inject(ElementRef);
   readonly motifOptions = MOTIFS_BED_CREATION;
 
-  ngOnInit(): void {
-    this.onSearchFournisseur();
-  }
-
-  protected onSearchFournisseur(): void {
-    this.fournisseurService
-      .query({
-        page: 0,
-        size: 9999
-      })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(res => this.fournisseurSuggestions.set(res.body ?? []));
+  protected onFournisseurSelected(f: IFournisseur | null): void {
+    this.formFournisseur.set(f);
   }
 
   protected onDropdownShow(event: any): void {

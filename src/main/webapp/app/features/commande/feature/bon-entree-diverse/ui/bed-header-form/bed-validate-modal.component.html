@@ -38,16 +38,12 @@
         <!-- Fournisseur -->
         <div class="form-field form-field-full">
           <label>Fournisseur <small class="text-muted fw-normal">(optionnel)</small></label>
-          <p-select
-            [ngModel]="formFournisseur()"
-            (ngModelChange)="formFournisseur.set($event)"
-            name="fournisseur"
-            [options]="fournisseurSuggestions()"
-            optionLabel="libelle"
-            [overlayOptions]="{baseZIndex: 90050}"
-            (onShow)="onDropdownShow($event)"
-            (onHide)="onDropdownHide($event)"
+          <app-fournisseur-select
+            [appendTo]="null"
             placeholder="Rechercher un fournisseur…"
+            (selectionChange)="onFournisseurSelected($event)"
+            (dropdownShow)="onDropdownShow($event)"
+            (dropdownHide)="onDropdownHide($event)"
           />
         </div>
 

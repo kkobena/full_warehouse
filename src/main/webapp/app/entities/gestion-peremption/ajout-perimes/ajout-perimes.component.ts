@@ -1,40 +1,41 @@
-import { Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, viewChild } from "@angular/core";
 import {
   APPEND_TO,
   ITEMS_PER_PAGE,
   PRODUIT_COMBO_MIN_LENGTH,
-  PRODUIT_COMBO_RESULT_SIZE,
-  PRODUIT_NOT_FOUND,
-} from '../../../shared/constants/pagination.constants';
-import { FloatLabel } from 'primeng/floatlabel';
-import { TranslatePipe } from '@ngx-translate/core';
-import { FormsModule } from '@angular/forms';
-import { IProduit } from '../../../shared/model/produit.model';
-import { InputText } from 'primeng/inputtext';
-import { NgxSpinnerModule } from 'ngx-spinner';
-import { KeyFilter } from 'primeng/keyfilter';
-import { ProductToDestroyService } from '../product-to-destroy.service';
-import { ProductToDestroy, ProductToDestroyFilter, ProductToDestroyPayload } from '../model/product-to-destroy';
-import { ProduitAutocompleteComponent } from '../../../shared/produit-autocomplete/produit-autocomplete.component';
-import { ToolbarModule } from 'primeng/toolbar';
-import { QuantiteProdutSaisieComponent } from '../../../shared/quantite-produt-saisie/quantite-produt-saisie.component';
-import { CtaComponent } from '../../../shared/cta/cta.component';
-import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { Tag } from 'primeng/tag';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { PeremptionStatut } from '../model/peremption-statut';
-import { RemoveButtonTextComponent } from '../../../shared/cta/remove-button-text.component';
-import { BackButtonComponent } from '../../../shared/cta/back-button.component';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { DatePickerComponent } from '../../../shared/date-picker/date-picker.component';
-import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
+  PRODUIT_COMBO_RESULT_SIZE
+} from "../../../shared/constants/pagination.constants";
+import { FloatLabel } from "primeng/floatlabel";
+import { TranslatePipe } from "@ngx-translate/core";
+import { FormsModule } from "@angular/forms";
+import { IProduit } from "../../../shared/model";
+import { InputText } from "primeng/inputtext";
+import { NgxSpinnerModule } from "ngx-spinner";
+import { KeyFilter } from "primeng/keyfilter";
+import { ProductToDestroyService } from "../product-to-destroy.service";
+import { ProductToDestroy, ProductToDestroyFilter, ProductToDestroyPayload } from "../model/product-to-destroy";
+import { ProduitAutocompleteComponent } from "../../../shared/produit-autocomplete/produit-autocomplete.component";
+import { ToolbarModule } from "primeng/toolbar";
+import { QuantiteProdutSaisieComponent } from "../../../shared/quantite-produt-saisie/quantite-produt-saisie.component";
+import { CtaComponent } from "../../../shared/cta/cta.component";
+import { TableLazyLoadEvent, TableModule } from "primeng/table";
+import { Tag } from "primeng/tag";
+import { HttpHeaders, HttpResponse } from "@angular/common/http";
+import { PeremptionStatut } from "../model/peremption-statut";
+import { RemoveButtonTextComponent } from "../../../shared/cta/remove-button-text.component";
+import { BackButtonComponent } from "../../../shared/cta/back-button.component";
+import { IconField } from "primeng/iconfield";
+import { InputIcon } from "primeng/inputicon";
+import { DatePickerComponent } from "../../../shared/date-picker/date-picker.component";
+import { SpinnerComponent } from "../../../shared/spinner/spinner.component";
 import { CommonModule } from "@angular/common";
+import { Toast } from "primeng/toast";
+import { NgbConfirmDialogService } from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import { NotificationService } from "../../../shared/services/notification.service";
+import { ErrorService } from "../../../shared/error.service";
 
 @Component({
-  selector: 'jhi-ajout-perimes',
+  selector: "jhi-ajout-perimes",
   imports: [
     CommonModule,
     FloatLabel,
@@ -47,8 +48,6 @@ import { CommonModule } from "@angular/common";
     ToolbarModule,
     QuantiteProdutSaisieComponent,
     CtaComponent,
-    ConfirmDialogComponent,
-    ToastAlertComponent,
     TableModule,
     Tag,
     RemoveButtonTextComponent,
@@ -57,13 +56,13 @@ import { CommonModule } from "@angular/common";
     InputIcon,
     DatePickerComponent,
     SpinnerComponent,
+    Toast
   ],
-  templateUrl: './ajout-perimes.component.html',
-  styleUrls: ['./ajout-perimes.component.scss'],
+  templateUrl: "./ajout-perimes.component.html",
+  styleUrls: ["./ajout-perimes.component.scss"]
 })
 export class AjoutPerimesComponent implements OnInit {
   protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
-  protected readonly PRODUIT_NOT_FOUND = PRODUIT_NOT_FOUND;
   protected readonly ITEMS_PER_PAGE = ITEMS_PER_PAGE;
   protected readonly PRODUIT_COMBO_RESULT_SIZE = PRODUIT_COMBO_RESULT_SIZE;
   protected readonly APPEND_TO = APPEND_TO;
@@ -77,14 +76,15 @@ export class AjoutPerimesComponent implements OnInit {
   protected data: ProductToDestroy[] = [];
   protected produitSelected?: IProduit | null = null;
   protected searchTerm?: string;
-  protected datePeremention = viewChild.required<DatePickerComponent>('datePeremention');
-  protected numLotCmpt = viewChild.required<ElementRef>('numLot');
+  protected datePeremention = viewChild.required<DatePickerComponent>("datePeremention");
+  protected numLotCmpt = viewChild.required<ElementRef>("numLot");
   protected isSaving = false;
-  private produitQteCmpt = viewChild.required<QuantiteProdutSaisieComponent>('produitQteCmpt');
-  private produitComponent = viewChild.required<ProduitAutocompleteComponent>('produitComponent');
-  private confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
-  private alert = viewChild.required<ToastAlertComponent>('alert');
-  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
+  private produitQteCmpt = viewChild.required<QuantiteProdutSaisieComponent>("produitQteCmpt");
+  private produitComponent = viewChild.required<ProduitAutocompleteComponent>("produitComponent");
+  private readonly confimDialog = inject(NgbConfirmDialogService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly errorService = inject(ErrorService);
+  private readonly spinner = viewChild.required<SpinnerComponent>("spinner");
 
   private readonly productToDestroyService = inject(ProductToDestroyService);
 
@@ -115,37 +115,37 @@ export class AjoutPerimesComponent implements OnInit {
   }
 
   onRemoveItem(item: ProductToDestroy): void {
-    this.confimDialog().onConfirm(
+    this.confimDialog.onConfirm(
       () => {
         this.removeItem(item);
       },
-      'Confirmation',
-      'Êtes-vous sûr de vouloir supprimer cet article ?',
+      "Confirmation",
+      "Êtes-vous sûr de vouloir supprimer cet article ?",
       null,
       () => {
         this.produitComponent().getFocus();
-      },
+      }
     );
   }
 
   protected onClose(): void {
-    this.confimDialog().onConfirm(
+    this.confimDialog.onConfirm(
       () => {
         this.spinner().show();
         this.productToDestroyService.closeCurrent().subscribe({
           next: () => {
             this.spinner().hide();
             this.data = [];
-            this.alert()?.showInfo('La clôture a été effectuée avec succès.');
+            this.notificationService.info("La clôture a été effectuée avec succès.");
           },
           error: err => {
             this.spinner().hide();
             this.onError(err);
-          },
+          }
         });
       },
-      'Confirmation',
-      'Êtes-vous sûr de vouloir clôtuer ? Les quantités saisies seront définitivement retirées du stock.',
+      "Confirmation",
+      "Êtes-vous sûr de vouloir clôtuer ? Les quantités saisies seront définitivement retirées du stock."
     );
   }
 
@@ -173,11 +173,11 @@ export class AjoutPerimesComponent implements OnInit {
   protected addQuantity(qte: number): void {
     if (qte > 0) {
       if (this.produitSelected?.totalQuantity <= 0) {
-        this.alert().showError("Le produit n'a plus de stock");
+        this.notificationService.error("Le produit n'a plus de stock");
       } else {
         if (qte > this.produitSelected?.totalQuantity) {
           this.produitQteCmpt().focusProduitControl();
-          this.alert().showError(`La quantité saisie est supérieure à la quantité totale disponible pour ce produit.`);
+          this.notificationService.error(`La quantité saisie est supérieure à la quantité totale disponible pour ce produit.`);
         } else {
           this.isSaving = true;
           this.onAddItem(qte);
@@ -191,7 +191,7 @@ export class AjoutPerimesComponent implements OnInit {
     this.productToDestroyService
       .modifyProductQuantity({
         id: item.id,
-        ...this.buildItem(inputValue as number),
+        ...this.buildItem(inputValue as number)
       })
       .subscribe({
         next: () => {
@@ -201,17 +201,17 @@ export class AjoutPerimesComponent implements OnInit {
           this.isSaving = false;
           this.loadPage();
           this.onError(err);
-        },
+        }
       });
   }
 
   protected getSeverity(status: PeremptionStatut) {
     if (status.days < 0) {
-      return 'danger';
+      return "danger";
     } else if (status.days === 0) {
-      return 'warn';
+      return "warn";
     }
-    return 'info';
+    return "info";
   }
 
   protected lazyLoading(event: TableLazyLoadEvent): void {
@@ -222,11 +222,11 @@ export class AjoutPerimesComponent implements OnInit {
         .queryForEdit({
           page: this.page,
           size: event.rows,
-          ...this.buidParams(),
+          ...this.buidParams()
         })
         .subscribe({
           next: (res: HttpResponse<ProductToDestroy[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError(),
+          error: () => this.onError()
         });
     }
   }
@@ -234,7 +234,7 @@ export class AjoutPerimesComponent implements OnInit {
   private removeItem(item: ProductToDestroy): void {
     this.productToDestroyService
       .delete({
-        ids: [item.id],
+        ids: [item.id]
       })
       .subscribe({
         next: () => {
@@ -243,12 +243,12 @@ export class AjoutPerimesComponent implements OnInit {
         },
         error: err => {
           this.onError(err);
-        },
+        }
       });
   }
 
   private onSuccess(data: ProductToDestroy[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get('X-Total-Count'));
+    this.totalItems = Number(headers.get("X-Total-Count"));
     this.page = page;
     this.data = data || [];
     this.ngbPaginationPage = this.page;
@@ -268,7 +268,7 @@ export class AjoutPerimesComponent implements OnInit {
       error: err => {
         this.isSaving = false;
         this.onError(err);
-      },
+      }
     });
   }
 
@@ -276,7 +276,7 @@ export class AjoutPerimesComponent implements OnInit {
     this.isSaving = false;
     this.loadPage();
     this.produitSelected = null;
-    this.numLotCmpt().nativeElement.value = '';
+    this.numLotCmpt().nativeElement.value = "";
     this.produitComponent().getFocus();
     this.datePeremention().value = null;
     this.produitQteCmpt().reset();
@@ -289,13 +289,12 @@ export class AjoutPerimesComponent implements OnInit {
       datePeremption: this.datePeremention().submitValue,
       quantity,
       numLot: this.numLotCmpt()?.nativeElement.value,
-      stockInitial: this.produitSelected?.totalQuantity,
+      stockInitial: this.produitSelected?.totalQuantity
     };
   }
 
   private onError(err?: any): void {
-    const errorMessage = err?.error?.message || null;
-    this.alert().showError(errorMessage);
+    this.notificationService.error(this.errorService.getErrorMessage(err));
   }
 
   private loadPage(page?: number): void {
@@ -304,18 +303,18 @@ export class AjoutPerimesComponent implements OnInit {
       .queryForEdit({
         page: pageToLoad - 1,
         size: this.itemsPerPage,
-        ...this.buidParams(),
+        ...this.buidParams()
       })
       .subscribe({
         next: (res: HttpResponse<ProductToDestroy[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onFetchError(),
+        error: () => this.onFetchError()
       });
   }
 
   private buidParams(): ProductToDestroyFilter {
     return {
       editing: true,
-      searchTerm: this.searchTerm,
+      searchTerm: this.searchTerm
     };
   }
 }

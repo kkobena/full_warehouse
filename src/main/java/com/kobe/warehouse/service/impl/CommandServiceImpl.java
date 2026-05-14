@@ -182,18 +182,18 @@ public class CommandServiceImpl implements CommandService {
     public CommandeLiteDTO createOrUpdateOrderLine(OrderLineDTO orderLineDTO) {
         int oldGrossAmount = 0;
         int oldOrderAmount = 0;
-
+        CommandeDTO commandeDto = orderLineDTO.getCommande();
         Optional<OrderLine> optionalOrderLine = orderLineService.findOneFromCommande(
             orderLineDTO.getProduitId(),
-            orderLineDTO.getCommande().getCommandeId(),
-            orderLineDTO.getCommande().getFournisseurId()
+            commandeDto.getCommandeId(),
+            commandeDto.getFournisseurId()
         );
         OrderLine orderLine = null;
         if (optionalOrderLine.isPresent()) {
             orderLine = optionalOrderLine.get();
         }
 
-        Commande commande = findCommandeById(orderLineDTO.getCommande().getCommandeId());
+        Commande commande = findCommandeById(commandeDto.getCommandeId());
         if (orderLine == null) {
             orderLine = orderLineService.buildOrderLineFromOrderLineDTO(orderLineDTO);
             orderLine.setCommande(commande);
@@ -415,8 +415,8 @@ public class CommandServiceImpl implements CommandService {
         commande.setHtAmount(0);
         commande.setDiscountAmount(0);
         commande.setFournisseur(fournisseur);
-        for (SuggestionLine suggestionLine :  suggestion.getSuggestionLines()) {
-            int qte = qteParLigne.getOrDefault(suggestionLine.getId(),-1);
+        for (SuggestionLine suggestionLine : suggestion.getSuggestionLines()) {
+            int qte = qteParLigne.getOrDefault(suggestionLine.getId(), -1);
             if (qte <= 0) continue;
             // Toujours utiliser le fournisseurProduit original pour la référence produit
             OrderLine orderLine = orderLineService.buildOrderLine(suggestionLine, suggestion.getFournisseur().getId());

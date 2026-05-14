@@ -57,9 +57,8 @@ public class RetourBonDTO {
         if (fournisseur != null) {
             this.fournisseurLibelle = fournisseur.getLibelle();
             this.fournisseurId = fournisseur.getId();
-            var groupe = fournisseur.getGroupeFournisseur();
-            this.ediCompatible = !this.horsCommande && groupe != null
-                && StringUtils.hasLength(groupe.getUrlPharmaMl());
+            Fournisseur pharmaMlConfig = fournisseur.getParent() != null ? fournisseur.getParent() : fournisseur;
+            this.ediCompatible = !this.horsCommande && StringUtils.hasLength(pharmaMlConfig.getUrlPharmaMl());
         }
         this.retourBonItems = retourBon.getRetourBonItems().stream().map(RetourBonItemDTO::new).toList();
         this.pharmamlEnvoiId = retourBon.getPharmamlEnvoi() != null ? retourBon.getPharmamlEnvoi().getId() : null;

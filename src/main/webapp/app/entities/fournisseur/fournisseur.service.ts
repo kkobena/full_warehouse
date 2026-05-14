@@ -43,4 +43,18 @@ export class FournisseurService {
   uploadFile(file: any): Observable<HttpResponse<IResponseDto>> {
     return this.http.post<IResponseDto>(`${this.resourceUrl}/importcsv`, file, { observe: "response" });
   }
+
+  queryParents(req?: any): Observable<EntityArrayResponseType> {
+    const options = createRequestOptions(req);
+    return this.http.get<IFournisseur[]>(`${this.resourceUrl}/parents`, {
+      params: options,
+      observe: "response"
+    });
+  }
+
+  findAgences(parentId: number): Observable<EntityArrayResponseType> {
+    return this.http.get<IFournisseur[]>(`${this.resourceUrl}/${parentId}/agences`, {
+      observe: "response"
+    });
+  }
 }

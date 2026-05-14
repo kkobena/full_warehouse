@@ -2,7 +2,6 @@ package com.kobe.warehouse.service.ap;
 
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Fournisseur;
-import com.kobe.warehouse.domain.GroupeFournisseur;
 import com.kobe.warehouse.domain.PaymentFournisseur;
 import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
@@ -346,15 +345,15 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
 
     private int resolveJoursCredit(Fournisseur f) {
         if (f.getJoursCredit() != null) return f.getJoursCredit();
-        GroupeFournisseur g = f.getGroupeFournisseur();
-        if (g != null && g.getJoursCredit() != null) return g.getJoursCredit();
+        Fournisseur parent = f.getParent();
+        if (parent != null && parent.getJoursCredit() != null) return parent.getJoursCredit();
         return appConfigurationService.getApDefaultCreditDays();
     }
 
     private int resolveJoursCritique(Fournisseur f) {
         if (f.getJoursCritique() != null) return f.getJoursCritique();
-        GroupeFournisseur g = f.getGroupeFournisseur();
-        if (g != null && g.getJoursCritique() != null) return g.getJoursCritique();
+        Fournisseur parent = f.getParent();
+        if (parent != null && parent.getJoursCritique() != null) return parent.getJoursCritique();
         return appConfigurationService.getApDefaultCritiqueDays();
     }
 

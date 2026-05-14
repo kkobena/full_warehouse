@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, inject, OnInit, viewChild } from "@angular/core";
 import { LotService } from "../../commande/lot/lot.service";
-import { LotFilterParam, LotLocation, LotPerimes, LotPerimeValeurSum } from '../model/lot-perimes';
+import { LotFilterParam, LotLocation, LotPerimes, LotPerimeValeurSum } from "../model/lot-perimes";
 import { DATE_FORMAT_ISO_DATE } from "../../../shared/util/warehouse-util";
 import { MenuItem } from "primeng/api";
 import { HttpHeaders, HttpResponse } from "@angular/common/http";
@@ -13,7 +13,6 @@ import { InputText } from "primeng/inputtext";
 import { RayonService } from "../../rayon/rayon.service";
 import { IRayon } from "../../../shared/model/rayon.model";
 import { IFournisseur } from "../../../shared/model/fournisseur.model";
-import { FournisseurService } from "../../fournisseur/fournisseur.service";
 import { MagasinService } from "../../magasin/magasin.service";
 import { IMagasin } from "../../../shared/model";
 import { Storage } from "../../storage/storage.model";
@@ -26,7 +25,7 @@ import { FamilleProduitService } from "../../famille-produit/famille-produit.ser
 import { KeyFilter } from "primeng/keyfilter";
 import { Button } from "primeng/button";
 import { SplitButton } from "primeng/splitbutton";
-import { RouterLink, Router } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 import { TableHeaderCheckbox, TableLazyLoadEvent, TableModule } from "primeng/table";
 import { Tag } from "primeng/tag";
 import { PeremptionStatut } from "../model/peremption-statut";
@@ -42,9 +41,14 @@ import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { NotificationService } from "../../../shared/services/notification.service";
 import { ButtonGroup } from "primeng/buttongroup";
 import { Tooltip } from "primeng/tooltip";
-import { RetourFournisseurPerimeDialogComponent } from "../retour-fournisseur-perime-dialog/retour-fournisseur-perime-dialog.component";
-import { RetourGroupePerimeDialogComponent } from "../retour-groupe-perime-dialog/retour-groupe-perime-dialog.component";
+import {
+  RetourFournisseurPerimeDialogComponent
+} from "../retour-fournisseur-perime-dialog/retour-fournisseur-perime-dialog.component";
+import {
+  RetourGroupePerimeDialogComponent
+} from "../retour-groupe-perime-dialog/retour-groupe-perime-dialog.component";
 import { CommonModule } from "@angular/common";
+import { FournisseurSelectComponent } from "../../../features/partners/ui/fournisseur-select/fournisseur-select.component";
 
 @Component({
   selector: "jhi-lot-perimes",
@@ -68,7 +72,8 @@ import { CommonModule } from "@angular/common";
     DatePickerComponent,
     SpinnerComponent,
     ButtonGroup,
-    Tooltip
+    Tooltip,
+    FournisseurSelectComponent
   ],
   templateUrl: "./lot-perimes.component.html",
   styleUrl: "./lot-perimes.component.scss"
@@ -82,7 +87,6 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
   protected storages: Storage[] = [];
   protected rayons: IRayon[] = [];
   protected magasins: IMagasin[] = [];
-  protected fournisseurs: IFournisseur[] = [];
   protected famillesProduit: IFamilleProduit[] = [];
   protected selectedMagasin: IMagasin = null;
   protected selectedStorage: Storage = null;
@@ -121,7 +125,6 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
   ];
   protected selectedType: any = null;
   private readonly rayonService = inject(RayonService);
-  private readonly fournisseurService = inject(FournisseurService);
   private readonly familleProduitService = inject(FamilleProduitService);
   private readonly magasinSrevice = inject(MagasinService);
   private readonly storageService = inject(StorageService);
@@ -139,7 +142,6 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.selectedType = this.types[2];
     this.findConfigStock();
-    this.fetchFournisseur();
     this.fetchFamillesProduit();
     this.getSum();
     this.exportMenus = [
@@ -205,6 +207,11 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
   }
 
   /** Réinitialise tous les filtres */
+  protected onFournisseurSelected(f: IFournisseur | null): void {
+    this.selectedFournisseur = f;
+    this.onSearch();
+  }
+
   protected resetFilters(): void {
     this.selectedType = this.types[2];
     this.dayCount = null;
@@ -281,38 +288,38 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
   protected confirmRetirerDialog(lot: LotPerimes): void {
     if (this.isMultiLocation(lot) && !this.resolveStorageId(lot)) {
       this.notificationService.error(
-        'Ce lot est présent dans plusieurs emplacements. Veuillez sélectionner un emplacement avant de retirer.',
-        'Emplacement requis',
+        "Ce lot est présent dans plusieurs emplacements. Veuillez sélectionner un emplacement avant de retirer.",
+        "Emplacement requis"
       );
       return;
     }
     this.confirmDialog.onConfirm(
       () => this.retirerStock(lot),
-      'Confirmation',
-      'Voulez-vous retirer la quantité du stock ?',
+      "Confirmation",
+      "Voulez-vous retirer la quantité du stock ?"
     );
   }
 
   protected confirmRetourFournisseurDialog(lot: LotPerimes): void {
     if (this.isMultiLocation(lot) && !this.resolveStorageId(lot)) {
       this.notificationService.error(
-        'Ce lot est présent dans plusieurs emplacements. Veuillez sélectionner un emplacement avant de retourner.',
-        'Emplacement requis',
+        "Ce lot est présent dans plusieurs emplacements. Veuillez sélectionner un emplacement avant de retourner.",
+        "Emplacement requis"
       );
       return;
     }
 
     const modalRef = this.modalService.open(RetourFournisseurPerimeDialogComponent, {
-      size: 'lg',
-      backdrop: 'static',
-      centered: true,
+      size: "lg",
+      backdrop: "static",
+      centered: true
     });
     modalRef.componentInstance.lot = lot;
 
     modalRef.closed.subscribe(() => {
       this.notificationService.success(
         `Retour fournisseur créé avec succès pour le lot "${lot.numLot}".`,
-        'Succès',
+        "Succès"
       );
       this.loadPage();
     });
@@ -338,9 +345,9 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
     if (this.selectedLotPerimes.length === 0) return;
 
     const modalRef = this.modalService.open(RetourGroupePerimeDialogComponent, {
-      size: 'xl',
-      backdrop: 'static',
-      centered: true,
+      size: "xl",
+      backdrop: "static",
+      centered: true
     });
     modalRef.componentInstance.lots = [...this.selectedLotPerimes];
 
@@ -348,7 +355,7 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
       if (result?.totalCreated > 0) {
         this.notificationService.success(
           `${result.totalCreated} retour(s) fournisseur créé(s) avec succès.`,
-          'Succès',
+          "Succès"
         );
       }
       this.selectedLotPerimes = [];
@@ -357,7 +364,7 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
   }
 
   protected navigateToRetours(): void {
-    void this.router.navigate(['/commande/retour-fournisseur']);
+    void this.router.navigate(["/commande/retour-fournisseur"]);
   }
 
   private exportPdf(): void {
@@ -453,17 +460,6 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
       });
   }
 
-  private fetchFournisseur(): void {
-    this.fournisseurService
-      .query({
-        page: 0,
-        size: 9999
-      })
-      .subscribe((res: HttpResponse<IFournisseur[]>) => {
-        this.fournisseurs = res.body || [];
-      });
-  }
-
   private fetchFamillesProduit(): void {
     this.familleProduitService
       .query({ page: 0, size: 9999 })
@@ -488,7 +484,7 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
       // 1. Lot dans 1 seul emplacement → automatique
       // 2. Lot multi-site → utiliser la sélection utilisateur ou le filtre storage
       // 3. null → cascade automatique backend (PRINCIPAL en premier)
-      storageId: this.resolveStorageId(lot),
+      storageId: this.resolveStorageId(lot)
     };
   }
 

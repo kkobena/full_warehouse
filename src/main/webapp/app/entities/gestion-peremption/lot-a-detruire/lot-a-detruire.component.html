@@ -128,20 +128,12 @@
           <label for="rayons">{{ 'warehouseApp.labels.rayons' | translate }}</label>
         </p-floatlabel>
 
-        <p-floatlabel variant="on">
-          <p-select
-            (onChange)="onSearch()"
-            appendTo="body"
-            [(ngModel)]="selectedFournisseur"
-            [options]="fournisseurs"
-            [showClear]="true"
-            [style]="{ 'min-width': '180px' }"
-            filter="true"
-            id="fournisseurs"
-            optionLabel="libelle"
-          ></p-select>
-          <label for="fournisseurs">{{ 'warehouseApp.labels.fournisseurs' | translate }}</label>
-        </p-floatlabel>
+        <app-fournisseur-select
+          [grouped]="true"
+          [selectedId]="selectedFournisseur?.id ?? null"
+          [placeholder]="'warehouseApp.labels.fournisseurs' | translate"
+          (selectionChange)="onFournisseurSelected($event)"
+        />
 
         <p-button
           (click)="resetFilters()"

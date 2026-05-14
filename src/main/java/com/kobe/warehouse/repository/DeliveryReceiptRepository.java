@@ -16,8 +16,14 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface DeliveryReceiptRepository extends JpaRepository<Commande, CommandeId> {
     @Query(
-        value = "select a.fournisseur.groupeFournisseur.libelle AS libelle,SUM(a.orderAmount)  AS montantTtc,SUM(a.htAmount)  AS montantHt,SUM(a.taxAmount)  AS montantTva from Commande a where FUNCTION('DATE',a.createdAt)  between :fromDate and :toDate AND a.orderStatus=:orderStatut GROUP BY a.fournisseur.groupeFournisseur.id ",
-        countQuery = "select count(a.fournisseur.groupeFournisseur.id) from Commande a where FUNCTION('DATE',a.createdAt)  between :fromDate and :toDate AND a.orderStatus=:receiptStatut "
+        value = "SELECT COALESCE(pf.libelle, f.libelle) AS libelle, " +
+                "SUM(a.orderAmount) AS montantTtc, SUM(a.htAmount) AS montantHt, SUM(a.taxAmount) AS montantTva " +
+                "FROM Commande a JOIN a.fournisseur f LEFT JOIN f.parent pf " +
+                "WHERE FUNCTION('DATE', a.createdAt) BETWEEN :fromDate AND :toDate " +
+                "AND a.orderStatus = :orderStatut " +
+                "GROUP BY COALESCE(pf.id, f.id), COALESCE(pf.libelle, f.libelle)",
+        countQuery = "SELECT COUNT(DISTINCT COALESCE(pf.id, f.id)) FROM Commande a JOIN a.fournisseur f LEFT JOIN f.parent pf " +
+                     "WHERE FUNCTION('DATE', a.createdAt) BETWEEN :fromDate AND :toDate AND a.orderStatus = :orderStatut"
     )
     Page<GroupeFournisseurAchat> fetchAchats(
         @Param("fromDate") LocalDate fromDate,

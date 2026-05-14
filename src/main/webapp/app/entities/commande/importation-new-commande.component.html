@@ -7,19 +7,14 @@
     <div class="form-grid-compact">
       <div class="form-field form-field-full">
         <label>Fournisseurs<span class="required">*</span></label>
-        <p-select
-          [(ngModel)]="fournisseurSelectedId"
-          [filter]="true"
-          [fluid]="true"
-          [options]="fournisseurs"
-          optionLabel="libelle"
-          optionValue="id"
-          placeholder="Séléctionner un fournisseur "
-          size="large"
-          (onShow)="onDropdownShow($event)"
-          (onHide)="onDropdownHide($event)"
-        >
-        </p-select>
+        <app-fournisseur-select
+          [grouped]="true"
+          [appendTo]="null"
+          placeholder="Séléctionner un fournisseur"
+          (selectionChange)="onFournisseurSelected($event)"
+          (dropdownShow)="onDropdownShow($event)"
+          (dropdownHide)="onDropdownHide($event)"
+        />
       </div>
       <div class="form-field form-field-full">
         <label>Model de fichier<span class="required">*</span></label>

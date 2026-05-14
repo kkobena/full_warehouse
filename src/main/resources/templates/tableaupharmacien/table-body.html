@@ -115,7 +115,7 @@
         <td class="unit" th:with="totalAchat=${reportSummary.achatFournisseurs.get(fourGroupe.id)}">
           <th:block th:if="${ totalAchat ne null }">
             <span th:if="${totalAchat ge 1000}" th:text="${#numbers.formatInteger(totalAchat,3,'WHITESPACE')}"></span>
-            <span th:if="${totalAchat lt 1000}" th:text="${montantNet}"></span>
+            <span th:if="${totalAchat lt 1000}" th:text="${totalAchat}"></span>
           </th:block>
           <th:block th:if="${ totalAchat eq null }">
             <span class="unit" th:text="0"></span>

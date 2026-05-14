@@ -49,7 +49,7 @@ public interface CommandeRepository
     @Query(
         "SELECT c FROM Commande c " +
         "JOIN FETCH c.fournisseur f " +
-        "LEFT JOIN FETCH f.groupeFournisseur " +
+        "LEFT JOIN FETCH f.parent " +
         "WHERE c.orderStatus IN :statuts " +
         "AND c.paimentStatut != :paid " +
         "ORDER BY c.orderDate ASC"
@@ -62,7 +62,7 @@ public interface CommandeRepository
     @Query(
         "SELECT c FROM Commande c " +
         "JOIN FETCH c.fournisseur f " +
-        "LEFT JOIN FETCH f.groupeFournisseur " +
+        "LEFT JOIN FETCH f.parent " +
         "WHERE c.orderStatus IN :statuts " +
         "AND c.paimentStatut != :paid " +
         "AND f.id = :fournisseurId " +
@@ -77,7 +77,7 @@ public interface CommandeRepository
     @Query(
         "SELECT c FROM Commande c " +
         "JOIN FETCH c.fournisseur f " +
-        "LEFT JOIN FETCH f.groupeFournisseur " +
+        "LEFT JOIN FETCH f.parent " +
         "WHERE c.orderStatus IN :statuts " +
         "AND c.paimentStatut != :paid " +
         "AND (:fromDate IS NULL OR c.receiptDate >= :fromDate) " +
@@ -94,7 +94,7 @@ public interface CommandeRepository
     @Query(
         "SELECT c FROM Commande c " +
         "JOIN FETCH c.fournisseur f " +
-        "LEFT JOIN FETCH f.groupeFournisseur " +
+        "LEFT JOIN FETCH f.parent " +
         "WHERE c.orderStatus IN :statuts " +
         "AND c.paimentStatut != :paid " +
         "AND f.id = :fournisseurId " +
@@ -112,13 +112,13 @@ public interface CommandeRepository
 
     @Query(
         "SELECT f.id, f.libelle, SUM(c.finalAmount), " +
-        "COALESCE(f.palierRfa, gf.palierRfa), " +
-        "COALESCE(f.tauxRfa, gf.tauxRfa) " +
+        "COALESCE(f.palierRfa, pf.palierRfa), " +
+        "COALESCE(f.tauxRfa, pf.tauxRfa) " +
         "FROM Commande c " +
         "JOIN c.fournisseur f " +
-        "LEFT JOIN f.groupeFournisseur gf " +
+        "LEFT JOIN f.parent pf " +
         "WHERE c.orderStatus = :statut AND c.receiptDate >= :start AND c.receiptDate < :end " +
-        "GROUP BY f.id, f.libelle, f.palierRfa, gf.palierRfa, f.tauxRfa, gf.tauxRfa " +
+        "GROUP BY f.id, f.libelle, f.palierRfa, pf.palierRfa, f.tauxRfa, pf.tauxRfa " +
         "ORDER BY SUM(c.finalAmount) DESC"
     )
     List<Object[]> sumCaByFournisseur(
@@ -150,8 +150,12 @@ public interface CommandeRepository
         );
     }
     @Query(
-        value = "select a.fournisseur.groupeFournisseur.libelle AS libelle,SUM(a.orderAmount)  AS montantTtc,SUM(a.htAmount)  AS montantHt,SUM(a.taxAmount)  AS montantTva from Commande a where a.orderDate  between :fromDate and :toDate AND a.orderStatus=:orderStatut GROUP BY a.fournisseur.groupeFournisseur.id,a.fournisseur.groupeFournisseur.libelle ",
-        countQuery = "select count(a.fournisseur.groupeFournisseur.id) from Commande a where a.orderDate  between :fromDate and :toDate AND a.orderStatus=:receiptStatut "
+        value = "SELECT COALESCE(pf.libelle, f.libelle) AS libelle, SUM(a.orderAmount) AS montantTtc, SUM(a.htAmount) AS montantHt, SUM(a.taxAmount) AS montantTva " +
+                "FROM Commande a JOIN a.fournisseur f LEFT JOIN f.parent pf " +
+                "WHERE a.orderDate BETWEEN :fromDate AND :toDate AND a.orderStatus = :orderStatut " +
+                "GROUP BY COALESCE(pf.id, f.id), COALESCE(pf.libelle, f.libelle) ",
+        countQuery = "SELECT COUNT(DISTINCT COALESCE(pf.id, f.id)) FROM Commande a JOIN a.fournisseur f LEFT JOIN f.parent pf " +
+                     "WHERE a.orderDate BETWEEN :fromDate AND :toDate AND a.orderStatus = :receiptStatut"
     )
     Page<GroupeFournisseurAchat> fetchAchats(
         @Param("fromDate") LocalDate fromDate,
@@ -269,19 +273,19 @@ public interface CommandeRepository
 
     /**
      * Compte les commandes fournisseurs dont l'échéance de paiement AP est dépassée.
-     * Échéance = COALESCE(receipt_date, order_date) + COALESCE(f.jours_credit, gf.jours_credit, :defaultCreditDays).
+     * Échéance = COALESCE(receipt_date, order_date) + COALESCE(f.jours_credit, pf.jours_credit, :defaultCreditDays).
      * Seules les commandes CLOSED et non PAID sont comptées.
      */
     @Query(
         value = """
             SELECT COUNT(*)
             FROM commande c
-            LEFT JOIN fournisseur f       ON f.id  = c.fournisseur_id
-            LEFT JOIN groupe_fournisseur gf ON gf.id = f.groupe_pournisseur_id
+            LEFT JOIN fournisseur f  ON f.id  = c.fournisseur_id
+            LEFT JOIN fournisseur pf ON pf.id = f.parent_id
             WHERE c.order_status   = 'CLOSED'
               AND c.paiment_status != 'PAID'
               AND COALESCE(c.receipt_date, c.order_date)
-                  + make_interval(days => COALESCE(f.jours_credit, gf.jours_credit, :defaultCreditDays))
+                  + make_interval(days => COALESCE(f.jours_credit, pf.jours_credit, :defaultCreditDays))
                   < CURRENT_DATE
             """,
         nativeQuery = true

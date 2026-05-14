@@ -52,7 +52,7 @@ public class FournisseurProduitDTO {
         codeEan = f.getCodeEan();
         delaiLivraisonJours = fr.getDelaiLivraisonJours() != null
             ? fr.getDelaiLivraisonJours()
-            : (fr.getGroupeFournisseur() != null ? fr.getGroupeFournisseur().getDelaiLivraisonJours() : null);
+            : (fr.getParent() != null ? fr.getParent().getDelaiLivraisonJours() : null);
         qteColis = f.getQteColis();
         qteMinimaleCommande = f.getQteMinimaleCommande();
     }
@@ -73,7 +73,7 @@ public class FournisseurProduitDTO {
             .setProduit(ProduitBuilder.fromEntity(p))
             .setDelaiLivraisonJours(fr.getDelaiLivraisonJours() != null
                 ? fr.getDelaiLivraisonJours()
-                : (fr.getGroupeFournisseur() != null ? fr.getGroupeFournisseur().getDelaiLivraisonJours() : null))
+                : (fr.getParent() != null ? fr.getParent().getDelaiLivraisonJours() : null))
             .setQteColis(f.getQteColis())
             .setQteMinimaleCommande(f.getQteMinimaleCommande());
     }

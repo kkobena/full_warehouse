@@ -561,9 +561,9 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
             return fournisseur.getDelaiLivraisonJours();
         }
         if (fournisseur != null
-            && fournisseur.getGroupeFournisseur() != null
-            && fournisseur.getGroupeFournisseur().getDelaiLivraisonJours() != null) {
-            return fournisseur.getGroupeFournisseur().getDelaiLivraisonJours();
+            && fournisseur.getParent() != null
+            && fournisseur.getParent().getDelaiLivraisonJours() != null) {
+            return fournisseur.getParent().getDelaiLivraisonJours();
         }
         return 7;
     }

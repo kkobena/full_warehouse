@@ -6,7 +6,6 @@ import { ErrorService } from "../../../shared/error.service";
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
 
 import { IFournisseur } from "../../../shared/model/fournisseur.model";
-import { FournisseurService } from "../../fournisseur/fournisseur.service";
 import { HttpErrorResponse, HttpResponse } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { InputTextModule } from "primeng/inputtext";
@@ -19,6 +18,7 @@ import { CommonModule } from "@angular/common";
 import { ToastAlertComponent } from "../../../shared/toast-alert/toast-alert.component";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { finalize } from "rxjs/operators";
+import { FournisseurApiService } from "../../../features/partners/data-access/services/fournisseur-api.service";
 
 @Component({
   selector: "app-form-produit-fournisseur",
@@ -59,7 +59,7 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
   });
   private readonly produitService = inject(ProduitService);
   private readonly errorService = inject(ErrorService);
-  private readonly fournisseurService = inject(FournisseurService);
+  private readonly fournisseurService = inject(FournisseurApiService);
   private readonly alert = viewChild.required<ToastAlertComponent>("alert");
   private fournisseurSelect = viewChild.required<Select>("fournisseurSelect");
   private readonly activeModal = inject(NgbActiveModal);
@@ -114,7 +114,7 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
 
   protected populate(): void {
     this.fournisseurService
-      .query({
+      .queryParents({
         page: 0,
         size: 9999
       })

@@ -6,7 +6,6 @@ import static com.kobe.warehouse.service.pharmaml.PharmaMlUtils.TYPE_CODIFICATIO
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
-import com.kobe.warehouse.domain.GroupeFournisseur;
 import com.kobe.warehouse.domain.SuggestionLine;
 import com.kobe.warehouse.service.pharmaml.PharmaMlUtils;
 import com.kobe.warehouse.service.pharmaml.dto.AcqReception;
@@ -124,7 +123,7 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
     }
 
     private Partenaire buildEmetteur(Fournisseur fournisseur) {
-        GroupeFournisseur groupeFournisseur = fournisseur.getGroupeFournisseur();
+        Fournisseur groupeFournisseur = fournisseur.getParent() != null ? fournisseur.getParent() : fournisseur;
         String code = StringUtils.hasLength(groupeFournisseur.getCodeOfficePharmaMl())
             ? groupeFournisseur.getCodeOfficePharmaMl()
             : PharmaMlUtils.CODE_VALUE;
@@ -138,7 +137,7 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
     }
 
     private Partenaire buildRecepteur(Fournisseur fournisseur) {
-        GroupeFournisseur groupeFournisseur = fournisseur.getGroupeFournisseur();
+        Fournisseur groupeFournisseur = fournisseur.getParent() != null ? fournisseur.getParent() : fournisseur;
         Partenaire p = new Partenaire();
         p.setNature(PharmaMlUtils.NATURE_PARTENAIRE_VALUE_RE);
         p.setCode(groupeFournisseur.getCodeRecepteurPharmaMl());
@@ -156,7 +155,7 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
     }
 
     private OfficinePartenaire buildOfficineDestinataire(Fournisseur fournisseur) {
-        GroupeFournisseur groupeFournisseur = fournisseur.getGroupeFournisseur();
+        Fournisseur groupeFournisseur = fournisseur.getParent() != null ? fournisseur.getParent() : fournisseur;
         OfficinePartenaire op = new OfficinePartenaire();
         // op.setIdSociete(fournisseur.getIdentifiantRepartiteur());
         op.setIdSociete(groupeFournisseur.getIdRecepteurPharmaMl());
@@ -166,9 +165,7 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
     }
 
     private OfficinePartenaire buildOfficineEmetteur(Fournisseur fournisseur) {
-        //  GroupeFournisseur groupeFournisseur = fournisseur.getGroupeFournisseur();
         OfficinePartenaire op = new OfficinePartenaire();
-        // op.setIdClient(groupeFournisseur.getIdRecepteurPharmaMl());
         op.setIdClient(fournisseur.getIdentifiantRepartiteur());
         op.setNaturePartenaire(PharmaMlUtils.NATURE_PARTENAIRE_VALUE_OF);
         return op;

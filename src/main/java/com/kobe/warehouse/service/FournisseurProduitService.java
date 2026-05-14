@@ -215,9 +215,7 @@ public class FournisseurProduitService {
     public void updateProduitFournisseurFromCommande(FournisseurProduitDTO dto) throws GenericError {
         FournisseurProduit fournisseurProduit = this.fournisseurProduitRepository.getReferenceById(dto.getId());
         Produit produit = fournisseurProduit.getProduit();
-
         valideCodeCip(dto, fournisseurProduit);
-
         fournisseurProduit.setCodeCip(buildCodeCip(dto.getCodeCip()));
         fournisseurProduit.setPrixAchat(dto.getPrixAchat());
         fournisseurProduit.setPrixUni(dto.getPrixUni());

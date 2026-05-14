@@ -1,0 +1,59 @@
+@if (multiple()) {
+  <p-floatlabel variant="on">
+    <p-multiSelect
+      inputId="fournisseur-multi-select"
+      [(ngModel)]="selectedMultiple"
+      (ngModelChange)="onMultiChange($event)"
+      [options]="grouped() ? groups() : fournisseurs()"
+      [group]="grouped()"
+      optionGroupLabel="label"
+      optionGroupChildren="items"
+      optionLabel="libelle"
+      dataKey="id"
+      [filter]="true"
+      filterBy="libelle"
+      [showClear]="showClear()"
+      [disabled]="disabled()"
+      [appendTo]="appendTo()"
+      [style]="{ width: '100%' }"
+    >
+      <ng-template #groupheader let-grp>
+        <div class="fournisseur-group-header" [class.fournisseur-group-header--standalone]="!grp.hasChildren">
+          <i [class]="grp.hasChildren ? 'pi pi-sitemap' : 'pi pi-building'"></i>
+          <span>{{ grp.label }}</span>
+        </div>
+      </ng-template>
+    </p-multiSelect>
+    <label for="fournisseur-multi-select">{{ placeholder() }}</label>
+  </p-floatlabel>
+} @else {
+  <p-floatlabel variant="on">
+    <p-select
+      inputId="fournisseur-select"
+      [(ngModel)]="selectedSingle"
+      (ngModelChange)="onSingleChange($event)"
+      [options]="grouped() ? groups() : fournisseurs()"
+      [group]="grouped()"
+      optionGroupLabel="label"
+      optionGroupChildren="items"
+      optionLabel="libelle"
+      dataKey="id"
+      [filter]="true"
+      filterBy="libelle"
+      [showClear]="showClear()"
+      [disabled]="disabled()"
+      [appendTo]="appendTo()"
+      (onShow)="dropdownShow.emit($event)"
+      (onHide)="dropdownHide.emit($event)"
+      [style]="{ width: '100%' }"
+    >
+      <ng-template #group let-grp>
+        <div class="fournisseur-group-header" [class.fournisseur-group-header--standalone]="!grp.hasChildren">
+          <i [class]="grp.hasChildren ? 'pi pi-sitemap' : 'pi pi-building'"></i>
+          <span>{{ grp.label }}</span>
+        </div>
+      </ng-template>
+    </p-select>
+    <label for="fournisseur-select">{{ placeholder() }}</label>
+  </p-floatlabel>
+}

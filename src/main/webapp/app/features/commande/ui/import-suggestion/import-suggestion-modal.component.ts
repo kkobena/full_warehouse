@@ -12,7 +12,6 @@ import { CommandeService } from "../../../../entities/commande/commande.service"
 import { CommandeId } from "../../../../shared/model/abstract-commande.model";
 import { NotificationService } from "../../../../shared/services/notification.service";
 import { ErrorService } from "../../../../shared/error.service";
-import { FournisseurService } from "../../../../entities/fournisseur/fournisseur.service";
 import { IFournisseur } from "../../../../shared/model/fournisseur.model";
 import { ButtonModule } from "primeng/button";
 import { TableModule } from "primeng/table";
@@ -22,7 +21,7 @@ import { CommonModule } from "@angular/common";
 import { IconField } from "primeng/iconfield";
 import { InputIcon } from "primeng/inputicon";
 import { InputTextModule } from "primeng/inputtext";
-import { MultiSelectModule } from "primeng/multiselect";
+import { FournisseurSelectComponent } from "../../../partners/ui/fournisseur-select/fournisseur-select.component";
 
 @Component({
   selector: "app-import-suggestion-modal",
@@ -39,7 +38,7 @@ import { MultiSelectModule } from "primeng/multiselect";
     IconField,
     InputIcon,
     InputTextModule,
-    MultiSelectModule
+    FournisseurSelectComponent
   ]
 })
 export class ImportSuggestionModalComponent implements OnInit {
@@ -49,7 +48,6 @@ export class ImportSuggestionModalComponent implements OnInit {
 
   protected readonly searchTerm = signal("");
   protected readonly selectedFournisseurIds = signal<number[]>([]);
-  protected readonly fournisseurOptions = signal<IFournisseur[]>([]);
   protected readonly detailSearchTerms = signal<Record<number, string>>({});
 
   protected suggestions = signal<Suggestion[]>([]);
@@ -59,7 +57,7 @@ export class ImportSuggestionModalComponent implements OnInit {
   protected linesCache: Record<number, SuggestionLine[]> = {};
   protected loadingLines: Record<number, boolean> = {};
 
-  // O(1) lookup per row, rebuilt only when selection changes
+  // rebuilt only when selection changes
   private readonly _selectedLineIdSets = computed<Record<number, Set<number>>>(() => {
     const map: Record<number, Set<number>> = {};
     for (const [sId, lines] of Object.entries(this.selectedLines())) {
@@ -72,7 +70,6 @@ export class ImportSuggestionModalComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly activeModal = inject(NgbActiveModal);
   private readonly suggestionService = inject(SuggestionService);
-  private readonly fournisseurService = inject(FournisseurService);
   private readonly commandeService = inject(CommandeService);
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
@@ -84,8 +81,6 @@ export class ImportSuggestionModalComponent implements OnInit {
       this.fournisseurIds$
     ]).pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(([search, ids]) => this.loadSuggestions(search, ids));
-
-    this.loadFournisseurs();
   }
 
   protected dismiss(): void {
@@ -169,6 +164,10 @@ export class ImportSuggestionModalComponent implements OnInit {
     );
   }
 
+  protected onFournisseursSelected(fournisseurs: IFournisseur[]): void {
+    this.selectedFournisseurIds.set(fournisseurs.map(f => f.id!));
+  }
+
   protected onDetailSearch(suggestionId: number, value: string): void {
     this.detailSearchTerms.update(prev => ({ ...prev, [suggestionId]: value }));
   }
@@ -192,12 +191,6 @@ export class ImportSuggestionModalComponent implements OnInit {
 
   protected isFournisseurMismatch(suggestion: Suggestion): boolean {
     return this.commandeFournisseurId != null && suggestion.fournisseurId !== this.commandeFournisseurId;
-  }
-
-  private loadFournisseurs(): void {
-    this.fournisseurService.query({ page: 0, size: 999 }).subscribe({
-      next: res => this.fournisseurOptions.set(res.body ?? [])
-    });
   }
 
   private loadSuggestions(search = "", fournisseurIds: number[] = []): void {

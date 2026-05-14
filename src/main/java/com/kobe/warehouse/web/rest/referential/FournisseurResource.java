@@ -147,4 +147,19 @@ public class FournisseurResource {
         ResponseDTO responseDTO = fournisseurService.importation(file.getInputStream());
         return ResponseEntity.ok().body(responseDTO);
     }
+
+    @GetMapping("/fournisseurs/parents")
+    public ResponseEntity<List<FournisseurDTO>> getParents(
+        @RequestParam(value = "search", required = false) String search,
+        Pageable pageable
+    ) {
+        Page<FournisseurDTO> page = fournisseurService.findParents(search, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    @GetMapping("/fournisseurs/{id}/agences")
+    public ResponseEntity<List<FournisseurDTO>> getAgences(@PathVariable Integer id) {
+        return ResponseEntity.ok().body(fournisseurService.findAgences(id));
+    }
 }

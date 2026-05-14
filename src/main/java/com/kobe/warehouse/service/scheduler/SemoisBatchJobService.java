@@ -22,6 +22,11 @@ import com.kobe.warehouse.repository.SuggestionRepository;
 import com.kobe.warehouse.service.EtatProduitService;
 import com.kobe.warehouse.service.ReferenceService;
 import jakarta.persistence.EntityManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -32,20 +37,17 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Batch nocturne SEMOIS — crée et rafraîchit les suggestions de réapprovisionnement.
  *
- * <p>Exécuté chaque nuit à 02h00. Pour chaque produit éligible (modèle=SEMOIS, actif,
+ * <p> Pour chaque produit éligible (modèle=SEMOIS, actif,
  * FP principal défini), recalcule le VMM et le stock objectif, puis crée/met à jour la
  * {@link Suggestion} de type {@link TypeSuggession#AUTO} pour chaque fournisseur.
  *
@@ -89,7 +91,8 @@ public class SemoisBatchJobService {
         this.em = em;
     }
 
-    // ── S4.3 — Réintégration automatique des exclusions expirées ─────────────────
+    //  Réintégration automatique des exclusions expirées ─────────────────
+
     /**
      * Réintègre automatiquement les produits dont l'exclusion temporaire a expiré.
      * Exécuté chaque nuit à 01h30 (avant le batch principal à 02h00).
@@ -311,10 +314,10 @@ public class SemoisBatchJobService {
         if (fournisseur != null && fournisseur.getDelaiLivraisonJours() != null) {
             return fournisseur.getDelaiLivraisonJours();
         }
-        if (fournisseur != null
-            && fournisseur.getGroupeFournisseur() != null
-            && fournisseur.getGroupeFournisseur().getDelaiLivraisonJours() != null) {
-            return fournisseur.getGroupeFournisseur().getDelaiLivraisonJours();
+        Fournisseur parent = Objects.nonNull(fournisseur) ? fournisseur.getParent() : null;
+        if (parent != null
+            && parent.getDelaiLivraisonJours() != null) {
+            return parent.getDelaiLivraisonJours();
         }
         return 7;
     }

@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Fournisseur;
-import com.kobe.warehouse.domain.GroupeFournisseur;
 import java.io.Serializable;
 
 public class FournisseurDTO implements Serializable {
@@ -22,10 +21,12 @@ public class FournisseurDTO implements Serializable {
 
     private String site;
     private String code;
+    private String email;
+    private Integer odre = 100;
 
-    private Integer groupeFournisseurId;
+    private Integer parentId;
+    private String parentLibelle;
 
-    private String groupeFournisseurLibelle;
     private Integer delaiLivraisonJours;
     private Integer frequenceCommandeJours;
     private String identifiantRepartiteur;
@@ -50,6 +51,8 @@ public class FournisseurDTO implements Serializable {
         mobile = fournisseur.getMobile();
         site = fournisseur.getSite();
         code = fournisseur.getCode();
+        email = fournisseur.getEmail();
+        odre = fournisseur.getOdre();
         identifiantRepartiteur = fournisseur.getIdentifiantRepartiteur();
         delaiLivraisonJours = fournisseur.getDelaiLivraisonJours();
         frequenceCommandeJours = fournisseur.getFrequenceCommandeJours();
@@ -61,10 +64,10 @@ public class FournisseurDTO implements Serializable {
         codeOfficePharmaMl = fournisseur.getCodeOfficePharmaMl();
         codeRecepteurPharmaMl = fournisseur.getCodeRecepteurPharmaMl();
         idRecepteurPharmaMl = fournisseur.getIdRecepteurPharmaMl();
-        GroupeFournisseur groupeFournisseur = fournisseur.getGroupeFournisseur();
-        if (groupeFournisseur != null) {
-            groupeFournisseurId = groupeFournisseur.getId();
-            groupeFournisseurLibelle = groupeFournisseur.getLibelle();
+        Fournisseur parent = fournisseur.getParent();
+        if (parent != null) {
+            parentId = parent.getId();
+            parentLibelle = parent.getLibelle();
         }
     }
 
@@ -164,20 +167,36 @@ public class FournisseurDTO implements Serializable {
         this.identifiantRepartiteur = identifiantRepartiteur;
     }
 
-    public Integer getGroupeFournisseurId() {
-        return groupeFournisseurId;
+    public Integer getParentId() {
+        return parentId;
     }
 
-    public void setGroupeFournisseurId(Integer groupeFournisseurId) {
-        this.groupeFournisseurId = groupeFournisseurId;
+    public void setParentId(Integer parentId) {
+        this.parentId = parentId;
     }
 
-    public String getGroupeFournisseurLibelle() {
-        return groupeFournisseurLibelle;
+    public String getParentLibelle() {
+        return parentLibelle;
     }
 
-    public void setGroupeFournisseurLibelle(String groupeFournisseurLibelle) {
-        this.groupeFournisseurLibelle = groupeFournisseurLibelle;
+    public void setParentLibelle(String parentLibelle) {
+        this.parentLibelle = parentLibelle;
+    }
+
+    public Integer getOdre() {
+        return odre;
+    }
+
+    public void setOdre(Integer odre) {
+        this.odre = odre;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public Integer getJoursCredit() { return joursCredit; }

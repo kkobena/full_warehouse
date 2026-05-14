@@ -1,11 +1,10 @@
-import { AfterViewInit, Component, ElementRef, inject, input, OnInit, output, viewChild } from "@angular/core";
+import { Component, ElementRef, inject, input, OnInit, output, viewChild } from "@angular/core";
 import { HttpResponse } from "@angular/common/http";
+import { IFournisseur } from "../../../../shared/model/fournisseur.model";
 import { Observable } from "rxjs";
 import { Commande, ICommande } from "app/shared/model/commande.model";
 import { CommandeService } from "../../../../entities/commande/commande.service";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
-import { IFournisseur } from "../../../../shared/model/fournisseur.model";
-import { FournisseurService } from "../../../../entities/fournisseur/fournisseur.service";
 import { IOrderLine, OrderLine } from "../../../../shared/model/order-line.model";
 import { ErrorService } from "../../../../shared/error.service";
 import { IResponseCommande } from "../../../../shared/model/response-commande.model";
@@ -17,7 +16,7 @@ import { InputTextModule } from "primeng/inputtext";
 import { TagModule } from "primeng/tag";
 import { FileUploadModule } from "primeng/fileupload";
 import { TooltipModule } from "primeng/tooltip";
-import { SelectModule } from "primeng/select";
+import { FournisseurSelectComponent } from "../../../partners/ui/fournisseur-select/fournisseur-select.component";
 import { InputGroup } from "primeng/inputgroup";
 import { InputGroupAddon } from "primeng/inputgroupaddon";
 import { DeliveryModalComponent } from "../../ui/delivery/delivery-modal/delivery-modal.component";
@@ -74,21 +73,20 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
     InputTextModule,
     TagModule,
     CommandeProductSearchComponent,
+    FournisseurSelectComponent,
     FileUploadModule,
     TooltipModule,
-    SelectModule,
     InputGroup,
     InputGroupAddon,
     SplitButton,
     AgGridAngular
   ]
 })
-export class CommandeRequestedComponent implements OnInit, AfterViewInit {
+export class CommandeRequestedComponent implements OnInit {
   commande = input<ICommande | null | undefined>(null);
   commandeChange = output<ICommande | null>();
 
   protected orderLines: IOrderLine[] = [];
-  protected fournisseurs: IFournisseur[] = [];
   protected selectedEl: IOrderLine[] = [];
   protected quantiteSaisie = 1;
   protected produitSelected: ProduitSearch | null = null;
@@ -98,7 +96,6 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
   protected currentCommande?: ICommande | null = null;
 
   protected readonly quantityBox = viewChild.required<ElementRef>("quantityBox");
-  protected readonly fournisseurBox = viewChild<any>("fournisseurBox");
   protected readonly productSearch = viewChild.required<CommandeProductSearchComponent>("productSearch");
 
   // ─── AG Grid ─────────────────────────────────────────────────────────────────
@@ -297,7 +294,6 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly notificationService = inject(NotificationService);
   private readonly commandeService = inject(CommandeService);
-  private readonly fournisseurService = inject(FournisseurService);
   private readonly modalService = inject(NgbModal);
   private readonly errorService = inject(ErrorService);
   private readonly commandCommonService = inject(CommandCommonService);
@@ -385,15 +381,7 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
     } else {
       this.selectedProvider = null;
     }
-    this.loadFournisseurs();
-
     //this.loadSeuilMontant();
-  }
-
-  ngAfterViewInit(): void {
-    if (!this.currentCommande?.id) {
-      setTimeout(() => this.fournisseurBox()?.inputEL?.nativeElement?.focus(), 100);
-    }
   }
 
   protected previousState(): void {
@@ -557,7 +545,8 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
     this.focusAndSelect(this.quantityBox().nativeElement, 50);
   }
 
-  protected onProviderSelect(): void {
+  protected onFournisseurSelected(f: IFournisseur | null): void {
+    this.selectedProvider = f?.id ?? null;
     if (this.currentCommande?.id) {
       this.changeGrossiste();
     } else {
@@ -672,13 +661,6 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
       error: err => this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur")
     });
   }
-
-  private loadFournisseurs(search = ""): void {
-    this.fournisseurService
-      .query({ page: 0, size: 9999, search })
-      .subscribe({ next: (res: HttpResponse<IFournisseur[]>) => (this.fournisseurs = res.body!) });
-  }
-
 
   private reloadCommande(): void {
     if (!this.currentCommande?.commandeId) return;

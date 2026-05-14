@@ -161,7 +161,7 @@
                 [showCurrentPageReport]="true"
                 [totalRecords]="totalItems()"
                 [value]="products()"
-                class="p-datatable-sm pharma-table"
+                class="p-datatable-sm "
                 currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
               >
                 <ng-template #header>
@@ -322,7 +322,7 @@
                 [showCurrentPageReport]="true"
                 [totalRecords]="totalItems()"
                 [value]="unsoldProducts()"
-                class="p-datatable-sm pharma-table"
+                class="p-datatable-sm"
                 currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
               >
                 <ng-template #header>
@@ -445,15 +445,11 @@
           </div>
           <div class="col-6">
             <label class="form-label text-sm">Fournisseur</label>
-            <p-select
-              [(ngModel)]="selectedFournisseur"
-              [options]="fournisseurOptions()"
-              [showClear]="true"
-              appendTo="body"
-              class="w-100"
-              dataKey="id"
-              optionLabel="libelle"
+            <app-fournisseur-select
+              [grouped]="true"
+              [selectedId]="selectedFournisseur()?.id ?? null"
               placeholder="Sélectionner un fournisseur"
+              (selectionChange)="selectedFournisseur.set($event)"
             />
           </div>
         </div>

@@ -1,12 +1,13 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.FournisseurProduit;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface FournisseurProduitRepository extends JpaRepository<FournisseurProduit, Integer> {
@@ -27,7 +28,20 @@ public interface FournisseurProduitRepository extends JpaRepository<FournisseurP
     @Query("SELECT COUNT(o) FROM FournisseurProduit o WHERE  o.produit.id=?1")
     long countByProduit(Integer produitId);
 
+    @Query("""
+        SELECT o FROM FournisseurProduit o
+        WHERE o.produit.id = ?1
+          AND (o.fournisseur.id = ?2
+               OR o.fournisseur.id = (SELECT f.parent.id FROM Fournisseur f WHERE f.id = ?2 AND f.parent IS NOT NULL))
+        """)
     Optional<FournisseurProduit> findOneByProduitIdAndFournisseurId(Integer produitId, Integer fournisseurId);
+
+    @Query("""
+        SELECT o FROM FournisseurProduit o
+        WHERE o.produit.id = ?1
+          AND o.fournisseur.id = ?2
+        """)
+    Optional<FournisseurProduit> findOneByProduitIdAndFournisseurParentId(Integer produitId, Integer fournisseurParentId);
 
     List<FournisseurProduit> findAllByFournisseurIdAndProduitParentIsNull(Integer produitId, Pageable pageable);
 

@@ -239,11 +239,20 @@ public class StockEntryServiceImpl implements StockEntryService {
 
     private StockEntryResultDTO finalizeSaisie(DeliveryReceiptLiteDTO deliveryReceiptLite) {
         Commande deliveryReceipt = getReferenceById(deliveryReceiptLite.getCommandeId());
+        if (deliveryReceipt.getOrderStatus() == OrderStatut.CLOSED) {
+            throw new GenericError(
+                String.format(
+                    "Le bon de livraison %s est déjà finalisé. Impossible de le finaliser à nouveau.",
+                    deliveryReceipt.getReceiptReference()
+                ),
+                "bonDejaFinalise"
+            );
+        }
         LocalDate receiptDate = deliveryReceipt.getReceiptDate();
         final boolean lotActif = appConfigurationService.useLot().orElse(false);
         final boolean conformeSansLot = BooleanUtils.isTrue(deliveryReceiptLite.getConformeSansLot());
         final LocalDate minAcceptableDate = LocalDate.now().plusDays(appConfigurationService.getReceptionMinExpiryDays());
-        // TODO: liste des vente en avoir pour envoi possible de notif et de mail
+
         deliveryReceipt
             .getOrderLines()
             .forEach(orderLine -> {
@@ -254,6 +263,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                 }
                 FournisseurProduit fournisseurProduit = orderLine.getFournisseurProduit();
                 Produit produit = fournisseurProduit.getProduit();
+                int oldPrixAchat = fournisseurProduit.getPrixAchat();
                 if (!cipNotSet.test(orderLine)) {
                     throw new GenericError(
                         String.format(
@@ -314,7 +324,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                     produit.setPrixMnp(
                         produitService.calculPrixMoyenPondereReception(
                             orderLine.getInitStock(),
-                            fournisseurProduit.getPrixAchat(), quantiteFinal,
+                            oldPrixAchat, quantiteFinal,
                             orderLine.getOrderCostAmount()
                         )
                     );
@@ -342,7 +352,6 @@ public class StockEntryServiceImpl implements StockEntryService {
         avoirClientDocumentService.linkCommandeToAvoirs(deliveryReceipt);
         return new StockEntryResultDTO(deliveryReceipt.getId(), List.of());
     }
-
 
 
     private void cloneOrderLine(OrderLine orderLine, Commande commande) {
@@ -394,7 +403,7 @@ public class StockEntryServiceImpl implements StockEntryService {
 
         buildDeliveryReceipt(deliveryReceiptLite, commande);
         List<OrderLine> orderLines = commande.getOrderLines();
-      //  orderLines.forEach(this::updateReceivedQty);
+        //  orderLines.forEach(this::updateReceivedQty);
         this.orderLineService.saveAll(orderLines);
         return fromEntity(commandeRepository.saveAndFlush(commande));
     }
@@ -1101,7 +1110,6 @@ public class StockEntryServiceImpl implements StockEntryService {
         boolean prixUniChanged = (orderLine.getOrderUnitPrice() + montantAdditionel) != (fournisseurProduit.getPrixUni() + montantAdditionel);
 
         if (prixAchatChanged || prixUniChanged) {
-            // : Enregistrer l'historique avant modification
             priceHistoryRepository.save(
                 new FournisseurProduitPriceHistory()
                     .setFournisseurProduit(fournisseurProduit)

@@ -143,7 +143,7 @@ const routes: Routes = [
     path: "fournisseur",
     data: { pageTitle: "warehouseApp.fournisseur.home.title", abilitySubject: "fournisseurs" },
     canActivate: [AuthGuard],
-    loadChildren: () => import("./fournisseur/fournisseur.route")
+    loadChildren: () => import("../features/partners/partners.routes").then(m => m.PARTNERS_ROUTES)
   },
   {
     path: "mvt-caisse",

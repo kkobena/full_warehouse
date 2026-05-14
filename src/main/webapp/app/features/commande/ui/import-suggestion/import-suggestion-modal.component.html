@@ -27,19 +27,10 @@
             style="width:13rem"
           />
         </p-iconfield>
-        <p-multiSelect
-          [options]="fournisseurOptions()"
-          [ngModel]="selectedFournisseurIds()"
-          (ngModelChange)="selectedFournisseurIds.set($event ?? [])"
-          optionLabel="libelle"
-          optionValue="id"
+        <app-fournisseur-select
+          [multiple]="true"
           placeholder="Tous les fournisseurs"
-          [maxSelectedLabels]="1"
-          selectedItemsLabel="{0} fournisseur(s)"
-          [showClear]="true"
-          [filter]="true"
-          size="small"
-          style="min-width:12rem"
+          (multiSelectionChange)="onFournisseursSelected($event)"
         />
         <span class="text-muted small ms-auto">{{ suggestions().length }} résultat(s)</span>
       </div>

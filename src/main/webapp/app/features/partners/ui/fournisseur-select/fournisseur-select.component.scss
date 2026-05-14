@@ -1,0 +1,25 @@
+.fournisseur-group-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--p-primary-color, #4f46e5);
+
+  i {
+    font-size: 0.85rem;
+  }
+
+  &--standalone {
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--p-text-color, #374151);
+
+    i {
+      color: var(--p-text-muted-color, #6b7280);
+    }
+  }
+}

@@ -1,0 +1,224 @@
+<jhi-spinner #spinner></jhi-spinner>
+
+<div class="pharma-smart-content p-2">
+  <div class="pharma-toolbar">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-briefcase"></i>
+      <span class="pharma-toolbar-title">Gestion des fournisseurs</span>
+    </div>
+
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters">
+          <div class="pharma-search-input">
+            <p-iconfield>
+              <p-inputicon class="pi pi-search" />
+              <input pInputText placeholder="Rechercher un fournisseur…"
+                     [(ngModel)]="search" (keyup.enter)="loadPage(0)" type="text" />
+            </p-iconfield>
+          </div>
+        </div>
+      </ng-template>
+      <ng-template #end>
+        <div class="pharma-button-group">
+          <p-button (click)="showFileDialog()" icon="pi pi-upload" label="Importer"
+                    [raised]="true" severity="help" type="button" />
+          <p-button (click)="openNewParent()" icon="pi pi-plus" label="Nouveau fournisseur"
+                    [raised]="true" severity="success" type="button" />
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <p-table
+    [value]="fournisseurs"
+    [lazy]="true"
+    [loading]="loading()"
+    [paginator]="true"
+    [rows]="itemsPerPage"
+    [totalRecords]="totalItems"
+    [scrollable]="true"
+    (onLazyLoad)="lazyLoading($event)"
+    (onRowExpand)="onRowExpand($event)"
+    dataKey="id"
+    rowExpandMode="multiple"
+    class="p-datatable-sm"
+    stripedRows="true"
+  >
+    <ng-template #header>
+      <tr class="pharma-table-head">
+        <th style="width: 3rem"></th>
+        <th><span>Code</span></th>
+        <th><span>Libellé</span></th>
+        <th><span>Mobile</span></th>
+        <th><span>Téléphone</span></th>
+        <th><span>Adresse postale</span></th>
+        <th><span>Site web</span></th>
+        <th><span>Id. grossiste</span></th>
+        <th><span>Délai livraison (j)</span></th>
+        <th><span>Fréq. commande (j)</span></th>
+        <th><span>Jours crédit</span></th>
+        <th><span>Jours critique</span></th>
+        <th><span>Seuil RFA (FCFA)</span></th>
+        <th><span>Taux RFA (%)</span></th>
+        <th class="text-center"><span>PharmaML</span></th>
+        <th><span>Code officine</span></th>
+        <th><span>Code destinataire</span></th>
+        <th><span>N° client grossiste</span></th>
+        <th class="text-center"><span>Agences</span></th>
+        <th pFrozenColumn alignFrozen="right" style="width: 8rem"></th>
+      </tr>
+    </ng-template>
+
+    <!-- ── Ligne principale : fournisseur parent ── -->
+    <ng-template #body let-expanded="expanded" let-f>
+      <tr [pSelectableRow]="f">
+        <td>
+          <p-button [pRowToggler]="f"
+                    [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                    [text]="true" [rounded]="true" severity="secondary" size="small"
+                    pTooltip="{{ expanded ? 'Masquer les agences' : 'Voir les agences' }}" />
+        </td>
+        <td><span class="pharma-code">{{ f.code }}</span></td>
+        <td><div class="pharma-entity-name">{{ f.libelle }}</div></td>
+        <td>{{ f.mobile }}</td>
+        <td>{{ f.phone }}</td>
+        <td>{{ f.addressePostal }}</td>
+        <td>{{ f.site }}</td>
+        <td>{{ f.identifiantRepartiteur }}</td>
+        <td>{{ f.delaiLivraisonJours }}</td>
+        <td>{{ f.frequenceCommandeJours }}</td>
+        <td>{{ f.joursCredit }}</td>
+        <td>{{ f.joursCritique }}</td>
+        <td>{{ f.palierRfa }}</td>
+        <td>{{ f.tauxRfa }}</td>
+        <td class="text-center">
+          @if (f.urlPharmaMl) {
+            <i class="pi pi-check-circle text-success" pTooltip="{{ f.urlPharmaMl }}"></i>
+          } @else {
+            <i class="pi pi-minus-circle text-muted" pTooltip="PharmaML non configuré"></i>
+          }
+        </td>
+        <td>{{ f.codeOfficePharmaMl }}</td>
+        <td>{{ f.codeRecepteurPharmaMl }}</td>
+        <td>{{ f.idRecepteurPharmaMl }}</td>
+        <td class="text-center">
+          @let agences = agencesOf(f.id!);
+          @if (agencesMap().has(f.id!)) {
+            <p-tag [value]="agences.length + ''" [severity]="agences.length > 0 ? 'info' : 'secondary'"
+                   [rounded]="true" />
+          }
+        </td>
+        <td pFrozenColumn alignFrozen="right" class="text-end">
+          <p-buttonGroup>
+            <p-button (click)="editFournisseur(f)" icon="pi pi-pencil"
+                      [text]="true" [rounded]="true" severity="success" pTooltip="Modifier" />
+            <p-button (click)="addAgence(f)" icon="pi pi-building"
+                      [text]="true" [rounded]="true" severity="info" pTooltip="Ajouter une agence" />
+            <p-button (click)="deleteParent(f)" icon="pi pi-trash"
+                      [text]="true" [rounded]="true" severity="danger" pTooltip="Supprimer" />
+          </p-buttonGroup>
+        </td>
+      </tr>
+    </ng-template>
+
+    <!-- ── Ligne étendue : agences ── -->
+    <ng-template #expandedrow let-f>
+      <tr class="pharma-expanded-row">
+        <td colspan="20">
+          <div class="expanded-row-container">
+
+            @if (isLoadingAgences(f.id!)) {
+              <div class="d-flex align-items-center gap-2 text-muted py-2 px-3">
+                <i class="pi pi-spin pi-spinner"></i>
+                <span>Chargement des agences…</span>
+              </div>
+            } @else {
+              @let agences = agencesOf(f.id!);
+              @if (agences.length === 0) {
+                <div class="d-flex align-items-center gap-2 text-muted fst-italic py-2 px-3">
+                  <i class="pi pi-info-circle"></i>
+                  <span>Aucune agence — les commandes sont passées directement à ce fournisseur.</span>
+                </div>
+              } @else {
+                <div class="expanded-cards-container">
+                  <div class="activity-card activity-card-info">
+                    <div class="activity-card-header">
+                      <div class="activity-card-icon activity-card-icon-small">
+                        <i class="pi pi-building"></i>
+                      </div>
+                      <div class="activity-card-header-content">
+                        <h3 class="activity-card-title">Agences</h3>
+                        <span class="activity-card-subtitle">{{ agences.length }} agence(s) rattachée(s)</span>
+                      </div>
+                    </div>
+                    <div class="activity-card-table-body">
+                      <p-table [value]="agences" [scrollable]="true" class="pharma-table rowexpansion-table" stripedRows="true">
+                        <ng-template #header>
+                          <tr class="pharma-table-head">
+                            <th><span>Code</span></th>
+                            <th><span>Libellé</span></th>
+                            <th><span>Mobile</span></th>
+                            <th><span>Téléphone</span></th>
+                            <th><span>Adresse</span></th>
+                            <th><span>Site web</span></th>
+                            <th><span>Délai livr. (j)</span></th>
+                            <th><span>Id. grossiste</span></th>
+                            <th class="text-center"><span>PharmaML</span></th>
+                            <th><span>Code officine</span></th>
+                            <th><span>Code destinataire</span></th>
+                            <th><span>N° client grossiste</span></th>
+                            <th pFrozenColumn alignFrozen="right" style="width: 7rem"></th>
+                          </tr>
+                        </ng-template>
+                        <ng-template #body let-agence>
+                          <tr>
+                            <td><span class="pharma-code">{{ agence.code }}</span></td>
+                            <td><div class="pharma-entity-name">{{ agence.libelle }}</div></td>
+                            <td>{{ agence.mobile }}</td>
+                            <td>{{ agence.phone }}</td>
+                            <td>{{ agence.addressePostal }}</td>
+                            <td>{{ agence.site }}</td>
+                            <td>{{ agence.delaiLivraisonJours }}</td>
+                            <td>{{ agence.identifiantRepartiteur }}</td>
+                            <td class="text-center">
+                              @if (agence.urlPharmaMl) {
+                                <i class="pi pi-check-circle text-success" pTooltip="{{ agence.urlPharmaMl }}"></i>
+                              } @else {
+                                <i class="pi pi-minus-circle text-muted" pTooltip="PharmaML non configuré"></i>
+                              }
+                            </td>
+                            <td>{{ agence.codeOfficePharmaMl }}</td>
+                            <td>{{ agence.codeRecepteurPharmaMl }}</td>
+                            <td>{{ agence.idRecepteurPharmaMl }}</td>
+                            <td pFrozenColumn alignFrozen="right" class="text-end">
+                              <p-buttonGroup>
+                                <p-button (click)="editFournisseur(agence)" size="small" icon="pi pi-pencil"
+                                          [text]="true" [rounded]="true" severity="success" pTooltip="Modifier" />
+                                <p-button (click)="deleteAgence(agence, f.id!)" icon="pi pi-trash"
+                                          [text]="true" [rounded]="true" size="small" severity="danger" pTooltip="Supprimer" />
+                              </p-buttonGroup>
+                            </td>
+                          </tr>
+                        </ng-template>
+                      </p-table>
+                    </div>
+                  </div>
+                </div>
+              }
+            }
+
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="20">
+          <div class="alert alert-warning text-center">Aucun fournisseur trouvé.</div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

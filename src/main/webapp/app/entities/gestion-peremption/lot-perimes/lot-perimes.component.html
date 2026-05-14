@@ -14,6 +14,7 @@
             (onChange)="onFilterChange()"
             [(ngModel)]="selectedType"
             [options]="types"
+            appendTo="body"
             [style]="{ 'min-width': '120px' }"
             optionLabel="label"
           ></p-select>
@@ -151,21 +152,11 @@
           <label for="rayons">{{ 'warehouseApp.labels.rayons' | translate }}</label>
         </p-floatlabel>
 
-        <p-floatlabel variant="on" [style]="{ 'min-width': '90px' }">
-          <p-select
-            (onChange)="onSearch()"
-            [(ngModel)]="selectedFournisseur"
-            [fluid]="true"
-            [options]="fournisseurs"
-            [showClear]="true"
-            [style]="{ 'min-width': '180px' }"
-            filter="true"
-            appendTo="body"
-            id="fournisseurs"
-            optionLabel="libelle"
-          ></p-select>
-          <label for="fournisseurs">{{ 'warehouseApp.labels.fournisseurs' | translate }}</label>
-        </p-floatlabel>
+        <app-fournisseur-select
+          [grouped]="true"
+          [selectedId]="selectedFournisseur?.id ?? null"
+          (selectionChange)="onFournisseurSelected($event)"
+        />
 
         <p-floatlabel variant="on" [style]="{ 'min-width': '90px' }">
           <p-select

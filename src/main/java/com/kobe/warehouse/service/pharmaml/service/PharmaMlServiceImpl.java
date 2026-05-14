@@ -6,7 +6,6 @@ import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
-import com.kobe.warehouse.domain.GroupeFournisseur;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.PharmaMlEnvoi;
 import com.kobe.warehouse.domain.Produit;
@@ -523,22 +522,15 @@ public class PharmaMlServiceImpl implements PharmaMlService {
     }
 
     private void prevalidate(Fournisseur fournisseur) {
-        GroupeFournisseur groupeFournisseur = fournisseur.getGroupeFournisseur();
-        if (isNull(groupeFournisseur)) {
-            throw new GenericError(
-                String.format("Le fournisseur %s n'est pas configuré pour PharmaML",
-                    fournisseur.getLibelle()),
-                "fournisseurNonConfigurePharmaMl"
-            );
-        }
+        Fournisseur config = fournisseur.getParent() != null ? fournisseur.getParent() : fournisseur;
         if (
-            !StringUtils.hasLength(groupeFournisseur.getUrlPharmaMl()) ||
-                !StringUtils.hasLength(groupeFournisseur.getCodeRecepteurPharmaMl()) ||
-                !StringUtils.hasLength(groupeFournisseur.getIdRecepteurPharmaMl())
+            !StringUtils.hasLength(config.getUrlPharmaMl()) ||
+                !StringUtils.hasLength(config.getCodeRecepteurPharmaMl()) ||
+                !StringUtils.hasLength(config.getIdRecepteurPharmaMl())
         ) {
             throw new GenericError(
                 String.format(
-                    "Veuillez configurer les informations relatives à PharmaML pour %s dans le groupe auquel il appartient",
+                    "Veuillez configurer les informations relatives à PharmaML pour %s",
                     fournisseur.getLibelle()
                 ),
                 "fournisseurNonConfigurePharmaMl"

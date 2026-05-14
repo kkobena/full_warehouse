@@ -192,15 +192,10 @@
                  placeholder="Référence, fournisseur…" type="text" />
         </p-iconfield>
 
-        <p-select
-          (onChange)="onFournisseurChange($event)"
-          [options]="fournisseurs"
-          [showClear]="true"
-          appendTo="body"
+        <app-fournisseur-select
           class="lb-select"
-          optionLabel="libelle"
-          optionValue="id"
           placeholder="Fournisseur"
+          (selectionChange)="onFournisseurChange($event)"
         />
 
         <p-floatlabel class="lb-date" variant="on">

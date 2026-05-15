@@ -4,12 +4,13 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { IRayon, TYPE_ZONE_SEVERITY } from '../../models/rayon.model';
+import { ButtonGroup } from "primeng/buttongroup";
 
 @Component({
   selector: 'app-rayon-list',
   templateUrl: './rayon-list.component.html',
   styleUrl: './rayon-list.component.scss',
-  imports: [TableModule, ButtonModule, TagModule, TooltipModule],
+  imports: [TableModule, ButtonModule, TagModule, TooltipModule, ButtonGroup]
 })
 export class RayonListComponent {
   readonly rayons = input<IRayon[]>([]);

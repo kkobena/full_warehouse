@@ -29,7 +29,8 @@
         </p-iconfield>
         <app-fournisseur-select
           [multiple]="true"
-          placeholder="Tous les fournisseurs"
+          class="flex-grow-1 min-w-0"
+          [grouped]="true"
           (multiSelectionChange)="onFournisseursSelected($event)"
         />
         <span class="text-muted small ms-auto">{{ suggestions().length }} résultat(s)</span>

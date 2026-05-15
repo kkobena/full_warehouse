@@ -201,6 +201,7 @@ export class SuggestionHomeComponent {
     const modalRef = this.modalService.open(SuggestionComparaisonComponent, {
       size: "lg",
       scrollable: true,
+      centered:true,
       injector: this.injector
     });
     modalRef.componentInstance.produitId = ligne.produitId;

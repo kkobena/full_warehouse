@@ -400,7 +400,7 @@
                 <td class="text-muted small">{{ row.orderReference ?? '—' }}</td>
                 <td class="text-center text-muted small">{{ row.orderDate | date: 'dd/MM/yyyy' }}</td>
                 <td class="text-end">
-                  <p-button icon="pi pi-arrow-right" size="small" [text]="true" severity="secondary" pTooltip="Saisir la réception" (onClick)="openCommande(row)" />
+                  <p-button icon="pi pi-arrow-right" size="small" [text]="true" severity="secondary" pTooltip="Saisir la réception" (onClick)="openCommande(row)" tooltipPosition="left"/>
                 </td>
               </tr>
             </ng-template>

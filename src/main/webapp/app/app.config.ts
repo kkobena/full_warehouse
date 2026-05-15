@@ -13,7 +13,7 @@ import {
 } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideNgxWebstorage, withLocalStorage, withSessionStorage } from 'ngx-webstorage';
-import { providePrimeNG } from 'primeng/config';
+import { providePrimeNG, PrimeNG } from 'primeng/config';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import Aura from '@primeuix/themes/aura';
 
@@ -22,7 +22,7 @@ import routes from './app.routes';
 import { AppPageTitleStrategy } from './app-page-title-strategy';
 import { httpInterceptorProviders } from './core/interceptor';
 
-import { provideTranslateService, MissingTranslationHandler } from '@ngx-translate/core';
+import { provideTranslateService, MissingTranslationHandler, TranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { CustomMissingTranslationHandler } from './config/translation.config';
 import { translationInitializer } from './shared/language/translation.initializer';
@@ -91,7 +91,16 @@ export const appConfig: ApplicationConfig = {
     // --- Storage ---
     provideNgxWebstorage(withLocalStorage(), withSessionStorage()),
 
-    providePrimeNG({ theme: { preset: Aura } }),
+    providePrimeNG({
+      theme: { preset: Aura },
+      zIndex: { modal: 1100, overlay: 1060, menu: 1060, tooltip: 1200 },
+    }),
+    provideAppInitializer(() => {
+      const translate = inject(TranslateService);
+      const primeNGConfig = inject(PrimeNG);
+      translate.use('fr');
+      translate.stream('primeng').subscribe(data => primeNGConfig.setTranslation(data));
+    }),
     MessageService,
     ConfirmationService,
 

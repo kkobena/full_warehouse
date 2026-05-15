@@ -181,7 +181,7 @@ export class ProduitListComponent {
         label: "Prix de référence",
         icon: "pi pi-euro",
         command: () => this.emit("prix-reference")
-      },
+      }
     ];
 
     if (this.canEdit()) {
@@ -216,7 +216,7 @@ export class ProduitListComponent {
 
       items.push({ separator: true });
       items.push(
-        produit.status === 1
+        produit.status === "DISABLE"
           ? { label: "Réactiver", icon: "pi pi-play", command: () => this.emit("activate") }
           : { label: "Mettre en veille", icon: "pi pi-pause", command: () => this.emit("suspend") }
       );

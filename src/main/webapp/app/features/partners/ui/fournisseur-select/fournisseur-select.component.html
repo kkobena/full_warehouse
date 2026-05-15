@@ -18,7 +18,7 @@
       [fluid]="true"
       [style]="{ width: '100%' }"
     >
-      <ng-template #groupheader let-grp>
+      <ng-template #group let-grp>
         <div class="fournisseur-group-header" [class.fournisseur-group-header--standalone]="!grp.hasChildren">
           <i [class]="grp.hasChildren ? 'pi pi-sitemap' : 'pi pi-building'"></i>
           <span>{{ grp.label }}</span>

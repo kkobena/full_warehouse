@@ -73,6 +73,7 @@ public class ProduitDTO {
     private Boolean deconditionnable = false;
     private String codeEan;
     private String rayonLibelle;
+    private String rayonPosition;
     private Integer rayonId;
     private Integer storageId;
     private List<PrixReferenceDTO> prixReference = new ArrayList<>();
@@ -712,6 +713,15 @@ public class ProduitDTO {
 
     public ProduitDTO setRayonLibelle(String rayonLibelle) {
         this.rayonLibelle = rayonLibelle;
+        return this;
+    }
+
+    public String getRayonPosition() {
+        return rayonPosition;
+    }
+
+    public ProduitDTO setRayonPosition(String rayonPosition) {
+        this.rayonPosition = rayonPosition;
         return this;
     }
 

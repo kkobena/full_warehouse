@@ -17,9 +17,6 @@ export class RayonService {
 
   private readonly resourceUrl = SERVER_API_URL + 'api/rayons';
 
-  create(rayon: IRayon): Observable<EntityResponseType> {
-    return this.http.post<IRayon>(this.resourceUrl, rayon, { observe: 'response' });
-  }
 
   update(rayon: IRayon): Observable<EntityResponseType> {
     return this.http.put<IRayon>(this.resourceUrl, rayon, { observe: 'response' });
@@ -46,7 +43,5 @@ export class RayonService {
     return this.http.post<IResponseDto>(`${this.resourceUrl}/clone/${storageId}`, ids, { observe: 'response' });
   }
 
-  uploadRayonFile(file: any): Observable<HttpResponse<IResponseDto>> {
-    return this.http.post<IResponseDto>(`${this.resourceUrl}/importcsv`, file, { observe: 'response' });
-  }
+
 }

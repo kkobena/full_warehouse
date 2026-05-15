@@ -61,7 +61,18 @@ export class FournisseurSelectComponent implements OnInit {
     effect(() => {
       const id = this.selectedId();
       const list = this.fournisseurs();
-      this.selectedSingle = id != null ? (list.find(f => f.id === id) ?? null) : null;
+      if (id == null) {
+        this.selectedSingle = null;
+        return;
+      }
+      const found = list.find(f => f.id === id) ?? null;
+      // En mode groupé, un principal qui possède des agences est un en-tête de groupe
+      // (non sélectionnable) — ne pas le pré-sélectionner pour éviter l'incohérence UI.
+      if (found && !found.parentId && this.grouped() && list.some(f => f.parentId === found.id)) {
+        this.selectedSingle = null;
+        return;
+      }
+      this.selectedSingle = found;
     });
   }
 

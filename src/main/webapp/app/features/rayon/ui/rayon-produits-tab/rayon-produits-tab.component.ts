@@ -27,7 +27,7 @@ export class RayonProduitsTabComponent {
   protected produits = signal<ProduitInRayon[]>([]);
   protected totalItems = signal(0);
   protected loading = signal(false);
-  protected rows = 20;
+  protected rows = 10;
   protected page = 0;
 
   protected selectedProduit: IProduit | null = null;

@@ -50,6 +50,7 @@ export interface IProduit {
   prixMnp?: number;
   codeEan?: string;
   rayonLibelle?: string;
+  rayonPosition?: string;
   stockProduits?: IStockProduit[];
   fournisseurProduits?: IFournisseurProduit[];
   fournisseurProduit?: IFournisseurProduit;
@@ -91,8 +92,8 @@ export interface IProduit {
   classeCriticite?: string;
   estMedicamentEssentiel?: boolean;
   estProduitGarde?: boolean;
-  /** 0 = ENABLE, 1 = DISABLE */
-  status?: number;
+
+  status?: string;
   dateperemption?: boolean;
   couvertureStockJours?: number;
   gestionLot?: boolean;

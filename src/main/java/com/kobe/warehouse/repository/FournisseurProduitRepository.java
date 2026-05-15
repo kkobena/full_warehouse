@@ -19,14 +19,12 @@ public interface FournisseurProduitRepository extends JpaRepository<FournisseurP
     @Query("SELECT COUNT(o) FROM FournisseurProduit o WHERE  o.codeCip=?1 AND o.fournisseur.id = ?2")
     long countFournisseurProduitByCodeCipAndFournisseurId(String codeCip, Integer produitFournisseurId);
 
-    @Query("SELECT COUNT(o) FROM FournisseurProduit o WHERE  o.codeCip=?1 AND o.fournisseur.id <> ?2")
-    long countByCodeCipAndFournisseurId(String codeCip, Integer produitFournisseurId);
+
 
     @Query("SELECT COUNT(o) FROM FournisseurProduit o WHERE  o.codeCip=?1 AND o.produit.id <> ?2")
     long countByCodeCipAndProduitId(String codeCip, Integer produitId);
 
-    @Query("SELECT COUNT(o) FROM FournisseurProduit o WHERE  o.produit.id=?1")
-    long countByProduit(Integer produitId);
+
 
     @Query("""
         SELECT o FROM FournisseurProduit o
@@ -36,14 +34,6 @@ public interface FournisseurProduitRepository extends JpaRepository<FournisseurP
         """)
     Optional<FournisseurProduit> findOneByProduitIdAndFournisseurId(Integer produitId, Integer fournisseurId);
 
-    @Query("""
-        SELECT o FROM FournisseurProduit o
-        WHERE o.produit.id = ?1
-          AND o.fournisseur.id = ?2
-        """)
-    Optional<FournisseurProduit> findOneByProduitIdAndFournisseurParentId(Integer produitId, Integer fournisseurParentId);
-
-    List<FournisseurProduit> findAllByFournisseurIdAndProduitParentIsNull(Integer produitId, Pageable pageable);
 
     List<FournisseurProduit> findByCodeCipContainingOrCodeEanContaining(String codeCip, String codeEan);
 

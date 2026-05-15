@@ -263,7 +263,7 @@ public final class ProduitBuilder {
                 .filter(r -> (r.getStorageType().equalsIgnoreCase(StorageType.PRINCIPAL.getValue()) && r.getMagasinId().equals(magasinId)))
                 .findFirst();
             rayon.ifPresent(rayonProduitDTO ->
-                produitDTO.setRayonId(rayonProduitDTO.getRayonId()).setRayonLibelle(rayonProduitDTO.getLibelleRayon())
+                produitDTO.setRayonId(rayonProduitDTO.getRayonId()).setRayonLibelle(rayonProduitDTO.getLibelleRayon()).setRayonPosition(rayonProduitDTO.getPosition())
             );
         }
         return produitDTO;
@@ -368,7 +368,7 @@ public final class ProduitBuilder {
 
             if (rayon.isPresent()) {
                 Rayon rayonProduitDTO = rayon.get().getRayon();
-                produitDTO.setRayonId(rayonProduitDTO.getId()).setRayonLibelle(rayonProduitDTO.getLibelle());
+                produitDTO.setRayonId(rayonProduitDTO.getId()).setRayonLibelle(rayonProduitDTO.getLibelle()).setRayonPosition(rayonProduitDTO.getPosition());
             }
         }
         return produitDTO;
@@ -417,6 +417,7 @@ public final class ProduitBuilder {
                     .getRayon();
                 dto.setRayonId(rayon.getId());
                 dto.setRayonLibelle(rayon.getLibelle());
+                dto.setRayonPosition(rayon.getPosition());
             } catch (Exception _) {
             }
         }

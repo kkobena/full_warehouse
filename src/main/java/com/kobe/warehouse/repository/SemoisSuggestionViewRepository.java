@@ -33,7 +33,9 @@ public interface SemoisSuggestionViewRepository extends JpaRepository<SemoisSugg
     @Query("""
         SELECT s FROM SemoisSuggestionView s
         WHERE (:classeCriticite IS NULL OR s.classeCriticite = :classeCriticite)
-          AND (:fournisseurId IS NULL OR s.fournisseurId = :fournisseurId)
+          AND (:fournisseurId IS NULL
+               OR s.fournisseurId = :fournisseurId
+               OR s.fournisseurId = (SELECT f.parent.id FROM Fournisseur f WHERE f.id = :fournisseurId AND f.parent IS NOT NULL))
           AND (:search IS NULL OR :search = '' OR
                LOWER(s.libelle) LIKE LOWER(CONCAT('%', :search, '%')) OR
                LOWER(s.codeCip) LIKE LOWER(CONCAT('%', :search, '%')))

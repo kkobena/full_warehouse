@@ -1908,12 +1908,10 @@ jhi-recapitualtif-caisse {
 }
 
 
-/* Overlays PrimeNG téléportés sur body (appendTo="body") — z-index > NgbModal (1055) */
-.p-multiselect-overlay,
-.p-multiselect-list-container,
-.p-select-overlay,
-.p-select-list-container,
-.p-datepicker-panel,
-.p-datepicker {
-  z-index: 1100 !important;
+/* Overlays PrimeNG téléportés sur body — z-index > NgbModal (1055).
+   - p-select/p-multiselect : z-index posé sur .p-overlay (wrapper p-overlay component)
+   - p-datePicker : z-index posé directement sur .p-datepicker-panel (pas de p-overlay wrapper) */
+.p-overlay,
+.p-datepicker-panel {
+  z-index: 1062 !important;
 }

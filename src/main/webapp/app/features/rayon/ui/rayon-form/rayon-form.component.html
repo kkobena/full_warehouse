@@ -21,31 +21,34 @@
         <input pInputText formControlName="code" id="rf-code" class="w-full" pKeyFilter="alphanum" autocomplete="off" />
         @if (isSansRayon) {
           <small class="text-muted">Code technique non modifiable.</small>
-        } @else if (editForm.get('code')?.invalid && editForm.get('code')?.touched) {
+        } @else if (editForm.get('code')?.errors?.['required'] && editForm.get('code')?.touched) {
           <small class="text-danger">Ce champ est obligatoire.</small>
+        } @else if (editForm.get('code')?.errors?.['pattern'] && editForm.get('code')?.touched) {
+          <small class="text-danger">Le code ne doit pas contenir d'espace.</small>
         }
       </div>
 
-      <div class="form-field" hidden>
-        <label for="rf-storage">Emplacement <span class="required">*</span></label>
+      <div class="form-field">
+        <label for="rf-storage">Zone de stockage <span class="required">*</span></label>
         <p-select
-          (onShow)="onDropdownShow($event)"
-          (onHide)="onDropdownHide($event)"
           formControlName="storageId"
           [options]="storages"
           optionLabel="storageType"
           optionValue="id"
           id="rf-storage"
           [fluid]="true"
+          appendTo="body"
           placeholder="Sélectionner"
         />
+        @if (editForm.get('storageId')?.invalid && editForm.get('storageId')?.touched) {
+          <small class="text-danger">Veuillez sélectionner une zone de stockage.</small>
+        }
       </div>
 
       <div class="form-field">
         <label for="rf-typeZone">Type de zone</label>
         <p-select
-          (onShow)="onDropdownShow($event)"
-          (onHide)="onDropdownHide($event)"
+          appendTo="body"
           formControlName="typeZone"
           [options]="typeZoneOptions"
           optionLabel="label"
@@ -59,13 +62,15 @@
 
       <div class="form-field">
         <label for="rf-position">Position</label>
-        <input pInputText formControlName="position" id="rf-position" class="w-full" autocomplete="off" />
+        <input pInputText formControlName="position" id="rf-position" class="w-full"
+               placeholder="Ex. : A3, R2-E5, façade gauche allée 2…" autocomplete="off" />
+        <small class="field-hint">Localisation physique du rayon dans la pharmacie (allée, étagère, numéro…).</small>
       </div>
 
-      <div class="form-field d-flex align-items-center gap-2 mt-2">
+     <!-- <div class="d-flex align-items-center gap-2 mt-2" style="width: fit-content;">
         <p-toggleswitch formControlName="exclude" inputId="rf-exclude" />
         <label for="rf-exclude" style="margin-bottom: 0; cursor: pointer">Exclure</label>
-      </div>
+      </div>-->
     </div>
   </div>
 

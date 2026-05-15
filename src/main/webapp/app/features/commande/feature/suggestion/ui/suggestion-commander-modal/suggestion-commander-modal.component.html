@@ -6,7 +6,7 @@
   <button type="button" class="btn-close" aria-label="Fermer" (click)="cancel()"></button>
 </div>
 
-<div class="modal-body d-flex flex-column p-0" style="overflow: hidden; max-height: calc(90vh - 130px);">
+<div class="modal-body d-flex flex-column p-2" style="overflow: hidden; max-height: calc(90vh - 130px);">
 
   <!-- ═══════════════════════════════════════════════════════════════════
        ZONE SCROLLABLE — tableau des lignes
@@ -14,44 +14,46 @@
   <div style="flex: 1 1 auto; overflow-y: auto; min-height: 0;">
 
     <!-- Tableau des lignes -->
-    <div class="table-responsive">
-      <table class="table table-sm table-hover mb-0">
-        <thead>
+    <p-table
+      [value]="lignes"
+      [scrollable]="true"
+      scrollHeight="flex"
+      class="p-datatable-sm"
+      size="small"
+    >
+      <ng-template #header>
         <tr class="pharma-table-head">
           <th style="width: 10rem;">CIP</th>
           <th>Produit</th>
           <th style="width: 4rem; text-align: right;">Qté</th>
-          <th style="width: 8rem; text-align: right;">Prix unit. (FCFA)</th>
+          <th style="width: 8rem; text-align: right;">Prix Achat. (FCFA)</th>
           <th style="width: 9rem; text-align: right;">Montant (FCFA)</th>
         </tr>
-        </thead>
-        <tbody>
-          @for (ligne of lignes; track ligne.id) {
-            <tr [class.table-warning]="ligne.quantiteModifiee">
-              <td>
-                <div class="text-muted" style="font-size: 0.75rem;">{{ ligne.codeCip }}</div>
-              </td>
-              <td>
-                <div class="fw-semibold" style="font-size: 0.85rem;">{{ ligne.libelle }}</div>
-              </td>
-              <td style="text-align: right; font-size: 0.875rem;">
-                {{ ligne.quantite | number : '1.0-0' }}
-                @if (ligne.quantiteModifiee) {
-                  <i class="pi pi-pencil ms-1 text-warning" style="font-size: 0.7rem;"
-                     title="Quantité modifiée manuellement"></i>
-                }
-              </td>
-              <td style="text-align: right; font-size: 0.875rem;">
-                {{ ligne.prixAchat | number : '1.0-0' }}
-              </td>
-              <td style="text-align: right; font-size: 0.875rem; font-weight: 500;">
-                {{ ligne.quantite * ligne.prixAchat | number : '1.0-0' }}
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+      </ng-template>
+      <ng-template #body let-ligne>
+        <tr [class]="ligne.quantiteModifiee ? 'row-modified' : ''">
+          <td>
+            <span class="pharma-code" style="font-size: 0.75rem;">{{ ligne.codeCip }}</span>
+          </td>
+          <td>
+            <span class="fw-semibold" style="font-size: 0.85rem;">{{ ligne.libelle }}</span>
+          </td>
+          <td style="text-align: right; font-size: 0.875rem;">
+          <span class="pharma-qty-value">{{ ligne.quantite | number : '1.0-0' }}</span>
+            @if (ligne.quantiteModifiee) {
+              <i class="pi pi-pencil ms-1 text-warning" style="font-size: 0.7rem;"
+                 title="Quantité modifiée manuellement"></i>
+            }
+          </td>
+          <td style="text-align: right; font-size: 0.875rem;">
+           <span class="pharma-price">{{ ligne.prixAchat | number : '1.0-0' }}</span>
+          </td>
+          <td style="text-align: right; font-size: 0.875rem; font-weight: 500;">
+          <span class="pharma-total">{{ ligne.quantite * ligne.prixAchat | number : '1.0-0' }}</span>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
 
     @if (lignesModifiees.length > 0) {
       <div class="d-flex align-items-center gap-2 px-3 py-2 bg-warning-subtle border-top border-warning-subtle">
@@ -84,12 +86,24 @@
 
     <div class="px-3 pb-2 pt-2">
 
-      <!-- ── Sélecteur de fournisseur (visible pour tous les modes) ──────── -->
+      <!-- ── Sélecteur fournisseur/agence ─────────────────────────────────── -->
       <div class="mb-3">
+
+        @if (hasAgences()) {
+          <!-- Bandeau : le principal a des agences → sélection obligatoire -->
+          <div class="d-flex align-items-center gap-2 px-3 py-2 mb-2 rounded border border-warning-subtle bg-warning-subtle">
+            <i class="pi pi-sitemap text-warning"></i>
+            <span style="font-size: 0.82rem;">
+              Sélectionnez l'agence de <strong class="text-warning-emphasis fw-semibold">{{ fournisseurLibelle }}</strong>  (ou un autre fournisseur) à qui passer la commande.
+            </span>
+          </div>
+        }
+
         <label class="form-label fw-semibold text-secondary mb-1"
                style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;">
-          Fournisseur de commande
+          Fournisseur de commande @if (hasAgences()) { <span class="text-danger">*</span> }
         </label>
+
         <div class="d-flex align-items-center gap-2">
           <app-fournisseur-select
             class="flex-grow-1 min-w-0"
@@ -97,17 +111,27 @@
             [grouped]="true"
             (selectionChange)="onFournisseurSelected($event)"
           />
-          @if (selectedFournisseur() !== null && selectedFournisseur()!.id !== fournisseurId) {
+          @if (isFournisseurDifferent) {
             <span class="badge text-bg-warning d-flex align-items-center gap-1" style="font-size: 0.75rem;">
-            <i class="pi pi-info-circle"></i>
-            Différent de la suggestion
-          </span>
+              <i class="pi pi-info-circle"></i>
+              Différent de la suggestion
+            </span>
           }
         </div>
-        <div class="text-muted mt-1" style="font-size: 0.75rem;">
-          <i class="pi pi-tag me-1"></i>
-          Fournisseur par défaut : <strong>{{ fournisseurLibelle }}</strong>
-        </div>
+
+        @if (hasAgences() && !selectedFournisseur()) {
+          <div class="text-danger mt-1" style="font-size: 0.75rem;">
+            <i class="pi pi-exclamation-circle me-1"></i>
+            Sélection requise.
+          </div>
+        } @else if (!hasAgences()) {
+          <div class="text-muted mt-1" style="font-size: 0.75rem;">
+            <i class="pi pi-tag me-1"></i>
+            <span class="fw-semibold">Fournisseur par défaut</span> :
+            <span class="pharma-badge pharma-badge-info">{{ fournisseurLibelle }}</span>
+          </div>
+        }
+
       </div>
 
       <!-- ── Mode de transmission ─────────────────────────────────────────── -->
@@ -205,6 +229,7 @@
     [label]="modeCommande() === 'PHARMAML' ? 'Valider et envoyer via PharmaML' : 'Valider et commander'"
     [icon]="modeCommande() === 'PHARMAML' ? 'pi pi-send' : 'pi pi-shopping-cart'"
     [severity]="modeCommande() === 'PHARMAML' ? 'primary' : 'success'"
+    [disabled]="!canConfirm()"
     (onClick)="confirm()"
   />
 </div>

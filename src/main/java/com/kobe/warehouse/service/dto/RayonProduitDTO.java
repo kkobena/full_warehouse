@@ -9,6 +9,7 @@ public class RayonProduitDTO {
 
     private String codeRayon;
     private String libelleRayon;
+    private String position;
     private String libelleStorage;
     private String storageType;
     private String magasin;
@@ -25,6 +26,7 @@ public class RayonProduitDTO {
         Magasin thatmagasin = storage.getMagasin();
         this.codeRayon = rayon.getCode();
         this.libelleRayon = rayon.getLibelle();
+        this.position = rayon.getPosition();
         this.libelleStorage = storage.getName();
         this.storageType = storage.getStorageType().getValue();
         this.magasin = thatmagasin.getName();
@@ -94,6 +96,15 @@ public class RayonProduitDTO {
 
     public RayonProduitDTO setLibelleRayon(String libelleRayon) {
         this.libelleRayon = libelleRayon;
+        return this;
+    }
+
+    public String getPosition() {
+        return position;
+    }
+
+    public RayonProduitDTO setPosition(String position) {
+        this.position = position;
         return this;
     }
 

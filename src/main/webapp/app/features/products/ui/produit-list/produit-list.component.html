@@ -31,7 +31,9 @@
       >J. stock</th>
       <th style="width: 68px; text-align: right" pTooltip="Marge brute : (PV − PA) / PV">Marge</th>
       <th style="width: 56px; text-align: center">Cl.</th>
-      <th>Statut</th>
+      <th style="width: 120px">Rayon</th>
+      <th>Etat</th>
+      <th style="width: 80px; text-align: center">Statut</th>
       <th style="width: 44px"></th>
     </tr>
   </ng-template>
@@ -95,8 +97,27 @@
         </span>
       </td>
       <td>
+        @if (produit.rayonLibelle) {
+          <span class="pharma-code" style="font-size: 0.75rem;">{{ produit.rayonLibelle }}</span>
+          @if (produit.rayonPosition) {
+            <span class="text-muted ms-1" style="font-size: 0.7rem;">· {{ produit.rayonPosition }}</span>
+          }
+        } @else {
+          <span class="text-muted" style="font-size: 0.7rem">—</span>
+        }
+      </td>
+      <td>
         @if (produit.etatProduit) {
           <jhi-eta-produit [etatProduit]="produit.etatProduit" [showLabel]="false" />
+        }
+      </td>
+      <td class="text-center">
+        @if (produit.status === 'DISABLE') {
+          <span class="pharma-badge pharma-badge-secondary">Veille</span>
+        } @else if (produit.status === 'DELETED') {
+          <span class="pharma-badge pharma-badge-danger">Supprimé</span>
+        } @else {
+          <span class="pharma-badge pharma-badge-success">Actif</span>
         }
       </td>
       <td class="text-end" (click)="$event.stopPropagation()">
@@ -115,7 +136,7 @@
 
   <ng-template #emptymessage>
     <tr>
-      <td colspan="9" class="pharma-empty-message">
+      <td colspan="11" class="pharma-empty-message">
         <div class="pharma-empty-content">
           <i class="pi pi-inbox"></i>
           <p>Aucun produit trouvé</p>

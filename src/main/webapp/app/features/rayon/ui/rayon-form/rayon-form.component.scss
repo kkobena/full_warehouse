@@ -4,13 +4,9 @@
   @include modal-theme;
 }
 
-.modal-body.overflow-visible {
-  overflow-y: visible !important;
-  overflow-x: visible !important;
+.field-hint {
+  font-size: 0.72rem;
+  color: var(--p-text-muted-color);
+  font-style: italic;
 }
 
-
-::ng-deep .p-select-overlay,
-::ng-deep .p-select-list-container {
-  z-index: 10000 !important;
-}

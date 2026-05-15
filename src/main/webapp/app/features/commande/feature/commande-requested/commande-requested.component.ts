@@ -504,6 +504,7 @@ export class CommandeRequestedComponent implements OnInit {
     const modalRef = this.modalService.open(ImportSuggestionModalComponent, {
       size: "xl",
       scrollable: true,
+      centered:true,
       backdrop: "static"
     });
     modalRef.componentInstance.commandeId = this.currentCommande!.commandeId;

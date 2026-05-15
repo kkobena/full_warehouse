@@ -90,7 +90,7 @@ export class ProduitHomeComponent implements OnInit {
   protected selectedFamilleId: number | null = null;
   protected selectedRayonId: number | null = null;
   protected page = 0;
-  protected rows = 10;
+  protected rows = 15;
   protected sortField = "libelle";
   protected sortOrder = 1;
 
@@ -231,7 +231,7 @@ export class ProduitHomeComponent implements OnInit {
         next: () => {
           completed++;
           this.produits.update(all =>
-            all.map(p => p.id === produit.id ? { ...p, status: status === "ENABLE" ? 0 : 1 } : p)
+            all.map(p => p.id === produit.id ? { ...p, status } : p)
           );
           if (completed === list.length) {
             this.selectedProduits.set([]);
@@ -298,10 +298,10 @@ export class ProduitHomeComponent implements OnInit {
       next: () => {
         // Mise à jour locale immédiate sans rechargement complet
         this.produits.update(list =>
-          list.map(p => p.id === produit.id ? { ...p, status: status === "ENABLE" ? 0 : 1 } : p)
+          list.map(p => p.id === produit.id ? { ...p, status } : p)
         );
         if (this.selectedProduit()?.id === produit.id) {
-          this.selectedProduit.update(p => p ? { ...p, status: status === "ENABLE" ? 0 : 1 } : null);
+          this.selectedProduit.update(p => p ? { ...p, status } : null);
         }
       }
     });

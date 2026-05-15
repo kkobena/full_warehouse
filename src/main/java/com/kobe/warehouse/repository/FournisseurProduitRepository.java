@@ -46,4 +46,6 @@ public interface FournisseurProduitRepository extends JpaRepository<FournisseurP
     List<FournisseurProduit> findAllByFournisseurIdAndProduitParentIsNull(Integer produitId, Pageable pageable);
 
     List<FournisseurProduit> findByCodeCipContainingOrCodeEanContaining(String codeCip, String codeEan);
+
+    Optional<FournisseurProduit> findFirstByCodeCip(String codeCip);
 }

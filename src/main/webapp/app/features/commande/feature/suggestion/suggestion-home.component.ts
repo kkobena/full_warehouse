@@ -396,6 +396,7 @@ export class SuggestionHomeComponent {
   ): void {
     const modalRef = this.modalService.open(SuggestionCommanderModalComponent, {
       size: "xl",
+      centered:true,
       backdrop: "static"
     });
     modalRef.componentInstance.fournisseurLibelle = fournisseur.libelle;

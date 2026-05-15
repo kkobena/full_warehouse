@@ -1,0 +1,77 @@
+<div class="rpt-header">
+  <div class="rpt-header__count">
+    <span class="rpt-count-label">Produits</span>
+    <span class="rpt-count-badge">{{ totalItems() }}</span>
+  </div>
+  <div class="rpt-header__search">
+    <p-autoComplete
+      [(ngModel)]="selectedProduit"
+      [suggestions]="searchSuggestions()"
+      (completeMethod)="onComplete($event)"
+      (onSelect)="onProduitSelected($event)"
+      optionLabel="libelle"
+      [fluid]="true"
+      placeholder="Rechercher et affecter un produit…"
+      appendTo="body"
+    >
+      <ng-template #item let-p>
+        <div class="d-flex gap-2 align-items-center">
+          <span class="pharma-code">{{ p.codeCip }}</span>
+          <span>{{ p.libelle }}</span>
+        </div>
+      </ng-template>
+    </p-autoComplete>
+  </div>
+</div>
+
+<div class="rpt-table-wrap">
+  <p-table
+    [value]="produits()"
+    [loading]="loading()"
+    [rows]="rows"
+    [totalRecords]="totalItems()"
+    [lazy]="true"
+    [paginator]="true"
+    [rowsPerPageOptions]="[20,30, 50, 100]"
+    [scrollable]="true"
+    scrollHeight="flex"
+    (onLazyLoad)="onLazyLoad($event)"
+    dataKey="id"
+    stripedRows="true"
+    class="p-datatable-sm"
+  >
+    <ng-template #header>
+      <tr class="pharma-table-head">
+        <th style="width: 14%">Code CIP</th>
+        <th>Libellé</th>
+        <th style="width: 10%; text-align: right">Stock total</th>
+        <th style="width: 5rem; text-align: center">Action</th>
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-produit>
+      <tr>
+        <td><span class="pharma-code">{{ produit.codeCip }}</span></td>
+        <td><span class="pharma-entity-name">{{ produit.libelle }}</span></td>
+        <td style="text-align: right">{{ produit.totalQuantity ?? 0 }}</td>
+        <td style="text-align: center">
+          @if (produit.rayonProduitId) {
+            <p-button
+              icon="pi pi-minus"
+              [rounded]="true" [text]="true" severity="danger"
+              pTooltip="Retirer du rayon"
+              tooltipPosition="left"
+              (onClick)="onRetirer(produit)"
+            />
+          }
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="4" class="text-center text-muted py-3">Aucun produit dans ce rayon</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

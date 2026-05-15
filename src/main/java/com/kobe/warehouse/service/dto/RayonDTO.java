@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.Storage;
+import com.kobe.warehouse.domain.enumeration.TypeZone;
 import java.io.Serializable;
 
 public class RayonDTO implements Serializable {
@@ -14,6 +15,8 @@ public class RayonDTO implements Serializable {
     private String storageLibelle;
     private String storageType;
     private long inventoryId;
+    private TypeZone typeZone;
+    private String position;
 
     public RayonDTO() {}
 
@@ -26,6 +29,8 @@ public class RayonDTO implements Serializable {
         this.storageId = storage.getId();
         this.storageLibelle = storage.getName();
         this.exclude = rayon.isExclude();
+        this.typeZone = rayon.getTypeZone();
+        this.position = rayon.getPosition();
     }
 
     public long getInventoryId() {
@@ -92,5 +97,23 @@ public class RayonDTO implements Serializable {
 
     public void setStorageLibelle(String storageLibelle) {
         this.storageLibelle = storageLibelle;
+    }
+
+    public TypeZone getTypeZone() {
+        return typeZone;
+    }
+
+    public RayonDTO setTypeZone(TypeZone typeZone) {
+        this.typeZone = typeZone;
+        return this;
+    }
+
+    public String getPosition() {
+        return position;
+    }
+
+    public RayonDTO setPosition(String position) {
+        this.position = position;
+        return this;
     }
 }

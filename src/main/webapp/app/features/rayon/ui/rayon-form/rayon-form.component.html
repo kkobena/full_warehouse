@@ -1,0 +1,94 @@
+<div class="modal-header">
+  <h4 class="modal-title">{{ header }}</h4>
+  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
+</div>
+
+<form (ngSubmit)="save()" [formGroup]="editForm" novalidate>
+  <div class="modal-body">
+    <div class="form-grid-compact">
+      <input formControlName="id" type="hidden" />
+
+      <div class="form-field form-field-full">
+        <label for="rf-libelle">Libellé <span class="required">*</span></label>
+        <input #libelleInput pInputText formControlName="libelle" id="rf-libelle" class="w-full" autocomplete="off" />
+        @if (editForm.get('libelle')?.invalid && editForm.get('libelle')?.touched) {
+          <small class="text-danger">Ce champ est obligatoire.</small>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="rf-code">Code @if (!isSansRayon) { <span class="required">*</span> }</label>
+        <input pInputText formControlName="code" id="rf-code" class="w-full" pKeyFilter="alphanum" autocomplete="off" />
+        @if (isSansRayon) {
+          <small class="text-muted">Code technique non modifiable.</small>
+        } @else if (editForm.get('code')?.invalid && editForm.get('code')?.touched) {
+          <small class="text-danger">Ce champ est obligatoire.</small>
+        }
+      </div>
+
+      <div class="form-field" hidden>
+        <label for="rf-storage">Emplacement <span class="required">*</span></label>
+        <p-select
+          (onShow)="onDropdownShow($event)"
+          (onHide)="onDropdownHide($event)"
+          formControlName="storageId"
+          [options]="storages"
+          optionLabel="storageType"
+          optionValue="id"
+          id="rf-storage"
+          [fluid]="true"
+          placeholder="Sélectionner"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="rf-typeZone">Type de zone</label>
+        <p-select
+          (onShow)="onDropdownShow($event)"
+          (onHide)="onDropdownHide($event)"
+          formControlName="typeZone"
+          [options]="typeZoneOptions"
+          optionLabel="label"
+          optionValue="value"
+          [showClear]="true"
+          id="rf-typeZone"
+          [fluid]="true"
+          placeholder="Sélectionner"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="rf-position">Position</label>
+        <input pInputText formControlName="position" id="rf-position" class="w-full" autocomplete="off" />
+      </div>
+
+      <div class="form-field d-flex align-items-center gap-2 mt-2">
+        <p-toggleswitch formControlName="exclude" inputId="rf-exclude" />
+        <label for="rf-exclude" style="margin-bottom: 0; cursor: pointer">Exclure</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <p-button
+      (click)="cancel()"
+      icon="pi pi-times"
+      label="Annuler"
+      severity="secondary"
+      [raised]="true"
+      type="button"
+    />
+    <p-button
+      [disabled]="editForm.invalid || isSaving"
+      [loading]="isSaving"
+      icon="pi pi-check"
+      label="Enregistrer"
+      severity="primary"
+      [raised]="true"
+      type="submit"
+    />
+  </div>
+</form>
+
+
+<p-toast position="center" />

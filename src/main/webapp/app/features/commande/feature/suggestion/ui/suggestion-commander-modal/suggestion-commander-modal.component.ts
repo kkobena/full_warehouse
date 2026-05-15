@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, Renderer2, signal } from "@angular/core";
+import { Component, inject, signal } from "@angular/core";
 import { CommonModule, DatePipe, DecimalPipe } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
@@ -25,8 +25,6 @@ export { CommanderModalResult } from "../../data-access/suggestion-commander.mod
 export class SuggestionCommanderModalComponent {
   private readonly activeModal = inject(NgbActiveModal);
   private readonly datePipe = inject(DatePipe);
-  private readonly renderer = inject(Renderer2);
-  private readonly elementRef = inject(ElementRef);
   // ─── Propriétés injectées via componentInstance ──────────────────────────
   fournisseurLibelle: string = "";
   /** ID du fournisseur par défaut de la suggestion. */
@@ -85,17 +83,4 @@ export class SuggestionCommanderModalComponent {
     this.activeModal.dismiss();
   }
 
-  protected onDropdownShow(event: any): void {
-    const modalBody = this.elementRef.nativeElement.querySelector(".modal-body");
-    if (modalBody) {
-      this.renderer.addClass(modalBody, "overflow-visible");
-    }
-  }
-
-  protected onDropdownHide(event: any): void {
-    const modalBody = this.elementRef.nativeElement.querySelector(".modal-body");
-    if (modalBody) {
-      this.renderer.removeClass(modalBody, "overflow-visible");
-    }
-  }
 }

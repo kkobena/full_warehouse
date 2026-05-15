@@ -282,21 +282,6 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         return commandeId;
     }
 
-    @Override
-    public void createCommandesFromSemois(List<SemoisCommanderDTO.LigneSemois> lignes) {
-        if (lignes == null || lignes.isEmpty()) {
-            LOG.warn("createCommandesFromSemois: aucune ligne fournie");
-            return;
-        }
-        // Grouper les lignes par fournisseur → 1 commande par fournisseur
-        Map<Integer, List<SemoisCommanderDTO.LigneSemois>> byFournisseur = lignes.stream()
-            .collect(Collectors.groupingBy(SemoisCommanderDTO.LigneSemois::fournisseurId));
-
-        byFournisseur.forEach(commandService::createCommandeFromSemoisLines
-        );
-        LOG.info("createCommandesFromSemois: {} commandes créées depuis {} lignes SEMOIS",
-            byFournisseur.size(), lignes.size());
-    }
 
     @Override
     @Transactional(readOnly = true)

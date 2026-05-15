@@ -3,14 +3,17 @@ package com.kobe.warehouse.service.stock.impl;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.enumeration.InventoryCategory;
+import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.service.reassort.SuggestionReassortService;
 import com.kobe.warehouse.service.reassort.dto.ReassortRecord;
 import com.kobe.warehouse.service.stock.InventoryClosedEvent;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -42,6 +45,12 @@ public class InventoryClosedEventListener {
 
     private static final Logger log = LoggerFactory.getLogger(InventoryClosedEventListener.class);
 
+    /** IN clause SQL des types "réserve" : non-vendables et participant au réassort. */
+    private static final String RESERVE_TYPES_IN = Arrays.stream(StorageType.values())
+        .filter(t -> !t.isVendable() && t.isReassortSuggere())
+        .map(t -> "'" + t.name() + "'")
+        .collect(Collectors.joining(", ", "(", ")"));
+
     /**
      * Types d'inventaire pour lesquels des suggestions de réassort sont pertinentes.
      * Exclus : PERIME, ALERTE_PEREMPTION (but = retrait/retour), VENDU/INVENDU (analytique),
@@ -59,10 +68,9 @@ public class InventoryClosedEventListener {
 
     /**
      * Produits dont le stock rayon (storage inventorié) &lt; seuil_mini ET qui ont du stock en
-     * réserve (SAFETY_STOCK) &gt; 0. → Suggestion : transférer de la réserve vers le rayon.
+     * réserve &gt; 0. → Suggestion : transférer de la réserve vers le rayon.
      */
-    private static final String SQL_RAYON_FROM_RESERVE =
-        """
+    private static final String SQL_RAYON_FROM_RESERVE = """
             SELECT sp_rayon.id AS sp_id,
                    (sp_reserve.qty_stock + sp_reserve.qty_ug) AS available_qty
             FROM store_inventory_line sil
@@ -71,21 +79,20 @@ public class InventoryClosedEventListener {
              AND sp_rayon.storage_id = sil.storage_id
             JOIN storage s_reserve
               ON s_reserve.magasin_id = :magasinId
-             AND s_reserve.storage_type = 'SAFETY_STOCK'
+             AND s_reserve.storage_type IN %s
             JOIN stock_produit sp_reserve
               ON sp_reserve.produit_id = sil.produit_id
              AND sp_reserve.storage_id = s_reserve.id
             WHERE sil.store_inventory_id = :inventoryId
               AND (sp_rayon.qty_stock + sp_rayon.qty_ug) < COALESCE(sp_rayon.seuil_mini, 0)
               AND (sp_reserve.qty_stock + sp_reserve.qty_ug) > 0
-            """;
+            """.formatted(RESERVE_TYPES_IN);
 
     /**
-     * Produits dont la réserve (SAFETY_STOCK) est à 0 ET qui ont du stock en rayon (storage
+     * Produits dont la réserve est à 0 ET qui ont du stock en rayon (storage
      * inventorié) &gt; 0. → Suggestion : réapprovisionner la réserve depuis le rayon.
      */
-    private static final String SQL_RESERVE_FROM_RAYON =
-        """
+    private static final String SQL_RESERVE_FROM_RAYON = """
             SELECT sp_reserve.id AS sp_id,
                    (sp_rayon.qty_stock + sp_rayon.qty_ug) AS available_qty
             FROM store_inventory_line sil
@@ -94,14 +101,14 @@ public class InventoryClosedEventListener {
              AND sp_rayon.storage_id = sil.storage_id
             JOIN storage s_reserve
               ON s_reserve.magasin_id = :magasinId
-             AND s_reserve.storage_type = 'SAFETY_STOCK'
+             AND s_reserve.storage_type IN %s
             JOIN stock_produit sp_reserve
               ON sp_reserve.produit_id = sil.produit_id
              AND sp_reserve.storage_id = s_reserve.id
             WHERE sil.store_inventory_id = :inventoryId
               AND (sp_reserve.qty_stock + sp_reserve.qty_ug) = 0
               AND (sp_rayon.qty_stock + sp_rayon.qty_ug) > 0
-            """;
+            """.formatted(RESERVE_TYPES_IN);
 
     /**
      * Reconcile lot_stock_location from inventory_lot after close.
@@ -180,14 +187,13 @@ public class InventoryClosedEventListener {
 
         // MAGASIN : la procédure remet la réserve à 0 → purger lot_stock_location de la réserve aussi
         if (event.inventoryCategory() == InventoryCategory.MAGASIN) {
-            em.createNativeQuery(
-                    """
+            em.createNativeQuery("""
                     DELETE FROM lot_stock_location lsl
                     USING storage s
                     WHERE lsl.storage_id = s.id
                       AND s.magasin_id   = :magasinId
-                      AND s.storage_type = 'SAFETY_STOCK'
-                    """)
+                      AND s.storage_type IN %s
+                    """.formatted(RESERVE_TYPES_IN))
                 .setParameter("magasinId", event.magasinId())
                 .executeUpdate();
             log.info("Inventaire MAGASIN {} — lot_stock_location réserve purgée", event.storeInventoryId());

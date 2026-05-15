@@ -1,0 +1,72 @@
+<div class="modal-header">
+  <h4 class="modal-title">Cloner les rayons</h4>
+  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
+</div>
+
+<form (ngSubmit)="save()" [formGroup]="editForm" novalidate>
+  <div class="modal-body">
+    <p class="text-muted small mb-3">
+      {{ rayons.length }} rayon(s) seront copiés vers l'emplacement sélectionné.
+    </p>
+
+    <div class="form-grid-compact">
+      <div class="form-field form-field-full">
+        <label for="cf-magasin">Magasin destination <span class="required">*</span></label>
+        <p-select
+          formControlName="magasinId"
+          [options]="magasins"
+          optionLabel="fullName"
+          optionValue="id"
+          id="cf-magasin"
+          [fluid]="true"
+          (onShow)="onDropdownShow($event)"
+          (onHide)="onDropdownHide($event)"
+          placeholder="Sélectionner le magasin"
+        />
+        @if (editForm.get('magasinId')?.invalid && editForm.get('magasinId')?.touched) {
+          <small class="text-danger">Ce champ est obligatoire.</small>
+        }
+      </div>
+
+      <div class="form-field form-field-full">
+        <label for="cf-storage">Emplacement destination <span class="required">*</span></label>
+        <p-select
+          formControlName="storageId"
+          [options]="storages"
+          optionLabel="storageType"
+          optionValue="id"
+          id="cf-storage"
+          [fluid]="true"
+          (onShow)="onDropdownShow($event)"
+          (onHide)="onDropdownHide($event)"
+          placeholder="Sélectionner l'emplacement"
+          [disabled]="!editForm.get('magasinId')?.value"
+        />
+        @if (editForm.get('storageId')?.invalid && editForm.get('storageId')?.touched) {
+          <small class="text-danger">Ce champ est obligatoire.</small>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <p-button
+      (click)="cancel()"
+      icon="pi pi-times"
+      label="Annuler"
+      severity="secondary"
+      [raised]="true"
+      type="button"
+    />
+    <p-button
+      [disabled]="editForm.invalid || isSaving || rayons.length === 0"
+      [loading]="isSaving"
+      icon="pi pi-copy"
+      label="Cloner"
+      severity="primary"
+      [raised]="true"
+      type="submit"
+    />
+  </div>
+</form>
+

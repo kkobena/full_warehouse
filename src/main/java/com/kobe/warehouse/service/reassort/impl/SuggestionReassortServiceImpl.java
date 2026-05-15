@@ -240,8 +240,8 @@ public class SuggestionReassortServiceImpl implements SuggestionReassortService 
             return;
         }
         Storage storage = stockProduitDest.getStorage();
-        if (storage.getStorageType() != StorageType.PRINCIPAL) {
-            LOG.debug("Le produit {} n'est pas dans un stockage principal, pas de suggestion de reassort possible", produit.getId());
+        if (!storage.getStorageType().isVendable()) {
+            LOG.debug("Le produit {} n'est pas dans un stockage vendable, pas de suggestion de reassort possible", produit.getId());
             return;
         }
         StockProduit stockSrc = getStockReserve(stockProduits);

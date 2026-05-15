@@ -17,6 +17,8 @@ public class RayonProduitDTO {
     private Integer id;
     private Integer produitId;
 
+    public RayonProduitDTO() {}
+
     public RayonProduitDTO(RayonProduit produit) {
         Rayon rayon = produit.getRayon();
         Storage storage = rayon.getStorage();

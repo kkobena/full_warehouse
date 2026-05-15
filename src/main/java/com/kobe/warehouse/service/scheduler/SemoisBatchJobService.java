@@ -151,6 +151,22 @@ public class SemoisBatchJobService {
         // Batch VMM par classe ──────────────────────────────────────────────────
         Map<Integer, Integer> vmmByProduitId = loadVmmBySemoisClass(eligibles, classeConfigs);
 
+        // Fallback : si mv_monthly_top_products n'a pas de données (vue non encore rafraîchie à 02h00),
+        // utiliser vmm_calcule de SemoisConfiguration calculé par processBatch() depuis ventes_mensuelles_agregees.
+        int nbVmmFallback = 0;
+        for (Produit p : eligibles) {
+            if (vmmByProduitId.getOrDefault(p.getId(), 0) == 0) {
+                SemoisConfiguration sc = semoisConfigByProduitId.get(p.getId());
+                if (sc != null && sc.getVmmCalcule() != null && sc.getVmmCalcule() > 0) {
+                    vmmByProduitId.put(p.getId(), sc.getVmmCalcule());
+                    nbVmmFallback++;
+                }
+            }
+        }
+        if (nbVmmFallback > 0) {
+            LOG.info("[SEMOIS-BATCH] {} produit(s) sans données dans mv_monthly_top_products — VMM issu de semois_configuration", nbVmmFallback);
+        }
+
         // Stock virtuel (commandes en attente) ──────────────────────────────────
         Map<Integer, Integer> pendingQtyByProduitId = loadPendingOrderQty(allProduitIds);
 
@@ -289,6 +305,14 @@ public class SemoisBatchJobService {
         int vmm,
         Map<ClasseCriticite, SemoisClasseConfig> classeConfigs
     ) {
+        // Utiliser la valeur pré-calculée par processBatch() si disponible et calculée aujourd'hui
+        if (config != null
+            && config.getStockObjectifCalcule() != null
+            && config.getStockObjectifCalcule() > 0
+            && config.getDateDernierCalcul() != null
+            && config.getDateDernierCalcul().toLocalDate().equals(LocalDate.now())) {
+            return config.getStockObjectifCalcule();
+        }
         if (vmm <= 0) return produit.getQtySeuilMini();
 
         ClasseCriticite classe = produit.getEffectiveClasseCriticite();

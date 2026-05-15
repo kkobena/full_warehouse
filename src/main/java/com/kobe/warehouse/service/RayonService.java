@@ -3,6 +3,7 @@ package com.kobe.warehouse.service;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.service.dto.RayonDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +31,7 @@ public interface RayonService {
      * @param pageable the pagination information.
      * @return the list of entities.
      */
-    Page<RayonDTO> findAll(Integer magasinId, Integer storageId, String query, Pageable pageable);
+    Page<RayonDTO> findAll(Integer magasinId, Integer storageId, String query, String typeZone, Pageable pageable);
 
     /**
      * Get the "id" rayon.
@@ -48,6 +49,8 @@ public interface RayonService {
     void delete(Integer id);
 
     ResponseDTO importation(InputStream inputStream, Integer magasinId);
+
+    byte[] exportCsv(Integer storageId) throws IOException;
 
     ResponseDTO cloner(List<RayonDTO> rayons, Integer magasinId);
 

@@ -15,15 +15,15 @@
 
     <!-- Tableau des lignes -->
     <div class="table-responsive">
-      <table class="table table-sm table-hover mb-0 pharma-table">
+      <table class="table table-sm table-hover mb-0">
         <thead>
-          <tr class="pharma-table-head">
-            <th style="width: 10rem;">CIP</th>
-            <th>Produit</th>
-            <th style="width: 4rem; text-align: right;">Qté</th>
-            <th style="width: 8rem; text-align: right;">Prix unit. (FCFA)</th>
-            <th style="width: 9rem; text-align: right;">Montant (FCFA)</th>
-          </tr>
+        <tr class="pharma-table-head">
+          <th style="width: 10rem;">CIP</th>
+          <th>Produit</th>
+          <th style="width: 4rem; text-align: right;">Qté</th>
+          <th style="width: 8rem; text-align: right;">Prix unit. (FCFA)</th>
+          <th style="width: 9rem; text-align: right;">Montant (FCFA)</th>
+        </tr>
         </thead>
         <tbody>
           @for (ligne of lignes; track ligne.id) {
@@ -37,7 +37,8 @@
               <td style="text-align: right; font-size: 0.875rem;">
                 {{ ligne.quantite | number : '1.0-0' }}
                 @if (ligne.quantiteModifiee) {
-                  <i class="pi pi-pencil ms-1 text-warning" style="font-size: 0.7rem;" title="Quantité modifiée manuellement"></i>
+                  <i class="pi pi-pencil ms-1 text-warning" style="font-size: 0.7rem;"
+                     title="Quantité modifiée manuellement"></i>
                 }
               </td>
               <td style="text-align: right; font-size: 0.875rem;">
@@ -83,112 +84,111 @@
 
     <div class="px-3 pb-2 pt-2">
 
-    <!-- ── Sélecteur de fournisseur (visible pour tous les modes) ──────── -->
-    <div class="mb-3">
-      <label class="form-label fw-semibold text-secondary mb-1" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;">
-        Fournisseur de commande
-      </label>
-      <div class="d-flex align-items-center gap-2">
-        <app-fournisseur-select
-          [selectedId]="fournisseurId ?? null"
-          [appendTo]="null"
-          placeholder="Sélectionner un fournisseur..."
-          (selectionChange)="onFournisseurSelected($event)"
-          (dropdownShow)="onDropdownShow($event)"
-          (dropdownHide)="onDropdownHide($event)"
-        />
-        @if (selectedFournisseur() !== null && selectedFournisseur()!.id !== fournisseurId) {
-          <span class="badge text-bg-warning d-flex align-items-center gap-1" style="font-size: 0.75rem;">
+      <!-- ── Sélecteur de fournisseur (visible pour tous les modes) ──────── -->
+      <div class="mb-3">
+        <label class="form-label fw-semibold text-secondary mb-1"
+               style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;">
+          Fournisseur de commande
+        </label>
+        <div class="d-flex align-items-center gap-2">
+          <app-fournisseur-select
+            class="flex-grow-1 min-w-0"
+            [selectedId]="fournisseurId ?? null"
+            [grouped]="true"
+            (selectionChange)="onFournisseurSelected($event)"
+          />
+          @if (selectedFournisseur() !== null && selectedFournisseur()!.id !== fournisseurId) {
+            <span class="badge text-bg-warning d-flex align-items-center gap-1" style="font-size: 0.75rem;">
             <i class="pi pi-info-circle"></i>
             Différent de la suggestion
           </span>
-        }
+          }
+        </div>
+        <div class="text-muted mt-1" style="font-size: 0.75rem;">
+          <i class="pi pi-tag me-1"></i>
+          Fournisseur par défaut : <strong>{{ fournisseurLibelle }}</strong>
+        </div>
       </div>
-      <div class="text-muted mt-1" style="font-size: 0.75rem;">
-        <i class="pi pi-tag me-1"></i>
-        Fournisseur par défaut : <strong>{{ fournisseurLibelle }}</strong>
-      </div>
-    </div>
 
-    <!-- ── Mode de transmission ─────────────────────────────────────────── -->
-    <div class="mb-2">
-      <label class="form-label fw-semibold text-secondary mb-2" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;">
-        Mode de transmission
-      </label>
-      <div class="d-flex gap-3">
-        <div class="mode-option" [class.active]="modeCommande() === 'INTERNE'" (click)="modeCommande.set('INTERNE')">
-          <i class="pi pi-server me-2"></i>
-          <div>
-            <div class="fw-semibold" style="font-size: 0.85rem;">Commande interne</div>
-            <div class="text-muted" style="font-size: 0.75rem;">Enregistrée dans le système uniquement</div>
+      <!-- ── Mode de transmission ─────────────────────────────────────────── -->
+      <div class="mb-2">
+        <label class="form-label fw-semibold text-secondary mb-2"
+               style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;">
+          Mode de transmission
+        </label>
+        <div class="d-flex gap-3">
+          <div class="mode-option" [class.active]="modeCommande() === 'INTERNE'" (click)="modeCommande.set('INTERNE')">
+            <i class="pi pi-server me-2"></i>
+            <div>
+              <div class="fw-semibold" style="font-size: 0.85rem;">Commande interne</div>
+              <div class="text-muted" style="font-size: 0.75rem;">Enregistrée dans le système uniquement</div>
+            </div>
           </div>
-        </div>
-        <div class="mode-option" [class.active]="modeCommande() === 'PHARMAML'" (click)="modeCommande.set('PHARMAML')">
-          <i class="pi pi-send me-2 text-primary"></i>
-          <div>
-            <div class="fw-semibold" style="font-size: 0.85rem;">Via PharmaML</div>
-            <div class="text-muted" style="font-size: 0.75rem;">Transmise électroniquement au grossiste</div>
+          <div class="mode-option" [class.active]="modeCommande() === 'PHARMAML'"
+               (click)="modeCommande.set('PHARMAML')">
+            <i class="pi pi-send me-2 text-primary"></i>
+            <div>
+              <div class="fw-semibold" style="font-size: 0.85rem;">Via PharmaML</div>
+              <div class="text-muted" style="font-size: 0.75rem;">Transmise électroniquement au grossiste</div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- ── Options PharmaML ─────────────────────────────────────────────── -->
-    @if (modeCommande() === 'PHARMAML') {
-      <div class="pharmaml-options mt-3 p-3 rounded border border-primary-subtle bg-primary-subtle">
-        <div class="d-flex align-items-center gap-2 mb-3">
-          <i class="pi pi-info-circle text-primary"></i>
-          <span class="fw-semibold text-primary" style="font-size: 0.85rem;">Paramètres d'envoi PharmaML</span>
+      <!-- ── Options PharmaML ─────────────────────────────────────────────── -->
+      @if (modeCommande() === 'PHARMAML') {
+        <div class="pharmaml-options mt-3 p-3 rounded border border-primary-subtle bg-primary-subtle">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <i class="pi pi-info-circle text-primary"></i>
+            <span class="fw-semibold text-primary" style="font-size: 0.85rem;">Paramètres d'envoi PharmaML</span>
+          </div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Type de commande</label>
+              <p-select
+                [options]="typeCommandeOptions"
+                [ngModel]="pharmamlTypeCommande()"
+                (ngModelChange)="pharmamlTypeCommande.set($event)"
+                optionLabel="label"
+                [overlayOptions]="{baseZIndex: 10050}"
+                optionValue="value"
+                class="w-100"
+              />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">
+                Date de livraison souhaitée
+                <span class="text-muted fw-normal">(optionnel)</span>
+              </label>
+              <p-datePicker
+                [ngModel]="pharmamlDateLivraison()"
+                (ngModelChange)="pharmamlDateLivraison.set($event)"
+                [minDate]="minDate"
+                [showButtonBar]="true"
+                [showIcon]="true"
+                appendTo="body"
+                dateFormat="dd/mm/yy"
+                placeholder="jj/mm/aaaa"
+                class="w-100"
+              />
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-semibold">
+                Commentaire
+                <span class="text-muted fw-normal">(optionnel)</span>
+              </label>
+              <textarea
+                pTextarea
+                class="form-control form-control-sm"
+                rows="2"
+                placeholder="Ajouter un commentaire..."
+                [ngModel]="pharmamlCommentaire()"
+                (ngModelChange)="pharmamlCommentaire.set($event)"
+              ></textarea>
+            </div>
+          </div>
         </div>
-        <div class="row g-3">
-          <div class="col-md-6">
-            <label class="form-label small fw-semibold">Type de commande</label>
-            <p-select
-              [options]="typeCommandeOptions"
-              [ngModel]="pharmamlTypeCommande()"
-              (ngModelChange)="pharmamlTypeCommande.set($event)"
-              optionLabel="label"
-              [overlayOptions]="{baseZIndex: 10050}"
-              optionValue="value"
-              class="w-100"
-            />
-          </div>
-          <div class="col-md-6">
-            <label class="form-label small fw-semibold">
-              Date de livraison souhaitée
-              <span class="text-muted fw-normal">(optionnel)</span>
-            </label>
-            <p-datePicker
-              [ngModel]="pharmamlDateLivraison()"
-              (ngModelChange)="pharmamlDateLivraison.set($event)"
-              [minDate]="minDate"
-              [showButtonBar]="true"
-              [showIcon]="true"
-              [baseZIndex]="100050"
-              (onShow)="onDropdownShow($event)"
-              (onClose)="onDropdownHide($event)"
-              dateFormat="dd/mm/yy"
-              placeholder="jj/mm/aaaa"
-              class="w-100"
-            />
-          </div>
-          <div class="col-12">
-            <label class="form-label small fw-semibold">
-              Commentaire
-              <span class="text-muted fw-normal">(optionnel)</span>
-            </label>
-            <textarea
-              pTextarea
-              class="form-control form-control-sm"
-              rows="2"
-              placeholder="Ajouter un commentaire..."
-              [ngModel]="pharmamlCommentaire()"
-              (ngModelChange)="pharmamlCommentaire.set($event)"
-            ></textarea>
-          </div>
-        </div>
-      </div>
-    }
+      }
     </div><!-- /px-3 pb-2 pt-2 -->
   </div><!-- /zone fixe -->
 

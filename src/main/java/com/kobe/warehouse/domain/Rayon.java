@@ -1,7 +1,10 @@
 package com.kobe.warehouse.domain;
 
+import com.kobe.warehouse.domain.enumeration.TypeZone;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -48,6 +51,13 @@ public class Rayon implements Serializable {
 
     @Column(name = "to_exclude")
     private boolean exclude;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type_zone", length = 20)
+    private TypeZone typeZone;
+
+    @Column(name = "position", length = 50)
+    private String position;
 
     public Rayon id(Integer id) {
         this.id = id;
@@ -102,6 +112,22 @@ public class Rayon implements Serializable {
     public Rayon libelle(String libelle) {
         this.libelle = libelle;
         return this;
+    }
+
+    public TypeZone getTypeZone() {
+        return typeZone;
+    }
+
+    public void setTypeZone(TypeZone typeZone) {
+        this.typeZone = typeZone;
+    }
+
+    public String getPosition() {
+        return position;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
     }
 
     @Override

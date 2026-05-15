@@ -1,0 +1,75 @@
+<p-table
+  [value]="rayons()"
+  [totalRecords]="totalItems()"
+  [rows]="rows()"
+  [first]="first()"
+  [loading]="loading()"
+  [lazy]="true"
+  [paginator]="true"
+  [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+  (onLazyLoad)="onLazyLoad($event)"
+  dataKey="id"
+  stripedRows="true"
+  class="p-datatable-sm"
+>
+  <ng-template #header>
+    <tr class="pharma-table-head">
+      <th style="width: 20%">Emplacement</th>
+      <th style="width: 12%">Code</th>
+      <th>Libellé</th>
+      <th style="width: 12%">Type zone</th>
+      <th style="width: 10rem; text-align: center">Actions</th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-rayon>
+    <tr
+      [class.selected-row]="isSelected(rayon)"
+      (click)="onRowClick(rayon)"
+      style="cursor: pointer"
+    >
+      <td><span class="pharma-entity-name">{{ rayon.storageType }}</span></td>
+      <td><span class="pharma-code">{{ rayon.code }}</span></td>
+      <td><span class="pharma-entity-name">{{ rayon.libelle }}</span></td>
+      <td>
+        @if (rayon.typeZone) {
+          <p-tag [value]="rayon.typeZone" [severity]="typeZoneSev(rayon.typeZone)" />
+        }
+      </td>
+      <td style="text-align: right">
+        <p-button
+          icon="pi pi-eye"
+          [rounded]="true" [text]="true" severity="info"
+          pTooltip="Voir détail"
+          (onClick)="onViewDetail(rayon, $event)"
+        />
+        <p-button
+          icon="pi pi-list-check"
+          [rounded]="true" [text]="true" severity="warn"
+          pTooltip="Lancer un inventaire"
+          (onClick)="onLancerInventaire(rayon, $event)"
+        />
+        @if (rayon.code !== 'SANS') {
+          <p-button
+            icon="pi pi-pencil"
+            [rounded]="true" [text]="true" severity="success"
+            pTooltip="Modifier"
+            (onClick)="onEdit(rayon, $event)"
+          />
+          <p-button
+            icon="pi pi-trash"
+            [rounded]="true" [text]="true" severity="danger"
+            pTooltip="Supprimer"
+            (onClick)="onDelete(rayon, $event)"
+          />
+        }
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="5">Aucun rayon trouvé</td>
+    </tr>
+  </ng-template>
+</p-table>

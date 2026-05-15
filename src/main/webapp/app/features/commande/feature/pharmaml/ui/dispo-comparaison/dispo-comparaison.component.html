@@ -9,8 +9,8 @@
   <!-- Sélecteur de grossistes -->
   <div class="dc-selector">
     <app-fournisseur-select
+      class="flex-grow-1 min-w-0"
       [multiple]="true"
-      placeholder="Choisir les grossistes à comparer..."
       (multiSelectionChange)="onFournisseurChange($event)"
     />
     <p-button

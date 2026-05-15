@@ -14,7 +14,7 @@ const routes: Routes = [
     path: "rayon",
     data: { pageTitle: "warehouseApp.rayon.home.title", abilitySubject: "rayon" },
     canActivate: [AuthGuard],
-    loadChildren: () => import("./rayon/rayon.route")
+    loadChildren: () => import("../features/rayon/rayon.routes")
   },
   {
     path: "forme-produit",

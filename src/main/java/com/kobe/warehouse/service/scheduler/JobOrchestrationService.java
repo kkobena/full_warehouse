@@ -136,13 +136,13 @@ public class JobOrchestrationService {
         JobStep.STOCK_SNAPSHOT,
         JobStep.REINTEGRATE_EXCLUSIONS,
         JobStep.AGGREGATE_SALES,
+        JobStep.REFRESH_VIEWS,           // vues matérialisées fraîches avant le recalcul SEMOIS
         JobStep.CLASSIFY_PRODUCTS,
         JobStep.RECALCULATE_SEMOIS,
         JobStep.INVENTAIRE_TOURNANT,
         JobStep.FACTURATION_PLANIFICATIONS,
         JobStep.CERTIFICATION_FNE,
-        JobStep.EXPIRATION_AVOIRS,
-        JobStep.REFRESH_VIEWS
+        JobStep.EXPIRATION_AVOIRS
     );
 
     /**

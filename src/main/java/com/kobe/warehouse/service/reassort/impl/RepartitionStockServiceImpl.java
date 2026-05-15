@@ -175,7 +175,7 @@ public class RepartitionStockServiceImpl implements RepartitionStockService {
             Produit produit = stockProduitSrc.getProduit();
 
             boolean destIsReserveStorage =
-                stockProduitSrc.getStorage().getStorageType() == StorageType.PRINCIPAL;
+                stockProduitSrc.getStorage().getStorageType().isVendable();
             Storage destStorage = destIsReserveStorage ? storageReserve : storagePrincipal;
 
             StockProduit stockProduitDest =

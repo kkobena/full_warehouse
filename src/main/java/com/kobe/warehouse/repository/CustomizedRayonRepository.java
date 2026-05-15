@@ -1,12 +1,10 @@
 package com.kobe.warehouse.repository;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.Rayon_;
 import com.kobe.warehouse.domain.Storage_;
 import com.kobe.warehouse.domain.enumeration.StorageType;
+import com.kobe.warehouse.domain.enumeration.TypeZone;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.RayonDTO;
 import jakarta.persistence.EntityManager;
@@ -15,14 +13,18 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import java.util.ArrayList;
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 @Repository
 @Transactional
@@ -40,41 +42,50 @@ public class CustomizedRayonRepository implements CustomizedRayonService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<RayonDTO> listRayonsByStorageId(Integer magasinId, Integer storageId, String query, Pageable pageable) {
-        long total = findAllCount(magasinId, storageId, query);
-        List<RayonDTO> list = new ArrayList<>();
-        if (total > 0) {
-            CriteriaBuilder cb = em.getCriteriaBuilder();
-            CriteriaQuery<Rayon> cq = cb.createQuery(Rayon.class);
-            Root<Rayon> root = cq.from(Rayon.class);
-            cq.select(root).orderBy(cb.asc(root.get(Rayon_.libelle)));
-            List<Predicate> predicates = produitPredicate(cb, root, magasinId, storageId, query);
-            cq.where(cb.and(predicates.toArray(new Predicate[0])));
-            TypedQuery<Rayon> q = em.createQuery(cq);
+    public Page<RayonDTO> listRayonsByStorageId(Integer magasinId, Integer storageId, String query, String typeZone, Pageable pageable) {
+        long total = 0;
+
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Rayon> cq = cb.createQuery(Rayon.class);
+        Root<Rayon> root = cq.from(Rayon.class);
+        cq.select(root).orderBy(
+            cb.asc(cb.coalesce(root.get(Rayon_.position), "ZZZZZ")),
+            cb.asc(root.get(Rayon_.libelle))
+        );
+        List<Predicate> predicates = buildPredicates(cb, root, magasinId, storageId, query, typeZone);
+        cq.where(cb.and(predicates.toArray(new Predicate[0])));
+        TypedQuery<Rayon> q = em.createQuery(cq);
+        if (pageable.isPaged()) {
+            total = findAllCount(magasinId, storageId, query, typeZone);
             q.setFirstResult((int) pageable.getOffset());
             q.setMaxResults(pageable.getPageSize());
-            list = q.getResultList().stream().map(RayonDTO::new).toList();
         }
+
+        List<RayonDTO> list = q.getResultList().stream().map(RayonDTO::new).toList();
+
         return new PageImpl<>(list, pageable, total);
     }
 
-    private long findAllCount(Integer magasinId, Integer storageId, String query) {
+    private long findAllCount(Integer magasinId, Integer storageId, String query, String typeZone) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
         Root<Rayon> root = cq.from(Rayon.class);
         cq.select(cb.count(root));
-        List<Predicate> predicates = produitPredicate(cb, root, magasinId, storageId, query);
+        List<Predicate> predicates = buildPredicates(cb, root, magasinId, storageId, query, typeZone);
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Long> q = em.createQuery(cq);
         Long v = q.getSingleResult();
         return v != null ? v : 0;
     }
 
-    private List<Predicate> produitPredicate(CriteriaBuilder cb, Root<Rayon> root, Integer magasinId, Integer storageId, String query) {
+    private List<Predicate> buildPredicates(CriteriaBuilder cb, Root<Rayon> root, Integer magasinId, Integer storageId, String query, String typeZone) {
         List<Predicate> predicates = new ArrayList<>();
         if (StringUtils.hasLength(query)) {
             String search = query.toUpperCase() + "%";
             predicates.add(cb.or(cb.like(cb.upper(root.get(Rayon_.libelle)), search), cb.like(cb.upper(root.get(Rayon_.code)), search)));
+        }
+        if (StringUtils.hasLength(typeZone)) {
+            predicates.add(cb.equal(root.get(Rayon_.typeZone), TypeZone.valueOf(typeZone)));
         }
         if (isNull(storageId)) {
             if (nonNull(magasinId)) {

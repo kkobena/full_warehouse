@@ -7,7 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface CustomizedRayonService {
-    Page<RayonDTO> listRayonsByStorageId(Integer magasinId, Integer storageId, String query, Pageable pageable);
+    Page<RayonDTO> listRayonsByStorageId(Integer magasinId, Integer storageId, String query, String typeZone, Pageable pageable);
 
     RayonDTO save(RayonDTO dto);
 
@@ -16,6 +16,9 @@ public interface CustomizedRayonService {
     default void buildRayonFromRayonDTO(RayonDTO dto, Rayon rayon) {
         rayon.setCode(dto.getCode());
         rayon.setLibelle(dto.getLibelle());
+        rayon.setExclude(dto.isExclude());
+        rayon.setTypeZone(dto.getTypeZone());
+        rayon.setPosition(dto.getPosition());
     }
 
     default Rayon buildRayonFromRayonDTO(RayonDTO dto) {
@@ -23,6 +26,9 @@ public interface CustomizedRayonService {
         rayon.setCode(dto.getCode());
         rayon.setLibelle(dto.getLibelle());
         rayon.setStorage(fromId(dto.getStorageId()));
+        rayon.setExclude(dto.isExclude());
+        rayon.setTypeZone(dto.getTypeZone());
+        rayon.setPosition(dto.getPosition());
         return rayon;
     }
 
@@ -31,6 +37,9 @@ public interface CustomizedRayonService {
         rayon.setCode(dto.getCode());
         rayon.setLibelle(dto.getLibelle());
         rayon.setStorage(storage);
+        rayon.setExclude(dto.isExclude());
+        rayon.setTypeZone(dto.getTypeZone());
+        rayon.setPosition(dto.getPosition());
         return rayon;
     }
 

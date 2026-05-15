@@ -1,0 +1,122 @@
+<div class="detail-panel">
+  <!-- Header -->
+  <div class="panel-header">
+    <div class="panel-title-block">
+      <div class="panel-libelle">{{ rayon().libelle }}</div>
+      <div class="panel-meta">
+        <span class="pharma-code">{{ rayon().code }}</span>
+        @if (rayon().typeZone) {
+          <p-tag [value]="rayon().typeZone!" [severity]="typeZoneSev(rayon().typeZone)" />
+        }
+        <span class="text-muted" style="font-size:.75rem">{{ rayon().storageType }}</span>
+        @if (rayon().position) {
+          <span class="text-muted" style="font-size:.75rem">· {{ rayon().position }}</span>
+        }
+      </div>
+    </div>
+    <div class="panel-actions">
+      <p-button
+        icon="pi pi-list-check"
+        label="Inventaire"
+        size="small"
+        severity="info"
+        [outlined]="true"
+        pTooltip="Lancer un inventaire pour ce rayon"
+        tooltipPosition="bottom"
+        (onClick)="onLancerInventaire()"
+      />
+      @if (rayon().code !== 'SANS') {
+      <p-button
+        icon="pi pi-pencil"
+        label="Modifier"
+        size="small"
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="onEdit()"
+      />
+
+        <p-button
+          icon="pi pi-trash"
+          [text]="true"
+          size="small"
+          severity="danger"
+          pTooltip="Supprimer"
+          (onClick)="onDelete()"
+        />
+      }
+      <p-button
+        icon="pi pi-times"
+        [text]="true"
+        size="small"
+        severity="secondary"
+        pTooltip="Fermer"
+        tooltipPosition="left"
+        (onClick)="closed.emit()"
+      />
+    </div>
+  </div>
+
+  <!-- Onglets ngbNav -->
+  <div class="pharma-nav-tabs-container flex-1-overflow">
+    <div
+      #nav="ngbNav"
+      [activeId]="activeTab()"
+      (activeIdChange)="onTabChange($event)"
+      class="nav pharma-nav-tabs"
+      ngbNav
+    >
+      <ng-container ngbNavItem="produits">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-box"></i>
+          <span>Produits</span>
+        </a>
+        <ng-template ngbNavContent>
+          <app-rayon-produits-tab [rayon]="rayon()" />
+        </ng-template>
+      </ng-container>
+
+      <ng-container ngbNavItem="parametres">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-cog"></i>
+          <span>Paramètres</span>
+        </a>
+        <ng-template ngbNavContent>
+          <div class="params-view">
+            <div class="params-grid">
+              <div class="param-item">
+                <span class="param-label">Emplacement</span>
+                <span class="param-value">{{ rayon().storageLibelle ?? rayon().storageType }}</span>
+              </div>
+              <div class="param-item">
+                <span class="param-label">Code</span>
+                <span class="param-value pharma-code">{{ rayon().code }}</span>
+              </div>
+              <div class="param-item">
+                <span class="param-label">Type de zone</span>
+                <span class="param-value">
+                  @if (rayon().typeZone) {
+                    <p-tag [value]="rayon().typeZone!" [severity]="typeZoneSev(rayon().typeZone)" />
+                  } @else {
+                    <span class="text-muted">—</span>
+                  }
+                </span>
+              </div>
+              <div class="param-item">
+                <span class="param-label">Position</span>
+                <span class="param-value">{{ rayon().position ?? '—' }}</span>
+              </div>
+              <div class="param-item">
+                <span class="param-label">Exclure</span>
+                <span class="param-value">{{ rayon().exclude ? 'Oui' : 'Non' }}</span>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </ng-container>
+    </div>
+
+    <div class="pharma-nav-tabs-outlet">
+      <div [ngbNavOutlet]="nav"></div>
+    </div>
+  </div>
+</div>

@@ -822,8 +822,8 @@ public class SemoisCalculationService {
         StorageType type = sp.getStorage().getStorageType();
         boolean modified = false;
 
-        if (type == StorageType.PRINCIPAL) {
-            // Rayon : seuil mini ≈ 1 semaine de ventes (VMM/4, minimum 1)
+        if (type.isVendable()) {
+            // Rayon / zone vendable : seuil mini ≈ 1 semaine de ventes (VMM/4, minimum 1)
             int seuilRayon = Math.max(1, c.vmm() / 4);
             if (isNullOrZero(sp.getSeuilMini())) {
                 sp.setSeuilMini(seuilRayon);
@@ -840,7 +840,7 @@ public class SemoisCalculationService {
                 sp.setStockMaxi(stockMaxiRayon);
                 modified = true;
             }
-        } else if (type == StorageType.SAFETY_STOCK) {
+        } else if (type.isReassortSuggere()) {
             // Réserve : seuil mini = marge de sécurité (point de commande fournisseur)
             if (isNullOrZero(sp.getSeuilMini()) && c.margeSecurite() > 0) {
                 sp.setSeuilMini(c.margeSecurite());

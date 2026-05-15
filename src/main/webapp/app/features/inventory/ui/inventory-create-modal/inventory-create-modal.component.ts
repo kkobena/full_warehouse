@@ -35,6 +35,7 @@ import {NgxSpinnerService} from "ngx-spinner";
 })
 export class InventoryCreateModalComponent implements OnInit {
   readonly activeModal = inject(NgbActiveModal);
+  prefill?: { inventoryCategory?: InventoryCategoryType; storageId?: number; rayonId?: number };
   form!: FormGroup;
   categories = INVENTORY_CATEGORIES;
   groupedCategories = [
@@ -53,6 +54,7 @@ export class InventoryCreateModalComponent implements OnInit {
   selectedCategory = signal<InventoryCategoryInfo | null>(null);
   loading = signal(false);
   errorMessage = signal<string | null>(null);
+  private pendingRayonId: number | null = null;
   readonly classesParetoOptions = [
     {value: null, label: 'Toutes (A + B + C)'},
     {value: 'A', label: 'Classe A — top 20% CA'},
@@ -103,6 +105,10 @@ export class InventoryCreateModalComponent implements OnInit {
           this.form.get('rayon')!.setValue(null);
         }
       });
+
+    if (this.prefill) {
+      this.applyPrefill();
+    }
   }
 
   save(): void {
@@ -235,12 +241,29 @@ export class InventoryCreateModalComponent implements OnInit {
       });
   }
 
+  private applyPrefill(): void {
+    const p = this.prefill!;
+    if (p.inventoryCategory) {
+      this.form.get('inventoryCategory')!.setValue(p.inventoryCategory);
+    }
+    if (p.storageId) {
+      this.pendingRayonId = p.rayonId ?? null;
+      this.form.get('storage')!.setValue(p.storageId);
+    }
+  }
+
   private loadRayons(storageId: number): void {
     this.rayonService
       .query({storageId, size: 9999})
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: resp => this.rayons.set(resp.body ?? []),
+        next: resp => {
+          this.rayons.set(resp.body ?? []);
+          if (this.pendingRayonId) {
+            this.form.get('rayon')!.setValue(this.pendingRayonId);
+            this.pendingRayonId = null;
+          }
+        },
         error: () => this.rayons.set([]),
       });
   }

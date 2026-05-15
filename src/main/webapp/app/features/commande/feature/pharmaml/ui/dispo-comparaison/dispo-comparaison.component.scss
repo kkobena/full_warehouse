@@ -6,18 +6,6 @@
 }
 
 
-.modal-body.overflow-visible {
-  overflow-y: visible !important;
-  overflow-x: visible !important;
-}
-
-
-::ng-deep .p-select-overlay,
-::ng-deep .p-select-list-container,
-::ng-deep .p-multiselect-overlay,
-::ng-deep .p-multiselect-list-container {
-  z-index: 1100 !important;
-}
 
 
 .dc-selector {

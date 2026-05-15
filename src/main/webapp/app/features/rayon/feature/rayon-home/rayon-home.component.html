@@ -1,0 +1,144 @@
+<div class="pharma-smart-content p-1">
+  <!-- Toolbar -->
+  <div class="pharma-toolbar pharma-toolbar-compact">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-tag"></i>
+      <span class="pharma-toolbar-title">Rayons</span>
+    </div>
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters">
+          <p-floatlabel variant="on">
+            <p-select
+              [(ngModel)]="selectedStorage"
+              [options]="storages"
+              optionLabel="storageType"
+              [showClear]="true"
+              (onChange)="onStorageChange()"
+              appendTo="body"
+              id="rhStorage"
+              inputId="rhStorage"
+              style="width: 180px"
+            />
+            <label for="rhStorage">Emplacement</label>
+          </p-floatlabel>
+
+          <p-floatlabel variant="on">
+            <p-select
+              [(ngModel)]="selectedTypeZone"
+              [options]="typeZoneOptions"
+              optionLabel="label"
+              optionValue="value"
+              [showClear]="true"
+              (onChange)="onSearch()"
+              appendTo="body"
+              id="rhTypeZone"
+              inputId="rhTypeZone"
+              style="width: 140px"
+            />
+            <label for="rhTypeZone">Type de zone</label>
+          </p-floatlabel>
+
+          <div class="pharma-compact-search">
+            <p-iconfield>
+              <p-inputicon class="pi pi-search" />
+              <input
+                pInputText
+                [(ngModel)]="search"
+                (keyup.enter)="onSearch()"
+                placeholder="Rechercher…"
+              />
+            </p-iconfield>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="pharma-toolbar-actions">
+          <div class="pharma-button-group">
+            <p-button
+              (click)="exportCsv()"
+              icon="pi pi-download"
+              label="Exporter"
+              severity="secondary"
+              tooltipPosition="left"
+              pTooltip="Exporter"
+              [raised]="true"
+            />
+            <p-button
+              (click)="cloneRayons()"
+              icon="pi pi-copy"
+              label="Cloner"
+              severity="info"
+              [raised]="true"
+              tooltipPosition="left"
+              pTooltip="Cloner"
+              [disabled]="!rayons().length"
+            />
+            <p-button
+              (click)="showFileDialog()"
+              icon="pi pi-upload"
+              label="Importer rayons"
+              tooltipPosition="left"
+              pTooltip="Importer rayons"
+              severity="warn"
+              [raised]="true"
+            />
+            <p-button
+              (click)="importRayonProduits()"
+              icon="pi pi-link"
+              label="Importer affectations"
+              tooltipPosition="left"
+              pTooltip="Importer affectations-CSV : code_cip ; code_rayon"
+              severity="help"
+              [raised]="true"
+              [disabled]="!selectedStorage"
+
+            />
+            <p-button
+              (click)="addNew()"
+              icon="pi pi-plus"
+              label="Nouveau"
+              severity="success"
+              [raised]="true"
+              tooltipPosition="left"
+              pTooltip="Nouveau"
+            />
+          </div>
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <!-- Split container -->
+  <div class="split-container" [class.panel-open]="panelOpen()">
+    <div class="list-column">
+      <app-rayon-list
+        [rayons]="rayons()"
+        [totalItems]="totalItems()"
+        [loading]="loading()"
+        [rows]="rows"
+        [first]="page * rows"
+        [selectedRayon]="selectedRayon()"
+        (rayonSelected)="onRayonSelected($event)"
+        (lazyLoad)="onLazyLoad($event)"
+        (editRequested)="onEditRequested($event)"
+        (deleteRequested)="onDeleteRequested($event)"
+        (inventaireRequested)="onInventaireRequested($event)"
+      />
+    </div>
+
+    @if (panelOpen()) {
+      <div class="detail-column">
+        <app-rayon-detail-panel
+          [rayon]="selectedRayon()!"
+          (closed)="onClosePanel()"
+          (edited)="onRayonEdited($event)"
+          (deleteRequested)="onDeleteRequested($event)"
+        />
+      </div>
+    }
+  </div>
+</div>
+
+<p-toast position="top-right" />

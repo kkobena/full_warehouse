@@ -221,21 +221,7 @@ public class SemoisResource {
         return ResponseEntity.ok(dashboard);
     }
 
-    /**
-     * POST /api/semois/commander : Crée des commandes groupées par fournisseur
-     * depuis une liste de suggestions SEMOIS sélectionnées.
-     *
-     * @deprecated v12 — Le flux SEMOIS passe maintenant par le panier {@link com.kobe.warehouse.domain.Suggestion}.
-     * Utiliser {@code POST /api/suggestions/{id}/commander} à la place.
-     */
-    @Deprecated(since = "2026-03", forRemoval = false)
-    @SuppressWarnings("deprecation")
-    @PostMapping("/commander")
-    public ResponseEntity<Void> commanderSemois(@Valid @RequestBody SemoisCommanderDTO dto) {
-        LOG.info("REST request to create commandes from {} SEMOIS suggestions", dto.lignes().size());
-        suggestionProduitService.createCommandesFromSemois(dto.lignes());
-        return ResponseEntity.noContent().build();
-    }
+
 
     /**
      * POST /api/semois/recalculate : Déclenche un recalcul SEMOIS forcé pour tous les produits.

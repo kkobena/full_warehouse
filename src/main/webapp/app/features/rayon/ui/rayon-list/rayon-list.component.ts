@@ -25,6 +25,7 @@ export class RayonListComponent {
   readonly editRequested = output<IRayon>();
   readonly deleteRequested = output<IRayon>();
   readonly inventaireRequested = output<IRayon>();
+  readonly cloneRequested = output<IRayon>();
 
   protected readonly typeZoneSeverity = TYPE_ZONE_SEVERITY;
 
@@ -50,6 +51,11 @@ export class RayonListComponent {
   protected onLancerInventaire(rayon: IRayon, event: Event): void {
     event.stopPropagation();
     this.inventaireRequested.emit(rayon);
+  }
+
+  protected onClone(rayon: IRayon, event: Event): void {
+    event.stopPropagation();
+    this.cloneRequested.emit(rayon);
   }
 
   protected onLazyLoad(event: TableLazyLoadEvent): void {

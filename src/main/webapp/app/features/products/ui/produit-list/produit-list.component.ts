@@ -25,7 +25,8 @@ export type ProduitMenuAction =
   | "suspend"
   | "activate"
   | "archive"
-  | "delete";
+  | "delete"
+  | "clone-rayon";
 
 @Component({
   selector: "app-produit-list",
@@ -155,6 +156,7 @@ export class ProduitListComponent {
   }
 
   private buildMenuItems(produit: IProduit): MenuItem[] {
+    const hasRealRayon = produit.rayonProduits?.some(rp => rp.codeRayon !== 'SANS') ?? false;
     const items: MenuItem[] = [
       {
         label: "Voir le détail",
@@ -178,9 +180,15 @@ export class ProduitListComponent {
         command: () => this.emit("generiques")
       },*/
       {
-        label: "Prix de référence",
+        label: "Tarifs assurance",
         icon: "pi pi-euro",
         command: () => this.emit("prix-reference")
+      },
+      { separator: true },
+      {
+        label: hasRealRayon ? "Cloner vers un autre stockage" : "Assigner un emplacement",
+        icon: hasRealRayon ? "pi pi-copy" : "pi pi-map-marker",
+        command: () => this.emit("clone-rayon")
       }
     ];
 

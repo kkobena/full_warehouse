@@ -41,6 +41,8 @@ import { ProduitDeconditionModalComponent } from "../../ui/decondition-modal/pro
 import { NotificationService } from "app/shared/services/notification.service";
 import { ListPrixReferenceComponent } from "../../ui/prix-reference/list-prix-reference/list-prix-reference.component";
 import { LotSaisieProduitModalComponent } from "../../ui/lot-saisie-produit-modal/lot-saisie-produit-modal.component";
+import { RayonAssignFormComponent, RayonAssignResult } from "../../../rayon/ui/rayon-assign-form/rayon-assign-form.component";
+import { RayonProduitApiService } from "../../../rayon/data-access/services/rayon-produit-api.service";
 
 @Component({
   selector: "app-produit-home",
@@ -111,6 +113,7 @@ export class ProduitHomeComponent implements OnInit {
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly notificationService = inject(NotificationService);
   private readonly ability = inject(AbilityService);
+  private readonly rayonProduitApi = inject(RayonProduitApiService);
 
   protected readonly canCreate = this.ability.canSignal("create", "catalogue");
   protected readonly canEdit = this.ability.canSignal("edit", "catalogue");
@@ -290,7 +293,32 @@ export class ProduitHomeComponent implements OnInit {
       case "saisir-lots":
         this.openSaisirLot(produit);
         break;
+      case "clone-rayon":
+        this.openClonerRayon(produit);
+        break;
     }
+  }
+
+  private openClonerRayon(produit: IProduit): void {
+    this.api.getById(produit.id!).subscribe(full => {
+      const occupiedStorageIds = (full.rayonProduits ?? [])
+        .map(rp => rp.storageId)
+        .filter((id): id is number => id != null);
+
+      const ref = this.modalService.open(RayonAssignFormComponent, { size: 'md', centered: true, backdrop: 'static' });
+      const inst = ref.componentInstance as RayonAssignFormComponent;
+      inst.produit = full;
+      inst.mode = 'add-storage';
+      inst.title = `Affecter "${full.libelle}" à un autre stockage`;
+      inst.occupiedRealStorageIds = occupiedStorageIds;
+
+      ref.closed.subscribe((result: RayonAssignResult) => {
+        this.rayonProduitApi.assign({ produitId: result.produitId, rayonId: result.rayonId }).subscribe({
+          next: () => this.notificationService.success('Affecté au nouveau stockage'),
+          error: () => this.notificationService.error('Erreur lors de l\'affectation'),
+        });
+      });
+    });
   }
 
   private changeStatus(produit: IProduit, status: "ENABLE" | "DISABLE"): void {

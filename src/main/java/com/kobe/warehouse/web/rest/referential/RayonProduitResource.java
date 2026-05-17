@@ -1,6 +1,8 @@
 package com.kobe.warehouse.web.rest.referential;
 
 import com.kobe.warehouse.service.RayonProduitService;
+import com.kobe.warehouse.service.dto.CloneRayonProduitsDTO;
+import com.kobe.warehouse.service.dto.RayonProduitBatchMoveDTO;
 import com.kobe.warehouse.service.dto.RayonProduitDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
@@ -39,12 +41,31 @@ public class RayonProduitResource {
     }
 
     @PostMapping("/rayon-produits")
-    public ResponseEntity<RayonProduitDTO> create(@Valid @RequestBody RayonProduitDTO dto) throws Exception {
-        log.debug("REST request to save RayonProduitDTO : {}", dto);
+    public ResponseEntity<RayonProduitDTO> assign(@Valid @RequestBody RayonProduitDTO dto) throws Exception {
+        log.debug("REST request to assign RayonProduit : {}", dto);
         if (dto.getId() != null) {
             throw new BadRequestAlertException("A new rayonProduit cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        return ResponseEntity.ok().body(rayonProduitService.create(dto).orElse(null));
+        return ResponseEntity.ok().body(rayonProduitService.assign(dto).orElse(null));
+    }
+
+    @PostMapping("/rayon-produits/move")
+    public ResponseEntity<RayonProduitDTO> move(@Valid @RequestBody RayonProduitDTO dto) throws Exception {
+        log.debug("REST request to move RayonProduit : {}", dto);
+        return ResponseEntity.ok().body(rayonProduitService.move(dto).orElse(null));
+    }
+
+    @PostMapping("/rayon-produits/move-batch")
+    public ResponseEntity<Void> moveBatch(@RequestBody RayonProduitBatchMoveDTO dto) throws Exception {
+        log.debug("REST request to move batch RayonProduit : {}", dto);
+        rayonProduitService.moveBatch(dto);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/rayon-produits/clone-from-rayon")
+    public ResponseEntity<ResponseDTO> cloneFromRayon(@RequestBody CloneRayonProduitsDTO dto) {
+        log.debug("REST request to clone rayon produits from rayon {} to {}", dto.sourceRayonId(), dto.targetRayonIds());
+        return ResponseEntity.ok(rayonProduitService.cloneToRayons(dto));
     }
 
     @PostMapping("/rayon-produits/import")
@@ -53,12 +74,11 @@ public class RayonProduitResource {
         @RequestParam("storageId") Integer storageId
     ) throws IOException {
         log.debug("REST request to import RayonProduit CSV for storageId : {}", storageId);
-        ResponseDTO result = rayonProduitService.importFromCsv(file.getInputStream(), storageId);
-        return ResponseUtil.wrapOrNotFound(Optional.of(result));
+        return ResponseUtil.wrapOrNotFound(Optional.of(rayonProduitService.importFromCsv(file.getInputStream(), storageId)));
     }
 
     @DeleteMapping("/rayon-produits/{id}")
-    public ResponseEntity<Void> deleter(@PathVariable Integer id) {
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
         log.debug("REST request to delete rayonProduit : {}", id);
         rayonProduitService.delete(id);
         return ResponseEntity.noContent()

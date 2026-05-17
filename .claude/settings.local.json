@@ -92,7 +92,8 @@
       "Read(//mnt/c/Users/k.kobena/Documents/dev/full_warehouse/src/main/**)",
       "Bash(npx eslint *)",
       "Bash(node *)",
-      "Bash(psql *)"
+      "Bash(psql *)",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); exports=d.get\\('exports',{}\\); keys=[k for k in exports.keys\\(\\) if 'inputtext' in k.lower\\(\\) or 'inputicon' in k.lower\\(\\)]; [print\\(k,exports[k]\\) for k in keys[:10]]\")"
     ],
     "deny": [],
     "ask": []

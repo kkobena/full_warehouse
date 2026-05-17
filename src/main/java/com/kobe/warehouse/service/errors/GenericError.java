@@ -11,6 +11,10 @@ public class GenericError extends BadRequestAlertException {
         super(defaultMessage, errorKey);
     }
 
+    public GenericError(String defaultMessage, String errorKey, Object payload) {
+        super(defaultMessage, errorKey, payload);
+    }
+
     public GenericError(String defaultMessage) {
         super(defaultMessage);
     }

@@ -1,0 +1,69 @@
+<div class="modal-header">
+  <h5 class="modal-title">Cloner vers d'autres stockages</h5>
+  <button type="button" class="btn-close" (click)="dismiss()"></button>
+</div>
+
+<div class="modal-body crpf-body">
+  <div class="crpf-source-info">
+    <i class="pi pi-tag"></i>
+    <span class="pharma-code">{{ rayon?.code }}</span>
+    <span>{{ rayon?.libelle }}</span>
+    <span class="crpf-type-badge">{{ rayon?.storageType }}</span>
+  </div>
+
+  @if (loading()) {
+    <div class="crpf-loading">
+      <i class="pi pi-spin pi-spinner"></i>
+      Chargement des stockages...
+    </div>
+  } @else if (availableRows.length === 0) {
+    <div class="crpf-empty">
+      <i class="pi pi-info-circle"></i>
+      Aucun autre stockage disponible.
+    </div>
+  } @else {
+    <p class="crpf-hint">Sélectionnez le rayon cible dans chaque stockage souhaité.</p>
+    <div class="crpf-rows">
+      @for (row of availableRows; track row.storage.id) {
+        <div class="crpf-row" [class.crpf-row-selected]="row.selectedRayon != null">
+          <div class="crpf-storage-label">
+            <i class="pi pi-warehouse"></i>
+            <span>{{ row.storage.name }}</span>
+            <span class="crpf-type-badge">{{ row.storage.storageType }}</span>
+          </div>
+          <p-select
+            [options]="row.rayons"
+            [ngModel]="row.selectedRayon"
+            (ngModelChange)="onRayonSelect(row.storage.id!, $event)"
+            optionLabel="libelle"
+            placeholder="Ne pas cloner vers ce stockage"
+            [showClear]="true"
+            [fluid]="true"
+            appendTo="body"
+          >
+            <ng-template #option let-r>
+              <span class="pharma-code">{{ r.code }}</span>
+              <span style="margin-left:.5rem">{{ r.libelle }}</span>
+            </ng-template>
+            <ng-template #selectedItem let-r>
+              <span class="pharma-code">{{ r.code }}</span>
+              <span style="margin-left:.5rem">{{ r.libelle }}</span>
+            </ng-template>
+          </p-select>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<div class="modal-footer">
+  <p-button label="Annuler" severity="danger" [outlined]="true" size="small" (onClick)="dismiss()" />
+  <p-button
+    label="Cloner"
+    icon="pi pi-copy"
+    size="small"
+    [disabled]="!hasSelection() || saving()"
+    [loading]="saving()"
+    (onClick)="confirm()"
+  />
+</div>

@@ -32,7 +32,9 @@ import { RayonListComponent } from '../../ui/rayon-list/rayon-list.component';
 import { RayonDetailPanelComponent } from '../../ui/rayon-detail-panel/rayon-detail-panel.component';
 import { RayonFormComponent } from '../../ui/rayon-form/rayon-form.component';
 import { CloneRayonFormComponent } from '../../ui/clone-rayon-form/clone-rayon-form.component';
+import { CloneRayonProduitsFormComponent } from '../../ui/clone-rayon-produits-form/clone-rayon-produits-form.component';
 import { InventoryCreateModalComponent } from '../../../inventory/ui/inventory-create-modal/inventory-create-modal.component';
+import { IResponseDto } from '../../../../shared/util/response-dto';
 
 @Component({
   selector: 'app-rayon-home',
@@ -126,6 +128,18 @@ export class RayonHomeComponent implements OnInit {
       'Suppression',
       `Supprimer le rayon "${rayon.libelle}" ?`
     );
+  }
+
+  protected onCloneRequested(rayon: IRayon): void {
+    const ref = this.modalService.open(CloneRayonProduitsFormComponent, {
+      size: 'md',
+      centered: true,
+      backdrop: 'static',
+    });
+    (ref.componentInstance as CloneRayonProduitsFormComponent).rayon = rayon;
+    ref.closed.subscribe((result: IResponseDto) => {
+      if (result) this.notificationService.success(result.message ?? 'Clonage effectué');
+    });
   }
 
   protected onInventaireRequested(rayon: IRayon): void {

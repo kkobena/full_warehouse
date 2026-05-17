@@ -7,7 +7,10 @@ import { TooltipModule } from 'primeng/tooltip';
 import { IRayon, TYPE_ZONE_SEVERITY } from '../../models/rayon.model';
 import { RayonProduitsTabComponent } from '../rayon-produits-tab/rayon-produits-tab.component';
 import { RayonFormComponent } from '../rayon-form/rayon-form.component';
+import { CloneRayonProduitsFormComponent } from '../clone-rayon-produits-form/clone-rayon-produits-form.component';
 import { InventoryCreateModalComponent } from '../../../../features/inventory/ui/inventory-create-modal/inventory-create-modal.component';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { IResponseDto } from '../../../../shared/util/response-dto';
 
 @Component({
   selector: 'app-rayon-detail-panel',
@@ -26,6 +29,7 @@ export class RayonDetailPanelComponent {
 
   private readonly modalService = inject(NgbModal);
   private readonly router = inject(Router);
+  private readonly notificationService = inject(NotificationService);
   private currentRayonId: number | null = null;
 
   constructor() {
@@ -69,6 +73,18 @@ export class RayonDetailPanelComponent {
       if (inventory?.id) {
         this.router.navigate(['/inventaire', inventory.id, 'edit']);
       }
+    });
+  }
+
+  protected onClonerVers(): void {
+    const ref = this.modalService.open(CloneRayonProduitsFormComponent, {
+      size: 'md',
+      centered: true,
+      backdrop: 'static',
+    });
+    (ref.componentInstance as CloneRayonProduitsFormComponent).rayon = this.rayon();
+    ref.closed.subscribe((result: IResponseDto) => {
+      if (result) this.notificationService.success(result.message ?? 'Clonage effectué');
     });
   }
 

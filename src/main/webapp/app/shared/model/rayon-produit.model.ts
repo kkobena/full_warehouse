@@ -7,6 +7,7 @@ export interface IRayonProduit {
   storageType?: string;
   magasin?: string;
   magasinId?: number;
+  storageId?: number;
   produitId?: number;
 }
 
@@ -20,6 +21,7 @@ export class RayonProduit implements IRayonProduit {
     public storageType?: string,
     public magasin?: string,
     public magasinId?: number,
+    public storageId?: number,
     public produitId?: number,
   ) {}
 }

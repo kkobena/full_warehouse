@@ -1,0 +1,58 @@
+<div class="prt-container">
+  <div class="prt-toolbar">
+    <p-button
+      label="Ajouter à un autre stockage"
+      icon="pi pi-plus"
+      size="small"
+      severity="secondary"
+      [outlined]="true"
+      (onClick)="onAjouterStockage()"
+    />
+  </div>
+
+  @if (assignments.length === 0) {
+    <div class="prt-empty">
+      <i class="pi pi-map-marker-slash"></i>
+      <span>Ce produit n'a aucun emplacement assigné</span>
+    </div>
+  } @else {
+    <div class="prt-list">
+      @for (rp of assignments; track rp.id) {
+        <div class="prt-item" [class.prt-sans]="rp.codeRayon === 'SANS'">
+          <div class="prt-item-storage">
+            <i class="pi pi-warehouse"></i>
+            <span>{{ rp.libelleStorage }}</span>
+            <span class="text-muted">{{ rp.storageType }}</span>
+          </div>
+          <div class="prt-item-rayon">
+            @if (rp.codeRayon === 'SANS') {
+              <span class="prt-sans-badge">Sans emplacement</span>
+            } @else {
+              <span class="pharma-code">{{ rp.codeRayon }}</span>
+              <span class="prt-libelle">{{ rp.libelleRayon }}</span>
+            }
+          </div>
+          <div class="prt-item-actions">
+            @if (rp.codeRayon === 'SANS') {
+              <p-button
+                icon="pi pi-map-marker"
+                [rounded]="true" [text]="true" severity="warn"
+                pTooltip="Assigner un emplacement dans ce stockage"
+                size="small"
+                (onClick)="onDeplacer(rp)"
+              />
+            } @else {
+              <p-button
+                icon="pi pi-arrows-h"
+                [rounded]="true" [text]="true" severity="info"
+                pTooltip="Déplacer vers un autre emplacement"
+                size="small"
+                (onClick)="onDeplacer(rp)"
+              />
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

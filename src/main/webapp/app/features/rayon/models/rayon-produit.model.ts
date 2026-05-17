@@ -7,5 +7,6 @@ export interface IRayonProduit {
   storageType?: string;
   magasin?: string;
   magasinId?: number;
+  storageId?: number;
   produitId?: number;
 }

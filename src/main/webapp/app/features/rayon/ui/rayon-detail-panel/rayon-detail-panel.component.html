@@ -27,6 +27,16 @@
       />
       @if (rayon().code !== 'SANS') {
       <p-button
+        icon="pi pi-copy"
+        label="Cloner vers..."
+        size="small"
+        severity="info"
+        [outlined]="true"
+        pTooltip="Cloner les produits de ce rayon vers d'autres stockages"
+        tooltipPosition="bottom"
+        (onClick)="onClonerVers()"
+      />
+      <p-button
         icon="pi pi-pencil"
         label="Modifier"
         size="small"

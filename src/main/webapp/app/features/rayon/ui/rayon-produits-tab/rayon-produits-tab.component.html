@@ -11,7 +11,7 @@
       (onSelect)="onProduitSelected($event)"
       optionLabel="libelle"
       [fluid]="true"
-      placeholder="Rechercher et affecter un produit…"
+      placeholder="Rechercher et affecter un produit..."
       appendTo="body"
     >
       <ng-template #item let-p>
@@ -32,45 +32,104 @@
     [totalRecords]="totalItems()"
     [lazy]="true"
     [paginator]="true"
-    [rowsPerPageOptions]="[10,15,20,30, 50, 100]"
+    [rowsPerPageOptions]="[10,15,20,30,50,100]"
     [scrollable]="true"
     scrollHeight="flex"
     (onLazyLoad)="onLazyLoad($event)"
     dataKey="id"
+    selectionMode="multiple"
+    [(selection)]="selectedProduits"
     stripedRows="true"
     class="p-datatable-sm"
   >
+    <ng-template #caption>
+      <div class="rpt-caption">
+        <p-iconfield>
+          <p-inputicon class="pi pi-search" />
+          <input
+            pInputText
+            type="text"
+            placeholder="Filtrer par code CIP ou libellé..."
+            (input)="onFilterChange($any($event.target).value)"
+          />
+        </p-iconfield>
+        @if (selectedProduits.length > 0) {
+          <p-button
+            icon="pi pi-arrows-h"
+            [label]="'Déplacer (' + selectedProduits.length + ')'"
+            severity="info"
+            size="small"
+            (onClick)="onMoveSelected()"
+          />
+        }
+      </div>
+    </ng-template>
+
     <ng-template #header>
       <tr class="pharma-table-head">
+        <th style="width: 3rem; text-align: center">
+          <p-tableHeaderCheckbox />
+        </th>
         <th style="width: 14%">Code CIP</th>
         <th>Libellé</th>
         <th style="width: 10%; text-align: right">Stock total</th>
-        <th style="width: 5rem; text-align: center">Action</th>
+        <th style="width: 7rem; text-align: center">Actions</th>
       </tr>
     </ng-template>
 
     <ng-template #body let-produit>
-      <tr>
-        <td><span class="pharma-code">{{ produit.codeCip }}</span></td>
-        <td><span class="pharma-entity-name">{{ produit.libelle }}</span></td>
-        <td style="text-align: right"><span class="pharma-qty-value">{{ produit.totalQuantity ?? 0 }}</span> </td>
+      <tr [pSelectableRow]="produit">
         <td style="text-align: center">
-          @if (produit.rayonProduitId) {
-            <p-button
-              icon="pi pi-minus"
-              [rounded]="true" [text]="true" severity="danger"
-              pTooltip="Retirer du rayon"
-              tooltipPosition="left"
-              (onClick)="onRetirer(produit)"
-            />
-          }
+          <p-tableCheckbox [value]="produit" />
+        </td>
+        <td><span class="pharma-code">{{ produit.codeCip }}</span></td>
+        <td>
+          <div class="rpt-libelle-cell">
+            <span class="pharma-entity-name">{{ produit.libelle }}</span>
+            @if (produit.otherStorageLabels?.length) {
+              <i class="pi pi-warehouse rpt-multi-storage-icon"
+                 [pTooltip]="'Aussi dans : ' + produit.otherStorageLabels!.join(', ')"
+                 tooltipPosition="top"></i>
+            }
+          </div>
+        </td>
+        <td style="text-align: right"><span class="pharma-qty-value">{{ produit.totalQuantity ?? 0 }}</span></td>
+        <td style="text-align: center">
+          <div class="d-flex justify-content-center gap-1">
+            @if (rayon().code === 'SANS') {
+              <p-button
+                icon="pi pi-arrows-h"
+                [rounded]="true" [text]="true" severity="info"
+                pTooltip="Assigner à un emplacement réel"
+                tooltipPosition="left"
+                (onClick)="onMove(produit)"
+              />
+            } @else {
+              <p-button
+                icon="pi pi-copy"
+                [rounded]="true" [text]="true" severity="info"
+                pTooltip="Cloner vers un autre stockage"
+                tooltipPosition="left"
+                (onClick)="onClone(produit)"
+              />
+              @if (produit.rayonProduitId) {
+                <p-button
+                  icon="pi pi-times"
+                  [rounded]="true" [text]="true" severity="danger"
+                  pTooltip="Retirer du rayon (choisir un remplacement)"
+                  tooltipPosition="left"
+                  (onClick)="onRetirer(produit)"
+                />
+              }
+            }
+          </div>
         </td>
       </tr>
     </ng-template>
 
     <ng-template #emptymessage>
       <tr>
-        <td colspan="4" class="text-center text-muted py-3">Aucun produit dans ce rayon</td>
+        <td colspan="5" class="text-center text-muted py-3">Aucun produit dans ce rayon</td>
       </tr>
     </ng-template>
   </p-table>

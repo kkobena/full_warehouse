@@ -14,6 +14,7 @@ public class RayonProduitDTO {
     private String storageType;
     private String magasin;
     private Integer magasinId;
+    private Integer storageId;
     private Integer rayonId;
     private Integer id;
     private Integer produitId;
@@ -31,6 +32,7 @@ public class RayonProduitDTO {
         this.storageType = storage.getStorageType().getValue();
         this.magasin = thatmagasin.getName();
         this.magasinId = thatmagasin.getId();
+        this.storageId = storage.getId();
         this.rayonId = rayon.getId();
         this.id = produit.getId();
         this.produitId = produit.getProduit().getId();
@@ -42,6 +44,15 @@ public class RayonProduitDTO {
 
     public RayonProduitDTO setProduitId(Integer produitId) {
         this.produitId = produitId;
+        return this;
+    }
+
+    public Integer getStorageId() {
+        return storageId;
+    }
+
+    public RayonProduitDTO setStorageId(Integer storageId) {
+        this.storageId = storageId;
         return this;
     }
 

@@ -11,6 +11,7 @@ export interface ProduitsRayonParams {
   page?: number;
   size?: number;
   rayonId: number;
+  search?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -24,8 +25,16 @@ export class RayonProduitApiService {
     return this.http.get<IProduit[]>(this.produitUrl, { params: options, observe: 'response' });
   }
 
-  create(rayonProduit: IRayonProduit): Observable<HttpResponse<IRayonProduit>> {
+  assign(rayonProduit: IRayonProduit): Observable<HttpResponse<IRayonProduit>> {
     return this.http.post<IRayonProduit>(this.resourceUrl, rayonProduit, { observe: 'response' });
+  }
+
+  move(rayonProduit: IRayonProduit): Observable<HttpResponse<IRayonProduit>> {
+    return this.http.post<IRayonProduit>(`${this.resourceUrl}/move`, rayonProduit, { observe: 'response' });
+  }
+
+  moveBatch(produitIds: number[], rayonId: number): Observable<HttpResponse<void>> {
+    return this.http.post<void>(`${this.resourceUrl}/move-batch`, { produitIds, rayonId }, { observe: 'response' });
   }
 
   delete(id: number): Observable<HttpResponse<{}>> {
@@ -33,8 +42,12 @@ export class RayonProduitApiService {
   }
 
   searchProduits(query: string): Observable<HttpResponse<IProduit[]>> {
-    const options = createRequestOptions({ query, size: 20 });
+    const options = createRequestOptions({ search:query, size: 20 });
     return this.http.get<IProduit[]>(this.produitUrl, { params: options, observe: 'response' });
+  }
+
+  cloneFromRayon(sourceRayonId: number, targetRayonIds: number[]): Observable<HttpResponse<IResponseDto>> {
+    return this.http.post<IResponseDto>(`${this.resourceUrl}/clone-from-rayon`, { sourceRayonId, targetRayonIds }, { observe: 'response' });
   }
 
   importCsv(file: FormData, storageId: number): Observable<HttpResponse<IResponseDto>> {

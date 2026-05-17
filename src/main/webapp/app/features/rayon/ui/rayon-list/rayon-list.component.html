@@ -56,6 +56,13 @@
           />
           @if (rayon.code !== 'SANS') {
             <p-button
+              icon="pi pi-copy"
+              size="small"
+              [rounded]="true" [text]="true" severity="info"
+              pTooltip="Cloner vers d'autres stockages"
+              (onClick)="onClone(rayon, $event)"
+            />
+            <p-button
               icon="pi pi-pencil"
               size="small"
               [rounded]="true" [text]="true" severity="success"

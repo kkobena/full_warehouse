@@ -144,6 +144,19 @@
         </ng-template>
       </ng-container>
 
+      <ng-container ngbNavItem="rayons">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-map-marker"></i>
+          <span>Rayons</span>
+        </a>
+        <ng-template ngbNavContent>
+          <app-produit-rayons-tab
+            [produit]="richProduit()"
+            (refreshRequested)="onRefreshRequested()"
+          />
+        </ng-template>
+      </ng-container>
+
       @if (richProduit().deconditionnable) {
         <ng-container ngbNavItem="deconditions">
           <a class="pharma-nav-tab-link" ngbNavLink>

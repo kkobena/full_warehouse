@@ -13,36 +13,36 @@
           <div class="pharma-search-input">
             <p-iconfield>
               <p-inputicon class="pi pi-search" />
-              <input pInputText placeholder="Rechercher un fournisseur…"
-                     [(ngModel)]="search" (keyup.enter)="loadPage(0)" type="text" />
+              <input (keyup.enter)="loadPage(0)" [(ngModel)]="search"
+                     pInputText placeholder="Rechercher un fournisseur…" type="text" />
             </p-iconfield>
           </div>
         </div>
       </ng-template>
       <ng-template #end>
         <div class="pharma-button-group">
-          <p-button (click)="showFileDialog()" icon="pi pi-upload" label="Importer"
-                    [raised]="true" severity="help" type="button" />
-          <p-button (click)="openNewParent()" icon="pi pi-plus" label="Nouveau fournisseur"
-                    [raised]="true" severity="success" type="button" />
+          <p-button (click)="showFileDialog()" [raised]="true" icon="pi pi-upload"
+                    label="Importer" severity="help" type="button" />
+          <p-button (click)="openNewParent()" [raised]="true" icon="pi pi-plus"
+                    label="Nouveau fournisseur" severity="success" type="button" />
         </div>
       </ng-template>
     </p-toolbar>
   </div>
 
   <p-table
-    [value]="fournisseurs"
+    (onLazyLoad)="lazyLoading($event)"
+    (onRowExpand)="onRowExpand($event)"
     [lazy]="true"
     [loading]="loading()"
     [paginator]="true"
     [rows]="itemsPerPage"
-    [totalRecords]="totalItems"
     [scrollable]="true"
-    (onLazyLoad)="lazyLoading($event)"
-    (onRowExpand)="onRowExpand($event)"
+    [totalRecords]="totalItems"
+    [value]="fournisseurs"
+    class="p-datatable-sm"
     dataKey="id"
     rowExpandMode="multiple"
-    class="p-datatable-sm"
     stripedRows="true"
   >
     <ng-template #header>
@@ -66,7 +66,7 @@
         <th><span>Code destinataire</span></th>
         <th><span>N° client grossiste</span></th>
         <th class="text-center"><span>Agences</span></th>
-        <th pFrozenColumn alignFrozen="right" style="width: 8rem"></th>
+        <th alignFrozen="right" pFrozenColumn style="width: 8rem"></th>
       </tr>
     </ng-template>
 
@@ -74,13 +74,15 @@
     <ng-template #body let-expanded="expanded" let-f>
       <tr [pSelectableRow]="f">
         <td>
-          <p-button [pRowToggler]="f"
-                    [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                    [text]="true" [rounded]="true" severity="secondary" size="small"
-                    pTooltip="{{ expanded ? 'Masquer les agences' : 'Voir les agences' }}" />
+          <p-button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                    [pRowToggler]="f"
+                    [rounded]="true" [text]="true" pTooltip="{{ expanded ? 'Masquer les agences' : 'Voir les agences' }}" severity="secondary"
+                    size="small" />
         </td>
         <td><span class="pharma-code">{{ f.code }}</span></td>
-        <td><div class="pharma-entity-name">{{ f.libelle }}</div></td>
+        <td>
+          <div class="pharma-entity-name">{{ f.libelle }}</div>
+        </td>
         <td>{{ f.mobile }}</td>
         <td>{{ f.phone }}</td>
         <td>{{ f.addressePostal }}</td>
@@ -105,18 +107,22 @@
         <td class="text-center">
           @let agences = agencesOf(f.id!);
           @if (agencesMap().has(f.id!)) {
-            <p-tag [value]="agences.length + ''" [severity]="agences.length > 0 ? 'info' : 'secondary'"
-                   [rounded]="true" />
+            <p-tag [rounded]="true"
+                   [severity]="agences.length > 0 ? 'info' : 'secondary'"
+                   [value]="agences.length + ''" />
           }
         </td>
-        <td pFrozenColumn alignFrozen="right" class="text-end">
+        <td alignFrozen="right" class="text-end" pFrozenColumn>
           <p-buttonGroup>
-            <p-button (click)="editFournisseur(f)" icon="pi pi-pencil"
-                      [text]="true" [rounded]="true" severity="success" pTooltip="Modifier" />
-            <p-button (click)="addAgence(f)" icon="pi pi-building"
-                      [text]="true" [rounded]="true" severity="info" pTooltip="Ajouter une agence" />
-            <p-button (click)="deleteParent(f)" icon="pi pi-trash"
-                      [text]="true" [rounded]="true" severity="danger" pTooltip="Supprimer" />
+            <p-button (click)="editFournisseur(f)" [rounded]="true"
+                      [text]="true" icon="pi pi-pencil" pTooltip="Modifier" severity="success"
+                      tooltipPosition="left" />
+            <p-button (click)="addAgence(f)" [rounded]="true"
+                      [text]="true" icon="pi pi-building" pTooltip="Ajouter une agence" severity="info"
+                      tooltipPosition="left" />
+            <p-button (click)="deleteParent(f)" [rounded]="true"
+                      [text]="true" icon="pi pi-trash" pTooltip="Supprimer" severity="danger"
+                      tooltipPosition="left" />
           </p-buttonGroup>
         </td>
       </tr>
@@ -153,7 +159,8 @@
                       </div>
                     </div>
                     <div class="activity-card-table-body">
-                      <p-table [value]="agences" [scrollable]="true" class="pharma-table rowexpansion-table" stripedRows="true">
+                      <p-table [scrollable]="true" [value]="agences"
+                               class="pharma-table rowexpansion-table" stripedRows="true">
                         <ng-template #header>
                           <tr class="pharma-table-head">
                             <th><span>Code</span></th>
@@ -168,13 +175,15 @@
                             <th><span>Code officine</span></th>
                             <th><span>Code destinataire</span></th>
                             <th><span>N° client grossiste</span></th>
-                            <th pFrozenColumn alignFrozen="right" style="width: 7rem"></th>
+                            <th alignFrozen="right" pFrozenColumn style="width: 7rem"></th>
                           </tr>
                         </ng-template>
                         <ng-template #body let-agence>
                           <tr>
                             <td><span class="pharma-code">{{ agence.code }}</span></td>
-                            <td><div class="pharma-entity-name">{{ agence.libelle }}</div></td>
+                            <td>
+                              <div class="pharma-entity-name">{{ agence.libelle }}</div>
+                            </td>
                             <td>{{ agence.mobile }}</td>
                             <td>{{ agence.phone }}</td>
                             <td>{{ agence.addressePostal }}</td>
@@ -183,20 +192,25 @@
                             <td>{{ agence.identifiantRepartiteur }}</td>
                             <td class="text-center">
                               @if (agence.urlPharmaMl) {
-                                <i class="pi pi-check-circle text-success" pTooltip="{{ agence.urlPharmaMl }}"></i>
+                                <i class="pi pi-check-circle text-success"
+                                   pTooltip="{{ agence.urlPharmaMl }}"></i>
                               } @else {
-                                <i class="pi pi-minus-circle text-muted" pTooltip="PharmaML non configuré"></i>
+                                <i class="pi pi-minus-circle text-muted"
+                                   pTooltip="PharmaML non configuré"></i>
                               }
                             </td>
                             <td>{{ agence.codeOfficePharmaMl }}</td>
                             <td>{{ agence.codeRecepteurPharmaMl }}</td>
                             <td>{{ agence.idRecepteurPharmaMl }}</td>
-                            <td pFrozenColumn alignFrozen="right" class="text-end">
+                            <td alignFrozen="right" class="text-end" pFrozenColumn>
                               <p-buttonGroup>
-                                <p-button (click)="editFournisseur(agence)" size="small" icon="pi pi-pencil"
-                                          [text]="true" [rounded]="true" severity="success" pTooltip="Modifier" />
-                                <p-button (click)="deleteAgence(agence, f.id!)" icon="pi pi-trash"
-                                          [text]="true" [rounded]="true" size="small" severity="danger" pTooltip="Supprimer" />
+                                <p-button (click)="editFournisseur(agence)" [rounded]="true"
+                                          [text]="true"
+                                          icon="pi pi-pencil" pTooltip="Modifier" severity="success"
+                                          size="small" />
+                                <p-button (click)="deleteAgence(agence, f.id!)" [rounded]="true"
+                                          [text]="true" icon="pi pi-trash" pTooltip="Supprimer"
+                                          severity="danger" size="small" />
                               </p-buttonGroup>
                             </td>
                           </tr>

@@ -8,15 +8,12 @@ import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.SuggestionLine;
 import com.kobe.warehouse.service.pharmaml.PharmaMlUtils;
-import com.kobe.warehouse.service.pharmaml.dto.AcqReception;
-import com.kobe.warehouse.service.pharmaml.dto.Annulation;
 import com.kobe.warehouse.service.pharmaml.dto.Corps;
 import com.kobe.warehouse.service.pharmaml.dto.CsrpEnveloppe;
 import com.kobe.warehouse.service.pharmaml.dto.Entete;
 import com.kobe.warehouse.service.pharmaml.dto.EnvoiParamsDTO;
 import com.kobe.warehouse.service.pharmaml.dto.Exceptionnelle;
 import com.kobe.warehouse.service.pharmaml.dto.LigneN;
-import com.kobe.warehouse.service.pharmaml.dto.LigneReception;
 import com.kobe.warehouse.service.pharmaml.dto.LigneRetour;
 import com.kobe.warehouse.service.pharmaml.dto.LigneRetourDTO;
 import com.kobe.warehouse.service.pharmaml.dto.MessageCorps;
@@ -114,52 +111,54 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
     }
 
     private Entete buildEntete(Fournisseur fournisseur, String refMessage) {
+        Fournisseur groupeFournisseur =
+            fournisseur.getParent() != null ? fournisseur.getParent() : fournisseur;
         Entete e = new Entete();
         e.setDate(getPharmaMlDate());
         e.setRefMessage(refMessage);
-        e.setEmetteur(buildEmetteur(fournisseur));
-        e.setRecepteur(buildRecepteur(fournisseur));
+        e.setEmetteur(buildEmetteur(groupeFournisseur));
+        e.setRecepteur(buildRecepteur(groupeFournisseur));
         return e;
     }
 
     private Partenaire buildEmetteur(Fournisseur fournisseur) {
-        Fournisseur groupeFournisseur = fournisseur.getParent() != null ? fournisseur.getParent() : fournisseur;
-        String code = StringUtils.hasLength(groupeFournisseur.getCodeOfficePharmaMl())
-            ? groupeFournisseur.getCodeOfficePharmaMl()
+        String code = StringUtils.hasLength(fournisseur.getCodeOfficePharmaMl())
+            ? fournisseur.getCodeOfficePharmaMl()
             : PharmaMlUtils.CODE_VALUE;
         Partenaire p = new Partenaire();
         p.setNature(PharmaMlUtils.NATURE_PARTENAIRE_VALUE_OF);
         p.setCode(code);
         p.setAdresse(this.appConfigurationService.getMagasin().getName());
         p.setId(
-            fournisseur.getIdentifiantRepartiteur());//groupeFournisseur.getIdRecepteurPharmaMl()
+            fournisseur.getIdentifiantRepartiteur());
         return p;
     }
 
     private Partenaire buildRecepteur(Fournisseur fournisseur) {
-        Fournisseur groupeFournisseur = fournisseur.getParent() != null ? fournisseur.getParent() : fournisseur;
+
         Partenaire p = new Partenaire();
         p.setNature(PharmaMlUtils.NATURE_PARTENAIRE_VALUE_RE);
-        p.setCode(groupeFournisseur.getCodeRecepteurPharmaMl());
+        p.setCode(fournisseur.getCodeRecepteurPharmaMl());
         p.setAdresse(this.appConfigurationService.getMagasin().getName());
-        p.setId(groupeFournisseur.getIdRecepteurPharmaMl());
+        p.setId(fournisseur.getIdRecepteurPharmaMl());
         return p;
     }
 
     private MessageEntete buildMessageEntete(Fournisseur fournisseur) {
+        Fournisseur groupeFournisseur =
+            fournisseur.getParent() != null ? fournisseur.getParent() : fournisseur;
         MessageEntete me = new MessageEntete();
-        me.setEmetteur(buildOfficineEmetteur(fournisseur));
-        me.setDestinataire(buildOfficineDestinataire(fournisseur));
+        me.setEmetteur(buildOfficineEmetteur(groupeFournisseur));
+        me.setDestinataire(buildOfficineDestinataire(groupeFournisseur));
         me.setDate(getPharmaMlDate());
         return me;
     }
 
     private OfficinePartenaire buildOfficineDestinataire(Fournisseur fournisseur) {
-        Fournisseur groupeFournisseur = fournisseur.getParent() != null ? fournisseur.getParent() : fournisseur;
+
         OfficinePartenaire op = new OfficinePartenaire();
-        // op.setIdSociete(fournisseur.getIdentifiantRepartiteur());
-        op.setIdSociete(groupeFournisseur.getIdRecepteurPharmaMl());
-        op.setCodeSociete(groupeFournisseur.getCodeRecepteurPharmaMl());
+        op.setIdSociete(fournisseur.getIdRecepteurPharmaMl());
+        op.setCodeSociete(fournisseur.getCodeRecepteurPharmaMl());
         op.setNaturePartenaire(PharmaMlUtils.NATURE_PARTENAIRE_VALUE_RE);
         return op;
     }
@@ -250,55 +249,6 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
         return n;
     }
 
-
-    private Corps buildCorpsAck(Commande commande, Fournisseur fournisseur) {
-        AcqReception acq = new AcqReception();
-        acq.setRefCdeOfficine(commande.getOrderReference());
-        acq.setRefCdeRepartiteur(commande.getReceiptReference());
-        acq.setLignes(commande.getOrderLines().stream()
-            .filter(ol -> ol.getQuantityReceived() != null && ol.getQuantityReceived() > 0)
-            .map(ol -> {
-                String cip = ol.getFournisseurProduit().getCodeCip();
-                return new LigneReception()
-                    .setCodeProduit(cip)
-                    .setTypeCodification(typeCodification(cip))
-                    .setQuantiteRecue(ol.getQuantityReceived());
-            })
-            .toList());
-
-        com.kobe.warehouse.service.pharmaml.dto.Commande c = new com.kobe.warehouse.service.pharmaml.dto.Commande();
-        c.setRefCdeClient(commande.getOrderReference());
-        c.setAcqReception(acq);
-
-        MessageCorps mc = new MessageCorps();
-        mc.setCommande(c);
-
-        MessageOfficine messageOfficine = new MessageOfficine();
-        messageOfficine.setEntete(buildMessageEntete(fournisseur));
-        messageOfficine.setCorps(mc);
-
-        Corps corps = new Corps();
-        corps.setMessageOfficine(messageOfficine);
-        return corps;
-    }
-
-    private Corps buildCorpsAnnulation(Commande commande, Fournisseur fournisseur, String motif) {
-        Annulation ann = new Annulation()
-            .setRefCdeOfficine(commande.getOrderReference())
-            .setRefCdeRepartiteur(commande.getReceiptReference())
-            .setMotif(StringUtils.hasLength(motif) ? motif : "Annulation demandée par l'officine");
-
-        MessageCorps mc = new MessageCorps();
-        mc.setAnnulation(ann);
-
-        MessageOfficine messageOfficine = new MessageOfficine();
-        messageOfficine.setEntete(buildMessageEntete(fournisseur));
-        messageOfficine.setCorps(mc);
-
-        Corps corps = new Corps();
-        corps.setMessageOfficine(messageOfficine);
-        return corps;
-    }
 
     private Corps buildCorpsRetour(Commande commande, Fournisseur fournisseur,
         List<LigneRetourDTO> lignes) {

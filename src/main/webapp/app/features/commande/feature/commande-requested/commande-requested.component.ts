@@ -94,6 +94,7 @@ export class CommandeRequestedComponent implements OnInit {
   protected showLotBtn = false;
   protected seuilMontantCommande = 0;
   protected currentCommande?: ICommande | null = null;
+  protected pharmamlActions: MenuItem[] = [];
 
   protected readonly quantityBox = viewChild.required<ElementRef>("quantityBox");
   protected readonly productSearch = viewChild.required<CommandeProductSearchComponent>("productSearch");
@@ -301,27 +302,21 @@ export class CommandeRequestedComponent implements OnInit {
 
   // ─── PharmaML actions ────────────────────────────────────────────────────────
 
-  get pharmamlActions(): MenuItem[] {
-    return (this.isLocked || this.currentCommande?.orderStatus === "RECEIVED")
-      ? this.actionsReceived
-      : this.actionsRequested;
-  }
-
-  private get actionsRequested(): MenuItem[] {
-    return [
-      { label: "Envoyer via PharmaML", icon: "pi pi-send", command: () => this.openEnvoi() },
-      { label: "Voir réponse", icon: "pi pi-file", command: () => this.openReponse() },
-      { separator: true },
-      { label: "Comparer multi-grossistes", icon: "pi pi-chart-bar", command: () => this.ouvrirComparaison() }
-    ];
-  }
-
-  private get actionsReceived(): MenuItem[] {
-    return [
-      { label: "Voir réponse", icon: "pi pi-file", command: () => this.openReponse() },
-      { separator: true },
-      { label: "Comparer multi-grossistes", icon: "pi pi-chart-bar", command: () => this.ouvrirComparaison() }
-    ];
+  private buildPharmamlActions(): void {
+    if (this.isLocked || this.currentCommande?.orderStatus === "RECEIVED") {
+      this.pharmamlActions = [
+        { label: "Voir réponse", icon: "pi pi-file", disabled: false, command: () => this.openReponse() },
+        { separator: true },
+        { label: "Comparer multi-grossistes", icon: "pi pi-chart-bar", disabled: false, command: () => this.ouvrirComparaison() }
+      ];
+    } else {
+      this.pharmamlActions = [
+        { label: "Envoyer via PharmaML", icon: "pi pi-send", disabled: false, command: () => this.openEnvoi() },
+        { label: "Voir réponse", icon: "pi pi-file", disabled: false, command: () => this.openReponse() },
+        { separator: true },
+        { label: "Comparer multi-grossistes", icon: "pi pi-chart-bar", disabled: false, command: () => this.ouvrirComparaison() }
+      ];
+    }
   }
 
   protected openEnvoi(): void {
@@ -376,6 +371,7 @@ export class CommandeRequestedComponent implements OnInit {
         this.currentCommande = res.body;
         this.orderLines = this.currentCommande?.orderLines ?? [];
         this.selectedProvider = this.currentCommande?.fournisseurId;
+        this.buildPharmamlActions();
         this.focusProduitBox();
       });
     } else {
@@ -668,6 +664,7 @@ export class CommandeRequestedComponent implements OnInit {
     this.commandeService.find(this.currentCommande.commandeId).subscribe(res => {
       this.currentCommande = res.body;
       this.orderLines = this.currentCommande?.orderLines ?? [];
+      this.buildPharmamlActions();
       this.commandeChange.emit(this.currentCommande);
     });
   }
@@ -677,6 +674,7 @@ export class CommandeRequestedComponent implements OnInit {
     this.commandeService.find(this.currentCommande.commandeId).subscribe(res => {
       this.currentCommande = res.body;
       this.orderLines = this.currentCommande?.orderLines ?? [];
+      this.buildPharmamlActions();
       this.focusProduitBox();
       this.commandeChange.emit(this.currentCommande);
     });
@@ -687,6 +685,7 @@ export class CommandeRequestedComponent implements OnInit {
     this.commandeService.find(commandeId).subscribe(res => {
       this.currentCommande = res.body;
       this.orderLines = this.currentCommande?.orderLines ?? [];
+      this.buildPharmamlActions();
       this.resetProductInput();
       this.commandeChange.emit(this.currentCommande);
     });

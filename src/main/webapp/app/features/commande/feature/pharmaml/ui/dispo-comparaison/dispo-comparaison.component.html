@@ -9,10 +9,10 @@
   <!-- Sélecteur de grossistes -->
   <div class="dc-selector">
     <app-fournisseur-select
-      class="flex-grow-1 min-w-0"
-      [multiple]="true"
-      [grouped]="true"
       (multiSelectionChange)="onFournisseurChange($event)"
+      [grouped]="true"
+      [multiple]="true"
+      class="flex-grow-1 min-w-0"
     />
     <p-button
       (onClick)="comparer()"
@@ -40,51 +40,48 @@
     </div>
   } @else if (hasResults()) {
     <div class="dc-table-wrapper">
-      <table class="dc-table pharma-table">
-        <thead>
-        <tr class="pharma-table-head">
-          <th class="dc-th-produit">Produit</th>
-          @for (f of colonnes(); track f.id) {
-            <th class="dc-th-grossiste" colspan="3">{{ f.libelle }}</th>
-          }
-        </tr>
-        <tr class="dc-subheader">
-          <th></th>
-          @for (f of colonnes(); track f.id) {
-            <th class="text-center">Dispo</th>
-            <th class="text-right">Stock</th>
-            <th class="text-right">PA</th>
-          }
-        </tr>
-        </thead>
-        <tbody>
-          @for (row of rows(); track row.codeProduit) {
-
-            <tr [class.dc-row-rupture]="isRowRupture(row)">
-              <td class="dc-td-produit">
-                <div class="dc-produit-libelle">{{ row.designation ?? '—' }}</div>
-                <code class="dc-produit-code">{{ row.codeProduit }}</code>
-              </td>
-              @for (f of colonnes(); track f.id) {
-                @let info = infoFor(row, f.id!);
-                @if (info) {
-                  <td class="text-center">
-                    @if (info.disponible) {
-                      <p-tag severity="success" value="OK" />
-                    } @else {
-                      <p-tag severity="danger" value="Rupture" />
-                    }
-                  </td>
-                  <td class="text-right dc-cell-num">{{ info.stockDisponible }}</td>
-                  <td class="text-right dc-cell-num">{{ info.prixAchat | number: '1.0-0' }}</td>
-                } @else {
-                  <td class="text-center text-muted dc-na" colspan="3">N/A</td>
-                }
+      <p-table [value]="rows()" [scrollable]="true" scrollHeight="420px">
+        <ng-template pTemplate="header">
+          <tr class="pharma-table-head">
+            <th class="dc-th-produit">Produit</th>
+            @for (f of colonnes(); track f.id) {
+              <th class="dc-th-grossiste" colspan="3">{{ f.libelle }}</th>
+            }
+          </tr>
+          <tr class="dc-subheader">
+            <th></th>
+            @for (f of colonnes(); track f.id) {
+              <th class="text-center">Dispo</th>
+              <th class="text-end">Stock</th>
+              <th class="text-end">PA</th>
+            }
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-row>
+          <tr [class.dc-row-rupture]="isRowRupture(row)">
+            <td class="dc-td-produit">
+              <div class="dc-produit-libelle">{{ row.designation ?? '—' }}</div>
+              <code class="dc-produit-code">{{ row.codeProduit }}</code>
+            </td>
+            @for (f of colonnes(); track f.id) {
+              @let info = infoFor(row, f.id!);
+              @if (info) {
+                <td class="text-center">
+                  @if (info.disponible) {
+                    <p-tag severity="success" value="Disponible" />
+                  } @else {
+                    <p-tag severity="danger" value="Rupture" />
+                  }
+                </td>
+                <td class="text-end dc-cell-num">{{ info.stockDisponible }}</td>
+                <td class="text-end dc-cell-num">{{ info.prixAchat | number: '1.0-0' }}</td>
+              } @else {
+                <td class="text-center text-muted dc-na" colspan="3">N/A</td>
               }
-            </tr>
-          }
-        </tbody>
-      </table>
+            }
+          </tr>
+        </ng-template>
+      </p-table>
     </div>
   } @else if (!loading() && colonnes().length > 0) {
     <div class="dc-empty">

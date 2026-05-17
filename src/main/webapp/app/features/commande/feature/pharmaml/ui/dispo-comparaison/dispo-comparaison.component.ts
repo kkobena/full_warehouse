@@ -5,6 +5,7 @@ import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { TagModule } from "primeng/tag";
 import { ButtonModule } from "primeng/button";
 import { TooltipModule } from "primeng/tooltip";
+import { TableModule } from "primeng/table";
 import { IDispoGrossisteResult, IInfoProduit } from "../../../../../../shared/model/pharmaml.model";
 import { IFournisseur } from "../../../../../../shared/model/fournisseur.model";
 import { CommandeId } from "../../../../../../shared/model/abstract-commande.model";
@@ -23,7 +24,7 @@ export interface ComparaisonRow {
   selector: "app-dispo-comparaison",
   templateUrl: "./dispo-comparaison.component.html",
   styleUrls: ["./dispo-comparaison.component.scss"],
-  imports: [CommonModule, FormsModule, TagModule, ButtonModule, TooltipModule, FournisseurSelectComponent]
+  imports: [CommonModule, FormsModule, TagModule, ButtonModule, TooltipModule, TableModule, FournisseurSelectComponent]
 })
 export class DispoComparaisonComponent {
   commandeId!: CommandeId;

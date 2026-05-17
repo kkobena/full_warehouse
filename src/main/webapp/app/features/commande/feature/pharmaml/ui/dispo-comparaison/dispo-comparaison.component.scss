@@ -5,9 +5,6 @@
   @include modal-theme;
 }
 
-
-
-
 .dc-selector {
   display: flex;
   gap: 0.5rem;
@@ -42,72 +39,72 @@
   }
 }
 
+// Wrapper pour scroll horizontal si beaucoup de grossistes
 .dc-table-wrapper {
   overflow-x: auto;
   margin-top: 0.75rem;
 }
 
-.dc-table {
-  width: 100%;
-  border-collapse: collapse;
+// ── En-têtes ─────────────────────────────────────────────────────────────────
+
+.pharma-table-head {
+  background: var(--p-primary-100, #e0e7ff);
+
+  th {
+    padding: 0.4rem 0.75rem;
+    font-weight: 700;
+    font-size: 0.75rem;
+  }
+}
+
+.dc-th-produit {
+  background: var(--p-surface-100, #f8fafc);
+  min-width: 200px;
+}
+
+.dc-th-grossiste {
+  text-align: center;
+  border-left: 2px solid var(--p-surface-0, #fff);
+  color: var(--p-primary-800, #3730a3);
+}
+
+.dc-subheader {
+  background: var(--p-surface-100, #f8fafc);
+  border-bottom: 2px solid var(--p-surface-200, #e2e8f0);
+
+  th {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--p-text-muted-color, #6b7280);
+  }
+}
+
+// ── Corps ─────────────────────────────────────────────────────────────────────
+
+::ng-deep .p-datatable tbody tr {
+  border-bottom: 1px solid var(--p-surface-100, #f1f5f9);
   font-size: 0.78rem;
   white-space: nowrap;
+  transition: background 0.15s;
 
-  thead tr:first-child {
-    background: var(--p-primary-100, #e0e7ff);
-
-    th {
-      padding: 0.4rem 0.75rem;
-      font-weight: 700;
-      font-size: 0.75rem;
-    }
-
-    .dc-th-produit {
-      background: var(--p-surface-100, #f8fafc);
-      min-width: 200px;
-    }
-
-    .dc-th-grossiste {
-      text-align: center;
-      border-left: 2px solid var(--p-surface-0, #fff);
-      color: var(--p-primary-800, #3730a3);
-    }
+  &:hover {
+    background: var(--p-surface-50, #f9fafb);
   }
 
-  .dc-subheader {
-    background: var(--p-surface-100, #f8fafc);
-    border-bottom: 2px solid var(--p-surface-200, #e2e8f0);
-
-    th {
-      padding: 0.3rem 0.5rem;
-      font-size: 0.7rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-      color: var(--p-text-muted-color, #6b7280);
-    }
+  td {
+    padding: 0.35rem 0.5rem;
+    vertical-align: middle;
   }
+}
 
-  tbody tr {
-    border-bottom: 1px solid var(--p-surface-100, #f1f5f9);
-    transition: background 0.15s;
+.dc-row-rupture {
+  background: var(--p-red-50, #fef2f2) !important;
 
-    &:hover {
-      background: var(--p-surface-50, #f9fafb);
-    }
-
-    &.dc-row-rupture {
-      background: var(--p-red-50, #fef2f2);
-
-      &:hover {
-        background: var(--p-red-100, #fee2e2);
-      }
-    }
-
-    td {
-      padding: 0.35rem 0.5rem;
-      vertical-align: middle;
-    }
+  &:hover {
+    background: var(--p-red-100, #fee2e2) !important;
   }
 }
 
@@ -135,12 +132,4 @@
 .dc-na {
   font-size: 0.75rem;
   color: var(--p-text-muted-color, #94a3b8);
-}
-
-.text-right {
-  text-align: right;
-}
-
-.text-center {
-  text-align: center;
 }

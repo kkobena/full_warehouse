@@ -62,7 +62,7 @@ export class RecapitualtifCaisseComponent implements OnInit, OnDestroy {
   protected onlyVente = false;
   protected ticketZ: Ticket = null;
   protected users: IUser[] = [];
-  protected selectedUsersId: number[] = [null];
+  protected selectedUsersId: (number | null)[] = [null];
   protected readonly hous = TIMES;
   private readonly recapitulatifCaisseService = inject(RecapitulatifCaisseService);
   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
@@ -124,7 +124,6 @@ export class RecapitualtifCaisseComponent implements OnInit, OnDestroy {
           }
         }),
         catchError(error => {
-          console.error('Error fetching receipt for Tauri:', error);
           this.messageService.add({
             severity: 'error',
             summary: 'Erreur',
@@ -309,13 +308,14 @@ export class RecapitualtifCaisseComponent implements OnInit, OnDestroy {
   }
 
   private buildParams(): RecapParam {
+    const usersId = this.selectedUsersId.filter((id): id is number => id !== null);
     return {
       fromDate: DATE_FORMAT_ISO_DATE(this.fromDate),
       toDate: DATE_FORMAT_ISO_DATE(this.toDate),
-      fromTime: this.fromTime + ':00', // Ajout de ':00' pour le format HH:mm:ss
-      toTime: this.toTime + ':59', // Ajout de ':59' pour le format HH:mm:ss
+      fromTime: this.fromTime + ':00',
+      toTime: this.toTime + ':59',
       onlyVente: this.onlyVente,
-      usersId: this.selectedUsersId.length > 0 ? this.selectedUsersId : null,
+      ...(usersId.length > 0 && { usersId }),
     };
   }
 }

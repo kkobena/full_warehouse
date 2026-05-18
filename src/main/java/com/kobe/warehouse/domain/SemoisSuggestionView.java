@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.Immutable;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.Instant;
 
 /**
@@ -69,6 +70,9 @@ public class SemoisSuggestionView implements Serializable {
     @Column(name = "date_dernier_calcul")
     private Instant dateDernierCalcul;
 
+    @Column(name = "facteur_saisonnier_actuel")
+    private BigDecimal facteurSaisonnier;
+
     // vue_refresh_date n'existe plus dans v_semois_suggestion (vue ordinaire)
 
     // ==================== Getters (pas de setters: lecture seule) ====================
@@ -127,6 +131,10 @@ public class SemoisSuggestionView implements Serializable {
 
     public Instant getDateDernierCalcul() {
         return dateDernierCalcul;
+    }
+
+    public BigDecimal getFacteurSaisonnier() {
+        return facteurSaisonnier;
     }
 
     // ==================== toString, equals, hashCode ====================

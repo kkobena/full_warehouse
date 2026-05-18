@@ -213,11 +213,14 @@ public interface ProduitRepository
     /**
      * Charge tous les produits éligibles au batch SEMOIS :
      * actifs, non-DETAIL, avec FP principal défini.
-     * Fetch-join des stockProduits pour éviter le N+1 dans la boucle du batch.
+     * Fetch-join des stockProduits, du fournisseur et de son parent pour éviter les N+1
+     * dans la boucle du batch (regroupement par fournisseur, résolution du délai de livraison).
      */
     @Query("""
         SELECT DISTINCT p FROM Produit p
         JOIN FETCH p.fournisseurProduitPrincipal fp
+        LEFT JOIN FETCH fp.fournisseur f
+        LEFT JOIN FETCH f.parent
         LEFT JOIN FETCH p.stockProduits sp
         WHERE p.status = com.kobe.warehouse.domain.enumeration.Status.ENABLE
           AND p.typeProduit <> com.kobe.warehouse.domain.enumeration.TypeProduit.DETAIL

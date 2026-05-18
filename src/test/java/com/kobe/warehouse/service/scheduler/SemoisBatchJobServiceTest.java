@@ -3,7 +3,6 @@ package com.kobe.warehouse.service.scheduler;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anySet;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -17,25 +16,20 @@ import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.Produit;
-import com.kobe.warehouse.domain.SemoisClasseConfig;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Suggestion;
 import com.kobe.warehouse.domain.SuggestionLine;
-import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
 import com.kobe.warehouse.domain.enumeration.StatutSuggession;
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;
 import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
-import com.kobe.warehouse.repository.SemoisClasseConfigRepository;
 import com.kobe.warehouse.repository.SemoisConfigurationRepository;
 import com.kobe.warehouse.repository.SuggestionLineRepository;
 import com.kobe.warehouse.repository.SuggestionRepository;
 import com.kobe.warehouse.service.EtatProduitService;
 import com.kobe.warehouse.service.ReferenceService;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
-import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -59,7 +53,6 @@ class SemoisBatchJobServiceTest {
 
     @Mock private ProduitRepository produitRepository;
     @Mock private SemoisConfigurationRepository semoisConfigurationRepository;
-    @Mock private SemoisClasseConfigRepository semoisClasseConfigRepository;
     @Mock private SuggestionRepository suggestionRepository;
     @Mock private SuggestionLineRepository suggestionLineRepository;
     @Mock private OrderLineRepository orderLineRepository;
@@ -74,7 +67,7 @@ class SemoisBatchJobServiceTest {
     @BeforeEach
     void setUp() {
         service = new SemoisBatchJobService(
-            produitRepository, semoisConfigurationRepository, semoisClasseConfigRepository,
+            produitRepository, semoisConfigurationRepository,
             suggestionRepository, suggestionLineRepository, orderLineRepository,
             etatProduitService, referenceService, em
         );
@@ -85,19 +78,6 @@ class SemoisBatchJobServiceTest {
 
         fournisseur = mock(Fournisseur.class);
         lenient().when(fournisseur.getId()).thenReturn(10);
-        lenient().when(fournisseur.getDelaiLivraisonJours()).thenReturn(7);
-
-        SemoisClasseConfig cc = new SemoisClasseConfig()
-            .setClasseCriticite(ClasseCriticite.B)
-            .setCoefficientSecurite(BigDecimal.valueOf(1.0))
-            .setNbMoisHistorique(6)
-            .setLimitePeremption(false);
-        lenient().when(semoisClasseConfigRepository.findAll()).thenReturn(List.of(cc));
-
-        Query mockQuery = mock(Query.class);
-        lenient().when(em.createNativeQuery(anyString())).thenReturn(mockQuery);
-        lenient().when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
-        lenient().when(mockQuery.getResultList()).thenReturn(List.of()); // VMM=0
 
         lenient().when(orderLineRepository.findPendingQtyByProduitIds(anySet())).thenReturn(List.of());
     }
@@ -108,7 +88,6 @@ class SemoisBatchJobServiceTest {
         Produit p = mock(Produit.class);
         when(p.getId()).thenReturn(id);
         when(p.getQtySeuilMini()).thenReturn(seuilMini);
-        when(p.getEffectiveClasseCriticite()).thenReturn(ClasseCriticite.B);
         when(p.getFournisseurProduitPrincipal()).thenReturn(fp);
         Storage storage = mock(Storage.class);
         when(storage.getMagasin()).thenReturn(magasin);
@@ -134,7 +113,7 @@ class SemoisBatchJobServiceTest {
                                 Optional<Suggestion> existingSuggestion) {
         when(produitRepository.findAllSemoisEligibles(1)).thenReturn(List.of(produit));
         when(semoisConfigurationRepository.findByProduitIdIn(anySet())).thenReturn(List.of());
-        when(etatProduitService.canSuggere(produit.getId())).thenReturn(true);
+        when(etatProduitService.produitsNonSuggerables(anySet())).thenReturn(Set.of());
         when(suggestionLineRepository.findAllByTypeSuggessionAndFournisseurProduitIdIn(
             eq(TypeSuggession.AUTO), anySet())).thenReturn(existingLines);
         when(suggestionRepository.findByTypeSuggessionAndFournisseurIdAndMagasinId(
@@ -189,6 +168,20 @@ class SemoisBatchJobServiceTest {
             assertThat(s.getFournisseur()).isEqualTo(fournisseur);
         }
 
+        @Test @DisplayName("Produit jamais vendu sans seuil manuel → aucune suggestion")
+        void jamaisVendu_sansSeuilManuel_aucuneSuggestion() {
+            FournisseurProduit fp = mockFpColis1(100);
+            Produit produit = mockProduit(1, 0, 0, fp); // seuil 0, stock 0, jamais vendu
+            stubBaseRepos(produit, fp, List.of(), Optional.empty());
+
+            service.creerSuggestionBatch();
+
+            @SuppressWarnings("unchecked")
+            ArgumentCaptor<List<Suggestion>> cap = ArgumentCaptor.forClass(List.class);
+            verify(suggestionRepository).saveAll(cap.capture());
+            assertThat(cap.getValue()).isEmpty();
+        }
+
         @Test @DisplayName("Stock suffisant → liste suggestions sauvegardée vide")
         void stockSuffisant_aucuneSuggestion() {
             FournisseurProduit fp = mockFpColis1(100);
@@ -233,7 +226,6 @@ class SemoisBatchJobServiceTest {
             when(ligne.isQuantiteModifieeManuel()).thenReturn(false);
 
             Suggestion existing = mock(Suggestion.class);
-            when(existing.getSuggestionLines()).thenReturn(new HashSet<>());
             stubBaseRepos(produit, fp, List.of(ligne), Optional.of(existing));
 
             service.creerSuggestionBatch();
@@ -264,7 +256,6 @@ class SemoisBatchJobServiceTest {
             when(ligne.isQuantiteModifieeManuel()).thenReturn(false);
 
             Suggestion existing = mock(Suggestion.class);
-            when(existing.getSuggestionLines()).thenReturn(new HashSet<>());
             stubBaseRepos(produit, fp, List.of(ligne), Optional.of(existing));
 
             service.creerSuggestionBatch();
@@ -293,4 +284,3 @@ class SemoisBatchJobServiceTest {
         }
     }
 }
-

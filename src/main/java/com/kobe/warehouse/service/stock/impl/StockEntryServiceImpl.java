@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.stock.impl;
 
+import static java.util.Objects.nonNull;
+
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.FournisseurProduit;
@@ -58,18 +60,6 @@ import com.kobe.warehouse.service.stock.csv.CsvImportStrategy;
 import com.kobe.warehouse.service.stock.csv.ParsedCsvRecord;
 import com.kobe.warehouse.service.utils.FileUtil;
 import com.kobe.warehouse.service.utils.ServiceUtil;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -88,8 +78,17 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static java.util.Objects.nonNull;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional
@@ -403,7 +402,7 @@ public class StockEntryServiceImpl implements StockEntryService {
 
         buildDeliveryReceipt(deliveryReceiptLite, commande);
         List<OrderLine> orderLines = commande.getOrderLines();
-        //  orderLines.forEach(this::updateReceivedQty);
+
         this.orderLineService.saveAll(orderLines);
         return fromEntity(commandeRepository.saveAndFlush(commande));
     }

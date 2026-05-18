@@ -1,13 +1,16 @@
 package com.kobe.warehouse.service.scheduler;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppConfiguration;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.SemoisClasseConfig;
 import com.kobe.warehouse.domain.SemoisConfiguration;
 import com.kobe.warehouse.domain.SemoisSuggestionView;
-import com.kobe.warehouse.domain.VentesMensuellesAgregees;
 import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.VentesMensuellesAgregees;
 import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
 import com.kobe.warehouse.domain.enumeration.ModelReapprovisionnement;
 import com.kobe.warehouse.domain.enumeration.StorageType;
@@ -19,27 +22,16 @@ import com.kobe.warehouse.repository.SemoisSuggestionViewRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.repository.VentesMensuellesAgregeesRepository;
 import com.kobe.warehouse.service.dto.ReapproDashboardDTO;
-import com.kobe.warehouse.service.settings.AppConfigurationService;
+import com.kobe.warehouse.service.dto.SemoisExclusionDTO;
 import com.kobe.warehouse.service.dto.SemoisSuggestionDTO;
-import org.apache.commons.lang3.StringUtils;
-import org.jspecify.annotations.NonNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -49,9 +41,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
+import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -59,12 +61,7 @@ public class SemoisCalculationService {
 
     private static final Logger LOG = LoggerFactory.getLogger(SemoisCalculationService.class);
     private static final String APP_LAST_DAY_SEMOIS_CALCULATION = "APP_LAST_DAY_SEMOIS_CALCULATION";
-
-    @Value("${pharma-smart.semois.batch-size:100}")
-    private int batchSize;
-
     private final AtomicBoolean calculEnCours = new AtomicBoolean(false);
-
     private final SemoisConfigurationRepository semoisConfigRepository;
     private final SemoisClasseConfigRepository semoisClasseConfigRepository;
     private final SemoisSuggestionViewRepository semoisSuggestionViewRepository;
@@ -72,10 +69,19 @@ public class SemoisCalculationService {
     private final ProduitRepository produitRepository;
     private final StockProduitRepository stockProduitRepository;
     private final AppConfigurationService appConfigurationService;
-
     private final OrderLineRepository orderLineRepository;
-
     private final SemoisBatchJobService semoisBatchJobService;
+
+    /**
+     * Référence vers le proxy Spring de ce service. Indispensable pour que les annotations
+     * {@code @Transactional(REQUIRES_NEW)} de {@link #processBatch} et
+     * {@link #updateAppConfigurationDate} soient réellement appliquées : un appel direct
+     * {@code this.processBatch(...)} contourne le proxy AOP et perd la transaction.
+     */
+    private final SemoisCalculationService self;
+
+    @Value("${pharma-smart.semois.batch-size:100}")
+    private int batchSize;
 
     public SemoisCalculationService(
         SemoisConfigurationRepository semoisConfigRepository,
@@ -86,7 +92,8 @@ public class SemoisCalculationService {
         StockProduitRepository stockProduitRepository,
         AppConfigurationService appConfigurationService,
         OrderLineRepository orderLineRepository,
-        SemoisBatchJobService semoisBatchJobService
+        SemoisBatchJobService semoisBatchJobService,
+        @Lazy SemoisCalculationService self
     ) {
         this.semoisConfigRepository = semoisConfigRepository;
         this.semoisClasseConfigRepository = semoisClasseConfigRepository;
@@ -97,13 +104,57 @@ public class SemoisCalculationService {
         this.appConfigurationService = appConfigurationService;
         this.orderLineRepository = orderLineRepository;
         this.semoisBatchJobService = semoisBatchJobService;
+        this.self = self;
     }
 
+    /**
+     * Conversion sécurisée vers long pour les résultats de requêtes natives. Gère les cas Hibernate
+     * 7 où un scalaire peut être wrappé dans Object[].
+     */
+    private static long toLong(Object val) {
+        if (val == null) {
+            return 0L;
+        }
+
+        if (val instanceof Object[] arr) {
+            return arr.length > 0 ? toLong(arr[0]) : 0L;
+        }
+        return ((Number) val).longValue();
+    }
 
     /**
-     * Filet de sécurité : toutes les heures entre 8h et 19h.
-     * Si le recalcul n'a pas été fait aujourd'hui (machine redémarrée, crash…), il s'exécute.
-     * L'idempotence est garantie par APP_LAST_DAY_SEMOIS_CALCULATION.
+     * Conversion sécurisée vers int pour les résultats de requêtes natives. Gère les cas Hibernate
+     * 7 où un scalaire peut être wrappé dans Object[].
+     */
+    private static int toInt(Object val) {
+        if (val == null) {
+            return 0;
+        }
+        if (val instanceof Object[] arr) {
+            return arr.length > 0 ? toInt(arr[0]) : 0;
+        }
+        return ((Number) val).intValue();
+    }
+
+    /**
+     * Conversion sécurisée vers double pour les résultats de requêtes natives. Gère les cas
+     * Hibernate 7 où un scalaire peut être wrappé dans Object[].
+     */
+    private static double toDouble(Object val) {
+        if (val == null) {
+            return 0.0;
+        }
+        if (val instanceof Object[] arr) {
+            return arr.length > 0 ? toDouble(arr[0]) : 0.0;
+        }
+        return ((Number) val).doubleValue();
+    }
+
+    /**
+     * Recalcule toutes les configurations SEMOIS. Invoqué par le pipeline
+     * {@code JobOrchestrationService} (catch-up au démarrage et cron nocturne). L'idempotence
+     * journalière est garantie par {@code APP_LAST_DAY_SEMOIS_CALCULATION} : un second appel le
+     * même jour est ignoré.
      */
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void recalculateAllConfigurations() {
@@ -118,7 +169,9 @@ public class SemoisCalculationService {
         }
     }
 
-    /** Retourne true si un recalcul est en cours (scheduler ou API). */
+    /**
+     * Retourne true si un recalcul est en cours (scheduler ou API).
+     */
     public boolean isCalculEnCours() {
         return calculEnCours.get();
     }
@@ -150,9 +203,9 @@ public class SemoisCalculationService {
      * Recalcul forcé déclenché manuellement via l'API REST (ex : bouton "Actualiser maintenant").
      * <p>
      * Ignore la garde journalière {@code APP_LAST_DAY_SEMOIS_CALCULATION} en la réinitialisant,
-     * puis exécute immédiatement {@code doRecalculateAllConfigurations()}.
-     * Utile quand le pharmacien a modifié manuellement des données et veut des suggestions à jour
-     * sans attendre le recalcul nocturne.
+     * puis exécute immédiatement {@code doRecalculateAllConfigurations()}. Utile quand le
+     * pharmacien a modifié manuellement des données et veut des suggestions à jour sans attendre le
+     * recalcul nocturne.
      * </p>
      *
      * @throws IllegalStateException si un recalcul est déjà en cours
@@ -196,8 +249,6 @@ public class SemoisCalculationService {
             .orElse(null);
         boolean canUpdateProduitReapproInfo = isNull(lastReapproDate)
             || !lastReapproDate.withDayOfMonth(1).equals(LocalDate.now().withDayOfMonth(1));
-
-
         Map<ClasseCriticite, SemoisClasseConfig> classeConfigMap = semoisClasseConfigRepository.findAll()
             .stream()
             .collect(Collectors.toMap(SemoisClasseConfig::getClasseCriticite, Function.identity()));
@@ -214,14 +265,17 @@ public class SemoisCalculationService {
         AtomicInteger totalErrors = new AtomicInteger(0);
         long startTime = System.currentTimeMillis();
 
-        LOG.info("Recalcul SEMOIS démarré - {} produits à traiter en {} batch(es)", totalProduits, totalPages);
+        LOG.info("Recalcul SEMOIS démarré - {} produits à traiter en {} batch(es)", totalProduits,
+            totalPages);
 
         for (int pageNumber = 0; pageNumber < totalPages; pageNumber++) {
+            Page<Produit> page = null;
             try {
                 Pageable pageable = PageRequest.of(pageNumber, batchSize);
-                Page<Produit> page = produitRepository.findActiveNonDetailWithFournisseur(pageable);
+                page = produitRepository.findActiveNonDetailWithFournisseur(pageable);
 
-                BatchResult result = processBatch(page.getContent(), canUpdateProduitReapproInfo, classeConfigMap);
+                BatchResult result = self.processBatch(page.getContent(),
+                    canUpdateProduitReapproInfo, classeConfigMap);
                 totalSuccess.addAndGet(result.successCount());
                 totalErrors.addAndGet(result.errorCount());
 
@@ -230,14 +284,15 @@ public class SemoisCalculationService {
 
             } catch (Exception e) {
                 LOG.error("Erreur critique - batch {}/{} - Skip", pageNumber + 1, totalPages, e);
-                totalErrors.addAndGet(batchSize);
+                // Compter le nombre réel de produits de la page (la dernière peut être partielle).
+                totalErrors.addAndGet(page != null ? page.getNumberOfElements() : batchSize);
             }
         }
 
         if (canUpdateProduitReapproInfo && isSemoisModel) {
-            updateAppConfigurationDate(lastReapproConfigOpt.orElse(null));
+            self.updateAppConfigurationDate(lastReapproConfigOpt.orElse(null));
         }
-        updateAppConfigurationDate(semoisConfigOpt.orElse(null));
+        self.updateAppConfigurationDate(semoisConfigOpt.orElse(null));
 
         long duration = System.currentTimeMillis() - startTime;
         LOG.info("Recalcul SEMOIS terminé en {}ms - Succès: {}, Erreurs: {}",
@@ -246,12 +301,13 @@ public class SemoisCalculationService {
         try {
             semoisBatchJobService.creerSuggestionBatch();
         } catch (Exception e) {
-            LOG.error("Erreur lors de la mise à jour des suggestions SEMOIS batch (non bloquant)", e);
+            LOG.error("Erreur lors de la mise à jour des suggestions SEMOIS batch (non bloquant)",
+                e);
         }
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    protected BatchResult processBatch(
+    public BatchResult processBatch(
         List<Produit> produits,
         boolean canUpdateProduitReapproInfo,
         Map<ClasseCriticite, SemoisClasseConfig> classeConfigMap
@@ -260,36 +316,40 @@ public class SemoisCalculationService {
             return new BatchResult(0, 0);
         }
 
-
         Set<Integer> produitIds = produits.stream().map(Produit::getId).collect(Collectors.toSet());
         Map<Integer, SemoisConfiguration> configsByProduitId = semoisConfigRepository
             .findByProduitIdIn(produitIds)
             .stream()
             .collect(Collectors.toMap(sc -> sc.getProduit().getId(), Function.identity()));
 
+        // Batch-load des ventes mensuelles : un seul appel SQL pour toute la page.
+        // La VMM pondérée est ensuite calculée en mémoire (élimine le N+1 de calculateVMM).
+        Map<Integer, List<VentesMensuellesAgregees>> ventesByProduitId = ventesAgregeesRepository
+            .findAllByProduitIdIn(produitIds)
+            .stream()
+            .collect(Collectors.groupingBy(vma -> vma.getProduit().getId()));
 
         Map<Integer, List<StockProduit>> stockProduitsByProduitId = canUpdateProduitReapproInfo
             ? stockProduitRepository
-                .findAllByProduitIdInAndMagasinId(produitIds,  EntityConstant.DEFAULT_MAGASIN)
-                .stream()
-                .collect(Collectors.groupingBy(sp -> sp.getProduit().getId()))
+            .findAllByProduitIdInAndMagasinId(produitIds, EntityConstant.DEFAULT_MAGASIN)
+            .stream()
+            .collect(Collectors.groupingBy(sp -> sp.getProduit().getId()))
             : Map.of();
-
 
         String moisN1 = YearMonth.now().minusYears(1).toString();
         String moisN2 = YearMonth.now().minusYears(2).toString();
         Map<Integer, Map<String, Integer>> saisonByProduitId = canUpdateProduitReapproInfo
             ? ventesAgregeesRepository
-                .findByProduitIdInAndAnneeMoisIn(produitIds, Set.of(moisN1, moisN2))
-                .stream()
-                .collect(Collectors.groupingBy(
-                    vma -> vma.getProduit().getId(),
-                    Collectors.toMap(
-                        VentesMensuellesAgregees::getAnneeMois,
-                        VentesMensuellesAgregees::getQuantiteVendue,
-                        (v1, _) -> v1  // dédoublonnage défensif
-                    )
-                ))
+            .findByProduitIdInAndAnneeMoisIn(produitIds, Set.of(moisN1, moisN2))
+            .stream()
+            .collect(Collectors.groupingBy(
+                vma -> vma.getProduit().getId(),
+                Collectors.toMap(
+                    VentesMensuellesAgregees::getAnneeMois,
+                    VentesMensuellesAgregees::getQuantiteVendue,
+                    (v1, _) -> v1  // dédoublonnage défensif
+                )
+            ))
             : Map.of();
 
         int successCount = 0;
@@ -307,7 +367,8 @@ public class SemoisCalculationService {
                     classeConfig = classeConfigMap.get(ClasseCriticite.B);
                 }
                 if (classeConfig == null) {
-                    LOG.warn("SemoisClasseConfig introuvable pour classe {} et fallback B - produit {} ignoré",
+                    LOG.warn(
+                        "SemoisClasseConfig introuvable pour classe {} et fallback B - produit {} ignoré",
                         classe, produit.getId());
                     errorCount++;
                     continue;
@@ -325,23 +386,34 @@ public class SemoisCalculationService {
                     if (!config.isFacteurSaisonnierManuel()) {
                         Map<String, Integer> saisonData = saisonByProduitId
                             .getOrDefault(produit.getId(), Map.of());
-                        BigDecimal newCoeff = computeSeasonalFactor(config, saisonData, moisN1, moisN2);
+                        BigDecimal newCoeff = computeSeasonalFactor(config, saisonData, moisN1,
+                            moisN2);
                         config.setFacteurSaisonnierActuel(newCoeff);
                     }
                 }
 
-                AllCalculs c = computeAllCalculs(config, classeConfig, produit.getId());
+                int vmm = computeWeightedVmm(
+                    ventesByProduitId.getOrDefault(produit.getId(), List.of()),
+                    classeConfig.getNbMoisHistorique());
+                AllCalculs c = computeCalculsForBatch(config, classeConfig, produit.getId(), vmm);
                 config.updateCalculs(c.vmm(), c.margeSecurite(), c.stockObjectif());
                 toSaveConfigs.add(config);
 
                 if (canUpdateProduitReapproInfo) {
-                    produit.setQtyAppro(c.stockObjectif());
-                    produit.setQtySeuilMini(c.margeSecurite());
-                    produit.setUpdatedAt(LocalDateTime.now());
-                    toSaveProduits.add(produit);
+                    // Les seuils SEMOIS (qtyAppro / qtySeuilMini) sont normalement renseignés par
+                    // le recalcul. Exception : si la classification du produit a été surchargée
+                    // manuellement par le pharmacien (isClassificationOverridden = true), ses
+                    // valeurs manuelles sont préservées et ne sont plus écrasées.
+                    if (!Boolean.TRUE.equals(produit.getIsClassificationOverridden())) {
+                        produit.setQtyAppro(c.stockObjectif());
+                        produit.setQtySeuilMini(c.margeSecurite());
+                        produit.setUpdatedAt(LocalDateTime.now());
+                        toSaveProduits.add(produit);
+                    }
 
                     // Auto-renseigner les paramètres rayon/réserve si non définis
-                    List<StockProduit> spList = stockProduitsByProduitId.getOrDefault(produit.getId(), List.of());
+                    List<StockProduit> spList = stockProduitsByProduitId.getOrDefault(
+                        produit.getId(), List.of());
                     for (StockProduit sp : spList) {
                         if (autoFillStockProduitParams(sp, c)) {
                             toSaveStockProduits.add(sp);
@@ -369,18 +441,17 @@ public class SemoisCalculationService {
         return new BatchResult(successCount, errorCount);
     }
 
-
     /**
      * Calcule la VMM pondérée (Ventes Mensuelles Moyennes) pour un produit.
      * <p>
      * <b>Exclusion des mois de rupture fournisseur :</b><br>
      * Les mois où le produit était en rupture fournisseur documentée
-     * ({@code est_rupture_fournisseur = TRUE}) sont exclus du calcul.
-     * En effet, les ventes de ces mois sont artificiellement basses et biaisent
-     * la VMM à la baisse, ce qui perpétuerait la rupture.
+     * ({@code est_rupture_fournisseur = TRUE}) sont exclus du calcul. En effet, les ventes de ces
+     * mois sont artificiellement basses et biaisent la VMM à la baisse, ce qui perpétuerait la
+     * rupture.
      * <br>
-     * Si aucun mois valide n'est disponible (ex: produit toujours en rupture),
-     * on utilise tous les mois disponibles comme fallback.
+     * Si aucun mois valide n'est disponible (ex: produit toujours en rupture), on utilise tous les
+     * mois disponibles comme fallback.
      * </p>
      *
      * @param produitId ID du produit
@@ -396,7 +467,8 @@ public class SemoisCalculationService {
         if (ventes.isEmpty()) {
             ventes = ventesAgregeesRepository.findLastNMonthsByProduit(produitId, nbMois);
             if (!ventes.isEmpty()) {
-                LOG.debug("VMM produit {} : aucun mois valide, fallback sur {} mois incluant ruptures",
+                LOG.debug(
+                    "VMM produit {} : aucun mois valide, fallback sur {} mois incluant ruptures",
                     produitId, ventes.size());
             }
         }
@@ -443,7 +515,8 @@ public class SemoisCalculationService {
         return 7;
     }
 
-    private @NonNull BigDecimal computeMarge(SemoisConfiguration config, SemoisClasseConfig classeConfig, int vmm) {
+    private @NonNull BigDecimal computeMarge(SemoisConfiguration config,
+        SemoisClasseConfig classeConfig, int vmm) {
         int delaiJours = resolveDelaiLivraisonJours(config);
         BigDecimal coefficient = classeConfig.getCoefficientSecurite();
         BigDecimal facteurSaisonnier = Objects.requireNonNullElse(
@@ -456,16 +529,75 @@ public class SemoisCalculationService {
             .multiply(facteurSaisonnier);
     }
 
-    private AllCalculs computeAllCalculs(SemoisConfiguration config, SemoisClasseConfig classeConfig, Integer produitId) {
+    private AllCalculs computeAllCalculs(SemoisConfiguration config,
+        SemoisClasseConfig classeConfig, Integer produitId) {
         int vmm = calculateVMM(produitId, classeConfig.getNbMoisHistorique());
         int marge = vmm == 0 ? 0 : computeMarge(config, classeConfig, vmm).intValue();
         int stockObjectif = applyPeremption(config, classeConfig, produitId, vmm, marge);
         int stockActuel = getStockActuel(produitId);
-        return new AllCalculs(vmm, marge, stockObjectif, stockActuel, Math.max(0, stockObjectif - stockActuel));
+        return new AllCalculs(vmm, marge, stockObjectif, stockActuel,
+            Math.max(0, stockObjectif - stockActuel));
+    }
+
+    /**
+     * Variante batch de {@link #computeAllCalculs} : la VMM est fournie pré-calculée (en mémoire)
+     * et le stock actuel n'est pas interrogé car {@code processBatch} ne l'utilise pas. Évite ainsi
+     * deux à trois requêtes SQL par produit.
+     */
+    private AllCalculs computeCalculsForBatch(SemoisConfiguration config,
+        SemoisClasseConfig classeConfig, Integer produitId, int vmm) {
+        int marge = vmm == 0 ? 0 : computeMarge(config, classeConfig, vmm).intValue();
+        int stockObjectif = applyPeremption(config, classeConfig, produitId, vmm, marge);
+        return new AllCalculs(vmm, marge, stockObjectif, 0, 0);
+    }
+
+    /**
+     * Calcule la VMM pondérée en mémoire à partir des agrégations mensuelles déjà chargées.
+     * <p>
+     * Réplique la logique de {@link #calculateVMM} sans accès base : priorité aux mois valides
+     * (hors rupture fournisseur), repli sur tous les mois si aucun mois valide, puis moyenne
+     * pondérée donnant plus de poids aux mois récents.
+     * </p>
+     *
+     * @param ventes Agrégations mensuelles du produit (ordre quelconque)
+     * @param nbMois Nombre de mois d'historique souhaités
+     * @return VMM arrondie à l'entier, 0 si aucune donnée
+     */
+    private int computeWeightedVmm(List<VentesMensuellesAgregees> ventes, int nbMois) {
+        if (ventes.isEmpty()) {
+            return 0;
+        }
+        List<VentesMensuellesAgregees> triParMoisDesc = ventes.stream()
+            .sorted(Comparator.comparing(VentesMensuellesAgregees::getAnneeMois).reversed())
+            .toList();
+
+        List<VentesMensuellesAgregees> moisValides = triParMoisDesc.stream()
+            .filter(vma -> !Boolean.TRUE.equals(vma.getEstRuptureFournisseur()))
+            .limit(nbMois)
+            .toList();
+
+        List<VentesMensuellesAgregees> retenus = moisValides.isEmpty()
+            ? triParMoisDesc.stream().limit(nbMois).toList()
+            : moisValides;
+
+        BigDecimal sommePonderee = BigDecimal.ZERO;
+        BigDecimal sommePoids = BigDecimal.ZERO;
+        int poids = nbMois;
+        for (VentesMensuellesAgregees vente : retenus) {
+            BigDecimal poidsDecimal = BigDecimal.valueOf(poids);
+            sommePonderee = sommePonderee.add(
+                BigDecimal.valueOf(vente.getQuantiteVendue()).multiply(poidsDecimal));
+            sommePoids = sommePoids.add(poidsDecimal);
+            poids--;
+        }
+        if (sommePoids.compareTo(BigDecimal.ZERO) == 0) {
+            return 0;
+        }
+        return sommePonderee.divide(sommePoids, RoundingMode.HALF_UP).intValue();
     }
 
     private int applyPeremption(SemoisConfiguration config, SemoisClasseConfig classeConfig,
-                                Integer produitId, int vmm, int marge) {
+        Integer produitId, int vmm, int marge) {
         //Ajouter le stock de rotation (fréquence de commande)
         int rotationStock = computeRotationStock(config, vmm);
         int stockObjectif = vmm + marge + rotationStock;
@@ -480,15 +612,21 @@ public class SemoisCalculationService {
     }
 
     /**
-     * Stock de rotation = VMM × (fréquence_commande_jours / 30).
-     * Représente la quantité consommée entre deux commandes successives.
-     * Exemple : VMM=30, fréquence=7j → rotation=7 unités (≈ 1 semaine de ventes).
+     * Stock de rotation = VMM × (fréquence_commande_jours / 30). Représente la quantité consommée
+     * entre deux commandes successives. Exemple : VMM=30, fréquence=7j → rotation=7 unités (≈ 1
+     * semaine de ventes).
      */
     private int computeRotationStock(SemoisConfiguration config, int vmm) {
-        if (vmm == 0) return 0;
+        if (vmm == 0) {
+            return 0;
+        }
         int freqJours = resolveFrequenceCommandeJours(config);
         return (int) (vmm * freqJours / 30.0);
     }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // API publique (lecture)
+    // ──────────────────────────────────────────────────────────────────────────
 
     /**
      * Résout la fréquence de commande en cascade :
@@ -517,20 +655,22 @@ public class SemoisCalculationService {
         return 7; // commande hebdomadaire par défaut
     }
 
-    private record AllCalculs(int vmm, int margeSecurite, int stockObjectif, int stockActuel, int quantiteACommander) {}
-
     private int getStockActuel(Integer produitId) {
         Integer stock = stockProduitRepository.findTotalQuantityByMagasinIdIdAndProduitId(
-             EntityConstant.DEFAULT_MAGASIN, produitId);
+            EntityConstant.DEFAULT_MAGASIN, produitId);
         return stock != null ? stock : 0;
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
-    // API publique (lecture)
-    // ──────────────────────────────────────────────────────────────────────────
-
     @Transactional(readOnly = true)
     public SemoisSuggestionDTO getSuggestionForProduct(Integer produitId) {
+        // Cohérence liste/détail : on lit en priorité la même source que getAllSuggestions
+        // (la vue v_semois_suggestion). Le calcul direct n'est qu'un repli pour les produits
+        // absents de la vue (vmm = 0, produit exclu, ou configuration non encore calculée).
+        Optional<SemoisSuggestionView> viewOpt = semoisSuggestionViewRepository.findById(produitId);
+        if (viewOpt.isPresent()) {
+            return toDTO(viewOpt.get(), getPendingQty(produitId));
+        }
+
         SemoisConfiguration config = semoisConfigRepository
             .findByProduitId(produitId)
             .orElseThrow(() -> new IllegalArgumentException(
@@ -573,14 +713,15 @@ public class SemoisCalculationService {
     public Page<SemoisSuggestionDTO> getAllSuggestions(
         String search,
         ClasseCriticite classeCriticite,
-        Integer fournisseurId,String niveauUrgence,
+        Integer fournisseurId, String niveauUrgence,
         Pageable pageable
     ) {
-        LOG.debug("Récupération suggestions SEMOIS depuis vue - search: {}, classe: {}, fournisseur: {}, page: {}",
+        LOG.debug(
+            "Récupération suggestions SEMOIS depuis vue - search: {}, classe: {}, fournisseur: {}, page: {}",
             search, classeCriticite, fournisseurId, pageable.getPageNumber());
 
         Page<SemoisSuggestionView> viewPage = semoisSuggestionViewRepository.findAllWithFilters(
-            search, classeCriticite, fournisseurId,niveauUrgence, pageable);
+            search, classeCriticite, fournisseurId, niveauUrgence, pageable);
 
         List<Integer> produitIds = viewPage.getContent().stream()
             .map(SemoisSuggestionView::getProduitId)
@@ -596,7 +737,9 @@ public class SemoisCalculationService {
         return new PageImpl<>(suggestions, pageable, viewPage.getTotalElements());
     }
 
-    /** Tous les produits urgents (stockActuel < margeSecurite) sans pagination. */
+    /**
+     * Tous les produits urgents (stockActuel < margeSecurite) sans pagination.
+     */
     @Transactional(readOnly = true)
     public List<SemoisSuggestionDTO> getAllUrgentSuggestions() {
         return semoisSuggestionViewRepository.findAllUrgents().stream()
@@ -604,26 +747,33 @@ public class SemoisCalculationService {
             .toList();
     }
 
-    /** Fournisseurs distincts ayant des produits SEMOIS configurés. */
+    /**
+     * Fournisseurs distincts ayant des produits SEMOIS configurés.
+     */
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getDistinctFournisseurs() {
         return semoisSuggestionViewRepository.findDistinctFournisseurs().stream()
-            .map(row -> Map.<String, Object>of(
+            .map(row -> Map.of(
                 "fournisseurId", row[0],
                 "fournisseurLibelle", row[1] != null ? row[1].toString() : ""
             ))
             .toList();
     }
 
+    // ──────────────────────────────────────────────────────────────────────────
+    //  Dashboard réappro temps réel
+    // ──────────────────────────────────────────────────────────────────────────
+
     /**
-     * Convertit une vue SEMOIS en DTO, en ajustant la quantité à commander
-     * pour tenir compte des commandes en attente (stock virtuel).
+     * Convertit une vue SEMOIS en DTO, en ajustant la quantité à commander pour tenir compte des
+     * commandes en attente (stock virtuel).
      *
      * @param view       Vue SEMOIS depuis la vue matérialisée
      * @param pendingQty Quantité déjà commandée (REQUESTED) en attente de livraison
      */
     private SemoisSuggestionDTO toDTO(SemoisSuggestionView view, int pendingQty) {
-        int qteVueACommander = view.getQuantiteACommander() != null ? view.getQuantiteACommander().intValue() : 0;
+        int qteVueACommander =
+            view.getQuantiteACommander() != null ? view.getQuantiteACommander().intValue() : 0;
         // qteACommander ajustée = MAX(0, stockObjectif - (stockActuel + pendingQty))
         //       = MAX(0, qteVueACommander - pendingQty)
         int qteACommander = Math.max(0, qteVueACommander - pendingQty);
@@ -642,11 +792,15 @@ public class SemoisCalculationService {
             qteACommander,
             view.getDelaiLivraisonJours(),
             view.getCoefficientSecurite() != null
-                ? BigDecimal.valueOf(view.getCoefficientSecurite()).setScale(2, RoundingMode.HALF_UP)
+                ? BigDecimal.valueOf(view.getCoefficientSecurite())
+                .setScale(2, RoundingMode.HALF_UP)
                 : BigDecimal.ONE,
-            BigDecimal.ONE,
+            view.getFacteurSaisonnier() != null
+                ? view.getFacteurSaisonnier().setScale(2, RoundingMode.HALF_UP)
+                : BigDecimal.ONE,
             view.getDateDernierCalcul() != null
-                ? LocalDateTime.ofInstant(view.getDateDernierCalcul(), java.time.ZoneId.systemDefault())
+                ? LocalDateTime.ofInstant(view.getDateDernierCalcul(),
+                java.time.ZoneId.systemDefault())
                 : null
         );
     }
@@ -655,15 +809,11 @@ public class SemoisCalculationService {
         return toDTO(view, 0);
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
-    //  Dashboard réappro temps réel
-    // ──────────────────────────────────────────────────────────────────────────
-
     /**
      * Construit le tableau de bord de réapprovisionnement en temps réel.
      * <p>
-     * Agrège les indicateurs clés depuis {@code v_semois_suggestion} :
-     * compteurs par niveau d'urgence, répartition par classe, top produits urgents.
+     * Agrège les indicateurs clés depuis {@code v_semois_suggestion} : compteurs par niveau
+     * d'urgence, répartition par classe, top produits urgents.
      * </p>
      *
      * @return DTO consolidé du tableau de bord réappro
@@ -673,12 +823,12 @@ public class SemoisCalculationService {
 
         List<Object[]> globalRows = semoisSuggestionViewRepository.getDashboardGlobalStats();
         Object[] globalRow = globalRows.isEmpty() ? new Object[7] : globalRows.getFirst();
-        long totalProduits         = toLong(globalRow[0]);
-        long nbRupture             = toLong(globalRow[1]);
-        long nbSousSeuil           = toLong(globalRow[2]);
-        long nbOk                  = toLong(globalRow[3]);
-        long nbSurstock            = toLong(globalRow[4]);
-        long nbSansConfig          = toLong(globalRow[5]);
+        long totalProduits = toLong(globalRow[0]);
+        long nbRupture = toLong(globalRow[1]);
+        long nbSousSeuil = toLong(globalRow[2]);
+        long nbOk = toLong(globalRow[3]);
+        long nbSurstock = toLong(globalRow[4]);
+        long nbSansConfig = toLong(globalRow[5]);
         long totalUnitesManquantes = toLong(globalRow[6]);
 
         //  Répartition par classe
@@ -722,49 +872,12 @@ public class SemoisCalculationService {
         );
     }
 
-    /**
-     * Conversion sécurisée vers long pour les résultats de requêtes natives.
-     * Gère les cas Hibernate 7 où un scalaire peut être wrappé dans Object[].
-     */
-    private static long toLong(Object val) {
-        if (val == null) return 0L;
-
-        if (val instanceof Object[] arr) {
-            return arr.length > 0 ? toLong(arr[0]) : 0L;
-        }
-        return ((Number) val).longValue();
-    }
-
-    /**
-     * Conversion sécurisée vers int pour les résultats de requêtes natives.
-     * Gère les cas Hibernate 7 où un scalaire peut être wrappé dans Object[].
-     */
-    private static int toInt(Object val) {
-        if (val == null) return 0;
-        if (val instanceof Object[] arr) {
-            return arr.length > 0 ? toInt(arr[0]) : 0;
-        }
-        return ((Number) val).intValue();
-    }
-
-    /**
-     * Conversion sécurisée vers double pour les résultats de requêtes natives.
-     * Gère les cas Hibernate 7 où un scalaire peut être wrappé dans Object[].
-     */
-    private static double toDouble(Object val) {
-        if (val == null) return 0.0;
-        if (val instanceof Object[] arr) {
-            return arr.length > 0 ? toDouble(arr[0]) : 0.0;
-        }
-        return ((Number) val).doubleValue();
-    }
-
-
     @Transactional
     public SemoisConfiguration initializeConfiguration(Integer produitId) {
         return semoisConfigRepository.findByProduitId(produitId).orElseGet(() -> {
             Produit produit = produitRepository.findById(produitId)
-                .orElseThrow(() -> new IllegalArgumentException("Produit non trouvé: " + produitId));
+                .orElseThrow(
+                    () -> new IllegalArgumentException("Produit non trouvé: " + produitId));
             ClasseCriticite classe = produit.getEffectiveClasseCriticite();
             return semoisConfigRepository.save(SemoisConfiguration.createDefault(produit, classe));
         });
@@ -774,7 +887,8 @@ public class SemoisCalculationService {
     public SemoisConfiguration initializeConfiguration(Integer produitId, ClasseCriticite classe) {
         return semoisConfigRepository.findByProduitId(produitId).orElseGet(() -> {
             Produit produit = produitRepository.findById(produitId)
-                .orElseThrow(() -> new IllegalArgumentException("Produit non trouvé: " + produitId));
+                .orElseThrow(
+                    () -> new IllegalArgumentException("Produit non trouvé: " + produitId));
             return semoisConfigRepository.save(SemoisConfiguration.createDefault(produit, classe));
         });
     }
@@ -783,11 +897,6 @@ public class SemoisCalculationService {
     public SemoisConfiguration create(Produit produit, ClasseCriticite classe) {
         return semoisConfigRepository.save(SemoisConfiguration.createDefault(produit, classe));
     }
-
-
-    // ──────────────────────────────────────────────────────────────────────────
-    // Auto-calcul paramètres rayon/réserve
-    // ──────────────────────────────────────────────────────────────────────────
 
     /**
      * Auto-renseigne les paramètres rayon/réserve d'un {@link StockProduit} si non définis.
@@ -854,18 +963,20 @@ public class SemoisCalculationService {
         return modified;
     }
 
-    /** Retourne true si la valeur est null ou égale à 0 (non saisie manuellement). */
+    // ──────────────────────────────────────────────────────────────────────────
+    // Auto-calcul paramètres rayon/réserve
+    // ──────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Retourne true si la valeur est null ou égale à 0 (non saisie manuellement).
+     */
     private boolean isNullOrZero(Integer value) {
         return value == null || value == 0;
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
-    // Saisonnalité automatique
-    // ──────────────────────────────────────────────────────────────────────────
-
     /**
-     * Calcule le coefficient saisonnier pour le mois actuel en comparant les ventes
-     * du même mois des 2 années précédentes avec la VMM stockée.
+     * Calcule le coefficient saisonnier pour le mois actuel en comparant les ventes du même mois
+     * des 2 années précédentes avec la VMM stockée.
      * <p>
      * <b>Formule (inspirée Winpharma/Périscopie sur 24 mois) :</b>
      * <pre>
@@ -915,13 +1026,13 @@ public class SemoisCalculationService {
         return BigDecimal.valueOf(bounded).setScale(2, RoundingMode.HALF_UP);
     }
 
-
-    /** Résultat d'un batch de recalcul : compteurs de succès et d'erreurs. */
-    public record BatchResult(int successCount, int errorCount) {}
+    // ──────────────────────────────────────────────────────────────────────────
+    // Saisonnalité automatique
+    // ──────────────────────────────────────────────────────────────────────────
 
     /**
-     *  Retourne la quantité en attente de livraison pour un produit spécifique.
-     * Commandes dont le statut est REQUESTED (envoyées, non encore réceptionnées).
+     * Retourne la quantité en attente de livraison pour un produit spécifique. Commandes dont le
+     * statut est REQUESTED (envoyées, non encore réceptionnées).
      */
     private int getPendingQty(Integer produitId) {
         List<Object[]> rows = orderLineRepository.findPendingQtyByProduitIds(List.of(produitId));
@@ -933,14 +1044,16 @@ public class SemoisCalculationService {
     }
 
     /**
-     *  Batch-charge les quantités en attente de livraison pour une liste de produits.
-     * Un seul appel SQL pour toute la page SEMOIS.
+     * Batch-charge les quantités en attente de livraison pour une liste de produits. Un seul appel
+     * SQL pour toute la page SEMOIS.
      *
      * @param produitIds IDs des produits de la page courante
      * @return Map produit_id → quantité en attente (seulement les produits avec qté > 0)
      */
     private Map<Integer, Integer> loadPendingOrderQtyBatch(List<Integer> produitIds) {
-        if (produitIds.isEmpty()) return Map.of();
+        if (produitIds.isEmpty()) {
+            return Map.of();
+        }
         List<Object[]> rows = orderLineRepository.findPendingQtyByProduitIds(produitIds);
         return rows.stream().collect(Collectors.toMap(
             row -> ((Number) row[0]).intValue(),
@@ -957,7 +1070,9 @@ public class SemoisCalculationService {
                 try {
                     return ModelReapprovisionnement.valueOf(value);
                 } catch (IllegalArgumentException e) {
-                    LOG.warn("Modèle de réapprovisionnement invalide '{}', utilisation de SEMOIS par défaut", value);
+                    LOG.warn(
+                        "Modèle de réapprovisionnement invalide '{}', utilisation de SEMOIS par défaut",
+                        value);
                     return ModelReapprovisionnement.SEMOIS;
                 }
             })
@@ -973,7 +1088,7 @@ public class SemoisCalculationService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    protected void updateAppConfigurationDate(AppConfiguration config) {
+    public void updateAppConfigurationDate(AppConfiguration config) {
         try {
             if (nonNull(config)) {
                 config.setValue(LocalDate.now().toString());
@@ -986,8 +1101,6 @@ public class SemoisCalculationService {
         }
     }
 
-    // ── Méthodes de service pour SemoisResource (plus de repository dans le contrôleur) ──
-
     @Transactional(readOnly = true)
     public Optional<SemoisConfiguration> findConfiguration(Integer produitId) {
         return semoisConfigRepository.findByProduitId(produitId);
@@ -997,6 +1110,8 @@ public class SemoisCalculationService {
     public boolean configurationExists(Integer produitId) {
         return semoisConfigRepository.existsByProduitId(produitId);
     }
+
+    // ── Méthodes de service pour SemoisResource (plus de repository dans le contrôleur) ──
 
     @Transactional
     public SemoisConfiguration saveConfiguration(SemoisConfiguration config) {
@@ -1013,15 +1128,14 @@ public class SemoisCalculationService {
         return semoisConfigRepository.countAll();
     }
 
-    // ── Exclusions temporaires ────────────────────────────────────────────────
-
     @Transactional
     public void exclureProduit(Integer produitId, Integer dureeJours, String motif) {
         SemoisConfiguration config = semoisConfigRepository.findByProduitId(produitId)
             .orElseThrow(() -> new IllegalArgumentException(
                 "Aucune configuration SEMOIS pour le produit " + produitId));
         config.setExclusionDate(LocalDateTime.now());
-        config.setExclusionDureeJours(dureeJours != null ? dureeJours : com.kobe.warehouse.service.dto.SemoisExclusionDTO.DEFAULT_DUREE_JOURS);
+        config.setExclusionDureeJours(dureeJours != null ? dureeJours
+            : SemoisExclusionDTO.DEFAULT_DUREE_JOURS);
         config.setExclusionMotif(motif);
         semoisConfigRepository.save(config);
     }
@@ -1035,12 +1149,14 @@ public class SemoisCalculationService {
         });
     }
 
+    // ── Exclusions temporaires ────────────────────────────────────────────────
+
     @Transactional(readOnly = true)
-    public List<com.kobe.warehouse.service.dto.SemoisExclusionDTO> getExclusionsActives() {
+    public List<SemoisExclusionDTO> getExclusionsActives() {
         return semoisConfigRepository.findExclusionsActives(LocalDateTime.now().minusDays(365))
             .stream()
             .filter(SemoisConfiguration::isExcluActif)
-            .map(c -> new com.kobe.warehouse.service.dto.SemoisExclusionDTO(
+            .map(c -> new SemoisExclusionDTO(
                 c.getProduit().getId(),
                 c.getProduit().getLibelle(),
                 c.getExclusionDureeJours(),
@@ -1057,8 +1173,6 @@ public class SemoisCalculationService {
         return semoisConfigRepository.countExclusionsActives();
     }
 
-    // ── Gestion des classes de criticité ────────────────────────────────────
-
     @Transactional(readOnly = true)
     public List<SemoisClasseConfig> getAllClasseConfigs() {
         return semoisClasseConfigRepository.findAll();
@@ -1066,11 +1180,25 @@ public class SemoisCalculationService {
 
     @Transactional
     public Optional<SemoisClasseConfig> updateClasseConfig(ClasseCriticite classeCriticite,
-                                                            SemoisClasseConfig config) {
+        SemoisClasseConfig config) {
         if (!semoisClasseConfigRepository.existsById(classeCriticite)) {
             return Optional.empty();
         }
         config.setClasseCriticite(classeCriticite);
         return Optional.of(semoisClasseConfigRepository.save(config));
+    }
+
+    // ── Gestion des classes de criticité ────────────────────────────────────
+
+    private record AllCalculs(int vmm, int margeSecurite, int stockObjectif, int stockActuel,
+                              int quantiteACommander) {
+
+    }
+
+    /**
+     * Résultat d'un batch de recalcul : compteurs de succès et d'erreurs.
+     */
+    public record BatchResult(int successCount, int errorCount) {
+
     }
 }

@@ -138,4 +138,27 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLineI
     List<Object[]> findPendingQtyByProduitIds(@Param("produitIds") Collection<Integer> produitIds);
 
     List<OrderLine> findAllByIdInAndOrderDate(Set<Integer> ids,LocalDate orderDate);
+
+    /**
+     * Variante batch pour {@code EtatProduitService.canSuggere} : retourne, parmi les produits
+     * donnés, ceux ayant au moins une commande dans l'un des statuts demandés depuis la date de
+     * rétention. Un seul appel SQL pour toute la liste (élimine le N+1 du batch SEMOIS).
+     *
+     * @param produitIds    IDs des produits à interroger
+     * @param statuts       Statuts de commande à considérer (ex: REQUESTED, RECEIVED)
+     * @param dateRetention Borne basse exclusive sur la date de commande
+     * @return IDs des produits ayant une commande correspondante
+     */
+    @Query("""
+        SELECT DISTINCT ol.fournisseurProduit.produit.id
+        FROM OrderLine ol
+        WHERE ol.fournisseurProduit.produit.id IN :produitIds
+          AND ol.commande.orderStatus IN :statuts
+          AND ol.commande.orderDate > :dateRetention
+        """)
+    Set<Integer> findProduitIdsWithCommandes(
+        @Param("produitIds") Collection<Integer> produitIds,
+        @Param("statuts") Collection<OrderStatut> statuts,
+        @Param("dateRetention") LocalDate dateRetention
+    );
 }

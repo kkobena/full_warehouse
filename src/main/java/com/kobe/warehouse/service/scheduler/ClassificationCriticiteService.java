@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.scheduler;
 
+import com.kobe.warehouse.domain.AppConfiguration;
 import com.kobe.warehouse.domain.ClassificationConfig;
 import com.kobe.warehouse.domain.ClassificationCriticiteLog;
 import com.kobe.warehouse.domain.Produit;
@@ -17,15 +18,7 @@ import com.kobe.warehouse.service.dto.ClassificationConfigDTO;
 import com.kobe.warehouse.service.dto.ClassificationLogDTO;
 import com.kobe.warehouse.service.dto.ClassificationScoreDTO;
 import com.kobe.warehouse.service.dto.ReclassificationResultDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,6 +27,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 /**
  * Service de classification dynamique de la criticité des produits.
@@ -56,11 +58,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ClassificationCriticiteService {
 
     private static final String AUTO_DESCRIPTION = "Reclassification mensuelle automatique";
+    private static final String APP_LAST_DAY_CLASSIFICATION = "APP_LAST_DAY_CLASSIFICATION";
     private static final Logger LOG = LoggerFactory.getLogger(ClassificationCriticiteService.class);
-
-    @Value("${pharma-smart.classification.batch-size:100}")
-    private int batchSize;
-
     private final ClassificationConfigRepository configRepository;
     private final ClassificationCriticiteLogRepository logRepository;
     private final ProduitRepository produitRepository;
@@ -68,6 +67,9 @@ public class ClassificationCriticiteService {
     private final UserRepository userRepository;
     private final ClassificationBatchProcessor batchProcessor;
     private final SemoisCalculationService semoisCalculationService;
+    private final AppConfigurationService appConfigurationService;
+    @Value("${pharma-smart.classification.batch-size:100}")
+    private int batchSize;
 
     public ClassificationCriticiteService(
         ClassificationConfigRepository configRepository,
@@ -76,7 +78,8 @@ public class ClassificationCriticiteService {
         ParetoAnalysisRepository paretoRepository,
         UserRepository userRepository,
         ClassificationBatchProcessor batchProcessor,
-        SemoisCalculationService semoisCalculationService
+        SemoisCalculationService semoisCalculationService,
+        AppConfigurationService appConfigurationService
     ) {
         this.configRepository = configRepository;
         this.logRepository = logRepository;
@@ -85,9 +88,41 @@ public class ClassificationCriticiteService {
         this.userRepository = userRepository;
         this.batchProcessor = batchProcessor;
         this.semoisCalculationService = semoisCalculationService;
+        this.appConfigurationService = appConfigurationService;
     }
 
     // ==================== API publique ====================
+
+    private static BigDecimal toBigDecimal(Object obj) {
+        if (obj == null) {
+            return BigDecimal.ZERO;
+        }
+        if (obj instanceof BigDecimal bd) {
+            return bd;
+        }
+        return new BigDecimal(obj.toString());
+    }
+
+    private static int toInt(Object obj) {
+        if (obj == null) {
+            return 0;
+        }
+        return ((Number) obj).intValue();
+    }
+
+    private static long toLong(Object obj) {
+        if (obj == null) {
+            return 0L;
+        }
+        return ((Number) obj).longValue();
+    }
+
+    private static Integer toInteger(Object obj) {
+        if (obj == null) {
+            return null;
+        }
+        return ((Number) obj).intValue();
+    }
 
     public ClassificationConfig getConfig() {
         return configRepository.findConfiguration()
@@ -104,54 +139,88 @@ public class ClassificationCriticiteService {
     public ClassificationConfigDTO updateConfig(ClassificationConfigDTO dto) {
         ClassificationConfig config = getConfig();
 
-        if (dto.seuilParetoAPlus() != null)         config.setSeuilParetoAPlus(dto.seuilParetoAPlus());
-        if (dto.seuilParetoA() != null)             config.setSeuilParetoA(dto.seuilParetoA());
-        if (dto.seuilParetoB() != null)             config.setSeuilParetoB(dto.seuilParetoB());
-        if (dto.seuilParetoC() != null)             config.setSeuilParetoC(dto.seuilParetoC());
-        if (dto.seuilFrequenceMinMois() != null)    config.setSeuilFrequenceMinMois(dto.seuilFrequenceMinMois());
-        if (dto.cmmSeuilAPlus() != null)            config.setCmmSeuilAPlus(dto.cmmSeuilAPlus());
-        if (dto.cmmSeuilA() != null)                config.setCmmSeuilA(dto.cmmSeuilA());
-        if (dto.cmmSeuilB() != null)                config.setCmmSeuilB(dto.cmmSeuilB());
-        if (dto.cmmSeuilC() != null)                config.setCmmSeuilC(dto.cmmSeuilC());
-        if (dto.changementMinPourcentage() != null) config.setChangementMinPourcentage(dto.changementMinPourcentage());
-        if (dto.activerClassificationOrdo() != null) config.setActiverClassificationOrdo(dto.activerClassificationOrdo());
-        if (dto.activerCorrectionSaisonniere() != null) config.setActiverCorrectionSaisonniere(dto.activerCorrectionSaisonniere());
-        if (dto.indiceSaisonnaliteMin() != null)    config.setIndiceSaisonnaliteMin(dto.indiceSaisonnaliteMin());
-        if (dto.nbMoisSaisonAnalyse() != null)      config.setNbMoisSaisonAnalyse(dto.nbMoisSaisonAnalyse());
-        if (dto.nbMoisMinNouveauProduit() != null)  config.setNbMoisMinNouveauProduit(dto.nbMoisMinNouveauProduit());
-        if (dto.autoClassificationEnabled() != null) config.setAutoClassificationEnabled(dto.autoClassificationEnabled());
+        if (dto.seuilParetoAPlus() != null) {
+            config.setSeuilParetoAPlus(dto.seuilParetoAPlus());
+        }
+        if (dto.seuilParetoA() != null) {
+            config.setSeuilParetoA(dto.seuilParetoA());
+        }
+        if (dto.seuilParetoB() != null) {
+            config.setSeuilParetoB(dto.seuilParetoB());
+        }
+        if (dto.seuilParetoC() != null) {
+            config.setSeuilParetoC(dto.seuilParetoC());
+        }
+        if (dto.seuilFrequenceMinMois() != null) {
+            config.setSeuilFrequenceMinMois(dto.seuilFrequenceMinMois());
+        }
+        if (dto.cmmSeuilAPlus() != null) {
+            config.setCmmSeuilAPlus(dto.cmmSeuilAPlus());
+        }
+        if (dto.cmmSeuilA() != null) {
+            config.setCmmSeuilA(dto.cmmSeuilA());
+        }
+        if (dto.cmmSeuilB() != null) {
+            config.setCmmSeuilB(dto.cmmSeuilB());
+        }
+        if (dto.cmmSeuilC() != null) {
+            config.setCmmSeuilC(dto.cmmSeuilC());
+        }
+        if (dto.changementMinPourcentage() != null) {
+            config.setChangementMinPourcentage(dto.changementMinPourcentage());
+        }
+        if (dto.activerClassificationOrdo() != null) {
+            config.setActiverClassificationOrdo(dto.activerClassificationOrdo());
+        }
+        if (dto.activerCorrectionSaisonniere() != null) {
+            config.setActiverCorrectionSaisonniere(dto.activerCorrectionSaisonniere());
+        }
+        if (dto.indiceSaisonnaliteMin() != null) {
+            config.setIndiceSaisonnaliteMin(dto.indiceSaisonnaliteMin());
+        }
+        if (dto.nbMoisSaisonAnalyse() != null) {
+            config.setNbMoisSaisonAnalyse(dto.nbMoisSaisonAnalyse());
+        }
+        if (dto.nbMoisMinNouveauProduit() != null) {
+            config.setNbMoisMinNouveauProduit(dto.nbMoisMinNouveauProduit());
+        }
+        if (dto.autoClassificationEnabled() != null) {
+            config.setAutoClassificationEnabled(dto.autoClassificationEnabled());
+        }
 
         return ClassificationConfigDTO.fromEntity(configRepository.save(config));
     }
 
     /**
-     * Calcule le score de classification Pareto pour un produit (API publique).
-     * Utilisé pour la preview individuelle et les overrides manuels.
+     * Calcule le score de classification Pareto pour un produit (API publique). Utilisé pour la
+     * preview individuelle et les overrides manuels.
      *
      * <p>Source des données : {@code Produit} (libellé, classe actuelle, ancienneté)
-     * + {@code v_abc_pareto_analysis} (Pareto) + {@code stock_produit} (stock actuel).
-     * N'utilise plus {@code v_produit_metriques_classification}.
+     * + {@code v_abc_pareto_analysis} (Pareto) + {@code stock_produit} (stock actuel). N'utilise
+     * plus {@code v_produit_metriques_classification}.
      */
     public ClassificationScoreDTO calculerScore(Integer produitId) {
         ClassificationConfig config = getConfig();
 
         Produit produit = produitRepository.findById(produitId).orElse(null);
-        if (produit == null) return null;
+        if (produit == null) {
+            return null;
+        }
 
         // Scores Pareto + stock depuis v_abc_pareto_analysis (7 colonnes)
         Object[] row = paretoRepository.findByProduitId(produitId).orElse(null);
         BigDecimal caCumulePct = row != null ? toBigDecimal(row[1]) : new BigDecimal("100.00");
-        int rang               = row != null ? toInt(row[2])         : Integer.MAX_VALUE;
-        long ca12Mois          = row != null ? toLong(row[3])        : 0L;
-        int frequenceMois      = row != null ? toInt(row[4])         : 0;
-        int qteVendue          = row != null ? toInt(row[5])         : 0;
-        int stockActuel        = row != null ? toInt(row[6])         : 0;
+        int rang = row != null ? toInt(row[2]) : Integer.MAX_VALUE;
+        long ca12Mois = row != null ? toLong(row[3]) : 0L;
+        int frequenceMois = row != null ? toInt(row[4]) : 0;
+        int qteVendue = row != null ? toInt(row[5]) : 0;
+        int stockActuel = row != null ? toInt(row[6]) : 0;
 
         int cmm = (int) Math.round(qteVendue / 12.0);
 
         int ancienneteMois = produit.getCreatedAt() != null
             ? (int) java.time.temporal.ChronoUnit.MONTHS.between(
-                produit.getCreatedAt().toLocalDate(), LocalDate.now())
+            produit.getCreatedAt().toLocalDate(), LocalDate.now())
             : 0;
         boolean estNouveauProduit = ancienneteMois < config.getNbMoisMinNouveauProduit();
 
@@ -194,19 +263,22 @@ public class ClassificationCriticiteService {
             .orElseThrow(() -> new IllegalArgumentException("Produit non trouvé: " + produitId));
 
         ClassificationScoreDTO score = calculerScore(produitId);
-        appliquerChangementClasse(produit, nouvelleClasse, score, raison, ClassificationType.MANUAL);
+        appliquerChangementClasse(produit, nouvelleClasse, score, raison,
+            ClassificationType.MANUAL);
         produit.setIsClassificationOverridden(true);
         produitRepository.save(produit);
     }
 
     /**
-     * Reclassifie tous les produits selon l'analyse Pareto.
-     * Exécuté mensuellement (cron horaire = filet de sécurité, garde idempotente mensuelle).
+     * Reclassifie tous les produits selon l'analyse Pareto. Exécuté mensuellement (cron horaire =
+     * filet de sécurité, garde idempotente mensuelle).
      */
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void reclassifierTousProduits() {
         reclassifierTousProduits(AUTO_DESCRIPTION);
     }
+
+    // ==================== Méthodes privées ====================
 
     /**
      * Reclassifie tous les produits avec une raison personnalisée.
@@ -226,10 +298,8 @@ public class ClassificationCriticiteService {
                 .build();
         }
 
-        // Garde idempotente mensuelle
-        if (raison.equals(AUTO_DESCRIPTION)
-            && config.getUpdatedAt().toLocalDate().withDayOfMonth(1)
-                     .equals(LocalDate.now().withDayOfMonth(1))) {
+        // Garde idempotente mensuelle — marqueur dédié, indépendant de classification_config
+        if (raison.equals(AUTO_DESCRIPTION) && dejaReclassifieCeMois()) {
             LOG.warn("Reclassification automatique déjà exécutée ce mois-ci");
             return ReclassificationResultDTO.builder()
                 .raison("Reclassification automatique déjà exécutée ce mois-ci")
@@ -246,13 +316,13 @@ public class ClassificationCriticiteService {
         long totalProduits = produitRepository.countActiveNonDetail();
         int totalPages = (int) Math.ceil((double) totalProduits / batchSize);
 
-        AtomicInteger nbAnalyses        = new AtomicInteger(0);
-        AtomicInteger nbChangements     = new AtomicInteger(0);
-        AtomicInteger nbPromotions      = new AtomicInteger(0);
+        AtomicInteger nbAnalyses = new AtomicInteger(0);
+        AtomicInteger nbChangements = new AtomicInteger(0);
+        AtomicInteger nbPromotions = new AtomicInteger(0);
         AtomicInteger nbRetrogradations = new AtomicInteger(0);
-        AtomicInteger nbNouveaux        = new AtomicInteger(0);
-        AtomicInteger nbOverridden      = new AtomicInteger(0);
-        AtomicInteger nbErreurs         = new AtomicInteger(0);
+        AtomicInteger nbNouveaux = new AtomicInteger(0);
+        AtomicInteger nbOverridden = new AtomicInteger(0);
+        AtomicInteger nbErreurs = new AtomicInteger(0);
 
         for (int page = 0; page < totalPages; page++) {
             try {
@@ -300,9 +370,8 @@ public class ClassificationCriticiteService {
                 String.format("%.1f", result.getPourcentageChangements()));
         }
 
-        // Mettre à jour le timestamp (garde mensuelle)
-        config.setUpdatedAt(LocalDateTime.now());
-        configRepository.save(config);
+        // Marquer l'exécution du mois (garde d'idempotence mensuelle)
+        marquerReclassificationDuMois();
 
         // Enchaîner le recalcul SEMOIS : les classes viennent d'être mises à jour
         LOG.info("Déclenchement recalcul SEMOIS suite à la reclassification");
@@ -321,7 +390,8 @@ public class ClassificationCriticiteService {
     /**
      * Récupère les logs d'un produit.
      */
-    public Page<ClassificationLogDTO> getLogsProduit(Integer produitId, org.springframework.data.domain.Pageable pageable) {
+    public Page<ClassificationLogDTO> getLogsProduit(Integer produitId,
+        org.springframework.data.domain.Pageable pageable) {
         return logRepository.findByProduitIdOrderByCreatedAtDesc(produitId, pageable)
             .map(ClassificationLogDTO::fromEntity);
     }
@@ -345,10 +415,44 @@ public class ClassificationCriticiteService {
         return distribution;
     }
 
-    // ==================== Méthodes privées ====================
-
     private ClassificationConfig createDefaultConfig() {
         return configRepository.save(new ClassificationConfig());
+    }
+
+    /**
+     * Garde d'idempotence mensuelle : retourne {@code true} si une reclassification a déjà eu lieu
+     * durant le mois courant. Le marqueur est stocké dans la clé
+     * {@code APP_LAST_DAY_CLASSIFICATION} — et non dans {@code classification_config.updated_at},
+     * lequel est modifié à chaque édition des réglages (et posé dès la création de la config), ce
+     * qui bloquait à tort l'exécution du batch.
+     */
+    private boolean dejaReclassifieCeMois() {
+        return appConfigurationService.findOneById(APP_LAST_DAY_CLASSIFICATION)
+            .map(AppConfiguration::getValue)
+            .filter(StringUtils::hasText)
+            .map(LocalDate::parse)
+            .map(date -> date.withDayOfMonth(1).equals(LocalDate.now().withDayOfMonth(1)))
+            .orElse(false);
+    }
+
+    // ── Helpers de conversion de colonnes native query ──
+
+    /**
+     * Enregistre la date du jour comme date de dernière reclassification (marqueur mensuel).
+     * L'échec d'écriture du marqueur ne doit pas faire échouer le batch déjà réalisé : il est
+     * journalisé sans être propagé (au pire, la reclassification sera rejouée le mois courant).
+     */
+    private void marquerReclassificationDuMois() {
+        try {
+            appConfigurationService.findOneById(APP_LAST_DAY_CLASSIFICATION)
+                .ifPresent(cfg -> {
+                    cfg.setValue(LocalDate.now().toString());
+                    cfg.setUpdated(LocalDateTime.now());
+                    appConfigurationService.update(cfg);
+                });
+        } catch (Exception e) {
+            LOG.error("Erreur mise à jour du marqueur de reclassification mensuelle", e);
+        }
     }
 
     /**
@@ -359,7 +463,9 @@ public class ClassificationCriticiteService {
         Map<Integer, ParetoScore> map = new HashMap<>(rows.size() * 2);
         for (Object[] row : rows) {
             Integer produitId = toInteger(row[0]);
-            if (produitId == null) continue;
+            if (produitId == null) {
+                continue;
+            }
             map.put(produitId, new ParetoScore(
                 toLong(row[3]),
                 toBigDecimal(row[1]),
@@ -371,14 +477,27 @@ public class ClassificationCriticiteService {
         return map;
     }
 
-    /** Classe Pareto sans les overrides médicaux (pour calculerScore sans Produit chargé). */
-    private ClasseCriticite classeDepuisPareto(BigDecimal caCumulePct, int frequenceMois, ClassificationConfig config) {
-        if (frequenceMois < config.getSeuilFrequenceMinMois()) return ClasseCriticite.D;
+    /**
+     * Classe Pareto sans les overrides médicaux (pour calculerScore sans Produit chargé).
+     */
+    private ClasseCriticite classeDepuisPareto(BigDecimal caCumulePct, int frequenceMois,
+        ClassificationConfig config) {
+        if (frequenceMois < config.getSeuilFrequenceMinMois()) {
+            return ClasseCriticite.D;
+        }
         double pct = caCumulePct.doubleValue();
-        if (pct <= config.getSeuilParetoAPlus()) return ClasseCriticite.A_PLUS;
-        if (pct <= config.getSeuilParetoA())     return ClasseCriticite.A;
-        if (pct <= config.getSeuilParetoB())     return ClasseCriticite.B;
-        if (pct <= config.getSeuilParetoC())     return ClasseCriticite.C;
+        if (pct <= config.getSeuilParetoAPlus()) {
+            return ClasseCriticite.A_PLUS;
+        }
+        if (pct <= config.getSeuilParetoA()) {
+            return ClasseCriticite.A;
+        }
+        if (pct <= config.getSeuilParetoB()) {
+            return ClasseCriticite.B;
+        }
+        if (pct <= config.getSeuilParetoC()) {
+            return ClasseCriticite.C;
+        }
         return ClasseCriticite.D;
     }
 
@@ -418,28 +537,5 @@ public class ClassificationCriticiteService {
             nouvelleClasse.getCode(),
             score != null ? score.caCumulePct() : "N/A",
             type);
-    }
-
-    // ── Helpers de conversion de colonnes native query ──
-
-    private static BigDecimal toBigDecimal(Object obj) {
-        if (obj == null) return BigDecimal.ZERO;
-        if (obj instanceof BigDecimal bd) return bd;
-        return new BigDecimal(obj.toString());
-    }
-
-    private static int toInt(Object obj) {
-        if (obj == null) return 0;
-        return ((Number) obj).intValue();
-    }
-
-    private static long toLong(Object obj) {
-        if (obj == null) return 0L;
-        return ((Number) obj).longValue();
-    }
-
-    private static Integer toInteger(Object obj) {
-        if (obj == null) return null;
-        return ((Number) obj).intValue();
     }
 }

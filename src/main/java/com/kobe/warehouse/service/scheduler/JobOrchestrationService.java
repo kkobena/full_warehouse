@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <ul>
  *   <li>Au démarrage de l'application (catch-up asynchrone)</li>
  *   <li>Selon le cron configurable {@code pharma-smart.jobs.nightly-pipeline-cron}
- *       (défaut : 01h30)</li>
+ *       (défaut : 09h00)</li>
  * </ul>
  *
  * <p>Les jobs <em>indépendants</em> (reports) conservent leur propre {@code @Scheduled}.

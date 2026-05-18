@@ -5,63 +5,64 @@ import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.Produit;
-import com.kobe.warehouse.domain.SemoisClasseConfig;
 import com.kobe.warehouse.domain.SemoisConfiguration;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Suggestion;
 import com.kobe.warehouse.domain.SuggestionLine;
-import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
 import com.kobe.warehouse.domain.enumeration.StatutSuggession;
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;
 import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
-import com.kobe.warehouse.repository.SemoisClasseConfigRepository;
 import com.kobe.warehouse.repository.SemoisConfigurationRepository;
 import com.kobe.warehouse.repository.SuggestionLineRepository;
 import com.kobe.warehouse.repository.SuggestionRepository;
 import com.kobe.warehouse.service.EtatProduitService;
 import com.kobe.warehouse.service.ReferenceService;
 import jakarta.persistence.EntityManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Batch nocturne SEMOIS — crée et rafraîchit les suggestions de réapprovisionnement.
  *
- * <p> Pour chaque produit éligible (modèle=SEMOIS, actif,
- * FP principal défini), recalcule le VMM et le stock objectif, puis crée/met à jour la
- * {@link Suggestion} de type {@link TypeSuggession#AUTO} pour chaque fournisseur.
+ * <p>Pour chaque produit éligible (actif, FP principal défini), ce batch transforme le
+ * <em>stock objectif</em> — pré-calculé par {@link SemoisCalculationService} et stocké dans
+ * {@link SemoisConfiguration#getStockObjectifCalcule()} — en lignes de {@link Suggestion} de
+ * type {@link TypeSuggession#AUTO}, regroupées par fournisseur. Le batch ne recalcule aucune
+ * valeur SEMOIS : il consomme uniquement les valeurs autoritaires de {@code semois_configuration}.
  *
- * <p><strong>Protection manuelle:</strong> les lignes dont le flag
- * {@code quantiteModifieeManuel=true} ne sont <em>pas</em> modifiées par ce batch.
+ * <p><strong>Protection manuelle :</strong> les lignes dont le flag
+ * {@code quantiteModifieeManuel=true} ne sont <em>jamais</em> modifiées ni supprimées par ce batch.
  */
 @Service
 public class SemoisBatchJobService {
 
     private static final Logger LOG = LoggerFactory.getLogger(SemoisBatchJobService.class);
 
+    /** Taille maximale d'une clause SQL {@code IN (...)} pour éviter les listes trop volumineuses. */
+    private static final int IN_CLAUSE_CHUNK_SIZE = 1000;
+
+    /** Garde anti-concurrence : empêche deux exécutions simultanées du batch. */
+    private final AtomicBoolean batchEnCours = new AtomicBoolean(false);
+
     private final ProduitRepository produitRepository;
     private final SemoisConfigurationRepository semoisConfigurationRepository;
-    private final SemoisClasseConfigRepository semoisClasseConfigRepository;
     private final SuggestionRepository suggestionRepository;
     private final SuggestionLineRepository suggestionLineRepository;
     private final OrderLineRepository orderLineRepository;
@@ -72,7 +73,6 @@ public class SemoisBatchJobService {
     public SemoisBatchJobService(
         ProduitRepository produitRepository,
         SemoisConfigurationRepository semoisConfigurationRepository,
-        SemoisClasseConfigRepository semoisClasseConfigRepository,
         SuggestionRepository suggestionRepository,
         SuggestionLineRepository suggestionLineRepository,
         OrderLineRepository orderLineRepository,
@@ -82,7 +82,6 @@ public class SemoisBatchJobService {
     ) {
         this.produitRepository = produitRepository;
         this.semoisConfigurationRepository = semoisConfigurationRepository;
-        this.semoisClasseConfigRepository = semoisClasseConfigRepository;
         this.suggestionRepository = suggestionRepository;
         this.suggestionLineRepository = suggestionLineRepository;
         this.orderLineRepository = orderLineRepository;
@@ -94,30 +93,42 @@ public class SemoisBatchJobService {
     //  Réintégration automatique des exclusions expirées ─────────────────
 
     /**
-     * Réintègre automatiquement les produits dont l'exclusion temporaire a expiré.
-     * Exécuté chaque nuit à 01h30 (avant le batch principal à 02h00).
+     * Réintègre automatiquement les produits dont l'exclusion temporaire a expiré
      */
     @Transactional
     public void reintegrerExclusionsExpirees() {
         int nb = semoisConfigurationRepository.reintegrerExclusionsExpirees();
         if (nb > 0) {
-            LOG.info("[SEMOIS-BATCH] {} produit(s) réintégré(s) automatiquement après expiration de l'exclusion", nb);
+            LOG.info(
+                "[SEMOIS-BATCH] {} produit(s) réintégré(s) automatiquement après expiration de l'exclusion",
+                nb);
         }
     }
 
     // ────────────────────────────────────────────────────────────────────────────────
-    // Batch principal — planifié à 02h00 chaque nuit
+    // Batch principal — exécuté par le pipeline JobOrchestrationService
     // ────────────────────────────────────────────────────────────────────────────────
 
     /**
      * Crée ou met à jour les suggestions SEMOIS pour tous les produits éligibles.
      *
-     * <p>Les lignes ayant {@code quantiteModifieeManuel=true} sont
-     * préservées — le pharmacien a pris la main, le batch ne les modifie pas.
-     * Seul un appel explicite à {@code resetQuantiteManuelle()} réautorise le batch.
+     * <p>Les lignes ayant {@code quantiteModifieeManuel=true} sont préservées — le pharmacien a
+     * pris la main, le batch ne les modifie ni ne les supprime.
      */
     @Transactional
     public void creerSuggestionBatch() {
+        if (!batchEnCours.compareAndSet(false, true)) {
+            LOG.warn("[SEMOIS-BATCH] Batch déjà en cours — exécution ignorée");
+            return;
+        }
+        try {
+            doCreerSuggestionBatch();
+        } finally {
+            batchEnCours.set(false);
+        }
+    }
+
+    private void doCreerSuggestionBatch() {
         LOG.info("[SEMOIS-BATCH] Démarrage du batch de création des suggestions");
         long debut = System.currentTimeMillis();
 
@@ -127,19 +138,14 @@ public class SemoisBatchJobService {
             return;
         }
 
-        // Charger les configs de classe (au plus 5 lignes) ─────────────────────
-        Map<ClasseCriticite, SemoisClasseConfig> classeConfigs = semoisClasseConfigRepository.findAll()
-            .stream()
-            .collect(Collectors.toMap(SemoisClasseConfig::getClasseCriticite, Function.identity()));
-
-        //Charger tous les produits éligibles avec leur FP principal ────────────
+        // Charger tous les produits éligibles avec leur FP principal et leurs stocks ───
         List<Produit> eligibles = produitRepository.findAllSemoisEligibles(magasin.getId());
         if (eligibles.isEmpty()) {
             LOG.info("[SEMOIS-BATCH] Aucun produit éligible trouvé");
             return;
         }
-
-        Set<Integer> allProduitIds = eligibles.stream().map(Produit::getId).collect(Collectors.toSet());
+        Set<Integer> allProduitIds = eligibles.stream().map(Produit::getId)
+            .collect(Collectors.toSet());
         LOG.info("[SEMOIS-BATCH] {} produits éligibles chargés", allProduitIds.size());
 
         // Batch-load SemoisConfiguration ────────────────────────────────────────
@@ -148,47 +154,37 @@ public class SemoisBatchJobService {
             .stream()
             .collect(Collectors.toMap(sc -> sc.getProduit().getId(), Function.identity()));
 
-        // Batch VMM par classe ──────────────────────────────────────────────────
-        Map<Integer, Integer> vmmByProduitId = loadVmmBySemoisClass(eligibles, classeConfigs);
-
-        // Fallback : si mv_monthly_top_products n'a pas de données (vue non encore rafraîchie à 02h00),
-        // utiliser vmm_calcule de SemoisConfiguration calculé par processBatch() depuis ventes_mensuelles_agregees.
-        int nbVmmFallback = 0;
+        // Passe unique sur les produits éligibles : index des FP principaux et regroupement
+        // par fournisseur (évite de re-streamer la liste plusieurs fois).
+        Set<Integer> allFpIds = new HashSet<>();
+        Map<Fournisseur, List<Produit>> byFournisseur = new HashMap<>();
         for (Produit p : eligibles) {
-            if (vmmByProduitId.getOrDefault(p.getId(), 0) == 0) {
-                SemoisConfiguration sc = semoisConfigByProduitId.get(p.getId());
-                if (sc != null && sc.getVmmCalcule() != null && sc.getVmmCalcule() > 0) {
-                    vmmByProduitId.put(p.getId(), sc.getVmmCalcule());
-                    nbVmmFallback++;
-                }
+            FournisseurProduit fp = p.getFournisseurProduitPrincipal();
+            if (fp != null) {
+                allFpIds.add(fp.getId());
+                byFournisseur.computeIfAbsent(fp.getFournisseur(), k -> new ArrayList<>()).add(p);
             }
-        }
-        if (nbVmmFallback > 0) {
-            LOG.info("[SEMOIS-BATCH] {} produit(s) sans données dans mv_monthly_top_products — VMM issu de semois_configuration", nbVmmFallback);
         }
 
         // Stock virtuel (commandes en attente) ──────────────────────────────────
         Map<Integer, Integer> pendingQtyByProduitId = loadPendingOrderQty(allProduitIds);
 
-        // Batch-load lignes SEMOIS existantes ────────────────────────────────────
-        Set<Integer> allFpIds = eligibles.stream()
-            .filter(p -> p.getFournisseurProduitPrincipal() != null)
-            .map(p -> p.getFournisseurProduitPrincipal().getId())
-            .collect(Collectors.toSet());
+        // Produits non suggérables (commande REQUESTED/RECEIVED en cours) — batch, 1 appel SQL
+        // par chunk au lieu de 2 requêtes par produit.
+        Set<Integer> nonSuggerables = new HashSet<>();
+        for (Set<Integer> chunk : partition(allProduitIds)) {
+            nonSuggerables.addAll(etatProduitService.produitsNonSuggerables(chunk));
+        }
 
+        // Batch-load lignes SEMOIS existantes ────────────────────────────────────
         Map<Integer, SuggestionLine> existingLineByFpId = suggestionLineRepository
             .findAllByTypeSuggessionAndFournisseurProduitIdIn(TypeSuggession.AUTO, allFpIds)
             .stream()
             .collect(Collectors.toMap(l -> l.getFournisseurProduit().getId(), Function.identity()));
 
-        // Regroupement par fournisseur ──────────────────────────────────────────
-        Map<Fournisseur, List<Produit>> byFournisseur = eligibles.stream()
-            .filter(p -> p.getFournisseurProduitPrincipal() != null)
-            .collect(Collectors.groupingBy(p -> p.getFournisseurProduitPrincipal().getFournisseur()));
-
         List<Suggestion> suggestionsToSave = new ArrayList<>();
         List<SuggestionLine> linesToSave = new ArrayList<>();
-        List<SemoisConfiguration> configsToUpdate = new ArrayList<>();
+        List<SuggestionLine> linesToDelete = new ArrayList<>();
         int nbCreees = 0;
         int nbMajees = 0;
         int nbProtegees = 0;
@@ -201,29 +197,35 @@ public class SemoisBatchJobService {
             boolean alreadyExisted = existing.get();
 
             for (Produit produit : entry.getValue()) {
-                if (!etatProduitService.canSuggere(produit.getId())) continue;
-
                 FournisseurProduit fp = produit.getFournisseurProduitPrincipal();
                 SemoisConfiguration config = semoisConfigByProduitId.get(produit.getId());
-                int vmm = vmmByProduitId.getOrDefault(produit.getId(), 0);
-                int pendingQty = pendingQtyByProduitId.getOrDefault(produit.getId(), 0);
 
+                // Produit exclu temporairement des suggestions SEMOIS : on retire toute ligne
+                // AUTO devenue obsolète (sauf si une quantité a été saisie manuellement).
+                if (config != null && config.isExcluActif()) {
+                    marquerLignePerimee(existingLineByFpId.get(fp.getId()), linesToDelete);
+                    continue;
+                }
+
+                if (nonSuggerables.contains(produit.getId())) {
+                    continue;
+                }
+
+                int pendingQty = pendingQtyByProduitId.getOrDefault(produit.getId(), 0);
                 int stockPhysique = produit.getStockProduits().stream()
                     .filter(sp -> sp.getStorage().getMagasin().equals(magasin))
                     .mapToInt(StockProduit::getTotalStockQuantity)
                     .sum();
                 int stockVirtuel = stockPhysique + pendingQty;
 
-                int stockObjectif = computeStockObjectif(produit, config, fournisseur, vmm, classeConfigs);
+                int stockObjectif = computeStockObjectif(produit, config);
 
-                // Mise à jour du cache stockObjectifCalcule
-                if (config != null) {
-                    config.setStockObjectifCalcule(stockObjectif);
-                    config.setDateDernierCalcul(LocalDateTime.now());
-                    configsToUpdate.add(config);
+                if (stockVirtuel >= stockObjectif) {
+                    // Stock redevenu suffisant : la ligne AUTO obsolète est supprimée
+                    // (sauf si le pharmacien a saisi une quantité manuellement).
+                    marquerLignePerimee(existingLineByFpId.get(fp.getId()), linesToDelete);
+                    continue;
                 }
-
-                if (stockVirtuel >= stockObjectif) continue;
 
                 // Quantité brute = besoin pour atteindre le stock objectif
                 int qtyBrute = Math.max(1, stockObjectif - stockVirtuel);
@@ -250,28 +252,48 @@ public class SemoisBatchJobService {
                     newLine.setFournisseurProduit(fp);
                     newLine.setSuggestion(suggestion);
                     suggestion.getSuggestionLines().add(newLine);
-                    if (alreadyExisted) linesToSave.add(newLine);
+                    if (alreadyExisted) {
+                        linesToSave.add(newLine);
+                    }
                     nbCreees++;
                 }
             }
 
-            if (!suggestion.getSuggestionLines().isEmpty() || !linesToSave.isEmpty()) {
+            // Une nouvelle suggestion n'est persistée que si elle a effectivement reçu des lignes.
+            // Les suggestions existantes sont des entités managées : la mise à jour de updatedAt
+            // (et de leurs lignes) est suivie par le dirty-checking, pas besoin de les collecter.
+            if (!alreadyExisted && !suggestion.getSuggestionLines().isEmpty()) {
                 suggestionsToSave.add(suggestion);
             }
         }
 
-
-        semoisConfigurationRepository.saveAll(configsToUpdate);
         suggestionRepository.saveAll(suggestionsToSave);
         suggestionLineRepository.saveAll(linesToSave);
+        if (!linesToDelete.isEmpty()) {
+            suggestionLineRepository.deleteAll(linesToDelete);
+        }
+        // Nettoyage des suggestions AUTO devenues vides (toutes lignes supprimées) et jamais
+        // traitées par le pharmacien (statut GENEREE).
+        int nbVides = suggestionRepository.deleteEmptyAutoSuggestions();
 
         long duree = System.currentTimeMillis() - debut;
-        LOG.info("[SEMOIS-BATCH] Terminé en {}ms — {} suggestions, {} créées, {} màj, {} protégées",
-            duree, suggestionsToSave.size(), nbCreees, nbMajees, nbProtegees);
+        LOG.info(
+            "[SEMOIS-BATCH] Terminé en {}ms — {} créées, {} màj, {} protégées, {} lignes supprimées, {} suggestions vides supprimées",
+            duree, nbCreees, nbMajees, nbProtegees, linesToDelete.size(), nbVides);
     }
 
+    /**
+     * Ajoute une ligne AUTO à la liste des suppressions si elle existe et n'a pas été modifiée
+     * manuellement par le pharmacien. Les saisies manuelles ne sont jamais touchées par le batch.
+     */
+    private void marquerLignePerimee(SuggestionLine ligne, List<SuggestionLine> linesToDelete) {
+        if (ligne != null && !ligne.isQuantiteModifieeManuel()) {
+            linesToDelete.add(ligne);
+        }
+    }
 
-    private Suggestion getOrCreateSemoisSuggestion(Fournisseur fournisseur, Magasin magasin, AtomicBoolean existing) {
+    private Suggestion getOrCreateSemoisSuggestion(Fournisseur fournisseur, Magasin magasin,
+        AtomicBoolean existing) {
         Optional<Suggestion> opt = suggestionRepository.findByTypeSuggessionAndFournisseurIdAndMagasinId(
             TypeSuggession.AUTO,
             fournisseur.getId(),
@@ -298,99 +320,55 @@ public class SemoisBatchJobService {
         return s;
     }
 
-    private int computeStockObjectif(
-        Produit produit,
-        SemoisConfiguration config,
-        Fournisseur fournisseur,
-        int vmm,
-        Map<ClasseCriticite, SemoisClasseConfig> classeConfigs
-    ) {
-        // Utiliser la valeur pré-calculée par processBatch() si disponible et calculée aujourd'hui
-        if (config != null
-            && config.getStockObjectifCalcule() != null
-            && config.getStockObjectifCalcule() > 0
-            && config.getDateDernierCalcul() != null
-            && config.getDateDernierCalcul().toLocalDate().equals(LocalDate.now())) {
-            return config.getStockObjectifCalcule();
+    /**
+     * Stock objectif d'un produit = valeur autoritaire pré-calculée par
+     * {@code SemoisCalculationService.processBatch()} (VMM pondérée + marge de sécurité + stock
+     * de rotation, avec plafond péremption éventuel).
+     * <p>
+     * Lorsque cet objectif est nul — produit jamais vendu, sans historique (VMM = 0) — on retient
+     * le seuil mini / quantité d'appro saisi manuellement par le pharmacien. C'est ce seuil
+     * manuel qui exprime l'intention « je veux stocker ce produit » en l'absence de ventes.
+     * Sans seuil manuel, le produit n'est pas suggéré (conforme au réappro piloté par la demande).
+     */
+    private int computeStockObjectif(Produit produit, SemoisConfiguration config) {
+        int objectif = (config != null && config.getStockObjectifCalcule() != null)
+            ? config.getStockObjectifCalcule()
+            : safeInt(produit.getQtySeuilMini());
+        if (objectif <= 0) {
+            objectif = Math.max(safeInt(produit.getQtySeuilMini()), safeInt(produit.getQtyAppro()));
         }
-        if (vmm <= 0) return produit.getQtySeuilMini();
-
-        ClasseCriticite classe = produit.getEffectiveClasseCriticite();
-        SemoisClasseConfig cc = classeConfigs.get(classe);
-        int delai = resolveDelaiLivraison(config, fournisseur);
-
-        if (cc == null) {
-            return (int) Math.round(vmm * (1 + delai / 30.0));
-        }
-        BigDecimal coeff = cc.getCoefficientSecurite();
-        int marge = BigDecimal.valueOf(vmm)
-            .multiply(BigDecimal.valueOf(delai))
-            .multiply(coeff)
-            .divide(BigDecimal.valueOf(30), RoundingMode.HALF_UP)
-            .intValue();
-        return vmm + marge;
+        return objectif;
     }
 
-    private int resolveDelaiLivraison(SemoisConfiguration config, Fournisseur fournisseur) {
-        if (config != null && config.getDelaiLivraisonJours() != null) {
-            return config.getDelaiLivraisonJours();
-        }
-        if (fournisseur != null && fournisseur.getDelaiLivraisonJours() != null) {
-            return fournisseur.getDelaiLivraisonJours();
-        }
-        Fournisseur parent = Objects.nonNull(fournisseur) ? fournisseur.getParent() : null;
-        if (parent != null
-            && parent.getDelaiLivraisonJours() != null) {
-            return parent.getDelaiLivraisonJours();
-        }
-        return 7;
+    private static int safeInt(Integer value) {
+        return value != null ? value : 0;
     }
 
-    private Map<Integer, Integer> loadVmmBySemoisClass(
-        List<Produit> produits,
-        Map<ClasseCriticite, SemoisClasseConfig> classeConfigs
-    ) {
-        Map<ClasseCriticite, List<Integer>> idsByClass = produits.stream()
-            .collect(Collectors.groupingBy(
-                Produit::getEffectiveClasseCriticite,
-                Collectors.mapping(Produit::getId, Collectors.toList())
-            ));
-
+    private Map<Integer, Integer> loadPendingOrderQty(Set<Integer> produitIds) {
+        if (produitIds.isEmpty()) {
+            return Map.of();
+        }
         Map<Integer, Integer> result = new HashMap<>();
-        for (Map.Entry<ClasseCriticite, List<Integer>> e : idsByClass.entrySet()) {
-            SemoisClasseConfig cc = classeConfigs.get(e.getKey());
-            int nbMois = cc != null ? cc.getNbMoisHistorique() : 6;
-            result.putAll(loadVmm(new HashSet<>(e.getValue()), nbMois));
+        for (Set<Integer> chunk : partition(produitIds)) {
+            for (Object[] row : orderLineRepository.findPendingQtyByProduitIds(chunk)) {
+                result.put(((Number) row[0]).intValue(), ((Number) row[1]).intValue());
+            }
         }
         return result;
     }
 
-    @SuppressWarnings("unchecked")
-    private Map<Integer, Integer> loadVmm(Set<Integer> produitIds, int nthMois) {
-        if (produitIds.isEmpty()) return Map.of();
-        String sql = """
-            SELECT produit_id, ROUND(AVG(qte_vendue))::integer AS vmm
-            FROM mv_monthly_top_products
-            WHERE produit_id IN (:produitIds)
-              AND mois::date >= (DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '%d months')::date
-              AND mois::date < DATE_TRUNC('month', CURRENT_DATE)::date
-            GROUP BY produit_id
-            """.formatted(nthMois);
-        List<Object[]> rows = em.createNativeQuery(sql)
-            .setParameter("produitIds", produitIds)
-            .getResultList();
-        return rows.stream().collect(Collectors.toMap(
-            row -> ((Number) row[0]).intValue(),
-            row -> ((Number) row[1]).intValue()
-        ));
-    }
-
-    private Map<Integer, Integer> loadPendingOrderQty(Set<Integer> produitIds) {
-        if (produitIds.isEmpty()) return Map.of();
-        List<Object[]> rows = orderLineRepository.findPendingQtyByProduitIds(produitIds);
-        return rows.stream().collect(Collectors.toMap(
-            row -> ((Number) row[0]).intValue(),
-            row -> ((Number) row[1]).intValue()
-        ));
+    /**
+     * Découpe un ensemble d'IDs en sous-ensembles de taille bornée ({@link #IN_CLAUSE_CHUNK_SIZE})
+     * pour éviter les clauses SQL {@code IN (...)} trop volumineuses (limites de paramètres du
+     * driver et plans de requête dégradés sur de très grandes listes).
+     */
+    private static List<Set<Integer>> partition(Set<Integer> ids) {
+        List<Integer> list = new ArrayList<>(ids);
+        List<Set<Integer>> chunks = new ArrayList<>();
+        for (int i = 0; i < list.size(); i += IN_CLAUSE_CHUNK_SIZE) {
+            chunks.add(new LinkedHashSet<>(
+                list.subList(i, Math.min(i + IN_CLAUSE_CHUNK_SIZE, list.size()))));
+        }
+        return chunks;
     }
 }

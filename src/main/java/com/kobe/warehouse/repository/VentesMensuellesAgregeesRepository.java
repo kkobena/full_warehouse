@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Modifying;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -50,6 +51,16 @@ public interface VentesMensuellesAgregeesRepository extends JpaRepository<Ventes
         @Param("produitIds") Set<Integer> produitIds,
         @Param("months") Set<String> months
     );
+
+    /**
+     * Charge en une seule requête toutes les agrégations mensuelles d'un lot de produits.
+     * Utilisé par le batch SEMOIS pour calculer la VMM pondérée en mémoire (élimine le N+1).
+     *
+     * @param produitIds IDs des produits du batch courant
+     * @return Toutes les agrégations mensuelles de ces produits
+     */
+    @Query("SELECT vma FROM VentesMensuellesAgregees vma WHERE vma.produit.id IN :produitIds")
+    List<VentesMensuellesAgregees> findAllByProduitIdIn(@Param("produitIds") Collection<Integer> produitIds);
 
     /**
      * Récupère les N derniers mois de ventes pour un produit

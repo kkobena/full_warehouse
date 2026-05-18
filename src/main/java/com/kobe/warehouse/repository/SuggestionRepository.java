@@ -17,6 +17,8 @@ import java.util.Set;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -79,4 +81,21 @@ public interface SuggestionRepository
      * Compte les suggestions par statut (GENEREE, VALIDEE…) pour les badges de l'UI.
      */
     long countByStatut(StatutSuggession statut);
+
+    /**
+     * Supprime les suggestions AUTO devenues vides (aucune ligne) et encore au statut GENEREE
+     * (jamais traitées par le pharmacien). Appelé en fin de batch SEMOIS après suppression des
+     * lignes obsolètes. {@code flushAutomatically} garantit que les suppressions de lignes en
+     * attente sont écrites en base avant l'évaluation du prédicat {@code IS EMPTY}.
+     *
+     * @return nombre de suggestions supprimées
+     */
+    @Modifying(flushAutomatically = true)
+    @Query("""
+        DELETE FROM Suggestion s
+        WHERE s.typeSuggession = com.kobe.warehouse.domain.enumeration.TypeSuggession.AUTO
+          AND s.statut = com.kobe.warehouse.domain.enumeration.StatutSuggession.GENEREE
+          AND s.suggestionLines IS EMPTY
+        """)
+    int deleteEmptyAutoSuggestions();
 }

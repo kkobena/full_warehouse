@@ -8,6 +8,9 @@ import com.kobe.warehouse.repository.SuggestionLineRepository;
 import com.kobe.warehouse.service.dto.EtatProduit;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +48,18 @@ public class EtatProduitServiceImpl implements EtatProduitService {
     public boolean canSuggere(Integer idProduit) {
         return getCommandeCount(idProduit, OrderStatut.REQUESTED) == 0
             && getCommandeCount(idProduit, OrderStatut.RECEIVED) == 0;
+    }
+
+    @Override
+    public Set<Integer> produitsNonSuggerables(Collection<Integer> produitIds) {
+        if (produitIds == null || produitIds.isEmpty()) {
+            return Set.of();
+        }
+        return orderLineRepository.findProduitIdsWithCommandes(
+            produitIds,
+            List.of(OrderStatut.REQUESTED, OrderStatut.RECEIVED),
+            getDateRetentionCommande()
+        );
     }
 
     private EtatProduit buildEtatProduit(Integer idProduit, int currentStock) {

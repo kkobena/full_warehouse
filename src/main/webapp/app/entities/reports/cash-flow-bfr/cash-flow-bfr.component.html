@@ -1,0 +1,86 @@
+<!-- Toolbar -->
+<div class="pharma-toolbar">
+  <div class="pharma-toolbar-header">
+    <i class="pi pi-money-bill"></i>
+    <span class="pharma-toolbar-title">BFR &amp; Cycle d'exploitation</span>
+  </div>
+  <div class="pharma-toolbar-content">
+    <div class="pharma-toolbar-filters">
+      <span class="text-muted small"><i class="pi pi-calendar me-1"></i>12 mois glissants</span>
+    </div>
+  </div>
+</div>
+
+<!-- Loading -->
+@if (isLoading()) {
+  <div class="flex justify-content-center align-items-center" style="min-height: 300px">
+    <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
+  </div>
+}
+
+@if (!isLoading() && snapshot()) {
+
+  <!-- ===== KPI STRIP ===== -->
+  <div class="kpi-strip mt-2 mb-2">
+    <div class="kpi-strip-item primary-accent">
+      <i class="pi pi-box text-primary"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Stock (DIO)</span>
+        <span class="kpi-strip-value text-primary">{{ formatCurrency(snapshot()!.stockValue) }} <small>FCFA</small></span>
+        <span class="kpi-strip-sub">{{ snapshot()!.dio }} jours de stock</span>
+      </div>
+    </div>
+    <div class="kpi-strip-divider"></div>
+    <div class="kpi-strip-item warning-accent">
+      <i class="pi pi-users text-warning"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Créances TP (DSO)</span>
+        <span class="kpi-strip-value text-warning">{{ formatCurrency(snapshot()!.creancesTp) }} <small>FCFA</small></span>
+        <span class="kpi-strip-sub">{{ snapshot()!.dso }}j recouvrement</span>
+      </div>
+    </div>
+    <div class="kpi-strip-divider"></div>
+    <div class="kpi-strip-item success-accent">
+      <i class="pi pi-truck text-success"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Dettes Fournisseurs (DPO)</span>
+        <span class="kpi-strip-value text-success">{{ formatCurrency(snapshot()!.dettesFournisseurs) }} <small>FCFA</small></span>
+        <span class="kpi-strip-sub">{{ snapshot()!.dpo }}j délai fournisseur</span>
+      </div>
+    </div>
+    <div class="kpi-strip-divider"></div>
+    <div class="kpi-strip-item primary-accent">
+      <i class="pi pi-chart-line text-primary"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Besoin en Fonds de Roulement (BFR)</span>
+        <span class="kpi-strip-value text-primary">{{ formatCurrency(snapshot()!.bfr) }} <small>FCFA</small></span>
+        <span class="kpi-strip-sub">Stock + Créances − Dettes</span>
+      </div>
+    </div>
+    <div class="kpi-strip-divider"></div>
+    <div class="kpi-strip-item primary-accent">
+      <i class="pi pi-sync text-primary"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Cycle de trésorerie (CCC)</span>
+        <span class="kpi-strip-value text-primary">{{ snapshot()!.ccc }} <small>jours</small></span>
+        <span class="kpi-strip-sub">DIO + DSO − DPO</span>
+      </div>
+    </div>
+  </div>
+
+}
+
+<!-- ===== EVOLUTION CHART ===== -->
+@if (evolution()) {
+  <div class="card data-card">
+    <div class="card-header">
+      <h5 class="card-title">
+        <i class="pi pi-chart-line text-primary"></i>
+        Flux mensuels — Créances TP vs Achats fournisseurs (12 mois)
+      </h5>
+    </div>
+    <div class="card-body" style="position: relative; height: 280px;">
+      <canvas #evolutionChartCanvas></canvas>
+    </div>
+  </div>
+}

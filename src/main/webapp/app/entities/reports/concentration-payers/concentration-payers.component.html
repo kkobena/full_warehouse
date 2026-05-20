@@ -1,0 +1,205 @@
+<!-- Toolbar -->
+<div class="pharma-toolbar">
+  <div class="pharma-toolbar-header">
+    <i class="pi pi-users"></i>
+    <span class="pharma-toolbar-title">Concentration Payeurs</span>
+  </div>
+  <div class="pharma-toolbar-content">
+    <div class="pharma-toolbar-filters">
+      <span class="text-muted small"><i class="pi pi-info-circle me-1"></i>Risque institutionnel par organisme TP</span>
+    </div>
+    <div class="pharma-toolbar-actions">
+      <div class="dashboard-periode-selector">
+        <button class="periode-pill" [class.active]="periode() === 'quarter'" (click)="setPeriode('quarter')">
+          <i class="pi pi-calendar"></i><span class="pill-label">Trimestre</span>
+        </button>
+        <button class="periode-pill" [class.active]="periode() === 'year'" (click)="setPeriode('year')">
+          <i class="pi pi-calendar-plus"></i><span class="pill-label">Année en cours</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading summary -->
+@if (isLoading()) {
+  <div class="flex justify-content-center align-items-center" style="min-height: 300px">
+    <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
+  </div>
+}
+
+@if (!isLoading() && summary()) {
+
+  <!-- ===== KPI STRIP ===== -->
+  <div class="kpi-strip mt-2 mb-2">
+    <div class="kpi-strip-item primary-accent">
+      <i class="pi pi-building text-primary"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">CA TP total (période)</span>
+        <span class="kpi-strip-value text-primary">{{ formatCurrency(summary()!.totalCaTp) }} <small>FCFA</small></span>
+      </div>
+    </div>
+    <div class="kpi-strip-divider"></div>
+    <div class="kpi-strip-item danger-accent">
+      <i class="pi pi-exclamation-circle text-danger"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Total impayé (période)</span>
+        <span class="kpi-strip-value text-danger">{{ formatCurrency(summary()!.totalImpaye) }} <small>FCFA</small></span>
+      </div>
+    </div>
+    <div class="kpi-strip-divider"></div>
+    <div class="kpi-strip-item success-accent">
+      <i class="pi pi-check-circle text-success"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Total règlement (période)</span>
+        <span class="kpi-strip-value text-success">{{ formatCurrency(summary()!.totalRegle) }} <small>FCFA</small></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CONCENTRATION BAR CHART ===== -->
+  @if ((summary()!.organismes?.length ?? 0) > 0) {
+    <div class="card data-card mb-2">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <h5 class="card-title mb-0">
+          <i class="pi pi-chart-pie text-primary"></i>
+          Répartition du CA TP par organisme
+        </h5>
+        <p-select
+          [options]="topNOptions"
+          [(ngModel)]="selectedSummaryTopN"
+          optionLabel="label"
+          optionValue="value"
+          (onChange)="onSummaryTopNChange($event.value)"
+          [style]="{ minWidth: '110px' }"
+          appendTo="body">
+        </p-select>
+      </div>
+      <div class="card-body scrollable-card-body">
+        @for (org of summary()!.organismes ?? []; track org.organisme; let i = $index) {
+          <div class="mb-2" [class.opacity-75]="org.organisme?.startsWith('Autres')">
+            <div class="d-flex align-items-center justify-content-between mb-1">
+              <div class="fw-semibold">{{ org.organisme }}</div>
+              <div class="text-end small">
+                <span class="fw-bold">{{ org.partPct?.toFixed(1) }} %</span>
+                <span class="text-muted ms-2">{{ formatCurrency(org.caTp) }} FCFA</span>
+                @if (org.delaiReglement) {
+                  <span class="text-muted ms-2">· délai {{ org.delaiReglement }}j</span>
+                }
+              </div>
+            </div>
+            <div class="progress" style="height: 18px;">
+              <div class="progress-bar concentration-bar-{{ i % 5 }}"
+                   role="progressbar"
+                   [style.width]="barWidthPct(org.partPct)"
+                   [attr.aria-valuenow]="org.partPct"
+                   aria-valuemin="0" aria-valuemax="100">
+                {{ org.partPct?.toFixed(1) }} %
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  } @else {
+    <div class="card data-card mb-2">
+      <div class="card-body text-center p-4">
+        <i class="pi pi-inbox text-muted" style="font-size: 3rem"></i>
+        <p class="mt-3 text-muted">Aucune donnée TP pour la période sélectionnée.</p>
+      </div>
+    </div>
+  }
+}
+
+<!-- ===== STRESS SCENARIOS — indépendant ===== -->
+<div class="card data-card mb-2">
+  <div class="card-header d-flex align-items-center justify-content-between">
+    <h5 class="card-title mb-0">
+      <i class="pi pi-exclamation-triangle text-warning"></i>
+      Scénario de stress — suspension 30 jours
+    </h5>
+    <p-select
+      [options]="topNOptions"
+      [(ngModel)]="selectedStressTopN"
+      optionLabel="label"
+      optionValue="value"
+      (onChange)="onStressTopNChange($event.value)"
+      [style]="{ minWidth: '110px' }"
+      appendTo="body">
+    </p-select>
+  </div>
+  <div class="card-body p-0">
+    @if (isStressLoading()) {
+      <div class="d-flex justify-content-center align-items-center p-4">
+        <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+      </div>
+    } @else {
+      <div class="px-3 pt-3 pb-1">
+        <p class="text-muted small mb-0">
+          Estimation de l'impact trésorerie si un organisme suspend ses remboursements pendant 30 jours.
+        </p>
+      </div>
+      <p-table [value]="stressOrganismes() ?? []" class="p-datatable-sm" [stripedRows]="true"
+               [scrollable]="true" scrollHeight="350px">
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th>Organisme</th>
+            <th class="text-end">Part du CA TP</th>
+            <th class="text-end">Impact estimé (30j)</th>
+            <th class="text-center">Risque</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-org>
+          <tr>
+            <td class="fw-semibold">{{ org.organisme }}</td>
+            <td class="text-end">{{ org.partPct?.toFixed(1) }} %</td>
+            <td class="text-end fw-bold" [class.text-danger]="(org.stressImpact30j ?? 0) > 0">
+              {{ formatCurrency(org.stressImpact30j) }} FCFA
+            </td>
+            <td class="text-center">
+              @if ((org.partPct ?? 0) >= 30) {
+                <span class="pharma-badge pharma-badge-danger">Critique</span>
+              } @else if ((org.partPct ?? 0) >= 15) {
+                <span class="pharma-badge pharma-badge-warning">Élevé</span>
+              } @else {
+                <span class="pharma-badge pharma-badge-secondary">Modéré</span>
+              }
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template #emptymessage>
+          <tr>
+            <td colspan="4" class="text-center p-4">
+              <i class="pi pi-inbox text-muted" style="font-size: 2rem"></i>
+              <p class="text-muted mt-2">Aucune donnée disponible.</p>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    }
+  </div>
+</div>
+
+<!-- ===== EVOLUTION CHART ===== -->
+@if (evolutionLoaded() && evolution()) {
+  <div class="card data-card mb-2">
+    <div class="card-header d-flex align-items-center justify-content-between">
+      <h5 class="card-title mb-0">
+        <i class="pi pi-chart-bar text-primary"></i>
+        Évolution concentration — 12 mois glissants
+      </h5>
+      <p-select
+        [options]="topNOptions"
+        [(ngModel)]="selectedEvolutionTopN"
+        optionLabel="label"
+        optionValue="value"
+        (onChange)="onEvolutionTopNChange($event.value)"
+        [style]="{ minWidth: '110px' }"
+        appendTo="body">
+      </p-select>
+    </div>
+    <div class="card-body" style="position: relative; height: 300px;">
+      <canvas #evolutionChartCanvas></canvas>
+    </div>
+  </div>
+}

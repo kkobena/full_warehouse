@@ -76,93 +76,52 @@
       <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
     </div>
   } @else {
-    <!-- Summary Cards -->
+    <!-- KPI Strip -->
     @if (summary(); as sum) {
-      <div class="row">
-        <div class="col-xl-3 col-md-6 mb-2">
-          <div class="card h-100 kpi-card primary-accent">
-            <div class="card-body">
-              <div class="kpi-header">
-                <div class="kpi-content">
-                  <p class="kpi-label">Total Transactions</p>
-                  <h4 class="kpi-value">
-                    <span>{{ formatNumber(sum.totalTransactions) }}</span>
-                  </h4>
-                  <div class="kpi-badges">
-                    <span class="badge bg-primary-subtle text-primary">{{ formatNumber(sum.totalProducts) }} produits uniques</span>
-                  </div>
-                </div>
-                <div class="kpi-icon text-primary">
-                  <i class="pi pi-shopping-cart"></i>
-                </div>
-              </div>
-            </div>
+      <div class="kpi-strip mt-2 mb-2">
+
+        <div class="kpi-strip-item primary-accent">
+          <i class="pi pi-shopping-cart text-primary"></i>
+          <div class="kpi-strip-body">
+            <span class="kpi-strip-label">Total transactions</span>
+            <span class="kpi-strip-value text-primary">{{ formatNumber(sum.totalTransactions) }}</span>
+            <span class="kpi-strip-sub">{{ formatNumber(sum.totalProducts) }} produits uniques</span>
           </div>
         </div>
 
-        <div class="col-xl-3 col-md-6 mb-2">
-          <div class="card h-100 kpi-card success-accent">
-            <div class="card-body">
-              <div class="kpi-header">
-                <div class="kpi-content">
-                  <p class="kpi-label">Taille Moyenne Panier</p>
-                  <h4 class="kpi-value">
-                    <span>{{ formatDecimal(sum.averageBasketSize) }}</span>
-                  </h4>
-                  <div class="kpi-badges">
-                    <span class="badge bg-success-subtle text-success">Articles par transaction</span>
-                  </div>
-                </div>
-                <div class="kpi-icon text-success">
-                  <i class="pi pi-shopping-bag"></i>
-                </div>
-              </div>
-            </div>
+        <div class="kpi-strip-divider"></div>
+
+        <div class="kpi-strip-item success-accent">
+          <i class="pi pi-shopping-bag text-success"></i>
+          <div class="kpi-strip-body">
+            <span class="kpi-strip-label">Taille moy. panier</span>
+            <span class="kpi-strip-value text-success">{{ formatDecimal(sum.averageBasketSize) }}</span>
+            <span class="kpi-strip-sub">articles / transaction</span>
           </div>
         </div>
 
-        <div class="col-xl-3 col-md-6 mb-2">
-          <div class="card h-100 kpi-card warning-accent">
-            <div class="card-body">
-              <div class="kpi-header">
-                <div class="kpi-content">
-                  <p class="kpi-label">Associations Trouvées</p>
-                  <h4 class="kpi-value">
-                    <span>{{ formatNumber(sum.totalAssociations) }}</span>
-                  </h4>
-                  <div class="kpi-badges">
-                    <span class="badge bg-warning-subtle text-warning">Paires de produits</span>
-                  </div>
-                </div>
-                <div class="kpi-icon text-warning">
-                  <i class="pi pi-link"></i>
-                </div>
-              </div>
-            </div>
+        <div class="kpi-strip-divider"></div>
+
+        <div class="kpi-strip-item warning-accent">
+          <i class="pi pi-link text-warning"></i>
+          <div class="kpi-strip-body">
+            <span class="kpi-strip-label">Associations trouvées</span>
+            <span class="kpi-strip-value text-warning">{{ formatNumber(sum.totalAssociations) }}</span>
+            <span class="kpi-strip-sub">paires de produits</span>
           </div>
         </div>
 
-        <div class="col-xl-3 col-md-6 mb-2">
-          <div class="card h-100 kpi-card danger-accent">
-            <div class="card-body">
-              <div class="kpi-header">
-                <div class="kpi-content">
-                  <p class="kpi-label">Corrélation Max</p>
-                  <h4 class="kpi-value">
-                    <span>{{ formatDecimal(sum.maxLift) }}</span>
-                  </h4>
-                  <div class="kpi-badges">
-                    <p-tag [value]="getLiftLabel(sum.maxLift)" [severity]="getLiftSeverity(sum.maxLift)" />
-                    <span class="badge bg-danger-subtle text-danger">Lift maximum observé</span>
-                  </div>
-                </div>
-                <div class="kpi-icon text-danger">
-                  <i class="pi pi-chart-line"></i>
-                </div>
-              </div>
-            </div>
+        <div class="kpi-strip-divider"></div>
+
+        <div class="kpi-strip-item danger-accent">
+          <i class="pi pi-chart-line text-danger"></i>
+          <div class="kpi-strip-body">
+            <span class="kpi-strip-label">Corrélation max (lift)</span>
+            <span class="kpi-strip-value text-danger">{{ formatDecimal(sum.maxLift) }}</span>
+            <span class="kpi-strip-sub">{{ getLiftLabel(sum.maxLift) }}</span>
           </div>
         </div>
+
       </div>
 
       <!-- Most Frequent Pair Alert -->
@@ -207,7 +166,6 @@
                 <p class="text-sm text-muted">Essayez de réduire les seuils de support et confiance</p>
               </div>
             } @else {
-              <div class="overflow-x-auto">
                 <table class="pharma-table">
                   <thead class="pharma-table-head">
                     <tr>
@@ -258,7 +216,6 @@
                     }
                   </tbody>
                 </table>
-              </div>
 
               <!-- Explanation Panel -->
               <div class="mt-3 mx-3 mb-3 p-3 rounded" style="background-color: #f5f5f5">

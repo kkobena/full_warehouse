@@ -74,7 +74,7 @@ Le module rapports devient le **cockpit de pilotage** de l'officine : navigation
   │
   ├── /clients
   │     ├── customer-segmentation  ← Existant (RFM)
-  │     └── substitution-detail    ← NOUVEAU — GAP-010 (Phase 4)
+  │     └── substitution-detail    ← NOUVEAU — GAP-010 (Backlog)
   │
   └── /partners-reports            ← Existant
         └── supplier-performance   ← Existant (amélioration Phase 4 — GAP-C7)
@@ -108,7 +108,7 @@ Ces items enrichissent des rapports déjà en production :
 | **GAP-011** | Concentration Payers / Risque institutionnel | Nouveau — Finance | 🟠 2 | M |
 | **GAP-005** | BFR & Ratios de Liquidité (DIO/DSO/DPO/CCC) | Nouveau — Finance | 🟠 2 | M |
 | **GAP-C4** | Tendance marge brute par famille (12 mois) | Extension GAP-003 | 🟠 2 | S |
-| **GAP-010** | Substitution Générique Détail | Nouveau — Clients | 🟡 3 | M |
+| **GAP-010** | Substitution Générique Détail | Backlog | — | M |
 | **GAP-C7** | N vs N-1 par fournisseur | Amélioration existant | 🟡 3 | S |
 | **GAP-C5** | Heat map trafic transactionnel | Backlog | — | L |
 | **GAP-C8** | Comparaison 3 années simultanées | Backlog | — | S |
@@ -167,6 +167,32 @@ Ces items enrichissent des rapports déjà en production :
 │  [Voir les 40 familles]                        [Tri Évol. ▼]    │
 │                                              [Export PDF/Excel] │
 └─────────────────────────────────────────────────────────────────┘
+```
+
+**Intégration HTML — toggle vue :**
+
+```html
+<!-- Toggle Globale / Par famille / Par fournisseur -->
+<div class="dashboard-periode-selector">
+  <button type="button" class="periode-pill"
+          [class.active]="activeView === 'global'"
+          (click)="activeView = 'global'">
+    <i class="pi pi-chart-bar"></i>
+    <span class="pill-label">Globale</span>
+  </button>
+  <button type="button" class="periode-pill"
+          [class.active]="activeView === 'famille'"
+          (click)="activeView = 'famille'">
+    <i class="pi pi-sitemap"></i>
+    <span class="pill-label">Par famille</span>
+  </button>
+  <button type="button" class="periode-pill"
+          [class.active]="activeView === 'fournisseur'"
+          (click)="activeView = 'fournisseur'">
+    <i class="pi pi-truck"></i>
+    <span class="pill-label">Par fournisseur</span>
+  </button>
+</div>
 ```
 
 **Interactions clés** :
@@ -235,8 +261,46 @@ Ces items enrichissent des rapports déjà en production :
 └─────────────────────────────────────────────────────────────────┘
 ```
 
+**Intégration HTML — deux niveaux de toggle :**
+
+```html
+<!-- Niveau 1 : Snapshot vs Évolution (onglets principaux) -->
+<div class="dashboard-periode-selector">
+  <button type="button" class="periode-pill"
+          [class.active]="activeMode === 'snapshot'"
+          (click)="activeMode = 'snapshot'">
+    <i class="pi pi-table"></i>
+    <span class="pill-label">Snapshot</span>
+  </button>
+  <button type="button" class="periode-pill"
+          [class.active]="activeMode === 'evolution'"
+          (click)="activeMode = 'evolution'">
+    <i class="pi pi-chart-line"></i>
+    <span class="pill-label">Évolution 12 mois</span>
+  </button>
+</div>
+
+<!-- Niveau 2 : Par segment vs Par famille (visible en mode snapshot) -->
+@if (activeMode === 'snapshot') {
+  <div class="dashboard-periode-selector">
+    <button type="button" class="periode-pill"
+            [class.active]="activeView === 'segment'"
+            (click)="activeView = 'segment'">
+      <i class="pi pi-th-large"></i>
+      <span class="pill-label">Par segment</span>
+    </button>
+    <button type="button" class="periode-pill"
+            [class.active]="activeView === 'famille'"
+            (click)="activeView = 'famille'">
+      <i class="pi pi-sitemap"></i>
+      <span class="pill-label">Par famille</span>
+    </button>
+  </div>
+}
+```
+
 **Interactions clés** :
-- Toggle "Par segment / Par famille" : deux jeux de données en une requête
+- Toggle "Par segment / Par famille" : deux jeux de données chargés en une seule requête
 - Onglet "Évolution 12 mois" : graphe courbes Marge % × 12 mois, sélection des familles à afficher
 - Tri par colonne dans la vue famille
 - Clic famille → `profitability-analysis` filtré
@@ -276,6 +340,57 @@ Ces items enrichissent des rapports déjà en production :
 > **Note** : le graphe "Part TP dans CA" (GAP-C3) est intégré ici plutôt que dans Comparative Analysis
 > car il est directement lié au risque de créance TP.
 
+**Intégration HTML — filtre période + tranche d'âge active :**
+
+```html
+<!-- Toolbar : sélecteur période + filtre organisme -->
+<div class="d-flex align-items-center gap-2 flex-wrap">
+  <div class="dashboard-periode-selector">
+    <button type="button" class="periode-pill"
+            [class.active]="activePeriode === 'month'"
+            (click)="activePeriode = 'month'; load()">
+      <span class="pill-label">Ce mois</span>
+    </button>
+    <button type="button" class="periode-pill"
+            [class.active]="activePeriode === 'quarter'"
+            (click)="activePeriode = 'quarter'; load()">
+      <span class="pill-label">Trimestre</span>
+    </button>
+    <button type="button" class="periode-pill"
+            [class.active]="activePeriode === 'year'"
+            (click)="activePeriode = 'year'; load()">
+      <span class="pill-label">Année</span>
+    </button>
+  </div>
+  <p-select [(ngModel)]="selectedOrganisme" [options]="organismes"
+            optionLabel="nom" placeholder="Tous les organismes"
+            (onChange)="load()">
+  </p-select>
+</div>
+
+<!-- Toggle tranche d'âge (filtre la table DSO) -->
+<div class="dashboard-periode-selector mt-2">
+  <button type="button" class="periode-pill"
+          [class.active]="activeTranche === 'all'"
+          (click)="activeTranche = 'all'">Tous</button>
+  <button type="button" class="periode-pill"
+          [class.active]="activeTranche === '0-30'"
+          (click)="activeTranche = '0-30'">0–30j</button>
+  <button type="button" class="periode-pill"
+          [class.active]="activeTranche === '31-60'"
+          (click)="activeTranche = '31-60'">31–60j</button>
+  <button type="button" class="periode-pill"
+          [class.active]="activeTranche === '61-90'"
+          (click)="activeTranche = '61-90'">61–90j</button>
+  <button type="button" class="periode-pill"
+          [class.active]="activeTranche === '>90'"
+          (click)="activeTranche = '>90'">
+    <i class="pi pi-exclamation-triangle"></i>
+    <span class="pill-label">&gt;90j</span>
+  </button>
+</div>
+```
+
 **Interactions clés** :
 - Clic sur une tranche d'âge → `rapprochement` filtré sur les lignes correspondantes
 - Score de fiabilité calculé sur 12 mois (DSO moyen, variance, tendance)
@@ -311,6 +426,39 @@ Ces items enrichissent des rapports déjà en production :
 └─────────────────────────────────────────────────────────────────┘
 ```
 
+**Intégration HTML — période + vue graphe/tableau :**
+
+```html
+<div class="d-flex align-items-center gap-2 flex-wrap">
+  <!-- Sélecteur période -->
+  <div class="dashboard-periode-selector">
+    <button type="button" class="periode-pill"
+            [class.active]="activePeriode === 'quarter'"
+            (click)="activePeriode = 'quarter'; load()">
+      <span class="pill-label">Trimestre</span>
+    </button>
+    <button type="button" class="periode-pill"
+            [class.active]="activePeriode === 'year'"
+            (click)="activePeriode = 'year'; load()">
+      <span class="pill-label">Année</span>
+    </button>
+  </div>
+  <!-- Toggle graphe / tableau -->
+  <div class="dashboard-periode-selector">
+    <button type="button" class="periode-pill"
+            [class.active]="!showGraphs"
+            (click)="showGraphs = false">
+      <i class="pi pi-table"></i>
+    </button>
+    <button type="button" class="periode-pill"
+            [class.active]="showGraphs"
+            (click)="showGraphs = true">
+      <i class="pi pi-chart-pie"></i>
+    </button>
+  </div>
+</div>
+```
+
 ---
 
 ### 5.6 GAP-005 — BFR & Ratios de Liquidité
@@ -343,12 +491,37 @@ Ces items enrichissent des rapports déjà en production :
 
 ### 6.1 Sélecteur de période — Standard unifié
 
-Tous les rapports utilisent le même composant :
+Tous les rapports utilisent le même composant. Intégration HTML :
+
+```html
+<!-- Sélecteur de période standard — class dashboard-periode-selector -->
+<div class="dashboard-periode-selector">
+  @for (opt of periodeOptions; track opt.value) {
+    <button type="button" class="periode-pill"
+            [class.active]="activePeriode === opt.value"
+            (click)="activePeriode = opt.value; loadData()">
+      <i [class]="opt.icon"></i>
+      <span class="pill-label">{{ opt.label }}</span>
+    </button>
+  }
+</div>
 ```
-[Aujourd'hui] [7j] [30j] [Ce mois] [Trimestre] [Année] [Custom 📅…📅]
+
+```typescript
+// Dans le composant
+protected periodeOptions = [
+  { label: "Aujourd'hui", value: 'day',       icon: 'pi pi-calendar' },
+  { label: '7 jours',    value: '7d',        icon: 'pi pi-calendar-minus' },
+  { label: '30 jours',   value: '30d',       icon: 'pi pi-calendar-minus' },
+  { label: 'Ce mois',    value: 'month',     icon: 'pi pi-calendar' },
+  { label: 'Trimestre',  value: 'quarter',   icon: 'pi pi-calendar-plus' },
+  { label: 'Année',      value: 'year',      icon: 'pi pi-calendar-plus' },
+];
+protected activePeriode = 'month';
 ```
+
 - Sélection persistée dans les query params (URL partageable)
-- Filtre personnalisé : date-range picker ng-bootstrap (pas `p-calendar`)
+- Filtre personnalisé (Custom) : date-range picker ng-bootstrap (pas `p-calendar`)
 
 ### 6.2 Export — Standard unifié
 
@@ -443,12 +616,11 @@ Ces items enrichissent des rapports déjà en production.
 
 ---
 
-### Phase 4 — Opérationnel & Fournisseurs (Sprint 11-13)
+### Phase 4 — Fournisseurs (Sprint 11-12)
 
 | # | GAP | Action | Effort |
 |---|---|---|:---:|
-| 1 | **GAP-010** | Nouveau rapport `substitution-detail` dans `/clients` | 7j |
-| 2 | **GAP-C7** | Onglet "Évolution mensuelle" dans `supplier-performance` (N vs N-1 coût, délais) | 4j |
+| 1 | **GAP-C7** | Onglet "Évolution mensuelle" dans `supplier-performance` (N vs N-1 coût, délais) | 4j |
 
 ---
 
@@ -458,6 +630,7 @@ Ces items sont identifiés mais non prioritaires à ce stade.
 
 | Réf. | Rapport | Raison du report |
 |---|---|---|
+| **GAP-010** | Substitution Générique Détail | Dépriorisé — valeur métier à confirmer selon usage réel |
 | **GAP-C5** | Heat map trafic transactionnel (heure × jour) | Composant matrice à créer de zéro — effort élevé |
 | **GAP-C8** | Comparaison 3 années simultanées | Refonte modèle de données du graphe |
 | **GAP-C9** | Overlay moyenne mobile sur historique | Plus pertinent une fois GAP-C1 livré |
@@ -487,8 +660,7 @@ PHASE 3 — Module Finance    Sprint 5-10   ~26j
   GAP-002 Créances / DSO    Sprint 7-8    priorité 2
   GAP-011 Concentration     Sprint 9      priorité 2
   GAP-005 BFR / CCC         Sprint 10     priorité 2
-PHASE 4 — Opérationnel      Sprint 11-13  ~11j
-  GAP-010 Substitution      Sprint 11-12
-  GAP-C7  Fournisseur N/N-1 Sprint 13
+PHASE 4 — Fournisseurs      Sprint 11-12   ~4j
+  GAP-C7  Fournisseur N/N-1 Sprint 11-12
 BACKLOG                     —             12 items non prioritaires
 ```

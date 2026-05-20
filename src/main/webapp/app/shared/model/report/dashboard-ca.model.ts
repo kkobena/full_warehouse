@@ -117,3 +117,18 @@ export interface IProductFamilySummary {
   tauxMargePct: number;
   percentage: number;
 }
+
+/**
+ * Average basket evolution over 12 months — GAP-C2
+ */
+export interface IBasketEvolution {
+  labels?: string[];
+  values?: number[];
+  currentValue?: number;
+  previousValue?: number;
+  evolutionPct?: number;
+  evolutionAmount?: number;
+  bestMonthLabel?: string;
+  bestMonthValue?: number;
+  trend6MPct?: number;
+}

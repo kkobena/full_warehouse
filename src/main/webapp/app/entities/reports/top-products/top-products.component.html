@@ -40,75 +40,51 @@
     </p-toolbar>
   </div>
 
-  <!-- Summary for selected month -->
-  @if (selectedMonth()) {
-    <div class="row mt-3">
-      <div class="col-12 mb-2">
-        <div class="card data-card">
-          <div class="card-body text-center">
-            <h3 class="fw-bold mb-0">{{ getMonthLabel() | uppercase }}</h3>
-          </div>
-        </div>
-      </div>
-    </div>
-  }
+  <!-- KPI Strip -->
+  <div class="kpi-strip mt-2 mb-2">
 
-  <!-- Summary Cards -->
-  <div class="row mt-3">
-    <div class="col-xl-4 col-md-6 mb-2">
-      <div class="card h-100 kpi-card success-accent">
-        <div class="card-body">
-          <div class="kpi-header">
-            <div class="kpi-content">
-              <p class="kpi-label">CA Total (Top produits)</p>
-              <h4 class="kpi-value">
-                <span>{{ getTotalRevenue() | number: '1.0-0' }}</span>
-                <span class="value-suffix">F CFA</span>
-              </h4>
-            </div>
-            <div class="kpi-icon text-success">
-              <i class="pi pi-money-bill"></i>
-            </div>
-          </div>
-        </div>
+    <div class="kpi-strip-item success-accent">
+      <i class="pi pi-money-bill text-success"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">CA Total</span>
+        <span class="kpi-strip-value text-success">{{ getTotalRevenue() | number:'1.0-0' }} <small>FCFA</small></span>
+        <span class="kpi-strip-sub">Top produits</span>
       </div>
     </div>
 
-    <div class="col-xl-4 col-md-6 mb-2">
-      <div class="card h-100 kpi-card primary-accent">
-        <div class="card-body">
-          <div class="kpi-header">
-            <div class="kpi-content">
-              <p class="kpi-label">Quantité vendue</p>
-              <h4 class="kpi-value">
-                <span>{{ getTotalQuantity() }}</span>
-              </h4>
-            </div>
-            <div class="kpi-icon text-primary">
-              <i class="pi pi-box"></i>
-            </div>
-          </div>
-        </div>
+    <div class="kpi-strip-divider"></div>
+
+    <div class="kpi-strip-item primary-accent">
+      <i class="pi pi-box text-primary"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Quantité vendue</span>
+        <span class="kpi-strip-value text-primary">{{ getTotalQuantity() | number }}</span>
+        <span class="kpi-strip-sub">unités</span>
       </div>
     </div>
 
-    <div class="col-xl-4 col-md-6 mb-2">
-      <div class="card h-100 kpi-card warning-accent">
-        <div class="card-body">
-          <div class="kpi-header">
-            <div class="kpi-content">
-              <p class="kpi-label">Nombre de ventes</p>
-              <h4 class="kpi-value">
-                <span>{{ getTotalSales() }}</span>
-              </h4>
-            </div>
-            <div class="kpi-icon text-warning">
-              <i class="pi pi-shopping-cart"></i>
-            </div>
-          </div>
-        </div>
+    <div class="kpi-strip-divider"></div>
+
+    <div class="kpi-strip-item warning-accent">
+      <i class="pi pi-shopping-cart text-warning"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Nombre de ventes</span>
+        <span class="kpi-strip-value text-warning">{{ getTotalSales() | number }}</span>
+        <span class="kpi-strip-sub">transactions</span>
       </div>
     </div>
+
+    @if (selectedMonth()) {
+      <div class="kpi-strip-divider"></div>
+      <div class="kpi-strip-item primary-accent">
+        <i class="pi pi-calendar text-primary"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">Période</span>
+          <span class="kpi-strip-value text-primary">{{ getMonthLabel() }}</span>
+        </div>
+      </div>
+    }
+
   </div>
 
   <!-- Tabbed Tables -->
@@ -123,6 +99,7 @@
         </div>
         <div class="card-body p-0">
           <ul #nav="ngbNav" class="nav-tabs px-3 pt-3" ngbNav orientation="horizontal">
+            <!-- ── Par Chiffre d'Affaires ─────────────────────────────── -->
             <li [ngbNavItem]="1">
               <button ngbNavLink>Par Chiffre d'Affaires</button>
               <ng-template ngbNavContent>
@@ -131,15 +108,17 @@
                   [paginator]="true"
                   [rowsPerPageOptions]="[10, 20, 50]"
                   [rows]="20"
+                  [scrollable]="true"
                   [showCurrentPageReport]="true"
-                  [tableStyle]="{ 'min-width': '50rem' }"
                   [value]="topProductsByRevenue()"
                   class="p-datatable-sm"
                   currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+                  scrollHeight="500px"
                 >
                   <ng-template #header>
                     <tr class="pharma-table-head">
                       <th>Rang</th>
+                      <th class="text-center" title="Évolution du rang vs mois précédent">Δ Rang M-1</th>
                       <th>Code CIP</th>
                       <th>Produit</th>
                       <th class="text-end">Nb ventes</th>
@@ -158,6 +137,21 @@
                           </p-tag>
                         } @else {
                           <span class="fw-bold">{{ i + 1 }}</span>
+                        }
+                      </td>
+                      <td class="text-center">
+                        @if (product.rankDelta === null) {
+                          <span class="badge bg-primary-subtle text-primary" style="font-size:.7rem">NEW</span>
+                        } @else if (product.rankDelta === 0) {
+                          <span class="text-muted">—</span>
+                        } @else if (product.rankDelta > 0) {
+                          <span class="text-success fw-semibold">
+                            <i class="pi pi-arrow-up"></i> +{{ product.rankDelta }}
+                          </span>
+                        } @else {
+                          <span class="text-danger fw-semibold">
+                            <i class="pi pi-arrow-down"></i> {{ product.rankDelta }}
+                          </span>
                         }
                       </td>
                       <td>
@@ -166,24 +160,22 @@
                       <td>{{ product.libelle }}</td>
                       <td class="text-end pharma-qty-value">{{ product.nbVentes || 0 }}</td>
                       <td class="text-end pharma-qty-value">{{ product.qteVendue || 0 }}</td>
-                      <td
-                        class="text-end fw-bold text-success pharma-total">{{ product.caGenere | number: '1.0-0' }}
-                        F CFA
+                      <td class="text-end fw-bold text-success pharma-total">
+                        {{ product.caGenere | number: '1.0-0' }} F CFA
                       </td>
-                      <td class="text-end pharma-price">{{ product.prixMoyen | number: '1.0-2' }} F
-                        CFA
-                      </td>
+                      <td class="text-end pharma-price">{{ product.prixMoyen | number: '1.0-2' }} F CFA</td>
                     </tr>
                   </ng-template>
                   <ng-template #emptymessage>
                     <tr>
-                      <td class="text-center" colspan="7">Aucune donnée disponible</td>
+                      <td class="text-center" colspan="8">Aucune donnée disponible</td>
                     </tr>
                   </ng-template>
                 </p-table>
               </ng-template>
             </li>
 
+            <!-- ── Par Quantité Vendue ─────────────────────────────────── -->
             <li [ngbNavItem]="2">
               <button ngbNavLink>Par Quantité Vendue</button>
               <ng-template ngbNavContent>
@@ -192,15 +184,17 @@
                   [paginator]="true"
                   [rowsPerPageOptions]="[10, 20, 50]"
                   [rows]="20"
+                  [scrollable]="true"
                   [showCurrentPageReport]="true"
-                  [tableStyle]="{ 'min-width': '50rem' }"
                   [value]="topProductsByQuantity()"
                   class="p-datatable-sm"
                   currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+                  scrollHeight="500px"
                 >
                   <ng-template #header>
                     <tr class="pharma-table-head">
                       <th>Rang</th>
+                      <th class="text-center" title="Évolution du rang vs mois précédent">Δ Rang M-1</th>
                       <th>Code CIP</th>
                       <th>Produit</th>
                       <th class="text-end">Nb ventes</th>
@@ -221,26 +215,34 @@
                           <span class="fw-bold">{{ i + 1 }}</span>
                         }
                       </td>
+                      <td class="text-center">
+                        @if (product.rankDelta === null) {
+                          <span class="badge bg-primary-subtle text-primary" style="font-size:.7rem">NEW</span>
+                        } @else if (product.rankDelta === 0) {
+                          <span class="text-muted">—</span>
+                        } @else if (product.rankDelta > 0) {
+                          <span class="text-success fw-semibold">
+                            <i class="pi pi-arrow-up"></i> +{{ product.rankDelta }}
+                          </span>
+                        } @else {
+                          <span class="text-danger fw-semibold">
+                            <i class="pi pi-arrow-down"></i> {{ product.rankDelta }}
+                          </span>
+                        }
+                      </td>
                       <td>
                         <span class="pharma-code">{{ product.codeCip }}</span>
                       </td>
                       <td>{{ product.libelle }}</td>
                       <td class="text-end pharma-qty-value">{{ product.nbVentes || 0 }}</td>
-                      <td class="text-end fw-bold text-primary pharma-qty-value">{{
-                          product.qteVendue || 0
-                        }}
-                      </td>
-                      <td class="text-end pharma-total">{{ product.caGenere | number: '1.0-0' }} F
-                        CFA
-                      </td>
-                      <td class="text-end pharma-price">{{ product.prixMoyen | number: '1.0-2' }} F
-                        CFA
-                      </td>
+                      <td class="text-end fw-bold text-primary pharma-qty-value">{{ product.qteVendue || 0 }}</td>
+                      <td class="text-end pharma-total">{{ product.caGenere | number: '1.0-0' }} F CFA</td>
+                      <td class="text-end pharma-price">{{ product.prixMoyen | number: '1.0-2' }} F CFA</td>
                     </tr>
                   </ng-template>
                   <ng-template #emptymessage>
                     <tr>
-                      <td class="text-center" colspan="7">Aucune donnée disponible</td>
+                      <td class="text-center" colspan="8">Aucune donnée disponible</td>
                     </tr>
                   </ng-template>
                 </p-table>

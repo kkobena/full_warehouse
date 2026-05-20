@@ -73,72 +73,52 @@
           <span>Produits Vendus</span>
         </a>
         <ng-template ngbNavContent>
-          <!-- Summary Cards - Compact Version -->
+          <!-- KPI Strip -->
           @if (summary()) {
-            <div class="row g-2 mb-1 mt-0">
-              <div class="col-xl-3 col-md-6">
-                <div class="card pharma-stat-card primary-accent">
-                  <div class="card-body p-2">
-                    <div class="d-flex justify-content-between align-items-center">
-                      <div>
-                        <p class="text-muted mb-1 small">Quantité Vendue</p>
-                        <h5 class="mb-0 fw-bold">{{ summary()!.quantitySold || 0 | number }}</h5>
-                      </div>
-                      <div class="pharma-stat-icon bg-primary-subtle">
-                        <i class="pi pi-shopping-cart text-primary"></i>
-                      </div>
-                    </div>
-                  </div>
+            <div class="kpi-strip mt-2 mb-2">
+
+              <div class="kpi-strip-item primary-accent">
+                <i class="pi pi-shopping-cart text-primary"></i>
+                <div class="kpi-strip-body">
+                  <span class="kpi-strip-label">Quantité vendue</span>
+                  <span class="kpi-strip-value text-primary">{{ summary()!.quantitySold || 0 | number }}</span>
+                  <span class="kpi-strip-sub">unités</span>
                 </div>
               </div>
 
-              <div class="col-xl-3 col-md-6">
-                <div class="card pharma-stat-card danger-accent">
-                  <div class="card-body p-2">
-                    <div class="d-flex justify-content-between align-items-center">
-                      <div>
-                        <p class="text-muted mb-1 small">Quantité Avoir</p>
-                        <h5 class="mb-0 fw-bold">{{ summary()!.quantityAvoir || 0 | number }}</h5>
-                      </div>
-                      <div class="pharma-stat-icon bg-danger-subtle">
-                        <i class="pi pi-replay text-danger"></i>
-                      </div>
-                    </div>
-                  </div>
+              <div class="kpi-strip-divider"></div>
+
+              <div class="kpi-strip-item danger-accent">
+                <i class="pi pi-replay text-danger"></i>
+                <div class="kpi-strip-body">
+                  <span class="kpi-strip-label">Quantité avoir</span>
+                  <span class="kpi-strip-value text-danger">{{ summary()!.quantityAvoir || 0 | number }}</span>
+                  <span class="kpi-strip-sub">retours</span>
                 </div>
               </div>
 
-              <div class="col-xl-3 col-md-6">
-                <div class="card pharma-stat-card success-accent">
-                  <div class="card-body p-2">
-                    <div class="d-flex justify-content-between align-items-center">
-                      <div>
-                        <p class="text-muted mb-1 small">CA Total</p>
-                        <h5 class="mb-0 fw-bold">{{ formatCurrency(summary()!.totalSalesAmount) }}</h5>
-                      </div>
-                      <div class="pharma-stat-icon bg-success-subtle">
-                        <i class="pi pi-money-bill text-success"></i>
-                      </div>
-                    </div>
-                  </div>
+              <div class="kpi-strip-divider"></div>
+
+              <div class="kpi-strip-item success-accent">
+                <i class="pi pi-money-bill text-success"></i>
+                <div class="kpi-strip-body">
+                  <span class="kpi-strip-label">CA Total</span>
+                  <span class="kpi-strip-value text-success">{{ formatCurrency(summary()!.totalSalesAmount) }} <small>FCFA</small></span>
+                  <span class="kpi-strip-sub">chiffre d'affaires</span>
                 </div>
               </div>
 
-              <div class="col-xl-3 col-md-6">
-                <div class="card pharma-stat-card warning-accent">
-                  <div class="card-body p-2">
-                    <div class="d-flex justify-content-between align-items-center">
-                      <div>
-                        <p class="text-muted mb-1 small">Coût d'Achat</p>
-                        <h5 class="mb-0 fw-bold">{{ formatCurrency(summary()!.totalPurchaseAmount) }}</h5>
-                      </div>
-                      <div class="pharma-stat-icon bg-warning-subtle">
-                        <i class="pi pi-dollar text-warning"></i>
-                      </div>
-                    </div>
-                  </div>
+              <div class="kpi-strip-divider"></div>
+
+              <div class="kpi-strip-item warning-accent">
+                <i class="pi pi-dollar text-warning"></i>
+                <div class="kpi-strip-body">
+                  <span class="kpi-strip-label">Coût d'achat</span>
+                  <span class="kpi-strip-value text-warning">{{ formatCurrency(summary()!.totalPurchaseAmount) }} <small>FCFA</small></span>
+                  <span class="kpi-strip-sub">prix de revient</span>
                 </div>
               </div>
+
             </div>
           }
 
@@ -158,11 +138,13 @@
                 [paginator]="true"
                 [rowsPerPageOptions]="[10, 20, 50, 100]"
                 [rows]="itemsPerPage()"
+                [scrollable]="true"
                 [showCurrentPageReport]="true"
                 [totalRecords]="totalItems()"
                 [value]="products()"
-                class="p-datatable-sm "
+                class="p-datatable-sm"
                 currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+                scrollHeight="500px"
               >
                 <ng-template #header>
                   <tr class="pharma-table-head">
@@ -234,72 +216,52 @@
           <span>Produits Invendus</span>
         </a>
         <ng-template ngbNavContent>
-          <!-- Unsold Summary Cards - Harmonized with Sold Products -->
+          <!-- KPI Strip -->
           @if (unsoldSummary()) {
-            <div class="row g-2 mb-1 mt-0">
-              <div class="col-xl-3 col-md-6">
-                <div class="card pharma-stat-card primary-accent">
-                  <div class="card-body p-2">
-                    <div class="d-flex justify-content-between align-items-center">
-                      <div>
-                        <p class="text-muted mb-1 small">Nombre de produits</p>
-                        <h5 class="mb-0 fw-bold">{{ unsoldSummary()?.totalProducts | number }}</h5>
-                      </div>
-                      <div class="pharma-stat-icon bg-info-subtle">
-                        <i class="pi pi-box text-info"></i>
-                      </div>
-                    </div>
-                  </div>
+            <div class="kpi-strip mt-2 mb-2">
+
+              <div class="kpi-strip-item primary-accent">
+                <i class="pi pi-box text-primary"></i>
+                <div class="kpi-strip-body">
+                  <span class="kpi-strip-label">Nb produits</span>
+                  <span class="kpi-strip-value text-primary">{{ unsoldSummary()?.totalProducts | number }}</span>
+                  <span class="kpi-strip-sub">références</span>
                 </div>
               </div>
 
-              <div class="col-xl-3 col-md-6">
-                <div class="card pharma-stat-card warning-accent">
-                  <div class="card-body p-2">
-                    <div class="d-flex justify-content-between align-items-center">
-                      <div>
-                        <p class="text-muted mb-1 small">Stock Total</p>
-                        <h5 class="mb-0 fw-bold">{{ unsoldSummary()?.totalStock | number }}</h5>
-                      </div>
-                      <div class="pharma-stat-icon bg-warning-subtle">
-                        <i class="pi pi-database text-warning"></i>
-                      </div>
-                    </div>
-                  </div>
+              <div class="kpi-strip-divider"></div>
+
+              <div class="kpi-strip-item warning-accent">
+                <i class="pi pi-database text-warning"></i>
+                <div class="kpi-strip-body">
+                  <span class="kpi-strip-label">Stock total</span>
+                  <span class="kpi-strip-value text-warning">{{ unsoldSummary()?.totalStock | number }}</span>
+                  <span class="kpi-strip-sub">unités</span>
                 </div>
               </div>
 
-              <div class="col-xl-3 col-md-6">
-                <div class="card pharma-stat-card success-accent">
-                  <div class="card-body p-2">
-                    <div class="d-flex justify-content-between align-items-center">
-                      <div>
-                        <p class="text-muted mb-1 small">Valeur Vente</p>
-                        <h5 class="mb-0 fw-bold">{{ formatCurrency(unsoldSummary()?.totalSalesAmount || 0) }}</h5>
-                      </div>
-                      <div class="pharma-stat-icon bg-success-subtle">
-                        <i class="pi pi-money-bill text-success"></i>
-                      </div>
-                    </div>
-                  </div>
+              <div class="kpi-strip-divider"></div>
+
+              <div class="kpi-strip-item success-accent">
+                <i class="pi pi-money-bill text-success"></i>
+                <div class="kpi-strip-body">
+                  <span class="kpi-strip-label">Valeur vente</span>
+                  <span class="kpi-strip-value text-success">{{ formatCurrency(unsoldSummary()?.totalSalesAmount || 0) }} <small>FCFA</small></span>
+                  <span class="kpi-strip-sub">prix de vente</span>
                 </div>
               </div>
 
-              <div class="col-xl-3 col-md-6">
-                <div class="card pharma-stat-card danger-accent">
-                  <div class="card-body p-2">
-                    <div class="d-flex justify-content-between align-items-center">
-                      <div>
-                        <p class="text-muted mb-1 small">Coût d'Achat</p>
-                        <h5 class="mb-0 fw-bold">{{ formatCurrency(unsoldSummary()?.totalPurchaseAmount || 0) }}</h5>
-                      </div>
-                      <div class="pharma-stat-icon bg-primary-subtle">
-                        <i class="pi pi-dollar text-primary"></i>
-                      </div>
-                    </div>
-                  </div>
+              <div class="kpi-strip-divider"></div>
+
+              <div class="kpi-strip-item danger-accent">
+                <i class="pi pi-dollar text-danger"></i>
+                <div class="kpi-strip-body">
+                  <span class="kpi-strip-label">Coût d'achat</span>
+                  <span class="kpi-strip-value text-danger">{{ formatCurrency(unsoldSummary()?.totalPurchaseAmount || 0) }} <small>FCFA</small></span>
+                  <span class="kpi-strip-sub">prix de revient</span>
                 </div>
               </div>
+
             </div>
           }
 
@@ -319,11 +281,13 @@
                 [paginator]="true"
                 [rowsPerPageOptions]="[10, 20, 50, 100]"
                 [rows]="itemsPerPage()"
+                [scrollable]="true"
                 [showCurrentPageReport]="true"
                 [totalRecords]="totalItems()"
                 [value]="unsoldProducts()"
                 class="p-datatable-sm"
                 currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+                scrollHeight="500px"
               >
                 <ng-template #header>
                   <tr class="pharma-table-head">

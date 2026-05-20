@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.report;
 
+import com.kobe.warehouse.service.dto.report.SupplierEvolutionDTO;
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceDTO;
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceSummaryDTO;
 
@@ -50,5 +51,12 @@ public interface SupplierPerformanceReportService {
      * @return Summary with aggregate metrics
      */
     SupplierPerformanceSummaryDTO getSupplierPerformanceSummary();
+
+    /**
+     * Get monthly N vs N-1 evolution of purchase amounts and delivery days (rolling 12 months)
+     *
+     * @return Evolution data for charting
+     */
+    SupplierEvolutionDTO getEvolution();
 
 }

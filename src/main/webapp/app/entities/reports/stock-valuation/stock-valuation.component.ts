@@ -1,34 +1,30 @@
-import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {forkJoin} from 'rxjs';
+import { Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { forkJoin } from "rxjs";
 
-import {TableModule} from 'primeng/table';
-import {ButtonModule} from 'primeng/button';
-import {SelectModule} from 'primeng/select';
-import {ToolbarModule} from 'primeng/toolbar';
-import {DividerModule} from 'primeng/divider';
-import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
+import { TableModule } from "primeng/table";
+import { ButtonModule } from "primeng/button";
+import { SelectModule } from "primeng/select";
+import { ToolbarModule } from "primeng/toolbar";
+import { DividerModule } from "primeng/divider";
 
-import {
-  IStockValuation,
-  IStockValuationSummary
-} from 'app/shared/model/report/stock-valuation.model';
-import {StockValuationReportService} from '../services/stock-valuation-report.service';
-import {formatCurrency, formatDecimal} from 'app/shared/utils/format-utils';
-import {FamilleProduitService} from "../../famille-produit/famille-produit.service";
-import {RayonService} from "../../rayon/rayon.service";
-import {IFamilleProduit} from "../../../shared/model/famille-produit.model";
-import {IRayon} from "../../../shared/model/rayon.model";
-import {TauriPrinterService} from "../../../shared/services/tauri-printer.service";
-import {handleBlobForTauri} from "../../../shared/util/tauri-util";
+import { IStockValuation, IStockValuationSummary } from "app/shared/model/report/stock-valuation.model";
+import { StockValuationReportService } from "../services/stock-valuation-report.service";
+import { formatCurrency, formatDecimal } from "app/shared/utils/format-utils";
+import { FamilleProduitService } from "../../famille-produit/famille-produit.service";
+import { RayonService } from "../../rayon/rayon.service";
+import { IFamilleProduit } from "../../../shared/model/famille-produit.model";
+import { IRayon } from "../../../shared/model/rayon.model";
+import { TauriPrinterService } from "../../../shared/services/tauri-printer.service";
+import { handleBlobForTauri } from "../../../shared/util/tauri-util";
 
 @Component({
-  selector: 'jhi-stock-valuation',
-  templateUrl: './stock-valuation.component.html',
-  styleUrl: './stock-valuation.component.scss',
-  imports: [CommonModule, FormsModule, TableModule, ButtonModule, SelectModule, ToolbarModule, DividerModule, WarehouseCommonModule],
+  selector: "jhi-stock-valuation",
+  templateUrl: "./stock-valuation.component.html",
+  styleUrl: "./stock-valuation.component.scss",
+  imports: [CommonModule, FormsModule, TableModule, ButtonModule, SelectModule, ToolbarModule, DividerModule]
 })
 export default class StockValuationComponent implements OnInit {
   valuations = signal<IStockValuation[]>([]);
@@ -60,16 +56,16 @@ export default class StockValuationComponent implements OnInit {
 
     forkJoin({
       valuations: this.stockValuationService.getAllStockValuation(params),
-      summary: this.stockValuationService.getStockValuationSummary(params),
+      summary: this.stockValuationService.getStockValuationSummary(params)
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: ({valuations, summary}) => {
+        next: ({ valuations, summary }) => {
           this.valuations.set(valuations.body ?? []);
           this.summary.set(summary.body ?? null);
           this.isLoading.set(false);
         },
-        error: () => this.isLoading.set(false),
+        error: () => this.isLoading.set(false)
       });
   }
 
@@ -98,25 +94,25 @@ export default class StockValuationComponent implements OnInit {
   /** Charge familles et rayons en parallèle — une seule fois au démarrage */
   private loadReferentielData(): void {
     forkJoin({
-      familles: this.familleProduitService.query({page: 0, size: 9999}),
-      rayons: this.rayonService.query({page: 0, size: 9999}),
+      familles: this.familleProduitService.query({ page: 0, size: 9999 }),
+      rayons: this.rayonService.query({ page: 0, size: 9999 })
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: ({familles, rayons}) => {
+        next: ({ familles, rayons }) => {
           this.familleProduitOptions.set(familles.body ?? []);
           this.rayonOptions.set(rayons.body ?? []);
-        },
+        }
       });
   }
 
   private buildRequestParams(): any {
     const params: any = {};
     if (this.selectedFamilleProduit()) {
-      params['familleProduitId'] = this.selectedFamilleProduit()!.id;
+      params["familleProduitId"] = this.selectedFamilleProduit()!.id;
     }
     if (this.selectedRayon()) {
-      params['rayonId'] = this.selectedRayon()!.id;
+      params["rayonId"] = this.selectedRayon()!.id;
     }
 
     return params;

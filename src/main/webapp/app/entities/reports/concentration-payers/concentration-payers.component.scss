@@ -1,0 +1,17 @@
+@import 'app/shared/scss/dashboard-common';
+@import 'app/shared/scss/table-common';
+@import 'app/shared/scss/pharma-toolbar';
+@import 'app/shared/scss/kpi-strip';
+
+// Color classes for the stacked bars matching chart colors
+.concentration-bar-0 { background-color: rgb(54, 162, 235); }
+.concentration-bar-1 { background-color: rgb(255, 99, 132); }
+.concentration-bar-2 { background-color: rgb(75, 192, 192); }
+.concentration-bar-3 { background-color: rgb(255, 205, 86); color: #333; }
+.concentration-bar-4 { background-color: rgb(153, 102, 255); }
+
+.scrollable-card-body {
+  max-height: 420px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}

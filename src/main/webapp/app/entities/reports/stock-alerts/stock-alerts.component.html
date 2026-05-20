@@ -32,70 +32,40 @@
     </p-toolbar>
   </div>
 
-  <!-- Summary Cards -->
-  <div class="row mt-3">
-    <div class="col-12 col-md-4 mb-2">
-      <div class="card h-100 kpi-card danger-accent">
-        <div class="card-body">
-          <div class="kpi-header">
-            <div class="kpi-content">
-              <p class="kpi-label">Ruptures de stock</p>
-              <h4 class="kpi-value">
-                <span>{{ alertCounts()[StockAlertType.RUPTURE] || 0 }}</span>
-              </h4>
-              <div class="kpi-badges">
-                <span class="badge bg-danger-subtle text-danger">Urgent</span>
-              </div>
-            </div>
-            <div class="kpi-icon text-danger">
-              <i class="pi pi-times-circle"></i>
-            </div>
-          </div>
-        </div>
+  <!-- KPI Strip -->
+  <div class="kpi-strip mt-2 mb-2">
+
+    <div class="kpi-strip-item danger-accent">
+      <i class="pi pi-times-circle text-danger"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label"><span class="alert-badge alert-rupture">Rupture</span></span>
+        <span class="kpi-strip-value text-danger">{{ alertCounts()[StockAlertType.RUPTURE] || 0 }}</span>
+        <span class="kpi-strip-sub">produits</span>
       </div>
     </div>
 
-    <div class="col-12 col-md-4 mb-2">
-      <div class="card h-100 kpi-card warning-accent">
-        <div class="card-body">
-          <div class="kpi-header">
-            <div class="kpi-content">
-              <p class="kpi-label">Stock bas</p>
-              <h4 class="kpi-value">
-                <span>{{ alertCounts()[StockAlertType.ALERTE] || 0 }}</span>
-              </h4>
-              <div class="kpi-badges">
-                <span class="badge bg-warning-subtle text-warning">Attention</span>
-              </div>
-            </div>
-            <div class="kpi-icon text-warning">
-              <i class="pi pi-exclamation-circle"></i>
-            </div>
-          </div>
-        </div>
+    <div class="kpi-strip-divider"></div>
+
+    <div class="kpi-strip-item warning-accent">
+      <i class="pi pi-exclamation-circle text-warning"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label"><span class="alert-badge alert-alerte">Stock bas</span></span>
+        <span class="kpi-strip-value text-warning">{{ alertCounts()[StockAlertType.ALERTE] || 0 }}</span>
+        <span class="kpi-strip-sub">produits</span>
       </div>
     </div>
 
-    <div class="col-12 col-md-4 mb-2">
-      <div class="card h-100 kpi-card primary-accent">
-        <div class="card-body">
-          <div class="kpi-header">
-            <div class="kpi-content">
-              <p class="kpi-label">Proche péremption</p>
-              <h4 class="kpi-value">
-                <span>{{ alertCounts()[StockAlertType.PEREMPTION] || 0 }}</span>
-              </h4>
-              <div class="kpi-badges">
-                <span class="badge bg-primary-subtle text-primary">À surveiller</span>
-              </div>
-            </div>
-            <div class="kpi-icon text-primary">
-              <i class="pi pi-clock"></i>
-            </div>
-          </div>
-        </div>
+    <div class="kpi-strip-divider"></div>
+
+    <div class="kpi-strip-item primary-accent">
+      <i class="pi pi-clock text-primary"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label"><span class="alert-badge alert-peremption">Péremption</span></span>
+        <span class="kpi-strip-value text-primary">{{ alertCounts()[StockAlertType.PEREMPTION] || 0 }}</span>
+        <span class="kpi-strip-sub">produits</span>
       </div>
     </div>
+
   </div>
 
   <!-- Alerts Table -->
@@ -109,22 +79,22 @@
           </h5>
         </div>
         <div class="card-body p-0">
-          <div class="overflow-x-auto">
-            <p-table
-              (onLazyLoad)="loadAlerts($event)"
-              [lazy]="true"
-              [loading]="isLoading()"
-              [paginator]="true"
-              [rowHover]="true"
-              [rowsPerPageOptions]="[10, 15, 20,30, 50]"
-              [rows]="rowsPerPage"
-              [scrollable]="true"
-              [sortOrder]="1"
-              [totalRecords]="totalItems()"
-              [value]="alerts()"
-              class="p-datatable-sm"
-              sortField="alertType"
-            >
+          <p-table
+            (onLazyLoad)="loadAlerts($event)"
+            [lazy]="true"
+            [loading]="isLoading()"
+            [paginator]="true"
+            [rowHover]="true"
+            [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+            [rows]="rowsPerPage"
+            [scrollable]="true"
+            [sortOrder]="1"
+            [totalRecords]="totalItems()"
+            [value]="alerts()"
+            class="p-datatable-sm"
+            scrollHeight="500px"
+            sortField="alertType"
+          >
               <ng-template #header>
                 <tr class="pharma-table-head">
                   <th>Type</th>
@@ -138,8 +108,7 @@
               <ng-template #body let-alert>
                 <tr>
                   <td>
-                    <p-tag [severity]="getAlertSeverity(alert.alertType)"
-                           [value]="getAlertLabel(alert.alertType)" />
+                    <span [class]="getAlertClass(alert.alertType)">{{ getAlertLabel(alert.alertType) }}</span>
                   </td>
                   <td>
                     <span class="fw-semibold">{{ alert.libelle }}</span>
@@ -174,7 +143,6 @@
                 </tr>
               </ng-template>
             </p-table>
-          </div>
         </div>
       </div>
     </div>

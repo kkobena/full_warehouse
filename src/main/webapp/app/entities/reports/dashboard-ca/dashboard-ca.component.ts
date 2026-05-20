@@ -12,6 +12,7 @@ import {DatePicker} from 'primeng/datepicker';
 import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
 
 import {
+  IBasketEvolution,
   IDashboardCAEvolution,
   IDashboardCASummary,
   IPaymentMethodCA,
@@ -60,6 +61,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
   @ViewChild('evolutionChartCanvas') evolutionChartCanvas?: ElementRef<HTMLCanvasElement>;
   @ViewChild('paymentChartCanvas') paymentChartCanvas?: ElementRef<HTMLCanvasElement>;
   @ViewChild('familyChartCanvas') familyChartCanvas?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('basketChartCanvas') basketChartCanvas?: ElementRef<HTMLCanvasElement>;
 
   selectedPeriod = signal<string>('week');
   startDate = signal<Date>(this.getDefaultStartDate());
@@ -68,6 +70,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
   topProducts = signal<ITopProduct[]>([]);
   paymentMethodData = signal<IPaymentMethodSummary[]>([]);
   productFamilyData = signal<IProductFamilySummary[]>([]);
+  basketEvolution = signal<IBasketEvolution | null>(null);
   isLoading = signal<boolean>(false);
   summaryFinances = signal<IFinancesSummary | null>(null);
   periodOptions: PeriodOption[] = [
@@ -84,6 +87,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
   private evolutionChart?: Chart;
   private paymentChart?: Chart;
   private familyChart?: Chart;
+  private basketChart?: Chart;
   // Filters
   private dashboardCAService = inject(DashboardCAService);
   private readonly financesDashboardApi = inject(FinancesDashboardApiService);
@@ -167,6 +171,14 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
       error: () => {
         this.isLoading.set(false);
         console.error('Error loading top products');
+      },
+    });
+
+    // Load basket evolution (GAP-C2) — always 12 months, independent of period filter
+    this.dashboardCAService.getBasketEvolution().subscribe({
+      next: res => {
+        this.basketEvolution.set(res.body);
+        if (res.body) this.createBasketChart(res.body);
       },
     });
   }
@@ -423,6 +435,46 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
     this.familyChart = new Chart(ctx, config);
   }
 
+  private createBasketChart(data: IBasketEvolution): void {
+    if (this.basketChart) this.basketChart.destroy();
+
+    if (!this.basketChartCanvas) {
+      setTimeout(() => this.createBasketChart(data), 100);
+      return;
+    }
+
+    const ctx = this.basketChartCanvas.nativeElement.getContext('2d');
+    if (!ctx) return;
+
+    const config: ChartConfiguration<'line'> = {
+      type: 'line',
+      data: {
+        labels: data.labels ?? [],
+        datasets: [{
+          label: 'Panier moyen (FCFA)',
+          data: data.values ?? [],
+          borderColor: '#2196F3',
+          backgroundColor: 'rgba(33, 150, 243, 0.08)',
+          tension: 0.4,
+          fill: true,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: false, ticks: { font: { size: 10 } } },
+          x: { ticks: { font: { size: 10 } } },
+        },
+      },
+    };
+
+    this.basketChart = new Chart(ctx, config);
+  }
+
   private destroyCharts(): void {
     if (this.evolutionChart) {
       this.evolutionChart.destroy();
@@ -432,6 +484,9 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
     }
     if (this.familyChart) {
       this.familyChart.destroy();
+    }
+    if (this.basketChart) {
+      this.basketChart.destroy();
     }
   }
 

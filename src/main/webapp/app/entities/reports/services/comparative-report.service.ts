@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { SERVER_API_URL } from 'app/app.constants';
-import { IComparativeCA, IComparativeByType, IComparativeSummary } from 'app/shared/model/report/comparative-report.model';
+import { IComparativeByFamily, IComparativeByFournisseur, IComparativeCA, IComparativeByType, IComparativeSummary } from 'app/shared/model/report/comparative-report.model';
 
 type ComparativeCAResponseType = HttpResponse<IComparativeCA[]>;
 type ComparativeByTypeResponseType = HttpResponse<IComparativeByType[]>;
@@ -55,6 +55,26 @@ export class ComparativeReportService {
    */
   getComparativeSummary(): Observable<ComparativeSummaryResponseType> {
     return this.http.get<IComparativeSummary>(`${this.resourceUrl}/summary`, { observe: 'response' });
+  }
+
+  /**
+   * Get comparison by product family (N vs N-1)
+   */
+  getComparisonByFamily(currentYear?: number, previousYear?: number): Observable<HttpResponse<IComparativeByFamily[]>> {
+    let params = new HttpParams();
+    if (currentYear) params = params.set('currentYear', currentYear.toString());
+    if (previousYear) params = params.set('previousYear', previousYear.toString());
+    return this.http.get<IComparativeByFamily[]>(`${this.resourceUrl}/by-family`, { params, observe: 'response' });
+  }
+
+  /**
+   * Get comparison by supplier (N vs N-1)
+   */
+  getComparisonByFournisseur(currentYear?: number, previousYear?: number): Observable<HttpResponse<IComparativeByFournisseur[]>> {
+    let params = new HttpParams();
+    if (currentYear) params = params.set('currentYear', currentYear.toString());
+    if (previousYear) params = params.set('previousYear', previousYear.toString());
+    return this.http.get<IComparativeByFournisseur[]>(`${this.resourceUrl}/by-fournisseur`, { params, observe: 'response' });
   }
 
   /**

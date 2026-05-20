@@ -24,3 +24,9 @@ export * from './comparative-report.model';
 // Phase 4 Models
 export * from './sales-forecast.model';
 export * from './market-basket.model';
+
+// Phase 5 Models
+export * from './pnl-analytique.model';
+export * from './vieillissement-creances.model';
+export * from './concentration-payers.model';
+export * from './cash-flow-bfr.model';

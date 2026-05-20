@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.report;
 
+import com.kobe.warehouse.service.dto.report.ComparativeByFamilyDTO;
+import com.kobe.warehouse.service.dto.report.ComparativeByFournisseurDTO;
 import com.kobe.warehouse.service.dto.report.ComparativeByTypeDTO;
 import com.kobe.warehouse.service.dto.report.ComparativeCADTO;
 import com.kobe.warehouse.service.dto.report.ComparativeSummaryDTO;
@@ -37,5 +39,13 @@ public interface ComparativeReportService {
      */
     ComparativeSummaryDTO getComparativeSummary();
 
+    /**
+     * Get CA comparison by product family (N vs N-1)
+     */
+    List<ComparativeByFamilyDTO> getComparisonByFamily(Integer currentYear, Integer previousYear);
 
+    /**
+     * Get CA comparison by supplier (N vs N-1)
+     */
+    List<ComparativeByFournisseurDTO> getComparisonByFournisseur(Integer currentYear, Integer previousYear);
 }

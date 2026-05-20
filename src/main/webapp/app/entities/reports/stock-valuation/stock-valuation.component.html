@@ -44,97 +44,52 @@
     </p-toolbar>
   </div>
 
-  <!-- Summary Cards -->
+  <!-- KPI Strip -->
   @if (summary()) {
-    <div class="row mt-3">
-      <div class="col-12 col-md-3 mb-2">
-        <div class="card h-100 kpi-card primary-accent">
-          <div class="card-body">
-            <div class="kpi-header">
-              <div class="kpi-content">
-                <p class="kpi-label">Valeur d'achat totale</p>
-                <h4 class="kpi-value">
-                  <span>{{ formatCurrency(summary()!.totalPurchaseValue) }}</span>
-                  <span class="value-suffix">FCFA</span>
-                </h4>
-                <div class="kpi-badges">
-                  <span class="badge bg-primary-subtle text-primary">Coût total</span>
-                </div>
-              </div>
-              <div class="kpi-icon text-primary">
-                <i class="pi pi-shopping-cart"></i>
-              </div>
-            </div>
-          </div>
+    <div class="kpi-strip mt-2 mb-2">
+
+      <div class="kpi-strip-item primary-accent">
+        <i class="pi pi-shopping-cart text-primary"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">Valeur d'achat</span>
+          <span class="kpi-strip-value text-primary">{{ formatCurrency(summary()!.totalPurchaseValue) }} <small>FCFA</small></span>
+          <span class="kpi-strip-sub">Coût total</span>
         </div>
       </div>
 
-      <div class="col-12 col-md-3 mb-2">
-        <div class="card h-100 kpi-card success-accent">
-          <div class="card-body">
-            <div class="kpi-header">
-              <div class="kpi-content">
-                <p class="kpi-label">Valeur de vente totale</p>
-                <h4 class="kpi-value">
-                  <span>{{ formatCurrency(summary()!.totalSalesValue) }}</span>
-                  <span class="value-suffix">FCFA</span>
-                </h4>
-                <div class="kpi-badges">
-                  <span class="badge bg-success-subtle text-success">Prix de vente</span>
-                </div>
-              </div>
-              <div class="kpi-icon text-success">
-                <i class="pi pi-money-bill"></i>
-              </div>
-            </div>
-          </div>
+      <div class="kpi-strip-divider"></div>
+
+      <div class="kpi-strip-item success-accent">
+        <i class="pi pi-money-bill text-success"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">Valeur de vente</span>
+          <span class="kpi-strip-value text-success">{{ formatCurrency(summary()!.totalSalesValue) }} <small>FCFA</small></span>
+          <span class="kpi-strip-sub">Prix de vente</span>
         </div>
       </div>
 
-      <div class="col-12 col-md-3 mb-2">
-        <div class="card h-100 kpi-card warning-accent">
-          <div class="card-body">
-            <div class="kpi-header">
-              <div class="kpi-content">
-                <p class="kpi-label">Marge potentielle</p>
-                <h4 class="kpi-value">
-                  <span>{{ formatCurrency(summary()!.totalPotentialMargin) }}</span>
-                  <span class="value-suffix">FCFA</span>
-                </h4>
-                <div class="kpi-badges">
-                  <span class="badge bg-warning-subtle text-warning">Gain possible</span>
-                </div>
-              </div>
-              <div class="kpi-icon text-warning">
-                <i class="pi pi-percentage"></i>
-              </div>
-            </div>
-          </div>
+      <div class="kpi-strip-divider"></div>
+
+      <div class="kpi-strip-item warning-accent">
+        <i class="pi pi-percentage text-warning"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">Marge potentielle</span>
+          <span class="kpi-strip-value text-warning">{{ formatCurrency(summary()!.totalPotentialMargin) }} <small>FCFA</small></span>
+          <span class="kpi-strip-sub">Gain possible</span>
         </div>
       </div>
 
-      <div class="col-12 col-md-3 mb-2">
-        <div class="card h-100 kpi-card danger-accent">
-          <div class="card-body">
-            <div class="kpi-header">
-              <div class="kpi-content">
-                <p class="kpi-label">Marge moyenne</p>
-                <h4 class="kpi-value">
-                  <span>{{ formatDecimal(summary()!.averageMarginPercentage) }}</span>
-                  <span class="value-suffix">%</span>
-                </h4>
-                <div class="kpi-badges">
-                  <span class="badge bg-danger-subtle text-danger">{{ summary()!.totalProducts }}
-                    produits</span>
-                </div>
-              </div>
-              <div class="kpi-icon text-danger">
-                <i class="pi pi-chart-line"></i>
-              </div>
-            </div>
-          </div>
+      <div class="kpi-strip-divider"></div>
+
+      <div class="kpi-strip-item danger-accent">
+        <i class="pi pi-chart-line text-danger"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">Marge moyenne</span>
+          <span class="kpi-strip-value text-danger">{{ formatDecimal(summary()!.averageMarginPercentage) }} <small>%</small></span>
+          <span class="kpi-strip-sub">{{ summary()!.totalProducts }} produits</span>
         </div>
       </div>
+
     </div>
   }
 
@@ -149,18 +104,18 @@
           </h5>
         </div>
         <div class="card-body p-0">
-          <div class="overflow-x-auto">
-            <p-table
-              [loading]="isLoading()"
-              [paginator]="true"
-              [rowsPerPageOptions]="[10, 20, 50, 100]"
-              [rows]="20"
-              [showCurrentPageReport]="true"
-              [tableStyle]="{ 'min-width': '80rem' }"
-              [value]="valuations()"
-              class="p-datatable-sm"
-              currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
-            >
+          <p-table
+            [loading]="isLoading()"
+            [paginator]="true"
+            [rowsPerPageOptions]="[10, 20, 50, 100]"
+            [rows]="20"
+            [scrollable]="true"
+            [showCurrentPageReport]="true"
+            [value]="valuations()"
+            class="p-datatable-sm"
+            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+            scrollHeight="500px"
+          >
               <ng-template #header>
                 <tr class="pharma-table-head">
                   <th>Produit</th>
@@ -224,7 +179,6 @@
                 </tr>
               </ng-template>
             </p-table>
-          </div>
         </div>
       </div>
     </div>

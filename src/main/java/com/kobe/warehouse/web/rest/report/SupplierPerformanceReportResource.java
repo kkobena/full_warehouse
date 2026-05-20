@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.report;
 
+import com.kobe.warehouse.service.dto.report.SupplierEvolutionDTO;
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceDTO;
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceSummaryDTO;
 import com.kobe.warehouse.service.report.SupplierPerformanceReportService;
@@ -101,6 +102,14 @@ public class SupplierPerformanceReportResource {
     public ResponseEntity<SupplierPerformanceSummaryDTO> getSupplierPerformanceSummary() {
         SupplierPerformanceSummaryDTO summary = supplierPerformanceReportService.getSupplierPerformanceSummary();
         return ResponseEntity.ok().body(summary);
+    }
+
+    /**
+     * GET /supplier-performance/evolution : Monthly N vs N-1 evolution of purchases and delivery days
+     */
+    @GetMapping("/supplier-performance/evolution")
+    public ResponseEntity<SupplierEvolutionDTO> getEvolution() {
+        return ResponseEntity.ok().body(supplierPerformanceReportService.getEvolution());
     }
 
     /**

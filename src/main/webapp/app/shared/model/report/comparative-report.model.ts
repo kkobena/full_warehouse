@@ -27,6 +27,34 @@ export interface IComparativeByType {
 }
 
 /**
+ * Comparative by Family DTO
+ */
+export interface IComparativeByFamily {
+  familleId?: number;
+  familleLibelle?: string;
+  currentYearCA?: number;
+  previousYearCA?: number;
+  evolutionPct?: number;
+  evolutionAmount?: number;
+  currentYearCount?: number;
+  previousYearCount?: number;
+}
+
+/**
+ * Comparative by Supplier DTO
+ */
+export interface IComparativeByFournisseur {
+  fournisseurId?: number;
+  fournisseurLibelle?: string;
+  currentYearCA?: number;
+  previousYearCA?: number;
+  evolutionPct?: number;
+  evolutionAmount?: number;
+  currentYearCount?: number;
+  previousYearCount?: number;
+}
+
+/**
  * Comparative Summary DTO
  */
 export interface IComparativeSummary {

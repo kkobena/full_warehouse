@@ -27,3 +27,13 @@ export interface ISupplierPerformanceSummary {
   suppliersWithAveragePerformance?: number;
   suppliersWithPoorPerformance?: number;
 }
+
+export interface ISupplierEvolution {
+  labels?: string[];
+  montantsN?: number[];
+  montantsN1?: number[];
+  delaisN?: number[];
+  delaisN1?: number[];
+  nbCommandesN?: number[];
+  nbCommandesN1?: number[];
+}

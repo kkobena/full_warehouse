@@ -5,6 +5,8 @@ import com.kobe.warehouse.service.dto.report.*;
 import java.time.LocalDate;
 import java.util.List;
 
+
+
 /**
  * Service interface for Dashboard Chiffre d'Affaires (CA)
  */
@@ -48,6 +50,11 @@ public interface DashboardCAService {
      * Get finances summary KPIs (supplier debt + third-party receivables)
      */
     FinancesSummaryDTO getSummaryFinances();
+
+    /**
+     * Get average basket evolution over the last 12 months
+     */
+    BasketEvolutionDTO getBasketEvolution();
 
     /**
      * Refresh materialized views

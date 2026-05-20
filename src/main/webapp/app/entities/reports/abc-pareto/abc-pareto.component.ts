@@ -37,7 +37,6 @@ import {handleBlobForTauri} from "../../../shared/util/tauri-util";
     DividerModule,
     ChipModule,
     ProgressBarModule,
-    WarehouseCommonModule,
     InputText,
     IconField,
     InputIcon,
@@ -173,6 +172,17 @@ export default class ABCParetoComponent implements OnInit {
       case ClassePareto.C:      return '95-99% CA cumulé';
       case ClassePareto.D:      return 'Sans ventes / >99%';
       default:                  return '';
+    }
+  }
+
+  getClasseParetoClass(classePareto: ClassePareto | undefined): string {
+    switch (classePareto) {
+      case ClassePareto.A_PLUS: return 'pareto-badge pareto-a-plus';
+      case ClassePareto.A:      return 'pareto-badge pareto-a';
+      case ClassePareto.B:      return 'pareto-badge pareto-b';
+      case ClassePareto.C:      return 'pareto-badge pareto-c';
+      case ClassePareto.D:      return 'pareto-badge pareto-d';
+      default:                  return 'pareto-badge pareto-d';
     }
   }
 

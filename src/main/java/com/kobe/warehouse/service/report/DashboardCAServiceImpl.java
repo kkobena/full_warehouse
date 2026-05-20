@@ -1,22 +1,23 @@
 package com.kobe.warehouse.service.report;
 
+import com.kobe.warehouse.repository.DashboardCARepository;
 import com.kobe.warehouse.service.dto.FinancesSummaryDTO;
+import com.kobe.warehouse.service.dto.report.BasketEvolutionDTO;
 import com.kobe.warehouse.service.dto.report.DailyCADTO;
 import com.kobe.warehouse.service.dto.report.DashboardCAEvolutionDTO;
 import com.kobe.warehouse.service.dto.report.DashboardCASummaryDTO;
 import com.kobe.warehouse.service.dto.report.PaymentMethodCADTO;
 import com.kobe.warehouse.service.dto.report.ProductFamilyCADTO;
 import com.kobe.warehouse.service.dto.report.TopProductDTO;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.cache.annotation.CacheEvict;
@@ -24,53 +25,34 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Service implementation for Dashboard Chiffre d'Affaires (CA)
- */
 @Service
 @Transactional(readOnly = true)
 public class DashboardCAServiceImpl implements DashboardCAService {
 
-    private final EntityManager entityManager;
+    private final DashboardCARepository dashboardCARepository;
 
-    public DashboardCAServiceImpl(EntityManager entityManager) {
-        this.entityManager = entityManager;
-
+    public DashboardCAServiceImpl(DashboardCARepository dashboardCARepository) {
+        this.dashboardCARepository = dashboardCARepository;
     }
 
     @Override
     @Cacheable(value = "dashboardCA", key = "'daily_' + #startDate + '_' + #endDate")
     public List<DailyCADTO> getDailySummary(LocalDate startDate, LocalDate endDate) {
-        String sql =
-            "SELECT sale_date, nb_transactions,  ca_total,  ca_net, " +
-                "panier_moyen, cout_total, marge_brute, taux_marge_pct, nb_clients, " +
-                "montant_encaisse, montant_credit " +
-                "FROM mv_dashboard_ca_daily " +
-                "WHERE sale_date BETWEEN :startDate AND :endDate " +
-                "ORDER BY sale_date DESC";
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("startDate", startDate);
-        query.setParameter("endDate", endDate);
-
-        List<Object[]> results = query.getResultList();
-        return results
+        return dashboardCARepository.findDailySummary(startDate, endDate)
             .stream()
-            .map(row ->
-                new DailyCADTO(
-                    LocalDate.parse(row[0].toString().substring(0, 10)),
-                    ((Number) row[1]).intValue(),
-                    ((Number) row[2]).longValue(),
-                    ((Number) row[3]).longValue(),
-                    (BigDecimal) row[4],
-                    ((Number) row[5]).longValue(),
-                    ((Number) row[6]).longValue(),
-                    (BigDecimal) row[7],
-                    ((Number) row[8]).intValue(),
-                    ((Number) row[9]).longValue(),
-                    ((Number) row[10]).longValue()
-                )
-            )
+            .map(row -> new DailyCADTO(
+                LocalDate.parse(row[0].toString().substring(0, 10)),
+                ((Number) row[1]).intValue(),
+                ((Number) row[2]).longValue(),
+                ((Number) row[3]).longValue(),
+                (BigDecimal) row[4],
+                ((Number) row[5]).longValue(),
+                ((Number) row[6]).longValue(),
+                (BigDecimal) row[7],
+                ((Number) row[8]).intValue(),
+                ((Number) row[9]).longValue(),
+                ((Number) row[10]).longValue()
+            ))
             .toList();
     }
 
@@ -89,278 +71,186 @@ public class DashboardCAServiceImpl implements DashboardCAService {
         LocalDate lastYearStart = yearStart.minusYears(1);
         LocalDate lastYearEnd = yearStart.minusDays(1);
 
-        // Today
-        Map<String, Object> todayData = getPeriodData(today, today);
-        Map<String, Object> yesterdayData = getPeriodData(yesterday, yesterday);
-
-        // Week
-        Map<String, Object> weekData = getPeriodData(weekStart, today);
-        Map<String, Object> lastWeekData = getPeriodData(lastWeekStart, lastWeekEnd);
-
-        // Month
-        Map<String, Object> monthData = getPeriodData(monthStart, today);
-        Map<String, Object> lastMonthData = getPeriodData(lastMonthStart, lastMonthEnd);
-
-        // Year
-        Map<String, Object> yearData = getPeriodData(yearStart, today);
-        Map<String, Object> lastYearData = getPeriodData(lastYearStart, lastYearEnd);
+        Object[] todayRow      = dashboardCARepository.getPeriodAggregation(today, today);
+        Object[] yesterdayRow  = dashboardCARepository.getPeriodAggregation(yesterday, yesterday);
+        Object[] weekRow       = dashboardCARepository.getPeriodAggregation(weekStart, today);
+        Object[] lastWeekRow   = dashboardCARepository.getPeriodAggregation(lastWeekStart, lastWeekEnd);
+        Object[] monthRow      = dashboardCARepository.getPeriodAggregation(monthStart, today);
+        Object[] lastMonthRow  = dashboardCARepository.getPeriodAggregation(lastMonthStart, lastMonthEnd);
+        Object[] yearRow       = dashboardCARepository.getPeriodAggregation(yearStart, today);
+        Object[] lastYearRow   = dashboardCARepository.getPeriodAggregation(lastYearStart, lastYearEnd);
 
         return new DashboardCASummaryDTO(
-            // Today
-            (Long) todayData.get("ca"),
-            (Long) yesterdayData.get("ca"),
-            calculateEvolution((Long) todayData.get("ca"), (Long) yesterdayData.get("ca")),
-            // Week
-            (Long) weekData.get("ca"),
-            (Long) lastWeekData.get("ca"),
-            calculateEvolution((Long) weekData.get("ca"), (Long) lastWeekData.get("ca")),
-            // Month
-            (Long) monthData.get("ca"),
-            (Long) lastMonthData.get("ca"),
-            calculateEvolution((Long) monthData.get("ca"), (Long) lastMonthData.get("ca")),
-            // Year
-            (Long) yearData.get("ca"),
-            (Long) lastYearData.get("ca"),
-            calculateEvolution((Long) yearData.get("ca"), (Long) lastYearData.get("ca")),
-            // Transaction counts
-            (Integer) todayData.get("nbTransactions"),
-            (Integer) weekData.get("nbTransactions"),
-            (Integer) monthData.get("nbTransactions"),
-            (Integer) yearData.get("nbTransactions"),
-            // Average basket
-            (BigDecimal) todayData.get("panierMoyen"),
-            (BigDecimal) weekData.get("panierMoyen"),
-            (BigDecimal) monthData.get("panierMoyen"),
-            (BigDecimal) yearData.get("panierMoyen"),
-            // Margin rate
-            (BigDecimal) todayData.get("tauxMarge"),
-            (BigDecimal) weekData.get("tauxMarge"),
-            (BigDecimal) monthData.get("tauxMarge"),
-            (BigDecimal) yearData.get("tauxMarge")
+            toL(todayRow[0]),    toL(yesterdayRow[0]),  evo(toL(todayRow[0]),   toL(yesterdayRow[0])),
+            toL(weekRow[0]),     toL(lastWeekRow[0]),   evo(toL(weekRow[0]),    toL(lastWeekRow[0])),
+            toL(monthRow[0]),    toL(lastMonthRow[0]),  evo(toL(monthRow[0]),   toL(lastMonthRow[0])),
+            toL(yearRow[0]),     toL(lastYearRow[0]),   evo(toL(yearRow[0]),    toL(lastYearRow[0])),
+            toI(todayRow[1]),    toI(weekRow[1]),        toI(monthRow[1]),       toI(yearRow[1]),
+            toBD(todayRow[2]),   toBD(weekRow[2]),       toBD(monthRow[2]),      toBD(yearRow[2]),
+            toBD(todayRow[3]),   toBD(weekRow[3]),       toBD(monthRow[3]),      toBD(yearRow[3])
         );
     }
 
     @Override
     @Cacheable(value = "dashboardCA", key = "'evolution_' + #period + '_' + #startDate + '_' + #endDate")
-    public DashboardCAEvolutionDTO getEvolutionData(String period, LocalDate startDate,
-        LocalDate endDate) {
+    public DashboardCAEvolutionDTO getEvolutionData(String period, LocalDate startDate, LocalDate endDate) {
         List<DailyCADTO> dailyData = getDailySummary(startDate, endDate);
 
         if ("monthly".equals(period)) {
-            // Group by month
-            Map<String, List<DailyCADTO>> byMonth = dailyData
-                .stream()
-                .collect(Collectors.groupingBy(
-                    d -> d.saleDate().getYear() + "-" + String.format("%02d",
-                        d.saleDate().getMonthValue())));
-
+            var byMonth = dailyData.stream().collect(Collectors.groupingBy(
+                d -> d.saleDate().getYear() + "-" + String.format("%02d", d.saleDate().getMonthValue())));
             List<String> labels = new ArrayList<>(byMonth.keySet());
             Collections.sort(labels);
-
-            List<Long> caValues = labels
-                .stream()
-                .map(month -> byMonth.get(month).stream().mapToLong(DailyCADTO::caNet).sum())
-                .toList();
-
-            List<Integer> transactionCounts = labels
-                .stream()
-                .map(
-                    month -> byMonth.get(month).stream().mapToInt(DailyCADTO::nbTransactions).sum())
-                .toList();
-
-            return new DashboardCAEvolutionDTO(labels, caValues, Collections.emptyList(),
-                transactionCounts, "monthly");
+            return new DashboardCAEvolutionDTO(
+                labels,
+                labels.stream().map(m -> byMonth.get(m).stream().mapToLong(DailyCADTO::caNet).sum()).toList(),
+                Collections.emptyList(),
+                labels.stream().map(m -> byMonth.get(m).stream().mapToInt(DailyCADTO::nbTransactions).sum()).toList(),
+                "monthly"
+            );
         } else if ("weekly".equals(period)) {
-            // Group by week
-            Map<String, List<DailyCADTO>> byWeek = dailyData
-                .stream()
-                .collect(
-                    Collectors.groupingBy(d -> d.saleDate().getYear() + "-W" + String.format("%02d",
-                        getWeekNumber(d.saleDate())))
-                );
-
+            var byWeek = dailyData.stream().collect(Collectors.groupingBy(
+                d -> d.saleDate().getYear() + "-W" + String.format("%02d", getWeekNumber(d.saleDate()))));
             List<String> labels = new ArrayList<>(byWeek.keySet());
             Collections.sort(labels);
-
-            List<Long> caValues = labels
-                .stream()
-                .map(week -> byWeek.get(week).stream().mapToLong(DailyCADTO::caNet).sum())
-                .toList();
-
-            List<Integer> transactionCounts = labels
-                .stream()
-                .map(week -> byWeek.get(week).stream().mapToInt(DailyCADTO::nbTransactions).sum())
-                .toList();
-
-            return new DashboardCAEvolutionDTO(labels, caValues, Collections.emptyList(),
-                transactionCounts, "weekly");
+            return new DashboardCAEvolutionDTO(
+                labels,
+                labels.stream().map(w -> byWeek.get(w).stream().mapToLong(DailyCADTO::caNet).sum()).toList(),
+                Collections.emptyList(),
+                labels.stream().map(w -> byWeek.get(w).stream().mapToInt(DailyCADTO::nbTransactions).sum()).toList(),
+                "weekly"
+            );
         } else {
-            // Daily
-            List<String> labels = dailyData.stream().map(d -> d.saleDate().toString()).toList();
-
-            List<Long> caValues = dailyData.stream().map(DailyCADTO::caNet).toList();
-
-            List<Integer> transactionCounts = dailyData.stream().map(DailyCADTO::nbTransactions)
-                .toList();
-
-            return new DashboardCAEvolutionDTO(labels, caValues, Collections.emptyList(),
-                transactionCounts, "daily");
+            return new DashboardCAEvolutionDTO(
+                dailyData.stream().map(d -> d.saleDate().toString()).toList(),
+                dailyData.stream().map(DailyCADTO::caNet).toList(),
+                Collections.emptyList(),
+                dailyData.stream().map(DailyCADTO::nbTransactions).toList(),
+                "daily"
+            );
         }
     }
 
     @Override
     @Cacheable(value = "dashboardCA", key = "'payment_' + #startDate + '_' + #endDate")
-    public List<PaymentMethodCADTO> getPaymentMethodDistribution(LocalDate startDate,
-        LocalDate endDate) {
-        String sql =
-            "SELECT payment_date, payment_method, payment_code, nb_payments, " +
-                "montant_total,  montant_moyen " +
-                "FROM mv_dashboard_ca_payment_methods " +
-                "WHERE payment_date BETWEEN :startDate AND :endDate " +
-                "ORDER BY montant_total DESC";
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("startDate", startDate);
-        query.setParameter("endDate", endDate);
-
-        List<Object[]> results = query.getResultList();
-        return results
+    public List<PaymentMethodCADTO> getPaymentMethodDistribution(LocalDate startDate, LocalDate endDate) {
+        return dashboardCARepository.findPaymentMethodDistribution(startDate, endDate)
             .stream()
-            .map(row ->
-                new PaymentMethodCADTO(
-                    LocalDate.parse(row[0].toString().substring(0, 10)),
-                    (String) row[1],
-                    (String) row[2],
-                    ((Number) row[3]).intValue(),
-                    ((Number) row[4]).longValue(),
-                    (BigDecimal) row[5]
-                )
-            )
+            .map(row -> new PaymentMethodCADTO(
+                LocalDate.parse(row[0].toString().substring(0, 10)),
+                (String) row[1],
+                (String) row[2],
+                ((Number) row[3]).intValue(),
+                ((Number) row[4]).longValue(),
+                (BigDecimal) row[5]
+            ))
             .toList();
     }
 
     @Override
     @Cacheable(value = "dashboardCA", key = "'families_' + #startDate + '_' + #endDate")
-    public List<ProductFamilyCADTO> getProductFamilyDistribution(LocalDate startDate,
-        LocalDate endDate) {
-        String sql =
-            "SELECT sale_date, famille, quantite_vendue, ca_total, cout_total, " +
-                "marge_brute, taux_marge_pct, nb_lignes_vente " +
-                "FROM mv_dashboard_ca_product_families " +
-                "WHERE sale_date BETWEEN :startDate AND :endDate " +
-                "ORDER BY ca_total DESC";
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("startDate", startDate);
-        query.setParameter("endDate", endDate);
-
-        List<Object[]> results = query.getResultList();
-        return results
+    public List<ProductFamilyCADTO> getProductFamilyDistribution(LocalDate startDate, LocalDate endDate) {
+        return dashboardCARepository.findProductFamilyDistribution(startDate, endDate)
             .stream()
-            .map(row ->
-                new ProductFamilyCADTO(
-                    LocalDate.parse(row[0].toString().substring(0, 10)),
-                    (String) row[1],
-                    ((Number) row[2]).intValue(),
-                    ((Number) row[3]).longValue(),
-                    ((Number) row[4]).longValue(),
-                    ((Number) row[5]).longValue(),
-                    (BigDecimal) row[6],
-                    ((Number) row[7]).intValue()
-                )
-            )
+            .map(row -> new ProductFamilyCADTO(
+                LocalDate.parse(row[0].toString().substring(0, 10)),
+                (String) row[1],
+                ((Number) row[2]).intValue(),
+                ((Number) row[3]).longValue(),
+                ((Number) row[4]).longValue(),
+                ((Number) row[5]).longValue(),
+                (BigDecimal) row[6],
+                ((Number) row[7]).intValue()
+            ))
             .toList();
     }
 
     @Override
     @Cacheable(value = "dashboardCA", key = "'top_products_' + #startDate + '_' + #endDate + '_' + #limit")
-    public List<TopProductDTO> getTopProducts(LocalDate startDate, LocalDate endDate,
-        Integer limit) {
-        String sql =
-            "SELECT :period as mois, p.id, p.libelle, " +
-                "COALESCE(fp.code_cip, '') as code_cip, " +
-                "COUNT(DISTINCT sl.sales_id) as nb_ventes, " +
-                "SUM(sl.quantity_requested) as qty_vendue, " +
-                "SUM(sl.sales_amount) as ca, " +
-                "AVG(sl.sales_amount / NULLIF(sl.quantity_requested, 0)) as prix_moyen " +
-                "FROM sales s " +
-                "INNER JOIN sales_line sl ON s.id = sl.sales_id " +
-                "INNER JOIN produit p ON sl.produit_id = p.id " +
-                "LEFT JOIN fournisseur_produit fp ON p.fournisseur_produit_principal_id = fp.id " +
-                "WHERE s.statut='CLOSED' " +
-                "AND s.canceled = false " +
-                "AND s.ca = 'CA' " +
-                "AND s.sale_date BETWEEN :startDate AND :endDate " +
-                "GROUP BY p.id, p.libelle, fp.code_cip " +
-                "ORDER BY ca DESC ";
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("period", startDate);
-        query.setParameter("startDate", startDate);
-        query.setParameter("endDate", endDate);
-        query.setMaxResults(Objects.requireNonNullElse(limit, 10));
-
-        List<Object[]> results = query.getResultList();
-        return results
+    public List<TopProductDTO> getTopProducts(LocalDate startDate, LocalDate endDate, Integer limit) {
+        return dashboardCARepository.findTopProducts(startDate, endDate, Objects.requireNonNullElse(limit, 10))
             .stream()
-            .map(row ->
-                new TopProductDTO(
-                    LocalDate.parse(row[0].toString().substring(0, 10)),
-                    ((Number) row[1]).intValue(),
-                    (String) row[2],
-                    (String) row[3],
-                    ((Number) row[4]).longValue(),
-                    ((Number) row[5]).intValue(),
-                    ((Number) row[6]).intValue(),
-                    (BigDecimal) row[7]
-                )
-            )
+            .map(row -> new TopProductDTO(
+                LocalDate.parse(row[0].toString().substring(0, 10)),
+                ((Number) row[1]).intValue(),
+                (String) row[2],
+                (String) row[3],
+                ((Number) row[4]).longValue(),
+                ((Number) row[5]).intValue(),
+                ((Number) row[6]).intValue(),
+                (BigDecimal) row[7]
+            ))
             .toList();
     }
 
+    @Override
+    @Cacheable(value = "dashboardCA", key = "'basket_evolution'")
+    public BasketEvolutionDTO getBasketEvolution() {
+        List<Object[]> rows = dashboardCARepository.findBasketEvolutionMonthly();
+
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("MMM yyyy", Locale.FRENCH);
+        List<String> labels = new ArrayList<>();
+        List<BigDecimal> values = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            int yr = ((Number) row[0]).intValue();
+            int mo = ((Number) row[1]).intValue();
+            BigDecimal basket = row[2] != null ? new BigDecimal(row[2].toString()) : BigDecimal.ZERO;
+            labels.add(YearMonth.of(yr, mo).atDay(1).format(fmt));
+            values.add(basket);
+        }
+
+        BigDecimal currentValue  = values.isEmpty() ? BigDecimal.ZERO : values.get(values.size() - 1);
+        BigDecimal previousValue = values.size() > 1 ? values.get(values.size() - 2) : BigDecimal.ZERO;
+        BigDecimal evolutionAmount = currentValue.subtract(previousValue);
+        BigDecimal evolutionPct = BigDecimal.ZERO;
+        if (previousValue.compareTo(BigDecimal.ZERO) != 0) {
+            evolutionPct = evolutionAmount
+                .multiply(BigDecimal.valueOf(100))
+                .divide(previousValue, 2, RoundingMode.HALF_UP);
+        }
+
+        String bestLabel    = "";
+        BigDecimal bestValue = BigDecimal.ZERO;
+        for (int i = 0; i < values.size(); i++) {
+            if (values.get(i).compareTo(bestValue) > 0) {
+                bestValue = values.get(i);
+                bestLabel = labels.get(i);
+            }
+        }
+
+        BigDecimal trend6MPct = BigDecimal.ZERO;
+        if (values.size() >= 6) {
+            int n = values.size();
+            BigDecimal recentAvg = values.subList(n - 3, n).stream()
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .divide(BigDecimal.valueOf(3), 2, RoundingMode.HALF_UP);
+            BigDecimal olderAvg = values.subList(n - 6, n - 3).stream()
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .divide(BigDecimal.valueOf(3), 2, RoundingMode.HALF_UP);
+            if (olderAvg.compareTo(BigDecimal.ZERO) != 0) {
+                trend6MPct = recentAvg.subtract(olderAvg)
+                    .multiply(BigDecimal.valueOf(100))
+                    .divide(olderAvg, 2, RoundingMode.HALF_UP);
+            }
+        }
+
+        return new BasketEvolutionDTO(
+            labels, values,
+            currentValue, previousValue,
+            evolutionPct, evolutionAmount,
+            bestLabel, bestValue,
+            trend6MPct
+        );
+    }
 
     @Override
     public FinancesSummaryDTO getSummaryFinances() {
-        Number detteFournisseur = (Number) entityManager.createNativeQuery(
-                "SELECT COALESCE(SUM(c.final_amount), 0) - COALESCE((" +
-                "  SELECT SUM(pt.paid_amount) FROM payment_transaction pt " +
-                "  WHERE pt.dtype = 'PaymentFournisseur' " +
-                "  AND pt.commande_id IN (SELECT c2.id FROM commande c2 WHERE c2.paiment_status != 'PAID' AND c2.order_status IN ('CLOSED'))" +
-                "), 0) " +
-                "FROM commande c " +
-                "WHERE c.paiment_status != 'PAID' AND c.order_status IN ('CLOSED')"
-            )
-            .getSingleResult();
-
-        Number creanceTiersPayant = (Number) entityManager.createNativeQuery(
-                "SELECT COALESCE(SUM(tpsl.montant - COALESCE(tpsl.montant_regle, 0)), 0) " +
-                "FROM third_party_sale_line tpsl " +
-                "WHERE tpsl.statut NOT IN ('PAID', 'DELETE')"
-            )
-            .getSingleResult();
-
-        Number nbEcheancesEnRetard = (Number) entityManager.createNativeQuery(
-                "SELECT COUNT(*) FROM commande c " +
-                "JOIN fournisseur f ON c.fournisseur_id = f.id " +
-                "LEFT JOIN groupe_fournisseur gf ON f.groupe_pournisseur_id = gf.id " +
-                "WHERE c.paiment_status != 'PAID' AND c.order_status = 'CLOSED' " +
-                "AND (COALESCE(c.receipt_date, c.order_date) + " +
-                "     (COALESCE(f.jours_credit, gf.jours_credit, 30) || ' days')::interval) < CURRENT_DATE"
-            )
-            .getSingleResult();
-
-        Number nbFacturesImpayees = (Number) entityManager.createNativeQuery(
-                "SELECT COUNT(*) FROM sales s " +
-                "WHERE s.payment_status = 'IMPAYE' AND s.statut = 'CLOSED' AND s.canceled = false AND s.ca = 'CA' " +
-                "AND s.sale_date < (CURRENT_DATE - INTERVAL '30 days')"
-            )
-            .getSingleResult();
-
         return new FinancesSummaryDTO(
-            detteFournisseur != null ? detteFournisseur.longValue() : 0L,
-            creanceTiersPayant != null ? creanceTiersPayant.longValue() : 0L,
-            nbEcheancesEnRetard != null ? nbEcheancesEnRetard.longValue() : 0L,
-            nbFacturesImpayees != null ? nbFacturesImpayees.longValue() : 0L
+            dashboardCARepository.getDetteFournisseur(),
+            dashboardCARepository.getCreanceTiersPayant(),
+            dashboardCARepository.getNbEcheancesEnRetard(),
+            dashboardCARepository.getNbFacturesImpayees()
         );
     }
 
@@ -368,51 +258,24 @@ public class DashboardCAServiceImpl implements DashboardCAService {
     @Transactional
     @CacheEvict(value = "dashboardCA", allEntries = true)
     public void refreshViews() {
-        entityManager.createNativeQuery("SELECT refresh_dashboard_ca_views()").getSingleResult();
+        dashboardCARepository.refreshViews();
     }
 
-    // Helper methods
+    // ── helpers ──────────────────────────────────────────────────────────────
 
-    private Map<String, Object> getPeriodData(LocalDate startDate, LocalDate endDate) {
-        String sql =
-            "SELECT COALESCE(SUM(ca_net), 0) as ca, " +
-                "COALESCE(SUM(nb_transactions), 0) as nb_trans, " +
-                "COALESCE(AVG(panier_moyen), 0) as panier_moyen, " +
-                "COALESCE(AVG(taux_marge_pct), 0) as taux_marge " +
-                "FROM mv_dashboard_ca_daily " +
-                "WHERE sale_date BETWEEN :startDate AND :endDate";
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("startDate", startDate);
-        query.setParameter("endDate", endDate);
-
-        Object[] result = (Object[]) query.getSingleResult();
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("ca", ((Number) result[0]).longValue());
-        data.put("nbTransactions", ((Number) result[1]).intValue());
-        data.put("panierMoyen", result[2]);
-        data.put("tauxMarge", result[3]);
-
-        return data;
+    private BigDecimal evo(Long current, Long previous) {
+        if (previous == null || previous == 0) return BigDecimal.ZERO;
+        if (current == null) return BigDecimal.valueOf(-100);
+        return BigDecimal.valueOf((current - previous) * 100.0 / previous).setScale(2, RoundingMode.HALF_UP);
     }
 
-    private BigDecimal calculateEvolution(Long current, Long previous) {
-        if (previous == null || previous == 0) {
-            return BigDecimal.ZERO;
-        }
-        if (current == null) {
-            return BigDecimal.valueOf(-100);
-        }
-        return BigDecimal
-            .valueOf((current - previous) * 100.0 / previous)
-            .setScale(2, RoundingMode.HALF_UP);
-    }
+    private static Long     toL(Object o)  { return o != null ? ((Number) o).longValue()    : 0L; }
+    private static Integer  toI(Object o)  { return o != null ? ((Number) o).intValue()     : 0;  }
+    private static BigDecimal toBD(Object o) { return o instanceof BigDecimal bd ? bd : BigDecimal.ZERO; }
 
     private int getWeekNumber(LocalDate date) {
         int dayOfYear = date.getDayOfYear();
         int dayOfWeek = date.getDayOfWeek().getValue();
         return (dayOfYear - dayOfWeek + 10) / 7;
     }
-
 }

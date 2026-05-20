@@ -98,6 +98,36 @@ public class ComparativeReportResource {
     }
 
     /**
+     * GET /api/comparative-reports/by-family : Get CA comparison by product family (N vs N-1)
+     *
+     * @param currentYear  current year (defaults to current year)
+     * @param previousYear previous year (defaults to currentYear - 1)
+     * @return list of comparisons by family, ordered by current CA descending
+     */
+    @GetMapping("/by-family")
+    public ResponseEntity<List<ComparativeByFamilyDTO>> getComparisonByFamily(
+        @RequestParam(required = false) Integer currentYear,
+        @RequestParam(required = false) Integer previousYear
+    ) {
+        int year     = currentYear  != null ? currentYear  : LocalDate.now().getYear();
+        int prevYear = previousYear != null ? previousYear : year - 1;
+        return ResponseEntity.ok(comparativeReportService.getComparisonByFamily(year, prevYear));
+    }
+
+    /**
+     * GET /api/comparative-reports/by-fournisseur : Get CA comparison by supplier (N vs N-1)
+     */
+    @GetMapping("/by-fournisseur")
+    public ResponseEntity<List<ComparativeByFournisseurDTO>> getComparisonByFournisseur(
+        @RequestParam(required = false) Integer currentYear,
+        @RequestParam(required = false) Integer previousYear
+    ) {
+        int year     = currentYear  != null ? currentYear  : LocalDate.now().getYear();
+        int prevYear = previousYear != null ? previousYear : year - 1;
+        return ResponseEntity.ok(comparativeReportService.getComparisonByFournisseur(year, prevYear));
+    }
+
+    /**
      * GET /api/comparative-reports/export : Export comparative report to PDF
      *
      * @param comparisonType type of comparison (MONTHLY, QUARTERLY, YEARLY)

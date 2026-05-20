@@ -30,6 +30,15 @@ const reportsRoute: Routes = [
     canActivate: [AuthGuard],
   },
   {
+    path: 'finance',
+    loadComponent: () => import('./finance-reports/finance-reports.component'),
+    data: {
+      pageTitle: 'Rapports Finance & Rentabilité',
+      abilitySubject: 'rapport-finance',
+    },
+    canActivate: [AuthGuard],
+  },
+  {
     path: '',
     redirectTo: 'sales',
     pathMatch: 'full',

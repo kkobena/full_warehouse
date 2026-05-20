@@ -17,12 +17,15 @@ public interface MvStockValuationViewRepository extends JpaRepository<MvStockVal
     //total_sales_value DESC
     List<MvStockValuationView> findAllByOrderByTotalSalesValueDesc();
 
-    Page<MvStockValuationView> findAllByOrderByTotalSalesValueDesc(Pageable pageable);
+
+
+    default Specification<MvStockValuationView> filterByMagasinId(Integer magasinId) {
+        if (magasinId == null) return null;
+        return (root, query, cb) -> cb.equal(root.get("magasinId"), magasinId);
+    }
 
     default Specification<MvStockValuationView> filterByFamilleProduitId(Integer familleProduitId) {
-        if (familleProduitId == null) {
-            return null;
-        }
+        if (familleProduitId == null) return null;
         return (root, query, cb) -> cb.equal(root.get(MvStockValuationView_.categorieId), familleProduitId);
     }
 }

@@ -39,6 +39,9 @@ public abstract  class StockValuationView implements Serializable {
     @Column(name = "categorie_id")
     private Integer categorieId;
 
+    @Column(name = "magasin_id")
+    private Integer magasinId;
+
     @Column(name = "purchase_price")
     private Integer purchasePrice;
 
@@ -146,6 +149,14 @@ public abstract  class StockValuationView implements Serializable {
 
     public void setCategorieId(Integer categorieId) {
         this.categorieId = categorieId;
+    }
+
+    public Integer getMagasinId() {
+        return magasinId;
+    }
+
+    public void setMagasinId(Integer magasinId) {
+        this.magasinId = magasinId;
     }
 
     public BigDecimal getMarginPercentage() {

@@ -1,0 +1,76 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-2 col-xl-2 col-md-2 col-sm-4">
+      <div class="pharma-nav-sidebar">
+        <div class="pharma-nav-sidebar-card">
+          <div class="pharma-nav-sidebar-header">
+            <i class="pi pi-chart-line"></i>
+            <span>Finance &amp; Rentabilité</span>
+          </div>
+
+          <div class="pharma-nav-sidebar-content">
+            <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav orientation="vertical">
+
+              @if (showPnlAnalytique()) {
+                <ng-container ngbNavItem="pnl-analytique">
+                  <a class="pharma-nav-vertical-link" ngbNavLink>
+                    <i class="pi pi-wallet"></i>
+                    <span>Marges &amp; Résultat</span>
+                    <span class="link-arrow">›</span>
+                  </a>
+                  <ng-template ngbNavContent>
+                    <app-pnl-analytique></app-pnl-analytique>
+                  </ng-template>
+                </ng-container>
+              }
+
+              @if (showVieillissement()) {
+                <ng-container ngbNavItem="vieillissement-creances">
+                  <a class="pharma-nav-vertical-link" ngbNavLink>
+                    <i class="pi pi-clock"></i>
+                    <span>Vieillissement Créances</span>
+                    <span class="link-arrow">›</span>
+                  </a>
+                  <ng-template ngbNavContent>
+                    <app-vieillissement-creances></app-vieillissement-creances>
+                  </ng-template>
+                </ng-container>
+              }
+
+              @if (showConcentration()) {
+                <ng-container ngbNavItem="concentration-payers">
+                  <a class="pharma-nav-vertical-link" ngbNavLink>
+                    <i class="pi pi-sitemap"></i>
+                    <span>Concentration Payeurs</span>
+                    <span class="link-arrow">›</span>
+                  </a>
+                  <ng-template ngbNavContent>
+                    <app-concentration-payers></app-concentration-payers>
+                  </ng-template>
+                </ng-container>
+              }
+
+              @if (showCashFlowBfr()) {
+                <ng-container ngbNavItem="cash-flow-bfr">
+                  <a class="pharma-nav-vertical-link" ngbNavLink>
+                    <i class="pi pi-money-bill"></i>
+                    <span>BFR & Cycle d'exploitation</span>
+                    <span class="link-arrow">›</span>
+                  </a>
+                  <ng-template ngbNavContent>
+                    <app-cash-flow-bfr></app-cash-flow-bfr>
+                  </ng-template>
+                </ng-container>
+              }
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-10 col-xl-10 col-md-10 col-sm-8 pharma-smart-content p-2">
+      <div [ngbNavOutlet]="nav"></div>
+    </div>
+  </div>
+</div>

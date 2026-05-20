@@ -1,78 +1,31 @@
 package com.kobe.warehouse.service.report;
 
+import com.kobe.warehouse.repository.ComparativeReportRepository;
 import com.kobe.warehouse.service.dto.report.*;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
-import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.sql.Date;
 import java.time.LocalDate;
 import java.time.format.TextStyle;
 import java.util.*;
-import java.util.stream.Collectors;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-import org.xhtmlrenderer.pdf.ITextRenderer;
 
 @Service
 @Transactional(readOnly = true)
 public class ComparativeReportServiceImpl implements ComparativeReportService {
 
-    private final EntityManager entityManager;
+    private final ComparativeReportRepository comparativeReportRepository;
 
-    public ComparativeReportServiceImpl(EntityManager entityManager) {
-        this.entityManager = entityManager;
-
+    public ComparativeReportServiceImpl(ComparativeReportRepository comparativeReportRepository) {
+        this.comparativeReportRepository = comparativeReportRepository;
     }
 
     @Override
     @Cacheable(value = "comparativeReports", key = "'monthly_' + #year")
     public List<ComparativeCADTO> getMonthlyComparison(Integer year) {
-        String sql =
-            "WITH current_year AS (" +
-            "  SELECT " +
-            "    EXTRACT(MONTH FROM s.sale_date) as month, " +
-            "    SUM(s.sales_amount - s.discount_amount) as ca, " +
-            "    COUNT(DISTINCT s.id) as nb_trans " +
-            "  FROM sales s " +
-            "  WHERE s.statut = 'CLOSED' " +
-            "    AND s.canceled = false " +
-            "    AND s.ca = 'CA' " +
-            "    AND EXTRACT(YEAR FROM s.sale_date) = :currentYear " +
-            "  GROUP BY month " +
-            "), " +
-            "previous_year AS (" +
-            "  SELECT " +
-            "    EXTRACT(MONTH FROM s.sale_date) as month, " +
-            "    SUM(s.sales_amount - s.discount_amount) as ca, " +
-            "    COUNT(DISTINCT s.id) as nb_trans " +
-            "  FROM sales s " +
-            "  WHERE s.statut = 'CLOSED' " +
-            "    AND s.canceled = false " +
-            "    AND s.ca = 'CA' " +
-            "    AND EXTRACT(YEAR FROM s.sale_date) = :previousYear " +
-            "  GROUP BY month " +
-            ") " +
-            "SELECT " +
-            "  cy.month, " +
-            "  COALESCE(cy.ca, 0) as current_ca, " +
-            "  COALESCE(py.ca, 0) as previous_ca, " +
-            "  COALESCE(cy.nb_trans, 0) as current_trans, " +
-            "  COALESCE(py.nb_trans, 0) as previous_trans " +
-            "FROM current_year cy " +
-            "LEFT JOIN previous_year py ON cy.month = py.month " +
-            "ORDER BY cy.month";
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("currentYear", year);
-        query.setParameter("previousYear", year - 1);
-
-        List<Object[]> results = query.getResultList();
-        return results
+        return comparativeReportRepository
+            .findMonthlyComparison(year, year - 1)
             .stream()
             .map(row -> {
                 int month = ((Number) row[0]).intValue();
@@ -102,47 +55,8 @@ public class ComparativeReportServiceImpl implements ComparativeReportService {
     @Override
     @Cacheable(value = "comparativeReports", key = "'quarterly_' + #year")
     public List<ComparativeCADTO> getQuarterlyComparison(Integer year) {
-        String sql =
-            "WITH current_year AS (" +
-            "  SELECT " +
-            "    EXTRACT(QUARTER FROM s.sale_date) as quarter, " +
-            "    SUM(s.sales_amount - s.discount_amount) as ca, " +
-            "    COUNT(DISTINCT s.id) as nb_trans " +
-            "  FROM sales s " +
-            "  WHERE s.statut = 'CLOSED' " +
-            "    AND s.canceled = false " +
-            "    AND s.ca = 'CA' " +
-            "    AND EXTRACT(YEAR FROM s.sale_date) = :currentYear " +
-            "  GROUP BY quarter " +
-            "), " +
-            "previous_year AS (" +
-            "  SELECT " +
-            "    EXTRACT(QUARTER FROM s.sale_date) as quarter, " +
-            "    SUM(s.sales_amount - s.discount_amount) as ca, " +
-            "    COUNT(DISTINCT s.id) as nb_trans " +
-            "  FROM sales s " +
-            "  WHERE s.statut = 'CLOSED' " +
-            "    AND s.canceled = false " +
-            "    AND s.ca = 'CA' " +
-            "    AND EXTRACT(YEAR FROM s.sale_date) = :previousYear " +
-            "  GROUP BY quarter " +
-            ") " +
-            "SELECT " +
-            "  cy.quarter, " +
-            "  COALESCE(cy.ca, 0) as current_ca, " +
-            "  COALESCE(py.ca, 0) as previous_ca, " +
-            "  COALESCE(cy.nb_trans, 0) as current_trans, " +
-            "  COALESCE(py.nb_trans, 0) as previous_trans " +
-            "FROM current_year cy " +
-            "LEFT JOIN previous_year py ON cy.quarter = py.quarter " +
-            "ORDER BY cy.quarter";
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("currentYear", year);
-        query.setParameter("previousYear", year - 1);
-
-        List<Object[]> results = query.getResultList();
-        return results
+        return comparativeReportRepository
+            .findQuarterlyComparison(year, year - 1)
             .stream()
             .map(row -> {
                 Integer quarter = ((Number) row[0]).intValue();
@@ -151,14 +65,12 @@ public class ComparativeReportServiceImpl implements ComparativeReportService {
                 Integer currentTrans = row[3] != null ? ((Number) row[3]).intValue() : 0;
                 Integer previousTrans = row[4] != null ? ((Number) row[4]).intValue() : 0;
 
-                // First month of the quarter
                 int firstMonthOfQuarter = (quarter - 1) * 3 + 1;
                 LocalDate period = LocalDate.of(year, firstMonthOfQuarter, 1);
-                String periodLabel = "T" + quarter + " " + year;
 
                 return new ComparativeCADTO(
                     period,
-                    periodLabel,
+                    "T" + quarter + " " + year,
                     currentCA,
                     previousCA,
                     calculateEvolution(currentCA, previousCA),
@@ -174,26 +86,8 @@ public class ComparativeReportServiceImpl implements ComparativeReportService {
     @Override
     @Cacheable(value = "comparativeReports", key = "'yearly_' + #startDate + '_' + #endDate")
     public List<ComparativeCADTO> getYearlyComparison(LocalDate startDate, LocalDate endDate) {
-        String sql =
-            "SELECT " +
-            "  EXTRACT(YEAR FROM s.sale_date) as year, " +
-            "  SUM(s.sales_amount - s.discount_amount) as ca, " +
-            "  COUNT(DISTINCT s.id) as nb_trans " +
-            "FROM sales s " +
-            "WHERE s.statut = 'CLOSED' " +
-            "  AND s.canceled = false " +
-            "  AND s.ca = 'CA' " +
-            "  AND s.sale_date BETWEEN :startDate AND :endDate " +
-            "GROUP BY year " +
-            "ORDER BY year";
+        List<Object[]> results = comparativeReportRepository.findYearlyComparison(startDate, endDate);
 
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("startDate", startDate);
-        query.setParameter("endDate", endDate);
-
-        List<Object[]> results = query.getResultList();
-
-        // Pair consecutive years for comparison
         List<ComparativeCADTO> comparisons = new ArrayList<>();
         for (int i = 1; i < results.size(); i++) {
             Object[] current = results.get(i);
@@ -202,26 +96,20 @@ public class ComparativeReportServiceImpl implements ComparativeReportService {
             Integer year = ((Number) current[0]).intValue();
             Long currentCA = ((Number) current[1]).longValue();
             Integer currentTrans = ((Number) current[2]).intValue();
-
             Long previousCA = ((Number) previous[1]).longValue();
             Integer previousTrans = ((Number) previous[2]).intValue();
 
-            LocalDate period = LocalDate.of(year, 1, 1);
-            String periodLabel = String.valueOf(year);
-
-            comparisons.add(
-                new ComparativeCADTO(
-                    period,
-                    periodLabel,
-                    currentCA,
-                    previousCA,
-                    calculateEvolution(currentCA, previousCA),
-                    BigDecimal.valueOf(currentCA - previousCA),
-                    currentTrans,
-                    previousTrans,
-                    "YEARLY"
-                )
-            );
+            comparisons.add(new ComparativeCADTO(
+                LocalDate.of(year, 1, 1),
+                String.valueOf(year),
+                currentCA,
+                previousCA,
+                calculateEvolution(currentCA, previousCA),
+                BigDecimal.valueOf(currentCA - previousCA),
+                currentTrans,
+                previousTrans,
+                "YEARLY"
+            ));
         }
         return comparisons;
     }
@@ -229,47 +117,8 @@ public class ComparativeReportServiceImpl implements ComparativeReportService {
     @Override
     @Cacheable(value = "comparativeReports", key = "'by_type_' + #currentYear + '_' + #previousYear")
     public List<ComparativeByTypeDTO> getComparisonBySalesType(Integer currentYear, Integer previousYear) {
-        String sql =
-            "WITH current_year AS (" +
-            "  SELECT " +
-            "    s.nature_vente as type, " +
-            "    SUM(s.sales_amount - s.discount_amount) as ca, " +
-            "    COUNT(DISTINCT s.id) as count " +
-            "  FROM sales s " +
-            "  WHERE s.statut = 'CLOSED' " +
-            "    AND s.canceled = false " +
-            "    AND s.ca = 'CA' " +
-            "    AND EXTRACT(YEAR FROM s.sale_date) = :currentYear " +
-            "  GROUP BY s.nature_vente " +
-            "), " +
-            "previous_year AS (" +
-            "  SELECT " +
-            "    s.nature_vente as type, " +
-            "    SUM(s.sales_amount - s.discount_amount) as ca, " +
-            "    COUNT(DISTINCT s.id) as count " +
-            "  FROM sales s " +
-            "  WHERE s.statut = 'CLOSED' " +
-            "    AND s.canceled = false " +
-            "    AND s.ca = 'CA' " +
-            "    AND EXTRACT(YEAR FROM s.sale_date) = :previousYear " +
-            "  GROUP BY s.nature_vente " +
-            ") " +
-            "SELECT " +
-            "  COALESCE(cy.type, py.type) as type, " +
-            "  COALESCE(cy.ca, 0) as current_ca, " +
-            "  COALESCE(py.ca, 0) as previous_ca, " +
-            "  COALESCE(cy.count, 0) as current_count, " +
-            "  COALESCE(py.count, 0) as previous_count " +
-            "FROM current_year cy " +
-            "FULL OUTER JOIN previous_year py ON cy.type = py.type " +
-            "ORDER BY COALESCE(cy.ca, 0) DESC";
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("currentYear", currentYear);
-        query.setParameter("previousYear", previousYear);
-
-        List<Object[]> results = query.getResultList();
-        return results
+        return comparativeReportRepository
+            .findComparisonBySalesType(currentYear, previousYear)
             .stream()
             .map(row -> {
                 String type = (String) row[0];
@@ -297,23 +146,20 @@ public class ComparativeReportServiceImpl implements ComparativeReportService {
         LocalDate today = LocalDate.now();
         int currentYear = today.getYear();
 
-        // Year to date
         LocalDate ytdStart = LocalDate.of(currentYear, 1, 1);
         LocalDate previousYtdStart = LocalDate.of(currentYear - 1, 1, 1);
         LocalDate previousYtdEnd = LocalDate.of(currentYear - 1, today.getMonthValue(), today.getDayOfMonth());
 
-        long ytdCurrent = getPeriodCA(ytdStart, today);
-        long ytdPrevious = getPeriodCA(previousYtdStart, previousYtdEnd);
+        long ytdCurrent = comparativeReportRepository.getPeriodCA(ytdStart, today);
+        long ytdPrevious = comparativeReportRepository.getPeriodCA(previousYtdStart, previousYtdEnd);
 
-        // Last 12 months
         LocalDate last12Start = today.minusMonths(12);
         LocalDate previous12Start = last12Start.minusYears(1);
         LocalDate previous12End = last12Start.minusDays(1);
 
-        long last12CA = getPeriodCA(last12Start, today);
-        long previous12CA = getPeriodCA(previous12Start, previous12End);
+        long last12CA = comparativeReportRepository.getPeriodCA(last12Start, today);
+        long previous12CA = comparativeReportRepository.getPeriodCA(previous12Start, previous12End);
 
-        // Best and worst months in current year
         List<ComparativeCADTO> monthlyData = getMonthlyComparison(currentYear);
         ComparativeCADTO bestMonth = monthlyData
             .stream()
@@ -325,7 +171,6 @@ public class ComparativeReportServiceImpl implements ComparativeReportService {
             .min(Comparator.comparingLong(ComparativeCADTO::currentCA))
             .orElse(null);
 
-        // Average monthly CA
         BigDecimal avgMonthlyCA = monthlyData.isEmpty()
             ? BigDecimal.ZERO
             : BigDecimal.valueOf(monthlyData.stream().mapToLong(ComparativeCADTO::currentCA).average().orElse(0));
@@ -352,23 +197,58 @@ public class ComparativeReportServiceImpl implements ComparativeReportService {
         );
     }
 
+    @Override
+    @Cacheable(value = "comparativeReports", key = "'by_family_' + #currentYear + '_' + #previousYear")
+    public List<ComparativeByFamilyDTO> getComparisonByFamily(Integer currentYear, Integer previousYear) {
+        return comparativeReportRepository
+            .findComparisonByFamily(currentYear, previousYear)
+            .stream()
+            .map(row -> {
+                Integer familleId     = row[0] != null ? ((Number) row[0]).intValue() : null;
+                String familleLibelle = (String) row[1];
+                Long currentCA        = row[2] != null ? ((Number) row[2]).longValue() : 0L;
+                Long previousCA       = row[3] != null ? ((Number) row[3]).longValue() : 0L;
+                Integer currentCount  = row[4] != null ? ((Number) row[4]).intValue() : 0;
+                Integer previousCount = row[5] != null ? ((Number) row[5]).intValue() : 0;
+                return new ComparativeByFamilyDTO(
+                    familleId,
+                    familleLibelle,
+                    currentCA,
+                    previousCA,
+                    calculateEvolution(currentCA, previousCA),
+                    BigDecimal.valueOf(currentCA - previousCA),
+                    currentCount,
+                    previousCount
+                );
+            })
+            .toList();
+    }
 
-    // Helper methods
-
-    private long getPeriodCA(LocalDate start, LocalDate end) {
-        String sql =
-            "SELECT COALESCE(SUM(s.sales_amount - s.discount_amount), 0) " +
-            "FROM sales s " +
-            "WHERE s.statut = 'CLOSED' " +
-            "  AND s.canceled = false " +
-            "  AND s.ca = 'CA' " +
-            "  AND s.sale_date BETWEEN :start AND :end";
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("start", start);
-        query.setParameter("end", end);
-
-        return ((Number) query.getSingleResult()).longValue();
+    @Override
+    @Cacheable(value = "comparativeReports", key = "'by_fournisseur_' + #currentYear + '_' + #previousYear")
+    public List<ComparativeByFournisseurDTO> getComparisonByFournisseur(Integer currentYear, Integer previousYear) {
+        return comparativeReportRepository
+            .findComparisonByFournisseur(currentYear, previousYear)
+            .stream()
+            .map(row -> {
+                Integer fournisseurId      = row[0] != null ? ((Number) row[0]).intValue() : null;
+                String fournisseurLibelle  = (String) row[1];
+                Long currentCA             = row[2] != null ? ((Number) row[2]).longValue() : 0L;
+                Long previousCA            = row[3] != null ? ((Number) row[3]).longValue() : 0L;
+                Integer currentCount       = row[4] != null ? ((Number) row[4]).intValue() : 0;
+                Integer previousCount      = row[5] != null ? ((Number) row[5]).intValue() : 0;
+                return new ComparativeByFournisseurDTO(
+                    fournisseurId,
+                    fournisseurLibelle,
+                    currentCA,
+                    previousCA,
+                    calculateEvolution(currentCA, previousCA),
+                    BigDecimal.valueOf(currentCA - previousCA),
+                    currentCount,
+                    previousCount
+                );
+            })
+            .toList();
     }
 
     private BigDecimal calculateEvolution(Long current, Long previous) {

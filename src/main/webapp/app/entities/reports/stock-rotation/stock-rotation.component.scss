@@ -1,3 +1,18 @@
 @use 'app/shared/scss/table-common' as *;
 @use 'app/shared/scss/pharma-toolbar' as *;
 @use 'app/shared/scss/dashboard-common' as *;
+@use 'app/shared/scss/kpi-strip' as *;
+
+.rotation-badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: #fff;
+
+  &.rotation-a { background-color: #388e3c; }
+  &.rotation-b { background-color: #1565c0; }
+  &.rotation-c { background-color: #e65100; }
+}

@@ -1,29 +1,25 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
-import {HttpResponse} from '@angular/common/http';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
+import { Component, inject, OnInit, signal } from "@angular/core";
+import { HttpResponse } from "@angular/common/http";
+import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 
-import {TableModule} from 'primeng/table';
-import {ButtonModule} from 'primeng/button';
-import {SelectModule} from 'primeng/select';
-import {ToolbarModule} from 'primeng/toolbar';
-import {DividerModule} from 'primeng/divider';
-import {Tag} from 'primeng/tag';
-import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
+import { TableModule } from "primeng/table";
+import { ButtonModule } from "primeng/button";
+import { SelectModule } from "primeng/select";
+import { ToolbarModule } from "primeng/toolbar";
+import { DividerModule } from "primeng/divider";
+import { Tag } from "primeng/tag";
 
-import {
-  CustomerClassification,
-  ICustomerSegmentation
-} from 'app/shared/model/report/customer-segmentation.model';
-import {CustomerSegmentationReportService} from '../services/customer-segmentation-report.service';
-import {TauriPrinterService} from "../../../shared/services/tauri-printer.service";
-import {handleBlobForTauri} from "../../../shared/util/tauri-util";
+import { CustomerClassification, ICustomerSegmentation } from "app/shared/model/report/customer-segmentation.model";
+import { CustomerSegmentationReportService } from "../services/customer-segmentation-report.service";
+import { TauriPrinterService } from "../../../shared/services/tauri-printer.service";
+import { handleBlobForTauri } from "../../../shared/util/tauri-util";
 
 @Component({
-  selector: 'jhi-customer-segmentation',
-  templateUrl: './customer-segmentation.component.html',
-  styleUrl: './customer-segmentation.component.scss',
-  imports: [CommonModule, FormsModule, TableModule, ButtonModule, SelectModule, ToolbarModule, DividerModule, WarehouseCommonModule, Tag],
+  selector: "jhi-customer-segmentation",
+  templateUrl: "./customer-segmentation.component.html",
+  styleUrl: "./customer-segmentation.component.scss",
+  imports: [CommonModule, FormsModule, TableModule, ButtonModule, SelectModule, ToolbarModule, DividerModule, Tag]
 })
 export default class CustomerSegmentationComponent implements OnInit {
   customers = signal<ICustomerSegmentation[]>([]);
@@ -34,14 +30,14 @@ export default class CustomerSegmentationComponent implements OnInit {
   showAtRiskOnly = signal<boolean>(false);
 
   classificationOptions = [
-    {label: 'Toutes les classifications', value: null},
-    {label: 'Champions', value: CustomerClassification.CHAMPION},
-    {label: 'Fidèles', value: CustomerClassification.LOYAL},
-    {label: 'Gros dépensiers', value: CustomerClassification.BIG_SPENDER},
-    {label: 'Actifs', value: CustomerClassification.ACTIVE},
-    {label: 'À risque', value: CustomerClassification.AT_RISK},
-    {label: "Besoin d'attention", value: CustomerClassification.NEED_ATTENTION},
-    {label: 'Inactifs', value: CustomerClassification.INACTIVE},
+    { label: "Toutes les classifications", value: null },
+    { label: "Champions", value: CustomerClassification.CHAMPION },
+    { label: "Fidèles", value: CustomerClassification.LOYAL },
+    { label: "Gros dépensiers", value: CustomerClassification.BIG_SPENDER },
+    { label: "Actifs", value: CustomerClassification.ACTIVE },
+    { label: "À risque", value: CustomerClassification.AT_RISK },
+    { label: "Besoin d'attention", value: CustomerClassification.NEED_ATTENTION },
+    { label: "Inactifs", value: CustomerClassification.INACTIVE }
   ];
 
   private readonly customerSegmentationService = inject(CustomerSegmentationReportService);
@@ -76,7 +72,7 @@ export default class CustomerSegmentationComponent implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
-      },
+      }
     });
   }
 
@@ -86,8 +82,8 @@ export default class CustomerSegmentationComponent implements OnInit {
         this.classificationCounts.set(res.body ?? {});
       },
       error() {
-        console.error('Error loading classification counts');
-      },
+        console.error("Error loading classification counts");
+      }
     });
   }
 
@@ -161,47 +157,47 @@ export default class CustomerSegmentationComponent implements OnInit {
 
   getClassificationSeverity(classification: CustomerClassification | undefined): string {
     if (!classification) {
-      return 'secondary';
+      return "secondary";
     }
     switch (classification) {
       case CustomerClassification.CHAMPION:
-        return 'success';
+        return "success";
       case CustomerClassification.LOYAL:
-        return 'success';
+        return "success";
       case CustomerClassification.BIG_SPENDER:
-        return 'info';
+        return "info";
       case CustomerClassification.ACTIVE:
-        return 'info';
+        return "info";
       case CustomerClassification.AT_RISK:
-        return 'warn';
+        return "warn";
       case CustomerClassification.NEED_ATTENTION:
-        return 'warn';
+        return "warn";
       case CustomerClassification.INACTIVE:
-        return 'danger';
+        return "danger";
       default:
-        return 'secondary';
+        return "secondary";
     }
   }
 
   getClassificationLabel(classification: CustomerClassification | undefined): string {
     if (!classification) {
-      return 'N/A';
+      return "N/A";
     }
     switch (classification) {
       case CustomerClassification.CHAMPION:
-        return 'Champion';
+        return "Champion";
       case CustomerClassification.LOYAL:
-        return 'Fidèle';
+        return "Fidèle";
       case CustomerClassification.BIG_SPENDER:
-        return 'Gros dépensier';
+        return "Gros dépensier";
       case CustomerClassification.ACTIVE:
-        return 'Actif';
+        return "Actif";
       case CustomerClassification.AT_RISK:
-        return 'À risque';
+        return "À risque";
       case CustomerClassification.NEED_ATTENTION:
         return "Besoin d'attention";
       case CustomerClassification.INACTIVE:
-        return 'Inactif';
+        return "Inactif";
       default:
         return classification;
     }
@@ -209,33 +205,33 @@ export default class CustomerSegmentationComponent implements OnInit {
 
   getRFMScoreSeverity(score: number | undefined): string {
     if (!score) {
-      return 'secondary';
+      return "secondary";
     }
     if (score >= 9) {
-      return 'success';
+      return "success";
     }
     if (score >= 6) {
-      return 'info';
+      return "info";
     }
     if (score >= 3) {
-      return 'warn';
+      return "warn";
     }
-    return 'danger';
+    return "danger";
   }
 
   getRecencySeverity(days: number | undefined): string {
     if (!days) {
-      return 'secondary';
+      return "secondary";
     }
     if (days <= 30) {
-      return 'success';
+      return "success";
     }
     if (days <= 90) {
-      return 'info';
+      return "info";
     }
     if (days <= 180) {
-      return 'warn';
+      return "warn";
     }
-    return 'danger';
+    return "danger";
   }
 }

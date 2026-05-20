@@ -38,148 +38,91 @@
     </p-toolbar>
   </div>
 
-  <!-- Summary Cards -->
-  @if (summary()) {
-    <div class="row mt-3">
-      <div class="col-12 col-md-4 mb-2">
-        <div class="card h-100 kpi-card primary-accent">
-          <div class="card-body">
-            <div class="kpi-header">
-              <div class="kpi-content">
-                <p class="kpi-label">Fournisseurs Total</p>
-                <h4 class="kpi-value">
-                  <span>{{ formatNumber(summary()?.totalSuppliers) }}</span>
-                </h4>
-                <div class="kpi-badges">
-                  <span class="badge bg-primary-subtle text-primary">Actifs</span>
-                </div>
-              </div>
-              <div class="kpi-icon text-primary">
-                <i class="pi pi-users"></i>
-              </div>
-            </div>
-          </div>
+  <!-- View toggle -->
+  <div class="dashboard-periode-selector mt-2">
+    <button type="button" class="periode-pill" [class.active]="activeView() === 'table'" (click)="setView('table')">
+      <i class="pi pi-table"></i>
+      <span class="pill-label">Tableau</span>
+    </button>
+    <button type="button" class="periode-pill" [class.active]="activeView() === 'evolution'" (click)="setView('evolution')">
+      <i class="pi pi-chart-line"></i>
+      <span class="pill-label">Évolution N vs N-1</span>
+    </button>
+  </div>
+
+  <!-- KPI Strip -->
+  @if (summary() && activeView() === 'table') {
+    <div class="kpi-strip mt-2 mb-2">
+
+      <div class="kpi-strip-item primary-accent">
+        <i class="pi pi-users text-primary"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">Fournisseurs</span>
+          <span class="kpi-strip-value text-primary">{{ formatNumber(summary()?.totalSuppliers) }}</span>
+          <span class="kpi-strip-sub">actifs</span>
         </div>
       </div>
 
-      <div class="col-12 col-md-4 mb-2">
-        <div class="card h-100 kpi-card success-accent">
-          <div class="card-body">
-            <div class="kpi-header">
-              <div class="kpi-content">
-                <p class="kpi-label">Achats 30 Jours</p>
-                <h4 class="kpi-value">
-                  <span>{{ formatCurrency(summary()?.totalPurchaseAmountLast30Days) }}</span>
-                  <span class="value-suffix">FCFA</span>
-                </h4>
-                <div class="kpi-badges">
-                  <span class="badge bg-success-subtle text-success">{{
-                      formatNumber(summary()?.totalOrdersLast30Days)
-                    }} commandes</span>
-                </div>
-              </div>
-              <div class="kpi-icon text-success">
-                <i class="pi pi-calendar"></i>
-              </div>
-            </div>
-          </div>
+      <div class="kpi-strip-divider"></div>
+
+      <div class="kpi-strip-item success-accent">
+        <i class="pi pi-calendar text-success"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">Achats 30 jours</span>
+          <span class="kpi-strip-value text-success">{{ formatCurrency(summary()?.totalPurchaseAmountLast30Days) }} <small>FCFA</small></span>
+          <span class="kpi-strip-sub">{{ formatNumber(summary()?.totalOrdersLast30Days) }} commandes</span>
         </div>
       </div>
 
-      <div class="col-12 col-md-4 mb-2">
-        <div class="card h-100 kpi-card warning-accent">
-          <div class="card-body">
-            <div class="kpi-header">
-              <div class="kpi-content">
-                <p class="kpi-label">Achats 12 Mois</p>
-                <h4 class="kpi-value">
-                  <span>{{ formatCurrency(summary()?.totalPurchaseAmountLast12Months) }}</span>
-                  <span class="value-suffix">FCFA</span>
-                </h4>
-                <div class="kpi-badges">
-                  <span class="badge bg-warning-subtle text-warning">{{
-                      formatNumber(summary()?.totalOrdersLast12Months)
-                    }} commandes</span>
-                </div>
-              </div>
-              <div class="kpi-icon text-warning">
-                <i class="pi pi-chart-line"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+      <div class="kpi-strip-divider"></div>
 
-    <div class="row mt-2">
-      <div class="col-12 col-md-4 mb-2">
-        <div class="card h-100 kpi-card danger-accent">
-          <div class="card-body">
-            <div class="kpi-header">
-              <div class="kpi-content">
-                <p class="kpi-label">Délai Moyen Livraison</p>
-                <h4 class="kpi-value">
-                  <span>{{ formatDecimal(summary()?.avgDeliveryDays, 1) }}</span>
-                  <span class="value-suffix">jours</span>
-                </h4>
-                <div class="kpi-badges">
-                  <span class="badge bg-danger-subtle text-danger">Temps de livraison</span>
-                </div>
-              </div>
-              <div class="kpi-icon text-danger">
-                <i class="pi pi-truck"></i>
-              </div>
-            </div>
-          </div>
+      <div class="kpi-strip-item warning-accent">
+        <i class="pi pi-chart-line text-warning"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">Achats 12 mois</span>
+          <span class="kpi-strip-value text-warning">{{ formatCurrency(summary()?.totalPurchaseAmountLast12Months) }} <small>FCFA</small></span>
+          <span class="kpi-strip-sub">{{ formatNumber(summary()?.totalOrdersLast12Months) }} commandes</span>
         </div>
       </div>
 
-      <div class="col-12 col-md-4 mb-2">
-        <div class="card h-100 kpi-card primary-accent">
-          <div class="card-body">
-            <div class="kpi-header">
-              <div class="kpi-content">
-                <p class="kpi-label">Conformité Moyenne</p>
-                <h4 class="kpi-value">
-                  <span>{{ formatDecimal(summary()?.avgConformityRate, 1) }}</span>
-                  <span class="value-suffix">%</span>
-                </h4>
-                <div class="kpi-badges">
-                  <span class="badge bg-primary-subtle text-primary">Taux de qualité</span>
-                </div>
-              </div>
-              <div class="kpi-icon text-primary">
-                <i class="pi pi-check-circle"></i>
-              </div>
-            </div>
-          </div>
+      <div class="kpi-strip-divider"></div>
+
+      <div class="kpi-strip-item danger-accent">
+        <i class="pi pi-truck text-danger"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">Délai moyen</span>
+          <span class="kpi-strip-value text-danger">{{ formatDecimal(summary()?.avgDeliveryDays, 1) }} <small>jours</small></span>
+          <span class="kpi-strip-sub">livraison</span>
         </div>
       </div>
 
-      <div class="col-12 col-md-4 mb-2">
-        <div class="card h-100 kpi-card success-accent">
-          <div class="card-body">
-            <div class="kpi-header">
-              <div class="kpi-content">
-                <p class="kpi-label">Performance Excellente</p>
-                <h4 class="kpi-value">
-                  <span>{{ formatNumber(summary()?.suppliersWithGoodPerformance) }}</span>
-                </h4>
-                <div class="kpi-badges">
-                  <span class="badge bg-success-subtle text-success">Score ≥ 70</span>
-                </div>
-              </div>
-              <div class="kpi-icon text-success">
-                <i class="pi pi-star-fill"></i>
-              </div>
-            </div>
-          </div>
+      <div class="kpi-strip-divider"></div>
+
+      <div class="kpi-strip-item primary-accent">
+        <i class="pi pi-check-circle text-primary"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">Conformité moy.</span>
+          <span class="kpi-strip-value text-primary">{{ formatDecimal(summary()?.avgConformityRate, 1) }} <small>%</small></span>
+          <span class="kpi-strip-sub">taux de qualité</span>
         </div>
       </div>
+
+      <div class="kpi-strip-divider"></div>
+
+      <div class="kpi-strip-item success-accent">
+        <i class="pi pi-star-fill text-success"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">Perf. excellente</span>
+          <span class="kpi-strip-value text-success">{{ formatNumber(summary()?.suppliersWithGoodPerformance) }}</span>
+          <span class="kpi-strip-sub">score ≥ 70</span>
+        </div>
+      </div>
+
     </div>
   }
 
   <!-- Suppliers Table -->
+  @if (activeView() === 'table') {
   <div class="row mt-3">
     <div class="col-12 mb-2">
       <div class="card h-100 data-card">
@@ -190,18 +133,18 @@
           </h5>
         </div>
         <div class="card-body p-0">
-          <div class="overflow-x-auto">
-            <p-table
-              [loading]="isLoading()"
-              [paginator]="true"
-              [rowsPerPageOptions]="[10, 25, 50, 100]"
-              [rows]="25"
-              [showCurrentPageReport]="true"
-              [tableStyle]="{ 'min-width': '100rem' }"
-              [value]="getFilteredSuppliers()"
-              class="p-datatable-sm"
-              currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} fournisseurs"
-            >
+          <p-table
+            [loading]="isLoading()"
+            [paginator]="true"
+            [rowsPerPageOptions]="[10, 25, 50, 100]"
+            [rows]="25"
+            [scrollable]="true"
+            [showCurrentPageReport]="true"
+            [value]="getFilteredSuppliers()"
+            class="p-datatable-sm"
+            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} fournisseurs"
+            scrollHeight="500px"
+          >
               <ng-template #header>
                 <tr class="pharma-table-head">
                   <th>Code</th>
@@ -288,11 +231,110 @@
                 </tr>
               </ng-template>
             </p-table>
-          </div>
         </div>
       </div>
     </div>
   </div>
+  } <!-- end @if activeView === 'table' -->
+
+  <!-- Evolution Charts -->
+  @if (activeView() === 'evolution') {
+    @if (isEvolutionLoading()) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Chargement…</span>
+        </div>
+      </div>
+    }
+    @if (!isEvolutionLoading() && evolution()) {
+      <div class="row mt-3">
+        <div class="col-12 mb-3">
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-0">
+              <h6 class="mb-0 fw-semibold">
+                <i class="pi pi-shopping-cart text-primary me-2"></i>
+                Montants achats mensuels — N vs N-1
+              </h6>
+            </div>
+            <div class="card-body">
+              <div style="position: relative; height: 280px;">
+                <canvas #montantsChartCanvas></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 mb-3">
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-0">
+              <h6 class="mb-0 fw-semibold">
+                <i class="pi pi-truck text-danger me-2"></i>
+                Délai moyen livraison mensuel — N vs N-1
+                <span class="ms-2 badge bg-success-subtle text-success">≤ 7j idéal</span>
+              </h6>
+            </div>
+            <div class="card-body">
+              <div style="position: relative; height: 280px;">
+                <canvas #delaisChartCanvas></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-0">
+              <h6 class="mb-0 fw-semibold">
+                <i class="pi pi-list text-info me-2"></i>
+                Tableau comparatif mensuel
+              </h6>
+            </div>
+            <div class="card-body p-0">
+              <table class="table table-sm mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Mois</th>
+                    <th class="text-end">Achats N</th>
+                    <th class="text-end">Achats N-1</th>
+                    <th class="text-end">Variation</th>
+                    <th class="text-center">Délai N</th>
+                    <th class="text-center">Délai N-1</th>
+                    <th class="text-center">Cdes N</th>
+                    <th class="text-center">Cdes N-1</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (label of evolution()!.labels; track label; let i = $index) {
+                    @let montN = evolution()!.montantsN![i] ?? 0;
+                    @let montN1 = evolution()!.montantsN1![i] ?? 0;
+                    @let varPct = montN1 > 0 ? ((montN - montN1) / montN1 * 100) : null;
+                    <tr>
+                      <td class="fw-semibold small">{{ label }}</td>
+                      <td class="text-end small">{{ formatCurrency(montN) }}</td>
+                      <td class="text-end small text-muted">{{ formatCurrency(montN1) }}</td>
+                      <td class="text-end small">
+                        @if (varPct !== null) {
+                          <span [class]="varPct >= 0 ? 'text-danger' : 'text-success'">
+                            {{ varPct >= 0 ? '+' : '' }}{{ formatDecimal(varPct, 1) }}%
+                          </span>
+                        } @else {
+                          <span class="text-muted">—</span>
+                        }
+                      </td>
+                      <td class="text-center small">{{ evolution()!.delaisN![i] ?? 0 }}j</td>
+                      <td class="text-center small text-muted">{{ evolution()!.delaisN1![i] ?? 0 }}j</td>
+                      <td class="text-center small">{{ evolution()!.nbCommandesN![i] ?? 0 }}</td>
+                      <td class="text-center small text-muted">{{ evolution()!.nbCommandesN1![i] ?? 0 }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  }
 
   <!-- Help Drawer -->
   <p-drawer [(visible)]="helpDrawerVisible" [style]="{ width: '600px' }" position="right">

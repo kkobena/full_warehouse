@@ -1,26 +1,32 @@
 package com.kobe.warehouse.service.report;
 
+import com.kobe.warehouse.repository.SupplierEvolutionRepository;
+import com.kobe.warehouse.service.dto.report.SupplierEvolutionDTO;
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceDTO;
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceSummaryDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
+import java.math.BigDecimal;
+import java.time.Month;
+import java.time.format.TextStyle;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
 public class SupplierPerformanceReportServiceImpl implements SupplierPerformanceReportService {
 
-
     private final EntityManager entityManager;
+    private final SupplierEvolutionRepository supplierEvolutionRepository;
 
-    public SupplierPerformanceReportServiceImpl(EntityManager entityManager) {
+    public SupplierPerformanceReportServiceImpl(EntityManager entityManager, SupplierEvolutionRepository supplierEvolutionRepository) {
         this.entityManager = entityManager;
+        this.supplierEvolutionRepository = supplierEvolutionRepository;
     }
 
     @Override
@@ -226,6 +232,35 @@ public class SupplierPerformanceReportServiceImpl implements SupplierPerformance
         );
     }
 
+
+    @Override
+    @Cacheable(value = "supplierPerformance", key = "'evolution'")
+    public SupplierEvolutionDTO getEvolution() {
+        List<Object[]> rows = supplierEvolutionRepository.findEvolution();
+        List<String> labels = new ArrayList<>();
+        List<Long> montantsN = new ArrayList<>();
+        List<Long> montantsN1 = new ArrayList<>();
+        List<Integer> delaisN = new ArrayList<>();
+        List<Integer> delaisN1 = new ArrayList<>();
+        List<Integer> nbCommandesN = new ArrayList<>();
+        List<Integer> nbCommandesN1 = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            int yr = ((Number) row[0]).intValue();
+            int mo = ((Number) row[1]).intValue();
+            String monthName = Month.of(mo).getDisplayName(TextStyle.SHORT, Locale.FRENCH);
+            String label = monthName.substring(0, 1).toUpperCase() + monthName.substring(1) + " " + yr;
+            labels.add(label);
+            montantsN.add(row[2] != null ? ((Number) row[2]).longValue() : 0L);
+            montantsN1.add(row[3] != null ? ((Number) row[3]).longValue() : 0L);
+            delaisN.add(row[4] != null ? ((Number) row[4]).intValue() : 0);
+            delaisN1.add(row[5] != null ? ((Number) row[5]).intValue() : 0);
+            nbCommandesN.add(row[6] != null ? ((Number) row[6]).intValue() : 0);
+            nbCommandesN1.add(row[7] != null ? ((Number) row[7]).intValue() : 0);
+        }
+
+        return new SupplierEvolutionDTO(labels, montantsN, montantsN1, delaisN, delaisN1, nbCommandesN, nbCommandesN1);
+    }
 
     private List<SupplierPerformanceDTO> mapResultsToDTO(List<Object[]> results) {
         return results.stream().map(this::mapRowToDTO).toList();

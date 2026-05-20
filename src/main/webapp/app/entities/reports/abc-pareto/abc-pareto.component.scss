@@ -1,3 +1,20 @@
 @import 'app/shared/scss/table-common';
 @import 'app/shared/scss/pharma-toolbar';
 @import 'app/shared/scss/dashboard-common';
+@import 'app/shared/scss/kpi-strip';
+
+.pareto-badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: #fff;
+
+  &.pareto-a-plus { background-color: #d32f2f; }
+  &.pareto-a      { background-color: #388e3c; }
+  &.pareto-b      { background-color: #1565c0; }
+  &.pareto-c      { background-color: #e65100; }
+  &.pareto-d      { background-color: #757575; }
+}

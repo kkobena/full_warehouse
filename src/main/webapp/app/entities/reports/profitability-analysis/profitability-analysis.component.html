@@ -76,73 +76,52 @@
     </p-toolbar>
   </div>
 
-  <!-- KPI Cards -->
+  <!-- KPI Strip -->
   @if (summary()) {
-    <div class="row mt-3">
-      <div class="col-xl-3 col-md-6 mb-2">
-        <div class="card h-100 kpi-card primary-accent">
-          <div class="card-body">
-            <div class="kpi-header">
-              <div class="kpi-content">
-                <p class="kpi-label">CA Total</p>
-                <h4 class="kpi-value">
-                  {{ summary()!.caTotalGlobal | number: '1.0-0' }}
-                  <span class="value-suffix">F CFA</span>
-                </h4>
-              </div>
-              <div class="kpi-icon text-primary"><i class="pi pi-chart-bar"></i></div>
-            </div>
-          </div>
+    <div class="kpi-strip mt-2 mb-2">
+
+      <div class="kpi-strip-item primary-accent">
+        <i class="pi pi-chart-bar text-primary"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">CA Total</span>
+          <span class="kpi-strip-value text-primary">{{ summary()!.caTotalGlobal | number: '1.0-0' }} <small>F CFA</small></span>
+          <span class="kpi-strip-sub">chiffre d'affaires</span>
         </div>
       </div>
 
-      <div class="col-xl-3 col-md-6 mb-2">
-        <div class="card h-100 kpi-card success-accent">
-          <div class="card-body">
-            <div class="kpi-header">
-              <div class="kpi-content">
-                <p class="kpi-label">Marge Brute Globale</p>
-                <h4 class="kpi-value">
-                  {{ summary()!.margeBruteGlobale | number: '1.0-0' }}
-                  <span class="value-suffix">F CFA</span>
-                </h4>
-              </div>
-              <div class="kpi-icon text-success"><i class="pi pi-money-bill"></i></div>
-            </div>
-          </div>
+      <div class="kpi-strip-divider"></div>
+
+      <div class="kpi-strip-item success-accent">
+        <i class="pi pi-money-bill text-success"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">Marge brute globale</span>
+          <span class="kpi-strip-value text-success">{{ summary()!.margeBruteGlobale | number: '1.0-0' }} <small>F CFA</small></span>
+          <span class="kpi-strip-sub">profit brut</span>
         </div>
       </div>
 
-      <div class="col-xl-3 col-md-6 mb-2">
-        <div class="card h-100 kpi-card warning-accent">
-          <div class="card-body">
-            <div class="kpi-header">
-              <div class="kpi-content">
-                <p class="kpi-label">Taux de Marge Moyen</p>
-                <h4 class="kpi-value">
-                  {{ summary()!.tauxMargeMoyen | number: '1.2-2' }}
-                  <span class="value-suffix">%</span>
-                </h4>
-              </div>
-              <div class="kpi-icon text-warning"><i class="pi pi-percentage"></i></div>
-            </div>
-          </div>
+      <div class="kpi-strip-divider"></div>
+
+      <div class="kpi-strip-item warning-accent">
+        <i class="pi pi-percentage text-warning"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">Taux de marge moyen</span>
+          <span class="kpi-strip-value text-warning">{{ summary()!.tauxMargeMoyen | number: '1.2-2' }} <small>%</small></span>
+          <span class="kpi-strip-sub">rentabilité moyenne</span>
         </div>
       </div>
 
-      <div class="col-xl-3 col-md-6 mb-2">
-        <div class="card h-100 kpi-card danger-accent">
-          <div class="card-body">
-            <div class="kpi-header">
-              <div class="kpi-content">
-                <p class="kpi-label">Total Produits analysés</p>
-                <h4 class="kpi-value">{{ summary()!.totalProduits | number }}</h4>
-              </div>
-              <div class="kpi-icon text-danger"><i class="pi pi-box"></i></div>
-            </div>
-          </div>
+      <div class="kpi-strip-divider"></div>
+
+      <div class="kpi-strip-item danger-accent">
+        <i class="pi pi-box text-danger"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">Produits analysés</span>
+          <span class="kpi-strip-value text-danger">{{ summary()!.totalProduits | number }}</span>
+          <span class="kpi-strip-sub">références</span>
         </div>
       </div>
+
     </div>
 
     <!-- Cartes marge insuffisante / bonne marge -->
@@ -207,11 +186,13 @@
             [paginator]="true"
             [rowsPerPageOptions]="[10, 20, 50]"
             [rows]="pageSize"
+            [scrollable]="true"
             [showCurrentPageReport]="true"
             [totalRecords]="totalRecords()"
             [value]="products()"
             class="p-datatable-sm"
             currentPageReportTemplate="{first} - {last} sur {totalRecords} produits"
+            scrollHeight="500px"
           >
             <ng-template #header>
               <tr class="pharma-table-head">

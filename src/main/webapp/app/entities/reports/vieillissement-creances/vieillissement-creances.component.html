@@ -1,0 +1,157 @@
+<!-- Toolbar -->
+<div class="pharma-toolbar">
+  <div class="pharma-toolbar-header">
+    <i class="pi pi-clock"></i>
+    <span class="pharma-toolbar-title">Vieillissement Créances</span>
+  </div>
+  <div class="pharma-toolbar-content">
+    <div class="pharma-toolbar-filters">
+      <span class="text-muted small"><i class="pi pi-info-circle me-1"></i>Créances tiers-payants en cours</span>
+    </div>
+    <div class="pharma-toolbar-actions">
+      <div class="dashboard-periode-selector">
+        <button class="periode-pill" [class.active]="trancheFilter() === 'all'" (click)="setTranche('all')">Tous</button>
+        <button class="periode-pill" [class.active]="trancheFilter() === '0-30'" (click)="setTranche('0-30')">0–30j</button>
+        <button class="periode-pill" [class.active]="trancheFilter() === '31-60'" (click)="setTranche('31-60')">31–60j</button>
+        <button class="periode-pill" [class.active]="trancheFilter() === '61-90'" (click)="setTranche('61-90')">61–90j</button>
+        <button class="periode-pill" [class.active]="trancheFilter() === '90+'" (click)="setTranche('90+')">
+          <i class="pi pi-exclamation-triangle"></i><span class="pill-label">&gt;90j</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading -->
+@if (isLoading()) {
+  <div class="flex justify-content-center align-items-center" style="min-height: 300px">
+    <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
+  </div>
+}
+
+@if (!isLoading()) {
+
+  <!-- ===== KPI STRIP ===== -->
+  <div class="kpi-strip mt-2 mb-2">
+    <div class="kpi-strip-item primary-accent">
+      <i class="pi pi-file-edit text-primary"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Total en cours</span>
+        <span class="kpi-strip-value text-primary">{{ formatCurrency(global()?.totalEncours) }} <small>FCFA</small></span>
+        <span class="kpi-strip-sub">{{ formatNumber(global()?.nbFactures) }} factures · {{ formatNumber(global()?.nbEnRetard) }} en retard</span>
+      </div>
+    </div>
+    <div class="kpi-strip-divider"></div>
+    <div class="kpi-strip-item success-accent">
+      <i class="pi pi-check-circle text-success"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">0 – 30 jours</span>
+        <span class="kpi-strip-value text-success">{{ formatCurrency(global()?.tranche0_30) }}</span>
+        <span class="kpi-strip-sub">{{ pctTranche().t030 }} %</span>
+      </div>
+    </div>
+    <div class="kpi-strip-divider"></div>
+    <div class="kpi-strip-item warning-accent">
+      <i class="pi pi-clock text-warning"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">31 – 60 jours</span>
+        <span class="kpi-strip-value text-warning">{{ formatCurrency(global()?.tranche31_60) }}</span>
+        <span class="kpi-strip-sub">{{ pctTranche().t3160 }} %</span>
+      </div>
+    </div>
+    <div class="kpi-strip-divider"></div>
+    <div class="kpi-strip-item warning-accent">
+      <i class="pi pi-exclamation-circle" style="color: #f97316"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">61 – 90 jours</span>
+        <span class="kpi-strip-value" style="color: #f97316">{{ formatCurrency(global()?.tranche61_90) }}</span>
+        <span class="kpi-strip-sub">{{ pctTranche().t6190 }} %</span>
+      </div>
+    </div>
+    <div class="kpi-strip-divider"></div>
+    <div class="kpi-strip-item danger-accent">
+      <i class="pi pi-exclamation-triangle text-danger"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">&gt; 90 jours</span>
+        <span class="kpi-strip-value text-danger">{{ formatCurrency(global()?.tranche90Plus) }}</span>
+        <span class="kpi-strip-sub">{{ pctTranche().t90p }} %</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SUIVI CREANCES PAR ORGANISME ===== -->
+  <div class="card data-card mb-2">
+    <div class="card-header">
+      <h5 class="card-title">
+        <i class="pi pi-building text-primary"></i>
+        Suivi des créances par organisme
+      </h5>
+    </div>
+    <div class="card-body p-0">
+      <p-table [value]="filteredOrganismes()" class="p-datatable-sm" [stripedRows]="true"
+               [paginator]="true" [rows]="15" [rowsPerPageOptions]="[15, 30, 50]"
+               [showCurrentPageReport]="true" currentPageReportTemplate="{first}–{last} sur {totalRecords} organismes"
+               [alwaysShowPaginator]="false">
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th>Organisme</th>
+            <th class="text-end">Encours (FCFA)</th>
+            <th class="text-end">0–30j</th>
+            <th class="text-end">31–60j</th>
+            <th class="text-end">61–90j</th>
+            <th class="text-end">&gt;90j</th>
+            <th class="text-end">Âge moyen (j)</th>
+            <th class="text-center">Comportement de paiement</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-org>
+          <tr>
+            <td class="fw-semibold">
+              {{ org.organisme }}
+              <small class="text-muted d-block">{{ formatNumber(org.nbFactures) }} factures · délai contractuel {{ org.delaiReglement }}j</small>
+            </td>
+            <td class="text-end fw-bold">{{ formatCurrency(org.encours) }}</td>
+            <td class="text-end text-success">{{ formatCurrency(org.tranche0_30) }}</td>
+            <td class="text-end text-warning">{{ formatCurrency(org.tranche31_60) }}</td>
+            <td class="text-end" style="color: #f97316;">{{ formatCurrency(org.tranche61_90) }}</td>
+            <td class="text-end text-danger fw-semibold">{{ formatCurrency(org.tranche90Plus) }}</td>
+            <td class="text-end">
+              <span class="fw-semibold"
+                    [class.text-danger]="(org.dsoJours ?? 0) > 90"
+                    [class.text-warning]="(org.dsoJours ?? 0) > 60 && (org.dsoJours ?? 0) <= 90">
+                {{ org.dsoJours }}j
+              </span>
+            </td>
+            <td class="text-center">
+              <span [class]="fiabiliteBadgeClass(org.fiabilite)">{{ fiabiliteLabel(org.fiabilite) }}</span>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template #emptymessage>
+          <tr>
+            <td colspan="8" class="text-center p-4">
+              <i class="pi pi-inbox text-muted" style="font-size: 2rem"></i>
+              <p class="text-muted mt-2">Aucun organisme avec des créances en cours.</p>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+
+  <!-- ===== ENCOURS MENSUEL EVOLUTION CHART ===== -->
+  @if (encoursMensuel()) {
+    <div class="card data-card">
+      <div class="card-header">
+        <h5 class="card-title">
+          <i class="pi pi-chart-bar text-primary"></i>
+          Évolution de l'encours TP — 12 mois glissants
+        </h5>
+
+      </div>
+      <div class="card-body" style="position: relative; height: 300px;">
+        <canvas #encoursMensuelChartCanvas></canvas>
+      </div>
+    </div>
+  }
+}

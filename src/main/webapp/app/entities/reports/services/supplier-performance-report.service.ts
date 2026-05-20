@@ -3,7 +3,7 @@ import { HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { SERVER_API_URL } from 'app/app.constants';
-import { ISupplierPerformance, ISupplierPerformanceSummary } from 'app/shared/model/report/supplier-performance.model';
+import { ISupplierEvolution, ISupplierPerformance, ISupplierPerformanceSummary } from 'app/shared/model/report/supplier-performance.model';
 
 type EntityArrayResponseType = HttpResponse<ISupplierPerformance[]>;
 type EntityResponseType = HttpResponse<ISupplierPerformance>;
@@ -56,6 +56,13 @@ export class SupplierPerformanceReportService {
    */
   getSupplierPerformanceSummary(): Observable<SummaryResponseType> {
     return this.http.get<ISupplierPerformanceSummary>(`${this.resourceUrl}/summary`, { observe: 'response' });
+  }
+
+  /**
+   * Get monthly N vs N-1 evolution (rolling 12 months)
+   */
+  getEvolution(): Observable<HttpResponse<ISupplierEvolution>> {
+    return this.http.get<ISupplierEvolution>(`${this.resourceUrl}/evolution`, { observe: 'response' });
   }
 
   /**

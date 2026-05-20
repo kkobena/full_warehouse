@@ -1,6 +1,7 @@
 @import 'app/shared/scss/table-common';
 @import 'app/shared/scss/pharma-toolbar';
 @import 'app/shared/scss/dashboard-common';
+@import 'app/shared/scss/kpi-strip';
 
 .evolution-positive {
   color: #4caf50;
@@ -10,4 +11,22 @@
 .evolution-negative {
   color: #f44336;
   font-weight: 600;
+}
+
+.sortable-col {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+
+  i {
+    margin-left: 0.3rem;
+    font-size: 0.75rem;
+    opacity: 0.6;
+  }
+
+  &:hover {
+    background: rgba(0, 140, 186, 0.08);
+
+    i { opacity: 1; }
+  }
 }

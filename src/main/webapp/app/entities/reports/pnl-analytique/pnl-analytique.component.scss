@@ -1,0 +1,23 @@
+@import 'app/shared/scss/dashboard-common';
+@import 'app/shared/scss/table-common';
+@import 'app/shared/scss/pharma-toolbar';
+
+.sortable {
+  cursor: pointer;
+  user-select: none;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  i {
+    font-size: 0.7rem;
+    margin-left: 0.25rem;
+  }
+}
+
+.card {
+  border-radius: 0.5rem;
+}
+
+@import 'app/shared/scss/kpi-strip';

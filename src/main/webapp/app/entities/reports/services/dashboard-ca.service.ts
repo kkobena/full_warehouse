@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { SERVER_API_URL } from 'app/app.constants';
-import { IDailyCA, IDashboardCASummary, IDashboardCAEvolution, IPaymentMethodCA, IProductFamilyCA } from 'app/shared/model/report';
+import { IBasketEvolution, IDailyCA, IDashboardCASummary, IDashboardCAEvolution, IPaymentMethodCA, IProductFamilyCA } from 'app/shared/model/report';
 import { ITopProduct } from 'app/shared/model/report/top-product.model';
 
 type EntityArrayResponseType = HttpResponse<IDailyCA[]>;
@@ -108,6 +108,13 @@ export class DashboardCAService {
   exportTopProductsToCsv(startDate: string, endDate: string): Observable<HttpResponse<Blob>> {
     const params = new HttpParams().set('startDate', startDate).set('endDate', endDate);
     return this.http.get(`${this.resourceUrl}/export/top-products/csv`, { params, observe: 'response', responseType: 'blob' });
+  }
+
+  /**
+   * Get average basket evolution over the last 12 months — GAP-C2
+   */
+  getBasketEvolution(): Observable<HttpResponse<IBasketEvolution>> {
+    return this.http.get<IBasketEvolution>(`${this.resourceUrl}/basket-evolution`, { observe: 'response' });
   }
 
   /**

@@ -35,173 +35,95 @@
     </p-toolbar>
   </div>
 
-  <!-- Customer Classification Summary Cards -->
-  <div class="row mt-3">
-    <div class="col-12 col-md-3 mb-2">
-      <div class="card h-100 kpi-card success-accent">
-        <div class="card-body">
-          <div class="kpi-header">
-            <div class="kpi-content">
-              <p class="kpi-label">Champions</p>
-              <h4 class="kpi-value">
-                <span>{{ classificationCounts().CHAMPION || 0 }}</span>
-              </h4>
-              <div class="kpi-badges">
-                <span class="badge bg-success-subtle text-success">Meilleurs clients</span>
-              </div>
-            </div>
-            <div class="kpi-icon text-success">
-              <i class="pi pi-star"></i>
-            </div>
-          </div>
-        </div>
+  <!-- KPI Strip — Segments -->
+  <div class="kpi-strip mt-2 mb-2">
+
+    <div class="kpi-strip-item success-accent">
+      <i class="pi pi-star text-success"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Champions</span>
+        <span class="kpi-strip-value text-success">{{ classificationCounts().CHAMPION || 0 }}</span>
+        <span class="kpi-strip-sub">meilleurs clients</span>
       </div>
     </div>
 
-    <div class="col-12 col-md-3 mb-2">
-      <div class="card h-100 kpi-card primary-accent">
-        <div class="card-body">
-          <div class="kpi-header">
-            <div class="kpi-content">
-              <p class="kpi-label">Fidèles & Actifs</p>
-              <h4 class="kpi-value">
-                <span>{{
-                    (classificationCounts().LOYAL || 0) + (classificationCounts().ACTIVE || 0)
-                  }}</span>
-              </h4>
-              <div class="kpi-badges">
-                <span class="badge bg-primary-subtle text-primary">Clients réguliers</span>
-              </div>
-            </div>
-            <div class="kpi-icon text-primary">
-              <i class="pi pi-heart"></i>
-            </div>
-          </div>
-        </div>
+    <div class="kpi-strip-divider"></div>
+
+    <div class="kpi-strip-item primary-accent">
+      <i class="pi pi-heart text-primary"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Fidèles &amp; Actifs</span>
+        <span class="kpi-strip-value text-primary">{{ (classificationCounts().LOYAL || 0) + (classificationCounts().ACTIVE || 0) }}</span>
+        <span class="kpi-strip-sub">clients réguliers</span>
       </div>
     </div>
 
-    <div class="col-12 col-md-3 mb-2">
-      <div class="card h-100 kpi-card warning-accent">
-        <div class="card-body">
-          <div class="kpi-header">
-            <div class="kpi-content">
-              <p class="kpi-label">À risque</p>
-              <h4 class="kpi-value">
-                <span>{{
-                    (classificationCounts().AT_RISK || 0) + (classificationCounts().NEED_ATTENTION
-                      || 0)
-                  }}</span>
-              </h4>
-              <div class="kpi-badges">
-                <span class="badge bg-warning-subtle text-warning">Besoin d'attention</span>
-              </div>
-            </div>
-            <div class="kpi-icon text-warning">
-              <i class="pi pi-exclamation-triangle"></i>
-            </div>
-          </div>
-        </div>
+    <div class="kpi-strip-divider"></div>
+
+    <div class="kpi-strip-item warning-accent">
+      <i class="pi pi-exclamation-triangle text-warning"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">À risque</span>
+        <span class="kpi-strip-value text-warning">{{ (classificationCounts().AT_RISK || 0) + (classificationCounts().NEED_ATTENTION || 0) }}</span>
+        <span class="kpi-strip-sub">besoin d'attention</span>
       </div>
     </div>
 
-    <div class="col-12 col-md-3 mb-2">
-      <div class="card h-100 kpi-card danger-accent">
-        <div class="card-body">
-          <div class="kpi-header">
-            <div class="kpi-content">
-              <p class="kpi-label">Inactifs</p>
-              <h4 class="kpi-value">
-                <span>{{ classificationCounts().INACTIVE || 0 }}</span>
-              </h4>
-              <div class="kpi-badges">
-                <span class="badge bg-danger-subtle text-danger">Clients perdus</span>
-              </div>
-            </div>
-            <div class="kpi-icon text-danger">
-              <i class="pi pi-times-circle"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+    <div class="kpi-strip-divider"></div>
 
-  <!-- Additional Metrics -->
-  <div class="row mt-2">
-    <div class="col-12 col-md-3 mb-2">
-      <div class="card h-100 kpi-card primary-accent">
-        <div class="card-body">
-          <div class="kpi-header">
-            <div class="kpi-content">
-              <p class="kpi-label">Total clients</p>
-              <h4 class="kpi-value">
-                <span>{{ getTotalCustomers() }}</span>
-              </h4>
-            </div>
-            <div class="kpi-icon text-primary">
-              <i class="pi pi-users"></i>
-            </div>
-          </div>
-        </div>
+    <div class="kpi-strip-item danger-accent">
+      <i class="pi pi-times-circle text-danger"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Inactifs</span>
+        <span class="kpi-strip-value text-danger">{{ classificationCounts().INACTIVE || 0 }}</span>
+        <span class="kpi-strip-sub">clients perdus</span>
       </div>
     </div>
 
-    <div class="col-12 col-md-3 mb-2">
-      <div class="card h-100 kpi-card success-accent">
-        <div class="card-body">
-          <div class="kpi-header">
-            <div class="kpi-content">
-              <p class="kpi-label">CA total (12 mois)</p>
-              <h4 class="kpi-value">
-                <span>{{ getTotalSpent() | number: '1.0-0' }}</span>
-                <span class="value-suffix">FCFA</span>
-              </h4>
-            </div>
-            <div class="kpi-icon text-success">
-              <i class="pi pi-dollar"></i>
-            </div>
-          </div>
-        </div>
+    <div class="kpi-strip-divider"></div>
+
+    <div class="kpi-strip-item primary-accent">
+      <i class="pi pi-users text-primary"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Total clients</span>
+        <span class="kpi-strip-value text-primary">{{ getTotalCustomers() }}</span>
+        <span class="kpi-strip-sub">tous segments</span>
       </div>
     </div>
 
-    <div class="col-12 col-md-3 mb-2">
-      <div class="card h-100 kpi-card warning-accent">
-        <div class="card-body">
-          <div class="kpi-header">
-            <div class="kpi-content">
-              <p class="kpi-label">Panier moyen</p>
-              <h4 class="kpi-value">
-                <span>{{ getAverageBasket() | number: '1.0-0' }}</span>
-                <span class="value-suffix">FCFA</span>
-              </h4>
-            </div>
-            <div class="kpi-icon text-warning">
-              <i class="pi pi-shopping-cart"></i>
-            </div>
-          </div>
-        </div>
+    <div class="kpi-strip-divider"></div>
+
+    <div class="kpi-strip-item success-accent">
+      <i class="pi pi-dollar text-success"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">CA total 12m</span>
+        <span class="kpi-strip-value text-success">{{ getTotalSpent() | number: '1.0-0' }} <small>FCFA</small></span>
+        <span class="kpi-strip-sub">chiffre d'affaires</span>
       </div>
     </div>
 
-    <div class="col-12 col-md-3 mb-2">
-      <div class="card h-100 kpi-card danger-accent">
-        <div class="card-body">
-          <div class="kpi-header">
-            <div class="kpi-content">
-              <p class="kpi-label">Score RFM moyen</p>
-              <h4 class="kpi-value">
-                <span>{{ getAverageRFMScore() | number: '1.1-2' }}</span>
-              </h4>
-            </div>
-            <div class="kpi-icon text-danger">
-              <i class="pi pi-chart-line"></i>
-            </div>
-          </div>
-        </div>
+    <div class="kpi-strip-divider"></div>
+
+    <div class="kpi-strip-item warning-accent">
+      <i class="pi pi-shopping-cart text-warning"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Panier moyen</span>
+        <span class="kpi-strip-value text-warning">{{ getAverageBasket() | number: '1.0-0' }} <small>FCFA</small></span>
+        <span class="kpi-strip-sub">par client</span>
       </div>
     </div>
+
+    <div class="kpi-strip-divider"></div>
+
+    <div class="kpi-strip-item danger-accent">
+      <i class="pi pi-chart-line text-danger"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Score RFM moy.</span>
+        <span class="kpi-strip-value text-danger">{{ getAverageRFMScore() | number: '1.1-2' }}</span>
+        <span class="kpi-strip-sub">sur 5</span>
+      </div>
+    </div>
+
   </div>
 
   <!-- Customer Segmentation Table -->
@@ -213,11 +135,12 @@
           [paginator]="true"
           [rowsPerPageOptions]="[10, 20, 50, 100]"
           [rows]="20"
+          [scrollable]="true"
           [showCurrentPageReport]="true"
-          [tableStyle]="{ 'min-width': '100rem' }"
           [value]="customers()"
           class="p-datatable-sm"
           currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+          scrollHeight="500px"
         >
           <ng-template #header>
             <tr class="pharma-table-head">

@@ -246,6 +246,11 @@ public class DashboardCAResource {
         }
     }
 
+    @GetMapping("/basket-evolution")
+    public ResponseEntity<BasketEvolutionDTO> getBasketEvolution() {
+        return ResponseEntity.ok(dashboardCAService.getBasketEvolution());
+    }
+
     @GetMapping("/summary-finances")
     public ResponseEntity<FinancesSummaryDTO> getSummaryFinances() {
         return ResponseEntity.ok(dashboardCAService.getSummaryFinances());

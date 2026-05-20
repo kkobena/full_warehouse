@@ -12,7 +12,6 @@ import { ChipModule } from "primeng/chip";
 import { Drawer } from "primeng/drawer";
 import { SplitButton } from "primeng/splitbutton";
 import { MenuItem } from "primeng/api";
-import { WarehouseCommonModule } from "../../../shared/warehouse-common/warehouse-common.module";
 
 import {
   IRecapProduitVendu,
@@ -41,7 +40,9 @@ import { BlobDownloadService } from "../../../shared/services/blob-download.serv
 import { finalize } from "rxjs/operators";
 import { TranslateService } from "@ngx-translate/core";
 import { PrimeNG } from "primeng/config";
-import { FournisseurSelectComponent } from "../../../features/partners/ui/fournisseur-select/fournisseur-select.component";
+import {
+  FournisseurSelectComponent
+} from "../../../features/partners/ui/fournisseur-select/fournisseur-select.component";
 
 @Component({
   selector: "jhi-recap-produit-vendu",
@@ -58,7 +59,6 @@ import { FournisseurSelectComponent } from "../../../features/partners/ui/fourni
     ChipModule,
     Drawer,
     SplitButton,
-    WarehouseCommonModule,
     DatePicker,
     InputTextModule,
     Checkbox,

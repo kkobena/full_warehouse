@@ -5,11 +5,9 @@ import {FormsModule} from '@angular/forms';
 
 import {TableLazyLoadEvent, TableModule} from 'primeng/table';
 import {ButtonModule} from 'primeng/button';
-import {Tag} from 'primeng/tag';
 import {MultiSelectModule} from 'primeng/multiselect';
 import {ToolbarModule} from 'primeng/toolbar';
 import {DividerModule} from 'primeng/divider';
-import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
 
 import {IStockAlert, StockAlertType} from 'app/shared/model/report/stock-alert.model';
 import {StockAlertReportService} from '../services/stock-alert-report.service';
@@ -27,11 +25,9 @@ const ITEMS_PER_PAGE = 15;
     FormsModule,
     TableModule,
     ButtonModule,
-    Tag,
     MultiSelectModule,
     ToolbarModule,
-    DividerModule,
-    WarehouseCommonModule,
+    DividerModule
   ],
 })
 export default class StockAlertsComponent implements OnInit {
@@ -105,16 +101,12 @@ export default class StockAlertsComponent implements OnInit {
 
   }
 
-  getAlertSeverity(alertType?: StockAlertType): 'danger' | 'warn' | 'info' {
+  getAlertClass(alertType?: StockAlertType): string {
     switch (alertType) {
-      case StockAlertType.RUPTURE:
-        return 'danger';
-      case StockAlertType.ALERTE:
-        return 'warn';
-      case StockAlertType.PEREMPTION:
-        return 'info';
-      default:
-        return 'info';
+      case StockAlertType.RUPTURE:    return 'alert-badge alert-rupture';
+      case StockAlertType.ALERTE:     return 'alert-badge alert-alerte';
+      case StockAlertType.PEREMPTION: return 'alert-badge alert-peremption';
+      default:                        return 'alert-badge alert-peremption';
     }
   }
 

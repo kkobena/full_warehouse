@@ -78,225 +78,139 @@
       <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
     </div>
   } @else {
-    <!-- KPI Cards -->
+    <!-- KPI Strip -->
     @if (summary(); as sum) {
-      <div class="row">
-        <!-- Today -->
-        <div class="col-xl-2 col-md-4 mb-2">
-          <div class="card h-100 kpi-card primary-accent">
-            <div class="card-body">
-              <div class="kpi-header">
-                <div class="kpi-content">
-                  <p class="kpi-label">CA Aujourd'hui</p>
-                  <h4 class="kpi-value">
-                    <span>{{ formatCurrency(sum.caToday) }}</span>
-                    <span class="value-suffix">FCFA</span>
-                  </h4>
-                  <div class="kpi-badges">
-                    <span
-                      [class]="
-                        'badge ' + ((sum.caTodayEvolutionPct ?? 0) >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger')
-                      "
-                    >
-                      <i
-                        [class]="'pi ' + ((sum.caTodayEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
-                      {{ formatPercent(sum.caTodayEvolutionPct) }}%
-                    </span>
-                    <span class="badge bg-info-subtle text-info">vs hier</span>
-                  </div>
-                </div>
-                <div class="kpi-icon text-primary">
-                  <i class="pi pi-calendar"></i>
-                </div>
-              </div>
-            </div>
-            <div class="card-footer">
-              <span class="footer-label">Transactions</span>
-              <span
-                class="badge bg-primary-subtle text-primary">{{ sum.nbTransactionsToday | number }}</span>
-            </div>
-          </div>
-        </div>
+      <div class="kpi-strip mt-2 mb-2">
 
-        <!-- Week -->
-        <div class="col-xl-2 col-md-4 mb-2">
-          <div class="card h-100 kpi-card success-accent">
-            <div class="card-body">
-              <div class="kpi-header">
-                <div class="kpi-content">
-                  <p class="kpi-label">CA Semaine</p>
-                  <h4 class="kpi-value">
-                    <span>{{ formatCurrency(sum.caWeek) }}</span>
-                    <span class="value-suffix">FCFA</span>
-                  </h4>
-                  <div class="kpi-badges">
-                    <span
-                      [class]="
-                        'badge ' + ((sum.caWeekEvolutionPct ?? 0) >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger')
-                      "
-                    >
-                      <i
-                        [class]="'pi ' + ((sum.caWeekEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
-                      {{ formatPercent(sum.caWeekEvolutionPct) }}%
-                    </span>
-                    <span class="badge bg-info-subtle text-info">vs semaine précédente</span>
-                  </div>
-                </div>
-                <div class="kpi-icon text-success">
-                  <i class="pi pi-calendar-plus"></i>
-                </div>
-              </div>
-            </div>
-            <div class="card-footer">
-              <span class="footer-label">Transactions</span>
-              <span
-                class="badge bg-success-subtle text-success">{{ sum.nbTransactionsWeek | number }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Month -->
-        <div class="col-xl-2 col-md-4 mb-2">
-          <div class="card h-100 kpi-card warning-accent">
-            <div class="card-body">
-              <div class="kpi-header">
-                <div class="kpi-content">
-                  <p class="kpi-label">CA Mois</p>
-                  <h4 class="kpi-value">
-                    <span>{{ formatCurrency(sum.caMonth) }}</span>
-                    <span class="value-suffix">FCFA</span>
-                  </h4>
-                  <div class="kpi-badges">
-                    <span
-                      [class]="
-                        'badge ' + ((sum.caMonthEvolutionPct ?? 0) >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger')
-                      "
-                    >
-                      <i
-                        [class]="'pi ' + ((sum.caMonthEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
-                      {{ formatPercent(sum.caMonthEvolutionPct) }}%
-                    </span>
-                    <span class="badge bg-info-subtle text-info">vs mois précédent</span>
-                  </div>
-                </div>
-                <div class="kpi-icon text-warning">
-                  <i class="pi pi-chart-bar"></i>
-                </div>
-              </div>
-            </div>
-            <div class="card-footer">
-              <span class="footer-label">Transactions | Panier moyen</span>
-              <span class="badge bg-warning-subtle text-warning">
-                {{ sum.nbTransactionsMonth | number }} | {{ formatCurrency(sum.panierMoyenMonth) }}
-                FCFA
+        <div class="kpi-strip-item primary-accent">
+          <i class="pi pi-calendar text-primary"></i>
+          <div class="kpi-strip-body">
+            <span class="kpi-strip-label">CA Aujourd'hui</span>
+            <span class="kpi-strip-value text-primary">{{ formatCurrency(sum.caToday) }} <small>FCFA</small></span>
+            <span class="kpi-strip-sub">
+              <span [class]="(sum.caTodayEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
+                <i [class]="'pi ' + ((sum.caTodayEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+                {{ formatPercent(sum.caTodayEvolutionPct) }}%
               </span>
-            </div>
+              vs hier — {{ sum.nbTransactionsToday | number }} transact.
+            </span>
           </div>
         </div>
 
-        <!-- Year -->
-        <div class="col-xl-2 col-md-4 mb-2">
-          <div class="card h-100 kpi-card danger-accent">
-            <div class="card-body">
-              <div class="kpi-header">
-                <div class="kpi-content">
-                  <p class="kpi-label">CA Année</p>
-                  <h4 class="kpi-value">
-                    <span>{{ formatCurrency(sum.caYear) }}</span>
-                    <span class="value-suffix">FCFA</span>
-                  </h4>
-                  <div class="kpi-badges">
-                    <span
-                      [class]="
-                        'badge ' + ((sum.caYearEvolutionPct ?? 0) >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger')
-                      "
-                    >
-                      <i
-                        [class]="'pi ' + ((sum.caYearEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
-                      {{ formatPercent(sum.caYearEvolutionPct) }}%
-                    </span>
-                    <span class="badge bg-info-subtle text-info">vs année précédente</span>
-                  </div>
-                </div>
-                <div class="kpi-icon text-danger">
-                  <i class="pi pi-chart-line"></i>
-                </div>
-              </div>
-            </div>
-            <div class="card-footer">
-              <span class="footer-label">Transactions | Marge</span>
-              <span class="badge bg-danger-subtle text-danger">
-                {{ sum.nbTransactionsYear | number }} | {{ formatPercent(sum.tauxMargeYear) }}%
+        <div class="kpi-strip-divider"></div>
+
+        <div class="kpi-strip-item success-accent">
+          <i class="pi pi-calendar-plus text-success"></i>
+          <div class="kpi-strip-body">
+            <span class="kpi-strip-label">CA Semaine</span>
+            <span class="kpi-strip-value text-success">{{ formatCurrency(sum.caWeek) }} <small>FCFA</small></span>
+            <span class="kpi-strip-sub">
+              <span [class]="(sum.caWeekEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
+                <i [class]="'pi ' + ((sum.caWeekEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+                {{ formatPercent(sum.caWeekEvolutionPct) }}%
               </span>
-            </div>
+              — {{ sum.nbTransactionsWeek | number }} transact.
+            </span>
           </div>
         </div>
 
-        <!-- Dettes fournisseurs -->
+        <div class="kpi-strip-divider"></div>
+
+        <div class="kpi-strip-item warning-accent">
+          <i class="pi pi-chart-bar text-warning"></i>
+          <div class="kpi-strip-body">
+            <span class="kpi-strip-label">CA Mois</span>
+            <span class="kpi-strip-value text-warning">{{ formatCurrency(sum.caMonth) }} <small>FCFA</small></span>
+            <span class="kpi-strip-sub">
+              <span [class]="(sum.caMonthEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
+                <i [class]="'pi ' + ((sum.caMonthEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+                {{ formatPercent(sum.caMonthEvolutionPct) }}%
+              </span>
+              — {{ sum.nbTransactionsMonth | number }} | {{ formatCurrency(sum.panierMoyenMonth) }} FCFA
+            </span>
+          </div>
+        </div>
+
+        <div class="kpi-strip-divider"></div>
+
+        <div class="kpi-strip-item danger-accent">
+          <i class="pi pi-chart-line text-danger"></i>
+          <div class="kpi-strip-body">
+            <span class="kpi-strip-label">CA Année</span>
+            <span class="kpi-strip-value text-danger">{{ formatCurrency(sum.caYear) }} <small>FCFA</small></span>
+            <span class="kpi-strip-sub">
+              <span [class]="(sum.caYearEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
+                <i [class]="'pi ' + ((sum.caYearEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+                {{ formatPercent(sum.caYearEvolutionPct) }}%
+              </span>
+              — {{ sum.nbTransactionsYear | number }} | {{ formatPercent(sum.tauxMargeYear) }}% marge
+            </span>
+          </div>
+        </div>
+
         @if (summaryFinances(); as fin) {
-          <div class="col-xl-2 col-md-4 mb-2">
-            <div class="card h-100 kpi-card" style="border-left: 3px solid #6f42c1">
-              <div class="card-body">
-                <div class="kpi-header">
-                  <div class="kpi-content">
-                    <p class="kpi-label">Dettes fournisseurs</p>
-                    <h4 class="kpi-value">
-                      <span>{{ formatCurrency(fin.totalDetteFournisseurs) }}</span>
-                      <span class="value-suffix">FCFA</span>
-                    </h4>
-                    <div class="kpi-badges">
-                      <span class="badge" [class]="(fin.nbEcheancesEnRetard ?? 0) > 0 ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success'">
-                        <i class="pi" [class]="(fin.nbEcheancesEnRetard ?? 0) > 0 ? 'pi-exclamation-triangle' : 'pi-check'"></i>
-                        {{ fin.nbEcheancesEnRetard ?? 0 }} en retard
-                      </span>
-                    </div>
-                  </div>
-                  <div class="kpi-icon" style="color: #6f42c1">
-                    <i class="pi pi-building"></i>
-                  </div>
-                </div>
-              </div>
-              <div class="card-footer">
-                <span class="footer-label">Échéances en retard</span>
-                <span class="badge" [class]="(fin.nbEcheancesEnRetard ?? 0) > 0 ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success'">
-                  {{ fin.nbEcheancesEnRetard ?? 0 }}
-                </span>
-              </div>
+          <div class="kpi-strip-divider"></div>
+          <div class="kpi-strip-item" style="border-left: 3px solid #6f42c1">
+            <i class="pi pi-building" style="color: #6f42c1"></i>
+            <div class="kpi-strip-body">
+              <span class="kpi-strip-label">Dettes fournisseurs</span>
+              <span class="kpi-strip-value" style="color: #6f42c1">{{ formatCurrency(fin.totalDetteFournisseurs) }} <small>FCFA</small></span>
+              <span class="kpi-strip-sub">{{ fin.nbEcheancesEnRetard ?? 0 }} échéance(s) en retard</span>
             </div>
           </div>
-
-          <!-- Créances tiers-payants -->
-          <div class="col-xl-2 col-md-4 mb-2">
-            <div class="card h-100 kpi-card" style="border-left: 3px solid #0dcaf0">
-              <div class="card-body">
-                <div class="kpi-header">
-                  <div class="kpi-content">
-                    <p class="kpi-label">Créances tiers-payants</p>
-                    <h4 class="kpi-value">
-                      <span>{{ formatCurrency(fin.totalCreancesTP) }}</span>
-                      <span class="value-suffix">FCFA</span>
-                    </h4>
-                    <div class="kpi-badges">
-                      <span class="badge" [class]="(fin.nbFacturesImpayees ?? 0) > 0 ? 'bg-warning-subtle text-warning' : 'bg-success-subtle text-success'">
-                        <i class="pi pi-file"></i>
-                        {{ fin.nbFacturesImpayees ?? 0 }} facture(s)
-                      </span>
-                    </div>
-                  </div>
-                  <div class="kpi-icon" style="color: #0dcaf0">
-                    <i class="pi pi-users"></i>
-                  </div>
-                </div>
-              </div>
-              <div class="card-footer">
-                <span class="footer-label">Factures impayées</span>
-                <span class="badge" [class]="(fin.nbFacturesImpayees ?? 0) > 0 ? 'bg-warning-subtle text-warning' : 'bg-success-subtle text-success'">
-                  {{ fin.nbFacturesImpayees ?? 0 }}
-                </span>
-              </div>
+          <div class="kpi-strip-divider"></div>
+          <div class="kpi-strip-item" style="border-left: 3px solid #0dcaf0">
+            <i class="pi pi-users" style="color: #0dcaf0"></i>
+            <div class="kpi-strip-body">
+              <span class="kpi-strip-label">Créances tiers-payants</span>
+              <span class="kpi-strip-value" style="color: #0dcaf0">{{ formatCurrency(fin.totalCreancesTP) }} <small>FCFA</small></span>
+              <span class="kpi-strip-sub">{{ fin.nbFacturesImpayees ?? 0 }} facture(s) impayée(s)</span>
             </div>
           </div>
         }
+
+      </div>
+    }
+
+    <!-- Tendances — GAP-C2 : Panier Moyen 12 mois -->
+    @if (basketEvolution(); as basket) {
+      <div class="row mb-2">
+        <div class="col-12">
+          <div class="card data-card">
+            <div class="card-header d-flex align-items-center flex-wrap gap-3">
+              <div class="d-flex align-items-center gap-2">
+                <i class="pi pi-shopping-cart text-primary"></i>
+                <h5 class="card-title mb-0">Panier Moyen — 12 mois glissants</h5>
+              </div>
+              <div class="ms-auto d-flex align-items-center flex-wrap gap-4">
+                <div>
+                  <div class="text-muted small">Ce mois</div>
+                  <div class="fw-bold">{{ formatCurrency(basket.currentValue) }} FCFA</div>
+                </div>
+                <span [class]="'badge px-2 py-1 ' + ((basket.evolutionPct ?? 0) >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger')">
+                  <i [class]="'pi me-1 ' + ((basket.evolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+                  {{ formatCurrency(basket.evolutionAmount) }} F
+                  ({{ formatPercent(basket.evolutionPct) }}%) vs M-1
+                </span>
+                <div>
+                  <div class="text-muted small">Meilleur mois</div>
+                  <div class="fw-semibold">{{ basket.bestMonthLabel }}</div>
+                  <div class="small text-success">{{ formatCurrency(basket.bestMonthValue) }} FCFA</div>
+                </div>
+                <div>
+                  <div class="text-muted small">Tendance 6M</div>
+                  <div [class]="'fw-semibold ' + ((basket.trend6MPct ?? 0) >= 0 ? 'text-success' : 'text-danger')">
+                    <i [class]="'pi me-1 ' + ((basket.trend6MPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+                    {{ formatPercent(basket.trend6MPct) }}%
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-body" style="height: 130px; position: relative">
+              <canvas #basketChartCanvas></canvas>
+            </div>
+          </div>
+        </div>
       </div>
     }
 

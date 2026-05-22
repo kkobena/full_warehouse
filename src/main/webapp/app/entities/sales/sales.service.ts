@@ -1,8 +1,6 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient, HttpResponse} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
-import moment from 'moment';
 
 import {SERVER_API_URL} from 'app/app.constants';
 import {createRequestOption, createRequestOptions} from 'app/shared/util/request-util';
@@ -19,10 +17,7 @@ export class SalesService {
   private readonly http = inject(HttpClient);
 
   createComptant(sales: ISales): Observable<EntityResponseType> {
-    const copy = this.convertDateFromClient(sales);
-    return this.http
-      .post<ISales>(`${this.resourceUrl}/comptant`, copy, {observe: 'response'})
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+    return this.http.post<ISales>(`${this.resourceUrl}/comptant`, sales, {observe: 'response'});
   }
 
   authorizeAction(utilisationCleSecurite: UtilisationCleSecurite): Observable<HttpResponse<{}>> {
@@ -30,16 +25,11 @@ export class SalesService {
   }
 
   updateDate(sales: ISales): Observable<EntityResponseType> {
-    const copy = this.convertDateFromClient(sales);
-    return this.http
-      .put<ISales>(this.resourceUrl + '/assurance/date', copy, {observe: 'response'})
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+    return this.http.put<ISales>(this.resourceUrl + '/assurance/date', sales, {observe: 'response'});
   }
 
   find(id: SaleId): Observable<EntityResponseType> {
-    return this.http
-      .get<ISales>(`${this.resourceUrl}/${id.id}/${id.saleDate}`, {observe: 'response'})
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+    return this.http.get<ISales>(`${this.resourceUrl}/${id.id}/${id.saleDate}`, {observe: 'response'});
   }
 
   query(req?: any): Observable<EntityArrayResponseType> {
@@ -52,8 +42,7 @@ export class SalesService {
   }
 
   saveCash(sales: ISales): Observable<HttpResponse<FinalyseSale>> {
-    const copy = this.convertDateFromClient(sales);
-    return this.http.put<FinalyseSale>(this.resourceUrl + '/comptant/save', copy, {observe: 'response'});
+    return this.http.put<FinalyseSale>(this.resourceUrl + '/comptant/save', sales, {observe: 'response'});
   }
 
   print(id: SaleId): Observable<Blob> {
@@ -92,35 +81,23 @@ export class SalesService {
   }
 
   addItemComptant(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
-    const copy = this.convertItemDateFromClient(salesLine);
-    return this.http
-      .post<ISalesLine>(`${this.resourceUrl}/add-item/comptant`, copy, {observe: 'response'})
-      .pipe(map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)));
+    return this.http.post<ISalesLine>(`${this.resourceUrl}/add-item/comptant`, salesLine, {observe: 'response'});
   }
 
   create(sales: ISales): Observable<EntityResponseType> {
-    const copy = this.convertDateFromClient(sales);
-    return this.http
-      .post<ISales>(this.resourceUrl, copy, {observe: 'response'})
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+    return this.http.post<ISales>(this.resourceUrl, sales, {observe: 'response'});
   }
 
   updateItemPrice(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
-    return this.http
-      .put<ISalesLine>(`${this.resourceUrl}/update-item/price`, salesLine, {observe: 'response'})
-      .pipe(map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)));
+    return this.http.put<ISalesLine>(`${this.resourceUrl}/update-item/price`, salesLine, {observe: 'response'});
   }
 
   updateItemQtyRequested(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
-    return this.http
-      .put<ISalesLine>(`${this.resourceUrl}/update-item/quantity-requested`, salesLine, {observe: 'response'})
-      .pipe(map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)));
+    return this.http.put<ISalesLine>(`${this.resourceUrl}/update-item/quantity-requested`, salesLine, {observe: 'response'});
   }
 
   updateItemQtySold(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
-    return this.http
-      .put<ISalesLine>(`${this.resourceUrl}/update-item/quantity-sold`, salesLine, {observe: 'response'})
-      .pipe(map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)));
+    return this.http.put<ISalesLine>(`${this.resourceUrl}/update-item/quantity-sold`, salesLine, {observe: 'response'});
   }
 
   deleteItem(id: SaleLineId): Observable<HttpResponse<{}>> {
@@ -128,8 +105,7 @@ export class SalesService {
   }
 
   putCurrentCashSaleOnStandBy(sales: ISales): Observable<HttpResponse<FinalyseSale>> {
-    const copy = this.convertDateFromClient(sales);
-    return this.http.put<FinalyseSale>(this.resourceUrl + '/comptant/put-on-hold', copy, {observe: 'response'});
+    return this.http.put<FinalyseSale>(this.resourceUrl + '/comptant/put-on-hold', sales, {observe: 'response'});
   }
 
   addCustommerToCashSale(keyValue: UpdateSaleInfo): Observable<HttpResponse<{}>> {
@@ -142,9 +118,7 @@ export class SalesService {
 
   queryPrevente(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOptions(req);
-    return this.http
-      .get<ISales[]>(`${this.resourceUrl}/prevente`, {params: options, observe: 'response'})
-      .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
+    return this.http.get<ISales[]>(`${this.resourceUrl}/prevente`, {params: options, observe: 'response'});
   }
 
   deletePrevente(id: SaleId): Observable<HttpResponse<{}>> {
@@ -188,8 +162,7 @@ export class SalesService {
   }
 
   copyToEdit(sales: ISales): Observable<HttpResponse<SaleId>> {
-    const copy = this.convertDateFromClient(sales);
-    return this.http.put<SaleId>(this.resourceUrl + '/assurance/copier', copy, {observe: 'response'});
+    return this.http.put<SaleId>(this.resourceUrl + '/assurance/copier', sales, {observe: 'response'});
   }
 
   // ============================================
@@ -198,9 +171,7 @@ export class SalesService {
 
   queryDevis(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOptions(req);
-    return this.http
-      .get<ISales[]>(`${this.resourceUrl}/devis`, {params: options, observe: 'response'})
-      .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
+    return this.http.get<ISales[]>(`${this.resourceUrl}/devis`, {params: options, observe: 'response'});
   }
 
 
@@ -224,44 +195,4 @@ export class SalesService {
     return this.http.get(`${this.resourceUrl}/devis/print/${id.id}/${id.saleDate}`, {responseType: 'blob'});
   }
 
-  private convertDateFromClient(sales: ISales): ISales {
-    return Object.assign({}, sales, {
-      createdAt: sales.createdAt && sales.createdAt.isValid() ? sales.createdAt.toJSON() : undefined,
-      updatedAt: sales.updatedAt && sales.updatedAt.isValid() ? sales.updatedAt.toJSON() : undefined,
-    });
-  }
-
-  private convertDateFromServer(res: EntityResponseType): EntityResponseType {
-    if (res.body) {
-      res.body.createdAt = res.body.createdAt ? moment(res.body.createdAt) : undefined;
-      res.body.updatedAt = res.body.updatedAt ? moment(res.body.updatedAt) : undefined;
-    }
-    return res;
-  }
-
-  private convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
-    if (res.body) {
-      res.body.forEach((sales: ISales) => {
-        sales.createdAt = sales.createdAt ? moment(sales.createdAt) : undefined;
-        sales.updatedAt = sales.updatedAt ? moment(sales.updatedAt) : undefined;
-      });
-    }
-    return res;
-  }
-
-  private convertItemDateFromClient(salesLine: ISalesLine): ISalesLine {
-    return Object.assign({}, salesLine, {
-      createdAt: salesLine.createdAt && salesLine.createdAt.isValid() ? salesLine.createdAt.toJSON() : undefined,
-      updatedAt: salesLine.updatedAt && salesLine.updatedAt.isValid() ? salesLine.updatedAt.toJSON() : undefined,
-    });
-
-  }
-
-  private convertItemDateFromServer(res: HttpResponse<ISalesLine>): HttpResponse<ISalesLine> {
-    if (res.body) {
-      res.body.createdAt = res.body.createdAt ? moment(res.body.createdAt) : undefined;
-      res.body.updatedAt = res.body.updatedAt ? moment(res.body.updatedAt) : undefined;
-    }
-    return res;
-  }
 }

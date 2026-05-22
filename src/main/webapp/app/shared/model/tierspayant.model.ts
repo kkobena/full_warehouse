@@ -1,4 +1,3 @@
-import { Moment } from 'moment';
 import { GroupeTiersPayant } from './groupe-tierspayant.model';
 import { ICustomer } from './customer.model';
 
@@ -24,8 +23,8 @@ export interface ITiersPayant {
   categorie?: string;
   remiseForfaitaire?: number;
   nbreBordereaux?: number;
-  created?: Moment;
-  updated?: Moment;
+  created?: string;
+  updated?: string;
   groupeTiersPayant?: GroupeTiersPayant;
   groupeTiersPayantName?: string;
   groupeTiersPayantId?: number;
@@ -63,8 +62,8 @@ export class TiersPayant implements ITiersPayant {
     public categorie?: string,
     public remiseForfaitaire?: number,
     public nbreBordereaux?: number,
-    public created?: Moment,
-    public updated?: Moment,
+    public created?: string,
+    public updated?: string,
     public groupeTiersPayant?: GroupeTiersPayant,
     public groupeTiersPayantName?: string,
     public groupeTiersPayantId?: number,

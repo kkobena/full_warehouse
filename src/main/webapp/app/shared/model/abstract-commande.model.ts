@@ -1,4 +1,3 @@
-import { Moment } from 'moment/moment';
 import { OrderStatut } from './enumerations/order-statut.model';
 import { IPaymentFournisseur } from './payment-fournisseur.model';
 import { IMagasin } from './magasin.model';
@@ -18,8 +17,8 @@ export interface AbstractCommande {
   netAmount?: number;
   taxAmount?: number;
   receiptAmount?: number;
-  createdAt?: Moment;
-  updatedAt?: Moment;
+  createdAt?: string;
+  updatedAt?: string;
   orderStatus?: OrderStatut;
   paymentFournisseurs?: IPaymentFournisseur[];
   orderLines?: AbstractOrderItem[];

@@ -1,9 +1,7 @@
-import { Moment } from 'moment';
-
 export interface IRayon {
   id?: number;
-  createdAt?: Moment;
-  updatedAt?: Moment;
+  createdAt?: string;
+  updatedAt?: string;
   code?: string;
   libelle?: string;
   storageLibelle?: string;
@@ -15,8 +13,8 @@ export interface IRayon {
 export class Rayon implements IRayon {
   constructor(
     public id?: number,
-    public createdAt?: Moment,
-    public updatedAt?: Moment,
+    public createdAt?: string,
+    public updatedAt?: string,
     public code?: string,
     public libelle?: string,
     public storageLibelle?: string,

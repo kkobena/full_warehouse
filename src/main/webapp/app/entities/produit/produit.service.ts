@@ -1,8 +1,6 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient, HttpResponse} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
-import moment from 'moment';
 
 import {SERVER_API_URL} from 'app/app.constants';
 import {createRequestOptions} from 'app/shared/util/request-util';
@@ -23,30 +21,20 @@ export class ProduitService {
   private readonly rayonProduitUrl = SERVER_API_URL + 'api/rayon-produits';
 
   create(produit: IProduit): Observable<EntityResponseType> {
-    const copy = this.convertDateFromClient(produit);
-    return this.http
-      .post<IProduit>(this.resourceUrl, copy, {observe: 'response'})
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+    return this.http.post<IProduit>(this.resourceUrl, produit, {observe: 'response'});
   }
 
   update(produit: IProduit): Observable<EntityResponseType> {
-    const copy = this.convertDateFromClient(produit);
-    return this.http
-      .put<IProduit>(this.resourceUrl, copy, {observe: 'response'})
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+    return this.http.put<IProduit>(this.resourceUrl, produit, {observe: 'response'});
   }
 
   find(id: number): Observable<EntityResponseType> {
-    return this.http
-      .get<IProduit>(`${this.resourceUrl}/${id}`, {observe: 'response'})
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+    return this.http.get<IProduit>(`${this.resourceUrl}/${id}`, {observe: 'response'});
   }
 
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOptions(req);
-    return this.http
-      .get<IProduit[]>(this.resourceUrl, {params: options, observe: 'response'})
-      .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
+    return this.http.get<IProduit[]>(this.resourceUrl, {params: options, observe: 'response'});
   }
 
   delete(id: number): Observable<HttpResponse<{}>> {
@@ -60,8 +48,7 @@ export class ProduitService {
 
 
   updateDetail(produit: IProduit): Observable<EntityResponseType> {
-    const copy = this.convertDateFromClient(produit);
-    return this.http.put<IProduit>(`${this.resourceUrl}/detail`, copy, {observe: 'response'});
+    return this.http.put<IProduit>(`${this.resourceUrl}/detail`, produit, {observe: 'response'});
   }
 
   updateDefaultFournisseur(id: number, prodduitId: number, checked: boolean): Observable<HttpResponse<void>> {
@@ -102,9 +89,7 @@ export class ProduitService {
 
   queryLite(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOptions(req);
-    return this.http
-      .get<IProduit[]>(`${this.resourceUrl}/lite`, {params: options, observe: 'response'})
-      .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
+    return this.http.get<IProduit[]>(`${this.resourceUrl}/lite`, {params: options, observe: 'response'});
   }
 
   search(req?: any, searchByStorage = false): Observable<HttpResponse<ProduitSearch[]>> {
@@ -122,28 +107,4 @@ export class ProduitService {
     });
   }
 
-  private convertDateFromClient(produit: IProduit): IProduit {
-    return Object.assign({}, produit, {
-      createdAt: produit.createdAt && produit.createdAt.isValid() ? produit.createdAt.toJSON() : undefined,
-      updatedAt: produit.updatedAt && produit.updatedAt.isValid() ? produit.updatedAt.toJSON() : undefined,
-    });
-  }
-
-  private convertDateFromServer(res: EntityResponseType): EntityResponseType {
-    if (res.body) {
-      res.body.createdAt = res.body.createdAt ? moment(res.body.createdAt) : undefined;
-      res.body.updatedAt = res.body.updatedAt ? moment(res.body.updatedAt) : undefined;
-    }
-    return res;
-  }
-
-  private convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
-    if (res.body) {
-      res.body.forEach((produit: IProduit) => {
-        produit.createdAt = produit.createdAt ? moment(produit.createdAt) : undefined;
-        produit.updatedAt = produit.updatedAt ? moment(produit.updatedAt) : undefined;
-      });
-    }
-    return res;
-  }
 }

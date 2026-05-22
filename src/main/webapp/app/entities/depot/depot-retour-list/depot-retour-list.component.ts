@@ -22,7 +22,7 @@ import { RetourDepotService } from '../retour-depot.service';
 import { MagasinService } from '../../magasin/magasin.service';
 import { IMagasin } from '../../../shared/model/magasin.model';
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
-import moment from 'moment';
+import dayjs from 'dayjs/esm';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 
 export type ExpandMode = 'single' | 'multiple';
@@ -155,7 +155,7 @@ export class DepotRetourListComponent implements OnInit {
   }
 
   protected formatDate(date: string | undefined): string {
-    return date ? moment(date).format('DD/MM/YYYY HH:mm') : '';
+    return date ? dayjs(date).format('DD/MM/YYYY HH:mm') : '';
   }
 
   protected getTotalItems(retourDepot: IRetourDepot): number {

@@ -1,9 +1,7 @@
-import { Moment } from 'moment';
-
 export interface IAjustement {
   id?: number;
   qtyMvt?: number;
-  dateMtv?: Moment;
+  dateMtv?: string;
   produitId?: number;
   ajustId?: number;
   produitLibelle?: string;
@@ -24,7 +22,7 @@ export class Ajustement implements IAjustement {
   constructor(
     public id?: number,
     public qtyMvt?: number,
-    public dateMtv?: Moment,
+    public dateMtv?: string,
     public produitId?: number,
     public produitLibelle?: string,
     public commentaire?: string,

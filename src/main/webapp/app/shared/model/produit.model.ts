@@ -1,4 +1,3 @@
-import { Moment } from 'moment';
 import { ISalesLine } from 'app/shared/model/sales-line.model';
 import { IStoreInventoryLine } from 'app/shared/model/store-inventory-line.model';
 import { IOrderLine } from 'app/shared/model/order-line.model';
@@ -29,8 +28,8 @@ export interface IProduit {
   costAmount?: number;
   regularUnitPrice?: number;
   netUnitPrice?: number;
-  createdAt?: Moment;
-  updatedAt?: Moment;
+  createdAt?: string;
+  updatedAt?: string;
   itemQty?: number;
   itemCostAmount?: number;
   itemRegularUnitPrice?: number;
@@ -70,10 +69,10 @@ export interface IProduit {
   remiseId?: number;
   tauxRemise?: number;
   totalQuantity?: number;
-  perimeAt?: Moment;
-  lastDateOfSale?: Moment;
-  lastOrderDate?: Moment;
-  lastInventoryDate?: Moment;
+  perimeAt?: string;
+  lastDateOfSale?: string;
+  lastOrderDate?: string;
+  lastInventoryDate?: string;
   qtyStatus?: string;
   fournisseurId?: number;
   rayonId?: number;
@@ -115,8 +114,8 @@ export class Produit implements IProduit {
     public costAmount?: number,
     public regularUnitPrice?: number,
     public netUnitPrice?: number,
-    public createdAt?: Moment,
-    public updatedAt?: Moment,
+    public createdAt?: string,
+    public updatedAt?: string,
     public itemQty?: number,
     public itemCostAmount?: number,
     public itemRegularUnitPrice?: number,
@@ -154,10 +153,10 @@ export class Produit implements IProduit {
     public remiseId?: number,
     public tauxRemise?: number,
     public totalQuantity?: number,
-    public perimeAt?: Moment,
-    public lastDateOfSale?: Moment,
-    public lastOrderDate?: Moment,
-    public lastInventoryDate?: Moment,
+    public perimeAt?: string,
+    public lastDateOfSale?: string,
+    public lastOrderDate?: string,
+    public lastInventoryDate?: string,
     public qtyStatus?: string,
     public codeCip?: string,
     public fournisseurId?: number,

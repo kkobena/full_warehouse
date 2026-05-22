@@ -6,7 +6,7 @@ import { finalize } from 'rxjs/operators';
 import { Delivery, IDelivery } from 'app/shared/model/delevery.model';
 import { ICommande } from 'app/shared/model/commande.model';
 import { DeliveryService } from '../../../../../entities/commande/delevery/delivery.service';
-import moment from 'moment';
+import dayjs from 'dayjs/esm';
 import { DATE_FORMAT } from 'app/shared/constants/input.constants';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
@@ -92,7 +92,7 @@ export class DeliveryModalComponent implements OnInit {
   ngOnInit(): void {
     this.maxDate = new Date();
     this.updateForm(this.commande);
-    this.minDate = new Date(moment(this.commande.createdAt).format(DATE_FORMAT));
+    this.minDate = new Date(this.commande.createdAt);
     this.editForm
       .get('receiptAmount')
       .setValidators([Validators.min(this.commande.grossAmount), Validators.max(this.commande.grossAmount)]);
@@ -105,7 +105,7 @@ export class DeliveryModalComponent implements OnInit {
       receiptReference: entity.receiptReference,
       receiptAmount: entity.grossAmount,
       taxAmount: entity.taxAmount,
-      receiptDate: entity.receiptDate ? new Date(moment(entity.receiptDate).format(DATE_FORMAT)) : null,
+      receiptDate: entity.receiptDate ? new Date(entity.receiptDate) : null,
     });
   }
 
@@ -166,7 +166,7 @@ export class DeliveryModalComponent implements OnInit {
       id: this.commande.id,
       commandeId: this.commande.commandeId,
       receiptReference: this.editForm.get(['receiptReference']).value,
-      receiptDate: this.editForm.get('receiptDate').value ? moment(this.editForm.get('receiptDate').value).format(DATE_FORMAT) : null,
+      receiptDate: this.editForm.get('receiptDate').value ? dayjs(this.editForm.get('receiptDate').value).format(DATE_FORMAT) : null,
       receiptAmount: this.editForm.get(['receiptAmount']).value,
       taxAmount: this.editForm.get(['taxAmount']).value,
       orderReference: this.commande.orderReference,

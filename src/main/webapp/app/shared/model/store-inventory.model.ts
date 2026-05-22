@@ -1,4 +1,3 @@
-import {Moment} from 'moment';
 import {IStoreInventoryLine} from 'app/shared/model/store-inventory-line.model';
 import {IUser} from '../../core/user/user.model';
 import {IStorage} from './magasin.model';
@@ -9,8 +8,8 @@ export interface IStoreInventory {
   abbrName?: string;
   inventoryValueCostBegin?: number;
   inventoryAmountBegin?: number;
-  createdAt?: Moment;
-  updatedAt?: Moment;
+  createdAt?: string;
+  updatedAt?: string;
   inventoryValueCostAfter?: number;
   inventoryAmountAfter?: number;
   storeInventoryLines?: IStoreInventoryLine[];
@@ -30,8 +29,8 @@ export class StoreInventory implements IStoreInventory {
     public id?: number,
     public inventoryValueCostBegin?: number,
     public inventoryAmountBegin?: number,
-    public createdAt?: Moment,
-    public updatedAt?: Moment,
+    public createdAt?: string,
+    public updatedAt?: string,
     public inventoryValueCostAfter?: number,
     public inventoryAmountAfter?: number,
     public storeInventoryLines?: IStoreInventoryLine[],

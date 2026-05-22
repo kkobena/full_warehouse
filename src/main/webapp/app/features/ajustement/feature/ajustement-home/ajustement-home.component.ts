@@ -4,7 +4,7 @@ import {CommonModule} from '@angular/common';
 import {Router, RouterModule} from '@angular/router';
 import {FormsModule} from '@angular/forms';
 import {filter} from 'rxjs';
-import moment from 'moment';
+import dayjs from 'dayjs/esm';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {MessageService} from 'primeng/api';
 
@@ -163,8 +163,8 @@ export class AjustementHomeComponent implements OnInit {
     this.facade.loadHistory({
       page: this.page() - 1,
       size: this.itemsPerPage,
-      fromDate: moment(this.fromDate).format('YYYY-MM-DD'),
-      toDate: moment(this.toDate).format('YYYY-MM-DD'),
+      fromDate: dayjs(this.fromDate).format('YYYY-MM-DD'),
+      toDate: dayjs(this.toDate).format('YYYY-MM-DD'),
       userId: this.user?.id ?? null,
       search: this.search || null,
       type: this.typeFilter !== 'TOUT' ? this.typeFilter : null,

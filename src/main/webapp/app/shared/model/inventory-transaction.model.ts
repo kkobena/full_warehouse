@@ -1,4 +1,3 @@
-import { Moment } from 'moment';
 import { IProduit } from 'app/shared/model/produit.model';
 
 import { TransactionType } from 'app/shared/model/enumerations/transaction-type.model';
@@ -8,8 +7,8 @@ export interface IInventoryTransaction {
   id?: number;
   transactionType?: TransactionType;
   amount?: number;
-  createdAt?: Moment;
-  updatedAt?: Moment;
+  createdAt?: string;
+  updatedAt?: string;
   quantity?: number;
   quantityBefor?: number;
   quantityAfter?: number;
@@ -23,8 +22,8 @@ export class InventoryTransaction implements IInventoryTransaction {
     public id?: number,
     public transactionType?: TransactionType,
     public amount?: number,
-    public createdAt?: Moment,
-    public updatedAt?: Moment,
+    public createdAt?: string,
+    public updatedAt?: string,
     public quantity?: number,
     public quantityBefor?: number,
     public quantityAfter?: number,

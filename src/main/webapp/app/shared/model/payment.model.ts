@@ -1,4 +1,3 @@
-import { Moment } from 'moment';
 import { IPaymentMode } from 'app/shared/model/payment-mode.model';
 
 export interface IPayment {
@@ -6,8 +5,8 @@ export interface IPayment {
   netAmount?: number;
   paidAmount?: number;
   restToPay?: number;
-  createdAt?: Moment;
-  updatedAt?: Moment;
+  createdAt?: string;
+  updatedAt?: string;
   paymentMode?: IPaymentMode;
   montantVerse?: number;
 }
@@ -18,8 +17,8 @@ export class Payment implements IPayment {
     public netAmount?: number,
     public paidAmount?: number,
     public restToPay?: number,
-    public createdAt?: Moment,
-    public updatedAt?: Moment,
+    public createdAt?: string,
+    public updatedAt?: string,
     public paymentMode?: IPaymentMode,
     public montantVerse?: number,
   ) {}

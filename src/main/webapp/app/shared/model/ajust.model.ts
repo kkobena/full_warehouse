@@ -1,9 +1,8 @@
-import { Moment } from 'moment';
 import { IAjustement } from './ajustement.model';
 
 export interface IAjust {
   id?: number;
-  dateMtv?: Moment;
+  dateMtv?: string;
   storageId?: number;
   userId?: number;
   storageLibelle?: string;
@@ -16,7 +15,7 @@ export class Ajust implements IAjust {
   constructor(
     public id?: number,
     public userId?: number,
-    public dateMtv?: Moment,
+    public dateMtv?: string,
     public storageId?: number,
     public storageLibelle?: string,
     public userFullName?: string,

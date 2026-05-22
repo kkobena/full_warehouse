@@ -1,4 +1,3 @@
-import { Moment } from 'moment';
 import { ISales } from 'app/shared/model/sales.model';
 import { IProduit } from 'app/shared/model/produit.model';
 import { IPayment } from 'app/shared/model/payment.model';
@@ -12,8 +11,8 @@ export interface ICustomer {
   lastName?: string;
   phone?: string;
   email?: string;
-  createdAt?: Moment;
-  updatedAt?: Moment;
+  createdAt?: string;
+  updatedAt?: string;
   produits?: IProduit[];
   sales?: ISales[];
   encours?: number;
@@ -47,8 +46,8 @@ export class Customer implements ICustomer {
     public lastName?: string,
     public phone?: string,
     public email?: string,
-    public createdAt?: Moment,
-    public updatedAt?: Moment,
+    public createdAt?: string,
+    public updatedAt?: string,
     public sales?: ISales[],
     public produits?: IProduit[],
     public payments?: IPayment[],

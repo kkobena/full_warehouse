@@ -1,4 +1,3 @@
-import { Moment } from 'moment';
 import { IPaymentFournisseur } from 'app/shared/model/payment-fournisseur.model';
 import { OrderStatut } from 'app/shared/model/enumerations/order-statut.model';
 import { IMagasin } from 'app/shared/model/magasin.model';
@@ -21,8 +20,8 @@ export class Commande implements ICommande {
     public grossAmount?: number,
     public netAmount?: number,
     public taxAmount?: number,
-    public createdAt?: Moment,
-    public updatedAt?: Moment,
+    public createdAt?: string,
+    public updatedAt?: string,
     public orderStatus?: OrderStatut,
     public paymentFournisseurs?: IPaymentFournisseur[],
     public orderLines?: AbstractOrderItem[],

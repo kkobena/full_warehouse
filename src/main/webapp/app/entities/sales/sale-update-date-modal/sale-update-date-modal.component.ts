@@ -9,7 +9,7 @@ import { ButtonModule } from 'primeng/button';
 import { Observable } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
-import moment from 'moment/moment';
+import dayjs from 'dayjs/esm';
 import { TagModule } from 'primeng/tag';
 import { Card } from 'primeng/card';
 import { DatePicker } from 'primeng/datepicker';
@@ -47,7 +47,7 @@ export class SaleUpdateDateModalComponent {
   protected save(): void {
     this.isSaving = true;
     const formDate = this.editForm.get('updatedAt')?.value;
-    const updatedSale = { ...this.sale, updatedAt: moment(formDate) };
+    const updatedSale = { ...this.sale, updatedAt: formDate ? dayjs(formDate).toISOString() : undefined };
     this.subscribeToSaveResponse(this.salesService.updateDate(updatedSale as ISales));
   }
 

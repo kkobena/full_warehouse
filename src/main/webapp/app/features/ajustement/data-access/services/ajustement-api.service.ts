@@ -1,8 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import moment from 'moment';
-import { map } from 'rxjs/operators';
 import { SERVER_API_URL } from '../../../../app.constants';
 import { createRequestOptions } from '../../../../shared/util/request-util';
 import { IAjust } from '../../../../shared/model/ajust.model';
@@ -24,7 +22,7 @@ export class AjustementApiService {
     return this.http.get<IAjust[]>(`${this.ajustUrl}/ajust`, {
       params: createRequestOptions(params),
       observe: 'response',
-    }).pipe(map(res => this.mapAjustDates(res)));
+    });
   }
 
   create(payload: IAjust): Observable<HttpResponse<IAjust>> {
@@ -80,12 +78,4 @@ export class AjustementApiService {
     return this.http.get<ILotItem[]>(`${this.lotUrl}/produit/${produitId}`);
   }
 
-  // ── Helpers ──────────────────────────────────────────────────────────────
-
-  private mapAjustDates(res: HttpResponse<IAjust[]>): HttpResponse<IAjust[]> {
-    res.body?.forEach(a => {
-      if (a.dateMtv) a.dateMtv = moment(a.dateMtv as unknown as string) as any;
-    });
-    return res;
-  }
 }

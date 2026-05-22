@@ -1,4 +1,3 @@
-import { Moment } from 'moment';
 import { ISales, SaleId } from 'app/shared/model/sales.model';
 import { IProduit } from 'app/shared/model/produit.model';
 
@@ -14,8 +13,8 @@ export interface ISalesLine {
   netAmount?: number;
   taxAmount?: number;
   costAmount?: number;
-  createdAt?: Moment;
-  updatedAt?: Moment;
+  createdAt?: string;
+  updatedAt?: string;
   sales?: ISales | null;
   produit?: IProduit;
   produitLibelle?: string;
@@ -43,8 +42,8 @@ export class SalesLine implements ISalesLine {
     public netAmount?: number,
     public taxAmount?: number,
     public costAmount?: number,
-    public createdAt?: Moment,
-    public updatedAt?: Moment,
+    public createdAt?: string,
+    public updatedAt?: string,
     public sales?: ISales | null,
     public produit?: IProduit,
     public produitLibelle?: string,

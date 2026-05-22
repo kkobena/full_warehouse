@@ -1,4 +1,3 @@
-import { Moment } from 'moment';
 import { ISalesLine } from 'app/shared/model/sales-line.model';
 import { ICustomer } from 'app/shared/model/customer.model';
 import { SalesStatut } from 'app/shared/model/enumerations/sales-statut.model';
@@ -18,8 +17,8 @@ export interface ISales {
   taxAmount?: number;
   costAmount?: number;
   statut?: SalesStatut;
-  createdAt?: Moment;
-  updatedAt?: Moment;
+  createdAt?: string;
+  updatedAt?: string;
   salesLines?: ISalesLine[];
   payments?: Payment[];
   customer?: ICustomer;
@@ -72,8 +71,8 @@ export class Sales implements ISales {
     public taxAmount?: number,
     public costAmount?: number,
     public statut?: SalesStatut,
-    public createdAt?: Moment,
-    public updatedAt?: Moment,
+    public createdAt?: string,
+    public updatedAt?: string,
     public salesLines?: ISalesLine[],
     public payments?: Payment[],
     public customer?: ICustomer,

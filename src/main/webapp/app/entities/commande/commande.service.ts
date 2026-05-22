@@ -1,8 +1,6 @@
 import { inject, Injectable } from "@angular/core";
 import { HttpClient, HttpResponse } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { map } from "rxjs/operators";
-import moment from "moment";
 import { SERVER_API_URL } from "app/app.constants";
 import { createRequestOptions } from "app/shared/util/request-util";
 import { ICommande } from "app/shared/model/commande.model";
@@ -91,23 +89,15 @@ export class CommandeService {
   }
 
   create(commande: ICommande): Observable<EntityResponseType> {
-    const copy = this.convertDateFromClient(commande);
-    return this.http
-      .post<ICommande>(this.resourceUrl, copy, { observe: "response" })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+    return this.http.post<ICommande>(this.resourceUrl, commande, { observe: "response" });
   }
 
   update(commande: ICommande): Observable<EntityResponseType> {
-    const copy = this.convertDateFromClient(commande);
-    return this.http
-      .put<ICommande>(this.resourceUrl, copy, { observe: "response" })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+    return this.http.put<ICommande>(this.resourceUrl, commande, { observe: "response" });
   }
 
   find(commandeId: CommandeId): Observable<EntityResponseType> {
-    return this.http
-      .get<ICommande>(`${this.resourceUrl}/${commandeId.id}/${commandeId.orderDate}`, { observe: "response" })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+    return this.http.get<ICommande>(`${this.resourceUrl}/${commandeId.id}/${commandeId.orderDate}`, { observe: "response" });
   }
 
   delete(commandeId: CommandeId): Observable<HttpResponse<{}>> {
@@ -175,12 +165,10 @@ export class CommandeService {
 
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOptions(req);
-    return this.http
-      .get<ICommande[]>(this.resourceUrl + "/commandes-without-order-lines", {
-        params: options,
-        observe: "response"
-      })
-      .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
+    return this.http.get<ICommande[]>(this.resourceUrl + "/commandes-without-order-lines", {
+      params: options,
+      observe: "response"
+    });
   }
 
   fusionner(ids: CommandeId[]): Observable<HttpResponse<{}>> {
@@ -299,28 +287,4 @@ export class CommandeService {
       ;
   }
 
-  private convertDateFromClient(commande: ICommande): ICommande {
-    return Object.assign({}, commande, {
-      createdAt: commande.createdAt && commande.createdAt.isValid() ? commande.createdAt.toJSON() : undefined,
-      updatedAt: commande.updatedAt && commande.updatedAt.isValid() ? commande.updatedAt.toJSON() : undefined
-    });
-  }
-
-  private convertDateFromServer(res: EntityResponseType): EntityResponseType {
-    if (res.body) {
-      res.body.createdAt = res.body.createdAt ? moment(res.body.createdAt) : undefined;
-      res.body.updatedAt = res.body.updatedAt ? moment(res.body.updatedAt) : undefined;
-    }
-    return res;
-  }
-
-  private convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
-    if (res.body) {
-      res.body.forEach((commande: ICommande) => {
-        commande.createdAt = commande.createdAt ? moment(commande.createdAt) : undefined;
-        commande.updatedAt = commande.updatedAt ? moment(commande.updatedAt) : undefined;
-      });
-    }
-    return res;
-  }
 }

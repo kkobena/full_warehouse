@@ -1,8 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import moment from 'moment';
 
 import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOption } from 'app/shared/util/request-util';
@@ -20,20 +18,15 @@ export class VoSalesService {
   protected http = inject(HttpClient);
 
   find(id: SaleId): Observable<EntityResponseType> {
-    return this.http
-      .get<ISales>(`${this.resourceUrl}/${id.id}/${id.saleDate}`, { observe: 'response' })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+    return this.http.get<ISales>(`${this.resourceUrl}/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
   findForEdit(id: SaleId): Observable<EntityResponseType> {
-    return this.http
-      .get<ISales>(`${this.resourceUrl}/edit/${id.id}/${id.saleDate}`, { observe: 'response' })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+    return this.http.get<ISales>(`${this.resourceUrl}/edit/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
   putCurrentOnStandBy(sales: ISales): Observable<HttpResponse<FinalyseSale>> {
-    const copy = this.convertDateFromClient(sales);
-    return this.http.put<FinalyseSale>(this.resourceUrl + '/assurance/put-on-hold', copy, { observe: 'response' });
+    return this.http.put<FinalyseSale>(this.resourceUrl + '/assurance/put-on-hold', sales, { observe: 'response' });
   }
 
   save(sales: ISales): Observable<HttpResponse<FinalyseSale>> {
@@ -59,41 +52,27 @@ export class VoSalesService {
     });
   }
   create(sales: ISales): Observable<EntityResponseType> {
-    const copy = this.convertDateFromClient(sales);
-    return this.http
-      .post<ISales>(this.resourceUrl + '/assurance', copy, { observe: 'response' })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+    return this.http.post<ISales>(this.resourceUrl + '/assurance', sales, { observe: 'response' });
   }
 
   updateItemPrice(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
-    return this.http
-      .put<ISalesLine>(`${this.resourceUrl}/update-item/price/assurance`, salesLine, { observe: 'response' })
-      .pipe(map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)));
+    return this.http.put<ISalesLine>(`${this.resourceUrl}/update-item/price/assurance`, salesLine, { observe: 'response' });
   }
 
   updateItemQtyRequested(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
-    return this.http
-      .put<ISalesLine>(`${this.resourceUrl}/update-item/quantity-requested/assurance`, salesLine, { observe: 'response' })
-      .pipe(map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)));
+    return this.http.put<ISalesLine>(`${this.resourceUrl}/update-item/quantity-requested/assurance`, salesLine, { observe: 'response' });
   }
 
   updateItemQtySold(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
-    return this.http
-      .put<ISalesLine>(`${this.resourceUrl}/update-item/quantity-sold/assurance`, salesLine, { observe: 'response' })
-      .pipe(map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)));
+    return this.http.put<ISalesLine>(`${this.resourceUrl}/update-item/quantity-sold/assurance`, salesLine, { observe: 'response' });
   }
 
   addItem(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
-    const copy = this.convertItemDateFromClient(salesLine);
-    return this.http
-      .post<ISalesLine>(`${this.resourceUrl}/add-item/assurance`, copy, { observe: 'response' })
-      .pipe(map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)));
+    return this.http.post<ISalesLine>(`${this.resourceUrl}/add-item/assurance`, salesLine, { observe: 'response' });
   }
 
   updateItem(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
-    return this.http
-      .put<ISalesLine>(`${this.resourceUrl}/update-item/assurance`, salesLine, { observe: 'response' })
-      .pipe(map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)));
+    return this.http.put<ISalesLine>(`${this.resourceUrl}/update-item/assurance`, salesLine, { observe: 'response' });
   }
 
   deleteItem(id: SaleLineId): Observable<HttpResponse<{}>> {
@@ -108,9 +87,7 @@ export class VoSalesService {
 
   queryPrevente(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOption(req);
-    return this.http
-      .get<ISales[]>(`${this.resourceUrl}/prevente`, { params: options, observe: 'response' })
-      .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
+    return this.http.get<ISales[]>(`${this.resourceUrl}/prevente`, { params: options, observe: 'response' });
   }
   deletePrevente(id: SaleId): Observable<HttpResponse<{}>> {
     return this.http.delete(`${this.resourceUrl}/prevente/${id.id}/${id.saleDate}`, { observe: 'response' });
@@ -148,44 +125,4 @@ export class VoSalesService {
     return this.http.delete(`${this.resourceUrl}/assurance/remove-remise/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
-  private convertDateFromClient(sales: ISales): ISales {
-    return Object.assign({}, sales, {
-      createdAt: sales.createdAt && sales.createdAt.isValid() ? sales.createdAt.toJSON() : undefined,
-      updatedAt: sales.updatedAt && sales.updatedAt.isValid() ? sales.updatedAt.toJSON() : undefined,
-    });
-  }
-
-  private convertDateFromServer(res: EntityResponseType): EntityResponseType {
-    if (res.body) {
-      res.body.createdAt = res.body.createdAt ? moment(res.body.createdAt) : undefined;
-      res.body.updatedAt = res.body.updatedAt ? moment(res.body.updatedAt) : undefined;
-    }
-    return res;
-  }
-
-  private convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
-    if (res.body) {
-      res.body.forEach((sales: ISales) => {
-        sales.createdAt = sales.createdAt ? moment(sales.createdAt) : undefined;
-        sales.updatedAt = sales.updatedAt ? moment(sales.updatedAt) : undefined;
-      });
-    }
-    return res;
-  }
-
-  private convertItemDateFromClient(salesLine: ISalesLine): ISalesLine {
-    const copy: ISalesLine = Object.assign({}, salesLine, {
-      createdAt: salesLine.createdAt && salesLine.createdAt.isValid() ? salesLine.createdAt.toJSON() : undefined,
-      updatedAt: salesLine.updatedAt && salesLine.updatedAt.isValid() ? salesLine.updatedAt.toJSON() : undefined,
-    });
-    return copy;
-  }
-
-  private convertItemDateFromServer(res: HttpResponse<ISalesLine>): HttpResponse<ISalesLine> {
-    if (res.body) {
-      res.body.createdAt = res.body.createdAt ? moment(res.body.createdAt) : undefined;
-      res.body.updatedAt = res.body.updatedAt ? moment(res.body.updatedAt) : undefined;
-    }
-    return res;
-  }
 }

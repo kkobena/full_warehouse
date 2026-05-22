@@ -1,11 +1,10 @@
-import { Moment } from 'moment';
 import { IUser } from 'app/core/user/user.model';
 import { IProduit } from 'app/shared/model/produit.model';
 
 export interface IDecondition {
   id?: number;
   qtyMvt?: number;
-  dateMtv?: Moment;
+  dateMtv?: string;
   stockBefore?: number;
   stockAfter?: number;
   user?: IUser;
@@ -17,7 +16,7 @@ export class Decondition implements IDecondition {
   constructor(
     public id?: number,
     public qtyMvt?: number,
-    public dateMtv?: Moment,
+    public dateMtv?: string,
     public stockBefore?: number,
     public stockAfter?: number,
     public user?: IUser,

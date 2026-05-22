@@ -1,8 +1,6 @@
 import { inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import moment from 'moment';
 
 import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOptions } from 'app/shared/util/request-util';
@@ -30,30 +28,22 @@ export class AjustementService {
   constructor() {}
 
   find(id: number): Observable<EntityResponseType> {
-    return this.http
-      .get<IAjustement>(`${this.resourceUrl}/${id}`, { observe: 'response' })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+    return this.http.get<IAjustement>(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOptions(req);
-    return this.http
-      .get<IAjustement[]>(this.resourceUrl, { params: options, observe: 'response' })
-      .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
+    return this.http.get<IAjustement[]>(this.resourceUrl, { params: options, observe: 'response' });
   }
 
   queryAjustement(req?: any): Observable<HttpResponse<IAjust[]>> {
     const options = createRequestOptions(req);
-    return this.http
-      .get<IAjust[]>(this.resourceUrl + '/ajust', { params: options, observe: 'response' })
-      .pipe(map((res: HttpResponse<IAjust[]>) => this.convertAjustDateArrayFromServer(res)));
+    return this.http.get<IAjust[]>(this.resourceUrl + '/ajust', { params: options, observe: 'response' });
   }
 
   queryAll(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOptions(req);
-    return this.http
-      .get<IAjustement[]>(this.resourceUrl + '/all', { params: options, observe: 'response' })
-      .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
+    return this.http.get<IAjustement[]>(this.resourceUrl + '/all', { params: options, observe: 'response' });
   }
 
   create(ajustement: IAjust): Observable<HttpResponse<IAjust>> {
@@ -69,10 +59,7 @@ export class AjustementService {
   }
 
   updateItem(ajustement: IAjustement): Observable<EntityResponseType> {
-    const copy = this.convertDateFromClient(ajustement);
-    return this.http
-      .put<IAjustement>(this.resourceUrl + '/item', copy, { observe: 'response' })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+    return this.http.put<IAjustement>(this.resourceUrl + '/item', ajustement, { observe: 'response' });
   }
 
   delete(id: number): Observable<HttpResponse<{}>> {
@@ -95,35 +82,4 @@ export class AjustementService {
     this.toolbarParam.set(param);
   }
 
-  protected convertDateFromClient(ajustement: IAjustement): IAjustement {
-    const copy: IAjustement = Object.assign({}, ajustement, {
-      dateMtv: ajustement.dateMtv && ajustement.dateMtv.isValid() ? ajustement.dateMtv.toJSON() : undefined,
-    });
-    return copy;
-  }
-
-  protected convertDateFromServer(res: EntityResponseType): EntityResponseType {
-    if (res.body) {
-      res.body.dateMtv = res.body.dateMtv ? moment(res.body.dateMtv) : undefined;
-    }
-    return res;
-  }
-
-  protected convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
-    if (res.body) {
-      res.body.forEach((ajustement: IAjustement) => {
-        ajustement.dateMtv = ajustement.dateMtv ? moment(ajustement.dateMtv) : undefined;
-      });
-    }
-    return res;
-  }
-
-  protected convertAjustDateArrayFromServer(res: HttpResponse<IAjust[]>): HttpResponse<IAjust[]> {
-    if (res.body) {
-      res.body.forEach((ajustement: IAjust) => {
-        ajustement.dateMtv = ajustement.dateMtv ? moment(ajustement.dateMtv) : undefined;
-      });
-    }
-    return res;
-  }
 }

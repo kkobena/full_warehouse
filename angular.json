@@ -20,7 +20,7 @@
         "build": {
           "builder": "@angular-builders/custom-webpack:browser",
           "options": {
-            "allowedCommonJsDependencies": ["file-saver", "dayjs", "moment"],
+            "allowedCommonJsDependencies": ["file-saver", "dayjs"],
             "customWebpackConfig": {
               "path": "./webpack/webpack.custom.js"
             },

@@ -2,7 +2,18 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { SERVER_API_URL } from 'app/app.constants';
-import { IBasketEvolution, IDailyCA, IDashboardCASummary, IDashboardCAEvolution, IPaymentMethodCA, IProductFamilyCA } from 'app/shared/model/report';
+import {
+  IBasketEvolution,
+  IDailyCA,
+  IDashboardCASummary,
+  IDashboardCAEvolution,
+  IGenericsSubstitution,
+  IPaymentMethodCA,
+  IPerformanceVendeur,
+  IProductFamilyCA,
+  IRemisesAnalysisKpi,
+  ITopRemiseProduit,
+} from 'app/shared/model/report';
 import { ITopProduct } from 'app/shared/model/report/top-product.model';
 
 type EntityArrayResponseType = HttpResponse<IDailyCA[]>;
@@ -122,5 +133,37 @@ export class DashboardCAService {
    */
   refreshViews(): Observable<HttpResponse<void>> {
     return this.http.post<void>(`${this.resourceUrl}/refresh`, null, { observe: 'response' });
+  }
+
+  /**
+   * Get sales performance aggregated by staff member (vendeur)
+   */
+  getSalesByStaff(startDate: string, endDate: string): Observable<HttpResponse<IPerformanceVendeur[]>> {
+    const params = new HttpParams().set('startDate', startDate).set('endDate', endDate);
+    return this.http.get<IPerformanceVendeur[]>(`${this.resourceUrl}/by-staff`, { params, observe: 'response' });
+  }
+
+  /**
+   * Get generics vs branded substitution statistics
+   */
+  getGenericsSubstitution(startDate: string, endDate: string): Observable<HttpResponse<IGenericsSubstitution>> {
+    const params = new HttpParams().set('startDate', startDate).set('endDate', endDate);
+    return this.http.get<IGenericsSubstitution>(`${this.resourceUrl}/generics-substitution`, { params, observe: 'response' });
+  }
+
+  /**
+   * Get discount (remise) KPIs for a date range
+   */
+  getRemisesKpi(startDate: string, endDate: string): Observable<HttpResponse<IRemisesAnalysisKpi>> {
+    const params = new HttpParams().set('startDate', startDate).set('endDate', endDate);
+    return this.http.get<IRemisesAnalysisKpi>(`${this.resourceUrl}/remises-analysis`, { params, observe: 'response' });
+  }
+
+  /**
+   * Get top discounted products for a date range
+   */
+  getRemisesTopProducts(startDate: string, endDate: string, limit = 10): Observable<HttpResponse<ITopRemiseProduit[]>> {
+    const params = new HttpParams().set('startDate', startDate).set('endDate', endDate).set('limit', limit.toString());
+    return this.http.get<ITopRemiseProduit[]>(`${this.resourceUrl}/remises-analysis/top-products`, { params, observe: 'response' });
   }
 }

@@ -1,4 +1,5 @@
 import { Component, computed, inject, signal, viewChild } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { ActivitySummaryService } from './activity-summary.service';
 import { ChiffreAffaire } from './model/chiffre-affaire.model';
 import { GroupeFournisseurAchat } from './model/groupe-fournisseur-achat.model';
@@ -17,8 +18,7 @@ import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { InputText } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
-import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
-import { handleBlobForTauri } from '../../../shared/util/tauri-util';
+import { BlobDownloadService } from '../../../shared/services/blob-download.service';
 import { finalize } from 'rxjs/operators';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 import { Tooltip } from 'primeng/tooltip';
@@ -38,6 +38,7 @@ import { Tooltip } from 'primeng/tooltip';
     TableModule,
     ToastAlertComponent,
     Tooltip,
+    RouterLink,
   ],
   templateUrl: './activity-summary.component.html',
   styleUrl: './activity-summary.component.scss',
@@ -61,7 +62,7 @@ export class ActivitySummaryComponent {
   private readonly translate = inject(TranslateService);
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly activitySummaryService = inject(ActivitySummaryService);
-  private readonly tauriPrinterService = inject(TauriPrinterService);
+  private readonly blobDownloadService = inject(BlobDownloadService);
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   constructor() {
     this.translate.use('fr');
@@ -85,16 +86,8 @@ export class ActivitySummaryComponent {
     this.activitySummaryService
       .onPrintPdf(this.buildRequest())
       .pipe(finalize(() => (this.loadingPdf = false)))
-
       .subscribe({
-        next: blob => {
-          this.loadingPdf = false;
-          if (this.tauriPrinterService.isRunningInTauri()) {
-            handleBlobForTauri(blob, 'rapport-activite');
-          } else {
-            window.open(URL.createObjectURL(blob));
-          }
-        },
+        next: blob => this.blobDownloadService.downloadPdf(blob, 'rapport-activite'),
         error: () => this.alert().showError("Une erreur est survenue lors de l'export PDF"),
       });
   }

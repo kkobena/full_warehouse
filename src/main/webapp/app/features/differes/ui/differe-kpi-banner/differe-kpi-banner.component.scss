@@ -1,4 +1,5 @@
 @use 'app/shared/scss/dashboard-common' as dashboard;
+@use 'app/shared/scss/kpi-strip' as *;
 
 .kpi-banner {
   margin-bottom: 0.5rem;

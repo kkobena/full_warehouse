@@ -1,0 +1,141 @@
+<!-- Toolbar -->
+<div class="pharma-toolbar">
+  <div class="pharma-toolbar-header">
+    <i class="pi pi-chart-line"></i>
+    <span class="pharma-toolbar-title">Saisonnalité du Chiffre d'Affaires</span>
+  </div>
+  <div class="pharma-toolbar-content">
+    <div class="pharma-toolbar-filters">
+      <pharma-date-range-filter
+        [fromDate]="fromDate()"
+        (fromDateChange)="fromDate.set($event)"
+        [toDate]="toDate()"
+        (toDateChange)="toDate.set($event)"
+        [loading]="isLoading()"
+        (search)="load()"
+      />
+    </div>
+  </div>
+</div>
+
+<!-- Loading -->
+@if (isLoading()) {
+  <div class="d-flex justify-content-center align-items-center" style="min-height: 300px">
+    <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
+  </div>
+}
+
+@if (!isLoading() && chartConfig()) {
+  <!-- KPI strip -->
+  <div class="kpi-strip mt-2 mb-3">
+    <div class="kpi-strip-item primary-accent">
+      <i class="pi pi-chart-bar text-primary"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">CA Période</span>
+        <span class="kpi-strip-value text-primary">{{ formatCurrency(totalCA()) }} <small>FCFA</small></span>
+        <span class="kpi-strip-sub">{{ tableRows().length }} mois</span>
+      </div>
+    </div>
+    <div class="kpi-strip-divider"></div>
+    <div class="kpi-strip-item">
+      <i class="pi pi-history text-secondary"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">CA Période préc.</span>
+        <span class="kpi-strip-value">{{ formatCurrency(totalPrev()) }} <small>FCFA</small></span>
+        <span class="kpi-strip-sub">même durée N-1</span>
+      </div>
+    </div>
+    <div class="kpi-strip-divider"></div>
+    <div class="kpi-strip-item">
+      <i [class]="'pi ' + evoIcon(totalEvo()) + ' ' + evoClass(totalEvo())"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Évolution</span>
+        <span class="kpi-strip-value {{ evoClass(totalEvo()) }}">{{ totalEvo() > 0 ? '+' : '' }}{{ totalEvo() }} %</span>
+        <span class="kpi-strip-sub">vs période précédente</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="card data-card mb-3">
+    <div class="card-header">
+      <h5 class="card-title">
+        <i class="pi pi-chart-bar text-primary"></i>
+        Évolution mensuelle du CA
+      </h5>
+    </div>
+    <div class="card-body" style="height: 350px">
+      <p-chart
+        type="bar"
+        [data]="chartConfig()!.data"
+        [options]="chartConfig()!.options"
+        height="320px"
+      />
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card data-card">
+    <p-table
+      [value]="tableRows()"
+      [scrollable]="true"
+      scrollHeight="calc(100vh - 620px)"
+      [stripedRows]="true"
+      class="p-datatable-sm"
+    >
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th>Mois</th>
+          <th class="text-end">CA Période</th>
+          <th class="text-end">CA Période préc.</th>
+          <th class="text-end">Transactions</th>
+          <th class="text-end">Évolution</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-row>
+        <tr>
+          <td><strong>{{ row.label }}</strong></td>
+          <td class="text-end">{{ formatCurrency(row.ca) }}</td>
+          <td class="text-end text-muted">{{ formatCurrency(row.caPrev) }}</td>
+          <td class="text-end">{{ formatNumber(row.transactions) }}</td>
+          <td class="text-end">
+            <span class="{{ evoClass(row.evolution) }} fw-semibold">
+              <i class="pi {{ evoIcon(row.evolution) }} me-1" style="font-size:.75rem"></i>
+              {{ row.evolution > 0 ? '+' : '' }}{{ row.evolution }} %
+            </span>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #footer>
+        <tr class="fw-bold">
+          <td>Total</td>
+          <td class="text-end text-primary">{{ formatCurrency(totalCA()) }}</td>
+          <td class="text-end text-muted">{{ formatCurrency(totalPrev()) }}</td>
+          <td class="text-end">—</td>
+          <td class="text-end {{ evoClass(totalEvo()) }}">
+            {{ totalEvo() > 0 ? '+' : '' }}{{ totalEvo() }} %
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="5" class="pharma-empty-message">
+            <div class="pharma-empty-content">
+              <i class="pi pi-inbox" style="font-size: 2rem"></i>
+              <p class="mt-2 mb-0">Aucune donnée sur cette période</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+}
+
+@if (!isLoading() && !chartConfig()) {
+  <div class="d-flex justify-content-center align-items-center" style="min-height: 200px">
+    <div class="pharma-empty-content">
+      <i class="pi pi-inbox" style="font-size: 2.5rem"></i>
+      <p class="mt-2 mb-0 text-muted">Aucune donnée disponible pour cette période</p>
+    </div>
+  </div>
+}

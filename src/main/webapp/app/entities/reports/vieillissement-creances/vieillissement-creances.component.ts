@@ -82,7 +82,7 @@ export default class VieillissementCreancesComponent implements OnInit, OnDestro
     this.encoursMensuelChart?.destroy();
   }
 
-  protected setTranche(t: TranchePill): void {
+  setTranche(t: TranchePill): void {
     this.trancheFilter.set(t);
   }
 

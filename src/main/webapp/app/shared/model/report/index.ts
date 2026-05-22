@@ -25,8 +25,14 @@ export * from './comparative-report.model';
 export * from './sales-forecast.model';
 export * from './market-basket.model';
 
-// Phase 5 Models
+// Phase 5 — Finance Models
 export * from './pnl-analytique.model';
 export * from './vieillissement-creances.model';
 export * from './concentration-payers.model';
 export * from './cash-flow-bfr.model';
+
+// Phase 5 — Sales Models (IPerformanceVendeur, IGenericsSubstitution in dashboard-ca.model)
+
+// Phase 6 Models
+export * from './demarque.model';
+export * from './client-retention.model';

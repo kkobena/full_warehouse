@@ -1,0 +1,132 @@
+<div class="container-fluid p-0">
+
+  <!-- Toolbar fusionné — avant les onglets -->
+  <div class="pharma-toolbar">
+    <div class="pharma-toolbar-header">
+      @if (active() === 'pareto') {
+        <i class="pi pi-chart-pie"></i>
+        <span class="pharma-toolbar-title">Analyse ABC Pareto (5 classes)</span>
+      } @else {
+        <i class="pi pi-sync"></i>
+        <span class="pharma-toolbar-title">Rotation du Stock (Analyse ABC)</span>
+      }
+    </div>
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters">
+          @if (active() === 'pareto') {
+            <p-select
+              [ngModel]="paretoComp?.selectedFamille()"
+              (ngModelChange)="onParetoFamilleChange($event)"
+              [options]="paretoComp?.familleOptions() ?? []"
+              [showClear]="true"
+              appendTo="body"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Famille"
+              size="large"
+            />
+            <p-select
+              [ngModel]="paretoComp?.selectedClassePareto()"
+              (ngModelChange)="onParetoClasseChange($event)"
+              [options]="paretoComp?.classeParetoOptions() ?? []"
+              [showClear]="true"
+              appendTo="body"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Classe Pareto"
+              size="large"
+            />
+          }
+          @if (active() === 'rotation') {
+            <p-select
+              [ngModel]="rotationComp?.selectedCategorie()"
+              (ngModelChange)="onRotationCategorieChange($event)"
+              [disabled]="rotationComp?.showSlowMovingOnly() ?? false"
+              [options]="rotationComp?.categorieOptions() ?? []"
+              [showClear]="true"
+              appendTo="body"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Catégorie"
+              size="large"
+            />
+            <p-select
+              [ngModel]="rotationComp?.selectedABC()"
+              (ngModelChange)="onRotationABCChange($event)"
+              [disabled]="rotationComp?.showSlowMovingOnly() ?? false"
+              [options]="rotationComp?.abcOptions ?? []"
+              [showClear]="true"
+              appendTo="body"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Classification ABC"
+              size="large"
+            />
+          }
+        </div>
+      </ng-template>
+      <ng-template #end>
+        @if (active() === 'pareto') {
+          <div class="flex gap-2">
+            <p-button (onClick)="paretoComp?.toggleHelpDrawer()" [outlined]="true"
+                      icon="pi pi-question-circle" label="Aide" severity="secondary" size="small" />
+            <p-button (onClick)="paretoComp?.showTopContributors()"
+                      icon="pi pi-star" label="Top 50 Contributeurs" severity="info" size="small" />
+            <p-button (onClick)="paretoComp?.loadABCPareto()"
+                      icon="pi pi-refresh" label="Rafraîchir" severity="primary" size="small" />
+          </div>
+        }
+        @if (active() === 'rotation') {
+          <div class="flex gap-2">
+            <p-button (onClick)="rotationComp?.toggleHelpDrawer()" [outlined]="true"
+                      icon="pi pi-question-circle" label="Aide" severity="secondary" size="small" />
+            <p-button (onClick)="rotationComp?.onClearFilters()"
+                      icon="pi pi-filter-slash" label="Effacer les filtres" severity="secondary" size="small" />
+            <p-button (onClick)="rotationComp?.exportToPdf()"
+                      icon="pi pi-file-pdf" label="Exporter PDF" severity="danger" size="small" />
+            <p-button (onClick)="rotationComp?.loadRotations()"
+                      icon="pi pi-refresh" label="Rafraîchir" severity="primary" size="small" />
+          </div>
+        }
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <!-- Onglets -->
+  <div class="pharma-nav-tabs-container">
+    <div
+      #nav="ngbNav"
+      [activeId]="active()"
+      (activeIdChange)="onActiveChange($event)"
+      class="nav pharma-nav-tabs"
+      ngbNav
+      orientation="horizontal"
+    >
+      <ng-container [ngbNavItem]="'pareto'">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-sort-amount-down me-1"></i>
+          Par chiffre d'affaires (Pareto)
+        </a>
+        <ng-template ngbNavContent>
+          <jhi-abc-pareto />
+        </ng-template>
+      </ng-container>
+
+      <ng-container [ngbNavItem]="'rotation'">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-sync me-1"></i>
+          Par rotation
+        </a>
+        <ng-template ngbNavContent>
+          <jhi-stock-rotation />
+        </ng-template>
+      </ng-container>
+    </div>
+
+    <div class="pharma-nav-tabs-outlet">
+      <div [ngbNavOutlet]="nav"></div>
+    </div>
+  </div>
+
+</div>

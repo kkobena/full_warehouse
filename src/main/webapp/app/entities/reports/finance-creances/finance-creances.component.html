@@ -1,0 +1,89 @@
+<div class="container-fluid p-0">
+
+  <!-- Toolbar fusionné — avant les onglets -->
+  <div class="pharma-toolbar">
+    <div class="pharma-toolbar-header">
+      @if (active() === 'vieillissement-creances') {
+        <i class="pi pi-clock"></i>
+        <span class="pharma-toolbar-title">Vieillissement Créances</span>
+      } @else {
+        <i class="pi pi-users"></i>
+        <span class="pharma-toolbar-title">Concentration Payeurs</span>
+      }
+    </div>
+    <div class="pharma-toolbar-content">
+      <div class="pharma-toolbar-filters">
+        @if (active() === 'vieillissement-creances') {
+          <span class="text-muted small"><i class="pi pi-info-circle me-1"></i>Créances tiers-payants en cours</span>
+        }
+        @if (active() === 'concentration-payers') {
+          <span class="text-muted small"><i class="pi pi-info-circle me-1"></i>Risque institutionnel par organisme TP</span>
+        }
+      </div>
+      <div class="pharma-toolbar-actions">
+        @if (active() === 'vieillissement-creances') {
+          <div class="dashboard-periode-selector">
+            <button class="periode-pill" [class.active]="trancheFilter() === 'all'" (click)="setTranche('all')">Tous</button>
+            <button class="periode-pill" [class.active]="trancheFilter() === '0-30'" (click)="setTranche('0-30')">0–30j</button>
+            <button class="periode-pill" [class.active]="trancheFilter() === '31-60'" (click)="setTranche('31-60')">31–60j</button>
+            <button class="periode-pill" [class.active]="trancheFilter() === '61-90'" (click)="setTranche('61-90')">61–90j</button>
+            <button class="periode-pill" [class.active]="trancheFilter() === '90+'" (click)="setTranche('90+')">
+              <i class="pi pi-exclamation-triangle"></i><span class="pill-label">&gt;90j</span>
+            </button>
+          </div>
+        }
+        @if (active() === 'concentration-payers') {
+          <div class="dashboard-periode-selector">
+            <button class="periode-pill" [class.active]="periode() === 'quarter'" (click)="setPeriode('quarter')">
+              <i class="pi pi-calendar"></i><span class="pill-label">Trimestre</span>
+            </button>
+            <button class="periode-pill" [class.active]="periode() === 'year'" (click)="setPeriode('year')">
+              <i class="pi pi-calendar-plus"></i><span class="pill-label">Année en cours</span>
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Onglets -->
+  <div class="pharma-nav-tabs-container">
+    <div
+      #nav="ngbNav"
+      [activeId]="active()"
+      (activeIdChange)="onActiveChange($event)"
+      class="nav pharma-nav-tabs"
+      ngbNav
+      orientation="horizontal"
+    >
+      @if (showVieillissement()) {
+        <ng-container [ngbNavItem]="'vieillissement-creances'">
+          <a class="pharma-nav-tab-link" ngbNavLink>
+            <i class="pi pi-clock me-1"></i>
+            Vieillissement créances TP
+          </a>
+          <ng-template ngbNavContent>
+            <app-vieillissement-creances />
+          </ng-template>
+        </ng-container>
+      }
+
+      @if (showConcentration()) {
+        <ng-container [ngbNavItem]="'concentration-payers'">
+          <a class="pharma-nav-tab-link" ngbNavLink>
+            <i class="pi pi-sitemap me-1"></i>
+            Concentration payeurs
+          </a>
+          <ng-template ngbNavContent>
+            <app-concentration-payers />
+          </ng-template>
+        </ng-container>
+      }
+    </div>
+
+    <div class="pharma-nav-tabs-outlet">
+      <div [ngbNavOutlet]="nav"></div>
+    </div>
+  </div>
+
+</div>

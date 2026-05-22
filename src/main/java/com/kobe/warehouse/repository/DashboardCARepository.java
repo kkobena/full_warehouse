@@ -102,6 +102,65 @@ public class DashboardCARepository {
         "   AND s.canceled = false AND s.ca = 'CA'" +
         "   AND s.sale_date < (CURRENT_DATE - INTERVAL '30 days')";
 
+    private static final String REMISES_KPI_SQL =
+        "SELECT" +
+        "  COALESCE(SUM(sl.discount_amount), 0) AS total_remise," +
+        "  COALESCE(SUM(sl.sales_amount), 0) AS ca_apres_remise," +
+        "  ROUND(100.0 * COALESCE(SUM(sl.discount_amount), 0)" +
+        "    / NULLIF(SUM(sl.sales_amount + sl.discount_amount), 0), 2) AS taux_remise," +
+        "  COUNT(DISTINCT CASE WHEN sl.discount_amount > 0 THEN sl.sales_id END) AS nb_ventes_avec_remise," +
+        "  COUNT(DISTINCT sl.sales_id) AS nb_ventes_total" +
+        " FROM sales s" +
+        " JOIN sales_line sl ON s.id = sl.sales_id" +
+        " WHERE s.statut = 'CLOSED' AND s.canceled = false AND s.ca = 'CA'" +
+        "   AND s.sale_date BETWEEN :startDate AND :endDate";
+
+    private static final String REMISES_TOP_PRODUCTS_SQL =
+        "SELECT p.libelle," +
+        "  COALESCE(SUM(sl.discount_amount), 0) AS montant_remise," +
+        "  COUNT(DISTINCT sl.sales_id) AS nb_ventes" +
+        " FROM sales s" +
+        " JOIN sales_line sl ON s.id = sl.sales_id" +
+        " JOIN produit p ON sl.produit_id = p.id" +
+        " WHERE s.statut = 'CLOSED' AND s.canceled = false AND s.ca = 'CA'" +
+        "   AND sl.discount_amount > 0" +
+        "   AND s.sale_date BETWEEN :startDate AND :endDate" +
+        " GROUP BY p.id, p.libelle" +
+        " ORDER BY montant_remise DESC";
+
+    private static final String SALES_BY_STAFF_SQL =
+        "SELECT u.id," +
+        "  COALESCE(NULLIF(TRIM(CONCAT(u.first_name, ' ', u.last_name)), ''), u.login) AS vendeur_nom," +
+        "  COUNT(DISTINCT s.id) AS nombre_ventes," +
+        "  COALESCE(SUM(sl.sales_amount), 0) AS montant_total," +
+        "  CASE WHEN COUNT(DISTINCT s.id) > 0" +
+        "    THEN COALESCE(SUM(sl.sales_amount), 0) / COUNT(DISTINCT s.id)" +
+        "    ELSE 0 END AS ticket_moyen," +
+        "  ROUND(100.0 * COALESCE(SUM(sl.discount_amount), 0)" +
+        "    / NULLIF(SUM(sl.sales_amount + sl.discount_amount), 0), 2) AS taux_remise" +
+        " FROM sales s" +
+        " JOIN app_user u ON s.seller_id = u.id" +
+        " JOIN sales_line sl ON s.id = sl.sales_id" +
+        " WHERE s.statut = 'CLOSED' AND s.canceled = false AND s.ca = 'CA'" +
+        "   AND s.sale_date BETWEEN :startDate AND :endDate" +
+        " GROUP BY u.id, u.first_name, u.last_name, u.login" +
+        " ORDER BY montant_total DESC";
+
+    private static final String GENERICS_SUBSTITUTION_SQL =
+        "SELECT" +
+        "  COUNT(DISTINCT sl.produit_id) AS total_produits," +
+        "  COUNT(DISTINCT CASE WHEN sub_g.id IS NOT NULL THEN sl.produit_id END) AS produits_generiques," +
+        "  COUNT(DISTINCT CASE WHEN sub_p.id IS NOT NULL THEN sl.produit_id END) AS princeps_avec_generique," +
+        "  COALESCE(SUM(sl.sales_amount), 0) AS ca_total," +
+        "  COALESCE(SUM(CASE WHEN sub_g.id IS NOT NULL THEN sl.sales_amount ELSE 0 END), 0) AS ca_generiques," +
+        "  COALESCE(SUM(CASE WHEN sub_p.id IS NOT NULL THEN sl.sales_amount ELSE 0 END), 0) AS ca_princeps" +
+        " FROM sales s" +
+        " JOIN sales_line sl ON s.id = sl.sales_id" +
+        " LEFT JOIN substitut sub_g ON sub_g.substitut_id = sl.produit_id AND sub_g.type_substitut = 'GENERIQUE'" +
+        " LEFT JOIN substitut sub_p ON sub_p.produit_id = sl.produit_id AND sub_p.type_substitut = 'GENERIQUE'" +
+        " WHERE s.statut = 'CLOSED' AND s.canceled = false AND s.ca = 'CA'" +
+        "   AND s.sale_date BETWEEN :startDate AND :endDate";
+
     private final EntityManager entityManager;
 
     public DashboardCARepository(EntityManager entityManager) {
@@ -177,5 +236,36 @@ public class DashboardCARepository {
     @Transactional
     public void refreshViews() {
         entityManager.createNativeQuery("SELECT refresh_dashboard_ca_views()").getSingleResult();
+    }
+
+    public Object[] findRemisesKpi(LocalDate startDate, LocalDate endDate) {
+        return (Object[]) entityManager.createNativeQuery(REMISES_KPI_SQL)
+            .setParameter("startDate", startDate)
+            .setParameter("endDate", endDate)
+            .getSingleResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Object[]> findRemisesTopProducts(LocalDate startDate, LocalDate endDate, int limit) {
+        return entityManager.createNativeQuery(REMISES_TOP_PRODUCTS_SQL)
+            .setParameter("startDate", startDate)
+            .setParameter("endDate", endDate)
+            .setMaxResults(limit)
+            .getResultList();
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Object[]> findSalesByStaff(LocalDate startDate, LocalDate endDate) {
+        return entityManager.createNativeQuery(SALES_BY_STAFF_SQL)
+            .setParameter("startDate", startDate)
+            .setParameter("endDate", endDate)
+            .getResultList();
+    }
+
+    public Object[] findGenericsSubstitutionStats(LocalDate startDate, LocalDate endDate) {
+        return (Object[]) entityManager.createNativeQuery(GENERICS_SUBSTITUTION_SQL)
+            .setParameter("startDate", startDate)
+            .setParameter("endDate", endDate)
+            .getSingleResult();
     }
 }

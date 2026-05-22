@@ -1,0 +1,150 @@
+<!-- Toolbar -->
+<div class="pharma-toolbar">
+  <div class="pharma-toolbar-header">
+    <i class="pi pi-minus-circle"></i>
+    <span class="pharma-toolbar-title">Démarque &amp; Ajustements de Stock</span>
+  </div>
+  <div class="pharma-toolbar-content">
+    <div class="pharma-toolbar-filters">
+      <pharma-date-range-filter
+        [fromDate]="fromDate()"
+        (fromDateChange)="fromDate.set($event)"
+        [toDate]="toDate()"
+        (toDateChange)="toDate.set($event)"
+        [loading]="isLoading()"
+        (search)="load()"
+      />
+    </div>
+  </div>
+</div>
+
+<!-- Loading -->
+@if (isLoading()) {
+  <div class="d-flex justify-content-center align-items-center" style="min-height: 300px">
+    <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
+  </div>
+}
+
+@if (!isLoading() && kpi()) {
+
+  <!-- KPI Strip -->
+  <div class="kpi-strip mt-2 mb-3">
+    <div class="kpi-strip-item danger-accent">
+      <i class="pi pi-minus-circle text-danger"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Valeur perdue</span>
+        <span class="kpi-strip-value text-danger">{{ formatCurrency(kpi()?.valeurPerdue) }} <small>FCFA</small></span>
+        <span class="kpi-strip-sub">au coût d'achat</span>
+      </div>
+    </div>
+    <div class="kpi-strip-divider"></div>
+    <div class="kpi-strip-item warning-accent">
+      <i class="pi pi-box text-warning"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Quantité perdue</span>
+        <span class="kpi-strip-value text-warning">{{ formatNumber(kpi()?.totalQtyPerdue) }}</span>
+        <span class="kpi-strip-sub">unités sorties du stock</span>
+      </div>
+    </div>
+    <div class="kpi-strip-divider"></div>
+    <div class="kpi-strip-item">
+      <i class="pi pi-file-edit text-secondary"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Ajustements</span>
+        <span class="kpi-strip-value">{{ formatNumber(kpi()?.nbAjustements) }}</span>
+        <span class="kpi-strip-sub">bons d'ajustement clôturés</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart + Table -->
+  <div class="row g-3 mb-3">
+
+    <!-- Doughnut by motif -->
+    @if (byMotif().length) {
+      <div class="col-md-4">
+        <div class="card data-card h-100">
+          <div class="card-header">
+            <h5 class="card-title">
+              <i class="pi pi-chart-pie text-danger"></i>
+              Répartition par motif
+            </h5>
+          </div>
+          <div class="card-body" style="position: relative; height: 280px">
+            <canvas #doughnutCanvas></canvas>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Table by motif -->
+    <div [class]="byMotif().length ? 'col-md-8' : 'col-12'">
+      <div class="card data-card">
+        <p-table
+          [value]="byMotif()"
+          [scrollable]="true"
+          scrollHeight="calc(100vh - 420px)"
+          [stripedRows]="true"
+          class="p-datatable-sm"
+          sortField="valeur"
+          [sortOrder]="-1"
+        >
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th pSortableColumn="motif">Motif <p-sortIcon field="motif" /></th>
+              <th class="text-end" pSortableColumn="nbLignes">Lignes <p-sortIcon field="nbLignes" /></th>
+              <th class="text-end" pSortableColumn="totalQty">Qté perdue <p-sortIcon field="totalQty" /></th>
+              <th class="text-end" pSortableColumn="valeur">Valeur <p-sortIcon field="valeur" /></th>
+              <th class="text-end">Part</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-m>
+            <tr>
+              <td><span class="fw-semibold">{{ m.motif }}</span></td>
+              <td class="text-end">{{ formatNumber(m.nbLignes) }}</td>
+              <td class="text-end">{{ formatNumber(m.totalQty) }}</td>
+              <td class="text-end fw-semibold text-danger">{{ formatCurrency(m.valeur) }}</td>
+              <td class="text-end">
+                <div class="d-flex align-items-center justify-content-end gap-1">
+                  <div class="progress flex-grow-1" style="height: 6px; min-width: 60px">
+                    <div class="progress-bar bg-danger" [style.width]="sharePercent(m.valeur) + '%'"></div>
+                  </div>
+                  <span class="text-muted small">{{ sharePercent(m.valeur) }}%</span>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template #footer>
+            <tr class="fw-bold">
+              <td>Total</td>
+              <td class="text-end">—</td>
+              <td class="text-end">{{ formatNumber(kpi()?.totalQtyPerdue) }}</td>
+              <td class="text-end text-danger">{{ formatCurrency(kpi()?.valeurPerdue) }}</td>
+              <td class="text-end">100 %</td>
+            </tr>
+          </ng-template>
+          <ng-template #emptymessage>
+            <tr>
+              <td colspan="5" class="pharma-empty-message">
+                <div class="pharma-empty-content">
+                  <i class="pi pi-inbox" style="font-size: 2rem"></i>
+                  <p class="mt-2 mb-0">Aucune démarque sur cette période</p>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+
+  </div>
+}
+
+@if (!isLoading() && !kpi()) {
+  <div class="d-flex justify-content-center align-items-center" style="min-height: 200px">
+    <div class="pharma-empty-content">
+      <i class="pi pi-inbox" style="font-size: 2.5rem"></i>
+      <p class="mt-2 mb-0 text-muted">Aucune donnée disponible pour cette période</p>
+    </div>
+  </div>
+}

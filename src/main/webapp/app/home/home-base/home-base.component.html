@@ -78,6 +78,16 @@
             <i class="pi pi-chart-line"></i>
             <span class="pill-label">Marges & Résultat</span>
           </a>
+          <a routerLink="/facturation" class="periode-pill"
+             title="Facturation tiers-payants">
+            <i class="pi pi-file-invoice"></i>
+            <span class="pill-label">Facturation</span>
+          </a>
+          <a routerLink="/differes" class="periode-pill"
+             title="Différés clients">
+            <i class="pi pi-users"></i>
+            <span class="pill-label">Différés</span>
+          </a>
         </div>
         <div class="custom-segment-control">
           <div class="segment-track">
@@ -99,204 +109,101 @@
     </div>
   </div>
 
-  <!-- ─── KPI Cards avec skeleton (P1 + P4) ─────────────────────────────────── -->
+  <!-- ─── KPI Strip ────────────────────────────────────────────────────────── -->
   @if (isLoading()) {
-    <div class="row g-2 mb-2">
-      @for (_ of [1, 2, 3, 4, 5]; track _) {
-        <div class="col-xl-2 col-md-6 mb-2">
-          <div class="card" style="height: 160px; padding: 1rem">
-            <p-skeleton height="0.8rem" width="60%" class="mb-2" />
-            <p-skeleton height="1.8rem" width="75%" class="mb-2" />
-            <p-skeleton height="0.8rem" width="50%" />
+    <div class="kpi-strip mb-2">
+      @for (_ of [1, 2, 3, 4, 5, 6, 7]; track _) {
+        <div class="kpi-strip-item">
+          <p-skeleton shape="circle" size="1.5rem" />
+          <div class="kpi-strip-body">
+            <p-skeleton height="0.6rem" width="5rem" styleClass="mb-1" />
+            <p-skeleton height="1.1rem" width="7rem" styleClass="mb-1" />
+            <p-skeleton height="0.6rem" width="4rem" />
           </div>
         </div>
       }
     </div>
   } @else {
-    <div class="row g-2 mb-2">
-<!-- card kpi -->
-      <!-- Card 1 : CA Net + variation N-1 — Revenu total (indicateur primaire) -->
-      <div class="col-xl-2 col-md-6 mb-2">
-        <div class="card h-100 kpi-card primary-accent">
-          <div class="card-body">
-            <div class="kpi-header">
-              <div class="kpi-content">
-                <p class="kpi-label">CA Net</p>
-                <h4 class="kpi-value">
-                  <span>{{ venteRecord?.netAmount | number }}</span>
-                </h4>
-                @if (caEvolutionPct !== undefined && caEvolutionPct !== null && caEvolutionLabel) {
-                  <div class="kpi-variation"
-                       [class.kpi-up]="(caEvolutionPct ?? 0) >= 0"
-                       [class.kpi-down]="(caEvolutionPct ?? 0) < 0">
-                    <i [class]="(caEvolutionPct ?? 0) >= 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down'"></i>
-                    {{ caEvolutionPct | number:'1.1-1' }}% {{ caEvolutionLabel }}
-                  </div>
-                }
-                <div class="kpi-badges mt-1">
-                  <span class="badge bg-info-subtle text-info">{{ venteRecord?.saleCount | number }} ventes</span>
-                </div>
-              </div>
-              <div class="kpi-icon text-primary"><i class="pi pi-shopping-cart"></i></div>
-            </div>
-          </div>
-          <div class="card-footer">
-            <span class="footer-label">Remise</span>
-            <span class="badge bg-warning-subtle text-warning">{{ venteRecord?.discountAmount | number }}</span>
-          </div>
+    <div class="kpi-strip mb-2">
+
+      <div class="kpi-strip-item primary-accent">
+        <i class="pi pi-shopping-cart text-primary"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">CA Net</span>
+          <span class="kpi-strip-value text-primary">{{ venteRecord?.netAmount | number }}</span>
+          <span class="kpi-strip-sub">
+            {{ venteRecord?.saleCount | number }} ventes
+            @if (caEvolutionPct !== undefined && caEvolutionPct !== null) {
+              · <i [class]="(caEvolutionPct ?? 0) >= 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down'"></i>
+              {{ caEvolutionPct | number:'1.1-1' }}%
+            }
+          </span>
         </div>
       </div>
 
-      <!-- Card 2 : Marge brute — Rentabilité liée au CA -->
-      <div class="col-xl-2 col-md-6 mb-2">
-        <div class="card h-100 kpi-card success-accent">
-          <div class="card-body">
-            <div class="kpi-header">
-              <div class="kpi-content">
-                <p class="kpi-label">Marge brute</p>
-                <h4 class="kpi-value">
-                  <span>{{ margeSummary?.margeBruteGlobale | number }}</span>
-                </h4>
-                <div class="kpi-badges mt-1">
-                  <span class="badge bg-success-subtle text-success">
-                    {{ margeSummary?.tauxMargeMoyen | number:'1.1-1' }}% taux
-                  </span>
-                  <span class="badge bg-warning-subtle text-warning"
-                        title="Produits dont le taux de marge est insuffisant">
-                    {{ margeSummary?.nbProduitsMargeInsuffisante }} faible marge
-                  </span>
-                </div>
-              </div>
-              <div class="kpi-icon text-success"><i class="pi pi-percentage"></i></div>
-            </div>
-          </div>
-          <div class="card-footer">
-            <span class="footer-label">Coût d'achat</span>
-            <span class="badge bg-danger-subtle text-danger">{{ margeSummary?.coutAchatGlobal | number }}</span>
-          </div>
+      <div class="kpi-strip-divider"></div>
+
+      <div class="kpi-strip-item success-accent">
+        <i class="pi pi-percentage text-success"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">Marge brute</span>
+          <span class="kpi-strip-value text-success">{{ margeSummary?.margeBruteGlobale | number }}</span>
+          <span class="kpi-strip-sub">{{ margeSummary?.tauxMargeMoyen | number:'1.1-1' }}% · coût {{ margeSummary?.coutAchatGlobal | number }}</span>
         </div>
       </div>
 
-      <!-- Card 3 : Ventes comptant — Cash immédiat + annulations -->
-      <div class="col-xl-2 col-md-6 mb-2">
-        <div class="card h-100 kpi-card info-accent">
-          <div class="card-body">
-            <div class="kpi-header">
-              <div class="kpi-content">
-                <p class="kpi-label">Ventes comptant</p>
-                <h4 class="kpi-value">
-                  <span>{{ vno?.netAmount | number }}</span>
-                </h4>
-                <div class="kpi-badges mt-1">
-                  <span class="badge bg-info-subtle text-info">{{ vno?.saleCount | number }} ventes</span>
-                  @if (assurance?.netAmount) {
-                    <span class="badge bg-primary-subtle text-primary"
-                          title="Ventes tiers-payant">
-                      TP {{ assurance?.netAmount | number }}
-                    </span>
-                  }
-                </div>
-              </div>
-              <div class="kpi-icon text-info"><i class="pi pi-wallet"></i></div>
-            </div>
-          </div>
-          <div class="card-footer">
-            <span class="footer-label">Annulées</span>
-            <span class="badge bg-danger-subtle text-danger">
-              {{ canceled?.netAmount | number }}
-              @if ((canceled?.saleCount ?? 0) > 0) {
-                · {{ canceled?.saleCount }}
-              }
-            </span>
-          </div>
+      <div class="kpi-strip-divider"></div>
+
+      <div class="kpi-strip-item">
+        <i class="pi pi-wallet" style="color: var(--p-cyan-500)"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">Ventes comptant</span>
+          <span class="kpi-strip-value">{{ vno?.netAmount | number }}</span>
+          <span class="kpi-strip-sub">{{ vno?.saleCount | number }} ventes · annulées {{ canceled?.netAmount | number }}</span>
         </div>
       </div>
 
-      <!-- Card 4 : Créances tiers-payants aging — Cash différé / risque trésorerie -->
-      <div class="col-xl-2 col-md-6 mb-2">
-        <div class="card h-100 kpi-card danger-accent">
-          <div class="card-body">
-            <div class="kpi-header">
-              <div class="kpi-content">
-                <p class="kpi-label">Créances TP</p>
-                <h4 class="kpi-value">
-                  <span>{{ totalCreances | number }}</span>
-                </h4>
-                <div class="kpi-badges mt-1">
-                  <span class="badge bg-danger-subtle text-danger"
-                        title="Créances de plus de 90 jours — risque élevé">
-                    {{ creancesPlusDe90j | number }} &gt;90j
-                  </span>
-                  <span class="badge bg-secondary-subtle text-secondary">
-                    {{ creancesSummary.length }} assureurs
-                  </span>
-                </div>
-              </div>
-              <div class="kpi-icon text-danger"><i class="pi pi-credit-card"></i></div>
-            </div>
-          </div>
-          <div class="card-footer">
-            <span class="footer-label">CA TTC</span>
-            <span class="badge bg-primary-subtle text-primary">{{ venteRecord?.salesAmount | number }}</span>
-          </div>
+      <div class="kpi-strip-divider"></div>
+
+      <div class="kpi-strip-item danger-accent">
+        <i class="pi pi-credit-card text-danger"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">Créances TP</span>
+          <span class="kpi-strip-value text-danger">{{ totalCreances | number }}</span>
+          <span class="kpi-strip-sub">&gt;90j {{ creancesPlusDe90j | number }} · recouv. {{ facturationKpi?.tauxRecouvrement | number:'1.0-1' }}%</span>
         </div>
       </div>
 
-      <!-- Card 5 : Achats fournisseurs — Dépenses / impact sur marge -->
-      <div class="col-xl-2 col-md-6 mb-2">
-        <div class="card h-100 kpi-card warning-accent">
-          <div class="card-body">
-            <div class="kpi-header">
-              <div class="kpi-content">
-                <p class="kpi-label">Achats fournisseurs</p>
-                <h4 class="kpi-value">
-                  <span>{{ achatRecord?.receiptAmount | number }}</span>
-                  <span class="value-suffix">TTC</span>
-                </h4>
-                <div class="kpi-badges mt-1">
-                  <span class="badge bg-success-subtle text-success">{{ achatRecord?.netAmount | number }} HT</span>
-                  <span class="badge bg-info-subtle text-info">{{ achatRecord?.achatCount | number }} cdes</span>
-                </div>
-              </div>
-              <div class="kpi-icon text-warning"><i class="pi pi-truck"></i></div>
-            </div>
-          </div>
-          <div class="card-footer">
-            <span class="footer-label">TVA</span>
-            <span class="badge bg-info-subtle text-info">{{ achatRecord?.taxAmount | number }}</span>
-          </div>
+      <div class="kpi-strip-divider"></div>
+
+      <div class="kpi-strip-item warning-accent">
+        <i class="pi pi-truck text-warning"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">Achats fournisseurs</span>
+          <span class="kpi-strip-value text-warning">{{ achatRecord?.receiptAmount | number }}</span>
+          <span class="kpi-strip-sub">{{ achatRecord?.achatCount | number }} cdes · HT {{ achatRecord?.netAmount | number }}</span>
         </div>
       </div>
 
-      <!-- Card 6 : Stock valorisé — Actif immobilisé / vision stratégique -->
-      <div class="col-xl-2 col-md-6 mb-2">
-        <div class="card h-100 kpi-card warning-accent">
-          <div class="card-body">
-            <div class="kpi-header">
-              <div class="kpi-content">
-                <p class="kpi-label">Stock valorisé</p>
-                <h4 class="kpi-value">
-                  <span>{{ stockValuationSummary?.totalPurchaseValue | number }}</span>
-                  <span class="value-suffix">PA</span>
-                </h4>
-                <div class="kpi-badges mt-1">
-                  <span class="badge bg-success-subtle text-success">
-                    {{ stockValuationSummary?.totalSalesValue | number }} PV
-                  </span>
-                  <span class="badge bg-info-subtle text-info">
-                    {{ stockValuationSummary?.averageMarginPercentage | number:'1.1-1' }}% marge pot.
-                  </span>
-                </div>
-              </div>
-              <div class="kpi-icon text-warning"><i class="pi pi-box"></i></div>
-            </div>
-          </div>
-          <div class="card-footer">
-            <span class="footer-label">{{ stockValuationSummary?.totalProducts | number }} réf.</span>
-            <span class="badge bg-warning-subtle text-warning">
-              {{ stockValuationSummary?.totalQuantity | number }} unités
-            </span>
-          </div>
+      <div class="kpi-strip-divider"></div>
+
+      <div class="kpi-strip-item success-accent">
+        <i class="pi pi-box text-success"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">Stock valorisé</span>
+          <span class="kpi-strip-value text-success">{{ stockValuationSummary?.totalPurchaseValue | number }}</span>
+          <span class="kpi-strip-sub">{{ stockValuationSummary?.totalProducts | number }} réf. · marge pot. {{ stockValuationSummary?.averageMarginPercentage | number:'1.1-1' }}%</span>
+        </div>
+      </div>
+
+      <div class="kpi-strip-divider"></div>
+
+      <div class="kpi-strip-item warning-accent">
+        <i class="pi pi-users text-warning"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">Différés clients</span>
+          <span class="kpi-strip-value text-warning">{{ differeSummary?.rest | number }}</span>
+          <span class="kpi-strip-sub">accordé {{ differeSummary?.saleAmount | number }} · remb. {{ differeSummary?.paidAmount | number }}</span>
         </div>
       </div>
 

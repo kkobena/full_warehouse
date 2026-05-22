@@ -50,7 +50,8 @@
                 </ng-container>
               }
 
-              @if (showProfitability()) {
+              @if (false) {
+                <!-- À SUPPRIMER après validation TNR — migré vers Finance / Analyse de Rentabilité -->
                 <ng-container ngbNavItem="profitability">
                   <a class="pharma-nav-vertical-link" ngbNavLink>
                     <i class="pi pi-chart-line"></i>
@@ -98,6 +99,71 @@
                   </a>
                   <ng-template ngbNavContent>
                     <jhi-market-basket></jhi-market-basket>
+                  </ng-template>
+                </ng-container>
+              }
+
+              @if (showSalesByStaff()) {
+                <ng-container ngbNavItem="sales-by-staff">
+                  <a class="pharma-nav-vertical-link" ngbNavLink>
+                    <i class="pi pi-users"></i>
+                    <span>Performance Vendeurs</span>
+                    <span class="link-arrow">›</span>
+                  </a>
+                  <ng-template ngbNavContent>
+                    <app-sales-by-staff />
+                  </ng-template>
+                </ng-container>
+              }
+
+              @if (showSeasonality()) {
+                <ng-container ngbNavItem="seasonality">
+                  <a class="pharma-nav-vertical-link" ngbNavLink>
+                    <i class="pi pi-chart-line"></i>
+                    <span>Saisonnalité CA</span>
+                    <span class="link-arrow">›</span>
+                  </a>
+                  <ng-template ngbNavContent>
+                    <app-seasonality />
+                  </ng-template>
+                </ng-container>
+              }
+
+              @if (showGenericsSubstitution()) {
+                <ng-container ngbNavItem="generics-substitution">
+                  <a class="pharma-nav-vertical-link" ngbNavLink>
+                    <i class="pi pi-sync"></i>
+                    <span>Génériques &amp; Substitution</span>
+                    <span class="link-arrow">›</span>
+                  </a>
+                  <ng-template ngbNavContent>
+                    <app-generics-substitution />
+                  </ng-template>
+                </ng-container>
+              }
+
+              @if (showRemisesAnalysis()) {
+                <ng-container ngbNavItem="remises-analysis">
+                  <a class="pharma-nav-vertical-link" ngbNavLink>
+                    <i class="pi pi-tag"></i>
+                    <span>Analyse des Remises</span>
+                    <span class="link-arrow">›</span>
+                  </a>
+                  <ng-template ngbNavContent>
+                    <app-remises-analysis />
+                  </ng-template>
+                </ng-container>
+              }
+
+              @if (showClientRetention()) {
+                <ng-container ngbNavItem="client-retention">
+                  <a class="pharma-nav-vertical-link" ngbNavLink>
+                    <i class="pi pi-heart"></i>
+                    <span>Rétention Clients</span>
+                    <span class="link-arrow">›</span>
+                  </a>
+                  <ng-template ngbNavContent>
+                    <app-client-retention />
                   </ng-template>
                 </ng-container>
               }

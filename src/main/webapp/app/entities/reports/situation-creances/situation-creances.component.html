@@ -1,0 +1,127 @@
+<!-- Toolbar -->
+<div class="pharma-toolbar">
+  <div class="pharma-toolbar-header">
+    <i class="pi pi-table"></i>
+    <span class="pharma-toolbar-title">Situation des Créances Tiers-Payants</span>
+  </div>
+  <div class="pharma-toolbar-content">
+    <div class="pharma-toolbar-filters">
+      <span class="text-muted small"><i class="pi pi-info-circle me-1"></i>Encours non réglés par groupe TP</span>
+    </div>
+    <div class="pharma-toolbar-actions">
+      <p-button
+        icon="pi pi-file-pdf"
+        label="PDF"
+        size="small"
+        severity="danger"
+        [outlined]="true"
+        [loading]="exportLoading()"
+        (onClick)="exportPdf()"
+      />
+    </div>
+  </div>
+</div>
+
+<!-- Loading -->
+@if (isLoading()) {
+  <div class="d-flex justify-content-center align-items-center" style="min-height: 300px">
+    <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
+  </div>
+}
+
+@if (!isLoading()) {
+
+  <!-- KPI Strip -->
+  <div class="kpi-strip mt-2 mb-3">
+    <div class="kpi-strip-item danger-accent">
+      <i class="pi pi-credit-card text-danger"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Total créances</span>
+        <span class="kpi-strip-value text-danger">{{ formatCurrency(totalCreances()) }} <small>FCFA</small></span>
+        <span class="kpi-strip-sub">{{ formatNumber(totalNbFactures()) }} factures · {{ summary().length }} assureurs</span>
+      </div>
+    </div>
+    <div class="kpi-strip-divider"></div>
+    <div class="kpi-strip-item warning-accent">
+      <i class="pi pi-exclamation-triangle text-warning"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">31 – 90 jours</span>
+        <span class="kpi-strip-value text-warning">
+          {{ formatCurrency(summary().reduce((s, c) => s + (c.montantEntre30Et60Jours ?? 0) + (c.montantEntre60Et90Jours ?? 0), 0)) }}
+        </span>
+        <span class="kpi-strip-sub">Surveillance</span>
+      </div>
+    </div>
+    <div class="kpi-strip-divider"></div>
+    <div class="kpi-strip-item danger-accent">
+      <i class="pi pi-times-circle text-danger"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">&gt; 90 jours</span>
+        <span class="kpi-strip-value text-danger">{{ formatCurrency(totalPlusDe90j()) }}</span>
+        <span class="kpi-strip-sub">{{ pctRisque() }}% du total — Risque élevé</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card data-card">
+    <p-table
+      [value]="summary()"
+      [scrollable]="true"
+      scrollHeight="calc(100vh - 380px)"
+      [stripedRows]="true"
+      class="p-datatable-sm"
+    >
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th>Groupe TP</th>
+          <th class="text-end">Nb factures</th>
+          <th class="text-end text-success">0 – 30 j</th>
+          <th class="text-end text-warning">31 – 60 j</th>
+          <th class="text-end text-warning">61 – 90 j</th>
+          <th class="text-end text-danger">&gt; 90 j</th>
+          <th class="text-end fw-bold">Total</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-row>
+        <tr>
+          <td class="fw-semibold">{{ row.groupeTiersPayantLibelle }}</td>
+          <td class="text-end">{{ formatNumber(row.nombreFactures) }}</td>
+          <td class="text-end text-success">{{ formatCurrency(row.montantMoinsDe30Jours) }}</td>
+          <td class="text-end text-warning">{{ formatCurrency(row.montantEntre30Et60Jours) }}</td>
+          <td class="text-end text-warning">{{ formatCurrency(row.montantEntre60Et90Jours) }}</td>
+          <td class="text-end text-danger fw-semibold">{{ formatCurrency(row.montantPlusDe90Jours) }}</td>
+          <td class="text-end fw-bold">{{ formatCurrency(row.montantTotal) }}</td>
+        </tr>
+      </ng-template>
+      <ng-template #footer>
+        <tr class="fw-bold">
+          <td>Total</td>
+          <td class="text-end">{{ formatNumber(totalNbFactures()) }}</td>
+          <td class="text-end text-success">
+            {{ formatCurrency(summary().reduce((s, c) => s + (c.montantMoinsDe30Jours ?? 0), 0)) }}
+          </td>
+          <td class="text-end text-warning">
+            {{ formatCurrency(summary().reduce((s, c) => s + (c.montantEntre30Et60Jours ?? 0), 0)) }}
+          </td>
+          <td class="text-end text-warning">
+            {{ formatCurrency(summary().reduce((s, c) => s + (c.montantEntre60Et90Jours ?? 0), 0)) }}
+          </td>
+          <td class="text-end text-danger">{{ formatCurrency(totalPlusDe90j()) }}</td>
+          <td class="text-end">{{ formatCurrency(totalCreances()) }}</td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="7" class="pharma-empty-message">
+            <div class="pharma-empty-content">
+              <i class="pi pi-inbox" style="font-size: 2rem"></i>
+              <p class="mt-2 mb-0">Aucune créance en cours</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+}

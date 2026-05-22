@@ -1,0 +1,112 @@
+<!-- Toolbar -->
+<div class="pharma-toolbar">
+  <div class="pharma-toolbar-header">
+    <i class="pi pi-undo"></i>
+    <span class="pharma-toolbar-title">Analyse des Avoirs Tiers-Payants</span>
+  </div>
+  <div class="pharma-toolbar-content">
+    <div class="pharma-toolbar-filters">
+      <pharma-date-range-filter
+        [fromDate]="fromDate()"
+        (fromDateChange)="fromDate.set($event)"
+        [toDate]="toDate()"
+        (toDateChange)="toDate.set($event)"
+        [loading]="isLoading()"
+        (search)="load()"
+      />
+    </div>
+  </div>
+</div>
+
+<!-- Loading -->
+@if (isLoading()) {
+  <div class="d-flex justify-content-center align-items-center" style="min-height: 300px">
+    <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
+  </div>
+}
+
+@if (!isLoading()) {
+
+  <!-- KPI Strip -->
+  <div class="kpi-strip mt-2 mb-3">
+    <div class="kpi-strip-item primary-accent">
+      <i class="pi pi-undo text-primary"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Avoirs actifs</span>
+        <span class="kpi-strip-value text-primary">{{ formatCurrency(totalMontant()) }} <small>FCFA</small></span>
+        <span class="kpi-strip-sub">Émis + Imputés · {{ avoirs().length }} au total</span>
+      </div>
+    </div>
+    <div class="kpi-strip-divider"></div>
+    <div class="kpi-strip-item success-accent">
+      <i class="pi pi-check text-success"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Montant imputé</span>
+        <span class="kpi-strip-value text-success">{{ formatCurrency(montantImpute()) }}</span>
+        <span class="kpi-strip-sub">{{ tauxImputation() }}% du total émis</span>
+      </div>
+    </div>
+    <div class="kpi-strip-divider"></div>
+    @for (stat of stats(); track stat.statut) {
+      <div class="kpi-strip-item">
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">
+            <span class="badge {{ stat.badgeClass }}">{{ stat.label }}</span>
+          </span>
+          <span class="kpi-strip-value">{{ formatNumber(stat.count) }}</span>
+          <span class="kpi-strip-sub">{{ formatCurrency(stat.montant) }}</span>
+        </div>
+      </div>
+      @if (!$last) {
+        <div class="kpi-strip-divider"></div>
+      }
+    }
+  </div>
+
+  <!-- Table -->
+  <div class="card data-card">
+    <p-table
+      [value]="avoirs()"
+      [scrollable]="true"
+      scrollHeight="calc(100vh - 400px)"
+      [stripedRows]="true"
+      class="p-datatable-sm"
+      sortField="avoirDate"
+      [sortOrder]="-1"
+    >
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th pSortableColumn="numAvoir">N° Avoir <p-sortIcon field="numAvoir" /></th>
+          <th pSortableColumn="avoirDate">Date <p-sortIcon field="avoirDate" /></th>
+          <th>Tiers-payant</th>
+          <th>Statut</th>
+          <th class="text-end" pSortableColumn="montantAvoir">Montant <p-sortIcon field="montantAvoir" /></th>
+          <th>Motif</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-avoir>
+        <tr>
+          <td><span class="pharma-code">{{ avoir.numAvoir }}</span></td>
+          <td>{{ avoir.avoirDate ? formatDateFR(avoir.avoirDate) : '—' }}</td>
+          <td>{{ avoir.tiersPayantName }}</td>
+          <td>
+            <span class="badge {{ statutBadge(avoir.statut) }}">{{ statutLabel(avoir.statut) }}</span>
+          </td>
+          <td class="text-end fw-semibold">{{ formatCurrency(avoir.montantAvoir) }}</td>
+          <td class="text-muted small">{{ avoir.motif || '—' }}</td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="6" class="pharma-empty-message">
+            <div class="pharma-empty-content">
+              <i class="pi pi-inbox" style="font-size: 2rem"></i>
+              <p class="mt-2 mb-0">Aucun avoir sur cette période</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+}

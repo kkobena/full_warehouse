@@ -1,45 +1,31 @@
 @if (summary()) {
-  <div class="row mt-1 kpi-row">
+  <div class="kpi-strip mt-1">
 
-    <div class="col-6 col-md mb-2">
-      <div class="card kpi-card kpi-card-compact primary-accent">
-        <div class="card-body">
-          <div class="d-flex align-items-center gap-2">
-            <div class="kpi-icon-sm text-primary"><i class="pi pi-credit-card"></i></div>
-            <div>
-              <p class="kpi-label mb-0">Total différé</p>
-              <span class="kpi-value-sm text-primary">{{ summary().saleAmount | number }} FCFA</span>
-            </div>
-          </div>
-        </div>
+    <div class="kpi-strip-item primary-accent">
+      <i class="pi pi-credit-card text-primary"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Total différé</span>
+        <span class="kpi-strip-value text-primary">{{ summary().saleAmount | number }} FCFA</span>
       </div>
     </div>
 
-    <div class="col-6 col-md mb-2">
-      <div class="card kpi-card kpi-card-compact success-accent">
-        <div class="card-body">
-          <div class="d-flex align-items-center gap-2">
-            <div class="kpi-icon-sm text-success"><i class="pi pi-check-circle"></i></div>
-            <div>
-              <p class="kpi-label mb-0">Total payé</p>
-              <span class="kpi-value-sm text-success">{{ summary().paidAmount | number }} FCFA</span>
-            </div>
-          </div>
-        </div>
+    <div class="kpi-strip-divider"></div>
+
+    <div class="kpi-strip-item success-accent">
+      <i class="pi pi-check-circle text-success"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Total payé</span>
+        <span class="kpi-strip-value text-success">{{ summary().paidAmount | number }} FCFA</span>
       </div>
     </div>
 
-    <div class="col-6 col-md mb-2">
-      <div class="card kpi-card kpi-card-compact danger-accent">
-        <div class="card-body">
-          <div class="d-flex align-items-center gap-2">
-            <div class="kpi-icon-sm text-danger"><i class="pi pi-exclamation-circle"></i></div>
-            <div>
-              <p class="kpi-label mb-0">Reste à payer</p>
-              <span class="kpi-value-sm text-danger">{{ summary().rest | number }} FCFA</span>
-            </div>
-          </div>
-        </div>
+    <div class="kpi-strip-divider"></div>
+
+    <div class="kpi-strip-item danger-accent">
+      <i class="pi pi-exclamation-circle text-danger"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Reste à payer</span>
+        <span class="kpi-strip-value text-danger">{{ summary().rest | number }} FCFA</span>
       </div>
     </div>
 

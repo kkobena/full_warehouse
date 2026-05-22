@@ -1,0 +1,48 @@
+@import 'app/shared/scss/dashboard-common';
+@import 'app/shared/scss/table-common';
+@import 'app/shared/scss/pharma-toolbar';
+@import 'app/shared/scss/kpi-strip';
+// Aging bucket cards
+.aging-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.4rem;
+}
+
+.aging-amount {
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.aging-pct {
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  opacity: 0.75;
+}
+
+.aging-card-total {
+  border-left: 4px solid #5b89a6 !important;
+}
+
+.aging-card-ok {
+  border-left: 4px solid #5cb85c !important;
+  color: #2d7a2d;
+}
+
+.aging-card-warn {
+  border-left: 4px solid #f0ad4e !important;
+  color: #7a4e00;
+}
+
+.aging-card-orange {
+  border-left: 4px solid #f97316 !important;
+  color: #7a3400;
+}
+
+.aging-card-danger {
+  border-left: 4px solid #d9534f !important;
+  color: #7a1a1a;
+}

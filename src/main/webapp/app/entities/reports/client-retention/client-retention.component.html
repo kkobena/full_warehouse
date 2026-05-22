@@ -1,0 +1,135 @@
+<!-- Toolbar -->
+<div class="pharma-toolbar">
+  <div class="pharma-toolbar-header">
+    <i class="pi pi-heart"></i>
+    <span class="pharma-toolbar-title">Rétention Clients</span>
+  </div>
+</div>
+
+<!-- Loading -->
+@if (isLoading()) {
+  <div class="d-flex justify-content-center align-items-center" style="min-height: 300px">
+    <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
+  </div>
+}
+
+@if (!isLoading() && kpi()) {
+
+  <!-- KPI Strip -->
+  <div class="kpi-strip mt-2 mb-3">
+    <div class="kpi-strip-item success-accent">
+      <i class="pi pi-check-circle text-success"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Clients actifs</span>
+        <span class="kpi-strip-value text-success">{{ formatNumber(kpi()?.clientsActifs) }}</span>
+        <span class="kpi-strip-sub">achat ≤ 30 j · {{ tauxActifs() }}%</span>
+      </div>
+    </div>
+    <div class="kpi-strip-divider"></div>
+    <div class="kpi-strip-item warning-accent">
+      <i class="pi pi-exclamation-triangle text-warning"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">À risque</span>
+        <span class="kpi-strip-value text-warning">{{ formatNumber(kpi()?.clientsARisque) }}</span>
+        <span class="kpi-strip-sub">31 – 90 j · {{ tauxRisque() }}%</span>
+      </div>
+    </div>
+    <div class="kpi-strip-divider"></div>
+    <div class="kpi-strip-item danger-accent">
+      <i class="pi pi-times-circle text-danger"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Perdus</span>
+        <span class="kpi-strip-value text-danger">{{ formatNumber(kpi()?.clientsPerdus) }}</span>
+        <span class="kpi-strip-sub">> 90 j · {{ tauxPerdus() }}%</span>
+      </div>
+    </div>
+    <div class="kpi-strip-divider"></div>
+    <div class="kpi-strip-item primary-accent">
+      <i class="pi pi-users text-primary"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Total clients</span>
+        <span class="kpi-strip-value text-primary">{{ formatNumber(kpi()?.totalClients) }}</span>
+        <span class="kpi-strip-sub">CA moyen : {{ formatCurrency(kpi()?.caMoyenParClient) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart + Table -->
+  <div class="row g-3">
+
+    <!-- Doughnut -->
+    <div class="col-md-4">
+      <div class="card data-card h-100">
+        <div class="card-header">
+          <h5 class="card-title">
+            <i class="pi pi-chart-pie text-primary"></i>
+            Répartition par segment
+          </h5>
+        </div>
+        <div class="card-body" style="position: relative; height: 300px">
+          <canvas #doughnutCanvas></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Client list -->
+    <div class="col-md-8">
+      <div class="card data-card">
+        <p-table
+          [value]="clients()"
+          [scrollable]="true"
+          scrollHeight="calc(100vh - 420px)"
+          [stripedRows]="true"
+          class="p-datatable-sm"
+          sortField="joursAbsence"
+          [sortOrder]="-1"
+          [paginator]="true"
+          [rows]="50"
+        >
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th pSortableColumn="nom">Client <p-sortIcon field="nom" /></th>
+              <th pSortableColumn="nbAchats" class="text-end">Achats <p-sortIcon field="nbAchats" /></th>
+              <th class="text-end" pSortableColumn="caTotal">CA total <p-sortIcon field="caTotal" /></th>
+              <th pSortableColumn="derniereVisite">Dernière visite <p-sortIcon field="derniereVisite" /></th>
+              <th class="text-end" pSortableColumn="joursAbsence">Absence <p-sortIcon field="joursAbsence" /></th>
+              <th>Segment</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-c>
+            <tr>
+              <td><strong>{{ c.nom }}</strong></td>
+              <td class="text-end">{{ formatNumber(c.nbAchats) }}</td>
+              <td class="text-end">{{ formatCurrency(c.caTotal) }}</td>
+              <td>{{ c.derniereVisite }}</td>
+              <td class="text-end fw-semibold">{{ c.joursAbsence }} j</td>
+              <td>
+                <span class="badge {{ segmentBadge(c) }}">{{ segmentLabel(c) }}</span>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template #emptymessage>
+            <tr>
+              <td colspan="6" class="pharma-empty-message">
+                <div class="pharma-empty-content">
+                  <i class="pi pi-inbox" style="font-size: 2rem"></i>
+                  <p class="mt-2 mb-0">Aucun client avec historique d'achat</p>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+
+  </div>
+}
+
+@if (!isLoading() && !kpi()) {
+  <div class="d-flex justify-content-center align-items-center" style="min-height: 200px">
+    <div class="pharma-empty-content">
+      <i class="pi pi-inbox" style="font-size: 2.5rem"></i>
+      <p class="mt-2 mb-0 text-muted">Aucune donnée disponible</p>
+    </div>
+  </div>
+}

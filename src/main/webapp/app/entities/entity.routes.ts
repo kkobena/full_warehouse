@@ -236,6 +236,14 @@ const routes: Routes = [
     data: { pageTitle: "Finances", abilitySubject: "finances" },
     canActivate: [AuthGuard],
     loadChildren: () => import("../features/finances/finances.routes")
+  },
+
+  // ── Comptabilité (ABAC) ───────────────────────────────────────────────────
+  {
+    path: "comptabilite",
+    data: { pageTitle: "Comptabilité", abilitySubject: "comptabilite" },
+    canActivate: [AuthGuard],
+    loadChildren: () => import("../features/comptabilite/comptabilite.routes")
   }
 ];
 

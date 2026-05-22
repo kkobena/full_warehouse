@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.report;
 
 import com.kobe.warehouse.service.dto.FinancesSummaryDTO;
+import com.kobe.warehouse.service.dto.dashboard.PerformanceVendeurDTO;
 import com.kobe.warehouse.service.dto.report.*;
 import java.time.LocalDate;
 import java.util.List;
@@ -61,5 +62,24 @@ public interface DashboardCAService {
      */
     void refreshViews();
 
+    /**
+     * Aggregate sales performance by staff member (vendeur) for a date range
+     */
+    List<PerformanceVendeurDTO> getSalesByStaff(LocalDate startDate, LocalDate endDate);
+
+    /**
+     * Get generics vs branded substitution statistics for a date range
+     */
+    GenericsSubstitutionDTO getGenericsSubstitution(LocalDate startDate, LocalDate endDate);
+
+    /**
+     * Get discount (remise) KPIs for a date range
+     */
+    RemisesAnalysisKpiDTO getRemisesKpi(LocalDate startDate, LocalDate endDate);
+
+    /**
+     * Get top N products by discount amount for a date range
+     */
+    List<TopRemiseProduitDTO> getRemisesTopProducts(LocalDate startDate, LocalDate endDate, int limit);
 
 }

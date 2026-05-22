@@ -132,3 +132,47 @@ export interface IBasketEvolution {
   bestMonthValue?: number;
   trend6MPct?: number;
 }
+
+/**
+ * Sales performance by staff member (vendeur) — Phase 5
+ */
+export interface IPerformanceVendeur {
+  vendeurId?: number;
+  vendeurNom?: string;
+  nombreVentes?: number;
+  montantTotal?: number;
+  ticketMoyen?: number;
+  tauxRemise?: number;
+}
+
+/**
+ * Remises (discount) KPIs — Phase 6
+ */
+export interface IRemisesAnalysisKpi {
+  totalRemise?: number;
+  caApresRemise?: number;
+  tauxRemise?: number;
+  nbVentesAvecRemise?: number;
+  nbVentesTotal?: number;
+}
+
+export interface ITopRemiseProduit {
+  libelle?: string;
+  montantRemise?: number;
+  nbVentes?: number;
+}
+
+/**
+ * Generics vs branded substitution statistics — Phase 5
+ */
+export interface IGenericsSubstitution {
+  totalProduits?: number;
+  produitsGeneriques?: number;
+  princepsAvecGenerique?: number;
+  caTotal?: number;
+  caGeneriques?: number;
+  caPrincepsAvecGenerique?: number;
+  tauxGeneriques?: number;
+  tauxPrincepsSubstituables?: number;
+  tauxCaGeneriques?: number;
+}

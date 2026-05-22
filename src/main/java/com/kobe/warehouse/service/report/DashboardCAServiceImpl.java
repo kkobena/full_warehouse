@@ -2,10 +2,14 @@ package com.kobe.warehouse.service.report;
 
 import com.kobe.warehouse.repository.DashboardCARepository;
 import com.kobe.warehouse.service.dto.FinancesSummaryDTO;
+import com.kobe.warehouse.service.dto.dashboard.PerformanceVendeurDTO;
 import com.kobe.warehouse.service.dto.report.BasketEvolutionDTO;
 import com.kobe.warehouse.service.dto.report.DailyCADTO;
 import com.kobe.warehouse.service.dto.report.DashboardCAEvolutionDTO;
 import com.kobe.warehouse.service.dto.report.DashboardCASummaryDTO;
+import com.kobe.warehouse.service.dto.report.GenericsSubstitutionDTO;
+import com.kobe.warehouse.service.dto.report.RemisesAnalysisKpiDTO;
+import com.kobe.warehouse.service.dto.report.TopRemiseProduitDTO;
 import com.kobe.warehouse.service.dto.report.PaymentMethodCADTO;
 import com.kobe.warehouse.service.dto.report.ProductFamilyCADTO;
 import com.kobe.warehouse.service.dto.report.TopProductDTO;
@@ -259,6 +263,56 @@ public class DashboardCAServiceImpl implements DashboardCAService {
     @CacheEvict(value = "dashboardCA", allEntries = true)
     public void refreshViews() {
         dashboardCARepository.refreshViews();
+    }
+
+    @Override
+    public List<PerformanceVendeurDTO> getSalesByStaff(LocalDate startDate, LocalDate endDate) {
+        return dashboardCARepository.findSalesByStaff(startDate, endDate).stream()
+            .map(row -> new PerformanceVendeurDTO(
+                ((Number) row[0]).longValue(),
+                (String) row[1],
+                ((Number) row[2]).intValue(),
+                ((Number) row[3]).longValue(),
+                ((Number) row[4]).longValue(),
+                row[5] != null ? ((Number) row[5]).doubleValue() : 0.0
+            ))
+            .toList();
+    }
+
+    @Override
+    public GenericsSubstitutionDTO getGenericsSubstitution(LocalDate startDate, LocalDate endDate) {
+        Object[] row = dashboardCARepository.findGenericsSubstitutionStats(startDate, endDate);
+        return new GenericsSubstitutionDTO(
+            toL(row[0]),
+            toL(row[1]),
+            toL(row[2]),
+            toL(row[3]),
+            toL(row[4]),
+            toL(row[5])
+        );
+    }
+
+    @Override
+    public RemisesAnalysisKpiDTO getRemisesKpi(LocalDate startDate, LocalDate endDate) {
+        Object[] row = dashboardCARepository.findRemisesKpi(startDate, endDate);
+        return new RemisesAnalysisKpiDTO(
+            toL(row[0]),
+            toL(row[1]),
+            row[2] != null ? ((Number) row[2]).doubleValue() : 0.0,
+            toI(row[3]),
+            toI(row[4])
+        );
+    }
+
+    @Override
+    public List<TopRemiseProduitDTO> getRemisesTopProducts(LocalDate startDate, LocalDate endDate, int limit) {
+        return dashboardCARepository.findRemisesTopProducts(startDate, endDate, limit).stream()
+            .map(row -> new TopRemiseProduitDTO(
+                (String) row[0],
+                toL(row[1]),
+                toI(row[2])
+            ))
+            .toList();
     }
 
     // ── helpers ──────────────────────────────────────────────────────────────

@@ -50,7 +50,34 @@
                 </ng-container>
               }
 
-              @if (showStockRotation()) {
+              @if (showStockAbc()) {
+                <ng-container ngbNavItem="stock-abc">
+                  <a class="pharma-nav-vertical-link" ngbNavLink>
+                    <i class="pi pi-chart-pie"></i>
+                    <span>Analyse ABC</span>
+                    <span class="link-arrow">›</span>
+                  </a>
+                  <ng-template ngbNavContent>
+                    <jhi-stock-abc />
+                  </ng-template>
+                </ng-container>
+              }
+
+              @if (showDemarque()) {
+                <ng-container ngbNavItem="demarque">
+                  <a class="pharma-nav-vertical-link" ngbNavLink>
+                    <i class="pi pi-minus-circle"></i>
+                    <span>Démarque &amp; Ajustements</span>
+                    <span class="link-arrow">›</span>
+                  </a>
+                  <ng-template ngbNavContent>
+                    <app-demarque />
+                  </ng-template>
+                </ng-container>
+              }
+
+              @if (false) {
+                <!-- À SUPPRIMER après validation TNR — fusionné dans stock-abc -->
                 <ng-container ngbNavItem="stock-rotation">
                   <a class="pharma-nav-vertical-link" ngbNavLink>
                     <i class="pi pi-sync"></i>
@@ -63,7 +90,8 @@
                 </ng-container>
               }
 
-              @if (showAbcPareto()) {
+              @if (false) {
+                <!-- À SUPPRIMER après validation TNR — fusionné dans stock-abc -->
                 <ng-container ngbNavItem="abc-pareto">
                   <a class="pharma-nav-vertical-link" ngbNavLink>
                     <i class="pi pi-sort-amount-down"></i>

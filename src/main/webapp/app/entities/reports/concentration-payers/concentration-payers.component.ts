@@ -73,7 +73,7 @@ export default class ConcentrationPayersComponent implements OnInit, OnDestroy {
     this.evolutionChart?.destroy();
   }
 
-  protected setPeriode(p: Periode): void {
+  setPeriode(p: Periode): void {
     this.periode.set(p);
     this.loadSummary();
     this.loadStress();

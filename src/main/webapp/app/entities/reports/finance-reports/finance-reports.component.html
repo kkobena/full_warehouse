@@ -24,7 +24,34 @@
                 </ng-container>
               }
 
-              @if (showVieillissement()) {
+              @if (showProfitability()) {
+                <ng-container ngbNavItem="profitability">
+                  <a class="pharma-nav-vertical-link" ngbNavLink>
+                    <i class="pi pi-chart-line"></i>
+                    <span>Analyse de Rentabilité</span>
+                    <span class="link-arrow">›</span>
+                  </a>
+                  <ng-template ngbNavContent>
+                    <jhi-profitability-analysis />
+                  </ng-template>
+                </ng-container>
+              }
+
+              @if (showCreances()) {
+                <ng-container ngbNavItem="creances">
+                  <a class="pharma-nav-vertical-link" ngbNavLink>
+                    <i class="pi pi-clock"></i>
+                    <span>Créances TP</span>
+                    <span class="link-arrow">›</span>
+                  </a>
+                  <ng-template ngbNavContent>
+                    <app-finance-creances />
+                  </ng-template>
+                </ng-container>
+              }
+
+              @if (false) {
+                <!-- À SUPPRIMER après validation TNR — migré vers onglet Créances TP -->
                 <ng-container ngbNavItem="vieillissement-creances">
                   <a class="pharma-nav-vertical-link" ngbNavLink>
                     <i class="pi pi-clock"></i>
@@ -37,7 +64,8 @@
                 </ng-container>
               }
 
-              @if (showConcentration()) {
+              @if (false) {
+                <!-- À SUPPRIMER après validation TNR — migré vers onglet Créances TP -->
                 <ng-container ngbNavItem="concentration-payers">
                   <a class="pharma-nav-vertical-link" ngbNavLink>
                     <i class="pi pi-sitemap"></i>
@@ -59,6 +87,58 @@
                   </a>
                   <ng-template ngbNavContent>
                     <app-cash-flow-bfr></app-cash-flow-bfr>
+                  </ng-template>
+                </ng-container>
+              }
+
+              @if (showSituationCreances()) {
+                <ng-container ngbNavItem="situation-creances">
+                  <a class="pharma-nav-vertical-link" ngbNavLink>
+                    <i class="pi pi-table"></i>
+                    <span>Situation Créances</span>
+                    <span class="link-arrow">›</span>
+                  </a>
+                  <ng-template ngbNavContent>
+                    <app-situation-creances />
+                  </ng-template>
+                </ng-container>
+              }
+
+              @if (showVieillissementDiff()) {
+                <ng-container ngbNavItem="vieillissement-differes">
+                  <a class="pharma-nav-vertical-link" ngbNavLink>
+                    <i class="pi pi-users"></i>
+                    <span>Différés Clients</span>
+                    <span class="link-arrow">›</span>
+                  </a>
+                  <ng-template ngbNavContent>
+                    <app-vieillissement-differes />
+                  </ng-template>
+                </ng-container>
+              }
+
+              @if (showAvoirsAnalytics()) {
+                <ng-container ngbNavItem="avoirs-analytics">
+                  <a class="pharma-nav-vertical-link" ngbNavLink>
+                    <i class="pi pi-undo"></i>
+                    <span>Avoirs TP</span>
+                    <span class="link-arrow">›</span>
+                  </a>
+                  <ng-template ngbNavContent>
+                    <app-avoirs-analytics />
+                  </ng-template>
+                </ng-container>
+              }
+
+              @if (showTauxRecouvrement()) {
+                <ng-container ngbNavItem="taux-recouvrement-tp">
+                  <a class="pharma-nav-vertical-link" ngbNavLink>
+                    <i class="pi pi-percentage"></i>
+                    <span>Taux Recouvrement</span>
+                    <span class="link-arrow">›</span>
+                  </a>
+                  <ng-template ngbNavContent>
+                    <app-taux-recouvrement-tp />
                   </ng-template>
                 </ng-container>
               }

@@ -1,4 +1,5 @@
-import { Component, inject, OnDestroy, OnInit, signal } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { CommonModule } from "@angular/common";
 import { TableModule } from "primeng/table";
 import {
@@ -15,7 +16,7 @@ import { DashboardService } from "../dashboard.service";
 import { ProduitStatService } from "../../entities/produit/stat/produit-stat.service";
 import { TypeCa } from "../../shared/model/enumerations/type-ca.model";
 import { OrderBy } from "../../shared/model/enumerations/type-vente.model";
-import { forkJoin, interval, Subject, takeUntil } from "rxjs";
+import { forkJoin, interval } from "rxjs";
 import { FormsModule } from "@angular/forms";
 import { TiersPayantService } from "../../entities/tiers-payant/tierspayant.service";
 import { TiersPayantAchat } from "../../entities/tiers-payant/model/tiers-payant-achat.model";
@@ -51,6 +52,11 @@ import {
   ISupplierPerformanceSummary,
   ITiersPayantCreancesSummary
 } from "../../shared/model/report";
+// Différés & Facturation
+import { DiffereApiService } from "../../features/differes/data-access/services/differe-api.service";
+import { IDiffereSummary } from "../../features/differes/data-access/models/differe.model";
+import { FactureApiService } from "../../features/facturation/data-access/services/facture-api.service";
+import { IFacturationKpi } from "../../features/facturation/data-access/models/facture.model";
 
 interface TopSelection {
   label: string;
@@ -80,7 +86,7 @@ interface PeriodOption {
   templateUrl: "./home-base.component.html",
   styleUrl: "./home-base.component.scss"
 })
-export class HomeBaseComponent implements OnInit, OnDestroy {
+export class HomeBaseComponent implements OnInit {
 
   protected readonly tops: TopSelection[] = TOPS;
 
@@ -174,6 +180,9 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
   protected creancesSummary: ITiersPayantCreancesSummary[] = [];
   protected totalCreances = 0;
   protected creancesPlusDe90j = 0;
+  // ─── KPI P2 ─────────────────────────────────────────────────────
+  protected differeSummary: IDiffereSummary | null = null;
+  protected facturationKpi: IFacturationKpi | null = null;
 
   // ─── Fournisseurs P3 ────────────────────────────────────────────
   protected topFournisseurs: ISupplierPerformance[] = [];
@@ -198,7 +207,7 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
   protected tiersPayantChartData: any;
   protected tiersPayantChartOptions: any;
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
   private readonly dashboardService = inject(DashboardService);
   private readonly produitStatService = inject(ProduitStatService);
   private readonly tiersPayantService = inject(TiersPayantService);
@@ -208,6 +217,8 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
   private readonly stockValuationReportService = inject(StockValuationReportService);
   private readonly tiersPayantReportService = inject(TiersPayantReportService);
   private readonly supplierService = inject(SupplierPerformanceReportService);
+  private readonly differeApiService = inject(DiffereApiService);
+  private readonly factureApiService = inject(FactureApiService);
 
   private documentStyle: CSSStyleDeclaration;
   private textColor: string;
@@ -226,16 +237,11 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
     this.loadDashboardData();
     this.alertBadgeService.init();
     interval(120000)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.loadDashboardData();
         this.alertBadgeService.refresh();
       });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   protected onPeriodeChange(p: CaPeriodeFilter): void {
@@ -284,7 +290,10 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
       creancesSummary: this.tiersPayantReportService.getCreancesSummary(),
       // P3 — Fournisseurs
       topFournisseurs: this.supplierService.getTopSuppliersByVolume(this.TOP_MAX_FOURNISSEUR.value),
-      supplierSummary: this.supplierService.getSupplierPerformanceSummary()
+      supplierSummary: this.supplierService.getSupplierPerformanceSummary(),
+      // P2 — Différés & Facturation
+      differeSummary: this.differeApiService.getDiffereSummary({}),
+      facturationKpi: this.factureApiService.getKpi({})
     };
 
     forkJoin(sources).subscribe({
@@ -308,6 +317,9 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
         // P3
         this.topFournisseurs = data.topFournisseurs.body ?? [];
         this.supplierSummary = data.supplierSummary.body;
+        // P2
+        this.differeSummary = data.differeSummary.body;
+        this.facturationKpi = data.facturationKpi.body;
         this.buildAllCharts();
         this.isLoading.set(false);
         this.lastUpdate.set(new Date());

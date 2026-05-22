@@ -1,6 +1,7 @@
 package com.kobe.warehouse.web.rest.report;
 
 import com.kobe.warehouse.service.dto.FinancesSummaryDTO;
+import com.kobe.warehouse.service.dto.dashboard.PerformanceVendeurDTO;
 import com.kobe.warehouse.service.dto.report.*;
 import com.kobe.warehouse.service.report.DashboardCAService;
 import java.time.LocalDate;
@@ -254,6 +255,51 @@ public class DashboardCAResource {
     @GetMapping("/summary-finances")
     public ResponseEntity<FinancesSummaryDTO> getSummaryFinances() {
         return ResponseEntity.ok(dashboardCAService.getSummaryFinances());
+    }
+
+    /**
+     * GET /api/dashboard-ca/remises-analysis : Discount KPIs for date range
+     */
+    @GetMapping("/remises-analysis")
+    public ResponseEntity<RemisesAnalysisKpiDTO> getRemisesKpi(
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+    ) {
+        return ResponseEntity.ok(dashboardCAService.getRemisesKpi(startDate, endDate));
+    }
+
+    /**
+     * GET /api/dashboard-ca/remises-analysis/top-products : Top discounted products
+     */
+    @GetMapping("/remises-analysis/top-products")
+    public ResponseEntity<List<TopRemiseProduitDTO>> getRemisesTopProducts(
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+        @RequestParam(defaultValue = "10") int limit
+    ) {
+        return ResponseEntity.ok(dashboardCAService.getRemisesTopProducts(startDate, endDate, limit));
+    }
+
+    /**
+     * GET /api/dashboard-ca/by-staff : Sales performance aggregated by vendeur
+     */
+    @GetMapping("/by-staff")
+    public ResponseEntity<List<PerformanceVendeurDTO>> getSalesByStaff(
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+    ) {
+        return ResponseEntity.ok(dashboardCAService.getSalesByStaff(startDate, endDate));
+    }
+
+    /**
+     * GET /api/dashboard-ca/generics-substitution : Generics vs branded substitution stats
+     */
+    @GetMapping("/generics-substitution")
+    public ResponseEntity<GenericsSubstitutionDTO> getGenericsSubstitution(
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+    ) {
+        return ResponseEntity.ok(dashboardCAService.getGenericsSubstitution(startDate, endDate));
     }
 
     /**

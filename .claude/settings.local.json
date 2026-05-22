@@ -101,7 +101,8 @@
       "WebFetch(domain:foxeet.fr)",
       "WebFetch(domain:www.lemoniteurdespharmacies.fr)",
       "WebFetch(domain:www.extencia.fr)",
-      "WebFetch(domain:www.mckesson.com)"
+      "WebFetch(domain:www.mckesson.com)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); scripts={k:v for k,v in d.get\\('scripts',{}\\).items\\(\\) if 'tauri' in k or 'build' in k}; print\\(json.dumps\\(scripts, indent=2\\)\\)\")"
     ],
     "deny": [],
     "ask": []

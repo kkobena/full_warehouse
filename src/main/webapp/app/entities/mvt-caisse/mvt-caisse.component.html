@@ -24,7 +24,8 @@
                 </ng-container>
               }
 
-              @if (showBalance()) {
+              @if (false) {
+                <!-- À SUPPRIMER après validation TNR — migré vers /comptabilite -->
                 <ng-container ngbNavItem="balance">
                   <a class="pharma-nav-vertical-link" ngbNavLink>
                     <i class="pi pi-calculator"></i>
@@ -37,7 +38,8 @@
                 </ng-container>
               }
 
-              @if (showTaxeReport()) {
+              @if (false) {
+                <!-- À SUPPRIMER après validation TNR — migré vers /comptabilite -->
                 <ng-container ngbNavItem="taxe-report">
                   <a class="pharma-nav-vertical-link" ngbNavLink>
                     <i class="pi pi-file-pdf"></i>
@@ -50,7 +52,8 @@
                 </ng-container>
               }
 
-              @if (showTableauPharmacien()) {
+              @if (false) {
+                <!-- À SUPPRIMER après validation TNR — migré vers /comptabilite -->
                 <ng-container ngbNavItem="tableau-pharmacien">
                   <a class="pharma-nav-vertical-link" ngbNavLink>
                     <i class="pi pi-table"></i>
@@ -62,8 +65,10 @@
                   </ng-template>
                 </ng-container>
               }
-              <!-- voir la possibilité d'afficher le recap du user connecté seulement -->
-              @if (showRecapCaisse()) {
+
+              @if (false) {
+                <!-- À SUPPRIMER après validation TNR — migré vers /comptabilite -->
+                <!-- voir la possibilité d'afficher le recap du user connecté seulement -->
                 <ng-container ngbNavItem="recapitulatif-caisse">
                   <a class="pharma-nav-vertical-link" ngbNavLink>
                     <i class="pi pi-chart-bar"></i>
@@ -89,7 +94,8 @@
                 </ng-container>
               }
 
-              @if (showRaportActivite()) {
+              @if (false) {
+                <!-- À SUPPRIMER après validation TNR — migré vers /comptabilite -->
                 <ng-container ngbNavItem="raport-activite">
                   <a class="pharma-nav-vertical-link" ngbNavLink>
                     <i class="pi pi-chart-line"></i>
@@ -102,7 +108,8 @@
                 </ng-container>
               }
 
-              @if (showDeclarationTva() && !hideDeclarationTva()) {
+              @if (false) {
+                <!-- À SUPPRIMER après validation TNR — déjà disponible dans /finances -->
                 <ng-container ngbNavItem="declaration-tva">
                   <a class="pharma-nav-vertical-link" ngbNavLink>
                     <i class="pi pi-percentage"></i>
@@ -115,7 +122,8 @@
                 </ng-container>
               }
 
-              @if (showExportComptable()) {
+              @if (false) {
+                <!-- À SUPPRIMER après validation TNR — déjà disponible dans /finances -->
                 <ng-container ngbNavItem="export-comptable">
                   <a class="pharma-nav-vertical-link" ngbNavLink>
                     <i class="pi pi-download"></i>

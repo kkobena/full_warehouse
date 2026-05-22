@@ -1,26 +1,3 @@
-<!-- Toolbar -->
-<div class="pharma-toolbar">
-  <div class="pharma-toolbar-header">
-    <i class="pi pi-users"></i>
-    <span class="pharma-toolbar-title">Concentration Payeurs</span>
-  </div>
-  <div class="pharma-toolbar-content">
-    <div class="pharma-toolbar-filters">
-      <span class="text-muted small"><i class="pi pi-info-circle me-1"></i>Risque institutionnel par organisme TP</span>
-    </div>
-    <div class="pharma-toolbar-actions">
-      <div class="dashboard-periode-selector">
-        <button class="periode-pill" [class.active]="periode() === 'quarter'" (click)="setPeriode('quarter')">
-          <i class="pi pi-calendar"></i><span class="pill-label">Trimestre</span>
-        </button>
-        <button class="periode-pill" [class.active]="periode() === 'year'" (click)="setPeriode('year')">
-          <i class="pi pi-calendar-plus"></i><span class="pill-label">Année en cours</span>
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- Loading summary -->
 @if (isLoading()) {
   <div class="flex justify-content-center align-items-center" style="min-height: 300px">

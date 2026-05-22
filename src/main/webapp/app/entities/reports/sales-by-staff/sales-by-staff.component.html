@@ -1,0 +1,162 @@
+<!-- Toolbar -->
+<div class="pharma-toolbar">
+  <div class="pharma-toolbar-header">
+    <i class="pi pi-users"></i>
+    <span class="pharma-toolbar-title">Performance des Vendeurs</span>
+  </div>
+  <div class="pharma-toolbar-content">
+    <div class="pharma-toolbar-filters">
+      <pharma-date-range-filter
+        [fromDate]="fromDate()"
+        (fromDateChange)="fromDate.set($event)"
+        [toDate]="toDate()"
+        (toDateChange)="toDate.set($event)"
+        [loading]="isLoading()"
+        (search)="load()"
+      />
+    </div>
+  </div>
+</div>
+
+<!-- Loading -->
+@if (isLoading()) {
+  <div class="d-flex justify-content-center align-items-center" style="min-height: 300px">
+    <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
+  </div>
+}
+
+@if (!isLoading() && staff().length) {
+
+  <!-- KPI Strip -->
+  <div class="kpi-strip mt-2 mb-3">
+    <div class="kpi-strip-item primary-accent">
+      <i class="pi pi-users text-primary"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Vendeurs actifs</span>
+        <span class="kpi-strip-value text-primary">{{ staff().length }}</span>
+        <span class="kpi-strip-sub">sur la période</span>
+      </div>
+    </div>
+    <div class="kpi-strip-divider"></div>
+    <div class="kpi-strip-item success-accent">
+      <i class="pi pi-shopping-cart text-success"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Total ventes</span>
+        <span class="kpi-strip-value text-success">{{ formatNumber(totalVentes()) }}</span>
+        <span class="kpi-strip-sub">transactions</span>
+      </div>
+    </div>
+    <div class="kpi-strip-divider"></div>
+    <div class="kpi-strip-item info-accent">
+      <i class="pi pi-wallet text-info"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">CA Total</span>
+        <span class="kpi-strip-value text-info">{{ formatCurrency(totalMontant()) }} <small>FCFA</small></span>
+        <span class="kpi-strip-sub">tous vendeurs confondus</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart + Table layout -->
+  <div class="row g-3">
+
+    <!-- Bar chart -->
+    <div class="col-md-5">
+      <div class="card data-card h-100">
+        <div class="card-header">
+          <h5 class="card-title">
+            <i class="pi pi-chart-bar text-primary"></i>
+            Répartition du CA
+          </h5>
+        </div>
+        <div class="card-body" style="height: 300px">
+          @if (chartConfig()) {
+            <p-chart
+              type="bar"
+              [data]="chartConfig()!.data"
+              [options]="chartConfig()!.options"
+              height="280px"
+            />
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="col-md-7">
+      <div class="card data-card">
+        <p-table
+          [value]="staff()"
+          [scrollable]="true"
+          scrollHeight="calc(100vh - 420px)"
+          [stripedRows]="true"
+          class="p-datatable-sm"
+          sortField="montantTotal"
+          [sortOrder]="-1"
+        >
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th pSortableColumn="vendeurNom">Vendeur <p-sortIcon field="vendeurNom" /></th>
+              <th class="text-end" pSortableColumn="nombreVentes">Ventes <p-sortIcon field="nombreVentes" /></th>
+              <th class="text-end" pSortableColumn="montantTotal">Montant <p-sortIcon field="montantTotal" /></th>
+              <th class="text-end" pSortableColumn="ticketMoyen">Ticket moyen <p-sortIcon field="ticketMoyen" /></th>
+              <th class="text-end" pSortableColumn="tauxRemise">% remise <p-sortIcon field="tauxRemise" /></th>
+              <th class="text-end">Part CA</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-v>
+            <tr>
+              <td><strong>{{ v.vendeurNom }}</strong></td>
+              <td class="text-end">{{ formatNumber(v.nombreVentes) }}</td>
+              <td class="text-end fw-semibold text-primary">{{ formatCurrency(v.montantTotal) }}</td>
+              <td class="text-end">{{ formatCurrency(v.ticketMoyen) }}</td>
+              <td class="text-end">
+                <span class="{{ (v.tauxRemise ?? 0) > 5 ? 'text-warning' : 'text-muted' }}">
+                  {{ formatDecimal(v.tauxRemise, 1) }} %
+                </span>
+              </td>
+              <td class="text-end">
+                <div class="d-flex align-items-center justify-content-end gap-1">
+                  <div class="progress flex-grow-1" style="height: 6px; min-width: 60px">
+                    <div class="progress-bar bg-primary" [style.width]="sharePercent(v.montantTotal) + '%'"></div>
+                  </div>
+                  <span class="text-muted small">{{ sharePercent(v.montantTotal) }}%</span>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template #footer>
+            <tr class="fw-bold">
+              <td>Total</td>
+              <td class="text-end">{{ formatNumber(totalVentes()) }}</td>
+              <td class="text-end text-primary">{{ formatCurrency(totalMontant()) }}</td>
+              <td class="text-end">—</td>
+              <td class="text-end">—</td>
+              <td class="text-end">100 %</td>
+            </tr>
+          </ng-template>
+          <ng-template #emptymessage>
+            <tr>
+              <td colspan="6" class="pharma-empty-message">
+                <div class="pharma-empty-content">
+                  <i class="pi pi-inbox" style="font-size: 2rem"></i>
+                  <p class="mt-2 mb-0">Aucune donnée sur cette période</p>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+
+  </div>
+}
+
+@if (!isLoading() && !staff().length) {
+  <div class="d-flex justify-content-center align-items-center" style="min-height: 200px">
+    <div class="pharma-empty-content">
+      <i class="pi pi-inbox" style="font-size: 2.5rem"></i>
+      <p class="mt-2 mb-0 text-muted">Aucune donnée disponible pour cette période</p>
+    </div>
+  </div>
+}

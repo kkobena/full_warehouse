@@ -1,0 +1,1 @@
+com.kobe.warehouse.domain.enumeration.CashFundStatut com.kobe.warehouse.domain.enumeration.ImportationStatus com.kobe.warehouse.domain.enumeration.InventoryStatut com.kobe.warehouse.domain.enumeration.RetourStatut com.kobe.warehouse.domain.enumeration.SalesStatut 

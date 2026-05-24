@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": "src/main/webapp/",
+    "baseUrl": "pharmaSmart-app/src/main/webapp/",
     "outDir": "./target/out-tsc/root",
     "forceConsistentCasingInFileNames": true,
     "strict": true,

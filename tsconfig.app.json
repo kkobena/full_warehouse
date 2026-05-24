@@ -4,6 +4,6 @@
     "outDir": "./target/out-tsc/app",
     "types": ["@angular/localize"]
   },
-  "files": ["src/main/webapp/main.ts"],
-  "include": ["src/main/webapp/**/*.d.ts"]
+  "files": ["pharmaSmart-app/src/main/webapp/main.ts"],
+  "include": ["pharmaSmart-app/src/main/webapp/**/*.d.ts"]
 }

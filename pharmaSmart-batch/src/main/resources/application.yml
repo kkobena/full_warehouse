@@ -1,0 +1,57 @@
+spring:
+  main:
+    web-application-type: none
+
+  datasource:
+    url: ${PHARMA_DB_URL:jdbc:postgresql://localhost:5432/pharma_smart}
+    username: ${PHARMA_DB_USER:pharma_smart}
+    password: ${PHARMA_DB_PASSWORD:}
+    hikari:
+      maximum-pool-size: 5
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: warehouse
+        jdbc:
+          time_zone: UTC
+          batch_size: 50
+        cache:
+          use_second_level_cache: false
+
+  batch:
+    jdbc:
+      initialize-schema: always
+      table-prefix: BATCH_
+    job:
+      enabled: false
+
+  flyway:
+    enabled: false
+
+pharma-smart:
+  batch:
+    chunk-size: 100
+    semois-enabled: true
+    classification-enabled: true
+  jobs:
+    nightly-pipeline-cron: "0 0 9 * * *"
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health, info, batch
+  endpoint:
+    batch:
+      enabled: true
+
+logging:
+  level:
+    com.kobe.warehouse.batch: INFO
+    org.springframework.batch: INFO
+    root: WARN

@@ -1,0 +1,200 @@
+@if (facture()) {
+  <div class="detail-panel">
+    <!-- Header -->
+    <div class="panel-header">
+      <div class="panel-title-block">
+        <div class="panel-libelle">{{ facture().tiersPayantName }}</div>
+        <div class="panel-meta">
+          <span class="pharma-code">{{ facture().numFacture }}</span>
+          @if (facture().statut) {
+            <p-badge [severity]="getStatutSeverity(facture().statut)" [value]="getStatutLabel(facture().statut)" />
+          }
+          @if (facture().enRetard) {
+            <p-badge severity="danger" value="En retard" />
+          }
+          <span class="pharma-badge pharma-badge-secondary">Net : {{ facture().montantNet | number }}</span>
+          <span class="pharma-badge pharma-badge-success">Réglé : {{ facture().montantRegle | number }}</span>
+          @if ((facture().montantRestant ?? 0) > 0) {
+            <span class="pharma-badge pharma-badge-danger">Restant : {{ facture().montantRestant | number }}</span>
+          }
+        </div>
+      </div>
+      <div class="panel-actions">
+        @if (canExport()) {
+          <p-button
+            icon="pi pi-file-pdf"
+            [text]="true"
+            size="small"
+            severity="warn"
+            [loading]="loadingPdf"
+            pTooltip="Exporter PDF"
+            tooltipPosition="left"
+            (onClick)="onExportPdf()"
+          />
+        }
+        @if (!this.facture().fneResponse && !this.facture().factureProvisoire && this.facture().statut === 'NOT_PAID') {
+          <p-button
+            (onClick)="onConfirmCertification()"
+            [loading]="certificationLoading"
+            [text]="true"
+            icon="pi pi-shield"
+            pTooltip="Certifier FNE"
+            severity="info"
+            size="small"
+            tooltipPosition="left"
+          />
+        }
+        @if (facture().fneResponse) {
+          <p-button
+            (onClick)="onViewFne()"
+            [text]="true"
+            icon="pi pi-verified"
+            pTooltip="Voir certificat FNE"
+            severity="secondary"
+            size="small"
+            tooltipPosition="left"
+          />
+        }
+        <p-button
+          icon="pi pi-times"
+          [text]="true"
+          size="small"
+          severity="primary"
+          [rounded]="true"
+          pTooltip="Fermer"
+          (onClick)="onClose()"
+        />
+      </div>
+    </div>
+
+    <!-- Onglets ngbNav -->
+    <div class="pharma-nav-tabs-container flex-1-overflow">
+      <div
+        #nav="ngbNav"
+        [activeId]="activeTab()"
+        (activeIdChange)="onTabChange($event)"
+        class="nav pharma-nav-tabs"
+        ngbNav
+        orientation="horizontal"
+      >
+        <!-- Onglet Détail -->
+        <ng-container ngbNavItem="detail">
+          <a class="pharma-nav-tab-link" ngbNavLink>
+            <i class="pi pi-list"></i>
+            <span>Détail</span>
+          </a>
+          <ng-template ngbNavContent>
+            @if (loadingItems) {
+              <div class="d-flex justify-content-center p-4">
+                <p-progressSpinner [style]="{ width: '40px', height: '40px' }" />
+              </div>
+            } @else {
+              <p-table [stripedRows]="true" [value]="factureItems()" [paginator]="true"
+                       [rows]="10" [rowsPerPageOptions]="[10, 25, 50]" class="p-datatable-sm">
+                <ng-template #header>
+                  <tr class="pharma-table-head">
+                    <th>N° Bon</th>
+                    <th>Assuré</th>
+                    <th>Matricule</th>
+                    <th class="text-right">Montant</th>
+                    <th class="text-right">Réglé</th>
+                  </tr>
+                </ng-template>
+                <ng-template #body let-item>
+                  <tr>
+                    <td><span class="pharma-code">{{ item.numBon }}</span></td>
+                    <td><span class="pharma-entity-name">{{ item.customer?.fullName }}</span></td>
+                    <td><span class="pharma-badge pharma-badge-info">{{ item.matricule }}</span></td>
+                    <td class="text-right"><span class="pharma-price">{{ item.montantVente | number }}</span></td>
+                    <td class="text-right"><span class="pharma-price">{{ item.montantRegle | number }}</span></td>
+                  </tr>
+                </ng-template>
+                <ng-template #emptymessage>
+                  <tr>
+                    <td colspan="5" class="text-center p-3 text-muted">Aucun dossier</td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            }
+          </ng-template>
+        </ng-container>
+
+        <!-- Onglet Régler (uniquement pour les factures non réglées ou partiellement réglées + permission) -->
+        @if (canExecute() && (facture().statut === 'NOT_PAID' || facture().statut === 'PARTIALLY_PAID')) {
+          <ng-container ngbNavItem="regler">
+            <a class="pharma-nav-tab-link" ngbNavLink>
+              <i class="pi pi-money-bill"></i>
+              <span>Régler</span>
+            </a>
+            <ng-template ngbNavContent>
+              <app-reglement-workspace
+                [mode]="isGroupe ? 'GROUPE' : 'INDIVIDUEL'"
+                [dossierFactureProjection]="dossierFactureProjection()"
+                [reglementFactureDossiers]="reglementDossiers()" />
+            </ng-template>
+          </ng-container>
+        }
+
+
+
+        <!-- Onglet Versements -->
+        <ng-container ngbNavItem="versements">
+          <a class="pharma-nav-tab-link" ngbNavLink>
+            <i class="pi pi-history"></i>
+            <span>Versements</span>
+          </a>
+          <ng-template ngbNavContent>
+            @if (loadingReglements) {
+              <div class="d-flex justify-content-center p-4">
+                <p-progressSpinner [style]="{ width: '40px', height: '40px' }" />
+              </div>
+            } @else {
+              <p-table [stripedRows]="true" [value]="reglements()" [paginator]="true"
+                       [rows]="10" class="p-datatable-sm">
+                <ng-template #header>
+                  <tr class="pharma-table-head">
+                    <th>Date</th>
+                    <th>Mode</th>
+                    <th class="text-right">Versé</th>
+                    <th class="text-right">Restant</th>
+                    <th>Opérateur</th>
+                  </tr>
+                </ng-template>
+                <ng-template #body let-r>
+                  <tr>
+                    <td>{{ r.created }}</td>
+                    <td><span class="pharma-badge pharma-badge-info">{{ r.paymentMode }}</span></td>
+                    <td class="text-right"><span class="pharma-total">{{ r.paidAmount }}</span></td>
+                    <td class="text-right"><span class="pharma-price">{{ r.montantRestant }}</span></td>
+                    <td>{{ r.user }}</td>
+                  </tr>
+                </ng-template>
+                <ng-template #emptymessage>
+                  <tr>
+                    <td colspan="5" class="text-center p-3 text-muted">Aucun versement enregistré</td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            }
+          </ng-template>
+        </ng-container>
+        <!-- Onglet Avoirs (factures réglées ou partiellement réglées) -->
+        @if (facture().statut === 'PAID' || facture().statut === 'PARTIALLY_PAID') {
+          <ng-container ngbNavItem="avoirs">
+            <a class="pharma-nav-tab-link" ngbNavLink>
+              <i class="pi pi-file-minus"></i>
+              <span>Avoirs TP</span>
+            </a>
+            <ng-template ngbNavContent>
+              <app-avoir-workspace [facture]="facture()" [factureItems]="factureItems()" />
+            </ng-template>
+          </ng-container>
+        }
+      </div>
+
+      <div class="pharma-nav-tabs-outlet">
+        <div [ngbNavOutlet]="nav"></div>
+      </div>
+    </div>
+  </div>
+}

@@ -12,7 +12,7 @@ const environment = require('./environment');
 const proxyConfig = require('./proxy.conf');
 
 module.exports = async config => {
-  const languagesHash = await hashElement(path.resolve(__dirname, '../src/main/webapp/i18n'), {
+  const languagesHash = await hashElement(path.resolve(__dirname, '../pharmaSmart-app/src/main/webapp/i18n'), {
     algo: 'md5',
     encoding: 'hex',
     files: { include: ['*.json'] },
@@ -57,11 +57,11 @@ module.exports = async config => {
       output: {
         groupBy: [
           {
-            pattern: './src/main/webapp/i18n/fr/*.json',
+            pattern: './pharmaSmart-app/src/main/webapp/i18n/fr/*.json',
             fileName: './i18n/fr.json',
           },
           {
-            pattern: './src/main/webapp/i18n/en/*.json',
+            pattern: './pharmaSmart-app/src/main/webapp/i18n/en/*.json',
             fileName: './i18n/en.json',
           },
           // Ajouter d'autres langues si nécessaire

@@ -14,7 +14,7 @@ const { execSync } = require('child_process');
 
 // Paths
 const projectRoot = path.resolve(__dirname, '..');
-const targetDir = path.join(projectRoot, 'target');
+const targetDir = path.join(projectRoot, 'pharmaSmart-app', 'target');
 const sidecarDir = path.join(projectRoot, 'src-tauri', 'sidecar');
 const wrapperScript = path.join(sidecarDir, 'pharmasmart-backend.bat');
 

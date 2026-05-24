@@ -527,7 +527,7 @@ Ajouter dans le footer de la card Créances TP :
 Dans la zone droite header (à côté des liens "CA avancé" / "Marges & Résultat") :
 ```html
 <a routerLink="/facturation" class="periode-pill" title="Facturation tiers-payants">
-  <i class="pi pi-file-invoice"></i>
+  <i class="pi pi-receipt"></i>
   <span class="pill-label">Facturation</span>
 </a>
 <a routerLink="/differes" class="periode-pill" title="Ventes à crédit clients">

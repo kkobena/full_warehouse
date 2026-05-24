@@ -1,0 +1,193 @@
+flyway:
+  enabled: true
+  schemas: pharma_smart
+  table: pharma_smart_history
+firebase:
+  database-url: https://pharma-smart-default-rtdb.firebaseio.com
+  service-account-file: classpath:firebase/pharma-smart-firebase-adminsdk.json
+  enabled: false
+spring:
+  application:
+    name: pharma-smart
+  profiles:
+    active: '@spring.profiles.active@'
+
+  jmx:
+    enabled: false
+  jackson:
+    default-property-inclusion: non_null
+    deserialization:
+      fail-on-null-for-primitives: false
+      fail-on-unknown-properties: false
+
+  cache:
+    type: jcache
+    jcache:
+      provider: com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+    open-in-view: false
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        generate_statistics: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: pharma_smart
+        cache:
+          region.factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
+        use_sql_comments: true
+      hibernate.jdbc.time_zone: UTC
+      hibernate.timezone.default_storage: NORMALIZE
+      hibernate.id.new_generator_mappings: true
+      hibernate.connection.provider_disables_autocommit: true
+      hibernate.cache.use_second_level_cache: true
+      hibernate.cache.use_query_cache: true
+      hibernate.jdbc.batch_size: 50
+      hibernate.order_inserts: true
+      hibernate.order_updates: true
+      hibernate.query.fail_on_pagination_over_collection_fetch: true
+      hibernate.query.in_clause_parameter_padding: true
+
+    hibernate:
+      ddl-auto: none
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
+
+  messages:
+    basename: i18n/messages
+
+  task:
+    execution:
+      thread-name-prefix: pharma-smart-task-
+      pool:
+        core-size: 2
+        max-size: 50
+        queue-capacity: 10000
+    scheduling:
+      thread-name-prefix: pharma-smart-scheduling-
+      pool:
+        size: 2
+  thymeleaf:
+    mode: HTML
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: 'easyshopws@gmail.com'
+    password: 'ndid bogp ywrv umkt'
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  config:
+    activate:
+      on-profile: '!api-docs'
+springdoc:
+  api-docs:
+    enabled: false
+---
+management:
+  health:
+    mail:
+      enabled: false
+
+  endpoints:
+    web:
+      base-path: /management
+      exposure:
+        include:
+          - health
+
+  endpoint:
+    health:
+      show-details: when_authorized
+      roles: 'ROLE_ADMIN'
+      probes:
+        enabled: true
+      group:
+        liveness:
+          include: livenessState
+        readiness:
+          include: readinessState,db
+
+server:
+  servlet:
+    session:
+      cookie:
+        http-only: true
+
+springdoc:
+  show-actuator: false
+
+info:
+  display-ribbon-on-profiles: 'dev'
+
+pharma-smart:
+  # false (défaut) : JobOrchestrationService gère tout le pipeline nocturne.
+  # true  : pharmaSmart-batch gère SEMOIS/Classification/Snapshot/Vues/Avoirs
+  #         et HeavyJobsOrchestrationService prend en charge Facturation/FNE/Tournant.
+  batch:
+    enabled: false
+
+  jobs:
+    # Pipeline nocturne SEMOIS (séquentiel) :
+    #   1. Réintégration exclusions expirées
+    #   2. Agrégation ventes mensuelles
+    #   3. Classification criticité (garde mensuelle)
+    #   4. Recalcul SEMOIS + suggestions (garde journalière)
+    # Le même pipeline s'exécute aussi au démarrage de l'application (catch-up).
+    # Format cron: secondes minutes heures jour mois jour-semaine
+    nightly-pipeline-cron: '0 0 9 * * *'
+
+  semois:
+    # Délai de gel des agrégations mensuelles (en jours)
+    # Fenêtre de correction pour annulations tardives après fin de mois
+    freeze-delay-days: 30
+    batch-size: 100 # Taille du lot pour le traitement par lots
+
+  classification:
+    # Taille des batchs pour le traitement par lots
+    batch-size: 100
+
+  views:
+    # Rafraîchissement intra-journée des vues matérialisées (async, ne bloque pas les utilisateurs).
+    # Un refreshAll est aussi exécuté en fin de pipeline (démarrage + nocturne).
+    # Format cron: secondes minutes heures jour mois jour-semaine
+    dashboards-cron: '0 */15 8-20 * * *'    # CA, alertes stock, ventes — toutes les 15 min (8h-20h)
+    analytique-cron: '0 0 8-20 * * *'     # Familles, valorisation stock — toutes les heures (8h-20h)
+    reporting-cron: '0 0 9,12,15,18 * * *' # RFM clients, perf fournisseurs, marges — 4x/jour
+  clientApp:
+    name: 'pharma-smart'
+  # OAuth2 Authorization Server settings
+  oauth2:
+    issuer-uri: http://localhost:8080
+    # Access token expiration times (in seconds)
+    access-token-validity:
+      web: 7200 # 2 hours
+      mobile: 28800 # 8 hours
+      desktop: 43200 # 12 hours
+      service: 3600 # 1 hour
+    # Refresh token expiration times (in seconds)
+    refresh-token-validity:
+      web: 2592000 # 30 days
+      mobile: 7776000 # 90 days
+      desktop: 31536000 # 365 days
+
+
+
+port-com:
+legacy-url: http://localhost:9090/laborex
+mail:
+  email: badoukobena@gmail.com

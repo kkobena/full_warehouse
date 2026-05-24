@@ -7,8 +7,8 @@
   "scripts": {
     " ": "husky",
     "build": "npm run webapp:prod --",
-    "clean-www": "rimraf target/classes/static/",
-    "cleanup": "rimraf target/",
+    "clean-www": "rimraf pharmaSmart-app/target/classes/static/",
+    "cleanup": "rimraf target/ pharmaSmart-app/target/",
     "lint": "eslint .",
     "lint:fix": "npm run lint -- --fix",
     "prettier:check": "prettier --check \"{,src/**/,webpack/,.blueprint/**/}*.{md,json,yml,js,cjs,mjs,ts,cts,mts,java,html,css,scss}\"",

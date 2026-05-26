@@ -5,7 +5,6 @@
   "description": "Description for pharma-smart",
   "license": "UNLICENSED",
   "scripts": {
-    " ": "husky",
     "build": "npm run webapp:prod --",
     "clean-www": "rimraf pharmaSmart-app/target/classes/static/",
     "cleanup": "rimraf target/ pharmaSmart-app/target/",

@@ -681,8 +681,8 @@ private isFromVo(fromTab: string): boolean {
       return;
     }
     this.processingQueue = true;
-    const code = this.scanQueue.shift()!;
-    this.searchAndDispatch(code);
+    const raw = this.scanQueue.shift()!;
+    this.searchAndDispatch(raw);
   }
 
   private searchAndDispatch(code: string): void {
@@ -701,12 +701,11 @@ private isFromVo(fromTab: string): boolean {
           const results = res.body || [];
           if (results.length === 1) {
             this.scanAudio.beepSuccess();
-            this.dispatchScannedProduct(results[0]);
+            this.dispatchScannedProduct(results[0], code);
           } else if (results.length === 0) {
             this.scanAudio.beepError();
             this.notificationService.error(`Produit non trouvé : ${code}`, 'Scan');
           } else {
-            // Ambiguïté : plusieurs produits matchent — informer l'utilisateur, prendre le 1er.
             this.scanAudio.beepWarning();
             const labels = results.slice(0, 3).map(p => p.libelle ?? '?').join(', ');
             const suffix = results.length > 3 ? ` (+${results.length - 3} autres)` : '';
@@ -714,7 +713,7 @@ private isFromVo(fromTab: string): boolean {
               `${results.length} produits correspondent à « ${code} » : ${labels}${suffix}. Le 1er a été ajouté — vérifiez la ligne.`,
               'Scan ambigu',
             );
-            this.dispatchScannedProduct(results[0]);
+            this.dispatchScannedProduct(results[0], code);
           }
         },
         error: (err: unknown) => {
@@ -728,23 +727,23 @@ private isFromVo(fromTab: string): boolean {
       });
   }
 
-  private dispatchScannedProduct(product: ProduitSearch): void {
+  private dispatchScannedProduct(product: ProduitSearch, codeScan?: string): void {
     // Nettoyer l'input actif (code-barres du scanner visible dans un champ)
     this.clearActiveInputAfterScan();
 
     switch (this.active()) {
       case 'comptant':
         if (this.isDevisMode()) {
-          this.saleDevis()?.onProductScanned(product);
+          this.saleDevis()?.onProductScanned(product, codeScan);
         } else {
-          this.saleCreation()?.onProductScanned(product);
+          this.saleCreation()?.onProductScanned(product, codeScan);
         }
         break;
       case 'assurance':
-        this.saleAssurance()?.onProductScanned(product);
+        this.saleAssurance()?.onProductScanned(product, codeScan);
         break;
       case 'carnet':
-        this.saleCarnet()?.onProductScanned(product);
+        this.saleCarnet()?.onProductScanned(product, codeScan);
         break;
     }
   }

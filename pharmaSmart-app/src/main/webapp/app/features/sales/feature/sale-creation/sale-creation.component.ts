@@ -339,8 +339,8 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
    * Délègue au mixin productHandling
    * Gère le scan d'un code-barres
    */
-  onProductScanned(product: ProduitSearch): void {
-    this.productHandling.onProductScanned(product);
+  onProductScanned(product: ProduitSearch, codeScan?: string): void {
+    this.productHandling.onProductScanned(product, codeScan);
   }
 
   /**

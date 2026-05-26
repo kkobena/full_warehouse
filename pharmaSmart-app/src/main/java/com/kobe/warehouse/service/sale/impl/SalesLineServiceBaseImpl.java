@@ -14,6 +14,7 @@ import com.kobe.warehouse.service.id_generator.SaleLineIdGeneratorService;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.reassort.RepartitionStockService;
 import com.kobe.warehouse.service.sale.AvoirClientDocumentService;
+import com.kobe.warehouse.service.stock.DataMatrixParserService;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.LotStockLocationService;
 import org.springframework.stereotype.Service;
@@ -41,7 +42,8 @@ public class SalesLineServiceBaseImpl extends SalesLineServiceImpl {
         StorageService storageService,
         RepartitionStockService repartitionStockService,
         LotStockLocationService lotStockLocationService,
-        AvoirClientDocumentService avoirClientDocumentService
+        AvoirClientDocumentService avoirClientDocumentService,
+        DataMatrixParserService dataMatrixParserService
     ) {
         super(
             produitRepository,
@@ -54,7 +56,8 @@ public class SalesLineServiceBaseImpl extends SalesLineServiceImpl {
             storageService,
             repartitionStockService,
             lotStockLocationService,
-            avoirClientDocumentService
+            avoirClientDocumentService,
+            dataMatrixParserService
         );
     }
 

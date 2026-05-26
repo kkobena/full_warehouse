@@ -34,6 +34,7 @@ import com.kobe.warehouse.service.dto.builder.ProduitBuilder;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.produit_prix.service.PrixRererenceService;
 import com.kobe.warehouse.service.reassort.SuggestionReassortService;
+import com.kobe.warehouse.service.stock.DataMatrixParserService;
 import com.kobe.warehouse.service.stock.ProduitService;
 import com.kobe.warehouse.service.stock.dto.ProduitSearch;
 import com.kobe.warehouse.service.utils.ServiceUtil;
@@ -79,6 +80,7 @@ public class ProduitServiceImpl implements ProduitService {
     private final SubstitutRepository substitutRepository;
     private final FournisseurProduitRepository fournisseurProduitRepository;
     private final PrixRererenceService prixReferenceService;
+    private final DataMatrixParserService dataMatrixParserService;
 
     public ProduitServiceImpl(
         ProduitRepository produitRepository,
@@ -87,7 +89,8 @@ public class ProduitServiceImpl implements ProduitService {
         ObjectMapper objectMapper, StorageService storageService, LogsService logsService, StockProduitRepository stockProduitRepository, RayonProduitRepository rayonProduitRepository, SuggestionReassortService suggestionReassortService,
         SubstitutRepository substitutRepository,
         FournisseurProduitRepository fournisseurProduitRepository,
-        PrixRererenceService prixReferenceService
+        PrixRererenceService prixReferenceService,
+        DataMatrixParserService dataMatrixParserService
     ) {
 
         this.produitRepository = produitRepository;
@@ -102,6 +105,7 @@ public class ProduitServiceImpl implements ProduitService {
         this.substitutRepository = substitutRepository;
         this.fournisseurProduitRepository = fournisseurProduitRepository;
         this.prixReferenceService = prixReferenceService;
+        this.dataMatrixParserService = dataMatrixParserService;
     }
 
     /**
@@ -436,8 +440,11 @@ public class ProduitServiceImpl implements ProduitService {
         if (isNull(magasinId)) {
             magasinId = storageService.getConnectedUserMagasin().getId();
         }
-
-        String jsonResult = produitRepository.searchProduitsJson(search, magasinId, pageable.getPageSize());
+        String productCode = dataMatrixParserService.parse(search)
+            .map(com.kobe.warehouse.service.dto.DataMatrixInfo::getProductCode)
+            .filter(Objects::nonNull)
+            .orElse(search);
+        String jsonResult = produitRepository.searchProduitsJson(productCode, magasinId, pageable.getPageSize());
 
         try {
             return objectMapper.readValue(jsonResult, new TypeReference<>() {

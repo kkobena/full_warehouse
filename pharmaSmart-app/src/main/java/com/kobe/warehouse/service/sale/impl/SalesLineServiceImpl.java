@@ -27,8 +27,10 @@ import com.kobe.warehouse.service.errors.StockInReserveException;
 import com.kobe.warehouse.service.id_generator.SaleLineIdGeneratorService;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.reassort.RepartitionStockService;
+import com.kobe.warehouse.service.dto.DataMatrixInfo;
 import com.kobe.warehouse.service.sale.AvoirClientDocumentService;
 import com.kobe.warehouse.service.sale.SalesLineService;
+import com.kobe.warehouse.service.stock.DataMatrixParserService;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.LotStockLocationService;
 import org.springframework.stereotype.Service;
@@ -42,6 +44,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -58,6 +61,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     private final RepartitionStockService repartitionStockService;
     private final LotStockLocationService lotStockLocationService;
     private final AvoirClientDocumentService avoirClientDocumentService;
+    private final DataMatrixParserService dataMatrixParserService;
 
     protected SalesLineServiceImpl(
         ProduitRepository produitRepository,
@@ -70,7 +74,8 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         StorageService storageService,
         RepartitionStockService repartitionStockService,
         LotStockLocationService lotStockLocationService,
-        AvoirClientDocumentService avoirClientDocumentService
+        AvoirClientDocumentService avoirClientDocumentService,
+        DataMatrixParserService dataMatrixParserService
     ) {
         this.produitRepository = produitRepository;
         this.salesLineRepository = salesLineRepository;
@@ -83,6 +88,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         this.repartitionStockService = repartitionStockService;
         this.lotStockLocationService = lotStockLocationService;
         this.avoirClientDocumentService = avoirClientDocumentService;
+        this.dataMatrixParserService = dataMatrixParserService;
     }
 
     private SalesLine getNew() {
@@ -119,6 +125,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         salesLine.setAmountToBeTakenIntoAccount(salesLine.getAmountToBeTakenIntoAccount());
         salesLine.setDiscountAmount(0);
         salesLine.setDiscountUnitPrice(0);
+        salesLine.setCodeScan(dto.getCodeScan());
         processUg(salesLine, dto, stockageId);
         return salesLine;
     }
@@ -268,7 +275,9 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         salesLine.setNetUnitPrice(dto.getRegularUnitPrice());
         salesLine.setQuantitySold(calculateQuantitySold(salesLine.getQuantityRequested(), currentStockQuantity));
         salesLine.setRegularUnitPrice(dto.getRegularUnitPrice());
-
+        if (dto.getCodeScan() != null) {
+            salesLine.setCodeScan(dto.getCodeScan());
+        }
         processUg(salesLine, dto, stockageId);
         // processProductDiscount(salesLine);
     }
@@ -364,17 +373,40 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
             return;
         }
         AtomicInteger remaining = new AtomicInteger(quantitySold);
-        this.lotService.findByProduitId(salesLine.getProduit().getId()).forEach(lot -> {
-            if (remaining.get() > 0) {
-                // FEFO garanti par le tri ORDER BY expiryDate ASC de la requête
-                int toTake = Math.min(remaining.get(), lot.getCurrentQuantity());
-                if (toTake > 0) {
-                    salesLine.getLots().add(new LotSold(lot.getId(), lot.getNumLot(), toTake, lot.getExpiryDate()));
-                    lotStockLocationService.debit(lot, storage, toTake);
-                    remaining.addAndGet(-toTake);
+
+        // Si DataMatrix avec numéro de lot, priorité au lot scanné (override FEFO)
+        String codeScan = salesLine.getCodeScan();
+        if (codeScan != null) {
+            dataMatrixParserService.parse(codeScan)
+                .filter(DataMatrixInfo::hasBatchInfo)
+                .ifPresent(info -> lotService.findByProduitIdAndNumLot(salesLine.getProduit().getId(), info.batchNumber())
+                    .ifPresent(lot -> {
+                        if (remaining.get() > 0 && lot.getCurrentQuantity() > 0) {
+                            int toTake = Math.min(remaining.get(), lot.getCurrentQuantity());
+                            salesLine.getLots().add(new LotSold(lot.getId(), lot.getNumLot(), toTake, lot.getExpiryDate()));
+                            lotStockLocationService.debit(lot, storage, toTake);
+                            remaining.addAndGet(-toTake);
+                        }
+                    }));
+        }
+
+        // FEFO pour la quantité restante (ignore les lots déjà traités)
+        if (remaining.get() > 0) {
+            Set<Integer> usedLotIds = salesLine.getLots().stream()
+                .map(LotSold::id)
+                .collect(Collectors.toSet());
+            this.lotService.findByProduitId(salesLine.getProduit().getId()).forEach(lot -> {
+                if (remaining.get() > 0 && !usedLotIds.contains(lot.getId())) {
+                    int toTake = Math.min(remaining.get(), lot.getCurrentQuantity());
+                    if (toTake > 0) {
+                        salesLine.getLots().add(new LotSold(lot.getId(), lot.getNumLot(), toTake, lot.getExpiryDate()));
+                        lotStockLocationService.debit(lot, storage, toTake);
+                        remaining.addAndGet(-toTake);
+                    }
                 }
-            }
-        });
+            });
+        }
+
         this.lotService.updateLots(salesLine.getLots());
     }
 

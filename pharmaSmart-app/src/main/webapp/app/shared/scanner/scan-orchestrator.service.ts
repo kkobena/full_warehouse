@@ -1,8 +1,17 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { map, takeUntil } from 'rxjs/operators';
 import { TauriDeviceDetectionService } from '../services/tauri-device-detection.service';
 import { NotificationService } from '../services/notification.service';
+import type { BarcodeType } from '../model/reception-scan-result.model';
+
+export type { BarcodeType };
+
+/** Code scanné avec son type détecté côté client (sans appel réseau). */
+export interface BarcodeScanEvent {
+  raw: string;
+  barcodeType: BarcodeType;
+}
 
 export interface ScanOrchestratorConfig {
   /** Nom de l'event Tauri émis par le thread Rust scanner (ex: 'scan-vente', 'scan-reception'). */
@@ -88,6 +97,14 @@ export class ScanOrchestratorService {
 
   private readonly _onScan$ = new Subject<string>();
   readonly onScan$: Observable<string> = this._onScan$.asObservable();
+
+  /**
+   * Émission enrichie : code brut + type détecté côté client en ~0 ms.
+   * Utilisé par les consommateurs qui ont besoin du type sans aller-retour HTTP.
+   */
+  readonly onScanEvent$: Observable<BarcodeScanEvent> = this.onScan$.pipe(
+    map(raw => ({ raw, barcodeType: ScanOrchestratorService.detectBarcodeType(raw) })),
+  );
 
   private config: ScanOrchestratorConfig | null = null;
   private unlistenScan: (() => void) | null = null;
@@ -622,6 +639,37 @@ export class ScanOrchestratorService {
     }
     if (alive || this.destroyed || this.status() !== 'SERIAL') return;
     this.onUsbRemoved(); // centralise la logique de nettoyage
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Détection de type de code-barres (miroir de DataMatrixParserService.java)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Détecte le type de code-barres sans appel réseau.
+   * Logique alignée sur DataMatrixParserService.BarcodeType (Java).
+   */
+  static detectBarcodeType(code: string): BarcodeType {
+    if (!code) return 'UNKNOWN';
+    // DataMatrix : identifiant de symbologie ]d2, séparateur GS (ASCII 29),
+    // préfixe STX () ou placeholders texte émis par certains décodeurs.
+    if (
+      code.startsWith(']d2') ||
+      code.includes('') ||
+      code.startsWith('') ||
+      code.includes('<GS>') ||
+      code.includes('{GS}')
+    ) {
+      return 'DATAMATRIX';
+    }
+    // Supprime un éventuel identifiant de symbologie (ex: ]C1, ]E0, ]d1)
+    const stripped = code.replace(/^\][A-Za-z]\d/, '');
+    if (!/^\d+$/.test(stripped)) return 'UNKNOWN';
+    if (stripped.length === 7) return 'CIP_7';
+    if (stripped.length === 8) return 'EAN_8';
+    if (stripped.length === 13 && stripped.startsWith('340')) return 'CIP_13';
+    if (stripped.length === 13) return 'EAN_13';
+    return 'UNKNOWN';
   }
 
   private formatScanErrorMessage(payload: ScanErrorPayload): string {

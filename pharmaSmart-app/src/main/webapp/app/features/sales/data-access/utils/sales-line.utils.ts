@@ -19,7 +19,12 @@ import { ProduitSearch } from '../../../../shared/model';
  * @param currentSale - Vente en cours (peut être null si création)
  * @returns ISalesLine prête à être envoyée au backend
  */
-export function createSalesLineFromProduct(product: ProduitSearch, quantity: number, currentSale: ISales | null): ISalesLine {
+export function createSalesLineFromProduct(
+  product: ProduitSearch,
+  quantity: number,
+  currentSale: ISales | null,
+  codeScan?: string | null,
+): ISalesLine {
   return {
     ...new SalesLine(),
     produitId: product.id,
@@ -28,6 +33,7 @@ export function createSalesLineFromProduct(product: ProduitSearch, quantity: num
     saleId: currentSale?.id,
     sales: null, // Toujours null pour correspondre au payload attendu par le backend
     saleCompositeId: currentSale?.saleId,
+    codeScan: codeScan ?? null,
     // Informations CH nécessaires pour le déconditionnement (non envoyées au backend)
     produit: {
       id: product.id,

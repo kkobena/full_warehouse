@@ -1,7 +1,8 @@
 import {inject, Injectable} from '@angular/core';
-import {HttpClient, HttpResponse} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
+import {HttpClient, HttpHeaders, HttpResponse} from '@angular/common/http';
+import {Observable, of} from 'rxjs';
+import {catchError, map} from 'rxjs/operators';
+import type {IDataMatrixInfo} from '../../../../shared/model/data-matrix-info.model';
 
 import {SERVER_API_URL} from '../../../../app.constants';
 import {createRequestOptions} from '../../../../shared/util/request-util';
@@ -504,5 +505,27 @@ export class SalesApiService {
    */
   cloneDevisAssurance(id: SaleId): Observable<HttpResponse<void>> {
     return this.http.put<void>(`${this.resourceUrl}/assurance/clone-devis`, id, {observe: 'response'});
+  }
+
+  // ============================================
+  // SCAN / DATAMATRIX
+  // ============================================
+
+  /**
+   * Envoie le code brut scanné au backend (DataMatrixParserService) et retourne
+   * les informations parsées : CIP/EAN, numéro de lot, date d'expiration, n° de série FMD…
+   *
+   * Retourne `null` si le code est invalide (HTTP 204) ou si le serveur est injoignable.
+   */
+  parseScan(rawScan: string): Observable<IDataMatrixInfo | null> {
+    return this.http
+      .post<IDataMatrixInfo>(`${this.resourceUrl}/parse-scan`, rawScan, {
+        headers: new HttpHeaders({'Content-Type': 'text/plain'}),
+        observe: 'response',
+      })
+      .pipe(
+        map(res => (res.status === 204 ? null : res.body)),
+        catchError(() => of(null)),
+      );
   }
 }

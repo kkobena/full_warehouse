@@ -77,6 +77,7 @@ public class SaleLineDTO {
     private Integer taxValue;
 
     private boolean forceStock; // mis pour forcer le stock a la vente
+    private String codeScan;
     private SaleLineId saleLineId;
     private SaleId saleCompositeId;
 
@@ -108,6 +109,7 @@ public class SaleLineDTO {
         quantiyAvoir = salesLine.getQuantityAvoir();
         calculationBasePrice = salesLine.getCalculationBasePrice();
         rates = salesLine.getRates();
+        codeScan = salesLine.getCodeScan();
     }
 
     public SaleId getSaleCompositeId() {
@@ -366,6 +368,15 @@ public class SaleLineDTO {
 
     public SaleLineDTO setForceStock(boolean forceStock) {
         this.forceStock = forceStock;
+        return this;
+    }
+
+    public String getCodeScan() {
+        return codeScan;
+    }
+
+    public SaleLineDTO setCodeScan(String codeScan) {
+        this.codeScan = codeScan;
         return this;
     }
 }

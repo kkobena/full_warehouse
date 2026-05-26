@@ -250,3 +250,5 @@ sales-android/fastlane/readme.md
 /pharma-mobile-report/release.jks
 /scripts/init_pharma_db/target/
 /.vscode/settings.json
+/pharmaSmart-domain/target/generated-sources/
+/pharmaSmart-domain/target/

@@ -4,6 +4,7 @@ import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.LotSold;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.service.dto.LotDTO;
+import java.util.Optional;
 import com.kobe.warehouse.service.stock.dto.LotFilterParam;
 import com.kobe.warehouse.service.stock.dto.LotPerimeDTO;
 import com.kobe.warehouse.service.stock.dto.LotPerimeValeurSum;
@@ -43,6 +44,8 @@ public interface LotService {
     void remove(Integer lotId);
 
     List<Lot> findByProduitId(Integer produitId);
+
+    Optional<Lot> findByProduitIdAndNumLot(Integer produitId, String numLot);
 
     List<Lot> findProduitLots(Integer produitId);
 

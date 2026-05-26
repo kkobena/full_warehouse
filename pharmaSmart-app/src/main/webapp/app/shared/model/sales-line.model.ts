@@ -25,6 +25,7 @@ export interface ISalesLine {
   calculationBasePrice?: number;
   code?: string;
   forceStock?: boolean;
+  codeScan?: string | null;
   saleLineId?: SaleLineId;
   saleCompositeId?: SaleId;
 }

@@ -412,8 +412,8 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
    * Délègue au mixin productHandling
    * Scanner → ajout automatique avec quantité 1
    */
-  onProductScanned(product: ProduitSearch): void {
-    this.productHandling.onProductScanned(product);
+  onProductScanned(product: ProduitSearch, codeScan?: string): void {
+    this.productHandling.onProductScanned(product, codeScan);
   }
 
   /**

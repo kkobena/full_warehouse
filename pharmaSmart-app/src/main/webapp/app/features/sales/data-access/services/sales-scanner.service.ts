@@ -6,9 +6,10 @@ import { ScanOrchestratorService } from '../../../../shared/scanner';
 /**
  * Service de scan du module vente — wrapper autour de {@link ScanOrchestratorService}.
  *
- * Doit être déclaré dans `providers` du composant hébergeur (avec `ScanOrchestratorService`).
+ * Responsabilité : abstraction matérielle uniquement (HID / USB CDC).
+ * Aucune logique métier, aucun appel HTTP.
  *
- * API conservée pour rétro-compatibilité (templates / appels existants).
+ * Doit être déclaré dans `providers` du composant hébergeur (avec `ScanOrchestratorService`).
  */
 @Injectable()
 export class SalesScannerService {
@@ -19,7 +20,7 @@ export class SalesScannerService {
   readonly scannerMode = this.orchestrator.scannerMode;
   /** Bouton reconnexion CDC visible si HID forcé dans Tauri avec un poste configuré. */
   readonly canReconnect = this.orchestrator.canReconnect;
-  /** Observable de codes-barres unifié (HID + SERIAL). */
+  /** Observable de codes-barres bruts unifié (HID + SERIAL). */
   readonly onScan$: Observable<string> = this.orchestrator.onScan$;
 
   constructor() {

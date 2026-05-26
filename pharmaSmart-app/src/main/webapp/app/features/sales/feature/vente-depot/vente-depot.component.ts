@@ -274,13 +274,13 @@ export class VenteDepotComponent implements OnInit, ProductSearchHost {
     this.productHandling.onProductSelected(product);
   }
 
-  protected onProductScanned(product: ProduitSearch): void {
+  protected onProductScanned(product: ProduitSearch, codeScan?: string): void {
     if (!this.facade.selectedDepot()) {
       this.notificationService.warning('Veuillez sélectionner un dépôt', 'Dépôt requis');
       this.focusDepotBox();
       return;
     }
-    this.productHandling.onProductScanned(product);
+    this.productHandling.onProductScanned(product, codeScan);
   }
 
   protected onSaveKeyDown(shouldSave: boolean): void {

@@ -218,6 +218,12 @@ public class LotServiceImpl implements LotService {
 
     @Override
     @Transactional(readOnly = true)
+    public Optional<Lot> findByProduitIdAndNumLot(Integer produitId, String numLot) {
+        return this.lotRepository.findByNumLotAndProduitId(numLot, produitId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<Lot> findProduitLots(Integer produitId) {
         return this.lotRepository.findByProduitId(produitId);
     }

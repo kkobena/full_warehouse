@@ -146,6 +146,9 @@ public class SalesLine implements Persistable<SaleLineId>, Serializable, Cloneab
     @Column(columnDefinition = "jsonb", name = "rates")
     private List<Rate> rates = new ArrayList<>();
 
+    @Column(name = "code_scan")
+    private String codeScan;
+
     @Override
     public SaleLineId getId() {
         return new SaleLineId(id, saleDate);
@@ -243,6 +246,15 @@ public class SalesLine implements Persistable<SaleLineId>, Serializable, Cloneab
 
     public SalesLine setLots(List<LotSold> lots) {
         this.lots = lots;
+        return this;
+    }
+
+    public String getCodeScan() {
+        return codeScan;
+    }
+
+    public SalesLine setCodeScan(String codeScan) {
+        this.codeScan = codeScan;
         return this;
     }
 

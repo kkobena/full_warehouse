@@ -180,14 +180,14 @@ export function createProductHandling(context: ProductHandlingContext) {
   /**
    * Gère le scan d'un code-barres (ajout direct avec quantité 1)
    */
-  function onProductScanned(product: ProduitSearch): void {
+  function onProductScanned(product: ProduitSearch, codeScan?: string | null): void {
     // Vérifier si client requis
     if (!checkCustomerRequired()) {
       return;
     }
 
     facade.setSelectedProduct(product);
-    addProductToSale(product, 1);
+    addProductToSale(product, 1, codeScan);
   }
 
   /**
@@ -206,9 +206,9 @@ export function createProductHandling(context: ProductHandlingContext) {
    * Ajoute un produit à la vente en cours ou crée une nouvelle vente
    * Note: Le reset et focus sont gérés via souscription à facade.productAddedSuccess$ dans le composant
    */
-  function addProductToSale(product: ProduitSearch, quantity: number): void {
+  function addProductToSale(product: ProduitSearch, quantity: number, codeScan?: string | null): void {
     const sale = currentSale();
-    const salesLine = createSalesLineFromProduct(product, quantity, sale);
+    const salesLine = createSalesLineFromProduct(product, quantity, sale, codeScan);
 
     // Stocker les infos pour affichage APRÈS succès API (évite les problèmes de synchro en cas d'erreur ex: stock insuffisant)
     pendingDisplayProduct.set({

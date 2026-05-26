@@ -323,8 +323,8 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
     this.productHandling.onAddQuantity(quantity);
   }
 
-  onProductScanned(product: ProduitSearch): void {
-    this.productHandling.onProductScanned(product);
+  onProductScanned(product: ProduitSearch, codeScan?: string): void {
+    this.productHandling.onProductScanned(product, codeScan);
   }
 
   onLineQuantityChanged(data: { line: ISalesLine; newQty: number }): void {

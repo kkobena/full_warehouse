@@ -1,6 +1,6 @@
 flyway:
   enabled: true
-  schemas: pharma_smart
+  schemas: ${PHARMA_DB_SCHEMA:pharma_smart}
   table: pharma_smart_history
 firebase:
   database-url: https://pharma-smart-default-rtdb.firebaseio.com
@@ -34,7 +34,7 @@ spring:
         format_sql: true
         generate_statistics: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        default_schema: pharma_smart
+        default_schema: ${PHARMA_DB_SCHEMA:pharma_smart}
         cache:
           region.factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
         use_sql_comments: true

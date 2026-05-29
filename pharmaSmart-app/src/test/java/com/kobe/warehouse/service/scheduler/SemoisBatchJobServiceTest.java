@@ -111,7 +111,7 @@ class SemoisBatchJobServiceTest {
     private void stubBaseRepos(Produit produit, FournisseurProduit fp,
                                 List<SuggestionLine> existingLines,
                                 Optional<Suggestion> existingSuggestion) {
-        when(produitRepository.findAllSemoisEligibles(1)).thenReturn(List.of(produit));
+
         when(semoisConfigurationRepository.findByProduitIdIn(anySet())).thenReturn(List.of());
         when(etatProduitService.produitsNonSuggerables(anySet())).thenReturn(Set.of());
         when(suggestionLineRepository.findAllByTypeSuggessionAndFournisseurProduitIdIn(
@@ -132,13 +132,11 @@ class SemoisBatchJobServiceTest {
         void sansMagasin_neRienPersiste() {
             when(em.find(Magasin.class, EntityConstant.DEFAULT_MAGASIN)).thenReturn(null);
             service.creerSuggestionBatch();
-            verify(produitRepository, never()).findAllSemoisEligibles(any());
             verify(suggestionRepository, never()).saveAll(any());
         }
 
         @Test @DisplayName("Aucun produit éligible → rien persisté")
         void sansProduits_neRienPersiste() {
-            when(produitRepository.findAllSemoisEligibles(1)).thenReturn(List.of());
             service.creerSuggestionBatch();
             verify(suggestionRepository, never()).saveAll(any());
             verify(suggestionLineRepository, never()).saveAll(any());

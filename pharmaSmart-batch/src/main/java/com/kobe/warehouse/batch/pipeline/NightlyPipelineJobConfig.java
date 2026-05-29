@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 /**
- * Pipeline nocturne Spring Batch (Phase 3).
+ * Pipeline nocturne Spring Batch .
  *
  * <p>Périmètre : services disponibles dans {@code pharmaSmart-domain} uniquement.
  * Les étapes Facturation, FNE et Tournant restent dans {@code HeavyJobsOrchestrationService}
@@ -45,6 +45,8 @@ public class NightlyPipelineJobConfig {
         Step refreshViewsStep,
         Step classifyChunkStep,
         Step recalculateSemoisChunkStep,
+        Step creerSuggestionsStep,
+        Step nettoyerSuggestionsStep,
         Step avoirExpirationStep
     ) {
         return new JobBuilder("nightlyPipelineJob", jobRepository)
@@ -54,6 +56,8 @@ public class NightlyPipelineJobConfig {
             .next(refreshViewsStep)
             .next(classifyChunkStep)
             .next(recalculateSemoisChunkStep)
+            .next(creerSuggestionsStep)
+            .next(nettoyerSuggestionsStep)
             .next(avoirExpirationStep)
             .build();
     }
@@ -99,6 +103,28 @@ public class NightlyPipelineJobConfig {
     ) {
         return new StepBuilder("refreshViewsStep", jobRepository)
             .tasklet((c, ctx) -> { service.refreshAllViews(); return RepeatStatus.FINISHED; }, txManager)
+            .build();
+    }
+
+    @Bean
+    public Step creerSuggestionsStep(
+        JobRepository jobRepository,
+        PlatformTransactionManager txManager,
+        SemoisBatchJobService service
+    ) {
+        return new StepBuilder("creerSuggestionsStep", jobRepository)
+            .tasklet((c, ctx) -> { service.creerSuggestionBatch(); return RepeatStatus.FINISHED; }, txManager)
+            .build();
+    }
+
+    @Bean
+    public Step nettoyerSuggestionsStep(
+        JobRepository jobRepository,
+        PlatformTransactionManager txManager,
+        SemoisBatchJobService service
+    ) {
+        return new StepBuilder("nettoyerSuggestionsStep", jobRepository)
+            .tasklet((c, ctx) -> { service.nettoyerSuggestionsObsoletes(); return RepeatStatus.FINISHED; }, txManager)
             .build();
     }
 

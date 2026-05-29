@@ -75,8 +75,6 @@ import java.util.stream.Collectors;
 @Transactional
 public class SuggestionProduitServiceImpl implements SuggestionProduitService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SuggestionProduitServiceImpl.class);
-
     private final SuggestionRepository suggestionRepository;
     private final SuggestionLineRepository suggestionLineRepository;
     private final FournisseurProduitRepository fournisseurProduitRepository;

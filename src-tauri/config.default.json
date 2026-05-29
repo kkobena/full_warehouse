@@ -10,13 +10,21 @@
     "directory": ""
   },
   "jvm": {
-    "heap_min": "2g",
-    "heap_max": "2g",
-    "metaspace_size": "256m",
-    "metaspace_max": "384m",
-    "direct_memory_size": "384m",
-    "max_gc_pause_millis": "200",
-    "additional_options": []
+    "java_home": "",
+    "app": {
+      "heap_min": "2g",
+      "heap_max": "2g",
+      "metaspace_size": "256m",
+      "metaspace_max": "384m",
+      "direct_memory_size": "384m",
+      "max_gc_pause_millis": "200",
+      "additional_options": []
+    },
+    "batch": {
+      "heap_min": "128m",
+      "heap_max": "512m",
+      "additional_options": []
+    }
   },
   "file": {
     "report": "./reports",
@@ -38,8 +46,25 @@
     "email": "badoukobena@gmail.com"
   },
   "port-com": "",
+  "database": {
+    "url": "",
+    "username": "",
+    "password": "",
+    "schema": ""
+  },
+  "backup": {
+    "directory": "C:\\ProgramData\\PharmaSmart\\backups",
+    "db": "pharma_smart",
+    "host": "localhost",
+    "port": 5432,
+    "user": "pharma_smart",
+    "retention_daily_days": 30,
+    "retention_base_weeks": 4,
+    "wal_archiving": false,
+    "wal_directory": ""
+  },
   "dev_jvm_examples": {
-    "_comment": "Below are example JVM configurations for different scenarios. Copy the one you need to the 'jvm' section above.",
+    "_comment": "Exemples de configurations JVM. Copiez les valeurs souhaitées dans jvm.app ou jvm.batch ci-dessus.",
     "development": {
       "description": "Development/Testing (2GB RAM minimum)",
       "heap_min": "256m",

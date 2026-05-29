@@ -1,0 +1,49 @@
+<service>
+  <!--
+    WinSW — Configuration du service Windows pour pharmaSmart-batch
+    Déploiement : placer ce fichier, pharmasmart-batch.exe (=WinSW.exe renommé)
+                  et pharmasmart-batch.jar dans le même répertoire, puis exécuter :
+                    pharmasmart-batch.exe install
+                    pharmasmart-batch.exe start
+    Prérequis : Java 25+ installé, JAVA_HOME configuré dans les variables système.
+
+    Le pipeline nocturne se déclenche automatiquement à 00h30 et au démarrage du service.
+    Pour désactiver temporairement sans arrêter le service, passer
+    pharma-smart.batch.active=false dans application.yml ou via -D.
+  -->
+
+  <id>pharmasmart-batch</id>
+  <name>PharmaSmart Batch</name>
+  <description>PharmaSmart — Pipeline nocturne SEMOIS, Classification ABC, Stock, Avoirs (cron 00h30)</description>
+
+  <executable>PLACEHOLDER_JAVA</executable>
+  <arguments>-XmsPLACEHOLDER_HEAP_MIN -XmxPLACEHOLDER_HEAP_MAX -Dspring.profiles.active=prod -Dpharma-smart.batch.active=true -Dfile.encoding=UTF-8 -jar "%BASE%\pharmasmart-batch.jar"</arguments>
+
+  <!-- Démarrage automatique différé : attend que pharmaSmart-app et PostgreSQL soient prêts -->
+  <startmode>Automatic</startmode>
+  <delayedAutoStart>true</delayedAutoStart>
+
+  <!-- Redémarrer automatiquement en cas de crash -->
+  <onfailure action="restart" delay="30 sec"/>
+  <onfailure action="restart" delay="60 sec"/>
+  <onfailure action="none"/>
+
+  <!-- Base de données — même credentials que pharmaSmart-app -->
+  <env name="PHARMA_DB_URL"      value="PLACEHOLDER_DB_URL"/>
+  <env name="PHARMA_DB_USER"     value="PLACEHOLDER_DB_USER"/>
+  <env name="PHARMA_DB_PASSWORD" value="PLACEHOLDER_DB_PASSWORD"/>
+  <env name="PHARMA_DB_SCHEMA"   value="PLACEHOLDER_DB_SCHEMA"/>
+
+  <!-- Journaux rotatifs dans %BASE%\logs\ -->
+  <logmode>rotate</logmode>
+  <logpath>%BASE%\logs</logpath>
+  <log mode="rotate">
+    <sizeThreshold>10240</sizeThreshold>
+    <keepFiles>5</keepFiles>
+  </log>
+
+  <!-- Timeout arrêt : batch en cours peut prendre quelques secondes -->
+  <stopTimeout>60 sec</stopTimeout>
+
+  <depend>postgresql-x64-18</depend>
+</service>

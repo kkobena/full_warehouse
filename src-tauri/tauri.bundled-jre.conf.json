@@ -6,14 +6,12 @@
   "build": {
     "beforeDevCommand": "npm run start",
     "devUrl": "http://localhost:4200",
-    "beforeBuildCommand": "npm run webapp:build:tauri",
     "frontendDist": "../pharmaSmart-app/target/classes/static"
   },
   "bundle": {
     "active": true,
     "targets": [
-      "nsis",
-      "msi"
+      "nsis"
     ],
     "icon": [
       "icons/32x32.png",
@@ -26,7 +24,14 @@
       "sidecar/pharmaSmart-*.jar",
       "sidecar/jre/**/*",
       "config.default.json",
-      "backend-url.txt.template"
+      "backend-url.txt.template",
+      "service/setup-backend-service.ps1",
+      "service/remove-backend-service.ps1",
+      "service/refresh-service-config.ps1",
+      "backup/setup-backup-tasks.ps1",
+      "backup/remove-backup-tasks.ps1",
+      "installer-hooks/configure-database.ps1",
+      "installer-hooks/db-defaults.json"
     ],
     "windows": {
       "digestAlgorithm": "sha256",

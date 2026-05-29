@@ -219,6 +219,34 @@ fn build_jvm_args(config: &AppConfig, jar_path: &Path) -> Vec<String> {
         "--pharma-smart.views.reporting-cron={}",
         config.views.reporting_cron
     ));
+
+    // DB credentials — pushed only when non-empty in config.json.
+    // When absent/empty, Spring Boot falls back to application-prod.yml / env vars.
+    if let Some(url) = &config.database.url {
+        if !url.is_empty() {
+            args.push(format!("--spring.datasource.url={}", url));
+        }
+    }
+    if let Some(username) = &config.database.username {
+        if !username.is_empty() {
+            args.push(format!("--spring.datasource.username={}", username));
+        }
+    }
+    if let Some(password) = &config.database.password {
+        if !password.is_empty() {
+            args.push(format!("--spring.datasource.password={}", password));
+        }
+    }
+    if let Some(schema) = &config.database.schema {
+        if !schema.is_empty() {
+            args.push(format!(
+                "--spring.jpa.properties.hibernate.default_schema={}",
+                schema
+            ));
+            args.push(format!("--spring.flyway.schemas={}", schema));
+        }
+    }
+
     args
 }
 
@@ -331,9 +359,40 @@ pub async fn start_backend(app: &AppHandle) -> Result<u32, String> {
     inner_start(app).await.map_err(|e| e.to_string())
 }
 
+/// Vérifie si le backend est déjà disponible (service Windows ou instance externe).
+/// Retourne le PID fictif 0 si connecté à un backend externe (non géré par Tauri).
+async fn try_connect_existing(app: &AppHandle, port: u16) -> Option<u32> {
+    let client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(3))
+        .build()
+        .ok()?;
+    let url = format!("http://localhost:{}/management/health", port);
+    match client.get(&url).send().await {
+        Ok(resp) if resp.status().is_success() => {
+            tracing::info!(port, "Backend déjà actif (service Windows ou externe) — connexion directe");
+            Some(0) // PID 0 = backend externe, non géré par Tauri
+        }
+        _ => None,
+    }
+}
+
 async fn inner_start(app: &AppHandle) -> Result<u32, BackendError> {
     let config = AppConfig::load(app);
     let state = app.state::<BackendState>();
+
+    // ── Vérifier si le backend tourne déjà (service Windows) ────────────────
+    // Si le service pharmaSmart-app est actif, se connecter directement
+    // sans spawner un second processus (conflit de port).
+    state
+        .set_status(app, "checking_service", 5, "Vérification d'un backend existant…")
+        .await;
+    if let Some(pid) = try_connect_existing(app, config.server.port).await {
+        *state.process_id.lock().await = Some(pid);
+        state
+            .set_status(app, "ready", 100, "Connecté au service backend existant.")
+            .await;
+        return Ok(pid);
+    }
 
     state
         .set_status(app, "checking_java", 10, "Vérification de Java…")
@@ -508,6 +567,13 @@ pub async fn stop_backend(app: &AppHandle) -> Result<(), String> {
         tracing::info!("Aucun processus backend actif");
         return Ok(());
     };
+
+    // PID 0 = backend externe (service Windows) — Tauri ne le gère pas
+    if pid == 0 {
+        tracing::info!("Backend externe (service Windows) — arrêt non géré par Tauri");
+        state.set_status(app, "stopped", 100, "Déconnecté du service backend.").await;
+        return Ok(());
+    }
 
     tracing::info!(pid, "Arrêt du backend");
     state

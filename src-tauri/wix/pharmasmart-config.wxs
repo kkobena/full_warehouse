@@ -123,7 +123,7 @@
     -->
     <CustomAction Id="PS_WriteConfigJson"
                   Directory="PHARMASMARTDATA"
-                  ExeCommand="[SystemFolder]cmd.exe /C powershell.exe -NoProfile -ExecutionPolicy Bypass -Command &quot;$d=[System.Environment]::GetFolderPath('CommonApplicationData') + '\PharmaSmart'; $inst='[INSTALLDIR]'.TrimEnd('\'); $cfg = [ordered]@{ server=@{port=9080}; logging=@{directory=&quot;&quot;$d\logs&quot;&quot;;file=&quot;&quot;$d\logs\pharmasmart.log&quot;&quot;}; installation=@{directory=$inst}; jvm=@{heap_min='2g';heap_max='2g';metaspace_size='256m';metaspace_max='384m';direct_memory_size='384m';max_gc_pause_millis='200';additional_options=@()}; file=@{report=&quot;&quot;$d\reports&quot;&quot;;images=&quot;&quot;$d\images&quot;&quot;;import=@{json=&quot;&quot;$d\json&quot;&quot;;csv=&quot;&quot;$d\csv&quot;&quot;;excel=&quot;&quot;$d\excel&quot;&quot;};pharmaml=&quot;&quot;$d\pharmaml&quot;&quot;}; fne=@{url='';'api-key'='';'point-of-sale'=''}; mail=@{username='';email=''}; 'port-com'=''} | ConvertTo-Json -Depth 10 | Out-File -Encoding UTF8 &quot;&quot;$d\config.json&quot;&quot;&quot;"
+                  ExeCommand="[SystemFolder]cmd.exe /C powershell.exe -NoProfile -ExecutionPolicy Bypass -Command &quot;$d=[System.Environment]::GetFolderPath('CommonApplicationData') + '\PharmaSmart'; $inst='[INSTALLDIR]'.TrimEnd('\'); $cfg = [ordered]@{ server=@{port=9080}; logging=@{directory=&quot;&quot;$d\logs&quot;&quot;;file=&quot;&quot;$d\logs\pharmasmart.log&quot;&quot;}; installation=@{directory=$inst}; jvm=@{heap_min='2g';heap_max='2g';metaspace_size='256m';metaspace_max='384m';direct_memory_size='384m';max_gc_pause_millis='200';additional_options=@()}; file=@{report=&quot;&quot;$d\reports&quot;&quot;;images=&quot;&quot;$d\images&quot;&quot;;import=@{json=&quot;&quot;$d\json&quot;&quot;;csv=&quot;&quot;$d\csv&quot;&quot;;excel=&quot;&quot;$d\excel&quot;&quot;};pharmaml=&quot;&quot;$d\pharmaml&quot;&quot;}; fne=@{url='';'api-key'='';'point-of-sale'=''}; mail=@{username='';email=''}; 'port-com'=''; database=@{url='';username='';password='';schema=''}; backup=@{directory=&quot;&quot;$d\backups&quot;&quot;;db='pharma_smart';host='localhost';port=5432;user='pharma_smart';retention_daily_days=30;retention_base_weeks=4;wal_archiving=$false;wal_directory=''}} | ConvertTo-Json -Depth 10 | Out-File -Encoding UTF8 &quot;&quot;$d\config.json&quot;&quot;&quot;"
                   Execute="deferred"
                   Impersonate="no"
                   Return="ignore" />
@@ -138,11 +138,43 @@
                   Impersonate="no"
                   Return="ignore" />
 
+    <!--
+      Installation du service Windows pharmasmart-app via WinSW.
+      Le script détecte automatiquement le JAR, java.exe et le port depuis config.json.
+      Le mot de passe base de données n'est PAS géré ici — il doit être défini
+      comme variable d'environnement système (PHARMA_DB_PASSWORD) par l'administrateur.
+      Return="ignore" : l'installation continue même si le service échoue (pas d'internet,
+      pas de Java système, etc.) — l'admin peut relancer le script manuellement.
+    -->
+    <CustomAction Id="PS_InstallBackendService"
+                  Directory="INSTALLDIR"
+                  ExeCommand="[SystemFolder]cmd.exe /C powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;[INSTALLDIR]resources\service\setup-backend-service.ps1&quot;"
+                  Execute="deferred"
+                  Impersonate="no"
+                  Return="ignore" />
+
+    <!--
+      Suppression du service avant la désinstallation des fichiers.
+      Exécuté avant RemoveFiles pour que le script PowerShell soit encore accessible.
+      Ignoré lors d'une mise à jour (UPGRADINGPRODUCTCODE) : le nouveau MSI
+      réinstallera le service avec la bonne version du JAR.
+    -->
+    <CustomAction Id="PS_RemoveBackendService"
+                  Directory="INSTALLDIR"
+                  ExeCommand="[SystemFolder]cmd.exe /C powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;[INSTALLDIR]resources\service\remove-backend-service.ps1&quot;"
+                  Execute="deferred"
+                  Impersonate="no"
+                  Return="ignore" />
+
     <InstallExecuteSequence>
       <!-- Après InstallFiles : les dossiers existent, PHARMASMARTDATA est résolu -->
       <Custom Action="PS_WriteConfigJson" After="InstallFiles">NOT Installed OR REINSTALL</Custom>
       <!-- Copie dans le dossier d'installation juste après la création dans ProgramData -->
       <Custom Action="PS_CopyConfigToInstDir" After="PS_WriteConfigJson">NOT Installed OR REINSTALL</Custom>
+      <!-- Service install : après la config, uniquement installation/réinstallation -->
+      <Custom Action="PS_InstallBackendService" After="PS_CopyConfigToInstDir">(NOT Installed OR REINSTALL) AND NOT REMOVE</Custom>
+      <!-- Service remove : avant la suppression des fichiers, uniquement désinstallation complète -->
+      <Custom Action="PS_RemoveBackendService" Before="RemoveFiles">Installed AND REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE</Custom>
     </InstallExecuteSequence>
 
     <!-- ── Feature autonome pour les données PharmaSmart ─────────────────── -->

@@ -1,0 +1,38 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0
+                              https://maven.apache.org/xsd/assembly-2.2.0.xsd">
+  <id>dist</id>
+  <formats>
+    <format>zip</format>
+  </formats>
+
+  <!-- Pas de répertoire racine supplémentaire dans le ZIP -->
+  <includeBaseDirectory>false</includeBaseDirectory>
+
+  <!-- JAR exécutable construit par spring-boot:repackage -->
+  <files>
+    <file>
+      <source>${project.build.directory}/${project.build.finalName}.jar</source>
+      <outputDirectory>/</outputDirectory>
+    </file>
+    <!-- Template de configuration (partagé avec le module Tauri) -->
+    <file>
+      <source>${project.basedir}/../src-tauri/config.default.json</source>
+      <outputDirectory>/</outputDirectory>
+    </file>
+  </files>
+
+  <!-- Scripts de service PowerShell -->
+  <fileSets>
+    <fileSet>
+      <directory>${project.basedir}/service</directory>
+      <outputDirectory>/service</outputDirectory>
+      <includes>
+        <include>install-batch-service.ps1</include>
+        <include>uninstall-batch-service.ps1</include>
+      </includes>
+    </fileSet>
+  </fileSets>
+
+</assembly>

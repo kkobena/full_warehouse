@@ -126,7 +126,17 @@
       "Bash(npm --version)",
       "Bash(xargs -I{} basename {} .txt)",
       "Bash(git -C /c/Users/k.kobena/Documents/dev/full_warehouse show HEAD:pom.xml)",
-      "Bash(read dir *)"
+      "Bash(read dir *)",
+      "Bash(mvnw.cmd help:effective-pom -pl pharmaSmart-batch -P dist -q)",
+      "Bash(find pharmaSmart-app/src -name \"SpaWebFilter.java\")",
+      "Bash(find pharmaSmart-app/src -name \"WebConfigurer.java\")",
+      "Bash(powershell.exe -NoProfile -Command 'Add-Type -AssemblyName System.IO.Compression.FileSystem; $z = [System.IO.Compression.ZipFile]::OpenRead\\('\\\\''pharmaSmart-app/target/pharmaSmart-app-0.2.3.jar'\\\\''\\); $entries = $z.Entries | Where-Object { $_.FullName -like '\\\\''BOOT-INF/classes/static/*'\\\\'' } | Select-Object -First 20; $entries | ForEach-Object { $_.FullName }; $z.Dispose\\(\\)')",
+      "Bash(powershell.exe *)",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('beforeBuildCommand:', d.get\\('build',{}\\).get\\('beforeBuildCommand','\\(none\\)'\\)\\)\")",
+      "Bash(python *)",
+      "Bash(tasklist)",
+      "Bash(\"C:/Users/k.kobena/AppData/Local/tauri/WixTools314/light.exe\" -nologo -ext WixUIExtension -ext WixUtilExtension -cultures:fr-FR main.wixobj pharmasmart-config.wixobj -out PharmaSmart_test.msi)",
+      "Bash(\"C:/Users/k.kobena/AppData/Local/tauri/WixTools314/light.exe\" -nologo -ext WixUIExtension -ext WixUtilExtension -cultures:fr-FR -loc locale.wxl main.wixobj pharmasmart-config.wixobj -out PharmaSmart_test.msi)"
     ],
     "deny": [],
     "ask": []

@@ -197,6 +197,87 @@
         <npm.executable>npm.cmd</npm.executable>
       </properties>
     </profile>
+
+    <!--
+      Profil full-dist : produit le ZIP de distribution complet dans target/
+      Contient : installeur Tauri NSIS (bundled-jre) + pharmasmart-batch.jar
+                 + pharmasmart-backup.exe + config.default.json + scripts service
+
+      Prérequis : Rust/cargo installé, Node.js + Tauri CLI installés.
+
+      Usage :
+        mvnw.cmd clean package -P full-dist -DskipTests        (Windows)
+        ./mvnw   clean package -P full-dist -DskipTests        (Linux/macOS)
+      Sortie :
+        target/pharmasmart-{version}-full.zip
+    -->
+    <profile>
+      <id>full-dist</id>
+      <build>
+        <plugins>
+          <!-- Étape 1 : Build Cargo (pharmasmart-backup) -->
+          <!-- Étape 2 : Build Tauri bundled-jre            -->
+          <!-- Les deux sont liés à la phase package ; Cargo tourne en premier -->
+          <!-- inherited=false : n'exécuter que dans le module racine, pas dans les sous-modules -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <inherited>false</inherited>
+            <executions>
+              <execution>
+                <id>cargo-build-backup</id>
+                <phase>package</phase>
+                <goals><goal>exec</goal></goals>
+                <configuration>
+                  <executable>cargo</executable>
+                  <arguments>
+                    <argument>build</argument>
+                    <argument>--release</argument>
+                  </arguments>
+                  <workingDirectory>${project.basedir}/src-backup</workingDirectory>
+                </configuration>
+              </execution>
+              <execution>
+                <id>tauri-build-bundled-jre</id>
+                <phase>package</phase>
+                <goals><goal>exec</goal></goals>
+                <configuration>
+                  <executable>${npm.executable}</executable>
+                  <arguments>
+                    <argument>run</argument>
+                    <!-- Angular déjà compilé par pharmaSmart-app en generate-resources ; on saute ce step -->
+                    <argument>tauri:build:bundled-jre:fast</argument>
+                  </arguments>
+                  <workingDirectory>${project.basedir}</workingDirectory>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+          <!-- Étape 3 : Assembler le ZIP final -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <version>3.7.1</version>
+            <inherited>false</inherited>
+            <executions>
+              <execution>
+                <id>make-full-dist</id>
+                <phase>package</phase>
+                <goals><goal>single</goal></goals>
+                <configuration>
+                  <descriptors>
+                    <descriptor>src/assembly/full-dist.xml</descriptor>
+                  </descriptors>
+                  <appendAssemblyId>false</appendAssemblyId>
+                  <finalName>pharmasmart-${project.version}-full</finalName>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 
 </project>

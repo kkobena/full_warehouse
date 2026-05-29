@@ -15,7 +15,7 @@ spring:
       ddl-auto: validate
     properties:
       hibernate:
-        default_schema: warehouse
+        default_schema: ${PHARMA_DB_SCHEMA:warehouse}
         jdbc:
           time_zone: UTC
           batch_size: 50
@@ -34,11 +34,15 @@ spring:
 
 pharma-smart:
   batch:
+    # Interrupteur maître — false pendant les tests fonctionnels, true en production.
+    # Quand false : le service démarre normalement mais ne lance aucun job.
+    active: false
     chunk-size: 100
     semois-enabled: true
     classification-enabled: true
-  jobs:
-    nightly-pipeline-cron: "0 0 9 * * *"
+    # Cron d'exécution nocturne (utilisé uniquement quand active=true).
+    # Défaut : 00h30 — adapter si la pharmacie ferme tôt la nuit (ex: "0 0 2 * * *" pour 2h00)
+    cron-schedule: "0 30 0 * * *"
 
 management:
   endpoints:

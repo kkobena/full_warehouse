@@ -1,0 +1,50 @@
+<service>
+  <!--
+    WinSW — Configuration du service Windows pour pharmaSmart-app
+    Déploiement : placer ce fichier, pharmasmart-app.exe (=WinSW.exe renommé)
+                  et pharmasmart-app.jar dans le même répertoire, puis exécuter :
+                    pharmasmart-app.exe install
+                    pharmasmart-app.exe start
+    Prérequis : Java 25+ installé, JAVA_HOME configuré dans les variables système.
+
+    Avant installation, mettre à jour :
+      - PHARMA_DB_PASSWORD : mot de passe PostgreSQL (ou définir la variable système)
+      - PHARMA_DB_URL      : si la BDD n'est pas sur localhost
+  -->
+
+  <id>pharmasmart-app</id>
+  <name>PharmaSmart Application</name>
+  <description>PharmaSmart — API web, sécurité, PDF, imprimante thermique (port 8080)</description>
+
+  <executable>PLACEHOLDER_JAVA</executable>
+  <arguments>-XmsPLACEHOLDER_HEAP_MIN -XmxPLACEHOLDER_HEAP_MAX -Dspring.profiles.active=prod -Dfile.encoding=UTF-8 -Djava.awt.headless=true -jar "%BASE%\pharmasmart-app.jar" --server.port=PLACEHOLDER_PORT</arguments>
+
+  <!-- Démarrage automatique différé : attend que les services réseau soient prêts -->
+  <startmode>Automatic</startmode>
+  <delayedAutoStart>true</delayedAutoStart>
+
+  <!-- Redémarrer automatiquement en cas de crash -->
+  <onfailure action="restart" delay="10 sec"/>
+  <onfailure action="restart" delay="20 sec"/>
+  <onfailure action="none"/>
+
+  <!-- Base de données — surcharger PHARMA_DB_PASSWORD via variable système si souhaité -->
+  <env name="PHARMA_DB_URL"      value="PLACEHOLDER_DB_URL"/>
+  <env name="PHARMA_DB_USER"     value="PLACEHOLDER_DB_USER"/>
+  <env name="PHARMA_DB_PASSWORD" value="PLACEHOLDER_DB_PASSWORD"/>
+  <env name="PHARMA_DB_SCHEMA"   value="PLACEHOLDER_DB_SCHEMA"/>
+
+  <!-- Journaux rotatifs dans %BASE%\logs\ -->
+  <logmode>rotate</logmode>
+  <logpath>%BASE%\logs</logpath>
+  <log mode="rotate">
+    <sizeThreshold>10240</sizeThreshold>
+    <keepFiles>5</keepFiles>
+  </log>
+
+  <!-- Timeout arrêt propre (Spring Boot s'arrête en ~5 s en prod) -->
+  <stopTimeout>30 sec</stopTimeout>
+
+  <!-- Dépendances : PostgreSQL doit être démarré avant -->
+  <depend>postgresql-x64-18</depend>
+</service>

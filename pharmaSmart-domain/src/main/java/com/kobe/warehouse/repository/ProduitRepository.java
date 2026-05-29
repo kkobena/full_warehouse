@@ -14,6 +14,7 @@ import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.service.dto.produit.HistoriqueProduitInfo;
 import com.kobe.warehouse.service.dto.projection.Id;
+import com.kobe.warehouse.service.scheduler.dto.SemoisEligibleItem;
 import com.kobe.warehouse.service.stock.dto.LotFilterParam;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Join;
@@ -31,6 +32,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 
 import static java.util.Objects.isNull;
 import static org.springframework.util.StringUtils.hasText;
@@ -211,20 +213,28 @@ public interface ProduitRepository
     List<Integer> findIdsByIdIn(@Param("ids") Collection<Integer> ids);
 
     /**
-     * Charge tous les produits éligibles au batch SEMOIS :
-     * actifs, non-DETAIL, avec FP principal défini.
-     * Fetch-join des stockProduits, du fournisseur et de son parent pour éviter les N+1
-     * dans la boucle du batch (regroupement par fournisseur, résolution du délai de livraison).
+     * Charge les produits éligibles au batch SEMOIS sous forme de projection légère paginée.
+     * Agrège le stock physique par magasin en SQL (évite le chargement des collections)
+     * et inclut les données SemoisConfiguration via LEFT JOIN pour éliminer le N+1 batch-load.
      */
     @Query("""
-        SELECT DISTINCT p FROM Produit p
-        JOIN FETCH p.fournisseurProduitPrincipal fp
-        LEFT JOIN FETCH fp.fournisseur f
-        LEFT JOIN FETCH f.parent
-        LEFT JOIN FETCH p.stockProduits sp
+        SELECT new com.kobe.warehouse.service.scheduler.dto.SemoisEligibleItem(
+            p.id, fp.id, f.id, fp.qteColis, fp.qteMinimaleCommande,
+            COALESCE(SUM(CASE WHEN st.magasin.id = :magasinId THEN (sp.qtyStock + sp.qtyUG) ELSE 0 END), 0),
+            sc.stockObjectifCalcule, p.qtySeuilMini, p.qtyAppro, sc.exclusionDate, sc.exclusionDureeJours
+        )
+        FROM Produit p
+        JOIN p.fournisseurProduitPrincipal fp
+        JOIN fp.fournisseur f
+        LEFT JOIN p.stockProduits sp
+        LEFT JOIN sp.storage st
+        LEFT JOIN SemoisConfiguration sc ON sc.produit = p
         WHERE p.status = com.kobe.warehouse.domain.enumeration.Status.ENABLE
-          AND p.typeProduit <> com.kobe.warehouse.domain.enumeration.TypeProduit.DETAIL
-          AND fp IS NOT NULL AND sp.storage.magasin.id=?1
+          AND p.typeProduit = com.kobe.warehouse.domain.enumeration.TypeProduit.PACKAGE
+        GROUP BY p.id, fp.id, f.id, fp.qteColis, fp.qteMinimaleCommande,
+                 sc.stockObjectifCalcule, p.qtySeuilMini, p.qtyAppro,
+                 sc.exclusionDate, sc.exclusionDureeJours
         """)
-    List<Produit> findAllSemoisEligibles(Integer magasinId);
+    Slice<SemoisEligibleItem> findSemoisEligibleItemsSlice(
+        @Param("magasinId") Integer magasinId, Pageable pageable);
 }

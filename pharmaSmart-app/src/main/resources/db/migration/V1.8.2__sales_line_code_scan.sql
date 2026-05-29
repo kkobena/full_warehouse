@@ -1,0 +1,2 @@
+ALTER TABLE sales_line
+    ADD COLUMN IF NOT EXISTS code_scan VARCHAR(255);

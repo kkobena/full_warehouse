@@ -32,36 +32,57 @@ if (!fs.existsSync(wrapperScript)) {
   process.exit(1);
 }
 
-// Find the Spring Boot JAR in target directory
-let jarFiles = [];
-if (fs.existsSync(targetDir)) {
-  jarFiles = fs
+// Absolute path to Maven wrapper — execSync on Windows doesn't search cwd for .cmd files.
+const mvnCmd = process.platform === 'win32'
+  ? path.join(projectRoot, 'mvnw.cmd')
+  : path.join(projectRoot, 'mvnw');
+
+function findJars() {
+  if (!fs.existsSync(targetDir)) return [];
+  return fs
     .readdirSync(targetDir)
-    .filter(file => file.startsWith('pharmaSmart-') && file.endsWith('.jar') && !file.includes('javadoc') && !file.includes('sources'));
+    .filter(f => f.startsWith('pharmaSmart-') && f.endsWith('.jar') && !f.includes('javadoc') && !f.includes('sources'));
 }
+
+// Find the Spring Boot JAR in target directory
+let jarFiles = findJars();
+
+// Angular pre-built flag: webapp:build:tauri (or webapp:prod) outputs index.html here.
+// When it exists BEFORE prepare-sidecar runs, the existing JAR was assembled before
+// Angular was available — repackage it so the frontend is included in classpath:/static/.
+const angularIndexHtml = path.join(targetDir, 'classes', 'static', 'index.html');
+const angularPreBuilt = fs.existsSync(angularIndexHtml);
 
 if (jarFiles.length === 0) {
   console.log('⚠️  No JAR file found in target/');
-  console.log('🔨 Building Spring Boot application...');
-
+  console.log('🔨 Building Spring Boot application with Angular (-Pprod)...');
   try {
-    const mvnCmd = process.platform === 'win32' ? 'mvnw.cmd' : './mvnw';
-    execSync(`${mvnCmd} clean package -Pprod -DskipTests`, {
-      cwd: projectRoot,
-      stdio: 'inherit',
+    execSync(`"${mvnCmd}" clean package -Pprod -DskipTests`, {
+      cwd: projectRoot, stdio: 'inherit', shell: true,
     });
-
-    // Re-check for JAR files
-    jarFiles = fs
-      .readdirSync(targetDir)
-      .filter(file => file.startsWith('pharmaSmart-') && file.endsWith('.jar') && !file.includes('javadoc') && !file.includes('sources'));
-
+    jarFiles = findJars();
     if (jarFiles.length === 0) {
       console.error('❌ Failed to build JAR file');
       process.exit(1);
     }
   } catch (error) {
     console.error('❌ Maven build failed:', error.message);
+    process.exit(1);
+  }
+} else if (angularPreBuilt) {
+  // JAR exists but Angular was built after it — inject Angular files directly into the JAR
+  // (ZIP update via PowerShell). Avoids Maven-in-Maven conflict when called from exec-maven-plugin.
+  console.log('🔄 Angular already built — injecting into JAR (direct ZIP update)...');
+  const jarPath = path.join(targetDir, jarFiles[0]);
+  const staticDir = path.join(targetDir, 'classes', 'static');
+  const psScript = path.join(projectRoot, 'scripts', 'inject-angular-into-jar.ps1');
+  try {
+    execSync(
+      `powershell.exe -NoProfile -ExecutionPolicy Bypass -File "${psScript}" -JarPath "${jarPath}" -StaticDir "${staticDir}"`,
+      { cwd: projectRoot, stdio: 'inherit' }
+    );
+  } catch (error) {
+    console.error('❌ Angular injection failed:', error.message);
     process.exit(1);
   }
 }

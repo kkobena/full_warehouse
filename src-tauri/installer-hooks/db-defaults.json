@@ -1,0 +1,8 @@
+﻿{
+  "host":     "localhost",
+  "port":     "5432",
+  "dbName":   "pharma_smart",
+  "user":     "pharma_smart",
+  "password": "2802_pharma_smart",
+  "schema":   "pharma_smart"
+}

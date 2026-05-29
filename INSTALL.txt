@@ -1,0 +1,184 @@
+======================================================
+  PHARMASMART — GUIDE D'INSTALLATION
+======================================================
+
+CONTENU DU PACKAGE
+------------------
+  PharmaSmart_x.x.x_x64-setup.exe   Application bureau (backend Java intégré)
+  pharmasmart-batch.jar              Pipeline nocturne (SEMOIS, stock, avoirs)
+  pharmasmart-backup.exe             Sauvegarde automatique PostgreSQL
+  config.default.json                Modèle de configuration
+  service\
+    pharmasmart-setup.ps1            Script d'installation des services Windows
+    pharmasmart-app.xml              Modèle WinSW — service principal
+    pharmasmart-batch.xml            Modèle WinSW — service batch
+    setup-backup-tasks.ps1           Activation des sauvegardes automatiques
+    remove-backup-tasks.ps1          Suppression des tâches de sauvegarde
+
+
+PRÉREQUIS
+---------
+  - Windows 10 / 11  (64 bits)
+  - PostgreSQL installé et démarré
+  - Base de données et utilisateur PostgreSQL déjà créés
+  - Compte Administrateur Windows pour les étapes 3 et 4
+
+
+======================================================
+  ÉTAPE 1 — INSTALLER L'APPLICATION
+======================================================
+
+  1. Double-cliquer sur  PharmaSmart_x.x.x_x64-setup.exe
+  2. Suivre l'assistant d'installation.
+  3. Un formulaire de configuration s'affiche automatiquement :
+
+       ┌─────────────────────────────────────────────┐
+       │  Hôte PostgreSQL :  localhost               │
+       │  Port :             5432                    │
+       │  Base de données :  pharma_smart               │
+       │  Utilisateur :      pharma_smart               │
+       │  Mot de passe :     ****                    │
+       │  Schéma :           pharma_smart  (optionnel)  │
+       └─────────────────────────────────────────────┘
+
+     → Renseigner les informations de connexion PostgreSQL
+       et cliquer sur "Valider".
+
+  L'application s'installe avec Java intégré.
+  La configuration de la base de données est terminée.
+
+  ASTUCE — Passer ce formulaire est possible (bouton "Passer"),
+  mais l'application ne démarrera pas correctement avant que
+  les credentials soient renseignés dans :
+    %PROGRAMDATA%\PharmaSmart\config.json  (installation partagée)
+    %APPDATA%\PharmaSmart\config.json      (installation utilisateur)
+
+
+======================================================
+  ÉTAPE 2 — INSTALLER LE SERVICE BATCH
+======================================================
+
+  Le batch exécute les calculs nocturnes (SEMOIS, classification
+  ABC, inventaire). Il fonctionne comme un service Windows
+  qui démarre automatiquement chaque nuit à 00h30.
+
+  1. Créer un dossier de déploiement, par exemple :
+        C:\PharmaSmartBatch\
+
+  2. Copier dans ce dossier :
+        pharmasmart-batch.jar
+        config.json  (créé à l'étape 1)
+        service\     (dossier complet)
+
+  3. Ouvrir PowerShell en tant qu'Administrateur
+     (clic droit sur PowerShell → "Exécuter en tant qu'administrateur")
+
+  4. Taper les commandes suivantes :
+
+        cd C:\PharmaSmartBatch
+        Set-ExecutionPolicy RemoteSigned -Scope Process
+        .\service\pharmasmart-setup.ps1 install -Target batch
+
+  5. Vérifier que le service est démarré :
+
+        .\service\pharmasmart-setup.ps1 status
+
+
+======================================================
+  ÉTAPE 3 — ACTIVER LA SAUVEGARDE AUTOMATIQUE
+======================================================
+
+  1. Copier  pharmasmart-backup.exe  dans  C:\PharmaSmartBatch\
+
+  2. Dans PowerShell (Administrateur), depuis C:\PharmaSmartBatch :
+
+        .\service\setup-backup-tasks.ps1
+
+  La sauvegarde se déclenche automatiquement au démarrage de Windows.
+  Les fichiers sont enregistrés dans le dossier défini dans config.json
+  (par défaut : C:\ProgramData\PharmaSmart\backups\).
+
+
+======================================================
+  ÉTAPE 4 — DÉMARRER L'APPLICATION
+======================================================
+
+  Double-cliquer sur l'icône PharmaSmart sur le bureau
+  ou dans le menu Démarrer.
+
+  L'application démarre le backend automatiquement.
+  Attendre quelques secondes le temps du démarrage,
+  puis l'interface s'ouvre dans la fenêtre.
+
+
+======================================================
+  VÉRIFICATION
+======================================================
+
+  Dans PowerShell (Administrateur), depuis C:\PharmaSmartBatch :
+
+    .\service\pharmasmart-setup.ps1 status
+
+  Les services suivants doivent afficher "Running" :
+    PharmaSmart Batch
+
+
+  Pour vérifier les tâches de sauvegarde :
+
+    Get-ScheduledTask | Where-Object TaskName -like "PharmaSmart*"
+
+
+======================================================
+  APRÈS UNE MISE À JOUR
+======================================================
+
+  1. Fermer l'application PharmaSmart si elle est ouverte.
+
+  2. Dans PowerShell (Administrateur), depuis C:\PharmaSmartBatch :
+
+        .\service\pharmasmart-setup.ps1 uninstall -Target batch
+
+  3. Remplacer  pharmasmart-batch.jar  par la nouvelle version.
+
+  4. Réinstaller le service :
+
+        .\service\pharmasmart-setup.ps1 install -Target batch
+
+  5. Relancer l'installeur  PharmaSmart_x.x.x_x64-setup.exe
+     pour mettre à jour l'application bureau.
+
+
+======================================================
+  DÉPANNAGE
+======================================================
+
+  Logs du backend (application bureau) :
+    %APPDATA%\com.kobe.pharmasmart\logs\
+
+  Logs du batch :
+    C:\PharmaSmartBatch\logs\pharmasmart-batch.out.log
+
+  Appliquer une modification de config.json sans réinstaller :
+    .\service\pharmasmart-setup.ps1 refresh-config
+
+  Modifier la mémoire JVM sans réinstaller :
+    (éditer jvm.batch.heap_max dans config.json, puis)
+    .\service\pharmasmart-setup.ps1 update-jvm -Target batch
+
+
+======================================================
+  DÉSINSTALLATION COMPLÈTE
+======================================================
+
+  1. Dans PowerShell (Administrateur) :
+
+        cd C:\PharmaSmartBatch
+        .\service\pharmasmart-setup.ps1 uninstall -Target batch
+        .\service\remove-backup-tasks.ps1
+
+  2. Supprimer le dossier  C:\PharmaSmartBatch\
+
+  3. Désinstaller l'application :
+        Paramètres Windows → Applications → PharmaSmart → Désinstaller
+
+======================================================

@@ -24,7 +24,9 @@
       "config.default.json",
       "backend-url.txt.template",
       "backup/setup-backup-tasks.ps1",
-      "backup/remove-backup-tasks.ps1"
+      "backup/remove-backup-tasks.ps1",
+      "installer-hooks/configure-database.ps1",
+      "installer-hooks/db-defaults.json"
     ],
     "windows": {
       "digestAlgorithm": "sha256",
@@ -36,7 +38,8 @@
         "installerIcon": "icons/icon.ico",
         "languages": [ "French"],
         "displayLanguageSelector": true,
-        "installMode": "both"
+        "installMode": "both",
+        "installerHooks": "installer-hooks/installer.nsh"
       }
     }
   },

@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use std::fs;
 use std::path::PathBuf;
 use tauri::{AppHandle, Manager};
@@ -101,18 +101,45 @@ pub struct ViewsConfig {
     pub reporting_cron: String,
 }
 
-/// Configuration de la connexion PostgreSQL (utilisée pour le ping de disponibilité).
+/// Désérialiseur partagé : `""` → `None`, toute autre valeur → `Some(value)`.
+/// Garantit que les champs DB vides dans config.json n'écrasent pas les
+/// defaults de Spring Boot définis dans application-prod.yml.
+fn empty_string_as_none<'de, D>(de: D) -> Result<Option<String>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s: Option<String> = Option::deserialize(de)?;
+    Ok(s.filter(|v| !v.trim().is_empty()))
+}
+
+/// Configuration de la connexion PostgreSQL.
+/// Les champs `url`, `username`, `password` et `schema` sont optionnels :
+/// s'ils sont absents ou vides (`""`), Spring Boot résout les credentials depuis
+/// `application-prod.yml` (variables d'environnement PHARMA_DB_*).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DatabaseConfig {
-    /// Hôte PostgreSQL (défaut : localhost)
+    /// Hôte PostgreSQL — utilisé pour le ping TCP de disponibilité au démarrage
     #[serde(default = "default_db_host")]
     pub host: String,
     /// Port PostgreSQL (défaut : 5432)
     #[serde(default = "default_db_port")]
     pub port: u16,
-    /// Délai maximum (en secondes) pour attendre PostgreSQL avant d'abandonner (défaut : 30s)
+    /// Délai maximum (en secondes) pour attendre PostgreSQL (défaut : 30s)
     #[serde(default = "default_db_check_timeout_secs", rename = "check-timeout-secs")]
     pub check_timeout_secs: u64,
+    /// URL JDBC complète — injectée dans `--spring.datasource.url` si non vide
+    #[serde(default, skip_serializing_if = "Option::is_none", deserialize_with = "empty_string_as_none")]
+    pub url: Option<String>,
+    /// Utilisateur PostgreSQL — injecté dans `--spring.datasource.username` si non vide
+    #[serde(default, skip_serializing_if = "Option::is_none", deserialize_with = "empty_string_as_none")]
+    pub username: Option<String>,
+    /// Mot de passe PostgreSQL — injecté dans `--spring.datasource.password` si non vide
+    #[serde(default, skip_serializing_if = "Option::is_none", deserialize_with = "empty_string_as_none")]
+    pub password: Option<String>,
+    /// Schéma PostgreSQL — injecté dans `--spring.jpa.properties.hibernate.default_schema`
+    /// et `--spring.flyway.schemas` si non vide
+    #[serde(default, skip_serializing_if = "Option::is_none", deserialize_with = "empty_string_as_none")]
+    pub schema: Option<String>,
 }
 
 // Default values for JVM configuration
@@ -250,6 +277,10 @@ impl Default for DatabaseConfig {
             host: default_db_host(),
             port: default_db_port(),
             check_timeout_secs: default_db_check_timeout_secs(),
+            url: None,
+            username: None,
+            password: None,
+            schema: None,
         }
     }
 }

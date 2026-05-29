@@ -19,9 +19,9 @@ import com.kobe.warehouse.service.id_generator.SaleLineIdGeneratorService;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.reassort.RepartitionStockService;
 import com.kobe.warehouse.service.sale.AvoirClientDocumentService;
+import com.kobe.warehouse.service.stock.DataMatrixParserService;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.LotStockLocationService;
-import com.kobe.warehouse.service.stock.SuggestionProduitService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -66,6 +66,7 @@ class SalesLineServiceBaseImplTest {
     private  LotStockLocationService lotStockLocationService;
     @Mock
     private AvoirClientDocumentService avoirClientDocumentService;
+    @Mock private DataMatrixParserService dataMatrixParserService;
 
     @BeforeEach
     void setUp() {
@@ -80,7 +81,8 @@ class SalesLineServiceBaseImplTest {
             storageService,
             repartitionStockService,
             lotStockLocationService,
-            avoirClientDocumentService
+            avoirClientDocumentService,
+            dataMatrixParserService
         );
     }
 

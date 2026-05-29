@@ -100,7 +100,9 @@ public class JobOrchestrationService {
         REINTEGRATE_EXCLUSIONS("Réintégration exclusions expirées"),
         AGGREGATE_SALES("Agrégation ventes mensuelles"),
         CLASSIFY_PRODUCTS("Classification criticité produits"),
-        RECALCULATE_SEMOIS("Recalcul SEMOIS + suggestions"),
+        RECALCULATE_SEMOIS("Recalcul SEMOIS (VMM + stock-objectif)"),
+        CREATE_SUGGESTIONS("Génération suggestions de réappro SEMOIS"),
+        NETTOYER_SUGGESTIONS("Nettoyage suggestions obsolètes"),
         INVENTAIRE_TOURNANT("Inventaire tournant échu"),
         REFRESH_VIEWS("Rafraîchissement vues matérialisées"),
         FACTURATION_PLANIFICATIONS("Planifications de facturation périodique"),
@@ -147,6 +149,8 @@ public class JobOrchestrationService {
         JobStep.REFRESH_VIEWS,           // vues matérialisées fraîches avant le recalcul SEMOIS
         JobStep.CLASSIFY_PRODUCTS,
         JobStep.RECALCULATE_SEMOIS,
+        JobStep.CREATE_SUGGESTIONS,
+        JobStep.NETTOYER_SUGGESTIONS,
         JobStep.INVENTAIRE_TOURNANT,
         JobStep.FACTURATION_PLANIFICATIONS,
         JobStep.CERTIFICATION_FNE,
@@ -201,6 +205,8 @@ public class JobOrchestrationService {
                 case AGGREGATE_SALES -> ventesAgregeesService.aggregateMonthlySalesDaily();
                 case CLASSIFY_PRODUCTS -> classificationService.reclassifierTousProduits();
                 case RECALCULATE_SEMOIS -> semoisCalculationService.recalculateAllConfigurations();
+                case CREATE_SUGGESTIONS -> semoisBatchJobService.creerSuggestionBatch();
+                case NETTOYER_SUGGESTIONS -> semoisBatchJobService.nettoyerSuggestionsObsoletes();
                 case INVENTAIRE_TOURNANT -> tournantSchedulerService.executerTournantsEchus();
                 case FACTURATION_PLANIFICATIONS -> facturationSchedulerJob.executerPlanificationsEnAttente();
                 case CERTIFICATION_FNE -> certificationFneSchedulerJob.executerCertificationsPendantes();

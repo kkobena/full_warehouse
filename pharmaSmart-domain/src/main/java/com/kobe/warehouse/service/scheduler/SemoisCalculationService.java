@@ -70,7 +70,6 @@ public class SemoisCalculationService {
     private final StockProduitRepository stockProduitRepository;
     private final AppConfigurationService appConfigurationService;
     private final OrderLineRepository orderLineRepository;
-    private final SemoisBatchJobService semoisBatchJobService;
 
     /**
      * Référence vers le proxy Spring de ce service. Indispensable pour que les annotations
@@ -92,7 +91,6 @@ public class SemoisCalculationService {
         StockProduitRepository stockProduitRepository,
         AppConfigurationService appConfigurationService,
         OrderLineRepository orderLineRepository,
-        SemoisBatchJobService semoisBatchJobService,
         @Lazy SemoisCalculationService self
     ) {
         this.semoisConfigRepository = semoisConfigRepository;
@@ -103,7 +101,6 @@ public class SemoisCalculationService {
         this.stockProduitRepository = stockProduitRepository;
         this.appConfigurationService = appConfigurationService;
         this.orderLineRepository = orderLineRepository;
-        this.semoisBatchJobService = semoisBatchJobService;
         this.self = self;
     }
 
@@ -297,13 +294,6 @@ public class SemoisCalculationService {
         long duration = System.currentTimeMillis() - startTime;
         LOG.info("Recalcul SEMOIS terminé en {}ms - Succès: {}, Erreurs: {}",
             duration, totalSuccess.get(), totalErrors.get());
-
-        try {
-            semoisBatchJobService.creerSuggestionBatch();
-        } catch (Exception e) {
-            LOG.error("Erreur lors de la mise à jour des suggestions SEMOIS batch (non bloquant)",
-                e);
-        }
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

@@ -1,0 +1,70 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0
+                              https://maven.apache.org/xsd/assembly-2.2.0.xsd">
+  <id>full-dist</id>
+  <formats>
+    <format>zip</format>
+  </formats>
+
+  <includeBaseDirectory>false</includeBaseDirectory>
+
+  <files>
+    <!-- Guide d'installation -->
+    <file>
+      <source>${project.basedir}/INSTALL.txt</source>
+      <outputDirectory>/</outputDirectory>
+    </file>
+    <!-- Template de configuration partagé -->
+    <file>
+      <source>${project.basedir}/src-tauri/config.default.json</source>
+      <outputDirectory>/</outputDirectory>
+    </file>
+
+    <!-- Binaire de sauvegarde PostgreSQL (Rust) -->
+    <file>
+      <source>${project.basedir}/src-backup/target/release/pharmasmart-backup.exe</source>
+      <outputDirectory>/</outputDirectory>
+    </file>
+
+    <!-- JAR du pipeline batch (spring-boot:repackage) -->
+    <file>
+      <source>${project.basedir}/pharmaSmart-batch/target/pharmaSmart-batch-${project.version}.jar</source>
+      <destName>pharmasmart-batch.jar</destName>
+      <outputDirectory>/</outputDirectory>
+    </file>
+  </files>
+
+  <fileSets>
+    <!-- Installeur Tauri NSIS (PharmaSmart_*_x64-setup.exe) -->
+    <fileSet>
+      <directory>${project.basedir}/src-tauri/target/release/bundle/nsis</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>PharmaSmart_*-setup.exe</include>
+      </includes>
+    </fileSet>
+
+    <!-- Scripts d'orchestration de service -->
+    <fileSet>
+      <directory>${project.basedir}/service</directory>
+      <outputDirectory>/service</outputDirectory>
+      <includes>
+        <include>pharmasmart-setup.ps1</include>
+        <include>pharmasmart-app.xml</include>
+        <include>pharmasmart-batch.xml</include>
+      </includes>
+    </fileSet>
+
+    <!-- Scripts de sauvegarde (source canonique : src-backup/scripts/) -->
+    <fileSet>
+      <directory>${project.basedir}/src-backup/scripts</directory>
+      <outputDirectory>/service</outputDirectory>
+      <includes>
+        <include>setup-backup-tasks.ps1</include>
+        <include>remove-backup-tasks.ps1</include>
+      </includes>
+    </fileSet>
+  </fileSets>
+
+</assembly>

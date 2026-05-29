@@ -120,23 +120,23 @@ npm run webapp:prod
 1. **Create database and user:**
 
 ```sql
-CREATE DATABASE warehouse;
-CREATE USER warehouse WITH PASSWORD 'warehouse2802';
-GRANT ALL PRIVILEGES ON DATABASE warehouse TO warehouse;
+CREATE DATABASE pharma_smart;
+CREATE USER pharma_smart WITH PASSWORD 'warehouse2802';
+GRANT ALL PRIVILEGES ON DATABASE pharma_smart TO pharma_smart;
 ```
 
 2. **Connect to the database:**
 
 ```bash
 psql -U postgres
-\c warehouse
+\c pharma_smart
 ```
 
 3. **Create schema:**
 
 ```sql
-CREATE SCHEMA warehouse AUTHORIZATION warehouse;
-GRANT ALL PRIVILEGES ON SCHEMA warehouse TO warehouse;
+CREATE SCHEMA pharma_smart AUTHORIZATION pharma_smart;
+GRANT ALL PRIVILEGES ON SCHEMA pharma_smart TO pharma_smart;
 ```
 
 ### PostgreSQL Configuration
@@ -403,16 +403,16 @@ warehouse/
 
 ```bash
 # Connect to database
-psql -U warehouse -d warehouse
+psql -U pharma_smart -d pharma_smart
 
 # List tables
-\dt warehouse.*
+\dt pharma_smart.*
 
 # Describe table
-\d warehouse.table_name
+\d pharma_smart.table_name
 
 # List functions
-\df warehouse.*
+\df pharma_smart.*
 ```
 
 ### Maven
@@ -442,6 +442,145 @@ npm update
 
 # Check for outdated packages
 npm outdated
+```
+
+### Deployment — Distribution ZIP
+
+Produit `target/pharmasmart-<version>-full.zip` contenant : installeur Tauri NSIS (bundled-jre),
+`pharmasmart-batch.jar`, `pharmasmart-backup.exe`, `config.default.json`, scripts de service.
+
+```bash
+# Windows
+mvnw.cmd clean package -P full-dist -DskipTests
+
+# Linux / macOS
+./mvnw clean package -P full-dist -DskipTests
+```
+
+Prérequis : Rust/`cargo` installé, Node.js + Tauri CLI (`npm install` fait).
+Sortie : `target/pharmasmart-<version>-full.zip`
+
+### Deployment — Service Installation (server, no Tauri)
+
+```powershell
+# Install all services (app + batch + backup tasks)
+.\service\pharmasmart-setup.ps1 install
+
+# Install with custom directories
+.\service\pharmasmart-setup.ps1 install -AppDir "D:\PharmaSmart" -BatchDir "D:\PharmaSmartBatch"
+
+# Install only the app service
+.\service\pharmasmart-setup.ps1 install -Target app
+
+# Install only the batch service
+.\service\pharmasmart-setup.ps1 install -Target batch
+
+# Install only the backup scheduled tasks
+.\service\pharmasmart-setup.ps1 install -Target backup
+
+# Uninstall all services (keeps files by default)
+.\service\pharmasmart-setup.ps1 uninstall
+
+# Uninstall and delete files
+.\service\pharmasmart-setup.ps1 uninstall -Target all   # then remove dirs manually
+
+# Check service status
+.\service\pharmasmart-setup.ps1 status
+
+# Update JVM heap settings (reads from config.json)
+.\service\pharmasmart-setup.ps1 update-jvm
+
+# Update JVM for a specific service only
+.\service\pharmasmart-setup.ps1 update-jvm -Target app
+.\service\pharmasmart-setup.ps1 update-jvm -Target batch
+
+# Refresh service config after editing config.json (java_home, db credentials…)
+.\service\pharmasmart-setup.ps1 refresh-config
+```
+
+### Deployment — Batch Standalone Installer
+
+```powershell
+# Install batch service (auto-reads config.json)
+.\pharmaSmart-batch\service\install-batch-service.ps1
+
+# Override JRE path
+.\pharmaSmart-batch\service\install-batch-service.ps1 -JavaHome "C:\jdk25"
+
+# Override heap sizes
+.\pharmaSmart-batch\service\install-batch-service.ps1 -HeapMin 256m -HeapMax 1g
+
+# Full override
+.\pharmaSmart-batch\service\install-batch-service.ps1 `
+    -InstallDir "D:\PharmaSmartBatch" `
+    -JavaHome "C:\jdk25" `
+    -HeapMin 256m -HeapMax 1g
+```
+
+### Deployment — Windows Service Management
+
+```powershell
+# Start / stop / restart services
+Start-Service pharmasmart-app
+Stop-Service  pharmasmart-app
+Restart-Service pharmasmart-app
+
+Start-Service pharmasmart-batch
+Stop-Service  pharmasmart-batch
+
+# Check service state
+Get-Service pharmasmart-app, pharmasmart-batch | Select-Object Name, Status, StartType
+
+# View last 50 log lines (app)
+Get-Content "C:\PharmaSmartApp\logs\pharmasmart-app.out.log" -Tail 50
+
+# View last 50 log lines (batch)
+Get-Content "C:\PharmaSmartBatch\logs\pharmasmart-batch.out.log" -Tail 50
+
+# Follow log in real time
+Get-Content "C:\PharmaSmartApp\logs\pharmasmart-app.out.log" -Wait -Tail 20
+```
+
+### Deployment — Backup Scheduled Tasks
+
+```powershell
+# Register backup tasks (AtStartup + delay)
+.\service\setup-backup-tasks.ps1
+
+# With custom backup directory
+.\service\setup-backup-tasks.ps1 -BackupDir "D:\Backups\PharmaSmart"
+
+# Remove backup tasks
+.\service\remove-backup-tasks.ps1
+
+# List registered tasks
+Get-ScheduledTask | Where-Object TaskName -like "PharmaSmart*" | Select-Object TaskName, State
+```
+
+### Deployment — JVM Tuning (config.json)
+
+```json
+// src-tauri/config.default.json — copy to config.json and edit
+{
+  "jvm": {
+    "java_home": "C:\\jdk25",
+    "app": {
+      "heap_min": "2g",
+      "heap_max": "2g"
+    },
+    "batch": {
+      "heap_min": "128m",
+      "heap_max": "512m"
+    }
+  }
+}
+```
+
+```powershell
+# After editing config.json, apply new JVM settings without reinstalling
+.\service\pharmasmart-setup.ps1 update-jvm
+# or
+.\service\pharmasmart-setup.ps1 refresh-config
 ```
 
 ## 📝 Additional Notes

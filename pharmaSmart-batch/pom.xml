@@ -80,4 +80,153 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <!--
+      Profil dist : produit pharmaSmart-batch-{version}-dist.zip dans target/
+      Contient : JAR exécutable + scripts de service PowerShell + config.default.json
+
+      Usage :
+        mvnw.cmd package -pl pharmaSmart-batch -am -P dist -DskipTests
+      Sortie :
+        pharmaSmart-batch/target/pharmaSmart-batch-{version}-dist.zip
+    -->
+    <profile>
+      <id>dist</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>make-dist</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+                <configuration>
+                  <descriptors>
+                    <descriptor>src/assembly/dist.xml</descriptor>
+                  </descriptors>
+                  <appendAssemblyId>true</appendAssemblyId>
+                  <finalName>pharmasmart-batch-${project.version}</finalName>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <!--
+      Profil installer : produit pharmaSmart-batch-{version}-setup.exe dans target/
+      Nécessite NSIS (makensis) installé et accessible dans le PATH.
+
+      Usage :
+        mvnw.cmd package -pl pharmaSmart-batch -am -P installer -DskipTests
+      Sortie :
+        pharmaSmart-batch/target/installer-staging/pharmasmart-batch-{version}-setup.exe
+    -->
+    <profile>
+      <id>installer</id>
+      <build>
+        <plugins>
+          <!-- 1. Repackage Spring Boot JAR avant le staging -->
+          <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <configuration>
+              <mainClass>${start-class}</mainClass>
+            </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>repackage</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <!-- 2. Préparer le staging dans target/installer-staging/ -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>stage-installer-files</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <mkdir dir="${project.build.directory}/installer-staging/service"/>
+
+                    <!-- JAR exécutable → nom fixe pour le .nsi -->
+                    <copy file="${project.build.directory}/${project.build.finalName}.jar"
+                          tofile="${project.build.directory}/installer-staging/pharmaSmart-batch.jar"/>
+
+                    <!-- Template de configuration partagé -->
+                    <copy file="${project.basedir}/../src-tauri/config.default.json"
+                          todir="${project.build.directory}/installer-staging/"
+                          failonerror="false"/>
+
+                    <!-- Scripts de service PowerShell -->
+                    <copy todir="${project.build.directory}/installer-staging/service">
+                      <fileset dir="${project.basedir}/service">
+                        <include name="install-batch-service.ps1"/>
+                        <include name="uninstall-batch-service.ps1"/>
+                      </fileset>
+                    </copy>
+
+                    <!-- Script NSIS -->
+                    <copy file="${project.basedir}/src/installer/batch-installer.nsi"
+                          todir="${project.build.directory}/installer-staging/"/>
+
+                    <!-- Icône (optionnelle) -->
+                    <copy file="${project.basedir}/../src-tauri/icons/icon.ico"
+                          todir="${project.build.directory}/installer-staging/"
+                          failonerror="false"/>
+
+                    <!-- WinSW bundlé (optionnel) -->
+                    <copy todir="${project.build.directory}/installer-staging/"
+                          failonerror="false">
+                      <fileset dir="${project.basedir}/../src-tauri/sidecar"
+                               erroronmissingdir="false">
+                        <include name="WinSW*.exe"/>
+                      </fileset>
+                    </copy>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+          <!-- 3. Lancer makensis pour produire le .exe -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>run-makensis</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <configuration>
+                  <executable>makensis</executable>
+                  <workingDirectory>${project.build.directory}/installer-staging</workingDirectory>
+                  <arguments>
+                    <argument>/DAPP_VERSION=${project.version}</argument>
+                    <argument>batch-installer.nsi</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
 </project>

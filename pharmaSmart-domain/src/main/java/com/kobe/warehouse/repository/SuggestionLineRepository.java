@@ -6,6 +6,7 @@ import com.kobe.warehouse.domain.SuggestionLine;
 import com.kobe.warehouse.domain.SuggestionLine_;
 import com.kobe.warehouse.domain.Suggestion_;
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;
+import org.springframework.data.jpa.repository.Modifying;
 import com.kobe.warehouse.service.dto.projection.SuggestionAggregator;
 import java.util.Collection;
 import java.util.List;
@@ -67,6 +68,18 @@ public interface SuggestionLineRepository extends JpaRepository<SuggestionLine, 
     }
 
     Optional<SuggestionLine> findBySuggestionIdAndFournisseurProduitProduitId(Integer suggestionId, Integer produitId);
+
+    /**
+     * Supprime les lignes AUTO/GENEREE dont le produit a été désactivé ou est de type DETAIL
+     * (ne doit pas faire l'objet de suggestions de réappro).
+     * Protège les lignes manuelles (quantiteModifieeManuel) et les suggestions validées.
+     */
+    @Modifying(flushAutomatically = true)
+    @Query("""
+        DELETE FROM SuggestionLine sl
+        WHERE sl.fournisseurProduit.produit.status <> com.kobe.warehouse.domain.enumeration.Status.ENABLE
+        """)
+    int deleteAutoLinesForInactive();
 
     @Query(
         nativeQuery = true,

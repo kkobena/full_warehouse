@@ -363,6 +363,22 @@ pub struct AppConfig {
     /// Configuration PostgreSQL pour le ping de disponibilité au démarrage.
     #[serde(default)]
     pub database: DatabaseConfig,
+    /// Mis à true une fois que l'utilisateur a validé le wizard de configuration
+    /// initial (paramètres DB + port serveur). Tant qu'il est false, Tauri
+    /// affiche l'écran de setup au lieu de démarrer le backend.
+    #[serde(default = "default_setup_complete")]
+    pub setup_complete: bool,
+}
+
+fn default_setup_complete() -> bool {
+    false
+}
+
+impl AppConfig {
+    /// Retourne true si la configuration initiale a été validée par l'utilisateur.
+    pub fn is_setup_complete(&self) -> bool {
+        self.setup_complete
+    }
 }
 
 impl Default for AppConfig {
@@ -402,6 +418,7 @@ impl Default for AppConfig {
             semois: SemoisConfig::default(),
             views: ViewsConfig::default(),
             database: DatabaseConfig::default(),
+            setup_complete: false,
         }
     }
 }
@@ -625,13 +642,13 @@ impl AppConfig {
             semois: SemoisConfig::default(),
             views: ViewsConfig::default(),
             database: DatabaseConfig::default(),
+            setup_complete: false,
         }
     }
 
     /// Sauvegarde la configuration dans le répertoire de config accessible en écriture.
     /// Utilise `$PROGRAMDATA\PharmaSmart` si disponible pour éviter les erreurs de droits
     /// dans Program Files.
-    #[allow(dead_code)] // Utilisé par le tableau de bord de configuration (future UI)
     pub fn save(&self, app: &AppHandle) -> Result<(), String> {
         let config_dir = Self::writable_config_dir(app);
         let config_path = config_dir.join("config.json");
@@ -639,10 +656,28 @@ impl AppConfig {
         let config_json = serde_json::to_string_pretty(self)
             .map_err(|e| format!("Failed to serialize config: {}", e))?;
 
-        fs::write(&config_path, config_json)
+        fs::write(&config_path, &config_json)
             .map_err(|e| format!("Failed to write config to {:?}: {}", config_path, e))?;
 
         println!("Configuration saved to {:?}", config_path);
+
+        // config_search_dirs() reads the exe-dir copy first (priority 1).
+        // If the writable dir differs (e.g. Program Files install → PROGRAMDATA),
+        // we must also update the exe-dir copy so the next load picks up the new values.
+        if let Some(exe_dir) = std::env::current_exe()
+            .ok()
+            .and_then(|p| p.parent().map(|p| p.to_path_buf()))
+        {
+            if exe_dir != config_dir {
+                let exe_copy = exe_dir.join("config.json");
+                if let Err(e) = fs::write(&exe_copy, &config_json) {
+                    println!("Note: could not update exe-dir config.json ({:?}): {}", exe_copy, e);
+                } else {
+                    println!("config.json mirror updated at {:?}", exe_copy);
+                }
+            }
+        }
+
         Ok(())
     }
 

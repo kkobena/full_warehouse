@@ -1,0 +1,313 @@
+<div class="pharma-smart-content p-1">
+  <div class="pharma-toolbar">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-cog"></i>
+      <span>Configuration PharmaSmart</span>
+
+    </div>
+    <p-toolbar>
+      <ng-template #start>
+        <button type="button" class="btn btn-link ace-back-btn" (click)="goBack()">
+          <i class="pi pi-arrow-left"></i>
+        </button>
+      </ng-template>
+      <ng-template #end>
+        <p-button
+          (click)="goBack()"
+          icon="pi pi-times"
+          label="Annuler"
+          severity="secondary"
+          [disabled]="saving() || restarting()"
+          type="button" />
+        <p-button
+          (click)="onSave()"
+          icon="pi pi-check"
+          label="Enregistrer et Redémarrer"
+          severity="primary"
+          [loading]="saving() || restarting()"
+          [disabled]="form.invalid || saving() || restarting() || loading()"
+          type="button" />
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+<div class="px-3 py-2">
+
+
+  <!-- Alertes -->
+  @if (errorMessage()) {
+    <div class="ace-alert">
+      <i class="pi pi-exclamation-triangle"></i>
+      {{ errorMessage() }}
+    </div>
+  }
+
+  @if (restarting()) {
+    <div class="ace-restart">
+      <div class="d-flex align-items-center mb-2">
+        <i class="pi pi-spin pi-spinner me-2"></i>
+        <strong>{{ restartMessage() }}</strong>
+      </div>
+      <p-progressBar [value]="restartProgress()" [showValue]="false" />
+      <small class="text-muted mt-1 d-block">Veuillez patienter…</small>
+    </div>
+  }
+
+  <!-- Contenu -->
+  @if (loading()) {
+    <div class="ace-loading">
+      <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+      <span>Chargement de la configuration…</span>
+    </div>
+  } @else {
+    <form [formGroup]="form" autocomplete="off" novalidate class="ace-form">
+
+      <div class="pharma-nav-tabs-container">
+
+        <div
+          #nav="ngbNav"
+          [activeId]="activeTab()"
+          (activeIdChange)="activeTab.set($event)"
+          class="nav pharma-nav-tabs"
+          ngbNav
+          orientation="horizontal"
+        >
+
+          <!-- ── Base de données ─────────────────────── -->
+          <ng-container ngbNavItem="db">
+            <a class="pharma-nav-tab-link" ngbNavLink>
+              <i class="pi pi-database"></i>
+              <span>PostgreSQL</span>
+            </a>
+            <ng-template ngbNavContent>
+              <div class="ace-tab-content">
+                <div class="row g-3">
+                  <div class="col-md-8">
+                    <div class="ace-field">
+                      <label for="ace-host">Hôte <span class="req">*</span></label>
+                      <input id="ace-host" pInputText formControlName="dbHost" placeholder="localhost"
+                             [class.ng-invalid]="isInvalid('dbHost')" />
+                      @if (isInvalid('dbHost')) {
+                        <small class="ace-error">Hôte obligatoire</small>
+                      }
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="ace-field">
+                      <label for="ace-db-port">Port <span class="req">*</span></label>
+                      <input id="ace-db-port" pInputText type="number" formControlName="dbPort"
+                             placeholder="5432" min="1" max="65535"
+                             [class.ng-invalid]="isInvalid('dbPort')" />
+                      @if (isInvalid('dbPort')) {
+                        <small class="ace-error">Port invalide</small>
+                      }
+                    </div>
+                  </div>
+                  <div class="col-md-6 col-lg-4">
+                    <div class="ace-field">
+                      <label for="ace-dbname">Base de données <span class="req">*</span></label>
+                      <input id="ace-dbname" pInputText formControlName="dbName" placeholder="pharma_smart"
+                             [class.ng-invalid]="isInvalid('dbName')" />
+                      @if (isInvalid('dbName')) {
+                        <small class="ace-error">Nom de base obligatoire</small>
+                      }
+                    </div>
+                  </div>
+                  <div class="col-md-6 col-lg-4">
+                    <div class="ace-field">
+                      <label for="ace-user">Utilisateur <span class="req">*</span></label>
+                      <input id="ace-user" pInputText formControlName="dbUsername" placeholder="pharma_smart"
+                             [class.ng-invalid]="isInvalid('dbUsername')" />
+                      @if (isInvalid('dbUsername')) {
+                        <small class="ace-error">Utilisateur obligatoire</small>
+                      }
+                    </div>
+                  </div>
+                  <div class="col-md-6 col-lg-4">
+                    <div class="ace-field">
+                      <label for="ace-schema">Schéma <span class="opt">(optionnel)</span></label>
+                      <input id="ace-schema" pInputText formControlName="dbSchema" placeholder="pharma_smart" />
+                    </div>
+                  </div>
+                  <div class="col-md-6 col-lg-4">
+                    <div class="ace-field">
+                      <label for="ace-pass">Mot de passe <span class="opt">(optionnel)</span></label>
+                      <p-password inputId="ace-pass" formControlName="dbPassword"
+                                  [feedback]="false" [toggleMask]="true" [fluid]="true"
+                                  placeholder="Mot de passe PostgreSQL" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ng-template>
+          </ng-container>
+
+          <!-- ── Serveur applicatif ──────────────────── -->
+          <ng-container ngbNavItem="server">
+            <a class="pharma-nav-tab-link" ngbNavLink>
+              <i class="pi pi-server"></i>
+              <span>Serveur</span>
+            </a>
+            <ng-template ngbNavContent>
+              <div class="ace-tab-content">
+                <div class="row g-3">
+                  <div class="col-md-6 col-lg-4">
+                    <div class="ace-field">
+                      <label for="ace-srv-port">Port HTTP <span class="req">*</span></label>
+                      <input id="ace-srv-port" pInputText type="number" formControlName="serverPort"
+                             placeholder="9080" min="1" max="65535"
+                             [class.ng-invalid]="isInvalid('serverPort')" />
+                      @if (isInvalid('serverPort')) {
+                        <small class="ace-error">Port invalide</small>
+                      }
+                      <small class="ace-hint">Port d'écoute du backend (défaut : 9080)</small>
+                    </div>
+                  </div>
+                  <div class="col-md-6 col-lg-4">
+                    <div class="ace-field">
+                      <label for="ace-portcom">Port COM imprimante</label>
+                      <input id="ace-portcom" pInputText formControlName="portCom" placeholder="COM3" />
+                      <small class="ace-hint">Port série de l'imprimante thermique</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ng-template>
+          </ng-container>
+
+          <!-- ── JVM ────────────────────────────────── -->
+          <ng-container ngbNavItem="jvm">
+            <a class="pharma-nav-tab-link" ngbNavLink>
+              <i class="pi pi-microchip"></i>
+              <span>JVM</span>
+            </a>
+            <ng-template ngbNavContent>
+              <div class="ace-tab-content">
+                <div class="row g-3">
+                  <div class="col-md-6 col-lg-4">
+                    <div class="ace-field">
+                      <label for="ace-heap-min">Heap min <span class="req">*</span></label>
+                      <input id="ace-heap-min" pInputText formControlName="jvmHeapMin" placeholder="512m" />
+                    </div>
+                  </div>
+                  <div class="col-md-6 col-lg-4">
+                    <div class="ace-field">
+                      <label for="ace-heap-max">Heap max <span class="req">*</span></label>
+                      <input id="ace-heap-max" pInputText formControlName="jvmHeapMax" placeholder="2g" />
+                    </div>
+                  </div>
+                  <div class="col-md-6 col-lg-4">
+                    <div class="ace-field">
+                      <label for="ace-meta-size">Metaspace initial</label>
+                      <input id="ace-meta-size" pInputText formControlName="jvmMetaspaceSize" placeholder="256m" />
+                    </div>
+                  </div>
+                  <div class="col-md-6 col-lg-4">
+                    <div class="ace-field">
+                      <label for="ace-meta-max">Metaspace max</label>
+                      <input id="ace-meta-max" pInputText formControlName="jvmMetaspaceMax" placeholder="512m" />
+                    </div>
+                  </div>
+                  <div class="col-md-6 col-lg-4">
+                    <div class="ace-field">
+                      <label for="ace-direct">Direct Memory</label>
+                      <input id="ace-direct" pInputText formControlName="jvmDirectMemory" placeholder="256m" />
+                    </div>
+                  </div>
+                  <div class="col-md-6 col-lg-4">
+                    <div class="ace-field">
+                      <label for="ace-gc">GC pause max (ms)</label>
+                      <input id="ace-gc" pInputText formControlName="jvmGcPause" placeholder="200" />
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div class="ace-field">
+                      <label for="ace-jvm-extra">Options JVM supplémentaires</label>
+                      <textarea id="ace-jvm-extra" class="form-control ace-textarea" formControlName="jvmAdditionalOptions"
+                                rows="5" placeholder="-XX:+UseZGC&#10;-Dfile.encoding=UTF-8"></textarea>
+                      <small class="ace-hint">Une option par ligne</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ng-template>
+          </ng-container>
+
+          <!-- ── Mail ───────────────────────────────── -->
+          <ng-container ngbNavItem="mail">
+            <a class="pharma-nav-tab-link" ngbNavLink>
+              <i class="pi pi-envelope"></i>
+              <span>Mail</span>
+            </a>
+            <ng-template ngbNavContent>
+              <div class="ace-tab-content">
+                <div class="row g-3">
+                  <div class="col-md-6 col-lg-4">
+                    <div class="ace-field">
+                      <label for="ace-mail-user">Compte Gmail (identifiant)</label>
+                      <input id="ace-mail-user" pInputText formControlName="mailUsername"
+                             placeholder="pharmacie@gmail.com" />
+                    </div>
+                  </div>
+                  <div class="col-md-6 col-lg-4">
+                    <div class="ace-field">
+                      <label for="ace-mail-email">Adresse d'expédition</label>
+                      <input id="ace-mail-email" pInputText formControlName="mailEmail"
+                             placeholder="pharmacie@gmail.com"
+                             [class.ng-invalid]="isInvalid('mailEmail')" />
+                      @if (isInvalid('mailEmail')) {
+                        <small class="ace-error">Adresse email invalide</small>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ng-template>
+          </ng-container>
+
+          <!-- ── FNE ────────────────────────────────── -->
+          <ng-container ngbNavItem="fne">
+            <a class="pharma-nav-tab-link" ngbNavLink>
+              <i class="pi pi-link"></i>
+              <span>FNE</span>
+            </a>
+            <ng-template ngbNavContent>
+              <div class="ace-tab-content">
+                <div class="row g-3">
+                  <div class="col-12">
+                    <div class="ace-field">
+                      <label for="ace-fne-url">URL du service FNE</label>
+                      <input id="ace-fne-url" pInputText formControlName="fneUrl" />
+                    </div>
+                  </div>
+                  <div class="col-md-6 col-lg-4">
+                    <div class="ace-field">
+                      <label for="ace-fne-key">Clé API</label>
+                      <p-password inputId="ace-fne-key" formControlName="fneApiKey"
+                                  [feedback]="false" [toggleMask]="true" [fluid]="true" />
+                    </div>
+                  </div>
+                  <div class="col-md-6 col-lg-4">
+                    <div class="ace-field">
+                      <label for="ace-fne-pos">Point de vente</label>
+                      <input id="ace-fne-pos" pInputText formControlName="fnePointOfSale" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ng-template>
+          </ng-container>
+
+        </div>
+
+        <div class="pharma-nav-tabs-outlet">
+          <div [ngbNavOutlet]="nav"></div>
+        </div>
+
+      </div>
+
+    </form>
+  }
+
+</div>
+</div>

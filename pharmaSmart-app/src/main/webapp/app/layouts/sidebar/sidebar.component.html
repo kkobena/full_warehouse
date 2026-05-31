@@ -218,6 +218,17 @@
         </div>
       }
 
+      <!-- Config éditeur (Tauri + ADMIN uniquement) -->
+      @if (isTauriAdmin) {
+        <button type="button" class="btn btn-link btn-sm sidebar-config-btn" (click)="openConfigEditor()"
+                title="Configuration avancée (DB, JVM, Mail…)">
+          <i class="fa fa-sliders-h me-1"></i>
+          @if (!isCollapsed()) {
+            <span>Configuration avancée</span>
+          }
+        </button>
+      }
+
       <!-- Application Version -->
       @if (version) {
         <div class="app-version">

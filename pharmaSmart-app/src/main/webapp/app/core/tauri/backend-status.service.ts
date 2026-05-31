@@ -1,6 +1,7 @@
 import { inject, Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { TauriPrinterService } from '../../shared/services/tauri-printer.service';
+import { AppSettingsService } from '../config/app-settings.service';
 
 export interface BackendStatus {
   status: string;
@@ -18,13 +19,13 @@ export interface BackendHealthStatus {
 })
 export class BackendStatusService {
   private readonly tauriPrinterService = inject(TauriPrinterService);
+  private readonly appSettingsService = inject(AppSettingsService);
   private backendStatus$ = new BehaviorSubject<BackendStatus>({
     status: 'initializing',
     progress: 0,
     message: 'Vérification du backend...',
   });
 
-  private backendUrl = 'http://localhost:9080';
   private checkInterval?: ReturnType<typeof setInterval>;
   private lastJavaError = '';
   private readonly ngZone = inject(NgZone);
@@ -48,9 +49,14 @@ export class BackendStatusService {
       const { invoke } = await import('@tauri-apps/api/core');
       const { listen } = await import('@tauri-apps/api/event');
 
-      // Fetch the configured backend URL
+      // Sync the backend URL from Tauri config into AppSettingsService when the
+      // stored URL matches the compiled-in default (i.e. user hasn't set a custom URL).
       try {
-        this.backendUrl = await invoke<string>('get_backend_url_command');
+        const tauriUrl = await invoke<string>('get_backend_url_command');
+        const stored = this.appSettingsService.getApiServerUrl();
+        if (!stored || stored === 'http://localhost:9080') {
+          this.appSettingsService.updateApiServerUrl(tauriUrl);
+        }
       } catch {
         console.warn('[BackendStatusService] Impossible de récupérer l\'URL du backend, utilisation de la valeur par défaut');
       }
@@ -97,10 +103,11 @@ export class BackendStatusService {
 
       // ── Standard (non-bundled) mode ──────────────────────────────────────
       if (!bundledMode) {
+        const backendUrl = this.appSettingsService.getApiServerUrl();
         this.backendStatus$.next({
           status: 'waiting',
           progress: 10,
-          message: `Attente du serveur backend à ${this.backendUrl}...`,
+          message: `Attente du serveur backend à ${backendUrl}...`,
         });
 
         // Single polling mechanism — avoids the double-poll with listen + setInterval
@@ -121,7 +128,7 @@ export class BackendStatusService {
 
       try {
         const health = await invoke<BackendHealthStatus>('check_backend_health', {
-          backendUrl: this.backendUrl,
+          backendUrl: this.appSettingsService.getApiServerUrl(),
         });
 
         this.ngZone.run(() => {
@@ -135,7 +142,7 @@ export class BackendStatusService {
             this.backendStatus$.next({
               status: 'error',
               progress: 0,
-              message: `Serveur backend indisponible à ${this.backendUrl}. Vérifiez que le serveur est démarré.`,
+              message: `Serveur backend indisponible à ${this.appSettingsService.getApiServerUrl()}. Vérifiez que le serveur est démarré.`,
             });
             this.stopHealthChecking();
             return;
@@ -154,7 +161,7 @@ export class BackendStatusService {
             this.backendStatus$.next({
               status: 'error',
               progress: 0,
-              message: `Impossible de se connecter au serveur backend à ${this.backendUrl}.`,
+              message: `Impossible de se connecter au serveur backend à ${this.appSettingsService.getApiServerUrl()}.`,
             });
             this.stopHealthChecking();
           }

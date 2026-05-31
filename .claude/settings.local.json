@@ -136,7 +136,9 @@
       "Bash(python *)",
       "Bash(tasklist)",
       "Bash(\"C:/Users/k.kobena/AppData/Local/tauri/WixTools314/light.exe\" -nologo -ext WixUIExtension -ext WixUtilExtension -cultures:fr-FR main.wixobj pharmasmart-config.wixobj -out PharmaSmart_test.msi)",
-      "Bash(\"C:/Users/k.kobena/AppData/Local/tauri/WixTools314/light.exe\" -nologo -ext WixUIExtension -ext WixUtilExtension -cultures:fr-FR -loc locale.wxl main.wixobj pharmasmart-config.wixobj -out PharmaSmart_test.msi)"
+      "Bash(\"C:/Users/k.kobena/AppData/Local/tauri/WixTools314/light.exe\" -nologo -ext WixUIExtension -ext WixUtilExtension -cultures:fr-FR -loc locale.wxl main.wixobj pharmasmart-config.wixobj -out PharmaSmart_test.msi)",
+      "Bash(kill %1)",
+      "Bash(git check-ignore *)"
     ],
     "deny": [],
     "ask": []

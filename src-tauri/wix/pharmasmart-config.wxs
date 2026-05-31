@@ -166,6 +166,20 @@
                   Impersonate="no"
                   Return="ignore" />
 
+    <!--
+      Tue le processus Java backend avant la suppression des fichiers.
+      Nécessaire quand le backend tourne comme processus direct (non-service) :
+      sans cet arrêt, le JAR et le JRE restent verrouillés par la JVM et
+      l'application reste accessible sur le port même après désinstallation.
+      Stratégie : CimInstance en priorité, fallback WMI, puis fallback port TCP.
+    -->
+    <CustomAction Id="PS_StopBackendProcess"
+                  Directory="INSTALLDIR"
+                  ExeCommand="[SystemFolder]cmd.exe /C powershell.exe -NoProfile -ExecutionPolicy Bypass -Command &quot;$killed=$false; try { Get-CimInstance -ClassName Win32_Process -Filter 'Name LIKE ''java%''' -ErrorAction Stop | Where-Object { $_.CommandLine -like '*pharmaSmart*' -or $_.CommandLine -like '*pharmasmart*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue; $killed=$true } } catch { Get-WmiObject Win32_Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'java*' -and $_.CommandLine -like '*pharmasmart*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue; $killed=$true } }; if (-not $killed) { Get-NetTCPConnection -LocalPort 9080 -State Listen -ErrorAction SilentlyContinue | Where-Object { $_.OwningProcess -gt 4 } | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue } }; Start-Sleep -Seconds 3&quot;"
+                  Execute="deferred"
+                  Impersonate="no"
+                  Return="ignore" />
+
     <InstallExecuteSequence>
       <!-- Après InstallFiles : les dossiers existent, PHARMASMARTDATA est résolu -->
       <Custom Action="PS_WriteConfigJson" After="InstallFiles">NOT Installed OR REINSTALL</Custom>
@@ -173,6 +187,8 @@
       <Custom Action="PS_CopyConfigToInstDir" After="PS_WriteConfigJson">NOT Installed OR REINSTALL</Custom>
       <!-- Service install : après la config, uniquement installation/réinstallation -->
       <Custom Action="PS_InstallBackendService" After="PS_CopyConfigToInstDir">(NOT Installed OR REINSTALL) AND NOT REMOVE</Custom>
+      <!-- Tue le processus Java (direct ou service) avant suppression des fichiers -->
+      <Custom Action="PS_StopBackendProcess" Before="PS_RemoveBackendService">Installed AND REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE</Custom>
       <!-- Service remove : avant la suppression des fichiers, uniquement désinstallation complète -->
       <Custom Action="PS_RemoveBackendService" Before="RemoveFiles">Installed AND REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE</Custom>
     </InstallExecuteSequence>

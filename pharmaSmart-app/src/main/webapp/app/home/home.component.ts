@@ -41,7 +41,7 @@ export default class HomeComponent implements OnInit, OnDestroy {
       .subscribe(account => {
         this.account.set(account);
         if (!account) {
-          this.loading.set(false);
+          this.router.navigate(['/login']);
           return;
         }
         // Remet loading à true pour afficher le skeleton pendant la résolution

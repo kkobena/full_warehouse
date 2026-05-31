@@ -26,7 +26,8 @@
       "backup/setup-backup-tasks.ps1",
       "backup/remove-backup-tasks.ps1",
       "installer-hooks/configure-database.ps1",
-      "installer-hooks/db-defaults.json"
+      "installer-hooks/db-defaults.json",
+      "installer-hooks/stop-backend.ps1"
     ],
     "windows": {
       "digestAlgorithm": "sha256",

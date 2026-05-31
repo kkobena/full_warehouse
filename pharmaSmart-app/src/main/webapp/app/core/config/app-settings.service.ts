@@ -87,10 +87,14 @@ export class AppSettingsService {
   async testConnection(url?: string): Promise<boolean> {
     const testUrl = url || this.getApiServerUrl();
     try {
-      const response = await fetch(`${testUrl}/management/health`, {
-        method: 'GET',
-        mode: 'cors',
-      });
+      // In Tauri, use the native command (reqwest) to avoid CORS restrictions
+      // from the tauri://localhost origin hitting an http://localhost:* backend.
+      if (typeof (window as any).__TAURI__ !== 'undefined') {
+        const { invoke } = await import('@tauri-apps/api/core');
+        const health = await invoke<{ available: boolean }>('check_backend_health', { backendUrl: testUrl });
+        return health.available;
+      }
+      const response = await fetch(`${testUrl}/management/health`, { method: 'GET', mode: 'cors' });
       return response.ok;
     } catch (error) {
       console.error('Connection test failed:', error);

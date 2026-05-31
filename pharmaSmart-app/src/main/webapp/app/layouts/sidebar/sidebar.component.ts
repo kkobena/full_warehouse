@@ -9,10 +9,11 @@ import { AccountService } from 'app/core/auth/account.service';
 import { LoginService } from 'app/login/login.service';
 import { NavItem } from '../navbar/navbar-item.model';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { faServer, faBars, faChevronDown, faChevronRight, faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import { faServer, faBars, faChevronDown, faChevronRight, faUserCircle, faSlidersH } from '@fortawesome/free-solid-svg-icons';
 import { Theme, ThemeService } from '../../core/theme/theme.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AppSettingsDialogComponent } from '../../shared/settings/app-settings-dialog.component';
+import { Authority } from '../../config/authority.constants';
 import { LayoutService } from '../../core/config/layout.service';
 import { environment } from 'environments/environment';
 import { NavigationService } from '../../core/config/navigation.service';
@@ -49,6 +50,7 @@ export default class SidebarComponent implements OnInit {
   readonly faChevronDown = faChevronDown;
   readonly faChevronRight = faChevronRight;
   readonly faUserCircle = faUserCircle;
+  readonly faSlidersH = faSlidersH;
 
   constructor() {
     const { VERSION } = environment;
@@ -151,7 +153,18 @@ export default class SidebarComponent implements OnInit {
   }
 
   protected openAppSettings(): void {
-    this.modalService.open(AppSettingsDialogComponent, { size: 'lg', backdrop: 'static' });
+    this.modalService.open(AppSettingsDialogComponent, { size: 'lg', backdrop: 'static',centered:true });
+  }
+
+  protected openConfigEditor(): void {
+    void this.router.navigate(['/app-config']);
+  }
+
+  protected get isTauriAdmin(): boolean {
+    const account = this.account();
+    return this.tauriPrinterService.isRunningInTauri() &&
+           !!account &&
+           this.navigationService.hasAnyAuthority(Authority.ADMIN, account.authorities);
   }
 
   protected hasAnyAuthority(authorities: string[] | string): boolean {
@@ -165,12 +178,14 @@ export default class SidebarComponent implements OnInit {
     const account = this.account();
 
     if (account) {
-      return this.navigationService.buildNavItemsFromStore({
-        additionalAccountMenuItems: [
-          { label: 'Menu horizontal', faIcon: faBars, click: () => this.layoutService.toggleLayout() },
-          { label: 'Se déconnecter', faIcon: 'sign-out-alt', click: () => this.logout() },
-        ],
-      });
+      const accountItems: NavItem[] = [
+        { label: 'Menu horizontal', faIcon: faBars, click: () => this.layoutService.toggleLayout() },
+        { label: 'Se déconnecter', faIcon: 'sign-out-alt', click: () => this.logout() },
+      ];
+      if (this.navigationService.hasAnyAuthority(Authority.ADMIN, account.authorities) && this.tauriPrinterService.isRunningInTauri()) {
+        accountItems.unshift({ label: 'Configuration avancée', faIcon: faSlidersH, click: () => this.openConfigEditor() });
+      }
+      return this.navigationService.buildNavItemsFromStore({ additionalAccountMenuItems: accountItems });
     }
 
     const additionalAccountMenuItems: NavItem[] = [

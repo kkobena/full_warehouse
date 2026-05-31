@@ -88,6 +88,13 @@ const routes: Routes = [
     loadChildren: () => import("../features/settings/feature/parametre/app.route")
   },
 
+  {
+    path: "app-config",
+    data: { pageTitle: "Configuration avancée PharmaSmart" },
+    canActivate: [AuthGuard],
+    loadChildren: () => import("../features/settings/feature/app-config-editor/app-config-editor.route")
+  },
+
   // ── Admin — nav_items sous 'administration' ────────────────────────────────
   {
     path: "magasin",

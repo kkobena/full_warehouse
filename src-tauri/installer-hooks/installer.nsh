@@ -23,6 +23,9 @@ Var PS_DataDir
 ; Backup root directory — defaults to $PS_DataDir\backups.
 Var BackupDir
 
+; Application server port — initialized to DEFAULT_PORT in customInit.
+Var BackendPort
+
 ; Service installation — resolved at install time.
 Var ServiceJavaExe   ; Path to java.exe (bundled JRE or system)
 Var ServiceJarPath   ; Full path to the backend JAR
@@ -36,17 +39,18 @@ Var DBUser
 Var DBPass
 Var DBSchema
 
-; nsDialogs control handles — required by PageDBConfigLeave to read values.
+; nsDialogs control handles — required by PageConfigLeave to read entered values.
 Var hTxtHost
 Var hTxtPort
 Var hTxtName
 Var hTxtUser
 Var hTxtPass
 Var hTxtSchema
+Var hTxtServerPort
 
-; Database configuration wizard page — shown as the first installer page so
-; credentials are available when the install section runs.
-Page custom PageDBConfig PageDBConfigLeave
+; Configuration wizard page — handled via PowerShell in customInstall (see below).
+; Page custom PageConfig PageConfigLeave  ← disabled: Tauri NSIS MUI2 does not
+; reliably call PageConfigLeave, so NSD_GetText never runs and defaults are used.
 
 ; ── Initialisation ──────────────────────────────────────────────────────────
 !macro customInit
@@ -119,18 +123,24 @@ Function ResolveDataDir
   ${EndIf}
 FunctionEnd
 
-; ── Database configuration wizard page ──────────────────────────────────────
-Function PageDBConfig
-  ; Apply defaults the first time (customInit may not be called in all Tauri versions).
+
+
+; ── Configuration wizard page ────────────────────────────────────────────────
+; Shown before installation: collects DB credentials and server port.
+; Values are stored in NSIS variables and written to config.json by CreateConfigFile.
+Function PageConfig
+  ; Fallback: apply defaults if customInit was not called (some Tauri versions).
   ${If} $DBHost == ""
-    StrCpy $DBHost   "${DB_DEFAULT_HOST}"
-    StrCpy $DBPort   "${DB_DEFAULT_PORT}"
-    StrCpy $DBName   "${DB_DEFAULT_NAME}"
-    StrCpy $DBUser   "${DB_DEFAULT_USER}"
-    StrCpy $DBSchema "${DB_DEFAULT_SCHEMA}"
+    StrCpy $DBHost      "${DB_DEFAULT_HOST}"
+    StrCpy $DBPort      "${DB_DEFAULT_PORT}"
+    StrCpy $DBName      "${DB_DEFAULT_NAME}"
+    StrCpy $DBUser      "${DB_DEFAULT_USER}"
+    StrCpy $DBSchema    "${DB_DEFAULT_SCHEMA}"
+    StrCpy $BackendPort "${DEFAULT_PORT}"
   ${EndIf}
 
-  !insertmacro MUI_HEADER_TEXT "Configuration base de données" "Paramètres de connexion PostgreSQL"
+  !insertmacro MUI_HEADER_TEXT "Configuration PharmaSmart" \
+    "Paramètres PostgreSQL et port du serveur applicatif"
 
   nsDialogs::Create 1018
   Pop $0
@@ -138,14 +148,14 @@ Function PageDBConfig
     Abort
   ${EndIf}
 
-  ${NSD_CreateLabel}      0    0  100% 14u "Renseignez les identifiants de connexion PostgreSQL :"
+  ${NSD_CreateLabel}      0    0  100% 14u "Identifiants de connexion PostgreSQL et port du serveur :"
 
   ${NSD_CreateLabel}      0   20u 110u 12u "Hôte :"
   ${NSD_CreateText}     115u  18u 175u 12u ""
   Pop $hTxtHost
   ${NSD_SetText} $hTxtHost $DBHost
 
-  ${NSD_CreateLabel}      0   36u 110u 12u "Port :"
+  ${NSD_CreateLabel}      0   36u 110u 12u "Port PostgreSQL :"
   ${NSD_CreateText}     115u  34u 175u 12u ""
   Pop $hTxtPort
   ${NSD_SetText} $hTxtPort $DBPort
@@ -169,30 +179,37 @@ Function PageDBConfig
   Pop $hTxtSchema
   ${NSD_SetText} $hTxtSchema $DBSchema
 
-  ${NSD_CreateLabel}      0  118u 100% 20u "Hôte, port, base et utilisateur sont obligatoires. Schéma vide = identique à la base."
+  ${NSD_CreateLabel}      0  116u 110u 12u "Port serveur (app) :"
+  ${NSD_CreateText}     115u 114u 175u 12u ""
+  Pop $hTxtServerPort
+  ${NSD_SetText} $hTxtServerPort $BackendPort
+
+  ${NSD_CreateLabel}      0  132u 100% 20u \
+    "Hôte, ports, base et utilisateur sont obligatoires. Schéma vide = identique à la base."
 
   nsDialogs::Show
 FunctionEnd
 
-; Validate and collect DB values when the user clicks Next.
-Function PageDBConfigLeave
-  ${NSD_GetText} $hTxtHost   $DBHost
-  ${NSD_GetText} $hTxtPort   $DBPort
-  ${NSD_GetText} $hTxtName   $DBName
-  ${NSD_GetText} $hTxtUser   $DBUser
-  ${NSD_GetText} $hTxtPass   $DBPass
-  ${NSD_GetText} $hTxtSchema $DBSchema
+; Validate and collect values when the user clicks Next.
+Function PageConfigLeave
+  ${NSD_GetText} $hTxtHost       $DBHost
+  ${NSD_GetText} $hTxtPort       $DBPort
+  ${NSD_GetText} $hTxtName       $DBName
+  ${NSD_GetText} $hTxtUser       $DBUser
+  ${NSD_GetText} $hTxtPass       $DBPass
+  ${NSD_GetText} $hTxtSchema     $DBSchema
+  ${NSD_GetText} $hTxtServerPort $BackendPort
 
   ${If} $DBHost == ""
   ${OrIf} $DBPort == ""
   ${OrIf} $DBName == ""
   ${OrIf} $DBUser == ""
+  ${OrIf} $BackendPort == ""
     MessageBox MB_OK|MB_ICONEXCLAMATION \
-      "Hôte, port, base de données et utilisateur sont obligatoires.$\r$\nVeuillez compléter tous les champs requis."
+      "Hôte, port PostgreSQL, base de données, utilisateur et port serveur sont obligatoires."
     Abort
   ${EndIf}
 
-  ; Default schema to DB name when left empty.
   ${If} $DBSchema == ""
     StrCpy $DBSchema $DBName
   ${EndIf}
@@ -274,8 +291,8 @@ Function CreateConfigFile
   FileWrite $3 '  },$\r$\n'
 
   ; jvm — java_home: sidecar bundled JRE if present, otherwise empty (→ JAVA_HOME / PATH).
-  ${If} ${FileExists} "$INSTDIR\resources\sidecar\jre\bin\java.exe"
-    Push "$INSTDIR\resources\sidecar\jre"
+  ${If} ${FileExists} "$INSTDIR\sidecar\jre\bin\java.exe"
+    Push "$INSTDIR\sidecar\jre"
     Call EscapeBackslashes
     Pop $R7
   ${Else}
@@ -395,8 +412,8 @@ FunctionEnd
 
 ; ── Resolve java.exe path ────────────────────────────────────────────────────
 Function FindServiceJava
-  ${If} ${FileExists} "$INSTDIR\resources\sidecar\jre\bin\java.exe"
-    StrCpy $ServiceJavaExe "$INSTDIR\resources\sidecar\jre\bin\java.exe"
+  ${If} ${FileExists} "$INSTDIR\sidecar\jre\bin\java.exe"
+    StrCpy $ServiceJavaExe "$INSTDIR\sidecar\jre\bin\java.exe"
     DetailPrint "Java (JRE embarqué) : $ServiceJavaExe"
   ${Else}
     ReadEnvStr $0 "JAVA_HOME"
@@ -413,10 +430,10 @@ FunctionEnd
 ; ── Locate the backend sidecar JAR ──────────────────────────────────────────
 Function FindSidecarJar
   StrCpy $ServiceJarPath ""
-  FindFirst $0 $1 "$INSTDIR\resources\sidecar\pharmaSmart-app-*.jar"
+  FindFirst $0 $1 "$INSTDIR\sidecar\pharmaSmart-app-*.jar"
   FindClose $0
   ${If} $1 != ""
-    StrCpy $ServiceJarPath "$INSTDIR\resources\sidecar\$1"
+    StrCpy $ServiceJarPath "$INSTDIR\sidecar\$1"
     DetailPrint "JAR service : $ServiceJarPath"
   ${Else}
     DetailPrint "JAR sidecar introuvable — service non disponible."
@@ -433,7 +450,7 @@ Function InstallBackendService
     Return
   ${EndIf}
 
-  StrCpy $ServiceScriptDir "$INSTDIR\resources\service"
+  StrCpy $ServiceScriptDir "$INSTDIR\service"
   ExecWait 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$ServiceScriptDir\setup-backend-service.ps1" -JavaExe "$ServiceJavaExe" -JarPath "$ServiceJarPath" -DataDir "$PS_DataDir" -Port $BackendPort' $0
 
   ${If} $0 == 0
@@ -450,7 +467,7 @@ FunctionEnd
 
 ; ── Stop and remove the Windows service ─────────────────────────────────────
 Function RemoveBackendService
-  StrCpy $ServiceScriptDir "$INSTDIR\resources\service"
+  StrCpy $ServiceScriptDir "$INSTDIR\service"
   ${If} ${FileExists} "$ServiceScriptDir\remove-backend-service.ps1"
     ExecWait 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$ServiceScriptDir\remove-backend-service.ps1"' $0
     DetailPrint "Service pharmasmart-app supprime (code $0)."
@@ -463,9 +480,25 @@ FunctionEnd
 
 ; ── Custom install section ───────────────────────────────────────────────────
 !macro customInstall
-  ; CreateConfigFile calls ResolveDataDir (sets $PS_DataDir) and sets $BackupDir.
-  ; It embeds the DB credentials collected by the PageDBConfig wizard page.
+  ; CreateConfigFile writes config.json with built-in defaults (from !define / customInit).
+  ; configure-database.ps1 is then called to let the user override those defaults via a
+  ; PowerShell Windows Forms dialog.  We use the PS dialog instead of the NSIS custom page
+  ; because Tauri's MUI2 NSIS does not reliably fire PageConfigLeave callbacks.
   Call CreateConfigFile
+
+  ; ── Launch PowerShell configuration dialog ───────────────────────────────────
+  ; The script is bundled as a resource, so it is available once Tauri has
+  ; extracted the payload to $INSTDIR (i.e. by the time customInstall runs).
+  StrCpy $R9 "$INSTDIR\installer-hooks\configure-database.ps1"
+  ${If} ${FileExists} "$R9"
+    DetailPrint "Ouverture de la configuration base de données / serveur…"
+    ExecWait 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$R9" -ConfigFile "$PS_DataDir\config.json"' $0
+    DetailPrint "Configuration terminée (code $0)."
+    ; Re-sync $INSTDIR\config.json with the (possibly updated) copy in $PS_DataDir.
+    CopyFiles /SILENT "$PS_DataDir\config.json" "$INSTDIR\config.json"
+  ${Else}
+    DetailPrint "configure-database.ps1 introuvable — configuration par défaut conservée."
+  ${EndIf}
 
   ; Backup directories.
   DetailPrint "Création des répertoires de sauvegarde : $BackupDir"
@@ -480,9 +513,9 @@ FunctionEnd
   ${EndIf}
 
   ; Register scheduled backup tasks.
-  ${If} ${FileExists} "$INSTDIR\resources\backup\setup-backup-tasks.ps1"
+  ${If} ${FileExists} "$INSTDIR\backup\setup-backup-tasks.ps1"
     DetailPrint "Enregistrement des tâches planifiées de sauvegarde…"
-    ExecWait 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$INSTDIR\resources\backup\setup-backup-tasks.ps1" -ExePath "$INSTDIR\resources\backup\pharmasmart-backup.exe"' $0
+    ExecWait 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$INSTDIR\backup\setup-backup-tasks.ps1" -ExePath "$INSTDIR\backup\pharmasmart-backup.exe"' $0
     ${If} $0 != 0
       DetailPrint "Avertissement : enregistrement des tâches planifiées échoué (code $0)."
     ${Else}
@@ -493,7 +526,7 @@ FunctionEnd
   ${EndIf}
 
   ; Optional: install backend as Windows service.
-  ${If} ${FileExists} "$INSTDIR\resources\service\setup-backend-service.ps1"
+  ${If} ${FileExists} "$INSTDIR\service\setup-backend-service.ps1"
     MessageBox MB_YESNO|MB_ICONQUESTION \
       "Installer le backend comme service Windows ?$\r$\n$\r$\n\
 Avantage : le serveur demarre automatiquement au boot,$\r$\n\
@@ -508,10 +541,9 @@ Note : necessite WinSW dans $INSTDIR\resources\service\WinSW.exe." \
 
   MessageBox MB_OK|MB_ICONINFORMATION \
     "Installation terminee avec succes !$\r$\n$\r$\n\
-Base de donnees : $DBHost:$DBPort/$DBName$\r$\n\
-Dossier de donnees : $PS_DataDir$\r$\n\
+Dossier donnees  : $PS_DataDir$\r$\n\
 Sauvegardes      : $BackupDir$\r$\n$\r$\n\
-Pour modifier la configuration (port, FNE, mail, port serie) :$\r$\n\
+Configuration complete (base de donnees, port, FNE, mail…) :$\r$\n\
 $PS_DataDir\config.json"
 !macroend
 
@@ -519,12 +551,33 @@ $PS_DataDir\config.json"
 !macro customUninstall
   Call ResolveDataDir
 
+  ; ── Kill the Java backend process FIRST so the sidecar directory is not
+  ;    locked when NSIS later removes the installation files.
+  ;    (Windows does not auto-kill child processes when the parent exits, so the
+  ;    JVM spawned by Tauri may still hold the JAR and JRE files open.)
+  DetailPrint "Arrêt du processus backend Java en cours..."
+  ${If} ${FileExists} "$INSTDIR\installer-hooks\stop-backend.ps1"
+    ExecWait 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$INSTDIR\installer-hooks\stop-backend.ps1" -InstallDir "$INSTDIR"' $0
+    DetailPrint "Processus backend arrêté (code $0)."
+  ${Else}
+    ; Fallback: kill java.exe with pharmaSmart in command line without the script.
+    ExecWait "powershell.exe -NoProfile -ExecutionPolicy Bypass -Command $\"Get-WmiObject Win32_Process | Where-Object { $_.Name -like 'java*' -and $_.CommandLine -like '*pharmaSmart*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }; Start-Sleep -Seconds 2$\""
+    DetailPrint "Processus backend tué (fallback)."
+  ${EndIf}
+
+  ; ── Force-delete the sidecar directory (JAR + bundled JRE).
+  ;    The stop-backend.ps1 above waited for the JVM to release file locks,
+  ;    but NSIS may still skip locked files during its normal cleanup pass.
+  ;    We explicitly remove it here while we still have elevation.
+  RMDir /r "$INSTDIR\sidecar"
+  DetailPrint "Répertoire sidecar supprimé."
+
   ; Stop and remove the Windows service.
   Call RemoveBackendService
 
   ; Remove scheduled backup tasks.
-  ${If} ${FileExists} "$INSTDIR\resources\backup\remove-backup-tasks.ps1"
-    ExecWait 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$INSTDIR\resources\backup\remove-backup-tasks.ps1"' $0
+  ${If} ${FileExists} "$INSTDIR\backup\remove-backup-tasks.ps1"
+    ExecWait 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$INSTDIR\backup\remove-backup-tasks.ps1"' $0
     DetailPrint "Nettoyage des tâches planifiées (code $0)."
   ${Else}
     ExecWait 'schtasks /Delete /TN "PharmaSmart_Backup_Dump"  /F'

@@ -9,7 +9,7 @@ import { ProgressBar } from 'primeng/progressbar';
 import { BackendManagerService } from '../services/backend-manager.service';
 
 @Component({
-  selector: 'jhi-app-settings-dialog',
+  selector: 'app-app-settings-dialog',
   imports: [CommonModule, FormsModule, Card, Button, ProgressBar],
   styleUrls: ['../../entities/common-modal.component.scss'],
   template: `
@@ -163,18 +163,29 @@ export class AppSettingsDialogComponent implements OnInit {
     this.connectionTestResult = null;
   }
 
-  save(): void {
+  async save(): Promise<void> {
     this.appSettingsService.updateApiServerUrl(this.apiServerUrl);
 
     if (this.isBundledBackend) {
-      // Restart backend in Tauri standalone mode
+      // Persist the port to config.json so the backend restarts on the right port.
+      await this.savePortToConfig();
       this.restartBackendAndClose();
     } else {
-      // Standard mode - just reload
       this.activeModal.close('saved');
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
+      setTimeout(() => window.location.reload(), 500);
+    }
+  }
+
+  private async savePortToConfig(): Promise<void> {
+    try {
+      const url = new URL(this.apiServerUrl);
+      const port = parseInt(url.port || '9080', 10);
+      if (!isNaN(port) && port > 0 && port < 65536) {
+        const { invoke } = await import('@tauri-apps/api/core');
+        await invoke('save_server_port', { port });
+      }
+    } catch (e) {
+      console.warn('[AppSettings] could not persist port to config.json:', e);
     }
   }
 

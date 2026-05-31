@@ -1,0 +1,152 @@
+@if (visible()) {
+  <div class="wizard-wrapper">
+
+    <!-- Left Panel — Branding (same style as login) -->
+    <div class="wizard-branding">
+      <div class="branding-content">
+        <div class="logo-section">
+          <img ngSrc="content/images/logo.png" alt="PharmaSmart" class="brand-logo"
+               width="112" height="56" [priority]="true" (error)="onLogoError($event)" />
+          <h1 class="brand-title">Pharma Smart</h1>
+          <p class="brand-subtitle">Système de Gestion de Pharmacie</p>
+        </div>
+
+        <div class="features-list">
+          <div class="feature-item">
+            <i class="pi pi-check-circle"></i>
+            <span>Gestion complète des stocks</span>
+          </div>
+          <div class="feature-item">
+            <i class="pi pi-check-circle"></i>
+            <span>Facturation intelligente</span>
+          </div>
+          <div class="feature-item">
+            <i class="pi pi-check-circle"></i>
+            <span>Suivi des ventes en temps réel</span>
+          </div>
+          <div class="feature-item">
+            <i class="pi pi-check-circle"></i>
+            <span>Conformité réglementaire</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel — Setup Form -->
+    <div class="wizard-form-panel">
+      <div class="form-container">
+
+        <div class="setup-header">
+          <h2 class="setup-title">Configuration initiale</h2>
+          <p class="setup-subtitle">Première utilisation — paramétrez votre installation</p>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="setup-form" autocomplete="off" novalidate>
+
+          <!-- ── Base de données ───────────────────────────────── -->
+          <fieldset class="setup-fieldset">
+            <legend class="setup-legend">
+              <i class="fa fa-database"></i> PostgreSQL
+            </legend>
+
+            <div class="setup-row two-cols">
+              <div class="setup-field">
+                <label for="sw-host">Hôte <span class="required">*</span></label>
+                <input id="sw-host" pInputText formControlName="dbHost" placeholder="localhost"
+                       [class.ng-invalid]="isInvalid('dbHost')" />
+                @if (isInvalid('dbHost')) {
+                  <small class="setup-error">Hôte obligatoire</small>
+                }
+              </div>
+              <div class="setup-field setup-field--narrow">
+                <label for="sw-pg-port">Port <span class="required">*</span></label>
+                <input id="sw-pg-port" pInputText type="number" formControlName="dbPort"
+                       placeholder="5432" min="1" max="65535"
+                       [class.ng-invalid]="isInvalid('dbPort')" />
+                @if (isInvalid('dbPort')) {
+                  <small class="setup-error">Port invalide</small>
+                }
+              </div>
+            </div>
+
+            <div class="setup-field">
+              <label for="sw-dbname">Base de données <span class="required">*</span></label>
+              <input id="sw-dbname" pInputText formControlName="dbName" placeholder="pharma_smart"
+                     [class.ng-invalid]="isInvalid('dbName')" />
+              @if (isInvalid('dbName')) {
+                <small class="setup-error">Nom de base obligatoire</small>
+              }
+            </div>
+
+            <div class="setup-row two-cols">
+              <div class="setup-field">
+                <label for="sw-user">Utilisateur <span class="required">*</span></label>
+                <input id="sw-user" pInputText formControlName="dbUsername" placeholder="pharma_smart"
+                       autocomplete="username"
+                       [class.ng-invalid]="isInvalid('dbUsername')" />
+                @if (isInvalid('dbUsername')) {
+                  <small class="setup-error">Utilisateur obligatoire</small>
+                }
+              </div>
+              <div class="setup-field">
+                <label for="sw-schema">Schéma <span class="optional">(optionnel)</span></label>
+                <input id="sw-schema" pInputText formControlName="dbSchema" placeholder="pharma_smart" />
+              </div>
+            </div>
+
+            <div class="setup-field">
+              <label for="sw-pass">Mot de passe <span class="optional">(optionnel)</span></label>
+              <p-password inputId="sw-pass" formControlName="dbPassword"
+                          [feedback]="false" [toggleMask]="true" [fluid]="true"
+                          placeholder="Mot de passe PostgreSQL" />
+            </div>
+          </fieldset>
+
+          <!-- ── Serveur applicatif ────────────────────────────── -->
+          <fieldset class="setup-fieldset">
+            <legend class="setup-legend">
+              <i class="fa fa-server"></i> Serveur applicatif
+            </legend>
+
+            <div class="setup-field setup-field--narrow">
+              <label for="sw-srv-port">Port HTTP <span class="required">*</span></label>
+              <input id="sw-srv-port" pInputText type="number" formControlName="serverPort"
+                     placeholder="9080" min="1" max="65535"
+                     [class.ng-invalid]="isInvalid('serverPort')" />
+              @if (isInvalid('serverPort')) {
+                <small class="setup-error">Port invalide</small>
+              }
+              <small class="setup-hint">Port d'écoute du backend (défaut : 9080)</small>
+            </div>
+          </fieldset>
+
+          <!-- ── Erreur ─────────────────────────────────────────── -->
+          @if (errorMessage()) {
+            <div class="setup-alert">
+              <i class="fa fa-exclamation-triangle"></i>
+              {{ errorMessage() }}
+            </div>
+          }
+
+          <!-- ── Bouton de validation ───────────────────────────── -->
+          <div class="setup-actions">
+            <p-button type="submit"
+                      label="Démarrer PharmaSmart"
+                      icon="fa fa-play"
+                      [loading]="submitting()"
+                      [disabled]="submitting()" />
+          </div>
+
+          @if (submitting()) {
+            <p class="setup-loading-msg">
+              <i class="fa fa-spinner fa-spin"></i>
+              Configuration en cours, démarrage du serveur…
+            </p>
+          }
+
+        </form>
+      </div>
+    </div>
+
+  </div>
+}

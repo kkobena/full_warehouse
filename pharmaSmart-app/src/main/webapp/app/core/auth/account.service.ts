@@ -78,7 +78,13 @@ export class AccountService {
         shareReplay(),
       );
     }
-    return this.accountCache$.pipe(catchError(() => of(null)));
+    return this.accountCache$.pipe(
+      catchError(() => {
+        this.authenticate(null);
+        this.accountCache$ = null;
+        return of(null);
+      }),
+    );
   }
 
   isAuthenticated(): boolean {

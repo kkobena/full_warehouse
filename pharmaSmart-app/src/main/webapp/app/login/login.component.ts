@@ -6,18 +6,18 @@ import { AccountService } from 'app/core/auth/account.service';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
-import { WarehouseCommonModule } from '../shared/warehouse-common/warehouse-common.module';
 import { InputTextModule } from 'primeng/inputtext';
 import { Password } from 'primeng/password';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AppSettingsDialogComponent } from '../shared/settings/app-settings-dialog.component';
 import { TauriPrinterService } from '../shared/services/tauri-printer.service';
+import { CommonModule } from "@angular/common";
 
 @Component({
   selector: 'jhi-login',
   imports: [
-    WarehouseCommonModule,
+    CommonModule,
     InputTextModule,
     FormsModule,
     ReactiveFormsModule,

@@ -94,6 +94,14 @@
           }
         }
       </ul>
+
+      @if (isTauriAdmin) {
+        <button type="button" class="btn btn-link nav-config-btn ms-2"
+                (click)="openConfigEditor()" title="Configuration avancée PharmaSmart">
+          <i class="fa fa-sliders-h"></i>
+        </button>
+      }
+
     </div>
   </div>
 </nav>

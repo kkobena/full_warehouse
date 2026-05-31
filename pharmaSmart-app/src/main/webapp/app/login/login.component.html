@@ -60,7 +60,7 @@
         <div class="form-field">
           <label class="field-label" for="username">
             <i class="pi pi-user"></i>
-            <span jhiTranslate="global.form.username.label">Nom d'utilisateur</span>
+            <span>Nom d'utilisateur</span>
           </label>
           <input
             #username
@@ -72,7 +72,6 @@
             id="username"
             name="username"
             pInputText
-            placeholder="{{ 'global.form.username.placeholder' | translate }}"
             type="text"
           />
         </div>
@@ -80,7 +79,7 @@
         <div class="form-field">
           <label class="field-label" for="password">
             <i class="pi pi-lock"></i>
-            <span jhiTranslate="login.form.password">Mot de passe</span>
+            <span>Mot de passe</span>
           </label>
           <p-password
             [feedback]="false"
@@ -91,7 +90,6 @@
             data-cy="password"
             formControlName="password"
             id="password"
-            placeholder="{{ 'login.form.password.placeholder' | translate }}"
           />
         </div>
 

@@ -31,7 +31,7 @@ $HeapMin        = "2g"
 $HeapMax        = "2g"
 $DbUrl          = "jdbc:postgresql://localhost:5432/pharma_smart"
 $DbUser         = "pharma_smart"
-$DbSchema       = "warehouse"
+$DbSchema       = "pharma_smart"
 $DbPassword     = ""      # vide = la variable système PHARMA_DB_PASSWORD est utilisée
 $JavaHomeConfig = ""      # jvm.java_home depuis config (priorité sur la détection sidecar)
 

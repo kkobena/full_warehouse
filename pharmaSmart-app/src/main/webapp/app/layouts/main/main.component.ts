@@ -15,6 +15,7 @@ import { ConfirmationService } from "primeng/api";
 import { LayoutService } from "../../core/config/layout.service";
 import { BackendSplashComponent } from "app/shared/backend-splash/backend-splash.component";
 import { TitlebarComponent } from "app/shared/titlebar/titlebar.component";
+import { SetupWizardComponent } from "app/core/setup/setup-wizard.component";
 import { TauriPrinterService } from "../../shared/services/tauri-printer.service";
 import { PeremptionAlertService } from "../../shared/services/peremption-alert.service";
 
@@ -23,7 +24,7 @@ import { PeremptionAlertService } from "../../shared/services/peremption-alert.s
   templateUrl: "./main.component.html",
   styleUrl: "./main.component.scss",
   providers: [AppPageTitleStrategy, ConfirmationService],
-  imports: [RouterOutlet, ConfirmDialogModule, CommonModule, BackendSplashComponent, TitlebarComponent],
+  imports: [RouterOutlet, ConfirmDialogModule, CommonModule, BackendSplashComponent, TitlebarComponent, SetupWizardComponent],
   host: { "[class.tauri-mode]": "isTauriMode" }
 })
 export default class MainComponent implements OnInit {

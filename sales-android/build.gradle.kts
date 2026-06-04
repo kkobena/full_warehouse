@@ -182,7 +182,7 @@ dependencies {
     implementation("com.sunmi:printerlibrary:1.0.18")
 
     // ZXing for QR Code generation and scanning
-    implementation("com.google.zxing:core:3.5.3")
+    implementation("com.google.zxing:core:3.5.4")
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 
     // Image loading library (Coil for Kotlin)

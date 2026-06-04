@@ -120,7 +120,7 @@ dependencies {
   implementation 'androidx.cardview:cardview:1.0.0'
 
   // Work Manager for background sync
-  implementation 'androidx.work:work-runtime-ktx:2.9.0'
+  implementation 'androidx.work:work-runtime-ktx:2.11.2'
 
   // Testing
   testImplementation 'junit:junit:4.13.2'

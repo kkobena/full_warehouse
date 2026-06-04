@@ -24,7 +24,7 @@ winres = "0.1"
 
 # Supprime la fenêtre console sur Windows
 [target.'cfg(windows)'.dependencies]
-windows-sys = { version = "0.52", features = ["Win32_System_Console"] }
+windows-sys = { version = "0.61", features = ["Win32_System_Console"] }
 
 # Configuration pour ne pas afficher la console Windows
 [package.metadata.winresource]

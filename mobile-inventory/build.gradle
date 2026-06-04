@@ -97,7 +97,7 @@ dependencies {
   kapt 'androidx.room:room-compiler:2.6.1'
 
   // Splash Screen API
-  implementation 'androidx.core:core-splashscreen:1.0.1'
+  implementation 'androidx.core:core-splashscreen:1.2.0'
 
   // ZXing for barcode scanning
   implementation 'com.google.zxing:core:3.5.3'

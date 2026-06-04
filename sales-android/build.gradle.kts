@@ -196,7 +196,7 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:2.7.6")
 
     // ViewPager2 for responsive layouts
-    implementation("androidx.viewpager2:viewpager2:1.0.0")
+    implementation("androidx.viewpager2:viewpager2:1.1.0")
 
     // Card View
     implementation("androidx.cardview:cardview:1.0.0")

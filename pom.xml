@@ -56,7 +56,7 @@
     <xhtmlrenderer.version>10.2.0</xhtmlrenderer.version>
     <batik.version>1.19</batik.version>
     <poi.version>5.5.1</poi.version>
-    <zxing.version>3.5.3</zxing.version>
+    <zxing.version>3.5.4</zxing.version>
     <testcontainers.version>1.21.3</testcontainers.version>
 
     <!-- npm executable: npm (Linux/macOS) ou npm.cmd (Windows, détecté via profil) -->

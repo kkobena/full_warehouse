@@ -48,7 +48,7 @@
     <profile.tls/>
 
     <!-- Dependency versions -->
-    <hibernate.version>7.2.1.Final</hibernate.version>
+    <hibernate.version>7.4.0.Final</hibernate.version>
     <hibernate-validator.version>9.0.1.Final</hibernate-validator.version>
     <flyway.version>12.8.1</flyway.version>
     <springdoc-openapi.version>2.7.0</springdoc-openapi.version>

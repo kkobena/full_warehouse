@@ -49,7 +49,7 @@
 
     <!-- Dependency versions -->
     <hibernate.version>7.4.0.Final</hibernate.version>
-    <hibernate-validator.version>9.0.1.Final</hibernate-validator.version>
+    <hibernate-validator.version>9.1.0.Final</hibernate-validator.version>
     <flyway.version>12.8.1</flyway.version>
     <springdoc-openapi.version>2.7.0</springdoc-openapi.version>
     <openpdf.version>3.0.3</openpdf.version>

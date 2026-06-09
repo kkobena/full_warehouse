@@ -53,7 +53,7 @@
     <flyway.version>12.8.1</flyway.version>
     <springdoc-openapi.version>2.7.0</springdoc-openapi.version>
     <openpdf.version>3.0.5</openpdf.version>
-    <xhtmlrenderer.version>10.2.0</xhtmlrenderer.version>
+    <xhtmlrenderer.version>10.3.0</xhtmlrenderer.version>
     <batik.version>1.19</batik.version>
     <poi.version>5.5.1</poi.version>
     <zxing.version>3.5.4</zxing.version>

@@ -68,7 +68,7 @@
     "@popperjs/core": "2.11.8",
     "@primeuix/themes": "^2.0.3",
     "@tauri-apps/api": "^2.10.1",
-    "@tauri-apps/plugin-dialog": "2.6.0",
+    "@tauri-apps/plugin-dialog": "2.7.1",
     "@tauri-apps/plugin-fs": "^2.4.5",
     "@tauri-apps/plugin-shell": "^2.3.5",
     "ag-grid-angular": "^35.3.1",

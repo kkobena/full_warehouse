@@ -19,14 +19,14 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>pharmaSmart-domain</module>  <!-- 1er : aucune dépendance interne -->
-    <module>pharmaSmart-core</module>    <!-- 2e : config, sécurité, web-util, errors -->
-    <module>pharmaSmart-app</module>     <!-- 3e : dépend de domain + core -->
-    <module>pharmaSmart-batch</module>   <!-- 4e : dépend de domain + core -->
+    <module>pharmaSmart-domain</module>
+    <module>pharmaSmart-core</module>
+    <module>pharmaSmart-app</module>
+    <module>pharmaSmart-batch</module>
   </modules>
 
   <properties>
-    <!-- Version centrale — changer ici suffit pour tous les modules -->
+
     <revision>0.2.3</revision>
 
     <!-- Java & Maven -->
@@ -157,7 +157,7 @@
           <artifactId>sonar-maven-plugin</artifactId>
           <version>${sonar-maven-plugin.version}</version>
         </plugin>
-        <!-- CI-friendly versioning : résout ${revision} dans les POMs installés/déployés -->
+
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>flatten-maven-plugin</artifactId>
@@ -200,27 +200,10 @@
       </properties>
     </profile>
 
-    <!--
-      Profil full-dist : produit le ZIP de distribution complet dans target/
-      Contient : installeur Tauri NSIS (bundled-jre) + pharmasmart-batch.jar
-                 + pharmasmart-backup.exe + config.default.json + scripts service
-
-      Prérequis : Rust/cargo installé, Node.js + Tauri CLI installés.
-
-      Usage :
-        mvnw.cmd clean package -P full-dist -DskipTests        (Windows)
-        ./mvnw   clean package -P full-dist -DskipTests        (Linux/macOS)
-      Sortie :
-        target/pharmasmart-{version}-full.zip
-    -->
     <profile>
       <id>full-dist</id>
       <build>
         <plugins>
-          <!-- Étape 1 : Build Cargo (pharmasmart-backup) -->
-          <!-- Étape 2 : Build Tauri bundled-jre            -->
-          <!-- Les deux sont liés à la phase package ; Cargo tourne en premier -->
-          <!-- inherited=false : n'exécuter que dans le module racine, pas dans les sous-modules -->
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
@@ -256,7 +239,6 @@
             </executions>
           </plugin>
 
-          <!-- Étape 3 : Assembler le ZIP final -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>

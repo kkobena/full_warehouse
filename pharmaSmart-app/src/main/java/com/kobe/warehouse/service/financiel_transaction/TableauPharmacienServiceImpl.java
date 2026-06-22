@@ -1,7 +1,5 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
-import static com.kobe.warehouse.service.financiel_transaction.TableauPharmacienConstants.GROUPING_MONTHLY;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
@@ -18,19 +16,24 @@ import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienDTO
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienWrapper;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.CommandeDataService;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.kobe.warehouse.service.financiel_transaction.TableauPharmacienConstants.GROUPING_MONTHLY;
 
 /**
  * Refactored TableauPharmacien Service with improved maintainability
@@ -85,7 +88,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
     @Override
     public TableauPharmacienWrapper getTableauPharmacien(MvtParam mvtParam) {
         mvtParam.setStatuts(
-            Set.of( SalesStatut.CLOSED,SalesStatut.CANCELED)
+            Set.of(SalesStatut.CLOSED, SalesStatut.CANCELED)
         );
         mvtParam.setExcludeFreeUnit(appConfigurationService.excludeFreeUnit());
         return computeTableauPharmacien(mvtParam);
@@ -213,8 +216,11 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
                     BooleanUtils.toBoolean(mvtParam.getToIgnore())
                 );
             }
-
-            return objectMapper.readValue(jsonResult, new TypeReference<>() {});
+            if (!StringUtils.hasLength(jsonResult)) {
+                return new ArrayList<>();
+            }
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {
+            });
         } catch (Exception e) {
             LOG.error("Error fetching sales data: {}", e.getMessage(), e);
             return new ArrayList<>();

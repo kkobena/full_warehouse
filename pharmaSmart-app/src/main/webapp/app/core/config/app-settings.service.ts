@@ -110,6 +110,15 @@ export class AppSettingsService {
       return;
     }
 
+    // Garde runtime : en mode navigateur pur (npm start / web), le runtime Tauri
+    // n'est pas injecté (`window.__TAURI_INTERNALS__` absent). Appeler `invoke`
+    // déclencherait alors « Cannot read properties of undefined (reading 'invoke') ».
+    // On sort proprement sans tenter l'appel natif.
+    if (typeof window === 'undefined' || !(window as any).__TAURI_INTERNALS__) {
+      this.initialized = true;
+      return;
+    }
+
     try {
       const { invoke } = await import('@tauri-apps/api/core');
 

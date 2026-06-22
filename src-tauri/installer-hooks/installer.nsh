@@ -20,6 +20,11 @@
 ;   CurrentUser → $APPDATA\PharmaSmart     (always writable without elevation)
 Var PS_DataDir
 
+; Chemin de C:\ProgramData — résolu via la variable d'environnement `ProgramData`.
+; ATTENTION : `$PROGRAMDATA` N'EST PAS une constante NSIS valide (warning 6000,
+; évaluée à vide). On lit donc explicitement l'environnement.
+Var ProgramDataDir
+
 ; Backup root directory — defaults to $PS_DataDir\backups.
 Var BackupDir
 
@@ -53,6 +58,9 @@ Var hTxtServerPort
 ; reliably call PageConfigLeave, so NSD_GetText never runs and defaults are used.
 
 ; ── Initialisation ──────────────────────────────────────────────────────────
+; NOTE: Tauri v2 ne dispose PAS de hook d'init équivalent à l'ancien `customInit`
+; (v1). Cette macro n'est donc plus appelée automatiquement — les valeurs par
+; défaut sont (ré)initialisées au début de NSIS_HOOK_POSTINSTALL (voir plus bas).
 !macro customInit
   StrCpy $BackendPort "${DEFAULT_PORT}"
   ; Pre-fill DB fields with build-time defaults (generated from application-prod.yml).
@@ -109,17 +117,18 @@ FunctionEnd
 
 ; ── Resolve $PS_DataDir at runtime ──────────────────────────────────────────
 Function ResolveDataDir
-  CreateDirectory "$PROGRAMDATA\PharmaSmart"
+  ReadEnvStr $ProgramDataDir "ProgramData"
+  CreateDirectory "$ProgramDataDir\PharmaSmart"
   ClearErrors
-  FileOpen $9 "$PROGRAMDATA\PharmaSmart\.write_test" w
+  FileOpen $9 "$ProgramDataDir\PharmaSmart\.write_test" w
   ${If} ${Errors}
     StrCpy $PS_DataDir "$APPDATA\PharmaSmart"
     DetailPrint "Per-user install: using $APPDATA\PharmaSmart"
   ${Else}
     FileClose $9
-    Delete "$PROGRAMDATA\PharmaSmart\.write_test"
-    StrCpy $PS_DataDir "$PROGRAMDATA\PharmaSmart"
-    DetailPrint "All-users install: using $PROGRAMDATA\PharmaSmart"
+    Delete "$ProgramDataDir\PharmaSmart\.write_test"
+    StrCpy $PS_DataDir "$ProgramDataDir\PharmaSmart"
+    DetailPrint "All-users install: using $ProgramDataDir\PharmaSmart"
   ${EndIf}
 FunctionEnd
 
@@ -229,7 +238,7 @@ Function CreateConfigFile
   CreateDirectory "$PS_DataDir\excel"
   CreateDirectory "$PS_DataDir\pharmaml"
 
-  ${If} $PS_DataDir == "$PROGRAMDATA\PharmaSmart"
+  ${If} $PS_DataDir == "$ProgramDataDir\PharmaSmart"
     Call GrantDataDirPermissions
   ${EndIf}
 
@@ -270,8 +279,11 @@ Function CreateConfigFile
   Call EscapeBackslashes
   Pop $R5
 
-  DetailPrint "Writing $PS_DataDir\config.json..."
-  FileOpen $3 "$PS_DataDir\config.json" w
+  ; Write config.json DIRECTLY to $INSTDIR (next to the executable). The installer
+  ; runs elevated and $INSTDIR always exists at this point, so this write is
+  ; guaranteed — this is the proven behaviour that always lands the file.
+  DetailPrint "Writing $INSTDIR\config.json..."
+  FileOpen $3 "$INSTDIR\config.json" w
   FileWrite $3 "{$\r$\n"
 
   ; server
@@ -401,13 +413,13 @@ Function CreateConfigFile
 
   FileWrite $3 "}$\r$\n"
   FileClose $3
-  DetailPrint "config.json written to $PS_DataDir"
+  DetailPrint "config.json written to $INSTDIR"
 
-  ; Copy config.json to $INSTDIR so it is visible next to the executable.
-  ; config_search_dirs() (config.rs) falls back to the exe dir when the
-  ; primary location is not readable.
-  DetailPrint "Copying config.json to $INSTDIR..."
-  CopyFiles /SILENT "$PS_DataDir\config.json" "$INSTDIR\config.json"
+  ; Mirror config.json into $PS_DataDir (ProgramData / AppData). This is the
+  ; authoritative writable location read at runtime by the Windows service and the
+  ; Tauri app. $PS_DataDir was created above, so this copy is reliable.
+  DetailPrint "Copying config.json to $PS_DataDir..."
+  CopyFiles /SILENT "$INSTDIR\config.json" "$PS_DataDir\config.json"
 FunctionEnd
 
 ; ── Resolve java.exe path ────────────────────────────────────────────────────
@@ -478,9 +490,29 @@ Function RemoveBackendService
   ${EndIf}
 FunctionEnd
 
-; ── Custom install section ───────────────────────────────────────────────────
-!macro customInstall
-  ; CreateConfigFile writes config.json with built-in defaults (from !define / customInit).
+; ── Post-install hook (Tauri v2) ─────────────────────────────────────────────
+; IMPORTANT : Tauri v2 a renommé les hooks NSIS. L'ancien nom v1 `customInstall`
+; n'est plus appelé (il est silencieusement ignoré) — c'est ce qui empêchait
+; CreateConfigFile de s'exécuter et donc la création de config.json à l'install.
+; Le nom correct en Tauri v2 est NSIS_HOOK_POSTINSTALL (exécuté après la copie
+; des fichiers vers $INSTDIR, donc $INSTDIR et les resources sont disponibles).
+!macro NSIS_HOOK_POSTINSTALL
+  ; customInit n'étant plus invoqué en Tauri v2, on (ré)initialise ici les valeurs
+  ; par défaut (générées depuis application-prod.yml) avant que CreateConfigFile
+  ; ne les consomme.
+  ${If} $BackendPort == ""
+    StrCpy $BackendPort "${DEFAULT_PORT}"
+  ${EndIf}
+  ${If} $DBHost == ""
+    StrCpy $DBHost   "${DB_DEFAULT_HOST}"
+    StrCpy $DBPort   "${DB_DEFAULT_PORT}"
+    StrCpy $DBName   "${DB_DEFAULT_NAME}"
+    StrCpy $DBUser   "${DB_DEFAULT_USER}"
+    StrCpy $DBPass   ""
+    StrCpy $DBSchema "${DB_DEFAULT_SCHEMA}"
+  ${EndIf}
+
+  ; CreateConfigFile writes config.json with built-in defaults (from !define).
   ; configure-database.ps1 is then called to let the user override those defaults via a
   ; PowerShell Windows Forms dialog.  We use the PS dialog instead of the NSIS custom page
   ; because Tauri's MUI2 NSIS does not reliably fire PageConfigLeave callbacks.
@@ -508,7 +540,7 @@ FunctionEnd
   CreateDirectory "$BackupDir\wal"
   CreateDirectory "$BackupDir\logs"
 
-  ${If} $PS_DataDir == "$PROGRAMDATA\PharmaSmart"
+  ${If} $PS_DataDir == "$ProgramDataDir\PharmaSmart"
     ExecWait 'icacls "$BackupDir" /grant "*S-1-5-32-545:(OI)(CI)M" /T /Q'
   ${EndIf}
 
@@ -547,9 +579,44 @@ Configuration complete (base de donnees, port, FNE, mail…) :$\r$\n\
 $PS_DataDir\config.json"
 !macroend
 
-; ── Custom uninstall section ─────────────────────────────────────────────────
-!macro customUninstall
-  Call ResolveDataDir
+; ── Versions « uninstaller » des fonctions partagées ─────────────────────────
+; NSIS exige que les fonctions appelées depuis le désinstalleur soient préfixées
+; `un.` ; on ne peut pas réutiliser les fonctions de l'installeur. On duplique
+; donc ici la logique nécessaire au hook NSIS_HOOK_PREUNINSTALL.
+Function un.ResolveDataDir
+  ReadEnvStr $ProgramDataDir "ProgramData"
+  CreateDirectory "$ProgramDataDir\PharmaSmart"
+  ClearErrors
+  FileOpen $9 "$ProgramDataDir\PharmaSmart\.write_test" w
+  ${If} ${Errors}
+    StrCpy $PS_DataDir "$APPDATA\PharmaSmart"
+    DetailPrint "Per-user install: using $APPDATA\PharmaSmart"
+  ${Else}
+    FileClose $9
+    Delete "$ProgramDataDir\PharmaSmart\.write_test"
+    StrCpy $PS_DataDir "$ProgramDataDir\PharmaSmart"
+    DetailPrint "All-users install: using $ProgramDataDir\PharmaSmart"
+  ${EndIf}
+FunctionEnd
+
+Function un.RemoveBackendService
+  StrCpy $ServiceScriptDir "$INSTDIR\service"
+  ${If} ${FileExists} "$ServiceScriptDir\remove-backend-service.ps1"
+    ExecWait 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$ServiceScriptDir\remove-backend-service.ps1"' $0
+    DetailPrint "Service pharmasmart-app supprime (code $0)."
+  ${Else}
+    ExecWait 'sc stop pharmasmart-app'
+    ExecWait 'sc delete pharmasmart-app'
+    DetailPrint "Service pharmasmart-app supprime via sc.exe."
+  ${EndIf}
+FunctionEnd
+
+; ── Pre-uninstall hook (Tauri v2) ────────────────────────────────────────────
+; Renommé depuis l'ancien `customUninstall` (v1, ignoré en v2). PREUNINSTALL est
+; exécuté AVANT que Tauri ne supprime les fichiers installés : le backend Java est
+; donc arrêté pendant qu'il tient encore les verrous sur le JAR / la JRE.
+!macro NSIS_HOOK_PREUNINSTALL
+  Call un.ResolveDataDir
 
   ; ── Kill the Java backend process FIRST so the sidecar directory is not
   ;    locked when NSIS later removes the installation files.
@@ -561,7 +628,8 @@ $PS_DataDir\config.json"
     DetailPrint "Processus backend arrêté (code $0)."
   ${Else}
     ; Fallback: kill java.exe with pharmaSmart in command line without the script.
-    ExecWait "powershell.exe -NoProfile -ExecutionPolicy Bypass -Command $\"Get-WmiObject Win32_Process | Where-Object { $_.Name -like 'java*' -and $_.CommandLine -like '*pharmaSmart*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }; Start-Sleep -Seconds 2$\""
+    ; Note : `$$_` échappe le `$` PowerShell (sinon NSIS interprète `$_` comme une variable).
+    ExecWait "powershell.exe -NoProfile -ExecutionPolicy Bypass -Command $\"Get-WmiObject Win32_Process | Where-Object { $$_.Name -like 'java*' -and $$_.CommandLine -like '*pharmaSmart*' } | ForEach-Object { Stop-Process -Id $$_.ProcessId -Force -ErrorAction SilentlyContinue }; Start-Sleep -Seconds 2$\""
     DetailPrint "Processus backend tué (fallback)."
   ${EndIf}
 
@@ -573,7 +641,7 @@ $PS_DataDir\config.json"
   DetailPrint "Répertoire sidecar supprimé."
 
   ; Stop and remove the Windows service.
-  Call RemoveBackendService
+  Call un.RemoveBackendService
 
   ; Remove scheduled backup tasks.
   ${If} ${FileExists} "$INSTDIR\backup\remove-backup-tasks.ps1"

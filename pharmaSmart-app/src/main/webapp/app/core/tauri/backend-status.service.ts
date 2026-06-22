@@ -64,11 +64,18 @@ export class BackendStatusService {
       // ── Bundled backend mode ──────────────────────────────────────────────
       let bundledMode = false;
       try {
+        // Probe bundled mode first. If this command is missing (standard mode),
+        // it throws and we fall through to the external-backend polling below.
         const initialStatus = await invoke<BackendStatus>('get_backend_status');
         bundledMode = true;
         this.backendStatus$.next(initialStatus);
 
-        // Stream real-time status updates from the Rust backend manager
+        // Stream real-time status updates from the Rust backend manager.
+        // IMPORTANT: register the listener BEFORE the catch-up fetch below.
+        // When a backend is already running (e.g. relaunch with an orphaned
+        // process or a Windows service), the Rust side reaches `ready` within
+        // microseconds during setup() — often before this listener exists.
+        // Registering first guarantees every later event is captured.
         await listen<BackendStatus>('backend-status', event => {
           this.ngZone.run(() => {
             const s = event.payload;
@@ -84,6 +91,17 @@ export class BackendStatusService {
             this.backendStatus$.next(s);
           });
         });
+
+        // Catch-up fetch: re-read the current status now that the listener is
+        // active. This closes the race window — any terminal state (e.g. `ready`)
+        // reached between the first snapshot and the listener registration is
+        // recovered here, so the splash never stays stuck on an early message.
+        try {
+          const catchUp = await invoke<BackendStatus>('get_backend_status');
+          this.ngZone.run(() => this.backendStatus$.next(catchUp));
+        } catch {
+          /* non-fatal — the listener will deliver subsequent updates */
+        }
 
         // Listen for critical Java log lines (ERROR / FATAL / Exception)
         await listen<string>('backend-log', event => {

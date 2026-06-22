@@ -445,15 +445,31 @@ impl AppConfig {
     fn config_search_dirs(app: &AppHandle) -> Vec<PathBuf> {
         let mut dirs: Vec<PathBuf> = Vec::new();
 
-        // Priority 1: next to the exe (same level as the sidecar JAR — original behaviour)
-        if let Some(exe_dir) = std::env::current_exe()
+        let exe_dir = std::env::current_exe()
             .ok()
-            .and_then(|p| p.parent().map(|p| p.to_path_buf()))
-        {
-            dirs.push(exe_dir);
+            .and_then(|p| p.parent().map(|p| p.to_path_buf()));
+
+        // The exe dir is only authoritative when it is writable, because `save()`
+        // keeps its copy in sync only in that case. On Program Files (all-users)
+        // installs the exe dir is read-only: its copy is written once by the
+        // installer and then becomes stale (e.g. `setup_complete` stays false even
+        // after the wizard saved `true` into $PROGRAMDATA). Reading the stale copy
+        // first would wrongly re-display the setup wizard, so we deprioritize a
+        // read-only exe dir below the writable data dirs.
+        let exe_writable = exe_dir
+            .as_ref()
+            .map(Self::is_dir_writable)
+            .unwrap_or(false);
+
+        // Priority 1: next to the exe — but only when writable (kept in sync by save()).
+        if exe_writable {
+            if let Some(dir) = exe_dir.clone() {
+                dirs.push(dir);
+            }
         }
 
-        // Priority 2: $PROGRAMDATA\PharmaSmart (all-users installer writes here when exe is read-only)
+        // Priority 2: $PROGRAMDATA\PharmaSmart (all-users installer writes here; authoritative
+        // copy when the exe dir is read-only).
         #[cfg(windows)]
         if let Ok(program_data) = std::env::var("PROGRAMDATA") {
             dirs.push(PathBuf::from(program_data).join("PharmaSmart"));
@@ -465,7 +481,14 @@ impl AppConfig {
             dirs.push(PathBuf::from(app_data).join("PharmaSmart"));
         }
 
-        // Priority 4: resource_dir itself, then its parent (Tauri fallback)
+        // Priority 4: a read-only exe dir as a fallback (e.g. the only copy that exists).
+        if !exe_writable {
+            if let Some(dir) = exe_dir {
+                dirs.push(dir);
+            }
+        }
+
+        // Priority 5: resource_dir itself, then its parent (Tauri fallback)
         if let Ok(resource_dir) = app.path().resource_dir() {
             dirs.push(resource_dir.clone());
             if let Some(parent) = resource_dir.parent() {

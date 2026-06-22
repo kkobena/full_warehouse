@@ -512,24 +512,46 @@ FunctionEnd
     StrCpy $DBSchema "${DB_DEFAULT_SCHEMA}"
   ${EndIf}
 
-  ; CreateConfigFile writes config.json with built-in defaults (from !define).
-  ; configure-database.ps1 is then called to let the user override those defaults via a
-  ; PowerShell Windows Forms dialog.  We use the PS dialog instead of the NSIS custom page
-  ; because Tauri's MUI2 NSIS does not reliably fire PageConfigLeave callbacks.
-  Call CreateConfigFile
+  ; ── Résolution du répertoire de données et détection install/màj ───────────
+  ; On résout $PS_DataDir AVANT toute écriture pour distinguer une première
+  ; installation d'une mise à jour. ResolveDataDir ne fixe pas $BackupDir
+  ; (normalement fait par CreateConfigFile), on l'initialise donc ici pour que
+  ; la section "sauvegardes" plus bas fonctionne dans les deux branches.
+  Call ResolveDataDir
+  StrCpy $BackupDir "$PS_DataDir\backups"
 
-  ; ── Launch PowerShell configuration dialog ───────────────────────────────────
-  ; The script is bundled as a resource, so it is available once Tauri has
-  ; extracted the payload to $INSTDIR (i.e. by the time customInstall runs).
-  StrCpy $R9 "$INSTDIR\installer-hooks\configure-database.ps1"
-  ${If} ${FileExists} "$R9"
-    DetailPrint "Ouverture de la configuration base de données / serveur…"
-    ExecWait 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$R9" -ConfigFile "$PS_DataDir\config.json"' $0
-    DetailPrint "Configuration terminée (code $0)."
-    ; Re-sync $INSTDIR\config.json with the (possibly updated) copy in $PS_DataDir.
+  ${If} ${FileExists} "$PS_DataDir\config.json"
+    ; ── MODE MISE À JOUR ───────────────────────────────────────────────────
+    ; Une config existe déjà dans le répertoire de données (ProgramData/AppData).
+    ; C'est la copie autoritative de l'utilisateur : on NE la réécrit PAS et on
+    ; NE relance PAS l'assistant base de données. Seuls les binaires de $INSTDIR
+    ; ont été remplacés par l'updater.
+    DetailPrint "Mise à jour détectée — configuration existante préservée : $PS_DataDir\config.json"
+    ; $INSTDIR ayant été reposé à neuf, on recrée uniquement la copie de
+    ; "découverte" à côté de l'exe À PARTIR de la copie autoritative (sens
+    ; ProgramData → INSTDIR, jamais l'inverse en mise à jour).
     CopyFiles /SILENT "$PS_DataDir\config.json" "$INSTDIR\config.json"
   ${Else}
-    DetailPrint "configure-database.ps1 introuvable — configuration par défaut conservée."
+    ; ── PREMIÈRE INSTALLATION ──────────────────────────────────────────────
+    ; CreateConfigFile writes config.json with built-in defaults (from !define).
+    ; configure-database.ps1 is then called to let the user override those defaults via a
+    ; PowerShell Windows Forms dialog.  We use the PS dialog instead of the NSIS custom page
+    ; because Tauri's MUI2 NSIS does not reliably fire PageConfigLeave callbacks.
+    Call CreateConfigFile
+
+    ; ── Launch PowerShell configuration dialog ───────────────────────────────────
+    ; The script is bundled as a resource, so it is available once Tauri has
+    ; extracted the payload to $INSTDIR (i.e. by the time customInstall runs).
+    StrCpy $R9 "$INSTDIR\installer-hooks\configure-database.ps1"
+    ${If} ${FileExists} "$R9"
+      DetailPrint "Ouverture de la configuration base de données / serveur…"
+      ExecWait 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$R9" -ConfigFile "$PS_DataDir\config.json"' $0
+      DetailPrint "Configuration terminée (code $0)."
+      ; Re-sync $INSTDIR\config.json with the (possibly updated) copy in $PS_DataDir.
+      CopyFiles /SILENT "$PS_DataDir\config.json" "$INSTDIR\config.json"
+    ${Else}
+      DetailPrint "configure-database.ps1 introuvable — configuration par défaut conservée."
+    ${EndIf}
   ${EndIf}
 
   ; Backup directories.
@@ -654,11 +676,11 @@ FunctionEnd
     ExecWait 'schtasks /Delete /TN "PharmaSmart_Backup_Check" /F'
   ${EndIf}
 
-  MessageBox MB_YESNO|MB_ICONQUESTION \
-    "Supprimer les donnees de l'application (config, logs, rapports) ?$\r$\n\
-$PS_DataDir" \
-    IDYES remove_data IDNO skip_data
-  remove_data:
-    RMDir /r "$PS_DataDir"
-  skip_data:
+  ; ── Conservation des données utilisateur ────────────────────────────────────
+  ; On NE supprime JAMAIS $PS_DataDir (config.json, logs, reports, backups…).
+  ; Les données doivent survivre à une désinstallation comme à une mise à jour
+  ; (l'updater Tauri lance ce même désinstalleur avant de réinstaller). Seuls les
+  ; binaires de $INSTDIR sont retirés par NSIS. Pour réinitialiser réellement les
+  ; données, l'utilisateur supprime manuellement le dossier ci-dessous.
+  DetailPrint "Données utilisateur conservées : $PS_DataDir"
 !macroend

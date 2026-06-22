@@ -175,18 +175,31 @@ function Install-Svc {
     Set-RestrictedAcl $xmlPath $false
 
     Get-WinSW $Dir $Name | Out-Null
+    $winswExe = Join-Path $Dir "$Name.exe"
+    if (-not (Test-Path $winswExe)) {
+        throw "Impossible d'installer '$Name' : binaire WinSW absent ($winswExe)."
+    }
 
     if (Get-Service -Name $Name -ErrorAction SilentlyContinue) {
         Write-Host "  Remplacement de l'instance existante..."
         Push-Location $Dir
-        & ".\$Name.exe" stop 2>$null
-        & ".\$Name.exe" uninstall
-        Pop-Location
+        try {
+            & ".\$Name.exe" stop 2>$null
+            & ".\$Name.exe" uninstall
+        } finally {
+            Pop-Location
+        }
         Start-Sleep -Seconds 2
     }
     Push-Location $Dir
-    & ".\$Name.exe" install
-    Pop-Location
+    try {
+        & ".\$Name.exe" install
+        if ($LASTEXITCODE -ne 0) {
+            throw "WinSW 'install' a retourné le code $LASTEXITCODE pour '$Name'."
+        }
+    } finally {
+        Pop-Location
+    }
     Write-Host "  OK : '$Name' installé dans $Dir" -ForegroundColor Green
 }
 

@@ -179,7 +179,7 @@ dependencies {
     implementation("androidx.core:core-splashscreen:1.0.1")
 
     // Sunmi Printer Library (for thermal receipt printing)
-    implementation("com.sunmi:printerlibrary:1.0.18")
+    implementation("com.sunmi:printerlibrary:1.0.24")
 
     // ZXing for QR Code generation and scanning
     implementation("com.google.zxing:core:3.5.4")

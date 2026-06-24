@@ -158,7 +158,7 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     // Gson for JSON parsing
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation("com.google.code.gson:gson:2.14.0")
 
     // RecyclerView & SwipeRefreshLayout
     implementation("androidx.recyclerview:recyclerview:1.3.2")

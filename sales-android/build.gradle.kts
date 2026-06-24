@@ -162,7 +162,7 @@ dependencies {
 
     // RecyclerView & SwipeRefreshLayout
     implementation("androidx.recyclerview:recyclerview:1.3.2")
-    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0")
 
     // SharedPreferences - Encrypted (for secure token storage)
     implementation("androidx.security:security-crypto:1.1.0-alpha06")

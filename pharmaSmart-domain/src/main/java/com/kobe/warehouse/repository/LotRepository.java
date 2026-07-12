@@ -6,8 +6,8 @@ import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.FournisseurProduit_;
 import com.kobe.warehouse.domain.Fournisseur_;
 import com.kobe.warehouse.domain.Lot;
-import com.kobe.warehouse.domain.Lot_;
 import com.kobe.warehouse.domain.LotStockLocation;
+import com.kobe.warehouse.domain.Lot_;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Produit_;
 import com.kobe.warehouse.domain.RayonProduit;
@@ -15,6 +15,7 @@ import com.kobe.warehouse.domain.RayonProduit_;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.StatutLot;
 import com.kobe.warehouse.service.stock.dto.LotFilterParam;
+import com.kobe.warehouse.service.stock.dto.TypeFilter;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static java.util.Objects.isNull;
@@ -50,11 +52,15 @@ public interface LotRepository
     )
     List<Lot> findByProduitId(Integer produitId);
 
-    /** Lot le plus récemment reçu (createdDate DESC) pour un produit — pour AJUSTEMENT_IN. */
+    /**
+     * Lot le plus récemment reçu (createdDate DESC) pour un produit — pour AJUSTEMENT_IN.
+     */
     @Query("SELECT o FROM Lot o WHERE o.produit.id = :produitId ORDER BY o.createdDate DESC LIMIT 1")
     Optional<Lot> findLastReceivedByProduitId(Integer produitId);
 
-    /** Vérifie l'existence d'un numéro de série FMD pour un produit donné (détection doublon). */
+    /**
+     * Vérifie l'existence d'un numéro de série FMD pour un produit donné (détection doublon).
+     */
     boolean existsBySerialNumberAndProduitId(String serialNumber, Integer produitId);
 
 
@@ -107,6 +113,12 @@ public interface LotRepository
         return (root, _, cb) -> cb.greaterThanOrEqualTo(root.get(Lot_.expiryDate), fromDate);
     }
 
+    default Specification<Lot> expiredLot() {
+
+        return (root, _, cb) -> cb.lessThanOrEqualTo(root.get(Lot_.expiryDate), LocalDate.now());
+    }
+
+
     default Specification<Lot> filterByDateRange(LocalDate fromDate, LocalDate toDate) {
         if (isNull(fromDate) || isNull(toDate)) return null;
         return (root, _, cb) -> cb.between(root.get(Lot_.expiryDate), fromDate, toDate);
@@ -150,9 +162,9 @@ public interface LotRepository
             Subquery<Integer> sq = query.subquery(Integer.class);
             Root<LotStockLocation> lsl = sq.from(LotStockLocation.class);
             sq.select(lsl.<Lot>get("lot").<Integer>get("id"))
-              .where(
-                  cb.equal(lsl.get("storage").get("magasin").get("id"), magasinId)
-              );
+                .where(
+                    cb.equal(lsl.get("storage").get("magasin").get("id"), magasinId)
+                );
             return root.get(Lot_.id).in(sq);
         };
     }
@@ -167,10 +179,10 @@ public interface LotRepository
             Subquery<Integer> sq = query.subquery(Integer.class);
             Root<LotStockLocation> lsl = sq.from(LotStockLocation.class);
             sq.select(lsl.<Lot>get("lot").<Integer>get("id"))
-              .where(
-                  cb.equal(lsl.get("storage").get("id"), storageId),
-                  cb.greaterThan(lsl.<Integer>get("qty"), 0)
-              );
+                .where(
+                    cb.equal(lsl.get("storage").get("id"), storageId),
+                    cb.greaterThan(lsl.<Integer>get("qty"), 0)
+                );
             return root.get(Lot_.id).in(sq);
         };
     }
@@ -183,14 +195,11 @@ public interface LotRepository
         spec = add(spec, filterByRayonId(param.getRayonId()));
         spec = add(spec, filterByNumLot(param.getNumLot()));
         spec = add(spec, filterBySearchTerm(param.getSearchTerm()));
-        if (param.getDayCount() > 0) {
+        if (Objects.nonNull(param.getType()) && TypeFilter.PERIME.equals(param.getType())) {
+            spec = add(spec, expiredLot());
+        }
+        if (Objects.nonNull(param.getDayCount()) && param.getDayCount() > 0 && (TypeFilter.EN_COURS.equals(param.getType()) || TypeFilter.ALL.equals(param.getType()))) {
             spec = add(spec, filterByDayCount(param.getDayCount()));
-        } else {
-            if (nonNull(param.getFromDate()) && nonNull(param.getToDate())) {
-                spec = add(spec, filterByDateRange(param.getFromDate(), param.getToDate()));
-            } else {
-                spec = add(spec, filterByFromDate(param.getFromDate()));
-            }
         }
         spec = add(spec, filterByFamilleProduitId(param.getFamilleProduitId()));
         // Priorité storage > magasin : si un storage précis est sélectionné, on filtre par storage

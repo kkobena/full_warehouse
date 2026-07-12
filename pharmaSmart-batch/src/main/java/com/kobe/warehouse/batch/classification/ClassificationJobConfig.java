@@ -1,6 +1,8 @@
 package com.kobe.warehouse.batch.classification;
 
 import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.enumeration.Status;
+import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import jakarta.persistence.EntityManagerFactory;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.step.Step;
@@ -14,6 +16,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
+
+import java.util.Map;
 
 /**
  * Job autonome de classification criticité ABC-Pareto (Phase 2).
@@ -66,7 +70,9 @@ public class ClassificationJobConfig {
         return new JpaPagingItemReaderBuilder<Produit>()
             .name("classificationProduitReader")
             .entityManagerFactory(emf)
-            .queryString("SELECT p FROM Produit p WHERE p.actif = true ORDER BY p.id")
+            .transacted(false)
+            .parameterValues(Map.of("status", Status.ENABLE, "typeProduit", TypeProduit.PACKAGE))
+            .queryString("SELECT p FROM Produit p WHERE p.status = :status AND p.typeProduit = :typeProduit ORDER BY p.id")
             .pageSize(chunkSize)
             .build();
     }

@@ -1,4 +1,4 @@
-# ============================================================================
+﻿# ============================================================================
 # PharmaSmart — Enregistrement des tâches planifiées de sauvegarde
 # ----------------------------------------------------------------------------
 # Exécuté une seule fois par l'installeur NSIS ou manuellement en Administrateur.
@@ -79,9 +79,16 @@ Write-Host 'PharmaSmart_Backup_Check enregistrée  (AtStartup +2 min).'
 # Laisse 3 min pour que la JVM soit opérationnelle.
 $tBoot = New-StartupTrigger 'PT3M'
 
-$tRepeat = New-ScheduledTaskTrigger -Once -At (Get-Date -Hour 0 -Minute 0 -Second 0)
-$tRepeat.Repetition.Interval          = 'PT2H'
-$tRepeat.Repetition.StopAtDurationEnd = $false
+# NOTE : [TimeSpan]::MaxValue produit une durée ISO 8601 hors limites
+# ("P99999999DT23H59M59S") que le schéma XML du Planificateur de tâches rejette
+# (Register-ScheduledTask échoue avec HRESULT 0x80041318). Pour une répétition
+# indéfinie, on construit le trigger avec une durée valable puis on vide la
+# propriété Repetition.Duration : une chaîne vide signifie "indéfiniment" pour
+# le Planificateur de tâches.
+$tRepeat = New-ScheduledTaskTrigger -Once -At (Get-Date -Hour 0 -Minute 0 -Second 0) `
+    -RepetitionInterval (New-TimeSpan -Hours 2) `
+    -RepetitionDuration (New-TimeSpan -Days 1)
+$tRepeat.Repetition.Duration = ''
 
 Register-ScheduledTask `
     -TaskName 'PharmaSmart_Backup_Dump' `

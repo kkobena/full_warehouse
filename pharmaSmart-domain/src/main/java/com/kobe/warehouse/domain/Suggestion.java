@@ -16,6 +16,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -26,7 +27,7 @@ import java.util.Set;
  * A Suggestion.
  */
 @Entity
-@Table(name = "suggestion", indexes = { @Index(columnList = "type_suggession", name = "type_suggession_index") })
+@Table(name = "suggestion", indexes = {@Index(columnList = "type_suggession", name = "type_suggession_index")})
 public class Suggestion implements Serializable {
 
     @Serial
@@ -47,7 +48,7 @@ public class Suggestion implements Serializable {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "suggestion", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
+    @OneToMany(mappedBy = "suggestion", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private Set<SuggestionLine> suggestionLines = new HashSet<>();
 
     @ManyToOne(optional = false)
@@ -55,6 +56,7 @@ public class Suggestion implements Serializable {
     private Magasin magasin;
 
     @ManyToOne
+    @JoinColumn(name = "lastuseredit_id", referencedColumnName = "id")
     private AppUser lastUserEdit;
 
     @Enumerated(EnumType.STRING)
@@ -66,7 +68,7 @@ public class Suggestion implements Serializable {
     private StatutSuggession statut = StatutSuggession.GENEREE;
 
     @ManyToOne
-    @JoinColumn(name = "valide_par_id",referencedColumnName = "id")
+    @JoinColumn(name = "valide_par_id", referencedColumnName = "id")
     private AppUser validePar;
 
     @Column(name = "date_validation")

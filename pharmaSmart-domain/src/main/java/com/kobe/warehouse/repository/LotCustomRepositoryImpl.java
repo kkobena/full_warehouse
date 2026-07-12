@@ -12,7 +12,6 @@ import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
@@ -36,15 +35,14 @@ public class LotCustomRepositoryImpl implements LotCustomRepository {
         query.select(
             cb.construct(
                 LotPerimeValeurSum.class,
-                cb.sumAsLong(cb.prod(root.get(Lot_.quantity), orderLineJoin.get(FournisseurProduit_.prixAchat))),
-                cb.sumAsLong(cb.prod(root.get(Lot_.quantity), orderLineJoin.get(FournisseurProduit_.prixUni))),
-                cb.sum(root.get(Lot_.quantity)),
-                cb.count(root)
+             cb.coalesce(cb.sumAsLong(cb.prod(root.get(Lot_.quantity), orderLineJoin.get(FournisseurProduit_.prixAchat))), 0L),
+                cb.coalesce(cb.sumAsLong(cb.prod(root.get(Lot_.quantity), orderLineJoin.get(FournisseurProduit_.prixUni))), 0L),
+                cb.coalesce(cb.sum(root.get(Lot_.quantity)), 0),
+                cb.coalesce(cb.count(root), 0L)
             )
         );
 
-        Predicate predicate = specification.toPredicate(root, query, cb);
-        query.where(predicate);
+        query.where( specification.toPredicate(root, query, cb));
 
         TypedQuery<LotPerimeValeurSum> typedQuery = entityManager.createQuery(query);
         return typedQuery.getSingleResult();

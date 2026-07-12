@@ -8,7 +8,7 @@ public class LotFilterParam {
     private Integer produitId;
     private String numLot;
     private String searchTerm;
-    private LocalDate fromDate = LocalDate.now().plusMonths(1);
+    private LocalDate fromDate ;
     private LocalDate toDate;
     private Integer fournisseurId;
     private Integer rayonId;

@@ -35,9 +35,8 @@
   <env name="PHARMA_DB_SCHEMA"   value="PLACEHOLDER_DB_SCHEMA"/>
 
   <!-- Journaux rotatifs dans %BASE%\logs\ -->
-  <logmode>rotate</logmode>
-  <logpath>%BASE%\logs</logpath>
-  <log mode="rotate">
+  <log mode="roll-by-size">
+    <logpath>%BASE%\logs</logpath>
     <sizeThreshold>10240</sizeThreshold>
     <keepFiles>5</keepFiles>
   </log>
@@ -45,6 +44,6 @@
   <!-- Timeout arrêt propre (Spring Boot s'arrête en ~5 s en prod) -->
   <stopTimeout>30 sec</stopTimeout>
 
-  <!-- Dépendances : PostgreSQL doit être démarré avant -->
-  <depend>postgresql-x64-18</depend>
+  <!-- Dépendances : injecté dynamiquement si un service Windows PostgreSQL est détecté -->
+PLACEHOLDER_DEPEND
 </service>

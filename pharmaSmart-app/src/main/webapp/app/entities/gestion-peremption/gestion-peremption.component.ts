@@ -62,6 +62,7 @@ export class GestionPeremptionComponent implements OnInit {
   protected loadCounts(): void {
     this.lotService.getSum({} as LotFilterParam).subscribe({
       next: res => {
+        console.log(res.body);
         this.lotPerimesCount = res.body?.count ?? 0;
       },
       error: () => {

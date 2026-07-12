@@ -1,6 +1,8 @@
 package com.kobe.warehouse.batch.semois;
 
 import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.enumeration.Status;
+import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import jakarta.persistence.EntityManagerFactory;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.step.Step;
@@ -14,6 +16,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
+
+import java.util.Map;
 
 /**
  * Job autonome de recalcul SEMOIS avec chunk-based processing.
@@ -72,11 +76,13 @@ public class SemoisCalculationJobConfig {
         return new JpaPagingItemReaderBuilder<Produit>()
             .name("semoisProduitReader")
             .entityManagerFactory(emf)
+            .transacted(false)
+            .parameterValues(Map.of("status", Status.ENABLE,"typeProduit", TypeProduit.PACKAGE))
             .queryString("""
                 SELECT p FROM Produit p
-                JOIN FETCH p.fournisseurPrincipal fp
-                WHERE p.actif = true
-                  AND p.typeProduit = com.kobe.warehouse.domain.enumeration.TypeProduit.PACKAGE
+                JOIN FETCH p.fournisseurProduitPrincipal fp
+                WHERE p.status = :status
+                  AND p.typeProduit = :typeProduit
                 ORDER BY p.id
                 """)
             .pageSize(chunkSize)

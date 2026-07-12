@@ -8,7 +8,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
@@ -30,15 +29,14 @@ public class ProductsToDestroyCustomRepositoryImpl implements ProductsToDestroyC
         query.select(
             cb.construct(
                 ProductToDestroySumDTO.class,
-                cb.sum(root.get(ProductsToDestroy_.quantity)),
-                cb.sumAsLong(cb.prod(root.get(ProductsToDestroy_.quantity), root.get(ProductsToDestroy_.prixAchat))),
-                cb.sumAsLong(cb.prod(root.get(ProductsToDestroy_.quantity), root.get(ProductsToDestroy_.prixUnit))),
+               cb.coalesce(cb.sum(root.get(ProductsToDestroy_.quantity)), 0),
+                cb.coalesce(cb.sumAsLong(cb.prod(root.get(ProductsToDestroy_.quantity), root.get(ProductsToDestroy_.prixAchat))), 0),
+                cb.coalesce(cb.sumAsLong(cb.prod(root.get(ProductsToDestroy_.quantity), root.get(ProductsToDestroy_.prixUnit))), 0),
                 cb.countDistinct(root.get(ProductsToDestroy_.fournisseurProduit).get(FournisseurProduit_.produit))
             )
         );
 
-        Predicate predicate = specification.toPredicate(root, query, cb);
-        query.where(predicate);
+        query.where(specification.toPredicate(root, query, cb));
 
         TypedQuery<ProductToDestroySumDTO> typedQuery = entityManager.createQuery(query);
         return typedQuery.getSingleResult();

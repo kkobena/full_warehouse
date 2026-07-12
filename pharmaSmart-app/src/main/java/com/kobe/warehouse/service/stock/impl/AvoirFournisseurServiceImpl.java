@@ -86,8 +86,8 @@ public class AvoirFournisseurServiceImpl implements AvoirFournisseurService {
             }
         }
 
-        long montant = avoir.getLignes().stream()
-            .mapToLong(l -> l.getPrixAchat() * l.getQtyMvt())
+        int montant = avoir.getLignes().stream()
+            .mapToInt(l -> l.getPrixAchat() * l.getQtyMvt())
             .sum();
         avoir.setMontant(montant);
 
@@ -164,7 +164,7 @@ public class AvoirFournisseurServiceImpl implements AvoirFournisseurService {
         RetourBonItem retourBonItem = retourBonItemRepository.findById(cmd.retourBonItemId())
             .orElseThrow(() -> new GenericError("RetourBonItem non trouvé: " + cmd.retourBonItemId()));
 
-        long prix = Objects.requireNonNullElse(cmd.prixAchat(), retourBonItem.getPrixAchat()).longValue();
+        int prix = Objects.requireNonNullElse(cmd.prixAchat(), retourBonItem.getPrixAchat());
 
         AvoirFournisseurLine line = new AvoirFournisseurLine();
         line.setAvoirFournisseur(avoir);

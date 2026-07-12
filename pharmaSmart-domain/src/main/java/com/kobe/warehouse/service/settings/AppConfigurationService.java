@@ -154,7 +154,7 @@ public class AppConfigurationService {
             .findById(EntityConstant.APP_EXPIRY_ALERT_DAYS_BEFORE)
             .map(AppConfiguration::getValue)
             .map(Integer::parseInt)
-            .orElse(30);
+            .orElse(90);
     }
 
     @Transactional(readOnly = true)

@@ -5,17 +5,18 @@ spring:
   datasource:
     url: ${PHARMA_DB_URL:jdbc:postgresql://localhost:5432/pharma_smart}
     username: ${PHARMA_DB_USER:pharma_smart}
-    password: ${PHARMA_DB_PASSWORD:}
+    password: ${PHARMA_DB_PASSWORD:2802_pharma_smart}
     hikari:
       maximum-pool-size: 5
+    connection-fetch: lazy
 
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
     properties:
       hibernate:
-        default_schema: ${PHARMA_DB_SCHEMA:warehouse}
+        default_schema: ${PHARMA_DB_SCHEMA:pharma_smart}
         jdbc:
           time_zone: UTC
           batch_size: 50
@@ -36,12 +37,12 @@ pharma-smart:
   batch:
     # Interrupteur maître — false pendant les tests fonctionnels, true en production.
     # Quand false : le service démarre normalement mais ne lance aucun job.
-    active: false
+    active: true
     chunk-size: 100
     semois-enabled: true
     classification-enabled: true
     # Cron d'exécution nocturne (utilisé uniquement quand active=true).
-    # Défaut : 00h30 — adapter si la pharmacie ferme tôt la nuit (ex: "0 0 2 * * *" pour 2h00)
+
     cron-schedule: "0 30 0 * * *"
 
 management:
@@ -50,9 +51,7 @@ management:
       base-path: /actuator
       exposure:
         include: health, info, batch
-  endpoint:
-    batch:
-      enabled: true
+
 
 logging:
   level:

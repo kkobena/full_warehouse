@@ -27,7 +27,7 @@
 
   <properties>
 
-    <revision>0.2.3</revision>
+    <revision>0.0.1</revision>
 
     <!-- Java & Maven -->
     <java.version>25</java.version>

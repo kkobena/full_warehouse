@@ -51,7 +51,7 @@ spring:
     url: ${PHARMA_DB_URL:jdbc:postgresql://localhost:5432/pharma_smart}
     username: ${PHARMA_DB_USER:pharma_smart}
     password: ${PHARMA_DB_PASSWORD:2802_pharma_smart}
-    
+
     hikari:
       poolName: Hikari
       auto-commit: false
@@ -62,6 +62,8 @@ spring:
       connection-timeout: 30000 # 30 sec
       validation-timeout: 5000 # 5 sec
       leak-detection-threshold: 20000
+    connection-fetch: lazy
+
 
   thymeleaf:
     cache: true

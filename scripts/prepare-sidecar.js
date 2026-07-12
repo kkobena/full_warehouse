@@ -15,6 +15,7 @@ const { execSync } = require('child_process');
 // Paths
 const projectRoot = path.resolve(__dirname, '..');
 const targetDir = path.join(projectRoot, 'pharmaSmart-app', 'target');
+const batchTargetDir = path.join(projectRoot, 'pharmaSmart-batch', 'target');
 const sidecarDir = path.join(projectRoot, 'src-tauri', 'sidecar');
 const wrapperScript = path.join(sidecarDir, 'pharmasmart-backend.bat');
 
@@ -44,8 +45,26 @@ function findJars() {
     .filter(f => f.startsWith('pharmaSmart-') && f.endsWith('.jar') && !f.includes('javadoc') && !f.includes('sources'));
 }
 
-// Find the Spring Boot JAR in target directory
+// pharmaSmart-batch (nightly pipeline) — bundled and installed as a second Windows
+// service alongside pharmaSmart-app. Its jar starts with "pharmaSmart-" too, so it
+// is picked up by the same sidecar/pharmaSmart-*.jar resource glob in tauri.bundled*.conf.json.
+function findBatchJars() {
+  if (!fs.existsSync(batchTargetDir)) return [];
+  return fs
+    .readdirSync(batchTargetDir)
+    .filter(
+      f =>
+        f.startsWith('pharmaSmart-batch-') &&
+        f.endsWith('.jar') &&
+        !f.includes('javadoc') &&
+        !f.includes('sources') &&
+        !f.startsWith('original-')
+    );
+}
+
+// Find the Spring Boot JARs in the target directories
 let jarFiles = findJars();
+let batchJarFiles = findBatchJars();
 
 // Angular pre-built flag: webapp:build:tauri (or webapp:prod) outputs index.html here.
 // When it exists BEFORE prepare-sidecar runs, the existing JAR was assembled before
@@ -53,16 +72,21 @@ let jarFiles = findJars();
 const angularIndexHtml = path.join(targetDir, 'classes', 'static', 'index.html');
 const angularPreBuilt = fs.existsSync(angularIndexHtml);
 
-if (jarFiles.length === 0) {
-  console.log('⚠️  No JAR file found in target/');
+if (jarFiles.length === 0 || batchJarFiles.length === 0) {
+  console.log('⚠️  No JAR file found in target/ (app and/or batch)');
   console.log('🔨 Building Spring Boot application with Angular (-Pprod)...');
   try {
     execSync(`"${mvnCmd}" clean package -Pprod -DskipTests`, {
       cwd: projectRoot, stdio: 'inherit', shell: true,
     });
     jarFiles = findJars();
+    batchJarFiles = findBatchJars();
     if (jarFiles.length === 0) {
       console.error('❌ Failed to build JAR file');
+      process.exit(1);
+    }
+    if (batchJarFiles.length === 0) {
+      console.error('❌ Failed to build pharmaSmart-batch JAR file');
       process.exit(1);
     }
   } catch (error) {
@@ -104,6 +128,23 @@ oldJars.forEach(oldJar => {
 fs.copyFileSync(sourcePath, destPath);
 console.log(`✅ Copied ${jarFile} to sidecar directory`);
 
+// Copy the pharmaSmart-batch JAR file to the sidecar directory
+const batchJarFile = batchJarFiles[0];
+const batchSourcePath = path.join(batchTargetDir, batchJarFile);
+const batchDestPath = path.join(sidecarDir, batchJarFile);
+
+console.log(`📋 Copying ${batchJarFile} to sidecar directory...`);
+
+const oldBatchJars = fs
+  .readdirSync(sidecarDir)
+  .filter(file => file.startsWith('pharmaSmart-batch-') && file.endsWith('.jar'));
+oldBatchJars.forEach(oldJar => {
+  fs.unlinkSync(path.join(sidecarDir, oldJar));
+});
+
+fs.copyFileSync(batchSourcePath, batchDestPath);
+console.log(`✅ Copied ${batchJarFile} to sidecar directory`);
+
 // Make wrapper script executable on Unix-like systems
 if (process.platform !== 'win32') {
   const shScript = path.join(sidecarDir, 'pharmasmart-backend.sh');
@@ -115,3 +156,9 @@ if (process.platform !== 'win32') {
     }
   }
 }
+
+// Copy WinSW.exe to src-tauri/service/ so Tauri can bundle it as a resource
+require('./copy-winsw');
+
+// Copy pharmasmart-backup.exe to src-tauri/backup/ so Tauri can bundle it as a resource
+require('./copy-backup-exe');

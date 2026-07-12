@@ -1,4 +1,4 @@
-# PharmaSmart — Stop backend Java process before uninstall
+﻿# PharmaSmart — Stop backend Java process before uninstall
 # Step 1: graceful HTTP shutdown (Spring Boot Actuator)
 # Step 2: kill java.exe processes that own the PharmaSmart JAR
 # Step 3: fallback — kill by TCP port using Get-NetTCPConnection

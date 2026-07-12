@@ -7,6 +7,7 @@ firebase:
   service-account-file: classpath:firebase/pharma-smart-firebase-adminsdk.json
   enabled: false
 spring:
+
   application:
     name: pharma-smart
   profiles:
@@ -24,9 +25,12 @@ spring:
     type: jcache
     jcache:
       provider: com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
+  data:
+    jpa:
+      repositories:
+        bootstrap-mode: lazy
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-
     open-in-view: false
     show-sql: false
     properties:
@@ -38,6 +42,7 @@ spring:
         cache:
           region.factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
         use_sql_comments: true
+
       hibernate.jdbc.time_zone: UTC
       hibernate.timezone.default_storage: NORMALIZE
       hibernate.id.new_generator_mappings: true
@@ -139,7 +144,7 @@ pharma-smart:
   # true  : pharmaSmart-batch gère SEMOIS/Classification/Snapshot/Vues/Avoirs
   #         et HeavyJobsOrchestrationService prend en charge Facturation/FNE/Tournant.
   batch:
-    enabled: false
+    enabled: true
 
   jobs:
     # Pipeline nocturne SEMOIS (séquentiel) :
@@ -191,3 +196,4 @@ port-com:
 legacy-url: http://localhost:9090/laborex
 mail:
   email: badoukobena@gmail.com
+fne-url: http://54.247.95.108/ws/external/invoices/sign

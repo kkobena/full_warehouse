@@ -26,6 +26,7 @@ import com.kobe.warehouse.service.stock.dto.LotFilterParam;
 import com.kobe.warehouse.service.stock.dto.LotLocationDTO;
 import com.kobe.warehouse.service.stock.dto.LotPerimeDTO;
 import com.kobe.warehouse.service.stock.dto.LotPerimeValeurSum;
+import com.kobe.warehouse.service.stock.dto.TypeFilter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -41,7 +42,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 import static com.kobe.warehouse.service.utils.ServiceUtil.buildPeremptionStatut;
 import static java.util.Objects.isNull;
@@ -303,9 +303,7 @@ public class LotServiceImpl implements LotService {
     @Override
     @Transactional(readOnly = true)
     public Page<LotPerimeDTO> findLotsPerimes(LotFilterParam lotFilterParam, Pageable pageable) {
-        if (isNull(lotFilterParam.getDayCount()) && (isNull(lotFilterParam.getToDate()) && isNull(lotFilterParam.getFromDate()))) {
-            lotFilterParam.setDayCount(this.appConfigurationService.getNombreJourAlertPeremption());
-        }
+        updateLotFilterParam(lotFilterParam);
         return buildLotPerimePage(lotFilterParam, buildPageable(pageable));
 
 
@@ -324,10 +322,22 @@ public class LotServiceImpl implements LotService {
     @Override
     @Transactional(readOnly = true)
     public LotPerimeValeurSum findPerimeSum(LotFilterParam lotFilterParam) {
+        updateLotFilterParam(lotFilterParam);
         return this.lotRepository.fetchPerimeSum(this.lotRepository.buildCombinedSpecification(lotFilterParam));
 
     }
 
+    private void updateLotFilterParam(LotFilterParam lotFilterParam) {
+        if (isNull(lotFilterParam.getMagasinId()) && isNull(lotFilterParam.getStorageId())) {
+            lotFilterParam.setMagasinId(this.storageService.getDefaultConnectedUserMainStorage().getMagasin().getId());
+        }
+        if (isNull(lotFilterParam.getDayCount()) && (isNull(lotFilterParam.getToDate()) && isNull(lotFilterParam.getFromDate()))) {
+            lotFilterParam.setDayCount(this.appConfigurationService.getNombreJourAlertPeremption());
+        }
+        if (isNull(lotFilterParam.getType())) {
+            lotFilterParam.setType(TypeFilter.ALL);
+        }
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -416,21 +426,7 @@ public class LotServiceImpl implements LotService {
         });
     }
 
-    private Page<LotPerimeDTO> buildProduitPerimePage(LotFilterParam lotFilterParam, Pageable pageable) {
-        return this.produitRepository.findAll(this.produitRepository.buildCombinedSpecification(lotFilterParam), pageable).map(produit -> {
-            FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
-            Set<StockProduit> stockProduits = produit.getStockProduits();
-            LotPerimeDTO lotPerime = new LotPerimeDTO();
-            lotPerime.setProduitId(produit.getId());
-            lotPerime.setId(produit.getId());
-            lotPerime.setQuantity(stockProduits.stream().mapToInt(StockProduit::getQtyStock).sum());
-            //  lotPerime.setDatePeremption(produit.getPerimeAt().format(dateFormatter));
-            //  lotPerime.setPeremptionStatut(buildPeremptionStatut(produit.getPerimeAt()));
-            buildCommon(lotPerime, produit, fournisseurProduit);
 
-            return lotPerime;
-        });
-    }
 
     private void buildCommon(LotPerimeDTO lotPerime, Produit produit, FournisseurProduit fournisseurProduit) {
         FamilleProduit familleProduit = produit.getFamille();
@@ -454,7 +450,7 @@ public class LotServiceImpl implements LotService {
     public void pickProduct(Product product, int qtyToPick, String reference) {
         List<Lot> lots = lotRepo.findByProductOrderByExpiryDateAsc(product);
         int remaining = qtyToPick;
-        for (Lot lot : lots) {
+        for (Lot lot : lots) {'
             if (remaining <= 0) break;
             int take = Math.min(remaining, lot.getQuantity());
             if (take <= 0) continue;

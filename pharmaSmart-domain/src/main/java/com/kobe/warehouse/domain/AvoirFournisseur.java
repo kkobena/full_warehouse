@@ -40,7 +40,7 @@ public class AvoirFournisseur implements Serializable {
 
     @NotNull
     @Column(name = "montant", nullable = false)
-    private long montant;
+    private int montant;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -76,8 +76,8 @@ public class AvoirFournisseur implements Serializable {
     public LocalDateTime getDateMtv() { return dateMtv; }
     public AvoirFournisseur setDateMtv(LocalDateTime dateMtv) { this.dateMtv = dateMtv; return this; }
 
-    public long getMontant() { return montant; }
-    public AvoirFournisseur setMontant(long montant) { this.montant = montant; return this; }
+    public int getMontant() { return montant; }
+    public AvoirFournisseur setMontant(int montant) { this.montant = montant; return this; }
 
     public AvoirFournisseurStatut getStatut() { return statut; }
     public AvoirFournisseur setStatut(AvoirFournisseurStatut statut) { this.statut = statut; return this; }

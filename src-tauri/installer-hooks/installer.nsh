@@ -34,6 +34,7 @@ Var BackendPort
 ; Service installation — resolved at install time.
 Var ServiceJavaExe   ; Path to java.exe (bundled JRE or system)
 Var ServiceJarPath   ; Full path to the backend JAR
+Var ServiceBatchJarPath ; Full path to the pharmaSmart-batch JAR (nightly pipeline)
 Var ServiceScriptDir ; Directory with PowerShell service scripts
 
 ; Database credentials — collected from the wizard page, embedded in config.json.
@@ -452,6 +453,19 @@ Function FindSidecarJar
   ${EndIf}
 FunctionEnd
 
+; ── Locate the pharmaSmart-batch sidecar JAR (nightly pipeline) ─────────────
+Function FindSidecarBatchJar
+  StrCpy $ServiceBatchJarPath ""
+  FindFirst $0 $1 "$INSTDIR\sidecar\pharmaSmart-batch-*.jar"
+  FindClose $0
+  ${If} $1 != ""
+    StrCpy $ServiceBatchJarPath "$INSTDIR\sidecar\$1"
+    DetailPrint "JAR batch : $ServiceBatchJarPath"
+  ${Else}
+    DetailPrint "JAR sidecar batch introuvable — service pharmasmart-batch non disponible."
+  ${EndIf}
+FunctionEnd
+
 ; ── Install the backend as a Windows service via WinSW ──────────────────────
 Function InstallBackendService
   Call FindServiceJava
@@ -463,17 +477,47 @@ Function InstallBackendService
   ${EndIf}
 
   StrCpy $ServiceScriptDir "$INSTDIR\service"
-  ExecWait 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$ServiceScriptDir\setup-backend-service.ps1" -JavaExe "$ServiceJavaExe" -JarPath "$ServiceJarPath" -DataDir "$PS_DataDir" -Port $BackendPort' $0
+  CreateDirectory "$PS_DataDir\logs"
+  ExecWait 'cmd.exe /c powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$ServiceScriptDir\setup-backend-service.ps1" -NsisJavaExe "$ServiceJavaExe" -NsisJarPath "$ServiceJarPath" -DataDir "$PS_DataDir" -NsisPort $BackendPort > "$PS_DataDir\logs\setup-backend-service.log" 2>&1' $0
 
   ${If} $0 == 0
     DetailPrint "Service pharmasmart-app installe avec succes."
     ExecWait 'sc start pharmasmart-app'
   ${Else}
-    DetailPrint "Installation du service echouee (code $0)."
+    DetailPrint "Installation du service echouee (code $0). Detail : $PS_DataDir\logs\setup-backend-service.log"
     MessageBox MB_OK|MB_ICONEXCLAMATION \
       "L'installation du service Windows a echoue (code $0).$\r$\n$\r$\n\
+Detail de l'erreur : $PS_DataDir\logs\setup-backend-service.log$\r$\n$\r$\n\
 Vous pouvez relancer manuellement :$\r$\n\
 $ServiceScriptDir\setup-backend-service.ps1"
+  ${EndIf}
+FunctionEnd
+
+; ── Install the pharmaSmart-batch pipeline as a second Windows service ──────
+; Réutilise le même java.exe (bundled JRE) et la même config.json (identifiants
+; DB) que le service pharmasmart-app — pas de nouveau prompt utilisateur.
+Function InstallBatchService
+  Call FindServiceJava
+  Call FindSidecarBatchJar
+  ${If} $ServiceBatchJarPath == ""
+    DetailPrint "JAR batch introuvable — service pharmasmart-batch non installe."
+    Return
+  ${EndIf}
+
+  StrCpy $ServiceScriptDir "$INSTDIR\service"
+  CreateDirectory "$PS_DataDir\logs"
+  ExecWait 'cmd.exe /c powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$ServiceScriptDir\setup-batch-service.ps1" -NsisJavaExe "$ServiceJavaExe" -NsisJarPath "$ServiceBatchJarPath" -DataDir "$PS_DataDir" > "$PS_DataDir\logs\setup-batch-service.log" 2>&1' $0
+
+  ${If} $0 == 0
+    DetailPrint "Service pharmasmart-batch installe avec succes."
+    ExecWait 'sc start pharmasmart-batch'
+  ${Else}
+    DetailPrint "Installation du service batch echouee (code $0). Detail : $PS_DataDir\logs\setup-batch-service.log"
+    MessageBox MB_OK|MB_ICONEXCLAMATION \
+      "L'installation du service Windows pharmasmart-batch a echoue (code $0).$\r$\n$\r$\n\
+Detail de l'erreur : $PS_DataDir\logs\setup-batch-service.log$\r$\n$\r$\n\
+Vous pouvez relancer manuellement :$\r$\n\
+$ServiceScriptDir\setup-batch-service.ps1"
   ${EndIf}
 FunctionEnd
 
@@ -487,6 +531,18 @@ Function RemoveBackendService
     ExecWait 'sc stop pharmasmart-app'
     ExecWait 'sc delete pharmasmart-app'
     DetailPrint "Service pharmasmart-app supprime via sc.exe."
+  ${EndIf}
+FunctionEnd
+
+Function RemoveBatchService
+  StrCpy $ServiceScriptDir "$INSTDIR\service"
+  ${If} ${FileExists} "$ServiceScriptDir\remove-batch-service.ps1"
+    ExecWait 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$ServiceScriptDir\remove-batch-service.ps1"' $0
+    DetailPrint "Service pharmasmart-batch supprime (code $0)."
+  ${Else}
+    ExecWait 'sc stop pharmasmart-batch'
+    ExecWait 'sc delete pharmasmart-batch'
+    DetailPrint "Service pharmasmart-batch supprime via sc.exe."
   ${EndIf}
 FunctionEnd
 
@@ -569,9 +625,9 @@ FunctionEnd
   ; Register scheduled backup tasks.
   ${If} ${FileExists} "$INSTDIR\backup\setup-backup-tasks.ps1"
     DetailPrint "Enregistrement des tâches planifiées de sauvegarde…"
-    ExecWait 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$INSTDIR\backup\setup-backup-tasks.ps1" -ExePath "$INSTDIR\backup\pharmasmart-backup.exe"' $0
+    ExecWait 'cmd.exe /c powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$INSTDIR\backup\setup-backup-tasks.ps1" -ExePath "$INSTDIR\backup\pharmasmart-backup.exe" > "$BackupDir\logs\setup-backup-tasks.log" 2>&1' $0
     ${If} $0 != 0
-      DetailPrint "Avertissement : enregistrement des tâches planifiées échoué (code $0)."
+      DetailPrint "Avertissement : enregistrement des tâches planifiées échoué (code $0). Detail : $BackupDir\logs\setup-backup-tasks.log"
     ${Else}
       DetailPrint "Tâches planifiées PharmaSmart_Backup_* enregistrées."
     ${EndIf}
@@ -579,17 +635,18 @@ FunctionEnd
     DetailPrint "setup-backup-tasks.ps1 introuvable — tâches planifiées non enregistrées."
   ${EndIf}
 
-  ; Optional: install backend as Windows service.
+  ; Optional: install backend (+ nightly batch pipeline) as Windows services.
   ${If} ${FileExists} "$INSTDIR\service\setup-backend-service.ps1"
     MessageBox MB_YESNO|MB_ICONQUESTION \
-      "Installer le backend comme service Windows ?$\r$\n$\r$\n\
-Avantage : le serveur demarre automatiquement au boot,$\r$\n\
-sans avoir besoin d'ouvrir l'application PharmaSmart.$\r$\n$\r$\n\
+      "Installer le backend et le pipeline nocturne comme services Windows ?$\r$\n$\r$\n\
+Avantage : le serveur et le pipeline (SEMOIS, Classification ABC, Stock, Avoirs)$\r$\n\
+demarrent automatiquement au boot, sans avoir besoin d'ouvrir l'application PharmaSmart.$\r$\n$\r$\n\
 Recommande pour les postes demarrant sans session utilisateur ouverte.$\r$\n$\r$\n\
-Note : necessite WinSW dans $INSTDIR\resources\service\WinSW.exe." \
+Note : necessite WinSW dans $INSTDIR\service\WinSW.exe." \
       IDYES do_install_service IDNO skip_install_service
     do_install_service:
       Call InstallBackendService
+      Call InstallBatchService
     skip_install_service:
   ${EndIf}
 
@@ -633,6 +690,18 @@ Function un.RemoveBackendService
   ${EndIf}
 FunctionEnd
 
+Function un.RemoveBatchService
+  StrCpy $ServiceScriptDir "$INSTDIR\service"
+  ${If} ${FileExists} "$ServiceScriptDir\remove-batch-service.ps1"
+    ExecWait 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$ServiceScriptDir\remove-batch-service.ps1"' $0
+    DetailPrint "Service pharmasmart-batch supprime (code $0)."
+  ${Else}
+    ExecWait 'sc stop pharmasmart-batch'
+    ExecWait 'sc delete pharmasmart-batch'
+    DetailPrint "Service pharmasmart-batch supprime via sc.exe."
+  ${EndIf}
+FunctionEnd
+
 ; ── Pre-uninstall hook (Tauri v2) ────────────────────────────────────────────
 ; Renommé depuis l'ancien `customUninstall` (v1, ignoré en v2). PREUNINSTALL est
 ; exécuté AVANT que Tauri ne supprime les fichiers installés : le backend Java est
@@ -662,8 +731,9 @@ FunctionEnd
   RMDir /r "$INSTDIR\sidecar"
   DetailPrint "Répertoire sidecar supprimé."
 
-  ; Stop and remove the Windows service.
+  ; Stop and remove the Windows services.
   Call un.RemoveBackendService
+  Call un.RemoveBatchService
 
   ; Remove scheduled backup tasks.
   ${If} ${FileExists} "$INSTDIR\backup\remove-backup-tasks.ps1"

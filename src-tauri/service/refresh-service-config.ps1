@@ -1,4 +1,4 @@
-#Requires -RunAsAdministrator
+﻿#Requires -RunAsAdministrator
 <#
 .SYNOPSIS
     Relit config.json et met à jour la configuration du service pharmasmart-app
@@ -24,6 +24,14 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+
+# Cf. setup-backend-service.ps1 : SID bien connus plutôt que noms pour éviter
+# IdentityNotMappedException ("Impossible de traduire certaines ou toutes les
+# références d'identité") sur AddAccessRule.
+$RestrictedSids = @(
+    (New-Object System.Security.Principal.SecurityIdentifier([System.Security.Principal.WellKnownSidType]::BuiltinAdministratorsSid, $null)),
+    (New-Object System.Security.Principal.SecurityIdentifier([System.Security.Principal.WellKnownSidType]::LocalSystemSid, $null))
+)
 
 $ServiceName = "pharmasmart-app"
 $ServiceDir  = Join-Path $DataDir "service"
@@ -104,6 +112,12 @@ if ($DbPassword) {
     Write-Host "Mot de passe DB : non défini dans config.json — variable système PHARMA_DB_PASSWORD utilisée"
 }
 
+# ── Dépendance PostgreSQL (nom de service variable selon version, absent en Docker) ──
+$pgService = Get-Service -Name "postgresql*" -ErrorAction SilentlyContinue | Select-Object -First 1
+$dependLine = if ($pgService) { "  <depend>$($pgService.Name)</depend>" } else { "" }
+if ($pgService) { Write-Host "Service PostgreSQL détecté : $($pgService.Name) (dépendance ajoutée)" }
+else { Write-Warning "Aucun service Windows PostgreSQL détecté — pas de dépendance ajoutée au service." }
+
 # ── Réécrire le XML ───────────────────────────────────────────────────────────
 $logsDir = Join-Path $DataDir "logs"
 
@@ -124,16 +138,15 @@ Set-Content -Path $XmlPath -Encoding UTF8 -Value @"
   <onfailure action="none"/>
 
 $envDbEntries
-  <logmode>rotate</logmode>
-  <logpath>$logsDir</logpath>
-  <log mode="rotate">
+  <log mode="roll-by-size">
+    <logpath>$logsDir</logpath>
     <sizeThreshold>10240</sizeThreshold>
     <keepFiles>5</keepFiles>
   </log>
 
   <stopTimeout>30 sec</stopTimeout>
 
-  <depend>postgresql-x64-18</depend>
+$dependLine
 </service>
 "@
 
@@ -142,11 +155,12 @@ $DbPassword = $null
 [System.GC]::Collect()
 
 # ACL restrictives sur le XML
+# NOTE : $XmlPath est un FICHIER, pas un dossier — voir setup-backend-service.ps1.
 $acl = Get-Acl $XmlPath
 $acl.SetAccessRuleProtection($true, $false)
-foreach ($principal in @("BUILTIN\Administrators", "NT AUTHORITY\SYSTEM")) {
+foreach ($sid in $RestrictedSids) {
     $rule = New-Object System.Security.AccessControl.FileSystemAccessRule(
-        $principal, "FullControl", "ContainerInherit,ObjectInherit", "None", "Allow")
+        $sid, "FullControl", "None", "None", "Allow")
     $acl.AddAccessRule($rule)
 }
 Set-Acl $XmlPath $acl

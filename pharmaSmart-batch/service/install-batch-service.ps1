@@ -1,4 +1,4 @@
-#Requires -RunAsAdministrator
+﻿#Requires -RunAsAdministrator
 <#
 .SYNOPSIS
     Installe pharmaSmart-batch comme service Windows (WinSW).
@@ -34,6 +34,14 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+
+# SID bien connus plutôt que noms pour éviter IdentityNotMappedException
+# ("Impossible de traduire certaines ou toutes les références d'identité")
+# sur AddAccessRule — cf. src-tauri/service/setup-backend-service.ps1.
+$RestrictedSids = @(
+    (New-Object System.Security.Principal.SecurityIdentifier([System.Security.Principal.WellKnownSidType]::BuiltinAdministratorsSid, $null)),
+    (New-Object System.Security.Principal.SecurityIdentifier([System.Security.Principal.WellKnownSidType]::LocalSystemSid, $null))
+)
 
 $ServiceName = "pharmasmart-batch"
 $ScriptDir   = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -99,9 +107,9 @@ New-Item -ItemType Directory -Force -Path "$InstallDir\logs" | Out-Null
 # Restreindre à Administrators + SYSTEM (le XML contiendra le mot de passe)
 $acl = Get-Acl $InstallDir
 $acl.SetAccessRuleProtection($true, $false)
-foreach ($principal in @("BUILTIN\Administrators", "NT AUTHORITY\SYSTEM")) {
+foreach ($sid in $RestrictedSids) {
     $rule = New-Object System.Security.AccessControl.FileSystemAccessRule(
-        $principal, "FullControl",
+        $sid, "FullControl",
         "ContainerInherit,ObjectInherit", "None", "Allow")
     $acl.AddAccessRule($rule)
 }
@@ -168,6 +176,13 @@ if (Get-Service -Name $ServiceName -ErrorAction SilentlyContinue) {
 # (Administrators + SYSTEM). L'alternative (variable d'env système) est moins
 # sécurisée car visible de tous les processus de la machine.
 $xmlPath = Join-Path $InstallDir "pharmasmart-batch.xml"
+
+# ── Dépendance PostgreSQL (nom de service variable selon version, absent en Docker) ──
+$pgService = Get-Service -Name "postgresql*" -ErrorAction SilentlyContinue | Select-Object -First 1
+$dependLine = if ($pgService) { "  <depend>$($pgService.Name)</depend>" } else { "" }
+if ($pgService) { Write-Host "Service PostgreSQL détecté : $($pgService.Name) (dépendance ajoutée)" }
+else { Write-Warning "Aucun service Windows PostgreSQL détecté — pas de dépendance ajoutée au service." }
+
 Set-Content -Path $xmlPath -Encoding UTF8 -Value @"
 <service>
   <id>$ServiceName</id>
@@ -189,16 +204,15 @@ Set-Content -Path $xmlPath -Encoding UTF8 -Value @"
   <env name="PHARMA_DB_PASSWORD" value="$DbPassword"/>
   <env name="PHARMA_DB_SCHEMA"   value="$DbSchema"/>
 
-  <logmode>rotate</logmode>
-  <logpath>$InstallDir\logs</logpath>
-  <log mode="rotate">
+  <log mode="roll-by-size">
+    <logpath>$InstallDir\logs</logpath>
     <sizeThreshold>10240</sizeThreshold>
     <keepFiles>5</keepFiles>
   </log>
 
   <stopTimeout>60 sec</stopTimeout>
 
-  <depend>postgresql-x64-18</depend>
+$dependLine
 </service>
 "@
 
@@ -209,9 +223,9 @@ $DbPassword = $null
 # Appliquer les mêmes ACL restrictives sur le XML lui-même
 $acl2 = Get-Acl $xmlPath
 $acl2.SetAccessRuleProtection($true, $false)
-foreach ($principal in @("BUILTIN\Administrators", "NT AUTHORITY\SYSTEM")) {
+foreach ($sid in $RestrictedSids) {
     $rule = New-Object System.Security.AccessControl.FileSystemAccessRule(
-        $principal, "FullControl", "None", "None", "Allow")
+        $sid, "FullControl", "None", "None", "Allow")
     $acl2.AddAccessRule($rule)
 }
 Set-Acl $xmlPath $acl2

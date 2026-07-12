@@ -1,4 +1,4 @@
-#Requires -RunAsAdministrator
+﻿#Requires -RunAsAdministrator
 <#
 .SYNOPSIS
     Point d'entrée unique — installe, désinstalle, surveille et maintient
@@ -123,14 +123,20 @@ function Get-WinSW {
 }
 
 # ── Appliquer ACL restrictive (Administrators + SYSTEM uniquement) ─────────────
+# SID bien connus plutôt que noms pour éviter IdentityNotMappedException
+# ("Impossible de traduire certaines ou toutes les références d'identité").
+$RestrictedSids = @(
+    (New-Object System.Security.Principal.SecurityIdentifier([System.Security.Principal.WellKnownSidType]::BuiltinAdministratorsSid, $null)),
+    (New-Object System.Security.Principal.SecurityIdentifier([System.Security.Principal.WellKnownSidType]::LocalSystemSid, $null))
+)
 function Set-RestrictedAcl {
     param([string]$Path, [bool]$Container = $true)
     $inherit = if ($Container) { "ContainerInherit,ObjectInherit" } else { "None" }
     $acl = Get-Acl $Path
     $acl.SetAccessRuleProtection($true, $false)
-    foreach ($p in @("BUILTIN\Administrators","NT AUTHORITY\SYSTEM")) {
+    foreach ($sid in $RestrictedSids) {
         $acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule(
-            $p, "FullControl", $inherit, "None", "Allow")))
+            $sid, "FullControl", $inherit, "None", "Allow")))
     }
     Set-Acl $Path $acl
 }
@@ -138,10 +144,14 @@ function Set-RestrictedAcl {
 # ── Prompt mot de passe sécurisé ──────────────────────────────────────────────
 function Get-DbPassword {
     param([string]$User)
-    $sec  = Read-Host "Mot de passe PostgreSQL (utilisateur '$User')" -AsSecureString
-    $bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($sec)
-    try   { return [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr) }
-    finally { [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr) }
+    return (Read-Host "Mot de passe PostgreSQL (utilisateur '$User')" -AsSecureString)
+}
+
+# ── Détecter un service Windows PostgreSQL (nom variable selon version) ───────
+function Resolve-PostgresServiceName {
+    $svc = Get-Service -Name "postgresql*" -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($svc) { return $svc.Name }
+    return $null
 }
 
 # ── Installer un service (app ou batch) ───────────────────────────────────────
@@ -149,7 +159,7 @@ function Install-Svc {
     param(
         [string]$Name, [string]$Dir, [string]$JarPath, [string]$JavaExe,
         [string]$XmlTemplate, [string]$HeapMin, [string]$HeapMax,
-        [string]$DbUrl, [string]$DbUser, [string]$DbPassword, [string]$DbSchema,
+        [string]$DbUrl, [string]$DbUser, [SecureString]$DbPassword, [string]$DbSchema,
         [string]$Port = ""
     )
     Write-Host "`n=== $Name ===" -ForegroundColor Cyan
@@ -161,15 +171,23 @@ function Install-Svc {
     Copy-Item $JarPath $jarDest -Force
     Write-Host "  JAR : $jarDest"
 
+    $bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($DbPassword)
+    $plainDbPwd = try { [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr) } finally { [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr) }
     $xml = (Get-Content $XmlTemplate -Raw) `
         -replace 'PLACEHOLDER_JAVA',        $JavaExe `
         -replace 'PLACEHOLDER_HEAP_MIN',    $HeapMin `
         -replace 'PLACEHOLDER_HEAP_MAX',    $HeapMax `
         -replace 'PLACEHOLDER_DB_URL',      $DbUrl `
         -replace 'PLACEHOLDER_DB_USER',     $DbUser `
-        -replace 'PLACEHOLDER_DB_PASSWORD', $DbPassword `
+        -replace 'PLACEHOLDER_DB_PASSWORD', $plainDbPwd `
         -replace 'PLACEHOLDER_DB_SCHEMA',   $DbSchema
+    $plainDbPwd = $null
     if ($Port) { $xml = $xml -replace 'PLACEHOLDER_PORT', $Port }
+    $pgServiceName = Resolve-PostgresServiceName
+    $dependLine = if ($pgServiceName) { "  <depend>$pgServiceName</depend>" } else { "" }
+    if ($pgServiceName) { Write-Host "  Service PostgreSQL détecté : $pgServiceName (dépendance ajoutée)" }
+    else { Write-Host "  Aucun service Windows PostgreSQL détecté — pas de dépendance ajoutée." -ForegroundColor Yellow }
+    $xml = $xml -replace 'PLACEHOLDER_DEPEND', $dependLine
     $xmlPath = Join-Path $Dir "$Name.xml"
     Set-Content $xmlPath $xml -Encoding UTF8
     Set-RestrictedAcl $xmlPath $false
@@ -374,15 +392,24 @@ if ($Action -eq "refresh-config") {
             # Utilise java_home depuis config si disponible, sinon conserve celui du XML
             $effectiveJava = if ($JavaExe -ne "java") { $JavaExe } else { $JavaExeInXml }
 
-            $DbPassword = try { $cfg.database.password } catch { "" }
+            $DbPassword = try { ConvertTo-SecureString $cfg.database.password -AsPlainText -Force } catch { $null }
             if (-not $DbPassword) { $DbPassword = Get-DbPassword $DbUser }
 
             $envDbEntries = "  <env name=`"PHARMA_DB_URL`"    value=`"$DbUrl`"/>`n" +
                             "  <env name=`"PHARMA_DB_USER`"   value=`"$DbUser`"/>`n" +
                             "  <env name=`"PHARMA_DB_SCHEMA`" value=`"$DbSchema`"/>`n"
-            if ($DbPassword) { $envDbEntries += "  <env name=`"PHARMA_DB_PASSWORD`" value=`"$DbPassword`"/>`n" }
+            if ($DbPassword) {
+                $bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($DbPassword)
+                $plainPwd = try { [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr) } finally { [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr) }
+                $envDbEntries += "  <env name=`"PHARMA_DB_PASSWORD`" value=`"$plainPwd`"/>`n"
+                $plainPwd = $null
+            }
 
             $logsDir = Join-Path (Split-Path -Parent $AppDir) "logs"
+            $pgServiceName = Resolve-PostgresServiceName
+            $dependLine = if ($pgServiceName) { "  <depend>$pgServiceName</depend>" } else { "" }
+            if ($pgServiceName) { Write-Host "  Service PostgreSQL détecté : $pgServiceName (dépendance ajoutée)" }
+            else { Write-Host "  Aucun service Windows PostgreSQL détecté — pas de dépendance ajoutée." -ForegroundColor Yellow }
             Set-Content -Path $xmlPath -Encoding UTF8 -Value @"
 <service>
   <id>$APP_SVC_NAME</id>
@@ -396,11 +423,13 @@ if ($Action -eq "refresh-config") {
   <onfailure action="restart" delay="20 sec"/>
   <onfailure action="none"/>
 $envDbEntries
-  <logmode>rotate</logmode>
-  <logpath>$logsDir</logpath>
-  <log mode="rotate"><sizeThreshold>10240</sizeThreshold><keepFiles>5</keepFiles></log>
+  <log mode="roll-by-size">
+    <logpath>$logsDir</logpath>
+    <sizeThreshold>10240</sizeThreshold>
+    <keepFiles>5</keepFiles>
+  </log>
   <stopTimeout>30 sec</stopTimeout>
-  <depend>postgresql-x64-18</depend>
+$dependLine
 </service>
 "@
             $DbPassword = $null; [System.GC]::Collect()
@@ -419,7 +448,7 @@ $envDbEntries
 # ACTION : install
 # ════════════════════════════════════════════════════════════════════════════════
 # Mot de passe : depuis config.json si présent, sinon prompt sécurisé
-$DbPassword = try { $cfg.database.password } catch { "" }
+$DbPassword = try { ConvertTo-SecureString $cfg.database.password -AsPlainText -Force } catch { $null }
 if (-not $DbPassword -and ($Target -in "all","app","batch")) {
     $DbPassword = Get-DbPassword $DbUser
 }

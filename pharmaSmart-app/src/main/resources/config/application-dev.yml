@@ -53,6 +53,7 @@ spring:
       idle-timeout: 30000
       max-lifetime: 1800000
       connection-timeout: 30000
+    connection-fetch: lazy
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true

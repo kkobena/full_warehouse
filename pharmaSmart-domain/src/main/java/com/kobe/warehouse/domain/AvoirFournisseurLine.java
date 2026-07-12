@@ -39,7 +39,7 @@ public class AvoirFournisseurLine implements Serializable {
 
     @NotNull
     @Column(name = "prix_achat", nullable = false)
-    private long prixAchat;
+    private int prixAchat;
 
     @Column(name = "commentaire", length = 150)
     private String commentaire;
@@ -56,8 +56,8 @@ public class AvoirFournisseurLine implements Serializable {
     public Integer getQtyMvt() { return qtyMvt; }
     public AvoirFournisseurLine setQtyMvt(Integer qtyMvt) { this.qtyMvt = qtyMvt; return this; }
 
-    public long getPrixAchat() { return prixAchat; }
-    public AvoirFournisseurLine setPrixAchat(long prixAchat) { this.prixAchat = prixAchat; return this; }
+    public int getPrixAchat() { return prixAchat; }
+    public AvoirFournisseurLine setPrixAchat(int prixAchat) { this.prixAchat = prixAchat; return this; }
 
     public String getCommentaire() { return commentaire; }
     public AvoirFournisseurLine setCommentaire(String commentaire) { this.commentaire = commentaire; return this; }

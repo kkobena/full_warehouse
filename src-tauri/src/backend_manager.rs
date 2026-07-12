@@ -115,6 +115,7 @@ fn find_jar_file(app: &AppHandle) -> Result<PathBuf, BackendError> {
             sidecar_dir
         )));
     }
+    // Préfixe strict "pharmaSmart-app-" et suffixe ".jar" pour éviter de prendre  un autre artefact.
     let mut jars: Vec<PathBuf> = std::fs::read_dir(&sidecar_dir)
         .map_err(|e| BackendError::ConfigError(format!("Lecture sidecar : {}", e)))?
         .filter_map(|e| e.ok())
@@ -122,7 +123,7 @@ fn find_jar_file(app: &AppHandle) -> Result<PathBuf, BackendError> {
         .filter(|p| {
             p.file_name()
                 .and_then(|n| n.to_str())
-                .map(|n| n.starts_with("pharmaSmart-") && n.ends_with(".jar"))
+                .map(|n| n.starts_with("pharmaSmart-app-") && n.ends_with(".jar"))
                 .unwrap_or(false)
         })
         .collect();

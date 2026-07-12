@@ -21,11 +21,14 @@ pub fn run(cfg: &BackupConfig) -> Result<()> {
         }
     }
 
+    // Localiser PostgreSQL AVANT de créer le répertoire : un dossier base_*
+    // vide laissé par un échec ferait skipper les prochains runs pendant 6 jours.
+    let pg_bin = find_pg_bin(cfg.pg_bin.as_deref())?;
+
     let dest = cfg
         .base_dir()
         .join(format!("base_{}", Local::now().format("%Y%m%d")));
     std::fs::create_dir_all(&dest)?;
-    let pg_bin = find_pg_bin()?;
 
     info!("pg_basebackup → {}", dest.display());
 
@@ -53,10 +56,15 @@ pub fn run(cfg: &BackupConfig) -> Result<()> {
     ]);
     if let Ok(pw) = std::env::var("PGPASSWORD") {
         cmd.env("PGPASSWORD", pw);
+    } else if let Some(pw) = &cfg.password {
+        cmd.env("PGPASSWORD", pw);
     }
 
     let status = cmd.status()?;
     if !status.success() {
+        // Ne pas laisser un répertoire incomplet : il fausserait le skip < 6 j
+        // et la purge le prendrait pour un backup valide.
+        let _ = std::fs::remove_dir_all(&dest);
         let msg = format!("[ERREUR] basebackup échoué → {}", dest.display());
         error!("{msg}");
         logger::append(cfg, &msg)?;
@@ -80,6 +88,13 @@ fn newest_base_age_days(cfg: &BackupConfig) -> Option<f64> {
     for entry in WalkDir::new(&dir).min_depth(1).max_depth(1) {
         let entry = entry.ok()?;
         if !entry.metadata().ok()?.is_dir() {
+            continue;
+        }
+        // Un dossier vide est un reste d'échec, pas un backup valide.
+        let non_empty = std::fs::read_dir(entry.path())
+            .map(|mut d| d.next().is_some())
+            .unwrap_or(false);
+        if !non_empty {
             continue;
         }
         if let Ok(m) = entry.metadata().unwrap().modified() {

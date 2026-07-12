@@ -36,9 +36,19 @@ fn main() -> Result<()> {
         .init();
 
     let cli = Cli::parse();
-    let cfg = config::BackupConfig::load()?;
+    let result = run(&cli.command);
 
-    match cli.command {
+    // Sous le Planificateur de tâches, stderr est invisible : toute erreur doit
+    // laisser une trace sur disque, y compris quand config.json est introuvable.
+    if let Err(err) = &result {
+        logger::append_fallback(&format!("[ERREUR] {err:#}"));
+    }
+    result
+}
+
+fn run(cmd: &Cmd) -> Result<()> {
+    let cfg = config::BackupConfig::load()?;
+    match cmd {
         Cmd::Dump => dump::run(&cfg),
         Cmd::Base => base::run(&cfg),
         Cmd::Purge => purge::run(&cfg),

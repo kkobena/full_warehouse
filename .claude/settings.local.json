@@ -171,7 +171,18 @@
       "Bash(unzip -l ~/.m2/repository/org/springframework/boot/spring-boot-autoconfigure/4.0.0-RC1/spring-boot-autoconfigure-4.0.0-RC1.jar)",
       "Bash(xargs -I{} sh -c 'unzip -l \"{}\" 2>/dev/null | grep -q \"EntityScan.class\" && echo {}')",
       "Bash(unzip -l ~/.m2/repository/org/springframework/boot/spring-boot-persistence/4.0.0-RC1/spring-boot-persistence-4.0.0-RC1.jar)",
-      "Bash(JAVA_HOME=\"/c/Program Files/Eclipse Adoptium/jdk-25.0.1.8-hotspot\" ./mvnw.cmd -q -pl pharmaSmart-app -am compile -DskipTests)"
+      "Bash(JAVA_HOME=\"/c/Program Files/Eclipse Adoptium/jdk-25.0.1.8-hotspot\" ./mvnw.cmd -q -pl pharmaSmart-app -am compile -DskipTests)",
+      "PowerShell(foreach \\($p in @\\(\"$env:ProgramData\\\\PharmaSmart\\\\config.json\", \"$env:APPDATA\\\\PharmaSmart\\\\config.json\", \"C:\\\\Windows\\\\System32\\\\config\\\\systemprofile\\\\AppData\\\\Roaming\\\\PharmaSmart\\\\config.json\"\\)\\) { \"{0} : {1}\" -f $p, \\(Test-Path $p\\) })",
+      "PowerShell(& \"C:\\\\Program Files\\\\PharmaSmart\\\\backup\\\\pharmasmart-backup.exe\" check; \"ExitCode=$LASTEXITCODE\")",
+      "PowerShell(Remove-Item *)",
+      "PowerShell(Get-Process *)",
+      "PowerShell(try { Get-ChildItem 'HKLM:\\\\SOFTWARE\\\\PostgreSQL' -Recurse -ErrorAction Stop | Select-Object Name } catch { \"HKLM:\\\\SOFTWARE\\\\PostgreSQL absent\" }; $w = where.exe pg_dump 2>$null; if \\($w\\) { \"PATH pg_dump : $w\" } else { \"pg_dump absent du PATH\" })",
+      "PowerShell(& \"C:\\\\Users\\\\k.kobena\\\\Documents\\\\dev\\\\full_warehouse\\\\src-backup\\\\target\\\\release\\\\pharmasmart-backup.exe\" dump; \"ExitCode=$LASTEXITCODE\"; \"\"; Get-Content \"C:\\\\ProgramData\\\\PharmaSmart\\\\logs\\\\backup-error.log\" -ErrorAction SilentlyContinue -Tail 5)",
+      "PowerShell(wsl -e pg_dump --version 2>$null; wsl -e psql --version 2>$null)",
+      "PowerShell(wsl --list --running; wsl bash -c \"pg_dump --version; psql --version\")",
+      "PowerShell(docker run *)",
+      "PowerShell(if \\(Test-Path \"src-backup\\\\scripts\"\\) { Get-ChildItem \"src-backup\\\\scripts\" | Select-Object Name; $a = Get-FileHash \"src-backup\\\\scripts\\\\setup-backup-tasks.ps1\" -ErrorAction SilentlyContinue; $b = Get-FileHash \"src-tauri\\\\backup\\\\setup-backup-tasks.ps1\"; \"Scripts identiques : $\\($a.Hash -eq $b.Hash\\)\" } else { \"src-backup\\\\scripts ABSENT\" })",
+      "PowerShell(Get-Content \"C:\\\\ProgramData\\\\PharmaSmart\\\\logs\\\\backup-error.log\" -ErrorAction SilentlyContinue -Tail 10; \"--- backup.log ---\"; Get-Content \"C:\\\\ProgramData\\\\PharmaSmart\\\\backups\\\\logs\\\\backup.log\" -ErrorAction SilentlyContinue -Tail 10; \"--- daily ---\"; Get-ChildItem \"C:\\\\ProgramData\\\\PharmaSmart\\\\backups\\\\daily\" -ErrorAction SilentlyContinue | Select-Object Name, Length; \"--- basebackup ---\"; Get-ChildItem \"C:\\\\ProgramData\\\\PharmaSmart\\\\backups\\\\basebackup\" -Recurse -ErrorAction SilentlyContinue | Select-Object FullName, Length)"
     ],
     "deny": [],
     "ask": []

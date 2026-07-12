@@ -4,11 +4,25 @@ use std::path::PathBuf;
 /// Renvoie le répertoire bin/ de la première installation PostgreSQL trouvée.
 ///
 /// Ordre de recherche :
-///   1. Variable d'environnement PGBIN
-///   2. Registre Windows : HKLM\SOFTWARE\PostgreSQL\Installations\*\Base Directory
-///   3. Chemins courants : C:\Program Files\PostgreSQL\{18,17,16,...}\bin
-///   4. pg_dump dans le PATH
-pub fn find_pg_bin() -> Result<PathBuf> {
+///   1. `backup.pg_bin` du config.json (si fourni)
+///   2. Variable d'environnement PGBIN
+///   3. Registre Windows : HKLM\SOFTWARE\PostgreSQL\Installations\*\Base Directory
+///   4. Chemins courants : C:\Program Files\PostgreSQL\{18,17,16,...}\bin
+///   5. pg_dump dans le PATH
+pub fn find_pg_bin(configured: Option<&std::path::Path>) -> Result<PathBuf> {
+    // 0. Chemin explicite du config.json
+    if let Some(p) = configured.filter(|p| !p.as_os_str().is_empty()) {
+        if p.join(pg_dump_exe()).exists() {
+            tracing::info!("PostgreSQL bin depuis config.json : {}", p.display());
+            return Ok(p.to_path_buf());
+        }
+        tracing::warn!(
+            "backup.pg_bin configuré mais {} absent de {} — détection automatique.",
+            pg_dump_exe(),
+            p.display()
+        );
+    }
+
     // 1. Env var (surcharge manuelle)
     if let Ok(v) = std::env::var("PGBIN") {
         let p = PathBuf::from(v);

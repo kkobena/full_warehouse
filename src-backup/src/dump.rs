@@ -6,7 +6,7 @@ use tracing::{error, info};
 
 pub fn run(cfg: &BackupConfig) -> Result<()> {
     std::fs::create_dir_all(cfg.daily_dir())?;
-    let pg_bin = find_pg_bin()?;
+    let pg_bin = find_pg_bin(cfg.pg_bin.as_deref())?;
 
     let timestamp = Local::now().format("%Y%m%d_%H%M%S");
     let filename = cfg
@@ -37,13 +37,20 @@ pub fn run(cfg: &BackupConfig) -> Result<()> {
         filename.to_str().unwrap(),
         &cfg.db,
     ]);
-    // Mot de passe via variable d'environnement (jamais dans la ligne de commande)
+    // Mot de passe via variable d'environnement (jamais dans la ligne de commande).
+    // PGPASSWORD ambiant prioritaire, sinon celui de config.json — indispensable
+    // sous le compte SYSTEM des tâches planifiées (pas de pgpass.conf).
     if let Ok(pw) = std::env::var("PGPASSWORD") {
+        cmd.env("PGPASSWORD", pw);
+    } else if let Some(pw) = &cfg.password {
         cmd.env("PGPASSWORD", pw);
     }
 
     let status = cmd.status()?;
     if !status.success() {
+        // Supprimer le fichier partiel : il ferait passer le check et
+        // ressemblerait à un dump valide dans daily/.
+        let _ = std::fs::remove_file(&filename);
         let msg = format!("[ERREUR] dump échoué : {}", filename.display());
         error!("{msg}");
         logger::append(cfg, &msg)?;

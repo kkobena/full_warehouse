@@ -176,7 +176,7 @@ dependencies {
     kapt("androidx.room:room-compiler:2.8.4")
 
     // Splash Screen API
-    implementation("androidx.core:core-splashscreen:1.0.1")
+    implementation("androidx.core:core-splashscreen:1.2.0")
 
     // Sunmi Printer Library (for thermal receipt printing)
     implementation("com.sunmi:printerlibrary:1.0.18")

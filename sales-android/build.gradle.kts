@@ -173,7 +173,7 @@ dependencies {
     // Room Database (optional for offline caching)
     implementation("androidx.room:room-runtime:2.8.4")
     implementation("androidx.room:room-ktx:2.6.1")
-    kapt("androidx.room:room-compiler:2.6.1")
+    kapt("androidx.room:room-compiler:2.8.4")
 
     // Splash Screen API
     implementation("androidx.core:core-splashscreen:1.0.1")

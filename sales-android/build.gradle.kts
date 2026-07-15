@@ -161,7 +161,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.14.0")
 
     // RecyclerView & SwipeRefreshLayout
-    implementation("androidx.recyclerview:recyclerview:1.3.2")
+    implementation("androidx.recyclerview:recyclerview:1.4.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0")
 
     // SharedPreferences - Encrypted (for secure token storage)

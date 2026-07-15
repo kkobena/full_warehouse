@@ -121,7 +121,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.11.0")
 
     // Compose Navigation
-    implementation("androidx.navigation:navigation-compose:2.7.6")
+    implementation("androidx.navigation:navigation-compose:2.9.8")
 
     // Compose Material Icons Extended
     implementation("androidx.compose.material:material-icons-extended")

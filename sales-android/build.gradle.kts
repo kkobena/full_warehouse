@@ -165,7 +165,7 @@ dependencies {
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0")
 
     // SharedPreferences - Encrypted (for secure token storage)
-    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+    implementation("androidx.security:security-crypto:1.1.0")
 
     // LocalBroadcastManager for session event broadcasting
     implementation("androidx.localbroadcastmanager:localbroadcastmanager:1.1.0")

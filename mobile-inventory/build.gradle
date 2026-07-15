@@ -104,7 +104,7 @@ dependencies {
   implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
 
   // Image loading library (Coil for Kotlin)
-  implementation 'io.coil-kt:coil:2.5.0'
+  implementation 'io.coil-kt:coil:2.7.0'
 
   // Paging 3 for pagination
   implementation 'androidx.paging:paging-runtime-ktx:3.2.1'

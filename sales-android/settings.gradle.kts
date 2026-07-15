@@ -6,7 +6,7 @@ pluginManagement {
     }
     plugins {
         id("com.android.application") version "8.7.3"
-        id("com.android.library") version "8.7.3"
+        id("com.android.library") version "9.3.0"
         id("org.jetbrains.kotlin.android") version "2.1.0"
         id("org.jetbrains.kotlin.kapt") version "2.1.0"
         id("org.jetbrains.kotlin.plugin.parcelize") version "2.1.0"

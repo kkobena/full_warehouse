@@ -38,7 +38,7 @@ import java.util.Set;
 @SuppressWarnings("unused")
 @Repository
 public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRepository<Sales, SaleId>, CustomSalesRepository {
-    @Query("select sale from Sales sale left join fetch sale.salesLines where sale.id =:id AND sale.saleDate =:saleDate")
+    @Query("select sale from Sales sale where sale.id =:id AND sale.saleDate =:saleDate")
     Optional<Sales> findOneWithEagerSalesLines(@Param("id") Long id, @Param("saleDate") LocalDate saleDate);
 
     @Query("select sale from Sales sale where sale.numberTransaction = :ref and sale.statut = 'CLOSED' and sale.canceled = false order by sale.saleDate desc")

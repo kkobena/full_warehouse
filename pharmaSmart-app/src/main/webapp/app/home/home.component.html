@@ -14,11 +14,11 @@
     @switch (resolvedLayout()?.componentKey) {
 
       @case ('PHARMACIEN') {
-        <div class="container-fluid"><jhi-home-base></jhi-home-base></div>
+        <div class="container-fluid"><app-home-base></app-home-base></div>
       }
 
       @case ('CAISSIER') {
-        <jhi-caissier-dashboard></jhi-caissier-dashboard>
+        <app-caissier-dashboard></app-caissier-dashboard>
       }
 
       @case ('COMMANDE') {
@@ -33,7 +33,7 @@
         -->
         @if (resolvedLayout()?.layoutConfig) {
           <!-- TODO : <app-customizable-dashboard [layout]="resolvedLayout()"> -->
-          <div class="container-fluid"><jhi-home-base></jhi-home-base></div>
+          <div class="container-fluid"><app-home-base></app-home-base></div>
         } @else {
           <app-default-dashboard></app-default-dashboard>
         }

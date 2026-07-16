@@ -2,7 +2,7 @@ import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin } from 'rxjs';
-import { ChartModule } from 'primeng/chart';
+import { ChartComponent } from 'app/shared/chart/chart.component';
 import { Button } from 'primeng/button';
 import { SkeletonModule } from 'primeng/skeleton';
 import { Tag } from 'primeng/tag';
@@ -34,7 +34,7 @@ interface KpiCard {
   templateUrl: './sales-kpi-dashboard.component.html',
   styleUrl: './sales-kpi-dashboard.component.scss',
   providers: [DatePipe],
-  imports: [CommonModule, ChartModule, Button, SkeletonModule, Tag, TableModule, TooltipModule],
+  imports: [CommonModule, ChartComponent, Button, SkeletonModule, Tag, TableModule, TooltipModule],
 })
 export class SalesKpiDashboardComponent implements OnInit {
   private readonly summaryService = inject(SalesSummaryReportService);

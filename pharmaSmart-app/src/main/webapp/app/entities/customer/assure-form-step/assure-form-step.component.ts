@@ -1,40 +1,36 @@
-import { Component, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
-import { StepsModule } from 'primeng/steps';
-import { ConfirmationService, MenuItem } from 'primeng/api';
-import { ICustomer } from '../../../shared/model';
-import { AssureFormStepService } from './assure-form-step.service';
-import { StepperModule } from 'primeng/stepper';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { Button } from 'primeng/button';
-import { ToastModule } from 'primeng/toast';
-import { AssureStepComponent } from './assure-step.component';
-import { AyantDroitStepComponent } from './ayant-droit-step.component';
-import { ErrorService } from '../../../shared/error.service';
-import { Observable, Subject } from 'rxjs';
-import { finalize, takeUntil } from 'rxjs/operators';
-import { HttpResponse } from '@angular/common/http';
-import { CustomerService } from '../customer.service';
-import { CommonService } from './common.service';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
-import { Card } from 'primeng/card';
+import { Component, inject, OnDestroy, OnInit, viewChild } from "@angular/core";
+import { StepsModule } from "primeng/steps";
+import { MenuItem } from "primeng/api";
+import { ICustomer } from "../../../shared/model";
+import { AssureFormStepService } from "./assure-form-step.service";
+import { StepperModule } from "primeng/stepper";
+import { Button } from "primeng/button";
+import { ToastModule } from "primeng/toast";
+import { AssureStepComponent } from "./assure-step.component";
+import { AyantDroitStepComponent } from "./ayant-droit-step.component";
+import { ErrorService } from "../../../shared/error.service";
+import { Observable, Subject } from "rxjs";
+import { finalize, takeUntil } from "rxjs/operators";
+import { HttpResponse } from "@angular/common/http";
+import { CustomerService } from "../customer.service";
+import { CommonService } from "./common.service";
+import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
+import { Card } from "primeng/card";
+import { NotificationService } from "../../../shared/services/notification.service";
 
 @Component({
-  selector: 'jhi-assure-form-step',
-  providers: [ConfirmationService],
+  selector: "app-assure-form-step",
   imports: [
-    WarehouseCommonModule,
     StepsModule,
     StepperModule,
     Button,
     ToastModule,
     AssureStepComponent,
     AyantDroitStepComponent,
-    ToastAlertComponent,
-    Card,
+    Card
   ],
-  templateUrl: './assure-form-step.component.html',
-  styleUrls: ['./assured-form-step-component.scss'],
+  templateUrl: "./assure-form-step.component.html",
+  styleUrls: ["./assured-form-step.component.scss"]
 })
 export class AssureFormStepComponent implements OnInit, OnDestroy {
   header: string;
@@ -43,15 +39,15 @@ export class AssureFormStepComponent implements OnInit, OnDestroy {
   isSaving = false;
   typeAssure: string | undefined;
   activeStep = 1;
-  ayantDroitStepComponent = viewChild<AyantDroitStepComponent>('ayantDroitStep');
-  assureStepComponent = viewChild<AssureStepComponent>('assureStep');
+  ayantDroitStepComponent = viewChild<AyantDroitStepComponent>("ayantDroitStep");
+  assureStepComponent = viewChild<AssureStepComponent>("assureStep");
   protected readonly commonService = inject(CommonService);
   protected items: MenuItem[];
   protected readonly assureFormStepService = inject(AssureFormStepService);
   private readonly activeModal = inject(NgbActiveModal);
   private readonly errorService = inject(ErrorService);
   private readonly customerService = inject(CustomerService);
-  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly notificationService = inject(NotificationService);
   private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
@@ -88,7 +84,7 @@ export class AssureFormStepComponent implements OnInit, OnDestroy {
     const ayantDroits = currentAssure ? currentAssure.ayantDroits : [];
     this.assureFormStepService.setAssure({
       ...assureComponent.createFromForm(),
-      ayantDroits,
+      ayantDroits
     });
   }
 
@@ -102,7 +98,7 @@ export class AssureFormStepComponent implements OnInit, OnDestroy {
   }
 
   onSaveError(error: any): void {
-    this.alert().showError(this.errorService.getErrorMessage(error));
+    this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 
   save(): void {
@@ -110,7 +106,7 @@ export class AssureFormStepComponent implements OnInit, OnDestroy {
     this.onCompleteAssure();
     const customer = this.assureFormStepService.assure();
     if (customer.id !== undefined && customer.id) {
-      customer.type = 'ASSURE';
+      customer.type = "ASSURE";
       this.subscribeToSaveResponse(this.customerService.update(customer));
     } else {
       this.subscribeToSaveResponse(this.customerService.create(customer));
@@ -121,11 +117,11 @@ export class AssureFormStepComponent implements OnInit, OnDestroy {
     result
       .pipe(
         finalize(() => (this.isSaving = false)),
-        takeUntil(this.destroy$),
+        takeUntil(this.destroy$)
       )
       .subscribe({
         next: (res: HttpResponse<ICustomer>) => this.onSaveSuccess(res.body),
-        error: (error: any) => this.onSaveError(error),
+        error: (error: any) => this.onSaveError(error)
       });
   }
 

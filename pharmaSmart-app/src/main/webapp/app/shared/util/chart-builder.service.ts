@@ -22,7 +22,7 @@ export interface ChartConfig {
  * ```
  * Puis dans le template :
  * ```html
- * <p-chart type="bar" [data]="barChartConfig.data" [options]="barChartConfig.options" />
+ * <app-chart type="bar" [data]="barChartConfig.data" [options]="barChartConfig.options" />
  * ```
  */
 @Injectable({ providedIn: 'root' })

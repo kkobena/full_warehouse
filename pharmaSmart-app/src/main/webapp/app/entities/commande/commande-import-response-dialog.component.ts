@@ -1,17 +1,18 @@
-import { Component, inject, OnDestroy } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ICommandeResponse } from '../../shared/model/commande-response.model';
-import { CommandeService } from './commande.service';
-import { saveAs } from 'file-saver';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { ButtonModule } from 'primeng/button';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Component, inject, OnDestroy } from "@angular/core";
+import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
+import { ICommandeResponse } from "../../shared/model/commande-response.model";
+import { CommandeService } from "./commande.service";
+import { ButtonModule } from "primeng/button";
+import { Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
+import { CommonModule } from "@angular/common";
+import { BlobDownloadService } from "../../shared/services/blob-download.service";
 
 @Component({
-  templateUrl: './commande-import-response-dialog.component.html',
-  styleUrls: ['./commande-import-response-dialog.component.scss'],
-  imports: [WarehouseCommonModule, ButtonModule],
+  selector: "app-commande-import-response-dialog",
+  templateUrl: "./commande-import-response-dialog.component.html",
+  styleUrls: ["./commande-import-response-dialog.component.scss"],
+  imports: [ButtonModule, CommonModule]
 })
 export class CommandeImportResponseDialogComponent implements OnDestroy {
   responseCommande?: ICommandeResponse;
@@ -19,6 +20,7 @@ export class CommandeImportResponseDialogComponent implements OnDestroy {
   private activeModal = inject(NgbActiveModal);
   private commandeService = inject(CommandeService);
   private destroy$ = new Subject<void>();
+  private readonly blobDownloadService = inject(BlobDownloadService);
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -35,9 +37,9 @@ export class CommandeImportResponseDialogComponent implements OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: blod => {
-          saveAs(new Blob([blod], { type: 'text/csv' }), `${this.responseCommande.reference}.csv`);
+          this.blobDownloadService.downloadCsv(blod, `${this.responseCommande.reference}`);
           this.hiddenInfo = false;
-        },
+        }
       });
   }
 }

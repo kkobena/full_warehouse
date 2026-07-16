@@ -1,27 +1,23 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { Component, inject, OnInit, signal } from "@angular/core";
+import { HttpResponse } from "@angular/common/http";
+import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { Card } from 'primeng/card';
-import { DatePicker } from 'primeng/datepicker';
-import { SelectModule } from 'primeng/select';
-import { ToolbarModule } from 'primeng/toolbar';
-import { DividerModule } from 'primeng/divider';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { TableModule } from "primeng/table";
+import { ButtonModule } from "primeng/button";
+import { DatePicker } from "primeng/datepicker";
+import { SelectModule } from "primeng/select";
+import { ToolbarModule } from "primeng/toolbar";
+import { DividerModule } from "primeng/divider";
 
-import { IDailySalesSummary } from 'app/shared/model/report/daily-sales-summary.model';
-import { SalesSummaryReportService } from '../services/sales-summary-report.service';
-import { Tag } from 'primeng/tag';
-import { PrimeNG } from 'primeng/config';
-import { TranslateService } from '@ngx-translate/core';
+import { IDailySalesSummary } from "app/shared/model/report/daily-sales-summary.model";
+import { SalesSummaryReportService } from "../services/sales-summary-report.service";
+import { Tag } from "primeng/tag";
 
 @Component({
-  selector: 'jhi-sales-summary',
-  templateUrl: './sales-summary.component.html',
-  styleUrl: './sales-summary.component.scss',
+  selector: "app-sales-summary",
+  templateUrl: "./sales-summary.component.html",
+  styleUrl: "./sales-summary.component.scss",
   imports: [
     CommonModule,
     FormsModule,
@@ -31,9 +27,8 @@ import { TranslateService } from '@ngx-translate/core';
     SelectModule,
     ToolbarModule,
     DividerModule,
-    WarehouseCommonModule,
-    Tag,
-  ],
+    Tag
+  ]
 })
 export default class SalesSummaryComponent implements OnInit {
   summaries = signal<IDailySalesSummary[]>([]);
@@ -43,20 +38,15 @@ export default class SalesSummaryComponent implements OnInit {
   selectedTypeVente = signal<string | null>(null);
 
   typeVenteOptions = [
-    { label: 'Tous', value: null },
-    { label: 'Vente ordonnancées (VO)', value: 'ThirdPartySales' },
-    { label: 'Vente au comptant (VNO)', value: 'CashSale' },
-    { label: 'Vente aux dépôts', value: 'VenteDepot' },
+    { label: "Tous", value: null },
+    { label: "Vente ordonnancées (VO)", value: "ThirdPartySales" },
+    { label: "Vente au comptant (VNO)", value: "CashSale" },
+    { label: "Vente aux dépôts", value: "VenteDepot" }
   ];
-  private readonly primeNGConfig = inject(PrimeNG);
-  private readonly translate = inject(TranslateService);
   private readonly salesSummaryService = inject(SalesSummaryReportService);
 
   ngOnInit(): void {
-    this.translate.use('fr');
-    this.translate.stream('primeng').subscribe(data => {
-      this.primeNGConfig.setTranslation(data);
-    });
+
     const now = new Date();
     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
     const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
@@ -87,7 +77,7 @@ export default class SalesSummaryComponent implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
-      },
+      }
     });
   }
 
@@ -114,20 +104,20 @@ export default class SalesSummaryComponent implements OnInit {
   }
 
   private formatDate(date: Date): string {
-    return date.toISOString().split('T')[0];
+    return date.toISOString().split("T")[0];
   }
 
   getSeverityForType(type: string | undefined): string {
-    if (!type) return 'secondary';
+    if (!type) return "secondary";
     switch (type) {
-      case 'VO':
-        return 'info';
-      case 'VNO':
-        return 'success';
-      case 'VENTES_DEPOTS':
-        return 'warn';
+      case "VO":
+        return "info";
+      case "VNO":
+        return "success";
+      case "VENTES_DEPOTS":
+        return "warn";
       default:
-        return 'secondary';
+        return "secondary";
     }
   }
 }

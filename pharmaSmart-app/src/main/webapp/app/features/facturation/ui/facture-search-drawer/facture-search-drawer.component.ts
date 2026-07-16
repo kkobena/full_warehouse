@@ -10,11 +10,9 @@ import { InputText } from "primeng/inputtext";
 import { ToggleSwitch } from "primeng/toggleswitch";
 import { Toolbar } from "primeng/toolbar";
 import { DatePicker } from "primeng/datepicker";
-
-import { WarehouseCommonModule } from "../../../../shared/warehouse-common/warehouse-common.module";
 import { INVOICES_STATUT } from "../../../../shared/constants/data-constants";
 import { IGroupeTiersPayant } from "../../../../shared/model/groupe-tierspayant.model";
-import { ITiersPayant } from "../../../../shared/model/tierspayant.model";
+import { ITiersPayant } from "../../../../shared/model";
 import { TiersPayantService } from "../../../../entities/tiers-payant/tierspayant.service";
 import { GroupeTiersPayantService } from "../../../../entities/groupe-tiers-payant/groupe-tierspayant.service";
 import { DATE_FORMAT_ISO_DATE } from "../../../../shared/util/warehouse-util";
@@ -23,13 +21,14 @@ import { ITEMS_PER_PAGE } from "../../../../shared/constants/pagination.constant
 import { FactureApiService } from "../../data-access/services/facture-api.service";
 import { FacturationStore } from "../../data-access/store/facturation.store";
 import { IFacture, IInvoiceSearchParams, ISelectedFacture } from "../../data-access/models";
+import { CommonModule } from "@angular/common";
 
 @Component({
   selector: "app-facture-search-drawer",
   imports: [
     ButtonModule,
     TableModule,
-    WarehouseCommonModule,
+    CommonModule,
     FormsModule,
     FloatLabelModule,
     AutoCompleteModule,

@@ -1,14 +1,12 @@
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("org.jetbrains.kotlin.kapt")
     id("org.jetbrains.kotlin.plugin.parcelize")
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
 android {
     namespace = "com.kobe.warehouse.sales"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.kobe.warehouse.sales"
@@ -169,11 +167,6 @@ dependencies {
 
     // LocalBroadcastManager for session event broadcasting
     implementation("androidx.localbroadcastmanager:localbroadcastmanager:1.1.0")
-
-    // Room Database (optional for offline caching)
-    implementation("androidx.room:room-runtime:2.8.4")
-    implementation("androidx.room:room-ktx:2.8.4")
-    kapt("androidx.room:room-compiler:2.8.4")
 
     // Splash Screen API
     implementation("androidx.core:core-splashscreen:1.2.0")

@@ -4,11 +4,10 @@ import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.enumeration.AuthorityEnum;
-import java.time.LocalDateTime;
+
 import java.util.List;
 import java.util.Optional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -24,8 +23,6 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository extends JpaRepository<AppUser, Integer>, JpaSpecificationExecutor<AppUser> {
     Optional<AppUser> findOneByActivationKey(String activationKey);
 
-    List<AppUser> findAllByActivatedIsFalseAndActivationKeyIsNotNullAndCreatedDateBefore(LocalDateTime dateTime);
-
     Optional<AppUser> findOneByResetKey(String resetKey);
 
     Optional<AppUser> findOneByEmailIgnoreCase(String email);
@@ -34,13 +31,6 @@ public interface UserRepository extends JpaRepository<AppUser, Integer>, JpaSpec
 
     @EntityGraph(attributePaths = "authorities")
     Optional<AppUser> findOneWithAuthoritiesByLogin(String login);
-
-    @EntityGraph(attributePaths = "authorities")
-    Optional<AppUser> findOneWithAuthoritiesByEmailIgnoreCase(String email);
-
-    Page<AppUser> findAllByIdNotNullAndActivatedIsTrue(Pageable pageable);
-
-    boolean existsByLoginEqualsAndPasswordEquals(String login, String password);
 
     Optional<AppUser> findOneByActionAuthorityKey(String actionAuthorityKey);
 

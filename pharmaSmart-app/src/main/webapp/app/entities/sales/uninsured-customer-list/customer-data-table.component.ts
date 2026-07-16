@@ -1,44 +1,42 @@
-import { AfterViewInit, Component, ElementRef, inject, output, viewChild } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { RippleModule } from 'primeng/ripple';
-import { SharedModule } from 'primeng/api';
-import { TableModule } from 'primeng/table';
-import { TooltipModule } from 'primeng/tooltip';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { ICustomer } from '../../../shared/model';
-import { CustomerService } from '../../customer/customer.service';
-import { UninsuredCustomerFormComponent } from '../../customer/uninsured-customer-form/uninsured-customer-form.component';
-import { SelectedCustomerService } from '../service/selected-customer.service';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { showCommonModal } from '../selling-home/sale-helper';
+import { AfterViewInit, Component, ElementRef, inject, output, viewChild } from "@angular/core";
+import { ButtonModule } from "primeng/button";
+import { InputTextModule } from "primeng/inputtext";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { RippleModule } from "primeng/ripple";
+import { TableModule } from "primeng/table";
+import { TooltipModule } from "primeng/tooltip";
+import { ICustomer } from "../../../shared/model";
+import { CustomerService } from "../../customer/customer.service";
+import {
+  UninsuredCustomerFormComponent
+} from "../../customer/uninsured-customer-form/uninsured-customer-form.component";
+import { SelectedCustomerService } from "../service/selected-customer.service";
+import { IconField } from "primeng/iconfield";
+import { InputIcon } from "primeng/inputicon";
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { showCommonModal } from "../selling-home/sale-helper";
 
 @Component({
-  selector: 'jhi-customer-data-table',
+  selector: "app-customer-data-table",
   imports: [
     ButtonModule,
     InputTextModule,
     ReactiveFormsModule,
     RippleModule,
-    SharedModule,
     TableModule,
     TooltipModule,
-    WarehouseCommonModule,
     FormsModule,
     IconField,
-    InputIcon,
+    InputIcon
   ],
-  templateUrl: './customer-data-table.component.html',
-  styleUrls: ['./customer-data-table.scss'],
+  templateUrl: "./customer-data-table.component.html",
+  styleUrls: ["./customer-data-table.scss"]
 })
 export class CustomerDataTableComponent implements AfterViewInit {
   customers: ICustomer[] = [];
-  searchString?: string | null = '';
+  searchString?: string | null = "";
   readonly closeModalEvent = output<boolean>();
-  protected searchInput = viewChild.required<ElementRef>('searchInput');
+  protected searchInput = viewChild.required<ElementRef>("searchInput");
   protected customerService = inject(CustomerService);
   private selectedCustomerService = inject(SelectedCustomerService);
   private readonly modalService = inject(NgbModal);
@@ -55,7 +53,7 @@ export class CustomerDataTableComponent implements AfterViewInit {
   protected loadCustomers(): void {
     this.customerService
       .queryUninsuredCustomers({
-        search: this.searchString,
+        search: this.searchString
       })
       .subscribe(res => (this.customers = res.body!));
   }
@@ -70,7 +68,7 @@ export class CustomerDataTableComponent implements AfterViewInit {
           this.selectedCustomerService.setCustomer(resp);
           this.closeModalEvent.emit(true);
         }
-      },
+      }
     );
   }
 }

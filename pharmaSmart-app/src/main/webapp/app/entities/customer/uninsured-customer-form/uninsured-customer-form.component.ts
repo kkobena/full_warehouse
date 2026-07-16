@@ -7,7 +7,6 @@ import { CustomerService } from 'app/entities/customer/customer.service';
 import { Observable, Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 import { HttpResponse } from '@angular/common/http';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { InputTextModule } from 'primeng/inputtext';
@@ -15,14 +14,13 @@ import { ToastModule } from 'primeng/toast';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Card } from 'primeng/card';
+import { NotificationService } from "../../../shared/services/notification.service";
 
 @Component({
-  selector: 'jhi-uninsured-customer-form',
+  selector: 'app-uninsured-customer-form',
   templateUrl: './uninsured-customer-form.component.html',
   styleUrls: ['./uninsured-customer-component.scss'],
-  providers: [MessageService],
   imports: [
-    WarehouseCommonModule,
     FormsModule,
     ReactiveFormsModule,
     ToastModule,
@@ -47,12 +45,11 @@ export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit, On
     phone: [null, [Validators.required, Validators.min(1)]],
     email: [],
   });
-  private readonly messageService = inject(MessageService);
   private destroy$ = new Subject<void>();
   private readonly errorService = inject(ErrorService);
   private readonly customerService = inject(CustomerService);
   private readonly activeModal = inject(NgbActiveModal);
-
+  private readonly notificationService = inject(NotificationService);
   ngOnInit(): void {
     if (this.entity) {
       this.updateForm(this.entity);
@@ -126,17 +123,9 @@ export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit, On
 
   private onSaveError(error: any): void {
     if (error.error?.errorKey) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erreur',
-        detail: this.errorService.getErrorMessage(error),
-      });
+      this.notificationService.error(this.errorService.getErrorMessage(error), 'Erreur');
     } else {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erreur',
-        detail: 'Erreur interne du serveur.',
-      });
+      this.notificationService.error('Erreur interne du serveur.', 'Erreur');
     }
   }
 }

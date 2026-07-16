@@ -1,24 +1,24 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from "@angular/core";
 
-import { Customer, ICustomer } from 'app/shared/model/customer.model';
-import { CustomerService } from 'app/entities/customer/customer.service';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { FormsModule } from '@angular/forms';
-import { TooltipModule } from 'primeng/tooltip';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { RippleModule } from 'primeng/ripple';
-import { TableModule } from 'primeng/table';
-import { ToolbarModule } from 'primeng/toolbar';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { Card } from 'primeng/card';
+import { Customer, ICustomer } from "app/shared/model/customer.model";
+import { CustomerService } from "app/entities/customer/customer.service";
+import { FormsModule } from "@angular/forms";
+import { TooltipModule } from "primeng/tooltip";
+import { ButtonModule } from "primeng/button";
+import { InputTextModule } from "primeng/inputtext";
+import { RippleModule } from "primeng/ripple";
+import { TableModule } from "primeng/table";
+import { ToolbarModule } from "primeng/toolbar";
+import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
+import { Card } from "primeng/card";
+import { CommonModule } from "@angular/common";
 
 @Component({
-  selector: 'jhi-ayant-droit-customer-list',
-  templateUrl: './ayant-droit-customer-list.component.html',
-  styleUrls: ['./ayant-droit-customer-list.component.scss'],
+  selector: "app-ayant-droit-customer-list",
+  templateUrl: "./ayant-droit-customer-list.component.html",
+  styleUrls: ["./ayant-droit-customer-list.component.scss"],
   imports: [
-    WarehouseCommonModule,
+    CommonModule,
     FormsModule,
     TooltipModule,
     ButtonModule,
@@ -26,8 +26,8 @@ import { Card } from 'primeng/card';
     RippleModule,
     TableModule,
     ToolbarModule,
-    Card,
-  ],
+    Card
+  ]
 })
 export class AyantDroitCustomerListComponent implements OnInit {
   customers: ICustomer[] = [];

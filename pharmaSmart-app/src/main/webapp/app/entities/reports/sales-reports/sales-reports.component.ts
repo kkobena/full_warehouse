@@ -10,11 +10,11 @@ import ProfitabilityAnalysisComponent from "../profitability-analysis/profitabil
 import ComparativeAnalysisComponent from "../comparative-analysis/comparative-analysis.component";
 import SalesForecastComponent from "../sales-forecast/sales-forecast.component";
 import MarketBasketComponent from "../market-basket/market-basket.component";
-// Phase 5 — Nouveaux rapports Ventes
+
 import SalesByStaffComponent from "../sales-by-staff/sales-by-staff.component";
 import SeasonalityComponent from "../seasonality/seasonality.component";
 import GenericsSubstitutionComponent from "../generics-substitution/generics-substitution.component";
-// Phase 6 — Rapports secondaires
+
 import RemisesAnalysisComponent from "../remises-analysis/remises-analysis.component";
 import ClientRetentionComponent from "../client-retention/client-retention.component";
 

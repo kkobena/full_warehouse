@@ -42,7 +42,7 @@ import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal
     Tooltip,
   ],
   templateUrl: './complementaire-step.component.html',
-  styleUrls: ['./assured-form-step-component.scss'],
+  styleUrls: ['./assured-form-step.component.scss'],
 })
 export class ComplementaireStepComponent implements OnDestroy {
   assureFormStepService = inject(AssureFormStepService);

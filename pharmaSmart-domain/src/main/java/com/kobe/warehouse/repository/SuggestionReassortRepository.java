@@ -3,6 +3,7 @@ package com.kobe.warehouse.repository;
 import com.kobe.warehouse.domain.SuggestionReassort;
 import com.kobe.warehouse.domain.enumeration.StatutReassort;
 import com.kobe.warehouse.domain.enumeration.TypeReassort;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,7 +25,8 @@ public interface SuggestionReassortRepository extends JpaRepository<SuggestionRe
      * @param magasinId the magasin ID
      * @return list of open suggestions
      */
-    @Query("SELECT s FROM SuggestionReassort s LEFT JOIN FETCH s.ligneReassorts WHERE s.statut = :statut AND s.magasin.id = :magasinId ORDER BY s.createdAt DESC")
+    @EntityGraph(attributePaths = {"ligneReassorts"})
+    @Query("SELECT s FROM SuggestionReassort s WHERE s.statut = :statut AND s.magasin.id = :magasinId ORDER BY s.createdAt DESC")
     List<SuggestionReassort> findAllByStatutAndMagasinId(@Param("statut") StatutReassort statut, @Param("magasinId") Integer magasinId);
 
     /**
@@ -35,6 +37,7 @@ public interface SuggestionReassortRepository extends JpaRepository<SuggestionRe
      * @param typeReassort the type of reassort
      * @return list of open suggestions
      */
-    @Query("SELECT s FROM SuggestionReassort s LEFT JOIN FETCH s.ligneReassorts WHERE s.statut = :statut AND s.magasin.id = :magasinId AND s.typeReassort = :typeReassort ORDER BY s.createdAt DESC")
+    @EntityGraph(attributePaths = {"ligneReassorts"})
+    @Query("SELECT s FROM SuggestionReassort s WHERE s.statut = :statut AND s.magasin.id = :magasinId AND s.typeReassort = :typeReassort ORDER BY s.createdAt DESC")
     List<SuggestionReassort> findAllByStatutAndMagasinIdAndTypeReassort(@Param("statut") StatutReassort statut, @Param("magasinId") Integer magasinId, @Param("typeReassort") TypeReassort typeReassort);
 }

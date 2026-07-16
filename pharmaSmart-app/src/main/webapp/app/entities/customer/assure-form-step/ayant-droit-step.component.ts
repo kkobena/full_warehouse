@@ -25,7 +25,7 @@ import { DateNaissDirective } from '../../../shared/date-naiss.directive';
     DateNaissDirective,
   ],
   templateUrl: './ayant-droit-step.component.html',
-  styleUrls: ['./assured-form-step-component.scss'],
+  styleUrls: ['./assured-form-step.component.scss'],
 })
 export class AyantDroitStepComponent implements OnInit {
   assure?: ICustomer;

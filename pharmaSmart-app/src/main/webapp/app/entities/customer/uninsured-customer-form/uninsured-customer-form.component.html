@@ -33,7 +33,7 @@
           @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty || editForm.get('firstName')!.touched)) {
             <div>
               @if (editForm.get('firstName')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                <small class="form-text text-danger" > Ce champ est requis. </small>
               }
             </div>
           }
@@ -45,7 +45,7 @@
           @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty || editForm.get('lastName')!.touched)) {
             <div>
               @if (editForm.get('lastName')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                <small class="form-text text-danger" > Ce champ est requis. </small>
               }
             </div>
           }
@@ -67,7 +67,7 @@
           @if (editForm.get('phone')!.invalid && (editForm.get('phone')!.dirty || editForm.get('phone')!.touched)) {
             <div>
               @if (editForm.get('phone')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                <small class="form-text text-danger" > Ce champ est requis. </small>
               }
             </div>
           }

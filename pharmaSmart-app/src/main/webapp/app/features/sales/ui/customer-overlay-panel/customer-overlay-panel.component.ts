@@ -1,5 +1,4 @@
 import { Component, computed, inject, input, output, viewChild } from '@angular/core';
-import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
@@ -7,6 +6,7 @@ import { CustomerSearchTableComponent } from '../customer-search-table/customer-
 import { ICustomer } from '../../../../shared/model';
 import { PopoverModule, Popover } from 'primeng/popover';
 import { SalesFacade } from '../../data-access/facades/sales.facade';
+import { CommonModule } from "@angular/common";
 
 /**
  * Customer Overlay Panel Component
@@ -20,7 +20,7 @@ import { SalesFacade } from '../../data-access/facades/sales.facade';
  */
 @Component({
   selector: 'app-customer-overlay-panel',
-  imports: [WarehouseCommonModule, ButtonModule, FormsModule, PopoverModule, TooltipModule, CustomerSearchTableComponent],
+  imports: [CommonModule, ButtonModule, FormsModule, PopoverModule, TooltipModule, CustomerSearchTableComponent],
   templateUrl: './customer-overlay-panel.component.html',
   styleUrls: ['./customer-overlay-panel.component.scss'],
 })

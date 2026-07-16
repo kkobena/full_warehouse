@@ -1,23 +1,20 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { Component, inject, OnInit } from "@angular/core";
+import { ActivatedRoute, RouterModule } from "@angular/router";
 
-import { ICategorie } from 'app/shared/model/categorie.model';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { ICategorie } from "app/shared/model/categorie.model";
+import { AlertErrorComponent } from "../../shared/alert/alert-error.component";
+import TranslateDirective from "../../shared/language/translate.directive";
+import { FaIconComponent } from "@fortawesome/angular-fontawesome";
 
 @Component({
-  selector: 'jhi-categorie-detail',
-  templateUrl: './categorie-detail.component.html',
-  imports: [WarehouseCommonModule, RouterModule],
+  selector: "app-categorie-detail",
+  templateUrl: "./categorie-detail.component.html",
+  imports: [RouterModule, AlertErrorComponent, TranslateDirective, FaIconComponent]
 })
 export class CategorieDetailComponent implements OnInit {
-  protected activatedRoute = inject(ActivatedRoute);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
   categorie: ICategorie | null = null;
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ categorie }) => (this.categorie = categorie));

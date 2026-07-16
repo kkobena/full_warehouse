@@ -13,7 +13,6 @@ import { TooltipModule } from 'primeng/tooltip';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { TagModule } from 'primeng/tag';
-import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
 import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
 import { FileUploadDialogComponent } from '../../../../entities/groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
 import { ErrorService } from '../../../../shared/error.service';
@@ -24,13 +23,14 @@ import { IFournisseur } from '../../../../shared/model/fournisseur.model';
 import { IResponseDto } from '../../../../shared/util/response-dto';
 import { FournisseurApiService } from '../../data-access/services/fournisseur-api.service';
 import { FournisseurFormComponent } from '../../ui/fournisseur-form/fournisseur-form.component';
+import { CommonModule } from "@angular/common";
 
 @Component({
   selector: 'app-fournisseur-home',
   templateUrl: './fournisseur-home.component.html',
-  styleUrl: './fournisseur-home.component.scss',
+  styleUrls: ['./fournisseur-home.component.scss'],
   imports: [
-    WarehouseCommonModule,
+    CommonModule,
     FormsModule,
     ButtonModule,
     ButtonGroup,

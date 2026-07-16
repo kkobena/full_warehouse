@@ -1,34 +1,30 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { forkJoin } from 'rxjs';
+import { Component, inject, OnInit, signal } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { forkJoin } from "rxjs";
 
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { DatePicker } from 'primeng/datepicker';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { SelectModule } from 'primeng/select';
-import { ToolbarModule } from 'primeng/toolbar';
-import { DividerModule } from 'primeng/divider';
-import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { TableModule } from "primeng/table";
+import { ButtonModule } from "primeng/button";
+import { DatePicker } from "primeng/datepicker";
+import { InputNumberModule } from "primeng/inputnumber";
+import { SelectModule } from "primeng/select";
+import { ToolbarModule } from "primeng/toolbar";
+import { DividerModule } from "primeng/divider";
+import { NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
 
-import { ITopProduct } from 'app/shared/model/report/top-product.model';
-import { TopProductsReportService } from '../services/top-products-report.service';
-import { Tag } from 'primeng/tag';
-import { PrimeNG } from 'primeng/config';
-import { TranslateService } from '@ngx-translate/core';
-import { DATE_FORMAT_ISO_DATE, retriveMonthLabel } from '../../../shared/util/warehouse-util';
+import { ITopProduct } from "app/shared/model/report/top-product.model";
+import { TopProductsReportService } from "../services/top-products-report.service";
+import { Tag } from "primeng/tag";
+import { DATE_FORMAT_ISO_DATE, retriveMonthLabel } from "../../../shared/util/warehouse-util";
 
 interface ITopProductRanked extends ITopProduct {
   rankDelta: number | null; // null = produit nouveau ce mois (absent M-1)
 }
 
 @Component({
-  selector: 'jhi-top-products',
-  templateUrl: './top-products.component.html',
-  styleUrl: './top-products.component.scss',
+  selector: "app-top-products",
+  templateUrl: "./top-products.component.html",
+  styleUrls: ["./top-products.component.scss"],
   imports: [
     CommonModule,
     FormsModule,
@@ -40,9 +36,8 @@ interface ITopProductRanked extends ITopProduct {
     ToolbarModule,
     DividerModule,
     NgbNavModule,
-    WarehouseCommonModule,
-    Tag,
-  ],
+    Tag
+  ]
 })
 export default class TopProductsComponent implements OnInit {
   protected topProductsByRevenue = signal<ITopProductRanked[]>([]);
@@ -52,20 +47,16 @@ export default class TopProductsComponent implements OnInit {
   protected limit = signal<number>(20);
 
   protected limitOptions = [
-    { label: 'Top 10', value: 10 },
-    { label: 'Top 20', value: 20 },
-    { label: 'Top 50', value: 50 },
-    { label: 'Top 100', value: 100 },
+    { label: "Top 10", value: 10 },
+    { label: "Top 20", value: 20 },
+    { label: "Top 50", value: 50 },
+    { label: "Top 100", value: 100 }
   ];
-  private readonly primeNGConfig = inject(PrimeNG);
-  private readonly translate = inject(TranslateService);
+
   private readonly topProductsService = inject(TopProductsReportService);
 
   ngOnInit(): void {
-    this.translate.use('fr');
-    this.translate.stream('primeng').subscribe(data => {
-      this.primeNGConfig.setTranslation(data);
-    });
+
     const now = new Date();
     const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     this.selectedMonth.set(firstDayOfMonth);
@@ -86,7 +77,7 @@ export default class TopProductsComponent implements OnInit {
       currRevenue: this.topProductsService.getTopProductsByRevenue(monthStr, limit),
       prevRevenue: this.topProductsService.getTopProductsByRevenue(prevMonthStr, limit),
       currQty: this.topProductsService.getTopProductsByQuantity(monthStr, limit),
-      prevQty: this.topProductsService.getTopProductsByQuantity(prevMonthStr, limit),
+      prevQty: this.topProductsService.getTopProductsByQuantity(prevMonthStr, limit)
     }).subscribe({
       next: ({ currRevenue, prevRevenue, currQty, prevQty }) => {
         const prevRevenueRanks = this.buildRankMap(prevRevenue.body ?? []);
@@ -95,7 +86,7 @@ export default class TopProductsComponent implements OnInit {
         this.topProductsByQuantity.set(this.applyRankDeltas(currQty.body ?? [], prevQtyRanks));
         this.isLoading.set(false);
       },
-      error: () => this.isLoading.set(false),
+      error: () => this.isLoading.set(false)
     });
   }
 
@@ -117,7 +108,9 @@ export default class TopProductsComponent implements OnInit {
 
   private buildRankMap(products: ITopProduct[]): Map<number, number> {
     const map = new Map<number, number>();
-    products.forEach((p, i) => { if (p.produitId) map.set(p.produitId, i + 1); });
+    products.forEach((p, i) => {
+      if (p.produitId) map.set(p.produitId, i + 1);
+    });
     return map;
   }
 
@@ -126,7 +119,7 @@ export default class TopProductsComponent implements OnInit {
       ...p,
       rankDelta: p.produitId != null && prevRanks.has(p.produitId)
         ? prevRanks.get(p.produitId)! - (i + 1)
-        : null,
+        : null
     }));
   }
 
@@ -135,7 +128,7 @@ export default class TopProductsComponent implements OnInit {
   }
 
   getMonthLabel(): string {
-    if (!this.selectedMonth()) return '';
+    if (!this.selectedMonth()) return "";
     return retriveMonthLabel(this.selectedMonth());
   }
 }

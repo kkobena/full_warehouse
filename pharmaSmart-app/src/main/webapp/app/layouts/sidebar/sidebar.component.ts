@@ -1,35 +1,42 @@
-import { Component, DestroyRef, effect, inject, OnInit, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router, RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { fromEvent } from 'rxjs';
-import { TooltipModule } from 'primeng/tooltip';
-import { AccountService } from 'app/core/auth/account.service';
-import { LoginService } from 'app/login/login.service';
-import { NavItem } from '../navbar/navbar-item.model';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { faServer, faBars, faChevronDown, faChevronRight, faUserCircle, faSlidersH } from '@fortawesome/free-solid-svg-icons';
-import { Theme, ThemeService } from '../../core/theme/theme.service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { AppSettingsDialogComponent } from '../../shared/settings/app-settings-dialog.component';
-import { Authority } from '../../config/authority.constants';
-import { LayoutService } from '../../core/config/layout.service';
-import { environment } from 'environments/environment';
-import { NavigationService } from '../../core/config/navigation.service';
-import { TauriPrinterService } from '../../shared/services/tauri-printer.service';
-import { AlertBadgeService } from '../../shared/services/alert-badge.service';
-import { NavStore } from 'app/core/store/nav.store';
+import { Component, DestroyRef, effect, inject, OnInit, signal } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { Router, RouterModule } from "@angular/router";
+import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { fromEvent } from "rxjs";
+import { TooltipModule } from "primeng/tooltip";
+import { AccountService } from "app/core/auth/account.service";
+import { LoginService } from "app/login/login.service";
+import { NavItem } from "../navbar/navbar-item.model";
+import {
+  faBars,
+  faChevronDown,
+  faChevronRight,
+  faServer,
+  faSlidersH,
+  faUserCircle
+} from "@fortawesome/free-solid-svg-icons";
+import { Theme, ThemeService } from "../../core/theme/theme.service";
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { AppSettingsDialogComponent } from "../../shared/settings/app-settings-dialog.component";
+import { Authority } from "../../config/authority.constants";
+import { LayoutService } from "../../core/config/layout.service";
+import { environment } from "environments/environment";
+import { NavigationService } from "../../core/config/navigation.service";
+import { TauriPrinterService } from "../../shared/services/tauri-printer.service";
+import { AlertBadgeService } from "../../shared/services/alert-badge.service";
+import { NavStore } from "app/core/store/nav.store";
+import { FaIconComponent } from "@fortawesome/angular-fontawesome";
 
 @Component({
-  selector: 'jhi-sidebar',
-  imports: [CommonModule, RouterModule, WarehouseCommonModule, FormsModule, TooltipModule],
-  templateUrl: './sidebar.component.html',
-  styleUrl: './sidebar.component.scss',
+  selector: "jhi-sidebar",
+  imports: [CommonModule, RouterModule, FormsModule, TooltipModule, FaIconComponent],
+  templateUrl: "./sidebar.component.html",
+  styleUrls: ["./sidebar.component.scss"]
 })
 export default class SidebarComponent implements OnInit {
   protected account = inject(AccountService).trackCurrentAccount();
-  protected version = '';
+  protected version = "";
   protected readonly isMobileSignal = signal(window.innerWidth <= 768);
   navItems: NavItem[] = [];
   expandedItems = new Set<string>();
@@ -55,11 +62,11 @@ export default class SidebarComponent implements OnInit {
   constructor() {
     const { VERSION } = environment;
     if (VERSION) {
-      this.version = VERSION.toLowerCase().startsWith('v') ? VERSION : `v${VERSION}`;
+      this.version = VERSION.toLowerCase().startsWith("v") ? VERSION : `v${VERSION}`;
     }
 
 
-    fromEvent(window, 'resize')
+    fromEvent(window, "resize")
       .pipe(takeUntilDestroyed(inject(DestroyRef)))
       .subscribe(() => this.isMobileSignal.set(window.innerWidth <= 768));
 
@@ -67,8 +74,8 @@ export default class SidebarComponent implements OnInit {
       // Reactive : rebuilt when account, navTree (store) or alert counts change
       this.navStore.navTree(); // déclenche la réactivité quand le store se charge
       const items = this.buildNavItem();
-      const ruptureCount    = this.alertBadgeService.ruptureCount();
-      const urgentCount     = this.alertBadgeService.urgentCount();
+      const ruptureCount = this.alertBadgeService.ruptureCount();
+      const urgentCount = this.alertBadgeService.urgentCount();
       const peremptionCount = this.alertBadgeService.peremptionCount();
       this.applyNavBadges(items, ruptureCount, urgentCount, peremptionCount);
       this.navItems = items;
@@ -144,27 +151,27 @@ export default class SidebarComponent implements OnInit {
   }
 
   protected login(): void {
-    this.router.navigate(['/login']);
+    this.router.navigate(["/login"]);
   }
 
   protected logout(): void {
     this.loginService.logout();
-    this.router.navigate(['']);
+    this.router.navigate([""]);
   }
 
   protected openAppSettings(): void {
-    this.modalService.open(AppSettingsDialogComponent, { size: 'lg', backdrop: 'static',centered:true });
+    this.modalService.open(AppSettingsDialogComponent, { size: "lg", backdrop: "static", centered: true });
   }
 
   protected openConfigEditor(): void {
-    void this.router.navigate(['/app-config']);
+    void this.router.navigate(["/app-config"]);
   }
 
   protected get isTauriAdmin(): boolean {
     const account = this.account();
     return this.tauriPrinterService.isRunningInTauri() &&
-           !!account &&
-           this.navigationService.hasAnyAuthority(Authority.ADMIN, account.authorities);
+      !!account &&
+      this.navigationService.hasAnyAuthority(Authority.ADMIN, account.authorities);
   }
 
   protected hasAnyAuthority(authorities: string[] | string): boolean {
@@ -179,24 +186,28 @@ export default class SidebarComponent implements OnInit {
 
     if (account) {
       const accountItems: NavItem[] = [
-        { label: 'Menu horizontal', faIcon: faBars, click: () => this.layoutService.toggleLayout() },
-        { label: 'Se déconnecter', faIcon: 'sign-out-alt', click: () => this.logout() },
+        { label: "Menu horizontal", faIcon: faBars, click: () => this.layoutService.toggleLayout() },
+        { label: "Se déconnecter", faIcon: "sign-out-alt", click: () => this.logout() }
       ];
       if (this.navigationService.hasAnyAuthority(Authority.ADMIN, account.authorities) && this.tauriPrinterService.isRunningInTauri()) {
-        accountItems.unshift({ label: 'Configuration avancée', faIcon: faSlidersH, click: () => this.openConfigEditor() });
+        accountItems.unshift({
+          label: "Configuration avancée",
+          faIcon: faSlidersH,
+          click: () => this.openConfigEditor()
+        });
       }
       return this.navigationService.buildNavItemsFromStore({ additionalAccountMenuItems: accountItems });
     }
 
     const additionalAccountMenuItems: NavItem[] = [
-      { label: 'Menu vertical', faIcon: faBars, click: () => this.layoutService.toggleLayout() },
-      { label: 'Se connecter', faIcon: 'sign-out-alt', click: () => this.login() },
+      { label: "Menu vertical", faIcon: faBars, click: () => this.layoutService.toggleLayout() },
+      { label: "Se connecter", faIcon: "sign-out-alt", click: () => this.login() }
     ];
     if (this.tauriPrinterService.isRunningInTauri()) {
       additionalAccountMenuItems.unshift({
-        label: 'Paramètres Serveur',
+        label: "Paramètres Serveur",
         faIcon: faServer,
-        click: () => this.openAppSettings(),
+        click: () => this.openAppSettings()
       });
     }
 
@@ -213,22 +224,22 @@ export default class SidebarComponent implements OnInit {
     items: NavItem[],
     ruptureCount: number,
     urgentCount: number,
-    peremptionCount: number,
+    peremptionCount: number
   ): void {
     for (const item of items) {
       if (item.children?.length) {
         this.applyNavBadges(item.children, ruptureCount, urgentCount, peremptionCount);
         const total = item.children.reduce((sum, c) => sum + (c.badge ?? 0), 0);
         item.badge = total > 0 ? total : undefined;
-        item.badgeSeverity = total > 0 ? 'danger' : undefined;
+        item.badgeSeverity = total > 0 ? "danger" : undefined;
       } else {
-        if (item.routerLink === '/commande') {
+        if (item.routerLink === "/commande") {
           const total = Math.max(ruptureCount, urgentCount);
           item.badge = total > 0 ? total : undefined;
-          item.badgeSeverity = 'danger';
-        } else if (item.routerLink === '/gestion-peremption') {
+          item.badgeSeverity = "danger";
+        } else if (item.routerLink === "/gestion-peremption") {
           item.badge = peremptionCount > 0 ? peremptionCount : undefined;
-          item.badgeSeverity = 'danger';
+          item.badgeSeverity = "danger";
         } else {
           item.badge = undefined;
           item.badgeSeverity = undefined;

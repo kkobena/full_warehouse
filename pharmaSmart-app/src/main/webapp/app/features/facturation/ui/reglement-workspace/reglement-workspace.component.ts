@@ -9,7 +9,7 @@ import { InputTextModule } from "primeng/inputtext";
 import { IconField } from "primeng/iconfield";
 import { InputIcon } from "primeng/inputicon";
 
-import { WarehouseCommonModule } from "../../../../shared/warehouse-common/warehouse-common.module";
+
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { NotificationService } from "../../../../shared/services/notification.service";
 import { ErrorService } from "../../../../shared/error.service";
@@ -28,13 +28,14 @@ import {
   ModeEditionReglement
 } from "../../data-access/models";
 import { ReglementFormComponent } from "../reglement-form/reglement-form.component";
+import { CommonModule } from "@angular/common";
 
 export type ReglementMode = "INDIVIDUEL" | "GROUPE";
 
 @Component({
   selector: "app-reglement-workspace",
   imports: [
-    WarehouseCommonModule,
+    CommonModule,
     FormsModule,
     ButtonModule,
     TableModule,
@@ -67,7 +68,6 @@ export class ReglementWorkspaceComponent {
   );
   /** IDs des dossiers éditables (mode partiel + sélectionnés) — lu directement dans le template pour le tracking signal */
   protected readonly editableIds = computed(() => {
-      console.log(this.factureDossierSelectionnes(), "ss");
       return this.partialPayment()
         ? new Set(this.factureDossierSelectionnes().map(r => r.id))
         : new Set<number>();

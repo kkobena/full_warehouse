@@ -140,7 +140,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         this.objectMapper = objectMapper;
         this.salesManager = salesManager;
 
-        // Nouveaux services dédiés (Phase 2)
+
         this.thirdPartyClientManager = thirdPartyClientManager;
         this.thirdPartyCalculationManager = thirdPartyCalculationManager;
         this.assuredCustomerManager = assuredCustomerManager;
@@ -733,9 +733,14 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             .orElseThrow(() -> new GenericError("Une erreur est survenue"));
         preValidateTrasnform(thirdPartySales.getStatut(), thirdPartySales.getNatureVente());
         if (thirdPartySales.getStatut() == SalesStatut.DEVIS) {
+            // Matérialiser les collections AVANT toute suppression (thirdPartySaleLines est désormais lazy)
+            List<SalesLine> salesLinesToDelete = new ArrayList<>(thirdPartySales.getSalesLines());
+            List<ThirdPartySaleLine> tpsLinesToDelete = new ArrayList<>(
+                thirdPartySales.getThirdPartySaleLines());
+
             SaleId cloneId = cloneSale(thirdPartySales, false, SalesStatut.ACTIVE);
-            thirdPartySales.getSalesLines().forEach(salesLineService::deleteSaleLine);
-            thirdPartySales.getThirdPartySaleLines().forEach(thirdPartySaleLineService::delete);
+            salesLinesToDelete.forEach(salesLineService::deleteSaleLine);
+            tpsLinesToDelete.forEach(thirdPartySaleLineService::delete);
             thirdPartySaleRepository.delete(thirdPartySales);
             return cloneId;
         } else {

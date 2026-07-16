@@ -1,35 +1,34 @@
-import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
-import { CashRegisterService } from '../../cash-register/cash-register.service';
-import { Button } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { MultiSelectModule } from 'primeng/multiselect';
-import { FormsModule } from '@angular/forms';
-import { ToolbarModule } from 'primeng/toolbar';
-import { TooltipModule } from 'primeng/tooltip';
-import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
-import { IUser } from '../../../core/user/user.model';
-import { CashRegister, CashRegisterStatut, MvtCaisse } from '../../cash-register/model/cash-register.model';
-import { TranslateService } from '@ngx-translate/core';
-import { MvtParamServiceService } from '../mvt-param-service.service';
-import { MvtCaisseParams } from '../mvt-caisse-util';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { UserService } from '../../../core/user/user.service';
-import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { CardModule } from 'primeng/card';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { PrimeNG } from 'primeng/config';
-import { DatePicker } from 'primeng/datepicker';
-import { Select } from 'primeng/select';
-import { FloatLabel } from 'primeng/floatlabel';
-import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { AfterViewInit, Component, inject, OnInit } from "@angular/core";
+import { CashRegisterService } from "../../cash-register/cash-register.service";
+import { Button } from "primeng/button";
+import { InputTextModule } from "primeng/inputtext";
+import { MultiSelectModule } from "primeng/multiselect";
+import { FormsModule } from "@angular/forms";
+import { ToolbarModule } from "primeng/toolbar";
+import { TooltipModule } from "primeng/tooltip";
+import { ITEMS_PER_PAGE } from "../../../shared/constants/pagination.constants";
+import { IUser } from "../../../core/user/user.model";
+import { CashRegister, CashRegisterStatut, MvtCaisse } from "../../cash-register/model/cash-register.model";
+import { MvtParamServiceService } from "../mvt-param-service.service";
+import { MvtCaisseParams } from "../mvt-caisse-util";
+import { HttpHeaders, HttpResponse } from "@angular/common/http";
+import { UserService } from "../../../core/user/user.service";
+import { DATE_FORMAT_ISO_DATE } from "../../../shared/util/warehouse-util";
+import { CardModule } from "primeng/card";
+import { TableModule } from "primeng/table";
+import { TagModule } from "primeng/tag";
+import { DatePicker } from "primeng/datepicker";
+import { Select } from "primeng/select";
+import { FloatLabel } from "primeng/floatlabel";
+import { Toast } from "primeng/toast";
+import { CommonModule } from "@angular/common";
+import { NotificationService } from "../../../shared/services/notification.service";
 
 @Component({
-  selector: 'jhi-gestion-caisse',
-  styleUrl: './gestion-caisse.component.scss',
+  selector: "app-gestion-caisse",
+  styleUrls: ["./gestion-caisse.component.scss"],
   imports: [
-    WarehouseCommonModule,
+    CommonModule,
     Button,
     InputTextModule,
     MultiSelectModule,
@@ -42,17 +41,16 @@ import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.com
     DatePicker,
     Select,
     FloatLabel,
-    ToastAlertComponent,
+    Toast
   ],
-  templateUrl: './gestion-caisse.component.html',
+  templateUrl: "./gestion-caisse.component.html"
 })
-export class GestionCaisseComponent implements OnInit, AfterViewInit {
+export class GestionCaisseComponent implements OnInit {
   protected totalItems = 0;
   protected loading!: boolean;
   protected btnLoading = false;
   protected page = 0;
   protected predicate!: string;
-  protected ascending!: boolean;
   protected ngbPaginationPage = 1;
   protected readonly itemsPerPage = ITEMS_PER_PAGE;
   protected fromDate: Date | undefined;
@@ -63,19 +61,12 @@ export class GestionCaisseComponent implements OnInit, AfterViewInit {
   protected readonly OPEN = CashRegisterStatut.OPEN;
   protected readonly VALIDATED = CashRegisterStatut.VALIDATED;
   protected readonly CLOSED = CashRegisterStatut.CLOSED;
-  private readonly primeNGConfig = inject(PrimeNG);
-  private readonly translate = inject(TranslateService);
   private readonly userService = inject(UserService);
   private readonly mvtParamServiceService = inject(MvtParamServiceService);
   private readonly entityService = inject(CashRegisterService);
-  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly notificationService = inject(NotificationService);
 
-  ngAfterViewInit(): void {
-    this.translate.use('fr');
-    this.translate.stream('primeng').subscribe(data => {
-      this.primeNGConfig.setTranslation(data);
-    });
-  }
+
 
   onSearch(): void {
     this.btnLoading = true;
@@ -90,14 +81,14 @@ export class GestionCaisseComponent implements OnInit, AfterViewInit {
       .query({
         //  statuts: [CashRegisterStatut.OPEN, CashRegisterStatut.VALIDATED, CashRegisterStatut.CLOSED, CashRegisterStatut.PENDING],
         page: pageToLoad,
-        ...this.buildParams(),
+        ...this.buildParams()
       })
       .subscribe({
         next: (res: HttpResponse<MvtCaisse[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
         error: () => this.onError(),
         complete: () => {
           this.btnLoading = false;
-        },
+        }
       });
   }
 
@@ -112,7 +103,7 @@ export class GestionCaisseComponent implements OnInit, AfterViewInit {
   }
 
   protected onPrint(): void {
-    this.alert().showInfo('Fonctionnalité non implémentée');
+    this.notificationService.warning("Fonctionnalité non implémentée");
     /*  this.btnLoading = true;
      this.updateParam();
      this.entityService.exportToPdf(this.buildParams()).subscribe({
@@ -136,7 +127,7 @@ export class GestionCaisseComponent implements OnInit, AfterViewInit {
   }
 
   protected onSuccess(data: CashRegister[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get('X-Total-Count'));
+    this.totalItems = Number(headers.get("X-Total-Count"));
     this.page = page;
 
     this.datas = data || [];
@@ -170,7 +161,7 @@ export class GestionCaisseComponent implements OnInit, AfterViewInit {
     const param: MvtCaisseParams = {
       fromDate: this.fromDate,
       toDate: this.toDate,
-      selectedUser: this.selectedUser,
+      selectedUser: this.selectedUser
     };
     this.mvtParamServiceService.setMvtCaisseParam(param);
   }
@@ -181,7 +172,7 @@ export class GestionCaisseComponent implements OnInit, AfterViewInit {
       size: this.itemsPerPage,
       fromDate: DATE_FORMAT_ISO_DATE(this.fromDate),
       toDate: DATE_FORMAT_ISO_DATE(this.toDate),
-      userId: this.selectedUser?.id,
+      userId: this.selectedUser?.id
     };
   }
 }

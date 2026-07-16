@@ -6,21 +6,23 @@ import { LoginService } from "app/login/login.service";
 import { NavItem } from "./navbar-item.model";
 import { faBars, faServer, faSlidersH } from "@fortawesome/free-solid-svg-icons";
 import { Theme, ThemeService } from "../../core/theme/theme.service";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { NgbCollapse, NgbDropdown, NgbDropdownMenu, NgbDropdownToggle, NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { AppSettingsDialogComponent } from "../../shared/settings/app-settings-dialog.component";
 import { Authority } from "../../config/authority.constants";
 import { LayoutService } from "../../core/config/layout.service";
 import { NavigationService } from "../../core/config/navigation.service";
 import { TauriPrinterService } from "../../shared/services/tauri-printer.service";
 import { AlertBadgeService } from "../../shared/services/alert-badge.service";
-import { WarehouseCommonModule } from "../../shared/warehouse-common/warehouse-common.module";
 import { NavStore } from "app/core/store/nav.store";
+import { CommonModule } from "@angular/common";
+import TranslateDirective from "../../shared/language/translate.directive";
+import { FaIconComponent } from "@fortawesome/angular-fontawesome";
 
 @Component({
   selector: "jhi-navbar",
   templateUrl: "./navbar.component.html",
   styleUrl: "./navbar.component.scss",
-  imports: [RouterModule, WarehouseCommonModule]
+  imports: [RouterModule, CommonModule, TranslateDirective, FaIconComponent, NgbDropdown, NgbCollapse, NgbDropdownToggle, NgbDropdownMenu]
 })
 export default class NavbarComponent implements OnInit {
   protected isNavbarCollapsed = signal(true);
@@ -87,18 +89,18 @@ export default class NavbarComponent implements OnInit {
   }
 
   protected openAppSettings(): void {
-    this.modalService.open(AppSettingsDialogComponent, { size: "lg", backdrop: "static" ,centered:true});
+    this.modalService.open(AppSettingsDialogComponent, { size: "lg", backdrop: "static", centered: true });
   }
 
   protected openConfigEditor(): void {
-    void this.router.navigate(['/app-config']);
+    void this.router.navigate(["/app-config"]);
   }
 
   protected get isTauriAdmin(): boolean {
     const account = this.account();
     return this.tauriPrinterService.isRunningInTauri() &&
-           !!account &&
-           this.navigationService.hasAnyAuthority(Authority.ADMIN, account.authorities);
+      !!account &&
+      this.navigationService.hasAnyAuthority(Authority.ADMIN, account.authorities);
   }
 
   protected hasAnyAuthority(authorities: string[] | string): boolean {
@@ -121,7 +123,11 @@ export default class NavbarComponent implements OnInit {
         { label: "Se déconnecter", faIcon: "sign-out-alt" as any, click: () => this.logout() }
       ];
       if (this.navigationService.hasAnyAuthority(Authority.ADMIN, account.authorities) && this.tauriPrinterService.isRunningInTauri()) {
-        accountItems.unshift({ label: "Configuration avancée", faIcon: faSlidersH, click: () => this.openConfigEditor() });
+        accountItems.unshift({
+          label: "Configuration avancée",
+          faIcon: faSlidersH,
+          click: () => this.openConfigEditor()
+        });
       }
       return this.navigationService.buildNavItemsFromStore({ additionalAccountMenuItems: accountItems });
     }

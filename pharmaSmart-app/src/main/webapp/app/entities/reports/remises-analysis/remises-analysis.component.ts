@@ -1,7 +1,7 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
-import { ChartModule } from 'primeng/chart';
+import { ChartComponent } from 'app/shared/chart/chart.component';
 import { forkJoin } from 'rxjs';
 
 import { DashboardCAService } from '../services/dashboard-ca.service';
@@ -13,7 +13,7 @@ import { formatCurrency, formatDecimal, formatNumber } from 'app/shared/utils/fo
 
 @Component({
   selector: 'app-remises-analysis',
-  imports: [CommonModule, TableModule, ChartModule, DateRangeFilterComponent],
+  imports: [CommonModule, TableModule, ChartComponent, DateRangeFilterComponent],
   templateUrl: './remises-analysis.component.html',
   styleUrls: ['./remises-analysis.component.scss'],
 })

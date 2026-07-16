@@ -4,6 +4,9 @@ logging:
 
     # === Logs applicatifs (métier) : INFO pour les flux normaux, ERROR auto-inclus ===
     com.kobe.warehouse: INFO
+    com.kobe.warehouse.service.errors: DEBUG
+    org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver: DEBUG
+    org.springframework.web.servlet.DispatcherServlet: DEBUG
 
     # === Spring : uniquement les erreurs critiques ===
     org.springframework: ERROR

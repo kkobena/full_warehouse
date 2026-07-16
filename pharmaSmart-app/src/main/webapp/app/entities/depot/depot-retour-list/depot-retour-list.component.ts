@@ -1,34 +1,31 @@
-import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { HttpResponse } from '@angular/common/http';
-import { RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { Table, TableModule } from 'primeng/table';
-import { TooltipModule } from 'primeng/tooltip';
-import { TagModule } from 'primeng/tag';
-import { ToastModule } from 'primeng/toast';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { RippleModule } from 'primeng/ripple';
-import { ToolbarModule } from 'primeng/toolbar';
-import { SelectModule } from 'primeng/select';
-import { DatePicker } from 'primeng/datepicker';
-import { FloatLabel } from 'primeng/floatlabel';
-import { WarehouseCommonModule } from 'app/shared/warehouse-common/warehouse-common.module';
-import { IRetourDepot } from 'app/shared/model/retour-depot.model';
-import { RetourStatut } from 'app/shared/model/enumerations/retour-statut.model';
-import { RetourDepotService } from '../retour-depot.service';
-import { MagasinService } from '../../magasin/magasin.service';
-import { IMagasin } from '../../../shared/model/magasin.model';
-import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
-import dayjs from 'dayjs/esm';
-import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
+import { Component, inject, OnInit, signal, ViewChild } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { HttpResponse } from "@angular/common/http";
+import { RouterLink } from "@angular/router";
+import { FormsModule } from "@angular/forms";
+import { ButtonModule } from "primeng/button";
+import { Table, TableModule } from "primeng/table";
+import { TooltipModule } from "primeng/tooltip";
+import { TagModule } from "primeng/tag";
+import { ToastModule } from "primeng/toast";
+import { RippleModule } from "primeng/ripple";
+import { ToolbarModule } from "primeng/toolbar";
+import { SelectModule } from "primeng/select";
+import { DatePicker } from "primeng/datepicker";
+import { FloatLabel } from "primeng/floatlabel";
+import { IRetourDepot } from "app/shared/model/retour-depot.model";
+import { RetourDepotService } from "../retour-depot.service";
+import { MagasinService } from "../../magasin/magasin.service";
+import { IMagasin } from "../../../shared/model";
+import { ITEMS_PER_PAGE } from "app/shared/constants/pagination.constants";
+import dayjs from "dayjs/esm";
+import { DATE_FORMAT_ISO_DATE } from "../../../shared/util/warehouse-util";
+import { NotificationService } from "../../../shared/services/notification.service";
 
-export type ExpandMode = 'single' | 'multiple';
+export type ExpandMode = "single" | "multiple";
 
 @Component({
-  selector: 'jhi-depot-retour-list',
+  selector: "app-depot-retour-list",
   imports: [
     CommonModule,
     FormsModule,
@@ -37,31 +34,26 @@ export type ExpandMode = 'single' | 'multiple';
     TooltipModule,
     TagModule,
     ToastModule,
-    ConfirmDialogModule,
     RippleModule,
-    WarehouseCommonModule,
     ToolbarModule,
     SelectModule,
     DatePicker,
     FloatLabel,
-    RouterLink,
+    RouterLink
   ],
-  providers: [MessageService, ConfirmationService],
-  templateUrl: './depot-retour-list.component.html',
-  styleUrl: './depot-retour-list.component.scss',
+  templateUrl: "./depot-retour-list.component.html",
+  styleUrl: "./depot-retour-list.component.scss"
 })
 export class DepotRetourListComponent implements OnInit {
   private readonly retourDepotService = inject(RetourDepotService);
   private readonly magasinService = inject(MagasinService);
-  private readonly messageService = inject(MessageService);
-
-  @ViewChild('dt') table: Table | undefined;
+  @ViewChild("dt") table: Table | undefined;
 
   protected depots = signal<IMagasin[]>([]);
   protected selectedDepot: IMagasin | null = null;
   protected fromDate: Date | null = new Date();
   protected toDate: Date | null = new Date();
-  protected search = '';
+  protected search = "";
 
   protected retourDepots = signal<IRetourDepot[]>([]);
   protected loading = signal<boolean>(false);
@@ -70,7 +62,7 @@ export class DepotRetourListComponent implements OnInit {
   protected page = signal<number>(0);
 
   readonly rowExpandMode: ExpandMode;
-  protected readonly RetourStatut = RetourStatut;
+  private readonly notificationService = inject(NotificationService);
 
   ngOnInit(): void {
     this.loadDepots();
@@ -82,12 +74,8 @@ export class DepotRetourListComponent implements OnInit {
         this.depots.set(res.body || []);
       },
       error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: 'Erreur lors du chargement des dépôts',
-        });
-      },
+        this.notificationService.error("Erreur lors du chargement des dépôts");
+      }
     });
   }
 
@@ -105,7 +93,7 @@ export class DepotRetourListComponent implements OnInit {
     this.loading.set(true);
     const query: any = {
       page: this.page(),
-      size: this.itemsPerPage,
+      size: this.itemsPerPage
     };
 
     if (this.fromDate) {
@@ -132,21 +120,17 @@ export class DepotRetourListComponent implements OnInit {
       },
       complete: () => {
         this.loading.set(false);
-      },
+      }
     });
   }
 
   protected onSuccess(data: IRetourDepot[] | null, headers: any): void {
-    this.totalRecords.set(Number(headers.get('X-Total-Count')));
+    this.totalRecords.set(Number(headers.get("X-Total-Count")));
     this.retourDepots.set(data || []);
   }
 
   protected onError(): void {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erreur',
-      detail: 'Erreur lors du chargement des retours dépôt',
-    });
+    this.notificationService.error("Erreur lors du chargement des retours dépôt");
   }
 
   protected onPageChange(event: any): void {
@@ -155,7 +139,7 @@ export class DepotRetourListComponent implements OnInit {
   }
 
   protected formatDate(date: string | undefined): string {
-    return date ? dayjs(date).format('DD/MM/YYYY HH:mm') : '';
+    return date ? dayjs(date).format("DD/MM/YYYY HH:mm") : "";
   }
 
   protected getTotalItems(retourDepot: IRetourDepot): number {

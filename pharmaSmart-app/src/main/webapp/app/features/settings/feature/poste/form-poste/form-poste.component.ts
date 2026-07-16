@@ -17,7 +17,6 @@ import { concat, EMPTY } from "rxjs";
 import { switchMap, toArray } from "rxjs/operators";
 import { PosteService } from "../poste.service";
 import { IPoste, Poste } from "../../../../../shared/model/poste.model";
-import { WarehouseCommonModule } from "../../../../../shared/warehouse-common/warehouse-common.module";
 import { ButtonModule } from "primeng/button";
 import { InputTextModule } from "primeng/inputtext";
 import { RippleModule } from "primeng/ripple";
@@ -37,13 +36,14 @@ import {
 } from "../../../../../shared/model/poste-device.model";
 import { NotificationService } from "../../../../../shared/services/notification.service";
 import { Toast } from "primeng/toast";
+import { CommonModule } from "@angular/common";
 
 @Component({
   selector: "app-form-poste",
   templateUrl: "./form-poste.component.html",
   styleUrl: "./form-poste.component.scss",
   imports: [
-    WarehouseCommonModule,
+    CommonModule,
     FormsModule,
     ReactiveFormsModule,
     ButtonModule,

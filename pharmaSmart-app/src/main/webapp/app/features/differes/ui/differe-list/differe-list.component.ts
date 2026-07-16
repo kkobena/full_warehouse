@@ -1,30 +1,27 @@
-import { Component, DestroyRef, effect, inject, input } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs/operators';
-import { HttpHeaders } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
+import { Component, DestroyRef, effect, inject, input } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { finalize } from "rxjs/operators";
+import { HttpHeaders } from "@angular/common/http";
+import { CommonModule } from "@angular/common";
+import { TableLazyLoadEvent, TableModule } from "primeng/table";
+import { TagModule } from "primeng/tag";
+import { NotificationService } from "../../../../shared/services/notification.service";
+import { ErrorService } from "../../../../shared/error.service";
+import { ITEMS_PER_PAGE } from "../../../../shared/constants/pagination.constants";
 
-import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
-import { NotificationService } from '../../../../shared/services/notification.service';
-import { ErrorService } from '../../../../shared/error.service';
-import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
-
-import { DiffereApiService } from '../../data-access/services/differe-api.service';
-import { DiffereStore } from '../../data-access/store/differe.store';
-import { IDiffere, IDiffereSearchParams } from '../../data-access/models';
+import { DiffereApiService } from "../../data-access/services/differe-api.service";
+import { DiffereStore } from "../../data-access/store/differe.store";
+import { IDiffere, IDiffereSearchParams } from "../../data-access/models";
 
 @Component({
-  selector: 'app-differe-list',
+  selector: "app-differe-list",
   imports: [
     CommonModule,
-    WarehouseCommonModule,
     TableModule,
-    TagModule,
+    TagModule
   ],
-  templateUrl: './differe-list.component.html',
-  styleUrl: './differe-list.component.scss',
+  templateUrl: "./differe-list.component.html",
+  styleUrls: ["./differe-list.component.scss"]
 })
 export class DiffereListComponent {
   readonly searchParams = input<IDiffereSearchParams | null>(null);
@@ -69,19 +66,19 @@ export class DiffereListComponent {
       .query({ ...params, page: this.page, size: rows })
       .pipe(
         finalize(() => (this.loading = false)),
-        takeUntilDestroyed(this.destroyRef),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: res => this.onSuccess(res.body, res.headers),
         error: err => {
           this.store.setLoading(false);
-          this.notificationService.error(this.errorService.getErrorMessage(err), 'Chargement différés');
-        },
+          this.notificationService.error(this.errorService.getErrorMessage(err), "Chargement différés");
+        }
       });
   }
 
   private onSuccess(data: IDiffere[] | null, headers: HttpHeaders): void {
-    this.store.setDifferes(data ?? [], Number(headers.get('X-Total-Count')));
+    this.store.setDifferes(data ?? [], Number(headers.get("X-Total-Count")));
   }
 
   private loadSummary(params: IDiffereSearchParams): void {
@@ -90,7 +87,7 @@ export class DiffereListComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: res => this.store.setSummary(res.body),
-        error: () => this.store.setSummary(null),
+        error: () => this.store.setSummary(null)
       });
   }
 }

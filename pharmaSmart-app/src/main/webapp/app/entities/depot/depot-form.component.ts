@@ -4,7 +4,6 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpResponse } from '@angular/common/http';
 import { IMagasin, Magasin, TypeMagasin } from '../../shared/model/magasin.model';
 import { MagasinService } from '../magasin/magasin.service';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
@@ -14,9 +13,8 @@ import { TextareaModule } from 'primeng/textarea';
 import { Toolbar } from 'primeng/toolbar';
 
 @Component({
-  selector: 'jhi-depot-form',
+  selector: 'app-depot-form',
   imports: [
-    WarehouseCommonModule,
     ReactiveFormsModule,
     RouterModule,
     ButtonModule,
@@ -28,7 +26,7 @@ import { Toolbar } from 'primeng/toolbar';
     Toolbar,
   ],
   templateUrl: './depot-form.component.html',
-  styleUrl: './depot-form.component.scss',
+  styleUrls: ['./depot-form.component.scss'],
 })
 export class DepotFormComponent implements OnInit, AfterViewInit {
   protected depotForm!: FormGroup;

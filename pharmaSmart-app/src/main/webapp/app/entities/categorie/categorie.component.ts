@@ -1,24 +1,28 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Component, inject, OnInit } from "@angular/core";
+import { HttpHeaders, HttpResponse } from "@angular/common/http";
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 
-import { ICategorie } from 'app/shared/model/categorie.model';
+import { ICategorie } from "app/shared/model/categorie.model";
 
-import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
-import { CategorieService } from './categorie.service';
-import { CategorieDeleteDialogComponent } from './categorie-delete-dialog.component';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { ITEMS_PER_PAGE } from "app/shared/constants/pagination.constants";
+import { CategorieService } from "./categorie.service";
+import { CategorieDeleteDialogComponent } from "./categorie-delete-dialog.component";
 
-import { PanelModule } from 'primeng/panel';
 
-import { ButtonModule } from 'primeng/button';
-import { RouterModule } from '@angular/router';
+import { PanelModule } from "primeng/panel";
+
+import { ButtonModule } from "primeng/button";
+import { RouterModule } from "@angular/router";
+import TranslateDirective from "../../shared/language/translate.directive";
+import { AlertErrorComponent } from "../../shared/alert/alert-error.component";
+import { FaIconComponent } from "@fortawesome/angular-fontawesome";
+import { AlertComponent } from "../../shared/alert/alert.component";
 
 @Component({
-  selector: 'jhi-categorie',
-  templateUrl: './categorie.component.html',
-  styleUrls: ['./categorie.component.scss'],
-  imports: [WarehouseCommonModule, PanelModule, ButtonModule, RouterModule],
+  selector: "app-categorie",
+  templateUrl: "./categorie.component.html",
+  styleUrls: ["./categorie.component.scss"],
+  imports: [PanelModule, ButtonModule, RouterModule, TranslateDirective, AlertErrorComponent, FaIconComponent, AlertComponent]
 })
 export class CategorieComponent implements OnInit {
   categories: ICategorie[];
@@ -35,9 +39,9 @@ export class CategorieComponent implements OnInit {
     this.itemsPerPage = ITEMS_PER_PAGE;
     this.page = 0;
     this.links = {
-      last: 0,
+      last: 0
     };
-    this.predicate = 'id';
+    this.predicate = "id";
     this.ascending = true;
   }
 
@@ -45,7 +49,7 @@ export class CategorieComponent implements OnInit {
     this.reset();
     this.categorieService
       .query({
-        sort: this.sort(),
+        sort: this.sort()
       })
       .subscribe((res: HttpResponse<ICategorie[]>) => this.paginateCategories(res.body, res.headers));
   }
@@ -72,16 +76,16 @@ export class CategorieComponent implements OnInit {
 
   delete(categorie: ICategorie): void {
     const modalRef = this.modalService.open(CategorieDeleteDialogComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      size: "lg",
+      backdrop: "static"
     });
     modalRef.componentInstance.categorie = categorie;
   }
 
   sort(): string[] {
-    const result = [this.predicate + ',' + (this.ascending ? 'asc' : 'desc')];
-    if (this.predicate !== 'id') {
-      result.push('id');
+    const result = [this.predicate + "," + (this.ascending ? "asc" : "desc")];
+    if (this.predicate !== "id") {
+      result.push("id");
     }
     return result;
   }

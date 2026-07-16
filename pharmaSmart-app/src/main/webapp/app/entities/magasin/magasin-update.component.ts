@@ -11,13 +11,13 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToolbarModule } from 'primeng/toolbar';
-import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
 import { ErrorService } from '../../shared/error.service';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { Textarea } from 'primeng/textarea';
+import { NotificationService } from "../../shared/services/notification.service";
+import { Toast } from "primeng/toast";
 
 @Component({
-  selector: 'jhi-magasin-update',
+  selector: 'app-magasin-update',
   templateUrl: './magasin-update.component.html',
   styleUrl: './magasin-update.component.scss',
   imports: [
@@ -27,10 +27,9 @@ import { Textarea } from 'primeng/textarea';
     ButtonModule,
     InputTextModule,
     ToolbarModule,
-    ToastAlertComponent,
-    WarehouseCommonModule,
     Textarea,
-  ],
+    Toast
+  ]
 })
 export class MagasinUpdateComponent implements OnInit {
   protected fb = inject(UntypedFormBuilder);
@@ -55,9 +54,8 @@ export class MagasinUpdateComponent implements OnInit {
   });
   private readonly magasinService = inject(MagasinService);
   private readonly activatedRoute = inject(ActivatedRoute);
-  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly errorService = inject(ErrorService);
-
+  private readonly notificationService = inject(NotificationService);
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ magasin }) => {
       this.updateForm(magasin);
@@ -111,7 +109,7 @@ export class MagasinUpdateComponent implements OnInit {
 
   private onSaveError(error: HttpErrorResponse): void {
     this.isSaving = false;
-    this.alert().showError(this.errorService.getErrorMessage(error));
+    this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 
   private createFromForm(): IMagasin {

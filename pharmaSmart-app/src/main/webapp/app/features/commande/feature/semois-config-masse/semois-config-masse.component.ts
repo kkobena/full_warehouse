@@ -15,7 +15,6 @@ import { SemoisService } from 'app/entities/semois/semois.service';
 import { ClasseCriticite, getClasseCriticiteInfo } from 'app/shared/model/semois/classe-criticite.model';
 import { IAggregationStatus, IInitAllResponse } from 'app/shared/model/semois/semois-configuration.model';
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
-import { WarehouseCommonModule } from 'app/shared/warehouse-common/warehouse-common.module';
 
 interface IPreviewClassificationItem {
   produitId: number;
@@ -31,7 +30,7 @@ interface IPreviewClassificationItem {
   selector: 'app-semois-config-masse',
   templateUrl: './semois-config-masse.component.html',
   styleUrls: ['./semois-config-masse.component.scss'],
-  imports: [CommonModule, FormsModule, ButtonModule, ToolbarModule, NgbNavModule, TableModule, Tag, InputTextModule, WarehouseCommonModule],
+  imports: [CommonModule, FormsModule, ButtonModule, ToolbarModule, NgbNavModule, TableModule, Tag, InputTextModule],
 })
 export class SemoisConfigMasseComponent implements OnInit {
   activeTab = 'classification-abc';

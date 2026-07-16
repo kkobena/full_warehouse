@@ -177,7 +177,7 @@
         </div>
       } @else {
         <div class="col-12 card flex justify-content-center">
-          <p-chart [data]="doughnutChart?.data" [options]="doughnutChart?.options" [responsive]="true" type="doughnut"></p-chart>
+          <app-chart [data]="doughnutChart?.data" [options]="doughnutChart?.options" [responsive]="true" type="doughnut"></app-chart>
         </div>
       }
     } @else {
@@ -189,5 +189,5 @@
     }
   </div>
 </div>
+<p-toast position="center"></p-toast>
 
-<jhi-toast-alert #alert></jhi-toast-alert>

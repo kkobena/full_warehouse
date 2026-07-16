@@ -1,7 +1,7 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
-import { ChartModule } from 'primeng/chart';
+import { ChartComponent } from 'app/shared/chart/chart.component';
 
 import { DashboardCAService } from '../services/dashboard-ca.service';
 import { DateRangeFilterComponent } from '../../../shared/components/date-range-filter/date-range-filter.component';
@@ -12,7 +12,7 @@ import { formatCurrency, formatDecimal, formatNumber } from 'app/shared/utils/fo
 
 @Component({
   selector: 'app-sales-by-staff',
-  imports: [CommonModule, TableModule, ChartModule, DateRangeFilterComponent],
+  imports: [CommonModule, TableModule, ChartComponent, DateRangeFilterComponent],
   templateUrl: './sales-by-staff.component.html',
   styleUrls: ['./sales-by-staff.component.scss'],
 })

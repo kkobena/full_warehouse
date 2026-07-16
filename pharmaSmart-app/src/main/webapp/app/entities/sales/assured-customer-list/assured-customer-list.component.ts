@@ -1,30 +1,29 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { ICustomer } from '../../../shared/model';
-import { CustomerService } from '../../customer/customer.service';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { RippleModule } from 'primeng/ripple';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { TooltipModule } from 'primeng/tooltip';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
-import { CurrentSaleService } from '../service/current-sale.service';
-import { ISales } from '../../../shared/model';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { Card } from 'primeng/card';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { Component, inject, OnDestroy, OnInit } from "@angular/core";
+import { ICustomer, ISales } from "../../../shared/model";
+import { CustomerService } from "../../customer/customer.service";
+import { FormsModule } from "@angular/forms";
+import { ButtonModule } from "primeng/button";
+import { InputTextModule } from "primeng/inputtext";
+import { RippleModule } from "primeng/ripple";
+import { TableLazyLoadEvent, TableModule } from "primeng/table";
+import { TooltipModule } from "primeng/tooltip";
+import { HttpHeaders, HttpResponse } from "@angular/common/http";
+import { ITEMS_PER_PAGE } from "../../../shared/constants/pagination.constants";
+import { CurrentSaleService } from "../service/current-sale.service";
+import { IconField } from "primeng/iconfield";
+import { InputIcon } from "primeng/inputicon";
+import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
+import { Card } from "primeng/card";
+import { Subject } from "rxjs";
+import { debounceTime, distinctUntilChanged, takeUntil } from "rxjs/operators";
+import { CommonModule } from "@angular/common";
 
 @Component({
-  selector: 'jhi-assured-customer-list',
-  templateUrl: './assured-customer-list.component.html',
-  styleUrls: ['./assured-customer-list.component.scss'],
+  selector: "app-assured-customer-list",
+  templateUrl: "./assured-customer-list.component.html",
+  styleUrls: ["./assured-customer-list.component.scss"],
   imports: [
-    WarehouseCommonModule,
+    CommonModule,
     FormsModule,
     TooltipModule,
     ButtonModule,
@@ -33,12 +32,12 @@ import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
     TableModule,
     IconField,
     InputIcon,
-    Card,
-  ],
+    Card
+  ]
 })
 export class AssuredCustomerListComponent implements OnInit, OnDestroy {
   customers: ICustomer[] = [];
-  searchString?: string | null = '';
+  searchString?: string | null = "";
   headerLibelle: string;
   protected itemsPerPage = ITEMS_PER_PAGE;
   protected page!: number;
@@ -65,13 +64,13 @@ export class AssuredCustomerListComponent implements OnInit, OnDestroy {
   }
 
   protected onSearchInput(): void {
-    this.searchSubject$.next(this.searchString || '');
+    this.searchSubject$.next(this.searchString || "");
   }
 
   protected onKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Escape') {
+    if (event.key === "Escape") {
       this.cancel();
-    } else if (event.key === 'Enter' && this.selectedCustomer) {
+    } else if (event.key === "Enter" && this.selectedCustomer) {
       this.onSelect(this.selectedCustomer);
     }
   }
@@ -99,11 +98,11 @@ export class AssuredCustomerListComponent implements OnInit, OnDestroy {
         page: pageToLoad - 1,
         size: this.itemsPerPage,
         search: this.searchString,
-        typeTiersPayant: this.currentSaleService.typeVo(),
+        typeTiersPayant: this.currentSaleService.typeVo()
       })
       .subscribe({
         next: (res: HttpResponse<ICustomer[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError(),
+        error: () => this.onError()
       });
   }
 
@@ -116,17 +115,17 @@ export class AssuredCustomerListComponent implements OnInit, OnDestroy {
           page: this.page,
           size: event.rows,
           search: this.searchString,
-          typeTiersPayant: this.currentSaleService.typeVo(),
+          typeTiersPayant: this.currentSaleService.typeVo()
         })
         .subscribe({
           next: (res: HttpResponse<ISales[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError(),
+          error: () => this.onError()
         });
     }
   }
 
   private onSuccess(data: ICustomer[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get('X-Total-Count'));
+    this.totalItems = Number(headers.get("X-Total-Count"));
 
     this.page = page;
     this.customers = data || [];

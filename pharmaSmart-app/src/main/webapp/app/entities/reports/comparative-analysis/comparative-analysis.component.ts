@@ -1,31 +1,29 @@
-import { Component, computed, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { Component, computed, ElementRef, inject, OnInit, signal, ViewChild } from "@angular/core";
+import { HttpResponse } from "@angular/common/http";
+import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 
-import { ButtonModule } from 'primeng/button';
-import { SelectModule } from 'primeng/select';
-import { ToolbarModule } from 'primeng/toolbar';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from "primeng/button";
+import { SelectModule } from "primeng/select";
+import { ToolbarModule } from "primeng/toolbar";
 
 import {
   IComparativeByFamily,
   IComparativeByFournisseur,
   IComparativeByType,
   IComparativeCA,
-  IComparativeSummary,
-} from 'app/shared/model/report/comparative-report.model';
-import { ComparativeReportService } from '../services/comparative-report.service';
-import { formatCurrency } from 'app/shared/utils/format-utils';
+  IComparativeSummary
+} from "app/shared/model/report/comparative-report.model";
+import { ComparativeReportService } from "../services/comparative-report.service";
+import { formatCurrency } from "app/shared/utils/format-utils";
 
-import { Chart, ChartConfiguration, ChartData, registerables } from 'chart.js';
-import { handleBlobForTauri } from '../../../shared/util/tauri-util';
-import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
+import { Chart, ChartConfiguration, ChartData, registerables } from "chart.js";
+import { BlobDownloadService } from "../../../shared/services/blob-download.service";
 
 Chart.register(...registerables);
 
-type ActiveView = 'global' | 'famille' | 'fournisseur';
-type FamilySortColumn = 'currentYearCA' | 'previousYearCA' | 'evolutionPct';
+type ActiveView = "global" | "famille" | "fournisseur";
+type FamilySortColumn = "currentYearCA" | "previousYearCA" | "evolutionPct";
 
 interface ComparisonTypeOption {
   label: string;
@@ -33,16 +31,16 @@ interface ComparisonTypeOption {
 }
 
 @Component({
-  selector: 'jhi-comparative-analysis',
-  templateUrl: './comparative-analysis.component.html',
-  styleUrl: './comparative-analysis.component.scss',
-  imports: [CommonModule, FormsModule, ButtonModule, SelectModule, ToolbarModule, WarehouseCommonModule],
+  selector: "app-comparative-analysis",
+  templateUrl: "./comparative-analysis.component.html",
+  styleUrl: "./comparative-analysis.component.scss",
+  imports: [CommonModule, FormsModule, ButtonModule, SelectModule, ToolbarModule]
 })
 export default class ComparativeAnalysisComponent implements OnInit {
-  @ViewChild('evolutionChartCanvas') evolutionChartCanvas?: ElementRef<HTMLCanvasElement>;
-  @ViewChild('typeChartCanvas') typeChartCanvas?: ElementRef<HTMLCanvasElement>;
-  @ViewChild('familyChartCanvas') familyChartCanvas?: ElementRef<HTMLCanvasElement>;
-  @ViewChild('fournisseurChartCanvas') fournisseurChartCanvas?: ElementRef<HTMLCanvasElement>;
+  @ViewChild("evolutionChartCanvas") evolutionChartCanvas?: ElementRef<HTMLCanvasElement>;
+  @ViewChild("typeChartCanvas") typeChartCanvas?: ElementRef<HTMLCanvasElement>;
+  @ViewChild("familyChartCanvas") familyChartCanvas?: ElementRef<HTMLCanvasElement>;
+  @ViewChild("fournisseurChartCanvas") fournisseurChartCanvas?: ElementRef<HTMLCanvasElement>;
 
   // Data signals
   protected summary = signal<IComparativeSummary | null>(null);
@@ -55,11 +53,12 @@ export default class ComparativeAnalysisComponent implements OnInit {
   protected isFournisseurLoading = signal<boolean>(false);
 
   // View
-  protected activeView = signal<ActiveView>('global');
+  protected activeView = signal<ActiveView>("global");
 
   // Family sort
-  protected familySortColumn = signal<FamilySortColumn>('evolutionPct');
+  protected familySortColumn = signal<FamilySortColumn>("evolutionPct");
   protected familySortAsc = signal<boolean>(false);
+
   protected sortedFamily = computed(() => {
     const col = this.familySortColumn();
     const asc = this.familySortAsc();
@@ -71,7 +70,7 @@ export default class ComparativeAnalysisComponent implements OnInit {
   });
 
   // Fournisseur sort
-  protected fournisseurSortColumn = signal<FamilySortColumn>('currentYearCA');
+  protected fournisseurSortColumn = signal<FamilySortColumn>("currentYearCA");
   protected fournisseurSortAsc = signal<boolean>(false);
   protected sortedFournisseur = computed(() => {
     const col = this.fournisseurSortColumn();
@@ -84,12 +83,12 @@ export default class ComparativeAnalysisComponent implements OnInit {
   });
 
   // Filters
-  protected selectedComparisonType = signal<string>('MONTHLY');
+  protected selectedComparisonType = signal<string>("MONTHLY");
   protected selectedYear = signal<number>(new Date().getFullYear());
   protected comparisonTypeOptions: ComparisonTypeOption[] = [
-    { label: 'Mensuel', value: 'MONTHLY' },
-    { label: 'Trimestriel', value: 'QUARTERLY' },
-    { label: 'Annuel', value: 'YEARLY' },
+    { label: "Mensuel", value: "MONTHLY" },
+    { label: "Trimestriel", value: "QUARTERLY" },
+    { label: "Annuel", value: "YEARLY" }
   ];
   protected yearOptions: number[] = [];
 
@@ -100,7 +99,7 @@ export default class ComparativeAnalysisComponent implements OnInit {
   private familyChart?: Chart;
   private fournisseurChart?: Chart;
   private comparativeReportService = inject(ComparativeReportService);
-  private readonly tauriPrinter = inject(TauriPrinterService);
+  private readonly blobDownloadService = inject(BlobDownloadService);
 
   ngOnInit(): void {
     const currentYear = new Date().getFullYear();
@@ -112,10 +111,10 @@ export default class ComparativeAnalysisComponent implements OnInit {
 
   protected onViewChange(view: ActiveView): void {
     this.activeView.set(view);
-    if (view === 'famille' && this.byFamily().length === 0) {
+    if (view === "famille" && this.byFamily().length === 0) {
       this.loadFamilyData();
     }
-    if (view === 'fournisseur' && this.byFournisseur().length === 0) {
+    if (view === "fournisseur" && this.byFournisseur().length === 0) {
       this.loadFournisseurData();
     }
   }
@@ -130,8 +129,8 @@ export default class ComparativeAnalysisComponent implements OnInit {
   }
 
   protected familySortIcon(col: FamilySortColumn): string {
-    if (this.familySortColumn() !== col) return 'pi pi-sort-alt';
-    return this.familySortAsc() ? 'pi pi-sort-amount-up' : 'pi pi-sort-amount-down';
+    if (this.familySortColumn() !== col) return "pi pi-sort-alt";
+    return this.familySortAsc() ? "pi pi-sort-amount-up" : "pi pi-sort-amount-down";
   }
 
   protected onFournisseurSort(col: FamilySortColumn): void {
@@ -144,8 +143,8 @@ export default class ComparativeAnalysisComponent implements OnInit {
   }
 
   protected fournisseurSortIcon(col: FamilySortColumn): string {
-    if (this.fournisseurSortColumn() !== col) return 'pi pi-sort-alt';
-    return this.fournisseurSortAsc() ? 'pi pi-sort-amount-up' : 'pi pi-sort-amount-down';
+    if (this.fournisseurSortColumn() !== col) return "pi pi-sort-alt";
+    return this.fournisseurSortAsc() ? "pi pi-sort-amount-up" : "pi pi-sort-amount-down";
   }
 
   protected loadData(): void {
@@ -156,14 +155,14 @@ export default class ComparativeAnalysisComponent implements OnInit {
         this.summary.set(res.body);
       },
       error() {
-        console.error('Error loading summary');
-      },
+        console.error("Error loading summary");
+      }
     });
 
     const year = this.selectedYear();
     const comparisonType = this.selectedComparisonType();
 
-    if (comparisonType === 'MONTHLY') {
+    if (comparisonType === "MONTHLY") {
       this.comparativeReportService.getMonthlyComparison(year).subscribe({
         next: (res: HttpResponse<IComparativeCA[]>) => {
           this.comparisons.set(res.body ?? []);
@@ -172,9 +171,9 @@ export default class ComparativeAnalysisComponent implements OnInit {
         },
         error: () => {
           this.isLoading.set(false);
-        },
+        }
       });
-    } else if (comparisonType === 'QUARTERLY') {
+    } else if (comparisonType === "QUARTERLY") {
       this.comparativeReportService.getQuarterlyComparison(year).subscribe({
         next: (res: HttpResponse<IComparativeCA[]>) => {
           this.comparisons.set(res.body ?? []);
@@ -183,7 +182,7 @@ export default class ComparativeAnalysisComponent implements OnInit {
         },
         error: () => {
           this.isLoading.set(false);
-        },
+        }
       });
     } else {
       const startDate = `${year - 5}-01-01`;
@@ -196,7 +195,7 @@ export default class ComparativeAnalysisComponent implements OnInit {
         },
         error: () => {
           this.isLoading.set(false);
-        },
+        }
       });
     }
 
@@ -206,8 +205,8 @@ export default class ComparativeAnalysisComponent implements OnInit {
         this.createTypeChart(res.body ?? []);
       },
       error() {
-        console.error('Error loading sales type comparison');
-      },
+        console.error("Error loading sales type comparison");
+      }
     });
   }
 
@@ -219,39 +218,37 @@ export default class ComparativeAnalysisComponent implements OnInit {
     this.byFamily.set([]);
     this.byFournisseur.set([]);
     this.loadData();
-    if (this.activeView() === 'famille') {
+    if (this.activeView() === "famille") {
       this.loadFamilyData();
     }
-    if (this.activeView() === 'fournisseur') {
+    if (this.activeView() === "fournisseur") {
       this.loadFournisseurData();
     }
   }
 
   protected exportToPdf(): void {
+    // handleBlobForTauri(resp.body, `tableaux-comparatifs_${comparisonType.toLowerCase()}_${year}`);
     const comparisonType = this.selectedComparisonType();
     const year = this.selectedYear();
     this.comparativeReportService.exportToPdf(comparisonType, year).subscribe(resp => {
-      if (this.tauriPrinter.isRunningInTauri()) {
-        handleBlobForTauri(resp.body, `tableaux-comparatifs_${comparisonType.toLowerCase()}_${year}`);
-      } else {
-        window.open(URL.createObjectURL(resp.body));
-      }
+      this.blobDownloadService.downloadPdf(resp.body, "tableaux-comparatifs");
+
     });
   }
 
   protected getEvolutionClass(value: number | undefined): string {
-    if (!value) return '';
-    return value >= 0 ? 'evolution-positive' : 'evolution-negative';
+    if (!value) return "";
+    return value >= 0 ? "evolution-positive" : "evolution-negative";
   }
 
   protected formatPercent(value: number | undefined): string {
-    if (value === undefined || value === null) return '0';
-    const sign = value >= 0 ? '+' : '';
+    if (value === undefined || value === null) return "0";
+    const sign = value >= 0 ? "+" : "";
     return (
       sign +
-      new Intl.NumberFormat('fr-FR', {
+      new Intl.NumberFormat("fr-FR", {
         minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
+        maximumFractionDigits: 2
       }).format(value)
     );
   }
@@ -267,7 +264,7 @@ export default class ComparativeAnalysisComponent implements OnInit {
       },
       error: () => {
         this.isFournisseurLoading.set(false);
-      },
+      }
     });
   }
 
@@ -282,7 +279,7 @@ export default class ComparativeAnalysisComponent implements OnInit {
       },
       error: () => {
         this.isFamilyLoading.set(false);
-      },
+      }
     });
   }
 
@@ -294,27 +291,27 @@ export default class ComparativeAnalysisComponent implements OnInit {
       setTimeout(() => this.createEvolutionChart(data), 100);
       return;
     }
-    const ctx = this.evolutionChartCanvas.nativeElement.getContext('2d');
+    const ctx = this.evolutionChartCanvas.nativeElement.getContext("2d");
     if (!ctx) return;
 
-    const chartData: ChartData<'bar'> = {
-      labels: data.map(d => d.periodLabel ?? ''),
+    const chartData: ChartData<"bar"> = {
+      labels: data.map(d => d.periodLabel ?? ""),
       datasets: [
-        { label: 'CA Actuel', data: data.map(d => d.currentCA ?? 0), backgroundColor: '#2196F3' },
-        { label: 'CA Précédent', data: data.map(d => d.previousCA ?? 0), backgroundColor: '#FF9800' },
-      ],
+        { label: "CA Actuel", data: data.map(d => d.currentCA ?? 0), backgroundColor: "#2196F3" },
+        { label: "CA Précédent", data: data.map(d => d.previousCA ?? 0), backgroundColor: "#FF9800" }
+      ]
     };
-    const config: ChartConfiguration<'bar'> = {
-      type: 'bar',
+    const config: ChartConfiguration<"bar"> = {
+      type: "bar",
       data: chartData,
       options: {
         responsive: true,
         plugins: {
-          legend: { position: 'top' },
-          title: { display: true, text: 'Évolution Comparative du CA' },
+          legend: { position: "top" },
+          title: { display: true, text: "Évolution Comparative du CA" }
         },
-        scales: { y: { beginAtZero: true } },
-      },
+        scales: { y: { beginAtZero: true } }
+      }
     };
     this.evolutionChart = new Chart(ctx, config);
   }
@@ -327,24 +324,24 @@ export default class ComparativeAnalysisComponent implements OnInit {
       setTimeout(() => this.createTypeChart(data), 100);
       return;
     }
-    const ctx = this.typeChartCanvas.nativeElement.getContext('2d');
+    const ctx = this.typeChartCanvas.nativeElement.getContext("2d");
     if (!ctx) return;
 
     const year = this.selectedYear();
-    const chartData: ChartData<'bar'> = {
-      labels: data.map(d => d.saleTypeLabel ?? ''),
+    const chartData: ChartData<"bar"> = {
+      labels: data.map(d => d.saleTypeLabel ?? ""),
       datasets: [
-        { label: `CA ${year}`, data: data.map(d => d.currentYearCA ?? 0), backgroundColor: '#4CAF50' },
-        { label: `CA ${year - 1}`, data: data.map(d => d.previousYearCA ?? 0), backgroundColor: '#9C27B0' },
-      ],
+        { label: `CA ${year}`, data: data.map(d => d.currentYearCA ?? 0), backgroundColor: "#4CAF50" },
+        { label: `CA ${year - 1}`, data: data.map(d => d.previousYearCA ?? 0), backgroundColor: "#9C27B0" }
+      ]
     };
-    const config: ChartConfiguration<'bar'> = {
-      type: 'bar',
+    const config: ChartConfiguration<"bar"> = {
+      type: "bar",
       data: chartData,
       options: {
         responsive: true,
-        plugins: { legend: { position: 'top' }, title: { display: true, text: 'CA par Type de Vente' } },
-      },
+        plugins: { legend: { position: "top" }, title: { display: true, text: "CA par Type de Vente" } }
+      }
     };
     this.typeChart = new Chart(ctx, config);
   }
@@ -357,30 +354,30 @@ export default class ComparativeAnalysisComponent implements OnInit {
       setTimeout(() => this.createFournisseurChart(data), 100);
       return;
     }
-    const ctx = this.fournisseurChartCanvas.nativeElement.getContext('2d');
+    const ctx = this.fournisseurChartCanvas.nativeElement.getContext("2d");
     if (!ctx) return;
 
     const year = this.selectedYear();
     const top15 = [...data].sort((a, b) => (b.currentYearCA ?? 0) - (a.currentYearCA ?? 0)).slice(0, 15);
 
-    const config: ChartConfiguration<'bar'> = {
-      type: 'bar',
+    const config: ChartConfiguration<"bar"> = {
+      type: "bar",
       data: {
-        labels: top15.map(d => d.fournisseurLibelle ?? ''),
+        labels: top15.map(d => d.fournisseurLibelle ?? ""),
         datasets: [
-          { label: `CA ${year}`, data: top15.map(d => d.currentYearCA ?? 0), backgroundColor: '#4CAF50' },
-          { label: `CA ${year - 1}`, data: top15.map(d => d.previousYearCA ?? 0), backgroundColor: '#FF9800' },
-        ],
+          { label: `CA ${year}`, data: top15.map(d => d.currentYearCA ?? 0), backgroundColor: "#4CAF50" },
+          { label: `CA ${year - 1}`, data: top15.map(d => d.previousYearCA ?? 0), backgroundColor: "#FF9800" }
+        ]
       },
       options: {
-        indexAxis: 'y',
+        indexAxis: "y",
         responsive: true,
         plugins: {
-          legend: { position: 'top' },
-          title: { display: true, text: `Top 15 fournisseurs — ${year} vs ${year - 1}` },
+          legend: { position: "top" },
+          title: { display: true, text: `Top 15 fournisseurs — ${year} vs ${year - 1}` }
         },
-        scales: { x: { beginAtZero: true } },
-      },
+        scales: { x: { beginAtZero: true } }
+      }
     };
     this.fournisseurChart = new Chart(ctx, config);
   }
@@ -393,30 +390,30 @@ export default class ComparativeAnalysisComponent implements OnInit {
       setTimeout(() => this.createFamilyChart(data), 100);
       return;
     }
-    const ctx = this.familyChartCanvas.nativeElement.getContext('2d');
+    const ctx = this.familyChartCanvas.nativeElement.getContext("2d");
     if (!ctx) return;
 
     const year = this.selectedYear();
     const top15 = [...data].sort((a, b) => (b.currentYearCA ?? 0) - (a.currentYearCA ?? 0)).slice(0, 15);
 
-    const config: ChartConfiguration<'bar'> = {
-      type: 'bar',
+    const config: ChartConfiguration<"bar"> = {
+      type: "bar",
       data: {
-        labels: top15.map(d => d.familleLibelle ?? ''),
+        labels: top15.map(d => d.familleLibelle ?? ""),
         datasets: [
-          { label: `CA ${year}`, data: top15.map(d => d.currentYearCA ?? 0), backgroundColor: '#2196F3' },
-          { label: `CA ${year - 1}`, data: top15.map(d => d.previousYearCA ?? 0), backgroundColor: '#FF9800' },
-        ],
+          { label: `CA ${year}`, data: top15.map(d => d.currentYearCA ?? 0), backgroundColor: "#2196F3" },
+          { label: `CA ${year - 1}`, data: top15.map(d => d.previousYearCA ?? 0), backgroundColor: "#FF9800" }
+        ]
       },
       options: {
-        indexAxis: 'y',
+        indexAxis: "y",
         responsive: true,
         plugins: {
-          legend: { position: 'top' },
-          title: { display: true, text: `Top 15 familles — ${year} vs ${year - 1}` },
+          legend: { position: "top" },
+          title: { display: true, text: `Top 15 familles — ${year} vs ${year - 1}` }
         },
-        scales: { x: { beginAtZero: true } },
-      },
+        scales: { x: { beginAtZero: true } }
+      }
     };
     this.familyChart = new Chart(ctx, config);
   }

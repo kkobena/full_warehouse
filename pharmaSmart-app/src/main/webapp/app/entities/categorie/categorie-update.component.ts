@@ -7,13 +7,17 @@ import { Observable } from 'rxjs';
 
 import { Categorie, ICategorie } from 'app/shared/model/categorie.model';
 import { CategorieService } from './categorie.service';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { finalize } from 'rxjs/operators';
+import { NotificationService } from "../../shared/services/notification.service";
+import { Toast } from "primeng/toast";
+import { FaIconComponent } from "@fortawesome/angular-fontawesome";
+import TranslateDirective from "../../shared/language/translate.directive";
+import { AlertErrorComponent } from "../../shared/alert/alert-error.component";
 
 @Component({
-  selector: 'jhi-categorie-update',
+  selector: 'app-categorie-update',
   templateUrl: './categorie-update.component.html',
-  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule],
+  imports: [FormsModule, ReactiveFormsModule, Toast, FaIconComponent, TranslateDirective, AlertErrorComponent]
 })
 export class CategorieUpdateComponent implements OnInit {
   isSaving = false;
@@ -25,6 +29,7 @@ export class CategorieUpdateComponent implements OnInit {
     libelle: [null, [Validators.required]],
   });
 
+  private readonly notificationService = inject(NotificationService);
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ categorie }) => {
       this.updateForm(categorie);
@@ -64,7 +69,7 @@ export class CategorieUpdateComponent implements OnInit {
   }
 
   protected onSaveError(): void {
-    // Api for inheritance.
+    this.notificationService.error('Une erreur est survenue lors de la sauvegarde de la catégorie.');
   }
 
   private createFromForm(): ICategorie {

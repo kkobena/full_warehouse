@@ -1,23 +1,22 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule, Location } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { Component, inject, OnInit, signal } from "@angular/core";
+import { CommonModule, Location } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 
-import { ButtonModule } from 'primeng/button';
-import { RadioButtonModule } from 'primeng/radiobutton';
-import { ToolbarModule } from 'primeng/toolbar';
+import { ButtonModule } from "primeng/button";
+import { RadioButtonModule } from "primeng/radiobutton";
+import { ToolbarModule } from "primeng/toolbar";
 
 import { ConfigurationService, ModelReapproOption } from "app/shared/configuration.service";
-import { WarehouseCommonModule } from 'app/shared/warehouse-common/warehouse-common.module';
 
 @Component({
-  selector: 'app-semois-model-config',
-  templateUrl: './semois-model-config.component.html',
-  styleUrls: ['./semois-model-config.component.scss'],
-  imports: [CommonModule, FormsModule, ButtonModule, RadioButtonModule, ToolbarModule, WarehouseCommonModule],
+  selector: "app-semois-model-config",
+  templateUrl: "./semois-model-config.component.html",
+  styleUrls: ["./semois-model-config.component.scss"],
+  imports: [CommonModule, FormsModule, ButtonModule, RadioButtonModule, ToolbarModule]
 })
 export class SemoisModelConfigComponent implements OnInit {
-  readonly currentModel = signal<string>('CLASSIQUE');
-  readonly selectedModel = signal<string>('CLASSIQUE');
+  readonly currentModel = signal<string>("CLASSIQUE");
+  readonly selectedModel = signal<string>("CLASSIQUE");
   readonly availableModels = signal<ModelReapproOption[]>([]);
   readonly isLoading = signal<boolean>(false);
   readonly isSaving = signal<boolean>(false);
@@ -44,8 +43,8 @@ export class SemoisModelConfigComponent implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
-        this.errorMessage.set('Erreur lors du chargement de la configuration');
-      },
+        this.errorMessage.set("Erreur lors du chargement de la configuration");
+      }
     });
   }
 
@@ -62,8 +61,8 @@ export class SemoisModelConfigComponent implements OnInit {
       },
       error: () => {
         this.isSaving.set(false);
-        this.errorMessage.set('Erreur lors de la sauvegarde de la configuration');
-      },
+        this.errorMessage.set("Erreur lors de la sauvegarde de la configuration");
+      }
     });
   }
 

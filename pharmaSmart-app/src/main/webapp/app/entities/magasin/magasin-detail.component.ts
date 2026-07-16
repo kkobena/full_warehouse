@@ -1,21 +1,21 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { Component, inject, OnInit } from "@angular/core";
+import { ActivatedRoute, RouterModule } from "@angular/router";
 
-import { IMagasin } from 'app/shared/model/magasin.model';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { PanelModule } from 'primeng/panel';
+import { IMagasin } from "app/shared/model/magasin.model";
+import { PanelModule } from "primeng/panel";
+import TranslateDirective from "../../shared/language/translate.directive";
+import { FaIconComponent } from "@fortawesome/angular-fontawesome";
 
 @Component({
-  selector: 'jhi-magasin-detail',
-  templateUrl: './magasin-detail.component.html',
-  imports: [WarehouseCommonModule, PanelModule, RouterModule],
+  selector: "app-magasin-detail",
+  templateUrl: "./magasin-detail.component.html",
+  imports: [PanelModule, RouterModule, TranslateDirective, FaIconComponent]
 })
 export class MagasinDetailComponent implements OnInit {
   protected activatedRoute = inject(ActivatedRoute);
 
   magasin: IMagasin | null = null;
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ magasin }) => (this.magasin = magasin));

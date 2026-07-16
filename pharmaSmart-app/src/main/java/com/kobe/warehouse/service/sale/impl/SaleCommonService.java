@@ -340,7 +340,7 @@ public class SaleCommonService {
         c.setPayrollAmount(dto.getPayrollAmount());
         this.posteRepository.findFirstByAddressOrName(dto.getCaisseEndNum(), dto.getCaisseNum())
             .ifPresent(c::setLastCaisse);
-        c.setRestToPay(dto.getRestToPay());
+        c.setRestToPay(calculateRestToPay(dto.getPayrollAmount(), dto.getAmountToBePaid()));
         c.setUpdatedAt(LocalDateTime.now());
         c.setMonnaie(dto.getMontantRendu());
         c.setEffectiveUpdateDate(c.getUpdatedAt());
@@ -349,8 +349,20 @@ public class SaleCommonService {
         } else {
             c.setPaymentStatus(PaymentStatus.IMPAYE);
         }
-        c.setRestToPay(c.getRestToPay() < 0 ? 0 : c.getRestToPay());
         this.buildReference(c);
+    }
+
+    private int calculateRestToPay(Integer payrollAmount, Integer amountToBePaid) {
+        if (payrollAmount == null || amountToBePaid == null) {
+            throw new PaymentAmountException();
+        }
+        int restToPay = amountToBePaid - payrollAmount;
+        if (restToPay < 4) {
+            return 0;
+        }
+        return restToPay;
+
+
     }
 
     public void arrondirMontantCaisse(Sales sales) {

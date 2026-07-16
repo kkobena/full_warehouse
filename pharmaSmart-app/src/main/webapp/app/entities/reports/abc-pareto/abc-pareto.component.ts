@@ -1,32 +1,30 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
-import {HttpResponse} from '@angular/common/http';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
+import { Component, inject, OnInit, signal } from "@angular/core";
+import { HttpResponse } from "@angular/common/http";
+import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 
-import {TableModule} from 'primeng/table';
-import {ButtonModule} from 'primeng/button';
-import {SelectModule} from 'primeng/select';
-import {ToolbarModule} from 'primeng/toolbar';
-import {DividerModule} from 'primeng/divider';
-import {ChipModule} from 'primeng/chip';
-import {ProgressBarModule} from 'primeng/progressbar';
-import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
+import { TableModule } from "primeng/table";
+import { ButtonModule } from "primeng/button";
+import { SelectModule } from "primeng/select";
+import { ToolbarModule } from "primeng/toolbar";
+import { DividerModule } from "primeng/divider";
+import { ChipModule } from "primeng/chip";
+import { ProgressBarModule } from "primeng/progressbar";
 
-import {IABCPareto, IABCParetoSummary} from 'app/shared/model/report';
-import {ClassePareto} from 'app/shared/model/report/classe-pareto.enum';
-import {ABCParetoReportService} from '../services/abc-pareto-report.service';
-import {InputText} from 'primeng/inputtext';
-import {IconField} from 'primeng/iconfield';
-import {InputIcon} from 'primeng/inputicon';
-import {Drawer} from 'primeng/drawer';
-import {formatCurrency} from 'app/shared/utils/format-utils';
-import {TauriPrinterService} from "../../../shared/services/tauri-printer.service";
-import {handleBlobForTauri} from "../../../shared/util/tauri-util";
+import { IABCPareto, IABCParetoSummary } from "app/shared/model/report";
+import { ClassePareto } from "app/shared/model/report/classe-pareto.enum";
+import { ABCParetoReportService } from "../services/abc-pareto-report.service";
+import { InputText } from "primeng/inputtext";
+import { IconField } from "primeng/iconfield";
+import { InputIcon } from "primeng/inputicon";
+import { Drawer } from "primeng/drawer";
+import { formatCurrency } from "app/shared/utils/format-utils";
+import { BlobDownloadService } from "../../../shared/services/blob-download.service";
 
 @Component({
-  selector: 'jhi-abc-pareto',
-  templateUrl: './abc-pareto.component.html',
-  styleUrl: './abc-pareto.component.scss',
+  selector: "app-abc-pareto",
+  templateUrl: "./abc-pareto.component.html",
+  styleUrl: "./abc-pareto.component.scss",
   imports: [
     CommonModule,
     FormsModule,
@@ -40,8 +38,8 @@ import {handleBlobForTauri} from "../../../shared/util/tauri-util";
     InputText,
     IconField,
     InputIcon,
-    Drawer,
-  ],
+    Drawer
+  ]
 })
 export default class ABCParetoComponent implements OnInit {
   products = signal<IABCPareto[]>([]);
@@ -52,20 +50,19 @@ export default class ABCParetoComponent implements OnInit {
   helpDrawerVisible = signal<boolean>(false);
 
   familleOptions = signal<{ label: string; value: string }[]>([]);
-  classeParetoOptions = signal<{ label: string; value: ClassePareto | '' }[]>([
-    {label: 'Toutes', value: ''},
-    {label: 'A+ — Top 60% du CA', value: ClassePareto.A_PLUS},
-    {label: 'A — 60-80% du CA', value: ClassePareto.A},
-    {label: 'B — 80-95% du CA', value: ClassePareto.B},
-    {label: 'C — 95-99% du CA', value: ClassePareto.C},
-    {label: 'D — Sans ventes / >99%', value: ClassePareto.D},
+  classeParetoOptions = signal<{ label: string; value: ClassePareto | "" }[]>([
+    { label: "Toutes", value: "" },
+    { label: "A+ — Top 60% du CA", value: ClassePareto.A_PLUS },
+    { label: "A — 60-80% du CA", value: ClassePareto.A },
+    { label: "B — 80-95% du CA", value: ClassePareto.B },
+    { label: "C — 95-99% du CA", value: ClassePareto.C },
+    { label: "D — Sans ventes / >99%", value: ClassePareto.D }
   ]);
 
   ClassePareto = ClassePareto;
   formatCurrency = formatCurrency;
   private readonly abcParetoService = inject(ABCParetoReportService);
-  private readonly tauriPrinter = inject(TauriPrinterService);
-
+  private readonly blobDownloadService = inject(BlobDownloadService);
   ngOnInit(): void {
     this.loadABCPareto();
     this.loadSummary();
@@ -93,7 +90,7 @@ export default class ABCParetoComponent implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
-      },
+      }
     });
   }
 
@@ -103,8 +100,8 @@ export default class ABCParetoComponent implements OnInit {
         this.summary.set(res.body ?? null);
       },
       error() {
-        console.error('Error loading summary');
-      },
+        console.error("Error loading summary");
+      }
     });
   }
 
@@ -127,72 +124,92 @@ export default class ABCParetoComponent implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
-      },
+      }
     });
   }
 
   exportToPdf(): void {
     this.abcParetoService.exportABCParetoToPdf()
       .subscribe(resp => {
-        if (this.tauriPrinter.isRunningInTauri()) {
-          handleBlobForTauri(resp.body, `abc_pareto_${new Date().getTime()}`);
-        } else {
-          window.open(URL.createObjectURL(resp.body));
-        }
+        this.blobDownloadService.downloadPdf(resp.body, 'abc_pareto');
       });
   }
 
   getClasseParetoLabel(classePareto: ClassePareto | undefined): string {
     switch (classePareto) {
-      case ClassePareto.A_PLUS: return 'A+';
-      case ClassePareto.A:      return 'A';
-      case ClassePareto.B:      return 'B';
-      case ClassePareto.C:      return 'C';
-      case ClassePareto.D:      return 'D';
-      default:                  return '';
+      case ClassePareto.A_PLUS:
+        return "A+";
+      case ClassePareto.A:
+        return "A";
+      case ClassePareto.B:
+        return "B";
+      case ClassePareto.C:
+        return "C";
+      case ClassePareto.D:
+        return "D";
+      default:
+        return "";
     }
   }
 
-  getClasseParetoSeverity(classePareto: ClassePareto | undefined): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
+  getClasseParetoSeverity(classePareto: ClassePareto | undefined): "success" | "info" | "warn" | "danger" | "secondary" {
     switch (classePareto) {
-      case ClassePareto.A_PLUS: return 'danger';
-      case ClassePareto.A:      return 'success';
-      case ClassePareto.B:      return 'info';
-      case ClassePareto.C:      return 'warn';
-      case ClassePareto.D:      return 'secondary';
-      default:                  return 'secondary';
+      case ClassePareto.A_PLUS:
+        return "danger";
+      case ClassePareto.A:
+        return "success";
+      case ClassePareto.B:
+        return "info";
+      case ClassePareto.C:
+        return "warn";
+      case ClassePareto.D:
+        return "secondary";
+      default:
+        return "secondary";
     }
   }
 
   getClasseParetoDescription(classePareto: ClassePareto | undefined): string {
     switch (classePareto) {
-      case ClassePareto.A_PLUS: return '≤ 60% CA cumulé';
-      case ClassePareto.A:      return '60-80% CA cumulé';
-      case ClassePareto.B:      return '80-95% CA cumulé';
-      case ClassePareto.C:      return '95-99% CA cumulé';
-      case ClassePareto.D:      return 'Sans ventes / >99%';
-      default:                  return '';
+      case ClassePareto.A_PLUS:
+        return "≤ 60% CA cumulé";
+      case ClassePareto.A:
+        return "60-80% CA cumulé";
+      case ClassePareto.B:
+        return "80-95% CA cumulé";
+      case ClassePareto.C:
+        return "95-99% CA cumulé";
+      case ClassePareto.D:
+        return "Sans ventes / >99%";
+      default:
+        return "";
     }
   }
 
   getClasseParetoClass(classePareto: ClassePareto | undefined): string {
     switch (classePareto) {
-      case ClassePareto.A_PLUS: return 'pareto-badge pareto-a-plus';
-      case ClassePareto.A:      return 'pareto-badge pareto-a';
-      case ClassePareto.B:      return 'pareto-badge pareto-b';
-      case ClassePareto.C:      return 'pareto-badge pareto-c';
-      case ClassePareto.D:      return 'pareto-badge pareto-d';
-      default:                  return 'pareto-badge pareto-d';
+      case ClassePareto.A_PLUS:
+        return "pareto-badge pareto-a-plus";
+      case ClassePareto.A:
+        return "pareto-badge pareto-a";
+      case ClassePareto.B:
+        return "pareto-badge pareto-b";
+      case ClassePareto.C:
+        return "pareto-badge pareto-c";
+      case ClassePareto.D:
+        return "pareto-badge pareto-d";
+      default:
+        return "pareto-badge pareto-d";
     }
   }
 
   getCumulativePercentageColor(caCumulePct: number | undefined): string {
-    if (!caCumulePct) return 'secondary';
-    if (caCumulePct <= 60)  return 'danger';
-    if (caCumulePct <= 80)  return 'success';
-    if (caCumulePct <= 95)  return 'info';
-    if (caCumulePct <= 99)  return 'warn';
-    return 'secondary';
+    if (!caCumulePct) return "secondary";
+    if (caCumulePct <= 60) return "danger";
+    if (caCumulePct <= 80) return "success";
+    if (caCumulePct <= 95) return "info";
+    if (caCumulePct <= 99) return "warn";
+    return "secondary";
   }
 
   toggleHelpDrawer(): void {
@@ -202,8 +219,8 @@ export default class ABCParetoComponent implements OnInit {
   private extractFamilleOptions(products: IABCPareto[]): void {
     const familles = [...new Set(products.map(p => p.famille).filter(f => f))];
     this.familleOptions.set([
-      {label: 'Toutes les familles', value: ''},
-      ...familles.map(f => ({label: f!, value: f!})),
+      { label: "Toutes les familles", value: "" },
+      ...familles.map(f => ({ label: f!, value: f! }))
     ]);
   }
 }

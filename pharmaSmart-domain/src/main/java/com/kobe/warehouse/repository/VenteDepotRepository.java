@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface VenteDepotRepository extends JpaRepository<VenteDepot, SaleId> {
-    @Query("select sale from VenteDepot sale left join fetch sale.salesLines where sale.id =:id AND  sale.saleDate =:saleDate")
+    @Query("select sale from VenteDepot sale where sale.id =:id AND  sale.saleDate =:saleDate")
     Optional<VenteDepot> findOneWithEagerSalesLines(@Param("id") Long id, @Param("saleDate") java.time.LocalDate saleDate);
 }

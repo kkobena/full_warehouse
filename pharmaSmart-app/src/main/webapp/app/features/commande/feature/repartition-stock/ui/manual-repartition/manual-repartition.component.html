@@ -95,7 +95,8 @@
                       <i class="pi pi-building"></i>
                       {{ row.stockSource?.storage?.name }}
                     </span>
-                    <span class="stock-type-badge" [class.reserve-badge]="row.stockSource?.storage?.type === 'SAFETY_STOCK'">
+                    <span class="stock-type-badge"
+                          [class.reserve-badge]="row.stockSource?.storage?.type === 'SAFETY_STOCK'">
                       {{ row.stockSource?.storage?.type === 'SAFETY_STOCK' ? 'Réserve' : 'Rayon' }}
                     </span>
                   </div>
@@ -167,7 +168,8 @@
                         <i class="pi pi-building"></i>
                         {{ row.stockDestination?.storage?.name }}
                       </span>
-                      <span class="stock-type-badge" [class.reserve-badge]="row.stockDestination?.storage?.type === 'SAFETY_STOCK'">
+                      <span class="stock-type-badge"
+                            [class.reserve-badge]="row.stockDestination?.storage?.type === 'SAFETY_STOCK'">
                         {{ row.stockDestination?.storage?.type === 'SAFETY_STOCK' ? 'Réserve' : 'Rayon' }}
                       </span>
                     </div>

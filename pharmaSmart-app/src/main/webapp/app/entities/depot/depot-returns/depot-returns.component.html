@@ -1,16 +1,16 @@
 <div class="container-fluid">
-  <p-toast />
+  <p-toast position="center" />
   <div class="pharma-smart-content">
     <!-- HEADER TOOLBAR -->
     <div class="pharma-sales-header">
       <div class="header-left">
-        <p-button  size="small"
-          (click)="navigateToList()"
-          [rounded]="true"
-          [text]="true"
-          class="back-button"
-          icon="pi pi-arrow-left"
-          pTooltip="Retour à la liste"
+        <p-button size="small"
+                  (click)="navigateToList()"
+                  [rounded]="true"
+                  [text]="true"
+                  class="back-button"
+                  icon="pi pi-arrow-left"
+                  pTooltip="Retour à la liste"
         >
         </p-button>
 
@@ -22,28 +22,28 @@
 
       <div class="header-actions">
         <!-- Save Button -->
-        <p-button  size="small"
-          (onClick)="save()"
-          [disabled]="!canSave() || isSaving()"
-          [loading]="isSaving()"
-          [outlined]="false"
-          class="save-btn"
-          icon="pi pi-save"
-          label="Enregistrer"
-          severity="primary"
-          size="small"
+        <p-button size="small"
+                  (onClick)="save()"
+                  [disabled]="!canSave() || isSaving()"
+                  [loading]="isSaving()"
+                  [outlined]="false"
+                  class="save-btn"
+                  icon="pi pi-save"
+                  label="Enregistrer"
+                  severity="primary"
+                  size="small"
         >
         </p-button>
 
         <!-- Cancel Button -->
-        <p-button  size="small"
-          (onClick)="reset()"
-          [outlined]="true"
-          class="cancel-btn"
-          icon="pi pi-times"
-          label="Annuler"
-          severity="secondary"
-          size="small"
+        <p-button size="small"
+                  (onClick)="reset()"
+                  [outlined]="true"
+                  class="cancel-btn"
+                  icon="pi pi-times"
+                  label="Annuler"
+                  severity="secondary"
+                  size="small"
         >
         </p-button>
       </div>
@@ -139,7 +139,7 @@
           <div class="meta-item">
             <i class="pi pi-building"></i>
             <span
-              >Dépôt: <strong>{{ selectedDepot()?.name }}</strong></span
+            >Dépôt: <strong>{{ selectedDepot()?.name }}</strong></span
             >
           </div>
 
@@ -147,14 +147,15 @@
             <div class="meta-item">
               <i class="pi pi-box"></i>
               <span
-                >CIP: <strong>{{ selectedProduct()?.codeCip }}</strong></span
+              >CIP: <strong>{{ selectedProduct()?.codeCip }}</strong></span
               >
             </div>
 
             <div class="meta-item" style="background-color: #e3f2fd; padding: 0.5rem; border-radius: 4px">
               <i class="pi pi-inbox text-primary"></i>
               <span class="text-primary"
-                >Stock Dépôt: <strong style="font-size: 1.1rem">{{ selectedProduct()?.totalQuantity | number }}</strong></span
+              >Stock Dépôt: <strong
+                style="font-size: 1.1rem">{{ selectedProduct()?.totalQuantity | number }}</strong></span
               >
             </div>
           }

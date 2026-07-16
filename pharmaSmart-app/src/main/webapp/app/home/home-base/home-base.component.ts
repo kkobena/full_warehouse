@@ -20,7 +20,7 @@ import { forkJoin, interval } from "rxjs";
 import { FormsModule } from "@angular/forms";
 import { TiersPayantService } from "../../entities/tiers-payant/tierspayant.service";
 import { TiersPayantAchat } from "../../entities/tiers-payant/model/tiers-payant-achat.model";
-import { ChartModule } from "primeng/chart";
+import { ChartComponent } from 'app/shared/chart/chart.component';
 import { ToggleButtonChangeEvent, ToggleButtonModule } from "primeng/togglebutton";
 import { SelectChangeEvent } from 'primeng/select';
 import {
@@ -70,13 +70,13 @@ interface PeriodOption {
 }
 
 @Component({
-  selector: "jhi-home-base",
+  selector: "app-home-base",
   imports: [
     CommonModule,
     FormsModule,
     RouterModule,
     TableModule,
-    ChartModule,
+    ChartComponent,
     ToggleButtonModule,
     SelectModule,
     SkeletonModule,

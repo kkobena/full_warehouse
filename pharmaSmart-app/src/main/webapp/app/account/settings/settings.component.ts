@@ -1,19 +1,22 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslateService } from '@ngx-translate/core';
-import { AccountService } from 'app/core/auth/account.service';
-import { Account } from 'app/core/auth/account.model';
-import { LANGUAGES } from 'app/config/language.constants';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { PrimeNgCommonModule } from '../../shared/prime-ng-common/prime-ng-common.module';
+import { Component, inject, OnInit, signal } from "@angular/core";
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
+import { TranslateService } from "@ngx-translate/core";
+import { AccountService } from "app/core/auth/account.service";
+import { Account } from "app/core/auth/account.model";
+import { LANGUAGES } from "app/config/language.constants";
+import { CommonModule } from "@angular/common";
+import { AlertErrorComponent } from "../../shared/alert/alert-error.component";
+import FindLanguageFromKeyPipe from "../../shared/language/find-language-from-key.pipe";
+import { Button } from "primeng/button";
+import { InputText } from "primeng/inputtext";
 
 const initialAccount: Account = {} as Account;
 
 @Component({
-  selector: 'jhi-settings',
-  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, PrimeNgCommonModule],
-  templateUrl: './settings.html',
-  styleUrls: ['./settings.scss'],
+  selector: "jhi-settings",
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, AlertErrorComponent, FindLanguageFromKeyPipe, Button, InputText],
+  templateUrl: "./settings.html",
+  styleUrls: ["./settings.scss"]
 })
 export default class SettingsComponent implements OnInit {
   success = signal(false);
@@ -22,22 +25,22 @@ export default class SettingsComponent implements OnInit {
   settingsForm = new FormGroup({
     firstName: new FormControl(initialAccount.firstName, {
       nonNullable: true,
-      validators: [Validators.required, Validators.minLength(1), Validators.maxLength(50)],
+      validators: [Validators.required, Validators.minLength(1), Validators.maxLength(50)]
     }),
     lastName: new FormControl(initialAccount.lastName, {
       nonNullable: true,
-      validators: [Validators.required, Validators.minLength(1), Validators.maxLength(50)],
+      validators: [Validators.required, Validators.minLength(1), Validators.maxLength(50)]
     }),
     email: new FormControl(initialAccount.email, {
       nonNullable: true,
-      validators: [Validators.required, Validators.minLength(5), Validators.maxLength(254), Validators.email],
+      validators: [Validators.required, Validators.minLength(5), Validators.maxLength(254), Validators.email]
     }),
     langKey: new FormControl(initialAccount.langKey, { nonNullable: true }),
 
     activated: new FormControl(initialAccount.activated, { nonNullable: true }),
     authorities: new FormControl(initialAccount.authorities, { nonNullable: true }),
     imageUrl: new FormControl(initialAccount.imageUrl, { nonNullable: true }),
-    login: new FormControl(initialAccount.login, { nonNullable: true }),
+    login: new FormControl(initialAccount.login, { nonNullable: true })
   });
 
   private accountService = inject(AccountService);

@@ -15,7 +15,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { PaginatorModule } from 'primeng/paginator';
-import { ChartModule } from 'primeng/chart';
+import { ChartComponent } from 'app/shared/chart/chart.component';
 import { CardModule } from 'primeng/card';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { IGroupeFournisseur } from '../../../shared/model/groupe-fournisseur.model';
@@ -47,7 +47,7 @@ import { CommonModule } from "@angular/common";
     TooltipModule,
     RadioButtonModule,
     SelectButtonModule,
-    ChartModule,
+    ChartComponent,
     CardModule,
     SplitButtonModule,
     FormsModule,

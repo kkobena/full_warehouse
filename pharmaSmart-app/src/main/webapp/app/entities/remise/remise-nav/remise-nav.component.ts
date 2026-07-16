@@ -1,16 +1,21 @@
 import {Component} from '@angular/core';
 import {CardModule} from 'primeng/card';
-import {NgbNav, NgbNavContent, NgbNavItem, NgbNavLink, NgbNavLinkBase} from '@ng-bootstrap/ng-bootstrap';
+import {
+  NgbNav,
+  NgbNavContent,
+  NgbNavItem,
+  NgbNavLink,
+  NgbNavLinkBase,
+  NgbNavOutlet
+} from "@ng-bootstrap/ng-bootstrap";
 import {PanelModule} from 'primeng/panel';
-import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
 import {FormsModule} from '@angular/forms';
 import {RemiseProduitsComponent} from '../remise-produits/remise-produits.component';
 import {CodeRemiseProduitComponent} from '../code-remise-produit/code-remise-produit.component';
 
 @Component({
-  selector: 'jhi-remise-nav',
+  selector: 'app-remise-nav',
   imports: [
-    WarehouseCommonModule,
     CardModule,
     NgbNav,
     NgbNavContent,
@@ -21,6 +26,7 @@ import {CodeRemiseProduitComponent} from '../code-remise-produit/code-remise-pro
     FormsModule,
     RemiseProduitsComponent,
     CodeRemiseProduitComponent,
+    NgbNavOutlet
   ],
   templateUrl: './remise-nav.component.html',
   styleUrls: ['./remise-nav.scss'],

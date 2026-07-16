@@ -62,7 +62,7 @@
 
             <div class="detail-grid">
               <div class="detail-item">
-                <label jhiTranslate="warehouseApp.magasin.phone">Téléphone</label>
+                <label>Téléphone</label>
                 <div class="detail-value">
                   <i class="pi pi-phone detail-icon"></i>
                   @if (magasin.phone) {
@@ -84,7 +84,7 @@
               </div>
 
               <div class="detail-item detail-item-full">
-                <label jhiTranslate="warehouseApp.magasin.address">Adresse</label>
+                <label>Adresse</label>
                 <div class="detail-value">
                   <i class="pi pi-map-marker detail-icon"></i>
                   <span>{{ magasin.address }}</span>
@@ -106,7 +106,7 @@
 
             <div class="detail-grid">
               <div class="detail-item">
-                <label jhiTranslate="warehouseApp.magasin.registre">Registre de Commerce</label>
+                <label>Registre de Commerce</label>
                 <div class="detail-value">
                   <i class="pi pi-file detail-icon"></i>
                   <span>{{ magasin.registre }}</span>
@@ -173,7 +173,7 @@
             <div class="detail-grid">
               @if (magasin.welcomeMessage) {
                 <div class="detail-item detail-item-full">
-                  <label jhiTranslate="warehouseApp.magasin.welcomeMessage">Message de Bienvenue</label>
+                  <label>Message de Bienvenue</label>
                   <div class="detail-value detail-value-multiline">
                     <i class="pi pi-comment detail-icon"></i>
                     <span>{{ magasin.welcomeMessage }}</span>
@@ -183,7 +183,7 @@
 
               @if (magasin.note) {
                 <div class="detail-item detail-item-full">
-                  <label jhiTranslate="warehouseApp.magasin.note">Notes</label>
+                  <label>Notes</label>
                   <div class="detail-value detail-value-multiline">
                     <i class="pi pi-file-edit detail-icon"></i>
                     <span>{{ magasin.note }}</span>
@@ -196,7 +196,8 @@
       </div>
 
       <div class="form-actions-compact">
-        <p-button [routerLink]="['/magasin', magasin.id, 'edit']" icon="pi pi-pencil" label="Modifier" severity="primary" />
+        <p-button [routerLink]="['/magasin', magasin.id, 'edit']" icon="pi pi-pencil" label="Modifier"
+                  severity="primary" />
       </div>
     }
   </div>

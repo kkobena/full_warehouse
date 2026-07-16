@@ -1,55 +1,54 @@
-import { Component, inject, OnInit, viewChild } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-import { Router, RouterModule } from '@angular/router';
-import { IMagasin, TypeMagasin } from '../../shared/model/magasin.model';
-import { MagasinService } from '../magasin/magasin.service';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { CardModule } from 'primeng/card';
-import { TagModule } from 'primeng/tag';
-import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { Tooltip } from 'primeng/tooltip';
-import { Toolbar } from 'primeng/toolbar';
-import { InputText } from 'primeng/inputtext';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { AbilityService } from '../../core/auth/ability.service';
+import { Component, inject, OnInit } from "@angular/core";
+import { HttpResponse } from "@angular/common/http";
+import { Router, RouterModule } from "@angular/router";
+import { IMagasin } from "../../shared/model";
+import { MagasinService } from "../magasin/magasin.service";
+import { ButtonModule } from "primeng/button";
+import { TableModule } from "primeng/table";
+import { CardModule } from "primeng/card";
+import { TagModule } from "primeng/tag";
+import { Tooltip } from "primeng/tooltip";
+import { Toolbar } from "primeng/toolbar";
+import { InputText } from "primeng/inputtext";
+import { IconField } from "primeng/iconfield";
+import { InputIcon } from "primeng/inputicon";
+import { AbilityService } from "../../core/auth/ability.service";
+import { NgbConfirmDialogService } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import { NotificationService } from "../../shared/services/notification.service";
+import { Toast } from "primeng/toast";
 
 @Component({
-  selector: 'jhi-depot',
+  selector: "app-depot",
 
   imports: [
-    WarehouseCommonModule,
     RouterModule,
     ButtonModule,
     TableModule,
     CardModule,
     TagModule,
-    ConfirmDialogComponent,
     Tooltip,
     Toolbar,
     InputText,
     IconField,
     InputIcon,
+    Toast
   ],
-  templateUrl: './depot.component.html',
-  styleUrl: './depot.component.scss',
+  templateUrl: "./depot.component.html",
+  styleUrl: "./depot.component.scss"
 })
 export class DepotComponent implements OnInit {
   protected readonly ability = inject(AbilityService);
-  protected readonly canNewVente = this.ability.canSignal('execute', 'depot.liste-depots');
-  protected readonly canCreate   = this.ability.canSignal('create', 'depot.liste-depots');
-  protected readonly canEdit     = this.ability.canSignal('edit',   'depot.liste-depots');
-  protected readonly canDelete   = this.ability.canSignal('delete', 'depot.liste-depots');
-  protected readonly canReturn   = this.ability.canSignal('access', 'depot.retour-depot');
+  protected readonly canNewVente = this.ability.canSignal("execute", "depot.liste-depots");
+  protected readonly canCreate = this.ability.canSignal("create", "depot.liste-depots");
+  protected readonly canEdit = this.ability.canSignal("edit", "depot.liste-depots");
+  protected readonly canDelete = this.ability.canSignal("delete", "depot.liste-depots");
+  protected readonly canReturn = this.ability.canSignal("access", "depot.retour-depot");
   protected depots: IMagasin[] = [];
   protected loading = false;
-  protected readonly TypeMagasin = TypeMagasin;
   private magasinService = inject(MagasinService);
   private router = inject(Router);
-
-  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
+  private readonly notificationService = inject(NotificationService);
 
   ngOnInit(): void {
     this.loadAll();
@@ -64,34 +63,36 @@ export class DepotComponent implements OnInit {
       },
       error: () => {
         this.loading = false;
-      },
+        this.notificationService.error("Une erreur est survenue lors du chargement des dépôts.");
+      }
     });
   }
 
   onEdit(depot: IMagasin): void {
-    this.router.navigate(['/depot', depot.id, 'edit']);
+    this.router.navigate(["/depot", depot.id, "edit"]);
   }
 
   onCreate(): void {
-    this.router.navigate(['/depot', 'new']);
+    this.router.navigate(["/depot", "new"]);
   }
 
   onNewVente(): void {
-    this.router.navigate(['/sales-home', 'vente-depot']);
+    this.router.navigate(["/sales-home", "vente-depot"]);
   }
 
   onDelete(depot: IMagasin): void {
-    this.confimDialog().onConfirm(
+    this.confirmDialog.onConfirm(
       () => {
         this.magasinService.delete(depot.id).subscribe({
           next: () => {
+            this.notificationService.success("Le dépôt a été supprimé avec succès.");
             this.loadAll();
-          },
+          }
         });
       },
-      'Suppression du dépôt',
-      'Etes-vous sûr de vouloir changer le dépôt ?',
-      null,
+      "Suppression du dépôt",
+      "Etes-vous sûr de vouloir changer le dépôt ?",
+      null
     );
   }
 }

@@ -1,7 +1,5 @@
 package com.kobe.warehouse.service.tiketz.service;
 
-import static java.util.Objects.isNull;
-
 import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.PaymentTransaction;
 import com.kobe.warehouse.domain.SalePayment;
@@ -23,6 +21,11 @@ import com.kobe.warehouse.service.tiketz.dto.TicketZData;
 import com.kobe.warehouse.service.tiketz.dto.TicketZParam;
 import com.kobe.warehouse.service.tiketz.dto.TicketZProjection;
 import com.kobe.warehouse.service.tiketz.dto.TicketZRecap;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
 import java.awt.print.PrinterException;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -35,10 +38,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
+
+import static java.util.Objects.isNull;
 
 @Service
 public class TicketZServiceImpl implements TicketZService {
@@ -50,6 +51,8 @@ public class TicketZServiceImpl implements TicketZService {
     private final PaymentModeService paymentModeService;
     private final TicketZPrinterService ticketZPrinterService;
     private final TicketZReportService ticketZReportService;
+    private final String CREDIT_LABEL = "Crédit(vno/vo)";
+    private final String MOBILE_LABEL = "Total Mobile";
 
     public TicketZServiceImpl(
         SalePaymentRepository salePaymentRepository,
@@ -78,11 +81,11 @@ public class TicketZServiceImpl implements TicketZService {
     public void printTicketZ(String hostName, TicketZParam param) throws PrinterException {
         Pair periode = getPeriode(param);
         this.ticketZPrinterService.printTicketZ(
-                hostName,
-                getTicketZ(param),
-                (LocalDateTime) periode.key(),
-                (LocalDateTime) periode.value()
-            );
+            hostName,
+            getTicketZ(param),
+            (LocalDateTime) periode.key(),
+            (LocalDateTime) periode.value()
+        );
     }
 
     @Override
@@ -99,10 +102,10 @@ public class TicketZServiceImpl implements TicketZService {
     public byte[] generateEscPosReceiptForTauri(TicketZParam param) throws IOException {
         Pair periode = getPeriode(param);
         return this.ticketZPrinterService.generateEscPosReceiptForTauri(
-                getTicketZ(param),
-                (LocalDateTime) periode.key(),
-                (LocalDateTime) periode.value()
-            );
+            getTicketZ(param),
+            (LocalDateTime) periode.key(),
+            (LocalDateTime) periode.value()
+        );
     }
 
     private TicketZ combineAll(TicketZParam param) {
@@ -174,12 +177,12 @@ public class TicketZServiceImpl implements TicketZService {
                         List<TicketZCreditProjection> userCredit = creditProjectionsMap.remove(userId);
                         if (!CollectionUtils.isEmpty(userCredit)) {
                             long totalCredit = userCredit.stream().mapToLong(TicketZCreditProjection::montant).sum();
-                            ticketZDataUser.add(new TicketZData("Crédit(vno/vo)", totalCredit, totalCredit, 101, null));
+                            ticketZDataUser.add(new TicketZData(CREDIT_LABEL, totalCredit, totalCredit, 101, null));
                             creditAmount.addAndGet(totalCredit);
                         }
                     });
                 if (montantMobileCount.get() > 1) {
-                    summaryMobile.add(new TicketZData("Total Mobile", montantMobile.get(), montantMobile2.get(), 100, null));
+                    summaryMobile.add(new TicketZData(MOBILE_LABEL, montantMobile.get(), montantMobile2.get(), 100, null));
                 }
                 ticketZDataUser.sort(Comparator.comparing(TicketZData::sortOrder));
                 ticketZRecaps.add(new TicketZRecap(userId, userName, ticketZDataUser, summaryMobile));
@@ -196,7 +199,7 @@ public class TicketZServiceImpl implements TicketZService {
             creditAmount.addAndGet(totalCredit);
 
             ticketZRecaps.add(
-                new TicketZRecap(userId, userName, List.of(new TicketZData("Crédit(vno/vo)", totalCredit, totalCredit, 101, null)), List.of())
+                new TicketZRecap(userId, userName, List.of(new TicketZData(CREDIT_LABEL, totalCredit, totalCredit, 101, null)), List.of())
             );
         });
 
@@ -210,11 +213,11 @@ public class TicketZServiceImpl implements TicketZService {
             });
 
             if (montantMobileCountG.get() > 1) {
-                summaryData.add(new TicketZData("Total Mobile", montantMobileG.get(), montantMobileG2.get(), 101, null));
+                summaryData.add(new TicketZData(MOBILE_LABEL, montantMobileG.get(), montantMobileG2.get(), 101, null));
             }
 
             if (creditAmount.get() > 0) {
-                summaryData.add(new TicketZData("Crédit(vno/vo)", creditAmount.get(), creditAmount.get(), 100, null));
+                summaryData.add(new TicketZData(CREDIT_LABEL, creditAmount.get(), creditAmount.get(), 100, null));
             }
         }
 
@@ -292,9 +295,9 @@ public class TicketZServiceImpl implements TicketZService {
     private Specification<PaymentTransaction> getTicketZAllPaymentSpecification(TicketZParam param, Pair periode) {
         Specification<PaymentTransaction> specification =
             this.paymentTransactionRepository.filterByPeriode(
-                    ((LocalDateTime) periode.key()).toLocalDate(),
-                    ((LocalDateTime) periode.value()).toLocalDate()
-                );
+                ((LocalDateTime) periode.key()).toLocalDate(),
+                ((LocalDateTime) periode.value()).toLocalDate()
+            );
 
         if (!param.isMinDate()) {
             specification = specification.and(

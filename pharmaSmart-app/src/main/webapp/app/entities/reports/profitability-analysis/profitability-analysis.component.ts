@@ -1,28 +1,27 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
-import {HttpResponse} from '@angular/common/http';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
+import { Component, inject, OnInit, signal } from "@angular/core";
+import { HttpResponse } from "@angular/common/http";
+import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 
-import {TableModule} from 'primeng/table';
-import {ButtonModule} from 'primeng/button';
-import {SelectModule} from 'primeng/select';
-import {ToolbarModule} from 'primeng/toolbar';
-import {DividerModule} from 'primeng/divider';
-import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
-import {InputText} from 'primeng/inputtext';
-import {IconField} from 'primeng/iconfield';
-import {InputIcon} from 'primeng/inputicon';
-import {Drawer} from 'primeng/drawer';
-import {Tag} from 'primeng/tag';
+import { TableModule } from "primeng/table";
+import { ButtonModule } from "primeng/button";
+import { SelectModule } from "primeng/select";
+import { ToolbarModule } from "primeng/toolbar";
+import { DividerModule } from "primeng/divider";
+import { InputText } from "primeng/inputtext";
+import { IconField } from "primeng/iconfield";
+import { InputIcon } from "primeng/inputicon";
+import { Drawer } from "primeng/drawer";
+import { Tag } from "primeng/tag";
 
-import {IMargeDTO, IMargeSummary} from 'app/shared/model/report';
-import {MargeReportService} from '../services/marge-report.service';
-import {FamilleProduitService} from '../../famille-produit/famille-produit.service';
+import { IMargeDTO, IMargeSummary } from "app/shared/model/report";
+import { MargeReportService } from "../services/marge-report.service";
+import { FamilleProduitService } from "../../famille-produit/famille-produit.service";
 
 @Component({
-  selector: 'jhi-profitability-analysis',
-  templateUrl: './profitability-analysis.component.html',
-  styleUrl: './profitability-analysis.component.scss',
+  selector: "app-profitability-analysis",
+  templateUrl: "./profitability-analysis.component.html",
+  styleUrls: ["./profitability-analysis.component.scss"],
   imports: [
     CommonModule,
     FormsModule,
@@ -31,13 +30,12 @@ import {FamilleProduitService} from '../../famille-produit/famille-produit.servi
     SelectModule,
     ToolbarModule,
     DividerModule,
-    WarehouseCommonModule,
     InputText,
     IconField,
     InputIcon,
     Drawer,
-    Tag,
-  ],
+    Tag
+  ]
 })
 export default class ProfitabilityAnalysisComponent implements OnInit {
   protected products = signal<IMargeDTO[]>([]);
@@ -48,7 +46,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
 
   // Filtres
   protected selectedFamilleId = signal<number | null>(null);
-  protected searchQuery = signal<string>('');
+  protected searchQuery = signal<string>("");
   protected showFaibleMarge = signal<boolean>(false);
   protected seuilFaibleMarge = 10;
 
@@ -58,7 +56,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
 
 
   protected familleOptions = signal<{ label: string; value: number | null }[]>([
-    {label: 'Toutes les familles', value: null},
+    { label: "Toutes les familles", value: null }
   ]);
 
   private readonly margeService = inject(MargeReportService);
@@ -77,20 +75,20 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
       page,
       size: this.pageSize,
       familleProduitId: this.selectedFamilleId() ?? undefined,
-      search: this.searchQuery() || undefined,
+      search: this.searchQuery() || undefined
     };
 
     const obs = this.showFaibleMarge()
-      ? this.margeService.getFaibleMarge(this.seuilFaibleMarge, {page, size: this.pageSize})
+      ? this.margeService.getFaibleMarge(this.seuilFaibleMarge, { page, size: this.pageSize })
       : this.margeService.getMarges(req);
 
     obs.subscribe({
       next: (res: HttpResponse<IMargeDTO[]>) => {
         this.products.set(res.body ?? []);
-        this.totalRecords.set(Number(res.headers.get('X-Total-Count') ?? 0));
+        this.totalRecords.set(Number(res.headers.get("X-Total-Count") ?? 0));
         this.isLoading.set(false);
       },
-      error: () => this.isLoading.set(false),
+      error: () => this.isLoading.set(false)
     });
   }
 
@@ -99,10 +97,10 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
       .getMargeSummary({
         familleProduitId: this.selectedFamilleId() ?? undefined,
         seuilBas: this.seuilFaibleMarge,
-        seuilHaut: 20,
+        seuilHaut: 20
       })
       .subscribe({
-        next: (res: HttpResponse<IMargeSummary>) => this.summary.set(res.body ?? null),
+        next: (res: HttpResponse<IMargeSummary>) => this.summary.set(res.body ?? null)
       });
   }
 
@@ -122,7 +120,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
 
   protected onClearFilters(): void {
     this.selectedFamilleId.set(null);
-    this.searchQuery.set('');
+    this.searchQuery.set("");
     this.showFaibleMarge.set(false);
     this.first = 0;
     this.loadProducts(0);
@@ -132,7 +130,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
   protected showLowMarginProducts(): void {
     this.showFaibleMarge.set(true);
     this.selectedFamilleId.set(null);
-    this.searchQuery.set('');
+    this.searchQuery.set("");
     this.first = 0;
     this.loadProducts(0);
   }
@@ -148,20 +146,20 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
     this.loadProducts(0);
   }
 
-  protected getMarginSeverity(margin: number | undefined): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
+  protected getMarginSeverity(margin: number | undefined): "success" | "info" | "warn" | "danger" | "secondary" {
     if (!margin && margin !== 0) {
-      return 'secondary';
+      return "secondary";
     }
     if (margin >= 30) {
-      return 'success';
+      return "success";
     }
     if (margin >= 20) {
-      return 'info';
+      return "info";
     }
     if (margin >= 10) {
-      return 'warn';
+      return "warn";
     }
-    return 'danger';
+    return "danger";
   }
 
   protected toggleHelpDrawer(): void {
@@ -169,11 +167,11 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
   }
 
   private loadFamilles(): void {
-    this.familleProduitService.query({page: 0, size: 200}).subscribe({
+    this.familleProduitService.query({ page: 0, size: 200 }).subscribe({
       next: res => {
-        const opts = (res.body ?? []).map((f: any) => ({label: f.libelle, value: f.id}));
-        this.familleOptions.set([{label: 'Toutes les familles', value: null}, ...opts]);
-      },
+        const opts = (res.body ?? []).map((f: any) => ({ label: f.libelle, value: f.id }));
+        this.familleOptions.set([{ label: "Toutes les familles", value: null }, ...opts]);
+      }
     });
   }
 }

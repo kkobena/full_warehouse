@@ -44,7 +44,7 @@ import {takeUntil} from 'rxjs/operators';
     DateNaissDirective,
   ],
   templateUrl: './assure-step.component.html',
-  styleUrls: ['./assured-form-step-component.scss'],
+  styleUrls: ['./assured-form-step.component.scss'],
 })
 export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
   header: string | null = null;

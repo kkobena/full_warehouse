@@ -241,7 +241,7 @@
             </ul>
           } @else {
             <div class="d-flex justify-content-center align-items-center h-100">
-              <p-chart type="pie" [data]="modePaimentChartData" [options]="modePaimentChartOptions" height="300"></p-chart>
+              <app-chart type="pie" [data]="modePaimentChartData" [options]="modePaimentChartOptions" height="300"></app-chart>
             </div>
           }
         </div>
@@ -284,7 +284,7 @@
             </ul>
           } @else {
             <div class="d-flex justify-content-center align-items-center h-100">
-              <p-chart type="doughnut" [data]="tiersPayantChartData" [options]="tiersPayantChartOptions" height="300"></p-chart>
+              <app-chart type="doughnut" [data]="tiersPayantChartData" [options]="tiersPayantChartOptions" height="300"></app-chart>
             </div>
           }
         </div>
@@ -353,7 +353,7 @@
             </ul>
           } @else {
             <div class="d-flex justify-content-center align-items-center h-100">
-              <p-chart type="doughnut" [data]="fournisseurChartData" [options]="fournisseurChartOptions" height="300"></p-chart>
+              <app-chart type="doughnut" [data]="fournisseurChartData" [options]="fournisseurChartOptions" height="300"></app-chart>
             </div>
           }
         </div>
@@ -421,7 +421,7 @@
             </p-table>
           } @else {
             <div class="p-3">
-              <p-chart type="bar" [data]="amountChartData" [options]="amountChartOptions" height="400px"></p-chart>
+              <app-chart type="bar" [data]="amountChartData" [options]="amountChartOptions" height="400px"></app-chart>
             </div>
           }
         </div>
@@ -486,7 +486,7 @@
             </p-table>
           } @else {
             <div class="p-3">
-              <p-chart type="bar" [data]="quantityChartData" [options]="quantityChartOptions" height="400px"></p-chart>
+              <app-chart type="bar" [data]="quantityChartData" [options]="quantityChartOptions" height="400px"></app-chart>
             </div>
           }
         </div>
@@ -555,7 +555,7 @@
               </p-table>
             } @else {
               <div class="p-3">
-                <p-chart type="bar" [data]="twentyEightyChartData" [options]="twentyEightyChartOptions" height="400px"></p-chart>
+                <app-chart type="bar" [data]="twentyEightyChartData" [options]="twentyEightyChartOptions" height="400px"></app-chart>
               </div>
             }
           } @else {
@@ -598,7 +598,7 @@
             } @else {
               <div class="p-3">
                 <!-- P0 Bug Fix : utilisation de twentyEightyMontantChartData pour le montant -->
-                <p-chart type="bar" [data]="twentyEightyMontantChartData" [options]="twentyEightyChartOptions" height="400px"></p-chart>
+                <app-chart type="bar" [data]="twentyEightyMontantChartData" [options]="twentyEightyChartOptions" height="400px"></app-chart>
               </div>
             }
           }

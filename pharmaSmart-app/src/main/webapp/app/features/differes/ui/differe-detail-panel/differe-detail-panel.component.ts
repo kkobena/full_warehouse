@@ -1,48 +1,42 @@
-import { Component, DestroyRef, effect, inject, input, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs/operators';
-import { Router } from '@angular/router';
-import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { TooltipModule } from 'primeng/tooltip';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { Component, DestroyRef, effect, inject, input, signal } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { finalize } from "rxjs/operators";
+import { NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
+import { ButtonModule } from "primeng/button";
+import { TableModule } from "primeng/table";
+import { TooltipModule } from "primeng/tooltip";
+import { ProgressSpinnerModule } from "primeng/progressspinner";
 
-import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
-import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
-import { NotificationService } from '../../../../shared/services/notification.service';
-import { ErrorService } from '../../../../shared/error.service';
-import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
+import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import { NotificationService } from "../../../../shared/services/notification.service";
+import { ErrorService } from "../../../../shared/error.service";
+import { TauriPrinterService } from "../../../../shared/services/tauri-printer.service";
 
-import { DiffereApiService } from '../../data-access/services/differe-api.service';
-import { DiffereStore } from '../../data-access/store/differe.store';
-import {
-  IDiffere,
-  INewReglementDiffere,
-  IPaymentIdDiffere,
-  IReglementDiffere,
-} from '../../data-access/models';
-import { ReglementDiffereFormComponent } from '../reglement-differe-form/reglement-differe-form.component';
+import { DiffereApiService } from "../../data-access/services/differe-api.service";
+import { DiffereStore } from "../../data-access/store/differe.store";
+import { IDiffere, INewReglementDiffere, IPaymentIdDiffere, IReglementDiffere } from "../../data-access/models";
+import { ReglementDiffereFormComponent } from "../reglement-differe-form/reglement-differe-form.component";
+import { CommonModule } from "@angular/common";
 
 @Component({
-  selector: 'app-differe-detail-panel',
+  selector: "app-differe-detail-panel",
   imports: [
-    WarehouseCommonModule,
+    CommonModule,
     NgbNavModule,
     ButtonModule,
     TableModule,
     TooltipModule,
     ProgressSpinnerModule,
-    ReglementDiffereFormComponent,
+    ReglementDiffereFormComponent
   ],
-  templateUrl: './differe-detail-panel.component.html',
-  styleUrl: './differe-detail-panel.component.scss',
+  templateUrl: "./differe-detail-panel.component.html",
+  styleUrls: ["./differe-detail-panel.component.scss"]
 })
 export class DiffereDetailPanelComponent {
   readonly differe = input<IDiffere | null>(null);
   readonly canExecute = input<boolean>(true);
 
-  protected activeTab = signal<string>('detail');
+  protected activeTab = signal<string>("detail");
   protected loadingReglements = false;
   protected isSaving = false;
   protected monnaie = signal(0);
@@ -56,7 +50,6 @@ export class DiffereDetailPanelComponent {
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
-  private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
@@ -71,7 +64,7 @@ export class DiffereDetailPanelComponent {
       this.monnaie.set(0);
 
       if (isNew) {
-        this.activeTab.set('detail');
+        this.activeTab.set("detail");
       }
     });
   }
@@ -79,7 +72,7 @@ export class DiffereDetailPanelComponent {
   onTabChange(tab: string | number): void {
     const tabId = String(tab);
     this.activeTab.set(tabId);
-    if (tabId === 'historique' && this.reglements().length === 0) {
+    if (tabId === "historique" && this.reglements().length === 0) {
       this.loadReglements();
     }
   }
@@ -98,7 +91,7 @@ export class DiffereDetailPanelComponent {
       .doReglement(params)
       .pipe(
         finalize(() => (this.isSaving = false)),
-        takeUntilDestroyed(this.destroyRef),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: res => {
@@ -107,7 +100,7 @@ export class DiffereDetailPanelComponent {
           }
         },
         error: err =>
-          this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur règlement'),
+          this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur règlement")
       });
   }
 
@@ -122,13 +115,13 @@ export class DiffereDetailPanelComponent {
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
               error: err =>
-                this.notificationService.error(this.errorService.getErrorMessage(err), 'Impression'),
+                this.notificationService.error(this.errorService.getErrorMessage(err), "Impression")
             });
         }
         this.onReglementComplete();
       },
-      'Ticket règlement',
-      'Voulez-vous imprimer le ticket ?',
+      "Ticket règlement",
+      "Voulez-vous imprimer le ticket ?"
     );
   }
 
@@ -140,10 +133,11 @@ export class DiffereDetailPanelComponent {
         next: async (data: ArrayBuffer) => {
           try {
             await this.tauriPrinterService.printEscPosFromBuffer(data);
-          } catch { /* silently ignore printer errors */ }
+          } catch { /* silently ignore printer errors */
+          }
         },
         error: err =>
-          this.notificationService.error(this.errorService.getErrorMessage(err), 'Impression'),
+          this.notificationService.error(this.errorService.getErrorMessage(err), "Impression")
       });
   }
 
@@ -162,7 +156,7 @@ export class DiffereDetailPanelComponent {
               this.store.selectDiffere(null);
             }
           }
-        },
+        }
       });
   }
 
@@ -174,12 +168,12 @@ export class DiffereDetailPanelComponent {
       .getReglementsDifferes({ customerId: d.customerId, page: 0, size: 50 })
       .pipe(
         finalize(() => (this.loadingReglements = false)),
-        takeUntilDestroyed(this.destroyRef),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: res => this.reglements.set(res.body ?? []),
         error: err =>
-          this.notificationService.error(this.errorService.getErrorMessage(err), 'Chargement historique'),
+          this.notificationService.error(this.errorService.getErrorMessage(err), "Chargement historique")
       });
   }
 }

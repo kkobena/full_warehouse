@@ -6,7 +6,6 @@ import { Select } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { Toast } from 'primeng/toast';
-import { WarehouseCommonModule } from 'app/shared/warehouse-common/warehouse-common.module';
 import { ProduitSearchAutocompleteScannerComponent } from 'app/shared/produit-search-autocomplete-scanner/produit-search-autocomplete-scanner.component';
 import { QuantiteProdutSaisieComponent } from 'app/shared/quantite-produt-saisie/quantite-produt-saisie.component';
 import { NotificationService } from 'app/shared/services/notification.service';
@@ -42,7 +41,6 @@ export interface IRepartitionRow {
   templateUrl: './manual-repartition.component.html',
   styleUrls: ['./manual-repartition.scss'],
   imports: [
-    WarehouseCommonModule,
     FormsModule,
     ButtonModule,
     Select,

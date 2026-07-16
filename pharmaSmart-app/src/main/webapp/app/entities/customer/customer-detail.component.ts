@@ -9,18 +9,20 @@ import { HttpResponse } from '@angular/common/http';
 import { MagasinService } from '../magasin/magasin.service';
 import { IMagasin } from 'app/shared/model/magasin.model';
 import { SalesService } from '../sales/sales.service';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Button } from 'primeng/button';
 import { TabsModule } from 'primeng/tabs';
+import TranslateDirective from "../../shared/language/translate.directive";
+import { CommonModule } from "@angular/common";
+import { AlertErrorComponent } from "../../shared/alert/alert-error.component";
 
 @Component({
-  selector: 'jhi-customer-detail',
+  selector: 'app-customer-detail',
 
   templateUrl: './customer-detail.component.html',
   styleUrls: ['./customer-detail.component.scss'],
-  imports: [WarehouseCommonModule, Button, TabsModule],
+  imports: [Button, TabsModule, TranslateDirective, CommonModule, AlertErrorComponent]
 })
 export class CustomerDetailComponent implements OnInit, OnDestroy {
   customer: ICustomer | null = null;

@@ -20,7 +20,6 @@ import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { MenuItem } from "primeng/api";
 import { NotificationService } from "app/shared/services/notification.service";
 import { NgbConfirmDialogService } from "app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { WarehouseCommonModule } from "app/shared/warehouse-common/warehouse-common.module";
 import { IRetourBon } from "app/shared/model/retour-bon.model";
 import { IRetourBonGroupe } from "app/shared/model/retour-bon-groupe.model";
 import { IAvoirFournisseur } from "app/shared/model/avoir-fournisseur.model";
@@ -57,7 +56,6 @@ export type RetourTab = "EN_ATTENTE" | "HISTORIQUE" | "AVOIRS" | "GROUPE";
     TagModule,
     ToastModule,
     SplitButtonModule,
-    WarehouseCommonModule,
     AvoirEncoursComponent
   ]
 })

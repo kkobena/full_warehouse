@@ -3,12 +3,12 @@ import { IRemise, RemiseType } from '../../../shared/model/remise.model';
 import { RemiseService } from '../../remise/remise.service';
 import { HttpResponse } from '@angular/common/http';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { FormsModule } from '@angular/forms';
+import { FaIconComponent } from "@fortawesome/angular-fontawesome";
 
 @Component({
-  selector: 'jhi-remise-list-dialog',
-  imports: [WarehouseCommonModule, FormsModule],
+  selector: 'app-remise-list-dialog',
+  imports: [FormsModule, FaIconComponent],
   templateUrl: './remise-list-dialog.component.html',
   styleUrls: ['./remise-list-dialog.component.scss'],
 })

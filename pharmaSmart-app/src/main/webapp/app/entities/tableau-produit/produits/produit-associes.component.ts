@@ -1,30 +1,30 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { ProduitService } from '../../produit/produit.service';
-import { TableauProduitService } from '../tableau-produit.service';
-import { IProduit } from '../../../shared/model/produit.model';
-import { HttpResponse } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
-import { ITableau } from '../../../shared/model/tableau.model';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { PickListModule } from 'primeng/picklist';
-import { ToolbarModule } from 'primeng/toolbar';
+import { Component, inject, OnInit } from "@angular/core";
+import { ProduitService } from "../../produit/produit.service";
+import { TableauProduitService } from "../tableau-produit.service";
+import { IProduit } from "../../../shared/model";
+import { HttpResponse } from "@angular/common/http";
+import { ActivatedRoute } from "@angular/router";
+import { ITableau } from "../../../shared/model/tableau.model";
+import { FormsModule } from "@angular/forms";
+import { ButtonModule } from "primeng/button";
+import { InputTextModule } from "primeng/inputtext";
+import { PickListModule } from "primeng/picklist";
+import { ToolbarModule } from "primeng/toolbar";
+import { CommonModule } from "@angular/common";
 
 @Component({
-  selector: 'jhi-produit-associes',
-  templateUrl: './produit-associes.component.html',
-  imports: [WarehouseCommonModule, FormsModule, PickListModule, ToolbarModule, ButtonModule, InputTextModule, ButtonModule],
+  selector: "app-produit-associes",
+  templateUrl: "./produit-associes.component.html",
+  imports: [CommonModule, FormsModule, PickListModule, ToolbarModule, ButtonModule, InputTextModule, ButtonModule]
 })
 export class ProduitAssociesComponent implements OnInit {
   protected produitsSource: IProduit[] = [];
   protected produitsTarget: IProduit[] = [];
-  protected statut = 'ENABLE';
+  protected statut = "ENABLE";
   protected searchSource: string;
   protected searchTarget: string;
   protected tableau: ITableau;
-  protected scrollHeight = 'calc(100vh - 350px)';
+  protected scrollHeight = "calc(100vh - 350px)";
   private readonly produitService = inject(ProduitService);
   private readonly tableauProduitService = inject(TableauProduitService);
   private readonly activatedRoute = inject(ActivatedRoute);
@@ -42,9 +42,9 @@ export class ProduitAssociesComponent implements OnInit {
       .queryLite({
         page: 0,
         size: 300,
-        search: this.searchTarget || '',
+        search: this.searchTarget || "",
         status: this.statut,
-        tableauId: this.tableau.id,
+        tableauId: this.tableau.id
       })
       .subscribe({ next: (res: HttpResponse<IProduit[]>) => (this.produitsTarget = res.body) });
   }
@@ -58,9 +58,9 @@ export class ProduitAssociesComponent implements OnInit {
       .queryLite({
         page: 0,
         size: 300,
-        search: this.searchSource || '',
+        search: this.searchSource || "",
         status: this.statut,
-        tableauNot: this.tableau.id,
+        tableauNot: this.tableau.id
       })
       .subscribe((res: HttpResponse<IProduit[]>) => (this.produitsSource = res.body));
   }

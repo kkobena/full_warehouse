@@ -1,33 +1,31 @@
-import { Component, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { HttpResponse } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { ToolbarModule } from 'primeng/toolbar';
-import { Select, SelectModule } from 'primeng/select';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { AutoComplete } from 'primeng/autocomplete';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
-import { WarehouseCommonModule } from 'app/shared/warehouse-common/warehouse-common.module';
-import { QuantiteProdutSaisieComponent } from 'app/shared/quantite-produt-saisie/quantite-produt-saisie.component';
-import { RetourDepot } from 'app/shared/model/retour-depot.model';
-import { IRetourDepotItem, RetourDepotItem } from 'app/shared/model/retour-depot-item.model';
-import { RetourDepotService } from '../retour-depot.service';
-import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
-import { debounceTime, Subject, Subscription } from 'rxjs';
-import { Tooltip } from 'primeng/tooltip';
-import { finalize } from 'rxjs/operators';
-import { IMagasin } from "../../../shared/model";
-import { MagasinService } from '../../magasin/magasin.service';
-import { IProduit } from "../../../shared/model";
-import { StockDepotService } from '../stock-depot/stock-depot.service';
+import { Component, inject, OnDestroy, OnInit, signal, ViewChild } from "@angular/core";
+import { FormsModule } from "@angular/forms";
+import { HttpResponse } from "@angular/common/http";
+import { CommonModule } from "@angular/common";
+import { Router } from "@angular/router";
+import { ButtonModule } from "primeng/button";
+import { TableModule } from "primeng/table";
+import { ToolbarModule } from "primeng/toolbar";
+import { Select, SelectModule } from "primeng/select";
+import { InputTextModule } from "primeng/inputtext";
+import { InputNumberModule } from "primeng/inputnumber";
+import { AutoComplete } from "primeng/autocomplete";
+import { ToastModule } from "primeng/toast";
+import { QuantiteProdutSaisieComponent } from "app/shared/quantite-produt-saisie/quantite-produt-saisie.component";
+import { RetourDepot } from "app/shared/model/retour-depot.model";
+import { IRetourDepotItem, RetourDepotItem } from "app/shared/model/retour-depot-item.model";
+import { RetourDepotService } from "../retour-depot.service";
+import { ITEMS_PER_PAGE } from "app/shared/constants/pagination.constants";
+import { debounceTime, Subject, Subscription } from "rxjs";
+import { Tooltip } from "primeng/tooltip";
+import { finalize } from "rxjs/operators";
+import { IMagasin, IProduit } from "../../../shared/model";
+import { MagasinService } from "../../magasin/magasin.service";
+import { StockDepotService } from "../stock-depot/stock-depot.service";
+import { NotificationService } from "../../../shared/services/notification.service";
 
 @Component({
-  selector: 'jhi-depot-returns',
+  selector: "app-depot-returns",
   imports: [
     CommonModule,
     FormsModule,
@@ -39,24 +37,21 @@ import { StockDepotService } from '../stock-depot/stock-depot.service';
     InputNumberModule,
     AutoComplete,
     ToastModule,
-    WarehouseCommonModule,
     QuantiteProdutSaisieComponent,
-    Tooltip,
+    Tooltip
   ],
-  providers: [MessageService],
-  templateUrl: './depot-returns.component.html',
-  styleUrl: './depot-returns.component.scss',
+  templateUrl: "./depot-returns.component.html",
+  styleUrl: "./depot-returns.component.scss"
 })
 export class DepotReturnsComponent implements OnInit, OnDestroy {
   private readonly retourDepotService = inject(RetourDepotService);
   private readonly stockDepotService = inject(StockDepotService);
   private readonly magasinService = inject(MagasinService);
-  private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
-
-  @ViewChild('productAutoComplete') productAutoComplete: AutoComplete | undefined;
-  @ViewChild('depotSelect') depotSelect: Select | undefined;
-  @ViewChild('quantiteBox') quantiteBox: QuantiteProdutSaisieComponent | undefined;
+  private readonly notificationService = inject(NotificationService);
+  @ViewChild("productAutoComplete") productAutoComplete: AutoComplete | undefined;
+  @ViewChild("depotSelect") depotSelect: Select | undefined;
+  @ViewChild("quantiteBox") quantiteBox: QuantiteProdutSaisieComponent | undefined;
 
   protected depots = signal<IMagasin[]>([]);
   protected products = signal<IProduit[]>([]);
@@ -89,12 +84,8 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
         this.depots.set(res.body || []);
       },
       error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: 'Erreur lors du chargement des dépôts',
-        });
-      },
+        this.notificationService.error("Erreur lors du chargement des dépôts");
+      }
     });
   }
 
@@ -116,12 +107,8 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
         this.filteredProducts.set(res.body || []);
       },
       error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: 'Erreur lors du chargement des produits',
-        });
-      },
+        this.notificationService.error("Erreur lors du chargement des produits");
+      }
     });
   }
 
@@ -159,40 +146,24 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
     const quantity = this.returnQuantity();
 
     if (!product) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Attention',
-        detail: 'Veuillez sélectionner un produit',
-      });
+      this.notificationService.warning("Veuillez sélectionner un produit");
       return;
     }
 
     if (quantity < 1) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Attention',
-        detail: 'La quantité doit être supérieure à 0',
-      });
+      this.notificationService.warning("La quantité doit être supérieure à 0");
       return;
     }
 
     const maxQuantity = product.totalQuantity || 0;
     if (quantity > maxQuantity) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Attention',
-        detail: `La quantité ne peut pas dépasser ${maxQuantity}`,
-      });
+      this.notificationService.warning(`La quantité ne peut pas dépasser ${maxQuantity}`);
       return;
     }
 
     this.createReturnItem(product, quantity);
     this.resetSelection();
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Succès',
-      detail: 'Ligne ajoutée aux retours',
-    });
+    this.notificationService.success("Ligne ajoutée aux retours");
 
     this.focusProductInput();
   }
@@ -208,11 +179,8 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
         const newQuantity = (existingItem.qtyMvt || 0) + quantity;
 
         if (newQuantity > maxQuantity) {
-          this.messageService.add({
-            severity: 'warn',
-            summary: 'Attention',
-            detail: `La quantité totale ne peut pas dépasser ${maxQuantity}. Quantité ajustée.`,
-          });
+          this.notificationService.warning(`La quantité totale ne peut pas dépasser ${maxQuantity}. Quantité ajustée.`);
+
           existingItem.qtyMvt = maxQuantity;
         } else {
           existingItem.qtyMvt = newQuantity;
@@ -250,11 +218,7 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
     const maxQuantity = item.totalQuantity || 0;
     if (item.qtyMvt && item.qtyMvt > maxQuantity) {
       item.qtyMvt = maxQuantity;
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Attention',
-        detail: `La quantité de retour ne peut pas dépasser ${maxQuantity}`,
-      });
+      this.notificationService.warning(`La quantité de retour ne peut pas dépasser ${maxQuantity}`);
     }
     if (item.qtyMvt && item.qtyMvt < 1) {
       item.qtyMvt = 1;
@@ -274,11 +238,7 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
 
   protected save(): void {
     if (!this.canSave()) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erreur',
-        detail: 'Veuillez remplir tous les champs requis',
-      });
+      this.notificationService.error("Veuillez remplir tous les champs requis");
       return;
     }
 
@@ -294,28 +254,21 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
       .pipe(finalize(() => this.isSaving.set(false)))
       .subscribe({
         next: () => {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Succès',
-            detail: 'Retour dépôt créé avec succès',
-          });
+          this.notificationService.success("Retour dépôt créé avec succès");
           this.reset();
           setTimeout(() => {
             this.navigateToList();
           }, 1500);
         },
         error: () => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erreur',
-            detail: 'Erreur lors de la création du retour dépôt',
-          });
-        },
+          this.notificationService.error("Erreur lors de la création du retour dépôt");
+
+        }
       });
   }
 
   protected navigateToList(): void {
-    this.router.navigate(['/depot']);
+    this.router.navigate(["/depot"]);
   }
 
   protected reset(): void {

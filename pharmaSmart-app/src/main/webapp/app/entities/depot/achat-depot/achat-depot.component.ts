@@ -1,41 +1,40 @@
-import { Component, inject, OnInit, viewChild } from '@angular/core';
-import { Button } from 'primeng/button';
-import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { DatePicker } from 'primeng/datepicker';
-import { FloatLabel } from 'primeng/floatlabel';
-import { Select } from 'primeng/select';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { Toolbar } from 'primeng/toolbar';
-import { Tooltip } from 'primeng/tooltip';
-import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
-import { ISales, SaleId } from '../../../shared/model/sales.model';
-import { IUser } from '../../../core/user/user.model';
-import { MenuItem } from 'primeng/api';
-import { TranslateService } from '@ngx-translate/core';
-import { PrimeNG } from 'primeng/config';
-import { SalesService } from '../../sales/sales.service';
-import { UserService } from '../../../core/user/user.service';
-import { debounceTime, Subject } from 'rxjs';
-import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { handleBlobForTauri } from '../../../shared/util/tauri-util';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { Component, inject, OnInit, viewChild } from "@angular/core";
+import { Button } from "primeng/button";
+import { DatePicker } from "primeng/datepicker";
+import { FloatLabel } from "primeng/floatlabel";
+import { Select } from "primeng/select";
+import { TableLazyLoadEvent, TableModule } from "primeng/table";
+import { Toolbar } from "primeng/toolbar";
+import { Tooltip } from "primeng/tooltip";
+import { ITEMS_PER_PAGE } from "../../../shared/constants/pagination.constants";
+import { ISales, SaleId } from "../../../shared/model/sales.model";
+import { IUser } from "../../../core/user/user.model";
+import { MenuItem } from "primeng/api";
+import { SalesService } from "../../sales/sales.service";
+import { UserService } from "../../../core/user/user.service";
+import { debounceTime, Subject } from "rxjs";
+import { TauriPrinterService } from "../../../shared/services/tauri-printer.service";
+import { HttpHeaders, HttpResponse } from "@angular/common/http";
+import { handleBlobForTauri } from "../../../shared/util/tauri-util";
 import { IMagasin } from "../../../shared/model";
-import { FormsModule } from '@angular/forms';
-import { MagasinService } from '../../magasin/magasin.service';
-import { RouterLink } from '@angular/router';
-import { StockDepotService } from '../stock-depot/stock-depot.service';
-import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
-import { saveAs } from 'file-saver';
-import { extractFileName2 } from '../../../shared/util/file-utils';
-import { Menu } from 'primeng/menu';
+import { FormsModule } from "@angular/forms";
+import { MagasinService } from "../../magasin/magasin.service";
+import { RouterLink } from "@angular/router";
+import { StockDepotService } from "../stock-depot/stock-depot.service";
+import { DATE_FORMAT_ISO_DATE } from "../../../shared/util/warehouse-util";
+import { saveAs } from "file-saver";
+import { extractFileName2 } from "../../../shared/util/file-utils";
+import { Menu } from "primeng/menu";
+import { CommonModule } from "@angular/common";
+import { BlobDownloadService } from "../../../shared/services/blob-download.service";
+import { NotificationService } from "../../../shared/services/notification.service";
+import { Toast } from "primeng/toast";
 
 @Component({
-  selector: 'jhi-achat-depot',
+  selector: "jhi-achat-depot",
   imports: [
+    CommonModule,
     Button,
-    WarehouseCommonModule,
-    ConfirmDialogComponent,
     DatePicker,
     FloatLabel,
     Select,
@@ -45,9 +44,10 @@ import { Menu } from 'primeng/menu';
     FormsModule,
     RouterLink,
     Menu,
+    Toast
   ],
-  templateUrl: './achat-depot.component.html',
-  styleUrl: './achat-depot.component.scss',
+  templateUrl: "./achat-depot.component.html",
+  styleUrl: "./achat-depot.component.scss"
 })
 export class AchatDepotComponent implements OnInit {
   protected selectedDepot: IMagasin | null = null;
@@ -59,7 +59,7 @@ export class AchatDepotComponent implements OnInit {
   protected selectedEl?: ISales;
   protected users: IUser[] = [];
   protected selectedUserId: number | null;
-  protected search = '';
+  protected search = "";
   protected fromDate: Date = new Date();
   protected toDate: Date = new Date();
   protected isLargeScreen = true;
@@ -68,48 +68,45 @@ export class AchatDepotComponent implements OnInit {
   protected actions: MenuItem[] | undefined;
   protected exportMenuItems: MenuItem[] = [];
   protected currentSaleForExport?: ISales;
-
-  private readonly translate = inject(TranslateService);
-  private readonly primeNGConfig = inject(PrimeNG);
   private readonly salesService = inject(SalesService);
   private readonly stockDepotService = inject(StockDepotService);
   private readonly userService = inject(UserService);
 
   private searchSubject = new Subject<void>();
 
-  private readonly exportMenu = viewChild.required<Menu>('exportMenu');
+  private readonly exportMenu = viewChild.required<Menu>("exportMenu");
   private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly magasinService = inject(MagasinService);
+  private readonly blobDownloadService = inject(BlobDownloadService);
+  private readonly notificationService = inject(NotificationService);
+
 
   constructor() {
-    this.translate.use('fr');
-    this.translate.stream('primeng').subscribe(data => {
-      this.primeNGConfig.setTranslation(data);
-    });
+
     this.splitbuttons = [
       {
-        label: 'Fiche à partir csv',
-        icon: 'pi pi-file-pdf',
-        command: () => console.error('print all record'),
-      },
+        label: "Fiche à partir csv",
+        icon: "pi pi-file-pdf",
+        command: () => console.error("print all record")
+      }
     ];
 
     this.exportMenuItems = [
       {
-        label: 'Exporter en CSV',
-        icon: 'pi pi-file',
-        command: () => this.exportWithFormat('csv'),
+        label: "Exporter en CSV",
+        icon: "pi pi-file",
+        command: () => this.exportWithFormat("csv")
       },
       {
-        label: 'Exporter en Excel',
-        icon: 'pi pi-file-excel',
-        command: () => this.exportWithFormat('excel'),
+        label: "Exporter en Excel",
+        icon: "pi pi-file-excel",
+        command: () => this.exportWithFormat("excel")
       },
       {
-        label: 'Exporter en PDF',
-        icon: 'pi pi-file-pdf',
-        command: () => this.print(),
-      },
+        label: "Exporter en PDF",
+        icon: "pi pi-file-pdf",
+        command: () => this.print()
+      }
     ];
   }
 
@@ -140,25 +137,23 @@ export class AchatDepotComponent implements OnInit {
   loadAllUsers(): void {
     this.userService.query().subscribe((res: HttpResponse<IUser[]>) => {
       if (res.body) {
-        this.users = [{ id: null, abbrName: 'TOUT' }];
+        this.users = [{ id: null, abbrName: "TOUT" }];
         this.users = [...this.users, ...res.body];
       }
     });
   }
 
-  onSelectUser(evt: { value: number | null }): void {
-    this.selectedUserId = evt.value;
-    this.searchSubject.next();
-  }
 
   printReceiptForTauri(saleId: SaleId, isEdition = false): void {
     this.salesService.getEscPosReceiptForTauri(saleId, isEdition).subscribe({
       next: async (escposData: ArrayBuffer) => {
         try {
           await this.tauriPrinterService.printEscPosFromBuffer(escposData);
-        } catch (error) {}
+        } catch (error) {
+        }
       },
-      error() {},
+      error() {
+      }
     });
   }
 
@@ -192,11 +187,7 @@ export class AchatDepotComponent implements OnInit {
 
   protected print(): void {
     this.salesService.printInvoice(this.currentSaleForExport.saleId).subscribe(blob => {
-      if (this.tauriPrinterService.isRunningInTauri()) {
-        handleBlobForTauri(blob, 'facture-client');
-      } else {
-        window.open(URL.createObjectURL(blob));
-      }
+      this.blobDownloadService.downloadPdf(blob, "facture-client");
     });
   }
 
@@ -209,7 +200,7 @@ export class AchatDepotComponent implements OnInit {
   }
 
   protected onSuccess(data: ISales[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get('X-Total-Count'));
+    this.totalItems = Number(headers.get("X-Total-Count"));
     this.page = page;
     this.sales = data || [];
     this.loading = false;
@@ -217,6 +208,7 @@ export class AchatDepotComponent implements OnInit {
 
   protected onError(): void {
     this.loading = false;
+    this.notificationService.error("Une erreur est survenue. Veuillez réessayer.");
   }
 
   private fetchSales(page: number, size: number): void {
@@ -225,11 +217,11 @@ export class AchatDepotComponent implements OnInit {
       .fetchSales({
         page,
         size,
-        ...this.buildCriteria(),
+        ...this.buildCriteria()
       })
       .subscribe({
         next: (res: HttpResponse<ISales[]>) => this.onSuccess(res.body, res.headers, page),
-        error: () => this.onError(),
+        error: () => this.onError()
       });
   }
 
@@ -239,12 +231,12 @@ export class AchatDepotComponent implements OnInit {
       fromDate: this.fromDate ? DATE_FORMAT_ISO_DATE(this.fromDate) : null,
       toDate: this.toDate ? DATE_FORMAT_ISO_DATE(this.toDate) : null,
       magasinId: this.selectedDepot ? this.selectedDepot.id : null,
-      userId: this.selectedUserId,
+      userId: this.selectedUserId
     };
   }
 
   private onExport(format: string, saleId: SaleId): void {
-    const exportObservable = format === 'excel' ? this.stockDepotService.exportToExcel(saleId) : this.stockDepotService.exportToCsv(saleId);
+    const exportObservable = format === "excel" ? this.stockDepotService.exportToExcel(saleId) : this.stockDepotService.exportToCsv(saleId);
 
     exportObservable.subscribe({
       next: resp => {
@@ -254,20 +246,21 @@ export class AchatDepotComponent implements OnInit {
         }
 
         const fileName = extractFileName2(
-          resp.headers.get('Content-disposition'),
+          resp.headers.get("Content-disposition"),
           format,
-          `vente_depot_stock_${saleId.id}_${saleId.saleDate}`,
+          `vente_depot_stock_${saleId.id}_${saleId.saleDate}`
         );
 
         if (this.tauriPrinterService.isRunningInTauri()) {
           try {
             handleBlobForTauri(blob, fileName, format);
-          } catch (error) {}
+          } catch (error) {
+          }
         } else {
           saveAs(blob, fileName);
         }
       },
-      error: err => this.onError(),
+      error: err => this.onError()
     });
   }
 }

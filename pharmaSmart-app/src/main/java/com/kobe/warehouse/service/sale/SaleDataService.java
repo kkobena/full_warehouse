@@ -243,9 +243,7 @@ public class SaleDataService {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Sales> cq = cb.createQuery(Sales.class);
         Root<Sales> root = cq.from(Sales.class);
-        root.fetch(Sales_.SALES_LINES, JoinType.LEFT);
-        root.fetch(Sales_.PAYMENTS, JoinType.LEFT);
-        cq.select(root).distinct(true);
+        cq.select(root);
         List<Predicate> predicates = new ArrayList<>();
         predicates.add(cb.equal(root.get(Sales_.id), id.getId()));
         predicates.add(cb.equal(root.get(Sales_.saleDate), id.getSaleDate()));

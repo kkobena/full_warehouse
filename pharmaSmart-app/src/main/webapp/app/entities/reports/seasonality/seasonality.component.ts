@@ -1,6 +1,6 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ChartModule } from 'primeng/chart';
+import { ChartComponent } from 'app/shared/chart/chart.component';
 import { TableModule } from 'primeng/table';
 
 import { DashboardCAService } from '../services/dashboard-ca.service';
@@ -12,7 +12,7 @@ import { formatCurrency, formatNumber } from 'app/shared/utils/format-utils';
 
 @Component({
   selector: 'app-seasonality',
-  imports: [CommonModule, ChartModule, TableModule, DateRangeFilterComponent],
+  imports: [CommonModule, ChartComponent, TableModule, DateRangeFilterComponent],
   templateUrl: './seasonality.component.html',
   styleUrls: ['./seasonality.component.scss'],
 })

@@ -167,13 +167,13 @@
       } @else {
         <div class="card">
           <div class="card-body">
-            <p-chart [data]="verticalBarChart?.data" [options]="verticalBarChart?.options" [responsive]="true" type="bar"></p-chart>
+            <app-chart [data]="verticalBarChart?.data" [options]="verticalBarChart?.options" [responsive]="true" type="bar"></app-chart>
           </div>
         </div>
         @if (showGrossisteChart) {
           <div class="card" style="margin-top: 3px">
             <div class="card-body">
-              <p-chart [data]="grossiste?.data" [options]="grossiste?.options" [responsive]="true" type="bar"></p-chart>
+              <app-chart [data]="grossiste?.data" [options]="grossiste?.options" [responsive]="true" type="bar"></app-chart>
             </div>
           </div>
         }

@@ -30,7 +30,7 @@
             />
             @if (editForm.get('firstName')?.invalid && editForm.get('firstName')?.touched) {
               @if (editForm.get('firstName')?.errors?.required) {
-                <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
+                <small class="p-error" >Ce champ est obligatoire</small>
               }
             }
           </div>
@@ -48,7 +48,7 @@
             />
             @if (editForm.get('lastName')?.invalid && editForm.get('lastName')?.touched) {
               @if (editForm.get('lastName')?.errors?.required) {
-                <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
+                <small class="p-error" >Ce champ est obligatoire</small>
               }
             }
           </div>
@@ -67,7 +67,7 @@
             />
             @if (editForm.get('numAyantDroit')?.invalid && editForm.get('numAyantDroit')?.touched) {
               @if (editForm.get('numAyantDroit')?.errors?.required) {
-                <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
+                <small class="p-error" >Ce champ est obligatoire</small>
               }
             }
           </div>
@@ -140,4 +140,4 @@
     ></p-button>
   </div>
 </form>
-<jhi-toast-alert #alert></jhi-toast-alert>
+<p-toast position="center"></p-toast>

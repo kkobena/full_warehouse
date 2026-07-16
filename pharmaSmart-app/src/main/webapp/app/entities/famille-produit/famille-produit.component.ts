@@ -1,36 +1,35 @@
-import { Component, inject, OnInit, viewChild } from '@angular/core';
-import { FamilleProduitService } from './famille-produit.service';
-import { RouterModule } from '@angular/router';
-import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { FormFamilleComponent } from './form-famille/form-famille.component';
-import { IResponseDto } from '../../shared/util/response-dto';
-import { IFamilleProduit } from '../../shared/model/famille-produit.model';
-import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { ToolbarModule } from 'primeng/toolbar';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
-import { InputTextModule } from 'primeng/inputtext';
-import { Tooltip } from 'primeng/tooltip';
-import { InputIcon } from 'primeng/inputicon';
-import { IconField } from 'primeng/iconfield';
-import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
-import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { showCommonModal } from '../sales/selling-home/sale-helper';
-import { ErrorService } from '../../shared/error.service';
-import { FileUploadDialogComponent } from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
-import { finalize } from 'rxjs/operators';
-import { SpinnerComponent } from '../../shared/spinner/spinner.component';
+import { Component, inject, OnInit, viewChild } from "@angular/core";
+import { FamilleProduitService } from "./famille-produit.service";
+import { RouterModule } from "@angular/router";
+import { HttpErrorResponse, HttpHeaders, HttpResponse } from "@angular/common/http";
+import { Observable } from "rxjs";
+import { FormFamilleComponent } from "./form-famille/form-famille.component";
+import { IResponseDto } from "../../shared/util/response-dto";
+import { IFamilleProduit } from "../../shared/model/famille-produit.model";
+import { ITEMS_PER_PAGE } from "../../shared/constants/pagination.constants";
+import { ToolbarModule } from "primeng/toolbar";
+import { TableLazyLoadEvent, TableModule } from "primeng/table";
+import { ButtonModule } from "primeng/button";
+import { RippleModule } from "primeng/ripple";
+import { InputTextModule } from "primeng/inputtext";
+import { Tooltip } from "primeng/tooltip";
+import { InputIcon } from "primeng/inputicon";
+import { IconField } from "primeng/iconfield";
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { showCommonModal } from "../sales/selling-home/sale-helper";
+import { ErrorService } from "../../shared/error.service";
+import { FileUploadDialogComponent } from "../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component";
+import { finalize } from "rxjs/operators";
+import { SpinnerComponent } from "../../shared/spinner/spinner.component";
+import { Toast } from "primeng/toast";
+import { NgbConfirmDialogService } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import { NotificationService } from "../../shared/services/notification.service";
 
 @Component({
-  selector: 'jhi-famille-produit',
-  templateUrl: './famille-produit.component.html',
-  styleUrl: './famille-produit.component.scss',
+  selector: "app-famille-produit",
+  templateUrl: "./famille-produit.component.html",
+  styleUrl: "./famille-produit.component.scss",
   imports: [
-    WarehouseCommonModule,
     ButtonModule,
     RippleModule,
     ToolbarModule,
@@ -40,10 +39,9 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
     Tooltip,
     InputIcon,
     IconField,
-    ToastAlertComponent,
-    ConfirmDialogComponent,
     SpinnerComponent,
-  ],
+    Toast
+  ]
 })
 export class FamilleProduitComponent implements OnInit {
   responsedto!: IResponseDto;
@@ -54,11 +52,11 @@ export class FamilleProduitComponent implements OnInit {
   loading!: boolean;
   isSaving = false;
   private readonly entityService = inject(FamilleProduitService);
-  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
-  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly modalService = inject(NgbModal);
   private readonly errorService = inject(ErrorService);
-  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly spinner = viewChild.required<SpinnerComponent>("spinner");
 
   ngOnInit(): void {
     this.loadPage();
@@ -66,17 +64,17 @@ export class FamilleProduitComponent implements OnInit {
 
   loadPage(page?: number, search?: string): void {
     const pageToLoad: number = page || this.page;
-    const query: string = search || '';
+    const query: string = search || "";
     this.loading = true;
     this.entityService
       .query({
         page: pageToLoad,
         size: ITEMS_PER_PAGE,
-        search: query,
+        search: query
       })
       .subscribe({
         next: (res: HttpResponse<IFamilleProduit[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: err => this.onError(err),
+        error: err => this.onError(err)
       });
   }
 
@@ -87,23 +85,23 @@ export class FamilleProduitComponent implements OnInit {
       .query({
         page: this.page,
         size: event.rows,
-        search: '',
+        search: ""
       })
       .subscribe({
         next: (res: HttpResponse<IFamilleProduit[]>) => this.onSuccess(res.body, res.headers, this.page),
-        error: err => this.onError(err),
+        error: err => this.onError(err)
       });
   }
 
-  confirmDialog(id: number): void {
-    this.confimDialog().onConfirm(
+  private onConfirmDelete(id: number): void {
+    this.confirmDialog.onConfirm(
       () => {
         this.entityService.delete(id).subscribe(() => {
           this.loadPage(0);
         });
       },
-      'Suppression',
-      'Êtes-vous sûr de vouloir supprimer ?',
+      "Suppression",
+      "Êtes-vous sûr de vouloir supprimer ?"
     );
   }
 
@@ -112,7 +110,7 @@ export class FamilleProduitComponent implements OnInit {
   }
 
   confirmDelete(id: number): void {
-    this.confirmDialog(id);
+    this.onConfirmDelete(id);
   }
 
   search(event: any): void {
@@ -128,7 +126,7 @@ export class FamilleProduitComponent implements OnInit {
         this.spinner().show();
         this.uploadFileResponse(this.entityService.uploadFile(result));
       },
-      'xl',
+      "xl"
     );
   }
 
@@ -138,12 +136,12 @@ export class FamilleProduitComponent implements OnInit {
       FormFamilleComponent,
       {
         familleProduit: null,
-        header: "Ajout d'une nouvelle famille de produit",
+        header: "Ajout d'une nouvelle famille de produit"
       },
       () => {
         this.loadPage(0);
       },
-      'xl',
+      "xl"
     );
   }
 
@@ -153,29 +151,29 @@ export class FamilleProduitComponent implements OnInit {
       FormFamilleComponent,
       {
         familleProduit: entity,
-        header: 'Modification de ' + entity.libelle,
+        header: "Modification de " + entity.libelle
       },
       () => {
         this.loadPage(0);
       },
-      'xl',
+      "xl"
     );
   }
 
   protected onSaveError(error: HttpErrorResponse): void {
-    this.alert().showError(this.errorService.getErrorMessage(error));
+    this.notificationService.error(this.errorService.getErrorMessage(error));
     this.showFileDialog();
   }
 
   protected uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
     result.pipe(finalize(() => this.spinner().hide())).subscribe({
       next: (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
-      error: err => this.onSaveError(err),
+      error: err => this.onSaveError(err)
     });
   }
 
   protected onSuccess(data: IFamilleProduit[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get('X-Total-Count'));
+    this.totalItems = Number(headers.get("X-Total-Count"));
     this.page = page;
     this.entites = data || [];
     this.loading = false;
@@ -183,7 +181,7 @@ export class FamilleProduitComponent implements OnInit {
 
   protected onError(error: HttpErrorResponse): void {
     this.loading = false;
-    this.alert().showError(this.errorService.getErrorMessage(error));
+    this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 
   private onPocesCsvSuccess(responseDto: IResponseDto | null): void {

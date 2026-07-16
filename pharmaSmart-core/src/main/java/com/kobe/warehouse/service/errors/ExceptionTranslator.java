@@ -1,16 +1,11 @@
 package com.kobe.warehouse.service.errors;
 
-import static java.util.Objects.nonNull;
-
 import jakarta.persistence.OptimisticLockException;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,22 +13,18 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.util.logging.Logger;
+
+import static java.util.Objects.nonNull;
+
 /**
  * Controller advice to translate the server side exceptions to client-friendly json structures. The
  * error response follows RFC7807 - Problem Details for HTTP APIs
- * (https://tools.ietf.org/html/rfc7807).
  */
 @ControllerAdvice
 public class ExceptionTranslator extends ResponseEntityExceptionHandler {
+    private static final Logger LOG = Logger.getLogger(ExceptionTranslator.class.getName());
 
-    private final Environment env;
-
-    @Value("${pharma-smart.clientApp.name}")
-    private String applicationName;
-
-    public ExceptionTranslator(Environment env) {
-        this.env = env;
-    }
 
     @ExceptionHandler({OptimisticLockException.class, ObjectOptimisticLockingFailureException.class})
     public ResponseEntity<Object> handleOptimisticLock(Exception ex, NativeWebRequest request) {
@@ -45,14 +36,22 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler
     public ResponseEntity<Object> handleAnyException(Throwable ex, NativeWebRequest request) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(wrapAndCustomizeProblem(ex, request));
+        Custom pd = customizeProblem(ex);
+        if (ex instanceof BadRequestAlertException) {
+            LOG.warning("Erreur métier: " + ex.getMessage());
+        } else {
+            LOG.severe("Erreur interne non gérée: " + ex.getMessage());
+        }
+
+        return ResponseEntity.status(pd.getStatus()).body(pd);
+
     }
 
-    @Nullable
+
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(
         Exception ex,
-        @Nullable Object body,
+        Object body,
         HttpHeaders headers,
         HttpStatusCode statusCode,
         WebRequest request

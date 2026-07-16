@@ -3,7 +3,6 @@ import { Component, inject, OnInit, signal } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { PosteService } from "./poste.service";
 import { IPoste } from "../../../../shared/model/poste.model";
-import { WarehouseCommonModule } from "../../../../shared/warehouse-common/warehouse-common.module";
 import { ButtonModule } from "primeng/button";
 import { ToolbarModule } from "primeng/toolbar";
 import { TableModule } from "primeng/table";
@@ -23,13 +22,14 @@ import { BadgeModule } from "primeng/badge";
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { NotificationService } from "../../../../shared/services/notification.service";
 import { Toast } from "primeng/toast";
+import { CommonModule } from "@angular/common";
 
 @Component({
   selector: "app-poste",
   templateUrl: "./poste.component.html",
-  styleUrl: "./poste.component.scss",
+  styleUrls: ["./poste.component.scss"],
   imports: [
-    WarehouseCommonModule,
+    CommonModule,
     ButtonModule,
     ToolbarModule,
     TableModule,
@@ -111,6 +111,7 @@ export class PosteComponent implements OnInit {
     this.confirmDialog.onConfirm(
       () => {
         this.entityService.delete(id).subscribe(() => {
+          this.notificationService.success("Le poste a été supprimé avec succès.", "Suppression réussie");
           this.loadAll();
         });
       },

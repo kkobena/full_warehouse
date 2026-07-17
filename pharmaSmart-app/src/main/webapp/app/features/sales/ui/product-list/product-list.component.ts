@@ -1,17 +1,27 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal, viewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { TooltipModule } from 'primeng/tooltip';
-import { Popover } from 'primeng/popover';
-import { InputIcon } from 'primeng/inputicon';
-import { IconField } from 'primeng/iconfield';
-import { IRemise, ISalesLine } from '../../../../shared/model';
-import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
-import { MessageService } from 'primeng/api';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+  viewChild
+} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {TableModule} from 'primeng/table';
+import {ButtonModule} from 'primeng/button';
+import {InputTextModule} from 'primeng/inputtext';
+import {TooltipModule} from 'primeng/tooltip';
+import {Popover} from 'primeng/popover';
+import {InputIcon} from 'primeng/inputicon';
+import {IconField} from 'primeng/iconfield';
+import {IRemise, ISalesLine} from '../../../../shared/model';
+import {
+  NgbConfirmDialogService
+} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import {MessageService} from 'primeng/api';
 
 /**
  * Composant de présentation : Affichage liste des lignes de vente
@@ -31,7 +41,6 @@ import { MessageService } from 'primeng/api';
   imports: [
     CommonModule,
     FormsModule,
-    TranslateModule,
     TableModule,
     ButtonModule,
     InputTextModule,
@@ -44,9 +53,6 @@ import { MessageService } from 'primeng/api';
 })
 export class ProductListComponent {
 
-  private readonly confirmDialog = inject(NgbConfirmDialogService);
-  private remisePopover = viewChild<Popover>('remisePopover');
-
   // Inputs
   salesLines = input.required<ISalesLine[]>();
   isEditable = input(true);
@@ -57,7 +63,6 @@ export class ProductListComponent {
   remises = input<IRemise[]>([]);
   currentRemise = input<IRemise | null>(null);
   showRemiseSection = input(true);
-
   // Outputs
   quantityChanged = output<{ line: ISalesLine; newQty: number }>();
   quantityRequestedChanged = output<{ line: ISalesLine; newQty: number }>();
@@ -69,13 +74,10 @@ export class ProductListComponent {
   remiseSelected = output<IRemise>();
   removeRemise = output<void>();
   remiseActionCancelled = output<void>();
-  private readonly messageService = inject(MessageService);
-
   // Local state
   filterValue = signal('');
   selectedRemise = signal<IRemise | null>(null);
   isEditMode = signal(false);
-
   /** Remises disponibles pour le popover (exclut la remise courante en mode édition) */
   availableRemises = computed(() => {
     const all = this.remises();
@@ -85,12 +87,15 @@ export class ProductListComponent {
     }
     return all;
   });
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
+  private remisePopover = viewChild<Popover>('remisePopover');
+  private readonly messageService = inject(MessageService);
 
   // Méthodes pour les événements UI
   onQuantityRequestedChange(line: ISalesLine, newQty: string): void {
     const qty = Number(newQty);
     if (qty > 0) {
-      this.quantityRequestedChanged.emit({ line, newQty: qty });
+      this.quantityRequestedChanged.emit({line, newQty: qty});
     }
   }
 
@@ -107,21 +112,21 @@ export class ProductListComponent {
         });
         return;
       }
-      this.quantityChanged.emit({ line, newQty: qty });
+      this.quantityChanged.emit({line, newQty: qty});
     }
   }
 
   onPriceChange(line: ISalesLine, newPrice: string): void {
     const price = Number(newPrice);
     if (price > 0) {
-      this.priceChanged.emit({ line, newPrice: price });
+      this.priceChanged.emit({line, newPrice: price});
     }
   }
 
   onRemoveLine(line: ISalesLine): void {
     // Utiliser le modal de confirmation
     this.confirmDialog.onConfirm(
-      () => this.authorizationRequired.emit({ line, action: 'delete' }),
+      () => this.authorizationRequired.emit({line, action: 'delete'}),
       'Supprimer Produit',
       `Voulez-vous supprimer ${line.produitLibelle || 'ce produit'} ?`,
       undefined,

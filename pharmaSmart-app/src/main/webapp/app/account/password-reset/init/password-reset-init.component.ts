@@ -1,12 +1,15 @@
-import { AfterViewInit, Component, ElementRef, inject, signal, viewChild } from '@angular/core';
-import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import SharedModule from 'app/shared/shared.module';
+import {AfterViewInit, Component, ElementRef, inject, signal, viewChild} from '@angular/core';
+import {FormBuilder, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 
-import { PasswordResetInitService } from './password-reset-init.service';
+
+import {PasswordResetInitService} from './password-reset-init.service';
+import {AlertErrorComponent} from "../../../shared/alert/alert-error.component";
+import TranslateDirective from "../../../shared/language/translate.directive";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
   selector: 'jhi-password-reset-init',
-  imports: [SharedModule, FormsModule, ReactiveFormsModule],
+  imports: [FormsModule, ReactiveFormsModule, AlertErrorComponent, TranslateDirective, TranslatePipe],
   templateUrl: './password-reset-init.component.html',
 })
 export default class PasswordResetInitComponent implements AfterViewInit {

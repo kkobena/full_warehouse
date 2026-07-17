@@ -1,28 +1,27 @@
-import { Component, computed, inject, OnInit, signal } from "@angular/core";
-import { ActivatedRoute, Router, RouterModule } from "@angular/router";
-import { HttpHeaders, HttpResponse } from "@angular/common/http";
-import { combineLatest } from "rxjs";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
-
-import SharedModule from "app/shared/shared.module";
-import { SortService, SortState, sortStateSignal } from "app/shared/sort";
-import { SORT } from "app/config/navigation.constants";
-import { AccountService } from "app/core/auth/account.service";
-import { UserManagementService } from "../service/user-management.service";
-import { User } from "../user-management.model";
-import { ButtonModule } from "primeng/button";
-import { RippleModule } from "primeng/ripple";
-import { PanelModule } from "primeng/panel";
-import { Toolbar } from "primeng/toolbar";
-import { Tooltip } from "primeng/tooltip";
-import { TableModule } from "primeng/table";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
-import { InputTextModule } from "primeng/inputtext";
-import { CommonModule } from "@angular/common";
-import { NgbConfirmDialogService } from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { NotificationService } from "../../../shared/services/notification.service";
-import { Toast } from "primeng/toast";
+import {Component, computed, inject, OnInit, signal} from "@angular/core";
+import {ActivatedRoute, Router, RouterModule} from "@angular/router";
+import {HttpHeaders, HttpResponse} from "@angular/common/http";
+import {combineLatest} from "rxjs";
+import {SortService, SortState, sortStateSignal} from "app/shared/sort";
+import {SORT} from "app/config/navigation.constants";
+import {AccountService} from "app/core/auth/account.service";
+import {UserManagementService} from "../service/user-management.service";
+import {User} from "../user-management.model";
+import {ButtonModule} from "primeng/button";
+import {RippleModule} from "primeng/ripple";
+import {PanelModule} from "primeng/panel";
+import {Toolbar} from "primeng/toolbar";
+import {Tooltip} from "primeng/tooltip";
+import {TableModule} from "primeng/table";
+import {IconField} from "primeng/iconfield";
+import {InputIcon} from "primeng/inputicon";
+import {InputTextModule} from "primeng/inputtext";
+import {CommonModule} from "@angular/common";
+import {
+  NgbConfirmDialogService
+} from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import {NotificationService} from "../../../shared/services/notification.service";
+import {Toast} from "primeng/toast";
 
 @Component({
   selector: "jhi-user-mgmt",
@@ -34,7 +33,6 @@ import { Toast } from "primeng/toast";
     RippleModule,
     PanelModule,
     RouterModule,
-    SharedModule,
     Toolbar,
     Tooltip,
     TableModule,
@@ -57,7 +55,9 @@ export default class UserManagementComponent implements OnInit {
   filteredUsers = computed(() => {
     const q = this.filterQuery().toLowerCase().trim();
     const all = this.users() ?? [];
-    if (!q) return all;
+    if (!q) {
+      return all;
+    }
     return all.filter(u =>
       u.login?.toLowerCase().includes(q) ||
       u.firstName?.toLowerCase().includes(q) ||
@@ -69,7 +69,6 @@ export default class UserManagementComponent implements OnInit {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly sortService = inject(SortService);
-  private readonly modalService = inject(NgbModal);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly notificationService = inject(NotificationService);
 
@@ -78,7 +77,7 @@ export default class UserManagementComponent implements OnInit {
   }
 
   setActive(user: User, isActivated: boolean): void {
-    this.userService.update({ ...user, activated: isActivated }).subscribe(() => this.loadAll());
+    this.userService.update({...user, activated: isActivated}).subscribe(() => this.loadAll());
   }
 
   deleteUser(user: User): void {

@@ -7,12 +7,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.data.BarData
-import com.github.mikephil.charting.data.BarDataSet
-import com.github.mikephil.charting.data.BarEntry
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
-import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.android.material.snackbar.Snackbar
 import com.kobe.warehouse.reports.PharmaReportApplication
 import com.kobe.warehouse.reports.R
@@ -25,6 +19,7 @@ import com.kobe.warehouse.reports.ui.adapter.TopProductAdapter
 import com.kobe.warehouse.reports.ui.viewmodel.DashboardViewModel
 import com.kobe.warehouse.reports.ui.viewmodel.DashboardViewModelFactory
 import com.kobe.warehouse.reports.ui.activity.SoldProductsActivity
+import com.kobe.warehouse.reports.ui.widget.SimpleBarChartView
 
 /**
  * Dashboard activity - main screen showing KPIs and summaries.
@@ -129,41 +124,7 @@ class DashboardActivity : BaseActivity() {
      * Setup bar chart for CA trend.
      */
     private fun setupChart() {
-        binding.chartCATrend.apply {
-            description.isEnabled = false
-            legend.isEnabled = false
-            setDrawGridBackground(false)
-            setFitBars(true)
-            setTouchEnabled(true)
-            setPinchZoom(false)
-            isDoubleTapToZoomEnabled = false
-
-            // X Axis
-            xAxis.apply {
-                position = XAxis.XAxisPosition.BOTTOM
-                setDrawGridLines(false)
-                granularity = 1f
-                textColor = ContextCompat.getColor(this@DashboardActivity, R.color.text_secondary)
-            }
-
-            // Left Y Axis
-            axisLeft.apply {
-                setDrawGridLines(true)
-                axisMinimum = 0f
-                textColor = ContextCompat.getColor(this@DashboardActivity, R.color.text_secondary)
-                valueFormatter = object : ValueFormatter() {
-                    override fun getFormattedValue(value: Float): String {
-                        return formatLargeNumber(value.toLong())
-                    }
-                }
-            }
-
-            // Right Y Axis
-            axisRight.isEnabled = false
-
-            // Animation
-            animateY(500)
-        }
+        binding.chartCATrend.clearChart()
     }
 
     /**
@@ -344,35 +305,19 @@ class DashboardActivity : BaseActivity() {
      */
     private fun updateChart(caTrend: List<DailyCASummary>) {
         if (caTrend.isEmpty()) {
-            binding.chartCATrend.clear()
+            binding.chartCATrend.clearChart()
             return
         }
-
-        val entries = caTrend.mapIndexed { index, summary ->
-            BarEntry(index.toFloat(), summary.caTotal.toFloat())
-        }
-
-        val labels = caTrend.map { it.dayLabel }
-
-        val dataSet = BarDataSet(entries, "CA").apply {
-            color = ContextCompat.getColor(this@DashboardActivity, R.color.primary)
-            valueTextColor = ContextCompat.getColor(this@DashboardActivity, R.color.text_secondary)
-            valueTextSize = 10f
-            valueFormatter = object : ValueFormatter() {
-                override fun getFormattedValue(value: Float): String {
-                    return formatLargeNumber(value.toLong())
-                }
+        val color = ContextCompat.getColor(this, R.color.primary)
+        binding.chartCATrend.setBars(
+            caTrend.map {
+                SimpleBarChartView.BarItem(
+                    label = it.dayLabel.take(3),
+                    value = it.caTotal.toFloat(),
+                    color = color
+                )
             }
-        }
-
-        binding.chartCATrend.apply {
-            xAxis.valueFormatter = IndexAxisValueFormatter(labels)
-            xAxis.labelCount = labels.size
-            data = BarData(dataSet).apply {
-                barWidth = 0.7f
-            }
-            invalidate()
-        }
+        )
     }
 
     /**

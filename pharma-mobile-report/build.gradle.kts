@@ -1,19 +1,17 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.parcelize)
-    alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.google.services)
 }
 
 android {
     namespace = "com.kobe.warehouse.reports"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.kobe.warehouse.reports"
         minSdk = 30
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 1
         versionName = "1.0.0"
 
@@ -71,12 +69,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlin {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-        }
-    }
-
     buildFeatures {
         viewBinding = true
         dataBinding = true
@@ -125,9 +117,6 @@ dependencies {
     // Security (Encrypted SharedPreferences)
     implementation(libs.androidx.security.crypto)
 
-    // Charts
-    implementation(libs.mpandroidchart)
-
     // Swipe Refresh
     implementation(libs.androidx.swiperefreshlayout)
 
@@ -140,7 +129,7 @@ dependencies {
     // Room Database (for offline caching)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-    kapt(libs.androidx.room.compiler)
+    annotationProcessor(libs.androidx.room.compiler)
 
     // WorkManager (for background sync)
     implementation(libs.androidx.work.runtime.ktx)

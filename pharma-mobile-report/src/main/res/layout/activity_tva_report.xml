@@ -325,11 +325,11 @@
                                 android:paddingBottom="16dp">
 
                                 <!-- Pie Chart -->
-                                <com.github.mikephil.charting.charts.PieChart
+                                <com.kobe.warehouse.reports.ui.widget.SimplePieChartView
                                     android:id="@+id/pieChartTva"
                                     android:layout_width="match_parent"
                                     android:layout_height="200dp"
-                                    android:layout_marginBottom="12dp" />
+                                    android:layout_marginTop="16dp" />
 
                                 <!-- TVA Rates List -->
                                 <androidx.recyclerview.widget.RecyclerView

@@ -8,12 +8,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.data.*
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
-import com.github.mikephil.charting.formatter.PercentFormatter
-import com.github.mikephil.charting.formatter.ValueFormatter
-import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.kobe.warehouse.reports.PharmaReportApplication
@@ -26,6 +20,8 @@ import com.kobe.warehouse.reports.databinding.ActivityPerformanceBinding
 import com.kobe.warehouse.reports.ui.adapter.TopProductAdapter
 import com.kobe.warehouse.reports.ui.viewmodel.PerformanceViewModel
 import com.kobe.warehouse.reports.ui.viewmodel.PerformanceViewModelFactory
+import com.kobe.warehouse.reports.ui.widget.SimpleLineChartView
+import com.kobe.warehouse.reports.ui.widget.SimplePieChartView
 
 /**
  * Performance activity - displays performance analytics.
@@ -95,46 +91,9 @@ class PerformanceActivity : BaseActivity() {
     }
 
     private fun setupCharts() {
-        // Line Chart (CA Trend)
-        binding.chartCATrend.apply {
-            description.isEnabled = false
-            legend.isEnabled = false
-            setTouchEnabled(true)
-            setPinchZoom(false)
-            setDrawGridBackground(false)
-
-            xAxis.apply {
-                position = XAxis.XAxisPosition.BOTTOM
-                setDrawGridLines(false)
-                textColor = ContextCompat.getColor(this@PerformanceActivity, R.color.text_secondary)
-            }
-
-            axisLeft.apply {
-                setDrawGridLines(true)
-                axisMinimum = 0f
-                textColor = ContextCompat.getColor(this@PerformanceActivity, R.color.text_secondary)
-                valueFormatter = object : ValueFormatter() {
-                    override fun getFormattedValue(value: Float): String {
-                        return formatLargeNumber(value.toLong())
-                    }
-                }
-            }
-
-            axisRight.isEnabled = false
-            animateX(500)
-        }
-
-        // Pie Chart (Categories)
-        binding.chartCategories.apply {
-            description.isEnabled = false
-            setUsePercentValues(true)
-            setDrawEntryLabels(false)
-            legend.isEnabled = true
-            isDrawHoleEnabled = true
-            setHoleColor(Color.WHITE)
-            holeRadius = 50f
-            animateY(500)
-        }
+        binding.chartCATrend.clearChart()
+        binding.chartCategories.setLegendEnabled(true)
+        binding.chartCategories.clearChart()
     }
 
     private fun setupListeners() {
@@ -229,70 +188,45 @@ class PerformanceActivity : BaseActivity() {
 
     private fun updateLineChart(dataPoints: List<PeriodDataPoint>) {
         if (dataPoints.isEmpty()) {
-            binding.chartCATrend.clear()
+            binding.chartCATrend.clearChart()
             return
         }
-
-        val entries = dataPoints.mapIndexed { index, point ->
-            Entry(index.toFloat(), point.caAmount.toFloat())
-        }
-
-        val labels = dataPoints.map { it.label }
-
-        val dataSet = LineDataSet(entries, "CA").apply {
-            color = ContextCompat.getColor(this@PerformanceActivity, R.color.primary)
-            lineWidth = 2f
-            setDrawCircles(true)
-            circleRadius = 4f
-            setCircleColor(ContextCompat.getColor(this@PerformanceActivity, R.color.primary))
-            setDrawFilled(true)
-            fillColor = ContextCompat.getColor(this@PerformanceActivity, R.color.primary_light)
-            fillAlpha = 50
-            valueTextSize = 10f
-            valueFormatter = object : ValueFormatter() {
-                override fun getFormattedValue(value: Float): String {
-                    return formatLargeNumber(value.toLong())
-                }
+        binding.chartCATrend.setPoints(
+            dataPoints.map {
+                SimpleLineChartView.Point(
+                    label = it.label.take(4),
+                    value = it.caAmount.toFloat()
+                )
             }
-        }
-
-        binding.chartCATrend.apply {
-            xAxis.valueFormatter = IndexAxisValueFormatter(labels)
-            xAxis.labelCount = labels.size
-            data = LineData(dataSet)
-            invalidate()
-        }
+        )
     }
 
     private fun updatePieChart(paymentMethods: List<com.kobe.warehouse.reports.data.model.PaymentMethodSummary>) {
         if (paymentMethods.isEmpty()) {
-            binding.chartCategories.clear()
+            binding.chartCategories.clearChart()
             return
         }
-
-        val entries = paymentMethods.map { method ->
-            PieEntry(method.percent.toFloat(), method.label)
-        }
-
-        val colors = paymentMethods.mapNotNull { method ->
-            try {
-                Color.parseColor(method.color)
-            } catch (e: Exception) {
-                ColorTemplate.MATERIAL_COLORS[paymentMethods.indexOf(method) % ColorTemplate.MATERIAL_COLORS.size]
+        binding.chartCategories.setSlices(
+            paymentMethods.mapIndexed { index, method ->
+                SimplePieChartView.Slice(
+                    label = method.label,
+                    value = method.amount.toFloat(),
+                    color = paletteColor(index)
+                )
             }
-        }
+        )
+    }
 
-        val dataSet = PieDataSet(entries, "").apply {
-            this.colors = colors
-            valueTextSize = 12f
-            valueTextColor = Color.WHITE
-            valueFormatter = PercentFormatter(binding.chartCategories)
-        }
-
-        binding.chartCategories.apply {
-            data = PieData(dataSet)
-            invalidate()
-        }
+    private fun paletteColor(index: Int): Int {
+        val palette = intArrayOf(
+            Color.parseColor("#1976D2"),
+            Color.parseColor("#2E7D32"),
+            Color.parseColor("#F57C00"),
+            Color.parseColor("#7B1FA2"),
+            Color.parseColor("#C62828"),
+            Color.parseColor("#00838F")
+        )
+        return palette[index % palette.size]
     }
 
     private fun formatLargeNumber(value: Long): String {

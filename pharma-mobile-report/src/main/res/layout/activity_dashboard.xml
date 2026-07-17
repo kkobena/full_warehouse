@@ -376,7 +376,7 @@
                             android:textSize="16sp"
                             android:textStyle="bold" />
 
-                        <com.github.mikephil.charting.charts.BarChart
+                        <com.kobe.warehouse.reports.ui.widget.SimpleBarChartView
                             android:id="@+id/chartCATrend"
                             android:layout_width="match_parent"
                             android:layout_height="200dp"

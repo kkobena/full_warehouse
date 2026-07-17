@@ -8,11 +8,6 @@ import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.github.mikephil.charting.animation.Easing
-import com.github.mikephil.charting.data.PieData
-import com.github.mikephil.charting.data.PieDataSet
-import com.github.mikephil.charting.data.PieEntry
-import com.github.mikephil.charting.formatter.PercentFormatter
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.snackbar.Snackbar
 import com.kobe.warehouse.reports.PharmaReportApplication
@@ -23,6 +18,7 @@ import com.kobe.warehouse.reports.databinding.ActivityTvaReportBinding
 import com.kobe.warehouse.reports.ui.adapter.TvaRateAdapter
 import com.kobe.warehouse.reports.ui.viewmodel.TvaReportViewModel
 import com.kobe.warehouse.reports.ui.viewmodel.TvaReportViewModelFactory
+import com.kobe.warehouse.reports.ui.widget.SimplePieChartView
 import java.time.Instant
 import java.time.ZoneId
 
@@ -112,21 +108,7 @@ class TvaReportActivity : BaseActivity() {
     }
 
     private fun setupPieChart() {
-        binding.pieChartTva.apply {
-            description.isEnabled = false
-            setUsePercentValues(true)
-            isDrawHoleEnabled = true
-            setHoleColor(Color.WHITE)
-            holeRadius = 58f
-            transparentCircleRadius = 61f
-            setDrawCenterText(true)
-            centerText = getString(R.string.tva)
-            setCenterTextSize(14f)
-            setEntryLabelTextSize(10f)
-            setEntryLabelColor(Color.DKGRAY)
-            legend.isEnabled = false
-            setNoDataText(getString(R.string.no_data))
-        }
+        binding.pieChartTva.clearChart()
     }
 
     private fun setupExpandableCards() {
@@ -234,32 +216,25 @@ class TvaReportActivity : BaseActivity() {
 
     private fun updatePieChart(chartData: List<TvaChartData>) {
         if (chartData.isEmpty()) {
-            binding.pieChartTva.setNoDataText(getString(R.string.no_data))
-            binding.pieChartTva.invalidate()
+            binding.pieChartTva.clearChart()
             return
         }
-
-        val entries = chartData.map { PieEntry(it.percent.toFloat(), it.label) }
-        val colors = chartData.mapNotNull {
-            try {
-                Color.parseColor(it.color)
-            } catch (e: Exception) {
-                Color.GRAY
+        binding.pieChartTva.setSlices(
+            chartData.map {
+                SimplePieChartView.Slice(
+                    label = it.label,
+                    value = it.value.toFloat(),
+                    color = parseColorOrDefault(it.color)
+                )
             }
-        }
+        )
+    }
 
-        val dataSet = PieDataSet(entries, "").apply {
-            this.colors = colors
-            valueTextSize = 11f
-            valueTextColor = Color.WHITE
-            valueFormatter = PercentFormatter(binding.pieChartTva)
-            sliceSpace = 2f
-        }
-
-        binding.pieChartTva.apply {
-            data = PieData(dataSet)
-            animateY(1000, Easing.EaseInOutQuad)
-            invalidate()
+    private fun parseColorOrDefault(hexColor: String?): Int {
+        return try {
+            if (hexColor.isNullOrBlank()) Color.GRAY else Color.parseColor(hexColor)
+        } catch (_: IllegalArgumentException) {
+            Color.GRAY
         }
     }
 

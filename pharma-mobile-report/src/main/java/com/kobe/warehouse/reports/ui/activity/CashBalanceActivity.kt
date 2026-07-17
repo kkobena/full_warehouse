@@ -8,11 +8,6 @@ import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.github.mikephil.charting.animation.Easing
-import com.github.mikephil.charting.data.PieData
-import com.github.mikephil.charting.data.PieDataSet
-import com.github.mikephil.charting.data.PieEntry
-import com.github.mikephil.charting.formatter.PercentFormatter
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.snackbar.Snackbar
 import com.kobe.warehouse.reports.PharmaReportApplication
@@ -25,6 +20,7 @@ import com.kobe.warehouse.reports.ui.adapter.CategoryBalanceAdapter
 import com.kobe.warehouse.reports.ui.adapter.PaymentBreakdownAdapter
 import com.kobe.warehouse.reports.ui.viewmodel.CashBalanceViewModel
 import com.kobe.warehouse.reports.ui.viewmodel.CashBalanceViewModelFactory
+import com.kobe.warehouse.reports.ui.widget.SimplePieChartView
 import com.kobe.warehouse.reports.utils.NumberFormatUtils
 import java.time.Instant
 import java.time.ZoneId
@@ -134,21 +130,8 @@ class CashBalanceActivity : BaseActivity() {
     }
 
     private fun setupPieChart() {
-        binding.pieChartPayments.apply {
-            description.isEnabled = false
-            setUsePercentValues(true)
-            isDrawHoleEnabled = true
-            setHoleColor(Color.WHITE)
-            holeRadius = 58f
-            transparentCircleRadius = 61f
-            setDrawCenterText(true)
-            centerText = getString(R.string.paiements)
-            setCenterTextSize(14f)
-            setEntryLabelTextSize(10f)
-            setEntryLabelColor(Color.DKGRAY)
-            legend.isEnabled = false
-            setNoDataText(getString(R.string.no_data))
-        }
+        binding.pieChartPayments.setLegendEnabled(false)
+        binding.pieChartPayments.clearChart()
     }
 
     private fun setupExpandableCards() {
@@ -302,32 +285,25 @@ class CashBalanceActivity : BaseActivity() {
 
     private fun updatePieChart(breakdown: List<PaymentModeBreakdown>) {
         if (breakdown.isEmpty()) {
-            binding.pieChartPayments.setNoDataText(getString(R.string.no_data))
-            binding.pieChartPayments.invalidate()
+            binding.pieChartPayments.clearChart()
             return
         }
-
-        val entries = breakdown.map { PieEntry(it.percent.toFloat(), it.libelle) }
-        val colors = breakdown.mapNotNull {
-            try {
-                Color.parseColor(it.color)
-            } catch (e: Exception) {
-                Color.GRAY
+        binding.pieChartPayments.setSlices(
+            breakdown.map {
+                SimplePieChartView.Slice(
+                    label = it.libelle,
+                    value = it.montant.toFloat(),
+                    color = parseColorOrDefault(it.color)
+                )
             }
-        }
+        )
+    }
 
-        val dataSet = PieDataSet(entries, "").apply {
-            this.colors = colors
-            valueTextSize = 11f
-            valueTextColor = Color.WHITE
-            valueFormatter = PercentFormatter(binding.pieChartPayments)
-            sliceSpace = 2f
-        }
-
-        binding.pieChartPayments.apply {
-            data = PieData(dataSet)
-            animateY(1000, Easing.EaseInOutQuad)
-            invalidate()
+    private fun parseColorOrDefault(hexColor: String?): Int {
+        return try {
+            if (hexColor.isNullOrBlank()) Color.GRAY else Color.parseColor(hexColor)
+        } catch (_: IllegalArgumentException) {
+            Color.GRAY
         }
     }
 

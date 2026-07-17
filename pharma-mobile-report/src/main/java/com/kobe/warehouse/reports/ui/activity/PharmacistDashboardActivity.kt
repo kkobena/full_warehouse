@@ -7,10 +7,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.data.*
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
-import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.android.material.chip.Chip
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.snackbar.Snackbar
@@ -22,6 +18,7 @@ import com.kobe.warehouse.reports.databinding.ActivityPharmacistDashboardBinding
 import com.kobe.warehouse.reports.ui.adapter.SupplierPurchaseAdapter
 import com.kobe.warehouse.reports.ui.viewmodel.PharmacistDashboardViewModel
 import com.kobe.warehouse.reports.ui.viewmodel.PharmacistDashboardViewModelFactory
+import com.kobe.warehouse.reports.ui.widget.SimpleBarChartView
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -112,36 +109,7 @@ class PharmacistDashboardActivity : BaseActivity() {
     }
 
     private fun setupChart() {
-        binding.chartVentesAchats.apply {
-            description.isEnabled = false
-            legend.isEnabled = false
-            setTouchEnabled(true)
-            setPinchZoom(false)
-            setDrawGridBackground(false)
-            setDrawBarShadow(false)
-            setDrawValueAboveBar(true)
-
-            xAxis.apply {
-                position = XAxis.XAxisPosition.BOTTOM
-                setDrawGridLines(false)
-                granularity = 1f
-                textColor = ContextCompat.getColor(this@PharmacistDashboardActivity, R.color.text_secondary)
-            }
-
-            axisLeft.apply {
-                setDrawGridLines(true)
-                axisMinimum = 0f
-                textColor = ContextCompat.getColor(this@PharmacistDashboardActivity, R.color.text_secondary)
-                valueFormatter = object : ValueFormatter() {
-                    override fun getFormattedValue(value: Float): String {
-                        return formatLargeNumber(value.toLong())
-                    }
-                }
-            }
-
-            axisRight.isEnabled = false
-            animateY(500)
-        }
+        binding.chartVentesAchats.clearChart()
     }
 
     private fun setupListeners() {
@@ -233,59 +201,31 @@ class PharmacistDashboardActivity : BaseActivity() {
 
     private fun updateChart(dataPoints: List<ChartDataPoint>) {
         if (dataPoints.isEmpty()) {
-            binding.chartVentesAchats.clear()
+            binding.chartVentesAchats.clearChart()
             return
         }
+        binding.chartVentesAchats.setBars(
+            dataPoints.map { point ->
+                SimpleBarChartView.BarItem(
+                    label = point.label.take(4),
+                    value = point.value.toFloat(),
+                    color = resolveColor(point)
+                )
+            }
+        )
+    }
 
-        // Group data points by label (each label has sales and purchases)
-        val salesPoints = dataPoints.filter { it.isSales() }
-        val purchasesPoints = dataPoints.filter { it.isPurchases() }
-
-        // Get unique labels
-        val labels = salesPoints.map { it.label }.distinct()
-
-        // Create bar entries
-        val salesEntries = labels.mapIndexed { index, label ->
-            val point = salesPoints.find { it.label == label }
-            BarEntry(index.toFloat(), point?.value?.toFloat() ?: 0f)
-        }
-
-        val purchasesEntries = labels.mapIndexed { index, label ->
-            val point = purchasesPoints.find { it.label == label }
-            BarEntry(index.toFloat(), point?.value?.toFloat() ?: 0f)
-        }
-
-        val salesDataSet = BarDataSet(salesEntries, "Ventes").apply {
-            color = ContextCompat.getColor(this@PharmacistDashboardActivity, R.color.success)
-            valueTextSize = 8f
-            valueFormatter = object : ValueFormatter() {
-                override fun getFormattedValue(value: Float): String {
-                    return if (value > 0) formatLargeNumber(value.toLong()) else ""
-                }
+    private fun resolveColor(point: ChartDataPoint): Int {
+        point.color?.let {
+            try {
+                return Color.parseColor(it)
+            } catch (_: IllegalArgumentException) {
             }
         }
-
-        val purchasesDataSet = BarDataSet(purchasesEntries, "Achats").apply {
-            color = ContextCompat.getColor(this@PharmacistDashboardActivity, R.color.error)
-            valueTextSize = 8f
-            valueFormatter = object : ValueFormatter() {
-                override fun getFormattedValue(value: Float): String {
-                    return if (value > 0) formatLargeNumber(value.toLong()) else ""
-                }
-            }
-        }
-
-        val barData = BarData(salesDataSet, purchasesDataSet)
-        barData.barWidth = 0.35f
-
-        binding.chartVentesAchats.apply {
-            xAxis.valueFormatter = IndexAxisValueFormatter(labels)
-            xAxis.labelCount = labels.size
-
-            // Group bars
-            data = barData
-            groupBars(0f, 0.2f, 0.05f)
-            invalidate()
+        return if (point.isSales()) {
+            ContextCompat.getColor(this, R.color.success)
+        } else {
+            ContextCompat.getColor(this, R.color.info)
         }
     }
 

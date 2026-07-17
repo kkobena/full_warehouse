@@ -272,7 +272,7 @@
                                 android:textSize="16sp"
                                 android:textStyle="bold" />
 
-                            <com.github.mikephil.charting.charts.LineChart
+                            <com.kobe.warehouse.reports.ui.widget.SimpleLineChartView
                                 android:id="@+id/chartCATrend"
                                 android:layout_width="match_parent"
                                 android:layout_height="200dp"
@@ -303,10 +303,10 @@
                                 android:textSize="16sp"
                                 android:textStyle="bold" />
 
-                            <com.github.mikephil.charting.charts.PieChart
+                            <com.kobe.warehouse.reports.ui.widget.SimplePieChartView
                                 android:id="@+id/chartCategories"
                                 android:layout_width="match_parent"
-                                android:layout_height="200dp"
+                                android:layout_height="260dp"
                                 android:layout_marginTop="16dp" />
 
                         </LinearLayout>

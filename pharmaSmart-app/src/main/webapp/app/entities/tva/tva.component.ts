@@ -1,34 +1,35 @@
-import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
-import { TvaService } from './tva.service';
-import { HttpResponse } from '@angular/common/http';
-import { ITva } from '../../shared/model/tva.model';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { Toolbar } from 'primeng/toolbar';
-import { Tooltip } from 'primeng/tooltip';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { showCommonModal } from '../sales/selling-home/sale-helper';
-import { FormTvaComponent } from './form-tva/form-tva.component';
-import { CommonModule } from '@angular/common';
-import { TranslatePipe } from '@ngx-translate/core';
+import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
+import {TvaService} from './tva.service';
+import {HttpResponse} from '@angular/common/http';
+import {ITva} from '../../shared/model/tva.model';
+import {ButtonModule} from 'primeng/button';
+import {TableModule} from 'primeng/table';
+import {Toolbar} from 'primeng/toolbar';
+import {Tooltip} from 'primeng/tooltip';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {showCommonModal} from '../sales/selling-home/sale-helper';
+import {FormTvaComponent} from './form-tva/form-tva.component';
+import {CommonModule} from '@angular/common';
+import {TranslatePipe} from '@ngx-translate/core';
+import {
+  NgbConfirmDialogService
+} from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 
 @Component({
   selector: 'jhi-tva',
   templateUrl: './tva.component.html',
   styleUrl: './tva.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, ButtonModule, TableModule, Toolbar, Tooltip, ConfirmDialogComponent, TranslatePipe],
+  imports: [CommonModule, ButtonModule, TableModule, Toolbar, Tooltip, TranslatePipe],
 })
 export class TvaComponent implements OnInit {
   protected tvas?: ITva[];
   protected selectedTva?: ITva;
   protected loading!: boolean;
   protected isSaving = false;
-  protected displayDialog?: boolean;
   private readonly tvaService = inject(TvaService);
   private readonly modalService = inject(NgbModal);
-  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
 
   ngOnInit(): void {
     this.loadPage();
@@ -41,11 +42,11 @@ export class TvaComponent implements OnInit {
   }
 
   confirmDelete(id: number): void {
-    this.confirmDialog(id);
+    this.confirm(id);
   }
 
-  confirmDialog(id: number): void {
-    this.confimDialog().onConfirm(
+  confirm(id: number): void {
+    this.confirmDialog.onConfirm(
       () => {
         this.tvaService.delete(id).subscribe(() => {
           this.loadPage();

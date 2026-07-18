@@ -1,28 +1,32 @@
-import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { GammeProduitService } from './gamme-produit.service';
+import {ChangeDetectionStrategy, Component, inject, OnInit, viewChild} from '@angular/core';
+import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {GammeProduitService} from './gamme-produit.service';
 
-import { FormGammeComponent } from './form-gamme/form-gamme.component';
-import { IGammeProduit } from '../../shared/model/gamme-produit.model';
-import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
-import { IResponseDto } from '../../shared/util/response-dto';
-import { ButtonModule } from 'primeng/button';
-import { ToolbarModule } from 'primeng/toolbar';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { InputTextModule } from 'primeng/inputtext';
-import { TooltipModule } from 'primeng/tooltip';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { showCommonModal } from '../sales/selling-home/sale-helper';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { FileUploadDialogComponent } from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
-import { finalize } from 'rxjs/operators';
-import { SpinnerComponent } from '../../shared/spinner/spinner.component';
+import {FormGammeComponent} from './form-gamme/form-gamme.component';
+import {IGammeProduit} from '../../shared/model/gamme-produit.model';
+import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
+import {IResponseDto} from '../../shared/util/response-dto';
+import {ButtonModule} from 'primeng/button';
+import {ToolbarModule} from 'primeng/toolbar';
+import {TableLazyLoadEvent, TableModule} from 'primeng/table';
+import {InputTextModule} from 'primeng/inputtext';
+import {TooltipModule} from 'primeng/tooltip';
+import {IconField} from 'primeng/iconfield';
+import {InputIcon} from 'primeng/inputicon';
+import {showCommonModal} from '../sales/selling-home/sale-helper';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {
+  FileUploadDialogComponent
+} from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
+import {finalize} from 'rxjs/operators';
+import {SpinnerComponent} from '../../shared/spinner/spinner.component';
+import {
+  NgbConfirmDialogService
+} from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 
 @Component({
-  selector: 'jhi-gamme-produit',
+  selector: 'app-gamme-produit',
   templateUrl: './gamme-produit.component.html',
   styleUrl: './gamme-produit.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -34,7 +38,6 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
     TooltipModule,
     IconField,
     InputIcon,
-    ConfirmDialogComponent,
     SpinnerComponent,
   ],
 })
@@ -44,13 +47,12 @@ export class GammeProduitComponent implements OnInit {
   protected totalItems = 0;
   protected itemsPerPage = ITEMS_PER_PAGE;
   protected page = 0;
-  protected selectedEl?: IGammeProduit;
   protected loading = false;
   protected isSaving = false;
   private readonly entityService = inject(GammeProduitService);
-  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly modalService = inject(NgbModal);
   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
 
   ngOnInit(): void {
     this.loadPage();
@@ -87,8 +89,8 @@ export class GammeProduitComponent implements OnInit {
       });
   }
 
-  protected confirmDialog(id: number): void {
-    this.confimDialog().onConfirm(
+  protected confirm(id: number): void {
+    this.confirmDialog.onConfirm(
       () => {
         this.entityService.delete(id).subscribe(() => {
           this.loadPage(0);
@@ -104,7 +106,7 @@ export class GammeProduitComponent implements OnInit {
   }
 
   protected confirmDelete(id: number): void {
-    this.confirmDialog(id);
+    this.confirm(id);
   }
 
   protected search(event: any): void {

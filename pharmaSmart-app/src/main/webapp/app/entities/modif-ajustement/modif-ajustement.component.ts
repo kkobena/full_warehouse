@@ -1,24 +1,28 @@
-import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { ModifAjustementService } from './motif-ajustement.service';
-import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
-import { IMotifAjustement } from '../../shared/model/motif-ajustement.model';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { FormMotifAjustementComponent } from './form-motif-ajustement/form-motif-ajustement.component';
-import { ButtonModule } from 'primeng/button';
-import { ToolbarModule } from 'primeng/toolbar';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { InputTextModule } from 'primeng/inputtext';
-import { TooltipModule } from 'primeng/tooltip';
-import { FormsModule } from '@angular/forms';
-import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { showCommonModal } from '../sales/selling-home/sale-helper';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
+import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
+import {RouterModule} from '@angular/router';
+import {ModifAjustementService} from './motif-ajustement.service';
+import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
+import {IMotifAjustement} from '../../shared/model/motif-ajustement.model';
+import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {
+  FormMotifAjustementComponent
+} from './form-motif-ajustement/form-motif-ajustement.component';
+import {ButtonModule} from 'primeng/button';
+import {ToolbarModule} from 'primeng/toolbar';
+import {TableLazyLoadEvent, TableModule} from 'primeng/table';
+import {InputTextModule} from 'primeng/inputtext';
+import {TooltipModule} from 'primeng/tooltip';
+import {FormsModule} from '@angular/forms';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {showCommonModal} from '../sales/selling-home/sale-helper';
+import {IconField} from 'primeng/iconfield';
+import {InputIcon} from 'primeng/inputicon';
+import {
+  NgbConfirmDialogService
+} from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 
 @Component({
-  selector: 'jhi-modif-ajustement',
+  selector: 'app-modif-ajustement',
   templateUrl: './modif-ajustement.component.html',
   styleUrl: './modif-ajustement.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -30,7 +34,6 @@ import { InputIcon } from 'primeng/inputicon';
     InputTextModule,
     TooltipModule,
     FormsModule,
-    ConfirmDialogComponent,
     IconField,
     InputIcon,
   ],
@@ -41,7 +44,7 @@ export class ModifAjustementComponent implements OnInit {
   protected itemsPerPage = ITEMS_PER_PAGE;
   protected page = 0;
   protected loading!: boolean;
-  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly modalService = inject(NgbModal);
   private readonly entityService = inject(ModifAjustementService);
 
@@ -80,20 +83,8 @@ export class ModifAjustementComponent implements OnInit {
       });
   }
 
-  private confirmDialog(id: number): void {
-    this.confimDialog().onConfirm(
-      () => {
-        this.entityService.delete(id).subscribe(() => {
-          this.loadPage(0);
-        });
-      },
-      'Suppression',
-      'Êtes-vous sûr de vouloir supprimer ?',
-    );
-  }
-
   protected delete(entity: IMotifAjustement): void {
-    this.confirmDialog(entity.id);
+    this.confirm(entity.id);
   }
 
   protected search(event: any): void {
@@ -127,6 +118,18 @@ export class ModifAjustementComponent implements OnInit {
         this.loadPage(0);
       },
       'lg',
+    );
+  }
+
+  private confirm(id: number): void {
+    this.confirmDialog.onConfirm(
+      () => {
+        this.entityService.delete(id).subscribe(() => {
+          this.loadPage(0);
+        });
+      },
+      'Suppression',
+      'Êtes-vous sûr de vouloir supprimer ?',
     );
   }
 

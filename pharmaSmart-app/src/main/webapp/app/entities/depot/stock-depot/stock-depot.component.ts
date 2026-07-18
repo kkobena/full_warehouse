@@ -1,51 +1,51 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { Button } from 'primeng/button';
-import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { CommonModule } from '@angular/common';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { InputText } from 'primeng/inputtext';
-import { NgbModal, NgbPagination } from '@ng-bootstrap/ng-bootstrap';
-import { Select } from 'primeng/select';
-import { TableModule } from 'primeng/table';
-import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
-import { Toolbar } from 'primeng/toolbar';
+import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
+import {Button} from 'primeng/button';
+import {CommonModule} from '@angular/common';
+import {IconField} from 'primeng/iconfield';
+import {InputIcon} from 'primeng/inputicon';
+import {InputText} from 'primeng/inputtext';
+import {NgbModal, NgbPagination} from '@ng-bootstrap/ng-bootstrap';
+import {Select} from 'primeng/select';
+import {TableModule} from 'primeng/table';
+import {Toolbar} from 'primeng/toolbar';
 import TranslateDirective from '../../../shared/language/translate.directive';
-import { IProduit } from "../../../shared/model";
-import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
-import { TypeProduit } from '../../../shared/model/enumerations/type-produit.model';
-import { IResponseDto } from '../../../shared/util/response-dto';
-import { IProduitCriteria, ProduitCriteria } from '../../../shared/model/produit-criteria.model';
-import { IConfiguration } from '../../../shared/model/configuration.model';
-import { ActivatedRoute, Data, ParamMap, RouterLink } from '@angular/router';
-import { Statut } from '../../../shared/model/enumerations/statut.model';
-import { ImportProduitModalComponent } from '../../produit/import-produit-modal/import-produit-modal.component';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { showCommonModal } from '../../sales/selling-home/sale-helper';
-import { ImportProduitReponseModalComponent } from '../../produit/import-produit-reponse-modal/import-produit-reponse-modal.component';
-import { combineLatest } from 'rxjs';
-import { FormsModule } from '@angular/forms';
-import { StockDepotService } from './stock-depot.service';
-import { MagasinService } from '../../magasin/magasin.service';
-import { IMagasin } from "../../../shared/model";
+import {IMagasin, IProduit} from "../../../shared/model";
+import {ITEMS_PER_PAGE} from '../../../shared/constants/pagination.constants';
+import {TypeProduit} from '../../../shared/model/enumerations/type-produit.model';
+import {IResponseDto} from '../../../shared/util/response-dto';
+import {IProduitCriteria, ProduitCriteria} from '../../../shared/model/produit-criteria.model';
+import {IConfiguration} from '../../../shared/model/configuration.model';
+import {ActivatedRoute, Data, ParamMap, RouterLink} from '@angular/router';
+import {Statut} from '../../../shared/model/enumerations/statut.model';
+import {
+  ImportProduitModalComponent
+} from '../../produit/import-produit-modal/import-produit-modal.component';
+import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {showCommonModal} from '../../sales/selling-home/sale-helper';
+import {
+  ImportProduitReponseModalComponent
+} from '../../produit/import-produit-reponse-modal/import-produit-reponse-modal.component';
+import {combineLatest} from 'rxjs';
+import {FormsModule} from '@angular/forms';
+import {StockDepotService} from './stock-depot.service';
+import {MagasinService} from '../../magasin/magasin.service';
 
 @Component({
-  selector: 'jhi-stock-depot',
+  selector: 'app-stock-depot',
   imports: [
     CommonModule,
     Button,
-    ConfirmDialogComponent,
     IconField,
     InputIcon,
     InputText,
     NgbPagination,
     Select,
     TableModule,
-    ToastAlertComponent,
     Toolbar,
     TranslateDirective,
     FormsModule,
     RouterLink,
+
   ],
   templateUrl: './stock-depot.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -73,6 +73,7 @@ export class StockDepotComponent implements OnInit {
   private readonly modalService = inject(NgbModal);
   private readonly stockDepotService = inject(StockDepotService);
   private readonly magasinService = inject(MagasinService);
+  
 
   constructor() {
     this.criteria = new ProduitCriteria();
@@ -95,10 +96,6 @@ export class StockDepotComponent implements OnInit {
         this.loadPage(0);
       }
     });
-  }
-
-  protected onSelectDepot(): void {
-    this.loadPage(0);
   }
 
   populate(): void {
@@ -161,8 +158,13 @@ export class StockDepotComponent implements OnInit {
     this.loadPage(0);
   }
 
+  protected onSelectDepot(): void {
+    this.loadPage(0);
+  }
+
   private showResponse(responsedto: IResponseDto): void {
-    showCommonModal(this.modalService, ImportProduitReponseModalComponent, { responsedto }, () => {}, 'lg');
+    showCommonModal(this.modalService, ImportProduitReponseModalComponent, {responsedto}, () => {
+    }, 'lg');
   }
 
   private onError(): void {

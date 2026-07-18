@@ -1,23 +1,28 @@
-import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { ToolbarModule } from 'primeng/toolbar';
-import { TooltipModule } from 'primeng/tooltip';
-import { IResponseDto } from '../../../shared/util/response-dto';
-import { IRemise } from '../../../shared/model/remise.model';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { RemiseService } from '../remise.service';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { RemiseProduitFormModalComponent } from '../remise-produit-form-modal/remise-produit-form-modal.component';
-import { ToggleSwitch } from 'primeng/toggleswitch';
-import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
-import { ErrorService } from '../../../shared/error.service';
+import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
+import {FormsModule} from '@angular/forms';
+import {ButtonModule} from 'primeng/button';
+import {TableModule} from 'primeng/table';
+import {ToolbarModule} from 'primeng/toolbar';
+import {TooltipModule} from 'primeng/tooltip';
+import {IResponseDto} from '../../../shared/util/response-dto';
+import {IRemise} from '../../../shared/model';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {RemiseService} from '../remise.service';
+import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {
+  RemiseProduitFormModalComponent
+} from '../remise-produit-form-modal/remise-produit-form-modal.component';
+import {ToggleSwitch} from 'primeng/toggleswitch';
+import {ErrorService} from '../../../shared/error.service';
+import {Toast} from "primeng/toast";
+import {NotificationService} from "../../../shared/services/notification.service";
+import {
+  NgbConfirmDialogService
+} from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 
 @Component({
-  selector: 'jhi-remise-produits',
+  selector: 'app-remise-produits',
   imports: [
     FormsModule,
     TableModule,
@@ -25,8 +30,7 @@ import { ErrorService } from '../../../shared/error.service';
     TooltipModule,
     ButtonModule,
     ToggleSwitch,
-    ConfirmDialogComponent,
-    ToastAlertComponent,
+    Toast,
   ],
   templateUrl: './remise-produits.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -38,13 +42,13 @@ export class RemiseProduitsComponent implements OnInit {
   protected loading = false;
   private readonly ngModalService = inject(NgbModal);
   private readonly entityService = inject(RemiseService);
-  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
-  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly notificationService = inject(NotificationService);
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly errorService = inject(ErrorService);
 
   loadPage(): void {
     this.loading = true;
-    this.entityService.query({ typeRemise: 'PRODUIT' }).subscribe({
+    this.entityService.query({typeRemise: 'PRODUIT'}).subscribe({
       next: (res: HttpResponse<IRemise[]>) => this.onSuccess(res.body),
       error: () => this.onError(),
     });
@@ -54,8 +58,8 @@ export class RemiseProduitsComponent implements OnInit {
     this.loadPage();
   }
 
-  confirmDialog(id: number): void {
-    this.confimDialog().onConfirm(
+  confirm(id: number): void {
+    this.confirmDialog.onConfirm(
       () => {
         this.entityService.delete(id).subscribe(() => {
           this.loadPage();
@@ -90,7 +94,7 @@ export class RemiseProduitsComponent implements OnInit {
   }
 
   confirmDelete(id: number): void {
-    this.confirmDialog(id);
+    this.confirm(id);
   }
 
   protected getVnoTaux(entity: IRemise): string {
@@ -128,7 +132,7 @@ export class RemiseProduitsComponent implements OnInit {
   }
 
   private onSaveError(error: HttpErrorResponse): void {
-    this.alert().showError(this.errorService.getErrorMessage(error));
+    this.notificationService.error(this.errorService.getErrorMessage(error));
     this.loadPage();
   }
 

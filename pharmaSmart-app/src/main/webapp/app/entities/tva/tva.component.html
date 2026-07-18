@@ -1,5 +1,3 @@
-<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
-
 <div class="container">
   <div class="justify-content-center">
     <div class="pharma-smart-content p-2">
@@ -19,9 +17,9 @@
               <div class="pharma-button-group">
                 <p-button
                   (click)="addNewEntity()"
+                  [raised]="true"
                   icon="pi pi-plus"
                   label="Nouvelle Tva"
-                  [raised]="true"
                   severity="success"
                   type="button"
                 ></p-button>
@@ -33,14 +31,16 @@
 
       <div class="mt-2">
         @if (tvas && tvas.length > 0) {
-          <p-table [(selection)]="selectedTva" [loading]="loading" [value]="tvas" dataKey="id" selectionMode="single" class="pharma-table">
+          <p-table [(selection)]="selectedTva" [loading]="loading" [value]="tvas"
+                   class="p-datatable-sm"
+                   dataKey="id" selectionMode="single">
             <ng-template #header>
               <tr class="pharma-table-head">
                 <th scope="col"><span>Taux</span></th>
                 <th scope="col"></th>
               </tr>
             </ng-template>
-            <ng-template let-columns="columns" let-tva #body>
+            <ng-template #body let-columns="columns" let-tva>
               <tr [pSelectableRow]="tva">
                 <td>
                   <span class="pharma-price">{{ tva.taux }}</span>
@@ -48,11 +48,11 @@
                 <td style="text-align: center">
                   <p-button
                     (click)="delete(tva)"
-                    severity="danger"
-                    icon="pi pi-trash"
                     [rounded]="true"
                     [text]="true"
+                    icon="pi pi-trash"
                     pTooltip="Supprimer"
+                    severity="danger"
                     type="button"
                   ></p-button>
                 </td>

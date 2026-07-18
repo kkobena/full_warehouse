@@ -1,5 +1,3 @@
-<jhi-toast-alert #alert></jhi-toast-alert>
-
 <div class="container-fluid">
   <div class="pharma-smart-content p-2">
     <!-- Modern Pharma Toolbar (Compact) -->
@@ -13,23 +11,25 @@
         <ng-template #start>
           <div class="pharma-toolbar-filters">
             <p-select
-              id="depots"
               (onChange)="onSelectDepot()"
               [(ngModel)]="selectedDepot"
               [appendTo]="'body'"
               [dataKey]="'id'"
-              size="large"
               [options]="depots"
               [placeholder]="'Sélectionner un dépôt'"
               [style]="{ 'min-width': '200px' }"
               class="pharma-select-modern"
+              id="depots"
               optionLabel="name"
+              size="large"
             >
               <ng-template #item let-depot>
                 <div class="depot-option">
                   <div class="depot-name">{{ depot.name }}</div>
                   @if (depot.address) {
-                    <div class="depot-address" style="font-size: 0.85rem; color: #6c757d">{{ depot.address }}</div>
+                    <div class="depot-address"
+                         style="font-size: 0.85rem; color: #6c757d">{{ depot.address }}
+                    </div>
                   }
                 </div>
               </ng-template>
@@ -38,7 +38,8 @@
             <div class="pharma-compact-search">
               <p-iconfield>
                 <p-inputicon class="pi pi-search" />
-                <input (keyup.enter)="onSearch($event)" pInputText placeholder="Rechercher..." type="text" />
+                <input (keyup.enter)="onSearch($event)" pInputText placeholder="Rechercher..."
+                       type="text" />
               </p-iconfield>
             </div>
           </div>
@@ -51,12 +52,14 @@
               [routerLink]="['/sales-home', 'vente-depot']"
               icon="pi pi-shopping-cart"
               label="Nouvelle vente"
-              size="small"
               severity="primary"
+              size="small"
             />
-            <p-button  size="small" (click)="onOpenImportDialog()" icon="pi pi-upload" label="Importation" severity="help"></p-button>
+            <p-button (click)="onOpenImportDialog()" icon="pi pi-upload" label="Importation"
+                      severity="help" size="small"></p-button>
 
-            <p-button  size="small" [routerLink]="['/depot', 'new-return']" icon="pi pi-undo" label="Retour dépôt" severity="warn"></p-button>
+            <p-button [routerLink]="['/depot', 'new-return']" icon="pi pi-undo" label="Retour dépôt"
+                      severity="warn" size="small"></p-button>
           </div>
         </ng-template>
       </p-toolbar>
@@ -68,10 +71,13 @@
           <tr class="pharma-table-head">
             <th style="width: 8%">Cip</th>
             <th style="width: 11%">Code EAN</th>
-            <th style="width: 24%"><span jhiTranslate="warehouseApp.produit.libelle">Libelle</span></th>
-            <th style="text-align: right; width: 6%"><span jhiTranslate="warehouseApp.produit.quantity">Quantity</span></th>
+            <th style="width: 24%"><span jhiTranslate="warehouseApp.produit.libelle">Libelle</span>
+            </th>
+            <th style="text-align: right; width: 6%"><span
+              jhiTranslate="warehouseApp.produit.quantity">Quantity</span></th>
 
-            <th style="text-align: right; width: 8%"><span jhiTranslate="warehouseApp.produit.costAmount">Prix achat </span></th>
+            <th style="text-align: right; width: 8%"><span
+              jhiTranslate="warehouseApp.produit.costAmount">Prix achat </span></th>
             <th style="text-align: right; width: 8%">
               <span jhiTranslate="warehouseApp.produit.regularUnitPrice">Regular Unit Price</span>
             </th>
@@ -89,11 +95,17 @@
               <div class="pharma-product-name">{{ produit.libelle }}</div>
             </td>
             @if (produit.totalQuantity < 0) {
-              <td class="amount-column red-400" style="text-align: right">{{ produit.totalQuantity | number }}</td>
+              <td class="amount-column red-400"
+                  style="text-align: right">{{ produit.totalQuantity | number }}
+              </td>
             } @else if (produit.totalQuantity === 0) {
-              <td class="amount-column orange-400" style="text-align: right">{{ produit.totalQuantity | number }}</td>
+              <td class="amount-column orange-400"
+                  style="text-align: right">{{ produit.totalQuantity | number }}
+              </td>
             } @else {
-              <td class="amount-column" style="text-align: right">{{ produit.totalQuantity | number }}</td>
+              <td class="amount-column"
+                  style="text-align: right">{{ produit.totalQuantity | number }}
+              </td>
             }
 
             <td style="text-align: right">
@@ -107,7 +119,7 @@
 
         <ng-template #emptymessage>
           <tr>
-            <td colspan="10" class="pharma-empty-message">
+            <td class="pharma-empty-message" colspan="10">
               <div class="pharma-empty-content">
                 <i class="pi pi-inbox"></i>
                 <p>Aucune donnée trouvée</p>
@@ -133,4 +145,4 @@
     </div>
   </div>
 </div>
-<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
+

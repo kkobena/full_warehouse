@@ -10,7 +10,8 @@
           </div>
 
           <div class="pharma-nav-sidebar-content">
-            <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav orientation="vertical">
+            <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
+                 orientation="vertical">
               <ng-container ngbNavItem="remise-produit">
                 <a class="pharma-nav-vertical-link" ngbNavLink>
                   <i class="pi pi-box"></i>
@@ -18,7 +19,7 @@
                   <span class="link-arrow">›</span>
                 </a>
                 <ng-template ngbNavContent>
-                  <jhi-remise-produits></jhi-remise-produits>
+                  <app-remise-produits></app-remise-produits>
                 </ng-template>
               </ng-container>
 

@@ -1,26 +1,28 @@
-import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { FormeProduitService } from './forme-produit.service';
-import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
-import { IFormProduit } from '../../shared/model/form-produit.model';
-import { ButtonModule } from 'primeng/button';
-import { ToolbarModule } from 'primeng/toolbar';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { Tooltip } from 'primeng/tooltip';
-import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { InputText } from 'primeng/inputtext';
-import { showCommonModal } from '../sales/selling-home/sale-helper';
-import { FormFormeProduitComponent } from './form-forme-produit/form-forme-produit.component';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
+import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {FormeProduitService} from './forme-produit.service';
+import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
+import {IFormProduit} from '../../shared/model/form-produit.model';
+import {ButtonModule} from 'primeng/button';
+import {ToolbarModule} from 'primeng/toolbar';
+import {TableLazyLoadEvent, TableModule} from 'primeng/table';
+import {Tooltip} from 'primeng/tooltip';
+import {IconField} from 'primeng/iconfield';
+import {InputIcon} from 'primeng/inputicon';
+import {InputText} from 'primeng/inputtext';
+import {showCommonModal} from '../sales/selling-home/sale-helper';
+import {FormFormeProduitComponent} from './form-forme-produit/form-forme-produit.component';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {
+  NgbConfirmDialogService
+} from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 
 @Component({
-  selector: 'jhi-forme-produit',
+  selector: 'app-forme-produit',
   templateUrl: './forme-produit.component.html',
   styleUrl: './forme-produit.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [ButtonModule, ToolbarModule, TableModule, Tooltip, ConfirmDialogComponent, IconField, InputIcon, InputText],
+  imports: [ButtonModule, ToolbarModule, TableModule, Tooltip, IconField, InputIcon, InputText],
 })
 export class FormeProduitComponent implements OnInit {
   protected entites?: IFormProduit[];
@@ -31,7 +33,7 @@ export class FormeProduitComponent implements OnInit {
 
   private readonly modalService = inject(NgbModal);
   private readonly entityService = inject(FormeProduitService);
-  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
 
   ngOnInit(): void {
     this.loadPage();
@@ -72,18 +74,6 @@ export class FormeProduitComponent implements OnInit {
     }
   }
 
-  protected confirmDialog(id: number): void {
-    this.confimDialog().onConfirm(
-      () => {
-        this.entityService.delete(id).subscribe(() => {
-          this.loadPage(0);
-        });
-      },
-      'Suppression',
-      'Êtes-vous sûr de vouloir supprimer ?',
-    );
-  }
-
   protected addNewEntity(): void {
     showCommonModal(
       this.modalService,
@@ -121,7 +111,19 @@ export class FormeProduitComponent implements OnInit {
   }
 
   protected confirmDelete(id: number): void {
-    this.confirmDialog(id);
+    this.confirm(id);
+  }
+
+  private confirm(id: number): void {
+    this.confirmDialog.onConfirm(
+      () => {
+        this.entityService.delete(id).subscribe(() => {
+          this.loadPage(0);
+        });
+      },
+      'Suppression',
+      'Êtes-vous sûr de vouloir supprimer ?',
+    );
   }
 
   private onSuccess(data: IFormProduit[] | null, headers: HttpHeaders, page: number): void {

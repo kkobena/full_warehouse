@@ -1,31 +1,35 @@
-import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { LaboratoireProduitService } from './laboratoire-produit.service';
-import { FormLaboratoireComponent } from './form-laboratoire/form-laboratoire.component';
-import { IResponseDto } from '../../shared/util/response-dto';
-import { ILaboratoire } from '../../shared/model/laboratoire.model';
-import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
-import { ButtonModule } from 'primeng/button';
-import { ToolbarModule } from 'primeng/toolbar';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { InputTextModule } from 'primeng/inputtext';
-import { TooltipModule } from 'primeng/tooltip';
-import { FormsModule } from '@angular/forms';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { showCommonModal } from '../sales/selling-home/sale-helper';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { FileUploadDialogComponent } from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
-import { finalize } from 'rxjs/operators';
-import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
-import { ErrorService } from '../../shared/error.service';
-import { SpinnerComponent } from '../../shared/spinner/spinner.component';
+import {ChangeDetectionStrategy, Component, inject, OnInit, viewChild} from '@angular/core';
+import {RouterModule} from '@angular/router';
+import {HttpErrorResponse, HttpHeaders, HttpResponse} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {LaboratoireProduitService} from './laboratoire-produit.service';
+import {FormLaboratoireComponent} from './form-laboratoire/form-laboratoire.component';
+import {IResponseDto} from '../../shared/util/response-dto';
+import {ILaboratoire} from '../../shared/model/laboratoire.model';
+import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
+import {ButtonModule} from 'primeng/button';
+import {ToolbarModule} from 'primeng/toolbar';
+import {TableLazyLoadEvent, TableModule} from 'primeng/table';
+import {InputTextModule} from 'primeng/inputtext';
+import {TooltipModule} from 'primeng/tooltip';
+import {FormsModule} from '@angular/forms';
+import {IconField} from 'primeng/iconfield';
+import {InputIcon} from 'primeng/inputicon';
+import {showCommonModal} from '../sales/selling-home/sale-helper';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {
+  FileUploadDialogComponent
+} from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
+import {finalize} from 'rxjs/operators';
+import {ErrorService} from '../../shared/error.service';
+import {SpinnerComponent} from '../../shared/spinner/spinner.component';
+import {NotificationService} from "../../shared/services/notification.service";
+import {
+  NgbConfirmDialogService
+} from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 
 @Component({
-  selector: 'jhi-laboratoire-produit',
+  selector: 'app-laboratoire-produit',
   templateUrl: './laboratoire-produit.component.html',
   styleUrl: './laboratoire-produit.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -39,8 +43,6 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
     FormsModule,
     IconField,
     InputIcon,
-    ConfirmDialogComponent,
-    ToastAlertComponent,
     SpinnerComponent,
   ],
 })
@@ -51,12 +53,12 @@ export class LaboratoireProduitComponent implements OnInit {
   protected itemsPerPage = ITEMS_PER_PAGE;
   protected page = 0;
   protected loading = false;
-  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly modalService = inject(NgbModal);
   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
-  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly errorService = inject(ErrorService);
   private readonly entityService = inject(LaboratoireProduitService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
 
   ngOnInit(): void {
     this.loadPage();
@@ -92,20 +94,8 @@ export class LaboratoireProduitComponent implements OnInit {
       });
   }
 
-  private confirmDialog(id: number): void {
-    this.confimDialog().onConfirm(
-      () => {
-        this.entityService.delete(id).subscribe(() => {
-          this.loadPage(0);
-        });
-      },
-      'Suppression',
-      'Êtes-vous sûr de vouloir supprimer ?',
-    );
-  }
-
   protected delete(entity: ILaboratoire): void {
-    this.confirmDialog(entity.id);
+    this.confirm(entity.id);
   }
 
   protected search(event: any): void {
@@ -155,6 +145,18 @@ export class LaboratoireProduitComponent implements OnInit {
     );
   }
 
+  private confirm(id: number): void {
+    this.confirmDialog.onConfirm(
+      () => {
+        this.entityService.delete(id).subscribe(() => {
+          this.loadPage(0);
+        });
+      },
+      'Suppression',
+      'Êtes-vous sûr de vouloir supprimer ?',
+    );
+  }
+
   private onSuccess(data: ILaboratoire[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;
@@ -164,11 +166,11 @@ export class LaboratoireProduitComponent implements OnInit {
 
   private onError(error: HttpErrorResponse): void {
     this.loading = false;
-    this.alert().showError(this.errorService.getErrorMessage(error));
+    this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 
   private onSaveError(error: HttpErrorResponse): void {
-    this.alert().showError(this.errorService.getErrorMessage(error));
+    this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 
   private uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {

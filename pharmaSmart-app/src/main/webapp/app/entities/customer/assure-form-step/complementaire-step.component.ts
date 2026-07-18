@@ -1,33 +1,33 @@
-import { Component, inject, model, OnDestroy, viewChild, ChangeDetectionStrategy } from '@angular/core';
-import { FormArray, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { KeyFilterModule } from 'primeng/keyfilter';
-import { InputTextModule } from 'primeng/inputtext';
-import { AutoCompleteModule } from 'primeng/autocomplete';
-import { HttpResponse } from '@angular/common/http';
-import { ITiersPayant } from '../../../shared/model';
-import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
-import { AssureFormStepService } from './assure-form-step.service';
-import { IClientTiersPayant } from '../../../shared/model';
-import { CustomerService } from '../customer.service';
-import { CardModule } from 'primeng/card';
-import { ErrorService } from '../../../shared/error.service';
-import { ICustomer } from '../../../shared/model';
-import { FormTiersPayantComponent } from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
-import { Select, SelectModule } from 'primeng/select';
-import { showCommonModal } from '../../sales/selling-home/sale-helper';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { Tooltip } from 'primeng/tooltip';
-import { ConfirmationService } from 'primeng/api';
-import { ConfirmDialog } from 'primeng/confirmdialog';
-import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
+import {ChangeDetectionStrategy, Component, inject, model, OnDestroy} from '@angular/core';
+import {FormArray, ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
+import {ButtonModule} from 'primeng/button';
+import {KeyFilterModule} from 'primeng/keyfilter';
+import {InputTextModule} from 'primeng/inputtext';
+import {AutoCompleteModule} from 'primeng/autocomplete';
+import {HttpResponse} from '@angular/common/http';
+import {IClientTiersPayant, ICustomer, ITiersPayant} from '../../../shared/model';
+import {TiersPayantService} from '../../tiers-payant/tierspayant.service';
+import {AssureFormStepService} from './assure-form-step.service';
+import {CustomerService} from '../customer.service';
+import {CardModule} from 'primeng/card';
+import {ErrorService} from '../../../shared/error.service';
+import {
+  FormTiersPayantComponent
+} from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
+import {Select, SelectModule} from 'primeng/select';
+import {showCommonModal} from '../../sales/selling-home/sale-helper';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
+import {Tooltip} from 'primeng/tooltip';
+import {Toast} from "primeng/toast";
+import {
+  NgbConfirmDialogService
+} from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import {NotificationService} from "../../../shared/services/notification.service";
 
 @Component({
   selector: 'jhi-complementaire-step',
-  providers: [ConfirmationService],
   imports: [
     ReactiveFormsModule,
     SelectModule,
@@ -37,9 +37,8 @@ import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal
     CardModule,
     ButtonModule,
     Select,
-    ConfirmDialog,
-    ToastAlertComponent,
     Tooltip,
+    Toast,
   ],
   templateUrl: './complementaire-step.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -54,20 +53,19 @@ export class ComplementaireStepComponent implements OnDestroy {
   validSize = true;
   protected fb = inject(UntypedFormBuilder);
   protected catgories = [
-    { label: 'RC1', value: 1 },
-    { label: 'RC2', value: 2 },
-    { label: 'RC3', value: 3 },
+    {label: 'RC1', value: 1},
+    {label: 'RC2', value: 2},
+    {label: 'RC3', value: 3},
   ];
   protected minLength = 3;
   protected editForm = this.fb.group({
     tiersPayants: this.fb.array([]),
   });
-
-  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly tiersPayantService = inject(TiersPayantService);
   private readonly modalService = inject(NgbModal);
   private readonly errorService = inject(ErrorService);
-  private readonly confirmationService = inject(ConfirmationService);
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
+  private readonly notificationService = inject(NotificationService);
   private destroy$ = new Subject<void>();
 
   get editFormGroups(): FormArray {
@@ -120,20 +118,6 @@ export class ComplementaireStepComponent implements OnDestroy {
     }
   }
 
-  private addToAlreadyAdded(tiersPayant: ITiersPayant): void {
-    const current = this.tiersPayantAlreadyAdded();
-    if (!current.some(tp => (tp.tiersPayantId ?? tp.tiersPayant?.id) === tiersPayant.id)) {
-      this.tiersPayantAlreadyAdded.set([...current, { tiersPayantId: tiersPayant.id, tiersPayant }]);
-    }
-  }
-
-  private removeFromAlreadyAdded(tiersPayantId: number | undefined): void {
-    if (tiersPayantId) {
-      const current = this.tiersPayantAlreadyAdded();
-      this.tiersPayantAlreadyAdded.set(current.filter(tp => (tp.tiersPayantId ?? tp.tiersPayant?.id) !== tiersPayantId));
-    }
-  }
-
   addTiersPayantAssurance(index: number): void {
     showCommonModal(
       this.modalService,
@@ -146,7 +130,7 @@ export class ComplementaireStepComponent implements OnDestroy {
       (resp: ITiersPayant) => {
         if (resp) {
           this.tiersPayants.push(resp);
-          this.convertFormAsFormArray().at(index).patchValue({ tiersPayant: resp });
+          this.convertFormAsFormArray().at(index).patchValue({tiersPayant: resp});
           this.addToAlreadyAdded(resp);
         }
       },
@@ -165,7 +149,7 @@ export class ComplementaireStepComponent implements OnDestroy {
       .query({
         page: 0,
         size: 10,
-      //  type: 'ASSURANCE',
+        //  type: 'ASSURANCE',
         search: query,
       })
       .pipe(takeUntil(this.destroy$))
@@ -173,7 +157,7 @@ export class ComplementaireStepComponent implements OnDestroy {
         const alreadyAddedIds = this.tiersPayantAlreadyAdded().map(tp => tp.tiersPayantId ?? tp.tiersPayant?.id);
         this.tiersPayants = res.body.filter(tp => !alreadyAddedIds.includes(tp.id));
         if (this.tiersPayants.length === 0) {
-          this.tiersPayants.push({ id: null, fullName: 'Ajouter un nouveau tiers-payant' });
+          this.tiersPayants.push({id: null, fullName: 'Ajouter un nouveau tiers-payant'});
         }
       });
   }
@@ -240,21 +224,31 @@ export class ComplementaireStepComponent implements OnDestroy {
   }
 
   onSaveError(error: any): void {
-    this.alert().showError(this.errorService.getErrorMessage(error));
+    this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 
   confirmRemove(index: number): void {
     if (this.tiersPayant != null) {
-      this.confirmationService.confirm({
-        message: 'Voulez-vous vraiment ce complémentaire ?',
-        header: ' Suppression',
-        icon: 'pi pi-info-circle',
-        rejectButtonProps: rejectButtonProps(),
-        acceptButtonProps: acceptButtonProps(),
-        accept: () => this.removeTiersPayant(index),
-      });
+
+      this.confirmDialog.onConfirm(() => this.removeTiersPayant(index),
+        ' Suppression', 'Voulez-vous vraiment ce complémentaire ?'
+      )
     } else {
       this.removeTiersPayant(index);
+    }
+  }
+
+  private addToAlreadyAdded(tiersPayant: ITiersPayant): void {
+    const current = this.tiersPayantAlreadyAdded();
+    if (!current.some(tp => (tp.tiersPayantId ?? tp.tiersPayant?.id) === tiersPayant.id)) {
+      this.tiersPayantAlreadyAdded.set([...current, {tiersPayantId: tiersPayant.id, tiersPayant}]);
+    }
+  }
+
+  private removeFromAlreadyAdded(tiersPayantId: number | undefined): void {
+    if (tiersPayantId) {
+      const current = this.tiersPayantAlreadyAdded();
+      this.tiersPayantAlreadyAdded.set(current.filter(tp => (tp.tiersPayantId ?? tp.tiersPayant?.id) !== tiersPayantId));
     }
   }
 }

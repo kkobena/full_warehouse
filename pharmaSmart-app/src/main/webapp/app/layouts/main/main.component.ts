@@ -1,32 +1,38 @@
-import { Component, DestroyRef, inject, OnInit, Renderer2, RendererFactory2, ChangeDetectionStrategy } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Router, RouterOutlet } from "@angular/router";
-import { LangChangeEvent, TranslateService } from "@ngx-translate/core";
-import { CommonModule } from "@angular/common";
-import { fromEvent } from "rxjs";
-import { filter } from "rxjs/operators";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  Renderer2,
+  RendererFactory2
+} from "@angular/core";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
+import {Router, RouterOutlet} from "@angular/router";
+import {LangChangeEvent, TranslateService} from "@ngx-translate/core";
+import {CommonModule} from "@angular/common";
+import {fromEvent} from "rxjs";
+import {filter} from "rxjs/operators";
 import dayjs from "dayjs/esm";
 
-import { AccountService } from "app/core/auth/account.service";
-import { AppPageTitleStrategy } from "app/app-page-title-strategy";
+import {AccountService} from "app/core/auth/account.service";
+import {AppPageTitleStrategy} from "app/app-page-title-strategy";
 import "@angular/common/locales/global/fr";
-import { ConfirmDialogModule } from "primeng/confirmdialog";
-import { ConfirmationService } from "primeng/api";
-import { LayoutService } from "../../core/config/layout.service";
-import { BackendSplashComponent } from "app/shared/backend-splash/backend-splash.component";
-import { TitlebarComponent } from "app/shared/titlebar/titlebar.component";
-import { SetupWizardComponent } from "app/core/setup/setup-wizard.component";
-import { TauriPrinterService } from "../../shared/services/tauri-printer.service";
-import { PeremptionAlertService } from "../../shared/services/peremption-alert.service";
+import {LayoutService} from "../../core/config/layout.service";
+import {BackendSplashComponent} from "app/shared/backend-splash/backend-splash.component";
+import {TitlebarComponent} from "app/shared/titlebar/titlebar.component";
+import {SetupWizardComponent} from "app/core/setup/setup-wizard.component";
+import {TauriPrinterService} from "../../shared/services/tauri-printer.service";
+import {PeremptionAlertService} from "../../shared/services/peremption-alert.service";
 
 @Component({
-  selector: "jhi-main",
+  selector: "app-main",
   templateUrl: "./main.component.html",
   styleUrl: "./main.component.scss",
-  providers: [AppPageTitleStrategy, ConfirmationService],
-  imports: [RouterOutlet, ConfirmDialogModule, CommonModule, BackendSplashComponent, TitlebarComponent, SetupWizardComponent],
+  providers: [AppPageTitleStrategy],
+  imports: [RouterOutlet, CommonModule, BackendSplashComponent, TitlebarComponent, SetupWizardComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
-  host: { "[class.tauri-mode]": "isTauriMode" }
+  host: {"[class.tauri-mode]": "isTauriMode"}
 })
 export default class MainComponent implements OnInit {
   isTauriMode = false;

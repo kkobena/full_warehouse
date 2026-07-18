@@ -12,7 +12,8 @@
               <div class="pharma-search-input">
                 <p-iconfield>
                   <p-inputicon class="pi pi-search" />
-                  <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher" type="text" />
+                  <input (keyup.enter)="search($event)" pInputText
+                         placeholder="Taper pour rechercher" type="text" />
                 </p-iconfield>
               </div>
             </div>
@@ -44,10 +45,10 @@
           [rows]="itemsPerPage"
           [totalRecords]="totalItems"
           [value]="entites"
-          dataKey="id"
-          stripedRows="true"
-          selectionMode="single"
           class="p-datatable-sm p-datatable-striped"
+          dataKey="id"
+          selectionMode="single"
+          stripedRows="true"
         >
           <ng-template #header>
             <tr class="pharma-table-head">
@@ -55,16 +56,18 @@
               <th scope="col"></th>
             </tr>
           </ng-template>
-          <ng-template let-columns="columns" let-elRow #body>
+          <ng-template #body let-columns="columns" let-elRow>
             <tr [pSelectableRow]="elRow">
               <td>
                 <div class="pharma-entity-name">{{ elRow.libelle }}</div>
               </td>
               <td class="text-right">
-                <p-button (click)="onEdit(elRow)" [rounded]="true" [text]="true" severity="success" pTooltip="Modifier" icon="pi pi-pencil">
+                <p-button (click)="onEdit(elRow)" [rounded]="true" [text]="true" icon="pi pi-pencil"
+                          pTooltip="Modifier" severity="success">
                 </p-button>
 
-                <p-button (click)="delete(elRow)" [rounded]="true" [text]="true" severity="danger" pTooltip="Supprimer" icon="pi pi-trash">
+                <p-button (click)="delete(elRow)" [rounded]="true" [text]="true" icon="pi pi-trash"
+                          pTooltip="Supprimer" severity="danger">
                 </p-button>
               </td>
             </tr>
@@ -79,4 +82,4 @@
   </div>
 </div>
 
-<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
+

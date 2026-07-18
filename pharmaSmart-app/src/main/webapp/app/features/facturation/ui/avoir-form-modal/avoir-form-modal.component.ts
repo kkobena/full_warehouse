@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { finalize } from "rxjs/operators";
 
@@ -30,6 +30,7 @@ import { InputNumber } from "primeng/inputnumber";
     InputNumber
   ],
   templateUrl: "./avoir-form-modal.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./avoir-form-modal.component.scss"
 })
 export class AvoirFormModalComponent implements OnInit {

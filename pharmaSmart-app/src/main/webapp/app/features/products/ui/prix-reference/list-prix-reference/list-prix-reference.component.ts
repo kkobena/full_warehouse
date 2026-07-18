@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from "@angular/core";
+import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { NgbActiveModal, NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { PrixReferenceService } from "../prix-reference.service";
 import { PrixReference } from "../model/prix-reference.model";
@@ -16,6 +16,7 @@ import { NgbConfirmDialogService } from "../../../../../shared/dialog/ngb-confir
   imports: [CommonModule, Button, Tooltip, Card],
 
   templateUrl: "./list-prix-reference.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["./list-prix-reference.component.scss"]
 })
 export class ListPrixReferenceComponent implements OnInit {

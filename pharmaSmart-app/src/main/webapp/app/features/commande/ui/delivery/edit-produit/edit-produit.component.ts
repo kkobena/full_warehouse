@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnInit, Renderer2 } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, Renderer2, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { FournisseurProduit, IFournisseurProduit } from 'app/shared/model/fournisseur-produit.model';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
@@ -28,6 +28,7 @@ import { Card } from 'primeng/card';
   selector: 'jhi-edit-produit',
   templateUrl: './edit-produit.component.html',
   styleUrls: ['./form-edition-produit.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     ButtonModule,

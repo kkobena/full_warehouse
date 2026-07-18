@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, signal } from '@angular/core';
+import { Component, effect, inject, input, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -25,6 +25,7 @@ interface ProduitInRayon extends IProduit {
   selector: 'app-rayon-produits-tab',
   templateUrl: './rayon-produits-tab.component.html',
   styleUrl: './rayon-produits-tab.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, TableModule, ButtonModule, TooltipModule, AutoCompleteModule, InputTextModule, IconField, InputIcon],
 })
 export class RayonProduitsTabComponent {

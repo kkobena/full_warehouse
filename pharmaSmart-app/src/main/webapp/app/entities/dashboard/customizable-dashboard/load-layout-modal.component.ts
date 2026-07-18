@@ -1,4 +1,4 @@
-import { Component, inject, Input, signal } from '@angular/core';
+import { Component, inject, Input, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -11,6 +11,7 @@ import { IDashboardLayout } from 'app/shared/model/dashboard-layout.model';
   selector: 'jhi-load-layout-modal',
   imports: [CommonModule, ButtonModule, Tag],
   templateUrl: './load-layout-modal.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './load-layout-modal.component.scss',
 })
 export class LoadLayoutModalComponent {

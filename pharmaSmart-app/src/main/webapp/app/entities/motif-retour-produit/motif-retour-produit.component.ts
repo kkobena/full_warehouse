@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from "@angular/core";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { HttpResponse } from "@angular/common/http";
@@ -21,6 +21,7 @@ import { Toolbar } from "primeng/toolbar";
 
   imports: [CommonModule, FormsModule, ButtonModule, TableModule, InputTextModule, ToastModule, Tooltip, Toolbar],
   templateUrl: "./motif-retour-produit.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./motif-retour-produit.component.scss"
 })
 export class MotifRetourProduitComponent implements OnInit {

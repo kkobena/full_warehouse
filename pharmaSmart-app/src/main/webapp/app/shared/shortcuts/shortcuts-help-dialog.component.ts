@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Button } from 'primeng/button';
@@ -168,6 +168,7 @@ interface CategoryDisplay {
       <p-button (click)="dismiss()" icon="pi pi-times" label="Fermer" raised="true" severity="primary" type="button"></p-button>
     </div>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [
     `
       .modal-body {

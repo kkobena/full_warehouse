@@ -10,7 +10,8 @@ import {
   OnInit,
   output,
   signal,
-  viewChild
+  viewChild,
+  ChangeDetectionStrategy
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
@@ -44,6 +45,7 @@ import { SalesScannerService } from "../../data-access/services/sales-scanner.se
   selector: "app-product-search",
   templateUrl: "./product-search.component.html",
   styleUrls: ["./product-search.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [AutoComplete, FormsModule, FloatLabel, TranslatePipe, CommonModule]
 })
 export class ProductSearchComponent implements OnInit, OnDestroy {
@@ -217,7 +219,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
 
   getFocus(): void {
     requestAnimationFrame(() => {
-      const el = this.produitbox()?.inputEL?.nativeElement;
+      const el = this.produitbox()?.inputEL()?.nativeElement;
       const autocomplete = this.produitbox();
 
       if (el) {
@@ -250,7 +252,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
       setTimeout(() => autocomplete.hide(), 100);
     }
 
-    const inputEl = autocomplete?.inputEL?.nativeElement;
+    const inputEl = autocomplete?.inputEL()?.nativeElement;
     if (inputEl) {
       inputEl.value = "";
     }
@@ -317,7 +319,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   }
 
   private clearInputValue(): void {
-    const inputEl = this.produitbox()?.inputEL?.nativeElement;
+    const inputEl = this.produitbox()?.inputEL()?.nativeElement;
     if (inputEl) {
       inputEl.value = "";
     }
@@ -395,7 +397,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
 
   private loadProduits(search: string): void {
     // Ignorer les recherches obsolètes (input vidé par reset() après un scan global)
-    const inputEl = this.produitbox()?.inputEL?.nativeElement;
+    const inputEl = this.produitbox()?.inputEL()?.nativeElement;
     if (inputEl && !inputEl.value?.trim()) {
       return;
     }

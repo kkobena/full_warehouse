@@ -3,7 +3,7 @@
   <div class="form-field-full">
     <p-inputgroup>
       <p-inputgroup-addon><i class="pi pi-calendar"></i></p-inputgroup-addon>
-      <p-datePicker [defaultDate]="maxDate" [maxDate]="maxDate" [showButtonBar]="true"
+      <p-datepicker [defaultDate]="maxDate" [maxDate]="maxDate" [showButtonBar]="true"
                     appendTo="body" dateFormat="dd/mm/yy" formControlName="paymentDate"
                     id="rdDatePaiement" selectOtherMonths="true" />
     </p-inputgroup>
@@ -22,7 +22,7 @@
   <div class="form-field-full">
     <p-inputgroup>
       <p-inputgroup-addon><i class="pi pi-money-bill"></i></p-inputgroup-addon>
-      <p-inputNumber autocomplete="off" formControlName="amount" placeholder="Montant" />
+      <p-inputnumber autocomplete="off" formControlName="amount" placeholder="Montant" />
     </p-inputgroup>
   </div>
 

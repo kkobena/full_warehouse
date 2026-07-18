@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { ButtonModule } from 'primeng/button';
@@ -12,6 +12,7 @@ import { INavNode, NavReorderPayload } from 'app/shared/model/nav-item.model';
   selector: 'app-nav-reorder',
   templateUrl: './nav-reorder.component.html',
   styleUrl: './nav-reorder.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, DragDropModule, ButtonModule, TagModule],
 })
 export class NavReorderComponent implements OnInit {

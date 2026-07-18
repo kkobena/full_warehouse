@@ -11,7 +11,7 @@
         <div class="pharma-toolbar-filters">
 
           <p-floatlabel variant="on">
-            <p-autoComplete
+            <p-autocomplete
               (completeMethod)="searchTiersPayant($event)"
               [(ngModel)]="selectedTiersPayants"
               [forceSelection]="true"
@@ -28,7 +28,7 @@
           </p-floatlabel>
 
           <p-floatlabel variant="on">
-            <p-datePicker
+            <p-datepicker
               [(ngModel)]="modelStartDate"
               [iconDisplay]="'input'"
               [showIcon]="true"
@@ -42,7 +42,7 @@
           </p-floatlabel>
 
           <p-floatlabel variant="on">
-            <p-datePicker
+            <p-datepicker
               [(ngModel)]="modelEndDate"
               [iconDisplay]="'input'"
               [showIcon]="true"
@@ -250,7 +250,7 @@
   </div>
   <div class="modal-body">
     <p-floatlabel variant="on">
-      <p-autoComplete
+      <p-autocomplete
         [(ngModel)]="selectedTargetFacture"
         [suggestions]="factureCibleSuggestions"
         (completeMethod)="searchFactureCible($event)"
@@ -269,7 +269,7 @@
             <span class="small text-muted">Restant&nbsp;: <span class="pharma-price">{{ f.montantRestant | number:'1.0-0' }}</span></span>
           </div>
         </ng-template>
-      </p-autoComplete>
+      </p-autocomplete>
       <label for="imp-facture">Facture cible *</label>
     </p-floatlabel>
     @if (selectedTargetFacture) {

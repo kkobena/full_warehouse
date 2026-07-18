@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export type SaleType = 'COMPTANT' | 'ASSURANCE' | 'CARNET';
@@ -13,6 +13,7 @@ export interface SaleTypeOption {
   selector: 'app-sale-type-selector',
   imports: [CommonModule],
   templateUrl: './sale-type-selector.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './sale-type-selector.component.scss',
 })
 export class SaleTypeSelectorComponent {

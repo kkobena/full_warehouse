@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from "@angular/core";
+import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 
 import { IMagasin } from "app/shared/model/magasin.model";
 import { MagasinService } from "./magasin.service";
@@ -13,6 +13,7 @@ import { ToolbarModule } from "primeng/toolbar";
   selector: "app-magasin",
   templateUrl: "./magasin.component.html",
   styleUrls: ["./magasin.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, CardModule, ButtonModule, TagModule, ToolbarModule, RouterLink]
 })
 export class MagasinComponent implements OnInit {

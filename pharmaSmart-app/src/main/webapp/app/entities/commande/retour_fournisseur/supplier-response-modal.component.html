@@ -50,9 +50,9 @@
         </td>
         @if (!line.alreadyProcessed) {
           <td class="text-center" pEditableColumn>
-            <p-cellEditor>
+            <p-celleditor>
               <ng-template #input>
-                <p-inputNumber
+                <p-inputnumber
                   [(ngModel)]="line.qtyAcceptee"
                   (ngModelChange)="onQuantityChange(line)"
                   [min]="0"
@@ -68,12 +68,12 @@
               <ng-template #output>
                 <span [ngClass]="line.qtyAcceptee === 0 ? 'text-danger' : ''">{{ line.qtyAcceptee | number }}</span>
               </ng-template>
-            </p-cellEditor>
+            </p-celleditor>
           </td>
           <td class="text-center" pEditableColumn>
-            <p-cellEditor>
+            <p-celleditor>
               <ng-template #input>
-                <p-inputNumber
+                <p-inputnumber
                   [(ngModel)]="line.prixAchat"
                   [min]="0"
                   [showButtons]="false"
@@ -84,7 +84,7 @@
               <ng-template #output>
                 <span>{{ line.prixAchat | number }}</span>
               </ng-template>
-            </p-cellEditor>
+            </p-celleditor>
           </td>
         } @else {
           <td class="text-center">{{ line.qtyAcceptee | number }}</td>

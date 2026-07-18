@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild } from "@angular/core";
+import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { Button } from "primeng/button";
 import { DatePicker } from "primeng/datepicker";
 import { FloatLabel } from "primeng/floatlabel";
@@ -47,6 +47,7 @@ import { Toast } from "primeng/toast";
     Toast
   ],
   templateUrl: "./achat-depot.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./achat-depot.component.scss"
 })
 export class AchatDepotComponent implements OnInit {

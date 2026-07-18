@@ -43,7 +43,7 @@
           </p-floatlabel>
 
           <!-- Sens -->
-          <p-selectButton
+          <p-selectbutton
             [(ngModel)]="typeFilter"
             [options]="typeOptions"
             (onChange)="onSearch()"
@@ -146,7 +146,7 @@
           </span>
         </td>
         <td class="text-center">
-          <p-buttonGroup>
+          <p-buttongroup>
             <p-button
               icon="pi pi-file-pdf"
               [text]="true"
@@ -157,7 +157,7 @@
               tooltipPosition="top"
               (onClick)="exportPdf(ajust)"
             />
-          </p-buttonGroup>
+          </p-buttongroup>
         </td>
       </tr>
     </ng-template>

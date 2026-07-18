@@ -84,7 +84,7 @@
       <div class="search-controls">
         <!-- Order Search Autocomplete -->
         <div class="order-search-input">
-          <p-autoComplete
+          <p-autocomplete
             [dropdown]="false"
             #orderSelect
             [(ngModel)]="selectedCommande"
@@ -111,12 +111,12 @@
                 <small class="text-muted">Date: {{ commande.orderDate | date: 'dd/MM/yyyy' }}</small>
               </div>
             </ng-template>
-          </p-autoComplete>
+          </p-autocomplete>
         </div>
 
         <!-- Order Line Search Autocomplete -->
         <div class="orderline-search-input">
-          <p-autoComplete
+          <p-autocomplete
             [dropdown]="true"
             #orderLineAutoComplete
             [(ngModel)]="selectedOrderLine"
@@ -154,7 +154,7 @@
                 </div>
               </div>
             </ng-template>
-          </p-autoComplete>
+          </p-autocomplete>
         </div>
 
         <!-- Motif Retour Select -->
@@ -303,7 +303,7 @@
                     {{ getMaxReturnQuantity(item) | number }}
                   </td>
                   <td class="text-end pharma-qty-value" pEditableColumn>
-                    <p-cellEditor>
+                    <p-celleditor>
                       <ng-template #input>
                         <input
                           type="number"
@@ -318,7 +318,7 @@
                       <ng-template #output>
                         <span class="pharma-price">{{ item.qtyMvt | number }}</span>
                       </ng-template>
-                    </p-cellEditor>
+                    </p-celleditor>
                   </td>
 
                   <td class="text-center">

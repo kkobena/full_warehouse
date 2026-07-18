@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { Button } from "primeng/button";
@@ -12,6 +12,7 @@ import { ImportResultRecord } from "../../models";
   selector: "app-inventory-import-modal",
   imports: [CommonModule, Button, ProgressSpinner],
   templateUrl: "./inventory-import-modal.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./inventory-import-modal.component.scss"
 })
 export class InventoryImportModalComponent implements OnInit {

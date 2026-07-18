@@ -1,4 +1,4 @@
-import { Component, inject, input, OnInit, signal } from '@angular/core';
+import { Component, inject, input, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IGapSummary } from '../../models/gap-analysis.model';
 import { GapAnalysisApiService } from '../../data-access/services/gap-analysis-api.service';
@@ -7,6 +7,7 @@ import { GapAnalysisApiService } from '../../data-access/services/gap-analysis-a
   selector: 'app-gap-summary',
   imports: [CommonModule],
   templateUrl: './gap-summary.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './gap-summary.component.scss',
 })
 export class GapSummaryComponent implements OnInit {

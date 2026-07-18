@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject, Injector, signal, untracked, viewChild } from "@angular/core";
+import { Component, DestroyRef, effect, inject, Injector, signal, untracked, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule, DecimalPipe } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
@@ -33,6 +33,7 @@ import { FournisseurApiService } from "../../../partners/data-access/services/fo
   selector: "app-suggestion-home",
   templateUrl: "./suggestion-home.component.html",
   styleUrls: ["./suggestion-home.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

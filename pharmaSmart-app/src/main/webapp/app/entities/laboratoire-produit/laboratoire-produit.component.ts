@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild } from '@angular/core';
+import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -28,6 +28,7 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
   selector: 'jhi-laboratoire-produit',
   templateUrl: './laboratoire-produit.component.html',
   styleUrl: './laboratoire-produit.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ButtonModule,
     ToolbarModule,

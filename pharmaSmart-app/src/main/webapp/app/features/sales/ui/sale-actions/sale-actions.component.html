@@ -1,7 +1,7 @@
 <div class="sale-actions-container">
   <!-- Version Mobile : Icon-only avec tooltips -->
   @if (isSmallScreen()) {
-    <p-buttonGroup>
+    <p-buttongroup>
       @if (!isPresale() && !isDevis()) {
         <p-button
           (onClick)="onSave()"
@@ -68,11 +68,11 @@
         }
       }
 
-    </p-buttonGroup>
+    </p-buttongroup>
   } @else {
     <!-- Version Desktop : Boutons avec labels dans ButtonGroup -->
     <div>
-      <p-buttonGroup>
+      <p-buttongroup>
         @if (!isPresale() && !isDevis()) {
           <p-button
             (onClick)="onSave()"
@@ -137,13 +137,13 @@
         }
 
 
-      </p-buttonGroup>
+      </p-buttongroup>
 
 
     </div>
 
     @if (showPrintButton() && canPrint()) {
-      <p-buttonGroup>
+      <p-buttongroup>
         <p-button
           (onClick)="onPrint()"
           [disabled]="!canPrint()"
@@ -151,7 +151,7 @@
           label="Imprimer"
           severity="secondary"
         />
-      </p-buttonGroup>
+      </p-buttongroup>
 
     }
 

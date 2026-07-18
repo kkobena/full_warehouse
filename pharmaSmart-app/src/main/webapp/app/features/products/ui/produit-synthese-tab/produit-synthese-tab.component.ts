@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
@@ -20,6 +20,7 @@ import { NotificationService } from '../../../../shared/services/notification.se
   selector: 'app-produit-synthese-tab',
   templateUrl: './produit-synthese-tab.component.html',
   styleUrls: ['./produit-synthese-tab.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, TooltipModule, ButtonModule, TagModule, ToggleSwitch],
 })
 export class ProduitSyntheseTabComponent {

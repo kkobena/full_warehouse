@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from "@angular/core";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { AbilityService } from "app/core/auth/ability.service";
 import { CommonModule } from "@angular/common";
 import { NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
@@ -10,6 +10,7 @@ import SupplierPerformanceComponent from "../supplier-performance/supplier-perfo
   selector: "jhi-partners-reports",
   imports: [CommonModule, NgbNavModule, CustomerSegmentationComponent, SupplierPerformanceComponent],
   templateUrl: "./partners-reports.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./partners-reports.component.scss"
 })
 export default class PartnersReportsComponent implements OnInit {

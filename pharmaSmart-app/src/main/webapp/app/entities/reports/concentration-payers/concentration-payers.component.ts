@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
@@ -38,6 +38,7 @@ const CHART_BORDERS = [
   selector: 'app-concentration-payers',
   templateUrl: './concentration-payers.component.html',
   styleUrl: './concentration-payers.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, TableModule, SelectModule],
 })
 export default class ConcentrationPayersComponent implements OnInit, OnDestroy {

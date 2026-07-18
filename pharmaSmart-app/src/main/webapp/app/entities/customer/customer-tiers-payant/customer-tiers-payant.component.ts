@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from "@angular/core";
+import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
 import { ErrorService } from "../../../shared/error.service";
 import { ToastModule } from "primeng/toast";
@@ -44,6 +44,7 @@ import { NotificationService } from "../../../shared/services/notification.servi
     Card
   ],
   templateUrl: "./customer-tiers-payant.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["./customer-tiers-payant.component.scss"]
 })
 export class CustomerTiersPayantComponent implements OnInit, OnDestroy {

@@ -164,14 +164,14 @@
               <span class="text-success fw-semibold">Produits OK</span>
               <span class="text-success fw-bold">{{ getTauxOk() | number: '1.0-1' }}%</span>
             </div>
-            <p-progressBar [value]="getTauxOk()" [showValue]="false" />
+            <p-progressbar [value]="getTauxOk()" [showValue]="false" />
           </div>
           <div class="mb-2">
             <div class="d-flex justify-content-between mb-1">
               <span class="text-danger fw-semibold">Produits à risque</span>
               <span class="text-danger fw-bold">{{ getTauxRisque() | number: '1.0-1' }}%</span>
             </div>
-            <p-progressBar [value]="getTauxRisque()" [showValue]="false" />
+            <p-progressbar [value]="getTauxRisque()" [showValue]="false" />
           </div>
         </div>
       </div>

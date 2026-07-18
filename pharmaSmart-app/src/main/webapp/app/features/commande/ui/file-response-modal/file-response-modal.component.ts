@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, Renderer2, viewChild } from "@angular/core";
+import { Component, ElementRef, inject, Renderer2, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormsModule } from '@angular/forms';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
@@ -16,6 +16,7 @@ import { SpinnerComponent } from 'app/shared/spinner/spinner.component';
   selector: 'app-file-response-modal',
   imports: [FormsModule, Button, Card, FileUpload, Select, SpinnerComponent],
   templateUrl: './file-response-modal.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['file-response.scss'],
 })
 export class FileResponseModalComponent {

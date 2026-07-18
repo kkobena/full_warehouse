@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
@@ -7,6 +7,7 @@ import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
   template: `
     <ngx-spinner [fullScreen]="fullScreen()" bdColor="rgba(255,255,255,0.5)" color="#f13151" size="medium" type="timer"></ngx-spinner>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './spinner.component.scss',
 })
 export class SpinnerComponent {

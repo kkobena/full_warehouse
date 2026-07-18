@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, effect, inject, input, signal, viewChild } from "@angular/core";
+import { Component, computed, DestroyRef, effect, inject, input, signal, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { finalize } from "rxjs/operators";
 import { FormsModule } from "@angular/forms";
@@ -46,6 +46,7 @@ export type ReglementMode = "INDIVIDUEL" | "GROUPE";
     ReglementFormComponent
   ],
   templateUrl: "./reglement-workspace.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./reglement-workspace.component.scss"
 })
 export class ReglementWorkspaceComponent {

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ButtonModule } from 'primeng/button';
@@ -8,6 +8,7 @@ import { InputTextModule } from 'primeng/inputtext';
   selector: 'app-retour-commentaire-modal',
   imports: [FormsModule, ButtonModule, InputTextModule],
   styleUrls: ['./retour-commentiare.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="modal-header">
       <h5 class="modal-title"><i class="pi pi-check-circle me-2"></i>Confirmer la création du retour</h5>

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { ICategorie } from 'app/shared/model/categorie.model';
@@ -11,6 +11,7 @@ import { FaIconComponent } from "@fortawesome/angular-fontawesome";
 
 @Component({
   templateUrl: './categorie-delete-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, AlertErrorComponent, TranslateDirective, FaIconComponent]
 })
 export class CategorieDeleteDialogComponent {

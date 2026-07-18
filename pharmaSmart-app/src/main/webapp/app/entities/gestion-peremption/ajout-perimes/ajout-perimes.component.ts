@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnInit, viewChild } from "@angular/core";
+import { Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import {
   APPEND_TO,
   ITEMS_PER_PAGE,
@@ -59,6 +59,7 @@ import { ErrorService } from "../../../shared/error.service";
     Toast
   ],
   templateUrl: "./ajout-perimes.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["./ajout-perimes.component.scss"]
 })
 export class AjoutPerimesComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, Injector, OnInit, signal, viewChild } from "@angular/core";
+import { Component, computed, DestroyRef, inject, Injector, OnInit, signal, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { HttpHeaders, HttpResponse } from "@angular/common/http";
 import { forkJoin } from "rxjs";
@@ -47,6 +47,7 @@ import { FournisseurSelectComponent } from "../../../partners/ui/fournisseur-sel
   templateUrl: "./list-bons.component.html",
   styleUrls: ["./list-bons.scss"],
   providers: [DatePipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

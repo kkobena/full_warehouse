@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {ICellRendererAngularComp} from 'ag-grid-angular';
 import {Button} from 'primeng/button';
 import {Tooltip} from 'primeng/tooltip';
@@ -8,8 +8,9 @@ import {IOrderLine} from '../../../../shared/model/order-line.model';
 @Component({
   selector: 'app-commande-received-actions',
   imports: [Button, Tooltip, ButtonGroup],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <p-buttonGroup>
+    <p-buttongroup>
       <p-button
         [text]="true"
         [rounded]="true"
@@ -54,7 +55,7 @@ import {IOrderLine} from '../../../../shared/model/order-line.model';
           (onClick)="onDelete($event)"
         />
       }
-    </p-buttonGroup>
+    </p-buttongroup>
   `,
 })
 export class CommandeReceivedActionsComponent implements ICellRendererAngularComp {

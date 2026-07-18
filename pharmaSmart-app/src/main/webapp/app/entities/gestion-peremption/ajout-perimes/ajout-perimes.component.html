@@ -120,7 +120,7 @@
             {{ data.datePeremption }}
           </td>
           <td [pEditableColumn]="data.quantity" class="amount-column text-right" pEditableColumnField="quantity">
-            <p-cellEditor>
+            <p-celleditor>
               <ng-template #input>
                 <input
                   #quantityInput
@@ -137,7 +137,7 @@
               <ng-template #output>
                 <span class="pharma-qty-value">{{ data.quantity | number }}</span>
               </ng-template>
-            </p-cellEditor>
+            </p-celleditor>
           </td>
 
           <td class="text-right amount-column">

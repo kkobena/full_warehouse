@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { ButtonModule } from "primeng/button";
@@ -20,6 +20,7 @@ import { NotificationService } from "../../../../shared/services/notification.se
   selector: "app-rayon-form",
   templateUrl: "./rayon-form.component.html",
   styleUrl: "./rayon-form.component.scss",
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FormsModule,
     ReactiveFormsModule,

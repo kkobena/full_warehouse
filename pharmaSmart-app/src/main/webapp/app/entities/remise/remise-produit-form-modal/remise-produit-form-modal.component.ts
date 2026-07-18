@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, Renderer2, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, Renderer2, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToastModule } from 'primeng/toast';
@@ -19,6 +19,7 @@ import { Select } from 'primeng/select';
 
   imports: [ReactiveFormsModule, ToastModule, MessageModule, ButtonModule, ToastAlertComponent, Card, InputText, Select],
   templateUrl: './remise-produit-form-modal.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./remise-form-form.scss'],
 })
 export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {

@@ -56,7 +56,7 @@
         <td>{{ line.orderLine.produitLibelle }}</td>
         <td class="text-end"><span class="pharma-qty-value">{{ line.orderLine.quantityReceived | number }}</span></td>
         <td class="text-end">
-          <p-inputNumber
+          <p-inputnumber
             [(ngModel)]="line.qtyRetour"
             (ngModelChange)="onQtyChange(line)"
             [min]="1"
@@ -83,7 +83,7 @@
           />
         </td>
         <td class="text-end">
-          <p-inputNumber
+          <p-inputnumber
             [(ngModel)]="line.prixAchat"
             [disabled]="!line.selected"
             [min]="0"

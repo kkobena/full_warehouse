@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from "@angular/core";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { HttpResponse } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
@@ -25,6 +25,7 @@ import { BlobDownloadService } from "../../../shared/services/blob-download.serv
   selector: "app-abc-pareto",
   templateUrl: "./abc-pareto.component.html",
   styleUrl: "./abc-pareto.component.scss",
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

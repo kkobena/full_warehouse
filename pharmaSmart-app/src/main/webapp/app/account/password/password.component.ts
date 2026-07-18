@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Observable} from 'rxjs';
 
@@ -17,6 +17,7 @@ import {CommonModule} from "@angular/common";
 @Component({
   selector: 'jhi-password',
   imports: [CommonModule, FormsModule, ReactiveFormsModule, Panel, PasswordModule, Button, TranslateDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './password.component.html',
 })
 export default class PasswordComponent implements OnInit {

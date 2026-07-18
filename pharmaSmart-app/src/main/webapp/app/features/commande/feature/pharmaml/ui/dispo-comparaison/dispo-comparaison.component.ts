@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from "@angular/core";
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
@@ -24,6 +24,7 @@ export interface ComparaisonRow {
   selector: "app-dispo-comparaison",
   templateUrl: "./dispo-comparaison.component.html",
   styleUrls: ["./dispo-comparaison.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, TagModule, ButtonModule, TooltipModule, TableModule, FournisseurSelectComponent]
 })
 export class DispoComparaisonComponent {

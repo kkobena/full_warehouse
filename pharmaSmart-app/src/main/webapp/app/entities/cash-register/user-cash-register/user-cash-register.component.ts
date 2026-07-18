@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { CashRegisterService } from "../cash-register.service";
 import { RouterModule } from "@angular/router";
 import { ConfigurationService } from "../../../shared/configuration.service";
@@ -34,6 +34,7 @@ import { CommonModule } from "@angular/common";
     Toast
   ],
   templateUrl: "./user-cash-register.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["./user-cash-register.scss"]
 })
 export class UserCashRegisterComponent implements OnInit, AfterViewInit {

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject, input, signal } from "@angular/core";
+import { Component, DestroyRef, effect, inject, input, signal, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { finalize } from "rxjs/operators";
 import { NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
@@ -30,6 +30,7 @@ import { CommonModule } from "@angular/common";
     ReglementDiffereFormComponent
   ],
   templateUrl: "./differe-detail-panel.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["./differe-detail-panel.component.scss"]
 })
 export class DiffereDetailPanelComponent {

@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, signal, ViewChild } from "@angular/core";
+import { Component, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { HttpResponse } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
@@ -41,6 +41,7 @@ import { NotificationService } from "../../../shared/services/notification.servi
     Tooltip
   ],
   templateUrl: "./depot-returns.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./depot-returns.component.scss"
 })
 export class DepotReturnsComponent implements OnInit, OnDestroy {
@@ -290,7 +291,7 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
 
   private focusProductInput(): void {
     setTimeout(() => {
-      this.productAutoComplete?.inputEL?.nativeElement?.focus();
+      this.productAutoComplete?.inputEL()?.nativeElement?.focus();
     }, 100);
   }
 }

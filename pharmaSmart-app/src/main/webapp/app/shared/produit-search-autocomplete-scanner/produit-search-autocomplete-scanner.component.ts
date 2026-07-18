@@ -12,6 +12,7 @@ import {
   output,
   signal,
   viewChild,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -35,6 +36,7 @@ import { ScanDetectorService, ScanEvent } from '../scan-detector.service';
       multi: true,
     },
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './produit-search-autocomplete-scanner.component.html',
 })
 export class ProduitSearchAutocompleteScannerComponent implements ControlValueAccessor, OnDestroy, OnInit {
@@ -158,7 +160,7 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
   }
 
   setDisabledState?(isDisabled: boolean): void {
-    const inputEl = this.produitbox().inputEL?.nativeElement;
+    const inputEl = this.produitbox().inputEL()?.nativeElement;
     if (inputEl) {
       inputEl.disabled = isDisabled;
     }
@@ -210,7 +212,7 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
   getFocus(): void {
     // Utiliser requestAnimationFrame pour une meilleure performance
     requestAnimationFrame(() => {
-      const el = this.produitbox()?.inputEL?.nativeElement;
+      const el = this.produitbox()?.inputEL()?.nativeElement;
       const autocomplete = this.produitbox();
 
       if (el) {
@@ -246,7 +248,7 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
       setTimeout(() => autocomplete.hide(), 100);
     }
 
-    const inputEl = autocomplete?.inputEL?.nativeElement;
+    const inputEl = autocomplete?.inputEL()?.nativeElement;
     if (inputEl) {
       inputEl.value = '';
     }
@@ -318,7 +320,7 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
   }
 
   private clearInputValue(): void {
-    const inputEl = this.produitbox()?.inputEL?.nativeElement;
+    const inputEl = this.produitbox()?.inputEL()?.nativeElement;
     if (inputEl) {
       inputEl.value = '';
     }

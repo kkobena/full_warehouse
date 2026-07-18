@@ -1,4 +1,4 @@
-import { Component, inject, signal } from "@angular/core";
+import { Component, inject, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { DatePicker } from "primeng/datepicker";
@@ -17,6 +17,7 @@ interface FormatOption {
   selector: "app-export-comptable",
   imports: [CommonModule, FormsModule, DatePicker, FloatLabel, CheckboxModule],
   templateUrl: "./export-comptable.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./export-comptable.component.scss"
 })
 export class ExportComptableComponent {

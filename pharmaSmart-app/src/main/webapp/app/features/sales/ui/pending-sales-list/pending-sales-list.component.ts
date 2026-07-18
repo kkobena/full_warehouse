@@ -1,4 +1,4 @@
-import {Component, computed, inject, OnInit, output, signal} from '@angular/core';
+import {Component, computed, inject, OnInit, output, signal, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {TableModule} from 'primeng/table';
@@ -40,6 +40,7 @@ import {SalesStatut} from '../../../../shared/model';
   selector: 'app-pending-sales-list',
   templateUrl: './pending-sales-list.component.html',
   styleUrls: ['./pending-sales-list.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnInit, Renderer2 } from "@angular/core";
+import { Component, ElementRef, inject, OnInit, Renderer2, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
@@ -26,6 +26,7 @@ interface RetourLine {
   selector: "app-retour-depuis-reception",
   templateUrl: "./retour-depuis-reception.component.html",
   styleUrls: ["./retour-depuis-reception.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, ButtonModule, InputNumberModule, TableModule, SelectModule]
 })
 export class RetourDepuisReceptionComponent implements OnInit {

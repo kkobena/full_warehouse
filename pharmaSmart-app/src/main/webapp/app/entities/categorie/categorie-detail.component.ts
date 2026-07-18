@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from "@angular/core";
+import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 
 import { ICategorie } from "app/shared/model/categorie.model";
@@ -9,6 +9,7 @@ import { FaIconComponent } from "@fortawesome/angular-fontawesome";
 @Component({
   selector: "app-categorie-detail",
   templateUrl: "./categorie-detail.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [RouterModule, AlertErrorComponent, TranslateDirective, FaIconComponent]
 })
 export class CategorieDetailComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { Customer, ICustomer } from 'app/shared/model/customer.model';
 import { ErrorService } from 'app/shared/error.service';
@@ -20,6 +20,7 @@ import { NotificationService } from "../../../shared/services/notification.servi
   selector: 'app-uninsured-customer-form',
   templateUrl: './uninsured-customer-form.component.html',
   styleUrls: ['./uninsured-customer-component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FormsModule,
     ReactiveFormsModule,

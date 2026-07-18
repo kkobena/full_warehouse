@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild } from '@angular/core';
+import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 
 import { FormControl, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
@@ -20,6 +20,7 @@ import { Toast } from "primeng/toast";
   selector: 'app-magasin-update',
   templateUrl: './magasin-update.component.html',
   styleUrl: './magasin-update.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     RouterModule,
     ReactiveFormsModule,

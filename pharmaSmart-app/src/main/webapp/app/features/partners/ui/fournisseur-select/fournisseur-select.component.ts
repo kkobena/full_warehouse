@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject, input, OnInit, output, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, input, OnInit, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { map } from 'rxjs/operators';
@@ -19,6 +19,7 @@ interface FournisseurGroup {
   selector: 'app-fournisseur-select',
   templateUrl: './fournisseur-select.component.html',
   styleUrls: ['./fournisseur-select.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, Select, MultiSelect, FloatLabel],
 })
 export class FournisseurSelectComponent implements OnInit {

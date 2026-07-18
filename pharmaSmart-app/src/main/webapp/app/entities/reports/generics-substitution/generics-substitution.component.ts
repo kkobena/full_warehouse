@@ -1,4 +1,4 @@
-import { Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Chart, registerables } from 'chart.js';
 
@@ -15,6 +15,7 @@ Chart.register(...registerables);
   selector: 'app-generics-substitution',
   imports: [CommonModule, DateRangeFilterComponent],
   templateUrl: './generics-substitution.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./generics-substitution.component.scss'],
 })
 export default class GenericsSubstitutionComponent implements OnInit, OnDestroy {

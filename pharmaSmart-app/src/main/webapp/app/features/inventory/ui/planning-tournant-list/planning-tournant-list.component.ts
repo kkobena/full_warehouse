@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule, DatePipe} from '@angular/common';
 import {Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -23,6 +23,7 @@ import {
   imports: [CommonModule, Button, Tag, Toast, TableModule, Tooltip, DatePipe],
   providers: [MessageService],
   templateUrl: './planning-tournant-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './planning-tournant-list.component.scss',
 })
 export class PlanningTournantListComponent implements OnInit {

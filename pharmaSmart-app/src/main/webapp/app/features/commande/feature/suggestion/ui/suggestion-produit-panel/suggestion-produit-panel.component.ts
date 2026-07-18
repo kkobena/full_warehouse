@@ -1,4 +1,4 @@
-import { Component, computed, effect, ElementRef, input, output, signal, viewChild } from '@angular/core';
+import { Component, computed, effect, ElementRef, input, output, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -32,6 +32,7 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
   selector: 'app-suggestion-produit-panel',
   templateUrl: './suggestion-produit-panel.component.html',
   styleUrls: ['./suggestion-produit-panel.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

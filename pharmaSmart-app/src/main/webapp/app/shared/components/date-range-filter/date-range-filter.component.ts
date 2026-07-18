@@ -1,4 +1,4 @@
-import { Component, input, model, output } from '@angular/core';
+import { Component, input, model, output, ChangeDetectionStrategy } from '@angular/core';
 import { DatePicker } from 'primeng/datepicker';
 import { FloatLabel } from 'primeng/floatlabel';
 import { FormsModule } from '@angular/forms';
@@ -21,10 +21,11 @@ import { Button } from 'primeng/button';
 @Component({
   selector: 'pharma-date-range-filter',
   imports: [DatePicker, FloatLabel, FormsModule, Button],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="d-flex align-items-end gap-2 flex-wrap">
       <p-floatlabel variant="on">
-        <p-datePicker
+        <p-datepicker
           [ngModel]="fromDate()"
           (ngModelChange)="fromDate.set($event)"
           [iconDisplay]="'input'"
@@ -41,7 +42,7 @@ import { Button } from 'primeng/button';
       </p-floatlabel>
 
       <p-floatlabel variant="on">
-        <p-datePicker
+        <p-datepicker
           [ngModel]="toDate()"
           (ngModelChange)="toDate.set($event)"
           [iconDisplay]="'input'"

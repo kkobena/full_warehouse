@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 
@@ -13,6 +13,7 @@ import { forkJoin } from 'rxjs';
   selector: 'app-vieillissement-differes',
   imports: [CommonModule, TableModule, DateRangeFilterComponent],
   templateUrl: './vieillissement-differes.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./vieillissement-differes.component.scss'],
 })
 export default class VieillissementDifferesComponent implements OnInit {

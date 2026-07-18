@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -14,6 +14,7 @@ import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ng
   selector: 'app-avoir-encours',
   imports: [CommonModule, FormsModule, ButtonModule, TableModule, SelectModule, TooltipModule],
   templateUrl: './avoir-encours.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './avoir-encours.component.scss',
 })
 export class AvoirEncoursComponent implements OnInit {

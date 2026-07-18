@@ -29,7 +29,7 @@
             <div class="d-flex align-items-center gap-2 p-3 border-bottom role-selector-bar">
               <label class="fw-semibold mb-0 me-1">Rôle :</label>
               @if (loadingRoles()) {
-                <p-progressSpinner [style]="{ width: '24px', height: '24px' }" />
+                <p-progressspinner [style]="{ width: '24px', height: '24px' }" />
               } @else {
                 <p-select
                   [options]="availableRoles()"

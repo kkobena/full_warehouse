@@ -75,7 +75,7 @@
           <label class="form-label form-label-sm" for="price">
             Prix de référence <span class="text-danger">*</span>
           </label>
-          <p-inputNumber formControlName="price" id="price" [fluid]="true"
+          <p-inputnumber formControlName="price" id="price" [fluid]="true"
                          autocomplete="off" [useGrouping]="false"/>
           @let price = editForm.get('price');
           @if (price!.invalid && price!.touched) {
@@ -88,7 +88,7 @@
           <label class="form-label form-label-sm" for="rate">
             Taux de remboursement (%) <span class="text-danger">*</span>
           </label>
-          <p-inputNumber formControlName="rate" id="rate" [fluid]="true"
+          <p-inputnumber formControlName="rate" id="rate" [fluid]="true"
                          autocomplete="off" [min]="0" [max]="100" suffix="%"/>
           @let rate = editForm.get('rate');
           @if (rate!.invalid && rate!.touched) {

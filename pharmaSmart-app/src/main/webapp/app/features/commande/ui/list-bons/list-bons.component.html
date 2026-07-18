@@ -199,7 +199,7 @@
         />
 
         <p-floatlabel class="lb-date" variant="on">
-          <p-datePicker
+          <p-datepicker
             (onSelect)="onSearch()"
             [(ngModel)]="dtStart"
             [showButtonBar]="true"
@@ -212,7 +212,7 @@
         </p-floatlabel>
 
         <p-floatlabel class="lb-date" variant="on">
-          <p-datePicker
+          <p-datepicker
             (onSelect)="onSearch()"
             [(ngModel)]="dtEnd"
             [showButtonBar]="true"
@@ -246,25 +246,25 @@
           <tr class="pharma-table-head">
             <th pSortableColumn="receiptDate" style="width:105px">
               Date BL
-              <p-sortIcon field="receiptDate" />
+              <p-sorticon field="receiptDate" />
             </th>
             <th>Fournisseur</th>
             <th style="width:145px">Référence</th>
             <th pSortableColumn="itemSize" class="text-end" style="width:90px">
               Art.
-              <p-sortIcon field="itemSize" />
+              <p-sorticon field="itemSize" />
             </th>
             <th pSortableColumn="grossAmount" class="text-end" style="width:140px">
               Montant HT
-              <p-sortIcon field="grossAmount" />
+              <p-sorticon field="grossAmount" />
             </th>
             <th pSortableColumn="grossAmount" class="text-end" style="width:140px">
               Montant Tva
-              <p-sortIcon field="grossAmount" />
+              <p-sorticon field="grossAmount" />
             </th>
             <th pSortableColumn="receiptAmount" class="text-end" style="width:140px">
               Montant TTC
-              <p-sortIcon field="receiptAmount" />
+              <p-sorticon field="receiptAmount" />
             </th>
             <th style="width:200px">Statut</th>
             <th style="width:70px">Actions</th>

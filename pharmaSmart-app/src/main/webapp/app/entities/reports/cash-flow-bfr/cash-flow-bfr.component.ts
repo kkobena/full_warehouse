@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { forkJoin } from 'rxjs';
 
@@ -15,6 +15,7 @@ Chart.register(...registerables);
   selector: 'app-cash-flow-bfr',
   templateUrl: './cash-flow-bfr.component.html',
   styleUrl: './cash-flow-bfr.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, TableModule],
 })
 export default class CashFlowBfrComponent implements OnInit, OnDestroy {

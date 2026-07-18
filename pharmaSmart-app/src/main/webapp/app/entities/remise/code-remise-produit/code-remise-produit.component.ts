@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { RemiseService } from '../remise.service';
 import { CodeRemise, IRemise } from '../../../shared/model/remise.model';
 import { HttpResponse } from '@angular/common/http';
@@ -12,6 +12,7 @@ import { Toolbar } from 'primeng/toolbar';
   selector: 'jhi-code-remise-produit',
   imports: [FaIconComponent, Toolbar],
   templateUrl: './code-remise-produit.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./code-remise-produit.component.scss'],
 })
 export class CodeRemiseProduitComponent implements OnInit {

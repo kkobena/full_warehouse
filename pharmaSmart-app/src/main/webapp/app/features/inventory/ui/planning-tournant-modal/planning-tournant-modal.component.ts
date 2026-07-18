@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
@@ -21,6 +21,7 @@ import {PlanningTournantApiService} from '../../data-access/services/planning-to
   selector: 'app-planning-tournant-modal',
   imports: [CommonModule, ReactiveFormsModule, Button, Select, InputText, DatePicker, Tooltip],
   templateUrl: './planning-tournant-modal.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './planning-tournant-modal.component.scss',
 })
 export class PlanningTournantModalComponent implements OnInit {

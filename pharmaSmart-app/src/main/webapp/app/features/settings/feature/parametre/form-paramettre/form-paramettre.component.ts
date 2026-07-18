@@ -1,5 +1,5 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { Component, inject, OnInit, viewChild } from '@angular/core';
+import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { ILaboratoire } from '../../../../../shared/model/laboratoire.model';
@@ -20,6 +20,7 @@ import { KeyFilter } from 'primeng/keyfilter';
   selector: 'app-form-laboratoire',
   templateUrl: './form-paramettre.component.html',
   styleUrls: ['./form-paramettre.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, ToastAlertComponent, Card, Checkbox, Textarea, KeyFilter],
 })
 export class FormParamettreComponent implements OnInit {

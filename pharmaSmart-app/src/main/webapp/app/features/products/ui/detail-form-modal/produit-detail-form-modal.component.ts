@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, OnInit, viewChild } from "@angular/core";
+import { AfterViewInit, Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
@@ -16,6 +16,7 @@ import { NotificationService } from "../../../../shared/services/notification.se
   selector: "app-produit-detail-form-modal",
   templateUrl: "./produit-detail-form-modal.component.html",
   styleUrls: ["./produit-detail-form-modal.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,
@@ -68,7 +69,7 @@ export class ProduitDetailFormModalComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    setTimeout(() => this.itemQtyInput().input.nativeElement.focus(), 100);
+    setTimeout(() => this.itemQtyInput().input()?.nativeElement.focus(), 100);
 
     this.editForm.get("itemQty")!.valueChanges.subscribe(val => this.recalcPrices(val));
   }

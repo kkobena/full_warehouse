@@ -1,4 +1,4 @@
-import {Component, inject, signal} from '@angular/core';
+import {Component, inject, signal, ChangeDetectionStrategy} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {Button} from 'primeng/button';
@@ -11,6 +11,7 @@ import {ErrorService} from "../../../../../../shared/error.service";
   selector: 'app-annulation-pharmaml',
   imports: [FormsModule, Button],
   styleUrls: ['./annulation-pharmaml.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="modal-header">
       <h5 class="modal-title">Annuler la commande PharmaML</h5>

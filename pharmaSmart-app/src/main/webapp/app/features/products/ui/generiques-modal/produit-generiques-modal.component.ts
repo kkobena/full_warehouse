@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { ButtonModule } from "primeng/button";
@@ -13,6 +13,7 @@ import { ProductsApiService } from "../../data-access/services/products-api.serv
   selector: "app-produit-generiques-modal",
   templateUrl: "./produit-generiques-modal.component.html",
   styleUrls: ["./produit-generiques-modal.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, ButtonModule, TableModule, TagModule]
 })
 export class ProduitGeneriquesModalComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, viewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
@@ -15,6 +15,7 @@ import { ProductsApiService } from '../../data-access/services/products-api.serv
   selector: 'app-produit-decondition-modal',
   templateUrl: './produit-decondition-modal.component.html',
   styleUrls: ['./produit-decondition-modal.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, ReactiveFormsModule, FormsModule, InputNumberModule, Button, Card],
 })
 export class ProduitDeconditionModalComponent implements AfterViewInit {
@@ -35,7 +36,7 @@ export class ProduitDeconditionModalComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      const input = this.itemQty()?.input?.nativeElement;
+      const input = this.itemQty()?.input()?.nativeElement;
       if (input) {
         input.focus();
         input.select();

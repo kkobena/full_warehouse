@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from "@angular/core";
+import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { HttpHeaders, HttpResponse } from "@angular/common/http";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 
@@ -22,6 +22,7 @@ import { AlertComponent } from "../../shared/alert/alert.component";
   selector: "app-categorie",
   templateUrl: "./categorie.component.html",
   styleUrls: ["./categorie.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [PanelModule, ButtonModule, RouterModule, TranslateDirective, AlertErrorComponent, FaIconComponent, AlertComponent]
 })
 export class CategorieComponent implements OnInit {

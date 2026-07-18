@@ -15,7 +15,7 @@
             </p-iconfield>
 
             <p-floatlabel variant="on">
-              <p-datePicker
+              <p-datepicker
                 [(ngModel)]="fromDate"
                 [maxDate]="toDate"
                 [selectOtherMonths]="true"
@@ -29,7 +29,7 @@
             </p-floatlabel>
 
             <p-floatlabel variant="on">
-              <p-datePicker
+              <p-datepicker
                 [(ngModel)]="toDate"
                 [minDate]="fromDate"
                 [selectOtherMonths]="true"
@@ -112,7 +112,7 @@
               <td class="pharma-entity-name">{{ sale.customer?.fullName || '—' }}</td>
               <td>{{ sale.seller?.abbrName || '—' }}</td>
               <td class="text-center">
-                <p-buttonGroup>
+                <p-buttongroup>
                   <p-button
                     (click)="printInvoice(sale)"
                     [rounded]="true"
@@ -122,7 +122,7 @@
                     severity="secondary"
                     tooltipPosition="left"
                   />
-                </p-buttonGroup>
+                </p-buttongroup>
               </td>
             </tr>
           </ng-template>

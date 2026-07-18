@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, viewChild } from "@angular/core";
+import { Component, computed, inject, signal, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { IResponseDto } from "app/shared/util/response-dto";
 import { IGroupeTiersPayant } from "app/shared/model/groupe-tierspayant.model";
 import { RouterModule } from "@angular/router";
@@ -35,6 +35,7 @@ import { NotificationService } from "../../shared/services/notification.service"
   selector: "app-groupe-tiers-payant",
   templateUrl: "./groupe-tiers-payant.component.html",
   styleUrls: ["./group-tiers-payant.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ButtonModule,
     RippleModule,

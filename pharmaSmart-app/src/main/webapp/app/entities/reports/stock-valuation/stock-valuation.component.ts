@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
@@ -24,6 +24,7 @@ import { handleBlobForTauri } from "../../../shared/util/tauri-util";
   selector: "jhi-stock-valuation",
   templateUrl: "./stock-valuation.component.html",
   styleUrl: "./stock-valuation.component.scss",
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, TableModule, ButtonModule, SelectModule, ToolbarModule, DividerModule]
 })
 export default class StockValuationComponent implements OnInit {

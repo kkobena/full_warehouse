@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { KeyFilterModule } from 'primeng/keyfilter';
@@ -39,6 +39,7 @@ import { PaymentId } from '../../reglement/model/reglement.model';
     InputGroupAddon,
   ],
   templateUrl: './form-transaction.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../../common-modal.component.scss'],
 })
 export class FormTransactionComponent implements OnInit, AfterViewInit {

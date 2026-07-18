@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild, AfterViewInit, ElementRef } from '@angular/core';
+import { Component, inject, OnInit, viewChild, AfterViewInit, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { InputText } from 'primeng/inputtext';
@@ -19,6 +19,7 @@ import { RepartitionStockService } from '../../repartition-stock/repartition-sto
   selector: 'jhi-form-stock-produit',
   imports: [FormsModule, ReactiveFormsModule, Button, Card, InputText, KeyFilter, Checkbox, ToastAlertComponent],
   templateUrl: './form-stock-produit.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './form-stock-produit.component.scss',
 })
 export class FormStockProduitComponent implements OnInit, AfterViewInit {

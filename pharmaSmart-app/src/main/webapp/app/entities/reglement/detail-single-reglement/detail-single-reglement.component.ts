@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { InvoicePaymentItem, Reglement } from '../model/reglement.model';
@@ -17,6 +17,7 @@ import { CommonModule } from '@angular/common';
   selector: 'jhi-detail-single-reglement',
   imports: [CommonModule, FormsModule, ReactiveFormsModule, InputTextModule, PanelModule, TableModule, IconField, InputIcon, Button, Tag],
   templateUrl: './detail-single-reglement.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./detail-single-reglement.component.scss'],
 })
 export class DetailSingleReglementComponent implements OnInit {

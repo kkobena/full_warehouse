@@ -157,7 +157,7 @@
                 <ng-template #header>
                   <tr class="pharma-table-head">
                     <th style="width:2.5rem">
-                      <p-tableHeaderCheckbox pTooltip="Tout sélectionner / désélectionner" />
+                      <p-tableheadercheckbox pTooltip="Tout sélectionner / désélectionner" />
                     </th>
                     <th>CIP</th>
                     <th>Désignation</th>
@@ -170,7 +170,7 @@
                 <ng-template #body let-line>
                   <tr [class.line-selected]="isLineSelected(s.id, line.id)">
                     <td>
-                      <p-tableCheckbox [value]="line" />
+                      <p-tablecheckbox [value]="line" />
                     </td>
                     <td class="font-monospace">{{ line.fournisseurProduitCip }}</td>
                     <td>{{ line.fournisseurProduitLibelle }}</td>

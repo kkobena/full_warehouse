@@ -1,4 +1,4 @@
-import { Component, signal } from "@angular/core";
+import { Component, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { TooltipModule } from "primeng/tooltip";
 import { ICellRendererAngularComp } from "ag-grid-angular";
@@ -35,6 +35,7 @@ import { ILot } from "../../../../../shared/model/lot.model";
       }
     </div>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     .lec-wrap {
       display: flex; align-items: center; gap: 4px;

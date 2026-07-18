@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, OnInit } from "@angular/core";
+import { AfterViewInit, Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { CashRegisterService } from "../../cash-register/cash-register.service";
 import { Button } from "primeng/button";
 import { InputTextModule } from "primeng/inputtext";
@@ -43,6 +43,7 @@ import { NotificationService } from "../../../shared/services/notification.servi
     FloatLabel,
     Toast
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: "./gestion-caisse.component.html"
 })
 export class GestionCaisseComponent implements OnInit {

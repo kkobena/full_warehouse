@@ -1,4 +1,4 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {Router} from '@angular/router';
 import {ActivatedRoute} from '@angular/router';
 import {ICommande} from 'app/shared/model/commande.model';
@@ -16,6 +16,7 @@ import {CommandeReceivedComponent} from '../commande-received/commande-received.
 @Component({
   selector: 'app-commande-detail',
   templateUrl: './commande-detail.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommandeRequestedComponent, CommandeReceivedComponent],
 })
 export class CommandeDetailComponent implements OnInit {

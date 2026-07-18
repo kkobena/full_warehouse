@@ -127,7 +127,7 @@
             <ng-template #header>
               <tr class="pharma-table-head">
                 <th style="width: 3rem">
-                  <p-tableHeaderCheckbox />
+                  <p-tableheadercheckbox />
                 </th>
                 <th>Urgence</th>
                 <th>Produit</th>
@@ -148,7 +148,7 @@
             <ng-template #body let-suggestion>
               <tr [class]="getRowClass(suggestion)">
                 <td>
-                  <p-tableCheckbox [value]="suggestion" />
+                  <p-tablecheckbox [value]="suggestion" />
                 </td>
                 <td>
                   <p-tag [severity]="getUrgenceSeverity(suggestion)">

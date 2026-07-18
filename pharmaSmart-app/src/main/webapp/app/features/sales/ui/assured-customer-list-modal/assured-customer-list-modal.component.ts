@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, DestroyRef, ElementRef, inject, OnInit, signal, viewChild } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, ElementRef, inject, OnInit, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -25,6 +25,7 @@ import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constant
   selector: 'app-assured-customer-list-modal',
   imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, TableModule, TooltipModule, IconField, InputIcon],
   templateUrl: './assured-customer-list-modal.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./assured-customer-list-modal.component.scss'],
 })
 export class AssuredCustomerListModalComponent implements OnInit, AfterViewInit {

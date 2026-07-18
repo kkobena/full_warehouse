@@ -33,7 +33,7 @@
           <div class="col-md-6">
             <div class="form-field form-field-full">
               <label for="receiptDate">Date de livraison<span class="required">*</span></label>
-              <p-datePicker
+              <p-datepicker
                 (onShow)="onDropdownShow($event)"
                 (onClose)="onDropdownHide($event)"
                 [fluid]="true"
@@ -44,7 +44,7 @@
                 dateFormat="dd/mm/yy"
                 formControlName="receiptDate"
                 name="receiptDate"
-              ></p-datePicker>
+              ></p-datepicker>
               @if (editForm.get('receiptDate')!.invalid && (editForm.get('receiptDate')!.dirty || editForm.get('receiptDate')!.touched)) {
                 <div>
                   @if (editForm.get('receiptDate')?.errors?.required) {
@@ -76,7 +76,7 @@
             <div class="form-field form-field-full">
               <label for="receiptAmount">Montant HT<span class="required">*</span></label>
 
-              <p-inputNumber autocomplete="off" formControlName="receiptAmount" name="receiptAmount"  type="text" />
+              <p-inputnumber autocomplete="off" formControlName="receiptAmount" name="receiptAmount"  type="text" />
               @if (
                 editForm.get('receiptAmount')!.invalid && (editForm.get('receiptAmount')!.dirty || editForm.get('receiptAmount')!.touched)
               ) {
@@ -93,7 +93,7 @@
             <div class="form-field form-field-full">
               <label for="taxAmount">Montant Taxe<span class="required">*</span></label>
 
-              <p-inputNumber autocomplete="off" formControlName="taxAmount" name="taxAmount"  type="text" />
+              <p-inputnumber autocomplete="off" formControlName="taxAmount" name="taxAmount"  type="text" />
               @if (editForm.get('taxAmount')!.invalid && (editForm.get('taxAmount')!.dirty || editForm.get('taxAmount')!.touched)) {
                 <div>
                   @if (editForm.get('taxAmount')?.errors?.required) {

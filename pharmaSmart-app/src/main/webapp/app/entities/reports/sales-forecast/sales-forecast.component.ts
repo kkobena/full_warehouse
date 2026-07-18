@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from "@angular/core";
+import { Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { HttpResponse } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
@@ -37,6 +37,7 @@ interface PeriodOption {
   selector: "app-sales-forecast",
   templateUrl: "./sales-forecast.component.html",
   styleUrl: "./sales-forecast.component.scss",
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, ButtonModule, SelectModule, ToolbarModule, Tag, Drawer]
 })
 export default class SalesForecastComponent implements OnInit, OnDestroy {

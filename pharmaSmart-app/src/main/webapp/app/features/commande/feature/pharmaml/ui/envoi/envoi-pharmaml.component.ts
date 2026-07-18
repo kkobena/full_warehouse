@@ -1,4 +1,4 @@
-import {Component, ElementRef, inject, Renderer2, signal} from '@angular/core';
+import {Component, ElementRef, inject, Renderer2, signal, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule, DatePipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {Button} from 'primeng/button';
@@ -20,6 +20,7 @@ import {TranslateService} from "@ngx-translate/core";
   imports: [CommonModule, FormsModule, Button, Select, Textarea, Card, DatePicker],
   providers: [DatePipe],
   templateUrl: './envoi-pharmaml.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./envoi-pharmaml.scss'],
 })
 export class EnvoiPharmamlComponent {

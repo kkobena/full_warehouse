@@ -1,4 +1,4 @@
-import { Component, forwardRef, inject, input, output, signal, viewChild } from '@angular/core';
+import { Component, forwardRef, inject, input, output, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { DatePicker, DatePickerModule } from 'primeng/datepicker';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -16,9 +16,10 @@ import { DATE_FORMAT_ISO_DATE } from '../util/warehouse-util';
     },
   ],
   imports: [DatePickerModule, FloatLabelModule, FormsModule, TranslatePipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <p-floatlabel variant="on" [style]="{ 'min-width': '90px' }">
-      <p-datePicker
+      <p-datepicker
         #datePicker
         dateFormat="dd/mm/yy"
         [iconDisplay]="'input'"

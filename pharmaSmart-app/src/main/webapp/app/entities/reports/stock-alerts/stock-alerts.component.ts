@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {HttpResponse} from '@angular/common/http';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
@@ -20,6 +20,7 @@ const ITEMS_PER_PAGE = 15;
   selector: 'jhi-stock-alerts',
   templateUrl: './stock-alerts.component.html',
   styleUrl: './stock-alerts.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

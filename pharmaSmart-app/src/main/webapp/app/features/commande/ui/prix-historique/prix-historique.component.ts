@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { DecimalPipe, DatePipe, NgTemplateOutlet } from '@angular/common';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TagModule } from 'primeng/tag';
@@ -9,6 +9,7 @@ import { CommandeService, IPriceHistory } from '../../../../entities/commande/co
   selector: 'app-prix-historique',
   templateUrl: './prix-historique.component.html',
   styleUrls: ['./prix-historique.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [DecimalPipe, DatePipe, NgTemplateOutlet, TagModule, TooltipModule],
 })
 export class PrixHistoriqueComponent implements OnInit {

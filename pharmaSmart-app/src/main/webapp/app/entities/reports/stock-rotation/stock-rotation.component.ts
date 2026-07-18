@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from "@angular/core";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { HttpResponse } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
@@ -21,6 +21,7 @@ import { TauriPrinterService } from "../../../shared/services/tauri-printer.serv
   selector: "jhi-stock-rotation",
   templateUrl: "./stock-rotation.component.html",
   styleUrl: "./stock-rotation.component.scss",
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

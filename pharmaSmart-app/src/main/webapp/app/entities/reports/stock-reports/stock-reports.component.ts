@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { AbilityService } from 'app/core/auth/ability.service';
 import { CommonModule } from '@angular/common';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
@@ -26,6 +26,7 @@ import DemarqueComponent from '../demarque/demarque.component';
     DemarqueComponent,
   ],
   templateUrl: './stock-reports.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './stock-reports.component.scss',
 })
 export default class StockReportsComponent implements OnInit {

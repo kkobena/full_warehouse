@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, viewChild } from "@angular/core";
+import { Component, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { HttpHeaders, HttpResponse } from "@angular/common/http";
 import { ActivatedRoute, Data, ParamMap, Router, RouterLink } from "@angular/router";
 import { combineLatest, Observable, Subject } from "rxjs";
@@ -43,6 +43,7 @@ import { NotificationService } from "../../shared/services/notification.service"
   selector: "app-customer",
   templateUrl: "./customer.component.html",
   styleUrls: ["./customer.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     SelectModule,

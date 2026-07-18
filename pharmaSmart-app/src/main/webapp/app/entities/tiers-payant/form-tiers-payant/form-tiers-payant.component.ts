@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { LowerCasePipe } from "@angular/common";
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
 import { ErrorService } from "app/shared/error.service";
@@ -25,6 +25,7 @@ import { NotificationService } from "../../../shared/services/notification.servi
   selector: "jhi-form-tiers-payant",
   templateUrl: "./form-tiers-payant.component.html",
   styleUrls: ["./form-tiers-payant.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FormsModule,
     ReactiveFormsModule,

@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { CommonModule } from "@angular/common";
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -51,6 +51,7 @@ import { BlobDownloadService } from "../../../../shared/services/blob-download.s
     InputIcon
   ],
   templateUrl: "./comptes-fournisseurs.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./comptes-fournisseurs.component.scss"
 })
 export class ComptesFournisseursComponent implements OnInit {

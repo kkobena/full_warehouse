@@ -1,4 +1,4 @@
-import { Component, inject, input, output } from '@angular/core';
+import { Component, inject, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
@@ -14,6 +14,7 @@ import { ErrorService } from '../../../../shared/error.service';
   selector: 'app-produit-rayons-tab',
   templateUrl: './produit-rayons-tab.component.html',
   styleUrl: './produit-rayons-tab.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ButtonModule, TooltipModule, TableModule],
 })
 export class ProduitRayonsTabComponent {

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, ElementRef, inject, input, OnInit, output, signal, viewChild } from "@angular/core";
+import { Component, DestroyRef, ElementRef, inject, input, OnInit, output, signal, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { HttpResponse } from "@angular/common/http";
 import { ICommande } from "app/shared/model/commande.model";
@@ -84,6 +84,7 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
   templateUrl: "./commande-received.component.html",
   styleUrls: ["./commande-received.component.scss"],
   providers: [ReceptionScannerService, ScanOrchestratorService],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

@@ -23,7 +23,7 @@
 
           @if (selectedPeriod() === 'custom') {
             <p-floatlabel variant="on">
-              <p-datePicker
+              <p-datepicker
                 [(ngModel)]="startDate"
                 [showIcon]="true"
                 [style]="{ 'max-width': '150px' }"
@@ -34,7 +34,7 @@
               <label for="fromDate">Date début</label>
             </p-floatlabel>
             <p-floatlabel variant="on">
-              <p-datePicker
+              <p-datepicker
                 [(ngModel)]="endDate"
                 [showIcon]="true"
                 [style]="{ 'max-width': '150px' }"

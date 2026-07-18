@@ -1,4 +1,4 @@
-import { Component, inject, NgZone, OnInit, signal } from '@angular/core';
+import { Component, inject, NgZone, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -40,6 +40,7 @@ export interface AppConfigDto {
   selector: 'app-config-editor',
   templateUrl: './app-config-editor.component.html',
   styleUrls: ['./app-config-editor.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ReactiveFormsModule, ButtonModule, InputTextModule, PasswordModule, ProgressBarModule, NgbNavModule, Toolbar]
 })
 export class AppConfigEditorComponent implements OnInit {

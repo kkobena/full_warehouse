@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, viewChild } from '@angular/core';
+import { Component, computed, inject, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ActivitySummaryService } from './activity-summary.service';
 import { ChiffreAffaire } from './model/chiffre-affaire.model';
@@ -41,6 +41,7 @@ import { Tooltip } from 'primeng/tooltip';
     RouterLink,
   ],
   templateUrl: './activity-summary.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './activity-summary.component.scss',
 })
 export class ActivitySummaryComponent {

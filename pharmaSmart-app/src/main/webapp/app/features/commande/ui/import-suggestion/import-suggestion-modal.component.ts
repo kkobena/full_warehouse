@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { combineLatest, Subject } from "rxjs";
 import { debounceTime, distinctUntilChanged, startWith } from "rxjs/operators";
@@ -27,6 +27,7 @@ import { FournisseurSelectComponent } from "../../../partners/ui/fournisseur-sel
   selector: "app-import-suggestion-modal",
   templateUrl: "./import-suggestion-modal.component.html",
   styleUrls: ["./import-suggestion.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

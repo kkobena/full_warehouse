@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from "@angular/core";
+import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { Router, RouterModule } from "@angular/router";
 import { HttpResponse } from "@angular/common/http";
@@ -21,6 +21,7 @@ import { Toast } from "primeng/toast";
   selector: "app-tableau-produit",
   templateUrl: "./tableau-produit.component.html",
   styleUrl: "./tableau-produit.component.scss",
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FormsModule,
     ToolbarModule,

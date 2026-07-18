@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
@@ -19,6 +19,7 @@ import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-pi
   selector: 'app-lot-saisie-produit-modal',
   templateUrl: './lot-saisie-produit-modal.component.html',
   styleUrls: ['./lot-saisie-produit-modal.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     ReactiveFormsModule,

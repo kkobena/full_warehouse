@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from "@angular/core";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { HttpResponse } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
@@ -18,6 +18,7 @@ import { Tag } from "primeng/tag";
   selector: "app-sales-summary",
   templateUrl: "./sales-summary.component.html",
   styleUrl: "./sales-summary.component.scss",
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

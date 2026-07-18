@@ -222,18 +222,18 @@
     >
       <ng-template #header>
         <tr class="pharma-table-head">
-          <th pSortableColumn="produitName">Libellé produit <p-sortIcon field="produitName" /></th>
+          <th pSortableColumn="produitName">Libellé produit <p-sorticon field="produitName" /></th>
           <th>Code produit</th>
           <th>Numéro lot</th>
-          <th pSortableColumn="datePeremption">Date de péremption <p-sortIcon field="datePeremption" /></th>
-          <th pSortableColumn="quantity">Quantité <p-sortIcon field="quantity" /></th>
-          <th pSortableColumn="prixAchat">Prix.Achat <p-sortIcon field="prixAchat" /></th>
-          <th pSortableColumn="prixUni">Prix.vente <p-sortIcon field="prixUni" /></th>
+          <th pSortableColumn="datePeremption">Date de péremption <p-sorticon field="datePeremption" /></th>
+          <th pSortableColumn="quantity">Quantité <p-sorticon field="quantity" /></th>
+          <th pSortableColumn="prixAchat">Prix.Achat <p-sorticon field="prixAchat" /></th>
+          <th pSortableColumn="prixUni">Prix.vente <p-sorticon field="prixUni" /></th>
           <th>Statut</th>
           <th>Fournisseur</th>
 
           <th class="table-all-checkbos">
-            <p-tableHeaderCheckbox #checkbox></p-tableHeaderCheckbox>
+            <p-tableheadercheckbox #checkbox></p-tableheadercheckbox>
           </th>
           <th></th>
         </tr>
@@ -271,7 +271,7 @@
             {{ data.fournisseur }}
           </td>
           <td class="text-center">
-            <p-tableCheckbox [disabled]="data.destroyed" [value]="data"></p-tableCheckbox>
+            <p-tablecheckbox [disabled]="data.destroyed" [value]="data"></p-tablecheckbox>
           </td>
           <td class="text-right">
             @if (!data.destroyed) {

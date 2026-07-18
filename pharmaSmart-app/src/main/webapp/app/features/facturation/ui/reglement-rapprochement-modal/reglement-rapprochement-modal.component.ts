@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, computed, DestroyRef, inject, Input, signal } from "@angular/core";
+import { AfterViewInit, Component, computed, DestroyRef, inject, Input, signal, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { HttpResponse } from "@angular/common/http";
@@ -24,6 +24,7 @@ import { InputNumber } from "primeng/inputnumber";
   selector: "app-reglement-rapprochement-modal",
   imports: [FormsModule, ReactiveFormsModule, Button, InputText, Select, KeyFilter, PharmaDatePickerComponent, Card, InputNumber],
   templateUrl: "./reglement-rapprochement-modal.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./reglement-rapprochement-modal.component.scss"
 })
 export class ReglementRapprochementModalComponent implements AfterViewInit {

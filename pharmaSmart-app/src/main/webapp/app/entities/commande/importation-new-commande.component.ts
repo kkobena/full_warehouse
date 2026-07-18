@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnInit, Renderer2, viewChild } from "@angular/core";
+import { Component, ElementRef, inject, OnInit, Renderer2, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { IFournisseur } from "../../shared/model/fournisseur.model";
 import { CommandeService } from "./commande.service";
 import { NgbActiveModal, NgbModal } from "@ng-bootstrap/ng-bootstrap";
@@ -21,6 +21,7 @@ import { Select } from "primeng/select";
   selector: "app-importation-new-commande",
   templateUrl: "./importation-new-commande.component.html",
   styleUrls: ["./form-import-new.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, FileUploadModule, Button, FournisseurSelectComponent, ToastAlertComponent, Card, SpinnerComponent, Select]
 })
 export class ImportationNewCommandeComponent implements OnInit {

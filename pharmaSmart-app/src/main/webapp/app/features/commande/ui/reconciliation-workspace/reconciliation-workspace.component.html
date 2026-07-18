@@ -50,7 +50,7 @@
 
           <div class="rw-field">
             <label class="rw-label">Date facture</label>
-            <p-datePicker [(ngModel)]="factureDate" dateFormat="dd/mm/yy" [showIcon]="true" appendTo="body" />
+            <p-datepicker [(ngModel)]="factureDate" dateFormat="dd/mm/yy" [showIcon]="true" appendTo="body" />
           </div>
         </div>
 
@@ -71,7 +71,7 @@
               <span class="rw-row-label">Montant HT</span>
               <span class="rw-val rw-val--ref">{{ blMontantHT | number:'1.0-0' }} F</span>
               <span class="rw-val">
-                <p-inputNumber [(ngModel)]="factureMontantHT" [min]="0" [useGrouping]="true"
+                <p-inputnumber [(ngModel)]="factureMontantHT" [min]="0" [useGrouping]="true"
                                [inputStyle]="{'width':'115px','text-align':'right'}" size="small" />
               </span>
               <span class="rw-ecart" [class.rw-ecart--ok]="ecartHT === 0" [class.rw-ecart--err]="ecartHT !== 0">
@@ -84,7 +84,7 @@
               <span class="rw-row-label">TVA</span>
               <span class="rw-val rw-val--ref">{{ blTVA | number:'1.0-0' }} F</span>
               <span class="rw-val">
-                <p-inputNumber [(ngModel)]="factureTVA" [min]="0" [useGrouping]="true"
+                <p-inputnumber [(ngModel)]="factureTVA" [min]="0" [useGrouping]="true"
                                [inputStyle]="{'width':'115px','text-align':'right'}" size="small" />
               </span>
               <span class="rw-ecart" [class.rw-ecart--ok]="ecartTVA === 0" [class.rw-ecart--err]="ecartTVA !== 0">

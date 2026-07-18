@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { Customer, ICustomer } from "app/shared/model/customer.model";
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
 import { ErrorService } from "app/shared/error.service";
@@ -23,6 +23,7 @@ import { NotificationService } from "../../../shared/services/notification.servi
   selector: "app-form-ayant-droit",
   templateUrl: "./form-ayant-droit.component.html",
   styleUrls: ["./form-ayant-droit-component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ToastModule,
     FormsModule,

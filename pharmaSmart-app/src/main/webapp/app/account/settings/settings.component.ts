@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from "@angular/core";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { AccountService } from "app/core/auth/account.service";
@@ -16,6 +16,7 @@ const initialAccount: Account = {} as Account;
   selector: "jhi-settings",
   imports: [CommonModule, FormsModule, ReactiveFormsModule, AlertErrorComponent, FindLanguageFromKeyPipe, Button, InputText],
   templateUrl: "./settings.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["./settings.scss"]
 })
 export default class SettingsComponent implements OnInit {

@@ -1,4 +1,4 @@
-import {Component, inject, input, OnInit, signal} from '@angular/core';
+import {Component, inject, input, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {TableModule} from 'primeng/table';
@@ -15,6 +15,7 @@ import {InventoryValuationApiService} from '../../data-access/services/inventory
   selector: 'app-inventory-valuation',
   imports: [CommonModule, FormsModule, TableModule, Select],
   templateUrl: './inventory-valuation.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './inventory-valuation.component.scss',
 })
 export class InventoryValuationComponent implements OnInit {

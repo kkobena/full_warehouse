@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject, OnInit, signal } from "@angular/core";
+import { Component, DestroyRef, effect, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
 import { CommonModule } from "@angular/common";
@@ -32,6 +32,7 @@ import { FaIconComponent } from "@fortawesome/angular-fontawesome";
   selector: "jhi-sidebar",
   imports: [CommonModule, RouterModule, FormsModule, TooltipModule, FaIconComponent],
   templateUrl: "./sidebar.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["./sidebar.component.scss"]
 })
 export default class SidebarComponent implements OnInit {

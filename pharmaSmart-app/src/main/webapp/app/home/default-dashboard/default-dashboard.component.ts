@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AccountService } from 'app/core/auth/account.service';
@@ -9,6 +9,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
   selector: 'app-default-dashboard',
   templateUrl: './default-dashboard.component.html',
   styleUrl: './default-dashboard.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, RouterModule],
 })
 export class DefaultDashboardComponent {

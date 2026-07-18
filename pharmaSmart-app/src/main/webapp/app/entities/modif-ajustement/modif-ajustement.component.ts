@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild } from '@angular/core';
+import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ModifAjustementService } from './motif-ajustement.service';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
@@ -21,6 +21,7 @@ import { InputIcon } from 'primeng/inputicon';
   selector: 'jhi-modif-ajustement',
   templateUrl: './modif-ajustement.component.html',
   styleUrl: './modif-ajustement.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ButtonModule,
     ToolbarModule,

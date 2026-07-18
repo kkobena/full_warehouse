@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { ButtonModule } from 'primeng/button';
 import { Tooltip } from 'primeng/tooltip';
@@ -20,6 +20,7 @@ import { PlanifSubtabTpsComponent } from './planif-subtab-tps.component';
     PlanifSubtabTpsComponent,
   ],
   templateUrl: './planif-detail-panel.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './planif-detail-panel.component.scss',
 })
 export class PlanifDetailPanelComponent {

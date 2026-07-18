@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { IProduit } from 'app/shared/model/produit.model';
@@ -7,6 +7,7 @@ import { IProduit } from 'app/shared/model/produit.model';
   selector: 'app-produit-deconditions-tab',
   templateUrl: './produit-deconditions-tab.component.html',
   styleUrls: ['./produit-deconditions-tab.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, TableModule],
 })
 export class ProduitDeconditionsTabComponent {

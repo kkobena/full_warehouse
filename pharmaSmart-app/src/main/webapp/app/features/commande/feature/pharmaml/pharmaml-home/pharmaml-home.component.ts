@@ -1,4 +1,4 @@
-import {Component, computed, inject, input, OnDestroy, OnInit, signal} from '@angular/core';
+import {Component, computed, inject, input, OnDestroy, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Button} from 'primeng/button';
 import {SplitButton} from 'primeng/splitbutton';
@@ -39,6 +39,7 @@ const TERMINAL_STATUTS: PharmaMlStatut[] = ['SUBMITTED', 'PARTIAL', 'REJECTED', 
   selector: 'app-pharmaml-home',
   imports: [CommonModule, Button, SplitButton, TagModule, TableModule, TooltipModule],
   templateUrl: './pharmaml-home.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./pharmaml-home.scss'],
 })
 export class PharmamlHomeComponent implements OnInit, OnDestroy {

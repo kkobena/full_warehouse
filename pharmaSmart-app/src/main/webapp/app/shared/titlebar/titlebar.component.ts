@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -7,6 +7,7 @@ import { filter } from 'rxjs/operators';
   selector: 'app-titlebar',
   imports: [CommonModule],
   templateUrl: './titlebar.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./titlebar.component.scss'],
 })
 export class TitlebarComponent implements OnInit {

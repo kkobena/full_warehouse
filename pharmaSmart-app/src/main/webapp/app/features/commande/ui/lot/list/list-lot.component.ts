@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ILot } from 'app/shared/model/lot.model';
 import { LotService } from '../../../../../entities/commande/lot/lot.service';
 import { FormLotComponent } from '../form/form-lot.component';
@@ -21,6 +21,7 @@ import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ng
   selector: 'jhi-list-lot',
   templateUrl: './list-lot.component.html',
   styleUrls: ['../../../../../entities/common-modal.component.scss', './list-lot.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, ButtonModule, TooltipModule, TableModule, Card],
 })
 export class ListLotComponent implements OnInit, OnDestroy {

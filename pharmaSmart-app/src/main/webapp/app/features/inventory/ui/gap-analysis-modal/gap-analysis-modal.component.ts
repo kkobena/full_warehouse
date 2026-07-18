@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
@@ -26,6 +26,7 @@ interface GapLineVM extends IGapLine {
   imports: [CommonModule, FormsModule, Button, Select, TableModule, Toast, Tooltip],
   providers: [MessageService],
   templateUrl: './gap-analysis-modal.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './gap-analysis-modal.component.scss',
 })
 export class GapAnalysisModalComponent implements OnInit {

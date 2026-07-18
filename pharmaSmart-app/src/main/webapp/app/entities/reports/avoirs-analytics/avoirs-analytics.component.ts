@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 
@@ -22,6 +22,7 @@ interface AvoirStatutStat {
   selector: 'app-avoirs-analytics',
   imports: [CommonModule, TableModule, DateRangeFilterComponent],
   templateUrl: './avoirs-analytics.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./avoirs-analytics.component.scss'],
 })
 export default class AvoirsAnalyticsComponent implements OnInit {

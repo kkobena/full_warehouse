@@ -1,4 +1,4 @@
-import { Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { forkJoin } from 'rxjs';
@@ -17,6 +17,7 @@ Chart.register(...registerables);
   selector: 'app-demarque',
   imports: [CommonModule, TableModule, DateRangeFilterComponent],
   templateUrl: './demarque.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./demarque.component.scss'],
 })
 export default class DemarqueComponent implements OnInit, OnDestroy {

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild } from '@angular/core';
+import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
@@ -29,6 +29,7 @@ import { ErrorService } from '../../../shared/error.service';
     ToastAlertComponent,
   ],
   templateUrl: './remise-produits.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './remise-produits.component.scss',
 })
 export class RemiseProduitsComponent implements OnInit {

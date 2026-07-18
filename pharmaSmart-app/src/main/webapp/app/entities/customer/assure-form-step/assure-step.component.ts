@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, signal, viewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, signal, viewChild, ChangeDetectionStrategy} from '@angular/core';
 import {AutoCompleteModule} from 'primeng/autocomplete';
 import {DividerModule} from 'primeng/divider';
 import {InputMaskModule} from 'primeng/inputmask';
@@ -44,6 +44,7 @@ import {takeUntil} from 'rxjs/operators';
     DateNaissDirective,
   ],
   templateUrl: './assure-step.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./assured-form-step.component.scss'],
 })
 export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {

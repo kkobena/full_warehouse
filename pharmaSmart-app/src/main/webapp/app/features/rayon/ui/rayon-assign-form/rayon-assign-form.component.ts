@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ButtonModule } from 'primeng/button';
@@ -28,6 +28,7 @@ export interface RayonAssignResult {
   selector: 'app-rayon-assign-form',
   templateUrl: './rayon-assign-form.component.html',
   styleUrl: './rayon-assign-form.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, ButtonModule, InputTextModule, IconField, InputIcon, TooltipModule, Select],
 })
 export class RayonAssignFormComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from "@angular/core";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { AbilityService } from "app/core/auth/ability.service";
 import {
   NgbNav,
@@ -35,6 +35,7 @@ import { CommonModule } from "@angular/common";
     NgbNavOutlet
   ],
   templateUrl: "./gestion-peremption.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["./gestion-peremption.scss"]
 })
 export class GestionPeremptionComponent implements OnInit {

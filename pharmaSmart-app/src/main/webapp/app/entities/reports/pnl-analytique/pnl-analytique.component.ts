@@ -1,4 +1,4 @@
-import { Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpResponse } from '@angular/common/http';
 
@@ -29,6 +29,7 @@ const CHART_COLORS = [
   selector: 'app-pnl-analytique',
   templateUrl: './pnl-analytique.component.html',
   styleUrl: './pnl-analytique.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, TableModule, SelectModule, FormsModule],
 })
 export default class PnlAnalytiqueComponent implements OnInit, OnDestroy {

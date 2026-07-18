@@ -9,7 +9,8 @@
   model,
   OnInit,
   signal,
-  viewChild
+  viewChild,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {CommonModule} from '@angular/common';
@@ -65,6 +66,7 @@ import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-d
     '(window:keydown)': 'handleGlobalKeyboardEvent($event)',
   },
   providers: [ScanOrchestratorService, SalesScannerService],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

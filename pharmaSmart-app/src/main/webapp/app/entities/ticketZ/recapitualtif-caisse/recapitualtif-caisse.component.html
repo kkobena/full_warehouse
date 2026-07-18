@@ -11,7 +11,7 @@
         <div class="pharma-toolbar-filters">
           <p-select (onChange)="onSelectedUsersChange()" [(ngModel)]="onlyVente" [options]="mvts" appendTo="body" size="large" />
 
-          <p-multiSelect
+          <p-multiselect
             [(ngModel)]="selectedUsersId"
             [options]="users"
             appendTo="body"
@@ -23,7 +23,7 @@
           />
 
           <p-floatlabel variant="on">
-            <p-datePicker
+            <p-datepicker
               [(ngModel)]="fromDate"
               [maxDate]="toDate"
               [selectOtherMonths]="true"
@@ -38,7 +38,7 @@
           </p-floatlabel>
 
           <p-floatlabel variant="on">
-            <p-datePicker
+            <p-datepicker
               [(ngModel)]="toDate"
               [minDate]="fromDate"
               [selectOtherMonths]="true"

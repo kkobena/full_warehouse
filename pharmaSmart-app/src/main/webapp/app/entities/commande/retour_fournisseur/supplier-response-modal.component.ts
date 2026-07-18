@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from "@angular/core";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
@@ -24,6 +24,7 @@ interface ResponseLine {
   selector: "app-supplier-response-modal",
   imports: [CommonModule, FormsModule, ButtonModule, TableModule, InputNumberModule, ToastModule, Tooltip],
   templateUrl: "./supplier-response-modal.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./supplier-response-modal.component.scss"
 })
 export class SupplierResponseModalComponent implements OnInit {

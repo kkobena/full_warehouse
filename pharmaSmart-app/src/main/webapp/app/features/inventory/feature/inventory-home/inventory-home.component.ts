@@ -1,4 +1,4 @@
-import {Component, DestroyRef, effect, inject, OnInit, signal, ViewChild} from '@angular/core';
+import {Component, DestroyRef, effect, inject, OnInit, signal, ViewChild, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router} from '@angular/router';
 import {
@@ -65,6 +65,7 @@ import { AbilityService } from 'app/core/auth/ability.service';
   ],
   providers: [MessageService],
   templateUrl: './inventory-home.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './inventory-home.component.scss',
 })
 export class InventoryHomeComponent implements OnInit {

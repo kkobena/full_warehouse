@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild } from "@angular/core";
+import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { TiersPayantService } from "./tierspayant.service";
 import { Observable } from "rxjs";
 import { HttpHeaders, HttpResponse } from "@angular/common/http";
@@ -39,6 +39,7 @@ import { Toast } from "primeng/toast";
   templateUrl: "./tiers-payant.component.html",
   styleUrls: ["./tiers-payant.component.scss"],
   providers: [NgbActiveModal],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     ButtonModule,

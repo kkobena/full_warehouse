@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { CtaComponent, Severity } from './cta.component';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
@@ -6,6 +6,7 @@ import { TooltipModule } from 'primeng/tooltip';
 @Component({
   selector: 'jhi-back-button',
   imports: [ButtonModule, TooltipModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './cta.component.html',
 })
 export class BackButtonComponent extends CtaComponent {

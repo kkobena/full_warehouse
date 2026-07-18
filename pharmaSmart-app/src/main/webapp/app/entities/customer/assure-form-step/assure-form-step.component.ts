@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, viewChild } from "@angular/core";
+import { Component, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { StepsModule } from "primeng/steps";
 import { MenuItem } from "primeng/api";
 import { ICustomer } from "../../../shared/model";
@@ -30,6 +30,7 @@ import { NotificationService } from "../../../shared/services/notification.servi
     Card
   ],
   templateUrl: "./assure-form-step.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["./assured-form-step.component.scss"]
 })
 export class AssureFormStepComponent implements OnInit, OnDestroy {

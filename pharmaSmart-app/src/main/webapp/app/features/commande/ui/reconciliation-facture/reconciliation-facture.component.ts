@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -16,6 +16,7 @@ import { KeyFilter } from "primeng/keyfilter";
   selector: 'app-reconciliation-facture',
   templateUrl: './reconciliation-facture.component.html',
   styleUrls: ['./reconciliation-facture.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, ButtonModule, InputNumberModule, InputTextModule, DatePickerModule, KeyFilter]
 })
 export class ReconciliationFactureComponent implements OnInit {

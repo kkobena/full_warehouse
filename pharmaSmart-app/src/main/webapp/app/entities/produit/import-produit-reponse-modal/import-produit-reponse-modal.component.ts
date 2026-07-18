@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Card } from 'primeng/card';
 import { Button } from 'primeng/button';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -11,6 +11,7 @@ import { finalize } from 'rxjs/operators';
   selector: 'jhi-import-produit-reponse-modal',
   imports: [Card, Button],
   templateUrl: './import-produit-reponse-modal.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../../common-modal.component.scss'],
 })
 export class ImportProduitReponseModalComponent {

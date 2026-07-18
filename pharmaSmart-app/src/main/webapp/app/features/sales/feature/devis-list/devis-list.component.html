@@ -34,7 +34,7 @@
             </div>
 
             <p-floatlabel variant="on">
-              <p-datePicker
+              <p-datepicker
                 [(ngModel)]="fromDate"
                 [maxDate]="toDate"
                 [selectOtherMonths]="true"
@@ -48,7 +48,7 @@
             </p-floatlabel>
 
             <p-floatlabel variant="on">
-              <p-datePicker
+              <p-datepicker
                 [(ngModel)]="toDate"
                 [minDate]="fromDate"
                 [selectOtherMonths]="true"
@@ -147,7 +147,7 @@
               </td>
               <td>{{ sale.seller?.abbrName }}</td>
               <td class="text-center">
-                <p-buttonGroup>
+                <p-buttongroup>
                   <!-- Editer -->
                   <p-button
                     (click)="editDevis(sale)"
@@ -206,7 +206,7 @@
                       tooltipPosition="top"
                     />
                   }
-                </p-buttonGroup>
+                </p-buttongroup>
               </td>
             </tr>
           </ng-template>

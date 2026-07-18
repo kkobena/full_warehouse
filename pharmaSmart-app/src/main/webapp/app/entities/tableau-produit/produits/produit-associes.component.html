@@ -12,7 +12,7 @@
       </div>
     </p-toolbar>
     <div class="mt-2">
-      <p-pickList
+      <p-picklist
         (onMoveAllToSource)="moveAllToSource($event)"
         (onMoveAllToTarget)="moveAllToTarget($event)"
         (onMoveToSource)="moveToSource($event)"
@@ -75,7 +75,7 @@
             <span class="float-right font-bold text-900">{{ item.unitPrice | number }}</span>
           </div>
         </ng-template>
-      </p-pickList>
+      </p-picklist>
     </div>
   </div>
 </div>

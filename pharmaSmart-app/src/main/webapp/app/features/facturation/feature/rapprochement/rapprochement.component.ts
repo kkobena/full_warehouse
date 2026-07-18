@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { DecimalPipe } from "@angular/common";
@@ -63,6 +63,7 @@ interface IStatutOption {
     Tooltip
   ],
   templateUrl: "./rapprochement.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./rapprochement.component.scss"
 })
 export class RapprochementComponent implements OnInit {

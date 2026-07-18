@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
@@ -27,6 +27,7 @@ const GROUP_BY_OPTIONS = [
   selector: 'app-inventory-export-modal',
   imports: [CommonModule, FormsModule, Button, Select, InputText],
   templateUrl: './inventory-export-modal.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './inventory-export-modal.component.scss',
 })
 export class InventoryExportModalComponent implements OnInit {

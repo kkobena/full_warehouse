@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { Button } from 'primeng/button';
@@ -12,6 +12,7 @@ import { formatCurrency, formatNumber } from 'app/shared/utils/format-utils';
   selector: 'app-situation-creances',
   imports: [CommonModule, TableModule, Button],
   templateUrl: './situation-creances.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./situation-creances.component.scss'],
 })
 export default class SituationCreancesComponent implements OnInit {

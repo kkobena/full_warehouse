@@ -1,5 +1,5 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { GammeProduitService } from '../gamme-produit.service';
@@ -17,6 +17,7 @@ import { KeyFilter } from 'primeng/keyfilter';
   selector: 'jhi-form-gamme',
   templateUrl: './form-gamme.component.html',
   styleUrls: ['./form-gamme.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, ToastAlertComponent, Card, KeyFilter],
 })
 export class FormGammeComponent implements OnInit, AfterViewInit {

@@ -53,7 +53,7 @@ export class DetailFormDialogComponent implements OnInit, AfterViewInit {
       this.handleInitAmount(null);
     }
     setTimeout(() => {
-      this.itemQty()!.input.nativeElement.focus();
+      this.itemQty()!.input()?.nativeElement.focus();
     }, 100);
 
     this.editForm.get('itemQty').valueChanges.subscribe(value => {

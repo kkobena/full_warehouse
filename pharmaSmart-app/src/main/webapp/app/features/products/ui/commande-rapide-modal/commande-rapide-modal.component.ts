@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, DestroyRef, inject, OnInit, signal, viewChild } from "@angular/core";
+import { AfterViewInit, Component, DestroyRef, inject, OnInit, signal, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
@@ -18,6 +18,7 @@ import { CommandCommonService } from "app/entities/commande/command-common.servi
   selector: "app-commande-rapide-modal",
   templateUrl: "./commande-rapide-modal.component.html",
   styleUrls: ["./commande-rapide-modal.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, ButtonModule, SelectModule, InputNumberModule]
 })
 export class CommandeRapideModalComponent implements OnInit, AfterViewInit {
@@ -56,7 +57,7 @@ export class CommandeRapideModalComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      const el = this.quantiteInput()?.input;
+      const el = this.quantiteInput()?.input();
       if (el) {
         el.nativeElement.focus();
         //el.nativeElement.value=String(1);

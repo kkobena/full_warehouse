@@ -5,15 +5,15 @@
         <i class="pi pi-user"></i>
         <span class="pharma-toolbar-title">Détails de l'utilisateur</span>
         @if (user()) {
-          <p-tag class="ml-2" [value]="user()!.login" severity="info"></p-tag>
+          <p-tag [value]="user()!.login" class="ml-2" severity="info"></p-tag>
           @if (user()!.activated) {
             <p-tag class="ml-2" icon="pi pi-check-circle" severity="success" value="Activé"></p-tag>
           } @else {
-            <p-tag class="ml-2" icon="pi pi-times-circle" severity="danger" value="Désactivé"></p-tag>
+            <p-tag class="ml-2" icon="pi pi-times-circle" severity="danger"
+                   value="Désactivé"></p-tag>
           }
         }
       </div>
-
       <p-toolbar>
         <ng-template #start>
           <div class="pharma-toolbar-filters"></div>
@@ -24,9 +24,9 @@
             <div class="pharma-button-group">
               <p-button
                 [raised]="true"
+                [routerLink]="['../../', user()!.login, 'edit']"
                 icon="pi pi-pencil"
                 label="Modifier"
-                [routerLink]="['../../', user()!.login, 'edit']"
                 severity="primary"
                 type="button"
               ></p-button>
@@ -101,14 +101,15 @@
                   <i class="pi pi-user-plus"></i>
                   <span>Créé par</span>
                 </label>
-                <div class="detail-value">{{ user()!.createdBy}}</div>
+                <div class="detail-value">{{ user()!.createdBy }}</div>
               </div>
               <div class="detail-item">
                 <label class="detail-label">
                   <i class="pi pi-calendar"></i>
                   <span>Créé le</span>
                 </label>
-                <div class="detail-value">{{ user()!.createdDate | date : 'dd/MM/yyyy HH:mm' }}</div>
+                <div class="detail-value">{{ user()!.createdDate | date : 'dd/MM/yyyy HH:mm' }}
+                </div>
               </div>
             </div>
             <div class="detail-row">
@@ -124,7 +125,9 @@
                   <i class="pi pi-calendar"></i>
                   <span>Modifié le</span>
                 </label>
-                <div class="detail-value">{{ user()!.lastModifiedDate | date : 'dd/MM/yyyy HH:mm' }}</div>
+                <div
+                  class="detail-value">{{ user()!.lastModifiedDate | date : 'dd/MM/yyyy HH:mm' }}
+                </div>
               </div>
             </div>
           </div>
@@ -134,12 +137,12 @@
         <div class="detail-card">
           <div class="detail-card-header">
             <i class="pi pi-shield"></i>
-            <span class="detail-card-title" >Droits</span>
+            <span class="detail-card-title">Droits</span>
           </div>
           <div class="detail-card-body">
             <div class="authorities-list">
-              @if (user() ) {
-                  <p-chip [label]="user().authority?.libelle" icon="pi pi-key"></p-chip>
+              @if (user()) {
+                <p-chip [label]="user().authority?.libelle" icon="pi pi-key"></p-chip>
 
               } @else {
                 <span class="text-muted">Aucun rôle assigné</span>

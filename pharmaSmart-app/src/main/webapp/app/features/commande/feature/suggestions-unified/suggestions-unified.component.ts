@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from "@angular/core";
+import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { forkJoin } from "rxjs";
 import { CommonModule } from "@angular/common";
 import { ButtonModule } from "primeng/button";
@@ -19,6 +19,7 @@ import { DeliveryService } from "app/entities/commande/delevery/delivery.service
   selector: "app-suggestions-unified",
   templateUrl: "./suggestions-unified.component.html",
   styleUrls: ["./suggestions-unified.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     ButtonModule,

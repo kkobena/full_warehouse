@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { FactureApiService } from '../../../features/facturation/data-access/services/facture-api.service';
@@ -11,6 +11,7 @@ import { formatCurrency, formatDecimal, formatNumber } from 'app/shared/utils/fo
   selector: 'app-taux-recouvrement-tp',
   imports: [CommonModule, DateRangeFilterComponent],
   templateUrl: './taux-recouvrement-tp.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./taux-recouvrement-tp.component.scss'],
 })
 export default class TauxRecouvrementTpComponent implements OnInit {

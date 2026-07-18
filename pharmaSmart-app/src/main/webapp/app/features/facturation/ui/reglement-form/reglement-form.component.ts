@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, computed, DestroyRef, inject, input, output, signal } from "@angular/core";
+import { AfterViewInit, Component, computed, DestroyRef, inject, input, output, signal, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   AbstractControl,
@@ -38,6 +38,7 @@ import { IDossierFactureProjection, IReglementParams, ModeEditionReglement } fro
     KeyFilter
   ],
   templateUrl: "./reglement-form.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./reglement-form.component.scss"
 })
 export class ReglementFormComponent implements AfterViewInit {

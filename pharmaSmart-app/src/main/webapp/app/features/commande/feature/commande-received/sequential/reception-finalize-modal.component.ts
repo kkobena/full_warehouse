@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from "@angular/core";
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { ButtonModule } from "primeng/button";
@@ -8,6 +8,7 @@ import { IOrderLine } from "../../../../../shared/model/order-line.model";
   selector: "app-reception-finalize-modal",
   templateUrl: "./reception-finalize-modal.component.html",
   styleUrls: ["./reception-finalize-modal.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, ButtonModule]
 })
 export class ReceptionFinalizeModalComponent {

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
@@ -13,6 +13,7 @@ import { formatCurrency } from 'app/shared/utils/format-utils';
   selector: 'app-remises-rfa',
   imports: [CommonModule, ButtonModule, TableModule, ToolbarModule, TagModule, NgbNavModule],
   templateUrl: './remises-rfa.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './remises-rfa.component.scss',
 })
 export class RemisesRfaComponent implements OnInit {

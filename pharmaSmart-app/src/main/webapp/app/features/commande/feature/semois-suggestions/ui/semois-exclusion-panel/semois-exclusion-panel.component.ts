@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ButtonModule } from 'primeng/button';
@@ -11,6 +11,7 @@ import { SemoisService } from 'app/entities/semois/semois.service';
 @Component({
   selector: 'app-semois-exclusion-panel',
   templateUrl: './semois-exclusion-panel.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, ButtonModule, TableModule, TooltipModule],
 })
 export class SemoisExclusionPanelComponent implements OnInit {

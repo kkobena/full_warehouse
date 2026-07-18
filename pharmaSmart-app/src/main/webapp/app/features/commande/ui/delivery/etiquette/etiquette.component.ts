@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnDestroy, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnDestroy, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { IDelivery } from 'app/shared/model/delevery.model';
 import { saveAs } from 'file-saver';
 import { DATE_FORMAT_DD_MM_YYYY_HH_MM_SS } from 'app/shared/util/warehouse-util';
@@ -19,6 +19,7 @@ import { TauriPrinterService } from 'app/shared/services/tauri-printer.service';
   selector: 'jhi-etiquette-delevery',
   templateUrl: './etiquette.component.html',
   styleUrls: ['etiquette.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, KeyFilterModule, ButtonModule, FormsModule, InputTextModule, Card],
 })
 export class EtiquetteComponent implements AfterViewInit, OnDestroy {

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from "@angular/core";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
@@ -12,6 +12,7 @@ import { Card } from "primeng/card";
   selector: "jhi-motif-retour-produit-form-modal",
   imports: [CommonModule, FormsModule, ButtonModule, InputText, Card, ReactiveFormsModule],
   styleUrl: "./form-motif-retour-fourn.scss",
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="modal-header">
       <h4 class="modal-title">

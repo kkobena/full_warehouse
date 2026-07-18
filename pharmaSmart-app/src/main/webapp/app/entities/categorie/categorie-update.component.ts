@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
@@ -17,6 +17,7 @@ import { AlertErrorComponent } from "../../shared/alert/alert-error.component";
 @Component({
   selector: 'app-categorie-update',
   templateUrl: './categorie-update.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, ReactiveFormsModule, Toast, FaIconComponent, TranslateDirective, AlertErrorComponent]
 })
 export class CategorieUpdateComponent implements OnInit {

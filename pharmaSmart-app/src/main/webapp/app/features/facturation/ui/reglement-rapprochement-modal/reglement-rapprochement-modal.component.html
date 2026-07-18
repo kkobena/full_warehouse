@@ -14,7 +14,7 @@
       <div class="form-grid-compact">
         <div class="form-field form-field-full">
           <label for="amount">Montant à payer<span class="required">*</span></label>
-          <p-inputNumber id="amount" autocomplete="off" formControlName="amount" name="amount" />
+          <p-inputnumber id="amount" autocomplete="off" formControlName="amount" name="amount" />
           @if (reglementForm.get('amount')!.invalid && (reglementForm.get('amount')!.dirty || reglementForm.get('amount')!.touched)) {
             <div>
               @if (reglementForm.get('amount')?.errors?.required) {

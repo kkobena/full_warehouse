@@ -52,7 +52,7 @@
         <!-- Tiers Payant -->
         <div class="form-field form-field-full">
           <label for="tiersPayantId">Tiers payant <span class="required">*</span></label>
-          <p-autoComplete
+          <p-autocomplete
             id="tiersPayantId"
             formControlName="tiersPayantId"
             [suggestions]="tiersPayants"
@@ -65,7 +65,7 @@
             placeholder="Taper pour rechercher"
             [fluid]="true"
           >
-          </p-autoComplete>
+          </p-autocomplete>
           @if (editForm.get('tiersPayantId')?.invalid && editForm.get('tiersPayantId')?.touched) {
             @if (editForm.get('tiersPayantId')?.errors?.required) {
               <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
@@ -162,9 +162,9 @@
         <div class="form-field form-field-full">
           <label>Sexe</label>
           <div class="radio-group">
-            <p-radioButton formControlName="sexe" id="masculin" inputId="masculin" name="sexe" value="M"></p-radioButton>
+            <p-radiobutton formControlName="sexe" id="masculin" inputId="masculin" name="sexe" value="M"></p-radiobutton>
             <label for="masculin" class="radio-label">Masculin</label>
-            <p-radioButton formControlName="sexe" id="feminin" inputId="feminin" name="sexe" value="F"></p-radioButton>
+            <p-radiobutton formControlName="sexe" id="feminin" inputId="feminin" name="sexe" value="F"></p-radiobutton>
             <label for="feminin" class="radio-label">Feminin</label>
           </div>
         </div>

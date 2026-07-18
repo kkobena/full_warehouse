@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnInit, Renderer2, signal } from "@angular/core";
+import { Component, ElementRef, inject, OnInit, Renderer2, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -13,6 +13,7 @@ import { ModifRetourProduitService } from 'app/entities/motif-retour-produit/mot
   selector: 'app-retour-complet-modal',
   imports: [CommonModule, FormsModule, ButtonModule, SelectModule, InputTextModule],
   templateUrl: './retour-complet-modal.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './retour-complet-modal.component.scss',
 })
 export class RetourCompletModalComponent implements OnInit {

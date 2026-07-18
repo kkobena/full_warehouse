@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild } from '@angular/core';
+import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { TvaService } from './tva.service';
 import { HttpResponse } from '@angular/common/http';
 import { ITva } from '../../shared/model/tva.model';
@@ -17,6 +17,7 @@ import { TranslatePipe } from '@ngx-translate/core';
   selector: 'jhi-tva',
   templateUrl: './tva.component.html',
   styleUrl: './tva.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, ButtonModule, TableModule, Toolbar, Tooltip, ConfirmDialogComponent, TranslatePipe],
 })
 export class TvaComponent implements OnInit {

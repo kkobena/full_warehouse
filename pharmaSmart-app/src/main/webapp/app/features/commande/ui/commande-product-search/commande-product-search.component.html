@@ -1,5 +1,5 @@
 <p-floatlabel variant="on">
-  <p-autoComplete
+  <p-autocomplete
     #produitbox
     [(ngModel)]="produitSelected"
     (ngModelChange)="onNgModelChange($event)"
@@ -28,6 +28,6 @@
         <span class="item-price">{{ item.regularUnitPrice | number }} F</span>
       </div>
     </ng-template>
-  </p-autoComplete>
+  </p-autocomplete>
   <label>Produit</label>
 </p-floatlabel>

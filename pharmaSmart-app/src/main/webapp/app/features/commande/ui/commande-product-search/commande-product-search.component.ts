@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, input, OnDestroy, OnInit, output, signal, viewChild} from '@angular/core';
+import {Component, DestroyRef, inject, input, OnDestroy, OnInit, output, signal, viewChild, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {AutoComplete, AutoCompleteModule} from 'primeng/autocomplete';
@@ -21,6 +21,7 @@ import {APPEND_TO, PRODUIT_COMBO_MIN_LENGTH} from '../../../../shared/constants/
   selector: 'app-commande-product-search',
   templateUrl: './commande-product-search.component.html',
   styleUrls: ['./commande-product-search.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [AutoCompleteModule, FormsModule, FloatLabel, DecimalPipe],
 })
 export class CommandeProductSearchComponent implements OnInit, OnDestroy {
@@ -125,7 +126,7 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
 
   getFocus(): void {
     requestAnimationFrame(() => {
-      const el = this.produitbox()?.inputEL?.nativeElement;
+      const el = this.produitbox()?.inputEL()?.nativeElement;
       const autocomplete = this.produitbox();
       if (el) {
         el.focus();
@@ -154,7 +155,7 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
       autocomplete.hide();
       setTimeout(() => autocomplete.hide(), 100);
     }
-    const inputEl = autocomplete?.inputEL?.nativeElement;
+    const inputEl = autocomplete?.inputEL()?.nativeElement;
     if (inputEl) inputEl.value = '';
   }
 
@@ -198,7 +199,7 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
   }
 
   private clearInputValue(): void {
-    const inputEl = this.produitbox()?.inputEL?.nativeElement;
+    const inputEl = this.produitbox()?.inputEL()?.nativeElement;
     if (inputEl) inputEl.value = '';
   }
 
@@ -260,7 +261,7 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
   }
 
   private loadProduits(search: string): void {
-    const inputEl = this.produitbox()?.inputEL?.nativeElement;
+    const inputEl = this.produitbox()?.inputEL()?.nativeElement;
     if (inputEl && !inputEl.value?.trim()) return;
     this.produitService
       .search({page: 0, size: this.pageSize(), search, storageId: this.storageId()}, this.searchByStorage())

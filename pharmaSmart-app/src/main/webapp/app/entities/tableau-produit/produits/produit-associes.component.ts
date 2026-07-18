@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from "@angular/core";
+import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ProduitService } from "../../produit/produit.service";
 import { TableauProduitService } from "../tableau-produit.service";
 import { IProduit } from "../../../shared/model";
@@ -15,6 +15,7 @@ import { CommonModule } from "@angular/common";
 @Component({
   selector: "app-produit-associes",
   templateUrl: "./produit-associes.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, PickListModule, ToolbarModule, ButtonModule, InputTextModule, ButtonModule]
 })
 export class ProduitAssociesComponent implements OnInit {

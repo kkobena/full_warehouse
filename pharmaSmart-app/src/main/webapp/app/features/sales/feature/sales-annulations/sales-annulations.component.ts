@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { CommonModule, DatePipe } from "@angular/common";
 import { FormsModule } from "@angular/forms";
@@ -26,6 +26,7 @@ import { SalesStatut } from "../../models/enumerations/sales-statut.enum";
   templateUrl: "./sales-annulations.component.html",
   styleUrl: "./sales-annulations.component.scss",
   providers: [DatePipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

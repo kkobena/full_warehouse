@@ -1,6 +1,6 @@
 @if (multiple()) {
   <p-floatlabel variant="on">
-    <p-multiSelect
+    <p-multiselect
       inputId="fournisseur-multi-select"
       [(ngModel)]="selectedMultiple"
       (ngModelChange)="onMultiChange($event)"
@@ -24,7 +24,7 @@
           <span>{{ grp.label }}</span>
         </div>
       </ng-template>
-    </p-multiSelect>
+    </p-multiselect>
     <label for="fournisseur-multi-select">{{ placeholder() }}</label>
   </p-floatlabel>
 } @else {

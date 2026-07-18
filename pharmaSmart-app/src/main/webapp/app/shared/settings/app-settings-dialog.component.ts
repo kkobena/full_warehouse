@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -12,6 +12,7 @@ import { BackendManagerService } from '../services/backend-manager.service';
   selector: 'app-app-settings-dialog',
   imports: [CommonModule, FormsModule, Card, Button, ProgressBar],
   styleUrls: ['../../entities/common-modal.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="modal-header">
       <h4 class="modal-title">Configuration du serveur</h4>
@@ -79,7 +80,7 @@ import { BackendManagerService } from '../services/backend-manager.service';
                 <i class="bi bi-arrow-repeat me-2"></i>
                 <strong>{{ restartMessage }}</strong>
               </div>
-              <p-progressBar [value]="restartProgress" [showValue]="false" />
+              <p-progressbar [value]="restartProgress" [showValue]="false" />
               <small class="text-muted mt-2 d-block">Veuillez patienter pendant le redémarrage du serveur...</small>
             </div>
           }

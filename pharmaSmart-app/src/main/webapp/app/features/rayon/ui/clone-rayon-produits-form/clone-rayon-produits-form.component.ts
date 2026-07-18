@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ButtonModule } from 'primeng/button';
@@ -26,6 +26,7 @@ interface StorageRow {
   selector: 'app-clone-rayon-produits-form',
   templateUrl: './clone-rayon-produits-form.component.html',
   styleUrl: './clone-rayon-produits-form.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, ButtonModule, Select, TooltipModule],
 })
 export class CloneRayonProduitsFormComponent implements OnInit {

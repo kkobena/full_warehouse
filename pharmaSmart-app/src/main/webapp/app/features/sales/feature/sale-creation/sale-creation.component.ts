@@ -9,7 +9,8 @@ import {
   OnInit,
   output,
   signal,
-  viewChild
+  viewChild,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {take} from 'rxjs/operators';
@@ -70,6 +71,7 @@ import {SaleForEditInfo} from '../../../../shared/model/sales.model';
   host: {
     '(window:keydown)': 'handleKeyboardEvent($event)',
   },
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

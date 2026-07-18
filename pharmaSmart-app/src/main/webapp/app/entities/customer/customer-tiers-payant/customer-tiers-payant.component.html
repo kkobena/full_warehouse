@@ -16,7 +16,7 @@
         <div class="form-grid-compact">
           <div class="form-field form-field-full">
             <label for="field_firstName">Tiers payant<span class="required">*</span></label>
-            <p-autoComplete
+            <p-autocomplete
               (completeMethod)="searchTiersPayant($event)"
               [dropdown]="true"
               [forceSelection]="true"
@@ -29,7 +29,7 @@
               optionLabel="fullName"
               placeholder="Taper pour rechercher"
             >
-            </p-autoComplete>
+            </p-autocomplete>
 
             @if (editForm.get('tiersPayant')!.invalid && (editForm.get('tiersPayant')!.dirty || editForm.get('tiersPayant')!.touched)) {
               <div>

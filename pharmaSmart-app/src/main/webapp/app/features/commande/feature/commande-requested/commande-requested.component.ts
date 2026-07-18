@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, input, OnInit, output, viewChild } from "@angular/core";
+import { Component, ElementRef, inject, input, OnInit, output, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { HttpResponse } from "@angular/common/http";
 import { IFournisseur } from "../../../../shared/model/fournisseur.model";
 import { Observable } from "rxjs";
@@ -65,6 +65,7 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
     "(window:keydown.F9)": "onKeyF9($event)",
     "(window:keydown.escape)": "onKeyEscape($event)"
   },
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

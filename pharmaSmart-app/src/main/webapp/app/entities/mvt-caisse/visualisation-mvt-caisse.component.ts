@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from "@angular/core";
+import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ToolbarModule } from "primeng/toolbar";
 import { FormsModule } from "@angular/forms";
 import { ButtonModule } from "primeng/button";
@@ -55,6 +55,7 @@ import { NgbConfirmDialogService } from "../../shared/dialog/ngb-confirm-dialog/
     Toast
   ],
   templateUrl: "./visualisation-mvt-caisse.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["./visualisation-mvt-caisse.scss"]
 })
 export class VisualisationMvtCaisseComponent implements OnInit, OnDestroy {

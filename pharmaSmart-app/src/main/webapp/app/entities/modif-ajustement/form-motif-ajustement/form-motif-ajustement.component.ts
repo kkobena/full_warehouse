@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ModifAjustementService } from '../motif-ajustement.service';
 import { IMotifAjustement, MotifAjustement } from '../../../shared/model/motif-ajustement.model';
@@ -16,6 +16,7 @@ import { Card } from 'primeng/card';
   selector: 'jhi-form-motif-ajustement',
   templateUrl: './form-motif-ajustement.component.html',
   styleUrls: ['./form-motif-ajustement.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, ToastAlertComponent, Card],
 })
 export class FormMotifAjustementComponent implements OnInit, AfterViewInit {

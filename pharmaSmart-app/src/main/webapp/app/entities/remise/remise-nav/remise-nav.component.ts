@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {CardModule} from 'primeng/card';
 import {
   NgbNav,
@@ -29,6 +29,7 @@ import {CodeRemiseProduitComponent} from '../code-remise-produit/code-remise-pro
     NgbNavOutlet
   ],
   templateUrl: './remise-nav.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./remise-nav.scss'],
 })
 export class RemiseNavComponent {

@@ -1,5 +1,5 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { FamilleProduit } from '../../../shared/model/famille-produit.model';
@@ -18,6 +18,7 @@ import { ErrorService } from '../../../shared/error.service';
   selector: 'jhi-form-famille',
   templateUrl: './form-forme-produit.component.html',
   styleUrls: ['./form-forme.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, RippleModule, ToastAlertComponent, Card],
 })
 export class FormFormeProduitComponent implements OnInit, AfterViewInit {

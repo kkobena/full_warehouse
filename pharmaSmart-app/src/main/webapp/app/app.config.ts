@@ -1,6 +1,6 @@
 import { ApplicationConfig, inject, LOCALE_ID, provideZoneChangeDetection, provideAppInitializer } from '@angular/core';
 import { TauriDeviceDetectionService } from './shared/services/tauri-device-detection.service';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import {
   NavigationError,
   provideRouter,
@@ -57,7 +57,7 @@ if (environment.DEBUG_INFO_ENABLED) {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideHttpClient(withInterceptorsFromDi()),
+    provideHttpClient(withXhr(), withInterceptorsFromDi()),
 
     // --- Routing ---
     provideRouter(routes, ...routerFeatures),

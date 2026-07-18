@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
@@ -10,6 +10,7 @@ import { ButtonGroup } from "primeng/buttongroup";
   selector: 'app-rayon-list',
   templateUrl: './rayon-list.component.html',
   styleUrl: './rayon-list.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [TableModule, ButtonModule, TagModule, TooltipModule, ButtonGroup]
 })
 export class RayonListComponent {

@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, signal } from '@angular/core';
+import { Component, inject, Input, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -35,6 +35,7 @@ import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
     DatePickerComponent,
   ],
   templateUrl: './retour-fournisseur-perime-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./retour-lot-pereme.scss'],
 })
 export class RetourFournisseurPerimeDialogComponent implements OnInit {

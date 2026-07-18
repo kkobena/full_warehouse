@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -30,6 +30,7 @@ import { CloturerAvoirModalComponent } from '../../ui/cloturer-avoir-modal/clotu
   templateUrl: './avoirs-client-list.component.html',
   styleUrl: './avoirs-client-list.component.scss',
   providers: [DatePipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

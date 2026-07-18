@@ -55,7 +55,7 @@
   @if (!showForm()) {
     @if (loadingAvoirs()) {
       <div class="d-flex justify-content-center p-3">
-        <p-progressSpinner [style]="{ width: '32px', height: '32px' }" />
+        <p-progressspinner [style]="{ width: '32px', height: '32px' }" />
       </div>
     } @else {
       <p-table [value]="avoirs()" [stripedRows]="true" class="p-datatable-sm" [scrollable]="true" scrollHeight="flex">
@@ -115,7 +115,7 @@
         <div class="aw-fields-row">
           <div class="aw-field">
             <p-floatlabel variant="on">
-              <p-inputNumber
+              <p-inputnumber
                 [(ngModel)]="montantAvoir"
                 id="aw-montant"
                 [min]="1"
@@ -132,13 +132,13 @@
           </div>
           <div class="aw-field">
             <p-floatlabel variant="on">
-              <p-inputNumber [(ngModel)]="montantTva" id="aw-tva" [min]="0" style="width: 100%" />
+              <p-inputnumber [(ngModel)]="montantTva" id="aw-tva" [min]="0" style="width: 100%" />
               <label for="aw-tva">dont TVA</label>
             </p-floatlabel>
           </div>
           <div class="aw-field">
             <p-floatlabel variant="on">
-              <p-inputNumber [(ngModel)]="montantHt" id="aw-ht" [min]="0" style="width: 100%" />
+              <p-inputnumber [(ngModel)]="montantHt" id="aw-ht" [min]="0" style="width: 100%" />
               <label for="aw-ht">dont HT</label>
             </p-floatlabel>
           </div>
@@ -164,7 +164,7 @@
           >
             <ng-template #header>
               <tr class="pharma-table-head">
-                <th style="width: 2.5rem"><p-tableHeaderCheckbox /></th>
+                <th style="width: 2.5rem"><p-tableheadercheckbox /></th>
                 <th>N° Bon</th>
                 <th class="text-end">Montant</th>
                 <th>Motif rejet</th>
@@ -172,7 +172,7 @@
             </ng-template>
             <ng-template #body let-ligne let-i="rowIndex">
               <tr [pSelectableRow]="ligne">
-                <td><p-tableCheckbox [value]="ligne" /></td>
+                <td><p-tablecheckbox [value]="ligne" /></td>
                 <td><span class="pharma-code small">{{ ligne.numBon }}</span></td>
                 <td class="text-end pharma-price small">{{ ligne.montant | number: '1.0-0' }}</td>
                 <td>

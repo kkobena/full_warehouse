@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { AbilityService } from 'app/core/auth/ability.service';
@@ -30,6 +30,7 @@ import TauxRecouvrementTpComponent from '../taux-recouvrement-tp/taux-recouvreme
     TauxRecouvrementTpComponent,
   ],
   templateUrl: './finance-reports.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './finance-reports.component.scss',
 })
 export default class FinanceReportsComponent implements OnInit {

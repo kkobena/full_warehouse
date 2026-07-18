@@ -20,7 +20,7 @@
   <ng-template #header>
     <tr class="pharma-table-head">
       <th style="width: 3rem" class="text-center">
-        <p-tableHeaderCheckbox />
+        <p-tableheadercheckbox />
       </th>
       <th>N° Facture</th>
       <th>Tiers-payant</th>
@@ -44,7 +44,7 @@
       class="clickable-row"
     >
       <td class="text-center" (click)="$event.stopPropagation()">
-        <p-tableCheckbox [value]="facture" />
+        <p-tablecheckbox [value]="facture" />
       </td>
       <td><span class="pharma-code">{{ facture.numFacture }}</span></td>
       <td><span class="pharma-entity-name">{{ facture.tiersPayantName }}</span></td>
@@ -67,7 +67,7 @@
       </td>
       <td class="small text-muted">{{ facture.created | date: 'dd/MM/yyyy' }}</td>
       <td class="text-center" (click)="$event.stopPropagation()">
-        <p-buttonGroup>
+        <p-buttongroup>
           <p-button
             (onClick)="onRowSelect(facture)"
             [rounded]="true"
@@ -138,7 +138,7 @@
             />
           }
 
-        </p-buttonGroup>
+        </p-buttongroup>
 
       </td>
     </tr>

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ConfigurationService } from '../../../../shared/configuration.service';
 import { Configuration, IConfiguration } from '../../../../shared/model/configuration.model';
 import { PanelModule } from 'primeng/panel';
@@ -18,6 +18,7 @@ import { Router } from '@angular/router';
   selector: 'app-parametre',
   imports: [PanelModule, CheckboxModule, FormsModule, InputTextModule, ButtonModule, Toolbar, IconField, InputIcon],
   templateUrl: './parametre.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./parametre.component.scss'],
 })
 export class ParametreComponent implements OnInit {

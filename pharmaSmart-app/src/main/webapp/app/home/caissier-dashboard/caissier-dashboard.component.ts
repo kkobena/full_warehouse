@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnDestroy, OnInit, signal } from "@angular/core";
+import { Component, computed, inject, OnDestroy, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { HttpResponse } from "@angular/common/http";
 import { Router } from "@angular/router";
@@ -49,6 +49,7 @@ import { NotificationService } from "../../shared/services/notification.service"
     TooltipModule
   ],
   templateUrl: "./caissier-dashboard.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["./caissier-dashboard.component.scss"]
 })
 export class CaissierDashboardComponent implements OnInit, OnDestroy {

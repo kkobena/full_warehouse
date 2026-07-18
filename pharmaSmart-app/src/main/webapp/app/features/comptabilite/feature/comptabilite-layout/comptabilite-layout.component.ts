@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { AbilityService } from 'app/core/auth/ability.service';
 import { BalanceMvtCaisseComponent } from '../../../../entities/mvt-caisse/balance-mvt-caisse/balance-mvt-caisse.component';
@@ -18,6 +18,7 @@ import { ActivitySummaryComponent } from '../../../../entities/raport-gestion/ac
     ActivitySummaryComponent,
   ],
   templateUrl: './comptabilite-layout.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './comptabilite-layout.component.scss',
 })
 export class ComptabiliteLayoutComponent {

@@ -125,7 +125,7 @@
             <td class="text-end">
               <div class="d-flex align-items-center justify-content-end gap-2">
                 <span class="fw-semibold">{{ product.caCumulePct | number: '1.2-2' }}%</span>
-                <p-progressBar
+                <p-progressbar
                   [severity]="getCumulativePercentageColor(product.caCumulePct)"
                   [showValue]="false"
                   [value]="product.caCumulePct || 0"

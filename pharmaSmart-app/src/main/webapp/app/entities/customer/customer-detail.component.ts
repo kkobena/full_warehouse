@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ISales } from 'app/shared/model/sales.model';
 import { ISalesLine } from 'app/shared/model/sales-line.model';
@@ -22,6 +22,7 @@ import { AlertErrorComponent } from "../../shared/alert/alert-error.component";
 
   templateUrl: './customer-detail.component.html',
   styleUrls: ['./customer-detail.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [Button, TabsModule, TranslateDirective, CommonModule, AlertErrorComponent]
 })
 export class CustomerDetailComponent implements OnInit, OnDestroy {

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild } from "@angular/core";
+import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { TooltipModule } from "primeng/tooltip";
 import { ButtonModule } from "primeng/button";
@@ -44,6 +44,7 @@ import { NotificationService } from "../../../shared/services/notification.servi
   ],
 
   templateUrl: "./ticketing-improved.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["./ticketing-improved.scss"]
 })
 export class TicketingComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, inject, signal } from '@angular/core';
+import { Component, OnDestroy, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
@@ -12,6 +12,7 @@ import { AlertError } from './alert-error.model';
 @Component({
   selector: 'jhi-alert-error',
   templateUrl: './alert-error.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, NgbModule],
 })
 export class AlertErrorComponent implements OnDestroy {

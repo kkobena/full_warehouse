@@ -1,4 +1,4 @@
-import { Component, inject } from "@angular/core";
+import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { Button } from "primeng/button";
 
@@ -114,6 +114,7 @@ import { Button } from "primeng/button";
   imports: [
     Button
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["reception-help.scss"]
 })
 export class ReceptionHelpComponent {

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Button } from 'primeng/button';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -14,6 +14,7 @@ import { MessageService } from 'primeng/api';
   providers: [MessageService],
   imports: [Button, ReactiveFormsModule, InputNumber, Toast],
   templateUrl: './cash-register-form.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './cash-register-form.component.scss',
 })
 export class CashRegisterFormComponent implements OnInit, AfterViewInit {
@@ -75,7 +76,7 @@ export class CashRegisterFormComponent implements OnInit, AfterViewInit {
   private setCashFundControlFocus(): void {
     setTimeout(() => {
       const cashFundAmountInput = this.cashFundAmountInput();
-      const inputElement = cashFundAmountInput?.input?.nativeElement;
+      const inputElement = cashFundAmountInput?.input()?.nativeElement;
       inputElement?.focus();
       this.editForm.get(['cashFundAmount'])?.setValue(this.cashFundAmount);
       inputElement?.select();

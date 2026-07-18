@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { catchError, finalize, tap } from "rxjs/operators";
 import { forkJoin, of } from "rxjs";
@@ -51,6 +51,7 @@ import { BlobDownloadService } from "../../../../shared/services/blob-download.s
     Toast
   ],
   templateUrl: "./facturation-home.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./facturation-home.component.scss"
 })
 export class FacturationHomeComponent implements OnInit {

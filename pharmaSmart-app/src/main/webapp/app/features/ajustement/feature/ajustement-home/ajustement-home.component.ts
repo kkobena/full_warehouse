@@ -1,4 +1,4 @@
-import {Component, DestroyRef, effect, inject, OnInit, signal} from '@angular/core';
+import {Component, DestroyRef, effect, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed, toObservable} from '@angular/core/rxjs-interop';
 import {CommonModule} from '@angular/common';
 import {Router, RouterModule} from '@angular/router';
@@ -40,6 +40,7 @@ import { ButtonGroup } from "primeng/buttongroup";
   templateUrl: './ajustement-home.component.html',
   styleUrl: './ajustement-home.component.scss',
   providers: [MessageService],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     RouterModule,

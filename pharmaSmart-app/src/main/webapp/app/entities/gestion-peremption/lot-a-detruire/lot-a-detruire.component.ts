@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, OnInit, viewChild } from "@angular/core";
+import { AfterViewInit, Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { ProductToDestroyService } from "../product-to-destroy.service";
 import { ITEMS_PER_PAGE } from "../../../shared/constants/pagination.constants";
 import { MenuItem } from "primeng/api";
@@ -62,6 +62,7 @@ import { FournisseurSelectComponent } from "../../../features/partners/ui/fourni
     FournisseurSelectComponent
   ],
   templateUrl: "./lot-a-detruire.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./lot-a-detruire.component.scss"
 })
 export class LotADetruireComponent implements OnInit, AfterViewInit {

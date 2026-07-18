@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject, input, signal, TemplateRef, ViewChild } from '@angular/core';
+import { Component, DestroyRef, effect, inject, input, signal, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs/operators';
 import { DecimalPipe } from '@angular/common';
@@ -36,6 +36,7 @@ interface LigneSaisie extends IFactureItem {
     TableModule,
   ],
   templateUrl: './avoir-workspace.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './avoir-workspace.component.scss',
 })
 export class AvoirWorkspaceComponent {

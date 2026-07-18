@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal, TemplateRef, ViewChild } from "@angular/core";
+import { Component, computed, DestroyRef, inject, OnInit, signal, TemplateRef, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { DecimalPipe } from "@angular/common";
@@ -60,6 +60,7 @@ interface IKpiGroup {
     Tooltip
   ],
   templateUrl: "./avoir.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./avoir.component.scss",
 })
 export class AvoirComponent implements OnInit {

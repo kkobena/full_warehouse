@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject, OnInit } from "@angular/core";
+import { Component, DestroyRef, effect, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import {
@@ -34,6 +34,7 @@ const TAB_LABELS: Record<string, string> = {
   selector: "app-commande-home",
   templateUrl: "./commande-home.component.html",
   styleUrl: "./commande-home.component.scss",
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     RouterModule,

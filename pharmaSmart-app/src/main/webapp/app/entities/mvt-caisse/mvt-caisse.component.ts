@@ -1,4 +1,4 @@
-import { Component, inject, signal } from "@angular/core";
+import { Component, inject, signal, ChangeDetectionStrategy } from "@angular/core";
 import { AbilityService } from "app/core/auth/ability.service";
 import { RouterModule } from "@angular/router";
 import { NgxSpinnerModule } from "ngx-spinner";
@@ -49,6 +49,7 @@ import { NgbNav, NgbNavContent, NgbNavItem, NgbNavLink, NgbNavOutlet } from "@ng
     NgbNavLink
   ],
   templateUrl: "./mvt-caisse.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["./mvt-caisse.component.scss"]
 })
 export class MvtCaisseComponent {

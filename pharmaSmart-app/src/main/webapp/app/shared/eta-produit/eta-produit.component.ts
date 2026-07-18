@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
 import { EtatProduit } from '../model/etat-produit.model';
 import { Tooltip } from 'primeng/tooltip';
 
@@ -24,6 +24,7 @@ interface EtatBadge {
       }
     </div>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: `
     .etat-produit-bar {
       display: inline-flex;

@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Button} from 'primeng/button';
 import {TableModule} from 'primeng/table';
@@ -13,6 +13,7 @@ import {ErrorService} from "../../../../../../shared/error.service";
   selector: 'app-reponse-pharmaml',
   imports: [CommonModule, Button, TableModule, TagModule],
   templateUrl: './reponse-pharmaml.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./reponse-pharmaml.scss'],
 })
 export class ReponsePharmamlComponent implements OnInit {

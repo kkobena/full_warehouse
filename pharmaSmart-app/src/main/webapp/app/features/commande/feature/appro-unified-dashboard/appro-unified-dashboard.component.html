@@ -284,14 +284,14 @@
               <span class="text-success fw-semibold small">Produits couverts</span>
               <span class="text-success fw-bold small">{{ getTauxOk() | number: '1.0-1' }}%</span>
             </div>
-            <p-progressBar [value]="getTauxOk()" [showValue]="false" />
+            <p-progressbar [value]="getTauxOk()" [showValue]="false" />
           </div>
           <div class="mb-3">
             <div class="d-flex justify-content-between mb-1">
               <span class="text-danger fw-semibold small">Produits à risque</span>
               <span class="text-danger fw-bold small">{{ getTauxRisque() | number: '1.0-1' }}%</span>
             </div>
-            <p-progressBar [value]="getTauxRisque()" [showValue]="false" />
+            <p-progressbar [value]="getTauxRisque()" [showValue]="false" />
           </div>
           <div class="border-top pt-3 mt-2">
             <div class="d-flex justify-content-between small text-muted mb-1">

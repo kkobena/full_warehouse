@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, Renderer2, RendererFactory2 } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, Renderer2, RendererFactory2, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router, RouterOutlet } from "@angular/router";
 import { LangChangeEvent, TranslateService } from "@ngx-translate/core";
@@ -25,6 +25,7 @@ import { PeremptionAlertService } from "../../shared/services/peremption-alert.s
   styleUrl: "./main.component.scss",
   providers: [AppPageTitleStrategy, ConfirmationService],
   imports: [RouterOutlet, ConfirmDialogModule, CommonModule, BackendSplashComponent, TitlebarComponent, SetupWizardComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   host: { "[class.tauri-mode]": "isTauriMode" }
 })
 export default class MainComponent implements OnInit {

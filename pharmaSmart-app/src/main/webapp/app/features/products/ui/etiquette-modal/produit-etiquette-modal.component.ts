@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, DestroyRef, inject, signal, viewChild } from "@angular/core";
+import { AfterViewInit, Component, DestroyRef, inject, signal, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
@@ -15,6 +15,7 @@ import { BlobDownloadService } from "../../../../shared/services/blob-download.s
   selector: "app-produit-etiquette-modal",
   templateUrl: "./produit-etiquette-modal.component.html",
   styleUrls: ["./produit-etiquette-modal.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, ButtonModule, InputNumberModule]
 })
 export class ProduitEtiquetteModalComponent implements AfterViewInit{
@@ -32,7 +33,7 @@ export class ProduitEtiquetteModalComponent implements AfterViewInit{
   private readonly blobDocumentService=inject(BlobDownloadService);
   ngAfterViewInit(): void {
     setTimeout(() => {
-      const el = this.qtyInput()?.input;
+      const el = this.qtyInput()?.input();
       if (el) {
         el.nativeElement.focus();
         el.nativeElement.select();

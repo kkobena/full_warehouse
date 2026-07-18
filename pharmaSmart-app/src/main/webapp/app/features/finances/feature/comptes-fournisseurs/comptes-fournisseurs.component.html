@@ -17,12 +17,12 @@
                    style="width: 220px;" />
           </p-iconfield>
 
-          <p-datePicker [ngModel]="fromDate()" (ngModelChange)="fromDate.set($event); loadComptes()"
+          <p-datepicker [ngModel]="fromDate()" (ngModelChange)="fromDate.set($event); loadComptes()"
                         dateFormat="dd/mm/yy" placeholder="Du" [showButtonBar]="true"
                         appendTo="body"
                         [showClear]="true" style="width: 130px;" />
 
-          <p-datePicker  appendTo="body" [ngModel]="toDate()" (ngModelChange)="toDate.set($event); loadComptes()"
+          <p-datepicker  appendTo="body" [ngModel]="toDate()" (ngModelChange)="toDate.set($event); loadComptes()"
                         dateFormat="dd/mm/yy" placeholder="Au" [showButtonBar]="true"
                         [showClear]="true" style="width: 130px;" />
 
@@ -338,7 +338,7 @@
                           <div class="row g-2 mb-3">
                             <div class="col-6">
                               <p-floatlabel variant="on">
-                                <p-inputNumber inputId="montant" formControlName="montant" mode="decimal"
+                                <p-inputnumber inputId="montant" formControlName="montant" mode="decimal"
                                                [minFractionDigits]="0" [maxFractionDigits]="0"
                                                [style]="{ width: '100%' }" />
                                 <label for="montant">Montant (FCFA)</label>
@@ -349,7 +349,7 @@
                             </div>
                             <div class="col-6">
                               <p-floatlabel variant="on">
-                                <p-datePicker inputId="dateReg" formControlName="dateReglement"
+                                <p-datepicker inputId="dateReg" formControlName="dateReglement"
                                               dateFormat="dd/mm/yy" [style]="{ width: '100%' }" />
                                 <label for="dateReg">Date du règlement</label>
                               </p-floatlabel>

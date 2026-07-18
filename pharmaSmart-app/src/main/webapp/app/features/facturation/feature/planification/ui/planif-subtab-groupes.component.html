@@ -67,7 +67,7 @@
 >
   <ng-template #header>
     <tr class="pharma-table-head">
-      <th style="width: 3rem"><p-tableHeaderCheckbox /></th>
+      <th style="width: 3rem"><p-tableheadercheckbox /></th>
       <th>Groupe</th>
       @if (mode() === 'def') {
         <th>Périodicité déf.</th>
@@ -81,7 +81,7 @@
   </ng-template>
   <ng-template #body let-g>
     <tr>
-      <td><p-tableCheckbox [value]="g" /></td>
+      <td><p-tablecheckbox [value]="g" /></td>
       <td class="fw-medium small">{{ g.name }}</td>
       <td>
         @if (mode() === 'def' && g.periodiciteFactureDefinitive) {

@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, Renderer2, signal } from "@angular/core";
+import { Component, ElementRef, inject, Renderer2, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
@@ -21,6 +21,7 @@ export interface BedValidateResult {
   selector: "app-bed-validate-modal",
   templateUrl: "./bed-validate-modal.component.html",
   styleUrls: ["./bed-validate-modal.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

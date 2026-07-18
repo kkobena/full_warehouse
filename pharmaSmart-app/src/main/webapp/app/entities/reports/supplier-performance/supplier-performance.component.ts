@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { HttpResponse } from '@angular/common/http';
@@ -30,6 +30,7 @@ interface FilterOption {
   selector: 'jhi-supplier-performance',
   imports: [FormsModule, ButtonModule, TableModule, SelectModule, InputTextModule, TooltipModule, ToolbarModule, Drawer],
   templateUrl: './supplier-performance.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './supplier-performance.component.scss',
 })
 export default class SupplierPerformanceComponent implements OnInit, OnDestroy {

@@ -31,7 +31,7 @@
         @if (showPrice(row)) {
           <div class="form-field">
             <label>Prix de référence <span class="required">*</span></label>
-            <p-inputNumber formControlName="price" [min]="0" [fluid]="true"
+            <p-inputnumber formControlName="price" [min]="0" [fluid]="true"
                            placeholder="0"
                            [class.ng-invalid]="row.get('price')?.invalid && row.get('price')?.touched"/>
           </div>
@@ -39,7 +39,7 @@
         @if (showRate(row)) {
           <div class="form-field">
             <label>Taux (%) <span class="required">*</span></label>
-            <p-inputNumber formControlName="rate" [min]="0" [max]="100"
+            <p-inputnumber formControlName="rate" [min]="0" [max]="100"
                            [minFractionDigits]="0" [maxFractionDigits]="2"
                            [fluid]="true" placeholder="0"
                            [class.ng-invalid]="row.get('rate')?.invalid && row.get('rate')?.touched"/>

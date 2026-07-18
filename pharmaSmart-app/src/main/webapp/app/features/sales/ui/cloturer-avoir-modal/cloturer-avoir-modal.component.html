@@ -89,7 +89,7 @@
         Montant à utiliser <span class="text-danger">*</span>
         <span class="text-muted fw-normal small ms-1">(max. {{ montantDisponible() | number:'1.0-0' }} FCFA)</span>
       </label>
-      <p-inputNumber
+      <p-inputnumber
         [ngModel]="montantPartiel()"
         (ngModelChange)="montantPartiel.set($event)"
         [min]="1"

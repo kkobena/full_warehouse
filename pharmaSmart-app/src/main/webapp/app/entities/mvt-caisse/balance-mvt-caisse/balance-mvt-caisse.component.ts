@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { MvtParamServiceService } from '../mvt-param-service.service';
 import { BalanceCaisseWrapper } from './balance-caisse.model';
 import { BalanceMvtCaisseService } from './balance-mvt-caisse.service';
@@ -46,6 +46,7 @@ import { CommonModule } from "@angular/common";
     ToastAlertComponent,
   ],
   templateUrl: './balance-mvt-caisse.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./balance-mvt-caisse.component.scss'],
 })
 export class BalanceMvtCaisseComponent implements OnInit, AfterViewInit {

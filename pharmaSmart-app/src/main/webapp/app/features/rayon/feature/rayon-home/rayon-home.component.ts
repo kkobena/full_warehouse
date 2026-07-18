@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -40,6 +40,7 @@ import { IResponseDto } from '../../../../shared/util/response-dto';
   selector: 'app-rayon-home',
   templateUrl: './rayon-home.component.html',
   styleUrl: './rayon-home.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FormsModule,
     Toolbar,

@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, resource, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, resource, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule} from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -30,6 +30,7 @@ ModuleRegistry.registerModules([AllCommunityModule]);
   templateUrl: './suggestion-reassort.component.html',
   styleUrls: ['./suggestion-reassort.scss'],
   imports: [CommonModule, TableModule, ButtonModule, TagModule, ToastModule, Tooltip, AgGridAngular],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [MessageService],
 })
 export class AppSuggestionReassortComponent {

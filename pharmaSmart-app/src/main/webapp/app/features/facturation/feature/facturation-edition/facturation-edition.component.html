@@ -84,7 +84,7 @@
             <!-- Filtre conditionnel GROUP -->
             @if (modeEdition === 'GROUP') {
               <p-floatlabel variant="on">
-                <p-autoComplete
+                <p-autocomplete
                   (completeMethod)="searchGroupTiersPayant($event)"
                   [(ngModel)]="selectedGroupeTiersPayants"
                   [fluid]="true"
@@ -103,7 +103,7 @@
             <!-- Filtre conditionnel TIERS_PAYANT -->
             @if (modeEdition === 'TIERS_PAYANT') {
               <p-floatlabel variant="on">
-                <p-autoComplete
+                <p-autocomplete
                   (completeMethod)="searchTiersPayant($event)"
                   [(ngModel)]="selectedTiersPayants"
                   [fluid]="true"
@@ -212,7 +212,7 @@
                   <th class="text-end">Montant</th>
                   @if (modeEdition === 'SELECTED' || modeEdition === 'GROUP') {
                     <th style="width: 4rem" class="text-center">
-                      <p-tableHeaderCheckbox />
+                      <p-tableheadercheckbox />
                     </th>
                   }
                 </tr>
@@ -225,7 +225,7 @@
                   <td class="text-end pharma-total">{{ data.totalAmount | number }}</td>
                   @if (modeEdition === 'SELECTED' || modeEdition === 'GROUP') {
                     <td class="text-center">
-                      <p-tableCheckbox [value]="data" />
+                      <p-tablecheckbox [value]="data" />
                     </td>
                   }
                 </tr>
@@ -288,7 +288,7 @@
                   <th class="text-end">Mt vente</th>
                   <th class="text-end">Montant</th>
                   <th style="width: 4rem" class="text-center">
-                    <p-tableHeaderCheckbox />
+                    <p-tableheadercheckbox />
                   </th>
                 </tr>
               </ng-template>
@@ -303,7 +303,7 @@
                   <td class="text-end pharma-price">{{ dossier.montantVente | number }}</td>
                   <td class="text-end pharma-total">{{ dossier.montantBon | number }}</td>
                   <td class="text-center">
-                    <p-tableCheckbox [value]="dossier" />
+                    <p-tablecheckbox [value]="dossier" />
                   </td>
                 </tr>
               </ng-template>

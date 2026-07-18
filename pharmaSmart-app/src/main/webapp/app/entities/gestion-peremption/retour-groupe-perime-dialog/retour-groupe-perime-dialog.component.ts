@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from "@angular/core";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule} from "@angular/common";
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
@@ -32,6 +32,7 @@ import { NotificationService } from "../../../shared/services/notification.servi
 
   ],
   templateUrl: "./retour-groupe-perime-dialog.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["./retour-lot-pereme-groupe.scss"]
 })
 export class RetourGroupePerimeDialogComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, ViewChild } from "@angular/core";
+import { Component, inject, OnInit, signal, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { HttpResponse } from "@angular/common/http";
 import { RouterLink } from "@angular/router";
@@ -42,6 +42,7 @@ export type ExpandMode = "single" | "multiple";
     RouterLink
   ],
   templateUrl: "./depot-retour-list.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./depot-retour-list.component.scss"
 })
 export class DepotRetourListComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs/operators';
 import { HttpHeaders } from '@angular/common/http';
@@ -42,6 +42,7 @@ import { BlobDownloadService } from "../../../../shared/services/blob-download.s
     Toolbar,
   ],
   templateUrl: './historique-reglements-differes.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './historique-reglements-differes.component.scss',
 })
 export class HistoriqueReglementsDifferesComponent implements OnInit {

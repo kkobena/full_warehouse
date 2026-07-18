@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, output, signal } from '@angular/core';
+import { Component, inject, OnInit, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ButtonModule } from 'primeng/button';
@@ -21,6 +21,7 @@ const PREDEFINED = new Set([
   selector: 'app-role',
   templateUrl: './role.component.html',
   styleUrl: './role.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, ButtonModule, TableModule, ToolbarModule, TooltipModule, InputText]
 })
 export class RoleComponent implements OnInit {

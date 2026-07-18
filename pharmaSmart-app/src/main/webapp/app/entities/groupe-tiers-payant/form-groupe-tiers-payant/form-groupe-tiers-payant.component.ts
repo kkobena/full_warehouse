@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
 import { GroupeTiersPayant, IGroupeTiersPayant } from "app/shared/model/groupe-tierspayant.model";
 import { ErrorService } from "app/shared/error.service";
@@ -24,6 +24,7 @@ import { Toast } from "primeng/toast";
   selector: "app-form-groupe-tiers-payant",
   templateUrl: "./form-groupe-tiers-payant.component.html",
   styleUrls: ["./form-groupe-tiers-payant.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FormsModule,
     ReactiveFormsModule,

@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -21,6 +21,7 @@ import { ProduitRayonsTabComponent } from '../produit-rayons-tab/produit-rayons-
   selector: 'app-produit-detail-panel',
   templateUrl: './produit-detail-panel.component.html',
   styleUrl: './produit-detail-panel.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     RouterModule,

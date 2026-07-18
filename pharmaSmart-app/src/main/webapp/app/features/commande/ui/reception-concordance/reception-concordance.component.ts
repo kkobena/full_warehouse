@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
@@ -19,6 +19,7 @@ export interface ConcordanceStats {
   selector: 'app-reception-concordance',
   templateUrl: './reception-concordance.component.html',
   styleUrls: ['./reception-concordance.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [DecimalPipe, TagModule, TooltipModule],
 })
 export class ReceptionConcordanceComponent {

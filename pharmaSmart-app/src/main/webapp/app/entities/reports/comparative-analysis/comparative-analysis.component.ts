@@ -1,4 +1,4 @@
-import { Component, computed, ElementRef, inject, OnInit, signal, ViewChild } from "@angular/core";
+import { Component, computed, ElementRef, inject, OnInit, signal, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { HttpResponse } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
@@ -34,6 +34,7 @@ interface ComparisonTypeOption {
   selector: "app-comparative-analysis",
   templateUrl: "./comparative-analysis.component.html",
   styleUrl: "./comparative-analysis.component.scss",
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, ButtonModule, SelectModule, ToolbarModule]
 })
 export default class ComparativeAnalysisComponent implements OnInit {

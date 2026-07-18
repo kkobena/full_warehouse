@@ -1,5 +1,5 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { LaboratoireProduitService } from '../laboratoire-produit.service';
@@ -16,6 +16,7 @@ import { finalize } from 'rxjs/operators';
   selector: 'jhi-form-laboratoire',
   templateUrl: './form-laboratoire.component.html',
   styleUrls: ['./form-laboratoire.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, ToastAlertComponent, Card],
 })
 export class FormLaboratoireComponent implements OnInit, AfterViewInit {

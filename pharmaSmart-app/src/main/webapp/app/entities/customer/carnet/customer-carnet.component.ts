@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { DateNaissDirective } from '../../../shared/date-naiss.directive';
@@ -47,6 +47,7 @@ import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.com
     ToastAlertComponent,
   ],
   templateUrl: './customer-carnet.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./customer-carnet-component.scss'],
 })
 export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy {

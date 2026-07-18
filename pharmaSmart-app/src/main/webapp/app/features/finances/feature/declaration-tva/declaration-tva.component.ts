@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from "@angular/core";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { ButtonModule } from "primeng/button";
@@ -30,6 +30,7 @@ interface TypeVenteOption {
     FloatLabel
   ],
   templateUrl: "./declaration-tva.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./declaration-tva.component.scss"
 })
 export class DeclarationTvaComponent implements OnInit {

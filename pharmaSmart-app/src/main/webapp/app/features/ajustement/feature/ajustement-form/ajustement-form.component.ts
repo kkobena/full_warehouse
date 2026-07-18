@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject, OnInit, signal, viewChild } from '@angular/core';
+import { Component, DestroyRef, effect, inject, OnInit, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -33,6 +33,7 @@ import { CommandeProductSearchComponent } from '../../../commande/ui/commande-pr
   templateUrl: './ajustement-form.component.html',
   styleUrl: './ajustement-form.component.scss',
   providers: [MessageService],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,
@@ -144,8 +145,8 @@ export class AjustementFormComponent implements OnInit {
     this.produitSearch.set(null);
     this.facade.setProduit(null);
     this.productSearch()?.reset();
-    // Force p-inputNumber display to blank
-    const inputEl = this.qtyBox()?.input?.nativeElement;
+    // Force p-inputnumber display to blank
+    const inputEl = this.qtyBox()?.input()?.nativeElement;
     if (inputEl) inputEl.value = '';
     setTimeout(() => this.productSearch()?.getFocus(), 50);
   }
@@ -154,11 +155,11 @@ export class AjustementFormComponent implements OnInit {
     this.produitSearch.set(p);
     this.facade.setProduit(p ? this.adaptProduit(p) : null);
     this.qty = p ? 1 : 0;
-    if (p) setTimeout(() => { this.qtyBox()?.input?.nativeElement?.focus(); this.qtyBox()?.input?.nativeElement?.select(); }, 50);
+    if (p) setTimeout(() => { this.qtyBox()?.input()?.nativeElement?.focus(); this.qtyBox()?.input()?.nativeElement?.select(); }, 50);
   }
 
   protected onQtyFocus(): void {
-    this.qtyBox()?.input?.nativeElement?.select();
+    this.qtyBox()?.input()?.nativeElement?.select();
   }
 
   // ── Ligne ─────────────────────────────────────────────────────────────────

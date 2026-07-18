@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpResponse } from '@angular/common/http';
@@ -26,6 +26,7 @@ import { Toolbar } from 'primeng/toolbar';
     Toolbar,
   ],
   templateUrl: './depot-form.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./depot-form.component.scss'],
 })
 export class DepotFormComponent implements OnInit, AfterViewInit {

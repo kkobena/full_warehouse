@@ -1,4 +1,4 @@
-import { Component, computed, ElementRef, inject, signal, viewChild } from "@angular/core";
+import { Component, computed, ElementRef, inject, signal, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { ICellRendererAngularComp } from "ag-grid-angular";
@@ -164,6 +164,7 @@ import { ErrorService } from "../../../../../shared/error.service";
       </div>
     </div>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     :host {
       display: block;

@@ -1,4 +1,4 @@
-import { Component, forwardRef, inject, input, OnDestroy, output, signal, viewChild } from '@angular/core';
+import { Component, forwardRef, inject, input, OnDestroy, output, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AutoComplete } from 'primeng/autocomplete';
 import { FloatLabel } from 'primeng/floatlabel';
@@ -19,6 +19,7 @@ import { debounceTime, Subject, Subscription } from 'rxjs';
       multi: true,
     },
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './produit-autocomplete.component.html',
 })
 export class ProduitAutocompleteComponent implements ControlValueAccessor, OnDestroy {
@@ -76,7 +77,7 @@ export class ProduitAutocompleteComponent implements ControlValueAccessor, OnDes
   }
 
   setDisabledState?(isDisabled: boolean): void {
-    const inputEl = this.produitbox().inputEL?.nativeElement;
+    const inputEl = this.produitbox().inputEL()?.nativeElement;
     if (inputEl) {
       inputEl.disabled = isDisabled;
     }
@@ -110,7 +111,7 @@ export class ProduitAutocompleteComponent implements ControlValueAccessor, OnDes
 
   getFocus(): void {
     setTimeout(() => {
-      const el = this.produitbox().inputEL?.nativeElement;
+      const el = this.produitbox().inputEL()?.nativeElement;
       el.focus();
       el.select();
     }, 50);

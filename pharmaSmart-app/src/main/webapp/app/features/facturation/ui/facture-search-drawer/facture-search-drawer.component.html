@@ -6,13 +6,13 @@
         <p-toggleswitch (onChange)="onSearch()" [(ngModel)]="factureGroupWritable" />
       </div>
       <p-floatlabel variant="on">
-        <p-datePicker [(ngModel)]="modelStartDate" [iconDisplay]="'input'" [selectOtherMonths]="true"
+        <p-datepicker [(ngModel)]="modelStartDate" [iconDisplay]="'input'" [selectOtherMonths]="true"
                       [showButtonBar]="true" [showIcon]="true" dateFormat="dd/mm/yy" id="fsDrawerDu"
                       inputId="fsDrawerDu" />
         <label for="fsDrawerDu">Du</label>
       </p-floatlabel>
       <p-floatlabel variant="on">
-        <p-datePicker [(ngModel)]="modelEndDate" [iconDisplay]="'input'" [selectOtherMonths]="true"
+        <p-datepicker [(ngModel)]="modelEndDate" [iconDisplay]="'input'" [selectOtherMonths]="true"
                       [showButtonBar]="true" [showIcon]="true" dateFormat="dd/mm/yy" id="fsDrawerAu"
                       inputId="fsDrawerAu" />
         <label for="fsDrawerAu">Au</label>
@@ -23,14 +23,14 @@
       </p-floatlabel>
       @if (factureGroupWritable()) {
         <p-floatlabel>
-          <p-autoComplete (completeMethod)="searchGroupTiersPayant($event)" [(ngModel)]="selectedGroupeTiersPayants"
+          <p-autocomplete (completeMethod)="searchGroupTiersPayant($event)" [(ngModel)]="selectedGroupeTiersPayants"
                           [forceSelection]="true" [multiple]="true" [suggestions]="groupeTiersPayants"
                           appendTo="body" id="fsDrawerGroupe" inputId="fsDrawerGroupe" optionLabel="name" />
           <label for="fsDrawerGroupe">Rechercher un groupe</label>
         </p-floatlabel>
       } @else {
         <p-floatlabel>
-          <p-autoComplete (completeMethod)="searchTiersPayant($event)" [(ngModel)]="selectedTiersPayants"
+          <p-autocomplete (completeMethod)="searchTiersPayant($event)" [(ngModel)]="selectedTiersPayants"
                           [forceSelection]="true" [minQueryLength]="minLength" [multiple]="true"
                           [suggestions]="tiersPayants" id="fsDrawerTP" inputId="fsDrawerTP" optionLabel="fullName" />
           <label for="fsDrawerTP">Rechercher tiers-payants</label>

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { HttpResponse } from "@angular/common/http";
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
 import { Observable, Subject } from "rxjs";
@@ -18,6 +18,7 @@ import { NotificationService } from "../../shared/services/notification.service"
   selector: "app-mode-payment-update",
   templateUrl: "./mode-payment-update.component.html",
   styleUrls: ["./mode-payment-update.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, ReactiveFormsModule, ToastModule, ButtonModule, RippleModule, InputTextModule, Card]
 })
 export class ModePaymentUpdateComponent implements OnInit, AfterViewInit, OnDestroy {

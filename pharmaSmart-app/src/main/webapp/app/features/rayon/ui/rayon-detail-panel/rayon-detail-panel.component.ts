@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, output, signal } from '@angular/core';
+import { Component, effect, inject, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { ButtonModule } from 'primeng/button';
@@ -16,6 +16,7 @@ import { IResponseDto } from '../../../../shared/util/response-dto';
   selector: 'app-rayon-detail-panel',
   templateUrl: './rayon-detail-panel.component.html',
   styleUrl: './rayon-detail-panel.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [NgbNavModule, ButtonModule, TagModule, TooltipModule, RayonProduitsTabComponent],
 })
 export class RayonDetailPanelComponent {

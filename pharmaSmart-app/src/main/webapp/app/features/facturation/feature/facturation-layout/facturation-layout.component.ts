@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { AbilityService } from 'app/core/auth/ability.service';
 import { AlertBadgeService } from 'app/shared/services/alert-badge.service';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
@@ -27,6 +27,7 @@ import { RemisesRfaComponent } from '../../../finances/feature/remises-rfa/remis
     RemisesRfaComponent,
   ],
   templateUrl: './facturation-layout.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './facturation-layout.component.scss',
 })
 export class FacturationLayoutComponent {

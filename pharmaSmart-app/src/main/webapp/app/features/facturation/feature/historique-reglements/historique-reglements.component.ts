@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { finalize } from "rxjs/operators";
 import { HttpResponse } from "@angular/common/http";
@@ -59,6 +59,7 @@ import { BlobDownloadService } from "../../../../shared/services/blob-download.s
     InputIcon
   ],
   templateUrl: "./historique-reglements.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./historique-reglements.component.scss"
 })
 export class HistoriqueReglementsComponent implements OnInit {

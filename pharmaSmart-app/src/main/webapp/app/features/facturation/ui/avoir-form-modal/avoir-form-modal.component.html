@@ -31,7 +31,7 @@
     @if (!isFromFacture) {
       <div class="col-12">
         <p-floatlabel variant="on">
-          <p-autoComplete
+          <p-autocomplete
             (completeMethod)="searchFacture($event)"
             [(ngModel)]="selectedFacture"
             [forceSelection]="true"
@@ -55,7 +55,7 @@
                 </div>
               </div>
             </ng-template>
-          </p-autoComplete>
+          </p-autocomplete>
           <label for="av-facture-id">N° Facture origine *</label>
         </p-floatlabel>
       </div>
@@ -75,7 +75,7 @@
     } @else {
       <div class="col-md-6">
         <p-floatlabel variant="on">
-          <p-inputNumber
+          <p-inputnumber
             [(ngModel)]="montantAvoir"
             id="av-montant"
             [max]="selectedFacture?.montantRegle ?? undefined"
@@ -94,7 +94,7 @@
     <!-- TVA -->
     <div class="col-md-6">
       <p-floatlabel variant="on">
-        <p-inputNumber
+        <p-inputnumber
           [(ngModel)]="montantTva"
           id="av-tva"
           [min]="0"
@@ -107,7 +107,7 @@
     <!-- HT -->
     <div class="col-md-6">
       <p-floatlabel variant="on">
-        <p-inputNumber
+        <p-inputnumber
           [(ngModel)]="montantHt"
           id="av-ht"
           [min]="0"

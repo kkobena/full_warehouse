@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -30,6 +30,7 @@ interface IPreviewClassificationItem {
   selector: 'app-semois-config-masse',
   templateUrl: './semois-config-masse.component.html',
   styleUrls: ['./semois-config-masse.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, ButtonModule, ToolbarModule, NgbNavModule, TableModule, Tag, InputTextModule],
 })
 export class SemoisConfigMasseComponent implements OnInit {

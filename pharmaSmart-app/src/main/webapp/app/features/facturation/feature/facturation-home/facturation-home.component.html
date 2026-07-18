@@ -20,7 +20,7 @@
           </div>
 
           <p-floatlabel variant="on">
-            <p-datePicker
+            <p-datepicker
               [(ngModel)]="modelStartDate"
               [iconDisplay]="'input'"
               [selectOtherMonths]="true"
@@ -35,7 +35,7 @@
           </p-floatlabel>
 
           <p-floatlabel variant="on">
-            <p-datePicker
+            <p-datepicker
               [(ngModel)]="modelEndDate"
               [iconDisplay]="'input'"
               [selectOtherMonths]="true"
@@ -65,7 +65,7 @@
 
           @if (factureGroupees) {
             <p-floatlabel variant="on">
-              <p-autoComplete
+              <p-autocomplete
                 (completeMethod)="searchGroupTiersPayant($event)"
                 [(ngModel)]="selectedGroupeTiersPayants"
                 [forceSelection]="true"
@@ -81,7 +81,7 @@
             </p-floatlabel>
           } @else {
             <p-floatlabel variant="on">
-              <p-autoComplete
+              <p-autocomplete
                 (completeMethod)="searchTiersPayant($event)"
                 [(ngModel)]="selectedTiersPayants"
                 [forceSelection]="true"

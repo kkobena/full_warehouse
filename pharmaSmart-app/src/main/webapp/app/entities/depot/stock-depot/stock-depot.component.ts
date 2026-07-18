@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Button } from 'primeng/button';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { CommonModule } from '@angular/common';
@@ -48,6 +48,7 @@ import { IMagasin } from "../../../shared/model";
     RouterLink,
   ],
   templateUrl: './stock-depot.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './stock-depot.component.scss',
 })
 export class StockDepotComponent implements OnInit {

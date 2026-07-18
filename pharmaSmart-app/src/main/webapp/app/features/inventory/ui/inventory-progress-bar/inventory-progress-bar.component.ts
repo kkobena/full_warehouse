@@ -1,4 +1,4 @@
-import {Component, input} from '@angular/core';
+import {Component, input, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ProgressBar} from 'primeng/progressbar';
 import {InventoryProgressRecord} from '../../models';
@@ -26,6 +26,7 @@ import {InventoryProgressRecord} from '../../models';
       </div>
     }
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './inventory-progress-bar.component.scss',
 })
 export class InventoryProgressBarComponent {

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { AbilityService } from 'app/core/auth/ability.service';
 import { FinancesDashboardComponent } from '../finances-dashboard/finances-dashboard.component';
@@ -18,6 +18,7 @@ import { ExportComptableComponent } from '../export-comptable/export-comptable.c
     ExportComptableComponent,
   ],
   templateUrl: './finances-layout.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './finances-layout.component.scss',
 })
 export class FinancesLayoutComponent {

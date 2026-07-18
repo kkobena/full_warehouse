@@ -1,9 +1,10 @@
-import {Component, effect, ElementRef, inject, input, Renderer2} from '@angular/core';
+import {Component, effect, ElementRef, inject, input, Renderer2, ChangeDetectionStrategy} from '@angular/core';
 
 @Component({
   selector: 'jhi-password-strength-bar',
   imports: [],
   templateUrl: './password-strength-bar.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './password-strength-bar.component.scss',
 })
 export default class PasswordStrengthBarComponent {

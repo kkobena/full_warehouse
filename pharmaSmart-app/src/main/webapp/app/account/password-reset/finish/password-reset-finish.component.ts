@@ -5,7 +5,8 @@ import {
   inject,
   OnInit,
   signal,
-  viewChild
+  viewChild,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {ActivatedRoute, RouterModule} from '@angular/router';
@@ -18,6 +19,7 @@ import {TranslatePipe} from "@ngx-translate/core";
 @Component({
   selector: 'jhi-password-reset-finish',
   imports: [RouterModule, FormsModule, ReactiveFormsModule, PasswordStrengthBarComponent, TranslatePipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './password-reset-finish.component.html',
 })
 export default class PasswordResetFinishComponent implements OnInit, AfterViewInit {

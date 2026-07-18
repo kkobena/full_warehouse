@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild } from '@angular/core';
+import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ITableau, Tableau } from '../../../shared/model/tableau.model';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
@@ -16,6 +16,7 @@ import { Card } from 'primeng/card';
   selector: 'jhi-form-tableau',
   imports: [ToastAlertComponent, Button, FormsModule, InputText, ReactiveFormsModule, KeyFilter, Card],
   templateUrl: './form-tableau.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./form-tableau.scss'],
 })
 export class FormTableauComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { TableModule } from 'primeng/table';
 
@@ -17,6 +17,7 @@ import { PlanificationStateService } from '../planification-state.service';
       }
     `,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     @if (state.isLoadingHistorique(planId())) {
       <div class="d-flex justify-content-center p-4">

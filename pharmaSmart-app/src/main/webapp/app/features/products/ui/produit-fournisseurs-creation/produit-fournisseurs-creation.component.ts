@@ -1,4 +1,4 @@
-import { Component, Input, inject, input } from '@angular/core';
+import { Component, Input, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -12,6 +12,7 @@ import { IFournisseur } from 'app/shared/model/fournisseur.model';
   selector: 'app-produit-fournisseurs-creation',
   templateUrl: './produit-fournisseurs-creation.component.html',
   styleUrl: './produit-fournisseurs-creation.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, ReactiveFormsModule, ButtonModule, InputTextModule, SelectModule, KeyFilterModule, TagModule],
 })
 export class ProduitFournisseursCreationComponent {

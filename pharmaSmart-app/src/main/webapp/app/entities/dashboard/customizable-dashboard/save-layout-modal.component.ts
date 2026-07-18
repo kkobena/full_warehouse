@@ -1,4 +1,4 @@
-import { Component, inject, Input, signal } from '@angular/core';
+import { Component, inject, Input, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -13,6 +13,7 @@ import { DashboardScope } from 'app/shared/model/dashboard-layout.model';
   selector: 'jhi-save-layout-modal',
   imports: [CommonModule, FormsModule, ButtonModule, SelectModule, InputTextModule],
   templateUrl: './save-layout-modal.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './save-layout-modal.component.scss',
 })
 export class SaveLayoutModalComponent {

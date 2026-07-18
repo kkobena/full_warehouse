@@ -1,4 +1,4 @@
-import { Component, computed, input, output, signal } from "@angular/core";
+import { Component, computed, input, output, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule, DecimalPipe } from "@angular/common";
 import { FournisseurSuggestionSummary } from "../../data-access/suggestion-enrichie.model";
 import { TableModule } from "primeng/table";
@@ -8,6 +8,7 @@ import { SuggestionFournisseurAction, SuggestionFournisseurActionsComponent } fr
   selector: "app-suggestion-fournisseur-list",
   templateUrl: "./suggestion-fournisseur-list.component.html",
   styleUrls: ["./suggestion-fournisseur-list.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, DecimalPipe, TableModule, SuggestionFournisseurActionsComponent],
 })
 export class SuggestionFournisseurListComponent {

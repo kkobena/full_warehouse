@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from "@angular/core";
+import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 
 import { Customer, ICustomer } from "app/shared/model/customer.model";
 import { CustomerService } from "app/entities/customer/customer.service";
@@ -17,6 +17,7 @@ import { CommonModule } from "@angular/common";
   selector: "app-ayant-droit-customer-list",
   templateUrl: "./ayant-droit-customer-list.component.html",
   styleUrls: ["./ayant-droit-customer-list.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

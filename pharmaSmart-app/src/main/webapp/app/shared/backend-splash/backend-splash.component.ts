@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { BackendStatus, BackendStatusService } from 'app/core/tauri/backend-status.service';
@@ -11,6 +11,7 @@ const HIDDEN_STATES = new Set(['ready', 'stopped', 'stopping']);
   selector: 'jhi-backend-splash',
   templateUrl: './backend-splash.component.html',
   styleUrls: ['./backend-splash.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, ProgressBarModule],
 })
 export class BackendSplashComponent implements OnInit, OnDestroy {

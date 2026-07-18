@@ -1,4 +1,4 @@
-import { Component, computed, effect, input, output, signal } from "@angular/core";
+import { Component, computed, effect, input, output, signal, ChangeDetectionStrategy } from "@angular/core";
 import { injectTableRows } from "app/shared/utils";
 import { CommonModule } from "@angular/common";
 import { TableLazyLoadEvent, TableModule } from "primeng/table";
@@ -32,6 +32,7 @@ export type ProduitMenuAction =
   selector: "app-produit-list",
   templateUrl: "./produit-list.component.html",
   styleUrls: ["./produit-list.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, TableModule, ButtonModule, TooltipModule, TagModule, MenuModule, CheckboxModule, EtaProduitComponent]
 })
 export class ProduitListComponent {

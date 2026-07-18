@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
 import { Tag } from 'primeng/tag';
 import { IDelivery } from '../../../../shared/model/delevery.model';
 
@@ -8,6 +8,7 @@ type PrimeSeverity = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'con
   selector: 'app-list-bons-statut',
   imports: [Tag],
   template: `<p-tag [value]="label()" [severity]="severity()" [icon]="icon()" [rounded]="true" />`,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`:host { display:flex; align-items:center; height:100% }`],
 })
 export class ListBonsStatutComponent {

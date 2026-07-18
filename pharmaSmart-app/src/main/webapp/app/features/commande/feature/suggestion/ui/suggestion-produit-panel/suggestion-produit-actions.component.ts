@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {ICellRendererAngularComp} from 'ag-grid-angular';
 import {Button} from 'primeng/button';
 import {Tooltip} from 'primeng/tooltip';
@@ -8,8 +8,9 @@ import {SuggestionLigneEnrichie} from '../../data-access/suggestion-enrichie.mod
 @Component({
   selector: 'app-suggestion-produit-actions',
   imports: [Button, Tooltip, ButtonGroup],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <p-buttonGroup>
+    <p-buttongroup>
       @if (showReset) {
         <p-button
           [text]="true"
@@ -44,7 +45,7 @@ import {SuggestionLigneEnrichie} from '../../data-access/suggestion-enrichie.mod
         size="small"
         (onClick)="onDelete($event)"
       />
-    </p-buttonGroup>
+    </p-buttongroup>
   `,
 })
 export class SuggestionProduitActionsComponent implements ICellRendererAngularComp {

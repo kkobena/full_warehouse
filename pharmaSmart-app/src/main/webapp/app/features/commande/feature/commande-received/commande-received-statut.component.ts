@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {ICellRendererAngularComp} from 'ag-grid-angular';
 import {Tag} from 'primeng/tag';
 import {IOrderLine} from '../../../../shared/model/order-line.model';
@@ -16,6 +16,7 @@ const SEVERITY_MAP: Record<string, PrimeSeverity> = {
   selector: 'app-commande-received-statut',
   imports: [Tag],
   template: `<p-tag [value]="label" [severity]="severity" [rounded]="true" />`,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`:host { display:flex; align-items:center; justify-content:center; height:100% }`],
 })
 export class CommandeReceivedStatutComponent implements ICellRendererAngularComp {

@@ -1,4 +1,4 @@
-import { Component, inject, NgZone, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, inject, NgZone, OnDestroy, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { NgOptimizedImage } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -20,6 +20,7 @@ interface SetupDefaults {
   selector: 'app-setup-wizard',
   templateUrl: './setup-wizard.component.html',
   styleUrls: ['./setup-wizard.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ReactiveFormsModule, NgOptimizedImage, ButtonModule, InputTextModule, PasswordModule, ProgressSpinnerModule],
 })
 export class SetupWizardComponent implements OnInit, OnDestroy {

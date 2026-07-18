@@ -76,7 +76,7 @@
 >
   <ng-template #header>
     <tr class="pharma-table-head">
-      <th style="width: 3rem"><p-tableHeaderCheckbox /></th>
+      <th style="width: 3rem"><p-tableheadercheckbox /></th>
       <th>Tiers payant</th>
       <th>Catégorie</th>
       @if (mode() === 'def') {
@@ -91,7 +91,7 @@
   </ng-template>
   <ng-template #body let-tp>
     <tr>
-      <td><p-tableCheckbox [value]="tp" /></td>
+      <td><p-tablecheckbox [value]="tp" /></td>
       <td class="fw-medium small">{{ tp.name }}</td>
       <td><span class="pharma-badge pharma-badge-secondary">{{ tp.categorie }}</span></td>
       <td>

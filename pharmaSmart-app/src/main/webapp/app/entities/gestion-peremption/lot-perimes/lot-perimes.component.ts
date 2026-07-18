@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, OnInit, viewChild } from "@angular/core";
+import { AfterViewInit, Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { LotService } from "../../commande/lot/lot.service";
 import { LotFilterParam, LotLocation, LotPerimes, LotPerimeValeurSum } from "../model/lot-perimes";
 import { DATE_FORMAT_ISO_DATE } from "../../../shared/util/warehouse-util";
@@ -76,6 +76,7 @@ import { FournisseurSelectComponent } from "../../../features/partners/ui/fourni
     FournisseurSelectComponent
   ],
   templateUrl: "./lot-perimes.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./lot-perimes.component.scss"
 })
 export class LotPerimesComponent implements OnInit, AfterViewInit {

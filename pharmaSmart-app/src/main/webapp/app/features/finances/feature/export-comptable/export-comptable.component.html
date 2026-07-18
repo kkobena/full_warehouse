@@ -15,12 +15,12 @@
       <h6 class="section-title"><i class="pi pi-calendar me-2"></i>Période</h6>
       <div class="d-flex gap-3 flex-wrap">
         <p-floatlabel variant="on">
-          <p-datePicker inputId="exp-start" [ngModel]="startDate()" (ngModelChange)="startDate.set($event)"
+          <p-datepicker inputId="exp-start" [ngModel]="startDate()" (ngModelChange)="startDate.set($event)"
                         dateFormat="dd/mm/yy" />
           <label for="exp-start">Du</label>
         </p-floatlabel>
         <p-floatlabel variant="on">
-          <p-datePicker inputId="exp-end" [ngModel]="endDate()" (ngModelChange)="endDate.set($event)"
+          <p-datepicker inputId="exp-end" [ngModel]="endDate()" (ngModelChange)="endDate.set($event)"
                         dateFormat="dd/mm/yy" />
           <label for="exp-end">Au</label>
         </p-floatlabel>

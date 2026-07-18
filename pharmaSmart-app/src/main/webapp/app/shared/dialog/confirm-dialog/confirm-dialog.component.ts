@@ -1,9 +1,10 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 import { acceptButtonProps, rejectButtonProps, rejectWarningButtonProps } from '../../util/modal-button-props';
 
 @Component({
   selector: 'jhi-confirm-dialog',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '',
 })
 export class ConfirmDialogComponent {

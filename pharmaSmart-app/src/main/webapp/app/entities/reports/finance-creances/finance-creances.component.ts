@@ -1,4 +1,4 @@
-import { Component, inject, signal, ViewChild } from '@angular/core';
+import { Component, inject, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { AbilityService } from 'app/core/auth/ability.service';
 import VieillissementCreancesComponent from '../vieillissement-creances/vieillissement-creances.component';
@@ -11,6 +11,7 @@ type Periode = 'quarter' | 'year';
   selector: 'app-finance-creances',
   imports: [NgbNavModule, VieillissementCreancesComponent, ConcentrationPayersComponent],
   templateUrl: './finance-creances.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./finance-creances.component.scss'],
 })
 export default class FinanceCreancesComponent {

@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { DatePipe, DecimalPipe } from "@angular/common";
@@ -62,6 +62,7 @@ interface IAnneeOption {
     DatePipe
   ],
   templateUrl: "./recapitulatif.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./recapitulatif.component.scss"
 })
 export class RecapitulatifComponent implements OnInit {

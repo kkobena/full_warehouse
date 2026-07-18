@@ -9,7 +9,8 @@ import {
   OnInit,
   Renderer2,
   signal,
-  viewChild
+  viewChild,
+  ChangeDetectionStrategy
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
@@ -42,6 +43,7 @@ import { CommonModule } from "@angular/common";
   selector: "app-form-poste",
   templateUrl: "./form-poste.component.html",
   styleUrl: "./form-poste.component.scss",
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

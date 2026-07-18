@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, ChangeDetectionStrategy} from '@angular/core';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {ButtonModule} from 'primeng/button';
 import {ICustomer} from '../../../../shared/model';
@@ -30,6 +30,7 @@ import {
                 severity="secondary" type="button" />
     </div>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [
     `
       .modal-body {

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, ElementRef, inject, OnInit, Renderer2 } from "@angular/core";
+import { Component, DestroyRef, ElementRef, inject, OnInit, Renderer2, ChangeDetectionStrategy } from "@angular/core";
 import { ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { ButtonModule } from "primeng/button";
@@ -19,6 +19,7 @@ import { IRayon } from "../../models/rayon.model";
   selector: "app-clone-rayon-form",
   templateUrl: "./clone-rayon-form.component.html",
   styleUrl: "./clone-rayon-form.component.scss",
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ReactiveFormsModule, ButtonModule, SelectModule]
 })
 export class CloneRayonFormComponent implements OnInit {

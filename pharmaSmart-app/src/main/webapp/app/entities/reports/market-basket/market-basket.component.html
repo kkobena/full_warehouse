@@ -10,7 +10,7 @@
       <ng-template #start>
         <div class="pharma-toolbar-filters pt-1">
           <p-floatlabel variant="on">
-            <p-datePicker
+            <p-datepicker
               id="fromDate"
               [style]="{ 'max-width': '160px' }"
               appendTo="body"
@@ -21,7 +21,7 @@
             <label for="fromDate">Date début</label>
           </p-floatlabel>
           <p-floatlabel variant="on">
-            <p-datePicker
+            <p-datepicker
               id="endDate"
               [style]="{ 'max-width': '160px' }"
               appendTo="body"
@@ -32,7 +32,7 @@
             <label for="fromDate">Date fin</label>
           </p-floatlabel>
           <p-floatlabel variant="on">
-            <p-inputNumber
+            <p-inputnumber
               [(ngModel)]="minSupport"
               [min]="0"
               [max]="100"
@@ -44,7 +44,7 @@
             <label for="supportmini">Support min</label>
           </p-floatlabel>
           <p-floatlabel variant="on">
-            <p-inputNumber
+            <p-inputnumber
               [(ngModel)]="minConfidence"
               [min]="0"
               [max]="100"
@@ -56,7 +56,7 @@
             <label for="confidencemini">Confiance min</label>
           </p-floatlabel>
           <p-floatlabel variant="on">
-            <p-inputNumber id="limit" [(ngModel)]="limit" [min]="10" [max]="200" [step]="10" [style]="{ 'max-width': '140px' }" />
+            <p-inputnumber id="limit" [(ngModel)]="limit" [min]="10" [max]="200" [step]="10" [style]="{ 'max-width': '140px' }" />
             <label for="limit">Limite</label>
           </p-floatlabel>
         </div>

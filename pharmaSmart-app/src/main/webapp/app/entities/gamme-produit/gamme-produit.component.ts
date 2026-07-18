@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild } from '@angular/core';
+import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { GammeProduitService } from './gamme-produit.service';
@@ -25,6 +25,7 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
   selector: 'jhi-gamme-produit',
   templateUrl: './gamme-produit.component.html',
   styleUrl: './gamme-produit.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ButtonModule,
     ToolbarModule,

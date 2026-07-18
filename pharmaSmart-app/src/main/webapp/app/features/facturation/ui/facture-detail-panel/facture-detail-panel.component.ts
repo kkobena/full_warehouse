@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject, input, signal } from "@angular/core";
+import { Component, DestroyRef, effect, inject, input, signal, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { finalize } from "rxjs/operators";
 import { NgbModal, NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
@@ -43,6 +43,7 @@ import { CommonModule } from "@angular/common";
     AvoirWorkspaceComponent
   ],
   templateUrl: "./facture-detail-panel.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./facture-detail-panel.component.scss"
 })
 export class FactureDetailPanelComponent {

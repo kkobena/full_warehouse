@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, computed, DestroyRef, inject, input, output, signal } from '@angular/core';
+import { AfterViewInit, Component, computed, DestroyRef, inject, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpResponse } from '@angular/common/http';
@@ -32,6 +32,7 @@ import { IDiffere, INewReglementDiffere } from '../../data-access/models';
     DatePicker,
   ],
   templateUrl: './reglement-differe-form.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './reglement-differe-form.component.scss',
 })
 export class ReglementDiffereFormComponent implements AfterViewInit {

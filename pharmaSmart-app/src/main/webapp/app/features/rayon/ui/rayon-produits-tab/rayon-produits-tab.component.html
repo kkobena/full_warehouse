@@ -4,7 +4,7 @@
     <span class="rpt-count-badge">{{ totalItems() }}</span>
   </div>
   <div class="rpt-header__search">
-    <p-autoComplete
+    <p-autocomplete
       [(ngModel)]="selectedProduit"
       [suggestions]="searchSuggestions()"
       (completeMethod)="onComplete($event)"
@@ -20,7 +20,7 @@
           <span>{{ p.libelle }}</span>
         </div>
       </ng-template>
-    </p-autoComplete>
+    </p-autocomplete>
   </div>
 </div>
 
@@ -68,7 +68,7 @@
     <ng-template #header>
       <tr class="pharma-table-head">
         <th style="width: 3rem; text-align: center">
-          <p-tableHeaderCheckbox />
+          <p-tableheadercheckbox />
         </th>
         <th style="width: 14%">Code CIP</th>
         <th>Libellé</th>
@@ -80,7 +80,7 @@
     <ng-template #body let-produit>
       <tr [pSelectableRow]="produit">
         <td style="text-align: center">
-          <p-tableCheckbox [value]="produit" />
+          <p-tablecheckbox [value]="produit" />
         </td>
         <td><span class="pharma-code">{{ produit.codeCip }}</span></td>
         <td>

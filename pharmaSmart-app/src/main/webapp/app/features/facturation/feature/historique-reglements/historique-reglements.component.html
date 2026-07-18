@@ -26,7 +26,7 @@
           </p-floatlabel>
 
           <p-floatlabel variant="on">
-            <p-datePicker
+            <p-datepicker
               [(ngModel)]="modelStartDate"
               [iconDisplay]="'input'"
               [selectOtherMonths]="true"
@@ -41,7 +41,7 @@
           </p-floatlabel>
 
           <p-floatlabel variant="on">
-            <p-datePicker
+            <p-datepicker
               [(ngModel)]="modelEndDate"
               [iconDisplay]="'input'"
               [selectOtherMonths]="true"
@@ -57,7 +57,7 @@
 
           @if (factureGroup) {
             <p-floatlabel variant="on">
-              <p-autoComplete
+              <p-autocomplete
                 (completeMethod)="searchGroupeTiersPayant($event)"
                 [(ngModel)]="selectedGroupeTiersPayant"
                 [forceSelection]="true"
@@ -71,7 +71,7 @@
             </p-floatlabel>
           } @else {
             <p-floatlabel variant="on">
-              <p-autoComplete
+              <p-autocomplete
                 (completeMethod)="searchTiersPayant($event)"
                 [(ngModel)]="selectedTiersPayant"
                 [forceSelection]="true"
@@ -181,7 +181,7 @@
           <th>Opérateur</th>
           <th class="text-center">Actions</th>
           <th class="text-center">
-            <p-tableHeaderCheckbox />
+            <p-tableheadercheckbox />
           </th>
         </tr>
       </ng-template>
@@ -210,7 +210,7 @@
           <td class="text-center small text-muted">{{ r.created }}</td>
           <td class="small">{{ r.user }}</td>
           <td class="text-center">
-            <p-buttonGroup>
+            <p-buttongroup>
               <p-button
                 (click)="onView(r)"
                 [rounded]="true"
@@ -238,10 +238,10 @@
                 severity="danger"
                 size="small"
               />
-            </p-buttonGroup>
+            </p-buttongroup>
           </td>
           <td class="text-center">
-            <p-tableCheckbox [value]="r" />
+            <p-tablecheckbox [value]="r" />
           </td>
         </tr>
       </ng-template>

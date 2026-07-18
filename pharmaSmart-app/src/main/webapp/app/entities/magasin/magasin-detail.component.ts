@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from "@angular/core";
+import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 
 import { IMagasin } from "app/shared/model/magasin.model";
@@ -9,6 +9,7 @@ import { FaIconComponent } from "@fortawesome/angular-fontawesome";
 @Component({
   selector: "app-magasin-detail",
   templateUrl: "./magasin-detail.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [PanelModule, RouterModule, TranslateDirective, FaIconComponent]
 })
 export class MagasinDetailComponent implements OnInit {

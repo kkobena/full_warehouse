@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from "@angular/core";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule, Location } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 
@@ -12,6 +12,7 @@ import { ConfigurationService, ModelReapproOption } from "app/shared/configurati
   selector: "app-semois-model-config",
   templateUrl: "./semois-model-config.component.html",
   styleUrls: ["./semois-model-config.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, ButtonModule, RadioButtonModule, ToolbarModule]
 })
 export class SemoisModelConfigComponent implements OnInit {

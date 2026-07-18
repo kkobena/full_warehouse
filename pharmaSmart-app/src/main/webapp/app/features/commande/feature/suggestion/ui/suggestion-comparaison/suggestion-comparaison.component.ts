@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TagModule } from 'primeng/tag';
@@ -11,6 +11,7 @@ import { SuggestionFacadeService } from '../../data-access/suggestion-facade.ser
   selector: 'app-suggestion-comparaison',
   templateUrl: './suggestion-comparaison.component.html',
   styleUrls: ['./suggestion-comparaison.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, TagModule, ButtonModule, ProgressSpinnerModule, DecimalPipe],
 })
 export class SuggestionComparaisonComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, viewChild } from "@angular/core";
+import { Component, inject, Input, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { NgbActiveModal, NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { IClientTiersPayant, ICustomer, ISales } from "../../../shared/model";
 import { FormArray, FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
@@ -29,6 +29,7 @@ import { NotificationService } from "../../../shared/services/notification.servi
   selector: "app-customer-edit-modal",
   templateUrl: "./customer-edit-modal.component.html",
   styleUrls: ["./customer-edit-modal.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

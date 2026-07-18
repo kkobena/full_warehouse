@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, signal } from "@angular/core";
+import { Component, computed, DestroyRef, inject, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
@@ -29,6 +29,7 @@ type RetourLine = ISaleLineForRetour & {
   selector: "app-retour-client-modal",
   templateUrl: "./retour-client-modal.component.html",
   styleUrl: "./retour-client-modal.component.scss",
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, Button, Select, InputNumber, Textarea, Checkbox],
 })
 export class RetourClientModalComponent {

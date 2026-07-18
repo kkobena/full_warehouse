@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -13,6 +13,7 @@ import { PlanificationStateService } from '../planification-state.service';
   selector: 'app-planif-subtab-tps',
   imports: [FormsModule, TableModule, ButtonModule, Select, ToggleSwitch, Tooltip],
   templateUrl: './planif-subtab-tps.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './planif-subtab-tps.component.scss',
 })
 export class PlanifSubtabTpsComponent {

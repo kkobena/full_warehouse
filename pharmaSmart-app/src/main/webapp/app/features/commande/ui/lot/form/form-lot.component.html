@@ -74,7 +74,7 @@
               <label for="expiryDate" class="expiry-label">
                 Date de péremption<span class="required ms-1">*</span>
               </label>
-              <p-datePicker
+              <p-datepicker
                 (onShow)="onDropdownShow($event)"
                 (onClose)="onDropdownHide($event)"
                 (onSelect)="onExpiryDateSelected($event)"
@@ -106,7 +106,7 @@
           <div class="col-md-6">
             <div class="form-field form-field-full">
               <label for="manufacturingDate">Date de fabrication</label>
-              <p-datePicker
+              <p-datepicker
                 (onShow)="onDropdownShow($event)"
                 (onClose)="onDropdownHide($event)"
                 [maxDate]="maxDate"
@@ -117,7 +117,7 @@
                 class="w-full"
                 formControlName="manufacturingDate"
                 name="manufacturingDate"
-              ></p-datePicker>
+              ></p-datepicker>
             </div>
           </div>
         </div>

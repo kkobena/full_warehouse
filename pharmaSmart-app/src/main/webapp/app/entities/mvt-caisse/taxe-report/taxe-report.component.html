@@ -10,7 +10,7 @@
       <ng-template #start>
         <div class="pharma-toolbar-filters">
           <p-floatlabel variant="on">
-            <p-datePicker
+            <p-datepicker
               [style]="{ 'max-width': '160px' }"
               [(ngModel)]="fromDate"
               [iconDisplay]="'input'"
@@ -26,7 +26,7 @@
           </p-floatlabel>
 
           <p-floatlabel variant="on">
-            <p-datePicker
+            <p-datepicker
               [style]="{ 'max-width': '160px' }"
               [(ngModel)]="toDate"
               [iconDisplay]="'input'"
@@ -51,7 +51,7 @@
           />
 
           <div class="tva-radio flex align-items-center mr-1">
-            <p-radioButton
+            <p-radiobutton
               (onClick)="onAffichageChange()"
               [(ngModel)]="groupBy"
               id="codeTva"
@@ -65,7 +65,7 @@
           </div>
 
           <div class="tva-radio flex align-items-center mr-1">
-            <p-radioButton (onClick)="onAffichageChange()" [(ngModel)]="groupBy" id="daily" inputId="daily" name="daily" value="daily" />
+            <p-radiobutton (onClick)="onAffichageChange()" [(ngModel)]="groupBy" id="daily" inputId="daily" name="daily" value="daily" />
             <label class="tva-radio-label mt-2 ml-1" for="daily">
               <span>Journalier</span>
             </label>
@@ -100,11 +100,11 @@
               tooltipPosition="top"
             />
 
-            <p-selectButton [(ngModel)]="affichage" [options]="typeAffichafes" optionLabel="icon" optionValue="value">
+            <p-selectbutton [(ngModel)]="affichage" [options]="typeAffichafes" optionLabel="icon" optionValue="value">
               <ng-template #item let-item>
                 <i [class]="item.icon"></i>
               </ng-template>
-            </p-selectButton>
+            </p-selectbutton>
           </div>
         </div>
       </ng-template>

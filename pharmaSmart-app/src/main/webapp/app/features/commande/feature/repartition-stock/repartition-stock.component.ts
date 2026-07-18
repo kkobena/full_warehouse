@@ -1,4 +1,4 @@
-import { Component, inject, ViewChild, viewChild } from '@angular/core';
+import { Component, inject, ViewChild, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { HttpResponse } from '@angular/common/http';
@@ -32,6 +32,7 @@ import { Tooltip } from "primeng/tooltip";
   selector: 'app-repartition-stock',
   templateUrl: './repartition-stock.component.html',
   styleUrls: ['./repartition-stock.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FormsModule,
     ButtonModule,

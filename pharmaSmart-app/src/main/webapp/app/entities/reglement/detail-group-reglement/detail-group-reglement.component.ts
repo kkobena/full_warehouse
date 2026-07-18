@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ReglementService } from '../reglement.service';
 import { InvoicePaymentItem, Reglement } from '../model/reglement.model';
@@ -15,6 +15,7 @@ import { Button } from 'primeng/button';
   selector: 'jhi-detail-group-reglement',
   imports: [CommonModule, FormsModule, InputTextModule, ReactiveFormsModule, TableModule, IconField, InputIcon, Button],
   templateUrl: './detail-group-reglement.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./detail-group-reglement.component.scss'],
 })
 export class DetailGroupReglementComponent implements OnInit {

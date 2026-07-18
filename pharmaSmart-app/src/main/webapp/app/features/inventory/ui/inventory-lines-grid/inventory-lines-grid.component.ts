@@ -1,4 +1,4 @@
-import {Component, computed, effect, inject, input, output} from '@angular/core';
+import {Component, computed, effect, inject, input, output, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {
@@ -28,6 +28,7 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
   selector: 'app-inventory-lines-grid',
   imports: [CommonModule, FormsModule, AgGridAngular, Select, Tooltip],
   templateUrl: './inventory-lines-grid.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './inventory-lines-grid.component.scss',
 })
 export class InventoryLinesGridComponent {

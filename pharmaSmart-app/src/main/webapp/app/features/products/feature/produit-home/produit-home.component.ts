@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from "@angular/core";
+import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { Router, RouterModule } from "@angular/router";
 import { FormsModule } from "@angular/forms";
@@ -48,6 +48,7 @@ import { RayonProduitApiService } from "../../../rayon/data-access/services/rayo
   selector: "app-produit-home",
   templateUrl: "./produit-home.component.html",
   styleUrls: ["./produit-home.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     RouterModule,

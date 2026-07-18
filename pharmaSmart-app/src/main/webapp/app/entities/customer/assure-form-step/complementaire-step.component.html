@@ -46,7 +46,7 @@
                 <!-- Tiers-payant -->
                 <div class="form-field form-field-full">
                   <label>Tiers-payant <span class="required">*</span></label>
-                  <p-autoComplete
+                  <p-autocomplete
                     (completeMethod)="searchTiersPayant($event)"
                     (onSelect)="onSelectTiersPayant($event, i)"
                     [dropdown]="true"
@@ -58,7 +58,7 @@
                     optionLabel="fullName"
                     placeholder="Taper pour rechercher"
                   >
-                  </p-autoComplete>
+                  </p-autocomplete>
                 </div>
 
                 <!-- Numéro de sécurité -->
@@ -95,4 +95,4 @@
   </form>
 </p-card>
 <jhi-toast-alert #alert />
-<p-confirmDialog />
+<p-confirmdialog />

@@ -1,4 +1,4 @@
-import {Component, computed, DestroyRef, effect, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, DestroyRef, effect, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -67,6 +67,7 @@ import {handleBlobForTauri} from "../../../../shared/util/tauri-util";
   ],
   providers: [MessageService],
   templateUrl: './inventory-editor.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './inventory-editor.component.scss',
 })
 export class InventoryEditorComponent implements OnInit {

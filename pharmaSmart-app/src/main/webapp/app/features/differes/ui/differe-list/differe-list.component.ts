@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject, input } from "@angular/core";
+import { Component, DestroyRef, effect, inject, input, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { finalize } from "rxjs/operators";
 import { HttpHeaders } from "@angular/common/http";
@@ -21,6 +21,7 @@ import { IDiffere, IDiffereSearchParams } from "../../data-access/models";
     TagModule
   ],
   templateUrl: "./differe-list.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["./differe-list.component.scss"]
 })
 export class DiffereListComponent {

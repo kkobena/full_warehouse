@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { IPaymentMode } from '../../shared/model/payment-mode.model';
@@ -18,6 +18,7 @@ import { ModePaymentUpdateComponent } from './mode-payment-update.component';
   selector: 'jhi-mode-payment',
   templateUrl: './mode-payment.component.html',
   styleUrls: ['./mode-payment.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ButtonModule, ToolbarModule, TableModule, Tooltip, IconField, InputIcon, InputText],
 })
 export class ModePaymentComponent implements OnInit {

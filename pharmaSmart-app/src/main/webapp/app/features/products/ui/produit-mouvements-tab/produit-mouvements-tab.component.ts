@@ -1,4 +1,4 @@
-import { Component, effect, ElementRef, inject, input, OnDestroy, signal, viewChild } from '@angular/core';
+import { Component, effect, ElementRef, inject, input, OnDestroy, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
@@ -29,6 +29,7 @@ interface PeriodShortcut {
   selector: 'app-produit-mouvements-tab',
   templateUrl: './produit-mouvements-tab.component.html',
   styleUrls: ['./produit-mouvements-tab.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

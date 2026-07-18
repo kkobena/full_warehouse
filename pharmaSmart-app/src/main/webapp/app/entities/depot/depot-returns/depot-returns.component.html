@@ -77,7 +77,7 @@
 
         <!-- Product Search Autocomplete -->
         <div class="product-search-input">
-          <p-autoComplete
+          <p-autocomplete
             [dropdown]="true"
             #productAutoComplete
             [(ngModel)]="selectedProduct"
@@ -117,7 +117,7 @@
                 </div>
               </div>
             </ng-template>
-          </p-autoComplete>
+          </p-autocomplete>
         </div>
 
         <!-- Quantity Input with Add Button -->
@@ -194,7 +194,7 @@
                     {{ getMaxReturnQuantity(item) | number }}
                   </td>
                   <td class="text-end pharma-qty-value" pEditableColumn>
-                    <p-cellEditor>
+                    <p-celleditor>
                       <ng-template #input>
                         <input
                           type="number"
@@ -209,7 +209,7 @@
                       <ng-template #output>
                         <span class="pharma-price">{{ item.qtyMvt | number }}</span>
                       </ng-template>
-                    </p-cellEditor>
+                    </p-celleditor>
                   </td>
                   <td class="text-center">
                     <p-button

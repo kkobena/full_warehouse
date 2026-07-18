@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -15,6 +15,7 @@ import { showCommonModal } from '../../../../entities/sales/selling-home/sale-he
   selector: 'app-ayant-droit-list-modal',
   templateUrl: './ayant-droit-list-modal.component.html',
   styleUrls: ['./ayant-droit-list.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, Button, TableModule, TooltipModule, ToolbarModule],
 })
 export class AyantDroitListModalComponent implements OnInit {

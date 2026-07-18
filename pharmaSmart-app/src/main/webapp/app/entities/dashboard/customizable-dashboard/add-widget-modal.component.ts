@@ -1,4 +1,4 @@
-import { Component, inject, Input, signal } from '@angular/core';
+import { Component, inject, Input, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -17,6 +17,7 @@ interface WidgetOption {
   selector: 'jhi-add-widget-modal',
   imports: [CommonModule, ButtonModule],
   templateUrl: './add-widget-modal.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './add-widget-modal.component.scss',
 })
 export class AddWidgetModalComponent {

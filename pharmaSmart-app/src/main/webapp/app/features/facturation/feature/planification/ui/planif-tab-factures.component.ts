@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, signal } from "@angular/core";
+import { Component, computed, inject, input, signal, ChangeDetectionStrategy } from "@angular/core";
 import { DatePipe } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { TableModule } from "primeng/table";
@@ -15,6 +15,7 @@ import { ButtonGroup } from "primeng/buttongroup";
   selector: "app-planif-tab-factures",
   imports: [DatePipe, FormsModule, TableModule, ButtonModule, ToggleSwitch, Tooltip, PlanifDetailPanelComponent, ButtonGroup],
   templateUrl: "./planif-tab-factures.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./planif-tab-factures.component.scss"
 })
 export class PlanifTabFacturesComponent {

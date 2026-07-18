@@ -182,7 +182,12 @@
       "PowerShell(wsl --list --running; wsl bash -c \"pg_dump --version; psql --version\")",
       "PowerShell(docker run *)",
       "PowerShell(if \\(Test-Path \"src-backup\\\\scripts\"\\) { Get-ChildItem \"src-backup\\\\scripts\" | Select-Object Name; $a = Get-FileHash \"src-backup\\\\scripts\\\\setup-backup-tasks.ps1\" -ErrorAction SilentlyContinue; $b = Get-FileHash \"src-tauri\\\\backup\\\\setup-backup-tasks.ps1\"; \"Scripts identiques : $\\($a.Hash -eq $b.Hash\\)\" } else { \"src-backup\\\\scripts ABSENT\" })",
-      "PowerShell(Get-Content \"C:\\\\ProgramData\\\\PharmaSmart\\\\logs\\\\backup-error.log\" -ErrorAction SilentlyContinue -Tail 10; \"--- backup.log ---\"; Get-Content \"C:\\\\ProgramData\\\\PharmaSmart\\\\backups\\\\logs\\\\backup.log\" -ErrorAction SilentlyContinue -Tail 10; \"--- daily ---\"; Get-ChildItem \"C:\\\\ProgramData\\\\PharmaSmart\\\\backups\\\\daily\" -ErrorAction SilentlyContinue | Select-Object Name, Length; \"--- basebackup ---\"; Get-ChildItem \"C:\\\\ProgramData\\\\PharmaSmart\\\\backups\\\\basebackup\" -Recurse -ErrorAction SilentlyContinue | Select-Object FullName, Length)"
+      "PowerShell(Get-Content \"C:\\\\ProgramData\\\\PharmaSmart\\\\logs\\\\backup-error.log\" -ErrorAction SilentlyContinue -Tail 10; \"--- backup.log ---\"; Get-Content \"C:\\\\ProgramData\\\\PharmaSmart\\\\backups\\\\logs\\\\backup.log\" -ErrorAction SilentlyContinue -Tail 10; \"--- daily ---\"; Get-ChildItem \"C:\\\\ProgramData\\\\PharmaSmart\\\\backups\\\\daily\" -ErrorAction SilentlyContinue | Select-Object Name, Length; \"--- basebackup ---\"; Get-ChildItem \"C:\\\\ProgramData\\\\PharmaSmart\\\\backups\\\\basebackup\" -Recurse -ErrorAction SilentlyContinue | Select-Object FullName, Length)",
+      "Bash(npx ng *)",
+      "Bash(where node *)",
+      "Bash(npm -v)",
+      "Bash(npm ls *)",
+      "Bash(echo \"Exit: $?\")"
     ],
     "deny": [],
     "ask": []

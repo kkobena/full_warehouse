@@ -11,7 +11,7 @@
         <div class="pharma-toolbar-filters py-1">
           <input [(ngModel)]="searchTerm" class="p-inputtext p-component" pInputText placeholder="Rechercher un produit..." type="text" />
           <p-floatlabel variant="on">
-            <p-datePicker
+            <p-datepicker
               (onSelect)="onFilterChange()"
               [(ngModel)]="startDate"
               [showIcon]="true"
@@ -23,7 +23,7 @@
             <label for="startDate">Date début</label>
           </p-floatlabel>
           <p-floatlabel variant="on">
-            <p-datePicker
+            <p-datepicker
               [(ngModel)]="endDate"
               [showIcon]="true"
               [style]="{ 'max-width': '160px' }"
@@ -440,7 +440,7 @@
           @if (selectedSeuilFilter()) {
             <div class="col-6">
               <label class="form-label text-sm">Valeur du seuil</label>
-              <p-inputNumber [(ngModel)]="seuilValue" [min]="0" class="w-100" placeholder="Entrez la valeur" />
+              <p-inputnumber [(ngModel)]="seuilValue" [min]="0" class="w-100" placeholder="Entrez la valeur" />
             </div>
           }
         </div>
@@ -468,7 +468,7 @@
           @if (selectedStockFilter() && selectedStockFilter() !== 'OUT_OF_STOCK') {
             <div class="col-6">
               <label class="form-label text-sm">Valeur du stock</label>
-              <p-inputNumber [(ngModel)]="stockValue" class="w-100" />
+              <p-inputnumber [(ngModel)]="stockValue" class="w-100" />
             </div>
           }
         </div>
@@ -483,7 +483,7 @@
           @if (activeTab() === 'vendus') {
             <div class="col-6">
               <label class="form-label text-sm">Quantité minimale vendue</label>
-              <p-inputNumber [(ngModel)]="minQuantitySold" class="w-100" />
+              <p-inputnumber [(ngModel)]="minQuantitySold" class="w-100" />
             </div>
           }
 

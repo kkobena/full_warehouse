@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, DestroyRef, ElementRef, inject, OnInit, viewChild} from '@angular/core';
+import {AfterViewInit, Component, DestroyRef, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy} from '@angular/core';
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {NgxSpinnerService} from "ngx-spinner";
@@ -23,6 +23,7 @@ import {InputText} from "primeng/inputtext";
     ReactiveFormsModule
   ],
   templateUrl: './annulation-vente-message.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './annulation-vente-message.component.scss',
 })
 export class AnnulationVenteMessageComponent implements OnInit, AfterViewInit {

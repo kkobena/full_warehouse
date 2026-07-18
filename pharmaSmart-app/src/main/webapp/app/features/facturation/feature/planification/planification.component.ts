@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { ButtonModule } from 'primeng/button';
 import { Toolbar } from 'primeng/toolbar';
@@ -12,6 +12,7 @@ import { PlanifTabFacturesComponent, PlanifTabFneComponent } from './ui';
   providers: [PlanificationStateService],
   imports: [Toolbar, ButtonModule, Toast, NgbNavModule, PlanifTabFacturesComponent, PlanifTabFneComponent],
   templateUrl: './planification.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './planification.component.scss',
 })
 export class PlanificationComponent implements OnInit {

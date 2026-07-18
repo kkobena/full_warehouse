@@ -144,7 +144,7 @@
 
         <!-- QTÉ.D - Éditable au click -->
         <td [pEditableColumn]="line.quantityRequested" pEditableColumnField="quantityRequested" class="text-center editable-cell">
-          <p-cellEditor>
+          <p-celleditor>
             <ng-template #input>
               <input
                 type="number"
@@ -161,12 +161,12 @@
                 <i class="pi pi-pencil edit-hint-icon"></i>
               </span>
             </ng-template>
-          </p-cellEditor>
+          </p-celleditor>
         </td>
 
         <!-- QTÉ.S - Éditable au click -->
         <td [pEditableColumn]="line.quantitySold" pEditableColumnField="quantitySold" class="text-center editable-cell">
-          <p-cellEditor>
+          <p-celleditor>
             <ng-template #input>
               <input
                 type="number"
@@ -183,13 +183,13 @@
                 <i class="pi pi-pencil edit-hint-icon"></i>
               </span>
             </ng-template>
-          </p-cellEditor>
+          </p-celleditor>
         </td>
 
         <!-- PU - Éditable si autorisé -->
         @if (canEditPrice()) {
           <td [pEditableColumn]="line.regularUnitPrice" pEditableColumnField="regularUnitPrice" class="text-right editable-cell">
-            <p-cellEditor>
+            <p-celleditor>
               <ng-template #input>
                 <input
                   type="number"
@@ -206,7 +206,7 @@
                   <i class="pi pi-pencil edit-hint-icon"></i>
                 </span>
               </ng-template>
-            </p-cellEditor>
+            </p-celleditor>
           </td>
         } @else {
           <td style="text-align: right">

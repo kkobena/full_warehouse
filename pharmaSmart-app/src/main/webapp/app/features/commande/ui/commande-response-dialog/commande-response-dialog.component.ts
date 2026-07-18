@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ButtonModule } from 'primeng/button';
@@ -11,6 +11,7 @@ import { ICommande } from '../../../../shared/model/commande.model';
   selector: 'app-commande-response-dialog',
   templateUrl: './commande-response-dialog.component.html',
   styleUrls: ['./commande-response-dialog.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [DecimalPipe, ButtonModule, TagModule],
 })
 export class CommandeResponseDialogComponent implements OnInit {

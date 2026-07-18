@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, output } from "@angular/core";
+import { Component, computed, inject, input, output, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { ButtonModule } from "primeng/button";
 import { TooltipModule } from "primeng/tooltip";
@@ -15,6 +15,7 @@ import { LotSaisieProduitModalComponent } from "../lot-saisie-produit-modal/lot-
   selector: "app-produit-stock-tab",
   templateUrl: "./produit-stock-tab.component.html",
   styleUrls: ["./produit-stock-tab.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, ButtonModule, TooltipModule]
 })
 export class ProduitStockTabComponent {

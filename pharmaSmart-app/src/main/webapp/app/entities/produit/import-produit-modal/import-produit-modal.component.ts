@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild } from "@angular/core";
+import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { InputTextModule } from "primeng/inputtext";
@@ -37,6 +37,7 @@ import { FournisseurApiService } from "../../../features/partners/data-access/se
     SpinnerComponent
   ],
   templateUrl: "./import-produit-modal.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["../../common-modal.component.scss"]
 })
 export class ImportProduitModalComponent implements OnInit {

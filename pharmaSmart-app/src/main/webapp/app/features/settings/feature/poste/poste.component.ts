@@ -1,5 +1,5 @@
 import { HttpErrorResponse, HttpResponse } from "@angular/common/http";
-import { Component, inject, OnInit, signal } from "@angular/core";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { PosteService } from "./poste.service";
 import { IPoste } from "../../../../shared/model/poste.model";
@@ -28,6 +28,7 @@ import { CommonModule } from "@angular/common";
   selector: "app-poste",
   templateUrl: "./poste.component.html",
   styleUrls: ["./poste.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     ButtonModule,

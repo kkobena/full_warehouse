@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from "@angular/core";
+import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { HttpResponse } from "@angular/common/http";
 import { Router, RouterModule } from "@angular/router";
 import { IMagasin } from "../../shared/model";
@@ -34,6 +34,7 @@ import { Toast } from "primeng/toast";
     Toast
   ],
   templateUrl: "./depot.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./depot.component.scss"
 })
 export class DepotComponent implements OnInit {

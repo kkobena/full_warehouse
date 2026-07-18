@@ -1,4 +1,4 @@
-import { Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { forkJoin } from 'rxjs';
 
@@ -17,6 +17,7 @@ type TranchePill = 'all' | '0-30' | '31-60' | '61-90' | '90+';
   selector: 'app-vieillissement-creances',
   templateUrl: './vieillissement-creances.component.html',
   styleUrl: './vieillissement-creances.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, TableModule],
 })
 export default class VieillissementCreancesComponent implements OnInit, OnDestroy {

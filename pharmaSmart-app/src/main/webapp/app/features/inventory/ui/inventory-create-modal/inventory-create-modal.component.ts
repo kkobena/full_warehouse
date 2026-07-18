@@ -1,4 +1,4 @@
-import {Component, DestroyRef, ElementRef, inject, OnInit, Renderer2, signal} from '@angular/core';
+import {Component, DestroyRef, ElementRef, inject, OnInit, Renderer2, signal, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule, DatePipe} from '@angular/common';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
@@ -31,6 +31,7 @@ import {NgxSpinnerService} from "ngx-spinner";
   imports: [CommonModule, ReactiveFormsModule, Button, Select, InputText, InputNumber, DatePicker],
   templateUrl: './inventory-create-modal.component.html',
   styleUrl: './inventory-create-modal.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [DatePipe],
 })
 export class InventoryCreateModalComponent implements OnInit {

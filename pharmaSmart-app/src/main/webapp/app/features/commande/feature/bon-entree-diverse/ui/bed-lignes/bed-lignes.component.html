@@ -10,7 +10,7 @@
     <div class="add-product-bar">
       <div class="search-controls">
         <div class="product-search-input">
-          <p-autoComplete
+          <p-autocomplete
             [suggestions]="produitSuggestions()"
             (completeMethod)="onSearchProduit($event)"
             [ngModel]="selectedProduit()"

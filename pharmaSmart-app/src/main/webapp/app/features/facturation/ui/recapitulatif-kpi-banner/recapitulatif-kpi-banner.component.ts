@@ -1,4 +1,4 @@
-import { Component, input } from "@angular/core";
+import { Component, input, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { IRecapitulatifKpi } from "../../data-access/models";
 import { Tooltip } from "primeng/tooltip";
@@ -7,6 +7,7 @@ import { Tooltip } from "primeng/tooltip";
   selector: "app-recapitulatif-kpi-banner",
   imports: [CommonModule, Tooltip],
   templateUrl: "./recapitulatif-kpi-banner.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./recapitulatif-kpi-banner.component.scss"
 })
 export class RecapitulatifKpiBannerComponent {

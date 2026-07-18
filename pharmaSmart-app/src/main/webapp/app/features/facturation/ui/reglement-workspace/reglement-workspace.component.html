@@ -83,7 +83,7 @@
             }
             @if (partialPayment()) {
               <th class="text-center" style="width: 3rem">
-                <p-tableHeaderCheckbox #checkbox />
+                <p-tableheadercheckbox #checkbox />
               </th>
             }
           </tr>
@@ -105,7 +105,7 @@
               @if (editableIds().has(item.id)) {
                 <td class="text-end editable-cell" pEditableColumn
                     style="width: 110px; max-width: 110px; overflow: hidden">
-                  <p-cellEditor>
+                  <p-celleditor>
                     <ng-template #input>
                       <input
                         (keyup)="onMontantVerseChange(item)"
@@ -123,7 +123,7 @@
                         <i class="pi pi-pencil edit-hint-icon"></i>
                       </span>
                     </ng-template>
-                  </p-cellEditor>
+                  </p-celleditor>
                 </td>
               } @else {
                 <td class="text-end"><span class="pharma-price">{{ item.montantVerse | number }}</span></td>
@@ -141,7 +141,7 @@
             }
             @if (partialPayment()) {
               <td class="text-center">
-                <p-tableCheckbox [value]="item" />
+                <p-tablecheckbox [value]="item" />
               </td>
             }
           </tr>

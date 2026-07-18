@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, OnInit, viewChild } from "@angular/core";
+import { AfterViewInit, Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { IProduit } from "../../../shared/model";
 import { FournisseurProduit, IFournisseurProduit } from "../../../shared/model/fournisseur-produit.model";
 import { ProduitService } from "../produit.service";
@@ -24,6 +24,7 @@ import { FournisseurApiService } from "../../../features/partners/data-access/se
   selector: "app-form-produit-fournisseur",
   templateUrl: "./form-produit-fournisseur.component.html",
   styleUrls: ["./form-produit.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

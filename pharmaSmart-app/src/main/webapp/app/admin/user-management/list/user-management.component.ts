@@ -1,4 +1,4 @@
-import {Component, computed, inject, OnInit, signal} from "@angular/core";
+import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} from "@angular/core";
 import {ActivatedRoute, Router, RouterModule} from "@angular/router";
 import {HttpHeaders, HttpResponse} from "@angular/common/http";
 import {combineLatest} from "rxjs";
@@ -27,6 +27,7 @@ import {Toast} from "primeng/toast";
   selector: "jhi-user-mgmt",
   templateUrl: "./user-management.component.html",
   styleUrls: ["./user-management.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     ButtonModule,

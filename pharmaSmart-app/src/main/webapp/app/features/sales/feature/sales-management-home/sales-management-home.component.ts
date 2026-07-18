@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import {
   NgbNav,
   NgbNavChangeEvent,
@@ -35,6 +35,7 @@ const TAB_LABELS: Record<SalesManagementTab, string> = {
   selector: "app-sales-management-home",
   templateUrl: "./sales-management-home.component.html",
   styleUrl: "./sales-management-home.component.scss",
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     NgbNav,
     NgbNavItem,

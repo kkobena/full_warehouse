@@ -1,4 +1,4 @@
-import { Component, input } from "@angular/core";
+import { Component, input, ChangeDetectionStrategy } from "@angular/core";
 
 import { IUser } from "../user-management.model";
 import { ButtonModule } from "primeng/button";
@@ -12,6 +12,7 @@ import { CommonModule } from "@angular/common";
   selector: "jhi-user-mgmt-detail",
   templateUrl: "./user-management-detail.component.html",
   styleUrl: "./user-management-detail.component.scss",
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, ButtonModule, RouterLink, Toolbar, TagModule, ChipModule]
 })
 export default class UserManagementDetailComponent {

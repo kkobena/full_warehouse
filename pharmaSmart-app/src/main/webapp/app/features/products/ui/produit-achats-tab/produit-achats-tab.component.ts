@@ -1,4 +1,4 @@
-import { Component, effect, ElementRef, inject, input, OnDestroy, signal, viewChild } from '@angular/core';
+import { Component, effect, ElementRef, inject, input, OnDestroy, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
@@ -27,6 +27,7 @@ interface PeriodShortcut {
   selector: 'app-produit-achats-tab',
   templateUrl: './produit-achats-tab.component.html',
   styleUrls: ['./produit-achats-tab.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, TableModule, ButtonModule, TooltipModule, DatePickerComponent],
 })
 export class ProduitAchatsTabComponent implements OnDestroy {

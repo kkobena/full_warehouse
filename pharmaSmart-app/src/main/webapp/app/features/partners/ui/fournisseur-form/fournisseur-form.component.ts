@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
 import { CommonModule } from "@angular/common";
 import { HttpErrorResponse, HttpResponse } from "@angular/common/http";
@@ -19,6 +19,7 @@ import { Fournisseur, IFournisseur } from "../../../../shared/model/fournisseur.
   selector: "app-fournisseur-form",
   templateUrl: "./fournisseur-form.component.html",
   styleUrl: "./fournisseur-form.component.scss",
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

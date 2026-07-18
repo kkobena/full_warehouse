@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpResponse } from '@angular/common/http';
@@ -36,6 +36,7 @@ import { AddWidgetModalComponent } from './add-widget-modal.component';
   selector: 'jhi-customizable-dashboard',
   imports: [CommonModule, FormsModule, ButtonModule, CardModule, SelectModule, ToolbarModule, InputTextModule, Tag],
   templateUrl: './customizable-dashboard.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './customizable-dashboard.component.scss',
 })
 export default class CustomizableDashboardComponent implements OnInit, AfterViewInit, OnDestroy {

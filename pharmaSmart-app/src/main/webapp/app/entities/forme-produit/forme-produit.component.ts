@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild } from '@angular/core';
+import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { FormeProduitService } from './forme-produit.service';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
@@ -19,6 +19,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
   selector: 'jhi-forme-produit',
   templateUrl: './forme-produit.component.html',
   styleUrl: './forme-produit.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ButtonModule, ToolbarModule, TableModule, Tooltip, ConfirmDialogComponent, IconField, InputIcon, InputText],
 })
 export class FormeProduitComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { Toast } from 'primeng/toast';
 
@@ -8,6 +8,7 @@ export type Severity = 'primary' | 'secondary' | 'success' | 'info' | 'warn' | '
   selector: 'jhi-toast-alert',
   providers: [MessageService],
   template: ` <p-toast position="center" />`,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [Toast],
 })
 export class ToastAlertComponent {

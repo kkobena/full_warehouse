@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ChartComponent } from 'app/shared/chart/chart.component';
@@ -14,6 +14,7 @@ import { formatCurrency, formatDecimal, formatNumber } from 'app/shared/utils/fo
   selector: 'app-sales-by-staff',
   imports: [CommonModule, TableModule, ChartComponent, DateRangeFilterComponent],
   templateUrl: './sales-by-staff.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./sales-by-staff.component.scss'],
 })
 export default class SalesByStaffComponent implements OnInit {

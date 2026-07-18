@@ -1,4 +1,4 @@
-import { Component, input } from "@angular/core";
+import { Component, input, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { IRapprochementKpi } from "../../data-access/models";
 
@@ -6,6 +6,7 @@ import { IRapprochementKpi } from "../../data-access/models";
   selector: "app-rapprochement-kpi-banner",
   imports: [CommonModule],
   templateUrl: "./rapprochement-kpi-banner.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./rapprochement-kpi-banner.component.scss"
 })
 export class RapprochementKpiBannerComponent {

@@ -10,7 +10,7 @@
       <ng-template #start>
         <div class="pharma-toolbar-filters">
           <p-floatlabel variant="on">
-            <p-datePicker
+            <p-datepicker
               [(ngModel)]="fromDate"
               [style]="{ 'max-width': '160px' }"
               [iconDisplay]="'input'"
@@ -26,7 +26,7 @@
           </p-floatlabel>
 
           <p-floatlabel variant="on">
-            <p-datePicker
+            <p-datepicker
               [style]="{ 'max-width': '160px' }"
               [(ngModel)]="toDate"
               [iconDisplay]="'input'"
@@ -41,7 +41,7 @@
             <label for="dateFin">Au</label>
           </p-floatlabel>
 
-          <p-multiSelect
+          <p-multiselect
             [(ngModel)]="selectedTypes"
             [filter]="true"
             [options]="types"
@@ -53,7 +53,7 @@
             placeholder="Type de mouvement"
           />
 
-          <p-multiSelect
+          <p-multiselect
             [(ngModel)]="selectedModes"
             [options]="paymentModes"
             [showClear]="true"

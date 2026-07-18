@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { CommonModule } from "@angular/common";
 import { HttpResponse } from "@angular/common/http";
@@ -41,6 +41,7 @@ export type RetourTab = "EN_ATTENTE" | "HISTORIQUE" | "AVOIRS" | "GROUPE";
   selector: "app-retour-fournisseur",
   templateUrl: "./retour-fournisseur.component.html",
   styleUrls: ["./retour-fournisseur.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

@@ -12,6 +12,7 @@ import {
   viewChildren,
   WritableSignal,
   input,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { CustomerService } from '../../../../entities/customer/customer.service';
 import { HttpResponse } from '@angular/common/http';
@@ -45,6 +46,7 @@ import { ButtonGroupModule } from 'primeng/buttongroup';
     ButtonGroupModule,
   ],
   templateUrl: './insurance-data-bar.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./insurance-data-bar.component.scss'],
 })
 export class InsuranceDataBarComponent implements OnInit, AfterViewInit {

@@ -8,7 +8,8 @@ import {
   output,
   signal,
   untracked,
-  viewChild
+  viewChild,
+  ChangeDetectionStrategy
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
@@ -31,6 +32,7 @@ import { ErrorService } from "../../../../../shared/error.service";
   templateUrl: "./reception-sequential.component.html",
   styleUrls: ["./reception-sequential.component.scss"],
   host: { "(window:keydown)": "onKeydown($event)" },
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, ButtonModule, TooltipModule, InputTextModule]
 })
 export class ReceptionSequentialComponent {

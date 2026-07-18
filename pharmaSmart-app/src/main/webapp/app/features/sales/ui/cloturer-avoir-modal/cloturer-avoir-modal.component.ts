@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -18,6 +18,7 @@ import { Textarea } from 'primeng/textarea';
   selector: 'app-cloturer-avoir-modal',
   templateUrl: './cloturer-avoir-modal.component.html',
   styleUrl: './cloturer-avoir-modal.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, Button, Select, Textarea, InputNumber],
 })
 export class CloturerAvoirModalComponent {

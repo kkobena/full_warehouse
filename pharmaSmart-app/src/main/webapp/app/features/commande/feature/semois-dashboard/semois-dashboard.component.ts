@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 import { DatePipe, DecimalPipe, NgClass } from '@angular/common';
 
@@ -18,6 +18,7 @@ import { CommandCommonService } from 'app/entities/commande/command-common.servi
   selector: 'app-semois-dashboard',
   templateUrl: './semois-dashboard.component.html',
   styleUrls: ['./semois-dashboard.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [DatePipe, DecimalPipe, NgClass, TableModule, ButtonModule, ToolbarModule, Tag, ProgressBarModule, SkeletonModule],
 })
 export class SemoisDashboardComponent implements OnInit {

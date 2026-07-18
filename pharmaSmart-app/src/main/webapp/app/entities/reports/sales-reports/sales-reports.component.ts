@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from "@angular/core";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { AbilityService } from "app/core/auth/ability.service";
 import { CommonModule } from "@angular/common";
 import { NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
@@ -37,6 +37,7 @@ import ClientRetentionComponent from "../client-retention/client-retention.compo
     ClientRetentionComponent,
   ],
   templateUrl: "./sales-reports.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./sales-reports.component.scss"
 })
 export default class SalesReportsComponent implements OnInit {

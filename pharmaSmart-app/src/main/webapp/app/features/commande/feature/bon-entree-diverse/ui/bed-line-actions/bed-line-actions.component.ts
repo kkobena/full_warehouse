@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { Button } from 'primeng/button';
 import { Tooltip } from 'primeng/tooltip';
@@ -8,8 +8,9 @@ import { IBedLigne } from '../../data-access/bed.model';
 @Component({
   selector: 'app-bed-line-actions',
   imports: [Button, Tooltip, ButtonGroup],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <p-buttonGroup>
+    <p-buttongroup>
       @if (isBrouillon) {
         <p-button
           [text]="true"
@@ -24,7 +25,7 @@ import { IBedLigne } from '../../data-access/bed.model';
       } @else {
         <i class="pi pi-lock text-muted" style="font-size:0.8rem;padding:0.4rem"></i>
       }
-    </p-buttonGroup>
+    </p-buttongroup>
   `,
 })
 export class BedLineActionsComponent implements ICellRendererAngularComp {

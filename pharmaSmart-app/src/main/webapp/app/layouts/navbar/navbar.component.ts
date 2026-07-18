@@ -1,4 +1,4 @@
-import { Component, effect, inject, OnInit, signal } from "@angular/core";
+import { Component, effect, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { Router, RouterModule } from "@angular/router";
 import { environment } from "environments/environment";
 import { AccountService } from "app/core/auth/account.service";
@@ -22,6 +22,7 @@ import { FaIconComponent } from "@fortawesome/angular-fontawesome";
   selector: "jhi-navbar",
   templateUrl: "./navbar.component.html",
   styleUrl: "./navbar.component.scss",
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [RouterModule, CommonModule, TranslateDirective, FaIconComponent, NgbDropdown, NgbCollapse, NgbDropdownToggle, NgbDropdownMenu]
 })
 export default class NavbarComponent implements OnInit {

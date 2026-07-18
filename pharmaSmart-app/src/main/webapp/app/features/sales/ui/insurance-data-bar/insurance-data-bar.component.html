@@ -49,13 +49,13 @@
                 <span>Ayant droit</span>
               </div>
               @if (ayantDroit() && ayantDroit()?.id !== customer()?.id) {
-                <p-buttonGroup>
+                <p-buttongroup>
                   <p-button (onClick)="editAyantDroitClick()" icon="pi pi-user-edit" [rounded]="true" size="small"
                             severity="info" pTooltip="Modifier les infos de l'ayant droit"/>
 
                   <p-button (onClick)="loadAyantDoitsClick()" icon="pi pi-users" [rounded]="true" size="small"
                             severity="primary" pTooltip="Choisir un autre ayant droit"/>
-                </p-buttonGroup>
+                </p-buttongroup>
               } @else {
                 <p-button (onClick)="loadAyantDoitsClick()" icon="pi pi-user-edit" [rounded]="true" size="small"
                           severity="info" pTooltip="Ajouter un ayant droit"/>

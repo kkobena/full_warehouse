@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from "@angular/core";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule, DatePipe, NgClass } from "@angular/common";
 import { Router } from "@angular/router";
 import { HttpResponse } from "@angular/common/http";
@@ -23,6 +23,7 @@ import { AlertBadgeService } from "app/shared/services/alert-badge.service";
   selector: "app-appro-unified-dashboard",
   templateUrl: "./appro-unified-dashboard.component.html",
   styleUrls: ["./appro-unified-dashboard.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     DatePipe, CommonModule,
     TableModule, ButtonModule, ToolbarModule, Tag,

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { Customer, ICustomer } from '../../../shared/model/customer.model';
 import { InputMaskModule } from 'primeng/inputmask';
@@ -25,6 +25,7 @@ import { DateNaissDirective } from '../../../shared/date-naiss.directive';
     DateNaissDirective,
   ],
   templateUrl: './ayant-droit-step.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./assured-form-step.component.scss'],
 })
 export class AyantDroitStepComponent implements OnInit {

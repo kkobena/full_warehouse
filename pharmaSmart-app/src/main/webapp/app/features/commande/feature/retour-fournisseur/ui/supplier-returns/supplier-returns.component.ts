@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
@@ -54,6 +54,7 @@ import { ConfigurationService } from "../../../../../../shared/configuration.ser
     InlineLotSelectionComponent,
   ],
   templateUrl: './supplier-returns.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './supplier-returns.component.scss',
 })
 export class SupplierReturnsComponent implements OnInit, OnDestroy {
@@ -531,7 +532,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
 
   private focusOrderLineInput(): void {
     setTimeout(() => {
-      this.orderLineAutoComplete?.inputEL?.nativeElement?.focus();
+      this.orderLineAutoComplete?.inputEL()?.nativeElement?.focus();
     }, 100);
   }
 }

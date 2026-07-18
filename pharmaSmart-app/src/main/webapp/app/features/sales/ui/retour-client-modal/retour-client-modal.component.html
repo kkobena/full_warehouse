@@ -139,14 +139,14 @@
               </td>
               <td>
                 @if (!line.retourInterdit) {
-                  <p-inputNumber
+                  <p-inputnumber
                     [ngModel]="line.quantiteRetour"
                     (ngModelChange)="updateQty(line.salesLineId, $event)"
                     [min]="0" [max]="line.quantitySold" [showButtons]="true"
                     buttonLayout="horizontal" spinnerMode="horizontal" [step]="1">
                     <ng-template #incrementbuttonicon><span class="pi pi-plus"></span></ng-template>
                     <ng-template #decrementbuttonicon><span class="pi pi-minus"></span></ng-template>
-                  </p-inputNumber>
+                  </p-inputnumber>
                 } @else {
                   <span class="text-danger small"><i class="pi pi-lock me-1"></i>Interdit</span>
                 }

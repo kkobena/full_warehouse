@@ -1,4 +1,4 @@
-import { Component, signal, ViewChild } from '@angular/core';
+import { Component, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { ButtonModule } from 'primeng/button';
@@ -13,6 +13,7 @@ import StockRotationComponent from '../stock-rotation/stock-rotation.component';
   selector: 'jhi-stock-abc',
   imports: [NgbNavModule, ABCParetoComponent, StockRotationComponent, FormsModule, ToolbarModule, SelectModule, ButtonModule],
   templateUrl: './stock-abc.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./stock-abc.component.scss'],
 })
 export default class StockABCComponent {

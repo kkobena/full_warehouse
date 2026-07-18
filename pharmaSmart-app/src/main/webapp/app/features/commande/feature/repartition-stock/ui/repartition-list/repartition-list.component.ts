@@ -1,4 +1,4 @@
-import { Component, inject, input, OnInit } from '@angular/core';
+import { Component, inject, input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
@@ -13,6 +13,7 @@ import { DATE_FORMAT_ISO_DATE } from 'app/shared/util/warehouse-util';
   selector: 'app-repartition-list',
   templateUrl: './repartition-list.component.html',
   styleUrls: ['./repartition-list.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, TableModule, ButtonModule, TagModule, FormsModule],
 })
 export class AppRepartitionListComponent implements OnInit {

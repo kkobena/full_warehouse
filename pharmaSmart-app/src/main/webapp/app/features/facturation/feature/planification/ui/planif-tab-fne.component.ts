@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
@@ -12,6 +12,7 @@ import { PlanificationStateService } from '../planification-state.service';
   selector: 'app-planif-tab-fne',
   imports: [DatePipe, FormsModule, TableModule, ButtonModule, ToggleSwitch, Tooltip],
   templateUrl: './planif-tab-fne.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './planif-tab-fne.component.scss',
 })
 export class PlanifTabFneComponent {

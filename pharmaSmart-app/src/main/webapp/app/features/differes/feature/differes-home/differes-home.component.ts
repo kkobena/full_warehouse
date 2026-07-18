@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { finalize } from "rxjs/operators";
 import { FormsModule } from "@angular/forms";
@@ -37,6 +37,7 @@ type StatutDiffere = "PAYE" | "IMPAYE";
     DiffereDetailPanelComponent
   ],
   templateUrl: "./differes-home.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./differes-home.component.scss"
 })
 export class DifferesHomeComponent implements OnInit {

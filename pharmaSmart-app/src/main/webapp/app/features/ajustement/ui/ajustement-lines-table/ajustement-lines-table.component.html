@@ -46,7 +46,7 @@
       <th style="width: 15%">Motif</th>
       <th style="width: 4%"></th>
       <th class="table-all-checkbos" style="width: 3rem">
-        <p-tableHeaderCheckbox />
+        <p-tableheadercheckbox />
       </th>
     </tr>
   </ng-template>
@@ -71,9 +71,9 @@
 
       <!-- Quantité éditable inline -->
       <td pEditableColumn class="text-right">
-        <p-cellEditor>
+        <p-celleditor>
           <ng-template #input>
-            <p-inputNumber
+            <p-inputnumber
               [ngModel]="line.qtyMvt"
               (ngModelChange)="onQtyChange(line, $event)"
               [showButtons]="true"
@@ -92,7 +92,7 @@
               {{ (line.qtyMvt ?? 0) >= 0 ? '+' : '' }}{{ line.qtyMvt | number }}
             </span>
           </ng-template>
-        </p-cellEditor>
+        </p-celleditor>
       </td>
 
       <td class="text-right">
@@ -109,7 +109,7 @@
           (onClick)="deleteLine.emit(line)"
         />
       </td>
-      <td class="text-center"><p-tableCheckbox [value]="line" /></td>
+      <td class="text-center"><p-tablecheckbox [value]="line" /></td>
     </tr>
   </ng-template>
 

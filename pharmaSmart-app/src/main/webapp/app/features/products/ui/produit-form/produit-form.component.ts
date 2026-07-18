@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from "@angular/core";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { forkJoin } from "rxjs";
@@ -55,6 +55,7 @@ import { FournisseurApiService } from "../../../partners/data-access/services/fo
   selector: "app-produit-form",
   templateUrl: "./produit-form.component.html",
   styleUrl: "./produit-form.component.scss",
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     ReactiveFormsModule,

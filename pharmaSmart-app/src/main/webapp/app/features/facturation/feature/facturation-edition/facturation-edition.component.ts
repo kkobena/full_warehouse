@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { finalize } from "rxjs/operators";
 import { HttpResponse } from "@angular/common/http";
@@ -61,6 +61,7 @@ import { BlobDownloadService } from "../../../../shared/services/blob-download.s
     PharmaDatePickerComponent
   ],
   templateUrl: "./facturation-edition.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./facturation-edition.component.scss"
 })
 export class FacturationEditionComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, inject, model, OnDestroy, viewChild } from '@angular/core';
+import { Component, inject, model, OnDestroy, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormArray, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { KeyFilterModule } from 'primeng/keyfilter';
@@ -42,6 +42,7 @@ import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal
     Tooltip,
   ],
   templateUrl: './complementaire-step.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./assured-form-step.component.scss'],
 })
 export class ComplementaireStepComponent implements OnDestroy {

@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy } from "@angular/core";
+import { Component, inject, OnDestroy, ChangeDetectionStrategy } from "@angular/core";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { ICommandeResponse } from "../../shared/model/commande-response.model";
 import { CommandeService } from "./commande.service";
@@ -12,6 +12,7 @@ import { BlobDownloadService } from "../../shared/services/blob-download.service
   selector: "app-commande-import-response-dialog",
   templateUrl: "./commande-import-response-dialog.component.html",
   styleUrls: ["./commande-import-response-dialog.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ButtonModule, CommonModule]
 })
 export class CommandeImportResponseDialogComponent implements OnDestroy {

@@ -1,4 +1,4 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { Button } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { MenuModule } from 'primeng/menu';
@@ -10,6 +10,7 @@ export type SuggestionFournisseurAction = 'editer' | 'valider' | 'commander' | '
 @Component({
   selector: 'app-suggestion-fournisseur-actions',
   imports: [Button, TooltipModule, MenuModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <p-menu #rowMenu [popup]="true" [model]="menuItems()" appendTo="body" />
     <p-button

@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, signal, viewChild, WritableSignal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal, viewChild, WritableSignal, ChangeDetectionStrategy } from '@angular/core';
 import { RecapitulatifCaisseService } from '../recapitulatif-caisse.service';
 import { TIMES } from '../../../shared/util/times';
 import { RecapParam } from '../model/recap-param.model';
@@ -45,6 +45,7 @@ import { catchError, finalize, map, takeUntil, tap } from 'rxjs/operators';
     Toast,
   ],
   templateUrl: './recapitualtif-caisse.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./recapitualtif-caisse.component.scss'],
 })
 export class RecapitualtifCaisseComponent implements OnInit, OnDestroy {

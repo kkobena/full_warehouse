@@ -15,20 +15,20 @@
     <ng-template #header>
       <tr class="pharma-table-head">
         <th style="width:40px">
-          <p-tableHeaderCheckbox />
+          <p-tableheadercheckbox />
         </th>
         <th pSortableColumn="updatedAt" >
-          Date <p-sortIcon field="updatedAt" />
+          Date <p-sorticon field="updatedAt" />
         </th>
         <th>Fournisseur</th>
         <th pSortableColumn="nbProduits" class="text-end" >
-          Produits <p-sortIcon field="nbProduits" />
+          Produits <p-sorticon field="nbProduits" />
         </th>
         <th pSortableColumn="nbUrgents"class="text-end" >
-          Urgents <p-sortIcon field="nbUrgents" />
+          Urgents <p-sorticon field="nbUrgents" />
         </th>
         <th pSortableColumn="montantEstime" class="text-end">
-          Montant estimé <p-sortIcon field="montantEstime" />
+          Montant estimé <p-sorticon field="montantEstime" />
         </th>
         <th style="width:120px">Statut</th>
         <th style="width:60px">Actions</th>
@@ -38,7 +38,7 @@
     <ng-template #body let-f>
       <tr [ngClass]="getRowClass(f)" (click)="onRowClick(f)">
         <td (click)="$event.stopPropagation()">
-          <p-tableCheckbox [value]="f" />
+          <p-tablecheckbox [value]="f" />
         </td>
         <td>{{ f.updatedAt ? (f.updatedAt | date:'dd/MM/yy HH:mm') : '—' }}</td>
         <td >

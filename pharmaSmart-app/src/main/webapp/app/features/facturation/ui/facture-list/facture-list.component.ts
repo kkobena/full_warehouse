@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject, input, output, signal } from "@angular/core";
+import { Component, DestroyRef, effect, inject, input, output, signal, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { finalize } from "rxjs/operators";
 import { HttpHeaders } from "@angular/common/http";
@@ -35,6 +35,7 @@ import { BlobDownloadService } from "../../../../shared/services/blob-download.s
     ButtonGroup
   ],
   templateUrl: "./facture-list.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./facture-list.component.scss"
 })
 export class FactureListComponent {

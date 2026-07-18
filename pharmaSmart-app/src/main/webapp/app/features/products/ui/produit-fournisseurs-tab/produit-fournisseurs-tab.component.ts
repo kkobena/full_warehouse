@@ -1,4 +1,4 @@
-import { Component, inject, input, output } from '@angular/core';
+import { Component, inject, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
@@ -17,6 +17,7 @@ import { FormProduitFournisseurComponent } from 'app/entities/produit/form-produ
   selector: 'app-produit-fournisseurs-tab',
   templateUrl: './produit-fournisseurs-tab.component.html',
   styleUrls: ['./produit-fournisseurs-tab.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, TableModule, TagModule, TooltipModule, ButtonModule, ToggleSwitchModule],
 })
 export class ProduitFournisseursTabComponent {

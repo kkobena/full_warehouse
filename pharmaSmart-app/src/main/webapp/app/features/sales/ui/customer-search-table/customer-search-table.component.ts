@@ -6,7 +6,8 @@ import {
   model,
   output,
   signal,
-  viewChild
+  viewChild,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
@@ -34,6 +35,7 @@ import {showCommonModal} from '../../../../entities/sales/selling-home/sale-help
   selector: 'app-customer-search-table',
   imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, TableModule, TooltipModule, IconField, InputIcon],
   templateUrl: './customer-search-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [
     `
       @import 'app/shared/scss/table-common';

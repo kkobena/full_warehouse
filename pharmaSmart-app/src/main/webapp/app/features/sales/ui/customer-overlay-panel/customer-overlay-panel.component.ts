@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, output, viewChild } from '@angular/core';
+import { Component, computed, inject, input, output, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
@@ -22,6 +22,7 @@ import { CommonModule } from "@angular/common";
   selector: 'app-customer-overlay-panel',
   imports: [CommonModule, ButtonModule, FormsModule, PopoverModule, TooltipModule, CustomerSearchTableComponent],
   templateUrl: './customer-overlay-panel.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./customer-overlay-panel.component.scss'],
 })
 export class CustomerOverlayPanelComponent {

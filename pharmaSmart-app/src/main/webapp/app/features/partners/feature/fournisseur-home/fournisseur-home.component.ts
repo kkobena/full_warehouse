@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, viewChild } from '@angular/core';
+import { Component, inject, OnInit, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
@@ -29,6 +29,7 @@ import { CommonModule } from "@angular/common";
   selector: 'app-fournisseur-home',
   templateUrl: './fournisseur-home.component.html',
   styleUrls: ['./fournisseur-home.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

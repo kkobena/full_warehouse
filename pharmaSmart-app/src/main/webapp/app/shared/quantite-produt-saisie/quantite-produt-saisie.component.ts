@@ -1,4 +1,4 @@
-import { Component, ElementRef, input, output, viewChild } from '@angular/core';
+import { Component, ElementRef, input, output, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputGroupModule } from 'primeng/inputgroup';
@@ -11,6 +11,7 @@ import { KeyFilterModule } from 'primeng/keyfilter';
 @Component({
   selector: 'jhi-quantite-produt-saisie',
   imports: [FormsModule, FloatLabelModule, InputGroupModule, InputGroupAddonModule, InputText, Button, TranslatePipe, KeyFilterModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <p-floatlabel variant="on">
       <p-inputgroup>

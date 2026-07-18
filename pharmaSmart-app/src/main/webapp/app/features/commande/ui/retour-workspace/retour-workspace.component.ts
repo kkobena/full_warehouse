@@ -1,4 +1,4 @@
-import { Component, inject, input, OnInit, output, signal } from '@angular/core';
+import { Component, inject, input, OnInit, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -32,6 +32,7 @@ interface RetourLine {
   selector: 'app-retour-workspace',
   imports: [CommonModule, FormsModule, ButtonModule, TableModule, InputNumberModule, SelectModule, TooltipModule, ToastModule],
   templateUrl: './retour-workspace.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './retour-workspace.component.scss',
 })
 export class RetourWorkspaceComponent implements OnInit {

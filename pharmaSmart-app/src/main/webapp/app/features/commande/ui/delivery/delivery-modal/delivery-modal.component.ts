@@ -1,5 +1,5 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { Component, ElementRef, inject, OnInit, Renderer2 } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, Renderer2, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
@@ -29,6 +29,7 @@ import { InputNumber } from "primeng/inputnumber";
   selector: 'app-form-delivery',
   templateUrl: './delivery-modal.component.html',
   styleUrls: ['./form-delevery.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     ButtonModule,

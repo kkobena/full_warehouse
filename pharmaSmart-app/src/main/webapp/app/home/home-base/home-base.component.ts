@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { CommonModule } from "@angular/common";
 import { TableModule } from "primeng/table";
@@ -84,6 +84,7 @@ interface PeriodOption {
     TooltipModule
   ],
   templateUrl: "./home-base.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./home-base.component.scss"
 })
 export class HomeBaseComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 import { TableauPharmacienService } from './tableau-pharmacien.service';
@@ -56,6 +56,7 @@ import { CommonModule } from "@angular/common";
     ToastAlertComponent,
   ],
   templateUrl: './tableau-pharmacien.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./tableau-pharmacien.component.scss'],
 })
 export class TableauPharmacienComponent implements OnInit, AfterViewInit {

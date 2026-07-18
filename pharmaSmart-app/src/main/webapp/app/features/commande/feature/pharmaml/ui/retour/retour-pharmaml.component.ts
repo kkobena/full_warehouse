@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -29,6 +29,7 @@ const MOTIFS: { value: MotifRetour; label: string }[] = [
   selector: 'app-retour-pharmaml',
   imports: [CommonModule, FormsModule, Button, TableModule, Toast],
   styleUrls: ['./retour-pharmam.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <p-toast position="center"/>
     <div class="modal-header">

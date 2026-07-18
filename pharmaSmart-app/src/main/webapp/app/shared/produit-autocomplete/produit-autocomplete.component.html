@@ -1,5 +1,5 @@
 <p-floatlabel variant="on">
-  <p-autoComplete
+  <p-autocomplete
     #produitbox
     [(ngModel)]="produitSelected"
     (completeMethod)="searchFn($event)"
@@ -37,7 +37,7 @@
         </span>
       </div>
     </ng-template>
-  </p-autoComplete>
+  </p-autocomplete>
   <label for="produits">
     {{ 'warehouseApp.labels.produits' | translate }}
   </label>

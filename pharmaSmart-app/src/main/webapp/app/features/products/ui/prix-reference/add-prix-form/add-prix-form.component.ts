@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { AfterViewInit, Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { ButtonModule } from "primeng/button";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -31,6 +31,7 @@ type PriceType = (typeof PriceTypes)[keyof typeof PriceTypes];
   selector: "app-add-prix-form",
   imports: [ButtonModule, ReactiveFormsModule, Select, InputNumber, ToggleSwitch],
   templateUrl: "./add-prix-form.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["add-prix-form.scss"]
 })
 export class AddPrixFormComponent implements OnInit, AfterViewInit {

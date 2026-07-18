@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild } from "@angular/core";
+import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FamilleProduitService } from "./famille-produit.service";
 import { RouterModule } from "@angular/router";
 import { HttpErrorResponse, HttpHeaders, HttpResponse } from "@angular/common/http";
@@ -29,6 +29,7 @@ import { NotificationService } from "../../shared/services/notification.service"
   selector: "app-famille-produit",
   templateUrl: "./famille-produit.component.html",
   styleUrl: "./famille-produit.component.scss",
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ButtonModule,
     RippleModule,

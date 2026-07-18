@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, Renderer2 } from "@angular/core";
+import { Component, ElementRef, inject, Renderer2, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 
@@ -19,6 +19,7 @@ import { NotificationService } from "../../../shared/services/notification.servi
   selector: "app-sale-update-date-modal",
   templateUrl: "./sale-update-date-modal.component.html",
   styleUrls: ["./sale-update-date-modal.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ReactiveFormsModule, ButtonModule, TagModule, Card, DatePicker, Toast]
 })
 export class SaleUpdateDateModalComponent {

@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from "@angular/core";
+import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ICustomer, ISales } from "../../../shared/model";
 import { CustomerService } from "../../customer/customer.service";
 import { FormsModule } from "@angular/forms";
@@ -22,6 +22,7 @@ import { CommonModule } from "@angular/common";
   selector: "app-assured-customer-list",
   templateUrl: "./assured-customer-list.component.html",
   styleUrls: ["./assured-customer-list.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

@@ -5,7 +5,8 @@ import {
   ElementRef,
   inject,
   OnInit,
-  viewChild
+  viewChild,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import {
   ClientTiersPayant,
@@ -49,6 +50,7 @@ import {finalize} from 'rxjs/operators';
     FormsModule,
   ],
   templateUrl: './add-complementaire.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./add-complementaire.component.scss'],
 })
 export class AddComplementaireComponent implements OnInit, AfterViewInit {

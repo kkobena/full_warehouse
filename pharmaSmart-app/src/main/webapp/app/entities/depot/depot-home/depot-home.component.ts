@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { AbilityService } from 'app/core/auth/ability.service';
 import { NgbNav, NgbNavContent, NgbNavItem, NgbNavLink, NgbNavLinkBase, NgbNavOutlet } from '@ng-bootstrap/ng-bootstrap';
 import { DepotComponent } from '../depot.component';
@@ -23,6 +23,7 @@ import { CommonModule } from '@angular/common';
     CommonModule,
   ],
   templateUrl: './depot-home.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './depot-home.component.scss',
 })
 export class DepotHomeComponent {

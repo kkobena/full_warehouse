@@ -50,7 +50,7 @@
           <td>{{ row.orderLine.produitLibelle }}</td>
           <td class="text-end"><span class="pharma-qty-value">{{ row.maxQty }}</span></td>
           <td class="text-end">
-            <p-inputNumber
+            <p-inputnumber
               [(ngModel)]="row.qtyRetour"
               [min]="0"
               [max]="row.maxQty"

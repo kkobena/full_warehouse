@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from "@angular/core";
+import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule, DatePipe, DecimalPipe } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
@@ -22,6 +22,7 @@ export { CommanderModalResult } from "../../data-access/suggestion-commander.mod
   templateUrl: "./suggestion-commander-modal.component.html",
   styleUrls: ["./suggestion-commander-modal.scss"],
   providers: [DatePipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, ButtonModule, TagModule, SelectModule, TextareaModule, DatePicker, DecimalPipe, FournisseurSelectComponent, TableModule]
 })
 export class SuggestionCommanderModalComponent implements OnInit {

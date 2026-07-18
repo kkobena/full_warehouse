@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from "@angular/core";
+import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { Button } from "primeng/button";
 import { InputTextModule } from "primeng/inputtext";
 import { MultiSelectModule } from "primeng/multiselect";
@@ -50,6 +50,7 @@ import { Toast } from "primeng/toast";
     Toast
   ],
   templateUrl: "./taxe-report.component.html",
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["./taxe-report.component.scss"]
 })
 export class TaxeReportComponent implements OnInit {

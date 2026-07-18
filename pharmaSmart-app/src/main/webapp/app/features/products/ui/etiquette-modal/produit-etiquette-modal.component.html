@@ -21,7 +21,7 @@
   <div class="row g-3">
     <div class="col-6">
       <label class="form-label et-label">Nombre d'étiquettes <span class="text-danger">*</span></label>
-      <p-inputNumber #qtyInput
+      <p-inputnumber #qtyInput
         [(ngModel)]="qty"
         [min]="1"
         [max]="64"
@@ -31,7 +31,7 @@
     </div>
     <div class="col-6">
       <label class="form-label et-label">Position de départ</label>
-      <p-inputNumber
+      <p-inputnumber
         [(ngModel)]="startAt"
         [min]="1"
         [max]="65"

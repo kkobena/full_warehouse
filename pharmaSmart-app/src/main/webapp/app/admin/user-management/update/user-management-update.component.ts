@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { IUser } from '../user-management.model';
@@ -23,6 +23,7 @@ const newUser: IUser = {
   selector: 'jhi-user-mgmt-update',
   templateUrl: './user-management-update.component.html',
   styleUrl: './user-management-update.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, CardModule, ButtonModule, InputTextModule, ToolbarModule, AlertErrorComponent, Select]
 })
 export default class UserManagementUpdateComponent implements OnInit {

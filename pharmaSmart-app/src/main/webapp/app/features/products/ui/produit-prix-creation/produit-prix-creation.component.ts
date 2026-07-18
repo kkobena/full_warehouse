@@ -1,4 +1,4 @@
-import { Component, Input, inject, input } from '@angular/core';
+import { Component, Input, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -17,6 +17,7 @@ const PRICE_TYPES = [
   selector: 'app-produit-prix-creation',
   templateUrl: './produit-prix-creation.component.html',
   styleUrl: './produit-prix-creation.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, ReactiveFormsModule, ButtonModule, SelectModule, InputNumberModule, ToggleSwitchModule],
 })
 export class ProduitPrixCreationComponent {

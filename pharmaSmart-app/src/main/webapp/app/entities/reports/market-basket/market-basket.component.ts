@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpResponse } from '@angular/common/http';
@@ -33,6 +33,7 @@ import { formatNumber, formatPercent, formatDecimal } from 'app/shared/utils/for
     FloatLabel,
   ],
   templateUrl: './market-basket.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './market-basket.component.scss',
 })
 export default class MarketBasketComponent implements OnInit {

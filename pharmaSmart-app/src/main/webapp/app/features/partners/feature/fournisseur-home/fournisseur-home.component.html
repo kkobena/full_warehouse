@@ -113,7 +113,7 @@
           }
         </td>
         <td alignFrozen="right" class="text-end" pFrozenColumn>
-          <p-buttonGroup>
+          <p-buttongroup>
             <p-button (click)="editFournisseur(f)" [rounded]="true"
                       [text]="true" icon="pi pi-pencil" pTooltip="Modifier" severity="success"
                       tooltipPosition="left" />
@@ -123,7 +123,7 @@
             <p-button (click)="deleteParent(f)" [rounded]="true"
                       [text]="true" icon="pi pi-trash" pTooltip="Supprimer" severity="danger"
                       tooltipPosition="left" />
-          </p-buttonGroup>
+          </p-buttongroup>
         </td>
       </tr>
     </ng-template>
@@ -203,7 +203,7 @@
                             <td>{{ agence.codeRecepteurPharmaMl }}</td>
                             <td>{{ agence.idRecepteurPharmaMl }}</td>
                             <td alignFrozen="right" class="text-end" pFrozenColumn>
-                              <p-buttonGroup>
+                              <p-buttongroup>
                                 <p-button (click)="editFournisseur(agence)" [rounded]="true"
                                           [text]="true"
                                           icon="pi pi-pencil" pTooltip="Modifier" severity="success"
@@ -211,7 +211,7 @@
                                 <p-button (click)="deleteAgence(agence, f.id!)" [rounded]="true"
                                           [text]="true" icon="pi pi-trash" pTooltip="Supprimer"
                                           severity="danger" size="small" />
-                              </p-buttonGroup>
+                              </p-buttongroup>
                             </td>
                           </tr>
                         </ng-template>

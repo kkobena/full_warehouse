@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, viewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ProduitService } from '../../produit/produit.service';
 import { RemiseService } from '../remise.service';
@@ -36,6 +36,7 @@ import { ErrorService } from '../../../shared/error.service';
     Card,
   ],
   templateUrl: './code-remise-produits-modal.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../../common-modal.component.scss'],
 })
 export class CodeRemiseProduitsModalComponent implements AfterViewInit {

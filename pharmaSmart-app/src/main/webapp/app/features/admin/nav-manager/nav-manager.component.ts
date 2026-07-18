@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, OnInit, signal } from "@angular/core";
+import { Component, computed, effect, inject, input, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { TableModule } from "primeng/table";
@@ -21,6 +21,7 @@ interface FlatNavNode extends INavNode {
   selector: "app-nav-manager",
   templateUrl: "./nav-manager.component.html",
   styleUrl: "./nav-manager.component.scss",
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule, FormsModule,
     TableModule, CheckboxModule, SelectModule, ProgressSpinnerModule,

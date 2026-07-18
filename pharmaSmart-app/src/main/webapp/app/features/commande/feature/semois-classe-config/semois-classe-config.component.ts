@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {TagModule} from 'primeng/tag';
 import {TableModule} from 'primeng/table';
@@ -23,6 +23,7 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
   selector: 'app-semois-classe-config',
   templateUrl: './semois-classe-config.component.html',
   styleUrls: ['./semois-classe-config.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, TagModule, TableModule, ButtonModule, TooltipModule, InputNumberModule, CheckboxModule, ToastModule, SkeletonModule],
 })
 export class SemoisClasseConfigComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, viewChild } from "@angular/core";
+import { Component, inject, OnInit, signal, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { HttpResponse } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
@@ -48,6 +48,7 @@ import {
   selector: "jhi-recap-produit-vendu",
   templateUrl: "./recap-produit-vendu.component.html",
   styleUrl: "./recap-produit-vendu.component.scss",
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

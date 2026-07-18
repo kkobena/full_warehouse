@@ -8,7 +8,7 @@
     <p-toolbar>
       <ng-template #start>
         <div class="pharma-toolbar-filters">
-          <p-datePicker
+          <p-datepicker
             (onSelect)="onFilterChange()"
             [(ngModel)]="startDate"
             [showIcon]="true"
@@ -16,7 +16,7 @@
             dateFormat="dd/mm/yy"
             placeholder="Date début"
           />
-          <p-datePicker
+          <p-datepicker
             (onSelect)="onFilterChange()"
             [(ngModel)]="endDate"
             [showIcon]="true"

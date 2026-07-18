@@ -1,5 +1,5 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, inject, OnInit, Renderer2, signal, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, Renderer2, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { ILot, Lot } from 'app/shared/model/lot.model';
@@ -24,6 +24,7 @@ import { TagModule } from 'primeng/tag';
   selector: 'jhi-form-lot',
   templateUrl: './form-lot.component.html',
   styleUrls: ['form-lot.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     ButtonModule,

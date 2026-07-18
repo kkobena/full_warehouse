@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -16,6 +16,7 @@ import { ITva, Tva } from '../../../shared/model/tva.model';
   selector: 'jhi-form-tva',
   imports: [ToastAlertComponent, Button, FormsModule, InputText, ReactiveFormsModule, KeyFilter, Card],
   templateUrl: './form-tva.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./form-tva.scss'],
 })
 export class FormTvaComponent implements OnInit, AfterViewInit {

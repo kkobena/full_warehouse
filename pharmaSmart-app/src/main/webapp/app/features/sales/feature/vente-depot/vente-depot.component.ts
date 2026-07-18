@@ -1,4 +1,4 @@
-import {Component, computed, DestroyRef, effect, inject, OnInit, signal, viewChild} from '@angular/core';
+import {Component, computed, DestroyRef, effect, inject, OnInit, signal, viewChild, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
@@ -62,6 +62,7 @@ import {Toast} from "primeng/toast";
     Toast,
   ],
   templateUrl: './vente-depot.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './vente-depot.component.scss',
 })
 export class VenteDepotComponent implements OnInit, ProductSearchHost {

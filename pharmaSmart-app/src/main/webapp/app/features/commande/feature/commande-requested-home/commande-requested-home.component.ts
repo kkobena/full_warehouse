@@ -1,4 +1,4 @@
-import {Component, computed, DestroyRef, inject, Injector, OnInit, output, signal} from '@angular/core';
+import {Component, computed, DestroyRef, inject, Injector, OnInit, output, signal, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed, toObservable} from '@angular/core/rxjs-interop';
 import {CommonModule, DatePipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
@@ -31,6 +31,7 @@ import {CommandeRequestedAction, CommandeRequestedActionsComponent} from './comm
   selector: 'app-commande-requested-home',
   templateUrl: './commande-requested-home.component.html',
   styleUrls: ['./commande-requested-home.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

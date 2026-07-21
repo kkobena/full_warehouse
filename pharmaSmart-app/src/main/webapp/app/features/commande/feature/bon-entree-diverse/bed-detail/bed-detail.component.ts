@@ -3,13 +3,8 @@ import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { finalize, switchMap } from "rxjs/operators";
-import { ButtonModule } from "primeng/button";
-import { TooltipModule } from "primeng/tooltip";
-import { InputTextModule } from "primeng/inputtext";
-import { InputGroup } from "primeng/inputgroup";
-import { InputGroupAddon } from "primeng/inputgroupaddon";
-import { TagModule } from "primeng/tag";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
+import { BadgeComponent, ButtonComponent } from "app/shared/ui";
 import {
   AllCommunityModule,
   CellValueChangedEvent,
@@ -42,12 +37,9 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
   imports: [
     CommonModule,
     FormsModule,
-    ButtonModule,
-    TooltipModule,
-    InputTextModule,
-    InputGroup,
-    InputGroupAddon,
-    TagModule,
+    ButtonComponent,
+    NgbTooltip,
+    BadgeComponent,
     AgGridAngular,
     CommandeProductSearchComponent
   ]

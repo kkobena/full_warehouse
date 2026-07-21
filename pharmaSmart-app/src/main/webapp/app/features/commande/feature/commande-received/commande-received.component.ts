@@ -1,59 +1,77 @@
-import { Component, DestroyRef, ElementRef, inject, input, OnInit, output, signal, viewChild, ChangeDetectionStrategy } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { HttpResponse } from "@angular/common/http";
-import { ICommande } from "app/shared/model/commande.model";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
-import { IOrderLine } from "../../../../shared/model/order-line.model";
-import { ILot } from "../../../../shared/model/lot.model";
-import { MenuItem } from "primeng/api";
-import { ErrorService } from "../../../../shared/error.service";
-import { saveAs } from "file-saver";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { ButtonModule } from "primeng/button";
-import { RippleModule } from "primeng/ripple";
-import { InputTextModule } from "primeng/inputtext";
-import { TagModule } from "primeng/tag";
-import { SplitButtonModule } from "primeng/splitbutton";
-import { ToolbarModule } from "primeng/toolbar";
-import { TooltipModule } from "primeng/tooltip";
-import { SelectModule } from "primeng/select";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
-import { FloatLabel } from "primeng/floatlabel";
-import { Toast } from "primeng/toast";
-import { filter, finalize, map, timeout } from "rxjs/operators";
-import { TimeoutError } from "rxjs";
-import { SORT } from "../../../../shared/util/command-item-sort";
-import { CommandeService, IPutawayPreviewItem } from "../../../../entities/commande/commande.service";
-import { DeliveryService } from "../../../../entities/commande/delevery/delivery.service";
-import { ListLotComponent } from "../../ui/lot/list/list-lot.component";
-import { FormLotComponent } from "../../ui/lot/form/form-lot.component";
-import { EditProduitComponent } from "../../ui/delivery/edit-produit/edit-produit.component";
-import { EtiquetteComponent } from "../../ui/delivery/etiquette/etiquette.component";
-import { PutawayModalComponent } from "../../ui/delivery/putaway-modal/putaway-modal.component";
-import { FileResponseModalComponent } from "../../ui/file-response-modal/file-response-modal.component";
-import { CommandeResponseDialogComponent } from "../../ui/commande-response-dialog/commande-response-dialog.component";
-import { IResponseCommande } from "../../../../shared/model/response-commande.model";
-import { showCommonModal } from "../../../../entities/sales/selling-home/sale-helper";
-import { SpinnerComponent } from "../../../../shared/spinner/spinner.component";
-import { ReceptionConcordanceComponent } from "../../ui/reception-concordance/reception-concordance.component";
-import { PrixHistoriqueComponent } from "../../ui/prix-historique/prix-historique.component";
-import { CommandeId } from "../../../../shared/model/abstract-commande.model";
-import { Params } from "../../../../shared/model/enumerations/params.model";
-import { ConfigurationService } from "../../../../shared/configuration.service";
-import { TauriPrinterService } from "../../../../shared/services/tauri-printer.service";
-import { handleBlobForTauri } from "../../../../shared/util/tauri-util";
-import { IStockEntryResult } from "../../../../shared/model/stock-entry-result.model";
-import { IReceptionScanResult } from "../../../../shared/model/reception-scan-result.model";
-import { ScanEvent, ScanOrchestratorService } from "../../../../shared/scanner";
-import { ReceptionScannerService } from "./reception-scanner.service";
-import { RetourDepuisReceptionComponent } from "../../ui/retour-depuis-reception/retour-depuis-reception.component";
-import { ReconciliationFactureComponent } from "../../ui/reconciliation-facture/reconciliation-facture.component";
-import { ReceptionHelpComponent } from "../../ui/reception-help/reception-help.component";
-import { NotificationService } from "../../../../shared/services/notification.service";
-import { ScanAudioFeedbackService } from "../../../../shared/services/scan-audio-feedback.service";
-import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  inject,
+  input,
+  OnInit,
+  output,
+  signal,
+  viewChild
+} from "@angular/core";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
+import {HttpResponse} from "@angular/common/http";
+import {ICommande} from "app/shared/model/commande.model";
+import {NgbModal, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
+import {IOrderLine} from "../../../../shared/model/order-line.model";
+import {ILot} from "../../../../shared/model/lot.model";
+import {ErrorService} from "../../../../shared/error.service";
+import {saveAs} from "file-saver";
+import {CommonModule} from "@angular/common";
+import {FormsModule} from "@angular/forms";
+import {
+  AppSplitButtonItem,
+  BadgeComponent,
+  ButtonComponent,
+  IconFieldComponent,
+  SelectComponent,
+  SplitButtonComponent,
+} from "../../../../shared/ui";
+import {filter, finalize, map, timeout} from "rxjs/operators";
+import {TimeoutError} from "rxjs";
+import {SORT} from "../../../../shared/util/command-item-sort";
+import {CommandeService, IPutawayPreviewItem} from "../../../../entities/commande/commande.service";
+import {DeliveryService} from "../../../../entities/commande/delevery/delivery.service";
+import {ListLotComponent} from "../../ui/lot/list/list-lot.component";
+import {FormLotComponent} from "../../ui/lot/form/form-lot.component";
+import {EditProduitComponent} from "../../ui/delivery/edit-produit/edit-produit.component";
+import {EtiquetteComponent} from "../../ui/delivery/etiquette/etiquette.component";
+import {PutawayModalComponent} from "../../ui/delivery/putaway-modal/putaway-modal.component";
+import {
+  FileResponseModalComponent
+} from "../../ui/file-response-modal/file-response-modal.component";
+import {
+  CommandeResponseDialogComponent
+} from "../../ui/commande-response-dialog/commande-response-dialog.component";
+import {IResponseCommande} from "../../../../shared/model/response-commande.model";
+import {showCommonModal} from "../../../../entities/sales/selling-home/sale-helper";
+import {SpinnerComponent} from "../../../../shared/spinner/spinner.component";
+import {
+  ReceptionConcordanceComponent
+} from "../../ui/reception-concordance/reception-concordance.component";
+import {PrixHistoriqueComponent} from "../../ui/prix-historique/prix-historique.component";
+import {CommandeId} from "../../../../shared/model/abstract-commande.model";
+import {Params} from "../../../../shared/model/enumerations/params.model";
+import {ConfigurationService} from "../../../../shared/configuration.service";
+import {TauriPrinterService} from "../../../../shared/services/tauri-printer.service";
+import {handleBlobForTauri} from "../../../../shared/util/tauri-util";
+import {IStockEntryResult} from "../../../../shared/model/stock-entry-result.model";
+import {IReceptionScanResult} from "../../../../shared/model/reception-scan-result.model";
+import {ScanEvent, ScanOrchestratorService} from "../../../../shared/scanner";
+import {ReceptionScannerService} from "./reception-scanner.service";
+import {
+  RetourDepuisReceptionComponent
+} from "../../ui/retour-depuis-reception/retour-depuis-reception.component";
+import {
+  ReconciliationFactureComponent
+} from "../../ui/reconciliation-facture/reconciliation-facture.component";
+import {ReceptionHelpComponent} from "../../ui/reception-help/reception-help.component";
+import {NotificationService} from "../../../../shared/services/notification.service";
+import {ScanAudioFeedbackService} from "../../../../shared/services/scan-audio-feedback.service";
+import {
+  NgbConfirmDialogService
+} from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import {
   AllCommunityModule,
   CellClickedEvent,
@@ -67,15 +85,14 @@ import {
   RowClassRules,
   themeAlpine
 } from "ag-grid-community";
-import { AgGridAngular } from "ag-grid-angular";
-import { CommandeReceivedActionsComponent } from "./commande-received-actions.component";
-import { CommandeReceivedStatutComponent } from "./commande-received-statut.component";
-import { LotExpandCellComponent } from "../../ui/lot/inline/lot-expand-cell.component";
-import { LotInlineEditorComponent } from "../../ui/lot/inline/lot-inline-editor.component";
-import { ReceptionSequentialComponent } from "./sequential/reception-sequential.component";
-import { ReceptionFinalizeModalComponent } from "./sequential/reception-finalize-modal.component";
-import { IConfiguration } from "../../../../shared/model/configuration.model";
-import { IPoste } from "../../../../shared/model/poste.model";
+import {AgGridAngular} from "ag-grid-angular";
+import {CommandeReceivedActionsComponent} from "./commande-received-actions.component";
+import {CommandeReceivedStatutComponent} from "./commande-received-statut.component";
+import {LotExpandCellComponent} from "../../ui/lot/inline/lot-expand-cell.component";
+import {LotInlineEditorComponent} from "../../ui/lot/inline/lot-inline-editor.component";
+import {ReceptionSequentialComponent} from "./sequential/reception-sequential.component";
+import {ReceptionFinalizeModalComponent} from "./sequential/reception-finalize-modal.component";
+import {IConfiguration} from "../../../../shared/model/configuration.model";
 
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
@@ -88,18 +105,12 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
   imports: [
     CommonModule,
     FormsModule,
-    ButtonModule,
-    RippleModule,
-    InputTextModule,
-    TagModule,
-    SplitButtonModule,
-    ToolbarModule,
-    TooltipModule,
-    SelectModule,
-    IconField,
-    InputIcon,
-    FloatLabel,
-    Toast,
+    ButtonComponent,
+    BadgeComponent,
+    SplitButtonComponent,
+    IconFieldComponent,
+    SelectComponent,
+    NgbTooltip,
     SpinnerComponent,
     ReceptionConcordanceComponent,
     AgGridAngular,
@@ -107,39 +118,30 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
   ]
 })
 export class CommandeReceivedComponent implements OnInit {
+  private static readonly DEDUP_WINDOW_MS = 400;
+  private static readonly SCAN_RECEPTION_TIMEOUT_MS = 3000;
   commande = input.required<ICommande>();
   commandeChange = output<ICommande | null>();
   retour = output<void>();
-
+  showLotBtn = input(false);
+  readonly scanInputRef = viewChild<ElementRef>("scanInputRef");
   protected orderLines: IOrderLine[] = [];
   protected displayRows: any[] = [];
   protected search?: string;
   protected tris = "UPDATE";
   protected selectedFilter = "ALL";
-  showLotBtn = input(false);
   protected showLeftPanel = true;
-  private conformeSansLot = false;
-
   // ── Vue séquentielle / grille ─────────────────────────────────────────────
   protected readonly viewMode = signal<"grid" | "sequential">(
     (localStorage.getItem("reception-view-mode") as "grid" | "sequential") ?? "sequential"
   );
   protected putWayMode = signal<string>("MANUAL");
-
-  protected setViewMode(mode: "grid" | "sequential"): void {
-    this.viewMode.set(mode);
-    localStorage.setItem("reception-view-mode", mode);
-  }
-
   protected currentCommande!: ICommande;
   protected filtres: any[];
-  protected exportbuttons: MenuItem[];
+  protected exportbuttons: AppSplitButtonItem[];
   protected readonly sorts = SORT;
-
   // ── AG Grid ───────────────────────────────────────────────────────────────
   protected readonly theme = themeAlpine;
-  private gridApi: GridApi<any> | null = null;
-
   protected readonly defaultColDef: ColDef<any> = {
     resizable: true,
     sortable: false,
@@ -155,30 +157,20 @@ export class CommandeReceivedComponent implements OnInit {
     "pharma-row-provisional": p => !p.data?.__type && !!p.data?.provisionalCode,
     "cr-lot-editor-row": p => p.data?.__type === "lot-editor"
   };
-
-  protected readonly getRowId: GetRowIdFunc<any> = p => {
-    if (p.data?.__type === "lot-editor") return `lot-editor-${p.data.__line.id}`;
-    return String(p.data.id);
-  };
   protected columnDefs: ColDef<any>[] = [];
-  protected readonly gridContext: { componentParent: CommandeReceivedComponent } = { componentParent: this };
-
-  // ── Lot inline expand ──────────────────────────────────────────────────────
-  private expandedLineIds = new Set<number>();
-  protected readonly isFullWidthRow = (params: any): boolean => params.rowNode.data?.__type === "lot-editor";
+  protected readonly gridContext: {
+    componentParent: CommandeReceivedComponent
+  } = {componentParent: this};
   protected readonly fullWidthCellRenderer = LotInlineEditorComponent;
-  protected readonly getRowHeight = (params: any): number | undefined => {
-    if (params.data?.__type !== "lot-editor") return undefined;
-    const line = params.data.__line as IOrderLine;
-    const lots = (line.lots ?? []).length;
-    return Math.max(160, 48 + (lots + 1) * 28 + 44);
-  };
-
   // ── Scan réception ────────────────────────────────────────────────────────
   protected scanValue = "";
   protected readonly lastScanResult = signal<IReceptionScanResult | null>(null);
   /** Pré-remplissage lot transmis au composant séquentiel après un scan DataMatrix sans lot auto-créé. */
   protected readonly scanLotPrefill = signal<{ numLot: string; expiry: string } | null>(null);
+  private conformeSansLot = false;
+  private gridApi: GridApi<any> | null = null;
+  // ── Lot inline expand ──────────────────────────────────────────────────────
+  private expandedLineIds = new Set<number>();
   private scanFeedbackTimer: ReturnType<typeof setTimeout> | null = null;
   /** Listener clavier dédié aux raccourcis (Ctrl+G, F5, F11, Alt+H) — toujours actif. */
   private shortcutListener: ((e: KeyboardEvent) => void) | null = null;
@@ -186,13 +178,9 @@ export class CommandeReceivedComponent implements OnInit {
   private scanKeydownListener: ((e: KeyboardEvent) => void) | null = null;
   /** Dernier code scanné en réception + timestamp — anti-rebond / double trigger. */
   private lastReceptionScan: { code: string; at: number } | null = null;
-  private static readonly DEDUP_WINDOW_MS = 400;
-  private static readonly SCAN_RECEPTION_TIMEOUT_MS = 3000;
   /** IDs des lignes dont le CIP a été mis à jour pendant cette réception. */
   private readonly updatedCipLineIds = new Set<number>();
-
   private readonly spinner = viewChild.required<SpinnerComponent>("spinner");
-  readonly scanInputRef = viewChild<ElementRef>("scanInputRef");
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly notificationService = inject(NotificationService);
   private readonly audioFeedback = inject(ScanAudioFeedbackService);
@@ -214,9 +202,9 @@ export class CommandeReceivedComponent implements OnInit {
 
   constructor() {
     this.filtres = [
-      { label: "Prix d'achat differents", value: "NOT_EQUAL" },
-      { label: "Code cip  à mettre à jour", value: "PROVISOL_CIP" },
-      { label: "Tous", value: "ALL" }
+      {label: "Prix d'achat differents", value: "NOT_EQUAL"},
+      {label: "Code cip  à mettre à jour", value: "PROVISOL_CIP"},
+      {label: "Tous", value: "ALL"}
     ];
     this.exportbuttons = [
       {
@@ -244,6 +232,37 @@ export class CommandeReceivedComponent implements OnInit {
     });
   }
 
+  protected get lignesPcbAlert(): number {
+    return this.orderLines.filter(l => {
+      const pcb = l.qteColis;
+      if (!pcb || pcb <= 1) {
+        return false;
+      }
+      const qty = l.quantityReceivedTmp ?? l.quantityRequested ?? 0;
+      return qty > 0 && qty % pcb !== 0;
+    }).length;
+  }
+
+  protected get lignesSansLot(): number {
+    if (!this.showLotBtn()) {
+      return 0;
+    }
+    return this.orderLines.filter(l => (l.lots?.length ?? 0) === 0).length;
+  }
+
+  //Taux de service : lignes où quantityReceivedTmp >= quantityRequested / total
+  protected get tauxService(): number {
+    if (!this.orderLines.length) {
+      return 0;
+    }
+    const served = this.orderLines.filter(
+      l => l.updated && l.quantityRequested != null &&
+        (l.quantityReceivedTmp ?? 0) >= l.quantityRequested &&
+        l.quantityRequested > 0
+    ).length;
+    return Math.round((served / this.orderLines.length) * 100);
+  }
+
   ngOnInit(): void {
 
     this.initPutAway();
@@ -255,12 +274,74 @@ export class CommandeReceivedComponent implements OnInit {
     this.setupBarcodeScanner();
   }
 
+  onToggleLotExpand(line: IOrderLine): void {
+    if (!line?.id) {
+      return;
+    }
+    if (this.expandedLineIds.has(line.id)) {
+      this.expandedLineIds.delete(line.id);
+      (line as any).__expanded = false;
+    } else {
+      this.expandedLineIds.add(line.id);
+      (line as any).__expanded = true;
+    }
+    this.refreshDisplayRows();
+  }
+
+  onCollapseRow(line: IOrderLine | null): void {
+    if (!line?.id) {
+      return;
+    }
+    this.expandedLineIds.delete(line.id);
+    const found = this.orderLines.find(l => l.id === line.id);
+    if (found) {
+      (found as any).__expanded = false;
+    }
+    this.refreshDisplayRows();
+  }
+
+  onLotSaved(line: IOrderLine, lots: ILot[]): void {
+    const found = this.orderLines.find(l => l.id === line.id);
+    if (found) {
+      found.lots = lots;
+    }
+    const rowNode = this.gridApi?.getRowNode(String(line.id));
+    if (rowNode) {
+      this.gridApi?.refreshCells({rowNodes: [rowNode], columns: ["lots"], force: true});
+    }
+  }
+
+  protected setViewMode(mode: "grid" | "sequential"): void {
+    this.viewMode.set(mode);
+    localStorage.setItem("reception-view-mode", mode);
+  }
+
+  protected readonly getRowId: GetRowIdFunc<any> = p => {
+    if (p.data?.__type === "lot-editor") {
+      return `lot-editor-${p.data.__line.id}`;
+    }
+    return String(p.data.id);
+  };
+
+  protected readonly isFullWidthRow = (params: any): boolean => params.rowNode.data?.__type === "lot-editor";
+
+  protected readonly getRowHeight = (params: any): number | undefined => {
+    if (params.data?.__type !== "lot-editor") {
+      return undefined;
+    }
+    const line = params.data.__line as IOrderLine;
+    const lots = (line.lots ?? []).length;
+    return Math.max(160, 48 + (lots + 1) * 28 + 44);
+  };
+
   protected previousState(): void {
     this.retour.emit();
   }
 
+  // ── AG Grid events ────────────────────────────────────────────────────────
+
   protected openHelp(): void {
-    this.modalService.open(ReceptionHelpComponent, { size: "lg", centered: true, scrollable: true });
+    this.modalService.open(ReceptionHelpComponent, {size: "lg", centered: true, scrollable: true});
   }
 
   protected toggleLeftPanel(): void {
@@ -296,7 +377,9 @@ export class CommandeReceivedComponent implements OnInit {
 
     ref.result.then(
       result => {
-        if (result === "finalize") this.finalizeSansConfirmModal();
+        if (result === "finalize") {
+          this.finalizeSansConfirmModal();
+        }
       },
       () => { /* dismissed — continuer la saisie */
       }
@@ -320,8 +403,6 @@ export class CommandeReceivedComponent implements OnInit {
       this.refreshDisplayRows();
     });
   }
-
-  // ── AG Grid events ────────────────────────────────────────────────────────
 
   protected onGridReady(event: GridReadyEvent<any>): void {
     this.gridApi = event.api;
@@ -355,7 +436,7 @@ export class CommandeReceivedComponent implements OnInit {
       if (qty >= 0) {
         line.freeQty = qty;
         this.orderLines = [...this.orderLines];
-        this.gridApi?.refreshCells({ rowNodes: [event.node], columns: ["afterStock"], force: true });
+        this.gridApi?.refreshCells({rowNodes: [event.node], columns: ["afterStock"], force: true});
         this.commandeService.updateQuantityUG(line).subscribe({
           next: () => this.refreshCommande(),
           error: err => this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur")
@@ -371,7 +452,9 @@ export class CommandeReceivedComponent implements OnInit {
             () => {
               line.produitCip = newCip;
               this.commandeService.updateCip(line).subscribe(() => {
-                if (line.id) this.updatedCipLineIds.add(line.id);
+                if (line.id) {
+                  this.updatedCipLineIds.add(line.id);
+                }
                 this.refreshCommande();
               });
             },
@@ -381,13 +464,19 @@ export class CommandeReceivedComponent implements OnInit {
             () => {
               // Annuler : remettre l'ancien CIP dans la cellule
               line.produitCip = oldCip;
-              this.gridApi?.refreshCells({ rowNodes: [event.node], columns: ["produitCip"], force: true });
+              this.gridApi?.refreshCells({
+                rowNodes: [event.node],
+                columns: ["produitCip"],
+                force: true
+              });
             }
           );
         } else {
           line.produitCip = newCip;
           this.commandeService.updateCip(line).subscribe(() => {
-            if (line.id) this.updatedCipLineIds.add(line.id);
+            if (line.id) {
+              this.updatedCipLineIds.add(line.id);
+            }
             this.refreshCommande();
           });
         }
@@ -399,7 +488,6 @@ export class CommandeReceivedComponent implements OnInit {
     // Actions handled by CommandeReceivedActionsComponent renderer
   }
 
-
   protected onToutValider(): void {
     const allLines = this.currentCommande.orderLines as IOrderLine[] ?? [];
     const linesToUpdate = allLines.filter(l => !l.updated);
@@ -408,6 +496,290 @@ export class CommandeReceivedComponent implements OnInit {
       return;
     }
     this.onConfirmToutValider(allLines, linesToUpdate);
+  }
+
+  protected onDeleteOrderLine(orderLine: IOrderLine): void {
+    if (this.currentCommande) {
+      this.commandeService.deleteOrderLineById(orderLine.orderLineId).subscribe(() => this.refreshCommande());
+    }
+  }
+
+  protected confirmDeleteItem(item: IOrderLine): void {
+    this.confirmDialog.onConfirm(
+      () => this.onDeleteOrderLine(item),
+      "Suppression",
+      "Voullez-vous supprimer de la commande ce produit ?"
+    );
+  }
+
+  // requireConfirm = true → dialog "Voulez-vous faire l'entrée en stock ?" avant la mise en stock
+
+  protected onConfirmFinalize(): void {
+    this.executeFinalizationFlow(true);
+  }
+
+  protected finalizeSansConfirmModal(): void {
+    this.executeFinalizationFlow(false);
+  }
+
+  protected onImporterReponseCommande(): void {
+    showCommonModal(
+      this.modalService,
+      FileResponseModalComponent,
+      {commandeSelected: this.currentCommande, header: "IMPORTER RÉPONSE"},
+      (responseCommande: IResponseCommande) => {
+        if (responseCommande) {
+          this.refreshCommande();
+          this.openImporterReponseCommandeDialog(responseCommande);
+        }
+      },
+      "xl"
+    );
+  }
+
+  //Lien vers le module de rapprochement facture fournisseur
+  protected onRapprocher(): void {
+    const ref = this.modalService.open(ReconciliationFactureComponent, {
+      size: "lg",
+      centered: true
+    });
+    (ref.componentInstance as ReconciliationFactureComponent).commande = this.currentCommande;
+  }
+
+  protected onRetourFournisseur(): void {
+    showCommonModal(
+      this.modalService,
+      RetourDepuisReceptionComponent,
+      {
+        commande: this.currentCommande,
+        orderLines: this.orderLines,
+        header: `Retour fournisseur — ${this.currentCommande.receiptReference ?? this.currentCommande.orderReference ?? ""}`
+      },
+      () => this.refreshCommande(),
+      "xl"
+    );
+  }
+
+  protected onAddLot(orderLine: IOrderLine): void {
+    const qty = orderLine.quantityReceived || orderLine.quantityRequested;
+    if (qty > 1 || (orderLine.lots?.length ?? 0) > 0) {
+      showCommonModal(
+        this.modalService,
+        ListLotComponent,
+        {
+          deliveryItem: orderLine,
+          header: `GESTION DE LOTS DE LA LIGNE ${orderLine.produitLibelle} [${orderLine.produitCip}]`
+        },
+        null,
+        "lg"
+      );
+    } else {
+      showCommonModal(
+        this.modalService,
+        FormLotComponent,
+        {entity: null, deliveryItem: orderLine, header: "Ajout de lot"},
+        null,
+        "lg"
+      );
+    }
+  }
+
+  protected editLigneInfos(orderLine: IOrderLine): void {
+    showCommonModal(
+      this.modalService,
+      EditProduitComponent,
+      {
+        deliveryItem: orderLine,
+        delivery: this.currentCommande,
+        header: `EDITION DU PRODUIT ${orderLine.produitLibelle} [${orderLine.produitCip}]`
+      },
+      null,
+      "xl"
+    );
+  }
+
+  protected onShowPriceHistory(orderLine: IOrderLine): void {
+    if (!orderLine.fournisseurProduitId) {
+      return;
+    }
+    showCommonModal(
+      this.modalService,
+      PrixHistoriqueComponent,
+      {
+        fournisseurProduitId: orderLine.fournisseurProduitId,
+        produitLibelle: orderLine.produitLibelle,
+        header: `Historique des prix — ${orderLine.produitLibelle} [${orderLine.produitCip}]`
+      },
+      null,
+      "xl"
+    );
+  }
+
+  protected exportPdf(): void {
+    this.commandeService.exportToPdf(this.currentCommande.commandeId).subscribe(blob => {
+      if (this.tauriPrinterService.isRunningInTauri()) {
+        handleBlobForTauri(blob, "commande_en_cours");
+      } else {
+        window.open(URL.createObjectURL(blob));
+      }
+    });
+  }
+
+  protected exportCSV(): void {
+    this.commandeService.exportToCsv(this.currentCommande.commandeId).subscribe(blob => {
+      if (this.tauriPrinterService.isRunningInTauri()) {
+        handleBlobForTauri(blob, "commande_en_cours", "csv");
+      } else {
+        saveAs(blob);
+      }
+    });
+  }
+
+  protected onScanReception(): void {
+    const raw = this.scanValue?.trim();
+    if (!raw) {
+      return;
+    }
+    this.scanValue = "";
+
+    // Anti-rebond : ignorer un même code reçu trop vite (double trigger / rebond mécanique)
+    const now = Date.now();
+    if (this.lastReceptionScan
+      && this.lastReceptionScan.code === raw
+      && now - this.lastReceptionScan.at < CommandeReceivedComponent.DEDUP_WINDOW_MS) {
+      return;
+    }
+    this.lastReceptionScan = {code: raw, at: now};
+
+    this.deliveryService.scanReception(this.currentCommande.id, raw)
+      .pipe(timeout(CommandeReceivedComponent.SCAN_RECEPTION_TIMEOUT_MS))
+      .subscribe({
+        next: res => {
+          const result = res.body!;
+          if (!result.found) {
+            this.audioFeedback.beepError();
+            //  Enrichir le signal avec les lignes provisoires + le code scanné
+            const provisionalLines = this.orderLines
+              .filter(l => l.provisionalCode)
+              .map(l => ({id: l.id!, libelle: l.produitLibelle!}));
+            this.lastScanResult.set({...result, provisionalLines, scannedCode: raw});
+            this.scheduleClearScanResult();
+            return;
+          }
+
+          this.audioFeedback.beepSuccess();
+          const idx = this.orderLines.findIndex(l => l.id === result.orderLineId);
+          if (idx === -1) {
+            this.lastScanResult.set(result);
+            this.scheduleClearScanResult();
+            return;
+          }
+
+          const currentLine = this.orderLines[idx];
+          const increment = result.scannedQty ?? 1;
+          const oldQty = currentLine.quantityReceived ?? 0;
+          const newQty = oldQty + increment;
+          const orderedQty = currentLine.quantityRequested ?? 0;
+
+          if (newQty > orderedQty) {
+            // Confirmation obligatoire avant d'accepter un excédent au scan
+            this.confirmDialog.onConfirm(
+              () => {
+                this.applyScanResult(idx, result, newQty);
+                this.lastScanResult.set(result);
+                this.scheduleClearScanResult();
+              },
+              "Excédent détecté",
+              `La quantité scannée (${newQty}) dépasse la quantité commandée (${orderedQty})\npour ${currentLine.produitLibelle}.\n\nConfirmer la réception en excédent ?`,
+              "pi pi-exclamation-triangle",
+              () => {
+                // Refusé — révoquer la mise à jour déjà enregistrée côté serveur
+                const reverted = {
+                  ...currentLine,
+                  quantityReceived: oldQty,
+                  quantityReceivedTmp: oldQty
+                };
+                this.deliveryService.updateQuantityReceived(reverted).subscribe({
+                  error: err => this.notificationService.error(this.errorService.getErrorMessage(err), "Annulation scan")
+                });
+                this.audioFeedback.beepError();
+              }
+            );
+          } else {
+            this.applyScanResult(idx, result, newQty);
+            this.lastScanResult.set(result);
+            this.scheduleClearScanResult();
+          }
+        },
+        error: err => {
+          this.lastScanResult.set(null);
+          this.audioFeedback.beepError();
+          if (err instanceof TimeoutError) {
+            this.notificationService.error("Backend trop lent — scan abandonné", "Scan");
+          } else {
+            this.notificationService.error(this.errorService.getErrorMessage(err), "Scan");
+          }
+        }
+      });
+  }
+
+
+  // ── Lot inline editor ─────────────────────────────────────────────────────
+
+  //  Associer le code scanné à la première ligne provisoire et ouvrir la cellule CIP
+  protected onAssocierScanToProvisional(): void {
+    const scan = this.lastScanResult();
+    if (!scan?.provisionalLines?.length || !scan.scannedCode) {
+      return;
+    }
+    const firstLine = scan.provisionalLines[0];
+    const rowNode = this.gridApi?.getRowNode(String(firstLine.id));
+    if (!rowNode) {
+      return;
+    }
+    // Basculer en mode grille pour que la cellule CIP soit visible
+    this.setViewMode("grid");
+    setTimeout(() => {
+      this.gridApi?.ensureNodeVisible(rowNode, "middle");
+      setTimeout(() => {
+        this.gridApi?.startEditingCell({rowIndex: rowNode.rowIndex!, colKey: "produitCip"});
+        setTimeout(() => {
+          const eInput = document.querySelector<HTMLInputElement>(".ag-cell-editor input");
+          if (eInput) {
+            eInput.value = scan.scannedCode!;
+            eInput.dispatchEvent(new Event("input"));
+          }
+        }, 50);
+      }, 100);
+    }, 50);
+    this.lastScanResult.set(null);
+  }
+
+  /** Reconnexion manuelle du scanner CDC. */
+  protected reconnectScanner(): Promise<void> {
+    return this.scanOrchestrator.reconnect();
+  }
+
+  protected lineStatut(ol: IOrderLine): { label: string; severity: string } {
+    // Distinguer jamais touché (null) de saisi à 0
+    if (ol.quantityReceivedTmp == null || !ol.updated) {
+      return {
+        label: "À saisir",
+        severity: "secondary"
+      };
+    }
+    const rec = ol.quantityReceivedTmp;
+    const cmd = ol.quantityRequested ?? 0;
+    if (rec === cmd) {
+      return {label: "Servi", severity: "success"};
+    }
+    if (rec === 0) {
+      return {label: "Rupture", severity: "danger"};
+    }
+    if (rec > cmd) {
+      return {label: "Excédent", severity: "info"};
+    }
+    return {label: "Partiel", severity: "warn"};
   }
 
   private onConfirmToutValider(allLines: IOrderLine[], linesToUpdate: IOrderLine[]): void {
@@ -434,28 +806,6 @@ export class CommandeReceivedComponent implements OnInit {
 
   }
 
-  protected onDeleteOrderLine(orderLine: IOrderLine): void {
-    if (this.currentCommande) {
-      this.commandeService.deleteOrderLineById(orderLine.orderLineId).subscribe(() => this.refreshCommande());
-    }
-  }
-
-  protected confirmDeleteItem(item: IOrderLine): void {
-    this.confirmDialog.onConfirm(
-      () => this.onDeleteOrderLine(item),
-      "Suppression",
-      "Voullez-vous supprimer de la commande ce produit ?"
-    );
-  }
-
-  protected onConfirmFinalize(): void {
-    this.executeFinalizationFlow(true);
-  }
-
-  protected finalizeSansConfirmModal(): void {
-    this.executeFinalizationFlow(false);
-  }
-
   private canValidate(): boolean {
     const allLines = this.currentCommande.orderLines as IOrderLine[] ?? [];
     const linesToUpdate = allLines.filter(l => !l.updated);
@@ -467,7 +817,8 @@ export class CommandeReceivedComponent implements OnInit {
     return allLines.filter(l => !l.updated).length;
   }
 
-  // requireConfirm = true → dialog "Voulez-vous faire l'entrée en stock ?" avant la mise en stock
+  // ── Scan réception ────────────────────────────────────────────────────────
+
   // requireConfirm = false → exécution directe (le modal de finalisation a déjà obtenu la confirmation)
   private executeFinalizationFlow(requireConfirm: boolean): void {
     if (this.showLotBtn() && !this.canValidate()) {
@@ -562,7 +913,7 @@ export class CommandeReceivedComponent implements OnInit {
         showCommonModal(
           this.modalService,
           PutawayModalComponent,
-          { items, header: `Répartition rayon → réserve (${items.length} produit(s))` },
+          {items, header: `Répartition rayon → réserve (${items.length} produit(s))`},
           (doTransfer: boolean) => this.onFinalize(doTransfer),
           "lg",
           null,
@@ -573,246 +924,8 @@ export class CommandeReceivedComponent implements OnInit {
     });
   }
 
-  protected onImporterReponseCommande(): void {
-    showCommonModal(
-      this.modalService,
-      FileResponseModalComponent,
-      { commandeSelected: this.currentCommande, header: "IMPORTER RÉPONSE" },
-      (responseCommande: IResponseCommande) => {
-        if (responseCommande) {
-          this.refreshCommande();
-          this.openImporterReponseCommandeDialog(responseCommande);
-        }
-      },
-      "lg"
-    );
-  }
-
-  //Lien vers le module de rapprochement facture fournisseur
-  protected onRapprocher(): void {
-    const ref = this.modalService.open(ReconciliationFactureComponent, { size: "lg", centered: true });
-    (ref.componentInstance as ReconciliationFactureComponent).commande = this.currentCommande;
-  }
-
-  protected onRetourFournisseur(): void {
-    showCommonModal(
-      this.modalService,
-      RetourDepuisReceptionComponent,
-      {
-        commande: this.currentCommande,
-        orderLines: this.orderLines,
-        header: `Retour fournisseur — ${this.currentCommande.receiptReference ?? this.currentCommande.orderReference ?? ""}`
-      },
-      () => this.refreshCommande(),
-      "xl"
-    );
-  }
-
-  protected onAddLot(orderLine: IOrderLine): void {
-    const qty = orderLine.quantityReceived || orderLine.quantityRequested;
-    if (qty > 1 || (orderLine.lots?.length ?? 0) > 0) {
-      showCommonModal(
-        this.modalService,
-        ListLotComponent,
-        {
-          deliveryItem: orderLine,
-          header: `GESTION DE LOTS DE LA LIGNE ${orderLine.produitLibelle} [${orderLine.produitCip}]`
-        },
-        null,
-        "lg"
-      );
-    } else {
-      showCommonModal(
-        this.modalService,
-        FormLotComponent,
-        { entity: null, deliveryItem: orderLine, header: "Ajout de lot" },
-        null,
-        "lg"
-      );
-    }
-  }
-
-  protected editLigneInfos(orderLine: IOrderLine): void {
-    showCommonModal(
-      this.modalService,
-      EditProduitComponent,
-      {
-        deliveryItem: orderLine,
-        delivery: this.currentCommande,
-        header: `EDITION DU PRODUIT ${orderLine.produitLibelle} [${orderLine.produitCip}]`
-      },
-      null,
-      "xl"
-    );
-  }
-
-  protected onShowPriceHistory(orderLine: IOrderLine): void {
-    if (!orderLine.fournisseurProduitId) return;
-    showCommonModal(
-      this.modalService,
-      PrixHistoriqueComponent,
-      {
-        fournisseurProduitId: orderLine.fournisseurProduitId,
-        produitLibelle: orderLine.produitLibelle,
-        header: `Historique des prix — ${orderLine.produitLibelle} [${orderLine.produitCip}]`
-      },
-      null,
-      "xl"
-    );
-  }
-
-
-  // ── Lot inline editor ─────────────────────────────────────────────────────
-
-  onToggleLotExpand(line: IOrderLine): void {
-    if (!line?.id) return;
-    if (this.expandedLineIds.has(line.id)) {
-      this.expandedLineIds.delete(line.id);
-      (line as any).__expanded = false;
-    } else {
-      this.expandedLineIds.add(line.id);
-      (line as any).__expanded = true;
-    }
-    this.refreshDisplayRows();
-  }
-
-  onCollapseRow(line: IOrderLine | null): void {
-    if (!line?.id) return;
-    this.expandedLineIds.delete(line.id);
-    const found = this.orderLines.find(l => l.id === line.id);
-    if (found) (found as any).__expanded = false;
-    this.refreshDisplayRows();
-  }
-
-  onLotSaved(line: IOrderLine, lots: ILot[]): void {
-    const found = this.orderLines.find(l => l.id === line.id);
-    if (found) found.lots = lots;
-    const rowNode = this.gridApi?.getRowNode(String(line.id));
-    if (rowNode) {
-      this.gridApi?.refreshCells({ rowNodes: [rowNode], columns: ["lots"], force: true });
-    }
-  }
-
-  protected get lignesPcbAlert(): number {
-    return this.orderLines.filter(l => {
-      const pcb = l.qteColis;
-      if (!pcb || pcb <= 1) return false;
-      const qty = l.quantityReceivedTmp ?? l.quantityRequested ?? 0;
-      return qty > 0 && qty % pcb !== 0;
-    }).length;
-  }
-
-  protected get lignesSansLot(): number {
-    if (!this.showLotBtn()) return 0;
-    return this.orderLines.filter(l => (l.lots?.length ?? 0) === 0).length;
-  }
-
-  protected exportPdf(): void {
-    this.commandeService.exportToPdf(this.currentCommande.commandeId).subscribe(blob => {
-      if (this.tauriPrinterService.isRunningInTauri()) {
-        handleBlobForTauri(blob, "commande_en_cours");
-      } else {
-        window.open(URL.createObjectURL(blob));
-      }
-    });
-  }
-
-  protected exportCSV(): void {
-    this.commandeService.exportToCsv(this.currentCommande.commandeId).subscribe(blob => {
-      if (this.tauriPrinterService.isRunningInTauri()) {
-        handleBlobForTauri(blob, "commande_en_cours", "csv");
-      } else {
-        saveAs(blob);
-      }
-    });
-  }
-
-  // ── Scan réception ────────────────────────────────────────────────────────
-
-  protected onScanReception(): void {
-    const raw = this.scanValue?.trim();
-    if (!raw) return;
-    this.scanValue = "";
-
-    // Anti-rebond : ignorer un même code reçu trop vite (double trigger / rebond mécanique)
-    const now = Date.now();
-    if (this.lastReceptionScan
-        && this.lastReceptionScan.code === raw
-        && now - this.lastReceptionScan.at < CommandeReceivedComponent.DEDUP_WINDOW_MS) {
-      return;
-    }
-    this.lastReceptionScan = { code: raw, at: now };
-
-    this.deliveryService.scanReception(this.currentCommande.id, raw)
-      .pipe(timeout(CommandeReceivedComponent.SCAN_RECEPTION_TIMEOUT_MS))
-      .subscribe({
-      next: res => {
-        const result = res.body!;
-        if (!result.found) {
-          this.audioFeedback.beepError();
-          //  Enrichir le signal avec les lignes provisoires + le code scanné
-          const provisionalLines = this.orderLines
-            .filter(l => l.provisionalCode)
-            .map(l => ({ id: l.id!, libelle: l.produitLibelle! }));
-          this.lastScanResult.set({ ...result, provisionalLines, scannedCode: raw });
-          this.scheduleClearScanResult();
-          return;
-        }
-
-        this.audioFeedback.beepSuccess();
-        const idx = this.orderLines.findIndex(l => l.id === result.orderLineId);
-        if (idx === -1) {
-          this.lastScanResult.set(result);
-          this.scheduleClearScanResult();
-          return;
-        }
-
-        const currentLine = this.orderLines[idx];
-        const increment = result.scannedQty ?? 1;
-        const oldQty = currentLine.quantityReceived ?? 0;
-        const newQty = oldQty + increment;
-        const orderedQty = currentLine.quantityRequested ?? 0;
-
-        if (newQty > orderedQty) {
-          // Confirmation obligatoire avant d'accepter un excédent au scan
-          this.confirmDialog.onConfirm(
-            () => {
-              this.applyScanResult(idx, result, newQty);
-              this.lastScanResult.set(result);
-              this.scheduleClearScanResult();
-            },
-            "Excédent détecté",
-            `La quantité scannée (${newQty}) dépasse la quantité commandée (${orderedQty})\npour ${currentLine.produitLibelle}.\n\nConfirmer la réception en excédent ?`,
-            "pi pi-exclamation-triangle",
-            () => {
-              // Refusé — révoquer la mise à jour déjà enregistrée côté serveur
-              const reverted = { ...currentLine, quantityReceived: oldQty, quantityReceivedTmp: oldQty };
-              this.deliveryService.updateQuantityReceived(reverted).subscribe({
-                error: err => this.notificationService.error(this.errorService.getErrorMessage(err), "Annulation scan")
-              });
-              this.audioFeedback.beepError();
-            }
-          );
-        } else {
-          this.applyScanResult(idx, result, newQty);
-          this.lastScanResult.set(result);
-          this.scheduleClearScanResult();
-        }
-      },
-      error: err => {
-        this.lastScanResult.set(null);
-        this.audioFeedback.beepError();
-        if (err instanceof TimeoutError) {
-          this.notificationService.error("Backend trop lent — scan abandonné", "Scan");
-        } else {
-          this.notificationService.error(this.errorService.getErrorMessage(err), "Scan");
-        }
-      }
-    });
-  }
-
   private applyScanResult(idx: number, result: IReceptionScanResult, newQty: number): void {
-    const updated = { ...this.orderLines[idx] };
+    const updated = {...this.orderLines[idx]};
     updated.quantityReceived = newQty;
     updated.quantityReceivedTmp = newQty;
     updated.updated = true; // ← marquer comme saisi pour que statut / tauxService / concordance soient corrects
@@ -829,7 +942,7 @@ export class CommandeReceivedComponent implements OnInit {
       });
       // Auto-scroll + flash vert 800 ms
       this.gridApi?.ensureNodeVisible(rowNode, "middle");
-      this.gridApi?.flashCells({ rowNodes: [rowNode], flashDuration: 800, fadeDuration: 400 });
+      this.gridApi?.flashCells({rowNodes: [rowNode], flashDuration: 800, fadeDuration: 400});
     }
 
     if (result.lotAutoCreated) {
@@ -840,39 +953,16 @@ export class CommandeReceivedComponent implements OnInit {
       const m = isoDate.match(/^(\d{4})-(\d{2})/);
       const expiry = m ? `${m[2]}/${m[1]}` : "";
       if (expiry) {
-        this.scanLotPrefill.set({ numLot: result.lot.numLot, expiry });
+        this.scanLotPrefill.set({numLot: result.lot.numLot, expiry});
         //  le prefill est effacé à la validation de la ligne (voir onSequentialLineChanged)
       }
     }
   }
 
-  //  Associer le code scanné à la première ligne provisoire et ouvrir la cellule CIP
-  protected onAssocierScanToProvisional(): void {
-    const scan = this.lastScanResult();
-    if (!scan?.provisionalLines?.length || !scan.scannedCode) return;
-    const firstLine = scan.provisionalLines[0];
-    const rowNode = this.gridApi?.getRowNode(String(firstLine.id));
-    if (!rowNode) return;
-    // Basculer en mode grille pour que la cellule CIP soit visible
-    this.setViewMode("grid");
-    setTimeout(() => {
-      this.gridApi?.ensureNodeVisible(rowNode, "middle");
-      setTimeout(() => {
-        this.gridApi?.startEditingCell({ rowIndex: rowNode.rowIndex!, colKey: "produitCip" });
-        setTimeout(() => {
-          const eInput = document.querySelector<HTMLInputElement>(".ag-cell-editor input");
-          if (eInput) {
-            eInput.value = scan.scannedCode!;
-            eInput.dispatchEvent(new Event("input"));
-          }
-        }, 50);
-      }, 100);
-    }, 50);
-    this.lastScanResult.set(null);
-  }
-
   private scheduleClearScanResult(): void {
-    if (this.scanFeedbackTimer) clearTimeout(this.scanFeedbackTimer);
+    if (this.scanFeedbackTimer) {
+      clearTimeout(this.scanFeedbackTimer);
+    }
     this.scanFeedbackTimer = setTimeout(() => this.lastScanResult.set(null), 4000);
   }
 
@@ -902,7 +992,9 @@ export class CommandeReceivedComponent implements OnInit {
 
   /** Listener clavier raccourcis — actif en permanence quel que soit le mode scanner. */
   private installShortcutListener(): void {
-    if (this.shortcutListener) return;
+    if (this.shortcutListener) {
+      return;
+    }
     this.shortcutListener = (event: KeyboardEvent): void => this.handleKeyboardShortcut(event);
     document.addEventListener("keydown", this.shortcutListener, true);
   }
@@ -920,7 +1012,9 @@ export class CommandeReceivedComponent implements OnInit {
    * via `onScanEvent$` (consommé par l'orchestrateur).
    */
   private installScanKeydownListener(): void {
-    if (this.scanKeydownListener) return;
+    if (this.scanKeydownListener) {
+      return;
+    }
     this.scanKeydownListener = (event: KeyboardEvent): void => {
       const result = this.receptionScanner.processKey(event.key);
       if (result.isScanInProgress && this.isInputElementActive()) {
@@ -943,10 +1037,7 @@ export class CommandeReceivedComponent implements OnInit {
     }
   }
 
-  /** Reconnexion manuelle du scanner CDC. */
-  protected reconnectScanner(): Promise<void> {
-    return this.scanOrchestrator.reconnect();
-  }
+  // ── Helpers ───────────────────────────────────────────────────────────────
 
   /** Raccourcis identiques quel que soit le mode scanner. */
   private handleKeyboardShortcut(event: KeyboardEvent): void {
@@ -979,34 +1070,9 @@ export class CommandeReceivedComponent implements OnInit {
     return false;
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
-
   private computeAfterStock(ol: IOrderLine): number {
     return (ol.initStock ?? 0) + (ol.quantityReceivedTmp ?? ol.quantityRequested ?? 0) + (ol.freeQty ?? 0);
   }
-
-  protected lineStatut(ol: IOrderLine): { label: string; severity: string } {
-    // Distinguer jamais touché (null) de saisi à 0
-    if (ol.quantityReceivedTmp == null || !ol.updated) return { label: "À saisir", severity: "secondary" };
-    const rec = ol.quantityReceivedTmp;
-    const cmd = ol.quantityRequested ?? 0;
-    if (rec === cmd) return { label: "Servi", severity: "success" };
-    if (rec === 0) return { label: "Rupture", severity: "danger" };
-    if (rec > cmd) return { label: "Excédent", severity: "info" };
-    return { label: "Partiel", severity: "warn" };
-  }
-
-  //Taux de service : lignes où quantityReceivedTmp >= quantityRequested / total
-  protected get tauxService(): number {
-    if (!this.orderLines.length) return 0;
-    const served = this.orderLines.filter(
-      l => l.updated && l.quantityRequested != null &&
-        (l.quantityReceivedTmp ?? 0) >= l.quantityRequested &&
-        l.quantityRequested > 0
-    ).length;
-    return Math.round((served / this.orderLines.length) * 100);
-  }
-
 
   private initPutAway(): void {
     this.configurationService.getParamByKey(Params.APP_PUTAWAY_MODE)
@@ -1027,7 +1093,7 @@ export class CommandeReceivedComponent implements OnInit {
         width: 50,
         hide: true,
         valueGetter: p => (p.node?.rowIndex ?? 0) + 1,
-        cellStyle: { color: "#9ca3af", fontSize: "0.72rem", textAlign: "center" }
+        cellStyle: {color: "#9ca3af", fontSize: "0.72rem", textAlign: "center"}
       },
       {
         field: "produitCip",
@@ -1037,7 +1103,9 @@ export class CommandeReceivedComponent implements OnInit {
         editable: (p: any) => !!p.data?.provisionalCode,
         cellEditor: "agTextCellEditor",
         cellRenderer: (p: any) => {
-          if (!p.data) return "";
+          if (!p.data) {
+            return "";
+          }
           const cip = p.data.produitCip ?? "";
           if (p.data.provisionalCode) {
             return `<span
@@ -1067,7 +1135,9 @@ export class CommandeReceivedComponent implements OnInit {
         type: "numericColumn",
         headerTooltip: "Prix d'achat commandé — ⚠ indique un écart avec le tarif catalogue",
         cellRenderer: (p: any) => {
-          if (!p.data) return "";
+          if (!p.data) {
+            return "";
+          }
           const val = p.data.orderCostAmount != null ? Number(p.data.orderCostAmount).toLocaleString("fr-FR") : "—";
           if (p.data.costAmount != null && p.data.costAmount !== p.data.orderCostAmount) {
             const tarif = Number(p.data.costAmount).toLocaleString("fr-FR");
@@ -1088,7 +1158,9 @@ export class CommandeReceivedComponent implements OnInit {
         type: "numericColumn",
         headerTooltip: "Prix de vente commandé — ⚠ indique un écart avec le tarif catalogue",
         cellRenderer: (p: any) => {
-          if (!p.data) return "";
+          if (!p.data) {
+            return "";
+          }
           const val = p.data.orderUnitPrice != null ? Number(p.data.orderUnitPrice).toLocaleString("fr-FR") : "—";
           if (p.data.regularUnitPrice != null && p.data.regularUnitPrice !== p.data.orderUnitPrice) {
             const tarif = Number(p.data.regularUnitPrice).toLocaleString("fr-FR");
@@ -1108,7 +1180,9 @@ export class CommandeReceivedComponent implements OnInit {
         width: 100,
         type: "numericColumn",
         cellRenderer: (p: any) => {
-          if (!p.data) return "";
+          if (!p.data) {
+            return "";
+          }
           const qty = p.data.quantityRequested;
           const val = qty != null ? Number(qty).toLocaleString("fr-FR") : "—";
           const pcb = p.data.qteColis;
@@ -1126,9 +1200,11 @@ export class CommandeReceivedComponent implements OnInit {
         type: "numericColumn",
         editable: true,
         cellEditor: "agNumberCellEditor",
-        cellEditorParams: { preventStepping: true },
+        cellEditorParams: {preventStepping: true},
         cellRenderer: (p: any) => {
-          if (!p.data) return "";
+          if (!p.data) {
+            return "";
+          }
           const qty = p.data.quantityReceivedTmp;
           const val = qty != null ? Number(qty).toLocaleString("fr-FR") : "—";
           const partial = qty !== p.data.quantityRequested;
@@ -1147,7 +1223,7 @@ export class CommandeReceivedComponent implements OnInit {
         type: "numericColumn",
         editable: true,
         cellEditor: "agNumberCellEditor",
-        cellEditorParams: { preventStepping: true }
+        cellEditorParams: {preventStepping: true}
       },
       {
         headerName: "Stock.après",
@@ -1156,9 +1232,15 @@ export class CommandeReceivedComponent implements OnInit {
         type: "numericColumn",
         valueGetter: p => p.data ? this.computeAfterStock(p.data) : null,
         cellStyle: (p: any) => {
-          if (p.value == null) return {};
-          if (p.value === 0) return { color: "#f59e0b", fontWeight: 700 };
-          if (p.value > 0) return { color: "#16a34a", fontWeight: 600 };
+          if (p.value == null) {
+            return {};
+          }
+          if (p.value === 0) {
+            return {color: "#f59e0b", fontWeight: 700};
+          }
+          if (p.value > 0) {
+            return {color: "#16a34a", fontWeight: 600};
+          }
           return {};
         }
       },
@@ -1200,7 +1282,9 @@ export class CommandeReceivedComponent implements OnInit {
       headerTooltip: "Jours de couverture stock estimés",
       cellRenderer: (p: any) => {
         const v = p.data?.couvertureStockJours;
-        if (v == null) return "—";
+        if (v == null) {
+          return "—";
+        }
         const color = v < 7 ? "#dc3545" : v < 30 ? "#f59e0b" : "#16a34a";
         return `<span style="color:${color};font-weight:700">${v} j</span>`;
       }
@@ -1261,7 +1345,7 @@ export class CommandeReceivedComponent implements OnInit {
     for (const line of this.orderLines) {
       rows.push(line);
       if (this.expandedLineIds.has(line.id!)) {
-        rows.push({ __type: "lot-editor", __line: line, __id: `lot-editor-${line.id}` });
+        rows.push({__type: "lot-editor", __line: line, __id: `lot-editor-${line.id}`});
       }
     }
     this.displayRows = rows;
@@ -1281,7 +1365,11 @@ export class CommandeReceivedComponent implements OnInit {
   private onFinalize(doTransfer = false): void {
     this.spinner().show();
     this.deliveryService
-      .finalizeSaisieEntreeStock({ ...this.currentCommande, doTransfer, conformeSansLot: this.conformeSansLot })
+      .finalizeSaisieEntreeStock({
+        ...this.currentCommande,
+        doTransfer,
+        conformeSansLot: this.conformeSansLot
+      })
       .pipe(finalize(() => this.spinner().hide()))
       .subscribe({
         next: (res: HttpResponse<IStockEntryResult>) => {
@@ -1331,7 +1419,7 @@ export class CommandeReceivedComponent implements OnInit {
 
   private confirmPrintTicket(commandeId: CommandeId): void {
     this.confirmDialog.onConfirm(
-      () => this.printEtiquette({ ...this.currentCommande, commandeId }),
+      () => this.printEtiquette({...this.currentCommande, commandeId}),
       "Impression",
       "Voullez-vous imprimer les étiquettes ?",
       null,
@@ -1347,7 +1435,10 @@ export class CommandeReceivedComponent implements OnInit {
     showCommonModal(
       this.modalService,
       EtiquetteComponent,
-      { entity: commande, header: `IMPRIMER LES ETIQUETTES DU BON DE LIVRAISON [ ${commande.receiptReference} ] ` },
+      {
+        entity: commande,
+        header: `IMPRIMER LES ETIQUETTES DU BON DE LIVRAISON [ ${commande.receiptReference} ] `
+      },
       () => {
         this.currentCommande = null;
         this.commandeChange.emit(null);

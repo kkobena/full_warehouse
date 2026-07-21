@@ -1,0 +1,48 @@
+// Habillage partagé avec les tableaux de bord (`dashboard-common.scss` importe le même
+// partial). Le markup de la carte est rendu par le composant lui-même, les styles
+// s'appliquent donc malgré l'encapsulation ; seul le contenu projeté y échappe, et il
+// n'est pas ciblé ici.
+@import '../../scss/data-card';
+
+:host {
+  display: block;
+}
+
+// L'en-tête projeté via [cardHeader] occupe toute la largeur restante.
+//
+// `.card-header` est un conteneur flex (cf. `_data-card.scss`) : sans cette règle, un
+// en-tête projeté — typiquement `.section-header` des formulaires, qui porte son propre
+// fond en dégradé et sa bordure basse — se dimensionne à son contenu au lieu de barrer
+// la carte. `::ng-deep` est nécessaire : le contenu projeté porte l'encapsulation du
+// composant appelant, pas celle-ci. Il reste borné par `:host`.
+:host .card-header ::ng-deep [cardHeader] {
+  flex: 1 1 auto;
+}
+
+// Variante « formulaire ».
+//
+// Reprend l'habillage que `_modal-theme.scss` appliquait aux cartes des modales. Ces
+// règles y sont écrites sans `::ng-deep` : elles ne franchissent pas l'encapsulation
+// d'`app-card` et cessaient donc de s'appliquer dès que le markup passait dans un
+// composant. Le Design System les porte désormais lui-même.
+.card-form {
+  // surface-100 (#f1f5f9) et non surface-50 (#f8fafc) : à 98 % de blanc, la teinte de
+  // surface-50 ne se distinguait pas du fond de la modale et la carte paraissait absente.
+  // Doit rester aligné sur la règle `.card` de `_modal-theme.scss`.
+  background-color: var(--p-surface-100);
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--bs-border-radius);
+
+  // L'en-tête n'est qu'un réceptacle : `.section-header` fournit son propre rembourrage,
+  // son dégradé et sa bordure. Tout ajout ici ferait double emploi.
+  > .card-header {
+    padding: 0;
+    background: none;
+    border-bottom: none;
+  }
+
+  > .card-body {
+    background-color: transparent;
+    padding: 0.5rem;
+  }
+}

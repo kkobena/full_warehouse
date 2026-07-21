@@ -4,12 +4,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { ButtonModule } from 'primeng/button';
-import { ToolbarModule } from 'primeng/toolbar';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
-import { TableModule } from 'primeng/table';
-import { Tag } from 'primeng/tag';
-import { InputTextModule } from 'primeng/inputtext';
+import { BadgeComponent, ButtonComponent, DataTableComponent, ToolbarComponent } from 'app/shared/ui';
 
 import { SemoisService } from 'app/entities/semois/semois.service';
 import { ClasseCriticite, getClasseCriticiteInfo } from 'app/shared/model/semois/classe-criticite.model';
@@ -31,7 +27,7 @@ interface IPreviewClassificationItem {
   templateUrl: './semois-config-masse.component.html',
   styleUrls: ['./semois-config-masse.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, ButtonModule, ToolbarModule, NgbNavModule, TableModule, Tag, InputTextModule],
+  imports: [CommonModule, FormsModule, ButtonComponent, ToolbarComponent, NgbNavModule, DataTableComponent, BadgeComponent],
 })
 export class SemoisConfigMasseComponent implements OnInit {
   activeTab = 'classification-abc';

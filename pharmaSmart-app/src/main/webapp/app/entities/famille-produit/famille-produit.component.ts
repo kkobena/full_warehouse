@@ -1,27 +1,24 @@
 import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FamilleProduitService } from "./famille-produit.service";
-import { RouterModule } from "@angular/router";
 import { HttpErrorResponse, HttpHeaders, HttpResponse } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { FormFamilleComponent } from "./form-famille/form-famille.component";
 import { IResponseDto } from "../../shared/util/response-dto";
 import { IFamilleProduit } from "../../shared/model/famille-produit.model";
 import { ITEMS_PER_PAGE } from "../../shared/constants/pagination.constants";
-import { ToolbarModule } from "primeng/toolbar";
-import { TableLazyLoadEvent, TableModule } from "primeng/table";
-import { ButtonModule } from "primeng/button";
-import { RippleModule } from "primeng/ripple";
-import { InputTextModule } from "primeng/inputtext";
-import { Tooltip } from "primeng/tooltip";
-import { InputIcon } from "primeng/inputicon";
-import { IconField } from "primeng/iconfield";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import {
+  AppTableLazyLoadEvent,
+  ButtonComponent,
+  DataTableComponent,
+  IconFieldComponent,
+  SelectableRowDirective
+} from "../../shared/ui";
+import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { showCommonModal } from "../sales/selling-home/sale-helper";
 import { ErrorService } from "../../shared/error.service";
 import { FileUploadDialogComponent } from "../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component";
 import { finalize } from "rxjs/operators";
 import { SpinnerComponent } from "../../shared/spinner/spinner.component";
-import { Toast } from "primeng/toast";
 import { NgbConfirmDialogService } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { NotificationService } from "../../shared/services/notification.service";
 
@@ -30,19 +27,7 @@ import { NotificationService } from "../../shared/services/notification.service"
   templateUrl: "./famille-produit.component.html",
   styleUrl: "./famille-produit.component.scss",
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
-    ButtonModule,
-    RippleModule,
-    ToolbarModule,
-    TableModule,
-    RouterModule,
-    InputTextModule,
-    Tooltip,
-    InputIcon,
-    IconField,
-    SpinnerComponent,
-    Toast
-  ]
+  imports: [ButtonComponent, DataTableComponent, SelectableRowDirective, IconFieldComponent, NgbTooltip, SpinnerComponent]
 })
 export class FamilleProduitComponent implements OnInit {
   responsedto!: IResponseDto;
@@ -79,7 +64,7 @@ export class FamilleProduitComponent implements OnInit {
       });
   }
 
-  lazyLoading(event: TableLazyLoadEvent): void {
+  lazyLoading(event: AppTableLazyLoadEvent): void {
     this.page = event.first / event.rows;
     this.loading = true;
     this.entityService

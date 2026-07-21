@@ -1,0 +1,14 @@
+// Habillage partagé avec les écrans non migrés (`_pharma-nav.scss` importe le même
+// partial).
+//
+// ⚠ Les onglets et leurs libellés sont du **contenu projeté** : ils portent
+// l'encapsulation du composant appelant, pas celle-ci. Les règles ci-dessous ne les
+// atteindraient donc pas sans `::ng-deep`, d'où l'enveloppe. Elle reste bornée par
+// `:host`, donc sans fuite globale.
+:host {
+  display: block;
+}
+
+:host ::ng-deep {
+  @import '../../scss/pharma-nav-tabs';
+}

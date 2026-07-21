@@ -3,38 +3,41 @@
   <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
 </div>
 <div class="modal-body">
-  <p-card>
+  <app-card [variant]="'form'">
     <div class="p-fluid p-formgrid p-grid">
       <div class="p-field p-col">
-        <label class="col-auto col-form-label">Quantité<span style="font-weight: 900; color: red">*</span></label>
-        <input #startInput [(ngModel)]="startAt" [pKeyFilter]="'int'" autocomplete="off" class="form-control" pInputText type="text" />
+        <label class="col-auto col-form-label">Quantité<span
+          style="font-weight: 900; color: red">*</span></label>
+        <input #startInput [(ngModel)]="startAt" [appKeyFilter]="'int'" autocomplete="off"
+               class="form-control" type="text" />
         @if (startAt === 0 || startAt > 64) {
           <div>
-            <small class="form-text text-danger" style="color: red"> Le nombre saisi doit être compris entre 0 et 64 </small>
+            <small class="form-text text-danger" style="color: red"> Le nombre saisi doit être
+              compris entre 0 et 64 </small>
           </div>
         }
       </div>
     </div>
-  </p-card>
+  </app-card>
 </div>
 
 <div class="modal-footer">
-  <p-button
-    (click)="cancel()"
-    class="mr-2"
+  <app-button
+    (clicked)="cancel()"
+    [raised]="true"
+    class="mr-1"
     icon="pi pi-times"
     label="Annuler"
-    raised="true"
     severity="secondary"
     type="button"
-  ></p-button>
-  <p-button
-    (click)="save()"
+  ></app-button>
+  <app-button
+    (clicked)="save()"
     [disabled]="isSaving || startAt === 0 || startAt > 64"
+    [raised]="true"
     icon="pi pi-check"
     label="Enregistrer"
-    raised="true"
     severity="success"
     type="submit"
-  ></p-button>
+  ></app-button>
 </div>

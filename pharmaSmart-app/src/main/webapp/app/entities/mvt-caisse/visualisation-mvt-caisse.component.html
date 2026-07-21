@@ -1,123 +1,80 @@
 <div class="pharma-smart-content p-2">
-  <!-- Modern Pharma Toolbar (Compact) -->
-  <div class="pharma-toolbar pharma-toolbar-compact">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-wallet"></i>
-      <span class="pharma-toolbar-title">Mouvements de caisse</span>
-    </div>
+  <app-toolbar [compact]="true" icon="pi pi-wallet" title="Mouvements de caisse">
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <div class="pharma-toolbar-filters">
+        <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate" id="dateDebut" label="Du" />
 
-    <p-toolbar>
-      <ng-template #start>
-        <div class="pharma-toolbar-filters">
-          <p-floatlabel variant="on">
-            <p-datepicker
-              [(ngModel)]="fromDate"
-              [style]="{ 'max-width': '160px' }"
-              [iconDisplay]="'input'"
-              [showButtonBar]="true"
-              dateFormat="dd/mm/yy"
-              id="dateDebut"
-              inputId="dateDebut"
-              appendTo="body"
-              showIcon="true"
-              selectOtherMonths="true"
-            />
-            <label for="dateDebut">Du</label>
-          </p-floatlabel>
+        <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate" id="dateFin" label="Au" />
 
-          <p-floatlabel variant="on">
-            <p-datepicker
-              [style]="{ 'max-width': '160px' }"
-              [(ngModel)]="toDate"
-              [iconDisplay]="'input'"
-              [showButtonBar]="true"
-              dateFormat="dd/mm/yy"
-              id="dateFin"
-              inputId="dateFin"
-              appendTo="body"
-              showIcon="true"
-              selectOtherMonths="true"
-            />
-            <label for="dateFin">Au</label>
-          </p-floatlabel>
+        <app-multi-select
+          [(ngModel)]="selectedTypes"
+          [clearable]="true"
+          [items]="typeOptions"
+          appendTo="body"
+          bindLabel="label"
+          bindValue="value"
+          inputId="typeMvr"
+          placeholder="Type de mouvement"
+        />
 
-          <p-multiselect
-            [(ngModel)]="selectedTypes"
-            [filter]="true"
-            [options]="types"
-            [showClear]="true"
-            display="chip"
-            id="typeMvr"
-            [fluid]="true"
-            appendTo="body"
-            placeholder="Type de mouvement"
+        <app-multi-select
+          [(ngModel)]="selectedModes"
+          [clearable]="true"
+          [items]="paymentModes"
+          appendTo="body"
+          bindLabel="libelle"
+          inputId="modeR"
+          placeholder="Mode de règlement"
+        />
+
+        <app-select
+          [(ngModel)]="selectedUser"
+          [clearable]="true"
+          [items]="users"
+          appendTo="body"
+          bindLabel="abbrName"
+          inputId="op"
+          placeholder="Opérateur"
+        />
+      </div>
+    </ng-container>
+
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-toolbar-actions">
+        <div class="pharma-button-group">
+          <app-button
+            (clicked)="onSearch()"
+            [loading]="btnLoading"
+            [raised]="true"
+            icon="pi pi-search"
+            label="Rechercher"
+            ngbTooltip="Rechercher"
+            severity="info"
           />
 
-          <p-multiselect
-            [(ngModel)]="selectedModes"
-            [options]="paymentModes"
-            [showClear]="true"
-            display="chip"
-            [fluid]="true"
-            id="modeR"
-            optionLabel="libelle"
-            appendTo="body"
-            placeholder="Mode de règlement"
+          <app-button
+            (clicked)="addNew()"
+            [raised]="true"
+            icon="pi pi-plus"
+            label="Nouveau"
+            ngbTooltip="Nouveau mouvement"
+            severity="success"
           />
 
-          <p-select
-            [(ngModel)]="selectedUser"
-            [options]="users"
-            [showClear]="true"
-            id="op"
-            [fluid]="true"
-            optionLabel="abbrName"
-            appendTo="body"
-            placeholder="Opérateur"
+          <app-button
+            (clicked)="onPrint()"
+            [loading]="btnLoading"
+            [outlined]="true"
+            [raised]="true"
+            icon="pi pi-print"
+            label="Imprimer"
+            ngbTooltip="Imprimer"
+            severity="warn"
           />
         </div>
-      </ng-template>
-
-      <ng-template #end>
-        <div class="pharma-toolbar-actions">
-          <div class="pharma-button-group">
-            <p-button
-              (click)="onSearch()"
-              [loading]="btnLoading"
-              [raised]="true"
-              icon="pi pi-search"
-              label="Rechercher"
-              pTooltip="Rechercher"
-              severity="info"
-              tooltipPosition="top"
-            />
-
-            <p-button
-              (click)="addNew()"
-              [raised]="true"
-              icon="pi pi-plus"
-              label="Nouveau"
-              pTooltip="Nouveau mouvement"
-              severity="success"
-              tooltipPosition="top"
-            />
-
-            <p-button
-              (click)="onPrint()"
-              [loading]="btnLoading"
-              [raised]="true"
-              [outlined]="true"
-              icon="pi pi-print"
-              label="Imprimer"
-              pTooltip="Imprimer"
-              severity="warn"
-              tooltipPosition="top"
-            />
-          </div>
-        </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
+      </div>
+    </ng-container>
+  </app-toolbar>
   <div class="row mt-3 mb-3 px-2">
     @if (mvtCaisses && mvtCaisses.length > 0) {
       <div class="col-md-12 col-lg-8 col-xl-9 col-xxl-9 col-sm-12 mb-2">
@@ -129,20 +86,16 @@
             </h5>
           </div>
           <div class="card-body p-0">
-            <p-table
+            <app-data-table
               (onLazyLoad)="lazyLoading($event)"
               [lazy]="true"
               [loading]="loading"
               [paginator]="true"
               [rowsPerPageOptions]="[10, 20, 30, 50]"
               [rows]="itemsPerPage"
-              [showCurrentPageReport]="false"
               [totalRecords]="totalItems"
               [value]="mvtCaisses"
               dataKey="id"
-              selectionMode="multiple"
-              stripedRows="true"
-              class="p-datatable-sm"
             >
               <ng-template #header>
                 <tr class="pharma-table-head">
@@ -153,39 +106,35 @@
                   <th>Mode règlement</th>
                   <th>Opérateur</th>
                   <th>Client</th>
-
-                  <th [hidden]="true" style="width: 15px"></th>
                 </tr>
               </ng-template>
-              <ng-template let-mvtCaisse #body>
+              <ng-template #body let-mvtCaisse>
                 <tr>
                   <td>
-                    <span class="pharma-badge pharma-badge-info">{{ mvtCaisse.transactionType }}</span>
+                    <span
+                      class="pharma-badge pharma-badge-info">{{ mvtCaisse.transactionType }}</span>
                   </td>
                   <td>
                     <span class="pharma-code"> {{ mvtCaisse.reference }}</span>
                   </td>
                   <td>{{ mvtCaisse.date }}</td>
                   @if (mvtCaisse.type === 'SORTIE_CAISSE') {
-                    <td class="text-danger amount-column pharma-price">{{ mvtCaisse.montant | number }}</td>
+                    <td
+                      class="text-danger amount-column pharma-price">{{ mvtCaisse.montant | number }}
+                    </td>
                   } @else {
                     <td class="amount-column pharma-price">{{ mvtCaisse.montant | number }}</td>
                   }
 
                   <td>
-                    <span class="pharma-badge pharma-badge-primary">{{ mvtCaisse.paymentModeLibelle }}</span>
+                    <span
+                      class="pharma-badge pharma-badge-primary">{{ mvtCaisse.paymentModeLibelle }}</span>
                   </td>
                   <td>{{ mvtCaisse.userFullName }}</td>
                   <td>{{ mvtCaisse.organisme }}</td>
-
-                  <td [hidden]="true" class="text-right">
-                    <div class="btn-group">
-                      <p-button severity="info" size="small" [rounded]="true" icon="pi pi-eye" pTooltip="Voir"></p-button>
-                    </div>
-                  </td>
                 </tr>
               </ng-template>
-            </p-table>
+            </app-data-table>
           </div>
         </div>
       </div>
@@ -216,7 +165,9 @@
                   @if (mvtCaisseSum.debitedAmount > 0) {
                     <div class="field">
                       <label>Total sortiee</label>
-                      <span class="text-danger">{{ mvtCaisseSum.debitedAmount * -1 | number }}</span>
+                      <span class="text-danger">{{
+                          mvtCaisseSum.debitedAmount * -1 | number
+                        }}</span>
                     </div>
                   }
                   @if (mvtCaisseSum.debitedAmount > 0) {
@@ -287,4 +238,3 @@
   </div>
 </div>
 
-<p-toast position="center"></p-toast>

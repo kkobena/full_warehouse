@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ProduitService } from './produit.service';
 import { IProduit, Produit } from '../../shared/model/produit.model';
@@ -6,19 +6,16 @@ import { Observable } from 'rxjs';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TypeProduit } from '../../shared/model/enumerations/type-produit.model';
-import { InputText } from 'primeng/inputtext';
-import { InputNumber } from 'primeng/inputnumber';
-import { Button } from 'primeng/button';
-import { Card } from 'primeng/card';
 import { ErrorService } from '../../shared/error.service';
-import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
+import { NotificationService } from '../../shared/services/notification.service';
 import { CommonModule } from "@angular/common";
+import { ButtonComponent, CardComponent, InputNumberComponent } from '../../shared/ui';
 
 @Component({
   selector: 'jhi-detail-form-dialog',
   templateUrl: './detail-form-dialog.component.html',
   styleUrls: ['./detail-form-dialog.scss'],
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, InputText, InputNumber, Button, Card, ToastAlertComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, InputNumberComponent, ButtonComponent, CardComponent],
 })
 export class DetailFormDialogComponent implements OnInit, AfterViewInit {
   produit?: Produit;
@@ -35,9 +32,9 @@ export class DetailFormDialogComponent implements OnInit, AfterViewInit {
     regularUnitPrice: [null, [Validators.required, Validators.min(0)]],
   });
   private readonly produitService = inject(ProduitService);
-  private itemQty = viewChild.required<InputNumber>('itemQty');
+  private itemQty = viewChild.required('itemQty', { read: ElementRef<HTMLElement> });
   private readonly errorService = inject(ErrorService);
-  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly notificationService = inject(NotificationService);
 
   ngOnInit(): void {
     if (this.entity) {
@@ -53,7 +50,7 @@ export class DetailFormDialogComponent implements OnInit, AfterViewInit {
       this.handleInitAmount(null);
     }
     setTimeout(() => {
-      this.itemQty()!.input()?.nativeElement.focus();
+      this.itemQty().nativeElement.querySelector('input')?.focus();
     }, 100);
 
     this.editForm.get('itemQty').valueChanges.subscribe(value => {
@@ -91,7 +88,7 @@ export class DetailFormDialogComponent implements OnInit, AfterViewInit {
 
   private onSaveError(error: HttpErrorResponse): void {
     this.isSaving = false;
-    this.alert().showError(this.errorService.getErrorMessage(error));
+    this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 
   private createFromForm(): IProduit {

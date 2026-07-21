@@ -1,6 +1,6 @@
 import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { Button } from "primeng/button";
+import { ButtonComponent } from "app/shared/ui";
 
 @Component({
   selector: "app-reception-help",
@@ -108,11 +108,11 @@ import { Button } from "primeng/button";
 
     </div>
     <div class="modal-footer">
-      <p-button type="button"  severity="secondary" [raised]="true"  label="Fermer"  icon="pi pi-times" (click)="activeModal.dismiss()"/>
+      <app-button type="button" severity="secondary" [raised]="true" label="Fermer" icon="pi pi-times" (clicked)="activeModal.dismiss()"/>
     </div>
   `,
   imports: [
-    Button
+    ButtonComponent
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["reception-help.scss"]

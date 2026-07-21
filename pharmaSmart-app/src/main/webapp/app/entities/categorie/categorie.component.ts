@@ -8,10 +8,6 @@ import { ITEMS_PER_PAGE } from "app/shared/constants/pagination.constants";
 import { CategorieService } from "./categorie.service";
 import { CategorieDeleteDialogComponent } from "./categorie-delete-dialog.component";
 
-
-import { PanelModule } from "primeng/panel";
-
-import { ButtonModule } from "primeng/button";
 import { RouterModule } from "@angular/router";
 import TranslateDirective from "../../shared/language/translate.directive";
 import { AlertErrorComponent } from "../../shared/alert/alert-error.component";
@@ -23,7 +19,7 @@ import { AlertComponent } from "../../shared/alert/alert.component";
   templateUrl: "./categorie.component.html",
   styleUrls: ["./categorie.component.scss"],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [PanelModule, ButtonModule, RouterModule, TranslateDirective, AlertErrorComponent, FaIconComponent, AlertComponent]
+  imports: [RouterModule, TranslateDirective, AlertErrorComponent, FaIconComponent, AlertComponent]
 })
 export class CategorieComponent implements OnInit {
   categories: ICategorie[];
@@ -47,7 +43,6 @@ export class CategorieComponent implements OnInit {
   }
 
   loadAll(): void {
-    this.reset();
     this.categorieService
       .query({
         sort: this.sort()
@@ -55,6 +50,7 @@ export class CategorieComponent implements OnInit {
       .subscribe((res: HttpResponse<ICategorie[]>) => this.paginateCategories(res.body, res.headers));
   }
 
+  /** Vide la liste et la recharge depuis la première page. */
   reset(): void {
     this.page = 0;
     this.categories = [];
@@ -81,6 +77,14 @@ export class CategorieComponent implements OnInit {
       backdrop: "static"
     });
     modalRef.componentInstance.categorie = categorie;
+    // `close()` = suppression confirmée, `dismiss()` = annulation. Seul le premier
+    // chemin doit recharger ; sans ce `then`, la ligne supprimée restait affichée.
+    modalRef.result.then(
+      (): void => this.reset(),
+      (): void => {
+        // Modale annulée : rien à recharger.
+      }
+    );
   }
 
   sort(): string[] {

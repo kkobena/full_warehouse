@@ -1,30 +1,31 @@
 <div class="sub-filter-bar">
-  <p-select
+  <app-select
+    appendTo="body"
     [(ngModel)]="filtrePeriodicite"
-    [options]="state.periodicitesOptions"
-    [showClear]="true"
-    optionLabel="label"
-    optionValue="value"
+    [items]="state.periodicitesOptions"
+    [clearable]="true"
+    bindLabel="label"
+    bindValue="value"
     [placeholder]="'Périodicité ' + (mode() === 'def' ? 'déf.' : 'prov.')"
-    (onChange)="loadGroupes()"
+    (selectionChange)="loadGroupes()"
     style="width: 180px"
   />
-  <p-button (onClick)="loadGroupes()" icon="pi pi-refresh" [text]="true" size="small" pTooltip="Actualiser" />
+  <app-button (clicked)="loadGroupes()" icon="pi pi-refresh" [text]="true" size="small" ngbTooltip="Actualiser" />
 </div>
 
 @if (selectedGroupes.length > 0) {
   <div class="bulk-action-bar">
     <span class="bulk-count">{{ selectedGroupes.length }} groupe(s)</span>
-    <p-button
-      (onClick)="onMassInclude()"
+    <app-button
+      (clicked)="onMassInclude()"
       icon="pi pi-check"
       label="Inclure"
       severity="success"
       size="small"
       [outlined]="true"
     />
-    <p-button
-      (onClick)="onMassExclude()"
+    <app-button
+      (clicked)="onMassExclude()"
       icon="pi pi-ban"
       label="Exclure"
       severity="warn"
@@ -32,18 +33,17 @@
       [outlined]="true"
     />
     <div class="d-flex align-items-center gap-1">
-      <p-select
+      <app-select
         [(ngModel)]="massPeriodicite"
-        [options]="state.periodicitesOptions"
-        [showClear]="true"
-        optionLabel="label"
-        [fluid]="true"
+        [items]="state.periodicitesOptions"
+        [clearable]="true"
+        bindLabel="label"
         appendTo="body"
-        optionValue="value"
+        bindValue="value"
         placeholder="Période…"
       />
-      <p-button
-        (onClick)="onMassSetPeriodicite()"
+      <app-button
+        (clicked)="onMassSetPeriodicite()"
         [disabled]="!massPeriodicite"
         icon="pi pi-check-circle"
         label="Appliquer"
@@ -54,20 +54,19 @@
   </div>
 }
 
-<p-table
+<app-data-table
   [(selection)]="selectedGroupes"
   [value]="groupes()"
   [loading]="loading()"
   [scrollable]="true"
   scrollHeight="calc(100vh - 480px)"
   selectionMode="multiple"
-  class="p-datatable-sm mt-5"
+  [size]="'small'" class="mt-5"
   dataKey="id"
-  [rowHover]="true"
 >
   <ng-template #header>
     <tr class="pharma-table-head">
-      <th style="width: 3rem"><p-tableheadercheckbox /></th>
+      <th style="width: 3rem"><app-header-checkbox /></th>
       <th>Groupe</th>
       @if (mode() === 'def') {
         <th>Périodicité déf.</th>
@@ -81,7 +80,7 @@
   </ng-template>
   <ng-template #body let-g>
     <tr>
-      <td><p-tablecheckbox [value]="g" /></td>
+      <td><app-row-checkbox [row]="g" /></td>
       <td class="fw-medium small">{{ g.name }}</td>
       <td>
         @if (mode() === 'def' && g.periodiciteFactureDefinitive) {
@@ -98,9 +97,9 @@
       </td>
       <td class="text-center">
         @if (mode() === 'def') {
-          <p-toggleswitch [ngModel]="g.inclureFacturationAutoDefinitive" (onChange)="onToggleInclure(g)" />
+          <app-switch [ngModel]="g.inclureFacturationAutoDefinitive" (ngModelChange)="onToggleInclure(g)" />
         } @else {
-          <p-toggleswitch [ngModel]="g.inclureFacturationAutoProvisoire" (onChange)="onToggleInclure(g)" />
+          <app-switch [ngModel]="g.inclureFacturationAutoProvisoire" (ngModelChange)="onToggleInclure(g)" />
         }
       </td>
       <td class="small text-muted">{{ g.delaiReglement  }} j</td>
@@ -111,5 +110,5 @@
       <td colspan="5" class="text-center text-muted py-3">Aucun groupe correspondant</td>
     </tr>
   </ng-template>
-</p-table>
+</app-data-table>
 

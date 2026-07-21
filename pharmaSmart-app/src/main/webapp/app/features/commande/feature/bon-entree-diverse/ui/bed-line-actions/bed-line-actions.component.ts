@@ -1,31 +1,28 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
-import { Button } from 'primeng/button';
-import { Tooltip } from 'primeng/tooltip';
-import { ButtonGroup } from 'primeng/buttongroup';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent } from '../../../../../../shared/ui';
 import { IBedLigne } from '../../data-access/bed.model';
 
 @Component({
   selector: 'app-bed-line-actions',
-  imports: [Button, Tooltip, ButtonGroup],
+  imports: [ButtonComponent, NgbTooltip],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <p-buttongroup>
-      @if (isBrouillon) {
-        <p-button
-          [text]="true"
-          [rounded]="true"
-          severity="danger"
-          icon="pi pi-trash"
-          pTooltip="Supprimer la ligne"
-          tooltipPosition="top"
-          size="small"
-          (onClick)="onDelete($event)"
-        />
-      } @else {
-        <i class="pi pi-lock text-muted" style="font-size:0.8rem;padding:0.4rem"></i>
-      }
-    </p-buttongroup>
+    @if (isBrouillon) {
+      <app-button
+        [text]="true"
+        [rounded]="true"
+        severity="danger"
+        icon="pi pi-trash"
+        ngbTooltip="Supprimer la ligne"
+        placement="top"
+        size="small"
+        (clicked)="onDelete($event)"
+      />
+    } @else {
+      <i class="pi pi-lock text-muted" style="font-size:0.8rem;padding:0.4rem"></i>
+    }
   `,
 })
 export class BedLineActionsComponent implements ICellRendererAngularComp {

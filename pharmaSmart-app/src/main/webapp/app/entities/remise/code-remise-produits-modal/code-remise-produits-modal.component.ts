@@ -1,46 +1,45 @@
-import { AfterViewInit, Component, inject, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { AfterViewInit, Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ProduitService } from '../../produit/produit.service';
 import { RemiseService } from '../remise.service';
 import { FormsModule } from '@angular/forms';
-import { InputTextModule } from 'primeng/inputtext';
 import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { IProduit } from '../../../shared/model';
 import { IRayon } from '../../../shared/model/rayon.model';
 import { CodeRemise } from '../../../shared/model/remise.model';
 import { RayonService } from '../../rayon/rayon.service';
-import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
-import { ToolbarModule } from 'primeng/toolbar';
-import { TableHeaderCheckbox, TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { TooltipModule } from 'primeng/tooltip';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { SpinerService } from '../../../shared/spiner.service';
-import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
-import { Select } from 'primeng/select';
-import { Card } from 'primeng/card';
+import { NotificationService } from '../../../shared/services/notification.service';
 import { ErrorService } from '../../../shared/error.service';
+import {
+  AppTableLazyLoadEvent,
+  BadgeComponent,
+  ButtonComponent,
+  CardComponent,
+  DataTableComponent,
+  HeaderCheckboxComponent,
+  RowCheckboxComponent,
+  SelectComponent
+} from '../../../shared/ui';
 
 @Component({
   selector: 'jhi-code-remise-produits-modal',
   imports: [
     FormsModule,
-    InputTextModule,
-    TagModule,
-    ToolbarModule,
-    TableModule,
-    TooltipModule,
-    ButtonModule,
-    ToastAlertComponent,
-    Select,
-    Card,
+    BadgeComponent,
+    ButtonComponent,
+    CardComponent,
+    DataTableComponent,
+    HeaderCheckboxComponent,
+    RowCheckboxComponent,
+    SelectComponent
   ],
   templateUrl: './code-remise-produits-modal.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../../common-modal.component.scss'],
 })
 export class CodeRemiseProduitsModalComponent implements AfterViewInit {
-  checkbox = viewChild<TableHeaderCheckbox>('checkbox');
   protected codeRemise: CodeRemise | null = null;
   protected selectedRayon: IRayon | null = null;
   protected produits: IProduit[] = [];
@@ -57,7 +56,7 @@ export class CodeRemiseProduitsModalComponent implements AfterViewInit {
   private readonly produitService = inject(ProduitService);
   private readonly entityService = inject(RemiseService);
   private readonly rayonService = inject(RayonService);
-  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
 
   loadData(): void {
@@ -101,7 +100,16 @@ export class CodeRemiseProduitsModalComponent implements AfterViewInit {
       });
   }
 
-  protected lazyLoading(event: TableLazyLoadEvent): void {
+  /** Reflète l'état « tout sélectionné », sans dépendre de l'ordre d'initialisation de la table dans le template. */
+  protected isAllSelected(): boolean {
+    if (!this.produits.length) {
+      return false;
+    }
+    const selectedIds = new Set(this.selectedProduits.map(p => p.id));
+    return this.produits.every(p => selectedIds.has(p.id));
+  }
+
+  protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if ((this.selectedRayon || this.search) && event) {
       this.page = event.first / event.rows;
       this.loading = true;
@@ -137,7 +145,7 @@ export class CodeRemiseProduitsModalComponent implements AfterViewInit {
   private onSaveError(error: HttpErrorResponse): void {
     this.isSaving = false;
     this.spinner.hide();
-    this.alert().showError(this.errorService.getErrorMessage(error));
+    this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 
   private onSuccess(data: IProduit[] | null, headers: HttpHeaders, page: number): void {
@@ -156,7 +164,7 @@ export class CodeRemiseProduitsModalComponent implements AfterViewInit {
     if (this.search) {
       params.search = this.search;
     }
-    const all = this.checkbox().checked;
+    const all = this.isAllSelected();
     params.all = all;
     if (!all) {
       params.produitIds = this.selectedProduits.map(produit => produit.id);

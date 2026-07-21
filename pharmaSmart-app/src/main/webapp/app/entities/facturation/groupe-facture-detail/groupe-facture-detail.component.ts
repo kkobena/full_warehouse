@@ -1,28 +1,20 @@
-import { Component, inject, input, OnInit, signal } from '@angular/core';
+import {Component, inject, input, OnInit, signal} from '@angular/core';
 
-import { Facture } from '../facture.model';
-import { CommonModule } from '@angular/common';
-import { PanelModule } from 'primeng/panel';
-import { TableModule } from 'primeng/table';
-import { HttpResponse } from '@angular/common/http';
-import { FactureService } from '../facture.service';
-import { InputTextModule } from 'primeng/inputtext';
-import { PaginatorModule } from 'primeng/paginator';
-import { FormsModule } from '@angular/forms';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
+import {Facture} from '../facture.model';
+import {CommonModule} from '@angular/common';
+import {HttpResponse} from '@angular/common/http';
+import {FactureService} from '../facture.service';
+import {FormsModule} from '@angular/forms';
+import {CardComponent, DataTableComponent, IconFieldComponent} from '../../../shared/ui';
 
 @Component({
-  selector: 'jhi-groupe-facture-detail',
+  selector: 'app-groupe-facture-detail',
   imports: [
-    PanelModule,
-    TableModule,
-    InputTextModule,
-    PaginatorModule,
     CommonModule,
     FormsModule,
-    IconField,
-    InputIcon,
+    CardComponent,
+    DataTableComponent,
+    IconFieldComponent
   ],
   templateUrl: './groupe-facture-detail.component.html',
   styleUrls: ['./groupe-facture-detail.component.scss'],

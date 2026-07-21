@@ -8,12 +8,10 @@ import {
   NgbNavContent,
   NgbNavItem,
   NgbNavLink,
-  NgbNavOutlet
+  NgbNavOutlet,
+  NgbTooltip
 } from '@ng-bootstrap/ng-bootstrap';
-import {Button} from 'primeng/button';
-import {Toolbar} from 'primeng/toolbar';
-import {Toast} from 'primeng/toast';
-import {MessageService} from 'primeng/api';
+import {NotificationService} from '../../../../shared/services/notification.service';
 import {takeUntilDestroyed, toObservable} from '@angular/core/rxjs-interop';
 import {filter} from 'rxjs';
 import {InventoryListFacade} from '../../data-access/facades/inventory-list.facade';
@@ -26,9 +24,6 @@ import {InventoryEvent} from '../../models';
 import {
   NgbConfirmDialogService
 } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
-import {Tooltip} from "primeng/tooltip";
-import {ButtonGroup} from "primeng/buttongroup";
-import {TableModule} from 'primeng/table';
 import {
   PlanningTournantListComponent
 } from '../../ui/planning-tournant-list/planning-tournant-list.component';
@@ -43,27 +38,26 @@ import {
   InventoryExportModalComponent
 } from '../../ui/inventory-export-modal/inventory-export-modal.component';
 import { AbilityService } from 'app/core/auth/ability.service';
+import {ButtonComponent, DataTableComponent, RowTogglerDirective, ToolbarComponent} from '../../../../shared/ui';
 
 @Component({
   selector: 'app-inventory-home',
   imports: [
     CommonModule,
-    Button,
-    Toolbar,
-    Toast,
+    ButtonComponent,
+    ToolbarComponent,
     NgbNav,
     NgbNavItem,
     NgbNavLink,
     NgbNavContent,
     NgbNavOutlet,
-    Tooltip,
-    ButtonGroup,
-    TableModule,
+    NgbTooltip,
+    DataTableComponent,
+    RowTogglerDirective,
     PlanningTournantListComponent,
     GapSummaryComponent,
     InventoryValuationComponent,
   ],
-  providers: [MessageService],
   templateUrl: './inventory-home.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './inventory-home.component.scss',
@@ -85,7 +79,7 @@ export class InventoryHomeComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly modal = inject(NgbModal);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
-  private readonly messageService = inject(MessageService);
+  private readonly notificationService = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
   private lastEvent$ = toObservable(this.store.lastEvent).pipe(
     filter((e): e is InventoryEvent => e !== null),
@@ -95,7 +89,7 @@ export class InventoryHomeComponent implements OnInit {
     effect(() => {
       const err = this.store.error();
       if (err) {
-        this.messageService.add({severity: 'error', summary: 'Erreur', detail: err, life: 5000});
+        this.notificationService.error(err, 'Erreur');
       }
     });
   }
@@ -166,10 +160,6 @@ export class InventoryHomeComponent implements OnInit {
 
   protected exportPdf(inventory: IStoreInventory): void {
     this.openExportModalFor(inventory);
-  }
-
-  protected onRowExpand(_event: any): void {
-    // expansion handled by p-table dataKey
   }
 
   protected deleteInventory(inventory: IStoreInventory): void {
@@ -255,19 +245,11 @@ export class InventoryHomeComponent implements OnInit {
             // Navigation handled in openCreateModal after export modal
             break;
           case 'INVENTORY_DELETED':
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Succès',
-              detail: 'Inventaire supprimé'
-            });
+            this.notificationService.success('Inventaire supprimé', 'Succès');
             this.loadList();
             break;
           case 'INVENTORY_CLOSED':
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Succès',
-              detail: 'Inventaire clôturé avec succès'
-            });
+            this.notificationService.success('Inventaire clôturé avec succès', 'Succès');
             this.loadList();
             break;
         }

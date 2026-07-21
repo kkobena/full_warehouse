@@ -1,11 +1,11 @@
 import { Component, input, ChangeDetectionStrategy } from '@angular/core';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent } from '../ui';
 import { CtaComponent, Severity } from './cta.component';
-import { ButtonModule } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'jhi-remove-tex-button',
-  imports: [ButtonModule, TooltipModule],
+  imports: [ButtonComponent, NgbTooltip],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './cta.component.html',
 })

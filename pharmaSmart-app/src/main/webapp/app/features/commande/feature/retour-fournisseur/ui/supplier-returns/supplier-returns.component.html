@@ -1,18 +1,17 @@
 <div class="container-fluid">
-  <p-toast />
   <div class="pharma-smart-content">
     <!-- HEADER TOOLBAR - Actions principales toujours visibles -->
     <div class="pharma-sales-header">
       <div class="header-left">
-        <p-button
-          (click)="navigateToList()"
+        <app-button
+          (clicked)="navigateToList()"
           [rounded]="true"
           [text]="true"
           class="back-button"
           icon="pi pi-arrow-left"
-          pTooltip="Retour à la liste"
+          ngbTooltip="Retour à la liste"
         >
-        </p-button>
+        </app-button>
 
         <div class="page-title">
           <h1>Retours Fournisseur</h1>
@@ -22,22 +21,22 @@
 
       <div class="header-actions">
         <!-- Lot Selection Mode Toggle -->
-        <p-button
-          (onClick)="toggleLotSelectionMode()"
+        <app-button
+          (clicked)="toggleLotSelectionMode()"
           [outlined]="true"
           class="mode-toggle-btn"
           [icon]="lotSelectionMode() === 'dialog' ? 'pi pi-window-maximize' : 'pi pi-list'"
           [label]="lotSelectionMode() === 'dialog' ? 'Mode: Dialog' : 'Mode: Inline'"
           severity="secondary"
           size="small"
-          [pTooltip]="lotSelectionMode() === 'dialog' ? 'Passer au mode inline' : 'Passer au mode dialog'"
-          tooltipPosition="bottom"
+          [ngbTooltip]="lotSelectionMode() === 'dialog' ? 'Passer au mode inline' : 'Passer au mode dialog'"
+          placement="bottom"
         >
-        </p-button>
+        </app-button>
 
         <!-- Save Button -->
-        <p-button
-          (onClick)="save()"
+        <app-button
+          (clicked)="save()"
           [disabled]="!canSave() || isSaving()"
           [loading]="isSaving()"
           [outlined]="false"
@@ -47,11 +46,11 @@
           severity="primary"
           size="small"
         >
-        </p-button>
+        </app-button>
 
         <!-- Cancel Button -->
-        <p-button
-          (onClick)="reset()"
+        <app-button
+          (clicked)="reset()"
           [outlined]="true"
           class="cancel-btn"
           icon="pi pi-times"
@@ -59,7 +58,7 @@
           severity="secondary"
           size="small"
         >
-        </p-button>
+        </app-button>
       </div>
     </div>
 
@@ -84,94 +83,75 @@
       <div class="search-controls">
         <!-- Order Search Autocomplete -->
         <div class="order-search-input">
-          <p-autocomplete
-            [dropdown]="false"
+          <app-select-search
             #orderSelect
             [(ngModel)]="selectedCommande"
-            [suggestions]="filteredCommandes()"
-            (completeMethod)="searchCommandes($event)"
-            (onSelect)="onCommandeChange()"
-            [dataKey]="'id'"
+            [items]="filteredCommandes()"
+            [typeahead]="commandeSearchTrigger$"
+            (selectionChange)="onCommandeChange()"
+            bindLabel="receiptReference"
+            [clearable]="true"
             appendTo="body"
-            [fluid]="true"
-            size="large"
-            [forceSelection]="true"
-            [minQueryLength]="3"
-            [showEmptyMessage]="true"
-            [emptyMessage]="'Aucune commande trouvée'"
-            optionLabel="receiptReference"
-            [showClear]="true"
             inputId="order-select"
             placeholder="Rechercher une commande..."
             class="w-100 pharma-autocomplete"
-          >
-            <ng-template let-commande #item>
-              <div>
-                <div>{{ commande.receiptReference }}</div>
-                <small class="text-muted">Date: {{ commande.orderDate | date: 'dd/MM/yyyy' }}</small>
-              </div>
-            </ng-template>
-          </p-autocomplete>
+            [optionTemplate]="commandeItem"
+          />
+          <ng-template #commandeItem let-commande>
+            <div>
+              <div>{{ commande.receiptReference }}</div>
+              <small class="text-muted">Date: {{ commande.orderDate | date: 'dd/MM/yyyy' }}</small>
+            </div>
+          </ng-template>
         </div>
 
         <!-- Order Line Search Autocomplete -->
         <div class="orderline-search-input">
-          <p-autocomplete
-            [dropdown]="true"
+          <app-select-search
             #orderLineAutoComplete
             [(ngModel)]="selectedOrderLine"
-            [suggestions]="filteredOrderLines()"
-            (completeMethod)="searchOrderLines($event)"
-            (onSelect)="onOrderLineSelect()"
-            [dataKey]="'id'"
-            size="large"
+            [items]="filteredOrderLines()"
+            [typeahead]="searchTrigger$"
+            (selectionChange)="onOrderLineSelect()"
+            bindLabel="produitLibelle"
+            [clearable]="true"
             appendTo="body"
-            [fluid]="true"
-            [forceSelection]="true"
-            [minQueryLength]="3"
-            [showEmptyMessage]="true"
-            [emptyMessage]="'Aucune ligne de commande trouvée'"
-            optionLabel="produitLibelle"
-            [showClear]="true"
             [disabled]="!selectedCommande()"
             inputId="order-line-search"
             placeholder="Rechercher un produit..."
             class="w-100 pharma-autocomplete"
-          >
-            <ng-template let-orderLine #item>
-              <div class="d-flex justify-content-between align-items-center w-100">
-                <div class="flex-grow-1">
-                  <div>
-                    <span class="pharma-code me-2">{{ orderLine.produitCip }}</span>
-                    <span>{{ orderLine.produitLibelle }}</span>
-                  </div>
-                  <div class="mt-1">
-                    <span class="badge bg-primary">
-                      <i class="pi pi-box me-1"></i>
-                      Reçu: <strong>{{ orderLine.quantityReceived | number }}</strong>
-                    </span>
-                  </div>
+            [optionTemplate]="orderLineItem"
+          />
+          <ng-template #orderLineItem let-orderLine>
+            <div class="d-flex justify-content-between align-items-center w-100">
+              <div class="flex-grow-1">
+                <div>
+                  <span class="pharma-code me-2">{{ orderLine.produitCip }}</span>
+                  <span>{{ orderLine.produitLibelle }}</span>
+                </div>
+                <div class="mt-1">
+                  <span class="badge bg-primary">
+                    <i class="pi pi-box me-1"></i>
+                    Reçu: <strong>{{ orderLine.quantityReceived | number }}</strong>
+                  </span>
                 </div>
               </div>
-            </ng-template>
-          </p-autocomplete>
+            </div>
+          </ng-template>
         </div>
 
         <!-- Motif Retour Select -->
         <div class="motif-select-input">
-          <p-select
+          <app-select-search
             #motifSelect
             [(ngModel)]="selectedMotifRetourId"
-            [options]="motifRetours()"
-            optionLabel="libelle"
-            optionValue="id"
-            [filter]="true"
-            size="large"
+            [items]="motifRetours()"
+            bindLabel="libelle"
+            bindValue="id"
             appendTo="body"
-            filterBy="libelle"
             placeholder="Motif de retour..."
             [disabled]="!selectedOrderLine()"
-            (onChange)="onMotifSelect()"
+            (selectionChange)="onMotifSelect()"
             inputId="motif-select"
             class="w-100"
           />
@@ -266,7 +246,7 @@
         @if (retourBonItems().length > 0) {
           <div class="mb-4">
             <h5>Lignes de retour</h5>
-            <p-table [value]="retourBonItems()" class="pharma-table" editMode="cell">
+            <app-data-table [value]="retourBonItems()" class="pharma-table">
               <ng-template #header>
                 <tr class="pharma-table-head">
                   <th>CIP</th>
@@ -302,8 +282,8 @@
                   <td class="text-end" style="background-color: #f5f9fc; font-weight: 600; color: #1976d2">
                     {{ getMaxReturnQuantity(item) | number }}
                   </td>
-                  <td class="text-end pharma-qty-value" pEditableColumn>
-                    <p-celleditor>
+                  <td class="text-end pharma-qty-value">
+                    <app-editable-cell>
                       <ng-template #input>
                         <input
                           type="number"
@@ -312,37 +292,35 @@
                           [min]="1"
                           [max]="getMaxReturnQuantity(item)"
                           class="form-control form-control-sm text-end"
-                          (focus)="$event.target.select()"
                         />
                       </ng-template>
                       <ng-template #output>
                         <span class="pharma-price">{{ item.qtyMvt | number }}</span>
                       </ng-template>
-                    </p-celleditor>
+                    </app-editable-cell>
                   </td>
 
                   <td class="text-center">
-                    <p-button
+                    <app-button
                       icon="pi pi-trash"
                       severity="danger"
                       [text]="true"
                       [rounded]="true"
-                      (onClick)="removeReturnLine(rowIndex)"
-                      pTooltip="Supprimer"
-                      tooltipPosition="top"
+                      (clicked)="removeReturnLine(rowIndex)"
+                      ngbTooltip="Supprimer"
+                      placement="top"
                     />
                   </td>
                 </tr>
               </ng-template>
-            </p-table>
+            </app-data-table>
           </div>
 
           <!-- Commentaire -->
           <div class="mb-4">
-            <p-floatlabel>
-              <textarea id="commentaire" [(ngModel)]="commentaire" rows="3" class="form-control" maxlength="150" pInputTextarea></textarea>
-              <label for="commentaire">Commentaire (optionnel)</label>
-            </p-floatlabel>
+            <app-float-label label="Commentaire (optionnel)" inputId="commentaire">
+              <textarea id="commentaire" [(ngModel)]="commentaire" rows="3" class="form-control" maxlength="150" placeholder=" "></textarea>
+            </app-float-label>
           </div>
         }
       </div>

@@ -1,5 +1,5 @@
 @if (rowData?.length > 0) {
-  <p-table
+  <app-data-table
     [lazy]="true"
     [loading]="loading"
     [paginator]="true"
@@ -42,8 +42,8 @@
         </td>
         <td>
           @if (item.typeRepartition) {
-            <p-tag
-              [value]="item.typeRepartition === 'AUTO' ? 'Auto' : 'Manuel'"
+            <app-badge
+              [label]="item.typeRepartition === 'AUTO' ? 'Auto' : 'Manuel'"
               [severity]="item.typeRepartition === 'AUTO' ? 'info' : 'secondary'"
               [icon]="item.typeRepartition === 'AUTO' ? 'pi pi-bolt' : 'pi pi-user'"
             />
@@ -51,13 +51,13 @@
         </td>
         <td>
           @if (item.stockProduitSrc) {
-            <p-tag [value]="item.stockProduitSrc.storageName" severity="secondary" />
+            <app-badge [label]="item.stockProduitSrc.storageName" severity="secondary" />
           } @else {
             <span class="text-muted">-</span>
           }
         </td>
         <td>
-          <p-tag [value]="item.stockProduitDest?.storageName" severity="info" />
+          <app-badge [label]="item.stockProduitDest?.storageName ?? ''" severity="info" />
         </td>
         <td class="text-right">
           <span class="pharma-qty-value">{{ item.mvtQty | number }}</span>
@@ -82,7 +82,7 @@
         </td>
       </tr>
     </ng-template>
-  </p-table>
+  </app-data-table>
 } @else {
   <div class="alert alert-warning">
     <i class="pi pi-info-circle"></i>

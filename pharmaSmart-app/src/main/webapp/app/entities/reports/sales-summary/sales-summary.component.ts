@@ -1,18 +1,21 @@
+import { NGB_DATE_TO_ISO } from '../../../shared/util/warehouse-util';
 import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { HttpResponse } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 
-import { TableModule } from "primeng/table";
-import { ButtonModule } from "primeng/button";
-import { DatePicker } from "primeng/datepicker";
-import { SelectModule } from "primeng/select";
-import { ToolbarModule } from "primeng/toolbar";
-import { DividerModule } from "primeng/divider";
 
 import { IDailySalesSummary } from "app/shared/model/report/daily-sales-summary.model";
 import { SalesSummaryReportService } from "../services/sales-summary-report.service";
-import { Tag } from "primeng/tag";
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import {
+  BadgeComponent,
+  ButtonComponent,
+  DataTableComponent,
+  SelectComponent,
+  ToolbarComponent
+} from '../../../shared/ui';
+import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
 
 @Component({
   selector: "app-sales-summary",
@@ -22,20 +25,19 @@ import { Tag } from "primeng/tag";
   imports: [
     CommonModule,
     FormsModule,
-    TableModule,
-    ButtonModule,
-    DatePicker,
-    SelectModule,
-    ToolbarModule,
-    DividerModule,
-    Tag
+    BadgeComponent,
+    ButtonComponent,
+    DataTableComponent,
+    SelectComponent,
+    ToolbarComponent,
+    PharmaDatePickerComponent
   ]
 })
 export default class SalesSummaryComponent implements OnInit {
   summaries = signal<IDailySalesSummary[]>([]);
   isLoading = signal<boolean>(false);
-  startDate = signal<Date | null>(null);
-  endDate = signal<Date | null>(null);
+  startDate = signal<NgbDateStruct | null>(null);
+  endDate = signal<NgbDateStruct | null>(null);
   selectedTypeVente = signal<string | null>(null);
 
   typeVenteOptions = [
@@ -51,8 +53,8 @@ export default class SalesSummaryComponent implements OnInit {
     const now = new Date();
     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
     const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    this.startDate.set(firstDay);
-    this.endDate.set(lastDay);
+    this.startDate.set({ year: firstDay.getFullYear(), month: firstDay.getMonth() + 1, day: firstDay.getDate() });
+    this.endDate.set({ year: lastDay.getFullYear(), month: lastDay.getMonth() + 1, day: lastDay.getDate() });
 
     this.loadSummaries();
   }
@@ -63,8 +65,8 @@ export default class SalesSummaryComponent implements OnInit {
     }
 
     this.isLoading.set(true);
-    const startDateStr = this.formatDate(this.startDate());
-    const endDateStr = this.formatDate(this.endDate());
+    const startDateStr = NGB_DATE_TO_ISO(this.startDate())!;
+    const endDateStr = NGB_DATE_TO_ISO(this.endDate())!;
     const typeVente = this.selectedTypeVente();
 
     const request = typeVente
@@ -104,9 +106,6 @@ export default class SalesSummaryComponent implements OnInit {
     return count > 0 ? total / count : 0;
   }
 
-  private formatDate(date: Date): string {
-    return date.toISOString().split("T")[0];
-  }
 
   getSeverityForType(type: string | undefined): string {
     if (!type) return "secondary";

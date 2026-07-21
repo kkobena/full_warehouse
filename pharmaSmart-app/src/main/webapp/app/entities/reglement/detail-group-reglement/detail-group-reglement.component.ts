@@ -1,19 +1,28 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ReglementService } from '../reglement.service';
-import { InvoicePaymentItem, Reglement } from '../model/reglement.model';
-import { HttpResponse } from '@angular/common/http';
-import { InputTextModule } from 'primeng/inputtext';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { TableModule } from 'primeng/table';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { CommonModule } from '@angular/common';
-import { Button } from 'primeng/button';
+import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
+import {NgbActiveModal, NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {ReglementService} from '../reglement.service';
+import {InvoicePaymentItem, Reglement} from '../model/reglement.model';
+import {HttpResponse} from '@angular/common/http';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {CommonModule} from '@angular/common';
+import {
+  ButtonComponent,
+  DataTableComponent,
+  IconFieldComponent,
+  SelectableRowDirective
+} from '../../../shared/ui';
 
 @Component({
   selector: 'jhi-detail-group-reglement',
-  imports: [CommonModule, FormsModule, InputTextModule, ReactiveFormsModule, TableModule, IconField, InputIcon, Button],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ButtonComponent,
+    DataTableComponent,
+    IconFieldComponent,
+    SelectableRowDirective
+  ],
   templateUrl: './detail-group-reglement.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./detail-group-reglement.component.scss'],

@@ -11,7 +11,7 @@ import MainComponent from './layouts/main/main.component';
 import {ThemeService} from 'app/core/theme/theme.service';
 
 @Component({
-  selector: 'jhi-app',
+  selector: 'app',
   template: `
     <app-main></app-main> `,
   changeDetection: ChangeDetectionStrategy.Eager,

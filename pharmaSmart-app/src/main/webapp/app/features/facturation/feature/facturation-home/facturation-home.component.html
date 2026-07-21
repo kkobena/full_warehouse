@@ -1,131 +1,89 @@
 <div class=" pharma-smart-content p-1">
   <!-- Toolbar -->
-  <div class="pharma-toolbar pharma-toolbar-compact">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-receipt"></i>
-      <span class="pharma-toolbar-title">Factures tiers-payants</span>
-    </div>
-    <p-toolbar>
-      <ng-template #start>
-        <div class="pharma-toolbar-filters">
+  <app-toolbar [compact]="true" icon="pi pi-receipt" title="Factures tiers-payants">
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <div class="d-flex align-items-center gap-2">
+        <label class="input-label mb-0 small">Groupées</label>
+        <app-switch [(ngModel)]="factureGroupees" (ngModelChange)="onGroupToggle()" />
+      </div>
 
-          <div class="d-flex align-items-center gap-2">
-            <label class="input-label mb-0 small">Groupées</label>
-            <p-toggleswitch [(ngModel)]="factureGroupees" (onChange)="onGroupToggle()" />
-          </div>
+      <div class="d-flex align-items-center gap-2">
+        <label class="input-label mb-0 small">Provisoires</label>
+        <app-switch [(ngModel)]="factureProvisoire" (ngModelChange)="onSearch()" />
+      </div>
 
-          <div class="d-flex align-items-center gap-2">
-            <label class="input-label mb-0 small">Provisoires</label>
-            <p-toggleswitch [(ngModel)]="factureProvisoire" (onChange)="onSearch()" />
-          </div>
+      <pharma-date-picker [(ngModel)]="modelStartDate" [maxDate]="modelEndDate" id="fhDu" label="Du" />
 
-          <p-floatlabel variant="on">
-            <p-datepicker
-              [(ngModel)]="modelStartDate"
-              [iconDisplay]="'input'"
-              [selectOtherMonths]="true"
-              [showButtonBar]="true"
-              [showIcon]="true"
-              appendTo="body"
-              dateFormat="dd/mm/yy"
-              id="fhDu"
-              inputId="fhDu"
-            />
-            <label for="fhDu">Du</label>
-          </p-floatlabel>
+      <pharma-date-picker [(ngModel)]="modelEndDate" [minDate]="modelStartDate" id="fhAu" label="Au" />
 
-          <p-floatlabel variant="on">
-            <p-datepicker
-              [(ngModel)]="modelEndDate"
-              [iconDisplay]="'input'"
-              [selectOtherMonths]="true"
-              [showButtonBar]="true"
-              [showIcon]="true"
-              appendTo="body"
-              dateFormat="dd/mm/yy"
-              id="fhAu"
-              inputId="fhAu"
-            />
-            <label for="fhAu">Au</label>
-          </p-floatlabel>
+      <app-float-label inputId="fhStatut" label="Statut">
+        <app-select
+          [(ngModel)]="selectedStatut"
+          [clearable]="true"
+          [items]="statutOptions"
+          [style]="{ width: '180px' }"
+          appendTo="body"
+          bindLabel="value"
+          bindValue="code"
+          inputId="fhStatut"
+        />
+      </app-float-label>
 
-          <p-floatlabel variant="on">
-            <p-select
-              [(ngModel)]="selectedStatut"
-              [options]="statutOptions"
-              [showClear]="true"
-              appendTo="body"
-              id="fhStatut"
-              optionLabel="value"
-              optionValue="code"
-              style="width: 180px"
-            />
+      @if (factureGroupees) {
+        <app-float-label inputId="fhGroupe" label="Groupe TP">
+          <!--
+            p-autocomplete multiple + completeMethod devient un app-multi-select alimenté
+            par (searched) : ng-select émet le terme saisi, la recherche reste serveur.
+          -->
+          <app-multi-select
+            (searched)="searchGroupTiersPayant($event)"
+            [minSearchLength]="minLength"
+            [(ngModel)]="selectedGroupeTiersPayants"
+            [items]="groupeTiersPayants"
+            appendTo="body"
+            bindLabel="name"
+            inputId="fhGroupe"
+          />
+        </app-float-label>
+      } @else {
+        <app-float-label inputId="fhTp" label="Tiers-payant">
+          <app-multi-select
+            (searched)="searchTiersPayant($event)"
+            [minSearchLength]="minLength"
+            [(ngModel)]="selectedTiersPayants"
+            [items]="tiersPayants"
+            appendTo="body"
+            bindLabel="fullName"
+            inputId="fhTp"
+          />
+        </app-float-label>
+      }
+    </ng-container>
 
-          </p-floatlabel>
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-button-group">
+        <app-button
+          (clicked)="onSearch()"
+          [loading]="store.loading()"
+          [raised]="true"
+          icon="pi pi-search"
+          label="Rechercher"
+          severity="info"
+        />
 
-          @if (factureGroupees) {
-            <p-floatlabel variant="on">
-              <p-autocomplete
-                (completeMethod)="searchGroupTiersPayant($event)"
-                [(ngModel)]="selectedGroupeTiersPayants"
-                [forceSelection]="true"
-                [minQueryLength]="minLength"
-                [multiple]="true"
-                [suggestions]="groupeTiersPayants"
-                appendTo="body"
-                id="fhGroupe"
-                inputId="fhGroupe"
-                optionLabel="name"
-              />
-              <label for="fhGroupe">Groupe TP</label>
-            </p-floatlabel>
-          } @else {
-            <p-floatlabel variant="on">
-              <p-autocomplete
-                (completeMethod)="searchTiersPayant($event)"
-                [(ngModel)]="selectedTiersPayants"
-                [forceSelection]="true"
-                [minQueryLength]="minLength"
-                [multiple]="true"
-                [suggestions]="tiersPayants"
-                appendTo="body"
-                id="fhTp"
-                inputId="fhTp"
-                optionLabel="fullName"
-              />
-              <label for="fhTp">Tiers-payant</label>
-            </p-floatlabel>
-          }
-
-        </div>
-      </ng-template>
-
-      <ng-template #end>
-        <div class="pharma-toolbar-actions">
-          <div class="pharma-button-group">
-            <p-button
-              (click)="onSearch()"
-              [loading]="store.loading()"
-              [raised]="true"
-              icon="pi pi-search"
-              label="Rechercher"
-              severity="info"
-            />
-            @if (canExport()) {
-              <p-button
-                (click)="onExport()"
-                [loading]="loadingExport"
-                [raised]="true"
-                icon="pi pi-file-excel"
-                label="Excel"
-                severity="warn"
-              />
-            }
-          </div>
-        </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
+        @if (canExport()) {
+          <app-button
+            (clicked)="onExport()"
+            [loading]="loadingExport"
+            [raised]="true"
+            icon="pi pi-file-excel"
+            label="Excel"
+            severity="warn"
+          />
+        }
+      </div>
+    </ng-container>
+  </app-toolbar>
   <!-- KPI Banner -->
   <app-facture-kpi-banner [kpi]="store.kpi()" [loading]="store.kpiLoading()" />
 
@@ -144,8 +102,8 @@
   @if (store.hasSelection() && canDelete()) {
     <div class="bulk-action-bar">
       <span class="bulk-count">{{ store.selectedFactures().length }} facture(s) sélectionnée(s)</span>
-      <p-button
-        (onClick)="onDeleteSelected()"
+      <app-button
+        (clicked)="onDeleteSelected()"
         [outlined]="true"
         icon="pi pi-trash"
         [loading]="deleteAllSpinner"
@@ -170,4 +128,3 @@
   </div>
 
 </div>
-<p-toast position="center"></p-toast>

@@ -1,48 +1,35 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-2">
-    <div class="pharma-toolbar">
-      <div class="pharma-toolbar-header">
-        <i class="pi pi-desktop"></i>
-        <span class="pharma-toolbar-title">Gestion des Postes</span>
-      </div>
+    <app-toolbar icon="pi pi-desktop" title="Gestion des Postes">
+      <ng-container ngProjectAs="[toolbarFilters]">
+        <div class="pharma-search-input">
+          <app-icon-field icon="pi pi-search">
+            <input (keyup)="search($event)" class="form-control" placeholder="Rechercher par nom, adresse ou numéro" type="text" />
+          </app-icon-field>
+        </div>
+      </ng-container>
 
-      <p-toolbar>
-        <ng-template #start>
-          <div class="pharma-toolbar-filters">
-            <div class="pharma-search-input">
-              <p-iconfield>
-                <p-inputicon class="pi pi-search" />
-                <input (keyup)="search($event)" pInputText placeholder="Rechercher par nom, adresse ou numéro" type="text" />
-              </p-iconfield>
-            </div>
+      <ng-container ngProjectAs="[toolbarActions]">
+        <div class="pharma-toolbar-actions">
+          <div class="pharma-button-group">
+            <app-button
+              (clicked)="addNewEntity()"
+              [raised]="true"
+              icon="pi pi-plus"
+              label="Nouveau Poste"
+              severity="success"
+              type="button"
+            />
           </div>
-        </ng-template>
+        </div>
+      </ng-container>
+    </app-toolbar>
 
-        <ng-template #end>
-          <div class="pharma-toolbar-actions">
-            <div class="pharma-button-group">
-              <p-button
-                (click)="addNewEntity()"
-                [raised]="true"
-                icon="pi pi-plus"
-                label="Nouveau Poste"
-                severity="success"
-                type="button"
-              ></p-button>
-            </div>
-          </div>
-        </ng-template>
-      </p-toolbar>
-    </div>
-
-    <p-table
-      (onRowExpand)="onRowExpand($event)"
-      [expandedRowKeys]="expandedRows"
+    <app-data-table
       [loading]="loading"
       [value]="filteredEntities"
       class="p-datatable-sm"
       dataKey="id"
-      stripedRows="true"
     >
       <ng-template #header>
         <tr class="pharma-table-head">
@@ -56,14 +43,15 @@
       <ng-template #body let-elRow let-expanded="expanded">
         <tr>
           <td>
-            <p-button
+            <app-button
               [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-              [pRowToggler]="elRow"
+              [appRowToggler]="elRow"
+              (clicked)="onRowExpand(elRow)"
               [rounded]="true"
               [text]="true"
               severity="secondary"
               size="small"
-            ></p-button>
+            />
           </td>
           <td>
             <span class="pharma-entity-name">{{ elRow.name }}</span>
@@ -75,10 +63,8 @@
             <span class="pharma-entity-name">{{ elRow.address }}</span>
           </td>
           <td style="text-align: right">
-            <p-button (click)="onEdit(elRow)" [rounded]="true" [text]="true" icon="pi pi-pencil" pTooltip="Modifier" severity="success">
-            </p-button>
-            <p-button (click)="delete(elRow)" [rounded]="true" [text]="true" icon="pi pi-trash" pTooltip="Supprimer" severity="danger">
-            </p-button>
+            <app-button (clicked)="onEdit(elRow)" [rounded]="true" [text]="true" icon="pi pi-pencil" ngbTooltip="Modifier" severity="success" />
+            <app-button (clicked)="delete(elRow)" [rounded]="true" [text]="true" icon="pi pi-trash" ngbTooltip="Supprimer" severity="danger" />
           </td>
         </tr>
       </ng-template>
@@ -103,7 +89,7 @@
                     @for (device of devicesMap()[elRow.id]; track device.id) {
                       <tr>
                         <td>
-                          <p-tag [severity]="deviceTypeSeverity(device.deviceType)" [value]="deviceTypeLabel(device.deviceType)"></p-tag>
+                          <app-badge [severity]="deviceTypeSeverity(device.deviceType)" [label]="deviceTypeLabel(device.deviceType)" />
                         </td>
                         <td><span class="pharma-code">{{ device.portName }}</span></td>
                         <td>{{ device.label || device.productName || '—' }}</td>
@@ -132,7 +118,6 @@
           <td [attr.colspan]="5" style="text-align: center">Aucun poste trouvé</td>
         </tr>
       </ng-template>
-    </p-table>
+    </app-data-table>
   </div>
 </div>
-<p-toast position="center"></p-toast>

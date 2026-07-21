@@ -90,11 +90,11 @@
               <label class="form-label fw-semibold">
                 Fournisseur <span class="text-danger">*</span>
               </label>
-              <p-select
+              <app-select
                 formControlName="fournisseurId"
-                [options]="fournisseurs()"
-                optionLabel="libelle"
-                optionValue="id"
+                [items]="fournisseurs()"
+                bindLabel="libelle"
+                bindValue="id"
                 placeholder="Sélectionner un fournisseur…"
                 appendTo="body"
                 [style]="{ 'width': '100%' }"
@@ -107,13 +107,13 @@
             <label class="form-label fw-semibold">
               Motif de retour <span class="text-danger">*</span>
             </label>
-            <p-select
+            <app-select
               formControlName="motifRetourId"
-              [options]="motifs()"
-              optionLabel="libelle"
-              optionValue="id"
+              [items]="motifs()"
+              bindLabel="libelle"
+              bindValue="id"
               placeholder="Sélectionner un motif de retour..."
-              [showClear]="true"
+              [clearable]="true"
               appendTo="body"
               [style]="{ 'width': '100%' }"
             />
@@ -129,15 +129,11 @@
             <label class="form-label fw-semibold">
               Quantité à retourner <span class="text-danger">*</span>
             </label>
-            <p-inputnumber
+            <app-input-number
               formControlName="quantity"
               [min]="1"
               [max]="lot.quantity"
-              [showButtons]="true"
-              buttonLayout="horizontal"
-              incrementButtonIcon="pi pi-plus"
-              decrementButtonIcon="pi pi-minus"
-              [inputStyle]="{ 'width': '100%', 'text-align': 'center' }"
+              [style]="{ 'width': '100%', 'text-align': 'center' }"
             />
             <small class="text-muted">Maximum : <strong>{{ lot.quantity | number }}</strong></small>
             @if (form.get('quantity')?.invalid && form.get('quantity')?.touched) {
@@ -185,7 +181,7 @@
                 </div>
                 <div class="col-md-6">
                   <label class="form-label fw-semibold">Date de la commande</label>
-                  <jhi-date-picker formControlName="commandeDate" [id]="'commandeDate'" [label]="'Date commande'" />
+                  <pharma-date-picker formControlName="commandeDate" id="commandeDate" />
                 </div>
               </div>
             </div>
@@ -201,18 +197,18 @@
 
 <!-- Modal footer -->
 <div class="modal-footer">
-  <p-button (onClick)="cancel()" label="Annuler" icon="pi pi-times" severity="secondary" [outlined]="true" />
+  <app-button (clicked)="cancel()" label="Annuler" icon="pi pi-times" severity="secondary" [outlined]="true" />
   @if (resolutionStatut() !== 'FOURNISSEUR_INCONNU') {
-    <p-button
-      (onClick)="save()"
+    <app-button
+      (clicked)="save()"
       [label]="isHorsCommande ? 'Créer le retour hors commande' : 'Créer le retour'"
       icon="pi pi-check"
       [severity]="isHorsCommande ? 'warn' : 'success'"
       type="submit"
       [disabled]="!canSave()"
       [loading]="isSaving()"
-      [pTooltip]="isHorsCommande ? 'Crée un bon de retour sans référence de commande' : 'Crée un bon de retour fournisseur'"
-      tooltipPosition="top"
+      [ngbTooltip]="isHorsCommande ? 'Crée un bon de retour sans référence de commande' : 'Crée un bon de retour fournisseur'"
+      placement="top"
     />
   }
 </div>

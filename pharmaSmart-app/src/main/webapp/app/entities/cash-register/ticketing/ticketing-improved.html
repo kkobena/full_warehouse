@@ -1,5 +1,4 @@
 
-<p-toast position="center"></p-toast>
 <div class="container-fluid">
   <div class="pharma-smart-content p-2">
     <div class="row justify-content-center">
@@ -56,23 +55,16 @@
                   <div class="pharma-ticketing-col pharma-col-value">
                     <span class="pharma-denomination-value">10 000</span>
                   </div>
-                  <div class="pharma-ticketing-col pharma-col-qty">
-                    <p-inputnumber
+                  <div class="pharma-ticketing-col pharma-col-qty d-flex align-items-center gap-1 pharma-input-number">
+                    <app-button (clicked)="decrement('numberOf10Thousand')" [rounded]="true" [text]="true" icon="pi pi-minus" severity="secondary" size="small" type="button" />
+                    <app-input-number
                       #numberOf10Thousand
-                      inputId="numberOf10Thousand"
-                      formControlName="numberOf10Thousand"
-                      [autofocus]="true"
-                      [showButtons]="true"
+                      [inputId]="'numberOf10Thousand'"
                       [min]="0"
-                      [step]="1"
-                      buttonLayout="horizontal"
-                      incrementButtonIcon="pi pi-plus"
-                      decrementButtonIcon="pi pi-minus"
-                      (onInput)="onInputChange()"
+                      formControlName="numberOf10Thousand"
                       placeholder="0"
-                      autocomplete="off"
-                      class="pharma-input-number"
                     />
+                    <app-button (clicked)="increment('numberOf10Thousand')" [rounded]="true" [text]="true" icon="pi pi-plus" severity="secondary" size="small" type="button" />
                   </div>
                   <div class="pharma-ticketing-col pharma-col-subtotal">
                     <span class="pharma-subtotal-amount"> {{ ((editForm.get('numberOf10Thousand')!.value || 0) * 10000) | number }} </span>
@@ -89,21 +81,15 @@
                   <div class="pharma-ticketing-col pharma-col-value">
                     <span class="pharma-denomination-value">5 000</span>
                   </div>
-                  <div class="pharma-ticketing-col pharma-col-qty">
-                    <p-inputnumber
-                      inputId="numberOf5Thousand"
-                      formControlName="numberOf5Thousand"
-                      [showButtons]="true"
+                  <div class="pharma-ticketing-col pharma-col-qty d-flex align-items-center gap-1 pharma-input-number">
+                    <app-button (clicked)="decrement('numberOf5Thousand')" [rounded]="true" [text]="true" icon="pi pi-minus" severity="secondary" size="small" type="button" />
+                    <app-input-number
+                      [inputId]="'numberOf5Thousand'"
                       [min]="0"
-                      [step]="1"
-                      buttonLayout="horizontal"
-                      incrementButtonIcon="pi pi-plus"
-                      decrementButtonIcon="pi pi-minus"
-                      (onInput)="onInputChange()"
+                      formControlName="numberOf5Thousand"
                       placeholder="0"
-                      autocomplete="off"
-                      class="pharma-input-number"
                     />
+                    <app-button (clicked)="increment('numberOf5Thousand')" [rounded]="true" [text]="true" icon="pi pi-plus" severity="secondary" size="small" type="button" />
                   </div>
                   <div class="pharma-ticketing-col pharma-col-subtotal">
                     <span class="pharma-subtotal-amount"> {{ ((editForm.get('numberOf5Thousand')!.value || 0) * 5000) | number }} </span>
@@ -120,21 +106,15 @@
                   <div class="pharma-ticketing-col pharma-col-value">
                     <span class="pharma-denomination-value">2 000</span>
                   </div>
-                  <div class="pharma-ticketing-col pharma-col-qty">
-                    <p-inputnumber
-                      inputId="numberOf2Thousand"
-                      formControlName="numberOf2Thousand"
-                      [showButtons]="true"
+                  <div class="pharma-ticketing-col pharma-col-qty d-flex align-items-center gap-1 pharma-input-number">
+                    <app-button (clicked)="decrement('numberOf2Thousand')" [rounded]="true" [text]="true" icon="pi pi-minus" severity="secondary" size="small" type="button" />
+                    <app-input-number
+                      [inputId]="'numberOf2Thousand'"
                       [min]="0"
-                      [step]="1"
-                      buttonLayout="horizontal"
-                      incrementButtonIcon="pi pi-plus"
-                      decrementButtonIcon="pi pi-minus"
-                      (onInput)="onInputChange()"
+                      formControlName="numberOf2Thousand"
                       placeholder="0"
-                      autocomplete="off"
-                      class="pharma-input-number"
                     />
+                    <app-button (clicked)="increment('numberOf2Thousand')" [rounded]="true" [text]="true" icon="pi pi-plus" severity="secondary" size="small" type="button" />
                   </div>
                   <div class="pharma-ticketing-col pharma-col-subtotal">
                     <span class="pharma-subtotal-amount"> {{ ((editForm.get('numberOf2Thousand')!.value || 0) * 2000) | number }} </span>
@@ -151,21 +131,15 @@
                   <div class="pharma-ticketing-col pharma-col-value">
                     <span class="pharma-denomination-value">1 000</span>
                   </div>
-                  <div class="pharma-ticketing-col pharma-col-qty">
-                    <p-inputnumber
-                      inputId="numberOf1Thousand"
-                      formControlName="numberOf1Thousand"
-                      [showButtons]="true"
+                  <div class="pharma-ticketing-col pharma-col-qty d-flex align-items-center gap-1 pharma-input-number">
+                    <app-button (clicked)="decrement('numberOf1Thousand')" [rounded]="true" [text]="true" icon="pi pi-minus" severity="secondary" size="small" type="button" />
+                    <app-input-number
+                      [inputId]="'numberOf1Thousand'"
                       [min]="0"
-                      [step]="1"
-                      buttonLayout="horizontal"
-                      incrementButtonIcon="pi pi-plus"
-                      decrementButtonIcon="pi pi-minus"
-                      (onInput)="onInputChange()"
+                      formControlName="numberOf1Thousand"
                       placeholder="0"
-                      autocomplete="off"
-                      class="pharma-input-number"
                     />
+                    <app-button (clicked)="increment('numberOf1Thousand')" [rounded]="true" [text]="true" icon="pi pi-plus" severity="secondary" size="small" type="button" />
                   </div>
                   <div class="pharma-ticketing-col pharma-col-subtotal">
                     <span class="pharma-subtotal-amount"> {{ ((editForm.get('numberOf1Thousand')!.value || 0) * 1000) | number }} </span>
@@ -181,21 +155,15 @@
                   <div class="pharma-ticketing-col pharma-col-value">
                     <span class="pharma-denomination-value">500</span>
                   </div>
-                  <div class="pharma-ticketing-col pharma-col-qty">
-                    <p-inputnumber
-                      inputId="numberOf500Hundred"
-                      formControlName="numberOf500Hundred"
-                      [showButtons]="true"
+                  <div class="pharma-ticketing-col pharma-col-qty d-flex align-items-center gap-1 pharma-input-number">
+                    <app-button (clicked)="decrement('numberOf500Hundred')" [rounded]="true" [text]="true" icon="pi pi-minus" severity="secondary" size="small" type="button" />
+                    <app-input-number
+                      [inputId]="'numberOf500Hundred'"
                       [min]="0"
-                      [step]="1"
-                      buttonLayout="horizontal"
-                      incrementButtonIcon="pi pi-plus"
-                      decrementButtonIcon="pi pi-minus"
-                      (onInput)="onInputChange()"
+                      formControlName="numberOf500Hundred"
                       placeholder="0"
-                      autocomplete="off"
-                      class="pharma-input-number"
                     />
+                    <app-button (clicked)="increment('numberOf500Hundred')" [rounded]="true" [text]="true" icon="pi pi-plus" severity="secondary" size="small" type="button" />
                   </div>
                   <div class="pharma-ticketing-col pharma-col-subtotal">
                     <span class="pharma-subtotal-amount"> {{ ((editForm.get('numberOf500Hundred')!.value || 0) * 500) | number }} </span>
@@ -210,22 +178,16 @@
                   <div class="pharma-ticketing-col pharma-col-value">
                     <span class="pharma-denomination-value">Autre montant</span>
                   </div>
-                  <div class="pharma-ticketing-col pharma-col-qty">
-                    <p-inputnumber
-                      inputId="otherAmount"
-                      formControlName="otherAmount"
-                      [showButtons]="true"
+                  <div class="pharma-ticketing-col pharma-col-qty d-flex align-items-center gap-1 pharma-input-number">
+                    <app-button (clicked)="decrement('otherAmount')" [rounded]="true" [text]="true" icon="pi pi-minus" severity="secondary" size="small" type="button" />
+                    <app-input-number
+                      [inputId]="'otherAmount'"
                       [min]="0"
-                      buttonLayout="horizontal"
-                      incrementButtonIcon="pi pi-plus"
-                      decrementButtonIcon="pi pi-minus"
-                      (onInput)="onInputChange()"
+                      formControlName="otherAmount"
                       placeholder="0"
-                      autocomplete="off"
-                      mode="currency"
-                      currency="XOF"
-                      class="pharma-input-number"
+                      suffix=" FCFA"
                     />
+                    <app-button (clicked)="increment('otherAmount')" [rounded]="true" [text]="true" icon="pi pi-plus" severity="secondary" size="small" type="button" />
                   </div>
                   <div class="pharma-ticketing-col pharma-col-subtotal">
                     <span class="pharma-subtotal-amount"> {{ (editForm.get('otherAmount')!.value || 0) | number }} </span>
@@ -249,9 +211,9 @@
           <!-- Footer Actions -->
           <div class="pharma-card-footer">
             <div class="pharma-button-group-flex">
-              <p-button (click)="previousState()" icon="pi pi-arrow-left" label="Retour" severity="secondary" [outlined]="true" />
-              <p-button
-                (click)="save()"
+              <app-button (clicked)="previousState()" icon="pi pi-arrow-left" label="Retour" severity="secondary" [outlined]="true" />
+              <app-button
+                (clicked)="save()"
                 [disabled]="editForm.invalid || isSaving"
                 [loading]="isSaving"
                 icon="pi pi-check-circle"

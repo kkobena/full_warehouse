@@ -65,22 +65,22 @@
 
   <!-- Table -->
   <div class="card data-card">
-    <p-table
+    <app-data-table
       [value]="avoirs()"
       [scrollable]="true"
       scrollHeight="calc(100vh - 400px)"
       [stripedRows]="true"
-      class="p-datatable-sm"
-      sortField="avoirDate"
-      [sortOrder]="-1"
+      [size]="'small'"
+      initialSortField="avoirDate"
+      [initialSortOrder]="-1"
     >
       <ng-template #header>
         <tr class="pharma-table-head">
-          <th pSortableColumn="numAvoir">N° Avoir <p-sorticon field="numAvoir" /></th>
-          <th pSortableColumn="avoirDate">Date <p-sorticon field="avoirDate" /></th>
+          <th appSortableHeader="numAvoir">N° Avoir </th>
+          <th appSortableHeader="avoirDate">Date </th>
           <th>Tiers-payant</th>
           <th>Statut</th>
-          <th class="text-end" pSortableColumn="montantAvoir">Montant <p-sorticon field="montantAvoir" /></th>
+          <th class="text-end" appSortableHeader="montantAvoir">Montant </th>
           <th>Motif</th>
         </tr>
       </ng-template>
@@ -106,7 +106,7 @@
           </td>
         </tr>
       </ng-template>
-    </p-table>
+    </app-data-table>
   </div>
 
 }

@@ -1,53 +1,32 @@
 <div class="pharma-smart-content p-2">
-  <div class="pharma-toolbar">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-chart-line"></i>
-      <span class="pharma-toolbar-title">Synthèse des Ventes Quotidiennes</span>
-    </div>
+  <app-toolbar icon="pi pi-chart-line" title="Synthèse des Ventes Quotidiennes">
 
-    <p-toolbar>
-      <ng-template #start>
+    <ng-container ngProjectAs="[toolbarFilters]">
         <div class="pharma-toolbar-filters">
-          <p-datepicker
-            (onSelect)="onFilterChange()"
-            [(ngModel)]="startDate"
-            [showIcon]="true"
-            appendTo="body"
-            dateFormat="dd/mm/yy"
-            placeholder="Date début"
-          />
-          <p-datepicker
-            (onSelect)="onFilterChange()"
-            [(ngModel)]="endDate"
-            [showIcon]="true"
-            appendTo="body"
-            dateFormat="dd/mm/yy"
-            placeholder="Date fin"
-          />
-          <p-select
-            (onChange)="onFilterChange()"
+<pharma-date-picker (ngModelChange)="onFilterChange()" [(ngModel)]="startDate" id="ssDateDebut" label="Date début" />
+<pharma-date-picker (ngModelChange)="onFilterChange()" [(ngModel)]="endDate" id="ssDateFin" label="Date fin" />
+          <app-select
+            (selectionChange)="onFilterChange()"
             [(ngModel)]="selectedTypeVente"
-            [fluid]="true"
-            [options]="typeVenteOptions"
-            [showClear]="true"
+            [items]="typeVenteOptions"
+            [clearable]="true"
             [style]="{ 'min-width': '150px' }"
             appendTo="body"
-            optionLabel="label"
-            optionValue="value"
+            bindLabel="label"
+            bindValue="value"
             placeholder="Type de vente"
             size="large"
           />
         </div>
-      </ng-template>
+      </ng-container>
 
-      <ng-template #end>
+<ng-container ngProjectAs="[toolbarActions]">
         <div>
-          <p-button (onClick)="loadSummaries()" icon="pi pi-refresh" label="Rafraîchir" severity="primary"
+          <app-button (clicked)="loadSummaries()" icon="pi pi-refresh" label="Rafraîchir" severity="primary"
                     size="small" />
         </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
+      </ng-container>
+  </app-toolbar>
 
   <!-- KPI Strip -->
   <div class="kpi-strip mt-2 mb-2">
@@ -107,7 +86,7 @@
           </h5>
         </div>
         <div class="card-body p-0">
-          <p-table
+          <app-data-table
             [loading]="isLoading()"
             [paginator]="true"
             [rowsPerPageOptions]="[10, 20, 50]"
@@ -115,7 +94,7 @@
             [scrollable]="true"
             [showCurrentPageReport]="true"
             [value]="summaries()"
-            class="p-datatable-sm"
+            [size]="'small'"
             currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
             scrollHeight="500px"
           >
@@ -134,10 +113,10 @@
               <tr>
                 <td>{{ summary.saleDate | date: 'dd/MM/yyyy' }}</td>
                 <td>
-                  <p-tag [severity]="getSeverityForType(summary.typeVente)">{{
+                  <app-badge [severity]="getSeverityForType(summary.typeVente)">{{
                       summary.typeVente || 'N/A'
                     }}
-                  </p-tag>
+                  </app-badge>
                 </td>
                 <td class="text-end pharma-qty-value">{{ summary.nbVentes || 0 }}</td>
                 <td class="text-end pharma-price">{{ summary.caTotal | number: '1.0-0' }} F CFA</td>
@@ -155,7 +134,7 @@
                 <td class="text-center" colspan="7">Aucune donnée disponible</td>
               </tr>
             </ng-template>
-          </p-table>
+          </app-data-table>
         </div>
       </div>
     </div>

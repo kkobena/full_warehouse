@@ -1,114 +1,102 @@
 <div class="pharma-smart-content p-1">
   <!-- Toolbar -->
-  <div class="pharma-toolbar pharma-toolbar-compact">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-tag"></i>
-      <span class="pharma-toolbar-title">Rayons</span>
-    </div>
-    <p-toolbar>
-      <ng-template #start>
-        <div class="pharma-toolbar-filters">
-          <p-floatlabel variant="on">
-            <p-select
-              [(ngModel)]="selectedStorage"
-              [options]="storages"
-              optionLabel="storageType"
-              [showClear]="true"
-              (onChange)="onStorageChange()"
-              appendTo="body"
-              id="rhStorage"
-              inputId="rhStorage"
-              style="width: 180px"
-            />
-            <label for="rhStorage">Emplacement</label>
-          </p-floatlabel>
+  <app-toolbar icon="pi pi-tag" title="Rayons" [compact]="true">
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <div class="pharma-toolbar-filters">
+        <app-float-label label="Emplacement" inputId="rhStorage">
+          <app-select
+            [(ngModel)]="selectedStorage"
+            [items]="storages"
+            bindLabel="storageType"
+            [clearable]="true"
+            (selectionChange)="onStorageChange()"
+            appendTo="body"
+            inputId="rhStorage"
+            [style]="{ width: '180px' }"
+          />
+        </app-float-label>
 
-          <p-floatlabel variant="on">
-            <p-select
-              [(ngModel)]="selectedTypeZone"
-              [options]="typeZoneOptions"
-              optionLabel="label"
-              optionValue="value"
-              [showClear]="true"
-              (onChange)="onSearch()"
-              appendTo="body"
-              id="rhTypeZone"
-              inputId="rhTypeZone"
-              style="width: 140px"
-            />
-            <label for="rhTypeZone">Type de zone</label>
-          </p-floatlabel>
+        <app-float-label label="Type de zone" inputId="rhTypeZone">
+          <app-select
+            [(ngModel)]="selectedTypeZone"
+            [items]="typeZoneOptions"
+            bindLabel="label"
+            bindValue="value"
+            [clearable]="true"
+            (selectionChange)="onSearch()"
+            appendTo="body"
+            inputId="rhTypeZone"
+            [style]="{ width: '140px' }"
+          />
+        </app-float-label>
 
-          <div class="pharma-compact-search">
-            <p-iconfield>
-              <p-inputicon class="pi pi-search" />
-              <input
-                pInputText
-                [(ngModel)]="search"
-                (keyup.enter)="onSearch()"
-                placeholder="Rechercher…"
-              />
-            </p-iconfield>
-          </div>
+        <div class="pharma-compact-search">
+          <app-icon-field icon="pi pi-search">
+            <input
+              class="form-control"
+              [(ngModel)]="search"
+              (keyup.enter)="onSearch()"
+              placeholder="Rechercher…"
+            />
+          </app-icon-field>
         </div>
-      </ng-template>
+      </div>
+    </ng-container>
 
-      <ng-template #end>
-        <div class="pharma-toolbar-actions">
-          <div class="pharma-button-group">
-            <p-button
-              (click)="exportCsv()"
-              icon="pi pi-download"
-              label="Exporter"
-              severity="secondary"
-              tooltipPosition="left"
-              pTooltip="Exporter"
-              [raised]="true"
-            />
-            <p-button
-              (click)="cloneRayons()"
-              icon="pi pi-copy"
-              label="Cloner"
-              severity="info"
-              [raised]="true"
-              tooltipPosition="left"
-              pTooltip="Cloner"
-              [disabled]="!rayons().length"
-            />
-            <p-button
-              (click)="showFileDialog()"
-              icon="pi pi-upload"
-              label="Importer rayons"
-              tooltipPosition="left"
-              pTooltip="Importer rayons"
-              severity="warn"
-              [raised]="true"
-            />
-            <p-button
-              (click)="importRayonProduits()"
-              icon="pi pi-link"
-              label="Importer affectations"
-              tooltipPosition="left"
-              pTooltip="Importer affectations-CSV : code_cip ; code_rayon"
-              severity="help"
-              [raised]="true"
-              [disabled]="!selectedStorage"
-
-            />
-            <p-button
-              (click)="addNew()"
-              icon="pi pi-plus"
-              label="Nouveau"
-              severity="success"
-              [raised]="true"
-              tooltipPosition="left"
-              pTooltip="Nouveau"
-            />
-          </div>
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-toolbar-actions">
+        <div class="pharma-button-group">
+          <app-button
+            (clicked)="exportCsv()"
+            icon="pi pi-download"
+            label="Exporter"
+            severity="secondary"
+            ngbTooltip="Exporter"
+            placement="left"
+            [raised]="true"
+          />
+          <app-button
+            (clicked)="cloneRayons()"
+            icon="pi pi-copy"
+            label="Cloner"
+            severity="info"
+            [raised]="true"
+            ngbTooltip="Cloner"
+            placement="left"
+            [disabled]="!rayons().length"
+          />
+          <app-button
+            (clicked)="showFileDialog()"
+            icon="pi pi-upload"
+            label="Importer rayons"
+            ngbTooltip="Importer rayons"
+            placement="left"
+            severity="warn"
+            [raised]="true"
+          />
+          <app-button
+            (clicked)="importRayonProduits()"
+            icon="pi pi-link"
+            label="Importer affectations"
+            ngbTooltip="Importer affectations-CSV : code_cip ; code_rayon"
+            placement="left"
+            severity="help"
+            [raised]="true"
+            [disabled]="!selectedStorage"
+          />
+          <app-button
+            (clicked)="addNew()"
+            icon="pi pi-plus"
+            label="Nouveau"
+            severity="success"
+            [raised]="true"
+            ngbTooltip="Nouveau"
+            placement="left"
+          />
         </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
+      </div>
+    </ng-container>
+  </app-toolbar>
 
   <!-- Split container -->
   <div class="split-container" [class.panel-open]="panelOpen()">
@@ -142,4 +130,3 @@
   </div>
 </div>
 
-<p-toast position="top-right" />

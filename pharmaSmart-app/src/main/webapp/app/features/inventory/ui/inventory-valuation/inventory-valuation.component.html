@@ -32,23 +32,21 @@
 <!-- ── Sélecteur de ventilation ──────────────────────────────────────────── -->
 <div class="val-group-selector">
   <span class="val-group-label">Ventiler par</span>
-  <p-select
+  <app-select
     (ngModelChange)="onGroupByChange()"
     [(ngModel)]="selectedGroupBy"
-    [options]="groupByOptions"
-    [fluid]="true"
-    optionLabel="label"
-    optionValue="value"
-    size="small"
+    [items]="groupByOptions"
+    bindLabel="label"
+    bindValue="value"
+    [small]="true"
   />
 </div>
 
 <!-- ── Tableau de ventilation ────────────────────────────────────────────── -->
-<p-table
+<app-data-table
   [loading]="loading()"
   [value]="groups()"
   class="p-datatable-sm val-table"
-  stripedRows="true"
 >
   <ng-template #header>
     <tr class="pharma-table-head">
@@ -90,4 +88,4 @@
       </td>
     </tr>
   </ng-template>
-</p-table>
+</app-data-table>

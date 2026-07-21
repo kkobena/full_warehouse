@@ -1,26 +1,30 @@
-import { HttpResponse } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, inject, OnInit, Renderer2, viewChild, ChangeDetectionStrategy } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { Observable } from 'rxjs';
-import { FamilleProduitService } from '../famille-produit.service';
-import { FamilleProduit, IFamilleProduit } from '../../../shared/model/famille-produit.model';
-import { CategorieService } from '../../categorie/categorie.service';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { RippleModule } from 'primeng/ripple';
-import { ICategorie } from '../../../shared/model/categorie.model';
-import { CommonModule } from '@angular/common';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
-import { Select } from 'primeng/select';
-import { Card } from 'primeng/card';
+import {HttpResponse} from '@angular/common/http';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+  viewChild
+} from '@angular/core';
+import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
+import {Observable} from 'rxjs';
+import {FamilleProduitService} from '../famille-produit.service';
+import {FamilleProduit, IFamilleProduit} from '../../../shared/model/famille-produit.model';
+import {CategorieService} from '../../categorie/categorie.service';
+import {ICategorie} from '../../../shared/model/categorie.model';
+import {CommonModule} from '@angular/common';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {ButtonComponent, SelectComponent} from '../../../shared/ui';
+import {NotificationService} from "../../../shared/services/notification.service";
 
 @Component({
   selector: 'jhi-form-famille',
   templateUrl: './form-famille.component.html',
   styleUrls: ['./form-famille.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, RippleModule, ToastAlertComponent, Select, Card],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonComponent, SelectComponent],
 })
 export class FormFamilleComponent implements OnInit, AfterViewInit {
   familleProduit?: IFamilleProduit;
@@ -37,10 +41,8 @@ export class FormFamilleComponent implements OnInit, AfterViewInit {
   protected categorieProduitService = inject(CategorieService);
   private readonly entityService = inject(FamilleProduitService);
   private readonly activeModal = inject(NgbActiveModal);
-  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
-  private readonly renderer = inject(Renderer2);
-  private readonly elementRef = inject(ElementRef);
   private readonly libelle = viewChild.required<ElementRef>('libelle');
+  private readonly notificationService = inject(NotificationService);
 
   ngOnInit(): void {
     this.populateAssurrance();
@@ -48,6 +50,7 @@ export class FormFamilleComponent implements OnInit, AfterViewInit {
       this.updateForm(this.familleProduit);
     }
   }
+
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.libelle().nativeElement.focus();
@@ -64,7 +67,7 @@ export class FormFamilleComponent implements OnInit, AfterViewInit {
   }
 
   protected populateAssurrance(): void {
-    this.categorieProduitService.query({ search: '' }).subscribe({
+    this.categorieProduitService.query({search: ''}).subscribe({
       next: (res: HttpResponse<ICategorie[]>) => {
         this.categorieproduits = res.body;
       },
@@ -85,23 +88,9 @@ export class FormFamilleComponent implements OnInit, AfterViewInit {
     this.activeModal.dismiss();
   }
 
-  protected onDropdownShow(event: any): void {
-    const modalBody = this.elementRef.nativeElement.querySelector('.modal-body');
-    if (modalBody) {
-      this.renderer.addClass(modalBody, 'overflow-visible');
-    }
-  }
-
-  protected onDropdownHide(event: any): void {
-    const modalBody = this.elementRef.nativeElement.querySelector('.modal-body');
-    if (modalBody) {
-      this.renderer.removeClass(modalBody, 'overflow-visible');
-    }
-  }
-
   protected onSaveError(): void {
     this.isSaving = false;
-    this.alert().showError();
+    this.notificationService.error("Erreur interne du serveur.");
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<IFamilleProduit>>): void {

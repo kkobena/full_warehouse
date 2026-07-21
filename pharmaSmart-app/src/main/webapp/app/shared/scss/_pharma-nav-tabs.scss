@@ -1,0 +1,106 @@
+// Onglets horizontaux — habillage partagé.
+//
+// Extrait de `_pharma-nav.scss`, dont il était la section `.pharma-nav-tabs-container`,
+// pour être consommé aussi par le composant `app-nav-tabs` du Design System.
+// Les deux points d'entrée produisent exactement le même CSS.
+//
+// Variables en `!default` : `_pharma-nav.scss` les définit avant d'importer ce fichier,
+// ses valeurs gagnent donc ; importé seul par `app-nav-tabs`, ce sont celles ci-dessous.
+$pharma-primary: #5b89a6 !default;
+$pharma-primary-dark: #4a7189 !default;
+$pharma-primary-light: #e8f4f8 !default;
+$gray-200: #e5e7eb !default;
+$gray-400: #9ca3af !default;
+$gray-500: #6b7280 !default;
+$gray-600: #4b5563 !default;
+
+.pharma-nav-tabs-container {
+  margin-bottom: 1rem;
+
+  .pharma-nav-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid $gray-200;
+    padding-bottom: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: $gray-400 transparent;
+
+    &::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: $gray-400;
+      border-radius: 4px;
+    }
+
+    .pharma-nav-tab-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      color: $gray-600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      font-weight: 500;
+      font-size: 0.875rem;
+      white-space: nowrap;
+      position: relative;
+
+      i {
+        font-size: 1rem;
+        color: $gray-500;
+        transition: all 0.2s ease;
+      }
+
+      &:hover {
+        color: $pharma-primary;
+        background: $pharma-primary-light;
+
+        i {
+          color: $pharma-primary;
+          transform: scale(1.1);
+        }
+      }
+
+      &.active {
+        color: $pharma-primary;
+        border-bottom-color: $pharma-primary;
+        font-weight: 600;
+
+        i {
+          color: $pharma-primary;
+        }
+
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: -2px;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: linear-gradient(90deg, $pharma-primary 0%, $pharma-primary-dark 100%);
+        }
+      }
+
+      &.disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        pointer-events: none;
+        color: $gray-400;
+
+        i { color: $gray-400; }
+      }
+    }
+  }
+
+  .pharma-nav-tabs-outlet {
+    padding: 0.3rem 0;
+  }
+}

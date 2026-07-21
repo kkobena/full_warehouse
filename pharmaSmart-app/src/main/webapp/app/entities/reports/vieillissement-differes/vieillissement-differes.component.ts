@@ -1,39 +1,48 @@
-import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { TableModule } from 'primeng/table';
+import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
 
-import { DiffereApiService } from '../../../features/differes/data-access/services/differe-api.service';
-import { DateRangeFilterComponent } from '../../../shared/components/date-range-filter/date-range-filter.component';
-import { IDiffere, IDiffereSummary } from "../../../features/differes/data-access/models";
-import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
-import { formatCurrency, formatNumber } from 'app/shared/utils/format-utils';
-import { forkJoin } from 'rxjs';
+import {
+  DiffereApiService
+} from '../../../features/differes/data-access/services/differe-api.service';
+import {
+  DateRangeFilterComponent
+} from '../../../shared/components/date-range-filter/date-range-filter.component';
+import {IDiffere, IDiffereSummary} from "../../../features/differes/data-access/models";
+import {DATE_FORMAT_ISO_DATE} from '../../../shared/util/warehouse-util';
+import {formatCurrency, formatNumber} from 'app/shared/utils/format-utils';
+import {forkJoin} from 'rxjs';
+import {DataTableComponent, SortableHeaderDirective} from '../../../shared/ui';
 
 @Component({
   selector: 'app-vieillissement-differes',
-  imports: [CommonModule, TableModule, DateRangeFilterComponent],
+  imports: [
+    CommonModule,
+    DateRangeFilterComponent,
+    DataTableComponent,
+    SortableHeaderDirective
+  ],
   templateUrl: './vieillissement-differes.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./vieillissement-differes.component.scss'],
 })
 export default class VieillissementDifferesComponent implements OnInit {
-  protected readonly differes    = signal<IDiffere[]>([]);
-  protected readonly summary     = signal<IDiffereSummary | null>(null);
-  protected readonly isLoading   = signal(false);
+  protected readonly differes = signal<IDiffere[]>([]);
+  protected readonly summary = signal<IDiffereSummary | null>(null);
+  protected readonly isLoading = signal(false);
 
   protected fromDate = signal<Date | null>(new Date());
-  protected toDate   = signal<Date | null>(new Date());
+  protected toDate = signal<Date | null>(new Date());
 
-  protected readonly totalSolde   = computed(() => this.summary()?.rest ?? 0);
+  protected readonly totalSolde = computed(() => this.summary()?.rest ?? 0);
   protected readonly totalAccorde = computed(() => this.summary()?.saleAmount ?? 0);
-  protected readonly totalPaye    = computed(() => this.summary()?.paidAmount ?? 0);
-  protected readonly tauxRemb     = computed(() => {
+  protected readonly totalPaye = computed(() => this.summary()?.paidAmount ?? 0);
+  protected readonly tauxRemb = computed(() => {
     const acc = this.totalAccorde();
     return acc > 0 ? Math.round((this.totalPaye() / acc) * 100) : 0;
   });
 
   protected readonly formatCurrency = formatCurrency;
-  protected readonly formatNumber   = formatNumber;
+  protected readonly formatNumber = formatNumber;
 
   private readonly svc = inject(DiffereApiService);
 
@@ -49,7 +58,7 @@ export default class VieillissementDifferesComponent implements OnInit {
     };
     forkJoin({
       summary: this.svc.getDiffereSummary(params),
-      list:    this.svc.query(params),
+      list: this.svc.query(params),
     }).subscribe({
       next: data => {
         this.summary.set(data.summary.body);

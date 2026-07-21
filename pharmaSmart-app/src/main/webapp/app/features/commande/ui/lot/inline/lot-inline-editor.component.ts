@@ -6,16 +6,15 @@ import { ICellRendererParams } from "ag-grid-community";
 import { IOrderLine } from "../../../../../shared/model/order-line.model";
 import { ILot } from "../../../../../shared/model/lot.model";
 import { LotService } from "../../../../../entities/commande/lot/lot.service";
-import { ButtonModule } from "primeng/button";
-import { TooltipModule } from "primeng/tooltip";
-import { InputTextModule } from "primeng/inputtext";
+import { NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
+import { ButtonComponent } from "app/shared/ui";
 import { NotificationService } from "../../../../../shared/services/notification.service";
 import { NgbConfirmDialogService } from "../../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { ErrorService } from "../../../../../shared/error.service";
 
 @Component({
   selector: "app-lot-inline-editor",
-  imports: [CommonModule, FormsModule, ButtonModule, TooltipModule, InputTextModule],
+  imports: [CommonModule, FormsModule, ButtonComponent, NgbTooltip],
   template: `
     <div class="lie-wrap">
       <!-- Header -->
@@ -31,8 +30,8 @@ import { ErrorService } from "../../../../../shared/error.service";
             <span class="lie-badge lie-badge--ok"><i class="pi pi-check me-1"></i>Complets</span>
           }
         </div>
-        <p-button icon="pi pi-times" [text]="true" [rounded]="true" size="small" severity="secondary"
-                  pTooltip="Fermer" tooltipPosition="left" (onClick)="onClose()" />
+        <app-button icon="pi pi-times" [text]="true" [rounded]="true" size="small" severity="secondary"
+                  ngbTooltip="Fermer" placement="left" (clicked)="onClose()" />
       </div>
 
       <!-- Body -->
@@ -58,14 +57,14 @@ import { ErrorService } from "../../../../../shared/error.service";
                   <!-- Ligne en mode édition -->
                   <tr class="lie-row-editing">
                     <td>
-                      <input pInputText [(ngModel)]="editNumLot" placeholder="N° lot"
+                      <input [(ngModel)]="editNumLot" placeholder="N° lot"
                              class="lie-field lie-field--numlot"
                              (keydown.tab)="$event.stopPropagation()"
                              (keydown.enter)="onSaveEdit()"
                              (keydown.escape)="onCancelEdit()" />
                     </td>
                     <td>
-                      <input pInputText [(ngModel)]="editExpiry" placeholder="jj/MM/AAAA" maxlength="10"
+                      <input [(ngModel)]="editExpiry" placeholder="jj/MM/AAAA" maxlength="10"
                              class="lie-field lie-field--expiry"
                              placeholder="MM/AAAA" maxlength="7"
                              [class.lie-expiry-soon]="editExpiryWarning() === 'soon'"
@@ -76,7 +75,7 @@ import { ErrorService } from "../../../../../shared/error.service";
                              (keydown.escape)="onCancelEdit()" />
                     </td>
                     <td>
-                      <input pInputText type="number" [(ngModel)]="editQty"
+                      <input type="number" [(ngModel)]="editQty"
                              [min]="1" [max]="editMaxQty()"
                              class="lie-field lie-field--qty"
                              (ngModelChange)="onEditQtyInput($event)"
@@ -86,7 +85,7 @@ import { ErrorService } from "../../../../../shared/error.service";
                     </td>
                     @if (showUg()) {
                       <td>
-                        <input pInputText type="number" [(ngModel)]="editUg"
+                        <input type="number" [(ngModel)]="editUg"
                                [min]="0" [max]="editMaxUg()"
                                class="lie-field lie-field--ug"
                                (ngModelChange)="onEditUgInput($event)"
@@ -96,13 +95,13 @@ import { ErrorService } from "../../../../../shared/error.service";
                       </td>
                     }
                     <td class="lie-col-act">
-                      <p-button icon="pi pi-check" [text]="true" [rounded]="true" size="small" severity="success"
-                                pTooltip="Enregistrer" tooltipPosition="top"
+                      <app-button icon="pi pi-check" [text]="true" [rounded]="true" size="small" severity="success"
+                                ngbTooltip="Enregistrer" placement="top"
                                 [loading]="saving()" [disabled]="!canSaveEdit()"
-                                (onClick)="onSaveEdit()" />
-                      <p-button icon="pi pi-times" [text]="true" [rounded]="true" size="small" severity="secondary"
-                                pTooltip="Annuler" tooltipPosition="top"
-                                (onClick)="onCancelEdit()" />
+                                (clicked)="onSaveEdit()" />
+                      <app-button icon="pi pi-times" [text]="true" [rounded]="true" size="small" severity="secondary"
+                                ngbTooltip="Annuler" placement="top"
+                                (clicked)="onCancelEdit()" />
                     </td>
                   </tr>
                 } @else {
@@ -118,12 +117,12 @@ import { ErrorService } from "../../../../../shared/error.service";
                       <td class="lie-col-r">{{ lot.ugQuantityReceived ?? 0 }}</td>
                     }
                     <td class="lie-col-act">
-                      <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" size="small" severity="info"
-                                pTooltip="Modifier ce lot" tooltipPosition="top"
-                                (onClick)="onStartEdit(lot)" />
-                      <p-button icon="pi pi-trash" [text]="true" [rounded]="true" size="small" severity="danger"
-                                pTooltip="Supprimer ce lot" tooltipPosition="top"
-                                (onClick)="onConfirmDelete(lot)" />
+                      <app-button icon="pi pi-pencil" [text]="true" [rounded]="true" size="small" severity="info"
+                                ngbTooltip="Modifier ce lot" placement="top"
+                                (clicked)="onStartEdit(lot)" />
+                      <app-button icon="pi pi-trash" [text]="true" [rounded]="true" size="small" severity="danger"
+                                ngbTooltip="Supprimer ce lot" placement="top"
+                                (clicked)="onConfirmDelete(lot)" />
                     </td>
                   </tr>
                 }
@@ -135,29 +134,29 @@ import { ErrorService } from "../../../../../shared/error.service";
         <!-- Formulaire d'ajout — visible uniquement si la quantité n'est pas couverte et pas en cours d'édition -->
         @if ((remainingQty() > 0 || isUgOnlyMode()) && !editingLot()) {
           <div class="lie-draft">
-            <input #numLotInput pInputText [(ngModel)]="draftNumLot" placeholder="N° lot"
+            <input #numLotInput [(ngModel)]="draftNumLot" placeholder="N° lot"
                    class="lie-field lie-field--numlot"
                    (keydown.tab)="$event.stopPropagation()" (keydown.enter)="onSaveDraft()" />
-            <input pInputText [(ngModel)]="draftExpiry" placeholder="MM/AAAA" maxlength="7"
+            <input [(ngModel)]="draftExpiry" placeholder="MM/AAAA" maxlength="7"
                    class="lie-field lie-field--expiry"
                    [class.lie-expiry-soon]="expiryWarning() === 'soon'"
                    [class.lie-expiry-critical]="expiryWarning() === 'critical'"
                    (ngModelChange)="onExpiryInput($event)"
                    (keydown.tab)="$event.stopPropagation()" (keydown.enter)="onSaveDraft()" />
-            <input pInputText type="number" [(ngModel)]="draftQty"
+            <input type="number" [(ngModel)]="draftQty"
                    [min]="isUgOnlyMode() ? 0 : 1" [max]="remainingQty()"
                    [disabled]="isUgOnlyMode()"
                    placeholder="Qté" class="lie-field lie-field--qty"
                    (ngModelChange)="onQtyInput($event)"
                    (keydown.tab)="$event.stopPropagation()" (keydown.enter)="onSaveDraft()" />
             @if (showUg()) {
-              <input pInputText type="number" [(ngModel)]="draftUg" [min]="0" [max]="remainingUg()"
+              <input type="number" [(ngModel)]="draftUg" [min]="0" [max]="remainingUg()"
                      placeholder="UG" class="lie-field lie-field--ug"
                      (ngModelChange)="onUgInput($event)"
                      (keydown.tab)="$event.stopPropagation()" (keydown.enter)="onSaveDraft()" />
             }
-            <p-button icon="pi pi-check" label="Ajouter" size="small" severity="success"
-                      [loading]="saving()" [disabled]="!canSave()" (onClick)="onSaveDraft()" />
+            <app-button icon="pi pi-check" label="Ajouter" size="small" severity="success"
+                      [loading]="saving()" [disabled]="!canSave()" (clicked)="onSaveDraft()" />
           </div>
         }
 

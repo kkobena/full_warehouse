@@ -83,13 +83,13 @@
     </div>
 
     <div class="rh-seq__nav-footer ">
-      <p-button  (click)="goPrev()" [disabled]="!hasPrev()"
+      <app-button  (clicked)="goPrev()" [disabled]="!hasPrev()"
                 icon="pi pi-arrow-left" label="Précédent" severity="info" size="small"
-                pTooltip="F8 — ligne précédente" tooltipPosition="top"
+                ngbTooltip="F8 — ligne précédente" placement="top"
                 class="rh-nav-btn" />
-      <p-button (click)="goNext()" [disabled]="!hasNext()"
+      <app-button (clicked)="goNext()" [disabled]="!hasNext()"
                 icon="pi pi-arrow-right" iconPos="right" label="Suivant" severity="warn" size="small"
-                pTooltip="F9 — ligne suivante" tooltipPosition="top"
+                ngbTooltip="F9 — ligne suivante" placement="top"
                 class="rh-nav-btn" />
     </div>
 
@@ -132,8 +132,8 @@
           }
           @if (line.thermosensible) {
             <span class="rh-seq__meta-chip rh-seq__meta-chip--cold"
-                  pTooltip="Produit thermosensible — conserver entre 2°C et 8°C"
-                  tooltipPosition="top">
+                  ngbTooltip="Produit thermosensible — conserver entre 2°C et 8°C"
+                  placement="top">
               <i class="pi pi-snowflake"></i>&nbsp;2–8°C
             </span>
           }
@@ -172,21 +172,20 @@
           <span>Code CIP provisoire — à mettre à jour</span>
           @if (pendingCipAssociation()) {
             <span class="rh-seq__prov-scanned">Code scanné : <strong>{{ pendingCipAssociation() }}</strong></span>
-            <p-button size="small" severity="warn" icon="pi pi-check"
-                      label="Associer" (onClick)="onConfirmCipAssociation()" />
+            <app-button size="small" severity="warn" icon="pi pi-check"
+                      label="Associer" (clicked)="onConfirmCipAssociation()" />
           } @else if (!isEditingCip()) {
-            <p-button size="small" severity="secondary" icon="pi pi-pencil"
-                      label="Modifier CIP" (onClick)="isEditingCip.set(true)" />
+            <app-button size="small" severity="secondary" icon="pi pi-pencil"
+                      label="Modifier CIP" (clicked)="isEditingCip.set(true)" />
           } @else {
-            <input type="text" pInputText [(ngModel)]="draftCip"
+            <input type="text" class="form-control rh-seq__prov-cip-input" [(ngModel)]="draftCip"
                    placeholder="Nouveau CIP"
-                   class="rh-seq__prov-cip-input"
                    (keydown.enter)="onSaveDraftCip()"
                    (keydown.escape)="isEditingCip.set(false)" />
-            <p-button size="small" severity="success" icon="pi pi-check"
-                      label="Sauver" (onClick)="onSaveDraftCip()" />
-            <p-button size="small" severity="secondary" icon="pi pi-times"
-                      (onClick)="isEditingCip.set(false)" />
+            <app-button size="small" severity="success" icon="pi pi-check"
+                      label="Sauver" (clicked)="onSaveDraftCip()" />
+            <app-button size="small" severity="secondary" icon="pi pi-times"
+                      (clicked)="isEditingCip.set(false)" />
           }
         </div>
       }
@@ -208,10 +207,9 @@
           <!-- Reçu -->
           <div class="rh-seq__row">
             <label class="rh-seq__row-label" for="rh-qty">Reçu</label>
-            <input #qtyInput id="rh-qty" type="number" pInputText
+            <input #qtyInput id="rh-qty" type="number" class="form-control rh-seq__big-input"
                    [ngModel]="draftQty()" (ngModelChange)="draftQty.set($event)"
                    min="0"
-                   class="rh-seq__big-input"
                    autocomplete="off"
                    (focus)="selectOnFocus($event)"
                    (keydown.enter)="$event.preventDefault(); onValidateQty()" />
@@ -220,10 +218,9 @@
           <!-- UG — toujours visible, Tab depuis Reçu y amène naturellement -->
           <div class="rh-seq__row">
             <label class="rh-seq__row-label" for="rh-ug">UG</label>
-            <input id="rh-ug" type="number" pInputText
+            <input id="rh-ug" type="number" class="form-control rh-seq__big-input rh-seq__big-input--secondary"
                    [ngModel]="draftUg()" (ngModelChange)="draftUg.set($event ?? 0)"
                    min="0"
-                   class="rh-seq__big-input rh-seq__big-input--secondary"
                    autocomplete="off"
                    (focus)="selectOnFocus($event)"
                    (keydown.enter)="$event.preventDefault(); onValidateQty()" />
@@ -289,7 +286,7 @@
         </div>
 
         <div class="rh-seq__footer">
-          <p-button (click)="onValidateQty()"
+          <app-button (clicked)="onValidateQty()"
                     [disabled]="saving()"
                     [loading]="saving()"
                     icon="pi pi-check"
@@ -377,10 +374,9 @@
               <!-- N° lot -->
               <div class="rh-seq__row">
                 <label class="rh-seq__row-label" for="rh-numlot">N° lot</label>
-                <input #numLotInput id="rh-numlot" type="text" pInputText
+                <input #numLotInput id="rh-numlot" type="text" class="form-control rh-seq__lot-input rh-seq__lot-input--num"
                        [(ngModel)]="draftLotNum"
                        placeholder="ex: A1B2C3"
-                       class="rh-seq__lot-input rh-seq__lot-input--num"
                        autocomplete="off"
                        (focus)="selectOnFocus($event)"
                        (keydown.enter)="$event.preventDefault(); onSaveLot()" />
@@ -389,12 +385,11 @@
               <!-- Péremption -->
               <div class="rh-seq__row">
                 <label class="rh-seq__row-label" for="rh-expiry">Péremption</label>
-                <input id="rh-expiry" type="text" pInputText
+                <input id="rh-expiry" type="text" class="form-control rh-seq__lot-input rh-seq__lot-input--exp"
                        [ngModel]="draftLotExpiry"
                        (ngModelChange)="onLotExpiryInput($event)"
                        placeholder="MM/AAAA"
                        maxlength="7"
-                       class="rh-seq__lot-input rh-seq__lot-input--exp"
                        [class.rh-seq__expiry--critical]="expiryWarning() === 'critical'"
                        [class.rh-seq__expiry--soon]="expiryWarning() === 'soon'"
                        autocomplete="off"
@@ -406,11 +401,10 @@
               @if (!isUgOnlyLotMode()) {
                 <div class="rh-seq__row">
                   <label class="rh-seq__row-label" for="rh-lotqty">Qté lot</label>
-                  <input id="rh-lotqty" type="number" pInputText
+                  <input id="rh-lotqty" type="number" class="form-control rh-seq__lot-input rh-seq__lot-input--qty"
                          [(ngModel)]="draftLotQty"
                          (input)="recomputeLotUg()"
                          [max]="remainingLotQty()" min="1"
-                         class="rh-seq__lot-input rh-seq__lot-input--qty"
                          autocomplete="off"
                          (focus)="selectOnFocus($event)"
                          (keydown.enter)="$event.preventDefault(); onSaveLot()" />
@@ -421,10 +415,9 @@
               @if (showUg()) {
                 <div class="rh-seq__row">
                   <label class="rh-seq__row-label" for="rh-lotug">UG lot</label>
-                  <input id="rh-lotug" type="number" pInputText
+                  <input id="rh-lotug" type="number" class="form-control rh-seq__lot-input rh-seq__lot-input--qty"
                          [(ngModel)]="draftLotUg"
                          [max]="remainingLotUg()" min="0"
-                         class="rh-seq__lot-input rh-seq__lot-input--qty"
                          autocomplete="off"
                          (focus)="selectOnFocus($event)"
                          (keydown.enter)="$event.preventDefault(); onSaveLot()" />
@@ -450,22 +443,22 @@
         <!-- Footer lot : Ajouter (si incomplet) ou Passer à la suivante -->
         <div class="rh-seq__footer rh-seq__footer--lot">
           @if (!lotsComplete()) {
-            <p-button (click)="onSaveLot()"
+            <app-button (clicked)="onSaveLot()"
                       [disabled]="!canSaveLot()"
                       [loading]="lotSaving()"
                       icon="pi pi-plus"
                       label="Ajouter ce lot  (F12)"
                       severity="success"
                       [style]="{'flex':'1'}" />
-            <p-button (click)="onSkipLots()"
+            <app-button (clicked)="onSkipLots()"
                       icon="pi pi-forward"
                       label="Passer"
                       severity="secondary"
                       size="small"
-                      pTooltip="Passer à la ligne suivante sans compléter les lots"
-                      tooltipPosition="top" />
+                      ngbTooltip="Passer à la ligne suivante sans compléter les lots"
+                      placement="top" />
           } @else {
-            <p-button icon="pi pi-check-circle"
+            <app-button icon="pi pi-check-circle"
                       label="Lots complets — ligne suivante…"
                       severity="success"
                       [disabled]="true"
@@ -480,15 +473,15 @@
             <span class="rh-seq__batch-label">
               {{ linesForBatch().length }} autre(s) ligne(s) sans lot
             </span>
-            <p-button (click)="onApplyLotToAll()"
+            <app-button (clicked)="onApplyLotToAll()"
                       [disabled]="!canApplyToAll()"
                       [loading]="lotSaving()"
                       icon="pi pi-send"
                       label="Appliquer à toutes"
                       severity="info"
                       size="small"
-                      pTooltip="Appliquer ce lot ({{ draftLotNum }}) à toutes les lignes sans lot ayant une quantité reçue"
-                      tooltipPosition="top" />
+                      ngbTooltip="Appliquer ce lot ({{ draftLotNum }}) à toutes les lignes sans lot ayant une quantité reçue"
+                      placement="top" />
           </div>
         }
 

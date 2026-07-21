@@ -1,12 +1,11 @@
 import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { NgbActiveModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { Card } from 'primeng/card';
-import { Button } from 'primeng/button';
+import { ButtonComponent, CardComponent } from '../ui';
 
 @Component({
   selector: 'jhi-alert-info',
   templateUrl: './alert-info.component.html',
-  imports: [NgbModule, Card, Button],
+  imports: [NgbModule, ButtonComponent, CardComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../../entities/common-modal.component.scss'],
 })

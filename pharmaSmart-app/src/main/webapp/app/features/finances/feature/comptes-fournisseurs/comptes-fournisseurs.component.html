@@ -1,44 +1,34 @@
 <div class="pharma-smart-content p-1">
 
   <!-- Toolbar -->
-  <div class="pharma-toolbar pharma-toolbar-compact">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-truck"></i>
-      <span class="pharma-toolbar-title">Comptes fournisseurs</span>
-    </div>
-    <p-toolbar>
-      <ng-template #start>
-        <div class="pharma-toolbar-filters">
+  <app-toolbar icon="pi pi-truck" title="Comptes fournisseurs" [compact]="true">
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <div class="pharma-toolbar-filters">
 
-          <p-iconfield>
-            <p-inputicon class="pi pi-search" />
-            <input pInputText type="text" placeholder="Rechercher un fournisseur..."
-                   [value]="searchText()" (input)="searchText.set($any($event.target).value)"
-                   style="width: 220px;" />
-          </p-iconfield>
+        <app-icon-field icon="pi pi-search">
+          <input type="text" class="form-control" placeholder="Rechercher un fournisseur..."
+                 [value]="searchText()" (input)="searchText.set($any($event.target).value)"
+                 style="width: 220px;" />
+        </app-icon-field>
 
-          <p-datepicker [ngModel]="fromDate()" (ngModelChange)="fromDate.set($event); loadComptes()"
-                        dateFormat="dd/mm/yy" placeholder="Du" [showButtonBar]="true"
-                        appendTo="body"
-                        [showClear]="true" style="width: 130px;" />
+        <pharma-date-picker [ngModel]="fromDate()" (ngModelChange)="fromDate.set($event); loadComptes()"
+                      label="Du" />
 
-          <p-datepicker  appendTo="body" [ngModel]="toDate()" (ngModelChange)="toDate.set($event); loadComptes()"
-                        dateFormat="dd/mm/yy" placeholder="Au" [showButtonBar]="true"
-                        [showClear]="true" style="width: 130px;" />
+        <pharma-date-picker [ngModel]="toDate()" (ngModelChange)="toDate.set($event); loadComptes()"
+                      label="Au" />
 
-        </div>
-      </ng-template>
-      <ng-template #end>
-        <div class="pharma-toolbar-actions">
-          <p-button icon="pi pi-file-pdf" label="Exporter en PDF" severity="warn" size="small"
-                    [loading]="isExporting()" pTooltip="Exporter la liste en PDF" tooltipPosition="left"
-                    (onClick)="exportPdfGlobal()" />
-          <p-button [text]="true" icon="pi pi-refresh" severity="secondary" [rounded]="true"  (onClick)="loadComptes()"
-                    [loading]="isLoading()" pTooltip="Rafraîchir" tooltipPosition="left" />
-        </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
+      </div>
+    </ng-container>
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-toolbar-actions">
+        <app-button icon="pi pi-file-pdf" label="Exporter en PDF" severity="warn" size="small"
+                  [loading]="isExporting()" ngbTooltip="Exporter la liste en PDF"
+                  (clicked)="exportPdfGlobal()" />
+        <app-button [text]="true" icon="pi pi-refresh" severity="secondary" [rounded]="true"  (clicked)="loadComptes()"
+                  [loading]="isLoading()" ngbTooltip="Rafraîchir" />
+      </div>
+    </ng-container>
+  </app-toolbar>
 
   <!-- KPI Banner -->
   @if (summary() === null) {
@@ -118,7 +108,7 @@
 
     <!-- Liste fournisseurs -->
     <div class="list-column">
-      <p-table [value]="getFiltered()" [loading]="isLoading()"
+      <app-data-table [value]="getFiltered()" [loading]="isLoading()"
                class="p-datatable-sm p-datatable-striped p-datatable-hoverable">
         <ng-template #header>
           <tr class="pharma-table-head">
@@ -149,14 +139,14 @@
             <td><code class="pharma-code">{{ c.fournisseurCode }}</code></td>
             <td class="text-end fw-bold" [class.text-danger]="c.solde > 0">{{ formatCurrency(c.solde) }}</td>
             <td>
-              <p-tag [value]="statutLabel(c.statut)" [severity]="statutSeverity(c.statut)"
-                     [pTooltip]="statutTooltip(c.statut)" tooltipPosition="left" />
+              <app-badge [label]="statutLabel(c.statut)" [severity]="statutSeverity(c.statut)"
+                     [ngbTooltip]="statutTooltip(c.statut)" placement="left" />
             </td>
             <td>{{ c.prochaineEcheance ? (c.prochaineEcheance | date:'dd/MM/yyyy') : '—' }}</td>
             <td class="text-end">
-              <p-button icon="pi pi-eye" [text]="true" size="small" severity="info"
-                        pTooltip="Voir règlements" tooltipPosition="left"
-                        (onClick)="selectFournisseur(c)" />
+              <app-button icon="pi pi-eye" [text]="true" size="small" severity="info"
+                        ngbTooltip="Voir règlements"
+                        (clicked)="selectFournisseur(c)" />
             </td>
           </tr>
         </ng-template>
@@ -165,7 +155,7 @@
             <td colspan="6" class="text-center py-4 text-secondary">Aucun compte fournisseur trouvé.</td>
           </tr>
         </ng-template>
-      </p-table>
+      </app-data-table>
     </div>
 
     <!-- Panneau détail -->
@@ -179,8 +169,8 @@
               <div class="panel-title-block">
                 <div class="panel-libelle">{{ f.fournisseurName }}</div>
                 <div class="panel-meta">
-                  <p-tag [value]="statutLabel(f.statut)" [severity]="statutSeverity(f.statut)"
-                         [pTooltip]="statutTooltip(f.statut)" />
+                  <app-badge [label]="statutLabel(f.statut)" [severity]="statutSeverity(f.statut)"
+                         [ngbTooltip]="statutTooltip(f.statut)" />
                   <span class="pharma-badge pharma-badge-danger ms-2">
                     Solde : {{ formatCurrency(f.solde) }} FCFA
                   </span>
@@ -204,15 +194,15 @@
               </div>
               <div class="panel-actions">
                 @if (f.solde > 0) {
-                  <p-button label="Régler tout" icon="pi pi-check" severity="success" size="small"
-                            pTooltip="Solder ce fournisseur en un règlement"
-                            (onClick)="regleTout()" />
+                  <app-button label="Régler tout" icon="pi pi-check" severity="success" size="small"
+                            ngbTooltip="Solder ce fournisseur en un règlement"
+                            (clicked)="regleTout()" />
                 }
-                <p-button icon="pi pi-file-pdf" [outlined]="true" size="small" label="Exporter en PDF" severity="warn"
-                          pTooltip="Exporter le détail en PDF" [loading]="isExporting()" tooltipPosition="left"
-                          (onClick)="exportPdfFournisseur()" />
-                <p-button icon="pi pi-times" [text]="true" [rounded]="true" size="small" severity="secondary"
-                          pTooltip="Fermer" (onClick)="closeDetail()" />
+                <app-button icon="pi pi-file-pdf" [outlined]="true" size="small" label="Exporter en PDF" severity="warn"
+                          ngbTooltip="Exporter le détail en PDF" [loading]="isExporting()"
+                          (clicked)="exportPdfFournisseur()" />
+                <app-button icon="pi pi-times" [text]="true" [rounded]="true" size="small" severity="secondary"
+                          ngbTooltip="Fermer" (clicked)="closeDetail()" />
               </div>
             </div>
 
@@ -258,13 +248,10 @@
 
                       </div>
 
-                      <p-table [value]="lignes()" [stripedRows]="true" class="p-datatable-sm"
-                               [loading]="isLoadingLignes()"
+                      <app-data-table [value]="lignes()" class="p-datatable-sm"
+                               [loading]="isLoadingLignes()" [lazy]="true"
                                [paginator]="true" [rows]="PAGE_SIZE" [totalRecords]="totalLignes()"
-                               (onPage)="onPage($event)"
-                               [scrollable]="true" scrollHeight="400px"
-                               [showCurrentPageReport]="true"
-                               currentPageReportTemplate="{first}–{last} sur {totalRecords} commandes">
+                               (onLazyLoad)="onPage($event)">
                         <ng-template #header>
                           <tr class="pharma-table-head">
                             <th>N° Bon</th>
@@ -284,14 +271,14 @@
                             <td class="text-end text-success">{{ formatCurrency(l.montantRegle) }}</td>
                             <td class="text-end fw-semibold text-danger">{{ formatCurrency(l.restantDu) }}</td>
                             <td>
-                              <p-tag [value]="ligneStatutLabel(l.statut)" [severity]="ligneSeverity(l.statut)"
-                                     [pTooltip]="ligneStatutTooltip(l.statut)" tooltipPosition="left" />
+                              <app-badge [label]="ligneStatutLabel(l.statut)" [severity]="ligneSeverity(l.statut)"
+                                     [ngbTooltip]="ligneStatutTooltip(l.statut)" placement="left" />
                             </td>
                             <td class="actions-col">
                               @if (l.statut !== 'REGLE') {
-                                <p-button icon="pi pi-money-bill" [text]="true" size="small" severity="success"
-                                          pTooltip="Régler ce BL" tooltipPosition="left"
-                                          (onClick)="reglerLigne(l)" />
+                                <app-button icon="pi pi-money-bill" [text]="true" size="small" severity="success"
+                                          ngbTooltip="Régler ce BL"
+                                          (clicked)="reglerLigne(l)" />
                               }
                             </td>
                           </tr>
@@ -303,7 +290,7 @@
                             </td>
                           </tr>
                         </ng-template>
-                      </p-table>
+                      </app-data-table>
                     }
                   </ng-template>
                 </ng-container>
@@ -337,59 +324,49 @@
                           <!-- Ligne 1 : Montant | Date -->
                           <div class="row g-2 mb-3">
                             <div class="col-6">
-                              <p-floatlabel variant="on">
-                                <p-inputnumber inputId="montant" formControlName="montant" mode="decimal"
-                                               [minFractionDigits]="0" [maxFractionDigits]="0"
-                                               [style]="{ width: '100%' }" />
-                                <label for="montant">Montant (FCFA)</label>
-                              </p-floatlabel>
+                              <app-float-label label="Montant (FCFA)" inputId="montant">
+                                <app-input-number inputId="montant" formControlName="montant" />
+                              </app-float-label>
                               @if (montantSaisi() > solde()) {
                                 <small class="text-danger">Le montant ne peut pas dépasser le solde dû.</small>
                               }
                             </div>
                             <div class="col-6">
-                              <p-floatlabel variant="on">
-                                <p-datepicker inputId="dateReg" formControlName="dateReglement"
-                                              dateFormat="dd/mm/yy" [style]="{ width: '100%' }" />
-                                <label for="dateReg">Date du règlement</label>
-                              </p-floatlabel>
+                              <pharma-date-picker inputId="dateReg" formControlName="dateReglement"
+                                            label="Date du règlement" />
                             </div>
                           </div>
 
                           <!-- Ligne 2 : Mode | Référence -->
                           <div class="row g-2 mb-3">
                             <div class="col-6">
-                              <p-floatlabel variant="on">
-                                <p-select inputId="modeReglement" formControlName="modeReglement"
-                                          [options]="modeReglementOptions" optionLabel="label" optionValue="value"
-                                          [style]="{ width: '100%' }" />
-                                <label for="modeReglement">Mode de règlement</label>
-                              </p-floatlabel>
+                              <app-float-label label="Mode de règlement" inputId="modeReglement">
+                                <app-select inputId="modeReglement" formControlName="modeReglement"
+                                          [items]="modeReglementOptions" bindLabel="label" bindValue="value" />
+                              </app-float-label>
                             </div>
                             <div class="col-6">
-                              <p-floatlabel variant="on">
-                                <input pInputText id="reference" formControlName="reference" style="width: 100%;" />
-                                <label for="reference">Référence</label>
-                              </p-floatlabel>
+                              <app-float-label label="Référence" inputId="reference">
+                                <input class="form-control" id="reference" formControlName="reference" placeholder=" " />
+                              </app-float-label>
                             </div>
                           </div>
 
                           <!-- Commentaire -->
                           <div class="mb-3">
-                            <p-floatlabel variant="on">
-                              <input pInputText id="commentaire" formControlName="commentaire" style="width: 100%;" />
-                              <label for="commentaire">Commentaire (optionnel)</label>
-                            </p-floatlabel>
+                            <app-float-label label="Commentaire (optionnel)" inputId="commentaire">
+                              <input class="form-control" id="commentaire" formControlName="commentaire" placeholder=" " />
+                            </app-float-label>
                           </div>
 
                           <div class="d-flex gap-2">
-                            <p-button type="submit" label="Enregistrer" icon="pi pi-save"
+                            <app-button type="submit" label="Enregistrer" icon="pi pi-save"
                                       [loading]="isSaving()"
                                       [disabled]="reglementForm.invalid || !validMontant()"
-                                      [style]="{ flex: 1 }" />
-                            <p-button type="button" label="Annuler" severity="secondary"
-                                      (onClick)="activeTab.set('commandes')"
-                                      [style]="{ flex: 1 }" />
+                                      class="flex-fill" />
+                            <app-button type="button" label="Annuler" severity="secondary"
+                                      (clicked)="activeTab.set('commandes')"
+                                      class="flex-fill" />
                           </div>
 
                         </form>

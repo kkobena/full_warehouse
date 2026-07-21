@@ -2,34 +2,25 @@
 <div class="pharma-smart-content p-1">
 
   <!-- Toolbar -->
-  <div class="pharma-toolbar pharma-toolbar-compact">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-shield"></i>
-      <span class="pharma-toolbar-title">Rôles</span>
-    </div>
-    <p-toolbar>
-      <ng-template #start></ng-template>
-      <ng-template #end>
-        <div class="pharma-toolbar-actions">
-          <p-button
-            label="Nouveau rôle"
-            icon="pi pi-plus"
-            severity="success"
-            size="small"
-            (onClick)="openCreateForm()"
-          />
-        </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
+  <app-toolbar icon="pi pi-shield" title="Rôles" [compact]="true">
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-toolbar-actions">
+        <app-button
+          label="Nouveau rôle"
+          icon="pi pi-plus"
+          severity="success"
+          size="small"
+          (clicked)="openCreateForm()"
+        />
+      </div>
+    </ng-container>
+  </app-toolbar>
 
   <!-- Table des rôles -->
-  <p-table
+  <app-data-table
     [value]="roles()"
     [loading]="loading()"
-    [stripedRows]="true"
     class="p-datatable-sm"
-    size="small"
   >
     <ng-template #header>
       <tr class="pharma-table-head">
@@ -44,8 +35,7 @@
         <td>
           @if (editingName() === role.name) {
             <div class="d-flex align-items-center gap-2">
-              <input pInputText
-                [fluid]="true"
+              <input class="form-control"
                 [value]="editingLibelle"
                 (input)="editingLibelle = $any($event.target).value"
                 (keydown.enter)="saveEdit(role)"
@@ -67,24 +57,24 @@
         <!-- Actions -->
         <td class="text-end">
           <div class="d-flex align-items-center justify-content-end gap-1">
-            <p-button
+            <app-button
               icon="pi pi-lock"
               severity="help"
               size="small"
               [text]="true"
               [rounded]="true"
-              pTooltip="Gérer les autorisations"
-              (onClick)="managePermissions.emit(role.name!)"
+              ngbTooltip="Gérer les autorisations"
+              (clicked)="managePermissions.emit(role.name!)"
             />
             @if (!isPredefined(role.name)) {
-              <p-button
+              <app-button
                 icon="pi pi-trash"
                 severity="danger"
                 size="small"
                 [text]="true"
                 [rounded]="true"
-                pTooltip="Supprimer ce rôle"
-                (onClick)="deleteRole(role)"
+                ngbTooltip="Supprimer ce rôle"
+                (clicked)="deleteRole(role)"
               />
             }
           </div>
@@ -99,5 +89,5 @@
         </td>
       </tr>
     </ng-template>
-  </p-table>
+  </app-data-table>
 </div>

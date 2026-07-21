@@ -2,17 +2,7 @@ import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectio
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { CommonModule } from "@angular/common";
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
-import { NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonModule } from "primeng/button";
-import { TableModule } from "primeng/table";
-import { ToolbarModule } from "primeng/toolbar";
-import { InputTextModule } from "primeng/inputtext";
-import { TooltipModule } from "primeng/tooltip";
-import { TagModule } from "primeng/tag";
-import { DatePicker } from "primeng/datepicker";
-import { InputNumber } from "primeng/inputnumber";
-import { FloatLabel } from "primeng/floatlabel";
-import { SelectModule } from "primeng/select";
+import { NgbDateStruct, NgbNavModule, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { FournisseurApApiService } from "../../data-access/services/fournisseur-ap-api.service";
 import {
   ICompteFournisseurAP,
@@ -23,12 +13,22 @@ import {
   StatutLigne
 } from "../../data-access/models";
 import { formatCurrency } from "app/shared/utils/format-utils";
-import { DATE_FORMAT_ISO_DATE } from "app/shared/util/warehouse-util";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
+import { NGB_DATE_TO_ISO, TODAY_NGB_DATE } from "app/shared/util/warehouse-util";
 import { NotificationService } from "app/shared/services/notification.service";
 import { NgbConfirmDialogService } from "app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
+import {
+  AppTableLazyLoadEvent,
+  BadgeComponent,
+  ButtonComponent,
+  DataTableComponent,
+  FloatLabelComponent,
+  IconFieldComponent,
+  InputNumberComponent,
+  SelectComponent,
+  ToolbarComponent
+} from "../../../../shared/ui";
+import { PharmaDatePickerComponent } from "../../../../shared/date-picker/pharma-date-picker.component";
 
 @Component({
   selector: "app-comptes-fournisseurs",
@@ -37,18 +37,16 @@ import { BlobDownloadService } from "../../../../shared/services/blob-download.s
     FormsModule,
     ReactiveFormsModule,
     NgbNavModule,
-    ButtonModule,
-    TableModule,
-    ToolbarModule,
-    InputTextModule,
-    TooltipModule,
-    TagModule,
-    DatePicker,
-    InputNumber,
-    FloatLabel,
-    SelectModule,
-    IconField,
-    InputIcon
+    ButtonComponent,
+    DataTableComponent,
+    ToolbarComponent,
+    BadgeComponent,
+    InputNumberComponent,
+    FloatLabelComponent,
+    SelectComponent,
+    IconFieldComponent,
+    PharmaDatePickerComponent,
+    NgbTooltip
   ],
   templateUrl: "./comptes-fournisseurs.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -77,8 +75,8 @@ export class ComptesFournisseursComponent implements OnInit {
   totalLignes = signal(0);
   readonly PAGE_SIZE = 10;
 
-  fromDate = signal<Date | null>(null);
-  toDate = signal<Date | null>(null);
+  fromDate = signal<NgbDateStruct | null>(null);
+  toDate = signal<NgbDateStruct | null>(null);
 
   showHint = signal<boolean>(localStorage.getItem("ap-hint-dismissed") !== "1");
 
@@ -101,7 +99,7 @@ export class ComptesFournisseursComponent implements OnInit {
       validators: [Validators.required, Validators.min(1)],
       nonNullable: true
     }),
-    dateReglement: new FormControl<Date | null>(new Date()),
+    dateReglement: new FormControl<NgbDateStruct | null>(TODAY_NGB_DATE()),
     modeReglement: new FormControl<string | null>("CH", {
       validators: [Validators.required],
       nonNullable: true
@@ -141,8 +139,8 @@ export class ComptesFournisseursComponent implements OnInit {
 
   loadComptes(): void {
     this.isLoading.set(true);
-    const from = this.fromDate() ? (DATE_FORMAT_ISO_DATE(this.fromDate()!) ?? undefined) : undefined;
-    const to = this.toDate() ? (DATE_FORMAT_ISO_DATE(this.toDate()!) ?? undefined) : undefined;
+    const from = this.fromDate() ? (NGB_DATE_TO_ISO(this.fromDate()!) ?? undefined) : undefined;
+    const to = this.toDate() ? (NGB_DATE_TO_ISO(this.toDate()!) ?? undefined) : undefined;
     this.api.getComptes(from, to).subscribe({
       next: res => {
         this.comptes.set(res.body ?? []);
@@ -159,7 +157,7 @@ export class ComptesFournisseursComponent implements OnInit {
     if (id === "regler") {
       this.reglementForm.reset({
         montant: this.solde(),
-        dateReglement: new Date(),
+        dateReglement: TODAY_NGB_DATE(),
         modeReglement: "CH",
         reference: null,
         commentaire: null
@@ -187,7 +185,7 @@ export class ComptesFournisseursComponent implements OnInit {
     this.selectedLigne.set(ligne);
     this.reglementForm.reset({
       montant: ligne.restantDu,
-      dateReglement: new Date(),
+      dateReglement: TODAY_NGB_DATE(),
       modeReglement: "CH",
       reference: null,
       commentaire: null
@@ -227,7 +225,7 @@ export class ComptesFournisseursComponent implements OnInit {
     });
   }
 
-  onPage(event: { first: number; rows: number }): void {
+  onPage(event: AppTableLazyLoadEvent): void {
     const page = Math.floor(event.first / event.rows);
     this.loadLignes(page);
   }
@@ -271,7 +269,7 @@ export class ComptesFournisseursComponent implements OnInit {
     this.api
       .enregistrerReglement(fournisseur.fournisseurId, {
         montant: val.montant!,
-        dateReglement: DATE_FORMAT_ISO_DATE(val.dateReglement ?? new Date()),
+        dateReglement: NGB_DATE_TO_ISO(val.dateReglement ?? TODAY_NGB_DATE()),
         modeReglement: val.modeReglement!,
         reference: val.reference!,
         commentaire: val.commentaire ?? undefined,
@@ -297,8 +295,8 @@ export class ComptesFournisseursComponent implements OnInit {
   // ── Export ──────────────────────────────────────────────────────────────────
   exportPdfGlobal(): void {
     this.isExporting.set(true);
-    const from = this.fromDate() ? (DATE_FORMAT_ISO_DATE(this.fromDate()!) ?? undefined) : undefined;
-    const to = this.toDate() ? (DATE_FORMAT_ISO_DATE(this.toDate()!) ?? undefined) : undefined;
+    const from = this.fromDate() ? (NGB_DATE_TO_ISO(this.fromDate()!) ?? undefined) : undefined;
+    const to = this.toDate() ? (NGB_DATE_TO_ISO(this.toDate()!) ?? undefined) : undefined;
     this.api.exportComptesAsPdf(from, to).subscribe({
       next: blob => {
         this.isExporting.set(false);

@@ -1,69 +1,48 @@
-<jhi-toast-alert #alert></jhi-toast-alert>
-
 <div class="modal-header">
   <h4 class="modal-title">{{ title }}</h4>
   <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
 </div>
 <div class="modal-body">
-  <p-card>
+  <app-card [variant]="'form'">
     <div class="ui-g form-group">
       <label class="form-control-label" for="fournisseurId">Fournisseurs<span
         style="font-weight: 900; color: red">*</span></label>
-      <p-select
-        #fournisseur
-        [filter]="true"
-        [fluid]="true"
-        [options]="fournisseurs"
-        [style]="{ width: '100%' }"
-        [virtualScroll]="false"
-        filterBy="libelle"
-        id="fournisseurId"
-        optionLabel="libelle"
-        optionValue="id"
+      <app-select
+        [(ngModel)]="selectedFournisseurId"
+        [items]="fournisseurs"
+        bindLabel="libelle"
+        bindValue="id"
+        inputId="fournisseurId"
         placeholder="Sélectionner un fournisseur"
-        size="large"
-      >
-      </p-select>
+      />
     </div>
     <div class="text-center ui-g form-group">
-      <p-fileupload
-        #fileUpload
+      <app-file-upload
         [accept]="accept"
-        [customUpload]="true"
-        [showUploadButton]="false"
-        cancelLabel="Annuler"
-        cancelStyleClass="p-button-danger"
-        chooseIcon="pi pi-download"
-        chooseLabel="Chargez votre fichier"
-        chooseStyleClass="p-button-help"
-        mode="advanced"
-        name="importcsv"
-      >
-      </p-fileupload>
+        (filesSelected)="onFilesSelected($event)"
+      />
     </div>
-  </p-card>
+  </app-card>
 </div>
 
 <div class="modal-footer">
-  <p-button
-    (click)="cancel()"
+  <app-button
+    (clicked)="cancel()"
     class="mr-2"
-    data-dismiss="modal"
     icon="pi pi-times"
     label="Fermer"
     severity="secondary"
     type="button"
-  ></p-button>
+  />
 
-  <p-button
-    (click)="onUpload()"
+  <app-button
+    (clicked)="onUpload()"
     [disabled]="!isFileUploadValid || isSaving"
     icon="pi pi-upload"
     label="Enrégistrer"
     severity="primary"
     type="submit"
-  >
-  </p-button>
+  />
 </div>
 
 <jhi-spinner #spinner></jhi-spinner>

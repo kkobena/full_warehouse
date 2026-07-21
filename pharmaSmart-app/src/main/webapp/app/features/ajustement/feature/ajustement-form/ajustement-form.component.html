@@ -1,18 +1,16 @@
-<p-toast position="center" />
-
 <div class="container-fluid">
   <div class="pharma-smart-content p-1">
 
     <!-- ── HEADER ────────────────────────────────────────────────────────── -->
     <div class="pharma-sales-header">
       <div class="header-left">
-        <p-button
-          (onClick)="goBack()"
+        <app-button
+          (clicked)="goBack()"
           [rounded]="true"
           [text]="true"
           class="back-button"
           icon="pi pi-arrow-left"
-          pTooltip="Retour à l'historique"
+          ngbTooltip="Retour à l'historique"
         />
         <div class="page-title">
           <h1>Ajustement de stock</h1>
@@ -21,15 +19,15 @@
       </div>
 
       <div class="header-actions">
-        <p-button
+        <app-button
           icon="pi pi-lock"
           label="Clôturer"
           severity="success"
           size="small"
           [disabled]="!facade.hasLines() || facade.isSaving()"
-          pTooltip="Valider et appliquer les mouvements de stock"
-          tooltipPosition="bottom"
-          (onClick)="openFinaliseModal()"
+          ngbTooltip="Valider et appliquer les mouvements de stock"
+          placement="bottom"
+          (clicked)="openFinaliseModal()"
         />
       </div>
     </div>
@@ -45,13 +43,10 @@
 
         <!-- Emplacement -->
         <div class="storage-select-input">
-          <p-select
+          <app-select
             [(ngModel)]="selectedStorage"
-            [options]="facade.storages()"
-            optionLabel="name"
-            dataKey="id"
-            [fluid]="true"
-            [showClear]="false"
+            [items]="facade.storages()"
+            bindLabel="name"
             appendTo="body"
             placeholder="Emplacement…"
           />
@@ -59,14 +54,12 @@
 
         <!-- Motif -->
         <div class="motif-select-input">
-          <p-select
+          <app-select
             #motifSelect
             [(ngModel)]="selectedMotif"
-            [options]="facade.motifs()"
-            optionLabel="libelle"
-            dataKey="id"
+            [items]="facade.motifs()"
+            bindLabel="libelle"
             appendTo="body"
-            [fluid]="true"
             placeholder="Motif d'ajustement *"
           />
         </div>
@@ -83,30 +76,23 @@
         </div>
 
         <!-- Quantité + Ajouter -->
-        <div class="quantity-input-wrapper">
-          <p-inputgroup>
-            <p-inputnumber
-              #qtyBox
-              [(ngModel)]="qty"
-              [showButtons]="true"
-              buttonLayout="horizontal"
-              incrementButtonIcon="pi pi-plus"
-              decrementButtonIcon="pi pi-minus"
-              [fluid]="true"
-              placeholder="Qté (±)"
-              (keydown.enter)="onAddLine()"
-              (onFocus)="onQtyFocus()"
-            />
-            <p-inputgroup-addon>
-              <p-button
-                icon="pi pi-check"
-                severity="primary"
-                [disabled]="!canAdd"
-                [loading]="facade.isSaving()"
-                (onClick)="onAddLine()"
-              />
-            </p-inputgroup-addon>
-          </p-inputgroup>
+        <div class="quantity-input-wrapper d-flex gap-1">
+          <app-input-number
+            #qtyBox
+            [(ngModel)]="qty"
+            [showButtons]="true"
+            incrementButtonIcon="pi pi-plus"
+            decrementButtonIcon="pi pi-minus"
+            placeholder="Qté (±)"
+            (keydown.enter)="onAddLine()"
+          />
+          <app-button
+            icon="pi pi-check"
+            severity="primary"
+            [disabled]="!canAdd"
+            [loading]="facade.isSaving()"
+            (clicked)="onAddLine()"
+          />
         </div>
 
       </div>
@@ -156,43 +142,34 @@
           @if (lotVisible) {
             <div class="meta-item meta-item--lot">
               <i class="pi pi-tag"></i>
-              <p-select
+              <app-select-search
                 [(ngModel)]="selectedLot"
-                [options]="facade.availableLots()"
-                dataKey="id"
+                [items]="lotOptions()"
+                bindLabel="displayLabel"
                 [loading]="facade.loadingLots()"
                 placeholder="Sélectionner un lot…"
-                [showClear]="true"
+                [clearable]="true"
                 appendTo="body"
-              >
-                <ng-template #selectedItem let-lot>
-                  <div class="lot-selected">
+                [optionTemplate]="lotOption"
+              />
+              <ng-template #lotOption let-lot>
+                <div class="lot-option">
+                  <div class="lot-option-main">
+                    <i class="pi pi-tag"></i>
                     <span class="lot-num">{{ lot.numLot }}</span>
+                  </div>
+                  <div class="lot-option-meta">
                     @if (lot.expiryDate) {
-                      <span class="lot-exp">Exp. {{ lot.expiryDate | date:'MM/yyyy' }}</span>
-                    }
-                    <span class="lot-qty">{{ lot.quantity | number }} u.</span>
-                  </div>
-                </ng-template>
-                <ng-template #item let-lot>
-                  <div class="lot-option">
-                    <div class="lot-option-main">
-                      <i class="pi pi-tag"></i>
-                      <span class="lot-num">{{ lot.numLot }}</span>
-                    </div>
-                    <div class="lot-option-meta">
-                      @if (lot.expiryDate) {
-                        <span class="lot-exp">
-                          <i class="pi pi-calendar"></i> {{ lot.expiryDate | date:'dd/MM/yyyy' }}
-                        </span>
-                      }
-                      <span class="lot-qty">
-                        <i class="pi pi-box"></i> {{ lot.quantity | number }} u.
+                      <span class="lot-exp">
+                        <i class="pi pi-calendar"></i> {{ lot.expiryDate | date:'dd/MM/yyyy' }}
                       </span>
-                    </div>
+                    }
+                    <span class="lot-qty">
+                      <i class="pi pi-box"></i> {{ lot.quantity | number }} u.
+                    </span>
                   </div>
-                </ng-template>
-              </p-select>
+                </div>
+              </ng-template>
             </div>
           }
 

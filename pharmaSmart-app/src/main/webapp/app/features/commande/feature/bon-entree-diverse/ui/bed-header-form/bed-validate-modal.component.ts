@@ -1,15 +1,13 @@
-import { Component, ElementRef, inject, Renderer2, signal, ChangeDetectionStrategy } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { SelectModule } from "primeng/select";
-import { InputTextModule } from "primeng/inputtext";
-import { ButtonModule } from "primeng/button";
-import { Card } from "primeng/card";
-import { IBed, MotifBed, MOTIFS_BED_CREATION } from "../../data-access/bed.model";
-import { IFournisseur } from "app/shared/model/fournisseur.model";
-import { Textarea } from "primeng/textarea";
-import { FournisseurSelectComponent } from "../../../../../partners/ui/fournisseur-select/fournisseur-select.component";
+import {ChangeDetectionStrategy, Component, inject, signal} from "@angular/core";
+import {CommonModule} from "@angular/common";
+import {FormsModule} from "@angular/forms";
+import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
+import {ButtonComponent, CardComponent, SelectComponent} from "../../../../../../shared/ui";
+import {IBed, MotifBed, MOTIFS_BED_CREATION} from "../../data-access/bed.model";
+import {IFournisseur} from "app/shared/model/fournisseur.model";
+import {
+  FournisseurSelectComponent
+} from "../../../../../partners/ui/fournisseur-select/fournisseur-select.component";
 
 export interface BedValidateResult {
   motif: MotifBed;
@@ -25,46 +23,30 @@ export interface BedValidateResult {
   imports: [
     CommonModule,
     FormsModule,
-    SelectModule,
-    InputTextModule,
-    ButtonModule,
-    Card,
-    Textarea,
+    ButtonComponent,
+    CardComponent,
+    SelectComponent,
     FournisseurSelectComponent
   ]
 })
 export class BedValidateModalComponent {
   readonly activeModal = inject(NgbActiveModal);
-  private readonly renderer = inject(Renderer2);
-  private readonly elementRef = inject(ElementRef);
-
   bed?: IBed;
 
   readonly formMotif = signal<MotifBed | null>(null);
   readonly formFournisseur = signal<IFournisseur | null>(null);
-  protected commentaire = "";
   readonly motifOptions = MOTIFS_BED_CREATION;
+  protected commentaire = "";
 
   protected onFournisseurSelected(f: IFournisseur | null): void {
     this.formFournisseur.set(f);
   }
 
-  protected onDropdownShow(event: any): void {
-    const modalBody = this.elementRef.nativeElement.querySelector(".modal-body");
-    if (modalBody) {
-      this.renderer.addClass(modalBody, "overflow-visible");
-    }
-  }
-
-  protected onDropdownHide(event: any): void {
-    const modalBody = this.elementRef.nativeElement.querySelector(".modal-body");
-    if (modalBody) {
-      this.renderer.removeClass(modalBody, "overflow-visible");
-    }
-  }
 
   protected onConfirm(): void {
-    if (!this.formMotif()) return;
+    if (!this.formMotif()) {
+      return;
+    }
     const result: BedValidateResult = {
       motif: this.formMotif()!,
       fournisseurId: this.formFournisseur()?.id,

@@ -1,24 +1,18 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, inject, OnInit, Renderer2, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { ILot, Lot } from 'app/shared/model/lot.model';
 import { LotService } from '../../../../../entities/commande/lot/lot.service';
-import { DATE_FORMAT_YYYY_MM_DD } from 'app/shared/util/warehouse-util';
+import { NGB_DATE_TO_ISO } from 'app/shared/util/warehouse-util';
 import { CommonModule } from '@angular/common';
-import { ButtonModule } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
-import { KeyFilterModule } from 'primeng/keyfilter';
-import { InputTextModule } from 'primeng/inputtext';
-import { TranslateService } from '@ngx-translate/core';
-import { PrimeNG } from 'primeng/config';
-import { DatePicker } from 'primeng/datepicker';
 import { AbstractOrderItem } from 'app/shared/model/abstract-order-item.model';
 import { ErrorService } from 'app/shared/error.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import type { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { NotificationService } from 'app/shared/services/notification.service';
-import { Card } from 'primeng/card';
-import { TagModule } from 'primeng/tag';
+import { ButtonComponent, CardComponent, KeyFilterDirective } from 'app/shared/ui';
+import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
 
 @Component({
   selector: 'jhi-form-lot',
@@ -27,15 +21,12 @@ import { TagModule } from 'primeng/tag';
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
-    ButtonModule,
-    TooltipModule,
+    ButtonComponent,
     FormsModule,
     ReactiveFormsModule,
-    KeyFilterModule,
-    InputTextModule,
-    DatePicker,
-    Card,
-    TagModule,
+    KeyFilterDirective,
+    PharmaDatePickerComponent,
+    CardComponent,
   ],
 })
 export class FormLotComponent implements OnInit, AfterViewInit {
@@ -46,8 +37,8 @@ export class FormLotComponent implements OnInit, AfterViewInit {
   protected fb = inject(FormBuilder);
   protected isSaving = false;
   protected numLotAlreadyExist = false;
-  protected maxDate = new Date();
-  protected minDate = new Date();
+  protected maxDate: NgbDateStruct | null = null;
+  protected minDate: NgbDateStruct | null = null;
   protected showUgControl = false;
   protected expiryWarning = signal<'none' | 'soon' | 'critical'>('none');
   protected editForm = this.fb.group({
@@ -56,7 +47,7 @@ export class FormLotComponent implements OnInit, AfterViewInit {
       validators: [Validators.required],
       nonNullable: true,
     }),
-    expiryDate: new FormControl<Date | null>(null, {
+    expiryDate: new FormControl<NgbDateStruct | null>(null, {
       validators: [Validators.required],
     }),
     ugQuantityReceived: new FormControl<number | null>(null, {
@@ -66,28 +57,21 @@ export class FormLotComponent implements OnInit, AfterViewInit {
       validators: [Validators.required, Validators.min(0)],
       nonNullable: true,
     }),
-    manufacturingDate: new FormControl<Date | null>(null),
+    manufacturingDate: new FormControl<NgbDateStruct | null>(null),
   });
-  private readonly primeNGConfig = inject(PrimeNG);
-  private readonly translate = inject(TranslateService);
   private readonly entityService = inject(LotService);
   private readonly errorService = inject(ErrorService);
   private readonly activeModal = inject(NgbActiveModal);
   private readonly notificationService = inject(NotificationService);
-  private readonly renderer = inject(Renderer2);
-  private readonly elementRef = inject(ElementRef);
   private numLotInput = viewChild.required<ElementRef>('numLotInput');
 
-  constructor() {
-    this.translate.use('fr');
-    this.translate.stream('primeng').subscribe(data => {
-      this.primeNGConfig.setTranslation(data);
-    });
+  private static toNgbDate(date: Date): NgbDateStruct {
+    return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
   }
 
   ngOnInit(): void {
-    this.maxDate = new Date();
-    this.minDate = new Date();
+    this.maxDate = FormLotComponent.toNgbDate(new Date());
+    this.minDate = FormLotComponent.toNgbDate(new Date());
     this.showUgControl = Number(this.deliveryItem.freeQty) > 0 || this.getLotUgQuantity() < Number(this.deliveryItem.freeQty);
     if (this.entity) {
       this.updateForm(this.entity);
@@ -107,13 +91,13 @@ export class FormLotComponent implements OnInit, AfterViewInit {
   }
 
   updateForm(entity: ILot): void {
-    const expiryDate = entity.expiryDate ? new Date(entity.expiryDate) : null;
+    const expiryDate = entity.expiryDate ? FormLotComponent.toNgbDate(new Date(entity.expiryDate)) : null;
     this.editForm.patchValue({
       numLot: entity.numLot,
       id: entity.id,
       quantityReceived: entity.quantityReceived,
       expiryDate,
-      manufacturingDate: entity.manufacturingDate ? new Date(entity.manufacturingDate) : null,
+      manufacturingDate: entity.manufacturingDate ? FormLotComponent.toNgbDate(new Date(entity.manufacturingDate)) : null,
       ugQuantityReceived: entity.ugQuantityReceived,
     });
     this.onExpiryDateSelected(expiryDate);
@@ -133,12 +117,13 @@ export class FormLotComponent implements OnInit, AfterViewInit {
     this.activeModal.dismiss();
   }
 
-  onExpiryDateSelected(date: Date | null): void {
+  onExpiryDateSelected(date: NgbDateStruct | null): void {
     if (!date) {
       this.expiryWarning.set('none');
       return;
     }
-    const monthsToExpiry = (date.getTime() - Date.now()) / (1000 * 60 * 60 * 24 * 30.44);
+    const dateAsDate = new Date(date.year, date.month - 1, date.day);
+    const monthsToExpiry = (dateAsDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24 * 30.44);
     if (monthsToExpiry < 3) {
       this.expiryWarning.set('critical');
     } else if (monthsToExpiry < 6) {
@@ -161,20 +146,6 @@ export class FormLotComponent implements OnInit, AfterViewInit {
     this.numLotAlreadyExist = this.deliveryItem.lots.some(lot => lot.numLot === numLot && lot.id !== this.entity.id);
     if (this.numLotAlreadyExist) {
       this.notificationService.error(`Le numero de lot [ ${numLot} ] est déjà enregistré pour cette ligne de commande`, 'Erreur');
-    }
-  }
-
-  protected onDropdownShow(event: any): void {
-    const modalBody = this.elementRef.nativeElement.querySelector('.modal-body');
-    if (modalBody) {
-      this.renderer.addClass(modalBody, 'overflow-visible');
-    }
-  }
-
-  protected onDropdownHide(event: any): void {
-    const modalBody = this.elementRef.nativeElement.querySelector('.modal-body');
-    if (modalBody) {
-      this.renderer.removeClass(modalBody, 'overflow-visible');
     }
   }
 
@@ -207,12 +178,8 @@ export class FormLotComponent implements OnInit, AfterViewInit {
       ...new Lot(),
       id: this.editForm.get(['id']).value,
       numLot: this.editForm.get(['numLot']).value,
-      expiryDate: this.editForm.get(['expiryDate']).value
-        ? DATE_FORMAT_YYYY_MM_DD(new Date(this.editForm.get(['expiryDate']).value))
-        : null,
-      manufacturingDate: this.editForm.get(['manufacturingDate']).value
-        ? DATE_FORMAT_YYYY_MM_DD(new Date(this.editForm.get(['manufacturingDate']).value))
-        : null,
+      expiryDate: NGB_DATE_TO_ISO(this.editForm.get(['expiryDate']).value),
+      manufacturingDate: NGB_DATE_TO_ISO(this.editForm.get(['manufacturingDate']).value),
       quantityReceived: this.editForm.get(['quantityReceived']).value,
       ugQuantityReceived: this.editForm.get(['ugQuantityReceived']).value,
       receiptItemId: this.deliveryItem?.orderLineId,

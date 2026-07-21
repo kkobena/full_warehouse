@@ -1,6 +1,7 @@
 import { TypeFinancialTransaction } from '../cash-register/model/cash-register.model';
 import { IPaymentMode } from '../../shared/model/payment-mode.model';
 import { IUser } from '../../core/user/user.model';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
 export const getTypeName = (type: TypeFinancialTransaction): string => {
   switch (type) {
@@ -37,8 +38,8 @@ export const getTypeVentes = (type: TypeFinancialTransaction): string[] => {
 };
 
 export class MvtCaisseParams {
-  fromDate?: Date;
-  toDate?: Date;
+  fromDate?: NgbDateStruct;
+  toDate?: NgbDateStruct;
   type?: TypeFinancialTransaction;
   groupBy?: string;
   groupByTva?: string;

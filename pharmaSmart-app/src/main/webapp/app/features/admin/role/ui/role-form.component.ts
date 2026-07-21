@@ -8,12 +8,9 @@ import {
   Validators
 } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonModule } from "primeng/button";
-import { InputTextModule } from "primeng/inputtext";
-import { Card } from "primeng/card";
 import { NavApiService } from "app/core/data-access/nav-api.service";
 import { NotificationService } from "app/shared/services/notification.service";
-import { KeyFilter } from "primeng/keyfilter";
+import { ButtonComponent, CardComponent, KeyFilterDirective } from "app/shared/ui";
 
 const ROLE_PATTERN = /^[A-Z][A-Z0-9_]*$/;
 
@@ -22,7 +19,7 @@ const ROLE_PATTERN = /^[A-Z][A-Z0-9_]*$/;
   templateUrl: "./role-form.component.html",
   styleUrl: "./role-form.component.scss",
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, Card, KeyFilter]
+  imports: [FormsModule, ReactiveFormsModule, ButtonComponent, CardComponent, KeyFilterDirective]
 })
 export class RoleFormComponent implements AfterViewInit {
   /** Existing role names — set by parent for uniqueness check. */

@@ -2,9 +2,7 @@ import { Component, inject, Input, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { InputNumberModule } from 'primeng/inputnumber';
+import { ButtonComponent, DataTableComponent } from '../../../shared/ui';
 import { ILot } from 'app/shared/model/lot.model';
 
 export interface LotSelection {
@@ -16,7 +14,7 @@ export interface LotSelection {
 @Component({
   selector: 'jhi-lot-selection-dialog',
 
-  imports: [CommonModule, FormsModule, ButtonModule, TableModule, InputNumberModule],
+  imports: [CommonModule, FormsModule, ButtonComponent, DataTableComponent],
   template: `
     <div class="modal-header">
       <h4 class="modal-title">
@@ -36,7 +34,7 @@ export interface LotSelection {
           </div>
         </div>
 
-        <p-table [value]="lotSelections()" class="pharma-table">
+        <app-data-table [value]="lotSelections()" class="pharma-table">
           <ng-template #header>
             <tr class="pharma-table-head">
               <th>N° Lot</th>
@@ -77,7 +75,7 @@ export interface LotSelection {
               </td>
             </tr>
           </ng-template>
-        </p-table>
+        </app-data-table>
 
         <div
           class="mt-3 p-3 border rounded d-flex justify-content-between align-items-center"
@@ -112,8 +110,8 @@ export interface LotSelection {
     </div>
 
     <div class="modal-footer">
-      <p-button label="Annuler" severity="secondary" [outlined]="true" icon="pi pi-times" (onClick)="onCancel()" />
-      <p-button label="Confirmer" severity="primary" icon="pi pi-check" [disabled]="!isValid()" (onClick)="onConfirm()" />
+      <app-button label="Annuler" severity="secondary" [outlined]="true" icon="pi pi-times" (clicked)="onCancel()" />
+      <app-button label="Confirmer" severity="primary" icon="pi pi-check" [disabled]="!isValid()" (clicked)="onConfirm()" />
     </div>
   `,
   styles: [

@@ -1,8 +1,6 @@
 import {Component, inject, input, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {TableModule} from 'primeng/table';
-import {Select} from 'primeng/select';
 import {
   IInventoryGlobalSummary,
   IValuationGroup,
@@ -10,10 +8,11 @@ import {
   ValuationGroupBy
 } from '../../models/inventory-valuation.model';
 import {InventoryValuationApiService} from '../../data-access/services/inventory-valuation-api.service';
+import {DataTableComponent, SelectComponent} from '../../../../shared/ui';
 
 @Component({
   selector: 'app-inventory-valuation',
-  imports: [CommonModule, FormsModule, TableModule, Select],
+  imports: [CommonModule, FormsModule, DataTableComponent, SelectComponent],
   templateUrl: './inventory-valuation.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './inventory-valuation.component.scss',

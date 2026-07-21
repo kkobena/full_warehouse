@@ -1,12 +1,7 @@
 import { Component, inject, input, OnInit, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { SelectModule } from 'primeng/select';
-import { TooltipModule } from 'primeng/tooltip';
-import { ToastModule } from 'primeng/toast';
+import { ButtonComponent, DataTableComponent, InputNumberComponent, SelectComponent } from 'app/shared/ui';
 import { forkJoin } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { IDelivery } from 'app/shared/model/delevery.model';
@@ -30,7 +25,7 @@ interface RetourLine {
 
 @Component({
   selector: 'app-retour-workspace',
-  imports: [CommonModule, FormsModule, ButtonModule, TableModule, InputNumberModule, SelectModule, TooltipModule, ToastModule],
+  imports: [CommonModule, FormsModule, ButtonComponent, DataTableComponent, InputNumberComponent, SelectComponent],
   templateUrl: './retour-workspace.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './retour-workspace.component.scss',

@@ -1,18 +1,10 @@
 <div class="pharma-smart-content p-2">
   <!-- Toolbar Header -->
-  <div class="pharma-toolbar">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-cog"></i>
-      <span class="pharma-toolbar-title">Configuration du Modèle de Réapprovisionnement</span>
-    </div>
-    <p-toolbar>
-      <ng-template #end>
-        <div class="pharma-toolbar-actions">
-          <p-button icon="pi pi-arrow-left" label="Retour" severity="secondary" [text]="true" (click)="goBack()"> </p-button>
-        </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
+  <app-toolbar icon="pi pi-cog" title="Configuration du Modèle de Réapprovisionnement">
+    <ng-container ngProjectAs="[toolbarActions]">
+      <app-button icon="pi pi-arrow-left" label="Retour" severity="secondary" [text]="true" (clicked)="goBack()" />
+    </ng-container>
+  </app-toolbar>
 
   <!-- Messages -->
   @if (saveSuccess()) {
@@ -61,10 +53,13 @@
             @for (model of availableModels(); track model.value) {
               <div class="model-option-card" [class.selected]="selectedModel() === model.value">
                 <div class="model-option-header">
-                  <p-radiobutton name="modelReappro" [value]="model.value" [ngModel]="selectedModel()" (ngModelChange)="selectedModel.set($event)" [inputId]="'model-' + model.value" />
-                  <label [for]="'model-' + model.value" class="model-option-label">
-                    {{ model.label }}
-                  </label>
+                  <app-radio
+                    name="modelReappro"
+                    [value]="model.value"
+                    [ngModel]="selectedModel()"
+                    (ngModelChange)="selectedModel.set($event)"
+                    [label]="model.label"
+                  />
                   @if (currentModel() === model.value) {
                     <span class="badge bg-success ms-2">Actuel</span>
                   }
@@ -104,19 +99,19 @@
 
         <!-- Actions -->
         <div class="d-flex justify-content-end gap-2">
-          <p-button
+          <app-button
             label="Annuler"
             icon="pi pi-times"
             severity="secondary"
             [outlined]="true"
-            (onClick)="goBack()"
+            (clicked)="goBack()"
             [disabled]="isSaving()"
           />
-          <p-button
+          <app-button
             label="Enregistrer"
             icon="pi pi-save"
             severity="primary"
-            (onClick)="saveConfiguration()"
+            (clicked)="saveConfiguration()"
             [loading]="isSaving()"
             [disabled]="!hasChanges()"
           />

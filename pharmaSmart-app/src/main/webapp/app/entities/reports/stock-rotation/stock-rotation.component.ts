@@ -3,19 +3,17 @@ import { HttpResponse } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 
-import { TableModule } from "primeng/table";
-import { ButtonModule } from "primeng/button";
-import { SelectModule } from "primeng/select";
-import { ToolbarModule } from "primeng/toolbar";
-import { DividerModule } from "primeng/divider";
-import { Tag } from "primeng/tag";
-import { Drawer } from "primeng/drawer";
 
 import { CategorieABC, IStockRotation } from "app/shared/model/report/stock-rotation.model";
 import { StockRotationReportService } from "../services/stock-rotation-report.service";
 import { formatCurrency } from "app/shared/utils/format-utils";
 import { handleBlobForTauri } from "../../../shared/util/tauri-util";
 import { TauriPrinterService } from "../../../shared/services/tauri-printer.service";
+import {
+  BadgeComponent,
+  DataTableComponent,
+  OffcanvasComponent
+} from '../../../shared/ui';
 
 @Component({
   selector: "jhi-stock-rotation",
@@ -25,13 +23,9 @@ import { TauriPrinterService } from "../../../shared/services/tauri-printer.serv
   imports: [
     CommonModule,
     FormsModule,
-    TableModule,
-    ButtonModule,
-    SelectModule,
-    ToolbarModule,
-    DividerModule,
-    Tag,
-    Drawer
+    BadgeComponent,
+    DataTableComponent,
+    OffcanvasComponent
   ]
 })
 export default class StockRotationComponent implements OnInit {

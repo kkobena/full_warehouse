@@ -62,31 +62,28 @@
   }
 }
 
-// Input Group Addon Label
-::ng-deep {
-  .p-inputgroup-addon {
-    .addon-label {
-      margin-left: 0.5rem;
-      font-weight: 500;
-    }
-  }
+// Libellé accolé à l'icône dans le préfixe du groupe de saisie.
+// `.input-group-text` de Bootstrap remplace `.p-inputgroup-addon`.
+.input-group-text .addon-label {
+  margin-left: 0.5rem;
+  font-weight: 500;
+}
 
-  // Error messages
-  .p-error {
-    display: block;
-    margin-top: 0.25rem;
-    color: var(--p-red-500);
-    font-size: 0.875rem;
-  }
+// Les messages d'erreur passent par `.form-text.text-danger` de Bootstrap, qui porte
+// déjà couleur et taille : seul l'espacement reste à régler.
+small.form-text {
+  display: block;
+  margin-top: 0.25rem;
+}
 
-  // FloatLabel styling
-  .p-floatlabel {
-    width: 100%;
-
-    label {
-      font-weight: 500;
-      color: var(--p-text-color);
-    }
+// Les champs du Design System doivent remplir le groupe de saisie : leur hôte est un
+// élément personnalisé, que `.input-group` ne sait pas étirer seul.
+.input-group {
+  > app-select,
+  > app-input-number,
+  > pharma-date-picker {
+    flex: 1 1 auto;
+    min-width: 0;
   }
 }
 
@@ -106,14 +103,14 @@
     .back-button {
       justify-content: flex-start;
 
-      p-button {
+      app-button {
         width: 100%;
       }
     }
   }
 
   .form-actions {
-    p-button {
+    app-button {
       width: 100%;
     }
   }

@@ -1,11 +1,11 @@
 import { Component, input } from '@angular/core';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent } from '../ui';
 import { CtaComponent, Severity } from './cta.component';
-import { ButtonModule } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'jhi-remove-button',
-  imports: [ButtonModule, TooltipModule],
+  imports: [ButtonComponent, NgbTooltip],
   templateUrl: './cta.component.html',
 })
 export class RemoveButtonTextComponent extends CtaComponent {

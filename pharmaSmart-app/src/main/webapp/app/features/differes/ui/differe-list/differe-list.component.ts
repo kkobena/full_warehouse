@@ -3,8 +3,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { finalize } from "rxjs/operators";
 import { HttpHeaders } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
-import { TableLazyLoadEvent, TableModule } from "primeng/table";
-import { TagModule } from "primeng/tag";
+import { AppTableLazyLoadEvent, DataTableComponent } from "../../../../shared/ui";
 import { NotificationService } from "../../../../shared/services/notification.service";
 import { ErrorService } from "../../../../shared/error.service";
 import { ITEMS_PER_PAGE } from "../../../../shared/constants/pagination.constants";
@@ -17,8 +16,7 @@ import { IDiffere, IDiffereSearchParams } from "../../data-access/models";
   selector: "app-differe-list",
   imports: [
     CommonModule,
-    TableModule,
-    TagModule
+    DataTableComponent
   ],
   templateUrl: "./differe-list.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -52,7 +50,7 @@ export class DiffereListComponent {
     this.store.selectDiffere(differe);
   }
 
-  lazyLoading(event: TableLazyLoadEvent): void {
+  lazyLoading(event: AppTableLazyLoadEvent): void {
     const params = this.searchParams();
     if (event && params) {
       this.page = Math.floor((event.first ?? 0) / (event.rows ?? this.itemsPerPage));

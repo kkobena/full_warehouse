@@ -1,11 +1,6 @@
 import { Component, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
-import { StepsModule } from "primeng/steps";
-import { MenuItem } from "primeng/api";
 import { ICustomer } from "../../../shared/model";
 import { AssureFormStepService } from "./assure-form-step.service";
-import { StepperModule } from "primeng/stepper";
-import { Button } from "primeng/button";
-import { ToastModule } from "primeng/toast";
 import { AssureStepComponent } from "./assure-step.component";
 import { AyantDroitStepComponent } from "./ayant-droit-step.component";
 import { ErrorService } from "../../../shared/error.service";
@@ -15,19 +10,18 @@ import { HttpResponse } from "@angular/common/http";
 import { CustomerService } from "../customer.service";
 import { CommonService } from "./common.service";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { Card } from "primeng/card";
 import { NotificationService } from "../../../shared/services/notification.service";
+import { NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
+import { ButtonComponent, NavTabsComponent } from "../../../shared/ui";
 
 @Component({
   selector: "app-assure-form-step",
   imports: [
-    StepsModule,
-    StepperModule,
-    Button,
-    ToastModule,
     AssureStepComponent,
     AyantDroitStepComponent,
-    Card
+    NgbNavModule,
+    ButtonComponent,
+    NavTabsComponent
   ],
   templateUrl: "./assure-form-step.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -43,7 +37,6 @@ export class AssureFormStepComponent implements OnInit, OnDestroy {
   ayantDroitStepComponent = viewChild<AyantDroitStepComponent>("ayantDroitStep");
   assureStepComponent = viewChild<AssureStepComponent>("assureStep");
   protected readonly commonService = inject(CommonService);
-  protected items: MenuItem[];
   protected readonly assureFormStepService = inject(AssureFormStepService);
   private readonly activeModal = inject(NgbActiveModal);
   private readonly errorService = inject(ErrorService);

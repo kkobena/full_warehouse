@@ -2,24 +2,19 @@ import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@ang
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { HttpResponse } from "@angular/common/http";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonModule } from "primeng/button";
-import { TableModule } from "primeng/table";
-import { InputTextModule } from "primeng/inputtext";
-import { ToastModule } from "primeng/toast";
+import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
+import { ButtonComponent, DataTableComponent } from "../../shared/ui";
 import { IMotifRetourProduit } from "app/shared/model/motif-retour-produit.model";
 import { ModifRetourProduitService } from "./motif-retour-produit.service";
 import { ITEMS_PER_PAGE } from "app/shared/constants/pagination.constants";
-import { Tooltip } from "primeng/tooltip";
 import { MotifRetourProduitFormModalComponent } from "./motif-retour-produit-form-modal.component";
 import { NotificationService } from "../../shared/services/notification.service";
 import { NgbConfirmDialogService } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { Toolbar } from "primeng/toolbar";
 
 @Component({
-  selector: "jhi-motif-retour-produit",
+  selector: "app-motif-retour-produit",
 
-  imports: [CommonModule, FormsModule, ButtonModule, TableModule, InputTextModule, ToastModule, Tooltip, Toolbar],
+  imports: [CommonModule, FormsModule, ButtonComponent, DataTableComponent, NgbTooltip],
   templateUrl: "./motif-retour-produit.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./motif-retour-produit.component.scss"

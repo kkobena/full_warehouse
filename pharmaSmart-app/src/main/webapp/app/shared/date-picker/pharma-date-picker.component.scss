@@ -17,6 +17,15 @@ $pharma-footer-border:  #e5e7eb;
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
+
+  &--inline {
+    flex-direction: row;
+    align-items: center;
+
+    .pharma-dp-label {
+      white-space: nowrap;
+    }
+  }
 }
 
 .pharma-dp-label {

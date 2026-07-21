@@ -1,7 +1,5 @@
-import { AfterViewInit, Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { InputTextModule } from 'primeng/inputtext';
-import { KeyFilterModule } from 'primeng/keyfilter';
 
 import { ErrorService } from '../../../shared/error.service';
 import { MvtCaisseServiceService } from '../mvt-caisse-service.service';
@@ -11,42 +9,33 @@ import { FinancialTransaction, TypeFinancialTransaction } from '../../cash-regis
 import { IPaymentMode } from '../../../shared/model/payment-mode.model';
 import { ModePaymentService } from '../../mode-payments/mode-payment.service';
 import { getTypeName } from '../mvt-caisse-util';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { Select } from 'primeng/select';
-import { DatePicker } from 'primeng/datepicker';
-import { Button } from 'primeng/button';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
-import { Card } from 'primeng/card';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import { NgbActiveModal, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { NotificationService } from '../../../shared/services/notification.service';
 import { PaymentId } from '../../reglement/model/reglement.model';
+import { NGB_DATE_TO_ISO, TODAY_NGB_DATE } from '../../../shared/util/warehouse-util';
+import { ButtonComponent, CardComponent, InputNumberComponent, SelectComponent } from '../../../shared/ui';
+import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
 
 @Component({
   selector: 'jhi-form-transaction',
   imports: [
     FormsModule,
-    InputTextModule,
-    KeyFilterModule,
     ReactiveFormsModule,
-    InputNumberModule,
-    Select,
-    DatePicker,
-    Button,
-    ToastAlertComponent,
-    Card,
-    InputGroup,
-    InputGroupAddon,
+    ButtonComponent,
+    CardComponent,
+    InputNumberComponent,
+    SelectComponent,
+    PharmaDatePickerComponent,
   ],
   templateUrl: './form-transaction.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../../common-modal.component.scss'],
 })
-export class FormTransactionComponent implements OnInit, AfterViewInit {
+export class FormTransactionComponent implements OnInit {
   isSaving = false;
   isValid = true;
   appendTo = 'body';
-  maxDate = new Date();
+  maxDate = TODAY_NGB_DATE();
   header: string | null = null;
   protected errorService = inject(ErrorService);
   protected types: TypeFinancialTransaction[] = [
@@ -71,13 +60,13 @@ export class FormTransactionComponent implements OnInit, AfterViewInit {
       validators: [Validators.required],
       nonNullable: true,
     }),
-    transactionDate: new FormControl<Date>(new Date()),
+    transactionDate: new FormControl<NgbDateStruct>(TODAY_NGB_DATE()),
     commentaire: new FormControl<string | null>(null, {}),
   });
   private readonly activeModal = inject(NgbActiveModal);
   private mvtCaisseService = inject(MvtCaisseServiceService);
   private modeService = inject(ModePaymentService);
-  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly notificationService = inject(NotificationService);
   ngOnInit(): void {
     this.modeService.query().subscribe((res: HttpResponse<IPaymentMode[]>) => {
       if (res.body) {
@@ -90,6 +79,7 @@ export class FormTransactionComponent implements OnInit, AfterViewInit {
           }) || [];
       }
     });
+    this.editForm.get(['paymentMode']).setValue({ code: 'CASH', libelle: 'ESPECE' });
   }
 
   cancel(): void {
@@ -102,17 +92,13 @@ export class FormTransactionComponent implements OnInit, AfterViewInit {
     this.subscribeToSaveResponse(this.mvtCaisseService.create(entity));
   }
 
-  ngAfterViewInit(): void {
-    this.editForm.get(['paymentMode']).setValue({ code: 'CASH', libelle: 'ESPECE' });
-  }
-
   protected createFromForm(): FinancialTransaction {
     return {
       ...new FinancialTransaction(),
       amount: this.editForm.get(['amount']).value,
       paymentMode: this.editForm.get(['paymentMode']).value,
       typeTransaction: getTypeName(this.editForm.get(['typeFinancialTransaction']).value),
-      transactionDate: this.editForm.get(['transactionDate']).value,
+      transactionDate: NGB_DATE_TO_ISO(this.editForm.get(['transactionDate']).value),
       commentaire: this.editForm.get(['commentaire']).value,
     };
   }
@@ -131,6 +117,6 @@ export class FormTransactionComponent implements OnInit, AfterViewInit {
 
   protected onSaveError(error: any): void {
     this.isSaving = false;
-    this.alert().showError(this.errorService.getErrorMessage(error));
+    this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 }

@@ -3,23 +3,22 @@
   <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
 </div>
 <div class="modal-body">
-  <p-card>
-    <div class="ui-g form-group">
-      <p-fileupload
-        (uploadHandler)="onUpload($event)"
-        [customUpload]="true"
-        [accept]="accept"
-        cancelLabel="Annuler"
-        cancelStyleClass="p-button-danger"
-        chooseLabel="Importer un fichier"
-        name="importcsv"
-        uploadLabel="Enrégistrer"
-        uploadStyleClass="p-button-info"
-      >
-      </p-fileupload>
-    </div>
-  </p-card>
+  <app-card [variant]="'form'">
+    <app-file-upload
+      (filesSelected)="onFilesSelected($event)"
+      (rejected)="onRejected($event)"
+      [accept]="accept"
+      label="Importer un fichier"
+    />
+
+    @if (error()) {
+      <div class="text-danger small mt-2">{{ error() }}</div>
+    }
+  </app-card>
 </div>
 <div class="modal-footer">
-  <p-button (click)="cancel()" icon="pi pi-times" label="Annuler" severity="secondary" type="button"> </p-button>
+  <app-button (clicked)="cancel()" icon="pi pi-times" label="Annuler" severity="secondary" />
+
+  <app-button (clicked)="upload()" [disabled]="!selectedFile()" icon="pi pi-check"
+              label="Enrégistrer" severity="info" />
 </div>

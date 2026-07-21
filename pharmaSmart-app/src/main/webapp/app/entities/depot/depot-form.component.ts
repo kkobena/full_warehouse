@@ -4,26 +4,17 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpResponse } from '@angular/common/http';
 import { IMagasin, Magasin, TypeMagasin } from '../../shared/model/magasin.model';
 import { MagasinService } from '../magasin/magasin.service';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { InputTextModule } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
-import { FloatLabelModule } from 'primeng/floatlabel';
-import { TextareaModule } from 'primeng/textarea';
-import { Toolbar } from 'primeng/toolbar';
+import { ButtonComponent, CardComponent, SelectComponent, ToolbarComponent } from '../../shared/ui';
 
 @Component({
   selector: 'app-depot-form',
   imports: [
     ReactiveFormsModule,
     RouterModule,
-    ButtonModule,
-    CardModule,
-    InputTextModule,
-    Select,
-    TextareaModule,
-    FloatLabelModule,
-    Toolbar,
+    ButtonComponent,
+    CardComponent,
+    SelectComponent,
+    ToolbarComponent,
   ],
   templateUrl: './depot-form.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

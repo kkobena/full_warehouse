@@ -1,44 +1,36 @@
 <div class="pharma-smart-content p-2">
-  <!-- Toolbar -->
-  <div class="pharma-toolbar pharma-toolbar-compact">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-th-large"></i>
-      <span class="pharma-toolbar-title">Dashboard Personnalisable</span>
-    </div>
-
-    <p-toolbar>
-      <ng-template #start>
+    <app-toolbar icon="pi pi-th-large" title="Dashboard Personnalisable" [compact]="true">
+      <ng-container ngProjectAs="[toolbarFilters]">
         <div class="pharma-toolbar-filters d-flex gap-2 align-items-center">
           @if (currentLayout(); as layout) {
             <div class="d-flex align-items-center gap-2">
               <span class="text-muted">Layout actuel:</span>
-              <p-tag [value]="layout.name || 'Sans nom'" severity="info" />
+              <app-badge [label]="layout.name || 'Sans nom'" severity="info" />
             </div>
           }
         </div>
-      </ng-template>
+      </ng-container>
 
-      <ng-template #end>
+      <ng-container ngProjectAs="[toolbarActions]">
         <div class="pharma-toolbar-actions flex gap-2">
-          <p-button
+          <app-button
             [label]="isEditMode() ? 'Mode Vue' : 'Mode Édition'"
             [icon]="isEditMode() ? 'pi pi-eye' : 'pi pi-pencil'"
-            (onClick)="toggleEditMode()"
+            (clicked)="toggleEditMode()"
             size="small"
             [severity]="isEditMode() ? 'warn' : 'secondary'"
           />
 
           @if (isEditMode()) {
-            <p-button label="Ajouter Widget" icon="pi pi-plus" (onClick)="addWidget()" size="small" />
+            <app-button label="Ajouter Widget" icon="pi pi-plus" (clicked)="addWidget()" size="small" />
           }
 
-          <p-button label="Sauvegarder" icon="pi pi-save" (onClick)="saveLayout()" size="small" severity="success" />
+          <app-button label="Sauvegarder" icon="pi pi-save" (clicked)="saveLayout()" size="small" severity="success" />
 
-          <p-button label="Charger" icon="pi pi-folder-open" (onClick)="openLoadLayoutModal()" size="small" />
+          <app-button label="Charger" icon="pi pi-folder-open" (clicked)="openLoadLayoutModal()" size="small" />
         </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
+      </ng-container>
+    </app-toolbar>
 
   <!-- Edit Mode Alert -->
   @if (isEditMode()) {

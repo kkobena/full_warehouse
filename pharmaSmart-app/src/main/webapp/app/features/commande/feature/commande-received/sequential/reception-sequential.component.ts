@@ -13,9 +13,8 @@ import {
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
-import { ButtonModule } from "primeng/button";
-import { TooltipModule } from "primeng/tooltip";
-import { InputTextModule } from "primeng/inputtext";
+import { NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
+import { ButtonComponent } from "../../../../../shared/ui";
 import { forkJoin } from "rxjs";
 
 import { IOrderLine } from "../../../../../shared/model/order-line.model";
@@ -33,7 +32,7 @@ import { ErrorService } from "../../../../../shared/error.service";
   styleUrls: ["./reception-sequential.component.scss"],
   host: { "(window:keydown)": "onKeydown($event)" },
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, ButtonModule, TooltipModule, InputTextModule]
+  imports: [CommonModule, FormsModule, ButtonComponent, NgbTooltip]
 })
 export class ReceptionSequentialComponent {
   orderLines = input.required<IOrderLine[]>();

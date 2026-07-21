@@ -2,7 +2,7 @@ import { Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, Vie
 import { CommonModule } from '@angular/common';
 import { forkJoin } from 'rxjs';
 
-import { TableModule } from 'primeng/table';
+import { DataTableComponent } from '../../../shared/ui';
 import { IDsoOrganisme, IEncoursMensuel, IVieillissementGlobal } from 'app/shared/model/report';
 import { VieillissementCreancesService } from '../services/vieillissement-creances.service';
 import { formatCurrency, formatNumber } from 'app/shared/utils/format-utils';
@@ -18,7 +18,7 @@ type TranchePill = 'all' | '0-30' | '31-60' | '61-90' | '90+';
   templateUrl: './vieillissement-creances.component.html',
   styleUrl: './vieillissement-creances.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, TableModule],
+  imports: [CommonModule, DataTableComponent],
 })
 export default class VieillissementCreancesComponent implements OnInit, OnDestroy {
   @ViewChild('encoursMensuelChartCanvas') encoursMensuelChartCanvas?: ElementRef<HTMLCanvasElement>;

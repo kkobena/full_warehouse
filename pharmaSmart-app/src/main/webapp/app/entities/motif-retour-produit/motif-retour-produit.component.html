@@ -1,7 +1,4 @@
 <div class="container-fluid">
-  <p-toast position="center" />
-
-
   <div class="pharma-smart-content">
     <!-- HEADER TOOLBAR -->
     <div class="pharma-toolbar">
@@ -10,38 +7,23 @@
         <span class="pharma-toolbar-title">Motifs de Retour Produit</span>
       </div>
 
+      <div class="pharma-toolbar-content">
+        <div class="pharma-toolbar-filters">
+          <div class="pharma-search-input"></div>
+        </div>
 
-      <p-toolbar>
-        <ng-template #start>
-          <div class="pharma-toolbar-filters">
-            <div class="pharma-search-input">
-
-            </div>
+        <div class="pharma-toolbar-actions">
+          <div class="pharma-button-group">
+            <app-button (clicked)="openNew()" [raised]="true" icon="pi pi-plus" label="Nouveau motif"
+                        severity="primary" size="small" />
           </div>
-        </ng-template>
-
-        <ng-template #end>
-          <div class="pharma-toolbar-actions">
-            <div class="pharma-button-group">
-              <p-button size="small" (onClick)="openNew()" [raised]="true" icon="pi pi-plus" label="Nouveau motif" severity="primary"/>
-            </div>
-          </div>
-        </ng-template>
-      </p-toolbar>
+        </div>
+      </div>
     </div>
 
     <!-- DATA TABLE -->
     <div class="table-section">
-      <p-table
-        #dt
-        [value]="motifRetours()"
-        [rows]="itemsPerPage"
-        [loading]="loading()"
-        [globalFilterFields]="['libelle']"
-        class="p-datable-sm"
-        [rowHover]="true"
-        dataKey="id"
-      >
+      <app-data-table [loading]="loading()" [rows]="itemsPerPage" [size]="'small'" [value]="motifRetours()" dataKey="id">
         <ng-template #header>
           <tr class="pharma-table-head">
             <th>Libellé</th>
@@ -56,28 +38,12 @@
             </td>
             <td style="text-align: center">
               <div class="action-buttons">
-                <p-button
-                  (onClick)="edit(motif)"
-                  [text]="true"
-                  [rounded]="true"
-                  icon="pi pi-pencil"
-                  severity="info"
-                  pTooltip="Modifier"
-                  tooltipPosition="top"
-                  size="small"
-                >
-                </p-button>
-                <p-button
-                  (onClick)="confirmDelete(motif)"
-                  [text]="true"
-                  [rounded]="true"
-                  icon="pi pi-trash"
-                  severity="danger"
-                  pTooltip="Supprimer"
-                  tooltipPosition="top"
-                  size="small"
-                >
-                </p-button>
+                <app-button (clicked)="edit(motif)" [iconOnly]="true" [rounded]="true" [text]="true"
+                            ariaLabel="Modifier" icon="pi pi-pencil" ngbTooltip="Modifier" placement="top"
+                            severity="info" size="small" />
+                <app-button (clicked)="confirmDelete(motif)" [iconOnly]="true" [rounded]="true" [text]="true"
+                            ariaLabel="Supprimer" icon="pi pi-trash" ngbTooltip="Supprimer" placement="top"
+                            severity="danger" size="small" />
               </div>
             </td>
           </tr>
@@ -85,7 +51,7 @@
 
         <ng-template #emptymessage>
           <tr>
-            <td colspan="3" class="text-center">
+            <td class="text-center" colspan="2">
               <div class="empty-state">
                 <i class="pi pi-inbox"></i>
                 <p>Aucun motif de retour trouvé</p>
@@ -93,7 +59,7 @@
             </td>
           </tr>
         </ng-template>
-      </p-table>
+      </app-data-table>
     </div>
   </div>
 </div>

@@ -3,16 +3,16 @@ import {HttpHeaders, HttpResponse} from '@angular/common/http';
 import {FormeProduitService} from './forme-produit.service';
 import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
 import {IFormProduit} from '../../shared/model/form-produit.model';
-import {ButtonModule} from 'primeng/button';
-import {ToolbarModule} from 'primeng/toolbar';
-import {TableLazyLoadEvent, TableModule} from 'primeng/table';
-import {Tooltip} from 'primeng/tooltip';
-import {IconField} from 'primeng/iconfield';
-import {InputIcon} from 'primeng/inputicon';
-import {InputText} from 'primeng/inputtext';
+import {
+  AppTableLazyLoadEvent,
+  ButtonComponent,
+  DataTableComponent,
+  IconFieldComponent,
+  SelectableRowDirective,
+} from '../../shared/ui';
 import {showCommonModal} from '../sales/selling-home/sale-helper';
 import {FormFormeProduitComponent} from './form-forme-produit/form-forme-produit.component';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {
   NgbConfirmDialogService
 } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
@@ -22,7 +22,7 @@ import {
   templateUrl: './forme-produit.component.html',
   styleUrl: './forme-produit.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [ButtonModule, ToolbarModule, TableModule, Tooltip, IconField, InputIcon, InputText],
+  imports: [ButtonComponent, DataTableComponent, SelectableRowDirective, IconFieldComponent, NgbTooltip],
 })
 export class FormeProduitComponent implements OnInit {
   protected entites?: IFormProduit[];
@@ -58,7 +58,7 @@ export class FormeProduitComponent implements OnInit {
       });
   }
 
-  protected lazyLoading(event: TableLazyLoadEvent): void {
+  protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;

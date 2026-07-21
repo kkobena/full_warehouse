@@ -6,7 +6,7 @@
       <div class="panel-meta">
         <span class="pharma-code">{{ rayon().code }}</span>
         @if (rayon().typeZone) {
-          <p-tag [value]="rayon().typeZone!" [severity]="typeZoneSev(rayon().typeZone)" />
+          <app-badge [label]="rayon().typeZone!" [severity]="typeZoneSev(rayon().typeZone)" />
         }
         <span class="text-muted" style="font-size:.75rem">{{ rayon().storageType }}</span>
         @if (rayon().position) {
@@ -15,53 +15,53 @@
       </div>
     </div>
     <div class="panel-actions">
-      <p-button
+      <app-button
         icon="pi pi-list-check"
         label="Inventaire"
         size="small"
         severity="info"
         [outlined]="true"
-        pTooltip="Lancer un inventaire pour ce rayon"
-        tooltipPosition="bottom"
-        (onClick)="onLancerInventaire()"
+        ngbTooltip="Lancer un inventaire pour ce rayon"
+        placement="bottom"
+        (clicked)="onLancerInventaire()"
       />
       @if (rayon().code !== 'SANS') {
-      <p-button
+      <app-button
         icon="pi pi-copy"
         label="Cloner vers..."
         size="small"
         severity="info"
         [outlined]="true"
-        pTooltip="Cloner les produits de ce rayon vers d'autres stockages"
-        tooltipPosition="bottom"
-        (onClick)="onClonerVers()"
+        ngbTooltip="Cloner les produits de ce rayon vers d'autres stockages"
+        placement="bottom"
+        (clicked)="onClonerVers()"
       />
-      <p-button
+      <app-button
         icon="pi pi-pencil"
         label="Modifier"
         size="small"
         severity="secondary"
         [outlined]="true"
-        (onClick)="onEdit()"
+        (clicked)="onEdit()"
       />
 
-        <p-button
+        <app-button
           icon="pi pi-trash"
           [text]="true"
           size="small"
           severity="danger"
-          pTooltip="Supprimer"
-          (onClick)="onDelete()"
+          ngbTooltip="Supprimer"
+          (clicked)="onDelete()"
         />
       }
-      <p-button
+      <app-button
         icon="pi pi-times"
         [text]="true"
         size="small"
         severity="secondary"
-        pTooltip="Fermer"
-        tooltipPosition="left"
-        (onClick)="closed.emit()"
+        ngbTooltip="Fermer"
+        placement="left"
+        (clicked)="closed.emit()"
       />
     </div>
   </div>
@@ -105,7 +105,7 @@
                 <span class="param-label">Type de zone</span>
                 <span class="param-value">
                   @if (rayon().typeZone) {
-                    <p-tag [value]="rayon().typeZone!" [severity]="typeZoneSev(rayon().typeZone)" />
+                    <app-badge [label]="rayon().typeZone!" [severity]="typeZoneSev(rayon().typeZone)" />
                   } @else {
                     <span class="text-muted">—</span>
                   }

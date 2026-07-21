@@ -18,7 +18,6 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {TooltipModule} from 'primeng/tooltip';
-import {Toast} from 'primeng/toast';
 import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
 import {NgbConfirmDialogService} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import {
@@ -76,7 +75,6 @@ import {SaleForEditInfo} from '../../../../shared/model/sales.model';
     CommonModule,
     FormsModule,
     TooltipModule,
-    Toast,
     ProductSearchSectionComponent,
     ProductListComponent,
     SaleSummaryComponent,

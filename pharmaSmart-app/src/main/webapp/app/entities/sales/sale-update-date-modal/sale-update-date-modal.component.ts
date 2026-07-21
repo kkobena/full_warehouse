@@ -1,37 +1,33 @@
-import { Component, ElementRef, inject, Renderer2, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
+import { NgbActiveModal, NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 
 import { ISales } from "app/shared/model/sales.model";
 import { SalesService } from "../sales.service";
-import { ButtonModule } from "primeng/button";
 import { Observable } from "rxjs";
 import { HttpResponse } from "@angular/common/http";
 import { finalize } from "rxjs/operators";
 import dayjs from "dayjs/esm";
-import { TagModule } from "primeng/tag";
-import { Card } from "primeng/card";
-import { DatePicker } from "primeng/datepicker";
-import { Toast } from "primeng/toast";
 import { NotificationService } from "../../../shared/services/notification.service";
+import { NGB_DATE_TO_ISO } from "../../../shared/util/warehouse-util";
+import { BadgeComponent, ButtonComponent, CardComponent } from "../../../shared/ui";
+import { PharmaDatePickerComponent } from "../../../shared/date-picker/pharma-date-picker.component";
 
 @Component({
   selector: "app-sale-update-date-modal",
   templateUrl: "./sale-update-date-modal.component.html",
   styleUrls: ["./sale-update-date-modal.component.scss"],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [ReactiveFormsModule, ButtonModule, TagModule, Card, DatePicker, Toast]
+  imports: [ReactiveFormsModule, ButtonComponent, BadgeComponent, CardComponent, PharmaDatePickerComponent]
 })
 export class SaleUpdateDateModalComponent {
-  sale: ISales | null = null; // /*const modalData = (this as any).sale;
+  sale: ISales | null = null;
   protected activeModal = inject(NgbActiveModal);
   protected fb = inject(FormBuilder);
-  private readonly renderer = inject(Renderer2);
-  private readonly elementRef = inject(ElementRef);
   protected isSaving = false;
 
   protected editForm = this.fb.group({
-    updatedAt: new FormControl<Date | null>(null, {
+    updatedAt: new FormControl<NgbDateStruct | null>(null, {
       validators: [Validators.required],
       nonNullable: true
     })
@@ -46,7 +42,8 @@ export class SaleUpdateDateModalComponent {
   protected save(): void {
     this.isSaving = true;
     const formDate = this.editForm.get("updatedAt")?.value;
-    const updatedSale = { ...this.sale, updatedAt: formDate ? dayjs(formDate).toISOString() : undefined };
+    const isoDate = NGB_DATE_TO_ISO(formDate);
+    const updatedSale = { ...this.sale, updatedAt: isoDate ? dayjs(isoDate).toISOString() : undefined };
     this.subscribeToSaveResponse(this.salesService.updateDate(updatedSale as ISales));
   }
 
@@ -59,20 +56,6 @@ export class SaleUpdateDateModalComponent {
 
   protected onSaveSuccess(updatedSale: ISales | null): void {
     this.activeModal.close(updatedSale);
-  }
-
-  protected onDropdownShow(event: any): void {
-    const modalBody = this.elementRef.nativeElement.querySelector(".modal-body");
-    if (modalBody) {
-      this.renderer.addClass(modalBody, "overflow-visible");
-    }
-  }
-
-  protected onDropdownHide(event: any): void {
-    const modalBody = this.elementRef.nativeElement.querySelector(".modal-body");
-    if (modalBody) {
-      this.renderer.removeClass(modalBody, "overflow-visible");
-    }
   }
 
   protected onSaveError(): void {

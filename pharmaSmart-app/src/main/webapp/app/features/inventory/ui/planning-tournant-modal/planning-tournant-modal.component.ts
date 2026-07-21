@@ -1,13 +1,8 @@
 import {Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {Button} from 'primeng/button';
-import {Select} from 'primeng/select';
-import {InputText} from 'primeng/inputtext';
-import {DatePicker} from 'primeng/datepicker';
-import {Tooltip} from 'primeng/tooltip';
+import {NgbActiveModal, NgbDateStruct, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {StorageService} from '../../../../entities/storage/storage.service';
 import {Storage} from '../../../../entities/storage/storage.model';
 import {IUser} from '../../../../admin/user-management/user-management.model';
@@ -16,10 +11,17 @@ import {
 } from '../../../../admin/user-management/service/user-management.service';
 import {CRITERES, FREQUENCES, IPlanningInventaireTournant} from '../../models';
 import {PlanningTournantApiService} from '../../data-access/services/planning-tournant-api.service';
+import {NGB_DATE_TO_ISO} from '../../../../shared/util/warehouse-util';
+import {ButtonComponent, SelectComponent, SelectSearchComponent} from '../../../../shared/ui';
+import {PharmaDatePickerComponent} from '../../../../shared/date-picker/pharma-date-picker.component';
+
+interface IUserOption extends IUser {
+  displayLabel: string;
+}
 
 @Component({
   selector: 'app-planning-tournant-modal',
-  imports: [CommonModule, ReactiveFormsModule, Button, Select, InputText, DatePicker, Tooltip],
+  imports: [CommonModule, ReactiveFormsModule, ButtonComponent, SelectComponent, SelectSearchComponent, PharmaDatePickerComponent, NgbTooltip],
   templateUrl: './planning-tournant-modal.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './planning-tournant-modal.component.scss',
@@ -31,7 +33,7 @@ export class PlanningTournantModalComponent implements OnInit {
 
   form!: FormGroup;
   storages = signal<Storage[]>([]);
-  users = signal<IUser[]>([]);
+  users = signal<IUserOption[]>([]);
   loading = signal(false);
   errorMessage = signal<string | null>(null);
 
@@ -112,11 +114,11 @@ export class PlanningTournantModalComponent implements OnInit {
       critere: ['RAYON', Validators.required],
       storageId: [null],
       userId: [null],
-      prochaineExecution: [this.computeNextDate('HEBDO'), Validators.required],
+      prochaineExecution: new FormControl<NgbDateStruct | null>(this.computeNextDate('HEBDO'), Validators.required),
     });
   }
 
-  private computeNextDate(frequence: string): Date {
+  private computeNextDate(frequence: string): NgbDateStruct {
     const d = new Date();
     switch (frequence) {
       case 'QUOTIDIEN':
@@ -132,17 +134,18 @@ export class PlanningTournantModalComponent implements OnInit {
         d.setMonth(d.getMonth() + 3);
         break;
     }
-    return d;
+    return {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()};
   }
 
   private patchForm(p: IPlanningInventaireTournant): void {
+    const d = p.prochaineExecution ? new Date(p.prochaineExecution) : new Date();
     this.form.patchValue({
       libelle: p.libelle,
       frequence: p.frequence,
       critere: p.critere,
       storageId: p.storageId,
       userId: p.userId,
-      prochaineExecution: p.prochaineExecution ? new Date(p.prochaineExecution) : new Date(),
+      prochaineExecution: {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()},
     });
   }
 
@@ -156,19 +159,13 @@ export class PlanningTournantModalComponent implements OnInit {
 
   private loadUsers(): void {
     this.userService.query({page: 0, size: 200, sort: ['lastName,asc']}).subscribe({
-      next: res => this.users.set((res.body ?? []).filter(u => u.activated)),
+      next: res => this.users.set((res.body ?? []).filter(u => u.activated).map(u => ({...u, displayLabel: this.getUserLabel(u)}))),
       error: () => {
       },
     });
   }
 
-  private formatDate(d: Date | string | null): string {
-    if (!d) {
-      return '';
-    }
-    if (typeof d === 'string') {
-      return d;
-    }
-    return d.toISOString().substring(0, 10);
+  private formatDate(d: NgbDateStruct | null): string {
+    return NGB_DATE_TO_ISO(d) ?? '';
   }
 }

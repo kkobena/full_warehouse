@@ -1,84 +1,60 @@
-<p-toast position="center" />
-
 <div class="container">
   <div class="justify-content-center">
-    <p-panel header="Liste des tableaux de produits">
-      <p-toolbar>
-        <div class="p-toolbar-group-left"></div>
-        <div class="p-toolbar-group-right">
-          <p-button (click)="addNewEntity()" icon="pi pi-plus" label="Nouveau" raised="true" severity="success" type="button"></p-button>
-        </div>
-      </p-toolbar>
-      @if (entites && entites?.length > 0) {
-        <p-table
-          class="pharma-table"
-          [(selection)]="selectedEl"
-          [loading]="loading"
-          [paginator]="false"
-          [value]="entites"
-          dataKey="id"
-          selectionMode="single"
-          [showGridlines]="true"
-        >
-          <ng-template #header>
-            <tr class="pharma-table-head">
-              <th scope="col" style="width: 30px">#</th>
-              <th scope="col"><span>Code</span></th>
-              <th scope="col"><span>Valeur</span></th>
-              <th scope="col"></th>
-            </tr>
-          </ng-template>
-          <ng-template let-columns="columns" let-elRow let-rowIndex="rowIndex" #body>
-            <tr [pSelectableRow]="elRow">
-              <td>
-                <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
-              </td>
-              <td>
-                <span class="pharma-code">{{ elRow.code }}</span>
-              </td>
-              <td style="text-align: right">
-                <span class="pharma-entity-name">{{ elRow.value }}</span>
-              </td>
+    <div class="card data-card">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <span class="fw-semibold">Liste des tableaux de produits</span>
+        <app-button (clicked)="addNewEntity()" [raised]="true" icon="pi pi-plus" label="Nouveau" severity="success" />
+      </div>
 
-              <td style="text-align: center">
-                <p-button
-                  (click)="onEdit(elRow)"
-                  class="mr-2"
-                  [text]="true"
-                  icon="pi pi-pencil"
-                  pTooltip="Editer"
-                  rounded="true"
-                  severity="success"
-                  type="submit"
-                ></p-button>
-                <p-button
-                  [routerLink]="['/tableaux', elRow.id, 'associe']"
-                  class="mr-2"
-                  [text]="true"
-                  icon="pi pi-box"
-                  pTooltip="Associer des produits"
-                  rounded="true"
-                  severity="help"
-                  type="button"
-                ></p-button>
-                <p-button
-                  (click)="delete(elRow)"
-                  [text]="true"
-                  icon="pi pi-trash"
-                  pTooltip="Supprimer"
-                  rounded="true"
-                  severity="danger"
-                  type="button"
-                ></p-button>
-              </td>
-            </tr>
-          </ng-template>
-        </p-table>
-      } @else {
-        <div class="alert alert-warning" id="no-result">
-          <span>Aucune donnée trouvée</span>
-        </div>
-      }
-    </p-panel>
+      <div class="card-body">
+        @if (entites && entites.length > 0) {
+          <app-data-table
+            [(selection)]="selectedEl"
+            [loading]="loading"
+            [paginator]="false"
+            [selectionMode]="'single'"
+            [showGridlines]="true"
+            [value]="entites"
+            dataKey="id"
+          >
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th scope="col" style="width: 30px">#</th>
+                <th scope="col"><span>Code</span></th>
+                <th scope="col"><span>Valeur</span></th>
+                <th scope="col"></th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-elRow let-rowIndex="rowIndex">
+              <tr [appSelectableRow]="elRow">
+                <td>
+                  <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
+                </td>
+                <td>
+                  <span class="pharma-code">{{ elRow.code }}</span>
+                </td>
+                <td style="text-align: right">
+                  <span class="pharma-entity-name">{{ elRow.value }}</span>
+                </td>
+
+                <td style="text-align: center">
+                  <app-button (clicked)="onEdit(elRow)" [iconOnly]="true" [rounded]="true" [text]="true"
+                              ariaLabel="Editer" buttonClass="mr-2" icon="pi pi-pencil" ngbTooltip="Editer" severity="success" />
+                  <app-button [iconOnly]="true" [rounded]="true" [routerLink]="['/tableaux', elRow.id, 'associe']" [text]="true"
+                              ariaLabel="Associer des produits" buttonClass="mr-2" icon="pi pi-box"
+                              ngbTooltip="Associer des produits" severity="help" />
+                  <app-button (clicked)="delete(elRow)" [iconOnly]="true" [rounded]="true" [text]="true"
+                              ariaLabel="Supprimer" icon="pi pi-trash" ngbTooltip="Supprimer" severity="danger" />
+                </td>
+              </tr>
+            </ng-template>
+          </app-data-table>
+        } @else {
+          <div class="alert alert-warning" id="no-result">
+            <span>Aucune donnée trouvée</span>
+          </div>
+        }
+      </div>
+    </div>
   </div>
 </div>

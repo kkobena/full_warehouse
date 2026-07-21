@@ -1,25 +1,24 @@
 import { Component, inject, input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
+import { BadgeComponent, DataTableComponent } from 'app/shared/ui';
 import { IRepartitionStockProduit } from '../../../../../../entities/repartition-stock/repartition-stock.model';
 import { RepartitionStockService } from '../../../../../../entities/repartition-stock/repartition-stock.service';
-import { DATE_FORMAT_ISO_DATE } from 'app/shared/util/warehouse-util';
+import { NGB_DATE_TO_ISO } from 'app/shared/util/warehouse-util';
 
 @Component({
   selector: 'app-repartition-list',
   templateUrl: './repartition-list.component.html',
   styleUrls: ['./repartition-list.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, TableModule, ButtonModule, TagModule, FormsModule],
+  imports: [CommonModule, DataTableComponent, BadgeComponent, FormsModule],
 })
 export class AppRepartitionListComponent implements OnInit {
   readonly searchTerm = input('');
-  readonly fromDate = input<Date | null>(null);
-  readonly toDate = input<Date | null>(null);
+  readonly fromDate = input<NgbDateStruct | null>(null);
+  readonly toDate = input<NgbDateStruct | null>(null);
   readonly typeRepartition = input<string | null>(null);
   readonly userId = input<number | null>(null);
   readonly storageId = input<number | null>(null);
@@ -48,8 +47,8 @@ export class AppRepartitionListComponent implements OnInit {
         page: this.page,
         size: this.itemsPerPage,
         searchTerm: this.searchTerm(),
-        dateDebut: DATE_FORMAT_ISO_DATE(this.fromDate()),
-        dateFin: DATE_FORMAT_ISO_DATE(this.toDate()),
+        dateDebut: NGB_DATE_TO_ISO(this.fromDate()),
+        dateFin: NGB_DATE_TO_ISO(this.toDate()),
         typeRepartition: type && type !== 'TOUT' ? type : undefined,
         userId: this.userId() ?? undefined,
         storageId: this.storageId() ?? undefined,
@@ -64,9 +63,9 @@ export class AppRepartitionListComponent implements OnInit {
       });
   }
 
-  protected onPageChange(event: any): void {
-    this.page = event.page;
+  protected onPageChange(event: { first: number; rows: number }): void {
     this.itemsPerPage = event.rows;
+    this.page = Math.floor(event.first / event.rows);
     this.loadAll();
   }
 

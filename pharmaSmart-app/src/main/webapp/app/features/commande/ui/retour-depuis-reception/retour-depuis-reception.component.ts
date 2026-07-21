@@ -1,17 +1,14 @@
-import { Component, ElementRef, inject, OnInit, Renderer2, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonModule } from "primeng/button";
-import { InputNumberModule } from "primeng/inputnumber";
+import { ButtonComponent, DataTableComponent, InputNumberComponent, SelectComponent } from "app/shared/ui";
 import { IOrderLine } from "../../../../shared/model/order-line.model";
 import { ICommande } from "../../../../shared/model/commande.model";
 import { IAvoirFournisseur, IAvoirFromBonLignesCommand } from "../../../../shared/model/avoir-fournisseur.model";
 import { AvoirFournisseurService } from "../../../../entities/commande/retour_fournisseur/avoir-fournisseur.service";
 import { NotificationService } from "../../../../shared/services/notification.service";
 import { ErrorService } from "../../../../shared/error.service";
-import { TableModule } from "primeng/table";
-import { SelectModule } from "primeng/select";
 import { IMotifRetourProduit } from "../../../../shared/model/motif-retour-produit.model";
 import { ModifRetourProduitService } from "../../../../entities/motif-retour-produit/motif-retour-produit.service";
 
@@ -27,7 +24,7 @@ interface RetourLine {
   templateUrl: "./retour-depuis-reception.component.html",
   styleUrls: ["./retour-depuis-reception.component.scss"],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, ButtonModule, InputNumberModule, TableModule, SelectModule]
+  imports: [CommonModule, FormsModule, ButtonComponent, InputNumberComponent, DataTableComponent, SelectComponent]
 })
 export class RetourDepuisReceptionComponent implements OnInit {
   commande!: ICommande;
@@ -45,8 +42,6 @@ export class RetourDepuisReceptionComponent implements OnInit {
   private readonly motifService = inject(ModifRetourProduitService);
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
-  private readonly renderer = inject(Renderer2);
-  private readonly elementRef = inject(ElementRef);
   ngOnInit(): void {
     this.motifService.query({ size: 999 }).subscribe({ next: res => (this.motifs = res.body ?? []) });
     this.retourLines = this.orderLines
@@ -78,19 +73,6 @@ export class RetourDepuisReceptionComponent implements OnInit {
 
   protected get totalUnites(): number {
     return this.retourLines.reduce((s, r) => s + r.qtyRetour, 0);
-  }
-  protected onDropdownShow(event: any): void {
-    const modalBody = this.elementRef.nativeElement.querySelector(".modal-body");
-    if (modalBody) {
-      this.renderer.addClass(modalBody, "overflow-visible");
-    }
-  }
-
-  protected onDropdownHide(event: any): void {
-    const modalBody = this.elementRef.nativeElement.querySelector(".modal-body");
-    if (modalBody) {
-      this.renderer.removeClass(modalBody, "overflow-visible");
-    }
   }
   protected onSelectAll(): void {
     this.retourLines.forEach(r => (r.qtyRetour = r.maxQty));

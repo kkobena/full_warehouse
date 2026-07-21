@@ -1,61 +1,41 @@
 import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
-import { Button } from "primeng/button";
-import { InputTextModule } from "primeng/inputtext";
-import { MultiSelectModule } from "primeng/multiselect";
-import { PaginatorModule } from "primeng/paginator";
-import { ToolbarModule } from "primeng/toolbar";
-import { TooltipModule } from "primeng/tooltip";
 import { TypeFinancialTransaction } from "../../cash-register/model/cash-register.model";
 import { HttpResponse } from "@angular/common/http";
 import { TaxeReportService } from "./taxe-report.service";
-import { DATE_FORMAT_ISO_DATE, TYPE_AFFICHAGE } from "../../../shared/util/warehouse-util";
+import { NGB_DATE_TO_ISO, TYPE_AFFICHAGE } from "../../../shared/util/warehouse-util";
 import { getTypeVentes, MvtCaisseParams } from "../mvt-caisse-util";
 import { TaxeWrapper } from "./taxe-report.model";
-import { RadioButtonModule } from "primeng/radiobutton";
-
-import { SelectButtonModule } from "primeng/selectbutton";
 import { ChartComponent } from "app/shared/chart/chart.component";
 import { DoughnutChart } from "../../../shared/model/doughnut-chart.model";
-import { CardModule } from "primeng/card";
 import { MvtParamServiceService } from "../mvt-param-service.service";
 import { FormsModule } from "@angular/forms";
-import { FloatLabel } from "primeng/floatlabel";
-import { DatePickerModule } from "primeng/datepicker";
-import { Select } from "primeng/select";
 import { ChartColorsUtilsService } from "../../../shared/util/chart-colors-utils.service";
 import { finalize } from "rxjs/operators";
 import { CommonModule } from "@angular/common";
 import { NotificationService } from "../../../shared/services/notification.service";
 import { BlobDownloadService } from "../../../shared/services/blob-download.service";
-import { Toast } from "primeng/toast";
-
+import { NgbDateStruct, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
+import { ButtonComponent, SelectComponent, ToolbarComponent } from "../../../shared/ui";
+import { PharmaDatePickerComponent } from "../../../shared/date-picker/pharma-date-picker.component";
 @Component({
   selector: "app-taxe-report",
   imports: [
-    Button,
     CommonModule,
-    InputTextModule,
-    MultiSelectModule,
-    PaginatorModule,
-    ToolbarModule,
-    TooltipModule,
-    RadioButtonModule,
-    SelectButtonModule,
-    ChartComponent,
-    CardModule,
     FormsModule,
-    FloatLabel,
-    DatePickerModule,
-    Select,
-    Toast
+    ButtonComponent,
+    ToolbarComponent,
+    SelectComponent,
+    ChartComponent,
+    PharmaDatePickerComponent,
+    NgbTooltip
   ],
   templateUrl: "./taxe-report.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["./taxe-report.component.scss"]
 })
 export class TaxeReportComponent implements OnInit {
-  protected fromDate: Date | undefined;
-  protected toDate: Date | undefined;
+  protected fromDate: NgbDateStruct | null = null;
+  protected toDate: NgbDateStruct | null = null;
   protected loading = false;
   protected types: TypeFinancialTransaction[] = [TypeFinancialTransaction.CASH_SALE, TypeFinancialTransaction.CREDIT_SALE];
   protected selectedVente: TypeFinancialTransaction | null = null;
@@ -156,8 +136,8 @@ export class TaxeReportComponent implements OnInit {
 
   private buildParams(): any {
     return {
-      fromDate: DATE_FORMAT_ISO_DATE(this.fromDate),
-      toDate: DATE_FORMAT_ISO_DATE(this.toDate),
+      fromDate: this.fromDate ? NGB_DATE_TO_ISO(this.fromDate) : null,
+      toDate: this.toDate ? NGB_DATE_TO_ISO(this.toDate) : null,
       typeVentes: getTypeVentes(this.selectedVente),
       groupBy: this.groupBy,
       statuts: ["CLOSED"]

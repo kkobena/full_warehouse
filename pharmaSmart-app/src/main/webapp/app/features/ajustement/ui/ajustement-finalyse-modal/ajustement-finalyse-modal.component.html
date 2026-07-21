@@ -16,9 +16,8 @@
     <input
       #commentaireInput
       id="commentaire"
-      pInputText
       type="text"
-      class="w-100"
+      class="form-control w-100"
       [(ngModel)]="commentaire"
       (keydown.enter)="confirm()"
       placeholder="Ex. : casse constatée en rayon, inventaire physique…"
@@ -28,18 +27,18 @@
 </div>
 
 <div class="modal-footer">
-  <p-button
+  <app-button
     label="Annuler"
     icon="pi pi-times"
     severity="secondary"
     [outlined]="true"
-    (onClick)="cancel()"
+    (clicked)="cancel()"
   />
-  <p-button
+  <app-button
     label="Valider et clôturer"
     icon="pi pi-lock"
     severity="success"
     [disabled]="!commentaire.trim()"
-    (onClick)="confirm()"
+    (clicked)="confirm()"
   />
 </div>

@@ -1,81 +1,81 @@
 <!-- ── Barre d'actions secondaire (sans header sombre — le parent en possède un) ── -->
 <div class="su-action-bar">
   <div class="su-action-bar__filters">
-    <p-select
+    <app-select
+      (ngModelChange)="selectedFournisseurId.set($event)"
+      (selectionChange)="onFilterChange()"
+      [clearable]="true"
+      [items]="fournisseurOptions()"
       [ngModel]="selectedFournisseurId()"
-      (ngModelChange)="selectedFournisseurId.set($event); onFilterChange()"
-      [options]="fournisseurOptions()"
-      optionLabel="label"
-      optionValue="value"
-      appendTo="body"
+      bindLabel="label"
+      bindValue="value"
       placeholder="Tous fournisseurs"
-      [showClear]="true"
     />
-    <p-select
+    <app-select
+      (ngModelChange)="selectedClasse.set($event)"
+      (selectionChange)="onFilterChange()"
+      [clearable]="true"
+      [items]="classeOptions"
       [ngModel]="selectedClasse()"
-      (ngModelChange)="selectedClasse.set($event); onFilterChange()"
-      [options]="classeOptions"
-      optionLabel="label"
-      optionValue="value"
-      appendTo="body"
+      bindLabel="label"
+      bindValue="value"
       placeholder="Toutes classes"
-      [showClear]="true"
     />
-    <p-select
+    <app-select
+      (ngModelChange)="selectedNiveauUrgence.set($event)"
+      (selectionChange)="onFilterChange()"
+      [clearable]="true"
+      [items]="urgenceOptions"
       [ngModel]="selectedNiveauUrgence()"
-      (ngModelChange)="selectedNiveauUrgence.set($event); onFilterChange()"
-      [options]="urgenceOptions"
-      optionLabel="label"
-      optionValue="value"
-      appendTo="body"
+      bindLabel="label"
+      bindValue="value"
       placeholder="Toutes criticités"
-      [showClear]="true"
     />
     <input
-      pInputText
-      type="text"
-      placeholder="Rechercher un produit..."
-      [ngModel]="searchText()"
       (ngModelChange)="searchText.set($event); onSearchChange()"
-    />
+      [ngModel]="searchText()"
+      class="form-control"
+      placeholder="Rechercher un produit..."
+      style="flex: 0 1 14rem"
+      type="text" />
   </div>
   <div class="su-action-bar__actions">
     <!-- Recalcul VMM (déplacé depuis le tableau de bord) -->
-    <p-button
-      label="Recalculer VMM"
+    <app-button
+      (clicked)="recalculerVmm()"
+      [loading]="recalculEnCours()"
       icon="pi pi-sync"
+      label="Recalculer VMM"
+      ngbTooltip="Déclencher un recalcul immédiat des ventes mensuelles moyennes — mise à jour automatique quotidienne selon la configuration"
+      placement="bottom"
       severity="warn"
       size="small"
-      [loading]="recalculEnCours()"
-      pTooltip="Déclencher un recalcul immédiat des ventes mensuelles moyennes — mise à jour automatique quotidienne selon la configuration"
-      tooltipPosition="bottom"
-      (onClick)="recalculerVmm()"
     />
     <!-- Bouton exclusions avec badge -->
     <button
-      type="button"
-      class="btn btn-sm btn-outline-warning position-relative"
-      pTooltip="Gérer les produits temporairement suspendus du calcul automatique des besoins"
-      tooltipPosition="bottom"
       (click)="ouvrirGestionExclusions()"
+      class="btn btn-sm btn-outline-warning position-relative"
+      ngbTooltip="Gérer les produits temporairement suspendus du calcul automatique des besoins"
+      placement="bottom"
+      type="button"
     >
       <i class="pi pi-ban me-1"></i>
       Exclusions
       @if (exclusionCount() > 0) {
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">
+        <span
+          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">
           {{ exclusionCount() }}
         </span>
       }
     </button>
 
 
-
-    <p-button
-      label="Réinitialiser"
+    <app-button
+      (clicked)="onClearFilters()"
       icon="pi pi-filter-slash"
+      label="Réinitialiser"
       severity="secondary"
       size="small"
-      (onClick)="onClearFilters()"
     />
   </div>
 </div>
@@ -85,7 +85,8 @@
   <i class="pi pi-info-circle"></i>
   <small>
     <strong>Analyse des niveaux de stock — consultation uniquement.</strong>
-    Les quantités à commander sont calculées automatiquement d'après vos ventes mensuelles moyennes (VMM).
+    Les quantités à commander sont calculées automatiquement d'après vos ventes mensuelles moyennes
+    (VMM).
     Rendez-vous dans l'onglet <strong>Réapprovisionnement</strong> pour valider et passer commande.
   </small>
 </div>
@@ -101,33 +102,34 @@
           Articles en Situation de Criticité
         </h5>
         @if (selectedSuggestions().length > 0) {
-          <span class="badge bg-success ms-auto">{{ selectedSuggestions().length }} sélectionné(s)</span>
+          <span class="badge bg-success ms-auto">{{ selectedSuggestions().length }}
+            sélectionné(s)</span>
         }
       </div>
       <div class="card-body p-0">
         <div class="overflow-x-auto">
-          <p-table
-            [value]="suggestions()"
-            [selection]="selectedSuggestions()"
-            (selectionChange)="selectedSuggestions.set($event)"
-            dataKey="produitId"
-            [loading]="isLoading()"
-            [lazy]="true"
-            [paginator]="true"
-            [rows]="itemsPerPage()"
-            [totalRecords]="totalItems()"
-            [first]="page() * itemsPerPage()"
-            class="p-datatable-sm"
-            [rowsPerPageOptions]="[10, 20, 50, 100]"
-            [showCurrentPageReport]="true"
-            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
-            [tableStyle]="{ 'min-width': '125rem' }"
+          <app-data-table
             (onPage)="onPageChange($event)"
+            [(rows)]="itemsPerPage"
+            [(selection)]="selectedSuggestions"
+            [first]="page() * itemsPerPage()"
+            [lazy]="true"
+            [loading]="isLoading()"
+            [paginator]="true"
+            [rowsPerPageOptions]="[10, 20, 50, 100]"
+            [selectionMode]="'multiple'"
+            [showCurrentPageReport]="true"
+            [totalRecords]="totalItems()"
+            [value]="suggestions()"
+            class="p-datatable-sm"
+            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+            dataKey="produitId"
+            style="min-width: 125rem"
           >
             <ng-template #header>
               <tr class="pharma-table-head">
                 <th style="width: 3rem">
-                  <p-tableheadercheckbox />
+                  <app-header-checkbox />
                 </th>
                 <th>Urgence</th>
                 <th>Produit</th>
@@ -138,34 +140,34 @@
                 <th class="text-end">Stock Obj.</th>
                 <th class="text-end">Stock Act.</th>
                 <th class="text-end">Qté à Cmd</th>
-                <th class="text-end" pTooltip="Couverture actuelle / Couverture cible (en mois de ventes)">Couv. act / cible</th>
+                <th class="text-end">Couv.
+                  act / cible
+                </th>
                 <th class="text-end">Jours restants</th>
                 <th class="text-end">Délai livr.</th>
                 <th>Dernier calcul</th>
-                <th style="width: 6rem" class="text-center">Actions</th>
+                <th class="text-center" style="width: 6rem">Actions</th>
               </tr>
             </ng-template>
             <ng-template #body let-suggestion>
               <tr [class]="getRowClass(suggestion)">
                 <td>
-                  <p-tablecheckbox [value]="suggestion" />
+                  <app-row-checkbox [row]="suggestion" />
                 </td>
                 <td>
-                  <p-tag [severity]="getUrgenceSeverity(suggestion)">
-                    {{ getUrgenceDisplayLabel(suggestion) }}
-                  </p-tag>
+                  <app-badge [label]="getUrgenceDisplayLabel(suggestion)"
+                             [severity]="getUrgenceSeverity(suggestion)" />
                 </td>
                 <td>{{ suggestion.libelle }}</td>
                 <td>{{ suggestion.codeCip }}</td>
                 <td>
-                  <p-tag [severity]="getClasseSeverity(suggestion.classeCriticite)">
-                    {{ getClasseLabel(suggestion.classeCriticite) }}
-                  </p-tag>
+                  <app-badge [label]="getClasseLabel(suggestion.classeCriticite)"
+                             [severity]="getClasseSeverity(suggestion.classeCriticite)" />
                 </td>
                 <td class="text-end pharma-qty-value">{{ suggestion.vmm || 0 }}</td>
                 <td class="text-end">{{ suggestion.margeSecurite || 0 }}</td>
                 <td class="text-end fw-bold">{{ suggestion.stockObjectif || 0 }}</td>
-                <td class="text-end" [class]="getStockActuelClass(suggestion)">
+                <td [class]="getStockActuelClass(suggestion)" class="text-end">
                   {{ suggestion.stockActuel || 0 }}
                 </td>
                 <td class="text-end fw-bold pharma-price">
@@ -173,18 +175,21 @@
                 </td>
                 <td class="text-end">
                   <div class="d-flex flex-column align-items-end gap-0">
-                    <span class="couverture-badge px-2 py-1 rounded fw-semibold" [class]="getCouvertureClass(suggestion)"
+                    <span [class]="getCouvertureClass(suggestion)"
+                          class="couverture-badge px-2 py-1 rounded fw-semibold"
                           title="Couverture actuelle">
-                      {{ getCouvertureMois(suggestion) | number: '1.1-1' }} mois
+                      {{ getCouvertureMois(suggestion) | number }} mois
                     </span>
-                    <span class="couverture-cible text-muted small" [class]="getCouvertureCibleClass(suggestion)"
+                    <span [class]="getCouvertureCibleClass(suggestion)"
+                          class="couverture-cible text-muted small"
                           title="Couverture cible (stock objectif)">
-                      ↗ {{ getCouvertureCibleMois(suggestion) | number: '1.1-1' }} mois
+                      ↗ {{ getCouvertureCibleMois(suggestion) | number }} mois
                     </span>
                   </div>
                 </td>
                 <td class="text-end">
-                  <span class="px-2 py-1 rounded fw-semibold" [class]="getJoursRestantsClass(suggestion)">
+                  <span [class]="getJoursRestantsClass(suggestion)"
+                        class="px-2 py-1 rounded fw-semibold">
                     {{ getJoursRestantsLabel(suggestion) }}
                   </span>
                 </td>
@@ -199,27 +204,27 @@
                   }
                 </td>
                 <td class="text-center">
-                  <p-button
+                  <app-button
+                    (clicked)="ouvrirExclureProduit(suggestion)"
+                    [text]="true"
                     icon="pi pi-ban"
+                    ngbTooltip="Suspendre temporairement ce produit du calcul automatique des besoins"
+                    placement="left"
                     severity="warn"
                     size="small"
-                    [text]="true"
-                    pTooltip="Suspendre temporairement ce produit du calcul automatique des besoins"
-                    tooltipPosition="left"
-                    (onClick)="ouvrirExclureProduit(suggestion)"
                   />
                 </td>
               </tr>
             </ng-template>
             <ng-template #emptymessage>
               <tr>
-                <td colspan="15" class="text-center p-4">
+                <td class="text-center p-4" colspan="15">
                   <i class="pi pi-inbox text-muted" style="font-size: 3rem"></i>
                   <p class="mt-3 text-muted">Aucune suggestion disponible</p>
                 </td>
               </tr>
             </ng-template>
-          </p-table>
+          </app-data-table>
         </div>
       </div>
     </div>

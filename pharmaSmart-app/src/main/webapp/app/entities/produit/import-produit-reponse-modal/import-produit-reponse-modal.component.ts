@@ -1,15 +1,14 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
-import { Card } from 'primeng/card';
-import { Button } from 'primeng/button';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { IResponseDto } from '../../../shared/util/response-dto';
 import { ProduitService } from '../produit.service';
 import { saveAs } from 'file-saver';
 import { finalize } from 'rxjs/operators';
+import { ButtonComponent, CardComponent } from '../../../shared/ui';
 
 @Component({
   selector: 'jhi-import-produit-reponse-modal',
-  imports: [Card, Button],
+  imports: [CardComponent, ButtonComponent],
   templateUrl: './import-produit-reponse-modal.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../../common-modal.component.scss'],

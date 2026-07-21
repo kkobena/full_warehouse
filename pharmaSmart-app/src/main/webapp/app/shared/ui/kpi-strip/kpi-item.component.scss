@@ -1,0 +1,87 @@
+// Habillage partagé avec les écrans non migrés, qui importent le même partial.
+//
+// L'import couvre le contenu de ce template — `.kpi-strip-body`, `-label`, `-value`,
+// `-sub`. Il fournit aussi ses variables `$_ks-*`, réutilisées ci-dessous : les couleurs
+// d'accent ne sont donc pas redéfinies ici et ne peuvent pas diverger du partial.
+@import '../../scss/kpi-strip';
+
+// `.kpi-strip-item` est porté par l'hôte (cf. le `host` du composant), qui reçoit
+// l'attribut `_nghost` et non `_ngcontent` : la règle `.kpi-strip-item` du partial ne
+// l'atteint pas. Elle est donc réécrite en `:host`, seule forme qui cible l'élément
+// hôte lui-même.
+:host {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 120px;
+  padding: 0.25rem 0.6rem 0.25rem 0.75rem;
+  border-radius: 6px;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 20%;
+    bottom: 20%;
+    width: 3px;
+    border-radius: 2px;
+  }
+
+  > .pi {
+    font-size: 1.05rem;
+    flex-shrink: 0;
+    width: 26px;
+    text-align: center;
+  }
+}
+
+:host(.primary-accent)::before {
+  background: $_ks-primary;
+}
+
+:host(.success-accent)::before {
+  background: $_ks-success;
+}
+
+:host(.danger-accent)::before {
+  background: $_ks-danger;
+}
+
+:host(.warning-accent)::before {
+  background: $_ks-warning;
+}
+
+// `info` n'existe pas dans le partial (un seul usage dans l'application) : il reprend
+// la teinte de `primary`, comme le faisait le markup d'origine.
+:host(.info-accent)::before {
+  background: $_ks-primary;
+}
+
+:host(.secondary-accent)::before {
+  background: $_ks-muted;
+}
+
+// Reprend l'affordance des anciennes `.kpi-card-compact.clickable` (curseur + légère
+// élévation au survol) que ce composant remplace — sans le `translateY`, qui n'a plus de
+// sens sur un item plat de bandeau au lieu d'une carte isolée.
+:host(.clickable) {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.035);
+  }
+}
+
+// L'unité suit la valeur avec une espace, sans casser de ligne.
+.kpi-strip-suffix {
+  margin-left: 0.25rem;
+}
+
+@media (max-width: 576px) {
+  :host {
+    min-width: calc(50% - 0.5rem);
+  }
+}

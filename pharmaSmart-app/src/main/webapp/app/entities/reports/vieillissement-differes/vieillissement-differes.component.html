@@ -59,22 +59,21 @@
 
   <!-- Table -->
   <div class="card data-card">
-    <p-table
+    <app-data-table
       [value]="differes()"
       [scrollable]="true"
       scrollHeight="calc(100vh - 380px)"
       [stripedRows]="true"
-      class="p-datatable-sm"
-      [sortMode]="'single'"
-      sortField="rest"
-      [sortOrder]="-1"
+      [size]="'small'"
+      initialSortField="rest"
+      [initialSortOrder]="-1"
     >
       <ng-template #header>
         <tr class="pharma-table-head">
-          <th pSortableColumn="lastName">Client <p-sorticon field="lastName" /></th>
-          <th class="text-end" pSortableColumn="saleAmount">Accordé <p-sorticon field="saleAmount" /></th>
-          <th class="text-end" pSortableColumn="paidAmount">Remboursé <p-sorticon field="paidAmount" /></th>
-          <th class="text-end" pSortableColumn="rest">Solde <p-sorticon field="rest" /></th>
+          <th appSortableHeader="lastName">Client </th>
+          <th class="text-end" appSortableHeader="saleAmount">Accordé </th>
+          <th class="text-end" appSortableHeader="paidAmount">Remboursé </th>
+          <th class="text-end" appSortableHeader="rest">Solde </th>
         </tr>
       </ng-template>
       <ng-template #body let-row>
@@ -105,7 +104,7 @@
           </td>
         </tr>
       </ng-template>
-    </p-table>
+    </app-data-table>
   </div>
 
 }

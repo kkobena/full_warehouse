@@ -9,19 +9,7 @@ import {
 } from "app/entities/groupe-tiers-payant/form-groupe-tiers-payant/form-groupe-tiers-payant.component";
 import { ErrorService } from "app/shared/error.service";
 import { Observable } from "rxjs";
-import { ButtonModule } from "primeng/button";
-import { RippleModule } from "primeng/ripple";
-import { ToastModule } from "primeng/toast";
-import { DialogModule } from "primeng/dialog";
-import { FileUploadModule } from "primeng/fileupload";
-import { ToolbarModule } from "primeng/toolbar";
-import { TableModule } from "primeng/table";
-import { InputTextModule } from "primeng/inputtext";
-import { TooltipModule } from "primeng/tooltip";
 import { FormsModule } from "@angular/forms";
-import { InputIconModule } from "primeng/inputicon";
-import { IconFieldModule } from "primeng/iconfield";
-import { PanelModule } from "primeng/panel";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { showCommonModal } from "../sales/selling-home/sale-helper";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
@@ -30,6 +18,12 @@ import { FileUploadDialogComponent } from "./file-upload-dialog/file-upload-dial
 import { SpinnerComponent } from "../../shared/spinner/spinner.component";
 import { NgbConfirmDialogService } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { NotificationService } from "../../shared/services/notification.service";
+import {
+  ButtonComponent,
+  DataTableComponent,
+  IconFieldComponent,
+  ToolbarComponent
+} from '../../shared/ui';
 
 @Component({
   selector: "app-groupe-tiers-payant",
@@ -37,21 +31,13 @@ import { NotificationService } from "../../shared/services/notification.service"
   styleUrls: ["./group-tiers-payant.component.scss"],
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
-    ButtonModule,
-    RippleModule,
-    ToastModule,
-    DialogModule,
-    FileUploadModule,
-    ToolbarModule,
-    TableModule,
     RouterModule,
-    InputTextModule,
-    TooltipModule,
     FormsModule,
-    InputIconModule,
-    IconFieldModule,
-    PanelModule,
-    SpinnerComponent
+    SpinnerComponent,
+    ButtonComponent,
+    DataTableComponent,
+    IconFieldComponent,
+    ToolbarComponent
   ]
 })
 export class GroupeTiersPayantComponent {

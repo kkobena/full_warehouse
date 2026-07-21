@@ -5,6 +5,7 @@ import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.RepartitionTiersPayantParTva;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.TiersPayant;
+import com.kobe.warehouse.domain.enumeration.OrigineGeneration;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.FacturationRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
@@ -23,6 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -206,7 +208,6 @@ public abstract class AbstractEditionFactureService implements EditionService {
                 montantNet = montantNet.add(BigDecimal.valueOf(repartition.montantNet()));
                 montantHt = montantHt.add(BigDecimal.valueOf(repartition.montantHt()));
             }
-            //double montantTtc, double montantTva, double montantNet, double montantHt, int tva
             finalFacturesRepartitions.add(
                 new RepartitionTiersPayantParTva(montantTtc.doubleValue(), montantTva.doubleValue(),
                     montantNet.doubleValue(), montantHt.doubleValue(), tva));
@@ -227,9 +228,11 @@ public abstract class AbstractEditionFactureService implements EditionService {
     ) {
 
         FactureTiersPayant factureTiersPayant = buildAndPersistFacture(
-            factureGroup, tiersPayant, dateCreation, year, lastFactureNumero, generationCode, editionSearchParams
+            factureGroup, tiersPayant, dateCreation, year, lastFactureNumero, generationCode,
+            editionSearchParams
         );
-        List<RepartitionTiersPayantParTva> allRepartitions = attachSaleLinesToFacture(factureTiersPayant, saleLines);
+        List<RepartitionTiersPayantParTva> allRepartitions = attachSaleLinesToFacture(
+            factureTiersPayant, saleLines);
         List<RepartitionTiersPayantParTva> aggregated = aggregateRepartitionsByTva(allRepartitions);
         applyTotalsAndRepartitions(factureTiersPayant, aggregated);
         this.facturationRepository.saveAndFlush(factureTiersPayant);
@@ -254,12 +257,14 @@ public abstract class AbstractEditionFactureService implements EditionService {
             .setDebutPeriode(params.startDate())
             .setFinPeriode(params.endDate())
             .setFactureProvisoire(params.factureProvisoire())
-            .setOrigineGeneration(params.origineGeneration())
+            .setOrigineGeneration(Objects.requireNonNullElse(params.origineGeneration(),
+                OrigineGeneration.MANUELLE))
             .setUser(this.userService.getUser())
             .setNumFacture(getFactureNumber(year, numero));
 
         if (factureGroup != null) {
-            facture.setGroupeFactureTiersPayant(this.facturationRepository.saveAndFlush(factureGroup));
+            facture.setGroupeFactureTiersPayant(
+                this.facturationRepository.saveAndFlush(factureGroup));
         }
 
         return this.facturationRepository.saveAndFlush(facture);
@@ -285,9 +290,8 @@ public abstract class AbstractEditionFactureService implements EditionService {
     }
 
     /**
-     * Applique les totaux et les répartitions agrégées à la facture.
-     * Les montants sont dérivés des répartitions agrégées (source unique de vérité)
-     * pour garantir la cohérence entre les deux.
+     * Applique les totaux et les répartitions agrégées à la facture. Les montants sont dérivés des
+     * répartitions agrégées (source unique de vérité) pour garantir la cohérence entre les deux.
      */
     private void applyTotalsAndRepartitions(
         FactureTiersPayant facture,
@@ -322,7 +326,8 @@ public abstract class AbstractEditionFactureService implements EditionService {
             .toList();
     }
 
-    private RepartitionTiersPayantParTva sumRepartitionGroup(int tva, List<RepartitionTiersPayantParTva> group) {
+    private RepartitionTiersPayantParTva sumRepartitionGroup(int tva,
+        List<RepartitionTiersPayantParTva> group) {
         BigDecimal ttc = BigDecimal.ZERO;
         BigDecimal tvaAmount = BigDecimal.ZERO;
         BigDecimal net = BigDecimal.ZERO;
@@ -335,7 +340,8 @@ public abstract class AbstractEditionFactureService implements EditionService {
             ht = ht.add(BigDecimal.valueOf(r.montantHt()));
         }
 
-        return new RepartitionTiersPayantParTva(ttc.doubleValue(), tvaAmount.doubleValue(), net.doubleValue(), ht.doubleValue(), tva);
+        return new RepartitionTiersPayantParTva(ttc.doubleValue(), tvaAmount.doubleValue(),
+            net.doubleValue(), ht.doubleValue(), tva);
     }
 
     protected int getLastFactureNumero() {

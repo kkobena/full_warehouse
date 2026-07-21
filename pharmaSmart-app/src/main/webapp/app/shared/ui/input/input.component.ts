@@ -1,59 +1,71 @@
-import { Component, ChangeDetectionStrategy, input, model } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { InputTextModule } from 'primeng/inputtext';
+import { Component, computed, forwardRef, input } from '@angular/core';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
+
+import { ControlValueAccessorBase } from '../forms/control-value-accessor.base';
 
 /**
- * Reusable input component wrapping PrimeNG input text
- * 
+ * Champ texte du Design System — remplace `p-inputtext` / `pInputText`.
+ * Rend un `<input class="form-control">` natif de Bootstrap 5.
+ *
  * @example
- * <app-input
- *   [(value)]="name"
- *   placeholder="Enter name"
- *   [disabled]="isLoading()"
- *   [required]="true"
- * />
+ * <app-input placeholder="Nom du produit" [(ngModel)]="nom" />
+ * <app-input type="email" size="small" [invalid]="emailInvalide()" [(ngModel)]="email" />
  */
 @Component({
   selector: 'app-input',
-  imports: [CommonModule, FormsModule, InputTextModule],
+  providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => InputComponent), multi: true }],
   template: `
     <input
-      pInputText
-      [(ngModel)]="value"
+      [type]="type()"
+      [class]="inputClasses()"
+      [value]="value() ?? ''"
       [placeholder]="placeholder()"
-      [disabled]="disabled()"
+      [disabled]="isDisabled() || disabled()"
+      [readOnly]="readonly()"
       [required]="required()"
-      [readonly]="readonly()"
-      [size]="size()"
-      [class]="customClass()"
-      [style]="style()"
+      [attr.maxlength]="maxlength()"
+      [attr.autocomplete]="autocomplete() || null"
+      [attr.aria-label]="ariaLabel() || null"
+      (input)="onInput($event)"
+      (blur)="onTouched()"
     />
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class InputComponent {
-  /** Input value (two-way binding) */
-  value = model<string>('');
-  
-  /** Placeholder text */
-  placeholder = input<string>('');
-  
-  /** Disable input */
-  disabled = input<boolean>(false);
-  
-  /** Required field */
-  required = input<boolean>(false);
-  
-  /** Read-only input */
-  readonly = input<boolean>(false);
-  
-  /** Input size */
-  size = input<number | undefined>(undefined);
-  
-  /** Custom CSS class */
-  customClass = input<string>('');
-  
-  /** Inline styles */
-  style = input<Record<string, any>>({});
+export class InputComponent extends ControlValueAccessorBase<string> {
+  readonly type = input<'text' | 'email' | 'tel' | 'url' | 'search'>('text');
+
+  readonly placeholder = input<string>('');
+
+  readonly size = input<'small' | 'normal' | 'large'>('normal');
+
+  readonly disabled = input<boolean>(false);
+
+  readonly readonly = input<boolean>(false);
+
+  readonly required = input<boolean>(false);
+
+  /** Affiche l'état d'erreur Bootstrap (`.is-invalid`). */
+  readonly invalid = input<boolean>(false);
+
+  readonly maxlength = input<number | undefined>(undefined);
+
+  readonly autocomplete = input<string>('');
+
+  readonly ariaLabel = input<string>('');
+
+  /** Classes additionnelles posées sur l'`<input>`. */
+  readonly inputClass = input<string>('');
+
+  protected readonly inputClasses = computed(() => {
+    const classes = ['form-control'];
+    if (this.size() === 'small') classes.push('form-control-sm');
+    if (this.size() === 'large') classes.push('form-control-lg');
+    if (this.invalid()) classes.push('is-invalid');
+    if (this.inputClass()) classes.push(this.inputClass());
+    return classes.join(' ');
+  });
+
+  protected onInput(event: Event): void {
+    this.updateValue((event.target as HTMLInputElement).value);
+  }
 }

@@ -1,69 +1,47 @@
-import { AfterViewInit, Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
-import { MenuItem } from 'primeng/api';
-import { TranslateService } from '@ngx-translate/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { TableauPharmacienService } from './tableau-pharmacien.service';
 import { HttpResponse } from '@angular/common/http';
-import { DATE_FORMAT_ISO_DATE, FORMAT_ISO_DATE_TO_STRING_FR } from '../../../shared/util/warehouse-util';
+import { FORMAT_ISO_DATE_TO_STRING_FR, NGB_DATE_TO_ISO } from '../../../shared/util/warehouse-util';
 import { TableauPharmacien, TableauPharmacienWrapper } from './tableau-pharmacien.model';
-import { Button } from 'primeng/button';
-
-import { RadioButtonModule } from 'primeng/radiobutton';
-import { SelectButtonModule } from 'primeng/selectbutton';
-import { ToolbarModule } from 'primeng/toolbar';
-import { TooltipModule } from 'primeng/tooltip';
-
-import { InputTextModule } from 'primeng/inputtext';
-import { MultiSelectModule } from 'primeng/multiselect';
-import { PaginatorModule } from 'primeng/paginator';
 import { ChartComponent } from 'app/shared/chart/chart.component';
-import { CardModule } from 'primeng/card';
-import { SplitButtonModule } from 'primeng/splitbutton';
 import { IGroupeFournisseur } from '../../../shared/model/groupe-fournisseur.model';
 import { MvtParamServiceService } from '../mvt-param-service.service';
 import { MvtCaisseParams } from '../mvt-caisse-util';
 import { VerticalBarChart } from '../../../shared/model/vertical-bar-chart.model';
-import { PrimeNG } from 'primeng/config';
 import { FormsModule } from '@angular/forms';
 import { ChartColorsUtilsService } from '../../../shared/util/chart-colors-utils.service';
-import { DatePicker } from 'primeng/datepicker';
-import { FloatLabel } from 'primeng/floatlabel';
 import { saveAs } from 'file-saver';
 import { extractFileName } from '../../../shared/util/file-utils';
-import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { NotificationService } from '../../../shared/services/notification.service';
 import { finalize } from 'rxjs/operators';
 import { handleBlobForTauri } from '../../../shared/util/tauri-util';
 import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
 import { CommonModule } from "@angular/common";
+import { NgbDateStruct, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { AppSplitButtonItem, ButtonComponent, SplitButtonComponent, ToolbarComponent } from '../../../shared/ui';
+import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
 
 @Component({
   selector: 'jhi-tableau-pharmacien',
   imports: [
     CommonModule,
-    Button,
-    InputTextModule,
-    MultiSelectModule,
-    PaginatorModule,
-    ToolbarModule,
-    TooltipModule,
-    RadioButtonModule,
-    SelectButtonModule,
-    ChartComponent,
-    CardModule,
-    SplitButtonModule,
     FormsModule,
-    DatePicker,
-    FloatLabel,
-    ToastAlertComponent,
+    ButtonComponent,
+    ToolbarComponent,
+    SplitButtonComponent,
+    ChartComponent,
+    PharmaDatePickerComponent,
+    NgbTooltip,
   ],
   templateUrl: './tableau-pharmacien.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./tableau-pharmacien.component.scss'],
 })
-export class TableauPharmacienComponent implements OnInit, AfterViewInit {
-  protected exportMenus: MenuItem[];
-  protected fromDate: Date | undefined;
+export class TableauPharmacienComponent implements OnInit {
+  protected exportMenus: AppSplitButtonItem[];
+  protected fromDate: NgbDateStruct | null = null;
   protected groupBy = 'daily';
-  protected toDate: Date | undefined;
+  protected toDate: NgbDateStruct | null = null;
   protected loading = false;
   protected affichage = 'table';
   protected typeAffichafes = [
@@ -77,13 +55,11 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
   protected grossiste: VerticalBarChart | null = null;
 
   protected showGrossisteChart = false;
-  private primeNGConfig = inject(PrimeNG);
-  private readonly translate = inject(TranslateService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
   private tableauPharmacienService = inject(TableauPharmacienService);
   private mvtParamServiceService = inject(MvtParamServiceService);
   private chartColorsUtilsService = inject(ChartColorsUtilsService);
-  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly notificationService = inject(NotificationService);
 
   ngOnInit(): void {
     this.exportMenus = [
@@ -110,13 +86,6 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
 
   onAffichageChange(): void {
     this.onSearch();
-  }
-
-  ngAfterViewInit(): void {
-    this.translate.use('fr');
-    this.translate.stream('primeng').subscribe(data => {
-      this.primeNGConfig.setTranslation(data);
-    });
   }
 
   onSearch(): void {
@@ -172,7 +141,7 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
           }
         },
         error: () => {
-          this.alert().showError("Une erreur est survenue lors de l'export PDF");
+          this.notificationService.error("Une erreur est survenue lors de l'export PDF");
         },
       });
   }
@@ -193,7 +162,7 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
           }
         },
         error: () => {
-          this.alert().showError("Une erreur est survenue lors de l'export Excel");
+          this.notificationService.error("Une erreur est survenue lors de l'export Excel");
         },
       });
   }
@@ -205,15 +174,15 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
   }
 
   private onError(): void {
-    this.alert().showError('Une erreur est survenue lors de la récupération des données');
+    this.notificationService.error('Une erreur est survenue lors de la récupération des données');
     this.tableauPharmacienWrapper = null;
     this.loading = false;
   }
 
   private buildParams(): any {
     return {
-      fromDate: DATE_FORMAT_ISO_DATE(this.fromDate),
-      toDate: DATE_FORMAT_ISO_DATE(this.toDate),
+      fromDate: this.fromDate ? NGB_DATE_TO_ISO(this.fromDate) : null,
+      toDate: this.toDate ? NGB_DATE_TO_ISO(this.toDate) : null,
       groupBy: this.groupBy,
       statuts: ['CLOSED'],
     };

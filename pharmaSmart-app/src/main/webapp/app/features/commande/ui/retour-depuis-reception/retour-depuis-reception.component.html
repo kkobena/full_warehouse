@@ -2,7 +2,7 @@
   <h5 class="modal-title">
     <i class="pi pi-replay me-2"></i>{{ header }}
   </h5>
-  <button type="button" class="btn-close" aria-label="Fermer" (click)="onCancel()"></button>
+  <button (click)="onCancel()" aria-label="Fermer" class="btn-close" type="button"></button>
 </div>
 
 <div class="modal-body rdr-body">
@@ -16,24 +16,24 @@
 
     <!-- Barre de sélection rapide -->
     <div class="rdr-toolbar">
-      <p-button (click)="onSelectAll()" icon="pi pi-check-square" label="Tout sélectionner"
-                severity="secondary" size="small" [text]="true" />
-      <p-button (click)="onReset()" icon="pi pi-times" label="Réinitialiser"
-                severity="secondary" size="small" [text]="true" />
+      <app-button (clicked)="onSelectAll()" [text]="true" icon="pi pi-check-square"
+                  label="Tout sélectionner" severity="secondary" size="small" />
+      <app-button (clicked)="onReset()" [text]="true" icon="pi pi-times"
+                  label="Réinitialiser" severity="secondary" size="small" />
       <span class="rdr-summary ms-auto">
         @if (hasSelection) {
-          <span class="badge bg-primary">{{ totalLignes }} ligne(s) — {{ totalUnites }} unité(s)</span>
+          <span class="badge bg-primary">{{ totalLignes }} ligne(s) — {{ totalUnites }}
+            unité(s)</span>
         }
       </span>
     </div>
 
-    <!-- Tableau p-table -->
-    <p-table
-      [value]="retourLines"
-      [scrollable]="true"
-      scrollHeight="45vh"
-      class="p-datatable-sm"
+    <!-- Tableau -->
+    <app-data-table
       [showGridlines]="true"
+      [value]="retourLines"
+      class="p-datatable-sm"
+      scrollHeight="45vh"
     >
       <ng-template #header>
         <tr class="pharma-table-head">
@@ -50,45 +50,38 @@
           <td>{{ row.orderLine.produitLibelle }}</td>
           <td class="text-end"><span class="pharma-qty-value">{{ row.maxQty }}</span></td>
           <td class="text-end">
-            <p-inputnumber
+            <app-input-number
               [(ngModel)]="row.qtyRetour"
-              [min]="0"
               [max]="row.maxQty"
+              [min]="0"
               [showButtons]="true"
-              buttonLayout="horizontal"
-              incrementButtonIcon="pi pi-plus"
-              decrementButtonIcon="pi pi-minus"
-              [inputStyle]="{ width: '60px', 'text-align': 'center' }"
+              style="width: 100px"
             />
           </td>
           <td>
-            <p-select
+            <app-select
               [(ngModel)]="row.motifRetourId"
-              [options]="motifs"
-              optionLabel="libelle"
-              optionValue="id"
               [disabled]="row.qtyRetour === 0"
+              [items]="motifs"
+              [style]="{width: '100%'}"
+              bindLabel="libelle"
+              bindValue="id"
               placeholder="Motif"
-              appendTo="body"
-              (onShow)="onDropdownShow($event)"
-              (onHide)="onDropdownHide($event)"
-              [style]="{ width: '100%' }"
-              [overlayOptions]="{baseZIndex: 10050}"
             />
           </td>
         </tr>
       </ng-template>
-    </p-table>
+    </app-data-table>
 
     <!-- Commentaire : uniquement si retour complet -->
     @if (isRetourComplet) {
       <div class="rdr-comment mt-3">
         <label class="form-label small fw-semibold">Commentaire (facultatif)</label>
         <textarea
-          class="form-control form-control-sm"
           [(ngModel)]="commentaire"
-          rows="2"
+          class="form-control form-control-sm"
           placeholder="Motif du retour, numéro d'avoir fournisseur…"
+          rows="2"
         ></textarea>
       </div>
     }
@@ -98,14 +91,15 @@
 </div>
 
 <div class="modal-footer">
-  <p-button (click)="onCancel()" label="Annuler" severity="secondary" size="small" [text]="true" />
-  <p-button
-    (click)="onSubmit()"
+  <app-button (clicked)="onCancel()" [text]="true" label="Annuler" severity="secondary"
+              size="small" />
+  <app-button
+    (clicked)="onSubmit()"
+    [disabled]="!canSave || saving"
+    [loading]="saving"
     icon="pi pi-check"
     label="Créer l'avoir"
     severity="primary"
     size="small"
-    [loading]="saving"
-    [disabled]="!canSave || saving"
   />
 </div>

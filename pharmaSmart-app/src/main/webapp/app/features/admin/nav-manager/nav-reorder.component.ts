@@ -1,19 +1,18 @@
 import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
 import { NavApiService } from 'app/core/data-access/nav-api.service';
 import { NavStore } from 'app/core/store/nav.store';
 import { NotificationService } from 'app/shared/services/notification.service';
 import { INavNode, NavReorderPayload } from 'app/shared/model/nav-item.model';
+import { BadgeComponent, ButtonComponent } from 'app/shared/ui';
 
 @Component({
   selector: 'app-nav-reorder',
   templateUrl: './nav-reorder.component.html',
   styleUrl: './nav-reorder.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, DragDropModule, ButtonModule, TagModule],
+  imports: [CommonModule, DragDropModule, ButtonComponent, BadgeComponent],
 })
 export class NavReorderComponent implements OnInit {
   private readonly navApi = inject(NavApiService);

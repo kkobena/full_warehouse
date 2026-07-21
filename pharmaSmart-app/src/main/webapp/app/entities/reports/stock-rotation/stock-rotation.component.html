@@ -53,7 +53,7 @@
       </h5>
     </div>
     <div class="card-body p-0">
-      <p-table
+      <app-data-table
         [loading]="isLoading()"
         [paginator]="true"
         [rowsPerPageOptions]="[20, 50, 100]"
@@ -61,7 +61,7 @@
         [scrollable]="true"
         [showCurrentPageReport]="true"
         [value]="rotations()"
-        class="p-datatable-sm"
+        [size]="'small'"
         currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
         scrollHeight="500px"
       >
@@ -97,9 +97,9 @@
             <td class="text-end fw-bold">{{ rotation.caLast12Months | number: '1.0-0' }} F</td>
             <td class="text-end fw-bold">{{ rotation.qtySoldLast12Months || 0 }}</td>
             <td class="text-end">
-              <p-tag [severity]="getRotationRateSeverity(rotation.rotationRateAnnual)">
+              <app-badge [severity]="getRotationRateSeverity(rotation.rotationRateAnnual)">
                 {{ rotation.rotationRateAnnual | number: '1.2-2' }}x/an
-              </p-tag>
+              </app-badge>
             </td>
             <td class="text-end">
               <span
@@ -124,19 +124,18 @@
             </td>
           </tr>
         </ng-template>
-      </p-table>
+      </app-data-table>
     </div>
   </div>
 
   <!-- Help Drawer -->
-  <p-drawer [(visible)]="helpDrawerVisible" [style]="{ width: '600px' }" position="right">
-    <ng-template #header>
+  <app-offcanvas [(visible)]="helpDrawerVisible" position="right" width="600px">
+  <div appOffcanvasHeader>
       <div class="d-flex align-items-center gap-2">
         <i class="pi pi-question-circle text-primary" style="font-size: 1.5rem"></i>
         <span class="fw-bold fs-5">Guide d'utilisation - Rotation du Stock</span>
       </div>
-    </ng-template>
-
+  </div>
     <div class="p-3">
       <!-- Introduction -->
       <div class="mb-4">
@@ -162,7 +161,7 @@
         <div class="mb-3 p-3 rounded"
              style="background-color: #e8f5e9; border-left: 4px solid #4caf50">
           <div class="d-flex align-items-center gap-2 mb-2">
-            <p-tag severity="success" value="A" />
+            <app-badge severity="success" label="A" />
             <span class="fw-bold">Classe A - Forte rotation (z ≥ 1.96)</span>
           </div>
           <p class="text-sm mb-2"><strong>Caractéristiques :</strong> Produits qui se vendent
@@ -179,7 +178,7 @@
         <div class="mb-3 p-3 rounded"
              style="background-color: #e3f2fd; border-left: 4px solid #2196f3">
           <div class="d-flex align-items-center gap-2 mb-2">
-            <p-tag severity="info" value="B" />
+            <app-badge severity="info" label="B" />
             <span class="fw-bold">Classe B - Rotation moyenne (1.65 ≤ z < 1.96)</span>
           </div>
           <p class="text-sm mb-2"><strong>Caractéristiques :</strong> Produits avec une vente
@@ -195,7 +194,7 @@
         <div class="mb-3 p-3 rounded"
              style="background-color: #fff3e0; border-left: 4px solid #ff9800">
           <div class="d-flex align-items-center gap-2 mb-2">
-            <p-tag severity="warn" value="C" />
+            <app-badge severity="warn" label="C" />
             <span class="fw-bold">Classe C - Faible rotation (z < 1.65)</span>
           </div>
           <p class="text-sm mb-2"><strong>Caractéristiques :</strong> Produits à vente lente ou
@@ -351,5 +350,5 @@
         </ul>
       </div>
     </div>
-  </p-drawer>
+</app-offcanvas>
 </div>

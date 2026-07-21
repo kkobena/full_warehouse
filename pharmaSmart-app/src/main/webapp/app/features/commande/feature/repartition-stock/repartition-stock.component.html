@@ -1,111 +1,82 @@
-<div class="pharma-toolbar">
-  <div class="pharma-toolbar-header">
-    <i class="pi pi-sync"></i>
-    <span>Pilotage des stocks</span>
-  </div>
-  <p-toolbar>
-    <ng-template #start>
-      <div class="pharma-toolbar-filters">
-        @if (activeTab === 'historique') {
-          <div class="pharma-search-input">
-            <p-iconfield>
-              <p-inputicon class="pi pi-search" />
-              <input [(ngModel)]="search" (keyup.enter)="onSearch()" pInputText placeholder="Produit, opérateur…" type="text" />
-            </p-iconfield>
-          </div>
-          <p-floatlabel variant="on">
-            <p-datepicker
-              [style]="{ 'max-width': '140px' }"
-              [(ngModel)]="dtStart"
-              (onSelect)="onSearch()"
-              [showIcon]="true"
-              [showButtonBar]="true"
-              dateFormat="dd/mm/yy"
-              inputId="dtStart"
-              appendTo="body"
-            />
-            <label for="dtStart">Date début</label>
-          </p-floatlabel>
-          <p-floatlabel variant="on">
-            <p-datepicker
-              [style]="{ 'max-width': '140px' }"
-              [(ngModel)]="dtEnd"
-              (onSelect)="onSearch()"
-              [showIcon]="true"
-              [showButtonBar]="true"
-              dateFormat="dd/mm/yy"
-              inputId="dtEnd"
-              appendTo="body"
-            />
-            <label for="dtEnd">Date fin</label>
-          </p-floatlabel>
-          <p-floatlabel variant="on">
-            <p-select
-              [(ngModel)]="filterTypeRepartition"
-              [options]="typeRepartitionOptions"
-              optionLabel="label"
-              optionValue="value"
-              (onChange)="onSearch()"
-              [style]="{ 'min-width': '170px' }"
-              inputId="filterType"
-              appendTo="body"
-            />
-            <label for="filterType">Type de mouvement</label>
-          </p-floatlabel>
-          @if (users.length > 1) {
-            <p-floatlabel variant="on">
-              <p-select
-                [(ngModel)]="filterUserId"
-                [options]="users"
-                optionLabel="login"
-                optionValue="id"
-                (onChange)="onSearch()"
-                [style]="{ 'min-width': '160px' }"
-                [showClear]="true"
-                inputId="filterUser"
-                appendTo="body"
-              />
-              <label for="filterUser">Opérateur</label>
-            </p-floatlabel>
-          }
-          @if (storages.length > 1) {
-            <p-floatlabel variant="on">
-              <p-select
-                [(ngModel)]="filterStorageId"
-                [options]="storages"
-                optionLabel="name"
-                optionValue="id"
-                (onChange)="onSearch()"
-                [style]="{ 'min-width': '150px' }"
-                [showClear]="true"
-                inputId="filterStorage"
-                appendTo="body"
-              />
-              <label for="filterStorage">Emplacement</label>
-            </p-floatlabel>
-          }
-        }
-      </div>
-    </ng-template>
-    <ng-template #end>
-      <div class="pharma-toolbar-actions">
-        <div class="pharma-button-group">
-          @if (activeTab === 'historique') {
-            <p-button (click)="onSearch()" icon="pi pi-search" label="Rechercher" severity="info" size="small" />
-            <p-button (click)="exportToPdf()" icon="pi pi-file-pdf" label="Exporter PDF" severity="warn" size="small" />
-            <p-button (click)="onResetFilters()" icon="pi pi-filter-slash" pTooltip="Réinitialiser" tooltipPosition="left" [text]="true"  [rounded]="true" severity="secondary" size="small" />
-          }
-        </div>
-      </div>
-    </ng-template>
-  </p-toolbar>
-</div>
+<app-toolbar icon="pi pi-sync" title="Pilotage des stocks">
+  <ng-container ngProjectAs="[toolbarFilters]">
+    @if (activeTab === 'historique') {
+      <app-icon-field [overlay]="true" icon="pi pi-search">
+        <input (keyup.enter)="onSearch()" [(ngModel)]="search" class="form-control"
+               placeholder="Produit, opérateur…" type="text" />
+      </app-icon-field>
+      <pharma-date-picker
+        (selectionChange)="onSearch()"
+        [(ngModel)]="dtStart"
+        id="dtStart"
+        label="Date début"
+      />
+      <pharma-date-picker
+        (selectionChange)="onSearch()"
+        [(ngModel)]="dtEnd"
+        id="dtEnd"
+        label="Date fin"
+      />
+      <app-select
+        (selectionChange)="onSearch()"
+        [(ngModel)]="filterTypeRepartition"
+        [clearable]="false"
+        [items]="typeRepartitionOptions"
+        appendTo="body"
+        bindLabel="label"
+        bindValue="value"
+        inputId="filterType"
+        placeholder="Type de mouvement"
+      />
+      @if (users.length > 1) {
+        <app-select
+          (selectionChange)="onSearch()"
+          [(ngModel)]="filterUserId"
+          [clearable]="true"
+          [items]="users"
+          appendTo="body"
+          bindLabel="login"
+          bindValue="id"
+          inputId="filterUser"
+          placeholder="Opérateur"
+        />
+      }
+      @if (storages.length > 1) {
+        <app-select
+          (selectionChange)="onSearch()"
+          [(ngModel)]="filterStorageId"
+          [clearable]="true"
+          [items]="storages"
+          appendTo="body"
+          bindLabel="name"
+          bindValue="id"
+          inputId="filterStorage"
+          placeholder="Emplacement"
+        />
+      }
+    }
+  </ng-container>
+
+  <ng-container ngProjectAs="[toolbarActions]">
+    <div class="pharma-button-group">
+      @if (activeTab === 'historique') {
+        <app-button (clicked)="onSearch()" icon="pi pi-search" label="Rechercher" severity="info"
+                    size="small" />
+        <app-button (clicked)="exportToPdf()" icon="pi pi-file-pdf" label="Exporter PDF"
+                    severity="warn" size="small" />
+        <app-button (clicked)="onResetFilters()" [rounded]="true"
+                    [text]="true" icon="pi pi-filter-slash" ngbTooltip="Réinitialiser" placement="left"
+                    severity="secondary" size="small" />
+      }
+    </div>
+  </ng-container>
+</app-toolbar>
 
 <div class="pharma-nav-tabs-container">
   <div
     #nav="ngbNav"
-    [(activeId)]="activeTab"
     (navChange)="onTabChange($event)"
+    [(activeId)]="activeTab"
     class="nav pharma-nav-tabs"
     ngbNav
     orientation="horizontal"
@@ -119,10 +90,10 @@
         <app-repartition-list
           [fromDate]="dtStart"
           [searchTerm]="search"
+          [storageId]="filterStorageId"
           [toDate]="dtEnd"
           [typeRepartition]="filterTypeRepartition"
           [userId]="filterUserId"
-          [storageId]="filterStorageId"
         />
       </ng-template>
     </ng-container>

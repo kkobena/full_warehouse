@@ -1,62 +1,70 @@
-import { AfterViewInit, Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { ProductToDestroyService } from "../product-to-destroy.service";
 import { ITEMS_PER_PAGE } from "../../../shared/constants/pagination.constants";
-import { MenuItem } from "primeng/api";
 import { HttpHeaders, HttpResponse } from "@angular/common/http";
-import { DATE_FORMAT_ISO_DATE } from "../../../shared/util/warehouse-util";
+import { NGB_DATE_TO_ISO } from "../../../shared/util/warehouse-util";
 import { ProductToDestroy, ProductToDestroyFilter, ProductToDestroySum } from "../model/product-to-destroy";
-import { TableHeaderCheckbox, TableLazyLoadEvent, TableModule } from "primeng/table";
-import { PrimeNG } from "primeng/config";
-import { TranslatePipe, TranslateService } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { IMagasin } from "../../../shared/model";
 import { Storage } from "../../storage/storage.model";
 import { IFournisseur } from "../../../shared/model/fournisseur.model";
 import { IRayon } from "../../../shared/model/rayon.model";
-import { Button } from "primeng/button";
-import { FloatLabel } from "primeng/floatlabel";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
-import { InputText } from "primeng/inputtext";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { Select } from "primeng/select";
-import { SplitButton } from "primeng/splitbutton";
-import { Toolbar } from "primeng/toolbar";
+import { NgbDateStruct, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { Params } from "../../../shared/model/enumerations/params.model";
 import { ConfigurationService } from "../../../shared/configuration.service";
 import { RayonService } from "../../rayon/rayon.service";
 import { MagasinService } from "../../magasin/magasin.service";
 import { StorageService } from "../../storage/storage.service";
 import { RouterLink } from "@angular/router";
-import { Tag } from "primeng/tag";
-import { Tooltip } from "primeng/tooltip";
 import { PeremptionStatut } from "../model/peremption-statut";
-import { DatePickerComponent } from "../../../shared/date-picker/date-picker.component";
+import { PharmaDatePickerComponent } from "../../../shared/date-picker/pharma-date-picker.component";
 import { SpinnerComponent } from "../../../shared/spinner/spinner.component";
 import { NgbConfirmDialogService } from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { NotificationService } from "../../../shared/services/notification.service";
 import { CommonModule } from "@angular/common";
 import { BlobDownloadService } from "../../../shared/services/blob-download.service";
 import { FournisseurSelectComponent } from "../../../features/partners/ui/fournisseur-select/fournisseur-select.component";
+import {
+  AppSplitButtonItem,
+  AppTableLazyLoadEvent,
+  BadgeComponent,
+  ButtonComponent,
+  DataTableComponent,
+  FloatLabelComponent,
+  HeaderCheckboxComponent,
+  IconFieldComponent,
+  KpiItemComponent,
+  KpiStripComponent,
+  RowCheckboxComponent,
+  SelectComponent,
+  SortableHeaderDirective,
+  SplitButtonComponent,
+  ToolbarComponent
+} from "../../../shared/ui";
 
 @Component({
   selector: "jhi-lot-a-detruire",
   imports: [
-    Button,
-    FloatLabel,
-    IconField,
-    InputIcon,
-    InputText,
+    ButtonComponent,
+    FloatLabelComponent,
+    IconFieldComponent,
     ReactiveFormsModule,
-    Select,
-    SplitButton,
-    Toolbar,
+    SelectComponent,
+    SplitButtonComponent,
+    ToolbarComponent,
     FormsModule,
     TranslatePipe,
     CommonModule,
-    TableModule,
-    Tag,
-    Tooltip,
-    DatePickerComponent,
+    DataTableComponent,
+    BadgeComponent,
+    HeaderCheckboxComponent,
+    RowCheckboxComponent,
+    SortableHeaderDirective,
+    KpiStripComponent,
+    KpiItemComponent,
+    NgbTooltip,
+    PharmaDatePickerComponent,
     SpinnerComponent,
     RouterLink,
     FournisseurSelectComponent
@@ -65,9 +73,7 @@ import { FournisseurSelectComponent } from "../../../features/partners/ui/fourni
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./lot-a-detruire.component.scss"
 })
-export class LotADetruireComponent implements OnInit, AfterViewInit {
-  protected checkbox = viewChild<TableHeaderCheckbox>("checkbox");
-
+export class LotADetruireComponent implements OnInit {
   protected isMono = true;
   protected productToDestroySum: ProductToDestroySum = null;
   protected data: ProductToDestroy[] = [];
@@ -79,8 +85,8 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
   protected produitId: number;
   protected numLot: string;
   protected searchTerm: string;
-  protected fromDate: Date = null;
-  protected toDate: Date = null;
+  protected fromDate: NgbDateStruct = null;
+  protected toDate: NgbDateStruct = null;
   protected storages: Storage[] = [];
   protected rayons: IRayon[] = [];
   protected magasins: IMagasin[] = [];
@@ -90,7 +96,7 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
   protected loading!: boolean;
   protected ngbPaginationPage = 1;
   protected totalItems = 0;
-  protected exportMenus: MenuItem[];
+  protected exportMenus: AppSplitButtonItem[];
   protected types: any[] = [
     {
       label: "Déjà détruits",
@@ -107,8 +113,6 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
   ];
   protected selectedType: any = null;
   private readonly productToDestroyService = inject(ProductToDestroyService);
-  private readonly primeNGConfig = inject(PrimeNG);
-  private readonly translate = inject(TranslateService);
   private readonly configurationService = inject(ConfigurationService);
   private readonly rayonService = inject(RayonService);
   private readonly magasinSrevice = inject(MagasinService);
@@ -117,13 +121,6 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly notificationService = inject(NotificationService);
   private readonly downloadDocumentService = inject(BlobDownloadService);
-
-  ngAfterViewInit(): void {
-    this.translate.use("fr");
-    this.translate.stream("primeng").subscribe(data => {
-      this.primeNGConfig.setTranslation(data);
-    });
-  }
 
   ngOnInit(): void {
     this.selectedType = this.types[2];
@@ -205,7 +202,7 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
     this.loadPage();
   }
 
-  protected lazyLoading(event: TableLazyLoadEvent): void {
+  protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;
@@ -329,11 +326,20 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
     });
   }
 
+  /** Reflète l'état « tout sélectionné » de la table, sans dépendre de son ordre d'initialisation dans le template. */
+  private isAllSelected(): boolean {
+    if (!this.data.length) {
+      return false;
+    }
+    const selectedIds = new Set(this.selectedItems.map(item => item.id));
+    return this.data.every(item => selectedIds.has(item.id));
+  }
+
   private destroyAll(): void {
     this.productToDestroyService
       .destroy({
         ids: this.selectedItems?.map(item => item.id) || [],
-        all: this.checkbox()?.checked
+        all: this.isAllSelected()
       })
       .subscribe({
         next: () => this.loadPage(),
@@ -344,8 +350,8 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
   private buidParams(): ProductToDestroyFilter {
     return {
       searchTerm: this.searchTerm,
-      fromDate: this.fromDate ? DATE_FORMAT_ISO_DATE(this.fromDate) : undefined,
-      toDate: this.toDate ? DATE_FORMAT_ISO_DATE(this.toDate) : undefined,
+      fromDate: this.fromDate ? NGB_DATE_TO_ISO(this.fromDate) : undefined,
+      toDate: this.toDate ? NGB_DATE_TO_ISO(this.toDate) : undefined,
       fournisseurId: this.selectedFournisseur?.id,
       rayonId: this.selectedRayon?.id,
       magasinId: this.selectedMagasin?.id,

@@ -4,13 +4,11 @@
   <!-- Two Column Layout for Main Sections -->
   <div class="card-grid-2col">
     <!-- Section 1: Champs Obligatoires -->
-    <p-card>
-      <ng-template #header>
-        <div class="section-header section-header-required">
-          <i class="pi pi-exclamation-circle"></i>
-          <span>Champs Obligatoires</span>
-        </div>
-      </ng-template>
+    <app-card [variant]="'form'" [withHeader]="true">
+      <div class="section-header section-header-required" ngProjectAs="[cardHeader]">
+        <i class="pi pi-exclamation-circle"></i>
+        <span>Champs Obligatoires</span>
+      </div>
 
       <div class="form-grid-compact">
         <!-- Nom -->
@@ -18,16 +16,16 @@
           <label for="field_firstName">Nom <span class="required">*</span></label>
           <input
             #firstName
-            pInputText
-            id="field_firstName"
-            formControlName="firstName"
-            class="w-full"
-            autocomplete="off"
             [class.ng-invalid]="editForm.get('firstName')?.invalid && editForm.get('firstName')?.touched"
+            autocomplete="off"
+            class="form-control"
+            formControlName="firstName"
+            id="field_firstName"
           />
           @if (editForm.get('firstName')?.invalid && editForm.get('firstName')?.touched) {
             @if (editForm.get('firstName')?.errors?.required) {
-              <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce
+                champ est obligatoire</small>
             }
           }
         </div>
@@ -36,39 +34,37 @@
         <div class="form-field form-field-full">
           <label for="field_lastName">Prénom(s) <span class="required">*</span></label>
           <input
-            pInputText
-            id="field_lastName"
-            formControlName="lastName"
-            class="w-full"
-            autocomplete="off"
             [class.ng-invalid]="editForm.get('lastName')?.invalid && editForm.get('lastName')?.touched"
+            autocomplete="off"
+            class="form-control"
+            formControlName="lastName"
+            id="field_lastName"
           />
           @if (editForm.get('lastName')?.invalid && editForm.get('lastName')?.touched) {
             @if (editForm.get('lastName')?.errors?.required) {
-              <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce
+                champ est obligatoire</small>
             }
           }
         </div>
         <!-- Tiers Payant -->
         <div class="form-field form-field-full">
           <label for="tiersPayantId">Tiers payant <span class="required">*</span></label>
-          <p-autocomplete
-            id="tiersPayantId"
+          <app-select-search
+            (searched)="searchTiersPayant($event)"
+            (selectionChange)="onSelectTiersPayant($event)"
+            [items]="tiersPayants"
+            [minSearchLength]="minLength"
+            appendTo="body"
+            bindLabel="fullName"
             formControlName="tiersPayantId"
-            [suggestions]="tiersPayants"
-            (completeMethod)="searchTiersPayant($event)"
-            (onSelect)="onSelectTiersPayant($event)"
-            [forceSelection]="true"
-            [minQueryLength]="minLength"
-            [dropdown]="true"
-            optionLabel="fullName"
+            inputId="tiersPayantId"
             placeholder="Taper pour rechercher"
-            [fluid]="true"
-          >
-          </p-autocomplete>
+          />
           @if (editForm.get('tiersPayantId')?.invalid && editForm.get('tiersPayantId')?.touched) {
             @if (editForm.get('tiersPayantId')?.errors?.required) {
-              <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce
+                champ est obligatoire</small>
             }
           }
         </div>
@@ -76,17 +72,17 @@
         <div class="form-field form-field-full">
           <label for="field_num">Numéro de sécurité <span class="required">*</span></label>
           <input
-            pInputText
-            pKeyFilter="alphanum"
-            id="field_num"
-            formControlName="num"
-            class="w-full"
-            autocomplete="off"
+            [appKeyFilter]="'alphanum'"
             [class.ng-invalid]="editForm.get('num')?.invalid && editForm.get('num')?.touched"
+            autocomplete="off"
+            class="form-control"
+            formControlName="num"
+            id="field_num"
           />
           @if (editForm.get('num')?.invalid && editForm.get('num')?.touched) {
             @if (editForm.get('num')?.errors?.required) {
-              <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce
+                champ est obligatoire</small>
             }
           }
         </div>
@@ -95,46 +91,45 @@
         <div class="form-field form-field-full">
           <label for="field_taux">Taux (%) <span class="required">*</span></label>
           <input
-            pInputText
-            pKeyFilter="int"
-            id="field_taux"
-            formControlName="taux"
-            class="w-full"
-            autocomplete="off"
+            [appKeyFilter]="'int'"
             [class.ng-invalid]="editForm.get('taux')?.invalid && editForm.get('taux')?.touched"
+            autocomplete="off"
+            class="form-control"
+            formControlName="taux"
+            id="field_taux"
           />
           @if (editForm.get('taux')?.invalid && editForm.get('taux')?.touched) {
             @if (editForm.get('taux')?.errors?.required) {
-              <small class="p-error">Ce champ est obligatoire</small>
+              <small class="form-text text-danger">Ce champ est obligatoire</small>
             }
             @if (editForm.get('taux')?.errors?.min || editForm.get('taux')?.errors?.max) {
-              <small class="p-error">Le taux doit être entre 0 et 100</small>
+              <small class="form-text text-danger">Le taux doit être entre 0 et 100</small>
             }
           }
         </div>
       </div>
-    </p-card>
+    </app-card>
 
     <!-- Section 2: Informations Complémentaires -->
-    <p-card>
-      <ng-template #header>
-        <div class="section-header">
-          <i class="pi pi-user"></i>
-          <span>Informations Complémentaires</span>
-        </div>
-      </ng-template>
+    <app-card [variant]="'form'" [withHeader]="true">
+      <div class="section-header" ngProjectAs="[cardHeader]">
+        <i class="pi pi-user"></i>
+        <span>Informations Complémentaires</span>
+      </div>
 
       <div class="form-grid-compact">
         <!-- Téléphone -->
         <div class="form-field form-field-full">
           <label for="field_phone">Téléphone</label>
-          <input pInputText pKeyFilter="int" id="field_phone" formControlName="phone" type="tel" class="w-full" autocomplete="off" />
+          <input [appKeyFilter]="'int'" autocomplete="off" class="form-control" formControlName="phone"
+                 id="field_phone" type="tel" />
         </div>
 
         <!-- Email -->
         <div class="form-field form-field-full">
           <label for="email">E-mail</label>
-          <input pInputText id="email" formControlName="email" type="email" class="w-full" autocomplete="off" />
+          <input autocomplete="off" class="form-control" formControlName="email" id="email"
+                 type="email" />
         </div>
 
         <!-- Date de naissance -->
@@ -142,18 +137,17 @@
           @let datNaiss = editForm.get('datNaiss');
           <label for="field_datNaiss">Date de naissance</label>
           <input
-            pInputText
-            jhiDateNaiss
-            id="field_datNaiss"
-            formControlName="datNaiss"
-            placeholder="jj/mm/aaaa"
-            class="w-full"
             [class.ng-invalid]="datNaiss?.invalid && datNaiss?.touched"
+            class="form-control"
+            formControlName="datNaiss"
+            id="field_datNaiss"
+            jhiDateNaiss
+            placeholder="jj/mm/aaaa"
           />
           @if (datNaiss?.invalid && datNaiss?.touched) {
             @let errors = datNaiss?.errors;
             @if (errors?.invalidDate || errors?.outOfRange) {
-              <small class="p-error">Veuillez saisir une date valide</small>
+              <small class="form-text text-danger">Veuillez saisir une date valide</small>
             }
           }
         </div>
@@ -162,20 +156,21 @@
         <div class="form-field form-field-full">
           <label>Sexe</label>
           <div class="radio-group">
-            <p-radiobutton formControlName="sexe" id="masculin" inputId="masculin" name="sexe" value="M"></p-radiobutton>
-            <label for="masculin" class="radio-label">Masculin</label>
-            <p-radiobutton formControlName="sexe" id="feminin" inputId="feminin" name="sexe" value="F"></p-radiobutton>
-            <label for="feminin" class="radio-label">Feminin</label>
+            <app-radio [inline]="true" [value]="'M'" formControlName="sexe" label="Masculin"
+                       name="sexe" />
+            <app-radio [inline]="true" [value]="'F'" formControlName="sexe" label="Feminin"
+                       name="sexe" />
           </div>
         </div>
       </div>
-    </p-card>
+    </app-card>
   </div>
 
   <!-- Section 3: Assurances Complémentaires -->
   @if (editForm.valid) {
     <div class="mt-2">
-      <jhi-complementaire-step [(tiersPayantAlreadyAdded)]="tiersPayantAlreadyAdded" #complementaireStep />
+      <jhi-complementaire-step #complementaireStep
+                               [(tiersPayantAlreadyAdded)]="tiersPayantAlreadyAdded" />
     </div>
   }
 </form>

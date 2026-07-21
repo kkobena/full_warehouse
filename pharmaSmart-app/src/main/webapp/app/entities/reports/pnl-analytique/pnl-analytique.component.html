@@ -8,8 +8,8 @@
     <div class="pharma-toolbar-filters">
       @if (view() === 'snapshot') {
         <label class="mb-0 text-muted small fw-semibold me-1">Exercice :</label>
-        <p-select
-          [options]="years"
+        <app-select
+          [items]="years"
           [ngModel]="selectedYear()"
           appendTo="body"
           (ngModelChange)="onYearChange($event)"
@@ -99,7 +99,7 @@
           </h5>
         </div>
         <div class="card-body p-0">
-          <p-table [value]="segmentData()" class="p-datatable-sm" [stripedRows]="true">
+          <app-data-table [value]="segmentData()" [size]="'small'" [stripedRows]="true">
             <ng-template #header>
               <tr class="pharma-table-head">
                 <th>Type de vente</th>
@@ -148,7 +148,7 @@
                 </td>
               </tr>
             </ng-template>
-          </p-table>
+          </app-data-table>
         </div>
       </div>
     }
@@ -172,7 +172,7 @@
           </h5>
         </div>
         <div class="card-body p-0">
-          <p-table [value]="sortedFamille()" class="pharma-table" [stripedRows]="true">
+          <app-data-table [value]="sortedFamille()" class="pharma-table" [stripedRows]="true">
             <ng-template #header>
               <tr class="pharma-table-head">
                 <th>#</th>
@@ -216,7 +216,7 @@
                 </td>
               </tr>
             </ng-template>
-          </p-table>
+          </app-data-table>
         </div>
       </div>
     }

@@ -32,7 +32,6 @@ import { FloatLabel } from "primeng/floatlabel";
 import { InputGroup } from "primeng/inputgroup";
 import { InputGroupAddon } from "primeng/inputgroupaddon";
 import { NgxSpinnerComponent } from "ngx-spinner";
-import { Toast } from "primeng/toast";
 import { showCommonModal } from "../../../../entities/sales/selling-home/sale-helper";
 import {
   CustomerEditModalComponent
@@ -74,7 +73,6 @@ import { AvoirClientApiService } from "../../data-access/services/avoir-client-a
     InputGroup,
     InputGroupAddon,
     NgxSpinnerComponent,
-    Toast,
     RouterLink,
     MenuModule
   ]

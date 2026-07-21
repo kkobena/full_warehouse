@@ -1,9 +1,10 @@
 import { Component, inject, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
-import { DatePicker } from "primeng/datepicker";
-import { FloatLabel } from "primeng/floatlabel";
-import { CheckboxModule } from "primeng/checkbox";
+import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
+import { PharmaDatePickerComponent } from "../../../../shared/date-picker/pharma-date-picker.component";
+import { CheckboxComponent } from "../../../../shared/ui";
+import { TODAY_NGB_DATE, NGB_DATE_TO_ISO } from "../../../../shared/util/warehouse-util";
 import { BlobDownloadService, DownloadFormat } from "app/shared/services/blob-download.service";
 import { ExportComptableApiService } from "../../data-access/services/export-comptable-api.service";
 
@@ -15,14 +16,14 @@ interface FormatOption {
 
 @Component({
   selector: "app-export-comptable",
-  imports: [CommonModule, FormsModule, DatePicker, FloatLabel, CheckboxModule],
+  imports: [CommonModule, FormsModule, PharmaDatePickerComponent, CheckboxComponent],
   templateUrl: "./export-comptable.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./export-comptable.component.scss"
 })
 export class ExportComptableComponent {
-  startDate = signal<Date>(this.defaultStartDate());
-  endDate = signal<Date>(new Date());
+  startDate = signal<NgbDateStruct>(this.defaultStartDate());
+  endDate = signal<NgbDateStruct>(TODAY_NGB_DATE());
   isLoading = signal(false);
 
   includeVentes = true;
@@ -45,8 +46,8 @@ export class ExportComptableComponent {
     const fmt = format as DownloadFormat;
     this.blobDownload.downloadFromObservable(
       this.api.export({
-        startDate: this.formatDate(this.startDate()),
-        endDate: this.formatDate(this.endDate()),
+        startDate: NGB_DATE_TO_ISO(this.startDate()),
+        endDate: NGB_DATE_TO_ISO(this.endDate()),
         format: fmt,
         ventes: this.includeVentes,
         achats: this.includeAchats,
@@ -62,13 +63,9 @@ export class ExportComptableComponent {
     );
   }
 
-  private defaultStartDate(): Date {
+  private defaultStartDate(): NgbDateStruct {
     const d = new Date();
     d.setDate(1);
-    return d;
-  }
-
-  private formatDate(d: Date): string {
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
   }
 }

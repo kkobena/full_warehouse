@@ -1,17 +1,30 @@
 import { Component, computed, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { Select } from 'primeng/select';
-import { ToggleSwitch } from 'primeng/toggleswitch';
-import { Tooltip } from 'primeng/tooltip';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import {
+  ButtonComponent,
+  DataTableComponent,
+  HeaderCheckboxComponent,
+  RowCheckboxComponent,
+  SelectComponent,
+  SwitchComponent
+} from '../../../../../shared/ui';
 
 import { ITiersPayant } from '../../../../../shared/model';
 import { PlanificationStateService } from '../planification-state.service';
 
 @Component({
   selector: 'app-planif-subtab-tps',
-  imports: [FormsModule, TableModule, ButtonModule, Select, ToggleSwitch, Tooltip],
+  imports: [
+    FormsModule,
+    NgbTooltip,
+    ButtonComponent,
+    DataTableComponent,
+    HeaderCheckboxComponent,
+    RowCheckboxComponent,
+    SelectComponent,
+    SwitchComponent
+  ],
   templateUrl: './planif-subtab-tps.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './planif-subtab-tps.component.scss',

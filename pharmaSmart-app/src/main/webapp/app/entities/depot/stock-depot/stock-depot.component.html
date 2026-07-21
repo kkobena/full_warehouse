@@ -1,53 +1,32 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-2">
-    <!-- Modern Pharma Toolbar (Compact) -->
-    <div class="pharma-toolbar">
-      <div class="pharma-toolbar-header">
-        <i class="pi pi-box"></i>
-        <span class="pharma-toolbar-title">Produits</span>
-      </div>
-
-      <p-toolbar>
-        <ng-template #start>
+    <app-toolbar icon="pi pi-box" title="Produits">
+        <ng-container ngProjectAs="[toolbarFilters]">
           <div class="pharma-toolbar-filters">
-            <p-select
-              (onChange)="onSelectDepot()"
+            <app-select
+              (selectionChange)="onSelectDepot()"
               [(ngModel)]="selectedDepot"
-              [appendTo]="'body'"
-              [dataKey]="'id'"
-              [options]="depots"
-              [placeholder]="'Sélectionner un dépôt'"
+              appendTo="body"
+              [items]="depotOptions"
+              placeholder="Sélectionner un dépôt"
               [style]="{ 'min-width': '200px' }"
               class="pharma-select-modern"
-              id="depots"
-              optionLabel="name"
-              size="large"
-            >
-              <ng-template #item let-depot>
-                <div class="depot-option">
-                  <div class="depot-name">{{ depot.name }}</div>
-                  @if (depot.address) {
-                    <div class="depot-address"
-                         style="font-size: 0.85rem; color: #6c757d">{{ depot.address }}
-                    </div>
-                  }
-                </div>
-              </ng-template>
-            </p-select>
+              inputId="depots"
+              bindLabel="displayLabel"
+            />
 
             <div class="pharma-compact-search">
-              <p-iconfield>
-                <p-inputicon class="pi pi-search" />
-                <input (keyup.enter)="onSearch($event)" pInputText placeholder="Rechercher..."
+              <app-icon-field [overlay]="true" icon="pi pi-search">
+                <input (keyup.enter)="onSearch($event)" placeholder="Rechercher..." class="form-control"
                        type="text" />
-              </p-iconfield>
+              </app-icon-field>
             </div>
           </div>
-        </ng-template>
+        </ng-container>
 
-        <ng-template #end>
+        <ng-container ngProjectAs="[toolbarActions]">
           <div class="pharma-toolbar-actions">
-            <p-button
+            <app-button
               [raised]="true"
               [routerLink]="['/sales-home', 'vente-depot']"
               icon="pi pi-shopping-cart"
@@ -55,18 +34,17 @@
               severity="primary"
               size="small"
             />
-            <p-button (click)="onOpenImportDialog()" icon="pi pi-upload" label="Importation"
-                      severity="help" size="small"></p-button>
+            <app-button (clicked)="onOpenImportDialog()" icon="pi pi-upload" label="Importation"
+                      severity="help" size="small" />
 
-            <p-button [routerLink]="['/depot', 'new-return']" icon="pi pi-undo" label="Retour dépôt"
-                      severity="warn" size="small"></p-button>
+            <app-button [routerLink]="['/depot', 'new-return']" icon="pi pi-undo" label="Retour dépôt"
+                      severity="warn" size="small" />
           </div>
-        </ng-template>
-      </p-toolbar>
-    </div>
+        </ng-container>
+      </app-toolbar>
 
     <div class="mt-2">
-      <p-table [value]="produits" class="pharma-table" dataKey="id">
+      <app-data-table [value]="produits" class="pharma-table" dataKey="id">
         <ng-template #header>
           <tr class="pharma-table-head">
             <th style="width: 8%">Cip</th>
@@ -128,7 +106,7 @@
             </td>
           </tr>
         </ng-template>
-      </p-table>
+      </app-data-table>
       <div class="mt-2">
         <div class="d-flex justify-content-center">
           <ngb-pagination

@@ -46,7 +46,6 @@ import { AddPrixFormComponent } from "../prix-reference/add-prix-form/add-prix-f
 import { NgbConfirmDialogService } from "app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { NotificationService } from "../../../../shared/services/notification.service";
 import { Tooltip } from "primeng/tooltip";
-import { Toast } from "primeng/toast";
 import { ErrorService } from "../../../../shared/error.service";
 import { HttpErrorResponse } from "@angular/common/http";
 import { FournisseurApiService } from "../../../partners/data-access/services/fournisseur-api.service";
@@ -71,8 +70,7 @@ import { FournisseurApiService } from "../../../partners/data-access/services/fo
     ProduitFournisseursTabComponent,
     ProduitFournisseursCreationComponent,
     ProduitPrixCreationComponent,
-    Tooltip,
-    Toast
+    Tooltip
   ]
 })
 export class ProduitFormComponent implements OnInit {

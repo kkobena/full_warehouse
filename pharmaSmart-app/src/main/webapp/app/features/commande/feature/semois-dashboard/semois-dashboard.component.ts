@@ -2,24 +2,37 @@ import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@ang
 import { HttpResponse } from '@angular/common/http';
 import { DatePipe, DecimalPipe, NgClass } from '@angular/common';
 
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { ToolbarModule } from 'primeng/toolbar';
-import { Tag } from 'primeng/tag';
-import { ProgressBarModule } from 'primeng/progressbar';
-import { SkeletonModule } from 'primeng/skeleton';
-
 import { IReapproDashboard, IClasseBreakdown, ITopUrgentDTO } from 'app/shared/model/semois/semois-dashboard.model';
 import { ClasseCriticite, getClasseCriticiteInfo } from 'app/shared/model/semois/classe-criticite.model';
 import { SemoisService } from 'app/entities/semois/semois.service';
 import { CommandCommonService } from 'app/entities/commande/command-common.service';
+import {
+  BadgeComponent,
+  ButtonComponent,
+  DataTableComponent,
+  KpiItemComponent,
+  KpiStripComponent,
+  SkeletonComponent,
+  ToolbarComponent,
+} from 'app/shared/ui';
 
 @Component({
   selector: 'app-semois-dashboard',
   templateUrl: './semois-dashboard.component.html',
   styleUrls: ['./semois-dashboard.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [DatePipe, DecimalPipe, NgClass, TableModule, ButtonModule, ToolbarModule, Tag, ProgressBarModule, SkeletonModule],
+  imports: [
+    DatePipe,
+    DecimalPipe,
+    NgClass,
+    BadgeComponent,
+    ButtonComponent,
+    DataTableComponent,
+    SkeletonComponent,
+    ToolbarComponent,
+    KpiStripComponent,
+    KpiItemComponent,
+  ],
 })
 export class SemoisDashboardComponent implements OnInit {
   readonly dashboard = signal<IReapproDashboard | null>(null);

@@ -3,23 +3,14 @@ import { HttpResponse } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 
-import { TableModule } from "primeng/table";
-import { ButtonModule } from "primeng/button";
-import { SelectModule } from "primeng/select";
-import { ToolbarModule } from "primeng/toolbar";
-import { DividerModule } from "primeng/divider";
-import { ChipModule } from "primeng/chip";
-import { ProgressBarModule } from "primeng/progressbar";
+import { NgbProgressbar } from "@ng-bootstrap/ng-bootstrap";
 
 import { IABCPareto, IABCParetoSummary } from "app/shared/model/report";
 import { ClassePareto } from "app/shared/model/report/classe-pareto.enum";
 import { ABCParetoReportService } from "../services/abc-pareto-report.service";
-import { InputText } from "primeng/inputtext";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
-import { Drawer } from "primeng/drawer";
 import { formatCurrency } from "app/shared/utils/format-utils";
 import { BlobDownloadService } from "../../../shared/services/blob-download.service";
+import { BadgeComponent, DataTableComponent, IconFieldComponent, OffcanvasComponent } from '../../../shared/ui';
 
 @Component({
   selector: "app-abc-pareto",
@@ -29,17 +20,11 @@ import { BlobDownloadService } from "../../../shared/services/blob-download.serv
   imports: [
     CommonModule,
     FormsModule,
-    TableModule,
-    ButtonModule,
-    SelectModule,
-    ToolbarModule,
-    DividerModule,
-    ChipModule,
-    ProgressBarModule,
-    InputText,
-    IconField,
-    InputIcon,
-    Drawer
+    NgbProgressbar,
+    BadgeComponent,
+    DataTableComponent,
+    IconFieldComponent,
+    OffcanvasComponent
   ]
 })
 export default class ABCParetoComponent implements OnInit {

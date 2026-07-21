@@ -1,33 +1,24 @@
 import { AfterViewInit, Component, ElementRef, inject, output, viewChild } from "@angular/core";
-import { ButtonModule } from "primeng/button";
-import { InputTextModule } from "primeng/inputtext";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { RippleModule } from "primeng/ripple";
-import { TableModule } from "primeng/table";
-import { TooltipModule } from "primeng/tooltip";
 import { ICustomer } from "../../../shared/model";
 import { CustomerService } from "../../customer/customer.service";
 import {
   UninsuredCustomerFormComponent
 } from "../../customer/uninsured-customer-form/uninsured-customer-form.component";
 import { SelectedCustomerService } from "../service/selected-customer.service";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { showCommonModal } from "../selling-home/sale-helper";
+import { ButtonComponent, DataTableComponent, IconFieldComponent } from "../../../shared/ui";
 
 @Component({
   selector: "app-customer-data-table",
   imports: [
-    ButtonModule,
-    InputTextModule,
     ReactiveFormsModule,
-    RippleModule,
-    TableModule,
-    TooltipModule,
     FormsModule,
-    IconField,
-    InputIcon
+    ButtonComponent,
+    DataTableComponent,
+    IconFieldComponent,
+    NgbTooltip
   ],
   templateUrl: "./customer-data-table.component.html",
   styleUrls: ["./customer-data-table.scss"]

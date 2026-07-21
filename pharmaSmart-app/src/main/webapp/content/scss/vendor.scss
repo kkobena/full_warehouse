@@ -1,6 +1,35 @@
 $web-font-path: '../css/open-sans.css' !default;
+
+// Tokens `--p-*` figés depuis le preset Aura (cf. plan de migration §8.2).
+// Chargés en tête : ils doivent être définis avant tout consommateur.
+// Tant que `providePrimeNG` est actif, PrimeNG réinjecte les mêmes valeurs au runtime
+// dans <head> et les surcharge à l'identique — ce fichier est donc un no-op visuel
+// aujourd'hui, et prend le relais le jour où PrimeNG est retiré (Phase 4).
+@import 'pharma-tokens';
+
+// Palette Bootstrap alignée sur Aura (§8.5). AVANT yeti, qui déclare en `!default`.
+@import 'pharma-bootstrap-palette';
+
 @import 'bootswatch/dist/yeti/variables';
 @import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+
+// Severities PrimeNG sans équivalent Bootstrap. Les ajouter à `$theme-colors` suffit
+// pour que Bootstrap génère `.btn-help`, `.btn-outline-help`, `.text-help`, `.bg-help`…
+// avec les états hover/active dérivés — aucun CSS à écrire à la main.
+$theme-colors: map-merge(
+  $theme-colors,
+  (
+    'help': $pharma-help,
+    'contrast': $pharma-contrast,
+  )
+);
+
 @import 'bootstrap/scss/bootstrap';
 @import 'bootswatch/dist/yeti/bootswatch';
 @import 'primeicons/primeicons.css';
+
+// Listes déroulantes riches (remplaceront p-select / p-multiselect / p-autocomplete).
+// Les surcharges de calage doivent suivre le thème de base ng-select (cf. §8.9).
+@import '@ng-select/ng-select/themes/default.theme.css';
+@import 'ng-select-pharma';

@@ -3,15 +3,11 @@ import { Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, Ch
 import { FormsModule } from '@angular/forms';
 import { HttpResponse } from '@angular/common/http';
 
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { SelectModule } from 'primeng/select';
-import { InputTextModule } from 'primeng/inputtext';
-import { TooltipModule } from 'primeng/tooltip';
-import { ToolbarModule } from 'primeng/toolbar';
-import { Drawer } from 'primeng/drawer';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
+
+import { ButtonComponent, DataTableComponent, OffcanvasComponent, SelectComponent, ToolbarComponent } from '../../../shared/ui';
 
 import { SupplierPerformanceReportService } from '../services/supplier-performance-report.service';
 import { ISupplierEvolution, ISupplierPerformance, ISupplierPerformanceSummary } from 'app/shared/model/report';
@@ -28,7 +24,7 @@ interface FilterOption {
 
 @Component({
   selector: 'jhi-supplier-performance',
-  imports: [FormsModule, ButtonModule, TableModule, SelectModule, InputTextModule, TooltipModule, ToolbarModule, Drawer],
+  imports: [FormsModule, NgbTooltip, ButtonComponent, DataTableComponent, OffcanvasComponent, SelectComponent, ToolbarComponent],
   templateUrl: './supplier-performance.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './supplier-performance.component.scss',

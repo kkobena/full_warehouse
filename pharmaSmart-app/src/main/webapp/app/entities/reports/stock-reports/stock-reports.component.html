@@ -9,7 +9,8 @@
           </div>
 
           <div class="pharma-nav-sidebar-content">
-            <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav orientation="vertical">
+            <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
+                 orientation="vertical">
 
               @if (showStockAlerts()) {
                 <ng-container ngbNavItem="stock-alerts">
@@ -45,7 +46,7 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <jhi-recap-produit-vendu></jhi-recap-produit-vendu>
+                    <app-recap-produit-vendu></app-recap-produit-vendu>
                   </ng-template>
                 </ng-container>
               }

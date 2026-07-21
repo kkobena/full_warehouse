@@ -17,26 +17,24 @@
 
   <!-- ── Filtres ────────────────────────────────────────────── -->
   <div class="mvt-filters d-flex align-items-center gap-2 flex-wrap px-2 py-1 border-bottom">
-    <jhi-date-picker
-      #dateDebut
-      [(ngModel)]="fromDate"
-      [id]="'ventes-du'"
-      [label]="'warehouseApp.labels.du'"
-      [max]="toDate"
-      [defaultDate]="fromDate"
-      [style]="{ 'max-width': '145px' }"
-      (onSelect)="onFromDateChange(dateDebut.submitValue)"
-    />
-    <jhi-date-picker
-      #dateFin
-      [(ngModel)]="toDate"
-      [id]="'ventes-au'"
-      [label]="'warehouseApp.labels.au'"
-      [min]="fromDate"
-      [defaultDate]="toDate"
-      [style]="{ 'max-width': '145px' }"
-      (onSelect)="onToDateChange(dateFin.submitValue)"
-    />
+    <div style="max-width: 145px">
+      <pharma-date-picker
+        [(ngModel)]="fromDate"
+        (selectionChange)="onFromDateChange($event)"
+        [maxDate]="toDate"
+        id="ventes-du"
+        label="{{ 'warehouseApp.labels.du' | translate }}"
+      />
+    </div>
+    <div style="max-width: 145px">
+      <pharma-date-picker
+        [(ngModel)]="toDate"
+        (selectionChange)="onToDateChange($event)"
+        [minDate]="fromDate"
+        id="ventes-au"
+        label="{{ 'warehouseApp.labels.au' | translate }}"
+      />
+    </div>
     <p-button
       icon="pi pi-search"
       label="Actualiser"

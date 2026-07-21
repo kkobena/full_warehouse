@@ -12,15 +12,13 @@
     <div class="form-grid-compact">
       <div class="form-field form-field-full">
         <label for="cf-magasin">Magasin destination <span class="required">*</span></label>
-        <p-select
+        <app-select
           formControlName="magasinId"
-          [options]="magasins"
-          optionLabel="fullName"
-          optionValue="id"
-          id="cf-magasin"
-          [fluid]="true"
-          (onShow)="onDropdownShow($event)"
-          (onHide)="onDropdownHide($event)"
+          [items]="magasins"
+          bindLabel="fullName"
+          bindValue="id"
+          inputId="cf-magasin"
+          appendTo="body"
           placeholder="Sélectionner le magasin"
         />
         @if (editForm.get('magasinId')?.invalid && editForm.get('magasinId')?.touched) {
@@ -30,15 +28,13 @@
 
       <div class="form-field form-field-full">
         <label for="cf-storage">Emplacement destination <span class="required">*</span></label>
-        <p-select
+        <app-select
           formControlName="storageId"
-          [options]="storages"
-          optionLabel="storageType"
-          optionValue="id"
-          id="cf-storage"
-          [fluid]="true"
-          (onShow)="onDropdownShow($event)"
-          (onHide)="onDropdownHide($event)"
+          [items]="storages"
+          bindLabel="storageType"
+          bindValue="id"
+          inputId="cf-storage"
+          appendTo="body"
           placeholder="Sélectionner l'emplacement"
           [disabled]="!editForm.get('magasinId')?.value"
         />
@@ -50,15 +46,15 @@
   </div>
 
   <div class="modal-footer">
-    <p-button
-      (click)="cancel()"
+    <app-button
+      (clicked)="cancel()"
       icon="pi pi-times"
       label="Annuler"
       severity="secondary"
       [raised]="true"
       type="button"
     />
-    <p-button
+    <app-button
       [disabled]="editForm.invalid || isSaving || rayons.length === 0"
       [loading]="isSaving"
       icon="pi pi-copy"

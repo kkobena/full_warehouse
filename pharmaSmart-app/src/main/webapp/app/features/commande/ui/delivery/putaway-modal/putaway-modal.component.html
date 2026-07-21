@@ -32,7 +32,7 @@
           <td class="text-center pharma-code">{{ item.codeCip }}</td>
           <td class="text-center">
             @if (item.classePareto) {
-              <p-tag [value]="item.classePareto" [severity]="abcSeverity(item.classePareto)" [style]="{'font-size': '0.7rem'}"/>
+              <app-badge [label]="item.classePareto" [severity]="abcSeverity(item.classePareto)" style="font-size: 0.7rem"/>
             }
           </td>
           <td class="text-right">{{ item.qtyRayon | number }}</td>
@@ -46,22 +46,22 @@
 </div>
 
 <div class="modal-footer">
-  <p-button
-    (click)="ignore()"
+  <app-button
+    (clicked)="ignore()"
     label="Ignorer"
     severity="secondary"
     size="small"
     icon="pi pi-times"
-    pTooltip="Laisser la suggestion ouverte — vous pourrez la traiter ultérieurement"
-    tooltipPosition="top"
+    ngbTooltip="Laisser la suggestion ouverte — vous pourrez la traiter ultérieurement"
+    placement="top"
   />
-  <p-button
-    (click)="transfer()"
+  <app-button
+    (clicked)="transfer()"
     label="Transférer vers réserve"
     severity="primary"
     size="small"
     icon="pi pi-arrow-right"
-    pTooltip="Transférer immédiatement l'excédent rayon vers la réserve"
-    tooltipPosition="top"
+    ngbTooltip="Transférer immédiatement l'excédent rayon vers la réserve"
+    placement="top"
   />
 </div>

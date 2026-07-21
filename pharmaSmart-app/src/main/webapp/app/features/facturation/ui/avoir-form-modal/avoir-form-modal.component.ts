@@ -3,11 +3,6 @@ import { FormsModule } from "@angular/forms";
 import { finalize } from "rxjs/operators";
 
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { AutoCompleteModule } from "primeng/autocomplete";
-import { BadgeModule } from "primeng/badge";
-import { ButtonModule } from "primeng/button";
-import { FloatLabelModule } from "primeng/floatlabel";
-import { InputTextModule } from "primeng/inputtext";
 import { DecimalPipe } from "@angular/common";
 
 import { NotificationService } from "../../../../shared/services/notification.service";
@@ -15,19 +10,24 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { IAvoir, IAvoirCommand, IFacture } from "../../data-access/models";
 import { AvoirApiService } from "../../data-access/services/avoir-api.service";
 import { FactureApiService } from "../../data-access/services/facture-api.service";
-import { InputNumber } from "primeng/inputnumber";
+import {
+  BadgeComponent,
+  ButtonComponent,
+  FloatLabelComponent,
+  InputNumberComponent,
+  SelectSearchComponent
+} from 'app/shared/ui';
 
 @Component({
   selector: "app-avoir-form-modal",
   imports: [
     DecimalPipe,
     FormsModule,
-    AutoCompleteModule,
-    BadgeModule,
-    ButtonModule,
-    FloatLabelModule,
-    InputTextModule,
-    InputNumber
+    BadgeComponent,
+    ButtonComponent,
+    FloatLabelComponent,
+    InputNumberComponent,
+    SelectSearchComponent
   ],
   templateUrl: "./avoir-form-modal.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -81,13 +81,13 @@ export class AvoirFormModalComponent implements OnInit {
     );
   }
 
-  protected searchFacture(event: { query: string }): void {
+  protected searchFacture(query: string): void {
     const toIso = (d: Date) =>
       `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
     const today = new Date();
     const fiveYearsAgo = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
     this.factureApiService
-      .query({ search: event.query, startDate: toIso(fiveYearsAgo), endDate: toIso(today), statuts: ['PAID', 'PARTIALLY_PAID'] })
+      .query({ search: query, startDate: toIso(fiveYearsAgo), endDate: toIso(today), statuts: ['PAID', 'PARTIALLY_PAID'] })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(res => (this.factureSuggestions = res.body ?? []));
   }

@@ -2,9 +2,7 @@ import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@ang
 import { CommonModule, Location } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 
-import { ButtonModule } from "primeng/button";
-import { RadioButtonModule } from "primeng/radiobutton";
-import { ToolbarModule } from "primeng/toolbar";
+import { ButtonComponent, RadioComponent, ToolbarComponent } from "app/shared/ui";
 
 import { ConfigurationService, ModelReapproOption } from "app/shared/configuration.service";
 
@@ -13,7 +11,7 @@ import { ConfigurationService, ModelReapproOption } from "app/shared/configurati
   templateUrl: "./semois-model-config.component.html",
   styleUrls: ["./semois-model-config.component.scss"],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, ButtonModule, RadioButtonModule, ToolbarModule]
+  imports: [CommonModule, FormsModule, ButtonComponent, RadioComponent, ToolbarComponent]
 })
 export class SemoisModelConfigComponent implements OnInit {
   readonly currentModel = signal<string>("CLASSIQUE");

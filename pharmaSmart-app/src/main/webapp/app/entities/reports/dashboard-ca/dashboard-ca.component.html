@@ -1,75 +1,48 @@
 <div class="pharma-smart-content p-2">
   <!-- Toolbar -->
-  <div class="pharma-toolbar">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-chart-line"></i>
-      <span class="pharma-toolbar-title">Dashboard Chiffre d'Affaires</span>
-    </div>
+  <app-toolbar icon="pi pi-chart-line" title="Dashboard Chiffre d'Affaires">
 
-    <p-toolbar>
-      <ng-template #start>
-        <div class="pharma-toolbar-filters">
-          <p-select
-            (onChange)="onPeriodChange()"
-            [(ngModel)]="selectedPeriod"
-            [options]="periodOptions"
-            [style]="{ 'min-width': '200px' }"
-            appendTo="body"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Sélectionner une période"
-            size="large"
-          />
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <div class="pharma-toolbar-filters">
+        <app-select
+          (selectionChange)="onPeriodChange()"
+          [(ngModel)]="selectedPeriod"
+          [items]="periodOptions"
+          [style]="{ 'min-width': '200px' }"
+          appendTo="body"
+          bindLabel="label"
+          bindValue="value"
+          placeholder="Sélectionner une période"
+          size="large"
+        />
 
-          @if (selectedPeriod() === 'custom') {
-            <p-floatlabel variant="on">
-              <p-datepicker
-                [(ngModel)]="startDate"
-                [showIcon]="true"
-                [style]="{ 'max-width': '150px' }"
-                appendTo="body"
-                dateFormat="dd/mm/yy"
-                id="fromDate"
-              />
-              <label for="fromDate">Date début</label>
-            </p-floatlabel>
-            <p-floatlabel variant="on">
-              <p-datepicker
-                [(ngModel)]="endDate"
-                [showIcon]="true"
-                [style]="{ 'max-width': '150px' }"
-                appendTo="body"
-                dateFormat="dd/mm/yy"
-                id="toDate"
-              />
-              <label for="toDate">Date fin</label>
-            </p-floatlabel>
-          }
-        </div>
-      </ng-template>
+        @if (selectedPeriod() === 'custom') {
+          <pharma-date-picker [(ngModel)]="startDate" id="fromDate" label="Date début" />
+          <pharma-date-picker [(ngModel)]="endDate" id="toDate" label="Date fin" />
+        }
+      </div>
+    </ng-container>
 
-      <ng-template #end>
-        <div class="pharma-toolbar-actions">
-          @if (selectedPeriod() === 'custom') {
-            <p-button (onClick)="loadDashboard()" icon="pi pi-check" label="Appliquer"
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-toolbar-actions">
+        @if (selectedPeriod() === 'custom') {
+          <app-button (clicked)="loadDashboard()" icon="pi pi-check" label="Appliquer"
                       size="small" />
-          }
+        }
 
-          <p-button (onClick)="onRefresh()" icon="pi pi-refresh" label="Actualiser"
+        <app-button (clicked)="onRefresh()" icon="pi pi-refresh" label="Actualiser"
                     severity="primary" size="small" />
-          <p-button (onClick)="exportToPdf()" icon="pi pi-file-pdf" label="PDF"
+        <app-button (clicked)="exportToPdf()" icon="pi pi-file-pdf" label="PDF"
                     severity="danger"
                     size="small" />
-          <p-button (onClick)="exportDailySummaryToExcel()" icon="pi pi-file-excel"
+        <app-button (clicked)="exportDailySummaryToExcel()" icon="pi pi-file-excel"
                     label="Excel"
                     severity="info" size="small" />
-          <p-button (onClick)="exportDailySummaryToCsv()" icon="pi pi-file" label="CSV"
+        <app-button (clicked)="exportDailySummaryToCsv()" icon="pi pi-file" label="CSV"
                     severity="help" size="small" />
-        </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
-
+      </div>
+    </ng-container>
+  </app-toolbar>
 
 
   <!-- Loading spinner -->
@@ -86,10 +59,13 @@
           <i class="pi pi-calendar text-primary"></i>
           <div class="kpi-strip-body">
             <span class="kpi-strip-label">CA Aujourd'hui</span>
-            <span class="kpi-strip-value text-primary">{{ formatCurrency(sum.caToday) }} <small>FCFA</small></span>
+            <span class="kpi-strip-value text-primary">{{ formatCurrency(sum.caToday) }}
+              <small>FCFA</small></span>
             <span class="kpi-strip-sub">
-              <span [class]="(sum.caTodayEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
-                <i [class]="'pi ' + ((sum.caTodayEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+              <span
+                [class]="(sum.caTodayEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
+                <i
+                  [class]="'pi ' + ((sum.caTodayEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
                 {{ formatPercent(sum.caTodayEvolutionPct) }}%
               </span>
               vs hier — {{ sum.nbTransactionsToday | number }} transact.
@@ -103,10 +79,13 @@
           <i class="pi pi-calendar-plus text-success"></i>
           <div class="kpi-strip-body">
             <span class="kpi-strip-label">CA Semaine</span>
-            <span class="kpi-strip-value text-success">{{ formatCurrency(sum.caWeek) }} <small>FCFA</small></span>
+            <span class="kpi-strip-value text-success">{{ formatCurrency(sum.caWeek) }}
+              <small>FCFA</small></span>
             <span class="kpi-strip-sub">
-              <span [class]="(sum.caWeekEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
-                <i [class]="'pi ' + ((sum.caWeekEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+              <span
+                [class]="(sum.caWeekEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
+                <i
+                  [class]="'pi ' + ((sum.caWeekEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
                 {{ formatPercent(sum.caWeekEvolutionPct) }}%
               </span>
               — {{ sum.nbTransactionsWeek | number }} transact.
@@ -120,13 +99,17 @@
           <i class="pi pi-chart-bar text-warning"></i>
           <div class="kpi-strip-body">
             <span class="kpi-strip-label">CA Mois</span>
-            <span class="kpi-strip-value text-warning">{{ formatCurrency(sum.caMonth) }} <small>FCFA</small></span>
+            <span class="kpi-strip-value text-warning">{{ formatCurrency(sum.caMonth) }}
+              <small>FCFA</small></span>
             <span class="kpi-strip-sub">
-              <span [class]="(sum.caMonthEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
-                <i [class]="'pi ' + ((sum.caMonthEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+              <span
+                [class]="(sum.caMonthEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
+                <i
+                  [class]="'pi ' + ((sum.caMonthEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
                 {{ formatPercent(sum.caMonthEvolutionPct) }}%
               </span>
-              — {{ sum.nbTransactionsMonth | number }} | {{ formatCurrency(sum.panierMoyenMonth) }} FCFA
+              — {{ sum.nbTransactionsMonth | number }} | {{ formatCurrency(sum.panierMoyenMonth) }}
+              FCFA
             </span>
           </div>
         </div>
@@ -137,10 +120,13 @@
           <i class="pi pi-chart-line text-danger"></i>
           <div class="kpi-strip-body">
             <span class="kpi-strip-label">CA Année</span>
-            <span class="kpi-strip-value text-danger">{{ formatCurrency(sum.caYear) }} <small>FCFA</small></span>
+            <span class="kpi-strip-value text-danger">{{ formatCurrency(sum.caYear) }}
+              <small>FCFA</small></span>
             <span class="kpi-strip-sub">
-              <span [class]="(sum.caYearEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
-                <i [class]="'pi ' + ((sum.caYearEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+              <span
+                [class]="(sum.caYearEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
+                <i
+                  [class]="'pi ' + ((sum.caYearEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
                 {{ formatPercent(sum.caYearEvolutionPct) }}%
               </span>
               — {{ sum.nbTransactionsYear | number }} | {{ formatPercent(sum.tauxMargeYear) }}% marge
@@ -154,8 +140,11 @@
             <i class="pi pi-building" style="color: #6f42c1"></i>
             <div class="kpi-strip-body">
               <span class="kpi-strip-label">Dettes fournisseurs</span>
-              <span class="kpi-strip-value" style="color: #6f42c1">{{ formatCurrency(fin.totalDetteFournisseurs) }} <small>FCFA</small></span>
-              <span class="kpi-strip-sub">{{ fin.nbEcheancesEnRetard ?? 0 }} échéance(s) en retard</span>
+              <span class="kpi-strip-value" style="color: #6f42c1">{{
+                  formatCurrency(fin.totalDetteFournisseurs)
+                }} <small>FCFA</small></span>
+              <span class="kpi-strip-sub">{{ fin.nbEcheancesEnRetard ?? 0 }}
+                échéance(s) en retard</span>
             </div>
           </div>
           <div class="kpi-strip-divider"></div>
@@ -163,8 +152,11 @@
             <i class="pi pi-users" style="color: #0dcaf0"></i>
             <div class="kpi-strip-body">
               <span class="kpi-strip-label">Créances tiers-payants</span>
-              <span class="kpi-strip-value" style="color: #0dcaf0">{{ formatCurrency(fin.totalCreancesTP) }} <small>FCFA</small></span>
-              <span class="kpi-strip-sub">{{ fin.nbFacturesImpayees ?? 0 }} facture(s) impayée(s)</span>
+              <span class="kpi-strip-value" style="color: #0dcaf0">{{
+                  formatCurrency(fin.totalCreancesTP)
+                }} <small>FCFA</small></span>
+              <span class="kpi-strip-sub">{{ fin.nbFacturesImpayees ?? 0 }}
+                facture(s) impayée(s)</span>
             </div>
           </div>
         }
@@ -187,20 +179,25 @@
                   <div class="text-muted small">Ce mois</div>
                   <div class="fw-bold">{{ formatCurrency(basket.currentValue) }} FCFA</div>
                 </div>
-                <span [class]="'badge px-2 py-1 ' + ((basket.evolutionPct ?? 0) >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger')">
-                  <i [class]="'pi me-1 ' + ((basket.evolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+                <span
+                  [class]="'badge px-2 py-1 ' + ((basket.evolutionPct ?? 0) >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger')">
+                  <i
+                    [class]="'pi me-1 ' + ((basket.evolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
                   {{ formatCurrency(basket.evolutionAmount) }} F
                   ({{ formatPercent(basket.evolutionPct) }}%) vs M-1
                 </span>
                 <div>
                   <div class="text-muted small">Meilleur mois</div>
                   <div class="fw-semibold">{{ basket.bestMonthLabel }}</div>
-                  <div class="small text-success">{{ formatCurrency(basket.bestMonthValue) }} FCFA</div>
+                  <div class="small text-success">{{ formatCurrency(basket.bestMonthValue) }}FCFA
+                  </div>
                 </div>
                 <div>
                   <div class="text-muted small">Tendance 6M</div>
-                  <div [class]="'fw-semibold ' + ((basket.trend6MPct ?? 0) >= 0 ? 'text-success' : 'text-danger')">
-                    <i [class]="'pi me-1 ' + ((basket.trend6MPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+                  <div
+                    [class]="'fw-semibold ' + ((basket.trend6MPct ?? 0) >= 0 ? 'text-success' : 'text-danger')">
+                    <i
+                      [class]="'pi me-1 ' + ((basket.trend6MPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
                     {{ formatPercent(basket.trend6MPct) }}%
                   </div>
                 </div>

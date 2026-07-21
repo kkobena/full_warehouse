@@ -5,40 +5,26 @@ import { HttpResponse } from "@angular/common/http";
 import { TableauProduitService } from "./tableau-produit.service";
 import { IResponseDto } from "../../shared/util/response-dto";
 import { ITableau } from "../../shared/model/tableau.model";
-import { ToolbarModule } from "primeng/toolbar";
-import { ButtonModule } from "primeng/button";
-import { InputTextModule } from "primeng/inputtext";
-import { TableModule } from "primeng/table";
-import { TooltipModule } from "primeng/tooltip";
-import { Panel } from "primeng/panel";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { ButtonComponent, DataTableComponent, SelectableRowDirective } from "../../shared/ui";
+import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { FormTableauComponent } from "./form-tableau/form-tableau.component";
 import { NgbConfirmDialogService } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { NotificationService } from "../../shared/services/notification.service";
-import { Toast } from "primeng/toast";
 
 @Component({
   selector: "app-tableau-produit",
   templateUrl: "./tableau-produit.component.html",
   styleUrl: "./tableau-produit.component.scss",
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
-    FormsModule,
-    ToolbarModule,
-    ButtonModule,
-    InputTextModule,
-    RouterModule,
-    TableModule,
-    TooltipModule,
-    Panel,
-    Toast
-  ]
+  imports: [FormsModule, RouterModule, ButtonComponent, DataTableComponent, SelectableRowDirective, NgbTooltip]
 })
 export class TableauProduitComponent implements OnInit {
   protected fileDialog?: boolean;
   protected responsedto!: IResponseDto;
   protected entites?: ITableau[];
-  protected selectedEl?: ITableau;
+  // `null` et non `undefined` : le `model()` de `app-data-table` ne transporte que
+  // `T | T[] | null`, et la liaison bidirectionnelle doit pouvoir lui réécrire la valeur.
+  protected selectedEl: ITableau | null = null;
   protected loading = false;
   protected displayDialog?: boolean;
   private readonly entityService = inject(TableauProduitService);

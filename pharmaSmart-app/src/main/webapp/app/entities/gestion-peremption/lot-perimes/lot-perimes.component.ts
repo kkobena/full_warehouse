@@ -1,15 +1,10 @@
-import { AfterViewInit, Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { LotService } from "../../commande/lot/lot.service";
 import { LotFilterParam, LotLocation, LotPerimes, LotPerimeValeurSum } from "../model/lot-perimes";
-import { DATE_FORMAT_ISO_DATE } from "../../../shared/util/warehouse-util";
-import { MenuItem } from "primeng/api";
+import { NGB_DATE_TO_ISO } from "../../../shared/util/warehouse-util";
 import { HttpHeaders, HttpResponse } from "@angular/common/http";
 import { ITEMS_PER_PAGE } from "../../../shared/constants/pagination.constants";
-import { ToolbarModule } from "primeng/toolbar";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
 import { FormsModule } from "@angular/forms";
-import { InputText } from "primeng/inputtext";
 import { RayonService } from "../../rayon/rayon.service";
 import { IRayon } from "../../../shared/model/rayon.model";
 import { IFournisseur } from "../../../shared/model/fournisseur.model";
@@ -17,30 +12,21 @@ import { MagasinService } from "../../magasin/magasin.service";
 import { IMagasin } from "../../../shared/model";
 import { Storage } from "../../storage/storage.model";
 import { StorageService } from "../../storage/storage.service";
-import { FloatLabel } from "primeng/floatlabel";
-import { SelectModule } from "primeng/select";
 import { TranslatePipe } from "@ngx-translate/core";
 import { IFamilleProduit } from "../../../shared/model/famille-produit.model";
 import { FamilleProduitService } from "../../famille-produit/famille-produit.service";
-import { KeyFilter } from "primeng/keyfilter";
-import { Button } from "primeng/button";
-import { SplitButton } from "primeng/splitbutton";
+import { NgbDateStruct, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { Router, RouterLink } from "@angular/router";
-import { TableHeaderCheckbox, TableLazyLoadEvent, TableModule } from "primeng/table";
-import { Tag } from "primeng/tag";
 import { PeremptionStatut } from "../model/peremption-statut";
 import { ProductToDestroyService } from "../product-to-destroy.service";
 import { ProductsToDestroyPayload, ProductToDestroyPayload } from "../model/product-to-destroy";
-import { Divider } from "primeng/divider";
-import { DatePickerComponent } from "../../../shared/date-picker/date-picker.component";
+import { PharmaDatePickerComponent } from "../../../shared/date-picker/pharma-date-picker.component";
 import { saveAs } from "file-saver";
 import { extractFileName2 } from "../../../shared/util/file-utils";
 import { SpinnerComponent } from "../../../shared/spinner/spinner.component";
 import { NgbConfirmDialogService } from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { NotificationService } from "../../../shared/services/notification.service";
-import { ButtonGroup } from "primeng/buttongroup";
-import { Tooltip } from "primeng/tooltip";
 import {
   RetourFournisseurPerimeDialogComponent
 } from "../retour-fournisseur-perime-dialog/retour-fournisseur-perime-dialog.component";
@@ -49,40 +35,58 @@ import {
 } from "../retour-groupe-perime-dialog/retour-groupe-perime-dialog.component";
 import { CommonModule } from "@angular/common";
 import { FournisseurSelectComponent } from "../../../features/partners/ui/fournisseur-select/fournisseur-select.component";
+import {
+  AppSplitButtonItem,
+  AppTableLazyLoadEvent,
+  BadgeComponent,
+  ButtonComponent,
+  DataTableComponent,
+  FloatLabelComponent,
+  HeaderCheckboxComponent,
+  IconFieldComponent,
+  KeyFilterDirective,
+  KpiItemComponent,
+  KpiStripComponent,
+  RowCheckboxComponent,
+  SelectComponent,
+  SortableHeaderDirective,
+  SplitButtonComponent,
+  ToolbarComponent
+} from "../../../shared/ui";
 
 @Component({
   selector: "jhi-lot-perimes",
   imports: [
     CommonModule,
-    ToolbarModule,
-    IconField,
-    InputIcon,
+    ToolbarComponent,
+    IconFieldComponent,
     FormsModule,
-    InputText,
-    FloatLabel,
-    SelectModule,
+    FloatLabelComponent,
+    SelectComponent,
     TranslatePipe,
-    KeyFilter,
-    Button,
-    SplitButton,
+    KeyFilterDirective,
+    ButtonComponent,
+    SplitButtonComponent,
     RouterLink,
-    TableModule,
-    Tag,
-    Divider,
-    DatePickerComponent,
+    DataTableComponent,
+    BadgeComponent,
+    HeaderCheckboxComponent,
+    RowCheckboxComponent,
+    SortableHeaderDirective,
+    PharmaDatePickerComponent,
     SpinnerComponent,
-    ButtonGroup,
-    Tooltip,
-    FournisseurSelectComponent
+    NgbTooltip,
+    FournisseurSelectComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ],
   templateUrl: "./lot-perimes.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./lot-perimes.component.scss"
 })
-export class LotPerimesComponent implements OnInit, AfterViewInit {
-  protected checkbox = viewChild<TableHeaderCheckbox>("checkbox");
+export class LotPerimesComponent implements OnInit {
   protected payload: ProductsToDestroyPayload = null;
-  protected exportMenus: MenuItem[];
+  protected exportMenus: AppSplitButtonItem[];
   protected selectedLotPerimes: LotPerimes[] = [];
   protected lotPerimeValeurSum: LotPerimeValeurSum = null;
   protected storages: Storage[] = [];
@@ -97,8 +101,8 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
   protected data: LotPerimes[] = [];
   protected dayCount: number;
   protected searchTerm: string;
-  protected fromDate: Date = null;
-  protected toDate: Date = null;
+  protected fromDate: NgbDateStruct = null;
+  protected toDate: NgbDateStruct = null;
   protected showAdvancedFilters = false;
   /**
    * Stocke le storageId sélectionné par l'utilisateur pour chaque lot multi-site.
@@ -136,9 +140,6 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
   private readonly modalService = inject(NgbModal);
   private readonly notificationService = inject(NotificationService);
   private readonly router = inject(Router);
-
-  ngAfterViewInit(): void {
-  }
 
   ngOnInit(): void {
     this.selectedType = this.types[2];
@@ -228,7 +229,7 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
     this.onSearch();
   }
 
-  protected lazyLoading(event: TableLazyLoadEvent): void {
+  protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;
@@ -284,6 +285,14 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
       return lot.locations[0].storageId;
     }
     return this.selectedLocationMap.get(lot.id) ?? this.selectedStorage?.id;
+  }
+
+  /** Options du sélecteur d'emplacement, libellé pré-formaté (remplace le `#item` custom de `p-select`) */
+  protected locationOptions(lot: LotPerimes): { storageId: number; label: string }[] {
+    return (lot.locations ?? []).map(loc => ({
+      storageId: loc.storageId,
+      label: `${loc.storageName} (${loc.qty})`
+    }));
   }
 
   protected confirmRetirerDialog(lot: LotPerimes): void {
@@ -412,8 +421,8 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
     return {
       dayCount: this.dayCount,
       searchTerm: this.searchTerm,
-      fromDate: DATE_FORMAT_ISO_DATE(this.fromDate),
-      toDate: DATE_FORMAT_ISO_DATE(this.toDate),   // ✅ BUG CORRIGÉ (était fromDate)
+      fromDate: NGB_DATE_TO_ISO(this.fromDate),
+      toDate: NGB_DATE_TO_ISO(this.toDate),   // ✅ BUG CORRIGÉ (était fromDate)
       fournisseurId: this.selectedFournisseur?.id,
       rayonId: this.selectedRayon?.id,
       familleProduitId: this.selectedFamilleProduit?.id,

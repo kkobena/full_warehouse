@@ -1,11 +1,6 @@
 import { Component, inject, OnInit, viewChild, AfterViewInit, ElementRef, ChangeDetectionStrategy } from '@angular/core';
-import { Button } from 'primeng/button';
-import { Card } from 'primeng/card';
-import { InputText } from 'primeng/inputtext';
-import { KeyFilter } from 'primeng/keyfilter';
-import { Checkbox } from 'primeng/checkbox';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { NotificationService } from '../../../shared/services/notification.service';
 import { ErrorService } from '../../../shared/error.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -14,10 +9,11 @@ import { IProduit } from "../../../shared/model";
 import { IStockProduit } from '../../../shared/model/stock-produit.model';
 import { StockProduitService } from './stock-produit.service';
 import { RepartitionStockService } from '../../repartition-stock/repartition-stock.service';
+import { ButtonComponent, CardComponent, CheckboxComponent, KeyFilterDirective } from '../../../shared/ui';
 
 @Component({
   selector: 'jhi-form-stock-produit',
-  imports: [FormsModule, ReactiveFormsModule, Button, Card, InputText, KeyFilter, Checkbox, ToastAlertComponent],
+  imports: [FormsModule, ReactiveFormsModule, ButtonComponent, CardComponent, KeyFilterDirective, CheckboxComponent],
   templateUrl: './form-stock-produit.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './form-stock-produit.component.scss',
@@ -44,7 +40,7 @@ export class FormStockProduitComponent implements OnInit, AfterViewInit {
   private readonly stockProduitService = inject(StockProduitService);
   private readonly repartitionStockService = inject(RepartitionStockService);
   private readonly errorService = inject(ErrorService);
-  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly notificationService = inject(NotificationService);
   private readonly seuilMiniInput = viewChild<ElementRef>('seuilMiniInput');
 
   //  private readonly stockReassortInput = viewChild<ElementRef>('stockReassortInput');
@@ -195,7 +191,7 @@ export class FormStockProduitComponent implements OnInit, AfterViewInit {
         this.onSaveSuccess();
       },
       error: (error: HttpErrorResponse) => {
-        this.alert().showError(`Stock créé mais transfert échoué: ${this.errorService.getErrorMessage(error)}`);
+        this.notificationService.error(`Stock créé mais transfert échoué: ${this.errorService.getErrorMessage(error)}`);
         this.onSaveSuccess([newReserveStock]);
       },
     });
@@ -223,6 +219,6 @@ export class FormStockProduitComponent implements OnInit, AfterViewInit {
   }
 
   private onSaveError(error: HttpErrorResponse): void {
-    this.alert().showError(this.errorService.getErrorMessage(error));
+    this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 }

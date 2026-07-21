@@ -1,37 +1,41 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
-import { CashRegisterService } from "../cash-register.service";
-import { RouterModule } from "@angular/router";
-import { ConfigurationService } from "../../../shared/configuration.service";
-import { CashRegister, CashRegisterStatut } from "../model/cash-register.model";
-import { PanelModule } from "primeng/panel";
-import { ButtonModule } from "primeng/button";
-import { CardModule } from "primeng/card";
-import { TableModule } from "primeng/table";
-import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
-import { KeyFilterModule } from "primeng/keyfilter";
-import { InputTextModule } from "primeng/inputtext";
-import { left } from "@popperjs/core";
-import { ErrorService } from "../../../shared/error.service";
-import { Tag } from "primeng/tag";
-import { NotificationService } from "../../../shared/services/notification.service";
-import { NgbConfirmDialogService } from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { Toast } from "primeng/toast";
-import { CommonModule } from "@angular/common";
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+  viewChild
+} from "@angular/core";
+import {CashRegisterService} from "../cash-register.service";
+import {RouterModule} from "@angular/router";
+import {ConfigurationService} from "../../../shared/configuration.service";
+import {CashRegister, CashRegisterStatut} from "../model/cash-register.model";
+import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from "@angular/forms";
+import {left} from "@popperjs/core";
+import {ErrorService} from "../../../shared/error.service";
+import {NotificationService} from "../../../shared/services/notification.service";
+import {
+  NgbConfirmDialogService
+} from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import {CommonModule} from "@angular/common";
+import {
+  BadgeComponent,
+  ButtonComponent,
+  DataTableComponent,
+  KeyFilterDirective
+} from "../../../shared/ui";
 
 @Component({
-  selector: "jhi-user-cash-register",
+  selector: "app-user-cash-register",
   imports: [
     CommonModule,
-    PanelModule,
-    ButtonModule,
     RouterModule,
-    CardModule,
-    TableModule,
     ReactiveFormsModule,
-    KeyFilterModule,
-    InputTextModule,
-    Tag,
-    Toast
+    KeyFilterDirective,
+    BadgeComponent,
+    ButtonComponent,
+    DataTableComponent
   ],
   templateUrl: "./user-cash-register.html",
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -90,7 +94,7 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
   }
 
   protected doTicketing(cashRegister: CashRegister): void {
-    this.entityService.doTicketing({ cashRegisterId: cashRegister.id }).subscribe({
+    this.entityService.doTicketing({cashRegisterId: cashRegister.id}).subscribe({
       next: res => {
         if (res.body) {
           this.notificationService.success("Billetage effectué avec succès");
@@ -105,7 +109,7 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
 
   protected openCashRegister(): void {
     if (this.editForm.valid) {
-      this.entityService.openCashRegister({ cashFundAmount: this.editForm.get(["cashFundAmount"]).value }).subscribe({
+      this.entityService.openCashRegister({cashFundAmount: this.editForm.get(["cashFundAmount"]).value}).subscribe({
         next: res => {
           if (res.body) {
             this.notificationService.success("Caisse ouverte avec succès");

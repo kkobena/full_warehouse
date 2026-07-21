@@ -4,17 +4,20 @@ import { finalize } from 'rxjs/operators';
 import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonModule } from 'primeng/button';
-import { FloatLabelModule } from 'primeng/floatlabel';
-import { InputNumber } from 'primeng/inputnumber';
-import { InputTextModule } from 'primeng/inputtext';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { TableModule } from 'primeng/table';
-import { BadgeModule } from 'primeng/badge';
 
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { IAvoir, IAvoirCommand, IAvoirLine, IFacture, IFactureItem } from '../../data-access/models';
 import { AvoirApiService } from '../../data-access/services/avoir-api.service';
+import {
+  BadgeComponent,
+  ButtonComponent,
+  DataTableComponent,
+  FloatLabelComponent,
+  HeaderCheckboxComponent,
+  InputNumberComponent,
+  RowCheckboxComponent,
+  SelectableRowDirective
+} from 'app/shared/ui';
 
 type AvoirMode = 'global' | 'ligne';
 
@@ -27,13 +30,14 @@ interface LigneSaisie extends IFactureItem {
   imports: [
     DecimalPipe,
     FormsModule,
-    BadgeModule,
-    ButtonModule,
-    FloatLabelModule,
-    InputNumber,
-    InputTextModule,
-    ProgressSpinnerModule,
-    TableModule,
+    BadgeComponent,
+    ButtonComponent,
+    DataTableComponent,
+    FloatLabelComponent,
+    HeaderCheckboxComponent,
+    InputNumberComponent,
+    RowCheckboxComponent,
+    SelectableRowDirective
   ],
   templateUrl: './avoir-workspace.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

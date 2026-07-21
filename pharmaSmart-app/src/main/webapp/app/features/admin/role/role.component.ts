@@ -1,16 +1,12 @@
 import { Component, inject, OnInit, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { ToolbarModule } from 'primeng/toolbar';
-import { TooltipModule } from 'primeng/tooltip';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { NavApiService, INavRole, IAuthority } from "app/core/data-access/nav-api.service";
 import { NotificationService } from 'app/shared/services/notification.service';
 import { showCommonModal } from 'app/entities/sales/selling-home/sale-helper';
 import { RoleFormComponent } from './ui/role-form.component';
-import { InputText } from "primeng/inputtext";
 import { NgbConfirmDialogService } from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import { ButtonComponent, DataTableComponent, ToolbarComponent } from "../../../shared/ui";
 
 const PREDEFINED = new Set([
   'ROLE_ADMIN', 'ROLE_USER', 'ROLE_CAISSIER',
@@ -22,7 +18,7 @@ const PREDEFINED = new Set([
   templateUrl: './role.component.html',
   styleUrl: './role.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [FormsModule, ButtonModule, TableModule, ToolbarModule, TooltipModule, InputText]
+  imports: [FormsModule, ButtonComponent, DataTableComponent, ToolbarComponent, NgbTooltip]
 })
 export class RoleComponent implements OnInit {
   private readonly navApi      = inject(NavApiService);

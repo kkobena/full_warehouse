@@ -1,39 +1,55 @@
-import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { CommonModule } from "@angular/common";
-import { HttpResponse } from "@angular/common/http";
-import { FormsModule } from "@angular/forms";
-import { Router } from "@angular/router";
-import { ButtonModule } from "primeng/button";
-import { TableModule } from "primeng/table";
-import { TooltipModule } from "primeng/tooltip";
-import { TagModule } from "primeng/tag";
-import { ToastModule } from "primeng/toast";
-import { InputTextModule } from "primeng/inputtext";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
-import { SelectModule } from "primeng/select";
-import { DatePicker } from "primeng/datepicker";
-import { FloatLabel } from "primeng/floatlabel";
-import { SplitButtonModule } from "primeng/splitbutton";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
-import { MenuItem } from "primeng/api";
-import { NotificationService } from "app/shared/services/notification.service";
-import { NgbConfirmDialogService } from "app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { IRetourBon } from "app/shared/model/retour-bon.model";
-import { IRetourBonGroupe } from "app/shared/model/retour-bon-groupe.model";
-import { IAvoirFournisseur } from "app/shared/model/avoir-fournisseur.model";
-import { RetourBonStatut } from "app/shared/model/enumerations/retour-bon-statut.model";
-import { ITEMS_PER_PAGE } from "app/shared/constants/pagination.constants";
-import { DATE_FORMAT_ISO_DATE } from "app/shared/util/warehouse-util";
-import { RetourBonService } from "../../../../entities/commande/retour_fournisseur/retour-bon.service";
+import {
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+  ChangeDetectionStrategy
+} from "@angular/core";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
+import {CommonModule} from "@angular/common";
+import {HttpResponse} from "@angular/common/http";
+import {FormsModule} from "@angular/forms";
+import {Router} from "@angular/router";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {NotificationService} from "app/shared/services/notification.service";
+import {
+  NgbConfirmDialogService
+} from "app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import {IRetourBon} from "app/shared/model/retour-bon.model";
+import {IRetourBonGroupe} from "app/shared/model/retour-bon-groupe.model";
+import {IAvoirFournisseur} from "app/shared/model/avoir-fournisseur.model";
+import {RetourBonStatut} from "app/shared/model/enumerations/retour-bon-statut.model";
+import {ITEMS_PER_PAGE} from "app/shared/constants/pagination.constants";
+import {NGB_DATE_TO_ISO} from "app/shared/util/warehouse-util";
+import {
+  RetourBonService
+} from "../../../../entities/commande/retour_fournisseur/retour-bon.service";
 import {
   SupplierResponseModalComponent
 } from "../../../../entities/commande/retour_fournisseur/supplier-response-modal.component";
-import { showCommonModal } from "../../../../entities/sales/selling-home/sale-helper";
-import { AvoirEncoursComponent } from "./avoir-encours/avoir-encours.component";
-import { AvoirFournisseurService } from "../../../../entities/commande/retour_fournisseur/avoir-fournisseur.service";
-import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
+import {showCommonModal} from "../../../../entities/sales/selling-home/sale-helper";
+import {AvoirEncoursComponent} from "./avoir-encours/avoir-encours.component";
+import {
+  AvoirFournisseurService
+} from "../../../../entities/commande/retour_fournisseur/avoir-fournisseur.service";
+import {BlobDownloadService} from "../../../../shared/services/blob-download.service";
+import {NgbDateStruct, NgbNavModule, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
+import {
+  ActionBarComponent,
+  AppSplitButtonItem,
+  BadgeComponent,
+  ButtonComponent,
+  DataTableComponent,
+  IconFieldComponent,
+  NavTabsComponent,
+  RowTogglerDirective,
+  SelectComponent,
+  SplitButtonComponent
+} from "../../../../shared/ui";
+import {
+  PharmaDatePickerComponent
+} from "../../../../shared/date-picker/pharma-date-picker.component";
 
 export type RetourTab = "EN_ATTENTE" | "HISTORIQUE" | "AVOIRS" | "GROUPE";
 
@@ -45,26 +61,26 @@ export type RetourTab = "EN_ATTENTE" | "HISTORIQUE" | "AVOIRS" | "GROUPE";
   imports: [
     CommonModule,
     FormsModule,
-    ButtonModule,
-    InputTextModule,
-    IconField,
-    InputIcon,
-    SelectModule,
-    DatePicker,
-    FloatLabel,
-    TableModule,
-    TooltipModule,
-    TagModule,
-    ToastModule,
-    SplitButtonModule,
-    AvoirEncoursComponent
+    NgbNavModule,
+    NgbTooltip,
+    AvoirEncoursComponent,
+    ActionBarComponent,
+    BadgeComponent,
+    ButtonComponent,
+    DataTableComponent,
+    IconFieldComponent,
+    NavTabsComponent,
+    PharmaDatePickerComponent,
+    RowTogglerDirective,
+    SelectComponent,
+    SplitButtonComponent
   ]
 })
 export class AppRetourFournisseurComponent implements OnInit {
   protected search = "";
   protected selectedStatut: RetourBonStatut | null = RetourBonStatut.VALIDATED;
-  protected dtStart: Date | null = null;
-  protected dtEnd: Date | null = null;
+  protected dtStart: NgbDateStruct | null = null;
+  protected dtEnd: NgbDateStruct | null = null;
 
   /** Onglet actif : retours en cours (VALIDATED/PROCESSING) ou historique (CLOSED) */
   protected activeTab = signal<RetourTab>("EN_ATTENTE");
@@ -74,9 +90,9 @@ export class AppRetourFournisseurComponent implements OnInit {
 
   /** Options de filtre selon l'onglet actif */
   protected readonly enAttenteStatutOptions = [
-    { label: "En attente de réponse", value: RetourBonStatut.VALIDATED },
-    { label: "En cours de traitement", value: RetourBonStatut.PROCESSING },
-    { label: "Partiellement accepté", value: RetourBonStatut.PARTIALLY_ACCEPTED }
+    {label: "En attente de réponse", value: RetourBonStatut.VALIDATED},
+    {label: "En cours de traitement", value: RetourBonStatut.PROCESSING},
+    {label: "Partiellement accepté", value: RetourBonStatut.PARTIALLY_ACCEPTED}
   ];
 
   protected retourBons = signal<IRetourBon[]>([]);
@@ -96,7 +112,7 @@ export class AppRetourFournisseurComponent implements OnInit {
   private readonly modalService = inject(NgbModal);
   private readonly router = inject(Router);
 
-  protected exportMenus: MenuItem[] = [
+  protected exportMenus: AppSplitButtonItem[] = [
     {
       label: "Excel",
       icon: "pi pi-file-excel",
@@ -125,13 +141,17 @@ export class AppRetourFournisseurComponent implements OnInit {
 
   /** Bascule vers l'onglet cible et recharge les données */
   protected setTab(tab: RetourTab): void {
-    if (this.activeTab() === tab) return;
+    if (this.activeTab() === tab) {
+      return;
+    }
     this.activeTab.set(tab);
     this.search = "";
     this.dtStart = null;
     this.dtEnd = null;
     this.loadBadges();
-    if (tab === "AVOIRS") return;
+    if (tab === "AVOIRS") {
+      return;
+    }
     if (tab === "GROUPE") {
       this.loadGroupes();
       return;
@@ -175,10 +195,10 @@ export class AppRetourFournisseurComponent implements OnInit {
       size: this.itemsPerPage
     };
     if (this.dtStart) {
-      query.dtStart = DATE_FORMAT_ISO_DATE(this.dtStart);
+      query.dtStart = NGB_DATE_TO_ISO(this.dtStart);
     }
     if (this.dtEnd) {
-      query.dtEnd = DATE_FORMAT_ISO_DATE(this.dtEnd);
+      query.dtEnd = NGB_DATE_TO_ISO(this.dtEnd);
     }
     if (this.search) {
       query.search = this.search;
@@ -286,13 +306,15 @@ export class AppRetourFournisseurComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: count => this.countEnAttente.set(count),
-        error: () => {}
+        error: () => {
+        }
       });
     this.avoirFournisseurService.countEnAttente()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: count => this.countAvoirs.set(count),
-        error: () => {}
+        error: () => {
+        }
       });
   }
 
@@ -380,10 +402,18 @@ export class AppRetourFournisseurComponent implements OnInit {
         : this.selectedStatut;
 
     const params: Record<string, string> = {};
-    if (statutToUse) params["statut"] = statutToUse;
-    if (this.dtStart) params["dtStart"] = DATE_FORMAT_ISO_DATE(this.dtStart)!;
-    if (this.dtEnd) params["dtEnd"] = DATE_FORMAT_ISO_DATE(this.dtEnd)!;
-    if (this.search) params["search"] = this.search;
+    if (statutToUse) {
+      params["statut"] = statutToUse;
+    }
+    if (this.dtStart) {
+      params["dtStart"] = NGB_DATE_TO_ISO(this.dtStart)!;
+    }
+    if (this.dtEnd) {
+      params["dtEnd"] = NGB_DATE_TO_ISO(this.dtEnd)!;
+    }
+    if (this.search) {
+      params["search"] = this.search;
+    }
 
     this.retourBonService.export(format, params).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: blob => {

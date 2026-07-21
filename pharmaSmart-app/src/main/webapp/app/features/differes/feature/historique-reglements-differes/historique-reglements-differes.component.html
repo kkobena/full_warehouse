@@ -1,100 +1,65 @@
 <div class="pharma-smart-content">
 
   <!-- Toolbar -->
-  <div class="pharma-toolbar pharma-toolbar-compact">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-history"></i>
-      <span class="pharma-toolbar-title">Historique des règlements différés</span>
-    </div>
-    <p-toolbar>
-      <ng-template #start>
-        <div class="pharma-toolbar-filters">
-          <p-floatlabel variant="on">
-            <p-select
-              [(ngModel)]="customerId"
-              [options]="store.clients()"
-              [showClear]="true"
-              appendTo="body"
-              [fluid]="true"
-              id="hrClient"
-              inputId="hrClient"
-              optionLabel="fullName"
-              optionValue="id"
-            />
-            <label for="hrClient">Client</label>
-          </p-floatlabel>
+  <app-toolbar [compact]="true" icon="pi pi-history" title="Historique des règlements différés">
+    <ng-container ngProjectAs="[toolbarFilters]">
 
-          <p-floatlabel variant="on">
-            <p-datepicker
-              [(ngModel)]="modelStartDate"
-              [iconDisplay]="'input'"
-              [selectOtherMonths]="true"
-              [showButtonBar]="true"
-              [showIcon]="true"
-              appendTo="body"
-              dateFormat="dd/mm/yy"
-              id="hrDu"
-              inputId="hrDu"
-            />
-            <label for="hrDu">Du</label>
-          </p-floatlabel>
+      <label for="hrClient">Client</label>
+      <app-select
+        [(ngModel)]="customerId"
+        [clearable]="true"
+        [items]="store.clients()"
+        [style]="{ 'min-width': '150px' }"
+        appendTo="body"
+        bindLabel="fullName"
+        bindValue="id"
+        inputId="hrClient"
+      />
 
-          <p-floatlabel variant="on">
-            <p-datepicker
-              [(ngModel)]="modelEndDate"
-              [iconDisplay]="'input'"
-              [selectOtherMonths]="true"
-              [showButtonBar]="true"
-              [showIcon]="true"
-              appendTo="body"
-              dateFormat="dd/mm/yy"
-              id="hrAu"
-              inputId="hrAu"
-            />
-            <label for="hrAu">Au</label>
-          </p-floatlabel>
-        </div>
-      </ng-template>
 
-      <ng-template #end>
-        <div class="pharma-toolbar-actions">
-          <div class="pharma-button-group">
-            <p-button
-              (click)="onSearch()"
-              [loading]="loadingBtn"
-              [raised]="true"
-              icon="pi pi-search"
-              label="Rechercher"
-              severity="info"
-            />
-            <p-button
-              (click)="exportPdf()"
-              [loading]="loadingPdf"
-              [raised]="true"
-              icon="pi pi-file-pdf"
-              label="Exporter PDF"
-              severity="warn"
-            />
-          </div>
-        </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
+      <pharma-date-picker [(ngModel)]="modelStartDate" [maxDate]="modelEndDate" id="hrDu"
+                          label="Du" />
+
+      <pharma-date-picker [(ngModel)]="modelEndDate" [minDate]="modelStartDate" id="hrAu"
+                          label="Au" />
+    </ng-container>
+
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-button-group">
+        <app-button
+          (clicked)="onSearch()"
+          [loading]="loadingBtn"
+          [raised]="true"
+          icon="pi pi-search"
+          label="Rechercher"
+          severity="info"
+        />
+
+        <app-button
+          (clicked)="exportPdf()"
+          [loading]="loadingPdf"
+          [raised]="true"
+          icon="pi pi-file-pdf"
+          label="Exporter PDF"
+          severity="warn"
+        />
+      </div>
+    </ng-container>
+  </app-toolbar>
 
   <!-- Table principale -->
-  <p-table
+  <app-data-table
     (onLazyLoad)="lazyLoading($event)"
-    [expandedRowKeys]="expandedRows"
     [lazy]="true"
     [loading]="loading"
     [paginator]="true"
     [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
     [rows]="itemsPerPage"
     [showCurrentPageReport]="true"
+    [size]="'small'"
     [stripedRows]="true"
     [totalRecords]="store.totalReglements()"
     [value]="store.reglements()"
-    class="p-datatable-sm"
     currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} clients"
     dataKey="id"
   >
@@ -108,13 +73,15 @@
       </tr>
     </ng-template>
 
-    <ng-template #body let-r let-expanded="expanded">
-      <tr class="clickable-row" (click)="toggleRow(r)">
+    <ng-template #body let-expanded="expanded" let-r>
+      <tr [appRowToggler]="r" class="clickable-row">
         <td>
-          <p-button
-            [icon]="isExpanded(r) ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+          <app-button
+            [appRowToggler]="r"
+            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
             [rounded]="true"
             [text]="true"
+            ariaLabel="Déplier le détail"
             size="small"
           />
         </td>
@@ -133,12 +100,12 @@
 
     <ng-template #expandedrow let-r>
       <tr>
-        <td colspan="5" class="p-0">
+        <td class="p-0" colspan="5">
           <div class="px-4 py-2 bg-light">
-            <p-table
-              [value]="r.items ?? []"
+            <app-data-table
+              [size]="'small'"
               [stripedRows]="true"
-              class="p-datatable-sm pharma-table-nested"
+              [value]="r.items ?? []" class="pharma-table-nested"
             >
               <ng-template #header>
                 <tr class="pharma-table-head">
@@ -153,32 +120,39 @@
               <ng-template #body let-item>
                 <tr>
                   <td>
-                    <span class="pharma-badge pharma-badge-info">{{ item.libelleMode ?? '—' }}</span>
+                    <span class="pharma-badge pharma-badge-info">{{
+                        item.libelleMode ?? '—'
+                      }}</span>
                   </td>
-                  <td class="text-end"><span class="pharma-price">{{ item.expectedAmount | number }}</span></td>
-                  <td class="text-end"><span class="pharma-total">{{ item.montantVerse | number }}</span></td>
-                  <td class="text-center text-muted small">{{ item.mvtDate | date: 'dd/MM/yyyy' }}</td>
+                  <td class="text-end"><span
+                    class="pharma-price">{{ item.expectedAmount | number }}</span></td>
+                  <td class="text-end"><span
+                    class="pharma-total">{{ item.montantVerse | number }}</span></td>
+                  <td class="text-center text-muted small">{{ item.mvtDate | date: 'dd/MM/yyyy' }}
+                  </td>
                   <td class="small">{{ item.user ?? '—' }}</td>
                   <td class="text-center">
-                    <p-button
+                    <app-button
                       (click)="printItem(item)"
                       [rounded]="true"
                       [text]="true"
                       icon="pi pi-print"
-                      pTooltip="Imprimer le reçu"
+                      ngbTooltip="Imprimer le reçu"
+                      placement="top"
                       severity="secondary"
                       size="small"
-                      tooltipPosition="top"
                     />
                   </td>
                 </tr>
               </ng-template>
               <ng-template #emptymessage>
                 <tr>
-                  <td colspan="6" class="text-center text-muted py-2 small">Aucun détail disponible</td>
+                  <td class="text-center text-muted py-2 small" colspan="6">Aucun détail
+                    disponible
+                  </td>
                 </tr>
               </ng-template>
-            </p-table>
+            </app-data-table>
           </div>
         </td>
       </tr>
@@ -187,7 +161,9 @@
     <ng-template #emptymessage>
       <tr>
         <td colspan="5">
-          <div class="alert alert-warning m-2">Aucun règlement trouvé — affinez la période ou le client</div>
+          <div class="alert alert-warning m-2">Aucun règlement trouvé — affinez la période ou le
+            client
+          </div>
         </td>
       </tr>
     </ng-template>
@@ -195,7 +171,7 @@
     <ng-template #footer>
       @if (store.reglementSummary(); as s) {
         <tr class="pharma-table-footer">
-          <td colspan="2" class="fw-semibold">
+          <td class="fw-semibold" colspan="2">
             <i class="pi pi-check-circle text-success me-1"></i>Total encaissé (période)
           </td>
           <td class="text-end fw-bold text-success">{{ s.paidAmount | number }} FCFA</td>
@@ -203,6 +179,6 @@
         </tr>
       }
     </ng-template>
-  </p-table>
+  </app-data-table>
 
 </div>

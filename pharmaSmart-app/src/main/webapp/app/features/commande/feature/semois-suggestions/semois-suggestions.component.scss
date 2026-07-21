@@ -71,19 +71,19 @@
   line-height: 1.2;
 }
 
+// Bootstrap peint le fond réel sur les <td> (descendant selector `.table > :not(caption) > * > *`)
+// à partir des custom properties --bs-table-bg / --bs-table-hover-bg, pas via
+// `background-color` posé sur la <tr> — un `background-color` direct sur `.table-danger`/
+// `.table-warning` n'a donc aucun effet visuel, les <td> le recouvrent entièrement. Il faut
+// réassigner ces variables : leur valeur par défaut (calculée par le mixin `table-variant`
+// de Bootstrap) est un rouge/orange bien plus saturé que ce doux dégradé, surtout au survol.
 .table-danger {
-  background-color: rgba(255, 235, 238, 0.3) !important;
-
-  &:hover {
-    background-color: rgba(255, 235, 238, 0.5) !important;
-  }
+  --bs-table-bg: rgba(255, 235, 238, 0.3) !important;
+  --bs-table-hover-bg: rgba(255, 235, 238, 0.5) !important;
 }
 
 .table-warning {
-  background-color: rgba(255, 243, 224, 0.3) !important;
-
-  &:hover {
-    background-color: rgba(255, 243, 224, 0.5) !important;
-  }
+  --bs-table-bg: rgba(255, 243, 224, 0.3) !important;
+  --bs-table-hover-bg: rgba(255, 243, 224, 0.5) !important;
 }
 

@@ -7,16 +7,16 @@ import {FormLaboratoireComponent} from './form-laboratoire/form-laboratoire.comp
 import {IResponseDto} from '../../shared/util/response-dto';
 import {ILaboratoire} from '../../shared/model/laboratoire.model';
 import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
-import {ButtonModule} from 'primeng/button';
-import {ToolbarModule} from 'primeng/toolbar';
-import {TableLazyLoadEvent, TableModule} from 'primeng/table';
-import {InputTextModule} from 'primeng/inputtext';
-import {TooltipModule} from 'primeng/tooltip';
 import {FormsModule} from '@angular/forms';
-import {IconField} from 'primeng/iconfield';
-import {InputIcon} from 'primeng/inputicon';
+import {
+  AppTableLazyLoadEvent,
+  ButtonComponent,
+  DataTableComponent,
+  IconFieldComponent,
+  SelectableRowDirective,
+} from '../../shared/ui';
 import {showCommonModal} from '../sales/selling-home/sale-helper';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {
   FileUploadDialogComponent
 } from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
@@ -34,15 +34,13 @@ import {
   styleUrl: './laboratoire-produit.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
-    ButtonModule,
-    ToolbarModule,
-    TableModule,
     RouterModule,
-    InputTextModule,
-    TooltipModule,
     FormsModule,
-    IconField,
-    InputIcon,
+    ButtonComponent,
+    DataTableComponent,
+    SelectableRowDirective,
+    IconFieldComponent,
+    NgbTooltip,
     SpinnerComponent,
   ],
 })
@@ -80,7 +78,7 @@ export class LaboratoireProduitComponent implements OnInit {
       });
   }
 
-  protected lazyLoading(event: TableLazyLoadEvent): void {
+  protected lazyLoading(event: AppTableLazyLoadEvent): void {
     this.page = event.first / event.rows;
     this.loading = true;
     this.entityService

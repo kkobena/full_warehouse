@@ -1,46 +1,23 @@
-import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import { Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { TooltipModule } from "primeng/tooltip";
-import { ButtonModule } from "primeng/button";
-import { InputTextModule } from "primeng/inputtext";
-import { TableModule } from "primeng/table";
-import { ToolbarModule } from "primeng/toolbar";
 import { CashRegister } from "../model/cash-register.model";
 import { Ticketing } from "../model/ticketing.model";
-import { CardModule } from "primeng/card";
 import { ActivatedRoute } from "@angular/router";
-import { BadgeModule } from "primeng/badge";
-import { KeyFilterModule } from "primeng/keyfilter";
 import { formatNumber } from "../../../shared/util/warehouse-util";
 import { CashRegisterService } from "../cash-register.service";
-import { InputNumber, InputNumberModule } from "primeng/inputnumber";
-import { TagModule } from "primeng/tag";
-import { InputGroupModule } from "primeng/inputgroup";
-import { InputGroupAddonModule } from "primeng/inputgroupaddon";
-import { Toast } from "primeng/toast";
 import { CommonModule } from "@angular/common";
 import { NgbConfirmDialogService } from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { NotificationService } from "../../../shared/services/notification.service";
+import { ButtonComponent, InputNumberComponent } from "../../../shared/ui";
 
 @Component({
   selector: "app-ticketing",
   imports: [
     CommonModule,
     FormsModule,
-    TooltipModule,
-    ButtonModule,
-    InputTextModule,
-    TableModule,
-    ToolbarModule,
     ReactiveFormsModule,
-    CardModule,
-    BadgeModule,
-    KeyFilterModule,
-    InputNumberModule,
-    TagModule,
-    InputGroupModule,
-    InputGroupAddonModule,
-    Toast
+    ButtonComponent,
+    InputNumberComponent
   ],
 
   templateUrl: "./ticketing-improved.html",
@@ -48,7 +25,7 @@ import { NotificationService } from "../../../shared/services/notification.servi
   styleUrls: ["./ticketing-improved.scss"]
 })
 export class TicketingComponent implements OnInit {
-  readonly numberOf10ThousandInput = viewChild<InputNumber>("numberOf10Thousand");
+  readonly numberOf10ThousandInput = viewChild("numberOf10Thousand", { read: ElementRef<HTMLElement> });
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly entityService = inject(CashRegisterService);
   protected fb = inject(FormBuilder);
@@ -70,10 +47,17 @@ export class TicketingComponent implements OnInit {
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ cashRegister }) => (this.selectedCashRegister = cashRegister));
+    this.editForm.valueChanges.subscribe(() => this.computeTotalAmount());
   }
 
-  onInputChange() {
-    this.computeTotalAmount();
+  protected increment(field: string): void {
+    const control = this.editForm.get([field]);
+    control.setValue((control.value || 0) + 1);
+  }
+
+  protected decrement(field: string): void {
+    const control = this.editForm.get([field]);
+    control.setValue(Math.max(0, (control.value || 0) - 1));
   }
 
   previousState(): void {
@@ -127,7 +111,7 @@ export class TicketingComponent implements OnInit {
       "BILLETAGE",
       message,
       "pi pi-exclamation-triangle",
-      () => this.numberOf10ThousandInput().el.nativeElement.focus()
+      () => this.numberOf10ThousandInput()?.nativeElement.querySelector('input')?.focus()
     );
   }
 

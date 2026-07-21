@@ -1,26 +1,31 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
-import { HttpResponse } from "@angular/common/http";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
+import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from "@angular/core";
+import {HttpResponse} from "@angular/common/http";
+import {CommonModule} from "@angular/common";
+import {FormsModule} from "@angular/forms";
 
-import { TableModule } from "primeng/table";
-import { ButtonModule } from "primeng/button";
-import { SelectModule } from "primeng/select";
-import { ToolbarModule } from "primeng/toolbar";
-import { DividerModule } from "primeng/divider";
-import { Tag } from "primeng/tag";
+import {
+  BadgeComponent,
+  ButtonComponent,
+  DataTableComponent,
+  SelectComponent,
+  SortableHeaderDirective,
+  ToolbarComponent
+} from '../../../shared/ui';
 
-import { CustomerClassification, ICustomerSegmentation } from "app/shared/model/report/customer-segmentation.model";
-import { CustomerSegmentationReportService } from "../services/customer-segmentation-report.service";
-import { TauriPrinterService } from "../../../shared/services/tauri-printer.service";
-import { handleBlobForTauri } from "../../../shared/util/tauri-util";
+import {
+  CustomerClassification,
+  ICustomerSegmentation
+} from "app/shared/model/report/customer-segmentation.model";
+import {CustomerSegmentationReportService} from "../services/customer-segmentation-report.service";
+import {TauriPrinterService} from "../../../shared/services/tauri-printer.service";
+import {handleBlobForTauri} from "../../../shared/util/tauri-util";
 
 @Component({
   selector: "jhi-customer-segmentation",
   templateUrl: "./customer-segmentation.component.html",
   styleUrl: "./customer-segmentation.component.scss",
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, TableModule, ButtonModule, SelectModule, ToolbarModule, DividerModule, Tag]
+  imports: [CommonModule, FormsModule, BadgeComponent, ButtonComponent, DataTableComponent, SelectComponent, ToolbarComponent, SortableHeaderDirective]
 })
 export default class CustomerSegmentationComponent implements OnInit {
   customers = signal<ICustomerSegmentation[]>([]);
@@ -31,14 +36,14 @@ export default class CustomerSegmentationComponent implements OnInit {
   showAtRiskOnly = signal<boolean>(false);
 
   classificationOptions = [
-    { label: "Toutes les classifications", value: null },
-    { label: "Champions", value: CustomerClassification.CHAMPION },
-    { label: "Fidèles", value: CustomerClassification.LOYAL },
-    { label: "Gros dépensiers", value: CustomerClassification.BIG_SPENDER },
-    { label: "Actifs", value: CustomerClassification.ACTIVE },
-    { label: "À risque", value: CustomerClassification.AT_RISK },
-    { label: "Besoin d'attention", value: CustomerClassification.NEED_ATTENTION },
-    { label: "Inactifs", value: CustomerClassification.INACTIVE }
+    {label: "Toutes les classifications", value: null},
+    {label: "Champions", value: CustomerClassification.CHAMPION},
+    {label: "Fidèles", value: CustomerClassification.LOYAL},
+    {label: "Gros dépensiers", value: CustomerClassification.BIG_SPENDER},
+    {label: "Actifs", value: CustomerClassification.ACTIVE},
+    {label: "À risque", value: CustomerClassification.AT_RISK},
+    {label: "Besoin d'attention", value: CustomerClassification.NEED_ATTENTION},
+    {label: "Inactifs", value: CustomerClassification.INACTIVE}
   ];
 
   private readonly customerSegmentationService = inject(CustomerSegmentationReportService);

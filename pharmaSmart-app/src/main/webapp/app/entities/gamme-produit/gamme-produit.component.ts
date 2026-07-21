@@ -7,15 +7,15 @@ import {FormGammeComponent} from './form-gamme/form-gamme.component';
 import {IGammeProduit} from '../../shared/model/gamme-produit.model';
 import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
 import {IResponseDto} from '../../shared/util/response-dto';
-import {ButtonModule} from 'primeng/button';
-import {ToolbarModule} from 'primeng/toolbar';
-import {TableLazyLoadEvent, TableModule} from 'primeng/table';
-import {InputTextModule} from 'primeng/inputtext';
-import {TooltipModule} from 'primeng/tooltip';
-import {IconField} from 'primeng/iconfield';
-import {InputIcon} from 'primeng/inputicon';
+import {
+  AppTableLazyLoadEvent,
+  ButtonComponent,
+  DataTableComponent,
+  IconFieldComponent,
+  SelectableRowDirective,
+} from '../../shared/ui';
 import {showCommonModal} from '../sales/selling-home/sale-helper';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {
   FileUploadDialogComponent
 } from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
@@ -30,16 +30,7 @@ import {
   templateUrl: './gamme-produit.component.html',
   styleUrl: './gamme-produit.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
-    ButtonModule,
-    ToolbarModule,
-    TableModule,
-    InputTextModule,
-    TooltipModule,
-    IconField,
-    InputIcon,
-    SpinnerComponent,
-  ],
+  imports: [ButtonComponent, DataTableComponent, SelectableRowDirective, IconFieldComponent, NgbTooltip, SpinnerComponent],
 })
 export class GammeProduitComponent implements OnInit {
   protected responsedto!: IResponseDto;
@@ -74,7 +65,7 @@ export class GammeProduitComponent implements OnInit {
       });
   }
 
-  protected lazyLoading(event: TableLazyLoadEvent): void {
+  protected lazyLoading(event: AppTableLazyLoadEvent): void {
     this.page = event.first / event.rows;
     this.loading = true;
     this.entityService

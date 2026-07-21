@@ -1,9 +1,6 @@
 import { Component, effect, inject, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
-import { NgbModal, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
-import { TooltipModule } from 'primeng/tooltip';
+import { NgbModal, NgbNavModule, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { IRayon, TYPE_ZONE_SEVERITY } from '../../models/rayon.model';
 import { RayonProduitsTabComponent } from '../rayon-produits-tab/rayon-produits-tab.component';
 import { RayonFormComponent } from '../rayon-form/rayon-form.component';
@@ -11,13 +8,14 @@ import { CloneRayonProduitsFormComponent } from '../clone-rayon-produits-form/cl
 import { InventoryCreateModalComponent } from '../../../../features/inventory/ui/inventory-create-modal/inventory-create-modal.component';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { IResponseDto } from '../../../../shared/util/response-dto';
+import { BadgeComponent, ButtonComponent } from '../../../../shared/ui';
 
 @Component({
   selector: 'app-rayon-detail-panel',
   templateUrl: './rayon-detail-panel.component.html',
   styleUrl: './rayon-detail-panel.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [NgbNavModule, ButtonModule, TagModule, TooltipModule, RayonProduitsTabComponent],
+  imports: [NgbNavModule, ButtonComponent, BadgeComponent, NgbTooltip, RayonProduitsTabComponent],
 })
 export class RayonDetailPanelComponent {
   readonly rayon = input.required<IRayon>();

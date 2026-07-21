@@ -1,43 +1,54 @@
-import { Component, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
-import { HttpHeaders, HttpResponse } from "@angular/common/http";
-import { ActivatedRoute, Data, ParamMap, Router, RouterLink } from "@angular/router";
-import { combineLatest, Observable, Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
-import { ICustomer } from "app/shared/model/customer.model";
-import { ITEMS_PER_PAGE } from "app/shared/constants/pagination.constants";
-import { CustomerService } from "./customer.service";
-import { MenuItem } from "primeng/api";
-import { UninsuredCustomerFormComponent } from "./uninsured-customer-form/uninsured-customer-form.component";
-import { TranslateService } from "@ngx-translate/core";
-import { FormAyantDroitComponent } from "./form-ayant-droit/form-ayant-droit.component";
-import { FormsModule } from "@angular/forms";
-import { ButtonModule } from "primeng/button";
-import { RippleModule } from "primeng/ripple";
-import { InputTextModule } from "primeng/inputtext";
-import { TableLazyLoadEvent, TableModule } from "primeng/table";
-import { DialogModule } from "primeng/dialog";
-import { FileUploadModule } from "primeng/fileupload";
-import { ToolbarModule } from "primeng/toolbar";
-import { SplitButtonModule } from "primeng/splitbutton";
-import { TooltipModule } from "primeng/tooltip";
-import { CustomerTiersPayantComponent } from "./customer-tiers-payant/customer-tiers-payant.component";
-import { IClientTiersPayant } from "../../shared/model";
-import { AssureFormStepComponent } from "./assure-form-step/assure-form-step.component";
-import { PrimeNG } from "primeng/config";
-import { Select, SelectModule } from "primeng/select";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
-import { DividerModule } from "primeng/divider";
-import { CustomerCarnetComponent } from "./carnet/customer-carnet.component";
-import { showCommonModal } from "../sales/selling-home/sale-helper";
-import { SpinnerComponent } from "../../shared/spinner/spinner.component";
-import { Card } from "primeng/card";
-import { FloatLabel } from "primeng/floatlabel";
-import { Toast } from "primeng/toast";
-import { CommonModule } from "@angular/common";
-import { NgbConfirmDialogService } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { NotificationService } from "../../shared/services/notification.service";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnDestroy,
+  OnInit,
+  viewChild
+} from "@angular/core";
+import {HttpHeaders, HttpResponse} from "@angular/common/http";
+import {ActivatedRoute, Data, ParamMap, Router, RouterLink} from "@angular/router";
+import {combineLatest, Observable, Subject} from "rxjs";
+import {takeUntil} from "rxjs/operators";
+import {NgbModal, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
+import {ICustomer} from "app/shared/model/customer.model";
+import {ITEMS_PER_PAGE} from "app/shared/constants/pagination.constants";
+import {CustomerService} from "./customer.service";
+import {
+  UninsuredCustomerFormComponent
+} from "./uninsured-customer-form/uninsured-customer-form.component";
+import {TranslateService} from "@ngx-translate/core";
+import {FormAyantDroitComponent} from "./form-ayant-droit/form-ayant-droit.component";
+import {FormsModule} from "@angular/forms";
+import {
+  CustomerTiersPayantComponent
+} from "./customer-tiers-payant/customer-tiers-payant.component";
+import {IClientTiersPayant} from "../../shared/model";
+import {AssureFormStepComponent} from "./assure-form-step/assure-form-step.component";
+import {CustomerCarnetComponent} from "./carnet/customer-carnet.component";
+import {showCommonModal} from "../sales/selling-home/sale-helper";
+import {SpinnerComponent} from "../../shared/spinner/spinner.component";
+import {CommonModule} from "@angular/common";
+import {
+  NgbConfirmDialogService
+} from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import {NotificationService} from "../../shared/services/notification.service";
+import {
+  AppSplitButtonItem,
+  AppTableLazyLoadEvent,
+  ButtonComponent,
+  CardComponent,
+  DataTableComponent,
+  FloatLabelComponent,
+  IconFieldComponent,
+  RowTogglerDirective,
+  SelectComponent,
+  SplitButtonComponent,
+  ToolbarComponent
+} from "../../shared/ui";
+import {
+  JsonImportDialogComponent
+} from "../../shared/json-import-dialog/json-import-dialog.component";
 
 @Component({
   selector: "app-customer",
@@ -46,36 +57,28 @@ import { NotificationService } from "../../shared/services/notification.service"
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
-    SelectModule,
-    ToolbarModule,
     FormsModule,
-    ButtonModule,
-    RippleModule,
-    InputTextModule,
-    TableModule,
-    DialogModule,
-    FileUploadModule,
-    DividerModule,
-    SplitButtonModule,
-    TooltipModule,
     RouterLink,
-    Select,
-    IconField,
-    InputIcon,
     SpinnerComponent,
-    Card,
-    FloatLabel,
-    Toast
+    ButtonComponent,
+    DataTableComponent,
+    FloatLabelComponent,
+    IconFieldComponent,
+    RowTogglerDirective,
+    SelectComponent,
+    SplitButtonComponent,
+    ToolbarComponent,
+    NgbTooltip,
+    CardComponent
   ]
 })
 export class CustomerComponent implements OnInit, OnDestroy {
   translate = inject(TranslateService);
-  primeNGConfig = inject(PrimeNG);
   customers?: ICustomer[];
   types: string[] = ["TOUT", "ASSURE", "STANDARD"];
   statuts: object[] = [
-    { value: "ENABLE", label: "Actifs" },
-    { value: "DISABLE", label: "Désactivés" }
+    {value: "ENABLE", label: "Actifs"},
+    {value: "DISABLE", label: "Désactivés"}
   ];
   typeSelected = "";
   statutSelected = "ENABLE";
@@ -87,9 +90,8 @@ export class CustomerComponent implements OnInit, OnDestroy {
   ascending!: boolean;
   loading!: boolean;
   ngbPaginationPage = 1;
-  newCustomerbuttons: MenuItem[];
+  newCustomerbuttons: AppSplitButtonItem[];
   displayTiersPayantAction = true;
-  jsonDialog = false;
   responseDialog = false;
   protected customerService = inject(CustomerService);
   protected activatedRoute = inject(ActivatedRoute);
@@ -157,7 +159,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
       });
   }
 
-  lazyLoading(event: TableLazyLoadEvent): void {
+  lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;
@@ -186,8 +188,18 @@ export class CustomerComponent implements OnInit, OnDestroy {
     //   this.registerChangeInCustomers();
   }
 
+  /**
+   * Ouvre la modale d'import JSON. Le composant partagé rend un FormData prêt à poster.
+   */
+  openJsonImport(): void {
+    showCommonModal(this.modalService, JsonImportDialogComponent, {}, (formData: FormData) => {
+      if (formData) {
+        this.handleServiceCall(this.customerService.uploadJsonData(formData), () => this.onPocesJsonSuccess());
+      }
+    });
+  }
+
   cancel(): void {
-    this.jsonDialog = false;
     this.responseDialog = false;
   }
 
@@ -371,14 +383,6 @@ export class CustomerComponent implements OnInit, OnDestroy {
     );
   }
 
-  protected onUploadJson(event: any): void {
-    const formData: FormData = new FormData();
-    const file = event.files[0];
-    formData.append("importjson", file, file.name);
-    this.jsonDialog = false;
-    this.handleServiceCall(this.customerService.uploadJsonData(formData), () => this.onPocesJsonSuccess());
-  }
-
   protected onAddNewTiersPayant(customer: ICustomer): void {
     showCommonModal(
       this.modalService,
@@ -416,7 +420,6 @@ export class CustomerComponent implements OnInit, OnDestroy {
   }
 
   protected onPocesJsonSuccess(): void {
-    this.jsonDialog = false;
     this.spinner().hide();
     this.loadPage();
   }

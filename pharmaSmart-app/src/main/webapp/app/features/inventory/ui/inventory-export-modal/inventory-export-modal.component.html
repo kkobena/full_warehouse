@@ -20,24 +20,24 @@
   <!-- Grouper par -->
   <div class="export-field">
     <label class="export-label">Grouper par</label>
-    <p-select
+    <app-select
       [(ngModel)]="exportGroupBy"
-      [options]="groupByOptions"
-      optionLabel="label"
-      optionValue="value"
-      [style]="{'width': '100%'}"
+      [items]="groupByOptions"
+      bindLabel="label"
+      bindValue="value"
+      appendTo="body"
     />
   </div>
 
   <!-- Filtre lignes -->
   <div class="export-field">
     <label class="export-label">Filtre lignes</label>
-    <p-select
+    <app-select
       [(ngModel)]="selectedFilter"
-      [options]="lineFilterOptions"
-      optionLabel="label"
-      optionValue="value"
-      [style]="{'width': '100%'}"
+      [items]="lineFilterOptions"
+      bindLabel="label"
+      bindValue="value"
+      appendTo="body"
     />
   </div>
 
@@ -45,15 +45,15 @@
   @if (storages().length) {
     <div class="export-field">
       <label class="export-label">Emplacement <span class="text-muted fw-normal">(optionnel)</span></label>
-      <p-select
+      <app-select
         [(ngModel)]="selectedStorageId"
         (ngModelChange)="onStorageChange($event)"
-        [options]="storages()"
-        optionLabel="name"
-        optionValue="id"
-        [showClear]="true"
+        [items]="storages()"
+        bindLabel="name"
+        bindValue="id"
+        [clearable]="true"
         placeholder="Tous les emplacements"
-        [style]="{'width': '100%'}"
+        appendTo="body"
       />
     </div>
   }
@@ -62,14 +62,14 @@
   @if (rayons().length) {
     <div class="export-field">
       <label class="export-label">Rayon <span class="text-muted fw-normal">(optionnel)</span></label>
-      <p-select
+      <app-select
         [(ngModel)]="selectedRayonId"
-        [options]="rayons()"
-        optionLabel="libelle"
-        optionValue="id"
-        [showClear]="true"
+        [items]="rayons()"
+        bindLabel="libelle"
+        bindValue="id"
+        [clearable]="true"
         placeholder="Tous les rayons"
-        [style]="{'width': '100%'}"
+        appendTo="body"
       />
     </div>
   }
@@ -79,34 +79,33 @@
     <label class="export-label">Recherche <span class="text-muted fw-normal">(optionnel)</span></label>
     <input
       type="text"
-      pInputText
+      class="form-control w-100"
       [(ngModel)]="search"
       placeholder="Code CIP, libellé..."
-      class="w-100"
     />
   </div>
 
 </div>
 
 <div class="modal-footer">
-  <p-button
-    (click)="cancel()"
+  <app-button
+    (clicked)="cancel()"
     [raised]="true"
     icon="pi pi-times"
     label="Annuler"
     severity="secondary"
     type="button"
   />
-  <p-button
-    (click)="skip()"
+  <app-button
+    (clicked)="skip()"
     [raised]="true"
     icon="pi pi-forward"
     label="Continuer sans exporter"
     severity="info"
     type="button"
   />
-  <p-button
-    (click)="export()"
+  <app-button
+    (clicked)="export()"
     [loading]="exporting()"
     [raised]="true"
     icon="pi pi-file-pdf"

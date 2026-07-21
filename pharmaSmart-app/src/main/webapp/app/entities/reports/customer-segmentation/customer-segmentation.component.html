@@ -1,39 +1,34 @@
 <div class="pharma-smart-content p-2">
-  <div class="pharma-toolbar">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-users"></i>
-      <span class="pharma-toolbar-title">Segmentation Clients (Analyse RFM)</span>
-    </div>
+  <app-toolbar icon="pi pi-users" title="Segmentation Clients (Analyse RFM)">
 
-    <p-toolbar>
-      <ng-template #start>
-        <div class="pharma-toolbar-filters flex gap-2">
-          <p-select
-            (onChange)="onFilterChange()"
-            [(ngModel)]="selectedClassification"
-            [disabled]="showChampionsOnly() || showAtRiskOnly()"
-            [options]="classificationOptions"
-            [showClear]="true"
-            appendTo="body"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Classification"
-            size="large"
-          />
-        </div>
-      </ng-template>
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <div class="pharma-toolbar-filters flex gap-2">
+        <app-select
+          (selectionChange)="onFilterChange()"
+          [(ngModel)]="selectedClassification"
+          [clearable]="true"
+          [disabled]="showChampionsOnly() || showAtRiskOnly()"
+          [items]="classificationOptions"
+          appendTo="body"
+          bindLabel="label"
+          bindValue="value"
+          placeholder="Classification"
+          size="large"
+        />
+      </div>
+    </ng-container>
 
-      <ng-template #end>
-        <div>
-          <p-button (onClick)="onClearFilters()" class="mr-1" icon="pi pi-filter-slash" label="Effacer les filtres"
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div>
+        <app-button (clicked)="onClearFilters()" class="mr-1" icon="pi pi-filter-slash"
+                    label="Effacer les filtres"
                     severity="secondary" size="small" />
-          <!--   <p-button class="mr-1"  size="small" label="Exporter PDF" icon="pi pi-file-pdf" severity="warn" (onClick)="exportToPdf()" />-->
-          <p-button (onClick)="loadCustomers()" class="mr-1" icon="pi pi-refresh" label="Rafraîchir"
+        <!--   <app-button class="mr-1"  size="small" label="Exporter PDF" icon="pi pi-file-pdf" severity="warn" (clicked)="exportToPdf()" />-->
+        <app-button (clicked)="loadCustomers()" class="mr-1" icon="pi pi-refresh" label="Rafraîchir"
                     severity="primary" size="small" />
-        </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
+      </div>
+    </ng-container>
+  </app-toolbar>
 
   <!-- KPI Strip — Segments -->
   <div class="kpi-strip mt-2 mb-2">
@@ -53,7 +48,9 @@
       <i class="pi pi-heart text-primary"></i>
       <div class="kpi-strip-body">
         <span class="kpi-strip-label">Fidèles &amp; Actifs</span>
-        <span class="kpi-strip-value text-primary">{{ (classificationCounts().LOYAL || 0) + (classificationCounts().ACTIVE || 0) }}</span>
+        <span class="kpi-strip-value text-primary">{{
+            (classificationCounts().LOYAL || 0) + (classificationCounts().ACTIVE || 0)
+          }}</span>
         <span class="kpi-strip-sub">clients réguliers</span>
       </div>
     </div>
@@ -64,7 +61,9 @@
       <i class="pi pi-exclamation-triangle text-warning"></i>
       <div class="kpi-strip-body">
         <span class="kpi-strip-label">À risque</span>
-        <span class="kpi-strip-value text-warning">{{ (classificationCounts().AT_RISK || 0) + (classificationCounts().NEED_ATTENTION || 0) }}</span>
+        <span class="kpi-strip-value text-warning">{{
+            (classificationCounts().AT_RISK || 0) + (classificationCounts().NEED_ATTENTION || 0)
+          }}</span>
         <span class="kpi-strip-sub">besoin d'attention</span>
       </div>
     </div>
@@ -108,7 +107,7 @@
       <i class="pi pi-shopping-cart text-warning"></i>
       <div class="kpi-strip-body">
         <span class="kpi-strip-label">Panier moyen</span>
-        <span class="kpi-strip-value text-warning">{{ getAverageBasket() | number: '1.0-0' }} <small>FCFA</small></span>
+        <span class="kpi-strip-value text-warning">{{ getAverageBasket() | number: '1.0-0' }}<small>FCFA</small></span>
         <span class="kpi-strip-sub">par client</span>
       </div>
     </div>
@@ -119,7 +118,8 @@
       <i class="pi pi-chart-line text-danger"></i>
       <div class="kpi-strip-body">
         <span class="kpi-strip-label">Score RFM moy.</span>
-        <span class="kpi-strip-value text-danger">{{ getAverageRFMScore() | number: '1.1-2' }}</span>
+        <span
+          class="kpi-strip-value text-danger">{{ getAverageRFMScore() | number: '1.1-2' }}</span>
         <span class="kpi-strip-sub">sur 5</span>
       </div>
     </div>
@@ -130,25 +130,22 @@
   <div class="mt-3">
     <div class="card h-100 data-card">
       <div class="card-body">
-        <p-table
+        <app-data-table
           [loading]="isLoading()"
           [paginator]="true"
           [rowsPerPageOptions]="[10, 20, 50, 100]"
           [rows]="20"
           [scrollable]="true"
           [showCurrentPageReport]="true"
+          [size]="'small'"
           [value]="customers()"
-          class="p-datatable-sm"
           currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
           scrollHeight="500px"
         >
           <ng-template #header>
             <tr class="pharma-table-head">
               <th>Client</th>
-              <th>
-                Téléphone
-                <p-sorticon field="phone" />
-              </th>
+              <th appSortableHeader="phone">Téléphone</th>
               <th>Classification</th>
               <th>Dernier achat</th>
               <th class="text-end">Jours</th>
@@ -166,16 +163,16 @@
               <td>{{ customer.customerName }}</td>
               <td>{{ customer.phone }}</td>
               <td>
-                <p-tag [severity]="getClassificationSeverity(customer.customerClassification)">
+                <app-badge [severity]="getClassificationSeverity(customer.customerClassification)">
                   {{ getClassificationLabel(customer.customerClassification) }}
-                </p-tag>
+                </app-badge>
               </td>
               <td>{{ customer.lastPurchaseDate | date: 'dd/MM/yyyy' }}</td>
               <td class="text-end">
-                <p-tag [severity]="getRecencySeverity(customer.daysSinceLastPurchase)"> {{
+                <app-badge [severity]="getRecencySeverity(customer.daysSinceLastPurchase)"> {{
                     customer.daysSinceLastPurchase || 0
                   }} j
-                </p-tag>
+                </app-badge>
               </td>
               <td class="text-end">{{ customer.nbPurchasesLastYear || 0 }}</td>
               <td class="text-end fw-bold">{{ customer.totalSpentLastYear | number: '1.0-0' }}F
@@ -191,9 +188,9 @@
                 <span class="rfm-score">{{ customer.monetaryScore || 0 }}</span>
               </td>
               <td class="text-center">
-                <p-tag [severity]="getRFMScoreSeverity(customer.rfmSegment)">
+                <app-badge [severity]="getRFMScoreSeverity(customer.rfmSegment)">
                   {{ customer.rfmSegment || 0 }}
-                </p-tag>
+                </app-badge>
               </td>
             </tr>
           </ng-template>
@@ -202,7 +199,7 @@
               <td class="text-center" colspan="12">Aucune donnée disponible</td>
             </tr>
           </ng-template>
-        </p-table>
+        </app-data-table>
       </div>
     </div>
   </div>

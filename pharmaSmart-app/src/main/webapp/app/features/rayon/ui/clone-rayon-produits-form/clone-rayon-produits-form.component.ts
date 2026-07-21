@@ -1,9 +1,6 @@
 import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonModule } from 'primeng/button';
-import { Select } from 'primeng/select';
-import { TooltipModule } from 'primeng/tooltip';
 import { HttpResponse } from '@angular/common/http';
 import { forkJoin } from 'rxjs';
 import { IRayon } from '../../models/rayon.model';
@@ -15,6 +12,7 @@ import { MagasinService } from '../../../../entities/magasin/magasin.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { ErrorService } from '../../../../shared/error.service';
 import { IResponseDto } from '../../../../shared/util/response-dto';
+import { ButtonComponent, SelectSearchComponent } from '../../../../shared/ui';
 
 interface StorageRow {
   storage: Storage;
@@ -27,7 +25,7 @@ interface StorageRow {
   templateUrl: './clone-rayon-produits-form.component.html',
   styleUrl: './clone-rayon-produits-form.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [FormsModule, ButtonModule, Select, TooltipModule],
+  imports: [FormsModule, ButtonComponent, SelectSearchComponent],
 })
 export class CloneRayonProduitsFormComponent implements OnInit {
   rayon!: IRayon;

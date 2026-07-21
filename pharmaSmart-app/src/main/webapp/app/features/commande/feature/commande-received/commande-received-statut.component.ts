@@ -1,11 +1,9 @@
 import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {ICellRendererAngularComp} from 'ag-grid-angular';
-import {Tag} from 'primeng/tag';
+import {AppBadgeSeverity, BadgeComponent} from '../../../../shared/ui';
 import {IOrderLine} from '../../../../shared/model/order-line.model';
 
-type PrimeSeverity = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast';
-
-const SEVERITY_MAP: Record<string, PrimeSeverity> = {
+const SEVERITY_MAP: Record<string, AppBadgeSeverity> = {
   success: 'success',
   danger:  'danger',
   info:    'info',
@@ -14,14 +12,14 @@ const SEVERITY_MAP: Record<string, PrimeSeverity> = {
 
 @Component({
   selector: 'app-commande-received-statut',
-  imports: [Tag],
-  template: `<p-tag [value]="label" [severity]="severity" [rounded]="true" />`,
+  imports: [BadgeComponent],
+  template: `<app-badge [label]="label" [severity]="severity" [rounded]="true" />`,
   changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`:host { display:flex; align-items:center; justify-content:center; height:100% }`],
 })
 export class CommandeReceivedStatutComponent implements ICellRendererAngularComp {
   protected label = '';
-  protected severity: PrimeSeverity = 'secondary';
+  protected severity: AppBadgeSeverity = 'secondary';
 
   agInit(params: any): void {
     this.update(params);

@@ -3,35 +3,21 @@ import { HttpResponse } from "@angular/common/http";
 import { Router, RouterModule } from "@angular/router";
 import { IMagasin } from "../../shared/model";
 import { MagasinService } from "../magasin/magasin.service";
-import { ButtonModule } from "primeng/button";
-import { TableModule } from "primeng/table";
-import { CardModule } from "primeng/card";
-import { TagModule } from "primeng/tag";
-import { Tooltip } from "primeng/tooltip";
-import { Toolbar } from "primeng/toolbar";
-import { InputText } from "primeng/inputtext";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
+import { NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { AbilityService } from "../../core/auth/ability.service";
 import { NgbConfirmDialogService } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { NotificationService } from "../../shared/services/notification.service";
-import { Toast } from "primeng/toast";
-
+import { ButtonComponent, DataTableComponent, IconFieldComponent, ToolbarComponent } from "../../shared/ui";
 @Component({
   selector: "app-depot",
 
   imports: [
     RouterModule,
-    ButtonModule,
-    TableModule,
-    CardModule,
-    TagModule,
-    Tooltip,
-    Toolbar,
-    InputText,
-    IconField,
-    InputIcon,
-    Toast
+    ButtonComponent,
+    DataTableComponent,
+    ToolbarComponent,
+    NgbTooltip,
+    IconFieldComponent
   ],
   templateUrl: "./depot.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,

@@ -1,17 +1,14 @@
 import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { ToolbarModule } from 'primeng/toolbar';
-import { TagModule } from 'primeng/tag';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { RemiseRfaApiService } from '../../data-access/services/remise-rfa-api.service';
 import { IRemiseRfaFournisseur, IAvoirFournisseur } from '../../data-access/models';
 import { formatCurrency } from 'app/shared/utils/format-utils';
+import { BadgeComponent, ButtonComponent, DataTableComponent, ToolbarComponent } from '../../../../shared/ui';
 
 @Component({
   selector: 'app-remises-rfa',
-  imports: [CommonModule, ButtonModule, TableModule, ToolbarModule, TagModule, NgbNavModule],
+  imports: [CommonModule, ButtonComponent, DataTableComponent, ToolbarComponent, BadgeComponent, NgbNavModule],
   templateUrl: './remises-rfa.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './remises-rfa.component.scss',

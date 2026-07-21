@@ -1,7 +1,7 @@
 import { Component, computed, input, output, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule, DecimalPipe } from "@angular/common";
 import { FournisseurSuggestionSummary } from "../../data-access/suggestion-enrichie.model";
-import { TableModule } from "primeng/table";
+import { DataTableComponent, HeaderCheckboxComponent, RowCheckboxComponent, SortableHeaderDirective } from "app/shared/ui";
 import { SuggestionFournisseurAction, SuggestionFournisseurActionsComponent } from "./suggestion-fournisseur-actions.component";
 
 @Component({
@@ -9,7 +9,15 @@ import { SuggestionFournisseurAction, SuggestionFournisseurActionsComponent } fr
   templateUrl: "./suggestion-fournisseur-list.component.html",
   styleUrls: ["./suggestion-fournisseur-list.component.scss"],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, DecimalPipe, TableModule, SuggestionFournisseurActionsComponent],
+  imports: [
+    CommonModule,
+    DecimalPipe,
+    DataTableComponent,
+    HeaderCheckboxComponent,
+    RowCheckboxComponent,
+    SortableHeaderDirective,
+    SuggestionFournisseurActionsComponent,
+  ],
 })
 export class SuggestionFournisseurListComponent {
   // ── Inputs / Outputs ───────────────────────────────────────────────────────

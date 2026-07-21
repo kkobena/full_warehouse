@@ -1,68 +1,58 @@
-
-
 <div class="modal-header">
   <h5 class="modal-title">Envoi commande PharmaML</h5>
-  <button type="button" class="btn-close" (click)="dismiss()"></button>
+  <button (click)="dismiss()" class="btn-close" type="button"></button>
 </div>
 
 <div class="modal-body">
-  <p-card>
+  <app-card [variant]="'form'">
     <div class="form-grid-compact">
       <div class="form-field form-field-full">
         <label class="form-label">Type de commande</label>
-        <p-select
-          [options]="typeCommandeOptions"
-          [ngModel]="typeCommande()"
+        <app-select
           (ngModelChange)="typeCommande.set($event)"
-          optionLabel="label"
-          optionValue="value"
+          [ngModel]="typeCommande()"
           class="w-100"
+          [items]="typeCommandeOptions"
+          bindLabel="label"
+          bindValue="value"
+          [clearable]="false"
         />
       </div>
 
       <div class="form-field form-field-full">
-        <label class="form-label">Date de livraison souhaitée</label>
-        <p-datepicker
-          (onShow)="onDropdownShow($event)"
-          (onClose)="onDropdownHide($event)"
-          [minDate]="minDate"
-          [defaultDate]="minDate"
-          [selectOtherMonths]="true"
-          [showButtonBar]="true"
-          [showIcon]="true"
-          class="w-full"
-          dateFormat="dd/mm/yy"
-
-          [ngModel]="dateLivraison()"
+        <pharma-date-picker
           (ngModelChange)="dateLivraison.set($event)"
+          [minDate]="minDate"
+          [ngModel]="dateLivraison()"
+          id="dateLivraison"
+          label="Date de livraison souhaitée"
         />
       </div>
 
       <div class="form-field form-field-full">
         <label class="form-label">Commentaire</label>
         <textarea
-          pTextarea
-          rows="3"
-          class="w-100"
-          [ngModel]="commentaire()"
           (ngModelChange)="commentaire.set($event)"
+          [ngModel]="commentaire()"
+          class="form-control w-100"
+          rows="3"
         ></textarea>
       </div>
     </div>
-  </p-card>
+  </app-card>
 
 </div>
 
 <div class="modal-footer">
-  <p-button
+  <app-button
+    (clicked)="dismiss()"
     label="Annuler"
     severity="secondary"
-    (onClick)="dismiss()"
   />
-  <p-button
-    label="Envoyer"
-    icon="pi pi-send"
+  <app-button
+    (clicked)="envoi()"
     [loading]="loading()"
-    (onClick)="envoi()"
+    icon="pi pi-send"
+    label="Envoyer"
   />
 </div>

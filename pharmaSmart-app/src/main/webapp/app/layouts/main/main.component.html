@@ -1,5 +1,5 @@
 <!-- Skip navigation link (WCAG 2.4.1) -->
-<a href="#main-content" class="skip-link">Aller au contenu principal</a>
+<a class="skip-link" href="#main-content">Aller au contenu principal</a>
 
 <!-- Custom Titlebar (Tauri only) -->
 @if (isTauriMode) {
@@ -23,13 +23,13 @@
 
 <!-- Main Content Area -->
 <div
-  id="main-content"
   [class.sidebar-collapsed]="layoutService.isSidebarMode() && layoutService.sidebarCollapsed()"
   [class.with-navbar]="layoutService.isNavbarMode()"
   [class.with-sidebar]="layoutService.isSidebarMode()"
   class="main-content"
+  id="main-content"
 >
-<!--  <app-breadcrumb></app-breadcrumb> --> <!-- Il y'a un problème avec les abilitations -->
+  <!--  <app-breadcrumb></app-breadcrumb> --> <!-- Il y'a un problème avec les abilitations -->
   <div class="container-fluid">
     <div class="card mt-2 main border border-0">
       <div class="card-body main-card-body">
@@ -46,3 +46,6 @@
   <app-setup-wizard></app-setup-wizard>
   <jhi-backend-splash></jhi-backend-splash>
 }
+
+
+<app-toast-host />

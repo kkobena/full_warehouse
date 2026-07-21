@@ -1,115 +1,101 @@
-
-<p-dialog [(visible)]="jsonDialog" [focusOnShow]="false" [modal]="true" [style]="{ width: '50vw' }" header="Importer un fichier json">
-  <div class="ui-g form-group">
-    <p-fileupload
-      (uploadHandler)="onUploadJson($event)"
-      [customUpload]="true"
-      accept=".json"
-      cancelLabel="Annuler"
-      chooseLabel="Importer un fichier"
-      name="importjson"
-      uploadLabel="Enrégistrer"
-    >
-    </p-fileupload>
-  </div>
-  <ng-template #footer>
-    <p-button (click)="cancel()" icon="pi pi-times" label="Annuler" raised="true" severity="danger" type="button"></p-button>
-  </ng-template>
-</p-dialog>
-
 @if (responseDialog) {
   <div class="mb-2">
-    <span [ngClass]="responsedto?.size === responsedto?.totalSize ? 'text-success fw-bold' : 'text-danger fw-bold'">{{
-      jsonFileUploadStatutProgress
-    }}</span>
-    <p-progressbar [value]="jsonFileUploadProgress"></p-progressbar>
+    <span
+      [ngClass]="responsedto?.size === responsedto?.totalSize ? 'text-success fw-bold' : 'text-danger fw-bold'">{{
+        jsonFileUploadStatutProgress
+      }}</span>
+    <ngb-progressbar [value]="jsonFileUploadProgress" />
   </div>
 }
 
-<div class="pharma-smart-content p-2">
-  <div class="pharma-toolbar">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-shield"></i>
-      <span class="pharma-toolbar-title">Liste des tiers payants</span>
-    </div>
+<div class="pharma-smart-content p-1">
+  <app-toolbar icon="pi pi-shield" title="Liste des tiers payants">
+    <ng-container ngProjectAs="[toolbarFilters]">
 
-    <p-toolbar>
-      <ng-template #start>
-        <div class="pharma-toolbar-filters">
-          <p-floatlabel variant="on" class="mr-1">
-            <p-select
-              id="typeFilter"
-              (onChange)="onSearch()"
-              [(ngModel)]="typeSelected"
-              [filter]="false"
-              [options]="type"
-              [appendTo]="'body'"
-              size="large"
-            >
-            </p-select>
-            <label for="typeFilter">Type</label>
-          </p-floatlabel>
+      <label for="typeFilter">Type</label>
+      <app-select
+        (selectionChange)="onSearch()"
+        [(ngModel)]="typeSelected"
+        [clearable]="false"
+        [items]="type"
+        [searchable]="false"
+        [style]="{ 'min-width': '150px' }"
+        appendTo="body"
+        inputId="typeFilter"
+      />
 
-          <div class="pharma-search-input">
-            <p-iconfield>
-              <p-inputicon class="pi pi-search" />
-              <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText placeholder="Taper pour rechercher" type="text" />
-            </p-iconfield>
-          </div>
-        </div>
-      </ng-template>
 
-      <ng-template #end>
-        <div class="pharma-toolbar-actions">
-          <div class="pharma-button-group">
-            <p-button (click)="loadPage()" icon="pi pi-search" label="Rechercher" [raised]="true" severity="info"></p-button>
-            <p-button [hidden]="true" icon="pi pi-upload" label="Importation" [raised]="true" severity="help"></p-button>
+      <div class="pharma-search-input">
+        <app-icon-field [overlay]="true" icon="pi pi-search">
+          <input
+            (keyup.enter)="onSearch()"
+            [(ngModel)]="search"
+            class="form-control"
+            placeholder="Taper pour rechercher"
+            type="text"
+          />
+        </app-icon-field>
+      </div>
+    </ng-container>
 
-            <p-splitbutton
-              [model]="tiersPayantSplitbuttons"
-              icon="pi pi-user-plus"
-              label="Nouveau tiers payant"
-              [raised]="true"
-              severity="primary"
-            >
-            </p-splitbutton>
-          </div>
-        </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-button-group">
+        <app-button (clicked)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher"
+                    severity="info" />
+
+
+        <app-button
+          (clicked)="openJsonImport()"
+          [hidden]="true"
+          [raised]="true"
+          icon="pi pi-upload"
+          label="Importation"
+          severity="help"
+        />
+
+        <app-split-button
+          [items]="tiersPayantSplitbuttons"
+          [raised]="true"
+          icon="pi pi-user-plus"
+          label="Nouveau tiers payant"
+          severity="primary"
+        />
+      </div>
+    </ng-container>
+  </app-toolbar>
 
   @if (tiersPayants && tiersPayants.length > 0) {
-    <p-table
+    <app-data-table
       (onLazyLoad)="lazyLoading($event)"
       [lazy]="true"
       [loading]="loading"
       [paginator]="true"
       [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
       [rows]="itemsPerPage"
+      [selectionMode]="'single'"
       [showCurrentPageReport]="true"
+      [size]="'small'"
       [totalRecords]="totalItems"
       [value]="tiersPayants"
       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords}"
       dataKey="id"
-      selectionMode="single"
-      class="p-datatable-sm"
     >
       <ng-template #header>
         <tr class="pharma-table-head">
-          <th style="width: 8%">Type</th>
-          <th style="width: 7%">Code</th>
-          <th style="width: 15%">Nom abrégé</th>
-          <th style="width: 16%">Nom longue</th>
-          <th style="width: 9%">Téléphone</th>
-          <th style="width: 8%">Plafond.Conso.Clients</th>
-          <th style="width: 8%">Plafond.Journalier.Client</th>
-          <th style="width: 7%">Encours</th>
-          <th style="width: 7%">Nbre Clients</th>
-          <th style="width: 12%"></th>
+          <th scope="col" style="width: 8%">Type</th>
+          <th scope="col" style="width: 7%">Code</th>
+          <th scope="col" style="width: 15%">Nom abrégé</th>
+          <th scope="col" style="width: 16%">Nom longue</th>
+          <th scope="col" style="width: 9%">Téléphone</th>
+          <th scope="col" style="width: 8%">Plafond.Conso.Clients</th>
+          <th scope="col" style="width: 8%">Plafond.Journalier.Client</th>
+          <th scope="col" style="width: 7%">Encours</th>
+          <th scope="col" style="width: 7%">Nbre Clients</th>
+          <th scope="col" style="width: 12%"></th>
         </tr>
       </ng-template>
-      <ng-template let-tiersPayant #body>
+
+      <ng-template #body let-tiersPayant>
         <tr>
           <td>
             <span class="pharma-badge pharma-badge-info">{{ tiersPayant.categorie }}</span>
@@ -122,9 +108,6 @@
             <div class="pharma-entity-name">{{ tiersPayant.fullName }}</div>
           </td>
           <td>{{ tiersPayant.telephone }}</td>
-          <!--<td class="text-right">
-            <span class="pharma-total">{{ tiersPayant.plafondConso | number }}</span>
-          </td>-->
           <td class="text-right">
             <span class="pharma-total">{{ tiersPayant.plafondConsoClient | number }}</span>
           </td>
@@ -137,62 +120,56 @@
           <td class="text-right">{{ tiersPayant.customers?.length | number }}</td>
 
           <td class="text-right">
+            <div class="btn-group" role="group">
+              <app-button
+                [hidden]="true"
+                [rounded]="true"
+                [routerLink]="['/tiers-payant', tiersPayant.id, 'view']"
+                [text]="true"
+                ariaLabel="Voir détails"
+                icon="pi pi-eye"
+                ngbTooltip="Voir détails"
+                severity="info"
+                size="small"
+              />
 
-              <p-buttongroup>
-                <p-button
-                  [hidden]="true"
-                  [routerLink]="['/tiers-payant', tiersPayant.id, 'view']"
-                  [rounded]="true"
-                  [text]="true"
-                  severity="info"
-                  size="small"
-                  pTooltip="Voir détails"
-                  icon="pi pi-eye"
-                >
-                </p-button>
+              <app-button
+                (clicked)="editTiersPayant(tiersPayant)"
+                [rounded]="true"
+                [text]="true"
+                ariaLabel="Editer"
+                icon="pi pi-pencil"
+                ngbTooltip="Editer"
+                severity="success"
+                size="small"
+              />
 
-                <p-button
-                  (click)="editTiersPayant(tiersPayant)"
-                  severity="success"
-                  [rounded]="true"
-                  size="small"
-                  [text]="true"
-                  icon="pi pi-pencil"
-                  data-placement="left"
-                  pTooltip="Editer"
-                  type="button"
-                >
-                </p-button>
-                <p-button
-                  (click)="confirmDesactivation(tiersPayant)"
-                  [rounded]="true"
-                  [text]="true"
-                  severity="warn"
-                  size="small"
-                  pTooltip="Désativer"
-                  icon="pi pi-lock"
-                  type="button"
-                >
-                </p-button>
-                <p-button
-                  (click)="confirmRemove(tiersPayant)"
-                  severity="danger"
-                  [rounded]="true"
-                  [text]="true"
-                  icon="pi pi-trash"
-                  size="small"
-                  data-placement="left"
-                  pTooltip="Supprimer"
-                  type="button"
-                >
-                </p-button>
-              </p-buttongroup>
+              <app-button
+                (clicked)="confirmDesactivation(tiersPayant)"
+                [rounded]="true"
+                [text]="true"
+                ariaLabel="Désactiver"
+                icon="pi pi-lock"
+                ngbTooltip="Désactiver"
+                severity="warn"
+                size="small"
+              />
 
-
+              <app-button
+                (clicked)="confirmRemove(tiersPayant)"
+                [rounded]="true"
+                [text]="true"
+                ariaLabel="Supprimer"
+                icon="pi pi-trash"
+                ngbTooltip="Supprimer"
+                severity="danger"
+                size="small"
+              />
+            </div>
           </td>
         </tr>
       </ng-template>
-    </p-table>
+    </app-data-table>
   } @else {
     <div class="alert alert-warning mt-2">
       <span>Aucune donnée trouvée</span>
@@ -201,4 +178,3 @@
 </div>
 
 <jhi-spinner #spinner></jhi-spinner>
-<p-toast position="center"></p-toast>

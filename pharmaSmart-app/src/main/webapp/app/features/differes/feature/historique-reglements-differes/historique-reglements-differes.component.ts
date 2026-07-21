@@ -1,45 +1,54 @@
-import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs/operators';
-import { HttpHeaders } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { SelectModule } from 'primeng/select';
-import { TooltipModule } from 'primeng/tooltip';
-import { FloatLabel } from 'primeng/floatlabel';
-import { DatePickerModule } from 'primeng/datepicker';
-import { Toolbar } from 'primeng/toolbar';
+import {ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {finalize} from 'rxjs/operators';
+import {HttpHeaders} from '@angular/common/http';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {NgbDateStruct, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {
+  AppTableLazyLoadEvent,
+  ButtonComponent,
+  DataTableComponent,
+  RowTogglerDirective,
+  SelectComponent,
+  ToolbarComponent
+} from '../../../../shared/ui';
+import {
+  PharmaDatePickerComponent
+} from '../../../../shared/date-picker/pharma-date-picker.component';
 
-import { NotificationService } from '../../../../shared/services/notification.service';
-import { ErrorService } from '../../../../shared/error.service';
-import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
-import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
-import { DATE_FORMAT_ISO_DATE } from '../../../../shared/util/warehouse-util';
+import {NotificationService} from '../../../../shared/services/notification.service';
+import {ErrorService} from '../../../../shared/error.service';
+import {TauriPrinterService} from '../../../../shared/services/tauri-printer.service';
+import {ITEMS_PER_PAGE} from '../../../../shared/constants/pagination.constants';
+import {
+  DATE_FORMAT_ISO_DATE,
+  NGB_DATE_TO_ISO,
+  TODAY_NGB_DATE
+} from '../../../../shared/util/warehouse-util';
 
-import { DiffereApiService } from '../../data-access/services/differe-api.service';
-import { DiffereStore } from '../../data-access/store/differe.store';
+import {DiffereApiService} from '../../data-access/services/differe-api.service';
+import {DiffereStore} from '../../data-access/store/differe.store';
 import {
   IDiffereSearchParams,
   IPaymentIdDiffere,
   IReglementDiffere,
   IReglementDiffereItem,
 } from '../../data-access/models';
-import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
+import {BlobDownloadService} from "../../../../shared/services/blob-download.service";
 
 @Component({
   selector: 'app-historique-reglements-differes',
   imports: [
     CommonModule,
     FormsModule,
-    TableModule,
-    ButtonModule,
-    SelectModule,
-    TooltipModule,
-    FloatLabel,
-    DatePickerModule,
-    Toolbar,
+    ButtonComponent,
+    DataTableComponent,
+    PharmaDatePickerComponent,
+    SelectComponent,
+    ToolbarComponent,
+    RowTogglerDirective,
+    NgbTooltip
   ],
   templateUrl: './historique-reglements-differes.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -51,9 +60,8 @@ export class HistoriqueReglementsDifferesComponent implements OnInit {
   protected loadingPdf = false;
   protected page = 0;
   protected readonly itemsPerPage = ITEMS_PER_PAGE;
-  protected expandedRows: Record<string, boolean> = {};
-  protected modelStartDate: Date;
-  protected modelEndDate: Date = new Date();
+  protected modelStartDate: NgbDateStruct;
+  protected modelEndDate: NgbDateStruct = TODAY_NGB_DATE();
   protected customerId: number | null = null;
 
   protected readonly store = inject(DiffereStore);
@@ -67,7 +75,7 @@ export class HistoriqueReglementsDifferesComponent implements OnInit {
   constructor() {
     const d = new Date();
     d.setMonth(d.getMonth() - 1);
-    this.modelStartDate = d;
+    this.modelStartDate = {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()};
   }
 
   ngOnInit(): void {
@@ -83,7 +91,7 @@ export class HistoriqueReglementsDifferesComponent implements OnInit {
     this.loadSummary();
   }
 
-  lazyLoading(event: TableLazyLoadEvent): void {
+  lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event) {
       this.page = Math.floor(event.first / event.rows);
       this.loadPage(event.rows);
@@ -121,7 +129,8 @@ export class HistoriqueReglementsDifferesComponent implements OnInit {
           next: async (data: ArrayBuffer) => {
             try {
               await this.tauriPrinterService.printEscPosFromBuffer(data);
-            } catch {}
+            } catch {
+            }
           },
         });
     } else {
@@ -132,26 +141,12 @@ export class HistoriqueReglementsDifferesComponent implements OnInit {
     }
   }
 
-  toggleRow(reglement: IReglementDiffere): void {
-    const key = String(reglement.id);
-    if (this.expandedRows[key]) {
-      delete this.expandedRows[key];
-    } else {
-      this.expandedRows[key] = true;
-    }
-    this.expandedRows = { ...this.expandedRows };
-  }
-
-  isExpanded(reglement: IReglementDiffere): boolean {
-    return !!this.expandedRows[String(reglement.id)];
-  }
-
   private loadPage(rows = this.itemsPerPage): void {
     this.loading = true;
     this.loadingBtn = true;
     this.store.setLoadingReglements(true);
     this.differeApiService
-      .getReglementsDifferes({ ...this.buildParams(), page: this.page, size: rows })
+      .getReglementsDifferes({...this.buildParams(), page: this.page, size: rows})
       .pipe(
         finalize(() => {
           this.loading = false;
@@ -195,8 +190,8 @@ export class HistoriqueReglementsDifferesComponent implements OnInit {
 
   private buildParams(): IDiffereSearchParams {
     const params: IDiffereSearchParams = {
-      fromDate: DATE_FORMAT_ISO_DATE(this.modelStartDate),
-      toDate: DATE_FORMAT_ISO_DATE(this.modelEndDate),
+      fromDate: NGB_DATE_TO_ISO(this.modelStartDate),
+      toDate: NGB_DATE_TO_ISO(this.modelEndDate),
     };
     if (this.customerId) {
       params.customerId = this.customerId;

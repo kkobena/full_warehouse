@@ -4,11 +4,6 @@ import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { forkJoin } from "rxjs";
 
-import { TableModule } from "primeng/table";
-import { ButtonModule } from "primeng/button";
-import { SelectModule } from "primeng/select";
-import { ToolbarModule } from "primeng/toolbar";
-import { DividerModule } from "primeng/divider";
 
 import { IStockValuation, IStockValuationSummary } from "app/shared/model/report/stock-valuation.model";
 import { StockValuationReportService } from "../services/stock-valuation-report.service";
@@ -19,13 +14,26 @@ import { IFamilleProduit } from "../../../shared/model/famille-produit.model";
 import { IRayon } from "../../../shared/model/rayon.model";
 import { TauriPrinterService } from "../../../shared/services/tauri-printer.service";
 import { handleBlobForTauri } from "../../../shared/util/tauri-util";
+import {
+  ButtonComponent,
+  DataTableComponent,
+  SelectComponent,
+  ToolbarComponent
+} from '../../../shared/ui';
 
 @Component({
   selector: "jhi-stock-valuation",
   templateUrl: "./stock-valuation.component.html",
   styleUrl: "./stock-valuation.component.scss",
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, TableModule, ButtonModule, SelectModule, ToolbarModule, DividerModule]
+  imports: [
+    CommonModule,
+    FormsModule,
+    ButtonComponent,
+    DataTableComponent,
+    SelectComponent,
+    ToolbarComponent
+  ]
 })
 export default class StockValuationComponent implements OnInit {
   valuations = signal<IStockValuation[]>([]);

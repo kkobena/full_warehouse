@@ -2,17 +2,7 @@ import { Component, inject, OnInit, signal, viewChild, ChangeDetectionStrategy }
 import { FormsModule } from '@angular/forms';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonModule } from 'primeng/button';
-import { ButtonGroup } from 'primeng/buttongroup';
-import { RippleModule } from 'primeng/ripple';
-import { ToolbarModule } from 'primeng/toolbar';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { InputTextModule } from 'primeng/inputtext';
-import { TooltipModule } from 'primeng/tooltip';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { TagModule } from 'primeng/tag';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
 import { FileUploadDialogComponent } from '../../../../entities/groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
 import { ErrorService } from '../../../../shared/error.service';
@@ -24,6 +14,16 @@ import { IResponseDto } from '../../../../shared/util/response-dto';
 import { FournisseurApiService } from '../../data-access/services/fournisseur-api.service';
 import { FournisseurFormComponent } from '../../ui/fournisseur-form/fournisseur-form.component';
 import { CommonModule } from "@angular/common";
+import {
+  AppTableLazyLoadEvent,
+  BadgeComponent,
+  ButtonComponent,
+  DataTableComponent,
+  FrozenColumnDirective,
+  IconFieldComponent,
+  RowTogglerDirective,
+  ToolbarComponent
+} from '../../../../shared/ui';
 
 @Component({
   selector: 'app-fournisseur-home',
@@ -33,16 +33,14 @@ import { CommonModule } from "@angular/common";
   imports: [
     CommonModule,
     FormsModule,
-    ButtonModule,
-    ButtonGroup,
-    RippleModule,
-    ToolbarModule,
-    TableModule,
-    InputTextModule,
-    TooltipModule,
-    IconFieldModule,
-    InputIconModule,
-    TagModule,
+    ButtonComponent,
+    ToolbarComponent,
+    DataTableComponent,
+    FrozenColumnDirective,
+    RowTogglerDirective,
+    IconFieldComponent,
+    BadgeComponent,
+    NgbTooltip,
     SpinnerComponent,
   ],
 })
@@ -78,7 +76,7 @@ export class FournisseurHomeComponent implements OnInit {
       });
   }
 
-  protected lazyLoading(event: TableLazyLoadEvent): void {
+  protected lazyLoading(event: AppTableLazyLoadEvent): void {
     const page = Math.floor((event.first ?? 0) / (event.rows ?? this.itemsPerPage));
     this.page = page;
     this.itemsPerPage = event.rows ?? this.itemsPerPage;
@@ -90,8 +88,8 @@ export class FournisseurHomeComponent implements OnInit {
       });
   }
 
-  protected onRowExpand(event: { data: IFournisseur }): void {
-    const id = event.data.id!;
+  protected onRowExpand(f: IFournisseur): void {
+    const id = f.id!;
     if (this.agencesMap().has(id)) return;
     this.agencesLoadingIds.update(s => new Set(s).add(id));
     this.api.findAgences(id).subscribe({

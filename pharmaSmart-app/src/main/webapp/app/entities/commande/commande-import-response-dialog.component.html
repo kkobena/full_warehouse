@@ -26,11 +26,11 @@
           <h4>Le fichier sera disponible dans quelques instant.... Veuillez cliquer sur le lien dans queleques secondes</h4>
         </div>
         <h4>
-          <p-button
-            (click)="onClickLink()"
+          <app-button
+            (clicked)="onClickLink()"
             label="Cliquer pour télécharger le fichier des produits qui ne sont pas pris en compte"
-            class="p-button-link"
-          ></p-button>
+            [text]="true"
+          />
         </h4>
         <div style="width: 100%">
           <table class="table table-striped">
@@ -60,5 +60,5 @@
 </div>
 
 <div class="modal-footer">
-  <p-button (click)="cancel()"  icon="pi pi-times" label="Fermer" severity="secondary" type="button"></p-button>
+  <app-button (clicked)="cancel()"  icon="pi pi-times" label="Fermer" severity="secondary" type="button" />
 </div>

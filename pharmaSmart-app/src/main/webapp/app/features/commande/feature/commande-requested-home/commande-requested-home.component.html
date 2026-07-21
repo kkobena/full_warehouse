@@ -1,5 +1,3 @@
-<p-toast position="center" />
-
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
 <!-- MODE LISTE                                                              -->
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
@@ -9,12 +7,11 @@
     <!-- HEADER -->
     <div class="view-panel__header view-panel__header--list">
       <input
-        pInputText
         type="text"
         placeholder="Rechercher (fournisseur, référence)…"
         [(ngModel)]="searchText"
         (keyup.enter)="loadPage(0)"
-        class="view-panel__search"
+        class="form-control view-panel__search"
       />
       @if (selectionCount() >= 2) {
         <span class="bulk-info"><i class="pi pi-check-square"></i> {{ selectionCount() }} sél.</span>
@@ -27,34 +24,32 @@
           <i class="pi pi-trash"></i> Supprimer
         </button>
       }
-      <p-button
+      <app-button
         icon="pi pi-upload"
         label="Importation"
         severity="secondary"
         size="small"
-        pTooltip="Importer une commande depuis un fichier"
-        tooltipPosition="bottom"
-        (onClick)="onImportation()"
+        ngbTooltip="Importer une commande depuis un fichier"
+        placement="bottom"
+        (clicked)="onImportation()"
       />
-      <p-button
+      <app-button
         icon="pi pi-plus"
         label="Nouvelle commande"
         severity="primary"
         size="small"
-        (onClick)="onNouvelleCommande()"
+        (clicked)="onNouvelleCommande()"
       />
     </div>
 
     <!-- GRILLE COMMANDES -->
     <div class="rq-grid-wrap">
-      <p-table
+      <app-data-table
         class="p-datatable-sm"
         [value]="commandes()"
         [loading]="loading()"
         dataKey="id"
         [scrollable]="true"
-        scrollHeight="flex"
-        [rowHover]="true"
         selectionMode="multiple"
         [selection]="selectionMultiple()"
         (selectionChange)="onSelectionChange($event)"
@@ -62,19 +57,13 @@
         <ng-template #header>
           <tr class="pharma-table-head">
             <th style="width:40px">
-              <p-tableheadercheckbox />
+              <app-header-checkbox />
             </th>
-            <th pSortableColumn="updatedAt" style="width:145px">
-              Date <p-sorticon field="updatedAt" />
-            </th>
+            <th appSortableHeader="updatedAt" style="width:145px">Date</th>
             <th>Fournisseur</th>
             <th style="width:130px">Référence</th>
-            <th pSortableColumn="itemSize" class="text-end" style="width:100px">
-              Lignes <p-sorticon field="itemSize" />
-            </th>
-            <th pSortableColumn="grossAmount" class="text-end" style="width:140px">
-              Montant HT <p-sorticon field="grossAmount" />
-            </th>
+            <th appSortableHeader="itemSize" class="text-end" style="width:100px">Lignes</th>
+            <th appSortableHeader="grossAmount" class="text-end" style="width:140px">Montant HT</th>
             <th style="width:90px"></th>
             <th style="width:60px">Actions</th>
           </tr>
@@ -83,7 +72,7 @@
         <ng-template #body let-c>
           <tr [ngClass]="getRowClass(c)" (click)="onEditer(c)">
             <td (click)="$event.stopPropagation()">
-              <p-tablecheckbox [value]="c" />
+              <app-row-checkbox [row]="c" />
             </td>
             <td>{{ c.updatedAt ? (c.updatedAt | date:'dd/MM/yy HH:mm') : '—' }}</td>
             <td>{{ c.fournisseur?.libelle ?? '—' }}</td>
@@ -116,7 +105,7 @@
             </td>
           </tr>
         </ng-template>
-      </p-table>
+      </app-data-table>
     </div>
 
     <!-- FOOTER TOTAUX -->
@@ -138,25 +127,25 @@
     <!-- PAGINATION -->
     @if (totalItems() > rows) {
       <div class="pagination-bar">
-        <p-button
+        <app-button
           icon="pi pi-angle-left"
           severity="secondary"
           size="small"
           [disabled]="currentPage() === 0"
-          (onClick)="goToPage(currentPage() - 1)"
-          pTooltip="Page précédente"
+          (clicked)="goToPage(currentPage() - 1)"
+          ngbTooltip="Page précédente"
         />
         <span class="pagination-info">
           Page {{ currentPage() + 1 }} / {{ totalPages() }}
           &nbsp;·&nbsp; {{ totalItems() }} commande(s)
         </span>
-        <p-button
+        <app-button
           icon="pi pi-angle-right"
           severity="secondary"
           size="small"
           [disabled]="currentPage() >= totalPages() - 1"
-          (onClick)="goToPage(currentPage() + 1)"
-          pTooltip="Page suivante"
+          (clicked)="goToPage(currentPage() + 1)"
+          ngbTooltip="Page suivante"
         />
       </div>
     }
@@ -168,12 +157,12 @@
 
     <!-- HEADER DÉTAIL -->
     <div class="view-panel__header view-panel__header--detail">
-      <p-button
+      <app-button
         icon="pi pi-arrow-left"
         label="Retour à la liste"
         [text]="true"
         size="small"
-        (onClick)="onRetour()"
+        (clicked)="onRetour()"
       />
       @if (editingCommande()!.commandeId) {
         <span class="view-panel__title">{{ editingCommande()!.fournisseur?.libelle }}</span>

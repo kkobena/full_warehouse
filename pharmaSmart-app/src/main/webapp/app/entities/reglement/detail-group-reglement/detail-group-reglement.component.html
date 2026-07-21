@@ -1,7 +1,8 @@
 <div class="modal-header">
   <h5 class="modal-title fw-bold">
     <i class="pi pi-file-check text-primary me-2"></i>
-    Code facture <span class="badge bg-primary-subtle text-primary">{{ reglement.codeFacture }}</span>
+    Code facture <span
+    class="badge bg-primary-subtle text-primary">{{ reglement.codeFacture }}</span>
   </h5>
   <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
 </div>
@@ -96,29 +97,26 @@
             <i class="pi pi-file-edit text-primary"></i>
             Factures règlées
           </h5>
-          <p-iconfield>
-            <p-inputicon class="pi pi-search" />
+          <app-icon-field [overlay]="true" icon="pi pi-search">
             <input
               (input)="factLeft.filterGlobal($event.target.value, 'contains')"
               class="p-inputtext-sm"
-              pInputText
               placeholder="Filtrer"
               type="text"
             />
-          </p-iconfield>
+          </app-icon-field>
         </div>
         <div class="card-body p-0">
-          <p-table
+          <app-data-table
             #factLeft
             [(selection)]="selectedItem"
             [globalFilterFields]="['organisme', 'codeFacture']"
             [scrollHeight]="scrollHeight"
             [scrollable]="true"
+            [selectionMode]="'single'"
             [stripedRows]="true"
             [value]="reglements"
-            class="pharma-table"
             dataKey="id"
-            selectionMode="single"
           >
             <ng-template #header>
               <tr class="pharma-table-head">
@@ -130,7 +128,7 @@
               </tr>
             </ng-template>
             <ng-template #body let-reg>
-              <tr (click)="onRowSelect(reg)" [pSelectableRow]="reg" class="cursor-pointer">
+              <tr (click)="onRowSelect(reg)" [appSelectableRow]="reg" class="cursor-pointer">
                 <td class="pharma-entity-name">{{ reg.organisme }}</td>
                 <td>
                   <span class="pharma-code">{{ reg.codeFacture }}</span>
@@ -150,7 +148,7 @@
                 </td>
               </tr>
             </ng-template>
-          </p-table>
+          </app-data-table>
         </div>
       </div>
     </div>
@@ -164,26 +162,23 @@
               <i class="pi pi-folder text-warning"></i>
               Dossiers
             </h5>
-            <p-iconfield>
-              <p-inputicon class="pi pi-search" />
+            <app-icon-field [overlay]="true" icon="pi pi-search">
               <input
                 (input)="factRight.filterGlobal($event.target.value, 'contains')"
                 class="p-inputtext-sm"
-                pInputText
                 placeholder="Filtrer"
                 type="text"
               />
-            </p-iconfield>
+            </app-icon-field>
           </div>
           <div class="card-body p-0">
-            <p-table
+            <app-data-table
               #factRight
               [globalFilterFields]="['numBon', 'customer', 'customerMatricule']"
               [scrollHeight]="scrollHeight"
               [scrollable]="true"
               [stripedRows]="true"
               [value]="datas"
-              class="pharma-table"
             >
               <ng-template #header>
                 <tr class="pharma-table-head">
@@ -207,12 +202,14 @@
                   <td>{{ factureDetail.heure }}</td>
                   <td class="pharma-entity-name">{{ factureDetail.customer }}</td>
                   <td>
-                    <span class="pharma-badge pharma-badge-info">{{ factureDetail.customerMatricule }}</span>
+                    <span
+                      class="pharma-badge pharma-badge-info">{{ factureDetail.customerMatricule }}</span>
                   </td>
                   <td class="text-end pharma-price">{{ factureDetail.montantVente }}</td>
                   <td class="text-end pharma-price">{{ factureDetail.montantAttendu }}</td>
                   <td class="text-end pharma-total">{{ factureDetail.montant }}</td>
-                  <td [class.text-danger]="factureDetail.montantRestant > 0" class="text-end fw-bold">
+                  <td [class.text-danger]="factureDetail.montantRestant > 0"
+                      class="text-end fw-bold">
                     {{ factureDetail.montantRestant }}
                   </td>
                 </tr>
@@ -225,12 +222,14 @@
                   </td>
                 </tr>
               </ng-template>
-            </p-table>
+            </app-data-table>
           </div>
         </div>
       } @else {
         <div class="card h-100 data-card">
-          <div class="card-body d-flex flex-column justify-content-center align-items-center text-muted" style="min-height: 300px">
+          <div
+            class="card-body d-flex flex-column justify-content-center align-items-center text-muted"
+            style="min-height: 300px">
             <i class="pi pi-arrow-left" style="font-size: 3rem"></i>
             <p class="mt-3 mb-0">Sélectionnez une facture pour voir les dossiers.</p>
           </div>
@@ -241,5 +240,6 @@
 </div>
 
 <div class="modal-footer">
-  <p-button (click)="cancel()" icon="pi pi-times" label="Fermer" severity="secondary" type="button"></p-button>
+  <app-button (click)="cancel()" icon="pi pi-times" label="Fermer" severity="secondary"
+              type="button"></app-button>
 </div>

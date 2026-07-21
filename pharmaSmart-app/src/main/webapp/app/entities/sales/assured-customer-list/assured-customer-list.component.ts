@@ -2,21 +2,14 @@ import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from "@
 import { ICustomer, ISales } from "../../../shared/model";
 import { CustomerService } from "../../customer/customer.service";
 import { FormsModule } from "@angular/forms";
-import { ButtonModule } from "primeng/button";
-import { InputTextModule } from "primeng/inputtext";
-import { RippleModule } from "primeng/ripple";
-import { TableLazyLoadEvent, TableModule } from "primeng/table";
-import { TooltipModule } from "primeng/tooltip";
 import { HttpHeaders, HttpResponse } from "@angular/common/http";
 import { ITEMS_PER_PAGE } from "../../../shared/constants/pagination.constants";
 import { CurrentSaleService } from "../service/current-sale.service";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { Card } from "primeng/card";
+import { NgbActiveModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { Subject } from "rxjs";
 import { debounceTime, distinctUntilChanged, takeUntil } from "rxjs/operators";
 import { CommonModule } from "@angular/common";
+import { AppTableLazyLoadEvent, ButtonComponent, CardComponent, DataTableComponent, IconFieldComponent } from "../../../shared/ui";
 
 @Component({
   selector: "app-assured-customer-list",
@@ -26,14 +19,11 @@ import { CommonModule } from "@angular/common";
   imports: [
     CommonModule,
     FormsModule,
-    TooltipModule,
-    ButtonModule,
-    InputTextModule,
-    RippleModule,
-    TableModule,
-    IconField,
-    InputIcon,
-    Card
+    ButtonComponent,
+    DataTableComponent,
+    IconFieldComponent,
+    CardComponent,
+    NgbTooltip
   ]
 })
 export class AssuredCustomerListComponent implements OnInit, OnDestroy {
@@ -107,7 +97,7 @@ export class AssuredCustomerListComponent implements OnInit, OnDestroy {
       });
   }
 
-  protected lazyLoading(event: TableLazyLoadEvent): void {
+  protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;

@@ -1,83 +1,56 @@
 @if (loading()) {
-  <div class="row mt-1 kpi-row">
-    @for (_ of [1, 2, 3, 4, 5, 6]; track _) {
-      <div class="col-6 col-md mb-2">
-        <div class="card kpi-card kpi-card-compact primary-accent">
-          <div class="card-body">
-            <div class="d-flex align-items-center gap-2">
-              <div class="kpi-icon-sm text-muted"><i class="pi pi-spin pi-spinner"></i></div>
-              <div>
-                <p class="kpi-label mb-0">Chargement...</p>
-                <span class="kpi-value-sm text-muted">—</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    }
-  </div>
+  <app-kpi-strip [loading]="true" [skeletonCount]="4" stripClass="mt-1" />
 } @else if (kpi()) {
-  <div class="row mt-1 kpi-row">
+  <app-kpi-strip stripClass="mt-1">
+    <app-kpi-item
+      [accent]="'primary'"
+      [value]="kpi()!.totalFacture | number: '1.0-0'"
+      icon="pi pi-file-edit"
+      iconClass="text-primary"
+      label="Total facturé"
+      valueClass="text-primary"
+    >
+      <ng-container ngProjectAs="[kpiSub]">{{ kpi()!.countFactures | number }} factures</ng-container>
+    </app-kpi-item>
 
-    <div class="col-6 col-md mb-2">
-      <div class="card kpi-card kpi-card-compact primary-accent">
-        <div class="card-body">
-          <div class="d-flex align-items-center gap-2">
-            <div class="kpi-icon-sm text-primary"><i class="pi pi-file-edit"></i></div>
-            <div>
-              <p class="kpi-label mb-0">Total facturé</p>
-              <span class="kpi-value-sm text-primary">{{ kpi()!.totalFacture | number:'1.0-0' }}</span>
-              <p class="kpi-sublabel mb-0">{{ kpi()!.countFactures | number }} factures</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <app-kpi-item
+      [accent]="'success'"
+      [value]="kpi()!.totalRegle | number: '1.0-0'"
+      icon="pi pi-check-circle"
+      iconClass="text-success"
+      label="Total réglé"
+      valueClass="text-success"
+    >
+      <ng-container ngProjectAs="[kpiSub]">Taux {{ kpi()!.tauxRecouvrement | number: '1.1-1' }} %</ng-container>
+    </app-kpi-item>
 
-    <div class="col-6 col-md mb-2">
-      <div class="card kpi-card kpi-card-compact success-accent">
-        <div class="card-body">
-          <div class="d-flex align-items-center gap-2">
-            <div class="kpi-icon-sm text-success"><i class="pi pi-check-circle"></i></div>
-            <div>
-              <p class="kpi-label mb-0">Total réglé</p>
-              <span class="kpi-value-sm text-success">{{ kpi()!.totalRegle | number:'1.0-0' }}</span>
-              <p class="kpi-sublabel mb-0">Taux {{ kpi()!.tauxRecouvrement | number:'1.1-1' }} %</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <app-kpi-item
+      [accent]="'danger'"
+      [value]="kpi()!.totalRestant | number: '1.0-0'"
+      icon="pi pi-exclamation-circle"
+      iconClass="text-danger"
+      label="Restant dû"
+      valueClass="text-danger"
+    >
+      <ng-container ngProjectAs="[kpiSub]">{{ kpi()!.countImpayees | number }} impayées</ng-container>
+    </app-kpi-item>
 
-    <div class="col-6 col-md mb-2">
-      <div class="card kpi-card kpi-card-compact danger-accent">
-        <div class="card-body">
-          <div class="d-flex align-items-center gap-2">
-            <div class="kpi-icon-sm text-danger"><i class="pi pi-exclamation-circle"></i></div>
-            <div>
-              <p class="kpi-label mb-0">Restant dû</p>
-              <span class="kpi-value-sm text-danger">{{ kpi()!.totalRestant | number:'1.0-0' }}</span>
-              <p class="kpi-sublabel mb-0">{{ kpi()!.countImpayees | number }} impayées</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-6 col-md mb-2">
-      <div class="card kpi-card kpi-card-compact warning-accent">
-        <div class="card-body">
-          <div class="d-flex align-items-center gap-2">
-            <div class="kpi-icon-sm text-warning"><i class="pi pi-history"></i></div>
-            <div>
-              <p class="kpi-label mb-0">Solde cumulé</p>
-              <span class="kpi-value-sm text-warning">{{ kpi()!.soldeCumule | number:'1.0-0' }}</span>
-              <p class="kpi-sublabel mb-0" [pTooltip]="'Report de solde de l\'année précédente (N-1)'" tooltipPosition="bottom">Dont report N-1</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
+    <app-kpi-item
+      [accent]="'warning'"
+      [value]="kpi()!.soldeCumule | number: '1.0-0'"
+      icon="pi pi-history"
+      iconClass="text-warning"
+      label="Solde cumulé"
+      valueClass="text-warning"
+    >
+      <!-- L'infobulle vit dans le sous-texte : elle impose la projection plutôt qu'une simple chaîne. -->
+      <span
+        ngProjectAs="[kpiSub]"
+        [ngbTooltip]="'Report de solde de l\'année précédente (N-1)'"
+        placement="bottom"
+      >
+        Dont report N-1
+      </span>
+    </app-kpi-item>
+  </app-kpi-strip>
 }

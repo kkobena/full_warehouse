@@ -1,47 +1,38 @@
-import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
-import { ErrorService } from "../../../shared/error.service";
-import { ToastModule } from "primeng/toast";
-import { ButtonModule } from "primeng/button";
-import { RippleModule } from "primeng/ripple";
-import { ConfirmDialogModule } from "primeng/confirmdialog";
-import { InputTextModule } from "primeng/inputtext";
-import { AutoCompleteModule } from "primeng/autocomplete";
-import { SelectButtonModule } from "primeng/selectbutton";
-import { RadioButtonModule } from "primeng/radiobutton";
-import { DividerModule } from "primeng/divider";
-import { KeyFilterModule } from "primeng/keyfilter";
-import { InputMaskModule } from "primeng/inputmask";
-import { ClientTiersPayant, IClientTiersPayant } from "../../../shared/model/client-tiers-payant.model";
-import { ICustomer, ITiersPayant } from "../../../shared/model";
-import { Observable, Subject } from "rxjs";
-import { finalize, takeUntil } from "rxjs/operators";
-import { ToggleSwitch } from "primeng/toggleswitch";
-import { TiersPayantService } from "../../tiers-payant/tierspayant.service";
-import { CustomerService } from "../customer.service";
-import { HttpResponse } from "@angular/common/http";
-import { Card } from "primeng/card";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { NotificationService } from "../../../shared/services/notification.service";
+import {ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit} from "@angular/core";
+import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from "@angular/forms";
+import {ErrorService} from "../../../shared/error.service";
+import {
+  ClientTiersPayant,
+  IClientTiersPayant
+} from "../../../shared/model/client-tiers-payant.model";
+import {ICustomer, ITiersPayant} from "../../../shared/model";
+import {Observable, Subject} from "rxjs";
+import {finalize, takeUntil} from "rxjs/operators";
+import {TiersPayantService} from "../../tiers-payant/tierspayant.service";
+import {CustomerService} from "../customer.service";
+import {HttpResponse} from "@angular/common/http";
+import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
+import {NotificationService} from "../../../shared/services/notification.service";
+import {
+  ButtonComponent,
+  CardComponent,
+  KeyFilterDirective,
+  SelectSearchComponent,
+  SwitchComponent
+} from '../../../shared/ui';
+import TranslateDirective from "../../../shared/language/translate.directive";
 
 @Component({
   selector: "app-customer-tiers-payant",
   imports: [
-    ToastModule,
     FormsModule,
-    ButtonModule,
-    RippleModule,
-    ConfirmDialogModule,
-    InputTextModule,
-    AutoCompleteModule,
-    SelectButtonModule,
-    RadioButtonModule,
     ReactiveFormsModule,
-    DividerModule,
-    KeyFilterModule,
-    InputMaskModule,
-    ToggleSwitch,
-    Card
+    ButtonComponent,
+    CardComponent,
+    KeyFilterDirective,
+    SelectSearchComponent,
+    SwitchComponent,
+    TranslateDirective
   ],
   templateUrl: "./customer-tiers-payant.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -98,8 +89,8 @@ export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
     this.activeModal.dismiss();
   }
 
-  searchTiersPayant(event: any): void {
-    this.loadTiersPayants(event.query);
+  searchTiersPayant(query: string): void {
+    this.loadTiersPayants(query);
   }
 
   loadTiersPayants(search?: string): void {
@@ -115,7 +106,7 @@ export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
         this.tiersPayants = res.body!;
         if (this.tiersPayants.length === 0) {
-          this.tiersPayants.push({ id: null, fullName: "Ajouter un nouveau tiers-payant" });
+          this.tiersPayants.push({id: null, fullName: "Ajouter un nouveau tiers-payant"});
         }
       });
   }

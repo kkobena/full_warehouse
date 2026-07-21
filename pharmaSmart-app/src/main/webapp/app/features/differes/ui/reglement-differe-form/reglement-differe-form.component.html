@@ -1,76 +1,103 @@
 <form (ngSubmit)="save()" [formGroup]="reglementForm" class="reglement-differe-form">
   <!-- Date -->
   <div class="form-field-full">
-    <p-inputgroup>
-      <p-inputgroup-addon><i class="pi pi-calendar"></i></p-inputgroup-addon>
-      <p-datepicker [defaultDate]="maxDate" [maxDate]="maxDate" [showButtonBar]="true"
-                    appendTo="body" dateFormat="dd/mm/yy" formControlName="paymentDate"
-                    id="rdDatePaiement" selectOtherMonths="true" />
-    </p-inputgroup>
+    <div class="input-group">
+      <span class="input-group-text"><i class="pi pi-calendar" aria-hidden="true"></i></span>
+      <pharma-date-picker [maxDate]="maxDate" formControlName="paymentDate" id="rdDatePaiement" />
+    </div>
   </div>
 
   <!-- Mode de paiement -->
   <div class="form-field-full">
-    <p-inputgroup>
-      <p-inputgroup-addon><i class="pi pi-credit-card"></i></p-inputgroup-addon>
-      <p-select [fluid]="true" [options]="paymentModes" appendTo="body" formControlName="modePaimentCode"
-                optionLabel="libelle" optionValue="code" placeholder="Mode de paiement" />
-    </p-inputgroup>
+    <div class="input-group">
+      <span class="input-group-text"><i class="pi pi-credit-card" aria-hidden="true"></i></span>
+
+      <app-select
+        [clearable]="false"
+        [dropdownPosition]="'bottom'"
+        [items]="paymentModes"
+        appendTo="body"
+        bindLabel="libelle"
+        bindValue="code"
+        formControlName="modePaimentCode"
+        placeholder="Mode de paiement"
+      />
+    </div>
   </div>
 
   <!-- Montant -->
   <div class="form-field-full">
-    <p-inputgroup>
-      <p-inputgroup-addon><i class="pi pi-money-bill"></i></p-inputgroup-addon>
-      <p-inputnumber autocomplete="off" formControlName="amount" placeholder="Montant" />
-    </p-inputgroup>
+    <div class="input-group">
+      <span class="input-group-text"><i class="pi pi-money-bill" aria-hidden="true"></i></span>
+      <app-input-number formControlName="amount" placeholder="Montant" />
+    </div>
   </div>
 
   <!-- Infos bancaires -->
   @if (showBanqueInfo) {
     <div class="bank-info-section" formGroupName="banqueInfo">
-      <p-divider align="left">
+      <!--
+        Remplace p-divider en mode `align="left"` : Bootstrap n'a pas de séparateur
+        titré, on compose un trait qui s'étire à droite du libellé.
+      -->
+      <div class="d-flex align-items-center gap-2 my-2">
         <div class="divider-content">
-          <i class="pi pi-building"></i>
+          <i class="pi pi-building" aria-hidden="true"></i>
           <span>Informations bancaires</span>
         </div>
-      </p-divider>
+        <hr class="flex-grow-1 my-0" />
+      </div>
 
       <div class="bank-fields">
         <div class="form-field-full">
-          <p-inputgroup>
-            <p-inputgroup-addon><i class="pi pi-building"></i><span class="addon-label">Nom</span></p-inputgroup-addon>
-            <input formControlName="nom" pInputText placeholder="Nom de la banque" />
-          </p-inputgroup>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="pi pi-building" aria-hidden="true"></i>
+              <span class="addon-label">Nom</span>
+            </span>
+            <input class="form-control" formControlName="nom" placeholder="Nom de la banque" />
+          </div>
           @if (reglementForm.get('banqueInfo').get('nom')?.invalid && reglementForm.get('banqueInfo').get('nom')?.touched) {
-            <small class="p-error">Ce champ est obligatoire.</small>
+            <small class="form-text text-danger">Ce champ est obligatoire.</small>
           }
         </div>
 
         @if (reglementForm.get('modePaimentCode')?.value === CH) {
           <div class="form-field-full">
-            <p-inputgroup>
-              <p-inputgroup-addon><i class="pi pi-hashtag"></i><span class="addon-label">N°</span></p-inputgroup-addon>
-              <input formControlName="code" pInputText placeholder="Numéro de chèque" />
-            </p-inputgroup>
+            <div class="input-group">
+              <span class="input-group-text">
+                <i class="pi pi-hashtag" aria-hidden="true"></i>
+                <span class="addon-label">N°</span>
+              </span>
+              <input class="form-control" formControlName="code" placeholder="Numéro de chèque" />
+            </div>
             @if (reglementForm.get('banqueInfo').get('code')?.invalid && reglementForm.get('banqueInfo').get('code')?.touched) {
-              <small class="p-error">Ce champ est obligatoire.</small>
+              <small class="form-text text-danger">Ce champ est obligatoire.</small>
             }
           </div>
         }
 
         <div class="form-field-full">
-          <p-inputgroup>
-            <p-inputgroup-addon><i class="pi pi-user"></i><span class="addon-label">Bénéf.</span></p-inputgroup-addon>
-            <input formControlName="beneficiaire" pInputText placeholder="Bénéficiaire" />
-          </p-inputgroup>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="pi pi-user" aria-hidden="true"></i>
+              <span class="addon-label">Bénéf.</span>
+            </span>
+            <input class="form-control" formControlName="beneficiaire" placeholder="Bénéficiaire" />
+          </div>
         </div>
       </div>
     </div>
   }
 
   <div class="form-actions">
-    <p-button [disabled]="!valid || !validMontantSaisi() || isSaving()" [loading]="isSaving()"
-              icon="pi pi-check" label="Valider" severity="success" type="submit" />
+    <app-button
+      [disabled]="!valid || !validMontantSaisi() || isSaving()"
+      [loading]="isSaving()"
+      icon="pi pi-check"
+      label="Valider"
+      severity="success"
+      type="submit"
+    />
   </div>
 </form>

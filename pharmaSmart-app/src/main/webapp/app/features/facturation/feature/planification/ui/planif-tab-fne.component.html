@@ -6,7 +6,7 @@
   <div class="text-center py-5 text-muted">
     <i class="pi pi-shield d-block fs-1 mb-3"></i>
     <p>Aucune planification FNE configurée.</p>
-    <p-button (onClick)="state.loadFne()" icon="pi pi-refresh" label="Charger" severity="secondary" />
+    <app-button (clicked)="state.loadFne()" icon="pi pi-refresh" label="Charger" severity="secondary" />
   </div>
 } @else {
   <div class="fne-config-panel">
@@ -31,10 +31,10 @@
                 Activer la planification
               }
             </label>
-            <p-toggleswitch [ngModel]="state.planificationFne()!.actif" (onChange)="state.onToggleActifFne()" />
+            <app-switch [ngModel]="state.planificationFne()!.actif" (ngModelChange)="state.onToggleActifFne()" />
           </div>
-          @if (state.planificationFne()!.actif) { <p-button
-            (onClick)="state.onExecuterFne()"
+          @if (state.planificationFne()!.actif) { <app-button
+            (clicked)="state.onExecuterFne()"
             icon="pi pi-play"
             label="Exécuter maintenant"
             severity="success"
@@ -42,13 +42,13 @@
             size="small"
           />}
 
-          <p-button
-            (onClick)="state.loadFne()"
+          <app-button
+            (clicked)="state.loadFne()"
             icon="pi pi-refresh"
             [text]="true"
             size="small"
-            pTooltip="Actualiser"
-            tooltipPosition="left"
+            ngbTooltip="Actualiser"
+            placement="left"
           />
         </div>
       </div>
@@ -97,11 +97,11 @@
           <i class="pi pi-spin pi-spinner fs-2 text-muted"></i>
         </div>
       } @else {
-        <p-table
+        <app-data-table
           [value]="state.historiquesFne()"
           [scrollable]="true"
           scrollHeight="calc(100vh - 450px)"
-          class="p-datatable-sm"
+          [size]="'small'"
           [stripedRows]="true"
         >
           <ng-template #header>
@@ -129,7 +129,7 @@
               <td colspan="6" class="text-center text-muted py-4">Aucune certification enregistrée</td>
             </tr>
           </ng-template>
-        </p-table>
+        </app-data-table>
       }
     </div>
   </div>

@@ -1,27 +1,56 @@
 import { Component, computed, input, output, ChangeDetectionStrategy } from '@angular/core';
-import { Button } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
-import { MenuModule } from 'primeng/menu';
-import { MenuItem } from 'primeng/api';
+import {
+  NgbDropdown,
+  NgbDropdownItem,
+  NgbDropdownMenu,
+  NgbDropdownToggle,
+  NgbTooltip,
+} from '@ng-bootstrap/ng-bootstrap';
 import { IDelivery } from '../../../../shared/model/delevery.model';
 
 export type BonAction = 'voirDetail' | 'receive' | 'cancel' | 'exportPdf' | 'printEtiquette' | 'retourComplet' | 'retourParLigne' | 'reconcilierFacture';
 
+interface MenuEntry {
+  label?: string;
+  icon?: string;
+  action?: BonAction;
+  separator?: boolean;
+}
+
 @Component({
   selector: 'app-list-bons-actions',
-  imports: [Button, TooltipModule, MenuModule],
+  imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, NgbTooltip],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <p-menu #rowMenu [popup]="true" [model]="menuItems()" appendTo="body" />
-    <p-button
-      icon="pi pi-ellipsis-v"
-      [text]="true"
-      size="small"
-      severity="secondary"
-      pTooltip="Actions"
-      tooltipPosition="left"
-      (onClick)="openContextMenu($event, rowMenu)"
-    />
+    <div ngbDropdown container="body" placement="bottom-end">
+      <button
+        type="button"
+        class="btn btn-sm btn-link text-secondary app-actions-toggle"
+        ngbDropdownToggle
+        (click)="$event.stopPropagation()"
+        ngbTooltip="Actions"
+        placement="left"
+        aria-label="Actions"
+      >
+        <i class="pi pi-ellipsis-v" aria-hidden="true"></i>
+      </button>
+      <div ngbDropdownMenu>
+        @for (item of menuItems(); track $index) {
+          @if (item.separator) {
+            <div class="dropdown-divider"></div>
+          } @else {
+            <button type="button" ngbDropdownItem (click)="menuAction.emit(item.action!)">
+              <i [class]="item.icon" aria-hidden="true"></i> {{ item.label }}
+            </button>
+          }
+        }
+      </div>
+    </div>
+  `,
+  styles: `
+    .app-actions-toggle::after {
+      display: none;
+    }
   `,
 })
 export class ListBonsActionsComponent {
@@ -29,71 +58,38 @@ export class ListBonsActionsComponent {
 
   readonly menuAction = output<BonAction>();
 
-  protected readonly menuItems = computed<MenuItem[]>(() => {
+  protected readonly menuItems = computed<MenuEntry[]>(() => {
     const d = this.delivery();
     const received = d.orderStatus === 'RECEIVED' || (d as any).statut === 'RECEIVED';
-    const items: MenuItem[] = [];
+    const items: MenuEntry[] = [];
 
     if (received) {
-      items.push({
-        label: 'Saisir la réception',
-        icon: 'pi pi-inbox',
-        command: () => this.menuAction.emit('receive')
-      });
+      items.push({ label: 'Saisir la réception', icon: 'pi pi-inbox', action: 'receive' });
       items.push({ separator: true });
-      items.push({
-        label: 'Annuler ce bon',
-        icon: 'pi pi-times',
-        command: () => this.menuAction.emit('cancel')
-      });
+      items.push({ label: 'Annuler ce bon', icon: 'pi pi-times', action: 'cancel' });
       items.push({ separator: true });
     }
 
     if (!received) {
-      items.push({
-        label: 'Voir le détail',
-        icon: 'pi pi-eye',
-        command: () => this.menuAction.emit('voirDetail')
-      });
+      items.push({ label: 'Voir le détail', icon: 'pi pi-eye', action: 'voirDetail' });
       items.push({ separator: true });
     }
 
-    items.push({
-      label: 'Imprimer BL',
-      icon: 'pi pi-file-pdf',
-      command: () => this.menuAction.emit('exportPdf')
-    });
+    items.push({ label: 'Imprimer BL', icon: 'pi pi-file-pdf', action: 'exportPdf' });
 
     if (!received) {
-      items.push({
-        label: 'Étiquettes',
-        icon: 'pi pi-print',
-        command: () => this.menuAction.emit('printEtiquette')
-      });
+      items.push({ label: 'Étiquettes', icon: 'pi pi-print', action: 'printEtiquette' });
       items.push({ separator: true });
-      items.push({
-        label: 'Retour complet',
-        icon: 'pi pi-replay',
-        command: () => this.menuAction.emit('retourComplet')
-      });
-      items.push({
-        label: 'Retour par ligne',
-        icon: 'pi pi-list-check',
-        command: () => this.menuAction.emit('retourParLigne')
-      });
+      items.push({ label: 'Retour complet', icon: 'pi pi-replay', action: 'retourComplet' });
+      items.push({ label: 'Retour par ligne', icon: 'pi pi-list-check', action: 'retourParLigne' });
       items.push({ separator: true });
       items.push({
         label: d.reconciliationStatut === 'RECONCILIEE' ? 'Modifier la réconciliation' : 'Rapprocher la facture',
         icon: d.reconciliationStatut === 'RECONCILIEE' ? 'pi pi-pencil' : 'pi pi-file-check',
-        command: () => this.menuAction.emit('reconcilierFacture')
+        action: 'reconcilierFacture',
       });
     }
 
     return items;
   });
-
-  protected openContextMenu(event: Event, menu: any): void {
-    event.stopPropagation();
-    menu.toggle(event);
-  }
 }

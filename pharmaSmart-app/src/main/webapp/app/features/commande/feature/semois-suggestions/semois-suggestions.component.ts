@@ -1,24 +1,34 @@
-import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { SelectModule } from 'primeng/select';
-import { Tag } from 'primeng/tag';
-import { InputTextModule } from 'primeng/inputtext';
-import { TooltipModule } from 'primeng/tooltip';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {
+  BadgeComponent,
+  ButtonComponent,
+  DataTableComponent,
+  HeaderCheckboxComponent,
+  RowCheckboxComponent,
+  SelectComponent,
+} from 'app/shared/ui';
 
-import { ISemoisSuggestion, SemoisSuggestion } from 'app/shared/model/semois/semois-suggestion.model';
-import { ClasseCriticite, getClasseCriticiteInfo, CLASSE_CRITICITE_INFO } from 'app/shared/model/semois/classe-criticite.model';
-import { SemoisService } from 'app/entities/semois/semois.service';
-import { SuggestionService } from 'app/entities/commande/suggestion/suggestion.service';
-import { NotificationService } from 'app/shared/services/notification.service';
-import { IReapproDashboard } from 'app/shared/model/semois/semois-dashboard.model';
-import { SemoisExclureProduitComponent } from './ui/semois-exclure-produit/semois-exclure-produit.component';
-import { SemoisExclusionPanelComponent } from './ui/semois-exclusion-panel/semois-exclusion-panel.component';
+import {ISemoisSuggestion, SemoisSuggestion} from 'app/shared/model/semois/semois-suggestion.model';
+import {
+  CLASSE_CRITICITE_INFO,
+  ClasseCriticite,
+  getClasseCriticiteInfo
+} from 'app/shared/model/semois/classe-criticite.model';
+import {SemoisService} from 'app/entities/semois/semois.service';
+import {SuggestionService} from 'app/entities/commande/suggestion/suggestion.service';
+import {NotificationService} from 'app/shared/services/notification.service';
+import {IReapproDashboard} from 'app/shared/model/semois/semois-dashboard.model';
+import {
+  SemoisExclureProduitComponent
+} from './ui/semois-exclure-produit/semois-exclure-produit.component';
+import {
+  SemoisExclusionPanelComponent
+} from './ui/semois-exclusion-panel/semois-exclusion-panel.component';
 
 @Component({
   selector: 'app-semois-suggestions',
@@ -28,12 +38,13 @@ import { SemoisExclusionPanelComponent } from './ui/semois-exclusion-panel/semoi
   imports: [
     CommonModule,
     FormsModule,
-    TableModule,
-    ButtonModule,
-    SelectModule,
-    Tag,
-    InputTextModule,
-    TooltipModule,
+    DataTableComponent,
+    ButtonComponent,
+    SelectComponent,
+    BadgeComponent,
+    HeaderCheckboxComponent,
+    RowCheckboxComponent,
+    NgbTooltip,
   ],
 })
 export class SemoisSuggestionsComponent implements OnInit {
@@ -43,44 +54,34 @@ export class SemoisSuggestionsComponent implements OnInit {
   readonly searchText = signal<string>('');
   readonly selectedFournisseurId = signal<number | null>(null);
   readonly selectedNiveauUrgence = signal<'URGENT' | 'NORMAL' | 'OK' | null>(null);
-  readonly selectedSuggestions = signal<ISemoisSuggestion[]>([]);
-
   // Pagination
   readonly page = signal<number>(0);
-  readonly itemsPerPage = signal<number>(15);
   readonly totalItems = signal<number>(0);
-
   // KPI
   readonly dashboardStats = signal<IReapproDashboard | null>(null);
-
   // Fournisseurs distincts pour le filtre
   readonly fournisseurOptions = signal<Array<{ label: string; value: number }>>([]);
-
   /** Nombre d'exclusions actives — badge dans la barre d'actions. */
   readonly exclusionCount = signal<number>(0);
-
   /** Options pour le sélecteur de classe */
   readonly classeOptions = Object.entries(CLASSE_CRITICITE_INFO).map(([key, info]) => ({
     label: info.label,
     value: key as ClasseCriticite,
   }));
-
   /** Options pour le filtre urgence — lexique métier */
   readonly urgenceOptions: Array<{ label: string; value: 'URGENT' | 'NORMAL' | 'OK' }> = [
-    { label: 'Rupture', value: 'URGENT' },
-    { label: 'Sous seuil', value: 'NORMAL' },
-    { label: 'Suffisant', value: 'OK' },
+    {label: 'Rupture', value: 'URGENT'},
+    {label: 'Sous seuil', value: 'NORMAL'},
+    {label: 'Suffisant', value: 'OK'},
   ];
-
   /** Recalcul VMM en cours */
   readonly recalculEnCours = signal(false);
-
+  protected selectedSuggestions = signal<ISemoisSuggestion[]>([]);
+  protected itemsPerPage = signal<number>(15);
   private readonly semoisService = inject(SemoisService);
   private readonly suggestionService = inject(SuggestionService);
   private readonly notificationService = inject(NotificationService);
   private readonly modalService = inject(NgbModal);
-
-
 
 
   ngOnInit(): void {
@@ -92,35 +93,11 @@ export class SemoisSuggestionsComponent implements OnInit {
 
   // ── Chargement ────────────────────────────────────────────────────────────
 
-  private loadDashboardStats(): void {
-    this.semoisService.getDashboard().subscribe({
-      next: (res: HttpResponse<IReapproDashboard>) => this.dashboardStats.set(res.body),
-      error: () => this.dashboardStats.set(null),
-    });
-  }
-
-  private loadFournisseurs(): void {
-    this.semoisService.getSemoisFournisseurs().subscribe({
-      next: res => {
-        const opts = (res.body ?? []).map(f => ({ label: f.fournisseurLibelle, value: f.fournisseurId }));
-        this.fournisseurOptions.set(opts);
-      },
-      error: () => this.fournisseurOptions.set([]),
-    });
-  }
-
-  private loadExclusionCount(): void {
-    this.semoisService.countExclusionsActives().subscribe({
-      next: res => this.exclusionCount.set(res.body?.count ?? 0),
-      error: () => this.exclusionCount.set(0),
-    });
-  }
-
   loadSuggestions(): void {
     this.isLoading.set(true);
     this.selectedSuggestions.set([]);
 
-    const req = { page: this.page(), size: this.itemsPerPage() };
+    const req = {page: this.page(), size: this.itemsPerPage()};
 
     this.semoisService.getSuggestions(
       req,
@@ -138,8 +115,6 @@ export class SemoisSuggestionsComponent implements OnInit {
     });
   }
 
-  // ── Pagination ────────────────────────────────────────────────────────────
-
   /** PrimeNG 20 TablePageEvent n'a que first/rows (pas page). */
   onPageChange(event: { first: number; rows: number }): void {
     this.page.set(Math.floor(event.first / event.rows));
@@ -147,10 +122,17 @@ export class SemoisSuggestionsComponent implements OnInit {
     this.loadSuggestions();
   }
 
-  // ── Filtres ───────────────────────────────────────────────────────────────
+  onFilterChange(): void {
+    this.page.set(0);
+    this.loadSuggestions();
+  }
 
-  onFilterChange(): void { this.page.set(0); this.loadSuggestions(); }
-  onSearchChange(): void { this.page.set(0); this.loadSuggestions(); }
+  onSearchChange(): void {
+    this.page.set(0);
+    this.loadSuggestions();
+  }
+
+  // ── Pagination ────────────────────────────────────────────────────────────
 
   onClearFilters(): void {
     this.selectedClasse.set(null);
@@ -161,7 +143,7 @@ export class SemoisSuggestionsComponent implements OnInit {
     this.loadSuggestions();
   }
 
-
+  // ── Filtres ───────────────────────────────────────────────────────────────
 
   /** Déclenche un recalcul VMM immédiat puis recharge la liste. */
   recalculerVmm(): void {
@@ -182,7 +164,7 @@ export class SemoisSuggestionsComponent implements OnInit {
 
   /** Ouvre le formulaire d'exclusion pour un produit. */
   ouvrirExclureProduit(suggestion: ISemoisSuggestion): void {
-    const ref = this.modalService.open(SemoisExclureProduitComponent, { size: 'lg', centered: true });
+    const ref = this.modalService.open(SemoisExclureProduitComponent, {size: 'lg', centered: true});
     ref.componentInstance.produitId = suggestion.produitId;
     ref.componentInstance.produitLibelle = suggestion.libelle;
 
@@ -213,44 +195,52 @@ export class SemoisSuggestionsComponent implements OnInit {
     });
   }
 
-
-  private toModel(s: ISemoisSuggestion): SemoisSuggestion {
-    return new SemoisSuggestion(
-      s.produitId, s.libelle, s.codeCip, s.fournisseurId, s.fournisseurLibelle,
-      s.classeCriticite, s.vmm, s.margeSecurite, s.stockObjectif, s.stockActuel,
-      s.quantiteACommander, s.delaiLivraisonJours, s.coefficientSecurite, s.facteurSaisonnier, s.dateDernierCalcul,
-    );
+  getUrgenceLabel(s: ISemoisSuggestion): string {
+    return this.toModel(s).getNiveauUrgence();
   }
-
-  getUrgenceLabel(s: ISemoisSuggestion): string { return this.toModel(s).getNiveauUrgence(); }
 
   /** Libellé métier affiché dans la colonne Urgence. */
   getUrgenceDisplayLabel(s: ISemoisSuggestion): string {
     switch (this.getUrgenceLabel(s)) {
-      case 'URGENT': return 'Rupture';
-      case 'NORMAL': return 'Sous seuil';
-      default:       return 'Suffisant';
+      case 'URGENT':
+        return 'Rupture';
+      case 'NORMAL':
+        return 'Sous seuil';
+      default:
+        return 'Suffisant';
     }
   }
 
   getUrgenceSeverity(s: ISemoisSuggestion): 'danger' | 'warn' | 'success' {
     switch (this.getUrgenceLabel(s)) {
-      case 'URGENT': return 'danger';
-      case 'NORMAL': return 'warn';
-      default:       return 'success';
+      case 'URGENT':
+        return 'danger';
+      case 'NORMAL':
+        return 'warn';
+      default:
+        return 'success';
     }
   }
 
-  getClasseLabel(c?: ClasseCriticite): string { return getClasseCriticiteInfo(c)?.label ?? '-'; }
+  getClasseLabel(c?: ClasseCriticite): string {
+    return getClasseCriticiteInfo(c)?.label ?? '-';
+  }
+
   getClasseSeverity(c?: ClasseCriticite): 'danger' | 'success' | 'info' | 'warn' | 'secondary' {
     return getClasseCriticiteInfo(c)?.severity ?? 'secondary';
   }
 
   getStockActuelClass(s: ISemoisSuggestion): string {
-    if ((s.stockActuel ?? 0) < 0) return 'text-danger fw-bold';   // stock négatif
+    if ((s.stockActuel ?? 0) < 0) {
+      return 'text-danger fw-bold';
+    }   // stock négatif
     const m = this.toModel(s);
-    if (m.estEnRupture())  return 'text-danger fw-bold';
-    if (m.estEnSurstock()) return 'text-warning';
+    if (m.estEnRupture()) {
+      return 'text-danger fw-bold';
+    }
+    if (m.estEnSurstock()) {
+      return 'text-warning';
+    }
     return '';
   }
 
@@ -261,11 +251,19 @@ export class SemoisSuggestionsComponent implements OnInit {
   }
 
   getCouvertureClass(s: ISemoisSuggestion): string {
-    if ((s.stockActuel ?? 0) <= 0) return 'bg-danger-subtle text-danger';
+    if ((s.stockActuel ?? 0) <= 0) {
+      return 'bg-danger-subtle text-danger';
+    }
     const c = this.getCouvertureMois(s);
-    if (c < 0.5) return 'bg-danger-subtle text-danger';
-    if (c < 1.0) return 'bg-warning-subtle text-warning';
-    if (c <= 2.0) return 'bg-success-subtle text-success';
+    if (c < 0.5) {
+      return 'bg-danger-subtle text-danger';
+    }
+    if (c < 1.0) {
+      return 'bg-warning-subtle text-warning';
+    }
+    if (c <= 2.0) {
+      return 'bg-success-subtle text-success';
+    }
     return 'bg-info-subtle text-info';
   }
 
@@ -275,20 +273,36 @@ export class SemoisSuggestionsComponent implements OnInit {
 
   getCouvertureCibleClass(s: ISemoisSuggestion): string {
     const c = this.getCouvertureCibleMois(s);
-    if (c < 0.5) return 'text-danger';
-    if (c < 1.0) return 'text-warning';
-    if (c <= 3.0) return 'text-success';
+    if (c < 0.5) {
+      return 'text-danger';
+    }
+    if (c < 1.0) {
+      return 'text-warning';
+    }
+    if (c <= 3.0) {
+      return 'text-success';
+    }
     return 'text-info';
   }
 
-  getJoursRestants(s: ISemoisSuggestion): number { return this.toModel(s).getJoursStockRestant(); }
+  getJoursRestants(s: ISemoisSuggestion): number {
+    return this.toModel(s).getJoursStockRestant();
+  }
 
   getJoursRestantsClass(s: ISemoisSuggestion): string {
-    if ((s.stockActuel ?? 0) <= 0) return 'bg-danger-subtle text-danger';
+    if ((s.stockActuel ?? 0) <= 0) {
+      return 'bg-danger-subtle text-danger';
+    }
     const j = this.getJoursRestants(s);
-    if (j <= 7)  return 'bg-danger-subtle text-danger';
-    if (j <= 14) return 'bg-warning-subtle text-warning';
-    if (j <= 30) return 'bg-success-subtle text-success';
+    if (j <= 7) {
+      return 'bg-danger-subtle text-danger';
+    }
+    if (j <= 14) {
+      return 'bg-warning-subtle text-warning';
+    }
+    if (j <= 30) {
+      return 'bg-success-subtle text-success';
+    }
     return 'bg-info-subtle text-info';
   }
 
@@ -299,9 +313,47 @@ export class SemoisSuggestionsComponent implements OnInit {
 
   getRowClass(s: ISemoisSuggestion): string {
     switch (this.getUrgenceLabel(s)) {
-      case 'URGENT': return 'table-danger';
-      case 'NORMAL': return 'table-warning';
-      default:       return '';
+      case 'URGENT':
+        return 'table-danger';
+      case 'NORMAL':
+        return 'table-warning';
+      default:
+        return '';
     }
+  }
+
+  private loadDashboardStats(): void {
+    this.semoisService.getDashboard().subscribe({
+      next: (res: HttpResponse<IReapproDashboard>) => this.dashboardStats.set(res.body),
+      error: () => this.dashboardStats.set(null),
+    });
+  }
+
+  private loadFournisseurs(): void {
+    this.semoisService.getSemoisFournisseurs().subscribe({
+      next: res => {
+        const opts = (res.body ?? []).map(f => ({
+          label: f.fournisseurLibelle,
+          value: f.fournisseurId
+        }));
+        this.fournisseurOptions.set(opts);
+      },
+      error: () => this.fournisseurOptions.set([]),
+    });
+  }
+
+  private loadExclusionCount(): void {
+    this.semoisService.countExclusionsActives().subscribe({
+      next: res => this.exclusionCount.set(res.body?.count ?? 0),
+      error: () => this.exclusionCount.set(0),
+    });
+  }
+
+  private toModel(s: ISemoisSuggestion): SemoisSuggestion {
+    return new SemoisSuggestion(
+      s.produitId, s.libelle, s.codeCip, s.fournisseurId, s.fournisseurLibelle,
+      s.classeCriticite, s.vmm, s.margeSecurite, s.stockObjectif, s.stockActuel,
+      s.quantiteACommander, s.delaiLivraisonJours, s.coefficientSecurite, s.facteurSaisonnier, s.dateDernierCalcul,
+    );
   }
 }

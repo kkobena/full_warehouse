@@ -16,12 +16,17 @@
   overflow: hidden;
   height: 100%;
 
-  ::ng-deep .p-datatable {
+  // Remplace `scrollHeight="flex"` de `p-table` : `app-data-table` remplit ce wrapper
+  // et son scroller interne prend le relais du défilement, sans hauteur figée.
+  ::ng-deep app-data-table {
     height: 100%;
     display: flex;
     flex-direction: column;
+  }
 
-    .p-datatable-wrapper { flex: 1 1 0; min-height: 0; }
+  ::ng-deep .app-table__scroller {
+    flex: 1 1 0;
+    min-height: 0;
   }
 
   ::ng-deep tr { cursor: pointer; }

@@ -3,7 +3,7 @@
     <i class="pi pi-check-circle me-2"></i>
     Valider {{ bed?.receiptReference ?? 'le BED' }}
   </h4>
-  <button type="button" class="btn-close" (click)="activeModal.dismiss()"></button>
+  <button (click)="activeModal.dismiss()" class="btn-close" type="button"></button>
 </div>
 
 <form (ngSubmit)="onConfirm()" name="bedValidateForm" novalidate role="form">
@@ -15,23 +15,21 @@
     </span>
     </div>
 
-    <p-card>
+    <app-card [variant]="'form'">
       <div class="form-grid-compact">
 
         <!-- Motif -->
         <div class="form-field form-field-full">
           <label>Motif <span class="required">*</span></label>
-          <p-select
-            [ngModel]="formMotif()"
+          <app-select
             (ngModelChange)="formMotif.set($event)"
+            [ngModel]="formMotif()"
             name="motif"
-            [options]="motifOptions"
-            optionLabel="label"
-            optionValue="value"
-            [overlayOptions]="{baseZIndex: 90050}"
-            (onShow)="onDropdownShow($event)"
-            (onHide)="onDropdownHide($event)"
+            [items]="motifOptions"
+            bindLabel="label"
+            bindValue="value"
             placeholder="— Choisir un motif —"
+            [clearable]="false"
           />
         </div>
 
@@ -39,38 +37,37 @@
         <div class="form-field form-field-full">
           <label>Fournisseur <small class="text-muted fw-normal">(optionnel)</small></label>
           <app-fournisseur-select
+            (selectionChange)="onFournisseurSelected($event)"
             [appendTo]="null"
             placeholder="Rechercher un fournisseur…"
-            (selectionChange)="onFournisseurSelected($event)"
-            (dropdownShow)="onDropdownShow($event)"
-            (dropdownHide)="onDropdownHide($event)"
           />
         </div>
 
         <!-- Commentaire -->
         <div class="form-field form-field-full">
           <label>Commentaire <small class="text-muted fw-normal">(optionnel)</small></label>
-          <textarea pTextarea
-            rows="2"
-            name="commentaire"
+          <textarea
             [(ngModel)]="commentaire"
+            class="form-control"
+            name="commentaire"
             placeholder="Observations, précisions…"
+            rows="2"
           ></textarea>
         </div>
 
       </div>
-    </p-card>
+    </app-card>
   </div>
 
   <div class="modal-footer">
-    <p-button
-      (click)="activeModal.dismiss()"
+    <app-button
+      (clicked)="activeModal.dismiss()"
       icon="pi pi-times"
       label="Annuler"
       severity="secondary"
       type="button"
     />
-    <p-button
+    <app-button
       [disabled]="!formMotif()"
       icon="pi pi-check"
       label="Valider"

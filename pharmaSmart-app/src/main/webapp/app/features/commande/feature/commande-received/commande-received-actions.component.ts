@@ -1,61 +1,60 @@
 import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {ICellRendererAngularComp} from 'ag-grid-angular';
-import {Button} from 'primeng/button';
-import {Tooltip} from 'primeng/tooltip';
-import {ButtonGroup} from 'primeng/buttongroup';
+import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {ButtonComponent} from '../../../../shared/ui';
 import {IOrderLine} from '../../../../shared/model/order-line.model';
 
 @Component({
   selector: 'app-commande-received-actions',
-  imports: [Button, Tooltip, ButtonGroup],
+  imports: [ButtonComponent, NgbTooltip],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <p-buttongroup>
-      <p-button
+    <div class="btn-group">
+      <app-button
         [text]="true"
         [rounded]="true"
         severity="secondary"
         icon="pi pi-chart-line"
-        pTooltip="Historique des prix"
-        tooltipPosition="top"
+        ngbTooltip="Historique des prix"
+        placement="top"
         size="small"
-        (onClick)="onHistorique($event)"
+        (clicked)="onHistorique($event)"
       />
-      <p-button
+      <app-button
         [text]="true"
         [rounded]="true"
         severity="success"
         icon="pi pi-pencil"
-        pTooltip="Modifier le produit"
-        tooltipPosition="top"
+        ngbTooltip="Modifier le produit"
+        placement="top"
         size="small"
-        (onClick)="onEdit($event)"
+        (clicked)="onEdit($event)"
       />
       @if (showLot) {
-        <p-button
+        <app-button
           [text]="true"
           [rounded]="true"
           [hidden]="true"
           severity="info"
           icon="pi pi-box"
-          pTooltip="Gérer le lot"
-          tooltipPosition="top"
+          ngbTooltip="Gérer le lot"
+          placement="top"
           size="small"
-          (onClick)="onLot($event)"
+          (clicked)="onLot($event)"
         />
-        <p-button
+        <app-button
           [text]="true"
           [rounded]="true"
           [hidden]="true"
           severity="danger"
           icon="pi pi-trash"
-          pTooltip="Supprimer"
-          tooltipPosition="top"
+          ngbTooltip="Supprimer"
+          placement="top"
           size="small"
-          (onClick)="onDelete($event)"
+          (clicked)="onDelete($event)"
         />
       }
-    </p-buttongroup>
+    </div>
   `,
 })
 export class CommandeReceivedActionsComponent implements ICellRendererAngularComp {

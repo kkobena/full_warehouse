@@ -8,15 +8,11 @@ import com.kobe.warehouse.service.dto.filter.AjustementFilterRecord;
 import com.kobe.warehouse.web.util.HeaderUtil;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -32,7 +28,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-/** REST controller for managing {@link com.kobe.warehouse.domain.Ajustement}. */
+/**
+ * REST controller for managing {@link com.kobe.warehouse.domain.Ajustement}.
+ */
 @RestController
 @RequestMapping("/api")
 public class AjustementResource {
@@ -80,9 +78,11 @@ public class AjustementResource {
     }
 
     @GetMapping(value = "/ajustements/ajust")
-    public ResponseEntity<List<AjustDTO>> getAllAjustts(AjustementFilterRecord ajustementFilterRecord, Pageable pageable) {
+    public ResponseEntity<List<AjustDTO>> getAllAjusts(
+        AjustementFilterRecord ajustementFilterRecord, Pageable pageable) {
         Page<AjustDTO> page = ajustService.loadAll(ajustementFilterRecord, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
+            ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -96,7 +96,8 @@ public class AjustementResource {
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         ajustementService.delete(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, "ajustement", id.toString()))
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, "ajustement",
+                id.toString()))
             .build();
     }
 

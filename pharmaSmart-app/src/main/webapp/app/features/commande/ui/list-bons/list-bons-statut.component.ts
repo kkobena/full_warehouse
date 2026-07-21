@@ -1,13 +1,13 @@
 import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
-import { Tag } from 'primeng/tag';
+import { BadgeComponent } from 'app/shared/ui';
 import { IDelivery } from '../../../../shared/model/delevery.model';
 
 type PrimeSeverity = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast';
 
 @Component({
   selector: 'app-list-bons-statut',
-  imports: [Tag],
-  template: `<p-tag [value]="label()" [severity]="severity()" [icon]="icon()" [rounded]="true" />`,
+  imports: [BadgeComponent],
+  template: `<app-badge [label]="label()" [severity]="severity()" [icon]="icon()" [rounded]="true" />`,
   changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`:host { display:flex; align-items:center; height:100% }`],
 })

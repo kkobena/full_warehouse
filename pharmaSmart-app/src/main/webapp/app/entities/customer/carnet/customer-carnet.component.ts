@@ -1,16 +1,8 @@
 import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { AutoCompleteModule } from 'primeng/autocomplete';
 import { DateNaissDirective } from '../../../shared/date-naiss.directive';
-import { InputTextModule } from 'primeng/inputtext';
-import { KeyFilterModule } from 'primeng/keyfilter';
-import { RadioButton, RadioButtonModule } from 'primeng/radiobutton';
 import TranslateDirective from '../../../shared/language/translate.directive';
 import { CommonModule } from '@angular/common';
-import { DividerModule } from 'primeng/divider';
-import { InputMaskModule } from 'primeng/inputmask';
-import { SelectButtonModule } from 'primeng/selectbutton';
-import { CardModule } from 'primeng/card';
 import { Customer, ICustomer } from '../../../shared/model/customer.model';
 import { ITiersPayant } from '../../../shared/model/tierspayant.model';
 import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
@@ -22,29 +14,28 @@ import { Observable, Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 import { ErrorService } from '../../../shared/error.service';
 import { CustomerService } from '../customer.service';
-import { Button } from 'primeng/button';
 import { PRODUIT_COMBO_MIN_LENGTH } from '../../../shared/constants/pagination.constants';
-import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { NotificationService } from '../../../shared/services/notification.service';
+import {
+  ButtonComponent,
+  CardComponent,
+  KeyFilterDirective,
+  RadioComponent,
+  SelectSearchComponent
+} from '../../../shared/ui';
 
 @Component({
   selector: 'jhi-carnet',
   imports: [
     CommonModule,
-    AutoCompleteModule,
-    RadioButton,
-    RadioButtonModule,
-    DividerModule,
-    InputMaskModule,
-    InputTextModule,
-    KeyFilterModule,
-    RadioButtonModule,
     ReactiveFormsModule,
-    SelectButtonModule,
     TranslateDirective,
-    CardModule,
     DateNaissDirective,
-    Button,
-    ToastAlertComponent,
+    ButtonComponent,
+    CardComponent,
+    KeyFilterDirective,
+    RadioComponent,
+    SelectSearchComponent
   ],
   templateUrl: './customer-carnet.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -77,7 +68,7 @@ export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy
   });
   private readonly customerService = inject(CustomerService);
   private readonly activeModal = inject(NgbActiveModal);
-  private alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
   private readonly modalService = inject(NgbModal);
   private readonly tiersPayantService = inject(TiersPayantService);
@@ -126,7 +117,7 @@ export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy
 
   onSaveError(error: any): void {
     this.isSaving = false;
-    this.alert().showError(this.errorService.getErrorMessage(error));
+    this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 
   save(): void {
@@ -141,8 +132,8 @@ export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy
     }
   }
 
-  protected searchTiersPayant(event: any): void {
-    this.loadTiersPayants(event.query);
+  protected searchTiersPayant(query: string): void {
+    this.loadTiersPayants(query);
   }
 
   protected loadTiersPayants(search?: string): void {
@@ -164,11 +155,16 @@ export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy
       });
   }
 
-  protected onSelectTiersPayant(event: any): void {
-    if (event.value?.id === null) {
+  /**
+   * `(selectionChange)` d'app-select-search émet la **valeur** sélectionnée, là où le
+   * `(onSelect)` de `p-autocomplete` émettait un objet `{ value, originalEvent }`.
+   * Lire `event.value` renvoyait donc toujours `undefined`.
+   */
+  protected onSelectTiersPayant(tiersPayant: any): void {
+    if (tiersPayant?.id === null) {
       this.addTiersPayantAssurance();
-    } else {
-      this.tiersPayant = event.value;
+    } else if (tiersPayant) {
+      this.tiersPayant = tiersPayant;
     }
   }
 
@@ -212,7 +208,7 @@ export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   private onSaveSuccess(customer: ICustomer | null): void {
-    this.alert().showInfo('Client ajouté avec succès');
+    this.notificationService.info('Client ajouté avec succès');
     this.activeModal.close(customer);
   }
 }

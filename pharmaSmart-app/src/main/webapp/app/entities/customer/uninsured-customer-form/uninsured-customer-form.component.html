@@ -1,4 +1,4 @@
-<p-toast position="center"></p-toast>
+
 <div class="modal-header">
   <h4 class="modal-title">{{ title }}</h4>
   <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal" type="button"></button>
@@ -10,13 +10,11 @@
       <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
     </div>
 
-    <p-card>
-      <ng-template #header>
-        <div class="section-header section-header-required">
+    <app-card [variant]="'form'" [withHeader]="true">
+      <div ngProjectAs="[cardHeader]" class="section-header section-header-required">
           <i class="pi pi-exclamation-circle"></i>
           <span>Champs Obligatoires</span>
         </div>
-      </ng-template>
       <div class="form-grid-compact">
         <div class="form-field form-field-full">
           <label for="field_firstName">Nom<span class="required">*</span></label>
@@ -26,8 +24,7 @@
             formControlName="firstName"
             id="field_firstName"
             name="firstName"
-            class="w-full"
-            pInputText
+            class="form-control"
             type="text"
           />
           @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty || editForm.get('firstName')!.touched)) {
@@ -41,7 +38,7 @@
 
         <div class="form-field form-field-full">
           <label for="field_lastName">Prénom(s)<span class="required">*</span></label>
-          <input autocomplete="off" formControlName="lastName" id="field_lastName" name="lastName" class="w-full" pInputText type="text" />
+          <input autocomplete="off" formControlName="lastName" id="field_lastName" name="lastName" class="form-control" type="text" />
           @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty || editForm.get('lastName')!.touched)) {
             <div>
               @if (editForm.get('lastName')?.errors?.required) {
@@ -55,12 +52,11 @@
           <label for="field_phone">Téléphone<span class="required">*</span></label>
           <input
             autocomplete="off"
-            class="w-full"
+            class="form-control"
             formControlName="phone"
             id="field_phone"
             name="phone"
-            pInputText
-            pKeyFilter="int"
+            [appKeyFilter]="'int'"
             type="text"
           />
 
@@ -73,25 +69,23 @@
           }
         </div>
       </div>
-    </p-card>
-    <p-card class="mt-2">
-      <ng-template #header>
-        <div class="section-header">
+    </app-card>
+    <app-card [variant]="'form'" class="mt-2" [withHeader]="true">
+      <div ngProjectAs="[cardHeader]" class="section-header">
           <i class="pi pi-info-circle"></i>
           <span>Informations Complémentaires</span>
         </div>
-      </ng-template>
       <div class="form-grid-compact">
         <div class="form-field form-field-full">
           <label for="field_email">E-mail</label>
-          <input autocomplete="off" class="w-full" formControlName="email" id="field_email" name="email" pInputText type="email" />
+          <input autocomplete="off" class="form-control" formControlName="email" id="field_email" name="email" type="email" />
         </div>
       </div>
-    </p-card>
+    </app-card>
   </div>
 
   <div class="form-actions-compact">
-    <p-button
+    <app-button
       (click)="cancel()"
       [raised]="true"
       class="mr-2"
@@ -99,14 +93,14 @@
       label="Annuler"
       severity="secondary"
       type="button"
-    ></p-button>
-    <p-button
+    ></app-button>
+    <app-button
       [disabled]="editForm.invalid || isSaving || !isValid"
       [raised]="true"
       icon="pi pi-check"
       label="Enregistrer"
       severity="success"
       type="submit"
-    ></p-button>
+    ></app-button>
   </div>
 </form>

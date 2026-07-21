@@ -1,12 +1,8 @@
 import {Component, computed, DestroyRef, effect, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {Button} from 'primeng/button';
-import {Toolbar} from 'primeng/toolbar';
-import {Toast} from 'primeng/toast';
-import {MessageService} from 'primeng/api';
-import {Tooltip} from 'primeng/tooltip';
+import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {NotificationService} from '../../../../shared/services/notification.service';
 import {takeUntilDestroyed, toObservable} from '@angular/core/rxjs-interop';
 import {filter} from 'rxjs';
 import {InventoryApiService} from '../../data-access/services/inventory-api.service';
@@ -28,7 +24,6 @@ import {
   InventoryValuationComponent
 } from '../../ui/inventory-valuation/inventory-valuation.component';
 import {FormsModule} from '@angular/forms';
-import {Select} from 'primeng/select';
 import {
   IInventoryLine,
   INVENTORY_CATEGORIES,
@@ -48,24 +43,23 @@ import {ConfigurationService} from '../../../../shared/configuration.service';
 import {InventoryCategoryType} from "../../../../shared/model/store-inventory.model";
 import {TauriPrinterService} from "../../../../shared/services/tauri-printer.service";
 import {handleBlobForTauri} from "../../../../shared/util/tauri-util";
+import {ButtonComponent, SelectComponent, ToolbarComponent} from '../../../../shared/ui';
 
 @Component({
   selector: 'app-inventory-editor',
   imports: [
     CommonModule,
     FormsModule,
-    Button,
-    Toolbar,
-    Toast,
-    Tooltip,
-    Select,
+    ButtonComponent,
+    ToolbarComponent,
+    SelectComponent,
+    NgbTooltip,
     InventoryProgressBarComponent,
     InventoryLinesGridComponent,
     InventoryLotGridComponent,
     GapSummaryComponent,
     InventoryValuationComponent,
   ],
-  providers: [MessageService],
   templateUrl: './inventory-editor.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './inventory-editor.component.scss',
@@ -104,7 +98,7 @@ export class InventoryEditorComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly modal = inject(NgbModal);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
-  private readonly messageService = inject(MessageService);
+  private readonly notificationService = inject(NotificationService);
   private readonly storageService = inject(StorageService);
   private readonly rayonService = inject(RayonService);
   private readonly hasAuthority = inject(HasAuthorityService);
@@ -124,7 +118,7 @@ export class InventoryEditorComponent implements OnInit {
     effect(() => {
       const err = this.store.error();
       if (err) {
-        this.messageService.add({severity: 'error', summary: 'Erreur', detail: err, life: 5000});
+        this.notificationService.error(err, 'Erreur');
       }
     });
   }
@@ -262,11 +256,7 @@ export class InventoryEditorComponent implements OnInit {
       },
       error: () => {
         this.exporting.set(false);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: "Échec de l'export PDF"
-        });
+        this.notificationService.error("Échec de l'export PDF", 'Erreur');
       },
     });
   }
@@ -334,26 +324,14 @@ export class InventoryEditorComponent implements OnInit {
           case 'LINE_SAVED':
             break;
           case 'LINE_SAVE_ERROR':
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Erreur',
-              detail: 'Erreur lors de la sauvegarde de la ligne'
-            });
+            this.notificationService.error('Erreur lors de la sauvegarde de la ligne', 'Erreur');
             break;
           case 'IMPORT_COMPLETED':
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Import',
-              detail: 'Import CSV terminé'
-            });
+            this.notificationService.success('Import CSV terminé', 'Import');
             this.loadLines();
             break;
           case 'INVENTORY_CLOSED':
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Clôture',
-              detail: 'Inventaire clôturé avec succès'
-            });
+            this.notificationService.success('Inventaire clôturé avec succès', 'Clôture');
             this.listFacade.loadInventory(this.inventoryId());
             break;
         }

@@ -1,18 +1,15 @@
 import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Button } from 'primeng/button';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { InputNumber } from 'primeng/inputnumber';
 import { CashRegisterService } from '../../cash-register.service';
 import { ConfigurationService } from '../../../../shared/configuration.service';
 import { ErrorService } from '../../../../shared/error.service';
-import { Toast } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { ButtonComponent, InputNumberComponent } from '../../../../shared/ui';
 
 @Component({
   selector: 'jhi-cash-register-form',
-  providers: [MessageService],
-  imports: [Button, ReactiveFormsModule, InputNumber, Toast],
+  imports: [ButtonComponent, ReactiveFormsModule, InputNumberComponent],
   templateUrl: './cash-register-form.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './cash-register-form.component.scss',
@@ -20,7 +17,7 @@ import { MessageService } from 'primeng/api';
 export class CashRegisterFormComponent implements OnInit, AfterViewInit {
   protected isSaving = false;
   protected cashFundAmount: number | null = null;
-  protected cashFundAmountInput = viewChild<InputNumber>('cashFundAmountInput');
+  protected cashFundAmountInput = viewChild('cashFundAmountInput', { read: ElementRef<HTMLElement> });
   protected fb = inject(FormBuilder);
   protected editForm = this.fb.group({
     cashFundAmount: new FormControl<number | null>(null, {
@@ -32,7 +29,7 @@ export class CashRegisterFormComponent implements OnInit, AfterViewInit {
   private readonly entityService = inject(CashRegisterService);
   private readonly configService = inject(ConfigurationService);
   private readonly errorService = inject(ErrorService);
-  private readonly messageService = inject(MessageService);
+  private readonly notificationService = inject(NotificationService);
 
   protected cancel(): void {
     this.activeModal.dismiss();
@@ -63,11 +60,7 @@ export class CashRegisterFormComponent implements OnInit, AfterViewInit {
           }
         },
         error: err => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erreur',
-            detail: this.errorService.getErrorMessage(err),
-          });
+          this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur');
         },
       });
     }
@@ -75,8 +68,7 @@ export class CashRegisterFormComponent implements OnInit, AfterViewInit {
 
   private setCashFundControlFocus(): void {
     setTimeout(() => {
-      const cashFundAmountInput = this.cashFundAmountInput();
-      const inputElement = cashFundAmountInput?.input()?.nativeElement;
+      const inputElement = this.cashFundAmountInput()?.nativeElement.querySelector('input');
       inputElement?.focus();
       this.editForm.get(['cashFundAmount'])?.setValue(this.cashFundAmount);
       inputElement?.select();

@@ -1,76 +1,40 @@
 <div class="pharma-smart-content p-2">
-  <!-- Modern Pharma Toolbar ---->
-  <div class="pharma-toolbar">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-balance-scale"></i>
-      <span class="pharma-toolbar-title">Balance de caisse</span>
-    </div>
-
-    <p-toolbar>
-      <ng-template #start>
+    <app-toolbar icon="pi pi-balance-scale" title="Balance de caisse">
+      <ng-container ngProjectAs="[toolbarFilters]">
         <div class="pharma-toolbar-filters">
-          <p-floatlabel variant="on" class="mr-2">
-            <p-datepicker
-              [(ngModel)]="fromDate"
-              [iconDisplay]="'input'"
-              [showButtonBar]="true"
-              dateFormat="dd/mm/yy"
-              id="dateDebut"
-              inputId="dateDebut"
-              selectOtherMonths="true"
-              showIcon="true"
-              appendTo="body"
-            />
-            <label for="dateDebut">Du</label>
-          </p-floatlabel>
+          <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate" id="dateDebut" label="Du" />
 
-          <p-floatlabel variant="on" class="mr-2">
-            <p-datepicker
-              [(ngModel)]="toDate"
-              [iconDisplay]="'input'"
-              [showButtonBar]="true"
-              dateFormat="dd/mm/yy"
-              id="dateFin"
-              inputId="dateFin"
-              selectOtherMonths="true"
-              showIcon="true"
-              appendTo="body"
-            />
-            <label for="dateFin">Au</label>
-          </p-floatlabel>
+          <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate" id="dateFin" label="Au" />
         </div>
-      </ng-template>
+      </ng-container>
 
-      <ng-template #end>
+      <ng-container ngProjectAs="[toolbarActions]">
         <div class="pharma-toolbar-actions">
           <div class="pharma-button-group">
-            <p-button
-              (click)="onSearch()"
+            <app-button
+              (clicked)="onSearch()"
               [disabled]="loading"
               [loading]="loading"
               [raised]="true"
               icon="pi pi-search"
               label="Rechercher"
-              pTooltip="Rechercher"
+              ngbTooltip="Rechercher"
               severity="info"
-              tooltipPosition="top"
             />
 
-            <p-button
-              (click)="onPrint()"
+            <app-button
+              (clicked)="onPrint()"
               [loading]="loading"
               [outlined]="true"
               icon="pi pi-print"
               label="Imprimer"
-              pTooltip="Imprimer"
+              ngbTooltip="Imprimer"
               severity="warn"
-              tooltipPosition="top"
             />
           </div>
         </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
+      </ng-container>
+    </app-toolbar>
   <div class="row mt-3 mb-3 px-2">
     @if (balanceMvtCaisseWrapper) {
       @if (balanceMvtCaisseWrapper.balanceCaisses.length > 0) {
@@ -288,5 +252,3 @@
     }
   </div>
 </div>
-
-<jhi-toast-alert #alert></jhi-toast-alert>

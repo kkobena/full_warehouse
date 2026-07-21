@@ -5,7 +5,7 @@
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
     @if (commande) {
-      <p-card header="Infromation commande initiale" class="mb-3">
+      <app-card [variant]="'form'" header="Infromation commande initiale" class="mb-3">
         <ul class="list-group">
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <span style="margin-right: 5px">Référence</span>
@@ -24,27 +24,20 @@
             <span class="text-primary fw-bold">{{ commande.orderAmount | number }}</span>
           </li>
         </ul>
-      </p-card>
+      </app-card>
     }
-    <p-card>
+    <app-card [variant]="'form'">
       <div class="form-grid-compact">
         <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
         <div class="row">
           <div class="col-md-6">
             <div class="form-field form-field-full">
               <label for="receiptDate">Date de livraison<span class="required">*</span></label>
-              <p-datepicker
-                (onShow)="onDropdownShow($event)"
-                (onClose)="onDropdownHide($event)"
-                [fluid]="true"
+              <pharma-date-picker
                 [maxDate]="maxDate"
-                [selectOtherMonths]="true"
-                [showButtonBar]="true"
-                [showIcon]="true"
-                dateFormat="dd/mm/yy"
                 formControlName="receiptDate"
-                name="receiptDate"
-              ></p-datepicker>
+                id="receiptDate"
+              />
               @if (editForm.get('receiptDate')!.invalid && (editForm.get('receiptDate')!.dirty || editForm.get('receiptDate')!.touched)) {
                 <div>
                   @if (editForm.get('receiptDate')?.errors?.required) {
@@ -57,7 +50,7 @@
           <div class="col-md-6">
             <div class="form-field form-field-full">
               <label for="receiptReference">Référence Bon<span class="required">*</span></label>
-              <input autocomplete="off" formControlName="receiptReference" name="receiptReference" pInputText [pKeyFilter]="blockSpace"/>
+              <input autocomplete="off" formControlName="receiptReference" name="receiptReference" class="form-control" [appKeyFilter]="blockSpace"/>
               @if (
                 editForm.get('receiptReference')!.invalid &&
                 (editForm.get('receiptReference')!.dirty || editForm.get('receiptReference')!.touched)
@@ -76,7 +69,7 @@
             <div class="form-field form-field-full">
               <label for="receiptAmount">Montant HT<span class="required">*</span></label>
 
-              <p-inputnumber autocomplete="off" formControlName="receiptAmount" name="receiptAmount"  type="text" />
+              <app-input-number formControlName="receiptAmount" name="receiptAmount" />
               @if (
                 editForm.get('receiptAmount')!.invalid && (editForm.get('receiptAmount')!.dirty || editForm.get('receiptAmount')!.touched)
               ) {
@@ -93,7 +86,7 @@
             <div class="form-field form-field-full">
               <label for="taxAmount">Montant Taxe<span class="required">*</span></label>
 
-              <p-inputnumber autocomplete="off" formControlName="taxAmount" name="taxAmount"  type="text" />
+              <app-input-number formControlName="taxAmount" name="taxAmount" />
               @if (editForm.get('taxAmount')!.invalid && (editForm.get('taxAmount')!.dirty || editForm.get('taxAmount')!.touched)) {
                 <div>
                   @if (editForm.get('taxAmount')?.errors?.required) {
@@ -105,32 +98,32 @@
           </div>
         </div>
       </div>
-    </p-card>
+    </app-card>
   </div>
 
   <div class="modal-footer">
-    <p-button
-      (click)="cancel()"
+    <app-button
+      (clicked)="cancel()"
       class="mr-2"
       data-dismiss="modal"
       icon="pi pi-times"
       label="Annuler"
-      raised="true"
+      [raised]="true"
       severity="secondary"
       type="button"
     >
-    </p-button>
+    </app-button>
 
-    <p-button
+    <app-button
       [disabled]="editForm.invalid || isSaving"
       icon="pi pi-check"
       id="save-entity"
       label="Enregister"
-      raised="true"
+      [raised]="true"
       severity="primary"
       type="submit"
     >
-    </p-button>
+    </app-button>
   </div>
 </form>
 <ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" size="small" type="timer"></ngx-spinner>

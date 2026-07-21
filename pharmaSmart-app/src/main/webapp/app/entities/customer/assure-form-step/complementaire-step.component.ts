@@ -1,44 +1,40 @@
 import {ChangeDetectionStrategy, Component, inject, model, OnDestroy} from '@angular/core';
 import {FormArray, ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
-import {ButtonModule} from 'primeng/button';
-import {KeyFilterModule} from 'primeng/keyfilter';
-import {InputTextModule} from 'primeng/inputtext';
-import {AutoCompleteModule} from 'primeng/autocomplete';
 import {HttpResponse} from '@angular/common/http';
 import {IClientTiersPayant, ICustomer, ITiersPayant} from '../../../shared/model';
 import {TiersPayantService} from '../../tiers-payant/tierspayant.service';
 import {AssureFormStepService} from './assure-form-step.service';
 import {CustomerService} from '../customer.service';
-import {CardModule} from 'primeng/card';
 import {ErrorService} from '../../../shared/error.service';
 import {
   FormTiersPayantComponent
 } from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
-import {Select, SelectModule} from 'primeng/select';
 import {showCommonModal} from '../../sales/selling-home/sale-helper';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
-import {Tooltip} from 'primeng/tooltip';
-import {Toast} from "primeng/toast";
 import {
   NgbConfirmDialogService
 } from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import {NotificationService} from "../../../shared/services/notification.service";
+import {
+  ButtonComponent,
+  CardComponent,
+  KeyFilterDirective,
+  SelectComponent,
+  SelectSearchComponent
+} from '../../../shared/ui';
 
 @Component({
   selector: 'jhi-complementaire-step',
   imports: [
     ReactiveFormsModule,
-    SelectModule,
-    KeyFilterModule,
-    InputTextModule,
-    AutoCompleteModule,
-    CardModule,
-    ButtonModule,
-    Select,
-    Tooltip,
-    Toast,
+    ButtonComponent,
+    CardComponent,
+    KeyFilterDirective,
+    SelectComponent,
+    SelectSearchComponent,
+    NgbTooltip
   ],
   templateUrl: './complementaire-step.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -109,12 +105,17 @@ export class ComplementaireStepComponent implements OnDestroy {
     return this.editForm.get('tiersPayants') as FormArray;
   }
 
-  onSelectTiersPayant(event: any, index: number): void {
-    if (event.value?.id === null) {
+  /**
+   * `(selectionChange)` d'app-select-search émet la **valeur** sélectionnée, là où le
+   * `(onSelect)` de `p-autocomplete` émettait un objet `{ value, originalEvent }`.
+   * Lire `event.value` renvoyait donc toujours `undefined`.
+   */
+  onSelectTiersPayant(tiersPayant: any, index: number): void {
+    if (tiersPayant?.id === null) {
       this.addTiersPayantAssurance(index);
-    } else {
-      this.tiersPayant = event.value;
-      this.addToAlreadyAdded(event.value);
+    } else if (tiersPayant) {
+      this.tiersPayant = tiersPayant;
+      this.addToAlreadyAdded(tiersPayant);
     }
   }
 
@@ -139,8 +140,8 @@ export class ComplementaireStepComponent implements OnDestroy {
     );
   }
 
-  searchTiersPayant(event: any): void {
-    this.loadTiersPayants(event.query);
+  searchTiersPayant(query: string): void {
+    this.loadTiersPayants(query);
   }
 
   loadTiersPayants(search?: string): void {

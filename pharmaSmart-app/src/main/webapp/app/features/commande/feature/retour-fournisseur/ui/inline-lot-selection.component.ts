@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Input, OnChanges, Output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent } from 'app/shared/ui';
 import { ILot } from 'app/shared/model/lot.model';
-import { Tooltip } from 'primeng/tooltip';
 
 export interface InlineLotSelection {
   lot: ILot;
@@ -14,7 +14,7 @@ export interface InlineLotSelection {
 @Component({
   selector: 'jhi-inline-lot-selection',
 
-  imports: [CommonModule, FormsModule, ButtonModule, Tooltip],
+  imports: [CommonModule, FormsModule, ButtonComponent, NgbTooltip],
   template: `
     <div class="inline-lot-selection">
       <!-- Summary Header -->
@@ -99,14 +99,14 @@ export interface InlineLotSelection {
                   <div class="quantity-input-row">
                     <label class="form-label mb-1">Quantité à retourner:</label>
                     <div class="quantity-controls">
-                      <p-button
+                      <app-button
                         icon="pi pi-minus"
                         [rounded]="true"
                         [text]="true"
                         size="small"
                         [disabled]="selection.selectedQuantity <= 0"
-                        (onClick)="decrementQuantity(selection)"
-                        pTooltip="Diminuer"
+                        (clicked)="decrementQuantity(selection)"
+                        ngbTooltip="Diminuer"
                       />
                       <input
                         type="number"
@@ -117,37 +117,37 @@ export interface InlineLotSelection {
                         (focus)="$event.target.select()"
                         class="form-control form-control-sm text-center quantity-input"
                       />
-                      <p-button
+                      <app-button
                         icon="pi pi-plus"
                         [rounded]="true"
                         [text]="true"
                         size="small"
                         [disabled]="selection.selectedQuantity >= selection.maxQuantity"
-                        (onClick)="incrementQuantity(selection)"
-                        pTooltip="Augmenter"
+                        (clicked)="incrementQuantity(selection)"
+                        ngbTooltip="Augmenter"
                       />
                     </div>
                   </div>
                 </div>
 
                 <div class="lot-card-footer">
-                  <p-button
+                  <app-button
                     label="Tout sélectionner"
                     [text]="true"
                     size="small"
                     severity="secondary"
                     icon="pi pi-check-square"
                     [disabled]="selection.selectedQuantity === selection.maxQuantity"
-                    (onClick)="selectAll(selection)"
+                    (clicked)="selectAll(selection)"
                   />
-                  <p-button
+                  <app-button
                     label="Effacer"
                     [text]="true"
                     size="small"
                     severity="danger"
                     icon="pi pi-times"
                     [disabled]="selection.selectedQuantity === 0"
-                    (onClick)="clearSelection(selection)"
+                    (clicked)="clearSelection(selection)"
                   />
                 </div>
               </div>
@@ -155,24 +155,24 @@ export interface InlineLotSelection {
           </div>
 
           <div class="action-buttons">
-            <p-button
+            <app-button
               label="Auto-répartir (FEFO)"
               icon="pi pi-sync"
               [outlined]="true"
               size="small"
               severity="secondary"
-              (onClick)="autoDistribute()"
-              pTooltip="Répartition automatique - Premier Expiré Premier Sorti"
+              (clicked)="autoDistribute()"
+              ngbTooltip="Répartition automatique - Premier Expiré Premier Sorti"
             />
             <div class="flex-grow-1"></div>
-            <p-button label="Annuler" icon="pi pi-times" [outlined]="true" size="small" severity="secondary" (onClick)="onCancel()" />
-            <p-button
+            <app-button label="Annuler" icon="pi pi-times" [outlined]="true" size="small" severity="secondary" (clicked)="onCancel()" />
+            <app-button
               label="Confirmer la sélection"
               icon="pi pi-check"
               size="small"
               severity="primary"
               [disabled]="!isValid()"
-              (onClick)="onConfirm()"
+              (clicked)="onConfirm()"
             />
           </div>
         </div>

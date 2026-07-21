@@ -3,15 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
-import { ButtonModule } from 'primeng/button';
-import { SelectModule } from 'primeng/select';
-import { InputTextModule } from 'primeng/inputtext';
+import { ButtonComponent, SelectComponent } from 'app/shared/ui';
 
 import { DashboardScope } from 'app/shared/model/dashboard-layout.model';
 
 @Component({
   selector: 'jhi-save-layout-modal',
-  imports: [CommonModule, FormsModule, ButtonModule, SelectModule, InputTextModule],
+  imports: [CommonModule, FormsModule, ButtonComponent, SelectComponent],
   templateUrl: './save-layout-modal.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './save-layout-modal.component.scss',

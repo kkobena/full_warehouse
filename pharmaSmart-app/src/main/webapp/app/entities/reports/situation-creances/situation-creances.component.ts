@@ -1,16 +1,22 @@
 import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TableModule } from 'primeng/table';
-import { Button } from 'primeng/button';
 
 import { TiersPayantReportService } from '../services/tiers-payant-report.service';
 import { BlobDownloadService } from '../../../shared/services/blob-download.service';
 import { ITiersPayantCreancesSummary } from 'app/shared/model/report/tiers-payant-report.model';
 import { formatCurrency, formatNumber } from 'app/shared/utils/format-utils';
+import {
+  ButtonComponent,
+  DataTableComponent
+} from '../../../shared/ui';
 
 @Component({
   selector: 'app-situation-creances',
-  imports: [CommonModule, TableModule, Button],
+  imports: [
+    CommonModule,
+    ButtonComponent,
+    DataTableComponent
+  ],
   templateUrl: './situation-creances.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./situation-creances.component.scss'],

@@ -17,14 +17,13 @@
 
   <div class="mb-3">
     <label class="form-label fw-semibold">Durée d'exclusion <span class="text-danger">*</span></label>
-    <p-select
+    <app-select
       [ngModel]="dureeJours()"
       (ngModelChange)="dureeJours.set($event)"
-      [options]="dureeOptions"
-      optionLabel="label"
-      optionValue="value"
+      [items]="dureeOptions"
+      bindLabel="label"
+      bindValue="value"
       placeholder="Choisir une durée..."
-      appendTo="body"
       class="w-100"
     />
   </div>
@@ -32,7 +31,6 @@
   <div class="mb-2">
     <label class="form-label fw-semibold">Motif <span class="text-muted small">(optionnel)</span></label>
     <input
-      pInputText
       type="text"
       class="form-control"
       placeholder="Ex : surstockage, produit en fin de vie..."
@@ -45,19 +43,19 @@
 </div>
 
 <div class="modal-footer">
-  <p-button
+  <app-button
     label="Annuler"
     severity="secondary"
     size="small"
-    (onClick)="cancel()"
+    (clicked)="cancel()"
   />
-  <p-button
+  <app-button
     label="Exclure le produit"
     icon="pi pi-ban"
     severity="warn"
     size="small"
     [disabled]="!isValid"
-    (onClick)="confirm()"
+    (clicked)="confirm()"
   />
 </div>
 

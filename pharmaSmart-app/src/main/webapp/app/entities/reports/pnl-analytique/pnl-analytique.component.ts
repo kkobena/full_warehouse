@@ -2,14 +2,16 @@ import { Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, Vie
 import { CommonModule } from '@angular/common';
 import { HttpResponse } from '@angular/common/http';
 
-import { TableModule } from 'primeng/table';
-import { SelectModule } from 'primeng/select';
 import { FormsModule } from '@angular/forms';
 import { IPnlEvolution, IPnlFamille, IPnlSegment } from 'app/shared/model/report';
 import { PnlAnalytiqueService } from '../services/pnl-analytique.service';
 import { formatCurrency, formatPercent, formatNumber } from 'app/shared/utils/format-utils';
 
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
+import {
+  DataTableComponent,
+  SelectComponent
+} from '../../../shared/ui';
 
 Chart.register(...registerables);
 
@@ -30,7 +32,12 @@ const CHART_COLORS = [
   templateUrl: './pnl-analytique.component.html',
   styleUrl: './pnl-analytique.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, TableModule, SelectModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    DataTableComponent,
+    SelectComponent
+  ],
 })
 export default class PnlAnalytiqueComponent implements OnInit, OnDestroy {
   @ViewChild('familleEvolutionChartCanvas') familleEvolutionChartCanvas?: ElementRef<HTMLCanvasElement>;

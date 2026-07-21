@@ -1,164 +1,119 @@
 <div class="pharma-smart-content">
 
   <!-- Toolbar -->
-  <div class="pharma-toolbar pharma-toolbar-compact">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-history"></i>
-      <span class="pharma-toolbar-title">Historique des règlements factures</span>
-    </div>
-    <p-toolbar>
-      <ng-template #start>
-        <div class="pharma-toolbar-filters">
-          <div class="d-flex align-items-center gap-2 me-2">
-            <label class="input-label mb-0 small">Groupés</label>
-            <p-toggleswitch [(ngModel)]="factureGroup" (onChange)="onSearch()" />
-          </div>
-
-          <p-floatlabel variant="on">
-            <input
-              [(ngModel)]="search"
-              id="hrSearch"
-              pInputText
-              style="width: 160px"
-              type="text"
-            />
-            <label for="hrSearch">Recherche libre</label>
-          </p-floatlabel>
-
-          <p-floatlabel variant="on">
-            <p-datepicker
-              [(ngModel)]="modelStartDate"
-              [iconDisplay]="'input'"
-              [selectOtherMonths]="true"
-              [showButtonBar]="true"
-              [showIcon]="true"
-              appendTo="body"
-              dateFormat="dd/mm/yy"
-              id="hrDu"
-              inputId="hrDu"
-            />
-            <label for="hrDu">Du</label>
-          </p-floatlabel>
-
-          <p-floatlabel variant="on">
-            <p-datepicker
-              [(ngModel)]="modelEndDate"
-              [iconDisplay]="'input'"
-              [selectOtherMonths]="true"
-              [showButtonBar]="true"
-              [showIcon]="true"
-              appendTo="body"
-              dateFormat="dd/mm/yy"
-              id="hrAu"
-              inputId="hrAu"
-            />
-            <label for="hrAu">Au</label>
-          </p-floatlabel>
-
-          @if (factureGroup) {
-            <p-floatlabel variant="on">
-              <p-autocomplete
-                (completeMethod)="searchGroupeTiersPayant($event)"
-                [(ngModel)]="selectedGroupeTiersPayant"
-                [forceSelection]="true"
-                [suggestions]="groupeTiersPayants"
-                appendTo="body"
-                id="hrGroupe"
-                inputId="hrGroupe"
-                optionLabel="name"
-              />
-              <label for="hrGroupe">Groupe tiers-payant</label>
-            </p-floatlabel>
-          } @else {
-            <p-floatlabel variant="on">
-              <p-autocomplete
-                (completeMethod)="searchTiersPayant($event)"
-                [(ngModel)]="selectedTiersPayant"
-                [forceSelection]="true"
-                [minQueryLength]="minLength"
-                [suggestions]="tiersPayants"
-                appendTo="body"
-                id="hrTp"
-                inputId="hrTp"
-                optionLabel="fullName"
-              />
-              <label for="hrTp">Tiers-payant</label>
-            </p-floatlabel>
-          }
+  <app-toolbar [compact]="true" icon="pi pi-history" title="Historique des règlements factures">
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <div class="pharma-toolbar-filters">
+        <div class="d-flex align-items-center gap-2 me-2">
+          <label class="input-label mb-0 small">Groupés</label>
+          <app-switch (ngModelChange)="onSearch()" [(ngModel)]="factureGroup" />
         </div>
-      </ng-template>
 
-      <ng-template #end>
-        <div class="pharma-toolbar-actions">
-          <div class="pharma-button-group">
-            <p-button
-              (click)="onSearch()"
-              [loading]="loadingBtn"
-              [raised]="true"
-              icon="pi pi-search"
-              label="Rechercher"
-              severity="info"
+        <app-float-label inputId="hrSearch" label="Recherche libre">
+          <input
+            [(ngModel)]="search"
+            [style]="{ width: '160px' }"
+            class="form-control"
+            id="hrSearch"
+            placeholder=" " type="text" />
+        </app-float-label>
+
+        <pharma-date-picker [(ngModel)]="modelStartDate" id="hrDu" label="Du" />
+
+        <pharma-date-picker [(ngModel)]="modelEndDate" id="hrAu" label="Au" />
+
+        @if (factureGroup) {
+          <app-float-label inputId="hrGroupe" label="Groupe tiers-payant">
+            <app-select-search
+              (searched)="searchGroupeTiersPayant($event)"
+              [(ngModel)]="selectedGroupeTiersPayant"
+              [items]="groupeTiersPayants"
+              [style]="{ minWidth: '180px' }"
+              appendTo="body"
+              bindLabel="name"
+              inputId="hrGroupe"
             />
-            <p-button
-              (click)="onPrintPdf()"
-              [loading]="loadingPdf"
-              [raised]="true"
-              icon="pi pi-file-pdf"
-              label="Imprimer"
-              severity="warn"
+          </app-float-label>
+        } @else {
+          <app-float-label inputId="hrTp" label="Tiers-payant">
+            <app-select-search
+              (searched)="searchTiersPayant($event)"
+              [(ngModel)]="selectedTiersPayant"
+              [items]="tiersPayants"
+              [minSearchLength]="minLength"
+              appendTo="body"
+              bindLabel="fullName"
+              inputId="hrTp"
             />
-            <p-button
-              (click)="onExportExcel()"
-              [loading]="loadingExcel"
-              [raised]="true"
-              icon="pi pi-file-excel"
-              label="Excel"
-              severity="success"
-            />
-          </div>
+          </app-float-label>
+        }
+      </div>
+    </ng-container>
+
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-toolbar-actions">
+        <div class="pharma-button-group">
+          <app-button
+            (click)="onSearch()"
+            [loading]="loadingBtn"
+            [raised]="true"
+            icon="pi pi-search"
+            label="Rechercher"
+            severity="info"
+          />
+          <app-button
+            (click)="onPrintPdf()"
+            [loading]="loadingPdf"
+            [raised]="true"
+            icon="pi pi-file-pdf"
+            label="Imprimer"
+            severity="warn"
+          />
+          <app-button
+            (click)="onExportExcel()"
+            [loading]="loadingExcel"
+            [raised]="true"
+            icon="pi pi-file-excel"
+            label="Excel"
+            severity="success"
+          />
         </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
+      </div>
+    </ng-container>
+  </app-toolbar>
 
   <!-- Table -->
   <div class="px-2">
-    <p-table
+    <app-data-table
       #reglementTable
       [(selection)]="selectedDatas"
-      [expandedRowKeys]="expandedRows"
       [paginator]="true"
       [rowsPerPageOptions]="[10, 15, 20, 25, 30, 100]"
       [rows]="15"
       [scrollable]="true"
-      scrollHeight="calc(100vh - 370px)"
+      [selectionMode]="'multiple'"
       [showCurrentPageReport]="true"
+      [size]="'small'"
       [stripedRows]="true"
       [value]="datas"
-      class="p-datatable-sm"
       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} règlements"
       dataKey="id.id"
       groupRowsBy="organismeId"
-      rowGroupMode="subheader"
-      selectionMode="multiple"
-      sortField="organisme"
-      sortMode="single"
+      initialSortField="organisme"
+      scrollHeight="calc(100vh - 370px)"
     >
       <!-- Caption: filtre local + suppression sélection -->
       <ng-template #caption>
         <div class="d-flex justify-content-between align-items-center">
-          <p-iconfield>
-            <p-inputicon class="pi pi-search" />
+          <app-icon-field [overlay]="true" icon="pi pi-search">
             <input
               (input)="reglementTable.filterGlobal($event.target['value'], 'contains')"
               [style]="{ width: '280px' }"
-              pInputText
-              placeholder="Filtrer dans la liste..."
-              type="text"
-            />
-          </p-iconfield>
+              class="form-control"
+              placeholder="Filtrer dans la liste..." type="text" />
+          </app-icon-field>
           @if (selectedDatas.length > 0) {
-            <p-button
+            <app-button
               (click)="onDeleteAll()"
               [raised]="true"
               icon="pi pi-trash"
@@ -181,7 +136,7 @@
           <th>Opérateur</th>
           <th class="text-center">Actions</th>
           <th class="text-center">
-            <p-tableheadercheckbox />
+            <app-header-checkbox />
           </th>
         </tr>
       </ng-template>
@@ -189,10 +144,10 @@
       <!-- Sous-en-tête de groupe -->
       <ng-template #groupheader let-r>
         <tr>
-          <td colspan="3" class="fw-bold">
+          <td class="fw-bold" colspan="3">
             <i class="pi pi-building me-2 text-primary"></i>{{ r.organisme }}
           </td>
-          <td colspan="2" class="text-end fw-bold">
+          <td class="text-end fw-bold" colspan="2">
             Total : <span class="pharma-total">{{ getTotalByGroupe(r.organismeId) | number }}</span>
           </td>
           <td colspan="5"></td>
@@ -210,38 +165,38 @@
           <td class="text-center small text-muted">{{ r.created }}</td>
           <td class="small">{{ r.user }}</td>
           <td class="text-center">
-            <p-buttongroup>
-              <p-button
+            <div class="btn-group" role="group">
+              <app-button
                 (click)="onView(r)"
                 [rounded]="true"
                 [text]="true"
                 icon="pi pi-eye"
-                pTooltip="Voir le détail"
+                ngbTooltip="Voir le détail"
                 severity="info"
                 size="small"
               />
-              <p-button
+              <app-button
                 (click)="onPrint(r)"
                 [rounded]="true"
                 [text]="true"
                 icon="pi pi-print"
-                pTooltip="Imprimer le reçu"
+                ngbTooltip="Imprimer le reçu"
                 severity="secondary"
                 size="small"
               />
-              <p-button
+              <app-button
                 (click)="onDelete(r)"
                 [rounded]="true"
                 [text]="true"
                 icon="pi pi-trash"
-                pTooltip="Supprimer"
+                ngbTooltip="Supprimer"
                 severity="danger"
                 size="small"
               />
-            </p-buttongroup>
+            </div>
           </td>
           <td class="text-center">
-            <p-tablecheckbox [value]="r" />
+            <app-row-checkbox [row]="r" />
           </td>
         </tr>
       </ng-template>
@@ -253,7 +208,7 @@
           </td>
         </tr>
       </ng-template>
-    </p-table>
+    </app-data-table>
   </div>
 
 </div>

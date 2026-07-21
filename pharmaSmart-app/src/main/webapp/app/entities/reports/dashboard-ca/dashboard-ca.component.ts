@@ -4,11 +4,11 @@ import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
 
-import { ButtonModule } from "primeng/button";
-import { SelectModule } from "primeng/select";
-import { ToolbarModule } from "primeng/toolbar";
-import { DividerModule } from "primeng/divider";
-import { DatePicker } from "primeng/datepicker";
+import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
+
+import { ButtonComponent, SelectComponent, ToolbarComponent } from '../../../shared/ui';
+import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
+import { NGB_DATE_TO_ISO } from '../../../shared/util/warehouse-util';
 
 import {
   IBasketEvolution,
@@ -28,7 +28,6 @@ import { IFinancesSummary } from "../../../features/finances/data-access/models"
 import { formatCurrency, formatDate, formatPercent } from "app/shared/utils/format-utils";
 
 import { Chart, ChartConfiguration, ChartData, registerables } from "chart.js";
-import { FloatLabel } from "primeng/floatlabel";
 import { BlobDownloadService } from "../../../shared/services/blob-download.service";
 
 Chart.register(...registerables);
@@ -46,12 +45,10 @@ interface PeriodOption {
   imports: [
     CommonModule,
     FormsModule,
-    ButtonModule,
-    SelectModule,
-    ToolbarModule,
-    DividerModule,
-    DatePicker,
-    FloatLabel,
+    ButtonComponent,
+    SelectComponent,
+    ToolbarComponent,
+    PharmaDatePickerComponent,
     RouterModule
   ]
 })
@@ -62,8 +59,8 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
   @ViewChild("basketChartCanvas") basketChartCanvas?: ElementRef<HTMLCanvasElement>;
 
   selectedPeriod = signal<string>("week");
-  startDate = signal<Date>(this.getDefaultStartDate());
-  endDate = signal<Date>(new Date());
+  startDate = signal<NgbDateStruct>(this.getDefaultStartDate());
+  endDate = signal<NgbDateStruct>(this.dateToNgbStruct(new Date()));
   summary = signal<IDashboardCASummary | null>(null);
   topProducts = signal<ITopProduct[]>([]);
   paymentMethodData = signal<IPaymentMethodSummary[]>([]);
@@ -179,8 +176,8 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
     const period = this.selectedPeriod();
     if (period !== "custom") {
       const { start, end } = this.getDateRange();
-      this.startDate.set(new Date(start));
-      this.endDate.set(new Date(end));
+      this.startDate.set(this.dateToNgbStruct(new Date(start)));
+      this.endDate.set(this.dateToNgbStruct(new Date(end)));
     }
     this.loadDashboard();
   }
@@ -211,8 +208,8 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
 
 
   exportDailySummaryToExcel(): void {
-    const startDate = this.formatDateForAPI(this.startDate());
-    const endDate = this.formatDateForAPI(this.endDate());
+    const startDate = NGB_DATE_TO_ISO(this.startDate())!;
+    const endDate = NGB_DATE_TO_ISO(this.endDate())!;
 
     this.dashboardCAService.exportDailySummaryToExcel(startDate, endDate)
 
@@ -225,8 +222,8 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
 
 
   exportDailySummaryToCsv(): void {
-    const startDate = this.formatDateForAPI(this.startDate());
-    const endDate = this.formatDateForAPI(this.endDate());
+    const startDate = NGB_DATE_TO_ISO(this.startDate())!;
+    const endDate = NGB_DATE_TO_ISO(this.endDate())!;
 
     this.dashboardCAService.exportDailySummaryToCsv(startDate, endDate)
 
@@ -464,10 +461,18 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
     }
   }
 
-  private getDefaultStartDate(): Date {
+  private getDefaultStartDate(): NgbDateStruct {
     const date = new Date();
     date.setDate(date.getDate() - 7);
-    return date;
+    return this.dateToNgbStruct(date);
+  }
+
+  private dateToNgbStruct(date: Date): NgbDateStruct {
+    return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
+  }
+
+  private ngbStructToDate(struct: NgbDateStruct): Date {
+    return new Date(struct.year, struct.month - 1, struct.day);
   }
 
   private getDateRange(): { start: string; end: string } {
@@ -488,10 +493,12 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
       case "year":
         start.setFullYear(end.getFullYear(), 0, 1);
         break;
-      case "custom":
-        start = this.startDate();
-        end.setTime(this.endDate().getTime());
+      case "custom": {
+        const customEnd = this.ngbStructToDate(this.endDate());
+        start = this.ngbStructToDate(this.startDate());
+        end.setTime(customEnd.getTime());
         break;
+      }
     }
 
     return {
@@ -548,13 +555,5 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
       }))
       .sort((a, b) => b.caTotal - a.caTotal)
       .slice(0, 10); // Top 10
-  }
-
-
-  private formatDateForAPI(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
   }
 }

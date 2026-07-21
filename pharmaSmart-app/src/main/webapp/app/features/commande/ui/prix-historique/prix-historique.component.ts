@@ -1,8 +1,7 @@
 import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { DecimalPipe, DatePipe, NgTemplateOutlet } from '@angular/common';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { TagModule } from 'primeng/tag';
-import { TooltipModule } from 'primeng/tooltip';
+import { NgbActiveModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { BadgeComponent } from 'app/shared/ui';
 import { CommandeService, IPriceHistory } from '../../../../entities/commande/commande.service';
 
 @Component({
@@ -10,7 +9,7 @@ import { CommandeService, IPriceHistory } from '../../../../entities/commande/co
   templateUrl: './prix-historique.component.html',
   styleUrls: ['./prix-historique.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [DecimalPipe, DatePipe, NgTemplateOutlet, TagModule, TooltipModule],
+  imports: [DecimalPipe, DatePipe, NgTemplateOutlet, BadgeComponent, NgbTooltip],
 })
 export class PrixHistoriqueComponent implements OnInit {
   fournisseurProduitId!: number;

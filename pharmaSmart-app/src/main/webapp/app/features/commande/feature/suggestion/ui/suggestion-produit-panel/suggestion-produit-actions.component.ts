@@ -1,51 +1,50 @@
 import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {ICellRendererAngularComp} from 'ag-grid-angular';
-import {Button} from 'primeng/button';
-import {Tooltip} from 'primeng/tooltip';
-import {ButtonGroup} from 'primeng/buttongroup';
+import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {ButtonComponent} from 'app/shared/ui';
 import {SuggestionLigneEnrichie} from '../../data-access/suggestion-enrichie.model';
 
 @Component({
   selector: 'app-suggestion-produit-actions',
-  imports: [Button, Tooltip, ButtonGroup],
+  imports: [ButtonComponent, NgbTooltip],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <p-buttongroup>
+    <div class="d-flex gap-1">
       @if (showReset) {
-        <p-button
+        <app-button
           [text]="true"
           [rounded]="true"
           severity="warn"
           icon="pi pi-lock-open"
-          pTooltip="Déverrouiller — laisser SEMOIS recalculer la quantité"
-          tooltipPosition="top"
+          ngbTooltip="Déverrouiller — laisser SEMOIS recalculer la quantité"
+          placement="top"
           size="small"
-          (onClick)="onReset($event)"
+          (clicked)="onReset($event)"
         />
       }
       @if (showCompare) {
-        <p-button
+        <app-button
           [text]="true"
           [rounded]="true"
           severity="info"
           icon="pi pi-search"
-          pTooltip="Comparer les fournisseurs"
-          tooltipPosition="top"
+          ngbTooltip="Comparer les fournisseurs"
+          placement="top"
           size="small"
-          (onClick)="onCompare($event)"
+          (clicked)="onCompare($event)"
         />
       }
-      <p-button
+      <app-button
         [text]="true"
         [rounded]="true"
         severity="danger"
         icon="pi pi-trash"
-        pTooltip="Retirer de la suggestion"
-        tooltipPosition="top"
+        ngbTooltip="Retirer de la suggestion"
+        placement="top"
         size="small"
-        (onClick)="onDelete($event)"
+        (clicked)="onDelete($event)"
       />
-    </p-buttongroup>
+    </div>
   `,
 })
 export class SuggestionProduitActionsComponent implements ICellRendererAngularComp {

@@ -1,25 +1,24 @@
-<p-toast position="center"/>
 <div class="modal-header">
   <h2 class="modal-title">Paramètres d'approvisionnement par classe de criticité</h2>
   <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
 </div>
 
-  <div class="config-info">
+<div class="config-info">
 
-      Ces paramètres définissent les règles de réapprovisionnement par classe (A+, A, B, C, D).
-      Ils permettent de calculer la quantité à commander (stock objectif) et le stock de sécurité
-      basé sur la VMM (Vente Mensuelle Moyenne) de chaque produit.
+  Ces paramètres définissent les règles de réapprovisionnement par classe (A+, A, B, C, D).
+  Ils permettent de calculer la quantité à commander (stock objectif) et le stock de sécurité
+  basé sur la VMM (Vente Mensuelle Moyenne) de chaque produit.
 
-  </div>
+</div>
 <div class="modal-body semois-classe-config">
-  @if (loading()) {
+  <app-card>  @if (loading()) {
     <div class="skeleton-wrapper">
       @for (i of [1, 2, 3, 4, 5]; track i) {
-        <p-skeleton height="3.5rem" class="mb-2" />
+        <app-skeleton class="mb-2" height="3.5rem" />
       }
     </div>
   } @else {
-    <p-table [value]="configs()"  class="p-datatable-sm">
+    <app-data-table [value]="configs()" class="p-datatable-sm">
       <ng-template #header>
         <tr class="pharma-table-head">
           <th>Classe</th>
@@ -28,24 +27,24 @@
             Coeff. sécurité
             <i
               class="pi pi-info-circle ml-1"
-              pTooltip="Multiplicateur appliqué au VMM pour calculer la marge de sécurité. Plage : 0.1 – 2.0"
-              tooltipPosition="top"
+              ngbTooltip="Multiplicateur appliqué au VMM pour calculer la marge de sécurité. Plage : 0.1 – 2.0"
+              placement="auto"
             ></i>
           </th>
           <th>
             Mois d'historique
             <i
               class="pi pi-info-circle ml-1"
-              pTooltip="Nombre de mois pris en compte pour calculer la VMM pondérée"
-              tooltipPosition="top"
+              ngbTooltip="Nombre de mois pris en compte pour calculer la VMM pondérée"
+              placement="auto"
             ></i>
           </th>
           <th>
             Limite péremption
             <i
               class="pi pi-info-circle ml-1"
-              pTooltip="Si activé, le stock objectif est plafonné à 3× la VMM pour éviter les invendus périméables"
-              tooltipPosition="top"
+              ngbTooltip="Si activé, le stock objectif est plafonné à 3× la VMM pour éviter les invendus périméables"
+              placement="auto"
             ></i>
           </th>
           <th style="width: 80px"></th>
@@ -55,47 +54,46 @@
       <ng-template #body let-config>
         <tr>
           <td>
-            <p-tag
-              [value]="getClasseInfo(config.classeCriticite).label"
+            <app-badge
+              [label]="getClasseInfo(config.classeCriticite).label"
               [severity]="getClasseInfo(config.classeCriticite).severity"
             />
           </td>
-          <td class="config-description">{{ getClasseInfo(config.classeCriticite).description }}</td>
+          <td class="config-description">{{
+              getClasseInfo(config.classeCriticite).description
+            }}
+          </td>
           <td>
-            <p-inputnumber
+            <app-input-number
               [(ngModel)]="config.coefficientSecurite"
-              [min]="0.1"
-              [max]="2.0"
-              [step]="0.1"
-              [minFractionDigits]="1"
               [maxFractionDigits]="2"
-              mode="decimal"
-              locale="fr-FR"
-              [inputStyle]="{ width: '100px' }"
+              [max]="2.0"
+              [minFractionDigits]="1"
+              [min]="0.1"
+              inputClass="w-auto"
             />
           </td>
           <td>
-            <p-inputnumber
+            <app-input-number
               [(ngModel)]="config.nbMoisHistorique"
-              [min]="3"
               [max]="24"
-              [step]="1"
+              [min]="3"
               [showButtons]="true"
-              [inputStyle]="{ width: '80px' }"
+              style="width: 130px; display: inline-block"
             />
           </td>
           <td class="text-center">
-            <p-checkbox [(ngModel)]="config.limitePeremption" [binary]="true" />
+            <app-checkbox [(ngModel)]="config.limitePeremption" />
           </td>
           <td class="text-center">
-            <p-button
-              icon="pi pi-check"
-              [text]="true"
-              [rounded]="true"
+            <app-button
+              (clicked)="save(config)"
               [loading]="isSaving(config.classeCriticite)"
-              (click)="save(config)"
-              pTooltip="Enregistrer"
-              tooltipPosition="left"
+              [rounded]="true"
+              [text]="true"
+              icon="pi pi-check"
+              ngbTooltip="Enregistrer"
+              placement="left"
             />
           </td>
         </tr>
@@ -103,23 +101,26 @@
 
       <ng-template #emptymessage>
         <tr>
-          <td colspan="6" class="text-center text-color-secondary py-4">Aucune configuration trouvée</td>
+          <td class="text-center text-color-secondary py-4" colspan="6">Aucune configuration
+            trouvée
+          </td>
         </tr>
       </ng-template>
-    </p-table>
+    </app-data-table>
 
 
-  }
+  }</app-card>
+
 
 </div>
 
 <div class="modal-footer">
-  <p-button
-    (click)="cancel()"
+  <app-button
+    (clicked)="cancel()"
+    [raised]="true"
     data-dismiss="modal"
     icon="pi pi-times"
     label="Annuler"
-    raised="true"
     severity="secondary"
     type="button"
   />

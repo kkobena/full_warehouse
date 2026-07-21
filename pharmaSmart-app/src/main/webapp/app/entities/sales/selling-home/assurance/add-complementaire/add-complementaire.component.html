@@ -8,7 +8,7 @@
 
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
-    <p-card>
+    <app-card [variant]="'form'">
       <div class="form-grid-compact">
         <!-- Hidden fields -->
         <input formControlName="id" type="hidden" />
@@ -19,17 +19,14 @@
             <i class="pi pi-building me-1"></i>
             Tiers payant <span class="text-danger">*</span>
           </label>
-          <p-select
+          <app-select
             #tiersPayant
-            (onChange)="onSelect($event)"
-            [autofocus]="true"
-            [fluid]="true"
-            [options]="getTiersPayants()"
-            dataKey="id"
+            (selectionChange)="onSelect($event)"
+            [items]="getTiersPayants()"
             formControlName="tiersPayant"
-            id="tiersPayant"
-            optionLabel="tiersPayantFullName"
-            optionValue="id"
+            inputId="tiersPayant"
+            bindLabel="tiersPayantFullName"
+            bindValue="id"
             placeholder="Choisir un tiers payant"
           />
         </div>
@@ -41,10 +38,10 @@
           <input
             #numBon
             autocomplete="off"
+            class="form-control"
             formControlName="numBon"
             id="numBon"
-            pInputText
-            pKeyFilter="alphanum"
+            [appKeyFilter]="'alphanum'"
             placeholder="Saisir le numéro de bon"
             type="text"
           />
@@ -60,7 +57,7 @@
                     <i class="pi pi-percentage me-1"></i>
                     Taux (%)
                   </label>
-                  <input formControlName="taux" id="taux" max="100" min="5" pInputText placeholder="Taux" type="number" />
+                  <input class="form-control" formControlName="taux" id="taux" max="100" min="5" placeholder="Taux" type="number" />
                   <small class="text-muted">Initial: {{ selectedTiersPayant.taux }}%</small>
                 </div>
               </div>
@@ -72,10 +69,10 @@
                   </label>
                   <input
                     autocomplete="off"
+                    class="form-control"
                     formControlName="num"
                     id="num"
-                    pInputText
-                    pKeyFilter="alphanum"
+                    [appKeyFilter]="'alphanum'"
                     placeholder="Matricule"
                     type="text"
                   />
@@ -92,12 +89,11 @@
                   Passer en tiers payant principal
                 </label>
                 <div class="d-flex align-items-center gap-2">
-                  <p-toggleswitch
-                    (onChange)="onPrioriteToggle($event)"
+                  <app-switch
+                    (ngModelChange)="onPrioriteToggle($event)"
                     [(ngModel)]="isPrioriteEnabled"
                     [disabled]="selectedTiersPayant.categorie === 0"
-                    [ngModelOptions]="{ standalone: true }"
-                    inputId="prioriteSwitch"
+                    [inputId]="'prioriteSwitch'"
                   />
                   <input [(ngModel)]="prioriteValue" [ngModelOptions]="{ standalone: true }" id="priorite" type="hidden" />
                 </div>
@@ -106,12 +102,12 @@
           </div>
         }
       </div>
-    </p-card>
+    </app-card>
   </div>
 
   <div class="modal-footer bg-light p-2">
-    <p-button (click)="cancel()" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
-    <p-button
+    <app-button (clicked)="cancel()" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
+    <app-button
       [disabled]="editForm.invalid || isSaving || !isValid"
       [loading]="isSaving"
       icon="pi pi-check"

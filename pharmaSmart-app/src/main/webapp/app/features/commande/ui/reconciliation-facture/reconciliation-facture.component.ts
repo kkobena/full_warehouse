@@ -2,29 +2,28 @@ import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonModule } from 'primeng/button';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { InputTextModule } from 'primeng/inputtext';
-import { DatePickerModule } from 'primeng/datepicker';
+import type { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, InputNumberComponent, KeyFilterDirective } from 'app/shared/ui';
+import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
+import { NGB_DATE_TO_ISO } from 'app/shared/util/warehouse-util';
 import { ICommande } from '../../../../shared/model/commande.model';
 import { DeliveryService } from '../../../../entities/commande/delevery/delivery.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { ErrorService } from '../../../../shared/error.service';
-import { KeyFilter } from "primeng/keyfilter";
 
 @Component({
   selector: 'app-reconciliation-facture',
   templateUrl: './reconciliation-facture.component.html',
   styleUrls: ['./reconciliation-facture.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, ButtonModule, InputNumberModule, InputTextModule, DatePickerModule, KeyFilter]
+  imports: [CommonModule, FormsModule, ButtonComponent, InputNumberComponent, PharmaDatePickerComponent, KeyFilterDirective]
 })
 export class ReconciliationFactureComponent implements OnInit {
   commande!: ICommande;
   header = 'Rapprochement facture fournisseur';
 
   protected factureReference = '';
-  protected factureDate: Date | null = null;
+  protected factureDate: NgbDateStruct | null = null;
   protected factureMontantHT: number | null = null;
   protected factureTVA: number | null = null;
   protected saving = false;
@@ -34,9 +33,13 @@ export class ReconciliationFactureComponent implements OnInit {
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
 
+  private static toNgbDate(date: Date): NgbDateStruct {
+    return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
+  }
+
   ngOnInit(): void {
     this.factureReference = this.commande.receiptReference ?? '';
-    this.factureDate = this.commande.receiptDate ? new Date(this.commande.receiptDate) : null;
+    this.factureDate = this.commande.receiptDate ? ReconciliationFactureComponent.toNgbDate(new Date(this.commande.receiptDate)) : null;
     // receiptAmount = ce que le fournisseur a facturé (htAmount en base) ; grossAmount = calculé des lignes
     this.factureMontantHT = this.commande.receiptAmount ?? this.commande.grossAmount ?? null;
     this.factureTVA = this.commande.taxAmount ?? null;
@@ -83,7 +86,7 @@ export class ReconciliationFactureComponent implements OnInit {
     const payload = {
       ...this.commande,
       receiptReference: this.factureReference.trim(),
-      receiptDate: this.factureDate ? this.factureDate.toISOString().split('T')[0] : this.commande.receiptDate,
+      receiptDate: this.factureDate ? NGB_DATE_TO_ISO(this.factureDate) : this.commande.receiptDate,
       receiptAmount: this.factureMontantHT!,
       taxAmount: this.factureTVA ?? 0,
     };

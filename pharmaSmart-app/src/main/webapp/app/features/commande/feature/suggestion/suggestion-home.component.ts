@@ -1,13 +1,8 @@
 import { Component, DestroyRef, effect, inject, Injector, signal, untracked, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule, DecimalPipe } from "@angular/common";
 import { FormsModule } from "@angular/forms";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonModule } from "primeng/button";
-import { TooltipModule } from "primeng/tooltip";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
-import { InputTextModule } from "primeng/inputtext";
-import { MultiSelectModule } from "primeng/multiselect";
+import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
+import { ButtonComponent, IconFieldComponent, MultiSelectComponent } from "app/shared/ui";
 import { SuggestionFacadeService } from "./data-access/suggestion-facade.service";
 import {
   SuggestionFournisseurListComponent
@@ -22,7 +17,6 @@ import { DispoComparaisonComponent } from "../pharmaml/ui/dispo-comparaison/disp
 import { FournisseurSuggestionSummary, SuggestionLigneEnrichie } from "./data-access/suggestion-enrichie.model";
 import { NotificationService } from "app/shared/services/notification.service";
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { Toast } from "primeng/toast";
 import { IFournisseur } from "../../../../shared/model/fournisseur.model";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { combineLatest, Subject } from "rxjs";
@@ -39,14 +33,11 @@ import { FournisseurApiService } from "../../../partners/data-access/services/fo
     FormsModule,
     SuggestionFournisseurListComponent,
     SuggestionProduitPanelComponent,
-    ButtonModule,
-    TooltipModule,
+    ButtonComponent,
+    NgbTooltip,
     DecimalPipe,
-    Toast,
-    IconField,
-    InputIcon,
-    InputTextModule,
-    MultiSelectModule
+    IconFieldComponent,
+    MultiSelectComponent
   ]
 })
 export class SuggestionHomeComponent {

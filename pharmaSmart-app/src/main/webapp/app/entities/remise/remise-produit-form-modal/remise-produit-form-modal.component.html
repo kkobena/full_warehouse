@@ -5,12 +5,12 @@
 </div>
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
-    <p-card>
+    <app-card [variant]="'form'">
       <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
       <div class="form-grid-compact">
         <div class="form-field form-field-full">
           <label for="valeur">Description<span class="required">*</span></label>
-          <input #libelle autocomplete="off" class="w-full" formControlName="valeur" id="valeur" name="valeur" pInputText type="text" />
+          <input #libelle autocomplete="off" class="form-control" formControlName="valeur" id="valeur" name="valeur" type="text" />
 
           @if (editForm.get('valeur')!.invalid && (editForm.get('valeur')!.dirty || editForm.get('valeur')!.touched)) {
             @if (editForm.get('valeur')?.errors?.required) {
@@ -26,18 +26,14 @@
           } @else {
             <label for="codeRemise">Selectionner le code remise</label>
           }
-          <p-select
-            [fluid]="true"
-            (onShow)="onDropdownShow($event)"
-            (onHide)="onDropdownHide($event)"
-            [options]="remisesCodes"
+          <app-select
+            appendTo="body"
+            [items]="remisesCodes"
             formControlName="codeRemise"
-            id="codeRemise"
-            optionLabel="value"
-            optionValue="value"
-            size="large"
-          >
-          </p-select>
+            inputId="codeRemise"
+            bindLabel="value"
+            bindValue="value"
+          />
 
           @if (editForm.get('codeRemise')!.invalid && (editForm.get('codeRemise')!.dirty || editForm.get('codeRemise')!.touched)) {
             <div>
@@ -56,7 +52,7 @@
                   <strong><b>Taux de remise pour les ventes VNO </b></strong>
                 </div>
 
-                <input pInputText autocomplete="off" class="w-full" formControlName="remiseValue" name="remiseValue" type="number" />
+                <input autocomplete="off" class="form-control" formControlName="remiseValue" name="remiseValue" type="number" />
               </div>
             </ng-container>
             <ng-container formGroupName="vo">
@@ -67,26 +63,26 @@
                   <strong><b>Taux de remise pour les ventes VO</b></strong>
                 </div>
 
-                <input pInputText autocomplete="off" class="w-full" formControlName="remiseValue" name="remiseValue" type="number" />
+                <input autocomplete="off" class="form-control" formControlName="remiseValue" name="remiseValue" type="number" />
               </div>
             </ng-container>
           }
         </div>
       </div>
-    </p-card>
+    </app-card>
   </div>
 
   <div class="modal-footer">
-    <p-button
-      (click)="cancel()"
+    <app-button
+      (clicked)="cancel()"
       [raised]="true"
       class="p-mr-2"
       icon="pi pi-times"
       label="Annuler"
       severity="secondary"
       type="button"
-    ></p-button>
-    <p-button
+    />
+    <app-button
       [disabled]="editForm.invalid || isSaving || !isValid"
       [raised]="true"
       class="p-mr-2"
@@ -94,7 +90,6 @@
       label="Enregistrer"
       severity="primary"
       type="submit"
-    ></p-button>
+    />
   </div>
 </form>
-<jhi-toast-alert #alert></jhi-toast-alert>

@@ -1,94 +1,82 @@
 <div class="pharma-smart-content p-1">
 
   <!-- Toolbar -->
-  <div class="pharma-toolbar pharma-toolbar-compact">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-chart-bar"></i>
-      <span class="pharma-toolbar-title">Récapitulatif mensuel</span>
-    </div>
-    <p-toolbar>
-      <ng-template #start>
+  <app-toolbar [compact]="true" icon="pi pi-chart-bar" title="Récapitulatif mensuel">
+    <ng-container ngProjectAs="[toolbarFilters]">
         <div class="pharma-toolbar-filters">
-          <p-floatlabel variant="on">
-            <p-select
+          <app-float-label inputId="recap-type" label="">
+            <app-select
               [(ngModel)]="selectedTypeFacture"
-              [options]="typeFactureOptions"
+              [items]="typeFactureOptions"
               appendTo="body"
-              id="recap-type"
-              optionLabel="label"
-              optionValue="value"
-              style="width: 150px"
-              (onChange)="onSearch()"
+              inputId="recap-type"
+              bindLabel="label"
+              bindValue="value"
+              [style]="{ width: '150px' }"
+              (selectionChange)="onSearch()"
             />
-            <label for="recap-type"></label>
-          </p-floatlabel>
-          <p-floatlabel variant="on">
-            <p-select
+          </app-float-label>
+          <app-float-label inputId="recap-annee" label="Année">
+            <app-select
               [(ngModel)]="annee"
-              [options]="anneeOptions"
+              [items]="anneeOptions"
               appendTo="body"
-              id="recap-annee"
-              optionLabel="label"
-              optionValue="value"
-              style="width: 120px"
-              (onChange)="onSearch()"
+              inputId="recap-annee"
+              bindLabel="label"
+              bindValue="value"
+              [style]="{ width: '120px' }"
+              (selectionChange)="onSearch()"
             />
-            <label for="recap-annee">Année</label>
-          </p-floatlabel>
+          </app-float-label>
 
-          <p-floatlabel variant="on">
-            <p-select
+          <app-float-label inputId="recap-mois" label="Mois">
+            <app-select
               [(ngModel)]="selectedMois"
-              [options]="moisOptions"
+              [items]="moisOptions"
               appendTo="body"
-              id="recap-mois"
-              optionLabel="label"
-              optionValue="value"
-              style="width: 140px"
+              inputId="recap-mois"
+              bindLabel="label"
+              bindValue="value"
+              [style]="{ width: '140px' }"
             />
-            <label for="recap-mois">Mois</label>
-          </p-floatlabel>
+          </app-float-label>
 
-          <p-floatlabel variant="on">
-            <p-autocomplete
-              (completeMethod)="searchTiersPayant($event)"
+          <app-float-label inputId="recap-tp" label="Tiers-payant">
+            <app-multi-select
+              (searched)="searchTiersPayant($event)"
               [(ngModel)]="selectedTiersPayants"
-              [forceSelection]="true"
-              [minQueryLength]="2"
-              [multiple]="true"
-              [suggestions]="tiersPayantSuggestions"
+              [minSearchLength]="2"
+                            [items]="tiersPayantSuggestions"
               appendTo="body"
-              id="recap-tp"
               inputId="recap-tp"
-              optionLabel="fullName"
+              bindLabel="fullName"
             />
-            <label for="recap-tp">Tiers-payant</label>
-          </p-floatlabel>
+          </app-float-label>
 
         </div>
-      </ng-template>
+      </ng-container>
 
-      <ng-template #end>
+<ng-container ngProjectAs="[toolbarActions]">
         <div class="pharma-toolbar-actions">
           <div class="pharma-button-group">
-            <p-button
-              (onClick)="onSearch()"
+            <app-button
+              (clicked)="onSearch()"
               [loading]="loading()"
               [raised]="true"
               icon="pi pi-search"
               label="Rechercher"
               severity="info"
             />
-            <p-button
-              (onClick)="onExportExcel()"
+            <app-button
+              (clicked)="onExportExcel()"
               [loading]="loadingExport()"
               [outlined]="true"
               icon="pi pi-file-excel"
               label="Excel"
               severity="help"
             />
-            <p-button
-              (onClick)="onExportPdf()"
+            <app-button
+              (clicked)="onExportPdf()"
               [outlined]="true"
               [loading]="loadingPdf()"
               icon="pi pi-file-pdf"
@@ -97,9 +85,8 @@
             />
           </div>
         </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
+      </ng-container>
+  </app-toolbar>
 
   <!-- KPI globaux -->
   <app-recapitulatif-kpi-banner [kpi]="kpi()" [loading]="loading()" />
@@ -118,13 +105,12 @@
 
     <!-- Colonne maître : liste des organismes -->
     <div class="list-column">
-      <p-table
+      <app-data-table
         [value]="rows()"
         [loading]="loading()"
-        [rowHover]="true"
         [scrollable]="true"
         scrollHeight="flex"
-        class="p-datatable-sm"
+        [size]="'small'"
         selectionMode="single"
         dataKey="tiersPayantId"
       >
@@ -180,20 +166,20 @@
               }
             </td>
             <td class="text-center" (click)="$event.stopPropagation()">
-              <p-buttongroup>
-                <p-button
-                  (onClick)="onRowSelect(row)"
+              <div class="btn-group" role="group">
+                <app-button
+                  (clicked)="onRowSelect(row)"
                   [rounded]="true"
                   [text]="true"
                   icon="pi pi-eye"
-                  pTooltip="Voir détail"
-                  tooltipPosition="left"
+                  ngbTooltip="Voir détail"
+                  placement="left"
                   severity="secondary"
                   size="small"
                 />
 
 
-              </p-buttongroup>
+              </div>
 
             </td>
           </tr>
@@ -231,7 +217,7 @@
             </td>
           </tr>
         </ng-template>
-      </p-table>
+      </app-data-table>
     </div>
 
     <!-- Panneau détail : factures de l'organisme sélectionné -->
@@ -258,8 +244,8 @@
             </div>
           </div>
           <div class="panel-actions">
-            <p-button
-              (onClick)="closePanel()"
+            <app-button
+              (clicked)="closePanel()"
               icon="pi pi-times"
               [text]="true"
               [rounded]="true"
@@ -278,10 +264,9 @@
         </div>
 
         <div class="recap-detail-body">
-          <p-table
+          <app-data-table
             [value]="detailLignes(selectedRow()!)"
-            [rowHover]="true"
-            class="p-datatable-sm"
+            [size]="'small'"
             [scrollable]="true"
             scrollHeight="flex"
           >
@@ -318,7 +303,7 @@
                 </td>
               </tr>
             </ng-template>
-          </p-table>
+          </app-data-table>
         </div>
       </div>
     }
@@ -326,4 +311,3 @@
   </div>
 
 </div>
-<p-toast position="center" />

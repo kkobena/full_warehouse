@@ -1,3 +1,6 @@
+# You are an expert in TypeScript, Angular, and scalable web application development. You write functional, maintainable, performant, and accessible code following Angular and TypeScript best practices.
+
+
 # PLAN — Migration PrimeNG → ng-bootstrap (+ Design System maison)
 
 > Statut : **Proposition initiale**
@@ -109,6 +112,7 @@ Extrait de `grep p-<selector>` sur `pharmaSmart-app/src/main/webapp` (comptages 
 | `p-accordion` | `NgbAccordion` | Remap direct |
 | `p-menubar` / `p-panelmenu` | `NgbDropdown` imbriqué / custom | Rare dans le projet, cas par cas |
 | `p-splitbutton` | `NgbDropdown` + `<div class="btn-group">` | Wrapper `AppSplitButton` |
+| `p-picklist` | **Deux `app-data-table` asymétriques** — voir §6.1 | Usage unique (`tableau-produit/produits`). Pas de wrapper `AppPickList` : décision documentée en §6.1 |
 | `p-buttongroup` | `<div class="btn-group">` Bootstrap | Aucun wrapper |
 | `p-fileupload` | `<input type="file">` + wrapper `AppFileUpload` | Uploads simples ; s'appuyer sur `HttpClient` pour l'envoi |
 | `p-chart` | **`app-chart`** (existant) | `app/shared/chart/chart.component.ts` — wrapper Chart.js **avec API compatible `p-chart`** déjà en place. Substitution `p-chart` → `app-chart` directe |
@@ -482,7 +486,57 @@ Cibles suggérées :
 
 **Règle** : préserver la cohabitation actuelle — `p-table` → `AppTable`, AG Grid → AG Grid (inchangé). Aucun écran ne bascule d'une lib vers l'autre pendant la migration ; les arbitrages de lib restent hors scope de ce chantier.
 
+### 6.1 `p-picklist` → deux `app-data-table` asymétriques
+
+> **Priorité basse.** Usage unique dans l'application (`entities/tableau-produit/produits`),
+> écran peu fréquenté. À traiter en fin de Phase 3, après les écrans à fort trafic.
+
+**Décision : pas de wrapper `AppPickList`.** Reproduire la liste double à l'identique
+reconduirait un patron déjà inadapté aux données.
+
+**Constat.** `produit-associes.component.ts` charge ses deux colonnes en
+`page: 0, size: 300` avec recherche serveur, sur un catalogue produits qui dépasse
+largement ce volume. Le picklist promet donc une métaphore que les données ne tiennent
+pas :
+
+- au-delà de 300 résultats, le reste est invisible **sans aucune indication** ;
+- `moveAllToTarget` / `moveAllToSource` n'envoient que les ids **chargés** : « tout
+  déplacer » déplace en réalité « les 300 premiers ». Bug silencieux à ne pas reconduire.
+
+**Cible.** Deux tables au rôle distinct, et non deux listes miroir :
+
+| Colonne | Rôle | Contenu |
+|---|---|---|
+| Gauche | **Sélecteur de catalogue** — un outil de recherche, pas une liste à parcourir | Recherche serveur + pagination réelle, action `Associer` par ligne, sélection multiple pour un lot |
+| Droite | **État de l'objet** — court par nature (quelques dizaines) | Produits associés, action `Retirer` |
+
+Bénéfices : pagination et total visibles, tri et colonnes (CIP, prix) exploitables,
+boutons natifs focusables là où le drag & drop n'est pas accessible au clavier.
+
+**Perte assumée** : le drag & drop. Sur un catalogue dont on n'affiche qu'une fraction,
+on ne fait pas glisser vers ce qu'on ne peut pas voir — la perte est un gain de simplicité.
+
+**⚠ Décision backend en suspens.** Si un « tout associer » est conservé, il doit porter
+sur **l'ensemble du résultat de la recherche** : l'API doit recevoir les critères, pas une
+liste d'ids. Sinon on réimplémente le bug actuel.
+
 ### Phase 4 — Nettoyage (1 sprint)
+
+> ⚠ **Ordre impératif — à faire en premier, avant toute désinstallation :**
+>
+> ```bash
+> node scripts/generate-pharma-tokens.mjs --used-only
+> ```
+>
+> Pendant les Phases 0→3, `_pharma-tokens.scss` contient le **jeu complet** des 392 tokens
+> Aura : le Design System en cours d'écriture en consomme de nouveaux à chaque composant,
+> et les avoir tous évite de régénérer en permanence (surcoût ~1,8 Ko gzip, invisible tant
+> que PrimeNG est encore là de toute façon).
+>
+> En Phase 4 le jeu est stable, donc élagable sans risque — mais **uniquement tant que
+> `primeng` / `@primeuix/themes` sont encore installés** : ce sont eux qui fournissent les
+> valeurs. Une fois désinstallés, `_pharma-tokens.scss` est figé définitivement et l'élagage
+> devient impossible. Oublier cette étape est en revanche sans danger (on conserve 1,8 Ko).
 
 - Retirer `primeng`, `@primeuix/themes`, `primeicons` de `package.json`.
 - Retirer `providePrimeNG(...)` et l'import associé dans `app.config.ts`.

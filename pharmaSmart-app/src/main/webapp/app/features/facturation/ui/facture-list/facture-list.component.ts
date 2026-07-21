@@ -3,11 +3,15 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { finalize } from "rxjs/operators";
 import { HttpHeaders } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
-import { TableLazyLoadEvent, TableModule } from "primeng/table";
-import { ButtonModule } from "primeng/button";
-import { TooltipModule } from "primeng/tooltip";
-import { InputTextModule } from "primeng/inputtext";
-import { BadgeModule } from "primeng/badge";
+import { NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
+import {
+  AppTableLazyLoadEvent,
+  BadgeComponent,
+  ButtonComponent,
+  DataTableComponent,
+  HeaderCheckboxComponent,
+  RowCheckboxComponent
+} from "../../../../shared/ui";
 
 import { NotificationService } from "../../../../shared/services/notification.service";
 import { ErrorService } from "../../../../shared/error.service";
@@ -18,7 +22,6 @@ import { FactureApiService } from "../../data-access/services/facture-api.servic
 import { CertificationApiService } from "../../data-access/services/certification-api.service";
 import { FacturationStore } from "../../data-access/store/facturation.store";
 import { IFacture, IFneResponse, IInvoiceSearchParams } from "../../data-access/models";
-import { ButtonGroup } from "primeng/buttongroup";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { FneCertificateViewerComponent } from "../fne-certificate-viewer/fne-certificate-viewer.component";
 import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
@@ -27,12 +30,12 @@ import { BlobDownloadService } from "../../../../shared/services/blob-download.s
   selector: "app-facture-list",
   imports: [
     CommonModule,
-    TableModule,
-    ButtonModule,
-    TooltipModule,
-    InputTextModule,
-    BadgeModule,
-    ButtonGroup
+    NgbTooltip,
+    BadgeComponent,
+    ButtonComponent,
+    DataTableComponent,
+    HeaderCheckboxComponent,
+    RowCheckboxComponent
   ],
   templateUrl: "./facture-list.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -88,7 +91,7 @@ export class FactureListComponent {
     this.store.setSelectedFactures(selection);
   }
 
-  lazyLoading(event: TableLazyLoadEvent): void {
+  lazyLoading(event: AppTableLazyLoadEvent): void {
     const params = this.searchParams();
     if (event && params) {
       this.page = Math.floor((event.first ?? 0) / (event.rows ?? this.itemsPerPage));

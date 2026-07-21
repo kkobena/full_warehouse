@@ -1,40 +1,42 @@
 <div class="sub-filter-bar">
-  <p-select
+  <app-select
+    appendTo="body"
     [(ngModel)]="filtrePeriodicite"
-    [options]="state.periodicitesOptions"
-    [showClear]="true"
-    optionLabel="label"
-    optionValue="value"
+    [items]="state.periodicitesOptions"
+    [clearable]="true"
+    bindLabel="label"
+    bindValue="value"
     [placeholder]="'Périodicité ' + (mode() === 'def' ? 'déf.' : 'prov.')"
-    (onChange)="loadTps()"
+    (selectionChange)="loadTps()"
     style="width: 170px"
   />
-  <p-select
+  <app-select
+    appendTo="body"
     [(ngModel)]="filtreCategorie"
-    [options]="state.categorieOptions"
-    [showClear]="true"
-    optionLabel="label"
-    optionValue="value"
+    [items]="state.categorieOptions"
+    [clearable]="true"
+    bindLabel="label"
+    bindValue="value"
     placeholder="Catégorie"
-    (onChange)="loadTps()"
+    (selectionChange)="loadTps()"
     style="width: 140px"
   />
-  <p-button (onClick)="loadTps()" icon="pi pi-refresh" [text]="true" size="small" pTooltip="Actualiser" tooltipPosition="left" />
+  <app-button (clicked)="loadTps()" icon="pi pi-refresh" [text]="true" size="small" ngbTooltip="Actualiser" placement="left" />
 </div>
 
 @if (selectedTps.length > 0) {
   <div class="bulk-action-bar">
     <span class="bulk-count">{{ selectedTps.length }} TP(s)</span>
-    <p-button
-      (onClick)="onMassInclude()"
+    <app-button
+      (clicked)="onMassInclude()"
       icon="pi pi-check"
       label="Inclure"
       severity="success"
       size="small"
       [outlined]="true"
     />
-    <p-button
-      (onClick)="onMassExclude()"
+    <app-button
+      (clicked)="onMassExclude()"
       icon="pi pi-ban"
       label="Exclure"
       severity="warn"
@@ -42,17 +44,18 @@
       [outlined]="true"
     />
     <div class="d-flex align-items-center gap-1">
-      <p-select
+      <app-select
+        appendTo="body"
         [(ngModel)]="massPeriodicite"
-        [options]="state.periodicitesOptions"
-        [showClear]="true"
-        optionLabel="label"
-        optionValue="value"
+        [items]="state.periodicitesOptions"
+        [clearable]="true"
+        bindLabel="label"
+        bindValue="value"
         placeholder="Période…"
         style="width: 150px"
       />
-      <p-button
-        (onClick)="onMassSetPeriodicite()"
+      <app-button
+        (clicked)="onMassSetPeriodicite()"
         [disabled]="!massPeriodicite"
         icon="pi pi-check-circle"
         label="Appliquer"
@@ -63,20 +66,19 @@
   </div>
 }
 
-<p-table
+<app-data-table
   [(selection)]="selectedTps"
   [value]="tps()"
   [loading]="loading()"
   [scrollable]="true"
   scrollHeight="calc(100vh - 480px)"
   selectionMode="multiple"
-  class="p-datatable-sm"
+  [size]="'small'"
   dataKey="id"
-  [rowHover]="true"
 >
   <ng-template #header>
     <tr class="pharma-table-head">
-      <th style="width: 3rem"><p-tableheadercheckbox /></th>
+      <th style="width: 3rem"><app-header-checkbox /></th>
       <th>Tiers payant</th>
       <th>Catégorie</th>
       @if (mode() === 'def') {
@@ -91,7 +93,7 @@
   </ng-template>
   <ng-template #body let-tp>
     <tr>
-      <td><p-tablecheckbox [value]="tp" /></td>
+      <td><app-row-checkbox [row]="tp" /></td>
       <td class="fw-medium small">{{ tp.name }}</td>
       <td><span class="pharma-badge pharma-badge-secondary">{{ tp.categorie }}</span></td>
       <td>
@@ -107,9 +109,9 @@
       </td>
       <td class="text-center">
         @if (mode() === 'def') {
-          <p-toggleswitch [ngModel]="tp.inclureFacturationAutoDefinitive" (onChange)="onToggleInclure(tp)" />
+          <app-switch [ngModel]="tp.inclureFacturationAutoDefinitive" (ngModelChange)="onToggleInclure(tp)" />
         } @else {
-          <p-toggleswitch [ngModel]="tp.inclureFacturationAutoProvisoire" (onChange)="onToggleInclure(tp)" />
+          <app-switch [ngModel]="tp.inclureFacturationAutoProvisoire" (ngModelChange)="onToggleInclure(tp)" />
         }
       </td>
       <td class="small text-muted">{{ tp.groupeTiersPayantName  }}</td>
@@ -120,5 +122,5 @@
       <td colspan="6" class="text-center text-muted py-3">Aucun tiers payant correspondant</td>
     </tr>
   </ng-template>
-</p-table>
+</app-data-table>
 

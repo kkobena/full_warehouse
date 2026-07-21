@@ -63,6 +63,14 @@
     max-height: calc(100vh - 200px);
     overflow-y: auto;
 
+    // Le panneau des listes déroulantes est rattaché au <body> (`appendTo="body"` sur
+    // chaque `app-select`), il n'est donc plus rogné par ce conteneur défilant.
+    //
+    // ⚠ Ne pas réintroduire de bascule `:has(.ng-select-opened) { overflow: visible }` :
+    // elle faisait perdre à la fois la barre de défilement (saut de largeur) et la
+    // position de défilement (contenu qui remonte), et elle déplaçait le champ pendant
+    // que ng-select calculait la position du panneau — celui-ci atterrissait hors écran.
+
     // Scrollbar styling
     &::-webkit-scrollbar {
       width: 8px;
@@ -81,6 +89,28 @@
       }
     }
 
+    // Cartes de regroupement (remplacent p-card dans les modales migrées).
+    //
+    // `.card` de Bootstrap est blanc sur fond blanc : sans l'ombre que PrimeNG posait
+    // sur p-card, le bloc devenait invisible et la modale paraissait délavée. On le
+    // détache par un fond légèrement teinté plutôt que par une ombre, plus sobre dans
+    // un contexte déjà encadré par la modale.
+    .card {
+      // surface-100 (#f1f5f9) et non surface-50 (#f8fafc) : à 98 % de blanc, la teinte
+      // ne se distinguait pas du fond de la modale. Doit rester aligné sur `.card-form`
+      // de `shared/ui/card/card.component.scss`, qui porte le même habillage pour les
+      // cartes rendues par `app-card`.
+      background-color: var(--p-surface-100);
+      border: 1px solid var(--p-content-border-color);
+      border-radius: var(--bs-border-radius);
+      box-shadow: none;
+
+      .card-body {
+        background-color: transparent;
+        padding: 0.5rem;
+      }
+    }
+
     // Form label styling
     .form-label {
       font-weight: 500;
@@ -95,15 +125,25 @@
     }
 
     // Form control styling
-    .form-control {
-      border: 1px solid var(--p-surface-border);
-      border-radius: var(--p-border-radius);
+    //
+    // ⚠ `--p-surface-border` et `--p-border-radius` ne sont PAS produits par le preset
+    // Aura (cf. la liste en fin de `content/scss/_pharma-tokens.scss`). Un var() qui ne
+    // résout pas invalide toute la déclaration : `border` retombait sur sa valeur
+    // initiale, donc `border-style: none` — des champs sans aucune bordure. Le bug était
+    // masqué tant que les champs portaient `pInputText`, qui apportait sa propre bordure.
+    .form-control,
+    .form-select {
+      border: 1px solid var(--p-content-border-color);
+      border-radius: var(--bs-border-radius);
       padding: 0.625rem 0.75rem;
       transition: all 0.2s;
 
+      // Couleur et halo repris des tokens communs : `$pharma-primary` (#5b89a6) est un
+      // accent hérité, distinct du `$primary` émeraude sur lequel sont calés les boutons
+      // et les listes déroulantes. Les champs suivaient donc une teinte à part.
       &:focus {
-        border-color: $pharma-primary;
-        box-shadow: 0 0 0 0.2rem rgba($pharma-primary, 0.15);
+        border-color: var(--p-form-field-focus-border-color);
+        box-shadow: var(--pharma-focus-ring);
         outline: none;
       }
 
@@ -119,6 +159,12 @@
           box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.15);
         }
       }
+    }
+
+    // Bootstrap dessine le chevron en background-image ; le padding uniforme ci-dessus
+    // le ferait chevaucher le texte des options longues.
+    .form-select {
+      padding-right: 2.25rem;
     }
 
     textarea.form-control {

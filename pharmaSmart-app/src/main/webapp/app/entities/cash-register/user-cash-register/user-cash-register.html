@@ -24,12 +24,11 @@
                   </label>
                   <input
                     #cashFundAmountInput
+                    [appKeyFilter]="'int'"
                     autocomplete="off"
                     class="pharma-input-modern"
                     formControlName="cashFundAmount"
                     id="cashFundAmount"
-                    pInputText
-                    pKeyFilter="int"
                     placeholder="Entrez le montant du fonds"
                     type="text"
                   />
@@ -43,7 +42,7 @@
                 </div>
 
                 <div class="pharma-card-actions">
-                  <p-button
+                  <app-button
                     [disabled]="editForm.invalid || isSaving"
                     [loading]="isSaving"
                     [raised]="true"
@@ -122,13 +121,13 @@
                   <div class="pharma-info-content">
                     <span class="pharma-info-label">Statut de la caisse</span>
                     @if (cashRegisters[0].statut === OPEN) {
-                      <p-tag icon="pi pi-clock" severity="warn" value="En cours"></p-tag>
+                      <app-badge icon="pi pi-clock" severity="warn" label="En cours" />
                     } @else if (cashRegisters[0].statut === CLOSED) {
-                      <p-tag icon="pi pi-lock" severity="secondary" value="Fermée"></p-tag>
+                      <app-badge icon="pi pi-lock" severity="secondary" label="Fermée" />
                     } @else if (cashRegisters[0].statut === PENDING) {
-                      <p-tag icon="pi pi-hourglass" severity="warn" value="En attente"></p-tag>
+                      <app-badge icon="pi pi-hourglass" severity="warn" label="En attente" />
                     } @else if (cashRegisters[0].statut === VALIDATED) {
-                      <p-tag icon="pi pi-check-circle" severity="success" value="Validée"></p-tag>
+                      <app-badge icon="pi pi-check-circle" severity="success" label="Validée" />
                     }
                   </div>
                 </div>
@@ -137,17 +136,17 @@
 
             <div class="pharma-card-footer">
               <div class="pharma-button-group-flex">
-                <p-button (click)="previousState()" [outlined]="true" icon="pi pi-arrow-left"
+                <app-button (clicked)="previousState()" [outlined]="true" icon="pi pi-arrow-left"
                           label="Retour" severity="secondary" />
-                <p-button
-                  (click)="onOpenCashRegister()"
+                <app-button
+                  (clicked)="onOpenCashRegister()"
                   [hidden]="hasOpingCashRegister()"
                   [raised]="true"
                   icon="pi pi-plus-circle"
                   label="Nouvelle caisse"
                   severity="info"
                 />
-                <p-button
+                <app-button
                   [raised]="true"
                   [routerLink]="['/my-cash-register', cashRegisters[0].id, 'billetage']"
                   icon="pi pi-wallet"
@@ -175,7 +174,7 @@
 
             <div class="pharma-card-body p-0">
               <div class="pharma-table">
-                <p-table
+                <app-data-table
                   [paginator]="true"
                   [rowsPerPageOptions]="[10, 15, 20]"
                   [rows]="10"
@@ -216,22 +215,22 @@
                       </td>
                       <td class="text-center">
                         @if (cashRegister.statut === 'OPEN' || cashRegister.statut === 'En cours') {
-                          <p-tag icon="pi pi-clock" severity="success" value="En cours"></p-tag>
+                          <app-badge icon="pi pi-clock" severity="success" label="En cours" />
                         } @else if (cashRegister.statut === 'CLOSED' || cashRegister.statut
                         === 'Fermée') {
-                          <p-tag icon="pi pi-lock" severity="secondary" value="Fermée"></p-tag>
+                          <app-badge icon="pi pi-lock" severity="secondary" label="Fermée" />
                         } @else if (cashRegister.statut === 'PENDING' || cashRegister.statut
                         === 'En attente') {
-                          <p-tag icon="pi pi-hourglass" severity="warn" value="En attente"></p-tag>
+                          <app-badge icon="pi pi-hourglass" severity="warn" label="En attente" />
                         } @else {
-                          <p-tag icon="pi pi-check-circle" severity="info" value="Validée"></p-tag>
+                          <app-badge icon="pi pi-check-circle" severity="info" label="Validée" />
                         }
                       </td>
                       <td class="text-center">
                         @if (cashRegister.statut === 'OPEN' || cashRegister.statut === 'En cours'
                         || cashRegister.statut === 'PENDING' ||
                         cashRegister.statut === 'En attente') {
-                          <p-button
+                          <app-button
                             [raised]="true"
                             [routerLink]="['/my-cash-register', cashRegister.id, 'billetage']"
                             icon="pi pi-wallet"
@@ -255,7 +254,7 @@
                       </td>
                     </tr>
                   </ng-template>
-                </p-table>
+                </app-data-table>
               </div>
             </div>
           </div>
@@ -264,4 +263,3 @@
     }
   </div>
 </div>
-<p-toast position="center" />

@@ -1,15 +1,14 @@
 import {AfterViewInit, Component, ElementRef, inject, viewChild, ChangeDetectionStrategy} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {ButtonModule} from 'primeng/button';
-import {InputTextModule} from 'primeng/inputtext';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {ButtonComponent} from '../../../../shared/ui';
 
 @Component({
   selector: 'app-ajustement-finalyse-modal',
   templateUrl: './ajustement-finalyse-modal.component.html',
   styleUrls: ['./ajustement-finalyse-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [FormsModule, ButtonModule, InputTextModule],
+  imports: [FormsModule, ButtonComponent],
 })
 export class AjustementFinalyseModalComponent implements AfterViewInit {
   readonly activeModal = inject(NgbActiveModal);

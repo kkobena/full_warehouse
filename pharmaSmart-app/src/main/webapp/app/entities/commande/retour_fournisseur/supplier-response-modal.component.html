@@ -22,7 +22,7 @@
     </div>
   </div>
 
-  <p-table [value]="lines()" class="pharma-table" editMode="cell" [scrollable]="true" scrollHeight="400px" [showGridlines]="true">
+  <app-data-table [value]="lines()" class="pharma-table" [scrollable]="true" scrollHeight="400px" [showGridlines]="true">
     <ng-template #header>
       <tr class="pharma-table-head">
         <th style="width: 50px">#</th>
@@ -49,42 +49,37 @@
           <span class="badge bg-info">{{ line.item.qtyMvt | number }}</span>
         </td>
         @if (!line.alreadyProcessed) {
-          <td class="text-center" pEditableColumn>
-            <p-celleditor>
+          <td class="text-center">
+            <app-editable-cell>
               <ng-template #input>
-                <p-inputnumber
+                <app-input-number
                   [(ngModel)]="line.qtyAcceptee"
                   (ngModelChange)="onQuantityChange(line)"
                   [min]="0"
                   [max]="line.item.qtyMvt"
-                  [showButtons]="true"
-                  buttonLayout="horizontal"
-                  incrementButtonIcon="pi pi-plus"
-                  decrementButtonIcon="pi pi-minus"
-                  [inputStyle]="{ 'text-align': 'center', width: '80px' }"
+                  [style]="{ 'text-align': 'center', width: '80px' }"
                   (keydown.enter)="$event.preventDefault()"
                 />
               </ng-template>
               <ng-template #output>
                 <span [ngClass]="line.qtyAcceptee === 0 ? 'text-danger' : ''">{{ line.qtyAcceptee | number }}</span>
               </ng-template>
-            </p-celleditor>
+            </app-editable-cell>
           </td>
-          <td class="text-center" pEditableColumn>
-            <p-celleditor>
+          <td class="text-center">
+            <app-editable-cell>
               <ng-template #input>
-                <p-inputnumber
+                <app-input-number
                   [(ngModel)]="line.prixAchat"
                   [min]="0"
-                  [showButtons]="false"
-                  [inputStyle]="{ 'text-align': 'right', width: '100px' }"
+                  [style]="{ 'text-align': 'right', width: '100px' }"
                   (keydown.enter)="$event.preventDefault()"
                 />
               </ng-template>
               <ng-template #output>
                 <span>{{ line.prixAchat | number }}</span>
               </ng-template>
-            </p-celleditor>
+            </app-editable-cell>
           </td>
         } @else {
           <td class="text-center">{{ line.qtyAcceptee | number }}</td>
@@ -92,24 +87,24 @@
         }
         <td class="text-center">
           @if (line.alreadyProcessed) {
-            <i class="pi pi-check-circle text-success" pTooltip="Déjà traité" tooltipPosition="top"></i>
+            <i class="pi pi-check-circle text-success" ngbTooltip="Déjà traité" placement="top"></i>
           } @else if (line.qtyAcceptee === 0) {
-            <i class="pi pi-times-circle text-danger" pTooltip="Refusé" tooltipPosition="top"></i>
+            <i class="pi pi-times-circle text-danger" ngbTooltip="Refusé" placement="top"></i>
           } @else if (line.item.qtyMvt && line.qtyAcceptee < line.item.qtyMvt) {
-            <i class="pi pi-exclamation-triangle text-warning" pTooltip="Partiel" tooltipPosition="top"></i>
+            <i class="pi pi-exclamation-triangle text-warning" ngbTooltip="Partiel" placement="top"></i>
           } @else {
-            <i class="pi pi-check-circle text-success" pTooltip="Accepté" tooltipPosition="top"></i>
+            <i class="pi pi-check-circle text-success" ngbTooltip="Accepté" placement="top"></i>
           }
         </td>
       </tr>
     </ng-template>
-  </p-table>
+  </app-data-table>
 </div>
 
 <div class="modal-footer">
-  <p-button (onClick)="cancel()" icon="pi pi-times" label="Annuler" severity="secondary" [outlined]="true" />
-  <p-button
-    (onClick)="save()"
+  <app-button (clicked)="cancel()" icon="pi pi-times" label="Annuler" severity="secondary" [outlined]="true" />
+  <app-button
+    (clicked)="save()"
     [disabled]="!canSave()"
     [loading]="isSaving()"
     icon="pi pi-save"
@@ -117,4 +112,3 @@
     severity="primary"
   />
 </div>
-<p-toast position="center"/>

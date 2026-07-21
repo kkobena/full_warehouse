@@ -5,12 +5,14 @@ import {FormsModule} from '@angular/forms';
 import {filter, finalize} from 'rxjs/operators';
 import {HttpResponse} from '@angular/common/http';
 import {saveAs} from 'file-saver';
-import {ButtonModule} from 'primeng/button';
-import {TooltipModule} from 'primeng/tooltip';
-import {InputTextModule} from 'primeng/inputtext';
-import {Toast} from 'primeng/toast';
-import {TableModule} from 'primeng/table';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {
+  ButtonComponent,
+  DataTableComponent,
+  HeaderCheckboxComponent,
+  RowCheckboxComponent,
+  SortableHeaderDirective,
+} from '../../../../shared/ui';
 import {ICommande} from 'app/shared/model/commande.model';
 import {CommandeId} from 'app/shared/model/abstract-commande.model';
 import {CommandeService} from '../../../../entities/commande/commande.service';
@@ -36,12 +38,13 @@ import {CommandeRequestedAction, CommandeRequestedActionsComponent} from './comm
     CommonModule,
     FormsModule,
     CommandeRequestedComponent,
-    ButtonModule,
-    TooltipModule,
-    InputTextModule,
+    ButtonComponent,
+    NgbTooltip,
     DatePipe,
-    Toast,
-    TableModule,
+    DataTableComponent,
+    HeaderCheckboxComponent,
+    RowCheckboxComponent,
+    SortableHeaderDirective,
     CommandeRequestedActionsComponent,
   ],
 })

@@ -1,15 +1,12 @@
 import { Component, computed, effect, inject, input, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
-import { TableModule } from "primeng/table";
-import { CheckboxModule } from "primeng/checkbox";
-import { SelectModule } from "primeng/select";
-import { ProgressSpinnerModule } from "primeng/progressspinner";
 import { NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
 import { IAuthority, INavRole, NavApiService } from "app/core/data-access/nav-api.service";
 import { NotificationService } from "app/shared/services/notification.service";
 import { INavNode, NavItemAssignment } from "app/shared/model/nav-item.model";
 import { NavReorderComponent } from "./nav-reorder.component";
+import { CheckboxComponent, DataTableComponent, SelectSearchComponent } from "app/shared/ui";
 
 interface FlatNavNode extends INavNode {
   depth: number;
@@ -24,7 +21,7 @@ interface FlatNavNode extends INavNode {
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule, FormsModule,
-    TableModule, CheckboxModule, SelectModule, ProgressSpinnerModule,
+    DataTableComponent, CheckboxComponent, SelectSearchComponent,
     NgbNavModule, NavReorderComponent
   ]
 })

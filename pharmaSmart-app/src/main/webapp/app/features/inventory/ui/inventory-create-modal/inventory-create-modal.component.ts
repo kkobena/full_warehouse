@@ -1,12 +1,7 @@
-import {Component, DestroyRef, ElementRef, inject, OnInit, Renderer2, signal, ChangeDetectionStrategy} from '@angular/core';
-import {CommonModule, DatePipe} from '@angular/common';
-import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {Button} from 'primeng/button';
-import {Select} from 'primeng/select';
-import {InputText} from 'primeng/inputtext';
-import {InputNumber} from 'primeng/inputnumber';
-import {DatePicker} from 'primeng/datepicker';
+import {Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {NgbActiveModal, NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {StorageService} from '../../../../entities/storage/storage.service';
 import {RayonService} from '../../../../entities/rayon/rayon.service';
@@ -22,33 +17,25 @@ import {
 } from '../../models';
 import {InventoryApiService} from '../../data-access/services/inventory-api.service';
 import {InventoryStore} from '../../data-access/store/inventory.store';
-import {PrimeNG} from "primeng/config";
-import {TranslateService} from "@ngx-translate/core";
 import {NgxSpinnerService} from "ngx-spinner";
+import {NGB_DATE_TO_ISO} from '../../../../shared/util/warehouse-util';
+import {ButtonComponent, InputNumberComponent, SelectComponent, SelectSearchComponent} from '../../../../shared/ui';
+import {PharmaDatePickerComponent} from '../../../../shared/date-picker/pharma-date-picker.component';
+
+const GROUP_LABELS: Record<string, string> = {scope: 'Périmètre', thematic: 'Thématique'};
 
 @Component({
   selector: 'app-inventory-create-modal',
-  imports: [CommonModule, ReactiveFormsModule, Button, Select, InputText, InputNumber, DatePicker],
+  imports: [CommonModule, ReactiveFormsModule, ButtonComponent, SelectComponent, SelectSearchComponent, InputNumberComponent, PharmaDatePickerComponent],
   templateUrl: './inventory-create-modal.component.html',
   styleUrl: './inventory-create-modal.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  providers: [DatePipe],
 })
 export class InventoryCreateModalComponent implements OnInit {
   readonly activeModal = inject(NgbActiveModal);
   prefill?: { inventoryCategory?: InventoryCategoryType; storageId?: number; rayonId?: number };
   form!: FormGroup;
-  categories = INVENTORY_CATEGORIES;
-  groupedCategories = [
-    {
-      label: 'Périmètre',
-      items: INVENTORY_CATEGORIES.filter(c => c.group === 'scope'),
-    },
-    {
-      label: 'Thématique',
-      items: INVENTORY_CATEGORIES.filter(c => c.group === 'thematic'),
-    },
-  ];
+  categories = INVENTORY_CATEGORIES.map(c => ({...c, groupLabel: GROUP_LABELS[c.group]}));
   storages = signal<IStorage[]>([]);
   rayons = signal<IRayon[]>([]);
   familles = signal<IFamilleProduit[]>([]);
@@ -65,23 +52,11 @@ export class InventoryCreateModalComponent implements OnInit {
   private readonly api = inject(InventoryApiService);
   private readonly store = inject(InventoryStore);
   private readonly spinner = inject(NgxSpinnerService);
-  private readonly primeNGConfig = inject(PrimeNG);
-  private readonly translate = inject(TranslateService);
   private readonly fb = inject(FormBuilder);
   private readonly storageService = inject(StorageService);
   private readonly rayonService = inject(RayonService);
   private readonly familleProduitService = inject(FamilleProduitService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly renderer = inject(Renderer2);
-  private readonly elementRef = inject(ElementRef);
-  private readonly datePipe = inject(DatePipe);
-
-  constructor() {
-    this.translate.use('fr');
-    this.translate.stream('primeng').subscribe(data => {
-      this.primeNGConfig.setTranslation(data);
-    });
-  }
 
   ngOnInit(): void {
     this.buildForm();
@@ -125,8 +100,8 @@ export class InventoryCreateModalComponent implements OnInit {
       storage: value.storage ?? undefined,
       rayon: value.rayon ?? undefined,
       famillyId: value.famillyId ?? undefined,
-      dateFrom: this.datePipe.transform(value.dateFrom, 'yyyy-MM-dd'),
-      dateTo: this.datePipe.transform(value.dateTo, 'yyyy-MM-dd'),
+      dateFrom: NGB_DATE_TO_ISO(value.dateFrom),
+      dateTo: NGB_DATE_TO_ISO(value.dateTo),
       alerteJours: value.alerteJours ?? undefined,
       classePareto: value.classePareto ?? undefined,
     };
@@ -158,20 +133,6 @@ export class InventoryCreateModalComponent implements OnInit {
     return this.categories.find(c => c.value === value)?.label ?? value;
   }
 
-  protected onDropdownShow(event: any): void {
-    const modalBody = this.elementRef.nativeElement.querySelector('.modal-body');
-    if (modalBody) {
-      this.renderer.addClass(modalBody, 'overflow-visible');
-    }
-  }
-
-  protected onDropdownHide(event: any): void {
-    const modalBody = this.elementRef.nativeElement.querySelector('.modal-body');
-    if (modalBody) {
-      this.renderer.removeClass(modalBody, 'overflow-visible');
-    }
-  }
-
   private buildForm(): void {
     this.form = this.fb.group({
       inventoryCategory: [null, Validators.required],
@@ -179,8 +140,8 @@ export class InventoryCreateModalComponent implements OnInit {
       storage: [null],
       rayon: [null],
       famillyId: [null],
-      dateFrom: [null],
-      dateTo: [null],
+      dateFrom: new FormControl<NgbDateStruct | null>(null),
+      dateTo: new FormControl<NgbDateStruct | null>(null),
       alerteJours: [90],
       classePareto: [null],
     });

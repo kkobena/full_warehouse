@@ -6,7 +6,6 @@ import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {ISales} from "../../../../shared/model";
 import {SalesApiService} from "../../data-access/services/sales-api.service";
 import {NotificationService} from "../../../../shared/services/notification.service";
-import {Toast} from "primeng/toast";
 import {ErrorService} from "../../../../shared/error.service";
 import {Button} from "primeng/button";
 import {Card} from "primeng/card";
@@ -15,7 +14,6 @@ import {InputText} from "primeng/inputtext";
 @Component({
   selector: 'app-annulation-vente-message',
   imports: [
-    Toast,
     Button,
     Card,
     FormsModule,

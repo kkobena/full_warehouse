@@ -1,60 +1,53 @@
-<div class="pharma-toolbar">
-  <div class="pharma-toolbar-header">
-    <i class="pi pi-th-large"></i>
-    <span>Tableau de bord Approvisionnement</span>
-  </div>
-  <p-toolbar>
-    <ng-template #start>
-      @if (lastRefresh()) {
-        <small class="text-muted">Mis à jour : {{ lastRefresh() | date: 'HH:mm:ss' }}</small>
-      }
-      @if (semoisFraicheur()) {
-        <span class="ms-3">
-          <p-tag
-            [value]="semoisFraicheurLabel"
-            [severity]="semoisFraicheurSeverity"
-            icon="pi pi-clock"
-            pTooltip="Fraîcheur de la VMM (Vente Mensuelle Moyenne) — cliquer sur Recalculer VMM pour forcer un recalcul immédiat"
-            tooltipPosition="bottom"
-          />
-        </span>
-      }
-    </ng-template>
-    <ng-template #end>
-      <div class="pharma-toolbar-actions">
-        <div class="pharma-button-group">
-          <p-button
-            label="Commander les urgents"
-            icon="pi pi-exclamation-triangle"
-            severity="danger"
-            size="small"
-            pTooltip="Commander tous les articles en rupture ou sous le seuil de sécurité VMM"
-            tooltipPosition="bottom"
-            (onClick)="navigateToSemoisSuggestions()"
-          />
-          <p-button
-            label="Nouvelle commande"
-            icon="pi pi-plus"
-            severity="primary"
-            size="small"
-            pTooltip="Créer une commande manuelle"
-            tooltipPosition="bottom"
-            (onClick)="navigateToCommandeEnCours()"
-          />
-          <p-button
-            icon="pi pi-refresh"
-            severity="secondary"
-            size="small"
-            [loading]="isLoading"
-            pTooltip="Actualiser le tableau de bord"
-            tooltipPosition="bottom"
-            (onClick)="loadAll()"
-          />
-        </div>
-      </div>
-    </ng-template>
-  </p-toolbar>
-</div>
+<app-toolbar icon="pi pi-th-large" title="Tableau de bord Approvisionnement">
+  <ng-container ngProjectAs="[toolbarFilters]">
+    @if (lastRefresh()) {
+      <small class="text-muted">Mis à jour : {{ lastRefresh() | date: 'HH:mm:ss' }}</small>
+    }
+    @if (semoisFraicheur()) {
+      <span class="ms-3">
+        <app-badge
+          [label]="semoisFraicheurLabel"
+          [severity]="semoisFraicheurSeverity"
+          icon="pi pi-clock"
+          ngbTooltip="Fraîcheur de la VMM (Vente Mensuelle Moyenne) — cliquer sur Recalculer VMM pour forcer un recalcul immédiat"
+          placement="bottom"
+        />
+      </span>
+    }
+  </ng-container>
+
+  <ng-container ngProjectAs="[toolbarActions]">
+    <div class="pharma-button-group">
+      <app-button
+        label="Commander les urgents"
+        icon="pi pi-exclamation-triangle"
+        severity="danger"
+        size="small"
+        ngbTooltip="Commander tous les articles en rupture ou sous le seuil de sécurité VMM"
+        placement="bottom"
+        (clicked)="navigateToSemoisSuggestions()"
+      />
+      <app-button
+        label="Nouvelle commande"
+        icon="pi pi-plus"
+        severity="primary"
+        size="small"
+        ngbTooltip="Créer une commande manuelle"
+        placement="bottom"
+        (clicked)="navigateToCommandeEnCours()"
+      />
+      <app-button
+        icon="pi pi-refresh"
+        severity="secondary"
+        size="small"
+        [loading]="isLoading"
+        ngbTooltip="Actualiser le tableau de bord"
+        placement="bottom"
+        (clicked)="loadAll()"
+      />
+    </div>
+  </ng-container>
+</app-toolbar>
 
 <!-- ─── SKELETON ─────────────────────────────────────────────────────────── -->
 @if (isLoading && !commandeDashboard() && !semoisDashboard()) {
@@ -63,8 +56,8 @@
       <div class="col-12 col-md-2 mb-2">
         <div class="card h-100">
           <div class="card-body">
-            <p-skeleton height="2rem" class="mb-2" />
-            <p-skeleton height="1.5rem" />
+            <app-skeleton height="2rem" class="mb-2" />
+            <app-skeleton height="1.5rem" />
           </div>
         </div>
       </div>
@@ -77,122 +70,97 @@
      SECTION 2 — KPIs fusionnés (Commandes + SEMOIS)
 ════════════════════════════════════════════════════════════════════════════ -->
 @if (commandeDashboard(); as db) {
-  <div class="row mt-1 kpi-row">
+  <app-kpi-strip stripClass="mt-1 mb-2">
 
     <!-- ── Commandes en cours ── -->
-    <div class="col-6 col-md mb-2">
-      <div class="card kpi-card kpi-card-compact primary-accent clickable" (click)="navigateToCommandeEnCours()">
-        <div class="card-body">
-          <div class="d-flex align-items-center gap-2">
-            <div class="kpi-icon-sm text-primary"><i class="pi pi-file-edit"></i></div>
-            <div>
-              <p class="kpi-label mb-0">En cours</p>
-              <span class="kpi-value-sm text-primary">{{ db.totalRequested }}</span>
-              <p class="kpi-sublabel mb-0">Commandes</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <app-kpi-item
+      class="clickable"
+      (click)="navigateToCommandeEnCours()"
+      [accent]="'primary'"
+      [value]="db.totalRequested"
+      icon="pi pi-file-edit"
+      iconClass="text-primary"
+      label="En cours"
+      valueClass="text-primary"
+    >
+      <ng-container ngProjectAs="[kpiSub]">Commandes</ng-container>
+    </app-kpi-item>
 
     <!-- ── À réceptionner ── -->
-    <div class="col-6 col-md mb-2">
-      <div class="card kpi-card kpi-card-compact warning-accent clickable" (click)="navigateToReceptionEnAttente()">
-        <div class="card-body">
-          <div class="d-flex align-items-center gap-2">
-            <div class="kpi-icon-sm text-warning"><i class="pi pi-truck"></i></div>
-            <div>
-              <p class="kpi-label mb-0">À réceptionner</p>
-              <span class="kpi-value-sm text-warning">{{ db.totalReceived }}</span>
-              <p class="kpi-sublabel mb-0">Bons livraison</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <app-kpi-item
+      class="clickable"
+      (click)="navigateToReceptionEnAttente()"
+      [accent]="'warning'"
+      [value]="db.totalReceived"
+      icon="pi pi-truck"
+      iconClass="text-warning"
+      label="À réceptionner"
+      valueClass="text-warning"
+    >
+      <ng-container ngProjectAs="[kpiSub]">Bons livraison</ng-container>
+    </app-kpi-item>
 
     @if (semoisDashboard(); as sd) {
       <!-- ── Ruptures stock ── -->
-      <div class="col-6 col-md mb-2">
-        <div class="card kpi-card kpi-card-compact danger-accent clickable" (click)="navigateToSemoisSuggestions()">
-          <div class="card-body">
-            <div class="d-flex align-items-center gap-2">
-              <div class="kpi-icon-sm text-danger"><i class="pi pi-exclamation-triangle"></i></div>
-              <div>
-                <p class="kpi-label mb-0">Ruptures</p>
-                <span class="kpi-value-sm text-danger">{{ sd.nbRupture }}</span>
-                <p class="kpi-sublabel mb-0">Stock critique</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <app-kpi-item
+        class="clickable"
+        (click)="navigateToSemoisSuggestions()"
+        [accent]="'danger'"
+        [value]="sd.nbRupture"
+        icon="pi pi-exclamation-triangle"
+        iconClass="text-danger"
+        label="Ruptures"
+        valueClass="text-danger"
+      >
+        <ng-container ngProjectAs="[kpiSub]">Stock critique</ng-container>
+      </app-kpi-item>
 
       <!-- ── Sous seuil VMM ── -->
-      <div class="col-6 col-md mb-2">
-        <div class="card kpi-card kpi-card-compact warning-accent clickable" (click)="navigateToSemoisSuggestions()">
-          <div class="card-body">
-            <div class="d-flex align-items-center gap-2">
-              <div class="kpi-icon-sm text-warning"><i class="pi pi-shopping-bag"></i></div>
-              <div>
-                <p class="kpi-label mb-0">Sous seuil</p>
-                <span class="kpi-value-sm text-warning">{{ sd.nbSousSeuil }}</span>
-                <p class="kpi-sublabel mb-0">À commander</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <app-kpi-item
+        class="clickable"
+        (click)="navigateToSemoisSuggestions()"
+        [accent]="'warning'"
+        [value]="sd.nbSousSeuil"
+        icon="pi pi-shopping-bag"
+        iconClass="text-warning"
+        label="Sous seuil"
+        valueClass="text-warning"
+      >
+        <ng-container ngProjectAs="[kpiSub]">À commander</ng-container>
+      </app-kpi-item>
 
       <!-- ── Stock OK ── -->
-      <div class="col-6 col-md mb-2">
-        <div class="card kpi-card kpi-card-compact success-accent">
-          <div class="card-body">
-            <div class="d-flex align-items-center gap-2">
-              <div class="kpi-icon-sm text-success"><i class="pi pi-check-circle"></i></div>
-              <div>
-                <p class="kpi-label mb-0">Stock nominal</p>
-                <span class="kpi-value-sm text-success">{{ sd.nbOk }}</span>
-                <p class="kpi-sublabel mb-0">Optimal</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <app-kpi-item
+        [accent]="'success'"
+        [value]="sd.nbOk"
+        icon="pi pi-check-circle"
+        iconClass="text-success"
+        label="Stock nominal"
+        valueClass="text-success"
+      >
+        <ng-container ngProjectAs="[kpiSub]">Optimal</ng-container>
+      </app-kpi-item>
     }
 
     <!-- ── Lots périmés (partagé depuis /api/dashboard/alert-counts) ── -->
-    <div class="col-6 col-md mb-2">
-      <div
-        class="card kpi-card kpi-card-compact clickable"
-        [class.danger-accent]="peremptionCount() > 0"
-        [class.success-accent]="peremptionCount() === 0"
-        (click)="peremptionCount() > 0 && navigateToPeremptions()"
-        pTooltip="Lots déjà périmés ou expirant très prochainement — cliquer pour gérer"
-        tooltipPosition="bottom"
-      >
-        <div class="card-body">
-          <div class="d-flex align-items-center gap-2">
-            <div [class.text-danger]="peremptionCount() > 0" [class.text-success]="peremptionCount() === 0" class="kpi-icon-sm">
-              <i class="pi pi-clock"></i>
-            </div>
-            <div>
-              <p class="kpi-label mb-0">Péremptions</p>
-              <span
-                class="kpi-value-sm"
-                [class.text-danger]="peremptionCount() > 0"
-                [class.text-success]="peremptionCount() === 0"
-              >{{ peremptionCount() }}</span>
-              <p class="kpi-sublabel mb-0">
-                @if (peremptionCount() > 0) { lots à traiter } @else { RAS }
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <app-kpi-item
+      class="clickable"
+      (click)="peremptionCount() > 0 && navigateToPeremptions()"
+      [accent]="peremptionCount() > 0 ? 'danger' : 'success'"
+      [iconClass]="peremptionCount() > 0 ? 'text-danger' : 'text-success'"
+      [valueClass]="peremptionCount() > 0 ? 'text-danger' : 'text-success'"
+      [value]="peremptionCount()"
+      icon="pi pi-clock"
+      label="Péremptions"
+      ngbTooltip="Lots déjà périmés ou expirant très prochainement — cliquer pour gérer"
+      placement="bottom"
+    >
+      <ng-container ngProjectAs="[kpiSub]">
+        @if (peremptionCount() > 0) { lots à traiter } @else { RAS }
+      </ng-container>
+    </app-kpi-item>
 
-  </div>
+  </app-kpi-strip>
 }
 
 <!-- ═══════════════════════════════════════════════════════════════════════════
@@ -209,21 +177,20 @@
             <i class="pi pi-exclamation-triangle text-danger"></i>
             Alertes urgentes — Top produits à risque
           </h5>
-          <p-button
+          <app-button
             label="Voir tout"
             icon="pi pi-arrow-right"
             size="small"
             [text]="true"
             severity="danger"
-            (onClick)="navigateToSemoisSuggestions()"
+            (clicked)="navigateToSemoisSuggestions()"
           />
         </div>
         <div class="card-body p-0">
-          <p-table
+          <app-data-table
             [value]="sd.topUrgents"
             [rows]="7"
             class="p-datatable-sm"
-            [rowHover]="true"
           >
             <ng-template #header>
               <tr class="pharma-table-head">
@@ -235,15 +202,15 @@
               </tr>
             </ng-template>
             <ng-template #body let-produit>
-              <tr class="cursor-pointer" (click)="navigateToSemoisSuggestions()">
+              <tr class="cursor-pointer pharma-row-hover" (click)="navigateToSemoisSuggestions()">
                 <td>
                   <div class="fw-medium small">{{ produit.libelle }}</div>
                   <small class="text-muted">{{ produit.codeCip }}</small>
                 </td>
                 <td class="text-center">
-                  <p-tag
+                  <app-badge
                     [severity]="getUrgenceSeverity(produit)"
-                    [value]="produit.stockActuel < produit.margeSecurite ? 'RUPTURE' : 'SOUS SEUIL'"
+                    [label]="produit.stockActuel < produit.margeSecurite ? 'RUPTURE' : 'SOUS SEUIL'"
                   />
                 </td>
                 <td class="text-end" [ngClass]="getCouvertureClass(produit)">
@@ -263,7 +230,7 @@
                 </td>
               </tr>
             </ng-template>
-          </p-table>
+          </app-data-table>
         </div>
       </div>
     </div>
@@ -284,14 +251,18 @@
               <span class="text-success fw-semibold small">Produits couverts</span>
               <span class="text-success fw-bold small">{{ getTauxOk() | number: '1.0-1' }}%</span>
             </div>
-            <p-progressbar [value]="getTauxOk()" [showValue]="false" />
+            <div class="progress" style="height: 6px">
+              <div class="progress-bar bg-success" [style.width.%]="getTauxOk()"></div>
+            </div>
           </div>
           <div class="mb-3">
             <div class="d-flex justify-content-between mb-1">
               <span class="text-danger fw-semibold small">Produits à risque</span>
               <span class="text-danger fw-bold small">{{ getTauxRisque() | number: '1.0-1' }}%</span>
             </div>
-            <p-progressbar [value]="getTauxRisque()" [showValue]="false" />
+            <div class="progress" style="height: 6px">
+              <div class="progress-bar bg-danger" [style.width.%]="getTauxRisque()"></div>
+            </div>
           </div>
           <div class="border-top pt-3 mt-2">
             <div class="d-flex justify-content-between small text-muted mb-1">
@@ -327,15 +298,14 @@
             <i class="pi pi-file-edit text-primary"></i>
             Commandes en cours
           </h5>
-          <p-tag [value]="db.totalRequested.toString()" severity="info" />
+          <app-badge [label]="db.totalRequested.toString()" severity="info" />
         </div>
         <div class="card-body p-0">
-          <p-table
+          <app-data-table
             [value]="db.commandesRequested"
             [rows]="6"
             [paginator]="db.commandesRequested.length > 6"
             class="p-datatable-sm"
-            [rowHover]="true"
           >
             <ng-template #header>
               <tr class="pharma-table-head">
@@ -346,24 +316,24 @@
               </tr>
             </ng-template>
             <ng-template #body let-row>
-              <tr class="cursor-pointer" (click)="openCommande(row)">
+              <tr class="cursor-pointer pharma-row-hover" (click)="openCommande(row)">
                 <td>
                   <span class="fw-medium small">{{ row.fournisseurLibelle }}</span>
                   @if (row.reliquatDeCommandeId != null) {
-                    <p-tag value="RELIQUAT" severity="warn" class="ms-1" style="font-size:0.6rem" />
+                    <app-badge label="RELIQUAT" severity="warn" class="ms-1" style="font-size:0.6rem" />
                   }
                 </td>
                 <td class="text-end pharma-price small">{{ formatAmount(row.grossAmount) }} F</td>
                 <td class="text-center text-muted small">{{ row.orderDate | date: 'dd/MM/yyyy' }}</td>
                 <td class="text-end">
-                  <p-button icon="pi pi-arrow-right" size="small" [text]="true" severity="secondary" pTooltip="Ouvrir" (onClick)="openCommande(row)" />
+                  <app-button icon="pi pi-arrow-right" size="small" [text]="true" severity="secondary" ngbTooltip="Ouvrir" (clicked)="openCommande(row)" />
                 </td>
               </tr>
             </ng-template>
             <ng-template #emptymessage>
               <tr><td colspan="4" class="text-center text-muted py-3 small">Aucune commande en cours</td></tr>
             </ng-template>
-          </p-table>
+          </app-data-table>
         </div>
       </div>
     </div>
@@ -376,15 +346,14 @@
             <i class="pi pi-truck text-warning"></i>
             En attente de réception
           </h5>
-          <p-tag [value]="db.totalReceived.toString()" severity="warn" />
+          <app-badge [label]="db.totalReceived.toString()" severity="warn" />
         </div>
         <div class="card-body p-0">
-          <p-table
+          <app-data-table
             [value]="db.commandesReceived"
             [rows]="6"
             [paginator]="db.commandesReceived.length > 6"
             class="p-datatable-sm"
-            [rowHover]="true"
           >
             <ng-template #header>
               <tr class="pharma-table-head">
@@ -395,19 +364,19 @@
               </tr>
             </ng-template>
             <ng-template #body let-row>
-              <tr class="cursor-pointer" (click)="openCommande(row)">
+              <tr class="cursor-pointer pharma-row-hover" (click)="openCommande(row)">
                 <td class="small">{{ row.fournisseurLibelle }}</td>
                 <td class="text-muted small">{{ row.orderReference ?? '—' }}</td>
                 <td class="text-center text-muted small">{{ row.orderDate | date: 'dd/MM/yyyy' }}</td>
                 <td class="text-end">
-                  <p-button icon="pi pi-arrow-right" size="small" [text]="true" severity="secondary" pTooltip="Saisir la réception" (onClick)="openCommande(row)" tooltipPosition="left"/>
+                  <app-button icon="pi pi-arrow-right" size="small" [text]="true" severity="secondary" ngbTooltip="Saisir la réception" placement="left" (clicked)="openCommande(row)" />
                 </td>
               </tr>
             </ng-template>
             <ng-template #emptymessage>
               <tr><td colspan="4" class="text-center text-muted py-3 small">Aucune réception en attente</td></tr>
             </ng-template>
-          </p-table>
+          </app-data-table>
         </div>
       </div>
     </div>

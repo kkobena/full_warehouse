@@ -3,20 +3,18 @@ import { HttpResponse } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 
-import { TableModule } from "primeng/table";
-import { ButtonModule } from "primeng/button";
-import { SelectModule } from "primeng/select";
-import { ToolbarModule } from "primeng/toolbar";
-import { DividerModule } from "primeng/divider";
-import { InputText } from "primeng/inputtext";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
-import { Drawer } from "primeng/drawer";
-import { Tag } from "primeng/tag";
-
 import { IMargeDTO, IMargeSummary } from "app/shared/model/report";
 import { MargeReportService } from "../services/marge-report.service";
 import { FamilleProduitService } from "../../famille-produit/famille-produit.service";
+import {
+  BadgeComponent,
+  ButtonComponent,
+  DataTableComponent,
+  IconFieldComponent,
+  OffcanvasComponent,
+  SelectComponent,
+  ToolbarComponent
+} from '../../../shared/ui';
 
 @Component({
   selector: "app-profitability-analysis",
@@ -26,16 +24,13 @@ import { FamilleProduitService } from "../../famille-produit/famille-produit.ser
   imports: [
     CommonModule,
     FormsModule,
-    TableModule,
-    ButtonModule,
-    SelectModule,
-    ToolbarModule,
-    DividerModule,
-    InputText,
-    IconField,
-    InputIcon,
-    Drawer,
-    Tag
+    BadgeComponent,
+    ButtonComponent,
+    DataTableComponent,
+    IconFieldComponent,
+    OffcanvasComponent,
+    SelectComponent,
+    ToolbarComponent
   ]
 })
 export default class ProfitabilityAnalysisComponent implements OnInit {

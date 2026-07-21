@@ -2,57 +2,55 @@
   <div class="col-md-4 col-xl-4 col-lg-4 col-sm-12">
     <div class="d-flex flex-row">
       <div class="p-2">
-        Montant facture: <span class="badge rounded-pill text-bg-light">{{ groupeFactureSignal().invoiceTotalAmount | number }}</span>
+        Montant facture: <span
+        class="badge rounded-pill text-bg-light">{{ groupeFactureSignal().invoiceTotalAmount | number }}</span>
       </div>
       <div class="p-2">
-        Montant payé: <span class="badge rounded-pill text-bg-light">{{ groupeFactureSignal().montantRegle | number }}</span>
+        Montant payé: <span
+        class="badge rounded-pill text-bg-light">{{ groupeFactureSignal().montantRegle | number }}</span>
       </div>
     </div>
     <div>
-      <p-panel>
-        <ng-template #header>
+      <app-card [withHeader]="true">
+        <div class="p-2" ngProjectAs="[cardHeader]">
           <span
-            >Détail groupe de facture :
-            <span class="badge rounded-pill text-bg-light">{{ groupeFactureSignal().name }} [ {{ groupeFactureSignal().numFacture }}]</span>
+          >Détail groupe de facture :
+            <span class="badge rounded-pill text-bg-light">{{ groupeFactureSignal().name }}
+              [ {{ groupeFactureSignal().numFacture }}]</span>
           </span>
-        </ng-template>
+        </div>
 
-        <p-table
+        <app-data-table
           #fact
           [globalFilterFields]="['numFacture', 'tiersPayantName']"
           [paginator]="true"
           [rowsPerPageOptions]="[10, 20, 30, 50, 100]"
           [rows]="20"
           [scrollable]="true"
+          [selectionMode]="'single'"
+          [stripedRows]="true"
           [value]="groupeFactureSignal().factures"
           dataKey="saleId"
           scrollHeight="500px"
-          selectionMode="single"
-          [stripedRows]="true"
         >
           <ng-template #caption>
             <div class="d-flex">
-              <p-iconfield>
-                <p-inputicon class="pi pi-search" />
+              <app-icon-field [overlay]="true" icon="pi pi-search">
                 <input
                   (input)="fact.filterGlobal($event.target.value, 'contains')"
                   [(ngModel)]="searchValue"
-                  pInputText
-                  placeholder="Filtrer"
-                  type="text"
-                />
-              </p-iconfield>
+                  class="form-control"
+                  placeholder="Filtrer" type="text" />
+              </app-icon-field>
             </div>
           </ng-template>
-          <ng-template #header>
-            <tr>
-              <th>Code</th>
-              <th>Organisme</th>
-              <th>Montant</th>
-              <th>Montant payé</th>
-            </tr>
-          </ng-template>
-          <ng-template let-factureDetail #body>
+          <tr ngProjectAs="[cardHeader]">
+            <th>Code</th>
+            <th>Organisme</th>
+            <th>Montant</th>
+            <th>Montant payé</th>
+          </tr>
+          <ng-template #body let-factureDetail>
             <tr (click)="onRowSelect(factureDetail)">
               <td>{{ factureDetail.numFacture }}</td>
               <td>{{ factureDetail.tiersPayantName }}</td>
@@ -60,11 +58,11 @@
               <td class="text-right">{{ factureDetail.montantRegle | number }}</td>
             </tr>
           </ng-template>
-        </p-table>
-      </p-panel>
+        </app-data-table>
+      </app-card>
     </div>
   </div>
   <div class="col-md-8 col-xl-48 col-lg-8 col-sm-12">
-   <!-- <jhi-facture-detail [facture]="selectedFacture"></jhi-facture-detail>-->
+    <!-- <jhi-facture-detail [facture]="selectedFacture"></jhi-facture-detail>-->
   </div>
 </div>

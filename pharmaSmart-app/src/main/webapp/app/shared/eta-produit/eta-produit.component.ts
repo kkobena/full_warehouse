@@ -1,6 +1,6 @@
 import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
 import { EtatProduit } from '../model/etat-produit.model';
-import { Tooltip } from 'primeng/tooltip';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
 interface EtatBadge {
   icon: string;
@@ -11,11 +11,11 @@ interface EtatBadge {
 
 @Component({
   selector: 'jhi-eta-produit',
-  imports: [Tooltip],
+  imports: [NgbTooltip],
   template: `
     <div class="etat-produit-bar">
       @for (badge of badges(); track badge.label) {
-        <span [class]="'etat-badge ' + badge.cssClass" [pTooltip]="badge.tooltip" tooltipPosition="top">
+        <span [class]="'etat-badge ' + badge.cssClass" [ngbTooltip]="badge.tooltip" placement="top">
           <i [class]="badge.icon"></i>
           @if (showLabel()) {
             <span class="etat-badge-label">{{ badge.label }}</span>

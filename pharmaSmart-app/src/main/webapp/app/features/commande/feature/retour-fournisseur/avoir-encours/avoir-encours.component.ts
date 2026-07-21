@@ -1,10 +1,8 @@
 import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { SelectModule } from 'primeng/select';
-import { TooltipModule } from 'primeng/tooltip';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, DataTableComponent, KpiItemComponent, KpiStripComponent, SelectComponent } from 'app/shared/ui';
 import { AvoirFournisseurService } from 'app/entities/commande/retour_fournisseur/avoir-fournisseur.service';
 import { AvoirFournisseurStatut, IAvoirEncoursFournisseur, IAvoirFournisseur } from 'app/shared/model/avoir-fournisseur.model';
 import { NotificationService } from 'app/shared/services/notification.service';
@@ -12,7 +10,16 @@ import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ng
 
 @Component({
   selector: 'app-avoir-encours',
-  imports: [CommonModule, FormsModule, ButtonModule, TableModule, SelectModule, TooltipModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    NgbTooltip,
+    ButtonComponent,
+    DataTableComponent,
+    KpiItemComponent,
+    KpiStripComponent,
+    SelectComponent
+  ],
   templateUrl: './avoir-encours.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './avoir-encours.component.scss',

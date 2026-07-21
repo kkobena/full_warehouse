@@ -111,15 +111,15 @@
 </div>
 
 <div class="modal-footer">
-  <p-button
-    (onClick)="onContinue()"
+  <app-button
+    (clicked)="onContinue()"
     icon="pi pi-pencil"
     label="Continuer la saisie"
     severity="secondary"
     size="small"
   />
-  <p-button
-    (onClick)="onFinalize()"
+  <app-button
+    (clicked)="onFinalize()"
     icon="pi pi-check"
     label="Clôturer la réception"
     severity="success"

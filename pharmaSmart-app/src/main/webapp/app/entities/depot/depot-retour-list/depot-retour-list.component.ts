@@ -1,44 +1,38 @@
-import { Component, inject, OnInit, signal, ViewChild, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { HttpResponse } from "@angular/common/http";
 import { RouterLink } from "@angular/router";
 import { FormsModule } from "@angular/forms";
-import { ButtonModule } from "primeng/button";
-import { Table, TableModule } from "primeng/table";
-import { TooltipModule } from "primeng/tooltip";
-import { TagModule } from "primeng/tag";
-import { ToastModule } from "primeng/toast";
-import { RippleModule } from "primeng/ripple";
-import { ToolbarModule } from "primeng/toolbar";
-import { SelectModule } from "primeng/select";
-import { DatePicker } from "primeng/datepicker";
-import { FloatLabel } from "primeng/floatlabel";
+import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 import { IRetourDepot } from "app/shared/model/retour-depot.model";
 import { RetourDepotService } from "../retour-depot.service";
 import { MagasinService } from "../../magasin/magasin.service";
 import { IMagasin } from "../../../shared/model";
 import { ITEMS_PER_PAGE } from "app/shared/constants/pagination.constants";
 import dayjs from "dayjs/esm";
-import { DATE_FORMAT_ISO_DATE } from "../../../shared/util/warehouse-util";
+import { NGB_DATE_TO_ISO } from "../../../shared/util/warehouse-util";
 import { NotificationService } from "../../../shared/services/notification.service";
-
-export type ExpandMode = "single" | "multiple";
+import {
+  AppTableLazyLoadEvent,
+  ButtonComponent,
+  DataTableComponent,
+  RowTogglerDirective,
+  SelectComponent,
+  ToolbarComponent
+} from "../../../shared/ui";
+import { PharmaDatePickerComponent } from "../../../shared/date-picker/pharma-date-picker.component";
 
 @Component({
   selector: "app-depot-retour-list",
   imports: [
     CommonModule,
     FormsModule,
-    ButtonModule,
-    TableModule,
-    TooltipModule,
-    TagModule,
-    ToastModule,
-    RippleModule,
-    ToolbarModule,
-    SelectModule,
-    DatePicker,
-    FloatLabel,
+    ButtonComponent,
+    DataTableComponent,
+    SelectComponent,
+    ToolbarComponent,
+    PharmaDatePickerComponent,
+    RowTogglerDirective,
     RouterLink
   ],
   templateUrl: "./depot-retour-list.component.html",
@@ -48,12 +42,11 @@ export type ExpandMode = "single" | "multiple";
 export class DepotRetourListComponent implements OnInit {
   private readonly retourDepotService = inject(RetourDepotService);
   private readonly magasinService = inject(MagasinService);
-  @ViewChild("dt") table: Table | undefined;
 
   protected depots = signal<IMagasin[]>([]);
   protected selectedDepot: IMagasin | null = null;
-  protected fromDate: Date | null = new Date();
-  protected toDate: Date | null = new Date();
+  protected fromDate: NgbDateStruct | null = this.dateToNgbStruct(new Date());
+  protected toDate: NgbDateStruct | null = this.dateToNgbStruct(new Date());
   protected search = "";
 
   protected retourDepots = signal<IRetourDepot[]>([]);
@@ -62,8 +55,15 @@ export class DepotRetourListComponent implements OnInit {
   protected itemsPerPage = ITEMS_PER_PAGE;
   protected page = signal<number>(0);
 
-  readonly rowExpandMode: ExpandMode;
   private readonly notificationService = inject(NotificationService);
+
+  /** Options du sélecteur de dépôt, avec l'adresse ajoutée au libellé (remplace le `#item` custom de `p-select`). */
+  protected get depotOptions(): (IMagasin & { displayLabel: string })[] {
+    return this.depots().map(depot => ({
+      ...depot,
+      displayLabel: depot.address ? `${depot.name} — ${depot.address}` : depot.name
+    }));
+  }
 
   ngOnInit(): void {
     this.loadDepots();
@@ -98,10 +98,10 @@ export class DepotRetourListComponent implements OnInit {
     };
 
     if (this.fromDate) {
-      query.dtStart = DATE_FORMAT_ISO_DATE(this.fromDate);
+      query.dtStart = NGB_DATE_TO_ISO(this.fromDate);
     }
     if (this.toDate) {
-      query.dtEnd = DATE_FORMAT_ISO_DATE(this.toDate);
+      query.dtEnd = NGB_DATE_TO_ISO(this.toDate);
     }
 
     if (this.search) {
@@ -134,9 +134,13 @@ export class DepotRetourListComponent implements OnInit {
     this.notificationService.error("Erreur lors du chargement des retours dépôt");
   }
 
-  protected onPageChange(event: any): void {
-    this.page.set(event.page);
+  protected onPageChange(event: AppTableLazyLoadEvent): void {
+    this.page.set(event.first / event.rows);
     this.loadAll();
+  }
+
+  private dateToNgbStruct(date: Date): NgbDateStruct {
+    return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
   }
 
   protected formatDate(date: string | undefined): string {

@@ -7,7 +7,6 @@ import {
   inject,
   OnDestroy,
   OnInit,
-  Renderer2,
   signal,
   viewChild,
   ChangeDetectionStrategy
@@ -18,15 +17,8 @@ import { concat, EMPTY } from "rxjs";
 import { switchMap, toArray } from "rxjs/operators";
 import { PosteService } from "../poste.service";
 import { IPoste, Poste } from "../../../../../shared/model/poste.model";
-import { ButtonModule } from "primeng/button";
-import { InputTextModule } from "primeng/inputtext";
-import { RippleModule } from "primeng/ripple";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
+import { NgbActiveModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { ErrorService } from "../../../../../shared/error.service";
-import { Card } from "primeng/card";
-import { SelectModule } from "primeng/select";
-import { TagModule } from "primeng/tag";
-import { TooltipModule } from "primeng/tooltip";
 import { TauriDeviceDetectionService } from "../../../../../shared/services/tauri-device-detection.service";
 import { PosteDeviceService } from "../poste-device.service";
 import {
@@ -36,8 +28,8 @@ import {
   ISystemInfo
 } from "../../../../../shared/model/poste-device.model";
 import { NotificationService } from "../../../../../shared/services/notification.service";
-import { Toast } from "primeng/toast";
 import { CommonModule } from "@angular/common";
+import { BadgeComponent, ButtonComponent, CardComponent, SelectComponent } from "../../../../../shared/ui";
 
 @Component({
   selector: "app-form-poste",
@@ -48,14 +40,11 @@ import { CommonModule } from "@angular/common";
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    RippleModule,
-    Card,
-    SelectModule,
-    TagModule,
-    TooltipModule,
-    Toast
+    ButtonComponent,
+    CardComponent,
+    SelectComponent,
+    BadgeComponent,
+    NgbTooltip
   ]
 })
 export class FormPosteComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -93,8 +82,6 @@ export class FormPosteComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly tauriDeviceService = inject(TauriDeviceDetectionService);
   private readonly posteDeviceService = inject(PosteDeviceService);
   private nameInput = viewChild.required<ElementRef>("nameInput");
-  private readonly renderer = inject(Renderer2);
-  private readonly elementRef = inject(ElementRef);
 
   ngOnInit(): void {
     this.isTauri.set(this.tauriDeviceService.isTauriAvailable());
@@ -342,20 +329,6 @@ export class FormPosteComponent implements OnInit, AfterViewInit, OnDestroy {
       // Mode création — accumulation locale (envoyé lors du save)
       this.pendingDevices.update(list => [...list, newDevice]);
       this.devices.update(list => [...list, newDevice]);
-    }
-  }
-
-  protected onDropdownShow(event: any): void {
-    const modalBody = this.elementRef.nativeElement.querySelector(".modal-body");
-    if (modalBody) {
-      this.renderer.addClass(modalBody, "overflow-visible");
-    }
-  }
-
-  protected onDropdownHide(event: any): void {
-    const modalBody = this.elementRef.nativeElement.querySelector(".modal-body");
-    if (modalBody) {
-      this.renderer.removeClass(modalBody, "overflow-visible");
     }
   }
 

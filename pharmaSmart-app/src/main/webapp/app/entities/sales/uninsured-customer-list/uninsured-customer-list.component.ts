@@ -1,17 +1,16 @@
 import { Component, inject } from "@angular/core";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonModule } from "primeng/button";
 import { CustomerDataTableComponent } from "./customer-data-table.component";
-import { Card } from "primeng/card";
+import { ButtonComponent, CardComponent } from "../../../shared/ui";
 
 @Component({
   selector: "app-uninsured-customer-list",
   templateUrl: "./uninsured-customer-list.component.html",
   styleUrls: ["../../common-modal.component.scss"],
   imports: [
-    ButtonModule,
+    ButtonComponent,
     CustomerDataTableComponent,
-    Card
+    CardComponent
   ]
 })
 export class UninsuredCustomerListComponent {

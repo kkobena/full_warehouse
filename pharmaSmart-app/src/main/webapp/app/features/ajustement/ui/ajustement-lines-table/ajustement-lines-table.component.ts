@@ -1,15 +1,18 @@
 import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { TooltipModule } from 'primeng/tooltip';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputNumber } from 'primeng/inputnumber';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { IAjustement } from '../../../../shared/model/ajustement.model';
+import {
+  BadgeComponent,
+  ButtonComponent,
+  DataTableComponent,
+  EditableCellComponent,
+  HeaderCheckboxComponent,
+  IconFieldComponent,
+  InputNumberComponent,
+  RowCheckboxComponent,
+} from '../../../../shared/ui';
 
 @Component({
   selector: 'app-ajustement-lines-table',
@@ -19,14 +22,15 @@ import { IAjustement } from '../../../../shared/model/ajustement.model';
   imports: [
     CommonModule,
     FormsModule,
-    ButtonModule,
-    TableModule,
-    TagModule,
-    TooltipModule,
-    InputTextModule,
-    InputNumber,
-    IconField,
-    InputIcon,
+    ButtonComponent,
+    DataTableComponent,
+    BadgeComponent,
+    NgbTooltip,
+    IconFieldComponent,
+    InputNumberComponent,
+    EditableCellComponent,
+    HeaderCheckboxComponent,
+    RowCheckboxComponent,
   ],
 })
 export class AjustementLinesTableComponent {

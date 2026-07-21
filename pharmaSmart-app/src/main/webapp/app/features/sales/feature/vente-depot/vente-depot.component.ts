@@ -41,8 +41,6 @@ import {IUser} from '../../../../core/user/user.model';
 import {showCommonError} from '../../../../entities/sales/selling-home/sale-helper';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ErrorService} from '../../../../shared/error.service';
-import {Toast} from "primeng/toast";
-
 @Component({
   selector: 'app-vente-depot',
   host: {
@@ -59,7 +57,6 @@ import {Toast} from "primeng/toast";
     SaleActionsComponent,
     SaleSummaryComponent,
     NgxSpinnerComponent,
-    Toast,
   ],
   templateUrl: './vente-depot.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

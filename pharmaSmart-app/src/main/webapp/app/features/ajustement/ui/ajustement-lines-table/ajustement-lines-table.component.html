@@ -1,34 +1,32 @@
-<p-table
-  [value]="lines()"
+<app-data-table
   [(selection)]="selectedRows"
   [loading]="loading()"
   [paginator]="true"
-  [rows]="15"
   [rowsPerPageOptions]="[10, 15, 20, 50]"
-  [stripedRows]="true"
-  dataKey="id"
+  [rows]="15"
+  [selectionMode]="'multiple'"
+  [value]="lines()"
   class="pharma-table"
+  dataKey="id"
 >
   <ng-template #caption>
     <div class="d-flex align-items-center gap-2">
-      <p-iconfield class="flex-grow-1">
-        <p-inputicon class="pi pi-search" />
+      <app-icon-field class="flex-grow-1" icon="pi pi-search">
         <input
-          pInputText
-          type="text"
-          [(ngModel)]="search"
           (keyup.enter)="onSearch()"
+          [(ngModel)]="search"
+          class="form-control"
           placeholder="Filtrer par produit, code CIP…"
+          type="text"
         />
-      </p-iconfield>
+      </app-icon-field>
       @if (selectedRows.length > 0) {
-        <p-button
-          icon="pi pi-trash"
+        <app-button
+          (clicked)="onDeleteSelection()"
           [label]="'Supprimer (' + selectedRows.length + ')'"
-          severity="danger"
           [outlined]="true"
-          size="small"
-          (onClick)="onDeleteSelection()"
+          icon="pi pi-trash"
+          severity="danger"
         />
       }
     </div>
@@ -46,23 +44,23 @@
       <th style="width: 15%">Motif</th>
       <th style="width: 4%"></th>
       <th class="table-all-checkbos" style="width: 3rem">
-        <p-tableheadercheckbox />
+        <app-header-checkbox />
       </th>
     </tr>
   </ng-template>
 
   <ng-template #body let-line let-rowIndex="rowIndex">
     <tr
-      class="pharma-row-hover"
       [class.ajust-row-in]="(line.qtyMvt ?? 0) >= 0"
       [class.ajust-row-out]="(line.qtyMvt ?? 0) < 0"
+      class="pharma-row-hover"
     >
       <td><span class="pharma-row-number">{{ rowIndex + 1 }}</span></td>
       <td>
-        <p-tag
-          [value]="directionLabel(line.qtyMvt)"
-          [severity]="directionSeverity(line.qtyMvt)"
+        <app-badge
           [icon]="directionIcon(line.qtyMvt)"
+          [label]="directionLabel(line.qtyMvt)"
+          [severity]="directionSeverity(line.qtyMvt)"
         />
       </td>
       <td><span class="pharma-code">{{ line.codeCip }}</span></td>
@@ -70,55 +68,55 @@
       <td class="text-right pharma-qty-value">{{ line.stockBefore | number }}</td>
 
       <!-- Quantité éditable inline -->
-      <td pEditableColumn class="text-right">
-        <p-celleditor>
+      <td class="text-right">
+        <app-editable-cell>
           <ng-template #input>
-            <p-inputnumber
-              [ngModel]="line.qtyMvt"
+            <app-input-number
               (ngModelChange)="onQtyChange(line, $event)"
-              [showButtons]="true"
-              buttonLayout="horizontal"
-              incrementButtonIcon="pi pi-plus"
-              decrementButtonIcon="pi pi-minus"
-              [fluid]="true"
+              [ngModel]="line.qtyMvt"
             />
           </ng-template>
           <ng-template #output>
             <span
-              class="ajust-qty-cell"
               [class.ajust-qty-in]="(line.qtyMvt ?? 0) >= 0"
               [class.ajust-qty-out]="(line.qtyMvt ?? 0) < 0"
+              class="ajust-qty-cell"
             >
               {{ (line.qtyMvt ?? 0) >= 0 ? '+' : '' }}{{ line.qtyMvt | number }}
             </span>
           </ng-template>
-        </p-celleditor>
+        </app-editable-cell>
       </td>
 
       <td class="text-right">
         <strong class="pharma-qty-value">{{ line.stockAfter | number }}</strong>
       </td>
-      <td><span class="pharma-entity-name text-truncate">{{ line.motifAjustementLibelle }}</span></td>
+      <td><span class="pharma-entity-name text-truncate">{{ line.motifAjustementLibelle }}</span>
+      </td>
       <td class="text-right">
-        <p-button
-          icon="pi pi-trash"
-          [text]="true"
+        <app-button
+          (clicked)="deleteLine.emit(line)"
           [rounded]="true"
+          [text]="true"
+          icon="pi pi-trash"
+          ngbTooltip="Supprimer"
           severity="danger"
-          pTooltip="Supprimer"
-          (onClick)="deleteLine.emit(line)"
         />
       </td>
-      <td class="text-center"><p-tablecheckbox [value]="line" /></td>
+      <td class="text-center">
+        <app-row-checkbox [row]="line" />
+      </td>
     </tr>
   </ng-template>
 
   <ng-template #emptymessage>
     <tr>
-      <td colspan="10" class="text-center p-5 text-muted">
+      <td class="text-center p-5 text-muted" colspan="10">
         <i class="pi pi-inbox" style="font-size:2rem; opacity:.4"></i>
-        <div class="mt-2">Aucun produit ajouté — sélectionnez un produit dans le formulaire ci-dessus</div>
+        <div class="mt-2">Aucun produit ajouté — sélectionnez un produit dans le formulaire
+          ci-dessus
+        </div>
       </td>
     </tr>
   </ng-template>
-</p-table>
+</app-data-table>

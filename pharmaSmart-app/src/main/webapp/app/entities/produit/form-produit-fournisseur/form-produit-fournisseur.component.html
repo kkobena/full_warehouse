@@ -22,10 +22,10 @@
         <label class="form-label form-label-sm" for="field_fournisseurId">
           Fournisseur <span class="text-danger">*</span>
         </label>
-        <p-select #fournisseurSelect (onChange)="onChange($event)"
-                  [options]="fournisseurs" formControlName="fournisseurId"
-                  id="field_fournisseurId" optionLabel="libelle" optionValue="id"
-                  [filter]="false" [fluid]="true" placeholder="Sélectionner"/>
+        <app-select #fournisseurSelect (selectionChange)="onChange($event)"
+                  [items]="fournisseurs" formControlName="fournisseurId"
+                  inputId="field_fournisseurId" bindLabel="libelle" bindValue="id"
+                  placeholder="Sélectionner"/>
         @if (editForm.get('fournisseurId')!.invalid && editForm.get('fournisseurId')!.touched) {
           <small class="text-danger">Obligatoire</small>
         }
@@ -34,8 +34,8 @@
         <label class="form-label form-label-sm" for="field_codeCip">
           Code CIP <span class="text-danger">*</span>
         </label>
-        <input pInputText pKeyFilter="int" formControlName="codeCip" id="field_codeCip"
-               class="w-full" autocomplete="off" type="text"/>
+        <input [appKeyFilter]="'int'" formControlName="codeCip" id="field_codeCip"
+               class="form-control" autocomplete="off" type="text"/>
         @if (editForm.get('codeCip')!.invalid && editForm.get('codeCip')!.touched) {
           <small class="text-danger">Obligatoire</small>
         }
@@ -48,9 +48,9 @@
         <label class="form-label form-label-sm" for="field_prixAchat">
           Prix achat <span class="text-danger">*</span>
         </label>
-        <input pInputText (keyup)="handlePrixAchatInput($event)"
+        <input (keyup)="handlePrixAchatInput($event)"
                formControlName="prixAchat" id="field_prixAchat"
-               class="w-full" autocomplete="off" type="number"/>
+               class="form-control" autocomplete="off" type="number"/>
         @if (editForm.get('prixAchat')!.invalid && editForm.get('prixAchat')!.touched) {
           <small class="text-danger">Obligatoire</small>
         }
@@ -59,9 +59,9 @@
         <label class="form-label form-label-sm" for="field_prixUni">
           Prix unitaire <span class="text-danger">*</span>
         </label>
-        <input pInputText (keyup)="handlePrixUnitaireInput($event)"
+        <input (keyup)="handlePrixUnitaireInput($event)"
                formControlName="prixUni" id="field_prixUni"
-               class="w-full" autocomplete="off" type="number"/>
+               class="form-control" autocomplete="off" type="number"/>
         @if (editForm.get('prixUni')!.invalid && editForm.get('prixUni')!.touched) {
           <small class="text-danger">Obligatoire</small>
         }
@@ -75,8 +75,8 @@
           Qté par colis
           <span class="text-muted fw-normal">(conditionnement)</span>
         </label>
-        <input pInputText formControlName="qteColis" id="field_qteColis"
-               class="w-full" autocomplete="off" type="number" min="1"/>
+        <input formControlName="qteColis" id="field_qteColis"
+               class="form-control" autocomplete="off" type="number" min="1"/>
         <small class="text-muted d-block" style="font-size:0.72rem">
           Arrondi au multiple supérieur. 1 = pas de contrainte.
         </small>
@@ -89,8 +89,8 @@
           Qté minimale commande
           <span class="text-muted fw-normal">(unités)</span>
         </label>
-        <input pInputText formControlName="qteMinimaleCommande" id="field_qteMinimaleCommande"
-               class="w-full" autocomplete="off" type="number" min="0"/>
+        <input formControlName="qteMinimaleCommande" id="field_qteMinimaleCommande"
+               class="form-control" autocomplete="off" type="number" min="0"/>
         <small class="text-muted d-block" style="font-size:0.72rem">
           Minimum fournisseur. 0 = pas de minimum.
         </small>
@@ -102,17 +102,16 @@
 
     <!-- Fournisseur principal -->
     <div class="d-flex align-items-center gap-2 mt-1">
-      <p-toggleswitch formControlName="principal" inputId="f_principal"/>
+      <app-switch formControlName="principal" [inputId]="'f_principal'"/>
       <label for="f_principal" class="mb-0 small">Définir comme fournisseur principal</label>
     </div>
   </div>
 
   <div class="modal-footer py-2">
-    <p-button (click)="cancel()" icon="pi pi-times" label="Annuler"
+    <app-button (clicked)="cancel()" icon="pi pi-times" label="Annuler"
               severity="secondary" [text]="true" type="button"/>
-    <p-button [disabled]="editForm.invalid || isSaving || !isValid" [loading]="isSaving"
+    <app-button [disabled]="editForm.invalid || isSaving || !isValid" [loading]="isSaving"
               icon="pi pi-check" label="Enregistrer"
               severity="primary" type="submit"/>
   </div>
 </form>
-<jhi-toast-alert #alert></jhi-toast-alert>

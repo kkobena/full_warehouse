@@ -1,0 +1,15 @@
+// Habillage partagé avec les écrans non migrés, qui importent le même partial via
+// `_pharma-toolbar.scss`.
+//
+// ⚠ L'import est enveloppé dans `:host ::ng-deep` : le partial normalise la hauteur des
+// contrôles de formulaire (`.p-select`, `.p-inputtext`, `.p-datepicker-input`) qui sont
+// du **contenu projeté**, donc porteurs de l'encapsulation de l'appelant. Sans cette
+// enveloppe, les champs de la barre reprendraient leur hauteur par défaut et la ligne
+// perdrait son alignement. La portée reste bornée par `:host`.
+:host {
+  display: block;
+}
+
+:host ::ng-deep {
+  @import '../../scss/action-bar';
+}

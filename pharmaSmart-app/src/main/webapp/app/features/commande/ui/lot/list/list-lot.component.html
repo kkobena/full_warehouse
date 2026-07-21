@@ -3,21 +3,20 @@
   <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
 </div>
 <div class="modal-body">
-  <p-card>
+  <app-card [variant]="'form'">
     @if (showUgAddNewBtn) {
       <div class="mb-1" style="text-align: right">
-        <p-button (click)="add()" severity="info" raised="true" icon="pi pi-check" label="Ajouter un nouveau lot" type="button"></p-button>
+        <app-button (clicked)="add()" severity="info" [raised]="true" icon="pi pi-check" label="Ajouter un nouveau lot" type="button"></app-button>
       </div>
     }
 
     @if (lots?.length > 0) {
-      <p-table
+      <app-data-table
         class="pharma-table"
         [(selection)]="selectedEl"
-        [resizableColumns]="true"
         [value]="lots"
         dataKey="numLot"
-        selectionMode="single"
+        [selectionMode]="'single'"
         [stripedRows]="true"
       >
         <ng-template #header>
@@ -31,7 +30,7 @@
           </tr>
         </ng-template>
         <ng-template let-elRow #body>
-          <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
+          <tr>
             <td class="pharma-code">{{ elRow.numLot }}</td>
             <td>
               <span class="pharma-qty-value">{{ elRow.quantityReceived }}</span>
@@ -43,28 +42,28 @@
             <td>{{ elRow.expiryDate | date: 'dd/MM/yyyy' }}</td>
 
             <td style="text-align: center">
-              <p-button
-                (click)="edit(elRow)"
+              <app-button
+                (clicked)="edit(elRow)"
                 class="mr-2"
                 icon="pi pi-pencil"
-                pTooltip="Editer"
+                ngbTooltip="Editer"
                 severity="success"
                 [text]="true"
                 [rounded]="true"
                 type="submit"
-              ></p-button>
-              <p-button [text]="true" (click)="delete(elRow)" icon="pi pi-trash" severity="warn" [rounded]="true" type="submit"></p-button>
+              ></app-button>
+              <app-button [text]="true" (clicked)="delete(elRow)" icon="pi pi-trash" severity="warn" [rounded]="true" type="submit"></app-button>
             </td>
           </tr>
         </ng-template>
-      </p-table>
+      </app-data-table>
     } @else {
       <div class="alert alert-warning">
         <span>Aucune donnée trouvée</span>
       </div>
     }
-  </p-card>
+  </app-card>
 </div>
 <div class="modal-footer">
-  <p-button (click)="cancel()" icon="pi pi-times" label="Fermer" raised="true" severity="secondary" type="button"></p-button>
+  <app-button (clicked)="cancel()" icon="pi pi-times" label="Fermer" [raised]="true" severity="secondary" type="button"></app-button>
 </div>

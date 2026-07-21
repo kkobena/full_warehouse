@@ -1,9 +1,7 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
-import { TooltipModule } from 'primeng/tooltip';
+import { NgbActiveModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { BadgeComponent, ButtonComponent } from 'app/shared/ui';
 import { IPutawayPreviewItem } from '../../../../../entities/commande/commande.service';
 
 @Component({
@@ -11,7 +9,7 @@ import { IPutawayPreviewItem } from '../../../../../entities/commande/commande.s
   templateUrl: './putaway-modal.component.html',
   styleUrls: ['./putaway-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [DecimalPipe, ButtonModule, TagModule, TooltipModule],
+  imports: [DecimalPipe, ButtonComponent, BadgeComponent, NgbTooltip],
 })
 export class PutawayModalComponent {
   items: IPutawayPreviewItem[] = [];

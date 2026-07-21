@@ -4,9 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ProduitStatService } from 'app/entities/produit/stat/produit-stat.service';
-import { DatePickerComponent } from 'app/shared/date-picker/date-picker.component';
+import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
 import { BlobDownloadService } from 'app/shared/services/blob-download.service';
+import { NGB_DATE_TO_ISO } from 'app/shared/util/warehouse-util';
 import {
   HistoriqueProduitAchats,
   HistoriqueProduitAchatsSummary,
@@ -28,7 +31,7 @@ interface PeriodShortcut {
   templateUrl: './produit-achats-tab.component.html',
   styleUrls: ['./produit-achats-tab.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, TableModule, ButtonModule, TooltipModule, DatePickerComponent],
+  imports: [CommonModule, FormsModule, TableModule, ButtonModule, TooltipModule, PharmaDatePickerComponent, TranslatePipe],
 })
 export class ProduitAchatsTabComponent implements OnDestroy {
   readonly produitId = input.required<number>();
@@ -41,8 +44,8 @@ export class ProduitAchatsTabComponent implements OnDestroy {
   protected activePeriod = signal<string>('');
   protected showChart = signal(false);
 
-  protected fromDate: Date = new Date(new Date().getFullYear(), new Date().getMonth() - 2, 1);
-  protected toDate: Date = new Date();
+  protected fromDate: NgbDateStruct = this.toStruct(new Date(new Date().getFullYear(), new Date().getMonth() - 2, 1));
+  protected toDate: NgbDateStruct = this.toStruct(new Date());
   protected itemsPerPage = ITEMS_PER_PAGE;
 
   protected readonly PERIOD_SHORTCUTS: PeriodShortcut[] = [
@@ -83,13 +86,13 @@ export class ProduitAchatsTabComponent implements OnDestroy {
 
   protected applyShortcut(shortcut: PeriodShortcut): void {
     const today = new Date();
-    this.toDate = new Date(today);
+    this.toDate = this.toStruct(today);
     if (shortcut.days !== undefined) {
       const from = new Date(today);
       from.setDate(from.getDate() - shortcut.days);
-      this.fromDate = from;
+      this.fromDate = this.toStruct(from);
     } else {
-      this.fromDate = new Date(today.getFullYear(), today.getMonth(), 1);
+      this.fromDate = this.toStruct(new Date(today.getFullYear(), today.getMonth(), 1));
     }
     this.fromDateStr = '';
     this.toDateStr = '';
@@ -97,13 +100,13 @@ export class ProduitAchatsTabComponent implements OnDestroy {
     this.load();
   }
 
-  protected onFromDateChange(dateStr: string): void {
-    this.fromDateStr = dateStr;
+  protected onFromDateChange(date: NgbDateStruct | null): void {
+    this.fromDateStr = NGB_DATE_TO_ISO(date) ?? '';
     this.activePeriod.set('');
   }
 
-  protected onToDateChange(dateStr: string): void {
-    this.toDateStr = dateStr;
+  protected onToDateChange(date: NgbDateStruct | null): void {
+    this.toDateStr = NGB_DATE_TO_ISO(date) ?? '';
     this.activePeriod.set('');
     this.load();
   }
@@ -231,15 +234,15 @@ export class ProduitAchatsTabComponent implements OnDestroy {
   private buildParam(page = 0): ProduitAuditingParam {
     return {
       produitId: this.produitId(),
-      fromDate: this.fromDateStr || this.toIsoDate(this.fromDate),
-      toDate: this.toDateStr || this.toIsoDate(this.toDate),
+      fromDate: this.fromDateStr || NGB_DATE_TO_ISO(this.fromDate),
+      toDate: this.toDateStr || NGB_DATE_TO_ISO(this.toDate),
       page,
       size: this.itemsPerPage,
     };
   }
 
-  private toIsoDate(d: Date): string {
-    return d.toISOString().substring(0, 10);
+  private toStruct(date: Date): NgbDateStruct {
+    return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
   }
 }
 

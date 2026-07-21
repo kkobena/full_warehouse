@@ -3,13 +3,15 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 
-import { TableModule } from 'primeng/table';
-import { SelectModule } from 'primeng/select';
 import { IConcentrationEvolution, IConcentrationOrganisme, IConcentrationSummary } from 'app/shared/model/report';
 import { ConcentrationPayersService } from '../services/concentration-payers.service';
 import { formatCurrency, formatNumber } from 'app/shared/utils/format-utils';
 
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
+import {
+  DataTableComponent,
+  SelectComponent
+} from '../../../shared/ui';
 
 Chart.register(...registerables);
 
@@ -39,7 +41,12 @@ const CHART_BORDERS = [
   templateUrl: './concentration-payers.component.html',
   styleUrl: './concentration-payers.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, TableModule, SelectModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    DataTableComponent,
+    SelectComponent
+  ],
 })
 export default class ConcentrationPayersComponent implements OnInit, OnDestroy {
   @ViewChild('evolutionChartCanvas') evolutionChartCanvas?: ElementRef<HTMLCanvasElement>;

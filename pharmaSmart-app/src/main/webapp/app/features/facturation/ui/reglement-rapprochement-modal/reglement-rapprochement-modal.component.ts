@@ -3,26 +3,36 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { HttpResponse } from "@angular/common/http";
 import { NgbActiveModal, NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
-import { Button } from "primeng/button";
-import { InputText } from "primeng/inputtext";
-import { Select } from "primeng/select";
-import { KeyFilter } from "primeng/keyfilter";
 
 import { IPaymentMode } from "../../../../shared/model/payment-mode.model";
 import { ModePaymentService } from "../../../../entities/mode-payments/mode-payment.service";
 import { PharmaDatePickerComponent } from "../../../../shared/date-picker/pharma-date-picker.component";
+import {
+  ButtonComponent,
+  CardComponent,
+  InputNumberComponent,
+  KeyFilterDirective,
+  SelectComponent
+} from 'app/shared/ui';
 import {
   IDossierFactureProjection,
   ILigneRapprochement,
   IReglementParams,
   ModeEditionReglement
 } from "../../data-access/models";
-import { Card } from "primeng/card";
-import { InputNumber } from "primeng/inputnumber";
 
 @Component({
   selector: "app-reglement-rapprochement-modal",
-  imports: [FormsModule, ReactiveFormsModule, Button, InputText, Select, KeyFilter, PharmaDatePickerComponent, Card, InputNumber],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    PharmaDatePickerComponent,
+    ButtonComponent,
+    CardComponent,
+    InputNumberComponent,
+    KeyFilterDirective,
+    SelectComponent
+  ],
   templateUrl: "./reglement-rapprochement-modal.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./reglement-rapprochement-modal.component.scss"

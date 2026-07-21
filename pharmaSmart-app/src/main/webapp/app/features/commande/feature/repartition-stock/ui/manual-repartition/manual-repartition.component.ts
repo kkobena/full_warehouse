@@ -1,11 +1,8 @@
 import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { Select } from 'primeng/select';
-import { TableModule } from 'primeng/table';
-import { TooltipModule } from 'primeng/tooltip';
-import { Toast } from 'primeng/toast';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, DataTableComponent, SelectComponent } from 'app/shared/ui';
 import { ProduitSearchAutocompleteScannerComponent } from 'app/shared/produit-search-autocomplete-scanner/produit-search-autocomplete-scanner.component';
 import { QuantiteProdutSaisieComponent } from 'app/shared/quantite-produt-saisie/quantite-produt-saisie.component';
 import { NotificationService } from 'app/shared/services/notification.service';
@@ -43,11 +40,10 @@ export interface IRepartitionRow {
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FormsModule,
-    ButtonModule,
-    Select,
-    TableModule,
-    TooltipModule,
-    Toast,
+    ButtonComponent,
+    SelectComponent,
+    DataTableComponent,
+    NgbTooltip,
     ProduitSearchAutocompleteScannerComponent,
     QuantiteProdutSaisieComponent,
   ],

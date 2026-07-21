@@ -80,21 +80,21 @@
     <!-- Table by motif -->
     <div [class]="byMotif().length ? 'col-md-8' : 'col-12'">
       <div class="card data-card">
-        <p-table
+        <app-data-table
           [value]="byMotif()"
           [scrollable]="true"
           scrollHeight="calc(100vh - 420px)"
           [stripedRows]="true"
-          class="p-datatable-sm"
-          sortField="valeur"
-          [sortOrder]="-1"
+          [size]="'small'"
+          initialSortField="valeur"
+          [initialSortOrder]="-1"
         >
           <ng-template #header>
             <tr class="pharma-table-head">
-              <th pSortableColumn="motif">Motif <p-sorticon field="motif" /></th>
-              <th class="text-end" pSortableColumn="nbLignes">Lignes <p-sorticon field="nbLignes" /></th>
-              <th class="text-end" pSortableColumn="totalQty">Qté perdue <p-sorticon field="totalQty" /></th>
-              <th class="text-end" pSortableColumn="valeur">Valeur <p-sorticon field="valeur" /></th>
+              <th appSortableHeader="motif">Motif </th>
+              <th class="text-end" appSortableHeader="nbLignes">Lignes </th>
+              <th class="text-end" appSortableHeader="totalQty">Qté perdue </th>
+              <th class="text-end" appSortableHeader="valeur">Valeur </th>
               <th class="text-end">Part</th>
             </tr>
           </ng-template>
@@ -133,7 +133,7 @@
               </td>
             </tr>
           </ng-template>
-        </p-table>
+        </app-data-table>
       </div>
     </div>
 

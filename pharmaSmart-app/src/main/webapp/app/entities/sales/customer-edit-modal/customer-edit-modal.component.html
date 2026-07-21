@@ -34,36 +34,35 @@
       <div class="compact-card">
         <div class="compact-card-header">
           <span class="card-title"><i class="pi pi-user"></i> Assuré principal</span>
-          <p-button
-            (click)="openAssuredCustomerListTable()"
+          <app-button
+            (clicked)="openAssuredCustomerListTable()"
             [rounded]="true"
             icon="pi pi-search"
             severity="secondary"
             size="small"
             type="button"
-            pTooltip="Rechercher"
-            tooltipPosition="top"
-          ></p-button>
+            ngbTooltip="Rechercher"
+          />
         </div>
         <div class="compact-card-body" formGroupName="customer">
           <div class="form-row">
             <div class="form-field-inline">
               <label for="field_num">Matricule <span class="required">*</span></label>
-              <input pInputText type="text" id="field_num" formControlName="num" autocomplete="off" pKeyFilter="alphanum" />
+              <input class="form-control" type="text" id="field_num" formControlName="num" autocomplete="off" [appKeyFilter]="'alphanum'" />
             </div>
             <div class="form-field-inline">
               <label for="field_phone">Tél.</label>
-              <input pInputText type="text" id="field_phone" formControlName="phone" autocomplete="off" pKeyFilter="int" />
+              <input class="form-control" type="text" id="field_phone" formControlName="phone" autocomplete="off" [appKeyFilter]="'int'" />
             </div>
           </div>
           <div class="form-row">
             <div class="form-field-inline">
               <label for="field_lastName">Nom <span class="required">*</span></label>
-              <input pInputText type="text" id="field_lastName" formControlName="lastName" autocomplete="off" />
+              <input class="form-control" type="text" id="field_lastName" formControlName="lastName" autocomplete="off" />
             </div>
             <div class="form-field-inline">
               <label for="field_firstName">Prénom <span class="required">*</span></label>
-              <input pInputText type="text" id="field_firstName" formControlName="firstName" autocomplete="off" />
+              <input class="form-control" type="text" id="field_firstName" formControlName="firstName" autocomplete="off" />
             </div>
           </div>
         </div>
@@ -73,33 +72,32 @@
       <div class="compact-card">
         <div class="compact-card-header">
           <span class="card-title"><i class="pi pi-users"></i> Ayant droit</span>
-          <p-button
-            (click)="loadAyantDoits()"
+          <app-button
+            (clicked)="loadAyantDoits()"
             [rounded]="true"
             icon="pi pi-search"
             severity="secondary"
             size="small"
             type="button"
-            pTooltip="Rechercher"
-            tooltipPosition="top"
-          ></p-button>
+            ngbTooltip="Rechercher"
+          />
         </div>
         @if (ayantDroit && customer.id !== ayantDroit.id) {
           <div class="compact-card-body" formGroupName="ayantDroit">
             <div class="form-row">
               <div class="form-field-inline form-field-full">
                 <label for="field_ayantdroit_num">Matricule <span class="required">*</span></label>
-                <input pInputText type="text" id="field_ayantdroit_num" formControlName="num" autocomplete="off" pKeyFilter="alphanum" />
+                <input class="form-control" type="text" id="field_ayantdroit_num" formControlName="num" autocomplete="off" [appKeyFilter]="'alphanum'" />
               </div>
             </div>
             <div class="form-row">
               <div class="form-field-inline">
                 <label for="field_ayantdroit_lastName">Nom <span class="required">*</span></label>
-                <input pInputText type="text" id="field_ayantdroit_lastName" formControlName="lastName" autocomplete="off" />
+                <input class="form-control" type="text" id="field_ayantdroit_lastName" formControlName="lastName" autocomplete="off" />
               </div>
               <div class="form-field-inline">
                 <label for="field_ayantdroit_firstName">Prénom <span class="required">*</span></label>
-                <input pInputText type="text" id="field_ayantdroit_firstName" formControlName="firstName" autocomplete="off" />
+                <input class="form-control" type="text" id="field_ayantdroit_firstName" formControlName="firstName" autocomplete="off" />
               </div>
             </div>
           </div>
@@ -123,16 +121,15 @@
           <div class="compact-card" [formGroupName]="i">
             <div class="compact-card-header">
               <span class="card-title"><i class="pi pi-building"></i> {{ group.value.tiersPayantFullName }}</span>
-              <p-button
+              <app-button
                 [rounded]="true"
-                (click)="onChangeTierPayant(i)"
+                (clicked)="onChangeTierPayant(i)"
                 type="button"
                 icon="pi pi-pencil"
                 severity="secondary"
                 size="small"
-                pTooltip="Modifier"
-                tooltipPosition="top"
-              ></p-button>
+                ngbTooltip="Modifier"
+              />
             </div>
             <div class="compact-card-body">
               <div class="form-row">
@@ -142,7 +139,7 @@
                 </div>
                 <div class="form-field-inline">
                   <label>N° Bon <span class="required">*</span></label>
-                  <input pInputText type="text" autocomplete="off" pKeyFilter="alphanum" required formControlName="numBon" />
+                  <input class="form-control" type="text" autocomplete="off" [appKeyFilter]="'alphanum'" required formControlName="numBon" />
                 </div>
               </div>
             </div>
@@ -153,15 +150,13 @@
   </div>
 
   <div class="modal-footer">
-    <p-button (click)="cancel()" type="button" severity="secondary" icon="pi pi-times" label="Annuler"></p-button>
-    <p-button
+    <app-button (clicked)="cancel()" type="button" severity="secondary" icon="pi pi-times" label="Annuler" />
+    <app-button
       [disabled]="editForm.invalid || isSaving || !hasFormChanged()"
       type="submit"
       severity="primary"
       icon="pi pi-save"
       label="Sauvegarder"
-    ></p-button>
+    />
   </div>
 </form>
-
-<jhi-toast-alert #alert></jhi-toast-alert>

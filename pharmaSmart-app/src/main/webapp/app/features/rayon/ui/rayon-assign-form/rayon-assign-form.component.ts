@@ -1,17 +1,12 @@
 import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { TooltipModule } from 'primeng/tooltip';
-import { Select } from 'primeng/select';
+import { NgbActiveModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { RayonApiService } from '../../data-access/services/rayon-api.service';
 import { IRayon } from '../../models/rayon.model';
 import { IProduit } from '../../../../shared/model';
 import { StorageService } from '../../../../entities/storage/storage.service';
 import { MagasinService } from '../../../../entities/magasin/magasin.service';
+import { ButtonComponent, IconFieldComponent, SelectSearchComponent } from '../../../../shared/ui';
 
 interface StorageOption {
   storageId: number;
@@ -29,7 +24,7 @@ export interface RayonAssignResult {
   templateUrl: './rayon-assign-form.component.html',
   styleUrl: './rayon-assign-form.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [FormsModule, ButtonModule, InputTextModule, IconField, InputIcon, TooltipModule, Select],
+  imports: [FormsModule, ButtonComponent, IconFieldComponent, NgbTooltip, SelectSearchComponent],
 })
 export class RayonAssignFormComponent implements OnInit {
   produit!: IProduit;

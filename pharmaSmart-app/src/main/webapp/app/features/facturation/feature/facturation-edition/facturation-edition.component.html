@@ -31,111 +31,97 @@
                 Factures provisoires
               </label>
               <div class="toggle-wrap">
-                <p-toggleswitch [(ngModel)]="factureProvisoire" />
+                <app-switch [(ngModel)]="factureProvisoire" />
                 <span class="toggle-txt">{{ factureProvisoire ? 'Oui' : 'Non' }}</span>
               </div>
             </div>
 
             <!-- Date début -->
             <pharma-date-picker
+              [(ngModel)]="modelStartDate"
               id="edDu"
               label="Date début"
-              [(ngModel)]="modelStartDate"
             />
 
             <!-- Date fin -->
             <pharma-date-picker
+              [(ngModel)]="modelEndDate"
               id="edAu"
               label="Date fin"
-              [(ngModel)]="modelEndDate"
             />
 
 
             <!-- Mode édition -->
-            <p-floatlabel variant="on">
-              <p-select
+            <app-float-label inputId="edMode" label="Mode d'édition">
+              <app-select
                 [(ngModel)]="modeEdition"
-                [fluid]="true"
-                [options]="modeEditions"
+                [items]="modeEditions"
                 appendTo="body"
-                id="edMode"
-                optionLabel="value"
-                optionValue="code"
+                bindLabel="value"
+                bindValue="code"
+                inputId="edMode"
               />
-              <label for="edMode">Mode d'édition</label>
-            </p-floatlabel>
+            </app-float-label>
 
             <!-- Filtre conditionnel TYPE -->
             @if (modeEdition === 'TYPE') {
-              <p-floatlabel variant="on">
-                <p-select
+              <app-float-label inputId="edType" label="Type tiers-payant">
+                <app-select
                   [(ngModel)]="typeTiersPayant"
-                  [fluid]="true"
-                  [options]="typeTiersPayants"
+                  [items]="typeTiersPayants"
                   appendTo="body"
-                  id="edType"
-                  optionLabel="value"
-                  optionValue="code"
+                  bindLabel="value"
+                  bindValue="code"
+                  inputId="edType"
                 />
-                <label for="edType">Type tiers-payant</label>
-              </p-floatlabel>
+              </app-float-label>
             }
 
             <!-- Filtre conditionnel GROUP -->
             @if (modeEdition === 'GROUP') {
-              <p-floatlabel variant="on">
-                <p-autocomplete
-                  (completeMethod)="searchGroupTiersPayant($event)"
+              <app-float-label inputId="edGroupe" label="Groupes tiers-payants">
+                <app-multi-select
+                  (searched)="searchGroupTiersPayant($event)"
                   [(ngModel)]="selectedGroupeTiersPayants"
-                  [fluid]="true"
-                  [forceSelection]="true"
-                  [minQueryLength]="minLength"
-                  [multiple]="true"
-                  [suggestions]="groupeTiersPayants"
+                  [items]="groupeTiersPayants"
+                  [minSearchLength]="minLength"
                   appendTo="body"
-                  id="edGroupe"
-                  optionLabel="name"
+                  bindLabel="name"
+                  inputId="edGroupe"
                 />
-                <label for="edGroupe">Groupes tiers-payants</label>
-              </p-floatlabel>
+              </app-float-label>
             }
 
             <!-- Filtre conditionnel TIERS_PAYANT -->
             @if (modeEdition === 'TIERS_PAYANT') {
-              <p-floatlabel variant="on">
-                <p-autocomplete
-                  (completeMethod)="searchTiersPayant($event)"
+              <app-float-label inputId="edTp" label="Tiers-payants">
+                <app-multi-select
+                  (searched)="searchTiersPayant($event)"
                   [(ngModel)]="selectedTiersPayants"
-                  [fluid]="true"
-                  [forceSelection]="true"
-                  [minQueryLength]="minLength"
-                  [multiple]="true"
-                  [suggestions]="tiersPayants"
+                  [items]="tiersPayants"
+                  [minSearchLength]="minLength"
                   appendTo="body"
-                  id="edTp"
-                  optionLabel="fullName"
+                  bindLabel="fullName"
+                  inputId="edTp"
                 />
-                <label for="edTp">Tiers-payants</label>
-              </p-floatlabel>
+              </app-float-label>
             }
 
           </div>
 
           <!-- Boutons actions -->
           <div class="edition-actions">
-            <p-button
+            <app-button
               (click)="onSearch()"
-              [fluid]="true"
               [loading]="searching"
               [raised]="true"
               icon="pi pi-search"
               label="Rechercher"
               severity="info"
             />
-            <p-button
+            <app-button
               (click)="onEdit()"
               [disabled]="!modeEdition"
-              [fluid]="true"
               [loading]="editing"
               [raised]="true"
               icon="pi pi-check"
@@ -162,7 +148,7 @@
             </span>
           }
 
-          <p-button
+          <app-button
             (click)="onEdit()"
             [disabled]="!modeEdition"
             [loading]="editing"
@@ -177,7 +163,7 @@
 
           <!-- Table tiers-payants (tous les modes sauf SELECTION_BON) -->
           @if (modeEdition !== 'SELECTION_BON') {
-            <p-table
+            <app-data-table
               #tpTable
               (onLazyLoad)="lazyLoadingTp($event)"
               [(selection)]="selectedTiersPayantDossiers"
@@ -187,10 +173,10 @@
               [rowsPerPageOptions]="[15, 20, 30, 50]"
               [rows]="itemsPerPage"
               [showCurrentPageReport]="true"
+              [size]="'small'"
               [stripedRows]="true"
               [totalRecords]="totalItemsTp"
               [value]="tiersPayantDossierFactures"
-              class="p-datatable-sm"
               currentPageReportTemplate="{first}-{last} sur {totalRecords}"
               dataKey="id"
             >
@@ -211,8 +197,8 @@
                   <th class="text-end">Nbre dossiers</th>
                   <th class="text-end">Montant</th>
                   @if (modeEdition === 'SELECTED' || modeEdition === 'GROUP') {
-                    <th style="width: 4rem" class="text-center">
-                      <p-tableheadercheckbox />
+                    <th class="text-center" style="width: 4rem">
+                      <app-header-checkbox />
                     </th>
                   }
                 </tr>
@@ -225,7 +211,7 @@
                   <td class="text-end pharma-total">{{ data.totalAmount | number }}</td>
                   @if (modeEdition === 'SELECTED' || modeEdition === 'GROUP') {
                     <td class="text-center">
-                      <p-tablecheckbox [value]="data" />
+                      <app-row-checkbox [row]="data" />
                     </td>
                   }
                 </tr>
@@ -233,19 +219,20 @@
 
               <ng-template #emptymessage>
                 <tr>
-                  <td [attr.colspan]="(modeEdition === 'SELECTED' || modeEdition === 'GROUP') ? 4 : 3">
+                  <td
+                    [attr.colspan]="(modeEdition === 'SELECTED' || modeEdition === 'GROUP') ? 4 : 3">
                     <div class="alert alert-info m-2 small">
                       Lancez une recherche pour afficher les dossiers à facturer.
                     </div>
                   </td>
                 </tr>
               </ng-template>
-            </p-table>
+            </app-data-table>
           }
 
           <!-- Table bons (mode SELECTION_BON) -->
           @if (modeEdition === 'SELECTION_BON') {
-            <p-table
+            <app-data-table
               #bonTable
               (onLazyLoad)="lazyLoadingBons($event)"
               [(selection)]="selectedDossiers"
@@ -255,26 +242,24 @@
               [rowsPerPageOptions]="[15, 20, 30, 50]"
               [rows]="itemsPerPage"
               [showCurrentPageReport]="true"
+              [size]="'small'"
               [stripedRows]="true"
               [totalRecords]="totalItems"
               [value]="dossierFactures"
-              class="p-datatable-sm"
               currentPageReportTemplate="{first}-{last} sur {totalRecords}"
               dataKey="id"
             >
               <ng-template #caption>
                 <div class="d-flex justify-content-between align-items-center">
-                  <p-iconfield>
-                    <p-inputicon class="pi pi-search" />
+                  <app-icon-field [overlay]="true" icon="pi pi-search">
                     <input
                       (input)="bonTable.filterGlobal($any($event.target).value, 'contains')"
-                      pInputText
-                      placeholder="Filtrer dans la liste..."
-                      type="text"
-                    />
-                  </p-iconfield>
+                      class="form-control"
+                      placeholder="Filtrer dans la liste..." type="text" />
+                  </app-icon-field>
                   <div class="d-flex align-items-center gap-2">
-                    <span class="small text-muted">{{ selectedDossiers.length }} sélectionné(s)</span>
+                    <span class="small text-muted">{{ selectedDossiers.length }}
+                      sélectionné(s)</span>
 
                   </div>
                 </div>
@@ -287,8 +272,8 @@
                   <th>Réf. bon</th>
                   <th class="text-end">Mt vente</th>
                   <th class="text-end">Montant</th>
-                  <th style="width: 4rem" class="text-center">
-                    <p-tableheadercheckbox />
+                  <th class="text-center" style="width: 4rem">
+                    <app-header-checkbox />
                   </th>
                 </tr>
               </ng-template>
@@ -299,11 +284,11 @@
                     {{ dossier.assuredCustomer?.firstName }} {{ dossier.assuredCustomer?.lastName }}
                   </td>
                   <td class="small text-muted">{{ dossier.createdAt | date: 'dd/MM/yyyy' }}</td>
-                  <td class="pharma-code">{{ dossier.numBon }}</td>
+                  <td><span class="pharma-code">{{ dossier.numBon }}</span></td>
                   <td class="text-end pharma-price">{{ dossier.montantVente | number }}</td>
                   <td class="text-end pharma-total">{{ dossier.montantBon | number }}</td>
                   <td class="text-center">
-                    <p-tablecheckbox [value]="dossier" />
+                    <app-row-checkbox [row]="dossier" />
                   </td>
                 </tr>
               </ng-template>
@@ -317,7 +302,7 @@
                   </td>
                 </tr>
               </ng-template>
-            </p-table>
+            </app-data-table>
           }
 
         </div>

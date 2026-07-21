@@ -6,19 +6,21 @@
       <span class="fw-semibold">{{ plan().libelle }}</span>
       <span [class]="badgeClass()">{{ state.getPeriodiciteLabel(plan().periodicite) }}</span>
     </div>
-    <p-button
-      (onClick)="onClose()"
-      icon="pi pi-times"
-      [text]="true"
-      size="small"
+    <app-button
+      (clicked)="onClose()"
       [rounded]="true"
+      [text]="true"
+      ariaLabel="Fermer le détail"
+      icon="pi pi-times"
+      ngbTooltip="Fermer le détail"
+      placement="left"
       severity="secondary"
-      pTooltip="Fermer le détail" tooltipPosition="left"
+      size="small"
     />
   </div>
 
   <!-- Sous-onglets -->
-  <div class="pharma-nav-tabs-container sub-tabs flex-1-overflow">
+  <app-nav-tabs [nav]="subNav" containerClass="sub-tabs flex-1-overflow">
     <div
       #subNav="ngbNav"
       [activeId]="activeSubTab()"
@@ -71,9 +73,6 @@
       </ng-container>
     </div>
 
-    <div class="pharma-nav-tabs-outlet">
-      <div [ngbNavOutlet]="subNav"></div>
-    </div>
-  </div>
+  </app-nav-tabs>
 </div>
 

@@ -1,11 +1,8 @@
 import { Component, inject, Input, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonModule } from 'primeng/button';
-import { SelectModule } from 'primeng/select';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { TooltipModule } from 'primeng/tooltip';
+import { NgbActiveModal, NgbDateStruct, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, InputNumberComponent, SelectComponent } from '../../../shared/ui';
 import { RouterLink } from '@angular/router';
 
 import { LotPerimes } from '../model/lot-perimes';
@@ -19,20 +16,20 @@ import { IMotifRetourProduit } from '../../../shared/model/motif-retour-produit.
 import { ModifRetourProduitService } from '../../motif-retour-produit/motif-retour-produit.service';
 import { RetourBonService } from '../../commande/retour_fournisseur/retour-bon.service';
 import { NotificationService } from '../../../shared/services/notification.service';
-import { DatePickerComponent } from '../../../shared/date-picker/date-picker.component';
-import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
+import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
+import { NGB_DATE_TO_ISO } from '../../../shared/util/warehouse-util';
 
 @Component({
   selector: 'app-retour-fournisseur-perime-dialog',
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    ButtonModule,
-    SelectModule,
-    InputNumberModule,
-    TooltipModule,
+    ButtonComponent,
+    SelectComponent,
+    InputNumberComponent,
+    NgbTooltip,
     RouterLink,
-    DatePickerComponent,
+    PharmaDatePickerComponent,
   ],
   templateUrl: './retour-fournisseur-perime-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -63,7 +60,7 @@ export class RetourFournisseurPerimeDialogComponent implements OnInit {
       quantity: [this.lot.quantity, [Validators.required, Validators.min(1), Validators.max(this.lot.quantity)]],
       commentaire: [''],
       commandeRef: [''],
-      commandeDate: [null as Date | null],
+      commandeDate: [null as NgbDateStruct | null],
       fournisseurId: [null as number | null],
     });
     this.loadMotifs();
@@ -109,8 +106,8 @@ export class RetourFournisseurPerimeDialogComponent implements OnInit {
       request.fournisseurId = this.form.get('fournisseurId')!.value;
     } else if (this.commandeNotFound() && this.form.get('commandeRef')?.value) {
       request.commandeId = parseInt(this.form.get('commandeRef')!.value, 10);
-      const dateVal: Date | null = this.form.get('commandeDate')?.value;
-      if (dateVal) { request.commandeOrderDate = DATE_FORMAT_ISO_DATE(dateVal); }
+      const dateVal: NgbDateStruct | null = this.form.get('commandeDate')?.value;
+      if (dateVal) { request.commandeOrderDate = NGB_DATE_TO_ISO(dateVal); }
     }
 
     this.isSaving.set(true);

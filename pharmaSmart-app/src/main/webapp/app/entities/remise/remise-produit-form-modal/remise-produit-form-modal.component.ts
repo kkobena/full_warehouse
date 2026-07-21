@@ -1,23 +1,18 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, Renderer2, viewChild, ChangeDetectionStrategy } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ToastModule } from 'primeng/toast';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { RemiseService } from '../remise.service';
 import { CodeRemise, GrilleRemise, IRemise, Remise } from '../../../shared/model/remise.model';
 import { Observable } from 'rxjs';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { MessageModule } from 'primeng/message';
-import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { NotificationService } from '../../../shared/services/notification.service';
 import { ErrorService } from '../../../shared/error.service';
-import { Card } from 'primeng/card';
-import { InputText } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
+import { ButtonComponent, CardComponent, SelectComponent } from '../../../shared/ui';
 
 @Component({
   selector: 'jhi-remise-produit-form-modal',
 
-  imports: [ReactiveFormsModule, ToastModule, MessageModule, ButtonModule, ToastAlertComponent, Card, InputText, Select],
+  imports: [ReactiveFormsModule, ButtonComponent, CardComponent, SelectComponent],
   templateUrl: './remise-produit-form-modal.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./remise-form-form.scss'],
@@ -25,8 +20,6 @@ import { Select } from 'primeng/select';
 export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
   libelle = viewChild.required<ElementRef>('libelle');
   protected fb = inject(FormBuilder);
-  private readonly renderer = inject(Renderer2);
-  private readonly elementRef = inject(ElementRef);
   protected editForm = this.fb.group({
     id: new FormControl<number | null>(null),
     valeur: new FormControl<string | null>(null, {
@@ -68,7 +61,7 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
   private readonly activeModal = inject(NgbActiveModal);
 
   private readonly entityService = inject(RemiseService);
-  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
 
   get grilleVno(): FormGroup {
@@ -121,19 +114,6 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
       this.subscribeToSaveResponse(this.entityService.update(entity));
     } else {
       this.subscribeToSaveResponse(this.entityService.create(entity));
-    }
-  }
-  protected onDropdownShow(event: any): void {
-    const modalBody = this.elementRef.nativeElement.querySelector('.modal-body');
-    if (modalBody) {
-      this.renderer.addClass(modalBody, 'overflow-visible');
-    }
-  }
-
-  protected onDropdownHide(event: any): void {
-    const modalBody = this.elementRef.nativeElement.querySelector('.modal-body');
-    if (modalBody) {
-      this.renderer.removeClass(modalBody, 'overflow-visible');
     }
   }
   protected updateForm(entity: IRemise): void {
@@ -194,7 +174,7 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
 
   private onSaveError(error: HttpErrorResponse): void {
     this.isSaving = false;
-    this.alert().showError(this.errorService.getErrorMessage(error));
+    this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 
   private addGrille(codeRemise: CodeRemise): void {

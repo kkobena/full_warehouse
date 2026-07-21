@@ -1,7 +1,6 @@
 import { Component, inject, OnInit, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { ButtonModule } from 'primeng/button';
 import DashboardCAComponent from 'app/entities/reports/dashboard-ca/dashboard-ca.component';
 import { FinancesDashboardApiService } from '../../data-access/services/finances-dashboard-api.service';
 import { IFinancesSummary } from '../../data-access/models';
@@ -9,7 +8,7 @@ import { formatCurrency } from 'app/shared/utils/format-utils';
 
 @Component({
   selector: 'app-finances-dashboard',
-  imports: [CommonModule, RouterLink, ButtonModule, DashboardCAComponent],
+  imports: [CommonModule, RouterLink, DashboardCAComponent],
   templateUrl: './finances-dashboard.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './finances-dashboard.component.scss',

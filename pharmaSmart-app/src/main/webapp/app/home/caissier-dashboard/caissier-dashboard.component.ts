@@ -8,7 +8,6 @@ import { catchError, finalize, takeUntil, tap } from "rxjs/operators";
 import { ButtonModule } from "primeng/button";
 import { TableModule } from "primeng/table";
 import { TagModule } from "primeng/tag";
-import { ToastModule } from "primeng/toast";
 import { BadgeModule } from "primeng/badge";
 import { TooltipModule } from "primeng/tooltip";
 
@@ -44,7 +43,6 @@ import { NotificationService } from "../../shared/services/notification.service"
     ButtonModule,
     TableModule,
     TagModule,
-    ToastModule,
     BadgeModule,
     TooltipModule
   ],

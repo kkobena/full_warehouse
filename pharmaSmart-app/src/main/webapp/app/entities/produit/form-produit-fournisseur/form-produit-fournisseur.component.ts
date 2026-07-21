@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { IProduit } from "../../../shared/model";
 import { FournisseurProduit, IFournisseurProduit } from "../../../shared/model/fournisseur-produit.model";
 import { ProduitService } from "../produit.service";
@@ -8,17 +8,12 @@ import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from
 import { IFournisseur } from "../../../shared/model/fournisseur.model";
 import { HttpErrorResponse, HttpResponse } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { InputTextModule } from "primeng/inputtext";
-import { ButtonModule } from "primeng/button";
-import { RippleModule } from "primeng/ripple";
-import { KeyFilterModule } from "primeng/keyfilter";
-import { Select } from "primeng/select";
-import { ToggleSwitch, ToggleSwitchModule } from "primeng/toggleswitch";
 import { CommonModule } from "@angular/common";
-import { ToastAlertComponent } from "../../../shared/toast-alert/toast-alert.component";
+import { NotificationService } from "../../../shared/services/notification.service";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { finalize } from "rxjs/operators";
 import { FournisseurApiService } from "../../../features/partners/data-access/services/fournisseur-api.service";
+import { ButtonComponent, KeyFilterDirective, SelectComponent, SwitchComponent } from "../../../shared/ui";
 
 @Component({
   selector: "app-form-produit-fournisseur",
@@ -29,14 +24,10 @@ import { FournisseurApiService } from "../../../features/partners/data-access/se
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    InputTextModule,
-    ButtonModule,
-    RippleModule,
-    ToggleSwitchModule,
-    KeyFilterModule,
-    Select,
-    ToggleSwitch,
-    ToastAlertComponent
+    ButtonComponent,
+    KeyFilterDirective,
+    SelectComponent,
+    SwitchComponent
   ]
 })
 export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
@@ -61,8 +52,8 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
   private readonly produitService = inject(ProduitService);
   private readonly errorService = inject(ErrorService);
   private readonly fournisseurService = inject(FournisseurApiService);
-  private readonly alert = viewChild.required<ToastAlertComponent>("alert");
-  private fournisseurSelect = viewChild.required<Select>("fournisseurSelect");
+  private readonly notificationService = inject(NotificationService);
+  private fournisseurSelect = viewChild.required("fournisseurSelect", { read: ElementRef<HTMLElement> });
   private readonly activeModal = inject(NgbActiveModal);
 
   save(): void {
@@ -91,7 +82,7 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      this.fournisseurSelect().el.nativeElement.focus();
+      this.fournisseurSelect().nativeElement.querySelector('input')?.focus();
     }, 100);
   }
 
@@ -140,8 +131,8 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
     this.isValid = costAmount < value;
   }
 
-  protected onChange(event: any): void {
-    this.fournisseurSelectedId = event.value;
+  protected onChange(fournisseurId: number): void {
+    this.fournisseurSelectedId = fournisseurId;
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<IFournisseurProduit>>): void {
@@ -159,7 +150,7 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
   }
 
   private onSaveError(error: HttpErrorResponse): void {
-    this.alert().showError(this.errorService.getErrorMessage(error));
+    this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 
   private createFrom(): IFournisseurProduit {

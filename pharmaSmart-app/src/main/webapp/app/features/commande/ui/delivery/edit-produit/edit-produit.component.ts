@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnInit, Renderer2, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { FournisseurProduit, IFournisseurProduit } from 'app/shared/model/fournisseur-produit.model';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
@@ -12,17 +12,12 @@ import { RayonService } from '../../../../../entities/rayon/rayon.service';
 import { TvaService } from '../../../../../entities/tva/tva.service';
 import { IProduit } from 'app/shared/model';
 import { CommonModule } from '@angular/common';
-import { ButtonModule } from 'primeng/button';
 import { RouterModule } from '@angular/router';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputMaskModule } from 'primeng/inputmask';
-import { KeyFilterModule } from 'primeng/keyfilter';
-import { Select } from 'primeng/select';
 import { IOrderLine } from 'app/shared/model/order-line.model';
 import { ICommande } from 'app/shared/model/commande.model';
 import { NotificationService } from 'app/shared/services/notification.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { Card } from 'primeng/card';
+import { ButtonComponent, CardComponent, KeyFilterDirective, SelectComponent } from 'app/shared/ui';
 
 @Component({
   selector: 'jhi-edit-produit',
@@ -31,15 +26,13 @@ import { Card } from 'primeng/card';
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
-    ButtonModule,
+    ButtonComponent,
     RouterModule,
     FormsModule,
     ReactiveFormsModule,
-    InputTextModule,
-    KeyFilterModule,
-    InputMaskModule,
-    Select,
-    Card,
+    KeyFilterDirective,
+    SelectComponent,
+    CardComponent,
   ],
 })
 export class EditProduitComponent implements OnInit {
@@ -68,8 +61,6 @@ export class EditProduitComponent implements OnInit {
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
   private readonly activeModal = inject(NgbActiveModal);
-  private readonly renderer = inject(Renderer2);
-  private readonly elementRef = inject(ElementRef);
 
   save(): void {
     this.isSaving = true;
@@ -125,20 +116,6 @@ export class EditProduitComponent implements OnInit {
 
   cancel(): void {
     this.activeModal.close();
-  }
-
-  protected onDropdownShow(event: any): void {
-    const modalBody = this.elementRef.nativeElement.querySelector('.modal-body');
-    if (modalBody) {
-      this.renderer.addClass(modalBody, 'overflow-visible');
-    }
-  }
-
-  protected onDropdownHide(event: any): void {
-    const modalBody = this.elementRef.nativeElement.querySelector('.modal-body');
-    if (modalBody) {
-      this.renderer.removeClass(modalBody, 'overflow-visible');
-    }
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<{}>>): void {

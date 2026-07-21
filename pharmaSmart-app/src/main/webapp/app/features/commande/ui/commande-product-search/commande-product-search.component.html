@@ -1,33 +1,29 @@
-<p-floatlabel variant="on">
-  <p-autocomplete
+<app-float-label label="Produit" inputId="produitbox">
+  <app-select-search
     #produitbox
     [(ngModel)]="produitSelected"
     (ngModelChange)="onNgModelChange($event)"
-    [suggestions]="produits()"
-    (completeMethod)="searchFn($event)"
-    (onSelect)="onSelect()"
+    [items]="produits()"
+    [typeahead]="typeaheadSink$"
+    (searched)="searchFn($event)"
+    (selectionChange)="onSelect()"
     (keydown)="onKeyDown($event)"
-    [minQueryLength]="PRODUIT_COMBO_MIN_LENGTH"
-    optionLabel="libelle"
-    [autoHighlight]="true"
-    [autoOptionFocus]="true"
+    [minSearchLength]="PRODUIT_COMBO_MIN_LENGTH"
+    typeToSearchText="Tapez au moins {{ PRODUIT_COMBO_MIN_LENGTH }} caractères (code CIP ou libellé)…"
+    bindLabel="libelle"
     [appendTo]="APPEND_TO"
-    [autofocus]="autofocus()"
-    [showClear]="true"
-    [style]="{ width: '100%' }"
-    [inputStyle]="{ width: '100%' }"
+    [clearable]="true"
     [disabled]="disabled()"
-    dataKey="id"
+    inputId="produitbox"
     placeholder=" "
     class="w-100 pharma-autocomplete"
-  >
-    <ng-template #item let-item>
-      <div class="commande-search-item" [class.stockless]="item.totalQuantity <= 0">
-        <span class="pharma-code">{{ item.fournisseurProduit?.codeCip }}</span>
-        <span class="item-libelle">{{ item.libelle }}</span>
-        <span class="item-price">{{ item.regularUnitPrice | number }} F</span>
-      </div>
-    </ng-template>
-  </p-autocomplete>
-  <label>Produit</label>
-</p-floatlabel>
+    [optionTemplate]="produitItem"
+  />
+  <ng-template #produitItem let-item>
+    <div class="commande-search-item" [class.stockless]="item.totalQuantity <= 0">
+      <span class="pharma-code">{{ item.fournisseurProduit?.codeCip }}</span>
+      <span class="item-libelle">{{ item.libelle }}</span>
+      <span class="item-price">{{ item.regularUnitPrice | number }} F</span>
+    </div>
+  </ng-template>
+</app-float-label>

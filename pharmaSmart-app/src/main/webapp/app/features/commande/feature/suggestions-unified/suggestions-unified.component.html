@@ -8,23 +8,23 @@
 
     <div class="su-header-end ms-auto">
       @if (semoisFraicheur()) {
-        <p-tag
-          [value]="semoisFraicheurLabel"
+        <app-badge
+          [label]="semoisFraicheurLabel"
           [severity]="semoisFraicheurSeverity"
           icon="pi pi-clock"
-          pTooltip="Fraîcheur du calcul VMM (Vente Mensuelle Moyenne). Mise à jour automatique quotidienne selon le planning configuré."
-          tooltipPosition="bottom"
+          ngbTooltip="Fraîcheur du calcul VMM (Vente Mensuelle Moyenne). Mise à jour automatique quotidienne selon le planning configuré."
+          placement="bottom"
         />
       }
       <div class="su-config-btn-wrap">
-        <p-button
+        <app-button
           icon="pi pi-sliders-h"
           label="Classes produits"
           [outlined]="true"
           size="small"
-          pTooltip="Paramétrage des classes A/B/C/D et des règles de réapprovisionnement automatique par classe"
-          tooltipPosition="bottom"
-          (onClick)="ouvrirConfigCriticite()"
+          ngbTooltip="Paramétrage des classes A/B/C/D et des règles de réapprovisionnement automatique par classe"
+          placement="bottom"
+          (clicked)="ouvrirConfigCriticite()"
         />
       </div>
     </div>
@@ -39,8 +39,8 @@
       [class.su-tab--active]="activeSource() === 'REAPPRO'"
       (click)="setSource('REAPPRO')"
       type="button"
-      pTooltip="Propositions d'achat générées automatiquement selon la VMM — en attente de validation"
-      tooltipPosition="bottom"
+      ngbTooltip="Propositions d'achat générées automatiquement selon la VMM — en attente de validation"
+      placement="bottom"
     >
       <i class="pi pi-inbox"></i>
       Propositions d'achat
@@ -55,8 +55,8 @@
       [class.su-tab--active]="activeSource() === 'COMMANDES_A_PASSER'"
       (click)="setSource('COMMANDES_A_PASSER')"
       type="button"
-      pTooltip="Bons de commande en cours de préparation, prêts à être transmis aux fournisseurs"
-      tooltipPosition="bottom"
+      ngbTooltip="Bons de commande en cours de préparation, prêts à être transmis aux fournisseurs"
+      placement="bottom"
     >
       <i class="pi pi-cart-plus"></i>
       Commandes fournisseurs
@@ -69,8 +69,8 @@
       [class.su-tab--active]="activeSource() === 'BONS_DE_LIVRAISON'"
       (click)="setSource('BONS_DE_LIVRAISON')"
       type="button"
-      pTooltip="Bons de livraison reçus des fournisseurs, en attente de réception en stock"
-      tooltipPosition="bottom"
+      ngbTooltip="Bons de livraison reçus des fournisseurs, en attente de réception en stock"
+      placement="bottom"
     >
       <i class="pi pi-truck"></i>
       Réceptions
@@ -85,8 +85,8 @@
       [class.su-tab--active]="activeSource() === 'ANALYSE'"
       (click)="setSource('ANALYSE')"
       type="button"
-      pTooltip="Tableau de bord : niveaux de stock par classe A/B/C/D et seuils de rupture"
-      tooltipPosition="bottom"
+      ngbTooltip="Tableau de bord : niveaux de stock par classe A/B/C/D et seuils de rupture"
+      placement="bottom"
     >
       <i class="pi pi-chart-bar"></i>
       Tableau de bord stock

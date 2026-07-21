@@ -1,20 +1,16 @@
 import {Component, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {Button} from 'primeng/button';
-import {TableModule} from 'primeng/table';
-import {TagModule} from 'primeng/tag';
-import {Toast} from 'primeng/toast';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgbActiveModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {BadgeComponent, ButtonComponent, DataTableComponent} from '../../../../../../shared/ui';
 import {CommandeId} from '../../../../../../shared/model/abstract-commande.model';
 import {ISubstitutionProposee} from '../../../../../../shared/model/pharmaml.model';
 import {PharmamlApiService} from '../../../../data-access/pharmaml-api.service';
-import {Tooltip} from "primeng/tooltip";
 import {NotificationService} from "../../../../../../shared/services/notification.service";
 import {ErrorService} from "../../../../../../shared/error.service";
 
 @Component({
   selector: 'app-substitution-pharmaml',
-  imports: [CommonModule, Button, TableModule, TagModule, Toast, Tooltip],
+  imports: [CommonModule, ButtonComponent, DataTableComponent, BadgeComponent, NgbTooltip],
   templateUrl: './substitution-pharmaml.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./substitution-pharmaml.scss'],

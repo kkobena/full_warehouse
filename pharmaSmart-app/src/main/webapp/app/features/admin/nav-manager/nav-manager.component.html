@@ -29,25 +29,20 @@
             <div class="d-flex align-items-center gap-2 p-3 border-bottom role-selector-bar">
               <label class="fw-semibold mb-0 me-1">Rôle :</label>
               @if (loadingRoles()) {
-                <p-progressspinner [style]="{ width: '24px', height: '24px' }" />
+                <div class="spinner-border spinner-border-sm" style="width: 24px; height: 24px;" role="status"></div>
               } @else {
-                <p-select
-                  [options]="availableRoles()"
+                <app-select-search
+                  [items]="availableRoles()"
                   [(ngModel)]="selectedRole"
-                  optionLabel="libelle"
+                  bindLabel="libelle"
                   placeholder="Sélectionner un rôle"
-                  [showClear]="true"
-                  (onChange)="loadRoleItems()"
-                >
-                  <ng-template #selectedItem let-role>
-                    @if (role) {
-                      <span class="fw-semibold">{{ role.libelle ?? role.name }}</span>
-                    }
-                  </ng-template>
-                  <ng-template #item let-role>
-                    <span>{{ role.libelle ?? role.name }}</span>
-                  </ng-template>
-                </p-select>
+                  [clearable]="true"
+                  (ngModelChange)="loadRoleItems()"
+                  [optionTemplate]="roleOption"
+                />
+                <ng-template #roleOption let-role>
+                  <span>{{ role.libelle ?? role.name }}</span>
+                </ng-template>
               }
             </div>
 
@@ -72,13 +67,10 @@
             </div>
 
             <!-- Tableau des permissions -->
-            <p-table
+            <app-data-table
               [value]="visibleItems()"
               [loading]="loading()"
-              [stripedRows]="true"
-              [scrollable]="true"
-              scrollHeight="calc(100vh - 280px)"
-              size="small" class="p-datatable-sm">
+              class="p-datatable-sm">
               <ng-template #header>
                 <tr class="pharma-table-head">
                   <th style="width:27%">Entrée de menu</th>
@@ -205,48 +197,48 @@
                   <!-- Colonnes nav (désactivées pour ACTION) -->
                   <td class="text-center perm-cell" [class.cell-na]="item.targetType === 'ACTION'">
                     @if (item.targetType !== 'ACTION') {
-                      <p-checkbox [(ngModel)]="item.assignment.canDisplay" [binary]="true"
-                                  (onChange)="onPermissionChange(item)" />
+                      <app-checkbox [(ngModel)]="item.assignment.canDisplay"
+                                  (ngModelChange)="onPermissionChange(item)" />
                     } @else {
                       <span class="na-dash">—</span>
                     }
                   </td>
                   <td class="text-center perm-cell" [class.cell-na]="item.targetType === 'ACTION'">
                     @if (item.targetType !== 'ACTION') {
-                      <p-checkbox [(ngModel)]="item.assignment.canAccess" [binary]="true"
-                                  (onChange)="onPermissionChange(item)" />
+                      <app-checkbox [(ngModel)]="item.assignment.canAccess"
+                                  (ngModelChange)="onPermissionChange(item)" />
                     } @else {
                       <span class="na-dash">—</span>
                     }
                   </td>
                   <td class="text-center perm-cell" [class.cell-na]="item.targetType === 'ACTION'">
                     @if (item.targetType !== 'ACTION') {
-                      <p-checkbox [(ngModel)]="item.assignment.canCreate" [binary]="true"
-                                  (onChange)="onPermissionChange(item)" />
+                      <app-checkbox [(ngModel)]="item.assignment.canCreate"
+                                  (ngModelChange)="onPermissionChange(item)" />
                     } @else {
                       <span class="na-dash">—</span>
                     }
                   </td>
                   <td class="text-center perm-cell" [class.cell-na]="item.targetType === 'ACTION'">
                     @if (item.targetType !== 'ACTION') {
-                      <p-checkbox [(ngModel)]="item.assignment.canEdit" [binary]="true"
-                                  (onChange)="onPermissionChange(item)" />
+                      <app-checkbox [(ngModel)]="item.assignment.canEdit"
+                                  (ngModelChange)="onPermissionChange(item)" />
                     } @else {
                       <span class="na-dash">—</span>
                     }
                   </td>
                   <td class="text-center perm-cell" [class.cell-na]="item.targetType === 'ACTION'">
                     @if (item.targetType !== 'ACTION') {
-                      <p-checkbox [(ngModel)]="item.assignment.canDelete" [binary]="true"
-                                  (onChange)="onPermissionChange(item)" />
+                      <app-checkbox [(ngModel)]="item.assignment.canDelete"
+                                  (ngModelChange)="onPermissionChange(item)" />
                     } @else {
                       <span class="na-dash">—</span>
                     }
                   </td>
                   <td class="text-center perm-cell" [class.cell-na]="item.targetType === 'ACTION'">
                     @if (item.targetType !== 'ACTION') {
-                      <p-checkbox [(ngModel)]="item.assignment.canExport" [binary]="true"
-                                  (onChange)="onPermissionChange(item)" />
+                      <app-checkbox [(ngModel)]="item.assignment.canExport"
+                                  (ngModelChange)="onPermissionChange(item)" />
                     } @else {
                       <span class="na-dash">—</span>
                     }
@@ -254,11 +246,10 @@
                   <!-- Colonne Exécuter : uniquement pour les ACTION -->
                   <td class="text-center perm-cell execute-col" [class.cell-na]="item.targetType !== 'ACTION'">
                     @if (item.targetType === 'ACTION') {
-                      <p-checkbox
+                      <app-checkbox
                         [(ngModel)]="item.assignment.canExecute"
-                        [binary]="true"
                         title="Autoriser l'exécution de cette action métier"
-                        (onChange)="onPermissionChange(item)"
+                        (ngModelChange)="onPermissionChange(item)"
                       />
                     } @else {
                       <span class="na-dash">—</span>
@@ -278,7 +269,7 @@
                   </td>
                 </tr>
               </ng-template>
-            </p-table>
+            </app-data-table>
           </ng-template>
         </ng-container>
 

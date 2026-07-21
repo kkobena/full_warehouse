@@ -7,9 +7,15 @@
       </h4>
     }
 
-    <p-tabs>
+    <app-nav-tabs [nav]="nav">
+      <div #nav="ngbNav" class="nav pharma-nav-tabs" ngbNav>
       <!-- ── Onglet Achats ─────────────────────────────────────────────────── -->
-      <p-tabpanel header="Achats" leftIcon="pi pi-shopping-cart">
+        <ng-container ngbNavItem="achats">
+          <a class="pharma-nav-tab-link" ngbNavLink>
+            <i class="pi pi-shopping-cart"></i>
+            <span>Achats</span>
+          </a>
+          <ng-template ngbNavContent>
         <div class="row">
           <div class="col-4 master">
             @if (sales && sales.length > 0) {
@@ -98,16 +104,19 @@
             }
           </div>
         </div>
-      </p-tabpanel>
+          </ng-template>
+        </ng-container>
 
       <!-- ── Onglet Avoirs ─────────────────────────────────────────────────── -->
-      <p-tabpanel leftIcon="pi pi-wallet">
-        <ng-template #header>
-          <span>Avoirs</span>
-          @if (avoirsOuverts.length > 0) {
-            <span class="badge bg-success ms-2">{{ avoirsOuverts.length }}</span>
-          }
-        </ng-template>
+        <ng-container ngbNavItem="avoirs">
+          <a class="pharma-nav-tab-link" ngbNavLink>
+            <i class="pi pi-wallet"></i>
+            <span>Avoirs</span>
+            @if (avoirsOuverts.length > 0) {
+              <span class="badge bg-success ms-2">{{ avoirsOuverts.length }}</span>
+            }
+          </a>
+          <ng-template ngbNavContent>
 
         @if (avoirsOuverts.length > 0) {
           <div class="alert alert-success d-flex align-items-center gap-2 mb-3">
@@ -160,14 +169,14 @@
                     </td>
                     <td>
                       @if (avoir.id) {
-                        <p-button
+                        <app-button
                           (click)="openAvoirPdf(avoir.id)"
                           severity="secondary"
                           size="small"
                           icon="pi pi-file-pdf"
                           [text]="true"
                           title="Bon d'avoir PDF">
-                        </p-button>
+                        </app-button>
                       }
                     </td>
                   </tr>
@@ -176,13 +185,15 @@
             </table>
           </div>
         }
-      </p-tabpanel>
-    </p-tabs>
+          </ng-template>
+        </ng-container>
+      </div>
+    </app-nav-tabs>
 
     <div class="mt-3">
-      <p-button (click)="previousState()" severity="secondary" icon="pi pi-arrow-left" label="Retour"></p-button>
+      <app-button (clicked)="previousState()" severity="secondary" icon="pi pi-arrow-left" label="Retour"></app-button>
       @if (saleSelected) {
-        <p-button (click)="print()" severity="warn" type="button" icon="pi pi-print" label="Imprimer" class="ms-2"></p-button>
+        <app-button (clicked)="print()" severity="warn" type="button" icon="pi pi-print" label="Imprimer" class="ms-2"></app-button>
       }
     </div>
   </div>

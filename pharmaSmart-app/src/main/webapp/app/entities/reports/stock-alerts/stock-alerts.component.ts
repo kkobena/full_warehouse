@@ -3,16 +3,18 @@ import {HttpResponse} from '@angular/common/http';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 
-import {TableLazyLoadEvent, TableModule} from 'primeng/table';
-import {ButtonModule} from 'primeng/button';
-import {MultiSelectModule} from 'primeng/multiselect';
-import {ToolbarModule} from 'primeng/toolbar';
-import {DividerModule} from 'primeng/divider';
 
 import {IStockAlert, StockAlertType} from 'app/shared/model/report/stock-alert.model';
 import {StockAlertReportService} from '../services/stock-alert-report.service';
 import {TauriPrinterService} from "../../../shared/services/tauri-printer.service";
 import {handleBlobForTauri} from "../../../shared/util/tauri-util";
+import {
+  AppTableLazyLoadEvent,
+  ButtonComponent,
+  DataTableComponent,
+  MultiSelectComponent,
+  ToolbarComponent
+} from '../../../shared/ui';
 
 const ITEMS_PER_PAGE = 15;
 
@@ -24,11 +26,10 @@ const ITEMS_PER_PAGE = 15;
   imports: [
     CommonModule,
     FormsModule,
-    TableModule,
-    ButtonModule,
-    MultiSelectModule,
-    ToolbarModule,
-    DividerModule
+    ButtonComponent,
+    DataTableComponent,
+    MultiSelectComponent,
+    ToolbarComponent
   ],
 })
 export default class StockAlertsComponent implements OnInit {
@@ -55,7 +56,7 @@ export default class StockAlertsComponent implements OnInit {
     this.loadAlertCounts();
   }
 
-  loadAlerts(event?: TableLazyLoadEvent): void {
+  loadAlerts(event?: AppTableLazyLoadEvent): void {
     this.isLoading.set(true);
     const page = event ? event.first / event.rows : 0;
     const size = event?.rows ?? this.rowsPerPage;

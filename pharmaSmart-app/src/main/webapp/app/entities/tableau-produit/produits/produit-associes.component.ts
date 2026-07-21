@@ -6,17 +6,14 @@ import { HttpResponse } from "@angular/common/http";
 import { ActivatedRoute } from "@angular/router";
 import { ITableau } from "../../../shared/model/tableau.model";
 import { FormsModule } from "@angular/forms";
-import { ButtonModule } from "primeng/button";
-import { InputTextModule } from "primeng/inputtext";
-import { PickListModule } from "primeng/picklist";
-import { ToolbarModule } from "primeng/toolbar";
 import { CommonModule } from "@angular/common";
+import { ButtonComponent, DataTableComponent } from "../../../shared/ui";
 
 @Component({
   selector: "app-produit-associes",
   templateUrl: "./produit-associes.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, PickListModule, ToolbarModule, ButtonModule, InputTextModule, ButtonModule]
+  imports: [CommonModule, FormsModule, ButtonComponent, DataTableComponent]
 })
 export class ProduitAssociesComponent implements OnInit {
   protected produitsSource: IProduit[] = [];
@@ -25,7 +22,6 @@ export class ProduitAssociesComponent implements OnInit {
   protected searchSource: string;
   protected searchTarget: string;
   protected tableau: ITableau;
-  protected scrollHeight = "calc(100vh - 350px)";
   private readonly produitService = inject(ProduitService);
   private readonly tableauProduitService = inject(TableauProduitService);
   private readonly activatedRoute = inject(ActivatedRoute);
@@ -66,28 +62,40 @@ export class ProduitAssociesComponent implements OnInit {
       .subscribe((res: HttpResponse<IProduit[]>) => (this.produitsSource = res.body));
   }
 
-  protected trackId(index: number, item: IProduit): number {
-    return item.id;
+  protected moveToTarget(item: IProduit): void {
+    this.tableauProduitService.associer(this.tableau.id, [item.id]).subscribe(() => {
+      this.fetchSource();
+      this.fetchTarget();
+    });
   }
 
-  protected moveToTarget(event: any): void {
-    const ids = event.items.map((el: any) => el.id);
-    this.tableauProduitService.associer(this.tableau.id, ids).subscribe(() => this.fetchTarget());
+  protected moveToSource(item: IProduit): void {
+    this.tableauProduitService.dissocier([item.id]).subscribe(() => {
+      this.fetchSource();
+      this.fetchTarget();
+    });
   }
 
-  protected moveToSource(event: any): void {
-    const ids = event.items.map((el: any) => el.id);
-    this.tableauProduitService.dissocier(ids).subscribe(() => this.fetchSource());
+  protected moveAllToTarget(): void {
+    const ids = this.produitsSource.map(p => p.id);
+    if (!ids.length) {
+      return;
+    }
+    this.tableauProduitService.associer(this.tableau.id, ids).subscribe(() => {
+      this.fetchSource();
+      this.fetchTarget();
+    });
   }
 
-  protected moveAllToTarget(event: any): void {
-    const ids = event.items.map((el: any) => el.id);
-    this.tableauProduitService.associer(this.tableau.id, ids).subscribe(() => this.fetchTarget());
-  }
-
-  protected moveAllToSource(event: any): void {
-    const ids = event.items.map((el: any) => el.id);
-    this.tableauProduitService.dissocier(ids).subscribe(() => this.fetchSource());
+  protected moveAllToSource(): void {
+    const ids = this.produitsTarget.map(p => p.id);
+    if (!ids.length) {
+      return;
+    }
+    this.tableauProduitService.dissocier(ids).subscribe(() => {
+      this.fetchSource();
+      this.fetchTarget();
+    });
   }
 
   protected onSourceFilter(): void {

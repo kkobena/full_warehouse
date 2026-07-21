@@ -21,7 +21,6 @@ import { ButtonGroup } from "primeng/buttongroup";
 import { AbilityService } from "../../../../core/auth/ability.service";
 import { NgxSpinnerComponent } from "ngx-spinner";
 import { ITEMS_PER_PAGE } from "../../../../shared/constants/pagination.constants";
-import { Toast } from "primeng/toast";
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 
 @Component({
@@ -42,8 +41,7 @@ import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-d
     TooltipModule,
     ButtonGroup,
     NgxSpinnerComponent,
-    RouterLink,
-    Toast
+    RouterLink
   ]
 })
 export class PresaleListComponent implements OnInit {

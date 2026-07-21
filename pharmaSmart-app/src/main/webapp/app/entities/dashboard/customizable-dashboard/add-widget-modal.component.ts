@@ -2,7 +2,7 @@ import { Component, inject, Input, signal, ChangeDetectionStrategy } from '@angu
 import { CommonModule } from '@angular/common';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
-import { ButtonModule } from 'primeng/button';
+import { ButtonComponent } from 'app/shared/ui';
 
 import { WidgetType } from 'app/shared/model/dashboard-layout.model';
 
@@ -15,7 +15,7 @@ interface WidgetOption {
 
 @Component({
   selector: 'jhi-add-widget-modal',
-  imports: [CommonModule, ButtonModule],
+  imports: [CommonModule, ButtonComponent],
   templateUrl: './add-widget-modal.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './add-widget-modal.component.scss',

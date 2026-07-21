@@ -1,14 +1,18 @@
-import { Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy } from "@angular/core";
-import { HttpResponse } from "@angular/common/http";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { forkJoin, Subject, takeUntil } from "rxjs";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+  ViewChild
+} from "@angular/core";
+import {HttpResponse} from "@angular/common/http";
+import {CommonModule} from "@angular/common";
+import {FormsModule} from "@angular/forms";
+import {forkJoin, Subject, takeUntil} from "rxjs";
 
-import { ButtonModule } from "primeng/button";
-import { SelectModule } from "primeng/select";
-import { ToolbarModule } from "primeng/toolbar";
-import { Tag } from "primeng/tag";
-import { Drawer } from "primeng/drawer";
 
 import {
   FORECAST_METHOD_LABELS,
@@ -16,10 +20,17 @@ import {
   IForecastSummary,
   ISalesForecast
 } from "app/shared/model/report/sales-forecast.model";
-import { SalesForecastService } from "../services/sales-forecast.service";
-import { formatCurrency, formatMonth, formatPercent } from "app/shared/utils/format-utils";
+import {SalesForecastService} from "../services/sales-forecast.service";
+import {formatCurrency, formatMonth, formatPercent} from "app/shared/utils/format-utils";
 
-import { Chart, ChartConfiguration, ChartData, registerables } from "chart.js";
+import {Chart, ChartConfiguration, ChartData, registerables} from "chart.js";
+import {
+  BadgeComponent,
+  ButtonComponent,
+  OffcanvasComponent,
+  SelectComponent,
+  ToolbarComponent
+} from '../../../shared/ui';
 
 Chart.register(...registerables);
 
@@ -38,7 +49,15 @@ interface PeriodOption {
   templateUrl: "./sales-forecast.component.html",
   styleUrl: "./sales-forecast.component.scss",
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, ButtonModule, SelectModule, ToolbarModule, Tag, Drawer]
+  imports: [
+    CommonModule,
+    FormsModule,
+    BadgeComponent,
+    ButtonComponent,
+    OffcanvasComponent,
+    SelectComponent,
+    ToolbarComponent
+  ]
 })
 export default class SalesForecastComponent implements OnInit, OnDestroy {
   @ViewChild("forecastChartCanvas") forecastChartCanvas?: ElementRef<HTMLCanvasElement>;
@@ -55,15 +74,15 @@ export default class SalesForecastComponent implements OnInit, OnDestroy {
   protected selectedPeriod = signal<number>(3);
 
   protected methodOptions: MethodOption[] = [
-    { label: "Régression Linéaire", value: "LINEAR_REGRESSION" },
-    { label: "Moyenne Mobile", value: "MOVING_AVERAGE" },
-    { label: "Saisonnier", value: "SEASONAL" }
+    {label: "Régression Linéaire", value: "LINEAR_REGRESSION"},
+    {label: "Moyenne Mobile", value: "MOVING_AVERAGE"},
+    {label: "Saisonnier", value: "SEASONAL"}
   ];
 
   protected periodOptions: PeriodOption[] = [
-    { label: "3 mois", value: 3 },
-    { label: "6 mois", value: 6 },
-    { label: "12 mois", value: 12 }
+    {label: "3 mois", value: 3},
+    {label: "6 mois", value: 6},
+    {label: "12 mois", value: 12}
   ];
 
   private salesForecastService = inject(SalesForecastService);
@@ -97,7 +116,7 @@ export default class SalesForecastComponent implements OnInit, OnDestroy {
     })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: ({ summary, forecast }) => {
+        next: ({summary, forecast}) => {
           this.summary.set(summary.body);
           const forecastData = forecast.body ?? [];
           this.forecasts.set(forecastData);
@@ -154,7 +173,9 @@ export default class SalesForecastComponent implements OnInit, OnDestroy {
     }
 
     const ctx = this.forecastChartCanvas.nativeElement.getContext("2d");
-    if (!ctx) return;
+    if (!ctx) {
+      return;
+    }
 
     const chartData: ChartData<"line"> = {
       labels: data.map(d => this.formatMonth(d.forecastPeriod ?? "")),
@@ -177,8 +198,8 @@ export default class SalesForecastComponent implements OnInit, OnDestroy {
       options: {
         responsive: true,
         plugins: {
-          legend: { position: "top" },
-          title: { display: true, text: "Prévisions de Chiffre d'Affaires" },
+          legend: {position: "top"},
+          title: {display: true, text: "Prévisions de Chiffre d'Affaires"},
           tooltip: {
             callbacks: {
               label: context => `CA: ${this.formatCurrency(context.parsed.y)} FCFA`
@@ -188,7 +209,7 @@ export default class SalesForecastComponent implements OnInit, OnDestroy {
         scales: {
           y: {
             beginAtZero: true,
-            ticks: { callback: value => this.formatCurrency(Number(value)) }
+            ticks: {callback: value => this.formatCurrency(Number(value))}
           }
         }
       }
@@ -206,7 +227,9 @@ export default class SalesForecastComponent implements OnInit, OnDestroy {
     }
 
     const ctx = this.confidenceChartCanvas.nativeElement.getContext("2d");
-    if (!ctx) return;
+    if (!ctx) {
+      return;
+    }
 
     const chartData: ChartData<"line"> = {
       labels: data.map(d => this.formatMonth(d.forecastPeriod ?? "")),
@@ -246,10 +269,10 @@ export default class SalesForecastComponent implements OnInit, OnDestroy {
       options: {
         responsive: true,
         plugins: {
-          legend: { position: "top" },
-          title: { display: true, text: "Intervalles de Confiance (95%)" }
+          legend: {position: "top"},
+          title: {display: true, text: "Intervalles de Confiance (95%)"}
         },
-        scales: { y: { beginAtZero: true } }
+        scales: {y: {beginAtZero: true}}
       }
     };
 
@@ -266,12 +289,6 @@ export default class SalesForecastComponent implements OnInit, OnDestroy {
     return FORECAST_METHOD_LABELS[method as ForecastMethod] ?? method;
   }
 
-  protected getAccuracySeverity(accuracy: number | null | undefined): "success" | "warn" | "danger" {
-    if (accuracy == null) return "danger";
-    if (accuracy >= 80) return "success";
-    if (accuracy >= 60) return "warn";
-    return "danger";
-  }
 
   protected getTotalForecastedCA(): number {
     return this.forecasts().reduce((sum, f) => sum + (f.forecastedCA ?? 0), 0);

@@ -16,7 +16,6 @@ import {
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {Toast} from 'primeng/toast';
 import {TooltipModule} from 'primeng/tooltip';
 import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -80,7 +79,6 @@ import {SaleForEditInfo} from '../../../../shared/model/sales.model';
     CommonModule,
     FormsModule,
     TooltipModule,
-    Toast,
     ProductSearchSectionComponent,
     InsuranceDataBarComponent,
     ProductListComponent,

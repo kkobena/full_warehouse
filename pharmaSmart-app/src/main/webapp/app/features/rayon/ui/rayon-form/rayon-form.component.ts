@@ -1,10 +1,6 @@
 import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonModule } from "primeng/button";
-import { InputTextModule } from "primeng/inputtext";
-import { SelectModule } from "primeng/select";
-import { FloatLabelModule } from "primeng/floatlabel";
 import { HttpResponse } from "@angular/common/http";
 import { finalize } from "rxjs/operators";
 import { MagasinService } from "../../../../entities/magasin/magasin.service";
@@ -13,8 +9,8 @@ import { Storage } from "../../../../entities/storage/storage.model";
 import { ErrorService } from "../../../../shared/error.service";
 import { RayonApiService } from "../../data-access/services/rayon-api.service";
 import { IRayon, TYPE_ZONE_OPTIONS } from "../../models/rayon.model";
-import { Toast } from "primeng/toast";
 import { NotificationService } from "../../../../shared/services/notification.service";
+import { ButtonComponent, KeyFilterDirective, SelectComponent } from "../../../../shared/ui";
 
 @Component({
   selector: "app-rayon-form",
@@ -24,11 +20,9 @@ import { NotificationService } from "../../../../shared/services/notification.se
   imports: [
     FormsModule,
     ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    SelectModule,
-    FloatLabelModule,
-    Toast
+    ButtonComponent,
+    KeyFilterDirective,
+    SelectComponent
   ]
 })
 export class RayonFormComponent implements OnInit, AfterViewInit {

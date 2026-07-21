@@ -5,9 +5,12 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ProduitStatService } from 'app/entities/produit/stat/produit-stat.service';
 import { MagasinService } from 'app/entities/magasin/magasin.service';
-import { DatePickerComponent } from 'app/shared/date-picker/date-picker.component';
+import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
+import { NGB_DATE_TO_ISO } from 'app/shared/util/warehouse-util';
 import { ProduitAuditingParam, ProduitAuditingState, ProduitAuditingSum } from 'app/shared/model/produit-record.model';
 import { MouvementProduit } from 'app/shared/model/enumerations/mouvement-produit.model';
 import { IStorage } from 'app/shared/model/magasin.model';
@@ -37,7 +40,8 @@ interface PeriodShortcut {
     ButtonModule,
     SelectModule,
     TooltipModule,
-    DatePickerComponent,
+    PharmaDatePickerComponent,
+    TranslatePipe,
     MultiSelect
   ]
 })
@@ -59,8 +63,8 @@ export class ProduitMouvementsTabComponent implements OnDestroy {
   /** Raccourci de période actif (key) */
   protected activePeriod = signal<string>('');
 
-  protected fromDate: Date = new Date(new Date().getFullYear(), new Date().getMonth() - 2, 1);
-  protected toDate: Date = new Date();
+  protected fromDate: NgbDateStruct = this.toStruct(new Date(new Date().getFullYear(), new Date().getMonth() - 2, 1));
+  protected toDate: NgbDateStruct = this.toStruct(new Date());
   protected selectedStorage: IStorage | null = null;
 
   /** Filtre multi-types de mouvement (null / [] = tous) — lié via ngModel */
@@ -239,14 +243,14 @@ export class ProduitMouvementsTabComponent implements OnDestroy {
 
   protected applyShortcut(shortcut: PeriodShortcut): void {
     const today = new Date();
-    this.toDate = new Date(today);
+    this.toDate = this.toStruct(today);
     if (shortcut.days !== undefined) {
       const from = new Date(today);
       from.setDate(from.getDate() - shortcut.days);
-      this.fromDate = from;
+      this.fromDate = this.toStruct(from);
     } else {
       // Ce mois
-      this.fromDate = new Date(today.getFullYear(), today.getMonth(), 1);
+      this.fromDate = this.toStruct(new Date(today.getFullYear(), today.getMonth(), 1));
     }
     this.fromDateStr = '';
     this.toDateStr = '';
@@ -256,13 +260,13 @@ export class ProduitMouvementsTabComponent implements OnDestroy {
 
   // ── Handlers date pickers ─────────────────────────────────────
 
-  protected onFromDateChange(dateStr: string): void {
-    this.fromDateStr = dateStr;
+  protected onFromDateChange(date: NgbDateStruct | null): void {
+    this.fromDateStr = NGB_DATE_TO_ISO(date) ?? '';
     this.activePeriod.set(''); // saisie manuelle → reset raccourci actif
   }
 
-  protected onToDateChange(dateStr: string): void {
-    this.toDateStr = dateStr;
+  protected onToDateChange(date: NgbDateStruct | null): void {
+    this.toDateStr = NGB_DATE_TO_ISO(date) ?? '';
     this.activePeriod.set('');
     this.load();
   }
@@ -424,15 +428,15 @@ export class ProduitMouvementsTabComponent implements OnDestroy {
   private buildParam(): ProduitAuditingParam {
     return {
       produitId: this.produitId(),
-      fromDate: this.fromDateStr || this.toIsoDate(this.fromDate),
-      toDate: this.toDateStr || this.toIsoDate(this.toDate),
+      fromDate: this.fromDateStr || NGB_DATE_TO_ISO(this.fromDate),
+      toDate: this.toDateStr || NGB_DATE_TO_ISO(this.toDate),
       storageId: this.selectedStorage?.id,
       mouvementTypes: this.activeTypes.length ? this.activeTypes : undefined,
     };
   }
 
-  private toIsoDate(d: Date): string {
-    return d.toISOString().substring(0, 10);
+  private toStruct(date: Date): NgbDateStruct {
+    return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
   }
 
   private computeTotaux(summaries: ProduitAuditingSum[]): void {

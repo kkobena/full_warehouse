@@ -1,8 +1,6 @@
-import { Component, DestroyRef, ElementRef, inject, OnInit, Renderer2, ChangeDetectionStrategy } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonModule } from "primeng/button";
-import { SelectModule } from "primeng/select";
 import { HttpResponse } from "@angular/common/http";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { finalize } from "rxjs/operators";
@@ -14,13 +12,14 @@ import { NotificationService } from "../../../../shared/services/notification.se
 import { ErrorService } from "../../../../shared/error.service";
 import { RayonApiService } from "../../data-access/services/rayon-api.service";
 import { IRayon } from "../../models/rayon.model";
+import { ButtonComponent, SelectComponent } from "../../../../shared/ui";
 
 @Component({
   selector: "app-clone-rayon-form",
   templateUrl: "./clone-rayon-form.component.html",
   styleUrl: "./clone-rayon-form.component.scss",
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [ReactiveFormsModule, ButtonModule, SelectModule]
+  imports: [ReactiveFormsModule, ButtonComponent, SelectComponent]
 })
 export class CloneRayonFormComponent implements OnInit {
   rayons: IRayon[] = [];
@@ -41,8 +40,6 @@ export class CloneRayonFormComponent implements OnInit {
   private readonly magasinService = inject(MagasinService);
   private readonly storageService = inject(StorageService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly renderer = inject(Renderer2);
-  private readonly elementRef = inject(ElementRef);
 
   ngOnInit(): void {
     this.magasinService
@@ -81,20 +78,6 @@ export class CloneRayonFormComponent implements OnInit {
         next: res => this.activeModal.close(res.body),
         error: err => this.notificationService.error(this.errorService.getErrorMessage(err))
       });
-  }
-
-  protected onDropdownShow(event: any): void {
-    const modalBody = this.elementRef.nativeElement.querySelector(".modal-body");
-    if (modalBody) {
-      this.renderer.addClass(modalBody, "overflow-visible");
-    }
-  }
-
-  protected onDropdownHide(event: any): void {
-    const modalBody = this.elementRef.nativeElement.querySelector(".modal-body");
-    if (modalBody) {
-      this.renderer.removeClass(modalBody, "overflow-visible");
-    }
   }
 
   protected cancel(): void {

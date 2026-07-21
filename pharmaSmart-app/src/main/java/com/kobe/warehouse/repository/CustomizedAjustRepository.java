@@ -27,7 +27,6 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
-import java.io.IOException;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,8 +34,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -121,6 +118,9 @@ public class CustomizedAjustRepository extends FileResourceService implements Aj
             predicates.add(cb.equal(root.get(Ajustement_.ajust).get(Ajust_.user).get(AppUser_.id), ajustementFilterRecord.userId()));
         }
         predicates.add(cb.equal(root.get(Ajustement_.ajust).get(Ajust_.statut), ajustementFilterRecord.statut()));
+        if (Objects.nonNull(ajustementFilterRecord.type())) {
+            predicates.add(cb.equal(root.get(Ajustement_.type), ajustementFilterRecord.type()));
+        }
         predicates.add(
             cb.between(
                 cb.function("DATE", Date.class, root.get(Ajustement_.ajust).get(Ajust_.dateMtv)),

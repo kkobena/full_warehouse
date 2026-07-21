@@ -1,11 +1,8 @@
-import { Component, computed, effect, inject, input, resource, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, effect, inject, input, resource, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule} from '@angular/common';
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
-import { ToastModule } from 'primeng/toast';
-import { Tooltip } from 'primeng/tooltip';
-import { MessageService } from 'primeng/api';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { BadgeComponent, ButtonComponent, DataTableComponent, RowTogglerDirective } from 'app/shared/ui';
+import { NotificationService } from 'app/shared/services/notification.service';
 import { AgGridAngular } from 'ag-grid-angular';
 import {
   CellValueChangedEvent,
@@ -29,16 +26,15 @@ ModuleRegistry.registerModules([AllCommunityModule]);
   selector: 'app-suggestion-reassort',
   templateUrl: './suggestion-reassort.component.html',
   styleUrls: ['./suggestion-reassort.scss'],
-  imports: [CommonModule, TableModule, ButtonModule, TagModule, ToastModule, Tooltip, AgGridAngular],
+  imports: [CommonModule, DataTableComponent, ButtonComponent, BadgeComponent, NgbTooltip, RowTogglerDirective, AgGridAngular],
   changeDetection: ChangeDetectionStrategy.Eager,
-  providers: [MessageService],
 })
 export class AppSuggestionReassortComponent {
   readonly typeReassort = input<string>('RAYON');
 
   private readonly repartitionService = inject(RepartitionStockService);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
-  private readonly messageService = inject(MessageService);
+  private readonly notificationService = inject(NotificationService);
 
   private readonly suggestionsResource = resource({
     loader: async () => {
@@ -50,16 +46,16 @@ export class AppSuggestionReassortComponent {
 
   readonly suggestions = signal<ISuggestionReassort[]>([]);
   readonly loading = computed(() => this.suggestionsResource.isLoading());
-  readonly expandedRows = signal<Record<string, boolean>>({});
+  private readonly dataTable = viewChild(DataTableComponent);
 
   constructor() {
     effect(() => {
       const value = this.suggestionsResource.value();
       if (value && Array.isArray(value)) {
         this.suggestions.set(value);
-        const firstId = value[0]?.id;
-        if (firstId) {
-          this.expandedRows.set({ [firstId]: true });
+        const first = value[0];
+        if (first) {
+          this.dataTable()?.toggleRow(first);
         }
       }
     });
@@ -258,11 +254,7 @@ export class AppSuggestionReassortComponent {
     const newQuantity = event.newValue;
     if (ligne.id && newQuantity > 0) {
       if (ligne.stockAvailable && newQuantity > ligne.stockAvailable) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: 'La quantité ne peut pas dépasser le stock disponible',
-        });
+        this.notificationService.error('La quantité ne peut pas dépasser le stock disponible', 'Erreur');
         event.node.setDataValue('quantity', event.oldValue);
         setTimeout(() => {
           event.api.setFocusedCell(event.node.rowIndex!, 'quantity');
@@ -272,7 +264,7 @@ export class AppSuggestionReassortComponent {
       }
       this.repartitionService.updateLigneQuantity(ligne.id, newQuantity).subscribe({
         error: () => {
-          this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur lors de la mise à jour' });
+          this.notificationService.error('Erreur lors de la mise à jour', 'Erreur');
           event.node.setDataValue('quantity', event.oldValue);
         },
       });
@@ -295,9 +287,9 @@ export class AppSuggestionReassortComponent {
                   })
                   .filter(s => s.ligneReassorts && s.ligneReassorts.length > 0),
               );
-              this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Ligne supprimée' });
+              this.notificationService.success('Ligne supprimée', 'Succès');
             },
-            error: () => this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur lors de la suppression' }),
+            error: () => this.notificationService.error('Erreur lors de la suppression', 'Erreur'),
           });
         }
       },
@@ -312,10 +304,10 @@ export class AppSuggestionReassortComponent {
         if (suggestion.id) {
           this.repartitionService.validateSuggestion(suggestion.id).subscribe({
             next: () => {
-              this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Suggestion validée et stock déplacé' });
+              this.notificationService.success('Suggestion validée et stock déplacé', 'Succès');
               this.reloadSuggestions();
             },
-            error: () => this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur lors de la validation' }),
+            error: () => this.notificationService.error('Erreur lors de la validation', 'Erreur'),
           });
         }
       },
@@ -331,9 +323,9 @@ export class AppSuggestionReassortComponent {
           this.repartitionService.deleteSuggestion(suggestion.id).subscribe({
             next: () => {
               this.suggestions.update(current => current.filter(s => s.id !== suggestion.id));
-              this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Suggestion supprimée' });
+              this.notificationService.success('Suggestion supprimée', 'Succès');
             },
-            error: () => this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur lors de la suppression' }),
+            error: () => this.notificationService.error('Erreur lors de la suppression', 'Erreur'),
           });
         }
       },

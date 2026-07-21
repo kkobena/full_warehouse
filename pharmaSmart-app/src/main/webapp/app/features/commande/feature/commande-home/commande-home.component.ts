@@ -1,6 +1,13 @@
-import { Component, DestroyRef, effect, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { ActivatedRoute, RouterModule } from "@angular/router";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  effect,
+  inject,
+  OnInit
+} from "@angular/core";
+import {CommonModule} from "@angular/common";
+import {ActivatedRoute, RouterModule} from "@angular/router";
 import {
   NgbNav,
   NgbNavChangeEvent,
@@ -9,25 +16,25 @@ import {
   NgbNavLink,
   NgbNavOutlet
 } from "@ng-bootstrap/ng-bootstrap";
-import { CommandCommonService } from "../../../../entities/commande/command-common.service";
-import { AppRetourFournisseurComponent } from "../retour-fournisseur/retour-fournisseur.component";
-import { AppRepartitionStockComponent } from "../repartition-stock/repartition-stock.component";
-import { ApproUnifiedDashboardComponent } from "../appro-unified-dashboard/appro-unified-dashboard.component";
-import { SuggestionsUnifiedComponent } from "../suggestions-unified/suggestions-unified.component";
-import { BedHomeComponent } from "../bon-entree-diverse/bed-home/bed-home.component";
-import { TranslateService } from "@ngx-translate/core";
-import { PrimeNG } from "primeng/config";
-import { AlertBadgeService } from "../../../../shared/services/alert-badge.service";
-import { BreadcrumbService } from "../../../../shared/components/breadcrumb/breadcrumb.service";
-import { AbilityService } from "app/core/auth/ability.service";
+import {CommandCommonService} from "../../../../entities/commande/command-common.service";
+import {AppRetourFournisseurComponent} from "../retour-fournisseur/retour-fournisseur.component";
+import {AppRepartitionStockComponent} from "../repartition-stock/repartition-stock.component";
+import {
+  ApproUnifiedDashboardComponent
+} from "../appro-unified-dashboard/appro-unified-dashboard.component";
+import {SuggestionsUnifiedComponent} from "../suggestions-unified/suggestions-unified.component";
+import {BedHomeComponent} from "../bon-entree-diverse/bed-home/bed-home.component";
+import {AlertBadgeService} from "../../../../shared/services/alert-badge.service";
+import {BreadcrumbService} from "../../../../shared/components/breadcrumb/breadcrumb.service";
+import {AbilityService} from "app/core/auth/ability.service";
 
 /** Labels fil d'Ariane pour chaque onglet */
 const TAB_LABELS: Record<string, string> = {
-  DASHBOARD:         'Tableau de bord Appro',
-  SUGGESTIONS:       'Commandes & Réceptions',
+  DASHBOARD: 'Tableau de bord Appro',
+  SUGGESTIONS: 'Commandes & Réceptions',
   REPARTITION_STOCK: 'Répartition & Transferts',
-  RETOUR_FOURNISSEUR:'Retours fournisseurs',
-  BED:               "Bons d'Entrée Diverses",
+  RETOUR_FOURNISSEUR: 'Retours fournisseurs',
+  BED: "Bons d'Entrée Diverses",
 };
 
 @Component({
@@ -52,20 +59,17 @@ const TAB_LABELS: Record<string, string> = {
 })
 export class CommandeHomeComponent implements OnInit {
   protected active = "DASHBOARD";
-
+  protected readonly alertBadgeService = inject(AlertBadgeService);
   private readonly route = inject(ActivatedRoute);
   private readonly commandCommonService = inject(CommandCommonService);
-  private readonly translate = inject(TranslateService);
-  private readonly primeNGConfig = inject(PrimeNG);
-  protected readonly alertBadgeService = inject(AlertBadgeService);
   private readonly breadcrumbService = inject(BreadcrumbService);
   private readonly ability = inject(AbilityService);
 
-  protected readonly showDashboard        = this.ability.canSignal('display', 'commande.dashboard');
-  protected readonly showSuggestions      = this.ability.canSignal('display', 'commande.suggestions');
+  protected readonly showDashboard = this.ability.canSignal('display', 'commande.dashboard');
+  protected readonly showSuggestions = this.ability.canSignal('display', 'commande.suggestions');
   protected readonly showRepartitionStock = this.ability.canSignal('display', 'commande.repartition-stock');
   protected readonly showRetourFournisseur = this.ability.canSignal('display', 'commande.retour-fournisseur');
-  protected readonly showBed              = this.ability.canSignal('display', 'commande.bed');
+  protected readonly showBed = this.ability.canSignal('display', 'commande.bed');
 
   constructor() {
     inject(DestroyRef).onDestroy(() => this.breadcrumbService.clearTabCrumb());
@@ -80,10 +84,7 @@ export class CommandeHomeComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.translate.use("fr");
-    this.translate.stream("primeng").subscribe(data => {
-      this.primeNGConfig.setTranslation(data);
-    });
+
     this.route.queryParams.subscribe(params => {
       if (params["tab"]) {
         this.active = params["tab"];

@@ -1,25 +1,30 @@
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { Observable } from 'rxjs';
-import { FamilleProduit } from '../../../shared/model/famille-produit.model';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { RippleModule } from 'primeng/ripple';
-import { CommonModule } from '@angular/common';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
-import { Card } from 'primeng/card';
-import { FormeProduitService } from '../forme-produit.service';
-import { IFormProduit } from '../../../shared/model/form-produit.model';
-import { ErrorService } from '../../../shared/error.service';
+import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+  viewChild
+} from '@angular/core';
+import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
+import {Observable} from 'rxjs';
+import {FamilleProduit} from '../../../shared/model/famille-produit.model';
+import {CommonModule} from '@angular/common';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {ButtonComponent} from '../../../shared/ui';
+import {FormeProduitService} from '../forme-produit.service';
+import {IFormProduit} from '../../../shared/model/form-produit.model';
+import {ErrorService} from '../../../shared/error.service';
+import {NotificationService} from "../../../shared/services/notification.service";
 
 @Component({
   selector: 'jhi-form-famille',
   templateUrl: './form-forme-produit.component.html',
   styleUrls: ['./form-forme.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, RippleModule, ToastAlertComponent, Card],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonComponent],
 })
 export class FormFormeProduitComponent implements OnInit, AfterViewInit {
   entity: IFormProduit | null = null;
@@ -33,7 +38,7 @@ export class FormFormeProduitComponent implements OnInit, AfterViewInit {
 
   private readonly entityService = inject(FormeProduitService);
   private readonly activeModal = inject(NgbActiveModal);
-  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
   private readonly libelle = viewChild.required<ElementRef>('libelle');
 
@@ -72,7 +77,7 @@ export class FormFormeProduitComponent implements OnInit, AfterViewInit {
 
   private onSaveError(error: HttpErrorResponse): void {
     this.isSaving = false;
-    this.alert().showError(this.errorService.getErrorMessage(error));
+    this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<IFormProduit>>): void {

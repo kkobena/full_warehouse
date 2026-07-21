@@ -1,18 +1,10 @@
 import {AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, signal, viewChild, ChangeDetectionStrategy} from '@angular/core';
-import {AutoCompleteModule} from 'primeng/autocomplete';
-import {DividerModule} from 'primeng/divider';
-import {InputMaskModule} from 'primeng/inputmask';
-import {InputTextModule} from 'primeng/inputtext';
-import {KeyFilterModule} from 'primeng/keyfilter';
-import {RadioButton, RadioButtonModule} from 'primeng/radiobutton';
 import {ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
-import {SelectButtonModule} from 'primeng/selectbutton';
 import TranslateDirective from '../../../shared/language/translate.directive';
 import {Customer, ICustomer} from '../../../shared/model/customer.model';
 import {IClientTiersPayant, ITiersPayant} from '../../../shared/model';
 import {TiersPayantService} from '../../tiers-payant/tierspayant.service';
 import {HttpResponse} from '@angular/common/http';
-import {CardModule} from 'primeng/card';
 import {AssureFormStepService} from './assure-form-step.service';
 import {CommonService} from './common.service';
 import {ComplementaireStepComponent} from './complementaire-step.component';
@@ -23,25 +15,25 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {FormTiersPayantComponent} from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
 import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
+import {
+  CardComponent,
+  KeyFilterDirective,
+  RadioComponent,
+  SelectSearchComponent
+} from '../../../shared/ui';
 
 @Component({
   selector: 'jhi-assure-step',
   imports: [
     CommonModule,
-    AutoCompleteModule,
-    RadioButton,
-    RadioButtonModule,
-    DividerModule,
-    InputMaskModule,
-    InputTextModule,
-    KeyFilterModule,
-    RadioButtonModule,
     ReactiveFormsModule,
-    SelectButtonModule,
     TranslateDirective,
-    CardModule,
     ComplementaireStepComponent,
     DateNaissDirective,
+    CardComponent,
+    KeyFilterDirective,
+    RadioComponent,
+    SelectSearchComponent
   ],
   templateUrl: './assure-step.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -96,8 +88,8 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
     this.focusAndInitComplementaire(this.firstName().nativeElement, this.assureFormStepService.assure());
   }
 
-  searchTiersPayant(event: any): void {
-    this.loadTiersPayants(event.query);
+  searchTiersPayant(query: string): void {
+    this.loadTiersPayants(query);
   }
 
   loadTiersPayants(search?: string): void {
@@ -120,13 +112,18 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  onSelectTiersPayant(event: any): void {
-    if (event.value?.id === null) {
+  /**
+   * `(selectionChange)` d'app-select-search émet la **valeur** sélectionnée, là où le
+   * `(onSelect)` de `p-autocomplete` émettait un objet `{ value, originalEvent }`.
+   * Lire `event.value` renvoyait donc toujours `undefined`.
+   */
+  onSelectTiersPayant(tiersPayant: any): void {
+    if (tiersPayant?.id === null) {
       this.addTiersPayantAssurance();
-    } else {
-      this.tiersPayant = event.value;
+    } else if (tiersPayant) {
+      this.tiersPayant = tiersPayant;
       this.commonService.setCategorieTiersPayant(this.tiersPayant.categorie);
-      this.addToAlreadyAdded(event.value);
+      this.addToAlreadyAdded(tiersPayant);
     }
   }
 

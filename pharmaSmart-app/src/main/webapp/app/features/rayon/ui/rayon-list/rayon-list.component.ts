@@ -1,17 +1,14 @@
 import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
-import { TooltipModule } from 'primeng/tooltip';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { IRayon, TYPE_ZONE_SEVERITY } from '../../models/rayon.model';
-import { ButtonGroup } from "primeng/buttongroup";
+import { AppTableLazyLoadEvent, BadgeComponent, ButtonComponent, DataTableComponent } from '../../../../shared/ui';
 
 @Component({
   selector: 'app-rayon-list',
   templateUrl: './rayon-list.component.html',
   styleUrl: './rayon-list.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [TableModule, ButtonModule, TagModule, TooltipModule, ButtonGroup]
+  imports: [DataTableComponent, ButtonComponent, BadgeComponent, NgbTooltip]
 })
 export class RayonListComponent {
   readonly rayons = input<IRayon[]>([]);
@@ -22,7 +19,7 @@ export class RayonListComponent {
   readonly selectedRayon = input<IRayon | null>(null);
 
   readonly rayonSelected = output<IRayon>();
-  readonly lazyLoad = output<TableLazyLoadEvent>();
+  readonly lazyLoad = output<AppTableLazyLoadEvent>();
   readonly editRequested = output<IRayon>();
   readonly deleteRequested = output<IRayon>();
   readonly inventaireRequested = output<IRayon>();
@@ -59,7 +56,7 @@ export class RayonListComponent {
     this.cloneRequested.emit(rayon);
   }
 
-  protected onLazyLoad(event: TableLazyLoadEvent): void {
+  protected onLazyLoad(event: AppTableLazyLoadEvent): void {
     this.lazyLoad.emit(event);
   }
 

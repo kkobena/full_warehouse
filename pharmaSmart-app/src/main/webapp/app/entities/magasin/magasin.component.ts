@@ -4,17 +4,14 @@ import { IMagasin } from "app/shared/model/magasin.model";
 import { MagasinService } from "./magasin.service";
 import { RouterLink } from "@angular/router";
 import { CommonModule } from "@angular/common";
-import { ButtonModule } from "primeng/button";
-import { CardModule } from "primeng/card";
-import { TagModule } from "primeng/tag";
-import { ToolbarModule } from "primeng/toolbar";
+import { BadgeComponent, ButtonComponent } from "../../shared/ui";
 
 @Component({
   selector: "app-magasin",
   templateUrl: "./magasin.component.html",
   styleUrls: ["./magasin.component.scss"],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, CardModule, ButtonModule, TagModule, ToolbarModule, RouterLink]
+  imports: [CommonModule, RouterLink, ButtonComponent, BadgeComponent]
 })
 export class MagasinComponent implements OnInit {
   magasin?: IMagasin;

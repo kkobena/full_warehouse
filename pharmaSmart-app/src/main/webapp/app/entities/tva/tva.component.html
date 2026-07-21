@@ -7,58 +7,45 @@
           <span class="pharma-toolbar-title">Liste des Tvas</span>
         </div>
 
-        <p-toolbar>
-          <ng-template #start>
-            <div class="pharma-toolbar-filters"></div>
-          </ng-template>
+        <div class="pharma-toolbar-content">
+          <div class="pharma-toolbar-filters"></div>
 
-          <ng-template #end>
-            <div class="pharma-toolbar-actions">
-              <div class="pharma-button-group">
-                <p-button
-                  (click)="addNewEntity()"
-                  [raised]="true"
-                  icon="pi pi-plus"
-                  label="Nouvelle Tva"
-                  severity="success"
-                  type="button"
-                ></p-button>
-              </div>
+          <div class="pharma-toolbar-actions">
+            <div class="pharma-button-group">
+              <app-button (clicked)="addNewEntity()" [raised]="true" icon="pi pi-plus" label="Nouvelle Tva" severity="success" />
             </div>
-          </ng-template>
-        </p-toolbar>
+          </div>
+        </div>
       </div>
 
       <div class="mt-2">
         @if (tvas && tvas.length > 0) {
-          <p-table [(selection)]="selectedTva" [loading]="loading" [value]="tvas"
-                   class="p-datatable-sm"
-                   dataKey="id" selectionMode="single">
+          <app-data-table
+            [(selection)]="selectedTva"
+            [loading]="loading"
+            [selectionMode]="'single'"
+            [size]="'small'"
+            [value]="tvas"
+            dataKey="id"
+          >
             <ng-template #header>
               <tr class="pharma-table-head">
                 <th scope="col"><span>Taux</span></th>
                 <th scope="col"></th>
               </tr>
             </ng-template>
-            <ng-template #body let-columns="columns" let-tva>
-              <tr [pSelectableRow]="tva">
+            <ng-template #body let-tva>
+              <tr [appSelectableRow]="tva">
                 <td>
                   <span class="pharma-price">{{ tva.taux }}</span>
                 </td>
                 <td style="text-align: center">
-                  <p-button
-                    (click)="delete(tva)"
-                    [rounded]="true"
-                    [text]="true"
-                    icon="pi pi-trash"
-                    pTooltip="Supprimer"
-                    severity="danger"
-                    type="button"
-                  ></p-button>
+                  <app-button (clicked)="delete(tva)" [iconOnly]="true" [rounded]="true" [text]="true"
+                              ariaLabel="Supprimer" icon="pi pi-trash" ngbTooltip="Supprimer" severity="danger" />
                 </td>
               </tr>
             </ng-template>
-          </p-table>
+          </app-data-table>
         } @else {
           <div class="alert alert-warning" id="no-result">
             <span>{{ 'global.messages.emptyData' | translate }}</span>

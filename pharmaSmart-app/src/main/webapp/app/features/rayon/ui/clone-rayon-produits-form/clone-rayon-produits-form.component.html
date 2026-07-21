@@ -31,25 +31,20 @@
             <span>{{ row.storage.name }}</span>
             <span class="crpf-type-badge">{{ row.storage.storageType }}</span>
           </div>
-          <p-select
-            [options]="row.rayons"
+          <app-select-search
+            [items]="row.rayons"
             [ngModel]="row.selectedRayon"
             (ngModelChange)="onRayonSelect(row.storage.id!, $event)"
-            optionLabel="libelle"
+            bindLabel="libelle"
             placeholder="Ne pas cloner vers ce stockage"
-            [showClear]="true"
-            [fluid]="true"
+            [clearable]="true"
             appendTo="body"
-          >
-            <ng-template #option let-r>
-              <span class="pharma-code">{{ r.code }}</span>
-              <span style="margin-left:.5rem">{{ r.libelle }}</span>
-            </ng-template>
-            <ng-template #selectedItem let-r>
-              <span class="pharma-code">{{ r.code }}</span>
-              <span style="margin-left:.5rem">{{ r.libelle }}</span>
-            </ng-template>
-          </p-select>
+            [optionTemplate]="rayonOption"
+          />
+          <ng-template #rayonOption let-r>
+            <span class="pharma-code">{{ r.code }}</span>
+            <span style="margin-left:.5rem">{{ r.libelle }}</span>
+          </ng-template>
         </div>
       }
     </div>
@@ -57,13 +52,13 @@
 </div>
 
 <div class="modal-footer">
-  <p-button label="Annuler" severity="danger" [outlined]="true" size="small" (onClick)="dismiss()" />
-  <p-button
+  <app-button label="Annuler" severity="danger" [outlined]="true" size="small" (clicked)="dismiss()" />
+  <app-button
     label="Cloner"
     icon="pi pi-copy"
     size="small"
     [disabled]="!hasSelection() || saving()"
     [loading]="saving()"
-    (onClick)="confirm()"
+    (clicked)="confirm()"
   />
 </div>

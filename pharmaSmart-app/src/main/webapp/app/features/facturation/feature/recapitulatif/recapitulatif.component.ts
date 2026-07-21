@@ -4,14 +4,6 @@ import { FormsModule } from "@angular/forms";
 import { DatePipe, DecimalPipe } from "@angular/common";
 import { finalize } from "rxjs/operators";
 
-import { AutoCompleteModule } from "primeng/autocomplete";
-import { ButtonModule } from "primeng/button";
-import { FloatLabelModule } from "primeng/floatlabel";
-import { InputTextModule } from "primeng/inputtext";
-import { SelectModule } from "primeng/select";
-import { TableModule } from "primeng/table";
-import { Toolbar } from "primeng/toolbar";
-import { Toast } from "primeng/toast";
 
 import { NotificationService } from "../../../../shared/services/notification.service";
 import { TiersPayantService } from "../../../../entities/tiers-payant/tierspayant.service";
@@ -24,9 +16,15 @@ import {
 } from "../../data-access/models";
 import { RecapitulatifApiService } from "../../data-access/services/recapitulatif-api.service";
 import { RecapitulatifKpiBannerComponent } from "../../ui/recapitulatif-kpi-banner/recapitulatif-kpi-banner.component";
-import { ButtonGroup } from "primeng/buttongroup";
-import { Tooltip } from "primeng/tooltip";
 import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
+import {
+  ButtonComponent,
+  DataTableComponent,
+  FloatLabelComponent,
+  MultiSelectComponent,
+  SelectComponent,
+  ToolbarComponent
+} from "../../../../shared/ui";
 
 interface IMoisOption {
   label: string;
@@ -48,18 +46,14 @@ interface IAnneeOption {
   imports: [
     FormsModule,
     DecimalPipe,
-    Toolbar,
-    ButtonModule,
-    FloatLabelModule,
-    AutoCompleteModule,
-    SelectModule,
-    TableModule,
-    InputTextModule,
-    Toast,
     RecapitulatifKpiBannerComponent,
-    ButtonGroup,
-    Tooltip,
-    DatePipe
+    DatePipe,
+    ButtonComponent,
+    DataTableComponent,
+    FloatLabelComponent,
+    MultiSelectComponent,
+    SelectComponent,
+    ToolbarComponent
   ],
   templateUrl: "./recapitulatif.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -181,9 +175,9 @@ export class RecapitulatifComponent implements OnInit {
       });
   }
 
-  searchTiersPayant(event: { query: string }): void {
+  searchTiersPayant(query: string): void {
     this.tiersPayantService
-      .query({ page: 0, search: event.query, size: 10 })
+      .query({ page: 0, search: query, size: 10 })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(res => (this.tiersPayantSuggestions = res.body ?? []));
   }

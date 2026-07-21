@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { DD_MM_YYYY, DD_MM_YYYY_HH_MM_SS } from '../constants/input.constants';
 import { IDeliveryItem } from '../model/delivery-item';
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
@@ -22,6 +23,27 @@ export const formatNumber = (numberValue: number): string | null => {
 };
 export const DATE_FORMAT_YYYY_MM_DD = (date: Date): string | null => (date ? date.toLocaleDateString('fr-CA') : null);
 export const DATE_FORMAT_ISO_DATE = (date: Date): string | null => (date ? dayjs(date).format('YYYY-MM-DD') : null);
+
+/**
+ * Date du jour au format attendu par `pharma-date-picker` (ng-bootstrap).
+ *
+ * `NgbDateStruct` compte les mois à partir de 1, `Date` à partir de 0 — d'où le `+ 1`,
+ * source d'erreur classique lors du passage de `p-datepicker` à `pharma-date-picker`.
+ */
+export const TODAY_NGB_DATE = (): NgbDateStruct => {
+  const now = new Date();
+  return { year: now.getFullYear(), month: now.getMonth() + 1, day: now.getDate() };
+};
+
+/**
+ * Convertit un `NgbDateStruct` en `YYYY-MM-DD`.
+ *
+ * Volontairement sans passage par `Date` : construire un `Date` puis le formater
+ * réintroduirait le fuseau horaire, et une date saisie en fin de journée pouvait
+ * basculer au jour précédent une fois sérialisée en UTC.
+ */
+export const NGB_DATE_TO_ISO = (date: NgbDateStruct | null): string | null =>
+  date ? `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}` : null;
 export const DATE_FORMAT_FROM_STRING_FR = (date: string): string | null => {
   if (date) {
     const dateArray = date.split('/');

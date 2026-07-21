@@ -2,11 +2,7 @@ import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@ang
 import { CommonModule} from "@angular/common";
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonModule } from "primeng/button";
-import { SelectModule } from "primeng/select";
-import { InputNumberModule } from "primeng/inputnumber";
-import { TableModule } from "primeng/table";
-import { TagModule } from "primeng/tag";
+import { ButtonComponent, DataTableComponent, InputNumberComponent, SelectComponent } from "../../../shared/ui";
 
 import { LotPerimes } from "../model/lot-perimes";
 import {
@@ -24,12 +20,10 @@ import { NotificationService } from "../../../shared/services/notification.servi
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    ButtonModule,
-    SelectModule,
-    InputNumberModule,
-    TableModule,
-    TagModule
-
+    ButtonComponent,
+    SelectComponent,
+    InputNumberComponent,
+    DataTableComponent
   ],
   templateUrl: "./retour-groupe-perime-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,

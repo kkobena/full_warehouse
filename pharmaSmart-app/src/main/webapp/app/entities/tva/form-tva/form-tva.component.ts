@@ -2,19 +2,16 @@ import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, Change
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 import { ErrorService } from '../../../shared/error.service';
+import { NotificationService } from '../../../shared/services/notification.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { Button } from 'primeng/button';
-import { InputText } from 'primeng/inputtext';
-import { KeyFilter } from 'primeng/keyfilter';
-import { Card } from 'primeng/card';
+import { ButtonComponent, KeyFilterDirective } from '../../../shared/ui';
 import { TvaService } from '../tva.service';
 import { ITva, Tva } from '../../../shared/model/tva.model';
 
 @Component({
-  selector: 'jhi-form-tva',
-  imports: [ToastAlertComponent, Button, FormsModule, InputText, ReactiveFormsModule, KeyFilter, Card],
+  selector: 'app-form-tva',
+  imports: [ButtonComponent, FormsModule, ReactiveFormsModule, KeyFilterDirective],
   templateUrl: './form-tva.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./form-tva.scss'],
@@ -31,7 +28,7 @@ export class FormTvaComponent implements OnInit, AfterViewInit {
     }),
   });
   protected isSaving = false;
-  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
   private readonly tvaService = inject(TvaService);
   private readonly activeModal = inject(NgbActiveModal);
@@ -60,7 +57,7 @@ export class FormTvaComponent implements OnInit, AfterViewInit {
 
   private onSaveError(error: HttpErrorResponse): void {
     this.isSaving = false;
-    this.alert().showError(this.errorService.getErrorMessage(error));
+    this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<ITva>>): void {

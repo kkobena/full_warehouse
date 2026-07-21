@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ActivitySummaryService } from './activity-summary.service';
 import { ChiffreAffaire } from './model/chiffre-affaire.model';
@@ -6,39 +6,31 @@ import { GroupeFournisseurAchat } from './model/groupe-fournisseur-achat.model';
 import { ReglementTiersPayant } from './model/reglement-tiers-payant.model';
 import { AchatTiersPayant } from './model/achat-tiers-payant.model';
 import { CommonModule } from '@angular/common';
-import { Toolbar } from 'primeng/toolbar';
-import { DatePicker } from 'primeng/datepicker';
-import { FloatLabel } from 'primeng/floatlabel';
 import { FormsModule } from '@angular/forms';
-import { TranslateService } from '@ngx-translate/core';
-import { PrimeNG } from 'primeng/config';
-import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
-import { Button } from 'primeng/button';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { InputText } from 'primeng/inputtext';
-import { TableModule } from 'primeng/table';
+import { NGB_DATE_TO_ISO, TODAY_NGB_DATE } from '../../../shared/util/warehouse-util';
 import { BlobDownloadService } from '../../../shared/services/blob-download.service';
 import { finalize } from 'rxjs/operators';
-import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
-import { Tooltip } from 'primeng/tooltip';
+import { NotificationService } from '../../../shared/services/notification.service';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import {
+  ButtonComponent,
+  DataTableComponent,
+  IconFieldComponent,
+  ToolbarComponent
+} from '../../../shared/ui';
+import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
 
 @Component({
   selector: 'jhi-activity-summary',
   imports: [
     CommonModule,
-    Toolbar,
-    DatePicker,
-    FloatLabel,
     FormsModule,
-    Button,
-    IconField,
-    InputIcon,
-    InputText,
-    TableModule,
-    ToastAlertComponent,
-    Tooltip,
     RouterLink,
+    ButtonComponent,
+    DataTableComponent,
+    IconFieldComponent,
+    ToolbarComponent,
+    PharmaDatePickerComponent
   ],
   templateUrl: './activity-summary.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -50,8 +42,8 @@ export class ActivitySummaryComponent {
   protected groupeFournisseurAchats: GroupeFournisseurAchat[] | null = [];
   protected reglementTiersPayants: ReglementTiersPayant[] | null = [];
   protected achatTiersPayant: AchatTiersPayant[] | null = [];
-  protected fromDate: Date | null = new Date();
-  protected toDate: Date | null = new Date();
+  protected fromDate: NgbDateStruct | null = TODAY_NGB_DATE();
+  protected toDate: NgbDateStruct | null = TODAY_NGB_DATE();
   protected searchAchat: string | null = null;
   protected searchReglement: string | null = null;
   // protected scrollHeight = 'calc(100vh - 350px)';
@@ -60,17 +52,10 @@ export class ActivitySummaryComponent {
   protected loadingReglement = signal(false);
   protected loadingAchatTp = signal(false);
   protected loadingBtn = computed(() => this.loadingCa() || this.loadingAchat() || this.loadingReglement() || this.loadingAchatTp());
-  private readonly translate = inject(TranslateService);
-  private readonly primeNGConfig = inject(PrimeNG);
   private readonly activitySummaryService = inject(ActivitySummaryService);
   private readonly blobDownloadService = inject(BlobDownloadService);
-  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly notificationService = inject(NotificationService);
   constructor() {
-    this.translate.use('fr');
-    this.translate.stream('primeng').subscribe(data => {
-      this.primeNGConfig.setTranslation(data);
-    });
-
     this.loadAll();
   }
 
@@ -89,7 +74,7 @@ export class ActivitySummaryComponent {
       .pipe(finalize(() => (this.loadingPdf = false)))
       .subscribe({
         next: blob => this.blobDownloadService.downloadPdf(blob, 'rapport-activite'),
-        error: () => this.alert().showError("Une erreur est survenue lors de l'export PDF"),
+        error: () => this.notificationService.error("Une erreur est survenue lors de l'export PDF"),
       });
   }
 
@@ -147,8 +132,8 @@ export class ActivitySummaryComponent {
 
   private buildRequest(): any {
     return {
-      fromDate: DATE_FORMAT_ISO_DATE(this.fromDate),
-      toDate: DATE_FORMAT_ISO_DATE(this.toDate),
+      fromDate: NGB_DATE_TO_ISO(this.fromDate),
+      toDate: NGB_DATE_TO_ISO(this.toDate),
       searchAchat: this.searchAchat,
       searchReglement: this.searchReglement,
       page: 0,

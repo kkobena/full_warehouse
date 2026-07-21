@@ -1,36 +1,30 @@
 import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {ButtonModule} from 'primeng/button';
-import {TableModule} from 'primeng/table';
-import {ToolbarModule} from 'primeng/toolbar';
-import {TooltipModule} from 'primeng/tooltip';
+import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {IResponseDto} from '../../../shared/util/response-dto';
 import {IRemise} from '../../../shared/model';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {RemiseService} from '../remise.service';
 import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {
   RemiseProduitFormModalComponent
 } from '../remise-produit-form-modal/remise-produit-form-modal.component';
-import {ToggleSwitch} from 'primeng/toggleswitch';
 import {ErrorService} from '../../../shared/error.service';
-import {Toast} from "primeng/toast";
 import {NotificationService} from "../../../shared/services/notification.service";
 import {
   NgbConfirmDialogService
 } from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import {ButtonComponent, DataTableComponent, SwitchComponent, ToolbarComponent} from '../../../shared/ui';
 
 @Component({
   selector: 'app-remise-produits',
   imports: [
     FormsModule,
-    TableModule,
-    ToolbarModule,
-    TooltipModule,
-    ButtonModule,
-    ToggleSwitch,
-    Toast,
+    NgbTooltip,
+    ButtonComponent,
+    DataTableComponent,
+    SwitchComponent,
+    ToolbarComponent,
   ],
   templateUrl: './remise-produits.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

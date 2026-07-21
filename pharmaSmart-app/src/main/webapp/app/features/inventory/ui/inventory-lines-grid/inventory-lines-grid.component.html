@@ -19,51 +19,48 @@
       </div>
 
       <!-- Filtre lignes -->
-      <p-select
-        (onChange)="onLineFilterChange()"
+      <app-select
+        (selectionChange)="onLineFilterChange()"
         [(ngModel)]="selectedLineFilter"
-        [options]="lineFilters"
+        [items]="lineFilters"
         [style]="{ width: '150px' }"
         appendTo="body"
-        optionLabel="label"
-        optionValue="value"
-        pTooltip="Filtre lignes"
+        bindLabel="label"
+        bindValue="value"
+        ngbTooltip="Filtre lignes"
         placeholder="Tous"
-        size="small"
-        tooltipPosition="top"
+        [small]="true"
       />
 
       <!-- Emplacement -->
-      <p-select
-        (onChange)="onStorageFilterChange()"
+      <app-select
+        (selectionChange)="onStorageFilterChange()"
         [(ngModel)]="selectedStorageId"
-        [options]="storages()"
-        [showClear]="true"
+        [items]="storages()"
+        [clearable]="true"
         [style]="{ width: '160px' }"
         appendTo="body"
-        optionLabel="name"
-        optionValue="id"
-        pTooltip="Emplacement"
+        bindLabel="name"
+        bindValue="id"
+        ngbTooltip="Emplacement"
         placeholder="Emplacement"
-        size="small"
-        tooltipPosition="top"
+        [small]="true"
       />
 
       <!-- Rayon -->
       @if (rayons().length > 0) {
-        <p-select
-          (onChange)="onRayonFilterChange()"
+        <app-select
+          (selectionChange)="onRayonFilterChange()"
           [(ngModel)]="selectedRayonId"
-          [options]="rayons()"
-          [showClear]="true"
+          [items]="rayons()"
+          [clearable]="true"
           [style]="{ width: '140px' }"
           appendTo="body"
-          optionLabel="libelle"
-          optionValue="id"
-          pTooltip="Rayon"
+          bindLabel="libelle"
+          bindValue="id"
+          ngbTooltip="Rayon"
           placeholder="Rayon"
-          size="small"
-          tooltipPosition="top"
+          [small]="true"
         />
       }
 

@@ -7,58 +7,38 @@
           <span class="pharma-toolbar-title">Liste des laboratoires de produit</span>
         </div>
 
-        <p-toolbar>
-          <ng-template #start>
-            <div class="pharma-toolbar-filters">
-              <div class="pharma-search-input">
-                <p-iconfield>
-                  <p-inputicon class="pi pi-search" />
-                  <input (keyup.enter)="search($event)" pInputText
-                         placeholder="Taper pour rechercher" type="text" />
-                </p-iconfield>
-              </div>
+        <div class="pharma-toolbar-content">
+          <div class="pharma-toolbar-filters">
+            <div class="pharma-search-input">
+              <app-icon-field [overlay]="true" icon="pi pi-search">
+                <input (keyup.enter)="search($event)" class="form-control"
+                       placeholder="Taper pour rechercher" type="text" />
+              </app-icon-field>
             </div>
-          </ng-template>
+          </div>
 
-          <ng-template #end>
-            <div class="pharma-toolbar-actions">
-              <div class="pharma-button-group">
-                <p-button
-                  (click)="showFileDialog()"
-                  [raised]="true"
-                  icon="pi pi-upload"
-                  label="Importer"
-                  severity="help"
-                  type="button"
-                ></p-button>
-                <p-button
-                  (click)="addNewEntity()"
-                  [raised]="true"
-                  icon="pi pi-check"
-                  label="Nouveau"
-                  severity="success"
-                  type="button"
-                ></p-button>
-              </div>
+          <div class="pharma-toolbar-actions">
+            <div class="pharma-button-group">
+              <app-button (clicked)="showFileDialog()" [raised]="true" icon="pi pi-upload" label="Importer" severity="help" />
+              <app-button (clicked)="addNewEntity()" [raised]="true" icon="pi pi-check" label="Nouveau" severity="success" />
             </div>
-          </ng-template>
-        </p-toolbar>
+          </div>
+        </div>
       </div>
 
       <div class="mt-2">
-        <p-table
-          #dt
+        <app-data-table
           (onLazyLoad)="lazyLoading($event)"
           [lazy]="true"
           [loading]="loading"
           [paginator]="true"
           [rows]="itemsPerPage"
+          [selectionMode]="'single'"
+          [size]="'small'"
+          [stripedRows]="true"
           [totalRecords]="totalItems"
           [value]="entites"
-          class="p-datatable-sm p-datatable-striped"
           dataKey="id"
-          selectionMode="single"
-          stripedRows="true"
         >
           <ng-template #header>
             <tr class="pharma-table-head">
@@ -66,42 +46,28 @@
               <th scope="col"></th>
             </tr>
           </ng-template>
-          <ng-template #body let-columns="columns" let-elRow>
-            <tr [pSelectableRow]="elRow">
+          <ng-template #body let-elRow>
+            <tr [appSelectableRow]="elRow">
               <td>
                 <div class="pharma-entity-name">{{ elRow.libelle }}</div>
               </td>
               <td style="text-align: right">
-                <p-button
-                  (click)="onEdit(elRow)"
-                  [text]="true"
-                  class="mr-2"
-                  icon="pi pi-pencil"
-                  pTooltip="Editer"
-                  rounded="true"
-                  severity="primary"
-                ></p-button>
-                <p-button
-                  (click)="delete(elRow)"
-                  [text]="true"
-                  icon="pi pi-trash"
-                  pTooltip="Supprimer"
-                  rounded="true"
-                  severity="danger"
-                ></p-button>
+                <app-button (clicked)="onEdit(elRow)" [iconOnly]="true" [rounded]="true" [text]="true"
+                            ariaLabel="Editer" buttonClass="mr-2" icon="pi pi-pencil" ngbTooltip="Editer" severity="primary" />
+                <app-button (clicked)="delete(elRow)" [iconOnly]="true" [rounded]="true" [text]="true"
+                            ariaLabel="Supprimer" icon="pi pi-trash" ngbTooltip="Supprimer" severity="danger" />
               </td>
             </tr>
           </ng-template>
-          <ng-template #emptymessage let-columns>
+          <ng-template #emptymessage>
             <tr>
               <td [attr.colspan]="2">Aucune donnée trouvée</td>
             </tr>
           </ng-template>
-        </p-table>
+        </app-data-table>
       </div>
     </div>
   </div>
 </div>
-
 
 <jhi-spinner #spinner></jhi-spinner>

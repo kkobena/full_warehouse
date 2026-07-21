@@ -1,6 +1,6 @@
 import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TableModule } from 'primeng/table';
+import { DataTableComponent } from '../../../shared/ui';
 import { ChartComponent } from 'app/shared/chart/chart.component';
 import { forkJoin } from 'rxjs';
 
@@ -13,7 +13,7 @@ import { formatCurrency, formatDecimal, formatNumber } from 'app/shared/utils/fo
 
 @Component({
   selector: 'app-remises-analysis',
-  imports: [CommonModule, TableModule, ChartComponent, DateRangeFilterComponent],
+  imports: [CommonModule, DataTableComponent, ChartComponent, DateRangeFilterComponent],
   templateUrl: './remises-analysis.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./remises-analysis.component.scss'],

@@ -56,11 +56,11 @@
       @if (pct === 0) {
         <span class="ph-zero">=</span>
       } @else {
-        <p-tag
-          [value]="(pct > 0 ? '+' : '') + pct + '%'"
+        <app-badge
+          [label]="(pct > 0 ? '+' : '') + pct + '%'"
           [severity]="pct > 0 ? 'danger' : 'success'"
-          [pTooltip]="pct > 0 ? 'Hausse de ' + pct + '%' : 'Baisse de ' + (-pct) + '%'"
-          tooltipPosition="top"
+          [ngbTooltip]="pct > 0 ? 'Hausse de ' + pct + '%' : 'Baisse de ' + (-pct) + '%'"
+          placement="top"
         />
       }
     </ng-template>

@@ -1,11 +1,8 @@
 import { Component, DestroyRef, effect, inject, input, signal, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { finalize } from "rxjs/operators";
-import { NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonModule } from "primeng/button";
-import { TableModule } from "primeng/table";
-import { TooltipModule } from "primeng/tooltip";
-import { ProgressSpinnerModule } from "primeng/progressspinner";
+import { NgbNavModule, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
+import { ButtonComponent, DataTableComponent, NavTabsComponent } from "../../../../shared/ui";
 
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { NotificationService } from "../../../../shared/services/notification.service";
@@ -23,10 +20,10 @@ import { CommonModule } from "@angular/common";
   imports: [
     CommonModule,
     NgbNavModule,
-    ButtonModule,
-    TableModule,
-    TooltipModule,
-    ProgressSpinnerModule,
+    NgbTooltip,
+    ButtonComponent,
+    DataTableComponent,
+    NavTabsComponent,
     ReglementDiffereFormComponent
   ],
   templateUrl: "./differe-detail-panel.component.html",

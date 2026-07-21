@@ -1,24 +1,33 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
-import { GroupeTiersPayant, IGroupeTiersPayant } from "app/shared/model/groupe-tierspayant.model";
-import { ErrorService } from "app/shared/error.service";
-import { GroupeTiersPayantService } from "app/entities/groupe-tiers-payant/groupe-tierspayant.service";
-import { Observable } from "rxjs";
-import { HttpResponse } from "@angular/common/http";
-import { ButtonModule } from "primeng/button";
-import { InputTextModule } from "primeng/inputtext";
-import { RippleModule } from "primeng/ripple";
-import { KeyFilterModule } from "primeng/keyfilter";
-import { OrdreTrisFacture } from "../../../shared/model/tierspayant.model";
-import { TiersPayantService } from "../../tiers-payant/tierspayant.service";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { LowerCasePipe } from "@angular/common";
-import { Card } from "primeng/card";
-import { Select } from "primeng/select";
-import { InputNumber } from "primeng/inputnumber";
-import { ToggleSwitch } from "primeng/toggleswitch";
-import { NotificationService } from "../../../shared/services/notification.service";
-import { Toast } from "primeng/toast";
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+  viewChild
+} from "@angular/core";
+import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from "@angular/forms";
+import {GroupeTiersPayant, IGroupeTiersPayant} from "app/shared/model/groupe-tierspayant.model";
+import {ErrorService} from "app/shared/error.service";
+import {
+  GroupeTiersPayantService
+} from "app/entities/groupe-tiers-payant/groupe-tierspayant.service";
+import {Observable} from "rxjs";
+import {HttpResponse} from "@angular/common/http";
+import {OrdreTrisFacture} from "../../../shared/model/tierspayant.model";
+import {TiersPayantService} from "../../tiers-payant/tierspayant.service";
+import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
+import {LowerCasePipe} from "@angular/common";
+import {NotificationService} from "../../../shared/services/notification.service";
+import {
+  ButtonComponent,
+  CardComponent,
+  InputNumberComponent,
+  KeyFilterDirective,
+  SelectComponent,
+  SwitchComponent
+} from "../../../shared/ui";
 
 @Component({
   selector: "app-form-groupe-tiers-payant",
@@ -28,16 +37,13 @@ import { Toast } from "primeng/toast";
   imports: [
     FormsModule,
     ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    RippleModule,
-    KeyFilterModule,
     LowerCasePipe,
-    Card,
-    Select,
-    InputNumber,
-    ToggleSwitch,
-    Toast
+    ButtonComponent,
+    CardComponent,
+    InputNumberComponent,
+    KeyFilterDirective,
+    SelectComponent,
+    SwitchComponent
   ]
 })
 export class FormGroupeTiersPayantComponent implements OnInit, AfterViewInit {
@@ -45,9 +51,9 @@ export class FormGroupeTiersPayantComponent implements OnInit, AfterViewInit {
   entity?: IGroupeTiersPayant;
   protected ordreTrisFacture: OrdreTrisFacture[] = [];
   protected readonly periodicitesOptions = [
-    { label: "Mensuel", value: "MENSUEL" },
-    { label: "Quinzainière", value: "QUINZAINE" },
-    { label: "Bimensuel", value: "BIMENSUEL" }
+    {label: "Mensuel", value: "MENSUEL"},
+    {label: "Quinzainière", value: "QUINZAINE"},
+    {label: "Bimensuel", value: "BIMENSUEL"}
   ];
   protected isSaving = false;
   protected isValid = true;

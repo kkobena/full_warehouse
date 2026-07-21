@@ -1,6 +1,5 @@
 import { Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TableModule } from 'primeng/table';
 import { forkJoin } from 'rxjs';
 import { Chart, registerables } from 'chart.js';
 
@@ -10,12 +9,19 @@ import { IDemarqueByMotif, IDemarqueKpi } from '../../../shared/model/report';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { ChartColorsUtilsService } from '../../../shared/util/chart-colors-utils.service';
 import { formatCurrency, formatNumber } from 'app/shared/utils/format-utils';
+import {
+  DataTableComponent
+} from '../../../shared/ui';
 
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-demarque',
-  imports: [CommonModule, TableModule, DateRangeFilterComponent],
+  imports: [
+    CommonModule,
+    DateRangeFilterComponent,
+    DataTableComponent
+  ],
   templateUrl: './demarque.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./demarque.component.scss'],

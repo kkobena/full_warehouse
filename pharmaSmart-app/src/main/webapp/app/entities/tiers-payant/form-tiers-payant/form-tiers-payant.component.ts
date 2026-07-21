@@ -1,45 +1,49 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
-import { LowerCasePipe } from "@angular/common";
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
-import { ErrorService } from "app/shared/error.service";
-import { TiersPayantService } from "app/entities/tiers-payant/tierspayant.service";
-import { GroupeTiersPayantService } from "app/entities/groupe-tiers-payant/groupe-tierspayant.service";
-import { ITiersPayant, ModelFacture, TiersPayant } from "app/shared/model/tierspayant.model";
-import { IGroupeTiersPayant } from "app/shared/model/groupe-tierspayant.model";
-import { HttpResponse } from "@angular/common/http";
-import { Observable } from "rxjs";
-import { ButtonModule } from "primeng/button";
-import { InputTextModule } from "primeng/inputtext";
-import { RippleModule } from "primeng/ripple";
-import { KeyFilterModule } from "primeng/keyfilter";
-import { ToastModule } from "primeng/toast";
-import { AutoCompleteModule } from "primeng/autocomplete";
-import { Select } from "primeng/select";
-import { ToggleSwitch } from "primeng/toggleswitch";
-import { InputNumber } from "primeng/inputnumber";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { Card } from "primeng/card";
-import { NotificationService } from "../../../shared/services/notification.service";
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+  viewChild
+} from "@angular/core";
+import {LowerCasePipe} from "@angular/common";
+import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from "@angular/forms";
+import {ErrorService} from "app/shared/error.service";
+import {TiersPayantService} from "app/entities/tiers-payant/tierspayant.service";
+import {
+  GroupeTiersPayantService
+} from "app/entities/groupe-tiers-payant/groupe-tierspayant.service";
+import {ITiersPayant, ModelFacture, TiersPayant} from "app/shared/model/tierspayant.model";
+import {IGroupeTiersPayant} from "app/shared/model/groupe-tierspayant.model";
+import {HttpResponse} from "@angular/common/http";
+import {Observable} from "rxjs";
+import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
+import {NotificationService} from "../../../shared/services/notification.service";
+import {
+  ButtonComponent,
+  CardComponent,
+  InputNumberComponent,
+  KeyFilterDirective,
+  SelectComponent,
+  SwitchComponent
+} from "../../../shared/ui";
 
 @Component({
-  selector: "jhi-form-tiers-payant",
+  selector: "app-form-tiers-payant",
   templateUrl: "./form-tiers-payant.component.html",
   styleUrls: ["./form-tiers-payant.component.scss"],
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FormsModule,
     ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    RippleModule,
-    KeyFilterModule,
-    ToastModule,
-    AutoCompleteModule,
-    Select,
-    ToggleSwitch,
-    InputNumber,
     LowerCasePipe,
-    Card
+    ButtonComponent,
+    CardComponent,
+    InputNumberComponent,
+    KeyFilterDirective,
+    SelectComponent,
+    SwitchComponent
   ]
 })
 export class FormTiersPayantComponent implements OnInit, AfterViewInit {
@@ -53,9 +57,9 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
   protected groupeTiersPayants: IGroupeTiersPayant[] = [];
   protected modelFacture: ModelFacture[] = [];
   protected readonly periodicitesOptions = [
-    { label: "Mensuel", value: "MENSUEL" },
-    { label: "Quinzainière", value: "QUINZAINE" },
-    { label: "Bimensuel", value: "BIMENSUEL" }
+    {label: "Mensuel", value: "MENSUEL"},
+    {label: "Quinzainière", value: "QUINZAINE"},
+    {label: "Bimensuel", value: "BIMENSUEL"}
   ];
   protected editForm = this.fb.group({
     id: [],
@@ -105,7 +109,7 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
   }
 
   async populate(): Promise<IGroupeTiersPayant[]> {
-    return await this.groupeTiersPayantService.queryPromise({ search: "" });
+    return await this.groupeTiersPayantService.queryPromise({search: ""});
   }
 
   loadModelFacture(): void {

@@ -8,7 +8,7 @@
           <span>Comptabilité</span>
         </div>
         <div class="pharma-nav-sidebar-content">
-          <div #nav="ngbNav" [activeId]="active()" (activeIdChange)="active.set($event)"
+          <div #nav="ngbNav" (activeIdChange)="active.set($event)" [activeId]="active()"
                class="nav flex-column nav-pills" ngbNav orientation="vertical">
 
             @if (showBalance()) {
@@ -19,7 +19,7 @@
                   <span class="link-arrow">›</span>
                 </a>
                 <ng-template ngbNavContent>
-                  <jhi-balance-mvt-caisse />
+                  <app-balance-mvt-caisse />
                 </ng-template>
               </ng-container>
             }
@@ -58,7 +58,7 @@
                   <span class="link-arrow">›</span>
                 </a>
                 <ng-template ngbNavContent>
-                  <jhi-recapitualtif-caisse />
+                  <app-recapitualtif-caisse />
                 </ng-template>
               </ng-container>
             }

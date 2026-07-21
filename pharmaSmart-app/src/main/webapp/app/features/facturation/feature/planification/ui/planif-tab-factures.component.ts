@@ -1,19 +1,30 @@
 import { Component, computed, inject, input, signal, ChangeDetectionStrategy } from "@angular/core";
 import { DatePipe } from "@angular/common";
 import { FormsModule } from "@angular/forms";
-import { TableModule } from "primeng/table";
-import { ButtonModule } from "primeng/button";
-import { ToggleSwitch } from "primeng/toggleswitch";
-import { Tooltip } from "primeng/tooltip";
+import { NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
+import {
+  ButtonComponent,
+  DataTableComponent,
+  SelectableRowDirective,
+  SwitchComponent
+} from "../../../../../shared/ui";
 
 import { IPlanification } from "../../../data-access/models";
 import { PlanificationStateService } from "../planification-state.service";
 import { PlanifDetailPanelComponent } from "./planif-detail-panel.component";
-import { ButtonGroup } from "primeng/buttongroup";
 
 @Component({
   selector: "app-planif-tab-factures",
-  imports: [DatePipe, FormsModule, TableModule, ButtonModule, ToggleSwitch, Tooltip, PlanifDetailPanelComponent, ButtonGroup],
+  imports: [
+    DatePipe,
+    FormsModule,
+    NgbTooltip,
+    ButtonComponent,
+    DataTableComponent,
+    SelectableRowDirective,
+    SwitchComponent,
+    PlanifDetailPanelComponent
+  ],
   templateUrl: "./planif-tab-factures.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./planif-tab-factures.component.scss"

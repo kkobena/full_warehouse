@@ -1,30 +1,22 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-2">
     <div class="depot-form-container">
-      <div class="pharma-toolbar">
-        <div class="pharma-toolbar-header">
-          <i class="pi pi-building"></i>
-          <span class="pharma-toolbar-title">{{ isEditMode ? 'Modifier' : 'Nouveau' }} Dépôt</span>
-        </div>
-        <p-toolbar>
-          <ng-template #end>
-            <div class="pharma-toolbar-actions">
-              <p-button (onClick)="cancel()" [text]="true" icon="pi pi-arrow-left" label="Retour" severity="secondary"> </p-button>
-            </div>
-          </ng-template>
-        </p-toolbar>
-      </div>
+      <app-toolbar icon="pi pi-building" [title]="(isEditMode ? 'Modifier' : 'Nouveau') + ' Dépôt'">
+        <ng-container ngProjectAs="[toolbarActions]">
+          <div class="pharma-toolbar-actions">
+            <app-button (clicked)="cancel()" [text]="true" icon="pi pi-arrow-left" label="Retour" severity="secondary" />
+          </div>
+        </ng-container>
+      </app-toolbar>
 
       <form (ngSubmit)="save()" [formGroup]="depotForm">
         <!-- Section 1: Champs Obligatoires -->
         <div class="card-grid-2col">
-          <p-card>
-            <ng-template #header>
-              <div class="section-header section-header-required">
-                <i class="pi pi-exclamation-circle"></i>
-                <span>Champs Obligatoires</span>
-              </div>
-            </ng-template>
+          <app-card [variant]="'form'" [withHeader]="true">
+            <div ngProjectAs="[cardHeader]" class="section-header section-header-required">
+              <i class="pi pi-exclamation-circle"></i>
+              <span>Champs Obligatoires</span>
+            </div>
 
             <div class="form-grid-compact">
               <!-- Name -->
@@ -33,13 +25,12 @@
                 <input
                   #name
                   [class.ng-invalid]="formControls['name'].invalid && formControls['name'].touched"
-                  class="w-full"
+                  class="form-control"
                   formControlName="name"
                   id="name"
-                  pInputText
                 />
                 @if (formControls['name'].invalid && formControls['name'].touched) {
-                  <small class="p-error">Le nom court est obligatoire</small>
+                  <small class="form-text text-danger">Le nom court est obligatoire</small>
                 }
               </div>
 
@@ -48,60 +39,55 @@
                 <label for="fullName">Nom Complet <span class="required">*</span></label>
                 <input
                   [class.ng-invalid]="formControls['fullName'].invalid && formControls['fullName'].touched"
-                  class="w-full"
+                  class="form-control"
                   formControlName="fullName"
                   id="fullName"
-                  pInputText
                 />
                 @if (formControls['fullName'].invalid && formControls['fullName'].touched) {
-                  <small class="p-error">Le nom complet est obligatoire</small>
+                  <small class="form-text text-danger">Le nom complet est obligatoire</small>
                 }
               </div>
 
               <!-- Type Magasin -->
               <div class="form-field">
                 <label for="typeMagasin">Type de Magasin <span class="required">*</span></label>
-                <p-select
-                  [class.ng-invalid]="formControls['typeMagasin'].invalid && formControls['typeMagasin'].touched"
+                <app-select
+                  [invalid]="formControls['typeMagasin'].invalid && formControls['typeMagasin'].touched"
                   [disabled]="true"
-                  [fluid]="true"
-                  [options]="typeMagasinOptions"
+                  [items]="typeMagasinOptions"
                   formControlName="typeMagasin"
-                  id="typeMagasin"
-                  optionLabel="label"
-                  optionValue="value"
-                >
-                </p-select>
+                  inputId="typeMagasin"
+                  bindLabel="label"
+                  bindValue="value"
+                />
                 @if (formControls['typeMagasin'].invalid && formControls['typeMagasin'].touched) {
-                  <small class="p-error">Le type de magasin est obligatoire</small>
+                  <small class="form-text text-danger">Le type de magasin est obligatoire</small>
                 }
               </div>
             </div>
-          </p-card>
+          </app-card>
 
           <!-- Section 2: Informations de Contact -->
-          <p-card>
-            <ng-template #header>
-              <div class="section-header">
-                <i class="pi pi-phone"></i>
-                <span>Informations de Contact</span>
-              </div>
-            </ng-template>
+          <app-card [variant]="'form'" [withHeader]="true">
+            <div ngProjectAs="[cardHeader]" class="section-header">
+              <i class="pi pi-phone"></i>
+              <span>Informations de Contact</span>
+            </div>
 
             <div class="form-grid-compact">
               <div class="form-field">
                 <label for="managerLastName">Nom du Gérant</label>
-                <input class="w-full" formControlName="managerLastName" id="managerLastName" pInputText type="text" />
+                <input class="form-control" formControlName="managerLastName" id="managerLastName" type="text" />
               </div>
               <div class="form-field">
                 <label for="managerFirstName">Prénom(s) du Gérant</label>
-                <input class="w-full" formControlName="managerFirstName" id="managerFirstName" pInputText type="text" />
+                <input class="form-control" formControlName="managerFirstName" id="managerFirstName" type="text" />
               </div>
 
               <!-- Phone -->
               <div class="form-field">
                 <label for="phone">Téléphone</label>
-                <input class="w-full" formControlName="phone" id="phone" pInputText type="tel" />
+                <input class="form-control" formControlName="phone" id="phone" type="tel" />
               </div>
 
               <!-- Email -->
@@ -109,104 +95,99 @@
                 <label for="email">Email</label>
                 <input
                   [class.ng-invalid]="formControls['email'].invalid && formControls['email'].touched"
-                  class="w-full"
+                  class="form-control"
                   formControlName="email"
                   id="email"
-                  pInputText
                   type="email"
                 />
                 @if (formControls['email'].invalid && formControls['email'].touched) {
-                  <small class="p-error">Email invalide</small>
+                  <small class="form-text text-danger">Email invalide</small>
                 }
               </div>
 
               <!-- Address (Full Width) -->
               <div class="form-field form-field-full">
                 <label for="address">Adresse</label>
-                <textarea class="w-full" formControlName="address" id="address" pTextarea rows="2"></textarea>
+                <textarea class="form-control" formControlName="address" id="address" rows="2"></textarea>
               </div>
             </div>
-          </p-card>
+          </app-card>
         </div>
 
         <div class="card-grid-2col mt-2">
           <!-- Section 3: Informations Administratives -->
-          <p-card>
-            <ng-template #header>
-              <div class="section-header">
-                <i class="pi pi-file-edit"></i>
-                <span>Informations Administratives</span>
-              </div>
-            </ng-template>
+          <app-card [variant]="'form'" [withHeader]="true">
+            <div ngProjectAs="[cardHeader]" class="section-header">
+              <i class="pi pi-file-edit"></i>
+              <span>Informations Administratives</span>
+            </div>
 
             <div class="form-grid-compact">
               <!-- Registre -->
               <div class="form-field">
                 <label for="registre">Registre de Commerce</label>
-                <input class="w-full" formControlName="registre" id="registre" pInputText />
+                <input class="form-control" formControlName="registre" id="registre" />
               </div>
 
               <!-- Compte Contribuable -->
               <div class="form-field">
                 <label for="compteContribuable">Compte Contribuable</label>
-                <input class="w-full" formControlName="compteContribuable" id="compteContribuable" pInputText />
+                <input class="form-control" formControlName="compteContribuable" id="compteContribuable" />
               </div>
 
               <!-- Num Comptable -->
               <div class="form-field">
                 <label for="numComptable">Numéro Comptable</label>
-                <input class="w-full" formControlName="numComptable" id="numComptable" pInputText />
+                <input class="form-control" formControlName="numComptable" id="numComptable" />
               </div>
 
               <!-- Compte Bancaire -->
               <div class="form-field">
                 <label for="compteBancaire">Compte Bancaire</label>
-                <input class="w-full" formControlName="compteBancaire" id="compteBancaire" pInputText />
+                <input class="form-control" formControlName="compteBancaire" id="compteBancaire" />
               </div>
 
               <!-- Registre Imposition -->
               <div class="form-field form-field-2col">
                 <label for="registreImposition">Registre d'Imposition</label>
-                <input class="w-full" formControlName="registreImposition" id="registreImposition" pInputText />
+                <input class="form-control" formControlName="registreImposition" id="registreImposition" />
               </div>
             </div>
-          </p-card>
+          </app-card>
 
           <!-- Section 4: Messages et Notes -->
-          <p-card>
-            <ng-template #header>
-              <div class="section-header">
-                <i class="pi pi-comment"></i>
-                <span>Messages et Notes</span>
-              </div>
-            </ng-template>
+          <app-card [variant]="'form'" [withHeader]="true">
+            <div ngProjectAs="[cardHeader]" class="section-header">
+              <i class="pi pi-comment"></i>
+              <span>Messages et Notes</span>
+            </div>
 
             <div class="form-grid-compact">
               <!-- Welcome Message -->
               <div class="form-field">
                 <label for="welcomeMessage">Message de Bienvenue</label>
-                <textarea class="w-full" formControlName="welcomeMessage" id="welcomeMessage" pTextarea rows="2"></textarea>
+                <textarea class="form-control" formControlName="welcomeMessage" id="welcomeMessage" rows="2"></textarea>
               </div>
 
               <!-- Note -->
               <div class="form-field">
                 <label for="note">Notes</label>
-                <textarea class="w-full" formControlName="note" id="note" pTextarea rows="2"></textarea>
+                <textarea class="form-control" formControlName="note" id="note" rows="2"></textarea>
               </div>
             </div>
-          </p-card>
+          </app-card>
         </div>
 
         <div class="form-actions-compact">
-          <p-button (onClick)="cancel()" [text]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button"></p-button>
-          <p-button
+          <app-button (clicked)="cancel()" [text]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
+          <app-button
             [disabled]="depotForm.invalid || isSaving"
             [label]="isEditMode ? 'Mettre à jour' : 'Créer'"
             [loading]="isSaving"
             icon="pi pi-check"
             severity="primary"
             type="submit"
-          ></p-button>
+          />
         </div>
       </form>
     </div>

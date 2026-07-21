@@ -1,0 +1,85 @@
+// Carte de données — habillage partagé.
+//
+// Extrait de `dashboard-common.scss`, dont il était la section `.data-card`, pour être
+// consommé aussi par le composant `app-card` du Design System (cf. §4 du plan de
+// migration). Les deux points d'entrée produisent exactement le même CSS.
+//
+// Les variables sont déclarées en `!default` : `dashboard-common.scss` les définit avant
+// d'importer ce fichier, ses valeurs gagnent donc ; importé seul par `app-card`, ce sont
+// les valeurs ci-dessous qui s'appliquent.
+$white: #ffffff !default;
+$gray-light: #f8f9fa !default;
+$gray-border: #e2e8f0 !default;
+$text-primary: #333 !default;
+
+.data-card {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  background: $white;
+  animation: slideUp 0.6s ease-out backwards;
+
+  &:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+
+  .card-header {
+    background: linear-gradient(135deg, $gray-light 0%, #ffffff 100%);
+    border-bottom: 2px solid $gray-border;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .card-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: $text-primary;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+
+      fa-icon,
+      i {
+        font-size: 1.25rem;
+      }
+    }
+
+    ::ng-deep .p-select {
+      min-width: 120px;
+
+      .p-select-label {
+        padding: 0.5rem 1rem;
+      }
+    }
+  }
+
+  .card-body {
+    padding: 1rem;
+
+    &.p-0 {
+      padding: 0;
+    }
+
+    &.py-4 {
+      padding-top: 1.5rem;
+      padding-bottom: 1.5rem;
+    }
+  }
+}
+
+// Nécessaire à l'animation ci-dessus. `dashboard-common.scss` la redéclare à l'identique
+// pour ses autres usages ; une redéclaration de @keyframes est sans effet de bord.
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

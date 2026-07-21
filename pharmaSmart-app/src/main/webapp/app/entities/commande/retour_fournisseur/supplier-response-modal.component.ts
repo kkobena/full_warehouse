@@ -1,17 +1,13 @@
 import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonModule } from "primeng/button";
-import { TableModule } from "primeng/table";
-import { InputNumberModule } from "primeng/inputnumber";
-import { ToastModule } from "primeng/toast";
+import { NgbActiveModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { IRetourBon } from "app/shared/model/retour-bon.model";
 import { IRetourBonItem } from "app/shared/model/retour-bon-item.model";
 import { AvoirFournisseurService } from "app/entities/commande/retour_fournisseur/avoir-fournisseur.service";
 import { IAvoirLigneCommand } from "app/shared/model/avoir-fournisseur.model";
-import { Tooltip } from "primeng/tooltip";
 import { NotificationService } from "../../../shared/services/notification.service";
+import { ButtonComponent, DataTableComponent, EditableCellComponent, InputNumberComponent } from "../../../shared/ui";
 
 interface ResponseLine {
   item: IRetourBonItem;
@@ -22,7 +18,7 @@ interface ResponseLine {
 
 @Component({
   selector: "app-supplier-response-modal",
-  imports: [CommonModule, FormsModule, ButtonModule, TableModule, InputNumberModule, ToastModule, Tooltip],
+  imports: [CommonModule, FormsModule, ButtonComponent, DataTableComponent, InputNumberComponent, EditableCellComponent, NgbTooltip],
   templateUrl: "./supplier-response-modal.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./supplier-response-modal.component.scss"

@@ -14,16 +14,8 @@
     <section class="export-section">
       <h6 class="section-title"><i class="pi pi-calendar me-2"></i>Période</h6>
       <div class="d-flex gap-3 flex-wrap">
-        <p-floatlabel variant="on">
-          <p-datepicker inputId="exp-start" [ngModel]="startDate()" (ngModelChange)="startDate.set($event)"
-                        dateFormat="dd/mm/yy" />
-          <label for="exp-start">Du</label>
-        </p-floatlabel>
-        <p-floatlabel variant="on">
-          <p-datepicker inputId="exp-end" [ngModel]="endDate()" (ngModelChange)="endDate.set($event)"
-                        dateFormat="dd/mm/yy" />
-          <label for="exp-end">Au</label>
-        </p-floatlabel>
+        <pharma-date-picker inputId="exp-start" [ngModel]="startDate()" (ngModelChange)="startDate.set($event)" label="Du" />
+        <pharma-date-picker inputId="exp-end" [ngModel]="endDate()" (ngModelChange)="endDate.set($event)" label="Au" />
       </div>
     </section>
 
@@ -34,28 +26,22 @@
       <h6 class="section-title"><i class="pi pi-list me-2"></i>Contenu à inclure</h6>
       <div class="row g-2">
         <div class="col-md-6 d-flex align-items-center gap-2">
-          <p-checkbox [(ngModel)]="includeVentes" [binary]="true" inputId="chk-ventes" />
-          <label for="chk-ventes">Ventes par famille (CA + TVA)</label>
+          <app-checkbox [(ngModel)]="includeVentes" label="Ventes par famille (CA + TVA)" />
         </div>
         <div class="col-md-6 d-flex align-items-center gap-2">
-          <p-checkbox [(ngModel)]="includeAchats" [binary]="true" inputId="chk-achats" />
-          <label for="chk-achats">Achats par fournisseur</label>
+          <app-checkbox [(ngModel)]="includeAchats" label="Achats par fournisseur" />
         </div>
         <div class="col-md-6 d-flex align-items-center gap-2">
-          <p-checkbox [(ngModel)]="includeMvtCaisse" [binary]="true" inputId="chk-caisse" />
-          <label for="chk-caisse">Mouvements de caisse</label>
+          <app-checkbox [(ngModel)]="includeMvtCaisse" label="Mouvements de caisse" />
         </div>
         <div class="col-md-6 d-flex align-items-center gap-2">
-          <p-checkbox [(ngModel)]="includeTiersPayant" [binary]="true" inputId="chk-tp" />
-          <label for="chk-tp">Tiers-payants (créances + règlements)</label>
+          <app-checkbox [(ngModel)]="includeTiersPayant" label="Tiers-payants (créances + règlements)" />
         </div>
         <div class="col-md-6 d-flex align-items-center gap-2">
-          <p-checkbox [(ngModel)]="includeDifferes" [binary]="true" inputId="chk-diff" />
-          <label for="chk-diff">Différés clients</label>
+          <app-checkbox [(ngModel)]="includeDifferes" label="Différés clients" />
         </div>
         <div class="col-md-6 d-flex align-items-center gap-2">
-          <p-checkbox [(ngModel)]="includeTva" [binary]="true" inputId="chk-tva" />
-          <label for="chk-tva">TVA collectée + déductible + nette</label>
+          <app-checkbox [(ngModel)]="includeTva" label="TVA collectée + déductible + nette" />
         </div>
       </div>
     </section>

@@ -14,7 +14,7 @@ uses a PostgreSQL database with Flyway migrations and supports desktop deploymen
 
 **Backend (Java 25):**
 
-- Spring Boot 4.0.0-RC1 (release candidate)
+- Spring Boot 4.1.0 (release candidate)
 - Hibernate 7.1.0 with JPA
 - PostgreSQL database
 - Flyway 11.11.2 for database migrations
@@ -26,7 +26,7 @@ uses a PostgreSQL database with Flyway migrations and supports desktop deploymen
 - Thymeleaf for server-side HTML rendering
 - jSerialComm for thermal printer integration
 
-**Frontend (Angular 20):**
+**Frontend (Angular 22):**
 
 - Angular 20.3.7 with TypeScript 5.9.2
 - PrimeNG 20.2.0 (use `p-button` and other PrimeNG components)

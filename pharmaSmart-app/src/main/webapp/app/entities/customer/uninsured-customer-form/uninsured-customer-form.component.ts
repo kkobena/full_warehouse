@@ -1,5 +1,4 @@
 import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
-import { MessageService } from 'primeng/api';
 import { Customer, ICustomer } from 'app/shared/model/customer.model';
 import { ErrorService } from 'app/shared/error.service';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
@@ -7,14 +6,13 @@ import { CustomerService } from 'app/entities/customer/customer.service';
 import { Observable, Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 import { HttpResponse } from '@angular/common/http';
-import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
-import { InputTextModule } from 'primeng/inputtext';
-import { ToastModule } from 'primeng/toast';
-import { KeyFilterModule } from 'primeng/keyfilter';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { Card } from 'primeng/card';
 import { NotificationService } from "../../../shared/services/notification.service";
+import {
+  ButtonComponent,
+  CardComponent,
+  KeyFilterDirective
+} from '../../../shared/ui';
 
 @Component({
   selector: 'app-uninsured-customer-form',
@@ -24,12 +22,9 @@ import { NotificationService } from "../../../shared/services/notification.servi
   imports: [
     FormsModule,
     ReactiveFormsModule,
-    ToastModule,
-    ButtonModule,
-    RippleModule,
-    InputTextModule,
-    KeyFilterModule,
-    Card,
+    ButtonComponent,
+    CardComponent,
+    KeyFilterDirective
   ],
 })
 export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit, OnDestroy {

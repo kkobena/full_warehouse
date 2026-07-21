@@ -1,35 +1,25 @@
 <!-- GRILLE FOURNISSEURS -->
 <div class="sfl-grid-wrap">
-  <p-table
+  <app-data-table
     class="p-datatable-sm"
     [value]="fournisseurs()"
     [loading]="loading()"
     dataKey="suggestionId"
-    [scrollable]="true"
     scrollHeight="flex"
-    [rowHover]="true"
-    selectionMode="multiple"
+    [selectionMode]="'multiple'"
     [selection]="selectionMultiple()"
     (selectionChange)="onSelectionChange($event)"
   >
     <ng-template #header>
       <tr class="pharma-table-head">
         <th style="width:40px">
-          <p-tableheadercheckbox />
+          <app-header-checkbox />
         </th>
-        <th pSortableColumn="updatedAt" >
-          Date <p-sorticon field="updatedAt" />
-        </th>
+        <th appSortableHeader="updatedAt">Date</th>
         <th>Fournisseur</th>
-        <th pSortableColumn="nbProduits" class="text-end" >
-          Produits <p-sorticon field="nbProduits" />
-        </th>
-        <th pSortableColumn="nbUrgents"class="text-end" >
-          Urgents <p-sorticon field="nbUrgents" />
-        </th>
-        <th pSortableColumn="montantEstime" class="text-end">
-          Montant estimé <p-sorticon field="montantEstime" />
-        </th>
+        <th appSortableHeader="nbProduits" class="text-end">Produits</th>
+        <th appSortableHeader="nbUrgents" class="text-end">Urgents</th>
+        <th appSortableHeader="montantEstime" class="text-end">Montant estimé</th>
         <th style="width:120px">Statut</th>
         <th style="width:60px">Actions</th>
       </tr>
@@ -38,7 +28,7 @@
     <ng-template #body let-f>
       <tr [ngClass]="getRowClass(f)" (click)="onRowClick(f)">
         <td (click)="$event.stopPropagation()">
-          <p-tablecheckbox [value]="f" />
+          <app-row-checkbox [row]="f" />
         </td>
         <td>{{ f.updatedAt ? (f.updatedAt | date:'dd/MM/yy HH:mm') : '—' }}</td>
         <td >
@@ -84,7 +74,7 @@
         </td>
       </tr>
     </ng-template>
-  </p-table>
+  </app-data-table>
 </div>
 
 <!-- FOOTER TOTAUX -->

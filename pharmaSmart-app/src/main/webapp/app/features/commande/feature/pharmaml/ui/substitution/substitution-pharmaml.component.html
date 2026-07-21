@@ -1,15 +1,13 @@
-<p-toast position="center" />
-
 <div class="modal-header">
   <h5 class="modal-title">Substitutions proposées par le grossiste</h5>
-  <button type="button" class="btn-close" (click)="dismiss()"></button>
+  <button (click)="dismiss()" class="btn-close" type="button"></button>
 </div>
 
 <div class="modal-body">
-  <p-table
-    [value]="substitutions()"
+  <app-data-table
     [loading]="loading()"
-    class="p-datatable-sm w-100 pharma-table"
+    [value]="substitutions()"
+    class="p-datatable-sm w-100 "
   >
     <ng-template #header>
       <tr class="pharma-table-head">
@@ -33,8 +31,8 @@
           @if (sub.substitutConnu) {
             <span
               class="badge bg-success ms-1"
-              pTooltip="Ce substitut est déjà enregistré dans votre référentiel local"
-              tooltipPosition="top">
+              ngbTooltip="Ce substitut est déjà enregistré dans votre référentiel local"
+              placement="top">
               <i class="pi pi-check-circle"></i> connu
             </span>
           }
@@ -44,10 +42,21 @@
         <td class="text-center">
           @if (sub.typeRemplacement) {
             @switch (sub.typeRemplacement) {
-              @case ('EP') { <p-tag value="EP" severity="warn"    pTooltip="Équivalent Proposé — validation requise" /> }
-              @case ('EL') { <p-tag value="EL" severity="success" pTooltip="Équivalent Livré — accepté automatiquement" /> }
-              @case ('RL') { <p-tag value="RL" severity="info"    pTooltip="Remplaçant Livré — accepté automatiquement" /> }
-              @default     { <p-tag [value]="sub.typeRemplacement" severity="secondary" /> }
+              @case ('EP') {
+                <app-badge label="EP" ngbTooltip="Équivalent Proposé — validation requise"
+                           severity="warn" />
+              }
+              @case ('EL') {
+                <app-badge label="EL" ngbTooltip="Équivalent Livré — accepté automatiquement"
+                           severity="success" />
+              }
+              @case ('RL') {
+                <app-badge label="RL" ngbTooltip="Remplaçant Livré — accepté automatiquement"
+                           severity="info" />
+              }
+              @default {
+                <app-badge [label]="sub.typeRemplacement" severity="secondary" />
+              }
             }
           } @else {
             <span class="text-muted">—</span>
@@ -66,29 +75,35 @@
         </td>
         <td class="text-center">
           @switch (sub.statut) {
-            @case ('EN_ATTENTE') { <p-tag value="En attente" severity="warn" /> }
-            @case ('ACCEPTEE')   { <p-tag value="Acceptée"   severity="success" /> }
-            @case ('REFUSEE')    { <p-tag value="Refusée"    severity="danger" /> }
+            @case ('EN_ATTENTE') {
+              <app-badge label="En attente" severity="warn" />
+            }
+            @case ('ACCEPTEE') {
+              <app-badge label="Acceptée" severity="success" />
+            }
+            @case ('REFUSEE') {
+              <app-badge label="Refusée" severity="danger" />
+            }
           }
         </td>
         <td class="text-center">
           @if (sub.statut === 'EN_ATTENTE') {
             <div class="d-flex gap-1 justify-content-center">
-              <p-button
+              <app-button
+                (clicked)="accepter(sub)"
+                [loading]="processing() === sub.id"
                 icon="pi pi-check"
+                ngbTooltip="Accepter — ajoute le produit à la commande"
                 severity="success"
                 size="small"
-                [loading]="processing() === sub.id"
-                (onClick)="accepter(sub)"
-                pTooltip="Accepter — ajoute le produit à la commande"
               />
-              <p-button
+              <app-button
+                (clicked)="refuser(sub)"
+                [loading]="processing() === sub.id"
                 icon="pi pi-times"
+                ngbTooltip="Refuser — le produit ne sera pas livré"
                 severity="danger"
                 size="small"
-                [loading]="processing() === sub.id"
-                (onClick)="refuser(sub)"
-                pTooltip="Refuser — le produit ne sera pas livré"
               />
             </div>
           }
@@ -97,12 +112,12 @@
     </ng-template>
     <ng-template #emptymessage>
       <tr>
-        <td colspan="9" class="text-center text-muted">Aucune substitution en attente</td>
+        <td class="text-center text-muted" colspan="9">Aucune substitution en attente</td>
       </tr>
     </ng-template>
-  </p-table>
+  </app-data-table>
 </div>
 
 <div class="modal-footer">
-  <p-button label="Fermer" severity="secondary" (onClick)="dismiss()" />
+  <app-button (clicked)="dismiss()" label="Fermer" severity="secondary" />
 </div>

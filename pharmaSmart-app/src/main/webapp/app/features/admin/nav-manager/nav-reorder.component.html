@@ -11,23 +11,23 @@
         <i class="pi pi-exclamation-triangle me-1"></i>Non enregistré
       </span>
     }
-    <p-button
+    <app-button
       label="Enregistrer l'ordre"
       icon="pi pi-save"
       severity="success"
       size="small"
       [loading]="saving()"
       [disabled]="!hasUnsavedChanges()"
-      (onClick)="saveOrder()"
+      (clicked)="saveOrder()"
     />
-    <p-button
+    <app-button
       label="Annuler"
       icon="pi pi-times"
       severity="secondary"
       size="small"
       [outlined]="true"
       [disabled]="!hasUnsavedChanges()"
-      (onClick)="resetOrder()"
+      (clicked)="resetOrder()"
     />
   </div>
 </div>
@@ -49,10 +49,9 @@
           <i [class]="group.icon + ' group-icon'"></i>
         }
         <span class="fw-semibold">{{ group.libelle }}</span>
-        <p-tag
-          [value]="group.targetType"
+        <app-badge
+          [label]="group.targetType"
           [severity]="group.targetType === 'GROUP' ? 'secondary' : 'info'"
-          size="small"
           class="ms-auto"
         />
       </div>

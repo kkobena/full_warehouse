@@ -4,13 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpResponse } from '@angular/common/http';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
-// PrimeNG
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { SelectModule } from 'primeng/select';
-import { ToolbarModule } from 'primeng/toolbar';
-import { InputTextModule } from 'primeng/inputtext';
-import { Tag } from 'primeng/tag';
+import { BadgeComponent, ButtonComponent, ToolbarComponent } from 'app/shared/ui';
 
 // GridStack
 import { GridStack, GridStackWidget } from 'gridstack';
@@ -34,7 +28,7 @@ import { AddWidgetModalComponent } from './add-widget-modal.component';
 
 @Component({
   selector: 'jhi-customizable-dashboard',
-  imports: [CommonModule, FormsModule, ButtonModule, CardModule, SelectModule, ToolbarModule, InputTextModule, Tag],
+  imports: [CommonModule, FormsModule, ButtonComponent, BadgeComponent, ToolbarComponent],
   templateUrl: './customizable-dashboard.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './customizable-dashboard.component.scss',

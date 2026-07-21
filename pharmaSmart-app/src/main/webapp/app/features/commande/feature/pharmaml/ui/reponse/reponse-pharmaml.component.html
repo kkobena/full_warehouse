@@ -1,74 +1,77 @@
-
-
 <div class="modal-header">
   <h5 class="modal-title">Réponse PharmaML — {{ commandeRef }}</h5>
-  <button type="button" class="btn-close" (click)="dismiss()"></button>
+  <button (click)="dismiss()" class="btn-close" type="button"></button>
 </div>
 
 <div class="modal-body">
-  @if (loading()) {
-    <div class="text-center py-4">
-      <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
-    </div>
-  } @else {
-    @if (items.length > 0) {
-      <h6>Lignes confirmées ({{ items.length }})</h6>
-      <p-table [value]="items"  class="p-datatable-sm pharma-table mb-3">
-        <ng-template #header>
-          <tr class="pharma-table-head">
-            <th>CIP</th>
-            <th>Désignation</th>
-            <th class="text-end">Qté commandée</th>
-            <th class="text-end">Qté prise en compte</th>
-          </tr>
-        </ng-template>
-        <ng-template #body let-item>
-          <tr>
-            <td>{{ item.codeCip }}</td>
-            <td>{{ item.produitLibelle }}</td>
-            <td class="text-end">{{ item.quantite }}</td>
-            <td class="text-end">
-              <p-tag
-                [value]="item.quantitePriseEnCompte.toString()"
-                [severity]="item.quantitePriseEnCompte < item.quantite ? 'warn' : 'success'"
-              />
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-    }
+  <app-card [variant]="'form'">
+    @if (loading()) {
+      <div class="text-center py-4">
+        <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+      </div>
+    } @else {
+      @if (items.length > 0) {
 
-    @if (extraItems.length > 0) {
-      <h6 class="text-warning">Ruptures / Non disponibles ({{ extraItems.length }})</h6>
-      <p-table [value]="extraItems"  class="p-datatable-sm pharma-table">
-        <ng-template #header>
-          <tr class="pharma-table-head">
-            <th>CIP</th>
-            <th>Désignation</th>
-            <th class="text-end">Qté commandée</th>
-            <th class="text-end">Qté livrée</th>
-          </tr>
-        </ng-template>
-        <ng-template #body let-item>
-          <tr>
-            <td>{{ item.codeCip }}</td>
-            <td>{{ item.produitLibelle }}</td>
-            <td class="text-end">{{ item.quantite }}</td>
-            <td class="text-end">
-              <p-tag value="{{ item.quantitePriseEnCompte }}" severity="danger" />
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-    }
+        <h6>Lignes confirmées ({{ items.length }})</h6>
+        <app-data-table [value]="items" class="p-datatable-sm mb-3">
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th>CIP</th>
+              <th>Désignation</th>
+              <th class="text-end">Qté commandée</th>
+              <th class="text-end">Qté prise en compte</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-item>
+            <tr>
+              <td>{{ item.codeCip }}</td>
+              <td>{{ item.produitLibelle }}</td>
+              <td class="text-end">{{ item.quantite }}</td>
+              <td class="text-end">
+                <app-badge
+                  [label]="item.quantitePriseEnCompte.toString()"
+                  [severity]="item.quantitePriseEnCompte < item.quantite ? 'warn' : 'success'"
+                />
+              </td>
+            </tr>
+          </ng-template>
+        </app-data-table>
+      }
 
-    @if (!items.length && !extraItems.length) {
-      <p class="text-muted text-center">Aucune donnée disponible</p>
+      @if (extraItems.length > 0) {
+        <h6 class="text-warning">Ruptures / Non disponibles ({{ extraItems.length }})</h6>
+        <app-data-table [value]="extraItems" class="p-datatable-sm ">
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th>CIP</th>
+              <th>Désignation</th>
+              <th class="text-end">Qté commandée</th>
+              <th class="text-end">Qté livrée</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-item>
+            <tr>
+              <td>{{ item.codeCip }}</td>
+              <td>{{ item.produitLibelle }}</td>
+              <td class="text-end">{{ item.quantite }}</td>
+              <td class="text-end">
+                <app-badge label="{{ item.quantitePriseEnCompte }}" severity="danger" />
+              </td>
+            </tr>
+          </ng-template>
+        </app-data-table>
+      }
+
+      @if (!items.length && !extraItems.length) {
+        <p class="text-muted text-center">Aucune donnée disponible</p>
+      }
     }
-  }
+  </app-card>
+
 </div>
 
 <div class="modal-footer">
-  <p-button label="Fermer" severity="secondary" (onClick)="dismiss()" />
-  <p-button label="Actualiser" icon="pi pi-refresh" [loading]="loading()" (onClick)="loadRetour()" />
+  <app-button (clicked)="dismiss()" label="Fermer" severity="secondary" />
+  <app-button (clicked)="loadRetour()" [loading]="loading()" icon="pi pi-refresh"
+              label="Actualiser" />
 </div>

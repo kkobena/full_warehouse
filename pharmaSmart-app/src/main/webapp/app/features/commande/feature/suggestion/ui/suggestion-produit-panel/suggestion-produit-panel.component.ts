@@ -1,12 +1,8 @@
 import { Component, computed, effect, ElementRef, input, output, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
-import { TooltipModule } from 'primeng/tooltip';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent } from 'app/shared/ui';
 import {
   AllCommunityModule,
   CellClickedEvent,
@@ -36,16 +32,11 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
   imports: [
     CommonModule,
     FormsModule,
-    ButtonModule,
-    TagModule,
-    TooltipModule,
-    InputTextModule,
+    ButtonComponent,
+    NgbTooltip,
     AgGridAngular,
     DecimalPipe,
     CommandeProductSearchComponent,
-    InputGroupModule,
-    InputGroupAddonModule,
-
   ],
 })
 export class SuggestionProduitPanelComponent {
@@ -354,7 +345,11 @@ export class SuggestionProduitPanelComponent {
     this.selectedLignes().reduce((s, l) => s + l.quantite * l.prixAchat, 0),
   );
 
- // readonly totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.rows())));
+  // `rows` vaut 0 par défaut : sans la garde, la division donnerait Infinity.
+  readonly totalPages = computed(() => {
+    const rows = this.rows();
+    return rows > 0 ? Math.max(1, Math.ceil(this.total() / rows)) : 1;
+  });
 
   readonly rowClassRules = {
     'ag-row-urgent': (params: any) => params.data?.niveauUrgence === 'URGENT',
@@ -455,7 +450,10 @@ export class SuggestionProduitPanelComponent {
   }
 
   goToPage(p: number): void {
-  //  if (p < 0 || p >= this.totalPages()) return;
+    // Garde restaurée avec `totalPages` : sans elle, on pouvait paginer hors bornes.
+    if (p < 0 || p >= this.totalPages()) {
+      return;
+    }
     this._clearSelection();
     this.pageChange.emit({ page: p, rows: this.rows() });
   }

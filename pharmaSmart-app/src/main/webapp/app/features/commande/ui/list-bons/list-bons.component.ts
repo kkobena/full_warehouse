@@ -5,17 +5,18 @@ import { forkJoin } from "rxjs";
 import { filter } from "rxjs/operators";
 import { FormsModule } from "@angular/forms";
 import { CommonModule, DatePipe } from "@angular/common";
-import { ButtonModule } from "primeng/button";
-import { TooltipModule } from "primeng/tooltip";
-import { SelectModule } from "primeng/select";
-import { DatePicker } from "primeng/datepicker";
-import { FloatLabel } from "primeng/floatlabel";
-import { InputTextModule } from "primeng/inputtext";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
-import { Toast } from "primeng/toast";
-import { TableModule } from "primeng/table";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
+import type { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
+import {
+  ButtonComponent,
+  DataTableComponent,
+  FloatLabelComponent,
+  IconFieldComponent,
+  SelectComponent,
+  SortableHeaderDirective,
+} from "app/shared/ui";
+import { PharmaDatePickerComponent } from "app/shared/date-picker/pharma-date-picker.component";
+import { NGB_DATE_TO_ISO } from "app/shared/util/warehouse-util";
 import { ListBonsStatutComponent } from "./list-bons-statut.component";
 import { BonAction, ListBonsActionsComponent } from "./list-bons-actions.component";
 import { SpinnerComponent } from "app/shared/spinner/spinner.component";
@@ -46,21 +47,18 @@ import { FournisseurSelectComponent } from "../../../partners/ui/fournisseur-sel
   selector: "app-list-bons",
   templateUrl: "./list-bons.component.html",
   styleUrls: ["./list-bons.scss"],
-  providers: [DatePipe],
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,
-    ButtonModule,
-    TooltipModule,
-    SelectModule,
-    DatePicker,
-    FloatLabel,
-    InputTextModule,
-    IconField,
-    InputIcon,
-    Toast,
-    TableModule,
+    ButtonComponent,
+    SelectComponent,
+    PharmaDatePickerComponent,
+    FloatLabelComponent,
+    IconFieldComponent,
+    DataTableComponent,
+    SortableHeaderDirective,
+    NgbTooltip,
     SpinnerComponent,
     CommandeReceivedComponent,
     ReceptionConcordanceComponent,
@@ -76,8 +74,8 @@ export class AppListBonsComponent implements OnInit {
   // ── État liste ─────────────────────────────────────────────────────────────
   protected search = "";
   protected selectFournisseurId: number | null = null;
-  protected dtStart: Date | null = null;
-  protected dtEnd: Date | null = null;
+  protected dtStart: NgbDateStruct | null = null;
+  protected dtEnd: NgbDateStruct | null = null;
   protected selectedStatut: string | null = null;
   protected deliveries: IDelivery[] = [];
   protected loading = false;
@@ -91,7 +89,6 @@ export class AppListBonsComponent implements OnInit {
   readonly retourWorkspaceBon = signal<IDelivery | null>(null);
   readonly reconciliationWorkspaceBon = signal<IDelivery | null>(null);
   protected showLotBtn = signal(false);
-  private readonly datePipe = inject(DatePipe);
 
   protected readonly statutOptions = [
     { label: "Tous les bons", value: null },
@@ -413,8 +410,8 @@ export class AppListBonsComponent implements OnInit {
     if (this.selectFournisseurId) query.fournisseurId = this.selectFournisseurId;
     const applyDates = this.selectedStatut === "CLOSED";
     if (applyDates) {
-      if (this.dtStart) query.fromDate = this.datePipe.transform(this.dtStart, "yyyy-MM-dd");
-      if (this.dtEnd) query.toDate = this.datePipe.transform(this.dtEnd, "yyyy-MM-dd");
+      if (this.dtStart) query.fromDate = NGB_DATE_TO_ISO(this.dtStart);
+      if (this.dtEnd) query.toDate = NGB_DATE_TO_ISO(this.dtEnd);
     }
     forkJoin({
       list: this.entityService.query(query),

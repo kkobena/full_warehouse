@@ -1,13 +1,13 @@
 import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
-import { ButtonModule } from "primeng/button";
+import { ButtonComponent } from "../../../../shared/ui";
 import { TauriPrinterService } from "../../../../shared/services/tauri-printer.service";
 
 
 @Component({
   selector: "app-fne-certificate-viewer",
-  imports: [ButtonModule],
+  imports: [ButtonComponent],
   templateUrl: "./fne-certificate-viewer.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["./fne-certificate-viewer.component.scss"]

@@ -12,38 +12,24 @@
       <label class="form-label fw-semibold" for="inventoryCategory">
         Type d'inventaire <span class="text-danger">*</span>
       </label>
-      <p-select
-        (onHide)="onDropdownHide($event)"
-        (onShow)="onDropdownShow($event)"
-        [fluid]="true"
-        [group]="true"
-        [options]="groupedCategories"
+      <app-select-search
+        [items]="categories"
+        bindLabel="label"
+        bindValue="value"
+        groupBy="groupLabel"
+        [searchable]="false"
+        appendTo="body"
         formControlName="inventoryCategory"
         inputId="inventoryCategory"
-        optionGroupChildren="items"
-        optionGroupLabel="label"
-        optionLabel="label"
-        optionValue="value"
         placeholder="Sélectionner un type"
-      >
-        <ng-template #optiongroup let-group>
-          <div class="category-group-header">
-            <span>{{ group.label }}</span>
-          </div>
-        </ng-template>
-        <ng-template #item let-cat>
-          <div class="category-option">
-            <i [class]="cat.icon"></i>
-            <span>{{ cat.label }}</span>
-          </div>
-        </ng-template>
-        <ng-template #selectedItem let-cat>
-          <div class="category-option">
-            <i [class]="cat.icon"></i>
-            <span>{{ cat.label }}</span>
-          </div>
-        </ng-template>
-      </p-select>
+        [optionTemplate]="categoryOption"
+      />
+      <ng-template #categoryOption let-cat>
+        <div class="category-option">
+          <i [class]="cat.icon"></i>
+          <span>{{ cat.label }}</span>
+        </div>
+      </ng-template>
       @if (form.get('inventoryCategory')?.invalid && form.get('inventoryCategory')?.touched) {
         <div class="text-danger small mt-1">Ce champ est requis.</div>
       }
@@ -56,15 +42,13 @@
         <label class="form-label fw-semibold" for="storage">
           Emplacement <span class="text-danger">*</span>
         </label>
-        <p-select
-          (onHide)="onDropdownHide($event)"
-          (onShow)="onDropdownShow($event)"
-          [fluid]="true"
-          [options]="storages()"
+        <app-select
+          [items]="storages()"
+          appendTo="body"
           formControlName="storage"
           inputId="storage"
-          optionLabel="name"
-          optionValue="id"
+          bindLabel="name"
+          bindValue="id"
           placeholder="Sélectionner un emplacement"
         />
         @if (form.get('storage')?.invalid && form.get('storage')?.touched) {
@@ -79,15 +63,13 @@
         <label class="form-label fw-semibold" for="rayon">
           Rayon <span class="text-danger">*</span>
         </label>
-        <p-select
-          (onHide)="onDropdownHide($event)"
-          (onShow)="onDropdownShow($event)"
-          [fluid]="true"
-          [options]="rayons()"
+        <app-select
+          [items]="rayons()"
+          appendTo="body"
           formControlName="rayon"
           inputId="rayon"
-          optionLabel="libelle"
-          optionValue="id"
+          bindLabel="libelle"
+          bindValue="id"
           placeholder="Sélectionner un rayon"
         />
         @if (form.get('rayon')?.invalid && form.get('rayon')?.touched) {
@@ -102,15 +84,13 @@
         <label class="form-label fw-semibold" for="famillyId">
           Famille de produits <span class="text-danger">*</span>
         </label>
-        <p-select
-          (onHide)="onDropdownHide($event)"
-          (onShow)="onDropdownShow($event)"
-          [fluid]="true"
-          [options]="familles()"
+        <app-select
+          [items]="familles()"
+          appendTo="body"
           formControlName="famillyId"
           inputId="famillyId"
-          optionLabel="libelle"
-          optionValue="id"
+          bindLabel="libelle"
+          bindValue="id"
           placeholder="Sélectionner une famille"
         />
         @if (form.get('famillyId')?.invalid && form.get('famillyId')?.touched) {
@@ -126,14 +106,10 @@
           <label class="form-label fw-semibold" for="dateFrom">
             Date début <span class="text-danger">*</span>
           </label>
-          <p-datepicker
-            (onClose)="onDropdownHide($event)"
-            (onShow)="onDropdownShow($event)"
-            [fluid]="true"
-            [showIcon]="true"
-            dateFormat="dd/mm/yy"
+          <pharma-date-picker
             formControlName="dateFrom"
             inputId="dateFrom"
+            label=""
           />
           @if (form.get('dateFrom')?.invalid && form.get('dateFrom')?.touched) {
             <div class="text-danger small mt-1">Ce champ est requis.</div>
@@ -143,14 +119,10 @@
           <label class="form-label fw-semibold" for="dateTo">
             Date fin <span class="text-danger">*</span>
           </label>
-          <p-datepicker
-            (onClose)="onDropdownHide($event)"
-            (onShow)="onDropdownShow($event)"
-            [fluid]="true"
-            [showIcon]="true"
-            dateFormat="dd/mm/yy"
+          <pharma-date-picker
             formControlName="dateTo"
             inputId="dateTo"
+            label=""
           />
           @if (form.get('dateTo')?.invalid && form.get('dateTo')?.touched) {
             <div class="text-danger small mt-1">Ce champ est requis.</div>
@@ -165,9 +137,8 @@
         <label class="form-label fw-semibold" for="alerteJours">
           Alerte péremption (jours) <span class="text-danger">*</span>
         </label>
-        <p-inputnumber
+        <app-input-number
           [min]="1"
-          [style]="{ width: '100%' }"
           formControlName="alerteJours"
           inputId="alerteJours"
         />
@@ -183,15 +154,13 @@
         <label class="form-label fw-semibold" for="classePareto">
           Classe Pareto
         </label>
-        <p-select
-          (onHide)="onDropdownHide($event)"
-          (onShow)="onDropdownShow($event)"
-          [fluid]="true"
-          [options]="classesParetoOptions"
+        <app-select
+          [items]="classesParetoOptions"
+          appendTo="body"
           formControlName="classePareto"
           inputId="classePareto"
-          optionLabel="label"
-          optionValue="value"
+          bindLabel="label"
+          bindValue="value"
           placeholder="Toutes les classes (A + B + C)"
         />
       </div>
@@ -203,10 +172,9 @@
         class="text-danger">*</span></label>
       <input
         autocomplete="off"
-        class="w-100"
+        class="form-control w-100"
         formControlName="description"
         id="description"
-        pInputText
         placeholder="Description de l'inventaire"
         type="text"
       />
@@ -225,8 +193,8 @@
     </div>
   }
   <div class="d-flex justify-content-end gap-2 w-100">
-    <p-button
-      (click)="cancel()"
+    <app-button
+      (clicked)="cancel()"
       [disabled]="loading()"
       [raised]="true"
       icon="pi pi-times"
@@ -234,8 +202,8 @@
       severity="secondary"
       type="button"
     />
-    <p-button
-      (click)="save()"
+    <app-button
+      (clicked)="save()"
       [disabled]="form.invalid || loading()"
       [loading]="loading()"
       [raised]="true"

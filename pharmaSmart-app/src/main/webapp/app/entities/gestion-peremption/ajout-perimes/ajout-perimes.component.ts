@@ -5,58 +5,59 @@ import {
   PRODUIT_COMBO_MIN_LENGTH,
   PRODUIT_COMBO_RESULT_SIZE
 } from "../../../shared/constants/pagination.constants";
-import { FloatLabel } from "primeng/floatlabel";
 import { TranslatePipe } from "@ngx-translate/core";
 import { FormsModule } from "@angular/forms";
 import { IProduit } from "../../../shared/model";
-import { InputText } from "primeng/inputtext";
 import { NgxSpinnerModule } from "ngx-spinner";
-import { KeyFilter } from "primeng/keyfilter";
 import { ProductToDestroyService } from "../product-to-destroy.service";
 import { ProductToDestroy, ProductToDestroyFilter, ProductToDestroyPayload } from "../model/product-to-destroy";
 import { ProduitAutocompleteComponent } from "../../../shared/produit-autocomplete/produit-autocomplete.component";
-import { ToolbarModule } from "primeng/toolbar";
 import { QuantiteProdutSaisieComponent } from "../../../shared/quantite-produt-saisie/quantite-produt-saisie.component";
 import { CtaComponent } from "../../../shared/cta/cta.component";
-import { TableLazyLoadEvent, TableModule } from "primeng/table";
-import { Tag } from "primeng/tag";
+import { AppTableLazyLoadEvent } from "../../../shared/ui";
 import { HttpHeaders, HttpResponse } from "@angular/common/http";
 import { PeremptionStatut } from "../model/peremption-statut";
 import { RemoveButtonTextComponent } from "../../../shared/cta/remove-button-text.component";
 import { BackButtonComponent } from "../../../shared/cta/back-button.component";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
-import { DatePickerComponent } from "../../../shared/date-picker/date-picker.component";
+import { PharmaDatePickerComponent } from "../../../shared/date-picker/pharma-date-picker.component";
+import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
+import { NGB_DATE_TO_ISO } from "../../../shared/util/warehouse-util";
 import { SpinnerComponent } from "../../../shared/spinner/spinner.component";
 import { CommonModule } from "@angular/common";
-import { Toast } from "primeng/toast";
 import { NgbConfirmDialogService } from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { NotificationService } from "../../../shared/services/notification.service";
 import { ErrorService } from "../../../shared/error.service";
+import {
+  BadgeComponent,
+  DataTableComponent,
+  EditableCellComponent,
+  FloatLabelComponent,
+  IconFieldComponent,
+  KeyFilterDirective,
+  ToolbarComponent
+} from "../../../shared/ui";
 
 @Component({
   selector: "jhi-ajout-perimes",
   imports: [
     CommonModule,
-    FloatLabel,
+    FloatLabelComponent,
     TranslatePipe,
     FormsModule,
-    InputText,
     NgxSpinnerModule,
-    KeyFilter,
+    KeyFilterDirective,
     ProduitAutocompleteComponent,
-    ToolbarModule,
+    ToolbarComponent,
     QuantiteProdutSaisieComponent,
     CtaComponent,
-    TableModule,
-    Tag,
+    DataTableComponent,
+    BadgeComponent,
     RemoveButtonTextComponent,
     BackButtonComponent,
-    IconField,
-    InputIcon,
-    DatePickerComponent,
-    SpinnerComponent,
-    Toast
+    IconFieldComponent,
+    EditableCellComponent,
+    PharmaDatePickerComponent,
+    SpinnerComponent
   ],
   templateUrl: "./ajout-perimes.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -77,7 +78,8 @@ export class AjoutPerimesComponent implements OnInit {
   protected data: ProductToDestroy[] = [];
   protected produitSelected?: IProduit | null = null;
   protected searchTerm?: string;
-  protected datePeremention = viewChild.required<DatePickerComponent>("datePeremention");
+  protected datePeremention = viewChild.required<PharmaDatePickerComponent>("datePeremention");
+  protected dateValue: NgbDateStruct | null = null;
   protected numLotCmpt = viewChild.required<ElementRef>("numLot");
   protected isSaving = false;
   private produitQteCmpt = viewChild.required<QuantiteProdutSaisieComponent>("produitQteCmpt");
@@ -98,7 +100,7 @@ export class AjoutPerimesComponent implements OnInit {
   }
 
   protected get canAddQuantity(): boolean {
-    return this.numLotValue && !!this.produitSelected && !!this.datePeremention().value;
+    return this.numLotValue && !!this.produitSelected && !!this.dateValue;
   }
 
   protected get disableButton(): boolean {
@@ -109,7 +111,7 @@ export class AjoutPerimesComponent implements OnInit {
     this.onSearch();
   }
 
-  onDatePerementionChange(date: Date): void {
+  onDatePerementionChange(date: NgbDateStruct | null): void {
     setTimeout(() => {
       this.produitQteCmpt().focusProduitControl();
     }, 100);
@@ -215,7 +217,7 @@ export class AjoutPerimesComponent implements OnInit {
     return "info";
   }
 
-  protected lazyLoading(event: TableLazyLoadEvent): void {
+  protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;
@@ -279,7 +281,7 @@ export class AjoutPerimesComponent implements OnInit {
     this.produitSelected = null;
     this.numLotCmpt().nativeElement.value = "";
     this.produitComponent().getFocus();
-    this.datePeremention().value = null;
+    this.dateValue = null;
     this.produitQteCmpt().reset();
   }
 
@@ -287,7 +289,7 @@ export class AjoutPerimesComponent implements OnInit {
     return {
       editing: true,
       produitId: this.produitSelected?.id,
-      datePeremption: this.datePeremention().submitValue,
+      datePeremption: NGB_DATE_TO_ISO(this.dateValue),
       quantity,
       numLot: this.numLotCmpt()?.nativeElement.value,
       stockInitial: this.produitSelected?.totalQuantity

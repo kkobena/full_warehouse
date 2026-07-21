@@ -1,26 +1,21 @@
-import {Component, DestroyRef, effect, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  effect,
+  inject,
+  OnInit,
+  signal
+} from '@angular/core';
 import {takeUntilDestroyed, toObservable} from '@angular/core/rxjs-interop';
 import {CommonModule} from '@angular/common';
 import {Router, RouterModule} from '@angular/router';
 import {FormsModule} from '@angular/forms';
 import {filter} from 'rxjs';
-import dayjs from 'dayjs/esm';
 import {NgxSpinnerService} from 'ngx-spinner';
-import {MessageService} from 'primeng/api';
+import {NotificationService} from '../../../../shared/services/notification.service';
 
-import {ButtonModule} from 'primeng/button';
-import {TableModule} from 'primeng/table';
-import {TagModule} from 'primeng/tag';
-import {TooltipModule} from 'primeng/tooltip';
-import {IconField} from 'primeng/iconfield';
-import {InputIcon} from 'primeng/inputicon';
-import {InputTextModule} from 'primeng/inputtext';
-import {FloatLabel} from 'primeng/floatlabel';
-import {Select} from 'primeng/select';
-import {Toolbar} from 'primeng/toolbar';
-import {SelectButton} from 'primeng/selectbutton';
-import {Toast} from 'primeng/toast';
-
+import {NgbDateStruct, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {AjustementFacade} from '../../data-access/facades/ajustement.facade';
 import {AjustEvent} from '../../models';
 import {IAjust} from '../../../../shared/model/ajust.model';
@@ -30,65 +25,71 @@ import {UserService} from '../../../../core/user/user.service';
 import {HttpResponse} from '@angular/common/http';
 import {ITEMS_PER_PAGE} from '../../../../config/pagination.constants';
 import {APPEND_TO} from '../../../../shared/constants/pagination.constants';
-import {DatePickerComponent} from '../../../../shared/date-picker/date-picker.component';
+import {
+  PharmaDatePickerComponent
+} from '../../../../shared/date-picker/pharma-date-picker.component';
 import {TauriPrinterService} from '../../../../shared/services/tauri-printer.service';
 import {handleBlobForTauri} from '../../../../shared/util/tauri-util';
-import { ButtonGroup } from "primeng/buttongroup";
+import {NGB_DATE_TO_ISO, TODAY_NGB_DATE} from '../../../../shared/util/warehouse-util';
+import {
+  AppTableLazyLoadEvent,
+  BadgeComponent,
+  ButtonComponent,
+  CardComponent,
+  DataTableComponent,
+  IconFieldComponent,
+  PillSelectorComponent,
+  RowTogglerDirective,
+  SelectComponent,
+  ToolbarComponent
+} from '../../../../shared/ui';
 
 @Component({
   selector: 'app-ajustement-home',
   templateUrl: './ajustement-home.component.html',
   styleUrl: './ajustement-home.component.scss',
-  providers: [MessageService],
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     RouterModule,
     FormsModule,
-    ButtonModule,
-    TableModule,
-    TagModule,
-    TooltipModule,
-    IconField,
-    InputIcon,
-    InputTextModule,
-    FloatLabel,
-    Select,
-    Toolbar,
-    SelectButton,
-    Toast,
-    DatePickerComponent,
-    ButtonGroup
+    ButtonComponent,
+    DataTableComponent,
+    BadgeComponent,
+    NgbTooltip,
+    IconFieldComponent,
+    SelectComponent,
+    ToolbarComponent,
+    PillSelectorComponent,
+    PharmaDatePickerComponent,
+    RowTogglerDirective,
+    CardComponent
   ]
 })
 export class AjustementHomeComponent implements OnInit {
   readonly facade = inject(AjustementFacade);
-  private readonly userService = inject(UserService);
-  private readonly spinner = inject(NgxSpinnerService);
-  private readonly tauriPrinter = inject(TauriPrinterService);
-  private readonly router = inject(Router);
-  private readonly messageService = inject(MessageService);
-  private readonly destroyRef = inject(DestroyRef);
-
   protected readonly appendTo = APPEND_TO;
   protected readonly itemsPerPage = ITEMS_PER_PAGE;
-
   // Filters
   protected search = '';
-  protected fromDate: Date = new Date();
-  protected toDate: Date = new Date();
+  protected fromDate: NgbDateStruct = TODAY_NGB_DATE();
+  protected toDate: NgbDateStruct = TODAY_NGB_DATE();
   protected user: IUser | null = {id: null, abbrName: 'TOUT'};
   protected users: IUser[] = [];
   protected typeFilter = 'TOUT';
   protected readonly typeOptions = [
     {label: 'Tout', value: 'TOUT'},
-    {label: 'Entrées', value: 'IN'},
-    {label: 'Sorties', value: 'OUT'},
+    {label: 'Entrées', value: 'AJUSTEMENT_IN'},
+    {label: 'Sorties', value: 'AJUSTEMENT_OUT'},
   ];
-
-  // Pagination
-  protected page = signal(1);
-
+  // Pagination — offset (0-based), piloté par le paginateur commun de `app-data-table`.
+  protected first = signal(0);
+  private readonly userService = inject(UserService);
+  private readonly spinner = inject(NgxSpinnerService);
+  private readonly tauriPrinter = inject(TauriPrinterService);
+  private readonly router = inject(Router);
+  private readonly notificationService = inject(NotificationService);
+  private readonly destroyRef = inject(DestroyRef);
   private lastEvent$ = toObservable(this.facade.lastEvent).pipe(
     filter((e): e is AjustEvent => e !== null),
   );
@@ -97,7 +98,7 @@ export class AjustementHomeComponent implements OnInit {
     effect(() => {
       const err = this.facade.error();
       if (err) {
-        this.messageService.add({severity: 'error', summary: 'Erreur', detail: err, life: 5000});
+        this.notificationService.error(err, 'Erreur');
       }
     });
   }
@@ -113,7 +114,12 @@ export class AjustementHomeComponent implements OnInit {
   }
 
   protected onSearch(): void {
-    this.page.set(1);
+    this.first.set(0);
+    this.load();
+  }
+
+  protected onLazyLoad(_event: AppTableLazyLoadEvent): void {
+    // `[(first)]` a déjà mis à jour `this.first` avant l'émission de `(onLazyLoad)`.
     this.load();
   }
 
@@ -152,23 +158,23 @@ export class AjustementHomeComponent implements OnInit {
     return lines.filter(l => (l.qtyMvt ?? 0) < 0).length;
   }
 
+  protected load(): void {
+    this.facade.loadHistory({
+      page: Math.floor(this.first() / this.itemsPerPage),
+      size: this.itemsPerPage,
+      fromDate: NGB_DATE_TO_ISO(this.fromDate),
+      toDate: NGB_DATE_TO_ISO(this.toDate),
+      userId: this.user?.id ?? null,
+      search: this.search || null,
+      type: this.typeFilter !== 'TOUT' ? this.typeFilter : null,
+    });
+  }
+
   private loadUsers(): void {
     this.userService.query()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((res: HttpResponse<User[]>) => {
         this.users = [{id: null, abbrName: 'TOUT'}, ...(res.body ?? [])];
       });
-  }
-
-  protected load(): void {
-    this.facade.loadHistory({
-      page: this.page() - 1,
-      size: this.itemsPerPage,
-      fromDate: dayjs(this.fromDate).format('YYYY-MM-DD'),
-      toDate: dayjs(this.toDate).format('YYYY-MM-DD'),
-      userId: this.user?.id ?? null,
-      search: this.search || null,
-      type: this.typeFilter !== 'TOUT' ? this.typeFilter : null,
-    });
   }
 }

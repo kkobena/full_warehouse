@@ -1,17 +1,23 @@
-import { Component, inject, OnInit, signal, viewChild, ChangeDetectionStrategy } from "@angular/core";
-import { HttpResponse } from "@angular/common/http";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { NgbNavChangeEvent, NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
+import {ChangeDetectionStrategy, Component, inject, OnInit, signal, viewChild} from "@angular/core";
+import {HttpResponse} from "@angular/common/http";
+import {CommonModule} from "@angular/common";
+import {FormsModule} from "@angular/forms";
+import {NgbDateStruct, NgbNavChangeEvent, NgbNavModule} from "@ng-bootstrap/ng-bootstrap";
 
-import { TableModule } from "primeng/table";
-import { ButtonModule } from "primeng/button";
-import { SelectModule } from "primeng/select";
-import { ToolbarModule } from "primeng/toolbar";
-import { ChipModule } from "primeng/chip";
-import { Drawer } from "primeng/drawer";
-import { SplitButton } from "primeng/splitbutton";
-import { MenuItem } from "primeng/api";
+import {
+  AppSplitButtonItem,
+  BadgeComponent,
+  ButtonComponent,
+  CheckboxComponent,
+  DataTableComponent,
+  InputNumberComponent,
+  OffcanvasComponent,
+  SelectComponent,
+  SplitButtonComponent,
+  ToolbarComponent
+} from '../../../shared/ui';
+import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
+import {NGB_DATE_TO_ISO} from '../../../shared/util/warehouse-util';
 
 import {
   IRecapProduitVendu,
@@ -20,32 +26,24 @@ import {
   SeuilFilterType,
   StockFilterType
 } from "app/shared/model/report/recap-produit-vendu.model";
-import { RecapProduitVenduService } from "../services/recap-produit-vendu.service";
-import { formatCurrency } from "app/shared/utils/format-utils";
-import { DatePicker } from "primeng/datepicker";
-import { InputTextModule } from "primeng/inputtext";
-import { Checkbox } from "primeng/checkbox";
-import { InputNumber } from "primeng/inputnumber";
-import { FloatLabel } from "primeng/floatlabel";
-import { RayonService } from "../../rayon/rayon.service";
-import { IRayon } from "../../../shared/model/rayon.model";
-import { IFournisseur } from "../../../shared/model/fournisseur.model";
-import { UserService } from "../../../core/user/user.service";
-import { IUser, User } from "../../../core/user/user.model";
-import { Authority } from "../../../shared/constants/authority.constants";
-import { SpinnerComponent } from "../../../shared/spinner/spinner.component";
-import { ToastAlertComponent } from "../../../shared/toast-alert/toast-alert.component";
-import { DATE_FORMAT_ISO_DATE } from "../../../shared/util/warehouse-util";
-import { BlobDownloadService } from "../../../shared/services/blob-download.service";
-import { finalize } from "rxjs/operators";
-import { TranslateService } from "@ngx-translate/core";
-import { PrimeNG } from "primeng/config";
+import {RecapProduitVenduService} from "../services/recap-produit-vendu.service";
+import {formatCurrency} from "app/shared/utils/format-utils";
+import {RayonService} from "../../rayon/rayon.service";
+import {IRayon} from "../../../shared/model/rayon.model";
+import {IFournisseur} from "../../../shared/model/fournisseur.model";
+import {UserService} from "../../../core/user/user.service";
+import {IUser, User} from "../../../core/user/user.model";
+import {Authority} from "../../../shared/constants/authority.constants";
+import {SpinnerComponent} from "../../../shared/spinner/spinner.component";
+import {BlobDownloadService} from "../../../shared/services/blob-download.service";
+import {finalize} from "rxjs/operators";
 import {
   FournisseurSelectComponent
 } from "../../../features/partners/ui/fournisseur-select/fournisseur-select.component";
+import {NotificationService} from "../../../shared/services/notification.service";
 
 @Component({
-  selector: "jhi-recap-produit-vendu",
+  selector: "app-recap-produit-vendu",
   templateUrl: "./recap-produit-vendu.component.html",
   styleUrl: "./recap-produit-vendu.component.scss",
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -53,20 +51,17 @@ import {
     CommonModule,
     FormsModule,
     NgbNavModule,
-    TableModule,
-    ButtonModule,
-    SelectModule,
-    ToolbarModule,
-    ChipModule,
-    Drawer,
-    SplitButton,
-    DatePicker,
-    InputTextModule,
-    Checkbox,
-    InputNumber,
-    FloatLabel,
+    BadgeComponent,
+    ButtonComponent,
+    CheckboxComponent,
+    DataTableComponent,
+    InputNumberComponent,
+    OffcanvasComponent,
+    SelectComponent,
+    SplitButtonComponent,
+    ToolbarComponent,
+    PharmaDatePickerComponent,
     SpinnerComponent,
-    ToastAlertComponent,
     FournisseurSelectComponent
   ]
 })
@@ -80,8 +75,8 @@ export default class RecapProduitVenduComponent implements OnInit {
   protected activeTab = signal<string>("vendus");
 
   // Basic Filters
-  protected startDate = signal<Date | null>(new Date());
-  protected endDate = signal<Date | null>(new Date());
+  protected startDate = signal<NgbDateStruct>(this.dateToNgbStruct(new Date()));
+  protected endDate = signal<NgbDateStruct>(this.dateToNgbStruct(new Date()));
   protected searchTerm = signal<string>("");
 
   // Advanced Filters
@@ -99,26 +94,26 @@ export default class RecapProduitVenduComponent implements OnInit {
   protected suggerQuantitySold = signal<boolean>(false);
 
   protected seuilFilterOptions = signal<{ label: string; value: SeuilFilterType | null }[]>([
-    { label: "Aucun filtre", value: null },
-    { label: "Seuil Inferieur à", value: SeuilFilterType.LESS_THAN },
-    { label: "Seuil supérieur à", value: SeuilFilterType.GREATER_THAN },
-    { label: "Seuil égal à", value: SeuilFilterType.EQUAL_TO },
-    { label: "Seuil supérieur ou égal à", value: SeuilFilterType.GREATER_THAN_OR_EQUAL_TO },
-    { label: "Seuil inférieur ou égal à", value: SeuilFilterType.LESS_THAN_OR_EQUAL_TO },
-    { label: "Seuil mini atteint", value: SeuilFilterType.SEUIL_MINI_ATTEINT }
+    {label: "Aucun filtre", value: null},
+    {label: "Seuil Inferieur à", value: SeuilFilterType.LESS_THAN},
+    {label: "Seuil supérieur à", value: SeuilFilterType.GREATER_THAN},
+    {label: "Seuil égal à", value: SeuilFilterType.EQUAL_TO},
+    {label: "Seuil supérieur ou égal à", value: SeuilFilterType.GREATER_THAN_OR_EQUAL_TO},
+    {label: "Seuil inférieur ou égal à", value: SeuilFilterType.LESS_THAN_OR_EQUAL_TO},
+    {label: "Seuil mini atteint", value: SeuilFilterType.SEUIL_MINI_ATTEINT}
   ]);
 
   protected stockFilterOptions = signal<{ label: string; value: StockFilterType | null }[]>([
-    { label: "Aucun filtre", value: null },
-    { label: "Stock égal à", value: StockFilterType.EQUAL_TO },
-    { label: "Stock inférieur à", value: StockFilterType.LESS_THAN },
-    { label: "Stock supérieur à", value: StockFilterType.GREATER_THAN },
-    { label: "Stock Superieur ou égal", value: StockFilterType.GREATER_THAN_OR_EQUAL_TO },
-    { label: "Stock inférieur ou égal à", value: StockFilterType.LESS_THAN_OR_EQUAL_TO },
-    { label: "Stock différent de", value: StockFilterType.NOT_EQUAL_TO },
-    { label: "Rupture de stock", value: StockFilterType.OUT_OF_STOCK }
+    {label: "Aucun filtre", value: null},
+    {label: "Stock égal à", value: StockFilterType.EQUAL_TO},
+    {label: "Stock inférieur à", value: StockFilterType.LESS_THAN},
+    {label: "Stock supérieur à", value: StockFilterType.GREATER_THAN},
+    {label: "Stock Superieur ou égal", value: StockFilterType.GREATER_THAN_OR_EQUAL_TO},
+    {label: "Stock inférieur ou égal à", value: StockFilterType.LESS_THAN_OR_EQUAL_TO},
+    {label: "Stock différent de", value: StockFilterType.NOT_EQUAL_TO},
+    {label: "Rupture de stock", value: StockFilterType.OUT_OF_STOCK}
   ]);
-  protected exportMenuItems = signal<MenuItem[]>([
+  protected exportMenuItems = signal<AppSplitButtonItem[]>([
     {
       label: "Pdf",
       icon: "pi pi-file-pdf",
@@ -141,16 +136,14 @@ export default class RecapProduitVenduComponent implements OnInit {
   protected page = signal<number>(1);
   protected itemsPerPage = signal<number>(10);
   protected totalItems = signal<number>(0);
-  private readonly translate = inject(TranslateService);
-  private readonly primeNGConfig = inject(PrimeNG);
-  private readonly downloadService = inject(BlobDownloadService);
   protected formatCurrency = formatCurrency;
+  private readonly downloadService = inject(BlobDownloadService);
   private readonly recapService = inject(RecapProduitVenduService);
   private readonly rayonService = inject(RayonService);
   private readonly userService = inject(UserService);
   private readonly spinner = viewChild.required<SpinnerComponent>("spinner");
-  private readonly alert = viewChild.required<ToastAlertComponent>("alert");
-  protected actionsMenuItems = signal<MenuItem[]>([
+  private readonly notificationService = inject(NotificationService);
+  protected actionsMenuItems = signal<AppSplitButtonItem[]>([
     {
       label: "Créer Inventaire",
       icon: "pi pi-warehouse",
@@ -165,7 +158,7 @@ export default class RecapProduitVenduComponent implements OnInit {
           this.createSuggestion();
         } else {
           this.suggerQuantitySold.set(false);
-          this.alert().showWarn("Cette action est disponible uniquement dans l'onglet des produits vendus.");
+          this.notificationService.warning("Cette action est disponible uniquement dans l'onglet des produits vendus.");
         }
       }
     },
@@ -175,13 +168,6 @@ export default class RecapProduitVenduComponent implements OnInit {
       command: () => this.createSuggestion()
     }
   ]);
-
-  constructor() {
-    this.translate.use("fr");
-    this.translate.stream("primeng").subscribe(data => {
-      this.primeNGConfig.setTranslation(data);
-    });
-  }
 
   ngOnInit(): void {
     this.loadRayons();
@@ -266,8 +252,8 @@ export default class RecapProduitVenduComponent implements OnInit {
 
   protected buildRequestParam(): IRecapProduitVenduRequestParam {
     return {
-      startDate: DATE_FORMAT_ISO_DATE(this.startDate()),
-      endDate: DATE_FORMAT_ISO_DATE(this.endDate()),
+      startDate: NGB_DATE_TO_ISO(this.startDate()),
+      endDate: NGB_DATE_TO_ISO(this.endDate()),
       startTime: this.startTime() || undefined,
       endTime: this.endTime() || undefined,
       userId: this.selectedUser()?.id || undefined,
@@ -292,8 +278,8 @@ export default class RecapProduitVenduComponent implements OnInit {
 
   protected onClearFilters(): void {
     // Basic filters
-    this.startDate.set(new Date());
-    this.endDate.set(new Date());
+    this.startDate.set(this.dateToNgbStruct(new Date()));
+    this.endDate.set(this.dateToNgbStruct(new Date()));
     this.searchTerm.set("");
 
     // Advanced filters
@@ -348,7 +334,7 @@ export default class RecapProduitVenduComponent implements OnInit {
       "pdf",
       () => this.spinner().show(),
       () => this.spinner().hide(),
-      () => this.alert().showError("Erreur lors de l'export PDF")
+      () => this.notificationService.error("Erreur lors de l'export PDF")
     );
   }
 
@@ -367,7 +353,7 @@ export default class RecapProduitVenduComponent implements OnInit {
       "excel",
       () => this.spinner().show(),
       () => this.spinner().hide(),
-      () => this.alert().showError("Erreur lors de l'export Excel")
+      () => this.notificationService.error("Erreur lors de l'export Excel")
     );
   }
 
@@ -386,7 +372,7 @@ export default class RecapProduitVenduComponent implements OnInit {
       "csv",
       () => this.spinner().show(),
       () => this.spinner().hide(),
-      () => this.alert().showError("Erreur lors de l'export CSV")
+      () => this.notificationService.error("Erreur lors de l'export CSV")
     );
   }
 
@@ -397,7 +383,7 @@ export default class RecapProduitVenduComponent implements OnInit {
     const isInvendu = this.activeTab() === "invendus";
 
     if (isInvendu && !this.suggerQuantitySold()) {
-      this.alert().showWarn("La création de suggestion de réapprovisionnement est disponible pour les produits invendus.");
+      this.notificationService.warning("La création de suggestion de réapprovisionnement est disponible pour les produits invendus.");
     }
 
     const requestParam = this.buildRequestParam();
@@ -410,10 +396,10 @@ export default class RecapProduitVenduComponent implements OnInit {
         next: (res: HttpResponse<number>) => {
           const productType = isInvendu ? "invendus" : "vendus";
           const suggestionType = this.suggerQuantitySold() ? "quantités vendues" : "réapprovisionnement";
-          this.alert().showInfo(`${res.body} produit(s) ${productType} suggéré(s) pour ${suggestionType}`);
+          this.notificationService.info(`${res.body} produit(s) ${productType} suggéré(s) pour ${suggestionType}`);
         },
         error: () => {
-          this.alert().showError("Erreur lors de la création de la suggestion");
+          this.notificationService.error("Erreur lors de la création de la suggestion");
         }
       });
   }
@@ -436,23 +422,31 @@ export default class RecapProduitVenduComponent implements OnInit {
       .pipe(finalize(() => this.spinner().hide()))
       .subscribe({
         next: (res: HttpResponse<number>) => {
-          this.alert().showInfo(`${res.body} produit(s) ${productType} pris en compte pour l'inventaire`);
+          this.notificationService.info(`${res.body} produit(s) ${productType} pris en compte pour l'inventaire`);
         },
         error: () => {
-          this.alert().showError("Erreur lors de la création de l'inventaire");
+          this.notificationService.error("Erreur lors de la création de l'inventaire");
         }
       });
   }
 
   protected getMarginPercentage(product: IRecapProduitVendu): number {
-    if (!product.totalSalesAmount || !product.totalPurchaseAmount) return 0;
+    if (!product.totalSalesAmount || !product.totalPurchaseAmount) {
+      return 0;
+    }
     return ((product.totalSalesAmount - product.totalPurchaseAmount) / product.totalSalesAmount) * 100;
   }
 
   protected getMarginSeverity(margin: number): string {
-    if (margin >= 30) return "success";
-    if (margin >= 20) return "info";
-    if (margin >= 10) return "warn";
+    if (margin >= 30) {
+      return "success";
+    }
+    if (margin >= 20) {
+      return "info";
+    }
+    if (margin >= 10) {
+      return "warn";
+    }
     return "danger";
   }
 
@@ -495,5 +489,9 @@ export default class RecapProduitVenduComponent implements OnInit {
 
   private getIsProduitVendu(): boolean {
     return this.activeTab() !== "invendus";
+  }
+
+  private dateToNgbStruct(date: Date): NgbDateStruct {
+    return {year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate()};
   }
 }

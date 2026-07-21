@@ -1,30 +1,14 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-2">
-    <div class="pharma-toolbar">
-      <div class="pharma-toolbar-header">
-        <i class="pi pi-cog"></i>
-        <span class="pharma-toolbar-title">Paramètres de configuaration</span>
-      </div>
-
-      <p-toolbar>
-        <ng-template #start>
-          <div class="pharma-toolbar-filters">
-            <div class="pharma-search-input">
-              <p-iconfield>
-                <p-inputicon class="pi pi-search" />
-                <input (keyup.enter)="loadAll()" [(ngModel)]="search" pInputText placeholder="Taper pour rechercher" type="text" />
-              </p-iconfield>
-            </div>
-          </div>
-        </ng-template>
-
-        <ng-template #end>
-          <div class="pharma-toolbar-actions">
-            <div class="pharma-button-group"></div>
-          </div>
-        </ng-template>
-      </p-toolbar>
-    </div>
+    <app-toolbar icon="pi pi-cog" title="Paramètres de configuaration">
+      <ng-container ngProjectAs="[toolbarFilters]">
+        <div class="pharma-search-input">
+          <app-icon-field icon="pi pi-search">
+            <input (keyup.enter)="loadAll()" [(ngModel)]="search" class="form-control" placeholder="Taper pour rechercher" type="text" />
+          </app-icon-field>
+        </div>
+      </ng-container>
+    </app-toolbar>
 
     @if (apps.length > 0) {
       <div class="table-responsive mt-2" style="max-height: calc(100vh - 200px); overflow-y: auto;">
@@ -44,10 +28,9 @@
                   <td>
                     @if (app.name !== 'APP_GESTION_STOCK') {
                       @if (Number(app.value) == 0) {
-                        <p-button (click)="setActive(app, true)" label="Activer" raised="true" severity="danger" size="small"> </p-button>
+                        <app-button (clicked)="setActive(app, true)" label="Activer" [raised]="true" severity="danger" size="small" />
                       } @else {
-                        <p-button (click)="setActive(app, false)" label="Désactiver" raised="true" severity="primary" size="small">
-                        </p-button>
+                        <app-button (clicked)="setActive(app, false)" label="Désactiver" [raised]="true" severity="primary" size="small" />
                       }
                     }
                   </td>
@@ -56,14 +39,14 @@
                 }
                 <td>
                   @if (app.name !== 'APP_GESTION_STOCK') {
-                    <p-button
-                      (click)="onEdit(app)"
+                    <app-button
+                      (clicked)="onEdit(app)"
                       icon="pi pi-pencil"
                       label="Modifier"
-                      raised="true"
+                      [raised]="true"
                       severity="info"
                       size="small"
-                    ></p-button>
+                    />
                   }
                 </td>
               </tr>

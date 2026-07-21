@@ -1,5 +1,3 @@
-<p-toast position="center" />
-
 <div class="pharma-smart-content">
   <div class="product-search-section">
     <div class="search-section-header">
@@ -9,17 +7,15 @@
 
     <div class="search-controls">
       <div class="storage-select-wrapper">
-        <p-select
-          size="large"
+        <app-select
           [(ngModel)]="selectedStorageId"
-          (onChange)="onStorageChange()"
-          [options]="storages"
-          [showClear]="true"
-          [fluid]="true"
+          (selectionChange)="onStorageChange()"
+          [items]="storages"
+          [clearable]="true"
           appendTo="body"
-          optionLabel="name"
+          bindLabel="name"
+          bindValue="id"
           [style]="{ 'max-width': '220px' }"
-          optionValue="id"
           placeholder="Sélectionner un emplacement"
           class="pharma-select-modern"
         />
@@ -52,8 +48,8 @@
       </div>
 
       <div class="search-actions ml-auto">
-        <p-button
-          (onClick)="save()"
+        <app-button
+          (clicked)="save()"
           [disabled]="!isFormValid || isSaving"
           [loading]="isSaving"
           icon="pi pi-check"
@@ -67,7 +63,7 @@
 
   @if (repartitionRows.length > 0) {
     <div class="repartition-table-container">
-      <p-table [scrollable]="true" [value]="repartitionRows" scrollHeight="calc(100vh - 250px)" class="p-datatable-sm">
+      <app-data-table [scrollable]="true" [value]="repartitionRows" scrollHeight="calc(100vh - 250px)" class="p-datatable-sm">
         <ng-template #header>
           <tr class="pharma-table-head">
             <th style="width: 45%">
@@ -135,14 +131,14 @@
                         <span class="stock-value after text-success fw-semibold">{{ row.quantity }}</span>
                       </div>
                     </div>
-                    <p-button
-                      (onClick)="cancelCreateDestination(row)"
+                    <app-button
+                      (clicked)="cancelCreateDestination(row)"
                       icon="pi pi-times"
                       label="Annuler"
                       severity="secondary"
                       size="small"
                       [text]="true"
-                      pTooltip="Annuler la création de réserve"
+                      ngbTooltip="Annuler la création de réserve"
                     />
                   </div>
                 } @else if (row.availableDestinations.length === 0) {
@@ -151,8 +147,8 @@
                       <i class="pi pi-info-circle"></i>
                       <p>Aucune destination disponible</p>
                       @if (canCreateReserve(row)) {
-                        <p-button
-                          (onClick)="enableCreateDestination(row)"
+                        <app-button
+                          (clicked)="enableCreateDestination(row)"
                           icon="pi pi-plus"
                           label="Créer une réserve"
                           severity="success"
@@ -192,13 +188,13 @@
             </td>
 
             <td class="text-center">
-              <p-button
-                (onClick)="removeRow(row)"
+              <app-button
+                (clicked)="removeRow(row)"
                 [text]="true"
                 icon="pi pi-trash"
-                pTooltip="Supprimer cette ligne"
+                ngbTooltip="Supprimer cette ligne"
                 severity="danger"
-                tooltipPosition="left"
+                placement="left"
               />
             </td>
           </tr>
@@ -214,7 +210,7 @@
             </tr>
           }
         </ng-template>
-      </p-table>
+      </app-data-table>
 
       <div class="summary-footer mt-2">
         <div class="alert alert-info mb-0">

@@ -1,80 +1,64 @@
-<p-toast />
-
 <div class="pharma-smart-content p-2">
 
   <!-- ── Modern Pharma Toolbar ─────────────────────────────────────────────── -->
-  <div class="pharma-toolbar">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-list-check"></i>
-      <span class="pharma-toolbar-title">
-        Inventaire
-      </span>
-    </div>
+  <app-toolbar icon="pi pi-list-check" title="Inventaire">
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-toolbar-actions">
+        <div class="pharma-button-group">
 
-    <p-toolbar>
-      <ng-template #end>
-        <div class="pharma-toolbar-actions">
-          <div class="pharma-button-group">
+          <app-button
+            (clicked)="goBack()"
+            [raised]="true"
+            icon="pi pi-arrow-left"
+            label="Retour"
+            ngbTooltip="Retour à la liste"
+            severity="secondary"
+          />
 
-            <p-button
-              (click)="goBack()"
+          <app-button
+            (clicked)="exportPdf()"
+            [loading]="exporting()"
+            [raised]="true"
+            icon="pi pi-file-pdf"
+            label="Exporter PDF"
+            ngbTooltip="Exporter l'inventaire en PDF"
+            severity="secondary"
+          />
+
+          @if (!isInventoryClosed) {
+            <app-button
+              (clicked)="openImportModal()"
               [raised]="true"
-              icon="pi pi-arrow-left"
-              label="Retour"
-              pTooltip="Retour à la liste"
-              severity="secondary"
-              tooltipPosition="top"
+              icon="pi pi-upload"
+              label="Importer CSV"
+              ngbTooltip="Importer depuis un fichier CSV"
+              severity="info"
             />
 
-            <p-button
-              (click)="exportPdf()"
-              [loading]="exporting()"
+            <app-button
+              (clicked)="closeInventory()"
               [raised]="true"
-              icon="pi pi-file-pdf"
-              label="Exporter PDF"
-              pTooltip="Exporter l'inventaire en PDF"
-              severity="secondary"
-              tooltipPosition="top"
+              icon="pi pi-lock"
+              label="Clôturer"
+              ngbTooltip="Clôturer cet inventaire"
+              severity="warn"
             />
+          }
 
-            @if (!isInventoryClosed) {
-              <p-button
-                (click)="openImportModal()"
-                [raised]="true"
-                icon="pi pi-upload"
-                label="Importer CSV"
-                pTooltip="Importer depuis un fichier CSV"
-                severity="info"
-                tooltipPosition="top"
-              />
-
-              <p-button
-                (click)="closeInventory()"
-                [raised]="true"
-                icon="pi pi-lock"
-                label="Clôturer"
-                pTooltip="Clôturer cet inventaire"
-                severity="warn"
-                tooltipPosition="top"
-              />
-            }
-
-            @if (isInventoryClosed) {
-              <p-button
-                (click)="openGapAnalysis()"
-                [raised]="true"
-                icon="pi pi-chart-bar"
-                label="Analyser les écarts"
-                pTooltip="Qualifier les causes d'écart (optionnel)"
-                severity="danger"
-                tooltipPosition="top"
-              />
-            }
-          </div>
+          @if (isInventoryClosed) {
+            <app-button
+              (clicked)="openGapAnalysis()"
+              [raised]="true"
+              icon="pi pi-chart-bar"
+              label="Analyser les écarts"
+              ngbTooltip="Qualifier les causes d'écart (optionnel)"
+              severity="danger"
+            />
+          }
         </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
+      </div>
+    </ng-container>
+  </app-toolbar>
 
   <!-- ── Contenu en deux colonnes ──────────────────────────────────────────── -->
   <div class="row mt-2 g-3">
@@ -190,34 +174,32 @@
       <div class="pagination-bar">
         <div class="page-size-selector">
           <span class="page-size-label">Lignes/page</span>
-          <p-select
+          <app-select
             (ngModelChange)="onPageSizeChange($event)"
             [ngModel]="size()"
-            [options]="pageSizeOptions"
-            size="small"
+            [items]="pageSizeOptions"
+            [small]="true"
           />
         </div>
         <div class="page-nav">
-          <p-button
-            (click)="onPageChange(-1)"
+          <app-button
+            (clicked)="onPageChange(-1)"
             [disabled]="isFirstPage()"
             [text]="true"
             icon="pi pi-chevron-left"
-            pTooltip="Page précédente"
+            ngbTooltip="Page précédente"
             severity="secondary"
-            tooltipPosition="top"
           />
           <span class="page-info">
             Page {{ page() + 1 }} / {{ totalPages() }}
           </span>
-          <p-button
-            (click)="onPageChange(1)"
+          <app-button
+            (clicked)="onPageChange(1)"
             [disabled]="isLastPage()"
             [text]="true"
             icon="pi pi-chevron-right"
-            pTooltip="Page suivante"
+            ngbTooltip="Page suivante"
             severity="secondary"
-            tooltipPosition="top"
           />
         </div>
         <span class="total-info">

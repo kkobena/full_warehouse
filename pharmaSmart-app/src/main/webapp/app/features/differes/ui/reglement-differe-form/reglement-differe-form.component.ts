@@ -2,18 +2,13 @@ import { AfterViewInit, Component, computed, DestroyRef, inject, input, output, 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpResponse } from '@angular/common/http';
-import { Divider } from 'primeng/divider';
-import { InputNumber } from 'primeng/inputnumber';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { Select } from 'primeng/select';
-import { InputText } from 'primeng/inputtext';
-import { Button } from 'primeng/button';
-import { DatePicker } from 'primeng/datepicker';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, InputNumberComponent, SelectComponent } from '../../../../shared/ui';
+import { PharmaDatePickerComponent } from '../../../../shared/date-picker/pharma-date-picker.component';
 
 import { IPaymentMode } from '../../../../shared/model/payment-mode.model';
 import { ModePaymentService } from '../../../../entities/mode-payments/mode-payment.service';
-import { DATE_FORMAT_ISO_DATE } from '../../../../shared/util/warehouse-util';
+import { NGB_DATE_TO_ISO, TODAY_NGB_DATE } from '../../../../shared/util/warehouse-util';
 
 import { IDiffere, INewReglementDiffere } from '../../data-access/models';
 
@@ -22,14 +17,10 @@ import { IDiffere, INewReglementDiffere } from '../../data-access/models';
   imports: [
     FormsModule,
     ReactiveFormsModule,
-    Divider,
-    InputNumber,
-    InputGroup,
-    InputGroupAddon,
-    Select,
-    InputText,
-    Button,
-    DatePicker,
+    ButtonComponent,
+    InputNumberComponent,
+    PharmaDatePickerComponent,
+    SelectComponent,
   ],
   templateUrl: './reglement-differe-form.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -46,7 +37,7 @@ export class ReglementDiffereFormComponent implements AfterViewInit {
   readonly reglementParams = output<INewReglementDiffere>();
   readonly rendu = output<number>();
 
-  readonly maxDate = new Date();
+  readonly maxDate: NgbDateStruct = TODAY_NGB_DATE();
   protected paymentModes: IPaymentMode[] = [];
 
   protected montantSaisi = signal(0);
@@ -62,7 +53,7 @@ export class ReglementDiffereFormComponent implements AfterViewInit {
       nonNullable: true,
     }),
     modePaimentCode: new FormControl<string | null>(null, { validators: [Validators.required], nonNullable: true }),
-    paymentDate: new FormControl<Date | null>(null),
+    paymentDate: new FormControl<NgbDateStruct | null>(null),
     banqueInfo: this.fb.group({
       nom: new FormControl<string | null>(null, { validators: [Validators.required], nonNullable: true }),
       code: new FormControl<string | null>(null, { validators: [Validators.required], nonNullable: true }),
@@ -166,7 +157,7 @@ export class ReglementDiffereFormComponent implements AfterViewInit {
       amount: this.reglementForm.get('amount').value,
       paimentMode: this.reglementForm.get('modePaimentCode').value,
       banqueInfo: this.showBanqueInfo ? this.banqueInfo.getRawValue() : null,
-      paymentDate: DATE_FORMAT_ISO_DATE(this.reglementForm.get('paymentDate').value),
+      paymentDate: NGB_DATE_TO_ISO(this.reglementForm.get('paymentDate').value),
       expectedAmount: this.initTotalAmount,
       customerId: d?.customerId,
       saleIds: d?.differeItems?.map(e => e.saleId) ?? [],

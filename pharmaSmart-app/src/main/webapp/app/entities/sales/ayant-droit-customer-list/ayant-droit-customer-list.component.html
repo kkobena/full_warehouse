@@ -5,12 +5,12 @@
 </div>
 
 <div class="modal-body">
-  <p-card>
-    <p-toolbar>
-      <ng-template #end>
-        <p-button (click)="addAyantDroit()" icon="pi pi-user-plus" label="Ajouter un ayant droit" severity="primary" />
-      </ng-template>
-    </p-toolbar>
+  <app-card>
+    <app-toolbar>
+      <ng-container ngProjectAs="[toolbarActions]">
+        <app-button (clicked)="addAyantDroit()" icon="pi pi-user-plus" label="Ajouter un ayant droit" severity="primary" />
+      </ng-container>
+    </app-toolbar>
     @if (customers.length > 0) {
       <div class="table-responsive mt-1">
         <table class="table table-striped table-bordered table-hover">
@@ -47,9 +47,9 @@
         <strong>Aucun ayant droit trouvé.</strong>
       </div>
     }
-  </p-card>
+  </app-card>
 </div>
 
 <div class="modal-footer">
-  <p-button (click)="cancel()" [raised]="true" data-dismiss="modal" icon="pi pi-times" label="Fermer" severity="secondary" type="button" />
+  <app-button (clicked)="cancel()" [raised]="true" icon="pi pi-times" label="Fermer" severity="secondary" type="button" />
 </div>

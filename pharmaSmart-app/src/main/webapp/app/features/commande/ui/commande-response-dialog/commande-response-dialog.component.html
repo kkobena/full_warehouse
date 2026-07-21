@@ -2,7 +2,7 @@
   <h5 class="modal-title">
     <i class="pi pi-file-check me-2"></i>{{ header }}
   </h5>
-  <button type="button" class="btn-close" (click)="close()"></button>
+  <button type="button" class="btn-close" (clicked)="close()"></button>
 </div>
 
 <div class="modal-body">
@@ -18,12 +18,12 @@
           </div>
           <div class="response-card-body d-flex align-items-center gap-3">
             <span class="text-muted small">La commande n'a pas été modifiée. Vous pouvez la supprimer ou la conserver pour révision.</span>
-            <p-button
+            <app-button
               label="Supprimer la commande"
               icon="pi pi-trash"
               severity="danger"
               size="small"
-              (click)="onDeleteCommande()"
+              (clicked)="onDeleteCommande()"
             />
           </div>
         </div>
@@ -79,9 +79,9 @@
                       <td class="text-right">{{ item.quantite | number }}</td>
                       <td class="text-center">
                         @if ((item.quantitePriseEnCompte ?? 0) === 0) {
-                          <p-tag severity="danger" value="Rupture" icon="pi pi-times"/>
+                          <app-badge severity="danger" label="Rupture" icon="pi pi-times"/>
                         } @else {
-                          <p-tag severity="warn" value="Partiel" icon="pi pi-minus"/>
+                          <app-badge severity="warn" label="Partiel" icon="pi pi-minus"/>
                         }
                       </td>
                     </tr>
@@ -128,5 +128,5 @@
 </div>
 
 <div class="modal-footer">
-  <p-button (click)="close()" label="Fermer" severity="secondary" size="small" icon="pi pi-times"/>
+  <app-button (clicked)="close()" label="Fermer" severity="secondary" size="small" icon="pi pi-times"/>
 </div>

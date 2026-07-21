@@ -30,20 +30,19 @@
     <!-- Sélection facture (mode libre) -->
     @if (!isFromFacture) {
       <div class="col-12">
-        <p-floatlabel variant="on">
-          <p-autocomplete
-            (completeMethod)="searchFacture($event)"
+        <app-float-label inputId="av-facture-id" label="N° Facture origine *">
+          <app-select-search
+            appendTo="body"
+            (searched)="searchFacture($event)"
             [(ngModel)]="selectedFacture"
-            [forceSelection]="true"
-            [minQueryLength]="2"
-            [suggestions]="factureSuggestions"
-            [dropdown]="true"
-            id="av-facture-id"
+            [minSearchLength]="2"
+            [items]="factureSuggestions"
+            [optionTemplate]="tplFactureOrigine"
+            [style]="{ width: '100%' }"
+            bindLabel="numFacture"
             inputId="av-facture-id"
-            optionLabel="numFacture"
-            style="width: 100%"
-          >
-            <ng-template #item let-item>
+          />
+          <ng-template #tplFactureOrigine let-item>
               <div class="d-flex justify-content-between align-items-center gap-3 w-100">
                 <div class="d-flex flex-column">
                   <span class="pharma-code fw-semibold">{{ item.numFacture }}</span>
@@ -51,13 +50,11 @@
                 </div>
                 <div class="d-flex flex-column align-items-end flex-shrink-0">
                   <span class="pharma-price small">{{ item.montantRegle | number: '1.0-0' }}</span>
-                  <p-badge [value]="getStatutLabel(item.statut)" [severity]="getStatutSeverity(item.statut)" />
+                  <app-badge [label]="getStatutLabel(item.statut)" [severity]="getStatutSeverity(item.statut)" />
                 </div>
               </div>
-            </ng-template>
-          </p-autocomplete>
-          <label for="av-facture-id">N° Facture origine *</label>
-        </p-floatlabel>
+          </ng-template>
+          </app-float-label>
       </div>
     }
 
@@ -74,15 +71,14 @@
       </div>
     } @else {
       <div class="col-md-6">
-        <p-floatlabel variant="on">
-          <p-inputnumber
+        <app-float-label inputId="av-montant" label="Montant avoir *">
+          <app-input-number
             [(ngModel)]="montantAvoir"
-            id="av-montant"
+            inputId="av-montant"
             [max]="selectedFacture?.montantRegle ?? undefined"
             style="width: 100%"
           />
-          <label for="av-montant">Montant avoir *</label>
-        </p-floatlabel>
+          </app-float-label>
         @if (montantAvoir !== null && selectedFacture && montantAvoir > (selectedFacture.montantRegle ?? 0)) {
           <small class="text-danger">
             Dépasse le montant réglé ({{ selectedFacture.montantRegle | number: '1.0-0' }})
@@ -93,56 +89,52 @@
 
     <!-- TVA -->
     <div class="col-md-6">
-      <p-floatlabel variant="on">
-        <p-inputnumber
+      <app-float-label inputId="av-tva" label="TVA">
+        <app-input-number
           [(ngModel)]="montantTva"
-          id="av-tva"
+          inputId="av-tva"
           [min]="0"
           style="width: 100%"
         />
-        <label for="av-tva">TVA</label>
-      </p-floatlabel>
+          </app-float-label>
     </div>
 
     <!-- HT -->
     <div class="col-md-6">
-      <p-floatlabel variant="on">
-        <p-inputnumber
+      <app-float-label inputId="av-ht" label="Montant HT">
+        <app-input-number
           [(ngModel)]="montantHt"
-          id="av-ht"
+          inputId="av-ht"
           [min]="0"
           style="width: 100%"
         />
-        <label for="av-ht">Montant HT</label>
-      </p-floatlabel>
+          </app-float-label>
     </div>
 
     <!-- Motif -->
     <div class="col-12">
-      <p-floatlabel variant="on">
+      <app-float-label inputId="av-motif" label="Motif de l'avoir *">
         <textarea
           [(ngModel)]="motif"
-          id="av-motif"
-          pInputText
+          inputId="av-motif"
           rows="3"
           style="width: 100%; resize: vertical"
         ></textarea>
-        <label for="av-motif">Motif de l'avoir *</label>
-      </p-floatlabel>
+          </app-float-label>
     </div>
 
   </div>
 </div>
 
 <div class="modal-footer">
-  <p-button
-    (onClick)="activeModal.dismiss()"
+  <app-button
+    (clicked)="activeModal.dismiss()"
     label="Annuler"
     severity="secondary"
     [outlined]="true"
   />
-  <p-button
-    (onClick)="onSave()"
+  <app-button
+    (clicked)="onSave()"
     [disabled]="!isFormValid()"
     [loading]="saving()"
     icon="pi pi-check"

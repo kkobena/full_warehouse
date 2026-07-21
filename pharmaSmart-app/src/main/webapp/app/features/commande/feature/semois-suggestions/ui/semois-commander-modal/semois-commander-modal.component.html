@@ -39,8 +39,8 @@
               <tr>
                 <td class="fw-medium small">{{ ligne.libelle }}</td>
                 <td class="text-center">
-                  <p-tag
-                    [value]="ligne.urgence"
+                  <app-badge
+                    [label]="ligne.urgence"
                     [severity]="ligne.urgence === 'URGENT' ? 'danger' : 'warn'"
                   />
                 </td>
@@ -55,19 +55,19 @@
 </div>
 
 <div class="modal-footer border-top">
-  <p-button
+  <app-button
     label="Annuler"
     icon="pi pi-times"
     severity="secondary"
     size="small"
-    (onClick)="cancel()"
+    (clicked)="cancel()"
   />
-  <p-button
+  <app-button
     label="Confirmer la commande"
     icon="pi pi-check"
     severity="success"
     size="small"
-    (onClick)="confirm()"
+    (clicked)="confirm()"
   />
 </div>
 

@@ -2,15 +2,13 @@ import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@ang
 import { CommonModule } from "@angular/common";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonModule } from "primeng/button";
-import { InputText } from "primeng/inputtext";
+import { ButtonComponent } from "../../shared/ui";
 import { IMotifRetourProduit, MotifRetourProduit } from "app/shared/model/motif-retour-produit.model";
 import { ModifRetourProduitService } from "./motif-retour-produit.service";
-import { Card } from "primeng/card";
 
 @Component({
-  selector: "jhi-motif-retour-produit-form-modal",
-  imports: [CommonModule, FormsModule, ButtonModule, InputText, Card, ReactiveFormsModule],
+  selector: "app-motif-retour-produit-form-modal",
+  imports: [CommonModule, FormsModule, ButtonComponent, ReactiveFormsModule],
   styleUrl: "./form-motif-retour-fourn.scss",
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
@@ -23,24 +21,25 @@ import { Card } from "primeng/card";
     </div>
 
     <div class="modal-body">
-      <p-card>
-        <div class="form-grid-compact">
-          <div class="form-field form-field-full">
-            <label for="libelle">Libellé<span class="required">*</span></label>
-            <input
-              required="true"
-              autocomplete="off"
-              class="w-full"
-              pInputText
-              id="libelle"
-              [(ngModel)]="motif().libelle"
-              [disabled]="isSaving()"
-              maxlength="100"
-            />
-            <small class="text-muted">Maximum 100 caractères</small>
+      <div class="card data-card">
+        <div class="card-body">
+          <div class="form-grid-compact">
+            <div class="form-field form-field-full">
+              <label for="libelle">Libellé<span class="required">*</span></label>
+              <input
+                required
+                autocomplete="off"
+                class="form-control"
+                id="libelle"
+                [(ngModel)]="motif().libelle"
+                [disabled]="isSaving()"
+                maxlength="100"
+              />
+              <small class="text-muted">Maximum 100 caractères</small>
+            </div>
           </div>
         </div>
-      </p-card>
+      </div>
 
       @if (errorMessage()) {
         <div class="alert alert-danger mt-3" role="alert">
@@ -51,19 +50,17 @@ import { Card } from "primeng/card";
     </div>
 
     <div class="modal-footer">
-      <p-button (onClick)="dismiss()" [outlined]="true" [disabled]="isSaving()" icon="pi pi-times" label="Annuler"
-                severity="secondary">
-      </p-button>
-      <p-button
-        (onClick)="save()"
+      <app-button (clicked)="dismiss()" [outlined]="true" [disabled]="isSaving()" icon="pi pi-times" label="Annuler"
+                  severity="secondary" />
+      <app-button
+        (clicked)="save()"
         type="submit"
         [loading]="isSaving()"
         [disabled]="!motif().libelle || motif().libelle.trim() === ''"
         icon="pi pi-check"
         label="Enregistrer"
         severity="primary"
-      >
-      </p-button>
+      />
     </div>
   `
 })

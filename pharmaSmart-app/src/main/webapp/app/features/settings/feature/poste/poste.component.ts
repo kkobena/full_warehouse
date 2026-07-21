@@ -3,26 +3,24 @@ import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@ang
 import { RouterModule } from "@angular/router";
 import { PosteService } from "./poste.service";
 import { IPoste } from "../../../../shared/model/poste.model";
-import { ButtonModule } from "primeng/button";
-import { ToolbarModule } from "primeng/toolbar";
-import { TableModule } from "primeng/table";
-import { InputTextModule } from "primeng/inputtext";
-import { TooltipModule } from "primeng/tooltip";
 import { FormsModule } from "@angular/forms";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { ErrorService } from "../../../../shared/error.service";
 import { showCommonModal } from "../../../../entities/sales/selling-home/sale-helper";
 import { FormPosteComponent } from "./form-poste/form-poste.component";
-import { Tag } from "primeng/tag";
 import { PosteDeviceService } from "./poste-device.service";
 import { IPosteDevice } from "../../../../shared/model/poste-device.model";
-import { BadgeModule } from "primeng/badge";
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { NotificationService } from "../../../../shared/services/notification.service";
-import { Toast } from "primeng/toast";
 import { CommonModule } from "@angular/common";
+import {
+  BadgeComponent,
+  ButtonComponent,
+  DataTableComponent,
+  IconFieldComponent,
+  RowTogglerDirective,
+  ToolbarComponent
+} from "../../../../shared/ui";
 
 @Component({
   selector: "app-poste",
@@ -31,18 +29,15 @@ import { CommonModule } from "@angular/common";
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
-    ButtonModule,
-    ToolbarModule,
-    TableModule,
+    ButtonComponent,
+    ToolbarComponent,
+    DataTableComponent,
     RouterModule,
-    InputTextModule,
-    TooltipModule,
     FormsModule,
-    IconField,
-    InputIcon,
-    Tag,
-    BadgeModule,
-    Toast
+    IconFieldComponent,
+    RowTogglerDirective,
+    BadgeComponent,
+    NgbTooltip
   ]
 })
 export class PosteComponent implements OnInit {
@@ -50,7 +45,6 @@ export class PosteComponent implements OnInit {
   protected entites: IPoste[] = [];
   protected filteredEntities: IPoste[] = [];
   protected searchQuery = "";
-  protected expandedRows: Record<number, boolean> = {};
   protected devicesMap = signal<Record<number, IPosteDevice[]>>({});
   private readonly entityService = inject(PosteService);
   private readonly posteDeviceService = inject(PosteDeviceService);
@@ -126,8 +120,8 @@ export class PosteComponent implements OnInit {
     this.applyFilter();
   }
 
-  protected onRowExpand(event: { data: IPoste }): void {
-    const posteId = event.data.id;
+  protected onRowExpand(poste: IPoste): void {
+    const posteId = poste.id;
     if (posteId) {
       this.loadDevices(posteId);
     }

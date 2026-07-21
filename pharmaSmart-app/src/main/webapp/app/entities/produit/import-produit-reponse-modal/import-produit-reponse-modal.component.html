@@ -3,24 +3,24 @@
   <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
 </div>
 <div class="modal-body">
-  <p-card>
+  <app-card [variant]="'form'">
     @if (responsedto?.rejectFileUrl) {
       <div class="alert-warning">
         <h4>Veuillez cliquer sur le lien pour télécharger les lignes rejetées</h4>
       </div>
       <h4>
-        <p-button [link]="true" (click)="onClickLink()"
-        >Cliquer pour télécharger le fichier des produits qui ne sont pas pris en compte
-        </p-button>
+        <app-button [text]="true" (clicked)="onClickLink()"
+                  label="Cliquer pour télécharger le fichier des produits qui ne sont pas pris en compte"
+        />
       </h4>
     } @else {
       <div class="ui-g form-group">
         <p>Toutes lignes sont importées</p>
       </div>
     }
-  </p-card>
+  </app-card>
 </div>
 
 <div class="modal-footer">
-  <p-button (click)="cancel()" icon="pi pi-times" label="Annuler" severity="secondary" type="button"></p-button>
+  <app-button (clicked)="cancel()" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
 </div>

@@ -9,7 +9,8 @@
           </div>
 
           <div class="pharma-nav-sidebar-content">
-            <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav orientation="vertical">
+            <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
+                 orientation="vertical">
 
               @if (showMvtCaisse()) {
                 <ng-container ngbNavItem="mvt-caisse">
@@ -19,67 +20,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <jhi-visualisation-mvt-caisse></jhi-visualisation-mvt-caisse>
+                    <app-visualisation-mvt-caisse></app-visualisation-mvt-caisse>
                   </ng-template>
                 </ng-container>
               }
 
-              @if (false) {
-                <!-- À SUPPRIMER après validation TNR — migré vers /comptabilite -->
-                <ng-container ngbNavItem="balance">
-                  <a class="pharma-nav-vertical-link" ngbNavLink>
-                    <i class="pi pi-calculator"></i>
-                    <span>Balance caisse</span>
-                    <span class="link-arrow">›</span>
-                  </a>
-                  <ng-template ngbNavContent>
-                    <jhi-balance-mvt-caisse></jhi-balance-mvt-caisse>
-                  </ng-template>
-                </ng-container>
-              }
-
-              @if (false) {
-                <!-- À SUPPRIMER après validation TNR — migré vers /comptabilite -->
-                <ng-container ngbNavItem="taxe-report">
-                  <a class="pharma-nav-vertical-link" ngbNavLink>
-                    <i class="pi pi-file-pdf"></i>
-                    <span>Rapport Tva</span>
-                    <span class="link-arrow">›</span>
-                  </a>
-                  <ng-template ngbNavContent>
-                    <app-taxe-report></app-taxe-report>
-                  </ng-template>
-                </ng-container>
-              }
-
-              @if (false) {
-                <!-- À SUPPRIMER après validation TNR — migré vers /comptabilite -->
-                <ng-container ngbNavItem="tableau-pharmacien">
-                  <a class="pharma-nav-vertical-link" ngbNavLink>
-                    <i class="pi pi-table"></i>
-                    <span>Tableau pharmacien</span>
-                    <span class="link-arrow">›</span>
-                  </a>
-                  <ng-template ngbNavContent>
-                    <jhi-tableau-pharmacien></jhi-tableau-pharmacien>
-                  </ng-template>
-                </ng-container>
-              }
-
-              @if (false) {
-                <!-- À SUPPRIMER après validation TNR — migré vers /comptabilite -->
-                <!-- voir la possibilité d'afficher le recap du user connecté seulement -->
-                <ng-container ngbNavItem="recapitulatif-caisse">
-                  <a class="pharma-nav-vertical-link" ngbNavLink>
-                    <i class="pi pi-chart-bar"></i>
-                    <span>Recapitulatif de caisse</span>
-                    <span class="link-arrow">›</span>
-                  </a>
-                  <ng-template ngbNavContent>
-                    <jhi-recapitualtif-caisse></jhi-recapitualtif-caisse>
-                  </ng-template>
-                </ng-container>
-              }
 
               @if (showGestionCaisse()) {
                 <ng-container ngbNavItem="gestion-caisse">

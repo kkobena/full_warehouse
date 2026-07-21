@@ -1,159 +1,155 @@
 <div class="pharma-smart-content">
-  <!-- Modern Pharma Toolbar (Compact) -->
-  <div class="pharma-toolbar pharma-toolbar-compact">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-exclamation-triangle"></i>
-      <span class="pharma-toolbar-title">Lots à détruire</span>
-    </div>
-
-    <p-toolbar>
-      <ng-template #start>
+    <app-toolbar icon="pi pi-exclamation-triangle" title="Lots à détruire" [compact]="true">
+      <ng-container ngProjectAs="[toolbarFilters]">
         <!-- Filtres PRIMAIRES : toujours visibles -->
         <div class="pharma-toolbar-filters">
-          <p-select
-            (onChange)="onFilterChange()"
+          <app-select
+            (selectionChange)="onFilterChange()"
             [(ngModel)]="selectedType"
-            [options]="types"
+            [items]="types"
             [style]="{ 'min-width': '120px' }"
             appendTo="body"
-            optionLabel="label"
-          ></p-select>
+            bindLabel="label"
+          />
 
-          <p-floatlabel variant="on">
-            <p-iconfield>
-              <p-inputicon class="pi pi-search" />
+          <app-float-label inputId="searchTerm"
+                           label="{{ 'warehouseApp.labels.searchPlaceholder' | translate }}">
+            <app-icon-field [overlay]="true" icon="pi pi-search">
               <input
                 (keyup.enter)="onSearch()"
                 [(ngModel)]="searchTerm"
                 [style]="{ 'max-width': '200px' }"
+                class="form-control"
                 id="searchTerm"
-                pInputText
                 type="text"
-            /></p-iconfield>
-            <label for="searchTerm">{{ 'warehouseApp.labels.searchPlaceholder' | translate }}</label>
-          </p-floatlabel>
+              />
+            </app-icon-field>
+          </app-float-label>
         </div>
-      </ng-template>
+      </ng-container>
 
-      <ng-template #end>
+      <ng-container ngProjectAs="[toolbarActions]">
         <div class="pharma-toolbar-actions">
           <div class="pharma-button-group">
-            <p-button
-              (click)="onSearch()"
+            <app-button
+              (clicked)="onSearch()"
               [raised]="true"
               icon="pi pi-search"
               label="{{ 'warehouseApp.buttons.search' | translate }}"
               severity="info"
               type="button"
-            ></p-button>
+            />
 
-            <p-button
-              (click)="toggleAdvancedFilters()"
-              [outlined]="true"
-              [severity]="showAdvancedFilters ? 'contrast' : 'secondary'"
+            <app-button
+              (clicked)="toggleAdvancedFilters()"
               [icon]="showAdvancedFilters ? 'pi pi-filter-slash' : 'pi pi-sliders-h'"
               [label]="showAdvancedFilters ? 'Masquer filtres' : 'Filtres avancés'"
+              [outlined]="true"
+              [severity]="showAdvancedFilters ? 'contrast' : 'secondary'"
               type="button"
-            ></p-button>
+            />
 
-            <p-splitbutton
-              [model]="exportMenus"
+            <app-split-button
+              [items]="exportMenus"
               [raised]="true"
               icon="pi pi-download"
               label="{{ 'warehouseApp.buttons.export' | translate }}"
               severity="help"
-            ></p-splitbutton>
+            />
           </div>
         </div>
-      </ng-template>
-    </p-toolbar>
+      </ng-container>
 
-    <!-- Filtres AVANCÉS -->
+      <!-- Filtres AVANCÉS -->
     @if (showAdvancedFilters) {
       <div class="advanced-filters-row">
-        <jhi-date-picker
-          [(ngModel)]="fromDate"
-          [id]="'dateDebut'"
-          [label]="'warehouseApp.labels.du'"
-          [style]="{ 'max-width': '140px' }"
-        ></jhi-date-picker>
+        <div style="max-width: 140px">
+          <pharma-date-picker
+            [(ngModel)]="fromDate"
+            (selectionChange)="onFilterChange()"
+            [maxDate]="toDate"
+            id="dateDebut"
+            label="{{ 'warehouseApp.labels.du' | translate }}"
+          ></pharma-date-picker>
+        </div>
 
-        <jhi-date-picker
-          [(ngModel)]="toDate"
-          [id]="'dateFin'"
-          [label]="'warehouseApp.labels.au'"
-          [style]="{ 'max-width': '140px' }"
-        ></jhi-date-picker>
+        <div style="max-width: 140px">
+          <pharma-date-picker
+            [(ngModel)]="toDate"
+            (selectionChange)="onFilterChange()"
+            [minDate]="fromDate"
+            id="dateFin"
+            label="{{ 'warehouseApp.labels.au' | translate }}"
+          ></pharma-date-picker>
+        </div>
 
         @if (!isMono) {
-          <p-floatlabel variant="on">
-            <p-select
-              [style]="{ 'min-width': '150px' }"
-              (onChange)="onMagasinChange()"
+          <app-float-label inputId="magasins"
+                           label="{{ 'warehouseApp.labels.magasin' | translate }}">
+            <app-select
+              (selectionChange)="onMagasinChange()"
               [(ngModel)]="selectedMagasin"
-              [options]="magasins"
-              [showClear]="true"
-              appendTo="body"
-              optionLabel="fullName"
-              id="magasins"
-            ></p-select>
-            <label for="magasins">{{ 'warehouseApp.labels.magasin' | translate }}</label>
-          </p-floatlabel>
-          <p-floatlabel variant="on">
-            <p-select
-              (onChange)="onStorageChange()"
-              [(ngModel)]="selectedStorage"
-              [options]="storages"
+              [clearable]="true"
+              [items]="magasins"
               [style]="{ 'min-width': '150px' }"
-              id="storages"
               appendTo="body"
-              [showClear]="true"
-              optionLabel="name"
-            ></p-select>
-            <label for="storages">{{ 'warehouseApp.labels.typeStockage' | translate }}</label>
-          </p-floatlabel>
+              bindLabel="fullName"
+              inputId="magasins"
+            />
+          </app-float-label>
+          <app-float-label inputId="storages"
+                           label="{{ 'warehouseApp.labels.typeStockage' | translate }}">
+            <app-select
+              (selectionChange)="onStorageChange()"
+              [(ngModel)]="selectedStorage"
+              [clearable]="true"
+              [items]="storages"
+              [style]="{ 'min-width': '150px' }"
+              appendTo="body"
+              bindLabel="name"
+              inputId="storages"
+            />
+          </app-float-label>
         }
 
-        <p-floatlabel variant="on">
-          <p-select
-            (onChange)="onSearch()"
+        <app-float-label inputId="rayons" label="{{ 'warehouseApp.labels.rayons' | translate }}">
+          <app-select
+            (selectionChange)="onSearch()"
             [(ngModel)]="selectedRayon"
-            [options]="rayons"
-            [showClear]="true"
+            [clearable]="true"
+            [items]="rayons"
             [style]="{ 'min-width': '180px' }"
-            filter="true"
-            id="rayons"
             appendTo="body"
-            optionLabel="libelle"
-          ></p-select>
-          <label for="rayons">{{ 'warehouseApp.labels.rayons' | translate }}</label>
-        </p-floatlabel>
+            bindLabel="libelle"
+            inputId="rayons"
+          />
+        </app-float-label>
 
         <app-fournisseur-select
-          [grouped]="true"
-          [selectedId]="selectedFournisseur?.id ?? null"
-          [placeholder]="'warehouseApp.labels.fournisseurs' | translate"
           (selectionChange)="onFournisseurSelected($event)"
+          [grouped]="true"
+          [placeholder]="'warehouseApp.labels.fournisseurs' | translate"
+          [selectedId]="selectedFournisseur?.id ?? null"
         />
 
-        <p-button
-          (click)="resetFilters()"
+        <app-button
+          (clicked)="resetFilters()"
           [outlined]="true"
           icon="pi pi-times"
           label="Réinitialiser"
           severity="secondary"
           size="small"
-        ></p-button>
+        />
       </div>
     }
-  </div>
+    </app-toolbar>
 
   <!-- Bulk action bar -->
   @if (selectedItems?.length >= 1) {
     <div class="bulk-action-bar">
       <span class="bulk-count">{{ selectedItems.length }} lot(s) sélectionné(s)</span>
-      <p-button
-        (onClick)="onDestroyAll()"
+      <app-button
+        (clicked)="onDestroyAll()"
         [outlined]="true"
         icon="pi pi-trash"
         label="{{ 'warehouseApp.buttons.removeAllStock' | translate }}"
@@ -164,81 +160,81 @@
   }
 
   @if (productToDestroySum) {
-    <div class="row g-4 mb-2">
-      <div class="col-12 col-md-6 col-lg-3">
-        <div class="card h-100 shadow-sm text-center border rounded-3 bg-danger-subtle">
-          <div class="card-body">
-            <h5 class="card-title text-danger">{{ 'warehouseApp.gestionPerimes.labels.produitDetruits' | translate }}</h5>
-            <p class="card-text fs-3 fw-bold">{{ productToDestroySum.productCount | number }}</p>
-          </div>
-        </div>
-      </div>
+    <app-kpi-strip stripClass="mb-2">
+      <app-kpi-item
+        [accent]="'danger'"
+        [value]="productToDestroySum.productCount | number"
+        icon="pi pi-trash"
+        iconClass="text-danger"
+        label="{{ 'warehouseApp.gestionPerimes.labels.produitDetruits' | translate }}"
+        valueClass="text-danger"
+      />
 
-      <div class="col-12 col-md-6 col-lg-3">
-        <div class="card h-100 shadow-sm text-center border rounded-3 bg-danger-subtle">
-          <div class="card-body">
-            <h5 class="card-title text-danger">{{ 'warehouseApp.gestionPerimes.labels.quantitesProduitDetruits' | translate }}</h5>
-            <p class="card-text fs-3 fw-bold">{{ productToDestroySum.quantity | number }}</p>
-          </div>
-        </div>
-      </div>
+      <app-kpi-item
+        [accent]="'danger'"
+        [value]="productToDestroySum.quantity | number"
+        icon="pi pi-box"
+        iconClass="text-danger"
+        label="{{ 'warehouseApp.gestionPerimes.labels.quantitesProduitDetruits' | translate }}"
+        valueClass="text-danger"
+      />
 
-      <div class="col-12 col-md-6 col-lg-3">
-        <div class="card h-100 shadow-sm text-center border rounded-3 bg-warning-subtle">
-          <div class="card-body">
-            <h5 class="card-title text-danger">{{ 'warehouseApp.gestionPerimes.labels.valeursAchat' | translate }}</h5>
-            <p class="card-text fs-3 fw-bold">{{ productToDestroySum.valeurAchat | number }}</p>
-          </div>
-        </div>
-      </div>
+      <app-kpi-item
+        [accent]="'warning'"
+        [value]="productToDestroySum.valeurAchat | number"
+        icon="pi pi-shopping-cart"
+        iconClass="text-warning"
+        label="{{ 'warehouseApp.gestionPerimes.labels.valeursAchat' | translate }}"
+        valueClass="text-warning"
+      />
 
-      <div class="col-12 col-md-6 col-lg-3">
-        <div class="card h-100 shadow-sm text-center border rounded-3 bg-warning-subtle">
-          <div class="card-body">
-            <h5 class="card-title text-danger">{{ 'warehouseApp.gestionPerimes.labels.valeursVente' | translate }}</h5>
-            <p class="card-text fs-3 fw-bold">{{ productToDestroySum.valeurVente | number }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
+      <app-kpi-item
+        [accent]="'warning'"
+        [value]="productToDestroySum.valeurVente | number"
+        icon="pi pi-wallet"
+        iconClass="text-warning"
+        label="{{ 'warehouseApp.gestionPerimes.labels.valeursVente' | translate }}"
+        valueClass="text-warning"
+      />
+    </app-kpi-strip>
   }
 
   @if (data && data.length) {
-    <p-table
-      class="p-datatable-sm"
+    <app-data-table
       (onLazyLoad)="lazyLoading($event)"
+      [(selection)]="selectedItems"
       [lazy]="true"
       [loading]="loading"
       [paginator]="true"
       [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
       [rows]="itemsPerPage"
+      [selectionMode]="'multiple'"
       [showCurrentPageReport]="false"
+      [showGridlines]="true"
+      [size]="'small'"
       [totalRecords]="totalItems"
       [value]="data"
       dataKey="id"
-      [showGridlines]="true"
-      selectionMode="multiple"
-      [(selection)]="selectedItems"
     >
       <ng-template #header>
         <tr class="pharma-table-head">
-          <th pSortableColumn="produitName">Libellé produit <p-sorticon field="produitName" /></th>
+          <th appSortableHeader="produitName">Libellé produit</th>
           <th>Code produit</th>
           <th>Numéro lot</th>
-          <th pSortableColumn="datePeremption">Date de péremption <p-sorticon field="datePeremption" /></th>
-          <th pSortableColumn="quantity">Quantité <p-sorticon field="quantity" /></th>
-          <th pSortableColumn="prixAchat">Prix.Achat <p-sorticon field="prixAchat" /></th>
-          <th pSortableColumn="prixUni">Prix.vente <p-sorticon field="prixUni" /></th>
+          <th appSortableHeader="datePeremption">Date de péremption</th>
+          <th appSortableHeader="quantity">Quantité</th>
+          <th appSortableHeader="prixAchat">Prix.Achat</th>
+          <th appSortableHeader="prixUni">Prix.vente</th>
           <th>Statut</th>
           <th>Fournisseur</th>
 
           <th class="table-all-checkbos">
-            <p-tableheadercheckbox #checkbox></p-tableheadercheckbox>
+            <app-header-checkbox />
           </th>
           <th></th>
         </tr>
       </ng-template>
-      <ng-template let-data #body>
+      <ng-template #body let-data>
         <tr [class.table-danger]="data.peremptionStatut?.days < 0"
             [class.table-warning]="data.peremptionStatut?.days >= 0 && data.peremptionStatut?.days <= 30">
           <td class="pharma-product-name">
@@ -264,36 +260,38 @@
             <span class="pharma-price">{{ data.prixUni | number }}</span>
           </td>
           <td class="text-center">
-            <p-tag [value]="data.peremptionStatut?.libelle ?? ''" [severity]="getSeverity(data.peremptionStatut)" />
+            <app-badge [label]="data.peremptionStatut?.libelle ?? ''"
+                       [severity]="getSeverity(data.peremptionStatut)" />
           </td>
 
           <td class="pharma-entity-name">
             {{ data.fournisseur }}
           </td>
           <td class="text-center">
-            <p-tablecheckbox [disabled]="data.destroyed" [value]="data"></p-tablecheckbox>
+            <app-row-checkbox [disabled]="data.destroyed" [row]="data" />
           </td>
           <td class="text-right">
             @if (!data.destroyed) {
               <div class="btn-group">
-                <p-button
-                  (click)="confirmDestroyDialog(data.id)"
+                <app-button
+                  (clicked)="confirmDestroyDialog(data.id)"
                   [rounded]="true"
-                  severity="danger"
-                  icon="pi pi-times"
                   [text]="true"
-                  pTooltip="Détruire"
-                ></p-button>
+                  icon="pi pi-times"
+                  ngbTooltip="Détruire"
+                  severity="danger"
+                />
               </div>
             } @else {
               <div class="d-flex align-items-center gap-1">
-                <p-tag [value]="'warehouseApp.gestionPerimes.labels.detruitsADateDu' | translate: { date: data.dateDestruction }" />
+                <app-badge
+                  [label]="'warehouseApp.gestionPerimes.labels.detruitsADateDu' | translate: { date: data.dateDestruction }" />
                 @if (data.produitId) {
                   <a
                     [routerLink]="['/produits', data.produitId, 'transaction']"
                     class="btn btn-link btn-sm p-0 ms-1"
-                    pTooltip="Voir les transactions RETRAIT_PERIME pour ce produit"
-                    tooltipPosition="left"
+                    ngbTooltip="Voir les transactions RETRAIT_PERIME pour ce produit"
+                    placement="left"
                     title="Historique transactions"
                   >
                     <i class="pi pi-history text-info"></i>
@@ -304,7 +302,7 @@
           </td>
         </tr>
       </ng-template>
-    </p-table>
+    </app-data-table>
   } @else {
     <div class="alert alert-warning" id="no-result">
       <span>{{ 'global.messages.emptyData' | translate }}</span>

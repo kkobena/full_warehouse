@@ -1,8 +1,7 @@
 import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
+import { BadgeComponent, ButtonComponent } from 'app/shared/ui';
 import { IResponseCommande } from '../../../../shared/model/response-commande.model';
 import { IResponseCommandeItem } from '../../../../shared/model/response-commande-item.model';
 import { ICommande } from '../../../../shared/model/commande.model';
@@ -12,7 +11,7 @@ import { ICommande } from '../../../../shared/model/commande.model';
   templateUrl: './commande-response-dialog.component.html',
   styleUrls: ['./commande-response-dialog.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [DecimalPipe, ButtonModule, TagModule],
+  imports: [DecimalPipe, ButtonComponent, BadgeComponent],
 })
 export class CommandeResponseDialogComponent implements OnInit {
   header = 'VÉRIFICATION COMMANDE';

@@ -13,20 +13,20 @@ import {
   themeAlpine,
 } from 'ag-grid-community';
 import {AgGridAngular} from 'ag-grid-angular';
-import {Select} from 'primeng/select';
-import {Tooltip} from 'primeng/tooltip';
+import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {InventoryEditorFacade} from '../../data-access/facades/inventory-editor.facade';
 import {InventoryStore} from '../../data-access/store/inventory.store';
 import {IInventoryLine, InventoryLineFilter, LINE_FILTERS} from '../../models';
 import {IStorage} from '../../../../shared/model/magasin.model';
 import {IRayon} from '../../../../shared/model/rayon.model';
 import {InventoryCategoryType} from "../../../../shared/model/store-inventory.model";
+import {SelectComponent} from '../../../../shared/ui';
 
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
 @Component({
   selector: 'app-inventory-lines-grid',
-  imports: [CommonModule, FormsModule, AgGridAngular, Select, Tooltip],
+  imports: [CommonModule, FormsModule, AgGridAngular, SelectComponent, NgbTooltip],
   templateUrl: './inventory-lines-grid.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './inventory-lines-grid.component.scss',

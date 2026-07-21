@@ -5,16 +5,8 @@ import { DecimalPipe } from "@angular/common";
 import { finalize } from "rxjs/operators";
 
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
-import { AutoCompleteModule } from "primeng/autocomplete";
-import { ButtonModule } from "primeng/button";
-import { DatePicker } from "primeng/datepicker";
-import { FloatLabelModule } from "primeng/floatlabel";
-import { MultiSelectModule } from "primeng/multiselect";
-import { TableModule } from "primeng/table";
-import { Toolbar } from "primeng/toolbar";
-import { Toast } from "primeng/toast";
 
-import { DATE_FORMAT_ISO_DATE } from "../../../../shared/util/warehouse-util";
+import { DATE_FORMAT_ISO_DATE, NGB_DATE_TO_ISO, TODAY_NGB_DATE } from "../../../../shared/util/warehouse-util";
 import { NotificationService } from "../../../../shared/services/notification.service";
 import { TiersPayantService } from "../../../../entities/tiers-payant/tierspayant.service";
 import { ITiersPayant } from "../../../../shared/model";
@@ -37,8 +29,15 @@ import { ErrorService } from "../../../../shared/error.service";
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { TauriPrinterService } from "../../../../shared/services/tauri-printer.service";
 import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
-import { ButtonGroup } from "primeng/buttongroup";
-import { Tooltip } from "primeng/tooltip";
+import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
+import {
+  ButtonComponent,
+  DataTableComponent,
+  FloatLabelComponent,
+  MultiSelectComponent,
+  ToolbarComponent
+} from "../../../../shared/ui";
+import { PharmaDatePickerComponent } from "../../../../shared/date-picker/pharma-date-picker.component";
 
 interface IStatutOption {
   label: string;
@@ -50,17 +49,13 @@ interface IStatutOption {
   imports: [
     FormsModule,
     DecimalPipe,
-    Toolbar,
-    ButtonModule,
-    DatePicker,
-    FloatLabelModule,
-    AutoCompleteModule,
-    MultiSelectModule,
-    TableModule,
-    Toast,
     RapprochementKpiBannerComponent,
-    ButtonGroup,
-    Tooltip
+    ButtonComponent,
+    DataTableComponent,
+    FloatLabelComponent,
+    MultiSelectComponent,
+    ToolbarComponent,
+    PharmaDatePickerComponent
   ],
   templateUrl: "./rapprochement.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -73,8 +68,8 @@ export class RapprochementComponent implements OnInit {
     { label: "Impayé", value: "NOT_PAID" }
   ];
 
-  protected modelStartDate: Date;
-  protected modelEndDate: Date = new Date();
+  protected modelStartDate: NgbDateStruct;
+  protected modelEndDate: NgbDateStruct = TODAY_NGB_DATE();
   protected selectedStatut: string[] = [];
   protected tiersPayantSuggestions: ITiersPayant[] = [];
   protected selectedTiersPayants: ITiersPayant[] = [];
@@ -121,7 +116,7 @@ export class RapprochementComponent implements OnInit {
   constructor() {
     const d = new Date();
     d.setMonth(d.getMonth() - 1);
-    this.modelStartDate = d;
+    this.modelStartDate = { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
   }
 
   ngOnInit(): void {
@@ -175,9 +170,9 @@ export class RapprochementComponent implements OnInit {
       });
   }
 
-  searchTiersPayant(event: { query: string }): void {
+  searchTiersPayant(query: string): void {
     this.tiersPayantService
-      .query({ page: 0, search: event.query, size: 10 })
+      .query({ page: 0, search: query, size: 10 })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(res => (this.tiersPayantSuggestions = res.body ?? []));
   }
@@ -306,8 +301,8 @@ export class RapprochementComponent implements OnInit {
 
   private buildParams(): any {
     return {
-      startDate: DATE_FORMAT_ISO_DATE(this.modelStartDate),
-      endDate: DATE_FORMAT_ISO_DATE(this.modelEndDate),
+      startDate: NGB_DATE_TO_ISO(this.modelStartDate),
+      endDate: NGB_DATE_TO_ISO(this.modelEndDate),
       tiersPayantIds: this.selectedTiersPayants.map(t => t.id),
       statuts: this.selectedStatut ?? []
     };

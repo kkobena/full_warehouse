@@ -1,60 +1,42 @@
 @if (multiple()) {
-  <p-floatlabel variant="on">
-    <p-multiselect
+  <app-float-label label="{{ placeholder() }}" inputId="fournisseur-multi-select">
+    <app-multi-select
       inputId="fournisseur-multi-select"
       [(ngModel)]="selectedMultiple"
       (ngModelChange)="onMultiChange($event)"
-      [options]="grouped() ? groups() : fournisseurs()"
-      [group]="grouped()"
-      optionGroupLabel="label"
-      optionGroupChildren="items"
-      optionLabel="libelle"
-      dataKey="id"
-      [filter]="true"
-      filterBy="libelle"
-      [showClear]="showClear()"
+      [items]="grouped() ? groupedFournisseurs() : fournisseurs()"
+      [groupBy]="grouped() ? 'groupLabel' : ''"
+      [groupValueFn]="grouped() ? groupValueFn : undefined"
+      [groupTemplate]="grouped() ? groupHeader : undefined"
+      bindLabel="libelle"
+      [clearable]="showClear()"
       [disabled]="disabled()"
-      [appendTo]="appendTo()"
-      [fluid]="true"
+      [appendTo]="appendTo() ?? ''"
       [style]="{ width: '100%' }"
-    >
-      <ng-template #group let-grp>
-        <div class="fournisseur-group-header" [class.fournisseur-group-header--standalone]="!grp.hasChildren">
-          <i [class]="grp.hasChildren ? 'pi pi-sitemap' : 'pi pi-building'"></i>
-          <span>{{ grp.label }}</span>
-        </div>
-      </ng-template>
-    </p-multiselect>
-    <label for="fournisseur-multi-select">{{ placeholder() }}</label>
-  </p-floatlabel>
+    />
+  </app-float-label>
 } @else {
-  <p-floatlabel variant="on">
-    <p-select
+  <app-float-label label="{{ placeholder() }}" inputId="fournisseur-select">
+    <app-select-search
       inputId="fournisseur-select"
       [(ngModel)]="selectedSingle"
       (ngModelChange)="onSingleChange($event)"
-      [options]="grouped() ? groups() : fournisseurs()"
-      [group]="grouped()"
-      optionGroupLabel="label"
-      optionGroupChildren="items"
-      optionLabel="libelle"
-      dataKey="id"
-      [filter]="true"
-      filterBy="libelle"
-      [showClear]="showClear()"
+      [items]="grouped() ? groupedFournisseurs() : fournisseurs()"
+      [groupBy]="grouped() ? 'groupLabel' : ''"
+      [groupValueFn]="grouped() ? groupValueFn : undefined"
+      [groupTemplate]="grouped() ? groupHeader : undefined"
+      bindLabel="libelle"
+      [clearable]="showClear()"
       [disabled]="disabled()"
-      [appendTo]="appendTo()"
-      (onShow)="dropdownShow.emit($event)"
-      (onHide)="dropdownHide.emit($event)"
+      [appendTo]="appendTo() ?? ''"
       [style]="{ width: '100%' }"
-    >
-      <ng-template #group let-grp>
-        <div class="fournisseur-group-header" [class.fournisseur-group-header--standalone]="!grp.hasChildren">
-          <i [class]="grp.hasChildren ? 'pi pi-sitemap' : 'pi pi-building'"></i>
-          <span>{{ grp.label }}</span>
-        </div>
-      </ng-template>
-    </p-select>
-    <label for="fournisseur-select">{{ placeholder() }}</label>
-  </p-floatlabel>
+    />
+  </app-float-label>
 }
+
+<ng-template #groupHeader let-grp>
+  <div class="fournisseur-group-header" [class.fournisseur-group-header--standalone]="!grp.hasChildren">
+    <i [class]="grp.hasChildren ? 'pi pi-sitemap' : 'pi pi-building'"></i>
+    <span>{{ grp.label }}</span>
+  </div>
+</ng-template>

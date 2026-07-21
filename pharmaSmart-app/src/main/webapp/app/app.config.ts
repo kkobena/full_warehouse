@@ -1,6 +1,12 @@
-import { ApplicationConfig, inject, LOCALE_ID, provideZoneChangeDetection, provideAppInitializer } from '@angular/core';
-import { TauriDeviceDetectionService } from './shared/services/tauri-device-detection.service';
-import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
+import {
+  ApplicationConfig,
+  inject,
+  LOCALE_ID,
+  provideAppInitializer,
+  provideZoneChangeDetection
+} from '@angular/core';
+import {TauriDeviceDetectionService} from './shared/services/tauri-device-detection.service';
+import {provideHttpClient, withInterceptorsFromDi, withXhr} from '@angular/common/http';
 import {
   NavigationError,
   provideRouter,
@@ -11,22 +17,25 @@ import {
   withDebugTracing,
   withNavigationErrorHandler,
 } from '@angular/router';
-import { provideServiceWorker } from '@angular/service-worker';
-import { provideNgxWebstorage, withLocalStorage, withSessionStorage } from 'ngx-webstorage';
-import { providePrimeNG, PrimeNG } from 'primeng/config';
-import { MessageService, ConfirmationService } from 'primeng/api';
+import {provideServiceWorker} from '@angular/service-worker';
+import {provideNgxWebstorage, withLocalStorage, withSessionStorage} from 'ngx-webstorage';
+import {PrimeNG, providePrimeNG} from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 
-import { environment } from '../environments/environment';
+import {environment} from '../environments/environment';
 import routes from './app.routes';
-import { AppPageTitleStrategy } from './app-page-title-strategy';
-import { httpInterceptorProviders } from './core/interceptor';
+import {AppPageTitleStrategy} from './app-page-title-strategy';
+import {httpInterceptorProviders} from './core/interceptor';
 
-import { provideTranslateService, MissingTranslationHandler, TranslateService } from '@ngx-translate/core';
-import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
-import { CustomMissingTranslationHandler } from './config/translation.config';
-import { translationInitializer } from './shared/language/translation.initializer';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import {
+  MissingTranslationHandler,
+  provideTranslateService,
+  TranslateService
+} from '@ngx-translate/core';
+import {provideTranslateHttpLoader} from '@ngx-translate/http-loader';
+import {CustomMissingTranslationHandler} from './config/translation.config';
+import {translationInitializer} from './shared/language/translation.initializer';
+import {provideAnimationsAsync} from '@angular/platform-browser/animations/async';
 
 // --- Navigation error handler ---
 function handleNavigationError(e: NavigationError) {
@@ -56,18 +65,18 @@ if (environment.DEBUG_INFO_ENABLED) {
 // --- AppConfig standalone Angular 21 ---
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideZoneChangeDetection({eventCoalescing: true}),
     provideHttpClient(withXhr(), withInterceptorsFromDi()),
 
     // --- Routing ---
     provideRouter(routes, ...routerFeatures),
-    { provide: TitleStrategy, useClass: AppPageTitleStrategy },
+    {provide: TitleStrategy, useClass: AppPageTitleStrategy},
 
     // --- Service Worker ---
-    provideServiceWorker('ngsw-worker.js', { enabled: environment.production }),
+    provideServiceWorker('ngsw-worker.js', {enabled: environment.production}),
 
     // --- i18n / Locale ---
-    { provide: LOCALE_ID, useValue: 'fr' },
+    {provide: LOCALE_ID, useValue: 'fr'},
     provideTranslateService({
       loader: provideTranslateHttpLoader({
         prefix: 'i18n/',
@@ -92,8 +101,8 @@ export const appConfig: ApplicationConfig = {
     provideNgxWebstorage(withLocalStorage(), withSessionStorage()),
 
     providePrimeNG({
-      theme: { preset: Aura },
-      zIndex: { modal: 1100, overlay: 1060, menu: 1060, tooltip: 1200 },
+      theme: {preset: Aura},
+      zIndex: {modal: 1100, overlay: 1060, menu: 1060, tooltip: 1200},
     }),
     provideAppInitializer(() => {
       const translate = inject(TranslateService);
@@ -101,8 +110,6 @@ export const appConfig: ApplicationConfig = {
       translate.use('fr');
       translate.stream('primeng').subscribe(data => primeNGConfig.setTranslation(data));
     }),
-    MessageService,
-    ConfirmationService,
 
     // --- Interceptors ---
     httpInterceptorProviders,

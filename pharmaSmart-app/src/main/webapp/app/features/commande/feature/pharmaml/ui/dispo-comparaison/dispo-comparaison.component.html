@@ -14,8 +14,8 @@
       [multiple]="true"
       class="flex-grow-1 min-w-0"
     />
-    <p-button
-      (onClick)="comparer()"
+    <app-button
+      (clicked)="comparer()"
       [disabled]="colonnes().length === 0"
       [loading]="loading()"
       icon="pi pi-sync"
@@ -40,8 +40,8 @@
     </div>
   } @else if (hasResults()) {
     <div class="dc-table-wrapper">
-      <p-table [value]="rows()" [scrollable]="true" scrollHeight="420px">
-        <ng-template pTemplate="header">
+      <app-data-table [scrollable]="true" [value]="rows()" scrollHeight="420px">
+        <ng-template #header>
           <tr class="pharma-table-head">
             <th class="dc-th-produit">Produit</th>
             @for (f of colonnes(); track f.id) {
@@ -57,7 +57,7 @@
             }
           </tr>
         </ng-template>
-        <ng-template pTemplate="body" let-row>
+        <ng-template #body let-row>
           <tr [class.dc-row-rupture]="isRowRupture(row)">
             <td class="dc-td-produit">
               <div class="dc-produit-libelle">{{ row.designation ?? '—' }}</div>
@@ -68,9 +68,9 @@
               @if (info) {
                 <td class="text-center">
                   @if (info.disponible) {
-                    <p-tag severity="success" value="Disponible" />
+                    <app-badge label="Disponible" severity="success" />
                   } @else {
-                    <p-tag severity="danger" value="Rupture" />
+                    <app-badge label="Rupture" severity="danger" />
                   }
                 </td>
                 <td class="text-end dc-cell-num">{{ info.stockDisponible }}</td>
@@ -81,7 +81,7 @@
             }
           </tr>
         </ng-template>
-      </p-table>
+      </app-data-table>
     </div>
   } @else if (!loading() && colonnes().length > 0) {
     <div class="dc-empty">
@@ -95,5 +95,5 @@
   <small class="text-muted me-auto">
     {{ rows().length }} produit(s) comparé(s) sur {{ colonnes().length }} grossiste(s)
   </small>
-  <p-button (click)="close()" severity="secondary" type="button">Fermer</p-button>
+  <app-button (clicked)="close()" label="Fermer" severity="secondary" type="button" />
 </div>

@@ -1,22 +1,20 @@
-<p-toast position="center" />
-
 <div class="view-panel rw-wrapper">
 
   <!-- HEADER — même pattern que commande-received et retour-workspace -->
   <div class="view-panel__header view-panel__header--detail">
-    <p-button (click)="onCancel()" icon="pi pi-arrow-left" [text]="true" size="small" label="Retour à la liste" />
+    <app-button (clicked)="onCancel()" icon="pi pi-arrow-left" [text]="true" size="small" label="Retour à la liste" />
     <span class="view-panel__title">
       <i class="pi pi-file-check me-1"></i>Rapprochement facture — {{ deliveryRef() }}
     </span>
     @if (existing()) {
-      <p-tag
-        [value]="statutLabel(existing()!.statut)"
+      <app-badge
+        [label]="statutLabel(existing()!.statut)"
         [severity]="statutSeverity(existing()!.statut)"
       />
     }
     <span class="ms-auto"></span>
-    <p-button
-      (click)="onSubmit()"
+    <app-button
+      (clicked)="onSubmit()"
       icon="pi pi-save"
       [label]="isReconcilie ? 'Valider — Réconcilié' : 'Enregistrer avec écart'"
       [severity]="isReconcilie ? 'primary' : 'warn'"
@@ -24,7 +22,7 @@
       [loading]="saving()"
       [disabled]="!canSave || saving()"
     />
-    <p-button (click)="onCancel()" label="Annuler" severity="secondary" [text]="true" size="small" />
+    <app-button (clicked)="onCancel()" label="Annuler" severity="secondary" [text]="true" size="small" />
   </div>
 
   @if (loading()) {
@@ -44,13 +42,13 @@
 
           <div class="rw-field">
             <label class="rw-label">Référence <span class="text-danger">*</span></label>
-            <input pInputText pKeyFilter="alphanum" [(ngModel)]="factureReference"
+            <input class="form-control" [appKeyFilter]="'alphanum'" [(ngModel)]="factureReference"
                    type="text" maxlength="50" placeholder="N° facture fournisseur" />
           </div>
 
           <div class="rw-field">
             <label class="rw-label">Date facture</label>
-            <p-datepicker [(ngModel)]="factureDate" dateFormat="dd/mm/yy" [showIcon]="true" appendTo="body" />
+            <pharma-date-picker [(ngModel)]="factureDate" id="factureDate" />
           </div>
         </div>
 
@@ -71,8 +69,7 @@
               <span class="rw-row-label">Montant HT</span>
               <span class="rw-val rw-val--ref">{{ blMontantHT | number:'1.0-0' }} F</span>
               <span class="rw-val">
-                <p-inputnumber [(ngModel)]="factureMontantHT" [min]="0" [useGrouping]="true"
-                               [inputStyle]="{'width':'115px','text-align':'right'}" size="small" />
+                <app-input-number [(ngModel)]="factureMontantHT" [min]="0" style="width: 115px" />
               </span>
               <span class="rw-ecart" [class.rw-ecart--ok]="ecartHT === 0" [class.rw-ecart--err]="ecartHT !== 0">
                 @if (ecartHT === 0) { <i class="pi pi-check-circle"></i> } @else { <i class="pi pi-exclamation-triangle"></i> }
@@ -84,8 +81,7 @@
               <span class="rw-row-label">TVA</span>
               <span class="rw-val rw-val--ref">{{ blTVA | number:'1.0-0' }} F</span>
               <span class="rw-val">
-                <p-inputnumber [(ngModel)]="factureTVA" [min]="0" [useGrouping]="true"
-                               [inputStyle]="{'width':'115px','text-align':'right'}" size="small" />
+                <app-input-number [(ngModel)]="factureTVA" [min]="0" style="width: 115px" />
               </span>
               <span class="rw-ecart" [class.rw-ecart--ok]="ecartTVA === 0" [class.rw-ecart--err]="ecartTVA !== 0">
                 @if (ecartTVA === 0) { <i class="pi pi-check-circle"></i> } @else { <i class="pi pi-exclamation-triangle"></i> }
@@ -123,7 +119,7 @@
       <div class="rw-right">
         <div class="rw-card rw-card--full-height">
           <div class="rw-card__title"><i class="pi pi-list"></i> Lignes du bon de livraison</div>
-          <p-table [value]="orderLines()" [scrollable]="true" scrollHeight="flex" class="p-datatable-sm">
+          <app-data-table [value]="orderLines()" scrollHeight="flex" class="p-datatable-sm">
             <ng-template #header>
               <tr class="pharma-table-head">
                 <th style="width:100px">Code</th>
@@ -153,7 +149,7 @@
                 </td>
               </tr>
             </ng-template>
-          </p-table>
+          </app-data-table>
         </div>
       </div>
 

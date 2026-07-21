@@ -3,9 +3,9 @@
     <i class="pi pi-chart-bar"></i>
     <span>Concordance</span>
     @if (hasAnomalies()) {
-      <p-tag severity="danger" value="Anomalies" icon="pi pi-exclamation-triangle" class="ms-auto"/>
+      <app-badge severity="danger" label="Anomalies" icon="pi pi-exclamation-triangle" class="ms-auto"/>
     } @else if (stats().total > 0) {
-      <p-tag severity="success" value="Conforme" icon="pi pi-check" class="ms-auto"/>
+      <app-badge severity="success" label="Conforme" icon="pi pi-check" class="ms-auto"/>
     }
   </div>
 
@@ -23,11 +23,11 @@
       <span class="concordance-label">
         <i class="pi pi-sort-alt"></i>Écarts qté
       </span>
-      <p-tag
-        [value]="stats().ecartQuantite | number"
+      <app-badge
+        [label]="stats().ecartQuantite | number"
         [severity]="stats().ecartQuantite > 0 ? 'warn' : 'success'"
-        [pTooltip]="stats().ecartQuantite + ' ligne(s) avec quantité reçue ≠ commandée'"
-        tooltipPosition="right"
+        [ngbTooltip]="stats().ecartQuantite + ' ligne(s) avec quantité reçue ≠ commandée'"
+        placement="right"
       />
     </div>
 
@@ -36,11 +36,11 @@
       <span class="concordance-label">
         <i class="pi pi-euro"></i>Écarts prix
       </span>
-      <p-tag
-        [value]="stats().ecartPrix | number"
+      <app-badge
+        [label]="stats().ecartPrix | number"
         [severity]="stats().ecartPrix > 0 ? 'danger' : 'success'"
-        [pTooltip]="stats().ecartPrix + ' ligne(s) avec prix d\'achat modifié'"
-        tooltipPosition="right"
+        [ngbTooltip]="stats().ecartPrix + ' ligne(s) avec prix d\'achat modifié'"
+        placement="right"
       />
     </div>
 
@@ -49,11 +49,11 @@
       <span class="concordance-label">
         <i class="pi pi-box"></i>Écarts colisage
       </span>
-      <p-tag
-        [value]="stats().ecartColisage | number"
+      <app-badge
+        [label]="stats().ecartColisage | number"
         [severity]="stats().ecartColisage > 0 ? 'warn' : 'success'"
-        [pTooltip]="stats().ecartColisage + ' ligne(s) avec quantité non multiple du conditionnement'"
-        tooltipPosition="right"
+        [ngbTooltip]="stats().ecartColisage + ' ligne(s) avec quantité non multiple du conditionnement'"
+        placement="right"
       />
     </div>
 
@@ -62,11 +62,11 @@
       <span class="concordance-label">
         <i class="pi pi-clock"></i>Non validées
       </span>
-      <p-tag
-        [value]="stats().nonValidees | number"
+      <app-badge
+        [label]="stats().nonValidees | number"
         [severity]="stats().nonValidees > 0 ? 'warn' : 'success'"
-        [pTooltip]="stats().nonValidees + ' ligne(s) pas encore validée(s)'"
-        tooltipPosition="right"
+        [ngbTooltip]="stats().nonValidees + ' ligne(s) pas encore validée(s)'"
+        placement="right"
       />
     </div>
 
@@ -76,11 +76,11 @@
         <span class="concordance-label">
           <i class="pi pi-box"></i>Lots manquants
         </span>
-        <p-tag
-          [value]="stats().lotsManquants | number"
+        <app-badge
+          [label]="stats().lotsManquants | number"
           [severity]="stats().lotsManquants > 0 ? 'warn' : 'success'"
-          [pTooltip]="stats().lotsManquants + ' ligne(s) sans lot renseigné'"
-          tooltipPosition="right"
+          [ngbTooltip]="stats().lotsManquants + ' ligne(s) sans lot renseigné'"
+          placement="right"
         />
       </div>
     }
@@ -110,8 +110,8 @@
         <i class="pi pi-arrows-v"></i>Écart
       </span>
       <span class="concordance-amount bold"
-        [pTooltip]="ecartMontant() < 0 ? 'Montant reçu inférieur à la commande' : ecartMontant() > 0 ? 'Montant reçu supérieur à la commande' : 'Aucun écart de montant'"
-        tooltipPosition="right"
+        [ngbTooltip]="ecartMontant() < 0 ? 'Montant reçu inférieur à la commande' : ecartMontant() > 0 ? 'Montant reçu supérieur à la commande' : 'Aucun écart de montant'"
+        placement="right"
       >
         {{ ecartMontant() | number }} F
       </span>

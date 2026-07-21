@@ -21,8 +21,6 @@ import {
   NgbConfirmDialogService
 } from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import {NotificationService} from "../../../shared/services/notification.service";
-import {Toast} from "primeng/toast";
-
 @Component({
   selector: "jhi-user-mgmt",
   templateUrl: "./user-management.component.html",
@@ -39,8 +37,7 @@ import {Toast} from "primeng/toast";
     TableModule,
     IconField,
     InputIcon,
-    InputTextModule,
-    Toast
+    InputTextModule
   ]
 })
 export default class UserManagementComponent implements OnInit {

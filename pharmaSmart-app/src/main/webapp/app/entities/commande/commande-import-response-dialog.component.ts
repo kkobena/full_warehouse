@@ -2,7 +2,7 @@ import { Component, inject, OnDestroy, ChangeDetectionStrategy } from "@angular/
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { ICommandeResponse } from "../../shared/model/commande-response.model";
 import { CommandeService } from "./commande.service";
-import { ButtonModule } from "primeng/button";
+import { ButtonComponent } from "../../shared/ui";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { CommonModule } from "@angular/common";
@@ -13,7 +13,7 @@ import { BlobDownloadService } from "../../shared/services/blob-download.service
   templateUrl: "./commande-import-response-dialog.component.html",
   styleUrls: ["./commande-import-response-dialog.component.scss"],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [ButtonModule, CommonModule]
+  imports: [ButtonComponent, CommonModule]
 })
 export class CommandeImportResponseDialogComponent implements OnDestroy {
   responseCommande?: ICommandeResponse;

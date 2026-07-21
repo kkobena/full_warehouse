@@ -3,74 +3,60 @@
   <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
 </div>
 <div class="modal-body">
-  <p-card>
+  <app-card [variant]="'form'">
     <div class="form-grid-compact">
       <div class="form-field form-field-full">
         <label>Fournisseurs<span class="required">*</span></label>
         <app-fournisseur-select
           [grouped]="true"
-          [appendTo]="null"
           placeholder="Séléctionner un fournisseur"
           (selectionChange)="onFournisseurSelected($event)"
-          (dropdownShow)="onDropdownShow($event)"
-          (dropdownHide)="onDropdownHide($event)"
         />
       </div>
       <div class="form-field form-field-full">
         <label>Model de fichier<span class="required">*</span></label>
-        <p-select
+        <app-select
           [(ngModel)]="modelSelected"
-          [filter]="false"
-          (onShow)="onDropdownShow($event)"
-          (onHide)="onDropdownHide($event)"
-          [options]="models"
-          optionLabel="label"
-          optionValue="value"
+          [searchable]="false"
+          appendTo="body"
+          [items]="models"
+          bindLabel="label"
+          bindValue="value"
           placeholder="Séléctionner un model de fichier "
-        >
-        </p-select>
+        />
       </div>
       <div class="form-field form-field-full">
         <label>Charger un fichier<span class="required">*</span></label>
-        <p-fileupload
-          #fileUpload
-          (uploadHandler)="uploadHandler($event, fileUpload)"
-          [auto]="true"
-          [customUpload]="true"
-          [showCancelButton]="true"
+        <app-file-upload
+          label="Importer un fichier"
           accept=".csv,.txt"
-          chooseLabel="Importer un fichier"
-          mode="basic"
-        >
-        </p-fileupload>
+          (filesSelected)="onFilesSelected($event)"
+        />
       </div>
     </div>
-  </p-card>
+  </app-card>
 </div>
 
 <div class="modal-footer">
-  <p-button
-    (click)="cancel()"
+  <app-button
+    (clicked)="cancel()"
     class="mr-2"
     data-dismiss="modal"
     icon="pi pi-times"
     label="Annuler"
-    raised="true"
+    [raised]="true"
     severity="secondary"
     type="button"
-  >
-  </p-button>
+  />
 
-  <p-button
-    (click)="save()"
+  <app-button
+    (clicked)="save()"
     [disabled]="isSaving || !isValidForm()"
     icon="pi pi-check"
     id="save-entity"
     label="Enregister"
-    raised="true"
+    [raised]="true"
     severity="primary"
-  >
-  </p-button>
+  />
 </div>
-<jhi-toast-alert #alert></jhi-toast-alert>
 <jhi-spinner #spinner></jhi-spinner>

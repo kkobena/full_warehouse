@@ -7,10 +7,10 @@
         <div class="panel-meta">
           <span class="pharma-code">{{ facture().numFacture }}</span>
           @if (facture().statut) {
-            <p-badge [severity]="getStatutSeverity(facture().statut)" [value]="getStatutLabel(facture().statut)" />
+            <app-badge [severity]="getStatutSeverity(facture().statut)" [label]="getStatutLabel(facture().statut)" />
           }
           @if (facture().enRetard) {
-            <p-badge severity="danger" value="En retard" />
+            <app-badge severity="danger" label="En retard" />
           }
           <span class="pharma-badge pharma-badge-secondary">Net : {{ facture().montantNet | number }}</span>
           <span class="pharma-badge pharma-badge-success">Réglé : {{ facture().montantRegle | number }}</span>
@@ -21,54 +21,54 @@
       </div>
       <div class="panel-actions">
         @if (canExport()) {
-          <p-button
+          <app-button
             icon="pi pi-file-pdf"
             [text]="true"
             size="small"
             severity="warn"
             [loading]="loadingPdf"
-            pTooltip="Exporter PDF"
-            tooltipPosition="left"
-            (onClick)="onExportPdf()"
+            ngbTooltip="Exporter PDF"
+            placement="left"
+            (clicked)="onExportPdf()"
           />
         }
         @if (!this.facture().fneResponse && !this.facture().factureProvisoire && this.facture().statut === 'NOT_PAID') {
-          <p-button
-            (onClick)="onConfirmCertification()"
+          <app-button
+            (clicked)="onConfirmCertification()"
             [loading]="certificationLoading"
             [text]="true"
             icon="pi pi-shield"
-            pTooltip="Certifier FNE"
+            ngbTooltip="Certifier FNE"
             severity="info"
             size="small"
-            tooltipPosition="left"
+            placement="left"
           />
         }
         @if (facture().fneResponse) {
-          <p-button
-            (onClick)="onViewFne()"
+          <app-button
+            (clicked)="onViewFne()"
             [text]="true"
             icon="pi pi-verified"
-            pTooltip="Voir certificat FNE"
+            ngbTooltip="Voir certificat FNE"
             severity="secondary"
             size="small"
-            tooltipPosition="left"
+            placement="left"
           />
         }
-        <p-button
+        <app-button
           icon="pi pi-times"
           [text]="true"
           size="small"
           severity="primary"
           [rounded]="true"
-          pTooltip="Fermer"
-          (onClick)="onClose()"
+          ngbTooltip="Fermer"
+          (clicked)="onClose()"
         />
       </div>
     </div>
 
     <!-- Onglets ngbNav -->
-    <div class="pharma-nav-tabs-container flex-1-overflow">
+    <app-nav-tabs [nav]="nav" containerClass="flex-1-overflow">
       <div
         #nav="ngbNav"
         [activeId]="activeTab()"
@@ -86,11 +86,13 @@
           <ng-template ngbNavContent>
             @if (loadingItems) {
               <div class="d-flex justify-content-center p-4">
-                <p-progressspinner [style]="{ width: '40px', height: '40px' }" />
+                <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Chargement…</span>
+              </div>
               </div>
             } @else {
-              <p-table [stripedRows]="true" [value]="factureItems()" [paginator]="true"
-                       [rows]="10" [rowsPerPageOptions]="[10, 25, 50]" class="p-datatable-sm">
+              <app-data-table [stripedRows]="true" [value]="factureItems()" [paginator]="true"
+                       [rows]="10" [rowsPerPageOptions]="[10, 25, 50]" [size]="'small'">
                 <ng-template #header>
                   <tr class="pharma-table-head">
                     <th>N° Bon</th>
@@ -114,7 +116,7 @@
                     <td colspan="5" class="text-center p-3 text-muted">Aucun dossier</td>
                   </tr>
                 </ng-template>
-              </p-table>
+              </app-data-table>
             }
           </ng-template>
         </ng-container>
@@ -146,11 +148,13 @@
           <ng-template ngbNavContent>
             @if (loadingReglements) {
               <div class="d-flex justify-content-center p-4">
-                <p-progressspinner [style]="{ width: '40px', height: '40px' }" />
+                <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Chargement…</span>
+              </div>
               </div>
             } @else {
-              <p-table [stripedRows]="true" [value]="reglements()" [paginator]="true"
-                       [rows]="10" class="p-datatable-sm">
+              <app-data-table [stripedRows]="true" [value]="reglements()" [paginator]="true"
+                       [rows]="10" [size]="'small'">
                 <ng-template #header>
                   <tr class="pharma-table-head">
                     <th>Date</th>
@@ -174,7 +178,7 @@
                     <td colspan="5" class="text-center p-3 text-muted">Aucun versement enregistré</td>
                   </tr>
                 </ng-template>
-              </p-table>
+              </app-data-table>
             }
           </ng-template>
         </ng-container>
@@ -192,9 +196,6 @@
         }
       </div>
 
-      <div class="pharma-nav-tabs-outlet">
-        <div [ngbNavOutlet]="nav"></div>
-      </div>
-    </div>
+    </app-nav-tabs>
   </div>
 }

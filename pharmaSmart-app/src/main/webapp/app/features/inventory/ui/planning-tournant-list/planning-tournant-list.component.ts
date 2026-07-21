@@ -1,14 +1,9 @@
 import {Component, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule, DatePipe} from '@angular/common';
 import {Router} from '@angular/router';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 
-import {Button} from 'primeng/button';
-import {Tag} from 'primeng/tag';
-import {Toast} from 'primeng/toast';
-import {TableModule} from 'primeng/table';
-import {Tooltip} from 'primeng/tooltip';
-import {MessageService} from 'primeng/api';
+import {NotificationService} from '../../../../shared/services/notification.service';
 import {IPlanningInventaireTournant, ITournantDashboard} from '../../models';
 import {PlanningTournantApiService} from '../../data-access/services/planning-tournant-api.service';
 import {
@@ -17,11 +12,11 @@ import {
 import {
   NgbConfirmDialogService
 } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import {BadgeComponent, ButtonComponent, DataTableComponent} from '../../../../shared/ui';
 
 @Component({
   selector: 'app-planning-tournant-list',
-  imports: [CommonModule, Button, Tag, Toast, TableModule, Tooltip, DatePipe],
-  providers: [MessageService],
+  imports: [CommonModule, ButtonComponent, BadgeComponent, DataTableComponent, NgbTooltip, DatePipe],
   templateUrl: './planning-tournant-list.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './planning-tournant-list.component.scss',
@@ -35,7 +30,7 @@ export class PlanningTournantListComponent implements OnInit {
   private readonly modal = inject(NgbModal);
   private readonly router = inject(Router);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
-  private readonly messageService = inject(MessageService);
+  private readonly notificationService = inject(NotificationService);
 
   ngOnInit(): void {
     this.loadAll();
@@ -82,18 +77,9 @@ export class PlanningTournantListComponent implements OnInit {
     this.api.toggleActif(planning.id!).subscribe({
       next: updated => {
         this.plannings.update(list => list.map(p => (p.id === updated.id ? updated : p)));
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Succès',
-          detail: updated.actif ? 'Planning activé' : 'Planning désactivé',
-        });
+        this.notificationService.success(updated.actif ? 'Planning activé' : 'Planning désactivé', 'Succès');
       },
-      error: () =>
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: 'Impossible de modifier le statut'
-        }),
+      error: () => this.notificationService.error('Impossible de modifier le statut', 'Erreur'),
     });
   }
 
@@ -147,18 +133,9 @@ export class PlanningTournantListComponent implements OnInit {
       next: () => {
         this.plannings.update(list => list.filter(p => p.id !== planning.id));
         this.loadDashboard();
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Succès',
-          detail: 'Planning supprimé'
-        });
+        this.notificationService.success('Planning supprimé', 'Succès');
       },
-      error: () =>
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: 'Impossible de supprimer'
-        }),
+      error: () => this.notificationService.error('Impossible de supprimer', 'Erreur'),
     });
   }
 
@@ -167,19 +144,10 @@ export class PlanningTournantListComponent implements OnInit {
       next: res => {
         this.loadAll();
         this.loadDashboard();
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Inventaire créé',
-          detail: `Inventaire #${res.inventoryId} créé. Cliquez pour ouvrir.`,
-          life: 8000,
-        });
+        this.notificationService.success(`Inventaire #${res.inventoryId} créé. Cliquez pour ouvrir.`, 'Inventaire créé');
       },
       error: () =>
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: "Échec de l'exécution"
-        }),
+        this.notificationService.error("Échec de l'exécution", 'Erreur'),
     });
   }
 }

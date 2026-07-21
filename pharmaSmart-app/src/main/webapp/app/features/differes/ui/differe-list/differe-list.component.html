@@ -1,4 +1,4 @@
-<p-table
+<app-data-table
   (onLazyLoad)="lazyLoading($event)"
   [lazy]="true"
   [loading]="loading"
@@ -9,7 +9,7 @@
   [stripedRows]="true"
   [totalRecords]="store.totalItems()"
   [value]="store.differes()"
-  class="p-datatable-sm"
+  [size]="'small'"
   currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} différés"
   dataKey="customerId"
 >
@@ -46,4 +46,4 @@
       </td>
     </tr>
   </ng-template>
-</p-table>
+</app-data-table>

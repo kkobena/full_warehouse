@@ -10,7 +10,7 @@
 
       <div class="form-field form-field-full">
         <label for="rf-libelle">Libellé <span class="required">*</span></label>
-        <input #libelleInput pInputText formControlName="libelle" id="rf-libelle" class="w-full" autocomplete="off" />
+        <input #libelleInput formControlName="libelle" id="rf-libelle" class="form-control w-full" autocomplete="off" />
         @if (editForm.get('libelle')?.invalid && editForm.get('libelle')?.touched) {
           <small class="text-danger">Ce champ est obligatoire.</small>
         }
@@ -18,7 +18,7 @@
 
       <div class="form-field">
         <label for="rf-code">Code @if (!isSansRayon) { <span class="required">*</span> }</label>
-        <input pInputText formControlName="code" id="rf-code" class="w-full" pKeyFilter="alphanum" autocomplete="off" />
+        <input formControlName="code" id="rf-code" class="form-control w-full" [appKeyFilter]="'alphanum'" autocomplete="off" />
         @if (isSansRayon) {
           <small class="text-muted">Code technique non modifiable.</small>
         } @else if (editForm.get('code')?.errors?.['required'] && editForm.get('code')?.touched) {
@@ -30,13 +30,12 @@
 
       <div class="form-field">
         <label for="rf-storage">Zone de stockage <span class="required">*</span></label>
-        <p-select
+        <app-select
           formControlName="storageId"
-          [options]="storages"
-          optionLabel="storageType"
-          optionValue="id"
-          id="rf-storage"
-          [fluid]="true"
+          [items]="storages"
+          bindLabel="storageType"
+          bindValue="id"
+          inputId="rf-storage"
           appendTo="body"
           placeholder="Sélectionner"
         />
@@ -47,43 +46,37 @@
 
       <div class="form-field">
         <label for="rf-typeZone">Type de zone</label>
-        <p-select
+        <app-select
           appendTo="body"
           formControlName="typeZone"
-          [options]="typeZoneOptions"
-          optionLabel="label"
-          optionValue="value"
-          [showClear]="true"
-          id="rf-typeZone"
-          [fluid]="true"
+          [items]="typeZoneOptions"
+          bindLabel="label"
+          bindValue="value"
+          [clearable]="true"
+          inputId="rf-typeZone"
           placeholder="Sélectionner"
         />
       </div>
 
       <div class="form-field">
         <label for="rf-position">Position</label>
-        <input pInputText formControlName="position" id="rf-position" class="w-full"
+        <input formControlName="position" id="rf-position" class="form-control w-full"
                placeholder="Ex. : A3, R2-E5, façade gauche allée 2…" autocomplete="off" />
         <small class="field-hint">Localisation physique du rayon dans la pharmacie (allée, étagère, numéro…).</small>
       </div>
-
-     <!-- <div class="d-flex align-items-center gap-2 mt-2" style="width: fit-content;">
-        <p-toggleswitch formControlName="exclude" inputId="rf-exclude" />
-        <label for="rf-exclude" style="margin-bottom: 0; cursor: pointer">Exclure</label>
-      </div>-->
     </div>
   </div>
 
   <div class="modal-footer">
-    <p-button
-      (click)="cancel()"
+    <app-button
+      (clicked)="cancel()"
       icon="pi pi-times"
       label="Annuler"
       severity="secondary"
       [raised]="true"
       type="button"
     />
-    <p-button
+    <app-button
       [disabled]="editForm.invalid || isSaving"
       [loading]="isSaving"
       icon="pi pi-check"
@@ -96,4 +89,3 @@
 </form>
 
 
-<p-toast position="center" />

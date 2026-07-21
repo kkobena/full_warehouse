@@ -10,64 +10,58 @@
     <div class="add-product-bar">
       <div class="search-controls">
         <div class="product-search-input">
-          <p-autocomplete
-            [suggestions]="produitSuggestions()"
-            (completeMethod)="onSearchProduit($event)"
+          <app-select-search
+            [items]="produitSuggestions()"
+            [typeahead]="typeaheadSink$"
+            (searched)="onSearchProduit($event)"
             [ngModel]="selectedProduit()"
-            (onSelect)="onProduitSelect($event.value)"
-            (ngModelChange)="selectedProduit.set($event)"
-            optionLabel="libelle"
+            (ngModelChange)="onProduitSelect($event)"
+            bindLabel="libelle"
             placeholder="Rechercher un produit (CIP, libellé)…"
             class="w-100"
           />
         </div>
         <div class="quantity-input-wrapper">
-          <p-inputgroup>
+          <div class="input-group">
             <input
-              pInputText
+              class="form-control"
               type="number"
               [(ngModel)]="ligneQuantite"
               min="1"
-              placeholder="Qté"
-            />
-            <p-inputgroup-addon>
-              <span class="addon-label">u.</span>
-            </p-inputgroup-addon>
-          </p-inputgroup>
+              placeholder="Qté" />
+            <span class="input-group-text addon-label">u.</span>
+          </div>
         </div>
         <div class="price-input-wrapper">
-          <p-inputgroup>
+          <div class="input-group">
             <input
-              pInputText
+              class="form-control"
               type="number"
               [(ngModel)]="lignePrixAchat"
               min="0"
-              placeholder="Prix achat"
-            />
-            <p-inputgroup-addon>
-              <span class="addon-label">F</span>
-            </p-inputgroup-addon>
-          </p-inputgroup>
+              placeholder="Prix achat" />
+            <span class="input-group-text addon-label">F</span>
+          </div>
         </div>
-        <p-button
+        <app-button
           icon="pi pi-plus"
           label="Ajouter"
           severity="primary"
           size="small"
           [loading]="addingLigne()"
           [disabled]="!selectedProduit() || ligneQuantite <= 0"
-          (onClick)="onAjouterLigne()"
+          (clicked)="onAjouterLigne()"
         />
       </div>
     </div>
   }
 
-  <p-table
+  <app-data-table
     class="p-datatable-sm mt-2"
     [value]="bed().lignes ?? []"
     dataKey="id"
     [scrollable]="true"
-    scrollHeight="flex"
+    scrollHeight="50vh"
   >
     <ng-template #header>
       <tr class="pharma-table-head">
@@ -91,15 +85,15 @@
         <td class="text-end pharma-total">{{ (l.quantite ?? 0) * (l.prixAchat ?? 0) | number:'1.0-0' }} F</td>
         @if (isBrouillon()) {
           <td>
-            <p-button
+            <app-button
               [text]="true"
               [rounded]="true"
               severity="danger"
               icon="pi pi-trash"
               size="small"
-              pTooltip="Supprimer"
-              tooltipPosition="top"
-              (onClick)="onSupprimerLigne(l)"
+              ngbTooltip="Supprimer"
+              placement="top"
+              (clicked)="onSupprimerLigne(l)"
             />
           </td>
         }
@@ -126,24 +120,24 @@
         }
       </tr>
     </ng-template>
-  </p-table>
+  </app-data-table>
 
   @if (isBrouillon()) {
     <div class="bed-detail-actions">
-      <p-button
+      <app-button
         icon="pi pi-times"
         label="Annuler"
         severity="secondary"
         size="small"
-        (onClick)="retour.emit()"
+        (clicked)="retour.emit()"
       />
-      <p-button
+      <app-button
         icon="pi pi-check-circle"
         label="Valider le BED"
         severity="success"
         size="small"
         [disabled]="ligneCount() === 0"
-        (onClick)="onValider()"
+        (clicked)="onValider()"
       />
     </div>
   }

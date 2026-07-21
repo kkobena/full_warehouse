@@ -13,16 +13,15 @@
 <div class="split-container" [class.panel-open]="selectedPlan()">
   <!-- Master : liste des planifications -->
   <div class="list-column">
-    <p-table
+    <app-data-table
       [value]="planifications()"
       [loading]="state.loading()"
       [scrollable]="true"
       scrollHeight="calc(100vh - 310px)"
-      [rowHover]="true"
       selectionMode="single"
       [selection]="selectedPlan()"
       (selectionChange)="onSelectPlan($event)"
-      class="p-datatable-sm planif-table"
+      [size]="'small'" class="planif-table"
       dataKey="id"
     >
       <ng-template #header>
@@ -38,7 +37,7 @@
       </ng-template>
 
       <ng-template #body let-plan>
-        <tr [pSelectableRow]="plan" [class.row-selected]="selectedPlan()?.id === plan.id">
+        <tr [appSelectableRow]="plan" [class.row-selected]="selectedPlan()?.id === plan.id">
           <td class="fw-semibold">{{ plan.libelle }}</td>
           <td>
             <span [class]="periodiciteBadgeClass()">{{ state.getPeriodiciteLabel(plan.periodicite) }}</span>
@@ -67,45 +66,45 @@
             }
           </td>
           <td class="text-center">
-            <p-toggleswitch [ngModel]="plan.actif" (onChange)="state.onToggleActif(plan)" />
+            <app-switch [ngModel]="plan.actif" (ngModelChange)="state.onToggleActif(plan)" />
           </td>
           <td>
             <div>
-              <p-buttongroup>
-                <p-button
-                  (onClick)="onSelectPlan(plan)"
+              <div class="btn-group" role="group">
+                <app-button
+                  (clicked)="onSelectPlan(plan)"
                   [rounded]="true"
                   [text]="true"
                   icon="pi pi-eye"
-                  pTooltip="Voir détail"
-                  tooltipPosition="left"
+                  ngbTooltip="Voir détail"
+                  placement="left"
                   severity="secondary"
                   size="small"
                 />
                 @if (plan.actif){
-                  <p-button
-                    (onClick)="state.onExecuterMaintenant(plan)"
+                  <app-button
+                    (clicked)="state.onExecuterMaintenant(plan)"
                     icon="pi pi-play"
                     [text]="true"
                     size="small"
                     [rounded]="true"
                     severity="success"
-                    pTooltip="Exécuter maintenant"
-                    tooltipPosition="left"
+                    ngbTooltip="Exécuter maintenant"
+                    placement="left"
                   />
                 }
 
-                <p-button
-                  (onClick)="state.onDelete(plan)"
+                <app-button
+                  (clicked)="state.onDelete(plan)"
                   icon="pi pi-trash"
                   [text]="true"
                   [rounded]="true"
                   size="small"
                   severity="danger"
-                  pTooltip="Supprimer"
-                  tooltipPosition="left"
+                  ngbTooltip="Supprimer"
+                  placement="left"
                 />
-              </p-buttongroup>
+              </div>
 
             </div>
           </td>
@@ -124,7 +123,7 @@
           </td>
         </tr>
       </ng-template>
-    </p-table>
+    </app-data-table>
   </div>
 
   @if (selectedPlan(); as plan) {

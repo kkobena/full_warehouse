@@ -1,5 +1,3 @@
-<p-toast position="center" />
-
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
 <!-- MODE SAISIE : bon RECEIVED ouvert en plein écran                       -->
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
@@ -21,27 +19,11 @@
     <!-- ═════════════════════════════════════════════════════════════════════ -->
   <div class="cr-wrapper">
     <div class="view-panel__header view-panel__header--detail">
-      <p-button (click)="onRetourConsultation()" icon="pi pi-arrow-left" [text]="true" size="small"
+      <app-button (clicked)="onRetourConsultation()" icon="pi pi-arrow-left" [text]="true" size="small"
                 label="Retour à la liste" />
       <div class="cr-header-actions">
-        <!--   <p-button
-             (onClick)="onRetourComplet(selectedClosed()!)"
-             severity="info"
-             icon="pi pi-replay"
-             label="Retour complet de ce bon"
-             class="mr-1"
-             size="small"
-           />
-           <p-button
-             (onClick)="onRetourParLigne(selectedClosed()!)"
-             severity="primary"
-             class="mr-1"
-             icon="pi pi-list-check"
-             label="Retour par ligne"
-             size="small"
-           />-->
-        <p-button
-          (onClick)="exportPdf(selectedClosed()!)"
+        <app-button
+          (clicked)="exportPdf(selectedClosed()!)"
           icon="pi pi-file-pdf"
           label="Imprimer BL"
           severity="secondary"
@@ -93,10 +75,9 @@
 
         <!-- Panneau droit : lignes de commande (lecture seule) -->
         <div class="lb-split__right">
-          <p-table
+          <app-data-table
             class="p-datatable-sm"
             [value]="closedOrderLines()"
-            [scrollable]="true"
             scrollHeight="flex"
           >
             <ng-template #header>
@@ -135,7 +116,7 @@
                 </td>
               </tr>
             </ng-template>
-          </p-table>
+          </app-data-table>
         </div>
 
       </div>
@@ -176,21 +157,20 @@
     <!-- ── BARRE D'ACTIONS ────────────────────────────────────────────────── -->
     <div class="su-action-bar">
       <div class="su-action-bar__filters">
-        <p-select
-          (onChange)="onSearch()"
+        <app-select
+          (selectionChange)="onSearch()"
           [(ngModel)]="selectedStatut"
-          [options]="statutOptions"
-          appendTo="body"
+          [items]="statutOptions"
           class="lb-select lb-select--statut"
-          optionLabel="label"
-          optionValue="value"
+          bindLabel="label"
+          bindValue="value"
+          [clearable]="false"
         />
 
-        <p-iconfield class="lb-search">
-          <p-inputicon class="pi pi-search" />
-          <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText
+        <app-icon-field class="lb-search" [overlay]="true" icon="pi pi-search">
+          <input (keyup.enter)="onSearch()" [(ngModel)]="search" class="form-control"
                  placeholder="Référence, fournisseur…" type="text" />
-        </p-iconfield>
+        </app-icon-field>
 
         <app-fournisseur-select
           class="lb-select"
@@ -198,74 +178,47 @@
           (selectionChange)="onFournisseurChange($event)"
         />
 
-        <p-floatlabel class="lb-date" variant="on">
-          <p-datepicker
-            (onSelect)="onSearch()"
+        <app-float-label class="lb-date" label="Début" inputId="dtStart">
+          <pharma-date-picker
+            (selectionChange)="onSearch()"
             [(ngModel)]="dtStart"
-            [showButtonBar]="true"
-            [showIcon]="true"
-            appendTo="body"
-            dateFormat="dd/mm/yy"
-            inputId="dtStart"
+            id="dtStart"
           />
-          <label for="dtStart">Début</label>
-        </p-floatlabel>
+        </app-float-label>
 
-        <p-floatlabel class="lb-date" variant="on">
-          <p-datepicker
-            (onSelect)="onSearch()"
+        <app-float-label class="lb-date" label="Fin" inputId="dtEnd">
+          <pharma-date-picker
+            (selectionChange)="onSearch()"
             [(ngModel)]="dtEnd"
-            [showButtonBar]="true"
-            [showIcon]="true"
-            appendTo="body"
-            dateFormat="dd/mm/yy"
-            inputId="dtEnd"
+            id="dtEnd"
           />
-          <label for="dtEnd">Fin</label>
-        </p-floatlabel>
+        </app-float-label>
 
       </div>
       <div class="su-action-bar__actions">
-        <p-button (onClick)="onSearch()" icon="pi pi-search" label="Rechercher" severity="info"
+        <app-button (clicked)="onSearch()" icon="pi pi-search" label="Rechercher" severity="info"
                   size="small" />
       </div>
     </div>
 
     <!-- ── GRILLE BL ─────────────────────────────────────────────────────── -->
     <div class="lb-grid-wrap">
-      <p-table
+      <app-data-table
         class="p-datatable-sm"
         [value]="deliveries"
         [loading]="loading"
         dataKey="id"
-        [scrollable]="true"
         scrollHeight="flex"
-        [rowHover]="true"
       >
         <ng-template #header>
           <tr class="pharma-table-head">
-            <th pSortableColumn="receiptDate" style="width:105px">
-              Date BL
-              <p-sorticon field="receiptDate" />
-            </th>
+            <th appSortableHeader="receiptDate" style="width:105px">Date BL</th>
             <th>Fournisseur</th>
             <th style="width:145px">Référence</th>
-            <th pSortableColumn="itemSize" class="text-end" style="width:90px">
-              Art.
-              <p-sorticon field="itemSize" />
-            </th>
-            <th pSortableColumn="grossAmount" class="text-end" style="width:140px">
-              Montant HT
-              <p-sorticon field="grossAmount" />
-            </th>
-            <th pSortableColumn="grossAmount" class="text-end" style="width:140px">
-              Montant Tva
-              <p-sorticon field="grossAmount" />
-            </th>
-            <th pSortableColumn="receiptAmount" class="text-end" style="width:140px">
-              Montant TTC
-              <p-sorticon field="receiptAmount" />
-            </th>
+            <th appSortableHeader="itemSize" class="text-end" style="width:90px">Art.</th>
+            <th appSortableHeader="grossAmount" class="text-end" style="width:140px">Montant HT</th>
+            <th appSortableHeader="grossAmount" class="text-end" style="width:140px">Montant Tva</th>
+            <th appSortableHeader="receiptAmount" class="text-end" style="width:140px">Montant TTC</th>
             <th style="width:200px">Statut</th>
             <th style="width:70px">Actions</th>
           </tr>
@@ -332,7 +285,7 @@
             </td>
           </tr>
         </ng-template>
-      </p-table>
+      </app-data-table>
     </div>
 
     <!-- ── FOOTER TOTAUX ──────────────────────────────────────────────────── -->
@@ -363,21 +316,21 @@
     <!-- ── PAGINATION ──────────────────────────────────────────────────────── -->
     @if (totalItems > itemsPerPage) {
       <div class="pagination-bar">
-        <p-button
-          (onClick)="goToPage(page - 1)"
+        <app-button
+          (clicked)="goToPage(page - 1)"
           [disabled]="page === 0"
           icon="pi pi-angle-left"
-          pTooltip="Page précédente"
+          ngbTooltip="Page précédente"
           severity="secondary"
           size="small"
         />
         <span class="pagination-info">Page {{ page + 1 }} / {{ totalPages }} · {{ totalItems }}
           bon(s)</span>
-        <p-button
-          (onClick)="goToPage(page + 1)"
+        <app-button
+          (clicked)="goToPage(page + 1)"
           [disabled]="page >= totalPages - 1"
           icon="pi pi-angle-right"
-          pTooltip="Page suivante"
+          ngbTooltip="Page suivante"
           severity="secondary"
           size="small"
         />

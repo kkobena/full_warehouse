@@ -8,19 +8,19 @@
 
     <div class="card-grid-2col">
       <!-- ── Colonne gauche : identification + coordonnées ── -->
-      <p-card>
-        <ng-template #header>
+      <app-card [variant]="'form'">
+        <ng-container ngProjectAs="[cardHeader]">
           <div class="section-header section-header-required">
             <i class="pi pi-exclamation-circle"></i>
             <span>Identification</span>
           </div>
-        </ng-template>
+        </ng-container>
         <div class="form-grid-compact">
 
           <div class="form-field form-field-full">
             <label for="field_libelle">Libellé <span class="required">*</span></label>
-            <input #libelleInput autocomplete="off" class="w-full" formControlName="libelle"
-                   id="field_libelle" pInputText />
+            <input #libelleInput autocomplete="off" class="form-control w-full" formControlName="libelle"
+                   id="field_libelle" />
             @let libelle = editForm.get('libelle');
             @if (libelle!.invalid && (libelle!.dirty || libelle!.touched)) {
               @if (libelle?.errors?.['required']) {
@@ -31,16 +31,16 @@
 
           <div class="form-field form-field-full">
             <label for="field_code">Code</label>
-            <input autocomplete="off" class="w-full" formControlName="code" id="field_code"
-                   pInputText pKeyFilter="alphanum" />
+            <input autocomplete="off" class="form-control w-full" formControlName="code" id="field_code"
+                   [appKeyFilter]="'alphanum'" />
           </div>
 
           @if (isAgenceMode) {
             <div class="form-field form-field-full">
               <label for="field_parent">Fournisseur principal</label>
-              <p-select class="w-full" [options]="parents" formControlName="parentId"
-                        id="field_parent" optionLabel="libelle" optionValue="id"
-                        placeholder="Sélectionner le fournisseur principal" size="large" />
+              <app-select class="w-full" [items]="parents" formControlName="parentId"
+                        inputId="field_parent" bindLabel="libelle" bindValue="id"
+                        placeholder="Sélectionner le fournisseur principal" />
             </div>
           }
 
@@ -53,20 +53,20 @@
 
           <div class="form-field form-field-full">
             <label for="field_phone">Téléphone</label>
-            <input autocomplete="off" class="w-full" formControlName="phone" id="field_phone"
-                   pInputText pKeyFilter="int" />
+            <input autocomplete="off" class="form-control w-full" formControlName="phone" id="field_phone"
+                   [appKeyFilter]="'int'" />
           </div>
 
           <div class="form-field form-field-full">
             <label for="field_mobile">Mobile</label>
-            <input autocomplete="off" class="w-full" formControlName="mobile" id="field_mobile"
-                   pInputText pKeyFilter="int" />
+            <input autocomplete="off" class="form-control w-full" formControlName="mobile" id="field_mobile"
+                   [appKeyFilter]="'int'" />
           </div>
 
           <div class="form-field form-field-full">
             <label for="field_addresspostale">Adresse postale</label>
-            <input autocomplete="off" class="w-full" formControlName="addresspostale"
-                   id="field_addresspostale" pInputText />
+            <input autocomplete="off" class="form-control w-full" formControlName="addresspostale"
+                   id="field_addresspostale" />
           </div>
 
           @if (!isAgenceMode) {
@@ -78,61 +78,61 @@
             </div>
             <div class="form-field form-field-full">
               <label for="field_delaiLivraisonJours">Délai de livraison (jours)</label>
-              <input autocomplete="off" class="w-full" formControlName="delaiLivraisonJours"
-                     id="field_delaiLivraisonJours" pInputText pKeyFilter="int" />
+              <input autocomplete="off" class="form-control w-full" formControlName="delaiLivraisonJours"
+                     id="field_delaiLivraisonJours" [appKeyFilter]="'int'" />
             </div>
             <div class="form-field form-field-full">
               <label for="field_frequenceCommandeJours">
                 Fréquence de commande (jours)
                 <small class="text-muted ms-1">— ex : 1 = quotidien · 7 = hebdo</small>
               </label>
-              <input autocomplete="off" class="w-full" formControlName="frequenceCommandeJours"
-                     id="field_frequenceCommandeJours" pInputText pKeyFilter="int" />
+              <input autocomplete="off" class="form-control w-full" formControlName="frequenceCommandeJours"
+                     id="field_frequenceCommandeJours" [appKeyFilter]="'int'" />
             </div>
           }
 
         </div>
-      </p-card>
+      </app-card>
 
       <!-- ── Colonne droite ── -->
-      <p-card>
+      <app-card [variant]="'form'">
         @if (!isAgenceMode) {
-          <ng-template #header>
+          <ng-container ngProjectAs="[cardHeader]">
             <span class="section-header">Conditions Commerciales</span>
-          </ng-template>
+          </ng-container>
           <div class="form-grid-compact">
 
             <div class="form-field form-field-full">
               <label for="field_joursCredit">Délai de paiement (jours)</label>
-              <input autocomplete="off" class="w-full" formControlName="joursCredit" id="field_joursCredit"
-                     pInputText pKeyFilter="int" placeholder="Vide = valeur par défaut app" type="number" min="0" />
+              <input autocomplete="off" class="form-control w-full" formControlName="joursCredit" id="field_joursCredit"
+                     [appKeyFilter]="'int'" placeholder="Vide = valeur par défaut app" type="number" min="0" />
             </div>
 
             <div class="form-field form-field-full">
               <label for="field_joursCritique">Délai critique après échéance (jours)</label>
-              <input autocomplete="off" class="w-full" formControlName="joursCritique" id="field_joursCritique"
-                     pInputText pKeyFilter="int" placeholder="Vide = valeur par défaut app" type="number" min="0" />
+              <input autocomplete="off" class="form-control w-full" formControlName="joursCritique" id="field_joursCritique"
+                     [appKeyFilter]="'int'" placeholder="Vide = valeur par défaut app" type="number" min="0" />
             </div>
 
             <div class="form-field form-field-full">
               <label for="field_palierRfa">Seuil d'achat annuel — RFA (FCFA)
                 <small class="text-muted ms-1">— montant à partir duquel la remise s'applique</small>
               </label>
-              <input autocomplete="off" class="w-full" formControlName="palierRfa" id="field_palierRfa"
-                     pInputText pKeyFilter="int" type="number" min="0" />
+              <input autocomplete="off" class="form-control w-full" formControlName="palierRfa" id="field_palierRfa"
+                     [appKeyFilter]="'int'" type="number" min="0" />
             </div>
 
             <div class="form-field form-field-full">
               <label for="field_tauxRfa">Taux remise fin d'année — RFA (%)</label>
-              <input autocomplete="off" class="w-full" formControlName="tauxRfa" id="field_tauxRfa"
-                     pInputText pKeyFilter="int" type="number" min="0" max="100" />
+              <input autocomplete="off" class="form-control w-full" formControlName="tauxRfa" id="field_tauxRfa"
+                     [appKeyFilter]="'int'" type="number" min="0" max="100" />
             </div>
 
           </div>
         } @else {
-          <ng-template #header>
+          <ng-container ngProjectAs="[cardHeader]">
             <span class="section-header">Logistique</span>
-          </ng-template>
+          </ng-container>
           <div class="form-grid-compact">
 
             <div class="form-field form-field-full">
@@ -140,8 +140,8 @@
                 Délai de livraison (jours)
                 <small class="text-muted ms-1">— propre à cette agence</small>
               </label>
-              <input autocomplete="off" class="w-full" formControlName="delaiLivraisonJours"
-                     id="field_delaiLivraisonJours_agence" pInputText pKeyFilter="int" />
+              <input autocomplete="off" class="form-control w-full" formControlName="delaiLivraisonJours"
+                     id="field_delaiLivraisonJours_agence" [appKeyFilter]="'int'" />
             </div>
 
           </div>
@@ -161,49 +161,49 @@
             <label for="field_identifiantRepartiteur">Identifiant grossiste (répartiteur)
               <small class="text-muted ms-1">— code attribué par le grossiste</small>
             </label>
-            <input autocomplete="off" class="w-full" formControlName="identifiantRepartiteur"
-                   id="field_identifiantRepartiteur" pInputText pKeyFilter="alphanum" />
+            <input autocomplete="off" class="form-control w-full" formControlName="identifiantRepartiteur"
+                   id="field_identifiantRepartiteur" [appKeyFilter]="'alphanum'" />
           </div>
 
           <div class="form-field form-field-full">
             <label for="field_urlPharmaMl">Serveur de commandes (URL)</label>
-            <input [pKeyFilter]="blockSpace" autocomplete="off" class="w-full" formControlName="urlPharmaMl"
-                   id="field_urlPharmaMl" pInputText placeholder="https://..." />
+            <input [appKeyFilter]="blockSpace" autocomplete="off" class="form-control w-full" formControlName="urlPharmaMl"
+                   id="field_urlPharmaMl" placeholder="https://..." />
           </div>
 
           <div class="form-field form-field-full">
             <label for="field_codeOfficePharmaMl">Code officine
               <small class="text-muted ms-1">— votre code chez ce fournisseur</small>
             </label>
-            <input [pKeyFilter]="blockSpace" autocomplete="off" class="w-full" formControlName="codeOfficePharmaMl"
-                   id="field_codeOfficePharmaMl" pInputText />
+            <input [appKeyFilter]="blockSpace" autocomplete="off" class="form-control w-full" formControlName="codeOfficePharmaMl"
+                   id="field_codeOfficePharmaMl" />
           </div>
 
           <div class="form-field form-field-full">
             <label for="field_codeRecepteurPharmaMl">Code établissement destinataire
               <small class="text-muted ms-1">— code du dépôt fournisseur</small>
             </label>
-            <input [pKeyFilter]="blockSpace" autocomplete="off" class="w-full" formControlName="codeRecepteurPharmaMl"
-                   id="field_codeRecepteurPharmaMl" pInputText />
+            <input [appKeyFilter]="blockSpace" autocomplete="off" class="form-control w-full" formControlName="codeRecepteurPharmaMl"
+                   id="field_codeRecepteurPharmaMl" />
           </div>
 
           <div class="form-field form-field-full">
             <label for="field_idRecepteurPharmaMl">N° client chez le grossiste
               <small class="text-muted ms-1">— votre compte client</small>
             </label>
-            <input [pKeyFilter]="blockSpace" autocomplete="off" class="w-full" formControlName="idRecepteurPharmaMl"
-                   id="field_idRecepteurPharmaMl" pInputText />
+            <input [appKeyFilter]="blockSpace" autocomplete="off" class="form-control w-full" formControlName="idRecepteurPharmaMl"
+                   id="field_idRecepteurPharmaMl" />
           </div>
 
         </div>
-      </p-card>
+      </app-card>
 
     </div>
   </div>
 
   <div class="modal-footer">
-    <p-button (click)="cancel()" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
-    <p-button [disabled]="editForm.invalid || isSaving" icon="pi pi-check"
+    <app-button (clicked)="cancel()" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
+    <app-button [disabled]="editForm.invalid || isSaving" icon="pi pi-check"
               label="Enregistrer" severity="success" type="submit" />
   </div>
 </form>

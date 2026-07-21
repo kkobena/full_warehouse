@@ -1,113 +1,117 @@
-<p-toast position="center" />
-
 <div class="pharma-smart-content p-1">
 
   <!-- ── Toolbar ──────────────────────────────────────────────────────────── -->
-  <div class="pharma-toolbar">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-sliders-h"></i>
-      <span>Historique des ajustements</span>
-    </div>
+  <app-toolbar icon="pi pi-sliders-h" title="Historique des ajustements">
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <div class="pharma-toolbar-filters flex-wrap gap-2">
 
-    <p-toolbar>
-      <ng-template #start>
-        <div class="pharma-toolbar-filters flex-wrap gap-2">
+        <!-- Période -->
+        <pharma-date-picker
+          (selectionChange)="onSearch()"
+          [(ngModel)]="fromDate"
+          [labelPosition]="'inline'" [maxDate]="toDate"
+          id="dateDebut"
+          label="Du"
+        />
+        <pharma-date-picker
+          (selectionChange)="onSearch()"
+          [(ngModel)]="toDate"
+          [labelPosition]="'inline'" [minDate]="fromDate" id="dateFin"
+          label="Au"
+        />
 
-          <!-- Période -->
-          <jhi-date-picker
-            [(ngModel)]="fromDate"
-            [id]="'dateDebut'" [label]="'warehouseApp.labels.du'"
-            (ngModelChange)="onSearch()"
-            label="Du"
+        <!-- Opérateur -->
+        <app-select
+          (selectionChange)="onSearch()"
+          [(ngModel)]="user"
+          [appendTo]="appendTo"
+          [items]="users"
+          bindLabel="abbrName"
+          inputId="userFilter"
+          placeholder="Opérateur"
+        />
+
+        <!-- Sens -->
+        <app-pill-selector
+          (selectionChange)="onSearch()"
+          [(ngModel)]="typeFilter"
+          [items]="typeOptions"
+        />
+
+        <!-- Recherche texte -->
+        <app-icon-field [overlay]="true" icon="pi pi-search">
+          <input
+            (keyup.enter)="onSearch()"
+            [(ngModel)]="search"
+            class="form-control"
+            placeholder="Code CIP, libellé…"
+            style="max-width: 220px"
+            type="text"
           />
-          <jhi-date-picker
-            [(ngModel)]="toDate"
-            [id]="'dateFin'" [label]="'warehouseApp.labels.au'"
-            (ngModelChange)="onSearch()"
-            label="Au"
+        </app-icon-field>
+
+      </div>
+    </ng-container>
+
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-toolbar-actions">
+        <div class="pharma-button-group">
+          <app-button
+            (clicked)="goToNew()"
+            [raised]="true"
+            icon="pi pi-plus"
+            label="Nouvel ajustement"
+            ngbTooltip="Créer un ajustement de stock"
+            severity="success"
           />
-
-          <!-- Opérateur -->
-          <p-floatlabel variant="on">
-            <p-select
-              id="userFilter"
-              [(ngModel)]="user"
-              [options]="users"
-              [appendTo]="appendTo"
-              dataKey="id"
-              optionLabel="abbrName"
-              [fluid]="true"
-              (onChange)="onSearch()"
-            />
-            <label for="userFilter">Opérateur</label>
-          </p-floatlabel>
-
-          <!-- Sens -->
-          <p-selectbutton
-            [(ngModel)]="typeFilter"
-            [options]="typeOptions"
-            (onChange)="onSearch()"
-          />
-
-          <!-- Recherche texte -->
-          <p-iconfield>
-            <p-inputicon class="pi pi-search" />
-            <input
-              pInputText
-              type="text"
-              [(ngModel)]="search"
-              (keyup.enter)="onSearch()"
-              placeholder="Code CIP, libellé…"
-            />
-          </p-iconfield>
-
         </div>
-      </ng-template>
-
-      <ng-template #end>
-        <div class="pharma-toolbar-actions">
-          <div class="pharma-button-group">
-            <p-button
-              icon="pi pi-plus"
-              label="Nouvel ajustement"
-              severity="success"
-              [raised]="true"
-              pTooltip="Créer un ajustement de stock"
-              tooltipPosition="top"
-              (onClick)="goToNew()"
-            />
-          </div>
-        </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
+      </div>
+    </ng-container>
+  </app-toolbar>
 
   <!-- ── Table historique ─────────────────────────────────────────────────── -->
-  <p-table
-    [value]="facade.history()"
+  <app-data-table
     [loading]="facade.loadingHistory()"
-    [stripedRows]="true"
+    [value]="facade.history()"
+    [lazy]="true"
+    [paginator]="true"
+    [totalRecords]="facade.totalHistory()"
+    [rows]="itemsPerPage"
+    [(first)]="first"
+    [showCurrentPageReport]="true"
+    (onLazyLoad)="onLazyLoad($event)"
     dataKey="id"
-    class="pharma-table"
   >
     <ng-template #header>
       <tr class="pharma-table-head">
+        <th style="width: 3%"></th>
         <th style="width: 4%">#</th>
-        <th style="width: 14%">Date</th>
-        <th style="width: 12%">Opérateur</th>
-        <th style="width: 10%">Sens</th>
-        <th class="text-right" style="width: 8%">Entrées</th>
-        <th class="text-right" style="width: 8%">Sorties</th>
-        <th style="width: 28%">Commentaire</th>
+        <th style="width: 13%">Date</th>
+        <th style="width: 11%">Opérateur</th>
+        <th style="width: 9%">Sens</th>
+        <th class="text-right" style="width: 7%">Entrées</th>
+        <th class="text-right" style="width: 7%">Sorties</th>
+        <th style="width: 26%">Commentaire</th>
         <th class="text-center" style="width: 16%">Actions</th>
       </tr>
     </ng-template>
 
-    <ng-template #body let-ajust let-rowIndex="rowIndex">
+    <ng-template #body let-ajust let-expanded="expanded" let-rowIndex="rowIndex">
       <tr class="pharma-row-hover">
+        <td>
+          <app-button
+            [appRowToggler]="ajust"
+            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+            [rounded]="true"
+            [text]="true"
+            ngbTooltip="Détail des lignes"
+            size="small"
+            type="button"
+          />
+        </td>
         <td><span class="pharma-row-number">{{ rowIndex + 1 }}</span></td>
         <td class="text-muted small">
-          {{ ajust.updatedAt | date: 'dd/MM/yyyy HH:mm' }}
+          {{ ajust.dateMtv | date: 'dd/MM/yyyy HH:mm' }}
         </td>
         <td>
           <span class="pharma-entity-name">{{ ajust.userFullName ?? '-' }}</span>
@@ -115,17 +119,17 @@
         <td>
           <div class="d-flex flex-column gap-1">
             @if (hasEntrees(ajust.ajustements ?? [])) {
-              <p-tag
-                value="Entrée"
-                severity="success"
+              <app-badge
                 icon="pi pi-arrow-up"
+                label="Entrée"
+                severity="success"
               />
             }
             @if (hasSorties(ajust.ajustements ?? [])) {
-              <p-tag
-                value="Sortie"
-                severity="danger"
+              <app-badge
                 icon="pi pi-arrow-down"
+                label="Sortie"
+                severity="danger"
               />
             }
           </div>
@@ -146,25 +150,71 @@
           </span>
         </td>
         <td class="text-center">
-          <p-buttongroup>
-            <p-button
-              icon="pi pi-file-pdf"
-              [text]="true"
+          <div class="btn-group">
+            <app-button
+              (clicked)="exportPdf(ajust)"
               [rounded]="true"
+              [text]="true"
+              icon="pi pi-file-pdf"
+              ngbTooltip="Exporter PDF"
               severity="secondary"
               size="small"
-              pTooltip="Exporter PDF"
-              tooltipPosition="top"
-              (onClick)="exportPdf(ajust)"
             />
-          </p-buttongroup>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template #expandedrow let-ajust>
+      <tr class="pharma-expanded-row">
+        <td colspan="9">
+          <div class="app-table__expanded-content">
+            <app-card header="Détail des lignes" icon="pi pi-list">
+              @if ((ajust.ajustements ?? []).length) {
+                <table class="table table-sm ajust-detail-table mb-0">
+                  <thead>
+                  <tr class="pharma-table-head">
+                    <th>Code CIP</th>
+                    <th>Produit</th>
+                    <th class="text-right">Qté</th>
+                    <th class="text-right">Stock avant</th>
+                    <th class="text-right">Stock après</th>
+                    <th>Motif</th>
+                    <th>Commentaire</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                    @for (detail of ajust.ajustements; track detail.id) {
+                      <tr>
+                        <td><span class="pharma-code">{{ detail.codeCip ?? '–' }}</span></td>
+                        <td>{{ detail.produitLibelle ?? '–' }}</td>
+                        <td class="text-right">
+                          <span [class.ajust-qty-in]="(detail.qtyMvt ?? 0) >= 0"
+                                [class.ajust-qty-out]="(detail.qtyMvt ?? 0) < 0">
+                            {{ (detail.qtyMvt ?? 0) >= 0 ? '+' : '' }}{{ detail.qtyMvt | number }}
+                          </span>
+                        </td>
+                        <td class="text-right">{{ detail.stockBefore | number }}</td>
+                        <td class="text-right">{{ detail.stockAfter | number }}</td>
+                        <td>{{ detail.motifAjustementLibelle ?? '–' }}</td>
+                        <td class="text-muted small">{{ detail.commentaire ?? '–' }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              } @else {
+                <div class="text-muted small text-center py-2">Aucune ligne pour cet ajustement
+                </div>
+              }
+            </app-card>
+          </div>
         </td>
       </tr>
     </ng-template>
 
     <ng-template #emptymessage>
       <tr>
-        <td colspan="8">
+        <td colspan="9">
           <div class="pharma-empty-content">
             <i class="pi pi-inbox"></i>
             <p>Aucun ajustement pour cette période</p>
@@ -172,30 +222,12 @@
         </td>
       </tr>
     </ng-template>
-  </p-table>
 
-  <!-- Pagination -->
-  <div class="table-footer-info px-2">
-    <small class="text-muted">Total : {{ facade.totalHistory() }} ajustement(s)</small>
-    <div class="d-flex align-items-center gap-2">
-      <p-button
-        icon="pi pi-chevron-left"
-        [text]="true"
-        [rounded]="true"
-        size="small"
-        [disabled]="page() <= 1"
-        (onClick)="page.set(page() - 1); load()"
-      />
-      <small class="text-muted">Page {{ page() }}</small>
-      <p-button
-        icon="pi pi-chevron-right"
-        [text]="true"
-        [rounded]="true"
-        size="small"
-        [disabled]="page() * itemsPerPage >= facade.totalHistory()"
-        (onClick)="page.set(page() + 1); load()"
-      />
-    </div>
-  </div>
+    <ng-template #footer>
+      <tr>
+        <td class="text-muted small" colspan="9">Total : {{ facade.totalHistory() }} ajustement(s)</td>
+      </tr>
+    </ng-template>
+  </app-data-table>
 
 </div>

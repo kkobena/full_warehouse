@@ -1,39 +1,38 @@
 import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {ICellRendererAngularComp} from 'ag-grid-angular';
-import {Button} from 'primeng/button';
-import {Tooltip} from 'primeng/tooltip';
+import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {ButtonComponent} from '../../../../shared/ui';
 import {IOrderLine} from '../../../../shared/model/order-line.model';
-import { ButtonGroup } from "primeng/buttongroup";
 
 @Component({
   selector: 'app-commande-requested-line-actions',
-  imports: [Button, Tooltip, ButtonGroup],
+  imports: [ButtonComponent, NgbTooltip],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <p-buttongroup>
-      <p-button
+    <div class="btn-group">
+      <app-button
         [text]="true"
         [rounded]="true"
         severity="primary"
         icon="pi pi-pencil"
-        pTooltip="Modifier"
-        tooltipPosition="top"
+        ngbTooltip="Modifier"
+        placement="top"
         size="small"
-        (onClick)="onEdit($event)"
+        (clicked)="onEdit($event)"
       />
 
-      <p-button
+      <app-button
         [text]="true"
         [rounded]="true"
         severity="danger"
         icon="pi pi-trash"
-        pTooltip="Supprimer"
-        tooltipPosition="top"
+        ngbTooltip="Supprimer"
+        placement="top"
         size="small"
         [disabled]="isLocked"
-        (onClick)="onDelete($event)"
+        (clicked)="onDelete($event)"
       />
-    </p-buttongroup>
+    </div>
   `,
 })
 export class CommandeRequestedLineActionsComponent implements ICellRendererAngularComp {

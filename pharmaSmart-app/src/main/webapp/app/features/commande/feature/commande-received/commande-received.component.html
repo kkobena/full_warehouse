@@ -1,141 +1,140 @@
-<p-toast position="center" />
-
 <div class="cr-wrapper">
   <!-- HEADER -->
   <div class="view-panel__header view-panel__header--detail">
-    <p-button (click)="previousState()" icon="pi pi-arrow-left" [text]="true" size="small" label="Retour à la liste" />
+    <app-button (clicked)="previousState()" [text]="true" icon="pi pi-arrow-left" label="Retour à la liste"
+                size="small" />
     @if (currentCommande) {
       <span class="view-panel__title">{{ currentCommande.fournisseur?.libelle }}</span>
       <span class="view-panel__meta">
-        <i class="pi pi-file"></i>&nbsp;{{ currentCommande.receiptReference ?? currentCommande.orderReference }}
+        <i class="pi pi-file"></i>&nbsp;{{
+          currentCommande.receiptReference ?? currentCommande.orderReference
+        }}
         &nbsp;·&nbsp;
         {{ currentCommande.receiptDate | date:'dd/MM/yyyy' }}
       </span>
     }
     <div class="cr-header-actions">
 
-      <!-- AX-08 — Taux de service -->
-      <p-tag
-        [value]="'Taux service : ' + tauxService + '%'"
+
+      <app-badge
+        [label]="'Taux service : ' + tauxService + '%'"
         [severity]="tauxService >= 90 ? 'success' : tauxService >= 70 ? 'warn' : 'danger'"
-        [pTooltip]="'Lignes entièrement servies / total lignes'"
-        tooltipPosition="bottom"
+        ngbTooltip="Lignes entièrement servies / total lignes"
+        placement="bottom"
       />
       @if (lignesPcbAlert > 0) {
-        <p-tag
-          [value]="lignesPcbAlert + ' alerte(s) colisage'"
-          severity="danger"
+        <app-badge
+          [label]="lignesPcbAlert + ' alerte(s) colisage'"
           icon="pi pi-box"
-          pTooltip="Des quantités ne sont pas multiples du conditionnement fournisseur (PCB)"
-          tooltipPosition="bottom"
+          ngbTooltip="Des quantités ne sont pas multiples du conditionnement fournisseur (PCB)"
+          placement="bottom"
+          severity="danger"
         />
       }
       @if (lignesSansLot > 0) {
-        <p-tag [hidden]="true"
-          [value]="lignesSansLot + ' lot(s) manquant(s)'"
-          severity="warn"
-          icon="pi pi-exclamation-triangle"
-          pTooltip="Des lignes n'ont pas de numéro de lot renseigné"
-          tooltipPosition="bottom"
+        <app-badge [hidden]="true"
+                   [label]="lignesSansLot + ' lot(s) manquant(s)'"
+                   icon="pi pi-exclamation-triangle"
+                   ngbTooltip="Des lignes n'ont pas de numéro de lot renseigné"
+                   placement="bottom"
+                   severity="warn"
         />
       }
-      <p-button
-        (click)="onImporterReponseCommande()"
+      <app-button
+        (clicked)="onImporterReponseCommande()"
         icon="pi pi-download"
         label="Importer réponse"
+        ngbTooltip="Importer la réponse / fichier du grossiste"
+        placement="bottom"
         severity="info"
         size="small"
-        pTooltip="Importer la réponse / fichier du grossiste"
-        tooltipPosition="bottom"
       />
 
 
-      <p-button
-        (click)="onRapprocher()"
+      <app-button
+        (clicked)="onRapprocher()"
         icon="pi pi-receipt"
         label="Rapprocher facture"
+        ngbTooltip="Rapprocher la facture fournisseur avec ce bon de livraison"
+        placement="bottom"
         severity="secondary"
         size="small"
-        pTooltip="Rapprocher la facture fournisseur avec ce bon de livraison"
-        tooltipPosition="bottom"
       />
-      <p-button
-        (click)="onRetourFournisseur()"
+      <app-button
+        (clicked)="onRetourFournisseur()"
         icon="pi pi-replay"
         label="Retourner"
+        ngbTooltip="Générer un avoir / bon de retour fournisseur"
+        placement="bottom"
         severity="danger"
         size="small"
-        pTooltip="Générer un avoir / bon de retour fournisseur"
-        tooltipPosition="bottom"
       />
-      <p-splitbutton [model]="exportbuttons" appendTo="body" icon="pi pi-file-export" label="Exporter" severity="warn"
-                     size="small" />
+      <app-split-button [items]="exportbuttons" icon="pi pi-file-export" label="Exporter"
+                        severity="warn"
+                        size="small" />
     </div>
   </div>
 
   <!-- FILTRES -->
   <div class="su-action-bar">
     <div class="su-action-bar__filters">
-      <p-iconfield>
-        <p-inputicon class="pi pi-search" />
+      <app-icon-field [overlay]="true" icon="pi pi-search">
         <input
           (keyup.enter)="onFilterCommandeLines()"
           [(ngModel)]="search"
-          pInputText
+          class="form-control"
           placeholder="Taper pour rechercher"
-          type="text"
-        />
-      </p-iconfield>
-      <p-floatlabel variant="on">
-        <p-select
-          (onChange)="onFilterCommandeLines()"
+          type="text" />
+      </app-icon-field>
+      <div>
+        <label class="form-label small mb-0" for="ordre">Ordre</label>
+        <app-select
+          (selectionChange)="onFilterCommandeLines()"
           [(ngModel)]="tris"
-          [options]="sorts"
-          appendTo="body"
           inputId="ordre"
-          optionLabel="label"
-          optionValue="code"
+          [items]="sorts"
+          bindLabel="label"
+          bindValue="code"
+          [clearable]="false"
         />
-        <label for="ordre">Ordre</label>
-      </p-floatlabel>
-      <p-floatlabel variant="on">
-        <p-select
-          (onChange)="onFilterCommandeLines()"
+      </div>
+      <div>
+        <label class="form-label small mb-0" for="selectedFilter">Filtrer par</label>
+        <app-select
+          (selectionChange)="onFilterCommandeLines()"
           [(ngModel)]="selectedFilter"
-          [options]="filtres"
-          appendTo="body"
           inputId="selectedFilter"
-          optionLabel="label"
-          optionValue="value"
+          [items]="filtres"
+          bindLabel="label"
+          bindValue="value"
+          [clearable]="false"
         />
-        <label for="selectedFilter">Filtrer par</label>
-      </p-floatlabel>
+      </div>
       <!-- Scan douchette -->
       <div class="cr-scan-field">
         @if (scannerMode() !== 'SERIAL') {
-          <p-iconfield>
-            <p-inputicon class="pi pi-qrcode" />
+          <app-icon-field [overlay]="true" icon="pi pi-qrcode">
             <input
               #scanInputRef
               (keyup.enter)="onScanReception()"
               [(ngModel)]="scanValue"
-              pInputText
-              placeholder="Scanner CIP / DataMatrix…"
-              type="text"
               autocomplete="off"
-            />
-          </p-iconfield>
+              class="form-control"
+              placeholder="Scanner CIP / DataMatrix…"
+              type="text" />
+          </app-icon-field>
         } @else {
-          <span class="cr-serial-badge" pTooltip="Douchette USB série active — lecture automatique" tooltipPosition="bottom">
+          <span class="cr-serial-badge"
+                ngbTooltip="Douchette USB série active — lecture automatique" placement="bottom">
             <i class="pi pi-wifi"></i>
           </span>
         }
         @if (lastScanResult() !== null) {
           <span
-            class="cr-scan-badge"
-            [class.cr-scan-badge--ok]="lastScanResult()!.found"
             [class.cr-scan-badge--err]="!lastScanResult()!.found && !lastScanResult()!.provisionalLines?.length"
+            [class.cr-scan-badge--ok]="lastScanResult()!.found"
             [class.cr-scan-badge--provisional]="!lastScanResult()!.found && !!lastScanResult()!.provisionalLines?.length"
+            class="cr-scan-badge"
           >
             @if (lastScanResult()!.found) {
               <i class="pi pi-check-circle"></i>
@@ -144,30 +143,31 @@
                 <span class="ms-1">(lot {{ lastScanResult()!.lotNumero }})</span>
               }
               @if (lastScanResult()!.fmdStatus === 'PRESENT') {
-                <span class="cr-fmd-badge cr-fmd-badge--ok"
-                      [pTooltip]="'FMD : numéro de série enregistré (' + (lastScanResult()!.serialNumber ?? '') + ')'"
-                      tooltipPosition="top">
+                <span [ngbTooltip]="'FMD : numéro de série enregistré (' + (lastScanResult()!.serialNumber ?? '') + ')'"
+                      class="cr-fmd-badge cr-fmd-badge--ok"
+                      placement="top">
                   <i class="pi pi-shield"></i> FMD ✓
                 </span>
               }
               @if (lastScanResult()!.fmdStatus === 'DUPLICATE') {
-                <span class="cr-fmd-badge cr-fmd-badge--danger"
-                      [pTooltip]="lastScanResult()!.warningMessage ?? ''"
-                      tooltipPosition="top">
+                <span [ngbTooltip]="lastScanResult()!.warningMessage ?? ''"
+                      class="cr-fmd-badge cr-fmd-badge--danger"
+                      placement="top">
                   <i class="pi pi-shield"></i> DOUBLON !
                 </span>
               }
-              @if (lastScanResult()!.fmdStatus === 'ABSENT' && lastScanResult()!.barcodeType === 'DATAMATRIX') {
+              @if (lastScanResult()!.fmdStatus === 'ABSENT' && lastScanResult()!.barcodeType
+              === 'DATAMATRIX') {
                 <span class="cr-fmd-badge cr-fmd-badge--warn"
-                      pTooltip="DataMatrix sans numéro de série (AI 21 absent)"
-                      tooltipPosition="top">
+                      ngbTooltip="DataMatrix sans numéro de série (AI 21 absent)"
+                      placement="top">
                   <i class="pi pi-shield"></i> FMD ?
                 </span>
               }
             } @else if (lastScanResult()!.provisionalLines?.length) {
               <i class="pi pi-exclamation-triangle"></i>
               Code inconnu — {{ lastScanResult()!.provisionalLines!.length }} ligne(s) provisoire(s)
-              <button type="button" class="cr-btn-associer" (click)="onAssocierScanToProvisional()">
+              <button (click)="onAssocierScanToProvisional()" class="cr-btn-associer" type="button">
                 <i class="pi pi-link"></i> Associer
               </button>
             } @else {
@@ -183,59 +183,60 @@
         <!-- Toggle séquentiel / grille -->
         <div class="custom-segment-control">
           <div class="segment-track">
-            <div class="segment-slider" [class.active-right]="viewMode() === 'grid'"></div>
-            <button type="button" class="segment-option" [class.active]="viewMode() === 'sequential'"
-                    (click)="setViewMode('sequential')"
-                    pTooltip="Saisie ligne par ligne — mode nominal" tooltipPosition="bottom">
+            <div [class.active-right]="viewMode() === 'grid'" class="segment-slider"></div>
+            <button (click)="setViewMode('sequential')" [class.active]="viewMode() === 'sequential'"
+                    class="segment-option"
+                    ngbTooltip="Saisie ligne par ligne — mode nominal"
+                    placement="bottom" type="button">
               <i class="pi pi-list"></i>
               <span>Séquentiel</span>
             </button>
-            <button type="button" class="segment-option" [class.active]="viewMode() === 'grid'"
-                    (click)="setViewMode('grid')"
-                    pTooltip="Vue tableau complète" tooltipPosition="bottom">
+            <button (click)="setViewMode('grid')" [class.active]="viewMode() === 'grid'" class="segment-option"
+                    ngbTooltip="Vue tableau complète"
+                    placement="bottom" type="button">
               <i class="pi pi-table"></i>
               <span>Grille</span>
             </button>
           </div>
         </div>
-        <p-button
-          (click)="toggleLeftPanel()"
+        <app-button
+          (clicked)="toggleLeftPanel()"
+          [hidden]="viewMode() === 'sequential'"
           [icon]="showLeftPanel ? 'pi pi-angle-double-left' : 'pi pi-angle-double-right'"
           [label]="showLeftPanel ? 'Fermer récap' : 'Récap BL'"
+          [outlined]="true"
+          ngbTooltip="Afficher / masquer le panneau concordance & récapitulatif BL"
+          placement="bottom"
           severity="secondary"
           size="small"
-          [outlined]="true"
-          [hidden]="viewMode() === 'sequential'"
-          pTooltip="Afficher / masquer le panneau concordance & récapitulatif BL"
-          tooltipPosition="bottom"
         />
 
-        <p-button
-          (click)="onConfirmFinalize()"
+        <app-button
+          (clicked)="onConfirmFinalize()"
           icon="pi pi-check-circle"
           label="Finaliser"
           severity="primary"
           size="small"
         />
 
-        <p-button
-          (click)="onToutValider()"
+        <app-button
+          (clicked)="onToutValider()"
           icon="pi pi-check-square"
           label="Tout valider"
+          ngbTooltip="Marquer toutes les lignes comme entièrement reçues (Qté reçue = Qté commandée)"
+          placement="bottom"
           severity="info"
           size="small"
-          pTooltip="Marquer toutes les lignes comme entièrement reçues (Qté reçue = Qté commandée)"
-          tooltipPosition="bottom"
         />
-        <p-button
-          (click)="openHelp()"
+        <app-button
+          (clicked)="openHelp()"
+          [outlined]="true"
           icon="pi pi-question-circle"
           label="Aide"
+          ngbTooltip="Raccourcis clavier, scanner CIP, scanner DataMatrix"
+          placement="bottom"
           severity="info"
           size="small"
-          [outlined]="true"
-          pTooltip="Raccourcis clavier, scanner CIP, scanner DataMatrix"
-          tooltipPosition="bottom"
         />
       </div>
     </div>
@@ -246,106 +247,109 @@
 
     @if (viewMode() === 'sequential') {
       <app-reception-sequential
-        [orderLines]="orderLines"
-        [showLotBtn]="showLotBtn()"
-        [lotPrefill]="scanLotPrefill()"
-        [lastScanResult]="lastScanResult()"
-        (lineChanged)="onSequentialLineChanged($event)"
         (allLinesProcessed)="onSequentialAllDone()"
         (cipUpdated)="onCipUpdated($event)"
+        (lineChanged)="onSequentialLineChanged($event)"
+        [lastScanResult]="lastScanResult()"
+        [lotPrefill]="scanLotPrefill()"
+        [orderLines]="orderLines"
+        [showLotBtn]="showLotBtn()"
       />
 
     } @else {
-    <!-- LEFT PANEL : concordance + résumé (toggle) -->
-    @if (showLeftPanel) {
-      <div class="cr-panel-left">
-        <app-reception-concordance
-          [orderLines]="orderLines"
-          [showLotInfo]="showLotBtn()"
-        />
-        <div class="reception-summary-card">
-          <div class="summary-header">
-            <i class="pi pi-info-circle"></i>
-            <span>Détails de la réception</span>
-          </div>
-          <div class="summary-content">
-            <div class="summary-row">
-              <span class="summary-key"><i class="pi pi-building"></i> Grossiste</span>
-              <span class="summary-val">{{ currentCommande?.fournisseurLibelle }}</span>
+      <!-- LEFT PANEL : concordance + résumé (toggle) -->
+      @if (showLeftPanel) {
+        <div class="cr-panel-left">
+          <app-reception-concordance
+            [orderLines]="orderLines"
+            [showLotInfo]="showLotBtn()"
+          />
+          <div class="reception-summary-card">
+            <div class="summary-header">
+              <i class="pi pi-info-circle"></i>
+              <span>Détails de la réception</span>
             </div>
-            <div class="summary-row">
-              <span class="summary-key"><i class="pi pi-file"></i> N° BL</span>
-              <span class="summary-val">{{ currentCommande?.receiptReference }}</span>
-            </div>
-            @if (currentCommande?.orderReference) {
+            <div class="summary-content">
               <div class="summary-row">
-                <span class="summary-key"><i class="pi pi-hashtag"></i> N° Cmde</span>
-                <span class="summary-val po-ref">{{ currentCommande.orderReference }}</span>
+                <span class="summary-key"><i class="pi pi-building"></i> Grossiste</span>
+                <span class="summary-val">{{ currentCommande?.fournisseurLibelle }}</span>
               </div>
-            }
-            <div class="summary-row">
-              <span class="summary-key"><i class="pi pi-calendar"></i> Date BL</span>
-              <span class="summary-val">{{ currentCommande?.receiptDate | date: 'dd/MM/yyyy' }}</span>
-            </div>
-            <div class="summary-row highlight">
-              <span class="summary-key"><i class="pi pi-wallet"></i> Montant HT</span>
-              <span class="summary-val amount">{{ currentCommande?.receiptAmount | number }} F</span>
-            </div>
-            <div class="summary-row highlight">
-              <span class="summary-key"><i class="pi pi-percentage"></i> Taxe</span>
-              <span class="summary-val amount">{{ currentCommande?.taxAmount | number }} F</span>
+              <div class="summary-row">
+                <span class="summary-key"><i class="pi pi-file"></i> N° BL</span>
+                <span class="summary-val">{{ currentCommande?.receiptReference }}</span>
+              </div>
+              @if (currentCommande?.orderReference) {
+                <div class="summary-row">
+                  <span class="summary-key"><i class="pi pi-hashtag"></i> N° Cmde</span>
+                  <span class="summary-val po-ref">{{ currentCommande.orderReference }}</span>
+                </div>
+              }
+              <div class="summary-row">
+                <span class="summary-key"><i class="pi pi-calendar"></i> Date BL</span>
+                <span
+                  class="summary-val">{{ currentCommande?.receiptDate | date: 'dd/MM/yyyy' }}</span>
+              </div>
+              <div class="summary-row highlight">
+                <span class="summary-key"><i class="pi pi-wallet"></i> Montant HT</span>
+                <span class="summary-val amount">{{ currentCommande?.receiptAmount | number }}
+                  F</span>
+              </div>
+              <div class="summary-row highlight">
+                <span class="summary-key"><i class="pi pi-percentage"></i> Taxe</span>
+                <span class="summary-val amount">{{ currentCommande?.taxAmount | number }} F</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    }
+      }
 
-    <!-- RIGHT PANEL : AG Grid des lignes -->
-    <div class="cr-panel-right">
-      @if (currentCommande) {
-        <ag-grid-angular
-          [columnDefs]="columnDefs"
-          [defaultColDef]="defaultColDef"
-          [getRowId]="getRowId"
-          [getRowHeight]="getRowHeight"
-          [rowClassRules]="rowClassRules"
-          [rowData]="displayRows"
-          [theme]="theme"
-          [singleClickEdit]="true"
-          [context]="gridContext"
-          [isFullWidthRow]="isFullWidthRow"
-          [fullWidthCellRenderer]="fullWidthCellRenderer"
-          [enterNavigatesVertically]="true"
-          [enableCellEditingOnBackspace]="true"
-          [enterNavigatesVerticallyAfterEdit]="true"
-          (cellClicked)="onCellClicked($event)"
-          (cellValueChanged)="onCellValueChanged($event)"
-          (gridReady)="onGridReady($event)"
-          class="cr-grid"
-        />
-        <!-- Footer totaux + progression lots -->
-        <div class="cr-grid-footer">
-          <span>Valeur achat : <strong>{{ currentCommande.grossAmount | number }} F</strong></span>
-          <span>Valeur vente : <strong>{{ currentCommande.orderAmount | number }} F</strong></span>
-          @if (showLotBtn()) {
-            <span class="cr-lot-progress ms-auto">
+      <!-- RIGHT PANEL : AG Grid des lignes -->
+      <div class="cr-panel-right">
+        @if (currentCommande) {
+          <ag-grid-angular
+            (cellClicked)="onCellClicked($event)"
+            (cellValueChanged)="onCellValueChanged($event)"
+            (gridReady)="onGridReady($event)"
+            [columnDefs]="columnDefs"
+            [context]="gridContext"
+            [defaultColDef]="defaultColDef"
+            [enableCellEditingOnBackspace]="true"
+            [enterNavigatesVerticallyAfterEdit]="true"
+            [enterNavigatesVertically]="true"
+            [fullWidthCellRenderer]="fullWidthCellRenderer"
+            [getRowHeight]="getRowHeight"
+            [getRowId]="getRowId"
+            [isFullWidthRow]="isFullWidthRow"
+            [rowClassRules]="rowClassRules"
+            [rowData]="displayRows"
+            [singleClickEdit]="true"
+            [theme]="theme"
+            class="cr-grid"
+          />
+          <!-- Footer totaux + progression lots -->
+          <div class="cr-grid-footer">
+            <span>Valeur achat : <strong>{{ currentCommande.grossAmount | number }}F</strong></span>
+            <span>Valeur vente : <strong>{{ currentCommande.orderAmount | number }}F</strong></span>
+            @if (showLotBtn()) {
+              <span class="cr-lot-progress ms-auto">
               <i class="pi pi-box me-1"></i>
               Lots :
-              <strong [class.text-success]="lignesSansLot === 0" [class.text-warning]="lignesSansLot > 0">
+              <strong [class.text-success]="lignesSansLot === 0"
+                      [class.text-warning]="lignesSansLot > 0">
                 {{ orderLines.length - lignesSansLot }} / {{ orderLines.length }}
               </strong>
               <span class="cr-lot-bar ms-2">
                 <span
-                  class="cr-lot-bar__fill"
-                  [style.width.%]="orderLines.length > 0 ? ((orderLines.length - lignesSansLot) / orderLines.length) * 100 : 0"
                   [class.cr-lot-bar__fill--ok]="lignesSansLot === 0"
+                  [style.width.%]="orderLines.length > 0 ? ((orderLines.length - lignesSansLot) / orderLines.length) * 100 : 0"
+                  class="cr-lot-bar__fill"
                 ></span>
               </span>
             </span>
-          }
-        </div>
-      }
-    </div>
+            }
+          </div>
+        }
+      </div>
 
     } <!-- fin @else mode grille -->
 

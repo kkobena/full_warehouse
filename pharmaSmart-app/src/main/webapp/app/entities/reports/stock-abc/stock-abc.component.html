@@ -11,86 +11,85 @@
         <span class="pharma-toolbar-title">Rotation du Stock (Analyse ABC)</span>
       }
     </div>
-    <p-toolbar>
-      <ng-template #start>
+    <ng-container ngProjectAs="[toolbarFilters]">
         <div class="pharma-toolbar-filters">
           @if (active() === 'pareto') {
-            <p-select
+            <app-select
               [ngModel]="paretoComp?.selectedFamille()"
               (ngModelChange)="onParetoFamilleChange($event)"
-              [options]="paretoComp?.familleOptions() ?? []"
-              [showClear]="true"
+              [items]="paretoComp?.familleOptions() ?? []"
+              [clearable]="true"
               appendTo="body"
-              optionLabel="label"
-              optionValue="value"
+              bindLabel="label"
+              bindValue="value"
               placeholder="Famille"
               size="large"
             />
-            <p-select
+            <app-select
               [ngModel]="paretoComp?.selectedClassePareto()"
               (ngModelChange)="onParetoClasseChange($event)"
-              [options]="paretoComp?.classeParetoOptions() ?? []"
-              [showClear]="true"
+              [items]="paretoComp?.classeParetoOptions() ?? []"
+              [clearable]="true"
               appendTo="body"
-              optionLabel="label"
-              optionValue="value"
+              bindLabel="label"
+              bindValue="value"
               placeholder="Classe Pareto"
               size="large"
             />
           }
           @if (active() === 'rotation') {
-            <p-select
+            <app-select
               [ngModel]="rotationComp?.selectedCategorie()"
               (ngModelChange)="onRotationCategorieChange($event)"
               [disabled]="rotationComp?.showSlowMovingOnly() ?? false"
-              [options]="rotationComp?.categorieOptions() ?? []"
-              [showClear]="true"
+              [items]="rotationComp?.categorieOptions() ?? []"
+              [clearable]="true"
               appendTo="body"
-              optionLabel="label"
-              optionValue="value"
+              bindLabel="label"
+              bindValue="value"
               placeholder="Catégorie"
               size="large"
             />
-            <p-select
+            <app-select
               [ngModel]="rotationComp?.selectedABC()"
               (ngModelChange)="onRotationABCChange($event)"
               [disabled]="rotationComp?.showSlowMovingOnly() ?? false"
-              [options]="rotationComp?.abcOptions ?? []"
-              [showClear]="true"
+              [items]="rotationComp?.abcOptions ?? []"
+              [clearable]="true"
               appendTo="body"
-              optionLabel="label"
-              optionValue="value"
+              bindLabel="label"
+              bindValue="value"
               placeholder="Classification ABC"
               size="large"
             />
           }
         </div>
-      </ng-template>
-      <ng-template #end>
+      </ng-container>
+
+<ng-container ngProjectAs="[toolbarActions]">
         @if (active() === 'pareto') {
           <div class="flex gap-2">
-            <p-button (onClick)="paretoComp?.toggleHelpDrawer()" [outlined]="true"
+            <app-button (clicked)="paretoComp?.toggleHelpDrawer()" [outlined]="true"
                       icon="pi pi-question-circle" label="Aide" severity="secondary" size="small" />
-            <p-button (onClick)="paretoComp?.showTopContributors()"
+            <app-button (clicked)="paretoComp?.showTopContributors()"
                       icon="pi pi-star" label="Top 50 Contributeurs" severity="info" size="small" />
-            <p-button (onClick)="paretoComp?.loadABCPareto()"
+            <app-button (clicked)="paretoComp?.loadABCPareto()"
                       icon="pi pi-refresh" label="Rafraîchir" severity="primary" size="small" />
           </div>
         }
         @if (active() === 'rotation') {
           <div class="flex gap-2">
-            <p-button (onClick)="rotationComp?.toggleHelpDrawer()" [outlined]="true"
+            <app-button (clicked)="rotationComp?.toggleHelpDrawer()" [outlined]="true"
                       icon="pi pi-question-circle" label="Aide" severity="secondary" size="small" />
-            <p-button (onClick)="rotationComp?.onClearFilters()"
+            <app-button (clicked)="rotationComp?.onClearFilters()"
                       icon="pi pi-filter-slash" label="Effacer les filtres" severity="secondary" size="small" />
-            <p-button (onClick)="rotationComp?.exportToPdf()"
+            <app-button (clicked)="rotationComp?.exportToPdf()"
                       icon="pi pi-file-pdf" label="Exporter PDF" severity="danger" size="small" />
-            <p-button (onClick)="rotationComp?.loadRotations()"
+            <app-button (clicked)="rotationComp?.loadRotations()"
                       icon="pi pi-refresh" label="Rafraîchir" severity="primary" size="small" />
           </div>
         }
-      </ng-template>
-    </p-toolbar>
+      </ng-container>
   </div>
 
   <!-- Onglets -->

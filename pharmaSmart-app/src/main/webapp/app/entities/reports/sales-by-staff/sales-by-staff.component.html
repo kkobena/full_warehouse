@@ -74,7 +74,7 @@
             <app-chart
               type="bar"
               [data]="chartConfig()!.data"
-              [options]="chartConfig()!.options"
+              [items]="chartConfig()!.options"
               height="280px"
             />
           }
@@ -85,22 +85,22 @@
     <!-- Table -->
     <div class="col-md-7">
       <div class="card data-card">
-        <p-table
+        <app-data-table
           [value]="staff()"
           [scrollable]="true"
           scrollHeight="calc(100vh - 420px)"
           [stripedRows]="true"
-          class="p-datatable-sm"
-          sortField="montantTotal"
-          [sortOrder]="-1"
+          [size]="'small'"
+          initialSortField="montantTotal"
+          [initialSortOrder]="-1"
         >
           <ng-template #header>
             <tr class="pharma-table-head">
-              <th pSortableColumn="vendeurNom">Vendeur <p-sorticon field="vendeurNom" /></th>
-              <th class="text-end" pSortableColumn="nombreVentes">Ventes <p-sorticon field="nombreVentes" /></th>
-              <th class="text-end" pSortableColumn="montantTotal">Montant <p-sorticon field="montantTotal" /></th>
-              <th class="text-end" pSortableColumn="ticketMoyen">Ticket moyen <p-sorticon field="ticketMoyen" /></th>
-              <th class="text-end" pSortableColumn="tauxRemise">% remise <p-sorticon field="tauxRemise" /></th>
+              <th appSortableHeader="vendeurNom">Vendeur </th>
+              <th class="text-end" appSortableHeader="nombreVentes">Ventes </th>
+              <th class="text-end" appSortableHeader="montantTotal">Montant </th>
+              <th class="text-end" appSortableHeader="ticketMoyen">Ticket moyen </th>
+              <th class="text-end" appSortableHeader="tauxRemise">% remise </th>
               <th class="text-end">Part CA</th>
             </tr>
           </ng-template>
@@ -145,7 +145,7 @@
               </td>
             </tr>
           </ng-template>
-        </p-table>
+        </app-data-table>
       </div>
     </div>
 

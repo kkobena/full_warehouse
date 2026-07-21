@@ -5,7 +5,7 @@
 
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
-    <p-card>
+    <app-card [variant]="'form'">
       <div class="form-grid-compact">
         <!-- Product Info -->
         <div class="form-field form-field-full">
@@ -73,11 +73,11 @@
             <input
               #seuilMiniInput
               autocomplete="off"
+              class="form-control"
               formControlName="seuilMini"
               id="field_seuilMini"
               name="seuilMini"
-              pInputText
-              pKeyFilter="pint"
+              [appKeyFilter]="'pint'"
               type="number"
               min="0"
             />
@@ -100,11 +100,11 @@
           <input
             #quantityInput
             autocomplete="off"
+            class="form-control"
             formControlName="quantity"
             id="field_quantity"
             name="quantity"
-            pInputText
-            pKeyFilter="pint"
+            [appKeyFilter]="'pint'"
             type="number"
             [max]="maxTransferableQty"
             min="1"
@@ -130,14 +130,13 @@
           }
         </div>
       </div>
-    </p-card>
+    </app-card>
   </div>
 
   <div class="modal-footer">
-    <p-button (click)="cancel()" class="mr-1" icon="pi pi-times" label="Annuler" raised="true" severity="secondary"
+    <app-button (clicked)="cancel()" class="mr-1" icon="pi pi-times" label="Annuler" [raised]="true" severity="secondary"
               type="button"/>
-    <p-button [loading]="isSaving" [disabled]="!isFormValid()" icon="pi pi-check" label="Transférer" raised="true"
+    <app-button [loading]="isSaving" [disabled]="!isFormValid()" icon="pi pi-check" label="Transférer" [raised]="true"
               severity="primary" type="submit"/>
   </div>
 </form>
-<jhi-toast-alert #alert></jhi-toast-alert>

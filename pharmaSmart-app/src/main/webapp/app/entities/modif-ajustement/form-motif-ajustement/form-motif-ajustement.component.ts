@@ -4,20 +4,18 @@ import { ModifAjustementService } from '../motif-ajustement.service';
 import { IMotifAjustement, MotifAjustement } from '../../../shared/model/motif-ajustement.model';
 import { Observable } from 'rxjs';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { ButtonComponent } from '../../../shared/ui';
 import { ErrorService } from '../../../shared/error.service';
+import { NotificationService } from '../../../shared/services/notification.service';
 import { finalize } from 'rxjs/operators';
-import { Card } from 'primeng/card';
 
 @Component({
-  selector: 'jhi-form-motif-ajustement',
+  selector: 'app-form-motif-ajustement',
   templateUrl: './form-motif-ajustement.component.html',
   styleUrls: ['./form-motif-ajustement.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, ToastAlertComponent, Card],
+  imports: [FormsModule, ReactiveFormsModule, ButtonComponent],
 })
 export class FormMotifAjustementComponent implements OnInit, AfterViewInit {
   header: string;
@@ -30,7 +28,7 @@ export class FormMotifAjustementComponent implements OnInit, AfterViewInit {
     libelle: [null, [Validators.required]],
   });
   private readonly activeModal = inject(NgbActiveModal);
-  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
   private readonly libelle = viewChild.required<ElementRef>('libelle');
 
@@ -79,7 +77,7 @@ export class FormMotifAjustementComponent implements OnInit, AfterViewInit {
   }
 
   private onSaveError(error: HttpErrorResponse): void {
-    this.alert().showError(this.errorService.getErrorMessage(error));
+    this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 
   private createFromForm(): IMotifAjustement {

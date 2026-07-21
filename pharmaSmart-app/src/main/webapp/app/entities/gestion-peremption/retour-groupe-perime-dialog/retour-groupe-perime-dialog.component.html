@@ -20,13 +20,13 @@
         <label class="form-label fw-semibold">
           Motif de retour (commun à tous les lots) <span class="text-danger">*</span>
         </label>
-        <p-select
+        <app-select
           formControlName="motifRetourId"
-          [options]="motifs()"
-          optionLabel="libelle"
-          optionValue="id"
+          [items]="motifs()"
+          bindLabel="libelle"
+          bindValue="id"
           placeholder="Sélectionner un motif de retour..."
-          [showClear]="true"
+          [clearable]="true"
           appendTo="body"
           [style]="{ 'width': '100%' }"
         />
@@ -38,12 +38,12 @@
       </div>
 
       <!-- Tableau des lots avec quantités modifiables -->
-      <p-table
+      <app-data-table
         [value]="lots"
         [showGridlines]="true"
         scrollHeight="320px"
         [scrollable]="true"
-        class="p-datatable-sm"
+        [size]="'small'"
       >
         <ng-template #header>
           <tr class="pharma-table-head">
@@ -74,15 +74,11 @@
               </small>
             </td>
             <td class="text-center">
-              <p-inputnumber
+              <app-input-number
                 [formControl]="$any(itemGroup.get('quantity'))"
                 [min]="1"
                 [max]="lot.quantity"
-                [showButtons]="true"
-                buttonLayout="horizontal"
-                incrementButtonIcon="pi pi-plus"
-                decrementButtonIcon="pi pi-minus"
-                [inputStyle]="{ 'width': '70px', 'text-align': 'center' }"
+                [style]="{ 'width': '70px', 'text-align': 'center' }"
                 [disabled]="!itemGroup.get('included')?.value"
               />
               <small class="text-muted d-block">/ {{ lot.quantity | number }}</small>
@@ -92,7 +88,7 @@
             </td>
           </tr>
         </ng-template>
-      </p-table>
+      </app-data-table>
 
       <!-- Résumé avoir total -->
       <div class="alert alert-success mt-3 py-2 d-flex justify-content-between align-items-center">
@@ -141,15 +137,15 @@
 <!-- Modal footer -->
 <div class="modal-footer">
   @if (!result()) {
-    <p-button
-      (onClick)="close()"
+    <app-button
+      (clicked)="close()"
       label="Annuler"
       icon="pi pi-times"
       severity="secondary"
       [outlined]="true"
     />
-    <p-button
-      (onClick)="save()"
+    <app-button
+      (clicked)="save()"
       label="Créer les retours"
       icon="pi pi-check"
       severity="success"
@@ -157,8 +153,8 @@
       [loading]="isSaving()"
     />
   } @else {
-    <p-button
-      (onClick)="close()"
+    <app-button
+      (clicked)="close()"
       label="Fermer"
       icon="pi pi-times"
       severity="secondary"

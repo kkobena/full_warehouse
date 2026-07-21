@@ -1,18 +1,27 @@
-import { Component, DestroyRef, effect, inject, input, OnInit, output, signal, ChangeDetectionStrategy } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
-import { map } from 'rxjs/operators';
-import { Select } from 'primeng/select';
-import { MultiSelect } from 'primeng/multiselect';
-import { FloatLabel } from 'primeng/floatlabel';
-import { IFournisseur } from '../../../../shared/model/fournisseur.model';
-import { FournisseurApiService } from '../../data-access/services/fournisseur-api.service';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  OnInit,
+  output,
+  signal
+} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {FormsModule} from '@angular/forms';
+import {map} from 'rxjs/operators';
+import {IFournisseur} from '../../../../shared/model/fournisseur.model';
+import {FournisseurApiService} from '../../data-access/services/fournisseur-api.service';
+import {
+  FloatLabelComponent,
+  MultiSelectComponent,
+  SelectSearchComponent
+} from '../../../../shared/ui';
 
-interface FournisseurGroup {
-  label: string;
-  items: IFournisseur[];
-  /** true = fournisseur principal avec agences → icône hiérarchie. false = fournisseur seul → icône bâtiment. */
-  hasChildren: boolean;
+interface IFournisseurOption extends IFournisseur {
+  groupLabel: string;
 }
 
 @Component({
@@ -20,7 +29,7 @@ interface FournisseurGroup {
   templateUrl: './fournisseur-select.component.html',
   styleUrls: ['./fournisseur-select.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [FormsModule, Select, MultiSelect, FloatLabel],
+  imports: [FormsModule, SelectSearchComponent, MultiSelectComponent, FloatLabelComponent],
 })
 export class FournisseurSelectComponent implements OnInit {
   /** Pré-sélectionne un fournisseur par son id (single mode). Réactif via effect(). */
@@ -45,12 +54,10 @@ export class FournisseurSelectComponent implements OnInit {
   selectionChange = output<IFournisseur | null>();
   /** Émis en mode sélection multiple. */
   multiSelectionChange = output<IFournisseur[]>();
-  /** Bubble des événements PrimeNG onShow/onHide — utile dans les modals. */
-  dropdownShow = output<unknown>();
-  dropdownHide = output<unknown>();
+
 
   readonly fournisseurs = signal<IFournisseur[]>([]);
-  readonly groups = signal<FournisseurGroup[]>([]);
+  readonly groupedFournisseurs = signal<IFournisseurOption[]>([]);
 
   selectedSingle: IFournisseur | null = null;
   selectedMultiple: IFournisseur[] = [];
@@ -96,10 +103,19 @@ export class FournisseurSelectComponent implements OnInit {
     this.multiSelectionChange.emit([]);
   }
 
+  /** Enrichit la clé de groupe (`groupLabel`) avec `hasChildren`, pour choisir l'icône du groupe. */
+  protected groupValueFn = (key: unknown, children: unknown[]): {
+    label: string;
+    hasChildren: boolean
+  } => ({
+    label: String(key ?? ''),
+    hasChildren: children.some(c => (c as IFournisseurOption).parentId != null),
+  });
+
   private load(): void {
     const req$ = this.parentsOnly()
-      ? this.api.queryParents({page:0,size:999})
-      : this.api.query({page:0,size:999});
+      ? this.api.queryParents({page: 0, size: 999})
+      : this.api.query({page: 0, size: 999});
 
     req$.pipe(
       takeUntilDestroyed(this.destroyRef),
@@ -107,12 +123,12 @@ export class FournisseurSelectComponent implements OnInit {
     ).subscribe(list => {
       this.fournisseurs.set(list);
       if (this.grouped()) {
-        this.groups.set(this.buildGroups(list));
+        this.groupedFournisseurs.set(this.buildGroupedList(list));
       }
     });
   }
 
-  private buildGroups(list: IFournisseur[]): FournisseurGroup[] {
+  private buildGroupedList(list: IFournisseur[]): IFournisseurOption[] {
     const agences = list.filter(f => f.parentId != null);
     const principals = list.filter(f => f.parentId == null);
 
@@ -125,15 +141,12 @@ export class FournisseurSelectComponent implements OnInit {
       agencesByParent.get(a.parentId!)!.push(a);
     }
 
-    return principals.map(p => {
+    return principals.flatMap(p => {
       const children = agencesByParent.get(p.id!) ?? [];
-      return {
-        label: p.libelle ?? '',
-        hasChildren: children.length > 0,
-        // Avec agences : le principal est l'en-tête, les agences sont les items (pas de doublon).
-        // Sans agences  : le principal est son propre item.
-        items: children.length > 0 ? children : [p],
-      };
+      const groupLabel = p.libelle ?? '';
+      // Avec agences : le principal est l'en-tête, les agences sont les items (pas de doublon).
+      // Sans agences  : le principal est son propre item.
+      return (children.length > 0 ? children : [p]).map(f => ({...f, groupLabel}));
     });
   }
 }

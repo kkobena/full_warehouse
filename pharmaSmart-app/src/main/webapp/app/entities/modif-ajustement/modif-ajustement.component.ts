@@ -7,16 +7,15 @@ import {HttpHeaders, HttpResponse} from '@angular/common/http';
 import {
   FormMotifAjustementComponent
 } from './form-motif-ajustement/form-motif-ajustement.component';
-import {ButtonModule} from 'primeng/button';
-import {ToolbarModule} from 'primeng/toolbar';
-import {TableLazyLoadEvent, TableModule} from 'primeng/table';
-import {InputTextModule} from 'primeng/inputtext';
-import {TooltipModule} from 'primeng/tooltip';
 import {FormsModule} from '@angular/forms';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {showCommonModal} from '../sales/selling-home/sale-helper';
-import {IconField} from 'primeng/iconfield';
-import {InputIcon} from 'primeng/inputicon';
+import {
+  AppTableLazyLoadEvent,
+  ButtonComponent,
+  DataTableComponent,
+  IconFieldComponent,
+} from '../../shared/ui';
 import {
   NgbConfirmDialogService
 } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
@@ -26,17 +25,7 @@ import {
   templateUrl: './modif-ajustement.component.html',
   styleUrl: './modif-ajustement.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
-    ButtonModule,
-    ToolbarModule,
-    TableModule,
-    RouterModule,
-    InputTextModule,
-    TooltipModule,
-    FormsModule,
-    IconField,
-    InputIcon,
-  ],
+  imports: [RouterModule, FormsModule, ButtonComponent, DataTableComponent, IconFieldComponent],
 })
 export class ModifAjustementComponent implements OnInit {
   protected entites?: IMotifAjustement[];
@@ -68,7 +57,7 @@ export class ModifAjustementComponent implements OnInit {
       });
   }
 
-  protected lazyLoading(event: TableLazyLoadEvent): void {
+  protected lazyLoading(event: AppTableLazyLoadEvent): void {
     this.page = event.first / event.rows;
     this.loading = true;
     this.entityService

@@ -2,7 +2,6 @@ import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/cor
 import { ActivatedRoute, RouterModule } from "@angular/router";
 
 import { IMagasin } from "app/shared/model/magasin.model";
-import { PanelModule } from "primeng/panel";
 import TranslateDirective from "../../shared/language/translate.directive";
 import { FaIconComponent } from "@fortawesome/angular-fontawesome";
 
@@ -10,7 +9,7 @@ import { FaIconComponent } from "@fortawesome/angular-fontawesome";
   selector: "app-magasin-detail",
   templateUrl: "./magasin-detail.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [PanelModule, RouterModule, TranslateDirective, FaIconComponent]
+  imports: [RouterModule, TranslateDirective, FaIconComponent]
 })
 export class MagasinDetailComponent implements OnInit {
   protected activatedRoute = inject(ActivatedRoute);

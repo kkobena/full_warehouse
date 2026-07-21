@@ -1,9 +1,9 @@
-import { Component, EventEmitter, Input, OnChanges, Output, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { ILot } from 'app/shared/model/lot.model';
-import { Tooltip } from 'primeng/tooltip';
+import {Component, EventEmitter, Input, OnChanges, Output, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {ButtonComponent} from '../../../shared/ui';
+import {ILot} from 'app/shared/model/lot.model';
 
 export interface InlineLotSelection {
   lot: ILot;
@@ -12,15 +12,16 @@ export interface InlineLotSelection {
 }
 
 @Component({
-  selector: 'jhi-inline-lot-selection',
+  selector: 'app-inline-lot-selection',
 
-  imports: [CommonModule, FormsModule, ButtonModule, Tooltip],
+  imports: [CommonModule, FormsModule, ButtonComponent, NgbTooltip],
   template: `
     <div class="inline-lot-selection">
       <!-- Summary Header -->
       <div class="lot-summary-header" (click)="toggleExpanded()">
         <div class="d-flex align-items-center gap-2">
-          <i class="pi" [class.pi-chevron-right]="!isExpanded()" [class.pi-chevron-down]="isExpanded()"></i>
+          <i class="pi" [class.pi-chevron-right]="!isExpanded()"
+             [class.pi-chevron-down]="isExpanded()"></i>
           <i class="pi pi-tag text-primary"></i>
           <span class="fw-bold">{{ lots.length }} lot(s) disponible(s)</span>
         </div>
@@ -99,14 +100,14 @@ export interface InlineLotSelection {
                   <div class="quantity-input-row">
                     <label class="form-label mb-1">Quantité à retourner:</label>
                     <div class="quantity-controls">
-                      <p-button
+                      <app-button
                         icon="pi pi-minus"
                         [rounded]="true"
                         [text]="true"
                         size="small"
                         [disabled]="selection.selectedQuantity <= 0"
-                        (onClick)="decrementQuantity(selection)"
-                        pTooltip="Diminuer"
+                        (clicked)="decrementQuantity(selection)"
+                        ngbTooltip="Diminuer"
                       />
                       <input
                         type="number"
@@ -117,37 +118,37 @@ export interface InlineLotSelection {
                         (focus)="$event.target.select()"
                         class="form-control form-control-sm text-center quantity-input"
                       />
-                      <p-button
+                      <app-button
                         icon="pi pi-plus"
                         [rounded]="true"
                         [text]="true"
                         size="small"
                         [disabled]="selection.selectedQuantity >= selection.maxQuantity"
-                        (onClick)="incrementQuantity(selection)"
-                        pTooltip="Augmenter"
+                        (clicked)="incrementQuantity(selection)"
+                        ngbTooltip="Augmenter"
                       />
                     </div>
                   </div>
                 </div>
 
                 <div class="lot-card-footer">
-                  <p-button
+                  <app-button
                     label="Tout sélectionner"
                     [text]="true"
                     size="small"
                     severity="secondary"
                     icon="pi pi-check-square"
                     [disabled]="selection.selectedQuantity === selection.maxQuantity"
-                    (onClick)="selectAll(selection)"
+                    (clicked)="selectAll(selection)"
                   />
-                  <p-button
+                  <app-button
                     label="Effacer"
                     [text]="true"
                     size="small"
                     severity="danger"
                     icon="pi pi-times"
                     [disabled]="selection.selectedQuantity === 0"
-                    (onClick)="clearSelection(selection)"
+                    (clicked)="clearSelection(selection)"
                   />
                 </div>
               </div>
@@ -155,24 +156,25 @@ export interface InlineLotSelection {
           </div>
 
           <div class="action-buttons">
-            <p-button
+            <app-button
               label="Auto-répartir (FEFO)"
               icon="pi pi-sync"
               [outlined]="true"
               size="small"
               severity="secondary"
-              (onClick)="autoDistribute()"
-              pTooltip="Répartition automatique - Premier Expiré Premier Sorti"
+              (clicked)="autoDistribute()"
+              ngbTooltip="Répartition automatique - Premier Expiré Premier Sorti"
             />
             <div class="flex-grow-1"></div>
-            <p-button label="Annuler" icon="pi pi-times" [outlined]="true" size="small" severity="secondary" (onClick)="onCancel()" />
-            <p-button
+            <app-button label="Annuler" icon="pi pi-times" [outlined]="true" size="small"
+                        severity="secondary" (clicked)="onCancel()" />
+            <app-button
               label="Confirmer la sélection"
               icon="pi pi-check"
               size="small"
               severity="primary"
               [disabled]="!isValid()"
-              (onClick)="onConfirm()"
+              (clicked)="onConfirm()"
             />
           </div>
         </div>
@@ -354,16 +356,6 @@ export class InlineLotSelectionComponent implements OnChanges {
     this.isExpanded.set(this.expanded);
   }
 
-  private initializeLotSelections(): void {
-    const selections: InlineLotSelection[] = this.lots.map(lot => ({
-      lot,
-      selectedQuantity: 0,
-      maxQuantity: lot.quantity || lot.freeQuantity || lot.quantityReceived || 0,
-    }));
-
-    this.lotSelections.set(selections);
-  }
-
   protected toggleExpanded(): void {
     this.isExpanded.update(val => !val);
   }
@@ -417,14 +409,20 @@ export class InlineLotSelectionComponent implements OnChanges {
 
     // Sort by expiry date (FEFO - First Expired First Out)
     const sortedSelections = [...this.lotSelections()].sort((a, b) => {
-      if (!a.lot.expiryDate) return 1;
-      if (!b.lot.expiryDate) return -1;
+      if (!a.lot.expiryDate) {
+        return 1;
+      }
+      if (!b.lot.expiryDate) {
+        return -1;
+      }
       return new Date(a.lot.expiryDate).getTime() - new Date(b.lot.expiryDate).getTime();
     });
 
     // Auto-distribute quantities
     for (const selection of sortedSelections) {
-      if (remainingQuantity <= 0) break;
+      if (remainingQuantity <= 0) {
+        break;
+      }
 
       const qtyToAssign = Math.min(remainingQuantity, selection.maxQuantity);
       selection.selectedQuantity = qtyToAssign;
@@ -443,5 +441,15 @@ export class InlineLotSelectionComponent implements OnChanges {
 
   protected onCancel(): void {
     this.cancelled.emit();
+  }
+
+  private initializeLotSelections(): void {
+    const selections: InlineLotSelection[] = this.lots.map(lot => ({
+      lot,
+      selectedQuantity: 0,
+      maxQuantity: lot.quantity || lot.freeQuantity || lot.quantityReceived || 0,
+    }));
+
+    this.lotSelections.set(selections);
   }
 }

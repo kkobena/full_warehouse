@@ -1,4 +1,4 @@
-<p-table
+<app-data-table
   [value]="rayons()"
   [totalRecords]="totalItems()"
   [rows]="rows()"
@@ -9,7 +9,6 @@
   [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
   (onLazyLoad)="onLazyLoad($event)"
   dataKey="id"
-  stripedRows="true"
   class="p-datatable-sm"
 >
   <ng-template #header>
@@ -35,49 +34,49 @@
       <td>{{ rayon.position }}</td>
       <td>
         @if (rayon.typeZone) {
-          <p-tag [value]="rayon.typeZone" [severity]="typeZoneSev(rayon.typeZone)" />
+          <app-badge [label]="rayon.typeZone" [severity]="typeZoneSev(rayon.typeZone)" />
         }
       </td>
       <td style="text-align: right">
-        <p-buttongroup>
-          <p-button
+        <div class="btn-group">
+          <app-button
             size="small"
             icon="pi pi-eye"
             [rounded]="true" [text]="true" severity="info"
-            pTooltip="Voir détail"
-            (onClick)="onViewDetail(rayon, $event)"
+            ngbTooltip="Voir détail"
+            (clicked)="onViewDetail(rayon, $event)"
           />
-          <p-button
+          <app-button
             size="small"
             icon="pi pi-list-check"
             [rounded]="true" [text]="true" severity="help"
-            pTooltip="Lancer un inventaire"
-            (onClick)="onLancerInventaire(rayon, $event)"
+            ngbTooltip="Lancer un inventaire"
+            (clicked)="onLancerInventaire(rayon, $event)"
           />
           @if (rayon.code !== 'SANS') {
-            <p-button
+            <app-button
               icon="pi pi-copy"
               size="small"
               [rounded]="true" [text]="true" severity="info"
-              pTooltip="Cloner vers d'autres stockages"
-              (onClick)="onClone(rayon, $event)"
+              ngbTooltip="Cloner vers d'autres stockages"
+              (clicked)="onClone(rayon, $event)"
             />
-            <p-button
+            <app-button
               icon="pi pi-pencil"
               size="small"
               [rounded]="true" [text]="true" severity="success"
-              pTooltip="Modifier"
-              (onClick)="onEdit(rayon, $event)"
+              ngbTooltip="Modifier"
+              (clicked)="onEdit(rayon, $event)"
             />
-            <p-button
+            <app-button
               size="small"
               icon="pi pi-trash"
               [rounded]="true" [text]="true" severity="danger"
-              pTooltip="Supprimer"
-              (onClick)="onDelete(rayon, $event)"
+              ngbTooltip="Supprimer"
+              (clicked)="onDelete(rayon, $event)"
             />
           }
-        </p-buttongroup>
+        </div>
 
       </td>
     </tr>
@@ -88,4 +87,4 @@
       <td colspan="5">Aucun rayon trouvé</td>
     </tr>
   </ng-template>
-</p-table>
+</app-data-table>

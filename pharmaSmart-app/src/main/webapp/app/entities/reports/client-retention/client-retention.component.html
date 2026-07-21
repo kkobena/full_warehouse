@@ -75,24 +75,24 @@
     <!-- Client list -->
     <div class="col-md-8">
       <div class="card data-card">
-        <p-table
+        <app-data-table
           [value]="clients()"
           [scrollable]="true"
           scrollHeight="calc(100vh - 420px)"
           [stripedRows]="true"
-          class="p-datatable-sm"
-          sortField="joursAbsence"
-          [sortOrder]="-1"
+          [size]="'small'"
+          initialSortField="joursAbsence"
+          [initialSortOrder]="-1"
           [paginator]="true"
           [rows]="50"
         >
           <ng-template #header>
             <tr class="pharma-table-head">
-              <th pSortableColumn="nom">Client <p-sorticon field="nom" /></th>
-              <th pSortableColumn="nbAchats" class="text-end">Achats <p-sorticon field="nbAchats" /></th>
-              <th class="text-end" pSortableColumn="caTotal">CA total <p-sorticon field="caTotal" /></th>
-              <th pSortableColumn="derniereVisite">Dernière visite <p-sorticon field="derniereVisite" /></th>
-              <th class="text-end" pSortableColumn="joursAbsence">Absence <p-sorticon field="joursAbsence" /></th>
+              <th appSortableHeader="nom">Client </th>
+              <th class="text-end" appSortableHeader="nbAchats">Achats </th>
+              <th class="text-end" appSortableHeader="caTotal">CA total </th>
+              <th appSortableHeader="derniereVisite">Dernière visite </th>
+              <th class="text-end" appSortableHeader="joursAbsence">Absence </th>
               <th>Segment</th>
             </tr>
           </ng-template>
@@ -118,7 +118,7 @@
               </td>
             </tr>
           </ng-template>
-        </p-table>
+        </app-data-table>
       </div>
     </div>
 

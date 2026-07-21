@@ -1,11 +1,6 @@
-import { AfterViewInit, Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { CashRegisterService } from "../../cash-register/cash-register.service";
-import { Button } from "primeng/button";
-import { InputTextModule } from "primeng/inputtext";
-import { MultiSelectModule } from "primeng/multiselect";
 import { FormsModule } from "@angular/forms";
-import { ToolbarModule } from "primeng/toolbar";
-import { TooltipModule } from "primeng/tooltip";
 import { ITEMS_PER_PAGE } from "../../../shared/constants/pagination.constants";
 import { IUser } from "../../../core/user/user.model";
 import { CashRegister, CashRegisterStatut, MvtCaisse } from "../../cash-register/model/cash-register.model";
@@ -13,35 +8,26 @@ import { MvtParamServiceService } from "../mvt-param-service.service";
 import { MvtCaisseParams } from "../mvt-caisse-util";
 import { HttpHeaders, HttpResponse } from "@angular/common/http";
 import { UserService } from "../../../core/user/user.service";
-import { DATE_FORMAT_ISO_DATE } from "../../../shared/util/warehouse-util";
-import { CardModule } from "primeng/card";
-import { TableModule } from "primeng/table";
-import { TagModule } from "primeng/tag";
-import { DatePicker } from "primeng/datepicker";
-import { Select } from "primeng/select";
-import { FloatLabel } from "primeng/floatlabel";
-import { Toast } from "primeng/toast";
+import { NGB_DATE_TO_ISO } from "../../../shared/util/warehouse-util";
 import { CommonModule } from "@angular/common";
 import { NotificationService } from "../../../shared/services/notification.service";
+import { NgbDateStruct, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
+import { BadgeComponent, ButtonComponent, DataTableComponent, SelectComponent, ToolbarComponent } from "../../../shared/ui";
+import { PharmaDatePickerComponent } from "../../../shared/date-picker/pharma-date-picker.component";
 
 @Component({
   selector: "app-gestion-caisse",
   styleUrls: ["./gestion-caisse.component.scss"],
   imports: [
     CommonModule,
-    Button,
-    InputTextModule,
-    MultiSelectModule,
-    ToolbarModule,
-    TooltipModule,
     FormsModule,
-    CardModule,
-    TableModule,
-    TagModule,
-    DatePicker,
-    Select,
-    FloatLabel,
-    Toast
+    ButtonComponent,
+    ToolbarComponent,
+    DataTableComponent,
+    SelectComponent,
+    PharmaDatePickerComponent,
+    BadgeComponent,
+    NgbTooltip
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: "./gestion-caisse.component.html"
@@ -54,8 +40,8 @@ export class GestionCaisseComponent implements OnInit {
   protected predicate!: string;
   protected ngbPaginationPage = 1;
   protected readonly itemsPerPage = ITEMS_PER_PAGE;
-  protected fromDate: Date | undefined;
-  protected toDate: Date | undefined;
+  protected fromDate: NgbDateStruct | null = null;
+  protected toDate: NgbDateStruct | null = null;
   protected selectedUser: IUser | null = null;
   protected users: IUser[];
   protected datas: CashRegister[];
@@ -66,8 +52,6 @@ export class GestionCaisseComponent implements OnInit {
   private readonly mvtParamServiceService = inject(MvtParamServiceService);
   private readonly entityService = inject(CashRegisterService);
   private readonly notificationService = inject(NotificationService);
-
-
 
   onSearch(): void {
     this.btnLoading = true;
@@ -80,7 +64,6 @@ export class GestionCaisseComponent implements OnInit {
     this.loading = true;
     this.entityService
       .query({
-        //  statuts: [CashRegisterStatut.OPEN, CashRegisterStatut.VALIDATED, CashRegisterStatut.CLOSED, CashRegisterStatut.PENDING],
         page: pageToLoad,
         ...this.buildParams()
       })
@@ -105,26 +88,6 @@ export class GestionCaisseComponent implements OnInit {
 
   protected onPrint(): void {
     this.notificationService.warning("Fonctionnalité non implémentée");
-    /*  this.btnLoading = true;
-     this.updateParam();
-     this.entityService.exportToPdf(this.buildParams()).subscribe({
-       next: blod => {
-         this.btnLoading = false;
-         const blobUrl = URL.createObjectURL(blod);
-         window.open(blobUrl);
-       },
-       error: () => {
-         this.btnLoading = false;
-         /!*  this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Une erreur est survenue',
-          }); *!/
-       },
-       complete: () => {
-         this.btnLoading = false;
-       },
-     }); */
   }
 
   protected onSuccess(data: CashRegister[] | null, headers: HttpHeaders, page: number): void {
@@ -171,8 +134,8 @@ export class GestionCaisseComponent implements OnInit {
     return {
       statuts: [CashRegisterStatut.OPEN, CashRegisterStatut.VALIDATED, CashRegisterStatut.CLOSED, CashRegisterStatut.PENDING],
       size: this.itemsPerPage,
-      fromDate: DATE_FORMAT_ISO_DATE(this.fromDate),
-      toDate: DATE_FORMAT_ISO_DATE(this.toDate),
+      fromDate: this.fromDate ? NGB_DATE_TO_ISO(this.fromDate) : null,
+      toDate: this.toDate ? NGB_DATE_TO_ISO(this.toDate) : null,
       userId: this.selectedUser?.id
     };
   }

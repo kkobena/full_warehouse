@@ -28,6 +28,6 @@
 </div>
 
 <div class="modal-footer">
-  <p-button label="Annuler" icon="pi pi-times" (onClick)="dismiss()" severity="secondary" [text]="true" />
-  <p-button label="Ajouter" icon="pi pi-check" (onClick)="addWidget()" [disabled]="!selectedWidgetType" />
+  <app-button label="Annuler" icon="pi pi-times" (clicked)="dismiss()" severity="secondary" [text]="true" />
+  <app-button label="Ajouter" icon="pi pi-check" (clicked)="addWidget()" [disabled]="!selectedWidgetType" />
 </div>

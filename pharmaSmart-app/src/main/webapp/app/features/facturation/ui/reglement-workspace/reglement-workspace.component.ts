@@ -1,23 +1,29 @@
-import { Component, computed, DestroyRef, effect, inject, input, signal, viewChild, ChangeDetectionStrategy } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { finalize } from "rxjs/operators";
-import { FormsModule } from "@angular/forms";
-import { ButtonModule } from "primeng/button";
-import { TableHeaderCheckbox, TableModule } from "primeng/table";
-import { TooltipModule } from "primeng/tooltip";
-import { InputTextModule } from "primeng/inputtext";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  signal,
+  viewChild
+} from "@angular/core";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
+import {finalize} from "rxjs/operators";
+import {FormsModule} from "@angular/forms";
 
 
-import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { NotificationService } from "../../../../shared/services/notification.service";
-import { ErrorService } from "../../../../shared/error.service";
-import { TauriPrinterService } from "../../../../shared/services/tauri-printer.service";
-import { ITEMS_PER_PAGE } from "../../../../shared/constants/pagination.constants";
+import {
+  NgbConfirmDialogService
+} from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import {NotificationService} from "../../../../shared/services/notification.service";
+import {ErrorService} from "../../../../shared/error.service";
+import {TauriPrinterService} from "../../../../shared/services/tauri-printer.service";
+import {ITEMS_PER_PAGE} from "../../../../shared/constants/pagination.constants";
 
-import { FactureApiService } from "../../data-access/services/facture-api.service";
-import { ReglementApiService } from "../../data-access/services/reglement-api.service";
+import {FactureApiService} from "../../data-access/services/facture-api.service";
+import {ReglementApiService} from "../../data-access/services/reglement-api.service";
 import {
   IDossierFactureProjection,
   IFactureId,
@@ -27,8 +33,14 @@ import {
   IResponseReglement,
   ModeEditionReglement
 } from "../../data-access/models";
-import { ReglementFormComponent } from "../reglement-form/reglement-form.component";
-import { CommonModule } from "@angular/common";
+import {ReglementFormComponent} from "../reglement-form/reglement-form.component";
+import {CommonModule} from "@angular/common";
+import {
+  DataTableComponent,
+  HeaderCheckboxComponent,
+  IconFieldComponent,
+  RowCheckboxComponent
+} from 'app/shared/ui';
 
 export type ReglementMode = "INDIVIDUEL" | "GROUPE";
 
@@ -37,13 +49,11 @@ export type ReglementMode = "INDIVIDUEL" | "GROUPE";
   imports: [
     CommonModule,
     FormsModule,
-    ButtonModule,
-    TableModule,
-    TooltipModule,
-    InputTextModule,
-    IconField,
-    InputIcon,
-    ReglementFormComponent
+    ReglementFormComponent,
+    DataTableComponent,
+    HeaderCheckboxComponent,
+    IconFieldComponent,
+    RowCheckboxComponent
   ],
   templateUrl: "./reglement-workspace.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -67,6 +77,15 @@ export class ReglementWorkspaceComponent {
   protected dossierIds = computed(() =>
     this.factureDossierSelectionnes().map(d => d.id)
   );
+  /** Reflète l'état « tout sélectionné » de la table, sans dépendre de son ordre d'initialisation dans le template. */
+  protected readonly isAllSelected = computed(() => {
+    const rows = this.reglementFactureDossiersSignal();
+    if (!rows.length) {
+      return false;
+    }
+    const selectedIds = new Set(this.factureDossierSelectionnes().map(d => d.id));
+    return rows.every(r => selectedIds.has(r.id));
+  });
   /** IDs des dossiers éditables (mode partiel + sélectionnés) — lu directement dans le template pour le tracking signal */
   protected readonly editableIds = computed(() => {
       return this.partialPayment()
@@ -75,9 +94,12 @@ export class ReglementWorkspaceComponent {
     }
   );
 
-  protected checkbox = viewChild<TableHeaderCheckbox>("checkbox");
   protected reglementFormComponent = viewChild(ReglementFormComponent);
-
+  /**
+   * Ligne dont le montant est en cours de saisie — remplace la bascule que
+   * `pEditableColumn` / `p-celleditor` assuraient. `null` = aucune cellule ouverte.
+   */
+  protected readonly editingId = signal<number | null>(null);
   private readonly destroyRef = inject(DestroyRef);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly notificationService = inject(NotificationService);
@@ -123,7 +145,7 @@ export class ReglementWorkspaceComponent {
     this.factureDossierSelectionnes.set([]);
     if (this.mode() === "GROUPE") {
       this.reglementFactureDossiersSignal.update(dossiers =>
-        dossiers.map(d => ({ ...d, montantVerse: d.montantTotal - d.montantDetailRegle }))
+        dossiers.map(d => ({...d, montantVerse: d.montantTotal - d.montantDetailRegle}))
       );
     }
   }
@@ -155,6 +177,16 @@ export class ReglementWorkspaceComponent {
         error: err =>
           this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur règlement")
       });
+  }
+
+  protected startEdit(item: IReglementFactureDossier): void {
+    if (this.editableIds().has(item.id)) {
+      this.editingId.set(item.id);
+    }
+  }
+
+  protected stopEdit(): void {
+    this.editingId.set(null);
   }
 
   private onPrintReceipt(response: IResponseReglement): void {
@@ -237,7 +269,7 @@ export class ReglementWorkspaceComponent {
 
   private loadDossierProjection(factureId: IFactureId): void {
     this.factureApiService
-      .findDossierFactureProjection(factureId, { isGroup: this.mode() === "GROUPE" })
+      .findDossierFactureProjection(factureId, {isGroup: this.mode() === "GROUPE"})
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: res => this.dossierFactureProjectionSignal.set(res.body),
@@ -249,7 +281,7 @@ export class ReglementWorkspaceComponent {
   private reloadDossiers(factureId: IFactureId): void {
     const typeFacture = this.mode() === "GROUPE" ? "groupes" : "individuelle";
     this.factureApiService
-      .findDossierReglement(factureId, typeFacture, { page: 0, size: ITEMS_PER_PAGE })
+      .findDossierReglement(factureId, typeFacture, {page: 0, size: ITEMS_PER_PAGE})
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: res => {

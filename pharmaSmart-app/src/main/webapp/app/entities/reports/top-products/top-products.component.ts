@@ -3,19 +3,19 @@ import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { forkJoin } from "rxjs";
 
-import { TableModule } from "primeng/table";
-import { ButtonModule } from "primeng/button";
-import { DatePicker } from "primeng/datepicker";
-import { InputNumberModule } from "primeng/inputnumber";
-import { SelectModule } from "primeng/select";
-import { ToolbarModule } from "primeng/toolbar";
-import { DividerModule } from "primeng/divider";
 import { NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
 
 import { ITopProduct } from "app/shared/model/report/top-product.model";
 import { TopProductsReportService } from "../services/top-products-report.service";
-import { Tag } from "primeng/tag";
 import { DATE_FORMAT_ISO_DATE, retriveMonthLabel } from "../../../shared/util/warehouse-util";
+import {
+  BadgeComponent,
+  ButtonComponent,
+  DataTableComponent,
+  MonthPickerComponent,
+  SelectComponent,
+  ToolbarComponent
+} from '../../../shared/ui';
 
 interface ITopProductRanked extends ITopProduct {
   rankDelta: number | null; // null = produit nouveau ce mois (absent M-1)
@@ -29,15 +29,13 @@ interface ITopProductRanked extends ITopProduct {
   imports: [
     CommonModule,
     FormsModule,
-    TableModule,
-    ButtonModule,
-    DatePicker,
-    InputNumberModule,
-    SelectModule,
-    ToolbarModule,
-    DividerModule,
     NgbNavModule,
-    Tag
+    BadgeComponent,
+    ButtonComponent,
+    DataTableComponent,
+    MonthPickerComponent,
+    SelectComponent,
+    ToolbarComponent
   ]
 })
 export default class TopProductsComponent implements OnInit {

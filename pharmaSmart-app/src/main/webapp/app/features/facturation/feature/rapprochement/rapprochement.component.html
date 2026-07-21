@@ -1,88 +1,54 @@
 <div class="pharma-smart-content p-1">
 
   <!-- Toolbar -->
-  <div class="pharma-toolbar pharma-toolbar-compact">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-arrows-h"></i>
-      <span class="pharma-toolbar-title">État de rapprochement</span>
-    </div>
-    <p-toolbar>
-      <ng-template #start>
+  <app-toolbar [compact]="true" icon="pi pi-arrows-h" title="État de rapprochement">
+    <ng-container ngProjectAs="[toolbarFilters]">
         <div class="pharma-toolbar-filters">
 
-          <p-floatlabel variant="on">
-            <p-autocomplete
-              (completeMethod)="searchTiersPayant($event)"
+          <app-float-label inputId="rapr-tp" label="Tiers-payant">
+            <app-multi-select
+              (searched)="searchTiersPayant($event)"
               [(ngModel)]="selectedTiersPayants"
-              [forceSelection]="true"
-              [minQueryLength]="2"
-              [multiple]="true"
-              [suggestions]="tiersPayantSuggestions"
+              [minSearchLength]="2"
+                            [items]="tiersPayantSuggestions"
               appendTo="body"
-              id="rapr-tp"
               inputId="rapr-tp"
-              optionLabel="fullName"
+              bindLabel="fullName"
             />
-            <label for="rapr-tp">Tiers-payant</label>
-          </p-floatlabel>
+          </app-float-label>
 
-          <p-floatlabel variant="on">
-            <p-datepicker
-              [(ngModel)]="modelStartDate"
-              [iconDisplay]="'input'"
-              [showIcon]="true"
-              [showButtonBar]="true"
-              appendTo="body"
-              dateFormat="dd/mm/yy"
-              id="rapr-du"
-              inputId="rapr-du"
-            />
-            <label for="rapr-du">Du</label>
-          </p-floatlabel>
+          <pharma-date-picker [(ngModel)]="modelStartDate" id="rapr-du" label="Du" />
 
-          <p-floatlabel variant="on">
-            <p-datepicker
-              [(ngModel)]="modelEndDate"
-              [iconDisplay]="'input'"
-              [showIcon]="true"
-              [showButtonBar]="true"
-              appendTo="body"
-              dateFormat="dd/mm/yy"
-              id="rapr-au"
-              inputId="rapr-au"
-            />
-            <label for="rapr-au">Au</label>
-          </p-floatlabel>
+          <pharma-date-picker [(ngModel)]="modelEndDate" id="rapr-au" label="Au" />
 
-          <p-floatlabel variant="on">
-            <p-multiselect
+          <app-float-label inputId="rapr-statut" label="Statut">
+            <app-multi-select
               [(ngModel)]="selectedStatut"
-              [options]="statutOptions"
+              [items]="statutOptions"
               appendTo="body"
-              id="rapr-statut"
-              optionLabel="label"
-              optionValue="value"
-              style="width: 180px"
+              inputId="rapr-statut"
+              bindLabel="label"
+              bindValue="value"
+              [style]="{ width: '180px' }"
             />
-            <label for="rapr-statut">Statut</label>
-          </p-floatlabel>
+          </app-float-label>
 
         </div>
-      </ng-template>
+      </ng-container>
 
-      <ng-template #end>
+<ng-container ngProjectAs="[toolbarActions]">
         <div class="pharma-toolbar-actions">
           <div class="pharma-button-group">
-            <p-button
-              (onClick)="onSearch()"
+            <app-button
+              (clicked)="onSearch()"
               [loading]="loading()"
               [raised]="true"
               icon="pi pi-search"
               label="Rechercher"
               severity="info"
             />
-            <p-button
-              (onClick)="onExportExcel()"
+            <app-button
+              (clicked)="onExportExcel()"
               [loading]="loadingExport()"
               [raised]="true"
               icon="pi pi-file-excel"
@@ -91,9 +57,8 @@
             />
           </div>
         </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
+      </ng-container>
+  </app-toolbar>
 
   <!-- KPI globaux -->
   <app-rapprochement-kpi-banner [kpi]="kpi()" [loading]="loading()" />
@@ -112,12 +77,11 @@
 
     <!-- Colonne maître : liste des organismes -->
     <div class="list-column p-2">
-      <p-table
+      <app-data-table
         [value]="rapprochements()"
         [loading]="loading()"
-        [rowHover]="true"
         [scrollable]="true"
-        class="p-datatable-sm"
+        [size]="'small'"
         scrollHeight="flex"
       >
         <ng-template #header>
@@ -165,20 +129,20 @@
               </td>
             }
             <td class="text-center" (click)="$event.stopPropagation()">
-              <p-buttongroup>
-                <p-button
-                  (onClick)="onRowSelect(rappr)"
+              <div class="btn-group" role="group">
+                <app-button
+                  (clicked)="onRowSelect(rappr)"
                   [rounded]="true"
                   [text]="true"
                   icon="pi pi-eye"
-                  pTooltip="Voir détail"
-                  tooltipPosition="left"
+                  ngbTooltip="Voir détail"
+                  placement="left"
                   severity="secondary"
                   size="small"
                 />
 
 
-              </p-buttongroup>
+              </div>
 
             </td>
           </tr>
@@ -191,7 +155,7 @@
             </td>
           </tr>
         </ng-template>
-      </p-table>
+      </app-data-table>
     </div>
 
     <!-- Panneau détail : factures de l'organisme sélectionné -->
@@ -222,8 +186,8 @@
             </div>
           </div>
           <div class="panel-actions">
-            <p-button
-              (onClick)="closePanel()"
+            <app-button
+              (clicked)="closePanel()"
               icon="pi pi-times"
               [text]="true"
               [rounded]="true"
@@ -235,12 +199,11 @@
 
         <!-- Table des lignes de factures -->
         <div class="rapr-detail-body">
-          <p-table
+          <app-data-table
             [value]="selectedRappr()?.lignes ?? []"
-            [rowHover]="true"
             [scrollable]="true"
             scrollHeight="flex"
-            class="p-datatable-sm"
+            [size]="'small'"
             dataKey="numFacture"
           >
             <ng-template #header>
@@ -260,9 +223,9 @@
               <tr [class.rapr-row-retard]="isLigneEnRetard(ligne)">
                 <td>
                   @if ((ligne.reglements ?? []).length > 0) {
-                    <p-button
+                    <app-button
                       [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                      [pRowToggler]="ligne"
+                      [appRowToggler]="ligne"
                       [text]="true"
                       size="small"
                     />
@@ -288,8 +251,8 @@
                 </td>
                 <td class="text-center">
                   @if (ligne.statut !== 'PAID') {
-                    <p-button
-                      (onClick)="openReglementModal(ligne)"
+                    <app-button
+                      (clicked)="openReglementModal(ligne)"
                       icon="pi pi-credit-card"
                       label="Régler"
                       severity="success"
@@ -326,8 +289,8 @@
                             <td class="text-end">{{ (rg.paidAmount ?? 0) | number:'1.0-0' }}</td>
                             <td>{{ rg.commentaire || '—' }}</td>
                             <td class="text-center">
-                              <p-button
-                                (onClick)="onAnnulerReglement(ligne, rg)"
+                              <app-button
+                                (clicked)="onAnnulerReglement(ligne, rg)"
                                 icon="pi pi-trash"
                                 severity="danger"
                                 size="small"
@@ -351,7 +314,7 @@
                 </td>
               </tr>
             </ng-template>
-          </p-table>
+          </app-data-table>
         </div>
 
       </div>
@@ -360,4 +323,3 @@
   </div>
 
 </div>
-<p-toast position="center" />

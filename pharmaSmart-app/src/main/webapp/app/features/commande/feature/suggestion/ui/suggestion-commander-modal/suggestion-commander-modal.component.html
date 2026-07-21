@@ -14,10 +14,8 @@
   <div style="flex: 1 1 auto; overflow-y: auto; min-height: 0;">
 
     <!-- Tableau des lignes -->
-    <p-table
+    <app-data-table
       [value]="lignes"
-      [scrollable]="true"
-      scrollHeight="flex"
       class="p-datatable-sm"
       size="small"
     >
@@ -53,7 +51,7 @@
           </td>
         </tr>
       </ng-template>
-    </p-table>
+    </app-data-table>
 
     @if (lignesModifiees.length > 0) {
       <div class="d-flex align-items-center gap-2 px-3 py-2 bg-warning-subtle border-top border-warning-subtle">
@@ -169,13 +167,13 @@
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label small fw-semibold">Type de commande</label>
-              <p-select
-                [options]="typeCommandeOptions"
+              <app-select
+                [items]="typeCommandeOptions"
                 [ngModel]="pharmamlTypeCommande()"
                 (ngModelChange)="pharmamlTypeCommande.set($event)"
-                optionLabel="label"
-                [overlayOptions]="{baseZIndex: 10050}"
-                optionValue="value"
+                bindLabel="label"
+                bindValue="value"
+                [clearable]="false"
                 class="w-100"
               />
             </div>
@@ -184,14 +182,10 @@
                 Date de livraison souhaitée
                 <span class="text-muted fw-normal">(optionnel)</span>
               </label>
-              <p-datepicker
+              <pharma-date-picker
                 [ngModel]="pharmamlDateLivraison()"
                 (ngModelChange)="pharmamlDateLivraison.set($event)"
                 [minDate]="minDate"
-                [showButtonBar]="true"
-                [showIcon]="true"
-                appendTo="body"
-                dateFormat="dd/mm/yy"
                 placeholder="jj/mm/aaaa"
                 class="w-100"
               />
@@ -202,7 +196,6 @@
                 <span class="text-muted fw-normal">(optionnel)</span>
               </label>
               <textarea
-                pTextarea
                 class="form-control form-control-sm"
                 rows="2"
                 placeholder="Ajouter un commentaire..."
@@ -219,17 +212,17 @@
 </div><!-- /modal-body -->
 
 <div class="modal-footer">
-  <p-button
+  <app-button
     label="Annuler"
     icon="pi pi-times"
     severity="secondary"
-    (onClick)="cancel()"
+    (clicked)="cancel()"
   />
-  <p-button
+  <app-button
     [label]="modeCommande() === 'PHARMAML' ? 'Valider et envoyer via PharmaML' : 'Valider et commander'"
     [icon]="modeCommande() === 'PHARMAML' ? 'pi pi-send' : 'pi pi-shopping-cart'"
     [severity]="modeCommande() === 'PHARMAML' ? 'primary' : 'success'"
     [disabled]="!canConfirm()"
-    (onClick)="confirm()"
+    (clicked)="confirm()"
   />
 </div>

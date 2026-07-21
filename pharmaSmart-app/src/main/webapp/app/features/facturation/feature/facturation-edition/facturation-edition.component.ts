@@ -4,16 +4,6 @@ import { finalize } from "rxjs/operators";
 import { HttpResponse } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
-import { TableModule } from "primeng/table";
-import { ButtonModule } from "primeng/button";
-import { TooltipModule } from "primeng/tooltip";
-import { FloatLabel } from "primeng/floatlabel";
-import { AutoCompleteModule } from "primeng/autocomplete";
-import { ToggleSwitch } from "primeng/toggleswitch";
-import { SelectModule } from "primeng/select";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
-import { InputTextModule } from "primeng/inputtext";
 import { NgbDateParserFormatter, NgbDatepickerModule, NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 import { FrenchDateParserFormatter } from "../../../../config/french-date-parser-formatter";
 import { PharmaDatePickerComponent } from "../../../../shared/date-picker/pharma-date-picker.component";
@@ -36,6 +26,17 @@ import {
   ITiersPayantDossierFacture
 } from "../../data-access/models";
 import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
+import {
+  ButtonComponent,
+  DataTableComponent,
+  FloatLabelComponent,
+  HeaderCheckboxComponent,
+  IconFieldComponent,
+  MultiSelectComponent,
+  RowCheckboxComponent,
+  SelectComponent,
+  SwitchComponent
+} from "../../../../shared/ui";
 
 
 @Component({
@@ -46,19 +47,18 @@ import { BlobDownloadService } from "../../../../shared/services/blob-download.s
   imports: [
     CommonModule,
     FormsModule,
-    TableModule,
-    ButtonModule,
-    TooltipModule,
-    FloatLabel,
-    AutoCompleteModule,
-    ToggleSwitch,
-    SelectModule,
-    IconField,
-    InputIcon,
-    InputTextModule,
     NgbDatepickerModule,
     PharmaDatePickerComponent,
-    PharmaDatePickerComponent
+    PharmaDatePickerComponent,
+    ButtonComponent,
+    DataTableComponent,
+    FloatLabelComponent,
+    HeaderCheckboxComponent,
+    IconFieldComponent,
+    MultiSelectComponent,
+    RowCheckboxComponent,
+    SelectComponent,
+    SwitchComponent
   ],
   templateUrl: "./facturation-edition.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -129,12 +129,12 @@ export class FacturationEditionComponent implements OnInit {
     );
   }
 
-  searchTiersPayant(event: { query: string }): void {
-    this.loadTiersPayants(event.query);
+  searchTiersPayant(query: string): void {
+    this.loadTiersPayants(query);
   }
 
-  searchGroupTiersPayant(event: { query: string }): void {
-    this.loadGroupTiersPayant(event.query);
+  searchGroupTiersPayant(query: string): void {
+    this.loadGroupTiersPayant(query);
   }
 
   lazyLoadingTp(event: any): void {

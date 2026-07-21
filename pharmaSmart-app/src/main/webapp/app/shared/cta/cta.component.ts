@@ -1,13 +1,13 @@
 import { Component, inject, input, output, ChangeDetectionStrategy } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent } from '../ui';
 import { TranslateService } from '@ngx-translate/core';
-import { TooltipModule } from 'primeng/tooltip';
 
 export type Severity = 'primary' | 'secondary' | 'success' | 'info' | 'warn' | 'danger' | 'help';
 
 @Component({
   selector: 'jhi-cta',
-  imports: [ButtonModule, TooltipModule],
+  imports: [ButtonComponent, NgbTooltip],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './cta.component.html',
 })

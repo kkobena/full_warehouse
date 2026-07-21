@@ -1,6 +1,6 @@
 import { Component, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { TooltipModule } from "primeng/tooltip";
+import { NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { ICellRendererAngularComp } from "ag-grid-angular";
 import { ICellRendererParams } from "ag-grid-community";
 import { IOrderLine } from "../../../../../shared/model/order-line.model";
@@ -8,7 +8,7 @@ import { ILot } from "../../../../../shared/model/lot.model";
 
 @Component({
   selector: "app-lot-expand-cell",
-  imports: [CommonModule, TooltipModule],
+  imports: [CommonModule, NgbTooltip],
   template: `
     <div class="lec-wrap">
       @if (hasLot()) {
@@ -19,8 +19,8 @@ import { ILot } from "../../../../../shared/model/lot.model";
           [class.lec-open]="expanded()"
           [class.lec-warn]="!expanded() && !isComplete()"
           [class.lec-ok]="!expanded() && isComplete()"
-          [pTooltip]="expanded() ? 'Fermer la saisie' : isComplete() ? 'Lots complets ✓' : 'Saisir lots'"
-          tooltipPosition="left"
+          [ngbTooltip]="expanded() ? 'Fermer la saisie' : isComplete() ? 'Lots complets ✓' : 'Saisir lots'"
+          placement="left"
           (click)="onToggle($event)"
         ></i>
 
@@ -31,7 +31,7 @@ import { ILot } from "../../../../../shared/model/lot.model";
           <span class="lec-none">Aucun lot</span>
         }
       } @else {
-        <span class="lec-dash" pTooltip="Pas de gestion de lot pour ce produit" tooltipPosition="left">—</span>
+        <span class="lec-dash" ngbTooltip="Pas de gestion de lot pour ce produit" placement="left">—</span>
       }
     </div>
   `,

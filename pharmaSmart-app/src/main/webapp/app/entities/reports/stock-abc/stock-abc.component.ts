@@ -1,9 +1,7 @@
 import { Component, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonModule } from 'primeng/button';
-import { SelectModule } from 'primeng/select';
-import { ToolbarModule } from 'primeng/toolbar';
+import { ButtonComponent, SelectComponent } from '../../../shared/ui';
 import { ClassePareto } from 'app/shared/model/report/classe-pareto.enum';
 import { CategorieABC } from 'app/shared/model/report/stock-rotation.model';
 import ABCParetoComponent from '../abc-pareto/abc-pareto.component';
@@ -11,7 +9,7 @@ import StockRotationComponent from '../stock-rotation/stock-rotation.component';
 
 @Component({
   selector: 'jhi-stock-abc',
-  imports: [NgbNavModule, ABCParetoComponent, StockRotationComponent, FormsModule, ToolbarModule, SelectModule, ButtonModule],
+  imports: [NgbNavModule, ABCParetoComponent, StockRotationComponent, FormsModule, SelectComponent, ButtonComponent],
   templateUrl: './stock-abc.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./stock-abc.component.scss'],

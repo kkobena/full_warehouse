@@ -10,32 +10,34 @@ import {
   Validators
 } from "@angular/forms";
 import { HttpResponse } from "@angular/common/http";
-import { DividerModule } from "primeng/divider";
-import { DatePicker } from "primeng/datepicker";
-import { Button } from "primeng/button";
-import { ToggleSwitch } from "primeng/toggleswitch";
-import { InputText } from "primeng/inputtext";
-import { Select } from "primeng/select";
-import { KeyFilter } from "primeng/keyfilter";
+
+import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 
 import { IPaymentMode } from "../../../../shared/model/payment-mode.model";
 import { ModePaymentService } from "../../../../entities/mode-payments/mode-payment.service";
-import { DATE_FORMAT_ISO_DATE } from "../../../../shared/util/warehouse-util";
+import { NGB_DATE_TO_ISO, TODAY_NGB_DATE } from "../../../../shared/util/warehouse-util";
 
 import { IDossierFactureProjection, IReglementParams, ModeEditionReglement } from "../../data-access/models";
+import {
+  ButtonComponent,
+  InputNumberComponent,
+  KeyFilterDirective,
+  SelectComponent,
+  SwitchComponent
+} from 'app/shared/ui';
+import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
 
 @Component({
   selector: "app-reglement-form",
   imports: [
     FormsModule,
     ReactiveFormsModule,
-    DividerModule,
-    DatePicker,
-    Button,
-    ToggleSwitch,
-    InputText,
-    Select,
-    KeyFilter
+    ButtonComponent,
+    InputNumberComponent,
+    KeyFilterDirective,
+    SelectComponent,
+    SwitchComponent,
+    PharmaDatePickerComponent
   ],
   templateUrl: "./reglement-form.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -59,7 +61,7 @@ export class ReglementFormComponent implements AfterViewInit {
   readonly reglementParams = output<IReglementParams>();
 
   protected paymentModes: IPaymentMode[] = [];
-  readonly maxDate = new Date();
+  readonly maxDate = TODAY_NGB_DATE();
 
   protected montantSaisi = signal(0);
   protected validMontantSaisi = computed(() => {
@@ -79,7 +81,7 @@ export class ReglementFormComponent implements AfterViewInit {
     amount: new FormControl<number | null>(null, { validators: [Validators.required], nonNullable: true }),
     modePaimentCode: new FormControl<string | null>(null, { validators: [Validators.required], nonNullable: true }),
     partialPayment: new FormControl<boolean | null>(true, { validators: [Validators.required], nonNullable: true }),
-    paymentDate: new FormControl<Date | null>(new Date()),
+    paymentDate: new FormControl<NgbDateStruct | null>(TODAY_NGB_DATE()),
     banqueInfo: this.fb.group({
       nom: new FormControl<string | null>(null, { validators: [Validators.required], nonNullable: true }),
       code: new FormControl<string | null>(null, { validators: [Validators.required], nonNullable: true }),
@@ -229,7 +231,7 @@ export class ReglementFormComponent implements AfterViewInit {
       partialPayment: !allMode,
       banqueInfo: this.showBanqueInfo ? this.banqueInfo.getRawValue() : null,
       amountToPaid: this.montantPayer,
-      paymentDate: DATE_FORMAT_ISO_DATE(paymentDate),
+      paymentDate: NGB_DATE_TO_ISO(paymentDate),
       totalAmount: this.initTotalAmount,
       id: f?.factureItemId,
       montantFacture: f?.montantTotal

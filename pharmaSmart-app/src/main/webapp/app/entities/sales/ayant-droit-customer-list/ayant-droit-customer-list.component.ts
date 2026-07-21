@@ -3,15 +3,9 @@ import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/cor
 import { Customer, ICustomer } from "app/shared/model/customer.model";
 import { CustomerService } from "app/entities/customer/customer.service";
 import { FormsModule } from "@angular/forms";
-import { TooltipModule } from "primeng/tooltip";
-import { ButtonModule } from "primeng/button";
-import { InputTextModule } from "primeng/inputtext";
-import { RippleModule } from "primeng/ripple";
-import { TableModule } from "primeng/table";
-import { ToolbarModule } from "primeng/toolbar";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { Card } from "primeng/card";
 import { CommonModule } from "@angular/common";
+import { ButtonComponent, CardComponent, ToolbarComponent } from "../../../shared/ui";
 
 @Component({
   selector: "app-ayant-droit-customer-list",
@@ -21,13 +15,9 @@ import { CommonModule } from "@angular/common";
   imports: [
     CommonModule,
     FormsModule,
-    TooltipModule,
-    ButtonModule,
-    InputTextModule,
-    RippleModule,
-    TableModule,
-    ToolbarModule,
-    Card
+    ButtonComponent,
+    CardComponent,
+    ToolbarComponent
   ]
 })
 export class AyantDroitCustomerListComponent implements OnInit {

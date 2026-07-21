@@ -3,15 +3,18 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { catchError, finalize, tap } from "rxjs/operators";
 import { forkJoin, of } from "rxjs";
 import { FormsModule } from "@angular/forms";
-import { DatePicker } from "primeng/datepicker";
-import { FloatLabelModule } from "primeng/floatlabel";
-import { AutoCompleteModule } from "primeng/autocomplete";
-import { ToggleSwitch } from "primeng/toggleswitch";
-import { SelectModule } from "primeng/select";
-import { Toolbar } from "primeng/toolbar";
-import { ButtonModule } from "primeng/button";
+import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
+import {
+  ButtonComponent,
+  FloatLabelComponent,
+  MultiSelectComponent,
+  SelectComponent,
+  SwitchComponent,
+  ToolbarComponent
+} from "../../../../shared/ui";
+import { PharmaDatePickerComponent } from "../../../../shared/date-picker/pharma-date-picker.component";
 
-import { DATE_FORMAT_ISO_DATE } from "../../../../shared/util/warehouse-util";
+import { NGB_DATE_TO_ISO, TODAY_NGB_DATE } from "../../../../shared/util/warehouse-util";
 import { INVOICES_STATUT } from "../../../../shared/constants/data-constants";
 import { CodeValue } from "../../../../shared/code-value";
 import { NotificationService } from "../../../../shared/services/notification.service";
@@ -30,25 +33,22 @@ import { FactureKpiBannerComponent } from "../../ui/facture-kpi-banner/facture-k
 import { FactureListComponent } from "../../ui/facture-list/facture-list.component";
 import { FactureDetailPanelComponent } from "../../ui/facture-detail-panel/facture-detail-panel.component";
 import { TranslateService } from "@ngx-translate/core";
-import { PrimeNG } from "primeng/config";
-import { Toast } from "primeng/toast";
 import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
 
 @Component({
   selector: "app-facturation-home",
   imports: [
     FormsModule,
-    Toolbar,
-    ButtonModule,
-    DatePicker,
-    FloatLabelModule,
-    AutoCompleteModule,
-    ToggleSwitch,
-    SelectModule,
+    ButtonComponent,
+    FloatLabelComponent,
+    MultiSelectComponent,
+    PharmaDatePickerComponent,
+    SelectComponent,
+    SwitchComponent,
+    ToolbarComponent,
     FactureKpiBannerComponent,
     FactureListComponent,
-    FactureDetailPanelComponent,
-    Toast
+    FactureDetailPanelComponent
   ],
   templateUrl: "./facturation-home.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -71,8 +71,8 @@ export class FacturationHomeComponent implements OnInit {
   protected factureGroupees = false;
   protected factureProvisoire = false;
   protected deleteAllSpinner = false;
-  protected modelStartDate: Date;
-  protected modelEndDate: Date = new Date();
+  protected modelStartDate: NgbDateStruct;
+  protected modelEndDate: NgbDateStruct = TODAY_NGB_DATE();
   protected search = "";
   protected selectedStatut: string | null = null;
   protected tiersPayants: ITiersPayant[] = [];
@@ -88,7 +88,6 @@ export class FacturationHomeComponent implements OnInit {
   // Hint premier usage
   protected readonly showHint = signal<boolean>(localStorage.getItem("facturation-hint-dismissed") !== "1");
   private readonly translate = inject(TranslateService);
-  private readonly primeNGConfig = inject(PrimeNG);
   private readonly factureApiService = inject(FactureApiService);
   private readonly tiersPayantService = inject(TiersPayantService);
   private readonly groupeTiersPayantService = inject(GroupeTiersPayantService);
@@ -100,15 +99,10 @@ export class FacturationHomeComponent implements OnInit {
 
   constructor() {
     this.translate.use("fr");
-    this.translate.stream("primeng")
-      .pipe(takeUntilDestroyed())
-      .subscribe({
-        next: data => this.primeNGConfig.setTranslation(data)
-      });
 
     const d = new Date();
     d.setMonth(d.getMonth() - 1);
-    this.modelStartDate = d;
+    this.modelStartDate = { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
   }
 
   ngOnInit(): void {
@@ -161,16 +155,16 @@ export class FacturationHomeComponent implements OnInit {
     this.showHint.set(false);
   }
 
-  searchTiersPayant(event: { query: string }): void {
+  searchTiersPayant(query: string): void {
     this.tiersPayantService
-      .query({ page: 0, search: event.query, size: 10 })
+      .query({ page: 0, search: query, size: 10 })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(res => (this.tiersPayants = res.body ?? []));
   }
 
-  searchGroupTiersPayant(event: { query: string }): void {
+  searchGroupTiersPayant(query: string): void {
     this.groupeTiersPayantService
-      .query({ page: 0, search: event.query, size: 10 })
+      .query({ page: 0, search: query, size: 10 })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(res => (this.groupeTiersPayants = res.body ?? []));
   }
@@ -220,8 +214,8 @@ export class FacturationHomeComponent implements OnInit {
 
   private buildSearchParams(): IInvoiceSearchParams {
     const params: IInvoiceSearchParams = {
-      startDate: DATE_FORMAT_ISO_DATE(this.modelStartDate),
-      endDate: DATE_FORMAT_ISO_DATE(this.modelEndDate),
+      startDate: NGB_DATE_TO_ISO(this.modelStartDate),
+      endDate: NGB_DATE_TO_ISO(this.modelEndDate),
       search: this.search || undefined,
       factureGroupees: this.factureGroupees,
       factureProvisoire: this.factureProvisoire,

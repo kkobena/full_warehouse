@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonModule } from "primeng/button";
+import { ButtonComponent } from "../../../../../shared/ui";
 import { IOrderLine } from "../../../../../shared/model/order-line.model";
 
 @Component({
@@ -9,7 +9,7 @@ import { IOrderLine } from "../../../../../shared/model/order-line.model";
   templateUrl: "./reception-finalize-modal.component.html",
   styleUrls: ["./reception-finalize-modal.component.scss"],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, ButtonModule]
+  imports: [CommonModule, ButtonComponent]
 })
 export class ReceptionFinalizeModalComponent {
   readonly activeModal = inject(NgbActiveModal);

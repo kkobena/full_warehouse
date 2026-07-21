@@ -34,7 +34,8 @@ public class GroupeTiersPayantService {
     private final GroupeTiersPayantRepository groupeTiersPayantRepository;
     private final TiersPayantRepository tiersPayantRepository;
 
-    public GroupeTiersPayantService(GroupeTiersPayantRepository groupeTiersPayantRepository, TiersPayantRepository tiersPayantRepository) {
+    public GroupeTiersPayantService(GroupeTiersPayantRepository groupeTiersPayantRepository,
+        TiersPayantRepository tiersPayantRepository) {
         this.groupeTiersPayantRepository = groupeTiersPayantRepository;
         this.tiersPayantRepository = tiersPayantRepository;
     }
@@ -42,9 +43,11 @@ public class GroupeTiersPayantService {
     public GroupeTiersPayant create(GroupeTiersPayant groupeTiersPayant) throws GenericError {
         validatePhoneNumber(groupeTiersPayant.getTelephone());
         validatePhoneNumber(groupeTiersPayant.getTelephoneFixe());
-        Optional<GroupeTiersPayant> groupeTiersPayantOptional = groupeTiersPayantRepository.findOneByName(groupeTiersPayant.getName());
+        Optional<GroupeTiersPayant> groupeTiersPayantOptional = groupeTiersPayantRepository.findOneByName(
+            groupeTiersPayant.getName());
         if (groupeTiersPayantOptional.isPresent()) {
-            throw new GenericError("Il existe dejà  un groupe avec le même nom", "groupeTiersPayantExistant");
+            throw new GenericError("Il existe dejà  un groupe avec le même nom",
+                "groupeTiersPayantExistant");
         }
         GroupeTiersPayant tiersPayant = new GroupeTiersPayant();
         tiersPayant.setAdresse(groupeTiersPayant.getAdresse());
@@ -64,10 +67,14 @@ public class GroupeTiersPayantService {
     public GroupeTiersPayant update(GroupeTiersPayant groupeTiersPayant) throws GenericError {
         validatePhoneNumber(groupeTiersPayant.getTelephone());
         validatePhoneNumber(groupeTiersPayant.getTelephoneFixe());
-        GroupeTiersPayant tiersPayant = groupeTiersPayantRepository.getReferenceById(groupeTiersPayant.getId());
-        Optional<GroupeTiersPayant> groupeTiersPayantOptional = groupeTiersPayantRepository.findOneByName(groupeTiersPayant.getName());
-        if (groupeTiersPayantOptional.isPresent() && !Objects.equals(groupeTiersPayantOptional.get().getId(), tiersPayant.getId())) {
-            throw new GenericError("Il existe dejà  un groupe avec le même nom", "groupeTiersPayantExistant");
+        GroupeTiersPayant tiersPayant = groupeTiersPayantRepository.getReferenceById(
+            groupeTiersPayant.getId());
+        Optional<GroupeTiersPayant> groupeTiersPayantOptional = groupeTiersPayantRepository.findOneByName(
+            groupeTiersPayant.getName());
+        if (groupeTiersPayantOptional.isPresent() && !Objects.equals(
+            groupeTiersPayantOptional.get().getId(), tiersPayant.getId())) {
+            throw new GenericError("Il existe dejà  un groupe avec le même nom",
+                "groupeTiersPayantExistant");
         }
         tiersPayant.setAdresse(groupeTiersPayant.getAdresse());
         tiersPayant.setName(groupeTiersPayant.getName());
@@ -91,7 +98,8 @@ public class GroupeTiersPayantService {
     public void delete(Integer id) throws GenericError {
         List<TiersPayant> tiersPayants = tiersPayantRepository.findAllByGroupeTiersPayantId(id);
         if (!tiersPayants.isEmpty()) {
-            throw new GenericError("Il  y'a des tierspants associés à ce groupe", "groupeTiersPayantAssocies");
+            throw new GenericError("Il  y'a des tierspants associés à ce groupe",
+                "groupeTiersPayantAssocies");
         }
         groupeTiersPayantRepository.deleteById(id);
     }
@@ -99,7 +107,8 @@ public class GroupeTiersPayantService {
     public ResponseDTO importation(InputStream inputStream) {
         AtomicInteger count = new AtomicInteger();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
-            Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder().setDelimiter(';').build().parse(br);
+            Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder().setDelimiter(';').get()
+                .parse(br);
             records.forEach(record -> {
                 var index = count.get();
                 if (index == 0) {

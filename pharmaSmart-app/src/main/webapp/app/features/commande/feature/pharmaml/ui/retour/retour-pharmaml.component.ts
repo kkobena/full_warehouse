@@ -1,15 +1,17 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { Button } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { CommandeId } from '../../../../../../shared/model/abstract-commande.model';
-import { ILigneRetour, IVerificationItem, MotifRetour } from '../../../../../../shared/model/pharmaml.model';
-import { PharmamlApiService } from '../../../../data-access/pharmaml-api.service';
+import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {ButtonComponent, DataTableComponent, SelectComponent} from '../../../../../../shared/ui';
+import {CommandeId} from '../../../../../../shared/model/abstract-commande.model';
+import {
+  ILigneRetour,
+  IVerificationItem,
+  MotifRetour
+} from '../../../../../../shared/model/pharmaml.model';
+import {PharmamlApiService} from '../../../../data-access/pharmaml-api.service';
 import {NotificationService} from "../../../../../../shared/services/notification.service";
 import {ErrorService} from "../../../../../../shared/error.service";
-import {Toast} from "primeng/toast";
 
 interface LigneRetourRow extends IVerificationItem {
   selected: boolean;
@@ -18,20 +20,19 @@ interface LigneRetourRow extends IVerificationItem {
 }
 
 const MOTIFS: { value: MotifRetour; label: string }[] = [
-  { value: 'AVARIE', label: 'Avarie' },
-  { value: 'NON_CONFORME', label: 'Non conforme' },
-  { value: 'PERIME', label: 'Périmé' },
-  { value: 'ERREUR_LIVRAISON', label: 'Erreur de livraison' },
-  { value: 'EXCEDENT', label: 'Excédent' },
+  {value: 'AVARIE', label: 'Avarie'},
+  {value: 'NON_CONFORME', label: 'Non conforme'},
+  {value: 'PERIME', label: 'Périmé'},
+  {value: 'ERREUR_LIVRAISON', label: 'Erreur de livraison'},
+  {value: 'EXCEDENT', label: 'Excédent'},
 ];
 
 @Component({
   selector: 'app-retour-pharmaml',
-  imports: [CommonModule, FormsModule, Button, TableModule, Toast],
+  imports: [CommonModule, FormsModule, ButtonComponent, DataTableComponent, SelectComponent],
   styleUrls: ['./retour-pharmam.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <p-toast position="center"/>
     <div class="modal-header">
       <h5 class="modal-title">Retour marchandise</h5>
       <button type="button" class="btn-close" (click)="cancel()"></button>
@@ -47,7 +48,7 @@ const MOTIFS: { value: MotifRetour; label: string }[] = [
         <p class="text-muted mb-3">
           Sélectionnez les produits à retourner, précisez la quantité et le motif pour chaque ligne.
         </p>
-        <p-table [value]="lignes()" class="p-datatable-sm pharma-table">
+        <app-data-table [value]="lignes()" class="p-datatable-sm ">
           <ng-template #header>
             <tr class="pharma-table-head">
               <th style="width:3rem"></th>
@@ -79,29 +80,32 @@ const MOTIFS: { value: MotifRetour; label: string }[] = [
                 />
               </td>
               <td>
-                <select class="form-select form-select-sm" [(ngModel)]="row.motifRetour" [disabled]="!row.selected">
-                  @for (m of motifs; track m.value) {
-                    <option [value]="m.value">{{ m.label }}</option>
-                  }
-                </select>
+                <app-select
+                  [(ngModel)]="row.motifRetour"
+                  [disabled]="!row.selected"
+                  [items]="motifs"
+                  bindLabel="label"
+                  bindValue="value"
+                  [clearable]="false"
+                />
               </td>
             </tr>
           </ng-template>
-        </p-table>
+        </app-data-table>
       }
       @if (error()) {
         <div class="alert alert-danger py-2 mt-2">{{ error() }}</div>
       }
     </div>
     <div class="modal-footer gap-2">
-      <p-button label="Fermer" severity="secondary" [outlined]="true" (onClick)="cancel()" />
-      <p-button
+      <app-button label="Fermer" severity="secondary" [outlined]="true" (clicked)="cancel()" />
+      <app-button
         label="Envoyer le retour"
         severity="warn"
         icon="pi pi-reply"
         [loading]="sending()"
         [disabled]="!hasSelection()"
-        (onClick)="confirmer()"
+        (clicked)="confirmer()"
       />
     </div>
   `,
@@ -109,14 +113,13 @@ const MOTIFS: { value: MotifRetour; label: string }[] = [
 export class RetourPharmamlComponent implements OnInit {
   commandeId!: CommandeId;
   commandeRef!: string;
-  private readonly notificationService = inject(NotificationService);
-  private readonly errorService = inject(ErrorService);
   readonly loading = signal(true);
   readonly sending = signal(false);
   readonly error = signal<string | null>(null);
   readonly lignes = signal<LigneRetourRow[]>([]);
   readonly motifs = MOTIFS;
-
+  private readonly notificationService = inject(NotificationService);
+  private readonly errorService = inject(ErrorService);
   private readonly activeModal = inject(NgbActiveModal);
   private readonly api = inject(PharmamlApiService);
 
@@ -147,7 +150,9 @@ export class RetourPharmamlComponent implements OnInit {
   }
 
   confirmer(): void {
-    if (this.sending() || !this.hasSelection()) return;
+    if (this.sending() || !this.hasSelection()) {
+      return;
+    }
     this.sending.set(true);
     this.error.set(null);
 

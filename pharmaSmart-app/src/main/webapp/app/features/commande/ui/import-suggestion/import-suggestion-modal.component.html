@@ -4,203 +4,206 @@
 </div>
 
 <div class="modal-body">
-  <p-table
-    [loading]="loading()"
-    [value]="suggestions()"
-    [scrollable]="true"
-    scrollHeight="450px"
-    dataKey="id"
-    (onRowExpand)="onRowExpand($event)"
-    class="p-datatable-sm p-datatable-striped"
-  >
-    <ng-template #caption>
-      <div class="d-flex align-items-center gap-2 py-0 flex-wrap">
-        <p-iconfield>
-          <p-inputicon class="pi pi-search" />
-          <input
-            pInputText
-            pSize="small"
-            type="text"
-            [value]="searchTerm()"
-            (input)="onSearchChange($any($event.target).value)"
-            placeholder="Réf., fournisseur, CIP…"
-            style="width:13rem"
+  <app-card [variant]="'form'">
+    <app-data-table
+      [loading]="loading()"
+      [value]="suggestions()"
+      class="p-datatable-sm p-datatable-striped"
+      dataKey="id"
+      scrollHeight="450px"
+    >
+      <ng-template #caption>
+        <div class="d-flex align-items-center gap-2 py-0 flex-wrap">
+          <app-icon-field [overlay]="true" icon="pi pi-search">
+            <input
+              (input)="onSearchChange($any($event.target).value)"
+              [value]="searchTerm()"
+              class="form-control"
+              placeholder="Réf., fournisseur, CIP…"
+              style="width:13rem"
+              type="text" />
+          </app-icon-field>
+          <app-fournisseur-select
+            (multiSelectionChange)="onFournisseursSelected($event)"
+            [grouped]="true"
+            [multiple]="true"
+            class="flex-grow-1 min-w-0"
           />
-        </p-iconfield>
-        <app-fournisseur-select
-          [multiple]="true"
-          class="flex-grow-1 min-w-0"
-          [grouped]="true"
-          (multiSelectionChange)="onFournisseursSelected($event)"
-        />
-        <span class="text-muted small ms-auto">{{ suggestions().length }} résultat(s)</span>
-      </div>
-    </ng-template>
+          <span class="text-muted small ms-auto">{{ suggestions().length }} résultat(s)</span>
+        </div>
+      </ng-template>
 
-    <ng-template #header>
-      <tr class="pharma-table-head">
-        <th style="width:3rem"></th>
-        <th>Référence</th>
-        <th>Fournisseur</th>
-        <th>Type</th>
-        <th>Statut</th>
-        <th class="text-end">Articles</th>
-        <th class="text-end">Montant achat</th>
-        <th class="text-end">Montant vente</th>
-        <th></th>
-      </tr>
-    </ng-template>
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th style="width:3rem"></th>
+          <th>Référence</th>
+          <th>Fournisseur</th>
+          <th>Type</th>
+          <th>Statut</th>
+          <th class="text-end">Articles</th>
+          <th class="text-end">Montant achat</th>
+          <th class="text-end">Montant vente</th>
+          <th></th>
+        </tr>
+      </ng-template>
 
-    <ng-template #body let-s let-expanded="expanded">
-      <tr>
-        <td>
-          <p-button
-            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-            [pRowToggler]="s"
-            [rounded]="true"
-            [text]="true"
-            size="small"
-          />
-        </td>
-        <td>{{ s.suggessionReference }}</td>
-        <td>
-          <span>{{ s.fournisseurLibelle }}</span>
-          @if (isFournisseurMismatch(s)) {
-            <p-tag
-              class="ms-2"
-              severity="warn"
-              value="Fournisseur différent"
-              pTooltip="Les prix d'achat seront issus du référentiel de la commande, pas de la suggestion"
-              tooltipPosition="top"
-            />
-          }
-        </td>
-        <td>{{ s.typeSuggession }}</td>
-        <td>
-          <p-tag [severity]="statutSeverity(s.statut)" [value]="s.statutLibelle || s.statut" />
-        </td>
-        <td class="text-end">
-          <span class="pharma-qty-value">{{ s.nombreLignes ?? 0 }}</span>
-        </td>
-        <td class="text-end"><span class="pharma-total">{{ (s.montantEstimeAchat ?? 0) | number : '1.0-0' }} </span>F
-        </td>
-        <td class="text-end"><span class="pharma-price">{{ (s.montantEstimeVente ?? 0) | number : '1.0-0' }} </span>F
-        </td>
-        <td class="text-end">
-          @if (selectedLineCount(s) > 0) {
-            <p-button
-              (click)="onImportSelection(s)"
-              [disabled]="importingId() !== null"
-              [loading]="importingId() === s.id"
-              icon="pi pi-check-square"
-              [label]="'Importer (' + selectedLineCount(s) + ')'"
-              severity="success"
+      <ng-template #body let-expanded="expanded" let-s>
+        <tr>
+          <td>
+            <app-button
+              (clicked)="onRowExpand(s)"
+              [appRowToggler]="s"
+              [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+              [rounded]="true"
+              [text]="true"
               size="small"
-              pTooltip="Importer uniquement les lignes sélectionnées"
-              tooltipPosition="left"
             />
-          } @else {
-            <p-button
-              (click)="onImport(s)"
-              [disabled]="importingId() !== null"
-              [loading]="importingId() === s.id"
-              icon="pi pi-download"
-              label="Importer tout"
-              severity="primary"
-              size="small"
-              pTooltip="Fusionner toutes les lignes de cette suggestion dans la commande en cours"
-              tooltipPosition="left"
-            />
-          }
-        </td>
-      </tr>
-    </ng-template>
-
-    <ng-template #expandedrow let-s>
-      <tr>
-        <td colspan="10" class="p-0">
-          <div class="suggestion-lines-panel">
-            @if (isLoadingLines(s)) {
-              <div class="text-center py-3 text-muted">
-                <i class="pi pi-spin pi-spinner me-2"></i>Chargement des lignes…
-              </div>
-            } @else if (linesOf(s).length === 0) {
-              <div class="text-center py-3 text-muted">
-                <i class="pi pi-info-circle me-2"></i>Aucune ligne disponible
-              </div>
-            } @else {
-              <div class="d-flex align-items-center px-2 py-1 gap-2">
-                <p-iconfield>
-                  <p-inputicon class="pi pi-search" />
-                  <input
-                    pInputText
-                    pSize="small"
-                    type="text"
-                    [value]="detailSearchTerms()[s.id] ?? ''"
-                    (input)="onDetailSearch(s.id, $any($event.target).value)"
-                    placeholder="CIP, désignation, EAN…"
-                    style="width:16rem"
-                  />
-                </p-iconfield>
-                <span class="text-muted small">{{ filteredLinesOf(s).length }} / {{ linesOf(s).length }} ligne(s)</span>
-              </div>
-              <p-table
-                [value]="filteredLinesOf(s)"
-                [scrollable]="true"
-                scrollHeight="220px"
-                class="p-datatable-sm suggestion-lines-table"
-                dataKey="id"
-                selectionMode="multiple"
-                [selection]="selectedLines()[s.id] ?? []"
-                (selectionChange)="onSelectionChange(s.id, $event)"
-              >
-                <ng-template #header>
-                  <tr class="pharma-table-head">
-                    <th style="width:2.5rem">
-                      <p-tableheadercheckbox pTooltip="Tout sélectionner / désélectionner" />
-                    </th>
-                    <th>CIP</th>
-                    <th>Désignation</th>
-                    <th class="text-end">Stock</th>
-                    <th class="text-end">Qté suggérée</th>
-                    <th class="text-end">Prix achat</th>
-                    <th>État stock</th>
-                  </tr>
-                </ng-template>
-                <ng-template #body let-line>
-                  <tr [class.line-selected]="isLineSelected(s.id, line.id)">
-                    <td>
-                      <p-tablecheckbox [value]="line" />
-                    </td>
-                    <td class="font-monospace">{{ line.fournisseurProduitCip }}</td>
-                    <td>{{ line.fournisseurProduitLibelle }}</td>
-                    <td class="text-end">{{ line.currentStock ?? 0 }}</td>
-                    <td class="text-end fw-semibold">{{ line.quantity }}</td>
-                    <td class="text-end">{{ (line.prixAchat ?? 0) | number : '1.0-0' : 'fr' }} F</td>
-                    <td>
-                      @if (line.etatProduit) {
-                        <jhi-eta-produit [etatProduit]="line.etatProduit" [showLabel]="false" [isSuggestion]="true" />
-                      }
-                    </td>
-                  </tr>
-                </ng-template>
-              </p-table>
+          </td>
+          <td>{{ s.suggessionReference }}</td>
+          <td>
+            <span>{{ s.fournisseurLibelle }}</span>
+            @if (isFournisseurMismatch(s)) {
+              <app-badge
+                class="ms-2"
+                label="Fournisseur différent"
+                ngbTooltip="Les prix d'achat seront issus du référentiel de la commande, pas de la suggestion"
+                placement="top"
+                severity="warn"
+              />
             }
-          </div>
-        </td>
-      </tr>
-    </ng-template>
+          </td>
+          <td>{{ s.typeSuggession }}</td>
+          <td>
+            <app-badge [label]="s.statutLibelle || s.statut"
+                       [severity]="statutSeverity(s.statut)" />
+          </td>
+          <td class="text-end">
+            <span class="pharma-qty-value">{{ s.nombreLignes ?? 0 }}</span>
+          </td>
+          <td class="text-end"><span class="pharma-total">{{
+              (s.montantEstimeAchat ?? 0) | number : '1.0-0'
+            }} </span>F
+          </td>
+          <td class="text-end"><span class="pharma-price">{{
+              (s.montantEstimeVente ?? 0) | number : '1.0-0'
+            }} </span>F
+          </td>
+          <td class="text-end">
+            @if (selectedLineCount(s) > 0) {
+              <app-button
+                (clicked)="onImportSelection(s)"
+                [disabled]="importingId() !== null"
+                [label]="'Importer (' + selectedLineCount(s) + ')'"
+                [loading]="importingId() === s.id"
+                icon="pi pi-check-square"
+                ngbTooltip="Importer uniquement les lignes sélectionnées"
+                placement="left"
+                severity="success"
+                size="small"
+              />
+            } @else {
+              <app-button
+                (clicked)="onImport(s)"
+                [disabled]="importingId() !== null"
+                [loading]="importingId() === s.id"
+                icon="pi pi-download"
+                label="Importer tout"
+                ngbTooltip="Fusionner toutes les lignes de cette suggestion dans la commande en cours"
+                placement="left"
+                severity="primary"
+                size="small"
+              />
+            }
+          </td>
+        </tr>
+      </ng-template>
 
-    <ng-template #emptymessage>
-      <tr>
-        <td colspan="8" class="text-center text-muted py-4">
-          <i class="pi pi-info-circle me-2"></i>Aucune suggestion active disponible
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
+      <ng-template #expandedrow let-s>
+        <tr>
+          <td class="p-0" colspan="10">
+            <div class="suggestion-lines-panel">
+              @if (isLoadingLines(s)) {
+                <div class="text-center py-3 text-muted">
+                  <i class="pi pi-spin pi-spinner me-2"></i>Chargement des lignes…
+                </div>
+              } @else if (linesOf(s).length === 0) {
+                <div class="text-center py-3 text-muted">
+                  <i class="pi pi-info-circle me-2"></i>Aucune ligne disponible
+                </div>
+              } @else {
+                <div class="d-flex align-items-center px-2 py-1 gap-2">
+                  <app-icon-field [overlay]="true" icon="pi pi-search">
+                    <input
+                      (input)="onDetailSearch(s.id, $any($event.target).value)"
+                      [value]="detailSearchTerms()[s.id] ?? ''"
+                      class="form-control"
+                      placeholder="CIP, désignation, EAN…"
+                      style="width:16rem"
+                      type="text" />
+                  </app-icon-field>
+                  <span class="text-muted small">{{ filteredLinesOf(s).length }} / {{
+                      linesOf(s).length
+                    }} ligne(s)</span>
+                </div>
+                <app-data-table
+                  (selectionChange)="onSelectionChange(s.id, $event)"
+                  [selectionMode]="'multiple'"
+                  [selection]="selectedLines()[s.id] ?? []"
+                  [value]="filteredLinesOf(s)"
+                  class="p-datatable-sm suggestion-lines-table"
+                  dataKey="id"
+                  scrollHeight="220px"
+                >
+                  <ng-template #header>
+                    <tr class="pharma-table-head">
+                      <th style="width:2.5rem">
+                        <app-header-checkbox ngbTooltip="Tout sélectionner / désélectionner" />
+                      </th>
+                      <th>CIP</th>
+                      <th>Désignation</th>
+                      <th class="text-end">Stock</th>
+                      <th class="text-end">Qté suggérée</th>
+                      <th class="text-end">Prix achat</th>
+                      <th>État stock</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template #body let-line>
+                    <tr [class.line-selected]="isLineSelected(s.id, line.id)">
+                      <td>
+                        <app-row-checkbox [row]="line" />
+                      </td>
+                      <td class="font-monospace">{{ line.fournisseurProduitCip }}</td>
+                      <td>{{ line.fournisseurProduitLibelle }}</td>
+                      <td class="text-end">{{ line.currentStock ?? 0 }}</td>
+                      <td class="text-end fw-semibold">{{ line.quantity }}</td>
+                      <td class="text-end">{{ (line.prixAchat ?? 0) | number : '1.0-0' : 'fr' }}F
+                      </td>
+                      <td>
+                        @if (line.etatProduit) {
+                          <jhi-eta-produit [etatProduit]="line.etatProduit" [isSuggestion]="true"
+                                           [showLabel]="false" />
+                        }
+                      </td>
+                    </tr>
+                  </ng-template>
+                </app-data-table>
+              }
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td class="text-center text-muted py-4" colspan="8">
+            <i class="pi pi-info-circle me-2"></i>Aucune suggestion active disponible
+          </td>
+        </tr>
+      </ng-template>
+    </app-data-table>
+  </app-card>
 </div>
 
 <div class="modal-footer">
-  <p-button (click)="dismiss()" icon="pi pi-times" label="Annuler" severity="secondary" />
+  <app-button (clicked)="dismiss()" icon="pi pi-times" label="Annuler" severity="secondary" />
 </div>

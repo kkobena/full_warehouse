@@ -1,7 +1,7 @@
 import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import { TagModule } from 'primeng/tag';
-import { TooltipModule } from 'primeng/tooltip';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { BadgeComponent } from 'app/shared/ui';
 import { IOrderLine } from '../../../../shared/model/order-line.model';
 
 export interface ConcordanceStats {
@@ -20,7 +20,7 @@ export interface ConcordanceStats {
   templateUrl: './reception-concordance.component.html',
   styleUrls: ['./reception-concordance.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [DecimalPipe, TagModule, TooltipModule],
+  imports: [DecimalPipe, BadgeComponent, NgbTooltip],
 })
 export class ReceptionConcordanceComponent {
   /** Toutes les lignes de la commande (pas la page courante du tableau). */

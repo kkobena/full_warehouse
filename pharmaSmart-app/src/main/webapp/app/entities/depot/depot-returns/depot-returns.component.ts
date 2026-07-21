@@ -1,44 +1,40 @@
-import { Component, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy } from "@angular/core";
+import { Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { HttpResponse } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
 import { Router } from "@angular/router";
-import { ButtonModule } from "primeng/button";
-import { TableModule } from "primeng/table";
-import { ToolbarModule } from "primeng/toolbar";
-import { Select, SelectModule } from "primeng/select";
-import { InputTextModule } from "primeng/inputtext";
-import { InputNumberModule } from "primeng/inputnumber";
-import { AutoComplete } from "primeng/autocomplete";
-import { ToastModule } from "primeng/toast";
+import { NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { QuantiteProdutSaisieComponent } from "app/shared/quantite-produt-saisie/quantite-produt-saisie.component";
 import { RetourDepot } from "app/shared/model/retour-depot.model";
 import { IRetourDepotItem, RetourDepotItem } from "app/shared/model/retour-depot-item.model";
 import { RetourDepotService } from "../retour-depot.service";
 import { ITEMS_PER_PAGE } from "app/shared/constants/pagination.constants";
 import { debounceTime, Subject, Subscription } from "rxjs";
-import { Tooltip } from "primeng/tooltip";
 import { finalize } from "rxjs/operators";
 import { IMagasin, IProduit } from "../../../shared/model";
 import { MagasinService } from "../../magasin/magasin.service";
 import { StockDepotService } from "../stock-depot/stock-depot.service";
 import { NotificationService } from "../../../shared/services/notification.service";
+import {
+  ButtonComponent,
+  DataTableComponent,
+  EditableCellComponent,
+  SelectComponent,
+  SelectSearchComponent
+} from "../../../shared/ui";
 
 @Component({
   selector: "app-depot-returns",
   imports: [
     CommonModule,
     FormsModule,
-    ButtonModule,
-    TableModule,
-    ToolbarModule,
-    SelectModule,
-    InputTextModule,
-    InputNumberModule,
-    AutoComplete,
-    ToastModule,
+    ButtonComponent,
+    DataTableComponent,
+    EditableCellComponent,
+    SelectComponent,
+    SelectSearchComponent,
     QuantiteProdutSaisieComponent,
-    Tooltip
+    NgbTooltip
   ],
   templateUrl: "./depot-returns.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -50,8 +46,8 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
   private readonly magasinService = inject(MagasinService);
   private readonly router = inject(Router);
   private readonly notificationService = inject(NotificationService);
-  @ViewChild("productAutoComplete") productAutoComplete: AutoComplete | undefined;
-  @ViewChild("depotSelect") depotSelect: Select | undefined;
+  @ViewChild("productAutoComplete", { read: ElementRef }) productAutoComplete: ElementRef<HTMLElement> | undefined;
+  @ViewChild("depotSelect") depotSelect: SelectComponent | undefined;
   @ViewChild("quantiteBox") quantiteBox: QuantiteProdutSaisieComponent | undefined;
 
   protected depots = signal<IMagasin[]>([]);
@@ -113,8 +109,8 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
     });
   }
 
-  protected searchProducts(event: any): void {
-    this.searchTrigger$.next(event.query);
+  protected searchProducts(term: string): void {
+    this.searchTrigger$.next(term);
   }
 
   protected filterProducts(search: string): void {
@@ -291,7 +287,7 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
 
   private focusProductInput(): void {
     setTimeout(() => {
-      this.productAutoComplete?.inputEL()?.nativeElement?.focus();
+      this.productAutoComplete?.nativeElement.querySelector('input')?.focus();
     }, 100);
   }
 }

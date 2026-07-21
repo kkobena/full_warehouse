@@ -1,18 +1,16 @@
-import { Component, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ElementRef, inject, OnDestroy, OnInit, signal, viewChild, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { ToolbarModule } from 'primeng/toolbar';
-import { Select, SelectModule } from 'primeng/select';
-import { FloatLabel } from 'primeng/floatlabel';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { AutoComplete, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
-import { ToastModule } from 'primeng/toast';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import {
+  ButtonComponent,
+  DataTableComponent,
+  EditableCellComponent,
+  FloatLabelComponent,
+  SelectSearchComponent,
+} from 'app/shared/ui';
 import { QuantiteProdutSaisieComponent } from 'app/shared/quantite-produt-saisie/quantite-produt-saisie.component';
 import { NotificationService } from 'app/shared/services/notification.service';
 import { IFournisseur } from 'app/shared/model/fournisseur.model';
@@ -23,8 +21,6 @@ import { AbstractOrderItem } from 'app/shared/model/abstract-order-item.model';
 import { ModifRetourProduitService } from 'app/entities/motif-retour-produit/motif-retour-produit.service';
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { debounceTime, Subject, Subscription } from 'rxjs';
-import { Textarea } from 'primeng/textarea';
-import { Tooltip } from 'primeng/tooltip';
 import { IDeliveryItem } from 'app/shared/model/delivery-item';
 import { finalize } from 'rxjs/operators';
 import { LotSelection, LotSelectionDialogComponent } from '../lot-selection-dialog.component';
@@ -39,18 +35,13 @@ import { ConfigurationService } from "../../../../../../shared/configuration.ser
   imports: [
     CommonModule,
     FormsModule,
-    ButtonModule,
-    TableModule,
-    ToolbarModule,
-    SelectModule,
-    FloatLabel,
-    InputTextModule,
-    InputNumberModule,
-    AutoComplete,
-    ToastModule,
+    ButtonComponent,
+    DataTableComponent,
+    EditableCellComponent,
+    FloatLabelComponent,
+    SelectSearchComponent,
+    NgbTooltip,
     QuantiteProdutSaisieComponent,
-    Textarea,
-    Tooltip,
     InlineLotSelectionComponent,
   ],
   templateUrl: './supplier-returns.component.html',
@@ -69,9 +60,8 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly modalService = inject(NgbModal);
 
-  @ViewChild('orderSelect') orderSelect: AutoComplete | undefined;
-  @ViewChild('orderLineAutoComplete') orderLineAutoComplete: AutoComplete | undefined;
-  @ViewChild('motifSelect') motifSelect: Select | undefined;
+  private readonly orderLineAutoCompleteEl = viewChild('orderLineAutoComplete', { read: ElementRef<HTMLElement> });
+  private readonly motifSelectEl = viewChild('motifSelect', { read: ElementRef<HTMLElement> });
   @ViewChild('quantiteBox') quantiteBox: QuantiteProdutSaisieComponent | undefined;
 
   protected fournisseurs = signal<IFournisseur[]>([]);
@@ -101,8 +91,11 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
   protected tempMotifRetourId = signal<number | null>(null);
   protected showInlineLotSelection = signal<boolean>(false);
 
-  private readonly searchTrigger$ = new Subject<string>();
-  private readonly commandeSearchTrigger$ = new Subject<string>();
+  /** Branché sur `[typeahead]` d'`app-select-search` : ng-select y pousse directement le
+   * terme tapé, déjà relié (ci-dessous) au filtrage debouncé — supprime le besoin d'un
+   * gestionnaire `(searched)` intermédiaire. */
+  protected readonly searchTrigger$ = new Subject<string>();
+  protected readonly commandeSearchTrigger$ = new Subject<string>();
   private searchSubscription: Subscription | undefined;
   private commandeSearchSubscription: Subscription | undefined;
 
@@ -202,10 +195,6 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
     });
   }
 
-  protected searchCommandes(event: AutoCompleteCompleteEvent): void {
-    this.commandeSearchTrigger$.next(event.query);
-  }
-
   protected filterCommandes(search: string): void {
     if (!search || search.trim() === '') {
       this.filteredCommandes.set(this.commandes());
@@ -247,10 +236,6 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
     });
   }
 
-  protected searchOrderLines(event: any): void {
-    this.searchTrigger$.next(event.query);
-  }
-
   protected filterOrderLines(search: string): void {
     const searchLower = search.toLowerCase();
     const filtered = this.orderLines().filter(line => {
@@ -267,7 +252,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
       this.selectedMotifRetourId.set(null);
 
       setTimeout(() => {
-        this.motifSelect?.focus();
+        this.motifSelectEl()?.nativeElement.querySelector('input')?.focus();
       }, 100);
     }
   }
@@ -532,7 +517,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
 
   private focusOrderLineInput(): void {
     setTimeout(() => {
-      this.orderLineAutoComplete?.inputEL()?.nativeElement?.focus();
+      this.orderLineAutoCompleteEl()?.nativeElement.querySelector('input')?.focus();
     }, 100);
   }
 }

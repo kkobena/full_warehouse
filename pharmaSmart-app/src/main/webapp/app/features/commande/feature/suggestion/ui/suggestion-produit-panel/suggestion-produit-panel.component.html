@@ -6,85 +6,85 @@
     <div class="d-flex gap-2 align-items-center flex-wrap">
 
       @if (canValider()) {
-        <p-button
+        <app-button
           label="Valider"
           icon="pi pi-check"
           severity="success"
           size="small"
-          pTooltip="Valider cette suggestion"
-          tooltipPosition="top"
-          (onClick)="validerRequest.emit()"
+          ngbTooltip="Valider cette suggestion"
+          placement="top"
+          (clicked)="validerRequest.emit()"
         />
       }
 
-        <p-button
+        <app-button
           icon="pi pi-file-pdf"
           severity="warn"
           label="PDF"
           size="small"
           [loading]="exportingPdf()"
-          pTooltip="Exporter en PDF"
-          tooltipPosition="top"
-          (onClick)="exportPdfRequest.emit()"
+          ngbTooltip="Exporter en PDF"
+          placement="top"
+          (clicked)="exportPdfRequest.emit()"
         />
-        <p-button
+        <app-button
           icon="pi pi-file-excel"
           severity="help"
           label="CSV"
           size="small"
           [loading]="exportingCsv()"
-          pTooltip="Exporter en CSV"
-          tooltipPosition="top"
-          (onClick)="exportCsvRequest.emit()"
+          ngbTooltip="Exporter en CSV"
+          placement="top"
+          (clicked)="exportCsvRequest.emit()"
         />
-      <p-button
+      <app-button
         icon="pi pi-search"
         label="Dispo PharmaML"
         severity="info"
         size="small"
-        pTooltip="Vérifier la disponibilité chez les grossistes"
-        tooltipPosition="top"
-        (onClick)="dispoRequest.emit()"
+        ngbTooltip="Vérifier la disponibilité chez les grossistes"
+        placement="top"
+        (clicked)="dispoRequest.emit()"
       />
       <!-- Le bouton de nettoyage est caché car la fonctionnalité n'est pas encore implémentée côté back-end -->
-      <p-button
+      <app-button
         label="Nettoyer"
         icon="pi pi-wrench"
         severity="secondary"
         [hidden]="true"
         size="small"
-        pTooltip="Supprimer les lignes invalides"
-        tooltipPosition="top"
-        (onClick)="sanitizeRequest.emit()"
+        ngbTooltip="Supprimer les lignes invalides"
+        placement="top"
+        (clicked)="sanitizeRequest.emit()"
       />
       @if (urgenceFilter() === 'TOUS') {
-        <p-button
+        <app-button
           label="Commander tout"
           icon="pi pi-shopping-cart"
           severity="primary"
           size="small"
-          pTooltip="Commander toutes les lignes de ce fournisseur"
-          tooltipPosition="top"
-          (onClick)="commander.emit()"
+          ngbTooltip="Commander toutes les lignes de ce fournisseur"
+          placement="top"
+          (clicked)="commander.emit()"
         />
       } @else {
-        <p-button
+        <app-button
           [label]="'Commander filtrés (' + nbFilteredLignes + ')'"
           icon="pi pi-shopping-cart"
           severity="primary"
           size="small"
-          [pTooltip]="'Commander uniquement les ' + nbFilteredLignes + ' ligne(s) visibles'"
-          tooltipPosition="top"
-          (onClick)="onCommanderFiltre()"
+          [ngbTooltip]="'Commander uniquement les ' + nbFilteredLignes + ' ligne(s) visibles'"
+          placement="top"
+          (clicked)="onCommanderFiltre()"
         />
-        <p-button
+        <app-button
           [label]="'Supprimer filtrés (' + nbFilteredLignes + ')'"
           icon="pi pi-trash"
           severity="danger"
           size="small"
-          [pTooltip]="'Retirer les ' + nbFilteredLignes + ' ligne(s) visibles de la suggestion'"
-          tooltipPosition="top"
-          (onClick)="onSupprimerFiltrees()"
+          [ngbTooltip]="'Retirer les ' + nbFilteredLignes + ' ligne(s) visibles de la suggestion'"
+          placement="top"
+          (clicked)="onSupprimerFiltrees()"
         />
       }
     </div>
@@ -103,27 +103,24 @@
           />
         </div>
         <div class="quantity-input-wrapper">
-          <p-inputgroup>
+          <div class="input-group">
             <input
               #quantityBox
               [(ngModel)]="quantiteSaisie"
               (keydown.enter)="onAjouter()"
-              pInputText
+              class="form-control"
               placeholder="Qté"
               type="number"
-              min="1"
+              min="1" />
+            <app-button
+              (clicked)="onAjouter()"
+              [disabled]="!produitEnCours()"
+              icon="pi pi-plus"
+              severity="primary"
+              ngbTooltip="Ajouter à la suggestion"
+              placement="top"
             />
-            <p-inputgroup-addon>
-              <p-button
-                (click)="onAjouter()"
-                [disabled]="!produitEnCours()"
-                icon="pi pi-plus"
-                severity="primary"
-                pTooltip="Ajouter à la suggestion"
-                tooltipPosition="top"
-              />
-            </p-inputgroup-addon>
-          </p-inputgroup>
+          </div>
         </div>
       </div>
       @if (produitEnCours()) {
@@ -155,21 +152,21 @@
         {{ montantSelection() | number : '1.0-0' }} FCFA
       </span>
       <div class="d-flex gap-2">
-        <p-button
+        <app-button
           label="Commander la sélection"
           icon="pi pi-shopping-cart"
           severity="success"
           size="small"
-          (onClick)="commanderSelection.emit()"
+          (clicked)="commanderSelection.emit()"
         />
-        <p-button
+        <app-button
           icon="pi pi-trash"
           label="Supprimer"
           severity="danger"
           size="small"
-          pTooltip="Retirer les produits sélectionnés de la suggestion"
-          tooltipPosition="top"
-          (onClick)="onSupprimerSelection()"
+          ngbTooltip="Retirer les produits sélectionnés de la suggestion"
+          placement="top"
+          (clicked)="onSupprimerSelection()"
         />
       </div>
     </div>
@@ -181,39 +178,38 @@
     <!-- FILTER BAR — caption du tableau -->
     <div class="grid-caption">
       <input
-        pInputText
         type="text"
+        class="form-control grid-caption__search"
         placeholder="Rechercher (libellé, CIP)..."
         [value]="searchText()"
         (input)="onSearchInput($any($event.target).value)"
-        class="grid-caption__search"
       />
       <div class="d-flex gap-1">
-        <p-button
+        <app-button
           label="Tous"
           size="small"
           [severity]="urgenceFilter() === 'TOUS' ? 'primary' : 'secondary'"
-          (onClick)="setUrgenceFilter('TOUS')"
+          (clicked)="setUrgenceFilter('TOUS')"
         />
-        <p-button
+        <app-button
           label="Urgents"
           size="small"
           [severity]="urgenceFilter() === 'URGENT' ? 'danger' : 'secondary'"
-          (onClick)="setUrgenceFilter('URGENT')"
+          (clicked)="setUrgenceFilter('URGENT')"
         />
-        <p-button
+        <app-button
           label="Normaux"
           size="small"
           [severity]="urgenceFilter() === 'NORMAL' ? 'warn' : 'secondary'"
-          (onClick)="setUrgenceFilter('NORMAL')"
+          (clicked)="setUrgenceFilter('NORMAL')"
         />
-        <p-button
+        <app-button
           label="Couverts"
           size="small"
           [severity]="urgenceFilter() === 'OK' ? 'success' : 'secondary'"
-          pTooltip="Produits avec un stock en couverture suffisante"
-          tooltipPosition="top"
-          (onClick)="setUrgenceFilter('OK')"
+          ngbTooltip="Produits avec un stock en couverture suffisante"
+          placement="top"
+          (clicked)="setUrgenceFilter('OK')"
         />
       </div>
       <span class="grid-caption__total ms-auto">{{ total() }} ligne(s)</span>
@@ -254,25 +250,25 @@
     <!-- PAGINATION EXTERNE -->
     @if (total() > rows()) {
       <div class="pagination-bar">
-        <p-button
+        <app-button
           icon="pi pi-angle-left"
           severity="secondary"
           size="small"
           [disabled]="page() === 0"
-          (onClick)="goToPage(page() - 1)"
-          pTooltip="Page précédente"
+          (clicked)="goToPage(page() - 1)"
+          ngbTooltip="Page précédente"
         />
         <span class="pagination-info">
         Page {{ page() + 1 }} / {{ totalPages() }}
           &nbsp;·&nbsp; {{ total() }} lignes
       </span>
-        <p-button
+        <app-button
           icon="pi pi-angle-right"
           severity="secondary"
           size="small"
           [disabled]="page() >= totalPages() - 1"
-          (onClick)="goToPage(page() + 1)"
-          pTooltip="Page suivante"
+          (clicked)="goToPage(page() + 1)"
+          ngbTooltip="Page suivante"
         />
       </div>
     }

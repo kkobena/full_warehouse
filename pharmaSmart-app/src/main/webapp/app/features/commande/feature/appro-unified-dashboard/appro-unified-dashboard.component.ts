@@ -3,14 +3,7 @@ import { CommonModule, DatePipe, NgClass } from "@angular/common";
 import { Router } from "@angular/router";
 import { HttpResponse } from "@angular/common/http";
 
-import { TableModule } from "primeng/table";
-import { ButtonModule } from "primeng/button";
-import { ToolbarModule } from "primeng/toolbar";
-import { Tag } from "primeng/tag";
-import { ProgressBarModule } from "primeng/progressbar";
-import { SkeletonModule } from "primeng/skeleton";
-import { TooltipModule } from "primeng/tooltip";
-import { BadgeModule } from "primeng/badge";
+import { NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 
 import { CommandeService, ICommandeDashboard, ICommandeResumee } from "app/entities/commande/commande.service";
 import { SemoisService } from "app/entities/semois/semois.service";
@@ -18,6 +11,15 @@ import { BudgetCommande, SemoisFraicheur, SuggestionService } from "app/entities
 import { CommandCommonService } from "app/entities/commande/command-common.service";
 import { IReapproDashboard, ITopUrgentDTO } from "app/shared/model/semois/semois-dashboard.model";
 import { AlertBadgeService } from "app/shared/services/alert-badge.service";
+import {
+  BadgeComponent,
+  ButtonComponent,
+  DataTableComponent,
+  KpiItemComponent,
+  KpiStripComponent,
+  SkeletonComponent,
+  ToolbarComponent,
+} from "app/shared/ui";
 
 @Component({
   selector: "app-appro-unified-dashboard",
@@ -26,8 +28,8 @@ import { AlertBadgeService } from "app/shared/services/alert-badge.service";
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     DatePipe, CommonModule,
-    TableModule, ButtonModule, ToolbarModule, Tag,
-    ProgressBarModule, SkeletonModule, TooltipModule, BadgeModule,
+    NgbTooltip, KpiStripComponent, KpiItemComponent,
+    BadgeComponent, ButtonComponent, DataTableComponent, SkeletonComponent, ToolbarComponent,
   ],
 })
 export class ApproUnifiedDashboardComponent implements OnInit {

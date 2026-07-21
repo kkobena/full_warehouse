@@ -1,0 +1,174 @@
+// Calage visuel de @ng-select/ng-select sur l'apparence de `p-select` (preset Aura).
+//
+// Cf. plan de migration §8.9. Objectif : quand un écran passe de `<p-select>` à
+// `<app-select-search>` / `<app-multi-select>`, aucune rupture visuelle perçue.
+//
+// ⚠ Les valeurs ci-dessous ne sont pas approximées : ce sont les tokens que le preset
+// Aura résout réellement pour `p-select` (component `select` → semantic `formField`,
+// `list.option`, `overlay.select`). Le squelette §8.9.3 du plan visait `--p-surface-border`
+// et `--p-border-radius`, qui n'existent pas dans le theming PrimeNG v18+ — on utilise
+// donc `--p-form-field-*`, `--p-list-option-*` et `--p-overlay-select-*`.
+//
+// À charger APRÈS `@ng-select/ng-select/themes/default.theme.css` dans vendor.scss.
+
+.ng-select {
+  // --- Conteneur (équivalent .p-select) ---
+  .ng-select-container {
+    background: var(--p-form-field-background);
+    border: 1px solid var(--p-form-field-border-color);
+    border-radius: var(--p-form-field-border-radius);
+    box-shadow: var(--p-form-field-shadow);
+    color: var(--p-form-field-color);
+    padding: 0 var(--p-form-field-padding-x);
+    transition:
+      background-color var(--p-form-field-transition-duration),
+      color var(--p-form-field-transition-duration),
+      border-color var(--p-form-field-transition-duration);
+
+    .ng-value-container {
+      padding: var(--p-form-field-padding-y) 0;
+
+      .ng-placeholder {
+        color: var(--p-form-field-placeholder-color);
+      }
+    }
+  }
+
+  &:hover:not(.ng-select-disabled) .ng-select-container {
+    border-color: var(--p-form-field-hover-border-color);
+  }
+
+  // Aura donne à `p-select` un focus-ring de largeur 0 : seule la bordure change.
+  // On reproduit ce comportement plutôt que l'anneau 2px suggéré au §8.9.2.
+  &.ng-select-focused .ng-select-container {
+    border-color: var(--p-form-field-focus-border-color);
+    // Halo commun à tous les champs (cf. `--pharma-focus-ring`). Aura n'en pose pas ;
+    // on s'en écarte volontairement pour que le champ actif reste repérable au clavier.
+    box-shadow: var(--pharma-focus-ring);
+    outline: 0;
+  }
+
+  &.ng-select-disabled .ng-select-container {
+    background: var(--p-form-field-disabled-background);
+    color: var(--p-form-field-disabled-color);
+    cursor: not-allowed;
+  }
+
+  &.ng-invalid.ng-touched .ng-select-container {
+    border-color: var(--p-form-field-invalid-border-color);
+
+    .ng-placeholder {
+      color: var(--p-form-field-invalid-placeholder-color);
+    }
+  }
+
+  // --- Icônes chevron / clear ---
+  // Option B du §8.9.4 : on garde les SVG natifs de ng-select et on les recolore.
+  .ng-arrow-wrapper {
+    width: 2.5rem;
+    padding-right: 0;
+
+    .ng-arrow {
+      border-top-color: var(--p-form-field-icon-color);
+    }
+  }
+
+  .ng-clear-wrapper {
+    color: var(--p-form-field-icon-color);
+  }
+
+  // --- Chips (mode multiple, équivalent p-multiselect) ---
+  &.ng-select-multiple .ng-select-container .ng-value-container .ng-value {
+    background: var(--p-highlight-background);
+    color: var(--p-highlight-color);
+    border-radius: var(--p-border-radius-sm);
+    padding: 0 0.5rem;
+
+    .ng-value-icon {
+      color: var(--p-highlight-color);
+
+      &:hover {
+        background: var(--p-highlight-focus-background);
+        color: var(--p-highlight-focus-color);
+      }
+
+      &.left {
+        border-right-color: var(--p-highlight-focus-background);
+      }
+    }
+  }
+
+  // --- Taille compacte (équivalent .p-select-sm) ---
+  &.app-select-sm {
+    font-size: var(--p-form-field-sm-font-size);
+
+    .ng-select-container {
+      padding: 0 var(--p-form-field-sm-padding-x);
+
+      .ng-value-container {
+        padding: var(--p-form-field-sm-padding-y) 0;
+      }
+    }
+  }
+}
+
+// --- Panneau déroulant (équivalent .p-select-overlay) ---
+.ng-dropdown-panel {
+  background: var(--p-overlay-select-background);
+  border: 1px solid var(--p-overlay-select-border-color);
+  border-radius: var(--p-overlay-select-border-radius);
+  box-shadow: var(--p-overlay-select-shadow);
+  color: var(--p-overlay-select-color);
+
+  // Avec `appendTo="body"` — indispensable dans une modale, sinon le panneau est rogné
+  // par le scroll du corps — le panneau quitte le DOM de la modale et se retrouve derrière
+  // elle : ng-bootstrap place `.modal` à 1055. On passe juste au-dessus, en restant sous
+  // les popovers (1070) et tooltips (1080) de Bootstrap.
+  //
+  // ⚠ `!important` nécessaire : ng-select embarque son propre `.ng-dropdown-panel { z-index: 1050 }`
+  // dans les styles inline de son composant (encapsulation: None), injectés par Angular
+  // au moment où le composant est utilisé pour la première fois — donc potentiellement
+  // APRÈS cette feuille dans le document, selon le moment où la première `ng-select` de
+  // la page est instanciée (ex. une modale ouverte tardivement). À spécificité égale
+  // (une seule classe des deux côtés), c'est l'ordre d'apparition dans le document qui
+  // tranche, pas le nôtre — le panneau retombait alors à 1050, sous le modal (1055).
+  z-index: 1060 !important;
+
+  .ng-dropdown-panel-items {
+    padding: 0.25rem;
+
+    .ng-option {
+      background: transparent;
+      border-radius: var(--p-list-option-border-radius);
+      color: var(--p-list-option-color);
+      padding: var(--p-list-option-padding);
+
+      &.ng-option-marked {
+        background: var(--p-list-option-focus-background);
+        color: var(--p-list-option-focus-color);
+      }
+
+      &.ng-option-selected {
+        background: var(--p-list-option-selected-background);
+        color: var(--p-list-option-selected-color);
+        font-weight: 500;
+
+        &.ng-option-marked {
+          background: var(--p-list-option-selected-focus-background);
+          color: var(--p-list-option-selected-focus-color);
+        }
+      }
+
+      &.ng-option-disabled {
+        color: var(--p-list-option-group-color);
+      }
+    }
+
+    .ng-optgroup {
+      background: var(--p-list-option-group-background);
+      color: var(--p-list-option-group-color);
+      font-weight: var(--p-list-option-group-font-weight);
+      padding: var(--p-list-option-group-padding);
+    }
+  }
+}

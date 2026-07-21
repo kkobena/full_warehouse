@@ -1,13 +1,13 @@
 import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
-import {Button} from 'primeng/button';
 import {CommonModule} from '@angular/common';
-import {IconField} from 'primeng/iconfield';
-import {InputIcon} from 'primeng/inputicon';
-import {InputText} from 'primeng/inputtext';
 import {NgbModal, NgbPagination} from '@ng-bootstrap/ng-bootstrap';
-import {Select} from 'primeng/select';
-import {TableModule} from 'primeng/table';
-import {Toolbar} from 'primeng/toolbar';
+import {
+  ButtonComponent,
+  DataTableComponent,
+  IconFieldComponent,
+  SelectComponent,
+  ToolbarComponent
+} from '../../../shared/ui';
 import TranslateDirective from '../../../shared/language/translate.directive';
 import {IMagasin, IProduit} from "../../../shared/model";
 import {ITEMS_PER_PAGE} from '../../../shared/constants/pagination.constants';
@@ -34,14 +34,12 @@ import {MagasinService} from '../../magasin/magasin.service';
   selector: 'app-stock-depot',
   imports: [
     CommonModule,
-    Button,
-    IconField,
-    InputIcon,
-    InputText,
+    ButtonComponent,
+    IconFieldComponent,
     NgbPagination,
-    Select,
-    TableModule,
-    Toolbar,
+    SelectComponent,
+    DataTableComponent,
+    ToolbarComponent,
     TranslateDirective,
     FormsModule,
     RouterLink,
@@ -55,6 +53,14 @@ export class StockDepotComponent implements OnInit {
   protected produits!: IProduit[];
   protected selectedDepot: IMagasin | null = null;
   protected depots: IMagasin[] = [];
+
+  /** Options du sélecteur de dépôt, avec l'adresse ajoutée au libellé (remplace le `#item` custom de `p-select`). */
+  protected get depotOptions(): (IMagasin & { displayLabel: string })[] {
+    return this.depots.map(depot => ({
+      ...depot,
+      displayLabel: depot.address ? `${depot.name} — ${depot.address}` : depot.name
+    }));
+  }
   protected totalItems = 0;
   protected itemsPerPage = ITEMS_PER_PAGE;
   protected page!: number;

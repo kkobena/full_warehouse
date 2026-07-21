@@ -1,15 +1,10 @@
-import { Component, inject, Input, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
-import { NgbActiveModal, NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { Component, inject, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { NgbActiveModal, NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { IClientTiersPayant, ICustomer, ISales } from "../../../shared/model";
 import { FormArray, FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
-import { ButtonModule } from "primeng/button";
-import { InputTextModule } from "primeng/inputtext";
 import { Observable } from "rxjs";
 import { HttpResponse } from "@angular/common/http";
-import { TableModule } from "primeng/table";
 import { IThirdPartySaleLine } from "../../../shared/model/third-party-sale-line";
-import { CardModule } from "primeng/card";
-import { KeyFilter } from "primeng/keyfilter";
 import { AssuranceService } from "../assurance.service";
 import { UpdateSale } from "./update-sale.model";
 import { ErrorService } from "../../../shared/error.service";
@@ -17,13 +12,11 @@ import { showCommonModal } from "../selling-home/sale-helper";
 import { AssuredCustomerListComponent } from "../assured-customer-list/assured-customer-list.component";
 import { CurrentSaleService } from "../service/current-sale.service";
 import { AddComplementaireComponent } from "../selling-home/assurance/add-complementaire/add-complementaire.component";
-import { ToastAlertComponent } from "../../../shared/toast-alert/toast-alert.component";
 import { AyantDroitCustomerListComponent } from "../ayant-droit-customer-list/ayant-droit-customer-list.component";
 import { FormAyantDroitComponent } from "../../customer/form-ayant-droit/form-ayant-droit.component";
-import { Tooltip } from "primeng/tooltip";
-import { TagModule } from "primeng/tag";
 import { CommonModule } from "@angular/common";
 import { NotificationService } from "../../../shared/services/notification.service";
+import { ButtonComponent, KeyFilterDirective } from "../../../shared/ui";
 
 @Component({
   selector: "app-customer-edit-modal",
@@ -33,15 +26,10 @@ import { NotificationService } from "../../../shared/services/notification.servi
   imports: [
     CommonModule,
     FormsModule,
-    ButtonModule,
-    InputTextModule,
     ReactiveFormsModule,
-    TableModule,
-    CardModule,
-    KeyFilter,
-    ToastAlertComponent,
-    Tooltip,
-    TagModule
+    ButtonComponent,
+    KeyFilterDirective,
+    NgbTooltip
   ]
 })
 export class CustomerEditModalComponent implements OnInit {

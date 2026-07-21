@@ -1,19 +1,32 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { TagModule } from 'primeng/tag';
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
-import { SkeletonModule } from 'primeng/skeleton';
-import { ToolbarModule } from 'primeng/toolbar';
+import {
+  BadgeComponent,
+  ButtonComponent,
+  DataTableComponent,
+  KpiItemComponent,
+  KpiStripComponent,
+  SkeletonComponent,
+  ToolbarComponent,
+} from '../../../../shared/ui';
 import { CommandeService, ICommandeDashboard, ICommandeResumee, IPharmaMlEnvoiResumee } from '../../../../entities/commande/commande.service';
 
 @Component({
   selector: 'app-commande-dashboard',
   templateUrl: './commande-dashboard.component.html',
   styleUrls: ['./commande-dashboard.component.scss'],
-  imports: [DatePipe, RouterModule, TagModule, TableModule, ButtonModule, TooltipModule, SkeletonModule, ToolbarModule],
+  imports: [
+    DatePipe,
+    RouterModule,
+    BadgeComponent,
+    ButtonComponent,
+    DataTableComponent,
+    SkeletonComponent,
+    ToolbarComponent,
+    KpiStripComponent,
+    KpiItemComponent,
+  ],
 })
 export class CommandeDashboardComponent implements OnInit {
   readonly dashboard = signal<ICommandeDashboard | null>(null);

@@ -1,12 +1,12 @@
 import { Component, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { TableModule } from 'primeng/table';
+import { DataTableComponent } from '../../../../../shared/ui';
 
 import { PlanificationStateService } from '../planification-state.service';
 
 @Component({
   selector: 'app-planif-subtab-executions',
-  imports: [DatePipe, TableModule],
+  imports: [DatePipe, DataTableComponent],
   styles: [
     `
       .plan-message-cell {
@@ -29,11 +29,11 @@ import { PlanificationStateService } from '../planification-state.service';
         Aucune exécution enregistrée
       </div>
     } @else {
-      <p-table
+      <app-data-table
         [value]="state.getHistoriqueForPlan(planId())"
         [scrollable]="true"
         scrollHeight="calc(100vh - 430px)"
-        class="p-datatable-sm"
+        [size]="'small'"
         [stripedRows]="true"
       >
         <ng-template #header>
@@ -54,7 +54,7 @@ import { PlanificationStateService } from '../planification-state.service';
             <td class="plan-message-cell small text-muted">{{ h.message || '—' }}</td>
           </tr>
         </ng-template>
-      </p-table>
+      </app-data-table>
     }
   `,
 })

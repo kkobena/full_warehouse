@@ -7,13 +7,11 @@
   <div class="modal-body">
     <div class="card-grid-2col">
       <!-- Section 1: Champs Obligatoires -->
-      <p-card>
-        <ng-template #header>
-          <div class="section-header section-header-required">
+      <app-card [variant]="'form'" [withHeader]="true">
+        <div ngProjectAs="[cardHeader]" class="section-header section-header-required">
             <i class="pi pi-exclamation-circle"></i>
             <span>Champs Obligatoires</span>
           </div>
-        </ng-template>
 
         <div class="form-grid-compact">
           <!-- Nom -->
@@ -21,16 +19,15 @@
             <label for="field_firstName">Nom <span class="required">*</span></label>
             <input
               #firstName
-              pInputText
               id="field_firstName"
               formControlName="firstName"
-              class="w-full"
+              class="form-control"
               autocomplete="off"
               [class.ng-invalid]="editForm.get('firstName')?.invalid && editForm.get('firstName')?.touched"
             />
             @if (editForm.get('firstName')?.invalid && editForm.get('firstName')?.touched) {
               @if (editForm.get('firstName')?.errors?.required) {
-                <small class="p-error" >Ce champ est obligatoire</small>
+                <small class="form-text text-danger" >Ce champ est obligatoire</small>
               }
             }
           </div>
@@ -39,16 +36,15 @@
           <div class="form-field form-field-full">
             <label for="field_lastName">Prénom(s) <span class="required">*</span></label>
             <input
-              pInputText
               id="field_lastName"
               formControlName="lastName"
-              class="w-full"
+              class="form-control"
               autocomplete="off"
               [class.ng-invalid]="editForm.get('lastName')?.invalid && editForm.get('lastName')?.touched"
             />
             @if (editForm.get('lastName')?.invalid && editForm.get('lastName')?.touched) {
               @if (editForm.get('lastName')?.errors?.required) {
-                <small class="p-error" >Ce champ est obligatoire</small>
+                <small class="form-text text-danger" >Ce champ est obligatoire</small>
               }
             }
           </div>
@@ -57,31 +53,28 @@
           <div class="form-field form-field-full">
             <label for="field_numAyantDroit">Numéro assuré <span class="required">*</span></label>
             <input
-              pInputText
-              pKeyFilter="alphanum"
+              [appKeyFilter]="'alphanum'"
               id="field_numAyantDroit"
               formControlName="numAyantDroit"
-              class="w-full"
+              class="form-control"
               autocomplete="off"
               [class.ng-invalid]="editForm.get('numAyantDroit')?.invalid && editForm.get('numAyantDroit')?.touched"
             />
             @if (editForm.get('numAyantDroit')?.invalid && editForm.get('numAyantDroit')?.touched) {
               @if (editForm.get('numAyantDroit')?.errors?.required) {
-                <small class="p-error" >Ce champ est obligatoire</small>
+                <small class="form-text text-danger" >Ce champ est obligatoire</small>
               }
             }
           </div>
         </div>
-      </p-card>
+      </app-card>
 
       <!-- Section 2: Informations Complémentaires -->
-      <p-card>
-        <ng-template #header>
-          <div class="section-header">
+      <app-card [variant]="'form'" [withHeader]="true">
+        <div ngProjectAs="[cardHeader]" class="section-header">
             <i class="pi pi-user"></i>
             <span>Informations Complémentaires</span>
           </div>
-        </ng-template>
 
         <div class="form-grid-compact">
           <!-- Date de naissance -->
@@ -89,18 +82,17 @@
             @let datNaiss = editForm.get('datNaiss');
             <label for="field_datNaiss">Date de naissance</label>
             <input
-              pInputText
               jhiDateNaiss
               id="field_datNaiss"
               formControlName="datNaiss"
               placeholder="jj/mm/aaaa"
-              class="w-full"
+              class="form-control"
               [class.ng-invalid]="datNaiss?.invalid && datNaiss?.touched"
             />
             @if (datNaiss?.invalid && datNaiss?.touched) {
               @let errors = datNaiss?.errors;
               @if (errors?.invalidDate || errors?.outOfRange) {
-                <small class="p-error">Veuillez saisir une date valide</small>
+                <small class="form-text text-danger">Veuillez saisir une date valide</small>
               }
             }
           </div>
@@ -109,19 +101,17 @@
           <div class="form-field form-field-full">
             <label>Sexe</label>
             <div class="radio-group">
-              <p-radiobutton formControlName="sexe" id="masculin" inputId="masculin" name="sexe" value="M"></p-radiobutton>
-              <label for="masculin" class="radio-label">Masculin</label>
-              <p-radiobutton formControlName="sexe" id="feminin" inputId="feminin" name="sexe" value="F"></p-radiobutton>
-              <label for="feminin" class="radio-label">Feminin</label>
+              <app-radio formControlName="sexe" name="sexe" [value]="'M'" [inline]="true" label="Masculin" />
+              <app-radio formControlName="sexe" name="sexe" [value]="'F'" [inline]="true" label="Feminin" />
             </div>
           </div>
         </div>
-      </p-card>
+      </app-card>
     </div>
   </div>
 
   <div class="form-actions-compact">
-    <p-button
+    <app-button
       (click)="cancel()"
       [raised]="true"
       class="mr-2"
@@ -129,15 +119,14 @@
       label="Annuler"
       severity="secondary"
       type="button"
-    ></p-button>
-    <p-button
+    ></app-button>
+    <app-button
       [disabled]="editForm.invalid || isSaving || !isValid"
       [raised]="true"
       icon="pi pi-check"
       label="Enregistrer"
       severity="success"
       type="submit"
-    ></p-button>
+    ></app-button>
   </div>
 </form>
-<p-toast position="center"></p-toast>

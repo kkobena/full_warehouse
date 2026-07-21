@@ -1,100 +1,63 @@
 <div class="pharma-smart-content p-1">
 
   <!-- Toolbar -->
-  <div class="pharma-toolbar pharma-toolbar-compact">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-file-minus"></i>
-      <span class="pharma-toolbar-title">Avoirs / Notes de crédit</span>
-    </div>
-    <p-toolbar>
-      <ng-template #start>
+  <app-toolbar [compact]="true" icon="pi pi-file-minus" title="Avoirs / Notes de crédit">
+    <ng-container ngProjectAs="[toolbarFilters]">
         <div class="pharma-toolbar-filters">
 
-          <p-floatlabel variant="on">
-            <p-autocomplete
-              (completeMethod)="searchTiersPayant($event)"
+          <app-float-label inputId="av-tp" label="Tiers-payant">
+            <app-multi-select
+              (searched)="searchTiersPayant($event)"
               [(ngModel)]="selectedTiersPayants"
-              [forceSelection]="true"
-              [minQueryLength]="2"
-              [multiple]="true"
-              [suggestions]="tiersPayantSuggestions"
+              [minSearchLength]="2"
+                            [items]="tiersPayantSuggestions"
               appendTo="body"
-              [dropdown]="true"
-              id="av-tp"
               inputId="av-tp"
-              optionLabel="fullName"
+              bindLabel="fullName"
             />
-            <label for="av-tp">Tiers-payant</label>
-          </p-floatlabel>
+          </app-float-label>
 
-          <p-floatlabel variant="on">
-            <p-datepicker
-              [(ngModel)]="modelStartDate"
-              [iconDisplay]="'input'"
-              [showIcon]="true"
-              [showButtonBar]="true"
-              appendTo="body"
-              dateFormat="dd/mm/yy"
-              id="av-du"
-              inputId="av-du"
-            />
-            <label for="av-du">Du</label>
-          </p-floatlabel>
+          <pharma-date-picker [(ngModel)]="modelStartDate" id="av-du" label="Du" />
 
-          <p-floatlabel variant="on">
-            <p-datepicker
-              [(ngModel)]="modelEndDate"
-              [iconDisplay]="'input'"
-              [showIcon]="true"
-              [showButtonBar]="true"
-              appendTo="body"
-              dateFormat="dd/mm/yy"
-              id="av-au"
-              inputId="av-au"
-            />
-            <label for="av-au">Au</label>
-          </p-floatlabel>
+          <pharma-date-picker [(ngModel)]="modelEndDate" id="av-au" label="Au" />
 
-          <p-floatlabel variant="on">
-            <p-select
+          <app-float-label inputId="av-statut" label="">
+            <app-select
               [(ngModel)]="selectedStatut"
-              [options]="statutOptions"
-              [showClear]="true"
+              [items]="statutOptions"
+              [clearable]="true"
               appendTo="body"
-              id="av-statut"
-              optionLabel="label"
-              optionValue="value"
-              style="width: 140px"
+              inputId="av-statut"
+              bindLabel="label"
+              bindValue="value"
+              [style]="{ width: '140px' }"
             />
-            <label for="av-statut"></label>
-          </p-floatlabel>
+          </app-float-label>
 
-          <p-floatlabel variant="on">
+          <app-float-label inputId="av-num" label="N° avoir">
             <input
-              pInputText
               [(ngModel)]="numAvoirSearch"
-              id="av-num"
-              style="width: 130px"
-            />
-            <label for="av-num">N° avoir</label>
-          </p-floatlabel>
+              inputId="av-num"
+              [style]="{ width: '130px' }"
+             placeholder=" " class="form-control" />
+          </app-float-label>
 
         </div>
-      </ng-template>
+      </ng-container>
 
-      <ng-template #end>
+<ng-container ngProjectAs="[toolbarActions]">
         <div class="pharma-toolbar-actions">
           <div class="pharma-button-group">
-            <p-button
-              (onClick)="onSearch()"
+            <app-button
+              (clicked)="onSearch()"
               [loading]="loading()"
               [raised]="true"
               icon="pi pi-search"
               label="Rechercher"
               severity="info"
             />
-            <p-splitbutton
-              [model]="exportMenuItems"
+            <app-split-button
+              [items]="exportMenuItems"
               [raised]="true"
               icon="pi pi-file-excel"
               label="Exporter"
@@ -103,9 +66,8 @@
 
           </div>
         </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
+      </ng-container>
+  </app-toolbar>
 
   <!-- KPI bar -->
   @if (avoirs().length > 0) {
@@ -134,13 +96,12 @@
   }
 
   <!-- Table -->
-  <p-table
+  <app-data-table
     [value]="avoirs()"
     [loading]="loading()"
-    [rowHover]="true"
     [scrollable]="true"
     scrollHeight="flex"
-    class="p-datatable-sm"
+    [size]="'small'"
   >
     <ng-template #header>
       <tr class="pharma-table-head">
@@ -166,7 +127,7 @@
         <td class="text-end small text-muted">{{ (avoir.montantTva ?? 0) | number:'1.0-0' }}</td>
         <td class="text-end small text-muted">{{ (avoir.montantHt ?? 0) | number:'1.0-0' }}</td>
         <td>
-          <p-badge [value]="getStatutLabel(avoir.statut)" [severity]="getStatutSeverity(avoir.statut)" />
+          <app-badge [label]="getStatutLabel(avoir.statut)" [severity]="getStatutSeverity(avoir.statut)" />
         </td>
         <td class="small text-muted" [title]="avoir.motif ?? ''">
           <span class="avoir-motif-cell">{{ avoir.motif }}</span>
@@ -174,53 +135,53 @@
         <td class="text-center">
           <div class="d-flex gap-1 justify-content-center">
             @if (avoir.statut === 'DRAFT') {
-              <p-button
-                (onClick)="onEmettre(avoir)"
+              <app-button
+                (clicked)="onEmettre(avoir)"
                 icon="pi pi-send"
                 label="Émettre"
                 severity="info"
                 size="small"
                 [outlined]="true"
-                pTooltip="Émettre cet avoir"
+                ngbTooltip="Émettre cet avoir"
               />
             }
             @if (avoir.statut === 'EMIS') {
-              <p-button
-                (onClick)="onOpenImputer(avoir)"
+              <app-button
+                (clicked)="onOpenImputer(avoir)"
                 icon="pi pi-link"
                 label="Imputer"
                 severity="success"
                 size="small"
                 [outlined]="true"
-                pTooltip="Imputer sur une facture"
+                ngbTooltip="Imputer sur une facture"
               />
             }
             @if (avoir.statut === 'DRAFT' || avoir.statut === 'EMIS') {
-              <p-button
-                (onClick)="onOpenAnnuler(avoir)"
+              <app-button
+                (clicked)="onOpenAnnuler(avoir)"
                 icon="pi pi-ban"
                 severity="danger"
                 size="small"
                 [text]="true"
-                pTooltip="Annuler l'avoir"
+                ngbTooltip="Annuler l'avoir"
               />
             }
-            <p-button
-              (onClick)="onExportPdf(avoir)"
+            <app-button
+              (clicked)="onExportPdf(avoir)"
               icon="pi pi-file-pdf"
               severity="warn"
               size="small"
               [text]="true"
               [loading]="exportingPdf() === avoir.id"
-              pTooltip="Télécharger PDF"
+              ngbTooltip="Télécharger PDF"
             />
-            <p-button
-              (onClick)="openNouvelAvoir(avoir.factureOrigineId, avoir.factureOrigineDate, avoir.tiersPayantId)"
+            <app-button
+              (clicked)="openNouvelAvoir(avoir.factureOrigineId, avoir.factureOrigineDate, avoir.tiersPayantId)"
               icon="pi pi-plus"
               severity="secondary"
               size="small"
               [text]="true"
-              pTooltip="Créer un avoir sur cette facture"
+              ngbTooltip="Créer un avoir sur cette facture"
             />
           </div>
         </td>
@@ -234,7 +195,7 @@
         </td>
       </tr>
     </ng-template>
-  </p-table>
+  </app-data-table>
 
 </div>
 
@@ -249,29 +210,27 @@
     <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
   </div>
   <div class="modal-body">
-    <p-floatlabel variant="on">
-      <p-autocomplete
+    <app-float-label inputId="imp-facture" label="Facture cible *">
+      <app-select-search
         [(ngModel)]="selectedTargetFacture"
-        [suggestions]="factureCibleSuggestions"
-        (completeMethod)="searchFactureCible($event)"
-        [forceSelection]="true"
-        [minQueryLength]="2"
-        [dropdown]="true"
-        optionLabel="numFacture"
+        [items]="factureCibleSuggestions"
+        (searched)="searchFactureCible($event)"
+        [minSearchLength]="2"
+        bindLabel="numFacture"
         appendTo="body"
-        id="imp-facture"
         inputId="imp-facture"
-        style="width: 100%"
-      >
-        <ng-template #item let-f>
-          <div class="d-flex justify-content-between align-items-center gap-3 w-100">
-            <span class="pharma-code fw-semibold">{{ f.numFacture }}</span>
-            <span class="small text-muted">Restant&nbsp;: <span class="pharma-price">{{ f.montantRestant | number:'1.0-0' }}</span></span>
-          </div>
-        </ng-template>
-      </p-autocomplete>
-      <label for="imp-facture">Facture cible *</label>
-    </p-floatlabel>
+        [optionTemplate]="tplFactureCible"
+        [style]="{ width: '100%' }"
+      />
+
+      <!-- Rendu d'une option : passe par une entrée, ng-select lisant son gabarit en ContentChild. -->
+      <ng-template #tplFactureCible let-f>
+        <div class="d-flex justify-content-between align-items-center gap-3 w-100">
+          <span class="pharma-code fw-semibold">{{ f.numFacture }}</span>
+          <span class="small text-muted">Restant&nbsp;: <span class="pharma-price">{{ f.montantRestant | number: '1.0-0' }}</span></span>
+        </div>
+      </ng-template>
+          </app-float-label>
     @if (selectedTargetFacture) {
       @if (canConfirmImputer()) {
         <small class="text-success d-block mt-1">
@@ -285,8 +244,8 @@
     }
   </div>
   <div class="modal-footer py-2">
-    <p-button label="Annuler" severity="secondary" [outlined]="true" size="small" (onClick)="modal.dismiss()" />
-    <p-button label="Imputer" icon="pi pi-link" severity="success" size="small" [disabled]="!canConfirmImputer()" (onClick)="modal.close()" />
+    <app-button label="Annuler" severity="secondary" [outlined]="true" size="small" (clicked)="modal.dismiss()" />
+    <app-button label="Imputer" icon="pi pi-link" severity="success" size="small" [disabled]="!canConfirmImputer()" (clicked)="modal.close()" />
   </div>
 </ng-template>
 
@@ -299,28 +258,25 @@
     <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
   </div>
   <div class="modal-body">
-    <p-floatlabel variant="on">
+    <app-float-label inputId="ann-motif" label="Motif d'annulation *">
       <textarea
         [(ngModel)]="motifAnnulation"
-        id="ann-motif"
-        pInputText
+        inputId="ann-motif"
         rows="3"
         style="width: 100%; resize: vertical"
       ></textarea>
-      <label for="ann-motif">Motif d'annulation *</label>
-    </p-floatlabel>
+          </app-float-label>
   </div>
   <div class="modal-footer py-2">
-    <p-button label="Annuler" severity="secondary" [outlined]="true" size="small" (onClick)="modal.dismiss()" />
-    <p-button
+    <app-button label="Annuler" severity="secondary" [outlined]="true" size="small" (clicked)="modal.dismiss()" />
+    <app-button
       label="Confirmer"
       icon="pi pi-ban"
       severity="danger"
       size="small"
       [disabled]="!motifAnnulation.trim()"
-      (onClick)="modal.close(motifAnnulation)"
+      (clicked)="modal.close(motifAnnulation)"
     />
   </div>
 </ng-template>
 
-<p-toast position="center" />

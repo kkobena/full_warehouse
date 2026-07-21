@@ -5,7 +5,7 @@
 
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
-    <p-card>
+    <app-card [variant]="'form'">
       <div class="form-grid-compact">
         <!-- Product Info -->
         <div class="form-field form-field-full">
@@ -51,11 +51,11 @@
           <input
             #seuilMiniInput
             autocomplete="off"
+            class="form-control"
             formControlName="seuilMini"
             id="field_seuilMini"
             name="seuilMini"
-            pInputText
-            pKeyFilter="pint"
+            [appKeyFilter]="'pint'"
             type="number"
             min="0"
           />
@@ -81,11 +81,11 @@
               <input
                 #stockReassortInput
                 autocomplete="off"
+                class="form-control"
                 formControlName="stockReassort"
                 id="field_stockReassort"
                 name="stockReassort"
-                pInputText
-                pKeyFilter="int"
+                [appKeyFilter]="'int'"
                 type="number"
                 min="0"
               />
@@ -103,11 +103,11 @@
               <input
                 #stockMaxiInput
                 autocomplete="off"
+                class="form-control"
                 formControlName="stockMaxi"
                 id="field_stockMaxi"
                 name="stockMaxi"
-                pInputText
-                pKeyFilter="int"
+                [appKeyFilter]="'int'"
                 type="number"
                 min="0"
               />
@@ -129,8 +129,7 @@
         @if (!isEditMode && stockRayonProduit && maxTransferableQty > 0) {
           <div class="form-field form-field-full">
             <div class="p-field-checkbox">
-              <p-checkbox formControlName="withTransfer" [binary]="true" inputId="withTransfer"/>
-              <label for="withTransfer" class="ms-2">Transférer du stock depuis le rayon</label>
+              <app-checkbox formControlName="withTransfer" label="Transférer du stock depuis le rayon"/>
             </div>
           </div>
 
@@ -139,11 +138,11 @@
               <label for="field_transferQuantity">Quantité à transférer<span class="required">*</span></label>
               <input
                 autocomplete="off"
+                class="form-control"
                 formControlName="transferQuantity"
                 id="field_transferQuantity"
                 name="transferQuantity"
-                pInputText
-                pKeyFilter="pint"
+                [appKeyFilter]="'pint'"
                 type="number"
                 [max]="maxTransferableQty"
                 min="1"
@@ -176,21 +175,20 @@
           </div>
         }
       </div>
-    </p-card>
+    </app-card>
   </div>
 
   <div class="modal-footer">
-    <p-button (click)="cancel()" class="mr-1" icon="pi pi-times" label="Annuler" raised="true" severity="secondary"
+    <app-button (clicked)="cancel()" class="mr-1" icon="pi pi-times" label="Annuler" [raised]="true" severity="secondary"
               type="button"/>
-    <p-button
+    <app-button
       [loading]="isSaving"
       [disabled]="!isFormValid()"
       icon="pi pi-check"
       [label]="isEditMode ? 'Modifier' : 'Créer'"
-      raised="true"
+      [raised]="true"
       severity="primary"
       type="submit"
     />
   </div>
 </form>
-<jhi-toast-alert #alert></jhi-toast-alert>

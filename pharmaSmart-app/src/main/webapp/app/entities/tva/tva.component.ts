@@ -2,11 +2,8 @@ import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core'
 import {TvaService} from './tva.service';
 import {HttpResponse} from '@angular/common/http';
 import {ITva} from '../../shared/model/tva.model';
-import {ButtonModule} from 'primeng/button';
-import {TableModule} from 'primeng/table';
-import {Toolbar} from 'primeng/toolbar';
-import {Tooltip} from 'primeng/tooltip';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {ButtonComponent, DataTableComponent, SelectableRowDirective} from '../../shared/ui';
+import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {showCommonModal} from '../sales/selling-home/sale-helper';
 import {FormTvaComponent} from './form-tva/form-tva.component';
 import {CommonModule} from '@angular/common';
@@ -16,15 +13,17 @@ import {
 } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 
 @Component({
-  selector: 'jhi-tva',
+  selector: 'app-tva',
   templateUrl: './tva.component.html',
   styleUrl: './tva.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, ButtonModule, TableModule, Toolbar, Tooltip, TranslatePipe],
+  imports: [CommonModule, TranslatePipe, ButtonComponent, DataTableComponent, SelectableRowDirective, NgbTooltip],
 })
 export class TvaComponent implements OnInit {
   protected tvas?: ITva[];
-  protected selectedTva?: ITva;
+  // `null` et non `undefined` : le `model()` de `app-data-table` ne transporte que
+  // `T | T[] | null`, et la liaison bidirectionnelle doit pouvoir lui réécrire la valeur.
+  protected selectedTva: ITva | null = null;
   protected loading!: boolean;
   protected isSaving = false;
   private readonly tvaService = inject(TvaService);

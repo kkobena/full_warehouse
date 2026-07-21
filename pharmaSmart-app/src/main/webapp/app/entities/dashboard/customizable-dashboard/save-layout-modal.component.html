@@ -10,11 +10,11 @@
   <div class="form-grid-compact">
     <div class="form-field">
       <label for="layout-name">Nom du layout <span class="required">*</span></label>
-      <input type="text" id="layout-name" [(ngModel)]="layoutName" placeholder="Mon Dashboard" pInputText />
+      <input type="text" id="layout-name" [(ngModel)]="layoutName" placeholder="Mon Dashboard" class="form-control" />
     </div>
     <div class="form-field">
       <label for="layout-scope">Visibilité</label>
-      <p-select [(ngModel)]="layoutScope" [options]="scopeOptions" optionLabel="label" optionValue="value" [fluid]="true" />
+      <app-select [(ngModel)]="layoutScope" [items]="scopeOptions" bindLabel="label" bindValue="value" inputId="layout-scope" />
     </div>
     <div class="form-field">
       <label for="layout-description">Description</label>
@@ -23,13 +23,13 @@
         [(ngModel)]="layoutDescription"
         rows="3"
         placeholder="Description du layout..."
-        pInputText
+        class="form-control"
       ></textarea>
     </div>
   </div>
 </div>
 
 <div class="modal-footer">
-  <p-button label="Annuler" icon="pi pi-times" (onClick)="dismiss()" severity="secondary" [text]="true" />
-  <p-button label="Sauvegarder" icon="pi pi-check" (onClick)="save()" [disabled]="!layoutName" />
+  <app-button label="Annuler" icon="pi pi-times" (clicked)="dismiss()" severity="secondary" [text]="true" />
+  <app-button label="Sauvegarder" icon="pi pi-check" (clicked)="save()" [disabled]="!layoutName" />
 </div>

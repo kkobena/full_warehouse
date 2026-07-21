@@ -1,48 +1,42 @@
 <div class="pharma-smart-content p-2">
-  <div class="pharma-toolbar">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-chart-bar"></i>
-      <span class="pharma-toolbar-title">Valorisation du Stock</span>
-    </div>
+  <app-toolbar icon="pi pi-chart-bar" title="Valorisation du Stock">
 
-    <p-toolbar>
-      <ng-template #start>
+    <ng-container ngProjectAs="[toolbarFilters]">
         <div class="pharma-toolbar-filters">
-          <p-select
-            (onChange)="onFilterChange()"
+          <app-select
+            (selectionChange)="onFilterChange()"
             [(ngModel)]="selectedFamilleProduit"
-            [options]="familleProduitOptions()"
-            [showClear]="true"
+            [items]="familleProduitOptions()"
+            [clearable]="true"
             appendTo="body"
-            optionLabel="libelle"
+            bindLabel="libelle"
 
             placeholder="Famille de Produit"
             size="large"
           />
-          <p-select
-            (onChange)="onFilterChange()"
+          <app-select
+            (selectionChange)="onFilterChange()"
             [(ngModel)]="selectedRayon"
-            [options]="rayonOptions()"
-            [showClear]="true"
+            [items]="rayonOptions()"
+            [clearable]="true"
             appendTo="body"
-            optionLabel="libelle"
+            bindLabel="libelle"
             placeholder="Rayons"
             size="large"
           />
         </div>
-      </ng-template>
+      </ng-container>
 
-      <ng-template #end>
+<ng-container ngProjectAs="[toolbarActions]">
         <div>
 
-          <p-button (onClick)="exportToPdf()" class="mr-1" icon="pi pi-file-pdf" label="Exporter PDF"
+          <app-button (clicked)="exportToPdf()" class="mr-1" icon="pi pi-file-pdf" label="Exporter PDF"
                     severity="warn" size="small" />
-          <p-button (onClick)="loadData()" icon="pi pi-refresh" label="Rafraîchir" severity="primary"
+          <app-button (clicked)="loadData()" icon="pi pi-refresh" label="Rafraîchir" severity="primary"
                     size="small" />
         </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
+      </ng-container>
+  </app-toolbar>
 
   <!-- KPI Strip -->
   @if (summary()) {
@@ -104,7 +98,7 @@
           </h5>
         </div>
         <div class="card-body p-0">
-          <p-table
+          <app-data-table
             [loading]="isLoading()"
             [paginator]="true"
             [rowsPerPageOptions]="[10, 20, 50, 100]"
@@ -112,7 +106,7 @@
             [scrollable]="true"
             [showCurrentPageReport]="true"
             [value]="valuations()"
-            class="p-datatable-sm"
+            [size]="'small'"
             currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
             scrollHeight="500px"
           >
@@ -178,7 +172,7 @@
                   </td>
                 </tr>
               </ng-template>
-            </p-table>
+            </app-data-table>
         </div>
       </div>
     </div>

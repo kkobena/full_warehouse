@@ -20,9 +20,6 @@ import { ButtonGroup } from "primeng/buttongroup";
 import { AbilityService } from "../../../../core/auth/ability.service";
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { NotificationService } from "../../../../shared/services/notification.service";
-import { Toast } from "primeng/toast";
-
-
 @Component({
   selector: "app-sales-en-cours",
   templateUrl: "./sales-en-cours.component.html",
@@ -40,8 +37,7 @@ import { Toast } from "primeng/toast";
     InputText,
     TooltipModule,
     ButtonGroup,
-    RouterLink,
-    Toast
+    RouterLink
   ]
 })
 export class SalesEnCoursComponent implements OnInit {

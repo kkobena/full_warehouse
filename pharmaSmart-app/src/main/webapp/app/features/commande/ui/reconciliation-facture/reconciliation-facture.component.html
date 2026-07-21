@@ -21,13 +21,11 @@
       <span class="rf-row-label">Montant HT</span>
       <span class="rf-val rf-val--ref">{{ blMontantHT | number }} F</span>
       <span class="rf-val">
-        <p-inputnumber
+        <app-input-number
           [(ngModel)]="factureMontantHT"
           [min]="0"
-          [useGrouping]="true"
-          inputStyleClass="rf-number-input"
-          [inputStyle]="{'width':'130px','text-align':'right'}"
-          size="small"
+          inputClass="rf-number-input"
+          style="width: 130px"
         />
       </span>
       <span class="rf-val rf-ecart" [class.rf-ecart--ok]="ecartHT === 0" [class.rf-ecart--err]="ecartHT !== 0">
@@ -45,13 +43,11 @@
       <span class="rf-row-label">TVA</span>
       <span class="rf-val rf-val--ref">{{ blTVA | number }} F</span>
       <span class="rf-val">
-        <p-inputnumber
+        <app-input-number
           [(ngModel)]="factureTVA"
           [min]="0"
-          [useGrouping]="true"
-          inputStyleClass="rf-number-input"
-          [inputStyle]="{'width':'130px','text-align':'right'}"
-          size="small"
+          inputClass="rf-number-input"
+          style="width: 130px"
         />
       </span>
       <span class="rf-val rf-ecart" [class.rf-ecart--ok]="ecartTVA === 0" [class.rf-ecart--err]="ecartTVA !== 0">
@@ -95,8 +91,8 @@
     <div class="rf-meta__field">
       <label class="form-label small fw-semibold">Référence facture <span class="text-danger">*</span></label>
       <input
-        pInputText
-        pKeyFilter="alphanum"
+        class="form-control"
+        [appKeyFilter]="'alphanum'"
         [(ngModel)]="factureReference"
         type="text"
         maxlength="50"
@@ -104,11 +100,9 @@
     </div>
     <div class="rf-meta__field">
       <label class="form-label small fw-semibold">Date facture</label>
-      <p-datepicker
+      <pharma-date-picker
         [(ngModel)]="factureDate"
-        dateFormat="dd/mm/yy"
-        [showIcon]="true"
-        appendTo="body"
+        id="factureDate"
       />
     </div>
   </div>
@@ -116,15 +110,15 @@
 </div>
 
 <div class="modal-footer">
-  <p-button
-    (click)="onCancel()"
+  <app-button
+    (clicked)="onCancel()"
     label="Annuler"
     severity="secondary"
     size="small"
     [text]="true"
   />
-  <p-button
-    (click)="onSubmit()"
+  <app-button
+    (clicked)="onSubmit()"
     icon="pi pi-save"
     [label]="isReconcilie ? 'Valider — Rapproché' : 'Enregistrer avec écart'"
     [severity]="isReconcilie ? 'primary' : 'warn'"

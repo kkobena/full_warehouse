@@ -1,17 +1,13 @@
 import { Component, inject, NgZone, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
-import { ProgressBarModule } from 'primeng/progressbar';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { AccountService } from 'app/core/auth/account.service';
 import { NavigationService } from 'app/core/config/navigation.service';
 import { BackendManagerService } from 'app/shared/services/backend-manager.service';
 import { AppSettingsService } from 'app/core/config/app-settings.service';
 import { Authority } from 'app/config/authority.constants';
-import { Toolbar } from "primeng/toolbar";
+import { ButtonComponent, PasswordComponent, ToolbarComponent } from '../../../../shared/ui';
 
 export interface AppConfigDto {
   server_port: number;
@@ -41,7 +37,7 @@ export interface AppConfigDto {
   templateUrl: './app-config-editor.component.html',
   styleUrls: ['./app-config-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [ReactiveFormsModule, ButtonModule, InputTextModule, PasswordModule, ProgressBarModule, NgbNavModule, Toolbar]
+  imports: [ReactiveFormsModule, ButtonComponent, PasswordComponent, NgbNavModule, ToolbarComponent]
 })
 export class AppConfigEditorComponent implements OnInit {
   readonly loading = signal(true);

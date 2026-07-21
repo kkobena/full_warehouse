@@ -1,18 +1,8 @@
 import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { FloatLabelModule } from 'primeng/floatlabel';
-import { SelectModule } from 'primeng/select';
-import { Toolbar } from 'primeng/toolbar';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { InputTextModule } from 'primeng/inputtext';
-import { TableLazyLoadEvent } from 'primeng/table';
-import { Toast } from 'primeng/toast';
-import { TooltipModule } from 'primeng/tooltip';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs/operators';
 import { MagasinService } from '../../../../entities/magasin/magasin.service';
@@ -35,6 +25,14 @@ import { CloneRayonFormComponent } from '../../ui/clone-rayon-form/clone-rayon-f
 import { CloneRayonProduitsFormComponent } from '../../ui/clone-rayon-produits-form/clone-rayon-produits-form.component';
 import { InventoryCreateModalComponent } from '../../../inventory/ui/inventory-create-modal/inventory-create-modal.component';
 import { IResponseDto } from '../../../../shared/util/response-dto';
+import {
+  AppTableLazyLoadEvent,
+  ButtonComponent,
+  FloatLabelComponent,
+  IconFieldComponent,
+  SelectComponent,
+  ToolbarComponent
+} from '../../../../shared/ui';
 
 @Component({
   selector: 'app-rayon-home',
@@ -43,17 +41,14 @@ import { IResponseDto } from '../../../../shared/util/response-dto';
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FormsModule,
-    Toolbar,
-    ButtonModule,
-    FloatLabelModule,
-    SelectModule,
-    IconField,
-    InputIcon,
-    InputTextModule,
+    ToolbarComponent,
+    ButtonComponent,
+    FloatLabelComponent,
+    SelectComponent,
+    IconFieldComponent,
     RayonListComponent,
     RayonDetailPanelComponent,
-    Toast,
-    TooltipModule,
+    NgbTooltip,
   ],
 })
 export class RayonHomeComponent implements OnInit {
@@ -100,7 +95,7 @@ export class RayonHomeComponent implements OnInit {
     this.loadPage();
   }
 
-  protected onLazyLoad(event: TableLazyLoadEvent): void {
+  protected onLazyLoad(event: AppTableLazyLoadEvent): void {
     this.page = Math.floor((event.first ?? 0) / (event.rows ?? this.rows));
     this.rows = event.rows ?? this.rows;
     this.loadPage();

@@ -1,9 +1,7 @@
 import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { TagModule } from 'primeng/tag';
-import { ButtonModule } from 'primeng/button';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { BadgeComponent, ButtonComponent } from 'app/shared/ui';
 import { IFournisseurProduit } from 'app/shared/model/fournisseur-produit.model';
 import { SuggestionFacadeService } from '../../data-access/suggestion-facade.service';
 
@@ -12,7 +10,7 @@ import { SuggestionFacadeService } from '../../data-access/suggestion-facade.ser
   templateUrl: './suggestion-comparaison.component.html',
   styleUrls: ['./suggestion-comparaison.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, TagModule, ButtonModule, ProgressSpinnerModule, DecimalPipe],
+  imports: [CommonModule, BadgeComponent, ButtonComponent, DecimalPipe],
 })
 export class SuggestionComparaisonComponent implements OnInit {
   private readonly facade = inject(SuggestionFacadeService);

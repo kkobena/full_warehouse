@@ -1,49 +1,35 @@
 <jhi-spinner #spinner></jhi-spinner>
 
-<div class="pharma-smart-content p-2">
-  <div class="pharma-toolbar">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-briefcase"></i>
-      <span class="pharma-toolbar-title">Gestion des fournisseurs</span>
-    </div>
-
-    <p-toolbar>
-      <ng-template #start>
-        <div class="pharma-toolbar-filters">
-          <div class="pharma-search-input">
-            <p-iconfield>
-              <p-inputicon class="pi pi-search" />
-              <input (keyup.enter)="loadPage(0)" [(ngModel)]="search"
-                     pInputText placeholder="Rechercher un fournisseur…" type="text" />
-            </p-iconfield>
-          </div>
-        </div>
-      </ng-template>
-      <ng-template #end>
-        <div class="pharma-button-group">
-          <p-button (click)="showFileDialog()" [raised]="true" icon="pi pi-upload"
+<div class="pharma-smart-content p-1">
+  <app-toolbar icon="pi pi-briefcase" title="Gestion des fournisseurs">
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <div class="pharma-search-input">
+        <app-icon-field icon="pi pi-search">
+          <input (keyup.enter)="loadPage(0)" [(ngModel)]="search"
+                 class="form-control" placeholder="Rechercher un fournisseur…" type="text" />
+        </app-icon-field>
+      </div>
+    </ng-container>
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-button-group">
+        <app-button (clicked)="showFileDialog()" [raised]="true" icon="pi pi-upload"
                     label="Importer" severity="help" type="button" />
-          <p-button (click)="openNewParent()" [raised]="true" icon="pi pi-plus"
+        <app-button (clicked)="openNewParent()" [raised]="true" icon="pi pi-plus"
                     label="Nouveau fournisseur" severity="success" type="button" />
-        </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
+      </div>
+    </ng-container>
+  </app-toolbar>
 
-  <p-table
+  <app-data-table
     (onLazyLoad)="lazyLoading($event)"
-    (onRowExpand)="onRowExpand($event)"
     [lazy]="true"
     [loading]="loading()"
     [paginator]="true"
     [rows]="itemsPerPage"
-    [scrollable]="true"
     [totalRecords]="totalItems"
     [value]="fournisseurs"
     class="p-datatable-sm"
     dataKey="id"
-    rowExpandMode="multiple"
-    stripedRows="true"
   >
     <ng-template #header>
       <tr class="pharma-table-head">
@@ -66,18 +52,20 @@
         <th><span>Code destinataire</span></th>
         <th><span>N° client grossiste</span></th>
         <th class="text-center"><span>Agences</span></th>
-        <th alignFrozen="right" pFrozenColumn style="width: 8rem"></th>
+        <th appFrozenColumn="right" style="width: 8rem"></th>
       </tr>
     </ng-template>
 
     <!-- ── Ligne principale : fournisseur parent ── -->
     <ng-template #body let-expanded="expanded" let-f>
-      <tr [pSelectableRow]="f">
+      <tr>
         <td>
-          <p-button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                    [pRowToggler]="f"
-                    [rounded]="true" [text]="true" pTooltip="{{ expanded ? 'Masquer les agences' : 'Voir les agences' }}" severity="secondary"
-                    size="small" />
+          <app-button (clicked)="onRowExpand(f)"
+                      [appRowToggler]="f" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                      [rounded]="true" [text]="true"
+                      ngbTooltip="{{ expanded ? 'Masquer les agences' : 'Voir les agences' }}"
+                      severity="secondary"
+                      size="small" />
         </td>
         <td><span class="pharma-code">{{ f.code }}</span></td>
         <td>
@@ -96,9 +84,9 @@
         <td>{{ f.tauxRfa }}</td>
         <td class="text-center">
           @if (f.urlPharmaMl) {
-            <i class="pi pi-check-circle text-success" pTooltip="{{ f.urlPharmaMl }}"></i>
+            <i class="pi pi-check-circle text-success" ngbTooltip="{{ f.urlPharmaMl }}"></i>
           } @else {
-            <i class="pi pi-minus-circle text-muted" pTooltip="PharmaML non configuré"></i>
+            <i class="pi pi-minus-circle text-muted" ngbTooltip="PharmaML non configuré"></i>
           }
         </td>
         <td>{{ f.codeOfficePharmaMl }}</td>
@@ -107,23 +95,24 @@
         <td class="text-center">
           @let agences = agencesOf(f.id!);
           @if (agencesMap().has(f.id!)) {
-            <p-tag [rounded]="true"
-                   [severity]="agences.length > 0 ? 'info' : 'secondary'"
-                   [value]="agences.length + ''" />
+            <app-badge [label]="agences.length + ''"
+                       [rounded]="true"
+                       [severity]="agences.length > 0 ? 'info' : 'secondary'" />
           }
         </td>
-        <td alignFrozen="right" class="text-end" pFrozenColumn>
-          <p-buttongroup>
-            <p-button (click)="editFournisseur(f)" [rounded]="true"
-                      [text]="true" icon="pi pi-pencil" pTooltip="Modifier" severity="success"
-                      tooltipPosition="left" />
-            <p-button (click)="addAgence(f)" [rounded]="true"
-                      [text]="true" icon="pi pi-building" pTooltip="Ajouter une agence" severity="info"
-                      tooltipPosition="left" />
-            <p-button (click)="deleteParent(f)" [rounded]="true"
-                      [text]="true" icon="pi pi-trash" pTooltip="Supprimer" severity="danger"
-                      tooltipPosition="left" />
-          </p-buttongroup>
+        <td appFrozenColumn="right" class="text-end">
+          <div class="btn-group">
+            <app-button (clicked)="editFournisseur(f)" [rounded]="true"
+                        [text]="true" icon="pi pi-pencil" ngbTooltip="Modifier" placement="left"
+                        severity="success" />
+            <app-button (clicked)="addAgence(f)" [rounded]="true"
+                        [text]="true" icon="pi pi-building" ngbTooltip="Ajouter une agence"
+                        placement="left"
+                        severity="info" />
+            <app-button (clicked)="deleteParent(f)" [rounded]="true"
+                        [text]="true" icon="pi pi-trash" ngbTooltip="Supprimer" placement="left"
+                        severity="danger" />
+          </div>
         </td>
       </tr>
     </ng-template>
@@ -159,8 +148,8 @@
                       </div>
                     </div>
                     <div class="activity-card-table-body">
-                      <p-table [scrollable]="true" [value]="agences"
-                               class="pharma-table rowexpansion-table" stripedRows="true">
+                      <app-data-table [value]="agences"
+                                      class="pharma-table rowexpansion-table">
                         <ng-template #header>
                           <tr class="pharma-table-head">
                             <th><span>Code</span></th>
@@ -175,7 +164,7 @@
                             <th><span>Code officine</span></th>
                             <th><span>Code destinataire</span></th>
                             <th><span>N° client grossiste</span></th>
-                            <th alignFrozen="right" pFrozenColumn style="width: 7rem"></th>
+                            <th appFrozenColumn="right" style="width: 7rem"></th>
                           </tr>
                         </ng-template>
                         <ng-template #body let-agence>
@@ -193,29 +182,30 @@
                             <td class="text-center">
                               @if (agence.urlPharmaMl) {
                                 <i class="pi pi-check-circle text-success"
-                                   pTooltip="{{ agence.urlPharmaMl }}"></i>
+                                   ngbTooltip="{{ agence.urlPharmaMl }}"></i>
                               } @else {
                                 <i class="pi pi-minus-circle text-muted"
-                                   pTooltip="PharmaML non configuré"></i>
+                                   ngbTooltip="PharmaML non configuré"></i>
                               }
                             </td>
                             <td>{{ agence.codeOfficePharmaMl }}</td>
                             <td>{{ agence.codeRecepteurPharmaMl }}</td>
                             <td>{{ agence.idRecepteurPharmaMl }}</td>
-                            <td alignFrozen="right" class="text-end" pFrozenColumn>
-                              <p-buttongroup>
-                                <p-button (click)="editFournisseur(agence)" [rounded]="true"
-                                          [text]="true"
-                                          icon="pi pi-pencil" pTooltip="Modifier" severity="success"
-                                          size="small" />
-                                <p-button (click)="deleteAgence(agence, f.id!)" [rounded]="true"
-                                          [text]="true" icon="pi pi-trash" pTooltip="Supprimer"
-                                          severity="danger" size="small" />
-                              </p-buttongroup>
+                            <td appFrozenColumn="right" class="text-end">
+                              <div class="btn-group">
+                                <app-button (clicked)="editFournisseur(agence)" [rounded]="true"
+                                            [text]="true"
+                                            icon="pi pi-pencil" ngbTooltip="Modifier"
+                                            severity="success"
+                                            size="small" />
+                                <app-button (clicked)="deleteAgence(agence, f.id!)" [rounded]="true"
+                                            [text]="true" icon="pi pi-trash" ngbTooltip="Supprimer"
+                                            severity="danger" size="small" />
+                              </div>
                             </td>
                           </tr>
                         </ng-template>
-                      </p-table>
+                      </app-data-table>
                     </div>
                   </div>
                 </div>
@@ -234,5 +224,5 @@
         </td>
       </tr>
     </ng-template>
-  </p-table>
+  </app-data-table>
 </div>

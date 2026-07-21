@@ -1,68 +1,48 @@
 <div class="pharma-smart-content p-2">
   <!-- Modern Pharma Toolbar -->
-  <div class="pharma-toolbar">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-chart-bar"></i>
-      <span class="pharma-toolbar-title">Récapitulatif Produits Vendus/Invendus</span>
-    </div>
+  <app-toolbar icon="pi pi-chart-bar" title="Récapitulatif Produits Vendus/Invendus">
 
-    <p-toolbar>
-      <ng-template #start>
-        <div class="pharma-toolbar-filters py-1">
-          <input [(ngModel)]="searchTerm" class="p-inputtext p-component" pInputText placeholder="Rechercher un produit..." type="text" />
-          <p-floatlabel variant="on">
-            <p-datepicker
-              (onSelect)="onFilterChange()"
-              [(ngModel)]="startDate"
-              [showIcon]="true"
-              [style]="{ 'max-width': '160px' }"
-              appendTo="body"
-              dateFormat="dd/mm/yy"
-              id="startDate"
-            />
-            <label for="startDate">Date début</label>
-          </p-floatlabel>
-          <p-floatlabel variant="on">
-            <p-datepicker
-              [(ngModel)]="endDate"
-              [showIcon]="true"
-              [style]="{ 'max-width': '160px' }"
-              appendTo="body"
-              dateFormat="dd/mm/yy"
-            />
-            <label for="endDate">Date fin</label>
-          </p-floatlabel>
-        </div>
-      </ng-template>
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <div class="pharma-toolbar-filters py-1">
+        <input [(ngModel)]="searchTerm" class="form-control" placeholder="Rechercher un produit..."
+               type="text" />
+        <pharma-date-picker (ngModelChange)="onFilterChange()" [(ngModel)]="startDate"
+                            id="startDate" label="Date début" />
+        <pharma-date-picker [(ngModel)]="endDate" id="endDate" label="Date fin" />
+      </div>
+    </ng-container>
 
-      <ng-template #end>
-        <div class="flex gap-1">
-          <p-button
-            (onClick)="toggleFiltersDrawer()"
-            [outlined]="true"
-            icon="pi pi-filter"
-            label="Filtres avancés"
-            severity="secondary"
-            size="small"
-          />
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="flex gap-1">
+        <app-button
+          (clicked)="toggleFiltersDrawer()"
+          [outlined]="true"
+          icon="pi pi-filter"
+          label="Filtres avancés"
+          severity="secondary"
+          size="small"
+        />
 
-          <p-button (onClick)="loadCurrentTabData()" icon="pi pi-refresh" label="Rechercher" severity="primary" size="small" />
+        <app-button (clicked)="loadCurrentTabData()" icon="pi pi-refresh" label="Rechercher"
+                    severity="primary" size="small" />
 
-          <p-splitbutton [model]="actionsMenuItems()" icon="pi pi-cog" label="Actions" severity="info" size="small" />
+        <app-split-button [items]="actionsMenuItems()" icon="pi pi-cog" label="Actions"
+                          severity="info" size="small" />
 
-          <p-splitbutton [model]="exportMenuItems()" icon="pi pi-file-pdf" label="Exporter" severity="warn" size="small" />
-          <p-button (onClick)="onClearFilters()" icon="pi pi-filter-slash" label="Effacer filtres" severity="secondary" size="small" />
-        </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
+        <app-split-button [items]="exportMenuItems()" icon="pi pi-file-pdf" label="Exporter"
+                          severity="warn" size="small" />
+        <app-button (clicked)="onClearFilters()" icon="pi pi-filter-slash" label="Effacer filtres"
+                    severity="secondary" size="small" />
+      </div>
+    </ng-container>
+  </app-toolbar>
 
   <!-- Tabs -->
   <div class="pharma-nav-tabs-container">
     <div
       #nav="ngbNav"
-      [(activeId)]="activeTab"
       (navChange)="onTabChange($event)"
+      [(activeId)]="activeTab"
       class="nav pharma-nav-tabs"
       ngbNav
       orientation="horizontal"
@@ -81,7 +61,9 @@
                 <i class="pi pi-shopping-cart text-primary"></i>
                 <div class="kpi-strip-body">
                   <span class="kpi-strip-label">Quantité vendue</span>
-                  <span class="kpi-strip-value text-primary">{{ summary()!.quantitySold || 0 | number }}</span>
+                  <span class="kpi-strip-value text-primary">{{
+                      summary()!.quantitySold || 0 | number
+                    }}</span>
                   <span class="kpi-strip-sub">unités</span>
                 </div>
               </div>
@@ -92,7 +74,9 @@
                 <i class="pi pi-replay text-danger"></i>
                 <div class="kpi-strip-body">
                   <span class="kpi-strip-label">Quantité avoir</span>
-                  <span class="kpi-strip-value text-danger">{{ summary()!.quantityAvoir || 0 | number }}</span>
+                  <span class="kpi-strip-value text-danger">{{
+                      summary()!.quantityAvoir || 0 | number
+                    }}</span>
                   <span class="kpi-strip-sub">retours</span>
                 </div>
               </div>
@@ -103,7 +87,9 @@
                 <i class="pi pi-money-bill text-success"></i>
                 <div class="kpi-strip-body">
                   <span class="kpi-strip-label">CA Total</span>
-                  <span class="kpi-strip-value text-success">{{ formatCurrency(summary()!.totalSalesAmount) }} <small>FCFA</small></span>
+                  <span class="kpi-strip-value text-success">{{
+                      formatCurrency(summary()!.totalSalesAmount)
+                    }} <small>FCFA</small></span>
                   <span class="kpi-strip-sub">chiffre d'affaires</span>
                 </div>
               </div>
@@ -114,7 +100,9 @@
                 <i class="pi pi-dollar text-warning"></i>
                 <div class="kpi-strip-body">
                   <span class="kpi-strip-label">Coût d'achat</span>
-                  <span class="kpi-strip-value text-warning">{{ formatCurrency(summary()!.totalPurchaseAmount) }} <small>FCFA</small></span>
+                  <span class="kpi-strip-value text-warning">{{
+                      formatCurrency(summary()!.totalPurchaseAmount)
+                    }} <small>FCFA</small></span>
                   <span class="kpi-strip-sub">prix de revient</span>
                 </div>
               </div>
@@ -131,7 +119,7 @@
               </h5>
             </div>
             <div class="card-body p-0">
-              <p-table
+              <app-data-table
                 (onPage)="onPageChange($event)"
                 [lazy]="true"
                 [loading]="isLoading()"
@@ -140,9 +128,9 @@
                 [rows]="itemsPerPage()"
                 [scrollable]="true"
                 [showCurrentPageReport]="true"
+                [size]="'small'"
                 [totalRecords]="totalItems()"
                 [value]="products()"
-                class="p-datatable-sm"
                 currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
                 scrollHeight="500px"
               >
@@ -171,8 +159,14 @@
                       <span class="pharma-code">{{ product.codeEanLaboratoire }}</span>
                     </td>
                     <td>{{ product.rayonName }}</td>
-                    <td class="text-end pharma-qty-value">{{ product.quantitySold || 0 | number }}</td>
-                    <td class="text-end pharma-qty-avoir">{{ product.quantityAvoir || 0 | number }}</td>
+                    <td class="text-end pharma-qty-value">{{
+                        product.quantitySold || 0 | number
+                      }}
+                    </td>
+                    <td class="text-end pharma-qty-avoir">{{
+                        product.quantityAvoir || 0 | number
+                      }}
+                    </td>
                     <td class="text-end">
                       <span
                         [class]="{
@@ -185,11 +179,18 @@
                         {{ product.stock || 0 | number }}
                       </span>
                     </td>
-                    <td class="text-end pharma-total">{{ product.totalSalesAmount || 0 | number: '1.0-0' }} F</td>
-                    <td class="text-end pharma-price">{{ product.totalPurchaseAmount || 0 | number: '1.0-0' }} F</td>
+                    <td class="text-end pharma-total">{{
+                        product.totalSalesAmount || 0 | number: '1.0-0'
+                      }} F
+                    </td>
+                    <td class="text-end pharma-price">{{
+                        product.totalPurchaseAmount || 0 | number: '1.0-0'
+                      }} F
+                    </td>
                     <td class="text-end">
-                      <p-chip
+                      <app-badge
                         [label]="(getMarginPercentage(product) | number: '1.2-2') + '%'"
+                        [rounded]="true"
                         [severity]="getMarginSeverity(getMarginPercentage(product))"
                       />
                     </td>
@@ -204,7 +205,7 @@
                     </td>
                   </tr>
                 </ng-template>
-              </p-table>
+              </app-data-table>
             </div>
           </div>
         </ng-template>
@@ -224,7 +225,8 @@
                 <i class="pi pi-box text-primary"></i>
                 <div class="kpi-strip-body">
                   <span class="kpi-strip-label">Nb produits</span>
-                  <span class="kpi-strip-value text-primary">{{ unsoldSummary()?.totalProducts | number }}</span>
+                  <span
+                    class="kpi-strip-value text-primary">{{ unsoldSummary()?.totalProducts | number }}</span>
                   <span class="kpi-strip-sub">références</span>
                 </div>
               </div>
@@ -235,7 +237,8 @@
                 <i class="pi pi-database text-warning"></i>
                 <div class="kpi-strip-body">
                   <span class="kpi-strip-label">Stock total</span>
-                  <span class="kpi-strip-value text-warning">{{ unsoldSummary()?.totalStock | number }}</span>
+                  <span
+                    class="kpi-strip-value text-warning">{{ unsoldSummary()?.totalStock | number }}</span>
                   <span class="kpi-strip-sub">unités</span>
                 </div>
               </div>
@@ -246,7 +249,9 @@
                 <i class="pi pi-money-bill text-success"></i>
                 <div class="kpi-strip-body">
                   <span class="kpi-strip-label">Valeur vente</span>
-                  <span class="kpi-strip-value text-success">{{ formatCurrency(unsoldSummary()?.totalSalesAmount || 0) }} <small>FCFA</small></span>
+                  <span class="kpi-strip-value text-success">{{
+                      formatCurrency(unsoldSummary()?.totalSalesAmount || 0)
+                    }} <small>FCFA</small></span>
                   <span class="kpi-strip-sub">prix de vente</span>
                 </div>
               </div>
@@ -257,7 +262,9 @@
                 <i class="pi pi-dollar text-danger"></i>
                 <div class="kpi-strip-body">
                   <span class="kpi-strip-label">Coût d'achat</span>
-                  <span class="kpi-strip-value text-danger">{{ formatCurrency(unsoldSummary()?.totalPurchaseAmount || 0) }} <small>FCFA</small></span>
+                  <span class="kpi-strip-value text-danger">{{
+                      formatCurrency(unsoldSummary()?.totalPurchaseAmount || 0)
+                    }} <small>FCFA</small></span>
                   <span class="kpi-strip-sub">prix de revient</span>
                 </div>
               </div>
@@ -274,7 +281,7 @@
               </h5>
             </div>
             <div class="card-body p-0">
-              <p-table
+              <app-data-table
                 (onPage)="onPageChange($event)"
                 [lazy]="true"
                 [loading]="isLoading()"
@@ -283,9 +290,9 @@
                 [rows]="itemsPerPage()"
                 [scrollable]="true"
                 [showCurrentPageReport]="true"
+                [size]="'small'"
                 [totalRecords]="totalItems()"
                 [value]="unsoldProducts()"
-                class="p-datatable-sm"
                 currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
                 scrollHeight="500px"
               >
@@ -325,8 +332,14 @@
                       </span>
                     </td>
                     <td class="text-end">{{ product.seuilMini || 0 | number }}</td>
-                    <td class="text-end pharma-price">{{ product.totalSalesAmount || 0 | number: '1.0-0' }} F</td>
-                    <td class="text-end pharma-price">{{ product.totalPurchaseAmount || 0 | number: '1.0-0' }} F</td>
+                    <td class="text-end pharma-price">{{
+                        product.totalSalesAmount || 0 | number: '1.0-0'
+                      }} F
+                    </td>
+                    <td class="text-end pharma-price">{{
+                        product.totalPurchaseAmount || 0 | number: '1.0-0'
+                      }} F
+                    </td>
                   </tr>
                 </ng-template>
 
@@ -338,7 +351,7 @@
                     </td>
                   </tr>
                 </ng-template>
-              </p-table>
+              </app-data-table>
             </div>
           </div>
         </ng-template>
@@ -350,13 +363,13 @@
   </div>
 
   <!-- Advanced Filters Drawer -->
-  <p-drawer [(visible)]="filtersDrawerVisible" [style]="{ width: '580px' }" position="right">
-    <ng-template #header>
+  <app-offcanvas [(visible)]="filtersDrawerVisible" position="right" width="580px">
+    <div appOffcanvasHeader>
       <div class="d-flex align-items-center gap-2">
         <i class="pi pi-filter text-primary" style="font-size: 1.5rem"></i>
         <span class="fw-bold fs-5">Filtres Avancés</span>
       </div>
-    </ng-template>
+    </div>
 
     <div class="p-1">
       <!-- Time Range Section -->
@@ -365,11 +378,13 @@
         <div class="row g-2">
           <div class="col-6">
             <label class="form-label text-sm">Heure début</label>
-            <input [(ngModel)]="startTime" class="p-inputtext p-component w-100" pInputText placeholder="HH:mm" type="time" />
+            <input [(ngModel)]="startTime" class="form-control w-100" placeholder="HH:mm"
+                   type="time" />
           </div>
           <div class="col-6">
             <label class="form-label text-sm">Heure fin</label>
-            <input [(ngModel)]="endTime" class="p-inputtext p-component w-100" pInputText placeholder="HH:mm" type="time" />
+            <input [(ngModel)]="endTime" class="form-control w-100" placeholder="HH:mm"
+                   type="time" />
           </div>
         </div>
       </div>
@@ -378,42 +393,41 @@
 
       <!-- Selection Filters Section -->
       <div class="mb-2">
-        <h6 class="text-primary fw-bold mb-2"><i class="pi pi-filter-fill me-2"></i>Filtres de sélection</h6>
+        <h6 class="text-primary fw-bold mb-2"><i class="pi pi-filter-fill me-2"></i>Filtres de
+          sélection</h6>
         <div class="row g-2">
           <div class="col-12">
             <label class="form-label text-sm">Utilisateur</label>
-            <p-select
+            <app-select
               [(ngModel)]="selectedUser"
-              [options]="userOptions()"
-              [showClear]="true"
+              [clearable]="true"
+              [items]="userOptions()"
+              [style]="{ width: '100%' }"
               appendTo="body"
-              class="w-100"
-              dataKey="id"
-              optionLabel="abbrName"
+              bindLabel="abbrName"
               placeholder="Sélectionner un utilisateur"
             />
           </div>
           <div class="col-6">
             <label class="form-label text-sm">Rayon</label>
-            <p-select
-              (onChange)="onFilterChange()"
+            <app-select
+              (selectionChange)="onFilterChange()"
               [(ngModel)]="selectedRayon"
-              [options]="rayonOptions()"
-              [showClear]="true"
+              [clearable]="true"
+              [items]="rayonOptions()"
+              [style]="{ width: '100%' }"
               appendTo="body"
-              class="w-100"
-              dataKey="id"
-              optionLabel="libelle"
+              bindLabel="libelle"
               placeholder="Sélectionner un rayon"
             />
           </div>
           <div class="col-6">
             <label class="form-label text-sm">Fournisseur</label>
             <app-fournisseur-select
+              (selectionChange)="selectedFournisseur.set($event)"
               [grouped]="true"
               [selectedId]="selectedFournisseur()?.id ?? null"
               placeholder="Sélectionner un fournisseur"
-              (selectionChange)="selectedFournisseur.set($event)"
             />
           </div>
         </div>
@@ -422,25 +436,27 @@
       <hr />
 
       <div class="mb-2">
-        <h6 class="text-primary fw-bold mb-2"><i class="pi pi-sliders-h me-2"></i>Filtres de seuil</h6>
+        <h6 class="text-primary fw-bold mb-2"><i class="pi pi-sliders-h me-2"></i>Filtres de seuil
+        </h6>
         <div class="row g-2">
           <div class="col-6">
             <label class="form-label text-sm">Filtre de seuil</label>
-            <p-select
+            <app-select
               [(ngModel)]="selectedSeuilFilter"
-              [options]="seuilFilterOptions()"
-              [showClear]="true"
+              [clearable]="true"
+              [items]="seuilFilterOptions()"
+              [style]="{ width: '100%' }"
               appendTo="body"
-              class="w-100"
-              optionLabel="label"
-              optionValue="value"
+              bindLabel="label"
+              bindValue="value"
               placeholder="Sélectionner un filtre de seuil"
             />
           </div>
           @if (selectedSeuilFilter()) {
             <div class="col-6">
               <label class="form-label text-sm">Valeur du seuil</label>
-              <p-inputnumber [(ngModel)]="seuilValue" [min]="0" class="w-100" placeholder="Entrez la valeur" />
+              <app-input-number [(ngModel)]="seuilValue" [min]="0" [style]="{ width: '100%' }"
+                                placeholder="Entrez la valeur" />
             </div>
           }
         </div>
@@ -454,21 +470,21 @@
         <div class="row g-2">
           <div class="col-6">
             <label class="form-label text-sm">Filtre de stock</label>
-            <p-select
+            <app-select
               [(ngModel)]="selectedStockFilter"
-              [options]="stockFilterOptions()"
-              [showClear]="true"
+              [clearable]="true"
+              [items]="stockFilterOptions()"
+              [style]="{ width: '100%' }"
               appendTo="body"
-              class="w-100"
-              optionLabel="label"
-              optionValue="value"
+              bindLabel="label"
+              bindValue="value"
               placeholder="Sélectionner un filtre de stock"
             />
           </div>
           @if (selectedStockFilter() && selectedStockFilter() !== 'OUT_OF_STOCK') {
             <div class="col-6">
               <label class="form-label text-sm">Valeur du stock</label>
-              <p-inputnumber [(ngModel)]="stockValue" class="w-100" />
+              <app-input-number [(ngModel)]="stockValue" [style]="{ width: '100%' }" />
             </div>
           }
         </div>
@@ -478,20 +494,19 @@
 
       <!-- Quantity & Price Filters Section -->
       <div class="mb-2">
-        <h6 class="text-primary fw-bold mb-2"><i class="pi pi-shopping-cart me-2"></i>Filtres de quantité et prix</h6>
+        <h6 class="text-primary fw-bold mb-2"><i class="pi pi-shopping-cart me-2"></i>Filtres de
+          quantité et prix</h6>
         <div class="row g-2">
           @if (activeTab() === 'vendus') {
             <div class="col-6">
               <label class="form-label text-sm">Quantité minimale vendue</label>
-              <p-inputnumber [(ngModel)]="minQuantitySold" class="w-100" />
+              <app-input-number [(ngModel)]="minQuantitySold" [style]="{ width: '100%' }" />
             </div>
           }
 
-          <div class="col-6">
-            <div class="form-check pt-4">
-              <p-checkbox [(ngModel)]="unitPriceLessThanPurchasePrice" [binary]="true" inputId="unitPriceLessThanPurchasePrice" />
-              <label class="form-check-label ms-2 text-sm" for="unitPriceLessThanPurchasePrice"> Prix unitaire < Prix d'achat </label>
-            </div>
+          <div class="col-6 pt-4">
+            <app-checkbox [(ngModel)]="unitPriceLessThanPurchasePrice"
+                          label="Prix unitaire &lt; Prix d'achat" />
           </div>
         </div>
       </div>
@@ -500,11 +515,14 @@
 
       <!-- Action Buttons -->
       <div class="d-flex gap-1">
-        <p-button (onClick)="toggleFiltersDrawer()" class="flex-fill" icon="pi pi-refresh" label="Rechercher" severity="primary" />
-        <p-splitbutton [model]="actionsMenuItems()" icon="pi pi-cog" label="Actions" severity="info" size="small" />
-        <p-splitbutton [model]="exportMenuItems()" icon="pi pi-file-pdf" label="Exporter" severity="warn" size="small" />
-        <p-button
-          (onClick)="onClearFilters()"
+        <app-button (clicked)="toggleFiltersDrawer()" class="flex-fill" icon="pi pi-refresh"
+                    label="Rechercher" severity="primary" />
+        <app-split-button [items]="actionsMenuItems()" icon="pi pi-cog" label="Actions"
+                          severity="info" size="small" />
+        <app-split-button [items]="exportMenuItems()" icon="pi pi-file-pdf" label="Exporter"
+                          severity="warn" size="small" />
+        <app-button
+          (clicked)="onClearFilters()"
           [outlined]="true"
           class="flex-fill"
           icon="pi pi-filter-slash"
@@ -513,7 +531,7 @@
         />
       </div>
     </div>
-  </p-drawer>
+  </app-offcanvas>
 </div>
 <jhi-spinner #spinner></jhi-spinner>
-<jhi-toast-alert #alert></jhi-toast-alert>
+

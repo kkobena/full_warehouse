@@ -4,74 +4,83 @@
 </div>
 
 <div class="modal-body form-client-step" id="modal">
-  <p-card>
-    <p-stepper [linear]="true" [value]="activeStep">
-      <p-step-list>
-        <p-step [value]="1">Infos Assuré</p-step>
-        @if (!assureFormStepService.isEdition() && typeAssure === 'ASSURANCE') {
-          <p-step [value]="2">Infos Ayant-droit</p-step>
-        }
-      </p-step-list>
-      <p-step-panels>
-        <p-step-panel [value]="1">
-          <ng-template #content let-activateCallback="activateCallback">
-            <jhi-assure-step #assureStep></jhi-assure-step>
+
+  <app-nav-tabs [nav]="stepNav">
+    <div
+      #stepNav="ngbNav"
+      (activeIdChange)="activeStep = $event"
+      [activeId]="activeStep"
+      class="nav pharma-nav-tabs"
+      ngbNav
+    >
+      <ng-container [ngbNavItem]="1">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-user"></i>
+          <span>Infos Assuré</span>
+        </a>
+        <ng-template ngbNavContent>
+          <jhi-assure-step #assureStep></jhi-assure-step>
+        </ng-template>
+      </ng-container>
+
+      @if (!assureFormStepService.isEdition() && typeAssure === 'ASSURANCE') {
+        <ng-container [disabled]="!assureStepComponent()?.editForm?.valid" [ngbNavItem]="2">
+          <a class="pharma-nav-tab-link" ngbNavLink>
+            <i class="pi pi-users"></i>
+            <span>Infos Ayant-droit</span>
+          </a>
+          <ng-template ngbNavContent>
+            <jhi-ayant-droit-step #ayantDroitStep></jhi-ayant-droit-step>
           </ng-template>
-        </p-step-panel>
-        @if (!assureFormStepService.isEdition() && typeAssure === 'ASSURANCE') {
-          <p-step-panel [value]="2">
-            <ng-template let-activateCallback="activateCallback" let-prevCallback="prevCallback" #content>
-              <jhi-ayant-droit-step #ayantDroitStep></jhi-ayant-droit-step>
-            </ng-template>
-          </p-step-panel>
-        }
-      </p-step-panels>
-    </p-stepper>
-  </p-card>
+        </ng-container>
+      }
+    </div>
+  </app-nav-tabs>
 </div>
 
 <div class="form-actions-compact">
   @if (activeStep === 1) {
-    <p-button label="Annuler" icon="pi pi-times" severity="secondary" [text]="true" type="button" (click)="cancel()"></p-button>
+    <app-button (clicked)="cancel()" [text]="true" icon="pi pi-times" label="Annuler" severity="secondary"
+                type="button"></app-button>
     @if (assureStepComponent()?.editForm.valid) {
-      <p-button
-        label="Enregistrer"
-        icon="pi pi-check"
-        severity="primary"
-        type="button"
+      <app-button
+        (clicked)="save()"
         [disabled]="isSaving"
         [loading]="isSaving"
-        (onClick)="save()"
+        icon="pi pi-check"
+        label="Enregistrer"
+        severity="primary"
+        type="button"
       >
-      </p-button>
+      </app-button>
       @if (commonService.categorieTiersPayant() === 'ASSURANCE') {
-        <p-button label="Suivant" icon="pi pi-arrow-right" iconPos="right" severity="info" type="button" (onClick)="onGoAyantDroit(2)">
-        </p-button>
+        <app-button (clicked)="onGoAyantDroit(2)" icon="pi pi-arrow-right" iconPos="right" label="Suivant"
+                    severity="info" type="button">
+        </app-button>
       }
     }
   }
   @if (activeStep === 2) {
-    <p-button
-      label="Précédent"
-      icon="pi pi-arrow-left"
-      severity="secondary"
+    <app-button
+      (clicked)="onGoBackFromAyantDroit(1)"
       [text]="true"
+      icon="pi pi-arrow-left"
+      label="Précédent"
+      severity="secondary"
       type="button"
-      (onClick)="onGoBackFromAyantDroit(1)"
     >
-    </p-button>
+    </app-button>
     @if (ayantDroitStepComponent()?.isValidForm()) {
-      <p-button
-        label="Enregistrer"
-        icon="pi pi-check"
-        severity="primary"
-        type="button"
+      <app-button
+        (clicked)="save()"
         [disabled]="isSaving"
         [loading]="isSaving"
-        (onClick)="save()"
+        icon="pi pi-check"
+        label="Enregistrer"
+        severity="primary"
+        type="button"
       >
-      </p-button>
+      </app-button>
     }
   }
 </div>
-<p-toast position="center"></p-toast>

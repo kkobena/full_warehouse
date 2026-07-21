@@ -22,6 +22,7 @@ import {LayoutService} from "../../core/config/layout.service";
 import {BackendSplashComponent} from "app/shared/backend-splash/backend-splash.component";
 import {TitlebarComponent} from "app/shared/titlebar/titlebar.component";
 import {SetupWizardComponent} from "app/core/setup/setup-wizard.component";
+import {ToastHostComponent} from "app/shared/ui/toast-host/toast-host.component";
 import {TauriPrinterService} from "../../shared/services/tauri-printer.service";
 import {PeremptionAlertService} from "../../shared/services/peremption-alert.service";
 
@@ -30,7 +31,7 @@ import {PeremptionAlertService} from "../../shared/services/peremption-alert.ser
   templateUrl: "./main.component.html",
   styleUrl: "./main.component.scss",
   providers: [AppPageTitleStrategy],
-  imports: [RouterOutlet, CommonModule, BackendSplashComponent, TitlebarComponent, SetupWizardComponent],
+  imports: [RouterOutlet, CommonModule, BackendSplashComponent, TitlebarComponent, SetupWizardComponent, ToastHostComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   host: {"[class.tauri-mode]": "isTauriMode"}
 })

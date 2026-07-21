@@ -1,0 +1,51 @@
+// Libellé flottant, variante « on » de p-floatlabel : au repos le libellé occupe la
+// place du texte, une fois rempli ou au focus il remonte sur la bordure haute.
+//
+// N'utilise PAS `.form-floating` de Bootstrap, dont les sélecteurs exigent un
+// `.form-control` ou `.form-select` en **enfant direct**. Nos champs sont des composants
+// (`app-select`, `pharma-date-picker`, `app-input-number`) : la règle ne s'appliquait
+// jamais, et le libellé restait figé.
+:host {
+  position: relative;
+  display: block;
+}
+
+:host > label {
+  position: absolute;
+  top: 50%;
+  left: 0.75rem;
+  transform: translateY(-50%);
+  transform-origin: left top;
+  padding: 0 0.25rem;
+  color: var(--p-form-field-placeholder-color, #6b7280);
+  font-size: 0.875rem;
+  line-height: 1;
+  pointer-events: none;
+  transition:
+    top 0.15s ease,
+    font-size 0.15s ease,
+    color 0.15s ease;
+  z-index: 1;
+}
+
+// État « remonté ».
+//
+// Chaque sélecteur couvre une famille de champs :
+// - .ng-has-value / .ng-select-focused : ng-select (app-select, app-multi-select,
+//   app-select-search) ;
+// - :focus-within et un champ non vide : champs natifs et composants qui rendent un
+//   <input> (pharma-date-picker, app-input-number).
+//
+// `:placeholder-shown` impose que le champ porte un placeholder, fût-il un espace —
+// même contrainte que Bootstrap.
+:host(:focus-within) > label,
+:host:has(.ng-has-value) > label,
+:host:has(.ng-select-focused) > label,
+:host:has(input:not(:placeholder-shown)) > label,
+:host:has(select:valid) > label {
+  top: 0;
+  font-size: 0.75rem;
+  color: var(--p-primary-color, #10b981);
+  // Le fond masque la bordure sous le libellé, comme le fait la variante « on ».
+  background: var(--p-content-background, #ffffff);
+}

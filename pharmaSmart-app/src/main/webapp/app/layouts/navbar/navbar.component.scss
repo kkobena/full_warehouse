@@ -26,6 +26,17 @@ Navbar — style "application desktop" (~32px de hauteur)
   padding: 0 0.75rem;
   min-height: unset;
 
+  // Fond du chrome applicatif — volontairement DÉCOUPLÉ de `.bg-primary`.
+  //
+  // `_pharma-bootstrap-palette.scss` aligne `$primary` sur l'émeraude Aura pour que
+  // les `p-button` → `app-button` gardent leur couleur pendant la migration. La navbar
+  // relève du branding, pas de la palette de composants : adossée à `.bg-primary` elle
+  // basculait du teal historique à l'émeraude. Ce token la met hors d'atteinte de la
+  // palette, et du futur thème custom (cf. plan de migration §8.8.2).
+  &.navbar-chrome {
+    background-color: var(--pharma-navbar-bg);
+  }
+
   // CSS variables Bootstrap 5 — style barre d'application desktop
   --bs-navbar-padding-y: 0;
   --bs-nav-link-padding-y: 0.3rem;
@@ -95,6 +106,12 @@ Logo styles — taille desktop
   position: sticky;
   top: 0;
   z-index: 1020;
+
+  // Teal historique (Bootswatch yeti `$primary`). Premier token du vocabulaire
+  // `--pharma-*` ; à remonter en `:root` si d'autres éléments de chrome le partagent.
+  --pharma-navbar-bg: #008cba;
+  // Équivalent de `shade-color($primary, 10%)` chez yeti, figé sur le teal.
+  --pharma-navbar-bg-hover: #007ea7;
 }
 
 /* ==========================================================================
@@ -137,6 +154,26 @@ Badge d'alerte dans la navbar (péremptions et autres alertes)
 Group labels dans les dropdowns (Référentiel : Produits / Commercial / Organisation)
 Utilisation de ::ng-deep car ng-bootstrap display="dynamic" déplace le menu hors du composant
 ========================================================================== */
+// Yeti colorait les menus déroulants de la navbar via `.bg-primary .dropdown-menu`
+// (`bootswatch/dist/yeti/_bootswatch.scss:18`). En quittant `.bg-primary` pour
+// `.navbar-chrome` on perdait cette règle, d'où des menus blancs. Reproduite ici,
+// adossée au token de chrome plutôt qu'à `$primary`.
+:host ::ng-deep .navbar-chrome .dropdown-menu {
+  background-color: var(--pharma-navbar-bg);
+
+  .dropdown-item,
+  .dropdown-item:focus {
+    color: $navbar-dark-color;
+  }
+
+  .dropdown-item.active,
+  .dropdown-item:hover,
+  .dropdown-item:focus {
+    color: $white;
+    background-color: var(--pharma-navbar-bg-hover);
+  }
+}
+
 :host ::ng-deep .dropdown-menu {
   font-size: 0.9rem;
 

@@ -3,81 +3,79 @@
   <!-- ── PANEL HEADER — actions ──────────────────────────────────────── -->
   <div class="panel-header">
 
-      <!-- Actions gauche -->
-      <div class="d-flex gap-2 align-items-center flex-wrap">
-        @if (currentCommande?.commandeId && !isLocked) {
-          <p-button
-            icon="pi pi-lightbulb"
-            label="Depuis suggestion"
-            severity="primary"
-            size="small"
-            pTooltip="Importer les lignes d'une suggestion dans cette commande"
-            tooltipPosition="bottom"
-            (click)="onImportSuggestion()"
-          />
-          <p-button
-            icon="pi pi-download"
-            label="Importer réponse"
-            severity="info"
-            size="small"
-            pTooltip="Importer la réponse / fichier du grossiste"
-            tooltipPosition="bottom"
-            (click)="onImporterReponseCommande()"
-          />
-        }
-        @if (currentCommande?.commandeId) {
-          <p-button
-            icon="pi pi-truck"
-            label="Créer le bon"
-            severity="success"
-            size="small"
-            pTooltip="F9"
-            tooltipPosition="bottom"
-            (click)="onCreateBon()"
-          />
-        }
-        @if (selectedEl.length > 0 && !isLocked) {
-          <p-button
-            icon="pi pi-times"
-            label="Supprimer ({{ selectedEl.length }})"
-            severity="danger"
-            size="small"
-            (click)="confirmDeleteAll()"
-          />
-        }
-        @if (seuilMontantCommande > 0 && (currentCommande?.grossAmount ?? 0) > seuilMontantCommande) {
-          <p-tag
-            icon="pi pi-exclamation-triangle"
-            severity="warn"
-            value="Montant élevé"
-            [pTooltip]="'Seuil : ' + (seuilMontantCommande | number) + ' F'"
-            tooltipPosition="bottom"
-          />
-        }
-      </div>
+    <!-- Actions gauche -->
+    <div class="d-flex gap-2 align-items-center flex-wrap">
+      @if (currentCommande?.commandeId && !isLocked) {
+        <app-button
+          (clicked)="onImportSuggestion()"
+          icon="pi pi-lightbulb"
+          label="Depuis suggestion"
+          ngbTooltip="Importer les lignes d'une suggestion dans cette commande"
+          placement="bottom"
+          severity="primary"
+          size="small"
+        />
+        <app-button
+          (clicked)="onImporterReponseCommande()"
+          icon="pi pi-download"
+          label="Importer réponse"
+          ngbTooltip="Importer la réponse / fichier du grossiste"
+          placement="bottom"
+          severity="info"
+          size="small"
+        />
+      }
+      @if (currentCommande?.commandeId) {
+        <app-button
+          (clicked)="onCreateBon()"
+          icon="pi pi-truck"
+          label="Créer le bon"
+          ngbTooltip="F9"
+          placement="bottom"
+          severity="success"
+          size="small"
+        />
+      }
+      @if (selectedEl.length > 0 && !isLocked) {
+        <app-button
+          (clicked)="confirmDeleteAll()"
+          icon="pi pi-times"
+          label="Supprimer ({{ selectedEl.length }})"
+          severity="danger"
+          size="small"
+        />
+      }
+      @if (seuilMontantCommande > 0 && (currentCommande?.grossAmount ?? 0) > seuilMontantCommande) {
+        <app-badge
+          [ngbTooltip]="'Seuil : ' + (seuilMontantCommande | number) + ' F'"
+          icon="pi pi-exclamation-triangle"
+          label="Montant élevé"
+          placement="bottom"
+          severity="warn"
+        />
+      }
+    </div>
 
-      <!-- Actions PharmaML — droite -->
-      <div>
-        @if (currentCommande?.commandeId) {
-          @if (isLocked || currentCommande?.orderStatus === 'RECEIVED') {
-            <p-splitbutton
-              [model]="pharmamlActions"
-              icon="pi pi-check-circle"
-              label="Actions réception"
-              severity="success"
-              size="small"
-            />
-          } @else {
-            <p-splitbutton
-              [model]="pharmamlActions"
-              icon="pi pi-send"
-              label="Actions PharmaML"
-              severity="info"
-              size="small"
-            />
-          }
+    <!-- Actions PharmaML — droite -->
+    <div>
+      @if (currentCommande?.commandeId) {
+        @if (isLocked || currentCommande?.orderStatus === 'RECEIVED') {
+          <app-split-button
+            [items]="pharmamlActions"
+            icon="pi pi-check-circle"
+            label="Actions réception"
+            severity="info"
+          />
+        } @else {
+          <app-split-button
+            [items]="pharmamlActions"
+            icon="pi pi-send"
+            label="Actions PharmaML"
+            severity="info"
+          />
         }
-      </div>
+      }
+    </div>
 
   </div>
 
@@ -100,11 +98,11 @@
     <div class="search-controls">
       <div class="fournisseur-select-input">
         <app-fournisseur-select
-          [grouped]="true"
+          (selectionChange)="onFournisseurSelected($event)"
           [disabled]="isLocked"
+          [grouped]="true"
           [selectedId]="selectedProvider ?? null"
           placeholder="Sélectionner un fournisseur..."
-          (selectionChange)="onFournisseurSelected($event)"
         />
       </div>
       @if (!isLocked) {
@@ -116,26 +114,23 @@
           />
         </div>
         <div class="quantity-input-wrapper">
-          <p-inputgroup>
+          <div class="input-group">
             <input
               #quantityBox
               (keydown.enter)="onQuantityBoxAction($event)"
               [(ngModel)]="quantiteSaisie"
               class="form-control"
-              pInputText
               placeholder="Qté"
               type="number"
             />
-            <p-inputgroup-addon>
-              <p-button
-                (click)="onQuantity()"
-                [disabled]="!produitSelected"
-                icon="pi pi-plus"
-                severity="primary"
-                type="button"
-              />
-            </p-inputgroup-addon>
-          </p-inputgroup>
+            <app-button
+              (clicked)="onQuantity()"
+              [disabled]="!produitSelected"
+              icon="pi pi-plus"
+              severity="primary"
+              type="button"
+            />
+          </div>
         </div>
       }
     </div>
@@ -151,7 +146,7 @@
           {{ produitSelected?.regularUnitPrice | number }} F
         </span>
         @if (produitSelected?.totalQuantity !== undefined) {
-          <span class="meta-item" [class.low-stock]="produitSelected!.totalQuantity! < 10">
+          <span [class.low-stock]="produitSelected!.totalQuantity! < 10" class="meta-item">
             <i class="pi pi-database"></i>
             Stock : {{ produitSelected?.totalQuantity | number }}
           </span>
@@ -182,23 +177,23 @@
       <div class="flex-grow-1 overflow-hidden h-100">
         @if (currentCommande) {
           <ag-grid-angular
-            [theme]="theme"
-            [columnDefs]="columnDefs"
-            [defaultColDef]="defaultColDef"
-            [rowData]="orderLines"
-            [rowSelection]="rowSelection"
-            [rowClassRules]="rowClassRules"
-            [getRowId]="getRowId"
-            [singleClickEdit]="true"
-            [stopEditingWhenCellsLoseFocus]="true"
-            [animateRows]="true"
-            [enterNavigatesVerticallyAfterEdit]="true"
-            [enableCellEditingOnBackspace]="true"
-            [context]="gridContext"
+            (cellClicked)="onCellClicked($event)"
+            (cellValueChanged)="onCellValueChanged($event)"
             (gridReady)="onGridReady($event)"
             (selectionChanged)="onSelectionChanged()"
-            (cellValueChanged)="onCellValueChanged($event)"
-            (cellClicked)="onCellClicked($event)"
+            [animateRows]="true"
+            [columnDefs]="columnDefs"
+            [context]="gridContext"
+            [defaultColDef]="defaultColDef"
+            [enableCellEditingOnBackspace]="true"
+            [enterNavigatesVerticallyAfterEdit]="true"
+            [getRowId]="getRowId"
+            [rowClassRules]="rowClassRules"
+            [rowData]="orderLines"
+            [rowSelection]="rowSelection"
+            [singleClickEdit]="true"
+            [stopEditingWhenCellsLoseFocus]="true"
+            [theme]="theme"
             style="width: 100%; height: 100%;"
           />
         } @else {

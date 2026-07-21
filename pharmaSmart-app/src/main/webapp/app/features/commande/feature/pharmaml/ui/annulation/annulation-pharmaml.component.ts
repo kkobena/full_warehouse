@@ -1,7 +1,7 @@
-import {Component, inject, signal, ChangeDetectionStrategy} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {Button} from 'primeng/button';
+import {ButtonComponent} from '../../../../../../shared/ui';
 import {CommandeId} from '../../../../../../shared/model/abstract-commande.model';
 import {PharmamlApiService} from '../../../../data-access/pharmaml-api.service';
 import {NotificationService} from "../../../../../../shared/services/notification.service";
@@ -9,7 +9,7 @@ import {ErrorService} from "../../../../../../shared/error.service";
 
 @Component({
   selector: 'app-annulation-pharmaml',
-  imports: [FormsModule, Button],
+  imports: [FormsModule, ButtonComponent],
   styleUrls: ['./annulation-pharmaml.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
@@ -19,7 +19,8 @@ import {ErrorService} from "../../../../../../shared/error.service";
     </div>
     <div class="modal-body">
       <p class="text-muted mb-3">
-        Cette action envoie un message <strong>REQ_ANNULATION</strong> au grossiste. La commande sera archivée côté
+        Cette action envoie un message <strong>REQ_ANNULATION</strong> au grossiste. La commande
+        sera archivée côté
         officine.
       </p>
       <div class="mb-3">
@@ -37,13 +38,13 @@ import {ErrorService} from "../../../../../../shared/error.service";
       }
     </div>
     <div class="modal-footer gap-2">
-      <p-button label="Fermer" severity="secondary" [outlined]="true" (onClick)="cancel()"/>
-      <p-button
+      <app-button label="Fermer" severity="secondary" [outlined]="true" (clicked)="cancel()" />
+      <app-button
         label="Confirmer l'annulation"
         severity="danger"
         icon="pi pi-ban"
         [loading]="loading()"
-        (onClick)="confirmer()"
+        (clicked)="confirmer()"
       />
     </div>
   `,
@@ -60,7 +61,9 @@ export class AnnulationPharmamlComponent {
   private readonly api = inject(PharmamlApiService);
 
   confirmer(): void {
-    if (this.loading()) return;
+    if (this.loading()) {
+      return;
+    }
     this.loading.set(true);
     this.error.set(null);
     this.api.annulation(this.commandeId.id, this.commandeId.orderDate, this.motif || undefined).subscribe({

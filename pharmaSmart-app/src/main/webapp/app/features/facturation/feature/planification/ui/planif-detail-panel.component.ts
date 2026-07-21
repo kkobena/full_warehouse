@@ -1,7 +1,7 @@
 import { Component, computed, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonModule } from 'primeng/button';
-import { Tooltip } from 'primeng/tooltip';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, NavTabsComponent } from '../../../../../shared/ui';
 
 import { IPlanification } from '../../../data-access/models';
 import { PlanificationStateService } from '../planification-state.service';
@@ -13,8 +13,9 @@ import { PlanifSubtabTpsComponent } from './planif-subtab-tps.component';
   selector: 'app-planif-detail-panel',
   imports: [
     NgbNavModule,
-    ButtonModule,
-    Tooltip,
+    NgbTooltip,
+    ButtonComponent,
+    NavTabsComponent,
     PlanifSubtabExecutionsComponent,
     PlanifSubtabGroupesComponent,
     PlanifSubtabTpsComponent,

@@ -9,14 +9,14 @@
       <span class="text-muted small"><i class="pi pi-info-circle me-1"></i>Encours non réglés par groupe TP</span>
     </div>
     <div class="pharma-toolbar-actions">
-      <p-button
+      <app-button
         icon="pi pi-file-pdf"
         label="PDF"
         size="small"
         severity="danger"
         [outlined]="true"
         [loading]="exportLoading()"
-        (onClick)="exportPdf()"
+        (clicked)="exportPdf()"
       />
     </div>
   </div>
@@ -65,12 +65,12 @@
 
   <!-- Table -->
   <div class="card data-card">
-    <p-table
+    <app-data-table
       [value]="summary()"
       [scrollable]="true"
       scrollHeight="calc(100vh - 380px)"
       [stripedRows]="true"
-      class="p-datatable-sm"
+      [size]="'small'"
     >
       <ng-template #header>
         <tr class="pharma-table-head">
@@ -121,7 +121,7 @@
           </td>
         </tr>
       </ng-template>
-    </p-table>
+    </app-data-table>
   </div>
 
 }

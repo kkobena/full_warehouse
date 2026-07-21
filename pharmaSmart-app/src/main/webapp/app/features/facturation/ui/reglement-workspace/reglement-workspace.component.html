@@ -7,7 +7,7 @@
       <app-reglement-form
         (partialPayment)="onPartielReglement($event)"
         (reglementParams)="onSaveReglement($event)"
-        [allSelection]="checkbox()?.checked"
+        [allSelection]="isAllSelected()"
         [dossierIds]="dossierIds()"
         [facture]="dossierFactureProjectionSignal()"
         [isSaving]="isSaving"
@@ -27,7 +27,7 @@
 
     <!-- Table des dossiers -->
     <div class="reglement-table-wrapper">
-      <p-table
+      <app-data-table
         #factureDossierTable
         (selectionChange)="onSelectChange($event)"
         [selection]="factureDossierSelectionnes()"
@@ -40,7 +40,7 @@
         [showCurrentPageReport]="true"
         [stripedRows]="true"
         [value]="reglementFactureDossiersSignal()"
-        class="p-datatable-sm"
+        [size]="'small'"
         currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} dossiers"
         dataKey="id"
         selectionMode="multiple"
@@ -50,15 +50,12 @@
             <span class="table-caption-title">
               {{ mode() === 'GROUPE' ? 'Factures groupées' : 'Dossiers' }}
             </span>
-            <p-iconfield>
-              <p-inputicon class="pi pi-search" />
+            <app-icon-field [overlay]="true" icon="pi pi-search">
               <input pSize="small"
                      (input)="factureDossierTable.filterGlobal($event.target['value'], 'contains')"
-                     pInputText
                      placeholder="Filtrer..."
-                     type="text"
-              />
-            </p-iconfield>
+                     type="text" class="form-control" />
+            </app-icon-field>
           </div>
         </ng-template>
 
@@ -83,7 +80,7 @@
             }
             @if (partialPayment()) {
               <th class="text-center" style="width: 3rem">
-                <p-tableheadercheckbox #checkbox />
+                <app-header-checkbox />
               </th>
             }
           </tr>
@@ -103,27 +100,34 @@
               <td class="text-end"><span class="pharma-price">{{ item.montantTotal | number }}</span></td>
               <td class="text-end"><span class="pharma-price">{{ item.montantPaye | number }}</span></td>
               @if (editableIds().has(item.id)) {
-                <td class="text-end editable-cell" pEditableColumn
-                    style="width: 110px; max-width: 110px; overflow: hidden">
-                  <p-celleditor>
-                    <ng-template #input>
-                      <input
-                        (keyup)="onMontantVerseChange(item)"
-                        [(ngModel)]="item.montantVerse"
-                        (focus)="$event.target.select()"
-                        class="editable-amount-input"
-                        pInputText
-                        required
-                        type="number"
-                      />
-                    </ng-template>
-                    <ng-template #output>
-                      <span class="editable-cell-output justify-content-end">
-                        <span class="pharma-price">{{ item.montantVerse | number }}</span>
-                        <i class="pi pi-pencil edit-hint-icon"></i>
-                      </span>
-                    </ng-template>
-                  </p-celleditor>
+                <!--
+                  Remplace p-celleditor : la bascule affichage/saisie était portée par
+                  pEditableColumn. Un identifiant de ligne en cours d'édition suffit,
+                  l'écran étant le seul usage de ce motif dans l'application.
+                -->
+                <td
+                  (click)="startEdit(item)"
+                  class="text-end editable-cell"
+                  style="width: 110px; max-width: 110px; overflow: hidden"
+                >
+                  @if (editingId() === item.id) {
+                    <input
+                      (blur)="stopEdit()"
+                      (focus)="$any($event.target).select()"
+                      (keyup)="onMontantVerseChange(item)"
+                      (keyup.enter)="stopEdit()"
+                      [(ngModel)]="item.montantVerse"
+                      autofocus
+                      class="editable-amount-input form-control form-control-sm text-end"
+                      required
+                      type="number"
+                    />
+                  } @else {
+                    <span class="editable-cell-output justify-content-end">
+                      <span class="pharma-price">{{ item.montantVerse | number }}</span>
+                      <i class="pi pi-pencil edit-hint-icon" aria-hidden="true"></i>
+                    </span>
+                  }
                 </td>
               } @else {
                 <td class="text-end"><span class="pharma-price">{{ item.montantVerse | number }}</span></td>
@@ -141,7 +145,7 @@
             }
             @if (partialPayment()) {
               <td class="text-center">
-                <p-tablecheckbox [value]="item" />
+                <app-row-checkbox [row]="item" />
               </td>
             }
           </tr>
@@ -154,7 +158,7 @@
             </td>
           </tr>
         </ng-template>
-      </p-table>
+      </app-data-table>
     </div>
 
   } @else {

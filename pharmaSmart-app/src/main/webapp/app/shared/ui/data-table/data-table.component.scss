@@ -1,0 +1,139 @@
+:host {
+  display: block;
+}
+
+.app-table__scroller {
+  position: relative;
+  // Horizontal overflow is always contained here, indépendamment de `[scrollable]` :
+  // les colonnes figées ([appFrozenColumn]) n'ont de sens que si ce wrapper porte le
+  // scroll horizontal — sinon c'est le document parent qui défile.
+  overflow-x: auto;
+
+  &--scrollable {
+    overflow-y: auto;
+  }
+}
+
+// En-tête figé pendant le défilement du corps (équivalent de `scrollable` + `scrollHeight`).
+.app-table__head--sticky th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--p-surface-0);
+}
+
+.app-table__row--selectable {
+  cursor: pointer;
+}
+
+.app-table__row--expanded > td {
+  background: var(--p-surface-50);
+}
+
+// Contenu d'une ligne dépliée (template `#expandedrow`), pour tout écran master/detail.
+//
+// La `<td>` de la ligne dépliée est souvent remise à `padding: 0` (cf. `.pharma-expanded-row`
+// dans `_table-common.scss`, hérité de l'ancienne convention `p-table`) pour que le detail
+// (souvent un tableau imbriqué) puisse s'étendre pleine largeur. Sans marge, ce detail
+// touche directement la ligne maître au-dessus. Plutôt que de rejouer une guerre de
+// spécificité contre ce `!important` partagé par ~15 écrans, on pose le padding sur un
+// wrapper interne — posé par l'appelant dans son `#expandedrow`, jamais sur la `<td>` elle-même.
+//
+// Fond calé sur `.card-form` (`card.component.scss`) : le detail d'une ligne dépliée est
+// visuellement le même type de regroupement secondaire qu'une carte de formulaire.
+.app-table__expanded-content {
+  padding: 1.25rem 1.5rem;
+  background-color: var(--p-surface-100);
+}
+
+// Voile de chargement : le contenu reste lisible dessous, ce qui évite le saut de mise en page.
+.app-table__loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(255 255 255 / 65%);
+  color: var(--p-text-muted-color);
+}
+
+.app-table__caption,
+.app-table__paginator {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+}
+
+.app-table__paginator {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+
+  // `ngb-pagination` rend un <ul class="pagination"> dans sa propre vue, que
+  // l'encapsulation émulée met hors de portée. `::ng-deep`, borné au composant par
+  // `:host`, est ici le seul moyen d'atteindre sa marge basse héritée du reboot.
+  :host ::ng-deep .pagination {
+    margin-bottom: 0;
+  }
+}
+
+.app-table__page-size {
+  width: auto;
+}
+
+// --- Tri (directive [appSortableHeader]) ---
+
+.app-sortable {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+
+  // Codes relevés dans node_modules/primeicons/primeicons.css — ne pas deviner.
+  &::after {
+    content: '\e99e'; // pi-sort-alt
+    font-family: primeicons, sans-serif;
+    margin-left: 0.35rem;
+    font-size: 0.75rem;
+    opacity: 0.4;
+  }
+
+  &:hover::after {
+    opacity: 0.7;
+  }
+
+  &--asc::after {
+    content: '\e9a2'; // pi-sort-amount-up-alt
+    opacity: 1;
+  }
+
+  &--desc::after {
+    content: '\e9a0'; // pi-sort-amount-down
+    opacity: 1;
+  }
+}
+
+// --- Colonne figée (directive [appFrozenColumn]) ---
+
+.app-frozen-column {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--p-surface-0);
+  box-shadow: 2px 0 4px rgb(0 0 0 / 8%);
+
+  &--right {
+    left: auto;
+    right: 0;
+    box-shadow: -2px 0 4px rgb(0 0 0 / 8%);
+  }
+}
+
+// Passe au-dessus des `<th>` non figés (sticky top, z-index 1) à l'intersection des deux.
+.app-table__head--sticky th.app-frozen-column {
+  z-index: 2;
+}
+
+.app-table tfoot tr td {
+  padding: 1rem;
+  border-top: 2px solid #008cba;
+}

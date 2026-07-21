@@ -1,14 +1,13 @@
-import {Component, DestroyRef, inject, input, OnDestroy, OnInit, output, signal, viewChild, ChangeDetectionStrategy} from '@angular/core';
+import {Component, DestroyRef, ElementRef, inject, input, OnDestroy, OnInit, output, signal, viewChild, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
-import {AutoComplete, AutoCompleteModule} from 'primeng/autocomplete';
-import {FloatLabel} from 'primeng/floatlabel';
 import {DecimalPipe} from '@angular/common';
 import {catchError, debounceTime, filter, of, Subject, Subscription} from 'rxjs';
 import {ProduitSearch} from '../../../../shared/model';
 import {ProduitService} from '../../../../entities/produit/produit.service';
 import {ScanDetectorService, ScanEvent} from '../../../../shared/scan-detector.service';
 import {APPEND_TO, PRODUIT_COMBO_MIN_LENGTH} from '../../../../shared/constants/pagination.constants';
+import {FloatLabelComponent, SelectSearchComponent} from '../../../../shared/ui';
 
 /**
  * Composant de recherche produit dédié au module commande.
@@ -22,10 +21,11 @@ import {APPEND_TO, PRODUIT_COMBO_MIN_LENGTH} from '../../../../shared/constants/
   templateUrl: './commande-product-search.component.html',
   styleUrls: ['./commande-product-search.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [AutoCompleteModule, FormsModule, FloatLabel, DecimalPipe],
+  imports: [SelectSearchComponent, FormsModule, FloatLabelComponent, DecimalPipe],
 })
 export class CommandeProductSearchComponent implements OnInit, OnDestroy {
-  produitbox = viewChild.required<AutoComplete>('produitbox');
+  private readonly produitboxCmp = viewChild.required('produitbox', {read: SelectSearchComponent});
+  private readonly produitboxEl = viewChild.required('produitbox', {read: ElementRef<HTMLElement>});
 
   autofocus = input<boolean>(true);
   pageSize = input<number>(10);
@@ -48,6 +48,14 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
   private readonly scanDetectorService = inject(ScanDetectorService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly searchTrigger$ = new Subject<string>();
+  /**
+   * Passé à `[typeahead]` de `app-select-search` dans le seul but d'être « observé » :
+   * ng-select désactive alors son propre filtrage client (par `bindLabel`), qui sinon
+   * masquait les résultats retournés par le backend sur un code CIP (le texte tapé ne
+   * matche pas `libelle`). La recherche réelle continue de passer par `searchTrigger$`
+   * via `(searched)` → `searchFn()`, seul canal qui respecte `PRODUIT_COMBO_MIN_LENGTH`.
+   */
+  protected readonly typeaheadSink$ = new Subject<string>();
 
   private isScanning = false;
   private isManualSearching = false;
@@ -60,6 +68,7 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
     this.searchTrigger$
       .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
       .subscribe(search => this.loadProduits(search));
+    this.typeaheadSink$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
   }
 
   get produitSelected(): ProduitSearch | null {
@@ -76,6 +85,9 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.setupBarcodeScanner();
+    if (this.autofocus()) {
+      this.getFocus();
+    }
   }
 
   ngOnDestroy(): void {
@@ -88,7 +100,7 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
     }
   }
 
-  searchFn(event: any): void {
+  searchFn(term: string): void {
     if (this.isScanning) {
       this.isScanning = false;
       this.stopInputClearLoop();
@@ -99,7 +111,7 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
       this.isManualSearching = false;
       this.manualSearchTimeout = null;
     }, 600);
-    this.searchTrigger$.next(event.query);
+    this.searchTrigger$.next(term);
   }
 
   onSelect(): void {
@@ -126,15 +138,15 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
 
   getFocus(): void {
     requestAnimationFrame(() => {
-      const el = this.produitbox()?.inputEL()?.nativeElement;
-      const autocomplete = this.produitbox();
+      const el = this.produitboxEl()?.nativeElement.querySelector('input');
       if (el) {
         el.focus();
         el.select();
       }
-      if (autocomplete) {
-        autocomplete.hide();
-        setTimeout(() => autocomplete.hide(), 50);
+      const cmp = this.produitboxCmp();
+      if (cmp) {
+        cmp.close();
+        setTimeout(() => cmp.close(), 50);
       }
     });
   }
@@ -150,12 +162,12 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
     this.produits.set([]);
     this._produitSelected.set(null);
     this.selectProduit.set(null);
-    const autocomplete = this.produitbox();
-    if (autocomplete) {
-      autocomplete.hide();
-      setTimeout(() => autocomplete.hide(), 100);
+    const cmp = this.produitboxCmp();
+    if (cmp) {
+      cmp.close();
+      setTimeout(() => cmp.close(), 100);
     }
-    const inputEl = autocomplete?.inputEL()?.nativeElement;
+    const inputEl = this.produitboxEl()?.nativeElement.querySelector('input');
     if (inputEl) inputEl.value = '';
   }
 
@@ -176,16 +188,16 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
   }
 
   private onScanStart(): void {
-    const autocomplete = this.produitbox();
-    if (this.isManualSearching || autocomplete?.overlayVisible) return;
+    const isOpen = this.produitboxCmp()?.isOpen();
+    if (this.isManualSearching || isOpen) return;
     this.isScanning = true;
     this.clearInputValue();
     this.startInputClearLoop();
   }
 
   private onScanComplete(scannedCode: string): void {
-    const autocomplete = this.produitbox();
-    if (this.isManualSearching || autocomplete?.overlayVisible) {
+    const isOpen = this.produitboxCmp()?.isOpen();
+    if (this.isManualSearching || isOpen) {
       this.isScanning = false;
       this.stopInputClearLoop();
       return;
@@ -199,7 +211,7 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
   }
 
   private clearInputValue(): void {
-    const inputEl = this.produitbox()?.inputEL()?.nativeElement;
+    const inputEl = this.produitboxEl()?.nativeElement.querySelector('input');
     if (inputEl) inputEl.value = '';
   }
 
@@ -261,7 +273,7 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
   }
 
   private loadProduits(search: string): void {
-    const inputEl = this.produitbox()?.inputEL()?.nativeElement;
+    const inputEl = this.produitboxEl()?.nativeElement.querySelector('input');
     if (inputEl && !inputEl.value?.trim()) return;
     this.produitService
       .search({page: 0, size: this.pageSize(), search, storageId: this.storageId()}, this.searchByStorage())

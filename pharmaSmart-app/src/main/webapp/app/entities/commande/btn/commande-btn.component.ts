@@ -1,37 +1,35 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { ICellRendererAngularComp } from 'ag-grid-angular';
-import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
-import { Button } from 'primeng/button';
-import { Tooltip } from 'primeng/tooltip';
+import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
+import {ICellRendererAngularComp} from 'ag-grid-angular';
+import {NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
+import {ButtonComponent} from '../../../shared/ui';
 
 @Component({
-  imports: [FontAwesomeModule, NgbTooltipModule, Button, Tooltip],
-  selector: 'jhi-commande-btn',
+  imports: [FontAwesomeModule, NgbTooltipModule, ButtonComponent],
+  selector: 'app-commande-btn',
   template: `
     <div class="btn-group btn-group-sm" role="group">
       @if (showEditBtn) {
-        <p-button
+        <app-button
           [text]="true"
-          rounded="true"
-          (click)="onEditLigneInfo()"
+          [rounded]="true"
+          (clicked)="onEditLigneInfo()"
           icon="pi pi-pencil"
           class="mr-1"
           severity="success"
-          pTooltip="Modifier le produit"
-        >
-        </p-button>
+          ngbTooltip="Modifier le produit"
+        />
       }
       @if (showLotBtn) {
-        <p-button
+        <app-button
           [text]="true"
-          rounded="true"
-          (click)="onAddLot()"
+          [rounded]="true"
+          (clicked)="onAddLot()"
           severity="info"
           icon="pi pi-plus-circle"
-          pTooltip="Gérer le lot"
-        ></p-button>
+          ngbTooltip="Gérer le lot"
+        />
       }
     </div>
   `,

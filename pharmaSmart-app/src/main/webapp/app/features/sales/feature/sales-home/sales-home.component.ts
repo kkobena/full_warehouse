@@ -36,7 +36,6 @@ import {CustomerOverlayPanelComponent, PendingSalesListComponent} from '../../ui
 import {SalesFacade} from '../../data-access/facades/sales.facade';
 import {UserVendeurService} from '../../../../entities/sales/service/user-vendeur.service';
 import {IUser} from '../../../../core/user/user.model';
-import {ToastAlertComponent} from '../../../../shared/toast-alert/toast-alert.component';
 import {CustomerDisplayService} from '../../data-access/services/customer-display.service';
 import {MagasinService} from '../../../../entities/magasin/magasin.service';
 import {AccountService} from '../../../../core/auth/account.service';
@@ -85,7 +84,6 @@ import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-d
     SaleDevisComponent,
     PendingSalesListComponent,
     CustomerOverlayPanelComponent,
-    ToastAlertComponent,
   ],
 })
 export class SalesHomeComponent implements OnInit, AfterViewInit {
@@ -96,7 +94,6 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   protected salesFacade = inject(SalesFacade);
   protected userVendeurService = inject(UserVendeurService); // Pour liste vendeurs uniquement
   private readonly confirmDialog = inject(NgbConfirmDialogService);
-  protected alert = viewChild.required<ToastAlertComponent>('alert');
   // Références aux composants enfants (tabs) pour déléguer l'ajout de produits
   protected saleCreation = viewChild<SaleCreationComponent>(SaleCreationComponent);
   protected saleAssurance = viewChild<SaleAssuranceComponent>(SaleAssuranceComponent);

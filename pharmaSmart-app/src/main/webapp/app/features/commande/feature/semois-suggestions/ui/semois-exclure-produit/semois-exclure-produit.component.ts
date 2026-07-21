@@ -2,9 +2,7 @@ import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select';
+import { ButtonComponent, SelectComponent } from 'app/shared/ui';
 
 /** Durées prédéfinies (jours) */
 const DUREE_OPTIONS = [
@@ -19,7 +17,7 @@ const DUREE_OPTIONS = [
   selector: 'app-semois-exclure-produit',
   templateUrl: './semois-exclure-produit.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, SelectModule],
+  imports: [CommonModule, FormsModule, ButtonComponent, SelectComponent],
 })
 export class SemoisExclureProduitComponent {
   private readonly activeModal = inject(NgbActiveModal);

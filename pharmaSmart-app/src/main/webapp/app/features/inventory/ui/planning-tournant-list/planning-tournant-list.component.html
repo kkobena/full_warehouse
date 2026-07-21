@@ -1,5 +1,3 @@
-<p-toast position="center"/>
-
 <!-- KPI Dashboard -->
 @if (dashboard(); as d) {
   <div class="tournant-kpi-grid">
@@ -36,14 +34,12 @@
 
 <!-- Table -->
 <div class="pharma-table-wrapper">
-  <p-table
+  <app-data-table
     [value]="plannings()"
     [loading]="loading()"
     [paginator]="true"
     [rows]="10"
     [rowsPerPageOptions]="[10, 20, 50]"
-    [showCurrentPageReport]="true"
-    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} plannings"
     dataKey="id"
     class="p-datatable-sm"
   >
@@ -96,24 +92,24 @@
         <td>{{ p.derniereExecution ? (p.derniereExecution | date:'dd/MM/yyyy') : '—' }}</td>
         <td class="text-center">{{ p.nbExecutions ?? 0 }}</td>
         <td class="text-center">
-          <p-tag [value]="p.actif ? 'Actif' : 'Inactif'"
+          <app-badge [label]="p.actif ? 'Actif' : 'Inactif'"
                  [severity]="p.actif ? 'success' : 'secondary'" />
         </td>
         <td class="text-center">
           <div class="pharma-action-buttons">
-            <p-button icon="pi pi-play" [rounded]="true" [text]="true" severity="success"
-                      pTooltip="Exécuter maintenant" tooltipPosition="top"
-                      (onClick)="executerManuellement(p)" />
-            <p-button [icon]="p.actif ? 'pi pi-pause' : 'pi pi-play'" [rounded]="true" [text]="true"
-                      [severity]="p.actif ? 'warning' : 'info'"
-                      [pTooltip]="p.actif ? 'Désactiver' : 'Activer'" tooltipPosition="top"
-                      (onClick)="toggleActif(p)" />
-            <p-button icon="pi pi-pencil" [rounded]="true" [text]="true"
-                      pTooltip="Modifier" tooltipPosition="top"
-                      (onClick)="openEditModal(p)" />
-            <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger"
-                      pTooltip="Supprimer" tooltipPosition="top"
-                      (onClick)="delete(p)" />
+            <app-button icon="pi pi-play" [rounded]="true" [text]="true" severity="success"
+                      ngbTooltip="Exécuter maintenant"
+                      (clicked)="executerManuellement(p)" />
+            <app-button [icon]="p.actif ? 'pi pi-pause' : 'pi pi-play'" [rounded]="true" [text]="true"
+                      [severity]="p.actif ? 'warn' : 'info'"
+                      [ngbTooltip]="p.actif ? 'Désactiver' : 'Activer'"
+                      (clicked)="toggleActif(p)" />
+            <app-button icon="pi pi-pencil" [rounded]="true" [text]="true"
+                      ngbTooltip="Modifier"
+                      (clicked)="openEditModal(p)" />
+            <app-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger"
+                      ngbTooltip="Supprimer"
+                      (clicked)="delete(p)" />
           </div>
         </td>
       </tr>
@@ -127,12 +123,12 @@
               <i class="pi pi-calendar-times"></i>
               <p>Aucun planning tournant configuré</p>
               <small>Créez votre premier planning pour automatiser les inventaires tournants.</small>
-              <p-button label="Créer le premier planning" icon="pi pi-plus"
-                        [outlined]="true" (onClick)="openCreateModal()" />
+              <app-button label="Créer le premier planning" icon="pi pi-plus"
+                        [outlined]="true" (clicked)="openCreateModal()" />
             </div>
           </div>
         </td>
       </tr>
     </ng-template>
-  </p-table>
+  </app-data-table>
 </div>

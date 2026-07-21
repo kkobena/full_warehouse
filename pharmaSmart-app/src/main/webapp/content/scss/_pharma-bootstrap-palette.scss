@@ -1,0 +1,104 @@
+// Aligne la palette Bootstrap sur celle du preset Aura (PrimeNG).
+//
+// Cf. plan de migration §8.5. Objectif : quand un écran passe de `<p-button>` à
+// `<app-button>` (qui rend du `.btn` Bootstrap natif), la couleur ne change pas.
+// Sans ce fichier les boutons migrés passeraient de l'émeraude #10b981 au bleu-canard
+// #008cba de Bootswatch yeti, et l'app serait bicolore pendant toute la migration.
+//
+// ⚠ Ce sont des variables **Sass**, pas CSS — et c'est indispensable :
+// Bootstrap 5.3 fige les couleurs de `.btn-*` à la compilation
+// (`.btn-primary { --bs-btn-bg: #008cba; }`), un alias CSS `--bs-primary` n'aurait
+// aucun effet dessus. En passant par Sass, Bootstrap régénère aussi les nuances
+// hover/active et les `--bs-*-rgb` dont dépendent `.text-*` / `.bg-*` / `.border-*`.
+//
+// ⚠ Doit être importé AVANT `bootswatch/dist/yeti/variables`, qui déclare les mêmes
+// variables en `!default` : la première définition gagne.
+//
+// Valeurs extraites de `Aura.components.button.colorScheme.light.root` — voir le
+// tableau de correspondance ci-dessous. Les noms de severity PrimeNG sans équivalent
+// Bootstrap (`help`, `contrast`) sont ajoutés à `$theme-colors` dans vendor.scss.
+//
+//   severity PrimeNG   token Aura        classe Bootstrap
+//   ─────────────────────────────────────────────────────
+//   primary            {primary.color}   .btn-primary
+//   secondary          {surface.100}     .btn-secondary
+//   success            {green.500}       .btn-success
+//   info               {sky.500}         .btn-info
+//   warn               {orange.500}      .btn-warning
+//   danger             {red.500}         .btn-danger
+//   help               {purple.500}      .btn-help      (ajoutée)
+//   contrast           {surface.950}     .btn-contrast  (ajoutée)
+
+$primary: #10b981; // --p-emerald-500
+$secondary: #f1f5f9; // --p-slate-100  (fond clair, Bootstrap calcule le texte foncé)
+$success: #22c55e; // --p-green-500
+$info: #0ea5e9; // --p-sky-500
+$warning: #f97316; // --p-orange-500  (Aura utilise orange, pas amber)
+$danger: #ef4444; // --p-red-500
+
+// Severities PrimeNG absentes de Bootstrap — injectées dans $theme-colors (vendor.scss).
+$pharma-help: #a855f7; // --p-purple-500
+$pharma-contrast: #020617; // --p-slate-950
+
+// --- Rayons de bordure ---
+//
+// Bootswatch yeti est un thème PLAT : il force `$border-radius: 0` (yeti/_variables.scss:46).
+// Aura arrondit tout à 6px. Sans cette reprise, un `p-button` migré vers `app-button`
+// passe de coins arrondis à coins carrés — même problème que pour les couleurs.
+//
+// Les valeurs sont celles de Bootstrap par défaut, qui coïncident exactement avec
+// l'échelle Aura (`borderRadius.sm/md/lg` = 4 / 6 / 8px) : il suffit d'empêcher yeti
+// de les remettre à zéro.
+$border-radius: 0.375rem; // 6px — Aura `md`, utilisé par .btn et .form-control
+$border-radius-sm: 0.25rem; // 4px — Aura `sm`
+$border-radius-lg: 0.5rem; // 8px — Aura `lg`
+
+// --- Gabarit des boutons et des champs ---
+//
+// Même mécanisme que pour les rayons : yeti resserre `$input-btn-padding-x` à .5rem
+// (yeti/_variables.scss:63), là où Aura utilise .75rem. Un `p-button` migré vers
+// `app-button` perdait donc 0.5rem de largeur et 0.25rem de hauteur.
+//
+// Aura dérive le gabarit du bouton de celui des champs de formulaire
+// (`button.paddingX = {form.field.padding.x}`), d'où l'usage des mêmes valeurs ici —
+// ce sont celles capturées dans `_pharma-tokens.scss` sous `--p-form-field-padding-*`
+// et `--p-form-field-sm-padding-*`.
+//
+// ⚠ Portée globale : tous les `.btn` et `.form-control` de l'application, migrés ou non.
+// Aura appuie le libellé du bouton (`button.label.fontWeight: 500`) alors que yeti
+// l'allège à 300 (yeti/_variables.scss:64) — comme le reste de la typographie du thème.
+// Sans cette reprise, un `p-button` migré vers `app-button` voit son libellé maigrir.
+$btn-font-weight: 500;
+
+// --- Bordures des champs de saisie ---
+//
+// Sans ces trois reprises, un `<input class="form-control">` et un `app-select` posés
+// côte à côte ne réagissent pas pareil au focus : ng-select suit les tokens Aura
+// (`_ng-select-pharma.scss`), Bootstrap ses propres dérivations.
+//
+//   au repos : Bootstrap `$border-color` (#dee2e6) vs Aura `--p-form-field-border-color`
+//   au focus : Bootstrap éclaircit `$primary` de 50 % (#87dcc0) vs Aura le primaire plein
+//
+// On aligne Bootstrap sur Aura pour la couleur. Le halo, lui, est conservé et généralisé
+// à tous les champs — voir `--pharma-focus-ring` en fin de fichier.
+$input-border-color: var(--p-form-field-border-color);
+$input-focus-border-color: var(--p-form-field-focus-border-color);
+$input-focus-box-shadow: var(--pharma-focus-ring);
+
+$input-btn-padding-y: 0.5rem; // --p-form-field-padding-y
+$input-btn-padding-x: 0.75rem; // --p-form-field-padding-x
+$input-btn-padding-y-sm: 0.375rem; // --p-form-field-sm-padding-y
+$input-btn-padding-x-sm: 0.625rem; // --p-form-field-sm-padding-x
+
+// --- Halo de focus, source unique ---
+//
+// Trois feuilles posaient jusqu'ici leur propre `box-shadow` de focus, avec des
+// géométries et des couleurs différentes : Bootstrap (0.25rem, primaire à 25 %),
+// `_modal-theme.scss` (0.2rem, bleu-gris à 15 %) et rien du tout côté ng-select. Les
+// champs ne réagissaient donc pas pareil selon l'écran.
+//
+// La variable est déclarée ici pour être consommée par les trois : `$input-focus-box-shadow`
+// ci-dessus (Bootstrap), `_modal-theme.scss` et `_ng-select-pharma.scss`.
+:root {
+  --pharma-focus-ring: 0 0 0 0.2rem #{rgba($primary, 0.15)};
+}

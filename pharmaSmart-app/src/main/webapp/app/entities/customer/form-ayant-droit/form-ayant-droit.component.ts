@@ -6,18 +6,16 @@ import { CustomerService } from "app/entities/customer/customer.service";
 import { Observable, Subject } from "rxjs";
 import { finalize, takeUntil } from "rxjs/operators";
 import { HttpResponse } from "@angular/common/http";
-import { ToastModule } from "primeng/toast";
-import { ButtonModule } from "primeng/button";
-import { RippleModule } from "primeng/ripple";
-import { InputTextModule } from "primeng/inputtext";
-import { RadioButtonModule } from "primeng/radiobutton";
-import { KeyFilterModule } from "primeng/keyfilter";
-import { InputMaskModule } from "primeng/inputmask";
 import { DATE_FORMAT_FROM_STRING_FR, FORMAT_ISO_DATE_TO_STRING_FR } from "../../../shared/util/warehouse-util";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { Card } from "primeng/card";
 import { DateNaissDirective } from "../../../shared/date-naiss.directive";
 import { NotificationService } from "../../../shared/services/notification.service";
+import {
+  ButtonComponent,
+  CardComponent,
+  KeyFilterDirective,
+  RadioComponent
+} from '../../../shared/ui';
 
 @Component({
   selector: "app-form-ayant-droit",
@@ -25,17 +23,13 @@ import { NotificationService } from "../../../shared/services/notification.servi
   styleUrls: ["./form-ayant-droit-component.scss"],
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
-    ToastModule,
     FormsModule,
-    ButtonModule,
-    RippleModule,
-    InputTextModule,
-    RadioButtonModule,
     ReactiveFormsModule,
-    KeyFilterModule,
-    InputMaskModule,
-    Card,
-    DateNaissDirective
+    DateNaissDirective,
+    ButtonComponent,
+    CardComponent,
+    KeyFilterDirective,
+    RadioComponent
   ]
 })
 export class FormAyantDroitComponent implements OnInit, AfterViewInit, OnDestroy {

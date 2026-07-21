@@ -1,13 +1,6 @@
 import { Component, effect, inject, input, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
-import { AutoCompleteModule, AutoCompleteCompleteEvent, AutoCompleteSelectEvent } from 'primeng/autocomplete';
-import { InputTextModule } from 'primeng/inputtext';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
 import { IRayon } from '../../models/rayon.model';
 import { IProduit } from '../../../../shared/model';
@@ -15,6 +8,15 @@ import { RayonProduitApiService } from '../../data-access/services/rayon-produit
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { ErrorService } from '../../../../shared/error.service';
 import { RayonAssignFormComponent, RayonAssignResult } from '../rayon-assign-form/rayon-assign-form.component';
+import {
+  AppTableLazyLoadEvent,
+  ButtonComponent,
+  DataTableComponent,
+  HeaderCheckboxComponent,
+  IconFieldComponent,
+  RowCheckboxComponent,
+  SelectSearchComponent
+} from '../../../../shared/ui';
 
 interface ProduitInRayon extends IProduit {
   rayonProduitId?: number;
@@ -26,7 +28,16 @@ interface ProduitInRayon extends IProduit {
   templateUrl: './rayon-produits-tab.component.html',
   styleUrl: './rayon-produits-tab.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [FormsModule, TableModule, ButtonModule, TooltipModule, AutoCompleteModule, InputTextModule, IconField, InputIcon],
+  imports: [
+    FormsModule,
+    DataTableComponent,
+    ButtonComponent,
+    NgbTooltip,
+    SelectSearchComponent,
+    IconFieldComponent,
+    HeaderCheckboxComponent,
+    RowCheckboxComponent
+  ],
 })
 export class RayonProduitsTabComponent {
   readonly rayon = input.required<IRayon>();
@@ -60,7 +71,7 @@ export class RayonProduitsTabComponent {
     });
   }
 
-  protected onLazyLoad(event: TableLazyLoadEvent): void {
+  protected onLazyLoad(event: AppTableLazyLoadEvent): void {
     this.page = Math.floor((event.first ?? 0) / (event.rows ?? this.rows));
     this.rows = event.rows ?? this.rows;
     this.loadProduits(this.rayon(), this.page, this.rows, this.filterText());
@@ -72,17 +83,16 @@ export class RayonProduitsTabComponent {
     this.loadProduits(this.rayon(), 0, this.rows, value);
   }
 
-  protected onComplete(event: AutoCompleteCompleteEvent): void {
-    const query = event.query?.trim();
-    if (!query) { this.searchSuggestions.set([]); return; }
-    this.api.searchProduits(query).subscribe({
+  protected onComplete(query: string): void {
+    const trimmed = query?.trim();
+    if (!trimmed) { this.searchSuggestions.set([]); return; }
+    this.api.searchProduits(trimmed).subscribe({
       next: res => this.searchSuggestions.set(res.body ?? []),
       error: () => this.searchSuggestions.set([]),
     });
   }
 
-  protected onProduitSelected(event: AutoCompleteSelectEvent): void {
-    const produit = event.value as IProduit;
+  protected onProduitSelected(produit: IProduit | null): void {
     if (!produit?.id || !this.rayon()?.id) return;
     this.api.assign({ rayonId: this.rayon().id!, produitId: produit.id }).subscribe({
       next: () => this.afterAssign(produit),

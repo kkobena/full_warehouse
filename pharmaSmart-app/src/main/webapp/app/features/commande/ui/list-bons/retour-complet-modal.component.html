@@ -23,44 +23,40 @@
     <label class="form-label">
       Motif de retour <span class="text-danger">*</span>
     </label>
-    <p-select
+    <app-select
       [(ngModel)]="selectedMotifId"
-      [options]="motifs()"
-      optionLabel="libelle"
-      optionValue="id"
+      [items]="motifs()"
+      bindLabel="libelle"
+      bindValue="id"
       placeholder="Sélectionner un motif"
-      [overlayOptions]="{baseZIndex: 90050}"
-      (onShow)="onDropdownShow($event)"
-      (onHide)="onDropdownHide($event)"
-      [style]="{ width: '100%' }"
+      class="w-100"
     />
   </div>
 
   <div class="form-group">
     <label class="form-label">Commentaire</label>
     <input
-      pInputText
       [(ngModel)]="commentaire"
       placeholder="Commentaire optionnel"
-      class="w-100"
+      class="form-control w-100"
     />
   </div>
 </div>
 
 <div class="modal-footer">
-  <p-button
+  <app-button
     label="Annuler"
     severity="secondary"
     size="small"
     icon="pi pi-times"
-    (onClick)="dismiss()"
+    (clicked)="dismiss()"
   />
-  <p-button
+  <app-button
     label="Créer le retour complet"
     icon="pi pi-replay"
     severity="danger"
     size="small"
     [disabled]="!selectedMotifId"
-    (onClick)="confirm()"
+    (clicked)="confirm()"
   />
 </div>

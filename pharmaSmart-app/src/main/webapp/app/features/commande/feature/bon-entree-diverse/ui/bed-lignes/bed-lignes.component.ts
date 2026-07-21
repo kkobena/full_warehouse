@@ -2,14 +2,9 @@ import { Component, computed, DestroyRef, inject, input, output, signal } from '
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs/operators';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { TooltipModule } from 'primeng/tooltip';
-import { InputTextModule } from 'primeng/inputtext';
-import { AutoCompleteModule, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import { Subject, finalize } from 'rxjs';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, DataTableComponent, SelectSearchComponent } from 'app/shared/ui';
 import { IBed, IBedLigne } from '../../data-access/bed.model';
 import { BedService } from '../../data-access/bed.service';
 import { ProduitSearch } from 'app/shared/model/produit.model';
@@ -24,13 +19,10 @@ import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ng
   imports: [
     CommonModule,
     FormsModule,
-    ButtonModule,
-    TableModule,
-    TooltipModule,
-    InputTextModule,
-    AutoCompleteModule,
-    InputGroup,
-    InputGroupAddon,
+    ButtonComponent,
+    DataTableComponent,
+    NgbTooltip,
+    SelectSearchComponent,
   ],
 })
 export class BedLignesComponent {
@@ -58,16 +50,28 @@ export class BedLignesComponent {
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly destroyRef = inject(DestroyRef);
 
-  onSearchProduit(event: AutoCompleteCompleteEvent): void {
+  /**
+   * Passé à `[typeahead]` de `app-select-search` dans le seul but d'être « observé » :
+   * ng-select désactive alors son propre filtrage client (par `bindLabel`), qui sinon
+   * masquait les résultats retournés par le backend sur un code CIP (le texte tapé ne
+   * matche pas `libelle`). Voir `commande-product-search.component.ts` pour le même correctif.
+   */
+  protected readonly typeaheadSink$ = new Subject<string>();
+
+  constructor() {
+    this.typeaheadSink$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
+  }
+
+  onSearchProduit(term: string): void {
     this.produitService
-      .search({ search: event.query, page: 0, size: 15 })
+      .search({ search: term, page: 0, size: 15 })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(res => this.produitSuggestions.set(res.body ?? []));
   }
 
-  onProduitSelect(produit: ProduitSearch): void {
+  onProduitSelect(produit: ProduitSearch | null): void {
     this.selectedProduit.set(produit);
-    this.lignePrixAchat = produit.fournisseurProduit?.prixAchat ?? 0;
+    this.lignePrixAchat = produit?.fournisseurProduit?.prixAchat ?? 0;
   }
 
   onAjouterLigne(): void {

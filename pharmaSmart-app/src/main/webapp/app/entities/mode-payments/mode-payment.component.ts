@@ -1,25 +1,25 @@
 import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { IPaymentMode } from '../../shared/model/payment-mode.model';
 import { ModePaymentService } from './mode-payment.service';
-import { ButtonModule } from 'primeng/button';
-import { ToolbarModule } from 'primeng/toolbar';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { Tooltip } from 'primeng/tooltip';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { InputText } from 'primeng/inputtext';
+import {
+  AppTableLazyLoadEvent,
+  ButtonComponent,
+  DataTableComponent,
+  IconFieldComponent,
+  SelectableRowDirective,
+} from '../../shared/ui';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { ModePaymentUpdateComponent } from './mode-payment-update.component';
 
 @Component({
-  selector: 'jhi-mode-payment',
+  selector: 'app-mode-payment',
   templateUrl: './mode-payment.component.html',
   styleUrls: ['./mode-payment.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [ButtonModule, ToolbarModule, TableModule, Tooltip, IconField, InputIcon, InputText],
+  imports: [ButtonComponent, DataTableComponent, SelectableRowDirective, IconFieldComponent, NgbTooltip],
 })
 export class ModePaymentComponent implements OnInit {
   protected paymentModes?: IPaymentMode[];
@@ -54,7 +54,7 @@ export class ModePaymentComponent implements OnInit {
       });
   }
 
-  protected lazyLoading(event: TableLazyLoadEvent): void {
+  protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;

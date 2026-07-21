@@ -1,5 +1,3 @@
-<p-toast position="center"/>
-
 <div class="modal-header">
   <h5 class="modal-title">
     <i class="pi pi-chart-bar me-2"></i>Analyse des écarts
@@ -29,7 +27,7 @@
 
   <!-- Table des écarts -->
   <div class="pharma-table-wrapper">
-    <p-table
+    <app-data-table
       [value]="lines()"
       [loading]="loading()"
       class="p-datatable-sm"
@@ -57,24 +55,18 @@
             </span>
           </td>
           <td>
-            <p-select
+            <app-select-search
               [(ngModel)]="line.selectedCause"
-              [options]="causeOptions"
-              optionLabel="label"
-              optionValue="value"
-              [fluid]="true"
+              [items]="causeOptions"
+              bindLabel="label"
+              bindValue="value"
+              [searchable]="false"
               appendTo="body"
-              size="small"
-            >
-              <ng-template #item let-opt>
-                <span><i [class]="opt.icon + ' me-1'"></i>{{ opt.label }}</span>
-              </ng-template>
-              <ng-template #selectedItem let-opt>
-                @if (opt) {
-                  <span><i [class]="opt.icon + ' me-1'"></i>{{ opt.label }}</span>
-                }
-              </ng-template>
-            </p-select>
+              [optionTemplate]="causeOption"
+            />
+            <ng-template #causeOption let-opt>
+              <span><i [class]="opt.icon + ' me-1'"></i>{{ opt.label }}</span>
+            </ng-template>
           </td>
           <td>
             <input
@@ -100,30 +92,29 @@
           </td>
         </tr>
       </ng-template>
-    </p-table>
+    </app-data-table>
   </div>
 </div>
 
 <div class="modal-footer flex-column align-items-stretch gap-2">
   <div class="d-flex justify-content-end gap-2 w-100">
-    <p-button
+    <app-button
       label="Passer"
       icon="pi pi-times"
       severity="secondary"
       [raised]="true"
       [disabled]="saving()"
-      (onClick)="skip()"
-      pTooltip="Ignorer cette étape (les écarts ne seront pas qualifiés)"
-      tooltipPosition="top"
+      (clicked)="skip()"
+      ngbTooltip="Ignorer cette étape (les écarts ne seront pas qualifiés)"
     />
-    <p-button
+    <app-button
       label="Enregistrer"
       icon="pi pi-check"
       severity="primary"
       [raised]="true"
       [loading]="saving()"
       [disabled]="lines().length === 0 || saving()"
-      (onClick)="save()"
+      (clicked)="save()"
     />
   </div>
 </div>

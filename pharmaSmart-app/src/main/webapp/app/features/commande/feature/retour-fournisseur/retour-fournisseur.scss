@@ -3,3 +3,6 @@
 @import 'app/shared/scss/pharma-toolbar';
 @import 'app/shared/scss/subtab-bar';
 
+.pharma-toolbar {
+  margin-bottom: -1rem !important;
+}

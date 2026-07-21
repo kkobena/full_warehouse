@@ -2,7 +2,6 @@ import { Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, Ch
 import { CommonModule } from '@angular/common';
 import { forkJoin } from 'rxjs';
 
-import { TableModule } from 'primeng/table';
 import { IBfrEvolution, IBfrSnapshot } from 'app/shared/model/report';
 import { CashFlowBfrService } from '../services/cash-flow-bfr.service';
 import { formatCurrency } from 'app/shared/utils/format-utils';
@@ -16,7 +15,7 @@ Chart.register(...registerables);
   templateUrl: './cash-flow-bfr.component.html',
   styleUrl: './cash-flow-bfr.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, TableModule],
+  imports: [CommonModule],
 })
 export default class CashFlowBfrComponent implements OnInit, OnDestroy {
   @ViewChild('evolutionChartCanvas') evolutionChartCanvas?: ElementRef<HTMLCanvasElement>;

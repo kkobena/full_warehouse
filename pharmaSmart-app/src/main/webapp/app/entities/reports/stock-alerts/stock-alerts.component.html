@@ -1,36 +1,29 @@
 <div class="pharma-smart-content p-2">
-  <div class="pharma-toolbar">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-exclamation-triangle"></i>
-      <span class="pharma-toolbar-title">Alertes Stock</span>
-    </div>
+  <app-toolbar icon="pi pi-exclamation-triangle" title="Alertes Stock">
 
-    <p-toolbar>
-      <ng-template #start>
+    <ng-container ngProjectAs="[toolbarFilters]">
         <div class="pharma-toolbar-filters">
-          <p-multiselect
-            (onChange)="onFilterChange()"
+          <app-multi-select
+            (selectionChange)="onFilterChange()"
             [(ngModel)]="selectedAlertTypes"
-            [fluid]="true"
-            [options]="alertTypeOptions"
-            [showClear]="true"
+            [items]="alertTypeOptions"
+            [clearable]="true"
             appendTo="body"
             display="chip"
-            optionLabel="label"
-            optionValue="value"
+            bindLabel="label"
+            bindValue="value"
             placeholder="Filtrer par type d'alerte"
           />
         </div>
-      </ng-template>
+      </ng-container>
 
-      <ng-template #end>
+<ng-container ngProjectAs="[toolbarActions]">
         <div>
-          <p-button (onClick)="exportToPdf()" icon="pi pi-file-pdf" label="Exporter PDF" severity="warn"
+          <app-button (clicked)="exportToPdf()" icon="pi pi-file-pdf" label="Exporter PDF" severity="warn"
                     size="small" />
         </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
+      </ng-container>
+  </app-toolbar>
 
   <!-- KPI Strip -->
   <div class="kpi-strip mt-2 mb-2">
@@ -79,21 +72,20 @@
           </h5>
         </div>
         <div class="card-body p-0">
-          <p-table
+          <app-data-table
             (onLazyLoad)="loadAlerts($event)"
             [lazy]="true"
             [loading]="isLoading()"
             [paginator]="true"
-            [rowHover]="true"
             [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
             [rows]="rowsPerPage"
             [scrollable]="true"
-            [sortOrder]="1"
+            [initialSortOrder]="1"
             [totalRecords]="totalItems()"
             [value]="alerts()"
-            class="p-datatable-sm"
+            [size]="'small'"
             scrollHeight="500px"
-            sortField="alertType"
+            initialSortField="alertType"
           >
               <ng-template #header>
                 <tr class="pharma-table-head">
@@ -142,7 +134,7 @@
                   </td>
                 </tr>
               </ng-template>
-            </p-table>
+            </app-data-table>
         </div>
       </div>
     </div>

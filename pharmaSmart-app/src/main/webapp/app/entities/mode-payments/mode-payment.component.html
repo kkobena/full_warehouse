@@ -6,34 +6,30 @@
           <span class="pharma-toolbar-title">Modes de paiement</span>
         </div>
 
-        <p-toolbar>
-          <ng-template #start>
-            <div class="pharma-toolbar-filters">
-              <div class="pharma-search-input">
-                <p-iconfield>
-                  <p-inputicon class="pi pi-search" />
-                  <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher" type="text" />
-                </p-iconfield>
-              </div>
+        <div class="pharma-toolbar-content">
+          <div class="pharma-toolbar-filters">
+            <div class="pharma-search-input">
+              <app-icon-field [overlay]="true" icon="pi pi-search">
+                <input (keyup.enter)="search($event)" class="form-control" placeholder="Taper pour rechercher" type="text" />
+              </app-icon-field>
             </div>
-          </ng-template>
-        </p-toolbar>
+          </div>
+        </div>
       </div>
 
-      @if (paymentModes && paymentModes?.length > 0) {
-        <p-table
+      @if (paymentModes && paymentModes.length > 0) {
+        <app-data-table
           (onLazyLoad)="lazyLoading($event)"
           [lazy]="true"
           [loading]="loading"
           [paginator]="true"
           [rows]="itemsPerPage"
+          [selectionMode]="'single'"
+          [size]="'small'"
+          [stripedRows]="true"
           [totalRecords]="totalItems"
           [value]="paymentModes"
-          class="p-datatable-sm p-datatable-striped"
           dataKey="code"
-          stripedRows="true"
-          selectionMode="single"
-
         >
           <ng-template #header>
             <tr class="pharma-table-head">
@@ -44,8 +40,9 @@
               <th scope="col"></th>
             </tr>
           </ng-template>
-          <ng-template #body let-columns="columns" let-paymentMode>
-            <tr [pSelectableRow]="paymentMode">
+          <ng-template #body let-paymentMode>
+            <tr [appSelectableRow]="paymentMode">
+              <td>{{ paymentMode.code }}</td>
               <td>{{ paymentMode.libelle }}</td>
               <td>{{ paymentMode.order }}</td>
               <td class="text-center">
@@ -56,19 +53,12 @@
                 }
               </td>
               <td class="text-right">
-                <p-button
-                  (click)="onEdit(paymentMode)"
-                  [rounded]="true"
-                  [text]="true"
-                  icon="pi pi-pencil"
-                  pTooltip="Modifier"
-                  severity="success"
-                >
-                </p-button>
+                <app-button (clicked)="onEdit(paymentMode)" [iconOnly]="true" [rounded]="true" [text]="true"
+                            ariaLabel="Modifier" icon="pi pi-pencil" ngbTooltip="Modifier" severity="success" />
               </td>
             </tr>
           </ng-template>
-        </p-table>
+        </app-data-table>
       } @else {
         <div class="alert alert-warning" id="no-result">
           <span>Aucun mode de paiement trouvé</span>

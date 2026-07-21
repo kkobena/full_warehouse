@@ -6,32 +6,32 @@
       <i class="pi pi-cog"></i>
       <span class="pharma-toolbar-title">Facturation automatisée</span>
     </div>
-    <p-toolbar>
-      <ng-template #start>
+    <div class="pharma-toolbar-content">
+      <div class="pharma-toolbar-filters">
         <span class="text-muted small">Planifications automatiques de génération de factures</span>
-      </ng-template>
-      <ng-template #end>
-        <div class="pharma-toolbar-actions">
-          <div class="pharma-button-group">
-            <p-button
-              (onClick)="state.guideVisible.set(!state.guideVisible())"
-              [icon]="state.guideVisible() ? 'pi pi-eye-slash' : 'pi pi-lightbulb'"
-              [label]="state.guideVisible() ? 'Masquer le guide' : 'Guide'"
-              severity="secondary"
-              [text]="true"
-            />
-            <p-button
-              (onClick)="state.load()"
-              [loading]="state.loading()"
-              [raised]="true"
-              icon="pi pi-refresh"
-              label="Actualiser"
-              severity="secondary"
-            />
-          </div>
+      </div>
+
+      <div class="pharma-toolbar-actions">
+        <div class="pharma-button-group">
+          <app-button
+            (clicked)="state.guideVisible.set(!state.guideVisible())"
+            [icon]="state.guideVisible() ? 'pi pi-eye-slash' : 'pi pi-lightbulb'"
+            [label]="state.guideVisible() ? 'Masquer le guide' : 'Guide'"
+            [text]="true"
+            severity="secondary"
+          />
+
+          <app-button
+            (clicked)="state.load()"
+            [loading]="state.loading()"
+            [raised]="true"
+            icon="pi pi-refresh"
+            label="Actualiser"
+            severity="secondary"
+          />
         </div>
-      </ng-template>
-    </p-toolbar>
+      </div>
+    </div>
   </div>
 
   <!-- Guide -->
@@ -131,4 +131,3 @@
   </div>
 </div>
 
-<p-toast position="center" />

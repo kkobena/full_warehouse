@@ -1,0 +1,18 @@
+// Habillage partagé avec les écrans non migrés, qui importent le même partial.
+//
+// ⚠ L'import entier est enveloppé dans `:host ::ng-deep`, et ce n'est pas une commodité.
+// Le partial style sept classes que l'**appelant** pose sur du contenu projeté —
+// `.pharma-filter-group`, `.pharma-button-group`, `.pharma-search-input`,
+// `.pharma-compact-search`, `.pharma-action-primary`, `.pharma-action-secondary`,
+// `.pharma-toolbar-icon-btn`. Ce contenu porte l'encapsulation du composant appelant :
+// sans `::ng-deep`, ces règles ne l'atteindraient pas et la barre perdrait la moitié de
+// sa mise en forme.
+//
+// La portée reste bornée par `:host` : aucune fuite hors de la barre d'outils.
+:host {
+  display: block;
+}
+
+:host ::ng-deep {
+  @import '../../scss/pharma-toolbar';
+}

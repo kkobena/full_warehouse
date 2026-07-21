@@ -1,12 +1,8 @@
 import {Component, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {Button} from 'primeng/button';
-import {Select} from 'primeng/select';
-import {TableModule} from 'primeng/table';
-import {MessageService} from 'primeng/api';
-import {Toast} from 'primeng/toast';
+import {NgbActiveModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {NotificationService} from '../../../../shared/services/notification.service';
 import {
   CAUSE_ECART_OPTIONS,
   CauseEcart,
@@ -14,7 +10,7 @@ import {
   IGapLine
 } from '../../models/gap-analysis.model';
 import {GapAnalysisApiService} from '../../data-access/services/gap-analysis-api.service';
-import {Tooltip} from "primeng/tooltip";
+import {ButtonComponent, DataTableComponent, SelectSearchComponent} from '../../../../shared/ui';
 
 interface GapLineVM extends IGapLine {
   selectedCause: CauseEcart | null;
@@ -23,8 +19,7 @@ interface GapLineVM extends IGapLine {
 
 @Component({
   selector: 'app-gap-analysis-modal',
-  imports: [CommonModule, FormsModule, Button, Select, TableModule, Toast, Tooltip],
-  providers: [MessageService],
+  imports: [CommonModule, FormsModule, ButtonComponent, SelectSearchComponent, DataTableComponent, NgbTooltip],
   templateUrl: './gap-analysis-modal.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './gap-analysis-modal.component.scss',
@@ -40,7 +35,7 @@ export class GapAnalysisModalComponent implements OnInit {
 
   private readonly activeModal = inject(NgbActiveModal);
   private readonly api = inject(GapAnalysisApiService);
-  private readonly messageService = inject(MessageService);
+  private readonly notificationService = inject(NotificationService);
 
   get totalGapLines(): number {
     return this.lines().length;
@@ -78,11 +73,7 @@ export class GapAnalysisModalComponent implements OnInit {
       },
       error: () => {
         this.saving.set(false);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: "Échec de l'enregistrement"
-        });
+        this.notificationService.error("Échec de l'enregistrement", 'Erreur');
       },
     });
   }

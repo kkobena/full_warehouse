@@ -1,35 +1,23 @@
-<p-toast position="center"></p-toast>
 <div class="pharma-smart-content p-2">
-  <div class="pharma-toolbar">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-percentage"></i>
-      <span class="pharma-toolbar-title">Liste des remises produits</span>
-    </div>
-
-    <p-toolbar>
-      <ng-template #start>
-        <div class="pharma-toolbar-filters"></div>
-      </ng-template>
-
-      <ng-template #end>
+    <app-toolbar icon="pi pi-percentage" title="Liste des remises produits">
+      <ng-container ngProjectAs="[toolbarActions]">
         <div class="pharma-toolbar-actions">
           <div class="pharma-button-group">
-            <p-button
-              (click)="onOpenRemiseForm()"
+            <app-button
+              (clicked)="onOpenRemiseForm()"
               [raised]="true"
               icon="pi pi-plus"
               label="Nouveau"
               severity="success"
               type="button"
-            ></p-button>
+            />
           </div>
         </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
+      </ng-container>
+    </app-toolbar>
 
   @if (entites && entites?.length > 0) {
-    <p-table
+    <app-data-table
       (onLazyLoad)="lazyLoading()"
       [lazy]="true"
       [loading]="loading"
@@ -52,7 +40,7 @@
         </tr>
       </ng-template>
       <ng-template #body let-columns="columns" let-elRow let-rowIndex="rowIndex">
-        <tr [pSelectableRow]="elRow">
+        <tr>
           <td>
             <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
           </td>
@@ -70,38 +58,38 @@
             <span class="pharma-qty-value">{{ getVoTaux(elRow) }}</span>
           </td>
           <td class="text-right">
-            <p-toggleswitch (onChange)="onStatusChange(elRow)" [(ngModel)]="elRow.enable" />
+            <app-switch (ngModelChange)="onStatusChange(elRow)" [(ngModel)]="elRow.enable" />
           </td>
 
           <td class="text-right">
             @if (elRow.enable) {
-              <p-button
-                (click)="onOpenRemiseForm(elRow)"
+              <app-button
+                (clicked)="onOpenRemiseForm(elRow)"
                 [text]="true"
                 class="p-mr-1"
                 icon="pi pi-pencil"
-                pTooltip="Editer"
-                rounded="true"
+                ngbTooltip="Editer"
+                [rounded]="true"
                 severity="success"
                 size="small"
                 type="submit"
-              ></p-button>
+              />
             }
 
-            <p-button
-              (click)="delete(elRow)"
+            <app-button
+              (clicked)="delete(elRow)"
               [text]="true"
               icon="pi pi-trash"
-              pTooltip="Supprimer"
-              rounded="true"
+              ngbTooltip="Supprimer"
+              [rounded]="true"
               severity="danger"
               size="small"
               type="button"
-            ></p-button>
+            />
           </td>
         </tr>
       </ng-template>
-    </p-table>
+    </app-data-table>
   } @else {
     <div class="alert alert-warning" id="no-result">
       <span>Aucune donnée trouvée</span>

@@ -3,20 +3,20 @@
   <!-- ── PANEL HEADER ─────────────────────────────────────────────────── -->
   <div class="panel-header">
     <div class="d-flex gap-2 align-items-center flex-wrap">
-      <p-button
+      <app-button
         icon="pi pi-arrow-left"
         label="Retour à la liste"
         severity="success"
         size="small"
         [text]="true"
-        (onClick)="retour.emit()"
+        (clicked)="retour.emit()"
       />
       @if (isNew()) {
         <span class="detail-title">Nouveau Bon d'Entrée Diverse</span>
       } @else {
         <span class="detail-title">{{ bed().receiptReference }}</span>
-        <p-tag
-          [value]="getStatutLabel(bed().orderStatus)"
+        <app-badge
+          [label]="getStatutLabel(bed().orderStatus)"
           [severity]="getStatutSeverity(bed().orderStatus)"
         />
         @if (bed().motifBed) {
@@ -33,15 +33,15 @@
     </div>
     <div class="ms-auto d-flex gap-2 align-items-center">
       @if (!isNew() && isBrouillon()) {
-        <p-button
+        <app-button
           icon="pi pi-check-circle"
           label="Valider le BED"
           severity="success"
           size="small"
           [disabled]="lignes().length === 0"
-          pTooltip="Valider définitivement et créditer le stock"
-          tooltipPosition="bottom"
-          (onClick)="onValider()"
+          ngbTooltip="Valider définitivement et créditer le stock"
+          placement="bottom"
+          (clicked)="onValider()"
         />
       }
     </div>
@@ -62,25 +62,22 @@
 
 
         <div class="quantity-input-wrapper">
-          <p-inputgroup>
+          <div class="input-group">
             <input
-              pInputText
+              class="form-control"
               type="number"
               [(ngModel)]="ligneQuantite"
               placeholder="Qté"
-              min="1"
+              min="1" />
+            <app-button
+              icon="pi pi-plus"
+              severity="primary"
+              type="button"
+              [loading]="addingLigne()"
+              [disabled]="!selectedProduit() || ligneQuantite <= 0"
+              (clicked)="onAjouterLigne()"
             />
-            <p-inputgroup-addon>
-              <p-button
-                icon="pi pi-plus"
-                severity="primary"
-                type="button"
-                [loading]="addingLigne()"
-                [disabled]="!selectedProduit() || ligneQuantite <= 0"
-                (click)="onAjouterLigne()"
-              />
-            </p-inputgroup-addon>
-          </p-inputgroup>
+          </div>
         </div>
 
       </div>

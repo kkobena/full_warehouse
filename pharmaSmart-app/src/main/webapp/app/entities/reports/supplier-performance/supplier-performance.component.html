@@ -1,42 +1,36 @@
 <div class="pharma-smart-content p-2">
-  <div class="pharma-toolbar">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-users"></i>
-      <span class="pharma-toolbar-title">Performance des Fournisseurs</span>
-    </div>
+  <app-toolbar icon="pi pi-users" title="Performance des Fournisseurs">
 
-    <p-toolbar>
-      <ng-template #start>
+    <ng-container ngProjectAs="[toolbarFilters]">
         <div class="pharma-toolbar-filters">
-          <p-select
-            (onChange)="onFilterChange()"
+          <app-select
+            (selectionChange)="onFilterChange()"
             [(ngModel)]="selectedFilter"
-            [options]="filterOptions"
+            [items]="filterOptions"
             appendTo="body"
-            optionLabel="label"
-            optionValue="value"
+            bindLabel="label"
+            bindValue="value"
             placeholder="Filtre"
             size="large"
           />
-          <input [(ngModel)]="searchText" pInputText placeholder="Rechercher..."
+          <input [(ngModel)]="searchText" placeholder="Rechercher..."
                  style="width: 250px"
-                 type="text" />
+                 type="text" class="form-control" />
         </div>
-      </ng-template>
+      </ng-container>
 
-      <ng-template #end>
+<ng-container ngProjectAs="[toolbarActions]">
         <div>
-          <p-button (onClick)="toggleHelpDrawer()" [outlined]="true" class="mr-1"
+          <app-button (clicked)="toggleHelpDrawer()" [outlined]="true" class="mr-1"
                     icon="pi pi-question-circle"
                     label="Aide" severity="secondary" size="small" />
-          <!-- <p-button (onClick)="exportToPdf()" [loading]="isLoading()" class="mr-1" icon="pi pi-file-pdf"
+          <!-- <app-button (clicked)="exportToPdf()" [loading]="isLoading()" class="mr-1" icon="pi pi-file-pdf"
                      label="Exporter PDF" severity="warn" size="small" />-->
-          <p-button (onClick)="loadData()" class="mr-1" icon="pi pi-refresh" label="Rafraîchir"
+          <app-button (clicked)="loadData()" class="mr-1" icon="pi pi-refresh" label="Rafraîchir"
                     severity="primary" size="small" />
         </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
+      </ng-container>
+  </app-toolbar>
 
   <!-- View toggle -->
   <div class="dashboard-periode-selector mt-2">
@@ -133,7 +127,7 @@
           </h5>
         </div>
         <div class="card-body p-0">
-          <p-table
+          <app-data-table
             [loading]="isLoading()"
             [paginator]="true"
             [rowsPerPageOptions]="[10, 25, 50, 100]"
@@ -141,7 +135,7 @@
             [scrollable]="true"
             [showCurrentPageReport]="true"
             [value]="getFilteredSuppliers()"
-            class="p-datatable-sm"
+            [size]="'small'"
             currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} fournisseurs"
             scrollHeight="500px"
           >
@@ -188,7 +182,7 @@
                         'bg-warning-subtle text-warning': (supplier.avgDeliveryDays || 999) > 7 && (supplier.avgDeliveryDays || 999) <= 14,
                         'bg-danger-subtle text-danger': (supplier.avgDeliveryDays || 999) > 14,
                       }"
-                      [pTooltip]="'Min: ' + supplier.minDeliveryDays + 'j, Max: ' + supplier.maxDeliveryDays + 'j'"
+                      [ngbTooltip]="'Min: ' + supplier.minDeliveryDays + 'j, Max: ' + supplier.maxDeliveryDays + 'j'"
                       class="px-2 py-1 rounded fw-semibold"
                     >
                       {{ formatNumber(supplier.avgDeliveryDays) }}j
@@ -213,7 +207,7 @@
                         'bg-warning-subtle text-warning': (supplier.performanceScore || 0) >= 50 && (supplier.performanceScore || 0) < 70,
                         'bg-danger-subtle text-danger': (supplier.performanceScore || 0) < 50,
                       }"
-                      [pTooltip]="getPerformanceScoreLabel(supplier.performanceScore)"
+                      [ngbTooltip]="getPerformanceScoreLabel(supplier.performanceScore)"
                       class="px-2 py-1 rounded fw-semibold"
                     >
                       {{ formatDecimal(supplier.performanceScore, 1) }}
@@ -230,7 +224,7 @@
                   </td>
                 </tr>
               </ng-template>
-            </p-table>
+            </app-data-table>
         </div>
       </div>
     </div>
@@ -337,14 +331,13 @@
   }
 
   <!-- Help Drawer -->
-  <p-drawer [(visible)]="helpDrawerVisible" [style]="{ width: '600px' }" position="right">
-    <ng-template #header>
+  <app-offcanvas [(visible)]="helpDrawerVisible" position="right" width="600px">
+  <div appOffcanvasHeader>
       <div class="d-flex align-items-center gap-2">
         <i class="pi pi-question-circle text-primary" style="font-size: 1.5rem"></i>
         <span class="fw-bold fs-5">Guide d'utilisation - Performance Fournisseurs</span>
       </div>
-    </ng-template>
-
+  </div>
     <div class="p-3">
       <!-- Introduction -->
       <div class="mb-4">
@@ -597,5 +590,5 @@
         </div>
       </div>
     </div>
-  </p-drawer>
+</app-offcanvas>
 </div>

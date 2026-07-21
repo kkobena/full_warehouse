@@ -1,7 +1,7 @@
 import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChartComponent } from 'app/shared/chart/chart.component';
-import { TableModule } from 'primeng/table';
+import { DataTableComponent } from '../../../shared/ui';
 
 import { DashboardCAService } from '../services/dashboard-ca.service';
 import { DateRangeFilterComponent } from '../../../shared/components/date-range-filter/date-range-filter.component';
@@ -12,7 +12,7 @@ import { formatCurrency, formatNumber } from 'app/shared/utils/format-utils';
 
 @Component({
   selector: 'app-seasonality',
-  imports: [CommonModule, ChartComponent, TableModule, DateRangeFilterComponent],
+  imports: [CommonModule, ChartComponent, DataTableComponent, DateRangeFilterComponent],
   templateUrl: './seasonality.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./seasonality.component.scss'],

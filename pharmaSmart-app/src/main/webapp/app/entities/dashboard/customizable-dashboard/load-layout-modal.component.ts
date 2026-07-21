@@ -1,15 +1,14 @@
 import { Component, inject, Input, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
-import { ButtonModule } from 'primeng/button';
-import { Tag } from 'primeng/tag';
+import { BadgeComponent, ButtonComponent } from 'app/shared/ui';
 
 import { IDashboardLayout } from 'app/shared/model/dashboard-layout.model';
 
 @Component({
   selector: 'jhi-load-layout-modal',
-  imports: [CommonModule, ButtonModule, Tag],
+  imports: [CommonModule, ButtonComponent, BadgeComponent, NgbTooltip],
   templateUrl: './load-layout-modal.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './load-layout-modal.component.scss',

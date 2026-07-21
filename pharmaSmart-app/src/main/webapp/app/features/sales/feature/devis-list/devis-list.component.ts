@@ -21,7 +21,6 @@ import { AbilityService } from "../../../../core/auth/ability.service";
 import { ButtonGroup } from "primeng/buttongroup";
 import { FloatLabel } from "primeng/floatlabel";
 import { NgxSpinnerComponent } from "ngx-spinner";
-import { Toast } from "primeng/toast";
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
 
@@ -46,7 +45,6 @@ import { BlobDownloadService } from "../../../../shared/services/blob-download.s
     ButtonGroup,
     FloatLabel,
     NgxSpinnerComponent,
-    Toast,
     RouterLink
 
   ]

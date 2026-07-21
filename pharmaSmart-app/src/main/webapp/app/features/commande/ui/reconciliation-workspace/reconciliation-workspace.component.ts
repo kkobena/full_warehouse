@@ -1,14 +1,10 @@
 import { Component, computed, inject, input, OnInit, output, signal, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { InputTextModule } from 'primeng/inputtext';
-import { DatePickerModule } from 'primeng/datepicker';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { KeyFilter } from 'primeng/keyfilter';
-import { ToastModule } from 'primeng/toast';
+import type { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, BadgeComponent, DataTableComponent, InputNumberComponent, KeyFilterDirective } from 'app/shared/ui';
+import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
+import { NGB_DATE_TO_ISO } from 'app/shared/util/warehouse-util';
 import { forkJoin } from 'rxjs';
 import { IDelivery } from 'app/shared/model/delevery.model';
 import { IOrderLine } from 'app/shared/model/order-line.model';
@@ -25,19 +21,16 @@ import { ReconciliationFournisseurService } from "../../data-access/reconciliati
   selector: 'app-reconciliation-workspace',
   templateUrl: './reconciliation-workspace.component.html',
   styleUrls: ['./reconciliation-workspace.component.scss'],
-  providers: [DatePipe],
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,
-    ButtonModule,
-    InputNumberModule,
-    InputTextModule,
-    DatePickerModule,
-    TableModule,
-    TagModule,
-    KeyFilter,
-    ToastModule,
+    ButtonComponent,
+    BadgeComponent,
+    InputNumberComponent,
+    PharmaDatePickerComponent,
+    DataTableComponent,
+    KeyFilterDirective,
   ],
 })
 export class ReconciliationWorkspaceComponent implements OnInit {
@@ -45,7 +38,6 @@ export class ReconciliationWorkspaceComponent implements OnInit {
   private readonly deliveryService = inject(DeliveryService);
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
-  private readonly datePipe = inject(DatePipe);
 
   readonly delivery = input.required<IDelivery>();
   readonly done = output<IReconciliationFactureFournisseur>();
@@ -62,9 +54,13 @@ export class ReconciliationWorkspaceComponent implements OnInit {
   protected existing = signal<IReconciliationFactureFournisseur | null>(null);
 
   protected factureReference = '';
-  protected factureDate: Date | null = null;
+  protected factureDate: NgbDateStruct | null = null;
   protected factureMontantHT: number | null = null;
   protected factureTVA: number | null = null;
+
+  private static toNgbDate(date: Date): NgbDateStruct {
+    return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
+  }
 
   ngOnInit(): void {
     const d = this.delivery();
@@ -78,13 +74,13 @@ export class ReconciliationWorkspaceComponent implements OnInit {
         if (recon) {
           this.existing.set(recon);
           this.factureReference = recon.factureReference ?? '';
-          this.factureDate = recon.factureDate ? new Date(recon.factureDate) : null;
+          this.factureDate = recon.factureDate ? ReconciliationWorkspaceComponent.toNgbDate(new Date(recon.factureDate)) : null;
           this.factureMontantHT = recon.factureMontantHT ?? null;
           this.factureTVA = recon.factureTVA ?? null;
         } else {
           this.factureReference = (d as any).receiptReference ?? '';
           const rawDate = (d as any).receiptDate ?? (d as any).orderDate;
-          this.factureDate = rawDate ? new Date(rawDate) : null;
+          this.factureDate = rawDate ? ReconciliationWorkspaceComponent.toNgbDate(new Date(rawDate)) : null;
           this.factureMontantHT = null;
           this.factureTVA = (d as any).taxAmount ?? 0;
         }
@@ -139,9 +135,7 @@ export class ReconciliationWorkspaceComponent implements OnInit {
     const cmdId = d.commandeId ?? { id: d.id!, orderDate: d.orderDate ?? d.receiptDate! };
     const cmd: IReconciliationCommand = {
       factureReference: this.factureReference.trim(),
-      factureDate: this.factureDate
-        ? this.datePipe.transform(this.factureDate, 'yyyy-MM-dd')
-        : null,
+      factureDate: NGB_DATE_TO_ISO(this.factureDate),
       factureMontantHT: this.factureMontantHT!,
       factureTVA: this.factureTVA ?? 0,
     };
@@ -168,7 +162,7 @@ export class ReconciliationWorkspaceComponent implements OnInit {
     this.cancelled.emit();
   }
 
-  protected statutSeverity(statut?: string): string {
+  protected statutSeverity(statut?: string): 'success' | 'warn' | 'danger' | 'secondary' {
     switch (statut) {
       case 'RECONCILIEE': return 'success';
       case 'ECART': return 'warn';

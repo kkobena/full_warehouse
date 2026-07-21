@@ -9,7 +9,6 @@ import { Categorie, ICategorie } from 'app/shared/model/categorie.model';
 import { CategorieService } from './categorie.service';
 import { finalize } from 'rxjs/operators';
 import { NotificationService } from "../../shared/services/notification.service";
-import { Toast } from "primeng/toast";
 import { FaIconComponent } from "@fortawesome/angular-fontawesome";
 import TranslateDirective from "../../shared/language/translate.directive";
 import { AlertErrorComponent } from "../../shared/alert/alert-error.component";
@@ -18,7 +17,7 @@ import { AlertErrorComponent } from "../../shared/alert/alert-error.component";
   selector: 'app-categorie-update',
   templateUrl: './categorie-update.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [FormsModule, ReactiveFormsModule, Toast, FaIconComponent, TranslateDirective, AlertErrorComponent]
+  imports: [FormsModule, ReactiveFormsModule, FaIconComponent, TranslateDirective, AlertErrorComponent]
 })
 export class CategorieUpdateComponent implements OnInit {
   isSaving = false;

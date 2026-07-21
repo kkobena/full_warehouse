@@ -14,8 +14,6 @@ import { IconField } from "primeng/iconfield";
 import { InputIcon } from "primeng/inputicon";
 import { InputText } from "primeng/inputtext";
 import { ButtonGroup } from "primeng/buttongroup";
-import { Toast } from "primeng/toast";
-
 import { ITEMS_PER_PAGE } from "../../../../shared/constants/pagination.constants";
 import { ISales } from "../../../../shared/model";
 import { VenteDepotApiService } from "../../data-access/services/vente-depot-api.service";
@@ -41,8 +39,7 @@ import { NotificationService } from "../../../../shared/services/notification.se
     FloatLabel,
     IconField,
     InputIcon,
-    RouterLink,
-    Toast
+    RouterLink
   ]
 })
 export class VenteDepotListComponent implements OnInit {

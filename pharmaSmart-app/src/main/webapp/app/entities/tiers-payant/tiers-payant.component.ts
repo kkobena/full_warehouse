@@ -1,38 +1,34 @@
-import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
-import { TiersPayantService } from "./tierspayant.service";
-import { Observable } from "rxjs";
-import { HttpHeaders, HttpResponse } from "@angular/common/http";
-import { IResponseDto } from "../../shared/util/response-dto";
-import { MenuItem } from "primeng/api";
-import { NgbActiveModal, NgbModal } from "@ng-bootstrap/ng-bootstrap";
-import { ITEMS_PER_PAGE } from "../../shared/constants/pagination.constants";
-import { ITiersPayant } from "../../shared/model";
-import { Router, RouterModule } from "@angular/router";
-import { FormTiersPayantComponent } from "./form-tiers-payant/form-tiers-payant.component";
-import { ErrorService } from "../../shared/error.service";
-import { ButtonModule } from "primeng/button";
-import { RippleModule } from "primeng/ripple";
+import {Component, inject, OnInit, viewChild, ChangeDetectionStrategy} from "@angular/core";
+import {TiersPayantService} from "./tierspayant.service";
+import {Observable} from "rxjs";
+import {HttpHeaders, HttpResponse} from "@angular/common/http";
+import {IResponseDto} from "../../shared/util/response-dto";
+import {NgbActiveModal, NgbModal, NgbProgressbar, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
+import {
+  AppSplitButtonItem,
+  AppTableLazyLoadEvent,
+  ButtonComponent,
+  DataTableComponent,
+  IconFieldComponent,
+  SelectComponent,
+  SplitButtonComponent,
+  ToolbarComponent
+} from "../../shared/ui";
+import {JsonImportDialogComponent} from "../../shared/json-import-dialog/json-import-dialog.component";
+import {ITEMS_PER_PAGE} from "../../shared/constants/pagination.constants";
+import {ITiersPayant} from "../../shared/model";
+import {Router, RouterModule} from "@angular/router";
+import {FormTiersPayantComponent} from "./form-tiers-payant/form-tiers-payant.component";
+import {ErrorService} from "../../shared/error.service";
 
-import { FileUploadModule } from "primeng/fileupload";
-import { ToolbarModule } from "primeng/toolbar";
-import { TableLazyLoadEvent, TableModule } from "primeng/table";
-import { InputTextModule } from "primeng/inputtext";
-import { TooltipModule } from "primeng/tooltip";
-import { FormsModule } from "@angular/forms";
-import { DialogModule } from "primeng/dialog";
-import { SplitButtonModule } from "primeng/splitbutton";
-import { ProgressBarModule } from "primeng/progressbar";
-import { Select } from "primeng/select";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
-import { showCommonModal } from "../sales/selling-home/sale-helper";
-import { SpinnerComponent } from "../../shared/spinner/spinner.component";
-import { FloatLabel } from "primeng/floatlabel";
-import { ButtonGroup } from "primeng/buttongroup";
-import { NgbConfirmDialogService } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { NotificationService } from "../../shared/services/notification.service";
-import { CommonModule } from "@angular/common";
-import { Toast } from "primeng/toast";
+import {FormsModule} from "@angular/forms";
+import {showCommonModal} from "../sales/selling-home/sale-helper";
+import {SpinnerComponent} from "../../shared/spinner/spinner.component";
+import {
+  NgbConfirmDialogService
+} from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import {NotificationService} from "../../shared/services/notification.service";
+import {CommonModule} from "@angular/common";
 
 @Component({
   selector: "jhi-tiers-payant",
@@ -42,30 +38,21 @@ import { Toast } from "primeng/toast";
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
-    ButtonModule,
-    RippleModule,
-    FileUploadModule,
-    ToolbarModule,
-    TableModule,
-    RouterModule,
-    InputTextModule,
-    TooltipModule,
     FormsModule,
-    DialogModule,
-    SplitButtonModule,
-    ProgressBarModule,
-    Select,
-    IconField,
-    InputIcon,
+    RouterModule,
+    NgbProgressbar,
+    NgbTooltip,
     SpinnerComponent,
-    FloatLabel,
-    ButtonGroup,
-    Toast
+    ButtonComponent,
+    DataTableComponent,
+    IconFieldComponent,
+    SelectComponent,
+    SplitButtonComponent,
+  ToolbarComponent
   ]
 })
 export class TiersPayantComponent implements OnInit {
   protected tiersPayants?: ITiersPayant[] = [];
-  protected jsonDialog = false;
   protected responseDialog = false;
   protected onErrorOccur = false;
   protected responsedto!: IResponseDto;
@@ -81,7 +68,7 @@ export class TiersPayantComponent implements OnInit {
   protected type: string[] = ["TOUT", "ASSURANCE", "CARNET", "DEPOT"];
   protected typeSelected = "TOUT";
   protected search = "";
-  protected tiersPayantSplitbuttons: MenuItem[];
+  protected tiersPayantSplitbuttons: AppSplitButtonItem[];
   private readonly entityService = inject(TiersPayantService);
   private readonly errorService = inject(ErrorService);
   private readonly router = inject(Router);
@@ -115,17 +102,18 @@ export class TiersPayantComponent implements OnInit {
     this.loadPage();
   }
 
-  onUploadJson(event: any): void {
-    const formData: FormData = new FormData();
-    const file = event.files[0];
-    formData.append("importjson", file, file.name);
-    this.spinner().show();
-    this.jsonDialog = false;
-    this.uploadJsonDataResponse(this.entityService.uploadJsonData(formData));
+
+  openJsonImport(): void {
+    showCommonModal(this.modalService, JsonImportDialogComponent, {}, (formData: FormData) => {
+      if (!formData) {
+        return;
+      }
+      this.spinner().show();
+      this.uploadJsonDataResponse(this.entityService.uploadJsonData(formData));
+    });
   }
 
   cancel(): void {
-    this.jsonDialog = false;
     this.onErrorOccur = false;
     this.responseDialog = false;
   }
@@ -145,7 +133,7 @@ export class TiersPayantComponent implements OnInit {
       });
   }
 
-  lazyLoading(event: TableLazyLoadEvent): void {
+  lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;
@@ -280,7 +268,6 @@ export class TiersPayantComponent implements OnInit {
   }
 
   protected onPocesJsonSuccess(): void {
-    this.jsonDialog = false;
     this.spinner().hide();
     this.loadPage();
   }

@@ -11,7 +11,7 @@
     <!-- Libellé -->
     <div class="mb-3">
       <label class="form-label" for="libelle">Libellé <span class="text-danger">*</span></label>
-      <input pInputText id="libelle" formControlName="libelle" class="w-100"
+      <input id="libelle" formControlName="libelle" class="form-control w-100"
              placeholder="Ex: Inventaire hebdo rayon A..." />
       @if (form.get('libelle')?.invalid && form.get('libelle')?.touched) {
         <div class="text-danger small mt-1">Le libellé est obligatoire</div>
@@ -21,13 +21,13 @@
     <!-- Fréquence -->
     <div class="mb-3">
       <label class="form-label" for="frequence">Fréquence <span class="text-danger">*</span></label>
-      <p-select
+      <app-select
         inputId="frequence"
-        [options]="frequences"
+        [items]="frequences"
         formControlName="frequence"
-        optionLabel="label"
-        optionValue="value"
-        [fluid]="true"
+        bindLabel="label"
+        bindValue="value"
+        appendTo="body"
         placeholder="Sélectionner une fréquence"
       />
     </div>
@@ -35,13 +35,13 @@
     <!-- Critère de rotation -->
     <div class="mb-3">
       <label class="form-label" for="critere">Critère de rotation <span class="text-danger">*</span></label>
-      <p-select
+      <app-select
         inputId="critere"
-        [options]="criteres"
+        [items]="criteres"
         formControlName="critere"
-        optionLabel="label"
-        optionValue="value"
-        [fluid]="true"
+        bindLabel="label"
+        bindValue="value"
+        appendTo="body"
         placeholder="Sélectionner un critère"
       />
       @if (form.get('critere')?.value) {
@@ -59,14 +59,14 @@
     <!-- Storage de référence -->
     <div class="mb-3">
       <label class="form-label" for="storageId">Storage de référence</label>
-      <p-select
+      <app-select
         inputId="storageId"
-        [options]="storages()"
+        [items]="storages()"
         formControlName="storageId"
-        optionLabel="name"
-        optionValue="id"
-        [fluid]="true"
-        [showClear]="true"
+        bindLabel="name"
+        bindValue="id"
+        appendTo="body"
+        [clearable]="true"
         placeholder="Tous les storages"
       />
     </div>
@@ -76,30 +76,23 @@
       <label class="form-label" for="userId">
         Employé affecté
         <i class="pi pi-info-circle ms-1 text-muted"
-           pTooltip="L'inventaire créé automatiquement sera assigné à cet employé."
-           tooltipPosition="top"></i>
+           ngbTooltip="L'inventaire créé automatiquement sera assigné à cet employé."></i>
       </label>
-      <p-select
+      <app-select-search
         inputId="userId"
-        [options]="users()"
+        [items]="users()"
         formControlName="userId"
-        optionValue="id"
-        [fluid]="true"
-        [showClear]="true"
-        [filter]="true"
-        filterBy="firstName,lastName,login"
+        bindLabel="displayLabel"
+        bindValue="id"
+        appendTo="body"
+        [clearable]="true"
         placeholder="Non affecté (fallback système)"
-      >
-        <ng-template #selectedItem let-user>
-          @if (user) {
-            <span><i class="pi pi-user me-1"></i>{{ getUserLabel(user) }}</span>
-          }
-        </ng-template>
-        <ng-template #item let-user>
-          <span>{{ getUserLabel(user) }}</span>
-          <small class="text-muted ms-2">{{ user.login }}</small>
-        </ng-template>
-      </p-select>
+        [optionTemplate]="userOption"
+      />
+      <ng-template #userOption let-user>
+        <span>{{ user.displayLabel }}</span>
+        <small class="text-muted ms-2">{{ user.login }}</small>
+      </ng-template>
       <div class="field-hint mt-1">
         <i class="pi pi-info-circle"></i>
         Si non renseigné, le premier utilisateur actif du système sera utilisé.
@@ -114,12 +107,10 @@
           <span class="text-muted fw-normal small ms-1">(calculée selon la fréquence)</span>
         }
       </label>
-      <p-datepicker
+      <pharma-date-picker
         inputId="prochaineExecution"
         formControlName="prochaineExecution"
-        dateFormat="dd/mm/yy"
-        [showIcon]="true"
-        [fluid]="true"
+        label=""
       />
       <div class="field-hint mt-1">
         <i class="pi pi-info-circle"></i>
@@ -137,22 +128,22 @@
     </div>
   }
   <div class="d-flex justify-content-end gap-2 w-100">
-    <p-button
+    <app-button
       label="Annuler"
       icon="pi pi-times"
       severity="secondary"
       [raised]="true"
       [disabled]="loading()"
-      (onClick)="dismiss()"
+      (clicked)="dismiss()"
     />
-    <p-button
+    <app-button
       [label]="planning ? 'Modifier' : 'Créer'"
       icon="pi pi-check"
       severity="primary"
       [raised]="true"
       [loading]="loading()"
       [disabled]="form.invalid || loading()"
-      (onClick)="save()"
+      (clicked)="save()"
     />
   </div>
 </div>

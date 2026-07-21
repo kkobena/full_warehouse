@@ -1,43 +1,62 @@
-import { Component, ElementRef, inject, input, OnInit, output, viewChild, ChangeDetectionStrategy } from "@angular/core";
-import { HttpResponse } from "@angular/common/http";
-import { IFournisseur } from "../../../../shared/model/fournisseur.model";
-import { Observable } from "rxjs";
-import { Commande, ICommande } from "app/shared/model/commande.model";
-import { CommandeService } from "../../../../entities/commande/commande.service";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
-import { IOrderLine, OrderLine } from "../../../../shared/model/order-line.model";
-import { ErrorService } from "../../../../shared/error.service";
-import { IResponseCommande } from "../../../../shared/model/response-commande.model";
-import { CommandeResponseDialogComponent } from "../../ui/commande-response-dialog/commande-response-dialog.component";
-import { FormsModule } from "@angular/forms";
-import { ButtonModule } from "primeng/button";
-import { RippleModule } from "primeng/ripple";
-import { InputTextModule } from "primeng/inputtext";
-import { TagModule } from "primeng/tag";
-import { FileUploadModule } from "primeng/fileupload";
-import { TooltipModule } from "primeng/tooltip";
-import { FournisseurSelectComponent } from "../../../partners/ui/fournisseur-select/fournisseur-select.component";
-import { InputGroup } from "primeng/inputgroup";
-import { InputGroupAddon } from "primeng/inputgroupaddon";
-import { DeliveryModalComponent } from "../../ui/delivery/delivery-modal/delivery-modal.component";
-import { ListLotComponent } from "../../ui/lot/list/list-lot.component";
-import { FormLotComponent } from "../../ui/lot/form/form-lot.component";
-import { EditProduitComponent } from "../../ui/delivery/edit-produit/edit-produit.component";
-import { FileResponseModalComponent } from "../../ui/file-response-modal/file-response-modal.component";
-import { showCommonModal } from "../../../../entities/sales/selling-home/sale-helper";
-import { CommandeId } from "../../../../shared/model/abstract-commande.model";
-import { CommandCommonService } from "../../../../entities/commande/command-common.service";
-import { NotificationService } from "../../../../shared/services/notification.service";
-import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { ProduitSearch } from "../../../../shared/model";
-import { MenuItem } from "primeng/api";
-import { SplitButton } from "primeng/splitbutton";
-import { EnvoiPharmamlComponent, ReponsePharmamlComponent } from "../pharmaml";
-import { DispoComparaisonComponent } from "../pharmaml/ui/dispo-comparaison/dispo-comparaison.component";
-import { IPharmamlCommandeResponse } from "../../../../shared/model/pharmaml.model";
-import { CommandeProductSearchComponent } from "../../ui/commande-product-search/commande-product-search.component";
-import { ImportSuggestionModalComponent } from "../../ui/import-suggestion/import-suggestion-modal.component";
-import { CommonModule } from "@angular/common";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  input,
+  OnInit,
+  output,
+  viewChild
+} from "@angular/core";
+import {HttpResponse} from "@angular/common/http";
+import {IFournisseur} from "../../../../shared/model/fournisseur.model";
+import {Observable} from "rxjs";
+import {Commande, ICommande} from "app/shared/model/commande.model";
+import {CommandeService} from "../../../../entities/commande/commande.service";
+import {NgbModal, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
+import {IOrderLine, OrderLine} from "../../../../shared/model/order-line.model";
+import {ErrorService} from "../../../../shared/error.service";
+import {IResponseCommande} from "../../../../shared/model/response-commande.model";
+import {
+  CommandeResponseDialogComponent
+} from "../../ui/commande-response-dialog/commande-response-dialog.component";
+import {FormsModule} from "@angular/forms";
+import {
+  AppSplitButtonItem,
+  BadgeComponent,
+  ButtonComponent,
+  SplitButtonComponent,
+} from "../../../../shared/ui";
+import {
+  FournisseurSelectComponent
+} from "../../../partners/ui/fournisseur-select/fournisseur-select.component";
+import {DeliveryModalComponent} from "../../ui/delivery/delivery-modal/delivery-modal.component";
+import {ListLotComponent} from "../../ui/lot/list/list-lot.component";
+import {FormLotComponent} from "../../ui/lot/form/form-lot.component";
+import {EditProduitComponent} from "../../ui/delivery/edit-produit/edit-produit.component";
+import {
+  FileResponseModalComponent
+} from "../../ui/file-response-modal/file-response-modal.component";
+import {showCommonModal} from "../../../../entities/sales/selling-home/sale-helper";
+import {CommandeId} from "../../../../shared/model/abstract-commande.model";
+import {CommandCommonService} from "../../../../entities/commande/command-common.service";
+import {NotificationService} from "../../../../shared/services/notification.service";
+import {
+  NgbConfirmDialogService
+} from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import {ProduitSearch} from "../../../../shared/model";
+import {EnvoiPharmamlComponent, ReponsePharmamlComponent} from "../pharmaml";
+import {
+  DispoComparaisonComponent
+} from "../pharmaml/ui/dispo-comparaison/dispo-comparaison.component";
+import {IPharmamlCommandeResponse} from "../../../../shared/model/pharmaml.model";
+import {
+  CommandeProductSearchComponent
+} from "../../ui/commande-product-search/commande-product-search.component";
+import {
+  ImportSuggestionModalComponent
+} from "../../ui/import-suggestion/import-suggestion-modal.component";
+import {CommonModule} from "@angular/common";
 import {
   AllCommunityModule,
   CellClickedEvent,
@@ -52,8 +71,8 @@ import {
   RowSelectionOptions,
   themeAlpine
 } from "ag-grid-community";
-import { AgGridAngular } from "ag-grid-angular";
-import { CommandeRequestedLineActionsComponent } from "./commande-requested-line-actions.component";
+import {AgGridAngular} from "ag-grid-angular";
+import {CommandeRequestedLineActionsComponent} from "./commande-requested-line-actions.component";
 
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
@@ -69,17 +88,12 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
   imports: [
     CommonModule,
     FormsModule,
-    ButtonModule,
-    RippleModule,
-    InputTextModule,
-    TagModule,
+    ButtonComponent,
+    BadgeComponent,
+    NgbTooltip,
     CommandeProductSearchComponent,
     FournisseurSelectComponent,
-    FileUploadModule,
-    TooltipModule,
-    InputGroup,
-    InputGroupAddon,
-    SplitButton,
+    SplitButtonComponent,
     AgGridAngular
   ]
 })
@@ -95,28 +109,24 @@ export class CommandeRequestedComponent implements OnInit {
   protected showLotBtn = false;
   protected seuilMontantCommande = 0;
   protected currentCommande?: ICommande | null = null;
-  protected pharmamlActions: MenuItem[] = [];
+  protected pharmamlActions: AppSplitButtonItem[] = [];
 
   protected readonly quantityBox = viewChild.required<ElementRef>("quantityBox");
   protected readonly productSearch = viewChild.required<CommandeProductSearchComponent>("productSearch");
 
   // ─── AG Grid ─────────────────────────────────────────────────────────────────
   protected readonly theme = themeAlpine;
-  private gridApi: GridApi<IOrderLine> | null = null;
-
   protected readonly defaultColDef: ColDef<IOrderLine> = {
     resizable: true,
     sortable: false,
     suppressHeaderMenuButton: true
   };
-
   protected readonly rowSelection: RowSelectionOptions = {
     mode: "multiRow",
     checkboxes: true,
     headerCheckbox: true,
     enableClickSelection: false
   };
-
   protected readonly rowClassRules: RowClassRules<IOrderLine> = {
     "pharma-row-danger": p => !!p.data && p.data.costAmount !== p.data.orderCostAmount,
     "pharma-row-warning": p =>
@@ -125,9 +135,6 @@ export class CommandeRequestedComponent implements OnInit {
       p.data.regularUnitPrice !== p.data.orderUnitPrice,
     "pharma-row-provisional": p => !!p.data?.provisionalCode
   };
-
-  protected readonly getRowId: GetRowIdFunc<IOrderLine> = p => String(p.data.id);
-
   protected readonly columnDefs: ColDef<IOrderLine>[] = [
     {
       field: "produitCip",
@@ -137,7 +144,9 @@ export class CommandeRequestedComponent implements OnInit {
       editable: (p: any) => !!p.data?.provisionalCode,
       cellEditor: "agTextCellEditor",
       cellRenderer: (p: any) => {
-        if (!p.data) return "";
+        if (!p.data) {
+          return "";
+        }
         const cip = p.data.produitCip ?? "";
         if (p.data.provisionalCode) {
           return `<span
@@ -168,9 +177,15 @@ export class CommandeRequestedComponent implements OnInit {
       headerTooltip: "Couverture stock en jours",
       valueFormatter: (p: any) => p.value != null ? `${p.value}j` : "—",
       cellStyle: (p: any) => {
-        if (p.value == null) return { color: "#9ca3af" };
-        if (p.value < 7) return { color: "#dc3545", fontWeight: 700 };
-        if (p.value < 30) return { color: "#fd7e14" };
+        if (p.value == null) {
+          return {color: "#9ca3af"};
+        }
+        if (p.value < 7) {
+          return {color: "#dc3545", fontWeight: 700};
+        }
+        if (p.value < 30) {
+          return {color: "#fd7e14"};
+        }
         return null;
       }
     },
@@ -182,9 +197,11 @@ export class CommandeRequestedComponent implements OnInit {
       type: "numericColumn",
       cellEditor: "agNumberCellEditor",
       headerTooltip: "Prix d'achat commandé — ⚠ indique un écart avec le tarif catalogue",
-      cellEditorParams: { preventStepping: true },
+      cellEditorParams: {preventStepping: true},
       cellRenderer: (p: any) => {
-        if (!p.data) return "";
+        if (!p.data) {
+          return "";
+        }
         const val = p.data.orderCostAmount != null
           ? Number(p.data.orderCostAmount).toLocaleString("fr-FR") : "—";
         if (p.data.costAmount != null && p.data.costAmount !== p.data.orderCostAmount) {
@@ -207,9 +224,11 @@ export class CommandeRequestedComponent implements OnInit {
       type: "numericColumn",
       cellEditor: "agNumberCellEditor",
       headerTooltip: "Prix unitaire commandé — ⚠ indique un écart avec le tarif catalogue",
-      cellEditorParams: { preventStepping: true },
+      cellEditorParams: {preventStepping: true},
       cellRenderer: (p: any) => {
-        if (!p.data) return "";
+        if (!p.data) {
+          return "";
+        }
         const val = p.data.orderUnitPrice != null
           ? Number(p.data.orderUnitPrice).toLocaleString("fr-FR") : "—";
         if (p.data.regularUnitPrice != null && p.data.regularUnitPrice !== p.data.orderUnitPrice) {
@@ -229,7 +248,7 @@ export class CommandeRequestedComponent implements OnInit {
       headerName: "Qté",
       width: 90,
       editable: p => !this.isLocked,
-      cellEditorParams: { preventStepping: true },
+      cellEditorParams: {preventStepping: true},
       type: "numericColumn",
       cellEditor: "agNumberCellEditor"
     },
@@ -242,8 +261,41 @@ export class CommandeRequestedComponent implements OnInit {
       cellRenderer: CommandeRequestedLineActionsComponent
     }
   ];
+  protected readonly gridContext: {
+    componentParent: CommandeRequestedComponent
+  } = {componentParent: this};
+  private gridApi: GridApi<IOrderLine> | null = null;
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly commandeService = inject(CommandeService);
+  private readonly modalService = inject(NgbModal);
+  private readonly errorService = inject(ErrorService);
 
-  protected readonly gridContext: { componentParent: CommandeRequestedComponent } = { componentParent: this };
+  // ─────────────────────────────────────────────────────────────────────────────
+  private readonly commandCommonService = inject(CommandCommonService);
+
+  protected get isLocked(): boolean {
+    return !!this.currentCommande?.hasBeenSubmittedToPharmaML;
+  }
+
+  ngOnInit(): void {
+    const c = this.commande();
+    if (c?.commandeId) {
+      // Load full commande with order lines (the list query uses commandes-without-order-lines)
+      this.commandeService.find(c.commandeId).subscribe(res => {
+        this.currentCommande = res.body;
+        this.orderLines = this.currentCommande?.orderLines ?? [];
+        this.selectedProvider = this.currentCommande?.fournisseurId;
+        this.buildPharmamlActions();
+        this.focusProduitBox();
+      });
+    } else {
+      this.selectedProvider = null;
+    }
+    //this.loadSeuilMontant();
+  }
+
+  protected readonly getRowId: GetRowIdFunc<IOrderLine> = p => String(p.data.id);
 
   protected onGridReady(e: GridReadyEvent<IOrderLine>): void {
     this.gridApi = e.api;
@@ -252,6 +304,9 @@ export class CommandeRequestedComponent implements OnInit {
   protected onSelectionChanged(): void {
     this.selectedEl = this.gridApi?.getSelectedRows() ?? [];
   }
+
+
+  // ─── PharmaML actions ────────────────────────────────────────────────────────
 
   protected onCellValueChanged(e: CellValueChangedEvent<IOrderLine>): void {
     const line = e.data;
@@ -291,38 +346,15 @@ export class CommandeRequestedComponent implements OnInit {
     // Actions handled by CommandeRequestedLineActionsComponent renderer
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-
-  private readonly confirmDialog = inject(NgbConfirmDialogService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly commandeService = inject(CommandeService);
-  private readonly modalService = inject(NgbModal);
-  private readonly errorService = inject(ErrorService);
-  private readonly commandCommonService = inject(CommandCommonService);
-
-
-  // ─── PharmaML actions ────────────────────────────────────────────────────────
-
-  private buildPharmamlActions(): void {
-    if (this.isLocked || this.currentCommande?.orderStatus === "RECEIVED") {
-      this.pharmamlActions = [
-        { label: "Voir réponse", icon: "pi pi-file", disabled: false, command: () => this.openReponse() },
-        { separator: true },
-        { label: "Comparer multi-grossistes", icon: "pi pi-chart-bar", disabled: false, command: () => this.ouvrirComparaison() }
-      ];
-    } else {
-      this.pharmamlActions = [
-        { label: "Envoyer via PharmaML", icon: "pi pi-send", disabled: false, command: () => this.openEnvoi() },
-        { label: "Voir réponse", icon: "pi pi-file", disabled: false, command: () => this.openReponse() },
-        { separator: true },
-        { label: "Comparer multi-grossistes", icon: "pi pi-chart-bar", disabled: false, command: () => this.ouvrirComparaison() }
-      ];
-    }
-  }
-
   protected openEnvoi(): void {
-    if (!this.currentCommande?.commandeId) return;
-    const ref = this.modalService.open(EnvoiPharmamlComponent, { size: "lg", backdrop: "static", centered: true });
+    if (!this.currentCommande?.commandeId) {
+      return;
+    }
+    const ref = this.modalService.open(EnvoiPharmamlComponent, {
+      size: "lg",
+      backdrop: "static",
+      centered: true
+    });
     (ref.componentInstance as EnvoiPharmamlComponent).commandeId = this.currentCommande.commandeId;
     ref.result.then(
       (result: IPharmamlCommandeResponse) => {
@@ -341,8 +373,14 @@ export class CommandeRequestedComponent implements OnInit {
   }
 
   protected openReponse(): void {
-    if (!this.currentCommande?.commandeId) return;
-    const ref = this.modalService.open(ReponsePharmamlComponent, { size: "xl", backdrop: "static", centered: true });
+    if (!this.currentCommande?.commandeId) {
+      return;
+    }
+    const ref = this.modalService.open(ReponsePharmamlComponent, {
+      size: "xl",
+      backdrop: "static",
+      centered: true
+    });
     const inst = ref.componentInstance as ReponsePharmamlComponent;
     inst.commandeRef = this.currentCommande.orderReference ?? "";
     inst.orderId = this.currentCommande.commandeId.id.toString();
@@ -352,7 +390,9 @@ export class CommandeRequestedComponent implements OnInit {
   }
 
   protected ouvrirComparaison(): void {
-    if (!this.currentCommande?.commandeId) return;
+    if (!this.currentCommande?.commandeId) {
+      return;
+    }
     const ref = this.modalService.open(DispoComparaisonComponent, {
       size: "lg",
       backdrop: "static",
@@ -364,39 +404,28 @@ export class CommandeRequestedComponent implements OnInit {
     inst.header = `Comparaison disponibilité — ${this.currentCommande.orderReference ?? ""}`;
   }
 
-  ngOnInit(): void {
-    const c = this.commande();
-    if (c?.commandeId) {
-      // Load full commande with order lines (the list query uses commandes-without-order-lines)
-      this.commandeService.find(c.commandeId).subscribe(res => {
-        this.currentCommande = res.body;
-        this.orderLines = this.currentCommande?.orderLines ?? [];
-        this.selectedProvider = this.currentCommande?.fournisseurId;
-        this.buildPharmamlActions();
-        this.focusProduitBox();
-      });
-    } else {
-      this.selectedProvider = null;
-    }
-    //this.loadSeuilMontant();
-  }
-
   protected previousState(): void {
     window.history.back();
   }
 
   protected onQuantityBoxAction(event: any): void {
     const qty = Number(event.target.value);
-    if (qty > 0) this.onAddOrderLine(qty);
+    if (qty > 0) {
+      this.onAddOrderLine(qty);
+    }
   }
 
   protected onQuantity(): void {
     const qty = Number(this.quantityBox().nativeElement.value);
-    if (qty > 0) this.onAddOrderLine(qty);
+    if (qty > 0) {
+      this.onAddOrderLine(qty);
+    }
   }
 
   protected onAddOrderLine(quantityRequested: number): void {
-    if (!this.produitSelected) return;
+    if (!this.produitSelected) {
+      return;
+    }
     if (!this.selectedProvider) {
       this.notificationService.error("Veuillez selectionner un fournisseur", "Erreur");
       return;
@@ -482,26 +511,11 @@ export class CommandeRequestedComponent implements OnInit {
     }
   }
 
-  private doCreateBon(): void {
-    showCommonModal(
-      this.modalService,
-      DeliveryModalComponent,
-      { commande: this.currentCommande, header: "CREATION DU BON DE LIVRAISON" },
-      commande => {
-        if (commande) {
-          this.commandCommonService.pendingOpenDeliveryId.set(commande.commandeId);
-          this.commandCommonService.navigateToBonsLivraison();
-        }
-      },
-      "lg"
-    );
-  }
-
   protected onImportSuggestion(): void {
     const modalRef = this.modalService.open(ImportSuggestionModalComponent, {
       size: "xl",
       scrollable: true,
-      centered:true,
+      centered: true,
       backdrop: "static"
     });
     modalRef.componentInstance.commandeId = this.currentCommande!.commandeId;
@@ -509,7 +523,9 @@ export class CommandeRequestedComponent implements OnInit {
     modalRef.componentInstance.commandeFournisseurId = this.currentCommande!.fournisseurId;
     modalRef.result.then(
       imported => {
-        if (imported) this.refreshCommande();
+        if (imported) {
+          this.refreshCommande();
+        }
       },
       () => {
       }
@@ -520,14 +536,14 @@ export class CommandeRequestedComponent implements OnInit {
     showCommonModal(
       this.modalService,
       FileResponseModalComponent,
-      { commandeSelected: this.currentCommande, header: "IMPORTER REPONSE" },
+      {commandeSelected: this.currentCommande, header: "IMPORTER REPONSE"},
       (responseCommande: IResponseCommande) => {
         if (responseCommande) {
           this.refreshCommande();
           this.openImporterReponseCommandeDialog(responseCommande);
         }
       },
-      "lg"
+      'xl'
     );
   }
 
@@ -553,16 +569,17 @@ export class CommandeRequestedComponent implements OnInit {
   }
 
   protected orderLineTableColor(orderLine: IOrderLine): string {
-    if (!orderLine) return "";
-    if (orderLine.costAmount !== orderLine.orderCostAmount) return "pharma-row-danger";
-    if (orderLine.regularUnitPrice !== orderLine.orderUnitPrice) return "pharma-row-warning";
+    if (!orderLine) {
+      return "";
+    }
+    if (orderLine.costAmount !== orderLine.orderCostAmount) {
+      return "pharma-row-danger";
+    }
+    if (orderLine.regularUnitPrice !== orderLine.orderUnitPrice) {
+      return "pharma-row-warning";
+    }
     return "";
   }
-
-  protected get isLocked(): boolean {
-    return !!this.currentCommande?.hasBeenSubmittedToPharmaML;
-  }
-
 
   protected onAddLot(orderLine: IOrderLine): void {
     const qty = orderLine.quantityReceived || orderLine.quantityRequested;
@@ -581,7 +598,7 @@ export class CommandeRequestedComponent implements OnInit {
       showCommonModal(
         this.modalService,
         FormLotComponent,
-        { entity: null, deliveryItem: orderLine, header: "Ajout de lot" },
+        {entity: null, deliveryItem: orderLine, header: "Ajout de lot"},
         null,
         "lg"
       );
@@ -607,7 +624,8 @@ export class CommandeRequestedComponent implements OnInit {
   }
 
   /** F9 : déclenche "Créer le bon de livraison" si une commande est en cours */
-  protected onKeyF9(event: KeyboardEvent): void {
+  // `Event` et non `KeyboardEvent` : c'est le type que fournit un host listener Angular.
+  protected onKeyF9(event: Event): void {
     event.preventDefault();
     if (this.currentCommande?.id) {
       this.onCreateBon();
@@ -615,12 +633,54 @@ export class CommandeRequestedComponent implements OnInit {
   }
 
   /** Echap : remet le focus sur la recherche produit */
-  protected onKeyEscape(event: KeyboardEvent): void {
+  protected onKeyEscape(event: Event): void {
     // Ne pas interférer si une modale est ouverte
-    if (document.querySelector(".modal.show")) return;
+    if (document.querySelector(".modal.show")) {
+      return;
+    }
     event.preventDefault();
     this.productSearch()?.reset();
     this.focusProduitBox();
+  }
+
+  private buildPharmamlActions(): void {
+    if (this.isLocked || this.currentCommande?.orderStatus === "RECEIVED") {
+      this.pharmamlActions = [
+        {label: "Voir réponse", icon: "pi pi-file", command: () => this.openReponse()},
+        {
+          label: "Comparer multi-grossistes",
+          icon: "pi pi-chart-bar",
+          separatorBefore: true,
+          command: () => this.ouvrirComparaison()
+        }
+      ];
+    } else {
+      this.pharmamlActions = [
+        {label: "Envoyer via PharmaML", icon: "pi pi-send", command: () => this.openEnvoi()},
+        {label: "Voir réponse", icon: "pi pi-file", command: () => this.openReponse()},
+        {
+          label: "Comparer multi-grossistes",
+          icon: "pi pi-chart-bar",
+          separatorBefore: true,
+          command: () => this.ouvrirComparaison()
+        }
+      ];
+    }
+  }
+
+  private doCreateBon(): void {
+    showCommonModal(
+      this.modalService,
+      DeliveryModalComponent,
+      {commande: this.currentCommande, header: "CREATION DU BON DE LIVRAISON"},
+      commande => {
+        if (commande) {
+          this.commandCommonService.pendingOpenDeliveryId.set(commande.commandeId);
+          this.commandCommonService.navigateToBonsLivraison();
+        }
+      },
+      "lg"
+    );
   }
 
   private openImporterReponseCommandeDialog(responseCommande: IResponseCommande): void {
@@ -647,7 +707,9 @@ export class CommandeRequestedComponent implements OnInit {
   }
 
   private deleteCommandeApresRuptureTotale(): void {
-    if (!this.currentCommande?.commandeId) return;
+    if (!this.currentCommande?.commandeId) {
+      return;
+    }
     this.commandeService.delete(this.currentCommande.commandeId).subscribe({
       next: () => {
         this.currentCommande = null;
@@ -661,7 +723,9 @@ export class CommandeRequestedComponent implements OnInit {
   }
 
   private reloadCommande(): void {
-    if (!this.currentCommande?.commandeId) return;
+    if (!this.currentCommande?.commandeId) {
+      return;
+    }
     this.commandeService.find(this.currentCommande.commandeId).subscribe(res => {
       this.currentCommande = res.body;
       this.orderLines = this.currentCommande?.orderLines ?? [];
@@ -671,7 +735,9 @@ export class CommandeRequestedComponent implements OnInit {
   }
 
   private refreshCommande(): void {
-    if (!this.currentCommande?.commandeId) return;
+    if (!this.currentCommande?.commandeId) {
+      return;
+    }
     this.commandeService.find(this.currentCommande.commandeId).subscribe(res => {
       this.currentCommande = res.body;
       this.orderLines = this.currentCommande?.orderLines ?? [];
@@ -682,7 +748,9 @@ export class CommandeRequestedComponent implements OnInit {
   }
 
   private onSaveSuccess(commandeId: CommandeId): void {
-    if (!commandeId) return;
+    if (!commandeId) {
+      return;
+    }
     this.commandeService.find(commandeId).subscribe(res => {
       this.currentCommande = res.body;
       this.orderLines = this.currentCommande?.orderLines ?? [];
@@ -693,14 +761,18 @@ export class CommandeRequestedComponent implements OnInit {
   }
 
   private resetProductInput(): void {
-    if (this.quantityBox()) this.quantityBox().nativeElement.value = 1;
+    if (this.quantityBox()) {
+      this.quantityBox().nativeElement.value = 1;
+    }
     this.produitSelected = null;
     this.productSearch()?.reset();
     this.focusProduitBox();
   }
 
   private deleteSelectedLines(): void {
-    if (!this.currentCommande?.commandeId) return;
+    if (!this.currentCommande?.commandeId) {
+      return;
+    }
     const ids = this.selectedEl.map(e => e.orderLineId);
     this.commandeService.deleteOrderLinesByIds(this.currentCommande.commandeId, ids).subscribe(() => {
       this.selectedEl = [];
@@ -709,7 +781,9 @@ export class CommandeRequestedComponent implements OnInit {
   }
 
   private changeGrossiste(): void {
-    if (!this.currentCommande) return;
+    if (!this.currentCommande) {
+      return;
+    }
     this.currentCommande.fournisseurId = this.selectedProvider;
     const cmdId = this.currentCommande.commandeId;
     this.commandeService.changeGrossiste(this.currentCommande).subscribe({
@@ -743,7 +817,7 @@ export class CommandeRequestedComponent implements OnInit {
       commande:
         this.currentCommande?.id !== undefined
           ? this.currentCommande
-          : { ...new Commande(), fournisseurId: this.selectedProvider },
+          : {...new Commande(), fournisseurId: this.selectedProvider},
       quantityRequested
     };
   }

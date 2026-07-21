@@ -1,38 +1,33 @@
 <div class="pharma-smart-content p-2">
 
   <!-- Toolbar -->
-  <div class="pharma-toolbar">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-chart-bar"></i>
-      <span class="pharma-toolbar-title">Tableaux Comparatifs CA</span>
-    </div>
+  <app-toolbar icon="pi pi-chart-bar" title="Tableaux Comparatifs CA">
 
-    <p-toolbar>
-      <ng-template #start>
+    <ng-container ngProjectAs="[toolbarFilters]">
         <div class="pharma-toolbar-filters flex gap-2 align-items-center">
-          <p-select
+          <app-select
             [(ngModel)]="selectedComparisonType"
-            [options]="comparisonTypeOptions"
-            optionLabel="label"
-            optionValue="value"
+            [items]="comparisonTypeOptions"
+            bindLabel="label"
+            bindValue="value"
             appendTo="body"
-            (onChange)="onComparisonTypeChange()"
+            (selectionChange)="onComparisonTypeChange()"
             [style]="{ 'min-width': '180px' }"
             placeholder="Type de comparaison"
           />
 
-          <p-select
+          <app-select
             [(ngModel)]="selectedYear"
-            [options]="yearOptions"
+            [items]="yearOptions"
             appendTo="body"
-            (onChange)="onYearChange()"
+            (selectionChange)="onYearChange()"
             [style]="{ 'min-width': '120px' }"
             placeholder="Année"
           />
         </div>
-      </ng-template>
+      </ng-container>
 
-      <ng-template #end>
+<ng-container ngProjectAs="[toolbarActions]">
         <div class="pharma-toolbar-actions flex gap-2 align-items-center">
           <!-- View toggle -->
           <div class="dashboard-periode-selector">
@@ -56,11 +51,10 @@
             </button>
           </div>
 
-          <p-button label="Exporter PDF" icon="pi pi-file-pdf" (onClick)="exportToPdf()" severity="danger" size="small" />
+          <app-button label="Exporter PDF" icon="pi pi-file-pdf" (clicked)="exportToPdf()" severity="danger" size="small" />
         </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
+      </ng-container>
+  </app-toolbar>
 
   <!-- ═══════════════════════════════════════════════════════════════ -->
   <!-- VUE GLOBALE                                                     -->

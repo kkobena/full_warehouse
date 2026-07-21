@@ -2,20 +2,11 @@ import { Component, inject, ViewChild, viewChild, ChangeDetectionStrategy } from
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { HttpResponse } from '@angular/common/http';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { CardModule } from 'primeng/card';
-import { ToolbarModule } from 'primeng/toolbar';
-import { DividerModule } from 'primeng/divider';
-import { InputTextModule } from 'primeng/inputtext';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { DatePicker } from 'primeng/datepicker';
-import { FloatLabel } from 'primeng/floatlabel';
-import { Select } from 'primeng/select';
-import { NgbNavModule, NgbNav } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDateStruct, NgbNavModule, NgbNav, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, IconFieldComponent, SelectComponent, ToolbarComponent } from 'app/shared/ui';
+import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
 import { APPEND_TO } from 'app/shared/constants/pagination.constants';
-import { DATE_FORMAT_ISO_DATE } from 'app/shared/util/warehouse-util';
+import { NGB_DATE_TO_ISO, TODAY_NGB_DATE } from 'app/shared/util/warehouse-util';
 import { TauriPrinterService } from 'app/shared/services/tauri-printer.service';
 import { handleBlobForTauri } from 'app/shared/util/tauri-util';
 import { RepartitionStockService } from '../../../../entities/repartition-stock/repartition-stock.service';
@@ -26,7 +17,6 @@ import { Storage } from '../../../../entities/storage/storage.model';
 import { AppRepartitionListComponent } from './ui/repartition-list/repartition-list.component';
 import { AppSuggestionReassortComponent } from './ui/suggestion-reassort/suggestion-reassort.component';
 import { AppManualRepartitionComponent } from './ui/manual-repartition/manual-repartition.component';
-import { Tooltip } from "primeng/tooltip";
 
 @Component({
   selector: 'app-repartition-stock',
@@ -35,31 +25,25 @@ import { Tooltip } from "primeng/tooltip";
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FormsModule,
-    ButtonModule,
-    ToolbarModule,
-    InputTextModule,
-    IconField,
-    InputIcon,
-    DatePicker,
-    FloatLabel,
-    Select,
-    TableModule,
-    CardModule,
-    DividerModule,
+    ButtonComponent,
+    ToolbarComponent,
+    IconFieldComponent,
+    PharmaDatePickerComponent,
+    SelectComponent,
     RouterModule,
     NgbNavModule,
+    NgbTooltip,
     AppRepartitionListComponent,
     AppSuggestionReassortComponent,
     AppManualRepartitionComponent,
-    Tooltip
   ]
 })
 export class AppRepartitionStockComponent {
   @ViewChild('nav', { static: true }) nav!: NgbNav;
 
   protected search = '';
-  protected dtStart: Date | null = new Date();
-  protected dtEnd: Date | null = new Date();
+  protected dtStart: NgbDateStruct | null = TODAY_NGB_DATE();
+  protected dtEnd: NgbDateStruct | null = TODAY_NGB_DATE();
   protected activeTab = 'historique';
   protected readonly appendTo = APPEND_TO;
 
@@ -113,8 +97,8 @@ export class AppRepartitionStockComponent {
 
   onResetFilters(): void {
     this.search = '';
-    this.dtStart = new Date();
-    this.dtEnd = new Date();
+    this.dtStart = TODAY_NGB_DATE();
+    this.dtEnd = TODAY_NGB_DATE();
     this.filterTypeRepartition = 'TOUT';
     this.filterUserId = null;
     this.filterStorageId = null;
@@ -124,8 +108,8 @@ export class AppRepartitionStockComponent {
   exportToPdf(): void {
     this.repartitionStockService
       .exportToPdf({
-        dateDebut: DATE_FORMAT_ISO_DATE(this.dtStart),
-        dateFin: DATE_FORMAT_ISO_DATE(this.dtEnd),
+        dateDebut: NGB_DATE_TO_ISO(this.dtStart),
+        dateFin: NGB_DATE_TO_ISO(this.dtEnd),
         searchTerm: this.search || null,
         typeRepartition: this.filterTypeRepartition !== 'TOUT' ? this.filterTypeRepartition : undefined,
         userId: this.filterUserId ?? undefined,

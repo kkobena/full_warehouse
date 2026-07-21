@@ -3,19 +3,15 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpResponse } from '@angular/common/http';
 
-// PrimeNG
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { SelectModule } from 'primeng/select';
-import { ToolbarModule } from 'primeng/toolbar';
-import { DatePickerModule } from 'primeng/datepicker';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { Tag } from 'primeng/tag';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+
+import { BadgeComponent, ButtonComponent, FloatLabelComponent, InputNumberComponent, ToolbarComponent } from '../../../shared/ui';
+import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
+import { NGB_DATE_TO_ISO } from '../../../shared/util/warehouse-util';
 
 // Services and Models
 import { MarketBasketService } from '../services/market-basket.service';
 import { IProductAssociation, IMarketBasketSummary } from 'app/shared/model/report/market-basket.model';
-import { FloatLabel } from 'primeng/floatlabel';
 import { formatNumber, formatPercent, formatDecimal } from 'app/shared/utils/format-utils';
 
 @Component({
@@ -23,14 +19,12 @@ import { formatNumber, formatPercent, formatDecimal } from 'app/shared/utils/for
   imports: [
     CommonModule,
     FormsModule,
-    ButtonModule,
-    CardModule,
-    SelectModule,
-    ToolbarModule,
-    DatePickerModule,
-    InputNumberModule,
-    Tag,
-    FloatLabel,
+    BadgeComponent,
+    ButtonComponent,
+    FloatLabelComponent,
+    InputNumberComponent,
+    ToolbarComponent,
+    PharmaDatePickerComponent,
   ],
   templateUrl: './market-basket.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -45,8 +39,8 @@ export default class MarketBasketComponent implements OnInit {
   isLoading = signal<boolean>(false);
 
   // Filter values
-  startDate: Date = new Date(new Date().setMonth(new Date().getMonth() - 6));
-  endDate: Date = new Date();
+  startDate: NgbDateStruct = this.dateToNgbStruct(new Date(new Date().setMonth(new Date().getMonth() - 6)));
+  endDate: NgbDateStruct = this.dateToNgbStruct(new Date());
   minSupport = 1.0;
   minConfidence = 10.0;
   limit = 50;
@@ -58,8 +52,8 @@ export default class MarketBasketComponent implements OnInit {
   loadData(): void {
     this.isLoading.set(true);
 
-    const startDateStr = this.formatDate(this.startDate);
-    const endDateStr = this.formatDate(this.endDate);
+    const startDateStr = NGB_DATE_TO_ISO(this.startDate)!;
+    const endDateStr = NGB_DATE_TO_ISO(this.endDate)!;
 
     // Load associations
     this.marketBasketService.getProductAssociations(startDateStr, endDateStr, this.minSupport, this.minConfidence, this.limit).subscribe({
@@ -88,11 +82,8 @@ export default class MarketBasketComponent implements OnInit {
     this.loadData();
   }
 
-  formatDate(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+  private dateToNgbStruct(date: Date): NgbDateStruct {
+    return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
   }
 
   // Format methods using shared utilities

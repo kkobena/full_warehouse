@@ -5,11 +5,7 @@ import { Observable, Subject } from "rxjs";
 import { finalize, takeUntil } from "rxjs/operators";
 import { IPaymentMode, PaymentMode } from "../../shared/model/payment-mode.model";
 import { ModePaymentService } from "./mode-payment.service";
-import { ButtonModule } from "primeng/button";
-import { RippleModule } from "primeng/ripple";
-import { InputTextModule } from "primeng/inputtext";
-import { ToastModule } from "primeng/toast";
-import { Card } from "primeng/card";
+import { ButtonComponent } from "../../shared/ui";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { ErrorService } from "../../shared/error.service";
 import { NotificationService } from "../../shared/services/notification.service";
@@ -19,7 +15,7 @@ import { NotificationService } from "../../shared/services/notification.service"
   templateUrl: "./mode-payment-update.component.html",
   styleUrls: ["./mode-payment-update.component.scss"],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [FormsModule, ReactiveFormsModule, ToastModule, ButtonModule, RippleModule, InputTextModule, Card]
+  imports: [FormsModule, ReactiveFormsModule, ButtonComponent]
 })
 export class ModePaymentUpdateComponent implements OnInit, AfterViewInit, OnDestroy {
   title: string | null = null;

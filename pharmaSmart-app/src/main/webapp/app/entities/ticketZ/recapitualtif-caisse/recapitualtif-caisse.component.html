@@ -6,100 +6,71 @@
       <span class="pharma-toolbar-title">Récapitulatif de caisse</span>
     </div>
 
-    <p-toolbar>
-      <ng-template #start>
-        <div class="pharma-toolbar-filters">
-          <p-select (onChange)="onSelectedUsersChange()" [(ngModel)]="onlyVente" [options]="mvts" appendTo="body" size="large" />
+    <div class="pharma-toolbar-content">
+      <div class="pharma-toolbar-filters">
+        <app-select
+          appendTo="body"
+          (selectionChange)="onSelectedUsersChange()"
+          [(ngModel)]="onlyVente"
+          [clearable]="false"
+          [items]="mvts"
+          bindLabel="label"
+          bindValue="value"
+        />
 
-          <p-multiselect
-            [(ngModel)]="selectedUsersId"
-            [options]="users"
-            appendTo="body"
-            id="selectedUserId"
-            inputId="selectedUserId"
-            optionLabel="abbrName"
-            optionValue="id"
-            size="large"
+        <app-multi-select
+          appendTo="body"
+          [(ngModel)]="selectedUsersId"
+          [items]="users"
+          bindLabel="abbrName"
+          bindValue="id"
+          inputId="selectedUserId"
+          placeholder="Utilisateurs"
+        />
+
+        <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate" id="fromDate" label="Du" />
+
+        <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate" id="toDate" label="Au" />
+
+        <div class="pharma-hide-mobile">
+          <label class="pharma-dp-label" for="fromHour">De</label>
+          <app-select [(ngModel)]="fromTime" [clearable]="false" [items]="hous"
+                      appendTo="body"
+                      inputId="fromHour" />
+        </div>
+
+        <div class="pharma-hide-mobile">
+          <label class="pharma-dp-label" for="toHour">À</label>
+          <app-select [(ngModel)]="toTime" [clearable]="false" [items]="hous"
+                      appendTo="body"
+                      inputId="toHour" />
+        </div>
+      </div>
+
+      <div class="pharma-toolbar-actions">
+        <div class="pharma-button-group">
+          <app-button
+            (clicked)="fetchTickets()"
+            [raised]="true"
+            icon="pi pi-search"
+            label="Rechercher"
+            ngbTooltip="Rechercher"
+            placement="top"
+            severity="primary"
           />
 
-          <p-floatlabel variant="on">
-            <p-datepicker
-              [(ngModel)]="fromDate"
-              [maxDate]="toDate"
-              [selectOtherMonths]="true"
-              [showButtonBar]="true"
-              [style]="{ 'max-width': '140px' }"
-              appendTo="body"
-              dateFormat="dd/mm/yy"
-              id="fromDate"
-              inputId="fromDate"
-            />
-            <label for="fromDate">Du</label>
-          </p-floatlabel>
 
-          <p-floatlabel variant="on">
-            <p-datepicker
-              [(ngModel)]="toDate"
-              [minDate]="fromDate"
-              [selectOtherMonths]="true"
-              [showButtonBar]="true"
-              [style]="{ 'max-width': '140px' }"
-              appendTo="body"
-              dateFormat="dd/mm/yy"
-              id="toDate"
-              inputId="toDate"
-            />
-            <label for="toDate">Au</label>
-          </p-floatlabel>
+          <app-split-button [items]="messageBtn" [raised]="true" icon="pi pi-send" label="Message"
+                            ngbTooltip="Envoie par mail ou SMS"
+                            severity="info" />
 
-          <p-floatlabel class="pharma-hide-mobile" variant="on">
-            <p-select [(ngModel)]="fromTime" [options]="hous" appendTo="body" id="fromHour" size="large" />
-            <label for="fromHour">De</label>
-          </p-floatlabel>
-
-          <p-floatlabel class="pharma-hide-mobile" variant="on">
-            <p-select [(ngModel)]="toTime" [options]="hous" appendTo="body" id="toHour" size="large" />
-            <label for="toHour">À</label>
-          </p-floatlabel>
+          <app-split-button [items]="exportMenus" [raised]="true" icon="pi pi-file-export"
+                            label="Exporter"
+                            ngbTooltip="Imprimer ou exporter en PDF"
+                            severity="help" />
         </div>
-      </ng-template>
-
-      <ng-template #end>
-        <div class="pharma-toolbar-actions">
-          <div class="pharma-button-group">
-            <p-button
-              (onClick)="fetchTickets()"
-              [raised]="true"
-              icon="pi pi-search"
-              label="Rechercher"
-              pTooltip="Rechercher"
-              severity="primary"
-              tooltipPosition="top"
-            />
-
-            <p-splitbutton
-              [model]="messageBtn"
-              [raised]="true"
-              icon="pi pi-send"
-              label="Message"
-              pTooltip="Envoie par mail ou SMS"
-              severity="info"
-              tooltipPosition="top"
-            />
-
-            <p-splitbutton
-              [model]="exportMenus"
-              [raised]="true"
-              icon="pi pi-file-export"
-              label="Exporter"
-              pTooltip="Imprimer ou exporter en PDF"
-              severity="help"
-              tooltipPosition="top"
-            />
-          </div>
-        </div>
-      </ng-template>
-    </p-toolbar>
+      </div>
+    </div>
   </div>
 
   <!-- Recap Cards Container -->
@@ -133,7 +104,7 @@
     }
 
     <!-- Cashier Cards Container -->
-    <div class="cashier-cards-grid" [class.full-width]="!summary.length">
+    <div [class.full-width]="!summary.length" class="cashier-cards-grid">
       @for (recap of ticketZ?.datas; track recap.userName) {
         <div class="recap-card recap-card-secondary">
           <div class="recap-card-header">
@@ -172,4 +143,3 @@
 </div>
 
 <jhi-spinner #spinner></jhi-spinner>
-<p-toast position="center" />

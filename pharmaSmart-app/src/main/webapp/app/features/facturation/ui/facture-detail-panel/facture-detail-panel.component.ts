@@ -2,11 +2,13 @@ import { Component, DestroyRef, effect, inject, input, signal, ChangeDetectionSt
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { finalize } from "rxjs/operators";
 import { NgbModal, NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonModule } from "primeng/button";
-import { TableModule } from "primeng/table";
-import { BadgeModule } from "primeng/badge";
-import { TooltipModule } from "primeng/tooltip";
-import { ProgressSpinnerModule } from "primeng/progressspinner";
+import { NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
+import {
+  BadgeComponent,
+  ButtonComponent,
+  DataTableComponent,
+  NavTabsComponent
+} from "../../../../shared/ui";
 import { NotificationService } from "../../../../shared/services/notification.service";
 import { ErrorService } from "../../../../shared/error.service";
 
@@ -34,11 +36,11 @@ import { CommonModule } from "@angular/common";
   imports: [
     CommonModule,
     NgbNavModule,
-    ButtonModule,
-    TableModule,
-    BadgeModule,
-    TooltipModule,
-    ProgressSpinnerModule,
+    NgbTooltip,
+    BadgeComponent,
+    ButtonComponent,
+    DataTableComponent,
+    NavTabsComponent,
     ReglementWorkspaceComponent,
     AvoirWorkspaceComponent
   ],

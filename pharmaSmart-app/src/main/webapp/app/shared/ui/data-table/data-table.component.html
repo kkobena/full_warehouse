@@ -1,0 +1,100 @@
+@if (captionTemplate()) {
+  <div class="app-table__caption">
+    <ng-container [ngTemplateOutlet]="captionTemplate()!" />
+  </div>
+}
+
+<div class="app-table__scroller" [class.app-table__scroller--scrollable]="scrollable()" [style.max-height]="scrollHeight() || null">
+  <table [class]="tableClasses()">
+    @if (headerTemplate()) {
+      <thead [class.app-table__head--sticky]="scrollable()">
+        <ng-container [ngTemplateOutlet]="headerTemplate()!" [ngTemplateOutletContext]="{ $implicit: columns() }" />
+      </thead>
+    }
+
+    <tbody>
+      <!--
+        Les templates #body et #expandedrow fournissent eux-mêmes leur <tr>, exactement
+        comme avec p-table. Les envelopper dans un <tr> supplémentaire dupliquerait
+        chaque ligne à l'affichage. La sélection passe donc par [appSelectableRow].
+      -->
+      @for (row of displayedRows(); track trackRow($index, row)) {
+        @if (groupHeaderTemplate() && isGroupHeader(row, $index)) {
+          <ng-container [ngTemplateOutlet]="groupHeaderTemplate()!" [ngTemplateOutletContext]="{ $implicit: row, rowIndex: $index }" />
+        }
+
+        <ng-container
+          [ngTemplateOutlet]="bodyTemplate()!"
+          [ngTemplateOutletContext]="{ $implicit: row, rowIndex: $index, expanded: isExpanded(row), columns: columns() }"
+        />
+
+        @if (isExpanded(row) && expandedRowTemplate()) {
+          <ng-container
+            [ngTemplateOutlet]="expandedRowTemplate()!"
+            [ngTemplateOutletContext]="{ $implicit: row, rowIndex: $index }"
+          />
+        }
+      } @empty {
+        @if (!loading()) {
+          @if (emptyMessageTemplate()) {
+            <ng-container [ngTemplateOutlet]="emptyMessageTemplate()!" />
+          } @else {
+            <tr>
+              <td [attr.colspan]="columnCount()" class="text-center text-muted py-4">{{ emptyMessage() }}</td>
+            </tr>
+          }
+        }
+      }
+    </tbody>
+
+    @if (footerTemplate()) {
+      <tfoot>
+        <ng-container [ngTemplateOutlet]="footerTemplate()!" />
+      </tfoot>
+    }
+  </table>
+
+  @if (loading()) {
+    <div class="app-table__loading" role="status" aria-live="polite">
+      <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+      <span class="ms-2">Chargement…</span>
+    </div>
+  }
+</div>
+
+@if (paginator() && pageCount() > 0) {
+  <div class="app-table__paginator">
+    @if (showCurrentPageReport()) {
+      <span class="text-muted small">{{ currentPageReport() }}</span>
+    }
+
+    <ngb-pagination
+      [collectionSize]="recordCount()"
+      [pageSize]="rows()"
+      [page]="currentPage()"
+      [maxSize]="5"
+      [rotate]="true"
+      [boundaryLinks]="true"
+      size="sm"
+      (pageChange)="goToPage($event)"
+    />
+
+    @if (rowsPerPageOptions().length) {
+      <!--
+        `appendTo="body"` : le sélecteur vit dans le pied de la table, souvent placée
+        dans un conteneur en overflow caché. Sans cela son panneau serait rogné.
+      -->
+      <app-select
+        (selectionChange)="changePageSize($event)"
+        [clearable]="false"
+        [items]="rowsPerPageOptions()"
+        [ngModel]="rows()"
+        [searchable]="false"
+        [small]="true"
+        appendTo="body"
+        ariaLabel="Nombre de lignes par page"
+        class="app-table__page-size"
+      />
+    }
+  </div>
+}

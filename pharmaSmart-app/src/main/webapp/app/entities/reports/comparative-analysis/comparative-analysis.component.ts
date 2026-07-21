@@ -3,9 +3,6 @@ import { HttpResponse } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 
-import { ButtonModule } from "primeng/button";
-import { SelectModule } from "primeng/select";
-import { ToolbarModule } from "primeng/toolbar";
 
 import {
   IComparativeByFamily,
@@ -19,6 +16,11 @@ import { formatCurrency } from "app/shared/utils/format-utils";
 
 import { Chart, ChartConfiguration, ChartData, registerables } from "chart.js";
 import { BlobDownloadService } from "../../../shared/services/blob-download.service";
+import {
+  ButtonComponent,
+  SelectComponent,
+  ToolbarComponent
+} from '../../../shared/ui';
 
 Chart.register(...registerables);
 
@@ -35,7 +37,13 @@ interface ComparisonTypeOption {
   templateUrl: "./comparative-analysis.component.html",
   styleUrl: "./comparative-analysis.component.scss",
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, ButtonModule, SelectModule, ToolbarModule]
+  imports: [
+    CommonModule,
+    FormsModule,
+    ButtonComponent,
+    SelectComponent,
+    ToolbarComponent
+  ]
 })
 export default class ComparativeAnalysisComponent implements OnInit {
   @ViewChild("evolutionChartCanvas") evolutionChartCanvas?: ElementRef<HTMLCanvasElement>;

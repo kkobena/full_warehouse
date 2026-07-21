@@ -2,14 +2,6 @@ import { AfterViewInit, Component, DestroyRef, inject, input, output, signal } f
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { HttpHeaders, HttpResponse } from "@angular/common/http";
 import { FormsModule } from "@angular/forms";
-import { TableLazyLoadEvent, TableModule } from "primeng/table";
-import { ButtonModule } from "primeng/button";
-import { AutoCompleteModule } from "primeng/autocomplete";
-import { FloatLabelModule } from "primeng/floatlabel";
-import { InputText } from "primeng/inputtext";
-import { ToggleSwitch } from "primeng/toggleswitch";
-import { Toolbar } from "primeng/toolbar";
-import { DatePicker } from "primeng/datepicker";
 import { INVOICES_STATUT } from "../../../../shared/constants/data-constants";
 import { IGroupeTiersPayant } from "../../../../shared/model/groupe-tierspayant.model";
 import { ITiersPayant } from "../../../../shared/model";
@@ -22,20 +14,29 @@ import { FactureApiService } from "../../data-access/services/facture-api.servic
 import { FacturationStore } from "../../data-access/store/facturation.store";
 import { IFacture, IInvoiceSearchParams, ISelectedFacture } from "../../data-access/models";
 import { CommonModule } from "@angular/common";
+import {
+  ButtonComponent,
+  DataTableComponent,
+  FloatLabelComponent,
+  SelectSearchComponent,
+  SelectableRowDirective,
+  SwitchComponent
+} from 'app/shared/ui';
+import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
 
 @Component({
   selector: "app-facture-search-drawer",
   imports: [
-    ButtonModule,
-    TableModule,
     CommonModule,
     FormsModule,
-    FloatLabelModule,
-    AutoCompleteModule,
-    InputText,
-    ToggleSwitch,
     Toolbar,
-    DatePicker
+    ButtonComponent,
+    DataTableComponent,
+    FloatLabelComponent,
+    SelectSearchComponent,
+    SelectableRowDirective,
+    SwitchComponent,
+    PharmaDatePickerComponent
   ],
   templateUrl: "./facture-search-drawer.component.html"
 })
@@ -102,11 +103,11 @@ export class FactureSearchDrawerComponent implements AfterViewInit {
   }
 
   searchTiersPayant(event: any): void {
-    this.loadTiersPayants(event.query);
+    this.loadTiersPayants(query);
   }
 
   searchGroupTiersPayant(event: any): void {
-    this.loadGroupTiersPayant(event.query);
+    this.loadGroupTiersPayant(query);
   }
 
   loadGroupTiersPayant(search = ""): void {

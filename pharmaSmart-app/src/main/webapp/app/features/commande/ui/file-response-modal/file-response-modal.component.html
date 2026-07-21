@@ -3,39 +3,33 @@
   <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
 </div>
 <div class="modal-body">
-  <p-card>
+  <app-card [variant]="'form'">
     <div class="form-group mb-1">
       <label class="form-label fw-semibold" for="model-select">Format du fichier grossiste</label>
-      <p-select
+      <app-select
         [(ngModel)]="selectedModel"
-        [options]="models"
-        inputId="model-select"
-        optionLabel="label"
-        optionValue="value"
-        placeholder="Sélectionner le format..."
+        [appendTo]="'body'"
+        [items]="models"
+        bindLabel="label"
+        bindValue="value"
         class="w-100"
-        (onShow)="onDropdownShow($event)"
-        (onHide)="onDropdownHide($event)"
+        inputId="model-select"
+        placeholder="Sélectionner le format..."
       />
     </div>
     <div class="form-group">
-      <p-fileupload
-        #fileUploadRef
-        (uploadHandler)="onImporterReponseCommande($event, fileUploadRef)"
-        [customUpload]="true"
+      <app-file-upload
+        (filesSelected)="onImporterReponseCommande($event)"
         [disabled]="!selectedModel"
         accept=".csv,.xls,.xlsx"
-        cancelLabel="Annuler"
-        chooseLabel="Importer un fichier"
-        name="importcsv"
-        uploadLabel="Enrégistrer"
-      >
-      </p-fileupload>
+        label="Importer un fichier"
+      />
     </div>
-  </p-card>
+  </app-card>
 </div>
 
 <div class="modal-footer">
-  <p-button (click)="cancel()"  icon="pi pi-times" label="Fermer" raised="true" severity="secondary" type="button"/>
+  <app-button (clicked)="cancel()" [raised]="true" icon="pi pi-times" label="Fermer"
+              severity="secondary" type="button" />
 </div>
 <jhi-spinner #spinner></jhi-spinner>

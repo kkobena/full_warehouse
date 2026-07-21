@@ -21,7 +21,7 @@ import {IRemise, ISalesLine} from '../../../../shared/model';
 import {
   NgbConfirmDialogService
 } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
-import {MessageService} from 'primeng/api';
+import {NotificationService} from '../../../../shared/services/notification.service';
 
 /**
  * Composant de présentation : Affichage liste des lignes de vente
@@ -89,7 +89,7 @@ export class ProductListComponent {
   });
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private remisePopover = viewChild<Popover>('remisePopover');
-  private readonly messageService = inject(MessageService);
+  private readonly notificationService = inject(NotificationService);
 
   // Méthodes pour les événements UI
   onQuantityRequestedChange(line: ISalesLine, newQty: string): void {
@@ -104,12 +104,10 @@ export class ProductListComponent {
     if (qty >= 0) {
       // Validation: quantitySold ne peut pas dépasser quantityRequested
       if (line.quantityRequested && qty > line.quantityRequested) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: `La quantité servie (${qty}) ne peut pas dépasser la quantité demandée (${line.quantityRequested})`,
-          life: 5000,
-        });
+        this.notificationService.error(
+          `La quantité servie (${qty}) ne peut pas dépasser la quantité demandée (${line.quantityRequested})`,
+          'Erreur',
+        );
         return;
       }
       this.quantityChanged.emit({line, newQty: qty});

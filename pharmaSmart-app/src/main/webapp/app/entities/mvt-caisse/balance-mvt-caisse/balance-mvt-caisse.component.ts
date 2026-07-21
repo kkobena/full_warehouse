@@ -1,71 +1,43 @@
-import { AfterViewInit, Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
-import { MvtParamServiceService } from '../mvt-param-service.service';
-import { BalanceCaisseWrapper } from './balance-caisse.model';
-import { BalanceMvtCaisseService } from './balance-mvt-caisse.service';
-import { TranslateService } from '@ngx-translate/core';
-import { Button } from 'primeng/button';
-import { MultiSelectModule } from 'primeng/multiselect';
-import { PaginatorModule } from 'primeng/paginator';
-import { ToolbarModule } from 'primeng/toolbar';
-import { TooltipModule } from 'primeng/tooltip';
-import { SelectButtonModule } from 'primeng/selectbutton';
-import { CardModule } from 'primeng/card';
-import { SplitButtonModule } from 'primeng/splitbutton';
-import { RadioButtonModule } from 'primeng/radiobutton';
-import { HttpResponse } from '@angular/common/http';
-import { MvtCaisseParams } from '../mvt-caisse-util';
-import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
-import { DividerModule } from 'primeng/divider';
-import { FormsModule } from '@angular/forms';
-import { PrimeNG } from 'primeng/config';
-import { DatePicker } from 'primeng/datepicker';
-import { FloatLabel } from 'primeng/floatlabel';
-import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
-import { finalize } from 'rxjs/operators';
-import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
-import { handleBlobForTauri } from '../../../shared/util/tauri-util';
-import { CommonModule } from "@angular/common";
+import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
+import {MvtParamServiceService} from '../mvt-param-service.service';
+import {BalanceCaisseWrapper} from './balance-caisse.model';
+import {BalanceMvtCaisseService} from './balance-mvt-caisse.service';
+import {HttpResponse} from '@angular/common/http';
+import {MvtCaisseParams} from '../mvt-caisse-util';
+import {NGB_DATE_TO_ISO} from '../../../shared/util/warehouse-util';
+import {FormsModule} from '@angular/forms';
+import {NotificationService} from '../../../shared/services/notification.service';
+import {finalize} from 'rxjs/operators';
+import {TauriPrinterService} from '../../../shared/services/tauri-printer.service';
+import {handleBlobForTauri} from '../../../shared/util/tauri-util';
+import {CommonModule} from "@angular/common";
+import {NgbDateStruct, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {ButtonComponent, ToolbarComponent} from '../../../shared/ui';
+import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
 
 @Component({
-  selector: 'jhi-balance-mvt-caisse',
+  selector: 'app-balance-mvt-caisse',
   imports: [
     CommonModule,
-    Button,
-    MultiSelectModule,
-    PaginatorModule,
-    ToolbarModule,
-    TooltipModule,
-    SelectButtonModule,
-    CardModule,
-    SplitButtonModule,
-    RadioButtonModule,
-    DividerModule,
     FormsModule,
-    DatePicker,
-    FloatLabel,
-    ToastAlertComponent,
+    ButtonComponent,
+    ToolbarComponent,
+    PharmaDatePickerComponent,
+    NgbTooltip,
   ],
   templateUrl: './balance-mvt-caisse.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./balance-mvt-caisse.component.scss'],
 })
-export class BalanceMvtCaisseComponent implements OnInit, AfterViewInit {
-  protected fromDate: Date | undefined;
-  protected toDate: Date | undefined;
+export class BalanceMvtCaisseComponent implements OnInit {
+  protected fromDate: NgbDateStruct | null = null;
+  protected toDate: NgbDateStruct | null = null;
   protected loading = false;
   protected balanceMvtCaisseWrapper: BalanceCaisseWrapper | null = null;
   private mvtParamServiceService = inject(MvtParamServiceService);
-  private translate = inject(TranslateService);
   private balanceMvtCaisseService = inject(BalanceMvtCaisseService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
-  private primeNGConfig = inject(PrimeNG);
-  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
-  ngAfterViewInit(): void {
-    this.translate.use('fr');
-    this.translate.stream('primeng').subscribe(data => {
-      this.primeNGConfig.setTranslation(data);
-    });
-  }
+  private readonly notificationService = inject(NotificationService);
 
   ngOnInit(): void {
     const params = this.mvtParamServiceService.mvtCaisseParam();
@@ -104,7 +76,7 @@ export class BalanceMvtCaisseComponent implements OnInit, AfterViewInit {
           }
         },
         error: () => {
-          this.alert().showError('Erreur', "Une erreur est survenue lors de l'export PDF");
+          this.notificationService.error('Erreur', "Une erreur est survenue lors de l'export PDF");
         },
       });
     this.updateParam();
@@ -131,8 +103,8 @@ export class BalanceMvtCaisseComponent implements OnInit, AfterViewInit {
 
   private buildParams(): any {
     return {
-      fromDate: DATE_FORMAT_ISO_DATE(this.fromDate),
-      toDate: DATE_FORMAT_ISO_DATE(this.toDate),
+      fromDate: this.fromDate ? NGB_DATE_TO_ISO(this.fromDate) : null,
+      toDate: this.toDate ? NGB_DATE_TO_ISO(this.toDate) : null,
       statuts: ['CLOSED'],
     };
   }
@@ -143,7 +115,7 @@ export class BalanceMvtCaisseComponent implements OnInit, AfterViewInit {
   }
 
   private onError(): void {
-    this.alert().showError('Une erreur est survenue lors de la récupération des données');
+    this.notificationService.error('Une erreur est survenue lors de la récupération des données');
     this.balanceMvtCaisseWrapper = null;
     this.loading = false;
   }

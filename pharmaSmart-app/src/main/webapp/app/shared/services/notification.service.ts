@@ -1,80 +1,68 @@
-import { Injectable, inject } from '@angular/core';
-import { MessageService } from 'primeng/api';
+import { Injectable, signal } from '@angular/core';
 
 export type NotificationSeverity = 'success' | 'info' | 'warn' | 'error';
 
+export interface ToastMessage {
+  id: number;
+  severity: NotificationSeverity;
+  summary: string;
+  detail: string;
+  /** Durée d'affichage en millisecondes. */
+  life: number;
+}
+
 /**
- * Service de notifications pour l'application
- * Encapsule PrimeNG MessageService pour une API simplifiée
+ * Service de notifications de l'application.
+ *
+ * **L'API publique (`success` / `info` / `warning` / `error` / `show` / `clear`) est
+ * inchangée** : les ~100 appelants existants n'ont pas été touchés. Seule
+ * l'implémentation a changé — `MessageService` de PrimeNG a laissé place à un signal
+ * interne, consommé par `<app-toast-host />` qui rend des `<ngb-toast>`
+ * (cf. plan de migration §7.1).
+ *
+ * Le retrait automatique est géré par `NgbToast` via son `[delay]`, qui appelle
+ * `dismiss(id)` — inutile de programmer un `setTimeout` ici.
  */
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
-  private readonly messageService = inject(MessageService);
+  private readonly _messages = signal<readonly ToastMessage[]>([]);
 
-  /**
-   * Afficher une notification de succès
-   */
+  /** Consommé par `ToastHostComponent`. */
+  readonly messages = this._messages.asReadonly();
+
+  private nextId = 1;
+
   success(message: string, title?: string): void {
-    this.messageService.add({
-      severity: 'success',
-      summary: title || 'Succès',
-      detail: message,
-      life: 3000,
-    });
+    this.push('success', message, title ?? 'Succès', 3000);
   }
 
-  /**
-   * Afficher une notification d'information
-   */
   info(message: string, title?: string): void {
-    this.messageService.add({
-      severity: 'info',
-      summary: title || 'Information',
-      detail: message,
-      life: 3000,
-    });
+    this.push('info', message, title ?? 'Information', 3000);
   }
 
-  /**
-   * Afficher une notification d'avertissement
-   */
   warning(message: string, title?: string): void {
-    this.messageService.add({
-      severity: 'warn',
-      summary: title || 'Avertissement',
-      detail: message,
-      life: 4000,
-    });
+    this.push('warn', message, title ?? 'Avertissement', 4000);
   }
 
-  /**
-   * Afficher une notification d'erreur
-   */
   error(message: string, title?: string): void {
-    this.messageService.add({
-      severity: 'error',
-      summary: title || 'Erreur',
-      detail: message,
-      life: 5000,
-    });
+    this.push('error', message, title ?? 'Erreur', 5000);
   }
 
-  /**
-   * Afficher une notification personnalisée
-   */
-  show(severity: NotificationSeverity, message: string, title?: string, life: number = 3000): void {
-    this.messageService.add({
-      severity,
-      summary: title,
-      detail: message,
-      life,
-    });
+  show(severity: NotificationSeverity, message: string, title?: string, life = 3000): void {
+    this.push(severity, message, title ?? '', life);
   }
 
-  /**
-   * Effacer toutes les notifications
-   */
   clear(): void {
-    this.messageService.clear();
+    this._messages.set([]);
+  }
+
+  /** Retire une notification donnée. Appelé par l'hôte à l'expiration ou à la fermeture. */
+  dismiss(id: number): void {
+    this._messages.update(messages => messages.filter(message => message.id !== id));
+  }
+
+  private push(severity: NotificationSeverity, detail: string, summary: string, life: number): void {
+    const id = this.nextId++;
+    this._messages.update(messages => [...messages, { id, severity, summary, detail, life }]);
   }
 }

@@ -3,18 +3,8 @@ import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { finalize } from "rxjs/operators";
-import { ButtonModule } from "primeng/button";
-import { TableModule } from "primeng/table";
-import { TooltipModule } from "primeng/tooltip";
-import { InputTextModule } from "primeng/inputtext";
-import { SelectModule } from "primeng/select";
-import { TagModule } from "primeng/tag";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
-import { DatePicker } from "primeng/datepicker";
-import { FloatLabel } from "primeng/floatlabel";
 import { HttpResponse } from "@angular/common/http";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { NgbDateStruct, NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { BedService } from "../data-access/bed.service";
 import { IBed, IBedSummary, MotifBed, MOTIFS_BED } from "../data-access/bed.model";
 import { NotificationService } from "app/shared/services/notification.service";
@@ -22,9 +12,18 @@ import { NgbConfirmDialogService } from "app/shared/dialog/ngb-confirm-dialog/ng
 import { BedDetailComponent } from "../bed-detail/bed-detail.component";
 import { BedValidateModalComponent, BedValidateResult } from "../ui/bed-header-form/bed-validate-modal.component";
 import { ITEMS_PER_PAGE } from "app/shared/constants/pagination.constants";
-import { DATE_FORMAT_ISO_DATE } from "app/shared/util/warehouse-util";
-import { SplitButton } from "primeng/splitbutton";
-import { MenuItem } from "primeng/api";
+import { NGB_DATE_TO_ISO } from "app/shared/util/warehouse-util";
+import { PharmaDatePickerComponent } from "app/shared/date-picker/pharma-date-picker.component";
+import {
+  AppSplitButtonItem,
+  AppTableLazyLoadEvent,
+  BadgeComponent,
+  ButtonComponent,
+  DataTableComponent,
+  IconFieldComponent,
+  SelectComponent,
+  SplitButtonComponent,
+} from "app/shared/ui";
 import {
   ImportProduitModalComponent
 } from "../../../../../entities/produit/import-produit-modal/import-produit-modal.component";
@@ -44,18 +43,15 @@ export type BedTab = "BROUILLON" | "HISTORIQUE";
   imports: [
     CommonModule,
     FormsModule,
-    ButtonModule,
-    TableModule,
-    TooltipModule,
-    InputTextModule,
-    SelectModule,
-    TagModule,
-    IconField,
-    InputIcon,
-    DatePicker,
-    FloatLabel,
+    ButtonComponent,
+    DataTableComponent,
+    NgbTooltip,
+    BadgeComponent,
+    IconFieldComponent,
+    PharmaDatePickerComponent,
     BedDetailComponent,
-    SplitButton
+    SplitButtonComponent,
+    SelectComponent,
   ]
 })
 export class BedHomeComponent implements OnInit {
@@ -69,8 +65,8 @@ export class BedHomeComponent implements OnInit {
 
   protected search = "";
   protected filterMotif: MotifBed | null = null;
-  protected dtStart: Date | null = null;
-  protected dtEnd: Date | null = null;
+  protected dtStart: NgbDateStruct | null = null;
+  protected dtEnd: NgbDateStruct | null = null;
 
   readonly itemsPerPage = ITEMS_PER_PAGE;
   private page = 0;
@@ -82,7 +78,7 @@ export class BedHomeComponent implements OnInit {
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly modalService = inject(NgbModal);
   private readonly destroyRef = inject(DestroyRef);
-  protected importMenuItems: MenuItem[] = [
+  protected importMenuItems: AppSplitButtonItem[] = [
     { label: "Basculement", icon: "pi pi-filter", command: () => this.onImport("BASCULEMENT") },
     { label: "Basculement prestige", icon: "pi pi-file", command: () => this.onImport("BASCULEMENT_PRESTIGE") }
   ];
@@ -119,8 +115,8 @@ export class BedHomeComponent implements OnInit {
     this.loadAll();
   }
 
-  protected onPageChange(event: any): void {
-    this.page = event.page;
+  protected onPageChange(event: AppTableLazyLoadEvent): void {
+    this.page = Math.floor(event.first / event.rows);
     this.loadAll();
   }
 
@@ -132,8 +128,8 @@ export class BedHomeComponent implements OnInit {
         search: this.search || undefined,
         motifBed: this.filterMotif || undefined,
         orderStatus,
-        fromDate: this.dtStart ? DATE_FORMAT_ISO_DATE(this.dtStart)! : undefined,
-        toDate: this.dtEnd ? DATE_FORMAT_ISO_DATE(this.dtEnd)! : undefined,
+        fromDate: this.dtStart ? NGB_DATE_TO_ISO(this.dtStart)! : undefined,
+        toDate: this.dtEnd ? NGB_DATE_TO_ISO(this.dtEnd)! : undefined,
         page: this.page,
         size: this.itemsPerPage
       })

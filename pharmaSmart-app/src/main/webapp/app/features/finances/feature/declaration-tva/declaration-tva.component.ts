@@ -1,12 +1,10 @@
 import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
-import { ButtonModule } from "primeng/button";
-import { DatePicker } from "primeng/datepicker";
-import { TableModule } from "primeng/table";
-import { ToolbarModule } from "primeng/toolbar";
-import { SelectModule } from "primeng/select";
-import { FloatLabel } from "primeng/floatlabel";
+import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
+import { ButtonComponent, DataTableComponent, SelectComponent, ToolbarComponent } from "../../../../shared/ui";
+import { PharmaDatePickerComponent } from "../../../../shared/date-picker/pharma-date-picker.component";
+import { NGB_DATE_TO_ISO, TODAY_NGB_DATE } from "../../../../shared/util/warehouse-util";
 import { DeclarationTvaApiService } from "../../data-access/services/declaration-tva-api.service";
 import { IDeclarationTvaSummary } from "../../data-access/models";
 import { formatCurrency } from "app/shared/utils/format-utils";
@@ -22,20 +20,19 @@ interface TypeVenteOption {
   imports: [
     CommonModule,
     FormsModule,
-    ButtonModule,
-    DatePicker,
-    TableModule,
-    ToolbarModule,
-    SelectModule,
-    FloatLabel
+    ButtonComponent,
+    PharmaDatePickerComponent,
+    DataTableComponent,
+    ToolbarComponent,
+    SelectComponent
   ],
   templateUrl: "./declaration-tva.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./declaration-tva.component.scss"
 })
 export class DeclarationTvaComponent implements OnInit {
-  startDate = signal<Date>(this.defaultStartDate());
-  endDate = signal<Date>(new Date());
+  startDate = signal<NgbDateStruct>(this.defaultStartDate());
+  endDate = signal<NgbDateStruct>(TODAY_NGB_DATE());
   selectedType = signal<string>("");
   summary = signal<IDeclarationTvaSummary | null>(null);
   isLoading = signal(false);
@@ -60,8 +57,8 @@ export class DeclarationTvaComponent implements OnInit {
     this.isLoading.set(true);
     this.api
       .getDeclaration({
-        startDate: this.formatDate(this.startDate()),
-        endDate: this.formatDate(this.endDate()),
+        startDate: NGB_DATE_TO_ISO(this.startDate()),
+        endDate: NGB_DATE_TO_ISO(this.endDate()),
         typeTva: this.selectedType() || undefined
       })
       .subscribe({
@@ -78,8 +75,8 @@ export class DeclarationTvaComponent implements OnInit {
   exportPdf(): void {
     this.api
       .exportToPdf({
-        startDate: this.formatDate(this.startDate()),
-        endDate: this.formatDate(this.endDate()),
+        startDate: NGB_DATE_TO_ISO(this.startDate()),
+        endDate: NGB_DATE_TO_ISO(this.endDate()),
         typeTva: this.selectedType() || undefined
       })
       .subscribe(res => {
@@ -87,16 +84,9 @@ export class DeclarationTvaComponent implements OnInit {
       });
   }
 
-  private defaultStartDate(): Date {
+  private defaultStartDate(): NgbDateStruct {
     const d = new Date();
     d.setDate(1);
-    return d;
-  }
-
-  private formatDate(d: Date): string {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${y}-${m}-${day}`;
+    return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
   }
 }

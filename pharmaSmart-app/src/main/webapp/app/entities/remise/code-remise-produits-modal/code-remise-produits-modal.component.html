@@ -2,15 +2,15 @@
   <div class="modal-title">
     <h4>
       Ajouter des produits à ce code remise
-      <p-tag>{{ codeRemise?.value }}</p-tag>
+      <app-badge [label]="codeRemise?.value" />
     </h4>
   </div>
 
   <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal" type="button">&times;</button>
 </div>
 <div class="modal-body">
-  <p-card>
-    <p-table
+  <app-card [variant]="'form'">
+    <app-data-table
       class="pharma-table"
       (onLazyLoad)="lazyLoading($event)"
       [(selection)]="selectedProduits"
@@ -22,28 +22,25 @@
       [totalRecords]="totalItems"
       [value]="produits"
       dataKey="id"
-      selectionMode="single"
+      selectionMode="multiple"
     >
       <ng-template #caption>
         <div class="row" style="margin: 0">
           <div class="col-md-7" style="margin: 0; padding-left: 3px; padding-right: 3px">
-            <p-select
-              (onChange)="loadData()"
+            <app-select
+              (selectionChange)="loadData()"
               [(ngModel)]="selectedRayon"
-              [autofocus]="true"
-              [fluid]="true"
-              [options]="rayons"
-              optionLabel="libelle"
-              size="large"
-            >
-            </p-select>
+              appendTo="body"
+              [items]="rayons"
+              bindLabel="libelle"
+            />
           </div>
           <div class="col-md-5" style="margin: 0; padding-left: 3px; padding-right: 3px">
             <input
               (input)="loadData()"
               [(ngModel)]="search"
               [style]="{ width: '95%' }"
-              pInputText
+              class="form-control"
               placeholder="Taper pour rechercher"
               type="text"
             />
@@ -57,7 +54,7 @@
           <th>Libellé</th>
           <th>Code remise</th>
           <th class="table-all-checkbos" style="width: 3rem">
-            <p-tableheadercheckbox #checkbox></p-tableheadercheckbox>
+            <app-header-checkbox />
           </th>
         </tr>
       </ng-template>
@@ -77,23 +74,21 @@
           </td>
 
           <td class="text-center">
-            <p-tablecheckbox [value]="produit"></p-tablecheckbox>
+            <app-row-checkbox [row]="produit" />
           </td>
         </tr>
       </ng-template>
-    </p-table>
-  </p-card>
+    </app-data-table>
+  </app-card>
 </div>
 <div class="modal-footer">
-  <p-button (click)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler" severity="secondary" type="button"></p-button>
-  <p-button
-    (click)="onSave()"
+  <app-button (clicked)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
+  <app-button
+    (clicked)="onSave()"
     [disabled]="selectedProduits.length === 0 || isSaving"
     class="p-mr-2"
     icon="pi pi-check"
     label="Enregistrer"
     severity="primary"
-  ></p-button>
+  />
 </div>
-
-<jhi-toast-alert #alert></jhi-toast-alert>

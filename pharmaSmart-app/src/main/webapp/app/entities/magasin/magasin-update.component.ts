@@ -7,30 +7,16 @@ import { Observable } from 'rxjs';
 
 import { IMagasin, Magasin } from 'app/shared/model/magasin.model';
 import { MagasinService } from './magasin.service';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { InputTextModule } from 'primeng/inputtext';
-import { ToolbarModule } from 'primeng/toolbar';
+import { ButtonComponent } from '../../shared/ui';
 import { ErrorService } from '../../shared/error.service';
-import { Textarea } from 'primeng/textarea';
 import { NotificationService } from "../../shared/services/notification.service";
-import { Toast } from "primeng/toast";
 
 @Component({
   selector: 'app-magasin-update',
   templateUrl: './magasin-update.component.html',
   styleUrl: './magasin-update.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
-    RouterModule,
-    ReactiveFormsModule,
-    CardModule,
-    ButtonModule,
-    InputTextModule,
-    ToolbarModule,
-    Textarea,
-    Toast
-  ]
+  imports: [RouterModule, ReactiveFormsModule, ButtonComponent]
 })
 export class MagasinUpdateComponent implements OnInit {
   protected fb = inject(UntypedFormBuilder);

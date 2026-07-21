@@ -5,43 +5,31 @@
 
     @if (showPartialToggle()) {
       <div class="toggle-field">
-        <p-toggleswitch formControlName="partialPayment" inputId="partialPayment" />
+        <app-switch formControlName="partialPayment" inputId="partialPayment" />
         <label for="partialPayment">Tout régler</label>
       </div>
     }
-    <input pSize="small"
-           [readonly]="isReadOnly"
-           class="amount-input"
-           formControlName="amount"
-           pInputText
-           pKeyFilter="int"
-           placeholder="Montant"
+    <app-input-number
+      [readonly]="isReadOnly"
+      [inputClass]="'amount-input'"
+      formControlName="amount"
+      placeholder="Montant"
     />
 
 
-    <p-select size="small"
-              [fluid]="true"
-              [options]="paymentModes"
-              dataKey="code"
+    <app-select size="small"
+              appendTo="body"
+              [items]="paymentModes"
               formControlName="modePaimentCode"
-              optionLabel="libelle"
-              optionValue="code"
+              bindLabel="libelle"
+              bindValue="code"
               placeholder="Mode de paiement"
     />
-    <p-datepicker size="small"
-                  [defaultDate]="maxDate"
-                  [maxDate]="maxDate"
-                  [showButtonBar]="true"
-                  appendTo="body"
-                  dateFormat="dd/mm/yy"
-                  formControlName="paymentDate"
-                  inputId="datePaiement"
-                  placeholder="Date paiement"
-                  selectOtherMonths="true"
-    />
+    <pharma-date-picker [maxDate]="maxDate" formControlName="paymentDate" id="datePaiement"
+                        label="Date paiement" />
 
 
-    <p-button
+    <app-button
       [disabled]="!valid || !validMontantSaisi() || isSaving()"
       [loading]="isSaving()"
       icon="pi pi-check"
@@ -56,11 +44,11 @@
   <!-- Infos bancaires (si chèque / virement) -->
   @if (showBanqueInfo) {
     <div class="bank-fields" formGroupName="banqueInfo">
-      <input pSize="small" formControlName="nom" pInputText placeholder="Nom de la banque" />
+      <input formControlName="nom" placeholder="Nom de la banque" class="form-control" />
       @if (reglementForm.get('modePaimentCode')!.value === CH) {
-        <input pSize="small" formControlName="code" pInputText pKeyFilter="alphanum" placeholder="N° chèque" />
+        <input formControlName="code" [appKeyFilter]="'alphanum'" placeholder="N° chèque" class="form-control" />
       }
-      <input pSize="small" formControlName="beneficiaire" pInputText placeholder="Bénéficiaire" />
+      <input formControlName="beneficiaire" placeholder="Bénéficiaire" class="form-control" />
     </div>
   }
 

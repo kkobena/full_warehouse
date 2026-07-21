@@ -15,8 +15,8 @@
         [class.su-tab--active]="activeTab() === 'BROUILLON'"
         (click)="setTab('BROUILLON')"
         type="button"
-        pTooltip="BED en cours de saisie"
-        tooltipPosition="bottom"
+        ngbTooltip="BED en cours de saisie"
+        placement="bottom"
       >
         <i class="pi pi-file-edit"></i>
         En attente
@@ -30,8 +30,8 @@
         [class.su-tab--active]="activeTab() === 'HISTORIQUE'"
         (click)="setTab('HISTORIQUE')"
         type="button"
-        pTooltip="BED validés — stock crédité"
-        tooltipPosition="bottom"
+        ngbTooltip="BED validés — stock crédité"
+        placement="bottom"
       >
         <i class="pi pi-history"></i>
         Historique
@@ -44,74 +44,61 @@
   <div class="su-action-bar">
     <div class="su-action-bar__filters">
 
-      <p-iconfield class="lb-search">
-        <p-inputicon class="pi pi-search" />
+      <app-icon-field class="lb-search" [overlay]="true" icon="pi pi-search">
         <input
           [(ngModel)]="search"
           (keyup.enter)="onSearch()"
-          pInputText
+          class="form-control"
           placeholder="Référence, libellé…"
-          type="text"
-        />
-      </p-iconfield>
+          type="text" />
+      </app-icon-field>
 
-      <p-select
+      <app-select
         [(ngModel)]="filterMotif"
-        (onChange)="onSearch()"
-        [options]="motifOptions"
-        optionLabel="label"
-        optionValue="value"
-        [showClear]="true"
-        appendTo="body"
+        (selectionChange)="onSearch()"
+        [items]="motifOptions"
+        bindLabel="label"
+        bindValue="value"
         placeholder="Tous les motifs"
+        [clearable]="true"
       />
 
-      <p-floatlabel class="lb-date" variant="on">
-        <p-datepicker
-          [(ngModel)]="dtStart"
-          (onSelect)="onSearch()"
-          [showIcon]="true"
-          [showButtonBar]="true"
-          dateFormat="dd/mm/yy"
-          inputId="bedDtStart"
-          appendTo="body"
-        />
-        <label for="bedDtStart">Début</label>
-      </p-floatlabel>
+      <pharma-date-picker
+        class="lb-date"
+        [(ngModel)]="dtStart"
+        (selectionChange)="onSearch()"
+        id="bedDtStart"
+        label="Début"
+      />
 
-      <p-floatlabel class="lb-date" variant="on">
-        <p-datepicker
-          [(ngModel)]="dtEnd"
-          (onSelect)="onSearch()"
-          [showIcon]="true"
-          [showButtonBar]="true"
-          dateFormat="dd/mm/yy"
-          inputId="bedDtEnd"
-          appendTo="body"
-        />
-        <label for="bedDtEnd">Fin</label>
-      </p-floatlabel>
+      <pharma-date-picker
+        class="lb-date"
+        [(ngModel)]="dtEnd"
+        (selectionChange)="onSearch()"
+        id="bedDtEnd"
+        label="Fin"
+      />
 
     </div>
 
     <div class="su-action-bar__actions">
-      <p-button
-        (onClick)="onNouveauBed()"
+      <app-button
+        (clicked)="onNouveauBed()"
         icon="pi pi-plus"
         label="Nouveau"
         severity="primary"
         size="small"
       />
-      <p-splitbutton
+      <app-split-button
         label="Importer stock"
         icon="pi pi-upload"
-        [model]="importMenuItems"
+        [items]="importMenuItems"
         severity="warn"
         [outlined]="true"
         size="small"
       />
-      <p-button
-        (onClick)="onSearch()"
+      <app-button
+        (clicked)="onSearch()"
         icon="pi pi-search"
         label="Rechercher"
         severity="info"
@@ -133,7 +120,7 @@
 
   <!-- ─── Tableau ──────────────────────────────────────────────────────── -->
   <div>
-    <p-table
+    <app-data-table
       [value]="beds()"
       [rows]="itemsPerPage"
       [totalRecords]="totalRecords()"
@@ -173,54 +160,54 @@
             <span class="pharma-price">{{ b.grossAmount | number:'1.0-0' }} F</span>
           </td>
           <td>
-            <p-tag
-              [value]="getStatutLabel(b.orderStatus)"
+            <app-badge
+              [label]="getStatutLabel(b.orderStatus)"
               [severity]="getStatutSeverity(b.orderStatus)"
             />
           </td>
           <td class="text-center" (click)="$event.stopPropagation()">
             <div class="d-flex justify-content-center gap-1">
               @if (b.orderStatus === 'REQUESTED') {
-                <p-button
+                <app-button
                   icon="pi pi-pen-to-square"
                   [text]="true"
                   [rounded]="true"
                   severity="info"
                   size="small"
-                  pTooltip="Éditer"
-                  tooltipPosition="top"
-                  (onClick)="onEditer(b)"
+                  ngbTooltip="Éditer"
+                  placement="top"
+                  (clicked)="onEditer(b)"
                 />
-                <p-button
+                <app-button
                   icon="pi pi-check"
                   [text]="true"
                   [rounded]="true"
                   severity="success"
                   size="small"
-                  pTooltip="Valider le BED"
-                  tooltipPosition="top"
-                  (onClick)="onValiderDepuisListe(b)"
+                  ngbTooltip="Valider le BED"
+                  placement="top"
+                  (clicked)="onValiderDepuisListe(b)"
                 />
-                <p-button
+                <app-button
                   icon="pi pi-trash"
                   [text]="true"
                   [rounded]="true"
                   severity="danger"
                   size="small"
-                  pTooltip="Supprimer"
-                  tooltipPosition="top"
-                  (onClick)="onSupprimerBed(b)"
+                  ngbTooltip="Supprimer"
+                  placement="top"
+                  (clicked)="onSupprimerBed(b)"
                 />
               } @else {
-                <p-button
+                <app-button
                   icon="pi pi-eye"
                   [text]="true"
                   [rounded]="true"
                   severity="secondary"
                   size="small"
-                  pTooltip="Voir détail"
-                  tooltipPosition="top"
-                  (onClick)="onEditer(b)"
+                  ngbTooltip="Voir détail"
+                  placement="top"
+                  (clicked)="onEditer(b)"
                 />
               }
             </div>
@@ -240,8 +227,8 @@
                 <p>Aucun BED validé</p>
                 <small>Les bons d'entrée diverses validés apparaîtront ici</small>
               }
-              <p-button
-                (onClick)="onNouveauBed()"
+              <app-button
+                (clicked)="onNouveauBed()"
                 icon="pi pi-plus"
                 label="Nouveau"
                 severity="primary"
@@ -252,7 +239,7 @@
           </td>
         </tr>
       </ng-template>
-    </p-table>
+    </app-data-table>
   </div>
 
 }

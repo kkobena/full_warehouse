@@ -1,15 +1,8 @@
-import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
-import { Button } from "primeng/button";
-import { DatePicker } from "primeng/datepicker";
-import { FloatLabel } from "primeng/floatlabel";
-import { Select } from "primeng/select";
-import { TableLazyLoadEvent, TableModule } from "primeng/table";
-import { Toolbar } from "primeng/toolbar";
-import { Tooltip } from "primeng/tooltip";
+import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { NgbDateStruct, NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { ITEMS_PER_PAGE } from "../../../shared/constants/pagination.constants";
 import { ISales, SaleId } from "../../../shared/model/sales.model";
 import { IUser } from "../../../core/user/user.model";
-import { MenuItem } from "primeng/api";
 import { SalesService } from "../../sales/sales.service";
 import { UserService } from "../../../core/user/user.service";
 import { debounceTime, Subject } from "rxjs";
@@ -21,30 +14,39 @@ import { FormsModule } from "@angular/forms";
 import { MagasinService } from "../../magasin/magasin.service";
 import { RouterLink } from "@angular/router";
 import { StockDepotService } from "../stock-depot/stock-depot.service";
-import { DATE_FORMAT_ISO_DATE } from "../../../shared/util/warehouse-util";
+import { NGB_DATE_TO_ISO } from "../../../shared/util/warehouse-util";
 import { saveAs } from "file-saver";
 import { extractFileName2 } from "../../../shared/util/file-utils";
-import { Menu } from "primeng/menu";
 import { CommonModule } from "@angular/common";
 import { BlobDownloadService } from "../../../shared/services/blob-download.service";
 import { NotificationService } from "../../../shared/services/notification.service";
-import { Toast } from "primeng/toast";
+import {
+  AppTableLazyLoadEvent,
+  ButtonComponent,
+  DataTableComponent,
+  RowTogglerDirective,
+  SelectComponent,
+  ToolbarComponent
+} from "../../../shared/ui";
+import { PharmaDatePickerComponent } from "../../../shared/date-picker/pharma-date-picker.component";
 
 @Component({
   selector: "jhi-achat-depot",
   imports: [
     CommonModule,
-    Button,
-    DatePicker,
-    FloatLabel,
-    Select,
-    TableModule,
-    Toolbar,
-    Tooltip,
+    ButtonComponent,
+    PharmaDatePickerComponent,
+    SelectComponent,
+    DataTableComponent,
+    ToolbarComponent,
+    NgbTooltip,
     FormsModule,
     RouterLink,
-    Menu,
-    Toast
+    RowTogglerDirective,
+    NgbDropdown,
+    NgbDropdownToggle,
+    NgbDropdownMenu,
+    NgbDropdownItem
   ],
   templateUrl: "./achat-depot.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -61,54 +63,27 @@ export class AchatDepotComponent implements OnInit {
   protected users: IUser[] = [];
   protected selectedUserId: number | null;
   protected search = "";
-  protected fromDate: Date = new Date();
-  protected toDate: Date = new Date();
+  protected fromDate: NgbDateStruct = this.dateToNgbStruct(new Date());
+  protected toDate: NgbDateStruct = this.dateToNgbStruct(new Date());
   protected isLargeScreen = true;
-  protected splitbuttons: MenuItem[];
   protected depots: IMagasin[] = [];
-  protected actions: MenuItem[] | undefined;
-  protected exportMenuItems: MenuItem[] = [];
-  protected currentSaleForExport?: ISales;
   private readonly salesService = inject(SalesService);
   private readonly stockDepotService = inject(StockDepotService);
   private readonly userService = inject(UserService);
 
   private searchSubject = new Subject<void>();
 
-  private readonly exportMenu = viewChild.required<Menu>("exportMenu");
   private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly magasinService = inject(MagasinService);
   private readonly blobDownloadService = inject(BlobDownloadService);
   private readonly notificationService = inject(NotificationService);
 
-
-  constructor() {
-
-    this.splitbuttons = [
-      {
-        label: "Fiche à partir csv",
-        icon: "pi pi-file-pdf",
-        command: () => console.error("print all record")
-      }
-    ];
-
-    this.exportMenuItems = [
-      {
-        label: "Exporter en CSV",
-        icon: "pi pi-file",
-        command: () => this.exportWithFormat("csv")
-      },
-      {
-        label: "Exporter en Excel",
-        icon: "pi pi-file-excel",
-        command: () => this.exportWithFormat("excel")
-      },
-      {
-        label: "Exporter en PDF",
-        icon: "pi pi-file-pdf",
-        command: () => this.print()
-      }
-    ];
+  /** Options du sélecteur de dépôt, avec l'adresse ajoutée au libellé (remplace le `#item` custom de `p-select`). */
+  protected get depotOptions(): (IMagasin & { displayLabel: string })[] {
+    return this.depots.map(depot => ({
+      ...depot,
+      displayLabel: depot.address ? `${depot.name} — ${depot.address}` : depot.name
+    }));
   }
 
   protected onSelectDepot(): void {
@@ -163,7 +138,7 @@ export class AchatDepotComponent implements OnInit {
     this.fetchSales(pageToLoad, this.itemsPerPage);
   }
 
-  protected lazyLoading(event: TableLazyLoadEvent): void {
+  protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.itemsPerPage = event.rows;
@@ -175,19 +150,12 @@ export class AchatDepotComponent implements OnInit {
     this.searchSubject.next();
   }
 
-  protected onExportMenu(event: Event, sale: ISales): void {
-    this.currentSaleForExport = sale;
-    this.exportMenu().toggle(event);
+  protected exportWithFormat(format: string, sale: ISales): void {
+    this.onExport(format, sale.saleId);
   }
 
-  protected exportWithFormat(format: string): void {
-    if (this.currentSaleForExport) {
-      this.onExport(format, this.currentSaleForExport.saleId);
-    }
-  }
-
-  protected print(): void {
-    this.salesService.printInvoice(this.currentSaleForExport.saleId).subscribe(blob => {
+  protected printInvoice(sale: ISales): void {
+    this.salesService.printInvoice(sale.saleId).subscribe(blob => {
       this.blobDownloadService.downloadPdf(blob, "facture-client");
     });
   }
@@ -226,11 +194,15 @@ export class AchatDepotComponent implements OnInit {
       });
   }
 
+  private dateToNgbStruct(date: Date): NgbDateStruct {
+    return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
+  }
+
   private buildCriteria(): any {
     return {
       search: this.search,
-      fromDate: this.fromDate ? DATE_FORMAT_ISO_DATE(this.fromDate) : null,
-      toDate: this.toDate ? DATE_FORMAT_ISO_DATE(this.toDate) : null,
+      fromDate: this.fromDate ? NGB_DATE_TO_ISO(this.fromDate) : null,
+      toDate: this.toDate ? NGB_DATE_TO_ISO(this.toDate) : null,
       magasinId: this.selectedDepot ? this.selectedDepot.id : null,
       userId: this.selectedUserId
     };

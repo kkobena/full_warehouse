@@ -1,10 +1,10 @@
 import {
-  AfterViewInit,
   Component,
   DestroyRef,
   ElementRef,
   inject,
   OnInit,
+  AfterViewInit,
   viewChild,
   ChangeDetectionStrategy
 } from '@angular/core';
@@ -20,41 +20,29 @@ import {
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
-import {InputMaskModule} from 'primeng/inputmask';
-import {InputTextModule} from 'primeng/inputtext';
-import {KeyFilterModule} from 'primeng/keyfilter';
-import {RadioButtonModule} from 'primeng/radiobutton';
-import {ToastModule} from 'primeng/toast';
-import {ButtonModule} from 'primeng/button';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {Select, SelectModule} from 'primeng/select';
-import {Card} from 'primeng/card';
-import {ToggleSwitch} from 'primeng/toggleswitch';
 import {CustomerService} from '../../../../customer/customer.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {finalize} from 'rxjs/operators';
+import {ButtonComponent, CardComponent, KeyFilterDirective, SelectComponent, SwitchComponent} from '../../../../../shared/ui';
 
 @Component({
   selector: 'jhi-add-complementaire',
   imports: [
     ReactiveFormsModule,
-    InputMaskModule,
-    InputTextModule,
-    KeyFilterModule,
-    RadioButtonModule,
-    ToastModule,
-    ButtonModule,
-    SelectModule,
-    Card,
-    ToggleSwitch,
     FormsModule,
+    ButtonComponent,
+    CardComponent,
+    KeyFilterDirective,
+    SelectComponent,
+    SwitchComponent,
   ],
   templateUrl: './add-complementaire.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./add-complementaire.component.scss'],
 })
 export class AddComplementaireComponent implements OnInit, AfterViewInit {
-  tiersPayant = viewChild.required<Select>('tiersPayant');
+  tiersPayant = viewChild.required('tiersPayant', { read: ElementRef<HTMLElement> });
   numBon = viewChild.required<ElementRef>('numBon');
   assure?: ICustomer | null;
   isSaving = false;
@@ -103,7 +91,7 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      this.tiersPayant().focus();
+      this.tiersPayant().nativeElement.querySelector('input')?.focus();
     }, 100);
   }
 
@@ -122,8 +110,8 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
     }
   }
 
-  onSelect(evt: any): void {
-    this.selectedTiersPayant = this.assure.tiersPayants.find(e => e.id === Number(evt.value));
+  onSelect(tiersPayantId: number): void {
+    this.selectedTiersPayant = this.assure.tiersPayants.find(e => e.id === Number(tiersPayantId));
     if (this.selectedTiersPayant) {
       // Store original state for change detection
       this.originalTiersPayant = {...this.selectedTiersPayant};
@@ -145,8 +133,8 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
     this.prioriteValue = this.selectedTiersPayant.categorie;
   }
 
-  onPrioriteToggle(event: any): void {
-    this.prioriteValue = event.checked ? 0 : this.selectedTiersPayant?.categorie;
+  onPrioriteToggle(checked: boolean): void {
+    this.prioriteValue = checked ? 0 : this.selectedTiersPayant?.categorie;
   }
 
   protected getTiersPayants(): IClientTiersPayant[] {

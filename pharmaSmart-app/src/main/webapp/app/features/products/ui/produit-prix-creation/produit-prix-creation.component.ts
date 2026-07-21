@@ -25,7 +25,9 @@ export class ProduitPrixCreationComponent {
 
   @Input() formArray!: FormArray;
 
-  protected readonly priceTypes = PRICE_TYPES;
+  // Copie mutable : `PRICE_TYPES` est `as const`, donc `readonly`, ce que refusent les
+  // listes déroulantes typées `any[]`. Le spread préserve les types littéraux de `code`.
+  protected readonly priceTypes = [...PRICE_TYPES];
 
   private readonly fb = inject(FormBuilder);
 

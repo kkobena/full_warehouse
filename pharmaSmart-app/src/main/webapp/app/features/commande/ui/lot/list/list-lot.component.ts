@@ -3,9 +3,8 @@ import { ILot } from 'app/shared/model/lot.model';
 import { LotService } from '../../../../../entities/commande/lot/lot.service';
 import { FormLotComponent } from '../form/form-lot.component';
 import { CommonModule } from '@angular/common';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { TooltipModule } from 'primeng/tooltip';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, CardComponent, DataTableComponent } from 'app/shared/ui';
 import { IOrderLine } from 'app/shared/model/order-line.model';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -13,7 +12,6 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ErrorService } from 'app/shared/error.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { showCommonModal } from '../../../../../entities/sales/selling-home/sale-helper';
-import { Card } from 'primeng/card';
 import { NotificationService } from 'app/shared/services/notification.service';
 import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 
@@ -22,7 +20,7 @@ import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ng
   templateUrl: './list-lot.component.html',
   styleUrls: ['../../../../../entities/common-modal.component.scss', './list-lot.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, ButtonModule, TooltipModule, TableModule, Card],
+  imports: [CommonModule, ButtonComponent, NgbTooltip, DataTableComponent, CardComponent],
 })
 export class ListLotComponent implements OnInit, OnDestroy {
   lots: ILot[] = [];

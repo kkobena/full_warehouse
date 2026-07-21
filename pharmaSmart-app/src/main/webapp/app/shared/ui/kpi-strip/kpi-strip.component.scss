@@ -1,0 +1,33 @@
+// Habillage partagé avec les écrans non migrés, qui importent le même partial.
+// `.kpi-strip` appartient à ce template : il est atteint sans `::ng-deep`.
+@import '../../scss/kpi-strip';
+
+:host {
+  display: block;
+}
+
+// Séparateur entre items — remplace les `<div class="kpi-strip-divider">` manuels.
+//
+// Les items sont projetés : ils portent l'encapsulation de l'appelant, d'où `::ng-deep`,
+// borné par `:host`. Le trait est posé en bordure gauche plutôt qu'en élément, donc il ne
+// peut être ni oublié ni dupliqué — c'était le défaut du markup d'origine, où 115
+// diviseurs étaient placés à la main.
+:host ::ng-deep app-kpi-item + app-kpi-item {
+  border-left: 1px solid $_ks-border;
+  margin-left: 0.2rem;
+  padding-left: 0.8rem;
+}
+
+@media (max-width: 576px) {
+  :host ::ng-deep app-kpi-item + app-kpi-item {
+    border-left: none;
+    margin-left: 0;
+  }
+}
+
+// Le squelette de chargement s'appuie sur `app-skeleton` du Design System : aucune
+// règle à écrire ici. Seul le calage de l'icône ronde, qui ne doit pas se comprimer
+// dans le flex de l'item, ne relève pas du composant de squelette.
+.kpi-strip-item > app-skeleton {
+  flex-shrink: 0;
+}

@@ -1,17 +1,11 @@
 <div class="pharma-smart-content p-2">
-  <div class="pharma-toolbar pharma-toolbar-compact">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-tag"></i>
-      <span class="pharma-toolbar-title">Remises & RFA</span>
-    </div>
-    <p-toolbar> <ng-template #start></ng-template>
-      <ng-template #end>
-        <div class="pharma-toolbar-actions">
-          <p-button icon="pi pi-refresh" severity="secondary"  [text]="true" [rounded]="true" (onClick)="load()" [loading]="isLoading()" />
-        </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
+  <app-toolbar icon="pi pi-tag" title="Remises & RFA" [compact]="true">
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-toolbar-actions">
+        <app-button icon="pi pi-refresh" severity="secondary"  [text]="true" [rounded]="true" (clicked)="load()" [loading]="isLoading()" />
+      </div>
+    </ng-container>
+  </app-toolbar>
 
   <div class="pharma-nav-tabs-container">
     <div
@@ -29,8 +23,7 @@
           <span>Paliers RFA</span>
         </a>
         <ng-template ngbNavContent>
-          <p-table [value]="rfas()" [loading]="isLoading()" class="p-datatable-sm p-datatable-striped"
-                   [tableStyle]="{ 'min-width': '60rem' }">
+          <app-data-table [value]="rfas()" [loading]="isLoading()" class="p-datatable-sm p-datatable-striped">
             <ng-template #header>
               <tr class="pharma-table-head">
                 <th>Fournisseur</th>
@@ -74,7 +67,7 @@
                 </td>
               </tr>
             </ng-template>
-          </p-table>
+          </app-data-table>
         </ng-template>
       </ng-container>
 
@@ -85,8 +78,7 @@
           <span>Avoirs reçus ({{ avoirs().length }})</span>
         </a>
         <ng-template ngbNavContent>
-          <p-table [value]="avoirs()" class="p-datatable-sm p-datatable-striped"
-                   [tableStyle]="{ 'min-width': '50rem' }">
+          <app-data-table [value]="avoirs()" class="p-datatable-sm p-datatable-striped">
             <ng-template #header>
               <tr class="pharma-table-head">
                 <th>Fournisseur</th>
@@ -103,7 +95,7 @@
                 <td>{{ a.dateAvoir }}</td>
                 <td class="text-end fw-semibold">{{ formatCurrency(a.montant) }} FCFA</td>
                 <td>
-                  <p-tag [value]="a.statut"
+                  <app-badge [label]="a.statut"
                          [severity]="a.statut === 'RECU' ? 'success' : a.statut === 'EN_ATTENTE' ? 'warn' : 'secondary'" />
                 </td>
               </tr>
@@ -113,7 +105,7 @@
                 <td colspan="5" class="text-center py-4 text-secondary">Aucun avoir fournisseur.</td>
               </tr>
             </ng-template>
-          </p-table>
+          </app-data-table>
         </ng-template>
       </ng-container>
     </div>

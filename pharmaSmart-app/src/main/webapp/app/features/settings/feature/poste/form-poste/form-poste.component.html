@@ -10,13 +10,13 @@
     <!-- Two Column Layout: Champs Obligatoires and Périphériques Série -->
     <div class="card-grid-2col">
       <!-- Section 1: Champs Obligatoires -->
-      <p-card>
-        <ng-template #header>
+      <app-card [variant]="'form'">
+        <ng-container ngProjectAs="[cardHeader]">
           <div class="section-header section-header-required">
             <i class="pi pi-exclamation-circle"></i>
             <span>Champs Obligatoires</span>
           </div>
-        </ng-template>
+        </ng-container>
 
         <div class="form-grid-compact">
           <!-- Nom du Poste -->
@@ -26,10 +26,9 @@
               #nameInput
               [class.ng-invalid]="editForm.get('name')?.invalid && editForm.get('name')?.touched"
               autocomplete="off"
-              class="w-full"
+              class="form-control w-full"
               formControlName="name"
               id="field_name"
-              pInputText
               placeholder="Ex: Poste Caisse 1"
             />
             @if (editForm.get('name')?.invalid && editForm.get('name')?.touched) {
@@ -48,10 +47,9 @@
             <input
               [class.ng-invalid]="editForm.get('address')?.invalid && editForm.get('address')?.touched"
               autocomplete="off"
-              class="w-full"
+              class="form-control w-full"
               formControlName="address"
               id="field_address"
-              pInputText
               placeholder="Ex: 192.168.1.100"
             />
             @if (editForm.get('address')?.invalid && editForm.get('address')?.touched) {
@@ -69,34 +67,33 @@
             <label for="field_posteNumber">Numéro du Poste</label>
             <input
               autocomplete="off"
-              class="w-full"
+              class="form-control w-full"
               formControlName="posteNumber"
               id="field_posteNumber"
-              pInputText
               placeholder="Ex: P001"
             />
           </div>
         </div>
-      </p-card>
+      </app-card>
 
       <!-- Section 2: Périphériques Série (PosteDevice) -->
       @if (isTauri()) {
-        <p-card>
-          <ng-template #header>
+        <app-card [variant]="'form'">
+          <ng-container ngProjectAs="[cardHeader]">
             <div class="section-header">
               <i class="pi pi-usb"></i>
               <span>Périphériques Série</span>
-              <p-button
-                (click)="refreshPorts()"
+              <app-button
+                (clicked)="refreshPorts()"
                 [loading]="portsLoading()"
                 [text]="true"
                 [rounded]="true"
                 icon="pi pi-refresh"
-                pTooltip="Actualiser la liste des ports"
+                ngbTooltip="Actualiser la liste des ports"
                 size="small"
-              ></p-button>
+              />
             </div>
-          </ng-template>
+          </ng-container>
 
           <!-- Devices configurés -->
           @if (devices().length > 0) {
@@ -105,54 +102,54 @@
               <div class="flex flex-column gap-2">
                 @for (device of devices(); track (device.id ?? (device.portName + '_' + device.deviceType))) {
                   <div class="flex align-items-center gap-2 p-2 border-round" style="background: var(--surface-ground);">
-                    <p-tag [value]="device.deviceType!" [severity]="device.active ? 'success' : 'secondary'" />
+                    <app-badge [label]="device.deviceType!" [severity]="device.active ? 'success' : 'secondary'" />
                     <span class="font-mono text-sm">{{ device.portName }}</span>
                     <span class="text-sm text-secondary">{{ device.label ?? device.productName ?? '' }}</span>
                     @if (device.active) {
-                      <i class="pi pi-check-circle text-green-500 ml-auto" pTooltip="Actif"></i>
+                      <i class="pi pi-check-circle text-green-500 ml-auto" ngbTooltip="Actif"></i>
                     } @else {
-                      <p-button
+                      <app-button
                         class="ml-auto"
                         icon="pi pi-bolt"
                         severity="secondary"
                         size="small"
                         [text]="true"
                         [rounded]="true"
-                        pTooltip="Activer"
-                        (click)="activateDevice(device)"
-                      ></p-button>
+                        ngbTooltip="Activer"
+                        (clicked)="activateDevice(device)"
+                      />
                     }
                     @if (device.deviceType === 'SCANNER') {
-                      <p-button
+                      <app-button
                         icon="pi pi-qrcode"
                         severity="info"
                         size="small"
                         [text]="true"
                         [rounded]="true"
-                        pTooltip="Tester le scanner"
-                        (click)="testScanner(device.portName!, device.baudRate ?? 9600)"
-                      ></p-button>
+                        ngbTooltip="Tester le scanner"
+                        (clicked)="testScanner(device.portName!, device.baudRate ?? 9600)"
+                      />
                     }
                     @if (device.deviceType === 'DISPLAY') {
-                      <p-button
+                      <app-button
                         icon="pi pi-desktop"
                         severity="info"
                         size="small"
                         [text]="true"
                         [rounded]="true"
-                        pTooltip="Tester l'afficheur"
-                        (click)="testDisplay(device.portName!)"
-                      ></p-button>
+                        ngbTooltip="Tester l'afficheur"
+                        (clicked)="testDisplay(device.portName!)"
+                      />
                     }
-                    <p-button
+                    <app-button
                       icon="pi pi-trash"
                       severity="danger"
                       size="small"
                       [text]="true"
                       [rounded]="true"
-                      pTooltip="Supprimer"
-                      (click)="deleteDevice(device)"
-                    ></p-button>
+                      ngbTooltip="Supprimer"
+                      (clicked)="deleteDevice(device)"
+                    />
                   </div>
                 }
               </div>
@@ -163,19 +160,19 @@
           @if (scannerTestResult() !== 'idle' || displayTestResult() !== 'idle') {
             <div class="mb-3">
               @if (scannerTestResult() === 'waiting') {
-                <p-tag severity="warn" value="⏳ Scannez un produit..." />
+                <app-badge severity="warn" label="⏳ Scannez un produit..." />
               }
               @if (scannerTestResult() === 'ok') {
-                <p-tag severity="success" value="✅ Scanner OK" />
+                <app-badge severity="success" label="✅ Scanner OK" />
               }
               @if (scannerTestResult() === 'error') {
-                <p-tag severity="danger" [value]="'❌ ' + (scannerErrorMessage() || 'Aucun scan reçu (5s)')" />
+                <app-badge severity="danger" [label]="'❌ ' + (scannerErrorMessage() || 'Aucun scan reçu (5s)')" />
               }
               @if (displayTestResult() === 'ok') {
-                <p-tag severity="success" value="✅ Afficheur Connecté" class="ml-2" />
+                <app-badge severity="success" label="✅ Afficheur Connecté" class="ml-2" />
               }
               @if (displayTestResult() === 'error') {
-                <p-tag severity="danger" value="❌ Erreur afficheur" class="ml-2" />
+                <app-badge severity="danger" label="❌ Erreur afficheur" class="ml-2" />
               }
             </div>
           }
@@ -191,19 +188,19 @@
                   <span class="font-mono text-sm font-bold mr-2">{{ port.portName }}</span>
                   <span class="text-xs text-secondary">{{ port.product ?? port.manufacturer ?? '' }}</span>
                   @if (port.suggestedRole) {
-                    <p-tag [value]="roleLabel(port.suggestedRole)" severity="info" />
+                    <app-badge [label]="roleLabel(port.suggestedRole)" severity="info" />
                   }
                   @if (port.genericAdapter) {
-                    <p-tag value="Adaptateur" severity="warn" />
+                    <app-badge label="Adaptateur" severity="warn" />
                   }
                   <div class="ml-auto">
-                    <p-select
-                      [options]="deviceTypeOptions"
-                      (onShow)="onDropdownShow($event)"
-                      (onHide)="onDropdownHide($event)"
+                    <app-select
+                      [items]="deviceTypeOptions"
+                      bindLabel="label"
+                      bindValue="value"
                       placeholder="Assigner"
-                      (onChange)="addDevice(port, $event.value)"
-                      [fluid]="true"
+                      (selectionChange)="addDevice(port, $event)"
+                      appendTo="body"
                     />
                   </div>
                 </div>
@@ -226,15 +223,14 @@
               </p>
             </div>
           }
-        </p-card>
+        </app-card>
       }
     </div>
   </div>
 
   <div class="form-actions-compact">
-    <p-button icon="pi pi-times" label="Annuler" severity="secondary" type="button" (click)="cancel()"></p-button>
-    <p-button label="Enregistrer" severity="primary" type="submit" [disabled]="editForm.invalid" [loading]="isSaving"></p-button>
+    <app-button icon="pi pi-times" label="Annuler" severity="secondary" type="button" (clicked)="cancel()" />
+    <app-button label="Enregistrer" severity="primary" type="submit" [disabled]="editForm.invalid" [loading]="isSaving" />
   </div>
 </form>
 
-<p-toast position="center"></p-toast>

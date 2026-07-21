@@ -1,13 +1,11 @@
 import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
-import { CommonModule, DatePipe, DecimalPipe } from "@angular/common";
+import { CommonModule, DecimalPipe } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonModule } from "primeng/button";
-import { TagModule } from "primeng/tag";
-import { SelectModule } from "primeng/select";
-import { TextareaModule } from "primeng/textarea";
-import { DatePicker } from "primeng/datepicker";
-import { TableModule } from "primeng/table";
+import type { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
+import { ButtonComponent, DataTableComponent, SelectComponent } from "app/shared/ui";
+import { PharmaDatePickerComponent } from "app/shared/date-picker/pharma-date-picker.component";
+import { NGB_DATE_TO_ISO, TODAY_NGB_DATE } from "app/shared/util/warehouse-util";
 import { SuggestionLigneEnrichie } from "../../data-access/suggestion-enrichie.model";
 import { TypeCommande } from "app/shared/model/pharmaml.model";
 import { CommanderModalResult } from "../../data-access/suggestion-commander.model";
@@ -21,13 +19,11 @@ export { CommanderModalResult } from "../../data-access/suggestion-commander.mod
   selector: "app-suggestion-commander-modal",
   templateUrl: "./suggestion-commander-modal.component.html",
   styleUrls: ["./suggestion-commander-modal.scss"],
-  providers: [DatePipe],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, ButtonModule, TagModule, SelectModule, TextareaModule, DatePicker, DecimalPipe, FournisseurSelectComponent, TableModule]
+  imports: [CommonModule, FormsModule, ButtonComponent, SelectComponent, PharmaDatePickerComponent, DecimalPipe, FournisseurSelectComponent, DataTableComponent]
 })
 export class SuggestionCommanderModalComponent implements OnInit {
   private readonly activeModal = inject(NgbActiveModal);
-  private readonly datePipe = inject(DatePipe);
   private readonly fournisseurApi = inject(FournisseurApiService);
 
   // ─── Propriétés injectées via componentInstance ──────────────────────────
@@ -41,7 +37,7 @@ export class SuggestionCommanderModalComponent implements OnInit {
   readonly modeCommande = signal<"INTERNE" | "PHARMAML">("INTERNE");
   readonly pharmamlTypeCommande = signal<TypeCommande>("NORMALE");
   readonly pharmamlCommentaire = signal("");
-  readonly pharmamlDateLivraison = signal<Date | null>(null);
+  readonly pharmamlDateLivraison = signal<NgbDateStruct | null>(null);
   readonly selectedFournisseur = signal<IFournisseur | null>(null);
   /** Agences du fournisseur principal (vide si fournisseur sans agences). */
   readonly agences = signal<IFournisseur[]>([]);
@@ -51,7 +47,7 @@ export class SuggestionCommanderModalComponent implements OnInit {
   /** Commande possible uniquement si pas d'agences OU un fournisseur/agence est sélectionné. */
   readonly canConfirm = computed(() => !this.hasAgences() || this.selectedFournisseur() != null);
 
-  readonly minDate = new Date();
+  readonly minDate = TODAY_NGB_DATE();
 
   readonly typeCommandeOptions = [
     { label: "Normale", value: "NORMALE" as TypeCommande },
@@ -98,11 +94,10 @@ export class SuggestionCommanderModalComponent implements OnInit {
       fournisseurLibelle: this.selectedFournisseurLibelle
     };
     if (this.modeCommande() === "PHARMAML") {
-      const date = this.pharmamlDateLivraison();
       result.pharmamlParams = {
         typeCommande: this.pharmamlTypeCommande(),
         commentaire: this.pharmamlCommentaire() || undefined,
-        dateLivraisonSouhaitee: date ? (this.datePipe.transform(date, "yyyy-MM-dd") ?? undefined) : undefined
+        dateLivraisonSouhaitee: NGB_DATE_TO_ISO(this.pharmamlDateLivraison()) ?? undefined
       };
     }
     this.activeModal.close(result);

@@ -1,27 +1,40 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
-import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
-import { combineLatest, Subject } from "rxjs";
-import { debounceTime, distinctUntilChanged, startWith } from "rxjs/operators";
-import { FormsModule } from "@angular/forms";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { SuggestionService } from "../../../../entities/commande/suggestion/suggestion.service";
-import { Suggestion } from "../../../../entities/commande/suggestion/model/suggestion.model";
-import { SuggestionLine } from "../../../../entities/commande/suggestion/model/suggestion-line.model";
-import { EtaProduitComponent } from "../../../../shared/eta-produit/eta-produit.component";
-import { CommandeService } from "../../../../entities/commande/commande.service";
-import { CommandeId } from "../../../../shared/model/abstract-commande.model";
-import { NotificationService } from "../../../../shared/services/notification.service";
-import { ErrorService } from "../../../../shared/error.service";
-import { IFournisseur } from "../../../../shared/model/fournisseur.model";
-import { ButtonModule } from "primeng/button";
-import { TableModule } from "primeng/table";
-import { TagModule } from "primeng/tag";
-import { TooltipModule } from "primeng/tooltip";
-import { CommonModule } from "@angular/common";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
-import { InputTextModule } from "primeng/inputtext";
-import { FournisseurSelectComponent } from "../../../partners/ui/fournisseur-select/fournisseur-select.component";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal
+} from "@angular/core";
+import {takeUntilDestroyed, toObservable} from "@angular/core/rxjs-interop";
+import {combineLatest, Subject} from "rxjs";
+import {debounceTime, distinctUntilChanged, startWith} from "rxjs/operators";
+import {FormsModule} from "@angular/forms";
+import {NgbActiveModal, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
+import {SuggestionService} from "../../../../entities/commande/suggestion/suggestion.service";
+import {Suggestion} from "../../../../entities/commande/suggestion/model/suggestion.model";
+import {SuggestionLine} from "../../../../entities/commande/suggestion/model/suggestion-line.model";
+import {EtaProduitComponent} from "../../../../shared/eta-produit/eta-produit.component";
+import {CommandeService} from "../../../../entities/commande/commande.service";
+import {CommandeId} from "../../../../shared/model/abstract-commande.model";
+import {NotificationService} from "../../../../shared/services/notification.service";
+import {ErrorService} from "../../../../shared/error.service";
+import {IFournisseur} from "../../../../shared/model/fournisseur.model";
+import {CommonModule} from "@angular/common";
+import {
+  FournisseurSelectComponent
+} from "../../../partners/ui/fournisseur-select/fournisseur-select.component";
+import {
+  BadgeComponent,
+  ButtonComponent,
+  CardComponent,
+  DataTableComponent,
+  HeaderCheckboxComponent,
+  IconFieldComponent,
+  RowCheckboxComponent,
+  RowTogglerDirective,
+} from "app/shared/ui";
 
 @Component({
   selector: "app-import-suggestion-modal",
@@ -31,15 +44,17 @@ import { FournisseurSelectComponent } from "../../../partners/ui/fournisseur-sel
   imports: [
     CommonModule,
     FormsModule,
-    ButtonModule,
-    TableModule,
-    TagModule,
-    TooltipModule,
+    ButtonComponent,
+    DataTableComponent,
+    BadgeComponent,
+    NgbTooltip,
     EtaProduitComponent,
-    IconField,
-    InputIcon,
-    InputTextModule,
-    FournisseurSelectComponent
+    IconFieldComponent,
+    FournisseurSelectComponent,
+    HeaderCheckboxComponent,
+    RowCheckboxComponent,
+    RowTogglerDirective,
+    CardComponent,
   ]
 })
 export class ImportSuggestionModalComponent implements OnInit {
@@ -109,7 +124,9 @@ export class ImportSuggestionModalComponent implements OnInit {
 
   protected onImportSelection(suggestion: Suggestion): void {
     const lineIds = (this.selectedLines()[suggestion.id] ?? []).map(l => l.id!).filter(Boolean);
-    if (lineIds.length === 0) return;
+    if (lineIds.length === 0) {
+      return;
+    }
     this.importingId.set(suggestion.id);
     this.commandeService.importSuggestionLinesIntoCommande(this.commandeId, suggestion.id, lineIds).subscribe({
       next: () => {
@@ -124,7 +141,7 @@ export class ImportSuggestionModalComponent implements OnInit {
   }
 
   protected onSelectionChange(suggestionId: number, lines: SuggestionLine[]): void {
-    this.selectedLines.update(prev => ({ ...prev, [suggestionId]: lines }));
+    this.selectedLines.update(prev => ({...prev, [suggestionId]: lines}));
   }
 
   protected isLineSelected(suggestionId: number, lineId: number): boolean {
@@ -135,9 +152,11 @@ export class ImportSuggestionModalComponent implements OnInit {
     return this.selectedLines()[suggestion.id]?.length ?? 0;
   }
 
-  protected onRowExpand(event: { data: Suggestion }): void {
-    const id = event.data.id;
-    if (this.linesCache[id]) return;
+  protected onRowExpand(suggestion: Suggestion): void {
+    const id = suggestion.id;
+    if (this.linesCache[id]) {
+      return;
+    }
     this.loadingLines[id] = true;
     this.suggestionService.queryAllLines(id).subscribe({
       next: lines => {
@@ -157,7 +176,9 @@ export class ImportSuggestionModalComponent implements OnInit {
   protected filteredLinesOf(suggestion: Suggestion): SuggestionLine[] {
     const lines = this.linesCache[suggestion.id] ?? [];
     const term = (this.detailSearchTerms()[suggestion.id] ?? "").trim().toLowerCase();
-    if (!term) return lines;
+    if (!term) {
+      return lines;
+    }
     return lines.filter(l =>
       l.fournisseurProduitCip?.toLowerCase().includes(term) ||
       l.fournisseurProduitLibelle?.toLowerCase().includes(term) ||
@@ -170,7 +191,7 @@ export class ImportSuggestionModalComponent implements OnInit {
   }
 
   protected onDetailSearch(suggestionId: number, value: string): void {
-    this.detailSearchTerms.update(prev => ({ ...prev, [suggestionId]: value }));
+    this.detailSearchTerms.update(prev => ({...prev, [suggestionId]: value}));
   }
 
   protected isLoadingLines(suggestion: Suggestion): boolean {
@@ -196,9 +217,13 @@ export class ImportSuggestionModalComponent implements OnInit {
 
   private loadSuggestions(search = "", fournisseurIds: number[] = []): void {
     this.loading.set(true);
-    const params: any = { page: 0, size: 999, statut: ["GENEREE", "VALIDEE"] };
-    if (search) params["search"] = search;
-    if (fournisseurIds.length > 0) params["fournisseurIds"] = fournisseurIds;
+    const params: any = {page: 0, size: 999, statut: ["GENEREE", "VALIDEE"]};
+    if (search) {
+      params["search"] = search;
+    }
+    if (fournisseurIds.length > 0) {
+      params["fournisseurIds"] = fournisseurIds;
+    }
     this.suggestionService.query(params).subscribe({
       next: res => {
         this.suggestions.set(res.body ?? []);

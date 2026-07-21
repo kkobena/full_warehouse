@@ -1,12 +1,12 @@
-<p-button
-  [raised]="raised()"
-  (click)="onClick()"
+<app-button
+  (clicked)="onClick()"
+  [buttonClass]="class() ?? ''"
   [disabled]="disabled()"
-  [icon]="icon()"
+  [icon]="icon() ?? ''"
   [label]="labelValue"
+  [ngbTooltip]="tooltipValue"
+  [raised]="raised()"
   [rounded]="rounded()"
-  [text]="isText()"
   [severity]="severity()"
-  [class]="class()"
-  [pTooltip]="tooltipValue"
-></p-button>
+  [text]="isText()"
+/>

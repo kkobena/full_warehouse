@@ -1,51 +1,37 @@
-<!-- ─── KPI Row ────────────────────────────────────────────────────────────── -->
-<div class="row kpi-row mt-2 mb-1">
+<!-- ─── KPI ────────────────────────────────────────────────────────────────── -->
+<app-kpi-strip [loading]="loadingEncours()" [skeletonCount]="3" stripClass="mt-2 mb-1">
+  <app-kpi-item
+    [accent]="'warning'"
+    [value]="getTotalEncours() | number: '1.0-0'"
+    icon="pi pi-wallet"
+    iconClass="text-warning"
+    label="Total encours"
+    suffix="CFA"
+    valueClass="text-warning"
+  />
 
-  <div class="col-12 col-md-4 mb-2">
-    <div class="card kpi-card kpi-card-compact warning-accent">
-      <div class="card-body">
-        <div class="d-flex align-items-center gap-3">
-          <div class="kpi-icon-sm text-warning"><i class="pi pi-wallet"></i></div>
-          <div>
-            <p class="kpi-label mb-0">Total encours</p>
-            <span class="kpi-value-sm text-warning">{{ getTotalEncours() | number:'1.0-0' }} CFA</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <app-kpi-item
+    [accent]="'primary'"
+    [value]="encours().length"
+    icon="pi pi-building"
+    iconClass="text-primary"
+    label="Fournisseurs en attente"
+    valueClass="text-primary"
+  />
 
-  <div class="col-12 col-md-4 mb-2">
-    <div class="card kpi-card kpi-card-compact primary-accent">
-      <div class="card-body">
-        <div class="d-flex align-items-center gap-3">
-          <div class="kpi-icon-sm text-primary"><i class="pi pi-building"></i></div>
-          <div>
-            <p class="kpi-label mb-0">Fournisseurs en attente</p>
-            <span class="kpi-value-sm text-primary">{{ encours().length }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
+  <!-- Le troisième indicateur ne concerne que le fournisseur sélectionné. -->
   @if (selectedFournisseurId()) {
-    <div class="col-12 col-md-4 mb-2">
-      <div class="card kpi-card kpi-card-compact info-accent">
-        <div class="card-body">
-          <div class="d-flex align-items-center gap-3">
-            <div class="kpi-icon-sm text-info"><i class="pi pi-receipt"></i></div>
-            <div>
-              <p class="kpi-label mb-0">{{ selectedFournisseurLibelle() }}</p>
-              <span class="kpi-value-sm text-info">{{ getTotalAvoirsDetail() | number:'1.0-0' }} CFA</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <app-kpi-item
+      [accent]="'info'"
+      [label]="selectedFournisseurLibelle()"
+      [value]="getTotalAvoirsDetail() | number: '1.0-0'"
+      icon="pi pi-receipt"
+      iconClass="text-info"
+      suffix="CFA"
+      valueClass="text-info"
+    />
   }
-
-</div>
+</app-kpi-strip>
 
 <div class="ae-layout">
 
@@ -56,8 +42,8 @@
       <span>EN ATTENTE</span>
     </div>
 
-    <p-table [value]="encours()" [loading]="loadingEncours()" [rows]="15"
-             [paginator]="encours().length > 15" class="ps-datatable-sm">
+    <app-data-table [value]="encours()" [loading]="loadingEncours()" [rows]="15"
+             [paginator]="encours().length > 15" [size]="'small'">
       <ng-template #header>
         <tr class="pharma-table-head">
           <th>Fournisseur</th>
@@ -70,9 +56,9 @@
           <td class="pharma-product-name">{{ row.fournisseurLibelle }}</td>
           <td class="text-right pharma-price">{{ row.montantEncours | number:'1.0-0' }}</td>
           <td>
-            <p-button icon="pi pi-list" size="small" severity="info" [text]="true"
-                      pTooltip="Voir les avoirs" tooltipPosition="left"
-                      (onClick)="selectFournisseur(row)" />
+            <app-button icon="pi pi-list" size="small" severity="info" [text]="true"
+                      ariaLabel="Voir les avoirs" ngbTooltip="Voir les avoirs" placement="left"
+                      (clicked)="selectFournisseur(row)" />
           </td>
         </tr>
       </ng-template>
@@ -86,7 +72,7 @@
           </td>
         </tr>
       </ng-template>
-    </p-table>
+    </app-data-table>
   </div>
 
   <!-- ─── Panneau droit : détail avoirs du fournisseur sélectionné ──────── -->
@@ -96,20 +82,21 @@
         <i class="pi pi-receipt"></i>
         <span>{{ selectedFournisseurLibelle() }}</span>
         <div class="ae-detail-filters">
-          <p-select
+          <app-select
+            (selectionChange)="onDetailStatutChange()"
             [(ngModel)]="detailStatut"
-            (onChange)="onDetailStatutChange()"
-            [options]="statutOptions"
-            optionLabel="label"
-            optionValue="value"
+            [clearable]="false"
+            [items]="statutOptions"
             appendTo="body"
+            bindLabel="label"
+            bindValue="value"
             placeholder="Statut"
           />
         </div>
       </div>
 
-      <p-table [value]="avoirs()" [loading]="loadingDetail()" [rows]="20"
-               [paginator]="avoirs().length > 20" class="ps-datatable-sm">
+      <app-data-table [value]="avoirs()" [loading]="loadingDetail()" [rows]="20"
+               [paginator]="avoirs().length > 20" [size]="'small'">
         <ng-template #header>
           <tr class="pharma-table-head">
             <th>Référence avoir</th>
@@ -130,15 +117,15 @@
             <td>
               @if (avoir.statut === 'EN_ATTENTE') {
                 <div class="pharma-action-buttons">
-                  <p-button icon="pi pi-check" size="small" severity="success" [text]="true"
-                            pTooltip="Marquer remboursé" tooltipPosition="top"
-                            (onClick)="confirmUpdateStatut(avoir, 'REMBOURSE')" />
-                  <p-button icon="pi pi-arrow-right-arrow-left" size="small" severity="info" [text]="true"
-                            pTooltip="Marquer imputé" tooltipPosition="top"
-                            (onClick)="confirmUpdateStatut(avoir, 'IMPUTE')" />
-                  <p-button icon="pi pi-ban" size="small" severity="danger" [text]="true"
-                            pTooltip="Annuler l'avoir" tooltipPosition="top"
-                            (onClick)="confirmAnnuler(avoir)" />
+                  <app-button icon="pi pi-check" size="small" severity="success" [text]="true"
+                            ariaLabel="Marquer remboursé" ngbTooltip="Marquer remboursé" placement="top"
+                            (clicked)="confirmUpdateStatut(avoir, 'REMBOURSE')" />
+                  <app-button icon="pi pi-arrow-right-arrow-left" size="small" severity="info" [text]="true"
+                            ariaLabel="Marquer imputé" ngbTooltip="Marquer imputé" placement="top"
+                            (clicked)="confirmUpdateStatut(avoir, 'IMPUTE')" />
+                  <app-button icon="pi pi-ban" size="small" severity="danger" [text]="true"
+                            ariaLabel="Annuler l'avoir" ngbTooltip="Annuler l'avoir" placement="top"
+                            (clicked)="confirmAnnuler(avoir)" />
                 </div>
               }
             </td>
@@ -165,7 +152,7 @@
             </tr>
           }
         </ng-template>
-      </p-table>
+      </app-data-table>
     } @else {
       <div class="ae-empty-state">
         <i class="pi pi-arrow-left"></i>

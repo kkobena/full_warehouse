@@ -1,25 +1,17 @@
-<div class="pharma-toolbar">
-  <div class="pharma-toolbar-header">
-    <i class="pi pi-th-large"></i>
-    <span>Tableau de bord</span>
-  </div>
-  <p-toolbar>
-    <ng-template #end>
-      <div class="pharma-toolbar-actions">
-        <div class="pharma-button-group">
-          <p-button
-            (click)="refresh()"
-            [loading]="loading()"
-            icon="pi pi-refresh"
-            label="Rafraîchir"
-            severity="info"
-            size="small"
-          />
-        </div>
-      </div>
-    </ng-template>
-  </p-toolbar>
-</div>
+<app-toolbar icon="pi pi-th-large" title="Tableau de bord">
+  <ng-container ngProjectAs="[toolbarActions]">
+    <div class="pharma-button-group">
+      <app-button
+        (clicked)="refresh()"
+        [loading]="loading()"
+        icon="pi pi-refresh"
+        label="Rafraîchir"
+        severity="info"
+        size="small"
+      />
+    </div>
+  </ng-container>
+</app-toolbar>
 
 @if (loading()) {
   <div class="row mt-2">
@@ -27,8 +19,8 @@
       <div class="col-12 col-md-4 mb-2">
         <div class="card h-100">
           <div class="card-body">
-            <p-skeleton height="2rem" class="mb-2" />
-            <p-skeleton height="3rem" />
+            <app-skeleton height="2rem" class="mb-2" />
+            <app-skeleton height="3rem" />
           </div>
         </div>
       </div>
@@ -37,49 +29,32 @@
 } @else if (dashboard(); as db) {
 
   <!-- KPI Cards -->
-  <div class="row mt-2 kpi-row">
-    <div class="col-12 col-md-4 mb-2">
-      <div class="card kpi-card kpi-card-compact primary-accent">
-        <div class="card-body">
-          <div class="d-flex align-items-center gap-3">
-            <div class="kpi-icon-sm text-primary"><i class="pi pi-file-edit"></i></div>
-            <div>
-              <p class="kpi-label mb-0">Commandes en cours</p>
-              <span class="kpi-value-sm text-primary">{{ db.totalRequested }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-12 col-md-4 mb-2">
-      <div class="card kpi-card kpi-card-compact warning-accent">
-        <div class="card-body">
-          <div class="d-flex align-items-center gap-3">
-            <div class="kpi-icon-sm text-warning"><i class="pi pi-truck"></i></div>
-            <div>
-              <p class="kpi-label mb-0">À réceptionner</p>
-              <span class="kpi-value-sm text-warning">{{ db.totalReceived }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-12 col-md-4 mb-2">
-      <div class="card kpi-card kpi-card-compact success-accent">
-        <div class="card-body">
-          <div class="d-flex align-items-center gap-3">
-            <div class="kpi-icon-sm text-success"><i class="pi pi-send"></i></div>
-            <div>
-              <p class="kpi-label mb-0">PharmaML en attente</p>
-              <span class="kpi-value-sm text-success">{{ db.totalPharmamlPending }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <app-kpi-strip stripClass="mt-2 mb-2">
+    <app-kpi-item
+      [accent]="'primary'"
+      [value]="db.totalRequested"
+      icon="pi pi-file-edit"
+      iconClass="text-primary"
+      label="Commandes en cours"
+      valueClass="text-primary"
+    />
+    <app-kpi-item
+      [accent]="'warning'"
+      [value]="db.totalReceived"
+      icon="pi pi-truck"
+      iconClass="text-warning"
+      label="À réceptionner"
+      valueClass="text-warning"
+    />
+    <app-kpi-item
+      [accent]="'success'"
+      [value]="db.totalPharmamlPending"
+      icon="pi pi-send"
+      iconClass="text-success"
+      label="PharmaML en attente"
+      valueClass="text-success"
+    />
+  </app-kpi-strip>
 
   <!-- Data panels -->
   <div class="row mt-2">
@@ -92,15 +67,14 @@
             <i class="pi pi-file-edit text-primary"></i>
             Commandes en cours
           </h5>
-          <p-tag [value]="db.totalRequested.toString()" severity="info" />
+          <app-badge [label]="db.totalRequested.toString()" severity="info" />
         </div>
         <div class="card-body p-0">
-          <p-table
+          <app-data-table
             [value]="db.commandesRequested"
             [rows]="10"
             [paginator]="db.commandesRequested.length > 10"
             class="pharma-table"
-            [rowHover]="true"
           >
             <ng-template #header>
               <tr class="pharma-table-head">
@@ -111,24 +85,24 @@
               </tr>
             </ng-template>
             <ng-template #body let-row>
-              <tr class="cursor-pointer" (click)="openCommande(row)">
+              <tr class="cursor-pointer pharma-row-hover" (click)="openCommande(row)">
                 <td>
                   <span class="fw-medium">{{ row.fournisseurLibelle }}</span>
                   @if (row.reliquatDeCommandeId != null) {
-                    <p-tag value="RELIQUAT" severity="warn" class="ms-1 tag-xs" />
+                    <app-badge label="RELIQUAT" severity="warn" class="ms-1 tag-xs" />
                   }
                 </td>
                 <td class="text-end pharma-price">{{ formatAmount(row.grossAmount) }} F</td>
                 <td class="text-center text-muted small">{{ row.orderDate | date: 'dd/MM/yy' }}</td>
                 <td class="text-end">
-                  <p-button icon="pi pi-arrow-right" size="small" [text]="true" severity="info" (onClick)="openCommande(row)" />
+                  <app-button icon="pi pi-arrow-right" size="small" [text]="true" severity="info" (clicked)="openCommande(row)" />
                 </td>
               </tr>
             </ng-template>
             <ng-template #emptymessage>
               <tr><td colspan="4" class="text-center text-muted py-3">Aucune commande en cours</td></tr>
             </ng-template>
-          </p-table>
+          </app-data-table>
         </div>
       </div>
     </div>
@@ -141,15 +115,14 @@
             <i class="pi pi-truck text-warning"></i>
             En attente de réception
           </h5>
-          <p-tag [value]="db.totalReceived.toString()" severity="warn" />
+          <app-badge [label]="db.totalReceived.toString()" severity="warn" />
         </div>
         <div class="card-body p-0">
-          <p-table
+          <app-data-table
             [value]="db.commandesReceived"
             [rows]="10"
             [paginator]="db.commandesReceived.length > 10"
             class="pharma-table"
-            [rowHover]="true"
           >
             <ng-template #header>
               <tr class="pharma-table-head">
@@ -160,19 +133,19 @@
               </tr>
             </ng-template>
             <ng-template #body let-row>
-              <tr class="cursor-pointer" (click)="openCommande(row)">
+              <tr class="cursor-pointer pharma-row-hover" (click)="openCommande(row)">
                 <td>{{ row.fournisseurLibelle }}</td>
                 <td class="text-muted small">{{ row.orderReference ?? '—' }}</td>
                 <td class="text-center text-muted small">{{ row.orderDate | date: 'dd/MM/yy' }}</td>
                 <td class="text-end">
-                  <p-button icon="pi pi-arrow-right" size="small" [text]="true" severity="warn" (onClick)="openCommande(row)" />
+                  <app-button icon="pi pi-arrow-right" size="small" [text]="true" severity="warn" (clicked)="openCommande(row)" />
                 </td>
               </tr>
             </ng-template>
             <ng-template #emptymessage>
               <tr><td colspan="4" class="text-center text-muted py-3">Aucune réception en attente</td></tr>
             </ng-template>
-          </p-table>
+          </app-data-table>
         </div>
       </div>
     </div>
@@ -185,15 +158,14 @@
             <i class="pi pi-send text-success"></i>
             PharmaML — En attente
           </h5>
-          <p-tag [value]="db.totalPharmamlPending.toString()" severity="secondary" />
+          <app-badge [label]="db.totalPharmamlPending.toString()" severity="secondary" />
         </div>
         <div class="card-body p-0">
-          <p-table
+          <app-data-table
             [value]="db.envoisPending"
             [rows]="10"
             [paginator]="db.envoisPending.length > 10"
             class="pharma-table"
-            [rowHover]="true"
           >
             <ng-template #header>
               <tr class="pharma-table-head">
@@ -204,21 +176,21 @@
               </tr>
             </ng-template>
             <ng-template #body let-row>
-              <tr class="cursor-pointer" (click)="openCommandeFromEnvoi(row)">
+              <tr class="cursor-pointer pharma-row-hover" (click)="openCommandeFromEnvoi(row)">
                 <td>{{ row.fournisseurLibelle }}</td>
                 <td class="text-center">
-                  <p-tag [value]="row.statut" [severity]="pharmamlSeverity(row.statut)" />
+                  <app-badge [label]="row.statut" [severity]="pharmamlSeverity(row.statut)" />
                 </td>
                 <td class="text-center text-muted small">{{ row.createdAt | date: 'dd/MM HH:mm' }}</td>
                 <td class="text-end">
-                  <p-button icon="pi pi-arrow-right" size="small" [text]="true" severity="secondary" (onClick)="openCommandeFromEnvoi(row)" />
+                  <app-button icon="pi pi-arrow-right" size="small" [text]="true" severity="secondary" (clicked)="openCommandeFromEnvoi(row)" />
                 </td>
               </tr>
             </ng-template>
             <ng-template #emptymessage>
               <tr><td colspan="4" class="text-center text-muted py-3">Aucun envoi en attente</td></tr>
             </ng-template>
-          </p-table>
+          </app-data-table>
         </div>
       </div>
     </div>

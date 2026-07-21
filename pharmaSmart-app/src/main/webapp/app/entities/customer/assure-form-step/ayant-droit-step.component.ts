@@ -1,28 +1,24 @@
 import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { Customer, ICustomer } from '../../../shared/model/customer.model';
-import { InputMaskModule } from 'primeng/inputmask';
-import { InputTextModule } from 'primeng/inputtext';
-import { KeyFilterModule } from 'primeng/keyfilter';
-import { RadioButtonModule } from 'primeng/radiobutton';
 import TranslateDirective from '../../../shared/language/translate.directive';
-import { CardModule } from 'primeng/card';
 import { AssureFormStepService } from './assure-form-step.service';
-import { DividerModule } from 'primeng/divider';
 import { DateNaissDirective } from '../../../shared/date-naiss.directive';
+import {
+  CardComponent,
+  KeyFilterDirective,
+  RadioComponent
+} from '../../../shared/ui';
 
 @Component({
   selector: 'jhi-ayant-droit-step',
   imports: [
-    InputMaskModule,
-    InputTextModule,
-    KeyFilterModule,
-    RadioButtonModule,
     ReactiveFormsModule,
     TranslateDirective,
-    CardModule,
-    DividerModule,
     DateNaissDirective,
+    CardComponent,
+    KeyFilterDirective,
+    RadioComponent
   ],
   templateUrl: './ayant-droit-step.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

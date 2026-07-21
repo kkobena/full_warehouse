@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, forwardRef, input, viewChild, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, forwardRef, input, output, viewChild, ViewEncapsulation } from '@angular/core';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { NgbDateParserFormatter, NgbDatepickerModule, NgbDateStruct, NgbInputDatepicker } from '@ng-bootstrap/ng-bootstrap';
 import { FrenchDateParserFormatter } from '../../config/french-date-parser-formatter';
@@ -15,6 +15,18 @@ import { FrenchDateParserFormatter } from '../../config/french-date-parser-forma
  * />
  * ```
  * Le modèle lié est de type `NgbDateStruct | null`.
+ *
+ * Saisie clavier : l'utilisateur peut taper directement "jj/mm/aaaa" ou "jjmmaaaa" (8 chiffres,
+ * sans séparateur) — la valeur est reformatée automatiquement en "jj/mm/aaaa" dès qu'elle forme
+ * une date valide (jour/mois/année cohérents), sans attendre de perdre le focus.
+ *
+ * Pour réagir au changement (ex. relancer une recherche), préférer `(selectionChange)` à
+ * `(ngModelChange)` : combiné à `[(ngModel)]` sur le même élément, l'ordre d'écriture des deux
+ * attributs déciderait lequel s'exécute en premier — un outil de formatage qui replace
+ * `(ngModelChange)` avant `[(ngModel)]` le ferait lire l'ANCIENNE valeur. `(selectionChange)`
+ * s'émet après la mise à jour du modèle, donc toujours à l'abri de ce piège.
+ * @example
+ * <pharma-date-picker id="du" label="Du" [(ngModel)]="fromDate" (selectionChange)="onSearch()" />
  */
 @Component({
   selector: 'pharma-date-picker',
@@ -30,7 +42,7 @@ import { FrenchDateParserFormatter } from '../../config/french-date-parser-forma
   ],
   imports: [NgbDatepickerModule, FormsModule],
   template: `
-    <div class="pharma-dp-wrapper">
+    <div class="pharma-dp-wrapper" [class.pharma-dp-wrapper--inline]="labelPosition() === 'inline'">
       @if (label()) {
         <label class="pharma-dp-label" [for]="id()">
           @if (icon()) {
@@ -41,6 +53,7 @@ import { FrenchDateParserFormatter } from '../../config/french-date-parser-forma
       }
       <div class="input-group input-group-sm">
         <input
+          #dpInput
           class="form-control pharma-dp-input"
           [placeholder]="placeholder()"
           ngbDatepicker
@@ -51,14 +64,15 @@ import { FrenchDateParserFormatter } from '../../config/french-date-parser-forma
           [id]="id()"
           [minDate]="minDate()"
           [maxDate]="maxDate()"
-          [disabled]="isDisabled"
+          [disabled]="isDisabled || disabled()"
           [readonly]="readOnly()"
+          (input)="onManualInput($event)"
         />
         <button
           class="btn pharma-dp-btn"
           type="button"
           (click)="dp.toggle()"
-          [disabled]="isDisabled"
+          [disabled]="isDisabled || disabled()"
           [attr.aria-label]="'Ouvrir le calendrier pour ' + label()"
         >
           <i class="pi pi-calendar"></i>
@@ -95,9 +109,17 @@ export class PharmaDatePickerComponent implements ControlValueAccessor {
   /** Conteneur du popup : 'body' (défaut) pour éviter le clipping, ou null pour positionner dans le DOM */
   readonly container = input<'body' | null>('body');
   /** Rendre l'input en lecture seule (clavier désactivé, sélection par calendrier uniquement) */
-  readonly readOnly = input<boolean>(true);
+  readonly readOnly = input<boolean>(false);
+  /** Désactivation statique, en plus de celle pilotée par `setDisabledState` (`FormControl.disable()`). */
+  readonly disabled = input<boolean>(false);
+  /** Position du label : au-dessus du champ (défaut) ou en ligne, à sa gauche. */
+  readonly labelPosition = input<'top' | 'inline'>('top');
+
+  /** Émis après la mise à jour du modèle — voir la note sur `(ngModelChange)` ci-dessus. */
+  readonly selectionChange = output<NgbDateStruct | null>();
 
   private readonly dpRef = viewChild.required<NgbInputDatepicker>('dp');
+  private readonly dpInputRef = viewChild.required('dpInput', { read: ElementRef<HTMLInputElement> });
 
   protected isDisabled = false;
   private _value: NgbDateStruct | null = null;
@@ -110,6 +132,7 @@ export class PharmaDatePickerComponent implements ControlValueAccessor {
     this._value = v;
     this.onChange(v);
     this.onTouched();
+    this.selectionChange.emit(v);
   }
 
   writeValue(obj: NgbDateStruct | null): void {
@@ -136,6 +159,27 @@ export class PharmaDatePickerComponent implements ControlValueAccessor {
 
   closeCalendar(): void {
     this.dpRef().close();
+  }
+
+  getFocus(): void {
+    setTimeout(() => {
+      this.dpInputRef().nativeElement.focus();
+    }, 100);
+  }
+
+  /**
+   * Reformate immédiatement "jjmmaaaa" → "jj/mm/aaaa" dès que la saisie manuelle (8 chiffres,
+   * sans séparateur) forme une date valide, sans attendre le `blur`.
+   *
+   * `ngbDatepicker` ne reformate le texte affiché que sur l'événement natif `change` (blur) —
+   * on déclenche donc ce même événement dès que le motif est complet ; `FrenchDateParserFormatter`
+   * se charge de la validation (jour/mois/année cohérents) et du parsing réel.
+   */
+  protected onManualInput(event: Event): void {
+    const inputEl = event.target as HTMLInputElement;
+    if (/^\d{8}$/.test(inputEl.value)) {
+      inputEl.dispatchEvent(new Event('change'));
+    }
   }
 
   private onChange: (_: NgbDateStruct | null) => void = () => {};

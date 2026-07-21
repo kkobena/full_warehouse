@@ -6,7 +6,7 @@
 
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
-    <p-card>
+    <app-card [variant]="'form'">
       <div class="form-grid-compact">
         <!-- Product Info -->
         <div class="form-field form-field-full">
@@ -36,7 +36,7 @@
         </div>
         <div class="form-field form-field-full">
           <label for="itemQty">Nombre d'unités par conditionnement<span class="required">*</span></label>
-          <p-input-number #itemQty autocomplete="off" formControlName="itemQty" id="itemQty" name="itemQty"/>
+          <app-input-number #itemQty formControlName="itemQty" [inputId]="'itemQty'"/>
           @if (editForm.get('itemQty')!.invalid && (editForm.get('itemQty')!.dirty || editForm.get('itemQty')!.touched)) {
             <div>
               @if (editForm.get('itemQty')?.errors?.required) {
@@ -52,7 +52,7 @@
         <div class="form-row">
           <div class="form-field">
             <label for="field_costAmount">Prix achat<span class="required">*</span></label>
-            <p-input-number autocomplete="off" formControlName="costAmount" id="field_costAmount" name="costAmount"/>
+            <app-input-number formControlName="costAmount" [inputId]="'field_costAmount'"/>
             @if (editForm.get('costAmount')!.invalid && (editForm.get('costAmount')!.dirty || editForm.get('costAmount')!.touched)) {
               <div>
                 @if (editForm.get('costAmount')?.errors?.required) {
@@ -72,8 +72,7 @@
           <div class="form-field">
             <label for="field_regularUnitPrice">
               Prix unitaire<span class="required">*</span></label>
-            <p-input-number autocomplete="off" formControlName="regularUnitPrice" id="field_regularUnitPrice"
-                            name="regularUnitPrice"/>
+            <app-input-number formControlName="regularUnitPrice" [inputId]="'field_regularUnitPrice'"/>
             @if (editForm.get('regularUnitPrice')!.invalid &&
             (editForm.get('regularUnitPrice')!.dirty || editForm.get('regularUnitPrice')!.touched)) {
               <div>
@@ -94,7 +93,7 @@
         </div>
         <div class="form-field form-field-full">
           <label for="field_libelle">Libellé<span class="required">*</span></label>
-          <input autocomplete="off" formControlName="libelle" id="field_libelle" name="libelle" pInputText type="text"/>
+          <input autocomplete="off" class="form-control" formControlName="libelle" id="field_libelle" name="libelle" type="text"/>
           @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)) {
             <div>
               @if (editForm.get('libelle')?.errors?.required) {
@@ -105,15 +104,15 @@
           }
         </div>
       </div>
-    </p-card>
+    </app-card>
 
 
   </div>
 
   <div class="modal-footer">
-    <p-button (click)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button"/>
+    <app-button (clicked)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button"/>
 
-    <p-button
+    <app-button
       [disabled]="editForm.invalid || isSaving"
       [raised]="true"
       [loading]="isSaving"
@@ -126,4 +125,3 @@
 
   </div>
 </form>
-<jhi-toast-alert #alert></jhi-toast-alert>

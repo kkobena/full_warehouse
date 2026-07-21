@@ -11,44 +11,34 @@
     </div>
   }
 
-  <p-select
-    [options]="availableStorages()"
+  <app-select-search
+    [items]="availableStorages()"
     [ngModel]="selectedStorage()"
     (ngModelChange)="onStorageChange($event)"
-    optionLabel="storageLibelle"
+    bindLabel="storageLibelle"
     placeholder="Sélectionner un stockage..."
-    [showClear]="true"
-    [fluid]="true"
+    [clearable]="true"
     appendTo="body"
-  >
-    <ng-template #option let-s>
-      <div class="raf-storage-option">
-        <i class="pi pi-warehouse"></i>
-        <span>{{ s.storageLibelle }}</span>
-        <span class="raf-storage-type-badge">{{ s.storageType }}</span>
-      </div>
-    </ng-template>
-    <ng-template #selectedItem let-s>
-      <div class="raf-storage-option">
-        <i class="pi pi-warehouse"></i>
-        <span>{{ s.storageLibelle }}</span>
-        <span class="raf-storage-type-badge">{{ s.storageType }}</span>
-      </div>
-    </ng-template>
-  </p-select>
+    [optionTemplate]="storageOption"
+  />
+  <ng-template #storageOption let-s>
+    <div class="raf-storage-option">
+      <i class="pi pi-warehouse"></i>
+      <span>{{ s.storageLibelle }}</span>
+      <span class="raf-storage-type-badge">{{ s.storageType }}</span>
+    </div>
+  </ng-template>
 
   @if (selectedStorage()) {
-    <p-iconfield class="raf-search">
-      <p-inputicon class="pi pi-search" />
+    <app-icon-field icon="pi pi-search" class="raf-search">
       <input
-        pInputText
         type="text"
         placeholder="Rechercher un rayon..."
         [value]="searchText()"
         (input)="onSearchChange($any($event.target).value)"
-        class="w-100"
+        class="form-control w-100"
       />
-    </p-iconfield>
+    </app-icon-field>
 
     @if (loading()) {
       <div class="raf-loading">
@@ -87,22 +77,22 @@
 
 <div class="modal-footer">
   @if (mode === 'move' && !currentRayonIsSans) {
-    <p-button
+    <app-button
       label="Sans emplacement"
       icon="pi pi-map-marker"
       severity="secondary"
       [outlined]="true"
       size="small"
-      pTooltip="Déplacer vers le rayon 'SANS' (produit sans emplacement)"
-      (onClick)="onSansEmplacement()"
+      ngbTooltip="Déplacer vers le rayon 'SANS' (produit sans emplacement)"
+      (clicked)="onSansEmplacement()"
     />
   }
-  <p-button label="Annuler" severity="danger" [outlined]="true" size="small" (onClick)="dismiss()" />
-  <p-button
+  <app-button label="Annuler" severity="danger" [outlined]="true" size="small" (clicked)="dismiss()" />
+  <app-button
     label="Confirmer"
     icon="pi pi-check"
     size="small"
     [disabled]="!selectedRayon()"
-    (onClick)="confirm()"
+    (clicked)="confirm()"
   />
 </div>

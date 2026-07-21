@@ -1,13 +1,14 @@
 import {Component, computed, inject, input, OnDestroy, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {Button} from 'primeng/button';
-import {SplitButton} from 'primeng/splitbutton';
-import {TagModule} from 'primeng/tag';
-import {TableModule} from 'primeng/table';
-import {TooltipModule} from 'primeng/tooltip';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {interval, Subscription, switchMap, takeWhile, tap} from 'rxjs';
-import {MenuItem} from 'primeng/api';
+import {
+  AppSplitButtonItem,
+  BadgeComponent,
+  ButtonComponent,
+  DataTableComponent,
+  SplitButtonComponent,
+} from '../../../../../shared/ui';
 import {
   IInfoProduit,
   IPharmamlCommandeResponse,
@@ -37,7 +38,7 @@ const TERMINAL_STATUTS: PharmaMlStatut[] = ['SUBMITTED', 'PARTIAL', 'REJECTED', 
  */
 @Component({
   selector: 'app-pharmaml-home',
-  imports: [CommonModule, Button, SplitButton, TagModule, TableModule, TooltipModule],
+  imports: [CommonModule, ButtonComponent, SplitButtonComponent, BadgeComponent, DataTableComponent, NgbTooltip],
   templateUrl: './pharmaml-home.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./pharmaml-home.scss'],
@@ -236,11 +237,11 @@ export class PharmamlHomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  private readonly utilsMenuItems = (): MenuItem[] => [
-    {separator: true},
+  private readonly utilsMenuItems = (): AppSplitButtonItem[] => [
     {
       label: 'Vérifier disponibilité',
       icon: 'pi pi-search',
+      separatorBefore: true,
       command: () => this.verifierDisponibilite()
     },
     {
@@ -252,13 +253,13 @@ export class PharmamlHomeComponent implements OnInit, OnDestroy {
   ];
 
   /** Actions du SplitButton en mode REQUESTED */
-  readonly actionsRequested = computed<MenuItem[]>(() => [
+  readonly actionsRequested = computed<AppSplitButtonItem[]>(() => [
     {label: 'Envoyer via PharmaML', icon: 'pi pi-send', command: () => this.openEnvoi()},
     {label: 'Voir réponse', icon: 'pi pi-file', command: () => this.openReponse()},
     ...this.utilsMenuItems(),
   ]);
   /** Actions du SplitButton en mode RECEIVED */
-  readonly actionsReceived = computed<MenuItem[]>(() => [
+  readonly actionsReceived = computed<AppSplitButtonItem[]>(() => [
     {label: 'Voir réponse', icon: 'pi pi-file', command: () => this.openReponse()},
     ...this.utilsMenuItems(),
   ]);

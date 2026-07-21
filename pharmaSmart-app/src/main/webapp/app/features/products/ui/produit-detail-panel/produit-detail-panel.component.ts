@@ -1,21 +1,36 @@
-import { Component, computed, effect, inject, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
-import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
-import { IProduit } from 'app/shared/model/produit.model';
-import { EtaProduitComponent } from 'app/shared/eta-produit/eta-produit.component';
-import { ProductsApiService, ILotPeremption, ILotProduit } from "../../data-access/services/products-api.service";
-import { IProduitIndicateurs } from '../../models/produit-indicateurs.model';
-import { ProduitSyntheseTabComponent } from '../produit-synthese-tab/produit-synthese-tab.component';
-import { ProduitStockTabComponent } from '../produit-stock-tab/produit-stock-tab.component';
-import { ProduitFournisseursTabComponent } from '../produit-fournisseurs-tab/produit-fournisseurs-tab.component';
-import { ProduitMouvementsTabComponent } from '../produit-mouvements-tab/produit-mouvements-tab.component';
-import { ProduitDeconditionsTabComponent } from '../produit-deconditions-tab/produit-deconditions-tab.component';
-import { ProduitVentesTabComponent } from '../produit-ventes-tab/produit-ventes-tab.component';
-import { ProduitAchatsTabComponent } from '../produit-achats-tab/produit-achats-tab.component';
-import { ProduitRayonsTabComponent } from '../produit-rayons-tab/produit-rayons-tab.component';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal
+} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {RouterModule} from '@angular/router';
+import {ButtonModule} from 'primeng/button';
+import {TooltipModule} from 'primeng/tooltip';
+import {NgbNavModule} from '@ng-bootstrap/ng-bootstrap';
+import {IProduit} from 'app/shared/model/produit.model';
+import {EtaProduitComponent} from 'app/shared/eta-produit/eta-produit.component';
+import {ILotProduit, ProductsApiService} from "../../data-access/services/products-api.service";
+import {IProduitIndicateurs} from '../../models/produit-indicateurs.model';
+import {ProduitSyntheseTabComponent} from '../produit-synthese-tab/produit-synthese-tab.component';
+import {ProduitStockTabComponent} from '../produit-stock-tab/produit-stock-tab.component';
+import {
+  ProduitFournisseursTabComponent
+} from '../produit-fournisseurs-tab/produit-fournisseurs-tab.component';
+import {
+  ProduitMouvementsTabComponent
+} from '../produit-mouvements-tab/produit-mouvements-tab.component';
+import {
+  ProduitDeconditionsTabComponent
+} from '../produit-deconditions-tab/produit-deconditions-tab.component';
+import {ProduitVentesTabComponent} from '../produit-ventes-tab/produit-ventes-tab.component';
+import {ProduitAchatsTabComponent} from '../produit-achats-tab/produit-achats-tab.component';
+import {ProduitRayonsTabComponent} from '../produit-rayons-tab/produit-rayons-tab.component';
 
 @Component({
   selector: 'app-produit-detail-panel',
@@ -66,7 +81,9 @@ export class ProduitDetailPanelComponent {
   constructor() {
     effect(() => {
       const p = this.produit();
-      if (!p?.id) return;
+      if (!p?.id) {
+        return;
+      }
 
       const isNewProduit = p.id !== this.currentProduitId;
       this.currentProduitId = p.id;
@@ -98,7 +115,9 @@ export class ProduitDetailPanelComponent {
 
   protected onRefreshRequested(): void {
     const id = this.produit().id;
-    if (!id) return;
+    if (!id) {
+      return;
+    }
     this.loadFull(id);
     this.loadLots(id);
   }

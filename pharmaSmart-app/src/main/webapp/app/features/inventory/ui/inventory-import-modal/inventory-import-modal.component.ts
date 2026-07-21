@@ -1,16 +1,15 @@
 import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { Button } from "primeng/button";
-import { ProgressSpinner } from "primeng/progressspinner";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { InventoryApiService } from "../../data-access/services/inventory-api.service";
 import { InventoryStore } from "../../data-access/store/inventory.store";
 import { ImportResultRecord } from "../../models";
+import { ButtonComponent } from "../../../../shared/ui";
 
 @Component({
   selector: "app-inventory-import-modal",
-  imports: [CommonModule, Button, ProgressSpinner],
+  imports: [CommonModule, ButtonComponent],
   templateUrl: "./inventory-import-modal.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./inventory-import-modal.component.scss"

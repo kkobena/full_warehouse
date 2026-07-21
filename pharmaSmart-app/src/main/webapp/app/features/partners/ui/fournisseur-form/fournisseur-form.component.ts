@@ -3,17 +3,12 @@ import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from
 import { CommonModule } from "@angular/common";
 import { HttpErrorResponse, HttpResponse } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { ButtonModule } from "primeng/button";
-import { InputTextModule } from "primeng/inputtext";
-import { KeyFilterModule } from "primeng/keyfilter";
-import { TooltipModule } from "primeng/tooltip";
-import { Select } from "primeng/select";
-import { Card } from "primeng/card";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { ErrorService } from "../../../../shared/error.service";
 import { NotificationService } from "../../../../shared/services/notification.service";
 import { FournisseurApiService } from "../../data-access/services/fournisseur-api.service";
 import { Fournisseur, IFournisseur } from "../../../../shared/model/fournisseur.model";
+import { ButtonComponent, CardComponent, KeyFilterDirective, SelectComponent } from "../../../../shared/ui";
 
 @Component({
   selector: "app-fournisseur-form",
@@ -24,12 +19,10 @@ import { Fournisseur, IFournisseur } from "../../../../shared/model/fournisseur.
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    KeyFilterModule,
-    TooltipModule,
-    Select,
-    Card
+    ButtonComponent,
+    KeyFilterDirective,
+    SelectComponent,
+    CardComponent
   ]
 })
 export class FournisseurFormComponent implements OnInit, AfterViewInit {

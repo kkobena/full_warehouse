@@ -6,11 +6,7 @@
       <p-skeleton width="100%" height="160px" />
     </div>
   } @else if (!isRoute()) {
-    <!--
-      Switch sur componentKey (et non sur le rôle).
-      Un nouveau rôle assigné componentKey='PHARMACIEN' bénéficie automatiquement
-      de jhi-home-base sans aucune modification de code.
-    -->
+
     @switch (resolvedLayout()?.componentKey) {
 
       @case ('PHARMACIEN') {

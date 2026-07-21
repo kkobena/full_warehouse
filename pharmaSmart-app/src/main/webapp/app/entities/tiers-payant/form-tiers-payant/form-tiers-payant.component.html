@@ -10,13 +10,11 @@
     <!-- Two Column Layout: Champs Obligatoires and Informations Générales -->
     <div class="card-grid-2col">
       <!-- Section 1: Champs Obligatoires -->
-      <p-card>
-        <ng-template #header>
-          <div class="section-header section-header-required">
-            <i class="pi pi-exclamation-circle"></i>
-            <span>Champs Obligatoires</span>
-          </div>
-        </ng-template>
+      <app-card [variant]="'form'" [withHeader]="true">
+        <div ngProjectAs="[cardHeader]" class="section-header section-header-required">
+          <i class="pi pi-exclamation-circle"></i>
+          <span>Champs Obligatoires</span>
+        </div>
 
         <div class="form-grid-compact">
           <!-- Nom abrégé -->
@@ -26,14 +24,13 @@
               #name
               [class.ng-invalid]="editForm.get('name')?.invalid && editForm.get('name')?.touched"
               autocomplete="off"
-              class="w-full"
+              class="form-control"
               formControlName="name"
               id="field_libelle"
-              pInputText
             />
             @if (editForm.get('name')?.invalid && editForm.get('name')?.touched) {
               @if (editForm.get('name')?.errors?.required) {
-                <small class="p-error" >Ce champ est obligatoire</small>
+                <small class="form-text text-danger">Ce champ est obligatoire</small>
               }
             }
           </div>
@@ -44,14 +41,13 @@
             <input
               [class.ng-invalid]="editForm.get('fullName')?.invalid && editForm.get('fullName')?.touched"
               autocomplete="off"
-              class="w-full"
+              class="form-control"
               formControlName="fullName"
               id="field_fullName"
-              pInputText
             />
             @if (editForm.get('fullName')?.invalid && editForm.get('fullName')?.touched) {
               @if (editForm.get('fullName')?.errors?.required) {
-                <small class="p-error" >Ce champ est obligatoire</small>
+                <small class="form-text text-danger">Ce champ est obligatoire</small>
               }
             }
           </div>
@@ -60,18 +56,17 @@
           <div class="form-field form-field-full">
             <label for="telephone">Téléphone <span class="required">*</span></label>
             <input
+              [appKeyFilter]="'int'"
               [class.ng-invalid]="editForm.get('telephone')?.invalid && editForm.get('telephone')?.touched"
               autocomplete="off"
-              class="w-full"
+              class="form-control"
               formControlName="telephone"
               id="telephone"
-              pInputText
-              pKeyFilter="int"
               type="tel"
             />
             @if (editForm.get('telephone')?.invalid && editForm.get('telephone')?.touched) {
               @if (editForm.get('telephone')?.errors?.required) {
-                <small class="p-error" >Ce champ est obligatoire</small>
+                <small class="form-text text-danger">Ce champ est obligatoire</small>
               }
             }
           </div>
@@ -82,140 +77,140 @@
             <input
               [class.ng-invalid]="editForm.get('email')?.invalid && editForm.get('email')?.touched"
               autocomplete="off"
-              class="w-full"
+              class="form-control"
               formControlName="email"
               id="email"
-              pInputText
               type="email"
             />
             @if (editForm.get('email')?.invalid && editForm.get('email')?.touched) {
               @if (editForm.get('email')?.errors?.required) {
-                <small class="p-error" >Ce champ est obligatoire</small>
+                <small class="form-text text-danger">Ce champ est obligatoire</small>
               }
               @if (editForm.get('email')?.errors?.email) {
-                <small class="p-error">Adresse email invalide</small>
+                <small class="form-text text-danger">Adresse email invalide</small>
               }
             }
           </div>
         </div>
-      </p-card>
+      </app-card>
 
       <!-- Section 2: Informations Générales -->
-      <p-card>
-        <ng-template #header>
-          <div class="section-header">
-            <i class="pi pi-info-circle"></i>
-            <span>Informations Générales</span>
-          </div>
-        </ng-template>
+      <app-card [variant]="'form'" [withHeader]="true">
+        <div ngProjectAs="[cardHeader]" class="section-header">
+          <i class="pi pi-info-circle"></i>
+          <span>Informations Générales</span>
+        </div>
 
         <div class="form-grid-compact">
           <!-- Identifiant contribuable -->
           <div class="form-field form-field-full">
             <label for="ncc">Identifiant contribuable</label>
-            <input autocomplete="off" class="w-full" formControlName="ncc" id="ncc" pInputText pKeyFilter="alphanum" />
+            <input [appKeyFilter]="'alphanum'" autocomplete="off" class="form-control" formControlName="ncc"
+                   id="ncc" />
           </div>
 
           <!-- Groupe tiers-payant -->
           <div class="form-field form-field-full">
             <label for="groupeTiersPayantId">Groupe tiers-payant</label>
-            <p-select
-              [fluid]="true"
-              [options]="groupeTiersPayants"
+            <app-select
+              appendTo="body"
+              [clearable]="false"
+              [items]="groupeTiersPayants"
+              bindLabel="name"
+              bindValue="id"
               formControlName="groupeTiersPayantId"
-              id="groupeTiersPayantId"
-              optionLabel="name"
-              optionValue="id"
+              inputId="groupeTiersPayantId"
               placeholder="Sélectionner un groupe"
-            >
-            </p-select>
+            />
           </div>
 
           <!-- Code organisme -->
           <div class="form-field form-field-full">
             <label for="codeOrganisme">Code organisme</label>
-            <input autocomplete="off" class="w-full" formControlName="codeOrganisme" id="codeOrganisme" pInputText pKeyFilter="alphanum" />
+            <input [appKeyFilter]="'alphanum'" autocomplete="off" class="form-control"
+                   formControlName="codeOrganisme" id="codeOrganisme" />
           </div>
         </div>
-      </p-card>
+      </app-card>
     </div>
 
     <!-- Three Column Layout: Paramètres de Facturation, Plafonds et Remises, and Plafonds Clients -->
     <div class="card-grid-3col mt-2">
       <!-- Section 3: Paramètres de Facturation -->
-      <p-card>
-        <ng-template #header>
-          <div class="section-header">
-            <i class="pi pi-file-edit"></i>
-            <span>Paramètres de Facturation</span>
-          </div>
-        </ng-template>
+      <app-card [variant]="'form'" [withHeader]="true">
+        <div ngProjectAs="[cardHeader]" class="section-header">
+          <i class="pi pi-file-edit"></i>
+          <span>Paramètres de Facturation</span>
+        </div>
 
         <div class="form-grid-compact">
           <!-- Délai de règlement -->
           <div class="form-field form-field-full">
             <label for="delaiReglement">Délai de règlement (jours)</label>
-            <p-input-number [fluid]="true" [min]="0" autocomplete="off" formControlName="delaiReglement" id="delaiReglement"> </p-input-number>
+            <app-input-number [min]="0" formControlName="delaiReglement" inputId="delaiReglement" />
           </div>
 
           <!-- Nombre maxi de bordereau -->
           <div class="form-field form-field-full">
             <label for="nbreBordereaux">Nombre maxi de bordereau par facture</label>
-            <p-input-number [fluid]="true" autocomplete="off" formControlName="nbreBordereaux" id="nbreBordereaux"> </p-input-number>
+            <app-input-number formControlName="nbreBordereaux" inputId="nbreBordereaux" />
           </div>
 
           <!-- Montant maxi par facture -->
           <div class="form-field form-field-full">
             <label for="montantMaxParFcture">Montant maxi par facture</label>
-            <p-input-number [fluid]="true" autocomplete="off" formControlName="montantMaxParFcture" id="montantMaxParFcture">
-            </p-input-number>
+            <app-input-number formControlName="montantMaxParFcture" inputId="montantMaxParFcture" />
           </div>
 
           <!-- Modèle de facture -->
           <div class="form-field form-field-full">
             <label for="modelFacture">Modèle de facture</label>
-            <p-select
-              [fluid]="true"
-              [options]="modelFacture"
+            <app-select
+              appendTo="body"
+              [clearable]="false"
+              [items]="modelFacture"
+              bindLabel="value"
+              bindValue="key"
               formControlName="modelFacture"
-              id="modelFacture"
-              optionLabel="value"
-              optionValue="key"
+              inputId="modelFacture"
               placeholder="Sélectionner un modèle"
-            >
-            </p-select>
+            />
           </div>
 
           @if (categorie !== 'DEPOT') {
             <!-- Exclure du CA -->
             <div class="form-field form-field-full">
               <label for="toBeExclude">Exclure du CA</label>
-              <p-toggleswitch formControlName="toBeExclude" id="toBeExclude"> </p-toggleswitch>
+              <app-switch formControlName="toBeExclude" inputId="toBeExclude" />
             </div>
 
             <!-- Périodicité facturation définitive -->
             <div class="form-field form-field-full">
               <label for="periodiciteDefinitiveTP">Périodicité facturation définitive</label>
-              <p-select
-                [fluid]="true"
-                [options]="periodicitesOptions"
-                [showClear]="true"
+              <app-select
+                appendTo="body"
+                [clearable]="true"
+                [items]="periodicitesOptions"
+                bindLabel="label"
+                bindValue="value"
                 formControlName="periodiciteFactureDefinitive"
-                id="periodiciteDefinitiveTP"
-                optionLabel="label"
-                optionValue="value"
+                inputId="periodiciteDefinitiveTP"
                 placeholder="Non définie"
               />
             </div>
 
             @if (editForm.get('periodiciteFactureDefinitive')?.value) {
               <div class="form-field form-field-full">
-                <label for="inclureAutoDefinitiveTP">Inclure dans la facturation automatique définitive</label>
+                <label for="inclureAutoDefinitiveTP">Inclure dans la facturation automatique
+                  définitive</label>
                 <div class="d-flex align-items-center gap-2">
-                  <p-toggleswitch formControlName="inclureFacturationAutoDefinitive" id="inclureAutoDefinitiveTP" />
+                  <app-switch formControlName="inclureFacturationAutoDefinitive"
+                              inputId="inclureAutoDefinitiveTP" />
                   <span class="text-muted small">
                     @if (editForm.get('inclureFacturationAutoDefinitive')?.value) {
-                      Inclus — génération {{ editForm.get('periodiciteFactureDefinitive')?.value | lowercase }}
+                      Inclus — génération {{
+                        editForm.get('periodiciteFactureDefinitive')?.value | lowercase
+                      }}
                     } @else {
                       Exclu de la génération automatique définitive
                     }
@@ -227,26 +222,30 @@
             <!-- Périodicité facturation provisoire -->
             <div class="form-field form-field-full">
               <label for="periodiciteProvisioreTP">Périodicité facturation provisoire</label>
-              <p-select
-                [fluid]="true"
-                [options]="periodicitesOptions"
-                [showClear]="true"
+              <app-select
+                appendTo="body"
+                [clearable]="true"
+                [items]="periodicitesOptions"
+                bindLabel="label"
+                bindValue="value"
                 formControlName="periodiciteFactureProvisoire"
-                id="periodiciteProvisioreTP"
-                optionLabel="label"
-                optionValue="value"
+                inputId="periodiciteProvisioreTP"
                 placeholder="Non définie"
               />
             </div>
 
             @if (editForm.get('periodiciteFactureProvisoire')?.value) {
               <div class="form-field form-field-full">
-                <label for="inclureAutoProvisioreTP">Inclure dans la facturation automatique provisoire</label>
+                <label for="inclureAutoProvisioreTP">Inclure dans la facturation automatique
+                  provisoire</label>
                 <div class="d-flex align-items-center gap-2">
-                  <p-toggleswitch formControlName="inclureFacturationAutoProvisoire" id="inclureAutoProvisioreTP" />
+                  <app-switch formControlName="inclureFacturationAutoProvisoire"
+                              inputId="inclureAutoProvisioreTP" />
                   <span class="text-muted small">
                     @if (editForm.get('inclureFacturationAutoProvisoire')?.value) {
-                      Inclus — génération {{ editForm.get('periodiciteFactureProvisoire')?.value | lowercase }}
+                      Inclus — génération {{
+                        editForm.get('periodiciteFactureProvisoire')?.value | lowercase
+                      }}
                     } @else {
                       Exclu de la génération automatique provisoire
                     }
@@ -256,85 +255,79 @@
             }
           }
         </div>
-      </p-card>
+      </app-card>
 
       <!-- Section 4: Plafonds et Remises -->
-      <p-card>
-        <ng-template #header>
-          <div class="section-header">
-            <i class="pi pi-calculator"></i>
-            <span>Plafonds et Remises</span>
-          </div>
-        </ng-template>
+      <app-card [variant]="'form'" [withHeader]="true">
+        <div ngProjectAs="[cardHeader]" class="section-header">
+          <i class="pi pi-calculator"></i>
+          <span>Plafonds et Remises</span>
+        </div>
 
         <div class="form-grid-compact">
           <!-- Remise forfaitaire -->
           <div class="form-field form-field-full">
             <label for="remiseForfaitaire">Remise forfaitaire</label>
-            <p-input-number [fluid]="true" autocomplete="off" formControlName="remiseForfaitaire" id="remiseForfaitaire"> </p-input-number>
+            <app-input-number formControlName="remiseForfaitaire" inputId="remiseForfaitaire" />
           </div>
 
           <!-- Plafond consommation -->
           <div class="form-field form-field-full">
             <label for="plafondConso">Plafond consommation</label>
-            <p-input-number [fluid]="true" autocomplete="off" formControlName="plafondConso" id="plafondConso"> </p-input-number>
+            <app-input-number formControlName="plafondConso" inputId="plafondConso" />
           </div>
 
           <!-- Plafond absolu -->
           <div class="form-field form-field-full">
             <label for="plafondAbsolu">Le plafond est-il absolu ?</label>
-            <p-toggleswitch formControlName="plafondAbsolu" id="plafondAbsolu"> </p-toggleswitch>
+            <app-switch formControlName="plafondAbsolu" inputId="plafondAbsolu" />
           </div>
         </div>
-      </p-card>
+      </app-card>
 
       <!-- Section 5: Plafonds Clients (only for ASSURANCE) -->
       @if (categorie === 'ASSURANCE') {
-        <p-card>
-          <ng-template #header>
-            <div class="section-header">
-              <i class="pi pi-users"></i>
-              <span>Plafonds Clients</span>
-            </div>
-          </ng-template>
+        <app-card [variant]="'form'" [withHeader]="true">
+          <div ngProjectAs="[cardHeader]" class="section-header">
+            <i class="pi pi-users"></i>
+            <span>Plafonds Clients</span>
+          </div>
 
           <div class="form-grid-compact">
             <!-- Plafond de vente des clients -->
             <div class="form-field form-field-full">
               <label for="plafondJournalierClient">Plafond de vente des clients</label>
-              <p-input-number [fluid]="true" autocomplete="off" formControlName="plafondJournalierClient" id="plafondJournalierClient">
-              </p-input-number>
+              <app-input-number formControlName="plafondJournalierClient"
+                                inputId="plafondJournalierClient" />
             </div>
 
             <!-- Plafond consommation des clients -->
             <div class="form-field form-field-full">
               <label for="plafondConsoClient">Plafond consommation des clients</label>
-              <p-input-number [fluid]="true" autocomplete="off" formControlName="plafondConsoClient" id="plafondConsoClient">
-              </p-input-number>
+              <app-input-number formControlName="plafondConsoClient" inputId="plafondConsoClient" />
             </div>
 
             <!-- Plafond absolu client -->
             <div class="form-field form-field-full">
               <label for="plafondAbsoluClient">Le plafond des clients est-il absolu ?</label>
-              <p-toggleswitch formControlName="plafondAbsoluClient" id="plafondAbsoluClient"> </p-toggleswitch>
+              <app-switch formControlName="plafondAbsoluClient" inputId="plafondAbsoluClient" />
             </div>
           </div>
-        </p-card>
+        </app-card>
       }
     </div>
   </div>
 
   <div class="form-actions-compact">
-    <p-button (click)="cancel()" [text]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button"> </p-button>
-    <p-button
+    <app-button (clicked)="cancel()" [text]="true" icon="pi pi-times" label="Annuler"
+                severity="secondary" />
+    <app-button
       [disabled]="editForm.invalid || isSaving || !isValid"
       [loading]="isSaving"
       icon="pi pi-check"
       label="Enregistrer"
       severity="primary"
       type="submit"
-    >
-    </p-button>
+    />
   </div>
 </form>
-<p-toast position="center"></p-toast>

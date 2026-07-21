@@ -26,11 +26,11 @@
       </small>
     </div>
 
-    <p-table
+    <app-data-table
       [value]="exclusions()"
       [loading]="isLoading()"
       class="pharma-table"
-      [tableStyle]="{ 'min-width': '45rem' }"
+      style="min-width: 45rem"
     >
       <ng-template #header>
         <tr class="pharma-table-head">
@@ -66,29 +66,29 @@
             }
           </td>
           <td class="text-center">
-            <p-button
+            <app-button
               label="Réintégrer"
               icon="pi pi-undo"
               severity="success"
               size="small"
               [loading]="liftingId() === excl.produitId"
-              pTooltip="Réintégrer immédiatement ce produit dans le batch SEMOIS"
-              tooltipPosition="left"
-              (onClick)="leverExclusion(excl)"
+              ngbTooltip="Réintégrer immédiatement ce produit dans le batch SEMOIS"
+              placement="left"
+              (clicked)="leverExclusion(excl)"
             />
           </td>
         </tr>
       </ng-template>
-    </p-table>
+    </app-data-table>
   }
 </div>
 
 <div class="modal-footer">
-  <p-button
+  <app-button
     label="Fermer"
     severity="secondary"
     size="small"
-    (onClick)="close()"
+    (clicked)="close()"
   />
 </div>
 

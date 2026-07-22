@@ -204,20 +204,6 @@
   <!-- Sidebar Footer -->
   @if (!isCollapsed()) {
     <div class="sidebar-footer">
-      <!-- Theme Selector -->
-      @if (themes && themes.length > 1) {
-        <div class="theme-selector">
-          <label class="small text-muted">Thème</label>
-          <select class="form-select form-select-sm" [(ngModel)]="selectedTheme" (change)="changeTheme(selectedTheme)">
-            @for (theme of themes; track theme.name) {
-              <option [value]="theme.name">
-                {{ theme.name }}
-              </option>
-            }
-          </select>
-        </div>
-      }
-
       <!-- Config éditeur (Tauri + ADMIN uniquement) -->
       @if (isTauriAdmin) {
         <button type="button" class="btn btn-link btn-sm sidebar-config-btn" (click)="openConfigEditor()"

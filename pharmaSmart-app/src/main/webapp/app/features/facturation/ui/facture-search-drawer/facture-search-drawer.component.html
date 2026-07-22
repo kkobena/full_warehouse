@@ -8,33 +8,42 @@
       <pharma-date-picker [(ngModel)]="modelStartDate" id="fsDrawerDu" label="Du" />
       <pharma-date-picker [(ngModel)]="modelEndDate" id="fsDrawerAu" label="Au" />
       <app-float-label inputId="fsDrawerSearch" label="Rechercher par numéro">
-        <input [(ngModel)]="search" [style]="{ width: '200px' }" id="fsDrawerSearch" type="text"  placeholder=" " class="form-control" />
-          </app-float-label>
+        <input [(ngModel)]="search" [style]="{ width: '200px' }" class="form-control"
+               id="fsDrawerSearch"
+               placeholder=" " type="text" />
+      </app-float-label>
       @if (factureGroupWritable()) {
         <app-float-label inputId="fsDrawerGroupe" label="Rechercher un groupe">
-          <app-multi-select (searched)="searchGroupTiersPayant($event)" [(ngModel)]="selectedGroupeTiersPayants" [items]="groupeTiersPayants"
-                          appendTo="body" id="fsDrawerGroupe" inputId="fsDrawerGroupe" bindLabel="name" />
-          </app-float-label>
+          <app-multi-select (searched)="searchGroupTiersPayant($event)"
+                            [(ngModel)]="selectedGroupeTiersPayants" [items]="groupeTiersPayants"
+                            appendTo="body" bindLabel="name" id="fsDrawerGroupe"
+                            inputId="fsDrawerGroupe" />
+        </app-float-label>
       } @else {
         <app-float-label inputId="fsDrawerTP" label="Rechercher tiers-payants">
-          <app-multi-select (searched)="searchTiersPayant($event)" [(ngModel)]="selectedTiersPayants" [minSearchLength]="minLength"
-                          appendTo="body"
-                          [items]="tiersPayants" id="fsDrawerTP" inputId="fsDrawerTP" bindLabel="fullName" />
-          </app-float-label>
+          <app-multi-select (searched)="searchTiersPayant($event)"
+                            [(ngModel)]="selectedTiersPayants" [items]="tiersPayants"
+                            [minSearchLength]="minLength"
+                            appendTo="body" bindLabel="fullName" id="fsDrawerTP"
+                            inputId="fsDrawerTP" />
+        </app-float-label>
       }
     </div>
     <div>
       <app-button (click)="onSearch()" [loading]="loadingBtn" [raised]="true" icon="pi pi-search"
-                label="Rechercher" severity="info" />
+                  label="Rechercher" severity="info" />
     </div>
   </div>
 </div>
 
 <div class="row mt-2">
   @if (datas.length > 0) {
-    <app-data-table (onLazyLoad)="lazyLoading($event)" [lazy]="true" [loading]="loading" [paginator]="true"
-             [rowsPerPageOptions]="[10, 15, 20, 30, 50]" [rows]="itemsPerPage" [totalRecords]="totalItems"
-             [value]="datas" class="pharma-table" dataKey="factureId" selectionMode="single" [stripedRows]="true">
+    <app-data-table (onLazyLoad)="lazyLoading($event)" [lazy]="true" [loading]="loading"
+                    [paginator]="true"
+                    [rowsPerPageOptions]="[10, 15, 20, 30, 50]" [rows]="itemsPerPage"
+                    [selectionMode]="'single'"
+                    [stripedRows]="true" [totalRecords]="totalItems" [value]="datas"
+                    dataKey="factureId">
       <ng-template #header>
         <tr class="pharma-table-head">
           <th>Num</th>

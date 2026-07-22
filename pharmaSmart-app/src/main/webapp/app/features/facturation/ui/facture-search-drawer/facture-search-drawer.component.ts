@@ -1,28 +1,30 @@
-import { AfterViewInit, Component, DestroyRef, inject, input, output, signal } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { HttpHeaders, HttpResponse } from "@angular/common/http";
-import { FormsModule } from "@angular/forms";
-import { INVOICES_STATUT } from "../../../../shared/constants/data-constants";
-import { IGroupeTiersPayant } from "../../../../shared/model/groupe-tierspayant.model";
-import { ITiersPayant } from "../../../../shared/model";
-import { TiersPayantService } from "../../../../entities/tiers-payant/tierspayant.service";
-import { GroupeTiersPayantService } from "../../../../entities/groupe-tiers-payant/groupe-tierspayant.service";
-import { DATE_FORMAT_ISO_DATE } from "../../../../shared/util/warehouse-util";
-import { ITEMS_PER_PAGE } from "../../../../shared/constants/pagination.constants";
+import {AfterViewInit, Component, DestroyRef, inject, input, output, signal} from "@angular/core";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
+import {HttpHeaders, HttpResponse} from "@angular/common/http";
+import {FormsModule} from "@angular/forms";
+import {INVOICES_STATUT} from "../../../../shared/constants/data-constants";
+import {IGroupeTiersPayant} from "../../../../shared/model/groupe-tierspayant.model";
+import {ITiersPayant} from "../../../../shared/model";
+import {TiersPayantService} from "../../../../entities/tiers-payant/tierspayant.service";
+import {
+  GroupeTiersPayantService
+} from "../../../../entities/groupe-tiers-payant/groupe-tierspayant.service";
+import {DATE_FORMAT_ISO_DATE} from "../../../../shared/util/warehouse-util";
+import {ITEMS_PER_PAGE} from "../../../../shared/constants/pagination.constants";
 
-import { FactureApiService } from "../../data-access/services/facture-api.service";
-import { FacturationStore } from "../../data-access/store/facturation.store";
-import { IFacture, IInvoiceSearchParams, ISelectedFacture } from "../../data-access/models";
-import { CommonModule } from "@angular/common";
+import {FactureApiService} from "../../data-access/services/facture-api.service";
+import {FacturationStore} from "../../data-access/store/facturation.store";
+import {IFacture, IInvoiceSearchParams, ISelectedFacture} from "../../data-access/models";
+import {CommonModule} from "@angular/common";
 import {
   ButtonComponent,
   DataTableComponent,
   FloatLabelComponent,
-  SelectSearchComponent,
+  MultiSelectComponent,
   SelectableRowDirective,
   SwitchComponent
 } from 'app/shared/ui';
-import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
+import {PharmaDatePickerComponent} from 'app/shared/date-picker/pharma-date-picker.component';
 
 @Component({
   selector: "app-facture-search-drawer",
@@ -33,10 +35,10 @@ import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-pi
     ButtonComponent,
     DataTableComponent,
     FloatLabelComponent,
-    SelectSearchComponent,
     SelectableRowDirective,
     SwitchComponent,
-    PharmaDatePickerComponent
+    PharmaDatePickerComponent,
+    MultiSelectComponent
   ],
   templateUrl: "./facture-search-drawer.component.html"
 })
@@ -99,7 +101,7 @@ export class FactureSearchDrawerComponent implements AfterViewInit {
   }
 
   onSelectFacture(facture: IFacture): void {
-    this.selectedFacture.emit({ isGroup: this.factureGroupWritable(), facture: facture as any });
+    this.selectedFacture.emit({isGroup: this.factureGroupWritable(), facture: facture as any});
   }
 
   searchTiersPayant(event: any): void {
@@ -112,7 +114,7 @@ export class FactureSearchDrawerComponent implements AfterViewInit {
 
   loadGroupTiersPayant(search = ""): void {
     this.groupeTiersPayantService
-      .query({ page: 0, search, size: 10 })
+      .query({page: 0, search, size: 10})
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((res: HttpResponse<IGroupeTiersPayant[]>) => {
         this.groupeTiersPayants = res.body ?? [];
@@ -121,7 +123,7 @@ export class FactureSearchDrawerComponent implements AfterViewInit {
 
   loadTiersPayants(search = ""): void {
     this.tiersPayantService
-      .query({ page: 0, search, size: 10 })
+      .query({page: 0, search, size: 10})
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
         this.tiersPayants = res.body ?? [];
@@ -133,7 +135,7 @@ export class FactureSearchDrawerComponent implements AfterViewInit {
     this.loadingBtn = true;
     const params = this.buildSearchParams();
     this.factureApiService
-      .query({ ...params, page: this.page, size: rows } as any)
+      .query({...params, page: this.page, size: rows} as any)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: HttpResponse<IFacture[]>) => this.onSuccess(res.body, res.headers, this.page),

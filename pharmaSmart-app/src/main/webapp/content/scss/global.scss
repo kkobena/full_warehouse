@@ -240,14 +240,6 @@ ui bootstrap tweaks
   }
 }
 
-.p-datatable .p-datatable-tbody > tr > td {
-  padding: 0.2rem 1rem;
-}
-
-.p-autocomplete {
-  width: 100%;
-}
-
 .invoice {
   padding: 0;
 }
@@ -256,14 +248,6 @@ ui bootstrap tweaks
 .invoice .invoice-items {
   margin-top: 0;
   padding-top: 0;
-}
-
-body .ui-inputtext {
-  width: 100% !important;
-}
-
-body .ui-dropdown {
-  width: 100% !important;
 }
 
 #field_tel {
@@ -346,10 +330,6 @@ body .ui-dropdown {
   .sale-toolbar .toobar-input-search {
     width: 170px;
   }
-  .sale-toolbar .p-calendar,
-  .sale-toolbar .p-calendar .p-inputtext {
-    width: 120px;
-  }
 }
 
 // XX-Large devices (larger desktops, 1400px and up)
@@ -366,27 +346,10 @@ body .ui-dropdown {
   }*/
 }
 
-@media (max-width: 1500px) {
-  .home-ca .nav-home .p-card .p-card-body .nav-link {
-    padding-right: 0.3rem;
-    padding-left: 0.2rem;
-  }
-}
-
 @media (min-width: 1700px) {
   .sale-toolbar .toobar-input-search {
     width: 200px;
   }
-  .sale-toolbar .p-calendar,
-  .sale-toolbar .p-calendar .p-inputtext {
-    width: 120px;
-  }
-  /* .sale-toolbar .toobar-input-search {
-    width: 250px;
-  }
-  .sale-toolbar .p-calendar, .sale-toolbar .p-calendar .p-inputtext {
-    width: 150px;
-  }*/
 }
 
 .stockless {
@@ -428,18 +391,6 @@ input[type='number'] {
   padding: 0.1rem 0.1rem;
 }
 
-.p-inputgroup .ng-select {
-  width: 100%;
-}
-
-.sale-products-table .p-datatable .p-datatable-header {
-  padding: 0.16rem 1rem;
-}
-
-.sale-products-table .p-datatable .p-datatable-thead > tr > th {
-  padding: 0.16rem 0.857rem;
-}
-
 .avoir {
   color: red !important;
 }
@@ -460,37 +411,8 @@ input[type='number'] {
   font-weight: 777;
 }
 
-.sale-products-table .p-datatable .p-datatable-tbody > tr > td {
-  padding: 0 1rem;
-}
-
-.p-divider.p-divider-vertical {
-  margin: 0 0.4rem;
-  padding: 1rem 0;
-}
-
-/*
-.sale .p-button .p-button-icon-left {
-  margin-right:2px;
-}
-.sale .p-button .p-button-icon-right {
-  margin-right: 2px;
-}
-.sale .p-button{
-padding-left:0.5rem;
-  padding-right:0.5rem;
-}
-*/
-:host ::ng-deep .p-message-close-icon {
-  color: #2c1e30;
-}
-
 .form-date-input {
   padding: 0;
-}
-
-.form-client .p-divider.p-divider-horizontal {
-  margin: 0;
 }
 
 .sale-tiers-payant-control label {
@@ -512,18 +434,8 @@ padding-left:0.5rem;
   width: 150px !important;
 }
 
-.tiersPayant .p-inputgroup-addon {
-  width: 55px !important;
-  min-width: 55px !important;
-}
-
 body {
   line-height: 1 !important;
-}
-
-.assure .p-divider.p-divider-horizontal {
-  margin-top: 0.5rem;
-  margin-bottom: 0;
 }
 
 .assure .ayan-droit {
@@ -622,24 +534,6 @@ label {
 .form-delivery {
   padding-top: 0;
   padding-bottom: 0;
-
-  .p-card-title {
-    margin: 0;
-    font-size: 1rem;
-  }
-
-  .p-card-content {
-    padding: 0.5rem 0;
-  }
-
-  .p-card-body {
-    padding: 0.5rem 1rem;
-  }
-
-  .p-card-footer {
-    padding: 0.2rem 0 0 0;
-    text-align: right;
-  }
 }
 
 .commande-entry {
@@ -692,10 +586,6 @@ label {
   padding-right: 2px;
   position: relative;
   top: -5px;
-}
-
-.p-inputswitch {
-  height: 1.5rem;
 }
 
 .sale-chexkbox .col-md-3 {
@@ -856,26 +746,12 @@ li .icon-holder .icon i {
   }
 }
 
-.p-datatable .p-datatable-tbody > tr > td {
-  font-size: 13px;
-}
-
 .highlight-col {
   font-weight: bold;
 }
 
 .card-header-board {
   font-size: 1rem;
-}
-
-.home-ca .nav-home .p-card .p-card-body {
-  padding: 0;
-}
-
-.home-ca .container-home .p-card .p-card-body,
-.graphe-content .p-card .p-card-body {
-  padding-top: 0;
-  padding-bottom: 0;
 }
 
 .graphe-content {
@@ -890,40 +766,8 @@ li .icon-holder .icon i {
   padding: 0;
 }
 
-.p-datatable .p-datatable-thead > tr > th {
-  padding: 0.2rem 0.2rem;
-  font-size: 0.8rem;
-}
-
-.p-datatable .p-datatable-tbody > tr > td {
-  font-size: 0.8rem;
-}
-
 .table-all-checkbos {
   text-align: center !important;
-}
-
-.ajustement .p-card .p-card-body {
-  padding: 0.1rem;
-  margin: 0;
-}
-
-.ajustement .p-card .p-card-body .p-card-content {
-  padding: 0.1rem;
-}
-
-.ajustement .p-card-header {
-  margin-top: 0;
-  margin-left: 3rem;
-  margin-bottom: 0;
-}
-
-.ajustement .p-toolbar {
-  margin-bottom: 0.3rem;
-}
-
-.p-datatable .p-datatable-header {
-  padding: 0.457rem 1rem;
 }
 
 .inventory {
@@ -948,34 +792,6 @@ li .icon-holder .icon i {
   margin-right: 0.4rem !important;
 }
 
-.p-calendar .p-inputtext {
-  width: 2%;
-}
-
-.p-datatable .p-datatable-thead > tr > th {
-  border: 1px solid #c8c8c8 !important;
-}
-
-.p-autocomplete-panel .p-autocomplete-items,
-.p-dropdown-items {
-  padding: 0 !important;
-}
-
-.produit-audit {
-  .p-datatable .p-datatable-thead > tr > th {
-    padding: 0.4rem 0.4rem;
-    font-size: 1rem;
-  }
-
-  .p-datatable.p-datatable-gridlines .p-datatable-tfoot > tr > td {
-    border: 1px solid #c8c8c8 !important;
-  }
-
-  .p-datatable .p-datatable-tbody > tr > td {
-    font-size: 1rem;
-  }
-}
-
 .produit-audit-transaction {
   .container-warehouse {
     width: 100%;
@@ -996,12 +812,6 @@ li .icon-holder .icon i {
         padding-left: 0.7rem;
         padding-right: 0.7rem;
 
-        .col-md-3 {
-          .p-button {
-            padding: 0.45rem 0.3rem;
-          }
-        }
-
         .col-md-8,
         .col-md-6,
         .col-md-3 {
@@ -1016,20 +826,12 @@ li .icon-holder .icon i {
           padding-left: 0.1rem;
         }
 
-        .p-button-warning {
-          padding-left: 2px;
-          padding-right: 2px;
-        }
-
         .row {
           padding: 0;
           marging: 0;
         }
       }
 
-      .p-panel .p-panel-header {
-        padding: 0.857rem 0.8rem;
-      }
     }
   }
 }
@@ -1047,12 +849,6 @@ li .icon-holder .icon i {
         padding-left: 0.7rem;
         padding-right: 0.7rem;
 
-        .col-md-3 {
-          .p-button {
-            padding: 0.45rem 0.3rem;
-          }
-        }
-
         .col-md-8,
         .col-md-6,
         .col-md-3 {
@@ -1067,20 +863,12 @@ li .icon-holder .icon i {
           padding-left: 0.1rem;
         }
 
-        .p-button-warning {
-          padding-left: 2px;
-          padding-right: 2px;
-        }
-
         .row {
           padding: 0;
           marging: 0;
         }
       }
 
-      .p-panel .p-panel-header {
-        padding: 0.857rem 0.8rem;
-      }
     }
   }
 }
@@ -1096,11 +884,6 @@ li .icon-holder .icon i {
 
   .customer {
     padding: 0.375375rem 0.3rem;
-
-    .p-button-label {
-      padding: 0;
-      margin: 0;
-    }
   }
 
   .col-md-3 {
@@ -1148,23 +931,6 @@ li .icon-holder .icon i {
   }
 }
 
-.main-panel {
-  .p-panel-content {
-    padding-left: 5px;
-    padding-right: 3px;
-  }
-
-  .p-panel-header {
-    padding: 0.4rem 0.5rem;
-    background-color: #f7f7f7;
-  }
-}
-
-.p-card-header-h3 {
-  padding-top: 0.5rem;
-  padding-left: 2rem;
-}
-
 .magasin-detail {
   dt {
     text-align: left !important;
@@ -1196,44 +962,6 @@ li .icon-holder .icon i {
       padding-right: 0.1rem;
     }
 
-    .p-card {
-      margin-bottom: 0.5rem;
-
-      .p-card-body {
-        .p-card-content {
-          padding: 0.1rem 0.1rem;
-
-          li {
-            font-weight: 600;
-
-            span {
-              font-weight: 700;
-            }
-          }
-        }
-
-        .p-card-title {
-          padding: 0.1rem 0.1rem;
-        }
-
-        padding: 0.2rem 0.2rem;
-      }
-    }
-  }
-}
-
-.form-group {
-  .p-inputnumber-input {
-    width: 100%;
-  }
-
-  .p-inputwrapper {
-    width: 100%;
-  }
-
-  .p-inputnumber {
-    width: 100%;
-    background-color: #4d4d4d;
   }
 }
 
@@ -1279,28 +1007,6 @@ li .icon-holder .icon i {
   margin: 0 0 3px;
   background-color: #f7f7f7;
 
-  .p-panel {
-    padding: 0;
-    margin: 0;
-
-    .p-panel-content {
-      padding: 3px !important;
-      margin: 0;
-      background-color: #f7f7f7;
-
-      .row {
-        margin: 0;
-        padding: 0;
-      }
-
-      div {
-        margin: 0;
-        padding: 0;
-      }
-    }
-  }
-
-  //
   .assurance-data {
     padding: 0;
     margin: 0;
@@ -1325,26 +1031,10 @@ li .icon-holder .icon i {
   }
 }
 
-.menu-panel {
-  .p-panel-content:last-child {
-    text-align: center;
-    padding: 0.3rem 0 !important;
-  }
-
-  .p-panel-header {
-    padding: 0.4rem;
-  }
-}
-
 .sale-tab-container {
   /*background-color: #eff3f8;*/
   padding: 0;
   margin: 0.3rem 0;
-}
-
-.p-divider.p-divider-horizontal {
-  margin: 0.5rem 0;
-  padding: 0 1rem;
 }
 
 .sale-body {
@@ -1357,40 +1047,6 @@ li .icon-holder .icon i {
 
 .form-client-step {
   padding: 0;
-
-  .p-stepper {
-    .card-body {
-      /*background-color: #eff3f8;*/
-    }
-
-    .p-stepper-header {
-      padding: 0.4rem 0.3rem;
-    }
-
-    .p-stepper-panels {
-      /*background-color: #eff3f8;*/
-      padding: 0;
-      color: #333333;
-
-      .p-card {
-        padding: 0;
-        margin: 0;
-        /*background-color: #eff3f8;*/
-
-        .p-card-body {
-          margin: 0;
-          /*background-color: #eff3f8;*/
-          padding: 0.4rem;
-
-          .p-card-content {
-            padding: 0.4rem;
-            margin: 0;
-            /*background-color: #eff3f8;*/
-          }
-        }
-      }
-    }
-  }
 }
 
 .modal-header {
@@ -1408,10 +1064,6 @@ li .icon-holder .icon i {
 
 .modal-body {
   padding: 0.1rem;
-}
-
-.p-dialog .p-dialog-content {
-  padding: 0.8rem;
 }
 
 .sales-detail {
@@ -1449,12 +1101,6 @@ li .icon-holder .icon i {
   }
 }
 
-.complementaires-form {
-  .p-card-body {
-    background: #f7f7f7;
-  }
-}
-
 .produit-vente-table-tb {
   .taux-remise {
     font-weight: 800;
@@ -1472,10 +1118,6 @@ li .icon-holder .icon i {
 
   .tab-content {
     padding: 0;
-  }
-
-  .p-toolbar {
-    padding: 2px;
   }
 
   .menu-facture {
@@ -1505,16 +1147,6 @@ li .icon-holder .icon i {
       font-weight: 800;
     }
 
-    .p-panel {
-      .p-panel-header {
-        padding: 0.357rem 1rem;
-      }
-
-      .p-panel-content {
-        padding: 0.371rem 0.3rem;
-      }
-    }
-
     tr {
       cursor: pointer;
     }
@@ -1534,11 +1166,6 @@ li .icon-holder .icon i {
 }
 
 .facture-reglees {
-  .p-row-toggler {
-    vertical-align: middle;
-    margin-right: 0.25rem;
-  }
-
   .total-group {
     font-weight: 900;
     font-size: 1rem;
@@ -1547,36 +1174,6 @@ li .icon-holder .icon i {
   .group-title {
     vertical-align: middle;
     margin-top: 0;
-  }
-}
-
-.ws-toolbar-flex {
-  .p-inputwrapper {
-    width: 100% !important;
-  }
-
-  .sale-product-div {
-    .p-autocomplete-option {
-      width: 100% !important;
-
-      li {
-        width: 100% !important;
-      }
-    }
-
-    .p-inputwrapper {
-      width: 100% !important;
-    }
-
-    .p-autocomplete-input {
-      width: 100% !important;
-    }
-  }
-
-  .ws-mode-reglement {
-    .p-inputgroupaddon {
-      padding: 0 !important;
-    }
   }
 }
 
@@ -1592,16 +1189,7 @@ li .icon-holder .icon i {
   }
 }
 
-.p-toolbar {
-  padding: 0.2rem !important;
-  background-color: #f1f5f9 !important;
-}
-
 .ajustement-toolbar {
-  .p-inputwrapper {
-    width: 100% !important;
-  }
-
   .form-control {
     padding: 0 !important;
   }
@@ -1685,12 +1273,6 @@ li .icon-holder .icon i {
   }
 }
 
-jhi-commande-update {
-  .p-panel-header {
-    padding: 0.5rem 1.125rem !important;
-  }
-}
-
 jhi-recapitualtif-caisse {
   .ticketz-container {
     padding: 15px 8px !important;
@@ -1700,16 +1282,6 @@ jhi-recapitualtif-caisse {
     .col-sm-12,
     .col-xl-3 {
       padding: 0 !important;
-
-      .p-card-body {
-        padding: 0.5rem !important;
-      }
-    }
-
-    .p-card-title {
-      font-size: 1.2rem;
-      font-weight: 700;
-      white-space: nowrap;
     }
 
     .badge {
@@ -1717,15 +1289,6 @@ jhi-recapitualtif-caisse {
       font-weight: 700;
     }
   }
-}
-
-.p-inputgroupaddon {
-  align-items: normal !important;
-}
-
-.p-autocomplete-list-container .p-focus {
-  font-weight: 600 !important;
-  background-color: var(--bs-info-bg-subtle) !important;
 }
 
 .modal-dialog-80 {
@@ -1736,10 +1299,6 @@ jhi-recapitualtif-caisse {
 .modal-dialog-70 {
   max-width: 70%;
   width: 70%;
-}
-
-.p-panel {
-  // background-color: transparent;
 }
 
 .main {
@@ -1769,102 +1328,11 @@ jhi-recapitualtif-caisse {
   border-radius: var(--p-dialog-border-radius);
 }
 
-.p-dialog-header {
-  background: linear-gradient(135deg, #446e9b 0%, #5a8ac0 100%);
-  color: #ffffff;
-  padding: 0.5rem 1rem !important;
-  border-top-left-radius: var(--p-dialog-border-radius);
-  border-top-right-radius: var(--p-dialog-border-radius);
-  font-weight: 600;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-
-  .p-dialog-title {
-    font-weight: 600;
-    font-size: 1rem;
-    color: #ffffff;
-    margin: 0;
-  }
-
-  .p-dialog-header-icons {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-
-    button {
-      color: #ffffff;
-      background: transparent;
-      border: none;
-      width: 2rem;
-      height: 2rem;
-      transition: background-color 0.2s;
-
-      &:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        border-radius: var(--p-dialog-border-radius);
-      }
-
-      &:focus {
-        box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.3);
-        outline: none;
-      }
-    }
-  }
-
-  // Variant styles for different dialog types
-  &.p-dialog-header-info {
-    background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
-  }
-
-  &.p-dialog-header-success {
-    background: linear-gradient(135deg, #22c55e 0%, #4ade80 100%);
-  }
-
-  &.p-dialog-header-warning {
-    background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
-  }
-
-  &.p-dialog-header-danger {
-    background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
-  }
-
-  &.p-dialog-header-secondary {
-    background: linear-gradient(135deg, #64748b 0%, #94a3b8 100%);
-  }
-}
-
-.p-card .info-title {
-  background-color: var(--p-sky-400);
-}
-
-.p-card .warn-title {
-  background-color: var(--p-orange-400);
-}
-
-.p-card .secondary-title {
-  background-color: var(--p-slate-400);
-}
-
-.p-card .primary-title {
-  background-color: var(--p-primary-color);
-}
-
 .expanded-content {
   background-color: #f8f9fa;
 }
 
 .pharma-smart {
-  .p-card .p-card-title .card-title {
-    color: #ffffff;
-    padding: 0.5rem;
-    margin: -1.25rem -1.25rem 1.25rem -1.25rem;
-    border-top-left-radius: var(--border-radius);
-    border-top-right-radius: var(--border-radius);
-  }
-
   .card-title {
     font-size: 1.2rem;
     font-weight: 600;
@@ -1901,23 +1369,6 @@ jhi-recapitualtif-caisse {
   .pharma-smart-primary-text {
     font-weight: 600;
   }
-}
-
-.p-button-icon-only {
-  padding: 0 0.75rem !important;
-}
-
-
-/* Overlays PrimeNG téléportés sur body — z-index > NgbModal (1055).
-   - p-select/p-multiselect : z-index posé sur .p-overlay (wrapper p-overlay component)
-   - p-datePicker : z-index posé directement sur .p-datepicker-panel (pas de p-overlay wrapper) */
-.p-overlay,
-.p-datepicker-panel {
-  z-index: 1062 !important;
-}
-
-#p-license-host {
-  display: none !important;
 }
 
 table tfoot tr td {

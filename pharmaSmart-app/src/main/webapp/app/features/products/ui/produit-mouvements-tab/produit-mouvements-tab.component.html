@@ -21,6 +21,7 @@
       <pharma-date-picker
         (selectionChange)="onFromDateChange($event)"
         [(ngModel)]="fromDate"
+        [labelPosition]="'top'"
         [maxDate]="toDate"
         id="mvt-du"
         label="{{ 'warehouseApp.labels.du' | translate }}"
@@ -30,6 +31,7 @@
       <pharma-date-picker
         (selectionChange)="onToDateChange($event)"
         [(ngModel)]="toDate"
+        [labelPosition]="'top'"
         [minDate]="fromDate"
         id="mvt-au"
         label="{{ 'warehouseApp.labels.au' | translate }}"
@@ -123,7 +125,7 @@
       <!-- Ligne 1 : en-têtes de groupes -->
       <tr class="pharma-table-head">
         <th rowspan="2">Date</th>
-        <th class="text-end" title="Stock au début de la journée" rowspan="2">
+        <th class="text-end" rowspan="2" title="Stock au début de la journée">
           Qté init
         </th>
         @if (outColspan > 0) {
@@ -132,13 +134,13 @@
         @if (inColspan > 0) {
           <th [attr.colspan]="inColspan" class="text-center">Entrées</th>
         }
-        <th class="text-end" title="Quantité comptée lors du dernier inventaire"
-            rowspan="2">Qté inv.
+        <th class="text-end" rowspan="2"
+            title="Quantité comptée lors du dernier inventaire">Qté inv.
         </th>
-        <th class="text-end" title="Écart entre stock théorique et inventaire physique"
-            rowspan="2">Écart
+        <th class="text-end" rowspan="2"
+            title="Écart entre stock théorique et inventaire physique">Écart
         </th>
-        <th class="text-end" title="Stock en fin de journée" rowspan="2">Stock
+        <th class="text-end" rowspan="2" title="Stock en fin de journée">Stock
           final
         </th>
       </tr>

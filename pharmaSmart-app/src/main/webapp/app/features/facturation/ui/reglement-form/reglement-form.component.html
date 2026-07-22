@@ -10,23 +10,23 @@
       </div>
     }
     <app-input-number
-      [readonly]="isReadOnly"
       [inputClass]="'amount-input'"
+      [readonly]="isReadOnly"
       formControlName="amount"
       placeholder="Montant"
     />
 
 
-    <app-select size="small"
-              appendTo="body"
-              [items]="paymentModes"
-              formControlName="modePaimentCode"
-              bindLabel="libelle"
-              bindValue="code"
-              placeholder="Mode de paiement"
+    <app-select [items]="paymentModes"
+                appendTo="body"
+                bindLabel="libelle"
+                bindValue="code"
+                formControlName="modePaimentCode"
+                placeholder="Mode de paiement"
+                size="small"
     />
-    <pharma-date-picker [maxDate]="maxDate" formControlName="paymentDate" id="datePaiement"
-                        label="Date paiement" />
+    <pharma-date-picker [labelPosition]="'top'" [maxDate]="maxDate" formControlName="paymentDate"
+                        id="datePaiement" label="Date paiement" />
 
 
     <app-button
@@ -34,8 +34,8 @@
       [loading]="isSaving()"
       icon="pi pi-check"
       label="Valider"
-      size="small"
       severity="success"
+      size="small"
       type="submit"
     />
 
@@ -44,11 +44,12 @@
   <!-- Infos bancaires (si chèque / virement) -->
   @if (showBanqueInfo) {
     <div class="bank-fields" formGroupName="banqueInfo">
-      <input formControlName="nom" placeholder="Nom de la banque" class="form-control" />
+      <input class="form-control" formControlName="nom" placeholder="Nom de la banque" />
       @if (reglementForm.get('modePaimentCode')!.value === CH) {
-        <input formControlName="code" [appKeyFilter]="'alphanum'" placeholder="N° chèque" class="form-control" />
+        <input [appKeyFilter]="'alphanum'" class="form-control" formControlName="code"
+               placeholder="N° chèque" />
       }
-      <input formControlName="beneficiaire" placeholder="Bénéficiaire" class="form-control" />
+      <input class="form-control" formControlName="beneficiaire" placeholder="Bénéficiaire" />
     </div>
   }
 

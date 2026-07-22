@@ -1,31 +1,33 @@
 <div class="pharma-smart-content p-1">
 
   <!-- Toolbar -->
-  <app-toolbar icon="pi pi-truck" title="Comptes fournisseurs" [compact]="true">
+  <app-toolbar [compact]="true" icon="pi pi-truck" title="Comptes fournisseurs">
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
 
         <app-icon-field icon="pi pi-search">
-          <input type="text" class="form-control" placeholder="Rechercher un fournisseur..."
-                 [value]="searchText()" (input)="searchText.set($any($event.target).value)"
-                 style="width: 220px;" />
+          <input (input)="searchText.set($any($event.target).value)" [value]="searchText()" class="form-control"
+                 placeholder="Rechercher un fournisseur..." style="width: 220px;"
+                 type="text" />
         </app-icon-field>
 
-        <pharma-date-picker [ngModel]="fromDate()" (ngModelChange)="fromDate.set($event); loadComptes()"
-                      label="Du" />
+        <pharma-date-picker (ngModelChange)="fromDate.set($event); loadComptes()"
+                            [ngModel]="fromDate()"
+                            label="Du" />
 
-        <pharma-date-picker [ngModel]="toDate()" (ngModelChange)="toDate.set($event); loadComptes()"
-                      label="Au" />
+        <pharma-date-picker (ngModelChange)="toDate.set($event); loadComptes()" [ngModel]="toDate()"
+                            label="Au" />
 
       </div>
     </ng-container>
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-toolbar-actions">
-        <app-button icon="pi pi-file-pdf" label="Exporter en PDF" severity="warn" size="small"
-                  [loading]="isExporting()" ngbTooltip="Exporter la liste en PDF"
-                  (clicked)="exportPdfGlobal()" />
-        <app-button [text]="true" icon="pi pi-refresh" severity="secondary" [rounded]="true"  (clicked)="loadComptes()"
-                  [loading]="isLoading()" ngbTooltip="Rafraîchir" />
+        <app-button (clicked)="exportPdfGlobal()" [loading]="isExporting()" icon="pi pi-file-pdf" label="Exporter en PDF"
+                    ngbTooltip="Exporter la liste en PDF" severity="warn"
+                    size="small" />
+        <app-button (clicked)="loadComptes()" [loading]="isLoading()" [rounded]="true" [text]="true"
+                    icon="pi pi-refresh"
+                    ngbTooltip="Rafraîchir" severity="secondary" />
       </div>
     </ng-container>
   </app-toolbar>
@@ -33,7 +35,7 @@
   <!-- KPI Banner -->
   @if (summary() === null) {
     <div class="kpi-strip">
-      @for (_ of [1,2,3,4]; track _; let last = $last) {
+      @for (_ of [1, 2, 3, 4]; track _; let last = $last) {
         <div class="kpi-strip-item">
           <i class="pi pi-spin pi-spinner text-muted"></i>
           <div class="kpi-strip-body">
@@ -41,7 +43,9 @@
             <span class="kpi-strip-value text-muted">—</span>
           </div>
         </div>
-        @if (!last) { <div class="kpi-strip-divider"></div> }
+        @if (!last) {
+          <div class="kpi-strip-divider"></div>
+        }
       }
     </div>
   } @else {
@@ -97,19 +101,19 @@
     <div class="pharma-hint">
       <i class="pi pi-info-circle"></i>
       <span>Cliquez sur un fournisseur pour afficher le détail de ses commandes et enregistrer un règlement.</span>
-      <button type="button" class="pharma-hint-close" (click)="dismissHint()" aria-label="Fermer">
+      <button (click)="dismissHint()" aria-label="Fermer" class="pharma-hint-close" type="button">
         <i class="pi pi-times"></i>
       </button>
     </div>
   }
 
   <!-- Split container -->
-  <div class="split-container" [class.panel-open]="panelOpen()">
+  <div [class.panel-open]="panelOpen()" class="split-container">
 
     <!-- Liste fournisseurs -->
     <div class="list-column">
-      <app-data-table [value]="getFiltered()" [loading]="isLoading()"
-               class="p-datatable-sm p-datatable-striped p-datatable-hoverable">
+      <app-data-table [loading]="isLoading()" [value]="getFiltered()"
+                      class="p-datatable-sm p-datatable-striped p-datatable-hoverable">
         <ng-template #header>
           <tr class="pharma-table-head">
             <th>Fournisseur</th>
@@ -121,10 +125,10 @@
           </tr>
         </ng-template>
         <ng-template #body let-c>
-          <tr [class.table-row-overdue]="c.statut === 'CRITIQUE'"
-              [class.table-row-warning]="c.statut === 'EN_RETARD'"
+          <tr (click)="selectFournisseur(c)"
               [class.row-selected]="isSelected(c)"
-              (click)="selectFournisseur(c)" style="cursor: pointer;">
+              [class.table-row-overdue]="c.statut === 'CRITIQUE'"
+              [class.table-row-warning]="c.statut === 'EN_RETARD'" style="cursor: pointer;">
             <td>
               <span class="fw-semibold">{{ c.fournisseurName }}</span>
               @if (c.phone) {
@@ -137,22 +141,27 @@
               }
             </td>
             <td><code class="pharma-code">{{ c.fournisseurCode }}</code></td>
-            <td class="text-end fw-bold" [class.text-danger]="c.solde > 0">{{ formatCurrency(c.solde) }}</td>
+            <td [class.text-danger]="c.solde > 0" class="text-end fw-bold">{{
+                formatCurrency(c.solde)
+              }}
+            </td>
             <td>
-              <app-badge [label]="statutLabel(c.statut)" [severity]="statutSeverity(c.statut)"
-                     [ngbTooltip]="statutTooltip(c.statut)" placement="left" />
+              <app-badge [label]="statutLabel(c.statut)" [ngbTooltip]="statutTooltip(c.statut)"
+                         [severity]="statutSeverity(c.statut)" placement="left" />
             </td>
             <td>{{ c.prochaineEcheance ? (c.prochaineEcheance | date:'dd/MM/yyyy') : '—' }}</td>
             <td class="text-end">
-              <app-button icon="pi pi-eye" [text]="true" size="small" severity="info"
-                        ngbTooltip="Voir règlements"
-                        (clicked)="selectFournisseur(c)" />
+              <app-button (clicked)="selectFournisseur(c)" [text]="true" icon="pi pi-eye" ngbTooltip="Voir règlements"
+                          severity="info"
+                          size="small" />
             </td>
           </tr>
         </ng-template>
         <ng-template #emptymessage>
           <tr>
-            <td colspan="6" class="text-center py-4 text-secondary">Aucun compte fournisseur trouvé.</td>
+            <td class="text-center py-4 text-secondary" colspan="6">Aucun compte fournisseur
+              trouvé.
+            </td>
           </tr>
         </ng-template>
       </app-data-table>
@@ -169,8 +178,8 @@
               <div class="panel-title-block">
                 <div class="panel-libelle">{{ f.fournisseurName }}</div>
                 <div class="panel-meta">
-                  <app-badge [label]="statutLabel(f.statut)" [severity]="statutSeverity(f.statut)"
-                         [ngbTooltip]="statutTooltip(f.statut)" />
+                  <app-badge [label]="statutLabel(f.statut)" [ngbTooltip]="statutTooltip(f.statut)"
+                             [severity]="statutSeverity(f.statut)" />
                   <span class="pharma-badge pharma-badge-danger ms-2">
                     Solde : {{ formatCurrency(f.solde) }} FCFA
                   </span>
@@ -187,28 +196,32 @@
                 </div>
                 <!-- Récapitulatif financier -->
                 <div class="d-flex gap-4 mt-1" style="font-size: 0.82rem;">
-                  <span>Commandé : <strong>{{ formatCurrency(f.totalCommande) }} FCFA</strong></span>
-                  <span>Réglé : <strong class="text-success">{{ formatCurrency(f.totalRegle) }} FCFA</strong></span>
-                  <span>Solde : <strong class="text-danger">{{ formatCurrency(f.solde) }} FCFA</strong></span>
+                  <span>Commandé : <strong>{{ formatCurrency(f.totalCommande) }}FCFA</strong></span>
+                  <span>Réglé : <strong class="text-success">{{ formatCurrency(f.totalRegle) }}
+                    FCFA</strong></span>
+                  <span>Solde : <strong class="text-danger">{{ formatCurrency(f.solde) }}
+                    FCFA</strong></span>
                 </div>
               </div>
               <div class="panel-actions">
                 @if (f.solde > 0) {
-                  <app-button label="Régler tout" icon="pi pi-check" severity="success" size="small"
-                            ngbTooltip="Solder ce fournisseur en un règlement"
-                            (clicked)="regleTout()" />
+                  <app-button (clicked)="regleTout()" icon="pi pi-check" label="Régler tout" ngbTooltip="Solder ce fournisseur en un règlement"
+                              severity="success"
+                              size="small" />
                 }
-                <app-button icon="pi pi-file-pdf" [outlined]="true" size="small" label="Exporter en PDF" severity="warn"
-                          ngbTooltip="Exporter le détail en PDF" [loading]="isExporting()"
-                          (clicked)="exportPdfFournisseur()" />
-                <app-button icon="pi pi-times" [text]="true" [rounded]="true" size="small" severity="secondary"
-                          ngbTooltip="Fermer" (clicked)="closeDetail()" />
+                <app-button (clicked)="exportPdfFournisseur()" [loading]="isExporting()" [outlined]="true"
+                            icon="pi pi-file-pdf" label="Exporter en PDF"
+                            ngbTooltip="Exporter le détail en PDF" severity="warn"
+                            size="small" />
+                <app-button (clicked)="closeDetail()" [rounded]="true" [text]="true" icon="pi pi-times"
+                            ngbTooltip="Fermer"
+                            severity="secondary" size="small" />
               </div>
             </div>
 
             <!-- Onglets ngbNav -->
             <div class="pharma-nav-tabs-container flex-1-overflow">
-              <div #nav="ngbNav" [activeId]="activeTab()" (activeIdChange)="onTabChange($event)"
+              <div #nav="ngbNav" (activeIdChange)="onTabChange($event)" [activeId]="activeTab()"
                    class="nav pharma-nav-tabs" ngbNav orientation="horizontal">
 
                 <!-- Onglet Commandes -->
@@ -227,31 +240,36 @@
                       <!-- Filtre statut -->
                       <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
                         <small class="text-muted me-1">Filtrer :</small>
-                        <button type="button" class="btn btn-sm"
+                        <button (click)="setFiltreStatut(null)" [class.btn-outline-secondary]="filtreStatutLignes() !== null"
                                 [class.btn-secondary]="filtreStatutLignes() === null"
-                                [class.btn-outline-secondary]="filtreStatutLignes() !== null"
-                                (click)="setFiltreStatut(null)">
-                          Tous <span class="badge bg-light text-dark ms-1">{{ totalLignes() }}</span>
+                                class="btn btn-sm"
+                                type="button">
+                          Tous <span
+                          class="badge bg-light text-dark ms-1">{{ totalLignes() }}</span>
                         </button>
-                        <button type="button" class="btn btn-sm"
+                        <button (click)="setFiltreStatut('EN_ATTENTE')" [class.btn-outline-secondary]="filtreStatutLignes() !== 'EN_ATTENTE'"
                                 [class.btn-secondary]="filtreStatutLignes() === 'EN_ATTENTE'"
-                                [class.btn-outline-secondary]="filtreStatutLignes() !== 'EN_ATTENTE'"
-                                (click)="setFiltreStatut('EN_ATTENTE')">En attente</button>
-                        <button type="button" class="btn btn-sm"
-                                [class.btn-danger]="filtreStatutLignes() === 'EN_RETARD'"
+                                class="btn btn-sm"
+                                type="button">En attente
+                        </button>
+                        <button (click)="setFiltreStatut('EN_RETARD')" [class.btn-danger]="filtreStatutLignes() === 'EN_RETARD'"
                                 [class.btn-outline-danger]="filtreStatutLignes() !== 'EN_RETARD'"
-                                (click)="setFiltreStatut('EN_RETARD')">En retard</button>
-                        <button type="button" class="btn btn-sm"
+                                class="btn btn-sm"
+                                type="button">En retard
+                        </button>
+                        <button (click)="setFiltreStatut('PARTIEL')" [class.btn-outline-warning]="filtreStatutLignes() !== 'PARTIEL'"
                                 [class.btn-warning]="filtreStatutLignes() === 'PARTIEL'"
-                                [class.btn-outline-warning]="filtreStatutLignes() !== 'PARTIEL'"
-                                (click)="setFiltreStatut('PARTIEL')">Partiel</button>
+                                class="btn btn-sm"
+                                type="button">Partiel
+                        </button>
 
                       </div>
 
-                      <app-data-table [value]="lignes()" class="p-datatable-sm"
-                               [loading]="isLoadingLignes()" [lazy]="true"
-                               [paginator]="true" [rows]="PAGE_SIZE" [totalRecords]="totalLignes()"
-                               (onLazyLoad)="onPage($event)">
+                      <app-data-table (onLazyLoad)="onPage($event)" [lazy]="true"
+                                      [loading]="isLoadingLignes()" [paginator]="true"
+                                      [rows]="PAGE_SIZE" [totalRecords]="totalLignes()"
+                                      [value]="lignes()"
+                                      class="p-datatable-sm">
                         <ng-template #header>
                           <tr class="pharma-table-head">
                             <th>N° Bon</th>
@@ -268,25 +286,35 @@
                             <td><code class="pharma-code">{{ l.numBon }}</code></td>
                             <td>{{ (l.dateEcheance ?? l.dateCommande) | date:'dd/MM/yyyy' }}</td>
                             <td class="text-end">{{ formatCurrency(l.montant) }}</td>
-                            <td class="text-end text-success">{{ formatCurrency(l.montantRegle) }}</td>
-                            <td class="text-end fw-semibold text-danger">{{ formatCurrency(l.restantDu) }}</td>
+                            <td class="text-end text-success">{{
+                                formatCurrency(l.montantRegle)
+                              }}
+                            </td>
+                            <td class="text-end fw-semibold text-danger">{{
+                                formatCurrency(l.restantDu)
+                              }}
+                            </td>
                             <td>
-                              <app-badge [label]="ligneStatutLabel(l.statut)" [severity]="ligneSeverity(l.statut)"
-                                     [ngbTooltip]="ligneStatutTooltip(l.statut)" placement="left" />
+                              <app-badge [label]="ligneStatutLabel(l.statut)"
+                                         [ngbTooltip]="ligneStatutTooltip(l.statut)"
+                                         [severity]="ligneSeverity(l.statut)"
+                                         placement="left" />
                             </td>
                             <td class="actions-col">
                               @if (l.statut !== 'REGLE') {
-                                <app-button icon="pi pi-money-bill" [text]="true" size="small" severity="success"
-                                          ngbTooltip="Régler ce BL"
-                                          (clicked)="reglerLigne(l)" />
+                                <app-button (clicked)="reglerLigne(l)" [text]="true" icon="pi pi-money-bill"
+                                            ngbTooltip="Régler ce BL"
+                                            severity="success"
+                                            size="small" />
                               }
                             </td>
                           </tr>
                         </ng-template>
                         <ng-template #emptymessage>
                           <tr>
-                            <td colspan="7" class="text-center text-muted py-3">
-                              <i class="pi pi-filter-slash me-1"></i> Aucune commande pour ce filtre.
+                            <td class="text-center text-muted py-3" colspan="7">
+                              <i class="pi pi-filter-slash me-1"></i> Aucune commande pour ce
+                              filtre.
                             </td>
                           </tr>
                         </ng-template>
@@ -308,65 +336,75 @@
                         <!-- Indicateur solde (Signal) -->
                         <div class="solde-indicator mb-2">
                           @if (selectedLigne(); as bl) {
-                            <span class="solde-label">Restant BL <code class="pharma-code">{{ bl.numBon }}</code> :</span>
-                            <span class="solde-value text-danger fw-bold">{{ formatCurrency(bl.restantDu) }} FCFA</span>
+                            <span class="solde-label">Restant BL <code
+                              class="pharma-code">{{ bl.numBon }}</code> :</span>
+                            <span class="solde-value text-danger fw-bold">{{
+                                formatCurrency(bl.restantDu)
+                              }} FCFA</span>
                             <span class="ms-3 text-muted" style="font-size: 0.8rem;">
                               Solde global : {{ formatCurrency(solde()) }} FCFA
                             </span>
                           } @else {
                             <span class="solde-label">Solde à régler :</span>
-                            <span class="solde-value text-danger fw-bold">{{ formatCurrency(solde()) }} FCFA</span>
+                            <span class="solde-value text-danger fw-bold">{{
+                                formatCurrency(solde())
+                              }} FCFA</span>
                           }
                         </div>
 
-                        <form [formGroup]="reglementForm" (ngSubmit)="saveReglement()">
+                        <form (ngSubmit)="saveReglement()" [formGroup]="reglementForm">
 
                           <!-- Ligne 1 : Montant | Date -->
                           <div class="row g-2 mb-3">
                             <div class="col-6">
-                              <app-float-label label="Montant (FCFA)" inputId="montant">
-                                <app-input-number inputId="montant" formControlName="montant" />
+                              <app-float-label inputId="montant" label="Montant (FCFA)">
+                                <app-input-number formControlName="montant" inputId="montant" />
                               </app-float-label>
                               @if (montantSaisi() > solde()) {
-                                <small class="text-danger">Le montant ne peut pas dépasser le solde dû.</small>
+                                <small class="text-danger">Le montant ne peut pas dépasser le solde
+                                  dû.</small>
                               }
                             </div>
                             <div class="col-6">
-                              <pharma-date-picker inputId="dateReg" formControlName="dateReglement"
-                                            label="Date du règlement" />
+                              <pharma-date-picker [labelPosition]="'top'" formControlName="dateReglement"
+                                                  id="dateReg"
+                                                  label="Date du règlement" />
                             </div>
                           </div>
 
                           <!-- Ligne 2 : Mode | Référence -->
                           <div class="row g-2 mb-3">
                             <div class="col-6">
-                              <app-float-label label="Mode de règlement" inputId="modeReglement">
-                                <app-select inputId="modeReglement" formControlName="modeReglement"
-                                          [items]="modeReglementOptions" bindLabel="label" bindValue="value" />
+                              <app-float-label inputId="modeReglement" label="Mode de règlement">
+                                <app-select [items]="modeReglementOptions" bindLabel="label"
+                                            bindValue="value" formControlName="modeReglement"
+                                            inputId="modeReglement" />
                               </app-float-label>
                             </div>
                             <div class="col-6">
-                              <app-float-label label="Référence" inputId="reference">
-                                <input class="form-control" id="reference" formControlName="reference" placeholder=" " />
+                              <app-float-label inputId="reference" label="Référence">
+                                <input class="form-control" formControlName="reference"
+                                       id="reference" placeholder=" " />
                               </app-float-label>
                             </div>
                           </div>
 
                           <!-- Commentaire -->
                           <div class="mb-3">
-                            <app-float-label label="Commentaire (optionnel)" inputId="commentaire">
-                              <input class="form-control" id="commentaire" formControlName="commentaire" placeholder=" " />
+                            <app-float-label inputId="commentaire" label="Commentaire (optionnel)">
+                              <input class="form-control" formControlName="commentaire"
+                                     id="commentaire" placeholder=" " />
                             </app-float-label>
                           </div>
 
                           <div class="d-flex gap-2">
-                            <app-button type="submit" label="Enregistrer" icon="pi pi-save"
-                                      [loading]="isSaving()"
-                                      [disabled]="reglementForm.invalid || !validMontant()"
-                                      class="flex-fill" />
-                            <app-button type="button" label="Annuler" severity="secondary"
-                                      (clicked)="activeTab.set('commandes')"
-                                      class="flex-fill" />
+                            <app-button [disabled]="reglementForm.invalid || !validMontant()" [loading]="isSaving()" class="flex-fill"
+                                        icon="pi pi-save"
+                                        label="Enregistrer"
+                                        type="submit" />
+                            <app-button (clicked)="activeTab.set('commandes')" class="flex-fill" label="Annuler"
+                                        severity="secondary"
+                                        type="button" />
                           </div>
 
                         </form>
@@ -374,7 +412,6 @@
                     </ng-template>
                   </ng-container>
                 }
-
 
 
               </div>

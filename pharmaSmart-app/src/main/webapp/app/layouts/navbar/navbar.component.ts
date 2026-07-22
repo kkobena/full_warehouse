@@ -5,7 +5,6 @@ import { AccountService } from "app/core/auth/account.service";
 import { LoginService } from "app/login/login.service";
 import { NavItem } from "./navbar-item.model";
 import { faBars, faServer, faSlidersH } from "@fortawesome/free-solid-svg-icons";
-import { Theme, ThemeService } from "../../core/theme/theme.service";
 import { NgbCollapse, NgbDropdown, NgbDropdownMenu, NgbDropdownToggle, NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { AppSettingsDialogComponent } from "../../shared/settings/app-settings-dialog.component";
 import { Authority } from "../../config/authority.constants";
@@ -33,19 +32,11 @@ export default class NavbarComponent implements OnInit {
   protected layoutService = inject(LayoutService);
   private readonly loginService = inject(LoginService);
   private readonly router = inject(Router);
-  private readonly themeService = inject(ThemeService);
   private readonly modalService = inject(NgbModal);
   private readonly navigationService = inject(NavigationService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly navStore = inject(NavStore);
   protected readonly alertBadgeService = inject(AlertBadgeService);
-  themes: Theme[];
-  selectedTheme: string;
-
-  changeTheme(themeName: string): void {
-    this.selectedTheme = themeName;
-    this.themeService.setTheme(themeName);
-  }
 
   constructor() {
 
@@ -67,7 +58,6 @@ export default class NavbarComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.themes = this.themeService.getThemes();
     // Démarrer le polling des alertes dès que la navbar est initialisée
     this.alertBadgeService.init();
   }

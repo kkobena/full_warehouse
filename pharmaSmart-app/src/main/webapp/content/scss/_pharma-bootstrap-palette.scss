@@ -30,7 +30,10 @@
 //   contrast           {surface.950}     .btn-contrast  (ajoutée)
 
 $primary: #10b981; // --p-emerald-500
-$secondary: #f1f5f9; // --p-slate-100  (fond clair, Bootstrap calcule le texte foncé)
+// surface.100 d'Aura (#f1f5f9) était trop pâle — quasi invisible sur fond blanc sans
+// bordure. surface.300 garde un gris neutre mais avec un vrai contraste ; Bootstrap
+// calcule toujours un texte foncé dessus.
+$secondary: #cbd5e1; // --p-slate-300
 $success: #22c55e; // --p-green-500
 $info: #0ea5e9; // --p-sky-500
 $warning: #f97316; // --p-orange-500  (Aura utilise orange, pas amber)

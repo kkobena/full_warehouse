@@ -4,40 +4,43 @@
   <app-kpi-strip stripClass="mt-1">
     <app-kpi-item
       [accent]="'primary'"
-      [value]="kpi()!.totalFacture | number: '1.0-0'"
+      [value]="kpi()!.totalFacture | number"
       icon="pi pi-file-edit"
       iconClass="text-primary"
       label="Total facturé"
       valueClass="text-primary"
     >
-      <ng-container ngProjectAs="[kpiSub]">{{ kpi()!.countFactures | number }} factures</ng-container>
+      <ng-container ngProjectAs="[kpiSub]">{{ kpi()!.countFactures | number }}factures
+      </ng-container>
     </app-kpi-item>
 
     <app-kpi-item
       [accent]="'success'"
-      [value]="kpi()!.totalRegle | number: '1.0-0'"
+      [value]="kpi()!.totalRegle | number"
       icon="pi pi-check-circle"
       iconClass="text-success"
       label="Total réglé"
       valueClass="text-success"
     >
-      <ng-container ngProjectAs="[kpiSub]">Taux {{ kpi()!.tauxRecouvrement | number: '1.1-1' }} %</ng-container>
+      <ng-container ngProjectAs="[kpiSub]">Taux {{ kpi()!.tauxRecouvrement | number: '1.1-1' }}%
+      </ng-container>
     </app-kpi-item>
 
     <app-kpi-item
       [accent]="'danger'"
-      [value]="kpi()!.totalRestant | number: '1.0-0'"
+      [value]="kpi()!.totalRestant | number"
       icon="pi pi-exclamation-circle"
       iconClass="text-danger"
       label="Restant dû"
       valueClass="text-danger"
     >
-      <ng-container ngProjectAs="[kpiSub]">{{ kpi()!.countImpayees | number }} impayées</ng-container>
+      <ng-container ngProjectAs="[kpiSub]">{{ kpi()!.countImpayees | number }}impayées
+      </ng-container>
     </app-kpi-item>
 
     <app-kpi-item
       [accent]="'warning'"
-      [value]="kpi()!.soldeCumule | number: '1.0-0'"
+      [value]="kpi()!.soldeCumule | number"
       icon="pi pi-history"
       iconClass="text-warning"
       label="Solde cumulé"
@@ -45,8 +48,8 @@
     >
       <!-- L'infobulle vit dans le sous-texte : elle impose la projection plutôt qu'une simple chaîne. -->
       <span
-        ngProjectAs="[kpiSub]"
         [ngbTooltip]="'Report de solde de l\'année précédente (N-1)'"
+        ngProjectAs="[kpiSub]"
         placement="bottom"
       >
         Dont report N-1

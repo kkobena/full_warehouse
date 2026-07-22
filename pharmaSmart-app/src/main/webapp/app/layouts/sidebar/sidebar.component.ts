@@ -2,7 +2,6 @@ import { Component, DestroyRef, effect, inject, OnInit, signal, ChangeDetectionS
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
 import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
 import { fromEvent } from "rxjs";
 import { AccountService } from "app/core/auth/account.service";
 import { LoginService } from "app/login/login.service";
@@ -15,7 +14,6 @@ import {
   faSlidersH,
   faUserCircle
 } from "@fortawesome/free-solid-svg-icons";
-import { Theme, ThemeService } from "../../core/theme/theme.service";
 import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { AppSettingsDialogComponent } from "../../shared/settings/app-settings-dialog.component";
 import { Authority } from "../../config/authority.constants";
@@ -29,7 +27,7 @@ import { FaIconComponent } from "@fortawesome/angular-fontawesome";
 
 @Component({
   selector: "jhi-sidebar",
-  imports: [CommonModule, RouterModule, FormsModule, NgbTooltip, FaIconComponent],
+  imports: [CommonModule, RouterModule, NgbTooltip, FaIconComponent],
   templateUrl: "./sidebar.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["./sidebar.component.scss"]
@@ -43,15 +41,11 @@ export default class SidebarComponent implements OnInit {
   protected layoutService = inject(LayoutService);
   private readonly loginService = inject(LoginService);
   private readonly router = inject(Router);
-  private readonly themeService = inject(ThemeService);
   private readonly modalService = inject(NgbModal);
   private readonly navigationService = inject(NavigationService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
   protected readonly alertBadgeService = inject(AlertBadgeService);
   private readonly navStore = inject(NavStore);
-
-  themes: Theme[];
-  selectedTheme: string;
 
   readonly faBars = faBars;
   readonly faChevronDown = faChevronDown;
@@ -143,11 +137,6 @@ export default class SidebarComponent implements OnInit {
   protected onSubmenuItemClick(clickHandler?: () => void): void {
     if (clickHandler) clickHandler();
     if (!this.isCollapsed()) this.toggleSidebar();
-  }
-
-  protected changeTheme(themeName: string): void {
-    this.selectedTheme = themeName;
-    this.themeService.setTheme(themeName);
   }
 
   protected login(): void {

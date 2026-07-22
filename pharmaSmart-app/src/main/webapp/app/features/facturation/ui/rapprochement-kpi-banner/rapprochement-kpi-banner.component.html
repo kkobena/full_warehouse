@@ -1,24 +1,25 @@
 <app-kpi-strip [loading]="loading()" [skeletonCount]="4" stripClass="mt-1">
   @if (kpi(); as k) {
-    <app-kpi-item [accent]="'primary'" icon="pi pi-building" iconClass="text-primary"
-                  label="Total facturé" [value]="k.totalFacture | number:'1.0-0'" valueClass="text-primary">
+    <app-kpi-item [accent]="'primary'" [value]="k.totalFacture | number" icon="pi pi-building"
+                  iconClass="text-primary" label="Total facturé" valueClass="text-primary">
       <ng-container ngProjectAs="[kpiSub]">{{ k.countOrganismes }} organisme(s)</ng-container>
     </app-kpi-item>
 
-    <app-kpi-item [accent]="'success'" icon="pi pi-check-circle" iconClass="text-success"
-                  label="Total réglé" [value]="k.totalRegle | number:'1.0-0'" valueClass="text-success">
-      <ng-container ngProjectAs="[kpiSub]">Taux {{ k.tauxRecouvrement | number:'1.1-1' }} %</ng-container>
+    <app-kpi-item [accent]="'success'" [value]="k.totalRegle | number" icon="pi pi-check-circle"
+                  iconClass="text-success" label="Total réglé" valueClass="text-success">
+      <ng-container ngProjectAs="[kpiSub]">Taux {{ k.tauxRecouvrement | number }} %</ng-container>
     </app-kpi-item>
 
-    <app-kpi-item [accent]="'danger'" icon="pi pi-arrows-h" iconClass="text-danger"
-                  label="Écart global"
-                  [valueClass]="k.ecartTotal === 0 ? 'text-success' : (k.ecartTotal > 0 ? 'text-danger' : '')">
-      <ng-container ngProjectAs="[kpiValue]">{{ k.ecartTotal | number:'1.0-0' }}</ng-container>
+    <app-kpi-item [accent]="'danger'" [valueClass]="k.ecartTotal === 0 ? 'text-success' : (k.ecartTotal > 0 ? 'text-danger' : '')" icon="pi pi-arrows-h"
+                  iconClass="text-danger"
+                  label="Écart global">
+      <ng-container ngProjectAs="[kpiValue]">{{ k.ecartTotal | number }}</ng-container>
       <ng-container ngProjectAs="[kpiSub]">Restant dû</ng-container>
     </app-kpi-item>
 
-    <app-kpi-item [accent]="'warning'" icon="pi pi-clock" iconClass="text-warning"
-                  label="En retard" [value]="k.countLignesEnRetard | number" valueClass="text-warning">
+    <app-kpi-item [accent]="'warning'" [value]="k.countLignesEnRetard | number" icon="pi pi-clock"
+                  iconClass="text-warning" label="En retard"
+                  valueClass="text-warning">
       <ng-container ngProjectAs="[kpiSub]">Délai dépassé</ng-container>
     </app-kpi-item>
   }

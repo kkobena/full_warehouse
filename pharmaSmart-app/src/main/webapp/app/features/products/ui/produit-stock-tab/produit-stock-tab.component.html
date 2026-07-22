@@ -19,13 +19,13 @@
           </span>
           <span class="stock-card-name text-muted">{{ rayon.storageName ?? rayon.storageType }}</span>
           <div class="stock-card-actions">
-            <p-button
+            <app-button
               icon="pi pi-pencil"
               [text]="true"
               size="small"
               severity="secondary"
-              pTooltip="Modifier paramètres"
-              (onClick)="onEditStock(rayon)"
+              ngbTooltip="Modifier paramètres"
+              (clicked)="onEditStock(rayon)"
             />
           </div>
         </div>
@@ -46,7 +46,7 @@
             <div
               class="niveau-seuil-marker"
               [style.left.%]="rayon.stockMaxi ? (rayon.seuilMini / rayon.stockMaxi) * 100 : 50"
-              pTooltip="Seuil mini : {{ rayon.seuilMini }} u"
+              ngbTooltip="Seuil mini : {{ rayon.seuilMini }} u"
             ></div>
           }
         </div>
@@ -83,24 +83,24 @@
         <div class="stock-card-footer">
           @if (canTransfertToReserve()) {
             @if (stockReserve()) {
-              <p-button
+              <app-button
                 icon="pi pi-arrow-down"
                 [label]="lotUrgent() ? 'Vers réserve (FEFO !)' : 'Vers réserve'"
                 size="small"
-                [severity]="lotUrgent() ? 'warning' : 'secondary'"
+                [severity]="lotUrgent() ? 'warn' : 'secondary'"
                 [outlined]="true"
-                [pTooltip]="lotUrgent() ? 'Lot ' + lotUrgent()!.numLot + ' expire le ' + lotUrgent()!.datePeremption + ' — déplacer en priorité' : 'Transférer du rayon vers la réserve'"
-                (onClick)="onTransfert(rayon)"
+                [ngbTooltip]="lotUrgent() ? 'Lot ' + lotUrgent()!.numLot + ' expire le ' + lotUrgent()!.datePeremption + ' — déplacer en priorité' : 'Transférer du rayon vers la réserve'"
+                (clicked)="onTransfert(rayon)"
               />
             } @else {
-              <p-button
+              <app-button
                 icon="pi pi-plus"
                 label="Créer réserve"
                 size="small"
                 severity="primary"
                 [outlined]="true"
-                pTooltip="Créer un stock réserve et y transférer du stock"
-                (onClick)="onAddReserve()"
+                ngbTooltip="Créer un stock réserve et y transférer du stock"
+                (clicked)="onAddReserve()"
               />
             }
           }
@@ -124,13 +124,13 @@
           </span>
           <span class="stock-card-name text-muted">{{ reserve.storageName ?? reserve.storageType }}</span>
           <div class="stock-card-actions">
-            <p-button
+            <app-button
               icon="pi pi-pencil"
               [text]="true"
               size="small"
               severity="secondary"
-              pTooltip="Modifier paramètres"
-              (onClick)="onEditStock(reserve)"
+              ngbTooltip="Modifier paramètres"
+              (clicked)="onEditStock(reserve)"
             />
           </div>
         </div>
@@ -149,7 +149,7 @@
             <div
               class="niveau-seuil-marker"
               [style.left.%]="reserve.stockMaxi ? (reserve.seuilMini / reserve.stockMaxi) * 100 : 50"
-              pTooltip="Seuil mini : {{ reserve.seuilMini }} u"
+              ngbTooltip="Seuil mini : {{ reserve.seuilMini }} u"
             ></div>
           }
         </div>
@@ -177,14 +177,14 @@
 
         <div class="stock-card-footer">
           @if (canTransfertToRayon()) {
-            <p-button
+            <app-button
               icon="pi pi-arrow-up"
               label="Réapprovisionner rayon"
               size="small"
               severity="primary"
               [outlined]="true"
-              pTooltip="Transférer de la réserve vers le rayon"
-              (onClick)="onTransfert(reserve)"
+              ngbTooltip="Transférer de la réserve vers le rayon"
+              (clicked)="onTransfert(reserve)"
             />
           }
         </div>
@@ -194,13 +194,13 @@
     <!-- Bouton ajout réserve si rayon seul -->
     @if (canAddReserve()) {
       <div class="stock-add-reserve">
-        <p-button
+        <app-button
           icon="pi pi-plus"
           label="Créer stock réserve"
           size="small"
           severity="secondary"
           [outlined]="true"
-          (onClick)="onAddReserve()"
+          (clicked)="onAddReserve()"
         />
       </div>
     }
@@ -236,7 +236,7 @@
             <span class="insight-label">Seuil recommandé</span>
             <span class="insight-value insight-highlight">{{ seuilCalcule() }} u</span>
             @if (seuilInsuffisant()) {
-              <span class="insight-warn" pTooltip="Le seuil mini paramétré ({{ stockPrincipal()?.seuilMini ?? 0 }} u) est inférieur au seuil recommandé ({{ seuilCalcule() }} u)">
+              <span class="insight-warn" ngbTooltip="Le seuil mini paramétré ({{ stockPrincipal()?.seuilMini ?? 0 }} u) est inférieur au seuil recommandé ({{ seuilCalcule() }} u)">
                 <i class="pi pi-exclamation-triangle"></i> Seuil trop bas
               </span>
             }
@@ -258,16 +258,16 @@
             <i class="pi pi-exclamation-triangle me-1"></i>Lot urgent &lt; 3 mois
           </span>
         }
-        <p-button
+        <app-button
           icon="pi pi-plus"
           label="Saisir un lot"
           size="small"
           severity="primary"
           [outlined]="true"
           [disabled]="(produit().totalQuantity ?? 0) <= 0"
-          pTooltip="Saisir un nouveau lot hors commande"
-          tooltipPosition="left"
-          (onClick)="onSaisirLot()"
+          ngbTooltip="Saisir un nouveau lot hors commande"
+          placement="left"
+          (clicked)="onSaisirLot()"
         />
       </div>
       <div class="fefo-table">
@@ -300,14 +300,14 @@
     <div class="fefo-no-lots">
       <i class="pi pi-info-circle me-1"></i>
       Aucun lot enregistré pour ce produit.
-      <p-button
+      <app-button
         icon="pi pi-plus"
         label="Saisir un lot"
         size="small"
         severity="primary"
         [outlined]="true"
-        pTooltip="Saisir un nouveau lot hors commande"
-        (onClick)="onSaisirLot()"
+        ngbTooltip="Saisir un nouveau lot hors commande"
+        (clicked)="onSaisirLot()"
       />
     </div>
   }

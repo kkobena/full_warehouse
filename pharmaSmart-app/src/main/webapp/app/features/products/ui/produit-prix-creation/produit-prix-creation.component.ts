@@ -1,10 +1,7 @@
 import { Component, Input, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { SelectModule } from 'primeng/select';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { ButtonComponent, InputNumberComponent, SelectComponent, SelectSearchComponent, SwitchComponent } from 'app/shared/ui';
 import { ITiersPayant } from 'app/shared/model/tierspayant.model';
 
 const PRICE_TYPES = [
@@ -18,7 +15,7 @@ const PRICE_TYPES = [
   templateUrl: './produit-prix-creation.component.html',
   styleUrl: './produit-prix-creation.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, ReactiveFormsModule, ButtonModule, SelectModule, InputNumberModule, ToggleSwitchModule],
+  imports: [CommonModule, ReactiveFormsModule, ButtonComponent, SelectSearchComponent, SelectComponent, InputNumberComponent, SwitchComponent],
 })
 export class ProduitPrixCreationComponent {
   readonly tiersPayants = input.required<ITiersPayant[]>();

@@ -5,8 +5,8 @@
       <span class="section-number">1</span>
       <span class="section-label">Fournisseurs supplémentaires</span>
     </div>
-    <p-button icon="pi pi-plus" label="Ajouter un fournisseur" [outlined]="true" severity="primary"
-              size="small" type="button" (onClick)="addRow()"/>
+    <app-button icon="pi pi-plus" label="Ajouter un fournisseur" [outlined]="true" severity="primary"
+              size="small" type="button" (clicked)="addRow()"/>
   </div>
 
   @for (row of rows; track $index) {
@@ -23,20 +23,20 @@
       <div class="supplier-row-fields">
         <div class="form-field">
           <label>Fournisseur <span class="required">*</span></label>
-          <p-select formControlName="fournisseurId" [options]="availableFournisseurs($index)"
-                    [filter]="true" filterBy="libelle" optionLabel="libelle" optionValue="id"
-                    placeholder="Sélectionner" [fluid]="true" appendTo="body"
+          <app-select-search formControlName="fournisseurId" [items]="availableFournisseurs($index)"
+                    bindLabel="libelle" bindValue="id"
+                    placeholder="Sélectionner" appendTo="body"
                     [class.ng-invalid]="row.get('fournisseurId')?.invalid && row.get('fournisseurId')?.touched"/>
         </div>
         <div class="form-field">
           <label>Code CIP <span class="required">*</span></label>
-          <input pInputText pKeyFilter="int" formControlName="codeCip" class="w-full"
+          <input appKeyFilter="int" class="form-control w-full" formControlName="codeCip"
                  [class.ng-invalid]="row.get('codeCip')?.invalid && row.get('codeCip')?.touched"/>
         </div>
         <div class="form-field">
           <label>Prix d'achat <span class="required">*</span></label>
           <div class="input-currency">
-            <input pInputText pKeyFilter="int" formControlName="prixAchat" class="w-full"
+            <input appKeyFilter="int" class="form-control w-full" formControlName="prixAchat"
                    [class.ng-invalid]="!isPrixValid(row) || (row.get('prixAchat')?.invalid && row.get('prixAchat')?.touched)"/>
             <span class="currency-symbol">FCFA</span>
           </div>
@@ -44,22 +44,22 @@
         <div class="form-field">
           <label>Prix de vente <span class="required">*</span></label>
           <div class="input-currency">
-            <input pInputText pKeyFilter="int" formControlName="prixUni" class="w-full"
+            <input appKeyFilter="int" class="form-control w-full" formControlName="prixUni"
                    [class.ng-invalid]="!isPrixValid(row) || (row.get('prixUni')?.invalid && row.get('prixUni')?.touched)"/>
             <span class="currency-symbol">FCFA</span>
           </div>
         </div>
         <div class="form-field">
           <label>Qté/colis</label>
-          <input pInputText pKeyFilter="int" formControlName="qteColis" class="w-full" placeholder="1"/>
+          <input appKeyFilter="int" class="form-control w-full" formControlName="qteColis" placeholder="1"/>
         </div>
         <div class="form-field">
           <label>Qté min. commande</label>
-          <input pInputText pKeyFilter="int" formControlName="qteMinimaleCommande" class="w-full" placeholder="0"/>
+          <input appKeyFilter="int" class="form-control w-full" formControlName="qteMinimaleCommande" placeholder="0"/>
         </div>
         <div class="supplier-row-actions">
-          <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true" size="small"
-                    type="button" (onClick)="removeRow($index)"/>
+          <app-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true" size="small"
+                    type="button" (clicked)="removeRow($index)"/>
         </div>
       </div>
     </div>

@@ -52,7 +52,7 @@
             <div class="setup-row two-cols">
               <div class="setup-field">
                 <label for="sw-host">Hôte <span class="required">*</span></label>
-                <input id="sw-host" pInputText formControlName="dbHost" placeholder="localhost"
+                <input id="sw-host" class="form-control" formControlName="dbHost" placeholder="localhost"
                        [class.ng-invalid]="isInvalid('dbHost')" />
                 @if (isInvalid('dbHost')) {
                   <small class="setup-error">Hôte obligatoire</small>
@@ -60,7 +60,7 @@
               </div>
               <div class="setup-field setup-field--narrow">
                 <label for="sw-pg-port">Port <span class="required">*</span></label>
-                <input id="sw-pg-port" pInputText type="number" formControlName="dbPort"
+                <input id="sw-pg-port" class="form-control" type="number" formControlName="dbPort"
                        placeholder="5432" min="1" max="65535"
                        [class.ng-invalid]="isInvalid('dbPort')" />
                 @if (isInvalid('dbPort')) {
@@ -71,7 +71,7 @@
 
             <div class="setup-field">
               <label for="sw-dbname">Base de données <span class="required">*</span></label>
-              <input id="sw-dbname" pInputText formControlName="dbName" placeholder="pharma_smart"
+              <input id="sw-dbname" class="form-control" formControlName="dbName" placeholder="pharma_smart"
                      [class.ng-invalid]="isInvalid('dbName')" />
               @if (isInvalid('dbName')) {
                 <small class="setup-error">Nom de base obligatoire</small>
@@ -81,7 +81,7 @@
             <div class="setup-row two-cols">
               <div class="setup-field">
                 <label for="sw-user">Utilisateur <span class="required">*</span></label>
-                <input id="sw-user" pInputText formControlName="dbUsername" placeholder="pharma_smart"
+                <input id="sw-user" class="form-control" formControlName="dbUsername" placeholder="pharma_smart"
                        autocomplete="username"
                        [class.ng-invalid]="isInvalid('dbUsername')" />
                 @if (isInvalid('dbUsername')) {
@@ -90,14 +90,14 @@
               </div>
               <div class="setup-field">
                 <label for="sw-schema">Schéma <span class="optional">(optionnel)</span></label>
-                <input id="sw-schema" pInputText formControlName="dbSchema" placeholder="pharma_smart" />
+                <input id="sw-schema" class="form-control" formControlName="dbSchema" placeholder="pharma_smart" />
               </div>
             </div>
 
             <div class="setup-field">
               <label for="sw-pass">Mot de passe <span class="optional">(optionnel)</span></label>
-              <p-password inputId="sw-pass" formControlName="dbPassword"
-                          [feedback]="false" [toggleMask]="true" [fluid]="true"
+              <app-password inputId="sw-pass" formControlName="dbPassword"
+                          [toggleMask]="true"
                           placeholder="Mot de passe PostgreSQL" />
             </div>
           </fieldset>
@@ -110,7 +110,7 @@
 
             <div class="setup-field setup-field--narrow">
               <label for="sw-srv-port">Port HTTP <span class="required">*</span></label>
-              <input id="sw-srv-port" pInputText type="number" formControlName="serverPort"
+              <input id="sw-srv-port" class="form-control" type="number" formControlName="serverPort"
                      placeholder="9080" min="1" max="65535"
                      [class.ng-invalid]="isInvalid('serverPort')" />
               @if (isInvalid('serverPort')) {
@@ -130,7 +130,7 @@
 
           <!-- ── Bouton de validation ───────────────────────────── -->
           <div class="setup-actions">
-            <p-button type="submit"
+            <app-button type="submit"
                       label="Démarrer PharmaSmart"
                       icon="fa fa-play"
                       [loading]="submitting()"

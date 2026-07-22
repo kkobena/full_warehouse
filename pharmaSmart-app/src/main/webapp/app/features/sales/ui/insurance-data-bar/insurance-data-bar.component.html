@@ -2,11 +2,10 @@
 <div class="assurance-data-wrapper">
   <!-- Search Section - Toujours visible pour permettre changement de client -->
   <div class="search-section">
-    <p-iconfield class="search-input-wrapper">
-      <p-inputicon class="pi pi-search"/>
-      <input #searchInput (keydown.enter)="load()" [(ngModel)]="search" autocomplete="off" class="search-input"
-             pInputText [fluid]="true" placeholder="Rechercher un client assuré..." type="text"/>
-    </p-iconfield>
+    <app-icon-field icon="pi pi-search" [overlay]="true" class="search-input-wrapper">
+      <input #searchInput (keydown.enter)="load()" [(ngModel)]="search" autocomplete="off" class="form-control search-input"
+             placeholder="Rechercher un client assuré..." type="text"/>
+    </app-icon-field>
   </div>
 
   <!-- Customer Information Cards -->
@@ -20,7 +19,7 @@
               <i class="pi pi-user-shield"></i>
               <span>Assuré</span>
             </div>
-            <p-button (onClick)="editAssuredCustomer()" pTooltip="Modifier les infos du client" icon="pi pi-user-edit"
+            <app-button (clicked)="editAssuredCustomer()" ngbTooltip="Modifier les infos du client" icon="pi pi-user-edit"
                       severity="info" size="small" [rounded]="true"/>
           </div>
           <div class="card-body">
@@ -49,16 +48,16 @@
                 <span>Ayant droit</span>
               </div>
               @if (ayantDroit() && ayantDroit()?.id !== customer()?.id) {
-                <p-buttongroup>
-                  <p-button (onClick)="editAyantDroitClick()" icon="pi pi-user-edit" [rounded]="true" size="small"
-                            severity="info" pTooltip="Modifier les infos de l'ayant droit"/>
+                <div class="btn-group" role="group">
+                  <app-button (clicked)="editAyantDroitClick()" icon="pi pi-user-edit" [rounded]="true" size="small"
+                            severity="info" ngbTooltip="Modifier les infos de l'ayant droit"/>
 
-                  <p-button (onClick)="loadAyantDoitsClick()" icon="pi pi-users" [rounded]="true" size="small"
-                            severity="primary" pTooltip="Choisir un autre ayant droit"/>
-                </p-buttongroup>
+                  <app-button (clicked)="loadAyantDoitsClick()" icon="pi pi-users" [rounded]="true" size="small"
+                            severity="primary" ngbTooltip="Choisir un autre ayant droit"/>
+                </div>
               } @else {
-                <p-button (onClick)="loadAyantDoitsClick()" icon="pi pi-user-edit" [rounded]="true" size="small"
-                          severity="info" pTooltip="Ajouter un ayant droit"/>
+                <app-button (clicked)="loadAyantDoitsClick()" icon="pi pi-user-edit" [rounded]="true" size="small"
+                          severity="info" ngbTooltip="Ajouter un ayant droit"/>
               }
             </div>
             @if (ayantDroit() && ayantDroit()?.id !== customer()?.id) {
@@ -99,31 +98,27 @@
             </div>
 
             <div class="tp-input-section">
-              <p-inputgroup>
-                <p-inputgroup-addon>
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">
                   <i class="pi pi-ticket"></i>
                   <span>Bon</span>
-                </p-inputgroup-addon>
-                <input #tpInput (keydown.enter)="onBonEnter(tp)" [(ngModel)]="tp.numBon" [fluid]="true" size="small"
-                       autocomplete="off" class="bon-input" id="bon-{{ tp.id }}" name="bon-{{ i }}" pInputText
-                       pKeyFilter="alphanum" type="text" placeholder="Numéro de bon..."/>
+                </span>
+                <input #tpInput (keydown.enter)="onBonEnter(tp)" [(ngModel)]="tp.numBon"
+                       autocomplete="off" class="form-control bon-input" id="bon-{{ tp.id }}" name="bon-{{ i }}"
+                       [appKeyFilter]="'alphanum'" type="text" placeholder="Numéro de bon..."/>
                 @if (tiersPayants.length > 1) {
-                  <p-inputgroup-addon>
-                    <p-button (click)="onRemoveTiersPayant(tp)" icon="pi pi-trash" pTooltip="Supprimer ce tiers payant"
-                              tooltipPosition="top" severity="danger" [text]="true" type="button">
-                    </p-button>
-                  </p-inputgroup-addon>
+                  <app-button (clicked)="onRemoveTiersPayant(tp)" icon="pi pi-trash" ngbTooltip="Supprimer ce tiers payant"
+                            placement="top" severity="danger" [text]="true" type="button">
+                  </app-button>
                 }
                 @if (customer() && tiersPayants.length < customer().tiersPayants.length && saleType() === 'ASSURANCE') {
-                  <p-inputgroup-addon>
-                    <p-button (click)="onAddComplementaire()" icon="pi pi-plus"
-                              pTooltip="Ajouter un tiers payant complémentaire" tooltipPosition="top" severity="success"
-                              [text]="true"
-                              type="button">
-                    </p-button>
-                  </p-inputgroup-addon>
+                  <app-button (clicked)="onAddComplementaire()" icon="pi pi-plus"
+                            ngbTooltip="Ajouter un tiers payant complémentaire" placement="top" severity="success"
+                            [text]="true"
+                            type="button">
+                  </app-button>
                 }
-              </p-inputgroup>
+              </div>
             </div>
           </div>
         </div>

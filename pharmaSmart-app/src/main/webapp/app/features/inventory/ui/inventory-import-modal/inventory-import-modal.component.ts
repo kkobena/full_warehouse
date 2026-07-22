@@ -5,11 +5,11 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { InventoryApiService } from "../../data-access/services/inventory-api.service";
 import { InventoryStore } from "../../data-access/store/inventory.store";
 import { ImportResultRecord } from "../../models";
-import { ButtonComponent } from "../../../../shared/ui";
+import { ButtonComponent, CardComponent } from "../../../../shared/ui";
 
 @Component({
   selector: "app-inventory-import-modal",
-  imports: [CommonModule, ButtonComponent],
+  imports: [CommonModule, ButtonComponent, CardComponent],
   templateUrl: "./inventory-import-modal.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: "./inventory-import-modal.component.scss"

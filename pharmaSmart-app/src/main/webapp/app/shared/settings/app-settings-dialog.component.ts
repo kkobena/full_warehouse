@@ -3,14 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AppSettingsService } from 'app/core/config/app-settings.service';
-import { Card } from 'primeng/card';
-import { Button } from 'primeng/button';
-import { ProgressBar } from 'primeng/progressbar';
+import { ButtonComponent, CardComponent } from '../ui';
 import { BackendManagerService } from '../services/backend-manager.service';
 
 @Component({
   selector: 'app-app-settings-dialog',
-  imports: [CommonModule, FormsModule, Card, Button, ProgressBar],
+  imports: [CommonModule, FormsModule, CardComponent, ButtonComponent],
   styleUrls: ['../../entities/common-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
@@ -18,7 +16,7 @@ import { BackendManagerService } from '../services/backend-manager.service';
       <h4 class="modal-title">Configuration du serveur</h4>
       <button type="button" class="btn-close" aria-label="Close" (click)="dismiss()"></button>
     </div>
-    <p-card>
+    <app-card [variant]="'form'">
       <div class="modal-body">
         <div class="alert alert-info">
           <i class="bi bi-info-circle"></i>
@@ -80,7 +78,9 @@ import { BackendManagerService } from '../services/backend-manager.service';
                 <i class="bi bi-arrow-repeat me-2"></i>
                 <strong>{{ restartMessage }}</strong>
               </div>
-              <p-progressbar [value]="restartProgress" [showValue]="false" />
+              <div class="progress" role="progressbar" [attr.aria-valuenow]="restartProgress" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar" [style.width.%]="restartProgress"></div>
+              </div>
               <small class="text-muted mt-2 d-block">Veuillez patienter pendant le redémarrage du serveur...</small>
             </div>
           }
@@ -95,29 +95,29 @@ import { BackendManagerService } from '../services/backend-manager.service';
           </ul>
         </div>
       </div>
-    </p-card>
+    </app-card>
 
     <div class="modal-footer">
-      <p-button
+      <app-button
         class="mr-2"
-        (click)="dismiss()"
+        (clicked)="dismiss()"
         icon="pi pi-times"
         label="Annuler"
-        raised="true"
+        [raised]="true"
         severity="secondary"
         type="button"
-      ></p-button>
-      <p-button
+      ></app-button>
+      <app-button
         [disabled]="!apiServerUrl || testing || isRestarting"
         [loading]="isRestarting"
         class="mr-1"
         icon="pi pi-check-lg"
         label="Enregistrer et Redémarrer"
-        raised="true"
+        [raised]="true"
         severity="primary"
-        (click)="save()"
+        (clicked)="save()"
         type="button"
-      ></p-button>
+      ></app-button>
     </div>
   `,
 })

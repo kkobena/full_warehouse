@@ -300,7 +300,6 @@ $shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
 
     input.modern-input,
     ::ng-deep .modern-password input {
-      width: 100%;
       padding: 0.875rem 1rem;
       font-size: 1rem;
       border: 2px solid #e2e8f0;
@@ -319,15 +318,35 @@ $shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
       }
     }
 
-    ::ng-deep .p-password {
+    input.modern-input {
       width: 100%;
+    }
 
-      input {
-        padding-right: 3rem;
-      }
+    ::ng-deep .modern-password input {
+      // À l'intérieur du .input-group Bootstrap d'app-password : laisser flex gérer la
+      // largeur plutôt qu'un width:100% fixe, sinon l'input occupe toute la ligne et
+      // pousse le bouton afficher/masquer en dessous (flex-wrap: wrap de .input-group).
+      flex: 1 1 auto;
+      min-width: 0;
+      border-right: none;
+      border-radius: 12px 0 0 12px;
+    }
 
-      .p-password-toggle-icon {
+    ::ng-deep .modern-password {
+      width: 100%;
+      display: block;
+
+      .btn {
+        border: 2px solid #e2e8f0;
+        border-left: none;
+        border-radius: 0 12px 12px 0;
+        background: $white;
         color: $text-secondary;
+
+        &:focus {
+          outline: none;
+          border-color: $primary-blue;
+        }
       }
     }
   }
@@ -385,10 +404,6 @@ $shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
 
     &:active {
       transform: translateY(0);
-    }
-
-    .p-button-label {
-      font-weight: 600;
     }
   }
 }

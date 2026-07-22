@@ -28,7 +28,7 @@
       display: flex;
       align-items: center;
 
-      p-iconfield {
+      app-icon-field {
         width: 100%;
       }
 
@@ -86,33 +86,31 @@
     overflow: auto;
 
     ::ng-deep {
-      .p-datatable {
-      
+      .pharma-table {
+        tbody > tr {
+        transition: background-color 0.2s, box-shadow 0.2s;
 
-        .p-datatable-tbody > tr {
-          transition: background-color 0.2s, box-shadow 0.2s;
+        &.hoverable-row {
+          cursor: pointer;
 
-          &.hoverable-row {
-            cursor: pointer;
-
-            &:hover {
-              background-color: var(--highlight-bg);
-            }
-
-            &.selected-row {
-              background-color: var(--primary-100);
-              box-shadow: inset 3px 0 0 var(--primary-color);
-            }
+          &:hover {
+            background-color: var(--highlight-bg);
           }
 
-          &.partial-qty {
-            background-color: var(--yellow-50);
+          &.selected-row {
+            background-color: var(--primary-100);
+            box-shadow: inset 3px 0 0 var(--primary-color);
           }
+        }
 
-          > td {
-            padding: 0.75rem;
-            font-size: 0.875rem;
-            vertical-align: middle;
+        &.partial-qty {
+          background-color: var(--yellow-50);
+        }
+
+        > td {
+          padding: 0.75rem;
+          font-size: 0.875rem;
+          vertical-align: middle;
 
             .sale-reference {
               font-weight: 600;
@@ -162,13 +160,13 @@
             }
           }
         }
+      }
 
-        .expanded-row {
-          background-color: var(--surface-50);
+      .expanded-row {
+        background-color: var(--surface-50);
 
-          > td {
-            padding: 1rem;
-          }
+        > td {
+          padding: 1rem;
         }
       }
     }
@@ -198,17 +196,17 @@
         padding: 1rem;
 
         ::ng-deep {
-          .p-datatable {
+          .pharma-table-sm {
             border: none;
 
-            .p-datatable-thead > tr > th {
+            thead > tr > th {
               background-color: var(--surface-200);
               color: var(--text-color);
               padding: 0.5rem;
               font-size: 0.8125rem;
             }
 
-            .p-datatable-tbody > tr {
+            tbody > tr {
               &.partial-qty {
                 background-color: var(--yellow-50);
               }

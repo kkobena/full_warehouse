@@ -4,9 +4,8 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {take} from 'rxjs/operators';
 
-import {Button} from 'primeng/button';
-import {Select} from 'primeng/select';
-import {TooltipModule} from 'primeng/tooltip';
+import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {ButtonComponent, SelectSearchComponent} from '../../../../shared/ui';
 import {NgxSpinnerComponent, NgxSpinnerService} from 'ngx-spinner';
 
 import {VenteDepotFacade} from '../../data-access/facades/vente-depot.facade';
@@ -49,9 +48,9 @@ import {ErrorService} from '../../../../shared/error.service';
   imports: [
     CommonModule,
     FormsModule,
-    Button,
-    Select,
-    TooltipModule,
+    ButtonComponent,
+    SelectSearchComponent,
+    NgbTooltip,
     ProductListComponent,
     ProductSearchSectionComponent,
     SaleActionsComponent,
@@ -467,7 +466,7 @@ export class VenteDepotComponent implements OnInit, ProductSearchHost {
 
   private focusDepotBox(): void {
     setTimeout(() => {
-      const depotSelect = document.querySelector('.depot-select .p-select') as HTMLElement;
+      const depotSelect = document.querySelector('.depot-select .ng-select') as HTMLElement;
       depotSelect?.focus();
     }, 50);
   }

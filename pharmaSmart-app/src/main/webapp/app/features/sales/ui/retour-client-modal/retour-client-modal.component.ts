@@ -3,10 +3,7 @@ import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Button } from "primeng/button";
-import { Select } from "primeng/select";
-import { Checkbox } from "primeng/checkbox";
-import { InputNumber } from "primeng/inputnumber";
+import { ButtonComponent, CardComponent, CheckboxComponent, InputNumberComponent, SelectSearchComponent } from "../../../../shared/ui";
 import {
   IRetourClientResult,
   ISaleForRetour,
@@ -16,7 +13,6 @@ import {
   RetourClientApiService,
   RetourClientRequest,
 } from "../../data-access/services/retour-client-api.service";
-import { Textarea } from "primeng/textarea";
 import { ISales } from "../../../../shared/model";
 
 type RetourLine = ISaleLineForRetour & {
@@ -30,7 +26,7 @@ type RetourLine = ISaleLineForRetour & {
   templateUrl: "./retour-client-modal.component.html",
   styleUrl: "./retour-client-modal.component.scss",
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, Button, Select, InputNumber, Textarea, Checkbox],
+  imports: [CommonModule, FormsModule, ButtonComponent, SelectSearchComponent, InputNumberComponent, CheckboxComponent, CardComponent],
 })
 export class RetourClientModalComponent {
   readonly activeModal = inject(NgbActiveModal);

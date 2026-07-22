@@ -1,47 +1,35 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-2">
 
-    <div class="pharma-toolbar">
-      <div class="pharma-toolbar-header">
-        <i class="pi pi-users"></i>
-        <span class="pharma-toolbar-title">Utilisateurs</span>
-      </div>
-      <p-toolbar>
-        <ng-template #start>
-          <div class="pharma-toolbar-filters">
-          </div>
-        </ng-template>
-        <ng-template #end>
-          <p-button
-            [routerLink]="['./new']"
-            icon="pi pi-plus"
-            label="Nouvel utilisateur"
-            [raised]="true"
-            severity="primary"
-          />
-        </ng-template>
-      </p-toolbar>
-    </div>
+    <app-toolbar icon="pi pi-users" title="Utilisateurs">
+      <ng-container ngProjectAs="[toolbarActions]">
+        <app-button
+          [routerLink]="['./new']"
+          icon="pi pi-plus"
+          label="Nouvel utilisateur"
+          [raised]="true"
+          severity="primary"
+        />
+      </ng-container>
+    </app-toolbar>
 
     @if (users() !== null) {
-      <p-table
+      <app-data-table
         [value]="filteredUsers()"
-        [rowHover]="true"
         [paginator]="true"
         [rows]="itemsPerPage"
-        class="mt-2 p-datatable-sm"
+        class="mt-2 pharma-table"
       >
         <ng-template #caption>
           <div class="d-flex justify-content-end">
-            <p-iconfield>
-              <p-inputicon class="pi pi-search" />
+            <app-icon-field [overlay]="true" icon="pi pi-search">
               <input
-                pInputText
                 type="text"
+                class="form-control"
                 placeholder="Rechercher…"
                 (input)="onFilter($event)"
               />
-            </p-iconfield>
+            </app-icon-field>
           </div>
         </ng-template>
 
@@ -78,24 +66,24 @@
                 }
                 <!-- Bouton action (label = ce qui va se passer) -->
                 @if (!user.activated) {
-                  <p-button
+                  <app-button
                     label="Activer"
                     icon="pi pi-power-off"
                     severity="success"
                     size="small"
                     [outlined]="true"
-                    (onClick)="setActive(user, true)"
+                    (clicked)="setActive(user, true)"
                   />
                 } @else {
                   @if (user.id !== 3) {
-                    <p-button
+                    <app-button
                       label="Désactiver"
                       icon="pi pi-ban"
                       severity="danger"
                       size="small"
                       [outlined]="true"
                       [disabled]="currentAccount()?.login === user.login"
-                      (onClick)="setActive(user, false)"
+                      (clicked)="setActive(user, false)"
                     />
 
                   }
@@ -104,31 +92,31 @@
               </div>
             </td>
             <td class="text-end">
-              <p-button
+              <app-button
                 [rounded]="true"
                 [text]="true"
                 [routerLink]="['./', user.login, 'view']"
                 icon="pi pi-eye"
                 severity="info"
-                pTooltip="Voir"
+                ngbTooltip="Voir"
               />
-              <p-button
+              <app-button
                 [rounded]="true"
                 [text]="true"
                 [routerLink]="['./', user.login, 'edit']"
                 icon="pi pi-pencil"
                 severity="primary"
-                pTooltip="Modifier"
+                ngbTooltip="Modifier"
               />
               @if (user.id !== 3) {
-                <p-button
+                <app-button
                   [rounded]="true"
                   [text]="true"
                   icon="pi pi-trash"
                   severity="danger"
-                  pTooltip="Supprimer"
+                  ngbTooltip="Supprimer"
                   [disabled]="currentAccount()?.login === user.login"
-                  (onClick)="deleteUser(user)"
+                  (clicked)="deleteUser(user)"
                 />
               }
 
@@ -141,7 +129,7 @@
             <td colspan="6" class="text-center text-muted py-4">Aucun utilisateur trouvé.</td>
           </tr>
         </ng-template>
-      </p-table>
+      </app-data-table>
 
     }
 

@@ -3,17 +3,16 @@ import { CommonModule } from "@angular/common";
 import { Router, RouterModule } from "@angular/router";
 import { FormsModule } from "@angular/forms";
 import { HttpHeaders } from "@angular/common/http";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonModule } from "primeng/button";
-import { InputTextModule } from "primeng/inputtext";
-import { SelectModule } from "primeng/select";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
-import { SplitButtonModule } from "primeng/splitbutton";
-import { ToolbarModule } from "primeng/toolbar";
-import { TableLazyLoadEvent } from "primeng/table";
-import { MenuItem, SelectItem } from "primeng/api";
-import { TooltipModule } from "primeng/tooltip";
+import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
+import {
+  AppSplitButtonItem,
+  AppTableLazyLoadEvent,
+  ButtonComponent,
+  IconFieldComponent,
+  SelectComponent,
+  SplitButtonComponent,
+  ToolbarComponent,
+} from "app/shared/ui";
 import { Authority } from "app/shared/constants/authority.constants";
 import { AbilityService } from "app/core/auth/ability.service";
 import { IProduit } from "app/shared/model/produit.model";
@@ -53,14 +52,12 @@ import { RayonProduitApiService } from "../../../rayon/data-access/services/rayo
     CommonModule,
     RouterModule,
     FormsModule,
-    ButtonModule,
-    InputTextModule,
-    SelectModule,
-    SplitButtonModule,
-    ToolbarModule,
-    IconField,
-    InputIcon,
-    TooltipModule,
+    ButtonComponent,
+    SelectComponent,
+    SplitButtonComponent,
+    ToolbarComponent,
+    IconFieldComponent,
+    NgbTooltip,
     ProduitListComponent,
     ProduitDetailPanelComponent
   ]
@@ -80,7 +77,7 @@ export class ProduitHomeComponent implements OnInit {
 
   protected familles = signal<IFamilleProduit[]>([]);
   protected rayons = signal<IRayon[]>([]);
-  protected filterOptions: SelectItem[] = [
+  protected filterOptions: { label: string; value: string }[] = [
     { label: "Produits actifs", value: "ENABLE" },
     { label: "Produits désactivés", value: "DISABLE" },
     { label: "Déconditionnables", value: "DECONDITIONNABLE" },
@@ -100,7 +97,7 @@ export class ProduitHomeComponent implements OnInit {
   /** ID du produit à mettre en évidence après création/modification */
   private pendingHighlightId: number | null = null;
 
-  protected importMenuItems: MenuItem[] = [
+  protected importMenuItems: AppSplitButtonItem[] = [
     { label: "Nouvelle installation", icon: "pi pi-file-excel", command: () => this.onImport("NOUVELLE_INSTALLATION") },
     { label: "Basculement", icon: "pi pi-filter", command: () => this.onImport("BASCULEMENT") },
     { label: "Basculement prestige", icon: "pi pi-file", command: () => this.onImport("BASCULEMENT_PRESTIGE") }
@@ -136,7 +133,7 @@ export class ProduitHomeComponent implements OnInit {
     this.loadPage();
   }
 
-  protected onLazyLoad(event: TableLazyLoadEvent): void {
+  protected onLazyLoad(event: AppTableLazyLoadEvent): void {
     this.page = Math.floor((event.first ?? 0) / (event.rows ?? this.rows));
     this.rows = event.rows ?? this.rows;
     if (event.sortField) {

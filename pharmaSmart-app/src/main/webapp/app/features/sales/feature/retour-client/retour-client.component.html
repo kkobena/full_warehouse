@@ -1,42 +1,25 @@
 <div class="pharma-smart-content p-1">
-  <div class="pharma-toolbar pharma-toolbar-compact">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-ban"></i>
-      <span class="pharma-toolbar-title">Retours clients</span>
-    </div>
+  <app-toolbar icon="pi pi-ban" title="Retours clients" [compact]="true">
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <!-- Filtres liste des retours -->
+      <app-icon-field icon="pi pi-search">
+        <input class="form-control" type="text" [(ngModel)]="search" placeholder="Réf. retour ou vente…"
+               (keyup.enter)="onSearch()" />
+      </app-icon-field>
+      <pharma-date-picker id="fromDate" label="Du" [(ngModel)]="fromDate" />
+      <pharma-date-picker id="toDate" label="Au" [(ngModel)]="toDate" />
+    </ng-container>
 
-    <p-toolbar class="mt-1">
-      <ng-template #start>
-        <!-- Filtres liste des retours -->
-        <p-iconfield>
-          <p-inputicon class="pi pi-search" />
-          <input pInputText type="text" [(ngModel)]="search" placeholder="Réf. retour ou vente…"
-                 (keyup.enter)="onSearch()" />
-        </p-iconfield>
-        <p-floatlabel variant="on" [style]="{'margin-left':'.75rem'}">
-          <p-datepicker inputId="fromDate" [(ngModel)]="fromDate" dateFormat="dd/mm/yy" [showIcon]="true" appendTo="body" />
-          <label for="fromDate">Du</label>
-        </p-floatlabel>
-        <p-floatlabel variant="on" [style]="{'margin-left':'.5rem'}">
-          <p-datepicker inputId="toDate" [(ngModel)]="toDate" dateFormat="dd/mm/yy" [showIcon]="true" appendTo="body" />
-          <label for="toDate">Au</label>
-        </p-floatlabel>
-
-
-
-      </ng-template>
-
-      <ng-template #end>
-        <p-button icon="pi pi-search" label="Rechercher" severity="info" size="small"
-                  (onClick)="onSearch()" class="mr-1" />
-        <p-button icon="pi pi-plus" label="Nouveau retour" severity="primary" size="small"
+    <ng-container ngProjectAs="[toolbarActions]">
+      <app-button icon="pi pi-search" label="Rechercher" severity="info" size="small"
+                  (clicked)="onSearch()" class="mr-1" />
+      <app-button icon="pi pi-plus" label="Nouveau retour" severity="primary" size="small"
                   [raised]="true" [disabled]="!saleIdInput"
-                  (onClick)="openRetourModal()" />
-      </ng-template>
-    </p-toolbar>
-  </div>
+                  (clicked)="openRetourModal()" />
+    </ng-container>
+  </app-toolbar>
 
-<p-table
+<app-data-table
   [value]="retours"
   [lazy]="true"
   (onLazyLoad)="lazyLoading($event)"
@@ -86,6 +69,6 @@
   <ng-template #emptymessage>
     <tr><td colspan="8" style="text-align:center;padding:2rem;color:#888">Aucun retour trouvé</td></tr>
   </ng-template>
-</p-table>
+</app-data-table>
 
 </div>

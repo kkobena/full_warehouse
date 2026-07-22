@@ -1,39 +1,30 @@
 import { Component, ElementRef, input, output, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { FloatLabelModule } from 'primeng/floatlabel';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
-import { Button } from 'primeng/button';
 import { TranslatePipe } from '@ngx-translate/core';
-import { KeyFilterModule } from 'primeng/keyfilter';
+import { ButtonComponent, FloatLabelComponent, KeyFilterDirective } from '../ui';
 
 @Component({
   selector: 'jhi-quantite-produt-saisie',
-  imports: [FormsModule, FloatLabelModule, InputGroupModule, InputGroupAddonModule, InputText, Button, TranslatePipe, KeyFilterModule],
+  imports: [FormsModule, FloatLabelComponent, ButtonComponent, TranslatePipe, KeyFilterDirective],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <p-floatlabel variant="on">
-      <p-inputgroup>
+    <app-float-label label="{{ 'warehouseApp.gestionPerimes.labels.quantiteSaisie' | translate }}" inputId="quantiteSaisie">
+      <div class="input-group">
         <input
           [style]="style()"
           autocomplete="off"
           #quantityBox
-          pInputText
-          pKeyFilter="int"
+          [appKeyFilter]="'int'"
+          class="form-control"
           id="quantiteSaisie"
+          placeholder=" "
           [(ngModel)]="quantite"
           [disabled]="!isValid()"
           (keydown.enter)="onAdd()"
         />
-        <label for="quantiteSaisie">
-          {{ 'warehouseApp.gestionPerimes.labels.quantiteSaisie' | translate }}
-        </label>
-        <p-inputgroup-addon>
-          <p-button (click)="handleEnter()" icon="pi pi-check" [disabled]="disabledButton()" severity="primary"></p-button>
-        </p-inputgroup-addon>
-      </p-inputgroup>
-    </p-floatlabel>
+        <app-button (clicked)="handleEnter()" icon="pi pi-check" [disabled]="disabledButton()" severity="primary" />
+      </div>
+    </app-float-label>
   `,
 })
 export class QuantiteProdutSaisieComponent {

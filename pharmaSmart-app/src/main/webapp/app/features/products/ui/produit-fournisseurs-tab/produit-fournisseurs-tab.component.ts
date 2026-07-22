@@ -1,12 +1,8 @@
 import { Component, inject, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { TooltipModule } from 'primeng/tooltip';
-import { ButtonModule } from 'primeng/button';
-import { ToggleSwitchModule } from 'primeng/toggleswitch';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, DataTableComponent, SwitchComponent } from 'app/shared/ui';
 import { IProduit } from 'app/shared/model/produit.model';
 import { IFournisseurProduit } from 'app/shared/model/fournisseur-produit.model';
 import { ProduitService } from 'app/entities/produit/produit.service';
@@ -18,7 +14,7 @@ import { FormProduitFournisseurComponent } from 'app/entities/produit/form-produ
   templateUrl: './produit-fournisseurs-tab.component.html',
   styleUrls: ['./produit-fournisseurs-tab.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, TableModule, TagModule, TooltipModule, ButtonModule, ToggleSwitchModule],
+  imports: [CommonModule, FormsModule, DataTableComponent, NgbTooltip, ButtonComponent, SwitchComponent],
 })
 export class ProduitFournisseursTabComponent {
   readonly produit = input.required<IProduit>();

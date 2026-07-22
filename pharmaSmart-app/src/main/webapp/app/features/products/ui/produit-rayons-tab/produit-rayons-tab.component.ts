@@ -1,8 +1,6 @@
 import { Component, inject, input, output, ChangeDetectionStrategy } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonModule } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
-import { TableModule } from 'primeng/table';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent } from '../../../../shared/ui';
 import { IProduit } from '../../../../shared/model/produit.model';
 import { IRayonProduit } from '../../../../shared/model/rayon-produit.model';
 import { RayonProduitApiService } from '../../../rayon/data-access/services/rayon-produit-api.service';
@@ -15,7 +13,7 @@ import { ErrorService } from '../../../../shared/error.service';
   templateUrl: './produit-rayons-tab.component.html',
   styleUrl: './produit-rayons-tab.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [ButtonModule, TooltipModule, TableModule],
+  imports: [ButtonComponent, NgbTooltip],
 })
 export class ProduitRayonsTabComponent {
   readonly produit = input.required<IProduit>();

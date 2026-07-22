@@ -1,11 +1,9 @@
 <!-- Modern Customer Overlay Panel -->
 <div class="customer-panel-wrapper">
-  <!-- Customer Search Popover -->
-  <p-popover #op [style]="{ width: '650px' }">
-    <ng-template #content>
-      <app-customer-search-table (customerSelected)="onCustomerSelected($event)" />
-    </ng-template>
-  </p-popover>
+  <!-- Contenu du popover de recherche client -->
+  <ng-template #customerSearchContent>
+    <app-customer-search-table (customerSelected)="onCustomerSelected($event)" />
+  </ng-template>
 
   <!-- Customer Display Card -->
   <div class="customer-display-card">
@@ -13,10 +11,13 @@
     <div class="customer-action-btn">
       @if (customer()) {
         <!-- Edit button - opens popover to replace customer -->
-        <p-button
-          (click)="togglePopover($event)"
-          pTooltip="Changer le client"
-          tooltipPosition="top"
+        <app-button
+          #editPopover="ngbPopover"
+          [ngbPopover]="customerSearchContent"
+          container="body"
+          popoverClass="customer-search-popover"
+          placement="bottom"
+          ngbTooltip="Changer le client"
           icon="pi pi-pencil"
           severity="info"
           size="small"
@@ -24,12 +25,12 @@
           [text]="true"
           class="edit-customer-btn"
         >
-        </p-button>
+        </app-button>
         <!-- Remove button -->
-        <p-button
-          (click)="remove()"
-          pTooltip="Supprimer le client"
-          tooltipPosition="top"
+        <app-button
+          (clicked)="remove()"
+          ngbTooltip="Supprimer le client"
+          placement="top"
           icon="pi pi-times"
           severity="danger"
           size="small"
@@ -37,19 +38,22 @@
           [text]="true"
           class="remove-customer-btn"
         >
-        </p-button>
+        </app-button>
       } @else {
-        <p-button
-          (click)="togglePopover($event)"
-          [pTooltip]="getLabel()"
-          tooltipPosition="top"
+        <app-button
+          #addPopover="ngbPopover"
+          [ngbPopover]="customerSearchContent"
+          container="body"
+          popoverClass="customer-search-popover"
+          placement="bottom"
+          [ngbTooltip]="getLabel()"
           icon="pi pi-user-plus"
           severity="success"
           size="small"
           [rounded]="true"
           class="add-customer-btn"
         >
-        </p-button>
+        </app-button>
       }
     </div>
 

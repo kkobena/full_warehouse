@@ -1,11 +1,7 @@
 import { Component, Input, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select';
-import { KeyFilterModule } from 'primeng/keyfilter';
-import { TagModule } from 'primeng/tag';
+import { ButtonComponent, KeyFilterDirective, SelectSearchComponent } from 'app/shared/ui';
 import { IFournisseur } from 'app/shared/model/fournisseur.model';
 
 @Component({
@@ -13,7 +9,7 @@ import { IFournisseur } from 'app/shared/model/fournisseur.model';
   templateUrl: './produit-fournisseurs-creation.component.html',
   styleUrl: './produit-fournisseurs-creation.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, ReactiveFormsModule, ButtonModule, InputTextModule, SelectModule, KeyFilterModule, TagModule],
+  imports: [CommonModule, ReactiveFormsModule, ButtonComponent, SelectSearchComponent, KeyFilterDirective],
 })
 export class ProduitFournisseursCreationComponent {
   readonly principalLibelle = input.required<string>();

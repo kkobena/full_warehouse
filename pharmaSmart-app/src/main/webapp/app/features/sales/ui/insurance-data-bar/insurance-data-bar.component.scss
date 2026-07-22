@@ -51,8 +51,7 @@ $pharma-warning-light: #fff3cd;
 
   // Style direct pour le champ input avec la classe search-input
   ::ng-deep {
-    .search-input,
-    .p-inputtext {
+    .search-input {
       width: 100%;
       font-size: 0.8125rem !important;
       padding: 0.5rem 2.25rem 0.5rem 2.25rem !important;
@@ -73,12 +72,12 @@ $pharma-warning-light: #fff3cd;
       }
     }
 
-    .p-iconfield {
+    .app-icon-field {
       width: 100%;
+    }
 
-      .p-inputicon {
-        color: $gray-500;
-      }
+    .app-icon-field__icon {
+      color: $gray-500;
     }
   }
 }
@@ -160,7 +159,7 @@ $pharma-warning-light: #fff3cd;
     }
 
     .edit-btn {
-      ::ng-deep .p-button {
+      ::ng-deep .btn {
         padding: 0.25rem 0.5rem;
         font-size: 0.75rem;
       }
@@ -216,7 +215,7 @@ $pharma-warning-light: #fff3cd;
     border-top: 1px solid $gray-200;
 
     .change-customer-btn {
-      ::ng-deep .p-button {
+      ::ng-deep .btn {
         width: 100%;
         font-size: 0.75rem;
         padding: 0.375rem 0.5rem;
@@ -363,11 +362,11 @@ $pharma-warning-light: #fff3cd;
   .tp-input-section {
     padding: 0.175rem 0.625rem;
 
-    ::ng-deep .p-inputgroup {
+    .input-group {
       display: flex;
       align-items: stretch;
 
-      .p-inputgroup-addon {
+      .input-group-text {
         background: $gray-100;
         border-color: $gray-300;
         color: $gray-700;
@@ -449,7 +448,7 @@ $pharma-warning-light: #fff3cd;
 
 @media (max-width: 1024px) {
   .search-section {
-    ::ng-deep .p-inputtext {
+    ::ng-deep .search-input {
       padding: 0.5rem 2rem;
       font-size: 0.8125rem;
     }
@@ -494,7 +493,7 @@ $pharma-warning-light: #fff3cd;
         padding: 0.625rem 0.875rem;
 
         .change-customer-btn {
-          ::ng-deep .p-button {
+          ::ng-deep .btn {
             font-size: 0.75rem;
             padding: 0.375rem 0.75rem;
           }

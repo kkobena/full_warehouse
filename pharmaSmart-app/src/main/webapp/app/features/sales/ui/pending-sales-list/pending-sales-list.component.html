@@ -1,56 +1,54 @@
 <div class="pending-sales-container">
   <!-- Toolbar -->
-  <p-toolbar>
+  <div class="pending-sales-toolbar">
     <div class="toolbar-content">
-      <!-- Seller Filter -->
-      <div class="filter-group">
-        <p-inputgroup>
-          <p-inputgroup-addon>Vendeurs</p-inputgroup-addon>
-          <p-select
-            [ngModel]="sellerFilter()"
-            (ngModelChange)="sellerFilter.set($event)"
-            (onChange)="onSellerChange()"
-            [showClear]="true"
-            [options]="sellers()"
-            optionLabel="abbrName"
-            optionValue="id"
-            [style]="{ width: '200px' }"
-            placeholder="Tous les vendeurs"
-          />
-        </p-inputgroup>
-      </div>
+      <label>
+        <!-- Seller Filter -->
+        <i class="pi pi-user"></i>
+        <span>Vendeurs</span>
+      </label>
+      <app-select
+        (ngModelChange)="sellerFilter.set($event)"
+        (selectionChange)="onSellerChange()"
+        [clearable]="true"
+        [items]="sellers()"
+        [ngModel]="sellerFilter()"
+        [style]="{ width: '200px' }"
+        bindLabel="abbrName"
+        bindValue="id"
+        placeholder="Tous les vendeurs"
+      />
+
 
       <!-- Search -->
       <div class="search-group flex-grow-1">
-        <p-iconfield iconPosition="left">
-          <p-inputicon class="pi pi-search" />
+        <app-icon-field [overlay]="true" icon="pi pi-search">
           <input
-            pInputText
-            type="text"
             (keyup)="onSearch($event)"
+            class="form-control w-100"
             placeholder="Rechercher par référence, client ou vendeur..."
-            class="w-full"
+            type="text"
           />
-        </p-iconfield>
+        </app-icon-field>
       </div>
 
       <!-- Actions -->
       <div class="action-group">
-        <p-button
-          icon="pi pi-refresh"
-          (onClick)="onRefresh()"
+        <app-button
+          (clicked)="onRefresh()"
           [rounded]="true"
+          [severity]="'secondary'"
           [text]="true"
-          severity="secondary"
+          icon="pi pi-refresh"
+          ngbTooltip="Actualiser"
+          placement="left"
           size="small"
-          tooltipPosition="left"
-          pTooltip="Actualiser"
         />
       </div>
     </div>
-  </p-toolbar>
+  </div>
 
-  <p-divider />
+  <hr class="my-3" />
 
   <!-- Summary Bar -->
   <div class="summary-bar">
@@ -68,46 +66,42 @@
 
   <!-- Table -->
   <div class="table-wrapper">
-    <p-table
-      [value]="filteredSales()"
-      [paginator]="true"
-      [rows]="10"
-      [rowsPerPageOptions]="[5, 10, 20, 50]"
+    <app-data-table
       [loading]="loading()"
+      [paginator]="true"
+      [rowsPerPageOptions]="[5, 10, 20, 50]"
+      [rows]="10"
       [showCurrentPageReport]="true"
+      [value]="filteredSales()"
+      class="pharma-table"
       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} ventes"
       dataKey="id"
-      selectionMode="single"
-      [selection]="selectedSale()"
-      (selectionChange)="selectedSale.set($event)"
-      [metaKeySelection]="false"
-      class="p-datatable-sm pharma-table"
     >
-      <ng-template #header >
+      <ng-template #header>
         <tr class="pharma-table-head">
           <th style="width: 3%"></th>
           <th style="width: 12%">Référence</th>
           <th style="width: 10%">Type</th>
-          <th style="width: 10%" class="text-center">Articles</th>
-          <th style="width: 12%" class="text-right">Montant</th>
+          <th class="text-center" style="width: 10%">Articles</th>
+          <th class="text-right" style="width: 12%">Montant</th>
           <th style="width: 20%">Client</th>
           <th style="width: 15%">Vendeur</th>
           <th style="width: 13%">Date</th>
-          <th style="width: 5%" class="text-center">Actions</th>
+          <th class="text-center" style="width: 5%">Actions</th>
         </tr>
       </ng-template>
-    <ng-template #body let-expanded="expanded" let-rowIndex="rowIndex" let-sale>
+      <ng-template #body let-expanded="expanded" let-rowIndex="rowIndex" let-sale>
 
         <tr
-          [ngClass]="getRowClass(sale)"
           (click)="onSelectSale(sale)"
           (dblclick)="onResumeSale(sale)"
+          [ngClass]="getRowClass(sale)"
           class="hoverable-row"
         >
           <td>
-            <p-button
+            <app-button
+              [appRowToggler]="sale"
               [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-              [pRowToggler]="sale"
               [rounded]="true"
               [text]="true"
               size="small"
@@ -117,8 +111,8 @@
             <span class="sale-reference">{{ sale.numberTransaction }}</span>
           </td>
           <td>
-            <p-tag
-              [value]="getSaleTypeLabel(sale.natureVente || 'COMPTANT')"
+            <app-badge
+              [label]="getSaleTypeLabel(sale.natureVente || 'COMPTANT')"
               [severity]="getSaleTypeSeverity(sale.natureVente || 'COMPTANT')"
             />
           </td>
@@ -141,14 +135,14 @@
           </td>
           <td class="text-center">
             <div class="action-buttons">
-              <p-button
-                icon="pi pi-play"
-                (onClick)="onResumeSale(sale)"
+              <app-button
+                (clicked)="onResumeSale(sale)"
                 [rounded]="true"
                 [text]="true"
+                icon="pi pi-play"
+                ngbTooltip="Reprendre la vente"
                 severity="success"
                 size="small"
-                pTooltip="Reprendre la vente"
               />
 
             </div>
@@ -166,22 +160,22 @@
                 <span>Produits de la vente</span>
               </div>
               <div class="card-body">
-                <p-table
-                  [value]="sale.salesLines"
+                <app-data-table
                   [paginator]="true"
-                  [rows]="5"
                   [rowsPerPageOptions]="[5, 10, 15]"
-                  class="p-datatable-sm"
+                  [rows]="5"
+                  [value]="sale.salesLines"
+                  class="pharma-table-sm"
                 >
                   <ng-template #header>
                     <tr class="pharma-table-head">
                       <th style="width: 5%">#</th>
                       <th style="width: 12%">Code</th>
                       <th style="width: 40%">Libellé</th>
-                      <th style="width: 8%" class="text-right">Qté D.</th>
-                      <th style="width: 8%" class="text-right">Qté S.</th>
-                      <th style="width: 12%" class="text-right">Prix Unit.</th>
-                      <th style="width: 15%" class="text-right">Total</th>
+                      <th class="text-right" style="width: 8%">Qté D.</th>
+                      <th class="text-right" style="width: 8%">Qté S.</th>
+                      <th class="text-right" style="width: 12%">Prix Unit.</th>
+                      <th class="text-right" style="width: 15%">Total</th>
                     </tr>
                   </ng-template>
                   <ng-template #body let-line let-rowIndex="rowIndex">
@@ -197,19 +191,22 @@
                         <span class="qty-value">{{ line.quantityRequested | number }}</span>
                       </td>
                       <td class="text-right">
-                        <span class="qty-value" [ngClass]="{ 'text-warning': line.quantitySold < line.quantityRequested }">
+                        <span
+                          [ngClass]="{ 'text-warning': line.quantitySold < line.quantityRequested }"
+                          class="qty-value">
                           {{ line.quantitySold | number }}
                         </span>
                       </td>
                       <td class="text-right">
-                        <span class="price-value">{{ line.regularUnitPrice | number : '1.0-0' }}</span>
+                        <span
+                          class="price-value">{{ line.regularUnitPrice | number : '1.0-0' }}</span>
                       </td>
                       <td class="text-right">
                         <span class="total-value">{{ line.salesAmount | number : '1.0-0' }} F</span>
                       </td>
                     </tr>
                   </ng-template>
-                </p-table>
+                </app-data-table>
               </div>
             </div>
           </td>
@@ -219,7 +216,7 @@
       <!-- Empty Message -->
       <ng-template #emptymessage>
         <tr>
-          <td colspan="9" class="text-center empty-message">
+          <td class="text-center empty-message" colspan="9">
             <div class="empty-state">
               <i class="pi pi-inbox empty-icon"></i>
               <p class="empty-text">Aucune vente en attente</p>
@@ -228,7 +225,7 @@
           </td>
         </tr>
       </ng-template>
-    </p-table>
+    </app-data-table>
   </div>
 
   <!-- Help Text -->

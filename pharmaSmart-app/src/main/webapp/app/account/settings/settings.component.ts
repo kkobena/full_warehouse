@@ -7,14 +7,13 @@ import { LANGUAGES } from "app/config/language.constants";
 import { CommonModule } from "@angular/common";
 import { AlertErrorComponent } from "../../shared/alert/alert-error.component";
 import FindLanguageFromKeyPipe from "../../shared/language/find-language-from-key.pipe";
-import { Button } from "primeng/button";
-import { InputText } from "primeng/inputtext";
+import { ButtonComponent } from "../../shared/ui";
 
 const initialAccount: Account = {} as Account;
 
 @Component({
   selector: "jhi-settings",
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, AlertErrorComponent, FindLanguageFromKeyPipe, Button, InputText],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, AlertErrorComponent, FindLanguageFromKeyPipe, ButtonComponent],
   templateUrl: "./settings.html",
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["./settings.scss"]

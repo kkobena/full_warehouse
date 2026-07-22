@@ -50,14 +50,21 @@
         <ng-container ngProjectAs="[toolbarActions]">
           <div class="pharma-toolbar-actions">
             <div class="pharma-button-group">
-              <jhi-cta
-                (click)="onClose()"
+              <app-button
+                (clicked)="onClose()"
                 [disabled]="data.length == 0 || isSaving"
-                [label]="'warehouseApp.buttons.closeAction'"
+                [label]="'warehouseApp.buttons.closeAction' | translate"
                 icon="pi pi-lock"
                 severity="info"
-              ></jhi-cta>
-              <jhi-back-button></jhi-back-button>
+                [raised]="true"
+              ></app-button>
+              <app-button
+                (clicked)="goBack()"
+                [label]="'warehouseApp.buttons.back' | translate"
+                icon="pi pi-arrow-left"
+                severity="secondary"
+                [raised]="true"
+              ></app-button>
             </div>
           </div>
         </ng-container>
@@ -145,7 +152,14 @@
           </td>
 
           <td class="text-right">
-            <jhi-remove-tex-button (click)="onRemoveItem(data)"></jhi-remove-tex-button>
+            <app-button
+              (clicked)="onRemoveItem(data)"
+              [rounded]="true"
+              [text]="true"
+              icon="pi pi-trash"
+              severity="danger"
+              [ngbTooltip]="'warehouseApp.buttons.delete' | translate"
+            ></app-button>
           </td>
         </tr>
       </ng-template>

@@ -9,7 +9,7 @@
   padding: 0.6rem 0.75rem;
   background: #f8f9fa;
   border-radius: 6px;
-  border-left: 3px solid var(--p-primary-color);
+  border-left: 3px solid var(--bs-primary);
 }
 
 .dc-produit-header {
@@ -18,7 +18,7 @@
   gap: 0.5rem;
   flex-wrap: wrap;
 
-  i { color: var(--p-primary-color); }
+  i { color: var(--bs-primary); }
 }
 
 .dc-produit-libelle {
@@ -56,7 +56,7 @@
 .dc-stock-value {
   font-size: 1rem;
   font-weight: 700;
-  color: var(--p-primary-700, #1a6fa8);
+  color: var(--bs-primary);
 
   &.dc-stock-zero { color: #dc3545; }
 }

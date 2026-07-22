@@ -1,11 +1,9 @@
-import { AfterViewInit, Component, DestroyRef, inject, OnInit, signal, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import { AfterViewInit, Component, DestroyRef, ElementRef, inject, OnInit, signal, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonModule } from "primeng/button";
-import { SelectModule } from "primeng/select";
-import { InputNumber, InputNumberModule } from "primeng/inputnumber";
+import { ButtonComponent, CardComponent, InputNumberComponent, SelectComponent } from "app/shared/ui";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { IProduit } from "app/shared/model/produit.model";
 import { IFournisseurProduit } from "app/shared/model/fournisseur-produit.model";
@@ -19,7 +17,7 @@ import { CommandCommonService } from "app/entities/commande/command-common.servi
   templateUrl: "./commande-rapide-modal.component.html",
   styleUrls: ["./commande-rapide-modal.component.scss"],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, ButtonModule, SelectModule, InputNumberModule]
+  imports: [CommonModule, FormsModule, ButtonComponent, SelectComponent, InputNumberComponent, CardComponent]
 })
 export class CommandeRapideModalComponent implements OnInit, AfterViewInit {
   produit!: IProduit;
@@ -37,7 +35,7 @@ export class CommandeRapideModalComponent implements OnInit, AfterViewInit {
   private readonly commandCommonService = inject(CommandCommonService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly quantiteInput = viewChild.required<InputNumber>("quantiteInput");
+  private readonly quantiteInput = viewChild.required<ElementRef<HTMLElement>>("quantiteInput");
 
   ngOnInit(): void {
     this.loading.set(true);
@@ -57,11 +55,10 @@ export class CommandeRapideModalComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      const el = this.quantiteInput()?.input();
+      const el = this.quantiteInput()?.nativeElement.querySelector("input");
       if (el) {
-        el.nativeElement.focus();
-        //el.nativeElement.value=String(1);
-        el.nativeElement.select();
+        el.focus();
+        el.select();
       }
 
     }, 150);

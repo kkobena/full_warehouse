@@ -1,21 +1,21 @@
 import { Component, DestroyRef, effect, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Button } from 'primeng/button';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { Toolbar } from 'primeng/toolbar';
-import { DatePicker } from 'primeng/datepicker';
-import { FloatLabel } from 'primeng/floatlabel';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { InputText } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
-import { Tag } from 'primeng/tag';
-import { TooltipModule } from 'primeng/tooltip';
+import { NgbDateParserFormatter, NgbDateStruct, NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
+import { FrenchDateParserFormatter } from '../../../../config/french-date-parser-formatter';
+import { PharmaDatePickerComponent } from '../../../../shared/date-picker/pharma-date-picker.component';
 import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
+import {
+  BadgeComponent,
+  ButtonComponent,
+  DataTableComponent,
+  IconFieldComponent,
+  AppTableLazyLoadEvent,
+  SelectComponent,
+  ToolbarComponent,
+} from '../../../../shared/ui';
 import {
   AvoirClientApiService,
   AvoirClientStatut,
@@ -29,28 +29,24 @@ import { CloturerAvoirModalComponent } from '../../ui/cloturer-avoir-modal/clotu
   selector: 'app-avoirs-client-list',
   templateUrl: './avoirs-client-list.component.html',
   styleUrl: './avoirs-client-list.component.scss',
-  providers: [DatePipe],
+  providers: [{ provide: NgbDateParserFormatter, useClass: FrenchDateParserFormatter }],
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,
-    Button,
-    TableModule,
-    Toolbar,
-    DatePicker,
-    FloatLabel,
-    IconField,
-    InputIcon,
-    InputText,
-    Select,
-    Tag,
-    TooltipModule,
+    ButtonComponent,
+    DataTableComponent,
+    ToolbarComponent,
+    PharmaDatePickerComponent,
+    IconFieldComponent,
+    SelectComponent,
+    BadgeComponent,
+    NgbTooltip,
   ],
 })
 export class AvoirsClientListComponent implements OnInit {
   private readonly api = inject(AvoirClientApiService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly datePipe = inject(DatePipe);
   private readonly modalService = inject(NgbModal);
   private readonly toolbarService = inject(SaleToolbarService);
 
@@ -63,8 +59,8 @@ export class AvoirsClientListComponent implements OnInit {
   protected itemsPerPage = ITEMS_PER_PAGE;
 
   protected search = '';
-  protected fromDate: Date = new Date();
-  protected toDate: Date = new Date();
+  protected fromDate: NgbDateStruct = this.todayNgb();
+  protected toDate: NgbDateStruct = this.todayNgb();
 
   protected readonly statutOptions: { label: string; value: AvoirClientStatut | null }[] = [
     { label: 'Tout', value: null },
@@ -117,8 +113,8 @@ export class AvoirsClientListComponent implements OnInit {
       page: pageToLoad,
       size: this.itemsPerPage,
       search: this.search || null,
-      fromDate: this.datePipe.transform(this.fromDate, 'yyyy-MM-dd'),
-      toDate: this.datePipe.transform(this.toDate, 'yyyy-MM-dd'),
+      fromDate: this.ngbDateToIso(this.fromDate),
+      toDate: this.ngbDateToIso(this.toDate),
       statut: statutFilter,
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -133,7 +129,7 @@ export class AvoirsClientListComponent implements OnInit {
       });
   }
 
-  protected lazyLoadingDocuments(event: TableLazyLoadEvent): void {
+  protected lazyLoadingDocuments(event: AppTableLazyLoadEvent): void {
     if (event.first != null && event.rows != null) {
       this.documentsPage = event.first / event.rows;
       this.itemsPerPage = event.rows;
@@ -157,5 +153,15 @@ export class AvoirsClientListComponent implements OnInit {
 
   protected modeClotureIconOf(mode?: string): string {
     return this.modeClotureOptions.find(o => o.value === mode)?.icon ?? 'pi pi-check';
+  }
+
+  private todayNgb(): NgbDateStruct {
+    const d = new Date();
+    return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
+  }
+
+  private ngbDateToIso(date: NgbDateStruct | null): string | null {
+    if (!date) return null;
+    return `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`;
   }
 }

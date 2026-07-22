@@ -16,7 +16,6 @@ import {
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {TooltipModule} from 'primeng/tooltip';
 import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {NgbConfirmDialogService} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
@@ -78,7 +77,6 @@ import {SaleForEditInfo} from '../../../../shared/model/sales.model';
   imports: [
     CommonModule,
     FormsModule,
-    TooltipModule,
     ProductSearchSectionComponent,
     InsuranceDataBarComponent,
     ProductListComponent,

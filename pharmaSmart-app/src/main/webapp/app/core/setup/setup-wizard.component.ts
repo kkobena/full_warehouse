@@ -1,10 +1,7 @@
 import { Component, inject, NgZone, OnDestroy, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { NgOptimizedImage } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ButtonComponent, PasswordComponent } from 'app/shared/ui';
 import { TauriPrinterService } from 'app/shared/services/tauri-printer.service';
 
 interface SetupDefaults {
@@ -21,7 +18,7 @@ interface SetupDefaults {
   templateUrl: './setup-wizard.component.html',
   styleUrls: ['./setup-wizard.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [ReactiveFormsModule, NgOptimizedImage, ButtonModule, InputTextModule, PasswordModule, ProgressSpinnerModule],
+  imports: [ReactiveFormsModule, NgOptimizedImage, ButtonComponent, PasswordComponent],
 })
 export class SetupWizardComponent implements OnInit, OnDestroy {
   readonly visible    = signal(false);

@@ -1,12 +1,12 @@
 <div class="prt-container">
   <div class="prt-toolbar">
-    <p-button
+    <app-button
       label="Ajouter à un autre stockage"
       icon="pi pi-plus"
       size="small"
       severity="secondary"
       [outlined]="true"
-      (onClick)="onAjouterStockage()"
+      (clicked)="onAjouterStockage()"
     />
   </div>
 
@@ -34,20 +34,20 @@
           </div>
           <div class="prt-item-actions">
             @if (rp.codeRayon === 'SANS') {
-              <p-button
+              <app-button
                 icon="pi pi-map-marker"
                 [rounded]="true" [text]="true" severity="warn"
-                pTooltip="Assigner un emplacement dans ce stockage"
+                ngbTooltip="Assigner un emplacement dans ce stockage"
                 size="small"
-                (onClick)="onDeplacer(rp)"
+                (clicked)="onDeplacer(rp)"
               />
             } @else {
-              <p-button
+              <app-button
                 icon="pi pi-arrows-h"
                 [rounded]="true" [text]="true" severity="info"
-                pTooltip="Déplacer vers un autre emplacement"
+                ngbTooltip="Déplacer vers un autre emplacement"
                 size="small"
-                (onClick)="onDeplacer(rp)"
+                (clicked)="onDeplacer(rp)"
               />
             }
           </div>

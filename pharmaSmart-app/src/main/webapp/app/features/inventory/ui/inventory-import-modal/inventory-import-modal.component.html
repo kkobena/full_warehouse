@@ -6,6 +6,7 @@
 </div>
 
 <div class="modal-body">
+<app-card [variant]="'form'">
   <!-- File selection -->
   @if (!importResult()) {
     <div class="mb-3">
@@ -99,6 +100,7 @@
       }
     </div>
   }
+</app-card>
 </div>
 
 <div class="modal-footer">

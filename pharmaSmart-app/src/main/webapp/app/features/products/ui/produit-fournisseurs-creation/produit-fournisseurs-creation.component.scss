@@ -15,7 +15,7 @@
   margin-bottom: 0.5rem;
   font-weight: 600;
   font-size: 0.85rem;
-  color: var(--p-text-color);
+  color: var(--bs-body-color);
 
   .section-number {
     display: inline-flex;
@@ -24,7 +24,7 @@
     width: 1.25rem;
     height: 1.25rem;
     border-radius: 50%;
-    background-color: var(--p-primary-color);
+    background-color: var(--bs-primary);
     color: white;
     font-size: 0.7rem;
     font-weight: 700;
@@ -41,8 +41,8 @@
   justify-content: space-between;
   padding: 0.2rem 0.75rem;
   margin-bottom: 0.625rem;
-  background: var(--p-surface-50);
-  border: 1px solid var(--p-surface-border);
+  background: var(--bs-tertiary-bg);
+  border: 1px solid var(--bs-border-color);
   border-radius: 0.375rem;
 
 
@@ -60,7 +60,7 @@
     width: 1.25rem;
     height: 1.25rem;
     border-radius: 50%;
-    background-color: var(--p-primary-color);
+    background-color: var(--bs-primary);
     color: white;
     font-size: 0.7rem;
     font-weight: 700;
@@ -70,7 +70,7 @@
   .section-label {
     font-weight: 600;
     font-size: 0.85rem;
-    color: var(--p-text-color);
+    color: var(--bs-body-color);
   }
 }
 
@@ -78,10 +78,10 @@
 // Ligne fournisseur principal (read-only)
 // ========================================================================
 .principal-row {
-  border: 1px solid var(--p-surface-border);
+  border: 1px solid var(--bs-border-color);
   border-radius: 0.375rem;
   padding: 0.625rem 0.875rem;
-  background: var(--p-surface-50);
+  background: var(--bs-tertiary-bg);
   margin-bottom: 0.75rem;
 
   .principal-info {
@@ -94,16 +94,16 @@
   .principal-libelle {
     font-weight: 600;
     font-size: 0.88rem;
-    color: var(--p-text-color);
+    color: var(--bs-body-color);
   }
 
   .principal-detail {
     font-size: 0.78rem;
-    color: var(--p-text-muted-color);
-    background: var(--p-surface-100);
+    color: var(--bs-secondary-color);
+    background: var(--bs-tertiary-bg);
     padding: 0.15rem 0.5rem;
     border-radius: 0.25rem;
-    border: 1px solid var(--p-surface-border);
+    border: 1px solid var(--bs-border-color);
   }
 }
 
@@ -115,12 +115,12 @@
   align-items: center;
   padding-bottom: 0.45rem;
   margin-bottom: 0.5rem;
-  border-bottom: 1px solid var(--p-surface-200);
+  border-bottom: 1px solid var(--bs-border-color);
 
   .row-index {
     font-size: 0.72rem;
     font-weight: 700;
-    color: var(--p-primary-color);
+    color: var(--bs-primary);
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
@@ -130,14 +130,14 @@
 // Ligne fournisseur supplémentaire
 // ========================================================================
 .supplier-row {
-  border: 1px solid var(--p-surface-border);
+  border: 1px solid var(--bs-border-color);
   border-radius: 0.375rem;
   padding: 0.75rem;
-  background: var(--p-surface-0);
+  background: var(--bs-body-bg);
   margin-bottom: 0.5rem;
   transition: border-color 0.15s;
 
-  &:hover { border-color: var(--p-surface-300); }
+  &:hover { border-color: var(--bs-border-color); }
 
   .alert-sm {
     padding: 0.35rem 0.625rem;
@@ -169,12 +169,12 @@
   label {
     font-weight: 500;
     font-size: 0.8rem;
-    color: var(--p-text-color);
+    color: var(--bs-body-color);
 
-    .required { color: var(--p-red-500); font-weight: 700; margin-left: 0.1rem; }
+    .required { color: var(--bs-danger); font-weight: 700; margin-left: 0.1rem; }
   }
 
-  input, p-select { width: 100%; }
+  input, app-select-search { width: 100%; }
 }
 
 .input-currency {
@@ -189,7 +189,7 @@
     right: 0.6rem;
     font-size: 0.78rem;
     font-weight: 600;
-    color: var(--p-text-muted-color);
+    color: var(--bs-secondary-color);
     pointer-events: none;
   }
 }
@@ -198,7 +198,7 @@
 // État vide
 // ========================================================================
 .pharma-empty-content {
-  color: var(--p-text-muted-color);
+  color: var(--bs-secondary-color);
   p { font-size: 0.875rem; }
 }
 

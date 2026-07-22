@@ -7,19 +7,20 @@
 </div>
 
 <div class="modal-body">
-  <p-toolbar>
-    <ng-template #end>
-      <p-button
-        (onClick)="addAyantDroit()"
+<app-card [variant]="'form'">
+  <app-toolbar>
+    <ng-container ngProjectAs="[toolbarActions]">
+      <app-button
+        (clicked)="addAyantDroit()"
         icon="pi pi-user-plus"
         label="Ajouter un ayant droit"
         severity="primary"
         size="small"
       />
-    </ng-template>
-  </p-toolbar>
+    </ng-container>
+  </app-toolbar>
 
-  <p-table
+  <app-data-table
     [value]="customers()"
     [loading]="loading()"
     [rows]="10"
@@ -50,14 +51,14 @@
         </td>
         <td>{{ ayantDroit.datNaiss | date: 'dd/MM/yyyy' }}</td>
         <td class="text-center">
-          <p-button
-            (onClick)="onSelect(ayantDroit)"
+          <app-button
+            (clicked)="onSelect(ayantDroit)"
             icon="pi pi-check"
             severity="success"
             size="small"
             [rounded]="true"
             [text]="true"
-            pTooltip="Sélectionner"
+            ngbTooltip="Sélectionner"
           />
         </td>
       </tr>
@@ -69,8 +70,8 @@
           <div class="empty-state">
             <i class="pi pi-users" style="font-size: 2rem; color: var(--text-color-secondary)"></i>
             <p class="mt-2 text-muted">Aucun ayant droit trouvé.</p>
-            <p-button
-              (onClick)="addAyantDroit()"
+            <app-button
+              (clicked)="addAyantDroit()"
               icon="pi pi-user-plus"
               label="Ajouter le premier ayant droit"
               severity="primary"
@@ -80,12 +81,13 @@
         </td>
       </tr>
     </ng-template>
-  </p-table>
+  </app-data-table>
+</app-card>
 </div>
 
 <div class="modal-footer">
-  <p-button
-    (onClick)="cancel()"
+  <app-button
+    (clicked)="cancel()"
     [raised]="true"
     icon="pi pi-times"
     label="Fermer"

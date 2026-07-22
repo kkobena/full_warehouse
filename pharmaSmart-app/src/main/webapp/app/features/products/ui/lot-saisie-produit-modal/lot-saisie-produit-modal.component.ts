@@ -2,11 +2,7 @@ import { AfterViewInit, Component, ElementRef, inject, OnInit, signal, ViewChild
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { SelectModule } from 'primeng/select';
-import { TooltipModule } from 'primeng/tooltip';
+import { ButtonComponent, CardComponent, InputNumberComponent, SelectSearchComponent } from 'app/shared/ui';
 import { IProduit } from 'app/shared/model/produit.model';
 import { ILot } from 'app/shared/model/lot.model';
 import { IStorage } from 'app/shared/model/magasin.model';
@@ -23,12 +19,11 @@ import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-pi
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    InputNumberModule,
-    SelectModule,
-    TooltipModule,
+    ButtonComponent,
+    InputNumberComponent,
+    SelectSearchComponent,
     PharmaDatePickerComponent,
+    CardComponent,
   ],
 })
 export class LotSaisieProduitModalComponent implements OnInit, AfterViewInit {

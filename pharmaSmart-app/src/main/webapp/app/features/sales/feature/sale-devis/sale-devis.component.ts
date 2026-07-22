@@ -18,13 +18,9 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {map} from 'rxjs';
-import {TooltipModule} from 'primeng/tooltip';
-import {InputTextModule} from 'primeng/inputtext';
-import {IconField} from 'primeng/iconfield';
-import {InputIcon} from 'primeng/inputicon';
-import {Button} from 'primeng/button';
 import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {ButtonComponent, IconFieldComponent} from '../../../../shared/ui';
 import {NgbConfirmDialogService} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import {
   CustomerSelectionModalComponent,
@@ -79,11 +75,9 @@ import {SaleForEditInfo} from '../../../../shared/model/sales.model';
   imports: [
     CommonModule,
     FormsModule,
-    TooltipModule,
-    InputTextModule,
-    IconField,
-    InputIcon,
-    Button,
+    NgbTooltip,
+    IconFieldComponent,
+    ButtonComponent,
     ProductSearchSectionComponent,
     ProductListComponent,
     SaleSummaryComponent,

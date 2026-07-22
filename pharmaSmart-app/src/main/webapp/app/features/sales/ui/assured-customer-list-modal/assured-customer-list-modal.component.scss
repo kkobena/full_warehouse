@@ -170,11 +170,9 @@
 
 // Search input spinner
 ::ng-deep {
-  .p-iconfield {
-    .p-inputicon {
-      &.pi-spinner {
-        color: var(--primary-color);
-      }
+  .app-icon-field__icon {
+    &.pi-spinner {
+      color: var(--primary-color);
     }
   }
 }

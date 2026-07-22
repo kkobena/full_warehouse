@@ -1,11 +1,7 @@
 import { Component, effect, ElementRef, inject, input, OnDestroy, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { SelectModule } from 'primeng/select';
-import { TooltipModule } from 'primeng/tooltip';
-import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDateStruct, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ProduitStatService } from 'app/entities/produit/stat/produit-stat.service';
 import { MagasinService } from 'app/entities/magasin/magasin.service';
@@ -15,7 +11,7 @@ import { ProduitAuditingParam, ProduitAuditingState, ProduitAuditingSum } from '
 import { MouvementProduit } from 'app/shared/model/enumerations/mouvement-produit.model';
 import { IStorage } from 'app/shared/model/magasin.model';
 import { IProduit } from 'app/shared/model/produit.model';
-import { MultiSelect } from 'primeng/multiselect';
+import { ButtonComponent, DataTableComponent, MultiSelectComponent, SelectComponent } from 'app/shared/ui';
 import { BlobDownloadService } from '../../../../shared/services/blob-download.service';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 
@@ -36,13 +32,13 @@ interface PeriodShortcut {
   imports: [
     CommonModule,
     FormsModule,
-    TableModule,
-    ButtonModule,
-    SelectModule,
-    TooltipModule,
+    DataTableComponent,
+    ButtonComponent,
+    SelectComponent,
+    NgbTooltip,
     PharmaDatePickerComponent,
     TranslatePipe,
-    MultiSelect
+    MultiSelectComponent
   ]
 })
 export class ProduitMouvementsTabComponent implements OnDestroy {
@@ -271,19 +267,9 @@ export class ProduitMouvementsTabComponent implements OnDestroy {
     this.load();
   }
 
-  /**
-   * Appelé par (onChange) du p-multiselect.
-   * PrimeNG déclenche l'event AVANT que [(ngModel)] soit mis à jour,
-   * on lit donc les valeurs depuis l'event pour éviter un décalage.
-   */
-  protected onTypesChange(event: { value: string[] | null }): void {
-    this.selectedTypes = event.value;
-    this.load();
-  }
-
-  /** Appelé par (onClear) : réinitialise et recharge */
-  protected onTypesClear(): void {
-    this.selectedTypes = [];
+  /** Appelé par (selectionChange) de app-multi-select — couvre aussi le clic sur la croix de remise à zéro. */
+  protected onTypesChange(value: string[] | null): void {
+    this.selectedTypes = value;
     this.load();
   }
 

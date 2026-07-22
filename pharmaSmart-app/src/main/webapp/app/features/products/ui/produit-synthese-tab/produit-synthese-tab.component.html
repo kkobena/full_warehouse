@@ -20,7 +20,7 @@
           <span class="kpi-value">{{ produit().seuilMini ?? '—' }} u</span>
         </div>
         <div class="kpi-item">
-          <span class="kpi-label" pTooltip="Jours avant rupture estimés sur la CMM">Jours de stock</span>
+          <span class="kpi-label" ngbTooltip="Jours avant rupture estimés sur la CMM">Jours de stock</span>
           <span class="kpi-value" [class]="joursStockClass()">
             @if (couvertureJours() != null) {
               {{ couvertureJours() }} j
@@ -30,7 +30,7 @@
           </span>
         </div>
         <div class="kpi-item">
-          <span class="kpi-label" pTooltip="Consommation mensuelle moyenne sur 12 mois">CMM</span>
+          <span class="kpi-label" ngbTooltip="Consommation mensuelle moyenne sur 12 mois">CMM</span>
           <span class="kpi-value">
             @if (indicateurs()?.cmm != null) {
               {{ indicateurs()!.cmm | number: '1.1-1' }} u/m
@@ -40,7 +40,7 @@
           </span>
         </div>
         <div class="kpi-item">
-          <span class="kpi-label" pTooltip="Nombre de rotations stock / an">Rotation</span>
+          <span class="kpi-label" ngbTooltip="Nombre de rotations stock / an">Rotation</span>
           <span class="kpi-value">
             @if (rotationAnnuelle() != null) {
               {{ rotationAnnuelle() | number: '1.1-1' }} ×/an
@@ -117,7 +117,7 @@
         }
         @if (indicateurs()?.frequenceMois != null) {
           <div class="kpi-item">
-            <span class="kpi-label" pTooltip="Nombre de mois distincts avec au moins 1 vente">Fréquence</span>
+            <span class="kpi-label" ngbTooltip="Nombre de mois distincts avec au moins 1 vente">Fréquence</span>
             <span class="kpi-value">{{ indicateurs()!.frequenceMois }} mois/12</span>
           </div>
         }
@@ -185,16 +185,16 @@
             <i
               class="pi pi-info-circle ms-1"
               style="font-size: 0.7rem; color: #6b7280; cursor: help"
-              pTooltip="Activer pour exiger la saisie de numéro de lot et de date de péremption à chaque réception de ce produit"
-              tooltipPosition="top"
+              ngbTooltip="Activer pour exiger la saisie de numéro de lot et de date de péremption à chaque réception de ce produit"
+              placement="top"
             ></i>
           </span>
-          <p-toggleswitch
+          <app-switch
             [ngModel]="produit().gestionLot ?? true"
             [disabled]="!canEdit() || gestionLotPending()"
-            (onChange)="onToggleGestionLot($event.checked)"
-            pTooltip="{{ (produit().gestionLot ?? false) ? 'Désactiver le suivi des lots' : 'Activer le suivi des lots' }}"
-            tooltipPosition="left"
+            (ngModelChange)="onToggleGestionLot($event)"
+            ngbTooltip="{{ (produit().gestionLot ?? false) ? 'Désactiver le suivi des lots' : 'Activer le suivi des lots' }}"
+            placement="left"
           />
         </div>
       </div>
@@ -206,8 +206,8 @@
       <div class="kpi-grid">
         <div class="kpi-item">
           <span class="kpi-label">Statut légal</span>
-          <p-tag
-            [value]="statutLegalTag().label"
+          <app-badge
+            [label]="statutLegalTag().label"
             [severity]="statutLegalTag().severity"
             [icon]="statutLegalTag().icon"
           />
@@ -218,16 +218,16 @@
             <i
               class="pi pi-info-circle ms-1"
               style="font-size: 0.7rem; color: #6b7280; cursor: help"
-              pTooltip="Produit nécessitant une conservation au froid (chaîne du froid)"
-              tooltipPosition="top"
+              ngbTooltip="Produit nécessitant une conservation au froid (chaîne du froid)"
+              placement="top"
             ></i>
           </span>
-          <p-toggleswitch
+          <app-switch
             [ngModel]="produit().thermosensible ?? false"
             [disabled]="!canEdit() || thermosensiblePending()"
-            (onChange)="onToggleThermosensible($event.checked)"
-            pTooltip="{{ (produit().thermosensible ?? false) ? 'Désactiver le flag thermosensible' : 'Activer le flag thermosensible' }}"
-            tooltipPosition="left"
+            (ngModelChange)="onToggleThermosensible($event)"
+            ngbTooltip="{{ (produit().thermosensible ?? false) ? 'Désactiver le flag thermosensible' : 'Activer le flag thermosensible' }}"
+            placement="left"
           />
         </div>
         <div class="kpi-item kpi-item--toggle">
@@ -236,16 +236,16 @@
             <i
               class="pi pi-info-circle ms-1"
               style="font-size: 0.7rem; color: #6b7280; cursor: help"
-              pTooltip="Inscrit sur la liste des médicaments essentiels (OMS / liste nationale)"
-              tooltipPosition="top"
+              ngbTooltip="Inscrit sur la liste des médicaments essentiels (OMS / liste nationale)"
+              placement="top"
             ></i>
           </span>
-          <p-toggleswitch
+          <app-switch
             [ngModel]="produit().estMedicamentEssentiel ?? false"
             [disabled]="!canEdit() || medicamentEssentielPending()"
-            (onChange)="onToggleMedicamentEssentiel($event.checked)"
-            pTooltip="{{ (produit().estMedicamentEssentiel ?? false) ? 'Retirer de la liste des médicaments essentiels' : 'Marquer comme médicament essentiel' }}"
-            tooltipPosition="left"
+            (ngModelChange)="onToggleMedicamentEssentiel($event)"
+            ngbTooltip="{{ (produit().estMedicamentEssentiel ?? false) ? 'Retirer de la liste des médicaments essentiels' : 'Marquer comme médicament essentiel' }}"
+            placement="left"
           />
         </div>
         <div class="kpi-item kpi-item--toggle">
@@ -254,16 +254,16 @@
             <i
               class="pi pi-info-circle ms-1"
               style="font-size: 0.7rem; color: #6b7280; cursor: help"
-              pTooltip="Produit disponible lors des services de garde et d'urgence"
-              tooltipPosition="top"
+              ngbTooltip="Produit disponible lors des services de garde et d'urgence"
+              placement="top"
             ></i>
           </span>
-          <p-toggleswitch
+          <app-switch
             [ngModel]="produit().estProduitGarde ?? false"
             [disabled]="!canEdit() || produitGardePending()"
-            (onChange)="onToggleProduitGarde($event.checked)"
-            pTooltip="{{ (produit().estProduitGarde ?? false) ? 'Retirer des produits de garde' : 'Marquer comme produit de garde' }}"
-            tooltipPosition="left"
+            (ngModelChange)="onToggleProduitGarde($event)"
+            ngbTooltip="{{ (produit().estProduitGarde ?? false) ? 'Retirer des produits de garde' : 'Marquer comme produit de garde' }}"
+            placement="left"
           />
         </div>
         <div class="kpi-item kpi-item--toggle">
@@ -272,16 +272,16 @@
             <i
               class="pi pi-info-circle ms-1"
               style="font-size: 0.7rem; color: #6b7280; cursor: help"
-              pTooltip="La classe ABC de ce produit a été saisie manuellement et ne sera pas recalculée automatiquement"
-              tooltipPosition="top"
+              ngbTooltip="La classe ABC de ce produit a été saisie manuellement et ne sera pas recalculée automatiquement"
+              placement="top"
             ></i>
           </span>
-          <p-toggleswitch
+          <app-switch
             [ngModel]="produit().isClassificationOverridden ?? false"
             [disabled]="!canEdit() || classificationOverriddenPending()"
-            (onChange)="onToggleClassificationOverridden($event.checked)"
-            pTooltip="{{ (produit().isClassificationOverridden ?? false) ? 'Réactiver le calcul automatique de la classe ABC' : 'Figer la classe ABC manuellement' }}"
-            tooltipPosition="left"
+            (ngModelChange)="onToggleClassificationOverridden($event)"
+            ngbTooltip="{{ (produit().isClassificationOverridden ?? false) ? 'Réactiver le calcul automatique de la classe ABC' : 'Figer la classe ABC manuellement' }}"
+            placement="left"
           />
         </div>
       </div>
@@ -291,13 +291,13 @@
     <div class="synthese-section synthese-section-full">
       <div class="section-title-row">
         <h6 class="section-title">Tarifs assurance</h6>
-        <p-button
+        <app-button
           icon="pi pi-plus"
           label="Ajouter"
           size="small"
           severity="primary"
           [outlined]="true"
-          (onClick)="onAddPrix()"
+          (clicked)="onAddPrix()"
         />
       </div>
       @if (prixReferences().length === 0) {
@@ -333,32 +333,32 @@
                   }
                 </td>
                 <td class="text-end text-nowrap">
-                  <p-button
+                  <app-button
                     icon="pi pi-pencil"
                     [text]="true"
                     [rounded]="true"
                     size="small"
                     severity="primary"
-                    pTooltip="Modifier"
-                    (onClick)="onEditPrix(prix)"
+                    ngbTooltip="Modifier"
+                    (clicked)="onEditPrix(prix)"
                   />
-                  <p-button
+                  <app-button
                     [icon]="prix.enabled ? 'pi pi-ban' : 'pi pi-check'"
                     [text]="true"
                     [rounded]="true"
                     size="small"
                     [severity]="prix.enabled ? 'contrast' : 'info'"
-                    [pTooltip]="prix.enabled ? 'Désactiver' : 'Activer'"
-                    (onClick)="onTogglePrix(prix)"
+                    [ngbTooltip]="prix.enabled ? 'Désactiver' : 'Activer'"
+                    (clicked)="onTogglePrix(prix)"
                   />
-                  <p-button
+                  <app-button
                     icon="pi pi-trash"
                     [text]="true"
                     [rounded]="true"
                     size="small"
                     severity="danger"
-                    pTooltip="Supprimer"
-                    (onClick)="onDeletePrix(prix)"
+                    ngbTooltip="Supprimer"
+                    (clicked)="onDeletePrix(prix)"
                   />
                 </td>
               </tr>

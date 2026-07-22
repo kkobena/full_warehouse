@@ -176,11 +176,18 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
     this.scanSubscription = this.scanDetectorService.onScanEvent$
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        filter((event: ScanEvent) => event.type === 'start' || event.type === 'complete'),
+        filter((event: ScanEvent) => event.type === 'start' || event.type === 'complete' || event.type === 'reset'),
       )
       .subscribe((event: ScanEvent) => {
         if (event.type === 'start') this.onScanStart();
         else if (event.type === 'complete' && event.code) this.onScanComplete(event.code);
+        else if (event.type === 'reset') {
+          // Scan détecté puis abandonné côté service (jamais de code valide) : sans ce
+          // cas, `isScanning` restait bloqué et la boucle de nettoyage vidait le champ en
+          // continu, rendant la saisie manuelle impossible.
+          this.isScanning = false;
+          this.stopInputClearLoop();
+        }
       });
 
     this.keydownListener = (event: KeyboardEvent) => this.scanDetectorService.keyPressed(event.key);

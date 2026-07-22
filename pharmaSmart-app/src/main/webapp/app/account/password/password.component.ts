@@ -6,17 +6,13 @@ import {Observable} from 'rxjs';
 import {AccountService} from 'app/core/auth/account.service';
 import {Account} from 'app/core/auth/account.model';
 import {PasswordService} from './password.service';
-import {Panel} from 'primeng/panel';
-import {PasswordModule} from 'primeng/password';
-import {PrimeNG} from 'primeng/config';
-import {TranslateService} from '@ngx-translate/core';
-import {Button} from 'primeng/button';
+import {ButtonComponent, CardComponent, PasswordComponent as AppPasswordComponent} from '../../shared/ui';
 import TranslateDirective from "../../shared/language/translate.directive";
 import {CommonModule} from "@angular/common";
 
 @Component({
   selector: 'jhi-password',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, Panel, PasswordModule, Button, TranslateDirective],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, CardComponent, AppPasswordComponent, ButtonComponent, TranslateDirective],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './password.component.html',
 })
@@ -39,15 +35,6 @@ export default class PasswordComponent implements OnInit {
 
   private readonly passwordService = inject(PasswordService);
   private readonly accountService = inject(AccountService);
-  private readonly primeNGConfig = inject(PrimeNG);
-  private readonly translate = inject(TranslateService);
-
-  constructor() {
-    this.translate.use('fr');
-    this.translate.stream('primeng').subscribe(data => {
-      this.primeNGConfig.setTranslation(data);
-    });
-  }
 
   ngOnInit(): void {
     this.account$ = this.accountService.identity();

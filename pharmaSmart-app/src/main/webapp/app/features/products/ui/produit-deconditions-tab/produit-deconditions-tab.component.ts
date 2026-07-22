@@ -1,6 +1,6 @@
 import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TableModule } from 'primeng/table';
+import { DataTableComponent } from 'app/shared/ui';
 import { IProduit } from 'app/shared/model/produit.model';
 
 @Component({
@@ -8,7 +8,7 @@ import { IProduit } from 'app/shared/model/produit.model';
   templateUrl: './produit-deconditions-tab.component.html',
   styleUrls: ['./produit-deconditions-tab.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, TableModule],
+  imports: [CommonModule, DataTableComponent],
 })
 export class ProduitDeconditionsTabComponent {
   readonly produit = input.required<IProduit>();

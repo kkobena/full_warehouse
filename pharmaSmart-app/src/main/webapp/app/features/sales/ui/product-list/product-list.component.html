@@ -3,17 +3,15 @@
   <div class="pharma-table-header-compact">
     <!-- Recherche produit -->
     <div class="pharma-filter-search">
-      <p-iconfield>
-        <p-inputicon class="pi pi-search" />
+      <app-icon-field [overlay]="true" icon="pi pi-search">
         <input
           #filterInput
           (input)="onFilterChange($event)"
-          class="pharma-search-input"
-          pInputText
+          class="form-control pharma-search-input"
           placeholder="Rechercher un produit..."
           type="text"
         />
-      </p-iconfield>
+      </app-icon-field>
     </div>
 
     <!-- Séparateur vertical -->
@@ -28,21 +26,26 @@
             <i class="pi pi-percentage"></i>
             <span class="remise-label">Remise:</span>
             <strong class="remise-value">{{ getRemiseTaux() }}</strong>
-            <p-button
-              (click)="openEditRemisePopover($event)"
+            <app-button
+              #editRemisePopover="ngbPopover"
+              (clicked)="openEditRemisePopover()"
+              [ngbPopover]="remisePopoverContent"
               [rounded]="true"
               [text]="true"
+              container="body"
               icon="pi pi-pencil"
-              pTooltip="Modifier la remise"
+              ngbTooltip="Modifier la remise"
+              placement="bottom"
+              popoverClass="remise-popover"
               severity="info"
               size="small"
             />
-            <p-button
-              (click)="onRemoveRemise()"
+            <app-button
+              (clicked)="onRemoveRemise()"
               [rounded]="true"
               [text]="true"
               icon="pi pi-times"
-              pTooltip="Supprimer la remise"
+              ngbTooltip="Supprimer la remise"
               severity="danger"
               size="small"
             />
@@ -51,19 +54,24 @@
 
         <!-- Bouton ajouter remise (visible uniquement quand aucune remise appliquée) -->
         @if (!currentRemise() && remises()?.length > 0) {
-          <p-button
-            (click)="openAddRemisePopover($event)"
+          <app-button
+            #addRemisePopover="ngbPopover"
+            (clicked)="openAddRemisePopover()"
+            [ngbPopover]="remisePopoverContent"
             [outlined]="true"
+            container="body"
             icon="pi pi-percentage"
             label="Remise"
-            pTooltip="Ajouter une remise"
+            ngbTooltip="Ajouter une remise"
+            placement="bottom"
+            popoverClass="remise-popover"
             severity="primary"
             size="small"
           />
         }
 
-        <!-- Popover de sélection de remise -->
-        <p-popover #remisePopover [style]="{ width: '320px' }">
+        <!-- Contenu du popover de sélection de remise -->
+        <ng-template #remisePopoverContent>
           <div class="remise-popover-content">
             <div class="remise-popover-header">
               <i class="pi pi-percentage"></i>
@@ -71,7 +79,7 @@
             </div>
             <div class="remise-popover-list">
               @for (remise of availableRemises(); track remise.id) {
-                <div class="remise-popover-item" (click)="onPopoverRemiseSelect(remise)">
+                <div (click)="onPopoverRemiseSelect(remise)" class="remise-popover-item">
                   <div class="remise-item-icon">
                     <i class="pi pi-tag"></i>
                   </div>
@@ -85,7 +93,7 @@
               }
             </div>
           </div>
-        </p-popover>
+        </ng-template>
       </div>
     }
 
@@ -93,18 +101,16 @@
   </div>
 
   <!-- Tableau principal -->
-  <p-table
+  <app-data-table
     #produitTable
-    [value]="salesLines()"
     [globalFilterFields]="['produitCode', 'produitLibelle']"
     [paginator]="true"
     [rowsPerPageOptions]="[5, 10, 20, 50]"
     [rows]="10"
     [showCurrentPageReport]="true"
+    [value]="salesLines()"
     currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-    dataKey="id"
-    selectionMode="single"
-    [class]="'pharma-table'">
+    dataKey="id">
     <ng-template #header>
       <tr class="pharma-table-head">
         <th style="width: 15px; text-align: center; padding: 6px 5px">#</th>
@@ -121,12 +127,12 @@
     </ng-template>
     <ng-template #body let-line let-rowIndex="rowIndex">
       <tr
+        (click)="onSelectLine(line)"
+        [attr.data-line-id]="line.id"
         [ngClass]="{
           'pharma-row-warning': line.quantitySold < line.quantityRequested,
           'selected-row': isLineSelected(line)
-        }"
-        (click)="onSelectLine(line)"
-        [attr.data-line-id]="line.id">
+        }">
         <!-- # -->
         <td style="text-align: center; padding: 6px 5px">
           <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
@@ -143,70 +149,55 @@
         </td>
 
         <!-- QTÉ.D - Éditable au click -->
-        <td [pEditableColumn]="line.quantityRequested" pEditableColumnField="quantityRequested" class="text-center editable-cell">
-          <p-celleditor>
+        <td class="text-center">
+          <app-editable-cell>
             <ng-template #input>
               <input
-                type="number"
-                pInputText
+                (keydown.enter)="onQuantityRequestedChange(line, $any($event.target).value)"
                 [value]="line.quantityRequested"
-                (keydown.enter)="onQuantityRequestedChange(line, $any($event.target).value) "
-                (focus)="$event.target.select()"
+                class="form-control form-control-sm pharma-input-qty"
                 min="1"
-                class="pharma-input-qty" />
+                type="number" />
             </ng-template>
             <ng-template #output>
-              <span class="editable-cell-output">
-                <span class="pharma-qty-value">{{ line.quantityRequested | number }}</span>
-                <i class="pi pi-pencil edit-hint-icon"></i>
-              </span>
+              <span class="pharma-qty-value">{{ line.quantityRequested | number }}</span>
             </ng-template>
-          </p-celleditor>
+          </app-editable-cell>
         </td>
 
         <!-- QTÉ.S - Éditable au click -->
-        <td [pEditableColumn]="line.quantitySold" pEditableColumnField="quantitySold" class="text-center editable-cell">
-          <p-celleditor>
+        <td class="text-center">
+          <app-editable-cell>
             <ng-template #input>
               <input
-                type="number"
-                pInputText
-                [value]="line.quantitySold"
                 (keydown.enter)="onQuantitySoldChange(line, $any($event.target).value)"
-                (focus)="$event.target.select()"
+                [value]="line.quantitySold"
+                class="form-control form-control-sm pharma-input-qty"
                 min="0"
-                class="pharma-input-qty" />
+                type="number" />
             </ng-template>
             <ng-template #output>
-              <span class="editable-cell-output">
-                <span class="pharma-qty-value">{{ line.quantitySold | number }}</span>
-                <i class="pi pi-pencil edit-hint-icon"></i>
-              </span>
+              <span class="pharma-qty-value">{{ line.quantitySold | number }}</span>
             </ng-template>
-          </p-celleditor>
+          </app-editable-cell>
         </td>
 
         <!-- PU - Éditable si autorisé -->
         @if (canEditPrice()) {
-          <td [pEditableColumn]="line.regularUnitPrice" pEditableColumnField="regularUnitPrice" class="text-right editable-cell">
-            <p-celleditor>
+          <td class="text-right">
+            <app-editable-cell>
               <ng-template #input>
                 <input
-                  type="number"
-                  pInputText
+                  (keydown.enter)="onPriceChange(line, $any($event.target).value)"
                   [value]="line.regularUnitPrice"
-                  (keydown.enter)="onPriceChange(line, $any($event.target).value) "
-                  (focus)="$event.target.select()"
+                  class="form-control form-control-sm pharma-input-price"
                   min="0"
-                  class="pharma-input-price" />
+                  type="number" />
               </ng-template>
               <ng-template #output>
-                <span class="editable-cell-output">
-                  <span class="pharma-price">{{ line.regularUnitPrice | number }}</span>
-                  <i class="pi pi-pencil edit-hint-icon"></i>
-                </span>
+                <span class="pharma-price">{{ line.regularUnitPrice | number }}</span>
               </ng-template>
-            </p-celleditor>
+            </app-editable-cell>
           </td>
         } @else {
           <td style="text-align: right">
@@ -221,17 +212,17 @@
 
         <!-- ACTIONS -->
 
-          <td style="text-align: center">
-            <p-button
-              (click)="onRemoveLine(line); $event.stopPropagation()"
-              [rounded]="true"
-              [text]="true"
-              icon="pi pi-trash"
-              pTooltip="Supprimer"
-              severity="danger"
-              size="small"
-            />
-          </td>
+        <td style="text-align: center">
+          <app-button
+            (clicked)="onRemoveLine(line); $event.stopPropagation()"
+            [rounded]="true"
+            [text]="true"
+            icon="pi pi-trash"
+            ngbTooltip="Supprimer"
+            severity="danger"
+            size="small"
+          />
+        </td>
 
       </tr>
     </ng-template>
@@ -266,5 +257,5 @@
         </tr>
       }
     </ng-template>
-  </p-table>
+  </app-data-table>
 </div>

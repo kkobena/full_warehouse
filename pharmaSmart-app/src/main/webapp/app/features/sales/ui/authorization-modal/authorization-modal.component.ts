@@ -2,9 +2,7 @@ import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
+import { ButtonComponent, PasswordComponent } from '../../../../shared/ui';
 import { VoSalesService } from '../../../../entities/sales/service/vo-sales.service';
 import { SalesService } from '../../../../entities/sales/sales.service';
 import { UtilisationCleSecurite } from '../../../../entities/action-autorisation/utilisation-cle-securite.model';
@@ -24,7 +22,7 @@ import { UtilisationCleSecurite } from '../../../../entities/action-autorisation
  */
 @Component({
   selector: 'app-authorization-modal',
-  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, PasswordModule],
+  imports: [CommonModule, FormsModule, ButtonComponent, PasswordComponent],
   template: `
     <div class="authorization-modal">
       <div class="modal-header">
@@ -48,28 +46,24 @@ import { UtilisationCleSecurite } from '../../../../entities/action-autorisation
         <form (ngSubmit)="authorize()" #authForm="ngForm">
           <div class="form-group">
             <label for="securityKey">Clé de sécurité *</label>
-            <p-password
+            <app-password
               id="securityKey"
               [(ngModel)]="securityKey"
               name="securityKey"
               placeholder="Entrez votre clé de sécurité"
-              [feedback]="false"
               [toggleMask]="true"
-              required
-              fluid="true"
+              [required]="true"
             />
           </div>
 
           <div class="form-group">
             <label for="comment">Commentaire (optionnel)</label>
             <input
-              fluid="true"
-              pInputText
               id="comment"
               [(ngModel)]="comment"
               name="comment"
               placeholder="Motif de l'autorisation"
-              class="w-full"
+              class="form-control w-100"
             />
           </div>
 
@@ -83,12 +77,12 @@ import { UtilisationCleSecurite } from '../../../../entities/action-autorisation
       </div>
 
       <div class="modal-footer">
-        <p-button label="Annuler" severity="secondary" [outlined]="true" (onClick)="cancel()" [disabled]="isSaving" />
-        <p-button
+        <app-button label="Annuler" severity="secondary" [outlined]="true" (clicked)="cancel()" [disabled]="isSaving" />
+        <app-button
           label="Autoriser"
           severity="success"
           icon="pi pi-check"
-          (onClick)="authorize()"
+          (clicked)="authorize()"
           [disabled]="!securityKey || isSaving"
           [loading]="isSaving"
         />

@@ -1,62 +1,30 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-1">
 
-    <div class="pharma-toolbar pharma-toolbar-compact">
-      <div class="pharma-toolbar-header">
-        <i class="pi pi-replay"></i>
-        <span class="pharma-toolbar-title">Avoirs clients</span>
-      </div>
+    <app-toolbar icon="pi pi-replay" title="Avoirs clients" [compact]="true">
+      <ng-container ngProjectAs="[toolbarFilters]">
+        <app-select
+          [items]="statutOptions"
+          [ngModel]="statut()"
+          (ngModelChange)="onStatutChange($event)"
+          bindLabel="label"
+          bindValue="value"
+          appendTo="body"
+        />
 
-      <p-toolbar>
-        <ng-template #start>
-          <div class="pharma-toolbar-filters">
-            <p-select
-              [options]="statutOptions"
-              [ngModel]="statut()"
-              (ngModelChange)="onStatutChange($event)"
-              optionLabel="label"
-              optionValue="value"
-              appendTo="body"
-            />
+        <app-icon-field icon="pi pi-search">
+          <input (keyup.enter)="onSearch()" [(ngModel)]="search" class="form-control" placeholder="Référence, produit..." type="text" />
+        </app-icon-field>
 
-            <p-iconfield>
-              <p-inputicon class="pi pi-search" />
-              <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText placeholder="Référence, produit..." type="text" />
-            </p-iconfield>
+        <pharma-date-picker id="avoir-fromDate" label="Du" [(ngModel)]="fromDate" [maxDate]="toDate" />
 
-            <p-floatlabel variant="on">
-              <p-datepicker
-                [(ngModel)]="fromDate"
-                [maxDate]="toDate"
-                [selectOtherMonths]="true"
-                [showButtonBar]="true"
-                appendTo="body"
-                dateFormat="dd/mm/yy"
-                id="avoir-fromDate"
-              />
-              <label for="avoir-fromDate">Du</label>
-            </p-floatlabel>
+        <pharma-date-picker id="avoir-toDate" label="Au" [(ngModel)]="toDate" [minDate]="fromDate" />
+      </ng-container>
 
-            <p-floatlabel variant="on">
-              <p-datepicker
-                [(ngModel)]="toDate"
-                [minDate]="fromDate"
-                [selectOtherMonths]="true"
-                [showButtonBar]="true"
-                appendTo="body"
-                dateFormat="dd/mm/yy"
-                id="avoir-toDate"
-              />
-              <label for="avoir-toDate">Au</label>
-            </p-floatlabel>
-          </div>
-        </ng-template>
-
-        <ng-template #end>
-          <p-button (click)="onSearch()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
-        </ng-template>
-      </p-toolbar>
-    </div>
+      <ng-container ngProjectAs="[toolbarActions]">
+        <app-button (clicked)="onSearch()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
+      </ng-container>
+    </app-toolbar>
 
     <div class="journal-summary-bar">
       <div class="summary-item">
@@ -71,7 +39,7 @@
       </div>
     </div>
 
-    <p-table
+    <app-data-table
       (onLazyLoad)="lazyLoadingDocuments($event)"
       [lazy]="true"
       [loading]="loading()"
@@ -81,7 +49,8 @@
       [showCurrentPageReport]="true"
       [totalRecords]="documentsTotal"
       [value]="documents()"
-      class="p-datatable-sm p-datatable-striped"
+      [stripedRows]="true"
+      [size]="'small'"
       currentPageReportTemplate="{first} – {last} sur {totalRecords}"
       dataKey="id"
     >
@@ -164,27 +133,27 @@
           }
           <td class="text-center">
             @if (doc.statut === 'OUVERT') {
-              <p-tag severity="warn" value="Ouvert" />
+              <app-badge severity="warn" label="Ouvert" />
             } @else if (doc.statut === 'EXPIRE') {
-              <p-tag severity="danger" value="Expiré" />
+              <app-badge severity="danger" label="Expiré" />
             } @else if (doc.statut === 'ANNULE') {
-              <p-tag severity="secondary" value="Annulé" />
+              <app-badge severity="secondary" label="Annulé" />
             } @else {
-              <p-tag severity="success" value="Clôturé" />
+              <app-badge severity="success" label="Clôturé" />
             }
           </td>
           @if (statut() !== 'CLOTURE' && statut() !== 'EXPIRE') {
             <td class="text-center">
               @if (doc.statut === 'OUVERT') {
-                <p-button
-                  (click)="openCloturerDialog(doc)"
+                <app-button
+                  (clicked)="openCloturerDialog(doc)"
                   [raised]="true"
                   icon="pi pi-check-circle"
                   label="Clôturer"
                   severity="success"
                   size="small"
-                  pTooltip="Clôturer cet avoir"
-                  tooltipPosition="left"
+                  ngbTooltip="Clôturer cet avoir"
+                  placement="left"
                 />
               }
             </td>
@@ -207,7 +176,7 @@
           </td>
         </tr>
       </ng-template>
-    </p-table>
+    </app-data-table>
 
   </div>
 </div>

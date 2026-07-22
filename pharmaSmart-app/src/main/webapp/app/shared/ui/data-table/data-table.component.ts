@@ -197,7 +197,17 @@ export class DataTableComponent<T = Record<string, unknown>> implements AppTable
     return rows.slice(start, start + this.rows());
   });
 
-  protected readonly columnCount = computed(() => this.columns().length || 1);
+  /**
+   * Colspan du message « vide » et de la ligne de chargement.
+   *
+   * La quasi-totalité des écrans écrit son `<thead>` à la main via le template `#header`
+   * plutôt que de fournir `[columns]` — `columns()` est alors vide. Un repli à `1` posait
+   * le message dans la seule première colonne au lieu de l'étaler sur toute la largeur du
+   * tableau. Les navigateurs plafonnent un `colspan` excessif au nombre réel de colonnes
+   * de la ligne, donc une valeur large ici couvre le cas générique sans obliger chaque
+   * écran à déclarer `[columns]`.
+   */
+  protected readonly columnCount = computed(() => this.columns().length || 100);
 
   protected readonly tableClasses = computed(() => {
     const classes = ['table', 'app-table'];

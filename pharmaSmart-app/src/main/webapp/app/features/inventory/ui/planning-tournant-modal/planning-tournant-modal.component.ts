@@ -12,7 +12,7 @@ import {
 import {CRITERES, FREQUENCES, IPlanningInventaireTournant} from '../../models';
 import {PlanningTournantApiService} from '../../data-access/services/planning-tournant-api.service';
 import {NGB_DATE_TO_ISO} from '../../../../shared/util/warehouse-util';
-import {ButtonComponent, SelectComponent, SelectSearchComponent} from '../../../../shared/ui';
+import {ButtonComponent, CardComponent, SelectComponent, SelectSearchComponent} from '../../../../shared/ui';
 import {PharmaDatePickerComponent} from '../../../../shared/date-picker/pharma-date-picker.component';
 
 interface IUserOption extends IUser {
@@ -21,7 +21,7 @@ interface IUserOption extends IUser {
 
 @Component({
   selector: 'app-planning-tournant-modal',
-  imports: [CommonModule, ReactiveFormsModule, ButtonComponent, SelectComponent, SelectSearchComponent, PharmaDatePickerComponent, NgbTooltip],
+  imports: [CommonModule, ReactiveFormsModule, ButtonComponent, SelectComponent, SelectSearchComponent, PharmaDatePickerComponent, NgbTooltip, CardComponent],
   templateUrl: './planning-tournant-modal.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './planning-tournant-modal.component.scss',

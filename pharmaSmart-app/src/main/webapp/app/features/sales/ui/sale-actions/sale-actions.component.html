@@ -1,157 +1,144 @@
 <div class="sale-actions-container">
   <!-- Version Mobile : Icon-only avec tooltips -->
   @if (isSmallScreen()) {
-    <p-buttongroup>
+    <div class="btn-group" role="group">
       @if (!isPresale() && !isDevis()) {
-        <p-button
-          (onClick)="onSave()"
+        <app-button
+          (clicked)="onSave()"
           [disabled]="!canSave() || isSaving()"
           [icon]="getSaveButtonIcon()"
           [loading]="isSaving()"
-          [pTooltip]="getSaveButtonLabel()"
+          [ngbTooltip]="getSaveButtonLabel()"
           [raised]="true"
           [severity]="getSaveButtonSeverity()"
-          size="large"
-        />
+          size="large" />
 
-        <p-button
-          (onClick)="onPutOnHold()"
+        <app-button
+          (clicked)="onPutOnHold()"
           [disabled]="isSaving()"
           [raised]="true"
           icon="pi pi-pause"
-          pTooltip="Mettre en attente"
+          ngbTooltip="Mettre en attente"
           severity="secondary"
-          size="large"
-        />
-        <p-button
-          (onClick)="onCancel()"
+          size="large" />
+        <app-button
+          (clicked)="onCancel()"
           [disabled]="!canCancel() || isSaving()"
           [raised]="true"
           icon="pi pi-times"
-          pTooltip="Annuler"
+          ngbTooltip="Annuler"
           severity="danger"
-          size="large"
-        />
+          size="large" />
       } @else {
 
-        <p-button
-          (onClick)="onSaveAsPresale()"
+        <app-button
+          (clicked)="onSaveAsPresale()"
           [disabled]=" isSaving()"
           [icon]="getSaveButtonIcon()"
           [loading]="isSaving()"
-          [pTooltip]="getSaveButtonLabel()"
+          [ngbTooltip]="getSaveButtonLabel()"
           [raised]="true"
           [severity]="getSaveButtonSeverity()"
-          size="large"
-        />
+          size="large" />
         @if (isPresale()) {
-          <p-button
-            (onClick)="onSavePresale()"
+          <app-button
+            (clicked)="onSavePresale()"
             [disabled]=" isSaving()"
             [icon]="getSavePresaleIcon()"
             [loading]="isSaving()"
-            [pTooltip]="getSavePresaleButtonLabel()"
+            [ngbTooltip]="getSavePresaleButtonLabel()"
             [raised]="true"
             [severity]="getSavePresaleSeverity()"
-            size="large"
-          />
+            size="large" />
         } @else {
-          <p-button
-            (onClick)="onCancel()"
+          <app-button
+            (clicked)="onCancel()"
             [disabled]="!canCancel() || isSaving()"
             [raised]="true"
             icon="pi pi-times"
-            pTooltip="Annuler"
+            ngbTooltip="Annuler"
             severity="danger"
-            size="large"
-          />
+            size="large" />
         }
       }
 
-    </p-buttongroup>
+    </div>
   } @else {
     <!-- Version Desktop : Boutons avec labels dans ButtonGroup -->
     <div>
-      <p-buttongroup>
+      <div class="btn-group" role="group">
         @if (!isPresale() && !isDevis()) {
-          <p-button
-            (onClick)="onSave()"
+          <app-button
+            (clicked)="onSave()"
             [disabled]="!canSave() || isSaving()"
             [icon]="getSaveButtonIcon()"
             [label]="getSaveButtonLabel()"
             [loading]="isSaving()"
             [raised]="true"
-            [severity]="getSaveButtonSeverity()"
-          />
+            [severity]="getSaveButtonSeverity()" />
 
           @if (showButtonEnAttente()) {
-            <p-button
-              (onClick)="onPutOnHold()"
+            <app-button
+              (clicked)="onPutOnHold()"
               [disabled]="isSaving()"
               [raised]="true"
               icon="pi pi-pause"
               label="En attente"
-              severity="secondary"
-            />
+              severity="secondary" />
           }
 
-          <p-button
-            (onClick)="onCancel()"
+          <app-button
+            (clicked)="onCancel()"
             [disabled]="!canCancel() || isSaving()"
             [raised]="true"
             icon="pi pi-times"
             label="Annuler"
-            severity="danger"
-          />
+            severity="danger" />
         } @else {
-          <p-button
-            (onClick)="onSaveAsPresale()"
+          <app-button
+            (clicked)="onSaveAsPresale()"
             [disabled]="isSaving()"
             [icon]="getSaveButtonIcon()"
             [label]="getSaveButtonLabel()"
             [loading]="isSaving()"
             [raised]="true"
-            [severity]="getSaveButtonSeverity()"
-          />
+            [severity]="getSaveButtonSeverity()" />
 
           @if (isPresale()) {
-            <p-button
-              (onClick)="onSavePresale()"
+            <app-button
+              (clicked)="onSavePresale()"
               [disabled]=" isSaving()"
               [icon]="getSavePresaleIcon()"
               [label]="getSavePresaleButtonLabel()"
               [loading]="isSaving()"
               [raised]="true"
-              [severity]="getSavePresaleSeverity()"
-            />
+              [severity]="getSavePresaleSeverity()" />
           } @else {
-            <p-button
-              (onClick)="onCancel()"
+            <app-button
+              (clicked)="onCancel()"
               [disabled]="!canCancel() || isSaving()"
               [raised]="true"
               icon="pi pi-times"
               label="Annuler"
-              severity="danger"
-            />
+              severity="danger" />
           }
         }
 
 
-      </p-buttongroup>
+      </div>
 
 
     </div>
 
     @if (showPrintButton() && canPrint()) {
-      <p-buttongroup>
-        <p-button
-          (onClick)="onPrint()"
+      <div class="btn-group" role="group">
+        <app-button
+          (clicked)="onPrint()"
           [disabled]="!canPrint()"
           icon="pi pi-print"
           label="Imprimer"
-          severity="secondary"
-        />
-      </p-buttongroup>
+          severity="secondary" />
+      </div>
 
     }
 

@@ -22,6 +22,7 @@ import { ControlValueAccessorBase } from '../forms/control-value-accessor.base';
         [placeholder]="placeholder()"
         [disabled]="isDisabled() || disabled()"
         [required]="required()"
+        [attr.id]="inputId() || null"
         [attr.autocomplete]="autocomplete()"
         [attr.aria-label]="ariaLabel() || null"
         (input)="onInput($event)"
@@ -41,9 +42,17 @@ import { ControlValueAccessorBase } from '../forms/control-value-accessor.base';
       }
     </div>
   `,
+  styles: `
+    :host {
+      display: block;
+    }
+  `,
 })
 export class PasswordComponent extends ControlValueAccessorBase<string> {
   readonly placeholder = input<string>('');
+
+  /** `id` posé sur le champ, pour l'associer à un `<label for="…">` extérieur. */
+  readonly inputId = input<string>('');
 
   readonly size = input<'small' | 'normal' | 'large'>('normal');
 

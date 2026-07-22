@@ -3,20 +3,12 @@
     <div class="produit-form-container">
 
       <!-- En-tête toolbar -->
-      <div class="pharma-toolbar">
-        <div class="pharma-toolbar-header">
-          <i class="pi pi-box"></i>
-          <span class="pharma-toolbar-title">
-            {{ editForm.get('id')?.value ? 'Modifier' : 'Nouveau' }} Produit
-          </span>
-        </div>
-        <p-toolbar>
-          <ng-template #end>
-            <p-button icon="pi pi-arrow-left" label="Retour" severity="secondary" [text]="true"
-                      (click)="previousState()"/>
-          </ng-template>
-        </p-toolbar>
-      </div>
+      <app-toolbar icon="pi pi-box" [title]="(editForm.get('id')?.value ? 'Modifier' : 'Nouveau') + ' Produit'">
+        <ng-container ngProjectAs="[toolbarActions]">
+          <app-button icon="pi pi-arrow-left" label="Retour" severity="secondary" [text]="true"
+                    (clicked)="previousState()"/>
+        </ng-container>
+      </app-toolbar>
 
       @if (isLoading) {
         <div class="loading-state">
@@ -53,20 +45,20 @@
                     <div class="form-grid cols-2">
                       <div class="form-field">
                         <label for="f_codeCip">Code CIP <span class="required">*</span></label>
-                        <input pInputText pKeyFilter="int" id="f_codeCip" formControlName="codeCip"
-                               class="w-full" placeholder="3400936..." autocomplete="off"
+                        <input appKeyFilter="int" id="f_codeCip" formControlName="codeCip"
+                               class="form-control w-full" placeholder="3400936..." autocomplete="off"
                                [class.ng-invalid]="editForm.get('codeCip')?.invalid && editForm.get('codeCip')?.touched"/>
                         @if (editForm.get('codeCip')?.invalid && editForm.get('codeCip')?.touched) {
-                          <small class="p-error">Obligatoire</small>
+                          <small class="text-danger">Obligatoire</small>
                         }
                       </div>
                       <div class="form-field">
                         <label for="f_fournisseur">Fournisseur principal <span class="required">*</span></label>
-                        <p-select id="f_fournisseur" formControlName="fournisseurId" [options]="fournisseurs"
-                                  [filter]="true" filterBy="libelle" optionLabel="libelle" optionValue="id"
-                                  placeholder="Sélectionner un fournisseur" [fluid]="true" appendTo="body"/>
+                        <app-select-search inputId="f_fournisseur" formControlName="fournisseurId" [items]="fournisseurs"
+                                  bindLabel="libelle" bindValue="id"
+                                  placeholder="Sélectionner un fournisseur" appendTo="body"/>
                         @if (editForm.get('fournisseurId')?.invalid && editForm.get('fournisseurId')?.touched) {
-                          <small class="p-error">Obligatoire</small>
+                          <small class="text-danger">Obligatoire</small>
                         }
                       </div>
                     </div>
@@ -79,16 +71,16 @@
                     <div class="form-grid cols-2">
                       <div class="form-field">
                         <label for="f_libelle">Dénomination officielle <span class="required">*</span></label>
-                        <input pInputText id="f_libelle" formControlName="libelle" class="w-full"
+                        <input id="f_libelle" formControlName="libelle" class="form-control w-full"
                                placeholder="Ex : Amoxicilline 500 mg gélules" autocomplete="off"
                                [class.ng-invalid]="editForm.get('libelle')?.invalid && editForm.get('libelle')?.touched"/>
                         @if (editForm.get('libelle')?.invalid && editForm.get('libelle')?.touched) {
-                          <small class="p-error">Obligatoire</small>
+                          <small class="text-danger">Obligatoire</small>
                         }
                       </div>
                       <div class="form-field">
                         <label for="f_nomCommercial">Nom commercial</label>
-                        <input pInputText id="f_nomCommercial" formControlName="nomCommercial" class="w-full"
+                        <input id="f_nomCommercial" formControlName="nomCommercial" class="form-control w-full"
                                placeholder="Ex : Clamoxyl" autocomplete="off"/>
                         <small class="field-hint">Nom de marque distinct de la dénomination officielle</small>
                       </div>
@@ -109,34 +101,34 @@
                       <div class="form-field">
                         <label for="f_costAmount">Prix d'achat HT <span class="required">*</span></label>
                         <div class="input-currency">
-                          <input pInputText pKeyFilter="int" id="f_costAmount" formControlName="costAmount"
-                                 class="w-full" placeholder="" autocomplete="off"
+                          <input appKeyFilter="int" id="f_costAmount" formControlName="costAmount"
+                                 class="form-control w-full" placeholder="" autocomplete="off"
                                  [class.ng-invalid]="!isPriceValid || (editForm.get('costAmount')?.invalid && editForm.get('costAmount')?.touched)"/>
                           <span class="currency-symbol">FCFA</span>
                         </div>
                         @if (editForm.get('costAmount')?.invalid && editForm.get('costAmount')?.touched) {
-                          <small class="p-error">Obligatoire</small>
+                          <small class="text-danger">Obligatoire</small>
                         }
                       </div>
                       <div class="form-field">
                         <label for="f_regularUnitPrice">Prix de vente TTC <span class="required">*</span></label>
                         <div class="input-currency">
-                          <input pInputText pKeyFilter="int" id="f_regularUnitPrice" formControlName="regularUnitPrice"
-                                 class="w-full" placeholder="" autocomplete="off"
+                          <input appKeyFilter="int" id="f_regularUnitPrice" formControlName="regularUnitPrice"
+                                 class="form-control w-full" placeholder="" autocomplete="off"
                                  [class.ng-invalid]="!isPriceValid || (editForm.get('regularUnitPrice')?.invalid && editForm.get('regularUnitPrice')?.touched)"/>
                           <span class="currency-symbol">FCFA</span>
                         </div>
                         @if (editForm.get('regularUnitPrice')?.invalid && editForm.get('regularUnitPrice')?.touched) {
-                          <small class="p-error">Obligatoire</small>
+                          <small class="text-danger">Obligatoire</small>
                         }
                       </div>
                       <div class="form-field">
                         <label for="f_tva">TVA <span class="required">*</span></label>
-                        <p-select id="f_tva" formControlName="tvaId" [options]="tvas"
-                                  optionLabel="tva" optionValue="id"
-                                  placeholder="Sélectionner" [fluid]="true" appendTo="body"/>
+                        <app-select inputId="f_tva" formControlName="tvaId" [items]="tvas"
+                                  bindLabel="tva" bindValue="id"
+                                  placeholder="Sélectionner" appendTo="body"/>
                         @if (editForm.get('tvaId')?.invalid && editForm.get('tvaId')?.touched) {
-                          <small class="p-error">Obligatoire</small>
+                          <small class="text-danger">Obligatoire</small>
                         }
                       </div>
                     </div>
@@ -149,20 +141,20 @@
                     <div class="form-grid cols-2">
                       <div class="form-field">
                         <label for="f_famille">Famille thérapeutique <span class="required">*</span></label>
-                        <p-select id="f_famille" formControlName="familleId" [options]="familleProduits"
-                                  [filter]="true" filterBy="libelle" optionLabel="libelle" optionValue="id"
-                                  placeholder="Sélectionner une famille" [fluid]="true" appendTo="body"/>
+                        <app-select-search inputId="f_famille" formControlName="familleId" [items]="familleProduits"
+                                  bindLabel="libelle" bindValue="id"
+                                  placeholder="Sélectionner une famille" appendTo="body"/>
                         @if (editForm.get('familleId')?.invalid && editForm.get('familleId')?.touched) {
-                          <small class="p-error">Obligatoire</small>
+                          <small class="text-danger">Obligatoire</small>
                         }
                       </div>
                       <div class="form-field">
                         <label for="f_rayon">Rayon / Emplacement <span class="required">*</span></label>
-                        <p-select id="f_rayon" formControlName="rayonId" [options]="rayons"
-                                  [filter]="true" filterBy="libelle" optionLabel="libelle" optionValue="id"
-                                  placeholder="Sélectionner un rayon" [fluid]="true" appendTo="body"/>
+                        <app-select-search inputId="f_rayon" formControlName="rayonId" [items]="rayons"
+                                  bindLabel="libelle" bindValue="id"
+                                  placeholder="Sélectionner un rayon" appendTo="body"/>
                         @if (editForm.get('rayonId')?.invalid && editForm.get('rayonId')?.touched) {
-                          <small class="p-error">Obligatoire</small>
+                          <small class="text-danger">Obligatoire</small>
                         }
                       </div>
                     </div>
@@ -174,8 +166,7 @@
                       <span class="section-badge-optional">optionnel</span>
                     </div>
                     <div class="decond-toggle-row">
-                      <p-toggleswitch #swDecond inputId="f_decond" formControlName="deconditionnable"
-                                      (onChange)="onDeconditionnable($event.checked)"/>
+                      <app-switch #swDecond inputId="f_decond" formControlName="deconditionnable"/>
                       <label for="f_decond">Produit vendable à l'unité (déconditionnement)</label>
                     </div>
                     @if (isDeconditionnable) {
@@ -188,23 +179,23 @@
                       <div class="form-grid cols-3 decond-fields">
                         <div class="form-field">
                           <label for="f_itemQty">Unités / conditionnement <span class="required">*</span></label>
-                          <input pInputText pKeyFilter="int" id="f_itemQty" formControlName="itemQty"
-                                 class="w-full" placeholder="Ex : 16" autocomplete="off"/>
+                          <input appKeyFilter="int" id="f_itemQty" formControlName="itemQty"
+                                 class="form-control w-full" placeholder="Ex : 16" autocomplete="off"/>
                           <small class="field-hint">Les prix unitaires sont calculés automatiquement</small>
                         </div>
                         <div class="form-field">
                           <label for="f_itemCostAmount">PA unitaire <span class="required">*</span></label>
                           <div class="input-currency">
-                            <input pInputText pKeyFilter="int" id="f_itemCostAmount" formControlName="itemCostAmount"
-                                   class="w-full" autocomplete="off" [class.ng-invalid]="!isItemPriceValid"/>
+                            <input appKeyFilter="int" id="f_itemCostAmount" formControlName="itemCostAmount"
+                                   class="form-control w-full" autocomplete="off" [class.ng-invalid]="!isItemPriceValid"/>
                             <span class="currency-symbol">FCFA</span>
                           </div>
                         </div>
                         <div class="form-field">
                           <label for="f_itemRegularUnitPrice">PV unitaire <span class="required">*</span></label>
                           <div class="input-currency">
-                            <input pInputText pKeyFilter="int" id="f_itemRegularUnitPrice"
-                                   formControlName="itemRegularUnitPrice" class="w-full" autocomplete="off"
+                            <input appKeyFilter="int" id="f_itemRegularUnitPrice"
+                                   formControlName="itemRegularUnitPrice" class="form-control w-full" autocomplete="off"
                                    [class.ng-invalid]="!isItemPriceValid"/>
                             <span class="currency-symbol">FCFA</span>
                           </div>
@@ -267,19 +258,15 @@
                     <div class="form-grid cols-1">
                       <div class="form-field">
                         <label for="f_statutLegal">Liste réglementaire</label>
-                        <p-select id="f_statutLegal" formControlName="statutLegal"
-                                  [options]="statutLegalOptions" optionLabel="label" optionValue="value"
-                                  [fluid]="true" appendTo="body">
-                          <ng-template #selectedItem let-item>
-                            <span>{{ item.label }}</span>
-                          </ng-template>
-                          <ng-template #item let-opt>
-                            <div class="statut-option">
-                              <strong>{{ opt.label }}</strong>
-                              <small>{{ opt.description }}</small>
-                            </div>
-                          </ng-template>
-                        </p-select>
+                        <app-select-search inputId="f_statutLegal" formControlName="statutLegal"
+                                  [items]="statutLegalOptions" bindLabel="label" bindValue="value"
+                                  appendTo="body" [optionTemplate]="statutLegalItemTpl"/>
+                        <ng-template #statutLegalItemTpl let-opt>
+                          <div class="statut-option">
+                            <strong>{{ opt.label }}</strong>
+                            <small>{{ opt.description }}</small>
+                          </div>
+                        </ng-template>
                       </div>
                     </div>
                     <div class="form-section-title mt-section">
@@ -289,44 +276,43 @@
                     <div class="bool-grid">
                       <div class="bool-card">
                         <div class="bool-card-header">
-                          <p-toggleswitch inputId="f_gestionLot" formControlName="gestionLot"/>
+                          <app-switch inputId="f_gestionLot" formControlName="gestionLot"/>
                           <label for="f_gestionLot"><i class="pi pi-receipt"></i> Gestion par lot &amp; péremption</label>
                         </div>
                         <p class="bool-card-desc">Traçabilité numéro lot + date expiration obligatoire à la réception</p>
                       </div>
                       <div class="bool-card">
                         <div class="bool-card-header">
-                          <p-toggleswitch inputId="f_thermosensible" formControlName="thermosensible"/>
+                          <app-switch inputId="f_thermosensible" formControlName="thermosensible"/>
                           <label for="f_thermosensible"><i class="pi pi-sun"></i> Thermosensible (chaîne du froid)</label>
                         </div>
                         <p class="bool-card-desc">Stockage et transport à température contrôlée requis</p>
                       </div>
                       <div class="bool-card" [class.bool-card-active]="isRemisable">
                         <div class="bool-card-header">
-                          <p-toggleswitch inputId="f_remisable" formControlName="remisable"
-                                          (onChange)="onRemisableChange($event.checked)"/>
+                          <app-switch inputId="f_remisable" formControlName="remisable"/>
                           <label for="f_remisable"><i class="pi pi-percentage"></i> Produit remisable</label>
                         </div>
                         <p class="bool-card-desc">Ce produit peut bénéficier d'un code de remise fournisseur</p>
                         @if (isRemisable) {
                           <div class="bool-card-sub">
                             <label for="f_remiseCode">Code de remise</label>
-                            <p-select id="f_remiseCode" formControlName="remiseCode" [options]="remisesCodes"
-                                      optionLabel="value" optionValue="value"
-                                      placeholder="Sélectionner un code" [fluid]="true" appendTo="body" [showClear]="true"/>
+                            <app-select inputId="f_remiseCode" formControlName="remiseCode" [items]="remisesCodes"
+                                      bindLabel="value" bindValue="value"
+                                      placeholder="Sélectionner un code" appendTo="body" [clearable]="true"/>
                           </div>
                         }
                       </div>
                       <div class="bool-card">
                         <div class="bool-card-header">
-                          <p-toggleswitch inputId="f_medEssentiel" formControlName="estMedicamentEssentiel"/>
+                          <app-switch inputId="f_medEssentiel" formControlName="estMedicamentEssentiel"/>
                           <label for="f_medEssentiel"><i class="pi pi-heart"></i> Médicament essentiel (OMS / LGO)</label>
                         </div>
                         <p class="bool-card-desc">Protégé contre la descente en dessous de la classe B</p>
                       </div>
                       <div class="bool-card">
                         <div class="bool-card-header">
-                          <p-toggleswitch inputId="f_garde" formControlName="estProduitGarde"/>
+                          <app-switch inputId="f_garde" formControlName="estProduitGarde"/>
                           <label for="f_garde"><i class="pi pi-clock"></i> Produit de garde officine</label>
                         </div>
                         <p class="bool-card-desc">Classé automatiquement en priorité maximale — toujours en stock</p>
@@ -354,22 +340,21 @@
                     <div class="criticite-section">
                       <div class="form-field" style="flex:1">
                         <label for="f_criticite">Niveau de priorité</label>
-                        <p-select id="f_criticite" formControlName="classeCriticite"
-                                  [options]="classeCriticiteOptions" optionLabel="label" optionValue="value"
-                                  [fluid]="true" appendTo="body">
-                          <ng-template #item let-opt>
-                            <div class="criticite-option">
-                              <span class="criticite-badge" [ngClass]="'badge-' + opt.badge">{{ opt.value }}</span>
-                              <div>
-                                <strong>{{ opt.label }}</strong>
-                                <small>{{ opt.description }}</small>
-                              </div>
+                        <app-select-search inputId="f_criticite" formControlName="classeCriticite"
+                                  [items]="classeCriticiteOptions" bindLabel="label" bindValue="value"
+                                  appendTo="body" [optionTemplate]="criticiteItemTpl"/>
+                        <ng-template #criticiteItemTpl let-opt>
+                          <div class="criticite-option">
+                            <span class="criticite-badge" [ngClass]="'badge-' + opt.badge">{{ opt.value }}</span>
+                            <div>
+                              <strong>{{ opt.label }}</strong>
+                              <small>{{ opt.description }}</small>
                             </div>
-                          </ng-template>
-                        </p-select>
+                          </div>
+                        </ng-template>
                       </div>
                       <div class="bool-switch-inline">
-                        <p-toggleswitch inputId="f_override" formControlName="isClassificationOverridden"/>
+                        <app-switch inputId="f_override" formControlName="isClassificationOverridden"/>
                         <div>
                           <label for="f_override">Verrouiller cette classe</label>
                           <small class="field-hint d-block">Ne sera pas modifiée par le calcul automatique</small>
@@ -387,28 +372,28 @@
                     <div class="form-grid cols-3">
                       <div class="form-field">
                         <label for="f_qtyAppro">Qté de réappro suggérée</label>
-                        <input pInputText pKeyFilter="int" id="f_qtyAppro" formControlName="qtyAppro"
-                               class="w-full" placeholder="Auto" autocomplete="off"/>
+                        <input appKeyFilter="int" id="f_qtyAppro" formControlName="qtyAppro"
+                               class="form-control w-full" placeholder="Auto" autocomplete="off"/>
                       </div>
                       <div class="form-field">
                         <label for="f_qtySeuilMini">Seuil mini (alerte rupture)</label>
-                        <input pInputText pKeyFilter="int" id="f_qtySeuilMini" formControlName="qtySeuilMini"
-                               class="w-full" placeholder="Auto" autocomplete="off"/>
+                        <input appKeyFilter="int" id="f_qtySeuilMini" formControlName="qtySeuilMini"
+                               class="form-control w-full" placeholder="Auto" autocomplete="off"/>
                       </div>
                       <div class="form-field">
                         <label for="f_stockMaxi">Stock maxi rayon</label>
-                        <input pInputText pKeyFilter="int" id="f_stockMaxi" formControlName="stockMaxi"
-                               class="w-full" placeholder="0" autocomplete="off"/>
+                        <input appKeyFilter="int" id="f_stockMaxi" formControlName="stockMaxi"
+                               class="form-control w-full" placeholder="0" autocomplete="off"/>
                       </div>
                       <div class="form-field">
                         <label for="f_stockReassort">Qté réassort réserve → rayon</label>
-                        <input pInputText pKeyFilter="int" id="f_stockReassort" formControlName="stockReassort"
-                               class="w-full" placeholder="0" autocomplete="off"/>
+                        <input appKeyFilter="int" id="f_stockReassort" formControlName="stockReassort"
+                               class="form-control w-full" placeholder="0" autocomplete="off"/>
                       </div>
                       <div class="form-field">
                         <label for="f_seuilMini">Seuil mini stock réserve</label>
-                        <input pInputText pKeyFilter="int" id="f_seuilMini" formControlName="seuilMini"
-                               class="w-full" placeholder="0" autocomplete="off"/>
+                        <input appKeyFilter="int" id="f_seuilMini" formControlName="seuilMini"
+                               class="form-control w-full" placeholder="0" autocomplete="off"/>
                       </div>
                     </div>
                   </div>
@@ -429,32 +414,32 @@
                     <div class="form-grid cols-2">
                       <div class="form-field full-width">
                         <label for="f_codeEanLabo">Code EAN Laboratoire</label>
-                        <input pInputText pKeyFilter="int" id="f_codeEanLabo" formControlName="codeEanLaboratoire"
-                               class="w-full" placeholder="Code EAN attribué par le fabricant" autocomplete="off"/>
+                        <input appKeyFilter="int" id="f_codeEanLabo" formControlName="codeEanLaboratoire"
+                               class="form-control w-full" placeholder="Code EAN attribué par le fabricant" autocomplete="off"/>
                       </div>
                       <div class="form-field">
                         <label for="f_labo">Laboratoire fabricant</label>
-                        <p-select id="f_labo" formControlName="laboratoireId" [options]="laboratoires"
-                                  [filter]="true" filterBy="libelle" optionLabel="libelle" optionValue="id"
-                                  placeholder="Sélectionner un laboratoire" [fluid]="true" appendTo="body" [showClear]="true"/>
+                        <app-select-search inputId="f_labo" formControlName="laboratoireId" [items]="laboratoires"
+                                  bindLabel="libelle" bindValue="id" [clearable]="true"
+                                  placeholder="Sélectionner un laboratoire" appendTo="body"/>
                       </div>
                       <div class="form-field">
                         <label for="f_forme">Forme galénique</label>
-                        <p-select id="f_forme" formControlName="formeId" [options]="formeProduits"
-                                  optionLabel="libelle" optionValue="id"
-                                  placeholder="Comprimé, gélule, sirop..." [fluid]="true" appendTo="body" [showClear]="true"/>
+                        <app-select inputId="f_forme" formControlName="formeId" [items]="formeProduits"
+                                  bindLabel="libelle" bindValue="id" [clearable]="true"
+                                  placeholder="Comprimé, gélule, sirop..." appendTo="body"/>
                       </div>
                       <div class="form-field">
                         <label for="f_gamme">Gamme</label>
-                        <p-select id="f_gamme" formControlName="gammeId" [options]="gammes"
-                                  optionLabel="libelle" optionValue="id"
-                                  placeholder="Sélectionner une gamme" [fluid]="true" appendTo="body" [showClear]="true"/>
+                        <app-select inputId="f_gamme" formControlName="gammeId" [items]="gammes"
+                                  bindLabel="libelle" bindValue="id" [clearable]="true"
+                                  placeholder="Sélectionner une gamme" appendTo="body"/>
                       </div>
                       <div class="form-field">
                         <label for="f_dci">DCI — Dénomination Commune Internationale</label>
-                        <p-select id="f_dci" formControlName="dciId" [options]="dcis"
-                                  [filter]="true" filterBy="libelle" optionLabel="libelle" optionValue="id"
-                                  placeholder="Ex : Amoxicilline" [fluid]="true" appendTo="body" [showClear]="true"/>
+                        <app-select-search inputId="f_dci" formControlName="dciId" [items]="dcis"
+                                  bindLabel="libelle" bindValue="id" [clearable]="true"
+                                  placeholder="Ex : Amoxicilline" appendTo="body"/>
                       </div>
                     </div>
                   </div>
@@ -477,11 +462,11 @@
                   <div class="tab-panel tab-panel-relation">
                     @if (isEditMode) {
                       <div class="d-flex justify-content-end mb-2">
-                        <p-button icon="pi pi-plus" label="Ajouter un tarif" size="small"
-                                  severity="primary" [outlined]="true" (onClick)="onAddPrix()"/>
+                        <app-button icon="pi pi-plus" label="Ajouter un tarif" size="small"
+                                  severity="primary" [outlined]="true" (clicked)="onAddPrix()"/>
                       </div>
-                      <p-table [value]="prixReferences" [loading]="isLoadingPrix"
-                               [rowHover]="true" [stripedRows]="true" class="p-datatable-sm">
+                      <app-data-table [value]="prixReferences" [loading]="isLoadingPrix"
+                               [stripedRows]="true" class="pharma-table">
                         <ng-template #header>
                           <tr class="pharma-table-head">
                             <th>Tiers payant</th>
@@ -505,15 +490,15 @@
                             </td>
                             <td class="text-end">
                               <div class="row-actions">
-                                <p-button icon="pi pi-pencil" [text]="true" size="small"
-                                          severity="secondary" pTooltip="Modifier" (onClick)="onEditPrix(prix)"/>
-                                <p-button [icon]="prix.enabled ? 'pi pi-ban' : 'pi pi-check'"
+                                <app-button icon="pi pi-pencil" [text]="true" size="small"
+                                          severity="secondary" ngbTooltip="Modifier" (clicked)="onEditPrix(prix)"/>
+                                <app-button [icon]="prix.enabled ? 'pi pi-ban' : 'pi pi-check'"
                                           [text]="true" size="small"
                                           [severity]="prix.enabled ? 'contrast' : 'info'"
-                                          [pTooltip]="prix.enabled ? 'Désactiver' : 'Activer'"
-                                          (onClick)="onTogglePrix(prix)"/>
-                                <p-button icon="pi pi-trash" [text]="true" size="small"
-                                          severity="danger" pTooltip="Supprimer" (onClick)="onDeletePrix(prix)"/>
+                                          [ngbTooltip]="prix.enabled ? 'Désactiver' : 'Activer'"
+                                          (clicked)="onTogglePrix(prix)"/>
+                                <app-button icon="pi pi-trash" [text]="true" size="small"
+                                          severity="danger" ngbTooltip="Supprimer" (clicked)="onDeletePrix(prix)"/>
                               </div>
                             </td>
                           </tr>
@@ -529,7 +514,7 @@
                             </td>
                           </tr>
                         </ng-template>
-                      </p-table>
+                      </app-data-table>
                     } @else {
                       <app-produit-prix-creation
                         [tiersPayants]="tiersPayants"
@@ -549,9 +534,9 @@
 
           <!-- Barre d'actions sticky -->
           <div class="form-actions-compact">
-            <p-button label="Annuler" icon="pi pi-times" severity="secondary" [text]="true"
-                      type="button" (click)="previousState()"/>
-            <p-button label="Enregistrer" icon="pi pi-check" severity="primary" type="submit"
+            <app-button label="Annuler" icon="pi pi-times" severity="secondary" [text]="true"
+                      type="button" (clicked)="previousState()"/>
+            <app-button label="Enregistrer" icon="pi pi-check" severity="primary" type="submit"
                       [disabled]="editForm.invalid || isSaving || !isPriceValid"
                       [loading]="isSaving"/>
           </div>

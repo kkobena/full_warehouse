@@ -1,7 +1,21 @@
-import { ChangeDetectionStrategy, Component, ElementRef, forwardRef, input, output, viewChild, ViewEncapsulation } from '@angular/core';
-import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { NgbDateParserFormatter, NgbDatepickerModule, NgbDateStruct, NgbInputDatepicker } from '@ng-bootstrap/ng-bootstrap';
-import { FrenchDateParserFormatter } from '../../config/french-date-parser-formatter';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  forwardRef,
+  input,
+  output,
+  viewChild,
+  ViewEncapsulation
+} from '@angular/core';
+import {ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR} from '@angular/forms';
+import {
+  NgbDateParserFormatter,
+  NgbDatepickerModule,
+  NgbDateStruct,
+  NgbInputDatepicker
+} from '@ng-bootstrap/ng-bootstrap';
+import {FrenchDateParserFormatter} from '../../config/french-date-parser-formatter';
 
 /**
  * Composant date picker PharmaSmart réutilisable basé sur ng-bootstrap.
@@ -33,7 +47,7 @@ import { FrenchDateParserFormatter } from '../../config/french-date-parser-forma
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
-    { provide: NgbDateParserFormatter, useClass: FrenchDateParserFormatter },
+    {provide: NgbDateParserFormatter, useClass: FrenchDateParserFormatter},
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => PharmaDatePickerComponent),
@@ -113,15 +127,14 @@ export class PharmaDatePickerComponent implements ControlValueAccessor {
   /** Désactivation statique, en plus de celle pilotée par `setDisabledState` (`FormControl.disable()`). */
   readonly disabled = input<boolean>(false);
   /** Position du label : au-dessus du champ (défaut) ou en ligne, à sa gauche. */
-  readonly labelPosition = input<'top' | 'inline'>('top');
+  readonly labelPosition = input<'top' | 'inline'>('inline');
 
   /** Émis après la mise à jour du modèle — voir la note sur `(ngModelChange)` ci-dessus. */
   readonly selectionChange = output<NgbDateStruct | null>();
-
-  private readonly dpRef = viewChild.required<NgbInputDatepicker>('dp');
-  private readonly dpInputRef = viewChild.required('dpInput', { read: ElementRef<HTMLInputElement> });
-
   protected isDisabled = false;
+  private readonly dpRef = viewChild.required<NgbInputDatepicker>('dp');
+  private readonly dpInputRef = viewChild.required('dpInput', {read: ElementRef<HTMLInputElement>});
+
   private _value: NgbDateStruct | null = null;
 
   get value(): NgbDateStruct | null {
@@ -153,7 +166,7 @@ export class PharmaDatePickerComponent implements ControlValueAccessor {
 
   selectToday(): void {
     const d = new Date();
-    this.value = { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
+    this.value = {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()};
     this.dpRef().close();
   }
 
@@ -182,7 +195,9 @@ export class PharmaDatePickerComponent implements ControlValueAccessor {
     }
   }
 
-  private onChange: (_: NgbDateStruct | null) => void = () => {};
-  private onTouched: () => void = () => {};
+  private onChange: (_: NgbDateStruct | null) => void = () => {
+  };
+  private onTouched: () => void = () => {
+  };
 }
 

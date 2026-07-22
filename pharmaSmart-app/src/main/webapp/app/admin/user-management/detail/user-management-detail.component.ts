@@ -1,11 +1,8 @@
 import { Component, input, ChangeDetectionStrategy } from "@angular/core";
 
 import { IUser } from "../user-management.model";
-import { ButtonModule } from "primeng/button";
 import { RouterLink } from "@angular/router";
-import { Toolbar } from "primeng/toolbar";
-import { TagModule } from "primeng/tag";
-import { ChipModule } from "primeng/chip";
+import { ButtonComponent, BadgeComponent, ToolbarComponent } from "app/shared/ui";
 import { CommonModule } from "@angular/common";
 
 @Component({
@@ -13,7 +10,7 @@ import { CommonModule } from "@angular/common";
   templateUrl: "./user-management-detail.component.html",
   styleUrl: "./user-management-detail.component.scss",
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, ButtonModule, RouterLink, Toolbar, TagModule, ChipModule]
+  imports: [CommonModule, ButtonComponent, RouterLink, ToolbarComponent, BadgeComponent]
 })
 export default class UserManagementDetailComponent {
   user = input<IUser | null>(null);

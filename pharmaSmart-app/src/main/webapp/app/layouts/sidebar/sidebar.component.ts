@@ -4,7 +4,6 @@ import { Router, RouterModule } from "@angular/router";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { fromEvent } from "rxjs";
-import { TooltipModule } from "primeng/tooltip";
 import { AccountService } from "app/core/auth/account.service";
 import { LoginService } from "app/login/login.service";
 import { NavItem } from "../navbar/navbar-item.model";
@@ -17,7 +16,7 @@ import {
   faUserCircle
 } from "@fortawesome/free-solid-svg-icons";
 import { Theme, ThemeService } from "../../core/theme/theme.service";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { AppSettingsDialogComponent } from "../../shared/settings/app-settings-dialog.component";
 import { Authority } from "../../config/authority.constants";
 import { LayoutService } from "../../core/config/layout.service";
@@ -30,7 +29,7 @@ import { FaIconComponent } from "@fortawesome/angular-fontawesome";
 
 @Component({
   selector: "jhi-sidebar",
-  imports: [CommonModule, RouterModule, FormsModule, TooltipModule, FaIconComponent],
+  imports: [CommonModule, RouterModule, FormsModule, NgbTooltip, FaIconComponent],
   templateUrl: "./sidebar.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["./sidebar.component.scss"]

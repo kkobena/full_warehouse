@@ -11,14 +11,14 @@
   align-items: center;
   gap: 0.25rem;
   padding: 0.375rem 0.75rem;
-  border-bottom: 1px solid var(--p-surface-border, #e2e8f0);
+  border-bottom: 1px solid var(--bs-border-color);
   flex-wrap: wrap;
-  background: var(--p-surface-ground, #f8fafc);
+  background: var(--bs-tertiary-bg);
 
   .shortcuts-label {
     font-size: 0.72rem;
     font-weight: 600;
-    color: var(--p-text-color-secondary, #64748b);
+    color: var(--bs-secondary-color);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     margin-right: 0.25rem;
@@ -30,15 +30,15 @@
   position: relative;
   height: 220px;
   padding: 0.5rem 0.75rem;
-  border-bottom: 1px solid var(--p-surface-border, #e2e8f0);
-  background: var(--p-surface-card, #fff);
+  border-bottom: 1px solid var(--bs-border-color);
+  background: var(--bs-body-bg);
 
   .chart-loading {
     display: flex;
     align-items: center;
     justify-content: center;
     height: 100%;
-    color: var(--p-text-color-secondary, #64748b);
+    color: var(--bs-secondary-color);
     font-size: 0.85rem;
   }
 }

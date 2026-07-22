@@ -1,8 +1,7 @@
 import { Component, computed, inject, input, output, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { ButtonModule } from "primeng/button";
-import { TooltipModule } from "primeng/tooltip";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { ButtonComponent } from "app/shared/ui";
+import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { IProduit } from "app/shared/model/produit.model";
 import { IStockProduit } from "app/shared/model/stock-produit.model";
 import { IProduitIndicateurs } from "app/features/products/models/produit-indicateurs.model";
@@ -16,7 +15,7 @@ import { LotSaisieProduitModalComponent } from "../lot-saisie-produit-modal/lot-
   templateUrl: "./produit-stock-tab.component.html",
   styleUrls: ["./produit-stock-tab.component.scss"],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, ButtonModule, TooltipModule]
+  imports: [CommonModule, ButtonComponent, NgbTooltip]
 })
 export class ProduitStockTabComponent {
   readonly produit = input.required<IProduit>();

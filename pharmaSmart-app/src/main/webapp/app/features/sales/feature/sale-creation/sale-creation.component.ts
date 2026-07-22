@@ -17,7 +17,6 @@ import {take} from 'rxjs/operators';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {TooltipModule} from 'primeng/tooltip';
 import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
 import {NgbConfirmDialogService} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import {
@@ -74,7 +73,6 @@ import {SaleForEditInfo} from '../../../../shared/model/sales.model';
   imports: [
     CommonModule,
     FormsModule,
-    TooltipModule,
     ProductSearchSectionComponent,
     ProductListComponent,
     SaleSummaryComponent,

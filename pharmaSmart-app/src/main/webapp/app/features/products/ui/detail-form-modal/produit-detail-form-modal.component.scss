@@ -9,7 +9,7 @@
   padding: 0.6rem 0.75rem;
   background: #f8f9fa;
   border-radius: 6px;
-  border-left: 3px solid var(--p-primary-color);
+  border-left: 3px solid var(--bs-primary);
 }
 
 .df-produit-header {
@@ -19,7 +19,7 @@
   flex-wrap: wrap;
   margin-bottom: 0.4rem;
 
-  i { color: var(--p-primary-color); }
+  i { color: var(--bs-primary); }
 }
 
 .df-produit-libelle {

@@ -1,168 +1,125 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-1">
     <!-- Modern Pharma Toolbar -->
-    <div class="pharma-toolbar pharma-toolbar-compact">
-      <div class="pharma-toolbar-header">
-        <i class="pi pi-shopping-cart"></i>
-        <span class="pharma-toolbar-title">Journal des ventes</span>
-      </div>
+    <app-toolbar icon="pi pi-shopping-cart" title="Journal des ventes" [compact]="true">
+      <ng-container ngProjectAs="[toolbarFilters]">
+        <app-multi-select
+          (selectionChange)="onTypeVenteChange()"
+          [(ngModel)]="typeVenteSelected"
+          [items]="typeVentes"
+          [clearable]="true"
+          bindLabel="label"
+          bindValue="value"
+          appendTo="body"
+          placeholder="Type de vente"
+        />
 
-      <p-toolbar>
-        <ng-template #start>
-          <div class="pharma-toolbar-filters">
-            <p-multiselect
-              (onChange)="onTypeVenteChange()"
-              [(ngModel)]="typeVenteSelected"
-              [options]="typeVentes"
-              [showClear]="true"
-              optionLabel="label"
-              optionValue="value"
-              appendTo="body"
-              placeholder="Type de vente"
-            />
-
-            <p-select
-              #userControl
-              [(ngModel)]="selectedUserId"
-              [options]="users"
-              [showClear]="true"
-              appendTo="body"
-              id="selectedUserId"
-              inputId="selectedUserId"
-              optionLabel="abbrName"
-              optionValue="id"
-              placeholder="Caissier"
-            />
+        <app-select
+          [(ngModel)]="selectedUserId"
+          [items]="users"
+          [clearable]="true"
+          appendTo="body"
+          inputId="selectedUserId"
+          bindLabel="abbrName"
+          bindValue="id"
+          placeholder="Caissier"
+        />
 
 
-            <div class="pharma-compact-search mr-1">
-              <p-inputgroup>
-                <input (keyup.enter)="onSearch()" pInputText placeholder="Rechercher..." type="text" />
-                <p-inputgroup-addon>
-                  <p-checkbox [(ngModel)]="global" [binary]="true" id="global" inputId="global"
-                              pTooltip="Recherche globale" />
-                </p-inputgroup-addon>
-              </p-inputgroup>
-            </div>
-
-            <p-floatlabel variant="on">
-              <p-datepicker
-                [(ngModel)]="fromDate"
-                [maxDate]="toDate"
-                [selectOtherMonths]="true"
-                [showButtonBar]="true"
-                [style]="'max-width: 140px;'"
-                appendTo="body"
-                dateFormat="dd/mm/yy"
-                id="fromDate"
-              />
-              <label for="fromDate">Du</label>
-            </p-floatlabel>
-
-            <p-floatlabel variant="on">
-              <p-datepicker
-                [(ngModel)]="toDate"
-                [minDate]="fromDate"
-                [selectOtherMonths]="true"
-                [showButtonBar]="true"
-                [style]="'max-width: 140px;'"
-                appendTo="body"
-                dateFormat="dd/mm/yy"
-                id="toDate"
-                inputId="toDate"
-              />
-              <label for="toDate">Au</label>
-            </p-floatlabel>
-
-            <p-floatlabel class="pharma-hide-mobile" variant="on">
-              <p-select [(ngModel)]="fromHour" [options]="hours" [style]="'max-width: 110px;'" appendTo="body"
-                        id="fromHour" />
-              <label for="fromHour">De</label>
-            </p-floatlabel>
-
-            <p-floatlabel class="pharma-hide-mobile" variant="on">
-              <p-select [(ngModel)]="toHour" [options]="hours" [style]="'max-width: 110px;'" appendTo="body"
-                        id="toHour" />
-              <label for="toHour">À</label>
-            </p-floatlabel>
+        <div class="pharma-compact-search mr-1">
+          <div class="input-group">
+            <input (keyup.enter)="onSearch()" class="form-control" placeholder="Rechercher..." type="text" />
+            <span class="input-group-text">
+              <app-checkbox [(ngModel)]="global" ngbTooltip="Recherche globale" />
+            </span>
           </div>
-        </ng-template>
+        </div>
 
-        <ng-template #end>
-          <div class="pharma-toolbar-actions">
-            <div class="pharma-button-group pharma-hide-mobile">
-              <p-button (click)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
-              <p-button
-                (click)="exportJournal()"
-                [loading]="exportLoading()"
+        <pharma-date-picker id="fromDate" label="Du" [(ngModel)]="fromDate" [maxDate]="toDate" />
+
+        <pharma-date-picker id="toDate" label="Au" [(ngModel)]="toDate" [minDate]="fromDate" />
+
+        <div class="pharma-hide-mobile">
+          <app-select [(ngModel)]="fromHour" [items]="hours" [searchable]="false" [style]="{ 'max-width': '110px' }" appendTo="body" />
+        </div>
+
+        <div class="pharma-hide-mobile">
+          <app-select [(ngModel)]="toHour" [items]="hours" [searchable]="false" [style]="{ 'max-width': '110px' }" appendTo="body" />
+        </div>
+      </ng-container>
+
+      <ng-container ngProjectAs="[toolbarActions]">
+        <div class="pharma-button-group pharma-hide-mobile">
+          <app-button (clicked)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
+          <app-button
+            (clicked)="exportJournal()"
+            [loading]="exportLoading()"
+            [raised]="true"
+            [hidden]="true"
+            icon="pi pi-file-excel"
+            label="Exporter"
+            severity="secondary"
+            ngbTooltip="Exporter le journal filtré en Excel"
+            placement="bottom"
+          />
+
+
+          <div>
+            @if (useSimpleSale) {
+              <app-button
                 [raised]="true"
-                [hidden]="true"
-                icon="pi pi-file-excel"
-                label="Exporter"
-                severity="secondary"
-                pTooltip="Exporter le journal filtré en Excel"
-                tooltipPosition="bottom"
+                [routerLink]="['/sales/comptant', false, 'new']"
+                icon="pi pi-wallet"
+                label="Vente Comptant"
+                severity="success"
               />
-
-
-              <div>
-                @if (useSimpleSale) {
-                  <p-button
-                    [raised]="true"
-                    [routerLink]="['/sales/comptant', false, 'new']"
-                    icon="pi pi-wallet"
-                    label="Vente Comptant"
-                    severity="success"
-                  />
-                } @else {
-                  <p-button
-                    (click)="openNewSalesHome()"
-                    [raised]="true"
-                    icon="pi pi-shopping-bag"
-                    label="Nouvelle vente"
-                    severity="primary"
-                  />
-                }
-              </div>
-            </div>
-
-            <div class="pharma-button-group pharma-show-mobile">
-              <p-button
-                (click)="loadPage()"
+            } @else {
+              <app-button
+                (clicked)="openNewSalesHome()"
                 [raised]="true"
-                [rounded]="true"
-                icon="pi pi-search"
-                pTooltip="Rechercher"
-                severity="info"
-                tooltipPosition="top"
+                icon="pi pi-shopping-bag"
+                label="Nouvelle vente"
+                severity="primary"
               />
-
-              @if (useSimpleSale) {
-                <p-button
-                  [rounded]="true"
-                  [routerLink]="['/sales/comptant', false, 'new']"
-                  icon="pi pi-wallet"
-                  pTooltip="Vente Comptant"
-                  raised="true"
-                  severity="success"
-                  tooltipPosition="top"
-                />
-              } @else {
-                <p-button
-                  (click)="openNewSalesHome()"
-                  [rounded]="true"
-                  [raised]="true"
-                  icon="pi pi-shopping-bag"
-                  pTooltip="Point de Vente"
-                  severity="primary"
-                  tooltipPosition="top"
-                />
-              }
-            </div>
+            }
           </div>
-        </ng-template>
-      </p-toolbar>
-    </div>
+        </div>
+
+        <div class="pharma-button-group pharma-show-mobile">
+          <app-button
+            (clicked)="loadPage()"
+            [raised]="true"
+            [rounded]="true"
+            icon="pi pi-search"
+            ngbTooltip="Rechercher"
+            severity="info"
+            placement="top"
+          />
+
+          @if (useSimpleSale) {
+            <app-button
+              [rounded]="true"
+              [routerLink]="['/sales/comptant', false, 'new']"
+              icon="pi pi-wallet"
+              ngbTooltip="Vente Comptant"
+              [raised]="true"
+              severity="success"
+              placement="top"
+            />
+          } @else {
+            <app-button
+              (clicked)="openNewSalesHome()"
+              [rounded]="true"
+              [raised]="true"
+              icon="pi pi-shopping-bag"
+              ngbTooltip="Point de Vente"
+              severity="primary"
+              placement="top"
+            />
+          }
+        </div>
+      </ng-container>
+    </app-toolbar>
     <div class="journal-summary-bar">
       <div class="summary-item">
         <i class="pi pi-list"></i>
@@ -178,8 +135,8 @@
 
     <div class="mt-3 -mb-3">
       @if (sales && sales.length > 0) {
-        <p-table
-          (onRowExpand)="onRowExpand($event)"
+        <app-data-table
+          #salesTable
           (onLazyLoad)="lazyLoading($event)"
           [lazy]="true"
           [loading]="loading()"
@@ -192,11 +149,8 @@
           class="p-datatable-sm p-datatable-striped"
           currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} ventes"
           dataKey="id"
-          selectionMode="single"
-          stripedRows="true"
+          [stripedRows]="true"
         >
-          <p-menu #rowMenu [popup]="true" [model]="menuItems()" appendTo="body" />
-
           <ng-template #header>
             <tr class="pharma-table-head">
               <th style="width: 3%"></th>
@@ -214,9 +168,9 @@
           <ng-template #body let-expanded="expanded" let-sale>
             <tr [class.pharma-negative-canceled-row]="sale.canceled  && sale.salesAmount>0">
               <td>
-                <p-button
+                <app-button
                   [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                  [pRowToggler]="sale"
+                  (clicked)="onRowToggle(sale, salesTable)"
                   [rounded]="true"
                   [text]="true"
                   type="button"
@@ -229,7 +183,7 @@
                 } @else if (sale.natureVente === 'CARNET') {
                   <span class="pharma-badge pharma-badge-warning">Carnet</span>
                 } @else {
-                  <span class="pharma-badge pharma-badge-info" pTooltip="Vente sans ordonnance" tooltipPosition="top">Comptant</span>
+                  <span class="pharma-badge pharma-badge-info" ngbTooltip="Vente sans ordonnance" placement="top">Comptant</span>
                 }
                 @if (sale.canceled || sale.statut === SalesStatut.CANCELED) {
                   <span class="pharma-badge pharma-badge-danger ms-1">Annulée</span>
@@ -246,15 +200,30 @@
               <td>{{ sale.seller?.abbrName }}</td>
               <td>{{ sale.cassier?.abbrName }}</td>
               <td class="text-right">
-                <p-button
-                  icon="pi pi-ellipsis-v"
-                  [rounded]="true"
-                  [text]="true"
-                  severity="secondary"
-                  pTooltip="Actions"
-                  tooltipPosition="left"
-                  (onClick)="openContextMenu($event, sale, rowMenu)"
-                />
+                <div ngbDropdown container="body" placement="bottom-end">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-link text-secondary app-actions-toggle"
+                    ngbDropdownToggle
+                    (click)="$event.stopPropagation()"
+                    ngbTooltip="Actions"
+                    placement="left"
+                    aria-label="Actions"
+                  >
+                    <i class="pi pi-ellipsis-v" aria-hidden="true"></i>
+                  </button>
+                  <div ngbDropdownMenu>
+                    @for (item of buildMenuItems(sale); track $index) {
+                      @if (item.separator) {
+                        <div class="dropdown-divider"></div>
+                      } @else {
+                        <button type="button" ngbDropdownItem [class.text-danger]="item.danger" (click)="item.command!()">
+                          <i [class]="item.icon" aria-hidden="true"></i> {{ item.label }}
+                        </button>
+                      }
+                    }
+                  </div>
+                </div>
               </td>
             </tr>
           </ng-template>
@@ -343,7 +312,7 @@
                             </div>
                           </div>
                           <div class="activity-card-table-body">
-                            <p-table
+                            <app-data-table
                               [value]="elRow.thirdPartySaleLines"
                               class="pharma-table rowexpansion-table"
                               dataKey="tiersPayantFullName"
@@ -366,7 +335,7 @@
                                   <td class="fs-6 text-right pharma-price">{{ tp?.montant | number }}</td>
                                 </tr>
                               </ng-template>
-                            </p-table>
+                            </app-data-table>
                           </div>
                         </div>
                       }
@@ -388,7 +357,7 @@
                         </div>
                       </div>
                       <div class="activity-card-table-body">
-                        <p-table
+                        <app-data-table
                           [paginator]="true"
                           [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
                           [rows]="10"
@@ -398,7 +367,6 @@
                           class="pharma-table rowexpansion-table"
                           currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
                           dataKey="id"
-                          selectionMode="single"
                         >
                           <ng-template #header>
                             <tr class="pharma-table-head">
@@ -435,7 +403,7 @@
                               </td>
                             </tr>
                           </ng-template>
-                        </p-table>
+                        </app-data-table>
                       </div>
                     </div>
                     <!-- Card Paiements -->
@@ -469,7 +437,7 @@
               </td>
             </tr>
           </ng-template>
-        </p-table>
+        </app-data-table>
       } @else {
         <div class="alert alert-warning" id="no-result">
           <span>Aucune donnée trouvée</span>

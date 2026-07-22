@@ -5,13 +5,9 @@ import { Router } from "@angular/router";
 import { EMPTY, Subject } from "rxjs";
 import { catchError, finalize, takeUntil, tap } from "rxjs/operators";
 
-import { ButtonModule } from "primeng/button";
-import { TableModule } from "primeng/table";
-import { TagModule } from "primeng/tag";
-import { BadgeModule } from "primeng/badge";
-import { TooltipModule } from "primeng/tooltip";
+import { ButtonComponent, BadgeComponent, DataTableComponent } from "app/shared/ui";
 
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 
 import { CaissierDashboardService } from "./caissier-dashboard.service";
 import {
@@ -40,11 +36,10 @@ import { NotificationService } from "../../shared/services/notification.service"
   selector: "app-caissier-dashboard",
   imports: [
     CommonModule,
-    ButtonModule,
-    TableModule,
-    TagModule,
-    BadgeModule,
-    TooltipModule
+    ButtonComponent,
+    DataTableComponent,
+    BadgeComponent,
+    NgbTooltip
   ],
   templateUrl: "./caissier-dashboard.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,

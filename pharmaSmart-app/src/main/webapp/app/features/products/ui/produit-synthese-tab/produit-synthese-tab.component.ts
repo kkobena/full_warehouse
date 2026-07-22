@@ -1,11 +1,8 @@
 import { Component, computed, effect, inject, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TooltipModule } from 'primeng/tooltip';
-import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
-import { ToggleSwitch } from 'primeng/toggleswitch';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { BadgeComponent, ButtonComponent, SwitchComponent } from 'app/shared/ui';
 import { IProduit } from 'app/shared/model/produit.model';
 import { IProduitIndicateurs } from '../../models/produit-indicateurs.model';
 import { ILotPeremption, ILotProduit, ProductsApiService } from "../../data-access/services/products-api.service";
@@ -21,7 +18,7 @@ import { NotificationService } from '../../../../shared/services/notification.se
   templateUrl: './produit-synthese-tab.component.html',
   styleUrls: ['./produit-synthese-tab.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, TooltipModule, ButtonModule, TagModule, ToggleSwitch],
+  imports: [CommonModule, FormsModule, NgbTooltip, ButtonComponent, BadgeComponent, SwitchComponent],
 })
 export class ProduitSyntheseTabComponent {
   readonly produit = input.required<IProduit>();

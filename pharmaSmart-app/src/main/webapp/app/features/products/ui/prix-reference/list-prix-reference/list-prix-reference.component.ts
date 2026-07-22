@@ -1,19 +1,17 @@
 import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
-import { NgbActiveModal, NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { NgbActiveModal, NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { PrixReferenceService } from "../prix-reference.service";
 import { PrixReference } from "../model/prix-reference.model";
 import { CommonModule } from "@angular/common";
 import { AddPrixFormComponent } from "../add-prix-form/add-prix-form.component";
-import { Button } from "primeng/button";
-import { Tooltip } from "primeng/tooltip";
-import { Card } from "primeng/card";
+import { ButtonComponent, CardComponent } from "app/shared/ui";
 import { IProduit, ITiersPayant } from "../../../../../shared/model";
 import { showCommonModal } from "../../../../../entities/sales/selling-home/sale-helper";
 import { NgbConfirmDialogService } from "../../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 
 @Component({
   selector: "app-list-prix-reference",
-  imports: [CommonModule, Button, Tooltip, Card],
+  imports: [CommonModule, ButtonComponent, NgbTooltip, CardComponent],
 
   templateUrl: "./list-prix-reference.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,

@@ -9,6 +9,7 @@
 </div>
 
 <div class="modal-body">
+<app-card [variant]="'form'">
 
   @if (errorMessage()) {
     <div class="alert alert-danger d-flex align-items-center gap-2 mb-3">
@@ -85,6 +86,7 @@
     />
   </div>
 
+</app-card>
 </div>
 
 <div class="modal-footer">

@@ -10,8 +10,7 @@
   overflow-x: visible !important;
 }
 
-::ng-deep .p-select-overlay,
-::ng-deep .p-select-list-container {
+::ng-deep .ng-dropdown-panel {
   z-index: 10000 !important;
 }
 
@@ -81,10 +80,6 @@
   font-size: 0.72rem;
   color: #5b89a6;
   font-style: italic;
-}
-
-::ng-deep .p-select-label {
-  text-align: left !important;
 }
 
 .storage-option {

@@ -1,6 +1,6 @@
 import {Component, inject, ChangeDetectionStrategy} from '@angular/core';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {ButtonModule} from 'primeng/button';
+import {ButtonComponent} from '../../../../shared/ui';
 import {ICustomer} from '../../../../shared/model';
 import {
   CustomerSearchTableComponent
@@ -13,7 +13,7 @@ import {
  */
 @Component({
   selector: 'app-customer-selection-modal',
-  imports: [ButtonModule, CustomerSearchTableComponent],
+  imports: [ButtonComponent, CustomerSearchTableComponent],
   template: `
     <div class="modal-header">
       <h5 class="modal-title">{{ modalTitle }}</h5>
@@ -26,7 +26,7 @@ import {
     </div>
 
     <div class="modal-footer">
-      <p-button (click)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler"
+      <app-button (clicked)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler"
                 severity="secondary" type="button" />
     </div>
   `,

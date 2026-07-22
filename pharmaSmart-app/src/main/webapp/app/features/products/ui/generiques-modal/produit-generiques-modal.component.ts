@@ -1,9 +1,7 @@
 import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonModule } from "primeng/button";
-import { TableModule } from "primeng/table";
-import { TagModule } from "primeng/tag";
+import { BadgeComponent, ButtonComponent, CardComponent, DataTableComponent } from "app/shared/ui";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { IProduit } from "app/shared/model/produit.model";
 import { ISubstitut } from "app/shared/model/substitut.model";
@@ -14,7 +12,7 @@ import { ProductsApiService } from "../../data-access/services/products-api.serv
   templateUrl: "./produit-generiques-modal.component.html",
   styleUrls: ["./produit-generiques-modal.component.scss"],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, ButtonModule, TableModule, TagModule]
+  imports: [CommonModule, ButtonComponent, DataTableComponent, BadgeComponent, CardComponent]
 })
 export class ProduitGeneriquesModalComponent implements OnInit {
   produit!: IProduit;

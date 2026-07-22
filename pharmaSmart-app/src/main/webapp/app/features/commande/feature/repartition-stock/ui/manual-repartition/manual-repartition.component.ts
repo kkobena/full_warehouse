@@ -75,6 +75,7 @@ export class AppManualRepartitionComponent implements OnInit {
 
   protected onStorageChange(): void {
     this.produitSelected = null;
+    this.produitbox()?.reset();
     this.repartitionRows = [];
     this.setProductBoxFocus();
   }
@@ -86,12 +87,14 @@ export class AppManualRepartitionComponent implements OnInit {
     if (!this.selectedStorageId) {
       this.notificationService.warning('Veuillez sélectionner un emplacement', 'Emplacement');
       this.produitSelected = null;
+      this.produitbox()?.reset();
       return;
     }
     const stockInSelectedStorage = produit.stocks?.find(s => s.storage === this.selectedStorageId);
     if (!stockInSelectedStorage) {
       this.notificationService.info("Aucun stock trouvé pour ce produit dans l'emplacement sélectionné", 'Recherche');
       this.produitSelected = null;
+      this.produitbox()?.reset();
       this.setProductBoxFocus();
       return;
     }
@@ -101,6 +104,7 @@ export class AppManualRepartitionComponent implements OnInit {
         'Stock insuffisant',
       );
       this.produitSelected = null;
+      this.produitbox()?.reset();
       this.setProductBoxFocus();
       return;
     }
@@ -111,8 +115,10 @@ export class AppManualRepartitionComponent implements OnInit {
         'Stock Réserve',
       );
       this.produitSelected = null;
+      this.produitbox()?.reset();
       this.setProductBoxFocus();
     } else {
+      this.produitSelected = produit;
       this.quantityBox()?.focusProduitControl();
     }
   }
@@ -158,6 +164,7 @@ export class AppManualRepartitionComponent implements OnInit {
     };
     this.addRow(stockSource, quantity);
     this.produitSelected = null;
+    this.produitbox()?.reset();
     this.quantityBox()?.reset();
     this.setProductBoxFocus();
   }
@@ -239,6 +246,7 @@ export class AppManualRepartitionComponent implements OnInit {
         this.notificationService.success(`${requests.length} répartition(s) effectuée(s) avec succès`);
         this.repartitionRows = [];
         this.produitSelected = null;
+        this.produitbox()?.reset();
         this.setProductBoxFocus();
       },
       error: () => {

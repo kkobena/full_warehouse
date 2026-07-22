@@ -1,69 +1,32 @@
 <div class="pharma-smart-content p-1">
-  <div class="pharma-toolbar pharma-toolbar-compact">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-ban"></i>
-      <span class="pharma-toolbar-title">Annulations de ventes</span>
-    </div>
+  <app-toolbar icon="pi pi-ban" title="Annulations de ventes" [compact]="true">
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <app-select
+        [(ngModel)]="selectedUserId"
+        [items]="users"
+        [clearable]="true"
+        appendTo="body"
+        bindLabel="abbrName"
+        bindValue="id"
+        placeholder="Vendeur"
+      />
 
-    <p-toolbar>
-      <ng-template #start>
-        <div class="pharma-toolbar-filters">
-          <p-select
-            [(ngModel)]="selectedUserId"
-            [options]="users"
-            [showClear]="true"
-            appendTo="body"
-            optionLabel="abbrName"
-            optionValue="id"
-            placeholder="Vendeur"
-          />
+      <div class="pharma-compact-search">
+        <app-icon-field icon="pi pi-search">
+          <input (keyup.enter)="onSearch()" [(ngModel)]="search" class="form-control" placeholder="Référence, client..."
+                 type="text" />
+        </app-icon-field>
+      </div>
 
-          <div class="pharma-compact-search">
-            <p-iconfield>
-              <p-inputicon class="pi pi-search" />
-              <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText placeholder="Référence, client..."
-                     type="text" />
-            </p-iconfield>
-          </div>
+      <pharma-date-picker id="ann-fromDate" label="Du" [(ngModel)]="fromDate" [maxDate]="toDate" />
 
-          <p-floatlabel variant="on">
-            <p-datepicker
-              [(ngModel)]="fromDate"
-              [maxDate]="toDate"
-              [selectOtherMonths]="true"
-              [showButtonBar]="true"
-              [style]="'max-width: 140px;'"
-              appendTo="body"
-              dateFormat="dd/mm/yy"
-              id="ann-fromDate"
-            />
-            <label for="ann-fromDate">Du</label>
-          </p-floatlabel>
+      <pharma-date-picker id="ann-toDate" label="Au" [(ngModel)]="toDate" [minDate]="fromDate" />
+    </ng-container>
 
-          <p-floatlabel variant="on">
-            <p-datepicker
-              [(ngModel)]="toDate"
-              [minDate]="fromDate"
-              [selectOtherMonths]="true"
-              [showButtonBar]="true"
-              [style]="'max-width: 140px;'"
-              appendTo="body"
-              dateFormat="dd/mm/yy"
-              id="ann-toDate"
-              inputId="ann-toDate"
-            />
-            <label for="ann-toDate">Au</label>
-          </p-floatlabel>
-        </div>
-      </ng-template>
-
-      <ng-template #end>
-        <div class="pharma-toolbar-actions">
-          <p-button (click)="loadPage(0)" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
-        </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
+    <ng-container ngProjectAs="[toolbarActions]">
+      <app-button (clicked)="loadPage(0)" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
+    </ng-container>
+  </app-toolbar>
 
   <div class="journal-summary-bar">
     <div class="summary-item">
@@ -80,7 +43,7 @@
 
   <div class="mt-3">
     @if (sales && sales.length > 0) {
-      <p-table
+      <app-data-table
         (onLazyLoad)="lazyLoading($event)"
         [lazy]="true"
         [loading]="loading()"
@@ -90,10 +53,10 @@
         [showCurrentPageReport]="true"
         [totalRecords]="totalItems"
         [value]="sales"
-        class="p-datatable-sm p-datatable-striped"
+        [stripedRows]="true"
+        [size]="'small'"
         currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} annulations"
         dataKey="id"
-        stripedRows="true"
       >
         <ng-template #header>
           <tr class="pharma-table-head">
@@ -128,14 +91,14 @@
             <td>{{ sale.cassier?.abbrName || '—' }}</td>
             <td>
               @if (sale.commentaire) {
-                <span pTooltip="{{ sale.commentaire }}" tooltipPosition="left" class="motif-icon">
+                <span [ngbTooltip]="sale.commentaire" placement="left" class="motif-icon">
                     <i class="pi pi-comment"></i>
                   </span>
               }
             </td>
           </tr>
         </ng-template>
-      </p-table>
+      </app-data-table>
     } @else {
       <div class="alert alert-success text-center mt-4">
         <i class="pi pi-check-circle me-2"></i>
@@ -144,6 +107,4 @@
     }
   </div>
 </div>
-
-
 

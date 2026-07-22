@@ -11,13 +11,8 @@ import {
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {ButtonModule} from 'primeng/button';
-import {InputTextModule} from 'primeng/inputtext';
-import {TableModule} from 'primeng/table';
-import {TooltipModule} from 'primeng/tooltip';
-import {IconField} from 'primeng/iconfield';
-import {InputIcon} from 'primeng/inputicon';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {ButtonComponent, DataTableComponent, IconFieldComponent} from '../../../../shared/ui';
 import {ICustomer} from '../../../../shared/model';
 import {CustomerSearchService} from '../../data-access/services/customer-search.service';
 import {
@@ -33,7 +28,7 @@ import {showCommonModal} from '../../../../entities/sales/selling-home/sale-help
  */
 @Component({
   selector: 'app-customer-search-table',
-  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, TableModule, TooltipModule, IconField, InputIcon],
+  imports: [CommonModule, FormsModule, ButtonComponent, DataTableComponent, IconFieldComponent, NgbTooltip],
   templateUrl: './customer-search-table.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styles: [

@@ -43,5 +43,5 @@ export class SkeletonComponent {
   /** Diamètre, utilisé uniquement quand `shape` vaut `circle`. */
   readonly size = input<string>('2rem');
 
-  readonly borderRadius = input<string>('var(--p-content-border-radius)');
+  readonly borderRadius = input<string>('var(--bs-border-radius)');
 }

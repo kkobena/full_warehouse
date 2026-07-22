@@ -1,14 +1,11 @@
 import { AfterViewInit, Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonModule } from "primeng/button";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { PrixReference } from "../model/prix-reference.model";
 import { PrixReferenceService } from "../prix-reference.service";
 import { Observable } from "rxjs";
 import { HttpErrorResponse, HttpResponse } from "@angular/common/http";
-import { Select } from "primeng/select";
-import { InputNumber } from "primeng/inputnumber";
-import { ToggleSwitch } from "primeng/toggleswitch";
+import { ButtonComponent, CardComponent, InputNumberComponent, SelectComponent, SelectSearchComponent, SwitchComponent } from "app/shared/ui";
 import { finalize } from "rxjs/operators";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NgbConfirmDialogService } from "../../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
@@ -29,7 +26,7 @@ type PriceType = (typeof PriceTypes)[keyof typeof PriceTypes];
 
 @Component({
   selector: "app-add-prix-form",
-  imports: [ButtonModule, ReactiveFormsModule, Select, InputNumber, ToggleSwitch],
+  imports: [ButtonComponent, ReactiveFormsModule, SelectComponent, SelectSearchComponent, InputNumberComponent, SwitchComponent, CardComponent],
   templateUrl: "./add-prix-form.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["add-prix-form.scss"]

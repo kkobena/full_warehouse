@@ -4,19 +4,21 @@ import { CommonModule, DatePipe } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { HttpHeaders } from "@angular/common/http";
 import { Router, RouterLink } from "@angular/router";
-import { Button } from "primeng/button";
-import { TableLazyLoadEvent, TableModule } from "primeng/table";
-import { Toolbar } from "primeng/toolbar";
-import { Select } from "primeng/select";
-import { MultiSelect } from "primeng/multiselect";
-import { DatePicker } from "primeng/datepicker";
-import { InputText } from "primeng/inputtext";
-import { Checkbox } from "primeng/checkbox";
-import { TooltipModule } from "primeng/tooltip";
-import { Menu, MenuModule } from "primeng/menu";
-import { MenuItem } from "primeng/api";
+import { NgbDateParserFormatter, NgbDateStruct, NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle, NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { finalize, Subject } from "rxjs";
 import { debounceTime } from "rxjs/operators";
+
+import { FrenchDateParserFormatter } from "../../../../config/french-date-parser-formatter";
+import { PharmaDatePickerComponent } from "../../../../shared/date-picker/pharma-date-picker.component";
+import {
+  ButtonComponent,
+  CheckboxComponent,
+  DataTableComponent,
+  MultiSelectComponent,
+  AppTableLazyLoadEvent,
+  SelectComponent,
+  ToolbarComponent,
+} from "../../../../shared/ui";
 import { ITEMS_PER_PAGE } from "../../../../shared/constants/pagination.constants";
 import { ISales, SalesStatut } from "../../../../shared/model";
 import { IUser } from "../../../../core/user/user.model";
@@ -28,20 +30,14 @@ import { TauriPrinterService } from "../../../../shared/services/tauri-printer.s
 import { ErrorService } from "../../../../shared/error.service";
 import { handleBlobForTauri } from "../../../../shared/util/tauri-util";
 import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
-import { FloatLabel } from "primeng/floatlabel";
-import { InputGroup } from "primeng/inputgroup";
-import { InputGroupAddon } from "primeng/inputgroupaddon";
 import { NgxSpinnerComponent } from "ngx-spinner";
 import { showCommonModal } from "../../../../entities/sales/selling-home/sale-helper";
 import {
   CustomerEditModalComponent
 } from "../../../../entities/sales/customer-edit-modal/customer-edit-modal.component";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import {
   SaleUpdateDateModalComponent
 } from "../../../../entities/sales/sale-update-date-modal/sale-update-date-modal.component";
-import { PrimeNG } from "primeng/config";
-import { TranslateService } from "@ngx-translate/core";
 import { TIMES } from "../../../../shared/util/times";
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { AnnulationVenteMessageComponent } from "../../ui/annulation-vente-message/annulation-vente-message.component";
@@ -50,31 +46,37 @@ import { RetourClientModalComponent } from "../../ui/retour-client-modal/retour-
 import { CloturerAvoirModalComponent } from "../../ui/cloturer-avoir-modal/cloturer-avoir-modal.component";
 import { AvoirClientApiService } from "../../data-access/services/avoir-client-api.service";
 
+interface SaleMenuEntry {
+  label?: string;
+  icon?: string;
+  danger?: boolean;
+  separator?: boolean;
+  command?: () => void;
+}
 
 @Component({
   selector: "app-sales-journal",
   templateUrl: "./sales-journal.component.html",
   styleUrl: "./sales-journal.component.scss",
-  providers: [DatePipe],
+  providers: [DatePipe, { provide: NgbDateParserFormatter, useClass: FrenchDateParserFormatter }],
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,
-    Button,
-    TableModule,
-    Toolbar,
-    Select,
-    MultiSelect,
-    DatePicker,
-    InputText,
-    Checkbox,
-    TooltipModule,
-    FloatLabel,
-    InputGroup,
-    InputGroupAddon,
+    ButtonComponent,
+    DataTableComponent,
+    ToolbarComponent,
+    SelectComponent,
+    MultiSelectComponent,
+    PharmaDatePickerComponent,
+    CheckboxComponent,
+    NgbTooltip,
     NgxSpinnerComponent,
     RouterLink,
-    MenuModule
+    NgbDropdown,
+    NgbDropdownToggle,
+    NgbDropdownMenu,
+    NgbDropdownItem,
   ]
 })
 export class SalesJournalComponent implements OnInit {
@@ -89,8 +91,6 @@ export class SalesJournalComponent implements OnInit {
   private readonly datePipe = inject(DatePipe);
   private readonly modalService = inject(NgbModal);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
-  private readonly primeNGConfig = inject(PrimeNG);
-  private readonly translate = inject(TranslateService);
   private readonly ability = inject(AbilityService);
   private readonly blobDownload = inject(BlobDownloadService);
   private readonly avoirApi = inject(AvoirClientApiService);
@@ -121,8 +121,8 @@ export class SalesJournalComponent implements OnInit {
   protected global = true;
   protected selectedUserId: number | null = null;
   protected selectedCassierId: number | null = null;
-  protected fromDate: Date = new Date();
-  protected toDate: Date = new Date();
+  protected fromDate: NgbDateStruct = this.todayNgb();
+  protected toDate: NgbDateStruct = this.todayNgb();
   protected fromHour = "01:00";
   protected toHour = "23:59";
   protected hours = TIMES;
@@ -130,33 +130,25 @@ export class SalesJournalComponent implements OnInit {
   protected readonly SalesStatut = SalesStatut;
   private readonly searchSubject = new Subject<void>();
 
-  // ── Menu contextuel ───────────────────────────────────
-  protected menuItems = signal<MenuItem[]>([]);
-  private currentSale: ISales | null = null;
-
-  protected openContextMenu(event: Event, sale: ISales, menu: Menu): void {
-    event.stopPropagation();
-    this.currentSale = sale;
-    this.menuItems.set(this.buildMenuItems(sale));
-    menu.toggle(event);
-  }
   protected readonly totalSalesAmount = signal(0);
-  private buildMenuItems(sale: ISales): MenuItem[] {
+
+  // ── Menu contextuel ───────────────────────────────────
+  protected buildMenuItems(sale: ISales): SaleMenuEntry[] {
     const canceled = sale.canceled || sale.statut === SalesStatut.CANCELED;
     const isAssuranceOrCarnet = sale.natureVente === "ASSURANCE" || sale.natureVente === "CARNET";
-    const items: MenuItem[] = [];
+    const items: SaleMenuEntry[] = [];
 
     if (!canceled) {
       items.push({
         label: "Imprimer ticket",
         icon: "pi pi-print",
-        command: () => this.reprintReceipt(this.currentSale!)
+        command: () => this.reprintReceipt(sale)
       });
       if (sale.customer) {
         items.push({
           label: "Imprimer facture",
           icon: "pi pi-receipt",
-          command: () => this.printInvoice(this.currentSale!)
+          command: () => this.printInvoice(sale)
         });
       }
       if (this.canRetourClient() || this.canCloturerAvoir()) {
@@ -166,14 +158,14 @@ export class SalesJournalComponent implements OnInit {
         items.push({
           label: "Retour client",
           icon: "pi pi-undo",
-          command: () => this.openRetourFromSale(this.currentSale!)
+          command: () => this.openRetourFromSale(sale)
         });
       }
       if (this.canCloturerAvoir() ) {
         items.push({
           label: "Clôturer avoir",
           icon: "pi pi-ticket",
-          command: () => this.openAvoirsForSale(this.currentSale!)
+          command: () => this.openAvoirsForSale(sale)
         });
       }
     }
@@ -184,20 +176,20 @@ export class SalesJournalComponent implements OnInit {
         items.push({
           label: "Éditer la vente",
           icon: "pi pi-file-edit",
-          command: () => this.confirmEdit(this.currentSale!)
+          command: () => this.confirmEdit(sale)
         });
       }
       if (isAssuranceOrCarnet) {
         items.push({
           label: "Modifier le client",
           icon: "pi pi-user-edit",
-          command: () => this.onEditCustomer(this.currentSale!)
+          command: () => this.onEditCustomer(sale)
         });
       }
       items.push({
         label: "Modifier la date",
         icon: "pi pi-calendar-plus",
-        command: () => this.editSaleUpdatedDate(this.currentSale!)
+        command: () => this.editSaleUpdatedDate(sale)
       });
     }
 
@@ -206,8 +198,8 @@ export class SalesJournalComponent implements OnInit {
       items.push({
         label: "Annuler la vente",
         icon: "pi pi-trash",
-        styleClass: "menu-item-danger",
-        command: () => this.confirmCancel(this.currentSale!)
+        danger: true,
+        command: () => this.confirmCancel(sale)
       });
     }
 
@@ -242,11 +234,6 @@ export class SalesJournalComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.translate.use("fr");
-    this.translate.stream("primeng").subscribe(data => {
-      this.primeNGConfig.setTranslation(data);
-    });
-
     this.loadAllUsers();
     this.restoreParams();
     this.loadPage();
@@ -265,8 +252,8 @@ export class SalesJournalComponent implements OnInit {
     this.global = p.global ?? true;
     this.selectedUserId = p.selectedUserId;
     this.selectedCassierId = p.selectedCassierId;
-    this.fromDate = p.fromDate || new Date();
-    this.toDate = p.toDate || new Date();
+    this.fromDate = p.fromDate || this.todayNgb();
+    this.toDate = p.toDate || this.todayNgb();
     this.fromHour = p.fromHour || "01:00";
     this.toHour = p.toHour || "23:59";
   }
@@ -309,8 +296,8 @@ export class SalesJournalComponent implements OnInit {
     return {
       search: this.search || null,
       types: this.typeVenteSelected,
-      fromDate: this.datePipe.transform(this.fromDate, "yyyy-MM-dd"),
-      toDate: this.datePipe.transform(this.toDate, "yyyy-MM-dd"),
+      fromDate: this.ngbDateToIso(this.fromDate),
+      toDate: this.ngbDateToIso(this.toDate),
       fromHour: this.fromHour,
       toHour: this.toHour,
       global: this.global,
@@ -360,7 +347,7 @@ export class SalesJournalComponent implements OnInit {
     });
   }
 
-  protected lazyLoading(event: TableLazyLoadEvent): void {
+  protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event.first != null && event.rows != null) {
       this.page = event.first / event.rows;
       this.itemsPerPage = event.rows;
@@ -368,10 +355,11 @@ export class SalesJournalComponent implements OnInit {
     }
   }
 
-  protected onRowExpand(event: any): void {
-    if (event.data?.saleId && !event.data._loaded) {
-      this.api.findSale(event.data.saleId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(detail => {
-        Object.assign(event.data, detail, { _loaded: true });
+  protected onRowToggle(sale: ISales, table: DataTableComponent<ISales>): void {
+    table.toggleRow(sale);
+    if (sale.saleId && !(sale as ISales & { _loaded?: boolean })._loaded) {
+      this.api.findSale(sale.saleId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(detail => {
+        Object.assign(sale, detail, { _loaded: true });
       });
     }
   }
@@ -478,13 +466,13 @@ export class SalesJournalComponent implements OnInit {
   }
 
   protected exportJournal(): void {
-    const fileName = `journal-ventes-${this.datePipe.transform(this.fromDate, "yyyyMMdd")}-${this.datePipe.transform(this.toDate, "yyyyMMdd")}`;
+    const fileName = `journal-ventes-${this.compactNgbDate(this.fromDate)}-${this.compactNgbDate(this.toDate)}`;
     this.blobDownload.downloadFromObservable(
       this.api.exportJournal({
         search: this.search || null,
         types: this.typeVenteSelected,
-        fromDate: this.datePipe.transform(this.fromDate, "yyyy-MM-dd"),
-        toDate: this.datePipe.transform(this.toDate, "yyyy-MM-dd"),
+        fromDate: this.ngbDateToIso(this.fromDate),
+        toDate: this.ngbDateToIso(this.toDate),
         fromHour: this.fromHour,
         toHour: this.toHour,
         global: this.global,
@@ -499,4 +487,17 @@ export class SalesJournalComponent implements OnInit {
     );
   }
 
+  private todayNgb(): NgbDateStruct {
+    const d = new Date();
+    return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
+  }
+
+  private ngbDateToIso(date: NgbDateStruct | null): string | null {
+    if (!date) return null;
+    return `${date.year}-${String(date.month).padStart(2, "0")}-${String(date.day).padStart(2, "0")}`;
+  }
+
+  private compactNgbDate(date: NgbDateStruct): string {
+    return `${date.year}${String(date.month).padStart(2, "0")}${String(date.day).padStart(2, "0")}`;
+  }
 }

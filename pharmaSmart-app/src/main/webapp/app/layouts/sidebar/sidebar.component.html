@@ -38,8 +38,8 @@
               routerLinkActive="active"
               class="nav-link"
               [class.collapsed-item]="isCollapsed()"
-              [pTooltip]="isCollapsed() ? item.label : null"
-              tooltipPosition="right"
+              [ngbTooltip]="isCollapsed() ? item.label : null"
+              placement="right"
               (click)="onMenuItemClick()"
             >
               <span class="nav-icon">
@@ -65,8 +65,8 @@
               (click)="onMenuItemClick(item.click)"
               class="nav-link clickable"
               [class.collapsed-item]="isCollapsed()"
-              [pTooltip]="isCollapsed() ? item.label : null"
-              tooltipPosition="right"
+              [ngbTooltip]="isCollapsed() ? item.label : null"
+              placement="right"
             >
               <span class="nav-icon">
                 <fa-icon [icon]="item.faIcon"></fa-icon>
@@ -90,8 +90,8 @@
                 role="button"
                 [class.collapsed-item]="isCollapsed()"
                 [class.expanded]="isExpanded(item.label)"
-                [pTooltip]="isCollapsed() ? item.label : null"
-                tooltipPosition="right"
+                [ngbTooltip]="isCollapsed() ? item.label : null"
+                placement="right"
                 [attr.aria-expanded]="!isCollapsed() && isExpanded(item.label)"
                 [attr.aria-controls]="'submenu-' + item.label"
                 (click)="onParentMenuClick(item.label)"

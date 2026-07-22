@@ -48,8 +48,7 @@
 
   // Style direct pour le champ input
   ::ng-deep {
-    .search-input,
-    .p-inputtext {
+    .search-input {
       width: 100%;
       font-size: 0.8125rem !important;
       padding: 0.5rem 2.25rem 0.5rem 2.25rem !important;
@@ -70,12 +69,8 @@
       }
     }
 
-    .p-iconfield {
-      width: 100%;
-
-      .p-inputicon {
-        color: $gray-500;
-      }
+    .app-icon-field__icon {
+      color: $gray-500;
     }
   }
 }

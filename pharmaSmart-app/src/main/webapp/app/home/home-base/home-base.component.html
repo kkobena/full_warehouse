@@ -121,11 +121,11 @@
     <div class="kpi-strip mb-2">
       @for (_ of [1, 2, 3, 4, 5, 6, 7]; track _) {
         <div class="kpi-strip-item">
-          <p-skeleton shape="circle" size="1.5rem" />
+          <app-skeleton shape="circle" size="1.5rem" />
           <div class="kpi-strip-body">
-            <p-skeleton class="mb-1" height="0.6rem" width="5rem" />
-            <p-skeleton class="mb-1" height="1.1rem" width="7rem" />
-            <p-skeleton height="0.6rem" width="4rem" />
+            <app-skeleton class="mb-1" height="0.6rem" width="5rem" />
+            <app-skeleton class="mb-1" height="1.1rem" width="7rem" />
+            <app-skeleton height="0.6rem" width="4rem" />
           </div>
         </div>
       }
@@ -164,7 +164,7 @@
       <div class="kpi-strip-divider"></div>
 
       <div class="kpi-strip-item">
-        <i class="pi pi-wallet" style="color: var(--p-cyan-500)"></i>
+        <i class="pi pi-wallet" style="color: var(--bs-info)"></i>
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">Ventes comptant</span>
           <span class="kpi-strip-value">{{ vno?.netAmount | number }}</span>
@@ -271,10 +271,10 @@
         <div class="card-header">
           <h5 class="card-title">
             <i class="pi pi-chart-pie text-success"></i>
-            Ventes par tiers-payant
+            Ventes par tiers payant
           </h5>
-          <p-select (onChange)="onTopTiersPayantChange($event)" [(ngModel)]="TOP_MAX_TP"
-                    [options]="tops" optionLabel="label"></p-select>
+          <app-select (selectionChange)="onTopTiersPayantChange($event)" [(ngModel)]="TOP_MAX_TP"
+                      [items]="tops" bindLabel="label"></app-select>
         </div>
         <div class="card-body py-4">
           @if (!showGraphs) {
@@ -339,8 +339,9 @@
                       type="button">12 mois
               </button>
             </div>
-            <p-select (onChange)="onTopFournisseurChange($event)" [(ngModel)]="TOP_MAX_FOURNISSEUR"
-                      [options]="tops" optionLabel="label"></p-select>
+            <app-select (selectionChange)="onTopFournisseurChange($event)"
+                        [(ngModel)]="TOP_MAX_FOURNISSEUR"
+                        [items]="tops" bindLabel="label"></app-select>
           </div>
         </div>
         <div class="card-body py-4">
@@ -416,13 +417,13 @@
             <i class="pi pi-chart-bar text-warning"></i>
             Meilleures ventes en valeur
           </h5>
-          <p-select (onChange)="onTopAmountChange($event)" [(ngModel)]="TOP_MAX_AMOUNT"
-                    [options]="tops" optionLabel="label"></p-select>
+          <app-select (selectionChange)="onTopAmountChange($event)" [(ngModel)]="TOP_MAX_AMOUNT"
+                      [items]="tops" bindLabel="label"></app-select>
         </div>
         <div class="card-body p-0">
           @if (!showGraphs) {
-            <p-table [scrollable]="true" [stripedRows]="true" [value]="rowAmount"
-                     class="p-datatable-sm" scrollHeight="400px">
+            <app-data-table [scrollable]="true" [stripedRows]="true" [value]="rowAmount"
+                            scrollHeight="400px">
               <ng-template #header>
                 <tr class="pharma-table-head">
                   <th style="width: 40px">#</th>
@@ -462,13 +463,13 @@
                   <td class="pharma-empty-message" colspan="4">
                     <div class="pharma-empty-content">
                       <i class="pi pi-inbox"
-                         style="font-size: 2rem; color: var(--p-text-color-secondary)"></i>
+                         style="font-size: 2rem; color: var(--bs-secondary-color)"></i>
                       <p class="mt-2 text-muted mb-0">Aucune donnée sur la période sélectionnée</p>
                     </div>
                   </td>
                 </tr>
               </ng-template>
-            </p-table>
+            </app-data-table>
           } @else {
             <div class="p-3">
               <app-chart [data]="amountChartData" [options]="amountChartOptions" height="400px"
@@ -490,13 +491,13 @@
             <i class="pi pi-chart-bar text-primary"></i>
             Meilleures ventes en quantité
           </h5>
-          <p-select (onChange)="onTopQuantityChange($event)" [(ngModel)]="TOP_MAX_QUANTITY"
-                    [options]="tops" optionLabel="label"></p-select>
+          <app-select (selectionChange)="onTopQuantityChange($event)" [(ngModel)]="TOP_MAX_QUANTITY"
+                      [items]="tops" bindLabel="label"></app-select>
         </div>
         <div class="card-body p-0">
           @if (!showGraphs) {
-            <p-table [scrollable]="true" [stripedRows]="true" [value]="rowQuantity"
-                     class="p-datatable-sm" scrollHeight="400px">
+            <app-data-table [scrollable]="true" [stripedRows]="true" [value]="rowQuantity"
+                            scrollHeight="400px">
               <ng-template #header>
                 <tr class="pharma-table-head">
                   <th style="width: 40px">#</th>
@@ -536,13 +537,13 @@
                   <td class="pharma-empty-message" colspan="4">
                     <div class="pharma-empty-content">
                       <i class="pi pi-inbox"
-                         style="font-size: 2rem; color: var(--p-text-color-secondary)"></i>
+                         style="font-size: 2rem; color: var(--bs-secondary-color)"></i>
                       <p class="mt-2 text-muted mb-0">Aucune donnée sur la période sélectionnée</p>
                     </div>
                   </td>
                 </tr>
               </ng-template>
-            </p-table>
+            </app-data-table>
           } @else {
             <div class="p-3">
               <app-chart [data]="quantityChartData" [options]="quantityChartOptions" height="400px"
@@ -578,8 +579,8 @@
 
           @if (activePareto === 'qty') {
             @if (!showGraphs) {
-              <p-table [scrollable]="true" [stripedRows]="true" [value]="row20x80"
-                       class="p-datatable-sm" scrollHeight="400px">
+              <app-data-table [scrollable]="true" [stripedRows]="true" [value]="row20x80"
+                              scrollHeight="400px">
                 <ng-template #header>
                   <tr class="pharma-table-head">
                     <th>Libellé</th>
@@ -608,14 +609,14 @@
                     <td class="pharma-empty-message" colspan="4">
                       <div class="pharma-empty-content">
                         <i class="pi pi-inbox"
-                           style="font-size: 2rem; color: var(--p-text-color-secondary)"></i>
+                           style="font-size: 2rem; color: var(--bs-secondary-color)"></i>
                         <p class="mt-2 text-muted mb-0">Aucune donnée sur la période
                           sélectionnée</p>
                       </div>
                     </td>
                   </tr>
                 </ng-template>
-              </p-table>
+              </app-data-table>
             } @else {
               <div class="p-3">
                 <app-chart [data]="twentyEightyChartData" [options]="twentyEightyChartOptions"
@@ -624,8 +625,8 @@
             }
           } @else {
             @if (!showGraphs) {
-              <p-table [scrollable]="true" [stripedRows]="true" [value]="row20x80Montant"
-                       class="p-datatable-sm" scrollHeight="400px">
+              <app-data-table [scrollable]="true" [stripedRows]="true" [value]="row20x80Montant"
+                              scrollHeight="400px">
                 <ng-template #header>
                   <tr class="pharma-table-head">
                     <th>Libellé</th>
@@ -654,14 +655,14 @@
                     <td class="pharma-empty-message" colspan="4">
                       <div class="pharma-empty-content">
                         <i class="pi pi-inbox"
-                           style="font-size: 2rem; color: var(--p-text-color-secondary)"></i>
+                           style="font-size: 2rem; color: var(--bs-secondary-color)"></i>
                         <p class="mt-2 text-muted mb-0">Aucune donnée sur la période
                           sélectionnée</p>
                       </div>
                     </td>
                   </tr>
                 </ng-template>
-              </p-table>
+              </app-data-table>
             } @else {
               <div class="p-3">
                 <!-- P0 Bug Fix : utilisation de twentyEightyMontantChartData pour le montant -->

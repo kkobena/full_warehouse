@@ -3,23 +3,20 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Button } from 'primeng/button';
-import { Select } from 'primeng/select';
-import { InputNumber } from 'primeng/inputnumber';
+import { ButtonComponent, CardComponent, InputNumberComponent, SelectComponent } from '../../../../shared/ui';
 import {
   AvoirClientApiService,
   CloturerAvoirRequest,
   IAvoirClientDocument,
   ModeClotureAvoir,
 } from '../../data-access/services/avoir-client-api.service';
-import { Textarea } from 'primeng/textarea';
 
 @Component({
   selector: 'app-cloturer-avoir-modal',
   templateUrl: './cloturer-avoir-modal.component.html',
   styleUrl: './cloturer-avoir-modal.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, Button, Select, Textarea, InputNumber],
+  imports: [CommonModule, FormsModule, ButtonComponent, SelectComponent, InputNumberComponent, CardComponent],
 })
 export class CloturerAvoirModalComponent {
   readonly activeModal = inject(NgbActiveModal);

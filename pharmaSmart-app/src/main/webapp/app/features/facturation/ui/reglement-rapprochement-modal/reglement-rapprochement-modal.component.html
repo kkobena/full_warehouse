@@ -6,19 +6,21 @@
       <span class="rrm-facture-ref">— {{ ligne.numFacture }}</span>
     }
   </h5>
-  <button type="button" class="btn-close" (click)="activeModal.dismiss()"></button>
+  <button (click)="activeModal.dismiss()" class="btn-close" type="button"></button>
 </div>
 <form (ngSubmit)="save()" [formGroup]="reglementForm">
   <div class="modal-body">
-    <app-card>
+    <app-card [variant]="'form'">
       <div class="form-grid-compact">
         <div class="form-field form-field-full">
           <label for="amount">Montant à payer<span class="required">*</span></label>
-          <app-input-number id="amount" autocomplete="off" formControlName="amount" name="amount" />
-          @if (reglementForm.get('amount')!.invalid && (reglementForm.get('amount')!.dirty || reglementForm.get('amount')!.touched)) {
+          <app-input-number autocomplete="off" formControlName="amount" id="amount" name="amount" />
+          @if (reglementForm.get('amount')!.invalid && (reglementForm.get('amount')!.dirty
+            || reglementForm.get('amount')!.touched)) {
             <div>
               @if (reglementForm.get('amount')?.errors?.required) {
-                <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+                <small class="form-text text-danger" style="color: red"> Ce champ est
+                  obligatoire. </small>
               }
             </div>
           }
@@ -27,20 +29,22 @@
         <div class="form-field form-field-full">
           <label for="modePaimentCode">Mode de paiement<span class="required">*</span></label>
           <app-select
-            appendTo="body"
-            size="small"
             [items]="paymentModes"
-            dataKey="code"
-            id="modePaimentCode"
-            formControlName="modePaimentCode"
+            appendTo="body"
             bindLabel="libelle"
             bindValue="code"
+            dataKey="code"
+            formControlName="modePaimentCode"
+            id="modePaimentCode"
             placeholder="Mode de paiement"
+            size="small"
           />
-          @if (reglementForm.get('modePaimentCode')!.invalid && (reglementForm.get('modePaimentCode')!.dirty || reglementForm.get('modePaimentCode')!.touched)) {
+          @if (reglementForm.get('modePaimentCode')!.invalid && (reglementForm.get(
+            'modePaimentCode')!.dirty || reglementForm.get('modePaimentCode')!.touched)) {
             <div>
               @if (reglementForm.get('modePaimentCode')?.errors?.required) {
-                <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+                <small class="form-text text-danger" style="color: red"> Ce champ est
+                  obligatoire. </small>
               }
             </div>
           }
@@ -49,10 +53,10 @@
         <div class="form-field form-field-full">
           <label for="datePaiement">Date paiement</label>
           <pharma-date-picker
-            id="datePaiement"
-            placeholder="Date paiement"
             [maxDate]="maxDateStruct"
             formControlName="paymentDate"
+            id="datePaiement"
+            placeholder="Date paiement"
           />
 
         </div>
@@ -64,11 +68,14 @@
           <div class="bank-fields" formGroupName="banqueInfo">
             <div class="form-field form-field-full">
               <label for="nom">Nom de la banque<span class="required">*</span></label>
-              <input id="nom" formControlName="nom" placeholder="Nom de la banque" class="form-control" />
-              @if (reglementForm.get('banqueInfo.nom')!.invalid && (reglementForm.get('banqueInfo.nom')!.dirty || reglementForm.get('banqueInfo.nom')!.touched)) {
+              <input class="form-control" formControlName="nom" id="nom"
+                     placeholder="Nom de la banque" />
+              @if (reglementForm.get('banqueInfo.nom')!.invalid && (reglementForm.get(
+                'banqueInfo.nom')!.dirty || reglementForm.get('banqueInfo.nom')!.touched)) {
                 <div>
                   @if (reglementForm.get('banqueInfo.nom')?.errors?.required) {
-                    <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+                    <small class="form-text text-danger" style="color: red"> Ce champ est
+                      obligatoire. </small>
                   }
                 </div>
               }
@@ -76,13 +83,15 @@
             @if (reglementForm.get('modePaimentCode')!.value === CH) {
               <div class="form-field form-field-full">
                 <label for="code">N° chèque<span class="required">*</span></label>
-                <input id="code" formControlName="code" [appKeyFilter]="'alphanum'"
-                       placeholder="N° chèque" class="form-control" />
+                <input [appKeyFilter]="'alphanum'" class="form-control" formControlName="code"
+                       id="code" placeholder="N° chèque" />
 
-                @if (reglementForm.get('banqueInfo.code')!.invalid && (reglementForm.get('banqueInfo.code')!.dirty || reglementForm.get('banqueInfo.code')!.touched)) {
+                @if (reglementForm.get('banqueInfo.code')!.invalid && (reglementForm.get(
+                  'banqueInfo.code')!.dirty || reglementForm.get('banqueInfo.code')!.touched)) {
                   <div>
                     @if (reglementForm.get('banqueInfo.code')?.errors?.required) {
-                      <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+                      <small class="form-text text-danger" style="color: red"> Ce champ est
+                        obligatoire. </small>
                     }
                   </div>
                 }
@@ -92,8 +101,8 @@
             }
             <div class="form-field form-field-full">
               <label for="beneficiaire">Bénéficiaire</label>
-              <input id="beneficiaire" formControlName="beneficiaire"
-                     placeholder="Bénéficiaire" class="form-control" />
+              <input class="form-control" formControlName="beneficiaire"
+                     id="beneficiaire" placeholder="Bénéficiaire" />
 
             </div>
 
@@ -109,17 +118,17 @@
   <div class="modal-footer">
     <app-button
       (clicked)="activeModal.dismiss()"
+      [outlined]="true"
       label="Annuler"
       severity="secondary"
-      [outlined]="true"
     />
     <app-button
+      (clicked)="save()"
       [disabled]="!valid || !validMontantSaisi() || isSaving"
       [loading]="isSaving"
       icon="pi pi-check"
       label="Valider"
       severity="success"
-      (clicked)="save()"
     />
   </div>
 </form>

@@ -3,14 +3,10 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { ActivatedRoute } from '@angular/router';
 import { IUser } from '../user-management.model';
 import { UserManagementService } from '../service/user-management.service';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { InputTextModule } from 'primeng/inputtext';
-import { ToolbarModule } from 'primeng/toolbar';
+import { ButtonComponent, CardComponent, SelectComponent, ToolbarComponent } from 'app/shared/ui';
 import { CommonModule } from "@angular/common";
 import { AlertErrorComponent } from "../../../shared/alert/alert-error.component";
 import { IAuthority, NavApiService } from "../../../core/data-access/nav-api.service";
-import { Select } from "primeng/select";
 
 const userTemplate = {} as IUser;
 
@@ -24,7 +20,7 @@ const newUser: IUser = {
   templateUrl: './user-management-update.component.html',
   styleUrl: './user-management-update.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, CardModule, ButtonModule, InputTextModule, ToolbarModule, AlertErrorComponent, Select]
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, CardComponent, ButtonComponent, ToolbarComponent, AlertErrorComponent, SelectComponent]
 })
 export default class UserManagementUpdateComponent implements OnInit {
 

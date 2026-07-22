@@ -5,13 +5,13 @@
   <div class="pharma-sales-header">
     <div class="header-left">
 
-      <p-button
-        (click)="previousState()"
+      <app-button
+        (clicked)="previousState()"
         [rounded]="true"
         [text]="true"
         class="back-button"
         icon="pi pi-arrow-left"
-        pTooltip="Retour"
+        ngbTooltip="Retour"
       />
 
       <div class="page-title">
@@ -24,16 +24,16 @@
           <i class="pi pi-user"></i>
           <span>Vendeur</span>
         </label>
-        <p-select
-          (onChange)="onSelectUser()"
+        <app-select-search
+          (selectionChange)="onSelectUser()"
           [(ngModel)]="userSeller"
-          [appendTo]="'body'"
-          [dataKey]="'id'"
-          [options]="userVendeurService.vendeurs()"
-          [placeholder]="'Sélectionner un vendeur'"
+          [searchable]="false"
+          appendTo="body"
+          [items]="userVendeurService.vendeurs()"
+          placeholder="Sélectionner un vendeur"
           [style]="{ width: '200px' }"
           class="pharma-select-modern"
-          optionLabel="abbrName"
+          bindLabel="abbrName"
         />
       </div>
 
@@ -43,26 +43,26 @@
           <i class="pi pi-building"></i>
           <span>Dépôt</span>
         </label>
-        <p-select
-          (onChange)="onSelectDepot()"
+        <app-select-search
+          (selectionChange)="onSelectDepot()"
           [(ngModel)]="selectedDepot"
-          [appendTo]="'body'"
-          [dataKey]="'id'"
-          [options]="facade.depots()"
-          [placeholder]="'Sélectionner un dépôt'"
+          [searchable]="false"
+          appendTo="body"
+          [items]="facade.depots()"
+          placeholder="Sélectionner un dépôt"
           [style]="{ width: '250px' }"
           class="pharma-select-modern"
-          optionLabel="name"
-        >
-          <ng-template #item let-depot>
-            <div class="depot-option">
-              <div class="depot-name">{{ depot.name }}</div>
-              @if (depot.address) {
-                <div class="depot-address">{{ depot.address }}</div>
-              }
-            </div>
-          </ng-template>
-        </p-select>
+          bindLabel="name"
+          [optionTemplate]="depotItem"
+        />
+        <ng-template #depotItem let-depot>
+          <div class="depot-option">
+            <div class="depot-name">{{ depot.name }}</div>
+            @if (depot.address) {
+              <div class="depot-address">{{ depot.address }}</div>
+            }
+          </div>
+        </ng-template>
       </div>
 
     </div>

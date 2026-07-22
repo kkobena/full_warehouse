@@ -6,6 +6,7 @@
 </div>
 
 <div class="modal-body">
+<app-card [variant]="'form'">
   <!-- Résumé compteur -->
   @if (!loading() && lines().length > 0) {
     <div class="gap-summary-banner mb-3">
@@ -94,6 +95,7 @@
       </ng-template>
     </app-data-table>
   </div>
+</app-card>
 </div>
 
 <div class="modal-footer flex-column align-items-stretch gap-2">

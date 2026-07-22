@@ -16,18 +16,16 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {CommonModule} from '@angular/common';
 import {Router} from '@angular/router';
 import {FormsModule} from '@angular/forms';
-import {Button} from 'primeng/button';
-import {TooltipModule} from 'primeng/tooltip';
-import {Drawer} from 'primeng/drawer';
 import {
   NgbNav,
   NgbNavChangeEvent,
   NgbNavContent,
   NgbNavItem,
   NgbNavLink,
-  NgbNavOutlet
+  NgbNavOutlet,
+  NgbTooltip,
 } from '@ng-bootstrap/ng-bootstrap';
-import {Select} from 'primeng/select';
+import {ButtonComponent, OffcanvasComponent, SelectSearchComponent} from '../../../../shared/ui';
 import {SaleCreationComponent} from '../sale-creation/sale-creation.component';
 import {SaleAssuranceComponent} from '../sale-assurance/sale-assurance.component';
 import {SaleCarnetComponent} from '../sale-carnet/sale-carnet.component';
@@ -69,15 +67,15 @@ import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-d
   imports: [
     CommonModule,
     FormsModule,
-    Button,
-    TooltipModule,
-    Drawer,
+    ButtonComponent,
+    NgbTooltip,
+    OffcanvasComponent,
     NgbNav,
     NgbNavItem,
     NgbNavLink,
     NgbNavContent,
     NgbNavOutlet,
-    Select,
+    SelectSearchComponent,
     SaleCreationComponent,
     SaleAssuranceComponent,
     SaleCarnetComponent,
@@ -104,7 +102,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   // Thème devis: 'purple' | 'teal' | 'indigo' (temporaire pour test)
   protected devisTheme = signal<'purple' | 'teal' | 'indigo'>('teal');
   protected userSeller = signal<IUser | null>(null);
-  protected appendTo = 'body'; // Utilisé dans p-select du template
+  protected appendTo = 'body'; // Utilisé dans app-select-search du template
   protected produitSelected: any | null = null;
   protected disableButton = true;
   protected PRODUIT_COMBO_RESULT_SIZE = 10;
@@ -419,13 +417,6 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
 
   protected onDrawerHide(): void {
     this.pendingSalesSidebar.set(false);
-    // PrimeNG Drawer relies on animationend to remove the mask from the DOM.
-    // If the callback doesn't fire (double disableModality call), the mask stays
-    // and blocks all pointer events. Force cleanup after the animation duration.
-    setTimeout(() => {
-      document.querySelectorAll('.p-drawer-mask').forEach(el => el.remove());
-      document.body.classList.remove('p-overflow-hidden');
-    }, 400);
   }
 
   protected onSaleResumed(_sale: any): void {

@@ -1,4 +1,4 @@
-<p-table
+<app-data-table
   [value]="customers()"
   [paginator]="true"
   [rows]="10"
@@ -8,26 +8,24 @@
   class="pharma-table"
   currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} clients"
   dataKey="id"
-  selectionMode="single"
 >
   <ng-template #caption>
     <div class="row">
       <div class="col-md-8">
-        <p-iconfield>
-          <p-inputicon class="pi pi-search" />
+        <app-icon-field icon="pi pi-search" [overlay]="true">
           <input
             #searchInput
             type="text"
-            pInputText
+            class="form-control"
             [(ngModel)]="searchTerm"
             (input)="onSearchChange(searchTerm)"
             placeholder="Rechercher un client (nom, prénom)..."
             style="width: 350px"
           />
-        </p-iconfield>
+        </app-icon-field>
       </div>
       <div class="col-md-4">
-        <p-button (click)="addNewCustomer()" icon="pi pi-user" label="Nouveau client" severity="help" size="small"></p-button>
+        <app-button (clicked)="addNewCustomer()" icon="pi pi-user" label="Nouveau client" severity="help" size="small"></app-button>
       </div>
     </div>
   </ng-template>
@@ -53,15 +51,15 @@
       <td>{{ customer.lastName }}</td>
       <td>{{ customer.phone }}</td>
       <td style="text-align: right">
-        <p-button
-          (click)="selectCustomer(customer); $event.stopPropagation()"
+        <app-button
+          (clicked)="selectCustomer(customer); $event.stopPropagation()"
           [rounded]="true"
           icon="pi pi-check-circle"
-          pTooltip="Sélectionner ce client"
+          ngbTooltip="Sélectionner ce client"
           severity="success"
           size="small"
           [text]="true"
-        ></p-button>
+        ></app-button>
       </td>
     </tr>
   </ng-template>
@@ -73,4 +71,4 @@
       </td>
     </tr>
   </ng-template>
-</p-table>
+</app-data-table>

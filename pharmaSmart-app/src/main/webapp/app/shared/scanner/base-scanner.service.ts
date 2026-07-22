@@ -64,7 +64,16 @@ export abstract class BaseScannerService {
     if (this.timestamps.length > 0) {
       const timeSinceLastKey = now - this.timestamps[this.timestamps.length - 1];
       if (timeSinceLastKey > this.config.resetDelay) {
+        const wasScanning = this.scanInProgress;
         this.reset();
+        // Même garde-fou qu'ailleurs dans ce fichier : si une frappe rapide avait déclenché
+        // `scanInProgress`, la touche suivante arrivant après une pause normale (saisie
+        // manuelle) abandonne ce scan silencieusement — sans cet événement, le composant
+        // abonné reste bloqué en mode « scan en cours » indéfiniment, y compris quand
+        // l'utilisateur tape lentement, une touche à la fois.
+        if (wasScanning) {
+          this.scanEvent$.next({ type: 'reset' });
+        }
       }
     }
 
@@ -129,6 +138,8 @@ export abstract class BaseScannerService {
    * Gère la touche Enter (fin potentielle de scan).
    */
   protected handleEnter(now: number): ScanProcessResult {
+    const wasScanning = this.scanInProgress;
+
     if (this.scanInProgress && this.buffer.length >= this.config.scanMinLength) {
       const totalDuration = now - this.timestamps[0];
       if (totalDuration <= this.config.scanMaxTime) {
@@ -140,6 +151,13 @@ export abstract class BaseScannerService {
     }
 
     this.reset();
+    // Même garde-fou que dans `handleAutoReset` : un scan était en cours (frappe rapide
+    // détectée) mais la touche Entrée arrive hors bornes de longueur/durée — sans cet
+    // événement, les abonnés qui avaient positionné `isScanning` sur le `start` restent
+    // bloqués indéfiniment.
+    if (wasScanning) {
+      this.scanEvent$.next({ type: 'reset' });
+    }
     return { isScanInProgress: false, completedCode: null };
   }
 
@@ -161,8 +179,13 @@ export abstract class BaseScannerService {
    * Vérifie si un scan valide est en attente de traitement.
    */
   protected handleAutoReset(): void {
+    const wasScanning = this.scanInProgress;
+
     if (this.timestamps.length === 0 || this.buffer.length === 0) {
       this.reset();
+      if (wasScanning) {
+        this.scanEvent$.next({ type: 'reset' });
+      }
       return;
     }
 
@@ -175,6 +198,16 @@ export abstract class BaseScannerService {
       this.onScanCompleted(code);
     } else {
       this.reset();
+      // Un scan avait été détecté (frappe rapide) mais n'a jamais abouti à un code valide
+      // (longueur/durée hors bornes, ou jamais de touche Entrée) : sans cet événement,
+      // les composants abonnés qui avaient positionné leur propre drapeau `isScanning`
+      // sur `onScanStartDetected()` ne sont jamais notifiés de l'abandon et restent
+      // bloqués en mode « scan en cours » indéfiniment — ce qui, combiné à la boucle de
+      // nettoyage de la saisie de certains composants, rend le champ inutilisable au
+      // clavier tant que la page n'est pas rechargée.
+      if (wasScanning) {
+        this.scanEvent$.next({ type: 'reset' });
+      }
     }
   }
 

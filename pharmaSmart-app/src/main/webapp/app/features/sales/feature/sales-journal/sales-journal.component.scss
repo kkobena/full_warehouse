@@ -43,55 +43,8 @@ $gray-border: #e2e8f0;
   border-radius: 4px;
 }
 
-// Additional compact optimizations for sales toolbar on 14-inch screens
-@media (max-width: 1450px) {
-  .pharma-toolbar-compact {
-    ::ng-deep {
-      .p-toolbar {
-        padding: 0.375rem 0.5rem !important;
-      }
-
-      .p-select {
-        min-width: 100px;
-        max-width: 120px;
-
-        .p-select-label {
-          padding: 0.375rem 0.5rem !important;
-          font-size: 0.8125rem !important;
-        }
-      }
-
-      .p-datepicker-input {
-        min-width: 90px;
-        max-width: 110px;
-        padding: 0.375rem 0.5rem !important;
-        font-size: 0.8125rem !important;
-      }
-
-      .p-floatlabel {
-        min-width: 90px !important;
-
-        label {
-          font-size: 0.7rem !important;
-        }
-      }
-
-      .p-button {
-        .p-button-icon {
-          font-size: 0.875rem !important;
-        }
-
-        .p-button-label {
-          font-size: 0.8125rem !important;
-        }
-      }
-    }
-  }
-}
-
-.p-floatlabel {
-  min-width: 90px !important;
-  max-width: 140px !important;
+.app-actions-toggle::after {
+  display: none;
 }
 
 // ====================================

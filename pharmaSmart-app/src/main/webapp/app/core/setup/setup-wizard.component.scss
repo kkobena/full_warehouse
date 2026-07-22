@@ -191,39 +191,11 @@ $shadow-lg:     0 8px 32px rgba(0, 0, 0, 0.16);
     color: #374151;
   }
 
-  input.p-inputtext,
-  input[pInputText] { width: 100%; }
+  input.form-control { width: 100%; }
 
-  ::ng-deep p-password {
+  ::ng-deep app-password {
     display: block;
     width: 100%;
-
-    .p-password {
-      display: flex;
-      align-items: center;
-      position: relative;
-      width: 100%;
-
-      input {
-        flex: 1;
-        min-width: 0;
-        padding-right: 2.75rem;
-      }
-
-      .p-password-toggle {
-        position: absolute;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        display: flex;
-        align-items: center;
-        padding: 0 0.65rem;
-        background: transparent;
-        border: none;
-        color: #6b7280;
-        cursor: pointer;
-      }
-    }
   }
 
   &.setup-field--narrow { max-width: 180px; }
@@ -262,7 +234,7 @@ $shadow-lg:     0 8px 32px rgba(0, 0, 0, 0.16);
   display: flex;
   justify-content: flex-end;
 
-  ::ng-deep .p-button {
+  ::ng-deep .btn {
     min-width: 220px;
     justify-content: center;
   }

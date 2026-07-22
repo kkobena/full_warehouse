@@ -5,30 +5,27 @@
   <div class="customer-search-wrapper">
     <!-- Search Section -->
     <div class="search-section">
-      <p-iconfield class="search-input-wrapper">
-        <p-inputicon class="pi pi-search" />
+      <app-icon-field icon="pi pi-search" [overlay]="true" class="search-input-wrapper">
         <input #searchInput
                (keydown.enter)="onSearchCustomer()"
                [(ngModel)]="search"
-               [fluid]="true"
                autocomplete="off"
-               class="search-input"
-               pInputText
+               class="form-control search-input"
                placeholder="Rechercher un client..."
                type="text" />
-      </p-iconfield>
-      <p-button
-        (onClick)="onOpenCustomerList()"
+      </app-icon-field>
+      <app-button
+        (clicked)="onOpenCustomerList()"
         [rounded]="true"
         icon="pi pi-list"
-        pTooltip="Liste des clients"
+        ngbTooltip="Liste des clients"
         severity="secondary"
         size="small" />
-      <p-button
-        (onClick)="onAddCustomer()"
+      <app-button
+        (clicked)="onAddCustomer()"
         [rounded]="true"
         icon="pi pi-user-plus"
-        pTooltip="Nouveau client"
+        ngbTooltip="Nouveau client"
         severity="success"
         size="small" />
     </div>
@@ -39,24 +36,24 @@
         <div class="customer-display-card">
           <!-- Action Buttons -->
           <div class="customer-action-btn">
-            <p-button
-              (click)="onOpenCustomerList()"
+            <app-button
+              (clicked)="onOpenCustomerList()"
               [rounded]="true"
               [text]="true"
               icon="pi pi-times"
-              pTooltip="Changer le client"
+              ngbTooltip="Changer le client"
               severity="danger"
               size="small"
-              tooltipPosition="top" />
-            <p-button
-              (click)="onEditCustomer()"
+              placement="top" />
+            <app-button
+              (clicked)="onEditCustomer()"
               [rounded]="true"
               [text]="true"
               icon="pi pi-user-edit"
-              pTooltip="Modifier le client"
+              ngbTooltip="Modifier le client"
               severity="info"
               size="small"
-              tooltipPosition="top" />
+              placement="top" />
           </div>
 
           <!-- Customer Information Display -->

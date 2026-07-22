@@ -14,31 +14,31 @@
           </span>
         }
         @if (produit().estMedicamentEssentiel) {
-          <span class="badge-essentiel ms-1" pTooltip="Médicament essentiel (liste OMS)">ME</span>
+          <span class="badge-essentiel ms-1" ngbTooltip="Médicament essentiel (liste OMS)">ME</span>
         }
         @if (produit().estProduitGarde) {
-          <span class="badge-garde ms-1" pTooltip="Produit de garde officine">G</span>
+          <span class="badge-garde ms-1" ngbTooltip="Produit de garde officine">G</span>
         }
       </div>
     </div>
     <div class="panel-actions">
       @if (canEdit()) {
-        <p-button
+        <app-button
           icon="pi pi-pencil"
           label="Modifier"
           size="small"
           severity="secondary"
           [outlined]="true"
-          (onClick)="onEdit()"
+          (clicked)="onEdit()"
         />
       }
-      <p-button
+      <app-button
         icon="pi pi-times"
         [text]="true"
         size="small"
         severity="secondary"
-        pTooltip="Fermer"
-        (onClick)="closePanel.emit()"
+        ngbTooltip="Fermer"
+        (clicked)="closePanel.emit()"
       />
     </div>
   </div>

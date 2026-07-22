@@ -1,22 +1,19 @@
 <!-- Drawer pour ventes en attente (masqué en mode devis) -->
 @if (!isDevisMode()) {
-  <p-drawer [visible]="pendingSalesSidebar()" (visibleChange)="pendingSalesSidebar.set($event)" (onHide)="onDrawerHide()" [style]="{ width: '70vw' }" position="right">
-    <ng-template #header>
-      <div class="drawer-header-content">
-        <i class="pi pi-clock text-xl"></i>
-        <div class="drawer-header-text">
-          <h3>Ventes en attente</h3>
-          <span class="drawer-subtitle">Reprendre une vente en cours</span>
-        </div>
+  <app-offcanvas (visibleChange)="onDrawerHide()" [visible]="pendingSalesSidebar()" position="right"
+                 width="70vw">
+    <div appOffcanvasHeader class="drawer-header-content">
+      <i class="pi pi-clock text-xl"></i>
+      <div class="drawer-header-text">
+        <h3>Ventes en attente</h3>
+        <span class="drawer-subtitle">Reprendre une vente en cours</span>
       </div>
-    </ng-template>
-    <ng-template #content>
-      <app-pending-sales-list
-        (closed)="closePendingSales()"
-        (saleResumed)="onSaleResumed($event)"
-      />
-    </ng-template>
-  </p-drawer>
+    </div>
+    <app-pending-sales-list
+      (closed)="closePendingSales()"
+      (saleResumed)="onSaleResumed($event)"
+    />
+  </app-offcanvas>
 }
 
 <!-- Interface principale Point de Vente -->
@@ -26,14 +23,14 @@
        class="pharma-sales-header">
     <div class="header-left">
       <!-- Bouton retour -->
-      <p-button
-        (click)="previousState()"
+      <app-button
+        (clicked)="previousState()"
         [rounded]="true"
         [text]="true"
         class="back-button"
         icon="pi pi-arrow-left"
-        pTooltip="Retour"
-      ></p-button>
+        ngbTooltip="Retour"
+      ></app-button>
 
       <!-- Titre de la page -->
       <div class="page-title">
@@ -82,18 +79,18 @@
           <i class="pi pi-user"></i>
           <span>Vendeur</span>
         </label>
-        <p-select
+        <app-select-search
           #userBox
-          (onChange)="onSelectUser()"
+          (selectionChange)="onSelectUser()"
           [(ngModel)]="userSeller"
           [appendTo]="appendTo"
-          [dataKey]="'id'"
-          [options]="userVendeurService.vendeurs()"
-          [placeholder]="'Sélectionner un vendeur'"
+          [items]="userVendeurService.vendeurs()"
+          [searchable]="false"
           [style]="{ width: '200px' }"
+          bindLabel="abbrName"
           class="pharma-select-modern"
-          optionLabel="abbrName"
-        ></p-select>
+          placeholder="Sélectionner un vendeur"
+        ></app-select-search>
       </div>
 
       <!-- Indicateur plafond de vente -->
@@ -107,7 +104,8 @@
 
     <div class="header-actions">
       <!-- Customer panel (seulement pour COMPTANT avec vente en cours) -->
-      @let showCustomerPanel = active() === 'comptant' && salesFacade.currentSale() && !isDevisMode();
+      @let showCustomerPanel = active() === 'comptant' && salesFacade.currentSale()
+        && !isDevisMode();
 
       @if (showCustomerPanel) {
         <div class="header-customer-wrapper">
@@ -117,31 +115,35 @@
 
       <!-- Pending sales button (masqué en mode prévente et devis) -->
       @if (!isPresaleMode() && !isDevisMode()) {
-        <p-button
+        <!--
+          Bouton natif plutôt que <app-button> : celui-ci n'accepte pas de contenu
+          projeté, indispensable ici pour le badge inline (motif Bootstrap standard
+          "Notifications <span class='badge'>4</span>" — pas un badge en coin).
+        -->
+        <button
           (click)="openPendingSales()"
-          [badge]="countPendingSales().toString()"
           [disabled]="salesFacade.currentSale() !== null"
-          [outlined]="true"
-          badgeSeverity="danger"
-          class="pending-sales-btn"
-          icon="pi pi-clock"
-          label="En attente"
-          severity="info"
-          size="small"
-          pTooltip="Voir les ventes en attente"
-          tooltipPosition="left"
-        />
+          class="btn btn-outline-info app-btn-normal d-inline-flex align-items-center justify-content-center gap-2 pending-sales-btn"
+          ngbTooltip="Voir les ventes en attente"
+          placement="left"
+          type="button"
+        >
+          <i class="app-btn-icon pi pi-clock" aria-hidden="true"></i>
+          <span class="app-btn-label">En attente</span>
+          @if (countPendingSales() !== '0') {
+            <span class="badge text-bg-danger">{{ countPendingSales() }}</span>
+          }
+        </button>
       }
 
       <!-- Badge mode scanner SERIAL -->
       @if (scannerMode() === 'SERIAL') {
         <span class="sales-serial-badge"
-              pTooltip="Douchette USB série active — lecture automatique"
-              tooltipPosition="bottom">
+              ngbTooltip="Douchette USB série active — lecture automatique"
+              placement="bottom">
           <i class="pi pi-wifi"></i>
         </span>
       }
-
 
 
     </div>
@@ -167,17 +169,17 @@
               }
             </span>
           }
-          <p-button
-            (click)="toggleSidebar()"
+          <app-button
+            (clicked)="toggleSidebar()"
             [icon]="sidebarCollapsed() ? 'pi pi-angle-right' : 'pi pi-angle-left'"
-            [pTooltip]="sidebarCollapsed() ? 'Afficher le menu' : 'Masquer le menu'"
+            [ngbTooltip]="sidebarCollapsed() ? 'Afficher le menu' : 'Masquer le menu'"
             [rounded]="true"
             [text]="true"
             class="sidebar-toggle-btn"
+            placement="right"
             size="small"
-            tooltipPosition="right"
           >
-          </p-button>
+          </app-button>
         </div>
 
         <div [class.hidden]="sidebarCollapsed()" class="sale-types-nav pharma-nav-sidebar-content">

@@ -1,18 +1,24 @@
-import { ChangeDetectorRef, Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ProgressBarModule } from 'primeng/progressbar';
-import { BackendStatus, BackendStatusService } from 'app/core/tauri/backend-status.service';
-import { Subscription } from 'rxjs';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  inject,
+  OnDestroy,
+  OnInit
+} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {BackendStatus, BackendStatusService} from 'app/core/tauri/backend-status.service';
+import {Subscription} from 'rxjs';
 
 // États qui n'impliquent pas l'affichage du splash (états opérationnels normaux)
 const HIDDEN_STATES = new Set(['ready', 'stopped', 'stopping']);
 
 @Component({
-  selector: 'jhi-backend-splash',
+  selector: 'app-backend-splash',
   templateUrl: './backend-splash.component.html',
   styleUrls: ['./backend-splash.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, ProgressBarModule],
+  imports: [CommonModule],
 })
 export class BackendSplashComponent implements OnInit, OnDestroy {
   visible = false;

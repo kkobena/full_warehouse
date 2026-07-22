@@ -1,57 +1,54 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   effect,
-  forwardRef,
+  ElementRef,
   inject,
   Injector,
   input,
-  isDevMode,
   OnDestroy,
   OnInit,
   output,
   signal,
-  viewChild,
-  ChangeDetectionStrategy
+  viewChild
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { AutoComplete } from 'primeng/autocomplete';
-import { FloatLabel } from 'primeng/floatlabel';
-import { TranslatePipe } from '@ngx-translate/core';
-import { DecimalPipe } from '@angular/common';
-import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../constants/pagination.constants';
-import { ProduitSearch } from '../model/produit.model';
-import { ProduitService } from '../../entities/produit/produit.service';
-import { catchError, debounceTime, filter, of, Subject, Subscription } from 'rxjs';
-import { ScanDetectorService, ScanEvent } from '../scan-detector.service';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {FormsModule} from '@angular/forms';
+import {TranslatePipe} from '@ngx-translate/core';
+import {DecimalPipe} from '@angular/common';
+import {
+  APPEND_TO,
+  PRODUIT_COMBO_MIN_LENGTH,
+  PRODUIT_NOT_FOUND
+} from '../constants/pagination.constants';
+import {ProduitSearch} from '../model';
+import {ProduitService} from '../../entities/produit/produit.service';
+import {catchError, debounceTime, filter, of, Subject, Subscription} from 'rxjs';
+import {ScanDetectorService, ScanEvent} from '../scan-detector.service';
+import {FloatLabelComponent, SelectSearchComponent} from '../ui';
 
 @Component({
-  selector: 'jhi-produit-search-autocomplete-scanner',
-  imports: [AutoComplete, FormsModule, FloatLabel, TranslatePipe, DecimalPipe],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => ProduitSearchAutocompleteScannerComponent),
-      multi: true,
-    },
-  ],
+  selector: 'app-produit-search-autocomplete-scanner',
+  imports: [SelectSearchComponent, FormsModule, FloatLabelComponent, TranslatePipe, DecimalPipe],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './produit-search-autocomplete-scanner.component.html',
 })
-export class ProduitSearchAutocompleteScannerComponent implements ControlValueAccessor, OnDestroy, OnInit {
+export class ProduitSearchAutocompleteScannerComponent implements OnDestroy, OnInit {
   produits = signal<ProduitSearch[]>([]);
-  produitbox = viewChild.required<AutoComplete>('produitbox');
+  private readonly produitboxCmp = viewChild.required('produitbox', {read: SelectSearchComponent});
+  private readonly produitboxEl = viewChild.required('produitbox', {read: ElementRef<HTMLElement>});
   selectProduit = signal<ProduitSearch | null>(null);
   includeDetails = input<boolean>(true);
   autofocus = input<boolean>(true);
   showClear = input<boolean>(true);
   pageSize = input<number>(5);
   storageId = input<number>(null);
-  style = input<{}>({ width: '100%' });
-  inputStyle = input<{}>({ width: '100%' });
+  style = input<{}>({width: '100%'});
+  inputStyle = input<{}>({width: '100%'});
   enableScanner = input<boolean>(true);
   disabled = input<boolean>(false);
+  protected readonly isDisabledEffective = () => this.disabled();
 
   selectedProduit = output<ProduitSearch | null>();
   scannedProduit = output<ProduitSearch>();
@@ -67,6 +64,14 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
   private readonly searchTrigger$ = new Subject<string>();
+  /**
+   * Passé à `[typeahead]` de `app-select-search` dans le seul but d'être « observé » :
+   * ng-select désactive alors son propre filtrage client (par `bindLabel`), qui sinon
+   * masquait les résultats retournés par le backend sur un code CIP (le texte tapé ne
+   * matche pas `libelle`). La recherche réelle continue de passer par `searchTrigger$`
+   * via `(searched)` → `searchFn()`, seul canal qui respecte `PRODUIT_COMBO_MIN_LENGTH`.
+   */
+  protected readonly typeaheadSink$ = new Subject<string>();
 
   private isScanning = false;
   private isManualSearching = false;
@@ -77,18 +82,16 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
   private readonly _produitSelected = signal<ProduitSearch | null>(null);
 
   constructor() {
-    effect(() => {
-      const selected = this._produitSelected();
-      this.onChange(selected);
-      const autocomplete = this.produitbox();
-      if (autocomplete) {
-        autocomplete.hide();
-      }
-    });
-
     this.searchTrigger$.pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef)).subscribe(search => this.loadProduits(search));
+    this.typeaheadSink$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
   }
 
+  /**
+   * Binding interne de `app-select-search` (via `[(ngModel)]` dans le template de CE
+   * composant). N'expose plus de `ControlValueAccessor` : le consommateur pilote la
+   * sélection via l'`@Output() selectedProduit` et remet à zéro l'affichage via `reset()`,
+   * comme `commande-product-search` — dont ce composant reprend ici le même schéma non-CVA.
+   */
   get produitSelected(): ProduitSearch | null {
     return this._produitSelected();
   }
@@ -98,15 +101,10 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
       return;
     }
     if (this.isScanning) {
-      if (isDevMode()) {
-        console.debug('[Scanner] Setter bloqué pendant le scan');
-      }
-      console.log('[Scanner] Setter bloqué pendant le scan');
       return;
     }
     if (this._produitSelected() !== value) {
       this._produitSelected.set(value as ProduitSearch | null);
-      this.onChange(value);
     }
   }
 
@@ -114,6 +112,10 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
     // Setup initial state
     if (this.enableScanner()) {
       this.setupBarcodeScanner();
+    }
+
+    if (this.autofocus()) {
+      this.getFocus();
     }
 
     // Watch for changes in enableScanner (pour basculer entre scanner local et global)
@@ -130,7 +132,7 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
           this.stopInputClearLoop();
         }
       },
-      { injector: this.injector },
+      {injector: this.injector},
     );
   }
 
@@ -144,29 +146,7 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
     }
   }
 
-  writeValue(value: any): void {
-    if (this.isScanning) {
-      return;
-    }
-    this.produitSelected = value;
-  }
-
-  registerOnChange(fn: any): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: any): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState?(isDisabled: boolean): void {
-    const inputEl = this.produitbox().inputEL()?.nativeElement;
-    if (inputEl) {
-      inputEl.disabled = isDisabled;
-    }
-  }
-
-  searchFn(event: any): void {
+  searchFn(term: string): void {
     // If a scan was wrongly detected (e.g., from fast typing), abort it.
     // User interaction with the search box should always have priority.
     if (this.isScanning) {
@@ -186,14 +166,13 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
       this.manualSearchTimeout = null;
     }, 600); // Must be longer than the scan detector's timeout.
 
-    this.searchTrigger$.next(event.query);
+    this.searchTrigger$.next(term);
   }
 
   onSelect(): void {
     const selected = this.produitSelected;
     this.selectProduit.set(selected);
     this.selectedProduit.emit(selected);
-    this.onTouched();
   }
 
   onKeyDown(event: KeyboardEvent): void {
@@ -212,8 +191,7 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
   getFocus(): void {
     // Utiliser requestAnimationFrame pour une meilleure performance
     requestAnimationFrame(() => {
-      const el = this.produitbox()?.inputEL()?.nativeElement;
-      const autocomplete = this.produitbox();
+      const el = this.produitboxEl()?.nativeElement.querySelector('input');
 
       if (el) {
         el.focus();
@@ -221,10 +199,11 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
       }
 
       // Une seule fermeture du dropdown avec un délai raisonnable
-      if (autocomplete) {
-        autocomplete.hide();
+      const cmp = this.produitboxCmp();
+      if (cmp) {
+        cmp.close();
         // Un seul timeout de secours si vraiment nécessaire
-        setTimeout(() => autocomplete.hide(), 50);
+        setTimeout(() => cmp.close(), 50);
       }
     });
   }
@@ -241,23 +220,18 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
     this._produitSelected.set(null);
     this.selectProduit.set(null);
 
-    const autocomplete = this.produitbox();
-    if (autocomplete) {
-      autocomplete.hide();
+    const cmp = this.produitboxCmp();
+    if (cmp) {
+      cmp.close();
       // Un seul délai de fermeture au lieu de l'interval agressif
-      setTimeout(() => autocomplete.hide(), 100);
+      setTimeout(() => cmp.close(), 100);
     }
 
-    const inputEl = autocomplete?.inputEL()?.nativeElement;
+    const inputEl = this.produitboxEl()?.nativeElement.querySelector('input');
     if (inputEl) {
       inputEl.value = '';
     }
-
-    this.onChange(null);
   }
-
-  private onChange: (_: any) => void = () => {};
-  private onTouched: () => void = () => {};
 
   private setupBarcodeScanner(): void {
     // Nettoyer l'ancienne subscription pour éviter les fuites mémoire
@@ -267,13 +241,20 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
     this.scanSubscription = this.scanDetectorService.onScanEvent$
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        filter((event: ScanEvent) => event.type === 'start' || event.type === 'complete'),
+        filter((event: ScanEvent) => event.type === 'start' || event.type === 'complete' || event.type === 'reset'),
       )
       .subscribe((event: ScanEvent) => {
         if (event.type === 'start') {
           this.onScanStart();
         } else if (event.type === 'complete' && event.code) {
           this.onScanComplete(event.code);
+        } else if (event.type === 'reset') {
+          // Un scan détecté (frappe rapide) a été abandonné côté service sans jamais
+          // produire de code valide : sans ce cas, `isScanning` restait bloqué à `true`
+          // et la boucle de nettoyage de la saisie continuait à vider le champ à chaque
+          // frame, rendant la saisie manuelle impossible jusqu'au rechargement de la page.
+          this.isScanning = false;
+          this.stopInputClearLoop();
         }
       });
 
@@ -287,8 +268,8 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
   private onScanStart(): void {
     // Ignorer si l'utilisateur est en train de faire une recherche manuelle
     // On vérifie : le flag isManualSearching OU si le dropdown est visible
-    const autocomplete = this.produitbox();
-    if (this.isManualSearching || autocomplete?.overlayVisible) {
+    const isOpen = this.produitboxCmp()?.isOpen();
+    if (this.isManualSearching || isOpen) {
       return;
     }
     this.isScanning = true;
@@ -299,8 +280,8 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
   private onScanComplete(scannedCode: string): void {
     // Ignorer si l'utilisateur est en train de faire une recherche manuelle
     // On vérifie : le flag isManualSearching OU si le dropdown est visible
-    const autocomplete = this.produitbox();
-    if (this.isManualSearching || autocomplete?.overlayVisible) {
+    const isOpen = this.produitboxCmp()?.isOpen();
+    if (this.isManualSearching || isOpen) {
       this.isScanning = false;
       this.stopInputClearLoop();
       return;
@@ -320,7 +301,7 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
   }
 
   private clearInputValue(): void {
-    const inputEl = this.produitbox()?.inputEL()?.nativeElement;
+    const inputEl = this.produitboxEl()?.nativeElement.querySelector('input');
     if (inputEl) {
       inputEl.value = '';
     }
@@ -338,8 +319,16 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
    * Plus performant et synchronisé avec le rafraîchissement de l'écran.
    */
   private startInputClearLoop(): void {
+    // Garde-fou défensif : quel que soit l'état du détecteur de scan, cette boucle ne
+    // doit jamais tourner indéfiniment — un vrai scan dure quelques centaines de ms
+    // (cf. `scanMaxTime`). Sans cette limite, un scénario non couvert dans le service de
+    // détection (frappe considérée à tort comme un scan qui ne se termine jamais) bloque
+    // la saisie manuelle jusqu'au rechargement de la page.
+    const startedAt = Date.now();
+    const maxDurationMs = 2000;
     const clearLoop = () => {
-      if (!this.isScanning) {
+      if (!this.isScanning || Date.now() - startedAt > maxDurationMs) {
+        this.isScanning = false;
         return;
       }
       this.clearInputValue();
@@ -386,7 +375,7 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
         catchError(err => {
           this.isScanning = false;
           this.produits.set([]);
-          return of({ body: [] });
+          return of({body: []});
         }),
       )
       .subscribe(res => {
@@ -423,7 +412,7 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError(err => {
-          return of({ body: [] });
+          return of({body: []});
         }),
       )
       .subscribe(res => {
@@ -434,6 +423,7 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
           this.produitSelected = selected;
           this.selectProduit.set(selected);
           this.selectedProduit.emit(selected);
+          this.produitboxCmp()?.close();
         } else {
           this.selectProduit.set(null);
         }

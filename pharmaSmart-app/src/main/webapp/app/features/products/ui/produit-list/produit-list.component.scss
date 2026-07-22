@@ -1,5 +1,11 @@
 @import 'app/shared/scss/table-common';
 
+// L'icône ellipsis suffit à signaler un menu — pas besoin du chevron que
+// ngbDropdownToggle ajoute via .dropdown-toggle::after.
+.app-actions-toggle::after {
+  display: none;
+}
+
 // Ligne cochée (sélection multiple)
 :host ::ng-deep tr.row-checked td {
   background-color: #eff6ff !important;

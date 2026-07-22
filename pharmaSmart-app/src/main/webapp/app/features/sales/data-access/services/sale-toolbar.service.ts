@@ -1,13 +1,19 @@
 import { Injectable, signal } from '@angular/core';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
 export type SalesManagementTab = 'journal' | 'en-cours' | 'presales' | 'devis' | 'annulations' | 'vente-depot' | 'avoirs' | 'kpi' | 'retour-client';
+
+function todayNgb(): NgbDateStruct {
+  const d = new Date();
+  return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
+}
 
 export interface SalesToolbarParams {
   typeVente: string[];
   search: string | null;
   global: boolean;
-  fromDate: Date;
-  toDate: Date;
+  fromDate: NgbDateStruct;
+  toDate: NgbDateStruct;
   fromHour: string;
   toHour: string;
   selectedUserId: number | null;
@@ -19,8 +25,8 @@ const DEFAULT_PARAMS: SalesToolbarParams = {
   typeVente: [],
   search: null,
   global: true,
-  fromDate: new Date(),
-  toDate: new Date(),
+  fromDate: todayNgb(),
+  toDate: todayNgb(),
   fromHour: '01:00',
   toHour: '23:59',
   selectedUserId: null,

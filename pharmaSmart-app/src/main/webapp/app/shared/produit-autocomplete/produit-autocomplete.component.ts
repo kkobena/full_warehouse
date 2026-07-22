@@ -1,17 +1,16 @@
-import { Component, forwardRef, inject, input, OnDestroy, output, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ElementRef, forwardRef, inject, input, OnDestroy, output, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { AutoComplete } from 'primeng/autocomplete';
-import { FloatLabel } from 'primeng/floatlabel';
 import { TranslatePipe } from '@ngx-translate/core';
 import { DecimalPipe } from '@angular/common';
 import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../constants/pagination.constants';
 import { IProduit } from '../model';
 import { ProduitService } from '../../entities/produit/produit.service';
 import { debounceTime, Subject, Subscription } from 'rxjs';
+import { FloatLabelComponent, SelectSearchComponent } from '../ui';
 
 @Component({
   selector: 'jhi-produit-autocomplete',
-  imports: [AutoComplete, FormsModule, FloatLabel, TranslatePipe, DecimalPipe],
+  imports: [SelectSearchComponent, FormsModule, FloatLabelComponent, TranslatePipe, DecimalPipe],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -24,7 +23,8 @@ import { debounceTime, Subject, Subscription } from 'rxjs';
 })
 export class ProduitAutocompleteComponent implements ControlValueAccessor, OnDestroy {
   produits = signal<IProduit[]>([]);
-  produitbox = viewChild.required<AutoComplete>('produitbox');
+  private readonly produitboxCmp = viewChild.required('produitbox', { read: SelectSearchComponent });
+  private readonly produitboxEl = viewChild.required('produitbox', { read: ElementRef<HTMLElement> });
   selectProduit = signal<IProduit | null>(null);
   includeDetails = input<boolean>(false);
   autofocus = input<boolean>(true);
@@ -41,6 +41,15 @@ export class ProduitAutocompleteComponent implements ControlValueAccessor, OnDes
   private readonly produitService = inject(ProduitService);
   private readonly searchTrigger$ = new Subject<string>();
   private readonly searchSubscription: Subscription;
+
+  /**
+   * Passé à `[typeahead]` de `app-select-search` dans le seul but d'être « observé » :
+   * ng-select désactive alors son propre filtrage client (par `bindLabel`), qui sinon
+   * masquerait les résultats retournés par le backend sur un code CIP (le texte tapé ne
+   * matche pas `libelle`). La recherche réelle continue de passer par `searchTrigger$`
+   * via `(searched)` → `searchFn()`, seul canal qui respecte `PRODUIT_COMBO_MIN_LENGTH`.
+   */
+  protected readonly typeaheadSink$ = new Subject<string>();
 
   constructor() {
     this.searchSubscription = this.searchTrigger$.pipe(debounceTime(300)).subscribe(search => this.loadProduits(search));
@@ -76,16 +85,22 @@ export class ProduitAutocompleteComponent implements ControlValueAccessor, OnDes
     this.onTouched = fn;
   }
 
+  private readonly cvaDisabled = signal(false);
+
+  /**
+   * Angular appelle `setDisabledState` dès `ngOnChanges`, avant que la vue (et donc
+   * `produitbox`, un `viewChild.required`) n'existe. Lire un viewChild required à ce
+   * stade lève une erreur et casse silencieusement le reste de l'initialisation du
+   * composant (champ figé, plus aucune saisie possible) — cf. le même bug corrigé sur
+   * `ProduitSearchAutocompleteScannerComponent`. On se contente donc d'un signal.
+   */
   setDisabledState?(isDisabled: boolean): void {
-    const inputEl = this.produitbox().inputEL()?.nativeElement;
-    if (inputEl) {
-      inputEl.disabled = isDisabled;
-    }
+    this.cvaDisabled.set(isDisabled);
   }
 
   // Déclenchée par l'autocomplete (entrée utilisateur)
-  searchFn(event: any): void {
-    this.searchTrigger$.next(event.query);
+  searchFn(term: string): void {
+    this.searchTrigger$.next(term);
   }
 
   onSelect(): void {
@@ -101,7 +116,7 @@ export class ProduitAutocompleteComponent implements ControlValueAccessor, OnDes
     }
   }
 
-  clear(event: any): void {
+  clear(): void {
     this.onClear.emit(true);
   }
 
@@ -111,9 +126,9 @@ export class ProduitAutocompleteComponent implements ControlValueAccessor, OnDes
 
   getFocus(): void {
     setTimeout(() => {
-      const el = this.produitbox().inputEL()?.nativeElement;
-      el.focus();
-      el.select();
+      const el = this.produitboxEl()?.nativeElement.querySelector('input');
+      el?.focus();
+      el?.select();
     }, 50);
   }
 

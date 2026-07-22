@@ -16,7 +16,10 @@
         <!-- Barre de progression -->
         @if (status.status !== 'error') {
           <div class="backend-splash-progress">
-            <p-progressbar [showValue]="true" [value]="status.progress" class="custom-progress-bar" />
+            <div class="progress custom-progress-bar" role="progressbar"
+                 [attr.aria-valuenow]="status.progress" aria-valuemin="0" aria-valuemax="100">
+              <div class="progress-bar" [style.width.%]="status.progress">{{ status.progress }}%</div>
+            </div>
           </div>
         }
 

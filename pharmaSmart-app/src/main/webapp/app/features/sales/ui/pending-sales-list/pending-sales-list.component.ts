@@ -1,22 +1,27 @@
-import {Component, computed, inject, OnInit, output, signal, ChangeDetectionStrategy} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  output,
+  signal
+} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {TableModule} from 'primeng/table';
-import {ButtonModule} from 'primeng/button';
-import {InputTextModule} from 'primeng/inputtext';
-import {ToolbarModule} from 'primeng/toolbar';
-import {DividerModule} from 'primeng/divider';
-import {SelectModule} from 'primeng/select';
-import {IconFieldModule} from 'primeng/iconfield';
-import {InputIconModule} from 'primeng/inputicon';
-import {InputGroupModule} from 'primeng/inputgroup';
-import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
-import {TooltipModule} from 'primeng/tooltip';
-import {TagModule} from 'primeng/tag';
-import {ISales} from '../../../../shared/model';
+import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {
+  AppBadgeSeverity,
+  BadgeComponent,
+  ButtonComponent,
+  DataTableComponent,
+  IconFieldComponent,
+  RowTogglerDirective,
+  SelectComponent
+} from '../../../../shared/ui';
+import {ISales, SalesStatut} from '../../../../shared/model';
 import {SalesFacade} from '../../data-access/facades/sales.facade';
 import {UserVendeurService} from '../../../../entities/sales/service/user-vendeur.service';
-import {SalesStatut} from '../../../../shared/model';
 
 /**
  * PendingSalesListComponent
@@ -44,18 +49,14 @@ import {SalesStatut} from '../../../../shared/model';
   imports: [
     CommonModule,
     FormsModule,
-    TableModule,
-    ButtonModule,
-    InputTextModule,
-    ToolbarModule,
-    DividerModule,
-    SelectModule,
-    IconFieldModule,
-    InputIconModule,
-    InputGroupModule,
-    InputGroupAddonModule,
-    TooltipModule,
-    TagModule,
+    DataTableComponent,
+    ButtonComponent,
+    SelectComponent,
+    IconFieldComponent,
+    NgbTooltip,
+    BadgeComponent,
+    RowTogglerDirective,
+
   ],
 })
 export class PendingSalesListComponent implements OnInit {
@@ -80,24 +81,7 @@ export class PendingSalesListComponent implements OnInit {
 
   // ===== Computed =====
   readonly filteredSales = computed(() => {
-    const sales = this.pendingSales();
-    /* const search = this.searchTerm().toLowerCase();
-     const sellerId = this.sellerFilter();
-
-     if (search) {
-       sales = sales.filter(
-         sale =>
-           sale.numberTransaction?.toLowerCase().includes(search) ||
-           sale.customer?.fullName?.toLowerCase().includes(search) ||
-           sale.seller?.abbrName?.toLowerCase().includes(search),
-       );
-     }
-
-     if (sellerId) {
-       sales = sales.filter(sale => sale.seller?.id === sellerId);
-     }
- */
-    return sales;
+    return this.pendingSales();
   });
 
   readonly totalAmount = computed(() => {
@@ -165,14 +149,14 @@ export class PendingSalesListComponent implements OnInit {
     }
   }
 
-  getSaleTypeSeverity(type: string): string {
+  getSaleTypeSeverity(type: string): AppBadgeSeverity {
     switch (type) {
       case 'COMPTANT':
         return 'success';
       case 'ASSURANCE':
         return 'info';
       case 'CARNET':
-        return 'warning';
+        return 'warn';
       default:
         return 'secondary';
     }

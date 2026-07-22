@@ -39,7 +39,8 @@
             <p class="form-subtitle">Connectez-vous à votre espace</p>
           </div>
           @if (isTauri()) {
-            <button (click)="openSettings()" class="settings-button" title="Configuration du serveur" type="button">
+            <button (click)="openSettings()" class="settings-button"
+                    title="Configuration du serveur" type="button">
               <i class="pi pi-cog"></i>
             </button>
           }
@@ -64,14 +65,13 @@
           </label>
           <input
             #username
-            [fluid]="true"
             autocomplete="username"
-            class="modern-input"
+            class="modern-input form-control"
             data-cy="username"
             formControlName="username"
             id="username"
             name="username"
-            pInputText
+            placeholder="Login"
             type="text"
           />
         </div>
@@ -81,27 +81,28 @@
             <i class="pi pi-lock"></i>
             <span>Mot de passe</span>
           </label>
-          <p-password
-            [feedback]="false"
-            [fluid]="true"
+          <app-password
+            [placeholder]="'mot de passe'"
             [toggleMask]="true"
             autocomplete="current-password"
             class="modern-password"
             data-cy="password"
             formControlName="password"
-            id="password"
+            inputId="password"
           />
         </div>
 
         <div class="form-options">
           <div class="remember-me">
-            <p-toggleswitch formControlName="rememberMe" id="rememberMe" name="rememberMe" />
+            <app-switch formControlName="rememberMe" inputId="rememberMe" />
             <label for="rememberMe">Se souvenir de moi</label>
           </div>
           <!--  <a href="#" class="forgot-link">Mot de passe oublié ?</a>-->
         </div>
 
-        <button class="login-button" data-cy="submit" type="submit"><i class="pi pi-sign-in mr-2"></i>Se connecter</button>
+        <button class="login-button" data-cy="submit" type="submit"><i
+          class="pi pi-sign-in mr-2"></i>Se connecter
+        </button>
       </form>
 
       <div class="form-footer">

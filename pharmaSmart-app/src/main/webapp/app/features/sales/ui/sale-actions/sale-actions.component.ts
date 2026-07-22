@@ -1,8 +1,7 @@
 import {ChangeDetectionStrategy, Component, input, output} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {ButtonModule} from 'primeng/button';
-import {TooltipModule} from 'primeng/tooltip';
-import {ButtonGroup} from 'primeng/buttongroup';
+import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {ButtonComponent} from '../../../../shared/ui';
 
 /**
  * Composant de présentation : Boutons d'action vente
@@ -18,7 +17,7 @@ import {ButtonGroup} from 'primeng/buttongroup';
   selector: 'app-sale-actions',
   templateUrl: './sale-actions.component.html',
   styleUrl: './sale-actions.component.scss',
-  imports: [CommonModule, ButtonModule, TooltipModule, ButtonGroup],
+  imports: [CommonModule, ButtonComponent, NgbTooltip],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SaleActionsComponent {

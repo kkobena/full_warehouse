@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { Button } from 'primeng/button';
+import { ButtonComponent } from '../ui';
 import { KeyboardShortcut } from '../../entities/sales/selling-home/racourci/keyboard-shortcuts.service';
 import { ShortcutsProvider } from './shortcuts-provider.interface';
 
@@ -20,7 +20,7 @@ interface CategoryDisplay {
 
 @Component({
   selector: 'jhi-shortcuts-help-dialog',
-  imports: [CommonModule, Button],
+  imports: [CommonModule, ButtonComponent],
   styleUrls: ['../../entities/common-modal.component.scss'],
   template: `
     <div class="modal-header">
@@ -156,16 +156,16 @@ interface CategoryDisplay {
     </div>
 
     <div class="modal-footer">
-      <p-button
+      <app-button
         class="mr-2"
-        (click)="printShortcuts()"
+        (clicked)="printShortcuts()"
         icon="pi pi-print"
         label="Imprimer"
-        raised="true"
+        [raised]="true"
         severity="secondary"
         type="button"
-      ></p-button>
-      <p-button (click)="dismiss()" icon="pi pi-times" label="Fermer" raised="true" severity="primary" type="button"></p-button>
+      ></app-button>
+      <app-button (clicked)="dismiss()" icon="pi pi-times" label="Fermer" [raised]="true" severity="primary" type="button"></app-button>
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.Eager,

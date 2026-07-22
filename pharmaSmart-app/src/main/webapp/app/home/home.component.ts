@@ -5,7 +5,7 @@ import { takeUntil } from 'rxjs/operators';
 import { AccountService } from 'app/core/auth/account.service';
 import { DashboardResolverService } from 'app/core/auth/dashboard-resolver.service';
 import { Account } from 'app/core/auth/account.model';
-import { SkeletonModule } from 'primeng/skeleton';
+import { SkeletonComponent } from 'app/shared/ui';
 import { CaissierDashboardComponent } from './caissier-dashboard/caissier-dashboard.component';
 import { CommandeHomeComponent } from '../features/commande/feature/commande-home/commande-home.component';
 import { HomeBaseComponent } from './home-base/home-base.component';
@@ -18,7 +18,7 @@ import { DefaultDashboardComponent } from './default-dashboard/default-dashboard
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     RouterModule,
-    SkeletonModule,
+    SkeletonComponent,
     HomeBaseComponent,
     CaissierDashboardComponent,
     CommandeHomeComponent,

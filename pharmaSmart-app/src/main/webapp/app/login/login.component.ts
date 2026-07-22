@@ -3,12 +3,7 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { Router, RouterModule } from '@angular/router';
 import { LoginService } from 'app/login/login.service';
 import { AccountService } from 'app/core/auth/account.service';
-import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
-import { InputTextModule } from 'primeng/inputtext';
-import { Password } from 'primeng/password';
-import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { PasswordComponent, SwitchComponent } from '../shared/ui';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AppSettingsDialogComponent } from '../shared/settings/app-settings-dialog.component';
 import { TauriPrinterService } from '../shared/services/tauri-printer.service';
@@ -18,15 +13,11 @@ import { CommonModule } from "@angular/common";
   selector: 'jhi-login',
   imports: [
     CommonModule,
-    InputTextModule,
     FormsModule,
     ReactiveFormsModule,
     RouterModule,
-    CardModule,
-    ButtonModule,
-    RippleModule,
-    Password,
-    ToggleSwitchModule,
+    PasswordComponent,
+    SwitchComponent,
   ],
   templateUrl: './login.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

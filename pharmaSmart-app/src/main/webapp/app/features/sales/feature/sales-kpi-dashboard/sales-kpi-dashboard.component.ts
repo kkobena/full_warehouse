@@ -3,12 +3,8 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin } from 'rxjs';
 import { ChartComponent } from 'app/shared/chart/chart.component';
-import { Button } from 'primeng/button';
-import { SkeletonModule } from 'primeng/skeleton';
-import { Tag } from 'primeng/tag';
-import { TableModule } from 'primeng/table';
-import { TooltipModule } from 'primeng/tooltip';
 
+import { BadgeComponent, ButtonComponent, DataTableComponent, SkeletonComponent } from '../../../../shared/ui';
 import { IDailySalesSummary } from '../../../../shared/model/report/daily-sales-summary.model';
 import { IStockAlert, StockAlertType } from '../../../../shared/model/report/stock-alert.model';
 import { SalesSummaryReportService } from '../../../../entities/reports/services/sales-summary-report.service';
@@ -34,7 +30,7 @@ interface KpiCard {
   templateUrl: './sales-kpi-dashboard.component.html',
   styleUrl: './sales-kpi-dashboard.component.scss',
   providers: [DatePipe],
-  imports: [CommonModule, ChartComponent, Button, SkeletonModule, Tag, TableModule, TooltipModule],
+  imports: [CommonModule, ChartComponent, ButtonComponent, SkeletonComponent, BadgeComponent, DataTableComponent],
 })
 export class SalesKpiDashboardComponent implements OnInit {
   private readonly summaryService = inject(SalesSummaryReportService);

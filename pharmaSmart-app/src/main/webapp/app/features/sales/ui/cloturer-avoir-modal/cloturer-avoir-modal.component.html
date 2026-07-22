@@ -7,6 +7,7 @@
   <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button"></button>
 </div>
 <div class="modal-body">
+<app-card [variant]="'form'">
 
   <!-- Récap de l'avoir -->
   <div class="avoir-summary mb-1">
@@ -89,12 +90,11 @@
         Montant à utiliser <span class="text-danger">*</span>
         <span class="text-muted fw-normal small ms-1">(max. {{ montantDisponible() | number:'1.0-0' }} FCFA)</span>
       </label>
-      <p-inputnumber
+      <app-input-number
         [ngModel]="montantPartiel()"
         (ngModelChange)="montantPartiel.set($event)"
         [min]="1"
         [max]="montantDisponible()"
-        [fluid]="true"
         suffix=" FCFA"
         placeholder="Montant partiel…" />
     </div>
@@ -105,15 +105,14 @@
     <label class="form-label fw-semibold">
       Mode de règlement <span class="text-danger">*</span>
     </label>
-    <p-select
+    <app-select
       [ngModel]="modeCloture()"
       (ngModelChange)="modeCloture.set($event)"
-      [options]="modeClotureOptions"
-      optionLabel="label"
-      optionValue="value"
+      [items]="modeClotureOptions"
+      bindLabel="label"
+      bindValue="value"
       placeholder="Choisir le mode de règlement…"
       appendTo="body"
-      [fluid]="true"
     />
     @if (selectedModeInfo(); as info) {
       <div class="mode-description mt-1">
@@ -126,11 +125,10 @@
   <!-- Commentaire -->
   <div class="mb-2">
     <label class="form-label">Commentaire <span class="text-muted small">(optionnel)</span></label>
-    <textarea pTextarea
+    <textarea class="form-control"
               [ngModel]="commentaire()"
               (ngModelChange)="commentaire.set($event)"
               rows="2"
-              [fluid]="true"
               maxlength="500"
               placeholder="Note de clôture, numéro de ticket remboursement…"
     ></textarea>
@@ -141,14 +139,15 @@
       <i class="pi pi-times-circle me-2"></i>{{ error() }}
     </div>
   }
+</app-card>
 </div>
 
 <div class="modal-footer cloture-modal-footer">
   <button (click)="cancel()" [disabled]="loading()" class="btn btn-outline-secondary" type="button">
     <i class="pi pi-times me-1"></i>Annuler
   </button>
-  <p-button
-    (click)="confirm()"
+  <app-button
+    (clicked)="confirm()"
     [disabled]="!canConfirm()"
     [loading]="loading()"
     [raised]="true"

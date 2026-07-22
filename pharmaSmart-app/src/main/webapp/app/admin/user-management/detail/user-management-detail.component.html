@@ -1,48 +1,38 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-2">
-    <div class="pharma-toolbar">
-      <div class="pharma-toolbar-header">
-        <i class="pi pi-user"></i>
-        <span class="pharma-toolbar-title">Détails de l'utilisateur</span>
+    <app-toolbar icon="pi pi-user" title="Détails de l'utilisateur">
+      <ng-container ngProjectAs="[toolbarHeaderExtra]">
         @if (user()) {
-          <p-tag [value]="user()!.login" class="ml-2" severity="info"></p-tag>
+          <app-badge [label]="user()!.login" class="ml-2" severity="info"></app-badge>
           @if (user()!.activated) {
-            <p-tag class="ml-2" icon="pi pi-check-circle" severity="success" value="Activé"></p-tag>
+            <app-badge class="ml-2" icon="pi pi-check-circle" severity="success" label="Activé"></app-badge>
           } @else {
-            <p-tag class="ml-2" icon="pi pi-times-circle" severity="danger"
-                   value="Désactivé"></p-tag>
+            <app-badge class="ml-2" icon="pi pi-times-circle" severity="danger"
+                   label="Désactivé"></app-badge>
           }
         }
-      </div>
-      <p-toolbar>
-        <ng-template #start>
-          <div class="pharma-toolbar-filters"></div>
-        </ng-template>
-
-        <ng-template #end>
-          <div class="pharma-toolbar-actions">
-            <div class="pharma-button-group">
-              <p-button
-                [raised]="true"
-                [routerLink]="['../../', user()!.login, 'edit']"
-                icon="pi pi-pencil"
-                label="Modifier"
-                severity="primary"
-                type="button"
-              ></p-button>
-              <p-button
-                [raised]="true"
-                icon="pi pi-arrow-left"
-                label="Retour"
-                routerLink="../../"
-                severity="secondary"
-                type="button"
-              ></p-button>
-            </div>
-          </div>
-        </ng-template>
-      </p-toolbar>
-    </div>
+      </ng-container>
+      <ng-container ngProjectAs="[toolbarActions]">
+        <div class="pharma-button-group">
+          <app-button
+            [raised]="true"
+            [routerLink]="['../../', user()!.login, 'edit']"
+            icon="pi pi-pencil"
+            label="Modifier"
+            severity="primary"
+            type="button"
+          ></app-button>
+          <app-button
+            [raised]="true"
+            icon="pi pi-arrow-left"
+            label="Retour"
+            routerLink="../../"
+            severity="secondary"
+            type="button"
+          ></app-button>
+        </div>
+      </ng-container>
+    </app-toolbar>
 
     @if (user()) {
       <div class="user-detail-content">
@@ -142,7 +132,7 @@
           <div class="detail-card-body">
             <div class="authorities-list">
               @if (user()) {
-                <p-chip [label]="user().authority?.libelle" icon="pi pi-key"></p-chip>
+                <app-badge [label]="user()!.authority?.libelle" icon="pi pi-key"></app-badge>
 
               } @else {
                 <span class="text-muted">Aucun rôle assigné</span>

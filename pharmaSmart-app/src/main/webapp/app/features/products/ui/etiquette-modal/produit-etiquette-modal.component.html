@@ -6,6 +6,7 @@
 </div>
 
 <div class="modal-body">
+<app-card [variant]="'form'">
   <div class="et-produit-info mb-1">
     <div class="fw-semibold" style="font-size: 0.88rem">{{ produit.libelle }}</div>
     @if (produit.codeCip) {
@@ -21,43 +22,42 @@
   <div class="row g-3">
     <div class="col-6">
       <label class="form-label et-label">Nombre d'étiquettes <span class="text-danger">*</span></label>
-      <p-inputnumber #qtyInput
+      <app-input-number #qtyInput
         [(ngModel)]="qty"
         [min]="1"
         [max]="64"
         [showButtons]="true"
-        [style]="{ width: '100%' }"
       />
     </div>
     <div class="col-6">
       <label class="form-label et-label">Position de départ</label>
-      <p-inputnumber
+      <app-input-number
         [(ngModel)]="startAt"
         [min]="1"
         [max]="65"
         [showButtons]="true"
-        [style]="{ width: '100%' }"
       />
       <small class="text-muted" style="font-size: 0.7rem">Planche A4 de 65 étiquettes</small>
     </div>
   </div>
+</app-card>
 </div>
 
 <div class="modal-footer">
-  <p-button
+  <app-button
     label="Annuler"
     severity="secondary"
     [outlined]="true"
     size="small"
-    (onClick)="cancel()"
+    (clicked)="cancel()"
     [disabled]="loading()"
   />
-  <p-button
+  <app-button
     label="Imprimer"
     icon="pi pi-download"
     size="small"
     [loading]="loading()"
     [disabled]="qty < 1"
-    (onClick)="onPrint()"
+    (clicked)="onPrint()"
   />
 </div>

@@ -4,22 +4,15 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { HttpHeaders } from "@angular/common/http";
 import { Router, RouterLink } from "@angular/router";
-import { Button } from "primeng/button";
-import { TableLazyLoadEvent, TableModule } from "primeng/table";
-import { Toolbar } from "primeng/toolbar";
-import { Select } from "primeng/select";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
-import { InputText } from "primeng/inputtext";
-import { TooltipModule } from "primeng/tooltip";
+import { NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
+import { NgxSpinnerComponent } from "ngx-spinner";
 
+import { ButtonComponent, DataTableComponent, IconFieldComponent, AppTableLazyLoadEvent, SelectComponent, ToolbarComponent } from "../../../../shared/ui";
 import { SalesStatut } from "../../../../shared/model";
 import { ISales, SaleId } from "../../../../shared/model/sales.model";
 import { SalesApiService } from "../../data-access/services/sales-api.service";
 import { NotificationService } from "../../../../shared/services/notification.service";
-import { ButtonGroup } from "primeng/buttongroup";
 import { AbilityService } from "../../../../core/auth/ability.service";
-import { NgxSpinnerComponent } from "ngx-spinner";
 import { ITEMS_PER_PAGE } from "../../../../shared/constants/pagination.constants";
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 
@@ -31,15 +24,12 @@ import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-d
   imports: [
     CommonModule,
     FormsModule,
-    Button,
-    TableModule,
-    Toolbar,
-    Select,
-    IconField,
-    InputIcon,
-    InputText,
-    TooltipModule,
-    ButtonGroup,
+    ButtonComponent,
+    DataTableComponent,
+    ToolbarComponent,
+    SelectComponent,
+    IconFieldComponent,
+    NgbTooltip,
     NgxSpinnerComponent,
     RouterLink
   ]
@@ -95,7 +85,7 @@ export class PresaleListComponent implements OnInit {
     this.sales = data || [];
   }
 
-  protected lazyLoading(event: TableLazyLoadEvent): void {
+  protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event.first != null && event.rows != null) {
       this.page = event.first / event.rows;
       this.itemsPerPage = event.rows;

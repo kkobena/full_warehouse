@@ -24,14 +24,16 @@ import { TvaService } from "app/entities/tva/tva.service";
 import { RemiseService } from "app/entities/remise/remise.service";
 import { DciService } from "app/entities/dci/dci.service";
 import { TiersPayantService } from "app/entities/tiers-payant/tierspayant.service";
-import { NgbModal, NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonModule } from "primeng/button";
-import { InputTextModule } from "primeng/inputtext";
-import { TableModule } from "primeng/table";
-import { KeyFilterModule } from "primeng/keyfilter";
-import { SelectModule } from "primeng/select";
-import { ToggleSwitch } from "primeng/toggleswitch";
-import { Toolbar } from "primeng/toolbar";
+import { NgbModal, NgbNavModule, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
+import {
+  ButtonComponent,
+  DataTableComponent,
+  KeyFilterDirective,
+  SelectComponent,
+  SelectSearchComponent,
+  SwitchComponent,
+  ToolbarComponent,
+} from "app/shared/ui";
 import { CommonModule, NgClass } from "@angular/common";
 import { STATUT_LEGAL_OPTIONS } from "app/shared/model/enumerations/statut-legal.model";
 import { CLASSE_CRITICITE_OPTIONS } from "app/shared/model/enumerations/classe-criticite.model";
@@ -45,7 +47,6 @@ import { PrixReference } from "../prix-reference/model/prix-reference.model";
 import { AddPrixFormComponent } from "../prix-reference/add-prix-form/add-prix-form.component";
 import { NgbConfirmDialogService } from "app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { NotificationService } from "../../../../shared/services/notification.service";
-import { Tooltip } from "primeng/tooltip";
 import { ErrorService } from "../../../../shared/error.service";
 import { HttpErrorResponse } from "@angular/common/http";
 import { FournisseurApiService } from "../../../partners/data-access/services/fournisseur-api.service";
@@ -60,17 +61,17 @@ import { FournisseurApiService } from "../../../partners/data-access/services/fo
     ReactiveFormsModule,
     NgbNavModule,
     NgClass,
-    ButtonModule,
-    InputTextModule,
-    TableModule,
-    KeyFilterModule,
-    SelectModule,
-    ToggleSwitch,
-    Toolbar,
+    ButtonComponent,
+    DataTableComponent,
+    KeyFilterDirective,
+    SelectComponent,
+    SelectSearchComponent,
+    SwitchComponent,
+    ToolbarComponent,
     ProduitFournisseursTabComponent,
     ProduitFournisseursCreationComponent,
     ProduitPrixCreationComponent,
-    Tooltip
+    NgbTooltip
   ]
 })
 export class ProduitFormComponent implements OnInit {
@@ -228,6 +229,8 @@ export class ProduitFormComponent implements OnInit {
     this.editForm.get("costAmount")?.valueChanges.subscribe(() => this.recalcItemPrices());
     this.editForm.get("regularUnitPrice")?.valueChanges.subscribe(() => this.recalcItemPrices());
     this.editForm.get("itemQty")?.valueChanges.subscribe(qty => this.recalcItemPricesFromQty(qty));
+    this.editForm.get("deconditionnable")?.valueChanges.subscribe(checked => this.onDeconditionnable(!!checked));
+    this.editForm.get("remisable")?.valueChanges.subscribe(checked => this.onRemisableChange(!!checked));
   }
 
   /** Mapping tabId → id du premier champ à focuser dans l'onglet */
@@ -255,7 +258,7 @@ export class ProduitFormComponent implements OnInit {
       if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement) {
         el.focus();
       } else {
-        // Pour les composants PrimeNG (p-select, etc.) : chercher le premier élément focusable enfant
+        // Pour les composants du Design System (app-select, etc.) : chercher le premier élément focusable enfant
         const focusable = el.querySelector<HTMLElement>("input, [tabindex]:not([tabindex=\"-1\"]), button, span[role=\"combobox\"]");
         if (focusable) {
           focusable.focus();
@@ -451,10 +454,6 @@ export class ProduitFormComponent implements OnInit {
       seuilMini: nz(produit.seuilMini),
       stockMaxi: nz(produit.stockMaxi)
     });
-
-    if (produit.deconditionnable) {
-      this.onDeconditionnable(true);
-    }
   }
 
   private openPrixModal(entity: PrixReference | null): void {

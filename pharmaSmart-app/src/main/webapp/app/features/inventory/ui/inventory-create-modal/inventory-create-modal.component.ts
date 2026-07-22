@@ -19,14 +19,14 @@ import {InventoryApiService} from '../../data-access/services/inventory-api.serv
 import {InventoryStore} from '../../data-access/store/inventory.store';
 import {NgxSpinnerService} from "ngx-spinner";
 import {NGB_DATE_TO_ISO} from '../../../../shared/util/warehouse-util';
-import {ButtonComponent, InputNumberComponent, SelectComponent, SelectSearchComponent} from '../../../../shared/ui';
+import {ButtonComponent, CardComponent, InputNumberComponent, SelectComponent, SelectSearchComponent} from '../../../../shared/ui';
 import {PharmaDatePickerComponent} from '../../../../shared/date-picker/pharma-date-picker.component';
 
 const GROUP_LABELS: Record<string, string> = {scope: 'Périmètre', thematic: 'Thématique'};
 
 @Component({
   selector: 'app-inventory-create-modal',
-  imports: [CommonModule, ReactiveFormsModule, ButtonComponent, SelectComponent, SelectSearchComponent, InputNumberComponent, PharmaDatePickerComponent],
+  imports: [CommonModule, ReactiveFormsModule, ButtonComponent, SelectComponent, SelectSearchComponent, InputNumberComponent, PharmaDatePickerComponent, CardComponent],
   templateUrl: './inventory-create-modal.component.html',
   styleUrl: './inventory-create-modal.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,

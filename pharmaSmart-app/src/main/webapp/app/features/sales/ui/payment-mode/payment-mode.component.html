@@ -19,53 +19,50 @@
           @if (showVenteSansBon()) {
             <div class="toggle-option">
               <label for="sansBon">Vente sans bon</label>
-              <p-toggleswitch inputId="sansBon" [(ngModel)]="venteSansBon" (onChange)="onSansBonChange($event)"></p-toggleswitch>
+              <app-switch [ngModel]="venteSansBon()" (ngModelChange)="venteSansBon.set($event); onSansBonChange($event)"
+                          inputId="sansBon"></app-switch>
             </div>
           }
 
           @if (amountToBePaid() > 0) {
             <div class="row ws-mode-reglement" style="margin-top: 0.25rem">
               @for (entry of selectedModes(); track entry.mode.code) {
-                <div [ngClass]="isSmallScreen() ? 'col-md-12 col-sm-12' : 'col-md-6 col-lg-6 col-xl-6'">
-                  <p-inputgroup>
-                    <p-inputgroup-addon [style]="{ padding: '0' }">
+                <div
+                  [ngClass]="isSmallScreen() ? 'col-md-12 col-sm-12' : 'col-md-6 col-lg-6 col-xl-6'">
+                  <div class="input-group">
+                    <span class="input-group-text" style="padding: 0">
                       <span [class]="entry.mode.styleBtnClass"></span>
-                    </p-inputgroup-addon>
+                    </span>
                     <input
-                      #paymentModeInput
-                      autocomplete="off"
+                      #paymentInput
                       (input)="onAmountInput(entry, $event)"
                       (keydown.enter)="submit(); $event.preventDefault()"
-                      size="large"
                       [(ngModel)]="entry.amount"
+                      [appKeyFilter]="'int'"
                       [id]="entry.mode.code"
-                      [pKeyFilter]="'int'"
                       [readOnly]="entry.mode.code !== PaymentModeCode.CASH && selectedModes().length === 1"
-                      class="payment-mode-input"
-                      pInputText
+                      autocomplete="off"
+                      class="payment-mode-input form-control"
+                      size="large"
                     />
                     @if (isShowAddBtn()) {
-                      <p-inputgroup-addon [style]="{ padding: '0' }">
-                        <p-button
-                          (click)="addModePanel.toggle($event)"
-                          class="add-mode-payment-btn"
-                          icon="pi pi-plus"
-                          severity="info"
-                          type="button"
-                        ></p-button>
-                      </p-inputgroup-addon>
+                      <app-button
+                        (clicked)="openAddModePanel($event)"
+                        [severity]="'info'"
+                        class="add-mode-payment-btn"
+                        icon="pi pi-plus"
+                        type="button"
+                      ></app-button>
                     }
 
-                    <p-inputgroup-addon [style]="{ padding: '0' }">
-                      <p-button
-                        (click)="onRemovePaymentMode(entry, $event)"
-                        severity="danger"
-                        icon="pi pi-times"
-                        size="large"
-                        type="button"
-                      ></p-button>
-                    </p-inputgroup-addon>
-                  </p-inputgroup>
+                    <app-button
+                      (clicked)="onRemovePaymentMode(entry, $event)"
+                      [severity]="'danger'"
+                      icon="pi pi-times"
+                      size="large"
+                      type="button"
+                    ></app-button>
+                  </div>
                 </div>
               }
             </div>
@@ -89,13 +86,14 @@
               <div class="info-field">
                 <label>Commentaire</label>
                 <input
-                   #commentInput
-                   [(ngModel)]="comment"
-                   pInputText
-                   type="text"
-                   (keydown.enter)="submit(); $event.preventDefault()"
-                   placeholder="Saisir un commentaire"
-                 />
+                  #commentInput
+                  (keydown.enter)="submit(); $event.preventDefault()"
+                  [ngModel]="comment()"
+                  (ngModelChange)="comment.set($event)"
+                  class="form-control"
+                  placeholder="Saisir un commentaire"
+                  type="text"
+                />
               </div>
             }
 
@@ -103,17 +101,20 @@
               <div class="bank-info-fields">
                 <div class="info-field mb-1">
                   <label>Référence</label>
-                  <input #referenceInput [(ngModel)]="bankReference" pInputText type="text" placeholder="Référence bancaire" />
+                  <input #referenceInput [ngModel]="bankReference()" (ngModelChange)="bankReference.set($event)" class="form-control"
+                         placeholder="Référence bancaire" type="text" />
                 </div>
 
                 <div class="info-field mb-1">
                   <label>Banque</label>
-                  <input #banqueInput [(ngModel)]="bank" pInputText type="text" placeholder="Nom de la banque" />
+                  <input #banqueInput [ngModel]="bank()" (ngModelChange)="bank.set($event)" class="form-control" placeholder="Nom de la banque"
+                         type="text" />
                 </div>
 
                 <div class="info-field">
                   <label>Lieu</label>
-                  <input #lieuxInput [(ngModel)]="location" pInputText type="text" placeholder="Lieu" />
+                  <input #lieuxInput [ngModel]="location()" (ngModelChange)="location.set($event)" class="form-control" placeholder="Lieu"
+                         type="text" />
                 </div>
               </div>
             }
@@ -125,17 +126,25 @@
 </div>
 
 <!-- Popovers -->
-<p-popover #addModePanel [style]="{ width: '450px' }">
+<ng-template #addModeContent>
   <div class="d-flex flex-wrap">
     @for (mode of availableModes(); track mode.code) {
-      <div (click)="onAddPaymentMode(mode); addModePanel.hide()" class="p-2 mode-reglement-icon">
+      <div (click)="onAddPaymentMode(mode)" class="p-2 mode-reglement-icon">
         <span [class]="mode.styleImageClass"></span>
       </div>
     }
   </div>
-</p-popover>
+</ng-template>
+<span
+  #addModePanel="ngbPopover"
+  [ngbPopover]="addModeContent"
+  [positionTarget]="addModePositionTarget()"
+  container="body"
+  popoverClass="payment-mode-popover"
+  triggers="manual"
+></span>
 
-<p-popover #removeModePanel [style]="{ width: '450px' }">
+<ng-template #removeModeContent>
   <div class="d-flex flex-wrap">
     @for (mode of availableModes(); track mode.code) {
       <div (click)="onConfirmReplaceMode(mode)" class="p-2 mode-reglement-icon">
@@ -143,4 +152,12 @@
       </div>
     }
   </div>
-</p-popover>
+</ng-template>
+<span
+  #removeModePanel="ngbPopover"
+  [ngbPopover]="removeModeContent"
+  [positionTarget]="removeModePositionTarget()"
+  container="body"
+  popoverClass="payment-mode-popover"
+  triggers="manual"
+></span>

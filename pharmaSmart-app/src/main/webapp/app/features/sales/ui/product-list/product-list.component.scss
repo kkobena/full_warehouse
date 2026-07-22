@@ -3,6 +3,7 @@
 // ====================================
 
 @import '../../../../shared/scss/pharma-nav';
+@import 'app/shared/scss/table-common';
 
 // ====================================
 // VARIABLES
@@ -53,14 +54,13 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   flex: 1;
   min-width: 280px;
 
-  .p-iconfield {
+  .app-icon-field {
     width: 100%;
     max-width: 450px;
   }
 
-  .p-inputicon {
+  .app-icon-field__icon {
     color: #6c757d;
-    left: 12px;
     font-size: 14px;
   }
 
@@ -142,141 +142,64 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 }
 
-// Sélecteur de remise compact
-.pharma-remise-select-compact {
-  min-width: 200px;
-  max-width: 280px;
-
-  ::ng-deep .p-select {
-    height: 42px;
-    border: 1px solid $pharma-border;
-    border-radius: 8px;
-    background: #fafbfc;
-    transition: all 0.2s ease;
-
-    &:hover {
-      border-color: #adb5bd;
-      background: $pharma-white;
-    }
-
-    &:focus,
-    &.p-focus {
-      border-color: $pharma-primary;
-      box-shadow: 0 0 0 3px rgba(91, 137, 166, 0.1);
-      background: $pharma-white;
-    }
-
-    .p-select-label {
-      padding: 10px 12px;
-      font-size: 14px;
-      color: $pharma-text;
-    }
-
-    .p-select-dropdown {
-      width: 42px;
-      color: #6c757d;
-    }
-  }
-
-  ::ng-deep .p-select-clear-icon {
-    color: #6c757d;
-    font-size: 13px;
-
-    &:hover {
-      color: $pharma-danger;
-    }
-  }
-}
-
-.pharma-remise-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  font-weight: 600;
-  font-size: 13px;
-  color: $pharma-primary;
-  background: #f0f7fa;
-  border-radius: 4px;
-  margin: 4px 0;
-
-  i {
-    font-size: 14px;
-    color: $pharma-primary;
-  }
-}
-
 // ====================================
-// TABLEAU PRIMENG
+// TABLEAU (app-data-table)
 // ====================================
-::ng-deep .pharma-table {
-  .p-datatable-wrapper {
-    border-radius: 0;
-  }
-
+.pharma-table {
   // En-tête du tableau
-  .p-datatable-thead {
-    .pharma-table-head {
-      th {
-        background: linear-gradient(to bottom, #6b9ab8, #5b89a6);
-        color: $pharma-white;
-        font-weight: 600;
-        font-size: 13px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        padding: 8px 12px;
-        border: none;
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
+  thead .pharma-table-head th {
+    background: linear-gradient(to bottom, #6b9ab8, #5b89a6);
+    color: $pharma-white;
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 8px 12px;
+    border: none;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
 
-        &:last-child {
-          border-right: none;
-        }
-      }
+    &:last-child {
+      border-right: none;
     }
   }
 
   // Corps du tableau
-  .p-datatable-tbody {
-    tr {
+  tbody tr {
+    &:nth-child(even) {
+      background: #f8f9fa;
+    }
 
-      &:nth-child(even) {
-        background: #f8f9fa;
-      }
+    &:hover {
+      background: #e3f2fd !important;
+    }
+
+    td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #e9ecef;
+      font-size: 14px;
+      color: $pharma-text;
+    }
+
+    // Ligne avec alerte (quantité insuffisante)
+    &.pharma-row-warning {
+      background: #fff3cd !important;
+      border-left: 3px solid $pharma-warning;
 
       &:hover {
-        background: #e3f2fd !important;
-      }
-
-      td {
-        padding: 8px 12px;
-        border-bottom: 1px solid #e9ecef;
-        font-size: 14px;
-        color: $pharma-text;
-      }
-
-      // Ligne avec alerte (quantité insuffisante)
-      &.pharma-row-warning {
-        background: #fff3cd !important;
-        border-left: 3px solid $pharma-warning;
-
-        &:hover {
-          background: #ffe8a1 !important;
-        }
+        background: #ffe8a1 !important;
       }
     }
   }
 
   // Pied du tableau
-  .p-datatable-tfoot {
-    .pharma-table-footer {
-      background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
-      border-top: 2px solid #dee2e6;
+  tfoot .pharma-table-footer {
+    background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+    border-top: 2px solid #dee2e6;
 
-      td {
-        padding: 8px 12px;
-        font-weight: 600;
-        font-size: 14px;
-      }
+    td {
+      padding: 8px 12px;
+      font-weight: 600;
+      font-size: 14px;
     }
   }
 }
@@ -360,56 +283,31 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 }
 
-::ng-deep .p-cell-editing {
-  background: #e8f5e9 !important;
-  padding: 4px !important;
-}
-
 // ====================================
 // AFFORDANCE CELLULES ÉDITABLES
-// PrimeNG ajoute la classe .p-editable-column sur les td
+// `<app-editable-cell>` gère déjà l'icône crayon (`.app-editable-cell__hint`) et l'état
+// d'édition (`.app-editable-cell--editing`) — on ne fait ici que reprendre les teintes
+// propres à cet écran par-dessus le style par défaut du composant.
 // ====================================
-::ng-deep .pharma-table .p-datatable-tbody td.p-editable-column {
-  cursor: pointer;
-
+.pharma-table tbody td app-editable-cell {
+  display: block;
 
   &:hover {
-    background: #ddeef8 !important;
+    background: #ddeef8;
     box-shadow: inset 0 0 0 2px #5b89a6;
-
-    .edit-hint-icon {
-      opacity: 1 !important;
-    }
   }
 
-  &:focus-within,
-  &.p-cell-editing {
-    background: #e8f5e9 !important;
+  &.app-editable-cell--editing {
+    background: #e8f5e9;
     box-shadow: inset 0 0 0 2px $pharma-success;
   }
 }
 
-// Wrapper de la valeur + icône crayon dans les cellules éditables
-.editable-cell-output {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  width: 100%;
-  justify-content: center;
-
-  .edit-hint-icon {
-    font-size: 0.65rem;
-    color: rgba(91, 137, 166, 0.55);
-    opacity: 0;
-    transition: opacity 0.15s ease;
-    flex-shrink: 0;
-  }
-}
-
 // Pour les colonnes prix (alignées à droite)
-td.text-right .editable-cell-output {
-  justify-content: flex-end;
+td.text-right app-editable-cell {
+  text-align: right;
 }
+
 // FOOTER DU TABLEAU
 // ====================================
 .pharma-footer-label {
@@ -473,50 +371,6 @@ td.text-right .editable-cell-output {
 }
 
 // ====================================
-// PAGINATION
-// ====================================
-::ng-deep .pharma-table {
-  .p-paginator {
-    background: #f8f9fa;
-    border-top: 1px solid #dee2e6;
-    padding: 1px 20px;
-
-    .p-paginator-current {
-      color: $pharma-text-light;
-      font-size: 13px;
-    }
-
-    .p-paginator-pages {
-      .p-paginator-page {
-        min-width: 35px;
-        height: 35px;
-        border-radius: $pharma-radius;
-        margin: 0 3px;
-        transition: all 0.2s ease;
-
-        &.p-highlight {
-          background: $pharma-primary;
-          border-color: $pharma-primary;
-        }
-
-        &:hover {
-          background: #e9ecef;
-        }
-      }
-    }
-
-    .p-dropdown {
-      border: 1px solid $pharma-border;
-      border-radius: $pharma-radius;
-
-      &:hover {
-        border-color: $pharma-primary;
-      }
-    }
-  }
-}
-
-// ====================================
 // RESPONSIVE
 // ====================================
 @media (max-width: 1024px) {
@@ -529,7 +383,7 @@ td.text-right .editable-cell-output {
     flex: 1 1 100%;
     min-width: 100%;
 
-    .p-iconfield {
+    .app-icon-field {
       max-width: 100%;
     }
   }
@@ -547,23 +401,18 @@ td.text-right .editable-cell-output {
   .pharma-remise-info {
     flex: 0 1 auto;
   }
-
-  .pharma-remise-select-compact {
-    flex: 1 1 auto;
-    min-width: 180px;
-  }
 }
 
 @media (max-width: 768px) {
-  ::ng-deep .pharma-table {
+  .pharma-table {
     font-size: 12px;
 
-    .p-datatable-thead th {
+    thead .pharma-table-head th {
       font-size: 11px;
       padding: 10px 8px;
     }
 
-    .p-datatable-tbody td {
+    tbody td {
       padding: 6px 8px !important;
     }
   }
@@ -592,10 +441,6 @@ td.text-right .editable-cell-output {
 
   .pharma-remise-info {
     justify-content: center;
-  }
-
-  .pharma-remise-select-compact {
-    max-width: 100%;
   }
 }
 
@@ -688,6 +533,13 @@ td.text-right .editable-cell-output {
   font-size: 13px;
 }
 
+// Largeur du panneau ng-bootstrap (posé via [popoverClass]="remise-popover" ; le panneau
+// est ajouté au <body> par `container="body"`, donc hors de l'encapsulation de ce
+// composant — ::ng-deep sans préfixe :host le rend global, seul moyen de l'atteindre.
+::ng-deep .popover.remise-popover {
+  max-width: 320px;
+}
+
 // ====================================
 // IMPRESSION
 // ====================================
@@ -696,19 +548,17 @@ td.text-right .editable-cell-output {
     display: none;
   }
 
-  ::ng-deep .pharma-table {
-    .p-paginator {
+  .pharma-table {
+    .app-table__paginator {
       display: none;
     }
 
-    .p-datatable-tbody {
-      tr {
-        page-break-inside: avoid;
-      }
+    tbody tr {
+      page-break-inside: avoid;
     }
   }
 
-  ::ng-deep .p-button {
+  ::ng-deep app-button {
     display: none;
   }
 }

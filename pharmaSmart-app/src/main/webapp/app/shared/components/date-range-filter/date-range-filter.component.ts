@@ -1,8 +1,8 @@
 import { Component, input, model, output, ChangeDetectionStrategy } from '@angular/core';
-import { DatePicker } from 'primeng/datepicker';
-import { FloatLabel } from 'primeng/floatlabel';
 import { FormsModule } from '@angular/forms';
-import { Button } from 'primeng/button';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { PharmaDatePickerComponent } from '../../date-picker/pharma-date-picker.component';
+import { ButtonComponent } from '../../ui';
 
 /**
  * Filtre date-range réutilisable : deux date-pickers (Du / Au) + bouton Rechercher.
@@ -20,45 +20,25 @@ import { Button } from 'primeng/button';
  */
 @Component({
   selector: 'pharma-date-range-filter',
-  imports: [DatePicker, FloatLabel, FormsModule, Button],
+  imports: [PharmaDatePickerComponent, FormsModule, ButtonComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="d-flex align-items-end gap-2 flex-wrap">
-      <p-floatlabel variant="on">
-        <p-datepicker
-          [ngModel]="fromDate()"
-          (ngModelChange)="fromDate.set($event)"
-          [iconDisplay]="'input'"
-          [selectOtherMonths]="true"
-          [showButtonBar]="true"
-          [showIcon]="true"
-          dateFormat="dd/mm/yy"
-          id="pdr-from"
-          inputId="pdr-from"
-          appendTo="body"
-          [style]="{ minWidth: '130px' }"
-        />
-        <label for="pdr-from">Du</label>
-      </p-floatlabel>
+      <pharma-date-picker
+        label="Du"
+        id="pdr-from"
+        [ngModel]="dateToStruct(fromDate())"
+        (ngModelChange)="fromDate.set(structToDate($event))"
+      />
 
-      <p-floatlabel variant="on">
-        <p-datepicker
-          [ngModel]="toDate()"
-          (ngModelChange)="toDate.set($event)"
-          [iconDisplay]="'input'"
-          [selectOtherMonths]="true"
-          [showButtonBar]="true"
-          [showIcon]="true"
-          dateFormat="dd/mm/yy"
-          id="pdr-to"
-          inputId="pdr-to"
-          appendTo="body"
-          [style]="{ minWidth: '130px' }"
-        />
-        <label for="pdr-to">Au</label>
-      </p-floatlabel>
+      <pharma-date-picker
+        label="Au"
+        id="pdr-to"
+        [ngModel]="dateToStruct(toDate())"
+        (ngModelChange)="toDate.set(structToDate($event))"
+      />
 
-      <p-button
+      <app-button
         type="button"
         icon="pi pi-search"
         [label]="label()"
@@ -66,7 +46,7 @@ import { Button } from 'primeng/button';
         [raised]="true"
         severity="primary"
         size="small"
-        (onClick)="onSearch()"
+        (clicked)="onSearch()"
       />
     </div>
   `,
@@ -85,5 +65,15 @@ export class DateRangeFilterComponent {
 
   protected onSearch(): void {
     this.search.emit();
+  }
+
+  protected dateToStruct(d: Date | null): NgbDateStruct | null {
+    if (!d) return null;
+    return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
+  }
+
+  protected structToDate(s: NgbDateStruct | null): Date | null {
+    if (!s) return null;
+    return new Date(s.year, s.month - 1, s.day);
   }
 }

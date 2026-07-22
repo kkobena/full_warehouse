@@ -10,7 +10,7 @@ import {
   IGapLine
 } from '../../models/gap-analysis.model';
 import {GapAnalysisApiService} from '../../data-access/services/gap-analysis-api.service';
-import {ButtonComponent, DataTableComponent, SelectSearchComponent} from '../../../../shared/ui';
+import {ButtonComponent, CardComponent, DataTableComponent, SelectSearchComponent} from '../../../../shared/ui';
 
 interface GapLineVM extends IGapLine {
   selectedCause: CauseEcart | null;
@@ -19,7 +19,7 @@ interface GapLineVM extends IGapLine {
 
 @Component({
   selector: 'app-gap-analysis-modal',
-  imports: [CommonModule, FormsModule, ButtonComponent, SelectSearchComponent, DataTableComponent, NgbTooltip],
+  imports: [CommonModule, FormsModule, ButtonComponent, SelectSearchComponent, DataTableComponent, NgbTooltip, CardComponent],
   templateUrl: './gap-analysis-modal.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './gap-analysis-modal.component.scss',

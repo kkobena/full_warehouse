@@ -303,7 +303,7 @@ $pharma-dark:          #374151;
 
   // Le bouton "Saisir un lot" est poussé à droite via margin-left auto sur l'avant-dernier élément
   // (.fefo-urgent-badge ou .fefo-subtitle prennent le margin-left: auto)
-  p-button {
+  app-button {
     margin-left: auto;
     flex-shrink: 0;
   }

@@ -5,6 +5,7 @@
 </div>
 
 <div class="modal-body">
+<app-card [variant]="'form'">
 
   <!-- ===== CHARGEMENT ===== -->
   @if (saleLoading()) {
@@ -139,14 +140,11 @@
               </td>
               <td>
                 @if (!line.retourInterdit) {
-                  <p-inputnumber
+                  <app-input-number
                     [ngModel]="line.quantiteRetour"
                     (ngModelChange)="updateQty(line.salesLineId, $event)"
                     [min]="0" [max]="line.quantitySold" [showButtons]="true"
-                    buttonLayout="horizontal" spinnerMode="horizontal" [step]="1">
-                    <ng-template #incrementbuttonicon><span class="pi pi-plus"></span></ng-template>
-                    <ng-template #decrementbuttonicon><span class="pi pi-minus"></span></ng-template>
-                  </p-inputnumber>
+                    [step]="1" />
                 } @else {
                   <span class="text-danger small"><i class="pi pi-lock me-1"></i>Interdit</span>
                 }
@@ -155,28 +153,22 @@
                 @if (!line.retourInterdit && (line.quantiteRetour ?? 0) > 0) {
                   <div class="etat-checks">
                     <div class="d-flex align-items-center gap-1">
-                      <p-checkbox
+                      <app-checkbox
                         [ngModel]="line.emballageIntact"
                         (ngModelChange)="updateLineState(line.salesLineId, 'emballageIntact', $event)"
-                        [binary]="true"
-                        inputId="emballage-{{ line.salesLineId }}" />
-                      <label [for]="'emballage-' + line.salesLineId">Emballage intact</label>
+                        label="Emballage intact" />
                     </div>
                     <div class="d-flex align-items-center gap-1">
-                      <p-checkbox
+                      <app-checkbox
                         [ngModel]="line.numLotLisible"
                         (ngModelChange)="updateLineState(line.salesLineId, 'numLotLisible', $event)"
-                        [binary]="true"
-                        inputId="lot-{{ line.salesLineId }}" />
-                      <label [for]="'lot-' + line.salesLineId">N° lot lisible</label>
+                        label="N° lot lisible" />
                     </div>
                     <div class="d-flex align-items-center gap-1">
-                      <p-checkbox
+                      <app-checkbox
                         [ngModel]="line.datePeremptionValide"
                         (ngModelChange)="updateLineState(line.salesLineId, 'datePeremptionValide', $event)"
-                        [binary]="true"
-                        inputId="peremption-{{ line.salesLineId }}" />
-                      <label [for]="'peremption-' + line.salesLineId">Péremption OK</label>
+                        label="Péremption OK" />
                     </div>
                   </div>
                 } @else {
@@ -217,29 +209,28 @@
     <div class="form-row mt-3">
       <div class="form-group">
         <label class="form-label-sm">Motif <span class="text-danger">*</span></label>
-        <p-select [options]="motifOptions"
+        <app-select-search [items]="motifOptions"
                   [ngModel]="motif()"
                   (ngModelChange)="motif.set($event)"
-                  optionLabel="label" optionValue="value"
+                  [searchable]="false"
+                  bindLabel="label" bindValue="value"
                   placeholder="Choisir un motif" appendTo="body"
                   class="w-100" />
       </div>
       @if (!avecEchange()) {
         <div class="form-group">
           <label class="form-label-sm">Mode de règlement <span class="text-danger">*</span></label>
-          <p-select [options]="modeReglementOptions"
+          <app-select-search [items]="modeReglementOptions"
                     [ngModel]="modeReglement()"
                     (ngModelChange)="modeReglement.set($event)"
-                    optionLabel="label" optionValue="value"
+                    [searchable]="false"
+                    bindLabel="label" bindValue="value"
                     placeholder="Remboursement ou avoir" appendTo="body"
-                    class="w-100">
-            <ng-template #selectedItem let-opt>
-              <span><i [class]="opt.icon + ' me-1'"></i>{{ opt.label }}</span>
-            </ng-template>
-            <ng-template #item let-opt>
-              <span><i [class]="opt.icon + ' me-1'"></i>{{ opt.label }}</span>
-            </ng-template>
-          </p-select>
+                    class="w-100"
+                    [optionTemplate]="modeReglementItem" />
+          <ng-template #modeReglementItem let-opt>
+            <span><i [class]="opt.icon + ' me-1'"></i>{{ opt.label }}</span>
+          </ng-template>
         </div>
       } @else {
         <div class="form-group">
@@ -253,7 +244,7 @@
 
     <div class="form-group">
       <label class="form-label-sm">Commentaire</label>
-      <textarea pTextarea [fluid]="true"
+      <textarea class="form-control"
                 [ngModel]="commentaire()"
                 (ngModelChange)="commentaire.set($event)"
                 placeholder="Motif détaillé, informations complémentaires…">
@@ -267,18 +258,19 @@
     }
   }
 
+</app-card>
 </div>
 
 <div class="modal-footer">
   @if (retourResult()) {
-    <p-button label="Fermer" icon="pi pi-check" size="small"
-              severity="success" (onClick)="fermerApresResultat()" />
+    <app-button label="Fermer" icon="pi pi-check" size="small"
+              severity="success" (clicked)="fermerApresResultat()" />
   } @else {
-    <p-button label="Annuler" severity="secondary" size="small" [disabled]="submitLoading()"
-              (onClick)="cancel()" />
-    <p-button label="Valider le retour" icon="pi pi-check" size="small"
+    <app-button label="Annuler" severity="secondary" size="small" [disabled]="submitLoading()"
+              (clicked)="cancel()" />
+    <app-button label="Valider le retour" icon="pi pi-check" size="small"
               [disabled]="!canSubmit()"
               [loading]="submitLoading()"
-              (onClick)="confirmerRetour()" />
+              (clicked)="confirmerRetour()" />
   }
 </div>

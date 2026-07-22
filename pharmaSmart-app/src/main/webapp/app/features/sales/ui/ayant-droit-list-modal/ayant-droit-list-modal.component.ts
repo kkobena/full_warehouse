@@ -1,11 +1,8 @@
 import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Button } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { TooltipModule } from 'primeng/tooltip';
-import { ToolbarModule } from 'primeng/toolbar';
+import { NgbActiveModal, NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, CardComponent, DataTableComponent, ToolbarComponent } from '../../../../shared/ui';
 import { ICustomer } from '../../../../shared/model';
 import { CustomerService } from '../../../../entities/customer/customer.service';
 import { FormAyantDroitComponent } from '../../../../entities/customer/form-ayant-droit/form-ayant-droit.component';
@@ -16,7 +13,7 @@ import { showCommonModal } from '../../../../entities/sales/selling-home/sale-he
   templateUrl: './ayant-droit-list-modal.component.html',
   styleUrls: ['./ayant-droit-list.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, Button, TableModule, TooltipModule, ToolbarModule],
+  imports: [CommonModule, ButtonComponent, DataTableComponent, NgbTooltip, ToolbarComponent, CardComponent],
 })
 export class AyantDroitListModalComponent implements OnInit {
   assure: ICustomer;

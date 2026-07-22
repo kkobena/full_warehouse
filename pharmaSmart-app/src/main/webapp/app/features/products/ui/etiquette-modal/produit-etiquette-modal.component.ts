@@ -1,9 +1,8 @@
-import { AfterViewInit, Component, DestroyRef, inject, signal, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import { AfterViewInit, Component, DestroyRef, ElementRef, inject, signal, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonModule } from "primeng/button";
-import { InputNumber, InputNumberModule } from "primeng/inputnumber";
+import { ButtonComponent, CardComponent, InputNumberComponent } from "app/shared/ui";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { saveAs } from "file-saver";
 import { IProduit } from "app/shared/model/produit.model";
@@ -16,7 +15,7 @@ import { BlobDownloadService } from "../../../../shared/services/blob-download.s
   templateUrl: "./produit-etiquette-modal.component.html",
   styleUrls: ["./produit-etiquette-modal.component.scss"],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, ButtonModule, InputNumberModule]
+  imports: [CommonModule, FormsModule, ButtonComponent, InputNumberComponent, CardComponent]
 })
 export class ProduitEtiquetteModalComponent implements AfterViewInit{
   produit!: IProduit;
@@ -29,14 +28,14 @@ export class ProduitEtiquetteModalComponent implements AfterViewInit{
   private readonly api = inject(ProductsApiService);
   private readonly notificationService = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly qtyInput = viewChild.required<InputNumber>("qtyInput");
+  private readonly qtyInput = viewChild.required<ElementRef<HTMLElement>>("qtyInput");
   private readonly blobDocumentService=inject(BlobDownloadService);
   ngAfterViewInit(): void {
     setTimeout(() => {
-      const el = this.qtyInput()?.input();
+      const el = this.qtyInput()?.nativeElement.querySelector("input");
       if (el) {
-        el.nativeElement.focus();
-        el.nativeElement.select();
+        el.focus();
+        el.select();
       }
 
     }, 150);

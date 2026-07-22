@@ -2,13 +2,8 @@ import { AfterViewInit, Component, DestroyRef, ElementRef, inject, OnInit, signa
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { TooltipModule } from 'primeng/tooltip';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
+import { NgbActiveModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { AppTableLazyLoadEvent, ButtonComponent, CardComponent, DataTableComponent, IconFieldComponent } from '../../../../shared/ui';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -23,7 +18,7 @@ import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constant
  */
 @Component({
   selector: 'app-assured-customer-list-modal',
-  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, TableModule, TooltipModule, IconField, InputIcon],
+  imports: [CommonModule, FormsModule, ButtonComponent, DataTableComponent, NgbTooltip, IconFieldComponent, CardComponent],
   templateUrl: './assured-customer-list-modal.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./assured-customer-list-modal.component.scss'],
@@ -129,7 +124,7 @@ export class AssuredCustomerListModalComponent implements OnInit, AfterViewInit 
       });
   }
 
-  protected lazyLoading(event: TableLazyLoadEvent): void {
+  protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event && !this.preloadedCustomers) {
       this.page = event.first! / event.rows!;
       this.loading.set(true);

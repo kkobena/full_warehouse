@@ -18,32 +18,18 @@ import { CustomerService } from '../../../../entities/customer/customer.service'
 import { HttpResponse } from '@angular/common/http';
 import { ICustomer } from '../../../../shared/model';
 import { FormsModule } from '@angular/forms';
-import { KeyFilterModule } from 'primeng/keyfilter';
-import { PanelModule } from 'primeng/panel';
-import { InputTextModule } from 'primeng/inputtext';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, IconFieldComponent, KeyFilterDirective } from '../../../../shared/ui';
 import { IClientTiersPayant } from '../../../../shared/model';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { Button } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
-import { ButtonGroupModule } from 'primeng/buttongroup';
 
 @Component({
   selector: 'app-insurance-data-bar',
   imports: [
     FormsModule,
-    KeyFilterModule,
-    PanelModule,
-    InputTextModule,
-    IconField,
-    InputIcon,
-    InputGroupModule,
-    InputGroupAddonModule,
-    Button,
-    TooltipModule,
-    ButtonGroupModule,
+    ButtonComponent,
+    IconFieldComponent,
+    KeyFilterDirective,
+    NgbTooltip,
   ],
   templateUrl: './insurance-data-bar.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

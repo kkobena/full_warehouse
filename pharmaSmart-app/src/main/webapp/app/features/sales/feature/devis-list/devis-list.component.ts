@@ -1,26 +1,19 @@
 import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { CommonModule, DatePipe } from "@angular/common";
+import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { Router, RouterLink } from "@angular/router";
-import { Button } from "primeng/button";
-import { TableModule } from "primeng/table";
-import { Toolbar } from "primeng/toolbar";
-import { Select } from "primeng/select";
-import { DatePicker } from "primeng/datepicker";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
-import { InputText } from "primeng/inputtext";
-import { TooltipModule } from "primeng/tooltip";
+import { NgbDateParserFormatter, NgbDateStruct, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
+import { NgxSpinnerComponent } from "ngx-spinner";
 
+import { FrenchDateParserFormatter } from "../../../../config/french-date-parser-formatter";
+import { PharmaDatePickerComponent } from "../../../../shared/date-picker/pharma-date-picker.component";
+import { ButtonComponent, DataTableComponent, IconFieldComponent, SelectComponent, ToolbarComponent } from "../../../../shared/ui";
 import { ISales, SaleId } from "../../../../shared/model/sales.model";
 import { SalesApiService } from "../../data-access/services/sales-api.service";
 import { NotificationService } from "../../../../shared/services/notification.service";
 import { TauriPrinterService } from "../../../../shared/services/tauri-printer.service";
 import { AbilityService } from "../../../../core/auth/ability.service";
-import { ButtonGroup } from "primeng/buttongroup";
-import { FloatLabel } from "primeng/floatlabel";
-import { NgxSpinnerComponent } from "ngx-spinner";
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
 
@@ -28,22 +21,18 @@ import { BlobDownloadService } from "../../../../shared/services/blob-download.s
   selector: "app-devis-list",
   templateUrl: "./devis-list.component.html",
   styleUrls: ["./devis-list.component.scss"],
-  providers: [DatePipe],
+  providers: [{ provide: NgbDateParserFormatter, useClass: FrenchDateParserFormatter }],
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,
-    Button,
-    TableModule,
-    Toolbar,
-    Select,
-    DatePicker,
-    IconField,
-    InputIcon,
-    InputText,
-    TooltipModule,
-    ButtonGroup,
-    FloatLabel,
+    ButtonComponent,
+    DataTableComponent,
+    ToolbarComponent,
+    SelectComponent,
+    PharmaDatePickerComponent,
+    IconFieldComponent,
+    NgbTooltip,
     NgxSpinnerComponent,
     RouterLink
 
@@ -54,7 +43,6 @@ export class DevisListComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly tauriPrinter = inject(TauriPrinterService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly datePipe = inject(DatePipe);
   private readonly ability = inject(AbilityService);
   protected readonly canDeleteDevis = this.ability.canSignal("execute", "ventes.devis.delete");
   protected readonly canExportDevis = this.ability.canSignal("execute", "ventes.devis.export");
@@ -63,8 +51,8 @@ export class DevisListComponent implements OnInit {
   protected typeVentes = ["TOUT", "VNO", "VO"];
   protected typeVenteSelected = "TOUT";
   protected search = "";
-  protected fromDate: Date = new Date();
-  protected toDate: Date = new Date();
+  protected fromDate: NgbDateStruct = this.todayNgb();
+  protected toDate: NgbDateStruct = this.todayNgb();
   private readonly notificationService = inject(NotificationService);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly blobDownloadService = inject(BlobDownloadService);
@@ -79,8 +67,8 @@ export class DevisListComponent implements OnInit {
       .queryDevis({
         search: this.search || null,
         type: this.typeVenteSelected,
-        fromDate: this.datePipe.transform(this.fromDate, "yyyy-MM-dd"),
-        toDate: this.datePipe.transform(this.toDate, "yyyy-MM-dd")
+        fromDate: this.ngbDateToIso(this.fromDate),
+        toDate: this.ngbDateToIso(this.toDate)
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -167,5 +155,13 @@ export class DevisListComponent implements OnInit {
     });
   }
 
+  private todayNgb(): NgbDateStruct {
+    const d = new Date();
+    return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
+  }
 
+  private ngbDateToIso(date: NgbDateStruct | null): string | null {
+    if (!date) return null;
+    return `${date.year}-${String(date.month).padStart(2, "0")}-${String(date.day).padStart(2, "0")}`;
+  }
 }

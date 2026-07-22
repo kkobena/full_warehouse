@@ -1,10 +1,8 @@
 import { Component, effect, ElementRef, inject, input, OnDestroy, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
-import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { AppTableLazyLoadEvent, ButtonComponent, DataTableComponent } from 'app/shared/ui';
+import { NgbDateStruct, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ProduitStatService } from 'app/entities/produit/stat/produit-stat.service';
 import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
@@ -31,7 +29,7 @@ interface PeriodShortcut {
   templateUrl: './produit-achats-tab.component.html',
   styleUrls: ['./produit-achats-tab.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, TableModule, ButtonModule, TooltipModule, PharmaDatePickerComponent, TranslatePipe],
+  imports: [CommonModule, FormsModule, DataTableComponent, ButtonComponent, NgbTooltip, PharmaDatePickerComponent, TranslatePipe],
 })
 export class ProduitAchatsTabComponent implements OnDestroy {
   readonly produitId = input.required<number>();
@@ -128,7 +126,7 @@ export class ProduitAchatsTabComponent implements OnDestroy {
     });
   }
 
-  protected onLazyLoad(event: TableLazyLoadEvent): void {
+  protected onLazyLoad(event: AppTableLazyLoadEvent): void {
     if (event.rows) {
       this.load(event.first / event.rows);
     }

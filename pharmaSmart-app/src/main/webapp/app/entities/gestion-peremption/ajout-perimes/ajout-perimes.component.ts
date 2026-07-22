@@ -13,14 +13,11 @@ import { ProductToDestroyService } from "../product-to-destroy.service";
 import { ProductToDestroy, ProductToDestroyFilter, ProductToDestroyPayload } from "../model/product-to-destroy";
 import { ProduitAutocompleteComponent } from "../../../shared/produit-autocomplete/produit-autocomplete.component";
 import { QuantiteProdutSaisieComponent } from "../../../shared/quantite-produt-saisie/quantite-produt-saisie.component";
-import { CtaComponent } from "../../../shared/cta/cta.component";
 import { AppTableLazyLoadEvent } from "../../../shared/ui";
 import { HttpHeaders, HttpResponse } from "@angular/common/http";
 import { PeremptionStatut } from "../model/peremption-statut";
-import { RemoveButtonTextComponent } from "../../../shared/cta/remove-button-text.component";
-import { BackButtonComponent } from "../../../shared/cta/back-button.component";
 import { PharmaDatePickerComponent } from "../../../shared/date-picker/pharma-date-picker.component";
-import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
+import { NgbDateStruct, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { NGB_DATE_TO_ISO } from "../../../shared/util/warehouse-util";
 import { SpinnerComponent } from "../../../shared/spinner/spinner.component";
 import { CommonModule } from "@angular/common";
@@ -29,6 +26,7 @@ import { NotificationService } from "../../../shared/services/notification.servi
 import { ErrorService } from "../../../shared/error.service";
 import {
   BadgeComponent,
+  ButtonComponent,
   DataTableComponent,
   EditableCellComponent,
   FloatLabelComponent,
@@ -49,11 +47,10 @@ import {
     ProduitAutocompleteComponent,
     ToolbarComponent,
     QuantiteProdutSaisieComponent,
-    CtaComponent,
+    ButtonComponent,
+    NgbTooltip,
     DataTableComponent,
     BadgeComponent,
-    RemoveButtonTextComponent,
-    BackButtonComponent,
     IconFieldComponent,
     EditableCellComponent,
     PharmaDatePickerComponent,
@@ -129,6 +126,10 @@ export class AjoutPerimesComponent implements OnInit {
         this.produitComponent().getFocus();
       }
     );
+  }
+
+  protected goBack(): void {
+    window.history.back();
   }
 
   protected onClose(): void {

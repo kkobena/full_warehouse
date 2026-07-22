@@ -1,10 +1,9 @@
 import { Component, computed, inject, input, output, viewChild, ChangeDetectionStrategy } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
-import { TooltipModule } from 'primeng/tooltip';
+import { NgbPopover, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent } from '../../../../shared/ui';
 import { CustomerSearchTableComponent } from '../customer-search-table/customer-search-table.component';
 import { ICustomer } from '../../../../shared/model';
-import { PopoverModule, Popover } from 'primeng/popover';
 import { SalesFacade } from '../../data-access/facades/sales.facade';
 import { CommonModule } from "@angular/common";
 
@@ -20,7 +19,7 @@ import { CommonModule } from "@angular/common";
  */
 @Component({
   selector: 'app-customer-overlay-panel',
-  imports: [CommonModule, ButtonModule, FormsModule, PopoverModule, TooltipModule, CustomerSearchTableComponent],
+  imports: [CommonModule, ButtonComponent, FormsModule, NgbPopover, NgbTooltip, CustomerSearchTableComponent],
   templateUrl: './customer-overlay-panel.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./customer-overlay-panel.component.scss'],
@@ -40,7 +39,8 @@ export class CustomerOverlayPanelComponent {
   readonly customerRemoved = output<void>();
 
   // ViewChild
-  readonly popover = viewChild<Popover>('op');
+  readonly editPopover = viewChild<NgbPopover>('editPopover');
+  readonly addPopover = viewChild<NgbPopover>('addPopover');
 
   // Computed - utilise soit l'input soit le store selon le mode
   protected readonly customer = computed(() => {
@@ -55,10 +55,8 @@ export class CustomerOverlayPanelComponent {
   }
 
   protected onClose(): void {
-    const pop = this.popover();
-    if (pop) {
-      pop.hide();
-    }
+    this.editPopover()?.close();
+    this.addPopover()?.close();
   }
 
   protected onCustomerSelected(customer: ICustomer): void {
@@ -74,12 +72,5 @@ export class CustomerOverlayPanelComponent {
       this.facade.removeCustomer();
     }
     this.customerRemoved.emit();
-  }
-
-  protected togglePopover(event: Event): void {
-    const pop = this.popover();
-    if (pop) {
-      pop.toggle(event);
-    }
   }
 }

@@ -1,56 +1,53 @@
-<p-floatlabel variant="on">
-  <p-autocomplete
+<app-float-label label="{{ 'warehouseApp.labels.produits' | translate }}" inputId="produitbox">
+  <app-select-search
     #produitbox
     [(ngModel)]="produitSelected"
     (ngModelChange)="onNgModelChange($event)"
-    [suggestions]="produits()"
-    (completeMethod)="searchFn($event)"
-    (onSelect)="onSelect()"
+    [items]="produits()"
+    [typeahead]="typeaheadSink$"
+    (searched)="searchFn($event)"
+    (selectionChange)="onSelect()"
     (keydown)="onKeyDown($event)"
-    [minQueryLength]="PRODUIT_COMBO_MIN_LENGTH"
-    optionLabel="libelle"
+    [minSearchLength]="PRODUIT_COMBO_MIN_LENGTH"
+    bindLabel="libelle"
     [appendTo]="APPEND_TO"
-    [autoHighlight]="true"
-    [autoOptionFocus]="true"
-    [autofocus]="autofocus()"
-    [showClear]="showClear()"
-    [style]="style()"
-    [inputStyle]="inputStyle()"
+    [clearable]="showClear()"
     [disabled]="disabled()"
-    dataKey="id"
-    placeholder=" ">
-    <ng-template #item let-item>
-      <div class="product-item-row">
-        <span [class.stockless]="item.totalQuantity <= 0" class="product-cip">
-          {{ item.fournisseurProduit?.codeCip }}
+    inputId="produitbox"
+    placeholder=" "
+    [style]="style()"
+    [optionTemplate]="produitItem"
+  />
+  <ng-template #produitItem let-item>
+    <div class="product-item-row">
+      <span [class.stockless]="item.totalQuantity <= 0" class="product-cip">
+        {{ item.fournisseurProduit?.codeCip }}
+      </span>
+      <span [class.stockless]="item.totalQuantity <= 0" class="product-name">
+        {{ item.libelle }}
+      </span>
+      <span class="product-item-right">
+      <span
+          class="stock-badge"
+          [class.stock-ok]="item.totalQuantity > 0 && item.totalQuantity > 5"
+          [class.stock-low]="item.totalQuantity > 0 && item.totalQuantity <= 5"
+          [class.stock-out]="item.totalQuantity <= 0"
+          [title]="item.totalQuantity <= 0 ? 'Rupture de stock' : 'Stock disponible : ' + item.totalQuantity">
+          <i class="pi"
+             [class.pi-check-circle]="item.totalQuantity > 5"
+             [class.pi-exclamation-circle]="item.totalQuantity > 0 && item.totalQuantity <= 5"
+             [class.pi-times-circle]="item.totalQuantity <= 0"></i>
+          {{ item.totalQuantity | number }}
         </span>
-        <span [class.stockless]="item.totalQuantity <= 0" class="product-name">
-          {{ item.libelle }}
-        </span>
-        <span class="product-item-right">
-        <span
-            class="stock-badge"
-            [class.stock-ok]="item.totalQuantity > 0 && item.totalQuantity > 5"
-            [class.stock-low]="item.totalQuantity > 0 && item.totalQuantity <= 5"
-            [class.stock-out]="item.totalQuantity <= 0"
-            [title]="item.totalQuantity <= 0 ? 'Rupture de stock' : 'Stock disponible : ' + item.totalQuantity">
-            <i class="pi"
-               [class.pi-check-circle]="item.totalQuantity > 5"
-               [class.pi-exclamation-circle]="item.totalQuantity > 0 && item.totalQuantity <= 5"
-               [class.pi-times-circle]="item.totalQuantity <= 0"></i>
-            {{ item.totalQuantity | number }}
+        @if ((item.reserveQuantity || 0) > 0) {
+          <span class="reserve-badge" [title]="'Réserve : ' + item.reserveQuantity">
+            <i class="pi pi-box" style="font-size: 0.7rem"></i> {{ item.reserveQuantity | number }}
           </span>
-          @if ((item.reserveQuantity || 0) > 0) {
-            <span class="reserve-badge" [title]="'Réserve : ' + item.reserveQuantity">
-              <i class="pi pi-box" style="font-size: 0.7rem"></i> {{ item.reserveQuantity | number }}
-            </span>
-          }
-          <span [class.stockless]="item.totalQuantity <= 0" class="product-price">
-            {{ item.fournisseurProduit?.prixUni | number }}
-          </span>
+        }
+        <span [class.stockless]="item.totalQuantity <= 0" class="product-price">
+          {{ item.fournisseurProduit?.prixUni | number }}
         </span>
-      </div>
-    </ng-template>
-  </p-autocomplete>
-  <label>{{ 'warehouseApp.labels.produits' | translate }}</label>
-</p-floatlabel>
+      </span>
+    </div>
+  </ng-template>
+</app-float-label>

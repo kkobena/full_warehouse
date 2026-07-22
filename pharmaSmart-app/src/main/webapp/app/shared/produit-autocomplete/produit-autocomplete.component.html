@@ -1,44 +1,34 @@
-<p-floatlabel variant="on">
-  <p-autocomplete
+<app-float-label label="{{ 'warehouseApp.labels.produits' | translate }}" inputId="produits">
+  <app-select-search
     #produitbox
     [(ngModel)]="produitSelected"
-    (completeMethod)="searchFn($event)"
-    (onKeyUp)="onKeyDown($event)"
-    (onSelect)="onSelect()"
-    (onClear)="clear($event)"
+    (ngModelChange)="onNgModelChange($event)"
+    [items]="produits()"
+    [typeahead]="typeaheadSink$"
+    (searched)="searchFn($event)"
+    (selectionChange)="onSelect()"
+    (keydown)="onKeyDown($event)"
+    [minSearchLength]="PRODUIT_COMBO_MIN_LENGTH"
+    [notFoundText]="PRODUIT_NOT_FOUND"
+    bindLabel="libelle"
     [appendTo]="APPEND_TO"
-    [autofocus]="autofocus()"
-    [dataKey]="'id'"
-    [dropdown]="false"
-    [autoHighlight]="true"
-    [autoOptionFocus]="true"
-    [emptyMessage]="PRODUIT_NOT_FOUND"
-    [inputStyle]="inputStyle()"
-    [minQueryLength]="PRODUIT_COMBO_MIN_LENGTH"
-    [showClear]="showClear()"
-    [showEmptyMessage]="true"
+    [clearable]="showClear()"
+    inputId="produits"
+    placeholder=" "
     [style]="style()"
-    [suggestions]="produits()"
-    [fluid]="true"
-    id="produits"
-    optionLabel="libelle"
-    size="large"
-  >
-    <ng-template #item let-item>
-      <div [style]="{ width: '100%' }">
-        <span [class.stockless]="item.totalQuantity <= 0" style="width: 20%; display: inline-block">
-          {{ item.fournisseurProduit?.codeCip }}
-        </span>
-        <span [class.stockless]="item.totalQuantity <= 0">
-          {{ item.libelle }}
-        </span>
-        <span [class.stockless]="item.totalQuantity <= 0" class="float-right">
-          {{ item.regularUnitPrice | number }}
-        </span>
-      </div>
-    </ng-template>
-  </p-autocomplete>
-  <label for="produits">
-    {{ 'warehouseApp.labels.produits' | translate }}
-  </label>
-</p-floatlabel>
+    [optionTemplate]="produitItem"
+  />
+  <ng-template #produitItem let-item>
+    <div style="width: 100%">
+      <span [class.stockless]="item.totalQuantity <= 0" style="width: 20%; display: inline-block">
+        {{ item.fournisseurProduit?.codeCip }}
+      </span>
+      <span [class.stockless]="item.totalQuantity <= 0">
+        {{ item.libelle }}
+      </span>
+      <span [class.stockless]="item.totalQuantity <= 0" class="float-right">
+        {{ item.regularUnitPrice | number }}
+      </span>
+    </div>
+  </ng-template>
+</app-float-label>

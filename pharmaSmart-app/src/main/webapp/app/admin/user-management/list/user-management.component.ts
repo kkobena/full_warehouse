@@ -7,15 +7,8 @@ import {SORT} from "app/config/navigation.constants";
 import {AccountService} from "app/core/auth/account.service";
 import {UserManagementService} from "../service/user-management.service";
 import {User} from "../user-management.model";
-import {ButtonModule} from "primeng/button";
-import {RippleModule} from "primeng/ripple";
-import {PanelModule} from "primeng/panel";
-import {Toolbar} from "primeng/toolbar";
-import {Tooltip} from "primeng/tooltip";
-import {TableModule} from "primeng/table";
-import {IconField} from "primeng/iconfield";
-import {InputIcon} from "primeng/inputicon";
-import {InputTextModule} from "primeng/inputtext";
+import {NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
+import {ButtonComponent, DataTableComponent, IconFieldComponent, ToolbarComponent} from "app/shared/ui";
 import {CommonModule} from "@angular/common";
 import {
   NgbConfirmDialogService
@@ -28,16 +21,12 @@ import {NotificationService} from "../../../shared/services/notification.service
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
-    ButtonModule,
-    RippleModule,
-    PanelModule,
     RouterModule,
-    Toolbar,
-    Tooltip,
-    TableModule,
-    IconField,
-    InputIcon,
-    InputTextModule
+    ButtonComponent,
+    ToolbarComponent,
+    NgbTooltip,
+    DataTableComponent,
+    IconFieldComponent
   ]
 })
 export default class UserManagementComponent implements OnInit {

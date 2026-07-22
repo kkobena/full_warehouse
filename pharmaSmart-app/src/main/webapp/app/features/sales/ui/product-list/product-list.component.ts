@@ -10,13 +10,8 @@ import {
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {TableModule} from 'primeng/table';
-import {ButtonModule} from 'primeng/button';
-import {InputTextModule} from 'primeng/inputtext';
-import {TooltipModule} from 'primeng/tooltip';
-import {Popover} from 'primeng/popover';
-import {InputIcon} from 'primeng/inputicon';
-import {IconField} from 'primeng/iconfield';
+import {NgbPopover, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {ButtonComponent, DataTableComponent, EditableCellComponent, IconFieldComponent} from '../../../../shared/ui';
 import {IRemise, ISalesLine} from '../../../../shared/model';
 import {
   NgbConfirmDialogService
@@ -41,13 +36,12 @@ import {NotificationService} from '../../../../shared/services/notification.serv
   imports: [
     CommonModule,
     FormsModule,
-    TableModule,
-    ButtonModule,
-    InputTextModule,
-    TooltipModule,
-    Popover,
-    InputIcon,
-    IconField,
+    DataTableComponent,
+    ButtonComponent,
+    NgbTooltip,
+    NgbPopover,
+    IconFieldComponent,
+    EditableCellComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -88,7 +82,8 @@ export class ProductListComponent {
     return all;
   });
   private readonly confirmDialog = inject(NgbConfirmDialogService);
-  private remisePopover = viewChild<Popover>('remisePopover');
+  private editRemisePopover = viewChild<NgbPopover>('editRemisePopover');
+  private addRemisePopover = viewChild<NgbPopover>('addRemisePopover');
   private readonly notificationService = inject(NotificationService);
 
   // Méthodes pour les événements UI
@@ -166,20 +161,19 @@ export class ProductListComponent {
   }
 
   /** Ouvre le popover en mode ajout */
-  openAddRemisePopover(event: Event): void {
+  openAddRemisePopover(): void {
     this.isEditMode.set(false);
-    this.remisePopover()?.toggle(event);
   }
 
   /** Ouvre le popover en mode édition (exclut la remise courante) */
-  openEditRemisePopover(event: Event): void {
+  openEditRemisePopover(): void {
     this.isEditMode.set(true);
-    this.remisePopover()?.toggle(event);
   }
 
   /** Sélection d'une remise depuis le popover */
   onPopoverRemiseSelect(remise: IRemise): void {
-    this.remisePopover()?.hide();
+    this.editRemisePopover()?.close();
+    this.addRemisePopover()?.close();
     if (this.isEditMode()) {
       this.confirmDialog.onConfirm(
         () => this.remiseSelected.emit(remise),

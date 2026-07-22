@@ -1,6 +1,7 @@
 import {
   Component,
   DestroyRef,
+  ElementRef,
   effect,
   inject,
   Injector,
@@ -15,8 +16,6 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
-import { AutoComplete } from "primeng/autocomplete";
-import { FloatLabel } from "primeng/floatlabel";
 import { TranslatePipe } from "@ngx-translate/core";
 import {
   APPEND_TO,
@@ -30,6 +29,7 @@ import { ScanDetectorService, ScanEvent } from "../../../../shared/scan-detector
 import { GlobalScannerService } from "../../../../shared/global-scanner.service";
 import { CommonModule } from "@angular/common";
 import { SalesScannerService } from "../../data-access/services/sales-scanner.service";
+import { FloatLabelComponent, SelectSearchComponent } from "../../../../shared/ui";
 
 /**
  * Composant de recherche produit avec scanner intégré
@@ -46,11 +46,12 @@ import { SalesScannerService } from "../../data-access/services/sales-scanner.se
   templateUrl: "./product-search.component.html",
   styleUrls: ["./product-search.component.scss"],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [AutoComplete, FormsModule, FloatLabel, TranslatePipe, CommonModule]
+  imports: [SelectSearchComponent, FormsModule, FloatLabelComponent, TranslatePipe, CommonModule]
 })
 export class ProductSearchComponent implements OnInit, OnDestroy {
   // ViewChild
-  produitbox = viewChild.required<AutoComplete>("produitbox");
+  private readonly produitboxCmp = viewChild.required("produitbox", { read: SelectSearchComponent });
+  private readonly produitboxEl = viewChild.required("produitbox", { read: ElementRef<HTMLElement> });
 
   // Inputs
   autofocus = input<boolean>(true);
@@ -91,6 +92,14 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private readonly salesScanner: SalesScannerService | null = inject(SalesScannerService as any, { optional: true }) as SalesScannerService | null;
   private readonly searchTrigger$ = new Subject<string>();
+  /**
+   * Passé à `[typeahead]` de `app-select-search` dans le seul but d'être « observé » :
+   * ng-select désactive alors son propre filtrage client (par `bindLabel`), qui sinon
+   * masquait les résultats retournés par le backend sur un code CIP (le texte tapé ne
+   * matche pas `libelle`). La recherche réelle continue de passer par `searchTrigger$`
+   * via `(searched)` → `searchFn()`, seul canal qui respecte `PRODUIT_COMBO_MIN_LENGTH`.
+   */
+  protected readonly typeaheadSink$ = new Subject<string>();
 
   // Scanner state
   private isScanning = false;
@@ -103,6 +112,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   constructor() {
     // Debounce search
     this.searchTrigger$.pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef)).subscribe(search => this.loadProduits(search));
+    this.typeaheadSink$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
   }
 
   get produitSelected(): ProduitSearch | null {
@@ -127,6 +137,10 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     if (this.enableScanner()) {
       this.setupBarcodeScanner();
+    }
+
+    if (this.autofocus()) {
+      this.getFocus();
     }
 
     // Watch for changes in enableScanner
@@ -157,7 +171,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
 
   // ===== Event Handlers =====
 
-  searchFn(event: any): void {
+  searchFn(term: string): void {
     // Si le scanner local est désactivé et qu'un scan global est en cours,
     // ne pas déclencher la recherche autocomplete (les caractères viennent du scanner)
     if (!this.enableScanner() && this.globalScanner.isScanActive()) {
@@ -180,7 +194,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
       this.manualSearchTimeout = null;
     }, 600);
 
-    this.searchTrigger$.next(event.query);
+    this.searchTrigger$.next(term);
   }
 
   onSelect(): void {
@@ -219,17 +233,17 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
 
   getFocus(): void {
     requestAnimationFrame(() => {
-      const el = this.produitbox()?.inputEL()?.nativeElement;
-      const autocomplete = this.produitbox();
+      const el = this.produitboxEl()?.nativeElement.querySelector("input");
 
       if (el) {
         el.focus();
         el.select();
       }
 
-      if (autocomplete) {
-        autocomplete.hide();
-        setTimeout(() => autocomplete.hide(), 50);
+      const cmp = this.produitboxCmp();
+      if (cmp) {
+        cmp.close();
+        setTimeout(() => cmp.close(), 50);
       }
     });
   }
@@ -246,13 +260,13 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
     this._produitSelected.set(null);
     this.selectProduit.set(null);
 
-    const autocomplete = this.produitbox();
-    if (autocomplete) {
-      autocomplete.hide();
-      setTimeout(() => autocomplete.hide(), 100);
+    const cmp = this.produitboxCmp();
+    if (cmp) {
+      cmp.close();
+      setTimeout(() => cmp.close(), 100);
     }
 
-    const inputEl = autocomplete?.inputEL()?.nativeElement;
+    const inputEl = this.produitboxEl()?.nativeElement.querySelector("input");
     if (inputEl) {
       inputEl.value = "";
     }
@@ -272,13 +286,19 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
     this.scanSubscription = this.scanDetectorService.onScanEvent$
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        filter((event: ScanEvent) => event.type === "start" || event.type === "complete")
+        filter((event: ScanEvent) => event.type === "start" || event.type === "complete" || event.type === "reset")
       )
       .subscribe((event: ScanEvent) => {
         if (event.type === "start") {
           this.onScanStart();
         } else if (event.type === "complete" && event.code) {
           this.onScanComplete(event.code);
+        } else if (event.type === "reset") {
+          // Scan détecté (frappe rapide) puis abandonné côté service sans code valide :
+          // sans ce cas, `isScanning` restait bloqué à `true` et la boucle de nettoyage
+          // vidait le champ en continu, rendant la saisie manuelle impossible en vente.
+          this.isScanning = false;
+          this.stopInputClearLoop();
         }
       });
 
@@ -290,8 +310,8 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   }
 
   private onScanStart(): void {
-    const autocomplete = this.produitbox();
-    if (this.isManualSearching || autocomplete?.overlayVisible) {
+    const isOpen = this.produitboxCmp()?.isOpen();
+    if (this.isManualSearching || isOpen) {
       return;
     }
     this.isScanning = true;
@@ -300,8 +320,8 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   }
 
   private onScanComplete(scannedCode: string): void {
-    const autocomplete = this.produitbox();
-    if (this.isManualSearching || autocomplete?.overlayVisible) {
+    const isOpen = this.produitboxCmp()?.isOpen();
+    if (this.isManualSearching || isOpen) {
       this.isScanning = false;
       this.stopInputClearLoop();
       return;
@@ -319,15 +339,25 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   }
 
   private clearInputValue(): void {
-    const inputEl = this.produitbox()?.inputEL()?.nativeElement;
+    const inputEl = this.produitboxEl()?.nativeElement.querySelector("input");
     if (inputEl) {
       inputEl.value = "";
     }
   }
 
+  /**
+   * Garde-fou défensif : quel que soit l'état du détecteur de scan, cette boucle ne
+   * doit jamais tourner indéfiniment — un vrai scan dure quelques centaines de ms.
+   * Sans cette limite, un scénario non couvert côté service de détection (frappe
+   * considérée à tort comme un scan qui ne se termine jamais) bloque la saisie
+   * manuelle jusqu'au rechargement de la page.
+   */
   private startInputClearLoop(): void {
+    const startedAt = Date.now();
+    const maxDurationMs = 2000;
     const clearLoop = () => {
-      if (!this.isScanning) {
+      if (!this.isScanning || Date.now() - startedAt > maxDurationMs) {
+        this.isScanning = false;
         return;
       }
       this.clearInputValue();
@@ -397,7 +427,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
 
   private loadProduits(search: string): void {
     // Ignorer les recherches obsolètes (input vidé par reset() après un scan global)
-    const inputEl = this.produitbox()?.inputEL()?.nativeElement;
+    const inputEl = this.produitboxEl()?.nativeElement.querySelector("input");
     if (inputEl && !inputEl.value?.trim()) {
       return;
     }

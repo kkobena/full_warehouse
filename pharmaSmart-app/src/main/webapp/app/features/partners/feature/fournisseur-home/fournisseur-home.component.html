@@ -12,10 +12,10 @@
     </ng-container>
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-button-group">
-        <app-button (clicked)="showFileDialog()" [raised]="true" icon="pi pi-upload"
-                    label="Importer" severity="help" type="button" />
-        <app-button (clicked)="openNewParent()" [raised]="true" icon="pi pi-plus"
-                    label="Nouveau fournisseur" severity="success" type="button" />
+        <app-button (clicked)="showFileDialog()" [raised]="true" [severity]="'help'"
+                    icon="pi pi-upload" label="Importer" type="button" />
+        <app-button (clicked)="openNewParent()" [raised]="true" [severity]="'success'"
+                    icon="pi pi-plus" label="Nouveau fournisseur" type="button" />
       </div>
     </ng-container>
   </app-toolbar>
@@ -61,10 +61,11 @@
       <tr>
         <td>
           <app-button (clicked)="onRowExpand(f)"
-                      [appRowToggler]="f" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                      [rounded]="true" [text]="true"
+                      [appRowToggler]="f"
+                      [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                      [rounded]="true" [severity]="'secondary'"
+                      [text]="true"
                       ngbTooltip="{{ expanded ? 'Masquer les agences' : 'Voir les agences' }}"
-                      severity="secondary"
                       size="small" />
         </td>
         <td><span class="pharma-code">{{ f.code }}</span></td>
@@ -103,15 +104,15 @@
         <td appFrozenColumn="right" class="text-end">
           <div class="btn-group">
             <app-button (clicked)="editFournisseur(f)" [rounded]="true"
-                        [text]="true" icon="pi pi-pencil" ngbTooltip="Modifier" placement="left"
-                        severity="success" />
+                        [severity]="'success'" [text]="true" icon="pi pi-pencil" ngbTooltip="Modifier"
+                        placement="left" />
             <app-button (clicked)="addAgence(f)" [rounded]="true"
-                        [text]="true" icon="pi pi-building" ngbTooltip="Ajouter une agence"
-                        placement="left"
-                        severity="info" />
+                        [severity]="'info'" [text]="true" icon="pi pi-building"
+                        ngbTooltip="Ajouter une agence"
+                        placement="left" />
             <app-button (clicked)="deleteParent(f)" [rounded]="true"
-                        [text]="true" icon="pi pi-trash" ngbTooltip="Supprimer" placement="left"
-                        severity="danger" />
+                        [severity]="'danger'" [text]="true" icon="pi pi-trash" ngbTooltip="Supprimer"
+                        placement="left" />
           </div>
         </td>
       </tr>
@@ -194,13 +195,13 @@
                             <td appFrozenColumn="right" class="text-end">
                               <div class="btn-group">
                                 <app-button (clicked)="editFournisseur(agence)" [rounded]="true"
-                                            [text]="true"
-                                            icon="pi pi-pencil" ngbTooltip="Modifier"
-                                            severity="success"
+                                            [severity]="'success'"
+                                            [text]="true" icon="pi pi-pencil"
+                                            ngbTooltip="Modifier"
                                             size="small" />
                                 <app-button (clicked)="deleteAgence(agence, f.id!)" [rounded]="true"
-                                            [text]="true" icon="pi pi-trash" ngbTooltip="Supprimer"
-                                            severity="danger" size="small" />
+                                            [severity]="'danger'" [text]="true" icon="pi pi-trash"
+                                            ngbTooltip="Supprimer" size="small" />
                               </div>
                             </td>
                           </tr>

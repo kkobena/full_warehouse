@@ -1,12 +1,11 @@
-import { AfterViewInit, Component, inject, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, ElementRef, inject, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
-import { InputNumber, InputNumberModule } from 'primeng/inputnumber';
-import { Button } from 'primeng/button';
-import { Card } from 'primeng/card';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
+import { ButtonComponent, CardComponent, InputNumberComponent } from 'app/shared/ui';
 import { IProduit } from 'app/shared/model/produit.model';
 import { NotificationService } from 'app/shared/services/notification.service';
 import { ProductsApiService } from '../../data-access/services/products-api.service';
@@ -16,7 +15,7 @@ import { ProductsApiService } from '../../data-access/services/products-api.serv
   templateUrl: './produit-decondition-modal.component.html',
   styleUrls: ['./produit-decondition-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, InputNumberModule, Button, Card],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, InputNumberComponent, ButtonComponent, CardComponent],
 })
 export class ProduitDeconditionModalComponent implements AfterViewInit {
   produit!: IProduit;
@@ -32,11 +31,19 @@ export class ProduitDeconditionModalComponent implements AfterViewInit {
 
   private readonly api = inject(ProductsApiService);
   private readonly notificationService = inject(NotificationService);
-  private readonly itemQty = viewChild.required<InputNumber>('qtyMvt');
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly itemQty = viewChild.required<ElementRef<HTMLElement>>('qtyMvt');
+
+  constructor() {
+    this.editForm
+      .get('qtyMvt')!
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => this.onQuantitySoldBoxChanged(value));
+  }
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      const input = this.itemQty()?.input()?.nativeElement;
+      const input = this.itemQty()?.nativeElement.querySelector('input');
       if (input) {
         input.focus();
         input.select();
@@ -58,9 +65,8 @@ export class ProduitDeconditionModalComponent implements AfterViewInit {
     this.activeModal.dismiss();
   }
 
-  onQuantitySoldBoxChanged(event: any): void {
-    const qty = event.value ?? event.target?.value;
-    this.isNotValid = (this.produit.totalQuantity ?? 0) < Number(qty);
+  onQuantitySoldBoxChanged(qty: number | null): void {
+    this.isNotValid = (this.produit.totalQuantity ?? 0) < Number(qty ?? 0);
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<unknown>>): void {

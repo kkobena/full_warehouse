@@ -3,7 +3,7 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {ButtonComponent, SelectComponent} from '../../../../shared/ui';
+import {ButtonComponent, CardComponent, SelectComponent} from '../../../../shared/ui';
 import {InventoryApiService} from '../../data-access/services/inventory-api.service';
 import {StorageService} from '../../../../entities/storage/storage.service';
 import {RayonService} from '../../../../entities/rayon/rayon.service';
@@ -23,7 +23,7 @@ const GROUP_BY_OPTIONS = [
 
 @Component({
   selector: 'app-inventory-export-modal',
-  imports: [CommonModule, FormsModule, ButtonComponent, SelectComponent],
+  imports: [CommonModule, FormsModule, ButtonComponent, SelectComponent, CardComponent],
   templateUrl: './inventory-export-modal.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './inventory-export-modal.component.scss',

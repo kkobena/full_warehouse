@@ -8,6 +8,7 @@
 
 <form [formGroup]="editForm" (ngSubmit)="save()" novalidate>
   <div class="modal-body">
+  <app-card [variant]="'form'">
 
     <!-- Produit parent info -->
     <div class="df-produit-info mb-3">
@@ -35,13 +36,12 @@
       <label class="form-label df-label" for="itemQty">
         Unités par conditionnement <span class="text-danger">*</span>
       </label>
-      <p-inputnumber
+      <app-input-number
         #itemQty
         inputId="itemQty"
         formControlName="itemQty"
         [min]="2"
         [showButtons]="true"
-        [style]="{ width: '100%' }"
       />
       @if (editForm.get('itemQty')!.invalid && editForm.get('itemQty')!.touched) {
         <small class="text-danger">
@@ -57,11 +57,10 @@
         <label class="form-label df-label" for="costAmount">
           Prix achat unitaire <span class="text-danger">*</span>
         </label>
-        <p-inputnumber
+        <app-input-number
           inputId="costAmount"
           formControlName="costAmount"
           [min]="0"
-          [style]="{ width: '100%' }"
         />
         @if (editForm.get('costAmount')!.invalid && editForm.get('costAmount')!.touched) {
           <small class="text-danger">Ce champ est requis.</small>
@@ -71,11 +70,10 @@
         <label class="form-label df-label" for="regularUnitPrice">
           Prix vente unitaire <span class="text-danger">*</span>
         </label>
-        <p-inputnumber
+        <app-input-number
           inputId="regularUnitPrice"
           formControlName="regularUnitPrice"
           [min]="0"
-          [style]="{ width: '100%' }"
         />
         @if (editForm.get('regularUnitPrice')!.invalid && editForm.get('regularUnitPrice')!.touched) {
           <small class="text-danger">Ce champ est requis.</small>
@@ -89,31 +87,31 @@
         Libellé <span class="text-danger">*</span>
       </label>
       <input
-        pInputText
         id="libelle"
         formControlName="libelle"
         type="text"
         autocomplete="off"
-        class="w-100"
+        class="form-control w-100"
       />
       @if (editForm.get('libelle')!.invalid && editForm.get('libelle')!.touched) {
         <small class="text-danger">Ce champ est requis.</small>
       }
     </div>
 
+  </app-card>
   </div>
 
   <div class="modal-footer">
-    <p-button
+    <app-button
       label="Annuler"
       severity="secondary"
       [outlined]="true"
       size="small"
       type="button"
-      (onClick)="cancel()"
+      (clicked)="cancel()"
       [disabled]="isSaving"
     />
-    <p-button
+    <app-button
       label="Enregistrer"
       icon="pi pi-check"
       size="small"

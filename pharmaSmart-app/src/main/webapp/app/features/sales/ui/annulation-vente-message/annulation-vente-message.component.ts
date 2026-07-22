@@ -7,17 +7,14 @@ import {ISales} from "../../../../shared/model";
 import {SalesApiService} from "../../data-access/services/sales-api.service";
 import {NotificationService} from "../../../../shared/services/notification.service";
 import {ErrorService} from "../../../../shared/error.service";
-import {Button} from "primeng/button";
-import {Card} from "primeng/card";
-import {InputText} from "primeng/inputtext";
+import {ButtonComponent, CardComponent} from "../../../../shared/ui";
 
 @Component({
   selector: 'app-annulation-vente-message',
   imports: [
-    Button,
-    Card,
+    ButtonComponent,
+    CardComponent,
     FormsModule,
-    InputText,
     ReactiveFormsModule
   ],
   templateUrl: './annulation-vente-message.component.html',

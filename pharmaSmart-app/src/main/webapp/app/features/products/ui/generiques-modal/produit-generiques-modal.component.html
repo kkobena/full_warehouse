@@ -6,6 +6,7 @@
 </div>
 
 <div class="modal-body">
+<app-card [variant]="'form'">
   <div class="px-3 pt-3 pb-2 border-bottom">
     <div class="fw-semibold" style="font-size: 0.88rem">{{ produit.libelle }}</div>
     @if (produit.codeCip) {
@@ -15,7 +16,7 @@
 
   @if (loading()) {
     <div class="text-center py-4">
-      <i class="pi pi-spin pi-spinner" style="font-size: 1.5rem; color: var(--p-primary-color)"></i>
+      <i class="pi pi-spin pi-spinner" style="font-size: 1.5rem; color: var(--bs-primary)"></i>
     </div>
   }
 
@@ -27,11 +28,10 @@
   }
 
   @if (!loading() && substituts().length > 0) {
-    <p-table
+    <app-data-table
       [value]="substituts()"
       [scrollable]="true"
       scrollHeight="350px"
-      [tableStyle]="{ 'min-width': '100%' }"
       class="pharma-table"
     >
       <ng-template #header>
@@ -64,8 +64,8 @@
             {{ s.produit.regularUnitPrice | number:'1.0-0' }} F
           </td>
           <td style="text-align: right">
-            <p-tag
-              [value]="(s.produit.totalQuantity ?? 0).toString()"
+            <app-badge
+              [label]="(s.produit.totalQuantity ?? 0).toString()"
               [severity]="stockSeverity(s.produit)"
             />
           </td>
@@ -76,16 +76,17 @@
           </td>
         </tr>
       </ng-template>
-    </p-table>
+    </app-data-table>
   }
+</app-card>
 </div>
 
 <div class="modal-footer">
-  <p-button
+  <app-button
     label="Fermer"
     severity="secondary"
     [outlined]="true"
     size="small"
-    (onClick)="close()"
+    (clicked)="close()"
   />
 </div>

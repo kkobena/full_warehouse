@@ -1,11 +1,9 @@
-import { AfterViewInit, Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { HttpErrorResponse } from "@angular/common/http";
-import { InputNumber, InputNumberModule } from "primeng/inputnumber";
-import { InputTextModule } from "primeng/inputtext";
-import { ButtonModule } from "primeng/button";
+import { ButtonComponent, CardComponent, InputNumberComponent } from "app/shared/ui";
 import { IProduit, Produit } from "app/shared/model/produit.model";
 import { TypeProduit } from "app/shared/model/enumerations/type-produit.model";
 import { ErrorService } from "app/shared/error.service";
@@ -21,9 +19,9 @@ import { NotificationService } from "../../../../shared/services/notification.se
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    InputNumberModule,
-    InputTextModule,
-    ButtonModule
+    InputNumberComponent,
+    ButtonComponent,
+    CardComponent
   ]
 })
 export class ProduitDetailFormModalComponent implements OnInit, AfterViewInit {
@@ -38,7 +36,7 @@ export class ProduitDetailFormModalComponent implements OnInit, AfterViewInit {
   private readonly api = inject(ProductsApiService);
   private readonly fb = inject(FormBuilder);
   private readonly errorService = inject(ErrorService);
-  private readonly itemQtyInput = viewChild.required<InputNumber>("itemQty");
+  private readonly itemQtyInput = viewChild.required<ElementRef<HTMLElement>>("itemQty");
   private readonly notificationService = inject(NotificationService);
   protected editForm = this.fb.group({
     id: [null as number | null],
@@ -69,7 +67,7 @@ export class ProduitDetailFormModalComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    setTimeout(() => this.itemQtyInput().input()?.nativeElement.focus(), 100);
+    setTimeout(() => this.itemQtyInput().nativeElement.querySelector("input")?.focus(), 100);
 
     this.editForm.get("itemQty")!.valueChanges.subscribe(val => this.recalcPrices(val));
   }

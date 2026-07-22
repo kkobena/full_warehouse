@@ -6,10 +6,11 @@
 </div>
 
 <div class="modal-body">
+<app-card [variant]="'form'">
 
   @if (loading()) {
     <div class="text-center py-3">
-      <i class="pi pi-spin pi-spinner" style="font-size: 1.5rem; color: var(--p-primary-color)"></i>
+      <i class="pi pi-spin pi-spinner" style="font-size: 1.5rem; color: var(--bs-primary)"></i>
     </div>
   }
 
@@ -48,11 +49,11 @@
 
     <div class="mb-3">
       <label class="form-label cr-label">Fournisseur <span class="text-danger">*</span></label>
-      <p-select
-        [options]="fournisseurs()"
+      <app-select
+        [items]="fournisseurs()"
         [(ngModel)]="selectedFournisseurProduit"
-        optionLabel="fournisseurLibelle"
-        (onChange)="onFournisseurChange()"
+        bindLabel="fournisseurLibelle"
+        (selectionChange)="onFournisseurChange()"
         placeholder="Sélectionner un fournisseur..."
         [style]="{ width: '100%' }"
       />
@@ -87,11 +88,10 @@
 
     <div class="mb-3">
       <label class="form-label cr-label">Quantité <span class="text-danger">*</span></label>
-      <p-inputnumber #quantiteInput
+      <app-input-number #quantiteInput
         [(ngModel)]="quantite"
         [min]="1"
         [showButtons]="true"
-        [style]="{ width: '100%' }"
       />
     </div>
 
@@ -102,23 +102,24 @@
       </div>
     }
   }
+</app-card>
 </div>
 
 <div class="modal-footer">
-  <p-button
+  <app-button
     label="Annuler"
     severity="secondary"
     [outlined]="true"
     size="small"
-    (onClick)="cancel()"
+    (clicked)="cancel()"
     [disabled]="submitting()"
   />
-  <p-button
+  <app-button
     label="Commander"
     icon="pi pi-check"
     size="small"
     [disabled]="!selectedFournisseurProduit || quantite < 1 || loading()"
     [loading]="submitting()"
-    (onClick)="onSubmit()"
+    (clicked)="onSubmit()"
   />
 </div>

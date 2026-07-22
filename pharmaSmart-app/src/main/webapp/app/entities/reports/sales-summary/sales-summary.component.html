@@ -2,30 +2,34 @@
   <app-toolbar icon="pi pi-chart-line" title="Synthèse des Ventes Quotidiennes">
 
     <ng-container ngProjectAs="[toolbarFilters]">
-        <div class="pharma-toolbar-filters">
-<pharma-date-picker (ngModelChange)="onFilterChange()" [(ngModel)]="startDate" id="ssDateDebut" label="Date début" />
-<pharma-date-picker (ngModelChange)="onFilterChange()" [(ngModel)]="endDate" id="ssDateFin" label="Date fin" />
-          <app-select
-            (selectionChange)="onFilterChange()"
-            [(ngModel)]="selectedTypeVente"
-            [items]="typeVenteOptions"
-            [clearable]="true"
-            [style]="{ 'min-width': '150px' }"
-            appendTo="body"
-            bindLabel="label"
-            bindValue="value"
-            placeholder="Type de vente"
-            size="large"
-          />
-        </div>
-      </ng-container>
+      <div class="pharma-toolbar-filters">
+        <pharma-date-picker (ngModelChange)="onFilterChange()" [(ngModel)]="startDate"
+                            id="ssDateDebut" label="Date début" />
+        <pharma-date-picker (ngModelChange)="onFilterChange()" [(ngModel)]="endDate"
+                            [labelPosition]="" id="ssDateFin"
+                            label="Date fin" />
+        <app-select
+          (selectionChange)="onFilterChange()"
+          [(ngModel)]="selectedTypeVente"
+          [clearable]="true"
+          [items]="typeVenteOptions"
+          [style]="{ 'min-width': '150px' }"
+          appendTo="body"
+          bindLabel="label"
+          bindValue="value"
+          placeholder="Type de vente"
+          size="large"
+        />
+      </div>
+    </ng-container>
 
-<ng-container ngProjectAs="[toolbarActions]">
-        <div>
-          <app-button (clicked)="loadSummaries()" icon="pi pi-refresh" label="Rafraîchir" severity="primary"
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div>
+        <app-button (clicked)="loadSummaries()" icon="pi pi-refresh" label="Rafraîchir"
+                    severity="primary"
                     size="small" />
-        </div>
-      </ng-container>
+      </div>
+    </ng-container>
   </app-toolbar>
 
   <!-- KPI Strip -->
@@ -35,7 +39,8 @@
       <i class="pi pi-dollar text-primary"></i>
       <div class="kpi-strip-body">
         <span class="kpi-strip-label">CA Total</span>
-        <span class="kpi-strip-value text-primary">{{ getTotalCA() | number: '1.0-0' }} <small>F CFA</small></span>
+        <span class="kpi-strip-value text-primary">{{ getTotalCA() | number: '1.0-0' }}
+          <small>F CFA</small></span>
         <span class="kpi-strip-sub">chiffre d'affaires</span>
       </div>
     </div>
@@ -93,8 +98,8 @@
             [rows]="20"
             [scrollable]="true"
             [showCurrentPageReport]="true"
-            [value]="summaries()"
             [size]="'small'"
+            [value]="summaries()"
             currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
             scrollHeight="500px"
           >

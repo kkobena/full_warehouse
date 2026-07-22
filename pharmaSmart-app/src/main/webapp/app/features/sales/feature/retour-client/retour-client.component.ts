@@ -1,17 +1,12 @@
 import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
-import { CommonModule, DatePipe } from "@angular/common";
+import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
-import { Button } from "primeng/button";
-import { TableLazyLoadEvent, TableModule } from "primeng/table";
-import { Toolbar } from "primeng/toolbar";
-import { DatePicker } from "primeng/datepicker";
-import { FloatLabel } from "primeng/floatlabel";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
-import { InputText } from "primeng/inputtext";
+import { NgbDateParserFormatter, NgbDateStruct, NgbModal } from "@ng-bootstrap/ng-bootstrap";
 
+import { FrenchDateParserFormatter } from "../../../../config/french-date-parser-formatter";
+import { PharmaDatePickerComponent } from "../../../../shared/date-picker/pharma-date-picker.component";
+import { ButtonComponent, DataTableComponent, IconFieldComponent, AppTableLazyLoadEvent, ToolbarComponent } from "../../../../shared/ui";
 import { ITEMS_PER_PAGE } from "../../../../shared/constants/pagination.constants";
 import { DATE_FORMAT_ISO_DATE } from "../../../../shared/util/warehouse-util";
 import {
@@ -27,25 +22,21 @@ import { ISales } from "../../../../shared/model";
   selector: "app-retour-client",
   templateUrl: "./retour-client.component.html",
   styleUrl: "./retour-client.component.scss",
-  providers: [DatePipe],
+  providers: [{ provide: NgbDateParserFormatter, useClass: FrenchDateParserFormatter }],
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,
-    Button,
-    TableModule,
-    Toolbar,
-    DatePicker,
-    FloatLabel,
-    IconField,
-    InputIcon,
-    InputText
+    ButtonComponent,
+    DataTableComponent,
+    ToolbarComponent,
+    PharmaDatePickerComponent,
+    IconFieldComponent
   ]
 })
 export class RetourClientComponent implements OnInit {
   private readonly api = inject(RetourClientApiService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly datePipe = inject(DatePipe);
   private readonly modalService = inject(NgbModal);
 
   protected loading = signal(false);
@@ -55,8 +46,8 @@ export class RetourClientComponent implements OnInit {
   protected itemsPerPage = ITEMS_PER_PAGE;
 
   protected search = "";
-  protected fromDate: Date = new Date();
-  protected toDate: Date = new Date();
+  protected fromDate: NgbDateStruct = this.todayNgb();
+  protected toDate: NgbDateStruct = this.todayNgb();
 
   protected saleIdInput: number | null = null;
   protected saleDateInput: Date = new Date();
@@ -87,8 +78,8 @@ export class RetourClientComponent implements OnInit {
       page: p,
       size: this.itemsPerPage,
       search: this.search || null,
-      fromDate: this.datePipe.transform(this.fromDate, "yyyy-MM-dd"),
-      toDate: this.datePipe.transform(this.toDate, "yyyy-MM-dd")
+      fromDate: this.ngbDateToIso(this.fromDate),
+      toDate: this.ngbDateToIso(this.toDate)
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -102,7 +93,7 @@ export class RetourClientComponent implements OnInit {
       });
   }
 
-  protected lazyLoading(event: TableLazyLoadEvent): void {
+  protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event.first != null && event.rows != null) {
       this.page = event.first / event.rows;
       this.itemsPerPage = event.rows;
@@ -141,5 +132,15 @@ export class RetourClientComponent implements OnInit {
 
   protected modeIconOf(mode?: string): string {
     return this.modeReglementOptions.find(o => o.value === mode)?.icon ?? "pi pi-undo";
+  }
+
+  private todayNgb(): NgbDateStruct {
+    const d = new Date();
+    return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
+  }
+
+  private ngbDateToIso(date: NgbDateStruct | null): string | null {
+    if (!date) return null;
+    return `${date.year}-${String(date.month).padStart(2, "0")}-${String(date.day).padStart(2, "0")}`;
   }
 }

@@ -144,7 +144,7 @@
   padding: 0.5rem 0;
 
   ::ng-deep {
-    .p-chip {
+    app-badge {
       background: #e9ecef;
       color: #495057;
       font-weight: 500;
@@ -160,14 +160,14 @@
         border-color: #ced4da;
       }
 
-      .p-chip-icon {
+      i {
         margin-right: 0.5rem;
         font-size: 0.8125rem;
         color: #6c757d;
         opacity: 0.8;
       }
 
-      .p-chip-text {
+      span {
         font-weight: 500;
         letter-spacing: 0.005em;
       }
@@ -185,7 +185,7 @@
 // Enhanced tags in toolbar header
 ::ng-deep {
   .pharma-toolbar-header {
-    .p-tag {
+    app-badge {
       font-weight: 600;
       padding: 0.5rem 0.875rem;
       border-radius: 6px;
@@ -199,25 +199,25 @@
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
       }
 
-      &.p-tag-success {
+      &.app-badge--success {
         background: #d1f4e0;
         color: #0f5132;
         border: 1px solid #b8e5cc;
       }
 
-      &.p-tag-danger {
+      &.app-badge--danger {
         background: #f8d7da;
         color: #842029;
         border: 1px solid #f1aeb5;
       }
 
-      &.p-tag-info {
+      &.app-badge--info {
         background: #cfe2ff;
         color: #084298;
         border: 1px solid #b6d4fe;
       }
 
-      .p-tag-icon {
+      i {
         margin-right: 0.4rem;
         font-size: 0.875rem;
       }

@@ -10,9 +10,8 @@ import {
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterModule} from '@angular/router';
-import {ButtonModule} from 'primeng/button';
-import {TooltipModule} from 'primeng/tooltip';
-import {NgbNavModule} from '@ng-bootstrap/ng-bootstrap';
+import {NgbNavModule, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {ButtonComponent} from 'app/shared/ui';
 import {IProduit} from 'app/shared/model/produit.model';
 import {EtaProduitComponent} from 'app/shared/eta-produit/eta-produit.component';
 import {ILotProduit, ProductsApiService} from "../../data-access/services/products-api.service";
@@ -40,8 +39,8 @@ import {ProduitRayonsTabComponent} from '../produit-rayons-tab/produit-rayons-ta
   imports: [
     CommonModule,
     RouterModule,
-    ButtonModule,
-    TooltipModule,
+    ButtonComponent,
+    NgbTooltip,
     NgbNavModule,
     EtaProduitComponent,
     ProduitSyntheseTabComponent,

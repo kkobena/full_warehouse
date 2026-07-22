@@ -1,20 +1,22 @@
-import { Component, OnInit } from '@angular/core';
-import { Theme, ThemeService } from 'app/core/theme/theme.service';
-import { FaIconComponent, FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faPalette } from '@fortawesome/free-solid-svg-icons';
+import {Component, OnInit} from '@angular/core';
+import {Theme, ThemeService} from 'app/core/theme/theme.service';
+import {FaIconComponent, FontAwesomeModule} from '@fortawesome/angular-fontawesome';
+import {faPalette} from '@fortawesome/free-solid-svg-icons';
+import {NgbDropdown, NgbDropdownMenu, NgbDropdownToggle} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
   selector: 'jhi-theme-switcher',
   templateUrl: './theme-switcher.component.html',
   styleUrls: ['./theme-switcher.component.scss'],
-  imports: [FaIconComponent, FontAwesomeModule],
+  imports: [FaIconComponent, FontAwesomeModule, NgbDropdownToggle, NgbDropdown, NgbDropdownMenu],
 })
 export class ThemeSwitcherComponent implements OnInit {
   themes: Theme[];
   selectedTheme: string;
   readonly faPalette = faPalette;
 
-  constructor(private themeService: ThemeService) {}
+  constructor(private themeService: ThemeService) {
+  }
 
   ngOnInit(): void {
     this.themes = this.themeService.getThemes();

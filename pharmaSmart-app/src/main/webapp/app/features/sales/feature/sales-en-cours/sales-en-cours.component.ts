@@ -1,25 +1,36 @@
-import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormsModule } from "@angular/forms";
-import { HttpHeaders } from "@angular/common/http";
-import { Router, RouterLink } from "@angular/router";
-import { Button } from "primeng/button";
-import { TableLazyLoadEvent, TableModule } from "primeng/table";
-import { Toolbar } from "primeng/toolbar";
-import { Select } from "primeng/select";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
-import { InputText } from "primeng/inputtext";
-import { TooltipModule } from "primeng/tooltip";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal
+} from "@angular/core";
+import {CommonModule} from "@angular/common";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
+import {FormsModule} from "@angular/forms";
+import {HttpHeaders} from "@angular/common/http";
+import {Router, RouterLink} from "@angular/router";
+import {NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
 
-import { ISales, SalesStatut } from "../../../../shared/model";
-import { SalesApiService } from "../../data-access/services/sales-api.service";
-import { ITEMS_PER_PAGE } from "../../../../shared/constants/pagination.constants";
-import { ButtonGroup } from "primeng/buttongroup";
-import { AbilityService } from "../../../../core/auth/ability.service";
-import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { NotificationService } from "../../../../shared/services/notification.service";
+import {
+  AppTableLazyLoadEvent,
+  ButtonComponent,
+  DataTableComponent,
+  IconFieldComponent,
+  RowTogglerDirective,
+  SelectComponent,
+  ToolbarComponent
+} from "../../../../shared/ui";
+import {ISales, SalesStatut} from "../../../../shared/model";
+import {SalesApiService} from "../../data-access/services/sales-api.service";
+import {ITEMS_PER_PAGE} from "../../../../shared/constants/pagination.constants";
+import {AbilityService} from "../../../../core/auth/ability.service";
+import {
+  NgbConfirmDialogService
+} from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import {NotificationService} from "../../../../shared/services/notification.service";
+
 @Component({
   selector: "app-sales-en-cours",
   templateUrl: "./sales-en-cours.component.html",
@@ -28,16 +39,14 @@ import { NotificationService } from "../../../../shared/services/notification.se
   imports: [
     CommonModule,
     FormsModule,
-    Button,
-    TableModule,
-    Toolbar,
-    Select,
-    IconField,
-    InputIcon,
-    InputText,
-    TooltipModule,
-    ButtonGroup,
-    RouterLink
+    ButtonComponent,
+    DataTableComponent,
+    ToolbarComponent,
+    SelectComponent,
+    IconFieldComponent,
+    NgbTooltip,
+    RouterLink,
+    RowTogglerDirective
   ]
 })
 export class SalesEnCoursComponent implements OnInit {
@@ -85,13 +94,7 @@ export class SalesEnCoursComponent implements OnInit {
       });
   }
 
-  private onSuccess(data: ISales[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get("X-Total-Count"));
-    this.page = page;
-    this.sales = data || [];
-  }
-
-  protected lazyLoading(event: TableLazyLoadEvent): void {
+  protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event.first != null && event.rows != null) {
       this.page = event.first / event.rows;
       this.itemsPerPage = event.rows;
@@ -103,7 +106,6 @@ export class SalesEnCoursComponent implements OnInit {
     this.loadPage(0);
   }
 
-
   protected confirmDelete(sale: ISales): void {
 
     this.confirmDialog.onConfirm(
@@ -114,8 +116,26 @@ export class SalesEnCoursComponent implements OnInit {
 
   }
 
+  protected navigateToSale(sale: ISales): void {
+    this.router.navigate(["/sales-home"], {
+      state: {saleInfo: {saleId: sale.saleId}}
+    });
+  }
+
+  protected openNewSalesHome(): void {
+    this.router.navigate(["/sales-home"]);
+  }
+
+  private onSuccess(data: ISales[] | null, headers: HttpHeaders, page: number): void {
+    this.totalItems = Number(headers.get("X-Total-Count"));
+    this.page = page;
+    this.sales = data || [];
+  }
+
   private deleteSale(sale: ISales): void {
-    if (!sale.saleId) return;
+    if (!sale.saleId) {
+      return;
+    }
     this.api.deletePreventeById(sale.saleId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.notificationService.success(
         "Vente en cours supprimée avec succès",
@@ -123,15 +143,5 @@ export class SalesEnCoursComponent implements OnInit {
       );
       this.load();
     });
-  }
-
-  protected navigateToSale(sale: ISales): void {
-    this.router.navigate(["/sales-home"], {
-      state: { saleInfo: { saleId: sale.saleId } }
-    });
-  }
-
-  protected openNewSalesHome(): void {
-    this.router.navigate(["/sales-home"]);
   }
 }

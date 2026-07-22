@@ -1,12 +1,20 @@
-import { Component, computed, input, output } from '@angular/core';
+import {Component, computed, input, output} from '@angular/core';
 
-/** Severities PrimeNG, conservées telles quelles pour que la substitution `p-button` → `app-button` ne change pas les templates. */
-export type AppButtonSeverity = 'primary' | 'secondary' | 'success' | 'info' | 'warn' | 'danger' | 'help' | 'contrast';
+
+export type AppButtonSeverity =
+  'primary'
+  | 'secondary'
+  | 'success'
+  | 'info'
+  | 'warn'
+  | 'danger'
+  | 'help'
+  | 'contrast';
 
 export type AppButtonSize = 'small' | 'normal' | 'large';
 
 /**
- * Bouton du Design System — rend du Bootstrap 5 natif, sans PrimeNG.
+ * Bouton du Design System — rend du Bootstrap 5 natif.
  *
  * Les severities PrimeNG sont mappées sur les classes `.btn-*` de Bootstrap. `help` et
  * `contrast` n'existent pas dans Bootstrap : elles sont ajoutées à `$theme-colors`
@@ -74,7 +82,7 @@ export type AppButtonSize = 'small' | 'normal' | 'large';
       padding-inline: var(--bs-btn-padding-y);
     }
 
-    // Aura ne déclare AUCUN line-height sur .p-button : il hérite du contexte.
+
     // Bootstrap force line-height: var(--bs-btn-line-height) = 1.5, ce qui gonfle la
     // boîte de texte du bouton par rapport au reste de l'interface.
     //
@@ -109,13 +117,12 @@ export type AppButtonSize = 'small' | 'normal' | 'large';
     // pas sur un bouton plein. On reprend l'élévation de PrimeNG, seule à rendre
     // l'attribut raised lisible.
     .app-btn-raised {
-      box-shadow:
-        0 3px 1px -2px rgba(0, 0, 0, 0.2),
-        0 2px 2px 0 rgba(0, 0, 0, 0.14),
-        0 1px 5px 0 rgba(0, 0, 0, 0.12);
+      box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2),
+      0 2px 2px 0 rgba(0, 0, 0, 0.14),
+      0 1px 5px 0 rgba(0, 0, 0, 0.12);
     }
 
-    // PrimeNG teinte légèrement le fond des boutons "text" au survol ; .btn-link ne le fait pas.
+
     .app-btn-text:hover:not(:disabled) {
       background-color: rgba(var(--bs-emphasis-color-rgb), 0.075);
     }
@@ -136,53 +143,34 @@ export type AppButtonSize = 'small' | 'normal' | 'large';
         border-bottom-left-radius: 0;
       }
     }
+
+    // Intégration dans un .btn-group Bootstrap (remplace p-buttonGroup). Bootstrap fusionne
+    // les coins et le bord partagé via des sélecteurs qui ciblent .btn-group > .btn
+    // directement — app-button s'interpose entre les deux, donc ces règles ne matchent
+    // jamais. On les reproduit ici, au niveau du wrapper. !important est nécessaire côté
+    // rayon : [rounded]="true" pose .rounded-pill, qui est lui-même en !important et
+    // regagnerait sinon les coins qu'on vient d'aplatir sur les bords partagés.
+    :host-context(.btn-group) {
+      &:not(:first-child) .btn {
+        margin-left: calc(var(--bs-border-width, 1px) * -1);
+        border-top-left-radius: 0 !important;
+        border-bottom-left-radius: 0 !important;
+      }
+
+      &:not(:last-child) .btn {
+        border-top-right-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+      }
+
+      &:hover,
+      &:focus-within {
+        z-index: 1;
+        position: relative;
+      }
+    }
   `,
 })
 export class ButtonComponent {
-  /** Libellé affiché. Ignoré si `iconOnly` est actif (mais sert alors de `aria-label` de repli). */
-  readonly label = input<string>('');
-
-  /** Classe d'icône, ex. `pi pi-save`. */
-  readonly icon = input<string>('');
-
-  /** Position de l'icône par rapport au libellé. */
-  readonly iconPos = input<'left' | 'right'>('left');
-
-  /** Bouton carré ne montrant que l'icône. Pensez à renseigner `label` ou `ariaLabel`. */
-  readonly iconOnly = input<boolean>(false);
-
-  /** Couleur du bouton (vocabulaire PrimeNG). */
-  readonly severity = input<AppButtonSeverity>('primary');
-
-  readonly size = input<AppButtonSize>('normal');
-
-  /** Contour coloré sur fond transparent (`.btn-outline-*`). */
-  readonly outlined = input<boolean>(false);
-
-  /** Sans fond ni bordure (`.btn-link`). Prioritaire sur `outlined`. */
-  readonly text = input<boolean>(false);
-
-  /** Coins entièrement arrondis (`.rounded-pill`). */
-  readonly rounded = input<boolean>(false);
-
-  /** Ombre portée, calquée sur l'élévation de `p-button`. */
-  readonly raised = input<boolean>(false);
-
-  /** Remplace l'icône par un spinner et désactive le bouton. */
-  readonly loading = input<boolean>(false);
-
-  readonly disabled = input<boolean>(false);
-
-  readonly type = input<'button' | 'submit' | 'reset'>('button');
-
-  /** Libellé d'accessibilité. Par défaut `label` est utilisé — indispensable en `iconOnly`. */
-  readonly ariaLabel = input<string>('');
-
-  /** Classes additionnelles posées sur le `<button>` (ex. `w-100`). */
-  readonly buttonClass = input<string>('');
-
-  readonly clicked = output<MouseEvent>();
-
   /** `warn` et `contrast` diffèrent entre les deux vocabulaires ; le reste est identique. */
   private static readonly BOOTSTRAP_VARIANT: Record<AppButtonSeverity, string> = {
     primary: 'primary',
@@ -194,7 +182,34 @@ export class ButtonComponent {
     help: 'help',
     contrast: 'contrast',
   };
-
+  /** Libellé affiché. Ignoré si `iconOnly` est actif (mais sert alors de `aria-label` de repli). */
+  readonly label = input<string>('');
+  /** Classe d'icône, ex. `pi pi-save`. */
+  readonly icon = input<string>('');
+  /** Position de l'icône par rapport au libellé. */
+  readonly iconPos = input<'left' | 'right'>('left');
+  /** Bouton carré ne montrant que l'icône. Pensez à renseigner `label` ou `ariaLabel`. */
+  readonly iconOnly = input<boolean>(false);
+  /** Couleur du bouton (vocabulaire PrimeNG). */
+  readonly severity = input<AppButtonSeverity>('primary');
+  readonly size = input<AppButtonSize>('normal');
+  /** Contour coloré sur fond transparent (`.btn-outline-*`). */
+  readonly outlined = input<boolean>(false);
+  /** Sans fond ni bordure (`.btn-link`). Prioritaire sur `outlined`. */
+  readonly text = input<boolean>(false);
+  /** Coins entièrement arrondis (`.rounded-pill`). */
+  readonly rounded = input<boolean>(false);
+  /** Ombre portée, calquée sur l'élévation de `p-button`. */
+  readonly raised = input<boolean>(false);
+  /** Remplace l'icône par un spinner et désactive le bouton. */
+  readonly loading = input<boolean>(false);
+  readonly disabled = input<boolean>(false);
+  readonly type = input<'button' | 'submit' | 'reset'>('button');
+  /** Libellé d'accessibilité. Par défaut `label` est utilisé — indispensable en `iconOnly`. */
+  readonly ariaLabel = input<string>('');
+  /** Classes additionnelles posées sur le `<button>` (ex. `w-100`). */
+  readonly buttonClass = input<string>('');
+  readonly clicked = output<MouseEvent>();
   protected readonly buttonClasses = computed(() => {
     const variant = ButtonComponent.BOOTSTRAP_VARIANT[this.severity()];
     const classes = ['btn', 'd-inline-flex', 'align-items-center', 'justify-content-center', 'gap-2'];
@@ -206,14 +221,28 @@ export class ButtonComponent {
       classes.push(this.outlined() ? `btn-outline-${variant}` : `btn-${variant}`);
     }
 
-    if (this.size() === 'small') classes.push('btn-sm');
-    if (this.size() === 'large') classes.push('btn-lg');
+    if (this.size() === 'small') {
+      classes.push('btn-sm');
+    }
+    if (this.size() === 'large') {
+      classes.push('btn-lg');
+    }
     // Taille normale : on laisse la police du contexte, comme p-button.
-    if (this.size() === 'normal') classes.push('app-btn-normal');
-    if (this.rounded()) classes.push('rounded-pill');
-    if (this.raised()) classes.push('app-btn-raised');
-    if (this.iconOnly()) classes.push('app-btn-icon-only');
-    if (this.buttonClass()) classes.push(this.buttonClass());
+    if (this.size() === 'normal') {
+      classes.push('app-btn-normal');
+    }
+    if (this.rounded()) {
+      classes.push('rounded-pill');
+    }
+    if (this.raised()) {
+      classes.push('app-btn-raised');
+    }
+    if (this.iconOnly()) {
+      classes.push('app-btn-icon-only');
+    }
+    if (this.buttonClass()) {
+      classes.push(this.buttonClass());
+    }
 
     return classes.join(' ');
   });

@@ -1,81 +1,72 @@
 <div class="pharma-smart-content p-2">
-  <div class="pharma-toolbar">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-th-large"></i>
-      <span>Catalogue produits</span>
-    </div>
-    <p-toolbar>
-      <ng-template #start>
-        <div class="pharma-toolbar-filters">
-          <p-iconfield>
-            <p-inputicon class="pi pi-search" />
-            <input
-              pInputText
-              type="text"
-              placeholder="Rechercher (CIP, libellé, EAN)..."
-              [(ngModel)]="search"
-              (keyup.enter)="onSearch()"
-              style="width: 220px"
-            />
-          </p-iconfield>
+  <app-toolbar icon="pi pi-th-large" title="Catalogue produits">
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <app-icon-field [overlay]="true" icon="pi pi-search">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Rechercher (CIP, libellé, EAN)..."
+          [(ngModel)]="search"
+          (keyup.enter)="onSearch()"
+          style="width: 220px"
+        />
+      </app-icon-field>
 
-          <p-select
-            [options]="filterOptions"
-            [(ngModel)]="selectedFilter"
-            (onChange)="onFilterChange()"
-            appendTo="body"
-            placeholder="Filtre..."
-            style="min-width: 150px"
-          />
+      <app-select
+        [items]="filterOptions"
+        bindLabel="label"
+        bindValue="value"
+        [(ngModel)]="selectedFilter"
+        (selectionChange)="onFilterChange()"
+        appendTo="body"
+        placeholder="Filtre..."
+        [style]="{ 'min-width': '150px' }"
+      />
 
-          <p-select
-            [options]="familles()"
-            [(ngModel)]="selectedFamilleId"
-            optionLabel="libelle"
-            optionValue="id"
-            [showClear]="true"
-            appendTo="body"
-            (onChange)="onFilterChange()"
-            placeholder="Famille..."
-            style="min-width: 140px"
-          />
+      <app-select
+        [items]="familles()"
+        bindLabel="libelle"
+        bindValue="id"
+        [(ngModel)]="selectedFamilleId"
+        [clearable]="true"
+        appendTo="body"
+        (selectionChange)="onFilterChange()"
+        placeholder="Famille..."
+        [style]="{ 'min-width': '140px' }"
+      />
 
-          <p-select
-            [options]="rayons()"
-            [(ngModel)]="selectedRayonId"
-            optionLabel="libelle"
-            optionValue="id"
-            appendTo="body"
-            [showClear]="true"
-            (onChange)="onFilterChange()"
-            placeholder="Rayon..."
-            style="min-width: 120px"
-          />
-        </div>
-      </ng-template>
+      <app-select
+        [items]="rayons()"
+        bindLabel="libelle"
+        bindValue="id"
+        [(ngModel)]="selectedRayonId"
+        appendTo="body"
+        [clearable]="true"
+        (selectionChange)="onFilterChange()"
+        placeholder="Rayon..."
+        [style]="{ 'min-width': '120px' }"
+      />
+    </ng-container>
 
-      <ng-template #end>
-        @if (canCreate()) {
-          <div class="pharma-toolbar-actions">
-            <p-splitbutton
-              label="Importer"
-              icon="pi pi-upload"
-              [model]="importMenuItems"
-              severity="secondary"
-              [outlined]="true"
-              size="small"
-            />
-            <p-button
-              icon="pi pi-plus"
-              label="Nouveau"
-              size="small"
-              (onClick)="onNewProduit()"
-            />
-          </div>
-        }
-      </ng-template>
-    </p-toolbar>
-  </div>
+    <ng-container ngProjectAs="[toolbarActions]">
+      @if (canCreate()) {
+        <app-split-button
+          label="Importer"
+          icon="pi pi-upload"
+          [items]="importMenuItems"
+          severity="secondary"
+          [outlined]="true"
+          size="small"
+        />
+        <app-button
+          icon="pi pi-plus"
+          label="Nouveau"
+          size="small"
+          (clicked)="onNewProduit()"
+        />
+      }
+    </ng-container>
+  </app-toolbar>
 
   <!-- Légende code couleur stock -->
   <div [hidden]="true" class="stock-legend">
@@ -118,30 +109,30 @@
     <div class="bulk-action-bar">
       <span class="bulk-count">{{ selectedProduits().length }} produit(s) sélectionné(s)</span>
       @if (canEdit()) {
-        <p-button
+        <app-button
           label="Mettre en veille"
           icon="pi pi-pause"
           size="small"
           severity="warn"
           [outlined]="true"
-          (onClick)="onBulkDisable()"
+          (clicked)="onBulkDisable()"
         />
-        <p-button
+        <app-button
           label="Réactiver"
           icon="pi pi-play"
           size="small"
           severity="success"
           [outlined]="true"
-          (onClick)="onBulkEnable()"
+          (clicked)="onBulkEnable()"
         />
       }
-      <p-button
+      <app-button
         icon="pi pi-times"
         size="small"
         severity="secondary"
         [text]="true"
-        pTooltip="Désélectionner tout"
-        (onClick)="onClearSelection()"
+        ngbTooltip="Désélectionner tout"
+        (clicked)="onClearSelection()"
       />
     </div>
   }

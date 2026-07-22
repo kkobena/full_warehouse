@@ -18,7 +18,6 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ActivatedRoute} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {TooltipModule} from 'primeng/tooltip';
 import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
 import {NgbConfirmDialogService} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import {
@@ -85,7 +84,6 @@ import {IThirdPartySaleLine} from "../../../../shared/model/third-party-sale-lin
   imports: [
     CommonModule,
     FormsModule,
-    TooltipModule,
     ProductSearchSectionComponent,
     ProductListComponent,
     SaleSummaryComponent,

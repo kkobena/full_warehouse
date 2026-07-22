@@ -61,14 +61,14 @@ $border-radius-sm: 6px;
 
     .add-customer-btn,
     .remove-customer-btn {
-      ::ng-deep .p-button {
+      ::ng-deep .btn {
         width: 36px;
         height: 36px;
       }
     }
 
     .add-customer-btn {
-      ::ng-deep .p-button {
+      ::ng-deep .btn {
         animation: pulse-subtle 2s ease-in-out infinite;
       }
     }
@@ -279,6 +279,13 @@ $border-radius-sm: 6px;
 :host {
   display: block;
   width: 100%;
+}
+
+// Largeur du panneau ng-bootstrap (posé via [popoverClass]="customer-search-popover") ; le
+// panneau est ajouté au <body> par `container="body"`, donc hors de l'encapsulation de ce
+// composant — ::ng-deep sans préfixe :host le rend global, seul moyen de l'atteindre.
+::ng-deep .popover.customer-search-popover {
+  max-width: 650px;
 }
 
 // Dark theme support (if needed in future)

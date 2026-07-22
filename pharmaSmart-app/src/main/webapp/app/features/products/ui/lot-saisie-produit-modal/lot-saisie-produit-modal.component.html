@@ -6,6 +6,7 @@
 </div>
 
 <div class="modal-body overflow-visible">
+<app-card [variant]="'form'">
   <!-- Info stock -->
   <div class="lot-stock-info">
     <i class="pi pi-box me-1"></i>
@@ -27,12 +28,11 @@
         <label for="numLot" class="field-label required">Numéro de lot</label>
         <input
           #numLotInput
-          pInputText
           autocomplete="off"
           id="numLot"
           formControlName="numLot"
           maxlength="20"
-          class="w-100"
+          class="form-control w-100"
           [class.is-invalid]="form.get('numLot')?.invalid && form.get('numLot')?.touched"
         />
         @if (form.get('numLot')?.invalid && form.get('numLot')?.touched) {
@@ -59,15 +59,12 @@
       <!-- Quantité reçue -->
       <div class="field">
         <label for="quantityReceived" class="field-label required">Quantité reçue</label>
-        <p-inputnumber
+        <app-input-number
           inputId="quantityReceived"
           formControlName="quantityReceived"
           [min]="1"
           [max]="stockDisponible"
           [showButtons]="true"
-          buttonLayout="horizontal"
-          incrementButtonIcon="pi pi-plus"
-          decrementButtonIcon="pi pi-minus"
           [class.ng-invalid]="!isQuantiteValide && form.get('quantityReceived')?.touched"
         />
         @if (!isQuantiteValide && form.get('quantityReceived')?.touched) {
@@ -82,43 +79,39 @@
         <label for="storageId" class="field-label">
           Emplacement <span class="optional">(défaut : stock principal)</span>
         </label>
-        <p-select
+        <app-select-search
           inputId="storageId"
           formControlName="storageId"
-          [options]="storages()"
-          optionLabel="name"
-          optionValue="id"
+          [items]="storages()"
+          bindLabel="name"
+          bindValue="id"
           placeholder="Stockage"
-          [showClear]="true"
-          [fluid]="true"
-        >
-          <ng-template #item let-s>
-            <div class="storage-option">
-              <i class="pi pi-map-marker me-1 text-muted"></i>
-              <span>{{ s.name }}</span>
-              @if (produit?.stockProduits) {
-                @for (sp of produit.stockProduits; track sp.storageId) {
-                  @if (sp.storageId === s.id) {
-                    <span class="storage-qty ms-auto">{{ sp.qtyStock | number }} u.</span>
-                  }
+          [clearable]="true"
+          [optionTemplate]="storageItemTpl"
+        />
+        <ng-template #storageItemTpl let-s>
+          <div class="storage-option">
+            <i class="pi pi-map-marker me-1 text-muted"></i>
+            <span>{{ s.name }}</span>
+            @if (produit?.stockProduits) {
+              @for (sp of produit.stockProduits; track sp.storageId) {
+                @if (sp.storageId === s.id) {
+                  <span class="storage-qty ms-auto">{{ sp.qtyStock | number }} u.</span>
                 }
               }
-            </div>
-          </ng-template>
-        </p-select>
+            }
+          </div>
+        </ng-template>
       </div>
 
       <!-- UG (unités gratuites) -->
       <div class="field">
         <label for="freeQty" class="field-label">UG <span class="optional">(unités gratuites)</span></label>
-        <p-inputnumber
+        <app-input-number
           inputId="freeQty"
           formControlName="freeQty"
           [min]="0"
           [showButtons]="true"
-          buttonLayout="horizontal"
-          incrementButtonIcon="pi pi-plus"
-          decrementButtonIcon="pi pi-minus"
         />
       </div>
 
@@ -136,22 +129,23 @@
 
     </div>
   </form>
+</app-card>
 </div>
 
 <div class="modal-footer">
-  <p-button
+  <app-button
     label="Annuler"
     icon="pi pi-times"
     severity="secondary"
     [outlined]="true"
-    (onClick)="cancel()"
+    (clicked)="cancel()"
     [disabled]="isSaving()"
   />
-  <p-button
+  <app-button
     label="Enregistrer le lot"
     icon="pi pi-check"
     severity="primary"
-    (onClick)="save()"
+    (clicked)="save()"
     [loading]="isSaving()"
     [disabled]="form.invalid || !isQuantiteValide"
   />

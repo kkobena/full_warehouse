@@ -1,72 +1,73 @@
 <div class="pharma-smart-content">
-    <app-toolbar icon="pi pi-exclamation-triangle" title="Lots à détruire" [compact]="true">
-      <ng-container ngProjectAs="[toolbarFilters]">
-        <!-- Filtres PRIMAIRES : toujours visibles -->
-        <div class="pharma-toolbar-filters">
-          <app-select
-            (selectionChange)="onFilterChange()"
-            [(ngModel)]="selectedType"
-            [items]="types"
-            [style]="{ 'min-width': '120px' }"
-            appendTo="body"
-            bindLabel="label"
+  <app-toolbar [compact]="true" icon="pi pi-exclamation-triangle" title="Lots à détruire">
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <!-- Filtres PRIMAIRES : toujours visibles -->
+      <div class="pharma-toolbar-filters">
+        <app-select
+          (selectionChange)="onFilterChange()"
+          [(ngModel)]="selectedType"
+          [items]="types"
+          [style]="{ 'min-width': '180px' }"
+          appendTo="body"
+          bindLabel="label"
+        />
+
+        <app-float-label inputId="searchTerm"
+                         label="{{ 'warehouseApp.labels.searchPlaceholder' | translate }}">
+          <app-icon-field [overlay]="true" icon="pi pi-search">
+            <input
+              (keyup.enter)="onSearch()"
+              [(ngModel)]="searchTerm"
+              [style]="{ 'min-width': '200px' }"
+              class="form-control"
+              id="searchTerm"
+              type="text"
+            />
+          </app-icon-field>
+        </app-float-label>
+      </div>
+    </ng-container>
+
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-toolbar-actions">
+        <div class="pharma-button-group">
+          <app-button
+            (clicked)="onSearch()"
+            [raised]="true"
+            icon="pi pi-search"
+            label="{{ 'warehouseApp.buttons.search' | translate }}"
+            severity="info"
+            type="button"
           />
 
-          <app-float-label inputId="searchTerm"
-                           label="{{ 'warehouseApp.labels.searchPlaceholder' | translate }}">
-            <app-icon-field [overlay]="true" icon="pi pi-search">
-              <input
-                (keyup.enter)="onSearch()"
-                [(ngModel)]="searchTerm"
-                [style]="{ 'max-width': '200px' }"
-                class="form-control"
-                id="searchTerm"
-                type="text"
-              />
-            </app-icon-field>
-          </app-float-label>
+          <app-button
+            (clicked)="toggleAdvancedFilters()"
+            [icon]="showAdvancedFilters ? 'pi pi-filter-slash' : 'pi pi-sliders-h'"
+            [label]="showAdvancedFilters ? 'Masquer filtres' : 'Filtres avancés'"
+            [outlined]="true"
+            [severity]="showAdvancedFilters ? 'contrast' : 'secondary'"
+            type="button"
+          />
+
+          <app-split-button
+            [items]="exportMenus"
+            [raised]="true"
+            icon="pi pi-download"
+            label="{{ 'warehouseApp.buttons.export' | translate }}"
+            severity="help"
+          />
         </div>
-      </ng-container>
+      </div>
+    </ng-container>
 
-      <ng-container ngProjectAs="[toolbarActions]">
-        <div class="pharma-toolbar-actions">
-          <div class="pharma-button-group">
-            <app-button
-              (clicked)="onSearch()"
-              [raised]="true"
-              icon="pi pi-search"
-              label="{{ 'warehouseApp.buttons.search' | translate }}"
-              severity="info"
-              type="button"
-            />
-
-            <app-button
-              (clicked)="toggleAdvancedFilters()"
-              [icon]="showAdvancedFilters ? 'pi pi-filter-slash' : 'pi pi-sliders-h'"
-              [label]="showAdvancedFilters ? 'Masquer filtres' : 'Filtres avancés'"
-              [outlined]="true"
-              [severity]="showAdvancedFilters ? 'contrast' : 'secondary'"
-              type="button"
-            />
-
-            <app-split-button
-              [items]="exportMenus"
-              [raised]="true"
-              icon="pi pi-download"
-              label="{{ 'warehouseApp.buttons.export' | translate }}"
-              severity="help"
-            />
-          </div>
-        </div>
-      </ng-container>
-
-      <!-- Filtres AVANCÉS -->
+    <!-- Filtres AVANCÉS -->
     @if (showAdvancedFilters) {
       <div class="advanced-filters-row">
         <div style="max-width: 140px">
           <pharma-date-picker
-            [(ngModel)]="fromDate"
             (selectionChange)="onFilterChange()"
+            [(ngModel)]="fromDate"
+            [labelPosition]="'top'"
             [maxDate]="toDate"
             id="dateDebut"
             label="{{ 'warehouseApp.labels.du' | translate }}"
@@ -75,8 +76,9 @@
 
         <div style="max-width: 140px">
           <pharma-date-picker
-            [(ngModel)]="toDate"
             (selectionChange)="onFilterChange()"
+            [(ngModel)]="toDate"
+            [labelPosition]="'top'"
             [minDate]="fromDate"
             id="dateFin"
             label="{{ 'warehouseApp.labels.au' | translate }}"
@@ -84,27 +86,25 @@
         </div>
 
         @if (!isMono) {
-          <app-float-label inputId="magasins"
+          <app-float-label [style]="{ 'min-width': '200px' }" inputId="magasins"
                            label="{{ 'warehouseApp.labels.magasin' | translate }}">
             <app-select
               (selectionChange)="onMagasinChange()"
               [(ngModel)]="selectedMagasin"
               [clearable]="true"
               [items]="magasins"
-              [style]="{ 'min-width': '150px' }"
               appendTo="body"
               bindLabel="fullName"
               inputId="magasins"
             />
           </app-float-label>
-          <app-float-label inputId="storages"
+          <app-float-label [style]="{ 'min-width': '200px' }" inputId="storages"
                            label="{{ 'warehouseApp.labels.typeStockage' | translate }}">
             <app-select
               (selectionChange)="onStorageChange()"
               [(ngModel)]="selectedStorage"
               [clearable]="true"
               [items]="storages"
-              [style]="{ 'min-width': '150px' }"
               appendTo="body"
               bindLabel="name"
               inputId="storages"
@@ -112,13 +112,13 @@
           </app-float-label>
         }
 
-        <app-float-label inputId="rayons" label="{{ 'warehouseApp.labels.rayons' | translate }}">
+        <app-float-label [style]="{ 'min-width': '300px' }" inputId="rayons"
+                         label="{{ 'warehouseApp.labels.rayons' | translate }}">
           <app-select
             (selectionChange)="onSearch()"
             [(ngModel)]="selectedRayon"
             [clearable]="true"
             [items]="rayons"
-            [style]="{ 'min-width': '180px' }"
             appendTo="body"
             bindLabel="libelle"
             inputId="rayons"
@@ -130,6 +130,7 @@
           [grouped]="true"
           [placeholder]="'warehouseApp.labels.fournisseurs' | translate"
           [selectedId]="selectedFournisseur?.id ?? null"
+          [style]="{ 'min-width': '300px' }"
         />
 
         <app-button
@@ -142,7 +143,7 @@
         />
       </div>
     }
-    </app-toolbar>
+  </app-toolbar>
 
   <!-- Bulk action bar -->
   @if (selectedItems?.length >= 1) {

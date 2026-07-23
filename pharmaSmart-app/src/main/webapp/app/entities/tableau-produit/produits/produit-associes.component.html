@@ -1,46 +1,38 @@
 <div class="container-fluid">
-  <div class="justify-content-center">
-    <div class="pharma-toolbar">
-      <div class="pharma-toolbar-header">
-        <i class="pi pi-list"></i>
-        <span class="pharma-toolbar-title">Produits associés au tableau</span>
-      </div>
-
-      <div class="pharma-toolbar-content">
-        <div class="pharma-toolbar-filters"></div>
-
-        <div class="pharma-toolbar-actions">
-          <div class="pharma-button-group">
-            <app-button (clicked)="previousState()" icon="pi pi-angle-double-left" label="Retour" severity="secondary" />
+  <div class="pharma-smart-content p-1">
+    <div class="justify-content-center">
+      <app-toolbar icon="pi pi-list" title="Produits associés au tableau">
+        <ng-container ngProjectAs="[toolbarActions]">
+          <div class="py-1">
+            <app-button (clicked)="previousState()" icon="pi pi-angle-double-left" label="Retour"
+                        severity="secondary" />
           </div>
-        </div>
-      </div>
-    </div>
-    <div class="row mt-2 g-2">
-      <div class="col-6">
-        <div class="card data-card h-100">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <h6 class="card-title m-0">Produits non associés à ce tableau</h6>
-            <app-button
-              (clicked)="moveAllToTarget()"
-              [disabled]="!produitsSource.length"
-              icon="pi pi-angle-double-right"
-              label="Tout associer"
-              severity="secondary"
-              size="small"
-            />
-          </div>
-          <div class="p-2 border-bottom">
-            <input
-              (keyup.enter)="onSourceFilter()"
-              [(ngModel)]="searchSource"
-              class="form-control"
-              placeholder="Taper pour rechercher"
-              type="text"
-            />
-          </div>
-          <div class="card-body p-0">
-            <app-data-table [scrollable]="true" [size]="'small'" [value]="produitsSource" scrollHeight="calc(100vh - 480px)">
+        </ng-container>
+      </app-toolbar>
+      <div class="row mt-2 g-2">
+        <div class="col-6">
+          <app-card bodyClass="p-0" header="Produits non associés à ce tableau">
+            <ng-container ngProjectAs="[cardActions]">
+              <app-button
+                (clicked)="moveAllToTarget()"
+                [disabled]="!produitsSource.length"
+                icon="pi pi-angle-double-right"
+                label="Tout associer"
+                severity="secondary"
+                size="small"
+              />
+            </ng-container>
+            <div class="p-2 border-bottom">
+              <input
+                (keyup.enter)="onSourceFilter()"
+                [(ngModel)]="searchSource"
+                class="form-control"
+                placeholder="Taper pour rechercher"
+                type="text"
+              />
+            </div>
+            <app-data-table [scrollable]="true" [size]="'small'" [value]="produitsSource"
+                            scrollHeight="calc(100vh - 480px)">
               <ng-template #header>
                 <tr class="pharma-table-head">
                   <th>Code CIP</th>
@@ -55,7 +47,8 @@
                   <td>{{ item.libelle }}</td>
                   <td class="text-end">{{ item.unitPrice | number }}</td>
                   <td class="text-center">
-                    <app-button (clicked)="moveToTarget(item)" [rounded]="true" [text]="true" icon="pi pi-angle-right" severity="secondary" size="small" />
+                    <app-button (clicked)="moveToTarget(item)" [rounded]="true" [text]="true"
+                                icon="pi pi-angle-right" severity="secondary" size="small" />
                   </td>
                 </tr>
               </ng-template>
@@ -65,34 +58,32 @@
                 </tr>
               </ng-template>
             </app-data-table>
-          </div>
+          </app-card>
         </div>
-      </div>
 
-      <div class="col-6">
-        <div class="card data-card h-100">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <h6 class="card-title m-0">Produits associés</h6>
-            <app-button
-              (clicked)="moveAllToSource()"
-              [disabled]="!produitsTarget.length"
-              icon="pi pi-angle-double-left"
-              label="Tout retirer"
-              severity="secondary"
-              size="small"
-            />
-          </div>
-          <div class="p-2 border-bottom">
-            <input
-              (keyup.enter)="onTargetFilter()"
-              [(ngModel)]="searchTarget"
-              class="form-control"
-              placeholder="Taper pour rechercher"
-              type="text"
-            />
-          </div>
-          <div class="card-body p-0">
-            <app-data-table [scrollable]="true" [size]="'small'" [value]="produitsTarget" scrollHeight="calc(100vh - 480px)">
+        <div class="col-6">
+          <app-card bodyClass="p-0" header="Produits associés">
+            <ng-container ngProjectAs="[cardActions]">
+              <app-button
+                (clicked)="moveAllToSource()"
+                [disabled]="!produitsTarget.length"
+                icon="pi pi-angle-double-left"
+                label="Tout retirer"
+                severity="secondary"
+                size="small"
+              />
+            </ng-container>
+            <div class="p-2 border-bottom">
+              <input
+                (keyup.enter)="onTargetFilter()"
+                [(ngModel)]="searchTarget"
+                class="form-control"
+                placeholder="Taper pour rechercher"
+                type="text"
+              />
+            </div>
+            <app-data-table [scrollable]="true" [size]="'small'" [value]="produitsTarget"
+                            scrollHeight="calc(100vh - 480px)">
               <ng-template #header>
                 <tr class="pharma-table-head">
                   <th style="width: 50px"></th>
@@ -104,7 +95,8 @@
               <ng-template #body let-item>
                 <tr>
                   <td class="text-center">
-                    <app-button (clicked)="moveToSource(item)" [rounded]="true" [text]="true" icon="pi pi-angle-left" severity="secondary" size="small" />
+                    <app-button (clicked)="moveToSource(item)" [rounded]="true" [text]="true"
+                                icon="pi pi-angle-left" severity="secondary" size="small" />
                   </td>
                   <td><span class="pharma-code">{{ item.fournisseurProduit?.codeCip }}</span></td>
                   <td>{{ item.libelle }}</td>
@@ -117,9 +109,10 @@
                 </tr>
               </ng-template>
             </app-data-table>
-          </div>
+          </app-card>
         </div>
       </div>
     </div>
   </div>
+
 </div>

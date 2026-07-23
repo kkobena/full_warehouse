@@ -1,28 +1,21 @@
 import { Component, effect, ElementRef, inject, input, OnDestroy, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NgbDateStruct, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ProduitStatService } from 'app/entities/produit/stat/produit-stat.service';
 import { MagasinService } from 'app/entities/magasin/magasin.service';
 import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
-import { NGB_DATE_TO_ISO } from 'app/shared/util/warehouse-util';
 import { ProduitAuditingParam, ProduitAuditingState, ProduitAuditingSum } from 'app/shared/model/produit-record.model';
 import { MouvementProduit } from 'app/shared/model/enumerations/mouvement-produit.model';
 import { IStorage } from 'app/shared/model/magasin.model';
 import { IProduit } from 'app/shared/model/produit.model';
-import { ButtonComponent, DataTableComponent, MultiSelectComponent, SelectComponent } from 'app/shared/ui';
+import { ButtonComponent, DataTableComponent, MultiSelectComponent, PillSelectorComponent, SelectComponent } from 'app/shared/ui';
 import { BlobDownloadService } from '../../../../shared/services/blob-download.service';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
+import { createPeriodDateFilter } from '../period-date-filter';
 
 Chart.register(...registerables);
-
-/** Shortcut de période : label affiché + nombre de jours en arrière */
-interface PeriodShortcut {
-  label: string;
-  key: string;
-  days?: number; // si absent → Ce mois
-}
 
 @Component({
   selector: 'app-produit-mouvements-tab',
@@ -37,6 +30,7 @@ interface PeriodShortcut {
     SelectComponent,
     NgbTooltip,
     PharmaDatePickerComponent,
+    PillSelectorComponent,
     TranslatePipe,
     MultiSelectComponent
   ]
@@ -56,11 +50,8 @@ export class ProduitMouvementsTabComponent implements OnDestroy {
   private readonly canvasRef = viewChild<ElementRef<HTMLCanvasElement>>('stockChart');
   private chart?: Chart;
 
-  /** Raccourci de période actif (key) */
-  protected activePeriod = signal<string>('');
+  protected readonly periodFilter = createPeriodDateFilter({ defaultKey: 'today', onChange: () => this.load() });
 
-  protected fromDate: NgbDateStruct = this.toStruct(new Date(new Date().getFullYear(), new Date().getMonth() - 2, 1));
-  protected toDate: NgbDateStruct = this.toStruct(new Date());
   protected selectedStorage: IStorage | null = null;
 
   /** Filtre multi-types de mouvement (null / [] = tous) — lié via ngModel */
@@ -80,15 +71,6 @@ export class ProduitMouvementsTabComponent implements OnDestroy {
   protected mouvementStockOut: number | null = null;
   protected retourDepot: number | null = null;
   protected storeInventoryQuantity: number | null = null;
-
-  // ── Raccourcis de période ─────────────────────────────────────
-  protected readonly PERIOD_SHORTCUTS: PeriodShortcut[] = [
-    { label: 'Hier', key: 'yesterday', days: 1 },
-    { label: '7 j', key: '7d', days: 7 },
-    { label: 'Ce mois', key: 'month' },
-    { label: '3 mois', key: '3m', days: 90 },
-    { label: '1 an', key: '1y', days: 365 },
-  ];
 
   // ── Options de filtre type (depuis enum MouvementProduit Java) ─
   protected readonly MOVEMENT_TYPE_OPTIONS: { label: string; value: string }[] = [
@@ -137,8 +119,6 @@ export class ProduitMouvementsTabComponent implements OnDestroy {
   private readonly statService = inject(ProduitStatService);
   private readonly magasinService = inject(MagasinService);
   private readonly downloadDocumentService = inject(BlobDownloadService);
-  private fromDateStr = '';
-  private toDateStr = '';
 
   constructor() {
     this.magasinService.hasDepot().subscribe(res => this.hasDepot.set(res.body ?? false));
@@ -233,38 +213,6 @@ export class ProduitMouvementsTabComponent implements OnDestroy {
     if ((row.afterStock ?? 0) > (row.initStock ?? 0)) return 'mvt-row-positive';
     if ((row.afterStock ?? 0) < (row.initStock ?? 0)) return 'mvt-row-negative';
     return '';
-  }
-
-  // ── Raccourcis de période ─────────────────────────────────────
-
-  protected applyShortcut(shortcut: PeriodShortcut): void {
-    const today = new Date();
-    this.toDate = this.toStruct(today);
-    if (shortcut.days !== undefined) {
-      const from = new Date(today);
-      from.setDate(from.getDate() - shortcut.days);
-      this.fromDate = this.toStruct(from);
-    } else {
-      // Ce mois
-      this.fromDate = this.toStruct(new Date(today.getFullYear(), today.getMonth(), 1));
-    }
-    this.fromDateStr = '';
-    this.toDateStr = '';
-    this.activePeriod.set(shortcut.key);
-    this.load();
-  }
-
-  // ── Handlers date pickers ─────────────────────────────────────
-
-  protected onFromDateChange(date: NgbDateStruct | null): void {
-    this.fromDateStr = NGB_DATE_TO_ISO(date) ?? '';
-    this.activePeriod.set(''); // saisie manuelle → reset raccourci actif
-  }
-
-  protected onToDateChange(date: NgbDateStruct | null): void {
-    this.toDateStr = NGB_DATE_TO_ISO(date) ?? '';
-    this.activePeriod.set('');
-    this.load();
   }
 
   /** Appelé par (selectionChange) de app-multi-select — couvre aussi le clic sur la croix de remise à zéro. */
@@ -414,15 +362,10 @@ export class ProduitMouvementsTabComponent implements OnDestroy {
   private buildParam(): ProduitAuditingParam {
     return {
       produitId: this.produitId(),
-      fromDate: this.fromDateStr || NGB_DATE_TO_ISO(this.fromDate),
-      toDate: this.toDateStr || NGB_DATE_TO_ISO(this.toDate),
+      ...this.periodFilter.dateParams(),
       storageId: this.selectedStorage?.id,
       mouvementTypes: this.activeTypes.length ? this.activeTypes : undefined,
     };
-  }
-
-  private toStruct(date: Date): NgbDateStruct {
-    return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
   }
 
   private computeTotaux(summaries: ProduitAuditingSum[]): void {

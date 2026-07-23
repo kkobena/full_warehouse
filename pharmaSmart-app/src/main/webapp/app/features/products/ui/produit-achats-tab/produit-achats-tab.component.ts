@@ -1,13 +1,12 @@
 import { Component, effect, ElementRef, inject, input, OnDestroy, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AppTableLazyLoadEvent, ButtonComponent, DataTableComponent } from 'app/shared/ui';
-import { NgbDateStruct, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { AppTableLazyLoadEvent, ButtonComponent, DataTableComponent, PillSelectorComponent } from 'app/shared/ui';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ProduitStatService } from 'app/entities/produit/stat/produit-stat.service';
 import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
 import { BlobDownloadService } from 'app/shared/services/blob-download.service';
-import { NGB_DATE_TO_ISO } from 'app/shared/util/warehouse-util';
 import {
   HistoriqueProduitAchats,
   HistoriqueProduitAchatsSummary,
@@ -15,21 +14,25 @@ import {
 } from 'app/shared/model/produit-record.model';
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
+import { createPeriodDateFilter } from '../period-date-filter';
 
 Chart.register(...registerables);
-
-interface PeriodShortcut {
-  label: string;
-  key: string;
-  days?: number;
-}
 
 @Component({
   selector: 'app-produit-achats-tab',
   templateUrl: './produit-achats-tab.component.html',
   styleUrls: ['./produit-achats-tab.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, DataTableComponent, ButtonComponent, NgbTooltip, PharmaDatePickerComponent, TranslatePipe],
+  imports: [
+    CommonModule,
+    FormsModule,
+    DataTableComponent,
+    ButtonComponent,
+    NgbTooltip,
+    PharmaDatePickerComponent,
+    PillSelectorComponent,
+    TranslatePipe,
+  ],
 })
 export class ProduitAchatsTabComponent implements OnDestroy {
   readonly produitId = input.required<number>();
@@ -39,23 +42,11 @@ export class ProduitAchatsTabComponent implements OnDestroy {
   protected loading = signal(false);
   protected loadingChart = signal(false);
   protected summary = signal<HistoriqueProduitAchatsSummary | null>(null);
-  protected activePeriod = signal<string>('');
   protected showChart = signal(false);
 
-  protected fromDate: NgbDateStruct = this.toStruct(new Date(new Date().getFullYear(), new Date().getMonth() - 2, 1));
-  protected toDate: NgbDateStruct = this.toStruct(new Date());
+  protected readonly periodFilter = createPeriodDateFilter({ defaultKey: 'today', onChange: () => this.load() });
   protected itemsPerPage = ITEMS_PER_PAGE;
 
-  protected readonly PERIOD_SHORTCUTS: PeriodShortcut[] = [
-    { label: 'Hier', key: 'yesterday', days: 1 },
-    { label: '7 j', key: '7d', days: 7 },
-    { label: 'Ce mois', key: 'month' },
-    { label: '3 mois', key: '3m', days: 90 },
-    { label: '1 an', key: '1y', days: 365 },
-  ];
-
-  private fromDateStr = '';
-  private toDateStr = '';
   private chart?: Chart;
   private readonly canvasRef = viewChild<ElementRef<HTMLCanvasElement>>('achatsChart');
   private readonly statService = inject(ProduitStatService);
@@ -80,33 +71,6 @@ export class ProduitAchatsTabComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.chart?.destroy();
-  }
-
-  protected applyShortcut(shortcut: PeriodShortcut): void {
-    const today = new Date();
-    this.toDate = this.toStruct(today);
-    if (shortcut.days !== undefined) {
-      const from = new Date(today);
-      from.setDate(from.getDate() - shortcut.days);
-      this.fromDate = this.toStruct(from);
-    } else {
-      this.fromDate = this.toStruct(new Date(today.getFullYear(), today.getMonth(), 1));
-    }
-    this.fromDateStr = '';
-    this.toDateStr = '';
-    this.activePeriod.set(shortcut.key);
-    this.load();
-  }
-
-  protected onFromDateChange(date: NgbDateStruct | null): void {
-    this.fromDateStr = NGB_DATE_TO_ISO(date) ?? '';
-    this.activePeriod.set('');
-  }
-
-  protected onToDateChange(date: NgbDateStruct | null): void {
-    this.toDateStr = NGB_DATE_TO_ISO(date) ?? '';
-    this.activePeriod.set('');
-    this.load();
   }
 
   protected load(page = 0): void {
@@ -232,15 +196,9 @@ export class ProduitAchatsTabComponent implements OnDestroy {
   private buildParam(page = 0): ProduitAuditingParam {
     return {
       produitId: this.produitId(),
-      fromDate: this.fromDateStr || NGB_DATE_TO_ISO(this.fromDate),
-      toDate: this.toDateStr || NGB_DATE_TO_ISO(this.toDate),
+      ...this.periodFilter.dateParams(),
       page,
       size: this.itemsPerPage,
     };
   }
-
-  private toStruct(date: Date): NgbDateStruct {
-    return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
-  }
 }
-

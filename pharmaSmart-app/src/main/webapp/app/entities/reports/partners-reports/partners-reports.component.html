@@ -9,7 +9,8 @@
           </div>
 
           <div class="pharma-nav-sidebar-content">
-            <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav orientation="vertical">
+            <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
+                 orientation="vertical">
 
               @if (showCustomerSegmentation()) {
                 <ng-container ngbNavItem="customer-segmentation">
@@ -32,7 +33,7 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <jhi-supplier-performance></jhi-supplier-performance>
+                    <app-supplier-performance></app-supplier-performance>
                   </ng-template>
                 </ng-container>
               }

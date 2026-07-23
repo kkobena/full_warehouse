@@ -16,7 +16,7 @@ import { AyantDroitCustomerListComponent } from "../ayant-droit-customer-list/ay
 import { FormAyantDroitComponent } from "../../customer/form-ayant-droit/form-ayant-droit.component";
 import { CommonModule } from "@angular/common";
 import { NotificationService } from "../../../shared/services/notification.service";
-import { ButtonComponent, KeyFilterDirective } from "../../../shared/ui";
+import { ButtonComponent, CardComponent, KeyFilterDirective, KpiItemComponent, KpiStripComponent } from "../../../shared/ui";
 
 @Component({
   selector: "app-customer-edit-modal",
@@ -28,7 +28,10 @@ import { ButtonComponent, KeyFilterDirective } from "../../../shared/ui";
     FormsModule,
     ReactiveFormsModule,
     ButtonComponent,
+    CardComponent,
     KeyFilterDirective,
+    KpiItemComponent,
+    KpiStripComponent,
     NgbTooltip
   ]
 })

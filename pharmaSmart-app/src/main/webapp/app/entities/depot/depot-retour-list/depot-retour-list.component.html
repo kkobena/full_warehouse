@@ -2,51 +2,55 @@
 
   <div class="pharma-smart-content p-1">
     <app-toolbar icon="pi pi-undo" title="Retours dépôt">
-        <ng-container ngProjectAs="[toolbarFilters]">
-          <div class="pharma-toolbar-filters">
-            <app-select
-              inputId="depots"
-              (selectionChange)="onDepotChange()"
-              [(ngModel)]="selectedDepot"
-              appendTo="body"
-              size="large"
-              [items]="depotOptions"
-              placeholder="Tous les dépôts"
-              [style]="{ 'min-width': '200px' }"
-              class="pharma-select-modern"
-              bindLabel="displayLabel"
-              [clearable]="true"
-            />
+      <ng-container ngProjectAs="[toolbarFilters]">
+        <div class="pharma-toolbar-filters">
+          <app-select
+            (selectionChange)="onDepotChange()"
+            [(ngModel)]="selectedDepot"
+            [clearable]="true"
+            [items]="depotOptions"
+            [style]="{ 'min-width': '200px' }"
+            appendTo="body"
+            bindLabel="displayLabel"
+            class="pharma-select-modern"
+            inputId="depots"
+            placeholder="Tous les dépôts"
+            size="large"
+          />
 
-            <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate" id="fromDate" label="Du" [style]="{ 'max-width': '150px' }" />
+          <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate" [style]="{ 'max-width': '180px' }" id="fromDate"
+                              label="Du" />
 
-            <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate" id="toDate" label="Au" [style]="{ 'max-width': '150px' }" />
-          </div>
-        </ng-container>
+          <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate" [style]="{ 'max-width': '180px' }" id="toDate"
+                              label="Au" />
+        </div>
+      </ng-container>
 
-        <ng-container ngProjectAs="[toolbarActions]">
-          <div class="pharma-toolbar-actions">
-            <app-button  size="small" (clicked)="loadAll()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
-            <app-button  size="small" [raised]="true" [routerLink]="['/depot', 'new-return']" icon="pi pi-undo" label="Retour dépôt" severity="warn" />
-          </div>
-        </ng-container>
-      </app-toolbar>
+      <ng-container ngProjectAs="[toolbarActions]">
+        <div class="pharma-toolbar-actions">
+          <app-button (clicked)="loadAll()" [raised]="true" icon="pi pi-search" label="Rechercher"
+                      severity="info" size="small" />
+          <app-button [raised]="true" [routerLink]="['/depot', 'new-return']" icon="pi pi-undo"
+                      label="Retour dépôt" severity="warn" size="small" />
+        </div>
+      </ng-container>
+    </app-toolbar>
 
     <div class="card mt-2">
       <div class="card-body p-0">
         <div class="pharma-table">
           <app-data-table
-            [value]="retourDepots()"
-            [rows]="itemsPerPage"
-            [totalRecords]="totalRecords()"
+            (onLazyLoad)="onPageChange($event)"
+            [lazy]="true"
             [loading]="loading()"
             [paginator]="true"
             [rowsPerPageOptions]="[10, 20, 30, 50]"
-            [lazy]="true"
-            (onLazyLoad)="onPageChange($event)"
-            dataKey="id"
-            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+            [rows]="itemsPerPage"
             [showCurrentPageReport]="true"
+            [totalRecords]="totalRecords()"
+            [value]="retourDepots()"
+            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+            dataKey="id"
           >
             <ng-template #header>
               <tr class="pharma-table-head">
@@ -66,8 +70,8 @@
               <tr>
                 <td>
                   <app-button
-                    [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
                     [appRowToggler]="retourDepot"
+                    [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
                     [rounded]="true"
                     [text]="true"
                     type="button"
@@ -90,7 +94,7 @@
 
             <ng-template #emptymessage>
               <tr>
-                <td colspan="10" class="pharma-empty-message">
+                <td class="pharma-empty-message" colspan="10">
                   <div class="pharma-empty-content">
                     <i class="pi pi-inbox"></i>
                     <p>Aucun retour dépôt trouvé</p>
@@ -109,18 +113,19 @@
                       <span>Détails du retour #{{ retourDepot.id }}</span>
                     </div>
                     <div class="pharma-sub-table-body">
-                      @if (retourDepot.retourDepotItems && retourDepot.retourDepotItems.length > 0) {
+                      @if (retourDepot.retourDepotItems && retourDepot.retourDepotItems.length
+                      > 0) {
                         <table class="table table-sm mb-0">
                           <thead class="pharma-table-head">
-                            <tr>
-                              <th style="width: 3rem" class="text-center">#</th>
-                              <th style="width: 100px">CIP</th>
-                              <th>Produit</th>
-                              <th class="text-center" style="width: 100px">Qté Retournée</th>
-                              <th class="text-center" style="width: 100px">Stock Initial</th>
-                              <th class="text-center" style="width: 100px">Stock Après</th>
-                              <th class="text-end" style="width: 120px">Prix Unitaire</th>
-                            </tr>
+                          <tr>
+                            <th class="text-center" style="width: 3rem">#</th>
+                            <th style="width: 100px">CIP</th>
+                            <th>Produit</th>
+                            <th class="text-center" style="width: 100px">Qté Retournée</th>
+                            <th class="text-center" style="width: 100px">Stock Initial</th>
+                            <th class="text-center" style="width: 100px">Stock Après</th>
+                            <th class="text-end" style="width: 120px">Prix Unitaire</th>
+                          </tr>
                           </thead>
                           <tbody>
                             @for (item of retourDepot.retourDepotItems; track item.id; let idx = $index) {
@@ -138,30 +143,35 @@
                                   <span class="pharma-qty-value">{{ item.qtyMvt | number }}</span>
                                 </td>
                                 <td class="text-center">
-                                  <span class="pharma-qty-value">{{ item.initStock | number }}</span>
+                                  <span
+                                    class="pharma-qty-value">{{ item.initStock | number }}</span>
                                 </td>
                                 <td class="text-center">
-                                  <span class="pharma-qty-value">{{ item.afterStock | number }}</span>
+                                  <span
+                                    class="pharma-qty-value">{{ item.afterStock | number }}</span>
                                 </td>
                                 <td class="text-end">
-                                  <span class="pharma-price">{{ item.regularUnitPrice | number }}</span>
+                                  <span
+                                    class="pharma-price">{{ item.regularUnitPrice | number }}</span>
                                 </td>
                               </tr>
                             }
                           </tbody>
                           <tfoot class="pharma-table-footer">
-                            <tr>
-                              <td colspan="3" class="text-start">
+                          <tr>
+                            <td class="text-start" colspan="3">
                                 <span class="pharma-footer-label">
                                   <i class="pi pi-calculator"></i>
                                   <span>Total:</span>
                                 </span>
-                              </td>
-                              <td class="text-center">
-                                <span class="pharma-footer-total">{{ getTotalQuantity(retourDepot) | number }}</span>
-                              </td>
-                              <td colspan="3"></td>
-                            </tr>
+                            </td>
+                            <td class="text-center">
+                              <span class="pharma-footer-total">{{
+                                  getTotalQuantity(retourDepot) | number
+                                }}</span>
+                            </td>
+                            <td colspan="3"></td>
+                          </tr>
                           </tfoot>
                         </table>
                       } @else {

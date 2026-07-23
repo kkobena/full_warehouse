@@ -5,24 +5,27 @@
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
 
-        <app-icon-field icon="pi pi-search">
-          <input (input)="searchText.set($any($event.target).value)" [value]="searchText()" class="form-control"
+        <app-icon-field [overlay]="true" icon="pi pi-search">
+          <input (input)="searchText.set($any($event.target).value)" [value]="searchText()"
+                 class="form-control"
                  placeholder="Rechercher un fournisseur..." style="width: 220px;"
                  type="text" />
         </app-icon-field>
 
         <pharma-date-picker (ngModelChange)="fromDate.set($event); loadComptes()"
-                            [ngModel]="fromDate()"
+                            [ngModel]="fromDate()" [style]="{ 'max-width': '180px' }"
                             label="Du" />
 
         <pharma-date-picker (ngModelChange)="toDate.set($event); loadComptes()" [ngModel]="toDate()"
+                            [style]="{ 'max-width': '180px' }"
                             label="Au" />
 
       </div>
     </ng-container>
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-toolbar-actions">
-        <app-button (clicked)="exportPdfGlobal()" [loading]="isExporting()" icon="pi pi-file-pdf" label="Exporter en PDF"
+        <app-button (clicked)="exportPdfGlobal()" [loading]="isExporting()" icon="pi pi-file-pdf"
+                    label="Exporter en PDF"
                     ngbTooltip="Exporter la liste en PDF" severity="warn"
                     size="small" />
         <app-button (clicked)="loadComptes()" [loading]="isLoading()" [rounded]="true" [text]="true"
@@ -151,7 +154,8 @@
             </td>
             <td>{{ c.prochaineEcheance ? (c.prochaineEcheance | date:'dd/MM/yyyy') : '—' }}</td>
             <td class="text-end">
-              <app-button (clicked)="selectFournisseur(c)" [text]="true" icon="pi pi-eye" ngbTooltip="Voir règlements"
+              <app-button (clicked)="selectFournisseur(c)" [text]="true" icon="pi pi-eye"
+                          ngbTooltip="Voir règlements"
                           severity="info"
                           size="small" />
             </td>
@@ -205,15 +209,18 @@
               </div>
               <div class="panel-actions">
                 @if (f.solde > 0) {
-                  <app-button (clicked)="regleTout()" icon="pi pi-check" label="Régler tout" ngbTooltip="Solder ce fournisseur en un règlement"
+                  <app-button (clicked)="regleTout()" icon="pi pi-check" label="Régler tout"
+                              ngbTooltip="Solder ce fournisseur en un règlement"
                               severity="success"
                               size="small" />
                 }
-                <app-button (clicked)="exportPdfFournisseur()" [loading]="isExporting()" [outlined]="true"
+                <app-button (clicked)="exportPdfFournisseur()" [loading]="isExporting()"
+                            [outlined]="true"
                             icon="pi pi-file-pdf" label="Exporter en PDF"
                             ngbTooltip="Exporter le détail en PDF" severity="warn"
                             size="small" />
-                <app-button (clicked)="closeDetail()" [rounded]="true" [text]="true" icon="pi pi-times"
+                <app-button (clicked)="closeDetail()" [rounded]="true" [text]="true"
+                            icon="pi pi-times"
                             ngbTooltip="Fermer"
                             severity="secondary" size="small" />
               </div>
@@ -240,24 +247,28 @@
                       <!-- Filtre statut -->
                       <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
                         <small class="text-muted me-1">Filtrer :</small>
-                        <button (click)="setFiltreStatut(null)" [class.btn-outline-secondary]="filtreStatutLignes() !== null"
+                        <button (click)="setFiltreStatut(null)"
+                                [class.btn-outline-secondary]="filtreStatutLignes() !== null"
                                 [class.btn-secondary]="filtreStatutLignes() === null"
                                 class="btn btn-sm"
                                 type="button">
                           Tous <span
                           class="badge bg-light text-dark ms-1">{{ totalLignes() }}</span>
                         </button>
-                        <button (click)="setFiltreStatut('EN_ATTENTE')" [class.btn-outline-secondary]="filtreStatutLignes() !== 'EN_ATTENTE'"
+                        <button (click)="setFiltreStatut('EN_ATTENTE')"
+                                [class.btn-outline-secondary]="filtreStatutLignes() !== 'EN_ATTENTE'"
                                 [class.btn-secondary]="filtreStatutLignes() === 'EN_ATTENTE'"
                                 class="btn btn-sm"
                                 type="button">En attente
                         </button>
-                        <button (click)="setFiltreStatut('EN_RETARD')" [class.btn-danger]="filtreStatutLignes() === 'EN_RETARD'"
+                        <button (click)="setFiltreStatut('EN_RETARD')"
+                                [class.btn-danger]="filtreStatutLignes() === 'EN_RETARD'"
                                 [class.btn-outline-danger]="filtreStatutLignes() !== 'EN_RETARD'"
                                 class="btn btn-sm"
                                 type="button">En retard
                         </button>
-                        <button (click)="setFiltreStatut('PARTIEL')" [class.btn-outline-warning]="filtreStatutLignes() !== 'PARTIEL'"
+                        <button (click)="setFiltreStatut('PARTIEL')"
+                                [class.btn-outline-warning]="filtreStatutLignes() !== 'PARTIEL'"
                                 [class.btn-warning]="filtreStatutLignes() === 'PARTIEL'"
                                 class="btn btn-sm"
                                 type="button">Partiel
@@ -302,7 +313,8 @@
                             </td>
                             <td class="actions-col">
                               @if (l.statut !== 'REGLE') {
-                                <app-button (clicked)="reglerLigne(l)" [text]="true" icon="pi pi-money-bill"
+                                <app-button (clicked)="reglerLigne(l)" [text]="true"
+                                            icon="pi pi-money-bill"
                                             ngbTooltip="Régler ce BL"
                                             severity="success"
                                             size="small" />
@@ -353,59 +365,66 @@
                         </div>
 
                         <form (ngSubmit)="saveReglement()" [formGroup]="reglementForm">
+                          <app-card [variant]="'form'">
+                            <!-- Ligne 1 : Montant | Date -->
+                            <div class="row g-2 mb-3">
+                              <div class="col-6">
+                                <app-float-label inputId="montant" label="Montant (FCFA)">
+                                  <app-input-number formControlName="montant" inputId="montant" />
+                                </app-float-label>
+                                @if (montantSaisi() > solde()) {
+                                  <small class="text-danger">Le montant ne peut pas dépasser le
+                                    solde
+                                    dû.</small>
+                                }
+                              </div>
+                              <div class="col-6">
+                                <pharma-date-picker [labelPosition]="'top'"
+                                                    formControlName="dateReglement"
+                                                    id="dateReg"
+                                                    label="Date du règlement" />
+                              </div>
+                            </div>
 
-                          <!-- Ligne 1 : Montant | Date -->
-                          <div class="row g-2 mb-3">
-                            <div class="col-6">
-                              <app-float-label inputId="montant" label="Montant (FCFA)">
-                                <app-input-number formControlName="montant" inputId="montant" />
+                            <!-- Ligne 2 : Mode | Référence -->
+                            <div class="row g-2 mb-3">
+                              <div class="col-6">
+                                <app-float-label inputId="modeReglement" label="Mode de règlement">
+                                  <app-select [items]="modeReglementOptions" bindLabel="label"
+                                              bindValue="value" formControlName="modeReglement"
+                                              inputId="modeReglement" />
+                                </app-float-label>
+                              </div>
+                              <div class="col-6">
+                                <app-float-label inputId="reference" label="Référence">
+                                  <input class="form-control" formControlName="reference"
+                                         id="reference" placeholder=" " />
+                                </app-float-label>
+                              </div>
+                            </div>
+
+                            <!-- Commentaire -->
+                            <div class="mb-3">
+                              <app-float-label inputId="commentaire"
+                                               label="Commentaire (optionnel)">
+                                <input class="form-control" formControlName="commentaire"
+                                       id="commentaire" placeholder=" " />
                               </app-float-label>
-                              @if (montantSaisi() > solde()) {
-                                <small class="text-danger">Le montant ne peut pas dépasser le solde
-                                  dû.</small>
-                              }
                             </div>
-                            <div class="col-6">
-                              <pharma-date-picker [labelPosition]="'top'" formControlName="dateReglement"
-                                                  id="dateReg"
-                                                  label="Date du règlement" />
-                            </div>
-                          </div>
 
-                          <!-- Ligne 2 : Mode | Référence -->
-                          <div class="row g-2 mb-3">
-                            <div class="col-6">
-                              <app-float-label inputId="modeReglement" label="Mode de règlement">
-                                <app-select [items]="modeReglementOptions" bindLabel="label"
-                                            bindValue="value" formControlName="modeReglement"
-                                            inputId="modeReglement" />
-                              </app-float-label>
+                            <div class="d-flex gap-1">
+                              <app-button [disabled]="reglementForm.invalid || !validMontant()"
+                                          [loading]="isSaving()"
+                                          icon="pi pi-save"
+                                          label="Enregistrer"
+                                          type="submit" />
+                              <app-button (clicked)="activeTab.set('commandes')"
+                                          label="Annuler"
+                                          severity="secondary"
+                                          type="button" />
                             </div>
-                            <div class="col-6">
-                              <app-float-label inputId="reference" label="Référence">
-                                <input class="form-control" formControlName="reference"
-                                       id="reference" placeholder=" " />
-                              </app-float-label>
-                            </div>
-                          </div>
+                          </app-card>
 
-                          <!-- Commentaire -->
-                          <div class="mb-3">
-                            <app-float-label inputId="commentaire" label="Commentaire (optionnel)">
-                              <input class="form-control" formControlName="commentaire"
-                                     id="commentaire" placeholder=" " />
-                            </app-float-label>
-                          </div>
-
-                          <div class="d-flex gap-2">
-                            <app-button [disabled]="reglementForm.invalid || !validMontant()" [loading]="isSaving()" class="flex-fill"
-                                        icon="pi pi-save"
-                                        label="Enregistrer"
-                                        type="submit" />
-                            <app-button (clicked)="activeTab.set('commandes')" class="flex-fill" label="Annuler"
-                                        severity="secondary"
-                                        type="button" />
-                          </div>
 
                         </form>
                       </div>

@@ -50,16 +50,6 @@ export class TicketingComponent implements OnInit {
     this.editForm.valueChanges.subscribe(() => this.computeTotalAmount());
   }
 
-  protected increment(field: string): void {
-    const control = this.editForm.get([field]);
-    control.setValue((control.value || 0) + 1);
-  }
-
-  protected decrement(field: string): void {
-    const control = this.editForm.get([field]);
-    control.setValue(Math.max(0, (control.value || 0) - 1));
-  }
-
   previousState(): void {
     window.history.back();
   }

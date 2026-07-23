@@ -1,98 +1,103 @@
 <div class="modal-header">
   <h5 class="modal-title">{{ title }}</h5>
-  <button type="button" class="btn-close" (click)="dismiss()"></button>
+  <button (click)="dismiss()" class="btn-close" type="button"></button>
 </div>
 
-<div class="modal-body raf-body">
-  @if (currentRayonIsSans) {
+<div class="modal-body">
+  <app-card [variant]="'form'"> @if (currentRayonIsSans) {
     <div class="raf-source-info">
       <i class="pi pi-info-circle"></i>
       Ce produit est sans emplacement — choisissez un stockage puis un rayon.
     </div>
   }
 
-  <app-select-search
-    [items]="availableStorages()"
-    [ngModel]="selectedStorage()"
-    (ngModelChange)="onStorageChange($event)"
-    bindLabel="storageLibelle"
-    placeholder="Sélectionner un stockage..."
-    [clearable]="true"
-    appendTo="body"
-    [optionTemplate]="storageOption"
-  />
-  <ng-template #storageOption let-s>
-    <div class="raf-storage-option">
-      <i class="pi pi-warehouse"></i>
-      <span>{{ s.storageLibelle }}</span>
-      <span class="raf-storage-type-badge">{{ s.storageType }}</span>
-    </div>
-  </ng-template>
-
-  @if (selectedStorage()) {
-    <app-icon-field icon="pi pi-search" class="raf-search">
-      <input
-        type="text"
-        placeholder="Rechercher un rayon..."
-        [value]="searchText()"
-        (input)="onSearchChange($any($event.target).value)"
-        class="form-control w-100"
-      />
-    </app-icon-field>
-
-    @if (loading()) {
-      <div class="raf-loading">
-        <i class="pi pi-spin pi-spinner"></i>
+    <app-select-search
+      (ngModelChange)="onStorageChange($event)"
+      [clearable]="true"
+      [items]="availableStorages()"
+      [ngModel]="selectedStorage()"
+      [optionTemplate]="storageOption"
+      appendTo="body"
+      bindLabel="storageLibelle"
+      placeholder="Sélectionner un stockage..."
+    />
+    <ng-template #storageOption let-s>
+      <div class="raf-storage-option">
+        <i class="pi pi-warehouse"></i>
+        <span>{{ s.storageLibelle }}</span>
+        <span class="raf-storage-type-badge">{{ s.storageType }}</span>
       </div>
-    } @else {
-      <div class="raf-rayon-list">
-        @for (rayon of filteredRayons(); track rayon.id) {
-          <div
-            class="raf-rayon-item"
-            [class.selected]="selectedRayon()?.id === rayon.id"
-            (click)="selectRayon(rayon)"
-          >
-            <span class="pharma-code">{{ rayon.code }}</span>
-            <span class="raf-rayon-libelle">{{ rayon.libelle }}</span>
-            @if (rayon.position) {
-              <span class="text-muted raf-position">{{ rayon.position }}</span>
-            }
-            @if (selectedRayon()?.id === rayon.id) {
-              <i class="pi pi-check raf-check"></i>
-            }
-          </div>
-        }
-        @if (hasNoRayons()) {
-          <div class="raf-empty">Aucun rayon disponible dans ce stockage</div>
-        }
+    </ng-template>
+
+    @if (selectedStorage()) {
+      <div class="mt-2">
+        <app-icon-field icon="pi pi-search">
+          <input
+            (input)="onSearchChange($any($event.target).value)"
+            [value]="searchText()"
+            class="form-control "
+            placeholder="Rechercher un rayon..."
+            type="text"
+          />
+        </app-icon-field>
       </div>
-    }
-  } @else if (!loading()) {
-    <div class="raf-empty">
-      <i class="pi pi-arrow-up"></i>
-      Sélectionnez un stockage pour voir les rayons disponibles
-    </div>
-  }
+
+
+      @if (loading()) {
+        <div class="raf-loading">
+          <i class="pi pi-spin pi-spinner"></i>
+        </div>
+      } @else {
+        <div class="raf-rayon-list">
+          @for (rayon of filteredRayons(); track rayon.id) {
+            <div
+              (click)="selectRayon(rayon)"
+              [class.selected]="selectedRayon()?.id === rayon.id"
+              class="raf-rayon-item"
+            >
+              <span class="pharma-code">{{ rayon.code }}</span>
+              <span class="raf-rayon-libelle">{{ rayon.libelle }}</span>
+              @if (rayon.position) {
+                <span class="text-muted raf-position">{{ rayon.position }}</span>
+              }
+              @if (selectedRayon()?.id === rayon.id) {
+                <i class="pi pi-check raf-check"></i>
+              }
+            </div>
+          }
+          @if (hasNoRayons()) {
+            <div class="raf-empty">Aucun rayon disponible dans ce stockage</div>
+          }
+        </div>
+      }
+    } @else if (!loading()) {
+      <div class="raf-empty">
+        <i class="pi pi-arrow-up"></i>
+        Sélectionnez un stockage pour voir les rayons disponibles
+      </div>
+    }</app-card>
+
 </div>
 
 <div class="modal-footer">
   @if (mode === 'move' && !currentRayonIsSans) {
     <app-button
-      label="Sans emplacement"
-      icon="pi pi-map-marker"
-      severity="secondary"
-      [outlined]="true"
-      size="small"
-      ngbTooltip="Déplacer vers le rayon 'SANS' (produit sans emplacement)"
       (clicked)="onSansEmplacement()"
+      [outlined]="true"
+      icon="pi pi-map-marker"
+      label="Sans emplacement"
+      ngbTooltip="Déplacer vers le rayon 'SANS' (produit sans emplacement)"
+      severity="secondary"
+      size="small"
     />
   }
-  <app-button label="Annuler" severity="danger" [outlined]="true" size="small" (clicked)="dismiss()" />
+  <app-button (clicked)="dismiss()" [outlined]="true" label="Annuler" severity="secondary"
+              size="small" />
   <app-button
-    label="Confirmer"
-    icon="pi pi-check"
-    size="small"
-    [disabled]="!selectedRayon()"
     (clicked)="confirm()"
+    [disabled]="!selectedRayon()"
+    icon="pi pi-check"
+    label="Confirmer"
+    size="small"
   />
 </div>

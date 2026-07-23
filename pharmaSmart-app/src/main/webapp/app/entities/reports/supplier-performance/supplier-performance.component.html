@@ -1,44 +1,46 @@
-<div class="pharma-smart-content p-2">
+<div class="pharma-smart-content p-1">
   <app-toolbar icon="pi pi-users" title="Performance des Fournisseurs">
 
     <ng-container ngProjectAs="[toolbarFilters]">
-        <div class="pharma-toolbar-filters">
-          <app-select
-            (selectionChange)="onFilterChange()"
-            [(ngModel)]="selectedFilter"
-            [items]="filterOptions"
-            appendTo="body"
-            bindLabel="label"
-            bindValue="value"
-            placeholder="Filtre"
-            size="large"
-          />
-          <input [(ngModel)]="searchText" placeholder="Rechercher..."
-                 style="width: 250px"
-                 type="text" class="form-control" />
-        </div>
-      </ng-container>
+      <div class="pharma-toolbar-filters">
+        <app-select
+          (selectionChange)="onFilterChange()"
+          [(ngModel)]="selectedFilter"
+          [items]="filterOptions"
+          appendTo="body"
+          bindLabel="label"
+          bindValue="value"
+          placeholder="Filtre"
+          size="large"
+        />
+        <input [(ngModel)]="searchText" class="form-control"
+               placeholder="Rechercher..."
+               style="width: 250px" type="text" />
+      </div>
+    </ng-container>
 
-<ng-container ngProjectAs="[toolbarActions]">
-        <div>
-          <app-button (clicked)="toggleHelpDrawer()" [outlined]="true" class="mr-1"
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div>
+        <app-button (clicked)="toggleHelpDrawer()" [outlined]="true" class="mr-1"
                     icon="pi pi-question-circle"
                     label="Aide" severity="secondary" size="small" />
-          <!-- <app-button (clicked)="exportToPdf()" [loading]="isLoading()" class="mr-1" icon="pi pi-file-pdf"
-                     label="Exporter PDF" severity="warn" size="small" />-->
-          <app-button (clicked)="loadData()" class="mr-1" icon="pi pi-refresh" label="Rafraîchir"
+        <!-- <app-button (clicked)="exportToPdf()" [loading]="isLoading()" class="mr-1" icon="pi pi-file-pdf"
+                   label="Exporter PDF" severity="warn" size="small" />-->
+        <app-button (clicked)="loadData()" class="mr-1" icon="pi pi-refresh" label="Rafraîchir"
                     severity="primary" size="small" />
-        </div>
-      </ng-container>
+      </div>
+    </ng-container>
   </app-toolbar>
 
   <!-- View toggle -->
   <div class="dashboard-periode-selector mt-2">
-    <button type="button" class="periode-pill" [class.active]="activeView() === 'table'" (click)="setView('table')">
+    <button (click)="setView('table')" [class.active]="activeView() === 'table'" class="periode-pill"
+            type="button">
       <i class="pi pi-table"></i>
       <span class="pill-label">Tableau</span>
     </button>
-    <button type="button" class="periode-pill" [class.active]="activeView() === 'evolution'" (click)="setView('evolution')">
+    <button (click)="setView('evolution')" [class.active]="activeView() === 'evolution'" class="periode-pill"
+            type="button">
       <i class="pi pi-chart-line"></i>
       <span class="pill-label">Évolution N vs N-1</span>
     </button>
@@ -52,7 +54,9 @@
         <i class="pi pi-users text-primary"></i>
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">Fournisseurs</span>
-          <span class="kpi-strip-value text-primary">{{ formatNumber(summary()?.totalSuppliers) }}</span>
+          <span class="kpi-strip-value text-primary">{{
+              formatNumber(summary()?.totalSuppliers)
+            }}</span>
           <span class="kpi-strip-sub">actifs</span>
         </div>
       </div>
@@ -63,8 +67,11 @@
         <i class="pi pi-calendar text-success"></i>
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">Achats 30 jours</span>
-          <span class="kpi-strip-value text-success">{{ formatCurrency(summary()?.totalPurchaseAmountLast30Days) }} <small>FCFA</small></span>
-          <span class="kpi-strip-sub">{{ formatNumber(summary()?.totalOrdersLast30Days) }} commandes</span>
+          <span class="kpi-strip-value text-success">{{
+              formatCurrency(summary()?.totalPurchaseAmountLast30Days)
+            }} <small>FCFA</small></span>
+          <span class="kpi-strip-sub">{{ formatNumber(summary()?.totalOrdersLast30Days) }}
+            commandes</span>
         </div>
       </div>
 
@@ -74,8 +81,11 @@
         <i class="pi pi-chart-line text-warning"></i>
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">Achats 12 mois</span>
-          <span class="kpi-strip-value text-warning">{{ formatCurrency(summary()?.totalPurchaseAmountLast12Months) }} <small>FCFA</small></span>
-          <span class="kpi-strip-sub">{{ formatNumber(summary()?.totalOrdersLast12Months) }} commandes</span>
+          <span class="kpi-strip-value text-warning">{{
+              formatCurrency(summary()?.totalPurchaseAmountLast12Months)
+            }} <small>FCFA</small></span>
+          <span class="kpi-strip-sub">{{ formatNumber(summary()?.totalOrdersLast12Months) }}
+            commandes</span>
         </div>
       </div>
 
@@ -85,7 +95,9 @@
         <i class="pi pi-truck text-danger"></i>
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">Délai moyen</span>
-          <span class="kpi-strip-value text-danger">{{ formatDecimal(summary()?.avgDeliveryDays, 1) }} <small>jours</small></span>
+          <span class="kpi-strip-value text-danger">{{
+              formatDecimal(summary()?.avgDeliveryDays, 1)
+            }} <small>jours</small></span>
           <span class="kpi-strip-sub">livraison</span>
         </div>
       </div>
@@ -96,7 +108,9 @@
         <i class="pi pi-check-circle text-primary"></i>
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">Conformité moy.</span>
-          <span class="kpi-strip-value text-primary">{{ formatDecimal(summary()?.avgConformityRate, 1) }} <small>%</small></span>
+          <span class="kpi-strip-value text-primary">{{
+              formatDecimal(summary()?.avgConformityRate, 1)
+            }} <small>%</small></span>
           <span class="kpi-strip-sub">taux de qualité</span>
         </div>
       </div>
@@ -107,7 +121,9 @@
         <i class="pi pi-star-fill text-success"></i>
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">Perf. excellente</span>
-          <span class="kpi-strip-value text-success">{{ formatNumber(summary()?.suppliersWithGoodPerformance) }}</span>
+          <span class="kpi-strip-value text-success">{{
+              formatNumber(summary()?.suppliersWithGoodPerformance)
+            }}</span>
           <span class="kpi-strip-sub">score ≥ 70</span>
         </div>
       </div>
@@ -117,28 +133,28 @@
 
   <!-- Suppliers Table -->
   @if (activeView() === 'table') {
-  <div class="row mt-3">
-    <div class="col-12 mb-2">
-      <div class="card h-100 data-card">
-        <div class="card-header">
-          <h5 class="card-title">
-            <i class="pi pi-users text-primary"></i>
-            Performance des Fournisseurs
-          </h5>
-        </div>
-        <div class="card-body p-0">
-          <app-data-table
-            [loading]="isLoading()"
-            [paginator]="true"
-            [rowsPerPageOptions]="[10, 25, 50, 100]"
-            [rows]="25"
-            [scrollable]="true"
-            [showCurrentPageReport]="true"
-            [value]="getFilteredSuppliers()"
-            [size]="'small'"
-            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} fournisseurs"
-            scrollHeight="500px"
-          >
+    <div class="row mt-3">
+      <div class="col-12 mb-2">
+        <div class="card h-100 data-card">
+          <div class="card-header">
+            <h5 class="card-title">
+              <i class="pi pi-users text-primary"></i>
+              Performance des Fournisseurs
+            </h5>
+          </div>
+          <div class="card-body p-0">
+            <app-data-table
+              [loading]="isLoading()"
+              [paginator]="true"
+              [rowsPerPageOptions]="[10, 25, 50, 100]"
+              [rows]="25"
+              [scrollable]="true"
+              [showCurrentPageReport]="true"
+              [size]="'small'"
+              [value]="getFilteredSuppliers()"
+              currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} fournisseurs"
+              scrollHeight="500px"
+            >
               <ng-template #header>
                 <tr class="pharma-table-head">
                   <th>Code</th>
@@ -225,10 +241,10 @@
                 </tr>
               </ng-template>
             </app-data-table>
+          </div>
         </div>
       </div>
     </div>
-  </div>
   } <!-- end @if activeView === 'table' -->
 
   <!-- Evolution Charts -->
@@ -286,16 +302,16 @@
             <div class="card-body p-0">
               <table class="table table-sm mb-0">
                 <thead class="table-light">
-                  <tr>
-                    <th>Mois</th>
-                    <th class="text-end">Achats N</th>
-                    <th class="text-end">Achats N-1</th>
-                    <th class="text-end">Variation</th>
-                    <th class="text-center">Délai N</th>
-                    <th class="text-center">Délai N-1</th>
-                    <th class="text-center">Cdes N</th>
-                    <th class="text-center">Cdes N-1</th>
-                  </tr>
+                <tr>
+                  <th>Mois</th>
+                  <th class="text-end">Achats N</th>
+                  <th class="text-end">Achats N-1</th>
+                  <th class="text-end">Variation</th>
+                  <th class="text-center">Délai N</th>
+                  <th class="text-center">Délai N-1</th>
+                  <th class="text-center">Cdes N</th>
+                  <th class="text-center">Cdes N-1</th>
+                </tr>
                 </thead>
                 <tbody>
                   @for (label of evolution()!.labels; track label; let i = $index) {
@@ -316,9 +332,14 @@
                         }
                       </td>
                       <td class="text-center small">{{ evolution()!.delaisN![i] ?? 0 }}j</td>
-                      <td class="text-center small text-muted">{{ evolution()!.delaisN1![i] ?? 0 }}j</td>
+                      <td class="text-center small text-muted">{{ evolution()!.delaisN1![i] ?? 0 }}
+                        j
+                      </td>
                       <td class="text-center small">{{ evolution()!.nbCommandesN![i] ?? 0 }}</td>
-                      <td class="text-center small text-muted">{{ evolution()!.nbCommandesN1![i] ?? 0 }}</td>
+                      <td class="text-center small text-muted">{{
+                          evolution()!.nbCommandesN1![i] ?? 0
+                        }}
+                      </td>
                     </tr>
                   }
                 </tbody>
@@ -332,12 +353,12 @@
 
   <!-- Help Drawer -->
   <app-offcanvas [(visible)]="helpDrawerVisible" position="right" width="600px">
-  <div appOffcanvasHeader>
+    <div appOffcanvasHeader>
       <div class="d-flex align-items-center gap-2">
         <i class="pi pi-question-circle text-primary" style="font-size: 1.5rem"></i>
         <span class="fw-bold fs-5">Guide d'utilisation - Performance Fournisseurs</span>
       </div>
-  </div>
+    </div>
     <div class="p-3">
       <!-- Introduction -->
       <div class="mb-4">
@@ -590,5 +611,5 @@
         </div>
       </div>
     </div>
-</app-offcanvas>
+  </app-offcanvas>
 </div>

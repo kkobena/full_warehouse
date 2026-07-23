@@ -8,6 +8,7 @@ import {
   viewChild,
   ViewEncapsulation
 } from '@angular/core';
+import {NgStyle} from '@angular/common';
 import {ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR} from '@angular/forms';
 import {
   NgbDateParserFormatter,
@@ -54,9 +55,10 @@ import {FrenchDateParserFormatter} from '../../config/french-date-parser-formatt
       multi: true,
     },
   ],
-  imports: [NgbDatepickerModule, FormsModule],
+  imports: [NgbDatepickerModule, FormsModule, NgStyle],
   template: `
-    <div class="pharma-dp-wrapper" [class.pharma-dp-wrapper--inline]="labelPosition() === 'inline'">
+    <div class="pharma-dp-wrapper" [class.pharma-dp-wrapper--inline]="labelPosition() === 'inline'"
+         [ngStyle]="style()">
       @if (label()) {
         <label class="pharma-dp-label" [for]="id()">
           @if (icon()) {
@@ -66,21 +68,21 @@ import {FrenchDateParserFormatter} from '../../config/french-date-parser-formatt
         </label>
       }
       <div class="input-group input-group-sm">
-        <input
-          #dpInput
-          class="form-control pharma-dp-input"
-          [placeholder]="placeholder()"
-          ngbDatepicker
-          #dp="ngbDatepicker"
-          [(ngModel)]="value"
-          [container]="$any(container())"
-          [footerTemplate]="dpFooter"
-          [id]="id()"
-          [minDate]="minDate()"
-          [maxDate]="maxDate()"
-          [disabled]="isDisabled || disabled()"
-          [readonly]="readOnly()"
-          (input)="onManualInput($event)"
+        <input autocomplete="off"
+               #dpInput
+               class="form-control pharma-dp-input"
+               [placeholder]="placeholder()"
+               ngbDatepicker
+               #dp="ngbDatepicker"
+               [(ngModel)]="value"
+               [container]="$any(container())"
+               [footerTemplate]="dpFooter"
+               [id]="id()"
+               [minDate]="minDate()"
+               [maxDate]="maxDate()"
+               [disabled]="isDisabled || disabled()"
+               [readonly]="readOnly()"
+               (input)="onManualInput($event)"
         />
         <button
           class="btn pharma-dp-btn"
@@ -128,6 +130,11 @@ export class PharmaDatePickerComponent implements ControlValueAccessor {
   readonly disabled = input<boolean>(false);
   /** Position du label : au-dessus du champ (défaut) ou en ligne, à sa gauche. */
   readonly labelPosition = input<'top' | 'inline'>('inline');
+  /**
+   * Styles en ligne posés sur le wrapper, équivalent du `[style]` de `p-calendar`.
+   * Réservé au calage dimensionnel (largeur dans une barre d'outils, par exemple).
+   */
+  readonly style = input<Record<string, unknown>>({});
 
   /** Émis après la mise à jour du modèle — voir la note sur `(ngModelChange)` ci-dessus. */
   readonly selectionChange = output<NgbDateStruct | null>();

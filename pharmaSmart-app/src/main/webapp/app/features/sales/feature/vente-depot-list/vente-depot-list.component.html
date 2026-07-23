@@ -1,18 +1,24 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-1">
-    <app-toolbar icon="pi pi-warehouse" title="Ventes dépôt" [compact]="true">
+    <app-toolbar [compact]="true" icon="pi pi-warehouse" title="Ventes dépôt">
       <ng-container ngProjectAs="[toolbarFilters]">
-        <app-icon-field icon="pi pi-search">
-          <input (keyup.enter)="onSearch()" [(ngModel)]="search" class="form-control" placeholder="Référence..." type="text" />
+        <app-icon-field [overlay]="true" icon="pi pi-search">
+          <input (keyup.enter)="onSearch()" [(ngModel)]="search" class="form-control"
+                 placeholder="Référence..." type="text" />
         </app-icon-field>
 
-        <pharma-date-picker id="depot-fromDate" label="Du" [(ngModel)]="fromDate" [maxDate]="toDate" />
+        <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate"
+                            [style]="{ 'max-width': '180px' }" id="depot-fromDate"
+                            label="Du" />
 
-        <pharma-date-picker id="depot-toDate" label="Au" [(ngModel)]="toDate" [minDate]="fromDate" />
+        <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate"
+                            [style]="{ 'max-width': '180px' }" id="depot-toDate"
+                            label="Au" />
       </ng-container>
 
       <ng-container ngProjectAs="[toolbarActions]">
-        <app-button (clicked)="loadPage(0)" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
+        <app-button (clicked)="loadPage(0)" [raised]="true" icon="pi pi-search" label="Rechercher"
+                    severity="info" />
         <app-button
           [raised]="true"
           [routerLink]="['/sales-home/vente-depot']"
@@ -46,20 +52,20 @@
           [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
           [rows]="itemsPerPage"
           [showCurrentPageReport]="true"
+          [stripedRows]="true"
           [totalRecords]="totalItems"
           [value]="sales"
           class="pharma-table"
           currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} ventes dépôt"
           dataKey="id"
-          [stripedRows]="true"
         >
           <ng-template #header>
             <tr class="pharma-table-head">
               <th style="width: 13%">Date</th>
               <th style="width: 12%">Référence</th>
               <th style="width: 18%">Dépôt</th>
-              <th style="width: 8%" class="text-right">Articles</th>
-              <th style="width: 10%" class="text-right">Montant</th>
+              <th class="text-right" style="width: 8%">Articles</th>
+              <th class="text-right" style="width: 10%">Montant</th>
               <th style="width: 18%">Client</th>
               <th style="width: 14%">Vendeur</th>
               <th style="width: 7%"></th>
@@ -82,8 +88,8 @@
                     [text]="true"
                     icon="pi pi-receipt"
                     ngbTooltip="Imprimer la facture"
-                    severity="secondary"
                     placement="left"
+                    severity="secondary"
                   />
                 </div>
               </td>

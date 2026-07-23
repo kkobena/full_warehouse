@@ -1,11 +1,13 @@
 import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DataTableComponent } from '../../../shared/ui';
+import { FormsModule } from '@angular/forms';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, DataTableComponent, ToolbarComponent } from '../../../shared/ui';
 import { ChartComponent } from 'app/shared/chart/chart.component';
 import { forkJoin } from 'rxjs';
 
 import { DashboardCAService } from '../services/dashboard-ca.service';
-import { DateRangeFilterComponent } from '../../../shared/components/date-range-filter/date-range-filter.component';
+import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
 import { IRemisesAnalysisKpi, ITopRemiseProduit } from '../../../shared/model/report';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { ChartBuilderService, ChartConfig } from '../../../shared/util/chart-builder.service';
@@ -13,7 +15,7 @@ import { formatCurrency, formatDecimal, formatNumber } from 'app/shared/utils/fo
 
 @Component({
   selector: 'app-remises-analysis',
-  imports: [CommonModule, DataTableComponent, ChartComponent, DateRangeFilterComponent],
+  imports: [CommonModule, FormsModule, DataTableComponent, ChartComponent, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent],
   templateUrl: './remises-analysis.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./remises-analysis.component.scss'],
@@ -25,6 +27,11 @@ export default class RemisesAnalysisComponent implements OnInit {
 
   protected fromDate = signal<Date | null>(new Date(new Date().getFullYear(), 0, 1));
   protected toDate   = signal<Date | null>(new Date());
+
+  // `computed`, pas un appel direct à `dateToStruct()` dans le template : voir
+  // date-range-filter (supprimé) pour l'explication de la boucle silencieuse évitée.
+  protected readonly fromStruct = computed(() => this.dateToStruct(this.fromDate()));
+  protected readonly toStruct   = computed(() => this.dateToStruct(this.toDate()));
 
   protected chartConfig = signal<ChartConfig | null>(null);
 
@@ -82,5 +89,15 @@ export default class RemisesAnalysisComponent implements OnInit {
     const total = this.kpi()?.totalRemise;
     if (!total || !montant) return 0;
     return Math.round((montant / total) * 100);
+  }
+
+  protected dateToStruct(d: Date | null): NgbDateStruct | null {
+    if (!d) return null;
+    return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
+  }
+
+  protected structToDate(s: NgbDateStruct | null): Date | null {
+    if (!s) return null;
+    return new Date(s.year, s.month - 1, s.day);
   }
 }

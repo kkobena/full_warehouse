@@ -1,28 +1,34 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-1">
 
-    <app-toolbar icon="pi pi-replay" title="Avoirs clients" [compact]="true">
+    <app-toolbar [compact]="true" icon="pi pi-replay" title="Avoirs clients">
       <ng-container ngProjectAs="[toolbarFilters]">
         <app-select
+          (ngModelChange)="onStatutChange($event)"
           [items]="statutOptions"
           [ngModel]="statut()"
-          (ngModelChange)="onStatutChange($event)"
+          appendTo="body"
           bindLabel="label"
           bindValue="value"
-          appendTo="body"
         />
 
-        <app-icon-field icon="pi pi-search">
-          <input (keyup.enter)="onSearch()" [(ngModel)]="search" class="form-control" placeholder="Référence, produit..." type="text" />
+        <app-icon-field [overlay]="true" icon="pi pi-search">
+          <input (keyup.enter)="onSearch()" [(ngModel)]="search" class="form-control"
+                 placeholder="Référence, produit..." type="text" />
         </app-icon-field>
 
-        <pharma-date-picker id="avoir-fromDate" label="Du" [(ngModel)]="fromDate" [maxDate]="toDate" />
+        <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate"
+                            [style]="{ 'max-width': '180px' }" id="avoir-fromDate"
+                            label="Du" />
 
-        <pharma-date-picker id="avoir-toDate" label="Au" [(ngModel)]="toDate" [minDate]="fromDate" />
+        <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate"
+                            [style]="{ 'max-width': '180px' }" id="avoir-toDate"
+                            label="Au" />
       </ng-container>
 
       <ng-container ngProjectAs="[toolbarActions]">
-        <app-button (clicked)="onSearch()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
+        <app-button (clicked)="onSearch()" [raised]="true" icon="pi pi-search" label="Rechercher"
+                    severity="info" />
       </ng-container>
     </app-toolbar>
 
@@ -35,7 +41,8 @@
       <div class="summary-item">
         <i class="pi pi-wallet"></i>
         <span class="summary-label">Montant total :</span>
-        <span class="summary-value avoir-amount">{{ totalMontantDocuments | number: '1.0-0' }} FCFA</span>
+        <span class="summary-value avoir-amount">{{ totalMontantDocuments | number: '1.0-0' }}
+          FCFA</span>
       </div>
     </div>
 
@@ -47,10 +54,10 @@
       [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
       [rows]="itemsPerPage"
       [showCurrentPageReport]="true"
+      [size]="'small'"
+      [stripedRows]="true"
       [totalRecords]="documentsTotal"
       [value]="documents()"
-      [stripedRows]="true"
-      [size]="'small'"
       currentPageReportTemplate="{first} – {last} sur {totalRecords}"
       dataKey="id"
     >
@@ -93,11 +100,13 @@
           @if (statut() === 'OUVERT' || statut() === null) {
             <td>
               @if (doc.dateExpiration) {
-                <span [class.text-danger]="doc.procheExpiration" [class.fw-semibold]="doc.procheExpiration">
+                <span [class.fw-semibold]="doc.procheExpiration"
+                      [class.text-danger]="doc.procheExpiration">
                   {{ doc.dateExpiration | date: 'dd/MM/yyyy' }}
                 </span>
                 @if (doc.procheExpiration) {
-                  <span class="badge bg-warning text-dark ms-1" style="font-size:.7rem">Bientôt</span>
+                  <span class="badge bg-warning text-dark ms-1"
+                        style="font-size:.7rem">Bientôt</span>
                 }
               } @else {
                 <span class="text-muted">—</span>
@@ -133,13 +142,13 @@
           }
           <td class="text-center">
             @if (doc.statut === 'OUVERT') {
-              <app-badge severity="warn" label="Ouvert" />
+              <app-badge label="Ouvert" severity="warn" />
             } @else if (doc.statut === 'EXPIRE') {
-              <app-badge severity="danger" label="Expiré" />
+              <app-badge label="Expiré" severity="danger" />
             } @else if (doc.statut === 'ANNULE') {
-              <app-badge severity="secondary" label="Annulé" />
+              <app-badge label="Annulé" severity="secondary" />
             } @else {
-              <app-badge severity="success" label="Clôturé" />
+              <app-badge label="Clôturé" severity="success" />
             }
           </td>
           @if (statut() !== 'CLOTURE' && statut() !== 'EXPIRE') {
@@ -150,10 +159,10 @@
                   [raised]="true"
                   icon="pi pi-check-circle"
                   label="Clôturer"
-                  severity="success"
-                  size="small"
                   ngbTooltip="Clôturer cet avoir"
                   placement="left"
+                  severity="success"
+                  size="small"
                 />
               }
             </td>

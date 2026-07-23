@@ -1,19 +1,20 @@
 <div class="container-fluid">
-  <div class="pharma-smart-content p-2">
+  <div class="pharma-smart-content p-1">
     <app-toolbar icon="pi pi-user" title="Détails de l'utilisateur">
       <ng-container ngProjectAs="[toolbarHeaderExtra]">
         @if (user()) {
           <app-badge [label]="user()!.login" class="ml-2" severity="info"></app-badge>
           @if (user()!.activated) {
-            <app-badge class="ml-2" icon="pi pi-check-circle" severity="success" label="Activé"></app-badge>
+            <app-badge class="ml-2" icon="pi pi-check-circle" label="Activé"
+                       severity="success"></app-badge>
           } @else {
-            <app-badge class="ml-2" icon="pi pi-times-circle" severity="danger"
-                   label="Désactivé"></app-badge>
+            <app-badge class="ml-2" icon="pi pi-times-circle" label="Désactivé"
+                       severity="danger"></app-badge>
           }
         }
       </ng-container>
       <ng-container ngProjectAs="[toolbarActions]">
-        <div class="pharma-button-group">
+        <div class="pharma-button-group py-1">
           <app-button
             [raised]="true"
             [routerLink]="['../../', user()!.login, 'edit']"

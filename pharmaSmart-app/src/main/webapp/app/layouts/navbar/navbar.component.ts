@@ -1,21 +1,27 @@
-import { Component, effect, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
-import { Router, RouterModule } from "@angular/router";
-import { environment } from "environments/environment";
-import { AccountService } from "app/core/auth/account.service";
-import { LoginService } from "app/login/login.service";
-import { NavItem } from "./navbar-item.model";
-import { faBars, faServer, faSlidersH } from "@fortawesome/free-solid-svg-icons";
-import { NgbCollapse, NgbDropdown, NgbDropdownMenu, NgbDropdownToggle, NgbModal } from "@ng-bootstrap/ng-bootstrap";
-import { AppSettingsDialogComponent } from "../../shared/settings/app-settings-dialog.component";
-import { Authority } from "../../config/authority.constants";
-import { LayoutService } from "../../core/config/layout.service";
-import { NavigationService } from "../../core/config/navigation.service";
-import { TauriPrinterService } from "../../shared/services/tauri-printer.service";
-import { AlertBadgeService } from "../../shared/services/alert-badge.service";
-import { NavStore } from "app/core/store/nav.store";
-import { CommonModule } from "@angular/common";
+import {ChangeDetectionStrategy, Component, effect, inject, OnInit, signal} from "@angular/core";
+import {Router, RouterModule} from "@angular/router";
+import {environment} from "environments/environment";
+import {AccountService} from "app/core/auth/account.service";
+import {LoginService} from "app/login/login.service";
+import {NavItem} from "./navbar-item.model";
+import {faBars, faClipboardCheck, faServer, faSlidersH} from "@fortawesome/free-solid-svg-icons";
+import {
+  NgbCollapse,
+  NgbDropdown,
+  NgbDropdownMenu,
+  NgbDropdownToggle,
+  NgbModal
+} from "@ng-bootstrap/ng-bootstrap";
+import {AppSettingsDialogComponent} from "../../shared/settings/app-settings-dialog.component";
+import {Authority} from "../../config/authority.constants";
+import {LayoutService} from "../../core/config/layout.service";
+import {NavigationService} from "../../core/config/navigation.service";
+import {TauriPrinterService} from "../../shared/services/tauri-printer.service";
+import {AlertBadgeService} from "../../shared/services/alert-badge.service";
+import {NavStore} from "app/core/store/nav.store";
+import {CommonModule} from "@angular/common";
 import TranslateDirective from "../../shared/language/translate.directive";
-import { FaIconComponent } from "@fortawesome/angular-fontawesome";
+import {FaIconComponent} from "@fortawesome/angular-fontawesome";
 
 @Component({
   selector: "jhi-navbar",
@@ -25,22 +31,24 @@ import { FaIconComponent } from "@fortawesome/angular-fontawesome";
   imports: [RouterModule, CommonModule, TranslateDirective, FaIconComponent, NgbDropdown, NgbCollapse, NgbDropdownToggle, NgbDropdownMenu]
 })
 export default class NavbarComponent implements OnInit {
+  protected readonly faClipboardCheck = faClipboardCheck;
+  protected readonly faSlidersH = faSlidersH;
   protected isNavbarCollapsed = signal(true);
   protected version = "";
   protected account = inject(AccountService).trackCurrentAccount();
   protected navItems: NavItem[] = [];
   protected layoutService = inject(LayoutService);
+  protected readonly alertBadgeService = inject(AlertBadgeService);
   private readonly loginService = inject(LoginService);
   private readonly router = inject(Router);
   private readonly modalService = inject(NgbModal);
   private readonly navigationService = inject(NavigationService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly navStore = inject(NavStore);
-  protected readonly alertBadgeService = inject(AlertBadgeService);
 
   constructor() {
 
-    const { VERSION } = environment;
+    const {VERSION} = environment;
     if (VERSION) {
       this.version = VERSION.toLowerCase().startsWith("v") ? VERSION : `v${VERSION}`;
     }
@@ -55,6 +63,18 @@ export default class NavbarComponent implements OnInit {
       this.applyNavBadges(items, ruptureCount, urgentCount, peremptionCount, facturationOverdueCount);
       this.navItems = items;
     });
+  }
+
+  protected get isTauriAdmin(): boolean {
+    const account = this.account();
+    return this.tauriPrinterService.isRunningInTauri() &&
+      !!account &&
+      this.navigationService.hasAnyAuthority(Authority.ADMIN, account.authorities);
+  }
+
+  protected get isAdmin(): boolean {
+    const account = this.account();
+    return !!account && this.navigationService.hasAnyAuthority(Authority.ADMIN, account.authorities);
   }
 
   ngOnInit(): void {
@@ -80,25 +100,19 @@ export default class NavbarComponent implements OnInit {
   }
 
   protected openAppSettings(): void {
-    this.modalService.open(AppSettingsDialogComponent, { size: "lg", backdrop: "static", centered: true });
+    this.modalService.open(AppSettingsDialogComponent, {
+      size: "lg",
+      backdrop: "static",
+      centered: true
+    });
   }
 
   protected openConfigEditor(): void {
     void this.router.navigate(["/app-config"]);
   }
 
-  protected get isTauriAdmin(): boolean {
-    const account = this.account();
-    return this.tauriPrinterService.isRunningInTauri() &&
-      !!account &&
-      this.navigationService.hasAnyAuthority(Authority.ADMIN, account.authorities);
-  }
-
-  protected hasAnyAuthority(authorities: string[] | string): boolean {
-    const userIdentity = this.account();
-    if (!userIdentity) return false;
-    if (!Array.isArray(authorities)) authorities = [authorities];
-    return userIdentity.authorities.some((authority: string) => authorities.includes(authority));
+  protected openCahierRecette(): void {
+    void this.router.navigate(["/cahier-recette"]);
   }
 
   protected isAccountMenu(item: NavItem): boolean {
@@ -110,8 +124,8 @@ export default class NavbarComponent implements OnInit {
 
     if (account) {
       const accountItems: NavItem[] = [
-        { label: "Menu vertical", faIcon: faBars, click: () => this.layoutService.toggleLayout() },
-        { label: "Se déconnecter", faIcon: "sign-out-alt" as any, click: () => this.logout() }
+        {label: "Menu vertical", faIcon: faBars, click: () => this.layoutService.toggleLayout()},
+        {label: "Se déconnecter", faIcon: "sign-out-alt" as any, click: () => this.logout()}
       ];
       if (this.navigationService.hasAnyAuthority(Authority.ADMIN, account.authorities) && this.tauriPrinterService.isRunningInTauri()) {
         accountItems.unshift({
@@ -120,7 +134,7 @@ export default class NavbarComponent implements OnInit {
           click: () => this.openConfigEditor()
         });
       }
-      return this.navigationService.buildNavItemsFromStore({ additionalAccountMenuItems: accountItems });
+      return this.navigationService.buildNavItemsFromStore({additionalAccountMenuItems: accountItems});
     }
 
     // Unauthenticated user menu items

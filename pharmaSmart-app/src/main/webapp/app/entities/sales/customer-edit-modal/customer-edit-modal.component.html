@@ -4,100 +4,115 @@
       <i class="pi pi-user-edit"></i>
       Modification client - Vente N° {{ sale.numberTransaction }}
     </h4>
-    <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal" type="button">&times;</button>
+    <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal"
+            type="button">&times;
+    </button>
   </div>
 
-  <div class="modal-body compact">
+  <div class="modal-body">
     <!-- Sale Info Summary -->
-    <div class="sale-summary-inline">
-      <div class="sale-stat">
-        <span class="sale-stat-label">Caissier</span>
-        <span class="sale-stat-value">{{ sale.cassier?.abbrName }}</span>
-      </div>
-      <div class="sale-stat">
-        <span class="sale-stat-label">Montant</span>
-        <span class="sale-stat-value highlight">{{ sale.salesAmount | number }} F</span>
-      </div>
-      <div class="sale-stat">
-        <span class="sale-stat-label">Part T.P</span>
-        <span class="sale-stat-value">{{ sale.partTiersPayant | number }} F</span>
-      </div>
-      <div class="sale-stat">
-        <span class="sale-stat-label">Part Assuré</span>
-        <span class="sale-stat-value">{{ sale.partAssure | number }} F</span>
-      </div>
-    </div>
+    <app-kpi-strip stripClass="mb-2">
+      <app-kpi-item [value]="sale.cassier?.abbrName" icon="pi pi-user" label="Caissier" />
+      <app-kpi-item
+        [accent]="'primary'"
+        [value]="sale.salesAmount | number"
+        icon="pi pi-wallet"
+        iconClass="text-primary"
+        label="Montant"
+        suffix=" F"
+        valueClass="text-primary"
+      />
+      <app-kpi-item [value]="sale.partTiersPayant | number" icon="pi pi-building" label="Part T.P"
+                    suffix=" F" />
+      <app-kpi-item [value]="sale.partAssure | number" icon="pi pi-user-plus" label="Part Assuré"
+                    suffix=" F" />
+    </app-kpi-strip>
 
     <!-- Customer Cards Section -->
     <div class="card-grid-2col-compact">
       <!-- Primary Insured Card -->
-      <div class="compact-card">
-        <div class="compact-card-header">
-          <span class="card-title"><i class="pi pi-user"></i> Assuré principal</span>
-          <app-button
-            (clicked)="openAssuredCustomerListTable()"
-            [rounded]="true"
-            icon="pi pi-search"
-            severity="secondary"
-            size="small"
-            type="button"
-            ngbTooltip="Rechercher"
-          />
+      <app-card [variant]="'form'" [withHeader]="true">
+        <div class="section-header mb-1" ngProjectAs="[cardHeader]">
+          <i class="pi pi-user"></i>
+          <span>Assuré principal</span>
         </div>
-        <div class="compact-card-body" formGroupName="customer">
+        <app-button
+          (clicked)="openAssuredCustomerListTable()"
+          [rounded]="true"
+          icon="pi pi-search"
+          ngProjectAs="[cardActions]"
+          ngbTooltip="Rechercher"
+          severity="primary"
+          size="small"
+          type="button"
+        />
+        <div formGroupName="customer">
           <div class="form-row">
             <div class="form-field-inline">
               <label for="field_num">Matricule <span class="required">*</span></label>
-              <input class="form-control" type="text" id="field_num" formControlName="num" autocomplete="off" [appKeyFilter]="'alphanum'" />
+              <input [appKeyFilter]="'alphanum'" autocomplete="off" class="form-control"
+                     formControlName="num"
+                     id="field_num" type="text" />
             </div>
             <div class="form-field-inline">
               <label for="field_phone">Tél.</label>
-              <input class="form-control" type="text" id="field_phone" formControlName="phone" autocomplete="off" [appKeyFilter]="'int'" />
+              <input [appKeyFilter]="'int'" autocomplete="off" class="form-control"
+                     formControlName="phone"
+                     id="field_phone" type="text" />
             </div>
           </div>
           <div class="form-row">
             <div class="form-field-inline">
               <label for="field_lastName">Nom <span class="required">*</span></label>
-              <input class="form-control" type="text" id="field_lastName" formControlName="lastName" autocomplete="off" />
+              <input autocomplete="off" class="form-control" formControlName="lastName"
+                     id="field_lastName"
+                     type="text" />
             </div>
             <div class="form-field-inline">
               <label for="field_firstName">Prénom <span class="required">*</span></label>
-              <input class="form-control" type="text" id="field_firstName" formControlName="firstName" autocomplete="off" />
+              <input autocomplete="off" class="form-control" formControlName="firstName"
+                     id="field_firstName" type="text" />
             </div>
           </div>
         </div>
-      </div>
+      </app-card>
 
       <!-- Beneficiary Card -->
-      <div class="compact-card">
-        <div class="compact-card-header">
-          <span class="card-title"><i class="pi pi-users"></i> Ayant droit</span>
-          <app-button
-            (clicked)="loadAyantDoits()"
-            [rounded]="true"
-            icon="pi pi-search"
-            severity="secondary"
-            size="small"
-            type="button"
-            ngbTooltip="Rechercher"
-          />
+      <app-card [variant]="'form'" [withHeader]="true">
+        <div class="section-header" ngProjectAs="[cardHeader]">
+          <i class="pi pi-users"></i>
+          <span>Ayant droit</span>
         </div>
+        <app-button
+          (clicked)="loadAyantDoits()"
+          [rounded]="true"
+          icon="pi pi-search"
+          ngProjectAs="[cardActions]"
+          ngbTooltip="Rechercher"
+          severity="primary"
+          size="small"
+          type="button"
+        />
         @if (ayantDroit && customer.id !== ayantDroit.id) {
-          <div class="compact-card-body" formGroupName="ayantDroit">
+          <div formGroupName="ayantDroit">
             <div class="form-row">
               <div class="form-field-inline form-field-full">
                 <label for="field_ayantdroit_num">Matricule <span class="required">*</span></label>
-                <input class="form-control" type="text" id="field_ayantdroit_num" formControlName="num" autocomplete="off" [appKeyFilter]="'alphanum'" />
+                <input [appKeyFilter]="'alphanum'" autocomplete="off" class="form-control"
+                       formControlName="num" id="field_ayantdroit_num" type="text" />
               </div>
             </div>
             <div class="form-row">
               <div class="form-field-inline">
                 <label for="field_ayantdroit_lastName">Nom <span class="required">*</span></label>
-                <input class="form-control" type="text" id="field_ayantdroit_lastName" formControlName="lastName" autocomplete="off" />
+                <input autocomplete="off" class="form-control" formControlName="lastName"
+                       id="field_ayantdroit_lastName" type="text" />
               </div>
               <div class="form-field-inline">
-                <label for="field_ayantdroit_firstName">Prénom <span class="required">*</span></label>
-                <input class="form-control" type="text" id="field_ayantdroit_firstName" formControlName="firstName" autocomplete="off" />
+                <label for="field_ayantdroit_firstName">Prénom <span
+                  class="required">*</span></label>
+                <input autocomplete="off" class="form-control" formControlName="firstName"
+                       id="field_ayantdroit_firstName" type="text" />
               </div>
             </div>
           </div>
@@ -107,7 +122,7 @@
             <span>Aucun ayant droit</span>
           </div>
         }
-      </div>
+      </app-card>
     </div>
 
     <!-- Third Party Sale Lines Section -->
@@ -118,45 +133,48 @@
       </div>
       <div class="card-grid-2col-compact" formArrayName="thirdPartySaleLines">
         @for (group of thirdPartySaleLinesFomArray.controls; track group; let i = $index) {
-          <div class="compact-card" [formGroupName]="i">
-            <div class="compact-card-header">
-              <span class="card-title"><i class="pi pi-building"></i> {{ group.value.tiersPayantFullName }}</span>
-              <app-button
-                [rounded]="true"
-                (clicked)="onChangeTierPayant(i)"
-                type="button"
-                icon="pi pi-pencil"
-                severity="secondary"
-                size="small"
-                ngbTooltip="Modifier"
-              />
+          <app-card [formGroupName]="i" [variant]="'form'" [withHeader]="true">
+            <div class="section-header" ngProjectAs="[cardHeader]">
+              <i class="pi pi-building"></i>
+              <span>{{ group.value.tiersPayantFullName }}</span>
             </div>
-            <div class="compact-card-body">
-              <div class="form-row">
-                <div class="tp-stats-inline">
-                  <span class="tp-stat-inline"><b>Taux:</b> {{ group.value.taux | number }}%</span>
-                  <span class="tp-stat-inline"><b>Montant:</b> {{ group.value.montant | number }} F</span>
-                </div>
-                <div class="form-field-inline">
-                  <label>N° Bon <span class="required">*</span></label>
-                  <input class="form-control" type="text" autocomplete="off" [appKeyFilter]="'alphanum'" required formControlName="numBon" />
-                </div>
+            <app-button
+              (clicked)="onChangeTierPayant(i)"
+              [rounded]="true"
+              icon="pi pi-pencil"
+              ngProjectAs="[cardActions]"
+              ngbTooltip="Modifier"
+              severity="primary"
+              size="small"
+              type="button"
+            />
+            <div class="form-row">
+              <div class="tp-stats-inline">
+                <span class="tp-stat-inline"><b>Taux:</b> {{ group.value.taux | number }}%</span>
+                <span class="tp-stat-inline"><b>Montant:</b> {{ group.value.montant | number }}
+                  F</span>
+              </div>
+              <div class="form-field-inline">
+                <label>N° Bon <span class="required">*</span></label>
+                <input [appKeyFilter]="'alphanum'" autocomplete="off" class="form-control"
+                       formControlName="numBon" required type="text" />
               </div>
             </div>
-          </div>
+          </app-card>
         }
       </div>
     }
   </div>
 
   <div class="modal-footer">
-    <app-button (clicked)="cancel()" type="button" severity="secondary" icon="pi pi-times" label="Annuler" />
+    <app-button (clicked)="cancel()" icon="pi pi-times" label="Annuler" severity="secondary"
+                type="button" />
     <app-button
       [disabled]="editForm.invalid || isSaving || !hasFormChanged()"
-      type="submit"
-      severity="primary"
       icon="pi pi-save"
       label="Sauvegarder"
+      severity="primary"
+      type="submit"
     />
   </div>
 </form>

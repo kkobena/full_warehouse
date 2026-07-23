@@ -7,150 +7,119 @@
 </div>
 
 <div class="modal-body">
-  <!-- Summary Cards - Compact Pharma Style -->
-  <div class="row g-2 mb-2">
-    <div class="col-xl-3 col-md-6">
-      <div class="card pharma-stat-card primary-accent">
-        <div class="card-body p-2">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <p class="text-muted mb-1 small">Date règlement</p>
-              <h6 class="mb-0 fw-bold">{{ reglement.created }}</h6>
-            </div>
-            <div class="pharma-stat-icon bg-primary-subtle">
-              <i class="pi pi-calendar text-primary"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-xl-3 col-md-6">
-      <div class="card pharma-stat-card warning-accent">
-        <div class="card-body p-2">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <p class="text-muted mb-1 small">Montant attendu</p>
-              <h6 class="mb-0 fw-bold">{{ reglement.montantAttendu }}</h6>
-            </div>
-            <div class="pharma-stat-icon bg-warning-subtle">
-              <i class="pi pi-clock text-warning"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-xl-3 col-md-6">
-      <div class="card pharma-stat-card success-accent">
-        <div class="card-body p-2">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <p class="text-muted mb-1 small">Montant réglé</p>
-              <h6 class="mb-0 fw-bold">{{ reglement.paidAmount }}</h6>
-            </div>
-            <div class="pharma-stat-icon bg-success-subtle">
-              <i class="pi pi-check-circle text-success"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-xl-3 col-md-6">
-      <div class="card pharma-stat-card danger-accent">
-        <div class="card-body p-2">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <p class="text-muted mb-1 small">Montant restant</p>
-              <h6 class="mb-0 fw-bold">{{ reglement.montantRestant }}</h6>
-            </div>
-            <div class="pharma-stat-icon bg-danger-subtle">
-              <i class="pi pi-exclamation-circle text-danger"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Mode règlement badge -->
-  <div class="mb-2">
-    <span class="text-muted small me-2">Mode règlement:</span>
-    <app-badge [label]="reglement.paymentMode" severity="info"></app-badge>
-  </div>
+  <!-- Summary Cards -->
+  <app-kpi-strip stripClass="mb-2">
+    <app-kpi-item
+      [accent]="'primary'"
+      [value]="reglement.created"
+      icon="pi pi-calendar"
+      iconClass="text-primary"
+      label="Date règlement"
+    />
+    <app-kpi-item
+      [accent]="'warning'"
+      [value]="reglement.montantAttendu"
+      icon="pi pi-clock"
+      iconClass="text-warning"
+      label="Montant attendu"
+      valueClass="text-warning"
+    />
+    <app-kpi-item
+      [accent]="'success'"
+      [value]="reglement.paidAmount"
+      icon="pi pi-check-circle"
+      iconClass="text-success"
+      label="Montant réglé"
+      valueClass="text-success"
+    />
+    <app-kpi-item
+      [accent]="'danger'"
+      [value]="reglement.montantRestant"
+      icon="pi pi-exclamation-circle"
+      iconClass="text-danger"
+      label="Montant restant"
+      valueClass="text-danger"
+    />
+    <app-kpi-item
+      [accent]="'info'"
+      [value]="reglement.paymentMode"
+      icon="pi pi-credit-card"
+      iconClass="text-info"
+      label="Mode règlement"
+    />
+  </app-kpi-strip>
 
   <!-- Table Card -->
-  <div class="card data-card">
-    <div class="card-header">
-      <h5 class="card-title">
-        <i class="pi pi-folder text-info"></i>
-        Dossiers de la facture
-      </h5>
-      <app-icon-field [overlay]="true" icon="pi pi-search">
-        <input
-          (input)="fact.filterGlobal($event.target.value, 'contains')"
-          class="p-inputtext-sm"
-          placeholder="Rechercher un dossier"
-          type="text"
-        />
-      </app-icon-field>
-    </div>
-    <div class="card-body p-0">
-      <app-data-table
-        #fact
-        [globalFilterFields]="['numBon', 'customer', 'customerMatricule']"
-        [paginator]="true"
-        [rowsPerPageOptions]="[10, 25, 50, 100]"
-        [rows]="10"
-        [scrollHeight]="scrollHeight"
-        [scrollable]="true"
-        [stripedRows]="true"
-        [value]="datas"
-        [size]="'small'"
-      >
-        <ng-template #header>
-          <tr class="pharma-table-head">
-            <th>Num. Bon</th>
-            <th>Date</th>
-            <th>Heure</th>
-            <th>Assuré</th>
-            <th>Matricule</th>
-            <th class="text-end">Montant</th>
-            <th class="text-end">Attendu</th>
-            <th class="text-end">Réglé</th>
-            <th class="text-end">Restant</th>
-          </tr>
-        </ng-template>
-        <ng-template #body let-factureDetail>
-          <tr>
-            <td>
-              <span class="pharma-code">{{ factureDetail.numBon }}</span>
-            </td>
-            <td>{{ factureDetail.created }}</td>
-            <td>{{ factureDetail.heure }}</td>
-            <td class="pharma-entity-name">{{ factureDetail.customer }}</td>
-            <td>
-              <span class="pharma-badge pharma-badge-info">{{ factureDetail.customerMatricule }}</span>
-            </td>
-            <td class="text-end pharma-price">{{ factureDetail.montantVente }}</td>
-            <td class="text-end pharma-price">{{ factureDetail.montantAttendu }}</td>
-            <td class="text-end pharma-total">{{ factureDetail.montant }}</td>
-            <td [class.text-danger]="factureDetail.montantRestant > 0" class="text-end fw-bold">
-              {{ factureDetail.montantRestant }}
-            </td>
-          </tr>
-        </ng-template>
-        <ng-template #empty>
-          <tr>
-            <td class="text-center p-4" colspan="9">
-              <i class="pi pi-inbox text-muted" style="font-size: 2rem"></i>
-              <p class="mt-2 text-muted mb-0">Aucun dossier trouvé pour ce règlement.</p>
-            </td>
-          </tr>
-        </ng-template>
-      </app-data-table>
-    </div>
-  </div>
+  <app-card bodyClass="p-0" header="Dossiers de la facture" icon="pi pi-folder text-info">
+    <app-data-table
+      #fact
+      [globalFilterFields]="['numBon', 'customer', 'customerMatricule']"
+      [paginator]="true"
+      [rowsPerPageOptions]="[10, 25, 50, 100]"
+      [rows]="10"
+      [scrollHeight]="scrollHeight"
+      [scrollable]="true"
+      [size]="'small'"
+      [stripedRows]="true"
+      [value]="datas"
+    >
+      <ng-template #caption>
+        <app-icon-field [overlay]="true" icon="pi pi-search">
+          <input
+            (input)="fact.filterGlobal($event.target.value, 'contains')"
+            class="form-control"
+            placeholder="Rechercher un dossier"
+            style="width: 280px"
+            type="text"
+          />
+        </app-icon-field>
+      </ng-template>
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th>Num. Bon</th>
+          <th>Date</th>
+          <th>Heure</th>
+          <th>Assuré</th>
+          <th>Matricule</th>
+          <th class="text-end">Montant</th>
+          <th class="text-end">Attendu</th>
+          <th class="text-end">Réglé</th>
+          <th class="text-end">Restant</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-factureDetail>
+        <tr>
+          <td>
+            <span class="pharma-code">{{ factureDetail.numBon }}</span>
+          </td>
+          <td>{{ factureDetail.created }}</td>
+          <td>{{ factureDetail.heure }}</td>
+          <td class="pharma-entity-name">{{ factureDetail.customer }}</td>
+          <td>
+            <span
+              class="pharma-badge pharma-badge-info">{{ factureDetail.customerMatricule }}</span>
+          </td>
+          <td class="text-end pharma-price">{{ factureDetail.montantVente }}</td>
+          <td class="text-end pharma-price">{{ factureDetail.montantAttendu }}</td>
+          <td class="text-end pharma-total">{{ factureDetail.montant }}</td>
+          <td [class.text-danger]="factureDetail.montantRestant > 0" class="text-end fw-bold">
+            {{ factureDetail.montantRestant }}
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #empty>
+        <tr>
+          <td class="text-center p-4" colspan="9">
+            <i class="pi pi-inbox text-muted" style="font-size: 2rem"></i>
+            <p class="mt-2 text-muted mb-0">Aucun dossier trouvé pour ce règlement.</p>
+          </td>
+        </tr>
+      </ng-template>
+    </app-data-table>
+  </app-card>
 </div>
 
 <div class="modal-footer">
-  <app-button (click)="cancel()" icon="pi pi-times" label="Fermer" severity="secondary" type="button"></app-button>
+  <app-button (click)="cancel()" icon="pi pi-times" label="Fermer" severity="secondary"
+              type="button"></app-button>
 </div>

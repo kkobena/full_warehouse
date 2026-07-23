@@ -1,21 +1,21 @@
-import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { ISales } from 'app/shared/model/sales.model';
-import { ISalesLine } from 'app/shared/model/sales-line.model';
-import { ICustomer } from 'app/shared/model/customer.model';
-import { IAvoirClientDocument } from 'app/shared/model/avoir-client-document.model';
-import { CustomerService } from './customer.service';
-import { HttpResponse } from '@angular/common/http';
-import { MagasinService } from '../magasin/magasin.service';
-import { IMagasin } from 'app/shared/model/magasin.model';
-import { SalesService } from '../sales/sales.service';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonComponent, NavTabsComponent } from '../../shared/ui';
+import {ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {ISales} from 'app/shared/model/sales.model';
+import {ISalesLine} from 'app/shared/model/sales-line.model';
+import {ICustomer} from 'app/shared/model/customer.model';
+import {IAvoirClientDocument} from 'app/shared/model/avoir-client-document.model';
+import {CustomerService} from './customer.service';
+import {HttpResponse} from '@angular/common/http';
+import {MagasinService} from '../magasin/magasin.service';
+import {IMagasin} from 'app/shared/model/magasin.model';
+import {SalesService} from '../sales/sales.service';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
+import {NgbNavModule} from '@ng-bootstrap/ng-bootstrap';
+import {ButtonComponent, CardComponent, NavTabsComponent} from '../../shared/ui';
 import TranslateDirective from "../../shared/language/translate.directive";
-import { CommonModule } from "@angular/common";
-import { AlertErrorComponent } from "../../shared/alert/alert-error.component";
+import {CommonModule} from "@angular/common";
+import {AlertErrorComponent} from "../../shared/alert/alert-error.component";
 
 @Component({
   selector: 'app-customer-detail',
@@ -23,7 +23,7 @@ import { AlertErrorComponent } from "../../shared/alert/alert-error.component";
   templateUrl: './customer-detail.component.html',
   styleUrls: ['./customer-detail.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [NgbNavModule, ButtonComponent, NavTabsComponent, TranslateDirective, CommonModule, AlertErrorComponent]
+  imports: [NgbNavModule, ButtonComponent, NavTabsComponent, TranslateDirective, CommonModule, AlertErrorComponent, CardComponent]
 })
 export class CustomerDetailComponent implements OnInit, OnDestroy {
   customer: ICustomer | null = null;
@@ -33,6 +33,11 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
   selectedRowSaleLines?: ISalesLine[] = [];
   saleSelected?: ISales;
   magasin?: IMagasin;
+  protected activatedRoute = inject(ActivatedRoute);
+  protected customerService = inject(CustomerService);
+  protected magasinService = inject(MagasinService);
+  protected salesService = inject(SalesService);
+  private destroy$ = new Subject<void>();
 
   get avoirsOuverts(): IAvoirClientDocument[] {
     return this.avoirs.filter(a => a.statut === 'OUVERT');
@@ -41,14 +46,9 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
   get soldeTotalAvoirs(): number {
     return this.avoirsOuverts.reduce((sum, a) => sum + (a.montant ?? 0), 0);
   }
-  protected activatedRoute = inject(ActivatedRoute);
-  protected customerService = inject(CustomerService);
-  protected magasinService = inject(MagasinService);
-  protected salesService = inject(SalesService);
-  private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({ customer }) => (this.customer = customer));
+    this.activatedRoute.data.subscribe(({customer}) => (this.customer = customer));
     this.loadSales();
     this.loadAvoirs();
     this.selectedRowIndex = 0;
@@ -67,11 +67,16 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
   }
 
   loadAvoirs(): void {
-    if (!this.customer?.id) return;
+    if (!this.customer?.id) {
+      return;
+    }
     this.customerService
       .avoirsByCustomer(this.customer.id)
       .pipe(takeUntil(this.destroy$))
-      .subscribe({ next: avoirs => (this.avoirs = avoirs), error: () => {} });
+      .subscribe({
+        next: avoirs => (this.avoirs = avoirs), error: () => {
+        }
+      });
   }
 
   openAvoirPdf(avoirId: number): void {
@@ -112,5 +117,6 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
     this.sales = data || [];
   }
 
-  protected onError(): void {}
+  protected onError(): void {
+  }
 }

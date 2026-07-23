@@ -1,22 +1,37 @@
 <!-- Toolbar -->
-<div class="pharma-toolbar">
-  <div class="pharma-toolbar-header">
-    <i class="pi pi-chart-line"></i>
-    <span class="pharma-toolbar-title">Saisonnalité du Chiffre d'Affaires</span>
-  </div>
-  <div class="pharma-toolbar-content">
+<app-toolbar icon="pi pi-chart-line" title="Saisonnalité du Chiffre d'Affaires">
+  <ng-container ngProjectAs="[toolbarFilters]">
     <div class="pharma-toolbar-filters">
-      <pharma-date-range-filter
-        [fromDate]="fromDate()"
-        (fromDateChange)="fromDate.set($event)"
-        [toDate]="toDate()"
-        (toDateChange)="toDate.set($event)"
-        [loading]="isLoading()"
-        (search)="load()"
+      <pharma-date-picker
+        label="Du"
+        id="seas-from"
+        [ngModel]="fromStruct()"
+        (ngModelChange)="fromDate.set(structToDate($event))"
+      />
+      <pharma-date-picker
+        label="Au"
+        id="seas-to"
+        [ngModel]="toStruct()"
+        (ngModelChange)="toDate.set(structToDate($event))"
       />
     </div>
-  </div>
-</div>
+  </ng-container>
+
+  <ng-container ngProjectAs="[toolbarActions]">
+    <div>
+      <app-button
+        type="button"
+        icon="pi pi-search"
+        label="Rechercher"
+        [loading]="isLoading()"
+        [raised]="true"
+        severity="primary"
+        size="small"
+        (clicked)="load()"
+      />
+    </div>
+  </ng-container>
+</app-toolbar>
 
 <!-- Loading -->
 @if (isLoading()) {
@@ -32,7 +47,8 @@
       <i class="pi pi-chart-bar text-primary"></i>
       <div class="kpi-strip-body">
         <span class="kpi-strip-label">CA Période</span>
-        <span class="kpi-strip-value text-primary">{{ formatCurrency(totalCA()) }} <small>FCFA</small></span>
+        <span class="kpi-strip-value text-primary">{{ formatCurrency(totalCA()) }}
+          <small>FCFA</small></span>
         <span class="kpi-strip-sub">{{ tableRows().length }} mois</span>
       </div>
     </div>
@@ -50,7 +66,9 @@
       <i [class]="'pi ' + evoIcon(totalEvo()) + ' ' + evoClass(totalEvo())"></i>
       <div class="kpi-strip-body">
         <span class="kpi-strip-label">Évolution</span>
-        <span class="kpi-strip-value {{ evoClass(totalEvo()) }}">{{ totalEvo() > 0 ? '+' : '' }}{{ totalEvo() }} %</span>
+        <span class="kpi-strip-value {{ evoClass(totalEvo()) }}">{{
+            totalEvo() > 0 ? '+' : ''
+          }}{{ totalEvo() }} %</span>
         <span class="kpi-strip-sub">vs période précédente</span>
       </div>
     </div>
@@ -66,10 +84,10 @@
     </div>
     <div class="card-body" style="height: 350px">
       <app-chart
-        type="bar"
         [data]="chartConfig()!.data"
         [options]="chartConfig()!.options"
         height="320px"
+        type="bar"
       />
     </div>
   </div>
@@ -77,11 +95,11 @@
   <!-- Table -->
   <div class="card data-card">
     <app-data-table
-      [value]="tableRows()"
       [scrollable]="true"
-      scrollHeight="calc(100vh - 620px)"
-      [stripedRows]="true"
       [size]="'small'"
+      [stripedRows]="true"
+      [value]="tableRows()"
+      scrollHeight="calc(100vh - 620px)"
     >
       <ng-template #header>
         <tr class="pharma-table-head">
@@ -119,7 +137,7 @@
       </ng-template>
       <ng-template #emptymessage>
         <tr>
-          <td colspan="5" class="pharma-empty-message">
+          <td class="pharma-empty-message" colspan="5">
             <div class="pharma-empty-content">
               <i class="pi pi-inbox" style="font-size: 2rem"></i>
               <p class="mt-2 mb-0">Aucune donnée sur cette période</p>

@@ -5,11 +5,11 @@
 
       <label for="dhClient">Client</label>
       <app-select
-        appendTo="body"
         [(ngModel)]="customerId"
         [clearable]="true"
         [items]="store.clients()"
         [style]="{ 'min-width': '150px' }"
+        appendTo="body"
         bindLabel="fullName"
         bindValue="id"
         inputId="dhClient"
@@ -28,11 +28,11 @@
       />
 
 
-      <pharma-date-picker [(ngModel)]="modelStartDate" [maxDate]="modelEndDate" id="dhDu"
-                          label="Du" />
+      <pharma-date-picker [(ngModel)]="modelStartDate" [maxDate]="modelEndDate" [style]="{ 'max-width': '180px' }"
+                          id="dhDu" label="Du" />
 
-      <pharma-date-picker [(ngModel)]="modelEndDate" [minDate]="modelStartDate" id="dhAu"
-                          label="Au" />
+      <pharma-date-picker [(ngModel)]="modelEndDate" [minDate]="modelStartDate" [style]="{ 'max-width': '180px' }"
+                          id="dhAu" label="Au" />
     </ng-container>
 
     <ng-container ngProjectAs="[toolbarActions]">

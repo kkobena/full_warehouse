@@ -1,16 +1,16 @@
 import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
 
 import {
   AvoirApiService
 } from '../../../features/facturation/data-access/services/avoir-api.service';
-import {
-  DateRangeFilterComponent
-} from '../../../shared/components/date-range-filter/date-range-filter.component';
+import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
 import {IAvoir} from "../../../features/facturation/data-access/models";
 import {DATE_FORMAT_ISO_DATE} from '../../../shared/util/warehouse-util';
 import {formatCurrency, formatDateFR, formatNumber} from 'app/shared/utils/format-utils';
-import {DataTableComponent, SortableHeaderDirective} from '../../../shared/ui';
+import {ButtonComponent, DataTableComponent, SortableHeaderDirective, ToolbarComponent} from '../../../shared/ui';
 
 type AvoirStatut = 'DRAFT' | 'EMIS' | 'IMPUTE' | 'ANNULE';
 
@@ -26,9 +26,12 @@ interface AvoirStatutStat {
   selector: 'app-avoirs-analytics',
   imports: [
     CommonModule,
-    DateRangeFilterComponent,
+    FormsModule,
+    PharmaDatePickerComponent,
+    ButtonComponent,
     DataTableComponent,
-    SortableHeaderDirective
+    SortableHeaderDirective,
+    ToolbarComponent
   ],
   templateUrl: './avoirs-analytics.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -40,6 +43,11 @@ export default class AvoirsAnalyticsComponent implements OnInit {
 
   protected fromDate = signal<Date | null>(new Date(new Date().getFullYear(), 0, 1)); // 1er jan
   protected toDate = signal<Date | null>(new Date());
+
+  // `computed`, pas un appel direct à `dateToStruct()` dans le template : voir
+  // date-range-filter (supprimé) pour l'explication de la boucle silencieuse évitée.
+  protected readonly fromStruct = computed(() => this.dateToStruct(this.fromDate()));
+  protected readonly toStruct = computed(() => this.dateToStruct(this.toDate()));
 
   protected readonly totalMontant = computed(() =>
     this.avoirs()
@@ -147,5 +155,15 @@ export default class AvoirsAnalyticsComponent implements OnInit {
       default:
         return 'bg-light text-muted';
     }
+  }
+
+  protected dateToStruct(d: Date | null): NgbDateStruct | null {
+    if (!d) return null;
+    return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
+  }
+
+  protected structToDate(s: NgbDateStruct | null): Date | null {
+    if (!s) return null;
+    return new Date(s.year, s.month - 1, s.day);
   }
 }

@@ -35,10 +35,18 @@
 
   // L'en-tête n'est qu'un réceptacle : `.section-header` fournit son propre rembourrage,
   // son dégradé et sa bordure. Tout ajout ici ferait double emploi.
+  //
+  // display/justify-content/align-items repris explicitement : la règle flex de
+  // `.card-header` dans `_data-card.scss` est scopée à `.data-card .card-header`, donc ne
+  // s'applique pas ici — sans elle, `[cardActions]` (ex. un bouton de recherche) tombait
+  // sous `[cardHeader]` au lieu de s'aligner à droite sur la même ligne.
   > .card-header {
     padding: 0;
     background: none;
     border-bottom: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   > .card-body {

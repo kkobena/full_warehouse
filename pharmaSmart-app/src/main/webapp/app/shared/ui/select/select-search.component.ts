@@ -63,6 +63,7 @@ import {SelectBase} from './select.base';
       (ngModelChange)="onSelectionChange($event)"
       (search)="onSearched($event.term)"
       (scrollToEnd)="scrolledToEnd.emit()"
+      (open)="onOpened()"
       (blur)="onTouched()"
     >
       @if (optionTemplate()) {
@@ -120,6 +121,18 @@ export class SelectSearchComponent extends SelectBase<unknown> {
    */
   readonly groupValueFn = input<((key: unknown, children: unknown[]) => unknown) | undefined>(undefined);
 
+  /**
+   * Empêche l'ouverture du panneau tant qu'il n'y a rien à y montrer — au focus/clic, avec
+   * `[typeahead]` branché et aucun terme saisi, ng-select ouvre quand même un panneau vide
+   * ne contenant que `[typeToSearchText]`. Mettre à `false` referme ce panneau
+   * immédiatement ; il ne réapparaît qu'une fois un terme valide saisi (ou des résultats
+   * disponibles).
+   *
+   * @example
+   * <app-select-search [items]="items" [typeahead]="search$" [openWhenEmpty]="false" />
+   */
+  readonly openWhenEmpty = input<boolean>(false);
+
   private readonly ngSelectRef = viewChild.required('ngSelect', {read: NgSelectComponent});
 
   /** Ferme le panneau d'options — équivalent de `AutoComplete.hide()` de PrimeNG. */
@@ -130,5 +143,12 @@ export class SelectSearchComponent extends SelectBase<unknown> {
   /** Panneau d'options actuellement ouvert. */
   isOpen(): boolean {
     return this.ngSelectRef().isOpen();
+  }
+
+  /** Reboucle l'ouverture : referme aussitôt si `openWhenEmpty` est désactivé et le panneau n'a rien à montrer. */
+  protected onOpened(): void {
+    if (!this.openWhenEmpty() && this.ngSelectRef().showTypeToSearch()) {
+      this.ngSelectRef().close();
+    }
   }
 }

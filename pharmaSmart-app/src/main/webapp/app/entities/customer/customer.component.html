@@ -11,6 +11,7 @@
               [appendTo]="'body'"
               [items]="types"
               [searchable]="false"
+              [style]="{ 'min-width': '170px' }"
               inputId="typeFilter"
               size="large"
             >
@@ -24,6 +25,7 @@
               [appendTo]="'body'"
               [items]="statuts"
               [searchable]="false"
+              [style]="{ 'min-width': '170px' }"
               bindLabel="label"
               bindValue="value"
               inputId="statutFilter"
@@ -75,17 +77,19 @@
           currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} client"
           dataKey="id"
         >
-          <tr class="pharma-table-head" ngProjectAs="[cardHeader]">
-            <th style="width: 3%"></th>
-            <th style="width: 10%">Catégorie</th>
-            <th style="width: 30%">Nom et Prénom(s)</th>
-            <th style="width: 10%">Identifiant</th>
-            <th style="width: 12%">Numéro assuré</th>
-            <th style="width: 10%">Téléphone</th>
-            <th style="width: 10%">Encours</th>
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th style="width: 3%"></th>
+              <th style="width: 10%">Catégorie</th>
+              <th style="width: 30%">Nom et Prénom(s)</th>
+              <th style="width: 10%">Identifiant</th>
+              <th style="width: 12%">Numéro assuré</th>
+              <th style="width: 10%">Téléphone</th>
+              <th style="width: 10%">Encours</th>
 
-            <th style="width: 15%"></th>
-          </tr>
+              <th style="width: 15%"></th>
+            </tr>
+          </ng-template>
           <ng-template #body let-customer let-expanded="expanded">
             <tr>
               <td>

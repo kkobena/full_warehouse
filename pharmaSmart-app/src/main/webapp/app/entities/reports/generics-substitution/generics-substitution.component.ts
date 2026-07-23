@@ -1,9 +1,12 @@
 import { Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Chart, registerables } from 'chart.js';
 
 import { DashboardCAService } from '../services/dashboard-ca.service';
-import { DateRangeFilterComponent } from '../../../shared/components/date-range-filter/date-range-filter.component';
+import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
+import { ButtonComponent, ToolbarComponent } from '../../../shared/ui';
 import { IGenericsSubstitution } from '../../../shared/model/report';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { ChartColorsUtilsService } from '../../../shared/util/chart-colors-utils.service';
@@ -13,7 +16,7 @@ Chart.register(...registerables);
 
 @Component({
   selector: 'app-generics-substitution',
-  imports: [CommonModule, DateRangeFilterComponent],
+  imports: [CommonModule, FormsModule, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent],
   templateUrl: './generics-substitution.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./generics-substitution.component.scss'],
@@ -26,6 +29,11 @@ export default class GenericsSubstitutionComponent implements OnInit, OnDestroy 
 
   protected fromDate = signal<Date | null>(new Date(new Date().getFullYear(), 0, 1));
   protected toDate   = signal<Date | null>(new Date());
+
+  // `computed`, pas un appel direct à `dateToStruct()` dans le template : voir
+  // date-range-filter (supprimé) pour l'explication de la boucle silencieuse évitée.
+  protected readonly fromStruct = computed(() => this.dateToStruct(this.fromDate()));
+  protected readonly toStruct   = computed(() => this.dateToStruct(this.toDate()));
 
   protected readonly formatCurrency = formatCurrency;
   protected readonly formatDecimal  = formatDecimal;
@@ -114,5 +122,15 @@ export default class GenericsSubstitutionComponent implements OnInit, OnDestroy 
         },
       },
     });
+  }
+
+  protected dateToStruct(d: Date | null): NgbDateStruct | null {
+    if (!d) return null;
+    return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
+  }
+
+  protected structToDate(s: NgbDateStruct | null): Date | null {
+    if (!s) return null;
+    return new Date(s.year, s.month - 1, s.day);
   }
 }

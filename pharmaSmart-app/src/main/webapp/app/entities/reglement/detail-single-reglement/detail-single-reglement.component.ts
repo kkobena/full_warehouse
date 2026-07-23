@@ -6,22 +6,26 @@ import {ReglementService} from '../reglement.service';
 import {HttpResponse} from '@angular/common/http';
 import {CommonModule} from '@angular/common';
 import {
-  BadgeComponent,
   ButtonComponent,
+  CardComponent,
   DataTableComponent,
-  IconFieldComponent
+  IconFieldComponent,
+  KpiItemComponent,
+  KpiStripComponent
 } from '../../../shared/ui';
 
 @Component({
-  selector: 'jhi-detail-single-reglement',
+  selector: 'app-detail-single-reglement',
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    BadgeComponent,
     ButtonComponent,
+    CardComponent,
     DataTableComponent,
-    IconFieldComponent
+    IconFieldComponent,
+    KpiItemComponent,
+    KpiStripComponent
   ],
   templateUrl: './detail-single-reglement.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

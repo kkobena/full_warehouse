@@ -1,66 +1,76 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-1">
     <!-- Modern Pharma Toolbar -->
-    <app-toolbar icon="pi pi-shopping-cart" title="Journal des ventes" [compact]="true">
+    <app-toolbar [compact]="true" icon="pi pi-shopping-cart" title="Journal des ventes">
       <ng-container ngProjectAs="[toolbarFilters]">
         <app-multi-select
           (selectionChange)="onTypeVenteChange()"
           [(ngModel)]="typeVenteSelected"
-          [items]="typeVentes"
           [clearable]="true"
+          [items]="typeVentes"
+          [style]="{ 'max-width': '180px' }"
+          appendTo="body"
           bindLabel="label"
           bindValue="value"
-          appendTo="body"
           placeholder="Type de vente"
         />
 
         <app-select
           [(ngModel)]="selectedUserId"
-          [items]="users"
           [clearable]="true"
+          [items]="users"
+          [style]="{ 'min-width': '180px' }"
           appendTo="body"
-          inputId="selectedUserId"
           bindLabel="abbrName"
           bindValue="id"
+          inputId="selectedUserId"
           placeholder="Caissier"
         />
 
 
         <div class="pharma-compact-search mr-1">
           <div class="input-group">
-            <input (keyup.enter)="onSearch()" class="form-control" placeholder="Rechercher..." type="text" />
+            <input (keyup.enter)="onSearch()" class="form-control" placeholder="Rechercher..."
+                   type="text" />
             <span class="input-group-text">
               <app-checkbox [(ngModel)]="global" ngbTooltip="Recherche globale" />
             </span>
           </div>
         </div>
 
-        <pharma-date-picker id="fromDate" label="Du" [(ngModel)]="fromDate" [maxDate]="toDate" />
+        <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate"
+                            [style]="{ 'max-width': '180px' }" id="fromDate"
+                            label="Du" />
 
-        <pharma-date-picker id="toDate" label="Au" [(ngModel)]="toDate" [minDate]="fromDate" />
+        <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate"
+                            [style]="{ 'max-width': '180px' }" id="toDate"
+                            label="Au" />
 
         <div class="pharma-hide-mobile">
-          <app-select [(ngModel)]="fromHour" [items]="hours" [searchable]="false" [style]="{ 'max-width': '110px' }" appendTo="body" />
+          <app-select [(ngModel)]="fromHour" [items]="hours" [searchable]="false"
+                      [style]="{ 'max-width': '110px' }" appendTo="body" />
         </div>
 
         <div class="pharma-hide-mobile">
-          <app-select [(ngModel)]="toHour" [items]="hours" [searchable]="false" [style]="{ 'max-width': '110px' }" appendTo="body" />
+          <app-select [(ngModel)]="toHour" [items]="hours" [searchable]="false"
+                      [style]="{ 'max-width': '110px' }" appendTo="body" />
         </div>
       </ng-container>
 
       <ng-container ngProjectAs="[toolbarActions]">
         <div class="pharma-button-group pharma-hide-mobile">
-          <app-button (clicked)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
+          <app-button (clicked)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher"
+                      severity="info" />
           <app-button
             (clicked)="exportJournal()"
+            [hidden]="true"
             [loading]="exportLoading()"
             [raised]="true"
-            [hidden]="true"
             icon="pi pi-file-excel"
             label="Exporter"
-            severity="secondary"
             ngbTooltip="Exporter le journal filtré en Excel"
             placement="bottom"
+            severity="secondary"
           />
 
 
@@ -92,29 +102,29 @@
             [rounded]="true"
             icon="pi pi-search"
             ngbTooltip="Rechercher"
-            severity="info"
             placement="top"
+            severity="info"
           />
 
           @if (useSimpleSale) {
             <app-button
+              [raised]="true"
               [rounded]="true"
               [routerLink]="['/sales/comptant', false, 'new']"
               icon="pi pi-wallet"
               ngbTooltip="Vente Comptant"
-              [raised]="true"
-              severity="success"
               placement="top"
+              severity="success"
             />
           } @else {
             <app-button
               (clicked)="openNewSalesHome()"
-              [rounded]="true"
               [raised]="true"
+              [rounded]="true"
               icon="pi pi-shopping-bag"
               ngbTooltip="Point de Vente"
-              severity="primary"
               placement="top"
+              severity="primary"
             />
           }
         </div>
@@ -144,12 +154,12 @@
           [rowsPerPageOptions]="[5, 10, 15, 20, 30, 50]"
           [rows]="itemsPerPage"
           [showCurrentPageReport]="true"
+          [stripedRows]="true"
           [totalRecords]="totalItems"
           [value]="sales"
           class="p-datatable-sm p-datatable-striped"
           currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} ventes"
           dataKey="id"
-          [stripedRows]="true"
         >
           <ng-template #header>
             <tr class="pharma-table-head">
@@ -157,8 +167,8 @@
               <th style="width: 10%">Date</th>
               <th style="width: 9%">Type</th>
               <th style="width: 9%">Référence</th>
-              <th style="width: 5%" class="text-right">Articles</th>
-              <th style="width: 8%" class="text-right">Montant</th>
+              <th class="text-right" style="width: 5%">Articles</th>
+              <th class="text-right" style="width: 8%">Montant</th>
               <th style="width: 15%">Client</th>
               <th style="width: 13%">Vendeur</th>
               <th style="width: 12%">Caissier</th>
@@ -169,8 +179,8 @@
             <tr [class.pharma-negative-canceled-row]="sale.canceled  && sale.salesAmount>0">
               <td>
                 <app-button
-                  [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
                   (clicked)="onRowToggle(sale, salesTable)"
+                  [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
                   [rounded]="true"
                   [text]="true"
                   type="button"
@@ -183,7 +193,8 @@
                 } @else if (sale.natureVente === 'CARNET') {
                   <span class="pharma-badge pharma-badge-warning">Carnet</span>
                 } @else {
-                  <span class="pharma-badge pharma-badge-info" ngbTooltip="Vente sans ordonnance" placement="top">Comptant</span>
+                  <span class="pharma-badge pharma-badge-info" ngbTooltip="Vente sans ordonnance"
+                        placement="top">Comptant</span>
                 }
                 @if (sale.canceled || sale.statut === SalesStatut.CANCELED) {
                   <span class="pharma-badge pharma-badge-danger ms-1">Annulée</span>
@@ -192,32 +203,38 @@
               <td>
                 <span class="pharma-code">{{ sale.numberTransaction }}</span>
               </td>
-              <td class="text-right">{{ (sale.itemCount || sale.salesLines?.length )  | number }}</td>
-              <td [ngClass]="sale.salesAmount < 0 || sale.canceled ? 'pharma-price-negative' : 'pharma-price'">
+              <td class="text-right">{{
+                  (sale.itemCount || sale.salesLines?.length)  | number
+                }}
+              </td>
+              <td
+                [ngClass]="sale.salesAmount < 0 || sale.canceled ? 'pharma-price-negative' : 'pharma-price'">
                 {{ sale.salesAmount | number }}
               </td>
               <td class="pharma-entity-name">{{ sale.customer?.fullName }}</td>
               <td>{{ sale.seller?.abbrName }}</td>
               <td>{{ sale.cassier?.abbrName }}</td>
               <td class="text-right">
-                <div ngbDropdown container="body" placement="bottom-end">
+                <div container="body" ngbDropdown placement="bottom-end">
                   <button
-                    type="button"
+                    (click)="$event.stopPropagation()"
+                    aria-label="Actions"
                     class="btn btn-sm btn-link text-secondary app-actions-toggle"
                     ngbDropdownToggle
-                    (click)="$event.stopPropagation()"
                     ngbTooltip="Actions"
                     placement="left"
-                    aria-label="Actions"
+                    type="button"
                   >
-                    <i class="pi pi-ellipsis-v" aria-hidden="true"></i>
+                    <i aria-hidden="true" class="pi pi-ellipsis-v"></i>
                   </button>
                   <div ngbDropdownMenu>
                     @for (item of buildMenuItems(sale); track $index) {
                       @if (item.separator) {
                         <div class="dropdown-divider"></div>
                       } @else {
-                        <button type="button" ngbDropdownItem [class.text-danger]="item.danger" (click)="item.command!()">
+                        <button (click)="item.command!()" [class.text-danger]="item.danger"
+                                ngbDropdownItem
+                                type="button">
                           <i [class]="item.icon" aria-hidden="true"></i> {{ item.label }}
                         </button>
                       }
@@ -248,35 +265,40 @@
                           <div class="activity-item">
                             <span class="activity-item-label">Montant TTC</span>
                             <div class="activity-item-value-wrapper">
-                              <span class="activity-item-value">{{ elRow?.salesAmount | number }}</span>
+                              <span
+                                class="activity-item-value">{{ elRow?.salesAmount | number }}</span>
                               <span class="activity-item-currency">FCFA</span>
                             </div>
                           </div>
                           <div class="activity-item">
                             <span class="activity-item-label">Montant HT</span>
                             <div class="activity-item-value-wrapper">
-                              <span class="activity-item-value">{{ elRow?.htAmount | number }}</span>
+                              <span
+                                class="activity-item-value">{{ elRow?.htAmount | number }}</span>
                               <span class="activity-item-currency">FCFA</span>
                             </div>
                           </div>
                           <div class="activity-item">
                             <span class="activity-item-label">Montant Taxe</span>
                             <div class="activity-item-value-wrapper">
-                              <span class="activity-item-value">{{ elRow?.taxAmount | number }}</span>
+                              <span
+                                class="activity-item-value">{{ elRow?.taxAmount | number }}</span>
                               <span class="activity-item-currency">FCFA</span>
                             </div>
                           </div>
                           <div class="activity-item">
                             <span class="activity-item-label">Montant Assuré</span>
                             <div class="activity-item-value-wrapper">
-                              <span class="activity-item-value">{{ elRow?.partAssure | number }}</span>
+                              <span
+                                class="activity-item-value">{{ elRow?.partAssure | number }}</span>
                               <span class="activity-item-currency">FCFA</span>
                             </div>
                           </div>
                           <div class="activity-item activity-item-highlight">
                             <span class="activity-item-label">Montant Assurance</span>
                             <div class="activity-item-value-wrapper">
-                              <span class="activity-item-value">{{ elRow?.partTiersPayant | number }}</span>
+                              <span
+                                class="activity-item-value">{{ elRow?.partTiersPayant | number }}</span>
                               <span class="activity-item-currency">FCFA</span>
                             </div>
                           </div>
@@ -284,7 +306,8 @@
                             <div class="activity-item activity-item-danger">
                               <span class="activity-item-label">Remise</span>
                               <div class="activity-item-value-wrapper">
-                                <span class="activity-item-value">{{ elRow?.discountAmount | number }}</span>
+                                <span
+                                  class="activity-item-value">{{ elRow?.discountAmount | number }}</span>
                                 <span class="activity-item-currency">FCFA</span>
                               </div>
                             </div>
@@ -292,7 +315,8 @@
                           <div class="activity-item">
                             <span class="activity-item-label">Reste à payer</span>
                             <div class="activity-item-value-wrapper">
-                              <span class="activity-item-value">{{ elRow?.restToPay | number }}</span>
+                              <span
+                                class="activity-item-value">{{ elRow?.restToPay | number }}</span>
                               <span class="activity-item-currency">FCFA</span>
                             </div>
                           </div>
@@ -327,12 +351,15 @@
                               <ng-template #body let-tp>
                                 <tr>
                                   <td>
-                                    <span class="pharma-entity-name">{{ tp?.tiersPayantFullName }}</span>
+                                    <span
+                                      class="pharma-entity-name">{{ tp?.tiersPayantFullName }}</span>
                                   </td>
                                   <td class="text-right">
                                     <span class="fs-6">{{ tp?.taux }}%</span>
                                   </td>
-                                  <td class="fs-6 text-right pharma-price">{{ tp?.montant | number }}</td>
+                                  <td
+                                    class="fs-6 text-right pharma-price">{{ tp?.montant | number }}
+                                  </td>
                                 </tr>
                               </ng-template>
                             </app-data-table>
@@ -353,7 +380,8 @@
                         </div>
                         <div class="activity-card-header-content">
                           <h3 class="activity-card-title">Liste des produits</h3>
-                          <span class="activity-card-subtitle">{{ elRow.salesLines?.length }} article(s)</span>
+                          <span class="activity-card-subtitle">{{ elRow.salesLines?.length }}
+                            article(s)</span>
                         </div>
                       </div>
                       <div class="activity-card-table-body">
@@ -393,11 +421,18 @@
                                 <span class="pharma-code">{{ saleLine.code }}</span>
                               </td>
                               <td>
-                                <span class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
+                                <span
+                                  class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
                               </td>
-                              <td class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}</td>
-                              <td class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}</td>
-                              <td class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}</td>
+                              <td
+                                class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}
+                              </td>
+                              <td
+                                class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}
+                              </td>
+                              <td
+                                class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}
+                              </td>
                               <td class="pharma-total" style="text-align: right; font-weight: bold">
                                 {{ saleLine.salesAmount | number }}
                               </td>
@@ -421,9 +456,11 @@
                         <div class="activity-card-body">
                           @for (payment of elRow?.payments; track payment) {
                             <div class="activity-item">
-                              <span class="activity-item-label">{{ payment?.paymentMode?.libelle }}</span>
+                              <span
+                                class="activity-item-label">{{ payment?.paymentMode?.libelle }}</span>
                               <div class="activity-item-value-wrapper">
-                                <span class="activity-item-value">{{ payment?.paidAmount | number }}</span>
+                                <span
+                                  class="activity-item-value">{{ payment?.paidAmount | number }}</span>
                                 <span class="activity-item-currency">FCFA</span>
                               </div>
                             </div>
@@ -447,5 +484,6 @@
   </div>
 </div>
 
-<ngx-spinner [fullScreen]="true" bdColor="rgba(255,255,255,0.5)" color="#f13151" name="sale-spinner" size="medium"
+<ngx-spinner [fullScreen]="true" bdColor="rgba(255,255,255,0.5)" color="#f13151" name="sale-spinner"
+             size="medium"
              type="timer"></ngx-spinner>

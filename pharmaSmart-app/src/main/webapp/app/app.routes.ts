@@ -37,6 +37,13 @@ const routes: Routes = [
     title: 'login.title',
   },
   {
+    path: 'cahier-recette',
+    loadComponent: () =>
+      import('./features/cahier-recette/cahier-recette.component').then(m => m.CahierRecetteComponent),
+    canActivate: [AuthGuard],
+    title: 'Cahier de recette',
+  },
+  {
     path: '',
     loadChildren: () => import(`./entities/entity.routes`),
   },

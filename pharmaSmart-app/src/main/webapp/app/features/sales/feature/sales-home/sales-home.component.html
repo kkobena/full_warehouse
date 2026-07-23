@@ -123,12 +123,12 @@
         <button
           (click)="openPendingSales()"
           [disabled]="salesFacade.currentSale() !== null"
-          class="btn btn-outline-info app-btn-normal d-inline-flex align-items-center justify-content-center gap-2 pending-sales-btn"
+          class="btn btn-sm btn-outline-info app-btn-normal d-inline-flex align-items-center justify-content-center gap-2 pending-sales-btn"
           ngbTooltip="Voir les ventes en attente"
           placement="left"
           type="button"
         >
-          <i class="app-btn-icon pi pi-clock" aria-hidden="true"></i>
+          <i aria-hidden="true" class="app-btn-icon pi pi-clock"></i>
           <span class="app-btn-label">En attente</span>
           @if (countPendingSales() !== '0') {
             <span class="badge text-bg-danger">{{ countPendingSales() }}</span>

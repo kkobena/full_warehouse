@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 
 import { IMagasin, Magasin } from 'app/shared/model/magasin.model';
 import { MagasinService } from './magasin.service';
-import { ButtonComponent } from '../../shared/ui';
+import { ButtonComponent, CardComponent, ToolbarComponent } from '../../shared/ui';
 import { ErrorService } from '../../shared/error.service';
 import { NotificationService } from "../../shared/services/notification.service";
 
@@ -16,7 +16,7 @@ import { NotificationService } from "../../shared/services/notification.service"
   templateUrl: './magasin-update.component.html',
   styleUrl: './magasin-update.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [RouterModule, ReactiveFormsModule, ButtonComponent]
+  imports: [RouterModule, ReactiveFormsModule, ButtonComponent, CardComponent, ToolbarComponent]
 })
 export class MagasinUpdateComponent implements OnInit {
   protected fb = inject(UntypedFormBuilder);

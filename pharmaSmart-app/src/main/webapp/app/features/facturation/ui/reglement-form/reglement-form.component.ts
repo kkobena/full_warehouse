@@ -1,5 +1,15 @@
-import { AfterViewInit, Component, computed, DestroyRef, inject, input, output, signal, ChangeDetectionStrategy } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  input,
+  output,
+  signal
+} from "@angular/core";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {
   AbstractControl,
   FormBuilder,
@@ -9,23 +19,28 @@ import {
   ReactiveFormsModule,
   Validators
 } from "@angular/forms";
-import { HttpResponse } from "@angular/common/http";
+import {HttpResponse} from "@angular/common/http";
 
-import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
+import {NgbDateStruct} from "@ng-bootstrap/ng-bootstrap";
 
-import { IPaymentMode } from "../../../../shared/model/payment-mode.model";
-import { ModePaymentService } from "../../../../entities/mode-payments/mode-payment.service";
-import { NGB_DATE_TO_ISO, TODAY_NGB_DATE } from "../../../../shared/util/warehouse-util";
+import {IPaymentMode} from "../../../../shared/model/payment-mode.model";
+import {ModePaymentService} from "../../../../entities/mode-payments/mode-payment.service";
+import {NGB_DATE_TO_ISO, TODAY_NGB_DATE} from "../../../../shared/util/warehouse-util";
 
-import { IDossierFactureProjection, IReglementParams, ModeEditionReglement } from "../../data-access/models";
+import {
+  IDossierFactureProjection,
+  IReglementParams,
+  ModeEditionReglement
+} from "../../data-access/models";
 import {
   ButtonComponent,
+  CardComponent,
   InputNumberComponent,
   KeyFilterDirective,
   SelectComponent,
   SwitchComponent
 } from 'app/shared/ui';
-import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
+import {PharmaDatePickerComponent} from 'app/shared/date-picker/pharma-date-picker.component';
 
 @Component({
   selector: "app-reglement-form",
@@ -37,7 +52,8 @@ import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-pi
     KeyFilterDirective,
     SelectComponent,
     SwitchComponent,
-    PharmaDatePickerComponent
+    PharmaDatePickerComponent,
+    CardComponent
   ],
   templateUrl: "./reglement-form.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -59,10 +75,8 @@ export class ReglementFormComponent implements AfterViewInit {
 
   readonly partialPayment = output<boolean>();
   readonly reglementParams = output<IReglementParams>();
-
-  protected paymentModes: IPaymentMode[] = [];
   readonly maxDate = TODAY_NGB_DATE();
-
+  protected paymentModes: IPaymentMode[] = [];
   protected montantSaisi = signal(0);
   protected validMontantSaisi = computed(() => {
     if (this.allSelection()) {
@@ -74,20 +88,34 @@ export class ReglementFormComponent implements AfterViewInit {
   protected monnaie = computed(() => (this.montantAPayer() ?? 0) - this.montantVerse);
 
   private readonly fb = inject(FormBuilder);
-  private readonly modeService = inject(ModePaymentService);
-  private readonly destroyRef = inject(DestroyRef);
-
   readonly reglementForm = this.fb.group({
-    amount: new FormControl<number | null>(null, { validators: [Validators.required], nonNullable: true }),
-    modePaimentCode: new FormControl<string | null>(null, { validators: [Validators.required], nonNullable: true }),
-    partialPayment: new FormControl<boolean | null>(true, { validators: [Validators.required], nonNullable: true }),
+    amount: new FormControl<number | null>(null, {
+      validators: [Validators.required],
+      nonNullable: true
+    }),
+    modePaimentCode: new FormControl<string | null>(null, {
+      validators: [Validators.required],
+      nonNullable: true
+    }),
+    partialPayment: new FormControl<boolean | null>(true, {
+      validators: [Validators.required],
+      nonNullable: true
+    }),
     paymentDate: new FormControl<NgbDateStruct | null>(TODAY_NGB_DATE()),
     banqueInfo: this.fb.group({
-      nom: new FormControl<string | null>(null, { validators: [Validators.required], nonNullable: true }),
-      code: new FormControl<string | null>(null, { validators: [Validators.required], nonNullable: true }),
+      nom: new FormControl<string | null>(null, {
+        validators: [Validators.required],
+        nonNullable: true
+      }),
+      code: new FormControl<string | null>(null, {
+        validators: [Validators.required],
+        nonNullable: true
+      }),
       beneficiaire: new FormControl<string | null>(null)
     })
   });
+  private readonly modeService = inject(ModePaymentService);
+  private readonly destroyRef = inject(DestroyRef);
 
   get banqueInfo(): FormGroup {
     return this.reglementForm.get("banqueInfo") as FormGroup;

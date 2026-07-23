@@ -1,10 +1,11 @@
 <div class="pharma-smart-content p-1">
-  <app-toolbar icon="pi pi-ban" title="Annulations de ventes" [compact]="true">
+  <app-toolbar [compact]="true" icon="pi pi-ban" title="Annulations de ventes">
     <ng-container ngProjectAs="[toolbarFilters]">
       <app-select
         [(ngModel)]="selectedUserId"
-        [items]="users"
         [clearable]="true"
+        [items]="users"
+        [style]="{ 'min-width': '200px' }"
         appendTo="body"
         bindLabel="abbrName"
         bindValue="id"
@@ -13,18 +14,24 @@
 
       <div class="pharma-compact-search">
         <app-icon-field icon="pi pi-search">
-          <input (keyup.enter)="onSearch()" [(ngModel)]="search" class="form-control" placeholder="Référence, client..."
+          <input (keyup.enter)="onSearch()" [(ngModel)]="search" class="form-control"
+                 placeholder="Référence, client..."
                  type="text" />
         </app-icon-field>
       </div>
 
-      <pharma-date-picker id="ann-fromDate" label="Du" [(ngModel)]="fromDate" [maxDate]="toDate" />
+      <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate"
+                          [style]="{ 'max-width': '180px' }" id="ann-fromDate"
+                          label="Du" />
 
-      <pharma-date-picker id="ann-toDate" label="Au" [(ngModel)]="toDate" [minDate]="fromDate" />
+      <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate"
+                          [style]="{ 'max-width': '180px' }" id="ann-toDate"
+                          label="Au" />
     </ng-container>
 
     <ng-container ngProjectAs="[toolbarActions]">
-      <app-button (clicked)="loadPage(0)" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
+      <app-button (clicked)="loadPage(0)" [raised]="true" icon="pi pi-search" label="Rechercher"
+                  severity="info" />
     </ng-container>
   </app-toolbar>
 
@@ -51,10 +58,10 @@
         [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
         [rows]="itemsPerPage"
         [showCurrentPageReport]="true"
+        [size]="'small'"
+        [stripedRows]="true"
         [totalRecords]="totalItems"
         [value]="sales"
-        [stripedRows]="true"
-        [size]="'small'"
         currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} annulations"
         dataKey="id"
       >
@@ -63,8 +70,8 @@
             <th style="width: 13%">Date annulation</th>
             <th style="width: 8%">Type</th>
             <th style="width: 11%">Référence</th>
-            <th style="width: 8%" class="text-right">Articles</th>
-            <th style="width: 9%" class="text-right">Montant</th>
+            <th class="text-right" style="width: 8%">Articles</th>
+            <th class="text-right" style="width: 9%">Montant</th>
             <th style="width: 18%">Client</th>
             <th style="width: 14%">Vendeur</th>
             <th style="width: 14%">Caissier</th>
@@ -85,13 +92,14 @@
             </td>
             <td><span class="pharma-code">{{ sale.numberTransaction }}</span></td>
             <td class="text-right">{{ sale.itemCount| number }}</td>
-            <td class="text-right pharma-price-negative">{{ sale.salesAmount | number: '1.0-0' }}</td>
+            <td class="text-right pharma-price-negative">{{ sale.salesAmount | number: '1.0-0' }}
+            </td>
             <td class="pharma-entity-name">{{ sale.customer?.fullName || '—' }}</td>
             <td>{{ sale.seller?.abbrName || '—' }}</td>
             <td>{{ sale.cassier?.abbrName || '—' }}</td>
             <td>
               @if (sale.commentaire) {
-                <span [ngbTooltip]="sale.commentaire" placement="left" class="motif-icon">
+                <span [ngbTooltip]="sale.commentaire" class="motif-icon" placement="left">
                     <i class="pi pi-comment"></i>
                   </span>
               }

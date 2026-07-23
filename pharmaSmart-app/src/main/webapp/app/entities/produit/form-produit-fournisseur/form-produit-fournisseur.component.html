@@ -5,113 +5,116 @@
 
 <form (ngSubmit)="save()" [formGroup]="editForm" novalidate>
   <div class="modal-body pb-2">
-    <input type="hidden" formControlName="id"/>
+    <app-card [variant]="'form'"><input formControlName="id" type="hidden" />
 
-    <!-- Info produit -->
-    <div class="produit-info-bar mb-3">
-      <i class="pi pi-box text-primary"></i>
-      <span class="fw-semibold">{{ produit?.libelle }}</span>
-      @if (produit?.codeCip) {
-        <span class="text-muted">&nbsp;· {{ produit.codeCip }}</span>
-      }
-    </div>
+      <!-- Info produit -->
+      <div class="produit-info-bar mb-3">
+        <i class="pi pi-box text-primary"></i>
+        <span class="fw-semibold">{{ produit?.libelle }}</span>
+        @if (produit?.codeCip) {
+          <span class="text-muted">&nbsp;· {{ produit.codeCip }}</span>
+        }
+      </div>
 
-    <!-- Ligne 1 : Fournisseur + Code CIP -->
-    <div class="row g-2 mb-2">
-      <div class="col-6">
-        <label class="form-label form-label-sm" for="field_fournisseurId">
-          Fournisseur <span class="text-danger">*</span>
-        </label>
-        <app-select #fournisseurSelect (selectionChange)="onChange($event)"
-                  [items]="fournisseurs" formControlName="fournisseurId"
-                  inputId="field_fournisseurId" bindLabel="libelle" bindValue="id"
-                  placeholder="Sélectionner"/>
-        @if (editForm.get('fournisseurId')!.invalid && editForm.get('fournisseurId')!.touched) {
-          <small class="text-danger">Obligatoire</small>
-        }
+      <!-- Ligne 1 : Fournisseur + Code CIP -->
+      <div class="row g-2 mb-2">
+        <div class="col-6">
+          <label class="form-label form-label-sm" for="field_fournisseurId">
+            Fournisseur <span class="text-danger">*</span>
+          </label>
+          <app-select #fournisseurSelect (selectionChange)="onChange($event)"
+                      [items]="fournisseurs" bindLabel="libelle"
+                      bindValue="id" formControlName="fournisseurId" inputId="field_fournisseurId"
+                      placeholder="Sélectionner" />
+          @if (editForm.get('fournisseurId')!.invalid && editForm.get('fournisseurId')!.touched) {
+            <small class="text-danger">Obligatoire</small>
+          }
+        </div>
+        <div class="col-6">
+          <label class="form-label form-label-sm" for="field_codeCip">
+            Code CIP <span class="text-danger">*</span>
+          </label>
+          <input [appKeyFilter]="'int'" autocomplete="off" class="form-control"
+                 formControlName="codeCip" id="field_codeCip" type="text" />
+          @if (editForm.get('codeCip')!.invalid && editForm.get('codeCip')!.touched) {
+            <small class="text-danger">Obligatoire</small>
+          }
+        </div>
       </div>
-      <div class="col-6">
-        <label class="form-label form-label-sm" for="field_codeCip">
-          Code CIP <span class="text-danger">*</span>
-        </label>
-        <input [appKeyFilter]="'int'" formControlName="codeCip" id="field_codeCip"
-               class="form-control" autocomplete="off" type="text"/>
-        @if (editForm.get('codeCip')!.invalid && editForm.get('codeCip')!.touched) {
-          <small class="text-danger">Obligatoire</small>
-        }
-      </div>
-    </div>
 
-    <!-- Ligne 2 : Prix achat + Prix unitaire -->
-    <div class="row g-2 mb-2">
-      <div class="col-6">
-        <label class="form-label form-label-sm" for="field_prixAchat">
-          Prix achat <span class="text-danger">*</span>
-        </label>
-        <input (keyup)="handlePrixAchatInput($event)"
-               formControlName="prixAchat" id="field_prixAchat"
-               class="form-control" autocomplete="off" type="number"/>
-        @if (editForm.get('prixAchat')!.invalid && editForm.get('prixAchat')!.touched) {
-          <small class="text-danger">Obligatoire</small>
-        }
+      <!-- Ligne 2 : Prix achat + Prix unitaire -->
+      <div class="row g-2 mb-2">
+        <div class="col-6">
+          <label class="form-label form-label-sm" for="field_prixAchat">
+            Prix achat <span class="text-danger">*</span>
+          </label>
+          <input (keyup)="handlePrixAchatInput($event)"
+                 autocomplete="off" class="form-control"
+                 formControlName="prixAchat" id="field_prixAchat" type="number" />
+          @if (editForm.get('prixAchat')!.invalid && editForm.get('prixAchat')!.touched) {
+            <small class="text-danger">Obligatoire</small>
+          }
+        </div>
+        <div class="col-6">
+          <label class="form-label form-label-sm" for="field_prixUni">
+            Prix unitaire <span class="text-danger">*</span>
+          </label>
+          <input (keyup)="handlePrixUnitaireInput($event)"
+                 autocomplete="off" class="form-control"
+                 formControlName="prixUni" id="field_prixUni" type="number" />
+          @if (editForm.get('prixUni')!.invalid && editForm.get('prixUni')!.touched) {
+            <small class="text-danger">Obligatoire</small>
+          }
+        </div>
       </div>
-      <div class="col-6">
-        <label class="form-label form-label-sm" for="field_prixUni">
-          Prix unitaire <span class="text-danger">*</span>
-        </label>
-        <input (keyup)="handlePrixUnitaireInput($event)"
-               formControlName="prixUni" id="field_prixUni"
-               class="form-control" autocomplete="off" type="number"/>
-        @if (editForm.get('prixUni')!.invalid && editForm.get('prixUni')!.touched) {
-          <small class="text-danger">Obligatoire</small>
-        }
-      </div>
-    </div>
 
-    <!-- Ligne 3 : Qté colis + Qté minimale commande -->
-    <div class="row g-2 mb-2">
-      <div class="col-6">
-        <label class="form-label form-label-sm" for="field_qteColis">
-          Qté par colis
-          <span class="text-muted fw-normal">(conditionnement)</span>
-        </label>
-        <input formControlName="qteColis" id="field_qteColis"
-               class="form-control" autocomplete="off" type="number" min="1"/>
-        <small class="text-muted d-block" style="font-size:0.72rem">
-          Arrondi au multiple supérieur. 1 = pas de contrainte.
-        </small>
-        @if (editForm.get('qteColis')!.invalid && editForm.get('qteColis')!.touched) {
-          <small class="text-danger">Valeur minimale : 1</small>
-        }
+      <!-- Ligne 3 : Qté colis + Qté minimale commande -->
+      <div class="row g-2 mb-2">
+        <div class="col-6">
+          <label class="form-label form-label-sm" for="field_qteColis">
+            Qté par colis
+            <span class="text-muted fw-normal">(conditionnement)</span>
+          </label>
+          <input autocomplete="off" class="form-control"
+                 formControlName="qteColis" id="field_qteColis" min="1" type="number" />
+          <small class="text-muted d-block" style="font-size:0.72rem">
+            Arrondi au multiple supérieur. 1 = pas de contrainte.
+          </small>
+          @if (editForm.get('qteColis')!.invalid && editForm.get('qteColis')!.touched) {
+            <small class="text-danger">Valeur minimale : 1</small>
+          }
+        </div>
+        <div class="col-6">
+          <label class="form-label form-label-sm" for="field_qteMinimaleCommande">
+            Qté minimale commande
+            <span class="text-muted fw-normal">(unités)</span>
+          </label>
+          <input autocomplete="off" class="form-control"
+                 formControlName="qteMinimaleCommande" id="field_qteMinimaleCommande" min="0" type="number" />
+          <small class="text-muted d-block" style="font-size:0.72rem">
+            Minimum fournisseur. 0 = pas de minimum.
+          </small>
+          @if (editForm.get('qteMinimaleCommande')!.invalid && editForm.get(
+            'qteMinimaleCommande')!.touched) {
+            <small class="text-danger">Valeur minimale : 0</small>
+          }
+        </div>
       </div>
-      <div class="col-6">
-        <label class="form-label form-label-sm" for="field_qteMinimaleCommande">
-          Qté minimale commande
-          <span class="text-muted fw-normal">(unités)</span>
-        </label>
-        <input formControlName="qteMinimaleCommande" id="field_qteMinimaleCommande"
-               class="form-control" autocomplete="off" type="number" min="0"/>
-        <small class="text-muted d-block" style="font-size:0.72rem">
-          Minimum fournisseur. 0 = pas de minimum.
-        </small>
-        @if (editForm.get('qteMinimaleCommande')!.invalid && editForm.get('qteMinimaleCommande')!.touched) {
-          <small class="text-danger">Valeur minimale : 0</small>
-        }
-      </div>
-    </div>
 
-    <!-- Fournisseur principal -->
-    <div class="d-flex align-items-center gap-2 mt-1">
-      <app-switch formControlName="principal" [inputId]="'f_principal'"/>
-      <label for="f_principal" class="mb-0 small">Définir comme fournisseur principal</label>
-    </div>
+      <!-- Fournisseur principal -->
+      <div class="d-flex align-items-center gap-2 mt-1">
+        <app-switch [inputId]="'f_principal'" formControlName="principal" />
+        <label class="mb-0 small" for="f_principal">Définir comme fournisseur principal</label>
+      </div>
+    </app-card>
+
   </div>
 
   <div class="modal-footer py-2">
-    <app-button (clicked)="cancel()" icon="pi pi-times" label="Annuler"
-              severity="secondary" [text]="true" type="button"/>
+    <app-button (clicked)="cancel()" [raised]="true" icon="pi pi-times"
+                label="Annuler" severity="secondary" type="button" />
     <app-button [disabled]="editForm.invalid || isSaving || !isValid" [loading]="isSaving"
-              icon="pi pi-check" label="Enregistrer"
-              severity="primary" type="submit"/>
+                [raised]="true" icon="pi pi-check"
+                label="Enregistrer" severity="primary" type="submit" />
   </div>
 </form>

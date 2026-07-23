@@ -1,16 +1,29 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { HttpResponse } from "@angular/common/http";
-import { finalize } from "rxjs/operators";
-import { MagasinService } from "../../../../entities/magasin/magasin.service";
-import { StorageService } from "../../../../entities/storage/storage.service";
-import { Storage } from "../../../../entities/storage/storage.model";
-import { ErrorService } from "../../../../shared/error.service";
-import { RayonApiService } from "../../data-access/services/rayon-api.service";
-import { IRayon, TYPE_ZONE_OPTIONS } from "../../models/rayon.model";
-import { NotificationService } from "../../../../shared/services/notification.service";
-import { ButtonComponent, KeyFilterDirective, SelectComponent } from "../../../../shared/ui";
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+  viewChild
+} from "@angular/core";
+import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from "@angular/forms";
+import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
+import {HttpResponse} from "@angular/common/http";
+import {finalize} from "rxjs/operators";
+import {MagasinService} from "../../../../entities/magasin/magasin.service";
+import {StorageService} from "../../../../entities/storage/storage.service";
+import {Storage} from "../../../../entities/storage/storage.model";
+import {ErrorService} from "../../../../shared/error.service";
+import {RayonApiService} from "../../data-access/services/rayon-api.service";
+import {IRayon, TYPE_ZONE_OPTIONS} from "../../models/rayon.model";
+import {NotificationService} from "../../../../shared/services/notification.service";
+import {
+  ButtonComponent,
+  CardComponent,
+  KeyFilterDirective,
+  SelectComponent
+} from "../../../../shared/ui";
 
 @Component({
   selector: "app-rayon-form",
@@ -22,7 +35,8 @@ import { ButtonComponent, KeyFilterDirective, SelectComponent } from "../../../.
     ReactiveFormsModule,
     ButtonComponent,
     KeyFilterDirective,
-    SelectComponent
+    SelectComponent,
+    CardComponent
   ]
 })
 export class RayonFormComponent implements OnInit, AfterViewInit {
@@ -50,6 +64,9 @@ export class RayonFormComponent implements OnInit, AfterViewInit {
   private readonly errorService = inject(ErrorService);
   private readonly libelleInput = viewChild.required<ElementRef>("libelleInput");
 
+  protected get isSansRayon(): boolean {
+    return this.entity?.code === "SANS";
+  }
 
   ngOnInit(): void {
     this.loadStorages();
@@ -59,9 +76,10 @@ export class RayonFormComponent implements OnInit, AfterViewInit {
     setTimeout(() => this.libelleInput().nativeElement.focus(), 100);
   }
 
-
   protected save(): void {
-    if (this.editForm.invalid) return;
+    if (this.editForm.invalid) {
+      return;
+    }
     this.isSaving = true;
     const rayon = this.buildFromForm();
     const call = rayon.id ? this.rayonApi.update(rayon) : this.rayonApi.create(rayon);
@@ -78,7 +96,7 @@ export class RayonFormComponent implements OnInit, AfterViewInit {
   private loadStorages(): void {
     this.magasinService.findCurrentUserMagasin().then(magasin => {
       this.storageService
-        .fetchStorages({ magasinId: magasin.id })
+        .fetchStorages({magasinId: magasin.id})
         .subscribe((res: HttpResponse<Storage[]>) => {
           this.storages = res.body ?? [];
           if (this.entity) {
@@ -89,10 +107,6 @@ export class RayonFormComponent implements OnInit, AfterViewInit {
           }
         });
     });
-  }
-
-  protected get isSansRayon(): boolean {
-    return this.entity?.code === "SANS";
   }
 
   private patchForm(rayon: IRayon): void {

@@ -9,28 +9,30 @@
     <div class="pharma-toolbar-content">
       <div class="pharma-toolbar-filters">
         <app-select
-          appendTo="body"
           (selectionChange)="onSelectedUsersChange()"
           [(ngModel)]="onlyVente"
           [clearable]="false"
           [items]="mvts"
+          appendTo="body"
           bindLabel="label"
           bindValue="value"
         />
 
         <app-multi-select
-          appendTo="body"
           [(ngModel)]="selectedUsersId"
           [items]="users"
+          appendTo="body"
           bindLabel="abbrName"
           bindValue="id"
           inputId="selectedUserId"
           placeholder="Utilisateurs"
         />
 
-        <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate" id="fromDate" label="Du" />
+        <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate" [style]="{ 'max-width': '180px' }" id="fromDate"
+                            label="Du" />
 
-        <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate" id="toDate" label="Au" />
+        <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate" [style]="{ 'max-width': '180px' }" id="toDate"
+                            label="Au" />
 
         <div class="pharma-hide-mobile">
           <label class="pharma-dp-label" for="fromHour">De</label>

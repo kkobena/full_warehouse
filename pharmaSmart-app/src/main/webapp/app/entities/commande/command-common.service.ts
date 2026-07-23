@@ -61,5 +61,8 @@ export class CommandCommonService {
     this.commandPreviousActiveNav.set('SUGGESTIONS');
   }
 
-
+  /** Navigue vers l'onglet Retour Fournisseur */
+  navigateToRetourFournisseur(): void {
+    this.commandPreviousActiveNav.set('RETOUR_FOURNISSEUR');
+  }
 }

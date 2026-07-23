@@ -1,39 +1,42 @@
 <div class="pharma-smart-content p-2">
-    <app-toolbar icon="pi pi-briefcase" title="Gestion de caisse">
-      <ng-container ngProjectAs="[toolbarFilters]">
-        <div class="pharma-toolbar-filters">
-          <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate" id="dateDebut" label="Du" />
+  <app-toolbar icon="pi pi-briefcase" title="Gestion de caisse">
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <div class="pharma-toolbar-filters">
+        <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate" [style]="{ 'max-width': '180px' }" id="dateDebut"
+                            label="Du" />
 
-          <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate" id="dateFin" label="Au" />
+        <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate" [style]="{ 'max-width': '180px' }" id="dateFin"
+                            label="Au" />
 
-          <app-select
-            (selectionChange)="onSearch()"
-            [(ngModel)]="selectedUser"
-            [items]="users"
-            [clearable]="true"
-            appendTo="body"
-            bindLabel="abbrName"
-            placeholder="Opérateur"
+        <app-select
+          (selectionChange)="onSearch()"
+          [(ngModel)]="selectedUser"
+          [clearable]="true"
+          [items]="users"
+          [style]="{ 'min-width': '200px' }"
+          appendTo="body"
+          bindLabel="abbrName"
+          placeholder="Opérateur"
+        />
+      </div>
+    </ng-container>
+
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-toolbar-actions">
+        <div class="pharma-button-group">
+          <app-button
+            (clicked)="onSearch()"
+            [loading]="btnLoading"
+            [raised]="true"
+            icon="pi pi-search"
+            label="Rechercher"
+            ngbTooltip="Rechercher"
+            severity="info"
           />
         </div>
-      </ng-container>
-
-      <ng-container ngProjectAs="[toolbarActions]">
-        <div class="pharma-toolbar-actions">
-          <div class="pharma-button-group">
-            <app-button
-              (clicked)="onSearch()"
-              [loading]="btnLoading"
-              [raised]="true"
-              icon="pi pi-search"
-              label="Rechercher"
-              ngbTooltip="Rechercher"
-              severity="info"
-            />
-          </div>
-        </div>
-      </ng-container>
-    </app-toolbar>
+      </div>
+    </ng-container>
+  </app-toolbar>
 
   <div class="mvt-caisse-data-section mt-3 mb-3">
     @if (datas && datas.length > 0) {
@@ -61,7 +64,7 @@
               <th>Etat de la caisse</th>
             </tr>
           </ng-template>
-          <ng-template let-mvtCaisse #body>
+          <ng-template #body let-mvtCaisse>
             <tr>
               <td>
                 {{ mvtCaisse.user?.abbrName }}
@@ -91,11 +94,11 @@
               <td class="text-danger pharma-price">{{ mvtCaisse.canceledAmount | number }}</td>
               <td class="text-center">
                 @if (mvtCaisse.statut === OPEN) {
-                  <app-badge icon="pi pi-lock-open" severity="warn" label="Ouvert" />
+                  <app-badge icon="pi pi-lock-open" label="Ouvert" severity="warn" />
                 } @else if (mvtCaisse.statut === CLOSED) {
-                  <app-badge icon="pi pi-lock" severity="success" label="Fermé" />
+                  <app-badge icon="pi pi-lock" label="Fermé" severity="success" />
                 } @else if (mvtCaisse.statut === VALIDATED) {
-                  <app-badge icon="pi pi-check" severity="secondary" label="Validé" />
+                  <app-badge icon="pi pi-check" label="Validé" severity="secondary" />
                 }
               </td>
             </tr>

@@ -1,68 +1,68 @@
-<div class="pharma-smart-content p-2">
+<div class="pharma-smart-content p-1">
   <app-toolbar icon="pi pi-th-large" title="Catalogue produits">
     <ng-container ngProjectAs="[toolbarFilters]">
       <app-icon-field [overlay]="true" icon="pi pi-search">
         <input
-          type="text"
+          (keyup.enter)="onSearch()"
+          [(ngModel)]="search"
           class="form-control"
           placeholder="Rechercher (CIP, libellé, EAN)..."
-          [(ngModel)]="search"
-          (keyup.enter)="onSearch()"
           style="width: 220px"
+          type="text"
         />
       </app-icon-field>
 
       <app-select
+        (selectionChange)="onFilterChange()"
+        [(ngModel)]="selectedFilter"
         [items]="filterOptions"
+        [style]="{ 'min-width': '180px' }"
+        appendTo="body"
         bindLabel="label"
         bindValue="value"
-        [(ngModel)]="selectedFilter"
-        (selectionChange)="onFilterChange()"
-        appendTo="body"
         placeholder="Filtre..."
-        [style]="{ 'min-width': '150px' }"
       />
 
       <app-select
-        [items]="familles()"
-        bindLabel="libelle"
-        bindValue="id"
+        (selectionChange)="onFilterChange()"
         [(ngModel)]="selectedFamilleId"
         [clearable]="true"
+        [items]="familles()"
+        [style]="{ 'min-width': '200px' }"
         appendTo="body"
-        (selectionChange)="onFilterChange()"
+        bindLabel="libelle"
+        bindValue="id"
         placeholder="Famille..."
-        [style]="{ 'min-width': '140px' }"
       />
 
       <app-select
+        (selectionChange)="onFilterChange()"
+        [(ngModel)]="selectedRayonId"
+        [clearable]="true"
         [items]="rayons()"
+        [style]="{ 'min-width': '200px' }"
+        appendTo="body"
         bindLabel="libelle"
         bindValue="id"
-        [(ngModel)]="selectedRayonId"
-        appendTo="body"
-        [clearable]="true"
-        (selectionChange)="onFilterChange()"
         placeholder="Rayon..."
-        [style]="{ 'min-width': '120px' }"
       />
     </ng-container>
 
     <ng-container ngProjectAs="[toolbarActions]">
       @if (canCreate()) {
         <app-split-button
-          label="Importer"
-          icon="pi pi-upload"
           [items]="importMenuItems"
-          severity="secondary"
           [outlined]="true"
-          size="small"
+          icon="pi pi-upload"
+          label="Importer"
+          severity="secondary"
+
         />
         <app-button
+          (clicked)="onNewProduit()"
           icon="pi pi-plus"
           label="Nouveau"
-          size="small"
-          (clicked)="onNewProduit()"
+         
         />
       }
     </ng-container>
@@ -97,8 +97,9 @@
   @if (showHint() && !panelOpen()) {
     <div class="pharma-hint">
       <i class="pi pi-info-circle"></i>
-      <span>Cliquez sur une ligne pour afficher le détail du produit. Utilisez le menu <i class="pi pi-ellipsis-v"></i> pour accéder aux autres actions.</span>
-      <button type="button" class="pharma-hint-close" (click)="dismissHint()" aria-label="Fermer">
+      <span>Cliquez sur une ligne pour afficher le détail du produit. Utilisez le menu <i
+        class="pi pi-ellipsis-v"></i> pour accéder aux autres actions.</span>
+      <button (click)="dismissHint()" aria-label="Fermer" class="pharma-hint-close" type="button">
         <i class="pi pi-times"></i>
       </button>
     </div>
@@ -110,54 +111,54 @@
       <span class="bulk-count">{{ selectedProduits().length }} produit(s) sélectionné(s)</span>
       @if (canEdit()) {
         <app-button
-          label="Mettre en veille"
-          icon="pi pi-pause"
-          size="small"
-          severity="warn"
-          [outlined]="true"
           (clicked)="onBulkDisable()"
+          [outlined]="true"
+          icon="pi pi-pause"
+          label="Mettre en veille"
+          severity="warn"
+          size="small"
         />
         <app-button
-          label="Réactiver"
-          icon="pi pi-play"
-          size="small"
-          severity="success"
-          [outlined]="true"
           (clicked)="onBulkEnable()"
+          [outlined]="true"
+          icon="pi pi-play"
+          label="Réactiver"
+          severity="success"
+          size="small"
         />
       }
       <app-button
-        icon="pi pi-times"
-        size="small"
-        severity="secondary"
-        [text]="true"
-        ngbTooltip="Désélectionner tout"
         (clicked)="onClearSelection()"
+        [text]="true"
+        icon="pi pi-times"
+        ngbTooltip="Désélectionner tout"
+        severity="secondary"
+        size="small"
       />
     </div>
   }
 
   <!-- Split panel -->
-  <div class="split-container" [class.panel-open]="panelOpen()">
+  <div [class.panel-open]="panelOpen()" class="split-container">
 
     <!-- Colonne gauche : liste -->
     <div class="list-column">
       <app-produit-list
-        [produits]="produits()"
-        [totalItems]="totalItems()"
-        [rows]="rows"
-        [loading]="loading()"
-        [selectedProduit]="selectedProduit()"
-        [canCreate]="canCreate()"
-        [canEdit]="canEdit()"
-        [canDelete]="canDelete()"
-        (produitSelected)="onProduitSelected($event)"
-        (lazyLoad)="onLazyLoad($event)"
-        (editRequested)="onEditRequested($event)"
         (deleteRequested)="onDeleteRequested($event)"
+        (editRequested)="onEditRequested($event)"
+        (lazyLoad)="onLazyLoad($event)"
         (menuAction)="onMenuAction($event)"
+        (produitSelected)="onProduitSelected($event)"
         (selectionChanged)="onSelectionChanged($event)"
+        [canCreate]="canCreate()"
+        [canDelete]="canDelete()"
+        [canEdit]="canEdit()"
         [clearSelectionTrigger]="clearSelectionTrigger()"
+        [loading]="loading()"
+        [produits]="produits()"
+        [rows]="rows"
+        [selectedProduit]="selectedProduit()"
+        [totalItems]="totalItems()"
       />
     </div>
 
@@ -165,10 +166,10 @@
     @if (panelOpen()) {
       <div class="detail-column">
         <app-produit-detail-panel
-          [produit]="selectedProduit()!"
-          [canEdit]="canEdit()"
           (closePanel)="onClosePanel()"
           (editRequested)="onEditRequested($event)"
+          [canEdit]="canEdit()"
+          [produit]="selectedProduit()!"
         />
       </div>
     }

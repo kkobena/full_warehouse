@@ -98,10 +98,12 @@
         />
       }
 
-      <pharma-date-picker (ngModelChange)="onSearch()" [(ngModel)]="dtStart" class="lb-date"
+      <pharma-date-picker (ngModelChange)="onSearch()" [(ngModel)]="dtStart" [style]="{ 'max-width': '180px' }"
+                          class="lb-date"
                           id="dtStart" label="Début" />
 
-      <pharma-date-picker (ngModelChange)="onSearch()" [(ngModel)]="dtEnd" class="lb-date"
+      <pharma-date-picker (ngModelChange)="onSearch()" [(ngModel)]="dtEnd" [style]="{ 'max-width': '180px' }"
+                          class="lb-date"
                           id="dtEnd" label="Fin" />
 
     </ng-container>

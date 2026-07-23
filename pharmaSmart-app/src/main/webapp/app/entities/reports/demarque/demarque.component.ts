@@ -1,16 +1,20 @@
 import { Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { forkJoin } from 'rxjs';
 import { Chart, registerables } from 'chart.js';
 
 import { DemarqueReportService } from '../services/demarque-report.service';
-import { DateRangeFilterComponent } from '../../../shared/components/date-range-filter/date-range-filter.component';
+import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
 import { IDemarqueByMotif, IDemarqueKpi } from '../../../shared/model/report';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { ChartColorsUtilsService } from '../../../shared/util/chart-colors-utils.service';
 import { formatCurrency, formatNumber } from 'app/shared/utils/format-utils';
 import {
-  DataTableComponent
+  ButtonComponent,
+  DataTableComponent,
+  ToolbarComponent
 } from '../../../shared/ui';
 
 Chart.register(...registerables);
@@ -19,8 +23,11 @@ Chart.register(...registerables);
   selector: 'app-demarque',
   imports: [
     CommonModule,
-    DateRangeFilterComponent,
-    DataTableComponent
+    FormsModule,
+    PharmaDatePickerComponent,
+    ButtonComponent,
+    DataTableComponent,
+    ToolbarComponent
   ],
   templateUrl: './demarque.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -35,6 +42,11 @@ export default class DemarqueComponent implements OnInit, OnDestroy {
 
   protected fromDate = signal<Date | null>(new Date(new Date().getFullYear(), 0, 1));
   protected toDate   = signal<Date | null>(new Date());
+
+  // `computed`, pas un appel direct à `dateToStruct()` dans le template : voir
+  // date-range-filter (supprimé) pour l'explication de la boucle silencieuse évitée.
+  protected readonly fromStruct = computed(() => this.dateToStruct(this.fromDate()));
+  protected readonly toStruct   = computed(() => this.dateToStruct(this.toDate()));
 
   protected readonly totalValeur = computed(() =>
     this.byMotif().reduce((s, m) => s + (m.valeur ?? 0), 0)
@@ -118,5 +130,15 @@ export default class DemarqueComponent implements OnInit, OnDestroy {
         },
       },
     });
+  }
+
+  protected dateToStruct(d: Date | null): NgbDateStruct | null {
+    if (!d) return null;
+    return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
+  }
+
+  protected structToDate(s: NgbDateStruct | null): Date | null {
+    if (!s) return null;
+    return new Date(s.year, s.month - 1, s.day);
   }
 }

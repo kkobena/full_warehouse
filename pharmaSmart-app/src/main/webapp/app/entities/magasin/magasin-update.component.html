@@ -1,18 +1,14 @@
 <div class="container-fluid">
-  <div class="pharma-smart-content p-2">
+  <div class="pharma-smart-content p-1">
     <div class="magasin-form-container">
-      <div class="pharma-toolbar">
-        <div class="pharma-toolbar-header">
-          <i class="pi pi-building"></i>
-          <span class="pharma-toolbar-title">Éditer les Informations du Magasin</span>
-        </div>
-        <div class="pharma-toolbar-content">
-          <div class="pharma-toolbar-filters"></div>
-          <div class="pharma-toolbar-actions">
-            <app-button (clicked)="previousState()" [text]="true" icon="pi pi-arrow-left" label="Retour" severity="secondary" />
+      <app-toolbar icon="pi pi-building" title="Éditer les Informations du Magasin">
+        <ng-container ngProjectAs="[toolbarActions]">
+          <div class="py-1">
+            <app-button (clicked)="previousState()" [text]="true" icon="pi pi-arrow-left"
+                        label="Retour" severity="secondary" />
           </div>
-        </div>
-      </div>
+        </ng-container>
+      </app-toolbar>
 
       <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
         <div [hidden]="true">
@@ -21,200 +17,200 @@
 
         <!-- Section 1: Required Fields -->
         <div class="card-grid-2col">
-          <div class="card data-card">
-            <div class="card-header">
-              <div class="section-header section-header-required">
-                <i class="pi pi-exclamation-circle"></i>
-                <span>Champs Obligatoires</span>
+          <app-card [variant]="'form'" [withHeader]="true">
+            <div class="section-header section-header-required" ngProjectAs="[cardHeader]">
+              <i class="pi pi-exclamation-circle"></i>
+              <span>Champs Obligatoires</span>
+            </div>
+            <div class="form-grid-compact">
+              <!-- Full Name -->
+              <div class="form-field form-field-full">
+                <label for="field_fullName"> Raison Sociale <span class="required">*</span>
+                </label>
+                <input autocomplete="off" class="form-control" formControlName="fullName"
+                       id="field_fullName" name="fullName" type="text" />
+                @if (editForm.get('fullName')?.invalid && editForm.get('fullName')?.touched) {
+                  @if (editForm.get('fullName')?.errors?.required) {
+                    <small class="form-text text-danger"> Ce champ est obligatoire. </small>
+                  }
+                }
+              </div>
+
+              <!-- Short Name -->
+              <div class="form-field form-field-full">
+                <label for="field_name"> Nom Abrégé <span class="required">*</span> </label>
+                <input autocomplete="off" class="form-control" formControlName="name"
+                       id="field_name" name="name"
+                       type="text" />
+                @if (editForm.get('name')?.invalid && editForm.get('name')?.touched) {
+                  @if (editForm.get('name')?.errors?.required) {
+                    <small class="form-text text-danger"> Ce champ est obligatoire. </small>
+                  }
+                }
+              </div>
+
+              <!-- Phone -->
+              <div class="form-field form-field-full">
+                <label for="field_phone"> Téléphone <span class="required">*</span> </label>
+                <input autocomplete="off" class="form-control" formControlName="phone"
+                       id="field_phone" name="phone"
+                       type="tel" />
+                @if (editForm.get('phone')?.invalid && editForm.get('phone')?.touched) {
+                  @if (editForm.get('phone')?.errors?.required) {
+                    <small class="form-text text-danger"> Ce champ est obligatoire. </small>
+                  }
+                }
               </div>
             </div>
-            <div class="card-body">
-              <div class="form-grid-compact">
-                <!-- Full Name -->
-                <div class="form-field form-field-full">
-                  <label for="field_fullName"> Raison Sociale <span class="required">*</span> </label>
-                  <input class="form-control" formControlName="fullName" id="field_fullName" name="fullName" type="text" />
-                  @if (editForm.get('fullName')?.invalid && editForm.get('fullName')?.touched) {
-                    @if (editForm.get('fullName')?.errors?.required) {
-                      <small class="form-text text-danger"> Ce champ est obligatoire. </small>
-                    }
-                  }
-                </div>
-
-                <!-- Short Name -->
-                <div class="form-field form-field-full">
-                  <label for="field_name"> Nom Abrégé <span class="required">*</span> </label>
-                  <input class="form-control" formControlName="name" id="field_name" name="name" type="text" />
-                  @if (editForm.get('name')?.invalid && editForm.get('name')?.touched) {
-                    @if (editForm.get('name')?.errors?.required) {
-                      <small class="form-text text-danger"> Ce champ est obligatoire. </small>
-                    }
-                  }
-                </div>
-
-                <!-- Phone -->
-                <div class="form-field form-field-full">
-                  <label for="field_phone"> Téléphone <span class="required">*</span> </label>
-                  <input class="form-control" formControlName="phone" id="field_phone" name="phone" type="tel" />
-                  @if (editForm.get('phone')?.invalid && editForm.get('phone')?.touched) {
-                    @if (editForm.get('phone')?.errors?.required) {
-                      <small class="form-text text-danger"> Ce champ est obligatoire. </small>
-                    }
-                  }
-                </div>
-              </div>
-            </div>
-          </div>
+          </app-card>
 
           <!-- Section 2: Optional Information -->
-          <div class="card data-card">
-            <div class="card-header">
-              <div class="section-header">
-                <i class="pi pi-info-circle"></i>
-                <span>Informations Complémentaires</span>
+          <app-card [variant]="'form'" [withHeader]="true">
+            <div class="section-header" ngProjectAs="[cardHeader]">
+              <i class="pi pi-info-circle"></i>
+              <span>Informations Complémentaires</span>
+            </div>
+            <div class="form-grid-compact">
+              <div class="form-field form-field-full">
+                <label for="email">Email</label>
+                <input autocomplete="off"
+                       class="form-control"
+                       data-cy="email"
+                       formControlName="email"
+                       id="email"
+                       name="email"
+                       placeholder="Entrez votre email"
+                       type="email"
+                />
+
+                @if (editForm.get('email')!.invalid && (editForm.get('email')!.dirty
+                  || editForm.get('email')!.touched)) {
+                  <div class="pharma-error-messages">
+                    @if (editForm.get('email')?.errors?.required) {
+                      <small class="pharma-error-text">
+                        <i class="pi pi-exclamation-circle"></i>
+                        Votre email est requis.
+                      </small>
+                    }
+                    @if (editForm.get('email')?.errors?.email) {
+                      <small class="pharma-error-text">
+                        <i class="pi pi-exclamation-circle"></i>
+                        Votre email n'est pas valide.
+                      </small>
+                    }
+                    @if (editForm.get('email')?.errors?.minlength) {
+                      <small class="pharma-error-text">
+                        <i class="pi pi-exclamation-circle"></i>
+                        Votre email doit comporter au moins 5 caractères.
+                      </small>
+                    }
+                    @if (editForm.get('email')?.errors?.maxlength) {
+                      <small class="pharma-error-text">
+                        <i class="pi pi-exclamation-circle"></i>
+                        Votre email ne doit pas comporter plus de 50 caractères.
+                      </small>
+                    }
+                  </div>
+                }
+              </div>
+
+              <!-- Address -->
+              <div class="form-field form-field-full">
+                <label for="field_address">Adresse</label>
+                <textarea class="form-control" formControlName="address" id="field_address"
+                          name="address" rows="3"></textarea>
+              </div>
+
+              <!-- Registre -->
+              <div class="form-field form-field-full">
+                <label for="field_registre"> Registre de Commerce </label>
+                <input class="form-control" formControlName="registre" id="field_registre"
+                       name="registre" type="text" />
               </div>
             </div>
-            <div class="card-body">
-              <div class="form-grid-compact">
-                <div class="form-field form-field-full">
-                  <label for="email">Email</label>
-                  <input
-                    class="form-control"
-                    type="email"
-                    id="email"
-                    name="email"
-                    placeholder="Entrez votre email"
-                    formControlName="email"
-                    data-cy="email"
-                  />
-
-                  @if (editForm.get('email')!.invalid && (editForm.get('email')!.dirty || editForm.get('email')!.touched)) {
-                    <div class="pharma-error-messages">
-                      @if (editForm.get('email')?.errors?.required) {
-                        <small class="pharma-error-text">
-                          <i class="pi pi-exclamation-circle"></i>
-                          Votre email est requis.
-                        </small>
-                      }
-                      @if (editForm.get('email')?.errors?.email) {
-                        <small class="pharma-error-text">
-                          <i class="pi pi-exclamation-circle"></i>
-                          Votre email n'est pas valide.
-                        </small>
-                      }
-                      @if (editForm.get('email')?.errors?.minlength) {
-                        <small class="pharma-error-text">
-                          <i class="pi pi-exclamation-circle"></i>
-                          Votre email doit comporter au moins 5 caractères.
-                        </small>
-                      }
-                      @if (editForm.get('email')?.errors?.maxlength) {
-                        <small class="pharma-error-text">
-                          <i class="pi pi-exclamation-circle"></i>
-                          Votre email ne doit pas comporter plus de 50 caractères.
-                        </small>
-                      }
-                    </div>
-                  }
-                </div>
-
-                <!-- Address -->
-                <div class="form-field form-field-full">
-                  <label for="field_address">Adresse</label>
-                  <textarea class="form-control" formControlName="address" id="field_address" name="address" rows="3"></textarea>
-                </div>
-
-                <!-- Registre -->
-                <div class="form-field form-field-full">
-                  <label for="field_registre"> Registre de Commerce </label>
-                  <input class="form-control" formControlName="registre" id="field_registre" name="registre" type="text" />
-                </div>
-              </div>
-            </div>
-          </div>
+          </app-card>
         </div>
 
         <!-- Section 3: Messages and Notes -->
         <div class="card-grid-2col mt-2">
-          <div class="card data-card">
-            <div class="card-header">
-              <div class="section-header">
-                <i class="pi pi-file-edit"></i>
-                <span>Informations Administratives</span>
-              </div>
+          <app-card [variant]="'form'" [withHeader]="true">
+            <div class="section-header" ngProjectAs="[cardHeader]">
+              <i class="pi pi-file-edit"></i>
+              <span>Informations Administratives</span>
             </div>
-            <div class="card-body">
-              <div class="form-grid-compact">
-                <div class="form-field form-field-full">
-                  <label for="compteContribuable"> Compte contribuable</label>
-                  <input
-                    class="form-control"
-                    formControlName="compteContribuable"
-                    id="compteContribuable"
-                    name="compteContribuable"
-                    type="text"
-                  />
-                </div>
-                <div class="form-field form-field-full">
-                  <label for="fnePointOfSale">FNE Point de vente</label>
-                  <input class="form-control" formControlName="fnePointOfSale" id="fnePointOfSale" name="fnePointOfSale" type="text" />
-                </div>
+            <div class="form-grid-compact">
+              <div class="form-field form-field-full">
+                <label for="compteContribuable"> Compte contribuable</label>
+                <input autocomplete="off"
+                       class="form-control"
+                       formControlName="compteContribuable"
+                       id="compteContribuable"
+                       name="compteContribuable"
+                       type="text"
+                />
+              </div>
+              <div class="form-field form-field-full">
+                <label for="fnePointOfSale">FNE Point de vente</label>
+                <input class="form-control" formControlName="fnePointOfSale" id="fnePointOfSale"
+                       name="fnePointOfSale" type="text" />
+              </div>
 
-                <div class="form-field form-field-full">
-                  <label for="fneSecretKey">FNE Clé secrète</label>
-                  <input class="form-control" formControlName="fneSecretKey" id="fneSecretKey" name="fneSecretKey" type="text" />
-                </div>
-                <div class="form-field form-field-full">
-                  <label for="numComptable"> Numéro comtable</label>
-                  <input class="form-control" formControlName="numComptable" id="numComptable" name="numComptable" type="text" />
-                </div>
-                <div class="form-field form-field-full">
-                  <label for="registreImposition"> Registre d'imposition</label>
-                  <input
-                    class="form-control"
-                    formControlName="registreImposition"
-                    id="registreImposition"
-                    name="registreImposition"
-                    type="text"
-                  />
-                </div>
+              <div class="form-field form-field-full">
+                <label for="fneSecretKey">FNE Clé secrète</label>
+                <input class="form-control" formControlName="fneSecretKey" id="fneSecretKey"
+                       name="fneSecretKey" type="text" />
+              </div>
+              <div class="form-field form-field-full">
+                <label for="numComptable"> Numéro comtable</label>
+                <input autocomplete="off" class="form-control" formControlName="numComptable"
+                       id="numComptable"
+                       name="numComptable" type="text" />
+              </div>
+              <div class="form-field form-field-full">
+                <label for="registreImposition"> Registre d'imposition</label>
+                <input
+                  class="form-control"
+                  formControlName="registreImposition"
+                  id="registreImposition"
+                  name="registreImposition"
+                  type="text"
+                />
               </div>
             </div>
-          </div>
+          </app-card>
 
-          <div class="card data-card">
-            <div class="card-header">
-              <div class="section-header">
-                <i class="pi pi-comment"></i>
-                <span>Messages et Notes</span>
-              </div>
+          <app-card [variant]="'form'" [withHeader]="true">
+            <div class="section-header" ngProjectAs="[cardHeader]">
+              <i class="pi pi-comment"></i>
+              <span>Messages et Notes</span>
             </div>
-            <div class="card-body">
-              <div class="form-grid-compact">
-                <!-- Welcome Message -->
-                <div class="form-field form-field-full">
-                  <label for="field_welcomeMessage">Message de Bienvenue</label>
-                  <input
-                    class="form-control"
-                    formControlName="welcomeMessage"
-                    id="field_welcomeMessage"
-                    name="welcomeMessage"
-                    type="text"
-                  />
-                </div>
+            <div class="form-grid-compact">
+              <!-- Welcome Message -->
+              <div class="form-field form-field-full">
+                <label for="field_welcomeMessage">Message de Bienvenue</label>
+                <input
+                  class="form-control"
+                  formControlName="welcomeMessage"
+                  id="field_welcomeMessage"
+                  name="welcomeMessage"
+                  type="text"
+                />
+              </div>
 
-                <!-- Note -->
-                <div class="form-field form-field-full">
-                  <label for="field_note">Notes</label>
-                  <input class="form-control" formControlName="note" id="field_note" name="note" type="text" />
-                </div>
+              <!-- Note -->
+              <div class="form-field form-field-full">
+                <label for="field_note">Notes</label>
+                <input autocomplete="off" class="form-control" formControlName="note"
+                       id="field_note" name="note"
+                       type="text" />
               </div>
             </div>
-          </div>
+          </app-card>
         </div>
 
         <div class="form-actions-compact">
-          <app-button (clicked)="previousState()" [text]="true" icon="pi pi-times" label="Annuler" severity="secondary" />
+          <app-button (clicked)="previousState()" [text]="true" icon="pi pi-times" label="Annuler"
+                      severity="secondary" />
           <app-button
             [disabled]="editForm.invalid || isSaving"
             [loading]="isSaving"

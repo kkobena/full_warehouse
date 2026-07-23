@@ -8,232 +8,185 @@
 </div>
 
 <div class="modal-body">
-  <!-- Summary Cards - Compact Pharma Style -->
-  <div class="row g-2 mb-2">
-    <div class="col-6 col-md">
-      <div class="card pharma-stat-card primary-accent">
-        <div class="card-body p-2">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <p class="text-muted mb-1 small">Date règlement</p>
-              <h6 class="mb-0 fw-bold">{{ reglement.created }}</h6>
-            </div>
-            <div class="pharma-stat-icon bg-primary-subtle">
-              <i class="pi pi-calendar text-primary"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-6 col-md">
-      <div class="card pharma-stat-card warning-accent">
-        <div class="card-body p-2">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <p class="text-muted mb-1 small">Montant attendu</p>
-              <h6 class="mb-0 fw-bold">{{ reglement.montantAttendu }}</h6>
-            </div>
-            <div class="pharma-stat-icon bg-warning-subtle">
-              <i class="pi pi-clock text-warning"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-6 col-md">
-      <div class="card pharma-stat-card success-accent">
-        <div class="card-body p-2">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <p class="text-muted mb-1 small">Montant réglé</p>
-              <h6 class="mb-0 fw-bold">{{ reglement.paidAmount }}</h6>
-            </div>
-            <div class="pharma-stat-icon bg-success-subtle">
-              <i class="pi pi-check-circle text-success"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-6 col-md">
-      <div class="card pharma-stat-card danger-accent">
-        <div class="card-body p-2">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <p class="text-muted mb-1 small">Montant restant</p>
-              <h6 class="mb-0 fw-bold">{{ reglement.montantRestant }}</h6>
-            </div>
-            <div class="pharma-stat-icon bg-danger-subtle">
-              <i class="pi pi-exclamation-circle text-danger"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-12 col-md">
-      <div class="card pharma-stat-card info-accent">
-        <div class="card-body p-2">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <p class="text-muted mb-1 small">Mode règlement</p>
-              <h6 class="mb-0 fw-bold">{{ reglement.paymentMode }}</h6>
-            </div>
-            <div class="pharma-stat-icon bg-info-subtle">
-              <i class="pi pi-credit-card text-info"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- Summary Cards -->
+  <app-kpi-strip stripClass="mb-2">
+    <app-kpi-item
+      [accent]="'primary'"
+      [value]="reglement.created"
+      icon="pi pi-calendar"
+      iconClass="text-primary"
+      label="Date règlement"
+    />
+    <app-kpi-item
+      [accent]="'warning'"
+      [value]="reglement.montantAttendu"
+      icon="pi pi-clock"
+      iconClass="text-warning"
+      label="Montant attendu"
+      valueClass="text-warning"
+    />
+    <app-kpi-item
+      [accent]="'success'"
+      [value]="reglement.paidAmount"
+      icon="pi pi-check-circle"
+      iconClass="text-success"
+      label="Montant réglé"
+      valueClass="text-success"
+    />
+    <app-kpi-item
+      [accent]="'danger'"
+      [value]="reglement.montantRestant"
+      icon="pi pi-exclamation-circle"
+      iconClass="text-danger"
+      label="Montant restant"
+      valueClass="text-danger"
+    />
+    <app-kpi-item
+      [accent]="'info'"
+      [value]="reglement.paymentMode"
+      icon="pi pi-credit-card"
+      iconClass="text-info"
+      label="Mode règlement"
+    />
+  </app-kpi-strip>
 
   <!-- Two Column Layout -->
   <div class="row g-2">
     <!-- Left Column: Factures règlées -->
     <div class="col-xl-5 col-lg-5 col-md-12">
-      <div class="card h-100 data-card">
-        <div class="card-header">
-          <h5 class="card-title">
-            <i class="pi pi-file-edit text-primary"></i>
-            Factures règlées
-          </h5>
-          <app-icon-field [overlay]="true" icon="pi pi-search">
-            <input
-              (input)="factLeft.filterGlobal($event.target.value, 'contains')"
-              class="p-inputtext-sm"
-              placeholder="Filtrer"
-              type="text"
-            />
-          </app-icon-field>
-        </div>
-        <div class="card-body p-0">
-          <app-data-table
-            #factLeft
-            [(selection)]="selectedItem"
-            [globalFilterFields]="['organisme', 'codeFacture']"
-            [scrollHeight]="scrollHeight"
-            [scrollable]="true"
-            [selectionMode]="'single'"
-            [stripedRows]="true"
-            [value]="reglements"
-            dataKey="id"
-          >
-            <ng-template #header>
-              <tr class="pharma-table-head">
-                <th>Organisme</th>
-                <th>Code facture</th>
-                <th class="text-end">Attendu</th>
-                <th class="text-end">Réglé</th>
-                <th class="text-end">Restant</th>
-              </tr>
-            </ng-template>
-            <ng-template #body let-reg>
-              <tr (click)="onRowSelect(reg)" [appSelectableRow]="reg" class="cursor-pointer">
-                <td class="pharma-entity-name">{{ reg.organisme }}</td>
-                <td>
-                  <span class="pharma-code">{{ reg.codeFacture }}</span>
-                </td>
-                <td class="text-end pharma-price">{{ reg.montantAttendu }}</td>
-                <td class="text-end pharma-total">{{ reg.paidAmount }}</td>
-                <td [class.text-danger]="reg.montantRestant > 0" class="text-end fw-bold">
-                  {{ reg.montantRestant }}
-                </td>
-              </tr>
-            </ng-template>
-            <ng-template #empty>
-              <tr>
-                <td class="text-center p-4" colspan="5">
-                  <i class="pi pi-inbox text-muted" style="font-size: 2rem"></i>
-                  <p class="mt-2 text-muted mb-0">Aucune facture trouvée.</p>
-                </td>
-              </tr>
-            </ng-template>
-          </app-data-table>
-        </div>
-      </div>
+      <app-card bodyClass="p-0" customClass="h-100" header="Factures règlées" icon="pi pi-file-edit text-primary">
+        <app-data-table
+          #factLeft
+          [(selection)]="selectedItem"
+          [globalFilterFields]="['organisme', 'codeFacture']"
+          [scrollHeight]="scrollHeight"
+          [scrollable]="true"
+          [selectionMode]="'single'"
+          [stripedRows]="true"
+          [value]="reglements"
+          dataKey="id"
+        >
+          <ng-template #caption>
+            <app-icon-field [overlay]="true" icon="pi pi-search">
+              <input
+                (input)="factLeft.filterGlobal($event.target.value, 'contains')"
+                class="form-control form-control-sm"
+                placeholder="Filtrer"
+                style="width: 220px"
+                type="text"
+              />
+            </app-icon-field>
+          </ng-template>
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th>Organisme</th>
+              <th>Code facture</th>
+              <th class="text-end">Attendu</th>
+              <th class="text-end">Réglé</th>
+              <th class="text-end">Restant</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-reg>
+            <tr (click)="onRowSelect(reg)" [appSelectableRow]="reg" class="cursor-pointer">
+              <td class="pharma-entity-name">{{ reg.organisme }}</td>
+              <td>
+                <span class="pharma-code">{{ reg.codeFacture }}</span>
+              </td>
+              <td class="text-end pharma-price">{{ reg.montantAttendu }}</td>
+              <td class="text-end pharma-total">{{ reg.paidAmount }}</td>
+              <td [class.text-danger]="reg.montantRestant > 0" class="text-end fw-bold">
+                {{ reg.montantRestant }}
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template #empty>
+            <tr>
+              <td class="text-center p-4" colspan="5">
+                <i class="pi pi-inbox text-muted" style="font-size: 2rem"></i>
+                <p class="mt-2 text-muted mb-0">Aucune facture trouvée.</p>
+              </td>
+            </tr>
+          </ng-template>
+        </app-data-table>
+      </app-card>
     </div>
 
     <!-- Right Column: Dossiers -->
     <div class="col-xl-7 col-lg-7 col-md-12">
       @if (selectedItem) {
-        <div class="card h-100 data-card">
-          <div class="card-header">
-            <h5 class="card-title">
-              <i class="pi pi-folder text-warning"></i>
-              Dossiers
-            </h5>
-            <app-icon-field [overlay]="true" icon="pi pi-search">
-              <input
-                (input)="factRight.filterGlobal($event.target.value, 'contains')"
-                class="p-inputtext-sm"
-                placeholder="Filtrer"
-                type="text"
-              />
-            </app-icon-field>
-          </div>
-          <div class="card-body p-0">
-            <app-data-table
-              #factRight
-              [globalFilterFields]="['numBon', 'customer', 'customerMatricule']"
-              [scrollHeight]="scrollHeight"
-              [scrollable]="true"
-              [stripedRows]="true"
-              [value]="datas"
-            >
-              <ng-template #header>
-                <tr class="pharma-table-head">
-                  <th>Num.Bon</th>
-                  <th>Date</th>
-                  <th>Heure</th>
-                  <th>Assuré</th>
-                  <th>Matricule</th>
-                  <th class="text-end">Montant</th>
-                  <th class="text-end">Attendu</th>
-                  <th class="text-end">Réglé</th>
-                  <th class="text-end">Restant</th>
-                </tr>
-              </ng-template>
-              <ng-template #body let-factureDetail>
-                <tr>
-                  <td>
-                    <span class="pharma-code">{{ factureDetail.numBon }}</span>
-                  </td>
-                  <td>{{ factureDetail.created }}</td>
-                  <td>{{ factureDetail.heure }}</td>
-                  <td class="pharma-entity-name">{{ factureDetail.customer }}</td>
-                  <td>
-                    <span
-                      class="pharma-badge pharma-badge-info">{{ factureDetail.customerMatricule }}</span>
-                  </td>
-                  <td class="text-end pharma-price">{{ factureDetail.montantVente }}</td>
-                  <td class="text-end pharma-price">{{ factureDetail.montantAttendu }}</td>
-                  <td class="text-end pharma-total">{{ factureDetail.montant }}</td>
-                  <td [class.text-danger]="factureDetail.montantRestant > 0"
-                      class="text-end fw-bold">
-                    {{ factureDetail.montantRestant }}
-                  </td>
-                </tr>
-              </ng-template>
-              <ng-template #empty>
-                <tr>
-                  <td class="text-center p-4" colspan="9">
-                    <i class="pi pi-inbox text-muted" style="font-size: 2rem"></i>
-                    <p class="mt-2 text-muted mb-0">Aucun dossier trouvé.</p>
-                  </td>
-                </tr>
-              </ng-template>
-            </app-data-table>
-          </div>
-        </div>
+        <app-card bodyClass="p-0" customClass="h-100" header="Dossiers" icon="pi pi-folder text-warning">
+          <app-data-table
+            #factRight
+            [globalFilterFields]="['numBon', 'customer', 'customerMatricule']"
+            [scrollHeight]="scrollHeight"
+            [scrollable]="true"
+            [stripedRows]="true"
+            [value]="datas"
+          >
+            <ng-template #caption>
+              <app-icon-field [overlay]="true" icon="pi pi-search">
+                <input
+                  (input)="factRight.filterGlobal($event.target.value, 'contains')"
+                  class="form-control form-control-sm"
+                  placeholder="Filtrer"
+                  style="width: 220px"
+                  type="text"
+                />
+              </app-icon-field>
+            </ng-template>
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th>Num.Bon</th>
+                <th>Date</th>
+                <th>Heure</th>
+                <th>Assuré</th>
+                <th>Matricule</th>
+                <th class="text-end">Montant</th>
+                <th class="text-end">Attendu</th>
+                <th class="text-end">Réglé</th>
+                <th class="text-end">Restant</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-factureDetail>
+              <tr>
+                <td>
+                  <span class="pharma-code">{{ factureDetail.numBon }}</span>
+                </td>
+                <td>{{ factureDetail.created }}</td>
+                <td>{{ factureDetail.heure }}</td>
+                <td class="pharma-entity-name">{{ factureDetail.customer }}</td>
+                <td>
+                  <span
+                    class="pharma-badge pharma-badge-info">{{ factureDetail.customerMatricule }}</span>
+                </td>
+                <td class="text-end pharma-price">{{ factureDetail.montantVente }}</td>
+                <td class="text-end pharma-price">{{ factureDetail.montantAttendu }}</td>
+                <td class="text-end pharma-total">{{ factureDetail.montant }}</td>
+                <td [class.text-danger]="factureDetail.montantRestant > 0"
+                    class="text-end fw-bold">
+                  {{ factureDetail.montantRestant }}
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template #empty>
+              <tr>
+                <td class="text-center p-4" colspan="9">
+                  <i class="pi pi-inbox text-muted" style="font-size: 2rem"></i>
+                  <p class="mt-2 text-muted mb-0">Aucun dossier trouvé.</p>
+                </td>
+              </tr>
+            </ng-template>
+          </app-data-table>
+        </app-card>
       } @else {
-        <div class="card h-100 data-card">
+        <app-card customClass="h-100">
           <div
-            class="card-body d-flex flex-column justify-content-center align-items-center text-muted"
+            class="d-flex flex-column justify-content-center align-items-center text-muted"
             style="min-height: 300px">
             <i class="pi pi-arrow-left" style="font-size: 3rem"></i>
             <p class="mt-3 mb-0">Sélectionnez une facture pour voir les dossiers.</p>
           </div>
-        </div>
+        </app-card>
       }
     </div>
   </div>

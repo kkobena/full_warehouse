@@ -1,12 +1,13 @@
 <!-- Toolbar -->
 <div class="four-tab-toolbar">
   <app-button
+    (clicked)="onAddFournisseur()"
+    [outlined]="true"
+    [severity]="'primary'"
     icon="pi pi-plus"
     label="Ajouter fournisseur"
+
     size="small"
-    severity="primary"
-    [outlined]="true"
-    (clicked)="onAddFournisseur()"
   />
 </div>
 
@@ -27,7 +28,7 @@
         <th>CIP fournisseur</th>
         <th class="text-end">Prix achat</th>
         <th class="text-end">Prix vente</th>
-        <th class="text-center" ngbTooltip="Fournisseur par défaut pour les commandes">Principal</th>
+        <th class="text-center" title="Fournisseur par défaut pour les commandes">Principal</th>
         <th style="width: 80px"></th>
       </tr>
     </ng-template>
@@ -44,29 +45,29 @@
         <td class="text-end"><span class="pharma-price">{{ formatPrix(fp.prixUni) }}</span></td>
         <td class="text-center">
           <app-switch
-            [ngModel]="isPrincipal(fp)"
             (ngModelChange)="onTogglePrincipal(fp, $event)"
+            [ngModel]="isPrincipal(fp)"
             ngbTooltip="Définir comme fournisseur principal"
           />
         </td>
         <td class="text-end">
           <div class="row-actions">
             <app-button
-              icon="pi pi-pencil"
-              [text]="true"
-              size="small"
-              severity="secondary"
-              ngbTooltip="Modifier"
               (clicked)="onEditFournisseur(fp)"
+              [text]="true"
+              icon="pi pi-pencil"
+              ngbTooltip="Modifier"
+              severity="secondary"
+              size="small"
             />
             <app-button
-              icon="pi pi-trash"
-              [text]="true"
-              size="small"
-              severity="danger"
-              ngbTooltip="Supprimer"
-              [disabled]="isPrincipal(fp) && produit().fournisseurProduits!.length > 1"
               (clicked)="onDeleteFournisseur(fp)"
+              [disabled]="isPrincipal(fp) && produit().fournisseurProduits!.length > 1"
+              [text]="true"
+              icon="pi pi-trash"
+              ngbTooltip="Supprimer"
+              severity="danger"
+              size="small"
             />
           </div>
         </td>

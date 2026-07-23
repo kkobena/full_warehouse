@@ -1,0 +1,290 @@
+// `.pharma-smart-content` (posée par le parent) impose un fond clair fixe (#f8f9fa),
+// indépendant du thème sombre/clair de l'application. On fixe donc ici des couleurs de texte
+// explicites plutôt que de s'appuyer sur `currentColor` / les tokens de thème, qui peuvent
+// résoudre en blanc sur ce fond clair et rendre le document illisible.
+$doc-text: #212529;
+$doc-text-muted: #5c6773;
+$doc-heading: #0f172a;
+$doc-border: #dde3ea;
+$doc-surface: #ffffff;
+$doc-surface-hover: #eef1f5;
+$doc-primary: #0d6efd;
+$doc-primary-bg: #e7f1ff;
+
+.cahier-doc {
+  display: grid;
+  grid-template-columns: minmax(220px, 300px) 1fr;
+  min-height: 100%;
+  align-items: start;
+  color: $doc-text;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cahier-sidebar {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem 1rem;
+  background: $doc-surface;
+  border-right: 1px solid $doc-border;
+  height: 100vh;
+  overflow-y: auto;
+
+  @media (max-width: 900px) {
+    position: static;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid $doc-border;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+
+    h1 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: $doc-heading;
+    }
+  }
+
+  &__search {
+    flex-shrink: 0;
+  }
+}
+
+.cahier-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  overflow-y: auto;
+  padding-top: 0.25rem;
+  border-top: 1px solid $doc-border;
+}
+
+.tree-module {
+  display: flex;
+  flex-direction: column;
+}
+
+.tree-module__toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.4rem;
+  border: none;
+  background: none;
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: $doc-heading;
+  border-radius: 5px;
+  cursor: pointer;
+
+  &:hover {
+    background: $doc-surface-hover;
+  }
+
+  i {
+    color: $doc-primary;
+  }
+
+  .pi-chevron-down, .pi-chevron-right {
+    font-size: 0.6rem;
+    width: 0.8rem;
+    color: $doc-text-muted;
+  }
+}
+
+.tree-submenu {
+  list-style: none;
+  margin: 0.1rem 0 0.4rem;
+  padding: 0 0 0 1.75rem;
+  display: flex;
+  flex-direction: column;
+  border-left: 2px solid $doc-border;
+  margin-left: 0.6rem;
+
+  li {
+    padding: 0.1rem 0;
+    border-bottom: 1px solid $doc-border;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}
+
+.tree-submenu__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: none;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.83rem;
+  border-radius: 5px;
+  cursor: pointer;
+  color: $doc-text;
+
+  &:hover {
+    background: $doc-surface-hover;
+  }
+
+  &.active {
+    background: $doc-primary-bg;
+    color: $doc-primary;
+    font-weight: 700;
+  }
+}
+
+.tree-empty {
+  font-size: 0.85rem;
+  color: $doc-text-muted;
+  padding: 0.5rem;
+}
+
+.cahier-content {
+  padding: 1.75rem clamp(1.25rem, 4vw, 3rem) 4rem;
+  width: 100%;
+}
+
+.content-header {
+  margin-bottom: 1.75rem;
+  border-bottom: 2px solid $doc-border;
+  padding-bottom: 1.1rem;
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0.3rem 0 0.6rem;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: $doc-heading;
+  }
+}
+
+.content-breadcrumb {
+  margin: 0;
+  font-size: 0.8rem;
+  color: $doc-text-muted;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+
+  .sep {
+    opacity: 0.6;
+  }
+}
+
+.content-description {
+  margin: 0;
+  color: $doc-text-muted;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.content-empty {
+  padding: 2rem 0;
+  color: $doc-text-muted;
+}
+
+.scenario-doc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.scenario-doc {
+  break-inside: avoid;
+  background: $doc-surface;
+  border: 1px solid $doc-border;
+  border-radius: 10px;
+  padding: 1.5rem 1.75rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.scenario-doc__title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: $doc-heading;
+  margin: 0 0 1.1rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.65rem;
+}
+
+.scenario-doc__section {
+  margin-bottom: 1.1rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  h4 {
+    margin: 0 0 0.35rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: $doc-primary;
+  }
+
+  p {
+    margin: 0;
+    color: $doc-text;
+    font-weight: 500;
+    line-height: 1.6;
+  }
+
+  ol {
+    margin: 0;
+    padding-left: 1.25rem;
+    color: $doc-text;
+    font-weight: 500;
+    line-height: 1.7;
+  }
+}
+
+.scenario-doc__prerequis {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  color: $doc-text-muted;
+  font-weight: 500;
+  font-style: italic;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .cahier-doc {
+    display: block;
+  }
+
+  .cahier-content {
+    padding: 0;
+    max-width: none;
+  }
+
+  .scenario-doc {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    box-shadow: none;
+  }
+}

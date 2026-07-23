@@ -1,0 +1,116 @@
+<div class="cahier-doc pharma-smart-content">
+  <aside class="cahier-sidebar no-print">
+    <div class="cahier-sidebar__header">
+      <h1>Guide des fonctionnalités</h1>
+      <app-button (clicked)="printReport()" [outlined]="true" [severity]="'secondary'"
+                  icon="pi pi-print"
+                  label="Imprimer" />
+    </div>
+    <input
+      (ngModelChange)="searchText.set($event)"
+      [ngModel]="searchText()"
+      class="form-control form-control-sm cahier-sidebar__search"
+      placeholder="Rechercher un menu…"
+      type="search"
+    />
+    <nav class="cahier-tree">
+      @for (module of filteredModules(); track module.id) {
+        <div class="tree-module">
+          <button (click)="toggleModule(module.id)" class="tree-module__toggle" type="button">
+            <i [class.pi-chevron-down]="isExpanded(module.id)"
+               [class.pi-chevron-right]="!isExpanded(module.id)"
+               class="pi"></i>
+            <i [class]="module.icone" aria-hidden="true"></i>
+            <span>{{ module.nom }}</span>
+          </button>
+          @if (isExpanded(module.id)) {
+            <ul class="tree-submenu">
+              @for (fonctionnalite of module.fonctionnalites; track fonctionnalite.nom) {
+                <li>
+                  <button
+                    (click)="selectFonctionnalite(module.id, fonctionnalite.nom)"
+                    [class.active]="isSelected(module.id, fonctionnalite.nom)"
+                    class="tree-submenu__item"
+                    type="button"
+                  >
+                    <span>{{ fonctionnalite.nom }}</span>
+                    @if (fonctionnalite.roadmap) {
+                      <app-badge label="Roadmap" severity="secondary" [rounded]="true" />
+                    } @else if (fonctionnalite.version) {
+                      <app-badge [label]="'v' + fonctionnalite.version" severity="success" [rounded]="true" />
+                    }
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      } @empty {
+        <p class="tree-empty">Aucun menu ne correspond à la recherche.</p>
+      }
+    </nav>
+  </aside>
+
+  <main class="cahier-content">
+    @if (selectedModule() && selectedFonctionnalite(); as fonctionnalite) {
+      <header class="content-header">
+        <p class="content-breadcrumb">
+          <i [class]="selectedModule()!.icone" aria-hidden="true"></i>
+          {{ selectedModule()!.nom }} <span class="sep">/</span> {{ fonctionnalite.nom }}
+        </p>
+        <h2>
+          {{ fonctionnalite.nom }}
+          @if (fonctionnalite.roadmap) {
+            <app-badge label="Roadmap" severity="secondary" [rounded]="true" />
+          } @else if (fonctionnalite.version) {
+            <app-badge [label]="'Nouveau — v' + fonctionnalite.version" severity="success" [rounded]="true" />
+          }
+        </h2>
+        @if (fonctionnalite.description) {
+          <p class="content-description">{{ fonctionnalite.description }}</p>
+        }
+      </header>
+
+      <div class="scenario-doc-list">
+        @for (scenario of fonctionnalite.scenarios; track scenario.id) {
+          <article class="scenario-doc">
+            <h3 class="scenario-doc__title">
+              {{ scenario.titre }}
+            </h3>
+
+            <section class="scenario-doc__section">
+              <h4>Le besoin</h4>
+              <p>{{ scenario.besoin }}</p>
+            </section>
+
+            <section class="scenario-doc__section">
+              <h4>Comment ça fonctionne</h4>
+              <p>{{ scenario.fonctionnement }}</p>
+            </section>
+
+            <section class="scenario-doc__section">
+              <h4>Étapes</h4>
+              @if (scenario.prerequis) {
+                <p class="scenario-doc__prerequis"><em>Pré-requis :</em> {{ scenario.prerequis }}
+                </p>
+              }
+              <ol>
+                @for (etape of scenario.etapes; track $index) {
+                  <li>{{ etape }}</li>
+                }
+              </ol>
+            </section>
+
+            <section class="scenario-doc__section">
+              <h4>Résultat attendu</h4>
+              <p>{{ scenario.resultatAttendu }}</p>
+            </section>
+          </article>
+        }
+      </div>
+    } @else {
+      <p class="content-empty">Sélectionnez un menu dans la colonne de gauche pour afficher sa
+        documentation.</p>
+    }
+  </main>
+</div>

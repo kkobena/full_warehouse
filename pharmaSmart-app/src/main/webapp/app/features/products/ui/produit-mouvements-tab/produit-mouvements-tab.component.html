@@ -3,36 +3,31 @@
   <!-- ── Raccourcis de période ───────────────────────────────── -->
   <div class="mvt-period-shortcuts">
     <span class="shortcuts-label">Période :</span>
-    @for (shortcut of PERIOD_SHORTCUTS; track shortcut.key) {
-      <app-button
-        (clicked)="applyShortcut(shortcut)"
-        [label]="shortcut.label"
-        [outlined]="activePeriod() === shortcut.key"
-        [severity]="activePeriod() === shortcut.key ? 'primary' : 'secondary'"
-        [text]="activePeriod() !== shortcut.key"
-        size="small"
-      />
-    }
+    <app-pill-selector
+      [items]="periodFilter.periodItems"
+      [ngModel]="periodFilter.activePeriod()"
+      (selectionChange)="periodFilter.applyShortcut($event)"
+    />
   </div>
 
   <!-- ── Filtres : dates + emplacement + type de mouvement ─────── -->
   <div class="mvt-filters d-flex align-items-center gap-2 flex-wrap px-2 py-1 border-bottom">
     <div style="max-width: 145px">
       <pharma-date-picker
-        (selectionChange)="onFromDateChange($event)"
-        [(ngModel)]="fromDate"
+        (selectionChange)="periodFilter.onFromDateChange($event)"
+        [(ngModel)]="periodFilter.fromDate"
         [labelPosition]="'top'"
-        [maxDate]="toDate"
+        [maxDate]="periodFilter.toDate"
         id="mvt-du"
         label="{{ 'warehouseApp.labels.du' | translate }}"
       />
     </div>
     <div style="max-width: 145px">
       <pharma-date-picker
-        (selectionChange)="onToDateChange($event)"
-        [(ngModel)]="toDate"
+        (selectionChange)="periodFilter.onToDateChange($event)"
+        [(ngModel)]="periodFilter.toDate"
         [labelPosition]="'top'"
-        [minDate]="fromDate"
+        [minDate]="periodFilter.fromDate"
         id="mvt-au"
         label="{{ 'warehouseApp.labels.au' | translate }}"
       />

@@ -2,9 +2,13 @@
   <app-toolbar [compact]="true" icon="pi pi-wallet" title="Mouvements de caisse">
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
-        <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate" id="dateDebut" label="Du" />
+        <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate"
+                            [style]="{ 'max-width': '180px' }" id="dateDebut"
+                            label="Du" />
 
-        <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate" id="dateFin" label="Au" />
+        <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate"
+                            [style]="{ 'max-width': '180px' }" id="dateFin"
+                            label="Au" />
 
         <app-multi-select
           [(ngModel)]="selectedTypes"

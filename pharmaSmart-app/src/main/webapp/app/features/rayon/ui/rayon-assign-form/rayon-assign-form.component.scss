@@ -4,12 +4,6 @@
   @include modal-theme;
 }
 
-.raf-body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  min-height: 0;
-}
 
 .raf-source-info {
   display: flex;
@@ -23,10 +17,6 @@
   font-size: 0.875rem;
 }
 
-.raf-search {
-  width: 100%;
-  input { width: 100%; }
-}
 
 .raf-storage-option {
   display: flex;
@@ -99,7 +89,9 @@
   border: 1px solid transparent;
   transition: background 0.12s, border-color 0.12s;
 
-  &:hover { background: var(--p-surface-100, #f3f4f6); }
+  &:hover {
+    background: var(--p-surface-100, #f3f4f6);
+  }
 
   &.selected {
     background: var(--p-primary-50, #eff6ff);

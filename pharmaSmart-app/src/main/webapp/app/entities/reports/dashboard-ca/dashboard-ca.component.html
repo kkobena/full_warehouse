@@ -17,8 +17,10 @@
         />
 
         @if (selectedPeriod() === 'custom') {
-          <pharma-date-picker [(ngModel)]="startDate" id="fromDate" label="Date début" />
-          <pharma-date-picker [(ngModel)]="endDate" id="toDate" label="Date fin" />
+          <pharma-date-picker [(ngModel)]="startDate" [style]="{ 'max-width': '190px' }" id="fromDate"
+                              label="Date début" />
+          <pharma-date-picker [(ngModel)]="endDate" [style]="{ 'max-width': '190px' }" id="toDate"
+                              label="Date fin" />
         }
       </div>
     </ng-container>

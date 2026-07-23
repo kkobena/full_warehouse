@@ -7,8 +7,11 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import {
   ButtonComponent,
+  CardComponent,
   DataTableComponent,
   IconFieldComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   SelectableRowDirective
 } from '../../../shared/ui';
 
@@ -19,8 +22,11 @@ import {
     FormsModule,
     ReactiveFormsModule,
     ButtonComponent,
+    CardComponent,
     DataTableComponent,
     IconFieldComponent,
+    KpiItemComponent,
+    KpiStripComponent,
     SelectableRowDirective
   ],
   templateUrl: './detail-group-reglement.component.html',

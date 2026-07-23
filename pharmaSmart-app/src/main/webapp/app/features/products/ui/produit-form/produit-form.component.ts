@@ -1,32 +1,35 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
-import { forkJoin } from "rxjs";
+import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from "@angular/core";
+import {FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {ActivatedRoute, Router} from "@angular/router";
+import {forkJoin} from "rxjs";
 
-import { Dci, IProduit, Produit } from "app/shared/model/produit.model";
-import { ProduitService } from "app/entities/produit/produit.service";
-import { TypeProduit } from "app/shared/model/enumerations/type-produit.model";
-import { IFournisseur } from "app/shared/model/fournisseur.model";
-import { IRayon } from "app/shared/model/rayon.model";
-import { IFamilleProduit } from "app/shared/model/famille-produit.model";
-import { ITva } from "app/shared/model/tva.model";
-import { CodeRemise } from "app/shared/model/remise.model";
-import { IFormProduit } from "app/shared/model/form-produit.model";
-import { IGammeProduit } from "app/shared/model/gamme-produit.model";
-import { ILaboratoire } from "app/shared/model/laboratoire.model";
-import { ITiersPayant } from "app/shared/model/tierspayant.model";
-import { RayonService } from "app/entities/rayon/rayon.service";
-import { LaboratoireProduitService } from "app/entities/laboratoire-produit/laboratoire-produit.service";
-import { FormeProduitService } from "app/entities/forme-produit/forme-produit.service";
-import { FamilleProduitService } from "app/entities/famille-produit/famille-produit.service";
-import { GammeProduitService } from "app/entities/gamme-produit/gamme-produit.service";
-import { TvaService } from "app/entities/tva/tva.service";
-import { RemiseService } from "app/entities/remise/remise.service";
-import { DciService } from "app/entities/dci/dci.service";
-import { TiersPayantService } from "app/entities/tiers-payant/tierspayant.service";
-import { NgbModal, NgbNavModule, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
+import {Dci, IProduit, Produit} from "app/shared/model/produit.model";
+import {ProduitService} from "app/entities/produit/produit.service";
+import {TypeProduit} from "app/shared/model/enumerations/type-produit.model";
+import {IFournisseur} from "app/shared/model/fournisseur.model";
+import {IRayon} from "app/shared/model/rayon.model";
+import {IFamilleProduit} from "app/shared/model/famille-produit.model";
+import {ITva} from "app/shared/model/tva.model";
+import {CodeRemise} from "app/shared/model/remise.model";
+import {IFormProduit} from "app/shared/model/form-produit.model";
+import {IGammeProduit} from "app/shared/model/gamme-produit.model";
+import {ILaboratoire} from "app/shared/model/laboratoire.model";
+import {ITiersPayant} from "app/shared/model/tierspayant.model";
+import {RayonService} from "app/entities/rayon/rayon.service";
+import {
+  LaboratoireProduitService
+} from "app/entities/laboratoire-produit/laboratoire-produit.service";
+import {FormeProduitService} from "app/entities/forme-produit/forme-produit.service";
+import {FamilleProduitService} from "app/entities/famille-produit/famille-produit.service";
+import {GammeProduitService} from "app/entities/gamme-produit/gamme-produit.service";
+import {TvaService} from "app/entities/tva/tva.service";
+import {RemiseService} from "app/entities/remise/remise.service";
+import {DciService} from "app/entities/dci/dci.service";
+import {TiersPayantService} from "app/entities/tiers-payant/tierspayant.service";
+import {NgbModal, NgbNavModule, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
 import {
   ButtonComponent,
+  CardComponent,
   DataTableComponent,
   KeyFilterDirective,
   SelectComponent,
@@ -34,22 +37,30 @@ import {
   SwitchComponent,
   ToolbarComponent,
 } from "app/shared/ui";
-import { CommonModule, NgClass } from "@angular/common";
-import { STATUT_LEGAL_OPTIONS } from "app/shared/model/enumerations/statut-legal.model";
-import { CLASSE_CRITICITE_OPTIONS } from "app/shared/model/enumerations/classe-criticite.model";
-import { ProduitFournisseursTabComponent } from "../produit-fournisseurs-tab/produit-fournisseurs-tab.component";
+import {CommonModule, NgClass} from "@angular/common";
+import {STATUT_LEGAL_OPTIONS} from "app/shared/model/enumerations/statut-legal.model";
+import {CLASSE_CRITICITE_OPTIONS} from "app/shared/model/enumerations/classe-criticite.model";
+import {
+  ProduitFournisseursTabComponent
+} from "../produit-fournisseurs-tab/produit-fournisseurs-tab.component";
 import {
   ProduitFournisseursCreationComponent
 } from "../produit-fournisseurs-creation/produit-fournisseurs-creation.component";
-import { ProduitPrixCreationComponent } from "../produit-prix-creation/produit-prix-creation.component";
-import { PrixReferenceService } from "../prix-reference/prix-reference.service";
-import { PrixReference } from "../prix-reference/model/prix-reference.model";
-import { AddPrixFormComponent } from "../prix-reference/add-prix-form/add-prix-form.component";
-import { NgbConfirmDialogService } from "app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { NotificationService } from "../../../../shared/services/notification.service";
-import { ErrorService } from "../../../../shared/error.service";
-import { HttpErrorResponse } from "@angular/common/http";
-import { FournisseurApiService } from "../../../partners/data-access/services/fournisseur-api.service";
+import {
+  ProduitPrixCreationComponent
+} from "../produit-prix-creation/produit-prix-creation.component";
+import {PrixReferenceService} from "../prix-reference/prix-reference.service";
+import {PrixReference} from "../prix-reference/model/prix-reference.model";
+import {AddPrixFormComponent} from "../prix-reference/add-prix-form/add-prix-form.component";
+import {
+  NgbConfirmDialogService
+} from "app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import {NotificationService} from "../../../../shared/services/notification.service";
+import {ErrorService} from "../../../../shared/error.service";
+import {HttpErrorResponse} from "@angular/common/http";
+import {
+  FournisseurApiService
+} from "../../../partners/data-access/services/fournisseur-api.service";
 
 @Component({
   selector: "app-produit-form",
@@ -71,17 +82,19 @@ import { FournisseurApiService } from "../../../partners/data-access/services/fo
     ProduitFournisseursTabComponent,
     ProduitFournisseursCreationComponent,
     ProduitPrixCreationComponent,
-    NgbTooltip
+    NgbTooltip,
+    CardComponent
   ]
 })
 export class ProduitFormComponent implements OnInit {
+  // FormArrays création uniquement
+  readonly fournisseursSupplementaires = new FormArray<FormGroup>([]);
+  readonly prixReferenceCreationArray = new FormArray<FormGroup>([]);
   protected isSaving = false;
   protected isLoading = true;
   protected activeTab = "essentiel";
-
   /** Produit courant (signal) — alimenté après chargement, rechargé après refresh */
   protected readonly currentProduit = signal<IProduit | null>(null);
-
   // Listes de référence
   protected formeProduits: IFormProduit[] = [];
   protected familleProduits: IFamilleProduit[] = [];
@@ -92,38 +105,14 @@ export class ProduitFormComponent implements OnInit {
   protected rayons: IRayon[] = [];
   protected remisesCodes: CodeRemise[] = [];
   protected dcis: Dci[] = [];
-
   // Prix de référence assurance
   protected prixReferences: PrixReference[] = [];
   protected isLoadingPrix = false;
   protected tiersPayants: ITiersPayant[] = [];
-
-  // FormArrays création uniquement
-  readonly fournisseursSupplementaires = new FormArray<FormGroup>([]);
-  readonly prixReferenceCreationArray = new FormArray<FormGroup>([]);
-
   // Options statiques
   protected readonly statutLegalOptions = STATUT_LEGAL_OPTIONS;
   protected readonly classeCriticiteOptions = CLASSE_CRITICITE_OPTIONS;
   private readonly fb = inject(FormBuilder);
-  private readonly produitService = inject(ProduitService);
-  private readonly activatedRoute = inject(ActivatedRoute);
-  private readonly router = inject(Router);
-  private readonly rayonService = inject(RayonService);
-  private readonly laboratoireService = inject(LaboratoireProduitService);
-  private readonly formeProduitService = inject(FormeProduitService);
-  private readonly fournisseurService = inject(FournisseurApiService);
-  private readonly familleService = inject(FamilleProduitService);
-  private readonly gammeProduitService = inject(GammeProduitService);
-  private readonly tvaService = inject(TvaService);
-  private readonly remiseService = inject(RemiseService);
-  private readonly dciService = inject(DciService);
-  private readonly tiersPayantService = inject(TiersPayantService);
-  private readonly modalService = inject(NgbModal);
-  private readonly prixReferenceService = inject(PrixReferenceService);
-  private readonly confirmDialog = inject(NgbConfirmDialogService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly errorService = inject(ErrorService);
   protected editForm = this.fb.group({
     id: this.fb.control<number | null>(null),
 
@@ -170,8 +159,33 @@ export class ProduitFormComponent implements OnInit {
     fournisseurRows: this.fournisseursSupplementaires,
     prixRows: this.prixReferenceCreationArray
   });
+  private readonly produitService = inject(ProduitService);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly rayonService = inject(RayonService);
+  private readonly laboratoireService = inject(LaboratoireProduitService);
+  private readonly formeProduitService = inject(FormeProduitService);
+  private readonly fournisseurService = inject(FournisseurApiService);
+  private readonly familleService = inject(FamilleProduitService);
+  private readonly gammeProduitService = inject(GammeProduitService);
+  private readonly tvaService = inject(TvaService);
+  private readonly remiseService = inject(RemiseService);
+  private readonly dciService = inject(DciService);
+  private readonly tiersPayantService = inject(TiersPayantService);
+  private readonly modalService = inject(NgbModal);
+  private readonly prixReferenceService = inject(PrixReferenceService);
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly errorService = inject(ErrorService);
 
   // ─── Getters ─────────────────────────────────────────────────────────────
+  /** Mapping tabId → id du premier champ à focuser dans l'onglet */
+  private readonly TAB_FIRST_FIELD: Record<string, string> = {
+    essentiel: "f_codeCip",
+    classification: "f_codeEanLabo",
+    reglementation: "f_statutLegal",
+    approvisionnement: "f_qtyAppro"
+  };
 
   get isEditMode(): boolean {
     return !!this.editForm.get("id")?.value;
@@ -214,15 +228,15 @@ export class ProduitFormComponent implements OnInit {
     return this.editForm.get("remisable")?.value === true;
   }
 
+  // ─── Cycle de vie ─────────────────────────────────────────────────────────
+
   get isEssentielValid(): boolean {
     const fields = ["codeCip", "fournisseurId", "libelle", "costAmount", "regularUnitPrice", "tvaId", "familleId", "rayonId"];
     return this.isPriceValid && fields.every(f => this.editForm.get(f)?.valid);
   }
 
-  // ─── Cycle de vie ─────────────────────────────────────────────────────────
-
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({ produit }) => {
+    this.activatedRoute.data.subscribe(({produit}) => {
       this.loadReferenceData(produit);
     });
 
@@ -233,47 +247,17 @@ export class ProduitFormComponent implements OnInit {
     this.editForm.get("remisable")?.valueChanges.subscribe(checked => this.onRemisableChange(!!checked));
   }
 
-  /** Mapping tabId → id du premier champ à focuser dans l'onglet */
-  private readonly TAB_FIRST_FIELD: Record<string, string> = {
-    essentiel: "f_codeCip",
-    classification: "f_codeEanLabo",
-    reglementation: "f_statutLegal",
-    approvisionnement: "f_qtyAppro"
-  };
-
   /** Focus le premier champ de l'onglet activé */
   protected onTabChange(tabId: string): void {
     this.activeTab = tabId;
     this.focusFirstField(tabId);
   }
 
-  /** Focus le premier champ d'un onglet après rendu */
-  private focusFirstField(tabId: string, delay = 250): void {
-    const fieldId = this.TAB_FIRST_FIELD[tabId];
-    if (!fieldId) return;
-    setTimeout(() => {
-      const el = document.getElementById(fieldId);
-      if (!el) return;
-      // Pour les éléments natifs (input, textarea, select)
-      if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement) {
-        el.focus();
-      } else {
-        // Pour les composants du Design System (app-select, etc.) : chercher le premier élément focusable enfant
-        const focusable = el.querySelector<HTMLElement>("input, [tabindex]:not([tabindex=\"-1\"]), button, span[role=\"combobox\"]");
-        if (focusable) {
-          focusable.focus();
-        } else {
-          (el as HTMLElement).focus();
-        }
-      }
-    }, delay);
-  }
-
-  // ─── Onglet Fournisseurs ────────────────────────────────────────────────
-
   protected onFournisseurRefresh(): void {
     const id = this.editForm.get("id")?.value;
-    if (!id) return;
+    if (!id) {
+      return;
+    }
     this.produitService.find(id).subscribe(res => {
       if (res.body) {
         this.currentProduit.set(res.body);
@@ -281,11 +265,13 @@ export class ProduitFormComponent implements OnInit {
     });
   }
 
-  // ─── Onglet Prix assurance ──────────────────────────────────────────────
+  // ─── Onglet Fournisseurs ────────────────────────────────────────────────
 
   protected loadPrixReferences(): void {
     const id = this.editForm.get("id")?.value;
-    if (!id) return;
+    if (!id) {
+      return;
+    }
     this.isLoadingPrix = true;
     this.prixReferenceService.query(id).subscribe({
       next: res => {
@@ -297,6 +283,8 @@ export class ProduitFormComponent implements OnInit {
       }
     });
   }
+
+  // ─── Onglet Prix assurance ──────────────────────────────────────────────
 
   protected onAddPrix(): void {
     this.openPrixModal(null);
@@ -326,14 +314,14 @@ export class ProduitFormComponent implements OnInit {
     );
   }
 
-  // ─── Méthodes form ────────────────────────────────────────────────────────
-
   protected isTabInvalid(fields: string[]): boolean {
     return fields.some(field => {
       const ctrl = this.editForm.get(field);
       return ctrl?.invalid && ctrl?.touched;
     });
   }
+
+  // ─── Méthodes form ────────────────────────────────────────────────────────
 
   protected onDeconditionnable(checked: boolean): void {
     if (checked) {
@@ -342,7 +330,7 @@ export class ProduitFormComponent implements OnInit {
       this.editForm.get("itemRegularUnitPrice")?.setValidators([Validators.required, Validators.min(1)]);
     } else {
       ["itemQty", "itemCostAmount", "itemRegularUnitPrice"].forEach(f => this.editForm.get(f)?.clearValidators());
-      this.editForm.patchValue({ itemQty: null, itemCostAmount: null, itemRegularUnitPrice: null });
+      this.editForm.patchValue({itemQty: null, itemCostAmount: null, itemRegularUnitPrice: null});
     }
     ["itemQty", "itemCostAmount", "itemRegularUnitPrice"].forEach(f =>
       this.editForm.get(f)?.updateValueAndValidity()
@@ -374,21 +362,47 @@ export class ProduitFormComponent implements OnInit {
     });
   }
 
+  /** Focus le premier champ d'un onglet après rendu */
+  private focusFirstField(tabId: string, delay = 250): void {
+    const fieldId = this.TAB_FIRST_FIELD[tabId];
+    if (!fieldId) {
+      return;
+    }
+    setTimeout(() => {
+      const el = document.getElementById(fieldId);
+      if (!el) {
+        return;
+      }
+      // Pour les éléments natifs (input, textarea, select)
+      if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement) {
+        el.focus();
+      } else {
+        // Pour les composants du Design System (app-select, etc.) : chercher le premier élément focusable enfant
+        const focusable = el.querySelector<HTMLElement>("input, [tabindex]:not([tabindex=\"-1\"]), button, span[role=\"combobox\"]");
+        if (focusable) {
+          focusable.focus();
+        } else {
+          (el as HTMLElement).focus();
+        }
+      }
+    }, delay);
+  }
+
 
   // ─── Chargement parallèle ─────────────────────────────────────────────────
 
   private loadReferenceData(produit: IProduit): void {
     forkJoin({
-      tvas: this.tvaService.query({ page: 0, size: 9999 }),
-      fournisseurs: this.fournisseurService.queryParents({ page: 0, size: 9999 }),
-      rayons: this.rayonService.query({ page: 0, size: 9999 }),
+      tvas: this.tvaService.query({page: 0, size: 9999}),
+      fournisseurs: this.fournisseurService.queryParents({page: 0, size: 9999}),
+      rayons: this.rayonService.query({page: 0, size: 9999}),
       laboratoires: this.laboratoireService.query(),
-      gammes: this.gammeProduitService.query({ page: 0, size: 9999 }),
-      familles: this.familleService.query({ page: 0, size: 9999 }),
-      formes: this.formeProduitService.query({ page: 0, size: 9999 }),
+      gammes: this.gammeProduitService.query({page: 0, size: 9999}),
+      familles: this.familleService.query({page: 0, size: 9999}),
+      formes: this.formeProduitService.query({page: 0, size: 9999}),
       remises: this.remiseService.queryCodes(),
       dcis: this.dciService.queryUnpaged(),
-      tiersPayants: this.tiersPayantService.query({ page: 0, size: 9999, sort: ["fullName,asc"] })
+      tiersPayants: this.tiersPayantService.query({page: 0, size: 9999, sort: ["fullName,asc"]})
     }).subscribe({
       next: data => {
         this.tvas = data.tvas.body ?? [];
@@ -458,8 +472,14 @@ export class ProduitFormComponent implements OnInit {
 
   private openPrixModal(entity: PrixReference | null): void {
     const produit = this.currentProduit();
-    if (!produit) return;
-    const modalRef = this.modalService.open(AddPrixFormComponent, { size: "lg", centered: true, backdrop: "static" });
+    if (!produit) {
+      return;
+    }
+    const modalRef = this.modalService.open(AddPrixFormComponent, {
+      size: "lg",
+      centered: true,
+      backdrop: "static"
+    });
     modalRef.componentInstance.produit = produit;
     modalRef.componentInstance.isFromProduit = true;
     if (entity) {
@@ -481,7 +501,10 @@ export class ProduitFormComponent implements OnInit {
 
   private recalcItemPricesFromQty(qty: number | null): void {
     if (!qty || Number(qty) <= 0) {
-      this.editForm.patchValue({ itemCostAmount: null, itemRegularUnitPrice: null }, { emitEvent: false });
+      this.editForm.patchValue({
+        itemCostAmount: null,
+        itemRegularUnitPrice: null
+      }, {emitEvent: false});
       return;
     }
     const cost = Number(this.editForm.get("costAmount")?.value ?? 0);
@@ -491,7 +514,7 @@ export class ProduitFormComponent implements OnInit {
         itemCostAmount: parseFloat((cost / qty).toFixed(2)),
         itemRegularUnitPrice: parseFloat((price / qty).toFixed(2))
       },
-      { emitEvent: false }
+      {emitEvent: false}
     );
   }
 
@@ -529,10 +552,10 @@ export class ProduitFormComponent implements OnInit {
       seuilMini: v.seuilMini ?? undefined,
       stockMaxi: v.stockMaxi ?? undefined,
       typeProduit: TypeProduit.PACKAGE,
-      ...({ nomCommercial: v.nomCommercial ?? undefined } as any),
-      ...({ thermosensible: v.thermosensible ?? false } as any),
-      ...({ remisable: v.remisable ?? false } as any),
-      ...({ isClassificationOverridden: v.isClassificationOverridden ?? false } as any)
+      ...({nomCommercial: v.nomCommercial ?? undefined} as any),
+      ...({thermosensible: v.thermosensible ?? false} as any),
+      ...({remisable: v.remisable ?? false} as any),
+      ...({isClassificationOverridden: v.isClassificationOverridden ?? false} as any)
     };
     if (!this.isEditMode) {
       base.fournisseurProduits = this.fournisseursSupplementaires.value.map(fp => ({
@@ -562,7 +585,7 @@ export class ProduitFormComponent implements OnInit {
     const title = isCreating ? "Produit créé" : "Modification de produit";
     this.notificationService.success(msg, title);
     this.router.navigate(["/produits"], {
-      state: { highlightId: id ?? produit.id, highlightCip: produit.codeCip }
+      state: {highlightId: id ?? produit.id, highlightCip: produit.codeCip}
     });
   }
 

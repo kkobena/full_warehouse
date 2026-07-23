@@ -3,70 +3,72 @@
   <!-- Toolbar -->
   <app-toolbar [compact]="true" icon="pi pi-file-minus" title="Avoirs / Notes de crédit">
     <ng-container ngProjectAs="[toolbarFilters]">
-        <div class="pharma-toolbar-filters">
+      <div class="pharma-toolbar-filters">
 
-          <app-float-label inputId="av-tp" label="Tiers-payant">
-            <app-multi-select
-              (searched)="searchTiersPayant($event)"
-              [(ngModel)]="selectedTiersPayants"
-              [minSearchLength]="2"
-                            [items]="tiersPayantSuggestions"
-              appendTo="body"
-              inputId="av-tp"
-              bindLabel="fullName"
-            />
-          </app-float-label>
+        <app-float-label inputId="av-tp" label="Tiers-payant">
+          <app-multi-select
+            (searched)="searchTiersPayant($event)"
+            [(ngModel)]="selectedTiersPayants"
+            [items]="tiersPayantSuggestions"
+            [minSearchLength]="2"
+            appendTo="body"
+            bindLabel="fullName"
+            inputId="av-tp"
+          />
+        </app-float-label>
 
-          <pharma-date-picker [(ngModel)]="modelStartDate" id="av-du" label="Du" />
+        <pharma-date-picker [(ngModel)]="modelStartDate" [style]="{ 'max-width': '180px' }" id="av-du"
+                            label="Du" />
 
-          <pharma-date-picker [(ngModel)]="modelEndDate" id="av-au" label="Au" />
+        <pharma-date-picker [(ngModel)]="modelEndDate" [style]="{ 'max-width': '180px' }" id="av-au"
+                            label="Au" />
 
-          <app-float-label inputId="av-statut" label="">
-            <app-select
-              [(ngModel)]="selectedStatut"
-              [items]="statutOptions"
-              [clearable]="true"
-              appendTo="body"
-              inputId="av-statut"
-              bindLabel="label"
-              bindValue="value"
-              [style]="{ width: '140px' }"
-            />
-          </app-float-label>
+        <app-float-label inputId="av-statut" label="">
+          <app-select
+            [(ngModel)]="selectedStatut"
+            [clearable]="true"
+            [items]="statutOptions"
+            [style]="{ width: '140px' }"
+            appendTo="body"
+            bindLabel="label"
+            bindValue="value"
+            inputId="av-statut"
+          />
+        </app-float-label>
 
-          <app-float-label inputId="av-num" label="N° avoir">
-            <input
-              [(ngModel)]="numAvoirSearch"
-              inputId="av-num"
-              [style]="{ width: '130px' }"
-             placeholder=" " class="form-control" />
-          </app-float-label>
+        <app-float-label inputId="av-num" label="N° avoir">
+          <input
+            [(ngModel)]="numAvoirSearch"
+            [style]="{ width: '130px' }"
+            class="form-control"
+            inputId="av-num" placeholder=" " />
+        </app-float-label>
+
+      </div>
+    </ng-container>
+
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-toolbar-actions">
+        <div class="pharma-button-group">
+          <app-button
+            (clicked)="onSearch()"
+            [loading]="loading()"
+            [raised]="true"
+            icon="pi pi-search"
+            label="Rechercher"
+            severity="info"
+          />
+          <app-split-button
+            [items]="exportMenuItems"
+            [raised]="true"
+            icon="pi pi-file-excel"
+            label="Exporter"
+            severity="warn"
+          />
 
         </div>
-      </ng-container>
-
-<ng-container ngProjectAs="[toolbarActions]">
-        <div class="pharma-toolbar-actions">
-          <div class="pharma-button-group">
-            <app-button
-              (clicked)="onSearch()"
-              [loading]="loading()"
-              [raised]="true"
-              icon="pi pi-search"
-              label="Rechercher"
-              severity="info"
-            />
-            <app-split-button
-              [items]="exportMenuItems"
-              [raised]="true"
-              icon="pi pi-file-excel"
-              label="Exporter"
-              severity="warn"
-            />
-
-          </div>
-        </div>
-      </ng-container>
+      </div>
+    </ng-container>
   </app-toolbar>
 
   <!-- KPI bar -->
@@ -97,11 +99,11 @@
 
   <!-- Table -->
   <app-data-table
-    [value]="avoirs()"
     [loading]="loading()"
     [scrollable]="true"
-    scrollHeight="flex"
     [size]="'small'"
+    [value]="avoirs()"
+    scrollHeight="flex"
   >
     <ng-template #header>
       <tr class="pharma-table-head">
@@ -127,9 +129,10 @@
         <td class="text-end small text-muted">{{ (avoir.montantTva ?? 0) | number:'1.0-0' }}</td>
         <td class="text-end small text-muted">{{ (avoir.montantHt ?? 0) | number:'1.0-0' }}</td>
         <td>
-          <app-badge [label]="getStatutLabel(avoir.statut)" [severity]="getStatutSeverity(avoir.statut)" />
+          <app-badge [label]="getStatutLabel(avoir.statut)"
+                     [severity]="getStatutSeverity(avoir.statut)" />
         </td>
-        <td class="small text-muted" [title]="avoir.motif ?? ''">
+        <td [title]="avoir.motif ?? ''" class="small text-muted">
           <span class="avoir-motif-cell">{{ avoir.motif }}</span>
         </td>
         <td class="text-center">
@@ -137,51 +140,51 @@
             @if (avoir.statut === 'DRAFT') {
               <app-button
                 (clicked)="onEmettre(avoir)"
+                [outlined]="true"
                 icon="pi pi-send"
                 label="Émettre"
+                ngbTooltip="Émettre cet avoir"
                 severity="info"
                 size="small"
-                [outlined]="true"
-                ngbTooltip="Émettre cet avoir"
               />
             }
             @if (avoir.statut === 'EMIS') {
               <app-button
                 (clicked)="onOpenImputer(avoir)"
+                [outlined]="true"
                 icon="pi pi-link"
                 label="Imputer"
+                ngbTooltip="Imputer sur une facture"
                 severity="success"
                 size="small"
-                [outlined]="true"
-                ngbTooltip="Imputer sur une facture"
               />
             }
             @if (avoir.statut === 'DRAFT' || avoir.statut === 'EMIS') {
               <app-button
                 (clicked)="onOpenAnnuler(avoir)"
+                [text]="true"
                 icon="pi pi-ban"
+                ngbTooltip="Annuler l'avoir"
                 severity="danger"
                 size="small"
-                [text]="true"
-                ngbTooltip="Annuler l'avoir"
               />
             }
             <app-button
               (clicked)="onExportPdf(avoir)"
+              [loading]="exportingPdf() === avoir.id"
+              [text]="true"
               icon="pi pi-file-pdf"
+              ngbTooltip="Télécharger PDF"
               severity="warn"
               size="small"
-              [text]="true"
-              [loading]="exportingPdf() === avoir.id"
-              ngbTooltip="Télécharger PDF"
             />
             <app-button
               (clicked)="openNouvelAvoir(avoir.factureOrigineId, avoir.factureOrigineDate, avoir.tiersPayantId)"
+              [text]="true"
               icon="pi pi-plus"
+              ngbTooltip="Créer un avoir sur cette facture"
               severity="secondary"
               size="small"
-              [text]="true"
-              ngbTooltip="Créer un avoir sur cette facture"
             />
           </div>
         </td>
@@ -189,7 +192,7 @@
     </ng-template>
     <ng-template #emptymessage>
       <tr>
-        <td colspan="10" class="text-center text-muted py-5">
+        <td class="text-center text-muted py-5" colspan="10">
           <i class="pi pi-inbox d-block fs-1 mb-2"></i>
           <p>Aucun avoir trouvé.</p>
         </td>
@@ -205,32 +208,34 @@
     <h6 class="modal-title mb-0">
       <i class="pi pi-link me-2"></i>
       Imputer {{ currentImputerAvoir?.numAvoir }}
-      <span class="pharma-price ms-2">{{ currentImputerAvoir?.montantAvoir | number:'1.0-0' }}</span>
+      <span
+        class="pharma-price ms-2">{{ currentImputerAvoir?.montantAvoir | number:'1.0-0' }}</span>
     </h6>
-    <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+    <button (click)="modal.dismiss()" class="btn-close" type="button"></button>
   </div>
   <div class="modal-body">
     <app-float-label inputId="imp-facture" label="Facture cible *">
       <app-select-search
+        (searched)="searchFactureCible($event)"
         [(ngModel)]="selectedTargetFacture"
         [items]="factureCibleSuggestions"
-        (searched)="searchFactureCible($event)"
         [minSearchLength]="2"
-        bindLabel="numFacture"
-        appendTo="body"
-        inputId="imp-facture"
         [optionTemplate]="tplFactureCible"
         [style]="{ width: '100%' }"
+        appendTo="body"
+        bindLabel="numFacture"
+        inputId="imp-facture"
       />
 
       <!-- Rendu d'une option : passe par une entrée, ng-select lisant son gabarit en ContentChild. -->
       <ng-template #tplFactureCible let-f>
         <div class="d-flex justify-content-between align-items-center gap-3 w-100">
           <span class="pharma-code fw-semibold">{{ f.numFacture }}</span>
-          <span class="small text-muted">Restant&nbsp;: <span class="pharma-price">{{ f.montantRestant | number: '1.0-0' }}</span></span>
+          <span class="small text-muted">Restant&nbsp;: <span
+            class="pharma-price">{{ f.montantRestant | number: '1.0-0' }}</span></span>
         </div>
       </ng-template>
-          </app-float-label>
+    </app-float-label>
     @if (selectedTargetFacture) {
       @if (canConfirmImputer()) {
         <small class="text-success d-block mt-1">
@@ -238,14 +243,17 @@
         </small>
       } @else {
         <small class="text-danger d-block mt-1">
-          <i class="pi pi-times me-1"></i>Montant avoir &gt; restant ({{ selectedTargetFacture.montantRestant | number:'1.0-0' }})
+          <i class="pi pi-times me-1"></i>Montant avoir &gt; restant
+          ({{ selectedTargetFacture.montantRestant | number:'1.0-0' }})
         </small>
       }
     }
   </div>
   <div class="modal-footer py-2">
-    <app-button label="Annuler" severity="secondary" [outlined]="true" size="small" (clicked)="modal.dismiss()" />
-    <app-button label="Imputer" icon="pi pi-link" severity="success" size="small" [disabled]="!canConfirmImputer()" (clicked)="modal.close()" />
+    <app-button (clicked)="modal.dismiss()" [outlined]="true" label="Annuler" severity="secondary"
+                size="small" />
+    <app-button (clicked)="modal.close()" [disabled]="!canConfirmImputer()" icon="pi pi-link" label="Imputer"
+                severity="success" size="small" />
   </div>
 </ng-template>
 
@@ -255,7 +263,7 @@
     <h6 class="modal-title mb-0">
       <i class="pi pi-ban me-2 text-danger"></i>Annuler {{ currentAnnulerAvoir?.numAvoir }}
     </h6>
-    <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+    <button (click)="modal.dismiss()" class="btn-close" type="button"></button>
   </div>
   <div class="modal-body">
     <app-float-label inputId="ann-motif" label="Motif d'annulation *">
@@ -265,17 +273,18 @@
         rows="3"
         style="width: 100%; resize: vertical"
       ></textarea>
-          </app-float-label>
+    </app-float-label>
   </div>
   <div class="modal-footer py-2">
-    <app-button label="Annuler" severity="secondary" [outlined]="true" size="small" (clicked)="modal.dismiss()" />
+    <app-button (clicked)="modal.dismiss()" [outlined]="true" label="Annuler" severity="secondary"
+                size="small" />
     <app-button
-      label="Confirmer"
+      (clicked)="modal.close(motifAnnulation)"
+      [disabled]="!motifAnnulation.trim()"
       icon="pi pi-ban"
+      label="Confirmer"
       severity="danger"
       size="small"
-      [disabled]="!motifAnnulation.trim()"
-      (clicked)="modal.close(motifAnnulation)"
     />
   </div>
 </ng-template>

@@ -6,8 +6,8 @@
         <app-select
           (selectionChange)="load()"
           [(ngModel)]="typeVenteSelected"
-          [searchable]="false"
           [items]="typeVentes"
+          [searchable]="false"
           appendTo="body"
           class="mr-2"
           placeholder="Filtrer par type"
@@ -25,9 +25,11 @@
           </app-icon-field>
         </div>
 
-        <pharma-date-picker id="fromDate" label="Du" [(ngModel)]="fromDate" [maxDate]="toDate" />
+        <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate" [style]="{ 'max-width': '180px' }" id="fromDate"
+                            label="Du" />
 
-        <pharma-date-picker id="toDate" label="Au" [(ngModel)]="toDate" [minDate]="fromDate" />
+        <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate" [style]="{ 'max-width': '180px' }" id="toDate"
+                            label="Au" />
       </ng-container>
 
       <ng-container ngProjectAs="[toolbarActions]">
@@ -80,8 +82,8 @@
             <tr>
               <td>
                 <app-button
-                  [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
                   [appRowToggler]="sale"
+                  [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
                   [rounded]="true"
                   [text]="true"
                   type="button"

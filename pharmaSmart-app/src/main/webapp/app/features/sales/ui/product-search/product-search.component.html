@@ -1,22 +1,22 @@
-<app-float-label label="{{ 'warehouseApp.labels.produits' | translate }}" inputId="produitbox">
+<app-float-label inputId="produitbox" label="{{ 'warehouseApp.labels.produits' | translate }}">
   <app-select-search
     #produitbox
-    [(ngModel)]="produitSelected"
+    (keydown)="onKeyDown($event)"
     (ngModelChange)="onNgModelChange($event)"
-    [items]="produits()"
-    [typeahead]="typeaheadSink$"
     (searched)="searchFn($event)"
     (selectionChange)="onSelect()"
-    (keydown)="onKeyDown($event)"
-    [minSearchLength]="PRODUIT_COMBO_MIN_LENGTH"
-    bindLabel="libelle"
+    [(ngModel)]="produitSelected"
     [appendTo]="APPEND_TO"
     [clearable]="showClear()"
     [disabled]="disabled()"
+    [items]="produits()"
+    [minSearchLength]="PRODUIT_COMBO_MIN_LENGTH"
+    [optionTemplate]="produitItem"
+    [style]="style()"
+    [typeahead]="typeaheadSink$"
+    bindLabel="libelle"
     inputId="produitbox"
     placeholder=" "
-    [style]="style()"
-    [optionTemplate]="produitItem"
   />
   <ng-template #produitItem let-item>
     <div class="product-item-row">
@@ -28,19 +28,19 @@
       </span>
       <span class="product-item-right">
       <span
-          class="stock-badge"
-          [class.stock-ok]="item.totalQuantity > 0 && item.totalQuantity > 5"
-          [class.stock-low]="item.totalQuantity > 0 && item.totalQuantity <= 5"
-          [class.stock-out]="item.totalQuantity <= 0"
-          [title]="item.totalQuantity <= 0 ? 'Rupture de stock' : 'Stock disponible : ' + item.totalQuantity">
-          <i class="pi"
-             [class.pi-check-circle]="item.totalQuantity > 5"
+        [class.stock-low]="item.totalQuantity > 0 && item.totalQuantity <= 5"
+        [class.stock-ok]="item.totalQuantity > 0 && item.totalQuantity > 5"
+        [class.stock-out]="item.totalQuantity <= 0"
+        [title]="item.totalQuantity <= 0 ? 'Rupture de stock' : 'Stock disponible : ' + item.totalQuantity"
+        class="stock-badge">
+          <i [class.pi-check-circle]="item.totalQuantity > 5"
              [class.pi-exclamation-circle]="item.totalQuantity > 0 && item.totalQuantity <= 5"
-             [class.pi-times-circle]="item.totalQuantity <= 0"></i>
-          {{ item.totalQuantity | number }}
+             [class.pi-times-circle]="item.totalQuantity <= 0"
+             class="pi"></i>
+        {{ item.totalQuantity | number }}
         </span>
         @if ((item.reserveQuantity || 0) > 0) {
-          <span class="reserve-badge" [title]="'Réserve : ' + item.reserveQuantity">
+          <span [title]="'Réserve : ' + item.reserveQuantity" class="reserve-badge">
             <i class="pi pi-box" style="font-size: 0.7rem"></i> {{ item.reserveQuantity | number }}
           </span>
         }

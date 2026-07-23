@@ -3,64 +3,61 @@
   <!-- ── Raccourcis de période ─────────────────────────────── -->
   <div class="mvt-period-shortcuts">
     <span class="shortcuts-label">Période :</span>
-    @for (shortcut of PERIOD_SHORTCUTS; track shortcut.key) {
-      <app-button
-        [label]="shortcut.label"
-        size="small"
-        [outlined]="activePeriod() === shortcut.key"
-        [text]="activePeriod() !== shortcut.key"
-        [severity]="activePeriod() === shortcut.key ? 'primary' : 'secondary'"
-        (clicked)="applyShortcut(shortcut)"
-      />
-    }
+    <app-pill-selector
+      (selectionChange)="periodFilter.applyShortcut($event)"
+      [items]="periodFilter.periodItems"
+      [ngModel]="periodFilter.activePeriod()"
+    />
   </div>
 
   <!-- ── Filtres ────────────────────────────────────────────── -->
   <div class="mvt-filters d-flex align-items-center gap-2 flex-wrap px-2 py-1 border-bottom">
     <div style="max-width: 145px">
       <pharma-date-picker
-        [(ngModel)]="fromDate"
-        (selectionChange)="onFromDateChange($event)"
-        [maxDate]="toDate"
+        (selectionChange)="periodFilter.onFromDateChange($event)"
+        [(ngModel)]="periodFilter.fromDate"
+        [labelPosition]="'top'"
+        [maxDate]="periodFilter.toDate"
         id="achats-du"
         label="{{ 'warehouseApp.labels.du' | translate }}"
       />
     </div>
     <div style="max-width: 145px">
       <pharma-date-picker
-        [(ngModel)]="toDate"
-        (selectionChange)="onToDateChange($event)"
-        [minDate]="fromDate"
+        (selectionChange)="periodFilter.onToDateChange($event)"
+        [(ngModel)]="periodFilter.toDate"
+        [labelPosition]="'top'"
+        [minDate]="periodFilter.fromDate"
         id="achats-au"
         label="{{ 'warehouseApp.labels.au' | translate }}"
       />
     </div>
     <app-button
+      (clicked)="load()"
       icon="pi pi-search"
       label="Actualiser"
       severity="info"
       size="small"
-      (clicked)="load()"
     />
     @if (data().length > 0) {
       <app-button
+        (clicked)="exportPdf()"
         icon="pi pi-file-pdf"
         label="PDF"
-        severity="warn"
-        size="small"
         ngbTooltip="Exporter en PDF"
         placement="top"
-        (clicked)="exportPdf()"
+        severity="warn"
+        size="small"
       />
       <app-button
-        icon="pi pi-chart-bar"
-        label="Graphique"
-        size="small"
+        (clicked)="toggleChart()"
         [outlined]="!showChart()"
         [severity]="showChart() ? 'primary' : 'secondary'"
+        icon="pi pi-chart-bar"
+        label="Graphique"
         ngbTooltip="Afficher/masquer le graphique"
         placement="top"
-        (clicked)="toggleChart()"
+        size="small"
       />
     }
   </div>
@@ -78,18 +75,17 @@
 
   <!-- ── Tableau achats ─────────────────────────────────────── -->
   <app-data-table
-    [value]="data()"
-    [loading]="loading()"
+    (onLazyLoad)="onLazyLoad($event)"
     [lazy]="true"
+    [loading]="loading()"
     [paginator]="true"
-    [rows]="itemsPerPage"
     [rowsPerPageOptions]="[10, 20, 30, 50]"
-    [totalRecords]="totalItems()"
+    [rows]="itemsPerPage"
     [scrollable]="true"
     [showGridlines]="true"
-    class="pharma-table"
+    [totalRecords]="totalItems()"
+    [value]="data()"
     scrollHeight="calc(100vh - 420px)"
-    (onLazyLoad)="onLazyLoad($event)"
   >
     <ng-template #header>
       <tr class="pharma-table-head">
@@ -117,9 +113,11 @@
       @if (summary()) {
         <tr class="pharma-table-footer">
           <td colspan="2"><span class="pharma-footer-label">Totaux</span></td>
-          <td class="text-end"><span class="pharma-footer-value">{{ summary()?.quantite | number }}</span></td>
+          <td class="text-end"><span
+            class="pharma-footer-value">{{ summary()?.quantite | number }}</span></td>
           <td></td>
-          <td class="text-end"><span class="pharma-footer-value">{{ summary()?.montantAchat | number }}</span></td>
+          <td class="text-end"><span
+            class="pharma-footer-value">{{ summary()?.montantAchat | number }}</span></td>
           <td></td>
         </tr>
       }
@@ -127,7 +125,7 @@
 
     <ng-template #emptymessage>
       <tr>
-        <td colspan="6" class="pharma-empty-message">
+        <td class="pharma-empty-message" colspan="6">
           <div class="pharma-empty-content">
             <i class="pi pi-inbox"></i>
             <p>Aucun achat sur la période</p>

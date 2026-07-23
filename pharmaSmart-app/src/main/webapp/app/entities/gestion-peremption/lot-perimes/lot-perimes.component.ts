@@ -17,6 +17,7 @@ import { IFamilleProduit } from "../../../shared/model/famille-produit.model";
 import { FamilleProduitService } from "../../famille-produit/famille-produit.service";
 import { NgbDateStruct, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { Router, RouterLink } from "@angular/router";
+import { CommandCommonService } from "../../commande/command-common.service";
 import { PeremptionStatut } from "../model/peremption-statut";
 import { ProductToDestroyService } from "../product-to-destroy.service";
 import { ProductsToDestroyPayload, ProductToDestroyPayload } from "../model/product-to-destroy";
@@ -140,6 +141,7 @@ export class LotPerimesComponent implements OnInit {
   private readonly modalService = inject(NgbModal);
   private readonly notificationService = inject(NotificationService);
   private readonly router = inject(Router);
+  private readonly commandCommonService = inject(CommandCommonService);
 
   ngOnInit(): void {
     this.selectedType = this.types[2];
@@ -374,7 +376,8 @@ export class LotPerimesComponent implements OnInit {
   }
 
   protected navigateToRetours(): void {
-    void this.router.navigate(["/commande/retour-fournisseur"]);
+    this.commandCommonService.navigateToRetourFournisseur();
+    void this.router.navigate(["/commande"]);
   }
 
   private exportPdf(): void {

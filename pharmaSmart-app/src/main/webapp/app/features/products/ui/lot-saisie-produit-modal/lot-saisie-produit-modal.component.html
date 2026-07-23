@@ -2,151 +2,155 @@
   <h5 class="modal-title">
     <i class="pi pi-tag me-2"></i>Saisir un lot — {{ produit?.libelle }}
   </h5>
-  <button type="button" class="btn-close" aria-label="Fermer" (click)="cancel()"></button>
+  <button (click)="cancel()" aria-label="Fermer" class="btn-close" type="button"></button>
 </div>
 
 <div class="modal-body overflow-visible">
-<app-card [variant]="'form'">
-  <!-- Info stock -->
-  <div class="lot-stock-info">
-    <i class="pi pi-box me-1"></i>
-    Stock disponible&nbsp;:
-    <strong>{{ stockDisponible | number }} unité(s)</strong>
-    @if (form.get('storageId')?.value) {
-      <span class="storage-badge"><i class="pi pi-map-marker me-1"></i>sur l'emplacement sélectionné</span>
-    } @else {
-      <span>&nbsp;— total tous emplacements</span>
-    }
-    &nbsp;— La quantité saisie (reçue + UG) ne peut pas dépasser ce stock.
-  </div>
+  <app-card [variant]="'form'">
+    <!-- Info stock -->
+    <div class="lot-stock-info">
+      <i class="pi pi-box me-1"></i>
+      Stock disponible&nbsp;:
+      <strong>{{ stockDisponible | number }} unité(s)</strong>
+      @if (form.get('storageId')?.value) {
+        <span class="storage-badge"><i class="pi pi-map-marker me-1"></i>sur l'emplacement sélectionné</span>
+      } @else {
+        <span>&nbsp;— total tous emplacements</span>
+      }
+      &nbsp;— La quantité saisie (reçue + UG) ne peut pas dépasser ce stock.
+    </div>
 
-  <form [formGroup]="form" autocomplete="off">
-    <div class="form-grid">
+    <form [formGroup]="form" autocomplete="off">
+      <div class="form-grid">
 
-      <!-- Numéro de lot -->
-      <div class="field">
-        <label for="numLot" class="field-label required">Numéro de lot</label>
-        <input
-          #numLotInput
-          autocomplete="off"
-          id="numLot"
-          formControlName="numLot"
-          maxlength="20"
-          class="form-control w-100"
-          [class.is-invalid]="form.get('numLot')?.invalid && form.get('numLot')?.touched"
-        />
-        @if (form.get('numLot')?.invalid && form.get('numLot')?.touched) {
-          <small class="field-error">Le numéro de lot est obligatoire (20 caractères max.)</small>
-        }
-      </div>
+        <!-- Numéro de lot -->
+        <div class="field">
+          <label class="field-label required" for="numLot">Numéro de lot</label>
+          <input
+            #numLotInput
+            [class.is-invalid]="form.get('numLot')?.invalid && form.get('numLot')?.touched"
+            autocomplete="off"
+            class="form-control w-100"
+            formControlName="numLot"
+            id="numLot"
+            maxlength="20"
+          />
+          @if (form.get('numLot')?.invalid && form.get('numLot')?.touched) {
+            <small class="field-error">Le numéro de lot est obligatoire (20 caractères max.)</small>
+          }
+        </div>
 
-      <!-- Date de péremption -->
-      <div class="field">
-        <label class="field-label required">Date de péremption</label>
-        <pharma-date-picker
-          id="expiryDate"
-          label=""
-          formControlName="expiryDate"
-          [minDate]="todayStruct"
-          placeholder="jj/mm/aaaa"
-          [class.is-invalid]="form.get('expiryDate')?.invalid && form.get('expiryDate')?.touched"
-        />
-        @if (form.get('expiryDate')?.invalid && form.get('expiryDate')?.touched) {
-          <small class="field-error">La date de péremption est obligatoire.</small>
-        }
-      </div>
+        <!-- Date de péremption -->
+        <div class="field">
+          <label class="field-label required">Date de péremption</label>
+          <pharma-date-picker
+            [class.is-invalid]="form.get('expiryDate')?.invalid && form.get('expiryDate')?.touched"
+            [minDate]="todayStruct"
+            formControlName="expiryDate"
+            id="expiryDate"
+            label=""
+            placeholder="jj/mm/aaaa"
+          />
+          @if (form.get('expiryDate')?.invalid && form.get('expiryDate')?.touched) {
+            <small class="field-error">La date de péremption est obligatoire.</small>
+          }
+        </div>
 
-      <!-- Quantité reçue -->
-      <div class="field">
-        <label for="quantityReceived" class="field-label required">Quantité reçue</label>
-        <app-input-number
-          inputId="quantityReceived"
-          formControlName="quantityReceived"
-          [min]="1"
-          [max]="stockDisponible"
-          [showButtons]="true"
-          [class.ng-invalid]="!isQuantiteValide && form.get('quantityReceived')?.touched"
-        />
-        @if (!isQuantiteValide && form.get('quantityReceived')?.touched) {
-          <small class="field-error">
-            La quantité totale (reçue + UG) doit être entre 1 et {{ stockDisponible }} (stock disponible).
-          </small>
-        }
-      </div>
+        <!-- Quantité reçue -->
+        <div class="field">
+          <label class="field-label required" for="quantityReceived">Quantité reçue</label>
+          <app-input-number
+            [class.ng-invalid]="!isQuantiteValide && form.get('quantityReceived')?.touched"
+            [max]="stockDisponible"
+            [min]="1"
+            [showButtons]="true"
+            formControlName="quantityReceived"
+            inputId="quantityReceived"
+          />
+          @if (!isQuantiteValide && form.get('quantityReceived')?.touched) {
+            <small class="field-error">
+              La quantité totale (reçue + UG) doit être entre 1 et {{ stockDisponible }} (stock
+              disponible).
+            </small>
+          }
+        </div>
 
-      <!-- Emplacement (optionnel) -->
-      <div class="field">
-        <label for="storageId" class="field-label">
-          Emplacement <span class="optional">(défaut : stock principal)</span>
-        </label>
-        <app-select-search
-          inputId="storageId"
-          formControlName="storageId"
-          [items]="storages()"
-          bindLabel="name"
-          bindValue="id"
-          placeholder="Stockage"
-          [clearable]="true"
-          [optionTemplate]="storageItemTpl"
-        />
-        <ng-template #storageItemTpl let-s>
-          <div class="storage-option">
-            <i class="pi pi-map-marker me-1 text-muted"></i>
-            <span>{{ s.name }}</span>
-            @if (produit?.stockProduits) {
-              @for (sp of produit.stockProduits; track sp.storageId) {
-                @if (sp.storageId === s.id) {
-                  <span class="storage-qty ms-auto">{{ sp.qtyStock | number }} u.</span>
+        <!-- Emplacement (optionnel) -->
+        <div class="field">
+          <label class="field-label" for="storageId">
+            Emplacement <span class="optional">(défaut : stock principal)</span>
+          </label>
+          <app-select-search
+            [clearable]="true"
+            [items]="storages()"
+            [optionTemplate]="storageItemTpl"
+            [style]="{ 'min-width': '350px' }"
+            bindLabel="name"
+            bindValue="id"
+            formControlName="storageId"
+            inputId="storageId"
+            placeholder="Stockage"
+          />
+          <ng-template #storageItemTpl let-s>
+            <div class="storage-option">
+              <i class="pi pi-map-marker me-1 text-muted"></i>
+              <span>{{ s.name }}</span>
+              @if (produit?.stockProduits) {
+                @for (sp of produit.stockProduits; track sp.storageId) {
+                  @if (sp.storageId === s.id) {
+                    <span class="storage-qty ms-auto">{{ sp.qtyStock | number }} u.</span>
+                  }
                 }
               }
-            }
-          </div>
-        </ng-template>
-      </div>
+            </div>
+          </ng-template>
+        </div>
 
-      <!-- UG (unités gratuites) -->
-      <div class="field">
-        <label for="freeQty" class="field-label">UG <span class="optional">(unités gratuites)</span></label>
-        <app-input-number
-          inputId="freeQty"
-          formControlName="freeQty"
-          [min]="0"
-          [showButtons]="true"
-        />
-      </div>
+        <!-- UG (unités gratuites) -->
+        <div class="field">
+          <label class="field-label" for="freeQty">UG <span
+            class="optional">(unités gratuites)</span></label>
+          <app-input-number
+            [min]="0"
+            [showButtons]="true"
+            formControlName="freeQty"
+            inputId="freeQty"
+          />
+        </div>
 
-      <!-- Date de fabrication (optionnelle) -->
-      <div class="field">
-        <label class="field-label">Date de fabrication <span class="optional">(optionnel)</span></label>
-        <pharma-date-picker
-          id="manufacturingDate"
-          label=""
-          formControlName="manufacturingDate"
-          [maxDate]="todayMaxStruct"
-          placeholder="jj/mm/aaaa"
-        />
-      </div>
+        <!-- Date de fabrication (optionnelle) -->
+        <div class="field">
+          <label class="field-label">Date de fabrication <span
+            class="optional">(optionnel)</span></label>
+          <pharma-date-picker
+            [maxDate]="todayMaxStruct"
+            formControlName="manufacturingDate"
+            id="manufacturingDate"
+            label=""
+            placeholder="jj/mm/aaaa"
+          />
+        </div>
 
-    </div>
-  </form>
-</app-card>
+      </div>
+    </form>
+  </app-card>
 </div>
 
 <div class="modal-footer">
   <app-button
-    label="Annuler"
-    icon="pi pi-times"
-    severity="secondary"
-    [outlined]="true"
     (clicked)="cancel()"
     [disabled]="isSaving()"
+    [outlined]="true"
+    icon="pi pi-times"
+    label="Annuler"
+    severity="secondary"
   />
   <app-button
-    label="Enregistrer le lot"
-    icon="pi pi-check"
-    severity="primary"
     (clicked)="save()"
-    [loading]="isSaving()"
     [disabled]="form.invalid || !isQuantiteValide"
+    [loading]="isSaving()"
+    icon="pi pi-check"
+    label="Enregistrer le lot"
+    severity="primary"
   />
 </div>

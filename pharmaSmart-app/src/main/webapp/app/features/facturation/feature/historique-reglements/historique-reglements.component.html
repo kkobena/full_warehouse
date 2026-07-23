@@ -18,9 +18,12 @@
             placeholder=" " type="text" />
         </app-float-label>
 
-        <pharma-date-picker [(ngModel)]="modelStartDate" id="hrDu" label="Du" />
+        <pharma-date-picker [(ngModel)]="modelStartDate" [style]="{ 'max-width': '180px' }"
+                            id="hrDu"
+                            label="Du" />
 
-        <pharma-date-picker [(ngModel)]="modelEndDate" id="hrAu" label="Au" />
+        <pharma-date-picker [(ngModel)]="modelEndDate" [style]="{ 'max-width': '180px' }" id="hrAu"
+                            label="Au" />
 
         @if (factureGroup) {
           <app-float-label inputId="hrGroupe" label="Groupe tiers-payant">
@@ -41,6 +44,7 @@
               [(ngModel)]="selectedTiersPayant"
               [items]="tiersPayants"
               [minSearchLength]="minLength"
+              [style]="{ minWidth: '300px' }"
               appendTo="body"
               bindLabel="fullName"
               inputId="hrTp"
@@ -104,7 +108,7 @@
     >
       <!-- Caption: filtre local + suppression sélection -->
       <ng-template #caption>
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-center gap-2">
           <app-icon-field [overlay]="true" icon="pi pi-search">
             <input
               (input)="reglementTable.filterGlobal($event.target['value'], 'contains')"

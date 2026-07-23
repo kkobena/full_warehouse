@@ -1,9 +1,9 @@
-import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { Router, RouterModule } from "@angular/router";
-import { FormsModule } from "@angular/forms";
-import { HttpHeaders } from "@angular/common/http";
-import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
+import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} from "@angular/core";
+import {CommonModule} from "@angular/common";
+import {Router, RouterModule} from "@angular/router";
+import {FormsModule} from "@angular/forms";
+import {HttpHeaders} from "@angular/common/http";
+import {NgbModal, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
 import {
   AppSplitButtonItem,
   AppTableLazyLoadEvent,
@@ -13,35 +13,61 @@ import {
   SplitButtonComponent,
   ToolbarComponent,
 } from "app/shared/ui";
-import { Authority } from "app/shared/constants/authority.constants";
-import { AbilityService } from "app/core/auth/ability.service";
-import { IProduit } from "app/shared/model/produit.model";
-import { IFamilleProduit } from "app/shared/model/famille-produit.model";
-import { IRayon } from "app/shared/model/rayon.model";
-import { FamilleProduitService } from "app/entities/famille-produit/famille-produit.service";
-import { RayonService } from "app/entities/rayon/rayon.service";
-import { NgbConfirmDialogService } from "app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { ProductsApiService } from "../../data-access/services/products-api.service";
-import { ProduitListComponent, ProduitMenuAction } from "../../ui/produit-list/produit-list.component";
-import { ProduitDetailPanelComponent } from "../../ui/produit-detail-panel/produit-detail-panel.component";
+import {Authority} from "app/shared/constants/authority.constants";
+import {AbilityService} from "app/core/auth/ability.service";
+import {IProduit} from "app/shared/model/produit.model";
+import {IFamilleProduit} from "app/shared/model/famille-produit.model";
+import {IRayon} from "app/shared/model/rayon.model";
+import {FamilleProduitService} from "app/entities/famille-produit/famille-produit.service";
+import {RayonService} from "app/entities/rayon/rayon.service";
+import {
+  NgbConfirmDialogService
+} from "app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import {ProductsApiService} from "../../data-access/services/products-api.service";
+import {
+  ProduitListComponent,
+  ProduitMenuAction
+} from "../../ui/produit-list/produit-list.component";
+import {
+  ProduitDetailPanelComponent
+} from "../../ui/produit-detail-panel/produit-detail-panel.component";
 import {
   ImportProduitModalComponent
 } from "../../../../entities/produit/import-produit-modal/import-produit-modal.component";
-import { IResponseDto } from "../../../../shared/util/response-dto";
-import { showCommonModal } from "../../../../entities/sales/selling-home/sale-helper";
+import {IResponseDto} from "../../../../shared/util/response-dto";
+import {showCommonModal} from "../../../../entities/sales/selling-home/sale-helper";
 import {
   ImportProduitReponseModalComponent
 } from "../../../../entities/produit/import-produit-reponse-modal/import-produit-reponse-modal.component";
-import { CommandeRapideModalComponent } from "../../ui/commande-rapide-modal/commande-rapide-modal.component";
-import { ProduitGeneriquesModalComponent } from "../../ui/generiques-modal/produit-generiques-modal.component";
-import { ProduitEtiquetteModalComponent } from "../../ui/etiquette-modal/produit-etiquette-modal.component";
-import { ProduitDetailFormModalComponent } from "../../ui/detail-form-modal/produit-detail-form-modal.component";
-import { ProduitDeconditionModalComponent } from "../../ui/decondition-modal/produit-decondition-modal.component";
-import { NotificationService } from "app/shared/services/notification.service";
-import { ListPrixReferenceComponent } from "../../ui/prix-reference/list-prix-reference/list-prix-reference.component";
-import { LotSaisieProduitModalComponent } from "../../ui/lot-saisie-produit-modal/lot-saisie-produit-modal.component";
-import { RayonAssignFormComponent, RayonAssignResult } from "../../../rayon/ui/rayon-assign-form/rayon-assign-form.component";
-import { RayonProduitApiService } from "../../../rayon/data-access/services/rayon-produit-api.service";
+import {
+  CommandeRapideModalComponent
+} from "../../ui/commande-rapide-modal/commande-rapide-modal.component";
+import {
+  ProduitGeneriquesModalComponent
+} from "../../ui/generiques-modal/produit-generiques-modal.component";
+import {
+  ProduitEtiquetteModalComponent
+} from "../../ui/etiquette-modal/produit-etiquette-modal.component";
+import {
+  ProduitDetailFormModalComponent
+} from "../../ui/detail-form-modal/produit-detail-form-modal.component";
+import {
+  ProduitDeconditionModalComponent
+} from "../../ui/decondition-modal/produit-decondition-modal.component";
+import {NotificationService} from "app/shared/services/notification.service";
+import {
+  ListPrixReferenceComponent
+} from "../../ui/prix-reference/list-prix-reference/list-prix-reference.component";
+import {
+  LotSaisieProduitModalComponent
+} from "../../ui/lot-saisie-produit-modal/lot-saisie-produit-modal.component";
+import {
+  RayonAssignFormComponent,
+  RayonAssignResult
+} from "../../../rayon/ui/rayon-assign-form/rayon-assign-form.component";
+import {
+  RayonProduitApiService
+} from "../../../rayon/data-access/services/rayon-produit-api.service";
 
 @Component({
   selector: "app-produit-home",
@@ -78,11 +104,11 @@ export class ProduitHomeComponent implements OnInit {
   protected familles = signal<IFamilleProduit[]>([]);
   protected rayons = signal<IRayon[]>([]);
   protected filterOptions: { label: string; value: string }[] = [
-    { label: "Produits actifs", value: "ENABLE" },
-    { label: "Produits désactivés", value: "DISABLE" },
-    { label: "Déconditionnables", value: "DECONDITIONNABLE" },
-    { label: "Déconditionnés", value: "DECONDITIONNE" },
-    { label: "Tous", value: "ALL" }
+    {label: "Produits actifs", value: "ENABLE"},
+    {label: "Produits désactivés", value: "DISABLE"},
+    {label: "Déconditionnables", value: "DECONDITIONNABLE"},
+    {label: "Déconditionnés", value: "DECONDITIONNE"},
+    {label: "Tous", value: "ALL"}
   ];
 
   protected search = "";
@@ -93,16 +119,21 @@ export class ProduitHomeComponent implements OnInit {
   protected rows = 15;
   protected sortField = "libelle";
   protected sortOrder = 1;
-
+  protected importMenuItems: AppSplitButtonItem[] = [
+    {
+      label: "Nouvelle installation",
+      icon: "pi pi-file-excel",
+      command: () => this.onImport("NOUVELLE_INSTALLATION")
+    },
+    {label: "Basculement", icon: "pi pi-filter", command: () => this.onImport("BASCULEMENT")},
+    {
+      label: "Basculement prestige",
+      icon: "pi pi-file",
+      command: () => this.onImport("BASCULEMENT_PRESTIGE")
+    }
+  ];
   /** ID du produit à mettre en évidence après création/modification */
   private pendingHighlightId: number | null = null;
-
-  protected importMenuItems: AppSplitButtonItem[] = [
-    { label: "Nouvelle installation", icon: "pi pi-file-excel", command: () => this.onImport("NOUVELLE_INSTALLATION") },
-    { label: "Basculement", icon: "pi pi-filter", command: () => this.onImport("BASCULEMENT") },
-    { label: "Basculement prestige", icon: "pi pi-file", command: () => this.onImport("BASCULEMENT_PRESTIGE") }
-  ];
-
   private readonly api = inject(ProductsApiService);
   private readonly familleService = inject(FamilleProduitService);
   private readonly rayonService = inject(RayonService);
@@ -111,12 +142,10 @@ export class ProduitHomeComponent implements OnInit {
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly notificationService = inject(NotificationService);
   private readonly ability = inject(AbilityService);
-  private readonly rayonProduitApi = inject(RayonProduitApiService);
-
   protected readonly canCreate = this.ability.canSignal("create", "catalogue");
   protected readonly canEdit = this.ability.canSignal("edit", "catalogue");
   protected readonly canDelete = this.ability.canSignal("delete", "catalogue");
-
+  private readonly rayonProduitApi = inject(RayonProduitApiService);
 
   ngOnInit(): void {
     this.loadReferentiels();
@@ -225,26 +254,8 @@ export class ProduitHomeComponent implements OnInit {
     this.clearSelectionTrigger.update(v => v + 1);
   }
 
-  private executeBulk(list: IProduit[], status: "ENABLE" | "DISABLE"): void {
-    let completed = 0;
-    for (const produit of list) {
-      this.api.patchStatus(produit.id!, status).subscribe({
-        next: () => {
-          completed++;
-          this.produits.update(all =>
-            all.map(p => p.id === produit.id ? { ...p, status } : p)
-          );
-          if (completed === list.length) {
-            this.selectedProduits.set([]);
-            this.clearSelectionTrigger.update(v => v + 1);
-          }
-        }
-      });
-    }
-  }
-
   protected onMenuAction(event: { action: ProduitMenuAction; produit: IProduit }): void {
-    const { action, produit } = event;
+    const {action, produit} = event;
     switch (action) {
       case "view":
         this.selectedProduit.set(produit);
@@ -297,13 +308,35 @@ export class ProduitHomeComponent implements OnInit {
     }
   }
 
+  private executeBulk(list: IProduit[], status: "ENABLE" | "DISABLE"): void {
+    let completed = 0;
+    for (const produit of list) {
+      this.api.patchStatus(produit.id!, status).subscribe({
+        next: () => {
+          completed++;
+          this.produits.update(all =>
+            all.map(p => p.id === produit.id ? {...p, status} : p)
+          );
+          if (completed === list.length) {
+            this.selectedProduits.set([]);
+            this.clearSelectionTrigger.update(v => v + 1);
+          }
+        }
+      });
+    }
+  }
+
   private openClonerRayon(produit: IProduit): void {
     this.api.getById(produit.id!).subscribe(full => {
       const occupiedStorageIds = (full.rayonProduits ?? [])
         .map(rp => rp.storageId)
         .filter((id): id is number => id != null);
 
-      const ref = this.modalService.open(RayonAssignFormComponent, { size: 'md', centered: true, backdrop: 'static' });
+      const ref = this.modalService.open(RayonAssignFormComponent, {
+        size: 'lg',
+        centered: true,
+        backdrop: 'static'
+      });
       const inst = ref.componentInstance as RayonAssignFormComponent;
       inst.produit = full;
       inst.mode = 'add-storage';
@@ -311,7 +344,10 @@ export class ProduitHomeComponent implements OnInit {
       inst.occupiedRealStorageIds = occupiedStorageIds;
 
       ref.closed.subscribe((result: RayonAssignResult) => {
-        this.rayonProduitApi.assign({ produitId: result.produitId, rayonId: result.rayonId }).subscribe({
+        this.rayonProduitApi.assign({
+          produitId: result.produitId,
+          rayonId: result.rayonId
+        }).subscribe({
           next: () => this.notificationService.success('Affecté au nouveau stockage'),
           error: () => this.notificationService.error('Erreur lors de l\'affectation'),
         });
@@ -324,10 +360,10 @@ export class ProduitHomeComponent implements OnInit {
       next: () => {
         // Mise à jour locale immédiate sans rechargement complet
         this.produits.update(list =>
-          list.map(p => p.id === produit.id ? { ...p, status } : p)
+          list.map(p => p.id === produit.id ? {...p, status} : p)
         );
         if (this.selectedProduit()?.id === produit.id) {
-          this.selectedProduit.update(p => p ? { ...p, status } : null);
+          this.selectedProduit.update(p => p ? {...p, status} : null);
         }
       }
     });
@@ -352,8 +388,12 @@ export class ProduitHomeComponent implements OnInit {
       req.status = this.selectedFilter;
     }
 
-    if (this.selectedFamilleId) req.familleId = this.selectedFamilleId;
-    if (this.selectedRayonId) req.rayonId = this.selectedRayonId;
+    if (this.selectedFamilleId) {
+      req.familleId = this.selectedFamilleId;
+    }
+    if (this.selectedRayonId) {
+      req.rayonId = this.selectedRayonId;
+    }
 
     this.api.query(req).subscribe({
       next: (res) => this.onSuccess(res.body ?? [], res.headers),
@@ -383,21 +423,27 @@ export class ProduitHomeComponent implements OnInit {
   }
 
   private loadReferentiels(): void {
-    this.familleService.query({ search: "" }).subscribe({
+    this.familleService.query({search: ""}).subscribe({
       next: res => this.familles.set(res.body ?? [])
     });
-    this.rayonService.query({ search: "", page: 0, size: 9999 }).subscribe({
+    this.rayonService.query({search: "", page: 0, size: 9999}).subscribe({
       next: res => this.rayons.set(res.body ?? [])
     });
   }
 
   private openGeneriques(produit: IProduit): void {
-    const ref = this.modalService.open(ProduitGeneriquesModalComponent, { size: "lg", centered: true });
+    const ref = this.modalService.open(ProduitGeneriquesModalComponent, {
+      size: "lg",
+      centered: true
+    });
     ref.componentInstance.produit = produit;
   }
 
   private openEtiquette(produit: IProduit): void {
-    const ref = this.modalService.open(ProduitEtiquetteModalComponent, { size: "lg", centered: true });
+    const ref = this.modalService.open(ProduitEtiquetteModalComponent, {
+      size: "lg",
+      centered: true
+    });
     ref.componentInstance.produit = produit;
   }
 
@@ -438,7 +484,7 @@ export class ProduitHomeComponent implements OnInit {
 
   private openSaisirLot(produit: IProduit): void {
     const ref = this.modalService.open(LotSaisieProduitModalComponent, {
-      size: "lg",
+      size: "xl",
       centered: true,
       backdrop: "static"
     });
@@ -476,10 +522,10 @@ export class ProduitHomeComponent implements OnInit {
   private refreshProduit(id: number): void {
     this.api.getById(id).subscribe(fresh => {
       // Mise à jour en place dans la liste
-      this.produits.update(list => list.map(p => p.id === id ? { ...fresh } : p));
+      this.produits.update(list => list.map(p => p.id === id ? {...fresh} : p));
       // Mise à jour du produit sélectionné (même id → le panel ne réinitialise pas l'onglet actif)
       if (this.selectedProduit()?.id === id) {
-        this.selectedProduit.set({ ...fresh });
+        this.selectedProduit.set({...fresh});
       }
     });
   }
@@ -500,7 +546,7 @@ export class ProduitHomeComponent implements OnInit {
   }
 
   private showResponse(responsedto: IResponseDto): void {
-    showCommonModal(this.modalService, ImportProduitReponseModalComponent, { responsedto }, () => {
+    showCommonModal(this.modalService, ImportProduitReponseModalComponent, {responsedto}, () => {
     }, "lg");
   }
 

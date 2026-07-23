@@ -3,61 +3,63 @@
   <!-- Toolbar -->
   <app-toolbar [compact]="true" icon="pi pi-arrows-h" title="État de rapprochement">
     <ng-container ngProjectAs="[toolbarFilters]">
-        <div class="pharma-toolbar-filters">
+      <div class="pharma-toolbar-filters">
 
-          <app-float-label inputId="rapr-tp" label="Tiers-payant">
-            <app-multi-select
-              (searched)="searchTiersPayant($event)"
-              [(ngModel)]="selectedTiersPayants"
-              [minSearchLength]="2"
-                            [items]="tiersPayantSuggestions"
-              appendTo="body"
-              inputId="rapr-tp"
-              bindLabel="fullName"
-            />
-          </app-float-label>
+        <app-float-label inputId="rapr-tp" label="Tiers-payant">
+          <app-multi-select
+            (searched)="searchTiersPayant($event)"
+            [(ngModel)]="selectedTiersPayants"
+            [items]="tiersPayantSuggestions"
+            [minSearchLength]="2"
+            appendTo="body"
+            bindLabel="fullName"
+            inputId="rapr-tp"
+          />
+        </app-float-label>
 
-          <pharma-date-picker [(ngModel)]="modelStartDate" id="rapr-du" label="Du" />
+        <pharma-date-picker [(ngModel)]="modelStartDate" [style]="{ 'max-width': '180px' }" id="rapr-du"
+                            label="Du" />
 
-          <pharma-date-picker [(ngModel)]="modelEndDate" id="rapr-au" label="Au" />
+        <pharma-date-picker [(ngModel)]="modelEndDate" [style]="{ 'max-width': '180px' }" id="rapr-au"
+                            label="Au" />
 
-          <app-float-label inputId="rapr-statut" label="Statut">
-            <app-multi-select
-              [(ngModel)]="selectedStatut"
-              [items]="statutOptions"
-              appendTo="body"
-              inputId="rapr-statut"
-              bindLabel="label"
-              bindValue="value"
-              [style]="{ width: '180px' }"
-            />
-          </app-float-label>
+        <app-float-label inputId="rapr-statut" label="Statut">
+          <app-multi-select
+            [(ngModel)]="selectedStatut"
+            [items]="statutOptions"
+            [style]="{ width: '180px' }"
+            appendTo="body"
+            bindLabel="label"
+            bindValue="value"
+            inputId="rapr-statut"
+          />
+        </app-float-label>
 
+      </div>
+    </ng-container>
+
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-toolbar-actions">
+        <div class="pharma-button-group">
+          <app-button
+            (clicked)="onSearch()"
+            [loading]="loading()"
+            [raised]="true"
+            icon="pi pi-search"
+            label="Rechercher"
+            severity="info"
+          />
+          <app-button
+            (clicked)="onExportExcel()"
+            [loading]="loadingExport()"
+            [raised]="true"
+            icon="pi pi-file-excel"
+            label="Excel"
+            severity="warn"
+          />
         </div>
-      </ng-container>
-
-<ng-container ngProjectAs="[toolbarActions]">
-        <div class="pharma-toolbar-actions">
-          <div class="pharma-button-group">
-            <app-button
-              (clicked)="onSearch()"
-              [loading]="loading()"
-              [raised]="true"
-              icon="pi pi-search"
-              label="Rechercher"
-              severity="info"
-            />
-            <app-button
-              (clicked)="onExportExcel()"
-              [loading]="loadingExport()"
-              [raised]="true"
-              icon="pi pi-file-excel"
-              label="Excel"
-              severity="warn"
-            />
-          </div>
-        </div>
-      </ng-container>
+      </div>
+    </ng-container>
   </app-toolbar>
 
   <!-- KPI globaux -->
@@ -67,21 +69,21 @@
     <div class="pharma-hint">
       <i class="pi pi-info-circle"></i>
       <span>Cliquez sur une ligne pour afficher le détail .</span>
-      <button type="button" class="pharma-hint-close" (click)="dismissHint()" aria-label="Fermer">
+      <button (click)="dismissHint()" aria-label="Fermer" class="pharma-hint-close" type="button">
         <i class="pi pi-times"></i>
       </button>
     </div>
   }
   <!-- Split master/detail -->
-  <div class="split-container" [class.panel-open]="panelOpen()">
+  <div [class.panel-open]="panelOpen()" class="split-container">
 
     <!-- Colonne maître : liste des organismes -->
     <div class="list-column p-2">
       <app-data-table
-        [value]="rapprochements()"
         [loading]="loading()"
         [scrollable]="true"
         [size]="'small'"
+        [value]="rapprochements()"
         scrollHeight="flex"
       >
         <ng-template #header>
@@ -108,27 +110,27 @@
             <td>
               <span class="fw-semibold">{{ rappr.tiersPayantName }}</span>
               @if (lignesEnRetard(rappr) > 0) {
-                <span class="badge bg-danger ms-2 small">{{ lignesEnRetard(rappr) }} en retard</span>
+                <span class="badge bg-danger ms-2 small">{{ lignesEnRetard(rappr) }}en retard</span>
               }
             </td>
             @if (!panelOpen()) {
               <td class="text-muted small">{{ rappr.debutPeriode }} → {{ rappr.finPeriode }}</td>
               <td class="text-end fw-bold">{{ (rappr.totalFacture ?? 0) | number:'1.0-0' }}</td>
               <td class="text-end text-success">{{ (rappr.totalRegle ?? 0) | number:'1.0-0' }}</td>
-              <td class="text-end" [class.text-danger]="(rappr.ecartTotal ?? 0) > 0">
+              <td [class.text-danger]="(rappr.ecartTotal ?? 0) > 0" class="text-end">
                 {{ (rappr.ecartTotal ?? 0) | number:'1.0-0' }}
               </td>
             } @else {
               <td class="text-end fw-bold">{{ (rappr.totalFacture ?? 0) | number:'1.0-0' }}</td>
               <td class="text-end">
-                <span [class.text-success]="detailTaux(rappr) >= 80"
-                      [class.text-warning]="detailTaux(rappr) >= 50 && detailTaux(rappr) < 80"
-                      [class.text-danger]="detailTaux(rappr) < 50">
+                <span [class.text-danger]="detailTaux(rappr) < 50"
+                      [class.text-success]="detailTaux(rappr) >= 80"
+                      [class.text-warning]="detailTaux(rappr) >= 50 && detailTaux(rappr) < 80">
                   {{ detailTaux(rappr) }} %
                 </span>
               </td>
             }
-            <td class="text-center" (click)="$event.stopPropagation()">
+            <td (click)="$event.stopPropagation()" class="text-center">
               <div class="btn-group" role="group">
                 <app-button
                   (clicked)="onRowSelect(rappr)"
@@ -169,18 +171,23 @@
               <i class="pi pi-building me-1"></i>{{ selectedRappr()?.tiersPayantName }}
             </div>
             <div class="panel-meta">
-              <span class="pharma-badge pharma-badge-secondary">{{ selectedRappr()?.debutPeriode }} → {{ selectedRappr()?.finPeriode }}</span>
-              <span class="pharma-badge pharma-badge-primary">Facturé : {{ (selectedRappr()?.totalFacture ?? 0) | number:'1.0-0' }}</span>
-              <span class="pharma-badge pharma-badge-success">Réglé : {{ (selectedRappr()?.totalRegle ?? 0) | number:'1.0-0' }}</span>
-              <span class="pharma-badge"
-                    [class.pharma-badge-danger]="(selectedRappr()?.ecartTotal ?? 0) > 0"
-                    [class.pharma-badge-success]="(selectedRappr()?.ecartTotal ?? 0) === 0">
+              <span class="pharma-badge pharma-badge-secondary">{{ selectedRappr()?.debutPeriode }}
+                → {{ selectedRappr()?.finPeriode }}</span>
+              <span class="pharma-badge pharma-badge-primary">Facturé : {{
+                  (selectedRappr()?.totalFacture ?? 0) | number:'1.0-0'
+                }}</span>
+              <span class="pharma-badge pharma-badge-success">Réglé : {{
+                  (selectedRappr()?.totalRegle ?? 0) | number:'1.0-0'
+                }}</span>
+              <span [class.pharma-badge-danger]="(selectedRappr()?.ecartTotal ?? 0) > 0"
+                    [class.pharma-badge-success]="(selectedRappr()?.ecartTotal ?? 0) === 0"
+                    class="pharma-badge">
                 Écart : {{ (selectedRappr()?.ecartTotal ?? 0) | number:'1.0-0' }}
               </span>
-              <span class="pharma-badge"
+              <span [class.pharma-badge-danger]="detailTaux(selectedRappr()!) < 50"
                     [class.pharma-badge-success]="detailTaux(selectedRappr()!) >= 80"
                     [class.pharma-badge-warning]="detailTaux(selectedRappr()!) >= 50 && detailTaux(selectedRappr()!) < 80"
-                    [class.pharma-badge-danger]="detailTaux(selectedRappr()!) < 50">
+                    class="pharma-badge">
                 Taux : {{ detailTaux(selectedRappr()!) }} %
               </span>
             </div>
@@ -188,9 +195,9 @@
           <div class="panel-actions">
             <app-button
               (clicked)="closePanel()"
-              icon="pi pi-times"
-              [text]="true"
               [rounded]="true"
+              [text]="true"
+              icon="pi pi-times"
               size="small"
               title="Fermer"
             />
@@ -200,11 +207,11 @@
         <!-- Table des lignes de factures -->
         <div class="rapr-detail-body">
           <app-data-table
-            [value]="selectedRappr()?.lignes ?? []"
             [scrollable]="true"
-            scrollHeight="flex"
             [size]="'small'"
+            [value]="selectedRappr()?.lignes ?? []"
             dataKey="numFacture"
+            scrollHeight="flex"
           >
             <ng-template #header>
               <tr class="pharma-table-head">
@@ -219,13 +226,13 @@
                 <th class="text-center">Actions</th>
               </tr>
             </ng-template>
-            <ng-template #body let-ligne let-expanded="expanded">
+            <ng-template #body let-expanded="expanded" let-ligne>
               <tr [class.rapr-row-retard]="isLigneEnRetard(ligne)">
                 <td>
                   @if ((ligne.reglements ?? []).length > 0) {
                     <app-button
-                      [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
                       [appRowToggler]="ligne"
+                      [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
                       [text]="true"
                       size="small"
                     />
@@ -240,8 +247,11 @@
                   }
                 </td>
                 <td class="text-end">{{ (ligne.montantFacture ?? 0) | number:'1.0-0' }}</td>
-                <td class="text-end text-success">{{ (ligne.montantRegle ?? 0) | number:'1.0-0' }}</td>
-                <td class="text-end" [class.text-danger]="(ligne.ecart ?? 0) > 0">
+                <td class="text-end text-success">{{
+                    (ligne.montantRegle ?? 0) | number:'1.0-0'
+                  }}
+                </td>
+                <td [class.text-danger]="(ligne.ecart ?? 0) > 0" class="text-end">
                   {{ (ligne.ecart ?? 0) | number:'1.0-0' }}
                 </td>
                 <td>
@@ -253,11 +263,11 @@
                   @if (ligne.statut !== 'PAID') {
                     <app-button
                       (clicked)="openReglementModal(ligne)"
+                      [outlined]="true"
                       icon="pi pi-credit-card"
                       label="Régler"
                       severity="success"
                       size="small"
-                      [outlined]="true"
                     />
                   }
                 </td>
@@ -267,18 +277,18 @@
             <!-- Détail des règlements (ligne expandée) -->
             <ng-template #expandedrow let-ligne>
               <tr>
-                <td colspan="9" class="p-0">
+                <td class="p-0" colspan="9">
                   <div class="rapr-reglement-list">
                     <table class="table table-sm mb-0">
                       <thead>
-                        <tr class="table-light">
-                          <th>Date</th>
-                          <th>Référence</th>
-                          <th>Mode</th>
-                          <th class="text-end">Montant</th>
-                          <th>Commentaire</th>
-                          <th class="text-center">Action</th>
-                        </tr>
+                      <tr class="table-light">
+                        <th>Date</th>
+                        <th>Référence</th>
+                        <th>Mode</th>
+                        <th class="text-end">Montant</th>
+                        <th>Commentaire</th>
+                        <th class="text-center">Action</th>
+                      </tr>
                       </thead>
                       <tbody>
                         @for (rg of ligne.reglements; track rg.id) {
@@ -291,10 +301,10 @@
                             <td class="text-center">
                               <app-button
                                 (clicked)="onAnnulerReglement(ligne, rg)"
+                                [text]="true"
                                 icon="pi pi-trash"
                                 severity="danger"
                                 size="small"
-                                [text]="true"
                                 title="Annuler ce règlement"
                               />
                             </td>
@@ -309,7 +319,7 @@
 
             <ng-template #emptymessage>
               <tr>
-                <td colspan="9" class="text-center text-muted py-3">
+                <td class="text-center text-muted py-3" colspan="9">
                   <i class="pi pi-info-circle me-1"></i>Aucune facture trouvée
                 </td>
               </tr>

@@ -1,22 +1,37 @@
 <!-- Toolbar -->
-<div class="pharma-toolbar">
-  <div class="pharma-toolbar-header">
-    <i class="pi pi-users"></i>
-    <span class="pharma-toolbar-title">Situation des Différés Clients</span>
-  </div>
-  <div class="pharma-toolbar-content">
+<app-toolbar icon="pi pi-users" title="Situation des Différés Clients">
+  <ng-container ngProjectAs="[toolbarFilters]">
     <div class="pharma-toolbar-filters">
-      <pharma-date-range-filter
-        [fromDate]="fromDate()"
-        (fromDateChange)="fromDate.set($event)"
-        [toDate]="toDate()"
-        (toDateChange)="toDate.set($event)"
-        [loading]="isLoading()"
-        (search)="load()"
+      <pharma-date-picker
+        label="Du"
+        id="vd-from"
+        [ngModel]="fromStruct()"
+        (ngModelChange)="fromDate.set(structToDate($event))"
+      />
+      <pharma-date-picker
+        label="Au"
+        id="vd-to"
+        [ngModel]="toStruct()"
+        (ngModelChange)="toDate.set(structToDate($event))"
       />
     </div>
-  </div>
-</div>
+  </ng-container>
+
+  <ng-container ngProjectAs="[toolbarActions]">
+    <div>
+      <app-button
+        type="button"
+        icon="pi pi-search"
+        label="Rechercher"
+        [loading]="isLoading()"
+        [raised]="true"
+        severity="primary"
+        size="small"
+        (clicked)="load()"
+      />
+    </div>
+  </ng-container>
+</app-toolbar>
 
 <!-- Loading -->
 @if (isLoading()) {

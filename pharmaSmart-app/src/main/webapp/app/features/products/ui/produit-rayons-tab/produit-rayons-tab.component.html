@@ -1,12 +1,12 @@
 <div class="prt-container">
   <div class="prt-toolbar">
     <app-button
-      label="Ajouter à un autre stockage"
-      icon="pi pi-plus"
-      size="small"
-      severity="secondary"
-      [outlined]="true"
       (clicked)="onAjouterStockage()"
+      [outlined]="true"
+      [severity]="'primary'"
+      icon="pi pi-plus"
+      label="Ajouter à un autre stockage"
+      size="small"
     />
   </div>
 
@@ -18,7 +18,7 @@
   } @else {
     <div class="prt-list">
       @for (rp of assignments; track rp.id) {
-        <div class="prt-item" [class.prt-sans]="rp.codeRayon === 'SANS'">
+        <div [class.prt-sans]="rp.codeRayon === 'SANS'" class="prt-item">
           <div class="prt-item-storage">
             <i class="pi pi-warehouse"></i>
             <span>{{ rp.libelleStorage }}</span>
@@ -35,19 +35,19 @@
           <div class="prt-item-actions">
             @if (rp.codeRayon === 'SANS') {
               <app-button
-                icon="pi pi-map-marker"
-                [rounded]="true" [text]="true" severity="warn"
-                ngbTooltip="Assigner un emplacement dans ce stockage"
-                size="small"
                 (clicked)="onDeplacer(rp)"
+                [rounded]="true" [text]="true" icon="pi pi-map-marker"
+                ngbTooltip="Assigner un emplacement dans ce stockage"
+                severity="warn"
+                size="small"
               />
             } @else {
               <app-button
-                icon="pi pi-arrows-h"
-                [rounded]="true" [text]="true" severity="info"
-                ngbTooltip="Déplacer vers un autre emplacement"
-                size="small"
                 (clicked)="onDeplacer(rp)"
+                [rounded]="true" [text]="true" icon="pi pi-arrows-h"
+                ngbTooltip="Déplacer vers un autre emplacement"
+                severity="info"
+                size="small"
               />
             }
           </div>

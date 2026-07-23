@@ -1,13 +1,13 @@
 <div class="container-fluid">
-  <div class="pharma-smart-content p-2">
+  <div class="pharma-smart-content p-1">
 
     <app-toolbar icon="pi pi-users" title="Utilisateurs">
       <ng-container ngProjectAs="[toolbarActions]">
         <app-button
+          [raised]="true"
           [routerLink]="['./new']"
           icon="pi pi-plus"
           label="Nouvel utilisateur"
-          [raised]="true"
           severity="primary"
         />
       </ng-container>
@@ -15,19 +15,19 @@
 
     @if (users() !== null) {
       <app-data-table
-        [value]="filteredUsers()"
         [paginator]="true"
         [rows]="itemsPerPage"
+        [value]="filteredUsers()"
         class="mt-2 pharma-table"
       >
         <ng-template #caption>
           <div class="d-flex justify-content-end">
             <app-icon-field [overlay]="true" icon="pi pi-search">
               <input
-                type="text"
+                (input)="onFilter($event)"
                 class="form-control"
                 placeholder="Rechercher…"
-                (input)="onFilter($event)"
+                type="text"
               />
             </app-icon-field>
           </div>
@@ -53,7 +53,7 @@
             <td>{{ user.firstName }}</td>
             <td>
 
-                <span class="pharma-badge pharma-badge-info me-1">{{ user.authority?.libelle }}</span>
+              <span class="pharma-badge pharma-badge-info me-1">{{ user.authority?.libelle }}</span>
 
             </td>
             <td>
@@ -67,23 +67,23 @@
                 <!-- Bouton action (label = ce qui va se passer) -->
                 @if (!user.activated) {
                   <app-button
-                    label="Activer"
+                    (clicked)="setActive(user, true)"
+                    [outlined]="true"
                     icon="pi pi-power-off"
+                    label="Activer"
                     severity="success"
                     size="small"
-                    [outlined]="true"
-                    (clicked)="setActive(user, true)"
                   />
                 } @else {
                   @if (user.id !== 3) {
                     <app-button
-                      label="Désactiver"
+                      (clicked)="setActive(user, false)"
+                      [disabled]="currentAccount()?.login === user.login"
+                      [outlined]="true"
                       icon="pi pi-ban"
+                      label="Désactiver"
                       severity="danger"
                       size="small"
-                      [outlined]="true"
-                      [disabled]="currentAccount()?.login === user.login"
-                      (clicked)="setActive(user, false)"
                     />
 
                   }
@@ -94,29 +94,29 @@
             <td class="text-end">
               <app-button
                 [rounded]="true"
-                [text]="true"
                 [routerLink]="['./', user.login, 'view']"
+                [text]="true"
                 icon="pi pi-eye"
-                severity="info"
                 ngbTooltip="Voir"
+                severity="info"
               />
               <app-button
                 [rounded]="true"
-                [text]="true"
                 [routerLink]="['./', user.login, 'edit']"
+                [text]="true"
                 icon="pi pi-pencil"
-                severity="primary"
                 ngbTooltip="Modifier"
+                severity="primary"
               />
               @if (user.id !== 3) {
                 <app-button
+                  (clicked)="deleteUser(user)"
+                  [disabled]="currentAccount()?.login === user.login"
                   [rounded]="true"
                   [text]="true"
                   icon="pi pi-trash"
-                  severity="danger"
                   ngbTooltip="Supprimer"
-                  [disabled]="currentAccount()?.login === user.login"
-                  (clicked)="deleteUser(user)"
+                  severity="danger"
                 />
               }
 
@@ -126,7 +126,7 @@
 
         <ng-template #emptymessage>
           <tr>
-            <td colspan="6" class="text-center text-muted py-4">Aucun utilisateur trouvé.</td>
+            <td class="text-center text-muted py-4" colspan="6">Aucun utilisateur trouvé.</td>
           </tr>
         </ng-template>
       </app-data-table>

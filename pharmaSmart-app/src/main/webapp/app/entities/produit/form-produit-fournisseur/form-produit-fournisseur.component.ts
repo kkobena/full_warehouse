@@ -1,19 +1,38 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
-import { IProduit } from "../../../shared/model";
-import { FournisseurProduit, IFournisseurProduit } from "../../../shared/model/fournisseur-produit.model";
-import { ProduitService } from "../produit.service";
-import { ErrorService } from "../../../shared/error.service";
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+  viewChild
+} from "@angular/core";
+import {IProduit} from "../../../shared/model";
+import {
+  FournisseurProduit,
+  IFournisseurProduit
+} from "../../../shared/model/fournisseur-produit.model";
+import {ProduitService} from "../produit.service";
+import {ErrorService} from "../../../shared/error.service";
+import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from "@angular/forms";
 
-import { IFournisseur } from "../../../shared/model/fournisseur.model";
-import { HttpErrorResponse, HttpResponse } from "@angular/common/http";
-import { Observable } from "rxjs";
-import { CommonModule } from "@angular/common";
-import { NotificationService } from "../../../shared/services/notification.service";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { finalize } from "rxjs/operators";
-import { FournisseurApiService } from "../../../features/partners/data-access/services/fournisseur-api.service";
-import { ButtonComponent, KeyFilterDirective, SelectComponent, SwitchComponent } from "../../../shared/ui";
+import {IFournisseur} from "../../../shared/model/fournisseur.model";
+import {HttpErrorResponse, HttpResponse} from "@angular/common/http";
+import {Observable} from "rxjs";
+import {CommonModule} from "@angular/common";
+import {NotificationService} from "../../../shared/services/notification.service";
+import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
+import {finalize} from "rxjs/operators";
+import {
+  FournisseurApiService
+} from "../../../features/partners/data-access/services/fournisseur-api.service";
+import {
+  ButtonComponent,
+  CardComponent,
+  KeyFilterDirective,
+  SelectComponent,
+  SwitchComponent
+} from "../../../shared/ui";
 
 @Component({
   selector: "app-form-produit-fournisseur",
@@ -27,7 +46,8 @@ import { ButtonComponent, KeyFilterDirective, SelectComponent, SwitchComponent }
     ButtonComponent,
     KeyFilterDirective,
     SelectComponent,
-    SwitchComponent
+    SwitchComponent,
+    CardComponent
   ]
 })
 export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
@@ -53,7 +73,7 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
   private readonly errorService = inject(ErrorService);
   private readonly fournisseurService = inject(FournisseurApiService);
   private readonly notificationService = inject(NotificationService);
-  private fournisseurSelect = viewChild.required("fournisseurSelect", { read: ElementRef<HTMLElement> });
+  private fournisseurSelect = viewChild.required("fournisseurSelect", {read: ElementRef<HTMLElement>});
   private readonly activeModal = inject(NgbActiveModal);
 
   save(): void {

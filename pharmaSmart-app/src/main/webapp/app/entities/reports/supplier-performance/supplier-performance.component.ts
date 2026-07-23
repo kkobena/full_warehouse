@@ -1,19 +1,38 @@
-import { Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+  ViewChild
+} from '@angular/core';
 
-import { FormsModule } from '@angular/forms';
-import { HttpResponse } from '@angular/common/http';
+import {FormsModule} from '@angular/forms';
+import {HttpResponse} from '@angular/common/http';
 
-import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 
-import { Chart, ChartConfiguration, registerables } from 'chart.js';
+import {Chart, ChartConfiguration, registerables} from 'chart.js';
 
-import { ButtonComponent, DataTableComponent, OffcanvasComponent, SelectComponent, ToolbarComponent } from '../../../shared/ui';
+import {
+  ButtonComponent,
+  DataTableComponent,
+  OffcanvasComponent,
+  SelectComponent,
+  ToolbarComponent
+} from '../../../shared/ui';
 
-import { SupplierPerformanceReportService } from '../services/supplier-performance-report.service';
-import { ISupplierEvolution, ISupplierPerformance, ISupplierPerformanceSummary } from 'app/shared/model/report';
-import { formatCurrency, formatDecimal, formatNumber } from 'app/shared/utils/format-utils';
-import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
-import { handleBlobForTauri } from '../../../shared/util/tauri-util';
+import {SupplierPerformanceReportService} from '../services/supplier-performance-report.service';
+import {
+  ISupplierEvolution,
+  ISupplierPerformance,
+  ISupplierPerformanceSummary
+} from 'app/shared/model/report';
+import {formatCurrency, formatDecimal, formatNumber} from 'app/shared/utils/format-utils';
+import {TauriPrinterService} from '../../../shared/services/tauri-printer.service';
+import {handleBlobForTauri} from '../../../shared/util/tauri-util';
 
 Chart.register(...registerables);
 
@@ -23,7 +42,7 @@ interface FilterOption {
 }
 
 @Component({
-  selector: 'jhi-supplier-performance',
+  selector: 'app-supplier-performance',
   imports: [FormsModule, NgbTooltip, ButtonComponent, DataTableComponent, OffcanvasComponent, SelectComponent, ToolbarComponent],
   templateUrl: './supplier-performance.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -44,12 +63,12 @@ export default class SupplierPerformanceComponent implements OnInit, OnDestroy {
   activeView = signal<'table' | 'evolution'>('table');
 
   filterOptions: FilterOption[] = [
-    { label: 'Tous les fournisseurs', value: 'all' },
-    { label: 'Top 10 par volume', value: 'top' },
-    { label: 'Performance excellente (≥ 70)', value: 'good' },
-    { label: 'Performance moyenne (50-70)', value: 'average' },
-    { label: 'Performance faible (< 50)', value: 'poor' },
-    { label: 'Problèmes de livraison', value: 'delivery-issues' },
+    {label: 'Tous les fournisseurs', value: 'all'},
+    {label: 'Top 10 par volume', value: 'top'},
+    {label: 'Performance excellente (≥ 70)', value: 'good'},
+    {label: 'Performance moyenne (50-70)', value: 'average'},
+    {label: 'Performance faible (< 50)', value: 'poor'},
+    {label: 'Problèmes de livraison', value: 'delivery-issues'},
   ];
 
   formatCurrency = formatCurrency;
@@ -85,7 +104,9 @@ export default class SupplierPerformanceComponent implements OnInit, OnDestroy {
         const evo = res.body;
         this.evolution.set(evo);
         this.isEvolutionLoading.set(false);
-        if (evo) setTimeout(() => this.createCharts(evo), 50);
+        if (evo) {
+          setTimeout(() => this.createCharts(evo), 50);
+        }
       },
       error: () => this.isEvolutionLoading.set(false),
     });
@@ -196,15 +217,23 @@ export default class SupplierPerformanceComponent implements OnInit, OnDestroy {
   }
 
   getPerformanceScoreLabel(score: number | undefined): string {
-    if (!score) return 'N/A';
-    if (score >= 70) return 'Excellent';
-    if (score >= 50) return 'Moyen';
+    if (!score) {
+      return 'N/A';
+    }
+    if (score >= 70) {
+      return 'Excellent';
+    }
+    if (score >= 50) {
+      return 'Moyen';
+    }
     return 'Faible';
   }
 
   getFilteredSuppliers(): ISupplierPerformance[] {
     const search = this.searchText().toLowerCase();
-    if (!search) return this.suppliers();
+    if (!search) {
+      return this.suppliers();
+    }
     return this.suppliers().filter(
       s =>
         s.fournisseurName?.toLowerCase().includes(search) ||
@@ -226,9 +255,13 @@ export default class SupplierPerformanceComponent implements OnInit, OnDestroy {
   private createMontantsChart(evo: ISupplierEvolution): void {
     this.montantsChart?.destroy();
     const canvas = this.montantsChartCanvas?.nativeElement;
-    if (!canvas) return;
+    if (!canvas) {
+      return;
+    }
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      return;
+    }
 
     const config: ChartConfiguration<'bar'> = {
       type: 'bar',
@@ -255,7 +288,7 @@ export default class SupplierPerformanceComponent implements OnInit, OnDestroy {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { position: 'bottom', labels: { padding: 16 } },
+          legend: {position: 'bottom', labels: {padding: 16}},
           tooltip: {
             callbacks: {
               label: ctx => `${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)} FCFA`,
@@ -263,8 +296,8 @@ export default class SupplierPerformanceComponent implements OnInit, OnDestroy {
           },
         },
         scales: {
-          y: { title: { display: true, text: 'Montant (FCFA)' } },
-          x: { ticks: { maxRotation: 45 } },
+          y: {title: {display: true, text: 'Montant (FCFA)'}},
+          x: {ticks: {maxRotation: 45}},
         },
       },
     };
@@ -275,9 +308,13 @@ export default class SupplierPerformanceComponent implements OnInit, OnDestroy {
   private createDelaisChart(evo: ISupplierEvolution): void {
     this.delaisChart?.destroy();
     const canvas = this.delaisChartCanvas?.nativeElement;
-    if (!canvas) return;
+    if (!canvas) {
+      return;
+    }
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      return;
+    }
 
     const config: ChartConfiguration<'line'> = {
       type: 'line',
@@ -309,7 +346,7 @@ export default class SupplierPerformanceComponent implements OnInit, OnDestroy {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { position: 'bottom', labels: { padding: 16 } },
+          legend: {position: 'bottom', labels: {padding: 16}},
           tooltip: {
             callbacks: {
               label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y} jours`,
@@ -317,8 +354,8 @@ export default class SupplierPerformanceComponent implements OnInit, OnDestroy {
           },
         },
         scales: {
-          y: { title: { display: true, text: 'Délai moyen (jours)' }, beginAtZero: true },
-          x: { ticks: { maxRotation: 45 } },
+          y: {title: {display: true, text: 'Délai moyen (jours)'}, beginAtZero: true},
+          x: {ticks: {maxRotation: 45}},
         },
       },
     };

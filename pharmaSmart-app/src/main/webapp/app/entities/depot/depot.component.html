@@ -1,23 +1,26 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-2">
     <app-toolbar icon="pi pi-building" title="Gestion des Dépôts">
-        <ng-container ngProjectAs="[toolbarActions]">
-          <div class="pharma-toolbar-actions">
-            @if (canNewVente()) {
-              <app-button size="small" [raised]="true" (clicked)="onNewVente()" icon="pi pi-shopping-cart"
-                        label="Nouvelle vente dépôt" severity="primary" />
-            }
-            @if (canCreate()) {
-              <app-button size="small" [raised]="true" (clicked)="onCreate()" icon="pi pi-plus" label="Nouveau Dépôt"
-                        severity="info" />
-            }
-            @if (canReturn()) {
-              <app-button size="small" [raised]="true" [routerLink]="['/depot', 'new-return']" icon="pi pi-undo"
-                        label="Retour dépôt" severity="warn" />
-            }
-          </div>
-        </ng-container>
-      </app-toolbar>
+      <ng-container ngProjectAs="[toolbarActions]">
+        <div class="pharma-toolbar-actions py-1">
+          @if (canNewVente()) {
+            <app-button (clicked)="onNewVente()" [raised]="true" icon="pi pi-shopping-cart"
+                        label="Nouvelle vente dépôt"
+                        severity="primary" size="small" />
+          }
+          @if (canCreate()) {
+            <app-button (clicked)="onCreate()" [raised]="true" icon="pi pi-plus" label="Nouveau Dépôt"
+                        severity="info"
+                        size="small" />
+          }
+          @if (canReturn()) {
+            <app-button [raised]="true" [routerLink]="['/depot', 'new-return']" icon="pi pi-undo"
+                        label="Retour dépôt"
+                        severity="warn" size="small" />
+          }
+        </div>
+      </ng-container>
+    </app-toolbar>
 
     <app-data-table
       #dt
@@ -27,10 +30,10 @@
       [rowsPerPageOptions]="[10, 25, 50]"
       [rows]="10"
       [showCurrentPageReport]="true"
-      [value]="depots"
-      class="pharma-table"
       [size]="'small'"
       [stripedRows]="true"
+      [value]="depots"
+      class="pharma-table"
       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} dépôts"
     >
       <ng-template #caption>
@@ -84,12 +87,14 @@
           <td style="text-align: center">
             <div class="action-buttons">
               @if (canEdit()) {
-                <app-button (clicked)="onEdit(depot)" [rounded]="true" [text]="true" icon="pi pi-pencil"
-                          ngbTooltip="Modifier" severity="info" />
+                <app-button (clicked)="onEdit(depot)" [rounded]="true" [text]="true"
+                            icon="pi pi-pencil"
+                            ngbTooltip="Modifier" severity="info" />
               }
               @if (canDelete()) {
-                <app-button (clicked)="onDelete(depot)" [rounded]="true" [text]="true" icon="pi pi-trash"
-                          ngbTooltip="Supprimer" severity="danger" />
+                <app-button (clicked)="onDelete(depot)" [rounded]="true" [text]="true"
+                            icon="pi pi-trash"
+                            ngbTooltip="Supprimer" severity="danger" />
               }
             </div>
           </td>

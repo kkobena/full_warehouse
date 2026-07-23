@@ -1,19 +1,20 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
-import { ProduitService } from "../../produit/produit.service";
-import { TableauProduitService } from "../tableau-produit.service";
-import { IProduit } from "../../../shared/model";
-import { HttpResponse } from "@angular/common/http";
-import { ActivatedRoute } from "@angular/router";
-import { ITableau } from "../../../shared/model/tableau.model";
-import { FormsModule } from "@angular/forms";
-import { CommonModule } from "@angular/common";
-import { ButtonComponent, DataTableComponent } from "../../../shared/ui";
+import {ChangeDetectionStrategy, Component, inject, OnInit} from "@angular/core";
+import {ProduitService} from "../../produit/produit.service";
+import {TableauProduitService} from "../tableau-produit.service";
+import {IProduit} from "../../../shared/model";
+import {HttpResponse} from "@angular/common/http";
+import {ActivatedRoute} from "@angular/router";
+import {ITableau} from "../../../shared/model/tableau.model";
+import {FormsModule} from "@angular/forms";
+import {CommonModule} from "@angular/common";
+import {ButtonComponent, CardComponent, DataTableComponent, ToolbarComponent} from "../../../shared/ui";
 
 @Component({
   selector: "app-produit-associes",
   templateUrl: "./produit-associes.component.html",
+  styleUrls: ["./produit-associes.component.scss"],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, ButtonComponent, DataTableComponent]
+  imports: [CommonModule, FormsModule, ButtonComponent, DataTableComponent, CardComponent, ToolbarComponent]
 })
 export class ProduitAssociesComponent implements OnInit {
   protected produitsSource: IProduit[] = [];
@@ -27,7 +28,7 @@ export class ProduitAssociesComponent implements OnInit {
   private readonly activatedRoute = inject(ActivatedRoute);
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({ tableau }) => {
+    this.activatedRoute.data.subscribe(({tableau}) => {
       this.tableau = tableau;
     });
     this.fetchSource();
@@ -43,7 +44,7 @@ export class ProduitAssociesComponent implements OnInit {
         status: this.statut,
         tableauId: this.tableau.id
       })
-      .subscribe({ next: (res: HttpResponse<IProduit[]>) => (this.produitsTarget = res.body) });
+      .subscribe({next: (res: HttpResponse<IProduit[]>) => (this.produitsTarget = res.body)});
   }
 
   protected previousState(): void {

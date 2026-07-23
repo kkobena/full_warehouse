@@ -3,40 +3,44 @@
   <app-toolbar icon="pi pi-shopping-bag" title="Analyse du Panier (Cross-selling)">
 
     <ng-container ngProjectAs="[toolbarFilters]">
-        <div class="pharma-toolbar-filters pt-1">
-          <pharma-date-picker [(ngModel)]="startDate" id="fromDate" label="Date début" />
-          <pharma-date-picker [(ngModel)]="endDate" id="fromDate" label="Date fin" />
-          <app-float-label inputId="supportmini" label="Support min">
-            <app-input-number
-              [(ngModel)]="minSupport"
-              [min]="0"
-              [max]="100"
-              suffix="%"
-              inputId="supportmini"
-              [style]="{ 'max-width': '140px' }"
-            />
-          </app-float-label>
-          <app-float-label inputId="confidencemini" label="Confiance min">
-            <app-input-number
-              [(ngModel)]="minConfidence"
-              [min]="0"
-              [max]="100"
-              suffix="%"
-              inputId="confidencemini"
-              [style]="{ 'max-width': '140px' }"
-            />
-          </app-float-label>
-          <app-float-label inputId="limit" label="Limite">
-            <app-input-number inputId="limit" [(ngModel)]="limit" [min]="10" [max]="200" [style]="{ 'max-width': '140px' }" />
-          </app-float-label>
-        </div>
-      </ng-container>
+      <div class="pharma-toolbar-filters pt-1">
+        <pharma-date-picker [(ngModel)]="startDate" [style]="{ 'max-width': '180px' }" id="fromDate"
+                            label="Date début" />
+        <pharma-date-picker [(ngModel)]="endDate" [style]="{ 'max-width': '180px' }" id="fromDate"
+                            label="Date fin" />
+        <app-float-label inputId="supportmini" label="Support min">
+          <app-input-number
+            [(ngModel)]="minSupport"
+            [max]="100"
+            [min]="0"
+            [style]="{ 'max-width': '140px' }"
+            inputId="supportmini"
+            suffix="%"
+          />
+        </app-float-label>
+        <app-float-label inputId="confidencemini" label="Confiance min">
+          <app-input-number
+            [(ngModel)]="minConfidence"
+            [max]="100"
+            [min]="0"
+            [style]="{ 'max-width': '140px' }"
+            inputId="confidencemini"
+            suffix="%"
+          />
+        </app-float-label>
+        <app-float-label inputId="limit" label="Limite">
+          <app-input-number [(ngModel)]="limit" [max]="200" [min]="10" [style]="{ 'max-width': '140px' }"
+                            inputId="limit" />
+        </app-float-label>
+      </div>
+    </ng-container>
 
-<ng-container ngProjectAs="[toolbarActions]">
-        <div class="pharma-toolbar-actions">
-          <app-button severity="primary" label="Rechercher" icon="pi pi-search" (clicked)="onFilterChange()" />
-        </div>
-      </ng-container>
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-toolbar-actions">
+        <app-button (clicked)="onFilterChange()" icon="pi pi-search" label="Rechercher"
+                    severity="primary" />
+      </div>
+    </ng-container>
   </app-toolbar>
 
   <!-- Loading spinner -->
@@ -53,8 +57,10 @@
           <i class="pi pi-shopping-cart text-primary"></i>
           <div class="kpi-strip-body">
             <span class="kpi-strip-label">Total transactions</span>
-            <span class="kpi-strip-value text-primary">{{ formatNumber(sum.totalTransactions) }}</span>
-            <span class="kpi-strip-sub">{{ formatNumber(sum.totalProducts) }} produits uniques</span>
+            <span class="kpi-strip-value text-primary">{{
+                formatNumber(sum.totalTransactions)
+              }}</span>
+            <span class="kpi-strip-sub">{{ formatNumber(sum.totalProducts) }}produits uniques</span>
           </div>
         </div>
 
@@ -64,7 +70,9 @@
           <i class="pi pi-shopping-bag text-success"></i>
           <div class="kpi-strip-body">
             <span class="kpi-strip-label">Taille moy. panier</span>
-            <span class="kpi-strip-value text-success">{{ formatDecimal(sum.averageBasketSize) }}</span>
+            <span class="kpi-strip-value text-success">{{
+                formatDecimal(sum.averageBasketSize)
+              }}</span>
             <span class="kpi-strip-sub">articles / transaction</span>
           </div>
         </div>
@@ -75,7 +83,9 @@
           <i class="pi pi-link text-warning"></i>
           <div class="kpi-strip-body">
             <span class="kpi-strip-label">Associations trouvées</span>
-            <span class="kpi-strip-value text-warning">{{ formatNumber(sum.totalAssociations) }}</span>
+            <span class="kpi-strip-value text-warning">{{
+                formatNumber(sum.totalAssociations)
+              }}</span>
             <span class="kpi-strip-sub">paires de produits</span>
           </div>
         </div>
@@ -106,7 +116,8 @@
                     <p class="m-0 mt-1 text-sm text-muted">
                       <strong>{{ sum.mostFrequentPair }}</strong>
                       <br />
-                      Ces produits sont souvent achetés ensemble et constituent une excellente opportunité de cross-selling.
+                      Ces produits sont souvent achetés ensemble et constituent une excellente
+                      opportunité de cross-selling.
                     </p>
                   </div>
                 </div>
@@ -132,59 +143,62 @@
               <div class="text-center p-4">
                 <i class="pi pi-inbox text-muted" style="font-size: 3rem"></i>
                 <p class="mt-3 text-muted">Aucune association trouvée avec ces critères</p>
-                <p class="text-sm text-muted">Essayez de réduire les seuils de support et confiance</p>
+                <p class="text-sm text-muted">Essayez de réduire les seuils de support et
+                  confiance</p>
               </div>
             } @else {
-                <table class="pharma-table">
-                  <thead class="pharma-table-head">
+              <table class="pharma-table">
+                <thead class="pharma-table-head">
+                <tr>
+                  <th>Produit A</th>
+                  <th>Produit B (acheté avec A)</th>
+                  <th class="text-center">Nb Trans. Ensemble</th>
+                  <th class="text-center">Support (%)</th>
+                  <th class="text-center">Confiance (%)</th>
+                  <th class="text-center">Lift</th>
+                  <th class="text-center">Corrélation</th>
+                </tr>
+                </thead>
+                <tbody class="pharma-table-body">
+                  @for (assoc of associations(); track $index) {
                     <tr>
-                      <th>Produit A</th>
-                      <th>Produit B (acheté avec A)</th>
-                      <th class="text-center">Nb Trans. Ensemble</th>
-                      <th class="text-center">Support (%)</th>
-                      <th class="text-center">Confiance (%)</th>
-                      <th class="text-center">Lift</th>
-                      <th class="text-center">Corrélation</th>
+                      <td>
+                        <div class="fw-medium">{{ assoc.productAName }}</div>
+                        @if (assoc.productACodeCip) {
+                          <div class="text-sm text-muted">
+                            <span class="pharma-code">{{ assoc.productACodeCip }}</span>
+                          </div>
+                        }
+                      </td>
+                      <td>
+                        <div class="fw-medium">{{ assoc.productBName }}</div>
+                        @if (assoc.productBCodeCip) {
+                          <div class="text-sm text-muted">
+                            <span class="pharma-code">{{ assoc.productBCodeCip }}</span>
+                          </div>
+                        }
+                      </td>
+                      <td class="text-center">
+                        <span class="fw-bold">{{ formatNumber(assoc.transactionsWithBoth) }}</span>
+                      </td>
+                      <td class="text-center">
+                        <span>{{ formatPercent(assoc.support) }}%</span>
+                      </td>
+                      <td class="text-center">
+                        <app-badge [label]="formatPercent(assoc.confidence) + '%'"
+                                   [severity]="getConfidenceSeverity(assoc.confidence)" />
+                      </td>
+                      <td class="text-center">
+                        <span class="fw-bold">{{ formatDecimal(assoc.lift) }}</span>
+                      </td>
+                      <td class="text-center">
+                        <app-badge [label]="getLiftLabel(assoc.lift)"
+                                   [severity]="getLiftSeverity(assoc.lift)" />
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody class="pharma-table-body">
-                    @for (assoc of associations(); track $index) {
-                      <tr>
-                        <td>
-                          <div class="fw-medium">{{ assoc.productAName }}</div>
-                          @if (assoc.productACodeCip) {
-                            <div class="text-sm text-muted">
-                              <span class="pharma-code">{{ assoc.productACodeCip }}</span>
-                            </div>
-                          }
-                        </td>
-                        <td>
-                          <div class="fw-medium">{{ assoc.productBName }}</div>
-                          @if (assoc.productBCodeCip) {
-                            <div class="text-sm text-muted">
-                              <span class="pharma-code">{{ assoc.productBCodeCip }}</span>
-                            </div>
-                          }
-                        </td>
-                        <td class="text-center">
-                          <span class="fw-bold">{{ formatNumber(assoc.transactionsWithBoth) }}</span>
-                        </td>
-                        <td class="text-center">
-                          <span>{{ formatPercent(assoc.support) }}%</span>
-                        </td>
-                        <td class="text-center">
-                          <app-badge [label]="formatPercent(assoc.confidence) + '%'" [severity]="getConfidenceSeverity(assoc.confidence)" />
-                        </td>
-                        <td class="text-center">
-                          <span class="fw-bold">{{ formatDecimal(assoc.lift) }}</span>
-                        </td>
-                        <td class="text-center">
-                          <app-badge [label]="getLiftLabel(assoc.lift)" [severity]="getLiftSeverity(assoc.lift)" />
-                        </td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
+                  }
+                </tbody>
+              </table>
 
               <!-- Explanation Panel -->
               <div class="mt-3 mx-3 mb-3 p-3 rounded" style="background-color: #f5f5f5">
@@ -193,9 +207,15 @@
                   Comprendre les métriques
                 </div>
                 <div class="row text-sm">
-                  <div class="col-12 col-md-4"><strong>Support :</strong> % de transactions contenant les deux produits</div>
-                  <div class="col-12 col-md-4"><strong>Confiance :</strong> Probabilité d'acheter B quand on achète A</div>
-                  <div class="col-12 col-md-4"><strong>Lift :</strong> Force de la corrélation (> 1 = corrélation positive)</div>
+                  <div class="col-12 col-md-4"><strong>Support :</strong> % de transactions
+                    contenant les deux produits
+                  </div>
+                  <div class="col-12 col-md-4"><strong>Confiance :</strong> Probabilité d'acheter B
+                    quand on achète A
+                  </div>
+                  <div class="col-12 col-md-4"><strong>Lift :</strong> Force de la corrélation (> 1
+                    = corrélation positive)
+                  </div>
                 </div>
               </div>
             }

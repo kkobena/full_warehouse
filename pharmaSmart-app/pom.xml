@@ -2,327 +2,12 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-
-  <parent>
-    <groupId>com.kobe.warehouse</groupId>
-    <artifactId>pharmaSmart</artifactId>
-    <version>${revision}</version>
-    <relativePath>../pom.xml</relativePath>
-  </parent>
-
   <artifactId>pharmaSmart-app</artifactId>
-  <packaging>jar</packaging>
-  <name>PharmaSmart Application</name>
-  <description>Application principale — web, sécurité, PDF, Firebase, imprimante thermique</description>
-
-  <properties>
-    <start-class>com.kobe.warehouse.WarehouseApp</start-class>
-  </properties>
-
-  <dependencies>
-    <!-- Module domaine partagé -->
-    <dependency>
-      <groupId>com.kobe.warehouse</groupId>
-      <artifactId>pharmaSmart-domain</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <!-- Utilitaires transverses (config, sécurité JWT, web-util, errors) -->
-    <dependency>
-      <groupId>com.kobe.warehouse</groupId>
-      <artifactId>pharmaSmart-core</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <!-- ==================== -->
-    <!-- Spring Boot Starters -->
-    <!-- ==================== -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-jpa</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-security</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-validation</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-mail</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-thymeleaf</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-cache</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-aop</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.aspectj</groupId>
-      <artifactId>aspectjweaver</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-actuator</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-configuration-processor</artifactId>
-      <optional>true</optional>
-    </dependency>
-
-    <!-- ==================== -->
-    <!-- Spring Security      -->
-    <!-- ==================== -->
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-data</artifactId>
-    </dependency>
-
-    <!-- ==================== -->
-    <!-- Database             -->
-    <!-- ==================== -->
-    <dependency>
-      <groupId>org.postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.flywaydb</groupId>
-      <artifactId>flyway-core</artifactId>
-      <version>${flyway.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.flywaydb</groupId>
-      <artifactId>flyway-database-postgresql</artifactId>
-      <version>${flyway.version}</version>
-    </dependency>
-
-    <!-- ==================== -->
-    <!-- Hibernate / JPA      -->
-    <!-- ==================== -->
-    <dependency>
-      <groupId>org.hibernate.orm</groupId>
-      <artifactId>hibernate-core</artifactId>
-      <version>${hibernate.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate.orm</groupId>
-      <artifactId>hibernate-jcache</artifactId>
-      <version>${hibernate.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate.validator</groupId>
-      <artifactId>hibernate-validator</artifactId>
-      <version>${hibernate-validator.version}</version>
-    </dependency>
-
-    <!-- ==================== -->
-    <!-- Cache (Caffeine)     -->
-    <!-- ==================== -->
-    <dependency>
-      <groupId>com.github.ben-manes.caffeine</groupId>
-      <artifactId>caffeine</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.github.ben-manes.caffeine</groupId>
-      <artifactId>jcache</artifactId>
-    </dependency>
-
-    <!-- ==================== -->
-    <!-- JSON / Jackson       -->
-    <!-- ==================== -->
-    <dependency>
-      <groupId>com.fasterxml.jackson.datatype</groupId>
-      <artifactId>jackson-datatype-jsr310</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.module</groupId>
-      <artifactId>jackson-module-jaxb-annotations</artifactId>
-    </dependency>
-
-    <!-- ==================== -->
-    <!-- PDF Generation       -->
-    <!-- ==================== -->
-    <dependency>
-      <groupId>com.github.librepdf</groupId>
-      <artifactId>openpdf</artifactId>
-      <version>${openpdf.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.xhtmlrenderer</groupId>
-      <artifactId>flying-saucer-pdf</artifactId>
-      <version>${xhtmlrenderer.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.xhtmlrenderer</groupId>
-      <artifactId>flying-saucer-core</artifactId>
-      <version>${xhtmlrenderer.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.pdfbox</groupId>
-      <artifactId>pdfbox</artifactId>
-      <version>3.0.7</version>
-    </dependency>
-
-    <!-- ==================== -->
-    <!-- Excel / CSV Export   -->
-    <!-- ==================== -->
-    <dependency>
-      <groupId>org.apache.poi</groupId>
-      <artifactId>poi</artifactId>
-      <version>${poi.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.poi</groupId>
-      <artifactId>poi-ooxml</artifactId>
-      <version>${poi.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-csv</artifactId>
-      <version>1.14.1</version>
-    </dependency>
-
-    <!-- ==================== -->
-    <!-- Barcode Generation   -->
-    <!-- ==================== -->
-    <dependency>
-      <groupId>com.google.zxing</groupId>
-      <artifactId>core</artifactId>
-      <version>${zxing.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.zxing</groupId>
-      <artifactId>javase</artifactId>
-      <version>${zxing.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>net.sf.barcode4j</groupId>
-      <artifactId>barcode4j</artifactId>
-      <version>2.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.xmlgraphics</groupId>
-      <artifactId>batik-codec</artifactId>
-      <version>${batik.version}</version>
-    </dependency>
-
-    <!-- ==================== -->
-    <!-- Serial Communication -->
-    <!-- ==================== -->
-    <dependency>
-      <groupId>com.fazecast</groupId>
-      <artifactId>jSerialComm</artifactId>
-      <version>2.11.4</version>
-    </dependency>
-
-    <!-- ==================== -->
-    <!-- Utilities            -->
-    <!-- ==================== -->
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
-      <version>3.20.0</version>
-    </dependency>
-    <dependency>
-      <groupId>com.googlecode.libphonenumber</groupId>
-      <artifactId>libphonenumber</artifactId>
-      <version>9.0.32</version>
-    </dependency>
-    <dependency>
-      <groupId>com.ibm.icu</groupId>
-      <artifactId>icu4j</artifactId>
-      <version>78.3</version>
-    </dependency>
-
-    <!-- ==================== -->
-    <!-- XML Binding (JAXB)   -->
-    <!-- ==================== -->
-    <dependency>
-      <groupId>jakarta.xml.bind</groupId>
-      <artifactId>jakarta.xml.bind-api</artifactId>
-      <version>4.0.5</version>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish.jaxb</groupId>
-      <artifactId>jaxb-runtime</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-
-    <!-- ==================== -->
-    <!-- API Documentation    -->
-    <!-- ==================== -->
-    <dependency>
-      <groupId>org.springdoc</groupId>
-      <artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
-      <version>${springdoc-openapi.version}</version>
-    </dependency>
-
-    <!-- ==================== -->
-    <!-- Firebase (Push)      -->
-    <!-- ==================== -->
-    <dependency>
-      <groupId>com.google.firebase</groupId>
-      <artifactId>firebase-admin</artifactId>
-      <version>9.10.0</version>
-    </dependency>
-
-    <!-- ==================== -->
-    <!-- Test Dependencies    -->
-    <!-- ==================== -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>testcontainers</artifactId>
-      <version>${testcontainers.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>jdbc</artifactId>
-      <version>1.21.4</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <version>1.21.4</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
 
   <build>
     <defaultGoal>spring-boot:run</defaultGoal>
     <plugins>
       <plugin>
-        <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
         <configuration>
           <mainClass>${start-class}</mainClass>
@@ -334,71 +19,65 @@
             </goals>
           </execution>
         </executions>
+        <groupId>org.springframework.boot</groupId>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>${maven-compiler-plugin.version}</version>
         <configuration>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
-          <parameters>true</parameters>
           <annotationProcessorPaths>
             <path>
-              <groupId>org.springframework.boot</groupId>
               <artifactId>spring-boot-configuration-processor</artifactId>
+              <groupId>org.springframework.boot</groupId>
             </path>
             <path>
-              <groupId>org.hibernate.orm</groupId>
               <artifactId>hibernate-processor</artifactId>
+              <groupId>org.hibernate.orm</groupId>
               <version>${hibernate.version}</version>
             </path>
             <path>
-              <groupId>org.glassfish.jaxb</groupId>
               <artifactId>jaxb-runtime</artifactId>
+              <groupId>org.glassfish.jaxb</groupId>
             </path>
           </annotationProcessorPaths>
+          <parameters>true</parameters>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
         </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+        <version>${maven-compiler-plugin.version}</version>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <version>${maven-failsafe-plugin.version}</version>
         <configuration>
           <argLine>@{argLine} -Dspring.profiles.active=${profile.test}</argLine>
           <classesDirectory>${project.build.outputDirectory}</classesDirectory>
-          <runOrder>alphabetical</runOrder>
           <includes>
             <include>**/*IT*</include>
             <include>**/*IntTest*</include>
           </includes>
+          <runOrder>alphabetical</runOrder>
         </configuration>
         <executions>
           <execution>
-            <id>integration-test</id>
             <goals>
               <goal>integration-test</goal>
             </goals>
+            <id>integration-test</id>
           </execution>
           <execution>
-            <id>verify</id>
             <goals>
               <goal>verify</goal>
             </goals>
+            <id>verify</id>
           </execution>
         </executions>
+        <groupId>org.apache.maven.plugins</groupId>
+        <version>${maven-failsafe-plugin.version}</version>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
-        <version>${maven-resources-plugin.version}</version>
         <executions>
           <execution>
-            <id>config-resources</id>
-            <phase>validate</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
             <configuration>
               <outputDirectory>${project.build.directory}/classes</outputDirectory>
               <resources>
@@ -411,112 +90,448 @@
                 </resource>
               </resources>
             </configuration>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <id>config-resources</id>
+            <phase>validate</phase>
           </execution>
         </executions>
+        <groupId>org.apache.maven.plugins</groupId>
+        <version>${maven-resources-plugin.version}</version>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>${maven-surefire-plugin.version}</version>
         <configuration>
-          <runOrder>alphabetical</runOrder>
           <excludes>
             <exclude>**/*IT*</exclude>
             <exclude>**/*IntTest*</exclude>
           </excludes>
+          <runOrder>alphabetical</runOrder>
           <systemPropertyVariables>
-            <java.util.logging.config.file>src/test/resources/logback.xml</java.util.logging.config.file>
+            <java.util.logging.config.file>src/test/resources/logback.xml
+            </java.util.logging.config.file>
           </systemPropertyVariables>
         </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+        <version>${maven-surefire-plugin.version}</version>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
         <artifactId>properties-maven-plugin</artifactId>
-        <version>${properties-maven-plugin.version}</version>
         <executions>
           <execution>
-            <phase>initialize</phase>
-            <goals>
-              <goal>read-project-properties</goal>
-            </goals>
             <configuration>
               <files>
                 <file>../sonar-project.properties</file>
               </files>
             </configuration>
+            <goals>
+              <goal>read-project-properties</goal>
+            </goals>
+            <phase>initialize</phase>
           </execution>
         </executions>
+        <groupId>org.codehaus.mojo</groupId>
+        <version>${properties-maven-plugin.version}</version>
       </plugin>
       <plugin>
-        <groupId>org.sonarsource.scanner.maven</groupId>
         <artifactId>sonar-maven-plugin</artifactId>
+        <groupId>org.sonarsource.scanner.maven</groupId>
         <version>${sonar-maven-plugin.version}</version>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
         <artifactId>flatten-maven-plugin</artifactId>
-        <version>1.7.3</version>
         <configuration>
-          <updatePomFile>true</updatePomFile>
           <flattenMode>resolveCiFriendliesOnly</flattenMode>
+          <updatePomFile>true</updatePomFile>
         </configuration>
         <executions>
           <execution>
-            <id>flatten</id>
-            <phase>process-resources</phase>
             <goals>
               <goal>flatten</goal>
             </goals>
+            <id>flatten</id>
+            <phase>process-resources</phase>
           </execution>
           <execution>
-            <id>flatten.clean</id>
-            <phase>clean</phase>
             <goals>
               <goal>clean</goal>
             </goals>
+            <id>flatten.clean</id>
+            <phase>clean</phase>
           </execution>
         </executions>
+        <groupId>org.codehaus.mojo</groupId>
+        <version>1.7.3</version>
+      </plugin>
+
+      <plugin>
+        <artifactId>exec-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <configuration>
+              <arguments>
+                <argument>run</argument>
+                <argument>generate:cahier-recette</argument>
+              </arguments>
+              <executable>${npm.executable}</executable>
+              <skip>${skip.npm}</skip>
+            </configuration>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <id>generate cahier-recette json</id>
+            <phase>generate-resources</phase>
+          </execution>
+        </executions>
+        <groupId>org.codehaus.mojo</groupId>
+        <version>${exec-maven-plugin.version}</version>
       </plugin>
     </plugins>
   </build>
 
+  <dependencies>
+    <!-- Module domaine partagé -->
+    <dependency>
+      <artifactId>pharmaSmart-domain</artifactId>
+      <groupId>com.kobe.warehouse</groupId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- Utilitaires transverses (config, sécurité JWT, web-util, errors) -->
+    <dependency>
+      <artifactId>pharmaSmart-core</artifactId>
+      <groupId>com.kobe.warehouse</groupId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- ==================== -->
+    <!-- Spring Boot Starters -->
+    <!-- ==================== -->
+    <dependency>
+      <artifactId>spring-boot-starter-web</artifactId>
+      <groupId>org.springframework.boot</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
+      <groupId>org.springframework.boot</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>spring-boot-starter-security</artifactId>
+      <groupId>org.springframework.boot</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+      <groupId>org.springframework.boot</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>spring-boot-starter-validation</artifactId>
+      <groupId>org.springframework.boot</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>spring-boot-starter-mail</artifactId>
+      <groupId>org.springframework.boot</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>spring-boot-starter-thymeleaf</artifactId>
+      <groupId>org.springframework.boot</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>spring-boot-starter-cache</artifactId>
+      <groupId>org.springframework.boot</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>spring-aop</artifactId>
+      <groupId>org.springframework</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>aspectjweaver</artifactId>
+      <groupId>org.aspectj</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+      <groupId>org.springframework.boot</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- ==================== -->
+    <!-- Spring Security      -->
+    <!-- ==================== -->
+    <dependency>
+      <artifactId>spring-security-data</artifactId>
+      <groupId>org.springframework.security</groupId>
+    </dependency>
+
+    <!-- ==================== -->
+    <!-- Database             -->
+    <!-- ==================== -->
+    <dependency>
+      <artifactId>postgresql</artifactId>
+      <groupId>org.postgresql</groupId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <artifactId>flyway-core</artifactId>
+      <groupId>org.flywaydb</groupId>
+      <version>${flyway.version}</version>
+    </dependency>
+    <dependency>
+      <artifactId>flyway-database-postgresql</artifactId>
+      <groupId>org.flywaydb</groupId>
+      <version>${flyway.version}</version>
+    </dependency>
+
+    <!-- ==================== -->
+    <!-- Hibernate / JPA      -->
+    <!-- ==================== -->
+    <dependency>
+      <artifactId>hibernate-core</artifactId>
+      <groupId>org.hibernate.orm</groupId>
+      <version>${hibernate.version}</version>
+    </dependency>
+    <dependency>
+      <artifactId>hibernate-jcache</artifactId>
+      <groupId>org.hibernate.orm</groupId>
+      <version>${hibernate.version}</version>
+    </dependency>
+    <dependency>
+      <artifactId>hibernate-validator</artifactId>
+      <groupId>org.hibernate.validator</groupId>
+      <version>${hibernate-validator.version}</version>
+    </dependency>
+
+    <!-- ==================== -->
+    <!-- Cache (Caffeine)     -->
+    <!-- ==================== -->
+    <dependency>
+      <artifactId>caffeine</artifactId>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>jcache</artifactId>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+    </dependency>
+
+    <!-- ==================== -->
+    <!-- JSON / Jackson       -->
+    <!-- ==================== -->
+    <dependency>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>jackson-module-jaxb-annotations</artifactId>
+      <groupId>com.fasterxml.jackson.module</groupId>
+    </dependency>
+
+    <!-- ==================== -->
+    <!-- PDF Generation       -->
+    <!-- ==================== -->
+    <dependency>
+      <artifactId>openpdf</artifactId>
+      <groupId>com.github.librepdf</groupId>
+      <version>${openpdf.version}</version>
+    </dependency>
+    <dependency>
+      <artifactId>flying-saucer-pdf</artifactId>
+      <groupId>org.xhtmlrenderer</groupId>
+      <version>${xhtmlrenderer.version}</version>
+    </dependency>
+    <dependency>
+      <artifactId>flying-saucer-core</artifactId>
+      <groupId>org.xhtmlrenderer</groupId>
+      <version>${xhtmlrenderer.version}</version>
+    </dependency>
+    <dependency>
+      <artifactId>pdfbox</artifactId>
+      <groupId>org.apache.pdfbox</groupId>
+      <version>3.0.7</version>
+    </dependency>
+
+    <!-- ==================== -->
+    <!-- Excel / CSV Export   -->
+    <!-- ==================== -->
+    <dependency>
+      <artifactId>poi</artifactId>
+      <groupId>org.apache.poi</groupId>
+      <version>${poi.version}</version>
+    </dependency>
+    <dependency>
+      <artifactId>poi-ooxml</artifactId>
+      <groupId>org.apache.poi</groupId>
+      <version>${poi.version}</version>
+    </dependency>
+    <dependency>
+      <artifactId>commons-csv</artifactId>
+      <groupId>org.apache.commons</groupId>
+      <version>1.14.1</version>
+    </dependency>
+
+    <!-- ==================== -->
+    <!-- Barcode Generation   -->
+    <!-- ==================== -->
+    <dependency>
+      <artifactId>core</artifactId>
+      <groupId>com.google.zxing</groupId>
+      <version>${zxing.version}</version>
+    </dependency>
+    <dependency>
+      <artifactId>javase</artifactId>
+      <groupId>com.google.zxing</groupId>
+      <version>${zxing.version}</version>
+    </dependency>
+    <dependency>
+      <artifactId>barcode4j</artifactId>
+      <groupId>net.sf.barcode4j</groupId>
+      <version>2.1</version>
+    </dependency>
+    <dependency>
+      <artifactId>batik-codec</artifactId>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <version>${batik.version}</version>
+    </dependency>
+
+    <!-- ==================== -->
+    <!-- Serial Communication -->
+    <!-- ==================== -->
+    <dependency>
+      <artifactId>jSerialComm</artifactId>
+      <groupId>com.fazecast</groupId>
+      <version>2.11.4</version>
+    </dependency>
+
+    <!-- ==================== -->
+    <!-- Utilities            -->
+    <!-- ==================== -->
+    <dependency>
+      <artifactId>commons-lang3</artifactId>
+      <groupId>org.apache.commons</groupId>
+      <version>3.20.0</version>
+    </dependency>
+    <dependency>
+      <artifactId>libphonenumber</artifactId>
+      <groupId>com.googlecode.libphonenumber</groupId>
+      <version>9.0.32</version>
+    </dependency>
+    <dependency>
+      <artifactId>icu4j</artifactId>
+      <groupId>com.ibm.icu</groupId>
+      <version>78.3</version>
+    </dependency>
+
+    <!-- ==================== -->
+    <!-- XML Binding (JAXB)   -->
+    <!-- ==================== -->
+    <dependency>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+      <groupId>jakarta.xml.bind</groupId>
+      <version>4.0.5</version>
+    </dependency>
+    <dependency>
+      <artifactId>jaxb-runtime</artifactId>
+      <groupId>org.glassfish.jaxb</groupId>
+      <scope>runtime</scope>
+    </dependency>
+
+    <!-- ==================== -->
+    <!-- API Documentation    -->
+    <!-- ==================== -->
+    <dependency>
+      <artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
+      <groupId>org.springdoc</groupId>
+      <version>${springdoc-openapi.version}</version>
+    </dependency>
+
+    <!-- ==================== -->
+    <!-- Firebase (Push)      -->
+    <!-- ==================== -->
+    <dependency>
+      <artifactId>firebase-admin</artifactId>
+      <groupId>com.google.firebase</groupId>
+      <version>9.10.0</version>
+    </dependency>
+
+    <!-- ==================== -->
+    <!-- Test Dependencies    -->
+    <!-- ==================== -->
+    <dependency>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <artifactId>spring-security-test</artifactId>
+      <groupId>org.springframework.security</groupId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <artifactId>testcontainers</artifactId>
+      <groupId>org.testcontainers</groupId>
+      <scope>test</scope>
+      <version>${testcontainers.version}</version>
+    </dependency>
+    <dependency>
+      <artifactId>jdbc</artifactId>
+      <groupId>org.testcontainers</groupId>
+      <scope>test</scope>
+      <version>1.21.4</version>
+    </dependency>
+    <dependency>
+      <artifactId>junit-jupiter</artifactId>
+      <groupId>org.testcontainers</groupId>
+      <scope>test</scope>
+      <version>1.21.4</version>
+    </dependency>
+  </dependencies>
+  <description>Application principale — web, sécurité, PDF, Firebase, imprimante thermique
+  </description>
+  <modelVersion>4.0.0</modelVersion>
+  <name>PharmaSmart Application</name>
+
+  <packaging>jar</packaging>
+
+  <parent>
+    <artifactId>pharmaSmart</artifactId>
+    <groupId>com.kobe.warehouse</groupId>
+    <relativePath>../pom.xml</relativePath>
+    <version>${revision}</version>
+  </parent>
+
   <profiles>
     <profile>
-      <id>dev</id>
       <activation>
         <activeByDefault>true</activeByDefault>
       </activation>
       <dependencies>
         <dependency>
-          <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-devtools</artifactId>
-          <scope>runtime</scope>
+          <groupId>org.springframework.boot</groupId>
           <optional>true</optional>
+          <scope>runtime</scope>
         </dependency>
       </dependencies>
+      <id>dev</id>
     </profile>
 
     <profile>
-      <id>IDE</id>
       <dependencies>
         <dependency>
-          <groupId>org.hibernate.orm</groupId>
           <artifactId>hibernate-processor</artifactId>
+          <groupId>org.hibernate.orm</groupId>
           <version>${hibernate.version}</version>
         </dependency>
       </dependencies>
+      <id>IDE</id>
     </profile>
 
     <profile>
-      <id>prod</id>
-      <properties>
-        <profile.test>testprod</profile.test>
-        <spring.profiles.active>prod${profile.api-docs}${profile.tls}</spring.profiles.active>
-      </properties>
       <build>
         <plugins>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-clean-plugin</artifactId>
             <configuration>
               <filesets>
@@ -525,9 +540,9 @@
                 </fileset>
               </filesets>
             </configuration>
+            <groupId>org.apache.maven.plugins</groupId>
           </plugin>
           <plugin>
-            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-maven-plugin</artifactId>
             <executions>
               <execution>
@@ -536,21 +551,13 @@
                 </goals>
               </execution>
             </executions>
+            <groupId>org.springframework.boot</groupId>
           </plugin>
           <plugin>
-            <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
-            <version>${exec-maven-plugin.version}</version>
             <executions>
               <execution>
-                <id>webapp build prod</id>
-                <phase>generate-resources</phase>
-                <goals>
-                  <goal>exec</goal>
-                </goals>
                 <configuration>
-                  <skip>${skip.npm}</skip>
-                  <executable>${npm.executable}</executable>
                   <arguments>
                     <argument>run</argument>
                     <argument>webapp:prod</argument>
@@ -558,12 +565,26 @@
                   <environmentVariables>
                     <APP_VERSION>${project.version}</APP_VERSION>
                   </environmentVariables>
+                  <executable>${npm.executable}</executable>
+                  <skip>${skip.npm}</skip>
                 </configuration>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <id>webapp build prod</id>
+                <phase>generate-resources</phase>
               </execution>
             </executions>
+            <groupId>org.codehaus.mojo</groupId>
+            <version>${exec-maven-plugin.version}</version>
           </plugin>
         </plugins>
       </build>
+      <id>prod</id>
+      <properties>
+        <profile.test>testprod</profile.test>
+        <spring.profiles.active>prod${profile.api-docs}${profile.tls}</spring.profiles.active>
+      </properties>
     </profile>
 
     <profile>
@@ -572,14 +593,9 @@
         Le POM racine s'occupe ensuite de tauri:build:bundled-jre:fast et de l'assemblage ZIP.
         Usage : mvn clean package -DskipTests -P full-dist (depuis la racine du projet)
       -->
-      <id>full-dist</id>
-      <properties>
-        <spring.profiles.active>standalone</spring.profiles.active>
-      </properties>
       <build>
         <plugins>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-clean-plugin</artifactId>
             <configuration>
               <filesets>
@@ -588,9 +604,9 @@
                 </fileset>
               </filesets>
             </configuration>
+            <groupId>org.apache.maven.plugins</groupId>
           </plugin>
           <plugin>
-            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-maven-plugin</artifactId>
             <executions>
               <execution>
@@ -599,21 +615,13 @@
                 </goals>
               </execution>
             </executions>
+            <groupId>org.springframework.boot</groupId>
           </plugin>
           <plugin>
-            <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
-            <version>${exec-maven-plugin.version}</version>
             <executions>
               <execution>
-                <id>webapp build tauri (full-dist)</id>
-                <phase>generate-resources</phase>
-                <goals>
-                  <goal>exec</goal>
-                </goals>
                 <configuration>
-                  <skip>${skip.npm}</skip>
-                  <executable>${npm.executable}</executable>
                   <arguments>
                     <argument>run</argument>
                     <argument>webapp:build:tauri</argument>
@@ -621,12 +629,25 @@
                   <environmentVariables>
                     <APP_VERSION>${project.version}</APP_VERSION>
                   </environmentVariables>
+                  <executable>${npm.executable}</executable>
+                  <skip>${skip.npm}</skip>
                 </configuration>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <id>webapp build tauri (full-dist)</id>
+                <phase>generate-resources</phase>
               </execution>
             </executions>
+            <groupId>org.codehaus.mojo</groupId>
+            <version>${exec-maven-plugin.version}</version>
           </plugin>
         </plugins>
       </build>
+      <id>full-dist</id>
+      <properties>
+        <spring.profiles.active>standalone</spring.profiles.active>
+      </properties>
     </profile>
 
     <profile>
@@ -634,14 +655,9 @@
       <!-- Usage : mvn clean package -DskipTests -Pstandalone-no-jre       -->
       <!-- Produit un installeur ~80 Mo plus léger ; Java 25+ doit être     -->
       <!-- présent sur la machine cible (JAVA_HOME configuré).              -->
-      <id>standalone-no-jre</id>
-      <properties>
-        <spring.profiles.active>standalone</spring.profiles.active>
-      </properties>
       <build>
         <plugins>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-clean-plugin</artifactId>
             <configuration>
               <filesets>
@@ -650,9 +666,9 @@
                 </fileset>
               </filesets>
             </configuration>
+            <groupId>org.apache.maven.plugins</groupId>
           </plugin>
           <plugin>
-            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-maven-plugin</artifactId>
             <executions>
               <execution>
@@ -661,21 +677,13 @@
                 </goals>
               </execution>
             </executions>
+            <groupId>org.springframework.boot</groupId>
           </plugin>
           <plugin>
-            <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
-            <version>${exec-maven-plugin.version}</version>
             <executions>
               <execution>
-                <id>webapp build tauri bundled (no JRE)</id>
-                <phase>generate-resources</phase>
-                <goals>
-                  <goal>exec</goal>
-                </goals>
                 <configuration>
-                  <skip>${skip.npm}</skip>
-                  <executable>${npm.executable}</executable>
                   <arguments>
                     <argument>run</argument>
                     <argument>tauri:build:bundled</argument>
@@ -683,25 +691,33 @@
                   <environmentVariables>
                     <APP_VERSION>${project.version}</APP_VERSION>
                   </environmentVariables>
+                  <executable>${npm.executable}</executable>
+                  <skip>${skip.npm}</skip>
                 </configuration>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <id>webapp build tauri bundled (no JRE)</id>
+                <phase>generate-resources</phase>
               </execution>
             </executions>
+            <groupId>org.codehaus.mojo</groupId>
+            <version>${exec-maven-plugin.version}</version>
           </plugin>
         </plugins>
       </build>
+      <id>standalone-no-jre</id>
+      <properties>
+        <spring.profiles.active>standalone</spring.profiles.active>
+      </properties>
     </profile>
 
     <profile>
       <!-- Build Tauri desktop bundled (backend JAR + JRE embarqués).     -->
       <!-- Usage : mvn clean package -DskipTests -Pstandalone              -->
-      <id>standalone</id>
-      <properties>
-        <spring.profiles.active>standalone</spring.profiles.active>
-      </properties>
       <build>
         <plugins>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-clean-plugin</artifactId>
             <configuration>
               <filesets>
@@ -710,9 +726,9 @@
                 </fileset>
               </filesets>
             </configuration>
+            <groupId>org.apache.maven.plugins</groupId>
           </plugin>
           <plugin>
-            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-maven-plugin</artifactId>
             <executions>
               <execution>
@@ -721,21 +737,13 @@
                 </goals>
               </execution>
             </executions>
+            <groupId>org.springframework.boot</groupId>
           </plugin>
           <plugin>
-            <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
-            <version>${exec-maven-plugin.version}</version>
             <executions>
               <execution>
-                <id>webapp build tauri bundled-jre</id>
-                <phase>generate-resources</phase>
-                <goals>
-                  <goal>exec</goal>
-                </goals>
                 <configuration>
-                  <skip>${skip.npm}</skip>
-                  <executable>${npm.executable}</executable>
                   <arguments>
                     <argument>run</argument>
                     <argument>tauri:build:bundled-jre</argument>
@@ -743,12 +751,25 @@
                   <environmentVariables>
                     <APP_VERSION>${project.version}</APP_VERSION>
                   </environmentVariables>
+                  <executable>${npm.executable}</executable>
+                  <skip>${skip.npm}</skip>
                 </configuration>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <id>webapp build tauri bundled-jre</id>
+                <phase>generate-resources</phase>
               </execution>
             </executions>
+            <groupId>org.codehaus.mojo</groupId>
+            <version>${exec-maven-plugin.version}</version>
           </plugin>
         </plugins>
       </build>
+      <id>standalone</id>
+      <properties>
+        <spring.profiles.active>standalone</spring.profiles.active>
+      </properties>
     </profile>
     <!--
       Profil activé automatiquement sur Windows.
@@ -757,22 +778,18 @@
       d'installation soit pré-rempli avec les vraies valeurs par défaut Spring Boot.
     -->
     <profile>
-      <id>windows-db-defaults</id>
       <activation>
-        <os><family>windows</family></os>
+        <os>
+          <family>windows</family>
+        </os>
       </activation>
       <build>
         <plugins>
           <plugin>
-            <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
             <executions>
               <execution>
-                <id>generate-db-defaults</id>
-                <phase>generate-resources</phase>
-                <goals><goal>exec</goal></goals>
                 <configuration>
-                  <executable>powershell.exe</executable>
                   <arguments>
                     <argument>-NoProfile</argument>
                     <argument>-ExecutionPolicy</argument>
@@ -780,18 +797,33 @@
                     <argument>-File</argument>
                     <argument>${project.basedir}/src/build/generate-db-defaults.ps1</argument>
                     <argument>-ProdYml</argument>
-                    <argument>${project.basedir}/src/main/resources/config/application-prod.yml</argument>
+                    <argument>${project.basedir}/src/main/resources/config/application-prod.yml
+                    </argument>
                     <argument>-BaseYml</argument>
-                    <argument>${project.basedir}/src/main/resources/config/application.yml</argument>
+                    <argument>${project.basedir}/src/main/resources/config/application.yml
+                    </argument>
                     <argument>-OutFile</argument>
-                    <argument>${project.basedir}/../src-tauri/installer-hooks/db-defaults.json</argument>
+                    <argument>${project.basedir}/../src-tauri/installer-hooks/db-defaults.json
+                    </argument>
                   </arguments>
+                  <executable>powershell.exe</executable>
                 </configuration>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <id>generate-db-defaults</id>
+                <phase>generate-resources</phase>
               </execution>
             </executions>
+            <groupId>org.codehaus.mojo</groupId>
           </plugin>
         </plugins>
       </build>
+      <id>windows-db-defaults</id>
     </profile>
   </profiles>
+
+  <properties>
+    <start-class>com.kobe.warehouse.WarehouseApp</start-class>
+  </properties>
 </project>

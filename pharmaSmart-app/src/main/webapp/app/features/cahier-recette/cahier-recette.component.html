@@ -2,9 +2,10 @@
   <aside class="cahier-sidebar no-print">
     <div class="cahier-sidebar__header">
       <h1>Guide des fonctionnalités</h1>
-      <app-button (clicked)="printReport()" [outlined]="true" [severity]="'secondary'"
-                  icon="pi pi-print"
-                  label="Imprimer" />
+      <app-button (clicked)="downloadPdf()" [loading]="generatingPdf()" [outlined]="true"
+                  [severity]="'info'"
+                  icon="pi pi-file-pdf"
+                  label="Télécharger" />
     </div>
     <input
       (ngModelChange)="searchText.set($event)"
@@ -35,9 +36,10 @@
                   >
                     <span>{{ fonctionnalite.nom }}</span>
                     @if (fonctionnalite.roadmap) {
-                      <app-badge label="Roadmap" severity="secondary" [rounded]="true" />
+                      <app-badge [rounded]="true" label="Roadmap" severity="secondary" />
                     } @else if (fonctionnalite.version) {
-                      <app-badge [label]="'v' + fonctionnalite.version" severity="success" [rounded]="true" />
+                      <app-badge [label]="'v' + fonctionnalite.version" [rounded]="true"
+                                 severity="success" />
                     }
                   </button>
                 </li>
@@ -61,9 +63,10 @@
         <h2>
           {{ fonctionnalite.nom }}
           @if (fonctionnalite.roadmap) {
-            <app-badge label="Roadmap" severity="secondary" [rounded]="true" />
+            <app-badge [rounded]="true" label="Roadmap" severity="secondary" />
           } @else if (fonctionnalite.version) {
-            <app-badge [label]="'Nouveau — v' + fonctionnalite.version" severity="success" [rounded]="true" />
+            <app-badge [label]="'Nouveau — v' + fonctionnalite.version" [rounded]="true"
+                       severity="success" />
           }
         </h2>
         @if (fonctionnalite.description) {

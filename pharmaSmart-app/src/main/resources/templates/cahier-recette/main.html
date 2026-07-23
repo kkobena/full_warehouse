@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<!--
+  Template du PDF "Guide des fonctionnalités" (com.kobe.warehouse.service.cahier_recette.CahierRecettePdfService).
+
+  Rendu en 2 passes par le service appelant : la 1ʳᵉ passe remplit `pageNumbers` avec une map
+  vide (les cellules de la TOC affichent "—"), sert à mesurer la pagination réelle via
+  ITextRenderer#findPagePositionsByID ; la 2ᵉ passe réinjecte les numéros de page trouvés.
+  La structure du document est identique dans les deux passes (seul le texte des numéros
+  change), donc la pagination ne bouge pas entre les deux.
+
+  Les bookmarks PDF (panneau de navigation) sont générés automatiquement par Flying Saucer
+  depuis la hiérarchie <h1>/<h2> ci-dessous — aucun code dédié n'est nécessaire pour ça.
+-->
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Guide des fonctionnalités</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 2.2cm 1.6cm;
+
+      /* Numérotation "N / total" en pied de chaque page — support Flying Saucer natif
+         (déjà utilisé dans templates/common/portrait_table.html), pas de code Java requis. */
+      @bottom-center {
+        content: counter(page) ' / ' counter(pages);
+        font-size: 8pt;
+        color: #64748b;
+      }
+    }
+
+    body {
+      font-family: Helvetica, Arial, sans-serif;
+      font-size: 10pt;
+      color: #1e293b;
+    }
+
+    h1 {
+      font-size: 20pt;
+      color: #0f172a;
+      margin: 0 0 6px;
+    }
+
+    /* Un module par page — page-break-inside sur le contenu du module serait trop
+       restrictif (un module dépasse toujours une page), donc uniquement before. */
+    h1.module-title {
+      page-break-before: always;
+      border-bottom: 2px solid #10b981;
+      padding-bottom: 6px;
+      margin-top: 0;
+    }
+
+    h2 {
+      font-size: 14pt;
+      color: #0f172a;
+      margin: 22px 0 4px;
+    }
+
+    h3 {
+      font-size: 11pt;
+      color: #0f172a;
+      background: #f1f5f9;
+      padding: 4px 8px;
+      margin: 16px 0 6px;
+    }
+
+    /*
+      Pas de titre h4 ici volontairement : Flying Saucer génère les bookmarks PDF depuis
+      toute balise de titre h1 à h6 (org.xhtmlrenderer.pdf.HTMLOutline, regex h(\d+)), donc
+      un titre par sous-section ("Le besoin", "Étapes"...) noierait le panneau de navigation
+      sous des centaines d'entrées. .field-label reprend le même rendu visuel sans être une
+      balise de titre.
+    */
+    .field-label {
+      font-size: 8.5pt;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #64748b;
+      margin: 8px 0 2px;
+      font-weight: bold;
+    }
+
+    p {
+      margin: 2px 0 8px;
+      line-height: 1.4;
+    }
+
+    ol {
+      margin: 2px 0 8px 18px;
+      padding: 0;
+    }
+
+    .module-desc,
+    .feature-desc {
+      color: #64748b;
+      font-style: italic;
+      margin: 0 0 10px;
+    }
+
+    .scenario {
+      page-break-inside: avoid;
+      margin-bottom: 10px;
+    }
+
+    /* Table des matières */
+    table.toc {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+
+    table.toc td {
+      padding: 3px 0;
+      font-size: 10pt;
+    }
+
+    table.toc td.page {
+      text-align: right;
+      width: 40px;
+      color: #64748b;
+    }
+
+    table.toc tr.toc-module td {
+      font-weight: bold;
+      padding-top: 10px;
+    }
+
+    table.toc tr.toc-feature td {
+      padding-left: 16px;
+      color: #334155;
+    }
+
+    table.toc a {
+      color: inherit;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Table des matières -->
+<h1>Guide des fonctionnalités</h1>
+<table class="toc">
+  <tbody>
+  <th:block th:each="module : ${modules}">
+    <tr class="toc-module">
+      <td>
+        <a th:href="'#module-' + ${module.id}" th:text="${module.nom}">Module</a>
+      </td>
+      <td class="page" th:text="${pageNumbers.get('module-' + module.id)} ?: '—'">1</td>
+    </tr>
+    <tr class="toc-feature" th:each="feature, featureStat : ${module.fonctionnalites}">
+      <td>
+        <a th:href="'#feature-' + ${module.id} + '-' + ${featureStat.index}" th:text="${feature.nom}">Fonctionnalité</a>
+      </td>
+      <td class="page" th:text="${pageNumbers.get('feature-' + module.id + '-' + featureStat.index)} ?: '—'">1</td>
+    </tr>
+  </th:block>
+  </tbody>
+</table>
+
+<!-- Contenu -->
+<th:block th:each="module : ${modules}">
+  <h1 class="module-title" th:id="'module-' + ${module.id}" th:text="${module.nom}">Module</h1>
+  <p class="module-desc" th:if="${module.description}" th:text="${module.description}">Description du module</p>
+
+  <th:block th:each="feature, featureStat : ${module.fonctionnalites}">
+    <h2 th:id="'feature-' + ${module.id} + '-' + ${featureStat.index}" th:text="${feature.nom}">Fonctionnalité</h2>
+    <p class="feature-desc" th:if="${feature.description}" th:text="${feature.description}">Description de la fonctionnalité</p>
+
+    <div class="scenario" th:each="scenario : ${feature.scenarios}">
+      <h3 th:text="${scenario.titre}">Titre du scénario</h3>
+
+      <div class="field-label">Le besoin</div>
+      <p th:text="${scenario.besoin}">Besoin</p>
+
+      <div class="field-label">Comment ça fonctionne</div>
+      <p th:text="${scenario.fonctionnement}">Fonctionnement</p>
+
+      <th:block th:if="${scenario.prerequis}">
+        <div class="field-label">Pré-requis</div>
+        <p th:text="${scenario.prerequis}">Prérequis</p>
+      </th:block>
+
+      <div class="field-label">Étapes</div>
+      <ol>
+        <li th:each="etape : ${scenario.etapes}" th:text="${etape}">Étape</li>
+      </ol>
+
+      <div class="field-label">Résultat attendu</div>
+      <p th:text="${scenario.resultatAttendu}">Résultat attendu</p>
+    </div>
+  </th:block>
+</th:block>
+
+</body>
+</html>

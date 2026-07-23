@@ -1,10 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { BadgeComponent, ButtonComponent } from '../../shared/ui';
 import { CAHIER_RECETTE, FonctionnaliteRecette, ModuleRecette } from './cahier-recette.model';
-import { SERVER_API_URL } from 'app/app.constants';
+import { CahierRecetteService } from './cahier-recette.service';
 import { BlobDownloadService } from 'app/shared/services/blob-download.service';
 
 interface Selection {
@@ -33,9 +32,8 @@ function withoutHidden(modules: ModuleRecette[]): ModuleRecette[] {
   styleUrl: './cahier-recette.component.scss',
 })
 export class CahierRecetteComponent {
-  private readonly http = inject(HttpClient);
+  private readonly cahierRecetteService = inject(CahierRecetteService);
   private readonly downloadService = inject(BlobDownloadService);
-  private readonly resourceUrl = SERVER_API_URL + 'api/cahier-recette';
 
   protected readonly generatingPdf = signal(false);
   protected readonly modules = withoutHidden(CAHIER_RECETTE);
@@ -104,7 +102,7 @@ export class CahierRecetteComponent {
 
   protected downloadPdf(): void {
     this.generatingPdf.set(true);
-    this.http.get(`${this.resourceUrl}/pdf`, { responseType: 'blob' }).subscribe({
+    this.cahierRecetteService.downloadPdf().subscribe({
       next: blob => {
         this.downloadService.downloadPdf(blob, 'guide-fonctionnalites');
         this.generatingPdf.set(false);

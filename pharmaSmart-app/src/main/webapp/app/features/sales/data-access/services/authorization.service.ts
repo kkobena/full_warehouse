@@ -1,10 +1,12 @@
-import { Injectable, inject } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Observable, from } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
-import { AuthorizationModalComponent } from '../../ui/authorization-modal/authorization-modal.component';
-import { HasAuthorityService } from '../../../../entities/sales/service/has-authority.service';
-import { Authority } from '../../../../shared/constants/authority.constants';
+import {inject, Injectable} from '@angular/core';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {from, Observable} from 'rxjs';
+import {catchError, map} from 'rxjs/operators';
+import {
+  AuthorizationModalComponent
+} from '../../ui/authorization-modal/authorization-modal.component';
+import {HasAuthorityService} from '../../../../entities/sales/service/has-authority.service';
+import {Authority} from '../../../../shared/constants/authority.constants';
 
 /**
  * AuthorizationService
@@ -20,7 +22,7 @@ import { Authority } from '../../../../shared/constants/authority.constants';
  *     }
  *   });
  */
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class AuthorizationService {
   private readonly modalService = inject(NgbModal);
   private readonly hasAuthorityService = inject(HasAuthorityService);
@@ -85,31 +87,32 @@ export class AuthorizationService {
    * Check if current user can apply discount without authorization
    */
   canApplyDiscount(): boolean {
-    return this.hasAuthorityService.hasAuthorities(Authority.PR_AJOUTER_REMISE_VENTE);
+    return this.hasAuthorityService.hasAuthorities(Authority.PR_AJOUTER_REMISE_VENTE) || this.hasAuthorityService.hasAuthorities(Authority.ADMIN);
   }
 
   /**
    * Check if current user can delete products without authorization
    */
   canDeleteProduct(): boolean {
-    return this.hasAuthorityService.hasAuthorities(Authority.PR_SUPPRIME_PRODUIT_VENTE);
+    return this.hasAuthorityService.hasAuthorities(Authority.PR_SUPPRIME_PRODUIT_VENTE) || this.hasAuthorityService.hasAuthorities(Authority.ADMIN);
   }
 
   /**
    * Check if current user can modify price without authorization
    */
   canModifyPrice(): boolean {
-    return this.hasAuthorityService.hasAuthorities(Authority.PR_MODIFIER_PRIX);
+    return this.hasAuthorityService.hasAuthorities(Authority.PR_MODIFIER_PRIX) || this.hasAuthorityService.hasAuthorities(Authority.ADMIN);
   }
 
   /**
    * Check if current user can force stock (add product even if stock insufficient)
    */
   canForceStock(): boolean {
-    return this.hasAuthorityService.hasAuthorities(Authority.PR_FORCE_STOCK);
+    return this.hasAuthorityService.hasAuthorities(Authority.PR_FORCE_STOCK) || this.hasAuthorityService.hasAuthorities(Authority.ADMIN);
   }
+
   canShowStock(): boolean {
-   // return this.hasAuthorityService.hasAuthorities(Authority.PR_SHOW_STOCK);//TODO: a mettre en base de données
+    // return this.hasAuthorityService.hasAuthorities(Authority.PR_SHOW_STOCK);//TODO: a mettre en base de données
     return true;
   }
 }

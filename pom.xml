@@ -2,268 +2,274 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-
-  <parent>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <groupId>org.springframework.boot</groupId>
-    <version>4.1.0</version>
-    <relativePath/>
-  </parent>
-
-  <groupId>com.kobe.warehouse</groupId>
   <artifactId>pharmaSmart</artifactId>
-  <version>${revision}</version>
-  <name>PharmaSmart</name>
-  <description>Agrégateur multi-module Pharma-Smart</description>
-  <packaging>pom</packaging>
 
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+          <groupId>org.springframework.boot</groupId>
+        </plugin>
+        <plugin>
+          <artifactId>exec-maven-plugin</artifactId>
+          <groupId>org.codehaus.mojo</groupId>
+          <version>${exec-maven-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-antrun-plugin</artifactId>
+          <groupId>org.apache.maven.plugins</groupId>
+          <version>${maven-antrun-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <groupId>org.apache.maven.plugins</groupId>
+          <version>${maven-clean-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <groupId>org.apache.maven.plugins</groupId>
+          <version>${maven-compiler-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <groupId>org.apache.maven.plugins</groupId>
+          <version>${maven-enforcer-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <groupId>org.apache.maven.plugins</groupId>
+          <version>${maven-failsafe-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-jar-plugin</artifactId>
+          <groupId>org.apache.maven.plugins</groupId>
+          <version>${maven-jar-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <configuration>
+            <source>${maven.compiler.source}</source>
+          </configuration>
+          <groupId>org.apache.maven.plugins</groupId>
+          <version>${maven-javadoc-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-resources-plugin</artifactId>
+          <groupId>org.apache.maven.plugins</groupId>
+          <version>${maven-resources-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <groupId>org.apache.maven.plugins</groupId>
+          <version>${maven-surefire-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-war-plugin</artifactId>
+          <groupId>org.apache.maven.plugins</groupId>
+          <version>${maven-war-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>properties-maven-plugin</artifactId>
+          <groupId>org.codehaus.mojo</groupId>
+          <version>${properties-maven-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>sonar-maven-plugin</artifactId>
+          <groupId>org.sonarsource.scanner.maven</groupId>
+          <version>${sonar-maven-plugin.version}</version>
+        </plugin>
+
+        <plugin>
+          <artifactId>flatten-maven-plugin</artifactId>
+          <configuration>
+            <flattenMode>resolveCiFriendliesOnly</flattenMode>
+            <updatePomFile>true</updatePomFile>
+          </configuration>
+          <executions>
+            <execution>
+              <goals>
+                <goal>flatten</goal>
+              </goals>
+              <id>flatten</id>
+              <phase>process-resources</phase>
+            </execution>
+            <execution>
+              <goals>
+                <goal>clean</goal>
+              </goals>
+              <id>flatten.clean</id>
+              <phase>clean</phase>
+            </execution>
+          </executions>
+          <groupId>org.codehaus.mojo</groupId>
+          <version>1.7.3</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+  <description>Agrégateur multi-module Pharma-Smart</description>
+  <groupId>com.kobe.warehouse</groupId>
+  <modelVersion>4.0.0</modelVersion>
   <modules>
     <module>pharmaSmart-domain</module>
     <module>pharmaSmart-core</module>
     <module>pharmaSmart-app</module>
     <module>pharmaSmart-batch</module>
   </modules>
+  <name>PharmaSmart</name>
+  <packaging>pom</packaging>
 
-  <properties>
-
-    <revision>0.0.1</revision>
-
-    <!-- Java & Maven -->
-    <java.version>25</java.version>
-    <maven.compiler.source>${java.version}</maven.compiler.source>
-    <maven.compiler.target>${java.version}</maven.compiler.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <maven.version>3.9.12</maven.version>
-    <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
-    <argLine>-Djava.security.egd=file:/dev/./urandom -Xmx1G</argLine>
-    <run.addResources>false</run.addResources>
-
-    <!-- Spring profiles -->
-    <spring.profiles.active>dev</spring.profiles.active>
-    <profile.api-docs/>
-    <profile.e2e/>
-    <profile.test/>
-    <profile.tls/>
-
-    <!-- Dependency versions -->
-    <hibernate.version>7.4.1.Final</hibernate.version>
-    <hibernate-validator.version>9.1.0.Final</hibernate-validator.version>
-    <flyway.version>12.8.1</flyway.version>
-    <springdoc-openapi.version>3.0.3</springdoc-openapi.version>
-    <openpdf.version>3.0.5</openpdf.version>
-    <xhtmlrenderer.version>10.3.0</xhtmlrenderer.version>
-    <batik.version>1.19</batik.version>
-    <poi.version>5.5.1</poi.version>
-    <zxing.version>3.5.4</zxing.version>
-    <testcontainers.version>2.0.5</testcontainers.version>
-
-    <!-- npm executable: npm (Linux/macOS) ou npm.cmd (Windows, détecté via profil) -->
-    <npm.executable>npm</npm.executable>
-    <!-- Passer -Dskip.npm=true pour sauter le build Angular -->
-    <skip.npm>false</skip.npm>
-
-    <!-- Maven plugin versions -->
-    <exec-maven-plugin.version>3.6.3</exec-maven-plugin.version>
-    <maven-antrun-plugin.version>3.2.0</maven-antrun-plugin.version>
-    <maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
-    <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
-    <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
-    <maven-failsafe-plugin.version>3.5.4</maven-failsafe-plugin.version>
-    <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
-    <maven-failsafe-plugin.version>3.5.6</maven-failsafe-plugin.version>
-    <maven-jar-plugin.version>3.5.0</maven-jar-plugin.version>
-    <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
-    <maven-resources-plugin.version>3.5.0</maven-resources-plugin.version>
-    <maven-surefire-plugin.version>3.5.6</maven-surefire-plugin.version>
-    <maven-war-plugin.version>3.5.1</maven-war-plugin.version>
-    <properties-maven-plugin.version>1.3.0</properties-maven-plugin.version>
-    <sonar-maven-plugin.version>5.7.0.6970</sonar-maven-plugin.version>
-  </properties>
-
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-maven-plugin</artifactId>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>exec-maven-plugin</artifactId>
-          <version>${exec-maven-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-antrun-plugin</artifactId>
-          <version>${maven-antrun-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-clean-plugin</artifactId>
-          <version>${maven-clean-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>${maven-compiler-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-enforcer-plugin</artifactId>
-          <version>${maven-enforcer-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-failsafe-plugin</artifactId>
-          <version>${maven-failsafe-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>${maven-jar-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-javadoc-plugin</artifactId>
-          <version>${maven-javadoc-plugin.version}</version>
-          <configuration>
-            <source>${maven.compiler.source}</source>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-resources-plugin</artifactId>
-          <version>${maven-resources-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>${maven-surefire-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-war-plugin</artifactId>
-          <version>${maven-war-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>properties-maven-plugin</artifactId>
-          <version>${properties-maven-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.sonarsource.scanner.maven</groupId>
-          <artifactId>sonar-maven-plugin</artifactId>
-          <version>${sonar-maven-plugin.version}</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>flatten-maven-plugin</artifactId>
-          <version>1.7.3</version>
-          <configuration>
-            <updatePomFile>true</updatePomFile>
-            <flattenMode>resolveCiFriendliesOnly</flattenMode>
-          </configuration>
-          <executions>
-            <execution>
-              <id>flatten</id>
-              <phase>process-resources</phase>
-              <goals>
-                <goal>flatten</goal>
-              </goals>
-            </execution>
-            <execution>
-              <id>flatten.clean</id>
-              <phase>clean</phase>
-              <goals>
-                <goal>clean</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
+  <parent>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <groupId>org.springframework.boot</groupId>
+    <relativePath/>
+    <version>4.1.0</version>
+  </parent>
 
   <profiles>
     <profile>
-      <id>windows</id>
       <activation>
         <os>
           <family>windows</family>
         </os>
       </activation>
+      <id>windows</id>
       <properties>
         <npm.executable>npm.cmd</npm.executable>
       </properties>
     </profile>
 
     <profile>
-      <id>full-dist</id>
       <build>
         <plugins>
 
           <plugin>
-            <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
-            <inherited>false</inherited>
             <executions>
               <execution>
-                <id>cargo-build-backup</id>
-                <phase>package</phase>
-                <goals><goal>exec</goal></goals>
                 <configuration>
-                  <executable>cargo</executable>
                   <arguments>
                     <argument>build</argument>
                     <argument>--release</argument>
                   </arguments>
+                  <executable>cargo</executable>
                   <workingDirectory>${project.basedir}/src-backup</workingDirectory>
                 </configuration>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <id>cargo-build-backup</id>
+                <phase>package</phase>
               </execution>
               <execution>
-                <id>tauri-build-bundled-jre</id>
-                <phase>package</phase>
-                <goals><goal>exec</goal></goals>
                 <configuration>
-                  <executable>${npm.executable}</executable>
                   <arguments>
                     <argument>run</argument>
                     <!-- Angular déjà compilé par pharmaSmart-app en generate-resources ; on saute ce step -->
                     <argument>tauri:build:bundled-jre:fast</argument>
                   </arguments>
+                  <executable>${npm.executable}</executable>
                   <workingDirectory>${project.basedir}</workingDirectory>
                 </configuration>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <id>tauri-build-bundled-jre</id>
+                <phase>package</phase>
               </execution>
             </executions>
+            <groupId>org.codehaus.mojo</groupId>
+            <inherited>false</inherited>
           </plugin>
 
 
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>
-            <version>3.8.0</version>
-            <inherited>false</inherited>
             <executions>
               <execution>
-                <id>make-full-dist</id>
-                <phase>package</phase>
-                <goals><goal>single</goal></goals>
                 <configuration>
+                  <appendAssemblyId>false</appendAssemblyId>
                   <descriptors>
                     <descriptor>src/assembly/full-dist.xml</descriptor>
                   </descriptors>
-                  <appendAssemblyId>false</appendAssemblyId>
                   <finalName>pharmasmart-${project.version}-full</finalName>
                 </configuration>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+                <id>make-full-dist</id>
+                <phase>package</phase>
               </execution>
             </executions>
+            <groupId>org.apache.maven.plugins</groupId>
+            <inherited>false</inherited>
+            <version>3.8.0</version>
           </plugin>
         </plugins>
       </build>
+      <id>full-dist</id>
     </profile>
   </profiles>
+
+  <properties>
+
+    <argLine>-Djava.security.egd=file:/dev/./urandom -Xmx1G</argLine>
+
+    <!-- Java & Maven -->
+    <batik.version>1.19</batik.version>
+    <exec-maven-plugin.version>3.6.3</exec-maven-plugin.version>
+    <flyway.version>12.8.1</flyway.version>
+    <hibernate-validator.version>9.1.0.Final</hibernate-validator.version>
+    <hibernate.version>7.4.1.Final</hibernate.version>
+    <java.version>25</java.version>
+    <maven-antrun-plugin.version>3.2.0</maven-antrun-plugin.version>
+    <maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
+    <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
+
+    <!-- Spring profiles -->
+    <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
+    <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
+    <maven-failsafe-plugin.version>3.5.4</maven-failsafe-plugin.version>
+    <maven-failsafe-plugin.version>3.5.6</maven-failsafe-plugin.version>
+    <maven-jar-plugin.version>3.5.0</maven-jar-plugin.version>
+
+    <!-- Dependency versions -->
+    <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
+    <maven-resources-plugin.version>3.5.0</maven-resources-plugin.version>
+    <maven-surefire-plugin.version>3.5.6</maven-surefire-plugin.version>
+    <maven-war-plugin.version>3.5.1</maven-war-plugin.version>
+    <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <maven.version>3.9.12</maven.version>
+    <npm.executable>npm</npm.executable>
+    <openpdf.version>3.0.5</openpdf.version>
+
+    <!-- npm executable: npm (Linux/macOS) ou npm.cmd (Windows, détecté via profil) -->
+    <poi.version>5.5.1</poi.version>
+    <!-- Passer -Dskip.npm=true pour sauter le build Angular -->
+    <profile.api-docs/>
+
+    <!-- Maven plugin versions -->
+    <profile.e2e/>
+    <profile.test/>
+    <profile.tls/>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <properties-maven-plugin.version>1.3.0</properties-maven-plugin.version>
+    <revision>0.0.1</revision>
+    <run.addResources>false</run.addResources>
+    <skip.npm>false</skip.npm>
+    <sonar-maven-plugin.version>5.7.0.6970</sonar-maven-plugin.version>
+    <spring.profiles.active>dev</spring.profiles.active>
+    <springdoc-openapi.version>3.0.3</springdoc-openapi.version>
+    <testcontainers.version>2.0.5</testcontainers.version>
+    <xhtmlrenderer.version>10.3.0</xhtmlrenderer.version>
+    <zxing.version>3.5.4</zxing.version>
+  </properties>
+
+  <version>${revision}</version>
 
 </project>

@@ -4,19 +4,11 @@ import com.kobe.warehouse.domain.ScheduledReport;
 import com.kobe.warehouse.domain.enumeration.ScheduledReportFrequency;
 import com.kobe.warehouse.repository.ScheduledReportRepository;
 import com.kobe.warehouse.service.MailService;
-import com.kobe.warehouse.service.report.TiersPayantReportService;
 import com.kobe.warehouse.service.report.pdf.ComparativePdfReportService;
 import com.kobe.warehouse.service.report.pdf.DashboardCAPdfExportService;
 import com.kobe.warehouse.service.report.pdf.StockAlertPdfReportService;
 import com.kobe.warehouse.service.report.pdf.TiersPayantPdfReportService;
-import jakarta.mail.MessagingException;
 import jakarta.mail.util.ByteArrayDataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,6 +16,11 @@ import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service for executing scheduled reports
@@ -44,7 +41,8 @@ public class ScheduledReportService {
     public ScheduledReportService(
         ScheduledReportRepository scheduledReportRepository,
         MailService mailService,
-        DashboardCAPdfExportService dashboardCAPdfExportService, StockAlertPdfReportService stockAlertPdfReportService,
+        DashboardCAPdfExportService dashboardCAPdfExportService,
+        StockAlertPdfReportService stockAlertPdfReportService,
         TiersPayantPdfReportService tiersPayantPdfReportService,
         ComparativePdfReportService comparativePdfReportService
     ) {
@@ -73,7 +71,8 @@ public class ScheduledReportService {
                 updateNextExecution(report);
                 scheduledReportRepository.save(report);
             } catch (Exception e) {
-                log.error("Error executing scheduled report {}: {}", report.getId(), e.getMessage(), e);
+                log.error("Error executing scheduled report {}: {}", report.getId(), e.getMessage(),
+                    e);
             }
         }
     }
@@ -82,7 +81,8 @@ public class ScheduledReportService {
      * Execute a single report
      */
     public void executeReport(ScheduledReport scheduledReport) {
-        log.info("Executing scheduled report: {} ({})", scheduledReport.getReportName(), scheduledReport.getReportType());
+        log.info("Executing scheduled report: {} ({})", scheduledReport.getReportName(),
+            scheduledReport.getReportType());
 
         byte[] pdfData = null;
         byte[] excelData = null;
@@ -114,12 +114,14 @@ public class ScheduledReportService {
 
             case COMPARATIVE_ANALYSIS:
                 if (scheduledReport.isIncludePdf()) {
-                    pdfData = comparativePdfReportService.export("MONTHLY", LocalDate.now().getYear());
+                    pdfData = comparativePdfReportService.export("MONTHLY",
+                        LocalDate.now().getYear());
                 }
                 break;
 
             default:
-                log.warn("Report type {} not yet implemented for scheduling", scheduledReport.getReportType());
+                log.warn("Report type {} not yet implemented for scheduling",
+                    scheduledReport.getReportType());
                 return;
         }
 
@@ -166,10 +168,10 @@ public class ScheduledReportService {
             try {
                 // Create email with attachments
 
-
                 // Add PDF attachment if present
                 if (pdfData != null) {
-                    ByteArrayDataSource pdfSource = new ByteArrayDataSource(pdfData, "application/pdf");
+                    ByteArrayDataSource pdfSource = new ByteArrayDataSource(pdfData,
+                        "application/pdf");
                     String pdfFilename = String.format(
                         "%s_%s_%s.pdf",
                         scheduledReport.getReportType(),
@@ -180,7 +182,8 @@ public class ScheduledReportService {
                     // For now, this is a placeholder
                 }
                 if (excelData != null) {
-                    ByteArrayDataSource excelSource = new ByteArrayDataSource(pdfData, "application/pdf");
+                    ByteArrayDataSource excelSource = new ByteArrayDataSource(pdfData,
+                        "application/pdf");
                     String pdfFilename = String.format(
                         "%s_%s_%s.pdf",
                         scheduledReport.getReportType(),
@@ -203,11 +206,13 @@ public class ScheduledReportService {
      */
     private void updateNextExecution(ScheduledReport report) {
         LocalDateTime nextExecution;
-        LocalTime executionTime = report.getExecutionTime() != null ? report.getExecutionTime() : LocalTime.of(8, 0);
+        LocalTime executionTime =
+            report.getExecutionTime() != null ? report.getExecutionTime() : LocalTime.of(8, 0);
 
         nextExecution = switch (report.getFrequency()) {
             case WEEKLY -> {
-                DayOfWeek targetDay = DayOfWeek.of(report.getDayOfWeek() != null ? report.getDayOfWeek() : 1);
+                DayOfWeek targetDay = DayOfWeek.of(
+                    report.getDayOfWeek() != null ? report.getDayOfWeek() : 1);
                 yield LocalDateTime
                     .now()
                     .with(TemporalAdjusters.next(targetDay))
@@ -215,7 +220,8 @@ public class ScheduledReportService {
             }
             case MONTHLY -> {
                 int dayOfMonth = report.getDayOfMonth() != null ? report.getDayOfMonth() : 1;
-                yield LocalDateTime.now().plusMonths(1).withDayOfMonth(dayOfMonth).with(executionTime);
+                yield LocalDateTime.now().plusMonths(1).withDayOfMonth(dayOfMonth)
+                    .with(executionTime);
             }
             default -> LocalDateTime.now().plusDays(1).with(executionTime);
         };

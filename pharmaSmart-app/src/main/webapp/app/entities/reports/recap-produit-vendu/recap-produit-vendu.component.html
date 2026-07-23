@@ -4,7 +4,8 @@
 
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters py-1">
-        <input [(ngModel)]="searchTerm" class="form-control" placeholder="Rechercher un produit..."
+        <input [(ngModel)]="searchTerm" [style]="{ 'max-width': '200px' }" class="form-control"
+               placeholder="Rechercher un produit..."
                type="text" />
         <pharma-date-picker (ngModelChange)="onFilterChange()" [(ngModel)]="startDate"
                             [style]="{ 'max-width': '180px' }"

@@ -17,6 +17,7 @@ import GenericsSubstitutionComponent from "../generics-substitution/generics-sub
 
 import RemisesAnalysisComponent from "../remises-analysis/remises-analysis.component";
 import ClientRetentionComponent from "../client-retention/client-retention.component";
+import { SkeletonComponent } from "app/shared/ui/skeleton/skeleton.component";
 
 @Component({
   selector: "jhi-sales-reports",
@@ -35,6 +36,7 @@ import ClientRetentionComponent from "../client-retention/client-retention.compo
     GenericsSubstitutionComponent,
     RemisesAnalysisComponent,
     ClientRetentionComponent,
+    SkeletonComponent,
   ],
   templateUrl: "./sales-reports.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,

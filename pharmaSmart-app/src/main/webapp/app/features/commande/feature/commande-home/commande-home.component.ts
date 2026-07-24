@@ -24,6 +24,7 @@ import {
 } from "../appro-unified-dashboard/appro-unified-dashboard.component";
 import {SuggestionsUnifiedComponent} from "../suggestions-unified/suggestions-unified.component";
 import {BedHomeComponent} from "../bon-entree-diverse/bed-home/bed-home.component";
+import {SkeletonComponent} from "app/shared/ui/skeleton/skeleton.component";
 import {AlertBadgeService} from "../../../../shared/services/alert-badge.service";
 import {BreadcrumbService} from "../../../../shared/components/breadcrumb/breadcrumb.service";
 import {AbilityService} from "app/core/auth/ability.service";
@@ -55,6 +56,7 @@ const TAB_LABELS: Record<string, string> = {
     ApproUnifiedDashboardComponent,
     SuggestionsUnifiedComponent,
     BedHomeComponent,
+    SkeletonComponent,
   ]
 })
 export class CommandeHomeComponent implements OnInit {

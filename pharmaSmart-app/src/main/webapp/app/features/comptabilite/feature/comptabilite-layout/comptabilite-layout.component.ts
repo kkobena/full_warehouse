@@ -6,6 +6,7 @@ import { TaxeReportComponent } from '../../../../entities/mvt-caisse/taxe-report
 import { TableauPharmacienComponent } from '../../../../entities/mvt-caisse/tableau-pharmacien/tableau-pharmacien.component';
 import { RecapitualtifCaisseComponent } from '../../../../entities/ticketZ/recapitualtif-caisse/recapitualtif-caisse.component';
 import { ActivitySummaryComponent } from '../../../../entities/raport-gestion/activity-summary/activity-summary.component';
+import { SkeletonComponent } from 'app/shared/ui/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-comptabilite-layout',
@@ -16,6 +17,7 @@ import { ActivitySummaryComponent } from '../../../../entities/raport-gestion/ac
     TableauPharmacienComponent,
     RecapitualtifCaisseComponent,
     ActivitySummaryComponent,
+    SkeletonComponent,
   ],
   templateUrl: './comptabilite-layout.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

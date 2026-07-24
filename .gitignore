@@ -9,6 +9,12 @@ npm-debug.log.*
 /.cache-loader/*
 
 ######################
+# i18n généré (build-i18n.js)
+######################
+/pharmaSmart-app/src/main/webapp/i18n/fr.json
+/pharmaSmart-app/src/main/webapp/i18n/en.json
+
+######################
 # SASS
 ######################
 .sass-cache/

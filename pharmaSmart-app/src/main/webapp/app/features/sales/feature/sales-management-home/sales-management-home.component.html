@@ -24,7 +24,11 @@
                   <span class="link-arrow">›</span>
                 </a>
                 <ng-template ngbNavContent>
-                  <app-sales-journal />
+                  @defer (on immediate) {
+                    <app-sales-journal />
+                  } @loading {
+                    <app-skeleton width="100%" height="240px" />
+                  }
                 </ng-template>
               </ng-container>
             }
@@ -37,7 +41,11 @@
                   <span class="link-arrow">›</span>
                 </a>
                 <ng-template ngbNavContent>
-                  <app-sales-en-cours />
+                  @defer (on immediate) {
+                    <app-sales-en-cours />
+                  } @loading {
+                    <app-skeleton width="100%" height="240px" />
+                  }
                 </ng-template>
               </ng-container>
             }
@@ -50,7 +58,11 @@
                   <span class="link-arrow">›</span>
                 </a>
                 <ng-template ngbNavContent>
-                  <app-presale-list />
+                  @defer (on immediate) {
+                    <app-presale-list />
+                  } @loading {
+                    <app-skeleton width="100%" height="240px" />
+                  }
                 </ng-template>
               </ng-container>
             }
@@ -63,7 +75,11 @@
                   <span class="link-arrow">›</span>
                 </a>
                 <ng-template ngbNavContent>
-                  <app-devis-list />
+                  @defer (on immediate) {
+                    <app-devis-list />
+                  } @loading {
+                    <app-skeleton width="100%" height="240px" />
+                  }
                 </ng-template>
               </ng-container>
             }
@@ -76,7 +92,11 @@
                   <span class="link-arrow">›</span>
                 </a>
                 <ng-template ngbNavContent>
-                  <app-sales-annulations />
+                  @defer (on immediate) {
+                    <app-sales-annulations />
+                  } @loading {
+                    <app-skeleton width="100%" height="240px" />
+                  }
                 </ng-template>
               </ng-container>
             }
@@ -89,7 +109,11 @@
                   <span class="link-arrow">›</span>
                 </a>
                 <ng-template ngbNavContent>
-                  <app-vente-depot-list />
+                  @defer (on immediate) {
+                    <app-vente-depot-list />
+                  } @loading {
+                    <app-skeleton width="100%" height="240px" />
+                  }
                 </ng-template>
               </ng-container>
             }
@@ -102,7 +126,11 @@
                   <span class="link-arrow">›</span>
                 </a>
                 <ng-template ngbNavContent>
-                  <app-avoirs-client-list />
+                  @defer (on immediate) {
+                    <app-avoirs-client-list />
+                  } @loading {
+                    <app-skeleton width="100%" height="240px" />
+                  }
                 </ng-template>
               </ng-container>
             }
@@ -114,7 +142,11 @@
                   <span class="link-arrow">›</span>
                 </a>
                 <ng-template ngbNavContent>
-                  <app-retour-client />
+                  @defer (on immediate) {
+                    <app-retour-client />
+                  } @loading {
+                    <app-skeleton width="100%" height="240px" />
+                  }
                 </ng-template>
               </ng-container>
             }

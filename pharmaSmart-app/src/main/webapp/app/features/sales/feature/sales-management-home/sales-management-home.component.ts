@@ -18,6 +18,7 @@ import { AvoirsClientListComponent } from "../avoirs-client-list/avoirs-client-l
 import { BreadcrumbService } from "../../../../shared/components/breadcrumb/breadcrumb.service";
 import { AbilityService } from "app/core/auth/ability.service";
 import { RetourClientComponent } from "../retour-client/retour-client.component";
+import { SkeletonComponent } from "app/shared/ui/skeleton/skeleton.component";
 
 const TAB_LABELS: Record<SalesManagementTab, string> = {
   "journal": "Journal des ventes",
@@ -49,7 +50,8 @@ const TAB_LABELS: Record<SalesManagementTab, string> = {
     SalesAnnulationsComponent,
     VenteDepotListComponent,
     AvoirsClientListComponent,
-    RetourClientComponent
+    RetourClientComponent,
+    SkeletonComponent
   ]
 })
 export class SalesManagementHomeComponent implements OnInit {

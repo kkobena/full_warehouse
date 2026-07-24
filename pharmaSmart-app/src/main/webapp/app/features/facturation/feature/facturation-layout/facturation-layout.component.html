@@ -19,7 +19,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <app-facturation-edition />
+                    @defer (on immediate) {
+                      <app-facturation-edition />
+                    } @loading {
+                      <app-skeleton width="100%" height="240px" />
+                    }
                   </ng-template>
                 </ng-container>
               }
@@ -38,7 +42,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <app-facturation-home />
+                    @defer (on immediate) {
+                      <app-facturation-home />
+                    } @loading {
+                      <app-skeleton width="100%" height="240px" />
+                    }
                   </ng-template>
                 </ng-container>
               }
@@ -52,7 +60,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <app-historique-reglements />
+                    @defer (on immediate) {
+                      <app-historique-reglements />
+                    } @loading {
+                      <app-skeleton width="100%" height="240px" />
+                    }
                   </ng-template>
                 </ng-container>
               }
@@ -66,7 +78,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <app-rapprochement />
+                    @defer (on immediate) {
+                      <app-rapprochement />
+                    } @loading {
+                      <app-skeleton width="100%" height="240px" />
+                    }
                   </ng-template>
                 </ng-container>
               }
@@ -80,7 +96,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <app-recapitulatif />
+                    @defer (on immediate) {
+                      <app-recapitulatif />
+                    } @loading {
+                      <app-skeleton width="100%" height="240px" />
+                    }
                   </ng-template>
                 </ng-container>
               }
@@ -98,7 +118,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <app-comptes-fournisseurs />
+                    @defer (on immediate) {
+                      <app-comptes-fournisseurs />
+                    } @loading {
+                      <app-skeleton width="100%" height="240px" />
+                    }
                   </ng-template>
                 </ng-container>
               }
@@ -112,7 +136,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <app-remises-rfa />
+                    @defer (on immediate) {
+                      <app-remises-rfa />
+                    } @loading {
+                      <app-skeleton width="100%" height="240px" />
+                    }
                   </ng-template>
                 </ng-container>
               }
@@ -125,7 +153,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <app-avoir />
+                    @defer (on immediate) {
+                      <app-avoir />
+                    } @loading {
+                      <app-skeleton width="100%" height="240px" />
+                    }
                   </ng-template>
                 </ng-container>
               }
@@ -139,7 +171,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <app-planification />
+                    @defer (on immediate) {
+                      <app-planification />
+                    } @loading {
+                      <app-skeleton width="100%" height="240px" />
+                    }
                   </ng-template>
                 </ng-container>
               }

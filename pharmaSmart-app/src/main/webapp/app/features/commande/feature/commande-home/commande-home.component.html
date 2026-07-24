@@ -32,7 +32,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <app-appro-unified-dashboard />
+                    @defer (on immediate) {
+                      <app-appro-unified-dashboard />
+                    } @loading {
+                      <app-skeleton width="100%" height="240px" />
+                    }
                   </ng-template>
                 </ng-container>
               }
@@ -51,7 +55,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <app-suggestions-unified />
+                    @defer (on immediate) {
+                      <app-suggestions-unified />
+                    } @loading {
+                      <app-skeleton width="100%" height="240px" />
+                    }
                   </ng-template>
                 </ng-container>
               }
@@ -65,7 +73,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <app-repartition-stock />
+                    @defer (on immediate) {
+                      <app-repartition-stock />
+                    } @loading {
+                      <app-skeleton width="100%" height="240px" />
+                    }
                   </ng-template>
                 </ng-container>
               }
@@ -79,7 +91,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <app-retour-fournisseur />
+                    @defer (on immediate) {
+                      <app-retour-fournisseur />
+                    } @loading {
+                      <app-skeleton width="100%" height="240px" />
+                    }
                   </ng-template>
                 </ng-container>
               }
@@ -93,7 +109,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <app-bed-home />
+                    @defer (on immediate) {
+                      <app-bed-home />
+                    } @loading {
+                      <app-skeleton width="100%" height="240px" />
+                    }
                   </ng-template>
                 </ng-container>
               }

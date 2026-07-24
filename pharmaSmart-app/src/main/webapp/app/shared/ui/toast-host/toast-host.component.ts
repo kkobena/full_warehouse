@@ -16,7 +16,7 @@ import { NotificationSeverity, NotificationService } from 'app/shared/services/n
   selector: 'app-toast-host',
   imports: [NgbToast],
   template: `
-    <div class="toast-container position-fixed top-0 end-0 p-3" aria-live="polite" aria-atomic="true">
+    <div class="toast-container position-fixed top-50 start-50 translate-middle p-3" aria-live="polite" aria-atomic="true">
       @for (message of notifications.messages(); track message.id) {
         <ngb-toast
           [class]="toastClass(message.severity)"

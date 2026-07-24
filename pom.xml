@@ -266,7 +266,7 @@
     <spring.profiles.active>dev</spring.profiles.active>
     <springdoc-openapi.version>3.0.3</springdoc-openapi.version>
     <testcontainers.version>2.0.5</testcontainers.version>
-    <xhtmlrenderer.version>10.3.0</xhtmlrenderer.version>
+    <xhtmlrenderer.version>10.4.0</xhtmlrenderer.version>
     <zxing.version>3.5.4</zxing.version>
   </properties>
 

@@ -1,16 +1,24 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { RemiseService } from '../remise.service';
-import { CodeRemise, GrilleRemise, IRemise, Remise } from '../../../shared/model/remise.model';
-import { Observable } from 'rxjs';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { NotificationService } from '../../../shared/services/notification.service';
-import { ErrorService } from '../../../shared/error.service';
-import { ButtonComponent, CardComponent, SelectComponent } from '../../../shared/ui';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+  viewChild
+} from '@angular/core';
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {RemiseService} from '../remise.service';
+import {CodeRemise, GrilleRemise, IRemise, Remise} from '../../../shared/model/remise.model';
+import {Observable} from 'rxjs';
+import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
+import {NotificationService} from '../../../shared/services/notification.service';
+import {ErrorService} from '../../../shared/error.service';
+import {ButtonComponent, CardComponent, SelectComponent} from '../../../shared/ui';
 
 @Component({
-  selector: 'jhi-remise-produit-form-modal',
+  selector: 'app-remise-produit-form-modal',
 
   imports: [ReactiveFormsModule, ButtonComponent, CardComponent, SelectComponent],
   templateUrl: './remise-produit-form-modal.component.html',
@@ -116,6 +124,7 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
       this.subscribeToSaveResponse(this.entityService.create(entity));
     }
   }
+
   protected updateForm(entity: IRemise): void {
     this.editForm.patchValue({
       id: entity.id,
@@ -178,8 +187,8 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
   }
 
   private addGrille(codeRemise: CodeRemise): void {
-    this.grilleVno.patchValue({ code: codeRemise.codeVno });
-    this.grilleVo.patchValue({ code: codeRemise.codeVo });
+    this.grilleVno.patchValue({code: codeRemise.codeVno});
+    this.grilleVo.patchValue({code: codeRemise.codeVo});
   }
 
   private buildGrilles(): GrilleRemise[] {

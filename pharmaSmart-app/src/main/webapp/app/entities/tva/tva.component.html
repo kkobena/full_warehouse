@@ -11,8 +11,9 @@
           <div class="pharma-toolbar-filters"></div>
 
           <div class="pharma-toolbar-actions">
-            <div class="pharma-button-group">
-              <app-button (clicked)="addNewEntity()" [raised]="true" icon="pi pi-plus" label="Nouvelle Tva" severity="success" />
+            <div class="pharma-button-group py-1">
+              <app-button (clicked)="addNewEntity()" [raised]="true" icon="pi pi-plus"
+                          label="Nouvelle Tva" severity="success" />
             </div>
           </div>
         </div>
@@ -40,8 +41,10 @@
                   <span class="pharma-price">{{ tva.taux }}</span>
                 </td>
                 <td style="text-align: center">
-                  <app-button (clicked)="delete(tva)" [iconOnly]="true" [rounded]="true" [text]="true"
-                              ariaLabel="Supprimer" icon="pi pi-trash" ngbTooltip="Supprimer" severity="danger" />
+                  <app-button (clicked)="delete(tva)" [iconOnly]="true" [rounded]="true"
+                              [text]="true"
+                              ariaLabel="Supprimer" icon="pi pi-trash" ngbTooltip="Supprimer"
+                              severity="danger" />
                 </td>
               </tr>
             </ng-template>

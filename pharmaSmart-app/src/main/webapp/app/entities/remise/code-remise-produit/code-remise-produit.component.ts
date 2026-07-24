@@ -1,14 +1,16 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { RemiseService } from '../remise.service';
-import { CodeRemise, IRemise } from '../../../shared/model/remise.model';
-import { HttpResponse } from '@angular/common/http';
-import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
+import {RemiseService} from '../remise.service';
+import {CodeRemise, IRemise} from '../../../shared/model/remise.model';
+import {HttpResponse} from '@angular/common/http';
+import {FaIconComponent} from '@fortawesome/angular-fontawesome';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 
-import { CodeRemiseProduitsModalComponent } from '../code-remise-produits-modal/code-remise-produits-modal.component';
+import {
+  CodeRemiseProduitsModalComponent
+} from '../code-remise-produits-modal/code-remise-produits-modal.component';
 
 @Component({
-  selector: 'jhi-code-remise-produit',
+  selector: 'app-code-remise-produit',
   imports: [FaIconComponent],
   templateUrl: './code-remise-produit.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

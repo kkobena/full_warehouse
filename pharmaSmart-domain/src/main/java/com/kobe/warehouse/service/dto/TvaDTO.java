@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.kobe.warehouse.domain.Tva;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -19,6 +20,7 @@ public class TvaDTO implements Serializable {
         taux = tva.getTaux();
     }
 
+    @JsonCreator
     public TvaDTO() {}
 
     public Integer getId() {

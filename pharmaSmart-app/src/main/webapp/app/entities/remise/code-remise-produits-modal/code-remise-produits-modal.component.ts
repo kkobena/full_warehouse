@@ -1,17 +1,17 @@
-import { AfterViewInit, Component, inject, ChangeDetectionStrategy } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ProduitService } from '../../produit/produit.service';
-import { RemiseService } from '../remise.service';
-import { FormsModule } from '@angular/forms';
-import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
-import { IProduit } from '../../../shared/model';
-import { IRayon } from '../../../shared/model/rayon.model';
-import { CodeRemise } from '../../../shared/model/remise.model';
-import { RayonService } from '../../rayon/rayon.service';
-import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
-import { SpinerService } from '../../../shared/spiner.service';
-import { NotificationService } from '../../../shared/services/notification.service';
-import { ErrorService } from '../../../shared/error.service';
+import {AfterViewInit, ChangeDetectionStrategy, Component, inject} from '@angular/core';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {ProduitService} from '../../produit/produit.service';
+import {RemiseService} from '../remise.service';
+import {FormsModule} from '@angular/forms';
+import {HttpErrorResponse, HttpHeaders, HttpResponse} from '@angular/common/http';
+import {IProduit} from '../../../shared/model';
+import {IRayon} from '../../../shared/model/rayon.model';
+import {CodeRemise} from '../../../shared/model/remise.model';
+import {RayonService} from '../../rayon/rayon.service';
+import {ITEMS_PER_PAGE} from '../../../shared/constants/pagination.constants';
+import {SpinerService} from '../../../shared/spiner.service';
+import {NotificationService} from '../../../shared/services/notification.service';
+import {ErrorService} from '../../../shared/error.service';
 import {
   AppTableLazyLoadEvent,
   BadgeComponent,
@@ -24,7 +24,7 @@ import {
 } from '../../../shared/ui';
 
 @Component({
-  selector: 'jhi-code-remise-produits-modal',
+  selector: 'app-code-remise-produits-modal',
   imports: [
     FormsModule,
     BadgeComponent,

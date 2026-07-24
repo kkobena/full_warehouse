@@ -1,20 +1,19 @@
 <div class="pharma-smart-content p-2">
-    <app-toolbar icon="pi pi-percentage" title="Liste des remises produits">
-      <ng-container ngProjectAs="[toolbarActions]">
-        <div class="pharma-toolbar-actions">
-          <div class="pharma-button-group">
-            <app-button
-              (clicked)="onOpenRemiseForm()"
-              [raised]="true"
-              icon="pi pi-plus"
-              label="Nouveau"
-              severity="success"
-              type="button"
-            />
-          </div>
-        </div>
-      </ng-container>
-    </app-toolbar>
+  <app-toolbar icon="pi pi-percentage" title="Liste des remises produits">
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-toolbar-actions py-1">
+        <app-button
+          (clicked)="onOpenRemiseForm()"
+          [raised]="true"
+          icon="pi pi-plus"
+          label="Nouveau"
+          severity="success"
+          type="button"
+        />
+
+      </div>
+    </ng-container>
+  </app-toolbar>
 
   @if (entites && entites?.length > 0) {
     <app-data-table
@@ -65,11 +64,11 @@
             @if (elRow.enable) {
               <app-button
                 (clicked)="onOpenRemiseForm(elRow)"
+                [rounded]="true"
                 [text]="true"
                 class="p-mr-1"
                 icon="pi pi-pencil"
                 ngbTooltip="Editer"
-                [rounded]="true"
                 severity="success"
                 size="small"
                 type="submit"
@@ -78,10 +77,10 @@
 
             <app-button
               (clicked)="delete(elRow)"
+              [rounded]="true"
               [text]="true"
               icon="pi pi-trash"
               ngbTooltip="Supprimer"
-              [rounded]="true"
               severity="danger"
               size="small"
               type="button"

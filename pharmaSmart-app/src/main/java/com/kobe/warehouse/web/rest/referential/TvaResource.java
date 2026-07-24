@@ -51,14 +51,17 @@ public class TvaResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/tvas")
-    public ResponseEntity<TvaDTO> createTva(@Valid @RequestBody TvaDTO tvaDTO) throws URISyntaxException {
-        log.debug("REST request to save Tva : {}", tvaDTO);
+    public ResponseEntity<TvaDTO> createTva(@Valid @RequestBody TvaDTO tvaDTO)
+        throws URISyntaxException {
+
         if (tvaDTO.getId() != null) {
-            throw new BadRequestAlertException("A new tva cannot already have an ID", ENTITY_NAME, "idexists");
+            throw new BadRequestAlertException("A new tva cannot already have an ID", ENTITY_NAME,
+                "idexists");
         }
         TvaDTO result = tvaService.save(tvaDTO);
         return ResponseEntity.created(new URI("/api/tvas/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME,
+                result.getId().toString()))
             .body(result);
     }
 
@@ -72,7 +75,8 @@ public class TvaResource {
     public ResponseEntity<List<TvaDTO>> getAllTvas(Pageable pageable) {
         log.debug("REST request to get a page of Tvas");
         Page<TvaDTO> page = tvaService.findAll(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
+            ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -102,7 +106,8 @@ public class TvaResource {
 
         tvaService.delete(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME,
+                id.toString()))
             .build();
     }
 }

@@ -6,23 +6,25 @@
     </h4>
   </div>
 
-  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal" type="button">&times;</button>
+  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal"
+          type="button">&times;
+  </button>
 </div>
 <div class="modal-body">
   <app-card [variant]="'form'">
     <app-data-table
-      class="pharma-table"
       (onLazyLoad)="lazyLoading($event)"
       [(selection)]="selectedProduits"
       [lazy]="true"
       [loading]="loading"
       [paginator]="true"
       [rows]="itemsPerPage"
+      [selectionMode]="'multiple'"
       [showGridlines]="true"
       [totalRecords]="totalItems"
       [value]="produits"
+      class="pharma-table"
       dataKey="id"
-      selectionMode="multiple"
     >
       <ng-template #caption>
         <div class="row" style="margin: 0">
@@ -30,16 +32,17 @@
             <app-select
               (selectionChange)="loadData()"
               [(ngModel)]="selectedRayon"
-              appendTo="body"
               [items]="rayons"
+              [style]="{ 'min-width': '250px' }"
+              appendTo="body"
               bindLabel="libelle"
             />
           </div>
-          <div class="col-md-5" style="margin: 0; padding-left: 3px; padding-right: 3px">
+          <div class="col-md-5">
             <input
               (input)="loadData()"
               [(ngModel)]="search"
-              [style]="{ width: '95%' }"
+              [style]="{ 'min-width': '220px' }"
               class="form-control"
               placeholder="Taper pour rechercher"
               type="text"
@@ -82,7 +85,8 @@
   </app-card>
 </div>
 <div class="modal-footer">
-  <app-button (clicked)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
+  <app-button (clicked)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler"
+              severity="secondary" type="button" />
   <app-button
     (clicked)="onSave()"
     [disabled]="selectedProduits.length === 0 || isSaving"

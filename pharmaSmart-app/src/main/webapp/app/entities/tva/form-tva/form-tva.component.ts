@@ -1,13 +1,27 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
-import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { ErrorService } from '../../../shared/error.service';
-import { NotificationService } from '../../../shared/services/notification.service';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonComponent, KeyFilterDirective } from '../../../shared/ui';
-import { TvaService } from '../tva.service';
-import { ITva, Tva } from '../../../shared/model/tva.model';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+  viewChild
+} from '@angular/core';
+import {
+  FormBuilder,
+  FormControl,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
+import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {ErrorService} from '../../../shared/error.service';
+import {NotificationService} from '../../../shared/services/notification.service';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {ButtonComponent, KeyFilterDirective} from '../../../shared/ui';
+import {TvaService} from '../tva.service';
+import {ITva, Tva} from '../../../shared/model/tva.model';
 
 @Component({
   selector: 'app-form-tva',
@@ -18,22 +32,23 @@ import { ITva, Tva } from '../../../shared/model/tva.model';
 })
 export class FormTvaComponent implements OnInit, AfterViewInit {
   header = '';
-  private readonly taux = viewChild.required<ElementRef>('taux');
   protected fb = inject(FormBuilder);
   protected editForm = this.fb.group({
     id: new FormControl<number | null>(null, {}),
-    taux: new FormControl<string | null>(null, {
+    taux: new FormControl<number | null>(null, {
       validators: [Validators.required],
       nonNullable: true,
     }),
   });
   protected isSaving = false;
+  private readonly taux = viewChild.required<ElementRef>('taux');
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
   private readonly tvaService = inject(TvaService);
   private readonly activeModal = inject(NgbActiveModal);
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+  }
 
   ngAfterViewInit(): void {
     setTimeout(() => {
@@ -68,10 +83,10 @@ export class FormTvaComponent implements OnInit, AfterViewInit {
   }
 
   private createFromForm(): ITva {
+    const taux = this.editForm.get(['taux']).value;
     return {
       ...new Tva(),
-      id: this.editForm.get(['id']).value,
-      taux: this.editForm.get(['taux']).value,
+      taux: taux != null ? Number(taux) : taux,
     };
   }
 }

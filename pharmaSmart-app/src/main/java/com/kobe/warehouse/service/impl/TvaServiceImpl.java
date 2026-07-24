@@ -35,11 +35,15 @@ public class TvaServiceImpl implements TvaService {
      */
     @Override
     public TvaDTO save(TvaDTO tvaDTO) {
-        log.debug("Request to save Tva : {}", tvaDTO);
         Tva tva = new Tva();
-        tva.setId(tvaDTO.getId());
         tva.setTaux(tvaDTO.getTaux());
-        tva = tvaRepository.save(tva);
+        try {
+            tva = tvaRepository.save(tva);
+        } catch (Exception e) {
+            log.error("Error save Tva : ", e);
+            throw new RuntimeException(e);
+        }
+
         return new TvaDTO(tva);
     }
 

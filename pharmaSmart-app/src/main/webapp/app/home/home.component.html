@@ -10,15 +10,27 @@
     @switch (resolvedLayout()?.componentKey) {
 
       @case ('PHARMACIEN') {
-        <div class="container-fluid"><app-home-base></app-home-base></div>
+        @defer (on immediate) {
+          <div class="container-fluid"><app-home-base></app-home-base></div>
+        } @loading {
+          <app-skeleton width="100%" height="160px" />
+        }
       }
 
       @case ('CAISSIER') {
-        <app-caissier-dashboard></app-caissier-dashboard>
+        @defer (on immediate) {
+          <app-caissier-dashboard></app-caissier-dashboard>
+        } @loading {
+          <app-skeleton width="100%" height="160px" />
+        }
       }
 
       @case ('COMMANDE') {
-        <app-commande-home></app-commande-home>
+        @defer (on immediate) {
+          <app-commande-home></app-commande-home>
+        } @loading {
+          <app-skeleton width="100%" height="160px" />
+        }
       }
 
       @default {
@@ -29,9 +41,17 @@
         -->
         @if (resolvedLayout()?.layoutConfig) {
           <!-- TODO : <app-customizable-dashboard [layout]="resolvedLayout()"> -->
-          <div class="container-fluid"><app-home-base></app-home-base></div>
+          @defer (on immediate) {
+            <div class="container-fluid"><app-home-base></app-home-base></div>
+          } @loading {
+            <app-skeleton width="100%" height="160px" />
+          }
         } @else {
-          <app-default-dashboard></app-default-dashboard>
+          @defer (on immediate) {
+            <app-default-dashboard></app-default-dashboard>
+          } @loading {
+            <app-skeleton width="100%" height="160px" />
+          }
         }
       }
     }

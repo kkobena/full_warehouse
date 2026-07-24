@@ -9,6 +9,7 @@ import RecapProduitVenduComponent from "../recap-produit-vendu/recap-produit-ven
 import StockABCComponent from '../stock-abc/stock-abc.component';
 // Phase 6
 import DemarqueComponent from '../demarque/demarque.component';
+import { SkeletonComponent } from 'app/shared/ui/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-stock-reports',
@@ -20,6 +21,7 @@ import DemarqueComponent from '../demarque/demarque.component';
     RecapProduitVenduComponent,
     StockABCComponent,
     DemarqueComponent,
+    SkeletonComponent,
   ],
   templateUrl: './stock-reports.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

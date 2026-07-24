@@ -18,23 +18,31 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-builders/custom-webpack:browser",
+          "builder": "@angular/build:application",
           "options": {
             "allowedCommonJsDependencies": ["file-saver", "dayjs"],
-            "customWebpackConfig": {
-              "path": "./webpack/webpack.custom.js"
+            "outputPath": {
+              "base": "pharmaSmart-app/target/classes/static/",
+              "browser": ""
             },
-            "outputPath": "pharmaSmart-app/target/classes/static/",
             "index": "pharmaSmart-app/src/main/webapp/index.html",
-            "main": "pharmaSmart-app/src/main/webapp/main.ts",
-            "polyfills": ["zone.js"],
+            "browser": "pharmaSmart-app/src/main/webapp/main.ts",
+            "polyfills": ["zone.js", "@angular/localize/init"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
+            "stylePreprocessorOptions": {
+              "includePaths": ["pharmaSmart-app/src/main/webapp"]
+            },
             "assets": [
               "pharmaSmart-app/src/main/webapp/content",
               "pharmaSmart-app/src/main/webapp/favicon.ico",
               "pharmaSmart-app/src/main/webapp/manifest.webapp",
-              "pharmaSmart-app/src/main/webapp/robots.txt"
+              "pharmaSmart-app/src/main/webapp/robots.txt",
+              {
+                "glob": "*.json",
+                "input": "pharmaSmart-app/src/main/webapp/i18n",
+                "output": "i18n"
+              }
             ],
             "styles": [
               "pharmaSmart-app/src/main/webapp/content/scss/vendor.scss",
@@ -43,19 +51,20 @@
               "node_modules/ngx-spinner/animations/timer.css",
               "node_modules/gridstack/dist/gridstack.min.css"
             ],
-            "scripts": []
+            "scripts": [],
+            "define": {
+              "__VERSION__": "\"__VERSION_PLACEHOLDER__\"",
+              "SERVER_API_URL": "\"\"",
+              "I18N_HASH": "\"__I18N_HASH_PLACEHOLDER__\""
+            }
           },
           "configurations": {
             "production": {
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "namedChunks": false,
               "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
-              "serviceWorker": true,
-              "ngswConfigPath": "ngsw-config.json",
+              "serviceWorker": "ngsw-config.json",
               "budgets": [
                 {
                   "type": "initial",
@@ -66,19 +75,13 @@
                   "type": "anyComponentStyle",
                   "maximumWarning": "60kb",
                   "maximumError": "60kb"
+                },
+                {
+                  "type": "any",
+                  "maximumWarning": "1mb",
+                  "maximumError": "1.3mb"
                 }
               ]
-            },
-            "electron": {
-              "optimization": true,
-              "outputHashing": "none",
-              "sourceMap": true,
-              "namedChunks": false,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
-              "serviceWorker": false,
-              "baseHref": "./"
             },
             "tauri": {
               "optimization": {
@@ -91,10 +94,7 @@
               },
               "outputHashing": "all",
               "sourceMap": false,
-              "namedChunks": false,
               "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
               "serviceWorker": false,
               "baseHref": "./",
               "fileReplacements": [
@@ -113,16 +113,18 @@
                   "type": "anyComponentStyle",
                   "maximumWarning": "60kb",
                   "maximumError": "60kb"
+                },
+                {
+                  "type": "any",
+                  "maximumWarning": "1mb",
+                  "maximumError": "1.3mb"
                 }
               ]
             },
             "development": {
-              "buildOptimizer": false,
               "optimization": false,
-              "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": true,
-              "namedChunks": true,
               "fileReplacements": [
                 {
                   "replace": "pharmaSmart-app/src/main/webapp/environments/environment.ts",
@@ -134,10 +136,11 @@
           "defaultConfiguration": "production"
         },
         "serve": {
-          "builder": "@angular-builders/custom-webpack:dev-server",
+          "builder": "@angular/build:dev-server",
           "options": {
             "buildTarget": "warehouse:build:development",
-            "port": 4200
+            "port": 4200,
+            "proxyConfig": "scripts/proxy.conf.js"
           },
           "configurations": {
             "production": {

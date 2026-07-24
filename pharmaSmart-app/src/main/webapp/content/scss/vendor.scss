@@ -1,4 +1,7 @@
-$web-font-path: '../css/open-sans.css' !default;
+// Police Open Sans déjà chargée localement via `styles` (angular.json) — on désactive
+// l'import Google Fonts par défaut de Bootswatch pour éviter le doublon et un chemin
+// relatif que le compilateur Sass esbuild ne résout plus (cf. PLAN-MIGRATION-BUILDER-ESBUILD.md §5.2).
+$web-font-path: false !default;
 
 // Tokens `--p-*` figés depuis le preset Aura (cf. plan de migration §8.2).
 // Chargés en tête : ils doivent être définis avant tout consommateur.

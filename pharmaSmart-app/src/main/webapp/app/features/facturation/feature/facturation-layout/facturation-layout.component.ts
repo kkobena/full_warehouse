@@ -11,6 +11,7 @@ import { AvoirComponent } from '../avoir/avoir.component';
 import { PlanificationComponent } from '../planification/planification.component';
 import { ComptesFournisseursComponent } from '../../../finances/feature/comptes-fournisseurs/comptes-fournisseurs.component';
 import { RemisesRfaComponent } from '../../../finances/feature/remises-rfa/remises-rfa.component';
+import { SkeletonComponent } from 'app/shared/ui/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-facturation-layout',
@@ -25,6 +26,7 @@ import { RemisesRfaComponent } from '../../../finances/feature/remises-rfa/remis
     PlanificationComponent,
     ComptesFournisseursComponent,
     RemisesRfaComponent,
+    SkeletonComponent,
   ],
   templateUrl: './facturation-layout.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

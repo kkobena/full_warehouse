@@ -14,6 +14,7 @@ import SituationCreancesComponent from '../situation-creances/situation-creances
 import VieillissementDifferesComponent from '../vieillissement-differes/vieillissement-differes.component';
 import AvoirsAnalyticsComponent from '../avoirs-analytics/avoirs-analytics.component';
 import TauxRecouvrementTpComponent from '../taux-recouvrement-tp/taux-recouvrement-tp.component';
+import { SkeletonComponent } from 'app/shared/ui/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-finance-reports',
@@ -28,6 +29,7 @@ import TauxRecouvrementTpComponent from '../taux-recouvrement-tp/taux-recouvreme
     VieillissementDifferesComponent,
     AvoirsAnalyticsComponent,
     TauxRecouvrementTpComponent,
+    SkeletonComponent,
   ],
   templateUrl: './finance-reports.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

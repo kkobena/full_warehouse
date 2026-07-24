@@ -1,18 +1,18 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
-import { TranslateService } from "@ngx-translate/core";
-import { AccountService } from "app/core/auth/account.service";
-import { Account } from "app/core/auth/account.model";
-import { LANGUAGES } from "app/config/language.constants";
-import { CommonModule } from "@angular/common";
-import { AlertErrorComponent } from "../../shared/alert/alert-error.component";
+import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from "@angular/core";
+import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
+import {TranslateService} from "@ngx-translate/core";
+import {AccountService} from "app/core/auth/account.service";
+import {Account} from "app/core/auth/account.model";
+import {LANGUAGES} from "app/config/language.constants";
+import {CommonModule} from "@angular/common";
+import {AlertErrorComponent} from "../../shared/alert/alert-error.component";
 import FindLanguageFromKeyPipe from "../../shared/language/find-language-from-key.pipe";
-import { ButtonComponent } from "../../shared/ui";
+import {ButtonComponent} from "../../shared/ui";
 
 const initialAccount: Account = {} as Account;
 
 @Component({
-  selector: "jhi-settings",
+  selector: "app-settings",
   imports: [CommonModule, FormsModule, ReactiveFormsModule, AlertErrorComponent, FindLanguageFromKeyPipe, ButtonComponent],
   templateUrl: "./settings.html",
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -35,12 +35,12 @@ export default class SettingsComponent implements OnInit {
       nonNullable: true,
       validators: [Validators.required, Validators.minLength(5), Validators.maxLength(254), Validators.email]
     }),
-    langKey: new FormControl(initialAccount.langKey, { nonNullable: true }),
+    langKey: new FormControl(initialAccount.langKey, {nonNullable: true}),
 
-    activated: new FormControl(initialAccount.activated, { nonNullable: true }),
-    authorities: new FormControl(initialAccount.authorities, { nonNullable: true }),
-    imageUrl: new FormControl(initialAccount.imageUrl, { nonNullable: true }),
-    login: new FormControl(initialAccount.login, { nonNullable: true })
+    activated: new FormControl(initialAccount.activated, {nonNullable: true}),
+    authorities: new FormControl(initialAccount.authorities, {nonNullable: true}),
+    imageUrl: new FormControl(initialAccount.imageUrl, {nonNullable: true}),
+    login: new FormControl(initialAccount.login, {nonNullable: true})
   });
 
   private accountService = inject(AccountService);
@@ -56,8 +56,10 @@ export default class SettingsComponent implements OnInit {
 
   save(): void {
     this.success.set(false);
+    console.log("qsdqd");
 
     const account = this.settingsForm.getRawValue();
+    console.log("qsdqd", account);
     this.accountService.save(account).subscribe(() => {
       this.success.set(true);
 

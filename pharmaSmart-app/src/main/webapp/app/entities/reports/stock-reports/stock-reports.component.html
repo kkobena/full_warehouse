@@ -20,7 +20,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <jhi-stock-alerts></jhi-stock-alerts>
+                    @defer (on immediate) {
+                      <jhi-stock-alerts></jhi-stock-alerts>
+                    } @loading {
+                      <app-skeleton width="100%" height="240px" />
+                    }
                   </ng-template>
                 </ng-container>
               }
@@ -33,7 +37,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <jhi-stock-valuation></jhi-stock-valuation>
+                    @defer (on immediate) {
+                      <jhi-stock-valuation></jhi-stock-valuation>
+                    } @loading {
+                      <app-skeleton width="100%" height="240px" />
+                    }
                   </ng-template>
                 </ng-container>
               }
@@ -46,7 +54,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <app-recap-produit-vendu></app-recap-produit-vendu>
+                    @defer (on immediate) {
+                      <app-recap-produit-vendu></app-recap-produit-vendu>
+                    } @loading {
+                      <app-skeleton width="100%" height="240px" />
+                    }
                   </ng-template>
                 </ng-container>
               }
@@ -59,7 +71,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <jhi-stock-abc />
+                    @defer (on immediate) {
+                      <jhi-stock-abc />
+                    } @loading {
+                      <app-skeleton width="100%" height="240px" />
+                    }
                   </ng-template>
                 </ng-container>
               }
@@ -72,7 +88,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <app-demarque />
+                    @defer (on immediate) {
+                      <app-demarque />
+                    } @loading {
+                      <app-skeleton width="100%" height="240px" />
+                    }
                   </ng-template>
                 </ng-container>
               }

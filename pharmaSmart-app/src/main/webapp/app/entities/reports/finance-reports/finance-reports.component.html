@@ -19,7 +19,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <app-pnl-analytique></app-pnl-analytique>
+                    @defer (on immediate) {
+                      <app-pnl-analytique></app-pnl-analytique>
+                    } @loading {
+                      <app-skeleton width="100%" height="240px" />
+                    }
                   </ng-template>
                 </ng-container>
               }
@@ -32,7 +36,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <app-profitability-analysis />
+                    @defer (on immediate) {
+                      <app-profitability-analysis />
+                    } @loading {
+                      <app-skeleton width="100%" height="240px" />
+                    }
                   </ng-template>
                 </ng-container>
               }
@@ -45,7 +53,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <app-finance-creances />
+                    @defer (on immediate) {
+                      <app-finance-creances />
+                    } @loading {
+                      <app-skeleton width="100%" height="240px" />
+                    }
                   </ng-template>
                 </ng-container>
               }
@@ -86,7 +98,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <app-cash-flow-bfr></app-cash-flow-bfr>
+                    @defer (on immediate) {
+                      <app-cash-flow-bfr></app-cash-flow-bfr>
+                    } @loading {
+                      <app-skeleton width="100%" height="240px" />
+                    }
                   </ng-template>
                 </ng-container>
               }
@@ -99,7 +115,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <app-situation-creances />
+                    @defer (on immediate) {
+                      <app-situation-creances />
+                    } @loading {
+                      <app-skeleton width="100%" height="240px" />
+                    }
                   </ng-template>
                 </ng-container>
               }
@@ -112,7 +132,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <app-vieillissement-differes />
+                    @defer (on immediate) {
+                      <app-vieillissement-differes />
+                    } @loading {
+                      <app-skeleton width="100%" height="240px" />
+                    }
                   </ng-template>
                 </ng-container>
               }
@@ -125,7 +149,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <app-avoirs-analytics />
+                    @defer (on immediate) {
+                      <app-avoirs-analytics />
+                    } @loading {
+                      <app-skeleton width="100%" height="240px" />
+                    }
                   </ng-template>
                 </ng-container>
               }
@@ -138,7 +166,11 @@
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>
-                    <app-taux-recouvrement-tp />
+                    @defer (on immediate) {
+                      <app-taux-recouvrement-tp />
+                    } @loading {
+                      <app-skeleton width="100%" height="240px" />
+                    }
                   </ng-template>
                 </ng-container>
               }

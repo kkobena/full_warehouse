@@ -33,12 +33,7 @@ public class BatchConfiguration {
         PlatformTransactionManager transactionManager,
         ApplicationContext applicationContext
     ) throws Exception {
-        // JobOperatorFactoryBean implémente ApplicationContextAware : Spring n'appelle
-        // setApplicationContext(...) automatiquement que pour les beans qu'il instancie
-        // lui-même. Ici l'objet est construit à la main (new), donc ce callback ne se
-        // déclenche jamais si on ne le fait pas explicitement — afterPropertiesSet()
-        // plantait avec "this.applicationContext" null (JobOperator interne cherchant
-        // les JobExecutionListener via applicationContext.getBeansOfType(...)).
+
         JobOperatorFactoryBean factory = new JobOperatorFactoryBean();
         factory.setJobRepository(jobRepository);
         factory.setTransactionManager(transactionManager);

@@ -60,6 +60,7 @@
           <i [class]="selectedModule()!.icone" aria-hidden="true"></i>
           {{ selectedModule()!.nom }} <span class="sep">/</span> {{ fonctionnalite.nom }}
         </p>
+        <p class="content-module-description">{{ selectedModule()!.description }}</p>
         <h2>
           {{ fonctionnalite.nom }}
           @if (fonctionnalite.roadmap) {

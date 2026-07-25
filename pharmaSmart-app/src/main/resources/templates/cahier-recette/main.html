@@ -90,11 +90,47 @@
       padding: 0;
     }
 
-    .module-desc,
-    .feature-desc {
+    .content-module-description {
+      margin: 8px 0 14px;
+      padding: 9px 12px;
+      border-left: 4px solid #10b981;
+      background: #ecfdf5;
+      color: #134e4a;
+      font-size: 10pt;
+      font-weight: bold;
+      line-height: 1.45;
+    }
+
+    .content-breadcrumb {
+      margin: 20px 0 4px;
       color: #64748b;
-      font-style: italic;
+      font-size: 8.5pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .content-breadcrumb .sep {
+      padding: 0 5px;
+      color: #10b981;
+    }
+
+    .content-description {
+      color: #475569;
       margin: 0 0 10px;
+      line-height: 1.4;
+    }
+
+    .version-badge {
+      display: inline-block;
+      margin-left: 7px;
+      padding: 2px 6px;
+      border: 1px solid #86efac;
+      background: #dcfce7;
+      color: #166534;
+      font-size: 7.5pt;
+      font-weight: bold;
+      vertical-align: middle;
     }
 
     .scenario {
@@ -162,11 +198,21 @@
 <!-- Contenu -->
 <th:block th:each="module : ${modules}">
   <h1 class="module-title" th:id="'module-' + ${module.id}" th:text="${module.nom}">Module</h1>
-  <p class="module-desc" th:if="${module.description}" th:text="${module.description}">Description du module</p>
+  <p class="content-module-description" th:if="${module.description}" th:text="${module.description}">Description du module</p>
 
   <th:block th:each="feature, featureStat : ${module.fonctionnalites}">
-    <h2 th:id="'feature-' + ${module.id} + '-' + ${featureStat.index}" th:text="${feature.nom}">Fonctionnalité</h2>
-    <p class="feature-desc" th:if="${feature.description}" th:text="${feature.description}">Description de la fonctionnalité</p>
+    <div class="content-header">
+      <p class="content-breadcrumb">
+        <span th:text="${module.nom}">Module</span>
+        <span class="sep">/</span>
+        <span th:text="${feature.nom}">Fonctionnalité</span>
+      </p>
+      <h2 th:id="'feature-' + ${module.id} + '-' + ${featureStat.index}">
+        <span th:text="${feature.nom}">Fonctionnalité</span>
+        <span class="version-badge" th:if="${feature.version}" th:text="'Nouveau — v' + ${feature.version}">Nouveau</span>
+      </h2>
+      <p class="content-description" th:if="${feature.description}" th:text="${feature.description}">Description de la fonctionnalité</p>
+    </div>
 
     <div class="scenario" th:each="scenario : ${feature.scenarios}">
       <h3 th:text="${scenario.titre}">Titre du scénario</h3>

@@ -101,6 +101,46 @@
       line-height: 1.45;
     }
 
+    .business-benefits {
+      margin: 10px 0 16px;
+      page-break-inside: avoid;
+    }
+
+    .business-benefits-title {
+      margin: 0 0 5px;
+      color: #166534;
+      font-size: 8.5pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    table.business-benefits-list {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 4px;
+    }
+
+    table.business-benefits-list td {
+      padding: 7px 9px;
+      border: 1px solid #bbf7d0;
+      background: #f0fdf4;
+      page-break-inside: avoid;
+    }
+
+    .business-benefit-title {
+      color: #14532d;
+      font-size: 9.5pt;
+      font-weight: bold;
+    }
+
+    .business-benefit-description {
+      margin: 2px 0 0;
+      color: #334155;
+      font-size: 9pt;
+      line-height: 1.35;
+    }
+
     .content-breadcrumb {
       margin: 20px 0 4px;
       color: #64748b;
@@ -199,6 +239,19 @@
 <th:block th:each="module : ${modules}">
   <h1 class="module-title" th:id="'module-' + ${module.id}" th:text="${module.nom}">Module</h1>
   <p class="content-module-description" th:if="${module.description}" th:text="${module.description}">Description du module</p>
+  <div class="business-benefits" th:if="${module.beneficesMetier != null and !module.beneficesMetier.isEmpty()}">
+    <div class="business-benefits-title">Ce que ce module apporte à l’officine</div>
+    <table class="business-benefits-list">
+      <tbody>
+      <tr th:each="benefice : ${module.beneficesMetier}">
+        <td>
+          <div class="business-benefit-title" th:text="${benefice.titre}">Bénéfice</div>
+          <p class="business-benefit-description" th:text="${benefice.description}">Description du bénéfice</p>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
 
   <th:block th:each="feature, featureStat : ${module.fonctionnalites}">
     <div class="content-header">

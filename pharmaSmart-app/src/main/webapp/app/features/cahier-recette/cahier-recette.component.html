@@ -61,6 +61,22 @@
           {{ selectedModule()!.nom }} <span class="sep">/</span> {{ fonctionnalite.nom }}
         </p>
         <p class="content-module-description">{{ selectedModule()!.description }}</p>
+        @if (selectedModule()!.beneficesMetier?.length) {
+          <section class="business-benefits" aria-labelledby="business-benefits-title">
+            <h2 id="business-benefits-title" class="business-benefits__heading">Ce que ce module apporte à l’officine</h2>
+            <div class="business-benefits__grid">
+              @for (benefice of selectedModule()!.beneficesMetier; track benefice.titre) {
+                <article class="business-benefit">
+                  <i class="pi pi-check-circle" aria-hidden="true"></i>
+                  <div>
+                    <h3>{{ benefice.titre }}</h3>
+                    <p>{{ benefice.description }}</p>
+                  </div>
+                </article>
+              }
+            </div>
+          </section>
+        }
         <h2>
           {{ fonctionnalite.nom }}
           @if (fonctionnalite.roadmap) {

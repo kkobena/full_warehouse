@@ -55,7 +55,7 @@ public class CahierRecetteDataService {
             .filter(f -> !f.scenarios().isEmpty())
             .toList();
         return new ModuleRecetteDTO(module.id(), module.nom(), module.icone(), module.description(),
-            fonctionnalites);
+            module.beneficesMetier(), fonctionnalites);
     }
 
     private FonctionnaliteRecetteDTO withoutHiddenScenarios(

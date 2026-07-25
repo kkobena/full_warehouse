@@ -203,6 +203,54 @@ $doc-primary-bg: #e7f1ff;
   line-height: 1.55;
 }
 
+.business-benefits {
+  margin: 1rem 0 1.4rem;
+}
+
+.business-benefits__heading {
+  margin: 0 0 0.75rem !important;
+  font-size: 0.78rem !important;
+  color: $doc-text-muted !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.business-benefits__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem;
+}
+
+.business-benefit {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.85rem;
+  border: 1px solid #b7e4c7;
+  border-radius: 8px;
+  background: #f0fdf4;
+
+  > i {
+    flex: 0 0 auto;
+    margin-top: 0.15rem;
+    color: #15803d;
+  }
+
+  h3 {
+    margin: 0 0 0.25rem;
+    color: $doc-heading;
+    font-size: 0.92rem;
+  }
+
+  p {
+    margin: 0;
+    color: $doc-text;
+    font-size: 0.86rem;
+    font-weight: 500;
+    line-height: 1.45;
+  }
+}
+
 .content-description {
   margin: 0;
   color: $doc-text-muted;

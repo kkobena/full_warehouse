@@ -61,11 +61,19 @@ export interface FonctionnaliteRecette {
   roadmap?: boolean;
 }
 
+/** Résultat métier mis en avant avant le détail fonctionnel d'un module. */
+export interface BeneficeMetier {
+  titre: string;
+  description: string;
+}
+
 export interface ModuleRecette {
   id: string;
   nom: string;
   icone: string;
   description: string;
+  /** Synthèse destinée au décideur ; les scénarios restent la preuve fonctionnelle détaillée. */
+  beneficesMetier?: BeneficeMetier[];
   fonctionnalites: FonctionnaliteRecette[];
 }
 
@@ -76,6 +84,11 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     icone: 'pi pi-shopping-cart',
     description:
       "Un point de vente rapide, sécurisé et connecté au stock : PharmaSmart fluidifie l'encaissement, prend en charge les ventes comptant, assurance et à crédit, protège les opérations sensibles et offre une traçabilité complète jusqu'aux retours, avoirs et clôtures de caisse.",
+    beneficesMetier: [
+      { titre: 'Fluidité au comptoir', description: 'Réduire les ressaisies grâce à la recherche, au scan, aux calculs automatiques et aux différents parcours d’encaissement.' },
+      { titre: 'Service patient plus clair', description: 'Calculer la part à payer, prendre en compte les bénéficiaires et fournir des justificatifs détaillés.' },
+      { titre: 'Caisse mieux contrôlée', description: 'Encadrer les opérations sensibles par des droits, des autorisations et une traçabilité de leurs auteurs.' },
+    ],
     fonctionnalites: [
       {
         nom: 'Vente au comptoir — construction du panier',
@@ -679,6 +692,11 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     icone: 'pi pi-receipt',
     description:
       'Un cycle tiers payant maîtrisé de bout en bout : PharmaSmart transforme les dossiers de vente en factures, accélère le recouvrement, détecte les retards et sécurise les règlements, avoirs, rapprochements et obligations FNE.',
+    beneficesMetier: [
+      { titre: 'Créances identifiables', description: 'Suivre chaque montant depuis la vente assurée jusqu’au règlement de l’organisme payeur.' },
+      { titre: 'Recouvrement mieux organisé', description: 'Repérer les factures en attente, leur ancienneté et les écarts lors du rapprochement.' },
+      { titre: 'Facturation fiabilisée', description: 'Regrouper les dossiers, appliquer les règles du tiers payant et conserver les avoirs et règlements associés.' },
+    ],
     fonctionnalites: [
       {
         nom: 'Édition de facturation — génération unitaire',
@@ -1186,6 +1204,11 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     icone: 'pi pi-truck',
     description:
       'Une chaîne d’approvisionnement maîtrisée de bout en bout : PharmaSmart transforme les besoins réels du stock en commandes, automatise les échanges fournisseur, fiabilise chaque réception, détecte les écarts et sécurise les retours, avoirs et règlements.',
+    beneficesMetier: [
+      { titre: 'Commandes mieux dimensionnées', description: 'S’appuyer sur la consommation, la rotation, la saisonnalité, le stock et les contraintes fournisseurs.' },
+      { titre: 'Réceptions plus fiables', description: 'Contrôler les produits, quantités, prix, lots et péremptions avant d’intégrer le stock.' },
+      { titre: 'Relation fournisseur maîtrisée', description: 'Détecter les écarts, préparer les retours et rapprocher commandes, réceptions, factures et avoirs.' },
+    ],
     fonctionnalites: [
       {
         nom: 'Commande fournisseur — création & édition',
@@ -1958,6 +1981,11 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     icone: 'pi pi-database',
     description:
       'Un catalogue vivant au service de la marge et de la disponibilité : chaque produit réunit tarifs, fournisseurs, emplacements, lots, ventes, achats et mouvements pour décider plus vite et agir sans quitter sa fiche.',
+    beneficesMetier: [
+      { titre: 'Information produit centralisée', description: 'Retrouver dans une même fiche les données commerciales, fiscales, logistiques et historiques.' },
+      { titre: 'Disponibilité mieux comprise', description: 'Visualiser le stock par emplacement, les lots, les mouvements et les fournisseurs du produit.' },
+      { titre: 'Décisions plus rapides', description: 'Consulter les ventes, achats, prix et indicateurs utiles sans multiplier les recherches.' },
+    ],
     fonctionnalites: [
       {
         nom: 'Fiche produit — création, édition, suppression',
@@ -2336,6 +2364,11 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     nom: 'Référentiel',
     icone: 'pi pi-sitemap',
     description: 'Données de référence transversales : familles, formes, gammes, laboratoires, TVA, tableaux de classification, remises catalogue, rayons, officines et fournisseurs.',
+    beneficesMetier: [
+      { titre: 'Données cohérentes', description: 'Partager les mêmes classifications, taxes, fournisseurs et règles commerciales dans tous les modules.' },
+      { titre: 'Organisation fidèle à l’officine', description: 'Représenter les rayons, emplacements, officines et dépôts utilisés au quotidien.' },
+      { titre: 'Moins de ressaisies', description: 'Réutiliser les référentiels dans les produits, ventes, achats, stocks et rapports.' },
+    ],
     fonctionnalites: [
       {
         nom: 'Référentiels produit simples (familles, formes, gammes, laboratoires, DCI)',
@@ -2550,6 +2583,11 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     icone: 'pi pi-box',
     description:
       'Une maîtrise physique et financière du stock : PharmaSmart trace chaque correction, accélère les inventaires, sécurise les lots et les péremptions, organise les destructions et rééquilibre les quantités entre rayon, réserve, officines et dépôts.',
+    beneficesMetier: [
+      { titre: 'Stock localisable et traçable', description: 'Savoir ce qui est disponible, dans quel stockage et, lorsque nécessaire, dans quel lot.' },
+      { titre: 'Pertes mieux anticipées', description: 'Repérer les péremptions, organiser les retraits, retours et destructions avant qu’ils ne soient oubliés.' },
+      { titre: 'Inventaires mieux ciblés', description: 'Compter toute l’officine ou limiter le travail à un rayon, une famille, un emplacement ou une catégorie à risque.' },
+    ],
     fonctionnalites: [
       {
         nom: 'Ajustement de stock',
@@ -2997,6 +3035,11 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     icone: 'pi pi-users',
     description:
       'Une relation client suivie sans perdre de vue la trésorerie : PharmaSmart centralise les achats, avoirs et ventes à crédit, mesure l’encours, facilite les encaissements et conserve une preuve claire de chaque règlement.',
+    beneficesMetier: [
+      { titre: 'Relation client suivie', description: 'Retrouver les achats, avoirs, crédits et règlements associés à chaque client.' },
+      { titre: 'Encours sous surveillance', description: 'Visualiser ce qui reste dû avant d’accorder un nouveau différé ou d’enregistrer un règlement.' },
+      { titre: 'Règlements justifiables', description: 'Conserver l’historique et les références nécessaires pour expliquer chaque mouvement du compte.' },
+    ],
     fonctionnalites: [
       {
         nom: 'Fiche client — création, édition, suppression',
@@ -3194,6 +3237,11 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     icone: 'pi pi-wallet',
     description:
       'Une lecture financière directement exploitable : PharmaSmart rapproche chiffre d’affaires, créances, dettes, TVA, caisse et achats, puis produit les états et exports nécessaires au pilotage de l’officine et aux échanges avec l’expert-comptable.',
+    beneficesMetier: [
+      { titre: 'Vision financière consolidée', description: 'Rapprocher ventes, achats, créances, dettes, TVA et caisse dans une lecture commune.' },
+      { titre: 'Échanges comptables facilités', description: 'Produire les synthèses et exports nécessaires au contrôle et au travail avec l’expert-comptable.' },
+      { titre: 'Origine des montants retrouvable', description: 'Relier les indicateurs financiers aux opérations qui les ont générés.' },
+    ],
     fonctionnalites: [
       {
         nom: 'Tableau de bord financier',
@@ -3366,6 +3414,11 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     icone: 'pi pi-chart-bar',
     description:
       'Une véritable tour de contrôle de l’officine : PharmaSmart transforme ventes, stocks, clients, fournisseurs et créances en indicateurs visuels, comparaisons et analyses actionnables pour protéger la marge, réduire l’immobilisation et anticiper les décisions.',
+    beneficesMetier: [
+      { titre: 'Décisions fondées sur l’activité réelle', description: 'Lire ensemble chiffre d’affaires, marge, stock, créances, clients et fournisseurs.' },
+      { titre: 'Évolutions immédiatement visibles', description: 'Comparer les périodes et repérer les familles, produits ou partenaires qui progressent ou reculent.' },
+      { titre: 'Indicateurs transformés en actions', description: 'Identifier les ruptures, surstocks, faibles rotations, retards de paiement et autres priorités.' },
+    ],
     fonctionnalites: [
       {
         nom: 'Rapports ventes & clients',
@@ -3756,6 +3809,11 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     icone: 'pi pi-mobile',
     description:
       "PharmaSmart accompagne chaque métier sur le support le plus efficace : l'application Web centralise toute la gestion depuis un navigateur, tandis que le client Desktop transforme les postes Windows de vente, commande, réception ou stock en espaces de travail dédiés, stables et connectés aux périphériques locaux. Les applications Android spécialisées prolongent enfin la vente et le pilotage en mobilité — autour des mêmes données serveur.",
+    beneficesMetier: [
+      { titre: 'Un mode adapté à chaque contexte', description: 'Travailler depuis un navigateur, un poste Desktop dédié ou une application mobile spécialisée.' },
+      { titre: 'Informations cohérentes', description: 'Partager les mêmes données serveur entre le comptoir, le bureau et les usages mobiles.' },
+      { titre: 'Postes de travail mieux intégrés', description: 'Exploiter sur les postes concernés les imprimantes, scanners et afficheurs clients locaux.' },
+    ],
     fonctionnalites: [
       {
         nom: 'Une plateforme, plusieurs modes d’utilisation',
@@ -4048,6 +4106,11 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     nom: 'Tableaux de bord d’accueil',
     icone: 'pi pi-home',
     description: "Écran affiché à la connexion : résolution du tableau de bord selon le profil, puis son contenu (Pharmacien, Caissier, Achats).",
+    beneficesMetier: [
+      { titre: 'Priorités visibles dès la connexion', description: 'Présenter immédiatement les informations utiles au rôle de l’utilisateur.' },
+      { titre: 'Moins de navigation', description: 'Accéder directement aux indicateurs et actions les plus fréquents pour son activité.' },
+      { titre: 'Pilotage adapté au métier', description: 'Différencier les besoins du pharmacien, de la caisse et des achats sans multiplier les outils.' },
+    ],
     fonctionnalites: [
       {
         nom: 'Résolution et configuration du tableau de bord d’accueil',
@@ -4295,6 +4358,11 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     nom: 'Administration & Sécurité',
     icone: 'pi pi-cog',
     description: 'Utilisateurs, rôles, droits d’accès, navigation et paramétrage général.',
+    beneficesMetier: [
+      { titre: 'Accès adaptés aux responsabilités', description: 'Limiter les écrans et actions disponibles selon le rôle de chaque collaborateur.' },
+      { titre: 'Opérations sensibles protégées', description: 'Réserver les fonctions critiques aux profils autorisés et faciliter le contrôle interne.' },
+      { titre: 'Solution configurable', description: 'Adapter les paramètres généraux et la navigation à l’organisation de l’officine.' },
+    ],
     fonctionnalites: [
       {
         nom: 'Utilisateurs — création, édition, suppression',

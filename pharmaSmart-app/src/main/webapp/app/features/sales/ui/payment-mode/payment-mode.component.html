@@ -31,7 +31,10 @@
                   [ngClass]="isSmallScreen() ? 'col-md-12 col-sm-12' : 'col-md-6 col-lg-6 col-xl-6'">
                   <div class="input-group">
                     <span class="input-group-text" style="padding: 0">
-                      <span [class]="entry.mode.styleBtnClass"></span>
+                      <span [class]="modeChipClasses(entry.mode)">
+                        <i [class]="modeIcon(entry.mode.code)" aria-hidden="true"></i>
+                        <span class="mode-chip__label">{{ modeLabel(entry.mode) }}</span>
+                      </span>
                     </span>
                     <app-input-number
                       class="payment-amount-field"
@@ -59,14 +62,9 @@
                         </button>
                         <div class="payment-mode-menu" ngbDropdownMenu>
                           @for (mode of availableModes(); track mode.code) {
-                            <button
-                              (click)="onAddPaymentMode(mode)"
-                              [ngbTooltip]="getPaymentModeLabel(mode.code)"
-                              container="body"
-                              ngbDropdownItem
-                              type="button"
-                            >
-                              <span [class]="mode.styleImageClass"></span>
+                            <button (click)="onAddPaymentMode(mode)" ngbDropdownItem type="button">
+                              <i [class]="modeItemIconClasses(mode)" aria-hidden="true"></i>
+                              {{ modeLabel(mode) }}
                             </button>
                           }
                         </div>
@@ -88,14 +86,9 @@
                         </button>
                         <div class="payment-mode-menu" ngbDropdownMenu>
                           @for (mode of availableModes(); track mode.code) {
-                            <button
-                              (click)="onReplaceMode(entry, mode)"
-                              [ngbTooltip]="getPaymentModeLabel(mode.code)"
-                              container="body"
-                              ngbDropdownItem
-                              type="button"
-                            >
-                              <span [class]="mode.styleImageClass"></span>
+                            <button (click)="onReplaceMode(entry, mode)" ngbDropdownItem type="button">
+                              <i [class]="modeItemIconClasses(mode)" aria-hidden="true"></i>
+                              {{ modeLabel(mode) }}
                             </button>
                           }
                         </div>

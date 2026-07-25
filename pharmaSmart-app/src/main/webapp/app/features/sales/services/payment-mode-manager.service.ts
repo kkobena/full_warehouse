@@ -5,7 +5,7 @@ import { ModePaymentService } from '../../../entities/mode-payments/mode-payment
 
 /**
  * Référentiel des modes de règlement : chargement depuis l'API et enrichissement
- * (classes CSS des images, caractère readonly du montant).
+ * (caractère readonly du montant).
  *
  * La sélection des modes d'une vente (lignes, montants) appartient au composant
  * `PaymentModeComponent` — ce service ne porte volontairement aucun état de vente,
@@ -45,59 +45,12 @@ export class PaymentModeManagerService {
   }
 
   /**
-   * Enrich payment mode with CSS classes and readonly settings
+   * Enrich payment mode with readonly settings. Le rendu (icône, couleur, libellé)
+   * est entièrement dérivé en CSS/composant — plus d'images par mode à maintenir.
+   * Seules les espèces acceptent un montant versé supérieur au dû (monnaie) ;
+   * tout autre mode — y compris un nouveau mode du référentiel — est readonly.
    */
   private enrichPaymentMode(mode: IPaymentMode): IPaymentMode {
-    const enriched = { ...mode, disabled: false };
-
-    switch (mode.code) {
-      case 'CASH':
-        enriched.styleImageClass = 'cash';
-        enriched.styleBtnClass = 'cash-btn';
-        enriched.isReadonly = false;
-        break;
-      case 'WAVE':
-        enriched.styleImageClass = 'wave';
-        enriched.styleBtnClass = 'wave-btn';
-        enriched.isReadonly = true;
-        break;
-      case 'OM':
-        enriched.styleImageClass = 'om';
-        enriched.styleBtnClass = 'om-btn';
-        enriched.isReadonly = true;
-        break;
-      case 'CB':
-        enriched.styleImageClass = 'cb';
-        enriched.styleBtnClass = 'cb-btn';
-        enriched.isReadonly = true;
-        break;
-      case 'MOOV':
-        enriched.styleImageClass = 'moov';
-        enriched.styleBtnClass = 'moov-btn';
-        enriched.isReadonly = true;
-        break;
-      case 'MTN':
-        enriched.styleImageClass = 'mtn';
-        enriched.styleBtnClass = 'mtn-btn';
-        enriched.isReadonly = true;
-        break;
-      case 'CH':
-        enriched.styleImageClass = 'cheque';
-        enriched.styleBtnClass = 'cheque-btn';
-        enriched.isReadonly = true;
-        break;
-      case 'VIREMENT':
-        enriched.styleImageClass = 'virement';
-        enriched.styleBtnClass = 'virement-btn';
-        enriched.isReadonly = true;
-        break;
-      default:
-        enriched.styleImageClass = 'default';
-        enriched.styleBtnClass = 'default-btn';
-        enriched.isReadonly = false;
-        break;
-    }
-
-    return enriched;
+    return { ...mode, disabled: false, isReadonly: mode.code !== 'CASH' };
   }
 }

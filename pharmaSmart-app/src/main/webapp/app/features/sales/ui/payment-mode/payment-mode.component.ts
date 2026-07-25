@@ -466,6 +466,43 @@ export class PaymentModeComponent {
   }
 
   /**
+   * Rendu générique des modes : icône de police + libellé du référentiel + couleur CSS.
+   * Un mode ajouté au référentiel s'affiche sans créer d'image : icône et couleur par
+   * défaut, libellé fourni par le backend.
+   */
+  modeLabel(mode: IPaymentMode): string {
+    return mode.libelle || this.getPaymentModeLabel(mode.code || '');
+  }
+
+  modeIcon(code: string | undefined): string {
+    switch (code) {
+      case PaymentModeCode.CASH: return 'pi pi-money-bill';
+      case PaymentModeCode.CB: return 'pi pi-credit-card';
+      case PaymentModeCode.OM:
+      case PaymentModeCode.WAVE:
+      case PaymentModeCode.MOOV:
+      case PaymentModeCode.MTN:
+        return 'pi pi-mobile';
+      case PaymentModeCode.VIREMENT: return 'pi pi-building';
+      case PaymentModeCode.CH: return 'pi pi-file';
+      default: return 'pi pi-wallet';
+    }
+  }
+
+  /** Suffixe de classe couleur : code du mode en minuscules, `default` si inconnu. */
+  modeColorSuffix(code: string | undefined): string {
+    return (code || 'default').toLowerCase();
+  }
+
+  modeChipClasses(mode: IPaymentMode): string {
+    return `mode-chip mode-chip--${this.modeColorSuffix(mode.code)}`;
+  }
+
+  modeItemIconClasses(mode: IPaymentMode): string {
+    return `${this.modeIcon(mode.code)} mode-item-icon mode-item-icon--${this.modeColorSuffix(mode.code)}`;
+  }
+
+  /**
    * Méthode publique pour récupérer le montant total saisi
    * Utilisée par le composant parent pour récupérer le montant avant validation
    */

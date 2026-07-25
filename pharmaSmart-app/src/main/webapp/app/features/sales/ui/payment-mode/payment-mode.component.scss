@@ -108,22 +108,51 @@
   justify-content: center;
 }
 
-/* Override fixed width from global.scss for button icons in input group */
-.ws-mode-reglement .input-group-text .cash-btn,
-.ws-mode-reglement .input-group-text .wave-btn,
-.ws-mode-reglement .input-group-text .om-btn,
-.ws-mode-reglement .input-group-text .cb-btn,
-.ws-mode-reglement .input-group-text .moov-btn,
-.ws-mode-reglement .input-group-text .mtn-btn,
-.ws-mode-reglement .input-group-text .cheque-btn,
-.ws-mode-reglement .input-group-text .virement-btn {
-  width: 150px !important;
-  height: 50px !important;
-  background-size: cover !important;
-  background-position: center !important;
-  background-repeat: no-repeat !important;
-  display: block !important;
+/* ============================================
+   PASTILLE DE MODE — icône + libellé stylisés en CSS
+   Remplace les images PNG par mode : un mode ajouté au référentiel s'affiche
+   automatiquement (icône/couleur par défaut, libellé du backend), sans nouvelle image.
+   ============================================ */
+
+.mode-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 150px;
+  height: 50px;
+  padding: 0 6px;
+  /* Couleur par défaut pour tout mode sans modificateur dédié */
+  background: #495057;
+  color: #ffffff;
 }
+
+.mode-chip i {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.mode-chip__label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.1;
+  text-align: center;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* Couleurs de marque par code de mode (suffixe = code en minuscules) */
+.mode-chip--cash { background: #2e7d32; }
+.mode-chip--om { background: #ff7900; }
+.mode-chip--wave { background: #00a8e0; }
+.mode-chip--mtn { background: #ffcc00; color: #212529; }
+.mode-chip--moov { background: #005baa; }
+.mode-chip--cb { background: #1a3c6e; }
+.mode-chip--ch { background: #6c757d; }
+.mode-chip--virement { background: #0f766e; }
 
 /* Le champ montant est un composant enfant (app-input-number) : l'hôte prend la place
    de l'ancien <input> dans l'input-group, et l'<input> interne — hors encapsulation de
@@ -298,14 +327,7 @@
 // de l'encapsulation de ce composant — ::ng-deep sans préfixe :host le rend global,
 // seul moyen de l'atteindre.
 ::ng-deep .dropdown-menu.payment-mode-menu {
-  max-width: 420px;
-  padding: 0.5rem;
-}
-
-::ng-deep .dropdown-menu.payment-mode-menu.show {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
+  min-width: 280px;
   /* Garde-fou petits écrans : si malgré le repli de placement le menu dépasse la
      hauteur disponible, il défile au lieu d'être coupé par le bord du viewport */
   max-height: 60vh;
@@ -313,13 +335,26 @@
 }
 
 ::ng-deep .payment-mode-menu .dropdown-item {
-  width: auto;
-  padding: 0.25rem;
-  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
   cursor: pointer;
+  font-size: 1.25rem;
+  font-weight: 500;
+  padding: 0.75rem 1.25rem;
 }
 
-::ng-deep .payment-mode-menu .dropdown-item:hover,
-::ng-deep .payment-mode-menu .dropdown-item:focus-visible {
-  background-color: #f1f3f5;
+::ng-deep .payment-mode-menu .mode-item-icon {
+  font-size: 1.75rem;
+  color: #495057; /* couleur par défaut pour tout mode sans modificateur dédié */
 }
+
+/* Icônes colorées aux couleurs de marque (mêmes teintes que les pastilles) */
+::ng-deep .payment-mode-menu .mode-item-icon--cash { color: #2e7d32; }
+::ng-deep .payment-mode-menu .mode-item-icon--om { color: #ff7900; }
+::ng-deep .payment-mode-menu .mode-item-icon--wave { color: #00a8e0; }
+::ng-deep .payment-mode-menu .mode-item-icon--mtn { color: #d4a800; }
+::ng-deep .payment-mode-menu .mode-item-icon--moov { color: #005baa; }
+::ng-deep .payment-mode-menu .mode-item-icon--cb { color: #1a3c6e; }
+::ng-deep .payment-mode-menu .mode-item-icon--ch { color: #6c757d; }
+::ng-deep .payment-mode-menu .mode-item-icon--virement { color: #0f766e; }

@@ -1,6 +1,6 @@
 # Plan — Améliorations UX du choix des modes de règlement
 
-> Statut : **implémenté** (préalable technique + P1 à P5) — juillet 2026.
+> Statut : **implémenté** (préalable technique + P1 à P5, P7) — juillet 2026.
 > P6 (raccourcis clavier) reste en attente d'un besoin utilisateur identifié.
 > Contexte : notées lors de la migration de `payment-mode.component.ts`
 > (PrimeNG → ng-bootstrap). Analyse de faisabilité faite sur le code actuel
@@ -155,6 +155,29 @@ template conditionne `icon`/`severity` sur `selectedModes().length === 1`.
 Pas besoin de gérer l'état « zéro mode » (le remplacement reste le seul
 chemin sur la dernière ligne — l'effect d'initialisation qui ré-ajoute CASH
 à zéro mode n'est donc jamais sollicité).
+
+### P7 — Se passer des images par mode : icône + libellé stylisés en CSS
+
+Les modes étaient rendus par des images PNG (`cash.png`, `wave150x50.png`, …)
+mappées code → classe CSS dans le service : **chaque nouveau mode ajouté au
+référentiel exigeait de créer de nouvelles images** et de modifier le mapping.
+
+**Décision (implémentée)** : rendu entièrement dérivé, sans image.
+
+- **Ligne de règlement** : pastille CSS (`.mode-chip`) — icône PrimeIcons +
+  libellé du référentiel (`mode.libelle`), fond coloré par mode via un
+  modificateur `mode-chip--<code>` ; couleur et icône **par défaut** pour
+  tout code inconnu.
+- **Menus dropdown** : liste verticale d'items icône colorée + libellé
+  (les tooltips d'items de P3 deviennent inutiles, le libellé est affiché).
+- **Service** : l'enrichissement se réduit à `isReadonly` (dérivé : seul
+  CASH accepte un montant versé supérieur au dû) — plus aucun mapping
+  d'images à maintenir.
+
+Un nouveau mode dans le référentiel s'affiche donc automatiquement :
+libellé fourni par le backend, icône `pi pi-wallet` et couleur neutre par
+défaut ; lui donner une identité visuelle propre = une ligne de CSS
+(`.mode-chip--<code>`) et éventuellement un cas dans `modeIcon()`.
 
 ### P6 — Raccourcis clavier (optionnel, sous condition)
 

@@ -340,3 +340,4 @@ Le discours commercial doit donc moins insister sur le nombre d'écrans que sur 
 
 > **Une seule information, utilisée du comptoir jusqu'au pilotage de l'officine.**
 
+

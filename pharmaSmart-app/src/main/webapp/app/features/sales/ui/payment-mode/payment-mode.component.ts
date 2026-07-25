@@ -1,22 +1,8 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  computed,
-  effect,
-  ElementRef,
-  inject,
-  input,
-  OnInit,
-  output,
-  signal,
-  viewChild,
-  viewChildren,
-  ChangeDetectionStrategy,
-} from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, input, output, signal, viewChild, viewChildren, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonComponent, KeyFilterDirective, SwitchComponent } from '../../../../shared/ui';
+import { NgbDropdownModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { InputNumberComponent, SwitchComponent } from '../../../../shared/ui';
 import { IPaymentMode } from '../../../../shared/model/payment-mode.model';
 import { PaymentModeCode } from '../../../../shared/payment-mode';
 import { PaymentModeManagerService } from '../../services/payment-mode-manager.service';
@@ -53,16 +39,16 @@ const CHANGE_TOLERANCE_THRESHOLD = 5;
   imports: [
     CommonModule,
     FormsModule,
-    ButtonComponent,
+    InputNumberComponent,
     SwitchComponent,
-    KeyFilterDirective,
-    NgbPopover,
+    NgbDropdownModule,
+    NgbTooltipModule,
   ],
   templateUrl: './payment-mode.component.html',
   styleUrls: ['./payment-mode.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PaymentModeComponent implements OnInit {
+export class PaymentModeComponent {
   // ===== Inputs =====
   readonly amountToBePaid = input.required<number>();
   readonly maxPaymentModes = input<number>(2);
@@ -81,27 +67,14 @@ export class PaymentModeComponent implements OnInit {
 
   // ===== Services =====
   private readonly paymentModeManager = inject(PaymentModeManagerService);
-  private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   // ===== View Children =====
-  private readonly paymentInputs = viewChildren<ElementRef<HTMLInputElement>>('paymentInput');
+  private readonly paymentInputs = viewChildren(InputNumberComponent);
   private readonly commentInput = viewChild<ElementRef>('commentInput');
-  private readonly addModePanel = viewChild<NgbPopover>('addModePanel');
-  private readonly removeModePanel = viewChild<NgbPopover>('removeModePanel');
-
-  /**
-   * Les deux popovers sont déclarés une seule fois (hors de la boucle des modes de
-   * paiement) mais doivent s'ouvrir près du bouton de LA LIGNE cliquée. NgbPopover se
-   * positionne toujours par rapport à son propre hôte, pas à l'élément qui l'a déclenché
-   * — `positionTarget` est donc mis à jour dynamiquement juste avant chaque `.open()`.
-   */
-  protected readonly addModePositionTarget = signal<HTMLElement | undefined>(undefined);
-  protected readonly removeModePositionTarget = signal<HTMLElement | undefined>(undefined);
 
   // ===== State Signals =====
   readonly selectedModes = signal<PaymentModeEntry[]>([]);
   readonly isShowAddBtn = signal<boolean>(false);
-  private readonly modeToReplace = signal<PaymentModeEntry | null>(null);
 
   // Use computed signals from the service
   readonly availableModes = computed(() => {
@@ -186,7 +159,7 @@ export class PaymentModeComponent implements OnInit {
   /**
    * Nombre de modes lors du dernier passage de l'effect ci-dessous — sert à ne
    * déclencher le focus automatique que lors d'un véritable AJOUT de mode, pas à
-   * chaque frappe. `onAmountInput` remplace le tableau `selectedModes` (nouvelle
+   * chaque frappe. `onAmountChanged` remplace le tableau `selectedModes` (nouvelle
    * référence) à chaque saisie pour forcer la détection de changement ; sans ce
    * garde-fou, l'effect se redéclenchait sur CHAQUE frappe (la longueur restant
    * `> 1` avec deux modes) et volait le focus vers le dernier champ en pleine
@@ -211,10 +184,6 @@ export class PaymentModeComponent implements OnInit {
       }
       this.previousModesCount = modes.length;
     });
-  }
-
-  ngOnInit(): void {
-    // Initialization handled by effect in constructor
   }
 
   // ===== Initialization =====
@@ -253,116 +222,114 @@ export class PaymentModeComponent implements OnInit {
     };
 
     this.selectedModes.update(modes => [...modes, newEntry]);
-    this.addModePanel()?.close();
     // Update add button visibility
     this.isShowAddBtn.set(
       this.selectedModes().length < this.maxPaymentModes()
     );
   }
 
-  /** Ouvre le popover d'ajout de mode, positionné près du bouton de la ligne cliquée. */
-  openAddModePanel(event: Event): void {
-    this.addModePositionTarget.set(event.currentTarget as HTMLElement);
-    // `[positionTarget]` est une liaison de template : sans ce détectChanges() synchrone,
-    // `.open()` lit encore l'ancienne valeur (celle du dernier rendu), et le popover
-    // s'ouvre à la position du clic précédent — d'où le comportement erratique observé.
-    this.changeDetectorRef.detectChanges();
-    this.addModePanel()?.open();
-  }
-
-  onRemovePaymentMode(entry: PaymentModeEntry, event: Event): void {
-    if (this.selectedModes().length === 1) {
-      // Un seul mode → Ouvrir le popover pour REMPLACER
-      this.modeToReplace.set(entry);
-      this.removeModePositionTarget.set(event.currentTarget as HTMLElement);
-      this.changeDetectorRef.detectChanges();
-      this.removeModePanel()?.open();
-    } else {
-      // Plusieurs modes → SUPPRIMER directement
-      this.selectedModes.update(modes => modes.filter(m => m !== entry));
-
-      // Recalculate and update add button visibility
-      this.manageShowAddButton(this.getInputSum());
-
-      // Redistribute amount to first mode
-      if (this.selectedModes().length > 0) {
-        const first = this.selectedModes()[0];
-        first.amount = this.amountToBePaid() - this.selectedModes()
-          .filter(m => m !== first)
-          .reduce((sum, m) => sum + (m.amount || 0), 0);
-      }
-    }
-  }
-
-  onConfirmReplaceMode(newMode: IPaymentMode): void {
-    const oldEntry = this.modeToReplace();
-    if (!oldEntry) return;
-
-    // Remplacer le mode
+  /**
+   * Supprime une ligne de règlement. N'est appelée que lorsqu'il reste plusieurs
+   * lignes : sur la dernière ligne, le bouton devient un dropdown de remplacement
+   * (voir template) — on ne descend donc jamais à zéro mode.
+   * Le montant libéré est reversé sur la ligne restante (règle « l'autre ligne »).
+   */
+  onRemovePaymentMode(entry: PaymentModeEntry): void {
     this.selectedModes.update(modes => {
-      const index = modes.indexOf(oldEntry);
-      if (index !== -1) {
-        const updated = [...modes];
-        // Si CASH → ne pas pré-remplir (undefined)
-        // Si autre mode → pré-remplir avec le montant à payer
-        const newAmount = newMode.code === PaymentModeCode.CASH ? undefined : this.amountToBePaid();
-        updated[index] = {
-          mode: newMode,
-          amount: newAmount,
-          amountEntered: newMode.code === PaymentModeCode.CASH ? undefined : undefined,
-          isReadonly: newMode.isReadonly || false,
-        };
-        return updated;
+      const remaining = modes.filter(m => m !== entry);
+      if (remaining.length === 0) {
+        return remaining;
       }
-      return modes;
+      return this.redistributeTo(remaining, remaining[remaining.length - 1]);
     });
 
-    // Fermer le popover et réinitialiser
-    this.removeModePanel()?.close();
-    this.modeToReplace.set(null);
+    this.manageShowAddButton(this.getInputSum());
+  }
 
-    // Recalculate and update add button visibility
+  /** Remplace le mode d'une ligne (seul chemin possible sur la dernière ligne). */
+  onReplaceMode(oldEntry: PaymentModeEntry, newMode: IPaymentMode): void {
+    this.selectedModes.update(modes =>
+      modes.map(m =>
+        m === oldEntry
+          ? {
+              mode: newMode,
+              // Si CASH → ne pas pré-remplir ; si autre mode → pré-remplir avec le montant à payer
+              amount: newMode.code === PaymentModeCode.CASH ? undefined : this.amountToBePaid(),
+              amountEntered: undefined,
+              isReadonly: newMode.isReadonly || false,
+            }
+          : m,
+      ),
+    );
+
     this.manageShowAddButton(this.getInputSum());
 
     // Focus on the replaced input
     setTimeout(() => this.focusFirstInput(), 100);
   }
 
-  onChangePaymentMode(oldEntry: PaymentModeEntry, newMode: IPaymentMode): void {
-    this.selectedModes.update(modes => {
-      const index = modes.indexOf(oldEntry);
-      if (index !== -1) {
-        const updated = [...modes];
-        updated[index] = {
-          mode: newMode,
-          amount: oldEntry.amount,
-          amountEntered: newMode.code === PaymentModeCode.CASH ? oldEntry.amountEntered : undefined,
-        };
-        return updated;
-      }
-      return modes;
-    });
-  }
-
   // ===== Amount Handling =====
 
-  onAmountChange(entry: PaymentModeEntry, newAmount: number): void {
-    entry.amount = newAmount;
+  /**
+   * Saisie d'un montant sur une ligne. Toutes les mises à jour sont immutables
+   * (nouveaux objets + nouveau tableau) : avec OnPush + signals, une mutation en
+   * place après le `update()` ne serait pas rendue de manière fiable.
+   */
+  onAmountChanged(entry: PaymentModeEntry, value: number | null): void {
+    const amount = value ?? undefined;
 
-    // For cash, entered amount = payment amount by default
-    if (entry.mode.code === PaymentModeCode.CASH && !entry.amountEntered) {
-      entry.amountEntered = newAmount;
-    }
+    this.selectedModes.update(modes => {
+      let updated = modes.map(m =>
+        m === entry
+          ? {
+              ...m,
+              amount,
+              // Pour espèces, le montant saisi est aussi le montant versé (calcul de la monnaie)
+              amountEntered: m.mode.code === PaymentModeCode.CASH ? amount : m.amountEntered,
+            }
+          : m,
+      );
 
-    this.selectedModes.update(m => [...m]); // Trigger change detection
+      // Répartition automatique quand le nombre max de modes est atteint : le reste
+      // à payer est reversé sur l'autre ligne (celle qu'on n'est pas en train de saisir).
+      //
+      // HYPOTHÈSE MÉTIER : maxPaymentModes = 2, « l'autre ligne » est donc unique.
+      // Si le maximum passe un jour à 3+, cette répartition est à généraliser.
+      if (updated.length >= this.maxPaymentModes()) {
+        const other = updated.find(m => m.mode.code !== entry.mode.code);
+        if (other) {
+          updated = this.redistributeTo(updated, other);
+        }
+      }
+
+      return updated;
+    });
+
+    // Gérer l'affichage du bouton add
+    this.manageShowAddButton(this.getInputSum());
   }
 
-  onCashEnteredChange(entry: PaymentModeEntry, enteredAmount: number): void {
-    if (entry.mode.code === PaymentModeCode.CASH) {
-      entry.amountEntered = enteredAmount;
-      entry.amount = Math.min(enteredAmount, this.remainingAmount() + (entry.amount || 0));
-      this.selectedModes.update(m => [...m]);
-    }
+  /**
+   * Reverse sur la ligne `target` le solde du montant à payer non couvert par
+   * les autres lignes, de façon immutable. Pour une ligne CASH, `amountEntered`
+   * est aligné sur le nouveau montant afin que le calcul de la monnaie ne reste
+   * pas basé sur une saisie périmée.
+   */
+  private redistributeTo(modes: PaymentModeEntry[], target: PaymentModeEntry): PaymentModeEntry[] {
+    const othersSum = modes
+      .filter(m => m !== target)
+      .reduce((sum, m) => sum + (m.amount || 0), 0);
+    const amount = Math.max(0, this.amountToBePaid() - othersSum);
+
+    return modes.map(m =>
+      m === target
+        ? {
+            ...m,
+            amount,
+            amountEntered: m.mode.code === PaymentModeCode.CASH ? amount : m.amountEntered,
+          }
+        : m,
+    );
   }
 
   // ===== Validation & Submission =====
@@ -434,34 +401,6 @@ export class PaymentModeComponent implements OnInit {
     console.log('Vente sans bon:', this.venteSansBon());
   }
 
-  onAmountInput(entry: PaymentModeEntry, event: any): void {
-    const value = Number(event.target.value);
-    if (entry.mode.code === PaymentModeCode.CASH) {
-      // Pour espèces, accepter n'importe quel montant (pour gérer la monnaie)
-      // On conserve le montant saisi dans amountEntered pour calculer la monnaie
-      entry.amountEntered = value;
-      entry.amount = value; // Ne plus limiter au montant à payer
-    } else {
-      entry.amount = value;
-    }
-
-    const modes = this.selectedModes();
-    // Si on a atteint le nombre max de modes (répartition dynamique)
-    if (modes.length >= this.maxPaymentModes()) {
-      // Trouver l'autre mode et lui attribuer le reste
-      const otherMode = modes.find(m => m !== entry);
-      if (otherMode) {
-        const remaining = this.amountToBePaid() - (entry.amount || 0);
-        otherMode.amount = Math.max(0, remaining);
-      }
-    }
-
-    // Forcer la détection des changements
-    this.selectedModes.set([...this.selectedModes()]);
-    // Gérer l'affichage du bouton add
-    this.manageShowAddButton(this.getInputSum());
-  }
-
   private manageShowAddButton(inputAmount: number): void {
     const numericAmount = this.parseAmount(inputAmount);
     this.isShowAddBtn.set(
@@ -493,8 +432,9 @@ export class PaymentModeComponent implements OnInit {
     setTimeout(() => {
       const inputs = this.paymentInputs();
       if (inputs.length > 0) {
-        inputs[0].nativeElement.focus();
-        inputs[0].nativeElement.select();
+        inputs[0].focus();
+        // La sélection attend que le champ soit passé en mode saisie (valeur brute)
+        setTimeout(() => inputs[0].select(), 50);
       }
     }, 0);
   }
@@ -503,7 +443,7 @@ export class PaymentModeComponent implements OnInit {
     setTimeout(() => {
       const inputs = this.paymentInputs();
       if (inputs.length > 0) {
-        const lastInput = inputs[inputs.length - 1].nativeElement;
+        const lastInput = inputs[inputs.length - 1];
         lastInput.focus();
         // Delay select slightly to ensure focus is complete
         setTimeout(() => lastInput.select(), 50);
@@ -551,41 +491,12 @@ export class PaymentModeComponent implements OnInit {
     };
   }
 
-  getPaymentModeIcon(code: string): string {
-    switch (code) {
-      case PaymentModeCode.CASH: return 'pi pi-money-bill';
-      case PaymentModeCode.CB: return 'pi pi-credit-card';
-      case PaymentModeCode.OM:
-      case PaymentModeCode.WAVE:
-      case PaymentModeCode.MOOV:
-      case PaymentModeCode.MTN:
-        return 'pi pi-mobile';
-      case PaymentModeCode.VIREMENT: return 'pi pi-building';
-      case PaymentModeCode.CH: return 'pi pi-file';
-      default: return 'pi pi-wallet';
-    }
-  }
-
   /**
-   * ✅ AJOUT Phase 4.3: Méthode publique pour mettre le focus sur le premier mode (CASH)
+   * Méthode publique pour mettre le focus sur le premier mode (CASH)
    * Appelée depuis le parent après ouverture du modal paiement
    */
   public focusFirstMode(): void {
-    // Le premier mode est toujours CASH, on cherche son input
-    setTimeout(() => {
-      const firstInput = document.querySelector('.payment-mode-input input') as HTMLInputElement;
-      if (firstInput) {
-        firstInput.focus();
-        firstInput.select();
-      } else {
-        // Alternative: chercher par ID (code du mode CASH)
-        const cashInput = document.getElementById('CASH') as HTMLInputElement;
-        if (cashInput) {
-          cashInput.focus();
-          cashInput.select();
-        }
-      }
-    }, 100);
+    this.focusFirstInput();
   }
 
   /**
@@ -627,4 +538,3 @@ export interface PaymentCompleteEvent {
   printReceipt: boolean;
   printInvoice: boolean;
 }
-

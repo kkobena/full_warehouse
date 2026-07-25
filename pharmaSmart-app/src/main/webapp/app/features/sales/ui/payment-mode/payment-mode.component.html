@@ -33,35 +33,84 @@
                     <span class="input-group-text" style="padding: 0">
                       <span [class]="entry.mode.styleBtnClass"></span>
                     </span>
-                    <input
-                      #paymentInput
-                      (input)="onAmountInput(entry, $event)"
+                    <app-input-number
+                      class="payment-amount-field"
+                      [ngModel]="entry.amount"
+                      (ngModelChange)="onAmountChanged(entry, $event)"
                       (keydown.enter)="submit(); $event.preventDefault()"
-                      [(ngModel)]="entry.amount"
-                      [appKeyFilter]="'int'"
-                      [id]="entry.mode.code"
-                      [readOnly]="entry.mode.code !== PaymentModeCode.CASH && selectedModes().length === 1"
-                      autocomplete="off"
-                      class="payment-mode-input form-control"
+                      [inputId]="entry.mode.code"
+                      [readonly]="entry.mode.code !== PaymentModeCode.CASH && selectedModes().length === 1"
+                      inputClass="payment-mode-input"
                       size="large"
                     />
                     @if (isShowAddBtn()) {
-                      <app-button
-                        (clicked)="openAddModePanel($event)"
-                        [severity]="'info'"
-                        class="add-mode-payment-btn"
-                        icon="pi pi-plus"
-                        type="button"
-                      ></app-button>
+                      <!-- La zone de règlement vit en bas de l'écran : les deux dropdowns préfèrent
+                           s'ouvrir vers le haut, avec repli vers le bas quand la place le permet
+                           (petits écrans 14") -->
+                      <div class="payment-action" container="body" ngbDropdown placement="top-end top-start bottom-end bottom-start">
+                        <button
+                          aria-label="Ajouter un mode de règlement"
+                          class="btn btn-info payment-action-btn"
+                          ngbDropdownToggle
+                          ngbTooltip="Ajouter un mode"
+                          type="button"
+                        >
+                          <i aria-hidden="true" class="pi pi-plus"></i>
+                        </button>
+                        <div class="payment-mode-menu" ngbDropdownMenu>
+                          @for (mode of availableModes(); track mode.code) {
+                            <button
+                              (click)="onAddPaymentMode(mode)"
+                              [ngbTooltip]="getPaymentModeLabel(mode.code)"
+                              container="body"
+                              ngbDropdownItem
+                              type="button"
+                            >
+                              <span [class]="mode.styleImageClass"></span>
+                            </button>
+                          }
+                        </div>
+                      </div>
                     }
 
-                    <app-button
-                      (clicked)="onRemovePaymentMode(entry, $event)"
-                      [severity]="'danger'"
-                      icon="pi pi-times"
-                      size="large"
-                      type="button"
-                    ></app-button>
+                    @if (selectedModes().length === 1) {
+                      <!-- Dernière ligne : le « x » devient un bouton de REMPLACEMENT
+                           (icône et couleur dédiées) — on ne descend jamais à zéro mode -->
+                      <div class="payment-action" container="body" ngbDropdown placement="top-end top-start bottom-end bottom-start">
+                        <button
+                          aria-label="Changer de mode de règlement"
+                          class="btn btn-warning payment-action-btn"
+                          ngbDropdownToggle
+                          ngbTooltip="Changer de mode"
+                          type="button"
+                        >
+                          <i aria-hidden="true" class="pi pi-sync"></i>
+                        </button>
+                        <div class="payment-mode-menu" ngbDropdownMenu>
+                          @for (mode of availableModes(); track mode.code) {
+                            <button
+                              (click)="onReplaceMode(entry, mode)"
+                              [ngbTooltip]="getPaymentModeLabel(mode.code)"
+                              container="body"
+                              ngbDropdownItem
+                              type="button"
+                            >
+                              <span [class]="mode.styleImageClass"></span>
+                            </button>
+                          }
+                        </div>
+                      </div>
+                    } @else {
+                      <button
+                        (click)="onRemovePaymentMode(entry)"
+                        aria-label="Supprimer ce mode de règlement"
+                        class="btn btn-danger payment-action-btn"
+                        ngbTooltip="Supprimer"
+                        type="button"
+                      >
+                        <i aria-hidden="true" class="pi pi-times"></i>
+                      </button>
+                    }
                   </div>
                 </div>
               }
@@ -124,40 +173,3 @@
     }
   }
 </div>
-
-<!-- Popovers -->
-<ng-template #addModeContent>
-  <div class="d-flex flex-wrap">
-    @for (mode of availableModes(); track mode.code) {
-      <div (click)="onAddPaymentMode(mode)" class="p-2 mode-reglement-icon">
-        <span [class]="mode.styleImageClass"></span>
-      </div>
-    }
-  </div>
-</ng-template>
-<span
-  #addModePanel="ngbPopover"
-  [ngbPopover]="addModeContent"
-  [positionTarget]="addModePositionTarget()"
-  container="body"
-  popoverClass="payment-mode-popover"
-  triggers="manual"
-></span>
-
-<ng-template #removeModeContent>
-  <div class="d-flex flex-wrap">
-    @for (mode of availableModes(); track mode.code) {
-      <div (click)="onConfirmReplaceMode(mode)" class="p-2 mode-reglement-icon">
-        <span [class]="mode.styleImageClass"></span>
-      </div>
-    }
-  </div>
-</ng-template>
-<span
-  #removeModePanel="ngbPopover"
-  [ngbPopover]="removeModeContent"
-  [positionTarget]="removeModePositionTarget()"
-  container="body"
-  popoverClass="payment-mode-popover"
-  triggers="manual"
-></span>

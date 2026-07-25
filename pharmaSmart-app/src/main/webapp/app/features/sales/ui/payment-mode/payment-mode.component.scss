@@ -125,49 +125,56 @@
   display: block !important;
 }
 
-.ws-mode-reglement input.payment-mode-input {
-  font-size: 1.1rem;
-  font-weight: 600;
-  padding: 0.5rem 0.75rem;
-  border-color: #dfe3e8;
-  height: 50px;
+/* Le champ montant est un composant enfant (app-input-number) : l'hôte prend la place
+   de l'ancien <input> dans l'input-group, et l'<input> interne — hors encapsulation de
+   ce composant — est ciblé via ::ng-deep grâce à la classe passée par [inputClass]. */
+.ws-mode-reglement app-input-number.payment-amount-field {
   flex: 1 1 auto;
   min-width: 0;
 }
 
-.ws-mode-reglement input.payment-mode-input:hover {
+::ng-deep .ws-mode-reglement input.payment-mode-input {
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 0.5rem 0.75rem;
+  border-color: #dfe3e8;
+  border-radius: 0;
+  height: 50px;
+  width: 100%;
+}
+
+::ng-deep .ws-mode-reglement input.payment-mode-input:hover {
   border-color: #5b89a6;
 }
 
-.ws-mode-reglement input.payment-mode-input:focus {
+::ng-deep .ws-mode-reglement input.payment-mode-input:focus {
   border-color: #5b89a6;
   box-shadow: 0 0 0 3px rgba(91, 137, 166, 0.1);
 }
 
-::ng-deep .ws-mode-reglement .add-mode-payment-btn .btn {
-  background: #5bc0de;
-  border-color: #5bc0de;
+/* Boutons d'action de ligne (ajouter / supprimer / remplacer) et leur wrapper dropdown */
+.ws-mode-reglement .payment-action {
+  display: flex;
+  align-items: stretch;
+}
+
+.ws-mode-reglement .payment-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.75rem;
+  height: 50px;
+  border-radius: 0;
   transition: all 0.2s ease;
-  width: 100%;
-  height: 100%;
 }
 
-::ng-deep .ws-mode-reglement .add-mode-payment-btn .btn:hover {
-  background: #46b8da;
-  border-color: #46b8da;
+.ws-mode-reglement .payment-action-btn:hover {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  transform: translateY(-1px);
 }
 
-::ng-deep .ws-mode-reglement .btn-danger {
-  transition: all 0.2s ease;
-  width: 100%;
-  height: 100%;
-}
-
-::ng-deep .ws-mode-reglement .btn-danger:hover {
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  transform: translateY(-1px);
+/* Boutons icône seule : le caret de .dropdown-toggle ferait doublon avec l'icône */
+.ws-mode-reglement .payment-action-btn.dropdown-toggle::after {
+  display: none;
 }
 
 /* ============================================
@@ -286,9 +293,33 @@
   }
 }
 
-// Largeur du panneau ng-bootstrap (posé via [popoverClass]="payment-mode-popover") ; le
-// panneau est ajouté au <body> par `container="body"`, donc hors de l'encapsulation de ce
-// composant — ::ng-deep sans préfixe :host le rend global, seul moyen de l'atteindre.
-::ng-deep .popover.payment-mode-popover {
-  max-width: 450px;
+// Menu de sélection de mode (dropdowns « + » et « changer de mode »). Le menu est
+// ajouté au <body> par `container="body"` (l'input-group a overflow: hidden), donc hors
+// de l'encapsulation de ce composant — ::ng-deep sans préfixe :host le rend global,
+// seul moyen de l'atteindre.
+::ng-deep .dropdown-menu.payment-mode-menu {
+  max-width: 420px;
+  padding: 0.5rem;
+}
+
+::ng-deep .dropdown-menu.payment-mode-menu.show {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  /* Garde-fou petits écrans : si malgré le repli de placement le menu dépasse la
+     hauteur disponible, il défile au lieu d'être coupé par le bord du viewport */
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+::ng-deep .payment-mode-menu .dropdown-item {
+  width: auto;
+  padding: 0.25rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+::ng-deep .payment-mode-menu .dropdown-item:hover,
+::ng-deep .payment-mode-menu .dropdown-item:focus-visible {
+  background-color: #f1f3f5;
 }

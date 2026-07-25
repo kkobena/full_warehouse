@@ -1,4 +1,4 @@
-import { Component, computed, forwardRef, input, signal } from '@angular/core';
+import { Component, computed, ElementRef, forwardRef, input, signal, viewChild } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { ControlValueAccessorBase } from '../forms/control-value-accessor.base';
@@ -33,6 +33,7 @@ import { ControlValueAccessorBase } from '../forms/control-value-accessor.base';
           <i [class]="decrementButtonIcon()"></i>
         </button>
         <input
+          #field
           type="text"
           [attr.inputmode]="inputMode()"
           [attr.id]="inputId() || null"
@@ -57,6 +58,7 @@ import { ControlValueAccessorBase } from '../forms/control-value-accessor.base';
       </div>
     } @else {
       <input
+        #field
         type="text"
         [attr.inputmode]="inputMode()"
         [attr.id]="inputId() || null"
@@ -203,6 +205,18 @@ export class InputNumberComponent extends ControlValueAccessorBase<number> {
   /** Pendant la saisie on affiche la frappe telle quelle ; le formatage n'a lieu qu'au blur. */
   private readonly editing = signal(false);
   private readonly rawInput = signal('');
+
+  private readonly fieldRef = viewChild<ElementRef<HTMLInputElement>>('field');
+
+  /** Donne le focus au champ natif — API programmatique pour les composants parents. */
+  focus(): void {
+    this.fieldRef()?.nativeElement.focus();
+  }
+
+  /** Sélectionne le contenu du champ ; à appeler après `focus()`. */
+  select(): void {
+    this.fieldRef()?.nativeElement.select();
+  }
 
   /** `numeric` par défaut (le projet manipule surtout des entiers) ; `decimal` dès que des décimales sont autorisées. */
   protected readonly inputMode = computed(() => (this.maxFractionDigits() > 0 ? 'decimal' : 'numeric'));

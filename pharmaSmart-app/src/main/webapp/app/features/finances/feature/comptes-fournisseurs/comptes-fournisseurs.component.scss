@@ -3,6 +3,7 @@
 @import 'app/shared/scss/bulk-action-bar';
 @import 'app/shared/scss/dashboard-common';
 @import 'app/shared/scss/table-common';
+@import 'app/shared/scss/split-panel';
 
 :host {
   display: flex;
@@ -106,21 +107,6 @@ $border-color:   #e2e8f0;
 
 // ── Split container ────────────────────────────────────────────────────────
 
-.split-container {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-  gap: 0;
-  min-height: 0;
-}
-
-.list-column {
-  flex: 1;
-  overflow: auto;
-  transition: flex 0.2s ease;
-  border-right: 1px solid #e2e8f0;
-}
-
 .split-container.panel-open .list-column {
   flex: 0 0 45%;
   max-width: 45%;
@@ -129,8 +115,6 @@ $border-color:   #e2e8f0;
 .detail-column {
   flex: 0 0 55%;
   max-width: 55%;
-  overflow: hidden;
-  background: #fff;
 }
 
 // ── Detail panel (suit le pattern differe-detail-panel) ────────────────────
@@ -235,27 +219,4 @@ $border-color:   #e2e8f0;
   color: #008cba;
 }
 
-// ── Responsive ────────────────────────────────────────────────────────────
-
-@media (max-width: 1024px) {
-  .split-container.panel-open {
-    flex-direction: column;
-
-    .list-column,
-    .detail-column {
-      flex: none;
-      max-width: 100%;
-      width: 100%;
-      border-right: none;
-    }
-
-    .list-column {
-      border-bottom: 1px solid #e2e8f0;
-      max-height: 40%;
-    }
-
-    .detail-column {
-      flex: 1;
-    }
-  }
-}
+// ── Responsive : cf. split-panel (partagé) pour l'empilement sous 992px ────

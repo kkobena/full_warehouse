@@ -2,6 +2,7 @@
 @use 'app/shared/scss/table-common' as common;
 @use 'app/shared/scss/panel-header' as header;
 @use 'app/shared/scss/bulk-action-bar' as bulk;
+@use 'app/shared/scss/split-panel';
 
 :host {
   display: flex;
@@ -42,22 +43,8 @@
   font-weight: 600;
 }
 
-// Split master/detail — même pattern que facturation-home
-.split-container {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-  gap: 0;
-  min-height: 0;
-}
-
-.list-column {
-  flex: 1;
-  overflow: auto;
-  transition: flex 0.2s ease;
-  border-right: 1px solid var(--surface-border, #e2e8f0);
-}
-
+// Split master/detail — ratio propre à cet écran (35/65) ; le fond du panneau détail
+// et la structure de base viennent de split-panel (partagé).
 .split-container.panel-open .list-column {
   flex: 0 0 35%;
   max-width: 35%;
@@ -68,8 +55,6 @@
   max-width: 65%;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  background: #fff;
 }
 
 // Ligne maître sélectionnée
@@ -94,25 +79,3 @@
   background-color: var(--surface-ground, #f8f9fa);
 }
 
-@media (max-width: 1024px) {
-  .split-container.panel-open {
-    flex-direction: column;
-
-    .list-column,
-    .detail-column {
-      flex: none;
-      max-width: 100%;
-      width: 100%;
-    }
-
-    .list-column {
-      border-right: none;
-      border-bottom: 1px solid var(--surface-border, #e2e8f0);
-      max-height: 35%;
-    }
-
-    .detail-column {
-      flex: 1;
-    }
-  }
-}

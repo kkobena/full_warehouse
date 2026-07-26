@@ -11,7 +11,7 @@
         <span class="text-muted small">Planifications automatiques de génération de factures</span>
       </div>
 
-      <div class="pharma-toolbar-actions">
+      <div class="pharma-toolbar-actions py-1">
         <div class="pharma-button-group">
           <app-button
             (clicked)="state.guideVisible.set(!state.guideVisible())"
@@ -42,7 +42,8 @@
         <div>
           <strong>Comment fonctionne la génération automatique de factures ?</strong>
           <p class="guide-subtitle mb-0">
-            Renseignez la périodicité sur les organismes, activez la planification, le système prend le relais.
+            Renseignez la périodicité sur les organismes, activez la planification, le système prend
+            le relais.
           </p>
         </div>
       </div>
@@ -52,7 +53,8 @@
           <div class="step-content">
             <strong>Renseignez la périodicité sur chaque organisme</strong>
             <p>
-              Sur la fiche de chaque <em>tiers payant</em> ou <em>groupe</em>, sélectionnez la périodicité de
+              Sur la fiche de chaque <em>tiers payant</em> ou <em>groupe</em>, sélectionnez la
+              périodicité de
               facturation définitive et/ou provisoire.
             </p>
           </div>
@@ -62,7 +64,8 @@
           <div class="step-content">
             <strong>Activez la planification correspondante</strong>
             <p>
-              Chaque ligne du tableau correspond à une périodicité et couvre automatiquement tous les organismes
+              Chaque ligne du tableau correspond à une périodicité et couvre automatiquement tous
+              les organismes
               ayant cette périodicité.
             </p>
           </div>
@@ -72,7 +75,8 @@
           <div class="step-content">
             <strong>Gérez finement les organismes via les sous-onglets</strong>
             <p>
-              Sélectionnez des groupes ou tiers payants et utilisez les actions en masse pour inclure/exclure ou
+              Sélectionnez des groupes ou tiers payants et utilisez les actions en masse pour
+              inclure/exclure ou
               modifier la périodicité en lot.
             </p>
           </div>
@@ -85,8 +89,8 @@
   <div class="pharma-nav-tabs-container planif-main-tabs">
     <div
       #mainNav="ngbNav"
-      [activeId]="activeMainTab"
       (activeIdChange)="onMainTabChange($event)"
+      [activeId]="activeMainTab"
       class="nav pharma-nav-tabs"
       ngbNav
       orientation="horizontal"

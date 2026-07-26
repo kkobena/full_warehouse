@@ -454,7 +454,14 @@ export class PlanificationStateService {
   }
 
   // ── Toggle actif / execute / delete ──────────────────────────────────
-  onToggleActif(planification: IPlanification): void {
+  /**
+   * `app-switch` bascule visuellement dès le clic (avant confirmation) : si l'utilisateur
+   * annule, ou si l'appel API échoue, `planification.actif` ne change jamais côté données —
+   * Angular ne redéclenche donc pas `writeValue()` sur `[ngModel]` (valeur liée inchangée) et
+   * le switch reste visuellement faussé. `onReverted` permet à l'appelant de forcer le
+   * réaffichage correct (cf. `planif-tab-factures.component.ts`).
+   */
+  onToggleActif(planification: IPlanification, onReverted?: () => void): void {
     if (!planification.id) return;
     const action = planification.actif ? 'Désactiver' : 'Activer';
     this.confirmDialog.onConfirm(
@@ -467,10 +474,15 @@ export class PlanificationStateService {
               this.planifications.update(list =>
                 list.map(p => (p.id === planification.id ? { ...p, actif: !p.actif } : p)),
               ),
-            error: () => this.notificationService.error("Erreur lors du changement d'état"),
+            error: () => {
+              this.notificationService.error("Erreur lors du changement d'état");
+              onReverted?.();
+            },
           }),
       `${action} la planification`,
       `${action} la planification « ${planification.libelle} » ?`,
+      undefined,
+      onReverted,
     );
   }
 

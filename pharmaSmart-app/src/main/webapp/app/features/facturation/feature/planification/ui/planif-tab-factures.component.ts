@@ -55,5 +55,24 @@ export class PlanifTabFacturesComponent {
     if (this.mode() === "def") this.state.onSelectPlanDef(plan);
     else this.state.onSelectPlanProv(plan);
   }
+
+  /**
+   * `app-data-table` est générique : `selectionChange` est typé `T | T[] | null` même en
+   * mode `selectionMode="single"` (le type ne peut pas être affiné selon cette valeur de
+   * template). On ramène ici à une valeur unique avant de déléguer à `onSelectPlan`.
+   */
+  protected onSelectionChange(value: IPlanification | IPlanification[] | null): void {
+    this.onSelectPlan(Array.isArray(value) ? (value[0] ?? null) : value);
+  }
+
+  /**
+   * `app-switch` bascule visuellement dès le clic ; si l'utilisateur annule la confirmation
+   * (ou si l'appel API échoue), `plan.actif` ne change jamais, donc Angular ne redéclenche
+   * jamais `writeValue()` sur `[ngModel]` (valeur liée identique) et le switch reste
+   * visuellement faussé. On force ici le réaffichage correct via la référence du composant.
+   */
+  protected revertSwitch(switchRef: SwitchComponent, plan: IPlanification): () => void {
+    return () => switchRef.writeValue(plan.actif);
+  }
 }
 

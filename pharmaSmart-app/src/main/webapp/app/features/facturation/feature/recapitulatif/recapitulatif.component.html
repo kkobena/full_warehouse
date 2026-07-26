@@ -3,89 +3,89 @@
   <!-- Toolbar -->
   <app-toolbar [compact]="true" icon="pi pi-chart-bar" title="Récapitulatif mensuel">
     <ng-container ngProjectAs="[toolbarFilters]">
-        <div class="pharma-toolbar-filters">
-          <app-float-label inputId="recap-type" label="">
-            <app-select
-              [(ngModel)]="selectedTypeFacture"
-              [items]="typeFactureOptions"
-              appendTo="body"
-              inputId="recap-type"
-              bindLabel="label"
-              bindValue="value"
-              [style]="{ width: '150px' }"
-              (selectionChange)="onSearch()"
-            />
-          </app-float-label>
-          <app-float-label inputId="recap-annee" label="Année">
-            <app-select
-              [(ngModel)]="annee"
-              [items]="anneeOptions"
-              appendTo="body"
-              inputId="recap-annee"
-              bindLabel="label"
-              bindValue="value"
-              [style]="{ width: '120px' }"
-              (selectionChange)="onSearch()"
-            />
-          </app-float-label>
+      <div class="pharma-toolbar-filters">
+        <app-float-label inputId="recap-type" label="">
+          <app-select
+            (selectionChange)="onSearch()"
+            [(ngModel)]="selectedTypeFacture"
+            [items]="typeFactureOptions"
+            [style]="{ width: '150px' }"
+            appendTo="body"
+            bindLabel="label"
+            bindValue="value"
+            inputId="recap-type"
+          />
+        </app-float-label>
+        <app-float-label inputId="recap-annee" label="Année">
+          <app-select
+            (selectionChange)="onSearch()"
+            [(ngModel)]="annee"
+            [items]="anneeOptions"
+            [style]="{ width: '120px' }"
+            appendTo="body"
+            bindLabel="label"
+            bindValue="value"
+            inputId="recap-annee"
+          />
+        </app-float-label>
 
-          <app-float-label inputId="recap-mois" label="Mois">
-            <app-select
-              [(ngModel)]="selectedMois"
-              [items]="moisOptions"
-              appendTo="body"
-              inputId="recap-mois"
-              bindLabel="label"
-              bindValue="value"
-              [style]="{ width: '140px' }"
-            />
-          </app-float-label>
+        <app-float-label inputId="recap-mois" label="Mois">
+          <app-select
+            [(ngModel)]="selectedMois"
+            [items]="moisOptions"
+            [style]="{ width: '140px' }"
+            appendTo="body"
+            bindLabel="label"
+            bindValue="value"
+            inputId="recap-mois"
+          />
+        </app-float-label>
 
-          <app-float-label inputId="recap-tp" label="Tiers-payant">
-            <app-multi-select
-              (searched)="searchTiersPayant($event)"
-              [(ngModel)]="selectedTiersPayants"
-              [minSearchLength]="2"
-                            [items]="tiersPayantSuggestions"
-              appendTo="body"
-              inputId="recap-tp"
-              bindLabel="fullName"
-            />
-          </app-float-label>
+        <app-float-label inputId="recap-tp" label="Tiers-payant">
+          <app-multi-select
+            (searched)="searchTiersPayant($event)"
+            [(ngModel)]="selectedTiersPayants"
+            [items]="tiersPayantSuggestions"
+            [minSearchLength]="2"
+            appendTo="body"
+            bindLabel="fullName"
+            inputId="recap-tp"
+          />
+        </app-float-label>
 
+      </div>
+    </ng-container>
+
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-toolbar-actions">
+        <div class="pharma-button-group">
+          <app-button
+            (clicked)="onSearch()"
+            [loading]="loading()"
+            [raised]="true"
+            icon="pi pi-search"
+            label="Rechercher"
+            severity="info"
+          />
+          <app-button
+            (clicked)="onExportExcel()"
+            [loading]="loadingExport()"
+            [outlined]="true"
+            icon="pi pi-file-excel"
+            label="Excel"
+            severity="help"
+          />
+          <app-button
+            (clicked)="onExportPdf()"
+            [loading]="loadingPdf()"
+            [outlined]="true"
+            icon="pi pi-file-pdf"
+            label="PDF"
+            severity="danger"
+          />
         </div>
-      </ng-container>
-
-<ng-container ngProjectAs="[toolbarActions]">
-        <div class="pharma-toolbar-actions">
-          <div class="pharma-button-group">
-            <app-button
-              (clicked)="onSearch()"
-              [loading]="loading()"
-              [raised]="true"
-              icon="pi pi-search"
-              label="Rechercher"
-              severity="info"
-            />
-            <app-button
-              (clicked)="onExportExcel()"
-              [loading]="loadingExport()"
-              [outlined]="true"
-              icon="pi pi-file-excel"
-              label="Excel"
-              severity="help"
-            />
-            <app-button
-              (clicked)="onExportPdf()"
-              [outlined]="true"
-              [loading]="loadingPdf()"
-              icon="pi pi-file-pdf"
-              label="PDF"
-              severity="danger"
-            />
-          </div>
-        </div>
-      </ng-container>
+      </div>
+    </ng-container>
   </app-toolbar>
 
   <!-- KPI globaux -->
@@ -95,24 +95,24 @@
     <div class="pharma-hint">
       <i class="pi pi-info-circle"></i>
       <span>Cliquez sur une ligne pour afficher le détail .</span>
-      <button type="button" class="pharma-hint-close" (click)="dismissHint()" aria-label="Fermer">
+      <button (click)="dismissHint()" aria-label="Fermer" class="pharma-hint-close" type="button">
         <i class="pi pi-times"></i>
       </button>
     </div>
   }
   <!-- Split master/detail -->
-  <div class="split-container" [class.panel-open]="panelOpen()">
+  <div [class.panel-open]="panelOpen()" class="split-container">
 
     <!-- Colonne maître : liste des organismes -->
     <div class="list-column">
       <app-data-table
-        [value]="rows()"
         [loading]="loading()"
         [scrollable]="true"
-        scrollHeight="flex"
         [size]="'small'"
-        selectionMode="single"
+        [value]="rows()"
         dataKey="tiersPayantId"
+        scrollHeight="flex"
+        selectionMode="single"
       >
         <ng-template #header>
           <tr class="pharma-table-head">
@@ -144,7 +144,7 @@
             </td>
             @if (!panelOpen()) {
               <td class="text-muted small">{{ row.tiersPayantName }}</td>
-              <td class="text-muted small">{{ row.periode  | date: 'MM/yyyy'}}</td>
+              <td class="text-muted small">{{ row.periode  | date: 'MM/yyyy' }}</td>
               <td class="text-end">{{ (row.soldePrecedent ?? 0) | number:'1.0-0' }}</td>
             }
             <td class="text-end fw-bold">{{ (row.totalFacture ?? 0) | number:'1.0-0' }}</td>
@@ -156,16 +156,16 @@
             }
             <td class="text-end">
               @if ((row.totalFacture ?? 0) > 0) {
-                <span [class.text-success]="detailTauxRecouvrement(row) >= 80"
-                      [class.text-warning]="detailTauxRecouvrement(row) >= 50 && detailTauxRecouvrement(row) < 80"
-                      [class.text-danger]="detailTauxRecouvrement(row) < 50">
+                <span [class.text-danger]="detailTauxRecouvrement(row) < 50"
+                      [class.text-success]="detailTauxRecouvrement(row) >= 80"
+                      [class.text-warning]="detailTauxRecouvrement(row) >= 50 && detailTauxRecouvrement(row) < 80">
                   {{ detailTauxRecouvrement(row) }} %
                 </span>
               } @else {
                 <span class="text-muted">—</span>
               }
             </td>
-            <td class="text-center" (click)="$event.stopPropagation()">
+            <td (click)="$event.stopPropagation()" class="text-center">
               <div class="btn-group" role="group">
                 <app-button
                   (clicked)="onRowSelect(row)"
@@ -187,18 +187,19 @@
         <ng-template #footer>
           @if (rows().length > 0) {
             <tr class="pharma-table-footer">
-              <td class="pharma-footer-label" [attr.colspan]="panelOpen() ? 1 : 4">
+              <td [attr.colspan]="panelOpen() ? 1 : 4" class="pharma-footer-label">
                 <i class="pi pi-calculator"></i>
                 <span>Total</span>
-                </td>
+              </td>
               <td class="text-end">
                 <span class="pharma-footer-value">{{ totalFacture | number:'1.0-0' }}</span>
-                </td>
+              </td>
               <td class="text-end text-success">
                 <span class="pharma-footer-total">{{ totalRegle | number:'1.0-0' }}</span>
-                </td>
-              <td class="text-end text-danger"><span class="pharma-footer-value text-danger">{{ totalRestant | number:'1.0-0' }}</span>
-                </td>
+              </td>
+              <td class="text-end text-danger"><span
+                class="pharma-footer-value text-danger">{{ totalRestant | number:'1.0-0' }}</span>
+              </td>
               @if (!panelOpen()) {
                 <td class="text-end">—</td>
                 <td class="text-end">—</td>
@@ -206,7 +207,8 @@
               <td class="text-end">
                 <span class="pharma-footer-total">{{ tauxGlobal }} %</span>
 
-                </td>
+              </td>
+              <td></td>
             </tr>
           }
         </ng-template>
@@ -229,16 +231,23 @@
               <i class="pi pi-building me-1"></i>{{ selectedRow()?.tiersPayantName }}
             </div>
             <div class="panel-meta">
-              <span class="pharma-badge pharma-badge-secondary">{{ selectedRow()?.periode | date: 'MM/yyyy' }}</span>
-              <span class="pharma-badge pharma-badge-primary">Facturé : {{ (selectedRow()?.totalFacture ?? 0) | number:'1.0-0' }}</span>
-              <span class="pharma-badge pharma-badge-success">Réglé : {{ (selectedRow()?.totalRegle ?? 0) | number:'1.0-0' }}</span>
+              <span
+                class="pharma-badge pharma-badge-secondary">{{ selectedRow()?.periode | date: 'MM/yyyy' }}</span>
+              <span class="pharma-badge pharma-badge-primary">Facturé : {{
+                  (selectedRow()?.totalFacture ?? 0) | number:'1.0-0'
+                }}</span>
+              <span class="pharma-badge pharma-badge-success">Réglé : {{
+                  (selectedRow()?.totalRegle ?? 0) | number:'1.0-0'
+                }}</span>
               @if ((selectedRow()?.soldeActuel ?? 0) > 0) {
-                <span class="pharma-badge pharma-badge-danger">Restant : {{ (selectedRow()?.soldeActuel ?? 0) | number:'1.0-0' }}</span>
+                <span class="pharma-badge pharma-badge-danger">Restant : {{
+                    (selectedRow()?.soldeActuel ?? 0) | number:'1.0-0'
+                  }}</span>
               }
-              <span class="pharma-badge"
+              <span [class.pharma-badge-danger]="detailTauxRecouvrement(selectedRow()!) < 50"
                     [class.pharma-badge-success]="detailTauxRecouvrement(selectedRow()!) >= 80"
                     [class.pharma-badge-warning]="detailTauxRecouvrement(selectedRow()!) >= 50 && detailTauxRecouvrement(selectedRow()!) < 80"
-                    [class.pharma-badge-danger]="detailTauxRecouvrement(selectedRow()!) < 50">
+                    class="pharma-badge">
                 Taux : {{ detailTauxRecouvrement(selectedRow()!) }} %
               </span>
             </div>
@@ -246,9 +255,9 @@
           <div class="panel-actions">
             <app-button
               (clicked)="closePanel()"
-              icon="pi pi-times"
-              [text]="true"
               [rounded]="true"
+              [text]="true"
+              icon="pi pi-times"
               size="small"
               title="Fermer"
             />
@@ -257,7 +266,8 @@
 
         <div class="recap-detail-solde-prev">
           <span class="text-muted small">Report solde précédent :</span>
-          <span class="fw-semibold ms-2">{{ (selectedRow()?.soldePrecedent ?? 0) | number:'1.0-0' }} FCFA</span>
+          <span class="fw-semibold ms-2">{{ (selectedRow()?.soldePrecedent ?? 0) | number:'1.0-0' }}
+            FCFA</span>
           @if ((selectedRow()?.soldePrecedent ?? 0) > 0) {
             <span class="badge bg-warning text-dark ms-2 small">Solde reporté</span>
           }
@@ -265,9 +275,9 @@
 
         <div class="recap-detail-body">
           <app-data-table
-            [value]="detailLignes(selectedRow()!)"
-            [size]="'small'"
             [scrollable]="true"
+            [size]="'small'"
+            [value]="detailLignes(selectedRow()!)"
             scrollHeight="flex"
           >
             <ng-template #header>
@@ -287,7 +297,10 @@
                 <td class="small">{{ ligne.invoiceDate | date: 'dd/MM/yyyy' }}</td>
                 <td class="small">{{ ligne.echeance | date: 'dd/MM/yyyy' }}</td>
                 <td class="text-end">{{ (ligne.montantNet ?? 0) | number:'1.0-0' }}</td>
-                <td class="text-end text-success">{{ (ligne.montantRegle ?? 0) | number:'1.0-0' }}</td>
+                <td class="text-end text-success">{{
+                    (ligne.montantRegle ?? 0) | number:'1.0-0'
+                  }}
+                </td>
                 <td class="text-end text-danger">{{ (ligne.restantDu ?? 0) | number:'1.0-0' }}</td>
                 <td>
                   <span class="badge {{ statutClass(ligne.statut) }}">
@@ -298,7 +311,7 @@
             </ng-template>
             <ng-template #emptymessage>
               <tr>
-                <td colspan="7" class="text-center text-muted py-3">
+                <td class="text-center text-muted py-3" colspan="7">
                   <i class="pi pi-info-circle me-1"></i>Aucune facture sur cette période
                 </td>
               </tr>

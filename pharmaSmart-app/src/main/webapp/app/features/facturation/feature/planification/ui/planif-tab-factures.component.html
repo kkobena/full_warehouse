@@ -20,7 +20,7 @@
       scrollHeight="calc(100vh - 310px)"
       selectionMode="single"
       [selection]="selectedPlan()"
-      (selectionChange)="onSelectPlan($event)"
+      (selectionChange)="onSelectionChange($event)"
       [size]="'small'" class="planif-table"
       dataKey="id"
     >
@@ -65,10 +65,10 @@
               </span>
             }
           </td>
-          <td class="text-center">
-            <app-switch [ngModel]="plan.actif" (ngModelChange)="state.onToggleActif(plan)" />
+          <td class="text-center" (click)="$event.stopPropagation()">
+            <app-switch #actifSwitch [ngModel]="plan.actif" (ngModelChange)="state.onToggleActif(plan, revertSwitch(actifSwitch, plan))" />
           </td>
-          <td>
+          <td (click)="$event.stopPropagation()">
             <div>
               <div class="btn-group" role="group">
                 <app-button

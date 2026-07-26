@@ -1,6 +1,7 @@
 @import 'app/shared/scss/pharma-toolbar';
 @import 'app/shared/scss/table-common';
 @import 'app/shared/scss/bulk-action-bar';
+@import 'app/shared/scss/split-panel';
 
 
 .produit-home-layout {
@@ -10,20 +11,7 @@
   overflow: hidden;
 }
 
-.split-container {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-  gap: 0;
-}
-
-.list-column {
-  flex: 1;
-  overflow: hidden;
-  transition: flex 0.2s ease;
-  border-right: 1px solid $pharma-border;
-}
-
+// Ratio propre à cet écran (38/62 au lieu du 40/60 partagé par défaut).
 .split-container.panel-open .list-column {
   flex: 0 0 38%;
   max-width: 38%;
@@ -32,8 +20,6 @@
 .detail-column {
   flex: 0 0 62%;
   max-width: 62%;
-  overflow-y: auto;
-  background: $pharma-white;
 }
 
 // Légende code couleur stock
@@ -70,12 +56,32 @@
   border-radius: 50%;
   flex-shrink: 0;
 
-  &.dot-success  { background: #5cb85c; }
-  &.dot-warning  { background: #f0ad4e; }
-  &.dot-danger   { background: #d9534f; }
-  &.dot-critical { background: #c0392b; border: 1px solid #922b21; }
-  &.dot-expiry   { background: #e67e22; border: 1px solid #ca6f1e; }
-  &.dot-marge-low { background: #d9534f; border-radius: 2px; }
+  &.dot-success {
+    background: #5cb85c;
+  }
+
+  &.dot-warning {
+    background: #f0ad4e;
+  }
+
+  &.dot-danger {
+    background: #d9534f;
+  }
+
+  &.dot-critical {
+    background: #c0392b;
+    border: 1px solid #922b21;
+  }
+
+  &.dot-expiry {
+    background: #e67e22;
+    border: 1px solid #ca6f1e;
+  }
+
+  &.dot-marge-low {
+    background: #d9534f;
+    border-radius: 2px;
+  }
 }
 
 .legend-sep {
@@ -105,11 +111,35 @@
   line-height: 1.4;
 }
 
-:host ::ng-deep .classe-a_plus { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-:host ::ng-deep .classe-a      { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
-:host ::ng-deep .classe-b      { background: #fef9c3; color: #854d0e; border: 1px solid #fde68a; }
-:host ::ng-deep .classe-c      { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-:host ::ng-deep .classe-d      { background: #f3f4f6; color: $pharma-text-light; border: 1px solid #e5e7eb; }
+:host ::ng-deep .classe-a_plus {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+:host ::ng-deep .classe-a {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+:host ::ng-deep .classe-b {
+  background: #fef9c3;
+  color: #854d0e;
+  border: 1px solid #fde68a;
+}
+
+:host ::ng-deep .classe-c {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+:host ::ng-deep .classe-d {
+  background: #f3f4f6;
+  color: $pharma-text-light;
+  border: 1px solid #e5e7eb;
+}
 
 /* Badges réglementaires */
 :host ::ng-deep .badge-essentiel {
@@ -150,6 +180,9 @@
   border: 1px solid $pharma-border;
   border-radius: $pharma-radius;
   padding: 0.75rem;
+  // Carte blanche sur le fond teinté du panneau détail : restaure le contraste du texte
+  // muted ($pharma-text-light) sans avoir à l'assombrir globalement.
+  background: $pharma-white;
 }
 
 :host ::ng-deep .section-title {
@@ -157,7 +190,8 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: $pharma-text-light;
+  // Plus foncé que $pharma-text-light (#6c757d) pour une meilleure lisibilité de ce libellé.
+  color: #343a40;
   margin: 0 0 0.5rem;
 }
 
@@ -175,7 +209,8 @@
 
 :host ::ng-deep .kpi-label {
   font-size: 0.65rem;
-  color: $pharma-text-light;
+  // Plus foncé que $pharma-text-light (#6c757d) pour une meilleure lisibilité de ce libellé.
+  color: #343a40;
   white-space: nowrap;
 }
 
@@ -184,7 +219,15 @@
   font-weight: 600;
   color: $pharma-text;
 
-  &.kpi-danger  { color: #d9534f; }
-  &.kpi-warning { color: #f0ad4e; }
-  &.kpi-success { color: #5cb85c; }
+  &.kpi-danger {
+    color: #d9534f;
+  }
+
+  &.kpi-warning {
+    color: #f0ad4e;
+  }
+
+  &.kpi-success {
+    color: #5cb85c;
+  }
 }

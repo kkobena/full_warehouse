@@ -11,7 +11,7 @@
       <div class="kpi-grid">
         <div class="kpi-item">
           <span class="kpi-label">Stock actuel</span>
-          <span class="kpi-value" [class]="stockClass()">
+          <span [class]="stockClass()" class="kpi-value">
             {{ produit().totalQuantity ?? 0 | number }} u
           </span>
         </div>
@@ -20,8 +20,9 @@
           <span class="kpi-value">{{ produit().seuilMini ?? '—' }} u</span>
         </div>
         <div class="kpi-item">
-          <span class="kpi-label" ngbTooltip="Jours avant rupture estimés sur la CMM">Jours de stock</span>
-          <span class="kpi-value" [class]="joursStockClass()">
+          <span class="kpi-label"
+                ngbTooltip="Jours avant rupture estimés sur la CMM">Jours de stock</span>
+          <span [class]="joursStockClass()" class="kpi-value">
             @if (couvertureJours() != null) {
               {{ couvertureJours() }} j
             } @else {
@@ -68,7 +69,7 @@
         <i class="pi pi-exclamation-triangle"></i>
         <span>
           Lot expirant dans &lt; 3 mois —
-          {{ lotLeProchePrime()?.datePeremption }}
+          {{ lotLeProchePrime()?.expiryDate }}
           (lot {{ lotLeProchePrime()?.numLot }}, qté {{ lotLeProchePrime()?.quantity }})
         </span>
       </div>
@@ -77,7 +78,7 @@
         <i class="pi pi-clock"></i>
         <span>
           Péremption dans {{ lotLeProchePrime()?.peremptionStatut?.mouths }} mois —
-          {{ lotLeProchePrime()?.datePeremption }}
+          {{ lotLeProchePrime()?.expiryDate }}
           (lot {{ lotLeProchePrime()?.numLot }}, qté {{ lotLeProchePrime()?.quantity }})
         </span>
       </div>
@@ -100,12 +101,15 @@
           <span class="kpi-value">
             @if (indicateurs()?.qteVendue12Mois != null) {
               {{ indicateurs()!.qteVendue12Mois | number }} u
-            } @else { — }
+            } @else {
+              —
+            }
           </span>
         </div>
         <div class="kpi-item">
           <span class="kpi-label">Classe ABC</span>
-          <span class="kpi-value classe-badge classe-{{ produit().classeCriticite?.toLowerCase() }}">
+          <span
+            class="kpi-value classe-badge classe-{{ produit().classeCriticite?.toLowerCase() }}">
             {{ produit().classeCriticite?.replace('_', '+') ?? '—' }}
           </span>
         </div>
@@ -141,7 +145,9 @@
           <span class="kpi-value" style="color: #5cb85c">
             @if (margeAbsolue() != null) {
               {{ margeAbsolue() | number: '1.0-0' }} FCFA
-            } @else { — }
+            } @else {
+              —
+            }
           </span>
         </div>
         <div class="kpi-item">
@@ -184,15 +190,15 @@
             Suivi des lots
             <i
               class="pi pi-info-circle ms-1"
-              style="font-size: 0.7rem; color: #6b7280; cursor: help"
               ngbTooltip="Activer pour exiger la saisie de numéro de lot et de date de péremption à chaque réception de ce produit"
               placement="top"
+              style="font-size: 0.7rem; color: #6b7280; cursor: help"
             ></i>
           </span>
           <app-switch
-            [ngModel]="produit().gestionLot ?? true"
-            [disabled]="!canEdit() || isDisabled() || gestionLotPending()"
             (ngModelChange)="onToggleGestionLot($event)"
+            [disabled]="!canEdit() || isDisabled() || gestionLotPending()"
+            [ngModel]="produit().gestionLot ?? true"
             ngbTooltip="{{ (produit().gestionLot ?? false) ? 'Désactiver le suivi des lots' : 'Activer le suivi des lots' }}"
             placement="left"
           />
@@ -207,9 +213,9 @@
         <div class="kpi-item">
           <span class="kpi-label">Statut légal</span>
           <app-badge
+            [icon]="statutLegalTag().icon"
             [label]="statutLegalTag().label"
             [severity]="statutLegalTag().severity"
-            [icon]="statutLegalTag().icon"
           />
         </div>
         <div class="kpi-item kpi-item--toggle">
@@ -217,15 +223,15 @@
             Thermosensible
             <i
               class="pi pi-info-circle ms-1"
-              style="font-size: 0.7rem; color: #6b7280; cursor: help"
               ngbTooltip="Produit nécessitant une conservation au froid (chaîne du froid)"
               placement="top"
+              style="font-size: 0.7rem; color: #6b7280; cursor: help"
             ></i>
           </span>
           <app-switch
-            [ngModel]="produit().thermosensible ?? false"
-            [disabled]="!canEdit() || isDisabled() || thermosensiblePending()"
             (ngModelChange)="onToggleThermosensible($event)"
+            [disabled]="!canEdit() || isDisabled() || thermosensiblePending()"
+            [ngModel]="produit().thermosensible ?? false"
             ngbTooltip="{{ (produit().thermosensible ?? false) ? 'Désactiver le flag thermosensible' : 'Activer le flag thermosensible' }}"
             placement="left"
           />
@@ -235,15 +241,15 @@
             Médicament essentiel
             <i
               class="pi pi-info-circle ms-1"
-              style="font-size: 0.7rem; color: #6b7280; cursor: help"
               ngbTooltip="Inscrit sur la liste des médicaments essentiels (OMS / liste nationale)"
               placement="top"
+              style="font-size: 0.7rem; color: #6b7280; cursor: help"
             ></i>
           </span>
           <app-switch
-            [ngModel]="produit().estMedicamentEssentiel ?? false"
-            [disabled]="!canEdit() || isDisabled() || medicamentEssentielPending()"
             (ngModelChange)="onToggleMedicamentEssentiel($event)"
+            [disabled]="!canEdit() || isDisabled() || medicamentEssentielPending()"
+            [ngModel]="produit().estMedicamentEssentiel ?? false"
             ngbTooltip="{{ (produit().estMedicamentEssentiel ?? false) ? 'Retirer de la liste des médicaments essentiels' : 'Marquer comme médicament essentiel' }}"
             placement="left"
           />
@@ -253,15 +259,15 @@
             Produit de garde
             <i
               class="pi pi-info-circle ms-1"
-              style="font-size: 0.7rem; color: #6b7280; cursor: help"
               ngbTooltip="Produit disponible lors des services de garde et d'urgence"
               placement="top"
+              style="font-size: 0.7rem; color: #6b7280; cursor: help"
             ></i>
           </span>
           <app-switch
-            [ngModel]="produit().estProduitGarde ?? false"
-            [disabled]="!canEdit() || isDisabled() || produitGardePending()"
             (ngModelChange)="onToggleProduitGarde($event)"
+            [disabled]="!canEdit() || isDisabled() || produitGardePending()"
+            [ngModel]="produit().estProduitGarde ?? false"
             ngbTooltip="{{ (produit().estProduitGarde ?? false) ? 'Retirer des produits de garde' : 'Marquer comme produit de garde' }}"
             placement="left"
           />
@@ -271,15 +277,15 @@
             Classification personnalisée
             <i
               class="pi pi-info-circle ms-1"
-              style="font-size: 0.7rem; color: #6b7280; cursor: help"
               ngbTooltip="La classe ABC de ce produit a été saisie manuellement et ne sera pas recalculée automatiquement"
               placement="top"
+              style="font-size: 0.7rem; color: #6b7280; cursor: help"
             ></i>
           </span>
           <app-switch
-            [ngModel]="produit().isClassificationOverridden ?? false"
-            [disabled]="!canEdit() || isDisabled() || classificationOverriddenPending()"
             (ngModelChange)="onToggleClassificationOverridden($event)"
+            [disabled]="!canEdit() || isDisabled() || classificationOverriddenPending()"
+            [ngModel]="produit().isClassificationOverridden ?? false"
             ngbTooltip="{{ (produit().isClassificationOverridden ?? false) ? 'Réactiver le calcul automatique de la classe ABC' : 'Figer la classe ABC manuellement' }}"
             placement="left"
           />
@@ -292,13 +298,13 @@
       <div class="section-title-row">
         <h6 class="section-title">Tarifs assurance</h6>
         <app-button
+          (clicked)="onAddPrix()"
+          [disabled]="isDisabled()"
+          [outlined]="true"
           icon="pi pi-plus"
           label="Ajouter"
-          size="small"
           severity="primary"
-          [outlined]="true"
-          [disabled]="isDisabled()"
-          (clicked)="onAddPrix()"
+          size="small"
         />
       </div>
       @if (prixReferences().length === 0) {
@@ -306,14 +312,14 @@
       } @else {
         <table class="table table-sm table-hover table-striped mb-0">
           <thead class="pharma-table-head">
-            <tr>
-              <th>Tiers payant</th>
-              <th>Option</th>
-              <th class="text-end">Prix réf.</th>
-              <th class="text-end">Taux</th>
-              <th>Statut</th>
-              <th></th>
-            </tr>
+          <tr>
+            <th>Tiers payant</th>
+            <th>Option</th>
+            <th class="text-end">Prix réf.</th>
+            <th class="text-end">Taux</th>
+            <th>Statut</th>
+            <th></th>
+          </tr>
           </thead>
           <tbody>
             @for (prix of prixReferences(); track prix.id) {
@@ -321,10 +327,18 @@
                 <td>{{ prix.tiersPayantName }}</td>
                 <td>{{ prix.typeLibelle }}</td>
                 <td class="text-end">
-                  @if (prix.price != null) { {{ prix.price | number }} } @else { — }
+                  @if (prix.price != null) {
+                    {{ prix.price | number }}
+                  } @else {
+                    —
+                  }
                 </td>
                 <td class="text-end">
-                  @if (prix.rate != null) { {{ prix.rate }}% } @else { — }
+                  @if (prix.rate != null) {
+                    {{ prix.rate }}%
+                  } @else {
+                    —
+                  }
                 </td>
                 <td>
                   @if (prix.enabled) {
@@ -335,34 +349,34 @@
                 </td>
                 <td class="text-end text-nowrap">
                   <app-button
-                    icon="pi pi-pencil"
-                    [text]="true"
-                    [rounded]="true"
-                    size="small"
-                    severity="primary"
-                    ngbTooltip="Modifier"
-                    [disabled]="isDisabled()"
                     (clicked)="onEditPrix(prix)"
+                    [disabled]="isDisabled()"
+                    [rounded]="true"
+                    [text]="true"
+                    icon="pi pi-pencil"
+                    ngbTooltip="Modifier"
+                    severity="primary"
+                    size="small"
                   />
                   <app-button
-                    [icon]="prix.enabled ? 'pi pi-ban' : 'pi pi-check'"
-                    [text]="true"
-                    [rounded]="true"
-                    size="small"
-                    [severity]="prix.enabled ? 'contrast' : 'info'"
-                    [ngbTooltip]="prix.enabled ? 'Désactiver' : 'Activer'"
-                    [disabled]="isDisabled()"
                     (clicked)="onTogglePrix(prix)"
+                    [disabled]="isDisabled()"
+                    [icon]="prix.enabled ? 'pi pi-ban' : 'pi pi-check'"
+                    [ngbTooltip]="prix.enabled ? 'Désactiver' : 'Activer'"
+                    [rounded]="true"
+                    [severity]="prix.enabled ? 'contrast' : 'info'"
+                    [text]="true"
+                    size="small"
                   />
                   <app-button
-                    icon="pi pi-trash"
-                    [text]="true"
-                    [rounded]="true"
-                    size="small"
-                    severity="danger"
-                    ngbTooltip="Supprimer"
-                    [disabled]="isDisabled()"
                     (clicked)="onDeletePrix(prix)"
+                    [disabled]="isDisabled()"
+                    [rounded]="true"
+                    [text]="true"
+                    icon="pi pi-trash"
+                    ngbTooltip="Supprimer"
+                    severity="danger"
+                    size="small"
                   />
                 </td>
               </tr>

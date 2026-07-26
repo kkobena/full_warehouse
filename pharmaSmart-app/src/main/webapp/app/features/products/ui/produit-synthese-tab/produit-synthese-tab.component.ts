@@ -29,6 +29,9 @@ export class ProduitSyntheseTabComponent {
 
   readonly refreshRequested = output<void>();
 
+  /** Un produit désactivé ne doit plus être modifiable (flags, tarifs...). */
+  protected readonly isDisabled = computed(() => this.produit().status === 'DISABLE');
+
   protected prixReferences = signal<PrixReference[]>([]);
   protected gestionLotPending = signal(false);
   protected thermosensiblePending = signal(false);
@@ -129,7 +132,7 @@ export class ProduitSyntheseTabComponent {
 
   protected onToggleGestionLot(active: boolean): void {
     const id = this.produit().id;
-    if (!id) return;
+    if (!id || this.isDisabled()) return;
     this.gestionLotPending.set(true);
     this.api.patchGestionLot(id, active).subscribe({
       next: () => {
@@ -170,7 +173,7 @@ export class ProduitSyntheseTabComponent {
     label: string
   ): void {
     const id = this.produit().id;
-    if (!id) return;
+    if (!id || this.isDisabled()) return;
     pending.set(true);
     this.api.patchFlag(id, flag, value).subscribe({
       next: () => {
@@ -199,14 +202,17 @@ export class ProduitSyntheseTabComponent {
   }
 
   protected onAddPrix(): void {
+    if (this.isDisabled()) return;
     this.openPrixModal();
   }
 
   protected onEditPrix(prix: PrixReference): void {
+    if (this.isDisabled()) return;
     this.openPrixModal(prix);
   }
 
   protected onDeletePrix(prix: PrixReference): void {
+    if (this.isDisabled()) return;
     this.confirmDialog.onConfirm(
       () => this.prixReferenceService.delete(prix.id!).subscribe(() => this.loadPrixReferences(this.produit().id!)),
       'Suppression',
@@ -215,6 +221,7 @@ export class ProduitSyntheseTabComponent {
   }
 
   protected onTogglePrix(prix: PrixReference): void {
+    if (this.isDisabled()) return;
     const msg = prix.enabled ? 'Désactiver ce prix de référence ?' : 'Activer ce prix de référence ?';
     this.confirmDialog.onConfirm(
       () => {

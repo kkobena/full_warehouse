@@ -23,4 +23,6 @@ public interface PrixReferenceRepository extends JpaRepository<OptionPrixProduit
     List<OptionPrixProduit> findByProduitIdAndTiersPayantIds(Integer produitId, Set<Integer> tiersPayantIds);
 
     List<OptionPrixProduit> findAllByProduitId(Integer produitId);
+
+    long countByProduitId(Integer produitId);
 }

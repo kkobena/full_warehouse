@@ -22,6 +22,10 @@ import org.springframework.stereotype.Repository;
 public interface StoreInventoryLineRepository extends JpaRepository<StoreInventoryLine, Long> {
     List<StoreInventoryLine> findAllByStoreInventoryId(Long storeInventoryId);
 
+    List<StoreInventoryLine> findAllByProduitId(Integer produitId);
+
+    boolean existsByProduitIdAndStoreInventoryIdAndStorageId(Integer produitId, Long storeInventoryId, Integer storageId);
+
     long countStoreInventoryLineByUpdatedIsFalseAndStoreInventoryId(Long id);
 
     void deleteAllByStoreInventoryId(Long storeInventoryId);

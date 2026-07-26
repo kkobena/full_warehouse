@@ -21,7 +21,7 @@ export const SALES_ROUTES: Routes = [
     path: '',
     loadComponent: () => import('./feature/sales-home/sales-home.component').then(m => m.SalesHomeComponent),
     canActivate: [AuthGuard],
-    data: { pageTitle: 'Point de vente' },
+    data: { pageTitle: 'Point de vente', abilitySubject: 'nouvelle-vente', abilityAction: 'execute' },
   },
   {
     path: 'prevente',

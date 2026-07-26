@@ -28,6 +28,8 @@ export class ProduitStockTabComponent {
   readonly indicateurs = input<IProduitIndicateurs | null>(null);
   readonly lots = input<ILotProduit[]>([]);
   readonly refreshRequested = output<void>();
+  /** Un produit désactivé ne doit plus être modifiable (stock, lots...). */
+  protected readonly isDisabled = computed(() => this.produit().status === "DISABLE");
   protected stockPrincipal = computed<IStockProduit | undefined>(
     () => this.produit().stockProduits?.find(sp => sp.type === "PRINCIPAL")
   );
@@ -158,6 +160,7 @@ export class ProduitStockTabComponent {
   }
 
   protected onEditStock(sp: IStockProduit): void {
+    if (this.isDisabled()) return;
     const modalRef = this.modalService.open(FormStockProduitComponent, {
       size: "lg",
       backdrop: "static"
@@ -172,6 +175,7 @@ export class ProduitStockTabComponent {
   }
 
   protected onAddReserve(): void {
+    if (this.isDisabled()) return;
     const modalRef = this.modalService.open(FormStockProduitComponent, {
       size: "lg",
       backdrop: "static"
@@ -185,6 +189,7 @@ export class ProduitStockTabComponent {
   }
 
   protected onTransfert(src: IStockProduit): void {
+    if (this.isDisabled()) return;
     const modalRef = this.modalService.open(FormTransfertStockComponent, {
       size: "lg",
       backdrop: "static"
@@ -199,6 +204,7 @@ export class ProduitStockTabComponent {
   }
 
   protected onSaisirLot(): void {
+    if (this.isDisabled()) return;
     const stock = this.produit().totalQuantity ?? 0;
     if (stock <= 0) {
       return;

@@ -2,6 +2,7 @@
   <div class="prt-toolbar">
     <app-button
       (clicked)="onAjouterStockage()"
+      [disabled]="isDisabled()"
       [outlined]="true"
       [severity]="'primary'"
       icon="pi pi-plus"
@@ -36,6 +37,7 @@
             @if (rp.codeRayon === 'SANS') {
               <app-button
                 (clicked)="onDeplacer(rp)"
+                [disabled]="isDisabled()"
                 [rounded]="true" [text]="true" icon="pi pi-map-marker"
                 ngbTooltip="Assigner un emplacement dans ce stockage"
                 severity="warn"
@@ -44,6 +46,7 @@
             } @else {
               <app-button
                 (clicked)="onDeplacer(rp)"
+                [disabled]="isDisabled()"
                 [rounded]="true" [text]="true" icon="pi pi-arrows-h"
                 ngbTooltip="Déplacer vers un autre emplacement"
                 severity="info"

@@ -18,6 +18,10 @@ import java.util.Optional;
 public interface StockProduitRepository extends JpaRepository<StockProduit, Integer> {
     Optional<StockProduit> findStockProduitByStorageIdAndProduitId(Integer storageId, Integer produitId);
 
+    List<StockProduit> findAllByProduitId(Integer produitId);
+
+    long countByProduitId(Integer produitId);
+
     List<StockProduit> findStockProduitByStorageMagasinIdAndProduitId(Integer magasinId, Integer produitId);
 
     @Query("SELECT o FROM StockProduit o WHERE  o.produit.id=?1 AND o.storage.id = ?2")

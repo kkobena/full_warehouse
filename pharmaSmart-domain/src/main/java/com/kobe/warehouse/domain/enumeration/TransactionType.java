@@ -29,7 +29,8 @@ public enum TransactionType {
     ACTIVATION_PRIVILEGE("Utilisation de la clé d'activation d'une action", TransactionTypeGroup.PRIVILEGE),
     RETRAIT_PERIME("Retrait de produit périmé", TransactionTypeGroup.PRODUIT),
     MODIFICATION_DATE_DE_VENTE("Modification de la de vente", TransactionTypeGroup.VENTE),
-    MODIFICATION_INFO_CLIENT("Modification des informations du client", TransactionTypeGroup.VENTE);
+    MODIFICATION_INFO_CLIENT("Modification des informations du client", TransactionTypeGroup.VENTE),
+    MERGE_PRODUCT("Fusion de produits", TransactionTypeGroup.PRODUIT);
 
     private final String value;
     private final TransactionTypeGroup transactionTypeGroup;

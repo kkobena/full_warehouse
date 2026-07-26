@@ -44,6 +44,10 @@ public interface SalesLineRepository
 
     List<SalesLine> findAllByQuantityAvoirGreaterThan(Integer zero);
 
+    List<SalesLine> findAllByProduitId(Integer produitId);
+
+    long countByProduitId(Integer produitId);
+
     @Query(
         value = "SELECT MAX(s.updated_at) AS updatedAt FROM sales_line o JOIN sales s ON o.sales_id = s.id WHERE o.produit_id =:produitId AND s.statut=:statut",
         nativeQuery = true

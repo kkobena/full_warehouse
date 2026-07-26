@@ -25,6 +25,7 @@
               size="small"
               severity="secondary"
               ngbTooltip="Modifier paramètres"
+              [disabled]="isDisabled()"
               (clicked)="onEditStock(rayon)"
             />
           </div>
@@ -90,6 +91,7 @@
                 [severity]="lotUrgent() ? 'warn' : 'secondary'"
                 [outlined]="true"
                 [ngbTooltip]="lotUrgent() ? 'Lot ' + lotUrgent()!.numLot + ' expire le ' + lotUrgent()!.datePeremption + ' — déplacer en priorité' : 'Transférer du rayon vers la réserve'"
+                [disabled]="isDisabled()"
                 (clicked)="onTransfert(rayon)"
               />
             } @else {
@@ -100,6 +102,7 @@
                 severity="primary"
                 [outlined]="true"
                 ngbTooltip="Créer un stock réserve et y transférer du stock"
+                [disabled]="isDisabled()"
                 (clicked)="onAddReserve()"
               />
             }
@@ -130,6 +133,7 @@
               size="small"
               severity="secondary"
               ngbTooltip="Modifier paramètres"
+              [disabled]="isDisabled()"
               (clicked)="onEditStock(reserve)"
             />
           </div>
@@ -184,6 +188,7 @@
               severity="primary"
               [outlined]="true"
               ngbTooltip="Transférer de la réserve vers le rayon"
+              [disabled]="isDisabled()"
               (clicked)="onTransfert(reserve)"
             />
           }
@@ -200,6 +205,7 @@
           size="small"
           severity="secondary"
           [outlined]="true"
+          [disabled]="isDisabled()"
           (clicked)="onAddReserve()"
         />
       </div>
@@ -264,7 +270,7 @@
           size="small"
           severity="primary"
           [outlined]="true"
-          [disabled]="(produit().totalQuantity ?? 0) <= 0"
+          [disabled]="isDisabled() || (produit().totalQuantity ?? 0) <= 0"
           ngbTooltip="Saisir un nouveau lot hors commande"
           placement="left"
           (clicked)="onSaisirLot()"
@@ -306,6 +312,7 @@
         size="small"
         severity="primary"
         [outlined]="true"
+        [disabled]="isDisabled()"
         ngbTooltip="Saisir un nouveau lot hors commande"
         (clicked)="onSaisirLot()"
       />

@@ -38,6 +38,8 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLineI
 
     int countByCommandeIdAndCommandeOrderDate(Integer commandeId, LocalDate orderDate);
 
+    boolean existsByFournisseurProduitProduitId(Integer produitId);
+
     boolean existsByFournisseurProduitProduitIdAndCommandeOrderStatusAndCommandeOrderDateGreaterThan(
         Integer produitId,
         OrderStatut orderStatus,

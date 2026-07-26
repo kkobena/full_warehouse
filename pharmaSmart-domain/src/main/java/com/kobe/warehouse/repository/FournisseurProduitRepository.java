@@ -16,6 +16,8 @@ public interface FournisseurProduitRepository extends JpaRepository<FournisseurP
 
     List<FournisseurProduit> findAllByProduitId(Integer produitId);
 
+    long countByProduitId(Integer produitId);
+
     @Query("SELECT COUNT(o) FROM FournisseurProduit o WHERE  o.codeCip=?1 AND o.fournisseur.id = ?2")
     long countFournisseurProduitByCodeCipAndFournisseurId(String codeCip, Integer produitFournisseurId);
 

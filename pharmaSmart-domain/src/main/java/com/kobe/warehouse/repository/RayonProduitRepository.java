@@ -13,6 +13,8 @@ import org.springframework.stereotype.Repository;
 public interface RayonProduitRepository extends JpaRepository<RayonProduit, Integer> {
     Set<RayonProduit> findAllByProduitId(Integer produitId);
 
+    long countByProduitId(Integer produitId);
+
     java.util.List<RayonProduit> findAllByRayonId(Integer rayonId);
 
     @Query("SELECT COUNT(o) FROM RayonProduit o WHERE  o.produit.id=?1 AND o.rayon.id = ?2")

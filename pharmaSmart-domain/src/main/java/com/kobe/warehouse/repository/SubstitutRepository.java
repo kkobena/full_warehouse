@@ -11,4 +11,10 @@ public interface SubstitutRepository extends JpaRepository<Substitut, Integer> {
     boolean existsByProduitAndSubstitut(Produit produit, Produit substitut);
 
     java.util.List<Substitut> findAllByProduitId(Integer produitId);
+
+    java.util.List<Substitut> findAllBySubstitutId(Integer substitutId);
+
+    long countByProduitId(Integer produitId);
+
+    long countBySubstitutId(Integer substitutId);
 }

@@ -1,0 +1,222 @@
+<div class="modal-header">
+  <h4 class="modal-title">Fusionner {{ produits.length }} produits en doublon</h4>
+  <button (click)="cancel()" aria-label="Fermer" class="btn-close" type="button"></button>
+</div>
+
+<div class="modal-body">
+  <app-card [variant]="'form'">
+    <div class="form-grid-compact">
+
+      <div class="form-field form-field-full">
+        <span class="field-label">Choisir le produit à conserver (cible)</span>
+
+        @if (!loadingComparison()) {
+          <div class="comparison-table-wrapper">
+            <table class="comparison-table">
+              <thead>
+              <tr>
+                <th class="comparison-row-label"></th>
+                @for (row of comparisonRows(); track row.produitId) {
+                  <th>
+                    <app-radio
+                      (ngModelChange)="targetId.set($event); onTargetChange()"
+                      [label]="row.libelle + (row.codeCip ? ' (' + row.codeCip + ')' : '')"
+                      [ngModel]="targetId()"
+                      [value]="row.produitId"
+                      name="targetId"
+                    />
+                  </th>
+                }
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td class="comparison-row-label">Stock actuel</td>
+                @for (row of comparisonRows(); track row.produitId) {
+                  <td>{{ row.stockActuel ?? '—' }}</td>
+                }
+              </tr>
+              <tr>
+                <td class="comparison-row-label">Prix</td>
+                @for (row of comparisonRows(); track row.produitId) {
+                  <td>{{ row.prix ?? '—' }}</td>
+                }
+              </tr>
+              <tr>
+                <td class="comparison-row-label">Ventes (12 derniers mois)</td>
+                @for (row of comparisonRows(); track row.produitId) {
+                  <td>{{ row.qteVendue12Mois ?? '—' }}</td>
+                }
+              </tr>
+              <tr>
+                <td class="comparison-row-label">Dernière vente</td>
+                @for (row of comparisonRows(); track row.produitId) {
+                  <td>{{ (row.derniereVente | date: 'dd/MM/yyyy') ?? '—' }}</td>
+                }
+              </tr>
+              <tr>
+                <td class="comparison-row-label">Dernière entrée en stock</td>
+                @for (row of comparisonRows(); track row.produitId) {
+                  <td>{{ (row.derniereEntreeStock | date: 'dd/MM/yyyy') ?? '—' }}</td>
+                }
+              </tr>
+
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+
+      @if (loadingPreview()) {
+        <div class="form-field form-field-full">
+          <i class="pi pi-spin pi-spinner me-2"></i>Analyse des données à fusionner…
+        </div>
+      }
+
+      @if (targetId() === null) {
+        <div class="form-field form-field-full">
+          <span class="text-muted">Choisissez le produit à conserver ci-dessus pour lancer l'analyse.</span>
+        </div>
+      }
+
+      @if (targetId() !== null && !loadingPreview() && !previewError()) {
+
+        @if (rejectedSourceIds().length > 0) {
+          <div class="form-field form-field-full">
+            <div class="alert alert-warning">
+              <strong>Produits exclus de la fusion :</strong>
+              <ul class="mb-0">
+                @for (id of rejectedSourceIds(); track id) {
+                  <li>{{ produitLibelle(id) }} — {{
+                      rejectionReasons()[id.toString()] ?? 'Non fusionnable'
+                    }}
+                  </li>
+                }
+              </ul>
+            </div>
+          </div>
+        }
+
+        @if (entityCountEntries().length > 0) {
+          <div class="form-field form-field-full">
+            <span class="field-label">Données qui seront fusionnées / réaffectées</span>
+            <ul class="entity-counts-list">
+              @for (entry of entityCountEntries(); track entry.label) {
+                <li><span class="count-badge">{{ entry.count }}</span> {{ entry.label }}</li>
+              }
+            </ul>
+          </div>
+        }
+
+        @if (lotConflicts().length > 0) {
+          <div class="form-field form-field-full">
+            <span class="field-label">Conflits de lots à trancher</span>
+            @for (conflict of lotConflicts(); track conflict.sourceLotId) {
+              <div class="lot-conflict-card">
+                <div class="lot-conflict-header">
+                  <strong>Lot n° {{ conflict.numLot }}</strong>
+                </div>
+                <div class="lot-conflict-details">
+                  <div class="lot-side">
+                    <span class="lot-side-label">Produit source</span>
+                    <span>Quantité : {{ conflict.sourceQuantity }}</span>
+                    <span>Péremption : {{ conflict.sourceExpiryDate }}</span>
+                  </div>
+                  <div class="lot-side">
+                    <span class="lot-side-label">Produit cible</span>
+                    <span>Quantité : {{ conflict.targetQuantity }}</span>
+                    <span>Péremption : {{ conflict.targetExpiryDate }}</span>
+                  </div>
+                </div>
+                <div class="lot-conflict-resolution">
+                  <app-radio
+                    (ngModelChange)="setResolution(conflict, $event)"
+                    [inline]="true"
+                    [name]="'lot-' + conflict.sourceLotId"
+                    [ngModel]="resolutionFor(conflict)"
+                    [value]="'MERGE'"
+                    label="Fusionner les quantités sur le lot cible"
+                  />
+                  <app-radio
+                    (ngModelChange)="setResolution(conflict, $event)"
+                    [inline]="true"
+                    [name]="'lot-' + conflict.sourceLotId"
+                    [ngModel]="resolutionFor(conflict)"
+                    [value]="'DELETE'"
+                    label="Supprimer le lot source"
+                  />
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        @if (stockConflicts().length > 0) {
+          <div class="form-field form-field-full">
+            <div class="alert alert-warning">
+              <strong>Ajustement de stock manuel nécessaire</strong>
+              <p class="mb-2">
+                Les emplacements ci-dessous existent à la fois sur le produit source et sur la cible : par sécurité,
+                la quantité du doublon n'est jamais reportée automatiquement sur la cible. Faites un ajustement de
+                stock manuel après la fusion si vous souhaitez reporter cette quantité.
+              </p>
+              @for (conflict of stockConflicts(); track conflict.storageId) {
+                <div class="lot-conflict-card">
+                  <div class="lot-conflict-header">
+                    <strong>{{ conflict.storageLibelle }}</strong>
+                  </div>
+                  <div class="lot-conflict-details">
+                    <div class="lot-side">
+                      <span class="lot-side-label">Produit source (non reporté)</span>
+                      <span>Stock : {{ conflict.sourceQtyStock }}</span>
+                      <span>Virtuel : {{ conflict.sourceQtyVirtual }}</span>
+                      <span>UG : {{ conflict.sourceQtyUG }}</span>
+                    </div>
+                    <div class="lot-side">
+                      <span class="lot-side-label">Produit cible (inchangé)</span>
+                      <span>Stock : {{ conflict.targetQtyStock }}</span>
+                      <span>Virtuel : {{ conflict.targetQtyVirtual }}</span>
+                      <span>UG : {{ conflict.targetQtyUG }}</span>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        @if (entityCountEntries().length === 0 && lotConflicts().length === 0 && stockConflicts().length === 0 && sourceIds().length
+        > 0) {
+          <div class="form-field form-field-full">
+            <span
+              class="text-muted">Aucune donnée liée trouvée pour les produits sélectionnés.</span>
+          </div>
+        }
+      }
+
+    </div>
+  </app-card>
+</div>
+
+<div class="modal-footer">
+  <app-button
+    (clicked)="cancel()"
+    [raised]="true"
+    icon="pi pi-times"
+    label="Annuler"
+    severity="secondary"
+    type="button"
+  />
+  <app-button
+    (clicked)="confirm()"
+    [disabled]="!canConfirm()"
+    [loading]="isConfirming()"
+    [raised]="true"
+    icon="pi pi-check"
+    label="Confirmer la fusion"
+    severity="primary"
+    type="button"
+  />
+</div>
+
+<jhi-spinner #spinner></jhi-spinner>

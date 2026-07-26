@@ -74,16 +74,8 @@
           />
 
 
-          <div>
-            @if (useSimpleSale) {
-              <app-button
-                [raised]="true"
-                [routerLink]="['/sales/comptant', false, 'new']"
-                icon="pi pi-wallet"
-                label="Vente Comptant"
-                severity="success"
-              />
-            } @else {
+          @if (canCreateVente()) {
+            <div>
               <app-button
                 (clicked)="openNewSalesHome()"
                 [raised]="true"
@@ -91,8 +83,8 @@
                 label="Nouvelle vente"
                 severity="primary"
               />
-            }
-          </div>
+            </div>
+          }
         </div>
 
         <div class="pharma-button-group pharma-show-mobile">
@@ -116,7 +108,7 @@
               placement="top"
               severity="success"
             />
-          } @else {
+          } @else if (canCreateVente()) {
             <app-button
               (clicked)="openNewSalesHome()"
               [raised]="true"
@@ -215,7 +207,8 @@
               <td>{{ sale.seller?.abbrName }}</td>
               <td>{{ sale.cassier?.abbrName }}</td>
               <td class="text-right">
-                <div container="body" ngbDropdown placement="bottom-end">
+                <div container="body" ngbDropdown
+                     placement="bottom-end top-end bottom-start top-start">
                   <button
                     (click)="$event.stopPropagation()"
                     aria-label="Actions"

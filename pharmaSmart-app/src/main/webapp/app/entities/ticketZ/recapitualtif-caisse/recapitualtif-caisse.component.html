@@ -1,4 +1,4 @@
-<div class="pharma-smart-content p-2 ">
+<div class="pharma-smart-content p-1 ">
   <!-- Modern Pharma Toolbar (Compact) -->
   <div class="pharma-toolbar pharma-toolbar-compact">
     <div class="pharma-toolbar-header">
@@ -28,10 +28,12 @@
           placeholder="Utilisateurs"
         />
 
-        <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate" [style]="{ 'max-width': '180px' }" id="fromDate"
+        <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate"
+                            [style]="{ 'max-width': '180px' }" id="fromDate"
                             label="Du" />
 
-        <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate" [style]="{ 'max-width': '180px' }" id="toDate"
+        <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate"
+                            [style]="{ 'max-width': '180px' }" id="toDate"
                             label="Au" />
 
         <div class="pharma-hide-mobile">

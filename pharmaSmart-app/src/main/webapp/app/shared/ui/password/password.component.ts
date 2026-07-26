@@ -1,7 +1,7 @@
-import { Component, computed, forwardRef, input, signal } from '@angular/core';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import {Component, computed, forwardRef, input, signal} from '@angular/core';
+import {NG_VALUE_ACCESSOR} from '@angular/forms';
 
-import { ControlValueAccessorBase } from '../forms/control-value-accessor.base';
+import {ControlValueAccessorBase} from '../forms/control-value-accessor.base';
 
 /**
  * Champ mot de passe du Design System — remplace `p-password`.
@@ -12,10 +12,16 @@ import { ControlValueAccessorBase } from '../forms/control-value-accessor.base';
  */
 @Component({
   selector: 'app-password',
-  providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => PasswordComponent), multi: true }],
+  providers: [{
+    provide: NG_VALUE_ACCESSOR,
+    useExisting: forwardRef(() => PasswordComponent),
+    multi: true
+  }],
   template: `
-    <div class="input-group" [class.input-group-sm]="size() === 'small'" [class.input-group-lg]="size() === 'large'">
+    <div class="input-group" [class.input-group-sm]="size() === 'small'"
+         [class.input-group-lg]="size() === 'large'">
       <input
+        autocomplete="off"
         [type]="revealed() ? 'text' : 'password'"
         [class]="inputClasses()"
         [value]="value() ?? ''"
@@ -23,7 +29,6 @@ import { ControlValueAccessorBase } from '../forms/control-value-accessor.base';
         [disabled]="isDisabled() || disabled()"
         [required]="required()"
         [attr.id]="inputId() || null"
-        [attr.autocomplete]="autocomplete()"
         [attr.aria-label]="ariaLabel() || null"
         (input)="onInput($event)"
         (blur)="onTouched()"
@@ -69,11 +74,9 @@ export class PasswordComponent extends ControlValueAccessorBase<string> {
   readonly autocomplete = input<string>('current-password');
 
   readonly ariaLabel = input<string>('');
-
+  protected readonly inputClasses = computed(() => (this.invalid() ? 'form-control is-invalid' : 'form-control'));
   private readonly _revealed = signal(false);
   protected readonly revealed = this._revealed.asReadonly();
-
-  protected readonly inputClasses = computed(() => (this.invalid() ? 'form-control is-invalid' : 'form-control'));
 
   protected toggleReveal(): void {
     this._revealed.update(revealed => !revealed);

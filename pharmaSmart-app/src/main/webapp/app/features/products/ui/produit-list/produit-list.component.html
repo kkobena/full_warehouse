@@ -41,7 +41,7 @@
       (click)="onRowClick(produit)"
       style="cursor: pointer"
     >
-      <td class="text-center" (click)="$event.stopPropagation(); toggleCheckbox(produit)">
+      <td class="text-center" (click)="$event.stopPropagation()">
         <app-checkbox [ngModel]="isChecked(produit)" (ngModelChange)="toggleCheckbox(produit)" />
       </td>
       <td><span class="pharma-code">{{ produit.codeCip }}</span></td>
@@ -117,7 +117,7 @@
         }
       </td>
       <td class="text-end" (click)="$event.stopPropagation()">
-        <div ngbDropdown container="body" placement="bottom-end">
+        <div ngbDropdown container="body" placement="bottom-end top-end bottom-start top-start">
           <button
             type="button"
             class="btn btn-sm btn-link text-secondary app-actions-toggle"

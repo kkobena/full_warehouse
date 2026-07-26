@@ -191,7 +191,7 @@
           </span>
           <app-switch
             [ngModel]="produit().gestionLot ?? true"
-            [disabled]="!canEdit() || gestionLotPending()"
+            [disabled]="!canEdit() || isDisabled() || gestionLotPending()"
             (ngModelChange)="onToggleGestionLot($event)"
             ngbTooltip="{{ (produit().gestionLot ?? false) ? 'Désactiver le suivi des lots' : 'Activer le suivi des lots' }}"
             placement="left"
@@ -224,7 +224,7 @@
           </span>
           <app-switch
             [ngModel]="produit().thermosensible ?? false"
-            [disabled]="!canEdit() || thermosensiblePending()"
+            [disabled]="!canEdit() || isDisabled() || thermosensiblePending()"
             (ngModelChange)="onToggleThermosensible($event)"
             ngbTooltip="{{ (produit().thermosensible ?? false) ? 'Désactiver le flag thermosensible' : 'Activer le flag thermosensible' }}"
             placement="left"
@@ -242,7 +242,7 @@
           </span>
           <app-switch
             [ngModel]="produit().estMedicamentEssentiel ?? false"
-            [disabled]="!canEdit() || medicamentEssentielPending()"
+            [disabled]="!canEdit() || isDisabled() || medicamentEssentielPending()"
             (ngModelChange)="onToggleMedicamentEssentiel($event)"
             ngbTooltip="{{ (produit().estMedicamentEssentiel ?? false) ? 'Retirer de la liste des médicaments essentiels' : 'Marquer comme médicament essentiel' }}"
             placement="left"
@@ -260,7 +260,7 @@
           </span>
           <app-switch
             [ngModel]="produit().estProduitGarde ?? false"
-            [disabled]="!canEdit() || produitGardePending()"
+            [disabled]="!canEdit() || isDisabled() || produitGardePending()"
             (ngModelChange)="onToggleProduitGarde($event)"
             ngbTooltip="{{ (produit().estProduitGarde ?? false) ? 'Retirer des produits de garde' : 'Marquer comme produit de garde' }}"
             placement="left"
@@ -278,7 +278,7 @@
           </span>
           <app-switch
             [ngModel]="produit().isClassificationOverridden ?? false"
-            [disabled]="!canEdit() || classificationOverriddenPending()"
+            [disabled]="!canEdit() || isDisabled() || classificationOverriddenPending()"
             (ngModelChange)="onToggleClassificationOverridden($event)"
             ngbTooltip="{{ (produit().isClassificationOverridden ?? false) ? 'Réactiver le calcul automatique de la classe ABC' : 'Figer la classe ABC manuellement' }}"
             placement="left"
@@ -297,6 +297,7 @@
           size="small"
           severity="primary"
           [outlined]="true"
+          [disabled]="isDisabled()"
           (clicked)="onAddPrix()"
         />
       </div>
@@ -340,6 +341,7 @@
                     size="small"
                     severity="primary"
                     ngbTooltip="Modifier"
+                    [disabled]="isDisabled()"
                     (clicked)="onEditPrix(prix)"
                   />
                   <app-button
@@ -349,6 +351,7 @@
                     size="small"
                     [severity]="prix.enabled ? 'contrast' : 'info'"
                     [ngbTooltip]="prix.enabled ? 'Désactiver' : 'Activer'"
+                    [disabled]="isDisabled()"
                     (clicked)="onTogglePrix(prix)"
                   />
                   <app-button
@@ -358,6 +361,7 @@
                     size="small"
                     severity="danger"
                     ngbTooltip="Supprimer"
+                    [disabled]="isDisabled()"
                     (clicked)="onDeletePrix(prix)"
                   />
                 </td>

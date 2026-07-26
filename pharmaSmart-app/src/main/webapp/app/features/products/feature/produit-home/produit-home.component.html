@@ -62,7 +62,7 @@
           (clicked)="onNewProduit()"
           icon="pi pi-plus"
           label="Nouveau"
-         
+
         />
       }
     </ng-container>
@@ -124,6 +124,16 @@
           icon="pi pi-play"
           label="Réactiver"
           severity="success"
+          size="small"
+        />
+      }
+      @if (canMergeProduits() && selectedProduits().length >= 2) {
+        <app-button
+          (clicked)="onBulkMerge()"
+          [outlined]="true"
+          icon="pi pi-sitemap"
+          label="Fusionner"
+          severity="info"
           size="small"
         />
       }

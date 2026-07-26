@@ -91,8 +91,8 @@ public class ProduitResource {
             throw new BadRequestAlertException("A new produit cannot already have an ID",
                 ENTITY_NAME, "idexists");
         }
-        Long id = produitService.save(produitDTO);
-        return ResponseEntity.ok(new ProduitCreatedResponse(id));
+
+        return ResponseEntity.ok(new ProduitCreatedResponse( produitService.save(produitDTO)));
     }
 
     /**
@@ -238,7 +238,7 @@ public class ProduitResource {
     @DeleteMapping("/produits/{id}")
     public ResponseEntity<Void> deleteProduit(@PathVariable Integer id) {
         log.debug("REST request to delete Produit : {}", id);
-        produitRepository.deleteById(id);
+        produitService.deleteProduit(id);
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME,
                 id.toString()))

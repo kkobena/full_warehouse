@@ -286,3 +286,7 @@ sales-android/fastlane/readme.md
 /pharmaSmart-app/target/stats.html
 /pharmaSmart-app/target/test-classes/templates/mail/testEmail.html
 /pharmaSmart-app/src/main/webapp/target/
+/pharmaSmart-app/target/
+/pharmaml/
+/reports/
+/pharmaSmart-batch/target/

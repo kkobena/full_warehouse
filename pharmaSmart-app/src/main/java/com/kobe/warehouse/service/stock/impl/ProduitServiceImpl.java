@@ -14,23 +14,27 @@ import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.enumeration.ProduitFlag;
+import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.repository.CustomizedProductService;
 import com.kobe.warehouse.repository.FournisseurProduitRepository;
+import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
-import com.kobe.warehouse.repository.SubstitutRepository;
 import com.kobe.warehouse.repository.RayonProduitRepository;
 import com.kobe.warehouse.repository.RayonRepository;
+import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
+import com.kobe.warehouse.repository.SubstitutRepository;
 import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
-import com.kobe.warehouse.service.dto.SubstitutDTO;
 import com.kobe.warehouse.service.dto.StockProduitDTO;
+import com.kobe.warehouse.service.dto.SubstitutDTO;
 import com.kobe.warehouse.service.dto.builder.ProduitBuilder;
+import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.produit_prix.service.PrixRererenceService;
 import com.kobe.warehouse.service.reassort.SuggestionReassortService;
@@ -38,17 +42,17 @@ import com.kobe.warehouse.service.stock.DataMatrixParserService;
 import com.kobe.warehouse.service.stock.ProduitService;
 import com.kobe.warehouse.service.stock.dto.ProduitSearch;
 import com.kobe.warehouse.service.utils.ServiceUtil;
-import org.springframework.util.CollectionUtils;
-
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-
-import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
@@ -58,6 +62,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -81,16 +86,26 @@ public class ProduitServiceImpl implements ProduitService {
     private final FournisseurProduitRepository fournisseurProduitRepository;
     private final PrixRererenceService prixReferenceService;
     private final DataMatrixParserService dataMatrixParserService;
+    private final SalesLineRepository salesLineRepository;
+    private final OrderLineRepository orderLineRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public ProduitServiceImpl(
         ProduitRepository produitRepository,
         CustomizedProductService customizedProductService,
         RayonRepository rayonRepository,
-        ObjectMapper objectMapper, StorageService storageService, LogsService logsService, StockProduitRepository stockProduitRepository, RayonProduitRepository rayonProduitRepository, SuggestionReassortService suggestionReassortService,
+        ObjectMapper objectMapper, StorageService storageService, LogsService logsService,
+        StockProduitRepository stockProduitRepository,
+        RayonProduitRepository rayonProduitRepository,
+        SuggestionReassortService suggestionReassortService,
         SubstitutRepository substitutRepository,
         FournisseurProduitRepository fournisseurProduitRepository,
         PrixRererenceService prixReferenceService,
-        DataMatrixParserService dataMatrixParserService
+        DataMatrixParserService dataMatrixParserService,
+        SalesLineRepository salesLineRepository,
+        OrderLineRepository orderLineRepository
     ) {
 
         this.produitRepository = produitRepository;
@@ -106,6 +121,8 @@ public class ProduitServiceImpl implements ProduitService {
         this.fournisseurProduitRepository = fournisseurProduitRepository;
         this.prixReferenceService = prixReferenceService;
         this.dataMatrixParserService = dataMatrixParserService;
+        this.salesLineRepository = salesLineRepository;
+        this.orderLineRepository = orderLineRepository;
     }
 
     /**
@@ -116,11 +133,13 @@ public class ProduitServiceImpl implements ProduitService {
     @Override
     public Long save(ProduitDTO produitDTO) {
         LOG.debug("Request to save Produit : {}", produitDTO);
-        if (nonNull(produitDTO.getTypeProduit()) && produitDTO.getTypeProduit() == TypeProduit.DETAIL) {
+        if (nonNull(produitDTO.getTypeProduit())
+            && produitDTO.getTypeProduit() == TypeProduit.DETAIL) {
             return saveDetail(produitDTO);
         }
         Storage reserveStorage = storageService.getDefaultConnectedUserReserveStorage();
-        Produit produit = ProduitBuilder.fromDTO(produitDTO, rayonRepository.getReferenceById(produitDTO.getRayonId()), reserveStorage);
+        Produit produit = ProduitBuilder.fromDTO(produitDTO,
+            rayonRepository.getReferenceById(produitDTO.getRayonId()), reserveStorage);
         produit = produitRepository.save(produit);
         stockProduitRepository.saveAll(produit.getStockProduits());
         saveSupplementaryFournisseurs(produit, produitDTO);
@@ -134,14 +153,19 @@ public class ProduitServiceImpl implements ProduitService {
     }
 
     private void saveSupplementaryFournisseurs(Produit produit, ProduitDTO dto) {
-        if (CollectionUtils.isEmpty(dto.getFournisseurProduits())) return;
+        if (CollectionUtils.isEmpty(dto.getFournisseurProduits())) {
+            return;
+        }
         dto.getFournisseurProduits().forEach(fp -> {
             FournisseurProduit extra = new FournisseurProduit();
             extra.setCodeCip(ServiceUtil.buildCodeCip(fp.getCodeCip()));
             extra.setPrixAchat(fp.getPrixAchat());
             extra.setPrixUni(fp.getPrixUni());
-            extra.setQteColis(fp.getQteColis() != null && fp.getQteColis() > 1 ? fp.getQteColis() : 1);
-            extra.setQteMinimaleCommande(fp.getQteMinimaleCommande() != null && fp.getQteMinimaleCommande() > 0 ? fp.getQteMinimaleCommande() : 0);
+            extra.setQteColis(
+                fp.getQteColis() != null && fp.getQteColis() > 1 ? fp.getQteColis() : 1);
+            extra.setQteMinimaleCommande(
+                fp.getQteMinimaleCommande() != null && fp.getQteMinimaleCommande() > 0
+                    ? fp.getQteMinimaleCommande() : 0);
             extra.setProduit(produit);
             extra.setFournisseur(ProduitBuilder.fournisseurFromId(fp.getFournisseurId()));
             fournisseurProduitRepository.save(extra);
@@ -149,7 +173,9 @@ public class ProduitServiceImpl implements ProduitService {
     }
 
     private void savePrixReferences(Produit produit, ProduitDTO dto) {
-        if (CollectionUtils.isEmpty(dto.getPrixReference())) return;
+        if (CollectionUtils.isEmpty(dto.getPrixReference())) {
+            return;
+        }
         dto.getPrixReference().forEach(pr -> {
             pr.setProduitId(produit.getId());
             prixReferenceService.add(pr);
@@ -205,7 +231,8 @@ public class ProduitServiceImpl implements ProduitService {
                 ProduitBuilder.buildFromProduit(
                     p,
                     magasin,
-                    p.getStockProduits().stream().filter(s -> s.getStorage().equals(userStorage)).findFirst().orElse(null)
+                    p.getStockProduits().stream().filter(s -> s.getStorage().equals(userStorage))
+                        .findFirst().orElse(null)
                 )
             );
     }
@@ -238,7 +265,8 @@ public class ProduitServiceImpl implements ProduitService {
     @Transactional(readOnly = true)
     public ProduitDTO findOne(ProduitCriteria produitCriteria) {
         LOG.debug("Request to get Produit : {}", produitCriteria);
-        Optional<ProduitDTO> produit = findProduitById(produitCriteria.getId()).map(ProduitBuilder::fromProduit);
+        Optional<ProduitDTO> produit = findProduitById(produitCriteria.getId()).map(
+            ProduitBuilder::fromProduit);
         ProduitDTO dto = null;
         if (produit.isPresent()) {
             dto = produit.get();
@@ -278,7 +306,8 @@ public class ProduitServiceImpl implements ProduitService {
 
         Storage reserveStorage = storageService.getDefaultConnectedUserReserveStorage();
         Produit produitToUpdate = produitRepository.getReferenceById(produitDTO.getId());
-        Set<RayonProduit> rayonProduits = rayonProduitRepository.findAllByProduitId(produitToUpdate.getId());
+        Set<RayonProduit> rayonProduits = rayonProduitRepository.findAllByProduitId(
+            produitToUpdate.getId());
         boolean mustUpdateRayon = false;
         if (rayonProduits.isEmpty()) {
             mustUpdateRayon = true;
@@ -286,7 +315,8 @@ public class ProduitServiceImpl implements ProduitService {
             Optional<RayonProduit> optionalRayonProduit = rayonProduits
                 .stream()
                 .filter(rayonProduit ->
-                    rayonProduit.getRayon().getStorage().getStorageType().name().equalsIgnoreCase(StorageType.PRINCIPAL.getValue())
+                    rayonProduit.getRayon().getStorage().getStorageType().name()
+                        .equalsIgnoreCase(StorageType.PRINCIPAL.getValue())
                 )
                 .findFirst();
             if (optionalRayonProduit.isPresent()) {
@@ -314,7 +344,8 @@ public class ProduitServiceImpl implements ProduitService {
     @Override
     public void save(StockProduitDTO dto) {
         StockProduit stockProduit = buildStockProduitFromStockProduitDTO(dto);
-        Produit produit = findProduitById(dto.getProduitId()).orElseThrow(() -> new GenericError("Produit not found with id " + dto.getProduitId()));
+        Produit produit = findProduitById(dto.getProduitId()).orElseThrow(
+            () -> new GenericError("Produit not found with id " + dto.getProduitId()));
         stockProduit.setProduit(produit);
         stockProduitRepository.save(stockProduit);
 
@@ -322,7 +353,8 @@ public class ProduitServiceImpl implements ProduitService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<FournisseurProduit> getFournisseurProduitByCriteria(String criteteria, Integer fournisseurId) {
+    public Optional<FournisseurProduit> getFournisseurProduitByCriteria(String criteteria,
+        Integer fournisseurId) {
         return customizedProductService.getFournisseurProduitByCriteria(criteteria, fournisseurId);
     }
 
@@ -339,14 +371,16 @@ public class ProduitServiceImpl implements ProduitService {
 
     @Override
     public int produitTotalStock(Produit produit) {
-        return produit.getStockProduits().stream().map(StockProduit::getQtyStock).reduce(0, Integer::sum);
+        return produit.getStockProduits().stream().map(StockProduit::getQtyStock)
+            .reduce(0, Integer::sum);
     }
 
     @Override
     public void updateDetail(ProduitDTO produitDTO) {
         LOG.debug("Request to updateDetail Produit : {}", produitDTO);
 
-        Produit produit = buildDetailProduitFromProduitDTO(produitDTO, produitRepository.getReferenceById(produitDTO.getId()));
+        Produit produit = buildDetailProduitFromProduitDTO(produitDTO,
+            produitRepository.getReferenceById(produitDTO.getId()));
         updateProduitItemQty(produit.getParent(), produitDTO);
         produitRepository.save(produit);
         logsService.create(
@@ -359,7 +393,8 @@ public class ProduitServiceImpl implements ProduitService {
 
     @Override
     public int getProductTotalStock(Integer productId) {
-        return findReferenceById(productId).getStockProduits().stream().map(StockProduit::getTotalStockQuantity).reduce(0, Integer::sum);
+        return findReferenceById(productId).getStockProduits().stream()
+            .map(StockProduit::getTotalStockQuantity).reduce(0, Integer::sum);
     }
 
     @Override
@@ -381,7 +416,8 @@ public class ProduitServiceImpl implements ProduitService {
             for (StockProduit sp : stockProduits) {
                 Storage storage = sp.getStorage();
                 StorageType storageType = storage.getStorageType();
-                if (storage.getMagasin().getId().equals(magasin.getId()) && storageType == StorageType.PRINCIPAL) {
+                if (storage.getMagasin().getId().equals(magasin.getId())
+                    && storageType == StorageType.PRINCIPAL) {
                     stockProduit = sp;
                 }
 
@@ -389,7 +425,8 @@ public class ProduitServiceImpl implements ProduitService {
 
         }
         if (stockProduit == null) {
-            throw new GenericError("Stock produit introuvable pour le produit " + produit.getLibelle());
+            throw new GenericError(
+                "Stock produit introuvable pour le produit " + produit.getLibelle());
         }
 
         stockProduit.setUpdatedAt(LocalDateTime.now());
@@ -419,7 +456,8 @@ public class ProduitServiceImpl implements ProduitService {
         }
 
         produit.setUpdatedAt(LocalDateTime.now());
-        Set<RayonProduit> rayonProduits = rayonProduitRepository.findAllByProduitId(produit.getId());
+        Set<RayonProduit> rayonProduits = rayonProduitRepository.findAllByProduitId(
+            produit.getId());
         buildRayonProduits(produit, dto, rayonProduits);
         updateProduit(produit);
         logsService.create(
@@ -444,25 +482,28 @@ public class ProduitServiceImpl implements ProduitService {
             .map(com.kobe.warehouse.service.dto.DataMatrixInfo::getProductCode)
             .filter(Objects::nonNull)
             .orElse(search);
-        String jsonResult = produitRepository.searchProduitsJson(productCode, magasinId, pageable.getPageSize());
+        String jsonResult = produitRepository.searchProduitsJson(productCode, magasinId,
+            pageable.getPageSize());
 
         try {
             return objectMapper.readValue(jsonResult, new TypeReference<>() {
             });
         } catch (Exception e) {
-            LOG.info( e.getMessage());
+            LOG.info(e.getMessage());
             return List.of();
         }
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ProduitSearch> searchProductsByStorage(@NotNull Integer storageId, String search, Pageable pageable) {
+    public List<ProduitSearch> searchProductsByStorage(@NotNull Integer storageId, String search,
+        Pageable pageable) {
         if (isNull(storageId)) {
             return List.of();
         }
 
-        String jsonResult = produitRepository.searchProductsByStorage(search, storageId, pageable.getPageSize());
+        String jsonResult = produitRepository.searchProductsByStorage(search, storageId,
+            pageable.getPageSize());
 
         try {
             return objectMapper.readValue(jsonResult, new TypeReference<>() {
@@ -475,7 +516,8 @@ public class ProduitServiceImpl implements ProduitService {
 
 
     private void updateProduitItemQty(Produit produitParent, ProduitDTO dto) {
-        if (nonNull(dto.getItemQty()) && dto.getItemQty() > 0 && !Objects.equals(dto.getItemQty(), produitParent.getItemQty())) {
+        if (nonNull(dto.getItemQty()) && dto.getItemQty() > 0 && !Objects.equals(dto.getItemQty(),
+            produitParent.getItemQty())) {
             produitParent.setItemQty(dto.getItemQty());
             produitParent.setUpdatedAt(LocalDateTime.now());
             updateProduit(produitParent);
@@ -503,15 +545,147 @@ public class ProduitServiceImpl implements ProduitService {
     }
 
 
+    /**
+     * Supprime définitivement un produit, ses éventuels produits détail (déconditionnés) rattachés,
+     * et toutes leurs données liées. Bloquée — pour le produit lui-même ou pour l'un de ses détails
+     * — si des ventes ou des commandes sont enregistrées dessus ; dans ce cas, seule la
+     * désactivation (cf. {@link #changeStatus}) ou la fusion est possible.
+     */
+    @Override
+    @Transactional
     @CacheEvict(cacheNames = "produits", key = "#id")
     public void deleteProduit(Integer id) {
-        produitRepository.deleteById(id);
+        Produit produit = produitRepository
+            .findById(id)
+            .orElseThrow(
+                () -> new BadRequestAlertException("Produit introuvable : " + id, "produit",
+                    "idnotfound"));
+
+        // Les produits détail (déconditionnés) rattachés suivent la même logique de
+        // suppression que la boîte : mêmes vérifications, même cascade, avant la boîte elle-même.
+        List<String> deletedLibelles = new ArrayList<>();
+        for (Produit child : produitRepository.findAllByParentId(id)) {
+            deleteProduitCascade(child);
+            deletedLibelles.add(child.getLibelle());
+        }
+        deleteProduitCascade(produit);
+        deletedLibelles.add(produit.getLibelle());
+
+        logsService.create(TransactionType.DELETE_PRODUCT,
+            "Suppression du produit " + id + " (" + deletedLibelles + ")", id.toString());
+    }
+
+    /**
+     * Vérifie qu'un produit n'a ni ventes ni commandes, puis supprime toutes ses données liées et
+     * lui-même.
+     */
+    private void deleteProduitCascade(Produit produit) {
+        Integer id = produit.getId();
+
+        if (salesLineRepository.countByProduitId(id) > 0) {
+            throw new BadRequestAlertException(
+                "Impossible de supprimer \"" + produit.getLibelle()
+                    + "\" : des ventes sont enregistrées sur ce produit. Désactivez-le à la place.",
+                "produit",
+                "produithassales"
+            );
+        }
+        if (orderLineRepository.existsByFournisseurProduitProduitId(id)) {
+            throw new BadRequestAlertException(
+                "Impossible de supprimer \"" + produit.getLibelle()
+                    + "\" : des commandes sont enregistrées sur ce produit. Désactivez-le à la place.",
+                "produit",
+                "produithasorders"
+            );
+        }
+
+        // stock_produit_snapshot n'est pas mappée en entité JPA (table alimentée en SQL natif
+        // par StockSnapshotServiceImpl) : suppression en requête native, référence produit_id
+        // directement (pas via stock_produit).
+        entityManager.createNativeQuery("DELETE FROM stock_produit_snapshot WHERE produit_id = :id")
+            .setParameter("id", id).executeUpdate();
+
+        // Ajustement référence StockProduit (FK NOT NULL) et Lot (FK nullable) : à supprimer
+        // avant les stocks/lots eux-mêmes pour ne pas violer la contrainte FK.
+        entityManager
+            .createQuery(
+                "DELETE FROM Ajustement a WHERE a.stockProduit IN (SELECT sp FROM StockProduit sp WHERE sp.produit.id = :id)"
+                    +
+                    " OR a.lot IN (SELECT l FROM Lot l WHERE l.produit.id = :id)"
+            )
+            .setParameter("id", id)
+            .executeUpdate();
+
+        entityManager.createQuery("DELETE FROM StockProduit sp WHERE sp.produit.id = :id")
+            .setParameter("id", id).executeUpdate();
+        entityManager.createQuery("DELETE FROM Lot l WHERE l.produit.id = :id")
+            .setParameter("id", id).executeUpdate();
+        entityManager.createQuery("DELETE FROM OptionPrixProduit o WHERE o.produit.id = :id")
+            .setParameter("id", id).executeUpdate();
+
+        // Produit.fournisseurProduitPrincipal (FK vers fournisseur_produit) doit être vidé
+        // avant de supprimer les FournisseurProduit du produit, sous peine de violation FK.
+        entityManager
+            .createQuery(
+                "UPDATE Produit p SET p.fournisseurProduitPrincipal = null WHERE p.id = :id")
+            .setParameter("id", id)
+            .executeUpdate();
+        // SuggestionLine, FournisseurProduitPriceHistory et ProductsToDestroy référencent
+        // FournisseurProduit (FK NOT NULL) : à supprimer avant, sous peine de violation FK au
+        // moment de la suppression des FournisseurProduit.
+        for (String entityName : List.of("SuggestionLine", "FournisseurProduitPriceHistory", "ProductsToDestroy")) {
+            entityManager
+                .createQuery(
+                    "DELETE FROM " + entityName + " e WHERE e.fournisseurProduit IN (SELECT fp FROM FournisseurProduit fp WHERE fp.produit.id = :id)"
+                )
+                .setParameter("id", id)
+                .executeUpdate();
+        }
+        entityManager.createQuery("DELETE FROM FournisseurProduit fp WHERE fp.produit.id = :id")
+            .setParameter("id", id).executeUpdate();
+
+        entityManager.createQuery("DELETE FROM RayonProduit rp WHERE rp.produit.id = :id")
+            .setParameter("id", id).executeUpdate();
+        entityManager
+            .createQuery("DELETE FROM Substitut s WHERE s.produit.id = :id OR s.substitut.id = :id")
+            .setParameter("id", id)
+            .executeUpdate();
+        entityManager.createQuery("DELETE FROM SemoisConfiguration sc WHERE sc.produit.id = :id")
+            .setParameter("id", id).executeUpdate();
+        entityManager
+            .createQuery("DELETE FROM VentesMensuellesAgregees v WHERE v.produit.id = :id")
+            .setParameter("id", id)
+            .executeUpdate();
+        entityManager.createQuery("DELETE FROM StoreInventoryLine sil WHERE sil.produit.id = :id")
+            .setParameter("id", id).executeUpdate();
+
+        for (String entityName : List.of(
+            "AvoirClient",
+            "ClassificationCriticiteLog",
+            "Decondition",
+            "InventoryTransaction",
+            "ProduitPerime",
+            "RetourClientLine",
+            "RetourDepotItem",
+            "Rupture"
+        )) {
+            entityManager.createQuery("DELETE FROM " + entityName + " e WHERE e.produit.id = :id")
+                .setParameter("id", id).executeUpdate();
+        }
+
+        // Suppression en JPQL bulk plutôt qu'en entité : Produit porte plusieurs collections
+        // @OneToMany(cascade = REMOVE) (fournisseurProduits, optionPrixProduit, stockProduits,
+        // produits) — un produitRepository.delete(produit) ferait cascader Hibernate vers ces
+        // collections et tenterait de re-supprimer des lignes déjà effacées ci-dessus par les
+        // DELETE JPQL, provoquant "unexpected row count 0". Le bulk delete ne cascade jamais.
+        entityManager.createQuery("DELETE FROM Produit p WHERE p.id = :id").setParameter("id", id).executeUpdate();
+        entityManager.detach(produit);
     }
 
     @Override
     @Transactional
     @CacheEvict(cacheNames = "produits", key = "#id")
-    public void changeStatus(Integer id, com.kobe.warehouse.domain.enumeration.Status status) {
+    public void changeStatus(Integer id, Status status) {
         produitRepository.findById(id).ifPresent(produit -> {
             produit.setStatus(status);
             produitRepository.save(produit);
@@ -553,14 +727,6 @@ public class ProduitServiceImpl implements ProduitService {
             .toList();
     }
 
-    private StockProduit buildStockProduitFromStockProduitDTO(StockProduitDTO dto, StockProduit stockProduit) {
-        stockProduit.setQtyStock(dto.getQtyStock());
-        stockProduit.setUpdatedAt(LocalDateTime.now());
-        stockProduit.setQtyVirtual(dto.getQtyVirtual());
-        stockProduit.setQtyUG(dto.getQtyUG());
-        stockProduit.setStorage(storageFromId(dto.getStorageId()));
-        return stockProduit;
-    }
 
     private Storage storageFromId(Integer id) {
         if (id == null) {
@@ -615,13 +781,15 @@ public class ProduitServiceImpl implements ProduitService {
                 }
             }
         } else {
-            newSet.add(new RayonProduit().setProduit(produitToUpdate).setRayon(rayonFromId(produitDTO.getRayonId())));
+            newSet.add(new RayonProduit().setProduit(produitToUpdate)
+                .setRayon(rayonFromId(produitDTO.getRayonId())));
         }
         produitToUpdate.setRayonProduits(newSet);
     }
 
     private void updateStockInfo(Storage reserveStorage, Produit produit, ProduitDTO dto) {
-        boolean hasStockInfo = dto.getStockReassort() != null || dto.getQtySeuilMini() != null || dto.getSeuilMini() != null;
+        boolean hasStockInfo = dto.getStockReassort() != null || dto.getQtySeuilMini() != null
+            || dto.getSeuilMini() != null;
         if (!hasStockInfo) {
             return;
         }

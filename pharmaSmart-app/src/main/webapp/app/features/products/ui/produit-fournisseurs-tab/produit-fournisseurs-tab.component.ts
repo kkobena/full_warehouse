@@ -1,4 +1,4 @@
-import { Component, inject, input, output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, inject, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
@@ -20,11 +20,15 @@ export class ProduitFournisseursTabComponent {
   readonly produit = input.required<IProduit>();
   readonly refreshRequested = output<void>();
 
+  /** Un produit désactivé ne doit plus être modifiable (fournisseurs...). */
+  protected readonly isDisabled = computed(() => this.produit().status === 'DISABLE');
+
   private readonly modalService = inject(NgbModal);
   private readonly produitService = inject(ProduitService);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
 
   protected onAddFournisseur(): void {
+    if (this.isDisabled()) return;
     const modalRef = this.modalService.open(FormProduitFournisseurComponent, { centered:true, size: 'lg', backdrop: 'static' });
     modalRef.componentInstance.header = 'Ajouter un fournisseur';
     modalRef.componentInstance.produit = this.produit();
@@ -35,6 +39,7 @@ export class ProduitFournisseursTabComponent {
   }
 
   protected onEditFournisseur(fp: IFournisseurProduit): void {
+    if (this.isDisabled()) return;
     const modalRef = this.modalService.open(FormProduitFournisseurComponent, {centered:true, size: 'lg', backdrop: 'static' });
     modalRef.componentInstance.header = 'Modifier le fournisseur';
     modalRef.componentInstance.produit = this.produit();
@@ -46,6 +51,7 @@ export class ProduitFournisseursTabComponent {
   }
 
   protected onDeleteFournisseur(fp: IFournisseurProduit): void {
+    if (this.isDisabled()) return;
     this.confirmDialog.onConfirm(
       () => this.execDelete(fp),
       'Supprimer le fournisseur',
@@ -58,7 +64,7 @@ export class ProduitFournisseursTabComponent {
   }
 
   protected onTogglePrincipal(fp: IFournisseurProduit, checked: boolean): void {
-    if (!checked || this.isPrincipal(fp)) return;
+    if (!checked || this.isPrincipal(fp) || this.isDisabled()) return;
     this.produitService.updateDefaultFournisseur(fp.id!, this.produit().id!, true).subscribe({
       next: () => this.refreshRequested.emit(),
     });

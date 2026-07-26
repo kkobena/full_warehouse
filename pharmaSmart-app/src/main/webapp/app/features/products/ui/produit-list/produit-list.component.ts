@@ -168,20 +168,28 @@ export class ProduitListComponent {
 
   protected menuItemsFor(produit: IProduit): MenuEntry[] {
     const hasRealRayon = produit.rayonProduits?.some(rp => rp.codeRayon !== 'SANS') ?? false;
+    const isDisabled = produit.status === "DISABLE";
     const items: MenuEntry[] = [
       { label: "Voir le détail", icon: "pi pi-eye", action: "view" },
     ];
 
     if (this.canEdit()) {
-      items.push({ label: "Éditer", icon: "pi pi-pencil", action: "edit" });
+      items.push({ label: "Éditer", icon: "pi pi-pencil", action: "edit", disabled: isDisabled });
     }
 
     items.push({ label: "Imprimer étiquette", icon: "pi pi-tag", action: "print-label", separatorBefore: true });
-    items.push({ label: "Tarifs assurance", icon: "pi pi-euro", action: "prix-reference", separatorBefore: true });
+    items.push({
+      label: "Tarifs assurance",
+      icon: "pi pi-euro",
+      action: "prix-reference",
+      disabled: isDisabled,
+      separatorBefore: true,
+    });
     items.push({
       label: hasRealRayon ? "Cloner vers un autre stockage" : "Assigner un emplacement",
       icon: hasRealRayon ? "pi pi-copy" : "pi pi-map-marker",
       action: "clone-rayon",
+      disabled: isDisabled,
       separatorBefore: true,
     });
 
@@ -190,22 +198,28 @@ export class ProduitListComponent {
         label: "Saisir un lot",
         icon: "pi pi-tag",
         action: "saisir-lots",
-        disabled: (produit.totalQuantity ?? 0) <= 0,
+        disabled: isDisabled || (produit.totalQuantity ?? 0) <= 0,
         separatorBefore: true,
       });
 
       if (produit.deconditionnable) {
-        items.push({ label: "Configurer le détail", icon: "pi pi-sliders-h", action: "add-detail", separatorBefore: true });
+        items.push({
+          label: "Configurer le détail",
+          icon: "pi pi-sliders-h",
+          action: "add-detail",
+          disabled: isDisabled,
+          separatorBefore: true,
+        });
         items.push({
           label: "Déconditionner",
           icon: "pi pi-box",
           action: "decondition",
-          disabled: (produit.totalQuantity ?? 0) <= 0 || produit.produits.length === 0,
+          disabled: isDisabled || (produit.totalQuantity ?? 0) <= 0 || produit.produits.length === 0,
         });
       }
 
       items.push(
-        produit.status === "DISABLE"
+        isDisabled
           ? { label: "Réactiver", icon: "pi pi-play", action: "activate", separatorBefore: true }
           : { label: "Mettre en veille", icon: "pi pi-pause", action: "suspend", separatorBefore: true }
       );
@@ -217,7 +231,11 @@ export class ProduitListComponent {
         icon: "pi pi-trash",
         action: "delete",
         danger: true,
-        disabled: (produit.totalQuantity ?? 0) > 0,
+        // Le garde-fou sur le stock ne concerne que les produits encore actifs : un produit
+        // désactivé (ex. archivé après une fusion) doit rester supprimable même avec un
+        // reliquat de stock résiduel — le backend refuse de toute façon la suppression s'il
+        // est réellement référencé par des mouvements (ventes, commandes...).
+        disabled: !isDisabled && (produit.totalQuantity ?? 0) > 0,
         separatorBefore: true,
       });
     }

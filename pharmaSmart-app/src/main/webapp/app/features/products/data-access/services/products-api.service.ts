@@ -9,6 +9,7 @@ import { ISubstitut } from "app/shared/model/substitut.model";
 import { IProduitIndicateurs } from "../../models/produit-indicateurs.model";
 import { IVenteMois } from "../../models/vente-mois.model";
 import { ILot } from "app/shared/model/lot.model";
+import { IProduitMergePreview, IProduitMergeRequest, IProduitMergeResult } from "../../models/produit-merge.model";
 
 export interface IDeconditionRecord {
   id?: number;
@@ -50,6 +51,10 @@ export class ProductsApiService {
   query(req?: any): Observable<HttpResponse<IProduit[]>> {
     const options = createRequestOptions(req);
     return this.http.get<IProduit[]>(this.resourceUrl, { params: options, observe: "response" });
+  }
+
+  delete(id: number): Observable<HttpResponse<void>> {
+    return this.http.delete<void>(`${this.resourceUrl}/${id}`, { observe: "response" });
   }
 
   getById(id: number): Observable<IProduit> {
@@ -137,5 +142,20 @@ export class ProductsApiService {
     return this.http.patch<void>(`${this.resourceUrl}/${id}/flags`, null, {
       params: { flag, value: String(value) }
     });
+  }
+
+  previewMerge(targetId: number, sourceIds: number[]): Observable<IProduitMergePreview> {
+    return this.http
+      .post<IProduitMergePreview>(`${this.resourceUrl}/merge/preview`, sourceIds, {
+        params: { targetId: targetId.toString() },
+        observe: "response"
+      })
+      .pipe(map(res => res.body!));
+  }
+
+  confirmMerge(request: IProduitMergeRequest): Observable<IProduitMergeResult> {
+    return this.http
+      .post<IProduitMergeResult>(`${this.resourceUrl}/merge`, request, { observe: "response" })
+      .pipe(map(res => res.body!));
   }
 }

@@ -55,6 +55,7 @@ import {
   ProduitDeconditionModalComponent
 } from "../../ui/decondition-modal/produit-decondition-modal.component";
 import {NotificationService} from "app/shared/services/notification.service";
+import {ErrorService} from "app/shared/error.service";
 import {
   ListPrixReferenceComponent
 } from "../../ui/prix-reference/list-prix-reference/list-prix-reference.component";
@@ -68,6 +69,10 @@ import {
 import {
   RayonProduitApiService
 } from "../../../rayon/data-access/services/rayon-produit-api.service";
+import {
+  ProduitMergeModalComponent
+} from "../../ui/produit-merge-modal/produit-merge-modal.component";
+import {IProduitMergeResult} from "../../models/produit-merge.model";
 
 @Component({
   selector: "app-produit-home",
@@ -141,10 +146,12 @@ export class ProduitHomeComponent implements OnInit {
   private readonly modalService = inject(NgbModal);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly notificationService = inject(NotificationService);
+  private readonly errorService = inject(ErrorService);
   private readonly ability = inject(AbilityService);
   protected readonly canCreate = this.ability.canSignal("create", "catalogue");
   protected readonly canEdit = this.ability.canSignal("edit", "catalogue");
   protected readonly canDelete = this.ability.canSignal("delete", "catalogue");
+  protected readonly canMergeProduits = this.ability.canSignal("execute", "pr-fusion-produit");
   private readonly rayonProduitApi = inject(RayonProduitApiService);
 
   ngOnInit(): void {
@@ -196,6 +203,9 @@ export class ProduitHomeComponent implements OnInit {
   }
 
   protected onEditRequested(produit: IProduit): void {
+    if (!this.assertModifiable(produit)) {
+      return;
+    }
     if (produit.typeProduit === "DETAIL") {
       const ref = this.modalService.open(ProduitDetailFormModalComponent, {
         size: "lg",
@@ -254,6 +264,19 @@ export class ProduitHomeComponent implements OnInit {
     this.clearSelectionTrigger.update(v => v + 1);
   }
 
+  protected onBulkMerge(): void {
+    const list = this.selectedProduits();
+    if (list.length < 2) {
+      return;
+    }
+    const count = list.length;
+    this.confirmDialog.onConfirm(
+      () => this.openMergeModal(list),
+      "Fusionner les produits",
+      `Fusionner ${count} produit(s) sélectionné(s) ? Cette action est irréversible : les produits en doublon seront archivés au profit du produit cible choisi.`
+    );
+  }
+
   protected onMenuAction(event: { action: ProduitMenuAction; produit: IProduit }): void {
     const {action, produit} = event;
     switch (action) {
@@ -308,6 +331,29 @@ export class ProduitHomeComponent implements OnInit {
     }
   }
 
+  private openMergeModal(list: IProduit[]): void {
+    const ref = this.modalService.open(ProduitMergeModalComponent, {
+      size: "xl",
+      centered: true,
+      backdrop: "static"
+    });
+    (ref.componentInstance as ProduitMergeModalComponent).produits = list;
+    ref.closed.subscribe((result: IProduitMergeResult) => {
+      this.notificationService.success(
+        `${result.mergedSourceIds?.length ?? 0} produit(s) fusionné(s) avec succès.`,
+        "Fusion terminée"
+      );
+      if (result.stockConflicts?.length) {
+        this.notificationService.warning(
+          `Ajustement de stock manuel nécessaire sur ${result.stockConflicts.length} emplacement(s) : la quantité des produits fusionnés n'a pas été reportée automatiquement.`,
+          "Action requise"
+        );
+      }
+      this.onClearSelection();
+      this.loadPage();
+    });
+  }
+
   private executeBulk(list: IProduit[], status: "ENABLE" | "DISABLE"): void {
     let completed = 0;
     for (const produit of list) {
@@ -326,7 +372,26 @@ export class ProduitHomeComponent implements OnInit {
     }
   }
 
+  /**
+   * Un produit désactivé (DISABLE) ne doit plus être modifiable : édition, tarifs, lots,
+   * emplacement, détail/déconditionnement. Seules la réactivation/mise en veille et la
+   * suppression restent possibles.
+   */
+  private assertModifiable(produit: IProduit): boolean {
+    if (produit.status === "DISABLE") {
+      this.notificationService.warning(
+        `"${produit.libelle}" est désactivé : réactivez-le avant de le modifier.`,
+        "Produit désactivé"
+      );
+      return false;
+    }
+    return true;
+  }
+
   private openClonerRayon(produit: IProduit): void {
+    if (!this.assertModifiable(produit)) {
+      return;
+    }
     this.api.getById(produit.id!).subscribe(full => {
       const occupiedStorageIds = (full.rayonProduits ?? [])
         .map(rp => rp.storageId)
@@ -419,7 +484,18 @@ export class ProduitHomeComponent implements OnInit {
   }
 
   private deleteProduit(produit: IProduit): void {
-    this.router.navigate(["/produits", produit.id, "edit"]);
+    this.api.delete(produit.id!).subscribe({
+      next: () => {
+        this.notificationService.success(`"${produit.libelle}" a été supprimé.`, "Suppression");
+        if (this.selectedProduit()?.id === produit.id) {
+          this.selectedProduit.set(null);
+        }
+        this.loadPage();
+      },
+      error: err => {
+        this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur");
+      },
+    });
   }
 
   private loadReferentiels(): void {
@@ -456,6 +532,9 @@ export class ProduitHomeComponent implements OnInit {
   }
 
   private openDetailForm(produit: IProduit): void {
+    if (!this.assertModifiable(produit)) {
+      return;
+    }
     this.api.getById(produit.id!).subscribe(full => {
       const ref = this.modalService.open(ProduitDetailFormModalComponent, {
         size: "lg",
@@ -472,6 +551,9 @@ export class ProduitHomeComponent implements OnInit {
   }
 
   private openPrixReference(produit: IProduit): void {
+    if (!this.assertModifiable(produit)) {
+      return;
+    }
     const ref = this.modalService.open(ListPrixReferenceComponent, {
       size: "lg",
       centered: true,
@@ -483,6 +565,9 @@ export class ProduitHomeComponent implements OnInit {
   }
 
   private openSaisirLot(produit: IProduit): void {
+    if (!this.assertModifiable(produit)) {
+      return;
+    }
     const ref = this.modalService.open(LotSaisieProduitModalComponent, {
       size: "xl",
       centered: true,
@@ -497,6 +582,9 @@ export class ProduitHomeComponent implements OnInit {
   }
 
   private openDecondition(produit: IProduit): void {
+    if (!this.assertModifiable(produit)) {
+      return;
+    }
     this.api.getById(produit.id!).subscribe(full => {
       if (!full.produits?.length) {
         this.notificationService.warning(

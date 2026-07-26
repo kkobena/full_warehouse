@@ -2117,6 +2117,23 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             etapes: ['Sélectionner plusieurs produits dans la liste', 'Choisir "Mettre en veille" ou "Réactiver"', 'Confirmer si demandé'],
             resultatAttendu: 'Tous les produits sélectionnés changent d’état et la sélection est automatiquement réinitialisée à la fin du traitement.',
           },
+          {
+            id: 'REF-62',
+            titre: 'Fusionner des produits en doublon du catalogue',
+            besoin: 'Éliminer un doublon créé par erreur dans le catalogue sans perdre les ventes, stocks, lots, prix et commandes déjà rattachés à chacune des fiches concernées.',
+            fonctionnement:
+              'Depuis la sélection multiple du catalogue, l’utilisateur choisit le produit à conserver (la cible) parmi les produits sélectionnés ; un tableau comparatif (stock, prix, ventes des 12 derniers mois, dernières vente/entrée/modification) l’aide à trancher. Une analyse préalable détaille ensuite les données qui seront réaffectées ou fusionnées (stocks, lots, tarifs assurance, fournisseurs, rayons, ventes...) et signale les cas nécessitant un arbitrage : conflit de lot de même numéro (fusionner les quantités ou supprimer le lot en doublon, au choix de l’utilisateur) et conflit de stock sur un même emplacement (jamais fusionné automatiquement : un ajustement manuel reste nécessaire pour reporter la quantité si besoin). Une boîte (produit ayant un déconditionné rattaché) peut être fusionnée : si une seule des deux boîtes a un déconditionné, il est simplement re-parenté vers la boîte cible ; si les deux boîtes ont chacune un déconditionné actif, leurs ventes sont automatiquement fusionnées entre les deux déconditionnés (jamais le stock, jamais les commandes — un déconditionné ne se commande pas) et le déconditionné de la boîte source est archivé, pour ne jamais laisser deux déconditionnés actifs sous la même boîte cible. Un produit rattaché à plusieurs déconditionnés (cas de données non conforme à la convention 1 boîte = 1 déconditionné) est exclu de la fusion. Une fois confirmée, la fusion réaffecte les données au produit cible et archive les produits fusionnés (désactivés, jamais supprimés physiquement).',
+            prerequis: 'Au moins deux produits sélectionnés ; aucun des produits fusionnés (ni la cible) n’a plus d’un produit détail (déconditionné) rattaché.',
+            etapes: [
+              'Sélectionner au moins deux produits doublons dans le catalogue (boîtes et/ou déconditionnés)',
+              'Lancer "Fusionner" et confirmer l’action',
+              'Choisir le produit à conserver à l’aide du tableau comparatif',
+              'Consulter l’analyse (dont le sort du déconditionné rattaché s’il y en a un) et trancher chaque conflit de lot proposé',
+              'Confirmer la fusion',
+            ],
+            resultatAttendu:
+              'Les données des produits fusionnés (stocks, lots, tarifs, fournisseurs, rayons, ventes...) sont réaffectées ou fusionnées sur le produit cible selon les choix effectués ; le déconditionné rattaché est re-parenté ou ses ventes fusionnées selon le cas ; les produits fusionnés sont archivés (désactivés) et un ajustement manuel de stock reste signalé si un conflit d’emplacement (boîte ou déconditionné) n’a pas été résorbé.',
+          },
         ],
       },
       {

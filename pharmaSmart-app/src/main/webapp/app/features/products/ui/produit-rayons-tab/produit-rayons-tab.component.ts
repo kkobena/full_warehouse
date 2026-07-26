@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, input, output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, input, output} from '@angular/core';
 import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {ButtonComponent} from '../../../../shared/ui';
 import {IProduit} from '../../../../shared/model/produit.model';
@@ -24,6 +24,9 @@ export class ProduitRayonsTabComponent {
   readonly produit = input.required<IProduit>();
   readonly refreshRequested = output<void>();
 
+  /** Un produit désactivé ne doit plus être modifiable (emplacement...). */
+  protected readonly isDisabled = computed(() => this.produit().status === 'DISABLE');
+
   private readonly api = inject(RayonProduitApiService);
   private readonly modalService = inject(NgbModal);
   private readonly notificationService = inject(NotificationService);
@@ -34,6 +37,7 @@ export class ProduitRayonsTabComponent {
   }
 
   protected onDeplacer(assignment: IRayonProduit): void {
+    if (this.isDisabled()) return;
     const ref = this.modalService.open(RayonAssignFormComponent, {
       size: 'lg',
       centered: true,
@@ -61,6 +65,7 @@ export class ProduitRayonsTabComponent {
   }
 
   protected onAjouterStockage(): void {
+    if (this.isDisabled()) return;
     // Exclut tous les stockages déjà assignés (SANS inclus) — "assigner un emplacement"
     // dans un stockage existant se fait via le bouton dédié sur la ligne.
     const occupiedStorageIds = (this.produit().rayonProduits ?? [])

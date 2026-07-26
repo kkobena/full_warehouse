@@ -44,7 +44,7 @@ public class Logs implements Serializable {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @NotNull
-    @Column(name = "comments", nullable = false)
+    @Column(name = "comments", nullable = false, columnDefinition = "TEXT")
     private String comments;
 
     @ManyToOne(optional = false)

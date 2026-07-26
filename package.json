@@ -93,7 +93,7 @@
     "chart.js": "4.5.1",
     "dayjs": "1.11.21",
     "file-saver": "^2.0.5",
-    "gridstack": "^12.6.0",
+    "gridstack": "^13.0.0",
     "ngx-spinner": "^21.1.0",
     "ngx-webstorage": "21.0.1",
     "primeicons": "^8.0.0",

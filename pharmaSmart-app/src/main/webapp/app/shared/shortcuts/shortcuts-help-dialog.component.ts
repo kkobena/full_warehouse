@@ -1,9 +1,11 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonComponent } from '../ui';
-import { KeyboardShortcut } from '../../entities/sales/selling-home/racourci/keyboard-shortcuts.service';
-import { ShortcutsProvider } from './shortcuts-provider.interface';
+import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {ButtonComponent} from '../ui';
+import {
+  KeyboardShortcut
+} from '../../entities/sales/selling-home/racourci/keyboard-shortcuts.service';
+import {ShortcutsProvider} from './shortcuts-provider.interface';
 
 interface ShortcutDisplay {
   keys: string[];
@@ -19,7 +21,7 @@ interface CategoryDisplay {
 }
 
 @Component({
-  selector: 'jhi-shortcuts-help-dialog',
+  selector: 'app-shortcuts-help-dialog',
   imports: [CommonModule, ButtonComponent],
   styleUrls: ['../../entities/common-modal.component.scss'],
   template: `
@@ -40,11 +42,13 @@ interface CategoryDisplay {
       <div [class]="isRunningInTauri ? 'alert alert-success mb-4' : 'alert alert-info mb-4'">
         <i class="bi bi-info-circle"></i>
         @if (isRunningInTauri) {
-          <strong>Mode Application :</strong> Vous avez accès à tous les raccourcis, y compris les raccourcis Ctrl avancés qui ne
-          sont pas disponibles dans le navigateur.
+          <strong>Mode Application
+            :</strong> Vous avez accès à tous les raccourcis, y compris les raccourcis Ctrl avancés qui ne
+            sont pas disponibles dans le navigateur.
         } @else {
-          <strong>Mode Navigateur Web :</strong> Les raccourcis Ctrl (comme Ctrl+S, Ctrl+P) sont réservés par le navigateur. Utilisez
-          les touches F1-F11 et Alt+Lettre à la place.
+          <strong>Mode Navigateur Web
+            :</strong> Les raccourcis Ctrl (comme Ctrl+S, Ctrl+P) sont réservés par le navigateur. Utilisez
+            les touches F1-F11 et Alt+Lettre à la place.
         }
       </div>
 
@@ -73,7 +77,8 @@ interface CategoryDisplay {
       <!-- Shortcuts Grid -->
       <div class="shortcuts-grid">
         @for (category of sortedCategories; track category.title) {
-          <div class="shortcut-category mb-4" [class.desktop-only]="category.title.includes('Desktop')">
+          <div class="shortcut-category mb-4"
+               [class.desktop-only]="category.title.includes('Desktop')">
             <h5 class="category-title">
               <i class="bi {{ category.icon }}"></i>
               {{ category.title }}
@@ -108,7 +113,7 @@ interface CategoryDisplay {
                                   ? 'bg-warning'
                                   : 'bg-secondary')
                         "
-                        >{{ shortcut.badge }}</span
+                      >{{ shortcut.badge }}</span
                       >
                     }
                   </div>
@@ -125,13 +130,23 @@ interface CategoryDisplay {
         <h6 class="mb-3"><i class="bi bi-star-fill text-warning"></i> Conseils d'Utilisation</h6>
         <ul class="small mb-0">
           @if (isRunningInTauri) {
-            <li><strong>Mode Expert :</strong> Les raccourcis Ctrl permettent un flux de travail ultra-rapide</li>
-            <li><strong>Ctrl+K :</strong> Recherche omnidirectionnelle pour trouver n'importe quoi rapidement</li>
+            <li><strong>Mode Expert :</strong> Les raccourcis Ctrl permettent un flux de travail
+              ultra-rapide
+            </li>
+            <li><strong>Ctrl+K :</strong> Recherche omnidirectionnelle pour trouver n'importe quoi
+              rapidement
+            </li>
             <li><strong>Ctrl+Enter :</strong> Finalisation express sans quitter le clavier</li>
-            <li><strong>Productivité :</strong> Mémorisez Ctrl+F (produit), Ctrl+E (client), Ctrl+S (attente)</li>
+            <li><strong>Productivité :</strong> Mémorisez Ctrl+F (produit), Ctrl+E (client), Ctrl+S
+              (attente)
+            </li>
           } @else {
-            <li><strong>Débutants :</strong> Commencez par F2 (produit) → F3 (quantité) → F9 (finaliser)</li>
-            <li><strong>Navigation :</strong> Les touches Alt+Lettre sont sûres et ne conflictent pas avec le navigateur</li>
+            <li><strong>Débutants :</strong> Commencez par F2 (produit) → F3 (quantité) → F9
+              (finaliser)
+            </li>
+            <li><strong>Navigation :</strong> Les touches Alt+Lettre sont sûres et ne conflictent
+              pas avec le navigateur
+            </li>
             <li><strong>Touches F :</strong> F1-F11 fonctionnent même dans les champs de saisie</li>
           }
           <li><strong>Annulation :</strong> La touche Échap annule toujours l'action en cours</li>
@@ -165,7 +180,8 @@ interface CategoryDisplay {
         severity="secondary"
         type="button"
       ></app-button>
-      <app-button (clicked)="dismiss()" icon="pi pi-times" label="Fermer" [raised]="true" severity="primary" type="button"></app-button>
+      <app-button (clicked)="dismiss()" icon="pi pi-times" label="Fermer" [raised]="true"
+                  severity="primary" type="button"></app-button>
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -417,6 +433,18 @@ export class ShortcutsHelpDialogComponent implements OnInit {
     }
   }
 
+  isModifierKey(key: string): boolean {
+    return ['Ctrl', 'Alt', 'Shift', 'Cmd'].includes(key);
+  }
+
+  printShortcuts(): void {
+    window.print();
+  }
+
+  dismiss(): void {
+    this.activeModal.dismiss('cancel');
+  }
+
   private loadDynamicShortcuts(): void {
     const shortcutsByCategory = this.shortcutsService?.getShortcutsByCategory();
     const categories: CategoryDisplay[] = [];
@@ -443,10 +471,18 @@ export class ShortcutsHelpDialogComponent implements OnInit {
     const keys: string[] = [];
 
     // Build key combination
-    if (shortcut.ctrl) keys.push('Ctrl');
-    if (shortcut.alt) keys.push('Alt');
-    if (shortcut.shift) keys.push('Shift');
-    if (shortcut.meta) keys.push('Cmd');
+    if (shortcut.ctrl) {
+      keys.push('Ctrl');
+    }
+    if (shortcut.alt) {
+      keys.push('Alt');
+    }
+    if (shortcut.shift) {
+      keys.push('Shift');
+    }
+    if (shortcut.meta) {
+      keys.push('Cmd');
+    }
 
     // Format the main key
     const mainKey = this.formatKey(shortcut.key);
@@ -526,17 +562,5 @@ export class ShortcutsHelpDialogComponent implements OnInit {
     };
 
     return orderMap[categoryName] || 99;
-  }
-
-  isModifierKey(key: string): boolean {
-    return ['Ctrl', 'Alt', 'Shift', 'Cmd'].includes(key);
-  }
-
-  printShortcuts(): void {
-    window.print();
-  }
-
-  dismiss(): void {
-    this.activeModal.dismiss('cancel');
   }
 }

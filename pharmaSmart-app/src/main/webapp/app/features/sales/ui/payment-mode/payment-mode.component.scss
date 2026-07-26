@@ -90,6 +90,13 @@
   transition: all 0.2s ease;
   width: 100% !important;
   display: flex !important;
+  /* Bootstrap met `.input-group` en `flex-wrap: wrap` par défaut : dès que la somme
+     des largeurs minimales des enfants (pastille fixe + boutons) dépasse la largeur
+     de la colonne, la ligne se scinde sur 2-3 lignes. Le calcul du point de bascule
+     diffère légèrement entre moteurs (Chromium vs Gecko), ce qui rend le rendu
+     instable selon le navigateur. On force une seule ligne : seul le champ montant
+     (flex 1 1 auto, min-width: 0) se réduit, pastille et boutons gardent leur taille. */
+  flex-wrap: nowrap !important;
 }
 
 .ws-mode-reglement .input-group:hover {
@@ -106,6 +113,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Boutons d'action (ajouter/supprimer/remplacer) : taille fixe, ne doivent jamais
+   se réduire — seul le champ montant absorbe le manque de place. */
+.ws-mode-reglement .payment-action {
+  flex-shrink: 0;
 }
 
 /* ============================================

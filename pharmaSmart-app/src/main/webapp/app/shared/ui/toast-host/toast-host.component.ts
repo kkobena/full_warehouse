@@ -1,7 +1,7 @@
-import { Component, inject } from '@angular/core';
-import { NgbToast } from '@ng-bootstrap/ng-bootstrap';
+import {Component, inject} from '@angular/core';
+import {NgbToast} from '@ng-bootstrap/ng-bootstrap';
 
-import { NotificationSeverity, NotificationService } from 'app/shared/services/notification.service';
+import {NotificationService, NotificationSeverity} from 'app/shared/services/notification.service';
 
 /**
  * Rend les notifications de `NotificationService` — remplace `<p-toast>`.
@@ -16,7 +16,8 @@ import { NotificationSeverity, NotificationService } from 'app/shared/services/n
   selector: 'app-toast-host',
   imports: [NgbToast],
   template: `
-    <div class="toast-container position-fixed top-50 start-50 translate-middle p-3" aria-live="polite" aria-atomic="true">
+    <div class="toast-container position-fixed top-20 start-50 translate-middle p-3"
+         aria-live="polite" aria-atomic="true">
       @for (message of notifications.messages(); track message.id) {
         <ngb-toast
           [class]="toastClass(message.severity)"
@@ -45,21 +46,19 @@ import { NotificationSeverity, NotificationService } from 'app/shared/services/n
   `,
 })
 export class ToastHostComponent {
-  protected readonly notifications = inject(NotificationService);
-
   private static readonly BOOTSTRAP_VARIANT: Record<NotificationSeverity, string> = {
     success: 'success',
     info: 'info',
     warn: 'warning',
     error: 'danger',
   };
-
   private static readonly ICON: Record<NotificationSeverity, string> = {
     success: 'pi pi-check-circle',
     info: 'pi pi-info-circle',
     warn: 'pi pi-exclamation-triangle',
     error: 'pi pi-times-circle',
   };
+  protected readonly notifications = inject(NotificationService);
 
   /** `.text-bg-*` colore le fond ET calcule le contraste du texte (Bootstrap 5.3). */
   protected toastClass(severity: NotificationSeverity): string {

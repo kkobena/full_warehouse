@@ -19,7 +19,8 @@
           @if (showVenteSansBon()) {
             <div class="toggle-option">
               <label for="sansBon">Vente sans bon</label>
-              <app-switch [ngModel]="venteSansBon()" (ngModelChange)="venteSansBon.set($event); onSansBonChange($event)"
+              <app-switch (ngModelChange)="venteSansBon.set($event); onSansBonChange($event)"
+                          [ngModel]="venteSansBon()"
                           inputId="sansBon"></app-switch>
             </div>
           }
@@ -37,20 +38,21 @@
                       </span>
                     </span>
                     <app-input-number
-                      class="payment-amount-field"
-                      [ngModel]="entry.amount"
-                      (ngModelChange)="onAmountChanged(entry, $event)"
                       (keydown.enter)="submit(); $event.preventDefault()"
+                      (ngModelChange)="onAmountChanged(entry, $event)"
                       [inputId]="entry.mode.code"
+                      [ngModel]="entry.amount"
                       [readonly]="entry.mode.code !== PaymentModeCode.CASH && selectedModes().length === 1"
+                      class="payment-amount-field"
                       inputClass="payment-mode-input"
                       size="large"
                     />
                     @if (isShowAddBtn()) {
                       <!-- La zone de règlement vit en bas de l'écran : les deux dropdowns préfèrent
                            s'ouvrir vers le haut, avec repli vers le bas quand la place le permet
-                           (petits écrans 14") -->
-                      <div class="payment-action" container="body" ngbDropdown placement="top-end top-start bottom-end bottom-start">
+                            -->
+                      <div class="payment-action" container="body" ngbDropdown
+                           placement="top-end top-start bottom-end bottom-start">
                         <button
                           aria-label="Ajouter un mode de règlement"
                           class="btn btn-info payment-action-btn"
@@ -74,7 +76,8 @@
                     @if (selectedModes().length === 1) {
                       <!-- Dernière ligne : le « x » devient un bouton de REMPLACEMENT
                            (icône et couleur dédiées) — on ne descend jamais à zéro mode -->
-                      <div class="payment-action" container="body" ngbDropdown placement="top-end top-start bottom-end bottom-start">
+                      <div class="payment-action" container="body" ngbDropdown
+                           placement="top-end top-start bottom-end bottom-start">
                         <button
                           aria-label="Changer de mode de règlement"
                           class="btn btn-warning payment-action-btn"
@@ -86,7 +89,8 @@
                         </button>
                         <div class="payment-mode-menu" ngbDropdownMenu>
                           @for (mode of availableModes(); track mode.code) {
-                            <button (click)="onReplaceMode(entry, mode)" ngbDropdownItem type="button">
+                            <button (click)="onReplaceMode(entry, mode)" ngbDropdownItem
+                                    type="button">
                               <i [class]="modeItemIconClasses(mode)" aria-hidden="true"></i>
                               {{ modeLabel(mode) }}
                             </button>
@@ -130,8 +134,8 @@
                 <input
                   #commentInput
                   (keydown.enter)="submit(); $event.preventDefault()"
-                  [ngModel]="comment()"
                   (ngModelChange)="comment.set($event)"
+                  [ngModel]="comment()"
                   class="form-control"
                   placeholder="Saisir un commentaire"
                   type="text"
@@ -143,19 +147,22 @@
               <div class="bank-info-fields">
                 <div class="info-field mb-1">
                   <label>Référence</label>
-                  <input #referenceInput [ngModel]="bankReference()" (ngModelChange)="bankReference.set($event)" class="form-control"
+                  <input #referenceInput (ngModelChange)="bankReference.set($event)"
+                         [ngModel]="bankReference()" class="form-control"
                          placeholder="Référence bancaire" type="text" />
                 </div>
 
                 <div class="info-field mb-1">
                   <label>Banque</label>
-                  <input #banqueInput [ngModel]="bank()" (ngModelChange)="bank.set($event)" class="form-control" placeholder="Nom de la banque"
+                  <input #banqueInput (ngModelChange)="bank.set($event)" [ngModel]="bank()"
+                         class="form-control" placeholder="Nom de la banque"
                          type="text" />
                 </div>
 
                 <div class="info-field">
                   <label>Lieu</label>
-                  <input #lieuxInput [ngModel]="location()" (ngModelChange)="location.set($event)" class="form-control" placeholder="Lieu"
+                  <input #lieuxInput (ngModelChange)="location.set($event)" [ngModel]="location()"
+                         class="form-control" placeholder="Lieu"
                          type="text" />
                 </div>
               </div>

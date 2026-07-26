@@ -85,9 +85,18 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     description:
       "Un point de vente rapide, sécurisé et connecté au stock : PharmaSmart fluidifie l'encaissement, prend en charge les ventes comptant, assurance et à crédit, protège les opérations sensibles et offre une traçabilité complète jusqu'aux retours, avoirs et clôtures de caisse.",
     beneficesMetier: [
-      { titre: 'Fluidité au comptoir', description: 'Réduire les ressaisies grâce à la recherche, au scan, aux calculs automatiques et aux différents parcours d’encaissement.' },
-      { titre: 'Service patient plus clair', description: 'Calculer la part à payer, prendre en compte les bénéficiaires et fournir des justificatifs détaillés.' },
-      { titre: 'Caisse mieux contrôlée', description: 'Encadrer les opérations sensibles par des droits, des autorisations et une traçabilité de leurs auteurs.' },
+      {
+        titre: 'Fluidité au comptoir',
+        description: 'Réduire les ressaisies grâce à la recherche, au scan, aux calculs automatiques et aux différents parcours d’encaissement.'
+      },
+      {
+        titre: 'Service patient plus clair',
+        description: 'Calculer la part à payer, prendre en compte les bénéficiaires et fournir des justificatifs détaillés.'
+      },
+      {
+        titre: 'Caisse mieux contrôlée',
+        description: 'Encadrer les opérations sensibles par des droits, des autorisations et une traçabilité de leurs auteurs.'
+      },
     ],
     fonctionnalites: [
       {
@@ -287,9 +296,13 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             id: 'VTE-48',
             titre: 'Utiliser les raccourcis clavier pour accélérer la vente au comptoir',
             besoin: 'Réduire le temps passé par vente en évitant les allers-retours souris pour les actions les plus fréquentes (recherche produit, quantité, client, encaissement).',
-            fonctionnement: 'L’écran de vente répond à des raccourcis clavier dédiés pour donner le focus à la recherche produit, à la quantité, au client, ainsi que pour ajouter rapidement une ligne, finaliser la vente, la mettre en attente, l’annuler, donner le focus au paiement ou la sauvegarder en pré-vente/devis.',
-            etapes: ['Ouvrir l’écran de vente', 'Utiliser les raccourcis clavier pour naviguer et finaliser la vente sans la souris'],
-            resultatAttendu: 'Chaque raccourci déclenche l’action attendue (focus ou opération) sans nécessiter la souris.',
+            fonctionnement: 'L’écran de vente répond à des raccourcis clavier dédiés pour donner le focus à la recherche produit, à la quantité, au client, ainsi que pour ajouter rapidement une ligne, finaliser la vente, la mettre en attente, l’annuler, donner le focus au paiement ou la sauvegarder en pré-vente/devis. F1 ouvre à tout moment une fenêtre d’aide récapitulant tous les raccourcis disponibles, regroupés par catégorie. Les touches F1 à F10 et les combinaisons Alt+lettre fonctionnent aussi bien dans le navigateur web que dans l’application de bureau; les combinaisons Ctrl+lettre (ex. Ctrl+S, Ctrl+Entrée, Ctrl+P), réservées par le navigateur, ne sont actives que dans l’application de bureau. La fenêtre d’aide affiche un badge "Mode Web" ou "Mode Desktop" et n’y liste que les raccourcis réellement disponibles dans l’environnement courant.',
+            etapes: [
+              'Ouvrir l’écran de vente',
+              'Utiliser les raccourcis clavier pour naviguer et finaliser la vente sans la souris',
+              'Appuyer sur F1 pour afficher l’aide des raccourcis et vérifier ceux disponibles selon le mode (Web ou Desktop)',
+            ],
+            resultatAttendu: 'Chaque raccourci déclenche l’action attendue (focus ou opération) sans nécessiter la souris. F1 affiche l’aide avec la distinction claire entre raccourcis communs (F-keys, Alt+lettre) et raccourcis exclusifs à l’application de bureau (Ctrl+lettre).',
           },
         ],
       },
@@ -693,9 +706,18 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     description:
       'Un cycle tiers payant maîtrisé de bout en bout : PharmaSmart transforme les dossiers de vente en factures, accélère le recouvrement, détecte les retards et sécurise les règlements, avoirs, rapprochements et obligations FNE.',
     beneficesMetier: [
-      { titre: 'Créances identifiables', description: 'Suivre chaque montant depuis la vente assurée jusqu’au règlement de l’organisme payeur.' },
-      { titre: 'Recouvrement mieux organisé', description: 'Repérer les factures en attente, leur ancienneté et les écarts lors du rapprochement.' },
-      { titre: 'Facturation fiabilisée', description: 'Regrouper les dossiers, appliquer les règles du tiers payant et conserver les avoirs et règlements associés.' },
+      {
+        titre: 'Créances identifiables',
+        description: 'Suivre chaque montant depuis la vente assurée jusqu’au règlement de l’organisme payeur.'
+      },
+      {
+        titre: 'Recouvrement mieux organisé',
+        description: 'Repérer les factures en attente, leur ancienneté et les écarts lors du rapprochement.'
+      },
+      {
+        titre: 'Facturation fiabilisée',
+        description: 'Regrouper les dossiers, appliquer les règles du tiers payant et conserver les avoirs et règlements associés.'
+      },
     ],
     fonctionnalites: [
       {
@@ -1205,9 +1227,18 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     description:
       'Une chaîne d’approvisionnement maîtrisée de bout en bout : PharmaSmart transforme les besoins réels du stock en commandes, automatise les échanges fournisseur, fiabilise chaque réception, détecte les écarts et sécurise les retours, avoirs et règlements.',
     beneficesMetier: [
-      { titre: 'Commandes mieux dimensionnées', description: 'S’appuyer sur la consommation, la rotation, la saisonnalité, le stock et les contraintes fournisseurs.' },
-      { titre: 'Réceptions plus fiables', description: 'Contrôler les produits, quantités, prix, lots et péremptions avant d’intégrer le stock.' },
-      { titre: 'Relation fournisseur maîtrisée', description: 'Détecter les écarts, préparer les retours et rapprocher commandes, réceptions, factures et avoirs.' },
+      {
+        titre: 'Commandes mieux dimensionnées',
+        description: 'S’appuyer sur la consommation, la rotation, la saisonnalité, le stock et les contraintes fournisseurs.'
+      },
+      {
+        titre: 'Réceptions plus fiables',
+        description: 'Contrôler les produits, quantités, prix, lots et péremptions avant d’intégrer le stock.'
+      },
+      {
+        titre: 'Relation fournisseur maîtrisée',
+        description: 'Détecter les écarts, préparer les retours et rapprocher commandes, réceptions, factures et avoirs.'
+      },
     ],
     fonctionnalites: [
       {
@@ -1982,9 +2013,18 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     description:
       'Un catalogue vivant au service de la marge et de la disponibilité : chaque produit réunit tarifs, fournisseurs, emplacements, lots, ventes, achats et mouvements pour décider plus vite et agir sans quitter sa fiche.',
     beneficesMetier: [
-      { titre: 'Information produit centralisée', description: 'Retrouver dans une même fiche les données commerciales, fiscales, logistiques et historiques.' },
-      { titre: 'Disponibilité mieux comprise', description: 'Visualiser le stock par emplacement, les lots, les mouvements et les fournisseurs du produit.' },
-      { titre: 'Décisions plus rapides', description: 'Consulter les ventes, achats, prix et indicateurs utiles sans multiplier les recherches.' },
+      {
+        titre: 'Information produit centralisée',
+        description: 'Retrouver dans une même fiche les données commerciales, fiscales, logistiques et historiques.'
+      },
+      {
+        titre: 'Disponibilité mieux comprise',
+        description: 'Visualiser le stock par emplacement, les lots, les mouvements et les fournisseurs du produit.'
+      },
+      {
+        titre: 'Décisions plus rapides',
+        description: 'Consulter les ventes, achats, prix et indicateurs utiles sans multiplier les recherches.'
+      },
     ],
     fonctionnalites: [
       {
@@ -2365,9 +2405,18 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     icone: 'pi pi-sitemap',
     description: 'Données de référence transversales : familles, formes, gammes, laboratoires, TVA, tableaux de classification, remises catalogue, rayons, officines et fournisseurs.',
     beneficesMetier: [
-      { titre: 'Données cohérentes', description: 'Partager les mêmes classifications, taxes, fournisseurs et règles commerciales dans tous les modules.' },
-      { titre: 'Organisation fidèle à l’officine', description: 'Représenter les rayons, emplacements, officines et dépôts utilisés au quotidien.' },
-      { titre: 'Moins de ressaisies', description: 'Réutiliser les référentiels dans les produits, ventes, achats, stocks et rapports.' },
+      {
+        titre: 'Données cohérentes',
+        description: 'Partager les mêmes classifications, taxes, fournisseurs et règles commerciales dans tous les modules.'
+      },
+      {
+        titre: 'Organisation fidèle à l’officine',
+        description: 'Représenter les rayons, emplacements, officines et dépôts utilisés au quotidien.'
+      },
+      {
+        titre: 'Moins de ressaisies',
+        description: 'Réutiliser les référentiels dans les produits, ventes, achats, stocks et rapports.'
+      },
     ],
     fonctionnalites: [
       {
@@ -2584,9 +2633,18 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     description:
       'Une maîtrise physique et financière du stock : PharmaSmart trace chaque correction, accélère les inventaires, sécurise les lots et les péremptions, organise les destructions et rééquilibre les quantités entre rayon, réserve, officines et dépôts.',
     beneficesMetier: [
-      { titre: 'Stock localisable et traçable', description: 'Savoir ce qui est disponible, dans quel stockage et, lorsque nécessaire, dans quel lot.' },
-      { titre: 'Pertes mieux anticipées', description: 'Repérer les péremptions, organiser les retraits, retours et destructions avant qu’ils ne soient oubliés.' },
-      { titre: 'Inventaires mieux ciblés', description: 'Compter toute l’officine ou limiter le travail à un rayon, une famille, un emplacement ou une catégorie à risque.' },
+      {
+        titre: 'Stock localisable et traçable',
+        description: 'Savoir ce qui est disponible, dans quel stockage et, lorsque nécessaire, dans quel lot.'
+      },
+      {
+        titre: 'Pertes mieux anticipées',
+        description: 'Repérer les péremptions, organiser les retraits, retours et destructions avant qu’ils ne soient oubliés.'
+      },
+      {
+        titre: 'Inventaires mieux ciblés',
+        description: 'Compter toute l’officine ou limiter le travail à un rayon, une famille, un emplacement ou une catégorie à risque.'
+      },
     ],
     fonctionnalites: [
       {
@@ -3036,9 +3094,18 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     description:
       'Une relation client suivie sans perdre de vue la trésorerie : PharmaSmart centralise les achats, avoirs et ventes à crédit, mesure l’encours, facilite les encaissements et conserve une preuve claire de chaque règlement.',
     beneficesMetier: [
-      { titre: 'Relation client suivie', description: 'Retrouver les achats, avoirs, crédits et règlements associés à chaque client.' },
-      { titre: 'Encours sous surveillance', description: 'Visualiser ce qui reste dû avant d’accorder un nouveau différé ou d’enregistrer un règlement.' },
-      { titre: 'Règlements justifiables', description: 'Conserver l’historique et les références nécessaires pour expliquer chaque mouvement du compte.' },
+      {
+        titre: 'Relation client suivie',
+        description: 'Retrouver les achats, avoirs, crédits et règlements associés à chaque client.'
+      },
+      {
+        titre: 'Encours sous surveillance',
+        description: 'Visualiser ce qui reste dû avant d’accorder un nouveau différé ou d’enregistrer un règlement.'
+      },
+      {
+        titre: 'Règlements justifiables',
+        description: 'Conserver l’historique et les références nécessaires pour expliquer chaque mouvement du compte.'
+      },
     ],
     fonctionnalites: [
       {
@@ -3238,9 +3305,18 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     description:
       'Une lecture financière directement exploitable : PharmaSmart rapproche chiffre d’affaires, créances, dettes, TVA, caisse et achats, puis produit les états et exports nécessaires au pilotage de l’officine et aux échanges avec l’expert-comptable.',
     beneficesMetier: [
-      { titre: 'Vision financière consolidée', description: 'Rapprocher ventes, achats, créances, dettes, TVA et caisse dans une lecture commune.' },
-      { titre: 'Échanges comptables facilités', description: 'Produire les synthèses et exports nécessaires au contrôle et au travail avec l’expert-comptable.' },
-      { titre: 'Origine des montants retrouvable', description: 'Relier les indicateurs financiers aux opérations qui les ont générés.' },
+      {
+        titre: 'Vision financière consolidée',
+        description: 'Rapprocher ventes, achats, créances, dettes, TVA et caisse dans une lecture commune.'
+      },
+      {
+        titre: 'Échanges comptables facilités',
+        description: 'Produire les synthèses et exports nécessaires au contrôle et au travail avec l’expert-comptable.'
+      },
+      {
+        titre: 'Origine des montants retrouvable',
+        description: 'Relier les indicateurs financiers aux opérations qui les ont générés.'
+      },
     ],
     fonctionnalites: [
       {
@@ -3415,9 +3491,18 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     description:
       'Une véritable tour de contrôle de l’officine : PharmaSmart transforme ventes, stocks, clients, fournisseurs et créances en indicateurs visuels, comparaisons et analyses actionnables pour protéger la marge, réduire l’immobilisation et anticiper les décisions.',
     beneficesMetier: [
-      { titre: 'Décisions fondées sur l’activité réelle', description: 'Lire ensemble chiffre d’affaires, marge, stock, créances, clients et fournisseurs.' },
-      { titre: 'Évolutions immédiatement visibles', description: 'Comparer les périodes et repérer les familles, produits ou partenaires qui progressent ou reculent.' },
-      { titre: 'Indicateurs transformés en actions', description: 'Identifier les ruptures, surstocks, faibles rotations, retards de paiement et autres priorités.' },
+      {
+        titre: 'Décisions fondées sur l’activité réelle',
+        description: 'Lire ensemble chiffre d’affaires, marge, stock, créances, clients et fournisseurs.'
+      },
+      {
+        titre: 'Évolutions immédiatement visibles',
+        description: 'Comparer les périodes et repérer les familles, produits ou partenaires qui progressent ou reculent.'
+      },
+      {
+        titre: 'Indicateurs transformés en actions',
+        description: 'Identifier les ruptures, surstocks, faibles rotations, retards de paiement et autres priorités.'
+      },
     ],
     fonctionnalites: [
       {
@@ -3810,9 +3895,18 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     description:
       "PharmaSmart accompagne chaque métier sur le support le plus efficace : l'application Web centralise toute la gestion depuis un navigateur, tandis que le client Desktop transforme les postes Windows de vente, commande, réception ou stock en espaces de travail dédiés, stables et connectés aux périphériques locaux. Les applications Android spécialisées prolongent enfin la vente et le pilotage en mobilité — autour des mêmes données serveur.",
     beneficesMetier: [
-      { titre: 'Un mode adapté à chaque contexte', description: 'Travailler depuis un navigateur, un poste Desktop dédié ou une application mobile spécialisée.' },
-      { titre: 'Informations cohérentes', description: 'Partager les mêmes données serveur entre le comptoir, le bureau et les usages mobiles.' },
-      { titre: 'Postes de travail mieux intégrés', description: 'Exploiter sur les postes concernés les imprimantes, scanners et afficheurs clients locaux.' },
+      {
+        titre: 'Un mode adapté à chaque contexte',
+        description: 'Travailler depuis un navigateur, un poste Desktop dédié ou une application mobile spécialisée.'
+      },
+      {
+        titre: 'Informations cohérentes',
+        description: 'Partager les mêmes données serveur entre le comptoir, le bureau et les usages mobiles.'
+      },
+      {
+        titre: 'Postes de travail mieux intégrés',
+        description: 'Exploiter sur les postes concernés les imprimantes, scanners et afficheurs clients locaux.'
+      },
     ],
     fonctionnalites: [
       {
@@ -4107,9 +4201,18 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     icone: 'pi pi-home',
     description: "Écran affiché à la connexion : résolution du tableau de bord selon le profil, puis son contenu (Pharmacien, Caissier, Achats).",
     beneficesMetier: [
-      { titre: 'Priorités visibles dès la connexion', description: 'Présenter immédiatement les informations utiles au rôle de l’utilisateur.' },
-      { titre: 'Moins de navigation', description: 'Accéder directement aux indicateurs et actions les plus fréquents pour son activité.' },
-      { titre: 'Pilotage adapté au métier', description: 'Différencier les besoins du pharmacien, de la caisse et des achats sans multiplier les outils.' },
+      {
+        titre: 'Priorités visibles dès la connexion',
+        description: 'Présenter immédiatement les informations utiles au rôle de l’utilisateur.'
+      },
+      {
+        titre: 'Moins de navigation',
+        description: 'Accéder directement aux indicateurs et actions les plus fréquents pour son activité.'
+      },
+      {
+        titre: 'Pilotage adapté au métier',
+        description: 'Différencier les besoins du pharmacien, de la caisse et des achats sans multiplier les outils.'
+      },
     ],
     fonctionnalites: [
       {
@@ -4359,9 +4462,18 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     icone: 'pi pi-cog',
     description: 'Utilisateurs, rôles, droits d’accès, navigation et paramétrage général.',
     beneficesMetier: [
-      { titre: 'Accès adaptés aux responsabilités', description: 'Limiter les écrans et actions disponibles selon le rôle de chaque collaborateur.' },
-      { titre: 'Opérations sensibles protégées', description: 'Réserver les fonctions critiques aux profils autorisés et faciliter le contrôle interne.' },
-      { titre: 'Solution configurable', description: 'Adapter les paramètres généraux et la navigation à l’organisation de l’officine.' },
+      {
+        titre: 'Accès adaptés aux responsabilités',
+        description: 'Limiter les écrans et actions disponibles selon le rôle de chaque collaborateur.'
+      },
+      {
+        titre: 'Opérations sensibles protégées',
+        description: 'Réserver les fonctions critiques aux profils autorisés et faciliter le contrôle interne.'
+      },
+      {
+        titre: 'Solution configurable',
+        description: 'Adapter les paramètres généraux et la navigation à l’organisation de l’officine.'
+      },
     ],
     fonctionnalites: [
       {

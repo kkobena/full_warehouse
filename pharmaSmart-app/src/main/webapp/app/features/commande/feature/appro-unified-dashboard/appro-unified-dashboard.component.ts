@@ -1,16 +1,24 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
-import { CommonModule, DatePipe, NgClass } from "@angular/common";
-import { Router } from "@angular/router";
-import { HttpResponse } from "@angular/common/http";
+import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from "@angular/core";
+import {CommonModule, DatePipe} from "@angular/common";
+import {Router} from "@angular/router";
+import {HttpResponse} from "@angular/common/http";
 
-import { NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
+import {NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
 
-import { CommandeService, ICommandeDashboard, ICommandeResumee } from "app/entities/commande/commande.service";
-import { SemoisService } from "app/entities/semois/semois.service";
-import { BudgetCommande, SemoisFraicheur, SuggestionService } from "app/entities/commande/suggestion/suggestion.service";
-import { CommandCommonService } from "app/entities/commande/command-common.service";
-import { IReapproDashboard, ITopUrgentDTO } from "app/shared/model/semois/semois-dashboard.model";
-import { AlertBadgeService } from "app/shared/services/alert-badge.service";
+import {
+  CommandeService,
+  ICommandeDashboard,
+  ICommandeResumee
+} from "app/entities/commande/commande.service";
+import {SemoisService} from "app/entities/semois/semois.service";
+import {
+  BudgetCommande,
+  SemoisFraicheur,
+  SuggestionService
+} from "app/entities/commande/suggestion/suggestion.service";
+import {CommandCommonService} from "app/entities/commande/command-common.service";
+import {IReapproDashboard, ITopUrgentDTO} from "app/shared/model/semois/semois-dashboard.model";
+import {AlertBadgeService} from "app/shared/services/alert-badge.service";
 import {
   BadgeComponent,
   ButtonComponent,
@@ -41,14 +49,45 @@ export class ApproUnifiedDashboardComponent implements OnInit {
   readonly semoisDashboard = signal<IReapproDashboard | null>(null);
   readonly semoisFraicheur = signal<SemoisFraicheur | null>(null);
   readonly budget = signal<BudgetCommande | null>(null);
-
+  /** Service partagé — source unique de vérité pour tous les compteurs d'alertes */
+  readonly alertBadgeService = inject(AlertBadgeService);
   private readonly commandeService = inject(CommandeService);
   private readonly semoisService = inject(SemoisService);
   private readonly suggestionService = inject(SuggestionService);
   private readonly router = inject(Router);
   private readonly commandCommonService = inject(CommandCommonService);
-  /** Service partagé — source unique de vérité pour tous les compteurs d'alertes */
-  readonly alertBadgeService = inject(AlertBadgeService);
+
+  get isLoading(): boolean {
+    return this.loadingCommandes() || this.loadingSemois();
+  }
+
+  get semoisFraicheurLabel(): string {
+    const f = this.semoisFraicheur();
+    if (!f) {
+      return "VMM inconnue";
+    }
+    if (f.calculeRecent) {
+      return "VMM · À jour";
+    }
+    if (f.dernierCalcul) {
+      return `VMM · ${new Date(f.dernierCalcul).toLocaleDateString("fr-FR")}`;
+    }
+    return "VMM · Non initialisée";
+  }
+
+  get semoisFraicheurSeverity(): "success" | "warn" | "danger" | "secondary" {
+    const f = this.semoisFraicheur();
+    if (!f) {
+      return "secondary";
+    }
+    if (f.calculeRecent) {
+      return "success";
+    }
+    if (f.dernierCalcul) {
+      return "warn";
+    }
+    return "danger";
+  }
 
   /** Compatible avec l'usage template existant : peremptionCount() */
   peremptionCount(): number {
@@ -66,12 +105,20 @@ export class ApproUnifiedDashboardComponent implements OnInit {
     this.lastRefresh.set(null);
 
     this.commandeService.getDashboard().subscribe({
-      next: data => { this.commandeDashboard.set(data); this.loadingCommandes.set(false); this.checkRefreshDone(); },
+      next: data => {
+        this.commandeDashboard.set(data);
+        this.loadingCommandes.set(false);
+        this.checkRefreshDone();
+      },
       error: () => this.loadingCommandes.set(false),
     });
 
     this.semoisService.getDashboard().subscribe({
-      next: (res: HttpResponse<IReapproDashboard>) => { this.semoisDashboard.set(res.body); this.loadingSemois.set(false); this.checkRefreshDone(); },
+      next: (res: HttpResponse<IReapproDashboard>) => {
+        this.semoisDashboard.set(res.body);
+        this.loadingSemois.set(false);
+        this.checkRefreshDone();
+      },
       error: () => this.loadingSemois.set(false),
     });
 
@@ -88,20 +135,14 @@ export class ApproUnifiedDashboardComponent implements OnInit {
     this.alertBadgeService.refresh();
   }
 
-  navigateToPeremptions(): void { this.router.navigate(['/gestion-peremption']); }
-
-  private checkRefreshDone(): void {
-    if (!this.loadingCommandes() && !this.loadingSemois()) {
-      this.lastRefresh.set(new Date());
-    }
-  }
-
-  get isLoading(): boolean { return this.loadingCommandes() || this.loadingSemois(); }
-
   // ─── Navigation ──────────────────────────────────────────────────────────
 
+  navigateToPeremptions(): void {
+    this.router.navigate(['/gestion-peremption']);
+  }
+
   openCommande(row: ICommandeResumee): void {
-    const commandeId = { id: row.id, orderDate: row.orderDate };
+    const commandeId = {id: row.id, orderDate: row.orderDate};
     if (row.orderStatus === "RECEIVED") {
       this.commandCommonService.pendingOpenDeliveryId.set(commandeId);
       this.commandCommonService.navigateToBonsLivraison();
@@ -111,63 +152,67 @@ export class ApproUnifiedDashboardComponent implements OnInit {
     }
   }
 
-  navigateToSemoisSuggestions(): void { this.commandCommonService.navigateToAnalyse(); }
+  navigateToSemoisSuggestions(): void {
+    this.commandCommonService.navigateToAnalyse();
+  }
+
   navigateToCommandeEnCours(): void {
     this.commandCommonService.pendingNewCommande.set(true);
     this.commandCommonService.navigateToCommandesAPasser();
   }
-  navigateToReceptionEnAttente(): void { this.commandCommonService.navigateToBonsLivraison(); }
 
   // ─── Calculs VMM ─────────────────────────────────────────────────────────
 
+  navigateToReceptionEnAttente(): void {
+    this.commandCommonService.navigateToBonsLivraison();
+  }
+
   getTauxOk(): number {
     const d = this.semoisDashboard();
-    if (!d || d.totalProduits === 0) return 0;
+    if (!d || d.totalProduits === 0) {
+      return 0;
+    }
     return (d.nbOk / d.totalProduits) * 100;
   }
 
   getTauxRisque(): number {
     const d = this.semoisDashboard();
-    if (!d || d.totalProduits === 0) return 0;
+    if (!d || d.totalProduits === 0) {
+      return 0;
+    }
     return ((d.nbRupture + d.nbSousSeuil) / d.totalProduits) * 100;
   }
 
   getCouvertureMois(produit: ITopUrgentDTO): number {
-    if (!produit.vmm || produit.vmm === 0 || produit.stockActuel < 0) return 0;
+    if (!produit.vmm || produit.vmm === 0 || produit.stockActuel < 0) {
+      return 0;
+    }
     return produit.stockActuel / produit.vmm;
   }
 
   getCouvertureClass(produit: ITopUrgentDTO): string {
     const mois = this.getCouvertureMois(produit);
-    if (mois < 0.5) return "text-danger fw-bold";
-    if (mois < 1.0) return "text-warning fw-semibold";
+    if (mois < 0.5) {
+      return "text-danger fw-bold";
+    }
+    if (mois < 1.0) {
+      return "text-warning fw-semibold";
+    }
     return "text-success";
   }
+
+  // ─── Fraîcheur VMM ───────────────────────────────────────────────────────
 
   getUrgenceSeverity(produit: ITopUrgentDTO): "danger" | "warn" {
     return produit.stockActuel < produit.margeSecurite ? "danger" : "warn";
   }
 
-  // ─── Fraîcheur VMM ───────────────────────────────────────────────────────
-
-  get semoisFraicheurLabel(): string {
-    const f = this.semoisFraicheur();
-    if (!f) return "VMM inconnue";
-    if (f.calculeRecent) return "VMM · À jour";
-    if (f.dernierCalcul) return `VMM · ${new Date(f.dernierCalcul).toLocaleDateString("fr-FR")}`;
-    return "VMM · Non initialisée";
+  private checkRefreshDone(): void {
+    if (!this.loadingCommandes() && !this.loadingSemois()) {
+      this.lastRefresh.set(new Date());
+    }
   }
 
-  get semoisFraicheurSeverity(): "success" | "warn" | "danger" | "secondary" {
-    const f = this.semoisFraicheur();
-    if (!f) return "secondary";
-    if (f.calculeRecent) return "success";
-    if (f.dernierCalcul) return "warn";
-    return "danger";
-  }
 
-  formatAmount(amount: number): string {
-    return new Intl.NumberFormat("fr-FR").format(Math.round(amount / 100));
-  }
 }
 

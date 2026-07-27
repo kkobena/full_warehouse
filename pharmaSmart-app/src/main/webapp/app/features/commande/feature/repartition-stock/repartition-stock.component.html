@@ -8,14 +8,16 @@
       <pharma-date-picker
         (selectionChange)="onSearch()"
         [(ngModel)]="dtStart"
+        [style]="{ 'max-width': '180px' }"
         id="dtStart"
-        label="Date début"
+        label="Du"
       />
       <pharma-date-picker
         (selectionChange)="onSearch()"
         [(ngModel)]="dtEnd"
+        [style]="{ 'max-width': '180px' }"
         id="dtEnd"
-        label="Date fin"
+        label="Au"
       />
       <app-select
         (selectionChange)="onSearch()"
@@ -65,7 +67,8 @@
         <app-button (clicked)="exportToPdf()" icon="pi pi-file-pdf" label="Exporter PDF"
                     severity="warn" size="small" />
         <app-button (clicked)="onResetFilters()" [rounded]="true"
-                    [text]="true" icon="pi pi-filter-slash" ngbTooltip="Réinitialiser" placement="left"
+                    [text]="true" icon="pi pi-filter-slash" ngbTooltip="Réinitialiser"
+                    placement="left"
                     severity="secondary" size="small" />
       }
     </div>

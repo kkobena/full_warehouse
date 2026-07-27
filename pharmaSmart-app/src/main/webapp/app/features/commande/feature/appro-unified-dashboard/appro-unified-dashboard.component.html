@@ -19,31 +19,31 @@
   <ng-container ngProjectAs="[toolbarActions]">
     <div class="pharma-button-group">
       <app-button
-        label="Commander les urgents"
+        (clicked)="navigateToSemoisSuggestions()"
         icon="pi pi-exclamation-triangle"
-        severity="danger"
-        size="small"
+        label="Commander les urgents"
         ngbTooltip="Commander tous les articles en rupture ou sous le seuil de sécurité VMM"
         placement="bottom"
-        (clicked)="navigateToSemoisSuggestions()"
+        severity="danger"
+        size="small"
       />
       <app-button
-        label="Nouvelle commande"
+        (clicked)="navigateToCommandeEnCours()"
         icon="pi pi-plus"
-        severity="primary"
-        size="small"
+        label="Nouvelle commande"
         ngbTooltip="Créer une commande manuelle"
         placement="bottom"
-        (clicked)="navigateToCommandeEnCours()"
+        severity="primary"
+        size="small"
       />
       <app-button
-        icon="pi pi-refresh"
-        severity="secondary"
-        size="small"
+        (clicked)="loadAll()"
         [loading]="isLoading"
+        icon="pi pi-refresh"
         ngbTooltip="Actualiser le tableau de bord"
         placement="bottom"
-        (clicked)="loadAll()"
+        severity="secondary"
+        size="small"
       />
     </div>
   </ng-container>
@@ -52,11 +52,11 @@
 <!-- ─── SKELETON ─────────────────────────────────────────────────────────── -->
 @if (isLoading && !commandeDashboard() && !semoisDashboard()) {
   <div class="row mt-2">
-    @for (_ of [1,2,3,4,5,6]; track $index) {
+    @for (_ of [1, 2, 3, 4, 5, 6]; track $index) {
       <div class="col-12 col-md-2 mb-2">
         <div class="card h-100">
           <div class="card-body">
-            <app-skeleton height="2rem" class="mb-2" />
+            <app-skeleton class="mb-2" height="2rem" />
             <app-skeleton height="1.5rem" />
           </div>
         </div>
@@ -74,10 +74,10 @@
 
     <!-- ── Commandes en cours ── -->
     <app-kpi-item
-      class="clickable"
       (click)="navigateToCommandeEnCours()"
       [accent]="'primary'"
       [value]="db.totalRequested"
+      class="clickable"
       icon="pi pi-file-edit"
       iconClass="text-primary"
       label="En cours"
@@ -88,10 +88,10 @@
 
     <!-- ── À réceptionner ── -->
     <app-kpi-item
-      class="clickable"
       (click)="navigateToReceptionEnAttente()"
       [accent]="'warning'"
       [value]="db.totalReceived"
+      class="clickable"
       icon="pi pi-truck"
       iconClass="text-warning"
       label="À réceptionner"
@@ -103,10 +103,10 @@
     @if (semoisDashboard(); as sd) {
       <!-- ── Ruptures stock ── -->
       <app-kpi-item
-        class="clickable"
         (click)="navigateToSemoisSuggestions()"
         [accent]="'danger'"
         [value]="sd.nbRupture"
+        class="clickable"
         icon="pi pi-exclamation-triangle"
         iconClass="text-danger"
         label="Ruptures"
@@ -117,10 +117,10 @@
 
       <!-- ── Sous seuil VMM ── -->
       <app-kpi-item
-        class="clickable"
         (click)="navigateToSemoisSuggestions()"
         [accent]="'warning'"
         [value]="sd.nbSousSeuil"
+        class="clickable"
         icon="pi pi-shopping-bag"
         iconClass="text-warning"
         label="Sous seuil"
@@ -144,19 +144,23 @@
 
     <!-- ── Lots périmés (partagé depuis /api/dashboard/alert-counts) ── -->
     <app-kpi-item
-      class="clickable"
       (click)="peremptionCount() > 0 && navigateToPeremptions()"
       [accent]="peremptionCount() > 0 ? 'danger' : 'success'"
       [iconClass]="peremptionCount() > 0 ? 'text-danger' : 'text-success'"
       [valueClass]="peremptionCount() > 0 ? 'text-danger' : 'text-success'"
       [value]="peremptionCount()"
+      class="clickable"
       icon="pi pi-clock"
       label="Péremptions"
       ngbTooltip="Lots déjà périmés ou expirant très prochainement — cliquer pour gérer"
       placement="bottom"
     >
       <ng-container ngProjectAs="[kpiSub]">
-        @if (peremptionCount() > 0) { lots à traiter } @else { RAS }
+        @if (peremptionCount() > 0) {
+          lots à traiter
+        } @else {
+          RAS
+        }
       </ng-container>
     </app-kpi-item>
 
@@ -178,18 +182,18 @@
             Alertes urgentes — Top produits à risque
           </h5>
           <app-button
-            label="Voir tout"
-            icon="pi pi-arrow-right"
-            size="small"
-            [text]="true"
-            severity="danger"
             (clicked)="navigateToSemoisSuggestions()"
+            [text]="true"
+            icon="pi pi-arrow-right"
+            label="Voir tout"
+            severity="danger"
+            size="small"
           />
         </div>
         <div class="card-body p-0">
           <app-data-table
-            [value]="sd.topUrgents"
             [rows]="7"
+            [value]="sd.topUrgents"
             class="p-datatable-sm"
           >
             <ng-template #header>
@@ -202,29 +206,31 @@
               </tr>
             </ng-template>
             <ng-template #body let-produit>
-              <tr class="cursor-pointer pharma-row-hover" (click)="navigateToSemoisSuggestions()">
+              <tr (click)="navigateToSemoisSuggestions()" class="cursor-pointer pharma-row-hover">
                 <td>
                   <div class="fw-medium small">{{ produit.libelle }}</div>
                   <small class="text-muted">{{ produit.codeCip }}</small>
                 </td>
                 <td class="text-center">
                   <app-badge
-                    [severity]="getUrgenceSeverity(produit)"
                     [label]="produit.stockActuel < produit.margeSecurite ? 'RUPTURE' : 'SOUS SEUIL'"
+                    [severity]="getUrgenceSeverity(produit)"
                   />
                 </td>
-                <td class="text-end" [ngClass]="getCouvertureClass(produit)">
+                <td [ngClass]="getCouvertureClass(produit)" class="text-end">
                   {{ produit.stockActuel | number }}
                 </td>
-                <td class="text-end" [ngClass]="getCouvertureClass(produit)">
+                <td [ngClass]="getCouvertureClass(produit)" class="text-end">
                   {{ getCouvertureMois(produit) | number: '1.1-1' }} mois
                 </td>
-                <td class="text-end fw-bold pharma-price">{{ produit.quantiteACommander | number }}</td>
+                <td
+                  class="text-end fw-bold pharma-price">{{ produit.quantiteACommander | number }}
+                </td>
               </tr>
             </ng-template>
             <ng-template #emptymessage>
               <tr>
-                <td colspan="5" class="text-center py-3">
+                <td class="text-center py-3" colspan="5">
                   <i class="pi pi-check-circle text-success me-2"></i>
                   <span class="text-muted">Aucune alerte urgente</span>
                 </td>
@@ -252,16 +258,17 @@
               <span class="text-success fw-bold small">{{ getTauxOk() | number: '1.0-1' }}%</span>
             </div>
             <div class="progress" style="height: 6px">
-              <div class="progress-bar bg-success" [style.width.%]="getTauxOk()"></div>
+              <div [style.width.%]="getTauxOk()" class="progress-bar bg-success"></div>
             </div>
           </div>
           <div class="mb-3">
             <div class="d-flex justify-content-between mb-1">
               <span class="text-danger fw-semibold small">Produits à risque</span>
-              <span class="text-danger fw-bold small">{{ getTauxRisque() | number: '1.0-1' }}%</span>
+              <span class="text-danger fw-bold small">{{ getTauxRisque() | number: '1.0-1' }}
+                %</span>
             </div>
             <div class="progress" style="height: 6px">
-              <div class="progress-bar bg-danger" [style.width.%]="getTauxRisque()"></div>
+              <div [style.width.%]="getTauxRisque()" class="progress-bar bg-danger"></div>
             </div>
           </div>
           <div class="border-top pt-3 mt-2">
@@ -302,9 +309,9 @@
         </div>
         <div class="card-body p-0">
           <app-data-table
-            [value]="db.commandesRequested"
-            [rows]="6"
             [paginator]="db.commandesRequested.length > 6"
+            [rows]="6"
+            [value]="db.commandesRequested"
             class="p-datatable-sm"
           >
             <ng-template #header>
@@ -316,22 +323,29 @@
               </tr>
             </ng-template>
             <ng-template #body let-row>
-              <tr class="cursor-pointer pharma-row-hover" (click)="openCommande(row)">
+              <tr (click)="openCommande(row)" class="cursor-pointer pharma-row-hover">
                 <td>
                   <span class="fw-medium small">{{ row.fournisseurLibelle }}</span>
                   @if (row.reliquatDeCommandeId != null) {
-                    <app-badge label="RELIQUAT" severity="warn" class="ms-1" style="font-size:0.6rem" />
+                    <app-badge class="ms-1" label="RELIQUAT" severity="warn"
+                               style="font-size:0.6rem" />
                   }
                 </td>
-                <td class="text-end pharma-price small">{{ formatAmount(row.grossAmount) }} F</td>
-                <td class="text-center text-muted small">{{ row.orderDate | date: 'dd/MM/yyyy' }}</td>
+                <td class="text-end pharma-price small">{{ row.grossAmount | number }} F</td>
+                <td class="text-center text-muted small">{{ row.orderDate | date: 'dd/MM/yyyy' }}
+                </td>
                 <td class="text-end">
-                  <app-button icon="pi pi-arrow-right" size="small" [text]="true" severity="secondary" ngbTooltip="Ouvrir" (clicked)="openCommande(row)" />
+                  <app-button (clicked)="openCommande(row)" [text]="true" icon="pi pi-arrow-right"
+                              ngbTooltip="Ouvrir" severity="secondary"
+                              size="small" />
                 </td>
               </tr>
             </ng-template>
             <ng-template #emptymessage>
-              <tr><td colspan="4" class="text-center text-muted py-3 small">Aucune commande en cours</td></tr>
+              <tr>
+                <td class="text-center text-muted py-3 small" colspan="4">Aucune commande en cours
+                </td>
+              </tr>
             </ng-template>
           </app-data-table>
         </div>
@@ -350,9 +364,9 @@
         </div>
         <div class="card-body p-0">
           <app-data-table
-            [value]="db.commandesReceived"
-            [rows]="6"
             [paginator]="db.commandesReceived.length > 6"
+            [rows]="6"
+            [value]="db.commandesReceived"
             class="p-datatable-sm"
           >
             <ng-template #header>
@@ -364,17 +378,24 @@
               </tr>
             </ng-template>
             <ng-template #body let-row>
-              <tr class="cursor-pointer pharma-row-hover" (click)="openCommande(row)">
+              <tr (click)="openCommande(row)" class="cursor-pointer pharma-row-hover">
                 <td class="small">{{ row.fournisseurLibelle }}</td>
                 <td class="text-muted small">{{ row.orderReference ?? '—' }}</td>
-                <td class="text-center text-muted small">{{ row.orderDate | date: 'dd/MM/yyyy' }}</td>
+                <td class="text-center text-muted small">{{ row.orderDate | date: 'dd/MM/yyyy' }}
+                </td>
                 <td class="text-end">
-                  <app-button icon="pi pi-arrow-right" size="small" [text]="true" severity="secondary" ngbTooltip="Saisir la réception" placement="left" (clicked)="openCommande(row)" />
+                  <app-button (clicked)="openCommande(row)" [text]="true" icon="pi pi-arrow-right"
+                              ngbTooltip="Saisir la réception" placement="left" severity="secondary"
+                              size="small" />
                 </td>
               </tr>
             </ng-template>
             <ng-template #emptymessage>
-              <tr><td colspan="4" class="text-center text-muted py-3 small">Aucune réception en attente</td></tr>
+              <tr>
+                <td class="text-center text-muted py-3 small" colspan="4">Aucune réception en
+                  attente
+                </td>
+              </tr>
             </ng-template>
           </app-data-table>
         </div>

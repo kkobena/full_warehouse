@@ -4,6 +4,20 @@
     "nom": "Ventes & Point de vente",
     "icone": "pi pi-shopping-cart",
     "description": "Un point de vente rapide, sécurisé et connecté au stock : PharmaSmart fluidifie l'encaissement, prend en charge les ventes comptant, assurance et à crédit, protège les opérations sensibles et offre une traçabilité complète jusqu'aux retours, avoirs et clôtures de caisse.",
+    "beneficesMetier": [
+      {
+        "titre": "Fluidité au comptoir",
+        "description": "Réduire les ressaisies grâce à la recherche, au scan, aux calculs automatiques et aux différents parcours d’encaissement."
+      },
+      {
+        "titre": "Service patient plus clair",
+        "description": "Calculer la part à payer, prendre en compte les bénéficiaires et fournir des justificatifs détaillés."
+      },
+      {
+        "titre": "Caisse mieux contrôlée",
+        "description": "Encadrer les opérations sensibles par des droits, des autorisations et une traçabilité de leurs auteurs."
+      }
+    ],
     "fonctionnalites": [
       {
         "nom": "Vente au comptoir — construction du panier",
@@ -269,12 +283,13 @@
             "id": "VTE-48",
             "titre": "Utiliser les raccourcis clavier pour accélérer la vente au comptoir",
             "besoin": "Réduire le temps passé par vente en évitant les allers-retours souris pour les actions les plus fréquentes (recherche produit, quantité, client, encaissement).",
-            "fonctionnement": "L’écran de vente répond à des raccourcis clavier dédiés pour donner le focus à la recherche produit, à la quantité, au client, ainsi que pour ajouter rapidement une ligne, finaliser la vente, la mettre en attente, l’annuler, donner le focus au paiement ou la sauvegarder en pré-vente/devis.",
+            "fonctionnement": "L’écran de vente répond à des raccourcis clavier dédiés pour donner le focus à la recherche produit, à la quantité, au client, ainsi que pour ajouter rapidement une ligne, finaliser la vente, la mettre en attente, l’annuler, donner le focus au paiement ou la sauvegarder en pré-vente/devis. F1 ouvre à tout moment une fenêtre d’aide récapitulant tous les raccourcis disponibles, regroupés par catégorie. Les touches F1 à F10 et les combinaisons Alt+lettre fonctionnent aussi bien dans le navigateur web que dans l’application de bureau; les combinaisons Ctrl+lettre (ex. Ctrl+S, Ctrl+Entrée, Ctrl+P), réservées par le navigateur, ne sont actives que dans l’application de bureau. La fenêtre d’aide affiche un badge \"Mode Web\" ou \"Mode Desktop\" et n’y liste que les raccourcis réellement disponibles dans l’environnement courant.",
             "etapes": [
               "Ouvrir l’écran de vente",
-              "Utiliser les raccourcis clavier pour naviguer et finaliser la vente sans la souris"
+              "Utiliser les raccourcis clavier pour naviguer et finaliser la vente sans la souris",
+              "Appuyer sur F1 pour afficher l’aide des raccourcis et vérifier ceux disponibles selon le mode (Web ou Desktop)"
             ],
-            "resultatAttendu": "Chaque raccourci déclenche l’action attendue (focus ou opération) sans nécessiter la souris."
+            "resultatAttendu": "Chaque raccourci déclenche l’action attendue (focus ou opération) sans nécessiter la souris. F1 affiche l’aide avec la distinction claire entre raccourcis communs (F-keys, Alt+lettre) et raccourcis exclusifs à l’application de bureau (Ctrl+lettre)."
           }
         ]
       },
@@ -605,8 +620,8 @@
           {
             "id": "VTE-29",
             "titre": "Enregistrer une vente en dépôt",
-            "besoin": "Vendre depuis un point de stockage secondaire (dépôt) distinct du magasin principal, en gardant les stocks de chaque entité séparés.",
-            "fonctionnement": "La vente est rattachée explicitement au dépôt sélectionné ; la décrémentation de stock s’applique au stock de ce dépôt et non à celui du magasin principal.",
+            "besoin": "Vendre depuis un point de stockage secondaire (dépôt) distinct de l’officine principale, en gardant les stocks de chaque entité séparés.",
+            "fonctionnement": "La vente est rattachée explicitement au dépôt sélectionné ; la décrémentation de stock s’applique au stock de ce dépôt et non à celui de l’officine principale.",
             "etapes": [
               "Ouvrir l’onglet \"Ventes dépôt\"",
               "Constituer la vente pour le dépôt concerné",
@@ -795,6 +810,20 @@
     "nom": "Facturation & Tiers payants",
     "icone": "pi pi-receipt",
     "description": "Un cycle tiers payant maîtrisé de bout en bout : PharmaSmart transforme les dossiers de vente en factures, accélère le recouvrement, détecte les retards et sécurise les règlements, avoirs, rapprochements et obligations FNE.",
+    "beneficesMetier": [
+      {
+        "titre": "Créances identifiables",
+        "description": "Suivre chaque montant depuis la vente assurée jusqu’au règlement de l’organisme payeur."
+      },
+      {
+        "titre": "Recouvrement mieux organisé",
+        "description": "Repérer les factures en attente, leur ancienneté et les écarts lors du rapprochement."
+      },
+      {
+        "titre": "Facturation fiabilisée",
+        "description": "Regrouper les dossiers, appliquer les règles du tiers payant et conserver les avoirs et règlements associés."
+      }
+    ],
     "fonctionnalites": [
       {
         "nom": "Édition de facturation — génération unitaire",
@@ -1276,7 +1305,7 @@
             "id": "FAC-28",
             "titre": "Certifier une facture unitaire auprès de la DGI (FNE)",
             "besoin": "Répondre à l’obligation réglementaire de certification électronique des factures auprès de l’administration fiscale.",
-            "fonctionnement": "La facture est convertie au format attendu par le service FNE et transmise ; le magasin émetteur, le tiers payant et les lignes de facture sont mappés vers la structure de facture normalisée.",
+            "fonctionnement": "La facture est convertie au format attendu par le service FNE et transmise ; l’officine émettrice, le tiers payant et les lignes de facture sont mappés vers la structure de facture normalisée.",
             "prerequis": "La facture existe et le tiers payant a des coordonnées valides (voir contrôle ci-dessous).",
             "etapes": [
               "Ouvrir la facture",
@@ -1463,6 +1492,20 @@
     "nom": "Achats, Commandes & Fournisseurs",
     "icone": "pi pi-truck",
     "description": "Une chaîne d’approvisionnement maîtrisée de bout en bout : PharmaSmart transforme les besoins réels du stock en commandes, automatise les échanges fournisseur, fiabilise chaque réception, détecte les écarts et sécurise les retours, avoirs et règlements.",
+    "beneficesMetier": [
+      {
+        "titre": "Commandes mieux dimensionnées",
+        "description": "S’appuyer sur la consommation, la rotation, la saisonnalité, le stock et les contraintes fournisseurs."
+      },
+      {
+        "titre": "Réceptions plus fiables",
+        "description": "Contrôler les produits, quantités, prix, lots et péremptions avant d’intégrer le stock."
+      },
+      {
+        "titre": "Relation fournisseur maîtrisée",
+        "description": "Détecter les écarts, préparer les retours et rapprocher commandes, réceptions, factures et avoirs."
+      }
+    ],
     "fonctionnalites": [
       {
         "nom": "Commande fournisseur — création & édition",
@@ -2541,6 +2584,20 @@
     "nom": "Produits",
     "icone": "pi pi-database",
     "description": "Un catalogue vivant au service de la marge et de la disponibilité : chaque produit réunit tarifs, fournisseurs, emplacements, lots, ventes, achats et mouvements pour décider plus vite et agir sans quitter sa fiche.",
+    "beneficesMetier": [
+      {
+        "titre": "Information produit centralisée",
+        "description": "Retrouver dans une même fiche les données commerciales, fiscales, logistiques et historiques."
+      },
+      {
+        "titre": "Disponibilité mieux comprise",
+        "description": "Visualiser le stock par emplacement, les lots, les mouvements et les fournisseurs du produit."
+      },
+      {
+        "titre": "Décisions plus rapides",
+        "description": "Consulter les ventes, achats, prix et indicateurs utiles sans multiplier les recherches."
+      }
+    ],
     "fonctionnalites": [
       {
         "nom": "Fiche produit — création, édition, suppression",
@@ -2666,6 +2723,21 @@
               "Confirmer si demandé"
             ],
             "resultatAttendu": "Tous les produits sélectionnés changent d’état et la sélection est automatiquement réinitialisée à la fin du traitement."
+          },
+          {
+            "id": "REF-62",
+            "titre": "Fusionner des produits en doublon du catalogue",
+            "besoin": "Éliminer un doublon créé par erreur dans le catalogue sans perdre les ventes, stocks, lots, prix et commandes déjà rattachés à chacune des fiches concernées.",
+            "fonctionnement": "Depuis la sélection multiple du catalogue, l’utilisateur choisit le produit à conserver (la cible) parmi les produits sélectionnés ; un tableau comparatif (stock, prix, ventes des 12 derniers mois, dernières vente/entrée/modification) l’aide à trancher. Une analyse préalable détaille ensuite les données qui seront réaffectées ou fusionnées (stocks, lots, tarifs assurance, fournisseurs, rayons, ventes...) et signale les cas nécessitant un arbitrage : conflit de lot de même numéro (fusionner les quantités ou supprimer le lot en doublon, au choix de l’utilisateur) et conflit de stock sur un même emplacement (jamais fusionné automatiquement : un ajustement manuel reste nécessaire pour reporter la quantité si besoin). Une boîte (produit ayant un déconditionné rattaché) peut être fusionnée : si une seule des deux boîtes a un déconditionné, il est simplement re-parenté vers la boîte cible ; si les deux boîtes ont chacune un déconditionné actif, leurs ventes sont automatiquement fusionnées entre les deux déconditionnés (jamais le stock, jamais les commandes — un déconditionné ne se commande pas) et le déconditionné de la boîte source est archivé, pour ne jamais laisser deux déconditionnés actifs sous la même boîte cible. Un produit rattaché à plusieurs déconditionnés (cas de données non conforme à la convention 1 boîte = 1 déconditionné) est exclu de la fusion. Une fois confirmée, la fusion réaffecte les données au produit cible et archive les produits fusionnés (désactivés, jamais supprimés physiquement).",
+            "prerequis": "Au moins deux produits sélectionnés ; aucun des produits fusionnés (ni la cible) n’a plus d’un produit détail (déconditionné) rattaché.",
+            "etapes": [
+              "Sélectionner au moins deux produits doublons dans le catalogue (boîtes et/ou déconditionnés)",
+              "Lancer \"Fusionner\" et confirmer l’action",
+              "Choisir le produit à conserver à l’aide du tableau comparatif",
+              "Consulter l’analyse (dont le sort du déconditionné rattaché s’il y en a un) et trancher chaque conflit de lot proposé",
+              "Confirmer la fusion"
+            ],
+            "resultatAttendu": "Les données des produits fusionnés (stocks, lots, tarifs, fournisseurs, rayons, ventes...) sont réaffectées ou fusionnées sur le produit cible selon les choix effectués ; le déconditionné rattaché est re-parenté ou ses ventes fusionnées selon le cas ; les produits fusionnés sont archivés (désactivés) et un ajustement manuel de stock reste signalé si un conflit d’emplacement (boîte ou déconditionné) n’a pas été résorbé."
           }
         ]
       },
@@ -2756,10 +2828,10 @@
             "id": "REF-44",
             "titre": "Saisir manuellement un lot pour un produit",
             "besoin": "Régulariser le stock d’un lot connu physiquement mais non encore enregistré (ex. lot oublié à la réception), sans passer par un nouveau bon de réception.",
-            "fonctionnement": "La saisie manuelle crée un lot (numéro, date de péremption, quantité, magasin) directement rattaché au produit depuis sa fiche.",
+            "fonctionnement": "La saisie manuelle crée un lot (numéro, date de péremption, quantité, officine) directement rattaché au produit depuis sa fiche.",
             "etapes": [
               "Ouvrir l’onglet \"Lots / péremption\" de la fiche produit",
-              "Saisir un nouveau lot (numéro, péremption, quantité, magasin)",
+              "Saisir un nouveau lot (numéro, péremption, quantité, officine)",
               "Enregistrer"
             ],
             "resultatAttendu": "Le lot saisi apparaît dans la liste des lots du produit avec sa quantité ajoutée au stock."
@@ -2822,7 +2894,7 @@
           {
             "id": "REF-45",
             "titre": "Assigner un produit à un rayon",
-            "besoin": "Indiquer où trouver physiquement le produit dans le magasin, pour l’équipe en rayon comme pour l’inventaire par rayon.",
+            "besoin": "Indiquer où trouver physiquement le produit dans l’officine, pour l’équipe en rayon comme pour l’inventaire par rayon.",
             "fonctionnement": "Le produit est rattaché à un emplacement (rayon) dans un stockage donné ; il peut être réassigné à tout moment vers un autre rayon du même stockage.",
             "etapes": [
               "Ouvrir l’onglet \"Rayons\" de la fiche produit",
@@ -2834,7 +2906,7 @@
           {
             "id": "REF-46",
             "titre": "Affecter un produit à un stockage supplémentaire",
-            "besoin": "Gérer le placement d’un produit présent sur plusieurs entités (magasin principal et dépôt secondaire), sans dupliquer sa fiche.",
+            "besoin": "Gérer le placement d’un produit présent sur plusieurs entités (officine principale et dépôt secondaire), sans dupliquer sa fiche.",
             "fonctionnement": "Un produit peut être affecté à un stockage additionnel, avec son propre rayon dans ce stockage, indépendamment de son placement dans le stockage principal.",
             "etapes": [
               "Ouvrir l’onglet \"Rayons\" de la fiche produit",
@@ -3047,7 +3119,21 @@
     "id": "RFD",
     "nom": "Référentiel",
     "icone": "pi pi-sitemap",
-    "description": "Données de référence transversales : familles, formes, gammes, laboratoires, TVA, tableaux de classification, remises catalogue, rayons, magasins et fournisseurs.",
+    "description": "Données de référence transversales : familles, formes, gammes, laboratoires, TVA, tableaux de classification, remises catalogue, rayons, officines et fournisseurs.",
+    "beneficesMetier": [
+      {
+        "titre": "Données cohérentes",
+        "description": "Partager les mêmes classifications, taxes, fournisseurs et règles commerciales dans tous les modules."
+      },
+      {
+        "titre": "Organisation fidèle à l’officine",
+        "description": "Représenter les rayons, emplacements, officines et dépôts utilisés au quotidien."
+      },
+      {
+        "titre": "Moins de ressaisies",
+        "description": "Réutiliser les référentiels dans les produits, ventes, achats, stocks et rapports."
+      }
+    ],
     "fonctionnalites": [
       {
         "nom": "Référentiels produit simples (familles, formes, gammes, laboratoires, DCI)",
@@ -3193,7 +3279,7 @@
           {
             "id": "RFD-11",
             "titre": "Créer ou modifier un rayon",
-            "besoin": "Structurer l’implantation physique du magasin pour le rangement, les inventaires par rayon et le reporting.",
+            "besoin": "Structurer l’implantation physique de l’officine pour le rangement, les inventaires par rayon et le reporting.",
             "fonctionnement": "Un rayon est rattaché à un stockage et peut être qualifié par un type de zone (ambiant, froid, OTC, ordonnance, toxique, réserve, para) et une position, utiles pour organiser l’implantation et cibler les inventaires.",
             "etapes": [
               "Créer ou modifier le rayon (code, libellé, stockage, type de zone, position)",
@@ -3228,7 +3314,7 @@
           {
             "id": "RFD-14",
             "titre": "Cloner un rayon ou son affectation produits vers un autre stockage",
-            "besoin": "Reproduire rapidement l’organisation d’un stockage (magasin ou dépôt) sur un autre, sans ressaisir chaque rayon ou chaque affectation.",
+            "besoin": "Reproduire rapidement l’organisation d’un stockage (officine ou dépôt) sur un autre, sans ressaisir chaque rayon ou chaque affectation.",
             "fonctionnement": "Le clonage peut porter soit sur la liste des rayons elle-même, soit sur l’affectation des produits d’un rayon donné vers les rayons correspondants d’autres stockages.",
             "etapes": [
               "Choisir \"Cloner les rayons\" ou \"Cloner vers\" depuis la fiche d’un rayon",
@@ -3241,7 +3327,7 @@
             "id": "RFD-15",
             "titre": "Importer ou exporter les rayons et leurs affectations produits",
             "besoin": "Charger en masse une nouvelle implantation ou en extraire un état des lieux, sans saisie manuelle rayon par rayon.",
-            "fonctionnement": "Les rayons peuvent être importés ou exportés au niveau du magasin ; les affectations produit-rayon peuvent elles aussi être importées par fichier pour un stockage donné.",
+            "fonctionnement": "Les rayons peuvent être importés ou exportés au niveau de l’officine ; les affectations produit-rayon peuvent elles aussi être importées par fichier pour un stockage donné.",
             "etapes": [
               "Ouvrir la liste des rayons du stockage concerné",
               "Lancer l’import ou l’export",
@@ -3264,18 +3350,18 @@
         ]
       },
       {
-        "nom": "Magasins & dépôts",
+        "nom": "Officines & dépôts",
         "scenarios": [
           {
             "id": "RFD-17",
-            "titre": "Créer ou modifier un magasin/dépôt",
-            "besoin": "Déclarer un nouveau point de stockage (dépôt secondaire, nouveau magasin) avant de pouvoir y vendre ou y stocker.",
-            "fonctionnement": "Chaque magasin/dépôt porte son propre stock, distinct des autres entités, utilisé par les ventes dépôt, la répartition de stock et les inventaires.",
+            "titre": "Créer ou modifier une officine/un dépôt",
+            "besoin": "Déclarer un nouveau point de stockage (dépôt secondaire, nouvelle officine) avant de pouvoir y vendre ou y stocker.",
+            "fonctionnement": "Chaque officine ou dépôt porte son propre stock, distinct des autres entités, utilisé par les ventes dépôt, la répartition de stock et les inventaires.",
             "etapes": [
-              "Créer ou modifier le magasin/dépôt",
+              "Créer ou modifier l’officine ou le dépôt",
               "Enregistrer"
             ],
-            "resultatAttendu": "Le magasin/dépôt est disponible pour la vente, le stock et les inventaires."
+            "resultatAttendu": "L’officine ou le dépôt est disponible pour la vente, le stock et les inventaires."
           }
         ]
       },
@@ -3338,7 +3424,21 @@
     "id": "STK",
     "nom": "Stock & Inventaire",
     "icone": "pi pi-box",
-    "description": "Une maîtrise physique et financière du stock : PharmaSmart trace chaque correction, accélère les inventaires, sécurise les lots et les péremptions, organise les destructions et rééquilibre les quantités entre rayon, réserve, magasins et dépôts.",
+    "description": "Une maîtrise physique et financière du stock : PharmaSmart trace chaque correction, accélère les inventaires, sécurise les lots et les péremptions, organise les destructions et rééquilibre les quantités entre rayon, réserve, officines et dépôts.",
+    "beneficesMetier": [
+      {
+        "titre": "Stock localisable et traçable",
+        "description": "Savoir ce qui est disponible, dans quel stockage et, lorsque nécessaire, dans quel lot."
+      },
+      {
+        "titre": "Pertes mieux anticipées",
+        "description": "Repérer les péremptions, organiser les retraits, retours et destructions avant qu’ils ne soient oubliés."
+      },
+      {
+        "titre": "Inventaires mieux ciblés",
+        "description": "Compter toute l’officine ou limiter le travail à un rayon, une famille, un emplacement ou une catégorie à risque."
+      }
+    ],
     "fonctionnalites": [
       {
         "nom": "Ajustement de stock",
@@ -3395,11 +3495,11 @@
           {
             "id": "STK-04",
             "titre": "Créer un inventaire sur un périmètre donné",
-            "besoin": "Choisir précisément ce qui doit être compté (tout le magasin, un rayon, une famille, ou une catégorie ciblée comme les périmés ou les produits sous seuil) plutôt que de tout recompter systématiquement.",
-            "fonctionnement": "L’inventaire fige un périmètre à compter parmi plusieurs catégories possibles (magasin entier, emplacement, rayon, famille, produits périmés, alerte péremption, vendus/invendus sur une période, sous seuil, en rupture) sans encore impacter le stock.",
+            "besoin": "Choisir précisément ce qui doit être compté (toute l’officine, un rayon, une famille, ou une catégorie ciblée comme les périmés ou les produits sous seuil) plutôt que de tout recompter systématiquement.",
+            "fonctionnement": "L’inventaire fige un périmètre à compter parmi plusieurs catégories possibles (officine entière, emplacement, rayon, famille, produits périmés, alerte péremption, vendus/invendus sur une période, sous seuil, en rupture) sans encore impacter le stock.",
             "etapes": [
               "Créer un inventaire",
-              "Choisir le périmètre (magasin, rayon, famille, ou catégorie ciblée)",
+              "Choisir le périmètre (officine, rayon, famille, ou catégorie ciblée)",
               "Valider la création"
             ],
             "resultatAttendu": "L’inventaire est créé avec les produits du périmètre choisi, en statut \"créé\"."
@@ -3682,9 +3782,9 @@
           },
           {
             "id": "STK-32",
-            "titre": "Filtrer la liste des péremptions par magasin, rayon, fournisseur, famille ou date",
+            "titre": "Filtrer la liste des péremptions par officine, rayon, fournisseur, famille ou date",
             "besoin": "Cibler un sous-ensemble précis de produits périmés (ex. seulement un rayon, ou un fournisseur pour préparer ses retours) plutôt que de parcourir toute la liste.",
-            "fonctionnement": "Des filtres avancés combinables (magasin, emplacement/storage, fournisseur, famille de produit, rayon, période, recherche texte) affinent la liste affichée.",
+            "fonctionnement": "Des filtres avancés combinables (officine, emplacement/storage, fournisseur, famille de produit, rayon, période, recherche texte) affinent la liste affichée.",
             "etapes": [
               "Ouvrir les filtres avancés de \"Gestion des péremptions\"",
               "Combiner un ou plusieurs critères",
@@ -3705,7 +3805,7 @@
           {
             "id": "STK-34",
             "titre": "Choisir l’emplacement d’un lot périmé présent dans plusieurs stockages",
-            "besoin": "Traiter correctement un lot dont le même numéro existe physiquement dans plusieurs emplacements (magasin et dépôt, par exemple), sans mélanger leurs quantités.",
+            "besoin": "Traiter correctement un lot dont le même numéro existe physiquement dans plusieurs emplacements (officine et dépôt, par exemple), sans mélanger leurs quantités.",
             "fonctionnement": "Si un lot périmé est réparti sur plusieurs emplacements, une sélection de l’emplacement concerné est exigée avant toute action de retrait ou de retour ; un lot mono-emplacement ne demande pas cette étape.",
             "prerequis": "Le lot est présent dans plusieurs emplacements de stockage.",
             "etapes": [
@@ -3841,7 +3941,7 @@
             "id": "STK-42",
             "titre": "Consulter et filtrer les lots à détruire",
             "besoin": "Suivre les lots périmés retirés du stock jusqu’à leur destruction physique effective, en distinguant ce qui reste à détruire de ce qui l’a déjà été.",
-            "fonctionnement": "La liste des lots à détruire est filtrable par statut (déjà détruits / à détruire / tout), et par les mêmes critères que la liste des péremptions (magasin, rayon, fournisseur, date, recherche), avec un résumé chiffré (KPI) de la quantité et de la valeur concernées.",
+            "fonctionnement": "La liste des lots à détruire est filtrable par statut (déjà détruits / à détruire / tout), et par les mêmes critères que la liste des péremptions (officine, rayon, fournisseur, date, recherche), avec un résumé chiffré (KPI) de la quantité et de la valeur concernées.",
             "etapes": [
               "Ouvrir \"Lots à détruire\"",
               "Filtrer par statut et par critère si besoin",
@@ -3917,12 +4017,12 @@
         ]
       },
       {
-        "nom": "Répartition de stock entre magasins/dépôts",
+        "nom": "Répartition de stock entre officines/dépôts",
         "scenarios": [
           {
             "id": "STK-22",
-            "titre": "Répartir du stock entre magasins/dépôts",
-            "besoin": "Rééquilibrer le stock entre deux entités (ex. magasin en rupture, dépôt en surstock) sans passer par une commande fournisseur.",
+            "titre": "Répartir du stock entre officines/dépôts",
+            "besoin": "Rééquilibrer le stock entre deux entités (ex. officine en rupture, dépôt en surstock) sans passer par une commande fournisseur.",
             "fonctionnement": "Le transfert décrémente le stock de l’entité source et incrémente celui de l’entité destination pour la quantité transférée, avec un mouvement tracé des deux côtés.",
             "etapes": [
               "Sélectionner le produit et les entités source/destination",
@@ -3951,6 +4051,20 @@
     "nom": "Clients & Différés",
     "icone": "pi pi-users",
     "description": "Une relation client suivie sans perdre de vue la trésorerie : PharmaSmart centralise les achats, avoirs et ventes à crédit, mesure l’encours, facilite les encaissements et conserve une preuve claire de chaque règlement.",
+    "beneficesMetier": [
+      {
+        "titre": "Relation client suivie",
+        "description": "Retrouver les achats, avoirs, crédits et règlements associés à chaque client."
+      },
+      {
+        "titre": "Encours sous surveillance",
+        "description": "Visualiser ce qui reste dû avant d’accorder un nouveau différé ou d’enregistrer un règlement."
+      },
+      {
+        "titre": "Règlements justifiables",
+        "description": "Conserver l’historique et les références nécessaires pour expliquer chaque mouvement du compte."
+      }
+    ],
     "fonctionnalites": [
       {
         "nom": "Fiche client — création, édition, suppression",
@@ -4215,6 +4329,20 @@
     "nom": "Comptabilité & Finances",
     "icone": "pi pi-wallet",
     "description": "Une lecture financière directement exploitable : PharmaSmart rapproche chiffre d’affaires, créances, dettes, TVA, caisse et achats, puis produit les états et exports nécessaires au pilotage de l’officine et aux échanges avec l’expert-comptable.",
+    "beneficesMetier": [
+      {
+        "titre": "Vision financière consolidée",
+        "description": "Rapprocher ventes, achats, créances, dettes, TVA et caisse dans une lecture commune."
+      },
+      {
+        "titre": "Échanges comptables facilités",
+        "description": "Produire les synthèses et exports nécessaires au contrôle et au travail avec l’expert-comptable."
+      },
+      {
+        "titre": "Origine des montants retrouvable",
+        "description": "Relier les indicateurs financiers aux opérations qui les ont générés."
+      }
+    ],
     "fonctionnalites": [
       {
         "nom": "Tableau de bord financier",
@@ -4436,6 +4564,20 @@
     "nom": "Rapports & Analytique",
     "icone": "pi pi-chart-bar",
     "description": "Une véritable tour de contrôle de l’officine : PharmaSmart transforme ventes, stocks, clients, fournisseurs et créances en indicateurs visuels, comparaisons et analyses actionnables pour protéger la marge, réduire l’immobilisation et anticiper les décisions.",
+    "beneficesMetier": [
+      {
+        "titre": "Décisions fondées sur l’activité réelle",
+        "description": "Lire ensemble chiffre d’affaires, marge, stock, créances, clients et fournisseurs."
+      },
+      {
+        "titre": "Évolutions immédiatement visibles",
+        "description": "Comparer les périodes et repérer les familles, produits ou partenaires qui progressent ou reculent."
+      },
+      {
+        "titre": "Indicateurs transformés en actions",
+        "description": "Identifier les ruptures, surstocks, faibles rotations, retards de paiement et autres priorités."
+      }
+    ],
     "fonctionnalites": [
       {
         "nom": "Rapports ventes & clients",
@@ -4969,10 +5111,24 @@
     "nom": "Web, Desktop & Applications mobiles",
     "icone": "pi pi-mobile",
     "description": "PharmaSmart accompagne chaque métier sur le support le plus efficace : l'application Web centralise toute la gestion depuis un navigateur, tandis que le client Desktop transforme les postes Windows de vente, commande, réception ou stock en espaces de travail dédiés, stables et connectés aux périphériques locaux. Les applications Android spécialisées prolongent enfin la vente et le pilotage en mobilité — autour des mêmes données serveur.",
+    "beneficesMetier": [
+      {
+        "titre": "Un mode adapté à chaque contexte",
+        "description": "Travailler depuis un navigateur, un poste Desktop dédié ou une application mobile spécialisée."
+      },
+      {
+        "titre": "Informations cohérentes",
+        "description": "Partager les mêmes données serveur entre le comptoir, le bureau et les usages mobiles."
+      },
+      {
+        "titre": "Postes de travail mieux intégrés",
+        "description": "Exploiter sur les postes concernés les imprimantes, scanners et afficheurs clients locaux."
+      }
+    ],
     "fonctionnalites": [
       {
         "nom": "Une plateforme, plusieurs modes d’utilisation",
-        "description": "Un socle fonctionnel central, accessible sans sacrifier les usages spécialisés du comptoir, du magasin ou du pharmacien en déplacement.",
+        "description": "Un socle fonctionnel central, accessible sans sacrifier les usages spécialisés du comptoir, de l’officine ou du pharmacien en déplacement.",
         "scenarios": [
           {
             "id": "MOB-01",
@@ -5003,7 +5159,7 @@
           {
             "id": "MOB-03",
             "titre": "Partager les données entre Web, Desktop et Android",
-            "besoin": "Éviter les doubles saisies et les informations divergentes entre le comptoir, le magasin et le pilotage mobile.",
+            "besoin": "Éviter les doubles saisies et les informations divergentes entre le comptoir, l’officine et le pilotage mobile.",
             "fonctionnement": "Le Web, le Desktop, la vente Android et le reporting Android consomment les API du même backend : ventes, stock consulté et indicateurs proviennent donc du référentiel central. L'accès Android est authentifié par jeton JWT et chaque client permet de configurer l'adresse de son serveur. Le comptage Android rejoindra ce même socle dès l'alignement de ses routes d'inventaire, présenté séparément dans la roadmap.",
             "prerequis": "Les terminaux doivent joindre le même serveur PharmaSmart et utiliser des comptes valides.",
             "etapes": [
@@ -5335,6 +5491,20 @@
     "nom": "Tableaux de bord d’accueil",
     "icone": "pi pi-home",
     "description": "Écran affiché à la connexion : résolution du tableau de bord selon le profil, puis son contenu (Pharmacien, Caissier, Achats).",
+    "beneficesMetier": [
+      {
+        "titre": "Priorités visibles dès la connexion",
+        "description": "Présenter immédiatement les informations utiles au rôle de l’utilisateur."
+      },
+      {
+        "titre": "Moins de navigation",
+        "description": "Accéder directement aux indicateurs et actions les plus fréquents pour son activité."
+      },
+      {
+        "titre": "Pilotage adapté au métier",
+        "description": "Différencier les besoins du pharmacien, de la caisse et des achats sans multiplier les outils."
+      }
+    ],
     "fonctionnalites": [
       {
         "nom": "Résolution et configuration du tableau de bord d’accueil",
@@ -5660,6 +5830,20 @@
     "nom": "Administration & Sécurité",
     "icone": "pi pi-cog",
     "description": "Utilisateurs, rôles, droits d’accès, navigation et paramétrage général.",
+    "beneficesMetier": [
+      {
+        "titre": "Accès adaptés aux responsabilités",
+        "description": "Limiter les écrans et actions disponibles selon le rôle de chaque collaborateur."
+      },
+      {
+        "titre": "Opérations sensibles protégées",
+        "description": "Réserver les fonctions critiques aux profils autorisés et faciliter le contrôle interne."
+      },
+      {
+        "titre": "Solution configurable",
+        "description": "Adapter les paramètres généraux et la navigation à l’organisation de l’officine."
+      }
+    ],
     "fonctionnalites": [
       {
         "nom": "Utilisateurs — création, édition, suppression",

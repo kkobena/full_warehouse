@@ -1,30 +1,46 @@
 package com.kobe.warehouse.inventory.data.model
 
 import com.google.gson.annotations.SerializedName
-import java.time.LocalDateTime
+
+/**
+ * Storage reference as serialized by backend StorageDTO
+ */
+data class StorageRef(
+    @SerializedName("id")
+    val id: Long? = null,
+
+    @SerializedName("name")
+    val name: String? = null,
+
+    @SerializedName("storageType")
+    val storageType: String? = null
+)
 
 /**
  * Store Inventory model
- * Matches backend StoreInventory entity
+ * Matches backend StoreInventoryDTO (returned by GET /api/store-inventories)
  */
 data class StoreInventory(
     @SerializedName("id")
     val id: Long,
 
-    @SerializedName("inventoryCategory")
-    val inventoryCategory: InventoryCategory,
-
     @SerializedName("statut")
-    val statut: InventoryStatut = InventoryStatut.OPEN,
+    val statut: InventoryStatut = InventoryStatut.CREATE,
+
+    @SerializedName("inventoryType")
+    val inventoryType: String? = null,
+
+    @SerializedName("inventoryCategory")
+    val inventoryCategory: CategoryInventory? = null,
 
     @SerializedName("description")
     val description: String? = null,
 
     @SerializedName("createdAt")
-    val createdAt: String,
+    val createdAt: String? = null,
 
     @SerializedName("updatedAt")
-    val updatedAt: String,
+    val updatedAt: String? = null,
 
     @SerializedName("inventoryAmountBegin")
     val inventoryAmountBegin: Long = 0,
@@ -44,33 +60,24 @@ data class StoreInventory(
     @SerializedName("gapAmount")
     val gapAmount: Int = 0,
 
-    @SerializedName("storageId")
-    val storageId: Long? = null,
+    @SerializedName("storage")
+    val storage: StorageRef? = null,
 
-    @SerializedName("storageName")
-    val storageName: String? = null,
+    @SerializedName("rayon")
+    val rayon: Rayon? = null,
 
-    @SerializedName("rayonId")
-    val rayonId: Long? = null,
+    @SerializedName("abbrName")
+    val abbrName: String? = null,
 
-    @SerializedName("rayonLibelle")
-    val rayonLibelle: String? = null,
-
-    @SerializedName("userId")
-    val userId: Long,
-
-    @SerializedName("userLogin")
-    val userLogin: String
+    @SerializedName("userFullName")
+    val userFullName: String? = null
 ) {
-    fun getCategoryDisplay(): String {
-        return when (inventoryCategory) {
-            InventoryCategory.MAGASIN -> "Magasin"
-            InventoryCategory.RAYON -> "Rayon: ${rayonLibelle ?: ""}"
-            InventoryCategory.STORAGE -> "Emplacement: ${storageName ?: ""}"
-            InventoryCategory.FAMILLY -> "Famille"
-        }
-    }
+    fun getCategoryDisplay(): String =
+        inventoryCategory?.label ?: inventoryCategory?.name?.name ?: ""
 
-    fun isOpen(): Boolean = statut == InventoryStatut.OPEN
+    fun getDisplayName(): String =
+        description ?: getCategoryDisplay()
+
     fun isClosed(): Boolean = statut == InventoryStatut.CLOSED
+    fun isActive(): Boolean = statut != InventoryStatut.CLOSED
 }

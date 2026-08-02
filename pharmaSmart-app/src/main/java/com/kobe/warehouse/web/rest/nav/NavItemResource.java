@@ -58,6 +58,23 @@ public class NavItemResource {
     }
 
     /**
+     * GET /api/nav/my-abilities : retourne uniquement les codes des ACTIONS exécutables
+     * par l'utilisateur courant (ex: "pr-cloture-inventaire").
+     *
+     * <p>Réponse légère destinée aux clients qui n'affichent pas le menu (application
+     * mobile d'inventaire) : évite de transférer tout l'arbre de navigation pour ne
+     * tester que quelques permissions.
+     */
+    @GetMapping("/nav/my-abilities")
+    public ResponseEntity<Set<String>> getMyAbilities() {
+        log.debug("REST request to get executable action codes for current user");
+        Set<String> roles = userService.getUserWithAuthorities()
+            .map(u -> u.getAuthorities().stream().map(Authority::getName).collect(Collectors.toSet()))
+            .orElse(Set.of());
+        return ResponseEntity.ok(navItemService.findExecutableActionCodes(roles));
+    }
+
+    /**
      * PUT /api/nav/reorder : sauvegarde l'ordre personnalisé de l'utilisateur courant.
      */
     @PutMapping("/nav/reorder")

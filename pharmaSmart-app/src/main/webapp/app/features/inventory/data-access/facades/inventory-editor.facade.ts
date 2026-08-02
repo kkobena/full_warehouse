@@ -76,7 +76,11 @@ export class InventoryEditorFacade {
         this.refreshProgress(inventoryId);
       },
       error: err => {
-        this.store.setError(err?.error?.detail ?? err?.message ?? 'Erreur lors de la sauvegarde');
+        // 409 : comptage concurrent — la valeur serveur fait foi, on recharge
+        const message = err?.status === 409
+          ? 'Cette ligne vient d\'être comptée par un autre opérateur — valeurs rechargées'
+          : (err?.error?.detail ?? err?.message ?? 'Erreur lors de la sauvegarde');
+        this.store.setError(message);
         this.store.emitEvent('LINE_SAVE_ERROR', { lineId: line.id, error: err });
       },
     });
@@ -84,9 +88,13 @@ export class InventoryEditorFacade {
 
   saveBatch(inventoryId: number): void {
     const edits = this.store.pendingEdits();
+    const loaded = this.store.lines();
+    // La version lue accompagne chaque ligne : le serveur rejette (409 / conflictedIds)
+    // toute saisie calculée sur une valeur périmée par un comptage concurrent.
     const lines = Object.entries(edits).map(([id, qty]) => ({
       id: Number(id),
       quantityOnHand: qty,
+      version: loaded.find(l => l.id === Number(id))?.version,
     }));
 
     if (lines.length === 0) {

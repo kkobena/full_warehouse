@@ -4,14 +4,20 @@
 .inventory-grid-wrapper {
   display: flex;
   flex-direction: column;
+  height: 100%;
+  min-height: 400px;
   border: 1px solid #dee2e6;
   border-radius: 6px;
   background: #fafbfc;
   margin-top: 0.5rem;
   overflow: hidden;
 
+  // La grille occupe la hauteur restante : sans dimension explicite, AG Grid
+  // se rend à 0px et les lignes chargées restent invisibles.
   ag-grid-angular {
+    flex: 1;
     width: 100%;
+    min-height: 380px;
   }
 }
 

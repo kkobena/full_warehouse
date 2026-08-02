@@ -3,27 +3,28 @@ package com.kobe.warehouse.inventory.data.model
 import com.google.gson.annotations.SerializedName
 
 /**
- * Rayon (Section/Aisle) model
- * Represents a section or aisle in the warehouse
+ * Rayon (section) model
+ * Matches backend RayonDTO (returned by GET /api/rayons)
  */
 data class Rayon(
     @SerializedName("id")
     val id: Long,
 
     @SerializedName("code")
-    val code: String,
+    val code: String? = null,
 
     @SerializedName("libelle")
-    val libelle: String,
+    val libelle: String? = null,
 
     @SerializedName("storageId")
-    val storageId: Long,
+    val storageId: Long? = null,
 
-    @SerializedName("storageName")
-    val storageName: String,
+    @SerializedName("storageLibelle")
+    val storageLibelle: String? = null,
 
-    @SerializedName("storeInventoryId")
-    val storeInventoryId: Long
+    @SerializedName("storageType")
+    val storageType: String? = null
 ) {
-    fun getDisplayName(): String = "$code - $libelle"
+    fun getDisplayName(): String =
+        listOfNotNull(code, libelle).joinToString(" - ").ifEmpty { "Rayon $id" }
 }

@@ -28,6 +28,11 @@ public class StoreInventoryLineDTO implements Serializable {
     private String produitEan;
     private long rayonId;
     private Set<String> produitCips;
+    /**
+     * Verrou optimiste : version de la ligne telle que lue par le client. Null =
+     * pas de contrôle (appelants legacy).
+     */
+    private Long version;
 
     public StoreInventoryLineDTO() {}
 
@@ -48,6 +53,15 @@ public class StoreInventoryLineDTO implements Serializable {
             this.inventoryValueTotalCost = produit.getCostAmount() * storeInventoryLine.getQuantityOnHand();
             this.inventoryValueAmount = storeInventoryLine.getQuantityOnHand() * storeInventoryLine.getLastUnitPrice();
         }
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public StoreInventoryLineDTO setVersion(Long version) {
+        this.version = version;
+        return this;
     }
 
     public long getRayonId() {

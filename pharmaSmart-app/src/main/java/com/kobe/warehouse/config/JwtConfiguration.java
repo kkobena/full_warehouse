@@ -6,7 +6,6 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.UUID;
@@ -20,15 +19,14 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 @Configuration
 public class JwtConfiguration {
 
+    /**
+     * Paire de clés de signature des JWT, <b>persistée sur disque</b> par
+     * {@link JwtSigningKeyProvider} : sans cela une nouvelle clé serait générée à chaque
+     * démarrage, invalidant tous les tokens et déconnectant tous les utilisateurs.
+     */
     @Bean
-    public KeyPair keyPair() {
-        try {
-            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-            keyPairGenerator.initialize(2048);
-            return keyPairGenerator.generateKeyPair();
-        } catch (Exception ex) {
-            throw new IllegalStateException("Failed to generate RSA key pair", ex);
-        }
+    public KeyPair keyPair(JwtSigningKeyProvider signingKeyProvider) {
+        return signingKeyProvider.getOrCreateKeyPair();
     }
 
     /**

@@ -15,6 +15,7 @@ import jakarta.persistence.ParameterMode;
 import jakarta.persistence.StoredProcedureParameter;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
@@ -47,6 +48,14 @@ public class StoreInventoryLine implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    /**
+     * Verrou optimiste — incrémenté par Hibernate à chaque modification. Les clients
+     * renvoient la version lue ; une version périmée signale un comptage concurrent.
+     */
+    @Version
+    @Column(name = "version")
+    private Long version;
 
     @Column(name = "quantity_on_hand")
     private Integer quantityOnHand;
@@ -85,8 +94,33 @@ public class StoreInventoryLine implements Serializable {
     @Column(name = "updated", nullable = false)
     private Boolean updated = false;
 
+    /**
+     * Utilisateur ayant effectué le dernier comptage de cette ligne — null tant que la
+     * ligne n'a pas été comptée. La date correspondante est {@link #updatedAt}.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "counted_by_id")
+    private AppUser countedBy;
+
     @Column(name = "last_unit_price")
     private Integer lastUnitPrice;
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
+    public AppUser getCountedBy() {
+        return countedBy;
+    }
+
+    public StoreInventoryLine setCountedBy(AppUser countedBy) {
+        this.countedBy = countedBy;
+        return this;
+    }
 
     public Long getId() {
         return id;

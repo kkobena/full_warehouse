@@ -77,6 +77,15 @@ public class NavItemServiceImpl implements NavItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Set<String> findExecutableActionCodes(Set<String> roles) {
+        if (CollectionUtils.isEmpty(roles)) {
+            return Collections.emptySet();
+        }
+        return navItemRoleRepository.findExecutableCodesByRoles(roles, NavTargetType.ACTION);
+    }
+
+    @Override
     @CacheEvict(cacheNames = EntityConstant.NAV_TREE_CACHE, key = "#login")
     public void saveUserOrder(String login, List<NavReorderDTO> reorderList) {
         if (CollectionUtils.isEmpty(reorderList)) return;

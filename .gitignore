@@ -140,7 +140,11 @@ Desktop.ini
 ######################
 # Gradle Wrapper
 ######################
-!gradle/wrapper/gradle-wrapper.jar
+# Le préfixe **/ est indispensable : un motif contenant un / est ancré à la racine du
+# dépôt, si bien que la forme précédente ne couvrait que le wrapper racine et laissait
+# ceux des modules Android exclus par *.jar. Sans ce jar, un clone neuf ne compile pas
+# (ClassNotFoundException: GradleWrapperMain).
+!**/gradle/wrapper/gradle-wrapper.jar
 
 ######################
 # Maven Wrapper
@@ -291,3 +295,4 @@ sales-android/fastlane/readme.md
 /reports/
 /pharmaSmart-batch/target/
 /pharmaSmart-core/target/
+/mobile-inventory/build/

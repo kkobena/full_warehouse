@@ -1,5 +1,6 @@
 package com.kobe.warehouse.inventory.utils
 
+import android.app.Application
 import android.content.Context
 import com.kobe.warehouse.inventory.BuildConfig
 import okhttp3.Interceptor
@@ -19,10 +20,17 @@ import java.util.concurrent.TimeUnit
 object ApiClient {
 
     private const val DEFAULT_BASE_URL = BuildConfig.BASE_URL
-    private var applicationContext: Context? = null
+
+    /**
+     * Typé `Application` et non `Context` : un `Context` retenu dans un champ statique
+     * est signalé comme fuite mémoire (lint `StaticFieldLeak`). L'instance
+     * d'`Application` vit aussi longtemps que le processus, elle ne peut rien retenir
+     * d'autre.
+     */
+    private var application: Application? = null
 
     fun init(context: Context) {
-        applicationContext = context.applicationContext
+        application = context.applicationContext as? Application
     }
 
     fun create(baseUrl: String? = null, tokenManager: TokenManager): Retrofit {
@@ -33,12 +41,12 @@ object ApiClient {
 
         return Retrofit.Builder()
             .baseUrl(finalBaseUrl)
-            .client(createOkHttpClient(tokenManager))
+            .client(createOkHttpClient(tokenManager, finalBaseUrl))
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
 
-    private fun createOkHttpClient(tokenManager: TokenManager): OkHttpClient {
+    private fun createOkHttpClient(tokenManager: TokenManager, baseUrl: String): OkHttpClient {
         return OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
@@ -46,6 +54,9 @@ object ApiClient {
             .addInterceptor(createAuthInterceptor(tokenManager))
             .addInterceptor(createResponseInterceptor())
             .addInterceptor(createLoggingInterceptor())
+            // Renouvelle le token expiré et rejoue la requête, plutôt que de couper
+            // l'opérateur en plein comptage
+            .authenticator(TokenRefreshAuthenticator(tokenManager, baseUrl))
             .build()
     }
 
@@ -56,16 +67,19 @@ object ApiClient {
             try {
                 val response = chain.proceed(request)
 
-                if (response.code == 401) {
-                    applicationContext?.let { context ->
+                // 401 : l'Authenticator tente d'abord un renouvellement silencieux.
+                // On ne notifie la fin de session que si la requête rejouée échoue
+                // encore (priorResponse non nul = tentative déjà faite).
+                if (response.code == 401 && response.priorResponse != null) {
+                    application?.let { context ->
                         val sessionManager = SessionManager.getInstance(context)
-                        sessionManager.handleUnauthorized("Token expired or invalid")
+                        sessionManager.handleUnauthorized("Session expirée, reconnexion nécessaire")
                     }
                 }
 
                 response
             } catch (e: IOException) {
-                applicationContext?.let { context ->
+                application?.let { context ->
                     val sessionManager = SessionManager.getInstance(context)
                     when (e) {
                         is SocketTimeoutException -> {

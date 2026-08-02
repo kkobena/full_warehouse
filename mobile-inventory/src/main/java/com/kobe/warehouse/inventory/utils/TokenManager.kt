@@ -29,6 +29,7 @@ class TokenManager(context: Context) {
         private const val KEY_SERVER_HOST = "server_host"
         private const val KEY_SERVER_PORT = "server_port"
         private const val KEY_USER_AUTHORITIES = "user_authorities"
+        private const val KEY_USER_ABILITIES = "user_abilities"
         private const val AUTHORITY_DELIMITER = ","
     }
 
@@ -76,6 +77,18 @@ class TokenManager(context: Context) {
     fun getAuthorizationHeader(): String? {
         val accessToken = getAccessToken() ?: return null
         return "${getTokenType()} $accessToken"
+    }
+
+    /** Permissions ACTION (nav_item canExecute) mises en cache pour le mode hors ligne */
+    fun saveAbilities(abilities: Set<String>) {
+        sharedPreferences.edit {
+            putString(KEY_USER_ABILITIES, abilities.joinToString(AUTHORITY_DELIMITER))
+        }
+    }
+
+    fun getAbilities(): Set<String> {
+        val raw = sharedPreferences.getString(KEY_USER_ABILITIES, null) ?: return emptySet()
+        return raw.split(AUTHORITY_DELIMITER).filter { it.isNotBlank() }.toSet()
     }
 
     fun isTokenExpired(): Boolean {
@@ -144,8 +157,10 @@ class TokenManager(context: Context) {
 
         val config = if (serverUrl != null) {
             val protocol = sharedPreferences.getString(KEY_SERVER_PROTOCOL, "http") ?: "http"
-            val host = sharedPreferences.getString(KEY_SERVER_HOST, "10.0.2.2") ?: "10.0.2.2"
-            val port = sharedPreferences.getString(KEY_SERVER_PORT, "8080") ?: "8080"
+            val host = sharedPreferences.getString(KEY_SERVER_HOST, ServerConfig.DEFAULT_HOST)
+                ?: ServerConfig.DEFAULT_HOST
+            val port = sharedPreferences.getString(KEY_SERVER_PORT, ServerConfig.DEFAULT_PORT)
+                ?: ServerConfig.DEFAULT_PORT
             ServerConfig(serverUrl, protocol, host, port)
         } else {
             ServerConfig.default()

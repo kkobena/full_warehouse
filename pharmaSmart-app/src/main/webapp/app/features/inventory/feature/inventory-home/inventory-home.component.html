@@ -1,6 +1,6 @@
-<div class="row m-0">
+<div class="row">
   <!-- ── Sidebar navigation ──────────────────────────────────────────────── -->
-  <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2">
+  <div class="col-lg-2 col-xl-2 col-xxl-2 col-md-3 col-sm-4">
     <div class="pharma-nav-sidebar">
       <div class="pharma-nav-sidebar-card">
         <div class="pharma-nav-sidebar-header">
@@ -69,27 +69,13 @@
   </div>
 
   <!-- ── Contenu principal ───────────────────────────────────────────────── -->
-  <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10">
-    <div class="pharma-smart-content p-2">
+  <div class="col-xl-10 col-lg-10 col-md-9 col-sm-8 ">
+    <div class="pharma-smart-content p-1">
 
       <!-- Modern Pharma Toolbar -->
-      <app-toolbar>
-        <span ngProjectAs="[toolbarHeaderExtra]">
-          @switch (activeTab()) {
-            @case ('tournant') {
-              <i class="pi pi-sync"></i><span>Inventaire tournant</span>
-            }
-            @case ('clotures') {
-              <i class="pi pi-lock"></i><span>Inventaires clôturés</span>
-            }
-            @default {
-              <i class="pi pi-refresh"></i><span>Inventaires en cours</span>
-            }
-          }
-        </span>
-
+      <app-toolbar [icon]="toolbarIcon()" [title]="toolbarTitle()">
         <ng-container ngProjectAs="[toolbarActions]">
-          <div class="pharma-toolbar-actions">
+          <div class="pharma-toolbar-actions py-1">
             <div class="pharma-button-group">
               @if (isTournantTab()) {
                 <app-button

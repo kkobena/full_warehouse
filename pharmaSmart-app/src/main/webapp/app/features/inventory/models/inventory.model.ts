@@ -38,6 +38,8 @@ export interface BatchSyncResultRecord {
   saved: number;
   failed: number;
   failedIds: number[];
+  /** Lignes rejetées pour comptage concurrent — à recharger, pas à rejouer */
+  conflictedIds?: number[];
 }
 
 // For /api/store-inventory-lines/v2 response
@@ -60,6 +62,12 @@ export interface IInventoryLine {
   seuilMini?: number;
   lotCount?: number;
   classePareto?: string;
+  /** Traçabilité : abréviation du compteur (null si non comptée) */
+  countedBy?: string;
+  /** Traçabilité : date du dernier comptage (ISO) */
+  updatedAt?: string;
+  /** Verrou optimiste : version lue, renvoyée à l'écriture (409 si périmée) */
+  version?: number;
 }
 
 export interface IInventoryLot {
@@ -224,4 +232,6 @@ export type InventoryEventType =
   | 'IMPORT_COMPLETED'
   | 'PROGRESS_UPDATED'
   | 'LINE_SAVED'
-  | 'LINE_SAVE_ERROR';
+  | 'LINE_SAVE_ERROR'
+  /** Des comptages sont arrivés d'un autre poste/mobile depuis le dernier rafraîchissement */
+  | 'REMOTE_COUNTS_DETECTED';

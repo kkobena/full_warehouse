@@ -2,8 +2,11 @@ package com.kobe.warehouse.inventory.data.database.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.kobe.warehouse.inventory.data.model.CategoryInventory
 import com.kobe.warehouse.inventory.data.model.InventoryCategory
 import com.kobe.warehouse.inventory.data.model.InventoryStatut
+import com.kobe.warehouse.inventory.data.model.Rayon
+import com.kobe.warehouse.inventory.data.model.StorageRef
 import com.kobe.warehouse.inventory.data.model.StoreInventory
 
 /**
@@ -14,11 +17,13 @@ import com.kobe.warehouse.inventory.data.model.StoreInventory
 data class InventoryEntity(
     @PrimaryKey
     val id: Long,
-    val inventoryCategory: String,
+    val categoryName: String?,
+    val categoryLabel: String?,
     val statut: String,
+    val inventoryType: String?,
     val description: String?,
-    val createdAt: String,
-    val updatedAt: String,
+    val createdAt: String?,
+    val updatedAt: String?,
     val inventoryAmountBegin: Long,
     val inventoryAmountAfter: Long,
     val inventoryValueCostBegin: Long,
@@ -29,16 +34,17 @@ data class InventoryEntity(
     val storageName: String?,
     val rayonId: Long?,
     val rayonLibelle: String?,
-    val userId: Long,
-    val userLogin: String,
+    val abbrName: String?,
     val syncStatus: String = "PENDING" // PENDING, SYNCED, ERROR
 ) {
     companion object {
         fun fromModel(model: StoreInventory): InventoryEntity {
             return InventoryEntity(
                 id = model.id,
-                inventoryCategory = model.inventoryCategory.name,
+                categoryName = model.inventoryCategory?.name?.name,
+                categoryLabel = model.inventoryCategory?.label,
                 statut = model.statut.name,
+                inventoryType = model.inventoryType,
                 description = model.description,
                 createdAt = model.createdAt,
                 updatedAt = model.updatedAt,
@@ -48,12 +54,11 @@ data class InventoryEntity(
                 inventoryValueCostAfter = model.inventoryValueCostAfter,
                 gapCost = model.gapCost,
                 gapAmount = model.gapAmount,
-                storageId = model.storageId,
-                storageName = model.storageName,
-                rayonId = model.rayonId,
-                rayonLibelle = model.rayonLibelle,
-                userId = model.userId,
-                userLogin = model.userLogin
+                storageId = model.storage?.id,
+                storageName = model.storage?.name,
+                rayonId = model.rayon?.id,
+                rayonLibelle = model.rayon?.libelle,
+                abbrName = model.abbrName
             )
         }
     }
@@ -61,8 +66,12 @@ data class InventoryEntity(
     fun toModel(): StoreInventory {
         return StoreInventory(
             id = id,
-            inventoryCategory = InventoryCategory.valueOf(inventoryCategory),
-            statut = InventoryStatut.valueOf(statut),
+            inventoryCategory = CategoryInventory(
+                name = categoryName?.let { runCatching { InventoryCategory.valueOf(it) }.getOrNull() },
+                label = categoryLabel
+            ),
+            statut = runCatching { InventoryStatut.valueOf(statut) }.getOrDefault(InventoryStatut.CREATE),
+            inventoryType = inventoryType,
             description = description,
             createdAt = createdAt,
             updatedAt = updatedAt,
@@ -72,12 +81,9 @@ data class InventoryEntity(
             inventoryValueCostAfter = inventoryValueCostAfter,
             gapCost = gapCost,
             gapAmount = gapAmount,
-            storageId = storageId,
-            storageName = storageName,
-            rayonId = rayonId,
-            rayonLibelle = rayonLibelle,
-            userId = userId,
-            userLogin = userLogin
+            storage = storageId?.let { StorageRef(id = it, name = storageName) },
+            rayon = rayonId?.let { Rayon(id = it, libelle = rayonLibelle) },
+            abbrName = abbrName
         )
     }
 }

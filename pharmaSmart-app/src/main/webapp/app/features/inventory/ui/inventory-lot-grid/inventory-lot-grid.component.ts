@@ -139,6 +139,7 @@ export class InventoryLotGridComponent {
       headerName: 'ABC',
       width: 70,
       editable: false,
+      hide: true,
       cellStyle: {textAlign: 'center'},
       headerClass: 'ag-header-cell-center',
       cellRenderer: (params: any) => {

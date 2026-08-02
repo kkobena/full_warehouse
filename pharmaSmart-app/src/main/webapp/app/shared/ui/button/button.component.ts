@@ -61,13 +61,7 @@ export type AppButtonSize = 'small' | 'normal' | 'large';
     </button>
   `,
   styles: `
-    // Rétablit [hidden] sur l'hôte.
-    //
-    // L'hôte porte .d-inline-block, dont la règle Bootstrap est
-    // « display: inline-block !important » : elle écrase la règle [hidden] { display: none }
-    // de la feuille du navigateur, et <app-button [hidden]="true"> restait visible.
-    // Le !important est donc nécessaire ici, et la spécificité (0,2,0 avec l'attribut
-    // d'encapsulation) l'emporte sur celle de .d-inline-block (0,1,0).
+
     :host([hidden]) {
       display: none !important;
     }

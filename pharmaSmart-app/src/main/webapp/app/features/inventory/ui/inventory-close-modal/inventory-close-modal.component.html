@@ -1,0 +1,77 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-lock"></i>
+    Clôturer l'inventaire
+  </h5>
+  <button (click)="activeModal.dismiss()" aria-label="Fermer" class="btn-close" type="button"></button>
+</div>
+
+<div class="modal-body">
+  @if (loading()) {
+    <div class="text-muted text-center p-3">Calcul du récapitulatif...</div>
+  } @else {
+    <div class="recap-grid">
+      <div class="recap-item">
+        <span class="recap-label">Lignes comptées</span>
+        <span class="recap-value">
+          {{ progress()?.updatedLines ?? 0 | number:'1.0-0':'fr' }}
+          / {{ progress()?.totalLines ?? 0 | number:'1.0-0':'fr' }}
+        </span>
+      </div>
+
+      <div class="recap-item" [class.recap-warning]="hasRemaining()">
+        <span class="recap-label">Lignes restantes</span>
+        <span class="recap-value">{{ remainingLines() | number:'1.0-0':'fr' }}</span>
+      </div>
+
+      <div class="recap-item">
+        <span class="recap-label">Lignes avec écart</span>
+        <span class="recap-value">{{ progress()?.linesWithGap ?? 0 | number:'1.0-0':'fr' }}</span>
+      </div>
+
+      <div class="recap-item">
+        <span class="recap-label">Progression</span>
+        <span class="recap-value">{{ progress()?.progressPercent ?? 0 }}%</span>
+      </div>
+    </div>
+
+    @if (valuation(); as val) {
+      <div class="recap-grid mt-2">
+        <div class="recap-item" [class.recap-negative]="val.gapCost < 0">
+          <span class="recap-label">Écart valorisé (achat)</span>
+          <span class="recap-value">{{ val.gapCost | number:'1.0-0':'fr' }}</span>
+        </div>
+        <div class="recap-item" [class.recap-negative]="val.gapAmount < 0">
+          <span class="recap-label">Écart valorisé (vente)</span>
+          <span class="recap-value">{{ val.gapAmount | number:'1.0-0':'fr' }}</span>
+        </div>
+      </div>
+    }
+
+    @if (hasRemaining()) {
+      <div class="alert-remaining mt-3">
+        <i class="pi pi-exclamation-triangle"></i>
+        <span>
+          {{ remainingLines() | number:'1.0-0':'fr' }} ligne(s) ne sont pas encore comptées.
+        </span>
+      </div>
+    }
+
+    <p class="irreversible mt-3">
+      <i class="pi pi-info-circle"></i>
+      Cette action est <strong>irréversible</strong>.
+    </p>
+  }
+</div>
+
+<div class="modal-footer">
+  <app-button (clicked)="activeModal.dismiss()" label="Annuler" severity="secondary"/>
+  <app-button
+    (clicked)="confirm()"
+    [disabled]="loading()"
+    [raised]="true"
+    icon="pi pi-lock"
+    label="Clôturer"
+    severity="warn"
+  />
+</div>

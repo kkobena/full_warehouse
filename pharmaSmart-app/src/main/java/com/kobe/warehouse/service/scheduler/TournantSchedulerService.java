@@ -1,6 +1,6 @@
 package com.kobe.warehouse.service.scheduler;
 
-import com.kobe.warehouse.service.stock.impl.PlanningInventaireTournantServiceImpl;
+import com.kobe.warehouse.service.inventaire.impl.PlanningInventaireTournantServiceImpl;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

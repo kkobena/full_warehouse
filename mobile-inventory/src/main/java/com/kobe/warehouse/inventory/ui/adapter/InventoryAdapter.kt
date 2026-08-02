@@ -6,10 +6,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.kobe.warehouse.inventory.R
+import com.kobe.warehouse.inventory.data.model.InventoryStatut
 import com.kobe.warehouse.inventory.data.model.StoreInventory
 import com.kobe.warehouse.inventory.databinding.ItemInventoryBinding
-import java.text.SimpleDateFormat
-import java.util.*
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 
 class InventoryAdapter(
     private val onInventoryClick: (StoreInventory) -> Unit
@@ -35,28 +37,35 @@ class InventoryAdapter(
 
         fun bind(inventory: StoreInventory) {
             binding.apply {
-                tvInventoryName.text = inventory.name ?: "Sans nom"
+                tvInventoryName.text = inventory.getDisplayName()
                 tvInventoryCategory.text = root.context.getString(
                     R.string.inventory_category,
-                    inventory.inventoryCategory.name
+                    inventory.getCategoryDisplay()
                 )
 
-                // Format date
-                val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+                // Format date (backend sends ISO LocalDateTime strings)
+                val formattedDate = inventory.updatedAt?.let {
+                    try {
+                        LocalDateTime.parse(it)
+                            .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+                    } catch (_: DateTimeParseException) {
+                        it
+                    }
+                } ?: ""
                 tvLastUpdated.text = root.context.getString(
                     R.string.last_updated,
-                    dateFormat.format(inventory.updatedAt)
+                    formattedDate
                 )
 
                 // Set status color
-                val statusColor = when (inventory.inventoryStatus) {
-                    com.kobe.warehouse.inventory.data.model.InventoryStatut.OPEN ->
+                val statusColor = when (inventory.statut) {
+                    InventoryStatut.CREATE, InventoryStatut.PROCESSING ->
                         root.context.getColor(R.color.status_open)
-                    com.kobe.warehouse.inventory.data.model.InventoryStatut.CLOSED ->
+                    InventoryStatut.CLOSED ->
                         root.context.getColor(R.color.status_closed)
                 }
                 tvInventoryStatus.setTextColor(statusColor)
-                tvInventoryStatus.text = inventory.inventoryStatus.name
+                tvInventoryStatus.text = inventory.statut.displayLabel()
 
                 root.setOnClickListener {
                     onInventoryClick(inventory)

@@ -4,7 +4,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {NotificationService} from '../../../../shared/services/notification.service';
 import {takeUntilDestroyed, toObservable} from '@angular/core/rxjs-interop';
-import {filter} from 'rxjs';
+import {filter, interval} from 'rxjs';
 import {InventoryApiService} from '../../data-access/services/inventory-api.service';
 import {InventoryEditorFacade} from '../../data-access/facades/inventory-editor.facade';
 import {InventoryListFacade} from '../../data-access/facades/inventory-list.facade';
@@ -44,6 +44,7 @@ import {InventoryCategoryType} from "../../../../shared/model/store-inventory.mo
 import {TauriPrinterService} from "../../../../shared/services/tauri-printer.service";
 import {handleBlobForTauri} from "../../../../shared/util/tauri-util";
 import {ButtonComponent, SelectComponent, ToolbarComponent} from '../../../../shared/ui';
+import {AbilityService} from 'app/core/auth/ability.service';
 
 @Component({
   selector: 'app-inventory-editor',
@@ -90,6 +91,11 @@ export class InventoryEditorComponent implements OnInit {
     return name === 'SOUS_SEUIL' || name === 'EN_RUPTURE';
   });
   exporting = signal(false);
+  /** Comptages détectés sur un autre poste alors qu'une saisie est en cours ici */
+  protected readonly remoteCountsPending = signal(false);
+  /** Intervalle de scrutation de la progression (supervision du comptage mobile) */
+  private static readonly PROGRESS_POLL_MS = 15_000;
+  private lastSeenUpdatedLines: number | null = null;
   private selectedLineFilter: InventoryLineFilter = 'NONE';
   private selectedStorageId: number | null = null;
   private selectedRayonId: number | null = null;
@@ -106,6 +112,9 @@ export class InventoryEditorComponent implements OnInit {
   readonly blindMode = computed(() =>
     !this.hasAuthority.hasAuthorities([Authority.PR_VOIR_STOCK_INVENTAIRE])
   );
+  private readonly ability = inject(AbilityService);
+  /** La clôture (irréversible) est réservée aux rôles disposant du privilège ACTION */
+  protected readonly canCloseInventory = this.ability.canSignal('execute', 'pr-cloture-inventaire');
   private readonly configService = inject(ConfigurationService);
   private readonly inventoryApi = inject(InventoryApiService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
@@ -121,6 +130,7 @@ export class InventoryEditorComponent implements OnInit {
         this.notificationService.error(err, 'Erreur');
       }
     });
+    effect(() => this.onProgressChanged());
   }
 
   protected get isInventoryClosed(): boolean {
@@ -139,13 +149,60 @@ export class InventoryEditorComponent implements OnInit {
     }
     this.inventoryId.set(id);
     this.store.resetEditor();
-    this.loadGestionLot();
     this.listFacade.loadInventory(id);
-    this.loadLines();
+    // Le premier chargement attend le mode de saisie : sans cela il partirait sur
+    // /v2 (mode produit par défaut) avant que la config n'impose /lots.
+    this.loadGestionLot();
     this.editorFacade.refreshProgress(id);
     this.loadStorages();
 
     this.subscribeToEvents();
+    this.watchRemoteProgress();
+  }
+
+  /**
+   * Supervision du comptage mobile : scrute la progression et rafraîchit la grille
+   * quand des comptages arrivent d'un autre poste.
+   *
+   * Règle : on ne recharge jamais pendant une saisie locale — cela ferait perdre les
+   * valeurs en cours de frappe. Dans ce cas un indicateur invite à rafraîchir.
+   */
+  private watchRemoteProgress(): void {
+    interval(InventoryEditorComponent.PROGRESS_POLL_MS)
+      .pipe(
+        filter(() => !this.isInventoryClosed),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => this.editorFacade.refreshProgress(this.inventoryId()));
+  }
+
+  /**
+   * Réagit aux variations du nombre de lignes comptées, d'où qu'elles viennent
+   * (mobile, autre poste). Déclaré dans le constructeur : `effect` exige un
+   * contexte d'injection.
+   */
+  private onProgressChanged(): void {
+    const updated = this.store.progress()?.updatedLines;
+    if (updated == null) {
+      return;
+    }
+    const previous = this.lastSeenUpdatedLines;
+    this.lastSeenUpdatedLines = updated;
+    if (previous === null || updated === previous) {
+      return;
+    }
+    if (this.editorFacade.hasPendingEdits()) {
+      // Saisie en cours : on signale sans écraser le travail de l'opérateur
+      this.remoteCountsPending.set(true);
+    } else {
+      this.loadLines();
+    }
+  }
+
+  /** Rafraîchissement manuel après des comptages distants signalés */
+  protected refreshAfterRemoteCounts(): void {
+    this.remoteCountsPending.set(false);
+    this.loadLines();
   }
 
   protected loadLines(): void {
@@ -229,13 +286,28 @@ export class InventoryEditorComponent implements OnInit {
     });
   }
 
+  /**
+   * Clôture précédée d'un récapitulatif (lignes restantes, écarts valorisés) :
+   * l'action est irréversible, elle ne doit pas se confirmer à l'aveugle.
+   */
   protected closeInventory(): void {
-    this.confirmDialog.onConfirm(
-      () => this.listFacade.closeInventory(this.inventoryId()),
-      'Clôture inventaire',
-      'Clôturer cet inventaire ? Cette action est irréversible.',
-      'pi pi-lock',
-    );
+    import('../../ui/inventory-close-modal/inventory-close-modal.component').then(m => {
+      const ref = this.modal.open(m.InventoryCloseModalComponent, {
+        size: 'lg',
+        backdrop: 'static',
+      });
+      ref.componentInstance.inventoryId = this.inventoryId();
+      ref.result.then(
+        confirmed => {
+          if (confirmed) {
+            this.listFacade.closeInventory(this.inventoryId());
+          }
+        },
+        () => {
+          // fermeture / annulation
+        },
+      );
+    });
   }
 
   protected exportPdf(): void {
@@ -293,18 +365,24 @@ export class InventoryEditorComponent implements OnInit {
     this.editorFacade.refreshProgress(this.inventoryId());
   }
 
+  /**
+   * Résout le mode de saisie (produit ou lot) puis déclenche le chargement initial.
+   * Un seul des deux endpoints (`/v2` ou `/lots`) doit être appelé : le mode est
+   * exclusif, on ne charge donc rien tant qu'il n'est pas connu.
+   */
   private loadGestionLot(): void {
+    this.store.setLoadingLines(true);
     this.configService.find('APP_GESTION_LOT_INVENTAIRE')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: resp => {
-          const val = resp.body?.value;
-          const isLot = val === '1';
-          this.gestionLot.set(isLot);
-          if (isLot) {
-            this.page.set(0);
-            this.loadLines();
-          }
+       //  this.gestionLot.set(resp.body?.value === '1');
+          this.loadLines();
+        },
+        error: () => {
+          // Config indisponible : on retombe sur la saisie par produit
+          this.gestionLot.set(false);
+          this.loadLines();
         },
       });
   }
@@ -323,9 +401,31 @@ export class InventoryEditorComponent implements OnInit {
         switch (event.type) {
           case 'LINE_SAVED':
             break;
-          case 'LINE_SAVE_ERROR':
-            this.notificationService.error('Erreur lors de la sauvegarde de la ligne', 'Erreur');
+          case 'LINE_SAVE_ERROR': {
+            // Comptage concurrent : la valeur serveur fait foi, on recharge la page
+            const status = (event.payload as any)?.error?.status;
+            if (status === 409) {
+              this.notificationService.error(
+                "Cette ligne vient d'être comptée par un autre opérateur — valeurs rechargées",
+                'Comptage concurrent',
+              );
+              this.loadLines();
+            } else {
+              this.notificationService.error('Erreur lors de la sauvegarde de la ligne', 'Erreur');
+            }
             break;
+          }
+          case 'BATCH_SAVED': {
+            const conflicts = (event.payload as any)?.conflictedIds ?? [];
+            if (conflicts.length > 0) {
+              this.notificationService.error(
+                `${conflicts.length} ligne(s) comptée(s) entre-temps par un autre opérateur — valeurs rechargées`,
+                'Comptage concurrent',
+              );
+              this.loadLines();
+            }
+            break;
+          }
           case 'IMPORT_COMPLETED':
             this.notificationService.success('Import CSV terminé', 'Import');
             this.loadLines();

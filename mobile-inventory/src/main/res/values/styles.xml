@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+      Carte d'action de l'écran d'accueil : compacte, avec bordure et élévation.
+      Format horizontal (pastille + libellés + chevron) pour que toutes les entrées
+      tiennent dans l'écran sans défilement.
+    -->
+    <!--
+      Base `Outlined` et non `Elevated` : en Material3, la variante élevée applique une
+      surcouche tonale qui teinte la surface — les cartes viraient au gris-bleu au lieu
+      du blanc. `Outlined` conserve un blanc franc, auquel on ajoute une élévation
+      explicite pour l'ombre portée.
+    -->
+    <style name="Widget.PharmaSmart.ActionCard" parent="Widget.Material3.CardView.Outlined">
+        <item name="cardCornerRadius">12dp</item>
+        <item name="cardElevation">2dp</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="strokeColor">@color/gray_300</item>
+        <item name="cardBackgroundColor">@color/white</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="rippleColor">@color/primary_light</item>
+    </style>
+
+    <style name="TextAppearance.PharmaSmart.CardTitle" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.PharmaSmart.CardSubtitle" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
+
+</resources>

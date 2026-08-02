@@ -1,5 +1,5 @@
 import {Component, computed, effect, inject, input, output, ChangeDetectionStrategy} from '@angular/core';
-import {CommonModule} from '@angular/common';
+import {CommonModule, formatDate} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {
   AllCommunityModule,
@@ -182,6 +182,23 @@ export class InventoryLinesGridComponent {
       cellStyle: {textAlign: 'center'},
       headerClass: 'ag-header-cell-center',
       cellRenderer: (params: any) => params.value ? '<i class="pi pi-check text-success"></i>' : '',
+    },
+    {
+      field: 'countedBy',
+      headerName: 'Compté par',
+      width: 150,
+      editable: false,
+      hide: true,
+      headerClass: 'ag-header-cell-center',
+      // Traçabilité : compteur + horodatage du dernier comptage
+      valueGetter: params => {
+        const who = params.data?.countedBy;
+        if (!who) {
+          return '';
+        }
+        const at = params.data?.updatedAt;
+        return at ? `${who} — ${formatDate(at, 'dd/MM HH:mm', 'fr')}` : who;
+      },
     },
   ]);
   readonly defaultColDef: ColDef = {

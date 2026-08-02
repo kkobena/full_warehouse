@@ -67,5 +67,15 @@ public interface NavItemService {
      * @param libelle nouveau libellé (non vide)
      */
     void updateLibelle(Integer id, String libelle);
+
+    /**
+     * Retourne uniquement les codes des items ACTION exécutables pour les rôles donnés.
+     * Réponse légère destinée aux clients qui n'affichent pas le menu (mobile) :
+     * évite de transférer tout l'arbre de navigation pour tester quelques permissions.
+     *
+     * @param roles rôles de l'utilisateur
+     * @return codes exécutables (ex: "pr-cloture-inventaire")
+     */
+    Set<String> findExecutableActionCodes(Set<String> roles);
 }
 

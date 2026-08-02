@@ -15,7 +15,7 @@ import com.kobe.warehouse.inventory.data.database.entity.InventoryLineEntity
  */
 @Database(
     entities = [InventoryEntity::class, InventoryLineEntity::class],
-    version = 1,
+    version = 3,
     exportSchema = false
 )
 abstract class InventoryDatabase : RoomDatabase() {
@@ -34,7 +34,8 @@ abstract class InventoryDatabase : RoomDatabase() {
                     InventoryDatabase::class.java,
                     "pharma_smart_inventory_db"
                 )
-                    .fallbackToDestructiveMigration()
+
+                    .fallbackToDestructiveMigration(dropAllTables = true)
                     .build()
                 INSTANCE = instance
                 instance

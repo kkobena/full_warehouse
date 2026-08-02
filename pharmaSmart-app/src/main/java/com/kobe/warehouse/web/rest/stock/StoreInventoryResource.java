@@ -1,6 +1,6 @@
 package com.kobe.warehouse.web.rest.stock;
 
-import com.kobe.warehouse.service.InventaireService;
+import com.kobe.warehouse.service.inventaire.InventaireService;
 import com.kobe.warehouse.service.dto.StoreInventoryDTO;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryExportRecord;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryFilterRecord;
@@ -8,10 +8,10 @@ import com.kobe.warehouse.service.dto.records.ImportResultRecord;
 import com.kobe.warehouse.service.dto.records.InventoryProgressRecord;
 import com.kobe.warehouse.service.dto.records.ItemsCountRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryRecord;
-import com.kobe.warehouse.service.stock.InventaireCreationService;
-import com.kobe.warehouse.service.stock.InventaireImportService;
-import com.kobe.warehouse.service.stock.InventaireProgressService;
-import com.kobe.warehouse.service.stock.InventoryCloseService;
+import com.kobe.warehouse.service.inventaire.InventaireCreationService;
+import com.kobe.warehouse.service.inventaire.InventaireImportService;
+import com.kobe.warehouse.service.inventaire.InventaireProgressService;
+import com.kobe.warehouse.service.inventaire.InventoryCloseService;
 import com.kobe.warehouse.web.util.HeaderUtil;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
@@ -26,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -69,7 +70,13 @@ public class StoreInventoryResource {
         this.inventoryCloseService = inventoryCloseService;
     }
 
+    /**
+     * Clôture d'un inventaire — action irréversible réservée aux rôles disposant du
+     * privilège {@code pr-cloture-inventaire} (item de navigation de type ACTION,
+     * fusionné dans les authorities à l'authentification).
+     */
     @GetMapping("/store-inventories/close/{id}")
+    @PreAuthorize("hasAuthority('pr-cloture-inventaire')")
     public ResponseEntity<ItemsCountRecord> closeInventory(@PathVariable Long id) {
         return ResponseEntity.ok(inventoryCloseService.close(id));
     }

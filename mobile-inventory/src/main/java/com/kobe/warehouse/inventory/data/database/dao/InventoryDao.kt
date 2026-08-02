@@ -11,8 +11,11 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface InventoryDao {
 
-    @Query("SELECT * FROM store_inventories WHERE statut = 'OPEN' ORDER BY updatedAt DESC")
+    @Query("SELECT * FROM store_inventories WHERE statut IN ('CREATE', 'PROCESSING') ORDER BY updatedAt DESC")
     fun getActiveInventories(): Flow<List<InventoryEntity>>
+
+    @Query("SELECT * FROM store_inventories WHERE statut IN ('CREATE', 'PROCESSING') ORDER BY updatedAt DESC")
+    suspend fun getActiveInventoriesOnce(): List<InventoryEntity>
 
     @Query("SELECT * FROM store_inventories WHERE id = :id")
     suspend fun getInventoryById(id: Long): InventoryEntity?
@@ -20,11 +23,13 @@ interface InventoryDao {
     @Query("SELECT * FROM store_inventories WHERE id = :id")
     fun getInventoryByIdFlow(id: Long): Flow<InventoryEntity?>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertInventory(inventory: InventoryEntity)
+    // Upsert (pas REPLACE) : un REPLACE supprime puis réinsère la ligne parente,
+    // ce qui déclencherait la suppression en cascade des lignes d'inventaire locales
+    @Upsert
+    suspend fun upsertInventory(inventory: InventoryEntity)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertInventories(inventories: List<InventoryEntity>)
+    @Upsert
+    suspend fun upsertInventories(inventories: List<InventoryEntity>)
 
     @Update
     suspend fun updateInventory(inventory: InventoryEntity)

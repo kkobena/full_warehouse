@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Actions de la liste d'inventaires.
+
+  Deux opérations distinctes, volontairement dotées d'icônes différentes :
+  - rafraîchir : recharge la liste depuis le serveur (descendante), toujours accessible ;
+  - synchroniser : envoie les comptages en attente (montante), affichée seulement si un
+    inventaire est en cours, faute de quoi il n'y a rien à envoyer.
+-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_refresh"
+        android:icon="@drawable/ic_refresh"
+        android:title="@string/refresh"
+        app:iconTint="@color/white"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_sync"
+        android:icon="@drawable/ic_sync"
+        android:title="@string/synchronize"
+        android:visible="false"
+        app:iconTint="@color/white"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_logout"
+        android:icon="@drawable/ic_logout"
+        android:title="@string/logout"
+        app:iconTint="@color/white"
+        app:showAsAction="ifRoom" />
+
+</menu>

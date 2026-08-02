@@ -107,6 +107,20 @@
       background: #f9fafb;
       border-top: 1px solid #f3f4f6;
     }
+
+    // Comptages arrivés d'un autre poste pendant une saisie locale
+    .remote-counts-alert {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      padding: 0.4rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      color: #0c5460;
+      background: #d1ecf1;
+      border: 1px solid #bee5eb;
+    }
   }
 
   // ── Pending edits warning ─────────────────────────────────────────────────
@@ -165,7 +179,8 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     overflow: hidden;
 
-    app-inventory-lines-grid {
+    app-inventory-lines-grid,
+    app-inventory-lot-grid {
       display: block;
       height: 100%;
     }

@@ -1,4 +1,4 @@
-import {Component, DestroyRef, effect, inject, OnInit, signal, ViewChild, ChangeDetectionStrategy} from '@angular/core';
+import {Component, computed, DestroyRef, effect, inject, OnInit, signal, ViewChild, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router} from '@angular/router';
 import {
@@ -68,6 +68,28 @@ export class InventoryHomeComponent implements OnInit {
   readonly listFacade = inject(InventoryListFacade);
   readonly store = inject(InventoryStore);
   activeTab = signal<string>('en-cours');
+
+  protected readonly toolbarTitle = computed(() => {
+    switch (this.activeTab()) {
+      case 'tournant':
+        return 'Inventaire tournant';
+      case 'clotures':
+        return 'Inventaires clôturés';
+      default:
+        return 'Inventaires en cours';
+    }
+  });
+
+  protected readonly toolbarIcon = computed(() => {
+    switch (this.activeTab()) {
+      case 'tournant':
+        return 'pi pi-sync';
+      case 'clotures':
+        return 'pi pi-lock';
+      default:
+        return 'pi pi-refresh';
+    }
+  });
 
   private readonly ability = inject(AbilityService);
 

@@ -4,32 +4,29 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.lifecycleScope
 import com.kobe.warehouse.inventory.utils.TokenManager
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
+/**
+ * Écran de démarrage : oriente vers l'accueil ou la connexion selon l'état de session.
+ *
+ * Aligné sur `sales-android/ui/activity/SplashActivity` — **sans temporisation
+ * artificielle** : l'API SplashScreen affiche déjà l'écran pendant l'initialisation de
+ * l'application, une attente supplémentaire ne fait que retarder l'opérateur.
+ */
 class SplashActivity : AppCompatActivity() {
 
-    private lateinit var tokenManager: TokenManager
-
     override fun onCreate(savedInstanceState: Bundle?) {
-        val splashScreen = installSplashScreen()
+        installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        tokenManager = TokenManager(this)
-
-        lifecycleScope.launch {
-            delay(1000) // Show splash for 1 second
-
-            val intent = if (tokenManager.isAuthenticated()) {
-                Intent(this@SplashActivity, MainActivity::class.java)
-            } else {
-                Intent(this@SplashActivity, LoginActivity::class.java)
-            }
-
-            startActivity(intent)
-            finish()
+        val tokenManager = TokenManager(this)
+        val destination = if (tokenManager.getAccessToken() != null) {
+            InventoryListActivity::class.java
+        } else {
+            LoginActivity::class.java
         }
+
+        startActivity(Intent(this, destination))
+        finish()
     }
 }

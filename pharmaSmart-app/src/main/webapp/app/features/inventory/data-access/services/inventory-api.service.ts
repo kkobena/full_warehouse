@@ -60,7 +60,7 @@ export class InventoryApiService {
     return this.http.put<IInventoryLine>(this.linesUrl, line, { observe: 'response' });
   }
 
-  batchSave(lines: { id: number; quantityOnHand: number }[]): Observable<HttpResponse<BatchSyncResultRecord>> {
+  batchSave(lines: { id: number; quantityOnHand: number; version?: number }[]): Observable<HttpResponse<BatchSyncResultRecord>> {
     return this.http.put<BatchSyncResultRecord>(`${this.linesUrl}/batch`, lines, { observe: 'response' });
   }
 

@@ -560,7 +560,11 @@ public class StoreInventoryLineFilterBuilder {
                        fp.prix_uni,
                        a.updated,
                        a.storage_id,
-                       sp.seuil_mini""");
+                       sp.seuil_mini,
+                       a.version,
+                       CASE WHEN cb.id IS NULL THEN NULL
+                            ELSE CONCAT(LEFT(cb.first_name, 1), '. ', cb.last_name)
+                       END                 AS counted_by""");
 
             sql.append(includeLotCount
                 ? ", COALESCE(ilc.lot_count, 0) AS lot_count"
@@ -610,7 +614,8 @@ public class StoreInventoryLineFilterBuilder {
                       FROM fournisseur_produit fp) AS fp
                   ON p.fournisseur_produit_principal_id = fp.id
                 JOIN store_inventory_line a ON p.id = a.produit_id
-                LEFT JOIN stock_produit sp  ON sp.produit_id = p.id AND sp.storage_id = a.storage_id""");
+                LEFT JOIN stock_produit sp  ON sp.produit_id = p.id AND sp.storage_id = a.storage_id
+                LEFT JOIN app_user cb       ON cb.id = a.counted_by_id""");
         }
 
         private void appendScopeJoin(StringBuilder sql) {

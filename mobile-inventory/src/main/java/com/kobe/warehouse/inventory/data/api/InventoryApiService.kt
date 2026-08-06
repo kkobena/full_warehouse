@@ -1,7 +1,9 @@
 package com.kobe.warehouse.inventory.data.api
 
+import com.kobe.warehouse.inventory.data.model.AppConfig
 import com.kobe.warehouse.inventory.data.model.BatchSyncResult
 import com.kobe.warehouse.inventory.data.model.InventoryLot
+import com.kobe.warehouse.inventory.data.model.InventoryLotLine
 import com.kobe.warehouse.inventory.data.model.InventoryProgress
 import com.kobe.warehouse.inventory.data.model.ItemsCount
 import com.kobe.warehouse.inventory.data.model.Product
@@ -69,6 +71,28 @@ interface InventoryApiService {
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 500
     ): Response<List<StoreInventoryLine>>
+
+    /**
+     * Vue à plat « un lot = une ligne », mode de saisie quand la gestion des lots
+     * est active
+     * GET /api/store-inventory-lines/lots?storeInventoryId=&rayonId=&search=
+     */
+    @GET("api/store-inventory-lines/lots")
+    suspend fun getInventoryLotLines(
+        @Query("storeInventoryId") storeInventoryId: Long,
+        @Query("rayonId") rayonId: Long? = null,
+        @Query("search") search: String? = null,
+        @Query("selectedFilter") selectedFilter: String? = null,
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 500
+    ): Response<List<InventoryLotLine>>
+
+    /**
+     * Paramètre applicatif — sert à résoudre le mode de saisie
+     * GET /api/app/{id}
+     */
+    @GET("api/app/{id}")
+    suspend fun getAppConfig(@Path("id") id: String): Response<AppConfig>
 
     /**
      * Update a single line quantity

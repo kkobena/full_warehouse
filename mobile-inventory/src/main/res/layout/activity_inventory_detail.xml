@@ -71,18 +71,44 @@
             android:text="@string/continuous_scan"
             app:icon="@android:drawable/ic_media_play" />
 
+        <!-- Éclairage des rayons bas, où la lecture des DataMatrix échoue -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_torch"
+            style="@style/Widget.Material3.Button.IconButton.Outlined"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:contentDescription="@string/torch"
+            android:visibility="gone"
+            app:icon="@android:drawable/ic_menu_view" />
+
     </LinearLayout>
 
-    <com.journeyapps.barcodescanner.DecoratedBarcodeView
-        android:id="@+id/barcode_view"
+    <androidx.camera.view.PreviewView
+        android:id="@+id/preview_view"
         android:layout_width="0dp"
-        android:layout_height="180dp"
+        android:layout_height="240dp"
         android:layout_marginHorizontal="16dp"
         android:visibility="gone"
-        app:zxing_use_texture_view="true"
         app:layout_constraintTop_toBottomOf="@+id/ll_scan_row"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Dernier produit compté, en incrustation sur l'aperçu caméra -->
+    <TextView
+        android:id="@+id/tv_scan_status"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="#99000000"
+        android:gravity="center"
+        android:padding="6dp"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/preview_view"
+        app:layout_constraintStart_toStartOf="@+id/preview_view"
+        app:layout_constraintEnd_toEndOf="@+id/preview_view"
+        tools:text="DOLIPRANE 1000 → 12" />
 
     <TextView
         android:id="@+id/tv_conflict_banner"
@@ -97,7 +123,7 @@
         android:textSize="13sp"
         android:textStyle="bold"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/barcode_view"
+        app:layout_constraintTop_toBottomOf="@+id/preview_view"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:text="2 ligne(s) en conflit" />
@@ -186,31 +212,57 @@
         android:padding="8dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintTop_toBottomOf="@+id/tv_progress_count"
-        app:layout_constraintBottom_toTopOf="@+id/btn_synchronize"
+        app:layout_constraintBottom_toTopOf="@+id/ll_bottom_actions"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:listitem="@layout/item_inventory_line" />
 
-    <Button
-        android:id="@+id/btn_synchronize"
+    <!--
+      Actions en une seule rangée : avec adjustResize, chaque ligne empilée était
+      autant de hauteur perdue par la liste à l'ouverture du clavier.
+    -->
+    <LinearLayout
+        android:id="@+id/ll_bottom_actions"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:text="@string/synchronize"
-        app:layout_constraintBottom_toTopOf="@+id/btn_close_inventory"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <Button
-        android:id="@+id/btn_close_inventory"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:text="@string/close_inventory"
-        android:backgroundTint="@color/warning"
+        android:layout_margin="8dp"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!--
+          Annulation du dernier comptage : un scan parasite ou une quantité tapée
+          trop vite doit se défaire d'un geste, sans recalcul de tête.
+        -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_undo"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="4dp"
+            android:text="@string/undo"
+            android:visibility="gone"
+            app:icon="@android:drawable/ic_menu_revert" />
+
+        <Button
+            android:id="@+id/btn_synchronize"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="4dp"
+            android:layout_weight="1"
+            android:text="@string/synchronize" />
+
+        <Button
+            android:id="@+id/btn_close_inventory"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="4dp"
+            android:layout_weight="1"
+            android:backgroundTint="@color/btn_close_tint"
+            android:text="@string/close_inventory" />
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tv_empty"

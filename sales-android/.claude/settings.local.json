@@ -20,9 +20,13 @@
       "Bash(.gradlew.bat testDebugUnitTest:*)",
       "Bash(cmd.exe /c gradlew.bat assembleDebug)",
       "Bash(./gradlew.bat:*)",
-      "Bash(xargs grep:*)"
+      "Bash(xargs grep:*)",
+      "PowerShell(.\\\\gradlew.bat help -q --console=plain)"
     ],
     "deny": [],
     "ask": []
-  }
+  },
+  "enabledMcpjsonServers": [
+    "idea"
+  ]
 }

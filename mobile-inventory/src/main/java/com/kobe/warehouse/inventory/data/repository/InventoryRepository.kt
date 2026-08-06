@@ -6,8 +6,10 @@ import com.kobe.warehouse.inventory.data.api.InventoryApiService
 import com.kobe.warehouse.inventory.data.database.InventoryDatabase
 import com.kobe.warehouse.inventory.data.database.entity.InventoryEntity
 import com.kobe.warehouse.inventory.data.database.entity.InventoryLineEntity
+import com.kobe.warehouse.inventory.data.database.entity.InventoryLotLineEntity
 import com.kobe.warehouse.inventory.data.model.BatchSyncResult
 import com.kobe.warehouse.inventory.data.model.InventoryLot
+import com.kobe.warehouse.inventory.data.model.InventoryLotLine
 import com.kobe.warehouse.inventory.data.model.InventoryProgress
 import com.kobe.warehouse.inventory.data.model.InventoryStatut
 import com.kobe.warehouse.inventory.data.model.Product
@@ -20,6 +22,7 @@ import com.kobe.warehouse.inventory.utils.ApiClient
 import com.kobe.warehouse.inventory.utils.TokenManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.withContext
 
 /**
@@ -28,6 +31,12 @@ import kotlinx.coroutines.withContext
  */
 data class LineSaveResult(
     val line: StoreInventoryLine,
+    val synced: Boolean
+)
+
+/** Equivalent pour un lot compte depuis la vue a plat */
+data class LotLineSaveResult(
+    val line: InventoryLotLine,
     val synced: Boolean
 )
 
@@ -48,6 +57,7 @@ class InventoryRepository(context: Context) {
         private const val STATUS_SYNCED = "SYNCED"
         private const val STATUS_ERROR = "ERROR"
         private const val STATUS_CONFLICT = "CONFLICT"
+        private const val CONFIG_GESTION_LOT = "APP_GESTION_LOT_INVENTAIRE"
     }
 
     private val appContext = context.applicationContext
@@ -55,6 +65,7 @@ class InventoryRepository(context: Context) {
     private val database = InventoryDatabase.getInstance(appContext)
     private val inventoryDao = database.inventoryDao()
     private val lineDao = database.inventoryLineDao()
+    private val lotLineDao = database.inventoryLotLineDao()
 
     private val apiService: InventoryApiService by lazy {
         ApiClient.create(tokenManager = tokenManager).create(InventoryApiService::class.java)
@@ -63,7 +74,14 @@ class InventoryRepository(context: Context) {
     /**
      * Number of locally modified lines waiting to be pushed (PENDING or ERROR)
      */
-    fun pendingSyncCount(): Flow<Int> = lineDao.getPendingSyncCount()
+    fun pendingSyncCount(): Flow<Int> =
+        lineDao.getPendingSyncCount().combine(lotLineDao.getPendingSyncCount()) { a, b -> a + b }
+
+    /** Lignes saisies mais pas encore transmises, pour les marquer dans la liste */
+    fun pendingSyncIds(): Flow<List<Long>> = lineDao.getPendingSyncIds()
+
+    /** Idem pour les lots (mode gestion des lots) */
+    fun pendingLotSyncIds(): Flow<List<Long>> = lotLineDao.getPendingSyncIds()
 
     /**
      * Lignes rejetées pour comptage concurrent — à ré-arbitrer par l'opérateur
@@ -261,6 +279,183 @@ class InventoryRepository(context: Context) {
                 Log.w(TAG, "Network unavailable, loading lines from cache", e)
                 loadLinesFromCache(inventoryId, rayonId, search, selectedFilter)
             }
+        }
+    }
+
+    /**
+     * Lignes de la vue à plat (un lot = une ligne), paginées comme la vue produit.
+     *
+     * Pas de cache Room ici : le comptage par lot passe par l'API lot par lot
+     * (`PUT /store-inventory-lines/lots/{id}`) et n'a jamais été gréé pour le mode
+     * hors ligne. Une panne réseau remonte donc une erreur au lieu d'un silence.
+     */
+    suspend fun getInventoryLotLines(
+        inventoryId: Long,
+        rayonId: Long? = null,
+        search: String? = null,
+        selectedFilter: String? = null
+    ): Result<List<InventoryLotLine>> {
+        return withContext(Dispatchers.IO) {
+            try {
+                ensureInventoryCached(inventoryId)
+                val all = mutableListOf<InventoryLotLine>()
+                var page = 0
+                while (true) {
+                    val response = apiService.getInventoryLotLines(
+                        storeInventoryId = inventoryId,
+                        rayonId = rayonId,
+                        search = search,
+                        selectedFilter = selectedFilter?.takeIf { it != "NONE" },
+                        page = page,
+                        size = PAGE_SIZE
+                    )
+                    if (!response.isSuccessful || response.body() == null) {
+                        return@withContext Result.failure(
+                            Exception("Failed to load lot lines: ${response.code()}")
+                        )
+                    }
+                    val lines = response.body()!!
+                    all.addAll(lines)
+                    if (lines.size < PAGE_SIZE) break
+                    page++
+                }
+                // Fusion dans le cache : les saisies locales non transmises priment
+                val unsyncedIds = lotLineDao.getUnsyncedLotLines().map { it.id }.toSet()
+                lotLineDao.upsertLotLines(
+                    all.filter { it.id !in unsyncedIds }
+                        .map { InventoryLotLineEntity.fromModel(it, inventoryId, rayonId) }
+                )
+                val merged = all.map { remote ->
+                    val cached = remote.id?.takeIf { it in unsyncedIds }
+                        ?.let { lotLineDao.getLotLineById(it) }
+                    cached?.toModel() ?: remote
+                }
+                Result.success(merged)
+            } catch (e: Exception) {
+                Log.w(TAG, "Network unavailable, loading lot lines from cache", e)
+                loadLotLinesFromCache(inventoryId, rayonId, search, selectedFilter)
+            }
+        }
+    }
+
+    private suspend fun loadLotLinesFromCache(
+        inventoryId: Long,
+        rayonId: Long?,
+        search: String?,
+        selectedFilter: String?
+    ): Result<List<InventoryLotLine>> {
+        val entities = if (rayonId != null) {
+            lotLineDao.getLotLinesByRayonOnce(inventoryId, rayonId)
+        } else {
+            lotLineDao.getLotLinesOnce(inventoryId)
+        }
+        val query = search?.trim().orEmpty()
+        val searched = if (query.isEmpty()) entities else entities.filter { e ->
+            listOfNotNull(e.produitLibelle, e.produitCip, e.numLot)
+                .any { it.contains(query, ignoreCase = true) }
+        }
+        // Replique locale du selectedFilter backend
+        val filtered = when (selectedFilter) {
+            "UPDATED" -> searched.filter { it.updated }
+            "NOT_UPDATED" -> searched.filter { !it.updated }
+            "GAP" -> searched.filter { (it.gap ?: 0) != 0 }
+            "GAP_POSITIF" -> searched.filter { (it.gap ?: 0) > 0 }
+            "GAP_NEGATIF" -> searched.filter { (it.gap ?: 0) < 0 }
+            else -> searched
+        }
+        return Result.success(filtered.map { it.toModel() })
+    }
+
+    /**
+     * Comptage d'un lot — local d'abord, comme la saisie par produit : la quantite
+     * est persistee puis poussee. Une coupure reseau ne fait plus perdre la saisie.
+     */
+    suspend fun saveLotLineQuantity(
+        inventoryId: Long,
+        lotLine: InventoryLotLine,
+        quantity: Int
+    ): Result<LotLineSaveResult> {
+        val lotId = lotLine.id ?: return Result.failure(Exception("Lot sans identifiant"))
+        return withContext(Dispatchers.IO) {
+            try {
+                ensureInventoryCached(inventoryId)
+                val existing = lotLineDao.getLotLineById(lotId)
+                val local = (existing ?: InventoryLotLineEntity.fromModel(lotLine, inventoryId))
+                    .copy(
+                        quantityOnHand = quantity,
+                        gap = quantity - (lotLine.quantityInit ?: 0),
+                        updated = true,
+                        locallyModified = true,
+                        syncStatus = STATUS_PENDING
+                    )
+                lotLineDao.upsertLotLine(local)
+
+                try {
+                    val response = apiService.updateInventoryLot(lotId, local.toSyncPayload())
+                    if (response.isSuccessful && response.body() != null) {
+                        val saved = response.body()!!
+                        val synced = local.copy(
+                            quantityOnHand = saved.quantityOnHand ?: quantity,
+                            gap = saved.gap ?: local.gap,
+                            locallyModified = false,
+                            syncStatus = STATUS_SYNCED
+                        )
+                        lotLineDao.upsertLotLine(synced)
+                        return@withContext Result.success(
+                            LotLineSaveResult(synced.toModel(), synced = true)
+                        )
+                    }
+                    Log.w(TAG, "Lot push refused (${response.code()}), kept pending")
+                } catch (e: Exception) {
+                    Log.w(TAG, "Lot push failed, kept pending", e)
+                }
+                SyncManager.syncNow(appContext)
+                Result.success(LotLineSaveResult(local.toModel(), synced = false))
+            } catch (e: Exception) {
+                Log.e(TAG, "Error saving lot quantity", e)
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Transmission des lots comptes hors ligne. Le backend n'expose pas d'ecriture
+     * groupee pour les lots : on rejoue les ecritures unitaires, en marquant en
+     * erreur celles qui echouent pour les reprendre au prochain passage.
+     */
+    suspend fun syncPendingLotLines(): Result<Int> = withContext(Dispatchers.IO) {
+        val pending = lotLineDao.getUnsyncedLotLines()
+        if (pending.isEmpty()) return@withContext Result.success(0)
+        var saved = 0
+        pending.forEach { entity ->
+            try {
+                val response = apiService.updateInventoryLot(entity.id, entity.toSyncPayload())
+                if (response.isSuccessful) {
+                    lotLineDao.updateLotLine(
+                        entity.copy(locallyModified = false, syncStatus = STATUS_SYNCED)
+                    )
+                    saved++
+                } else {
+                    lotLineDao.updateLotLine(entity.copy(syncStatus = STATUS_ERROR))
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Lot ${entity.id} still unreachable", e)
+            }
+        }
+        Result.success(saved)
+    }
+
+    /**
+     * Mode de saisie : lot par lot si APP_GESTION_LOT_INVENTAIRE est actif.
+     * Config indisponible → saisie par produit, le mode le plus tolérant.
+     */
+    suspend fun isGestionLotEnabled(): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getAppConfig(CONFIG_GESTION_LOT)
+            response.body()?.isEnabled() ?: false
+        } catch (e: Exception) {
+            Log.w(TAG, "Configuration gestion des lots indisponible", e)
+            false
         }
     }
 

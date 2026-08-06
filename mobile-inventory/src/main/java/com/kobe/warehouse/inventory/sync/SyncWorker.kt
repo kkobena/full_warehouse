@@ -28,6 +28,10 @@ class SyncWorker(
             return Result.success()
         }
 
+        // Les lots comptés hors ligne partent aussi : en mode gestion des lots,
+        // c'est la seule forme de saisie
+        inventoryRepository.syncPendingLotLines()
+
         return inventoryRepository.syncPendingLines(includeErrors = false).fold(
             onSuccess = { batchResult ->
                 Log.d(TAG, "Synced: ${batchResult.saved} saved, ${batchResult.failed} failed")

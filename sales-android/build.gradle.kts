@@ -9,7 +9,7 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.kobe.warehouse.sales"
+        applicationId = "com.kobe.pharmasmart.pos"
         minSdk = 30
         targetSdk = 36
         versionCode = 1
@@ -104,6 +104,10 @@ android {
 
     buildToolsVersion = "36.0.0"
     ndkVersion = "26.3.11579264"
+}
+
+base {
+    archivesName.set("pharma-smart-pos-${android.defaultConfig.versionName}")
 }
 
 dependencies {

@@ -77,14 +77,22 @@ class InventoryLotAdapter(
             }
         }
 
-        /** Fragment dépendant du mode aveugle, rebindé seul via la charge utile */
+        /**
+         * Fragment dépendant du mode aveugle, rebindé seul via la charge utile.
+         * L'écart n'est affiché que sur un lot déjà compté : sinon il vaudrait
+         * -quantityInit et dévoilerait le stock théorique.
+         */
         fun bindStockVisibility(lot: InventoryLot, showStock: Boolean) {
             binding.apply {
                 if (showStock) {
                     tvLotQuantityInit.visibility = android.view.View.VISIBLE
-                    tvLotGap.visibility = android.view.View.VISIBLE
                     tvLotQuantityInit.text = "Init: ${lot.quantityInit ?: 0}"
+                } else {
+                    tvLotQuantityInit.visibility = android.view.View.INVISIBLE
+                }
 
+                if (showStock && lot.isCounted()) {
+                    tvLotGap.visibility = android.view.View.VISIBLE
                     val gap = lot.gap ?: lot.calculateGap()
                     tvLotGap.text = "Écart: $gap"
                     when {
@@ -93,7 +101,6 @@ class InventoryLotAdapter(
                         else -> tvLotGap.setTextColor(root.context.getColor(android.R.color.darker_gray))
                     }
                 } else {
-                    tvLotQuantityInit.visibility = android.view.View.INVISIBLE
                     tvLotGap.visibility = android.view.View.INVISIBLE
                 }
             }

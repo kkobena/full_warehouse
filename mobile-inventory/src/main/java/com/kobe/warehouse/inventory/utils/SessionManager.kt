@@ -1,6 +1,7 @@
 package com.kobe.warehouse.inventory.utils
 
 import android.content.Context
+import android.os.SystemClock
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -20,6 +21,9 @@ import kotlinx.coroutines.flow.asSharedFlow
 class SessionManager(context: Context) {
 
     companion object {
+        /** Intervalle minimal entre deux signalements de perte de connexion */
+        private const val CONNECTION_LOST_THROTTLE_MS = 30_000L
+
         @Volatile
         private var INSTANCE: SessionManager? = null
 
@@ -59,10 +63,21 @@ class SessionManager(context: Context) {
     /**
      * Perte de connexion : signalée mais **sans effacer la session** — voir la note de
      * classe. L'utilisateur reste connecté et continue de compter hors ligne.
+     *
+     * L'événement est émis au plus une fois par [CONNECTION_LOST_THROTTLE_MS] : hors
+     * ligne, chaque requête échoue (liste, progression, sauvegardes, synchronisation
+     * périodique), et une notification par échec noyait l'écran sous les messages
+     * sans rien apprendre de plus à l'opérateur.
      */
     fun handleConnectionLost(reason: String = "Connexion perdue") {
+        val now = SystemClock.elapsedRealtime()
+        if (now - lastConnectionLostAt < CONNECTION_LOST_THROTTLE_MS) return
+        lastConnectionLostAt = now
         _sessionEvents.tryEmit(SessionEvent.CONNECTION_LOST)
     }
+
+    @Volatile
+    private var lastConnectionLostAt = 0L
 
     private fun clearSession() {
         tokenManager.clearTokens()

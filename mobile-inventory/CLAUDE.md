@@ -33,8 +33,9 @@ Pharma Smart Inventory is a native Android mobile application for pharmacy inven
 - Navigation Component 2.7.6 - Navigation framework
 
 **Java Version:**
-- JDK 17 (configured in gradle.properties: `org.gradle.java.home=C:/Users/k.kobena/Documents/jdk17`)
-- IMPORTANT: This project must use JDK 17, NOT Java 25 like the parent backend project
+- JDK 25 LTS (configured in gradle.properties: `org.gradle.java.home=C:/Program Files/Eclipse Adoptium/jdk-25.0.1.8-hotspot`)
+- Same JDK as the parent backend project; the APK bytecode still targets Java 17 (`compileOptions`/`jvmTarget`)
+- On corporate networks with TLS inspection (Zscaler), the Zscaler root CA must be imported into this JDK's cacerts (admin terminal required)
 
 ## Build & Development Commands
 
@@ -100,14 +101,19 @@ The app strictly follows MVVM pattern:
 - POST `/api/auth/login` - Login
 - GET `/api/account` - Get user account
 
-**Inventory:**
-- GET `/api/store-inventories/actif` - List active inventories
-- GET `/api/store-inventories/{id}` - Get inventory
-- GET `/api/store-inventories/{id}/rayons` - Get sections
-- GET `/api/store-inventories/{inventoryId}/rayons/{rayonId}/items` - Get items
-- PUT `/api/store-inventories/lines` - Sync inventory lines (batch update)
-- POST `/api/store-inventories/close/{id}` - Close inventory
-- GET `/api/products/code/{barcode}` - Search product by barcode
+**Inventory (standard API — NE PAS utiliser l'ancien `/java-client/mobile/*`, obsolète):**
+- GET `/api/store-inventories?statuts=CREATE&statuts=PROCESSING` - List active inventories (paged, StoreInventoryDTO)
+- GET `/api/store-inventories/{id}` - Get inventory (StoreInventoryDTO)
+- GET `/api/store-inventories/{id}/progress` - Counting progress (InventoryProgressRecord)
+- GET `/api/store-inventories/close/{id}` - Close inventory (GET! returns ItemsCountRecord)
+- GET `/api/store-inventory-lines/v2?storeInventoryId=&rayonId=&search=` - Paged lines (StoreInventoryLineRecord)
+- PUT `/api/store-inventory-lines` - Update single line (body StoreInventoryLineDTO, produitId required)
+- PUT `/api/store-inventory-lines/batch` - Batch sync (returns BatchSyncResultRecord: saved/failed/failedIds)
+- GET `/api/rayons?storageId=` - Rayons referential (RayonDTO)
+- GET `/api/produits/code/{code}` - Search product by barcode (returns List<ProduitSearch>)
+
+**Statuts backend:** `CREATE`, `PROCESSING`, `CLOSED` (pas de `OPEN`). La catégorie d'inventaire est
+un objet `{name, label}` (CategoryInventory), pas un enum plat.
 
 ## Implementation Status
 
@@ -381,7 +387,7 @@ WorkManager.getInstance(context).enqueueUniquePeriodicWork(
 
 ## Common Pitfalls
 
-- **JDK Version**: Must use JDK 17 (not Java 25 like backend)
+- **JDK Version**: Build runs on JDK 25 LTS (same as backend); do not raise `compileOptions`/`jvmTarget` above 17 without checking Android desugaring support
 - **Network Configuration**: Use local IP address (192.168.x.x), NOT localhost for device testing
 - **Coroutines**: Always use `viewModelScope` in ViewModels, NOT `GlobalScope`
 - **LiveData Observers**: Remove observers in `onDestroy()` or use `viewLifecycleOwner` in Fragments

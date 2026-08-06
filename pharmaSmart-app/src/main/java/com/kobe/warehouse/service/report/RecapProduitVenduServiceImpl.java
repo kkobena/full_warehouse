@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.report;
 
 import com.kobe.warehouse.domain.enumeration.InventoryCategory;
-import com.kobe.warehouse.service.InventaireService;
+import com.kobe.warehouse.service.inventaire.InventaireService;
 import com.kobe.warehouse.service.dto.CreateInventoryFromProduitIds;
 import com.kobe.warehouse.service.dto.records.StoreInventoryRecord;
 import com.kobe.warehouse.service.report.excel.CsvExportService;

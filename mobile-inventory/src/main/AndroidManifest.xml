@@ -9,6 +9,18 @@
     <!-- Camera permission for barcode scanning -->
     <uses-permission android:name="android.permission.CAMERA" />
 
+    <!--
+      La caméra est un confort et non une nécessité : la saisie manuelle et les
+      douchettes HID permettent de compter sans elle. `required="false"` évite d'exclure
+      les terminaux d'inventaire et tablettes dépourvus de caméra.
+    -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false" />
+
     <!-- Storage for offline data -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="32"
@@ -47,32 +59,32 @@
         <activity
             android:name=".ui.activity.LoginActivity"
             android:exported="false"
-            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
 
-        <!-- Main Activity -->
-        <activity
-            android:name=".ui.activity.MainActivity"
-            android:exported="false"
-            android:screenOrientation="landscape" />
+        <!--
+          Aucune activité ne fixe son orientation : l'affichage suit le réglage
+          « rotation automatique » du terminal, comportement Android par défaut.
+        -->
 
         <!-- Inventory List Activity -->
         <activity
             android:name=".ui.activity.InventoryListActivity"
-            android:exported="false"
-            android:screenOrientation="landscape" />
+            android:exported="false" />
 
-        <!-- Inventory Detail Activity (scanning and counting) -->
+        <!--
+          Inventory Detail Activity (scanning and counting).
+          adjustResize : la saisie se fait dans la ligne, la liste doit donc se
+          réduire à l'ouverture du clavier pour que la ligne éditée reste visible.
+        -->
         <activity
             android:name=".ui.activity.InventoryDetailActivity"
             android:exported="false"
-            android:screenOrientation="landscape" />
+            android:windowSoftInputMode="adjustResize" />
 
-        <!-- Barcode Capture Activity -->
+        <!-- Scan ponctuel plein écran (CameraX + ML Kit) -->
         <activity
-            android:name="com.journeyapps.barcodescanner.CaptureActivity"
-            android:screenOrientation="landscape"
-            tools:replace="screenOrientation" />
+            android:name=".scanner.ScanActivity"
+            android:exported="false" />
 
         <!-- WorkManager for background sync -->
         <provider

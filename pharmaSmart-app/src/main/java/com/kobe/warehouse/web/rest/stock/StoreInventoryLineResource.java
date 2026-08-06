@@ -1,6 +1,6 @@
 package com.kobe.warehouse.web.rest.stock;
 
-import com.kobe.warehouse.service.InventaireService;
+import com.kobe.warehouse.service.inventaire.InventaireService;
 import com.kobe.warehouse.service.dto.StoreInventoryLineDTO;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryLineFilterRecord;
 import com.kobe.warehouse.service.dto.records.BatchSyncResultRecord;
@@ -8,9 +8,9 @@ import com.kobe.warehouse.service.dto.records.InventoryLotRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryLineRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryLotLineRecord;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
-import com.kobe.warehouse.service.stock.InventaireQueryService;
-import com.kobe.warehouse.service.stock.InventaireSyncService;
-import com.kobe.warehouse.service.stock.InventoryLotService;
+import com.kobe.warehouse.service.inventaire.InventaireQueryService;
+import com.kobe.warehouse.service.inventaire.InventaireSyncService;
+import com.kobe.warehouse.service.inventaire.InventoryLotService;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;

@@ -3,26 +3,19 @@
   <!-- ── Modern Pharma Toolbar ─────────────────────────────────────────────── -->
   <app-toolbar icon="pi pi-list-check" title="Inventaire">
     <ng-container ngProjectAs="[toolbarActions]">
-      <div class="pharma-toolbar-actions">
+      <div class="pharma-toolbar-actions py-1">
         <div class="pharma-button-group">
 
-          <app-button
-            (clicked)="goBack()"
-            [raised]="true"
-            icon="pi pi-arrow-left"
-            label="Retour"
-            ngbTooltip="Retour à la liste"
-            severity="secondary"
-          />
 
           <app-button
             (clicked)="exportPdf()"
             [loading]="exporting()"
             [raised]="true"
+            [outlined]="true"
             icon="pi pi-file-pdf"
             label="Exporter PDF"
             ngbTooltip="Exporter l'inventaire en PDF"
-            severity="secondary"
+            [severity]="'warn'"
           />
 
           @if (!isInventoryClosed) {
@@ -30,19 +23,22 @@
               (clicked)="openImportModal()"
               [raised]="true"
               icon="pi pi-upload"
+              [outlined]="true"
               label="Importer CSV"
               ngbTooltip="Importer depuis un fichier CSV"
               severity="info"
             />
 
-            <app-button
-              (clicked)="closeInventory()"
-              [raised]="true"
-              icon="pi pi-lock"
-              label="Clôturer"
-              ngbTooltip="Clôturer cet inventaire"
-              severity="warn"
-            />
+            @if (canCloseInventory()) {
+              <app-button
+                (clicked)="closeInventory()"
+                [raised]="true"
+                icon="pi pi-lock"
+                label="Clôturer"
+                ngbTooltip="Clôturer cet inventaire"
+                severity="primary"
+              />
+            }
           }
 
           @if (isInventoryClosed) {
@@ -55,6 +51,16 @@
               severity="danger"
             />
           }
+          <app-button
+            (clicked)="goBack()"
+            [raised]="true"
+            [outlined]="true"
+            icon="pi pi-arrow-left"
+            label="Retour"
+            ngbTooltip="Retour à la liste"
+            [severity]="'secondary'"
+          />
+
         </div>
       </div>
     </ng-container>
@@ -104,9 +110,22 @@
           <div class="text-muted small p-2">Chargement...</div>
         }
 
-        <!-- Progression -->
+        <!-- Progression (rafraîchie automatiquement : comptages mobiles en direct) -->
         <div class="progress-section">
           <app-inventory-progress-bar [progress]="store.progress()" />
+
+          @if (remoteCountsPending()) {
+            <div class="remote-counts-alert" role="status">
+              <i class="pi pi-sync"></i>
+              <span>Des comptages ont été enregistrés depuis un autre poste.</span>
+              <app-button
+                (clicked)="refreshAfterRemoteCounts()"
+                [text]="true"
+                label="Rafraîchir"
+                severity="info"
+              />
+            </div>
+          }
         </div>
 
         <!-- Analyse des écarts (clôturé uniquement) -->

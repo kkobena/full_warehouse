@@ -22,7 +22,11 @@ class AuthRepository(private val tokenManager: TokenManager) {
     /**
      * Login with username and password
      */
-    suspend fun login(username: String, password: String): Result<JwtTokenResponse> {
+    suspend fun login(
+        username: String,
+        password: String,
+        rememberMe: Boolean = false
+    ): Result<JwtTokenResponse> {
         return withContext(Dispatchers.IO) {
             try {
                 val loginRequest = LoginRequest(username, password)
@@ -31,6 +35,7 @@ class AuthRepository(private val tokenManager: TokenManager) {
                 if (response.isSuccessful && response.body() != null) {
                     val tokenResponse = response.body()!!
                     tokenManager.storeTokens(tokenResponse)
+                    tokenManager.storeRememberMe(username, password, rememberMe)
                     Result.success(tokenResponse)
                 } else {
                     val errorMsg = when (response.code()) {
@@ -89,5 +94,16 @@ class AuthRepository(private val tokenManager: TokenManager) {
      */
     fun isAuthenticated(): Boolean {
         return tokenManager.isAuthenticated()
+    }
+
+    /**
+     * Identifiants mémorisés pour le pré-remplissage, ou null si « se souvenir de moi »
+     * n'est pas actif
+     */
+    fun getSavedCredentials(): Pair<String, String>? {
+        if (!tokenManager.getRememberMe()) return null
+        val username = tokenManager.getSavedUsername() ?: return null
+        val password = tokenManager.getSavedPassword() ?: return null
+        return username to password
     }
 }

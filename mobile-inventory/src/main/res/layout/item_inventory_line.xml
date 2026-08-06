@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
@@ -12,29 +13,87 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
+        <!--
+          Colonne de saisie : le comptage se fait dans la ligne, sans dialogue.
+          Un produit suivi par lots n'a pas de quantité propre (somme des lots) et
+          présente un bouton à la place du champ.
+        -->
+        <LinearLayout
+            android:id="@+id/ll_entry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/ll_quantities"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <EditText
+                android:id="@+id/et_quantity"
+                android:layout_width="96dp"
+                android:layout_height="52dp"
+                android:autofillHints=""
+                android:background="@drawable/bg_quantity_input"
+                android:gravity="center"
+                android:hint="@string/quantity_hint"
+                android:imeOptions="actionNext|flagNoExtractUi"
+                android:inputType="number"
+                android:maxLength="6"
+                android:maxLines="1"
+                android:selectAllOnFocus="true"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                tools:text="98" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_lots"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="96dp"
+                android:layout_height="52dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:paddingHorizontal="0dp"
+                android:textSize="13sp"
+                android:visibility="gone"
+                tools:text="Lots (3)"
+                tools:visibility="visible" />
+
+            <TextView
+                android:id="@+id/tv_sync_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/pending_sync_badge"
+                android:textColor="@android:color/holo_orange_dark"
+                android:textSize="11sp"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+        </LinearLayout>
+
         <TextView
             android:id="@+id/tv_product_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Produit Name"
             android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="@color/text_primary"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toStartOf="@+id/ll_entry"
+            tools:text="DOLIPRANE 1000MG CPR" />
 
         <TextView
             android:id="@+id/tv_product_code"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Code: 1234567"
             android:textSize="14sp"
             android:textColor="@color/text_secondary"
             app:layout_constraintTop_toBottomOf="@+id/tv_product_name"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toStartOf="@+id/ll_entry"
+            tools:text="Code: 1234567" />
 
         <LinearLayout
             android:id="@+id/ll_quantities"
@@ -44,37 +103,43 @@
             android:orientation="horizontal"
             app:layout_constraintTop_toBottomOf="@+id/tv_product_code"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintEnd_toStartOf="@+id/ll_entry">
 
             <TextView
                 android:id="@+id/tv_quantity_init"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Init: 100"
                 android:textSize="14sp"
-                android:textColor="@color/text_secondary" />
-
-            <TextView
-                android:id="@+id/tv_quantity_on_hand"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Compté: 98"
-                android:textSize="14sp"
-                android:textColor="@color/text_primary" />
+                android:textColor="@color/text_secondary"
+                tools:text="Init: 100" />
 
             <TextView
                 android:id="@+id/tv_gap"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Écart: -2"
+                android:visibility="invisible"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/holo_red_dark" />
+                android:textColor="@android:color/holo_red_dark"
+                tools:text="Écart: -2" />
 
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_counted_by"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textSize="12sp"
+            android:textStyle="italic"
+            android:textColor="@color/text_secondary"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@+id/ll_quantities"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="Compté par K. Kobena" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

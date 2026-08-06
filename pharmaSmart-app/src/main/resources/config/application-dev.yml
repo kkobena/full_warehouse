@@ -108,3 +108,11 @@ file:
 # FNE FACTURE NORMALE ELECTRONIQUE
 
 fne-url: http://54.247.95.108/ws/external/invoices/sign
+
+pharma-smart:
+  security:
+    # Clé de signature JWT propre au poste de développement : on ne partage pas la clé
+    # d'une éventuelle installation locale (%PROGRAMDATA%), et elle survit à `mvn clean`
+    # comme aux rechargements à chaud de DevTools — donc plus de déconnexion à chaque
+    # redémarrage du contexte Spring.
+    jwt-key-path: ${user.home}/.pharmasmart/jwt-signing-key-dev.p8

@@ -38,6 +38,8 @@ export interface BatchSyncResultRecord {
   saved: number;
   failed: number;
   failedIds: number[];
+  /** Lignes rejetées pour comptage concurrent — à recharger, pas à rejouer */
+  conflictedIds?: number[];
 }
 
 // For /api/store-inventory-lines/v2 response
@@ -60,6 +62,12 @@ export interface IInventoryLine {
   seuilMini?: number;
   lotCount?: number;
   classePareto?: string;
+  /** Traçabilité : abréviation du compteur (null si non comptée) */
+  countedBy?: string;
+  /** Traçabilité : date du dernier comptage (ISO) */
+  updatedAt?: string;
+  /** Verrou optimiste : version lue, renvoyée à l'écriture (409 si périmée) */
+  version?: number;
 }
 
 export interface IInventoryLot {
@@ -207,6 +215,22 @@ export const LINE_FILTERS = [
   {value: 'GAP_POSITIF', label: 'Écart positif'},
 ];
 
+/**
+ * Filtres qui exposent l'écart, donc le stock théorique : réservés au privilège
+ * pr-voir-stock-inventaire. Sans lui, filtrer « avec écart » suffirait à déduire
+ * le stock que le mode aveugle masque dans la grille.
+ */
+export const GAP_LINE_FILTERS: InventoryLineFilter[] = ['GAP', 'GAP_NEGATIF', 'GAP_POSITIF'];
+
+export const isGapLineFilter = (filter: InventoryLineFilter): boolean =>
+  GAP_LINE_FILTERS.includes(filter);
+
+/** Options proposées à l'opérateur : sans le privilège, les filtres d'écart sautent */
+export const lineFiltersFor = (blindMode: boolean): typeof LINE_FILTERS =>
+  blindMode
+    ? LINE_FILTERS.filter(f => !isGapLineFilter(f.value as InventoryLineFilter))
+    : LINE_FILTERS;
+
 export interface InventoryEvent {
   type: InventoryEventType;
   payload?: any;
@@ -224,4 +248,6 @@ export type InventoryEventType =
   | 'IMPORT_COMPLETED'
   | 'PROGRESS_UPDATED'
   | 'LINE_SAVED'
-  | 'LINE_SAVE_ERROR';
+  | 'LINE_SAVE_ERROR'
+  /** Des comptages sont arrivés d'un autre poste/mobile depuis le dernier rafraîchissement */
+  | 'REMOTE_COUNTS_DETECTED';

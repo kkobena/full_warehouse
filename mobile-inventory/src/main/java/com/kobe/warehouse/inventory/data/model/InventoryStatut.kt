@@ -4,12 +4,21 @@ import com.google.gson.annotations.SerializedName
 
 /**
  * Inventory Status enum
- * Matches backend InventoryStatut enum
+ * Matches backend com.kobe.warehouse.domain.enumeration.InventoryStatut
  */
 enum class InventoryStatut {
-    @SerializedName("OPEN")
-    OPEN,
+    @SerializedName("CREATE")
+    CREATE,
+
+    @SerializedName("PROCESSING")
+    PROCESSING,
 
     @SerializedName("CLOSED")
-    CLOSED
+    CLOSED;
+
+    fun displayLabel(): String = when (this) {
+        CREATE -> "Créé"
+        PROCESSING -> "En cours"
+        CLOSED -> "Clôturé"
+    }
 }

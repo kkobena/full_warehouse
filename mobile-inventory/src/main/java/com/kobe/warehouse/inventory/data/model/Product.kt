@@ -4,23 +4,21 @@ import com.google.gson.annotations.SerializedName
 
 /**
  * Product model (simplified for inventory)
- * Contains only fields needed for inventory counting
+ * Matches backend ProduitSearch (returned by GET /api/produits/code/{code})
  */
 data class Product(
     @SerializedName("id")
     val id: Long,
 
-    @SerializedName("productCode")
-    val productCode: String,
+    @SerializedName("libelle")
+    val libelle: String? = null,
 
-    @SerializedName("productName")
-    val productName: String,
+    /** CIP principal (alias @JsonProperty("codeProduit") côté backend) */
+    @SerializedName("codeProduit")
+    val codeProduit: String? = null,
 
-    @SerializedName("codeCip")
-    val codeCip: String? = null,
-
-    @SerializedName("codeEan")
-    val codeEan: String? = null,
+    @SerializedName("codeEanLabo")
+    val codeEanLabo: String? = null,
 
     @SerializedName("regularUnitPrice")
     val regularUnitPrice: Int = 0,
@@ -28,6 +26,7 @@ data class Product(
     @SerializedName("costAmount")
     val costAmount: Int = 0,
 
-    @SerializedName("currentStockQuantity")
-    val currentStockQuantity: Int = 0
+    /** Stock rayon (PRINCIPAL) disponible */
+    @SerializedName("totalQuantity")
+    val totalQuantity: Int = 0
 )

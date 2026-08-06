@@ -19,7 +19,7 @@
       <app-select
         (selectionChange)="onLotFilterChange()"
         [(ngModel)]="selectedLotFilter"
-        [items]="lotFilters"
+        [items]="lotFilters()"
         [style]="{ width: '150px' }"
         appendTo="body"
         bindLabel="label"

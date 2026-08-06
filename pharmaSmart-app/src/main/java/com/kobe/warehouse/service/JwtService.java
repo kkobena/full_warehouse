@@ -76,16 +76,16 @@ public class JwtService {
      * Refresh tokens have longer validity and can be used to obtain new access tokens.
      *
      * @param authentication Spring Security authentication object
-     * @param expirationDays Token validity in days
+     * @param expirationHours Token validity in hours
      * @return JWT refresh token
      */
-    public String generateRefreshToken(Authentication authentication, long expirationDays) {
+    public String generateRefreshToken(Authentication authentication, long expirationHours) {
         Instant now = Instant.now();
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
             .issuer("http://localhost:8080")
             .issuedAt(now)
-            .expiresAt(now.plus(expirationDays, ChronoUnit.DAYS))
+            .expiresAt(now.plus(expirationHours, ChronoUnit.HOURS))
             .subject(authentication.getName())
             .claim("token_type", "refresh")
             .build();

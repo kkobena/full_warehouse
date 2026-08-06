@@ -22,7 +22,7 @@
       <app-select
         (selectionChange)="onLineFilterChange()"
         [(ngModel)]="selectedLineFilter"
-        [items]="lineFilters"
+        [items]="lineFilters()"
         [style]="{ width: '150px' }"
         appendTo="body"
         bindLabel="label"

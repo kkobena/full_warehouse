@@ -9,7 +9,7 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.kobe.warehouse.reports"
+        applicationId = "com.kobe.pharmasmart.report"
         minSdk = 30
         targetSdk = 37
         versionCode = 1
@@ -85,6 +85,10 @@ android {
             )
         }
     }
+}
+
+base {
+    archivesName.set("pharma-smart-report-${android.defaultConfig.versionName}")
 }
 
 dependencies {

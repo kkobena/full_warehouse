@@ -2,22 +2,61 @@
 <resources>
     <string name="app_name">Pharma Smart Inventory</string>
 
-    <!-- Login -->
+    <!-- Login — libellés alignés sur le module de vente (sales-android) -->
+    <string name="app_subtitle">Inventaire — Système de Gestion de Pharmacie</string>
+    <string name="app_logo">Logo Pharma Smart</string>
     <string name="login_title">Connexion</string>
+    <string name="welcome_title">Bienvenue</string>
+    <string name="login_subtitle">Connectez-vous à votre espace</string>
     <string name="username">Nom d\'utilisateur</string>
     <string name="password">Mot de passe</string>
     <string name="remember_me">Se souvenir de moi</string>
     <string name="login">Se connecter</string>
+    <string name="connecting">Connexion en cours…</string>
     <string name="login_error">Erreur de connexion</string>
+    <string name="login_error_subtitle">Veuillez vérifier vos identifiants de connexion</string>
+    <string name="error_icon">Icône d\'erreur</string>
+    <string name="info_icon">Icône d\'information</string>
+    <string name="help_text">Besoin d\'aide ? Contactez votre administrateur système</string>
 
-    <!-- Main -->
+    <!-- Configuration du serveur -->
+    <string name="server_settings">Paramètres du serveur</string>
+    <string name="server_config_title">Configuration</string>
+    <string name="server_config_subtitle">Configurez l\'adresse du serveur</string>
+    <string name="protocol">Protocole</string>
+    <string name="server_host">Adresse du serveur</string>
+    <string name="server_host_helper">Nom d\'hôte ou adresse IP (ex. 192.168.1.188)</string>
+    <string name="server_port">Port</string>
+    <string name="server_host_required">L\'adresse est requise</string>
+    <string name="server_port_required">Le port est requis</string>
+    <string name="server_port_invalid">Port invalide (1-65535)</string>
+    <string name="test_connection">Tester la connexion</string>
+    <string name="connection_status">État de la connexion</string>
+    <string name="connection_testing">Test en cours…</string>
+    <string name="connection_testing_message">Test de connexion en cours…</string>
+    <string name="connection_ok">✓ Connexion réussie</string>
+    <string name="connection_unreachable">✗ Serveur inaccessible</string>
+    <string name="connection_timeout">✗ Délai d\'attente dépassé</string>
+    <string name="connection_unknown_host">✗ Hôte introuvable</string>
+    <string name="connection_error">✗ Erreur : %1$s</string>
+
+    <!-- Général -->
     <string name="welcome">Bienvenue, %s</string>
     <string name="inventories">Inventaires</string>
+    <string name="sync_started">Synchronisation lancée</string>
     <string name="logout">Déconnexion</string>
+    <string name="logout_confirm">Voulez-vous vraiment vous déconnecter ?</string>
+
+    <!-- Session -->
+    <string name="session_expired">Votre session a expiré</string>
+    <string name="session_unauthorized">Accès non autorisé. Veuillez vous reconnecter.</string>
+    <string name="session_connection_lost">Serveur injoignable — vos saisies sont conservées et seront synchronisées</string>
 
     <!-- Inventory List -->
     <string name="active_inventories">Inventaires en cours</string>
     <string name="no_inventories">Aucun inventaire en cours</string>
+    <string name="refresh">Rafraîchir</string>
+    <string name="no_inventories_hint">Balayez vers le bas pour rafraîchir</string>
     <string name="inventory_category">Catégorie: %s</string>
     <string name="last_updated">Mis à jour: %s</string>
 
@@ -53,4 +92,72 @@
     <string name="close_inventory_confirm">Êtes-vous sûr de vouloir clôturer cet inventaire?</string>
     <string name="yes">Oui</string>
     <string name="no">Non</string>
+
+    <!-- Lots -->
+    <string name="lots_title">Lots — %s</string>
+    <string name="no_lots">Aucun lot pour ce produit</string>
+    <string name="add_lot">Ajouter un lot</string>
+    <string name="lot_number">N° de lot</string>
+    <string name="lot_expiry_date">Péremption (AAAA-MM-JJ)</string>
+    <string name="lot_expiry_display">Exp: %s</string>
+    <string name="lot_delete">Supprimer le lot</string>
+    <string name="lot_delete_confirm">Supprimer le lot %s de cet inventaire?</string>
+    <string name="lot_saved">Lot enregistré</string>
+    <string name="lot_invalid_expiry">Date de péremption invalide (format AAAA-MM-JJ)</string>
+    <string name="close">Fermer</string>
+
+    <!-- Rayons & progression -->
+    <string name="all_rayons">Tous les rayons</string>
+    <string name="select_rayon">Choisir un rayon</string>
+    <string name="inventory_progress">%1$d / %2$d comptés — %3$d%%</string>
+
+    <!-- Hors ligne & synchronisation -->
+    <string name="offline_banner">Hors ligne — les saisies sont enregistrées et seront synchronisées</string>
+    <string name="line_saved">Quantité enregistrée</string>
+    <string name="line_saved_offline">Enregistré hors ligne — en attente de synchronisation</string>
+    <string name="synchronize_with_count">Synchroniser (%d)</string>
+
+    <!-- Scan & filtres -->
+    <string name="continuous_scan">Scan continu</string>
+    <string name="continuous_scan_stop">Arrêter le scan</string>
+    <string name="search_product">Rechercher un produit</string>
+    <string name="filter_all">Tous</string>
+    <string name="filter_not_updated">À compter</string>
+    <string name="filter_updated">Comptés</string>
+    <string name="filter_gap">Avec écart</string>
+    <string name="filter_gap_positive">Écart +</string>
+    <string name="filter_gap_negative">Écart −</string>
+    <string name="select_filter">Filtrer les lignes</string>
+    <string name="camera_permission_required">Autorisation caméra requise pour le scan</string>
+    <string name="scan_increment_format">%1$s → %2$d</string>
+
+    <!-- Récapitulatif de clôture -->
+    <string name="close_summary_counted">Lignes comptées : %1$d / %2$d</string>
+    <string name="close_summary_remaining">Lignes restantes : %1$d</string>
+    <string name="close_summary_gap_lines">Lignes avec écart : %1$d</string>
+    <string name="close_summary_gap_values">Écart valorisé — achat : %1$s, vente : %2$s</string>
+    <string name="close_summary_warning_remaining">⚠ Des lignes ne sont pas encore comptées.</string>
+
+    <!-- Traçabilité du comptage -->
+    <string name="counted_by">Compté par %1$s</string>
+    <string name="counted_by_at">Compté par %1$s le %2$s</string>
+
+    <!-- Conflits de comptage concurrent -->
+    <string name="conflict_single">Cette ligne vient d\'être comptée par un autre opérateur</string>
+    <string name="conflict_banner">%1$d ligne(s) en conflit — comptées entre-temps par un collègue</string>
+    <string name="conflict_title">Comptage concurrent</string>
+    <string name="conflict_message">%1$d ligne(s) que vous avez comptées ont été modifiées par un autre opérateur. Recharger les valeurs du serveur ? Vos saisies sur ces lignes seront abandonnées et devront être recomptées.</string>
+    <string name="conflict_reload">Recharger</string>
+    <string name="sync_result_with_conflicts">Synchronisation : %1$d enregistrées, %2$d en conflit</string>
+    <string name="quantity_hint">Qté</string>
+    <string name="pending_sync_badge">à transmettre</string>
+    <string name="lots_button_format">Lots (%1$d)</string>
+    <string name="count_undone">Comptage annulé : %1$s</string>
+    <string name="undo">Annuler</string>
+    <string name="torch">Torche</string>
+    <string name="close_inventory_remaining">Clôturer — %1$d restantes</string>
+    <string name="add_lot_short">+ Lot</string>
+    <string name="lot_unnamed">(sans numéro)</string>
+    <string name="lot_with_expiry">Lot %1$s — exp. %2$s</string>
+    <string name="lot_only">Lot %1$s</string>
 </resources>

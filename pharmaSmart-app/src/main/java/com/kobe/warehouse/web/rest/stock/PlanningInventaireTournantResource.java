@@ -2,7 +2,7 @@ package com.kobe.warehouse.web.rest.stock;
 
 import com.kobe.warehouse.service.dto.records.PlanningInventaireTournantRecord;
 import com.kobe.warehouse.service.dto.records.TournantDashboardRecord;
-import com.kobe.warehouse.service.stock.PlanningInventaireTournantService;
+import com.kobe.warehouse.service.inventaire.PlanningInventaireTournantService;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;

@@ -1,5 +1,5 @@
 import {Component, computed, effect, inject, input, output, ChangeDetectionStrategy} from '@angular/core';
-import {CommonModule} from '@angular/common';
+import {CommonModule, formatDate} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {
   AllCommunityModule,
@@ -16,7 +16,7 @@ import {AgGridAngular} from 'ag-grid-angular';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {InventoryEditorFacade} from '../../data-access/facades/inventory-editor.facade';
 import {InventoryStore} from '../../data-access/store/inventory.store';
-import {IInventoryLine, InventoryLineFilter, LINE_FILTERS} from '../../models';
+import {IInventoryLine, InventoryLineFilter, isGapLineFilter, lineFiltersFor} from '../../models';
 import {IStorage} from '../../../../shared/model/magasin.model';
 import {IRayon} from '../../../../shared/model/rayon.model';
 import {InventoryCategoryType} from "../../../../shared/model/store-inventory.model";
@@ -54,7 +54,8 @@ export class InventoryLinesGridComponent {
   readonly editorFacade = inject(InventoryEditorFacade);
   readonly store = inject(InventoryStore);
 
-  lineFilters = LINE_FILTERS;
+  /** Filtres d'écart retirés en mode aveugle (privilège pr-voir-stock-inventaire) */
+  readonly lineFilters = computed(() => lineFiltersFor(this.blindMode()));
   selectedLineFilter: InventoryLineFilter = 'NONE';
   selectedStorageId: number | null = null;
   selectedRayonId: number | null = null;
@@ -127,6 +128,8 @@ export class InventoryLinesGridComponent {
       width: 100,
       editable: false,
       type: 'numericColumn',
+      // L'écart se déduit directement du stock théorique : même privilège que lui
+      hide: this.blindMode(),
       cellStyle: params => {
         const val = params.value;
         if (val == null) {
@@ -183,6 +186,23 @@ export class InventoryLinesGridComponent {
       headerClass: 'ag-header-cell-center',
       cellRenderer: (params: any) => params.value ? '<i class="pi pi-check text-success"></i>' : '',
     },
+    {
+      field: 'countedBy',
+      headerName: 'Compté par',
+      width: 150,
+      editable: false,
+      hide: true,
+      headerClass: 'ag-header-cell-center',
+      // Traçabilité : compteur + horodatage du dernier comptage
+      valueGetter: params => {
+        const who = params.data?.countedBy;
+        if (!who) {
+          return '';
+        }
+        const at = params.data?.updatedAt;
+        return at ? `${who} — ${formatDate(at, 'dd/MM HH:mm', 'fr')}` : who;
+      },
+    },
   ]);
   readonly defaultColDef: ColDef = {
     resizable: true,
@@ -194,6 +214,16 @@ export class InventoryLinesGridComponent {
   private gridApi: GridApi | null = null;
 
   constructor() {
+    // Filtre d'écart déjà actif au moment où le mode aveugle s'applique : on le
+    // retombe sur « Tous », sinon la grille resterait filtrée sur une information
+    // que l'opérateur n'a pas le droit de voir.
+    effect(() => {
+      if (this.blindMode() && isGapLineFilter(this.selectedLineFilter)) {
+        this.selectedLineFilter = 'NONE';
+        this.emitFilterChange();
+      }
+    });
+
     effect(() => {
       const lines = this.rowData();
       if (!this.gridApi) {
@@ -206,6 +236,7 @@ export class InventoryLinesGridComponent {
       if (this.pendingFocusRow0 && lines.length > 0) {
         this.pendingFocusRow0 = false;
         setTimeout(() => {
+          this.gridApi?.ensureIndexVisible(0, 'top');
           this.gridApi?.startEditingCell({rowIndex: 0, colKey: 'quantityOnHand'});
         }, 100);
       }
@@ -291,6 +322,12 @@ export class InventoryLinesGridComponent {
     this.navigateToNextRow(rowIndex);
   }
 
+  /**
+   * Fait suivre la grille : la ligne suivante est amenée dans le viewport avant
+   * d'ouvrir son éditeur. Sans `ensureIndexVisible`, une ligne sortie du viewport
+   * n'est plus rendue (virtualisation AG Grid) et `startEditingCell` reste sans
+   * effet — la saisie s'arrêtait au bas de l'écran.
+   */
   private navigateToNextRow(currentRowIndex: number): void {
     const rowCount = this.gridApi?.getDisplayedRowCount() ?? 0;
     if (currentRowIndex >= rowCount - 1) {
@@ -301,6 +338,7 @@ export class InventoryLinesGridComponent {
     } else {
       // Move to next row in current page
       setTimeout(() => {
+        this.gridApi?.ensureIndexVisible(currentRowIndex + 1, 'middle');
         this.gridApi?.startEditingCell({rowIndex: currentRowIndex + 1, colKey: 'quantityOnHand'});
         setTimeout(() => {
           this.suppressRowDataRefresh = false;

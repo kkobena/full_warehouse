@@ -6,7 +6,7 @@ import com.kobe.warehouse.service.dto.records.GapSummaryRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventorySummaryByGroupRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventorySummaryRecord;
 import com.kobe.warehouse.service.stock.GapAnalysisService;
-import com.kobe.warehouse.service.stock.InventoryValuationService;
+import com.kobe.warehouse.service.inventaire.InventoryValuationService;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.ResponseEntity;

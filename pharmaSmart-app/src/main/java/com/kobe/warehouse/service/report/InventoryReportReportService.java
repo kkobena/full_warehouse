@@ -5,7 +5,7 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.InventoryExportWrapper;
 import com.kobe.warehouse.service.dto.StoreInventoryGroupExport;
 import com.kobe.warehouse.service.dto.StoreInventoryLotGroupExport;
-import com.kobe.warehouse.service.stock.InventoryValuationService;
+import com.kobe.warehouse.service.inventaire.InventoryValuationService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

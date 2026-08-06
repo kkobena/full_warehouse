@@ -187,9 +187,14 @@
       "Bash(where node *)",
       "Bash(npm -v)",
       "Bash(npm ls *)",
-      "Bash(echo \"Exit: $?\")"
+      "Bash(echo \"Exit: $?\")",
+      "Bash(npx jest *)",
+      "Bash(git commit -m 'Modes de règlement : rendu CSS sans images \\(icône + libellé\\) *)"
     ],
     "deny": [],
     "ask": []
-  }
+  },
+  "enabledMcpjsonServers": [
+    "idea"
+  ]
 }

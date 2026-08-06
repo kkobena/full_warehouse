@@ -5,6 +5,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.kobe.warehouse.inventory.data.model.StoreInventoryLine
+import com.kobe.warehouse.inventory.data.model.StoreInventoryLineSync
 
 /**
  * Room entity for StoreInventoryLine
@@ -25,45 +26,52 @@ import com.kobe.warehouse.inventory.data.model.StoreInventoryLine
 data class InventoryLineEntity(
     @PrimaryKey
     val id: Long,
-    val quantityOnHand: Int,
-    val quantityInit: Int,
-    val quantitySold: Int,
-    val gap: Int,
-    val inventoryValueCost: Int,
-    val lastUnitPrice: Int,
-    val updated: Boolean,
-    val updatedAt: String?,
     val storeInventoryId: Long,
     val produitId: Long,
-    val produitLibelle: String,
+    val produitLibelle: String?,
     val produitCip: String?,
     val produitEan: String?,
-    val produitCipsJson: String?, // JSON array of CIPs
-    val rayonId: Long?,
-    val rayonLibelle: String?,
+    val quantityOnHand: Int?,
+    val quantityInit: Int,
+    val gap: Int?,
+    val updated: Boolean,
+    val prixAchat: Int?,
+    val prixUni: Int?,
+    val lotCount: Int,
+    val classePareto: String?,
+    val rayonId: Long?, // contexte de chargement (filtre rayon), pas renvoyé par l'API
+    val countedBy: String? = null,
+    val serverUpdatedAt: String? = null,
+    /** Verrou optimiste : version serveur au moment de la lecture */
+    val version: Long? = null,
     val locallyModified: Boolean = false, // Track if modified offline
-    val syncStatus: String = "PENDING" // PENDING, SYNCED, ERROR
+    val syncStatus: String = "PENDING" // PENDING, SYNCED, ERROR, CONFLICT
 ) {
     companion object {
-        fun fromModel(model: StoreInventoryLine): InventoryLineEntity {
+        fun fromModel(
+            model: StoreInventoryLine,
+            storeInventoryId: Long,
+            rayonId: Long? = null
+        ): InventoryLineEntity {
             return InventoryLineEntity(
                 id = model.id,
-                quantityOnHand = model.quantityOnHand,
-                quantityInit = model.quantityInit,
-                quantitySold = model.quantitySold,
-                gap = model.gap,
-                inventoryValueCost = model.inventoryValueCost,
-                lastUnitPrice = model.lastUnitPrice,
-                updated = model.updated,
-                updatedAt = model.updatedAt,
-                storeInventoryId = model.storeInventoryId,
+                storeInventoryId = storeInventoryId,
                 produitId = model.produitId,
                 produitLibelle = model.produitLibelle,
                 produitCip = model.produitCip,
                 produitEan = model.produitEan,
-                produitCipsJson = model.produitCips?.joinToString(","),
-                rayonId = model.rayonId,
-                rayonLibelle = model.rayonLibelle
+                quantityOnHand = model.quantityOnHand,
+                quantityInit = model.quantityInit,
+                gap = model.gap,
+                updated = model.updated,
+                prixAchat = model.prixAchat,
+                prixUni = model.prixUni,
+                lotCount = model.lotCount,
+                classePareto = model.classePareto,
+                rayonId = rayonId,
+                countedBy = model.countedBy,
+                serverUpdatedAt = model.updatedAt,
+                version = model.version
             )
         }
     }
@@ -71,22 +79,34 @@ data class InventoryLineEntity(
     fun toModel(): StoreInventoryLine {
         return StoreInventoryLine(
             id = id,
-            quantityOnHand = quantityOnHand,
-            quantityInit = quantityInit,
-            quantitySold = quantitySold,
-            gap = gap,
-            inventoryValueCost = inventoryValueCost,
-            lastUnitPrice = lastUnitPrice,
-            updated = updated,
-            updatedAt = updatedAt,
-            storeInventoryId = storeInventoryId,
             produitId = produitId,
             produitLibelle = produitLibelle,
             produitCip = produitCip,
             produitEan = produitEan,
-            produitCips = produitCipsJson?.split(",")?.toSet(),
-            rayonId = rayonId,
-            rayonLibelle = rayonLibelle
+            quantityOnHand = quantityOnHand,
+            quantityInit = quantityInit,
+            gap = gap,
+            updated = updated,
+            prixAchat = prixAchat,
+            prixUni = prixUni,
+            lotCount = lotCount,
+            classePareto = classePareto,
+            countedBy = countedBy,
+            updatedAt = serverUpdatedAt,
+            version = version
+        )
+    }
+
+    fun toSyncPayload(): StoreInventoryLineSync {
+        return StoreInventoryLineSync(
+            id = id,
+            produitId = produitId,
+            storeInventoryId = storeInventoryId,
+            quantityOnHand = quantityOnHand ?: 0,
+            quantityInit = quantityInit,
+            gap = gap,
+            updated = updated,
+            version = version
         )
     }
 }

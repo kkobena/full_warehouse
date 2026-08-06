@@ -376,7 +376,7 @@ export class InventoryEditorComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: resp => {
-       //  this.gestionLot.set(resp.body?.value === '1');
+         this.gestionLot.set(resp.body?.value === '1');
           this.loadLines();
         },
         error: () => {

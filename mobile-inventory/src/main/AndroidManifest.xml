@@ -71,9 +71,19 @@
             android:name=".ui.activity.InventoryListActivity"
             android:exported="false" />
 
-        <!-- Inventory Detail Activity (scanning and counting) -->
+        <!--
+          Inventory Detail Activity (scanning and counting).
+          adjustResize : la saisie se fait dans la ligne, la liste doit donc se
+          réduire à l'ouverture du clavier pour que la ligne éditée reste visible.
+        -->
         <activity
             android:name=".ui.activity.InventoryDetailActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Scan ponctuel plein écran (CameraX + ML Kit) -->
+        <activity
+            android:name=".scanner.ScanActivity"
             android:exported="false" />
 
         <!-- WorkManager for background sync -->

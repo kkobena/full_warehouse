@@ -13,11 +13,6 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
-        <!--
-          Colonne de saisie : le comptage se fait dans la ligne, sans dialogue.
-          Un produit suivi par lots n'a pas de quantité propre (somme des lots) et
-          présente un bouton à la place du champ.
-        -->
         <LinearLayout
             android:id="@+id/ll_entry"
             android:layout_width="wrap_content"
@@ -43,31 +38,19 @@
                 android:selectAllOnFocus="true"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                tools:text="98" />
+                tools:text="12" />
 
+            <!-- Lot trouvé en rayon mais absent de l'inventaire -->
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_lots"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:id="@+id/btn_add_lot"
+                style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="96dp"
-                android:layout_height="52dp"
+                android:layout_height="wrap_content"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
                 android:paddingHorizontal="0dp"
-                android:textSize="13sp"
-                android:visibility="gone"
-                tools:text="Lots (3)"
-                tools:visibility="visible" />
-
-            <TextView
-                android:id="@+id/tv_sync_badge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="@string/pending_sync_badge"
-                android:textColor="@android:color/holo_orange_dark"
-                android:textSize="11sp"
-                android:visibility="gone"
-                tools:visibility="visible" />
+                android:text="@string/add_lot_short"
+                android:textSize="12sp" />
 
         </LinearLayout>
 
@@ -84,13 +67,26 @@
             tools:text="DOLIPRANE 1000MG CPR" />
 
         <TextView
-            android:id="@+id/tv_product_code"
+            android:id="@+id/tv_lot"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:textSize="14sp"
-            android:textColor="@color/text_secondary"
+            android:textColor="@color/primary"
+            android:textStyle="bold"
             app:layout_constraintTop_toBottomOf="@+id/tv_product_name"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/ll_entry"
+            tools:text="Lot 26042A09AO — exp. 31/12/2030" />
+
+        <TextView
+            android:id="@+id/tv_product_code"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textSize="13sp"
+            android:textColor="@color/text_secondary"
+            app:layout_constraintTop_toBottomOf="@+id/tv_lot"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/ll_entry"
             tools:text="Code: 1234567" />
@@ -122,24 +118,9 @@
                 android:visibility="invisible"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/holo_red_dark"
                 tools:text="Écart: -2" />
 
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/tv_counted_by"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textSize="12sp"
-            android:textStyle="italic"
-            android:textColor="@color/text_secondary"
-            android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@+id/ll_quantities"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:text="Compté par K. Kobena" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

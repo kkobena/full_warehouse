@@ -29,6 +29,7 @@ import {
   INVENTORY_CATEGORIES,
   InventoryEvent,
   InventoryLineFilter,
+  isGapLineFilter,
 } from '../../models';
 import {StorageService} from '../../../../entities/storage/storage.service';
 import {RayonService} from '../../../../entities/rayon/rayon.service';
@@ -236,7 +237,10 @@ export class InventoryEditorComponent implements OnInit {
     rayonId: number | null;
     search: string;
   }): void {
-    this.selectedLineFilter = event.lineFilter;
+    // Garde-fou : la grille ne propose plus les filtres d'écart en mode aveugle,
+    // mais l'appel serveur ne doit pas non plus pouvoir les porter
+    this.selectedLineFilter =
+      this.blindMode() && isGapLineFilter(event.lineFilter) ? 'NONE' : event.lineFilter;
     this.selectedStorageId = event.storageId;
     this.selectedRayonId = event.rayonId;
     this.selectedSearch = event.search ?? '';

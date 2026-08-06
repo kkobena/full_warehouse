@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.kobe.warehouse.inventory.R
+import com.kobe.warehouse.inventory.utils.NetworkMonitor
 import com.kobe.warehouse.inventory.utils.SessionManager
 import com.kobe.warehouse.inventory.utils.TokenManager
 import kotlinx.coroutines.launch
@@ -61,13 +62,18 @@ abstract class BaseActivity : AppCompatActivity() {
                     SessionManager.SessionEvent.UNAUTHORIZED ->
                         handleSessionExpired(getString(R.string.session_unauthorized))
 
-                    // Hors ligne : on informe, on ne déconnecte pas
+                    // Hors ligne : on informe, on ne déconnecte pas. Le message n'a
+                    // d'intérêt que si l'appareil se croit connecté — serveur arrêté,
+                    // mauvaise adresse, Wi-Fi sans accès. Quand il se sait hors réseau
+                    // (ou l'ignore encore), le bandeau permanent suffit.
                     SessionManager.SessionEvent.CONNECTION_LOST ->
-                        Toast.makeText(
-                            this@BaseActivity,
-                            getString(R.string.session_connection_lost),
-                            Toast.LENGTH_LONG
-                        ).show()
+                        if (NetworkMonitor.isOnline.value == true) {
+                            Toast.makeText(
+                                this@BaseActivity,
+                                getString(R.string.session_connection_lost),
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
                 }
             }
         }

@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.kobe.warehouse.inventory.data.model.InventoryLot
+import com.kobe.warehouse.inventory.data.model.InventoryLotLine
 import com.kobe.warehouse.inventory.data.model.InventoryProgress
 import com.kobe.warehouse.inventory.data.model.Rayon
 import com.kobe.warehouse.inventory.data.model.StoreInventory
@@ -14,6 +15,7 @@ import com.kobe.warehouse.inventory.data.repository.CountingConflictException
 import com.kobe.warehouse.inventory.data.repository.InventoryRepository
 import com.kobe.warehouse.inventory.utils.Gs1Data
 import com.kobe.warehouse.inventory.utils.Gs1Parser
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 sealed class InventoryDetailState {
@@ -22,9 +24,13 @@ sealed class InventoryDetailState {
     data class InventoryLoaded(val inventory: StoreInventory) : InventoryDetailState()
     data class RayonsLoaded(val rayons: List<Rayon>) : InventoryDetailState()
     data class LinesLoaded(val lines: List<StoreInventoryLine>) : InventoryDetailState()
+    data class LotLinesLoaded(val lines: List<InventoryLotLine>) : InventoryDetailState()
     data class LineFound(val line: StoreInventoryLine) : InventoryDetailState()
-    data class LineSaved(val synced: Boolean) : InventoryDetailState()
+    data class LineSaved(val line: StoreInventoryLine, val synced: Boolean) : InventoryDetailState()
     data class LineIncremented(val line: StoreInventoryLine, val synced: Boolean) : InventoryDetailState()
+    data class CountUndone(val line: StoreInventoryLine) : InventoryDetailState()
+    data class LotLineSaved(val line: InventoryLotLine, val synced: Boolean) : InventoryDetailState()
+    data class LotLineFound(val line: InventoryLotLine) : InventoryDetailState()
     data class LotsLoaded(val line: StoreInventoryLine, val lots: List<InventoryLot>) : InventoryDetailState()
     data class SyncSuccess(val saved: Int, val failed: Int, val conflicted: Int = 0) : InventoryDetailState()
     data class InventoryClosed(val itemsCount: Int) : InventoryDetailState()
@@ -55,6 +61,14 @@ class InventoryDetailViewModel(private val inventoryRepository: InventoryReposit
 
     /** Nombre de lignes rejetées pour comptage concurrent (arbitrage requis) */
     val conflictCount: LiveData<Int> = inventoryRepository.conflictCount().asLiveData()
+
+    /** Lignes saisies non encore transmises, signalées par une pastille */
+    val pendingLotSyncIds: LiveData<Set<Long>> =
+        inventoryRepository.pendingLotSyncIds().map { it.toSet() }.asLiveData()
+
+    /** Idem pour la vue produit */
+    val pendingSyncIds: LiveData<Set<Long>> =
+        inventoryRepository.pendingSyncIds().map { it.toSet() }.asLiveData()
 
     /** Recharge les lignes en conflit depuis le serveur (abandon de la saisie locale) */
     fun resolveConflicts() {
@@ -91,10 +105,19 @@ class InventoryDetailViewModel(private val inventoryRepository: InventoryReposit
     var lastScannedGs1: Gs1Data? = null
         private set
 
+    /**
+     * Mode de saisie, résolu avant le premier chargement : par lot quand
+     * APP_GESTION_LOT_INVENTAIRE est actif, par produit sinon. Les deux modes
+     * s'excluent — ils n'appellent pas le même endpoint — d'où l'attente.
+     */
+    var gestionLot: Boolean = false
+        private set
+
     fun loadInventory(inventoryId: Long) {
         currentInventoryId = inventoryId
         viewModelScope.launch {
             _inventoryDetailState.value = InventoryDetailState.Loading
+            gestionLot = inventoryRepository.isGestionLotEnabled()
             inventoryRepository.getInventory(inventoryId).fold(
                 onSuccess = { inventory ->
                     currentInventory = inventory
@@ -153,6 +176,10 @@ class InventoryDetailViewModel(private val inventoryRepository: InventoryReposit
     fun reloadLines() = refreshLines()
 
     private fun refreshLines() {
+        if (gestionLot) {
+            refreshLotLines()
+            return
+        }
         val inventoryId = currentInventoryId ?: return
         viewModelScope.launch {
             _inventoryDetailState.value = InventoryDetailState.Loading
@@ -163,10 +190,12 @@ class InventoryDetailViewModel(private val inventoryRepository: InventoryReposit
                 currentFilter
             ).fold(
                 onSuccess = { lines ->
-                    val sorted = lines.sortedBy { it.produitLibelle?.lowercase().orEmpty() }
+                    // Ordre du backend conservé tel quel (ORDER BY code_cip, libelle, id
+                    // dans StoreInventoryLineFilterBuilder.buildPage) : un tri local par
+                    // libellé le remplaçait et désynchronisait l'appli du listing papier.
                     currentLines.clear()
-                    currentLines.addAll(sorted)
-                    _inventoryDetailState.value = InventoryDetailState.LinesLoaded(sorted)
+                    currentLines.addAll(lines)
+                    _inventoryDetailState.value = InventoryDetailState.LinesLoaded(lines)
                 },
                 onFailure = { error ->
                     _inventoryDetailState.value = InventoryDetailState.Error(
@@ -190,6 +219,10 @@ class InventoryDetailViewModel(private val inventoryRepository: InventoryReposit
             add(raw)
             if (raw.length == 14 && raw.all { it.isDigit() }) add(raw.substring(1))
         }
+        if (gestionLot) {
+            onBarcodeScannedLotMode(gs1, candidates, autoIncrement)
+            return
+        }
 
         val localMatch = currentLines.firstOrNull { line ->
             candidates.any { line.matchesBarcode(it) }
@@ -201,23 +234,92 @@ class InventoryDetailViewModel(private val inventoryRepository: InventoryReposit
 
         viewModelScope.launch {
             _inventoryDetailState.value = InventoryDetailState.Loading
-            inventoryRepository.searchProductByBarcode(candidates.first()).fold(
-                onSuccess = { product ->
-                    val line = currentLines.firstOrNull { it.produitId == product.id }
-                    if (line != null) {
-                        handleScannedLine(line, gs1, autoIncrement)
-                    } else {
-                        _inventoryDetailState.value = InventoryDetailState.Error(
-                            "${product.libelle ?: "Ce produit"} n'est pas dans cet inventaire"
-                        )
-                    }
-                },
-                onFailure = { error ->
-                    _inventoryDetailState.value = InventoryDetailState.Error(
-                        error.message ?: "Produit non trouvé"
-                    )
+            // Tous les candidats sont essayés, pas seulement le premier : le
+            // référentiel peut porter le GTIN-14 avec son zéro de tête là où le
+            // DataMatrix donne l'EAN-13, ou l'inverse
+            val product = candidates.firstNotNullOfOrNull { code ->
+                inventoryRepository.searchProductByBarcode(code).getOrNull()
+            }
+            if (product == null) {
+                _inventoryDetailState.value = InventoryDetailState.Error(
+                    "Produit inconnu pour le code ${candidates.joinToString(" / ")}"
+                )
+                return@launch
+            }
+            val line = currentLines.firstOrNull { it.produitId == product.id }
+            if (line != null) {
+                handleScannedLine(line, gs1, autoIncrement)
+            } else {
+                _inventoryDetailState.value = InventoryDetailState.Error(
+                    "${product.libelle ?: "Ce produit"} n'est pas dans cet inventaire"
+                )
+            }
+        }
+    }
+
+    /**
+     * Scan en mode lot : la cible est un lot, pas un produit.
+     *
+     * Le DataMatrix pharma porte le n° de lot (AI 10), qui désigne la ligne
+     * exactement. Sans lui — code-barres linéaire — on ne peut trancher que si le
+     * produit n'a qu'un lot dans l'inventaire ; au-delà, désigner un lot au hasard
+     * fausserait le comptage, donc on demande à l'opérateur de choisir.
+     */
+    private fun onBarcodeScannedLotMode(
+        gs1: Gs1Data?,
+        candidates: List<String>,
+        autoIncrement: Boolean
+    ) {
+        viewModelScope.launch {
+            var matches = currentLotLines.filter { lotLine ->
+                candidates.any { it.equals(lotLine.produitCip, ignoreCase = true) }
+            }
+            if (matches.isEmpty()) {
+                // La vue à plat ne porte pas l'EAN : on passe par la recherche produit
+                val product = candidates.firstNotNullOfOrNull { code ->
+                    inventoryRepository.searchProductByBarcode(code).getOrNull()
                 }
-            )
+                if (product == null) {
+                    _inventoryDetailState.value = InventoryDetailState.Error(
+                        "Produit inconnu pour le code ${candidates.joinToString(" / ")}"
+                    )
+                    return@launch
+                }
+                matches = currentLotLines.filter { it.produitId == product.id }
+                if (matches.isEmpty()) {
+                    _inventoryDetailState.value = InventoryDetailState.Error(
+                        "${product.libelle ?: "Ce produit"} n'est pas dans cet inventaire"
+                    )
+                    return@launch
+                }
+            }
+
+            val scannedLot = gs1?.lotNumber
+            val target = when {
+                scannedLot != null ->
+                    matches.firstOrNull { it.numLot.equals(scannedLot, ignoreCase = true) }
+
+                matches.size == 1 -> matches.first()
+                else -> null
+            }
+
+            if (target == null) {
+                val label = matches.first().produitLibelle ?: "Ce produit"
+                _inventoryDetailState.value = InventoryDetailState.Error(
+                    if (scannedLot != null) {
+                        "Lot $scannedLot inconnu pour $label — utilisez « + Lot »"
+                    } else {
+                        "$label a ${matches.size} lots : choisissez la ligne à compter"
+                    }
+                )
+                return@launch
+            }
+
+            if (!autoIncrement) {
+                _inventoryDetailState.value = InventoryDetailState.LotLineFound(target)
+                return@launch
+            }
+            updateLotLineQuantity(target, (target.quantityOnHand ?: 0) + (gs1?.quantity ?: 1))
         }
     }
 
@@ -245,6 +347,7 @@ class InventoryDetailViewModel(private val inventoryRepository: InventoryReposit
                 (line.quantityOnHand ?: 0) + step
             ).fold(
                 onSuccess = { result ->
+                    rememberUndo(line)
                     replaceCurrentLine(result.line)
                     _inventoryDetailState.value =
                         InventoryDetailState.LineIncremented(result.line, result.synced)
@@ -315,6 +418,149 @@ class InventoryDetailViewModel(private val inventoryRepository: InventoryReposit
         }
     }
 
+    /**
+     * Comptage précédent de la dernière ligne saisie, pour l'annulation.
+     *
+     * On mémorise l'état *avant* écriture : en scan continu, un code lu deux fois
+     * ou une boîte voisine captée par erreur ne se rattrape autrement qu'en
+     * recalculant la quantité de tête. Un seul niveau d'annulation — au-delà,
+     * l'opérateur ne sait plus ce qu'il défait.
+     */
+    private var undoTarget: StoreInventoryLine? = null
+
+    /** Équivalent en mode lot : l'annulation rétablit la quantité du lot */
+    private var undoLotTarget: InventoryLotLine? = null
+
+    private val _canUndo = MutableLiveData(false)
+    val canUndo: LiveData<Boolean> = _canUndo
+
+    private fun rememberUndo(before: StoreInventoryLine) {
+        undoTarget = before
+        undoLotTarget = null
+        _canUndo.value = true
+    }
+
+    private fun rememberLotUndo(before: InventoryLotLine) {
+        undoLotTarget = before
+        undoTarget = null
+        _canUndo.value = true
+    }
+
+    /** Libellé du dernier produit compté, pour l'annonce d'annulation */
+    fun undoTargetLabel(): String? = undoTarget?.produitLibelle ?: undoLotTarget?.produitLibelle
+
+    /** Rétablit la quantité qu'avait la ligne (ou le lot) avant le dernier comptage */
+    fun undoLastCount() {
+        undoLotTarget?.let { lotTarget ->
+            undoLotTarget = null
+            _canUndo.value = false
+            updateLotLineQuantity(lotTarget, lotTarget.quantityOnHand ?: 0)
+            return
+        }
+        val target = undoTarget ?: return
+        val inventoryId = currentInventoryId ?: return
+        undoTarget = null
+        _canUndo.value = false
+        viewModelScope.launch {
+            inventoryRepository.saveLineQuantity(
+                inventoryId,
+                currentLines.firstOrNull { it.id == target.id } ?: target,
+                target.quantityOnHand ?: 0
+            ).fold(
+                onSuccess = { result ->
+                    replaceCurrentLine(result.line)
+                    _inventoryDetailState.value =
+                        InventoryDetailState.CountUndone(result.line)
+                },
+                onFailure = { error ->
+                    _inventoryDetailState.value = InventoryDetailState.Error(
+                        error.message ?: "Erreur lors de l'annulation"
+                    )
+                }
+            )
+        }
+    }
+
+    /** Lignes de la vue à plat actuellement affichées (mode lot) */
+    private var currentLotLines = mutableListOf<InventoryLotLine>()
+
+    fun getCurrentLotLines(): List<InventoryLotLine> = currentLotLines
+
+    private fun refreshLotLines() {
+        val inventoryId = currentInventoryId ?: return
+        viewModelScope.launch {
+            _inventoryDetailState.value = InventoryDetailState.Loading
+            inventoryRepository.getInventoryLotLines(
+                inventoryId,
+                currentRayonId,
+                currentSearch,
+                currentFilter
+            ).fold(
+                onSuccess = { lines ->
+                    currentLotLines.clear()
+                    currentLotLines.addAll(lines)
+                    _inventoryDetailState.value = InventoryDetailState.LotLinesLoaded(lines)
+                },
+                onFailure = { error ->
+                    _inventoryDetailState.value = InventoryDetailState.Error(
+                        error.message ?: "Erreur lors du chargement des lots"
+                    )
+                }
+            )
+        }
+    }
+
+    /**
+     * Comptage direct d'un lot depuis la vue à plat.
+     *
+     * Le backend recalcule la quantité de la ligne produit à partir de ses lots ;
+     * seule la progression est donc rechargée ensuite, pas toute la liste.
+     */
+    fun updateLotLineQuantity(lotLine: InventoryLotLine, quantity: Int) {
+        val lotId = lotLine.id ?: return
+        val inventoryId = currentInventoryId ?: return
+        rememberLotUndo(lotLine)
+        viewModelScope.launch {
+            // Local d'abord : hors ligne, la saisie est conservee et transmise plus tard
+            inventoryRepository.saveLotLineQuantity(inventoryId, lotLine, quantity).fold(
+                onSuccess = { result ->
+                    val index = currentLotLines.indexOfFirst { it.id == lotId }
+                    if (index >= 0) currentLotLines[index] = result.line
+                    _inventoryDetailState.value =
+                        InventoryDetailState.LotLineSaved(result.line, result.synced)
+                },
+                onFailure = { error ->
+                    _inventoryDetailState.value = InventoryDetailState.Error(
+                        error.message ?: "Erreur lors de la sauvegarde du lot"
+                    )
+                }
+            )
+        }
+    }
+
+    /** Ajout d'un lot depuis la vue à plat (lot trouvé en rayon, absent de l'inventaire) */
+    fun addLotToLine(storeInventoryLineId: Long, numLot: String, expiry: String?, quantity: Int) {
+        viewModelScope.launch {
+            _inventoryDetailState.value = InventoryDetailState.Loading
+            inventoryRepository.createInventoryLot(
+                storeInventoryLineId,
+                InventoryLot(
+                    storeInventoryLineId = storeInventoryLineId,
+                    numLot = numLot,
+                    expiryDate = expiry,
+                    quantityOnHand = quantity
+                )
+            ).fold(
+                onSuccess = { refreshLotLines() },
+                onFailure = { error ->
+                    _inventoryDetailState.value = InventoryDetailState.Error(
+                        error.message ?: "Erreur lors de la création du lot"
+                    )
+                }
+            )
+        }
+    }
+
     private fun replaceCurrentLine(line: StoreInventoryLine) {
         val index = currentLines.indexOfFirst { it.id == line.id }
         if (index >= 0) {
@@ -330,17 +576,15 @@ class InventoryDetailViewModel(private val inventoryRepository: InventoryReposit
      */
     fun updateLineQuantity(line: StoreInventoryLine, quantity: Int) {
         val inventoryId = currentInventoryId ?: return
+        // Pas d'état Loading : la saisie enchaîne ligne après ligne, un indicateur
+        // plein écran à chaque quantité rendrait la liste inutilisable
         viewModelScope.launch {
-            _inventoryDetailState.value = InventoryDetailState.Loading
             inventoryRepository.saveLineQuantity(inventoryId, line, quantity).fold(
                 onSuccess = { result ->
-                    val index = currentLines.indexOfFirst { it.id == line.id }
-                    if (index >= 0) {
-                        currentLines[index] = result.line
-                    } else {
-                        currentLines.add(result.line)
-                    }
-                    _inventoryDetailState.value = InventoryDetailState.LineSaved(result.synced)
+                    rememberUndo(line)
+                    replaceCurrentLine(result.line)
+                    _inventoryDetailState.value =
+                        InventoryDetailState.LineSaved(result.line, result.synced)
                 },
                 onFailure = { error ->
                     _inventoryDetailState.value = InventoryDetailState.Error(
@@ -362,15 +606,16 @@ class InventoryDetailViewModel(private val inventoryRepository: InventoryReposit
     fun synchronizeLines() {
         viewModelScope.launch {
             _inventoryDetailState.value = InventoryDetailState.Loading
+            val lotsSaved = inventoryRepository.syncPendingLotLines().getOrDefault(0)
             inventoryRepository.syncPendingLines(includeErrors = true).fold(
                 onSuccess = { result ->
-                    if (result.saved == 0 && result.failed == 0) {
+                    if (result.saved == 0 && result.failed == 0 && lotsSaved == 0) {
                         _inventoryDetailState.value = InventoryDetailState.Error(
                             "Aucune ligne en attente de synchronisation"
                         )
                     } else {
                         _inventoryDetailState.value = InventoryDetailState.SyncSuccess(
-                            saved = result.saved,
+                            saved = result.saved + lotsSaved,
                             failed = result.failed,
                             conflicted = result.conflicted
                         )

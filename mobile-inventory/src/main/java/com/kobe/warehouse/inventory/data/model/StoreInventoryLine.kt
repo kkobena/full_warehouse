@@ -80,8 +80,21 @@ data class StoreInventoryLine(
     fun getAllBarcodes(): List<String> =
         listOfNotNull(produitCip, produitEan).distinct()
 
+    /**
+     * GTIN-14, EAN-13 et UPC-12 ne diffèrent que par des zéros de tête : le même
+     * article se présente en `04056649511830` dans un DataMatrix et en
+     * `4056649511830` dans le référentiel. Les codes purement numériques sont donc
+     * comparés sans leurs zéros initiaux ; les codes alphanumériques restent
+     * comparés tels quels.
+     */
     fun matchesBarcode(barcode: String): Boolean =
-        getAllBarcodes().any { it.equals(barcode, ignoreCase = true) }
+        getAllBarcodes().any { it.equals(barcode, ignoreCase = true) } ||
+            getAllBarcodes().any { normalizeCode(it) != null && normalizeCode(it) == normalizeCode(barcode) }
+
+    private fun normalizeCode(code: String): String? =
+        code.takeIf { it.isNotBlank() && it.all(Char::isDigit) }
+            ?.trimStart('0')
+            ?.takeIf { it.isNotEmpty() }
 }
 
 /**

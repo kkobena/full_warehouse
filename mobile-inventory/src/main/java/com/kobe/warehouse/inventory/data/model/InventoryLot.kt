@@ -41,4 +41,10 @@ data class InventoryLot(
     val lastUnitPrice: Int? = null
 ) {
     fun calculateGap(): Int = (quantityOnHand ?: 0) - (quantityInit ?: 0)
+
+    /**
+     * Lot compté : le backend positionne `updated` dès qu'une quantité est saisie
+     * (InventoryLotServiceImpl, création comme mise à jour)
+     */
+    fun isCounted(): Boolean = updated
 }

@@ -11,16 +11,31 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface InventoryLineDao {
 
-    @Query("SELECT * FROM store_inventory_lines WHERE storeInventoryId = :inventoryId")
+    companion object {
+        private const val BACKEND_ORDER =
+            " ORDER BY produitCip IS NULL, produitCip, produitLibelle, produitId"
+        const val BACKEND_ORDER_QUERY =
+            "SELECT * FROM store_inventory_lines WHERE storeInventoryId = :inventoryId" + BACKEND_ORDER
+        const val BACKEND_ORDER_RAYON_QUERY =
+            "SELECT * FROM store_inventory_lines WHERE storeInventoryId = :inventoryId AND rayonId = :rayonId" + BACKEND_ORDER
+    }
+
+    /**
+     * Ordre identique à celui du backend (StoreInventoryLineFilterBuilder.buildPage :
+     * ORDER BY code_cip, libelle, id) pour que le mode hors ligne présente les lignes
+     * dans la même séquence que le mode connecté. `produitCip IS NULL` reproduit le
+     * NULLS LAST de PostgreSQL, que SQLite n'applique pas par défaut.
+     */
+    @Query(BACKEND_ORDER_QUERY)
     fun getInventoryLines(inventoryId: Long): Flow<List<InventoryLineEntity>>
 
-    @Query("SELECT * FROM store_inventory_lines WHERE storeInventoryId = :inventoryId")
+    @Query(BACKEND_ORDER_QUERY)
     suspend fun getInventoryLinesOnce(inventoryId: Long): List<InventoryLineEntity>
 
-    @Query("SELECT * FROM store_inventory_lines WHERE storeInventoryId = :inventoryId AND rayonId = :rayonId")
+    @Query(BACKEND_ORDER_RAYON_QUERY)
     fun getInventoryLinesByRayon(inventoryId: Long, rayonId: Long): Flow<List<InventoryLineEntity>>
 
-    @Query("SELECT * FROM store_inventory_lines WHERE storeInventoryId = :inventoryId AND rayonId = :rayonId")
+    @Query(BACKEND_ORDER_RAYON_QUERY)
     suspend fun getInventoryLinesByRayonOnce(inventoryId: Long, rayonId: Long): List<InventoryLineEntity>
 
     @Query("SELECT * FROM store_inventory_lines WHERE id = :id")
@@ -55,6 +70,10 @@ interface InventoryLineDao {
 
     @Query("SELECT COUNT(*) FROM store_inventory_lines WHERE locallyModified = 1 AND syncStatus IN ('PENDING', 'ERROR')")
     fun getPendingSyncCount(): Flow<Int>
+
+    /** Identifiants des lignes non transmises, pour les signaler dans la liste */
+    @Query("SELECT id FROM store_inventory_lines WHERE locallyModified = 1 AND syncStatus IN ('PENDING', 'ERROR')")
+    fun getPendingSyncIds(): Flow<List<Long>>
 
     /** Lignes rejetées pour comptage concurrent : nécessitent un arbitrage manuel */
     @Query("SELECT COUNT(*) FROM store_inventory_lines WHERE syncStatus = 'CONFLICT'")

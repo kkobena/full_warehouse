@@ -50,9 +50,8 @@
 -keep class okhttp3.** { *; }
 -keep interface okhttp3.** { *; }
 
-# Keep ZXing
--keep class com.google.zxing.** { *; }
--dontwarn com.google.zxing.**
+# Scan de codes-barres : ML Kit et CameraX embarquent leurs propres règles de
+# consommation ProGuard ; rien à conserver manuellement ici.
 
 # Keep Encrypted SharedPreferences
 -keep class androidx.security.crypto.** { *; }

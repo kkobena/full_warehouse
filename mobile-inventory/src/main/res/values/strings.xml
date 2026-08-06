@@ -149,4 +149,15 @@
     <string name="conflict_message">%1$d ligne(s) que vous avez comptées ont été modifiées par un autre opérateur. Recharger les valeurs du serveur ? Vos saisies sur ces lignes seront abandonnées et devront être recomptées.</string>
     <string name="conflict_reload">Recharger</string>
     <string name="sync_result_with_conflicts">Synchronisation : %1$d enregistrées, %2$d en conflit</string>
+    <string name="quantity_hint">Qté</string>
+    <string name="pending_sync_badge">à transmettre</string>
+    <string name="lots_button_format">Lots (%1$d)</string>
+    <string name="count_undone">Comptage annulé : %1$s</string>
+    <string name="undo">Annuler</string>
+    <string name="torch">Torche</string>
+    <string name="close_inventory_remaining">Clôturer — %1$d restantes</string>
+    <string name="add_lot_short">+ Lot</string>
+    <string name="lot_unnamed">(sans numéro)</string>
+    <string name="lot_with_expiry">Lot %1$s — exp. %2$s</string>
+    <string name="lot_only">Lot %1$s</string>
 </resources>

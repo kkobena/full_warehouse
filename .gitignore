@@ -291,3 +291,5 @@ sales-android/fastlane/readme.md
 /reports/
 /pharmaSmart-batch/target/
 /pharmaSmart-core/target/
+/mobile-inventory/build/
+/mobile-inventory/build/reports/

@@ -1,15 +1,18 @@
 package com.kobe.warehouse.service.inventaire.impl;
 
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.StoreInventory;
 import com.kobe.warehouse.domain.StoreInventoryLine;
 import com.kobe.warehouse.repository.StoreInventoryLineRepository;
+import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.records.ImportLineErrorRecord;
 import com.kobe.warehouse.service.dto.records.ImportResultRecord;
 import com.kobe.warehouse.service.inventaire.InventaireImportService;
+import com.kobe.warehouse.service.inventaire.InventoryStockService;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,9 +36,17 @@ public class InventaireImportServiceImpl implements InventaireImportService {
     private final Logger log = LoggerFactory.getLogger(InventaireImportServiceImpl.class);
 
     private final StoreInventoryLineRepository storeInventoryLineRepository;
+    private final InventoryStockService inventoryStockService;
+    private final UserService userService;
 
-    public InventaireImportServiceImpl(StoreInventoryLineRepository storeInventoryLineRepository) {
+    public InventaireImportServiceImpl(
+        StoreInventoryLineRepository storeInventoryLineRepository,
+        InventoryStockService inventoryStockService,
+        UserService userService
+    ) {
         this.storeInventoryLineRepository = storeInventoryLineRepository;
+        this.inventoryStockService = inventoryStockService;
+        this.userService = userService;
     }
 
     @Override
@@ -109,16 +120,32 @@ public class InventaireImportServiceImpl implements InventaireImportService {
             .filter(cip -> !foundCips.contains(cip))
             .count();
 
-        lines.forEach(line -> {
-            int qty = resolveQuantity(codeCipQuantity, line.getProduit());
-            line.setQuantityOnHand(qty);
-            line.setUpdated(true);
-            line.setUpdatedAt(LocalDateTime.now());
-        });
-
+        applyCounts(lines, codeCipQuantity);
         storeInventoryLineRepository.saveAll(lines);
 
         return new ImportResultRecord(lines.size(), ignored, errors.size(), errors);
+    }
+
+    /**
+     * Compte les lignes comme le ferait la saisie écran : quantité importée, quantité initiale
+     * relue du stock théorique, valorisation et traçabilité. Se contenter de poser
+     * {@code quantityOnHand} laissait {@code quantity_init} et la valorisation à NULL, ce qui
+     * faisait échouer la clôture et sortait la ligne des filtres d'écart.
+     */
+    private void applyCounts(List<StoreInventoryLine> lines, Map<String, Integer> codeCipQuantity) {
+        // Toutes les lignes appartiennent au même inventaire (requête filtrée sur son id).
+        StoreInventory inventory = lines.getFirst().getStoreInventory();
+        Set<Integer> produitIds = lines.stream().map(line -> line.getProduit().getId())
+            .collect(Collectors.toSet());
+        Map<Integer, Integer> stockMap = inventoryStockService.buildStockMapForInventory(inventory,
+            produitIds);
+        AppUser countedBy = userService.getUser();
+
+        lines.forEach(line -> line.applyCount(
+            stockMap.getOrDefault(line.getProduit().getId(), 0),
+            resolveQuantity(codeCipQuantity, line.getProduit()),
+            countedBy
+        ));
     }
 
     private int resolveQuantity(Map<String, Integer> codeCipQuantity, Produit produit) {

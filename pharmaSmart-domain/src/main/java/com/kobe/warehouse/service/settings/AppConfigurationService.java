@@ -8,7 +8,11 @@ import com.kobe.warehouse.domain.enumeration.ModelReapprovisionnement;
 import com.kobe.warehouse.domain.enumeration.PutawayMode;
 import com.kobe.warehouse.repository.AppConfigurationRepository;
 import com.kobe.warehouse.service.UserService;
+import com.kobe.warehouse.service.settings.dto.AppConfigurationDto;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,14 +44,19 @@ public class AppConfigurationService {
     }
 
     @Transactional(readOnly = true)
+    public Optional<AppConfigurationDto> findOne(String id) {
+        return findOneById(id).map(this::toDto);
+    }
+
+    @Transactional(readOnly = true)
     public Optional<AppConfiguration> findOneById(String id) {
         return appConfigurationRepository.findById(id);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_GESTION_STOCK)
-    public Optional<AppConfiguration> findStockParam() {
-        return appConfigurationRepository.findById(EntityConstant.APP_GESTION_STOCK);
+    public Optional<AppConfigurationDto> findStockParam() {
+        return appConfigurationRepository.findById(EntityConstant.APP_GESTION_STOCK).map(this::toDto);
     }
 
     @Transactional(readOnly = true)
@@ -89,25 +98,26 @@ public class AppConfigurationService {
     }
 
     @Transactional
-    public void update(AppConfiguration appConfiguration) {
+    public void update(AppConfigurationDto appConfiguration) {
         appConfigurationRepository
-            .findById(appConfiguration.getName())
+            .findById(appConfiguration.name())
             .map(configuration -> {
-                configuration.setValue(appConfiguration.getValue());
-                configuration.setDescription(appConfiguration.getDescription());
+                configuration.setValue(appConfiguration.value());
+                configuration.setDescription(appConfiguration.description());
                 configuration.setUpdated(LocalDateTime.now());
                 configuration.setValidatedBy(userService.getUser());
                 return appConfigurationRepository.save(configuration);
             });
     }
 
+
     @Transactional(readOnly = true)
-    public List<AppConfiguration> fetchAll(String search) {
-        return appConfigurationRepository.findAllByNameOrDescriptionContainingAllIgnoreCase(
-            search,
-            search,
-            Sort.by(Sort.Direction.ASC, "description")
-        );
+    public Page<AppConfigurationDto> fetchAll(String search, Pageable pageable) {
+        Pageable sorted = pageable.getSort().isSorted()
+            ? pageable
+            : PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "description"));
+        return appConfigurationRepository.findAll(AppConfigurationRepository.buildSpec(search), sorted)
+            .map(this::toDto);
     }
 
     @Transactional(readOnly = true)
@@ -480,7 +490,11 @@ public class AppConfigurationService {
         return appConfigurationRepository
             .findById(EntityConstant.APP_DELAI_RETOUR_CLIENT)
             .map(c -> {
-                try { return Integer.parseInt(c.getValue().trim()); } catch (NumberFormatException e) { return 30; }
+                try {
+                    return Integer.parseInt(c.getValue().trim());
+                } catch (NumberFormatException e) {
+                    return 30;
+                }
             })
             .orElse(30);
     }
@@ -491,7 +505,11 @@ public class AppConfigurationService {
         return appConfigurationRepository
             .findById(EntityConstant.APP_DELAI_VALIDITE_AVOIR)
             .map(c -> {
-                try { return Integer.parseInt(c.getValue().trim()); } catch (NumberFormatException e) { return 90; }
+                try {
+                    return Integer.parseInt(c.getValue().trim());
+                } catch (NumberFormatException e) {
+                    return 90;
+                }
             })
             .orElse(90);
     }
@@ -511,5 +529,21 @@ public class AppConfigurationService {
             })
             .orElse(30);
     }
+    @Transactional
+    public void update(AppConfiguration appConfiguration) {
+        appConfigurationRepository.save(appConfiguration);
 
+    }
+    private AppConfigurationDto toDto(AppConfiguration appConfiguration) {
+        return new AppConfigurationDto(
+            appConfiguration.getName(),
+            appConfiguration.getDescription(),
+            appConfiguration.getValue(),
+            appConfiguration.getCreated(),
+            appConfiguration.getUpdated(),
+            appConfiguration.getValueType(),
+            appConfiguration.getOtherValue(),
+            appConfiguration.getOptions()
+        );
+    }
 }

@@ -1,59 +1,66 @@
 <div class="container-fluid">
-  <div class="pharma-smart-content p-2">
+  <div class="pharma-smart-content p-1">
     <app-toolbar icon="pi pi-cog" title="Paramètres de configuaration">
       <ng-container ngProjectAs="[toolbarFilters]">
         <div class="pharma-search-input">
           <app-icon-field icon="pi pi-search">
-            <input (keyup.enter)="loadAll()" [(ngModel)]="search" class="form-control" placeholder="Taper pour rechercher" type="text" />
+            <input (keyup.enter)="onSearch($event)" class="form-control" placeholder="Taper pour rechercher" type="text" />
           </app-icon-field>
         </div>
       </ng-container>
     </app-toolbar>
 
-    @if (apps.length > 0) {
-      <div class="table-responsive mt-2" style="max-height: calc(100vh - 200px); overflow-y: auto;">
-        <table class="table table-striped">
-          <thead class="pharma-table-head" style="position: sticky; top: 0; z-index: 1;">
-            <tr>
-              <th>description</th>
-              <th>Valeur</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (app of apps; track app.name) {
-              <tr>
-                <td>{{ app.description }}</td>
-                @if (app.valueType === 'BOOLEAN') {
-                  <td>
-                    @if (app.name !== 'APP_GESTION_STOCK') {
-                      @if (Number(app.value) == 0) {
-                        <app-button (clicked)="setActive(app, true)" label="Activer" [raised]="true" severity="danger" size="small" />
-                      } @else {
-                        <app-button (clicked)="setActive(app, false)" label="Désactiver" [raised]="true" severity="primary" size="small" />
-                      }
-                    }
-                  </td>
+    <app-data-table
+      (onLazyLoad)="lazyLoading($event)"
+      [(first)]="first"
+      [(rows)]="rows"
+      [emptyMessage]="emptyMessage()"
+      [lazy]="true"
+      [loading]="loading()"
+      [paginator]="true"
+      [rowsPerPageOptions]="rowsPerPageOptions"
+      [scrollHeight]="'calc(100vh - 260px)'"
+      [scrollable]="true"
+      [showCurrentPageReport]="true"
+      [size]="'small'"
+      [stripedRows]="true"
+      [totalRecords]="totalItems()"
+      [value]="apps()"
+      dataKey="name"
+    >
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th scope="col">Description</th>
+          <th scope="col">Valeur</th>
+          <th scope="col"></th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-app>
+        <tr>
+          <td>{{ app.description }}</td>
+
+          @if (app.valueType === 'BOOLEAN') {
+            <td>
+              @if (isEditable(app)) {
+                @if (isActive(app)) {
+                  <app-button (clicked)="setActive(app, false)" [raised]="true" label="Désactiver" severity="danger" size="small" />
                 } @else {
-                  <td>{{ app.value }}</td>
+                  <app-button (clicked)="setActive(app, true)" [raised]="true" label="Activer" severity="success" size="small" />
                 }
-                <td>
-                  @if (app.name !== 'APP_GESTION_STOCK') {
-                    <app-button
-                      (clicked)="onEdit(app)"
-                      icon="pi pi-pencil"
-                      label="Modifier"
-                      [raised]="true"
-                      severity="info"
-                      size="small"
-                    />
-                  }
-                </td>
-              </tr>
+              }
+            </td>
+          } @else {
+            <td>{{ app.value }}</td>
+          }
+
+          <td>
+            @if (isEditable(app)) {
+              <app-button (clicked)="onEdit(app)" [raised]="true" icon="pi pi-pencil" label="Modifier" severity="info" size="small" />
             }
-          </tbody>
-        </table>
-      </div>
-    }
+          </td>
+        </tr>
+      </ng-template>
+    </app-data-table>
   </div>
 </div>

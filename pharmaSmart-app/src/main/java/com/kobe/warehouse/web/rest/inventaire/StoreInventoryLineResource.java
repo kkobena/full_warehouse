@@ -1,4 +1,4 @@
-package com.kobe.warehouse.web.rest.stock;
+package com.kobe.warehouse.web.rest.inventaire;
 
 import com.kobe.warehouse.service.inventaire.InventaireService;
 import com.kobe.warehouse.service.dto.StoreInventoryLineDTO;

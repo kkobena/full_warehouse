@@ -1,6 +1,5 @@
-package com.kobe.warehouse.web.rest.stock;
+package com.kobe.warehouse.web.rest.inventaire;
 
-import com.kobe.warehouse.service.inventaire.InventaireService;
 import com.kobe.warehouse.service.dto.StoreInventoryDTO;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryExportRecord;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryFilterRecord;
@@ -11,13 +10,12 @@ import com.kobe.warehouse.service.dto.records.StoreInventoryRecord;
 import com.kobe.warehouse.service.inventaire.InventaireCreationService;
 import com.kobe.warehouse.service.inventaire.InventaireImportService;
 import com.kobe.warehouse.service.inventaire.InventaireProgressService;
+import com.kobe.warehouse.service.inventaire.InventaireService;
 import com.kobe.warehouse.service.inventaire.InventoryCloseService;
 import com.kobe.warehouse.web.util.HeaderUtil;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
-import java.util.List;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,6 +35,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.StoreInventory}.
@@ -119,10 +120,8 @@ public class StoreInventoryResource {
 
     @GetMapping("/store-inventories/proccessing/{id}")
     public ResponseEntity<StoreInventoryDTO> getStoreInventoryProccessing(@PathVariable Long id) {
-        log.debug("REST request to get storeInventoryDTO : {}", id);
-        Optional<StoreInventoryDTO> storeInventoryDTO = inventaireService.getProccessingStoreInventory(
-            id);
-        return ResponseUtil.wrapOrNotFound(storeInventoryDTO);
+        return ResponseUtil.wrapOrNotFound(inventaireService.getProccessingStoreInventory(
+            id));
     }
 
     @PostMapping(value = "/store-inventories/pdf", produces = MediaType.APPLICATION_PDF_VALUE)

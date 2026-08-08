@@ -7,7 +7,7 @@ import {InventoryApiService} from '../../data-access/services/inventory-api.serv
 import {InventoryValuationApiService} from '../../data-access/services/inventory-valuation-api.service';
 import {InventoryProgressRecord} from '../../models';
 import {IInventoryGlobalSummary} from '../../models/inventory-valuation.model';
-import {ButtonComponent} from '../../../../shared/ui';
+import {ButtonComponent, KpiItemComponent, KpiStripComponent} from '../../../../shared/ui';
 
 /**
  * Récapitulatif présenté avant la clôture d'un inventaire.
@@ -17,7 +17,7 @@ import {ButtonComponent} from '../../../../shared/ui';
  */
 @Component({
   selector: 'app-inventory-close-modal',
-  imports: [CommonModule, ButtonComponent],
+  imports: [CommonModule, ButtonComponent, KpiStripComponent, KpiItemComponent],
   templateUrl: './inventory-close-modal.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './inventory-close-modal.component.scss',
@@ -45,8 +45,7 @@ export class InventoryCloseModalComponent implements OnInit {
   private readonly valuationApi = inject(InventoryValuationApiService);
 
   ngOnInit(): void {
-    // Les deux appels sont indépendants : un échec de valorisation ne doit pas
-    // empêcher d'afficher la progression (et inversement).
+
     forkJoin({
       progress: this.api.getProgress(this.inventoryId).pipe(catchError(() => of(null))),
       valuation: this.valuationApi.getGlobalSummary(this.inventoryId).pipe(catchError(() => of(null))),

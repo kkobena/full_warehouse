@@ -33,6 +33,8 @@ import com.kobe.warehouse.service.errors.InventoryException;
 import com.kobe.warehouse.service.mobile.dto.RayonRecord;
 import com.kobe.warehouse.service.report.InventoryReportReportService;
 import com.kobe.warehouse.service.inventaire.InventaireQueryService;
+import com.kobe.warehouse.service.inventaire.InventoryStockService;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.Rayon_;
 import com.kobe.warehouse.domain.Storage_;
@@ -88,6 +90,7 @@ public class InventaireServiceImpl implements InventaireService {
     private final InventoryReportReportService inventoryReportService;
     private final EntityManager em;
     private final InventaireQueryService inventaireQueryService;
+    private final InventoryStockService inventoryStockService;
 
     public InventaireServiceImpl(
         UserService userService,
@@ -98,7 +101,8 @@ public class InventaireServiceImpl implements InventaireService {
         RayonRepository rayonRepository,
         InventoryReportReportService inventoryReportService,
         EntityManager em,
-        InventaireQueryService inventaireQueryService
+        InventaireQueryService inventaireQueryService,
+        InventoryStockService inventoryStockService
     ) {
         this.userService = userService;
         this.storeInventoryRepository = storeInventoryRepository;
@@ -109,6 +113,7 @@ public class InventaireServiceImpl implements InventaireService {
         this.inventoryReportService = inventoryReportService;
         this.em = em;
         this.inventaireQueryService = inventaireQueryService;
+        this.inventoryStockService = inventoryStockService;
     }
 
     @Override
@@ -149,18 +154,41 @@ public class InventaireServiceImpl implements InventaireService {
                 String code = record.get(0);
                 codeCipQuantity.put(code, Integer.parseInt(record.get(1)));
             }
-            List<StoreInventoryLine> storeInventoryLines = this.storeInventoryLineRepository.findAllByCodeCip(
-                codeCipQuantity.keySet());
-            storeInventoryLines.forEach(storeInventoryLine -> {
-                int quantity = getQtyByCodeCip(codeCipQuantity, storeInventoryLine.getProduit());
-                storeInventoryLine.setQuantityOnHand(quantity);
-                storeInventoryLine.setUpdated(true);
-                storeInventoryLine.setUpdatedAt(LocalDateTime.now());
-            });
+            // Filtré sur l'inventaire visé : `findAllByCodeCip` ramenait les lignes de tous les
+            // inventaires ouverts partageant un code CIP, et les comptait toutes.
+            List<StoreInventoryLine> storeInventoryLines =
+                this.storeInventoryLineRepository.findAllByStoreInventoryIdAndCodeCipIn(
+                    storeInventoryId, codeCipQuantity.keySet());
+            if (storeInventoryLines.isEmpty()) {
+                return;
+            }
+            applyImportedCounts(storeInventoryLines, codeCipQuantity);
             this.storeInventoryLineRepository.saveAllAndFlush(storeInventoryLines);
         } catch (IOException e) {
             log.debug("{0}", e);
         }
+    }
+
+    /**
+     * Compte les lignes importées comme le ferait la saisie écran — quantité initiale relue du
+     * stock théorique, valorisation et traçabilité comprises. Poser la seule quantité comptée
+     * laissait {@code quantity_init}, {@code inventory_value_cost} et {@code last_unit_price}
+     * à NULL, ce qui faisait échouer la clôture et sortait la ligne des filtres d'écart.
+     */
+    private void applyImportedCounts(List<StoreInventoryLine> storeInventoryLines,
+        Map<String, Integer> codeCipQuantity) {
+        StoreInventory inventory = storeInventoryLines.getFirst().getStoreInventory();
+        Set<Integer> produitIds = storeInventoryLines.stream()
+            .map(line -> line.getProduit().getId()).collect(Collectors.toSet());
+        Map<Integer, Integer> stockMap = this.inventoryStockService.buildStockMapForInventory(
+            inventory, produitIds);
+        AppUser countedBy = this.userService.getUser();
+
+        storeInventoryLines.forEach(line -> line.applyCount(
+            stockMap.getOrDefault(line.getProduit().getId(), 0),
+            getQtyByCodeCip(codeCipQuantity, line.getProduit()),
+            countedBy
+        ));
     }
 
     @Override
@@ -212,24 +240,11 @@ public class InventaireServiceImpl implements InventaireService {
 
     private void updateStoreInventoryLine(StoreInventoryLineDTO storeInventoryLineDTO,
         StoreInventoryLine storeInventoryLine) {
-        Produit produit = storeInventoryLine.getProduit();
-        FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
-        storeInventoryLine.setQuantitySold(0);
-        storeInventoryLine.setUpdated(true);
-        storeInventoryLine.setUpdatedAt(LocalDateTime.now());
-        storeInventoryLine.setCountedBy(userService.getUser());
-        storeInventoryLine.setInventoryValueCost(
-            Objects.nonNull(fournisseurProduit) ? fournisseurProduit.getPrixAchat()
-                : produit.getCostAmount()
+        storeInventoryLine.applyCount(
+            Objects.requireNonNullElse(storeInventoryLineDTO.getQuantityInit(), 0),
+            Objects.requireNonNullElse(storeInventoryLineDTO.getQuantityOnHand(), 0),
+            userService.getUser()
         );
-        storeInventoryLine.setLastUnitPrice(
-            Objects.nonNull(fournisseurProduit) ? fournisseurProduit.getPrixUni()
-                : produit.getRegularUnitPrice()
-        );
-        storeInventoryLine.setQuantityOnHand(storeInventoryLineDTO.getQuantityOnHand());
-        storeInventoryLine.setQuantityInit(storeInventoryLineDTO.getQuantityInit());
-        storeInventoryLine.setGap(
-            storeInventoryLine.getQuantityOnHand() - storeInventoryLine.getQuantityInit());
     }
 
     @Transactional(readOnly = true)
@@ -272,12 +287,42 @@ public class InventaireServiceImpl implements InventaireService {
     @Override
     public Page<StoreInventoryDTO> storeInventoryList(
         StoreInventoryFilterRecord storeInventoryFilterRecord, Pageable pageable) {
-        return new PageImpl<>(
-            this.fetchInventories(storeInventoryFilterRecord, pageable).stream()
-                .map(StoreInventoryDTO::new).toList(),
-            pageable,
-            this.fetchInventoriesCount(storeInventoryFilterRecord)
-        );
+        List<StoreInventory> inventories = this.fetchInventories(storeInventoryFilterRecord,
+            pageable);
+        Set<Long> countedIds = fetchIdsWithCountedLines(inventories);
+
+        List<StoreInventoryDTO> content = inventories
+            .stream()
+            .map(inventory ->
+                StoreInventoryDTO.builder(inventory)
+                    .statut(resolveStatut(inventory, countedIds.contains(inventory.getId())))
+                    .build()
+            )
+            .toList();
+
+        return new PageImpl<>(content, pageable,
+            this.fetchInventoriesCount(storeInventoryFilterRecord));
+    }
+
+    private Set<Long> fetchIdsWithCountedLines(List<StoreInventory> inventories) {
+        if (CollectionUtils.isEmpty(inventories)) {
+            return Set.of();
+        }
+        return this.storeInventoryLineRepository.findStoreInventoryIdsWithCountedLines(
+            inventories.stream().map(StoreInventory::getId).toList());
+    }
+
+    /**
+     * Un inventaire dont au moins une ligne est comptée est en cours, même si son statut en
+     * base est resté {@code CREATE} : la saisie d'une ligne ne repasse pas par un service qui
+     * ferait progresser l'entête. Un inventaire clôturé n'est jamais réévalué.
+     */
+    private InventoryStatut resolveStatut(StoreInventory inventory, boolean hasCountedLine) {
+        InventoryStatut statut = inventory.getStatut();
+        if (statut != InventoryStatut.CLOSED && hasCountedLine) {
+            return InventoryStatut.PROCESSING;
+        }
+        return statut;
     }
 
     @Override

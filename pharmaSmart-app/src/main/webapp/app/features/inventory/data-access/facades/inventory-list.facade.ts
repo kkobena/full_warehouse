@@ -1,11 +1,12 @@
 import { inject, Injectable } from '@angular/core';
 import { InventoryApiService } from '../services/inventory-api.service';
 import { InventoryStore } from '../store/inventory.store';
-import { StoreInventoryCreateRecord } from '../../models';
+import { ErrorService } from '../../../../shared/error.service';
 
 @Injectable({ providedIn: 'root' })
 export class InventoryListFacade {
   private readonly api = inject(InventoryApiService);
+  private readonly errorService = inject(ErrorService);
   readonly store = inject(InventoryStore);
 
   // Expose store state
@@ -25,25 +26,13 @@ export class InventoryListFacade {
         this.store.setLoadingList(false);
       },
       error: err => {
-        this.store.setError(err?.message ?? 'Erreur lors du chargement des inventaires');
+        this.store.setError(
+          this.errorService.getErrorMessage(err, 'Erreur lors du chargement des inventaires'));
         this.store.setLoadingList(false);
       },
     });
   }
 
-  createInventory(record: StoreInventoryCreateRecord): void {
-    this.store.setLoadingList(true);
-    this.api.create(record).subscribe({
-      next: resp => {
-        this.store.setLoadingList(false);
-        this.store.emitEvent('INVENTORY_CREATED', resp.body);
-      },
-      error: err => {
-        this.store.setError(err?.message ?? "Erreur lors de la création de l'inventaire");
-        this.store.setLoadingList(false);
-      },
-    });
-  }
 
   deleteInventory(id: number): void {
     this.store.setLoadingList(true);
@@ -53,7 +42,8 @@ export class InventoryListFacade {
         this.store.emitEvent('INVENTORY_DELETED', { id });
       },
       error: err => {
-        this.store.setError(err?.message ?? "Erreur lors de la suppression de l'inventaire");
+        this.store.setError(
+          this.errorService.getErrorMessage(err, "Erreur lors de la suppression de l'inventaire"));
         this.store.setLoadingList(false);
       },
     });
@@ -67,7 +57,8 @@ export class InventoryListFacade {
         this.store.emitEvent('INVENTORY_CLOSED', { id, count: resp.body?.count });
       },
       error: err => {
-        this.store.setError(err?.message ?? "Erreur lors de la clôture de l'inventaire");
+        this.store.setError(
+          this.errorService.getErrorMessage(err, "Erreur lors de la clôture de l'inventaire"));
         this.store.setLoadingList(false);
       },
     });
@@ -81,7 +72,8 @@ export class InventoryListFacade {
         this.store.setLoadingList(false);
       },
       error: err => {
-        this.store.setError(err?.message ?? "Erreur lors du chargement de l'inventaire");
+        this.store.setError(
+          this.errorService.getErrorMessage(err, "Erreur lors du chargement de l'inventaire"));
         this.store.setLoadingList(false);
       },
     });

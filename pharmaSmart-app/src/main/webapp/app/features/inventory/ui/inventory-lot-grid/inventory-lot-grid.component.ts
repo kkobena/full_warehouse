@@ -16,7 +16,13 @@ import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {InventoryApiService} from '../../data-access/services/inventory-api.service';
 import {InventoryEditorFacade} from '../../data-access/facades/inventory-editor.facade';
 import {InventoryStore} from '../../data-access/store/inventory.store';
-import {IInventoryLotLine, InventoryLineFilter, isGapLineFilter, lineFiltersFor} from '../../models';
+import {
+  IInventoryLotLine,
+  InventoryLineFilter,
+  isGapLineFilter,
+  lineFiltersFor,
+  renderParetoBadge,
+} from '../../models';
 import {IStorage} from '../../../../shared/model/magasin.model';
 import {IRayon} from '../../../../shared/model/rayon.model';
 import {SelectComponent} from '../../../../shared/ui';
@@ -111,7 +117,10 @@ export class InventoryLotGridComponent {
       field: 'quantityOnHand',
       headerName: 'Qté constatée',
       width: 130,
-      editable: true,
+      // Seule colonne saisissable — et seulement tant que l'inventaire est ouvert.
+      // `readOnly` ne gardait que `onCellValueChanged` : la cellule s'ouvrait quand même
+      // à la saisie, et la valeur tapée était silencieusement rejetée.
+      editable: !this.readOnly(),
       type: ['rightAligned', 'numericColumn'],
       cellStyle: params => {
         if (params.data?.updated) {
@@ -145,13 +154,7 @@ export class InventoryLotGridComponent {
       hide: true,
       cellStyle: {textAlign: 'center'},
       headerClass: 'ag-header-cell-center',
-      cellRenderer: (params: any) => {
-        const cls = params.value;
-        if (!cls) return '';
-        const colors: Record<string, string> = {A: '#198754', B: '#0d6efd', C: '#6c757d'};
-        const color = colors[cls] ?? '#6c757d';
-        return `<span style="display:inline-block;padding:1px 6px;border-radius:10px;font-size:11px;font-weight:700;color:#fff;background:${color}">${cls}</span>`;
-      },
+      cellRenderer: (params: any) => renderParetoBadge(params.value),
     },
     {
       field: 'updated',

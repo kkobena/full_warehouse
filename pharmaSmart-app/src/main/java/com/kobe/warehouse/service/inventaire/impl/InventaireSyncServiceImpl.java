@@ -1,15 +1,12 @@
 package com.kobe.warehouse.service.inventaire.impl;
 
 import com.kobe.warehouse.domain.AppUser;
-import com.kobe.warehouse.domain.FournisseurProduit;
-import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StoreInventoryLine;
 import com.kobe.warehouse.repository.StoreInventoryLineRepository;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.StoreInventoryLineDTO;
 import com.kobe.warehouse.service.dto.records.BatchSyncResultRecord;
 import com.kobe.warehouse.service.inventaire.InventaireSyncService;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -110,20 +107,10 @@ public class InventaireSyncServiceImpl implements InventaireSyncService {
     }
 
     private void applyDto(StoreInventoryLineDTO dto, StoreInventoryLine line, AppUser countedBy) {
-        Produit produit = line.getProduit();
-        FournisseurProduit fp = produit.getFournisseurProduitPrincipal();
-        line.setQuantitySold(0);
-        line.setUpdated(true);
-        line.setUpdatedAt(LocalDateTime.now());
-        line.setCountedBy(countedBy);
-        line.setInventoryValueCost(
-            Objects.nonNull(fp) ? fp.getPrixAchat() : produit.getCostAmount()
+        line.applyCount(
+            Objects.requireNonNullElse(dto.getQuantityInit(), 0),
+            Objects.requireNonNullElse(dto.getQuantityOnHand(), 0),
+            countedBy
         );
-        line.setLastUnitPrice(
-            Objects.nonNull(fp) ? fp.getPrixUni() : produit.getRegularUnitPrice()
-        );
-        line.setQuantityOnHand(dto.getQuantityOnHand());
-        line.setQuantityInit(dto.getQuantityInit());
-        line.setGap(line.getQuantityOnHand() - line.getQuantityInit());
     }
 }

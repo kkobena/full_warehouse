@@ -8,6 +8,7 @@ import com.kobe.warehouse.service.dto.records.StoreInventorySummaryByGroupRecord
 import com.kobe.warehouse.service.dto.records.StoreInventorySummaryRecord;
 import jakarta.persistence.Tuple;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Objects;
 import org.springframework.util.StringUtils;
 
@@ -56,14 +57,21 @@ public class StoreInventoryLineFilterBuilder {
 
     // ── SUMMARY / EXPORT SQL (utilisés par InventaireServiceImpl legacy) ─────
 
+    /**
+     * Les colonnes agrégées sont des {@code integer} : {@code SUM(integer)} renvoie un
+     * {@code bigint} (donc un {@code Long}) alors que le record attend des {@code BigDecimal},
+     * et {@code integer * integer} déborde silencieusement au-delà de 2^31 avant même
+     * l'agrégation. Le {@code ::numeric} sur le premier opérande règle les deux : le produit
+     * puis la somme restent en {@code numeric}.
+     */
     public static final String SUMMARY_SQL =
         """
-            SELECT SUM(i.quantity_on_hand * i.inventory_value_cost) AS costValueAfter,
-                   SUM(i.quantity_on_hand * i.last_unit_price)      AS amountValueAfter,
-                   SUM(i.quantity_init   * i.inventory_value_cost)  AS costValueBegin,
-                   SUM(i.quantity_init   * i.last_unit_price)       AS amountValueBegin,
-                   SUM(i.gap             * i.inventory_value_cost)  AS gapCost,
-                   SUM(i.gap             * i.last_unit_price)       AS gapAmount
+            SELECT COALESCE(SUM(i.quantity_on_hand::numeric * i.inventory_value_cost), 0) AS costValueAfter,
+                   COALESCE(SUM(i.quantity_on_hand::numeric * i.last_unit_price),      0) AS amountValueAfter,
+                   COALESCE(SUM(i.quantity_init::numeric   * i.inventory_value_cost),  0) AS costValueBegin,
+                   COALESCE(SUM(i.quantity_init::numeric   * i.last_unit_price),       0) AS amountValueBegin,
+                   COALESCE(SUM(i.gap::numeric             * i.inventory_value_cost),  0) AS gapCost,
+                   COALESCE(SUM(i.gap::numeric             * i.last_unit_price),       0) AS gapAmount
             FROM store_inventory_line i
             WHERE i.store_inventory_id = ?1
             """;
@@ -101,12 +109,12 @@ public class StoreInventoryLineFilterBuilder {
             SELECT COALESCE(s.id::text, 'SANS_EMPLACEMENT')             AS groupKey,
                    COALESCE(s.name, 'Sans emplacement')                 AS groupLabel,
                    COUNT(*)                                              AS lineCount,
-                   COALESCE(SUM(i.quantity_init   * i.inventory_value_cost), 0) AS costBefore,
-                   COALESCE(SUM(i.quantity_on_hand * i.inventory_value_cost), 0) AS costAfter,
-                   COALESCE(SUM(i.quantity_init   * i.last_unit_price),  0) AS amountBefore,
-                   COALESCE(SUM(i.quantity_on_hand * i.last_unit_price), 0) AS amountAfter,
-                   COALESCE(SUM(i.gap             * i.inventory_value_cost), 0) AS gapCost,
-                   COALESCE(SUM(i.gap             * i.last_unit_price),  0) AS gapAmount
+                   COALESCE(SUM(i.quantity_init::numeric   * i.inventory_value_cost), 0) AS costBefore,
+                   COALESCE(SUM(i.quantity_on_hand::numeric * i.inventory_value_cost), 0) AS costAfter,
+                   COALESCE(SUM(i.quantity_init::numeric   * i.last_unit_price),  0) AS amountBefore,
+                   COALESCE(SUM(i.quantity_on_hand::numeric * i.last_unit_price), 0) AS amountAfter,
+                   COALESCE(SUM(i.gap::numeric             * i.inventory_value_cost), 0) AS gapCost,
+                   COALESCE(SUM(i.gap::numeric             * i.last_unit_price),  0) AS gapAmount
             FROM store_inventory_line i
             LEFT JOIN storage s ON s.id = i.storage_id
             WHERE i.store_inventory_id = ?1
@@ -122,12 +130,12 @@ public class StoreInventoryLineFilterBuilder {
             SELECT fm.id::text                                           AS groupKey,
                    COALESCE(fm.libelle, 'Sans famille')                  AS groupLabel,
                    COUNT(*)                                              AS lineCount,
-                   COALESCE(SUM(i.quantity_init   * i.inventory_value_cost), 0) AS costBefore,
-                   COALESCE(SUM(i.quantity_on_hand * i.inventory_value_cost), 0) AS costAfter,
-                   COALESCE(SUM(i.quantity_init   * i.last_unit_price),  0) AS amountBefore,
-                   COALESCE(SUM(i.quantity_on_hand * i.last_unit_price), 0) AS amountAfter,
-                   COALESCE(SUM(i.gap             * i.inventory_value_cost), 0) AS gapCost,
-                   COALESCE(SUM(i.gap             * i.last_unit_price),  0) AS gapAmount
+                   COALESCE(SUM(i.quantity_init::numeric   * i.inventory_value_cost), 0) AS costBefore,
+                   COALESCE(SUM(i.quantity_on_hand::numeric * i.inventory_value_cost), 0) AS costAfter,
+                   COALESCE(SUM(i.quantity_init::numeric   * i.last_unit_price),  0) AS amountBefore,
+                   COALESCE(SUM(i.quantity_on_hand::numeric * i.last_unit_price), 0) AS amountAfter,
+                   COALESCE(SUM(i.gap::numeric             * i.inventory_value_cost), 0) AS gapCost,
+                   COALESCE(SUM(i.gap::numeric             * i.last_unit_price),  0) AS gapAmount
             FROM store_inventory_line i
             JOIN produit p       ON p.id    = i.produit_id
             JOIN famille_produit fm ON fm.id = p.famille_id
@@ -144,12 +152,12 @@ public class StoreInventoryLineFilterBuilder {
             SELECT COALESCE(r.id::text, 'SANS_RAYON')                   AS groupKey,
                    COALESCE(r.libelle, 'Sans rayon')                     AS groupLabel,
                    COUNT(*)                                              AS lineCount,
-                   COALESCE(SUM(i.quantity_init   * i.inventory_value_cost), 0) AS costBefore,
-                   COALESCE(SUM(i.quantity_on_hand * i.inventory_value_cost), 0) AS costAfter,
-                   COALESCE(SUM(i.quantity_init   * i.last_unit_price),  0) AS amountBefore,
-                   COALESCE(SUM(i.quantity_on_hand * i.last_unit_price), 0) AS amountAfter,
-                   COALESCE(SUM(i.gap             * i.inventory_value_cost), 0) AS gapCost,
-                   COALESCE(SUM(i.gap             * i.last_unit_price),  0) AS gapAmount
+                   COALESCE(SUM(i.quantity_init::numeric   * i.inventory_value_cost), 0) AS costBefore,
+                   COALESCE(SUM(i.quantity_on_hand::numeric * i.inventory_value_cost), 0) AS costAfter,
+                   COALESCE(SUM(i.quantity_init::numeric   * i.last_unit_price),  0) AS amountBefore,
+                   COALESCE(SUM(i.quantity_on_hand::numeric * i.last_unit_price), 0) AS amountAfter,
+                   COALESCE(SUM(i.gap::numeric             * i.inventory_value_cost), 0) AS gapCost,
+                   COALESCE(SUM(i.gap::numeric             * i.last_unit_price),  0) AS gapAmount
             FROM store_inventory_line i
             JOIN produit p              ON p.id        = i.produit_id
             LEFT JOIN rayon_produit rp  ON rp.produit_id = p.id
@@ -406,12 +414,12 @@ public class StoreInventoryLineFilterBuilder {
 
     public static StoreInventorySummaryRecord buildSammary(Tuple t) {
         return new StoreInventorySummaryRecord(
-            t.get("costValueBegin", BigDecimal.class),
-            t.get("costValueAfter", BigDecimal.class),
-            t.get("amountValueBegin", BigDecimal.class),
-            t.get("amountValueAfter", BigDecimal.class),
-            t.get("gapCost", BigDecimal.class),
-            t.get("gapAmount", BigDecimal.class)
+            toBigDecimal(t, "costValueBegin"),
+            toBigDecimal(t, "costValueAfter"),
+            toBigDecimal(t, "amountValueBegin"),
+            toBigDecimal(t, "amountValueAfter"),
+            toBigDecimal(t, "gapCost"),
+            toBigDecimal(t, "gapAmount")
         );
     }
 
@@ -420,13 +428,35 @@ public class StoreInventoryLineFilterBuilder {
             t.get("groupKey", String.class),
             t.get("groupLabel", String.class),
             ((Number) t.get("lineCount")).longValue(),
-            ((BigDecimal) t.get("costBefore")),
-            ((BigDecimal) t.get("costAfter")),
-            ((BigDecimal) t.get("amountBefore")),
-            ((BigDecimal) t.get("amountAfter")),
-            ((BigDecimal) t.get("gapCost")),
-            ((BigDecimal) t.get("gapAmount"))
+            toBigDecimal(t, "costBefore"),
+            toBigDecimal(t, "costAfter"),
+            toBigDecimal(t, "amountBefore"),
+            toBigDecimal(t, "amountAfter"),
+            toBigDecimal(t, "gapCost"),
+            toBigDecimal(t, "gapAmount")
         );
+    }
+
+    /**
+     * Lit une colonne agrégée sans présumer du type JDBC renvoyé.
+     *
+     * <p>{@code Tuple#get(String, Class)} applique un {@code Class#cast} : demander
+     * {@code BigDecimal.class} sur un {@code SUM} de colonnes {@code integer} — que PostgreSQL
+     * renvoie en {@code bigint} — lève {@code ClassCastException}. Le type exact dépend du
+     * dialecte et du cast SQL, on normalise donc ici plutôt que de s'y fier.
+     */
+    private static BigDecimal toBigDecimal(Tuple tuple, String alias) {
+        return switch (tuple.get(alias)) {
+            case null -> BigDecimal.ZERO;
+            case BigDecimal value -> value;
+            case BigInteger value -> new BigDecimal(value);
+            case Double value -> BigDecimal.valueOf(value);
+            case Float value -> BigDecimal.valueOf(value);
+            case Number value -> BigDecimal.valueOf(value.longValue());
+            case Object value -> throw new IllegalArgumentException(
+                "Colonne agrégée [%s] non numérique : %s".formatted(alias, value.getClass().getName())
+            );
+        };
     }
 
     // ── LineQueryBuilder ──────────────────────────────────────────────────────

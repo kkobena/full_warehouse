@@ -1,4 +1,4 @@
-<div class="pharma-smart-content p-2">
+<div class="pharma-smart-content p-1">
 
   <!-- ── Modern Pharma Toolbar ─────────────────────────────────────────────── -->
   <app-toolbar icon="pi pi-list-check" title="Inventaire">
@@ -67,7 +67,7 @@
   </app-toolbar>
 
   <!-- ── Contenu en deux colonnes ──────────────────────────────────────────── -->
-  <div class="row mt-2 g-3">
+  <div class="row  g-3">
 
     <!-- ── Colonne gauche : infos inventaire ──────────────────────────────── -->
     <div class="col-xl-3 col-lg-4">
@@ -142,6 +142,17 @@
 
     <!-- ── Colonne droite : grille + pagination ──────────────────────────── -->
     <div class="col-xl-9 col-lg-8">
+
+      <!-- Synthèse valorisation (clôturé uniquement) -->
+      @if (isInventoryClosed && inventoryId() > 0) {
+        <div class="valuation-section mb-3">
+          <h6 class="info-card-title">
+            <i class="pi pi-calculator"></i> Valorisation ventilée
+          </h6>
+          <app-inventory-valuation [inventoryId]="inventoryId()" />
+        </div>
+      }
+
       <!-- Grille -->
       <div class="grid-container">
         @if (inventoryId() > 0) {
@@ -171,6 +182,7 @@
               [inventoryId]="inventoryId()"
               [pageSize]="size()"
               [rayons]="rayons()"
+              [readOnly]="isInventoryClosed"
               [showSeuilMini]="showSeuilMini()"
               [storages]="storages()"
             />
@@ -178,16 +190,6 @@
           }
         }
       </div>
-
-      <!-- Synthèse valorisation (clôturé uniquement) -->
-      @if (isInventoryClosed && inventoryId() > 0) {
-        <div class="valuation-section mt-3">
-          <h6 class="info-card-title">
-            <i class="pi pi-calculator"></i> Valorisation ventilée
-          </h6>
-          <app-inventory-valuation [inventoryId]="inventoryId()" />
-        </div>
-      }
 
       <!-- Pagination -->
       <div class="pagination-bar">

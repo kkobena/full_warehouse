@@ -8,11 +8,17 @@ import {
   ValuationGroupBy
 } from '../../models/inventory-valuation.model';
 import {InventoryValuationApiService} from '../../data-access/services/inventory-valuation-api.service';
-import {DataTableComponent, SelectComponent} from '../../../../shared/ui';
+import {
+  AppKpiAccent,
+  DataTableComponent,
+  KpiItemComponent,
+  KpiStripComponent,
+  SelectComponent,
+} from '../../../../shared/ui';
 
 @Component({
   selector: 'app-inventory-valuation',
-  imports: [CommonModule, FormsModule, DataTableComponent, SelectComponent],
+  imports: [CommonModule, FormsModule, DataTableComponent, SelectComponent, KpiStripComponent, KpiItemComponent],
   templateUrl: './inventory-valuation.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './inventory-valuation.component.scss',
@@ -41,9 +47,27 @@ export class InventoryValuationComponent implements OnInit {
     return this.global()?.gapAmount ?? 0;
   }
 
+  /** Colore les cellules d'écart du tableau — classes scopées de cet écran. */
   getGapClass(value: number): string {
     if (value < 0) return 'val-negative';
     if (value > 0) return 'val-positive';
+    return '';
+  }
+
+  getGapAccent(value: number): AppKpiAccent {
+    if (value < 0) return 'danger';
+    if (value > 0) return 'success';
+    return 'secondary';
+  }
+
+  /**
+   * Équivalent de {@link getGapClass} pour les items du bandeau, en classes utilitaires
+   * globales : le `<span>` de valeur appartient au template d'`app-kpi-item`, il porte son
+   * attribut de scoping et non celui de cet écran — `.val-negative` ne l'atteindrait pas.
+   */
+  getGapTextClass(value: number): string {
+    if (value < 0) return 'text-danger';
+    if (value > 0) return 'text-success';
     return '';
   }
 

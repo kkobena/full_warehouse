@@ -6,6 +6,7 @@ import { InventoryApiService } from "../../data-access/services/inventory-api.se
 import { InventoryStore } from "../../data-access/store/inventory.store";
 import { ImportResultRecord } from "../../models";
 import { ButtonComponent, CardComponent } from "../../../../shared/ui";
+import { ErrorService } from "../../../../shared/error.service";
 
 @Component({
   selector: "app-inventory-import-modal",
@@ -17,6 +18,7 @@ import { ButtonComponent, CardComponent } from "../../../../shared/ui";
 export class InventoryImportModalComponent implements OnInit {
   readonly activeModal = inject(NgbActiveModal);
   private readonly api = inject(InventoryApiService);
+  private readonly errorService = inject(ErrorService);
   private readonly store = inject(InventoryStore);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -74,7 +76,7 @@ export class InventoryImportModalComponent implements OnInit {
         },
         error: err => {
           this.isUploading.set(false);
-          this.errorMessage.set(err?.error?.message ?? err?.message ?? "Erreur lors de l'import");
+          this.errorMessage.set(this.errorService.getErrorMessage(err, "Erreur lors de l'import"));
         }
       });
   }

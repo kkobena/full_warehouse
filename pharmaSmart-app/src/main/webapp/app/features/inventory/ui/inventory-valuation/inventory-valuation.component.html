@@ -1,38 +1,70 @@
 <!-- ── Résumé global ─────────────────────────────────────────────────────── -->
 @let g = global();
 @if (g) {
-  <div class="val-global-grid">
-    <div class="val-kpi">
-      <span class="val-kpi-label">Valeur avant (achat)</span>
-      <span class="val-kpi-value">{{ g.costValueBegin | number: '1.0-0' }}</span>
-    </div>
-    <div class="val-kpi">
-      <span class="val-kpi-label">Valeur après (achat)</span>
-      <span class="val-kpi-value">{{ g.costValueAfter | number: '1.0-0' }}</span>
-    </div>
-    <div class="val-kpi val-kpi-gap" [class.val-negative]="g.gapCost < 0">
-      <span class="val-kpi-label">Écart coût</span>
-      <span class="val-kpi-value">{{ g.gapCost | number: '1.0-0' }}</span>
-    </div>
-    <div class="val-kpi">
-      <span class="val-kpi-label">Valeur avant (vente)</span>
-      <span class="val-kpi-value">{{ g.amountValueBegin | number: '1.0-0' }}</span>
-    </div>
-    <div class="val-kpi">
-      <span class="val-kpi-label">Valeur après (vente)</span>
-      <span class="val-kpi-value">{{ g.amountValueAfter | number: '1.0-0' }}</span>
-    </div>
-    <div class="val-kpi val-kpi-gap" [class.val-negative]="g.gapAmount < 0">
-      <span class="val-kpi-label">Écart vente</span>
-      <span class="val-kpi-value">{{ g.gapAmount | number: '1.0-0' }}</span>
-    </div>
-  </div>
+  <!-- Deux bandeaux — achat puis vente — pour garder la lecture en deux lignes de la
+       grille d'origine ; six items d'affilée s'écraseraient dans la ligne dépliée. -->
+  <app-kpi-strip>
+    <app-kpi-item
+      [accent]="'secondary'"
+      [value]="g.costValueBegin | number"
+      icon="pi pi-shopping-cart"
+      iconClass="text-muted"
+      label="Valeur avant (achat)"
+    />
+
+    <app-kpi-item
+      [accent]="'primary'"
+      [value]="g.costValueAfter | number"
+      icon="pi pi-shopping-cart"
+      iconClass="text-primary"
+      label="Valeur après (achat)"
+      valueClass="text-primary"
+    />
+
+    <app-kpi-item
+      [accent]="getGapAccent(g.gapCost)"
+      [iconClass]="getGapTextClass(g.gapCost)"
+      [value]="g.gapCost | number"
+      [valueClass]="getGapTextClass(g.gapCost)"
+      icon="pi pi-arrow-right-arrow-left"
+      label="Écart coût"
+    />
+  </app-kpi-strip>
+
+  <app-kpi-strip>
+    <app-kpi-item
+      [accent]="'secondary'"
+      [value]="g.amountValueBegin | number"
+      icon="pi pi-tag"
+      iconClass="text-muted"
+      label="Valeur avant (vente)"
+    />
+
+    <app-kpi-item
+      [accent]="'primary'"
+      [value]="g.amountValueAfter | number"
+      icon="pi pi-tag"
+      iconClass="text-primary"
+      label="Valeur après (vente)"
+      valueClass="text-primary"
+    />
+
+    <app-kpi-item
+      [accent]="getGapAccent(g.gapAmount)"
+      [iconClass]="getGapTextClass(g.gapAmount)"
+      [value]="g.gapAmount | number"
+      [valueClass]="getGapTextClass(g.gapAmount)"
+      icon="pi pi-arrow-right-arrow-left"
+      label="Écart vente"
+    />
+  </app-kpi-strip>
 }
 
 <!-- ── Sélecteur de ventilation ──────────────────────────────────────────── -->
 <div class="val-group-selector">
   <span class="val-group-label">Ventiler par</span>
   <app-select
+    [style]="{ 'min-width': '250px' }"
     (ngModelChange)="onGroupByChange()"
     [(ngModel)]="selectedGroupBy"
     [items]="groupByOptions"
@@ -65,15 +97,15 @@
     <tr>
       <td class="val-group-name">{{ row.groupLabel }}</td>
       <td class="text-center text-muted small">{{ row.lineCount }}</td>
-      <td class="text-right">{{ row.costBefore | number: '1.0-0' }}</td>
-      <td class="text-right">{{ row.costAfter | number: '1.0-0' }}</td>
+      <td class="text-right">{{ row.costBefore | number }}</td>
+      <td class="text-right">{{ row.costAfter | number }}</td>
       <td class="text-right" [class]="getGapClass(row.gapCost)">
-        {{ row.gapCost | number: '1.0-0' }}
+        {{ row.gapCost | number }}
       </td>
-      <td class="text-right">{{ row.amountBefore | number: '1.0-0' }}</td>
-      <td class="text-right">{{ row.amountAfter | number: '1.0-0' }}</td>
+      <td class="text-right">{{ row.amountBefore | number }}</td>
+      <td class="text-right">{{ row.amountAfter | number }}</td>
       <td class="text-right" [class]="getGapClass(row.gapAmount)">
-        {{ row.gapAmount | number: '1.0-0' }}
+        {{ row.gapAmount | number }}
       </td>
     </tr>
   </ng-template>

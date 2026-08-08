@@ -244,16 +244,7 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
      * réserve par magasin.
      */
     private Map<Integer, Integer> buildStockMap(StoreInventory inventory, Set<Integer> produitIds) {
-        if (inventory.getStorage() == null || produitIds.isEmpty()) {
-            return Map.of();
-        }
-        InventoryCategory category = inventory.getInventoryCategory();
-        if (category == InventoryCategory.RAYON || category == InventoryCategory.STORAGE) {
-            return inventoryStockService.buildStockMapByStorage(
-                inventory.getStorage().getId(), produitIds);
-        }
-        return inventoryStockService.buildStockMapByMagasin(
-            inventory.getStorage().getMagasin().getId(), produitIds);
+        return inventoryStockService.buildStockMapForInventory(inventory, produitIds);
     }
 
     private List<StoreInventoryGroupExport> buildStoreInventoryGroupExportsFromTuple(

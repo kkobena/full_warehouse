@@ -208,8 +208,8 @@ export const INVENTORY_CATEGORIES: InventoryCategoryInfo[] = [
 
 export const LINE_FILTERS = [
   {value: 'NONE', label: 'Tous'},
-  {value: 'UPDATED', label: 'Saisis'},
-  {value: 'NOT_UPDATED', label: 'Non saisis'},
+  {value: 'NOT_UPDATED', label: 'A compter'},
+  {value: 'UPDATED', label: 'Comptés'},
   {value: 'GAP', label: 'Avec écart'},
   {value: 'GAP_NEGATIF', label: 'Écart négatif'},
   {value: 'GAP_POSITIF', label: 'Écart positif'},

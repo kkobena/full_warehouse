@@ -126,12 +126,13 @@
   >
     <ng-template #header>
       <tr class="pharma-table-head">
-        <th style="width: 8%">#</th>
-        <th style="width: 18%">Type</th>
-        <th style="width: 24%">Description</th>
-        <th style="width: 18%">Emplacement</th>
-        <th style="width: 16%">Date création</th>
-        <th class="text-center" style="width: 16%">Actions</th>
+        <th style="width: 6%">#</th>
+        <th style="width: 16%">Type</th>
+        <th style="width: 22%">Description</th>
+        <th style="width: 15%">Emplacement</th>
+        <th style="width: 11%">Statut</th>
+        <th style="width: 15%">Date création</th>
+        <th class="text-center" style="width: 15%">Actions</th>
       </tr>
     </ng-template>
 
@@ -145,6 +146,11 @@
         </td>
         <td>{{ inv.description ?? '-' }}</td>
         <td class="small">{{ inv.storage?.name ?? '-' }}</td>
+        <td>
+          <span class="pharma-badge {{ getStatutBadgeClass(inv.statut) }}">
+            {{ getStatutLabel(inv.statut) }}
+          </span>
+        </td>
         <td class="small text-muted">{{ inv.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
         <td (click)="$event.stopPropagation()" class="text-center">
           <div class="btn-group">
@@ -155,6 +161,16 @@
               icon="pi pi-pencil"
               ngbTooltip="Ouvrir"
               severity="primary"
+              size="small"
+            />
+            <app-button
+              (clicked)="exportEnCoursPdf(inv)"
+              [loading]="isExporting(inv)"
+              [rounded]="true"
+              [text]="true"
+              icon="pi pi-file-pdf"
+              ngbTooltip="Exporter PDF"
+              severity="secondary"
               size="small"
             />
             <app-button
@@ -182,7 +198,7 @@
 
     <ng-template #emptymessage>
       <tr>
-        <td colspan="6">
+        <td colspan="7">
           <div class="pharma-empty-content">
             <i class="pi pi-inbox"></i>
             <p>Aucun inventaire en cours</p>
@@ -208,12 +224,13 @@
     <ng-template #header>
       <tr class="pharma-table-head">
         <th style="width: 4%"></th>
-        <th style="width: 8%">#</th>
-        <th style="width: 18%">Type</th>
-        <th style="width: 22%">Description</th>
-        <th style="width: 18%">Emplacement</th>
-        <th style="width: 16%">Date clôture</th>
-        <th class="text-center" style="width: 14%">Actions</th>
+        <th style="width: 6%">#</th>
+        <th style="width: 15%">Type</th>
+        <th style="width: 20%">Description</th>
+        <th style="width: 15%">Emplacement</th>
+        <th style="width: 10%">Statut</th>
+        <th style="width: 15%">Date clôture</th>
+        <th class="text-center" style="width: 15%">Actions</th>
       </tr>
     </ng-template>
 
@@ -237,6 +254,11 @@
         </td>
         <td>{{ inv.description ?? '-' }}</td>
         <td class="small">{{ inv.storage?.name ?? '-' }}</td>
+        <td>
+          <span class="pharma-badge {{ getStatutBadgeClass(inv.statut) }}">
+            {{ getStatutLabel(inv.statut) }}
+          </span>
+        </td>
         <td class="small text-muted">{{ inv.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
         <td (click)="$event.stopPropagation()" class="text-center">
           <div class="btn-group">
@@ -274,7 +296,7 @@
 
     <ng-template #expandedrow let-inv>
       <tr class="pharma-expanded-row">
-        <td colspan="7">
+        <td colspan="8">
           <div class="expanded-row-container">
             <div class="inv-synthese-grid">
 
@@ -336,7 +358,7 @@
 
     <ng-template #emptymessage>
       <tr>
-        <td colspan="7">
+        <td colspan="8">
           <div class="pharma-empty-content">
             <i class="pi pi-lock"></i>
             <p>Aucun inventaire clôturé</p>

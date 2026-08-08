@@ -65,7 +65,7 @@
           <span class="pharma-badge pharma-badge-primary">
             {{ getCritereLabel(p.critere) }}
             @if (p.critere === 'CLASSIFICATION_ABC' && p.classeParetoCourante) {
-              — {{ p.classeParetoCourante }}
+              — {{ getParetoLabel(p.classeParetoCourante) }}
             }
           </span>
         </td>

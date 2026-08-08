@@ -38,21 +38,9 @@
   }
 }
 
-// ── Badges statut ─────────────────────────────────────────────────────────────
-.badge-statut-create {
-  background-color: #cfe2ff;
-  color: #084298;
-}
-
-.badge-statut-processing {
-  background-color: #fff3cd;
-  color: #664d03;
-}
-
-.badge-statut-closed {
-  background-color: #d1e7dd;
-  color: #0a3622;
-}
+// Les badges de statut reprennent les modificateurs `.pharma-badge-*` de
+// `table-common`, déjà importé ci-dessus — plus de `.badge-statut-*` local, qui ne
+// portait que la couleur sans la forme du badge.
 
 // ── Badge catégorie ───────────────────────────────────────────────────────────
 .badge-scope {

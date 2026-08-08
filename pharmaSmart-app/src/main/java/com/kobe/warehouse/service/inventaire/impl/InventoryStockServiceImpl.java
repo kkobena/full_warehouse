@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.inventaire.impl;
 
+import com.kobe.warehouse.domain.StoreInventory;
+import com.kobe.warehouse.domain.enumeration.InventoryCategory;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.inventaire.InventoryStockService;
 import java.util.Collection;
@@ -17,6 +19,20 @@ public class InventoryStockServiceImpl implements InventoryStockService {
 
     public InventoryStockServiceImpl(StockProduitRepository stockProduitRepository) {
         this.stockProduitRepository = stockProduitRepository;
+    }
+
+    // ── Portée de l'inventaire ───────────────────────────────────────────────
+
+    @Override
+    public Map<Integer, Integer> buildStockMapForInventory(StoreInventory inventory, Set<Integer> produitIds) {
+        if (inventory == null || inventory.getStorage() == null || isEmpty(produitIds)) {
+            return Map.of();
+        }
+        InventoryCategory category = inventory.getInventoryCategory();
+        if (category == InventoryCategory.RAYON || category == InventoryCategory.STORAGE) {
+            return buildStockMapByStorage(inventory.getStorage().getId(), produitIds);
+        }
+        return buildStockMapByMagasin(inventory.getStorage().getMagasin().getId(), produitIds);
     }
 
     // ── Batch par storage précis (RAYON, STORAGE) ────────────────────────────

@@ -82,9 +82,12 @@ public class PlanningInventaireTournant implements Serializable {
     private Integer critereIndexCourant = 0;
 
     /**
-     * Pour critère CLASSIFICATION_ABC : la classe Pareto courante ('A', 'B' ou 'C')
+     * Pour critère CLASSIFICATION_ABC : la classe Pareto courante — 'A_PLUS', 'A', 'B', 'C'
+     * ou 'D'. Valeurs identiques à celles de {@code v_abc_pareto_analysis.classe_pareto},
+     * sur lesquelles porte le filtre de constitution de l'inventaire : c'est bien 'A_PLUS'
+     * qui est stocké, pas 'A+'.
      */
-    @Column(name = "classe_pareto_courante", length = 1)
+    @Column(name = "classe_pareto_courante", length = 10)
     private String classeParetoCourante;
 
     /**

@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.inventaire;
 
+import com.kobe.warehouse.domain.StoreInventory;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,6 +17,16 @@ import java.util.Set;
  *  - buildStockMapByMagasin → agrège TOUS les storages du magasin (MAGASIN)
  */
 public interface InventoryStockService {
+
+    /**
+     * Stock théorique tel qu'il est présenté à la saisie, selon la portée de l'inventaire :
+     * storage précis pour RAYON / STORAGE, agrégation magasin sinon.
+     *
+     * <p>Point d'entrée unique de la « quantité initiale » d'une ligne : l'écran de comptage
+     * comme les imports CSV doivent partir du même chiffre, sans quoi l'écart calculé dépend
+     * du chemin emprunté.
+     */
+    Map<Integer, Integer> buildStockMapForInventory(StoreInventory inventory, Set<Integer> produitIds);
 
     /**
      * Pré-charge le stock pour un storage précis (rayon ou réserve, pas les deux).

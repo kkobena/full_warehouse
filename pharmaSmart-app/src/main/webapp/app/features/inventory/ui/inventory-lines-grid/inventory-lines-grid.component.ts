@@ -16,7 +16,13 @@ import {AgGridAngular} from 'ag-grid-angular';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {InventoryEditorFacade} from '../../data-access/facades/inventory-editor.facade';
 import {InventoryStore} from '../../data-access/store/inventory.store';
-import {IInventoryLine, InventoryLineFilter, isGapLineFilter, lineFiltersFor} from '../../models';
+import {
+  IInventoryLine,
+  InventoryLineFilter,
+  isGapLineFilter,
+  lineFiltersFor,
+  renderParetoBadge,
+} from '../../models';
 import {IStorage} from '../../../../shared/model/magasin.model';
 import {IRayon} from '../../../../shared/model/rayon.model';
 import {InventoryCategoryType} from "../../../../shared/model/store-inventory.model";
@@ -39,6 +45,8 @@ export class InventoryLinesGridComponent {
   readonly gestionLot = input<boolean>(false);
   readonly storages = input<IStorage[]>([]);
   readonly rayons = input<IRayon[]>([]);
+  /** Inventaire clôturé : la grille se consulte, elle ne se saisit plus. */
+  readonly readOnly = input<boolean>(false);
   readonly pageSize = input<number>(20);
 
   readonly filterChange = output<{
@@ -110,7 +118,8 @@ export class InventoryLinesGridComponent {
       field: 'quantityOnHand',
       headerName: 'Qté inventoriée',
       width: 130,
-      editable: true,
+      // Seule colonne saisissable — et seulement tant que l'inventaire est ouvert.
+      editable: !this.readOnly(),
       type: ['rightAligned', 'numericColumn'],
       cellStyle: params => {
         if (params.data?.updated) {
@@ -167,15 +176,7 @@ export class InventoryLinesGridComponent {
       cellStyle: {textAlign: 'center'},
       headerClass: 'ag-header-cell-center',
       hide: this.inventoryCategoryType() !== 'ABC',
-      cellRenderer: (params: any) => {
-        const cls = params.value;
-        if (!cls) {
-          return '';
-        }
-        const colors: Record<string, string> = {A: '#198754', B: '#0d6efd', C: '#6c757d'};
-        const color = colors[cls] ?? '#6c757d';
-        return `<span style="display:inline-block;padding:1px 6px;border-radius:10px;font-size:11px;font-weight:700;color:#fff;background:${color}">${cls}</span>`;
-      },
+      cellRenderer: (params: any) => renderParetoBadge(params.value),
     },
     {
       field: 'updated',
@@ -278,7 +279,9 @@ export class InventoryLinesGridComponent {
   }
 
   onCellValueChanged(event: CellValueChangedEvent): void {
-    if (event.column.getColId() !== 'quantityOnHand') {
+    // `editable` bloque déjà la saisie ; ce garde couvre les écritures programmatiques
+    // (setDataValue, collage) qui, elles, ne passent pas par l'éditeur.
+    if (event.column.getColId() !== 'quantityOnHand' || this.readOnly()) {
       return;
     }
 

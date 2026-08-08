@@ -4,7 +4,7 @@ import {Router} from '@angular/router';
 import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 
 import {NotificationService} from '../../../../shared/services/notification.service';
-import {IPlanningInventaireTournant, ITournantDashboard} from '../../models';
+import {IPlanningInventaireTournant, ITournantDashboard, paretoLabel} from '../../models';
 import {PlanningTournantApiService} from '../../data-access/services/planning-tournant-api.service';
 import {
   PlanningTournantModalComponent
@@ -102,7 +102,9 @@ export class PlanningTournantListComponent implements OnInit {
   }
 
   openInventory(inventoryId: number): void {
-    this.router.navigate(['/inventaire', inventoryId, 'edit']);
+    // `tab` indique à l'éditeur d'où l'on vient, pour que son bouton « Retour » ramène
+    // sur l'onglet Tournant et non sur « En cours ».
+    this.router.navigate(['/inventaire', inventoryId, 'edit'], {queryParams: {tab: 'tournant'}});
   }
 
   getFrequenceLabel(f?: string): string {
@@ -122,6 +124,11 @@ export class PlanningTournantListComponent implements OnInit {
       CLASSIFICATION_ABC: 'Classification ABC',
     };
     return labels[c ?? ''] ?? c ?? '-';
+  }
+
+  /** La base stocke `A_PLUS` — valeur de `v_abc_pareto_analysis` — l'écran affiche `A+`. */
+  getParetoLabel(classePareto?: string): string {
+    return paretoLabel(classePareto);
   }
 
   isOverdue(planning: IPlanningInventaireTournant): boolean {

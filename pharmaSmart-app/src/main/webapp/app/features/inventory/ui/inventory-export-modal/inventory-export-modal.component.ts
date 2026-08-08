@@ -13,6 +13,7 @@ import {TauriPrinterService} from '../../../../shared/services/tauri-printer.ser
 import {handleBlobForTauri} from '../../../../shared/util/tauri-util';
 import {LINE_FILTERS} from '../../models';
 import {ConfigurationService} from '../../../../shared/configuration.service';
+import {ErrorService} from '../../../../shared/error.service';
 
 const GROUP_BY_OPTIONS = [
   {value: 'RAYON', label: 'Grouper par rayon'},
@@ -46,6 +47,7 @@ export class InventoryExportModalComponent implements OnInit {
   readonly groupByOptions = GROUP_BY_OPTIONS;
   readonly lineFilterOptions = LINE_FILTERS;
   private readonly api = inject(InventoryApiService);
+  private readonly errorService = inject(ErrorService);
   private readonly storageService = inject(StorageService);
   private readonly rayonService = inject(RayonService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
@@ -102,9 +104,9 @@ export class InventoryExportModalComponent implements OnInit {
           this.exporting.set(false);
           this.activeModal.close();
         },
-        error: () => {
+        error: err => {
           this.exporting.set(false);
-          this.errorMessage.set("Échec de l'export PDF");
+          this.errorMessage.set(this.errorService.getErrorMessage(err, "Échec de l'export PDF"));
         },
       });
   }

@@ -2,10 +2,12 @@ import { inject, Injectable } from '@angular/core';
 import { InventoryApiService } from '../services/inventory-api.service';
 import { InventoryStore } from '../store/inventory.store';
 import { IInventoryLine } from '../../models';
+import { ErrorService } from '../../../../shared/error.service';
 
 @Injectable({ providedIn: 'root' })
 export class InventoryEditorFacade {
   private readonly api = inject(InventoryApiService);
+  private readonly errorService = inject(ErrorService);
   readonly store = inject(InventoryStore);
 
   // Expose store state
@@ -37,7 +39,8 @@ export class InventoryEditorFacade {
         this.store.emitEvent('LINES_LOADED');
       },
       error: err => {
-        this.store.setError(err?.message ?? 'Erreur lors du chargement des lignes');
+        this.store.setError(
+          this.errorService.getErrorMessage(err, 'Erreur lors du chargement des lignes'));
         this.store.setLoadingLines(false);
       },
     });
@@ -54,7 +57,8 @@ export class InventoryEditorFacade {
         this.store.setLoadingLines(false);
       },
       error: err => {
-        this.store.setError(err?.message ?? 'Erreur lors du chargement des lots');
+        this.store.setError(
+          this.errorService.getErrorMessage(err, 'Erreur lors du chargement des lots'));
         this.store.setLoadingLines(false);
       },
     });
@@ -79,7 +83,7 @@ export class InventoryEditorFacade {
         // 409 : comptage concurrent — la valeur serveur fait foi, on recharge
         const message = err?.status === 409
           ? 'Cette ligne vient d\'être comptée par un autre opérateur — valeurs rechargées'
-          : (err?.error?.detail ?? err?.message ?? 'Erreur lors de la sauvegarde');
+          : this.errorService.getErrorMessage(err, 'Erreur lors de la sauvegarde');
         this.store.setError(message);
         this.store.emitEvent('LINE_SAVE_ERROR', { lineId: line.id, error: err });
       },
@@ -112,7 +116,8 @@ export class InventoryEditorFacade {
         this.refreshProgress(inventoryId);
       },
       error: err => {
-        this.store.setError(err?.message ?? "Erreur lors de la sauvegarde des lignes");
+        this.store.setError(
+          this.errorService.getErrorMessage(err, 'Erreur lors de la sauvegarde des lignes'));
         this.store.setIsSavingBatch(false);
         this.store.emitEvent('BATCH_SAVE_ERROR', err);
       },
@@ -133,7 +138,8 @@ export class InventoryEditorFacade {
       },
       error: err => {
         this.store.setIsImporting(false);
-        this.store.setError(err?.message ?? "Erreur lors de l'import CSV");
+        this.store.setError(
+          this.errorService.getErrorMessage(err, "Erreur lors de l'import CSV"));
       },
     });
   }

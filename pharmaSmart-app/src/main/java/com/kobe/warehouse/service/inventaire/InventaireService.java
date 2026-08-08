@@ -6,43 +6,29 @@ import com.kobe.warehouse.service.dto.StoreInventoryDTO;
 import com.kobe.warehouse.service.dto.StoreInventoryGroupExport;
 import com.kobe.warehouse.service.dto.StoreInventoryLineDTO;
 import com.kobe.warehouse.service.dto.StoreInventoryLotGroupExport;
-import com.kobe.warehouse.service.dto.builder.StoreInventoryLineFilterBuilder;
-import com.kobe.warehouse.service.dto.enumeration.StoreInventoryLineEnum;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryExportRecord;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryFilterRecord;
-import com.kobe.warehouse.service.dto.filter.StoreInventoryLineFilterRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryLineRecord;
-import com.kobe.warehouse.service.dto.records.StoreInventoryRecord;
 import com.kobe.warehouse.service.errors.InventoryException;
 import com.kobe.warehouse.service.mobile.dto.RayonRecord;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface InventaireService {
-
-    Page<StoreInventoryLineRecord> getInventoryItems(
-        StoreInventoryLineFilterRecord storeInventoryLineFilterRecord, Pageable pageable);
 
     byte[] printToPdf(StoreInventoryExportRecord filterRecord);
 
     List<StoreInventoryGroupExport> getStoreInventoryToExport(
         StoreInventoryExportRecord filterRecord);
 
-    Page<StoreInventoryLineRecord> getAllByInventory(
-        StoreInventoryLineFilterRecord storeInventoryLineFilterRecord, Pageable pageable);
-
     void remove(Long id);
 
     StoreInventoryLineRecord updateQuantityOnHand(StoreInventoryLineDTO storeInventoryLineDTO);
 
     Optional<StoreInventoryDTO> getStoreInventory(Long id);
-
-    StoreInventoryDTO create(StoreInventoryRecord storeInventoryRecord);
 
     Page<StoreInventoryDTO> storeInventoryList(
         StoreInventoryFilterRecord storeInventoryFilterRecord, Pageable pageable);
@@ -67,75 +53,4 @@ public interface InventaireService {
 
     int createInventoryFromFrom(CreateInventoryFromProduitIds createInventoryFromProduitIds)
         throws InventoryException;
-
-    default String buildBaseQuery(String baseQuery,
-        StoreInventoryLineFilterRecord storeInventoryLineFilterRecord) {
-        if (Objects.nonNull(storeInventoryLineFilterRecord.storageId()) || Objects.nonNull(
-            storeInventoryLineFilterRecord.rayonId())) {
-            if (Objects.nonNull(storeInventoryLineFilterRecord.rayonId())) {
-                return baseQuery
-                    .replace("{join_statement}", StoreInventoryLineFilterBuilder.RAYON_STATEMENT)
-                    .replace(
-                        "{join_statement_where}",
-                        String.format(StoreInventoryLineFilterBuilder.RAYON_STATEMENT_WHERE,
-                            storeInventoryLineFilterRecord.rayonId())
-                    );
-            } else {
-                return baseQuery
-                    .replace("{join_statement}", StoreInventoryLineFilterBuilder.RAYON_STATEMENT)
-                    .replace(
-                        "{join_statement_where}",
-                        String.format(StoreInventoryLineFilterBuilder.STOCKAGE_STATEMENT_WHERE,
-                            storeInventoryLineFilterRecord.storageId())
-                    );
-            }
-        } else {
-            return baseQuery.replace("{join_statement}", "").replace("{join_statement_where}", "");
-        }
-    }
-
-    default String buildFetchDetailQuery(String baseQuery,
-        StoreInventoryLineFilterRecord storeInventoryLineFilterRecord) {
-        String query = buildBaseQuery(baseQuery, storeInventoryLineFilterRecord);
-        String q = buildFilter(storeInventoryLineFilterRecord.selectedFilter());
-        if (StringUtils.hasLength(storeInventoryLineFilterRecord.search())) {
-            return String.format(query, buildSearchSection(storeInventoryLineFilterRecord) + q);
-        } else if (StringUtils.hasLength(q)) {
-            return String.format(query, q);
-        }
-        return String.format(query, " ");
-    }
-
-    default String buildFetchDetailQuery(
-        StoreInventoryLineFilterRecord storeInventoryLineFilterRecord) {
-        return buildFetchDetailQuery(StoreInventoryLineFilterBuilder.BASE_QUERY,
-            storeInventoryLineFilterRecord);
-    }
-
-    default String buildFetchDetailQueryCount(
-        StoreInventoryLineFilterRecord storeInventoryLineFilterRecord) {
-        return buildFetchDetailQuery(StoreInventoryLineFilterBuilder.COUNT,
-            storeInventoryLineFilterRecord);
-    }
-
-    default String buildSearchSection(
-        StoreInventoryLineFilterRecord storeInventoryLineFilterRecord) {
-        String search = storeInventoryLineFilterRecord.search() + "%";
-        return String.format(StoreInventoryLineFilterBuilder.LIKE_STATEMENT_WHERE, search, search,
-            search);
-    }
-
-    default String buildFilter(StoreInventoryLineEnum storeInventoryLineEnum) {
-        if (storeInventoryLineEnum == null) {
-            return "";
-        }
-        return switch (storeInventoryLineEnum) {
-            case NONE -> "";
-            case NOT_UPDATED -> " AND a.updated IS false ";
-            case UPDATED -> " AND a.updated ";
-            case GAP -> " AND a.updated  AND  a.quantity_on_hand <> a.quantity_init ";
-            case GAP_NEGATIF -> " AND a.updated  AND  a.quantity_on_hand < a.quantity_init ";
-            case GAP_POSITIF -> " AND a.updated  AND  a.quantity_on_hand >= a.quantity_init ";
-        };
-    }
 }

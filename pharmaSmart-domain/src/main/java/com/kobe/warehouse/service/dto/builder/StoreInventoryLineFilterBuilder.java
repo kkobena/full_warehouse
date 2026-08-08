@@ -8,6 +8,7 @@ import com.kobe.warehouse.service.dto.records.StoreInventorySummaryByGroupRecord
 import com.kobe.warehouse.service.dto.records.StoreInventorySummaryRecord;
 import jakarta.persistence.Tuple;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Objects;
 import org.springframework.util.StringUtils;
 
@@ -33,9 +34,9 @@ import org.springframework.util.StringUtils;
  *     .buildPage();
  * }</pre>
  *
- * <p>Les constantes SQL marquées {@code @Deprecated} restent pour compatibilité avec
- * {@code InventaireService} (interface legacy) et {@code InventaireServiceImpl}. Elles seront
- * supprimées lors de la refonte de la couche legacy.
+ * <p>Les constantes SQL publiques restantes servent aux requêtes qui n'ont pas de variante
+ * paramétrable — insertion ABC, agrégats de valorisation, export. Toute requête de liste ou de
+ * comptage passe par {@link LineQueryBuilder} ou {@link LotQueryBuilder}.
  */
 public class StoreInventoryLineFilterBuilder {
 
@@ -56,14 +57,21 @@ public class StoreInventoryLineFilterBuilder {
 
     // ── SUMMARY / EXPORT SQL (utilisés par InventaireServiceImpl legacy) ─────
 
+    /**
+     * Les colonnes agrégées sont des {@code integer} : {@code SUM(integer)} renvoie un
+     * {@code bigint} (donc un {@code Long}) alors que le record attend des {@code BigDecimal},
+     * et {@code integer * integer} déborde silencieusement au-delà de 2^31 avant même
+     * l'agrégation. Le {@code ::numeric} sur le premier opérande règle les deux : le produit
+     * puis la somme restent en {@code numeric}.
+     */
     public static final String SUMMARY_SQL =
         """
-            SELECT SUM(i.quantity_on_hand * i.inventory_value_cost) AS costValueAfter,
-                   SUM(i.quantity_on_hand * i.last_unit_price)      AS amountValueAfter,
-                   SUM(i.quantity_init   * i.inventory_value_cost)  AS costValueBegin,
-                   SUM(i.quantity_init   * i.last_unit_price)       AS amountValueBegin,
-                   SUM(i.gap             * i.inventory_value_cost)  AS gapCost,
-                   SUM(i.gap             * i.last_unit_price)       AS gapAmount
+            SELECT COALESCE(SUM(i.quantity_on_hand::numeric * i.inventory_value_cost), 0) AS costValueAfter,
+                   COALESCE(SUM(i.quantity_on_hand::numeric * i.last_unit_price),      0) AS amountValueAfter,
+                   COALESCE(SUM(i.quantity_init::numeric   * i.inventory_value_cost),  0) AS costValueBegin,
+                   COALESCE(SUM(i.quantity_init::numeric   * i.last_unit_price),       0) AS amountValueBegin,
+                   COALESCE(SUM(i.gap::numeric             * i.inventory_value_cost),  0) AS gapCost,
+                   COALESCE(SUM(i.gap::numeric             * i.last_unit_price),       0) AS gapAmount
             FROM store_inventory_line i
             WHERE i.store_inventory_id = ?1
             """;
@@ -101,12 +109,12 @@ public class StoreInventoryLineFilterBuilder {
             SELECT COALESCE(s.id::text, 'SANS_EMPLACEMENT')             AS groupKey,
                    COALESCE(s.name, 'Sans emplacement')                 AS groupLabel,
                    COUNT(*)                                              AS lineCount,
-                   COALESCE(SUM(i.quantity_init   * i.inventory_value_cost), 0) AS costBefore,
-                   COALESCE(SUM(i.quantity_on_hand * i.inventory_value_cost), 0) AS costAfter,
-                   COALESCE(SUM(i.quantity_init   * i.last_unit_price),  0) AS amountBefore,
-                   COALESCE(SUM(i.quantity_on_hand * i.last_unit_price), 0) AS amountAfter,
-                   COALESCE(SUM(i.gap             * i.inventory_value_cost), 0) AS gapCost,
-                   COALESCE(SUM(i.gap             * i.last_unit_price),  0) AS gapAmount
+                   COALESCE(SUM(i.quantity_init::numeric   * i.inventory_value_cost), 0) AS costBefore,
+                   COALESCE(SUM(i.quantity_on_hand::numeric * i.inventory_value_cost), 0) AS costAfter,
+                   COALESCE(SUM(i.quantity_init::numeric   * i.last_unit_price),  0) AS amountBefore,
+                   COALESCE(SUM(i.quantity_on_hand::numeric * i.last_unit_price), 0) AS amountAfter,
+                   COALESCE(SUM(i.gap::numeric             * i.inventory_value_cost), 0) AS gapCost,
+                   COALESCE(SUM(i.gap::numeric             * i.last_unit_price),  0) AS gapAmount
             FROM store_inventory_line i
             LEFT JOIN storage s ON s.id = i.storage_id
             WHERE i.store_inventory_id = ?1
@@ -122,12 +130,12 @@ public class StoreInventoryLineFilterBuilder {
             SELECT fm.id::text                                           AS groupKey,
                    COALESCE(fm.libelle, 'Sans famille')                  AS groupLabel,
                    COUNT(*)                                              AS lineCount,
-                   COALESCE(SUM(i.quantity_init   * i.inventory_value_cost), 0) AS costBefore,
-                   COALESCE(SUM(i.quantity_on_hand * i.inventory_value_cost), 0) AS costAfter,
-                   COALESCE(SUM(i.quantity_init   * i.last_unit_price),  0) AS amountBefore,
-                   COALESCE(SUM(i.quantity_on_hand * i.last_unit_price), 0) AS amountAfter,
-                   COALESCE(SUM(i.gap             * i.inventory_value_cost), 0) AS gapCost,
-                   COALESCE(SUM(i.gap             * i.last_unit_price),  0) AS gapAmount
+                   COALESCE(SUM(i.quantity_init::numeric   * i.inventory_value_cost), 0) AS costBefore,
+                   COALESCE(SUM(i.quantity_on_hand::numeric * i.inventory_value_cost), 0) AS costAfter,
+                   COALESCE(SUM(i.quantity_init::numeric   * i.last_unit_price),  0) AS amountBefore,
+                   COALESCE(SUM(i.quantity_on_hand::numeric * i.last_unit_price), 0) AS amountAfter,
+                   COALESCE(SUM(i.gap::numeric             * i.inventory_value_cost), 0) AS gapCost,
+                   COALESCE(SUM(i.gap::numeric             * i.last_unit_price),  0) AS gapAmount
             FROM store_inventory_line i
             JOIN produit p       ON p.id    = i.produit_id
             JOIN famille_produit fm ON fm.id = p.famille_id
@@ -144,12 +152,12 @@ public class StoreInventoryLineFilterBuilder {
             SELECT COALESCE(r.id::text, 'SANS_RAYON')                   AS groupKey,
                    COALESCE(r.libelle, 'Sans rayon')                     AS groupLabel,
                    COUNT(*)                                              AS lineCount,
-                   COALESCE(SUM(i.quantity_init   * i.inventory_value_cost), 0) AS costBefore,
-                   COALESCE(SUM(i.quantity_on_hand * i.inventory_value_cost), 0) AS costAfter,
-                   COALESCE(SUM(i.quantity_init   * i.last_unit_price),  0) AS amountBefore,
-                   COALESCE(SUM(i.quantity_on_hand * i.last_unit_price), 0) AS amountAfter,
-                   COALESCE(SUM(i.gap             * i.inventory_value_cost), 0) AS gapCost,
-                   COALESCE(SUM(i.gap             * i.last_unit_price),  0) AS gapAmount
+                   COALESCE(SUM(i.quantity_init::numeric   * i.inventory_value_cost), 0) AS costBefore,
+                   COALESCE(SUM(i.quantity_on_hand::numeric * i.inventory_value_cost), 0) AS costAfter,
+                   COALESCE(SUM(i.quantity_init::numeric   * i.last_unit_price),  0) AS amountBefore,
+                   COALESCE(SUM(i.quantity_on_hand::numeric * i.last_unit_price), 0) AS amountAfter,
+                   COALESCE(SUM(i.gap::numeric             * i.inventory_value_cost), 0) AS gapCost,
+                   COALESCE(SUM(i.gap::numeric             * i.last_unit_price),  0) AS gapAmount
             FROM store_inventory_line i
             JOIN produit p              ON p.id        = i.produit_id
             LEFT JOIN rayon_produit rp  ON rp.produit_id = p.id
@@ -161,162 +169,33 @@ public class StoreInventoryLineFilterBuilder {
 
     /**
      * Export PDF en mode gestion de lot : une ligne par lot, groupé par produit.
+     *
+     * <p>Piloté par {@code store_inventory_line} et non par {@code inventory_lot}, pour la même
+     * raison que la grille de saisie (voir {@link LotQueryBuilder}) : les produits du périmètre
+     * dépourvus de lot doivent figurer à l'export, sinon le document ne rend pas compte de tout
+     * ce qui a été inventorié. Ils y apparaissent en une ligne sans numéro de lot, valorisée au
+     * niveau de la ligne produit.
      */
     public static final String LOT_EXPORT_SQL =
         """
             SELECT fp.code_cip,
                    p.libelle                        AS produit_libelle,
+                   p.id                             AS produit_id,
+                   il.id                            AS inventory_lot_id,
                    l.num_lot,
                    l.expiry_date,
-                   il.quantity_init,
-                   il.quantity_on_hand,
-                   il.gap,
+                   COALESCE(il.quantity_init, sil.quantity_init)       AS quantity_init,
+                   COALESCE(il.quantity_on_hand, sil.quantity_on_hand) AS quantity_on_hand,
+                   COALESCE(il.gap, sil.gap)                           AS gap,
                    COALESCE(sil.last_unit_price, fp.prix_uni)   AS last_unit_price,
                    COALESCE(sil.inventory_value_cost, fp.prix_achat) AS prix_achat
-            FROM inventory_lot il
-            JOIN store_inventory_line sil ON sil.id     = il.store_inventory_line_id
+            FROM store_inventory_line sil
             JOIN produit p               ON p.id        = sil.produit_id
             JOIN fournisseur_produit fp  ON fp.id       = p.fournisseur_produit_principal_id
-            JOIN lot l                   ON l.id        = il.lot_id
+            LEFT JOIN inventory_lot il   ON il.store_inventory_line_id = sil.id
+            LEFT JOIN lot l              ON l.id        = il.lot_id
             WHERE sil.store_inventory_id = ?1
-            ORDER BY fp.code_cip, p.libelle, l.num_lot
-            """;
-
-    // ── Constantes legacy (InventaireService interface + InventaireServiceImpl) ─
-    // @Deprecated : à supprimer lors de la refonte des services legacy.
-
-    /**
-     * @deprecated Utiliser {@link #lineQuery(StoreInventoryLineFilterRecord)}
-     */
-    @Deprecated
-    public static final String BASE_QUERY =
-        """
-            SELECT p.id AS produitId, p.code_ean_labo,
-                   p.libelle, fp.code_cip,
-                   a.quantity_on_hand, a.gap, a.updated_at, a.id AS id,
-                   fp.prix_achat, fp.prix_uni, a.updated,
-                   a.storage_id, sp.seuil_mini,
-                   COALESCE(ilc.lot_count, 0) AS lot_count,
-                   abc.classe_pareto
-            FROM produit p
-            JOIN (SELECT fp.id, fp.code_cip, fp.produit_id, fp.prix_achat, fp.prix_uni
-                  FROM fournisseur_produit fp) AS fp
-              ON p.fournisseur_produit_principal_id = fp.id
-            JOIN store_inventory_line a ON p.id = a.produit_id
-            LEFT JOIN stock_produit sp ON sp.produit_id = p.id AND sp.storage_id = a.storage_id
-            LEFT JOIN (SELECT il.store_inventory_line_id, COUNT(*) AS lot_count
-                       FROM inventory_lot il
-                       GROUP BY il.store_inventory_line_id) ilc
-              ON ilc.store_inventory_line_id = a.id
-            LEFT JOIN v_abc_pareto_analysis abc ON abc.produit_id = p.id
-            {join_statement} WHERE a.store_inventory_id = ?1 {join_statement_where} %s
-            ORDER BY fp.code_cip, p.libelle
-            """;
-
-    /**
-     * @deprecated Utiliser {@link #lineQuery(StoreInventoryLineFilterRecord)}
-     */
-    @Deprecated
-    public static final String COUNT =
-        """
-            SELECT COUNT(p.id)
-            FROM produit p
-            JOIN (SELECT fp.id, fp.code_cip, fp.produit_id, fp.prix_achat, fp.prix_uni
-                  FROM fournisseur_produit fp) AS fp
-              ON p.fournisseur_produit_principal_id = fp.id
-            JOIN store_inventory_line a ON p.id = a.produit_id
-            {join_statement} WHERE a.store_inventory_id = ?1 {join_statement_where} %s
-            """;
-
-    /**
-     * @deprecated Utiliser {@link LineQueryBuilder}
-     */
-    @Deprecated
-    public static final String RAYON_STATEMENT = " JOIN rayon_produit rp ON p.id = rp.produit_id ";
-    /**
-     * @deprecated Utiliser {@link LineQueryBuilder}
-     */
-    @Deprecated
-    public static final String RAYON_STATEMENT_WHERE = " AND rp.rayon_id = %d ";
-    /**
-     * @deprecated Utiliser {@link LineQueryBuilder}
-     */
-    @Deprecated
-    public static final String STOCKAGE_STATEMENT_WHERE = " AND rp.rayon_id IN (SELECT ry.id FROM rayon ry WHERE ry.storage_id = %d) ";
-    /**
-     * @deprecated Utiliser {@link LineQueryBuilder}
-     */
-    @Deprecated
-    public static final String LIKE_STATEMENT_WHERE = " AND (p.libelle LIKE '%s' OR fp.code_cip LIKE '%s' OR p.code_ean_labo LIKE '%s') ";
-
-    /**
-     * @deprecated Utiliser {@link #lotQuery(StoreInventoryLineFilterRecord)}
-     */
-    @Deprecated
-    public static final String LOT_FLAT_BASE_QUERY =
-        """
-            SELECT il.id, il.store_inventory_line_id,
-                   p.id AS produit_id, fp.code_cip, p.libelle,
-                   l.num_lot, l.expiry_date,
-                   il.quantity_on_hand, il.quantity_init, il.gap, il.updated,
-                   abc.classe_pareto
-            FROM inventory_lot il
-            JOIN store_inventory_line sil ON il.store_inventory_line_id = sil.id
-            JOIN produit p               ON sil.produit_id = p.id
-            JOIN fournisseur_produit fp  ON p.fournisseur_produit_principal_id = fp.id
-            JOIN lot l                   ON il.lot_id = l.id
-            LEFT JOIN v_abc_pareto_analysis abc ON abc.produit_id = p.id
-            {join_statement} WHERE sil.store_inventory_id = ?1 {join_statement_where} %s
-            ORDER BY fp.code_cip, p.libelle, l.num_lot
-            """;
-
-    /**
-     * @deprecated Utiliser {@link #lotQuery(StoreInventoryLineFilterRecord)}
-     */
-    @Deprecated
-    public static final String LOT_FLAT_COUNT =
-        """
-            SELECT COUNT(il.id)
-            FROM inventory_lot il
-            JOIN store_inventory_line sil ON il.store_inventory_line_id = sil.id
-            JOIN produit p               ON sil.produit_id = p.id
-            JOIN fournisseur_produit fp  ON p.fournisseur_produit_principal_id = fp.id
-            JOIN lot l                   ON il.lot_id = l.id
-            {join_statement} WHERE sil.store_inventory_id = ?1 {join_statement_where} %s
-            """;
-
-    /**
-     * @deprecated Utiliser {@link LotQueryBuilder}
-     */
-    @Deprecated
-    public static final String LOT_LIKE_STATEMENT_WHERE =
-        " AND (p.libelle LIKE '%s' OR fp.code_cip LIKE '%s' OR l.num_lot LIKE '%s') ";
-
-    /**
-     * @deprecated Utiliser {@link LotQueryBuilder}
-     */
-    @Deprecated
-    public static final String SQL_ALL_INSERT_ALL =
-        """
-            INSERT INTO store_inventory_line (produit_id, updated_at, updated, store_inventory_id)
-            SELECT p.id, NOW(), false, %d
-            FROM produit p
-            WHERE p.status = 'ENABLE' {famille_close}
-            """;
-
-    /**
-     * @deprecated Utiliser {@link LotQueryBuilder}
-     */
-    @Deprecated
-    public static final String SQL_ALL_INSERT =
-        """
-            INSERT INTO store_inventory_line (produit_id, updated_at, updated, store_inventory_id)
-            SELECT p.id, NOW(), false, %d
-            FROM produit p
-            JOIN rayon_produit rp ON p.id  = rp.produit_id
-            JOIN rayon r          ON r.id  = rp.rayon_id
-            JOIN storage s        ON s.id  = r.storage_id
-            WHERE p.status = 'ENABLE'
+            ORDER BY fp.code_cip, p.libelle, l.num_lot, il.id
             """;
 
     // ── Export / filter static helpers ───────────────────────────────────────
@@ -406,12 +285,12 @@ public class StoreInventoryLineFilterBuilder {
 
     public static StoreInventorySummaryRecord buildSammary(Tuple t) {
         return new StoreInventorySummaryRecord(
-            t.get("costValueBegin", BigDecimal.class),
-            t.get("costValueAfter", BigDecimal.class),
-            t.get("amountValueBegin", BigDecimal.class),
-            t.get("amountValueAfter", BigDecimal.class),
-            t.get("gapCost", BigDecimal.class),
-            t.get("gapAmount", BigDecimal.class)
+            toBigDecimal(t, "costValueBegin"),
+            toBigDecimal(t, "costValueAfter"),
+            toBigDecimal(t, "amountValueBegin"),
+            toBigDecimal(t, "amountValueAfter"),
+            toBigDecimal(t, "gapCost"),
+            toBigDecimal(t, "gapAmount")
         );
     }
 
@@ -420,13 +299,35 @@ public class StoreInventoryLineFilterBuilder {
             t.get("groupKey", String.class),
             t.get("groupLabel", String.class),
             ((Number) t.get("lineCount")).longValue(),
-            ((BigDecimal) t.get("costBefore")),
-            ((BigDecimal) t.get("costAfter")),
-            ((BigDecimal) t.get("amountBefore")),
-            ((BigDecimal) t.get("amountAfter")),
-            ((BigDecimal) t.get("gapCost")),
-            ((BigDecimal) t.get("gapAmount"))
+            toBigDecimal(t, "costBefore"),
+            toBigDecimal(t, "costAfter"),
+            toBigDecimal(t, "amountBefore"),
+            toBigDecimal(t, "amountAfter"),
+            toBigDecimal(t, "gapCost"),
+            toBigDecimal(t, "gapAmount")
         );
+    }
+
+    /**
+     * Lit une colonne agrégée sans présumer du type JDBC renvoyé.
+     *
+     * <p>{@code Tuple#get(String, Class)} applique un {@code Class#cast} : demander
+     * {@code BigDecimal.class} sur un {@code SUM} de colonnes {@code integer} — que PostgreSQL
+     * renvoie en {@code bigint} — lève {@code ClassCastException}. Le type exact dépend du
+     * dialecte et du cast SQL, on normalise donc ici plutôt que de s'y fier.
+     */
+    private static BigDecimal toBigDecimal(Tuple tuple, String alias) {
+        return switch (tuple.get(alias)) {
+            case null -> BigDecimal.ZERO;
+            case BigDecimal value -> value;
+            case BigInteger value -> new BigDecimal(value);
+            case Double value -> BigDecimal.valueOf(value);
+            case Float value -> BigDecimal.valueOf(value);
+            case Number value -> BigDecimal.valueOf(value.longValue());
+            case Object value -> throw new IllegalArgumentException(
+                "Colonne agrégée [%s] non numérique : %s".formatted(alias, value.getClass().getName())
+            );
+        };
     }
 
     // ── LineQueryBuilder ──────────────────────────────────────────────────────
@@ -467,14 +368,18 @@ public class StoreInventoryLineFilterBuilder {
         if (lineEnum == null || lineEnum == StoreInventoryLineEnum.NONE) {
             return;
         }
+        String updated = LotQueryBuilder.EFFECTIVE_UPDATED;
+        String onHand = LotQueryBuilder.EFFECTIVE_QUANTITY_ON_HAND;
+        String init = LotQueryBuilder.EFFECTIVE_QUANTITY_INIT;
         switch (lineEnum) {
-            case NOT_UPDATED -> sql.append(" AND il.updated IS false");
-            case UPDATED -> sql.append(" AND il.updated");
-            case GAP -> sql.append(" AND il.updated AND il.quantity_on_hand <> il.quantity_init");
-            case GAP_NEGATIF ->
-                sql.append(" AND il.updated AND il.quantity_on_hand < il.quantity_init");
-            case GAP_POSITIF ->
-                sql.append(" AND il.updated AND il.quantity_on_hand >= il.quantity_init");
+            case NOT_UPDATED -> sql.append(" AND ").append(updated).append(" IS false");
+            case UPDATED -> sql.append(" AND ").append(updated);
+            case GAP -> sql.append(" AND ").append(updated)
+                .append(" AND ").append(onHand).append(" <> ").append(init);
+            case GAP_NEGATIF -> sql.append(" AND ").append(updated)
+                .append(" AND ").append(onHand).append(" < ").append(init);
+            case GAP_POSITIF -> sql.append(" AND ").append(updated)
+                .append(" AND ").append(onHand).append(" >= ").append(init);
             default -> { /* NONE déjà géré */ }
         }
     }
@@ -642,7 +547,14 @@ public class StoreInventoryLineFilterBuilder {
 
     /**
      * Construit dynamiquement les requêtes SQL de pagination et de comptage sur la vue plate
-     * {@code inventory_lot} (un lot par ligne).
+     * des lots (un lot par ligne).
+     *
+     * <p>La requête est pilotée par {@code store_inventory_line}, pas par {@code inventory_lot} :
+     * à la création d'un inventaire, un {@code inventory_lot} n'est inséré que pour les lots dont
+     * la quantité est strictement positive. Un INNER JOIN rendait donc invisibles — et de ce fait
+     * incomptables — les produits sans lot ou dont tous les lots sont à zéro, alors qu'ils sont
+     * bien dans le périmètre et seront clôturés. Ils apparaissent désormais en une ligne unique,
+     * sans numéro de lot, qui se compte au niveau de la ligne produit.
      *
      * <p>Join optionnel :
      * <ul>
@@ -650,6 +562,17 @@ public class StoreInventoryLineFilterBuilder {
      * </ul>
      */
     public static final class LotQueryBuilder {
+
+        /**
+         * Colonnes lues au niveau du lot quand il y en a un, au niveau de la ligne produit sinon.
+         * Partagées avec {@link #appendLotFilter} : un filtre qui interrogerait {@code il}
+         * directement écarterait toutes les lignes sans lot.
+         */
+        static final String EFFECTIVE_UPDATED = "COALESCE(il.updated, sil.updated)";
+        static final String EFFECTIVE_QUANTITY_ON_HAND =
+            "COALESCE(il.quantity_on_hand, sil.quantity_on_hand)";
+        static final String EFFECTIVE_QUANTITY_INIT =
+            "COALESCE(il.quantity_init, sil.quantity_init)";
 
         private final StoreInventoryLineFilterRecord filter;
         private boolean includeAbcPareto = false;
@@ -674,7 +597,9 @@ public class StoreInventoryLineFilterBuilder {
             appendSelect(sql);
             appendFrom(sql);
             appendWhere(sql);
-            sql.append(" ORDER BY fp.code_cip, p.libelle, l.num_lot");
+            // il.id départage les lots d'un même produit : sans lui, deux lignes de même
+            // num_lot pourraient changer de page d'un appel à l'autre
+            sql.append(" ORDER BY fp.code_cip, p.libelle, l.num_lot, il.id");
             return sql.toString();
         }
 
@@ -682,7 +607,7 @@ public class StoreInventoryLineFilterBuilder {
          * Requête de comptage — sans le join ABC.
          */
         public String buildCount() {
-            StringBuilder sql = new StringBuilder("SELECT COUNT(il.id)");
+            StringBuilder sql = new StringBuilder("SELECT COUNT(*)");
             appendFromForCount(sql);
             appendWhere(sql);
             return sql.toString();
@@ -690,19 +615,27 @@ public class StoreInventoryLineFilterBuilder {
 
         // ── SELECT ────────────────────────────────────────────────────────────
 
+        /**
+         * {@code il.id} nul identifie une ligne sans lot : c'est à ce signal que les clients
+         * routent la saisie vers l'API ligne produit plutôt que vers l'API lot.
+         */
         private void appendSelect(StringBuilder sql) {
             sql.append("""
                 SELECT il.id,
-                       il.store_inventory_line_id,
+                       sil.id AS store_inventory_line_id,
                        p.id AS produit_id,
                        fp.code_cip,
                        p.libelle,
                        l.num_lot,
                        l.expiry_date,
-                       il.quantity_on_hand,
-                       il.quantity_init,
-                       il.gap,
-                       il.updated""");
+                """);
+            sql.append(EFFECTIVE_QUANTITY_ON_HAND).append(" AS quantity_on_hand,");
+            sql.append(EFFECTIVE_QUANTITY_INIT).append(" AS quantity_init,");
+            sql.append("COALESCE(il.gap, sil.gap) AS gap,");
+            sql.append(EFFECTIVE_UPDATED).append(" AS updated,");
+            // Verrou optimiste de la ligne produit : seules les lignes sans lot s'écrivent
+            // par l'API ligne, qui exige la version lue pour arbitrer un comptage concurrent
+            sql.append("sil.version AS version");
 
             sql.append(includeAbcPareto
                 ? ",abc.classe_pareto"
@@ -729,11 +662,11 @@ public class StoreInventoryLineFilterBuilder {
 
         private void appendCoreJoins(StringBuilder sql) {
             sql.append("""
-                  FROM inventory_lot il
-                JOIN store_inventory_line sil ON il.store_inventory_line_id = sil.id
+                  FROM store_inventory_line sil
                 JOIN produit p               ON sil.produit_id = p.id
                 JOIN fournisseur_produit fp  ON p.fournisseur_produit_principal_id = fp.id
-                JOIN lot l                   ON il.lot_id = l.id""");
+                LEFT JOIN inventory_lot il   ON il.store_inventory_line_id = sil.id
+                LEFT JOIN lot l              ON l.id = il.lot_id""");
         }
 
         private void appendScopeJoin(StringBuilder sql) {

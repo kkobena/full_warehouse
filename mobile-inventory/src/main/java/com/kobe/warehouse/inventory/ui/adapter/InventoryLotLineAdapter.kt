@@ -115,6 +115,10 @@ class InventoryLotLineAdapter(
         /** « Lot X — exp. 31/12/2030 », la péremption étant omise si absente */
         private fun lotLabel(line: InventoryLotLine): String {
             val context = binding.root.context
+            // Produit du périmètre sans aucun lot : ni numéro ni péremption à afficher
+            if (line.isLotLess()) {
+                return context.getString(R.string.lot_none)
+            }
             val numLot = line.numLot?.takeIf { it.isNotBlank() }
                 ?: context.getString(R.string.lot_unnamed)
             val expiry = line.expiryDate?.let { formatExpiry(it) }
@@ -182,8 +186,17 @@ class InventoryLotLineAdapter(
     }
 
     class DiffCallback : DiffUtil.ItemCallback<InventoryLotLine>() {
+        /**
+         * Les lignes sans lot n'ont pas d'identifiant de lot : les départager sur cet
+         * identifiant les confondrait toutes en une seule. On retombe alors sur la ligne
+         * produit, qui est unique dans la grille pour ces lignes-là.
+         */
         override fun areItemsTheSame(oldItem: InventoryLotLine, newItem: InventoryLotLine): Boolean =
-            oldItem.id == newItem.id
+            if (oldItem.id != null || newItem.id != null) {
+                oldItem.id == newItem.id
+            } else {
+                oldItem.storeInventoryLineId == newItem.storeInventoryLineId
+            }
 
         override fun areContentsTheSame(oldItem: InventoryLotLine, newItem: InventoryLotLine): Boolean =
             oldItem == newItem

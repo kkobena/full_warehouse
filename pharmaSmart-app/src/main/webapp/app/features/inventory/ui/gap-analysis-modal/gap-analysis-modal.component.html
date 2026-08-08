@@ -8,20 +8,27 @@
 <div class="modal-body">
 <app-card [variant]="'form'">
   <!-- Résumé compteur -->
-  @if (!loading() && lines().length > 0) {
+  @if (totalItems() > 0) {
     <div class="gap-summary-banner mb-3">
       <div class="gap-banner-item">
-        <span class="gap-banner-value text-danger">{{ totalGapLines }}</span>
+        <span class="gap-banner-value text-danger">{{ totalItems() | number: '1.0-0' : 'fr' }}</span>
         <span class="gap-banner-label">produit(s) avec écart</span>
       </div>
       <div class="gap-banner-sep"></div>
       <div class="gap-banner-item">
-        <span class="gap-banner-value text-success">{{ qualifiedCount }}</span>
-        <span class="gap-banner-label">cause(s) renseignée(s)</span>
+        <span class="gap-banner-value text-success">{{ savedCount() | number: '1.0-0' : 'fr' }}</span>
+        <span class="gap-banner-label">cause(s) enregistrée(s)</span>
       </div>
+      @if (pendingCount() > 0) {
+        <div class="gap-banner-sep"></div>
+        <div class="gap-banner-item">
+          <span class="gap-banner-value text-warning">{{ pendingCount() | number: '1.0-0' : 'fr' }}</span>
+          <span class="gap-banner-label">modification(s) non enregistrée(s)</span>
+        </div>
+      }
       <div class="gap-banner-hint">
         <i class="pi pi-info-circle me-1"></i>
-        Cette étape est facultative. Vous pouvez enregistrer ou passer.
+        Cette étape est facultative. Vos saisies sont conservées d'une page à l'autre.
       </div>
     </div>
   }
@@ -29,10 +36,20 @@
   <!-- Table des écarts -->
   <div class="pharma-table-wrapper">
     <app-data-table
-      [value]="lines()"
+      (onLazyLoad)="onLazyLoad($event)"
+      [(first)]="first"
+      [(rows)]="rows"
+      [lazy]="true"
       [loading]="loading()"
+      [paginator]="true"
+      [rowsPerPageOptions]="rowsPerPageOptions"
+      [scrollable]="true"
+      [showCurrentPageReport]="true"
+      [totalRecords]="totalItems()"
+      [value]="lines()"
       class="p-datatable-sm"
       dataKey="lineId"
+      scrollHeight="45vh"
     >
       <ng-template #header>
         <tr class="pharma-table-head">
@@ -57,7 +74,8 @@
           </td>
           <td>
             <app-select-search
-              [(ngModel)]="line.selectedCause"
+              (ngModelChange)="onCauseChange(line, $event)"
+              [ngModel]="line.selectedCause"
               [items]="causeOptions"
               bindLabel="label"
               bindValue="value"
@@ -71,7 +89,8 @@
           </td>
           <td>
             <input
-              [(ngModel)]="line.comment"
+              (ngModelChange)="onCommentChange(line, $event)"
+              [ngModel]="line.comment"
               class="form-control form-control-sm"
               placeholder="Commentaire optionnel…"
               type="text"
@@ -115,8 +134,9 @@
       severity="primary"
       [raised]="true"
       [loading]="saving()"
-      [disabled]="lines().length === 0 || saving()"
+      [disabled]="pendingCount() === 0 || saving()"
       (clicked)="save()"
+      ngbTooltip="Enregistre uniquement les causes que vous avez saisies"
     />
   </div>
 </div>

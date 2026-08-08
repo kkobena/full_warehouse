@@ -1,52 +1,9 @@
 @use 'app/shared/scss/table-common' as *;
 
-// ── KPIs globaux ──────────────────────────────────────────────────────────────
-.val-global-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-.val-kpi {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  padding: 0.5rem 0.75rem;
-
-  &.val-kpi-gap {
-    background: #fff3cd;
-    border-color: #ffc107;
-  }
-
-  &.val-negative {
-    background: #f8d7da;
-    border-color: #dc3545;
-
-    .val-kpi-value { color: #dc3545; }
-  }
-}
-
-.val-kpi-label {
-  font-size: 0.7rem;
-  color: #6c757d;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  font-weight: 500;
-}
-
-.val-kpi-value {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: #333;
-}
+// Les KPIs globaux sont rendus par `app-kpi-strip` / `app-kpi-item` : encadré, libellés,
+// valeurs et accents colorés viennent du Design System, plus de `.val-global-grid` local.
+// `.val-negative` / `.val-positive` restent définies plus bas — le tableau de ventilation
+// s'en sert toujours via `getGapClass`.
 
 // ── Sélecteur de ventilation ──────────────────────────────────────────────────
 .val-group-selector {

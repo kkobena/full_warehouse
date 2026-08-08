@@ -1,4 +1,4 @@
-<div class="pharma-smart-content p-2">
+<div class="pharma-smart-content p-1">
 
   <!-- ── Modern Pharma Toolbar ─────────────────────────────────────────────── -->
   <app-toolbar icon="pi pi-list-check" title="Inventaire">
@@ -16,6 +16,7 @@
             label="Exporter PDF"
             ngbTooltip="Exporter l'inventaire en PDF"
             [severity]="'warn'"
+            [size]="'small'"
           />
 
           @if (!isInventoryClosed) {
@@ -26,7 +27,8 @@
               [outlined]="true"
               label="Importer CSV"
               ngbTooltip="Importer depuis un fichier CSV"
-              severity="info"
+              [severity]="'info'"
+              [size]="'small'"
             />
 
             @if (canCloseInventory()) {
@@ -37,6 +39,7 @@
                 label="Clôturer"
                 ngbTooltip="Clôturer cet inventaire"
                 severity="primary"
+                [size]="'small'"
               />
             }
           }
@@ -49,6 +52,7 @@
               label="Analyser les écarts"
               ngbTooltip="Qualifier les causes d'écart (optionnel)"
               severity="danger"
+              [size]="'small'"
             />
           }
           <app-button
@@ -59,6 +63,7 @@
             label="Retour"
             ngbTooltip="Retour à la liste"
             [severity]="'secondary'"
+            [size]="'small'"
           />
 
         </div>
@@ -67,7 +72,7 @@
   </app-toolbar>
 
   <!-- ── Contenu en deux colonnes ──────────────────────────────────────────── -->
-  <div class="row mt-2 g-3">
+  <div class="row  g-3">
 
     <!-- ── Colonne gauche : infos inventaire ──────────────────────────────── -->
     <div class="col-xl-3 col-lg-4">
@@ -121,6 +126,7 @@
               <app-button
                 (clicked)="refreshAfterRemoteCounts()"
                 [text]="true"
+                [size]="'small'"
                 label="Rafraîchir"
                 severity="info"
               />
@@ -142,6 +148,17 @@
 
     <!-- ── Colonne droite : grille + pagination ──────────────────────────── -->
     <div class="col-xl-9 col-lg-8">
+
+      <!-- Synthèse valorisation (clôturé uniquement) -->
+      @if (isInventoryClosed && inventoryId() > 0) {
+        <div class="valuation-section mb-3">
+          <h6 class="info-card-title">
+            <i class="pi pi-calculator"></i> Valorisation ventilée
+          </h6>
+          <app-inventory-valuation [inventoryId]="inventoryId()" />
+        </div>
+      }
+
       <!-- Grille -->
       <div class="grid-container">
         @if (inventoryId() > 0) {
@@ -171,6 +188,7 @@
               [inventoryId]="inventoryId()"
               [pageSize]="size()"
               [rayons]="rayons()"
+              [readOnly]="isInventoryClosed"
               [showSeuilMini]="showSeuilMini()"
               [storages]="storages()"
             />
@@ -178,16 +196,6 @@
           }
         }
       </div>
-
-      <!-- Synthèse valorisation (clôturé uniquement) -->
-      @if (isInventoryClosed && inventoryId() > 0) {
-        <div class="valuation-section mt-3">
-          <h6 class="info-card-title">
-            <i class="pi pi-calculator"></i> Valorisation ventilée
-          </h6>
-          <app-inventory-valuation [inventoryId]="inventoryId()" />
-        </div>
-      }
 
       <!-- Pagination -->
       <div class="pagination-bar">
@@ -221,9 +229,13 @@
             severity="secondary"
           />
         </div>
+        <!--
+          « ligne(s) » et non « lot(s) » : la grille lot comprend aussi les produits du
+          périmètre dépourvus de lot, qui s'y comptent à la ligne.
+        -->
         <span class="total-info">
           {{ gestionLot() ? store.lotTotalLines() : store.totalLines() }}
-          {{ gestionLot() ? 'lot(s)' : 'ligne(s)' }}
+          ligne(s)
         </span>
       </div>
 

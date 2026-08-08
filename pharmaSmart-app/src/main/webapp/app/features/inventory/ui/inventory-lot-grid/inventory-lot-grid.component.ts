@@ -13,10 +13,18 @@ import {
 } from 'ag-grid-community';
 import {AgGridAngular} from 'ag-grid-angular';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
 import {InventoryApiService} from '../../data-access/services/inventory-api.service';
 import {InventoryEditorFacade} from '../../data-access/facades/inventory-editor.facade';
 import {InventoryStore} from '../../data-access/store/inventory.store';
-import {IInventoryLotLine, InventoryLineFilter, isGapLineFilter, lineFiltersFor} from '../../models';
+import {
+  IInventoryLotLine,
+  InventoryLineFilter,
+  isGapLineFilter,
+  lineFiltersFor,
+  renderParetoBadge,
+} from '../../models';
 import {IStorage} from '../../../../shared/model/magasin.model';
 import {IRayon} from '../../../../shared/model/rayon.model';
 import {SelectComponent} from '../../../../shared/ui';
@@ -90,6 +98,8 @@ export class InventoryLotGridComponent {
       editable: false,
       sortable: true,
       filter: true,
+      // Vide pour les produits du périmètre sans lot — cf. LotQueryBuilder
+      valueFormatter: params => params.value ?? '-',
     },
     {
       field: 'expiryDate',
@@ -97,6 +107,7 @@ export class InventoryLotGridComponent {
       width: 130,
       editable: false,
       sortable: true,
+      valueFormatter: params => params.value ?? '-',
     },
     {
       field: 'quantityInit',
@@ -111,7 +122,10 @@ export class InventoryLotGridComponent {
       field: 'quantityOnHand',
       headerName: 'Qté constatée',
       width: 130,
-      editable: true,
+      // Seule colonne saisissable — et seulement tant que l'inventaire est ouvert.
+      // `readOnly` ne gardait que `onCellValueChanged` : la cellule s'ouvrait quand même
+      // à la saisie, et la valeur tapée était silencieusement rejetée.
+      editable: !this.readOnly(),
       type: ['rightAligned', 'numericColumn'],
       cellStyle: params => {
         if (params.data?.updated) {
@@ -145,13 +159,7 @@ export class InventoryLotGridComponent {
       hide: true,
       cellStyle: {textAlign: 'center'},
       headerClass: 'ag-header-cell-center',
-      cellRenderer: (params: any) => {
-        const cls = params.value;
-        if (!cls) return '';
-        const colors: Record<string, string> = {A: '#198754', B: '#0d6efd', C: '#6c757d'};
-        const color = colors[cls] ?? '#6c757d';
-        return `<span style="display:inline-block;padding:1px 6px;border-radius:10px;font-size:11px;font-weight:700;color:#fff;background:${color}">${cls}</span>`;
-      },
+      cellRenderer: (params: any) => renderParetoBadge(params.value),
     },
     {
       field: 'updated',
@@ -221,7 +229,7 @@ export class InventoryLotGridComponent {
     if (event.column.getColId() !== 'quantityOnHand' || this.readOnly()) return;
 
     const lotData = event.data as IInventoryLotLine;
-    if (!lotData?.id) return;
+    if (!lotData?.storeInventoryLineId) return;
 
     const numValue = Number(event.newValue);
     if (!Number.isFinite(numValue) || numValue < 0) {
@@ -235,14 +243,14 @@ export class InventoryLotGridComponent {
     const rowIndex = event.rowIndex!;
     this.suppressRowDataRefresh = true;
 
-    this.api.updateLot(lotData.id, {
-      ...lotData,
-      quantityOnHand: numValue,
-      storeInventoryLineId: lotData.storeInventoryLineId,
-    }).subscribe({
+    this.saveCount(lotData, numValue).subscribe({
       next: updated => {
         event.node.setDataValue('gap', updated.gap);
         event.node.setDataValue('updated', true);
+        // La version renvoyée arme le prochain arbitrage de comptage concurrent
+        if (updated.version != null) {
+          event.node.setDataValue('version', updated.version);
+        }
         this.navigateToNextRow(rowIndex);
       },
       error: () => {
@@ -250,6 +258,33 @@ export class InventoryLotGridComponent {
         this.suppressRowDataRefresh = false;
       },
     });
+  }
+
+  /**
+   * Une ligne sans lot n'a rien à écrire côté lot : elle se compte par l'API ligne produit,
+   * avec le verrou optimiste que cette API attend. Les autres passent par l'API lot, qui
+   * recalcule ensuite la quantité de la ligne parente.
+   */
+  private saveCount(
+    lotData: IInventoryLotLine,
+    quantityOnHand: number,
+  ): Observable<{gap?: number; version?: number}> {
+    if (lotData.id) {
+      return this.api.updateLot(lotData.id, {
+        ...lotData,
+        quantityOnHand,
+        storeInventoryLineId: lotData.storeInventoryLineId,
+      });
+    }
+    return this.api
+      .updateLine({
+        id: lotData.storeInventoryLineId,
+        produitId: lotData.produitId,
+        storeInventoryId: this.inventoryId(),
+        quantityOnHand,
+        version: lotData.version,
+      })
+      .pipe(map(resp => resp.body ?? {}));
   }
 
   /**

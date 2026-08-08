@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.StoreInventory;
+import com.kobe.warehouse.domain.enumeration.InventoryStatut;
 import com.kobe.warehouse.domain.enumeration.InventoryType;
 import java.io.Serial;
 import java.io.Serializable;
@@ -38,39 +39,178 @@ public class StoreInventoryDTO implements Serializable {
     public StoreInventoryDTO() {}
 
     public StoreInventoryDTO(StoreInventory storeInventory) {
-        this.id = storeInventory.getId();
-        this.inventoryValueCostBegin = storeInventory.getInventoryValueCostBegin();
-        this.inventoryAmountBegin = storeInventory.getInventoryAmountBegin();
-        this.createdAt = storeInventory.getCreatedAt();
-        this.updatedAt = storeInventory.getUpdatedAt();
-        this.inventoryValueCostAfter = storeInventory.getInventoryValueCostAfter();
-        this.inventoryAmountAfter = storeInventory.getInventoryAmountAfter();
-        AppUser user = storeInventory.getUser();
-        this.abbrName = String.format("%s. %s", user.getFirstName().charAt(0), user.getLastName());
-        this.statut = storeInventory.getStatut().name();
-        this.inventoryType = storeInventory.getInventoryType();
-        this.inventoryCategory = new CategoryInventory(storeInventory.getInventoryCategory());
-        if (Objects.nonNull(storeInventory.getStorage())) {
-            this.storage = new StorageDTO(storeInventory.getStorage());
-        }
-        if (Objects.nonNull(storeInventory.getRayon())) {
-            this.rayon = new RayonDTO(storeInventory.getRayon());
-        }
-        if (Objects.nonNull(storeInventory.getGapCost())) {
-            this.gapCost = storeInventory.getGapCost();
-        }
-        if (Objects.nonNull(storeInventory.getGapAmount())) {
-            this.gapAmount = storeInventory.getGapAmount();
-        }
-        this.description = storeInventory.getDescription();
-        if (Objects.isNull(storeInventory.getDescription())) {
-            this.description = "Inventaire du " + storeInventory.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-        }
+        copy(storeInventory, this);
     }
 
     public StoreInventoryDTO(StoreInventory storeInventory, List<StoreInventoryLineDTO> storeInventoryLines) {
         this(storeInventory);
         this.storeInventoryLines = storeInventoryLines;
+    }
+
+    /** Builder vierge — tous les champs sont à poser à la main. */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * Builder amorcé depuis l'entité : même projection que
+     * {@link #StoreInventoryDTO(StoreInventory)}, mais réouvrable.
+     *
+     * <p>À préférer au constructeur dès que l'appelant doit corriger un champ après coup —
+     * typiquement le statut, qu'un service peut vouloir dériver de l'état des lignes plutôt
+     * que de recopier celui de l'entité.
+     */
+    public static Builder builder(StoreInventory storeInventory) {
+        return new Builder().from(storeInventory);
+    }
+
+    /**
+     * Projection entité → DTO, partagée par le constructeur et le builder : une seule
+     * définition du mapping, quel que soit le point d'entrée.
+     */
+    private static void copy(StoreInventory source, StoreInventoryDTO target) {
+        target.id = source.getId();
+        target.inventoryValueCostBegin = source.getInventoryValueCostBegin();
+        target.inventoryAmountBegin = source.getInventoryAmountBegin();
+        target.createdAt = source.getCreatedAt();
+        target.updatedAt = source.getUpdatedAt();
+        target.inventoryValueCostAfter = source.getInventoryValueCostAfter();
+        target.inventoryAmountAfter = source.getInventoryAmountAfter();
+        AppUser user = source.getUser();
+        target.abbrName = String.format("%s. %s", user.getFirstName().charAt(0), user.getLastName());
+        target.statut = source.getStatut().name();
+        target.inventoryType = source.getInventoryType();
+        target.inventoryCategory = new CategoryInventory(source.getInventoryCategory());
+        if (Objects.nonNull(source.getStorage())) {
+            target.storage = new StorageDTO(source.getStorage());
+        }
+        if (Objects.nonNull(source.getRayon())) {
+            target.rayon = new RayonDTO(source.getRayon());
+        }
+        if (Objects.nonNull(source.getGapCost())) {
+            target.gapCost = source.getGapCost();
+        }
+        if (Objects.nonNull(source.getGapAmount())) {
+            target.gapAmount = source.getGapAmount();
+        }
+        target.description = source.getDescription();
+        if (Objects.isNull(source.getDescription())) {
+            target.description = "Inventaire du " + source.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+        }
+    }
+
+    /**
+     * Builder de {@link StoreInventoryDTO}.
+     *
+     * <p>Il accumule dans l'instance qu'il finira par rendre, plutôt que de dupliquer les
+     * dix-huit champs du DTO : celui-ci est mutable de bout en bout (setters publics), un
+     * miroir n'apporterait aucune immuabilité et doublerait la surface à maintenir.
+     */
+    public static final class Builder {
+
+        private final StoreInventoryDTO dto = new StoreInventoryDTO();
+
+        private Builder() {}
+
+        /** Applique la projection de l'entité, en écrasant ce qui a déjà été posé. */
+        public Builder from(StoreInventory storeInventory) {
+            copy(storeInventory, this.dto);
+            return this;
+        }
+
+        public Builder id(Long id) {
+            this.dto.id = id;
+            return this;
+        }
+
+        public Builder statut(InventoryStatut statut) {
+            this.dto.statut = Objects.nonNull(statut) ? statut.name() : null;
+            return this;
+        }
+
+        public Builder inventoryType(InventoryType inventoryType) {
+            this.dto.inventoryType = inventoryType;
+            return this;
+        }
+
+        public Builder inventoryCategory(CategoryInventory inventoryCategory) {
+            this.dto.inventoryCategory = inventoryCategory;
+            return this;
+        }
+
+        public Builder storage(StorageDTO storage) {
+            this.dto.storage = storage;
+            return this;
+        }
+
+        public Builder rayon(RayonDTO rayon) {
+            this.dto.rayon = rayon;
+            return this;
+        }
+
+        public Builder description(String description) {
+            this.dto.description = description;
+            return this;
+        }
+
+        public Builder abbrName(String abbrName) {
+            this.dto.abbrName = abbrName;
+            return this;
+        }
+
+        public Builder userFullName(String userFullName) {
+            this.dto.userFullName = userFullName;
+            return this;
+        }
+
+        public Builder createdAt(LocalDateTime createdAt) {
+            this.dto.createdAt = createdAt;
+            return this;
+        }
+
+        public Builder updatedAt(LocalDateTime updatedAt) {
+            this.dto.updatedAt = updatedAt;
+            return this;
+        }
+
+        public Builder inventoryValueCostBegin(long inventoryValueCostBegin) {
+            this.dto.inventoryValueCostBegin = inventoryValueCostBegin;
+            return this;
+        }
+
+        public Builder inventoryAmountBegin(long inventoryAmountBegin) {
+            this.dto.inventoryAmountBegin = inventoryAmountBegin;
+            return this;
+        }
+
+        public Builder inventoryValueCostAfter(long inventoryValueCostAfter) {
+            this.dto.inventoryValueCostAfter = inventoryValueCostAfter;
+            return this;
+        }
+
+        public Builder inventoryAmountAfter(long inventoryAmountAfter) {
+            this.dto.inventoryAmountAfter = inventoryAmountAfter;
+            return this;
+        }
+
+        public Builder gapCost(int gapCost) {
+            this.dto.gapCost = gapCost;
+            return this;
+        }
+
+        public Builder gapAmount(int gapAmount) {
+            this.dto.gapAmount = gapAmount;
+            return this;
+        }
+
+        public Builder storeInventoryLines(List<StoreInventoryLineDTO> storeInventoryLines) {
+            this.dto.storeInventoryLines = Objects.nonNull(storeInventoryLines) ? storeInventoryLines : new ArrayList<>();
+            return this;
+        }
+
+        public StoreInventoryDTO build() {
+            return this.dto;
+        }
     }
 
     public Long getId() {

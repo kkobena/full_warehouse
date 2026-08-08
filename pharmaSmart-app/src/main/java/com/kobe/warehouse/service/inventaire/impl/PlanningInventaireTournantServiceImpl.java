@@ -35,7 +35,16 @@ public class PlanningInventaireTournantServiceImpl implements PlanningInventaire
     private static final Logger log = LoggerFactory.getLogger(
         PlanningInventaireTournantServiceImpl.class);
 
-    private static final List<String> ABC_CLASSES = List.of("A", "B", "C");
+    /**
+     * Cycle de rotation ABC — aligné sur les valeurs émises par
+     * {@code v_abc_pareto_analysis.classe_pareto} (5 classes depuis V1.3.3, seuils 60/80/95/99).
+     *
+     * <p>La liste était limitée à A/B/C : la constitution de l'inventaire filtrant sur
+     * {@code abc.classe_pareto = :classePareto}, ni A_PLUS (les 60 premiers % du CA) ni D
+     * (produits sans vente sur 12 mois) n'étaient jamais comptés — soit les deux extrémités,
+     * les plus sensibles.
+     */
+    private static final List<String> ABC_CLASSES = List.of("A_PLUS", "A", "B", "C", "D");
 
     private final PlanningInventaireTournantRepository planningRepository;
     private final RayonRepository rayonRepository;
@@ -250,8 +259,8 @@ public class PlanningInventaireTournantServiceImpl implements PlanningInventaire
         Integer storageId, Integer userId) {
         String classePareto = planning.getClasseParetoCourante() != null
             ? planning.getClasseParetoCourante()
-            : ABC_CLASSES.get(planning.getCritereIndexCourant() % 3);
-        String description = "Inventaire tournant — Classe Pareto : " + classePareto;
+            : abcClasseAt(planning.getCritereIndexCourant());
+        String description = "Inventaire tournant — Classe Pareto : " + paretoLabel(classePareto);
         return new StoreInventoryRecord(null, storageId, null, "ABC", null, description,
             null, null, null, classePareto, userId, List.of());
     }
@@ -261,8 +270,17 @@ public class PlanningInventaireTournantServiceImpl implements PlanningInventaire
         planning.setCritereIndexCourant(newIndex);
         // Pour ABC : mettre à jour classeParetoCourante
         if (planning.getCritere() == CritereTournant.CLASSIFICATION_ABC) {
-            planning.setClasseParetoCourante(ABC_CLASSES.get(newIndex % 3));
+            planning.setClasseParetoCourante(abcClasseAt(newIndex));
         }
+    }
+
+    private static String abcClasseAt(int index) {
+        return ABC_CLASSES.get(Math.floorMod(index, ABC_CLASSES.size()));
+    }
+
+    /** Libellé lisible d'une classe Pareto : la base stocke {@code A_PLUS}, l'écran affiche {@code A+}. */
+    private static String paretoLabel(String classePareto) {
+        return "A_PLUS".equals(classePareto) ? "A+" : classePareto;
     }
 
     private LocalDate nextExecutionDate(FrequenceTournant frequence) {

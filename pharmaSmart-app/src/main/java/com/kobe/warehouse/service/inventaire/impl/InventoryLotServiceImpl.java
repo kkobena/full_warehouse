@@ -7,18 +7,23 @@ import com.kobe.warehouse.domain.enumeration.StatutLot;
 import com.kobe.warehouse.repository.InventoryLotRepository;
 import com.kobe.warehouse.repository.LotRepository;
 import com.kobe.warehouse.repository.StoreInventoryLineRepository;
+import com.kobe.warehouse.repository.StoreInventoryRepository;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.builder.StoreInventoryLineFilterBuilder;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryLineFilterRecord;
 import com.kobe.warehouse.service.dto.records.InventoryLotRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryLotLineRecord;
 import com.kobe.warehouse.service.inventaire.InventoryLotService;
+import com.kobe.warehouse.service.inventaire.InventoryStockService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -31,21 +36,27 @@ public class InventoryLotServiceImpl implements InventoryLotService {
 
     private final InventoryLotRepository inventoryLotRepository;
     private final StoreInventoryLineRepository storeInventoryLineRepository;
+    private final StoreInventoryRepository storeInventoryRepository;
     private final LotRepository lotRepository;
     private final UserService userService;
+    private final InventoryStockService inventoryStockService;
     private final EntityManager em;
 
     public InventoryLotServiceImpl(
         InventoryLotRepository inventoryLotRepository,
         StoreInventoryLineRepository storeInventoryLineRepository,
+        StoreInventoryRepository storeInventoryRepository,
         LotRepository lotRepository,
         UserService userService,
+        InventoryStockService inventoryStockService,
         EntityManager em
     ) {
         this.inventoryLotRepository = inventoryLotRepository;
         this.storeInventoryLineRepository = storeInventoryLineRepository;
+        this.storeInventoryRepository = storeInventoryRepository;
         this.lotRepository = lotRepository;
         this.userService = userService;
+        this.inventoryStockService = inventoryStockService;
         this.em = em;
     }
 
@@ -148,10 +159,41 @@ public class InventoryLotServiceImpl implements InventoryLotService {
         }
         List<Tuple> tuples = fetchLotFlatTuples(filter, pageable);
         List<StoreInventoryLotLineRecord> records = tuples.stream().map(this::toLotLineRecord).toList();
-        return new PageImpl<>(records, pageable, count);
+        return new PageImpl<>(
+            withTheoreticalStock(filter.storeInventoryId(), records), pageable, count);
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────────
+
+    /**
+     * Renseigne le stock initial des lignes sans lot.
+     *
+     * <p>Un lot porte son propre stock théorique ({@code inventory_lot.quantity_init}, figé à la
+     * création de l'inventaire) ; une ligne sans lot n'en a pas — {@code quantity_init} de la
+     * ligne produit n'est écrit qu'au comptage. Le chiffre vient donc de
+     * {@link InventoryStockService#buildStockMapForInventory}, la même source que la vue produit :
+     * la portée (storage précis pour RAYON / STORAGE, agrégation magasin sinon) doit être
+     * identique, sinon l'écart affiché dépendrait de la grille dans laquelle on compte.
+     */
+    private List<StoreInventoryLotLineRecord> withTheoreticalStock(
+        Long inventoryId,
+        List<StoreInventoryLotLineRecord> records
+    ) {
+        Set<Integer> produitIds = records.stream()
+            .filter(r -> r.id() == null)
+            .map(StoreInventoryLotLineRecord::produitId)
+            .collect(Collectors.toSet());
+        if (produitIds.isEmpty()) {
+            return records;
+        }
+        Map<Integer, Integer> stock = inventoryStockService.buildStockMapForInventory(
+            storeInventoryRepository.getReferenceById(inventoryId), produitIds);
+        return records.stream()
+            .map(r -> r.id() != null
+                ? r
+                : r.withQuantityInit(stock.getOrDefault(r.produitId(), 0)))
+            .toList();
+    }
 
     private void syncParentLineQuantity(Long storeInventoryLineId) {
         StoreInventoryLine line = storeInventoryLineRepository.getReferenceById(storeInventoryLineId);
@@ -211,7 +253,8 @@ public class InventoryLotServiceImpl implements InventoryLotService {
             t.get("quantity_init", Integer.class),
             t.get("gap", Integer.class),
             Boolean.TRUE.equals(t.get("updated", Boolean.class)),
-            t.get("classe_pareto", String.class)
+            t.get("classe_pareto", String.class),
+            t.get("version", Long.class)
         );
     }
 

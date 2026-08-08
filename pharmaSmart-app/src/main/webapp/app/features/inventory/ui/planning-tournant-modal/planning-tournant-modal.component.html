@@ -51,7 +51,7 @@
           @switch (form.get('critere')?.value) {
             @case ('RAYON') { Chaque exécution inventorie le rayon suivant du storage. }
             @case ('FAMILLE') { Chaque exécution inventorie la famille de produits suivante. }
-            @case ('CLASSIFICATION_ABC') { Rotation A → B → C → A sur la classification Pareto. }
+            @case ('CLASSIFICATION_ABC') { Rotation A+ → A → B → C → D → A+ sur la classification Pareto. }
           }
         </div>
       }
@@ -87,7 +87,7 @@
         bindValue="id"
         appendTo="body"
         [clearable]="true"
-        placeholder="Non affecté (fallback système)"
+        placeholder="Non affecté"
         [optionTemplate]="userOption"
       />
       <ng-template #userOption let-user>

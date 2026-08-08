@@ -12,7 +12,11 @@ import com.google.gson.annotations.SerializedName
  * liste par produit ne connaît, elle, que le nombre de lots.
  */
 data class InventoryLotLine(
-    /** Identifiant du lot d'inventaire, cible de l'écriture */
+    /**
+     * Identifiant du lot d'inventaire, cible de l'écriture. Nul pour un produit du
+     * périmètre dépourvu de lot (aucun lot, ou tous à zéro) : la saisie porte alors sur
+     * la ligne produit — voir [isLotLess].
+     */
     @SerializedName("id")
     val id: Long? = null,
 
@@ -48,11 +52,21 @@ data class InventoryLotLine(
     val updated: Boolean = false,
 
     @SerializedName("classePareto")
-    val classePareto: String? = null
+    val classePareto: String? = null,
+
+    /** Verrou optimiste de la ligne produit — renseigné pour les lignes sans lot */
+    @SerializedName("version")
+    val version: Long? = null
 ) {
     fun calculateGap(): Int = (quantityOnHand ?: 0) - (quantityInit ?: 0)
 
     fun isCounted(): Boolean = updated
+
+    /**
+     * Produit du périmètre sans aucun lot d'inventaire. Il n'y a rien à saisir au niveau
+     * du lot : le comptage passe par l'API ligne produit.
+     */
+    fun isLotLess(): Boolean = id == null
 }
 
 /**

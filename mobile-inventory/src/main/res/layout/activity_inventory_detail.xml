@@ -42,55 +42,155 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <LinearLayout
-        android:id="@+id/ll_scan_row"
+    <TextView
+        android:id="@+id/tv_conflict_banner"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="8dp"
-        android:orientation="horizontal"
+        android:layout_marginTop="4dp"
+        android:background="@android:color/holo_orange_dark"
+        android:gravity="center"
+        android:padding="8dp"
+        android:textColor="@android:color/white"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@+id/tv_offline_banner"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="2 ligne(s) en conflit" />
+
+    <!--
+      Repli du bloc de commandes : scan, rayon, recherche et filtre occupent près
+      d'un tiers de la hauteur utile alors qu'on n'y touche qu'entre deux rayons.
+      Replié une fois, l'opérateur compte sur une liste presque pleine hauteur.
+      Le bandeau reste visible : c'est le seul moyen de rouvrir le bloc.
+    -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_toggle_controls"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        android:minHeight="0dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:text="@string/controls_collapse"
+        android:textSize="12sp"
+        app:icon="@drawable/ic_expand_less"
+        app:iconGravity="end"
+        app:layout_constraintTop_toBottomOf="@+id/tv_conflict_banner"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/ll_controls"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@+id/btn_toggle_controls"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_scan"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:id="@+id/ll_scan_row"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginEnd="8dp"
-            android:text="@string/scan_barcode"
-            app:icon="@android:drawable/ic_menu_camera" />
+            android:layout_marginHorizontal="16dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_scan"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:text="@string/scan_barcode"
+                app:icon="@android:drawable/ic_menu_camera" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_scan_continuous"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/continuous_scan"
+                app:icon="@android:drawable/ic_media_play" />
+
+            <!-- Éclairage des rayons bas, où la lecture des DataMatrix échoue -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_torch"
+                style="@style/Widget.Material3.Button.IconButton.Outlined"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:contentDescription="@string/torch"
+                android:visibility="gone"
+                app:icon="@android:drawable/ic_menu_view" />
+
+        </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_scan_continuous"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="0dp"
+            android:id="@+id/btn_rayon"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/continuous_scan"
-            app:icon="@android:drawable/ic_media_play" />
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="4dp"
+            android:text="@string/all_rayons"
+            android:enabled="false"
+            app:icon="@drawable/ic_expand_more"
+            app:iconGravity="end" />
 
-        <!-- Éclairage des rayons bas, où la lecture des DataMatrix échoue -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_torch"
-            style="@style/Widget.Material3.Button.IconButton.Outlined"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/ll_search_row"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:contentDescription="@string/torch"
-            android:visibility="gone"
-            app:icon="@android:drawable/ic_menu_view" />
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="4dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:hint="@string/search_product"
+                app:endIconMode="clear_text">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_search"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionSearch"
+                    android:inputType="text"
+                    android:maxLines="1" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_line_filter"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/filter_all" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
+    <!--
+      L'aperçu caméra est hors du bloc repliable : le scan continu reste visible
+      même commandes repliées, et remonte alors sous le bandeau.
+    -->
     <androidx.camera.view.PreviewView
         android:id="@+id/preview_view"
         android:layout_width="0dp"
         android:layout_height="240dp"
         android:layout_marginHorizontal="16dp"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/ll_scan_row"
+        app:layout_constraintTop_toBottomOf="@+id/ll_controls"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -110,77 +210,6 @@
         app:layout_constraintEnd_toEndOf="@+id/preview_view"
         tools:text="DOLIPRANE 1000 → 12" />
 
-    <TextView
-        android:id="@+id/tv_conflict_banner"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="4dp"
-        android:background="@android:color/holo_orange_dark"
-        android:gravity="center"
-        android:padding="8dp"
-        android:textColor="@android:color/white"
-        android:textSize="13sp"
-        android:textStyle="bold"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/preview_view"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:text="2 ligne(s) en conflit" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_rayon"
-        style="@style/Widget.Material3.Button.OutlinedButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:text="@string/all_rayons"
-        android:enabled="false"
-        app:icon="@android:drawable/arrow_down_float"
-        app:iconGravity="end"
-        app:layout_constraintTop_toBottomOf="@+id/tv_conflict_banner"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <LinearLayout
-        android:id="@+id/ll_search_row"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="4dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        app:layout_constraintTop_toBottomOf="@+id/btn_rayon"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginEnd="8dp"
-            android:hint="@string/search_product"
-            app:endIconMode="clear_text">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_search"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:imeOptions="actionSearch"
-                android:inputType="text"
-                android:maxLines="1" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_line_filter"
-            style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/filter_all" />
-
-    </LinearLayout>
-
     <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/lpi_progress"
         android:layout_width="0dp"
@@ -188,7 +217,7 @@
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="8dp"
         app:trackCornerRadius="4dp"
-        app:layout_constraintTop_toBottomOf="@+id/ll_search_row"
+        app:layout_constraintTop_toBottomOf="@+id/preview_view"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -245,6 +274,10 @@
             android:visibility="gone"
             app:icon="@android:drawable/ic_menu_revert" />
 
+        <!--
+          La clôture n'existe pas sur mobile : elle se fait exclusivement depuis le
+          poste (web / Tauri). Le mobile ne fait que compter et synchroniser.
+        -->
         <Button
             android:id="@+id/btn_synchronize"
             android:layout_width="0dp"
@@ -252,15 +285,6 @@
             android:layout_marginHorizontal="4dp"
             android:layout_weight="1"
             android:text="@string/synchronize" />
-
-        <Button
-            android:id="@+id/btn_close_inventory"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="4dp"
-            android:layout_weight="1"
-            android:backgroundTint="@color/btn_close_tint"
-            android:text="@string/close_inventory" />
 
     </LinearLayout>
 

@@ -41,32 +41,34 @@
   <!-- Import result -->
   @if (importResult()) {
     <div class="import-result">
-      <div class="row g-3 mb-3">
-        <div class="col-4">
-          <div class="card text-center border-success">
-            <div class="card-body py-2">
-              <div class="h4 text-success mb-0">{{ importResult()!.imported }}</div>
-              <small class="text-muted">Importées</small>
-            </div>
-          </div>
-        </div>
-        <div class="col-4">
-          <div class="card text-center border-warning">
-            <div class="card-body py-2">
-              <div class="h4 text-warning mb-0">{{ importResult()!.ignored }}</div>
-              <small class="text-muted">Ignorées</small>
-            </div>
-          </div>
-        </div>
-        <div class="col-4">
-          <div class="card text-center border-danger">
-            <div class="card-body py-2">
-              <div class="h4 text-danger mb-0">{{ importResult()!.rejected }}</div>
-              <small class="text-muted">Rejetées</small>
-            </div>
-          </div>
-        </div>
-      </div>
+      <app-kpi-strip stripClass="mb-3">
+        <app-kpi-item
+          [accent]="'success'"
+          [value]="importResult()!.imported | number: '1.0-0' : 'fr'"
+          icon="pi pi-check-circle"
+          iconClass="text-success"
+          label="Importées"
+          valueClass="text-success"
+        />
+
+        <app-kpi-item
+          [accent]="'warning'"
+          [value]="importResult()!.ignored | number: '1.0-0' : 'fr'"
+          icon="pi pi-minus-circle"
+          iconClass="text-warning"
+          label="Ignorées"
+          valueClass="text-warning"
+        />
+
+        <app-kpi-item
+          [accent]="'danger'"
+          [value]="importResult()!.rejected | number: '1.0-0' : 'fr'"
+          icon="pi pi-times-circle"
+          iconClass="text-danger"
+          label="Rejetées"
+          valueClass="text-danger"
+        />
+      </app-kpi-strip>
 
       @if (importResult()!.errors && importResult()!.errors.length > 0) {
         <div class="mt-3">
@@ -74,28 +76,32 @@
             <i class="pi pi-exclamation-circle me-1"></i>
             Lignes en erreur ({{ importResult()!.errors.length }})
           </h6>
-          <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
-            <table class="table table-sm table-bordered">
-              <thead class="table-light sticky-top">
-                <tr>
-                  <th>Ligne</th>
-                  <th>Code</th>
-                  <th>Quantité</th>
-                  <th>Raison</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (err of importResult()!.errors; track err.lineNumber) {
-                  <tr>
-                    <td>{{ err.lineNumber }}</td>
-                    <td><code>{{ err.rawCode }}</code></td>
-                    <td><code>{{ err.rawQuantity }}</code></td>
-                    <td class="text-danger">{{ err.reason }}</td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
+          <app-data-table
+            [scrollable]="true"
+            [showGridlines]="true"
+            [value]="importResult()!.errors"
+            dataKey="lineNumber"
+            scrollHeight="250px"
+            size="small"
+          >
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th>Ligne</th>
+                <th>Code</th>
+                <th>Quantité</th>
+                <th>Raison</th>
+              </tr>
+            </ng-template>
+
+            <ng-template #body let-err>
+              <tr>
+                <td>{{ err.lineNumber }}</td>
+                <td><code>{{ err.rawCode }}</code></td>
+                <td><code>{{ err.rawQuantity }}</code></td>
+                <td class="text-danger">{{ err.reason }}</td>
+              </tr>
+            </ng-template>
+          </app-data-table>
         </div>
       }
     </div>

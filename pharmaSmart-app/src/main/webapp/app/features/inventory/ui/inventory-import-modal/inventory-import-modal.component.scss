@@ -1,4 +1,5 @@
 @use 'app/shared/scss/modal-theme' as *;
+@use 'app/shared/scss/table-common' as dataTable;
 
 :host {
   @include modal-theme;
@@ -58,50 +59,7 @@
   }
 }
 
-// ── Cartes de résultats ──────────────────────────────────────────────────────
-.import-result {
-  .result-card {
-    border-radius: 8px;
-    text-align: center;
-    transition: transform 0.15s ease;
 
-    &:hover {
-      transform: translateY(-2px);
-    }
-
-    .result-count {
-      font-size: 1.75rem;
-      font-weight: 700;
-      line-height: 1;
-    }
-
-    .result-label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-      opacity: 0.75;
-    }
-
-    &.result-success {
-      background: #d4edda;
-      border: 1px solid #c3e6cb;
-      .result-count { color: #155724; }
-    }
-
-    &.result-warning {
-      background: #fff3cd;
-      border: 1px solid #ffeaa7;
-      .result-count { color: #856404; }
-    }
-
-    &.result-danger {
-      background: #f8d7da;
-      border: 1px solid #f5c6cb;
-      .result-count { color: #721c24; }
-    }
-  }
-}
 
 // ── Table d'erreurs ──────────────────────────────────────────────────────────
 .error-table-wrapper {
@@ -113,19 +71,7 @@
   table {
     margin-bottom: 0;
 
-    thead th {
-      background: linear-gradient(to bottom, #6b9ab8, #5b89a6);
-      color: #fff;
-      font-size: 0.78rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-      padding: 0.5rem 0.75rem;
-      border: none;
-      position: sticky;
-      top: 0;
-      z-index: 1;
-    }
+
 
     tbody td {
       font-size: 0.8rem;

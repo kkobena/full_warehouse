@@ -84,6 +84,10 @@ export interface IInventoryLot {
 }
 
 export interface IInventoryLotLine {
+  /**
+   * Identifiant du lot d'inventaire. Absent pour un produit du périmètre dépourvu de lot
+   * (aucun lot, ou lots tous à zéro) : la saisie porte alors sur la ligne produit.
+   */
   id?: number;
   storeInventoryLineId?: number;
   produitId?: number;
@@ -96,6 +100,8 @@ export interface IInventoryLotLine {
   gap?: number;
   updated?: boolean;
   classePareto?: string;
+  /** Verrou optimiste de la ligne produit — renseigné pour les lignes sans lot */
+  version?: number;
 }
 
 // Pending edit buffered locally before batch save

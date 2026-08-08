@@ -5,7 +5,6 @@ import com.kobe.warehouse.inventory.data.model.BatchSyncResult
 import com.kobe.warehouse.inventory.data.model.InventoryLot
 import com.kobe.warehouse.inventory.data.model.InventoryLotLine
 import com.kobe.warehouse.inventory.data.model.InventoryProgress
-import com.kobe.warehouse.inventory.data.model.ItemsCount
 import com.kobe.warehouse.inventory.data.model.Product
 import com.kobe.warehouse.inventory.data.model.Rayon
 import com.kobe.warehouse.inventory.data.model.StoreInventory
@@ -51,12 +50,8 @@ interface InventoryApiService {
     @GET("api/store-inventories/{id}/progress")
     suspend fun getProgress(@Path("id") id: Long): Response<InventoryProgress>
 
-    /**
-     * Close inventory — returns the number of processed items
-     * GET /api/store-inventories/close/{id}
-     */
-    @GET("api/store-inventories/close/{id}")
-    suspend fun closeInventory(@Path("id") id: Long): Response<ItemsCount>
+    // Pas d'appel de clôture ici : GET /api/store-inventories/close/{id} est
+    // réservé au poste (web / Tauri). Le mobile ne fait que compter et synchroniser.
 
     /**
      * Paged inventory lines (v2: no N+1, multi-storage stock)

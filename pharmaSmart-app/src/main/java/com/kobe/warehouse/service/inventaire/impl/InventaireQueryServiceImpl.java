@@ -143,18 +143,25 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
             .setParameter(1, inventoryId)
             .getResultList();
 
+        // Les lignes sans lot n'ont pas de stock initial propre : il vient de la même source
+        // que la vue produit, sinon l'export contredirait l'écran de comptage
+        Map<Integer, Integer> stockMap = lotExportStockMap(inventoryId, tuples);
+
         LinkedHashMap<String, StoreInventoryLotGroupExport> map = new LinkedHashMap<>();
         for (Tuple t : tuples) {
             String cip = t.get("code_cip", String.class);
             StoreInventoryLotGroupExport group = map.computeIfAbsent(cip, k ->
                 new StoreInventoryLotGroupExport(cip, t.get("produit_libelle", String.class))
             );
+            Integer quantityInit = t.get("inventory_lot_id", Long.class) != null
+                ? toInt(t.get("quantity_init"))
+                : stockMap.getOrDefault(t.get("produit_id", Integer.class), 0);
             group.addLot(new StoreInventoryLotLineExport(
                 cip,
                 t.get("produit_libelle", String.class),
                 t.get("num_lot", String.class),
                 t.get("expiry_date", java.time.LocalDate.class),
-                toInt(t.get("quantity_init")),
+                quantityInit,
                 toInt(t.get("quantity_on_hand")),
                 toInt(t.get("gap")),
                 toInt(t.get("last_unit_price")),
@@ -162,6 +169,20 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
             ));
         }
         return new ArrayList<>(map.values());
+    }
+
+    /** Stock théorique des seules lignes sans lot de l'export — une requête pour tout le lot */
+    private Map<Integer, Integer> lotExportStockMap(Long inventoryId, List<Tuple> tuples) {
+        Set<Integer> produitIds = tuples.stream()
+            .filter(t -> t.get("inventory_lot_id", Long.class) == null)
+            .map(t -> t.get("produit_id", Integer.class))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+        if (produitIds.isEmpty()) {
+            return Map.of();
+        }
+        return inventoryStockService.buildStockMapForInventory(
+            storeInventoryRepository.getReferenceById(inventoryId), produitIds);
     }
 
     private long countItems(StoreInventoryLineFilterRecord filter) {

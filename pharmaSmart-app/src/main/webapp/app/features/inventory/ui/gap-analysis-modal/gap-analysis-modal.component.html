@@ -43,11 +43,13 @@
       [loading]="loading()"
       [paginator]="true"
       [rowsPerPageOptions]="rowsPerPageOptions"
+      [scrollable]="true"
       [showCurrentPageReport]="true"
       [totalRecords]="totalItems()"
       [value]="lines()"
       class="p-datatable-sm"
       dataKey="lineId"
+      scrollHeight="45vh"
     >
       <ng-template #header>
         <tr class="pharma-table-head">

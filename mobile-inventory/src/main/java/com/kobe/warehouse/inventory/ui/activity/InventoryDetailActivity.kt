@@ -101,11 +101,6 @@ class InventoryDetailActivity : BaseActivity() {
     /** Le prochain retour de sauvegarde ne doit pas repositionner la liste */
     private var suppressNextAutoScroll = false
     private var undoAvailable = false
-    private var closeAllowed = false
-
-    /** Toutes les lignes de l'inventaire ont reçu un comptage */
-    private var countingComplete = false
-    private var remainingLines = 0L
 
     private fun availableLineFilters() =
         if (canViewStock) lineFilters else lineFilters.filterNot { it.first in gapFilters }
@@ -138,6 +133,7 @@ class InventoryDetailActivity : BaseActivity() {
         setupListeners()
         setupObservers()
         observeQuantityFocus()
+        applyControlsVisibility()
 
         // Load user abilities (close permission, blind mode) then inventory
         inventoryDetailViewModel.loadAbilities()
@@ -147,7 +143,7 @@ class InventoryDetailActivity : BaseActivity() {
     /**
      * Boutons du bas masqués pendant une saisie de quantité.
      *
-     * Avec `adjustResize`, le clavier ampute la hauteur utile et ces trois boutons
+     * Avec `adjustResize`, le clavier ampute la hauteur utile et ces boutons
      * mangeraient le peu qui reste à la liste. Ils sont rendus GONE et non
      * INVISIBLE : ConstraintLayout les réduit alors à un point, la contrainte
      * basse de la liste retombe sur le bord de l'écran et la liste récupère
@@ -157,24 +153,27 @@ class InventoryDetailActivity : BaseActivity() {
     private fun applyBottomActionsVisibility() {
         binding.btnUndo.visibility = if (undoAvailable && !isEditingQuantity) View.VISIBLE else View.GONE
         binding.btnSynchronize.visibility = if (isEditingQuantity) View.GONE else View.VISIBLE
-        // La clôture est irréversible : le bouton reste visible pour qui détient le
-        // privilège, mais grisé tant que le comptage n'est pas complet, avec le
-        // nombre de lignes restantes — un bouton simplement absent laisserait
-        // l'opérateur le chercher.
-        binding.btnCloseInventory.visibility = if (closeAllowed && !isEditingQuantity) {
-            View.VISIBLE
-        } else {
-            View.GONE
-        }
-        binding.btnCloseInventory.isEnabled = countingComplete
-        binding.btnCloseInventory.text = if (countingComplete) {
-            getString(R.string.close_inventory)
-        } else {
-            getString(R.string.close_inventory_remaining, remainingLines)
-        }
         // Toute la rangée disparaît pendant la saisie : des boutons GONE laisseraient
         // le conteneur occuper ses marges au lieu de rendre la place à la liste
         binding.llBottomActions.visibility = if (isEditingQuantity) View.GONE else View.VISIBLE
+    }
+
+    /**
+     * Replie ou déplie le bloc scan / rayon / recherche + filtre.
+     *
+     * GONE et non INVISIBLE : la liste est contrainte à ce bloc, et seul GONE lui
+     * rend réellement la hauteur. L'aperçu caméra et les bannières restent en
+     * dehors — ce sont des états transitoires qui doivent rester lisibles.
+     */
+    private fun applyControlsVisibility() {
+        val collapsed = inventoryDetailViewModel.controlsCollapsed
+        binding.llControls.visibility = if (collapsed) View.GONE else View.VISIBLE
+        binding.btnToggleControls.setText(
+            if (collapsed) R.string.controls_expand else R.string.controls_collapse
+        )
+        binding.btnToggleControls.setIconResource(
+            if (collapsed) R.drawable.ic_expand_more else R.drawable.ic_expand_less
+        )
     }
 
     /**
@@ -311,8 +310,10 @@ class InventoryDetailActivity : BaseActivity() {
             inventoryDetailViewModel.synchronizeLines()
         }
 
-        binding.btnCloseInventory.setOnClickListener {
-            showCloseInventoryConfirmation()
+        binding.btnToggleControls.setOnClickListener {
+            inventoryDetailViewModel.controlsCollapsed =
+                !inventoryDetailViewModel.controlsCollapsed
+            applyControlsVisibility()
         }
 
         binding.btnUndo.setOnClickListener {
@@ -330,11 +331,8 @@ class InventoryDetailActivity : BaseActivity() {
             binding.tvOfflineBanner.visibility = if (online) View.GONE else View.VISIBLE
         }
 
-        // Permissions : clôture réservée + mode aveugle (stock masqué sans privilège)
+        // Permissions : mode aveugle (stock masqué sans privilège)
         inventoryDetailViewModel.abilities.observe(this) { abilities ->
-            closeAllowed = InventoryAbilities.CLOSE_INVENTORY in abilities
-            applyBottomActionsVisibility()
-
             // Les adaptateurs ne rebindent que les champs concernés, et seulement si
             // la valeur change réellement (voir InventoryLineAdapter.showStock)
             val showStock = InventoryAbilities.VIEW_STOCK in abilities
@@ -510,27 +508,10 @@ class InventoryDetailActivity : BaseActivity() {
                     }
                     Toast.makeText(this, message, Toast.LENGTH_LONG).show()
                 }
-                is InventoryDetailState.InventoryClosed -> {
-                    binding.progressBar.visibility = View.GONE
-                    Toast.makeText(
-                        this,
-                        "Inventaire clôturé (${state.itemsCount} articles)",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    finish()
-                }
-                is InventoryDetailState.CloseSummaryReady -> {
-                    binding.progressBar.visibility = View.GONE
-                    showCloseSummaryDialog(state.summary)
-                }
                 is InventoryDetailState.ProgressLoaded -> {
                     val progress = state.progress
                     // La progression vient du serveur : une ligne comptée hors ligne
-                    // n'y figure qu'une fois synchronisée, ce qui est cohérent —
-                    // clôturer avec des saisies non transmises les perdrait.
-                    remainingLines = (progress.totalLines - progress.updatedLines).coerceAtLeast(0)
-                    countingComplete = progress.totalLines > 0 && remainingLines == 0L
-                    applyBottomActionsVisibility()
+                    // n'y figure qu'une fois synchronisée
                     binding.lpiProgress.setProgressCompat(progress.progressPercent, true)
                     binding.tvProgressCount.text = getString(
                         R.string.inventory_progress,
@@ -920,45 +901,6 @@ class InventoryDetailActivity : BaseActivity() {
             .setMessage(getString(R.string.lot_delete_confirm, lot.numLot ?: ""))
             .setPositiveButton(R.string.yes) { _, _ ->
                 inventoryDetailViewModel.deleteLot(lot)
-            }
-            .setNegativeButton(R.string.no, null)
-            .show()
-    }
-
-    private fun showCloseInventoryConfirmation() {
-        // Récapitulatif avant clôture (la clôture est irréversible)
-        inventoryDetailViewModel.prepareCloseSummary()
-    }
-
-    private fun showCloseSummaryDialog(summary: com.kobe.warehouse.inventory.ui.viewmodel.CloseSummary) {
-        val nf = java.text.NumberFormat.getIntegerInstance(java.util.Locale.FRENCH)
-        val message = buildString {
-            append(getString(R.string.close_summary_counted, summary.countedLines, summary.totalLines))
-            append('\n')
-            append(getString(R.string.close_summary_remaining, summary.remainingLines))
-            append('\n')
-            append(getString(R.string.close_summary_gap_lines, summary.gapLineCount))
-            append('\n')
-            append(
-                getString(
-                    R.string.close_summary_gap_values,
-                    nf.format(summary.gapValueAchat),
-                    nf.format(summary.gapValueVente)
-                )
-            )
-            if (summary.remainingLines > 0) {
-                append("\n\n")
-                append(getString(R.string.close_summary_warning_remaining))
-            }
-            append("\n\n")
-            append(getString(R.string.close_inventory_confirm))
-        }
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.close_inventory)
-            .setMessage(message)
-            .setPositiveButton(R.string.yes) { _, _ ->
-                inventoryDetailViewModel.closeInventory(inventoryId)
             }
             .setNegativeButton(R.string.no, null)
             .show()

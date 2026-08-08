@@ -169,25 +169,33 @@ public class StoreInventoryLineFilterBuilder {
 
     /**
      * Export PDF en mode gestion de lot : une ligne par lot, groupé par produit.
+     *
+     * <p>Piloté par {@code store_inventory_line} et non par {@code inventory_lot}, pour la même
+     * raison que la grille de saisie (voir {@link LotQueryBuilder}) : les produits du périmètre
+     * dépourvus de lot doivent figurer à l'export, sinon le document ne rend pas compte de tout
+     * ce qui a été inventorié. Ils y apparaissent en une ligne sans numéro de lot, valorisée au
+     * niveau de la ligne produit.
      */
     public static final String LOT_EXPORT_SQL =
         """
             SELECT fp.code_cip,
                    p.libelle                        AS produit_libelle,
+                   p.id                             AS produit_id,
+                   il.id                            AS inventory_lot_id,
                    l.num_lot,
                    l.expiry_date,
-                   il.quantity_init,
-                   il.quantity_on_hand,
-                   il.gap,
+                   COALESCE(il.quantity_init, sil.quantity_init)       AS quantity_init,
+                   COALESCE(il.quantity_on_hand, sil.quantity_on_hand) AS quantity_on_hand,
+                   COALESCE(il.gap, sil.gap)                           AS gap,
                    COALESCE(sil.last_unit_price, fp.prix_uni)   AS last_unit_price,
                    COALESCE(sil.inventory_value_cost, fp.prix_achat) AS prix_achat
-            FROM inventory_lot il
-            JOIN store_inventory_line sil ON sil.id     = il.store_inventory_line_id
+            FROM store_inventory_line sil
             JOIN produit p               ON p.id        = sil.produit_id
             JOIN fournisseur_produit fp  ON fp.id       = p.fournisseur_produit_principal_id
-            JOIN lot l                   ON l.id        = il.lot_id
+            LEFT JOIN inventory_lot il   ON il.store_inventory_line_id = sil.id
+            LEFT JOIN lot l              ON l.id        = il.lot_id
             WHERE sil.store_inventory_id = ?1
-            ORDER BY fp.code_cip, p.libelle, l.num_lot
+            ORDER BY fp.code_cip, p.libelle, l.num_lot, il.id
             """;
 
     // ── Constantes legacy (InventaireService interface + InventaireServiceImpl) ─
@@ -497,14 +505,18 @@ public class StoreInventoryLineFilterBuilder {
         if (lineEnum == null || lineEnum == StoreInventoryLineEnum.NONE) {
             return;
         }
+        String updated = LotQueryBuilder.EFFECTIVE_UPDATED;
+        String onHand = LotQueryBuilder.EFFECTIVE_QUANTITY_ON_HAND;
+        String init = LotQueryBuilder.EFFECTIVE_QUANTITY_INIT;
         switch (lineEnum) {
-            case NOT_UPDATED -> sql.append(" AND il.updated IS false");
-            case UPDATED -> sql.append(" AND il.updated");
-            case GAP -> sql.append(" AND il.updated AND il.quantity_on_hand <> il.quantity_init");
-            case GAP_NEGATIF ->
-                sql.append(" AND il.updated AND il.quantity_on_hand < il.quantity_init");
-            case GAP_POSITIF ->
-                sql.append(" AND il.updated AND il.quantity_on_hand >= il.quantity_init");
+            case NOT_UPDATED -> sql.append(" AND ").append(updated).append(" IS false");
+            case UPDATED -> sql.append(" AND ").append(updated);
+            case GAP -> sql.append(" AND ").append(updated)
+                .append(" AND ").append(onHand).append(" <> ").append(init);
+            case GAP_NEGATIF -> sql.append(" AND ").append(updated)
+                .append(" AND ").append(onHand).append(" < ").append(init);
+            case GAP_POSITIF -> sql.append(" AND ").append(updated)
+                .append(" AND ").append(onHand).append(" >= ").append(init);
             default -> { /* NONE déjà géré */ }
         }
     }
@@ -672,7 +684,14 @@ public class StoreInventoryLineFilterBuilder {
 
     /**
      * Construit dynamiquement les requêtes SQL de pagination et de comptage sur la vue plate
-     * {@code inventory_lot} (un lot par ligne).
+     * des lots (un lot par ligne).
+     *
+     * <p>La requête est pilotée par {@code store_inventory_line}, pas par {@code inventory_lot} :
+     * à la création d'un inventaire, un {@code inventory_lot} n'est inséré que pour les lots dont
+     * la quantité est strictement positive. Un INNER JOIN rendait donc invisibles — et de ce fait
+     * incomptables — les produits sans lot ou dont tous les lots sont à zéro, alors qu'ils sont
+     * bien dans le périmètre et seront clôturés. Ils apparaissent désormais en une ligne unique,
+     * sans numéro de lot, qui se compte au niveau de la ligne produit.
      *
      * <p>Join optionnel :
      * <ul>
@@ -680,6 +699,17 @@ public class StoreInventoryLineFilterBuilder {
      * </ul>
      */
     public static final class LotQueryBuilder {
+
+        /**
+         * Colonnes lues au niveau du lot quand il y en a un, au niveau de la ligne produit sinon.
+         * Partagées avec {@link #appendLotFilter} : un filtre qui interrogerait {@code il}
+         * directement écarterait toutes les lignes sans lot.
+         */
+        static final String EFFECTIVE_UPDATED = "COALESCE(il.updated, sil.updated)";
+        static final String EFFECTIVE_QUANTITY_ON_HAND =
+            "COALESCE(il.quantity_on_hand, sil.quantity_on_hand)";
+        static final String EFFECTIVE_QUANTITY_INIT =
+            "COALESCE(il.quantity_init, sil.quantity_init)";
 
         private final StoreInventoryLineFilterRecord filter;
         private boolean includeAbcPareto = false;
@@ -704,7 +734,9 @@ public class StoreInventoryLineFilterBuilder {
             appendSelect(sql);
             appendFrom(sql);
             appendWhere(sql);
-            sql.append(" ORDER BY fp.code_cip, p.libelle, l.num_lot");
+            // il.id départage les lots d'un même produit : sans lui, deux lignes de même
+            // num_lot pourraient changer de page d'un appel à l'autre
+            sql.append(" ORDER BY fp.code_cip, p.libelle, l.num_lot, il.id");
             return sql.toString();
         }
 
@@ -712,7 +744,7 @@ public class StoreInventoryLineFilterBuilder {
          * Requête de comptage — sans le join ABC.
          */
         public String buildCount() {
-            StringBuilder sql = new StringBuilder("SELECT COUNT(il.id)");
+            StringBuilder sql = new StringBuilder("SELECT COUNT(*)");
             appendFromForCount(sql);
             appendWhere(sql);
             return sql.toString();
@@ -720,19 +752,27 @@ public class StoreInventoryLineFilterBuilder {
 
         // ── SELECT ────────────────────────────────────────────────────────────
 
+        /**
+         * {@code il.id} nul identifie une ligne sans lot : c'est à ce signal que les clients
+         * routent la saisie vers l'API ligne produit plutôt que vers l'API lot.
+         */
         private void appendSelect(StringBuilder sql) {
             sql.append("""
                 SELECT il.id,
-                       il.store_inventory_line_id,
+                       sil.id AS store_inventory_line_id,
                        p.id AS produit_id,
                        fp.code_cip,
                        p.libelle,
                        l.num_lot,
                        l.expiry_date,
-                       il.quantity_on_hand,
-                       il.quantity_init,
-                       il.gap,
-                       il.updated""");
+                """);
+            sql.append(EFFECTIVE_QUANTITY_ON_HAND).append(" AS quantity_on_hand,");
+            sql.append(EFFECTIVE_QUANTITY_INIT).append(" AS quantity_init,");
+            sql.append("COALESCE(il.gap, sil.gap) AS gap,");
+            sql.append(EFFECTIVE_UPDATED).append(" AS updated,");
+            // Verrou optimiste de la ligne produit : seules les lignes sans lot s'écrivent
+            // par l'API ligne, qui exige la version lue pour arbitrer un comptage concurrent
+            sql.append("sil.version AS version");
 
             sql.append(includeAbcPareto
                 ? ",abc.classe_pareto"
@@ -759,11 +799,11 @@ public class StoreInventoryLineFilterBuilder {
 
         private void appendCoreJoins(StringBuilder sql) {
             sql.append("""
-                  FROM inventory_lot il
-                JOIN store_inventory_line sil ON il.store_inventory_line_id = sil.id
+                  FROM store_inventory_line sil
                 JOIN produit p               ON sil.produit_id = p.id
                 JOIN fournisseur_produit fp  ON p.fournisseur_produit_principal_id = fp.id
-                JOIN lot l                   ON il.lot_id = l.id""");
+                LEFT JOIN inventory_lot il   ON il.store_inventory_line_id = sil.id
+                LEFT JOIN lot l              ON l.id = il.lot_id""");
         }
 
         private void appendScopeJoin(StringBuilder sql) {

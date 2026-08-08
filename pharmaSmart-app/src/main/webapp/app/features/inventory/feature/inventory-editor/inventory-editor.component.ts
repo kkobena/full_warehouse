@@ -281,8 +281,9 @@ export class InventoryEditorComponent implements OnInit {
 
   protected openImportModal(): void {
     const ref = this.modal.open(InventoryImportModalComponent, {
-      size: "lg",
-      backdrop: "static"
+      size: "xl",
+      backdrop: "static",
+      centered:true
     });
     ref.componentInstance.inventoryId = this.inventoryId();
     ref.result.then(() => this.loadLines(), () => {

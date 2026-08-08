@@ -84,7 +84,8 @@
                   icon="pi pi-plus"
                   label="Nouveau planning"
                   ngbTooltip="Nouveau planning tournant"
-                  severity="primary"
+                  [severity]="'primary'"
+                  [size]="'small'"
                 />
               } @else {
                 <app-button
@@ -93,10 +94,12 @@
                   icon="pi pi-refresh"
                   label="Actualiser"
                   ngbTooltip="Actualiser la liste"
-                  severity="info"
+                  [severity]="'info'"
+                  [size]="'small'"
                 />
                 @if (activeTab() === 'en-cours') {
                   <app-button
+                    [size]="'small'"
                     (clicked)="openCreateModal()"
                     [raised]="true"
                     icon="pi pi-plus"

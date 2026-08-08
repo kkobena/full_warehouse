@@ -153,7 +153,7 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
             StoreInventoryLotGroupExport group = map.computeIfAbsent(cip, k ->
                 new StoreInventoryLotGroupExport(cip, t.get("produit_libelle", String.class))
             );
-            Integer quantityInit = t.get("inventory_lot_id", Long.class) != null
+            int quantityInit = t.get("inventory_lot_id", Long.class) != null
                 ? toInt(t.get("quantity_init"))
                 : stockMap.getOrDefault(t.get("produit_id", Integer.class), 0);
             group.addLot(new StoreInventoryLotLineExport(

@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { SERVER_API_URL } from '../../../../app.constants';
-import { IPlanningInventaireTournant, ITournantDashboard } from '../../models/planning-tournant.model';
+import { IPlanningInventaireTournant, ITournantDashboard } from "../../models";
 
 @Injectable({ providedIn: 'root' })
 export class PlanningTournantApiService {

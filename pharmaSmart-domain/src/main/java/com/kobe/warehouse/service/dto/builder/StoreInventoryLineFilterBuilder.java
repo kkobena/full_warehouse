@@ -34,9 +34,9 @@ import org.springframework.util.StringUtils;
  *     .buildPage();
  * }</pre>
  *
- * <p>Les constantes SQL marquées {@code @Deprecated} restent pour compatibilité avec
- * {@code InventaireService} (interface legacy) et {@code InventaireServiceImpl}. Elles seront
- * supprimées lors de la refonte de la couche legacy.
+ * <p>Les constantes SQL publiques restantes servent aux requêtes qui n'ont pas de variante
+ * paramétrable — insertion ABC, agrégats de valorisation, export. Toute requête de liste ou de
+ * comptage passe par {@link LineQueryBuilder} ou {@link LotQueryBuilder}.
  */
 public class StoreInventoryLineFilterBuilder {
 
@@ -196,143 +196,6 @@ public class StoreInventoryLineFilterBuilder {
             LEFT JOIN lot l              ON l.id        = il.lot_id
             WHERE sil.store_inventory_id = ?1
             ORDER BY fp.code_cip, p.libelle, l.num_lot, il.id
-            """;
-
-    // ── Constantes legacy (InventaireService interface + InventaireServiceImpl) ─
-    // @Deprecated : à supprimer lors de la refonte des services legacy.
-
-    /**
-     * @deprecated Utiliser {@link #lineQuery(StoreInventoryLineFilterRecord)}
-     */
-    @Deprecated
-    public static final String BASE_QUERY =
-        """
-            SELECT p.id AS produitId, p.code_ean_labo,
-                   p.libelle, fp.code_cip,
-                   a.quantity_on_hand, a.gap, a.updated_at, a.id AS id,
-                   fp.prix_achat, fp.prix_uni, a.updated,
-                   a.storage_id, sp.seuil_mini,
-                   COALESCE(ilc.lot_count, 0) AS lot_count,
-                   abc.classe_pareto
-            FROM produit p
-            JOIN (SELECT fp.id, fp.code_cip, fp.produit_id, fp.prix_achat, fp.prix_uni
-                  FROM fournisseur_produit fp) AS fp
-              ON p.fournisseur_produit_principal_id = fp.id
-            JOIN store_inventory_line a ON p.id = a.produit_id
-            LEFT JOIN stock_produit sp ON sp.produit_id = p.id AND sp.storage_id = a.storage_id
-            LEFT JOIN (SELECT il.store_inventory_line_id, COUNT(*) AS lot_count
-                       FROM inventory_lot il
-                       GROUP BY il.store_inventory_line_id) ilc
-              ON ilc.store_inventory_line_id = a.id
-            LEFT JOIN v_abc_pareto_analysis abc ON abc.produit_id = p.id
-            {join_statement} WHERE a.store_inventory_id = ?1 {join_statement_where} %s
-            ORDER BY fp.code_cip, p.libelle
-            """;
-
-    /**
-     * @deprecated Utiliser {@link #lineQuery(StoreInventoryLineFilterRecord)}
-     */
-    @Deprecated
-    public static final String COUNT =
-        """
-            SELECT COUNT(p.id)
-            FROM produit p
-            JOIN (SELECT fp.id, fp.code_cip, fp.produit_id, fp.prix_achat, fp.prix_uni
-                  FROM fournisseur_produit fp) AS fp
-              ON p.fournisseur_produit_principal_id = fp.id
-            JOIN store_inventory_line a ON p.id = a.produit_id
-            {join_statement} WHERE a.store_inventory_id = ?1 {join_statement_where} %s
-            """;
-
-    /**
-     * @deprecated Utiliser {@link LineQueryBuilder}
-     */
-    @Deprecated
-    public static final String RAYON_STATEMENT = " JOIN rayon_produit rp ON p.id = rp.produit_id ";
-    /**
-     * @deprecated Utiliser {@link LineQueryBuilder}
-     */
-    @Deprecated
-    public static final String RAYON_STATEMENT_WHERE = " AND rp.rayon_id = %d ";
-    /**
-     * @deprecated Utiliser {@link LineQueryBuilder}
-     */
-    @Deprecated
-    public static final String STOCKAGE_STATEMENT_WHERE = " AND rp.rayon_id IN (SELECT ry.id FROM rayon ry WHERE ry.storage_id = %d) ";
-    /**
-     * @deprecated Utiliser {@link LineQueryBuilder}
-     */
-    @Deprecated
-    public static final String LIKE_STATEMENT_WHERE = " AND (p.libelle LIKE '%s' OR fp.code_cip LIKE '%s' OR p.code_ean_labo LIKE '%s') ";
-
-    /**
-     * @deprecated Utiliser {@link #lotQuery(StoreInventoryLineFilterRecord)}
-     */
-    @Deprecated
-    public static final String LOT_FLAT_BASE_QUERY =
-        """
-            SELECT il.id, il.store_inventory_line_id,
-                   p.id AS produit_id, fp.code_cip, p.libelle,
-                   l.num_lot, l.expiry_date,
-                   il.quantity_on_hand, il.quantity_init, il.gap, il.updated,
-                   abc.classe_pareto
-            FROM inventory_lot il
-            JOIN store_inventory_line sil ON il.store_inventory_line_id = sil.id
-            JOIN produit p               ON sil.produit_id = p.id
-            JOIN fournisseur_produit fp  ON p.fournisseur_produit_principal_id = fp.id
-            JOIN lot l                   ON il.lot_id = l.id
-            LEFT JOIN v_abc_pareto_analysis abc ON abc.produit_id = p.id
-            {join_statement} WHERE sil.store_inventory_id = ?1 {join_statement_where} %s
-            ORDER BY fp.code_cip, p.libelle, l.num_lot
-            """;
-
-    /**
-     * @deprecated Utiliser {@link #lotQuery(StoreInventoryLineFilterRecord)}
-     */
-    @Deprecated
-    public static final String LOT_FLAT_COUNT =
-        """
-            SELECT COUNT(il.id)
-            FROM inventory_lot il
-            JOIN store_inventory_line sil ON il.store_inventory_line_id = sil.id
-            JOIN produit p               ON sil.produit_id = p.id
-            JOIN fournisseur_produit fp  ON p.fournisseur_produit_principal_id = fp.id
-            JOIN lot l                   ON il.lot_id = l.id
-            {join_statement} WHERE sil.store_inventory_id = ?1 {join_statement_where} %s
-            """;
-
-    /**
-     * @deprecated Utiliser {@link LotQueryBuilder}
-     */
-    @Deprecated
-    public static final String LOT_LIKE_STATEMENT_WHERE =
-        " AND (p.libelle LIKE '%s' OR fp.code_cip LIKE '%s' OR l.num_lot LIKE '%s') ";
-
-    /**
-     * @deprecated Utiliser {@link LotQueryBuilder}
-     */
-    @Deprecated
-    public static final String SQL_ALL_INSERT_ALL =
-        """
-            INSERT INTO store_inventory_line (produit_id, updated_at, updated, store_inventory_id)
-            SELECT p.id, NOW(), false, %d
-            FROM produit p
-            WHERE p.status = 'ENABLE' {famille_close}
-            """;
-
-    /**
-     * @deprecated Utiliser {@link LotQueryBuilder}
-     */
-    @Deprecated
-    public static final String SQL_ALL_INSERT =
-        """
-            INSERT INTO store_inventory_line (produit_id, updated_at, updated, store_inventory_id)
-            SELECT p.id, NOW(), false, %d
-            FROM produit p
-            JOIN rayon_produit rp ON p.id  = rp.produit_id
-            JOIN rayon r          ON r.id  = rp.rayon_id
-            JOIN storage s        ON s.id  = r.storage_id
-            WHERE p.status = 'ENABLE'
             """;
 
     // ── Export / filter static helpers ───────────────────────────────────────

@@ -70,30 +70,6 @@ public class StoreInventoryLineResource {
             Optional.ofNullable(inventaireService.updateQuantityOnHand(storeInventoryLine)));
     }
 
-    @GetMapping("/store-inventory-lines")
-    public ResponseEntity<List<StoreInventoryLineRecord>> getAllByInventory(
-        StoreInventoryLineFilterRecord storeInventoryLineFilterRecord,
-        Pageable pageable
-    ) {
-        Page<StoreInventoryLineRecord> page = this.inventaireService.getAllByInventory(
-            storeInventoryLineFilterRecord, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
-    }
-
-    @GetMapping("/store-inventory-lines/items")
-    public ResponseEntity<List<StoreInventoryLineRecord>> getInventoryItems(
-        StoreInventoryLineFilterRecord storeInventoryLineFilterRecord,
-        Pageable pageable
-    ) {
-        Page<StoreInventoryLineRecord> page = this.inventaireService.getInventoryItems(
-            storeInventoryLineFilterRecord, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
-    }
-
     /**
      * Synchronisation batch (remplace N appels PUT unitaires).
      */

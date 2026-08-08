@@ -1,9 +1,12 @@
 # Plan — Passage en HTTPS et stratégie de certificats
 
-> Rédigé le 2026-08-01. Fait suite à la phase 4 du
-> [plan inventaire](PLAN-AMELIORATION-INVENTAIRE-OFFICINE.md) (chantier 4.1).
-> Périmètre : backend Spring Boot, application web Angular, application de bureau Tauri,
-> application mobile d'inventaire.
+> Rédigé le 2026-08-01. Mis à jour le 2026-08-06 (Prise en compte du contexte 100% LAN local / On-Premise sans domaine DNS public).
+> Fait suite à la phase 4 du [plan inventaire](PLAN-AMELIORATION-INVENTAIRE-OFFICINE.md) (chantier 4.1).
+> Périmètre : backend Spring Boot, application web Angular, application de bureau Tauri, application mobile d'inventaire.
+
+> ⚡ **Avertissement Architecture LAN :** L'application étant déployée localement sur le réseau local (LAN) de l'officine sans serveur en ligne ni fournisseur de nom de domaine public (pas de gestion DNS OVH/Cloudflare par client) :
+> - Les options basées sur **Let's Encrypt / Challenge DNS-01 / Domaine public / Caddy** (Options B, C, 5, 6, 7) sont **EXCLUSIONNILLES / NON APPLICABLES** (Let's Encrypt ne délivre pas de certificats pour les IP privées RFC 1918 `192.168.x.x` ni pour les noms `.local`).
+> - Seules les **options 100% locales et autonomes** (Option 4 / 10 par appairage QR Code TOFU, Option 3 par CA Éditeur, ou Option 0 avec sécurisation du Wi-Fi) sont retenues.
 
 ## 1. Qu'est-ce qui bloque aujourd'hui, concrètement ?
 

@@ -82,7 +82,7 @@ Fichier `license.lic` = **JWS compact** (`EdDSA` / Ed25519), lisible mais infals
   "expiresAt": "2027-01-15",
   "gracePeriodDays": 7,
   "maxUsers": 10,
-  "features": ["CAISSE", "FACTURATION", "COMPTABILITE", "MOBILE"],
+  "features": ["CAISSE", "FACTURATION", "COMPTABILITE", "MOBILE","CALLEBASSE","EXCLUSION_RAYON_CA","EXCLUSION_PRODUIT_CA","EXCLUSION_TP_CA"],
   "hardwareFingerprint": "sha256:9f2c...",
   "bindingPolicy": "MAGASIN_AND_HARDWARE",
   "support": {

@@ -69,6 +69,8 @@
   </div>
 
   <ag-grid-angular
+    (cellEditingStarted)="onCellEditingStarted()"
+    (cellEditingStopped)="onCellEditingStopped()"
     (cellValueChanged)="onCellValueChanged($event)"
     (gridReady)="onGridReady($event)"
     (rowClicked)="onRowClicked($event)"
@@ -77,8 +79,8 @@
     [defaultColDef]="defaultColDef"
     [enableCellEditingOnBackspace]="!readOnly()"
     [enterNavigatesVerticallyAfterEdit]="true"
+    [getRowId]="getRowId"
     [readOnlyEdit]="false"
-    [rowData]="rowData()"
     [singleClickEdit]="!readOnly()"
     [stopEditingWhenCellsLoseFocus]="true"
     [suppressScrollOnNewData]="true"

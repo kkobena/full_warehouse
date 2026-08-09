@@ -5,41 +5,39 @@
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-toolbar-actions py-1">
         <div class="pharma-button-group">
-
-
           <app-button
             (clicked)="exportPdf()"
             [loading]="exporting()"
-            [raised]="true"
             [outlined]="true"
+            [raised]="true"
+            [severity]="'warn'"
+            [size]="'small'"
             icon="pi pi-file-pdf"
             label="Exporter PDF"
             ngbTooltip="Exporter l'inventaire en PDF"
-            [severity]="'warn'"
-            [size]="'small'"
           />
 
           @if (!isInventoryClosed) {
             <app-button
               (clicked)="openImportModal()"
-              [raised]="true"
-              icon="pi pi-upload"
               [outlined]="true"
-              label="Importer CSV"
-              ngbTooltip="Importer depuis un fichier CSV"
+              [raised]="true"
               [severity]="'info'"
               [size]="'small'"
+              icon="pi pi-upload"
+              label="Importer CSV"
+              ngbTooltip="Importer depuis un fichier CSV"
             />
 
             @if (canCloseInventory()) {
               <app-button
                 (clicked)="closeInventory()"
                 [raised]="true"
+                [size]="'small'"
                 icon="pi pi-lock"
                 label="Clôturer"
                 ngbTooltip="Clôturer cet inventaire"
                 severity="primary"
-                [size]="'small'"
               />
             }
           }
@@ -48,22 +46,22 @@
             <app-button
               (clicked)="openGapAnalysis()"
               [raised]="true"
+              [size]="'small'"
               icon="pi pi-chart-bar"
               label="Analyser les écarts"
               ngbTooltip="Qualifier les causes d'écart (optionnel)"
               severity="danger"
-              [size]="'small'"
             />
           }
           <app-button
             (clicked)="goBack()"
-            [raised]="true"
             [outlined]="true"
+            [raised]="true"
+            [severity]="'secondary'"
+            [size]="'small'"
             icon="pi pi-arrow-left"
             label="Retour"
             ngbTooltip="Retour à la liste"
-            [severity]="'secondary'"
-            [size]="'small'"
           />
 
         </div>
@@ -125,8 +123,8 @@
               <span>Des comptages ont été enregistrés depuis un autre poste.</span>
               <app-button
                 (clicked)="refreshAfterRemoteCounts()"
-                [text]="true"
                 [size]="'small'"
+                [text]="true"
                 label="Rafraîchir"
                 severity="info"
               />
@@ -203,8 +201,8 @@
           <span class="page-size-label">Lignes/page</span>
           <app-select
             (ngModelChange)="onPageSizeChange($event)"
-            [ngModel]="size()"
             [items]="pageSizeOptions"
+            [ngModel]="size()"
             [small]="true"
           />
         </div>

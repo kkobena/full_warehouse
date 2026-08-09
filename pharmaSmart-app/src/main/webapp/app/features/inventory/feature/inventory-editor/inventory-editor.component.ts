@@ -255,12 +255,37 @@ export class InventoryEditorComponent implements OnInit {
     }
   }
 
+  /**
+   * Fin de la page atteinte en saisie continue.
+   *
+   * Sous un filtre dont le comptage modifie l'appartenance, la page courante n'a pas
+   * le même contenu qu'au moment où elle a été ouverte : chaque ligne comptée en sort
+   * et le serveur la re-remplit par le bas. Avancer d'une page sauterait alors tout ce
+   * qui vient d'y remonter — avec 20 lignes par page, les lignes 21 à 40 étaient perdues
+   * pour cause de passage direct de la page 0 à la page 1. On recharge donc la page
+   * courante, qui porte déjà les lignes restantes.
+   */
   protected onNextPage(): void {
+    if (this.filterHidesCountedLines()) {
+      this.loadLines();
+      return;
+    }
     const next = this.page() + 1;
     if (next < this.totalPages()) {
       this.page.set(next);
       this.loadLines();
     }
+  }
+
+  /**
+   * Le filtre courant retire-t-il de la liste une ligne dès qu'elle est comptée ?
+   *
+   * « Non comptés » évidemment, mais aussi les filtres d'écart : compter une ligne change
+   * son écart, donc son appartenance. « Comptés » n'en fait pas partie — il ne montre que
+   * des lignes déjà saisies, qu'un nouveau comptage n'en fait pas sortir.
+   */
+  private filterHidesCountedLines(): boolean {
+    return this.selectedLineFilter === "NOT_UPDATED" || isGapLineFilter(this.selectedLineFilter);
   }
 
   protected onPageSizeChange(newSize: number): void {

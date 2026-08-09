@@ -2845,7 +2845,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
           },
           {
             id: 'STK-14',
-            titre: 'Consulter le résumé des écarts par cause (KPI)',
+            titre: 'Consulter le résumé des écarts par cause ',
             besoin: 'Identifier la cause dominante des pertes (casse ? vol ? erreurs de réception ?) pour orienter les actions correctives.',
             fonctionnement: 'Le résumé agrège, pour l’inventaire, le nombre de lignes et la valeur totale des écarts par cause qualifiée.',
             prerequis: 'Les écarts de l’inventaire ont été qualifiés.',
@@ -3026,7 +3026,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             id: 'STK-42',
             titre: 'Consulter et filtrer les lots à détruire',
             besoin: 'Suivre les lots périmés retirés du stock jusqu’à leur destruction physique effective, en distinguant ce qui reste à détruire de ce qui l’a déjà été.',
-            fonctionnement: 'La liste des lots à détruire est filtrable par statut (déjà détruits / à détruire / tout), et par les mêmes critères que la liste des péremptions (officine, rayon, fournisseur, date, recherche), avec un résumé chiffré (KPI) de la quantité et de la valeur concernées.',
+            fonctionnement: 'La liste des lots à détruire est filtrable par statut (déjà détruits / à détruire / tout), et par les mêmes critères que la liste des péremptions (officine, rayon, fournisseur, date, recherche), avec un résumé chiffré  de la quantité et de la valeur concernées.',
             etapes: ['Ouvrir "Lots à détruire"', 'Filtrer par statut et par critère si besoin', 'Consulter le résumé chiffré'],
             resultatAttendu: 'La liste et le résumé chiffré affichés correspondent exactement au filtre appliqué.',
           },
@@ -3247,7 +3247,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
           },
           {
             id: 'CLI-14',
-            titre: 'Consulter le résumé (KPI) des comptes différés',
+            titre: 'Consulter le résumé  des comptes différés',
             besoin: 'Obtenir en un coup d’œil le montant total dû par l’ensemble des clients à crédit, ou pour un client sur une période.',
             fonctionnement: 'Le résumé agrège les montants dus, réglés et en attente, globalement ou pour un client et une période donnés.',
             etapes: ['Ouvrir le résumé des différés', 'Sélectionner un client et/ou une période si besoin'],

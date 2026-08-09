@@ -3,6 +3,7 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {
   AllCommunityModule,
+  CellEditingStartedEvent,
   CellValueChangedEvent,
   ClientSideRowModelModule,
   ColDef,
@@ -87,6 +88,11 @@ export class InventoryLotGridComponent {
   private focusRowId: string | null = null;
   /** Index de la ligne saisie, relevé avant sauvegarde — cf. {@link resolveNextIndex} */
   private lastKnownIndex = 0;
+  /**
+   * Ligne dont l'opérateur a ouvert l'éditeur et dont la validation n'a pas encore été
+   * traitée. Sert de laissez-passer : cf. {@link onCellValueChanged}.
+   */
+  private userEditRowId: string | null = null;
 
   readonly columnDefs = computed<ColDef[]>(() => [
     {
@@ -300,9 +306,13 @@ export class InventoryLotGridComponent {
     this.gridApi.setGridOption('rowData', pending);
   }
 
-  /** L'éditeur est ouvert : la fenêtre d'ouverture est refermée, le garde d'édition prend le relais. */
-  protected onCellEditingStarted(): void {
+  /**
+   * L'éditeur est ouvert : la fenêtre d'ouverture est refermée, le garde d'édition prend
+   * le relais, et la ligne reçoit le laissez-passer qui autorisera **une** sauvegarde.
+   */
+  protected onCellEditingStarted(event: CellEditingStartedEvent): void {
     this.focusRowId = null;
+    this.userEditRowId = event.node.id ?? null;
   }
 
   /** L'éditeur est fermé : plus rien ne retient la page en attente. */
@@ -331,25 +341,37 @@ export class InventoryLotGridComponent {
 
   onCellValueChanged(event: CellValueChangedEvent): void {
     if (event.column.getColId() !== 'quantityOnHand' || this.readOnly()) return;
+    // Seule une saisie de l'opérateur déclenche une sauvegarde, et une seule fois : le
+    // laissez-passer est posé à l'ouverture de l'éditeur et consommé ici.
+    //
+    // `setDataValue` — qui restaure la valeur après un refus — émet lui aussi un
+    // `cellValueChanged`. Sans ce garde, la restauration repartait en sauvegarde, qui
+    // échouait, qui restaurait : boucle infinie, un toast par tour. Le critère porte sur
+    // l'existence d'une session d'édition, et non sur un drapeau posé le temps de l'appel,
+    // car `setDataValue` n'émet pas son événement de façon synchrone.
+    if (this.userEditRowId === null || this.userEditRowId !== event.node.id) return;
+    this.userEditRowId = null;
 
     const lotData = event.data as IInventoryLotLine;
     if (!lotData?.storeInventoryLineId) return;
 
     const numValue = Number(event.newValue);
     if (!Number.isFinite(numValue) || numValue < 0) {
-      event.node.setDataValue('quantityOnHand', event.oldValue);
-      setTimeout(() => {
-        // Même cellule, mais son index a pu bouger si un rechargement a abouti entre-temps
-        const rowIndex = event.node.rowIndex ?? event.rowIndex!;
-        this.gridApi?.startEditingCell({rowIndex, colKey: 'quantityOnHand'});
-      });
+      this.revertQuantity(event);
       return;
     }
 
     this.lastKnownIndex = event.rowIndex!;
 
+    const wasCounted = lotData.updated === true;
+
     this.saveCount(lotData, numValue).subscribe({
       next: updated => {
+        // Cette grille écrit par l'API lot, hors de `saveLine` : elle doit signaler
+        // elle-même son comptage, sinon l'éditeur le prendrait pour un comptage distant.
+        if (!wasCounted) {
+          this.editorFacade.notifyLocalCount();
+        }
         event.node.setDataValue('gap', updated.gap);
         event.node.setDataValue('updated', true);
         // La version renvoyée arme le prochain arbitrage de comptage concurrent
@@ -359,8 +381,24 @@ export class InventoryLotGridComponent {
         this.navigateToNextRow(event.node);
       },
       error: () => {
-        event.node.setDataValue('quantityOnHand', event.oldValue);
+        this.revertQuantity(event);
       },
+    });
+  }
+
+  /**
+   * Restaure la valeur précédente d'une cellule sans relancer le cycle de saisie, puis
+   * redonne la main sur cette même cellule.
+   *
+   * `setDataValue` émet un `cellValueChanged` : sans le drapeau, la restauration serait
+   * traitée comme une nouvelle saisie et repartirait en sauvegarde.
+   */
+  private revertQuantity(event: CellValueChangedEvent): void {
+    event.node.setDataValue('quantityOnHand', event.oldValue);
+    setTimeout(() => {
+      // Même cellule, mais son index a pu bouger si un rechargement a abouti entre-temps
+      const rowIndex = event.node.rowIndex ?? event.rowIndex!;
+      this.gridApi?.startEditingCell({rowIndex, colKey: 'quantityOnHand'});
     });
   }
 

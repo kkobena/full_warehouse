@@ -3,6 +3,7 @@ import {CommonModule, formatDate} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {
   AllCommunityModule,
+  CellEditingStartedEvent,
   CellValueChangedEvent,
   ClientSideRowModelModule,
   ColDef,
@@ -124,6 +125,12 @@ export class InventoryLinesGridComponent {
       editable: !this.readOnly(),
       type: ['rightAligned', 'numericColumn'],
       cellStyle: params => {
+        // Sauvegarde échouée : la quantité affichée n'est pas enregistrée. La grille
+        // n'étant plus rechargée à chaque ligne, c'est le seul signal qui distingue
+        // une ligne comptée d'une ligne perdue.
+        if (params.data?.saveFailed) {
+          return {backgroundColor: '#fde8ea', color: '#dc3545', fontWeight: 'bold'};
+        }
         if (params.data?.updated) {
           return {backgroundColor: '#f0fff4', fontWeight: 'bold'};
         }
@@ -187,7 +194,12 @@ export class InventoryLinesGridComponent {
       editable: false,
       cellStyle: {textAlign: 'center'},
       headerClass: 'ag-header-cell-center',
-      cellRenderer: (params: any) => params.value ? '<i class="pi pi-check text-success"></i>' : '',
+      cellRenderer: (params: any) => {
+        if (params.data?.saveFailed) {
+          return '<i class="pi pi-exclamation-triangle text-danger" title="Non enregistré — à ressaisir"></i>';
+        }
+        return params.value ? '<i class="pi pi-check text-success"></i>' : '';
+      },
     },
     {
       field: 'countedBy',
@@ -232,6 +244,11 @@ export class InventoryLinesGridComponent {
   private focusRowId: string | null = null;
   /** Index de la ligne saisie, relevé avant sauvegarde — cf. {@link resolveNextIndex} */
   private lastKnownIndex = 0;
+  /**
+   * Ligne dont l'opérateur a ouvert l'éditeur et dont la validation n'a pas encore été
+   * traitée. Sert de laissez-passer : cf. {@link onCellValueChanged}.
+   */
+  private userEditRowId: string | null = null;
 
   constructor() {
     // Filtre d'écart déjà actif au moment où le mode aveugle s'applique : on le
@@ -329,9 +346,13 @@ export class InventoryLinesGridComponent {
     this.gridApi.setGridOption('rowData', pending);
   }
 
-  /** L'éditeur est ouvert : la fenêtre d'ouverture est refermée, le garde d'édition prend le relais. */
-  protected onCellEditingStarted(): void {
+  /**
+   * L'éditeur est ouvert : la fenêtre d'ouverture est refermée, le garde d'édition prend
+   * le relais, et la ligne reçoit le laissez-passer qui autorisera **une** sauvegarde.
+   */
+  protected onCellEditingStarted(event: CellEditingStartedEvent): void {
     this.focusRowId = null;
+    this.userEditRowId = event.node.id ?? null;
   }
 
   /** L'éditeur est fermé : plus rien ne retient la page en attente. */
@@ -375,6 +396,18 @@ export class InventoryLinesGridComponent {
     if (event.column.getColId() !== 'quantityOnHand' || this.readOnly()) {
       return;
     }
+    // Seule une saisie de l'opérateur déclenche une sauvegarde, et une seule fois : le
+    // laissez-passer est posé à l'ouverture de l'éditeur et consommé ici.
+    //
+    // `setDataValue` — qui restaure la valeur après un refus — émet lui aussi un
+    // `cellValueChanged`. Sans ce garde, la restauration repartait en sauvegarde, qui
+    // échouait, qui restaurait : boucle infinie, un toast par tour. Le critère porte sur
+    // l'existence d'une session d'édition, et non sur un drapeau posé le temps de l'appel,
+    // car `setDataValue` n'émet pas son événement de façon synchrone.
+    if (this.userEditRowId === null || this.userEditRowId !== event.node.id) {
+      return;
+    }
+    this.userEditRowId = null;
 
     const newValue = event.newValue;
     const lineData = event.data as IInventoryLine;
@@ -387,12 +420,7 @@ export class InventoryLinesGridComponent {
 
     if (!isValid) {
       // Invalid input: revert and stay editing the same cell
-      event.node.setDataValue('quantityOnHand', event.oldValue);
-      setTimeout(() => {
-        // Même cellule, mais son index a pu bouger si un rechargement a abouti entre-temps
-        const rowIndex = event.node.rowIndex ?? event.rowIndex!;
-        this.gridApi?.startEditingCell({rowIndex, colKey: 'quantityOnHand'});
-      });
+      this.revertQuantity(event);
       return;
     }
 
@@ -405,14 +433,37 @@ export class InventoryLinesGridComponent {
 
     this.lastKnownIndex = event.rowIndex!;
 
-    // Save immediately via API
-    this.editorFacade.saveLine(lineToSave, this.inventoryId());
+    // La ligne n'est tenue pour comptée qu'une fois le serveur d'accord, et le curseur
+    // n'avance qu'à ce moment-là. Marquer et naviguer sans attendre laissait l'opérateur
+    // enchaîner des lignes que le serveur refusait — backend coupé, l'inventaire se
+    // remplissait de comptages qui n'existaient pas.
+    this.editorFacade.saveLine(lineToSave).subscribe({
+      next: () => {
+        event.node.setDataValue('updated', true);
+        this.navigateToNextRow(event.node);
+      },
+      error: () => {
+        // Saisie invalidée : la valeur précédente est restaurée et le curseur reste sur
+        // la cellule, pour que la ligne soit reprise plutôt que tenue pour comptée.
+        this.revertQuantity(event);
+      },
+    });
+  }
 
-    // Mark the row as updated visually
-    event.node.setDataValue('updated', true);
-
-    // Navigate to next row
-    this.navigateToNextRow(event.node);
+  /**
+   * Restaure la valeur précédente d'une cellule sans relancer le cycle de saisie, puis
+   * redonne la main sur cette même cellule.
+   *
+   * `setDataValue` émet un `cellValueChanged` : sans le drapeau, la restauration serait
+   * traitée comme une nouvelle saisie et repartirait en sauvegarde.
+   */
+  private revertQuantity(event: CellValueChangedEvent): void {
+    event.node.setDataValue('quantityOnHand', event.oldValue);
+    setTimeout(() => {
+      // Même cellule, mais son index a pu bouger si un rechargement a abouti entre-temps
+      const rowIndex = event.node.rowIndex ?? event.rowIndex!;
+      this.gridApi?.startEditingCell({rowIndex, colKey: 'quantityOnHand'});
+    });
   }
 
   /**

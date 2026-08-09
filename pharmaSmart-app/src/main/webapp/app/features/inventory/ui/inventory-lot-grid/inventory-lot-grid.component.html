@@ -63,7 +63,7 @@
   </div>
 
   <ag-grid-angular
-    (cellEditingStarted)="onCellEditingStarted()"
+    (cellEditingStarted)="onCellEditingStarted($event)"
     (cellEditingStopped)="onCellEditingStopped()"
     (cellValueChanged)="onCellValueChanged($event)"
     (gridReady)="onGridReady($event)"

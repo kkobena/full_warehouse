@@ -119,9 +119,13 @@ export class InventoryHomeComponent implements OnInit {
   constructor() {
     effect(() => {
       const err = this.store.error();
-      if (err) {
-        this.notificationService.error(err, 'Erreur');
+      if (!err) {
+        return;
       }
+      this.notificationService.error(err, 'Erreur');
+      // Consommée : un signal dont la valeur ne change pas ne redéclenche pas l'effect,
+      // deux erreurs identiques successives ne produiraient qu'une seule notification.
+      this.store.setError(null);
     });
   }
 

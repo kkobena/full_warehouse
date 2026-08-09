@@ -114,6 +114,16 @@ export const InventoryStore = signalStore(
       patchState(store, {lines});
     },
 
+    /**
+     * Marque une ligne dont la sauvegarde a échoué. La quantité reste affichée — c'est
+     * celle que l'opérateur a saisie — mais la grille la signale comme non enregistrée,
+     * pour qu'elle soit reprise plutôt que tenue pour comptée.
+     */
+    markLineSaveFailed(lineId: number): void {
+      const lines = store.lines().map(l => l.id === lineId ? {...l, saveFailed: true} : l);
+      patchState(store, {lines});
+    },
+
     setLoadingLines(loadingLines: boolean): void {
       patchState(store, {loadingLines});
     },

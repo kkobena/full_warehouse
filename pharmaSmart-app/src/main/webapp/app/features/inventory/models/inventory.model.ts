@@ -68,6 +68,12 @@ export interface IInventoryLine {
   updatedAt?: string;
   /** Verrou optimiste : version lue, renvoyée à l'écriture (409 si périmée) */
   version?: number;
+  /**
+   * Champ client : la sauvegarde de cette ligne a échoué. Non renvoyé par le serveur.
+   * La saisie étant écrite immédiatement et la grille n'étant plus rechargée à chaque
+   * ligne, c'est le seul signal qui distingue une ligne comptée d'une ligne perdue.
+   */
+  saveFailed?: boolean;
 }
 
 export interface IInventoryLot {

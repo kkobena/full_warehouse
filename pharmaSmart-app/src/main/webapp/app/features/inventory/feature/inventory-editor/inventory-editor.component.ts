@@ -8,23 +8,31 @@ import {
   OnInit,
   signal
 } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { ActivatedRoute, Router } from "@angular/router";
-import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import { NotificationService } from "../../../../shared/services/notification.service";
-import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
-import { filter, interval } from "rxjs";
-import { InventoryApiService } from "../../data-access/services/inventory-api.service";
-import { InventoryEditorFacade } from "../../data-access/facades/inventory-editor.facade";
-import { InventoryListFacade } from "../../data-access/facades/inventory-list.facade";
-import { InventoryStore } from "../../data-access/store/inventory.store";
-import { InventoryProgressBarComponent } from "../../ui/inventory-progress-bar/inventory-progress-bar.component";
-import { InventoryLinesGridComponent } from "../../ui/inventory-lines-grid/inventory-lines-grid.component";
-import { InventoryImportModalComponent } from "../../ui/inventory-import-modal/inventory-import-modal.component";
-import { InventoryLotGridComponent } from "../../ui/inventory-lot-grid/inventory-lot-grid.component";
-import { GapSummaryComponent } from "../../ui/gap-summary/gap-summary.component";
-import { InventoryValuationComponent } from "../../ui/inventory-valuation/inventory-valuation.component";
-import { FormsModule } from "@angular/forms";
+import {CommonModule} from "@angular/common";
+import {ActivatedRoute, Router} from "@angular/router";
+import {NgbModal, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
+import {NotificationService} from "../../../../shared/services/notification.service";
+import {takeUntilDestroyed, toObservable} from "@angular/core/rxjs-interop";
+import {filter, interval} from "rxjs";
+import {InventoryApiService} from "../../data-access/services/inventory-api.service";
+import {InventoryEditorFacade} from "../../data-access/facades/inventory-editor.facade";
+import {InventoryListFacade} from "../../data-access/facades/inventory-list.facade";
+import {InventoryStore} from "../../data-access/store/inventory.store";
+import {
+  InventoryProgressBarComponent
+} from "../../ui/inventory-progress-bar/inventory-progress-bar.component";
+import {
+  InventoryLinesGridComponent
+} from "../../ui/inventory-lines-grid/inventory-lines-grid.component";
+import {
+  InventoryImportModalComponent
+} from "../../ui/inventory-import-modal/inventory-import-modal.component";
+import {InventoryLotGridComponent} from "../../ui/inventory-lot-grid/inventory-lot-grid.component";
+import {GapSummaryComponent} from "../../ui/gap-summary/gap-summary.component";
+import {
+  InventoryValuationComponent
+} from "../../ui/inventory-valuation/inventory-valuation.component";
+import {FormsModule} from "@angular/forms";
 import {
   IInventoryLine,
   INVENTORY_CATEGORIES,
@@ -32,17 +40,17 @@ import {
   InventoryLineFilter,
   isGapLineFilter
 } from "../../models";
-import { StorageService } from "../../../../entities/storage/storage.service";
-import { RayonService } from "../../../../entities/rayon/rayon.service";
-import { IStorage } from "../../../../shared/model/magasin.model";
-import { IRayon } from "../../../../shared/model/rayon.model";
-import { HasAuthorityService } from "../../../../entities/sales/service/has-authority.service";
-import { Authority } from "../../../../shared/constants/authority.constants";
-import { ConfigurationService } from "../../../../shared/configuration.service";
-import { InventoryCategoryType } from "../../../../shared/model/store-inventory.model";
-import { ButtonComponent, SelectComponent, ToolbarComponent } from "../../../../shared/ui";
-import { AbilityService } from "app/core/auth/ability.service";
-import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
+import {StorageService} from "../../../../entities/storage/storage.service";
+import {RayonService} from "../../../../entities/rayon/rayon.service";
+import {IStorage} from "../../../../shared/model/magasin.model";
+import {IRayon} from "../../../../shared/model/rayon.model";
+import {HasAuthorityService} from "../../../../entities/sales/service/has-authority.service";
+import {Authority} from "../../../../shared/constants/authority.constants";
+import {ConfigurationService} from "../../../../shared/configuration.service";
+import {InventoryCategoryType} from "../../../../shared/model/store-inventory.model";
+import {ButtonComponent, SelectComponent, ToolbarComponent} from "../../../../shared/ui";
+import {AbilityService} from "app/core/auth/ability.service";
+import {BlobDownloadService} from "../../../../shared/services/blob-download.service";
 
 @Component({
   selector: "app-inventory-editor",
@@ -64,17 +72,18 @@ import { BlobDownloadService } from "../../../../shared/services/blob-download.s
   styleUrl: "./inventory-editor.component.scss"
 })
 export class InventoryEditorComponent implements OnInit {
+  /** Intervalle de scrutation de la progression (supervision du comptage mobile) */
+  private static readonly PROGRESS_POLL_MS = 15_000;
   readonly editorFacade = inject(InventoryEditorFacade);
   readonly listFacade = inject(InventoryListFacade);
   readonly store = inject(InventoryStore);
-
   inventoryId = signal<number>(0);
   storages = signal<IStorage[]>([]);
   rayons = signal<IRayon[]>([]);
   gestionLot = signal(false);
   selectedLine = signal<IInventoryLine | null>(null);
   page = signal(0);
-  size = signal(20);
+  size = signal(100);
   readonly pageSizeOptions = [10, 20, 50, 100];
   readonly totalPages = computed(() => {
     const total = this.gestionLot() ? this.store.lotTotalLines() : this.store.totalLines();
@@ -91,9 +100,9 @@ export class InventoryEditorComponent implements OnInit {
   exporting = signal(false);
   /** Comptages détectés sur un autre poste alors qu'une saisie est en cours ici */
   protected readonly remoteCountsPending = signal(false);
-  /** Intervalle de scrutation de la progression (supervision du comptage mobile) */
-  private static readonly PROGRESS_POLL_MS = 15_000;
   private lastSeenUpdatedLines: number | null = null;
+  /** Comptages locaux pas encore reflétés dans la progression lue — cf. onProgressChanged */
+  private pendingLocalCredit = 0;
   private selectedLineFilter: InventoryLineFilter = "NONE";
   private selectedStorageId: number | null = null;
   private selectedRayonId: number | null = null;
@@ -125,9 +134,11 @@ export class InventoryEditorComponent implements OnInit {
   constructor() {
     effect(() => {
       const err = this.store.error();
-      if (err) {
-        this.notificationService.error(err, "Erreur");
+      if (!err) {
+        return;
       }
+      this.notificationService.error(err, "Erreur");
+      this.store.setError(null);
     });
     effect(() => this.onProgressChanged());
   }
@@ -152,60 +163,30 @@ export class InventoryEditorComponent implements OnInit {
     this.listFacade.loadInventory(id);
     // Le premier chargement attend le mode de saisie : sans cela il partirait sur
     // /v2 (mode produit par défaut) avant que la config n'impose /lots.
+    // La progression est rafraîchie par `loadLines`, qu'enchaîne `loadGestionLot`.
     this.loadGestionLot();
-    this.editorFacade.refreshProgress(id);
     this.loadStorages();
 
     this.subscribeToEvents();
     this.watchRemoteProgress();
   }
 
-  /**
-   * Supervision du comptage mobile : scrute la progression et rafraîchit la grille
-   * quand des comptages arrivent d'un autre poste.
-   *
-   * Règle : on ne recharge jamais pendant une saisie locale — cela ferait perdre les
-   * valeurs en cours de frappe. Dans ce cas un indicateur invite à rafraîchir.
-   */
-  private watchRemoteProgress(): void {
-    interval(InventoryEditorComponent.PROGRESS_POLL_MS)
-      .pipe(
-        filter(() => !this.isInventoryClosed),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe(() => this.editorFacade.refreshProgress(this.inventoryId()));
-  }
-
-  /**
-   * Réagit aux variations du nombre de lignes comptées, d'où qu'elles viennent
-   * (mobile, autre poste). Déclaré dans le constructeur : `effect` exige un
-   * contexte d'injection.
-   */
-  private onProgressChanged(): void {
-    const updated = this.store.progress()?.updatedLines;
-    if (updated == null) {
-      return;
-    }
-    const previous = this.lastSeenUpdatedLines;
-    this.lastSeenUpdatedLines = updated;
-    if (previous === null || updated === previous) {
-      return;
-    }
-    if (this.editorFacade.hasPendingEdits()) {
-      // Saisie en cours : on signale sans écraser le travail de l'opérateur
-      this.remoteCountsPending.set(true);
-    } else {
-      this.loadLines();
-    }
-  }
-
   /** Rafraîchissement manuel après des comptages distants signalés */
   protected refreshAfterRemoteCounts(): void {
-    this.remoteCountsPending.set(false);
     this.loadLines();
   }
 
+  /**
+   * Charge une page de lignes. Seul point de rechargement de la grille : il n'est atteint
+   * qu'aux transitions (page suivante ou précédente, taille de page, filtre, import,
+   * rafraîchissement manuel), jamais pendant la saisie d'une page.
+   */
   protected loadLines(): void {
+    // Le bandeau a rempli son office : la page qu'on charge porte les comptages distants.
+    this.remoteCountsPending.set(false);
+    // La progression suit le même rythme que la grille — une fois par page, au lieu
+    // d'une fois par ligne comptée.
+    this.editorFacade.refreshProgress(this.inventoryId());
     const params: any = {
       page: this.page(),
       size: this.size(),
@@ -277,17 +258,6 @@ export class InventoryEditorComponent implements OnInit {
     }
   }
 
-  /**
-   * Le filtre courant retire-t-il de la liste une ligne dès qu'elle est comptée ?
-   *
-   * « Non comptés » évidemment, mais aussi les filtres d'écart : compter une ligne change
-   * son écart, donc son appartenance. « Comptés » n'en fait pas partie — il ne montre que
-   * des lignes déjà saisies, qu'un nouveau comptage n'en fait pas sortir.
-   */
-  private filterHidesCountedLines(): boolean {
-    return this.selectedLineFilter === "NOT_UPDATED" || isGapLineFilter(this.selectedLineFilter);
-  }
-
   protected onPageSizeChange(newSize: number): void {
     this.size.set(newSize);
     this.page.set(0);
@@ -298,9 +268,9 @@ export class InventoryEditorComponent implements OnInit {
     this.rayons.set([]);
     if (storageId) {
       this.rayonService
-        .query({ storageId, size: 9999 })
+        .query({storageId, size: 9999})
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({ next: resp => this.rayons.set(resp.body ?? []) });
+        .subscribe({next: resp => this.rayons.set(resp.body ?? [])});
     }
   }
 
@@ -308,7 +278,7 @@ export class InventoryEditorComponent implements OnInit {
     const ref = this.modal.open(InventoryImportModalComponent, {
       size: "xl",
       backdrop: "static",
-      centered:true
+      centered: true
     });
     ref.componentInstance.inventoryId = this.inventoryId();
     ref.result.then(() => this.loadLines(), () => {
@@ -379,26 +349,13 @@ export class InventoryEditorComponent implements OnInit {
   }
 
   protected goBack(): void {
-    this.router.navigate(["/inventaire"], { queryParams: { tab: this.resolveSourceTab() } });
-  }
-
-  /**
-   * Onglet vers lequel revenir.
-   *
-   * Le `tab` posé par l'écran appelant fait foi : lui seul distingue « Tournant », que le
-   * statut de l'inventaire ne permet pas de déduire. À défaut — lien direct, rafraîchissement
-   * de la page, ou arrivée depuis un autre écran (rayons) — on le déduit du statut, ce qui
-   * évite d'atterrir sur un onglet où l'inventaire ne figure pas.
-   */
-  private resolveSourceTab(): string {
-    return this.sourceTab ?? (this.isInventoryClosed ? "clotures" : "en-cours");
+    this.router.navigate(["/inventaire"], {queryParams: {tab: this.resolveSourceTab()}});
   }
 
   protected getCategoryLabel(cat: any): string {
     const name = typeof cat === "string" ? cat : cat?.name;
     return INVENTORY_CATEGORIES.find(c => c.value === name)?.label ?? name ?? "-";
   }
-
 
   protected onLineSelected(line: IInventoryLine | null): void {
     this.selectedLine.set(line);
@@ -410,6 +367,74 @@ export class InventoryEditorComponent implements OnInit {
 
   protected onLotUpdated(): void {
     this.editorFacade.refreshProgress(this.inventoryId());
+  }
+
+  /**
+   * Supervision du comptage mobile : scrute la progression et rafraîchit la grille
+   * quand des comptages arrivent d'un autre poste.
+   *
+   * Règle : on ne recharge jamais pendant une saisie locale — cela ferait perdre les
+   * valeurs en cours de frappe. Dans ce cas un indicateur invite à rafraîchir.
+   */
+  private watchRemoteProgress(): void {
+    interval(InventoryEditorComponent.PROGRESS_POLL_MS)
+      .pipe(
+        filter(() => !this.isInventoryClosed),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => this.editorFacade.refreshProgress(this.inventoryId()));
+  }
+
+  /**
+   * Réagit aux variations du nombre de lignes comptées, d'où qu'elles viennent
+   * (mobile, autre poste). Déclaré dans le constructeur : `effect` exige un
+   * contexte d'injection.
+   *
+   * Ne recharge **jamais** la grille : le rechargement n'a lieu qu'aux transitions de page
+   * ou de filtre (cf. plan « saisie sans rechargement »). Une progression qui bouge en
+   * pleine saisie ne fait que lever le bandeau, l'opérateur rafraîchit quand il le décide.
+   */
+  private onProgressChanged(): void {
+    const updated = this.store.progress()?.updatedLines;
+    if (updated == null) {
+      return;
+    }
+    const previous = this.lastSeenUpdatedLines;
+    this.lastSeenUpdatedLines = updated;
+    // Nos propres comptages font bouger la progression : les défalquer, sinon l'écran
+    // annoncerait « des comptages depuis un autre poste » à chaque ligne saisie ici.
+    const localCredit = this.pendingLocalCredit + this.editorFacade.consumeLocalCounts();
+    if (previous === null) {
+      this.pendingLocalCredit = 0;
+      return;
+    }
+
+    const remoteDelta = updated - previous - localCredit;
+    if (remoteDelta > 0) {
+      this.remoteCountsPending.set(true);
+      this.pendingLocalCredit = 0;
+      return;
+    }
+    // Progression lue avant que des sauvegardes en vol n'y soient reflétées : le solde
+    // local non encore expliqué est reporté, sans quoi il ferait passer nos propres
+    // comptages pour distants au relevé suivant.
+    this.pendingLocalCredit = -remoteDelta;
+  }
+
+  /**
+   * Le filtre courant retire-t-il de la liste une ligne dès qu'elle est comptée ?
+   *
+   * « Non comptés » évidemment, mais aussi les filtres d'écart : compter une ligne change
+   * son écart, donc son appartenance. « Comptés » n'en fait pas partie — il ne montre que
+   * des lignes déjà saisies, qu'un nouveau comptage n'en fait pas sortir.
+   */
+  private filterHidesCountedLines(): boolean {
+    return this.selectedLineFilter === "NOT_UPDATED" || isGapLineFilter(this.selectedLineFilter);
+  }
+
+
+  private resolveSourceTab(): string {
+    return this.sourceTab ?? (this.isInventoryClosed ? "clotures" : "en-cours");
   }
 
   /**
@@ -438,7 +463,7 @@ export class InventoryEditorComponent implements OnInit {
     this.storageService
       .fetchUserStorages()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({ next: resp => this.storages.set(resp.body ?? []) });
+      .subscribe({next: resp => this.storages.set(resp.body ?? [])});
   }
 
   private subscribeToEvents(): void {
@@ -449,16 +474,12 @@ export class InventoryEditorComponent implements OnInit {
           case "LINE_SAVED":
             break;
           case "LINE_SAVE_ERROR": {
-            // Comptage concurrent : la valeur serveur fait foi, on recharge la page
+            // Le message est déjà porté par `store.error()`, que l'effect du constructeur
+            // affiche : notifier une seconde fois ici produisait deux toasts par échec.
             const status = (event.payload as any)?.error?.status;
             if (status === 409) {
-              this.notificationService.error(
-                "Cette ligne vient d'être comptée par un autre opérateur — valeurs rechargées",
-                "Comptage concurrent"
-              );
+              // Comptage concurrent : la valeur serveur fait foi, on recharge la page
               this.loadLines();
-            } else {
-              this.notificationService.error("Erreur lors de la sauvegarde de la ligne", "Erreur");
             }
             break;
           }

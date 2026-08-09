@@ -186,7 +186,7 @@ export class ButtonComponent {
   readonly iconOnly = input<boolean>(false);
   /** Couleur du bouton (vocabulaire PrimeNG). */
   readonly severity = input<AppButtonSeverity>('primary');
-  readonly size = input<AppButtonSize>('normal');
+  readonly size = input<AppButtonSize>('small');
   /** Contour coloré sur fond transparent (`.btn-outline-*`). */
   readonly outlined = input<boolean>(false);
   /** Sans fond ni bordure (`.btn-link`). Prioritaire sur `outlined`. */

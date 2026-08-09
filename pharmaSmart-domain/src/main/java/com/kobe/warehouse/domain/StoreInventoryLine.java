@@ -105,6 +105,35 @@ public class StoreInventoryLine implements Serializable {
     @Column(name = "last_unit_price")
     private Integer lastUnitPrice;
 
+    /**
+     * Applique un comptage à la ligne : quantités, écart, valorisation figée au moment du
+     * comptage et traçabilité.
+     *
+     * <p>Centralisé ici parce que trois chemins comptent une ligne — saisie écran et les deux
+     * imports CSV — et qu'ils doivent renseigner exactement les mêmes colonnes. Les imports
+     * ne posaient que {@code quantityOnHand} et {@code updated} ; {@code inventory_value_cost},
+     * {@code last_unit_price} et {@code quantity_init} restaient nuls, ce qui faisait échouer
+     * la clôture (leurs contreparties dans {@code inventory_transaction} sont NOT NULL) et
+     * sortait la ligne des filtres d'écart, {@code quantity_on_hand <> quantity_init} valant
+     * NULL.
+     *
+     * <p>La valorisation vient du fournisseur principal, avec repli sur le produit — dont
+     * {@code costAmount} et {@code regularUnitPrice} sont NOT NULL en base.
+     */
+    public StoreInventoryLine applyCount(int quantityInit, int quantityOnHand, AppUser countedBy) {
+        FournisseurProduit principal = this.produit != null ? this.produit.getFournisseurProduitPrincipal() : null;
+        this.quantityInit = quantityInit;
+        this.quantityOnHand = quantityOnHand;
+        this.gap = quantityOnHand - quantityInit;
+        this.quantitySold = 0;
+        this.inventoryValueCost = principal != null ? principal.getPrixAchat() : this.produit.getCostAmount();
+        this.lastUnitPrice = principal != null ? principal.getPrixUni() : this.produit.getRegularUnitPrice();
+        this.updated = true;
+        this.updatedAt = LocalDateTime.now();
+        this.countedBy = countedBy;
+        return this;
+    }
+
     public Long getVersion() {
         return version;
     }

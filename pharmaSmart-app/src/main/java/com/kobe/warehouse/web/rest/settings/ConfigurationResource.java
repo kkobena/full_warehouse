@@ -1,12 +1,16 @@
 package com.kobe.warehouse.web.rest.settings;
 
-import com.kobe.warehouse.domain.AppConfiguration;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
+import com.kobe.warehouse.service.settings.dto.AppConfigurationDto;
+import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api")
@@ -27,26 +32,27 @@ public class ConfigurationResource {
     }
 
     @GetMapping("/app/{id}")
-    public ResponseEntity<AppConfiguration> getParam(@PathVariable String id) {
-        Optional<AppConfiguration> appConfiguration = appConfigurationService.findOneById(id);
-        return ResponseUtil.wrapOrNotFound(appConfiguration);
+    public ResponseEntity<AppConfigurationDto> getParam(@PathVariable String id) {
+        return ResponseUtil.wrapOrNotFound(appConfigurationService.findOne(id));
     }
 
     @GetMapping("/app/param-gestion-stock")
-    public ResponseEntity<AppConfiguration> getParamGestionStock() {
-        Optional<AppConfiguration> appConfiguration = appConfigurationService.findStockParam();
-        return ResponseUtil.wrapOrNotFound(appConfiguration);
+    public ResponseEntity<AppConfigurationDto> getParamGestionStock() {
+        return ResponseUtil.wrapOrNotFound(appConfigurationService.findStockParam());
     }
 
     @GetMapping("/app")
-    public ResponseEntity<List<AppConfiguration>> fetchAll(
-        @RequestParam(value = "search", required = false, defaultValue = "") String search
+    public ResponseEntity<List<AppConfigurationDto>> fetchAll(
+        @RequestParam(value = "search", required = false, defaultValue = "") String search,
+        Pageable pageable
     ) {
-        return ResponseEntity.ok().body(appConfigurationService.fetchAll(search));
+        Page<AppConfigurationDto> page = appConfigurationService.fetchAll(search, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     @PutMapping("/app")
-    public ResponseEntity<Void> update(@Valid @RequestBody AppConfiguration appConfiguration) {
+    public ResponseEntity<Void> update(@Valid @RequestBody AppConfigurationDto appConfiguration) {
         appConfigurationService.update(appConfiguration);
         return ResponseEntity.accepted().build();
     }

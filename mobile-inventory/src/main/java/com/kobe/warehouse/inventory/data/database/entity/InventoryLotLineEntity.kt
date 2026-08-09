@@ -39,7 +39,7 @@ data class InventoryLotLineEntity(
     val syncStatus: String = "PENDING"
 ) {
     fun toModel(): InventoryLotLine = InventoryLotLine(
-        id = id,
+        id = id.takeIf { it > 0 },
         storeInventoryLineId = storeInventoryLineId,
         produitId = produitId,
         produitCip = produitCip,
@@ -66,12 +66,21 @@ data class InventoryLotLineEntity(
     )
 
     companion object {
+        /**
+         * Clé locale d'une ligne sans lot. Les identifiants de lot sont strictement positifs :
+         * l'opposé de l'identifiant de la ligne produit donne une clé libre et réversible
+         * ([toModel] la relit comme « pas de lot »). Sans elle, toutes ces lignes se seraient
+         * écrasées sur la clé 0 et une seule aurait survécu au cache.
+         */
+        private fun localKey(model: InventoryLotLine): Long =
+            model.id ?: -(model.storeInventoryLineId ?: 0L)
+
         fun fromModel(
             model: InventoryLotLine,
             storeInventoryId: Long,
             rayonId: Long? = null
         ): InventoryLotLineEntity = InventoryLotLineEntity(
-            id = model.id ?: 0L,
+            id = localKey(model),
             storeInventoryId = storeInventoryId,
             storeInventoryLineId = model.storeInventoryLineId,
             produitId = model.produitId,

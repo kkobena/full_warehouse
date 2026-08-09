@@ -3,11 +3,14 @@ import {CommonModule, formatDate} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {
   AllCommunityModule,
+  CellEditingStartedEvent,
   CellValueChangedEvent,
   ClientSideRowModelModule,
   ColDef,
+  GetRowIdParams,
   GridApi,
   GridReadyEvent,
+  IRowNode,
   ModuleRegistry,
   RowClickedEvent,
   themeAlpine,
@@ -16,7 +19,13 @@ import {AgGridAngular} from 'ag-grid-angular';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {InventoryEditorFacade} from '../../data-access/facades/inventory-editor.facade';
 import {InventoryStore} from '../../data-access/store/inventory.store';
-import {IInventoryLine, InventoryLineFilter, isGapLineFilter, lineFiltersFor} from '../../models';
+import {
+  IInventoryLine,
+  InventoryLineFilter,
+  isGapLineFilter,
+  lineFiltersFor,
+  renderParetoBadge,
+} from '../../models';
 import {IStorage} from '../../../../shared/model/magasin.model';
 import {IRayon} from '../../../../shared/model/rayon.model';
 import {InventoryCategoryType} from "../../../../shared/model/store-inventory.model";
@@ -39,6 +48,8 @@ export class InventoryLinesGridComponent {
   readonly gestionLot = input<boolean>(false);
   readonly storages = input<IStorage[]>([]);
   readonly rayons = input<IRayon[]>([]);
+  /** Inventaire clôturé : la grille se consulte, elle ne se saisit plus. */
+  readonly readOnly = input<boolean>(false);
   readonly pageSize = input<number>(20);
 
   readonly filterChange = output<{
@@ -110,9 +121,16 @@ export class InventoryLinesGridComponent {
       field: 'quantityOnHand',
       headerName: 'Qté inventoriée',
       width: 130,
-      editable: true,
+      // Seule colonne saisissable — et seulement tant que l'inventaire est ouvert.
+      editable: !this.readOnly(),
       type: ['rightAligned', 'numericColumn'],
       cellStyle: params => {
+        // Sauvegarde échouée : la quantité affichée n'est pas enregistrée. La grille
+        // n'étant plus rechargée à chaque ligne, c'est le seul signal qui distingue
+        // une ligne comptée d'une ligne perdue.
+        if (params.data?.saveFailed) {
+          return {backgroundColor: '#fde8ea', color: '#dc3545', fontWeight: 'bold'};
+        }
         if (params.data?.updated) {
           return {backgroundColor: '#f0fff4', fontWeight: 'bold'};
         }
@@ -167,15 +185,7 @@ export class InventoryLinesGridComponent {
       cellStyle: {textAlign: 'center'},
       headerClass: 'ag-header-cell-center',
       hide: this.inventoryCategoryType() !== 'ABC',
-      cellRenderer: (params: any) => {
-        const cls = params.value;
-        if (!cls) {
-          return '';
-        }
-        const colors: Record<string, string> = {A: '#198754', B: '#0d6efd', C: '#6c757d'};
-        const color = colors[cls] ?? '#6c757d';
-        return `<span style="display:inline-block;padding:1px 6px;border-radius:10px;font-size:11px;font-weight:700;color:#fff;background:${color}">${cls}</span>`;
-      },
+      cellRenderer: (params: any) => renderParetoBadge(params.value),
     },
     {
       field: 'updated',
@@ -184,7 +194,12 @@ export class InventoryLinesGridComponent {
       editable: false,
       cellStyle: {textAlign: 'center'},
       headerClass: 'ag-header-cell-center',
-      cellRenderer: (params: any) => params.value ? '<i class="pi pi-check text-success"></i>' : '',
+      cellRenderer: (params: any) => {
+        if (params.data?.saveFailed) {
+          return '<i class="pi pi-exclamation-triangle text-danger" title="Non enregistré — à ressaisir"></i>';
+        }
+        return params.value ? '<i class="pi pi-check text-success"></i>' : '';
+      },
     },
     {
       field: 'countedBy',
@@ -208,10 +223,32 @@ export class InventoryLinesGridComponent {
     resizable: true,
     suppressMovable: false,
   };
+  /**
+   * Identité stable des lignes : sans elle, chaque `rowData` recrée les nœuds et
+   * l'index d'une ligne n'a plus aucune continuité d'un chargement à l'autre.
+   */
+  readonly getRowId = (params: GetRowIdParams) => this.rowIdOf(params.data);
   protected readonly theme = themeAlpine;
-  private suppressRowDataRefresh = false;
   private pendingFocusRow0 = false;
   private gridApi: GridApi | null = null;
+  /** Page reçue pendant une saisie, en attente de fermeture de l'éditeur */
+  private pendingLines: IInventoryLine[] | null = null;
+  /**
+   * Ligne dont l'éditeur est en cours d'ouverture.
+   *
+   * `startEditingCell` est asynchrone et vise une *position*. Entre l'appel et l'ouverture
+   * effective, aucune cellule n'est en édition : appliquer une page dans cette fenêtre
+   * retire la ligne comptée, décale la grille, et l'éditeur s'ouvre sur la ligne qui a
+   * glissé à cette position — celle qu'on visait est sautée. Ce drapeau ferme la fenêtre.
+   */
+  private focusRowId: string | null = null;
+  /** Index de la ligne saisie, relevé avant sauvegarde — cf. {@link resolveNextIndex} */
+  private lastKnownIndex = 0;
+  /**
+   * Ligne dont l'opérateur a ouvert l'éditeur et dont la validation n'a pas encore été
+   * traitée. Sert de laissez-passer : cf. {@link onCellValueChanged}.
+   */
+  private userEditRowId: string | null = null;
 
   constructor() {
     // Filtre d'écart déjà actif au moment où le mode aveugle s'applique : on le
@@ -229,11 +266,8 @@ export class InventoryLinesGridComponent {
       if (!this.gridApi) {
         return;
       }
-      if (this.suppressRowDataRefresh) {
-        return;
-      }
-      this.gridApi.setGridOption('rowData', lines);
-      if (this.pendingFocusRow0 && lines.length > 0) {
+      const applied = this.applyLines(lines);
+      if (applied && this.pendingFocusRow0 && lines.length > 0) {
         this.pendingFocusRow0 = false;
         setTimeout(() => {
           this.gridApi?.ensureIndexVisible(0, 'top');
@@ -243,9 +277,88 @@ export class InventoryLinesGridComponent {
     });
   }
 
+  /**
+   * Chargement initial. Au-delà, la grille n'a **qu'un seul** écrivain : {@link applyLines}.
+   *
+   * `[rowData]` n'est délibérément plus lié dans le template : l'entrée Angular poussait
+   * chaque nouvelle page directement dans la grille, sans passer par le différé ni le
+   * verrou d'ouverture. Le décalage se produisait donc par ce chemin, pendant que la
+   * saisie était en cours. Ne pas rétablir cette liaison.
+   */
   onGridReady(event: GridReadyEvent): void {
     this.gridApi = event.api;
     this.gridApi.setGridOption('rowData', this.rowData());
+  }
+
+  private rowIdOf(line: IInventoryLine): string {
+    return String(line.id);
+  }
+
+  /**
+   * Applique une page rechargée — sauf si une cellule est en cours de saisie, auquel cas
+   * elle est mise de côté et appliquée dès la fermeture de l'éditeur.
+   *
+   * La grille ne doit jamais être mutée sous un éditeur ouvert : le repositionnement des
+   * lignes fait perdre le focus à l'input, et `stopEditingWhenCellsLoseFocus` referme alors
+   * l'éditeur en validant sa valeur — ce qui relance un `cellValueChanged`, donc une
+   * seconde sauvegarde et une seconde navigation. Ni `setGridOption('rowData')` ni
+   * `applyTransaction` n'y échappent.
+   *
+   * Différer plutôt qu'abandonner : l'ancien drapeau `suppressRowDataRefresh` sortait
+   * simplement de l'effect, et comme le signal ne réémet pas la même valeur, la page
+   * fraîche était perdue — la grille dérivait de son store et affichait encore des lignes
+   * déjà comptées.
+   *
+   * @returns true si la page a été appliquée, false si elle a été différée.
+   */
+  private applyLines(lines: IInventoryLine[]): boolean {
+    if (!this.gridApi) {
+      return false;
+    }
+    if (this.isEntryInProgress()) {
+      this.pendingLines = lines;
+      return false;
+    }
+    this.pendingLines = null;
+    this.gridApi.setGridOption('rowData', lines);
+    return true;
+  }
+
+  /**
+   * Saisie en cours : cellule en édition, ou éditeur en cours d'ouverture. Dans les deux
+   * cas la grille ne doit pas bouger sous l'opérateur.
+   */
+  private isEntryInProgress(): boolean {
+    return this.focusRowId !== null || (this.gridApi?.getEditingCells().length ?? 0) > 0;
+  }
+
+  /**
+   * Applique la page mise de côté pendant la saisie. Appelée à la fermeture de l'éditeur
+   * et juste avant de calculer la ligne suivante : l'index n'a d'importance qu'à cet
+   * instant, et il doit être calculé sur la liste à jour.
+   */
+  protected flushPendingLines(): void {
+    const pending = this.pendingLines;
+    if (!pending || !this.gridApi || this.isEntryInProgress()) {
+      return;
+    }
+    this.pendingLines = null;
+    this.gridApi.setGridOption('rowData', pending);
+  }
+
+  /**
+   * L'éditeur est ouvert : la fenêtre d'ouverture est refermée, le garde d'édition prend
+   * le relais, et la ligne reçoit le laissez-passer qui autorisera **une** sauvegarde.
+   */
+  protected onCellEditingStarted(event: CellEditingStartedEvent): void {
+    this.focusRowId = null;
+    this.userEditRowId = event.node.id ?? null;
+  }
+
+  /** L'éditeur est fermé : plus rien ne retient la page en attente. */
+  protected onCellEditingStopped(): void {
+    this.focusRowId = null;
+    this.flushPendingLines();
   }
 
   onQuickFilterChange(): void {
@@ -278,9 +391,23 @@ export class InventoryLinesGridComponent {
   }
 
   onCellValueChanged(event: CellValueChangedEvent): void {
-    if (event.column.getColId() !== 'quantityOnHand') {
+    // `editable` bloque déjà la saisie ; ce garde couvre les écritures programmatiques
+    // (setDataValue, collage) qui, elles, ne passent pas par l'éditeur.
+    if (event.column.getColId() !== 'quantityOnHand' || this.readOnly()) {
       return;
     }
+    // Seule une saisie de l'opérateur déclenche une sauvegarde, et une seule fois : le
+    // laissez-passer est posé à l'ouverture de l'éditeur et consommé ici.
+    //
+    // `setDataValue` — qui restaure la valeur après un refus — émet lui aussi un
+    // `cellValueChanged`. Sans ce garde, la restauration repartait en sauvegarde, qui
+    // échouait, qui restaurait : boucle infinie, un toast par tour. Le critère porte sur
+    // l'existence d'une session d'édition, et non sur un drapeau posé le temps de l'appel,
+    // car `setDataValue` n'émet pas son événement de façon synchrone.
+    if (this.userEditRowId === null || this.userEditRowId !== event.node.id) {
+      return;
+    }
+    this.userEditRowId = null;
 
     const newValue = event.newValue;
     const lineData = event.data as IInventoryLine;
@@ -293,10 +420,7 @@ export class InventoryLinesGridComponent {
 
     if (!isValid) {
       // Invalid input: revert and stay editing the same cell
-      event.node.setDataValue('quantityOnHand', event.oldValue);
-      setTimeout(() => {
-        this.gridApi?.startEditingCell({rowIndex: event.rowIndex!, colKey: 'quantityOnHand'});
-      });
+      this.revertQuantity(event);
       return;
     }
 
@@ -307,19 +431,62 @@ export class InventoryLinesGridComponent {
       storeInventoryId: this.inventoryId(),
     };
 
-    const rowIndex = event.rowIndex!;
+    this.lastKnownIndex = event.rowIndex!;
 
-    // Suppress effect-driven rowData refresh so it doesn't kill editing state
-    this.suppressRowDataRefresh = true;
+    // La ligne n'est tenue pour comptée qu'une fois le serveur d'accord, et le curseur
+    // n'avance qu'à ce moment-là. Marquer et naviguer sans attendre laissait l'opérateur
+    // enchaîner des lignes que le serveur refusait — backend coupé, l'inventaire se
+    // remplissait de comptages qui n'existaient pas.
+    this.editorFacade.saveLine(lineToSave).subscribe({
+      next: () => {
+        event.node.setDataValue('updated', true);
+        this.navigateToNextRow(event.node);
+      },
+      error: () => {
+        // Saisie invalidée : la valeur précédente est restaurée et le curseur reste sur
+        // la cellule, pour que la ligne soit reprise plutôt que tenue pour comptée.
+        this.revertQuantity(event);
+      },
+    });
+  }
 
-    // Save immediately via API
-    this.editorFacade.saveLine(lineToSave, this.inventoryId());
+  /**
+   * Restaure la valeur précédente d'une cellule sans relancer le cycle de saisie, puis
+   * redonne la main sur cette même cellule.
+   *
+   * `setDataValue` émet un `cellValueChanged` : sans le drapeau, la restauration serait
+   * traitée comme une nouvelle saisie et repartirait en sauvegarde.
+   */
+  private revertQuantity(event: CellValueChangedEvent): void {
+    event.node.setDataValue('quantityOnHand', event.oldValue);
+    setTimeout(() => {
+      // Même cellule, mais son index a pu bouger si un rechargement a abouti entre-temps
+      const rowIndex = event.node.rowIndex ?? event.rowIndex!;
+      this.gridApi?.startEditingCell({rowIndex, colKey: 'quantityOnHand'});
+    });
+  }
 
-    // Mark the row as updated visually
-    event.node.setDataValue('updated', true);
-
-    // Navigate to next row
-    this.navigateToNextRow(rowIndex);
+  /**
+   * Index de la ligne à saisir ensuite, calculé à l'instant où l'on navigue.
+   *
+   * `event.rowIndex` est figé au moment où la cellule est validée. Si un rechargement
+   * intervient entre-temps — et il intervient : chaque sauvegarde en déclenche un — sous
+   * un filtre qui masque les lignes comptées, la page remonte d'un cran et cet index
+   * désigne alors la ligne d'après : une ligne sur deux était sautée. `node.rowIndex`
+   * suit le nœud, à condition que son identité soit stable (`getRowId`).
+   *
+   * Nœud sorti de la grille — la ligne qu'on vient de compter, sous filtre « non comptés »,
+   * quand le rechargement a été appliqué avant qu'on navigue : la ligne qui la suivait a
+   * pris sa place, c'est donc *son propre* index qu'il faut viser, et non l'index suivant.
+   *
+   * L'appartenance à la grille se teste par `getRowNode`, et surtout pas par le
+   * `rowIndex` du nœud reçu : AG Grid abandonne le nœud retiré sans réinitialiser cette
+   * propriété, qui garde donc son dernier index et ferait passer une ligne disparue pour
+   * une ligne toujours présente.
+   */
+  private resolveNextIndex(node: IRowNode): number {
+    const live = node.id != null ? this.gridApi?.getRowNode(node.id) : null;
+    return live?.rowIndex != null ? live.rowIndex + 1 : this.lastKnownIndex;
   }
 
   /**
@@ -328,23 +495,36 @@ export class InventoryLinesGridComponent {
    * n'est plus rendue (virtualisation AG Grid) et `startEditingCell` reste sans
    * effet — la saisie s'arrêtait au bas de l'écran.
    */
-  private navigateToNextRow(currentRowIndex: number): void {
-    const rowCount = this.gridApi?.getDisplayedRowCount() ?? 0;
-    if (currentRowIndex >= rowCount - 1) {
-      // Last row of the server page: load next page and focus row 0
-      this.suppressRowDataRefresh = false;
-      this.pendingFocusRow0 = true;
-      this.nextPage.emit();
-    } else {
-      // Move to next row in current page
+  private navigateToNextRow(node: IRowNode): void {
+    setTimeout(() => {
+      // L'éditeur est fermé : la page mise de côté peut être appliquée sans risque.
+      // Tout ce qui suit — index cible comme nombre de lignes — se calcule ensuite,
+      // sur la liste à jour.
+      this.flushPendingLines();
+
+      const nextIndex = this.resolveNextIndex(node);
+      const rowCount = this.gridApi?.getDisplayedRowCount() ?? 0;
+      if (nextIndex >= rowCount) {
+        // Last row of the server page: load next page and focus row 0
+        this.pendingFocusRow0 = true;
+        this.nextPage.emit();
+        return;
+      }
+      // Verrou posé AVANT l'appel : `startEditingCell` n'ouvre pas l'éditeur sur-le-champ,
+      // et une page appliquée dans l'intervalle décalerait la ligne visée.
+      this.focusRowId = this.gridApi?.getDisplayedRowAtIndex(nextIndex)?.id ?? null;
+      this.gridApi?.ensureIndexVisible(nextIndex, 'middle');
+      this.gridApi?.startEditingCell({rowIndex: nextIndex, colKey: 'quantityOnHand'});
+
+      // Filet : si l'éditeur ne s'ouvre pas (ligne non éditable, grille clôturée…),
+      // le verrou ne doit pas geler indéfiniment les rechargements.
       setTimeout(() => {
-        this.gridApi?.ensureIndexVisible(currentRowIndex + 1, 'middle');
-        this.gridApi?.startEditingCell({rowIndex: currentRowIndex + 1, colKey: 'quantityOnHand'});
-        setTimeout(() => {
-          this.suppressRowDataRefresh = false;
-        }, 200);
-      }, 50);
-    }
+        if (this.focusRowId !== null) {
+          this.focusRowId = null;
+          this.flushPendingLines();
+        }
+      }, 500);
+    }, 50);
   }
 
   private emitFilterChange(): void {

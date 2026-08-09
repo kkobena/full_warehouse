@@ -68,6 +68,12 @@ export interface IInventoryLine {
   updatedAt?: string;
   /** Verrou optimiste : version lue, renvoyée à l'écriture (409 si périmée) */
   version?: number;
+  /**
+   * Champ client : la sauvegarde de cette ligne a échoué. Non renvoyé par le serveur.
+   * La saisie étant écrite immédiatement et la grille n'étant plus rechargée à chaque
+   * ligne, c'est le seul signal qui distingue une ligne comptée d'une ligne perdue.
+   */
+  saveFailed?: boolean;
 }
 
 export interface IInventoryLot {
@@ -84,6 +90,10 @@ export interface IInventoryLot {
 }
 
 export interface IInventoryLotLine {
+  /**
+   * Identifiant du lot d'inventaire. Absent pour un produit du périmètre dépourvu de lot
+   * (aucun lot, ou lots tous à zéro) : la saisie porte alors sur la ligne produit.
+   */
   id?: number;
   storeInventoryLineId?: number;
   produitId?: number;
@@ -96,6 +106,8 @@ export interface IInventoryLotLine {
   gap?: number;
   updated?: boolean;
   classePareto?: string;
+  /** Verrou optimiste de la ligne produit — renseigné pour les lignes sans lot */
+  version?: number;
 }
 
 // Pending edit buffered locally before batch save
@@ -208,8 +220,8 @@ export const INVENTORY_CATEGORIES: InventoryCategoryInfo[] = [
 
 export const LINE_FILTERS = [
   {value: 'NONE', label: 'Tous'},
-  {value: 'UPDATED', label: 'Saisis'},
-  {value: 'NOT_UPDATED', label: 'Non saisis'},
+  {value: 'NOT_UPDATED', label: 'A compter'},
+  {value: 'UPDATED', label: 'Comptés'},
   {value: 'GAP', label: 'Avec écart'},
   {value: 'GAP_NEGATIF', label: 'Écart négatif'},
   {value: 'GAP_POSITIF', label: 'Écart positif'},

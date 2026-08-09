@@ -21,6 +21,7 @@ import {NgxSpinnerService} from "ngx-spinner";
 import {NGB_DATE_TO_ISO} from '../../../../shared/util/warehouse-util';
 import {ButtonComponent, CardComponent, InputNumberComponent, SelectComponent, SelectSearchComponent} from '../../../../shared/ui';
 import {PharmaDatePickerComponent} from '../../../../shared/date-picker/pharma-date-picker.component';
+import {ErrorService} from '../../../../shared/error.service';
 
 const GROUP_LABELS: Record<string, string> = {scope: 'Périmètre', thematic: 'Thématique'};
 
@@ -43,13 +44,20 @@ export class InventoryCreateModalComponent implements OnInit {
   loading = signal(false);
   errorMessage = signal<string | null>(null);
   private pendingRayonId: number | null = null;
+  /**
+   * Classes de `v_abc_pareto_analysis` (seuils 60 / 80 / 95 / 99 depuis V1.3.3).
+   * La valeur envoyée est celle stockée en base — `A_PLUS`, jamais `A+`, qui n'est qu'un libellé.
+   */
   readonly classesParetoOptions = [
-    {value: null, label: 'Toutes (A + B + C)'},
-    {value: 'A', label: 'Classe A — top 20% CA'},
-    {value: 'B', label: 'Classe B — 30% suivants'},
-    {value: 'C', label: 'Classe C — 50% restants'},
+    {value: null, label: 'Toutes (A+ → D)'},
+    {value: 'A_PLUS', label: 'Classe A+ — 60 premiers % du CA'},
+    {value: 'A', label: 'Classe A — 60 à 80 % du CA'},
+    {value: 'B', label: 'Classe B — 80 à 95 % du CA'},
+    {value: 'C', label: 'Classe C — 95 à 99 % du CA'},
+    {value: 'D', label: 'Classe D — au-delà de 99 % et sans vente'},
   ];
   private readonly api = inject(InventoryApiService);
+  private readonly errorService = inject(ErrorService);
   private readonly store = inject(InventoryStore);
   private readonly spinner = inject(NgxSpinnerService);
   private readonly fb = inject(FormBuilder);
@@ -120,7 +128,8 @@ export class InventoryCreateModalComponent implements OnInit {
         error: err => {
           this.spinner.hide();
           this.loading.set(false);
-          this.errorMessage.set(err?.error?.message ?? err?.message ?? "Erreur lors de la création de l'inventaire");
+          this.errorMessage.set(
+            this.errorService.getErrorMessage(err, "Erreur lors de la création de l'inventaire"));
         },
       });
   }

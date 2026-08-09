@@ -82,7 +82,7 @@ export class AjustementHomeComponent implements OnInit {
     {label: 'Entrées', value: 'AJUSTEMENT_IN'},
     {label: 'Sorties', value: 'AJUSTEMENT_OUT'},
   ];
-  // Pagination — offset (0-based), piloté par le paginateur commun de `app-data-table`.
+
   protected first = signal(0);
   private readonly userService = inject(UserService);
   private readonly spinner = inject(NgxSpinnerService);

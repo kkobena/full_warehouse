@@ -1,12 +1,18 @@
 import { inject, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import { InventoryApiService } from '../services/inventory-api.service';
 import { InventoryStore } from '../store/inventory.store';
 import { IInventoryLine } from '../../models';
+import { ErrorService } from '../../../../shared/error.service';
 
 @Injectable({ providedIn: 'root' })
 export class InventoryEditorFacade {
   private readonly api = inject(InventoryApiService);
+  private readonly errorService = inject(ErrorService);
   readonly store = inject(InventoryStore);
+  /** Comptages écrits depuis ce poste depuis la dernière lecture de la progression */
+  private localCounts = 0;
 
   // Expose store state
   readonly lines = this.store.lines;
@@ -37,7 +43,8 @@ export class InventoryEditorFacade {
         this.store.emitEvent('LINES_LOADED');
       },
       error: err => {
-        this.store.setError(err?.message ?? 'Erreur lors du chargement des lignes');
+        this.store.setError(
+          this.errorService.getErrorMessage(err, 'Erreur lors du chargement des lignes'));
         this.store.setLoadingLines(false);
       },
     });
@@ -54,7 +61,8 @@ export class InventoryEditorFacade {
         this.store.setLoadingLines(false);
       },
       error: err => {
-        this.store.setError(err?.message ?? 'Erreur lors du chargement des lots');
+        this.store.setError(
+          this.errorService.getErrorMessage(err, 'Erreur lors du chargement des lots'));
         this.store.setLoadingLines(false);
       },
     });
@@ -65,25 +73,72 @@ export class InventoryEditorFacade {
     this.store.emitEvent('LINE_EDITED', { lineId, quantityOnHand });
   }
 
-  saveLine(line: IInventoryLine, inventoryId: number): void {
-    this.api.updateLine(line).subscribe({
-      next: resp => {
-        const saved = resp.body;
-        if (saved) {
-          this.store.updateLine(saved);
-        }
-        this.store.emitEvent('LINE_SAVED', { lineId: line.id });
-        this.refreshProgress(inventoryId);
-      },
-      error: err => {
-        // 409 : comptage concurrent — la valeur serveur fait foi, on recharge
-        const message = err?.status === 409
-          ? 'Cette ligne vient d\'être comptée par un autre opérateur — valeurs rechargées'
-          : (err?.error?.detail ?? err?.message ?? 'Erreur lors de la sauvegarde');
-        this.store.setError(message);
-        this.store.emitEvent('LINE_SAVE_ERROR', { lineId: line.id, error: err });
-      },
-    });
+  /**
+   * Sauvegarde immédiate d'une ligne comptée.
+   *
+   * Pas de `refreshProgress` ici : il déclencherait un rechargement de la page en pleine
+   * saisie (cf. plan « saisie sans rechargement »). La progression se rafraîchit au
+   * chargement de chaque page et par la scrutation périodique.
+   */
+  /**
+   * Sauvegarde immédiate d'une ligne comptée.
+   *
+   * Renvoie le flux au lieu de le souscrire : l'appelant doit pouvoir **invalider sa
+   * saisie** si l'écriture échoue. Tant que la façade souscrivait elle-même, la grille
+   * marquait la ligne comme comptée et avançait sans jamais savoir que le serveur avait
+   * refusé — backend coupé, l'opérateur croyait compter.
+   */
+  saveLine(line: IInventoryLine): Observable<IInventoryLine | null> {
+    return this.api.updateLine(line).pipe(
+      map(resp => resp.body ?? null),
+      tap({
+        next: saved => {
+          // Comptabilisé au succès seulement : une écriture refusée ne fait pas bouger
+          // la progression, et ne doit donc rien défalquer.
+          if (!line.updated) {
+            this.localCounts++;
+          }
+          if (saved) {
+            // Remplacement en place : ni l'ordre ni la composition de la liste ne changent,
+            // la grille ne se décale donc pas sous l'opérateur.
+            this.store.updateLine({ ...saved, saveFailed: false });
+          }
+          this.store.emitEvent('LINE_SAVED', { lineId: line.id });
+        },
+        error: err => {
+          // La ligne est marquée non persistée : sans ce signal, une coupure réseau
+          // creuserait un trou silencieux dans l'inventaire.
+          if (line.id != null) {
+            this.store.markLineSaveFailed(line.id);
+          }
+          // 409 : comptage concurrent — la valeur serveur fait foi, on recharge
+          const message = err?.status === 409
+            ? 'Cette ligne vient d\'être comptée par un autre opérateur — valeurs rechargées'
+            : this.errorService.getErrorMessage(err, 'Erreur lors de la sauvegarde');
+          this.store.setError(message);
+          this.store.emitEvent('LINE_SAVE_ERROR', { lineId: line.id, error: err });
+        },
+      }),
+    );
+  }
+
+  /**
+   * Signale un comptage effectué localement mais écrit hors de {@link saveLine} — la
+   * grille lot passe par l'API lot en direct. Même finalité : ne pas confondre nos
+   * propres comptages avec ceux d'un autre poste.
+   */
+  notifyLocalCount(): void {
+    this.localCounts++;
+  }
+
+  /**
+   * Nombre de comptages locaux depuis la dernière lecture, puis remise à zéro.
+   * Consommé par l'éditeur pour interpréter une variation de la progression.
+   */
+  consumeLocalCounts(): number {
+    const count = this.localCounts;
+    this.localCounts = 0;
+    return count;
   }
 
   saveBatch(inventoryId: number): void {
@@ -112,7 +167,8 @@ export class InventoryEditorFacade {
         this.refreshProgress(inventoryId);
       },
       error: err => {
-        this.store.setError(err?.message ?? "Erreur lors de la sauvegarde des lignes");
+        this.store.setError(
+          this.errorService.getErrorMessage(err, 'Erreur lors de la sauvegarde des lignes'));
         this.store.setIsSavingBatch(false);
         this.store.emitEvent('BATCH_SAVE_ERROR', err);
       },
@@ -133,7 +189,8 @@ export class InventoryEditorFacade {
       },
       error: err => {
         this.store.setIsImporting(false);
-        this.store.setError(err?.message ?? "Erreur lors de l'import CSV");
+        this.store.setError(
+          this.errorService.getErrorMessage(err, "Erreur lors de l'import CSV"));
       },
     });
   }

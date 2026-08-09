@@ -4,15 +4,24 @@ import com.kobe.warehouse.service.dto.records.GapEntryRecord;
 import com.kobe.warehouse.service.dto.records.GapLineRecord;
 import com.kobe.warehouse.service.dto.records.GapSummaryRecord;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface GapAnalysisService {
 
-    /** Lignes de l'inventaire ayant un écart ≠ 0, triées par écart absolu décroissant. */
-    List<GapLineRecord> getLinesWithGap(Long inventoryId);
+    /** Page des lignes de l'inventaire ayant un écart ≠ 0, triées par écart absolu décroissant. */
+    Page<GapLineRecord> getLinesWithGap(Long inventoryId, Pageable pageable);
 
     /**
-     * Sauvegarde (ou écrase) la qualification des écarts pour un inventaire.
-     * Idempotent : un second appel remplace le précédent.
+     * Enregistre la qualification des lignes présentes dans {@code entries}, et seulement
+     * celles-là : une ligne absente de la charge utile garde sa qualification.
+     *
+     * <p>Sémantique d'upsert, et non de remplacement global — l'écran est paginé, il ne
+     * soumet que ce que l'opérateur a modifié. Un `delete all` effacerait les qualifications
+     * des pages non visitées.
+     *
+     * <p>Une entrée dont la cause est vide supprime la qualification de sa ligne.
+     * Idempotent : rejouer la même charge utile produit le même état.
      */
     void saveAnalysis(Long inventoryId, List<GapEntryRecord> entries);
 

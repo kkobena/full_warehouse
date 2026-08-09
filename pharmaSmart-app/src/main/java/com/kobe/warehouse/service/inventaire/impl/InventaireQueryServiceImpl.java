@@ -21,15 +21,6 @@ import com.kobe.warehouse.service.inventaire.InventoryStockService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
-import org.apache.commons.lang3.tuple.Triple;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -39,6 +30,14 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.tuple.Triple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
@@ -143,18 +142,25 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
             .setParameter(1, inventoryId)
             .getResultList();
 
+        // Les lignes sans lot n'ont pas de stock initial propre : il vient de la même source
+        // que la vue produit, sinon l'export contredirait l'écran de comptage
+        Map<Integer, Integer> stockMap = lotExportStockMap(inventoryId, tuples);
+
         LinkedHashMap<String, StoreInventoryLotGroupExport> map = new LinkedHashMap<>();
         for (Tuple t : tuples) {
             String cip = t.get("code_cip", String.class);
             StoreInventoryLotGroupExport group = map.computeIfAbsent(cip, k ->
                 new StoreInventoryLotGroupExport(cip, t.get("produit_libelle", String.class))
             );
+            int quantityInit = t.get("inventory_lot_id", Long.class) != null
+                ? toInt(t.get("quantity_init"))
+                : stockMap.getOrDefault(t.get("produit_id", Integer.class), 0);
             group.addLot(new StoreInventoryLotLineExport(
                 cip,
                 t.get("produit_libelle", String.class),
                 t.get("num_lot", String.class),
                 t.get("expiry_date", java.time.LocalDate.class),
-                toInt(t.get("quantity_init")),
+                quantityInit,
                 toInt(t.get("quantity_on_hand")),
                 toInt(t.get("gap")),
                 toInt(t.get("last_unit_price")),
@@ -162,6 +168,22 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
             ));
         }
         return new ArrayList<>(map.values());
+    }
+
+    /**
+     * Stock théorique des seules lignes sans lot de l'export — une requête pour tout le lot
+     */
+    private Map<Integer, Integer> lotExportStockMap(Long inventoryId, List<Tuple> tuples) {
+        Set<Integer> produitIds = tuples.stream()
+            .filter(t -> t.get("inventory_lot_id", Long.class) == null)
+            .map(t -> t.get("produit_id", Integer.class))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+        if (produitIds.isEmpty()) {
+            return Map.of();
+        }
+        return inventoryStockService.buildStockMapForInventory(
+            storeInventoryRepository.getReferenceById(inventoryId), produitIds);
     }
 
     private long countItems(StoreInventoryLineFilterRecord filter) {
@@ -216,7 +238,7 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
 
     private StoreInventoryLineRecord toRecord(Tuple t, Map<Integer, Integer> stockMap) {
         Integer produitId = t.get("produitId", Integer.class);
-        Long lotCount = t.get("lot_count", Long.class);
+        Integer lotCount = t.get("lot_count", Integer.class);
         return new StoreInventoryLineRecord(
             produitId,
             t.get("code_cip", String.class),
@@ -231,7 +253,7 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
             t.get("prix_uni", Integer.class),
             t.get("storage_id", Integer.class),
             t.get("seuil_mini", Integer.class),
-            lotCount != null ? lotCount.intValue() : 0,
+            lotCount != null ? lotCount : 0,
             t.get("classe_pareto", String.class),
             t.get("counted_by", String.class),
             t.get("updated_at", java.time.LocalDateTime.class),
@@ -244,16 +266,7 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
      * réserve par magasin.
      */
     private Map<Integer, Integer> buildStockMap(StoreInventory inventory, Set<Integer> produitIds) {
-        if (inventory.getStorage() == null || produitIds.isEmpty()) {
-            return Map.of();
-        }
-        InventoryCategory category = inventory.getInventoryCategory();
-        if (category == InventoryCategory.RAYON || category == InventoryCategory.STORAGE) {
-            return inventoryStockService.buildStockMapByStorage(
-                inventory.getStorage().getId(), produitIds);
-        }
-        return inventoryStockService.buildStockMapByMagasin(
-            inventory.getStorage().getMagasin().getId(), produitIds);
+        return inventoryStockService.buildStockMapForInventory(inventory, produitIds);
     }
 
     private List<StoreInventoryGroupExport> buildStoreInventoryGroupExportsFromTuple(
@@ -266,26 +279,33 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
                 for (Tuple t : tuples) {
                     Number raw = (Number) t.get("famillyId");
                     long id = raw != null ? raw.longValue() : -1L;
-                    StoreInventoryLineExport line = StoreInventoryLineFilterBuilder.buildStoreInventoryLineExportRecord(t);
-                    map.put(id, buildFromTuple(map.get(id), id, line.getFamillyCode(), line.getFamillyLibelle(), line));
+                    StoreInventoryLineExport line = StoreInventoryLineFilterBuilder.buildStoreInventoryLineExportRecord(
+                        t);
+                    map.put(id, buildFromTuple(map.get(id), id, line.getFamillyCode(),
+                        line.getFamillyLibelle(), line));
                 }
             }
             case RAYON, NONE -> {
                 for (Tuple t : tuples) {
                     Number rawRayon = (Number) t.get("rayon_id");
                     Long idRayon = rawRayon != null ? rawRayon.longValue() : null;
-                    StoreInventoryLineExport line = StoreInventoryLineFilterBuilder.buildStoreInventoryLineExportRecord(t);
+                    StoreInventoryLineExport line = StoreInventoryLineFilterBuilder.buildStoreInventoryLineExportRecord(
+                        t);
                     Triple<Long, String, String> triple = getRayon(idRayon, line);
                     long id = triple.getLeft();
-                    map.put(id, buildFromTuple(map.get(id), id, triple.getMiddle(), triple.getRight(), line));
+                    map.put(id,
+                        buildFromTuple(map.get(id), id, triple.getMiddle(), triple.getRight(),
+                            line));
                 }
             }
             case STORAGE -> {
                 for (Tuple t : tuples) {
                     Number rawStorage = (Number) t.get("storage_id");
                     long id = rawStorage != null ? rawStorage.longValue() : -1L;
-                    StoreInventoryLineExport line = StoreInventoryLineFilterBuilder.buildStoreInventoryLineExportRecord(t);
-                    map.put(id, buildFromTuple(map.get(id), id, line.getStorageLibelle(), line.getStorageLibelle(), line));
+                    StoreInventoryLineExport line = StoreInventoryLineFilterBuilder.buildStoreInventoryLineExportRecord(
+                        t);
+                    map.put(id, buildFromTuple(map.get(id), id, line.getStorageLibelle(),
+                        line.getStorageLibelle(), line));
                 }
             }
         }

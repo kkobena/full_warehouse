@@ -1,40 +1,12 @@
-.recap-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 0.5rem;
+
+@use 'app/shared/scss/modal-theme' as *;
+
+:host {
+  @include modal-theme;
 }
 
-.recap-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  padding: 0.6rem 0.75rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  background: #f9fafb;
-
-  &.recap-warning {
-    border-color: #ffeeba;
-    background: #fff3cd;
-  }
-
-  &.recap-negative .recap-value {
-    color: #b02a37;
-  }
-}
-
-.recap-label {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  color: #6b7280;
-}
-
-.recap-value {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #111827;
-}
+// Le récapitulatif est rendu par `app-kpi-strip` / `app-kpi-item` : encadré, libellés,
+// valeurs et accents colorés viennent du Design System, plus de `.recap-*` local.
 
 .alert-remaining {
   display: flex;

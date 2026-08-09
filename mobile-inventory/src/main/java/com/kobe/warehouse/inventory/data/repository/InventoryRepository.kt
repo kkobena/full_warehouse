@@ -330,7 +330,7 @@ class InventoryRepository(context: Context) {
                         ?.let { lotLineDao.getLotLineById(it) }
                     cached?.toModel() ?: remote
                 }
-                Result.success(merged)
+                Result.success(applyPendingLineCounts(merged))
             } catch (e: Exception) {
                 Log.w(TAG, "Network unavailable, loading lot lines from cache", e)
                 loadLotLinesFromCache(inventoryId, rayonId, search, selectedFilter)
@@ -363,7 +363,35 @@ class InventoryRepository(context: Context) {
             "GAP_NEGATIF" -> searched.filter { (it.gap ?: 0) < 0 }
             else -> searched
         }
-        return Result.success(filtered.map { it.toModel() })
+        return Result.success(applyPendingLineCounts(filtered.map { it.toModel() }))
+    }
+
+    /**
+     * Réapplique les comptages en attente des lignes sans lot.
+     *
+     * Ces lignes s'écrivent par l'API ligne produit, donc leur saisie non transmise vit dans
+     * le cache des lignes et non dans celui des lots. Sans ce recollement, une quantité saisie
+     * hors ligne disparaîtrait de la grille au premier rechargement et serait recomptée.
+     */
+    private suspend fun applyPendingLineCounts(
+        lines: List<InventoryLotLine>
+    ): List<InventoryLotLine> {
+        if (lines.none { it.isLotLess() }) return lines
+        val pending = lineDao.getUnsyncedLines().associateBy { it.id }
+        if (pending.isEmpty()) return lines
+        return lines.map { line ->
+            val local = line.takeIf { it.isLotLess() }
+                ?.storeInventoryLineId
+                ?.let { pending[it] }
+                ?: return@map line
+            line.copy(
+                quantityOnHand = local.quantityOnHand,
+                quantityInit = local.quantityInit,
+                gap = local.gap,
+                updated = local.updated,
+                version = local.version
+            )
+        }
     }
 
     /**
@@ -715,32 +743,6 @@ class InventoryRepository(context: Context) {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error deleting lot", e)
-                Result.failure(e)
-            }
-        }
-    }
-
-    /**
-     * Close inventory — returns the number of processed items
-     */
-    suspend fun closeInventory(id: Long): Result<Int> {
-        return withContext(Dispatchers.IO) {
-            try {
-                val response = apiService.closeInventory(id)
-
-                if (response.isSuccessful && response.body() != null) {
-                    Log.d(TAG, "Closed inventory $id (${response.body()!!.count} items)")
-                    Result.success(response.body()!!.count)
-                } else {
-                    val errorMsg = when (response.code()) {
-                        400 -> "Inventaire incomplet - tous les articles doivent être comptés"
-                        403 -> "Vous n'avez pas la permission de clôturer un inventaire"
-                        else -> "Erreur de clôture: ${response.code()}"
-                    }
-                    Result.failure(Exception(errorMsg))
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error closing inventory", e)
                 Result.failure(e)
             }
         }

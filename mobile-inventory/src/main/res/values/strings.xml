@@ -65,10 +65,9 @@
     <string name="quantity">Quantité</string>
     <string name="save">Enregistrer</string>
     <string name="synchronize">Synchroniser</string>
-    <string name="close_inventory">Clôturer l\'inventaire</string>
 
     <!-- Scanner -->
-    <string name="scan_barcode">Scanner un code-barres</string>
+    <string name="scan_barcode">Scanner</string>
     <string name="scan_cancelled">Scan annulé</string>
     <string name="product_not_found">Produit non trouvé</string>
 
@@ -89,7 +88,6 @@
     <string name="cancel">Annuler</string>
     <string name="product_name">Nom du produit</string>
     <string name="current_quantity">Quantité actuelle: %d</string>
-    <string name="close_inventory_confirm">Êtes-vous sûr de vouloir clôturer cet inventaire?</string>
     <string name="yes">Oui</string>
     <string name="no">Non</string>
 
@@ -128,15 +126,10 @@
     <string name="filter_gap_positive">Écart +</string>
     <string name="filter_gap_negative">Écart −</string>
     <string name="select_filter">Filtrer les lignes</string>
+    <string name="controls_collapse">Masquer scan, rayon et recherche</string>
+    <string name="controls_expand">Afficher scan, rayon et recherche</string>
     <string name="camera_permission_required">Autorisation caméra requise pour le scan</string>
     <string name="scan_increment_format">%1$s → %2$d</string>
-
-    <!-- Récapitulatif de clôture -->
-    <string name="close_summary_counted">Lignes comptées : %1$d / %2$d</string>
-    <string name="close_summary_remaining">Lignes restantes : %1$d</string>
-    <string name="close_summary_gap_lines">Lignes avec écart : %1$d</string>
-    <string name="close_summary_gap_values">Écart valorisé — achat : %1$s, vente : %2$s</string>
-    <string name="close_summary_warning_remaining">⚠ Des lignes ne sont pas encore comptées.</string>
 
     <!-- Traçabilité du comptage -->
     <string name="counted_by">Compté par %1$s</string>
@@ -155,9 +148,9 @@
     <string name="count_undone">Comptage annulé : %1$s</string>
     <string name="undo">Annuler</string>
     <string name="torch">Torche</string>
-    <string name="close_inventory_remaining">Clôturer — %1$d restantes</string>
     <string name="add_lot_short">+ Lot</string>
     <string name="lot_unnamed">(sans numéro)</string>
+    <string name="lot_none">-</string>
     <string name="lot_with_expiry">Lot %1$s — exp. %2$s</string>
     <string name="lot_only">Lot %1$s</string>
 </resources>

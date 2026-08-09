@@ -1,6 +1,7 @@
 import {TestBed} from '@angular/core/testing';
 import {provideHttpClient} from '@angular/common/http';
 import {HttpTestingController, provideHttpClientTesting} from '@angular/common/http/testing';
+import {provideTranslateService} from '@ngx-translate/core';
 import {InventoryEditorFacade} from './inventory-editor.facade';
 import {InventoryStore} from '../store/inventory.store';
 import {IInventoryLine} from '../../models';
@@ -14,7 +15,15 @@ describe('InventoryEditorFacade', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), InventoryStore, InventoryEditorFacade],
+      // `ErrorService` injecte `TranslateService` : sans ce fournisseur, toute la suite
+      // tombe au montage du TestBed, avant même d'exécuter le moindre test.
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideTranslateService(),
+        InventoryStore,
+        InventoryEditorFacade,
+      ],
     });
 
     facade = TestBed.inject(InventoryEditorFacade);
@@ -114,7 +123,7 @@ describe('InventoryEditorFacade', () => {
 
   describe('saveLine', () => {
     it('émet LINE_SAVE_ERROR avec le statut 409 en cas de comptage concurrent', () => {
-      facade.saveLine({id: 1, version: 2} as IInventoryLine, INVENTORY_ID);
+      facade.saveLine({id: 1, version: 2} as IInventoryLine).subscribe({error: () => undefined});
 
       httpMock
         .expectOne(r => r.url === 'api/store-inventory-lines')
@@ -124,6 +133,26 @@ describe('InventoryEditorFacade', () => {
       expect(event?.type).toBe('LINE_SAVE_ERROR');
       expect(event?.payload.error.status).toBe(409);
       expect(store.error()).toContain('autre opérateur');
+    });
+
+    it('propage l\'erreur à l\'appelant pour qu\'il invalide la saisie', () => {
+      let failed = false;
+      facade.saveLine({id: 1} as IInventoryLine).subscribe({error: () => (failed = true)});
+
+      httpMock
+        .expectOne(r => r.url === 'api/store-inventory-lines')
+        .flush(null, {status: 0, statusText: 'Backend indisponible'});
+
+      expect(failed).toBe(true);
+      // La ligne est signalée non persistée, et n'est pas comptée dans la progression locale
+      expect(store.lines().find(l => l.id === 1)?.saveFailed).toBeUndefined();
+      expect(facade.consumeLocalCounts()).toBe(0);
+    });
+
+    it('ne souscrit pas tant que l\'appelant ne le fait pas', () => {
+      facade.saveLine({id: 1} as IInventoryLine);
+
+      httpMock.expectNone(r => r.url === 'api/store-inventory-lines');
     });
   });
 

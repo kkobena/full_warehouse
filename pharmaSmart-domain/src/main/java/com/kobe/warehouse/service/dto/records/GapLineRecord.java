@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.dto.records;
 
+import com.kobe.warehouse.domain.enumeration.CauseEcart;
+
 /**
  * Une ligne d'inventaire présentant un écart (gap ≠ 0).
  *
@@ -19,6 +21,6 @@ public record GapLineRecord(
     Integer quantityOnHand,
     Integer gap,
     Integer valeurEcart,
-    String existingCause,
+    CauseEcart existingCause,
     String existingComment
 ) {}

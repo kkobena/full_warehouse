@@ -63,7 +63,7 @@ public class SecurityConfiguration {
                         )
                     )
             )
-            // Apply to all requests (including /java-client/*)
+            // Apply to all requests
             .securityMatcher(request -> true)
             // Authorization rules
             .authorizeHttpRequests(authz ->
@@ -102,11 +102,8 @@ public class SecurityConfiguration {
                         }
                     )
                     .hasAuthority(AuthoritiesConstants.ADMIN)
-                    // All other /api/** and /java-client/** endpoints require authentication
-                    .requestMatchers(
-                        request -> request.getRequestURI().startsWith("/api/"),
-                        request -> request.getRequestURI().startsWith("/java-client/")
-                    )
+                    // All other /api/** endpoints require authentication
+                    .requestMatchers(request -> request.getRequestURI().startsWith("/api/"))
                     .authenticated()
             )
             // Return 401 Unauthorized for unauthenticated API requests

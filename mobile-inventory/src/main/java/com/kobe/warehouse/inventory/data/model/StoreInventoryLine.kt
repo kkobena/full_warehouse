@@ -149,14 +149,6 @@ data class BatchSyncResult(
 }
 
 /**
- * Result of GET /api/store-inventories/close/{id} (backend ItemsCountRecord)
- */
-data class ItemsCount(
-    @SerializedName("count")
-    val count: Int = 0
-)
-
-/**
  * Result of GET /api/store-inventories/{id}/progress (backend InventoryProgressRecord)
  */
 data class InventoryProgress(

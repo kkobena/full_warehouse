@@ -1,38 +1,39 @@
-<div class="pharma-smart-content p-2">
+<div class="pharma-smart-content p-1">
 
   <!-- ── Modern Pharma Toolbar ─────────────────────────────────────────────── -->
   <app-toolbar icon="pi pi-list-check" title="Inventaire">
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-toolbar-actions py-1">
         <div class="pharma-button-group">
-
-
           <app-button
             (clicked)="exportPdf()"
             [loading]="exporting()"
-            [raised]="true"
             [outlined]="true"
+            [raised]="true"
+            [severity]="'warn'"
+            [size]="'small'"
             icon="pi pi-file-pdf"
             label="Exporter PDF"
             ngbTooltip="Exporter l'inventaire en PDF"
-            [severity]="'warn'"
           />
 
           @if (!isInventoryClosed) {
             <app-button
               (clicked)="openImportModal()"
-              [raised]="true"
-              icon="pi pi-upload"
               [outlined]="true"
+              [raised]="true"
+              [severity]="'info'"
+              [size]="'small'"
+              icon="pi pi-upload"
               label="Importer CSV"
               ngbTooltip="Importer depuis un fichier CSV"
-              severity="info"
             />
 
             @if (canCloseInventory()) {
               <app-button
                 (clicked)="closeInventory()"
                 [raised]="true"
+                [size]="'small'"
                 icon="pi pi-lock"
                 label="Clôturer"
                 ngbTooltip="Clôturer cet inventaire"
@@ -45,6 +46,7 @@
             <app-button
               (clicked)="openGapAnalysis()"
               [raised]="true"
+              [size]="'small'"
               icon="pi pi-chart-bar"
               label="Analyser les écarts"
               ngbTooltip="Qualifier les causes d'écart (optionnel)"
@@ -53,12 +55,13 @@
           }
           <app-button
             (clicked)="goBack()"
-            [raised]="true"
             [outlined]="true"
+            [raised]="true"
+            [severity]="'secondary'"
+            [size]="'small'"
             icon="pi pi-arrow-left"
             label="Retour"
             ngbTooltip="Retour à la liste"
-            [severity]="'secondary'"
           />
 
         </div>
@@ -67,7 +70,7 @@
   </app-toolbar>
 
   <!-- ── Contenu en deux colonnes ──────────────────────────────────────────── -->
-  <div class="row mt-2 g-3">
+  <div class="row  g-3">
 
     <!-- ── Colonne gauche : infos inventaire ──────────────────────────────── -->
     <div class="col-xl-3 col-lg-4">
@@ -120,6 +123,7 @@
               <span>Des comptages ont été enregistrés depuis un autre poste.</span>
               <app-button
                 (clicked)="refreshAfterRemoteCounts()"
+                [size]="'small'"
                 [text]="true"
                 label="Rafraîchir"
                 severity="info"
@@ -142,6 +146,17 @@
 
     <!-- ── Colonne droite : grille + pagination ──────────────────────────── -->
     <div class="col-xl-9 col-lg-8">
+
+      <!-- Synthèse valorisation (clôturé uniquement) -->
+      @if (isInventoryClosed && inventoryId() > 0) {
+        <div class="valuation-section mb-3">
+          <h6 class="info-card-title">
+            <i class="pi pi-calculator"></i> Valorisation ventilée
+          </h6>
+          <app-inventory-valuation [inventoryId]="inventoryId()" />
+        </div>
+      }
+
       <!-- Grille -->
       <div class="grid-container">
         @if (inventoryId() > 0) {
@@ -171,6 +186,7 @@
               [inventoryId]="inventoryId()"
               [pageSize]="size()"
               [rayons]="rayons()"
+              [readOnly]="isInventoryClosed"
               [showSeuilMini]="showSeuilMini()"
               [storages]="storages()"
             />
@@ -179,24 +195,14 @@
         }
       </div>
 
-      <!-- Synthèse valorisation (clôturé uniquement) -->
-      @if (isInventoryClosed && inventoryId() > 0) {
-        <div class="valuation-section mt-3">
-          <h6 class="info-card-title">
-            <i class="pi pi-calculator"></i> Valorisation ventilée
-          </h6>
-          <app-inventory-valuation [inventoryId]="inventoryId()" />
-        </div>
-      }
-
       <!-- Pagination -->
       <div class="pagination-bar">
         <div class="page-size-selector">
           <span class="page-size-label">Lignes/page</span>
           <app-select
             (ngModelChange)="onPageSizeChange($event)"
-            [ngModel]="size()"
             [items]="pageSizeOptions"
+            [ngModel]="size()"
             [small]="true"
           />
         </div>
@@ -221,9 +227,13 @@
             severity="secondary"
           />
         </div>
+        <!--
+          « ligne(s) » et non « lot(s) » : la grille lot comprend aussi les produits du
+          périmètre dépourvus de lot, qui s'y comptent à la ligne.
+        -->
         <span class="total-info">
           {{ gestionLot() ? store.lotTotalLines() : store.totalLines() }}
-          {{ gestionLot() ? 'lot(s)' : 'ligne(s)' }}
+          ligne(s)
         </span>
       </div>
 

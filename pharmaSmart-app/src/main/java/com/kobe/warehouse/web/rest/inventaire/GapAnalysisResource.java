@@ -1,4 +1,4 @@
-package com.kobe.warehouse.web.rest.stock;
+package com.kobe.warehouse.web.rest.inventaire;
 
 import com.kobe.warehouse.service.dto.records.GapEntryRecord;
 import com.kobe.warehouse.service.dto.records.GapLineRecord;
@@ -7,8 +7,12 @@ import com.kobe.warehouse.service.dto.records.StoreInventorySummaryByGroupRecord
 import com.kobe.warehouse.service.dto.records.StoreInventorySummaryRecord;
 import com.kobe.warehouse.service.stock.GapAnalysisService;
 import com.kobe.warehouse.service.inventaire.InventoryValuationService;
+import com.kobe.warehouse.web.util.PaginationUtil;
 import java.util.List;
 import java.util.Map;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api/inventaires/{id}")
@@ -30,10 +35,18 @@ public class GapAnalysisResource {
         this.valuationService = valuationService;
     }
 
-    /** Lignes présentant un écart — pour alimenter le modal de qualification. */
+    /**
+     * Page des lignes présentant un écart — alimente le modal de qualification.
+     *
+     * <p>Paginé : un inventaire de magasin peut compter plusieurs milliers de lignes en écart,
+     * les renvoyer d'un bloc saturait la réponse comme la grille.
+     */
     @GetMapping("/gap-lines")
-    public ResponseEntity<List<GapLineRecord>> getGapLines(@PathVariable Long id) {
-        return ResponseEntity.ok(gapService.getLinesWithGap(id));
+    public ResponseEntity<List<GapLineRecord>> getGapLines(@PathVariable Long id, Pageable pageable) {
+        Page<GapLineRecord> page = gapService.getLinesWithGap(id, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
+            ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     /** Sauvegarde la qualification des causes d'écart. Ne bloque pas la clôture. */
@@ -58,7 +71,6 @@ public class GapAnalysisResource {
         return ResponseEntity.ok(Map.of("exists", gapService.hasAnalysis(id)));
     }
 
-    // ── Valorisation ventilée (5.4) ──────────────────────────────────────────
 
     /** Résumé global de valorisation (avant / après / écart). */
     @GetMapping("/valuation")

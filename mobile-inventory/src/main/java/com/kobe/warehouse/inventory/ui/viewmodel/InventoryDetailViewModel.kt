@@ -33,23 +33,9 @@ sealed class InventoryDetailState {
     data class LotLineFound(val line: InventoryLotLine) : InventoryDetailState()
     data class LotsLoaded(val line: StoreInventoryLine, val lots: List<InventoryLot>) : InventoryDetailState()
     data class SyncSuccess(val saved: Int, val failed: Int, val conflicted: Int = 0) : InventoryDetailState()
-    data class InventoryClosed(val itemsCount: Int) : InventoryDetailState()
     data class ProgressLoaded(val progress: InventoryProgress) : InventoryDetailState()
-    data class CloseSummaryReady(val summary: CloseSummary) : InventoryDetailState()
     data class Error(val message: String) : InventoryDetailState()
 }
-
-/**
- * Récapitulatif présenté avant la clôture (irréversible)
- */
-data class CloseSummary(
-    val totalLines: Long,
-    val countedLines: Long,
-    val remainingLines: Long,
-    val gapLineCount: Int,
-    val gapValueAchat: Long,
-    val gapValueVente: Long
-)
 
 class InventoryDetailViewModel(private val inventoryRepository: InventoryRepository) : ViewModel() {
 
@@ -80,7 +66,7 @@ class InventoryDetailViewModel(private val inventoryRepository: InventoryReposit
         }
     }
 
-    /** Permissions ACTION de l'utilisateur (pr-cloture-inventaire, pr-voir-stock-inventaire…) */
+    /** Permissions ACTION de l'utilisateur (pr-voir-stock-inventaire…) */
     private val _abilities = MutableLiveData<Set<String>>(emptySet())
     val abilities: LiveData<Set<String>> = _abilities
 
@@ -169,6 +155,13 @@ class InventoryDetailViewModel(private val inventoryRepository: InventoryReposit
     }
 
     fun getLineFilter(): String? = currentFilter
+
+    /**
+     * Bloc de commandes (scan / rayon / recherche) replié. Porté par le ViewModel
+     * pour survivre à une rotation : l'opérateur qui a replié une fois n'a pas à
+     * recommencer parce que l'écran a tourné.
+     */
+    var controlsCollapsed = false
 
     /**
      * Reload lines keeping the current rayon/search/filter context
@@ -515,8 +508,15 @@ class InventoryDetailViewModel(private val inventoryRepository: InventoryReposit
      *
      * Le backend recalcule la quantité de la ligne produit à partir de ses lots ;
      * seule la progression est donc rechargée ensuite, pas toute la liste.
+     *
+     * Une ligne sans lot n'a rien à écrire côté lot : la saisie part sur l'API ligne
+     * produit — cf. [updateLotLessLineQuantity].
      */
     fun updateLotLineQuantity(lotLine: InventoryLotLine, quantity: Int) {
+        if (lotLine.isLotLess()) {
+            updateLotLessLineQuantity(lotLine, quantity)
+            return
+        }
         val lotId = lotLine.id ?: return
         val inventoryId = currentInventoryId ?: return
         rememberLotUndo(lotLine)
@@ -532,6 +532,57 @@ class InventoryDetailViewModel(private val inventoryRepository: InventoryReposit
                 onFailure = { error ->
                     _inventoryDetailState.value = InventoryDetailState.Error(
                         error.message ?: "Erreur lors de la sauvegarde du lot"
+                    )
+                }
+            )
+        }
+    }
+
+    /**
+     * Comptage d'une ligne de la grille lot qui n'a aucun lot rattaché.
+     *
+     * Ces produits sont dans le périmètre de l'inventaire mais n'ont pas d'`inventory_lot`
+     * (aucun lot, ou tous à zéro). Ils se comptent comme en vue produit — même API, même
+     * cache local, donc même tenue hors ligne et même arbitrage des comptages concurrents.
+     */
+    private fun updateLotLessLineQuantity(lotLine: InventoryLotLine, quantity: Int) {
+        val lineId = lotLine.storeInventoryLineId ?: return
+        val inventoryId = currentInventoryId ?: return
+        rememberLotUndo(lotLine)
+        viewModelScope.launch {
+            inventoryRepository.saveLineQuantity(
+                inventoryId,
+                StoreInventoryLine(
+                    id = lineId,
+                    produitId = lotLine.produitId,
+                    produitLibelle = lotLine.produitLibelle,
+                    produitCip = lotLine.produitCip,
+                    quantityOnHand = lotLine.quantityOnHand,
+                    quantityInit = lotLine.quantityInit ?: 0,
+                    gap = lotLine.gap,
+                    updated = lotLine.updated,
+                    version = lotLine.version
+                ),
+                quantity
+            ).fold(
+                onSuccess = { result ->
+                    val saved = lotLine.copy(
+                        quantityOnHand = result.line.quantityOnHand,
+                        quantityInit = result.line.quantityInit,
+                        gap = result.line.gap,
+                        updated = result.line.updated,
+                        version = result.line.version
+                    )
+                    val index = currentLotLines.indexOfFirst {
+                        it.isLotLess() && it.storeInventoryLineId == lineId
+                    }
+                    if (index >= 0) currentLotLines[index] = saved
+                    _inventoryDetailState.value =
+                        InventoryDetailState.LotLineSaved(saved, result.synced)
+                },
+                onFailure = { error ->
+                    _inventoryDetailState.value = InventoryDetailState.Error(
+                        error.message ?: "Erreur lors de la sauvegarde de la ligne"
                     )
                 }
             )
@@ -746,47 +797,6 @@ class InventoryDetailViewModel(private val inventoryRepository: InventoryReposit
                     _inventoryDetailState.value = InventoryDetailState.ProgressLoaded(progress)
                 },
                 onFailure = { /* non bloquant */ }
-            )
-        }
-    }
-
-    /**
-     * Prépare le récapitulatif pré-clôture : progression (total/comptés/restants)
-     * + écarts valorisés calculés sur les lignes avec écart (achat et vente)
-     */
-    fun prepareCloseSummary() {
-        val inventoryId = currentInventoryId ?: return
-        viewModelScope.launch {
-            _inventoryDetailState.value = InventoryDetailState.Loading
-            val progress = inventoryRepository.getProgress(inventoryId).getOrNull()
-            val gapLines = inventoryRepository
-                .getInventoryLines(inventoryId, selectedFilter = "GAP")
-                .getOrDefault(emptyList())
-
-            val summary = CloseSummary(
-                totalLines = progress?.totalLines ?: currentLines.size.toLong(),
-                countedLines = progress?.updatedLines ?: currentLines.count { it.updated }.toLong(),
-                remainingLines = (progress?.totalLines ?: 0) - (progress?.updatedLines ?: 0),
-                gapLineCount = gapLines.size,
-                gapValueAchat = gapLines.sumOf { (it.gap ?: 0).toLong() * (it.prixAchat ?: 0) },
-                gapValueVente = gapLines.sumOf { (it.gap ?: 0).toLong() * (it.prixUni ?: 0) }
-            )
-            _inventoryDetailState.value = InventoryDetailState.CloseSummaryReady(summary)
-        }
-    }
-
-    fun closeInventory(inventoryId: Long) {
-        viewModelScope.launch {
-            _inventoryDetailState.value = InventoryDetailState.Loading
-            inventoryRepository.closeInventory(inventoryId).fold(
-                onSuccess = { count ->
-                    _inventoryDetailState.value = InventoryDetailState.InventoryClosed(count)
-                },
-                onFailure = { error ->
-                    _inventoryDetailState.value = InventoryDetailState.Error(
-                        error.message ?: "Erreur lors de la clôture"
-                    )
-                }
             )
         }
     }

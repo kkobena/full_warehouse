@@ -9,11 +9,17 @@ import com.kobe.warehouse.service.dto.records.GapEntryRecord;
 import com.kobe.warehouse.service.dto.records.GapLineRecord;
 import com.kobe.warehouse.service.dto.records.GapSummaryRecord;
 import com.kobe.warehouse.service.stock.GapAnalysisService;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 @Service
 @Transactional
@@ -41,56 +47,69 @@ public class GapAnalysisServiceImpl implements GapAnalysisService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<GapLineRecord> getLinesWithGap(Long inventoryId) {
-        List<StoreInventoryLine> lines = lineRepo.findLinesWithGap(inventoryId);
-
-        // Récupérer les qualifications existantes indexées par lineId
-        Map<Long, InventoryGapAnalysis> existing = gapRepo
-            .findAllByInventoryId(inventoryId)
-            .stream()
-            .collect(Collectors.toMap(
-                ga -> ga.getStoreInventoryLine().getId(),
-                ga -> ga,
-                (a, b) -> a // garder le premier si doublon (ne devrait pas arriver)
-            ));
-
-        return lines.stream()
-            .map(line -> {
-                InventoryGapAnalysis ga = existing.get(line.getId());
-                Integer prix = line.getLastUnitPrice() != null ? line.getLastUnitPrice() : 0;
-                int valeur = Math.abs(line.getGap() != null ? line.getGap() : 0) * prix;
-                return new GapLineRecord(
-                    line.getId(),
-                    line.getProduit().getLibelle(),
-                    line.getQuantityInit(),
-                    line.getQuantityOnHand(),
-                    line.getGap(),
-                    valeur,
-                    ga != null ? ga.getCause().name() : null,
-                    ga != null ? ga.getCommentaire() : null
-                );
-            })
-            .toList();
+    public Page<GapLineRecord> getLinesWithGap(Long inventoryId, Pageable pageable) {
+        // Tri figé côté requête (écart absolu décroissant, id en départage) : un tri client
+        // s'ajouterait au ORDER BY et casserait la stabilité de la pagination.
+        return lineRepo.findLinesWithGap(
+            inventoryId,
+            PageRequest.of(pageable.getPageNumber(), pageable.getPageSize())
+        );
     }
 
     @Override
     public void saveAnalysis(Long inventoryId, List<GapEntryRecord> entries) {
-        gapRepo.deleteAllByInventoryId(inventoryId);
+        if (CollectionUtils.isEmpty(entries)) {
+            return;
+        }
 
-        List<InventoryGapAnalysis> toSave = entries.stream()
-            .filter(e -> e.cause() != null && !e.cause().isBlank())
-            .map(e -> {
-                InventoryGapAnalysis ga = new InventoryGapAnalysis();
-                StoreInventoryLine line = lineRepo.getReferenceById(e.lineId());
-                ga.setStoreInventoryLine(line);
-                ga.setCause(CauseEcart.valueOf(e.cause()));
-                ga.setQuantity(Math.abs(resolveGap(line)));
-                ga.setCommentaire(e.commentaire());
-                return ga;
-            })
-            .toList();
+        // Les lignes soumises sont rechargées en un seul select, restreint à l'inventaire :
+        // `getReferenceById` dans la boucle déclenchait une requête par ligne à la première
+        // lecture du gap, et n'empêchait pas d'écrire sur la ligne d'un autre inventaire.
+        Map<Long, StoreInventoryLine> lines = lineRepo
+            .findAllByIdInAndInventoryId(
+                entries.stream().map(GapEntryRecord::lineId).filter(Objects::nonNull).collect(Collectors.toSet()),
+                inventoryId
+            )
+            .stream()
+            .collect(Collectors.toMap(StoreInventoryLine::getId, line -> line));
 
-        gapRepo.saveAll(toSave);
+        if (lines.isEmpty()) {
+            return;
+        }
+
+        // Qualifications déjà en base pour ces lignes : on met à jour au lieu de recréer,
+        // ce qui préserve `created_at` et évite un delete/insert par enregistrement.
+        Map<Long, InventoryGapAnalysis> existing = gapRepo
+            .findAllByStoreInventoryLineIdIn(lines.keySet())
+            .stream()
+            .collect(Collectors.toMap(ga -> ga.getStoreInventoryLine().getId(), ga -> ga, (a, b) -> a));
+
+        List<InventoryGapAnalysis> toSave = new ArrayList<>();
+        List<Long> toClear = new ArrayList<>();
+
+        for (GapEntryRecord entry : entries) {
+            StoreInventoryLine line = lines.get(entry.lineId());
+            if (line == null) {
+                continue;
+            }
+            if (entry.cause() == null || entry.cause().isBlank()) {
+                toClear.add(line.getId());
+                continue;
+            }
+            InventoryGapAnalysis ga = existing.getOrDefault(line.getId(), new InventoryGapAnalysis());
+            ga.setStoreInventoryLine(line);
+            ga.setCause(CauseEcart.valueOf(entry.cause()));
+            ga.setQuantity(Math.abs(resolveGap(line)));
+            ga.setCommentaire(entry.commentaire());
+            toSave.add(ga);
+        }
+
+        if (!toClear.isEmpty()) {
+            gapRepo.deleteAllByStoreInventoryLineIdIn(toClear);
+        }
+        if (!toSave.isEmpty()) {
+            gapRepo.saveAll(toSave);
+        }
     }
 
     @Override

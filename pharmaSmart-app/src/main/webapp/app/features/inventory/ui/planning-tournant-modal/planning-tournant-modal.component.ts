@@ -14,6 +14,7 @@ import {PlanningTournantApiService} from '../../data-access/services/planning-to
 import {NGB_DATE_TO_ISO} from '../../../../shared/util/warehouse-util';
 import {ButtonComponent, CardComponent, SelectComponent, SelectSearchComponent} from '../../../../shared/ui';
 import {PharmaDatePickerComponent} from '../../../../shared/date-picker/pharma-date-picker.component';
+import {ErrorService} from '../../../../shared/error.service';
 
 interface IUserOption extends IUser {
   displayLabel: string;
@@ -42,6 +43,7 @@ export class PlanningTournantModalComponent implements OnInit {
 
   private readonly fb = inject(FormBuilder);
   private readonly api = inject(PlanningTournantApiService);
+  private readonly errorService = inject(ErrorService);
   private readonly storageService = inject(StorageService);
   private readonly userService = inject(UserManagementService);
   private readonly destroyRef = inject(DestroyRef);
@@ -93,7 +95,8 @@ export class PlanningTournantModalComponent implements OnInit {
       },
       error: err => {
         this.loading.set(false);
-        this.errorMessage.set(err?.error?.detail ?? 'Une erreur est survenue');
+        this.errorMessage.set(
+          this.errorService.getErrorMessage(err, 'Erreur lors de l\'enregistrement du planning'));
       },
     });
   }

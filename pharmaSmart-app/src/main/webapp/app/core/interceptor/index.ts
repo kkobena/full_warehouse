@@ -7,12 +7,15 @@ import { NotificationInterceptor } from 'app/core/interceptor/notification.inter
 import { authJwtInterceptor } from 'app/core/interceptor/auth-jwt.interceptor';
 import { apiBaseUrlInterceptor } from 'app/core/interceptor/api-base-url.interceptor';
 import { tauriHeadersInterceptor } from 'app/core/interceptor/tauri-headers.interceptor';
+import { licenseInterceptor } from 'app/core/interceptor/license.interceptor';
 
 export const httpInterceptorProviders = [
   // API base URL interceptor (functional) - prepends server URL for Electron
   // Tauri headers interceptor - adds X-Tauri-App header for desktop app identification
   // Must be FIRST to ensure correct URL before JWT interceptor
-  withInterceptors([apiBaseUrlInterceptor, tauriHeadersInterceptor, authJwtInterceptor]),
+  // licenseInterceptor est placé après authJwtInterceptor : il n'observe que les réponses, et
+  // n'a de sens que sur des requêtes déjà authentifiées (cf. PLAN-GESTION-LICENCE §5.4).
+  withInterceptors([apiBaseUrlInterceptor, tauriHeadersInterceptor, authJwtInterceptor, licenseInterceptor]),
 
   // Legacy class-based interceptors
   {

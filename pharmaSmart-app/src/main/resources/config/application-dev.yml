@@ -116,3 +116,8 @@ pharma-smart:
     # comme aux rechargements à chaud de DevTools — donc plus de déconnexion à chaque
     # redémarrage du contexte Spring.
     jwt-key-path: ${user.home}/.pharmasmart/jwt-signing-key-dev.p8
+
+  # Contrôle de licence désactivé en développement : ni l'aspect ni l'intercepteur d'écriture
+  # ne sont créés, la chaîne d'exécution reste celle d'avant l'introduction de la licence.
+  license:
+    enabled: true

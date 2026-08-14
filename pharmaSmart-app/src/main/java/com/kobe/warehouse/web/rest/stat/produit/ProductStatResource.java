@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.stat.produit;
 
+import com.kobe.warehouse.aop.license.LicenseExempt;
 import com.kobe.warehouse.service.dto.HistoriqueProduitAchatMensuelleWrapper;
 import com.kobe.warehouse.service.dto.HistoriqueProduitAchats;
 import com.kobe.warehouse.service.dto.HistoriqueProduitAchatsSummary;
@@ -70,6 +71,7 @@ public class ProductStatResource {
     }
 
     @PostMapping("/transactions/pdf")
+    @LicenseExempt("Consultation : export PDF de l'historique produit, la traçabilité doit rester imprimable")
     public ResponseEntity<Resource> getTransactionsPdf(
         @RequestBody @Valid ProduitAuditingParam produitAuditingParam,
         HttpServletRequest request

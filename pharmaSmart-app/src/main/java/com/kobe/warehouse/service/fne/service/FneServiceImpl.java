@@ -18,6 +18,7 @@ import com.kobe.warehouse.service.fne.model.FneInvoice;
 import com.kobe.warehouse.service.fne.model.FneInvoiceItem;
 import com.kobe.warehouse.service.fne.model.FneResponse;
 import com.kobe.warehouse.service.fne.model.TaxeEnum;
+import com.kobe.warehouse.service.license.LicenseService;
 import com.kobe.warehouse.service.utils.DateUtil;
 import com.kobe.warehouse.service.utils.ServiceUtil;
 import org.slf4j.Logger;
@@ -51,6 +52,7 @@ public class FneServiceImpl implements FneService {
     private final ObjectMapper objectMapper;
     private final MagasinRepository magasinRepository;
     private final FneCertificationTransactionService certificationTransactionService;
+    private final LicenseService licenseService;
 
     @Value("${fne-url}")
     private String fneUrl;
@@ -61,7 +63,8 @@ public class FneServiceImpl implements FneService {
         StorageService storageService,
         ObjectMapper objectMapper,
         MagasinRepository magasinRepository,
-        FneCertificationTransactionService certificationTransactionService
+        FneCertificationTransactionService certificationTransactionService,
+        LicenseService licenseService
     ) {
         this.facturationRepository = facturationRepository;
         this.httpClient = httpClient;
@@ -69,10 +72,31 @@ public class FneServiceImpl implements FneService {
         this.objectMapper = objectMapper;
         this.magasinRepository = magasinRepository;
         this.certificationTransactionService = certificationTransactionService;
+        this.licenseService = licenseService;
+    }
+
+    /**
+     * Interdit toute certification depuis une licence de démonstration (cf. PLAN-GESTION-LICENCE §3.5).
+     *
+     * <p><strong>Point non négociable</strong> : transmettre à l'administration fiscale des factures
+     * normalisées issues d'un jeu de données fictif exposerait le client comme l'éditeur. Une démo
+     * s'installe partout par construction ({@code bindingPolicy = NONE}) — c'est précisément
+     * pourquoi elle ne doit rien pouvoir émettre d'opposable.
+     *
+     * <p>Le contrôle est posé au niveau des trois points d'entrée publics, et non du seul appel HTTP :
+     * la certification planifiée passe par un autre bean transactionnel et échapperait à un garde
+     * placé plus bas.
+     */
+    private void assertCertificationAllowed() {
+        if (licenseService.isDemo()) {
+            log.warn("Certification FNE refusée : l'installation tourne sous une licence de démonstration");
+            throw new GenericError("La certification FNE est désactivée en version de démonstration.");
+        }
     }
 
     @Override
     public FneResponse create(FactureItemId factureItemId) throws GenericError {
+        assertCertificationAllowed();
         FactureTiersPayant factureTiersPayant = facturationRepository.findById(factureItemId)
             .orElseThrow(() -> new GenericError("Aucune facture trouvée"));
         return createInvoice(factureTiersPayant);
@@ -80,6 +104,7 @@ public class FneServiceImpl implements FneService {
 
     @Override
     public void certifyGroupInvoice(FactureItemId factureItemId) throws GenericError {
+        assertCertificationAllowed();
         List<FactureTiersPayant> factureTiersPayants = facturationRepository.findById(factureItemId)
             .orElseThrow(() -> new GenericError("Aucune facture trouvée")).getFactureTiersPayants();
         for (FactureTiersPayant factureTiersPayant : factureTiersPayants) {
@@ -90,6 +115,10 @@ public class FneServiceImpl implements FneService {
     @Override
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public CertificationFneResult certifierFacturesPendantes(PlanificationCertificationFne plan) {
+        // Volontairement contrôlé bien qu'il s'agisse d'un traitement planifié : la consigne
+        // « pas de licence dans le batch » porte sur le blocage à l'expiration, pas sur l'interdit
+        // faite à une démo d'émettre des documents fiscaux.
+        assertCertificationAllowed();
         List<FactureTiersPayant> pending = facturationRepository.findPendingFneCertification();
         if (pending.isEmpty()) {
             log.info("Certification FNE planifiée (id={}) : aucune facture en attente", plan.getId());

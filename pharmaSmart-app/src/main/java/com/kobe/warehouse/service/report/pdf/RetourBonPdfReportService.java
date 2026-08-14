@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.report.pdf;
 
+import com.kobe.warehouse.service.license.DemoWatermark;
 import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.RetourBonDTO;
@@ -87,7 +88,7 @@ public class RetourBonPdfReportService extends AbstractStatistiqueReportService 
             ITextRenderer renderer = new ITextRenderer();
             Context context = super.getContextVariables();
             this.getParameters().forEach(context::setVariable);
-            renderer.setDocumentFromString(templateEngine.process("retour/groupe", context));
+            renderer.setDocumentFromString(DemoWatermark.apply(templateEngine.process("retour/groupe", context)));
             renderer.layout();
             renderer.createPDF(outputStream);
             return outputStream.toByteArray();

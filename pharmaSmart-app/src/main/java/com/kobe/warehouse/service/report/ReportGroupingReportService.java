@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.report;
 
+import com.kobe.warehouse.service.license.DemoWatermark;
 import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import java.io.FileOutputStream;
@@ -25,7 +26,7 @@ public abstract class ReportGroupingReportService extends CommonReportService {
             ITextRenderer renderer = this.getITextRenderer();
             SharedContext sharedContext = this.getSharedContext(renderer);
             sharedContext.setPrint(true);
-            renderer.setDocumentFromString(this.getTemplateAsHtml());
+            renderer.setDocumentFromString(DemoWatermark.apply(this.getTemplateAsHtml()));
             renderer.layout();
             renderer.createPDF(outputStream);
         } catch (IOException | DocumentException e) {
@@ -49,7 +50,7 @@ public abstract class ReportGroupingReportService extends CommonReportService {
             int size = items.size();
             int pageNumber = (int) Math.ceil(size / (double) maxiRowCount);
             getParameters().put(Constant.PAGE_COUNT, "1/" + pageNumber);
-            renderer.setDocumentFromString(this.getTemplateAsHtml(context));
+            renderer.setDocumentFromString(DemoWatermark.apply(this.getTemplateAsHtml(context)));
             renderer.layout();
             renderer.createPDF(outputStream, false);
 
@@ -64,7 +65,7 @@ public abstract class ReportGroupingReportService extends CommonReportService {
                 getParameters().put(Constant.COMMANDE_ITEMS, list);
                 getParameters().put(Constant.ITEM_SIZE, size);
                 getParameters().put(Constant.PAGE_COUNT, (i + 1) + "/" + pageNumber);
-                renderer.setDocumentFromString(this.getTemplateAsHtml(context));
+                renderer.setDocumentFromString(DemoWatermark.apply(this.getTemplateAsHtml(context)));
 
                 renderer.layout();
                 renderer.writeNextDocument();

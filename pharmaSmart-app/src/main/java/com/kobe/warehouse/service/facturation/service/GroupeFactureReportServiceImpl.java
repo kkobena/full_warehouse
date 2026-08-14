@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.facturation.service;
 
+import com.kobe.warehouse.service.license.DemoWatermark;
 import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.StorageService;
@@ -107,7 +108,7 @@ public class GroupeFactureReportServiceImpl implements GroupeFactureReportServic
             ITextRenderer renderer = new ITextRenderer();
             SharedContext sharedContext = renderer.getSharedContext();
             sharedContext.setPrint(true);
-            renderer.setDocumentFromString(this.getTemplateAsHtml());
+            renderer.setDocumentFromString(DemoWatermark.apply(this.getTemplateAsHtml()));
             renderer.layout();
             renderer.createPDF(outputStream);
         } catch (IOException e) {

@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.cahier_recette;
 
+import com.kobe.warehouse.service.license.DemoWatermark;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Locale;
@@ -78,7 +79,7 @@ public class CahierRecettePdfService {
     // (numéros remplis) sur un writer PDF déjà écrit une première fois.
     private Map<String, Integer> findPageNumbers(String html) throws Exception {
         ITextRenderer renderer = new ITextRenderer();
-        renderer.setDocumentFromString(html);
+        renderer.setDocumentFromString(DemoWatermark.apply(html));
         renderer.layout();
         try (ByteArrayOutputStream discard = new ByteArrayOutputStream()) {
             renderer.createPDF(discard);
@@ -94,7 +95,7 @@ public class CahierRecettePdfService {
     // la 1ʳᵉ passe, sur un renderer qui n'a pas encore écrit de PDF.
     private byte[] renderPdf(String html) throws Exception {
         ITextRenderer renderer = new ITextRenderer();
-        renderer.setDocumentFromString(html);
+        renderer.setDocumentFromString(DemoWatermark.apply(html));
         renderer.layout();
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             renderer.createPDF(outputStream);

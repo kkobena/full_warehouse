@@ -1,5 +1,6 @@
 import { Routes } from "@angular/router";
 import { AuthGuard } from "../core/auth/auth.guard";
+import { licenseWriteGuard } from "../core/license/license-write.guard";
 
 const routes: Routes = [
 
@@ -207,7 +208,9 @@ const routes: Routes = [
   {
     path: "sales-home",
     data: { pageTitle: "Point de vente" },
-    canActivate: [AuthGuard],
+    // licenseWriteGuard : ouvrir la caisse pour se voir refuser l'encaissement au dernier clic
+    // serait la pire des expériences. À poser progressivement sur les autres écrans de saisie.
+    canActivate: [AuthGuard, licenseWriteGuard],
     loadChildren: () => import("../features/sales/sales.routes").then(m => m.SALES_ROUTES)
   },
   {

@@ -13,7 +13,11 @@ import com.kobe.warehouse.service.dto.nav.NavItemAssignmentDTO;
 import com.kobe.warehouse.service.dto.nav.NavNodeDTO;
 import com.kobe.warehouse.service.dto.nav.NavPermissionsDTO;
 import com.kobe.warehouse.service.dto.nav.NavReorderDTO;
+import com.kobe.warehouse.license.Feature;
+import com.kobe.warehouse.service.license.LicenseService;
 import com.kobe.warehouse.service.nav.NavItemService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -25,6 +29,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -34,18 +39,23 @@ import java.util.stream.Collectors;
 @Transactional
 public class NavItemServiceImpl implements NavItemService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(NavItemServiceImpl.class);
+
     private final NavItemRepository navItemRepository;
     private final NavItemRoleRepository navItemRoleRepository;
     private final NavItemUserOrderRepository navItemUserOrderRepository;
+    private final LicenseService licenseService;
 
     public NavItemServiceImpl(
         NavItemRepository navItemRepository,
         NavItemRoleRepository navItemRoleRepository,
-        NavItemUserOrderRepository navItemUserOrderRepository
+        NavItemUserOrderRepository navItemUserOrderRepository,
+        LicenseService licenseService
     ) {
         this.navItemRepository = navItemRepository;
         this.navItemRoleRepository = navItemRoleRepository;
         this.navItemUserOrderRepository = navItemUserOrderRepository;
+        this.licenseService = licenseService;
     }
 
     @Override
@@ -57,7 +67,7 @@ public class NavItemServiceImpl implements NavItemService {
         }
 
         //Charger tous les NavItem actifs pour les rôles
-        List<NavItem> allItems = navItemRepository.findAllActiveByRoles(roles);
+        List<NavItem> allItems = retainSubscribedFeatures(navItemRepository.findAllActiveByRoles(roles));
         if (CollectionUtils.isEmpty(allItems)) {
             return Collections.emptyList();
         }
@@ -172,6 +182,45 @@ public class NavItemServiceImpl implements NavItemService {
     // ─────────────────────────────────────────────────────────────────────────
     // Méthodes privées
     // ─────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Retire les items dont le module n'est pas couvert par la licence (§3.6).
+     *
+     * <p>Le filtre s'applique <strong>avant</strong> la construction de l'arbre, au même endroit que
+     * le filtrage par rôles : un item écarté n'a pas de parent auquel se rattacher, ses descendants
+     * ne sont donc jamais visités, et un groupe dont tous les enfants disparaissent est déjà écarté
+     * par la règle « groupe sans enfant » de {@code buildTree}. Aucune modification du frontend
+     * n'est nécessaire — les menus non souscrits <em>n'existent pas</em> dans la réponse.
+     *
+     * <p>Un libellé de feature inconnu est traité comme « aucune contrainte » : une valeur mal
+     * saisie en base ne doit pas faire disparaître silencieusement un menu.
+     *
+     * <p><strong>Inerte à ce jour</strong> : {@code required_feature} n'est renseignée sur aucun
+     * item — aucune migration ne la remplit — donc tous les menus existants continuent d'être
+     * chargés. Le rattachement menu → module est une décision commerciale à prendre item par item,
+     * pas une dérivation automatique : {@code nav_item.code} désigne un <em>menu</em>
+     * (« comptabilite ») et {@code required_feature} un <em>module de licence</em>
+     * (« COMPTABILITE ») ; rien ne garantit que les deux nommages coïncident.
+     */
+    private List<NavItem> retainSubscribedFeatures(List<NavItem> items) {
+        if (CollectionUtils.isEmpty(items)) {
+            return items;
+        }
+        return items.stream().filter(this::isFeatureSubscribed).toList();
+    }
+
+    private boolean isFeatureSubscribed(NavItem item) {
+        String required = item.getRequiredFeature();
+        if (required == null || required.isBlank()) {
+            return true;
+        }
+        try {
+            return licenseService.hasFeature(Feature.valueOf(required.trim().toUpperCase(Locale.ROOT)));
+        } catch (IllegalArgumentException e) {
+            LOG.warn("Module inconnu « {} » sur l'item de navigation « {} » : contrainte ignorée", required, item.getCode());
+            return true;
+        }
+    }
 
     private Map<Integer, NavPermissionsDTO> buildPermissionsMap(List<NavItemRole> roles) {
         Map<Integer, NavPermissionsDTO> map = new HashMap<>();

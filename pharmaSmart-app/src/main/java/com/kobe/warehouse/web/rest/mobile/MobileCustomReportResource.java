@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.mobile;
 
+import com.kobe.warehouse.aop.license.LicenseExempt;
 import com.kobe.warehouse.service.dto.mobile.CustomReportMetricDTO;
 import com.kobe.warehouse.service.mobile.MobileCustomReportService;
 import jakarta.validation.Valid;
@@ -36,6 +37,7 @@ public class MobileCustomReportResource {
      * @return Map of metric code to metric data
      */
     @PostMapping("/generate")
+    @LicenseExempt("Consultation : rapport calculé à la volée, POST uniquement pour porter les critères")
     public ResponseEntity<Map<String, CustomReportMetricDTO>> generateCustomReport(
         @Valid @RequestBody CustomReportRequest request
     ) {

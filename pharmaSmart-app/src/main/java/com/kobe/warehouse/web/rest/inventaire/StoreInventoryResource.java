@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.inventaire;
 
+import com.kobe.warehouse.aop.license.LicenseExempt;
 import com.kobe.warehouse.service.dto.StoreInventoryDTO;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryExportRecord;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryFilterRecord;
@@ -125,6 +126,7 @@ public class StoreInventoryResource {
     }
 
     @PostMapping(value = "/store-inventories/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    @LicenseExempt("Consultation : export PDF d'inventaire, aucune donnée modifiée")
     public ResponseEntity<byte[]> getPdf(@RequestBody StoreInventoryExportRecord filterRecord) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=inventaire.pdf");

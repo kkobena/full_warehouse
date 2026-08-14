@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest;
 
+import com.kobe.warehouse.aop.license.LicenseExempt;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.PersistentToken;
 import com.kobe.warehouse.repository.PersistentTokenRepository;
@@ -119,6 +120,7 @@ public class AccountResource extends AccountResourcesProxy {
      * @throws InvalidPasswordException {@code 400 (Bad Request)} if the new password is incorrect.
      */
     @PostMapping(path = "/account/change-password")
+    @LicenseExempt("Sécurité du compte : un mot de passe doit rester changeable même licence expirée")
     public void changePassword(@RequestBody PasswordChangeDTO passwordChangeDto) {
         super.changePassword(passwordChangeDto);
     }
@@ -177,6 +179,7 @@ public class AccountResource extends AccountResourcesProxy {
      * @param mail the mail of the user.
      */
     @PostMapping(path = "/account/reset-password/init")
+    @LicenseExempt("Sécurité du compte : la réinitialisation de mot de passe ne dépend pas de l'abonnement")
     public void requestPasswordReset(@RequestBody String mail) {
         super.requestPasswordReset(mail);
     }
@@ -190,6 +193,7 @@ public class AccountResource extends AccountResourcesProxy {
      *                                  not be reset.
      */
     @PostMapping(path = "/account/reset-password/finish")
+    @LicenseExempt("Sécurité du compte : la réinitialisation de mot de passe ne dépend pas de l'abonnement")
     public void finishPasswordReset(@RequestBody KeyAndPasswordVM keyAndPassword) {
         super.finishPasswordReset(keyAndPassword);
     }

@@ -5,6 +5,7 @@ import com.kobe.warehouse.config.CRLFLogConverter;
 import com.kobe.warehouse.config.ConfigConstants;
 import com.kobe.warehouse.config.DefaultProfileUtil;
 import com.kobe.warehouse.config.LogProperties;
+import com.kobe.warehouse.license.LicenseProperties;
 import com.kobe.warehouse.service.MailProperties;
 import jakarta.annotation.PostConstruct;
 import java.net.InetAddress;
@@ -24,7 +25,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@EnableConfigurationProperties({ ApplicationProperties.class, MailProperties.class, LogProperties.class })
+@EnableConfigurationProperties({ ApplicationProperties.class, MailProperties.class, LogProperties.class, LicenseProperties.class })
 @EnableCaching
 @EnableAsync
 @EnableScheduling

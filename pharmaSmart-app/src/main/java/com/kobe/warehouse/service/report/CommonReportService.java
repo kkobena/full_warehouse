@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.report;
 
+import com.kobe.warehouse.service.license.DemoWatermark;
 import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.StorageService;
@@ -112,7 +113,7 @@ public abstract class CommonReportService {
             int size = items.size();
             int pageNumber = (int) Math.ceil(size / (double) maxiRowCount);
             getParameters().put(Constant.PAGE_COUNT, "1/" + pageNumber);
-            renderer.setDocumentFromString(this.getTemplateAsHtml(context));
+            renderer.setDocumentFromString(DemoWatermark.apply(this.getTemplateAsHtml(context)));
             renderer.layout();
             renderer.createPDF(outputStream, false);
             for (int i = 1; i < pageNumber; i++) {
@@ -126,7 +127,7 @@ public abstract class CommonReportService {
                 getParameters().put(Constant.ITEMS, list);
                 getParameters().put(Constant.ITEM_SIZE, size);
                 getParameters().put(Constant.PAGE_COUNT, (i + 1) + "/" + pageNumber);
-                renderer.setDocumentFromString(this.getTemplateAsHtml(context));
+                renderer.setDocumentFromString(DemoWatermark.apply(this.getTemplateAsHtml(context)));
 
                 renderer.layout();
                 renderer.writeNextDocument();
@@ -202,7 +203,7 @@ public abstract class CommonReportService {
             ITextRenderer renderer = this.getITextRenderer();
             SharedContext sharedContext = this.getSharedContext(renderer);
             sharedContext.setPrint(true);
-            renderer.setDocumentFromString(this.getTemplateAsHtml());
+            renderer.setDocumentFromString(DemoWatermark.apply(this.getTemplateAsHtml()));
             renderer.layout();
             renderer.createPDF(outputStream);
 
@@ -224,7 +225,7 @@ public abstract class CommonReportService {
         ITextRenderer renderer = new ITextRenderer();
 
         //  System.err.println(e);
-        renderer.setDocumentFromString(this.getTemplateAsHtml());
+        renderer.setDocumentFromString(DemoWatermark.apply(this.getTemplateAsHtml()));
         renderer.layout();
         renderer.createPDF(outputStream);
 
@@ -272,7 +273,7 @@ public abstract class CommonReportService {
     protected byte[] exportReportToPdf() {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             ITextRenderer renderer = new ITextRenderer();
-            renderer.setDocumentFromString(this.getTemplateAsHtml());
+            renderer.setDocumentFromString(DemoWatermark.apply(this.getTemplateAsHtml()));
             renderer.layout();
             renderer.createPDF(outputStream);
             return outputStream.toByteArray();
@@ -295,7 +296,7 @@ public abstract class CommonReportService {
             int size = items.size();
             int pageNumber = (int) Math.ceil(size / (double) maxiRowCount);
             getParameters().put(Constant.PAGE_COUNT, "1/" + pageNumber);
-            renderer.setDocumentFromString(this.getTemplateAsHtml(context));
+            renderer.setDocumentFromString(DemoWatermark.apply(this.getTemplateAsHtml(context)));
             renderer.layout();
             renderer.createPDF(outputStream, false);
             for (int i = 1; i < pageNumber; i++) {
@@ -309,7 +310,7 @@ public abstract class CommonReportService {
                 getParameters().put(Constant.ITEMS, list);
                 getParameters().put(Constant.ITEM_SIZE, size);
                 getParameters().put(Constant.PAGE_COUNT, (i + 1) + "/" + pageNumber);
-                renderer.setDocumentFromString(this.getTemplateAsHtml(context));
+                renderer.setDocumentFromString(DemoWatermark.apply(this.getTemplateAsHtml(context)));
                 renderer.layout();
                 renderer.writeNextDocument();
                 firstPageRowCount += maxiRowCount;

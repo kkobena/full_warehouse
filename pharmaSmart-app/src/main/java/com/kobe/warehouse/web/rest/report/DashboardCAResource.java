@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.report;
 
+import com.kobe.warehouse.aop.license.LicenseExempt;
 import com.kobe.warehouse.service.dto.FinancesSummaryDTO;
 import com.kobe.warehouse.service.dto.dashboard.PerformanceVendeurDTO;
 import com.kobe.warehouse.service.dto.report.*;
@@ -308,6 +309,7 @@ public class DashboardCAResource {
      * @return success status
      */
     @PostMapping("/refresh")
+    @LicenseExempt("Consultation : rafraîchissement de vues matérialisées, aucune donnée métier modifiée")
     public ResponseEntity<Void> refreshViews() {
         dashboardCAService.refreshViews();
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

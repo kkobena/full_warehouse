@@ -85,6 +85,20 @@ public class NavItem implements Serializable {
     @Column(name = "actif", nullable = false)
     private boolean actif = true;
 
+    /**
+     * Module de licence requis pour afficher cet item, ou {@code null} si aucun.
+     *
+     * <p>Typé {@code String} et non {@code Feature} : l'enum vit dans {@code pharmaSmart-core}, qui
+     * dépend de ce module — la relation ne peut pas être inversée. Le service de navigation, lui,
+     * connaît les deux et fait la correspondance. Un libellé inconnu y est traité comme « aucune
+     * contrainte » plutôt que comme un blocage, pour qu'une valeur mal saisie en base ne fasse pas
+     * disparaître un menu.
+     *
+     * <p>Cf. docs/PLAN-GESTION-LICENCE.md §3.6.
+     */
+    @Column(name = "required_feature", length = 40)
+    private String requiredFeature;
+
     @CreationTimestamp
     @Column(name = "created", nullable = false, updatable = false)
     private LocalDateTime created;
@@ -198,6 +212,15 @@ public class NavItem implements Serializable {
 
     public NavItem setActif(boolean actif) {
         this.actif = actif;
+        return this;
+    }
+
+    public String getRequiredFeature() {
+        return requiredFeature;
+    }
+
+    public NavItem setRequiredFeature(String requiredFeature) {
+        this.requiredFeature = requiredFeature;
         return this;
     }
 

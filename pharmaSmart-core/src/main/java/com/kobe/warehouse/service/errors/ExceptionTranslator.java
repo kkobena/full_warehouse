@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.errors;
 
+import com.kobe.warehouse.license.LicenseViolationException;
 import jakarta.persistence.OptimisticLockException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -32,6 +33,25 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
         pd.setDetail("Le stock a été modifié par une autre opération. Veuillez réessayer.");
         pd.setMessage("stock.concurrent.modification");
         return ResponseEntity.status(HttpStatus.CONFLICT).body(pd);
+    }
+
+    /**
+     * Licence expirée, absente, invalide, ou module non souscrit.
+     *
+     * <p>Le statut <strong>402 Payment Required</strong> est ici sémantiquement exact, et surtout il
+     * n'est pas intercepté par {@code auth-expired.interceptor.ts} côté Angular : répondre 401 ou 403
+     * déconnecterait l'utilisateur, qui ne pourrait plus atteindre l'écran de renouvellement.
+     */
+    @ExceptionHandler(LicenseViolationException.class)
+    public ResponseEntity<Object> handleLicenseViolation(LicenseViolationException ex) {
+        LOG.warning("Opération refusée pour cause de licence: " + ex.getMessage());
+        Custom pd = new Custom(HttpStatus.PAYMENT_REQUIRED.value());
+        pd.setTitle("Licence non valide");
+        pd.setDetail(ex.getMessage());
+        pd.setMessage(ex.getMessage());
+        pd.setErrorKey(ex.getErrorKey());
+        pd.setPayload(ex.getPayload());
+        return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED).body(pd);
     }
 
     @ExceptionHandler

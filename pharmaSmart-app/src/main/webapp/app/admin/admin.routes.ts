@@ -7,6 +7,12 @@ const routes: Routes = [
     title: 'userManagement.home.title',
   },
   {
+
+    path: 'license',
+    redirectTo: '/licence',
+    pathMatch: 'prefix',
+  },
+  {
     path: 'access-management',
     loadChildren: () => import('../features/admin/access-managment-home/access-managment-home.route'),
     title: 'Rôles & Autorisations',

@@ -12,9 +12,12 @@ uses a PostgreSQL database with Flyway migrations and supports desktop deploymen
 
 ## Technology Stack
 
-**Backend (Java 25):**
+**Backend (Java 25) — 5 modules Maven :** `pharmaSmart-domain` (entités JPA, repositories, DTOs
+partagés), `pharmaSmart-core` (config, sécurité JWT, gestion d'erreurs, socle de licence),
+`pharmaSmart-app` (application principale : web, PDF, imprimante), `pharmaSmart-batch` (jobs
+planifiés), `pharmaSmart-license-cli` (outil éditeur, non livré au client).
 
-- Spring Boot 4.1.0 (release candidate)
+- Spring Boot 4.1.0
 - Hibernate 7.1.0 with JPA
 - PostgreSQL database
 - Flyway 11.11.2 for database migrations
@@ -26,28 +29,36 @@ uses a PostgreSQL database with Flyway migrations and supports desktop deploymen
 - Thymeleaf for server-side HTML rendering
 - jSerialComm for thermal printer integration
 
-**Frontend (Angular 22):**
+**Frontend — code dans `pharmaSmart-app/src/main/webapp/` :**
 
-- Angular 20.3.7 with TypeScript 5.9.2
-- PrimeNG 20.2.0 (use `p-button` and other PrimeNG components)
-- ng-bootstrap 19.0.1 for Bootstrap components
-- AG Grid 34.3.0 for advanced data tables
+- Angular 22 with TypeScript 6.0
+- Design System maison dans `app/shared/ui/` (rend du Bootstrap 5 natif) — **PrimeNG a été retiré
+  des dépendances** ; ne plus introduire de composant `p-*`
+- ng-bootstrap 21 for Bootstrap components
+- AG Grid 36 for advanced data tables
 - Chart.js for data visualization
-- ngx-translate for internationalization
-- RxJS 7.8.2 for reactive programming
-- Jest for unit testing
-- Standalone components (Angular 20+ pattern)
+- ngx-translate for internationalization (utilisé par ~30 gabarits sur 350 ; le reste est en
+  français en dur — suivre la convention du fichier voisin)
+- RxJS for reactive programming
+- Jest for unit testing, lancé via `ng test` (voir « Running Tests »)
+- Standalone components, signaux, syntaxe `@if` / `@for`
 
 ## Quick Reference Documentation
 
-- **[HOW-TO-CONFIGURE-BACKEND.md](HOW-TO-CONFIGURE-BACKEND.md)** - Simple guide for configuring
-  backend URL (non-technical users)
-- **[LOGS-QUICK-REFERENCE.md](LOGS-QUICK-REFERENCE.md)** - Quick guide to finding and reading
-  backend logs
-- **[CUSTOM-TITLEBAR.md](CUSTOM-TITLEBAR.md)** - Custom titlebar implementation and customization
-  guide
-- **[TAURI_BACKEND_SETUP.md](TAURI_BACKEND_SETUP.md)** - Complete Tauri backend integration guide (
-  technical)
+Toute la documentation vit dans `docs/`. Principaux documents :
+
+- **[docs/PLAN-GESTION-LICENCE.md](docs/PLAN-GESTION-LICENCE.md)** - Conception et état
+  d'avancement de la gestion de licence / abonnement
+- **[pharmaSmart-license-cli/README.md](pharmaSmart-license-cli/README.md)** - Outil d'émission des
+  licences : les trois commandes, les options, les défauts par type
+- **[pharmaSmart-license-cli/PROCEDURE-EMISSION-LICENCE.md](pharmaSmart-license-cli/PROCEDURE-EMISSION-LICENCE.md)**
+  - Procédure interne éditeur : gestion des clés, 10 cas concrets d'émission
+- **[pharmaSmart-license-cli/HOW-TO-ACTIVER-LICENCE.md](pharmaSmart-license-cli/HOW-TO-ACTIVER-LICENCE.md)**
+  - Guide client non technique, remis au pharmacien avec son fichier `.lic`
+- **[docs/PLAN-HTTPS-ET-CERTIFICATS.md](docs/PLAN-HTTPS-ET-CERTIFICATS.md)** - TLS et certificats
+
+`docs/` contient une vingtaine d'autres plans et analyses fonctionnelles — les lister ici les
+condamnerait à se périmer.
 
 ## Build & Development Commands
 
@@ -152,51 +163,56 @@ npm run tauri:dev     # Terminal 2 (Tauri app with frontend)
 
 ### Backend Package Structure
 
-```
-com.kobe.warehouse/
-├── aop/                      # Aspect-Oriented Programming (logging aspects)
-├── config/                   # Spring configuration classes
-│   ├── SecurityConfiguration.java      # Security setup with multiple filter chains
-│   ├── DatabaseConfiguration.java      # JPA and datasource config
-│   ├── CacheConfiguration.java         # Caffeine cache setup
-│   └── FlywayConfig.java              # Database migration config
-├── domain/                   # JPA entities (168 entities)
-│   ├── Sales.java           # Sales transactions
-│   ├── Customer.java        # Customer/client management
-│   ├── Produit.java        # Product/pharmaceutical items
-│   ├── Storage.java        # Inventory storage locations
-│   └── ...                 # Many other domain entities
-├── repository/              # Spring Data JPA repositories
-├── security/               # Security utilities and constants
-│   ├── SecurityUtils.java  # Authentication/authorization helpers
-│   └── AuthoritiesConstants.java
-├── service/                # Business logic layer
-│   ├── dto/               # Data Transfer Objects
-│   ├── cash_register/     # Cash register operations
-│   ├── facturation/       # Invoicing/billing services
-│   ├── receipt/          # Receipt generation
-│   ├── report/           # Report generation (PDF/Excel)
-│   ├── stock/            # Inventory management
-│   └── csv/              # CSV import/export
-├── web/rest/              # REST API controllers
-│   ├── AccountResource.java
-│   ├── cash_register/    # Cash register endpoints
-│   ├── commande/         # Order management endpoints
-│   └── facturation/      # Billing endpoints
-├── printer/              # Thermal printer integration
-└── constant/            # Application constants
+Tous les modules partagent la racine de package `com.kobe.warehouse` — le nom du module Maven ne se
+lit donc pas dans le package. Pour situer une classe, c'est le **répertoire** qui fait foi.
 
 ```
+pharmaSmart-domain/src/main/java/com/kobe/warehouse/
+├── domain/                 # Entités JPA (~170) : Sales, Customer, Produit, Storage, LicenseState…
+│   └── enumeration/        # Enums du domaine
+├── repository/             # Repositories Spring Data JPA
+├── security/               # SecurityUtils, AuthoritiesConstants
+├── constant/               # EntityConstant (noms de caches…)
+└── service/dto/            # DTOs partagés entre modules
+
+pharmaSmart-core/src/main/java/com/kobe/warehouse/
+├── config/                 # JacksonConfiguration, LogProperties, DateTimeFormatConfiguration
+├── license/                # Socle de licence : LicenseVerifier (Ed25519), LicensePayload,
+│                           # LicenseInfo, Feature, LicenseProperties…
+├── security/               # JwtAuthenticationConverter
+├── service/errors/         # ExceptionTranslator (RFC 7807)
+└── web/                    # PaginationUtil, ResponseUtil, SpaWebFilter
+
+pharmaSmart-app/src/main/java/com/kobe/warehouse/
+├── aop/
+│   ├── logging/            # LoggingAspect (profil dev)
+│   └── license/            # LicenseEnforcementAspect, @LicenseExempt, @RequiresFeature
+├── config/                 # SecurityConfiguration, CacheConfiguration, LicenseConfiguration…
+├── service/                # Logique métier
+│   ├── cash_register/      # Caisse
+│   ├── facturation/        # Facturation / tiers-payant
+│   ├── fne/                # Facture normalisée électronique
+│   ├── license/            # LicenseService, DemoWatermark
+│   ├── nav/                # Navigation dynamique (nav_item)
+│   ├── report/             # Rapports PDF/Excel (Flying Saucer)
+│   └── stock/              # Stock et inventaire
+└── web/rest/               # Contrôleurs REST (/api/**)
+```
+
+> Il n'existe **pas** de package `printer` côté backend : l'impression thermique passe par
+> `service/ReceiptPrinterService` et par le côté Rust de Tauri (`src-tauri/src/printer.rs`).
 
 ### Frontend Structure
 
 ```
-src/main/webapp/app/
+pharmaSmart-app/src/main/webapp/app/
 ├── account/              # User account management (login, password reset)
 ├── admin/               # Admin dashboard, logs, metrics, configuration
 ├── core/                # Core services and utilities
 │   ├── auth/           # Authentication guards and interceptors
 │   ├── config/         # App configuration
+│   └── interceptor/    # HTTP interceptors
+│   ├── license/        # LicenseService, garde de licence, modèle
 │   └── interceptor/    # HTTP interceptors
 ├── entities/            # Feature modules for each domain entity
 │   ├── customer/       # Customer management UI
@@ -205,20 +221,27 @@ src/main/webapp/app/
 │   ├── facturation/    # Invoicing UI
 │   ├── cash-register/  # POS/cash register interface
 │   └── ...            # Many other entity modules
+├── features/           # Écrans récents (ventes, inventaire, comptabilité, rayon…)
 ├── layouts/            # Application layout components
-└── shared/            # Shared components, pipes, directives
+└── shared/
+    └── ui/             # Design System maison (app-button, app-card, app-table…)
 ```
 
 ### Database
 
 - **RDBMS**: PostgreSQL
-- **Schema**: `warehouse`
-- **Migrations**: Located in `src/main/resources/db/migration/`
-  - V1.0.1\_\_init.sql - Initial schema
-  - V1.0.2\_\_referentiels.sql - Reference data
-  - V1.0.3\_\_procedures.sql - Stored procedures
-  - V1.0.4\_\_menus.sql - Menu/navigation structure
-  - V1.0.5\_\_id_generator.sql - ID generation functions
+- **Schéma**: `pharma_smart` (surchargeable par la variable d'environnement `PHARMA_DB_SCHEMA` ;
+  certaines installations historiques utilisent encore `warehouse`). Table d'historique Flyway :
+  `pharma_smart_history`
+- **Migrations**: dans `pharmaSmart-app/src/main/resources/db/migration/`
+  - V1.0.1\_\_init.sql - schéma initial
+  - V1.0.2\_\_referentiels.sql - données de référence
+  - V1.0.3\_\_menus.sql - menus hérités
+  - V1.0.4\_\_id_generator.sql - fonctions de génération d'identifiants
+  - V1.0.5\_\_procedure.sql - procédures stockées
+  - …puis une centaine de migrations incrémentales jusqu'à la version courante
+- **Ne jamais coder le nom du schéma en dur** dans un script : s'appuyer sur le `search_path` posé
+  par Flyway, ou sur le placeholder `${flyway:defaultSchema}` si une qualification est indispensable
 - **Flyway**: Manages versioned migrations automatically on startup
 
 ## Key Design Patterns & Conventions
@@ -264,7 +287,7 @@ filter chains:
 - Service methods are transactional by default via `@Transactional`
 - Complex queries use Criteria API or native queries via repositories
 - Report generation services use Flying Saucer + Thymeleaf templates (in
-  `src/main/resources/templates/`)
+  `pharmaSmart-app/src/main/resources/templates/`)
 
 ### REST API Conventions
 
@@ -277,7 +300,7 @@ filter chains:
 
 ### Frontend Architecture
 
-**Component Pattern (Angular 20):**
+**Component Pattern (Angular 22):**
 
 - **Standalone components** (no NgModules, use `imports` array directly)
 - Functional route resolvers using `inject()` (see `customer.route.ts:11`)
@@ -300,7 +323,9 @@ export default routes; // Default export for routing
 
 **UI Component Usage:**
 
-- **PrimeNG 20.2.0**: Use `p-button`, `p-table`, `p-dialog`, etc. for primary UI
+- **Design System maison** (`app/shared/ui/`) : `app-button`, `app-card`, `app-table`, `app-badge`,
+  `app-modal`… Il rend du Bootstrap 5 natif. **PrimeNG a été retiré des dépendances** — aucun
+  composant `p-*` ne subsiste dans le code
 - **AG Grid**: For advanced data tables with filtering/sorting/pagination
 - **Reactive Forms**: Template-driven forms discouraged
 - **Services**: HTTP communication via Angular `HttpClient`, returns `Observable<HttpResponse<T>>`
@@ -316,7 +341,7 @@ export default routes; // Default export for routing
 ### PDF & Report Generation
 
 - **PDF Generation**: Flying Saucer (xhtmlrenderer) + OpenPDF
-- **Templates**: Thymeleaf templates in `src/main/resources/templates/`
+- **Templates**: Thymeleaf templates in `pharmaSmart-app/src/main/resources/templates/`
 - **Barcode rendering**: Custom `BarcodeImageReplacedElementFactory` for embedding barcodes in PDFs
 - **Reports location**: Generated PDFs are saved to `reports/` directory
 - Use `CommonReportService`, `SaleReceiptService`, `SaleInvoiceReportService` for standard report
@@ -341,12 +366,12 @@ export default routes; // Default export for routing
 4. Implement service interface in `service/` and implementation class
 5. Add `@Transactional` to service methods as needed
 6. Create REST controller in `web/rest/` with `@RestController` annotation
-7. Add Flyway migration in `src/main/resources/db/migration/` (format:
+7. Add Flyway migration in `pharmaSmart-app/src/main/resources/db/migration/` (format:
    `V{version}__{description}.sql`)
 
-**Frontend (Angular 20):**
+**Frontend (Angular 22):**
 
-1. Create entity model interface in `src/main/webapp/app/shared/model/`
+1. Create entity model interface in `pharmaSmart-app/src/main/webapp/app/shared/model/`
 2. Create standalone service in `app/entities/<entity>/<entity>.service.ts`
 3. Create standalone components:
 
@@ -357,7 +382,8 @@ export default routes; // Default export for routing
 
 4. Create routes file `<entity>.route.ts` with functional resolvers (use `inject()`)
 5. Use default export for routes: `export default entityRoutes;`
-6. Import PrimeNG/ng-bootstrap components directly in component `imports` array
+6. Importer les composants du Design System (`app/shared/ui`) et ng-bootstrap directement dans le
+   tableau `imports`
 
 ### Database Changes
 
@@ -386,10 +412,11 @@ npm run test:watch            # Watch mode
 
 **Backend Integration:**
 
-- Printer code in `com.kobe.warehouse.printer/` package
+- Impression côté serveur : `service/ReceiptPrinterService` (il n'existe **pas** de package `printer`)
+- Impression côté poste : `src-tauri/src/printer.rs`
 - Uses jSerialComm 2.11.2 for serial port communication
 - Common printer widths: 80mm (standard receipts), 57mm (compact receipts)
-- Receipt templates: Thymeleaf format in `src/main/resources/templates/`
+- Receipt templates: Thymeleaf format in `pharmaSmart-app/src/main/resources/templates/`
 - Test endpoints in cash register REST controllers
 
 **Tauri Desktop Integration:**
@@ -421,7 +448,7 @@ src-tauri/
 
 **Angular Environment:**
 
-- Tauri build uses `environment.tauri.ts` (file replacement in `angular.json:105`)
+- Tauri build uses `environment.tauri.ts` (file replacement déclaré dans `angular.json`, section `configurations.tauri.fileReplacements`)
 - API URLs should point to `localhost:8080` for backend communication
 - Use `@tauri-apps/api` package to detect Tauri environment and invoke Rust commands
 
@@ -474,8 +501,8 @@ Additional Windows requirements:
 ### PostgreSQL Configuration
 
 - Recommended settings for 8GB RAM system are documented in README.md
-- Database user: `warehouse`
-- Schema: `warehouse`
+- Utilisateur de base : `warehouse`
+- Schéma : `pharma_smart` (variable `PHARMA_DB_SCHEMA`)
 - Use connection pooling (HikariCP is configured)
 
 ### Performance Considerations
@@ -497,18 +524,16 @@ Additional Windows requirements:
 
 - **Hibernate Envers**: Some entities use audit history tracking. Be aware when modifying audited
   entities.
-- **Spring Boot Release Candidate**: Version 4.0.0-RC1 is a release candidate; some features may
-  change.
-- **Flyway schemas**: Ensure `flyway.schemas` is set to `warehouse` in `application.yml`
+- **Spring Boot 4.1.0** : version récente de la branche 4.x — vérifier la documentation officielle plutôt que de se fier aux habitudes de Boot 3.
+- **Flyway schemas** : `flyway.schemas` vaut `${PHARMA_DB_SCHEMA:pharma_smart}` dans `application.yml` — ne pas coder le schéma en dur dans les scripts
 - **CSRF/JWT tokens**: Frontend must handle JWT tokens properly; CSRF enabled for web endpoints
 - **Timezone**: All timestamps stored in UTC (configured in JPA properties via
   `hibernate.jdbc.time_zone=UTC`)
 - **Transaction boundaries**: Lazy-loaded collections must be accessed within `@Transactional` scope
 - **Windows paths**: Use forward slashes in code even on Windows; Maven wrapper is `mvnw.cmd` on
   Windows
-- **Angular 20 patterns**: Do NOT use NgModules; all components are standalone with direct imports
-- **PrimeNG components**: Must use PrimeNG 20.x compatible components and themes (
-  `@primeuix/themes`)
+- **Angular 22 patterns**: Do NOT use NgModules; all components are standalone with direct imports
+- **Pas de PrimeNG** : la dépendance a été retirée. Utiliser le Design System de `app/shared/ui/`
 
 ## Debugging
 
@@ -550,26 +575,33 @@ psql -U warehouse -d warehouse
 
 **TypeScript/Angular:**
 
-- Use Angular 20 standalone components (NO NgModules)
+- Use standalone components (NO NgModules), signaux, syntaxe `@if` / `@for`
 - Functional programming patterns (use `inject()` instead of constructor DI in functions)
 - RxJS operators for reactive streams
-- PrimeNG components for UI (`p-button`, `p-table`, etc.)
+- Composants du Design System pour l'UI (`app-button`, `app-table`, etc.)
 - Route files use default exports
 - Strict TypeScript mode enabled
 
 **Database:**
 
-- Schema: `warehouse` (all tables prefixed or in schema)
+- Schéma : `pharma_smart` (surchargeable par `PHARMA_DB_SCHEMA`)
 - Flyway migrations are versioned and immutable
-- Use stored procedures for complex queries (see `V1.0.3__procedures.sql`)
+- Use stored procedures for complex queries (see `V1.0.5__procedure.sql`)
 - Indexes on foreign keys and frequently queried columns
-- Code_Writer
-- responsiveLayout is deprecated
-- styleClass is deprecated
-- InputTextareaModule not exists in primeng 20+
-- not use styleClass
-- not use p-dialog
-- not use prime Dialog use ngbModal
-- not use \*ngif
-- use C:\Users\k.kobena\Documents\jdk17 for sales-android
-- not use p-calendar
+
+## Interdits côté front
+
+Héritage de la migration PrimeNG → ng-bootstrap : ces attributs et composants n'existent plus, un
+gabarit qui les emploie est silencieusement sans effet.
+
+- Ne pas utiliser `*ngIf` / `*ngFor` — syntaxe `@if` / `@for`
+- Ne pas utiliser `styleClass` ni `responsiveLayout`
+- Boîte de dialogue : `NgbModal` ou `app-modal`, **jamais** `p-dialog`
+- Sélecteur de date : ng-bootstrap ou `app-month-picker`, **jamais** `p-calendar`
+- Zone de texte : `<textarea>` natif ou `app-input` (`InputTextareaModule` n'existe pas)
+
+## sales-android
+
+Le module se compile avec un **JDK 17**. Renseigner `org.gradle.java.home` dans
+`sales-android/gradle.properties` avec le chemin du JDK 17 **du poste courant** — ne pas coder en dur
+ici un chemin propre à une machine.

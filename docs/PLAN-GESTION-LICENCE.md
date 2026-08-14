@@ -1,8 +1,110 @@
 # PLAN — Gestion de licence / abonnement (déploiement on-premise)
 
-> Statut : proposition technique — à valider avant implémentation
+> Statut : **implémentation en cours** — lots L0 à L4 livrés le 09/08/2026
 > Périmètre : `pharmaSmart-domain`, `pharmaSmart-core`, `pharmaSmart-app` (backend + webapp Angular)
 > Auteur : analyse du code existant au 08/08/2026
+
+---
+
+## 0. Avancement
+
+| Lot | Statut | Livrables |
+|---|---|---|
+| **L0 — Socle crypto** | ✅ livré | `pharmaSmart-core/.../license/` (`LicenseVerifier`, `LicenseSigner`, `LicensePayload`, `LicenseInfo`, `Feature`, `LicenseType`, `BindingPolicy`, `LicenseTextNormalizer`, `HardwareFingerprintProvider`, `LicenseProperties`), clé publique embarquée, module `pharmaSmart-license-cli`, 15 tests unitaires |
+| **L1 — Persistance** | ✅ livré | `LicenseState`, `LicenseAudit`, repositories, migration `V1.8.8__license_management.sql` (+ colonne `nav_item.required_feature`) |
+| **L2 — Service** | ✅ livré | `LicenseService` (cache mémoire, `@Scheduled` 15 min, `ApplicationReadyEvent`, anti-recul d'horloge, liaison `magasinName`/`taxId`, empreinte graduée 14 j), 21 tests unitaires |
+| **L3 — REST** | ✅ livré | `LicenseResource` (`/status`, `POST /api/license`, `/fingerprint`, `/audit`) |
+| **L4 — Enforcement B4** | ✅ livré | `@LicenseExempt`, `LicenseEnforcementAspect`, `LicenseEnforcementInterceptor`, handler 402 dans `ExceptionTranslator`, recensement initial des exemptions |
+| **L5 — Front B2/B3** | ✅ livré | `core/license/{license.model,license.service}.ts` (signal unique), toast de connexion chaîné dans `LoginService.login()`, `layouts/license-banner/` (non masquable, `z-index` 1080, contacts revendeur, lien direct), réserve `padding-bottom` sur `.main-content`, rechargement horaire dans `MainComponent` |
+| **L6 — Front B4** | ✅ livré | `core/interceptor/license.interceptor.ts` (402 → toast + rafraîchissement du statut, **sans déconnexion**), `shared/directives/license-read-only.directive.ts`, `core/license/license-write.guard.ts` posée sur `sales-home` |
+| **L6bis — Écran d'activation** | ✅ livré | Route `/licence`, `LicenseAdminComponent` (statut, modules souscrits *y compris non souscrits*, empreinte + copie, dépôt drag & drop, contacts, historique), entrée de menu `V1.8.8__license_management.sql`, privilège `pr-gere-licence` (même migration) |
+| **L7 — Recette & doc** | ✅ livré | `docs/PROCEDURE-EMISSION-LICENCE.md` (interne éditeur) et `docs/HOW-TO-ACTIVER-LICENCE.md` (guide client). Les scénarios de recette du §8 restent à jouer manuellement — ils ne sont pas automatisés |
+| ~~L8 — Cohérence documents~~ | ❌ **abandonné** (décision du 10/08/2026) | Le `licenseId` en pied des PDF ne sera pas ajouté. Le nom de l'officine figure déjà sur tous les documents : la couche 3 du §3.4 reste donc effective sans développement, l'apport marginal du `licenseId` ne justifiant pas de toucher aux gabarits d'impression |
+| **L9 — Mode démonstration** | ✅ livré | Bannière permanente, filigrane PDF (`DemoWatermark`, appliqué aux 16 points de rendu Flying Saucer), FNE refusée aux 3 points d'entrée de `FneServiceImpl`, quotas de volumétrie → statut `DEMO_QUOTA_REACHED`, mention `[DÉMO]` dans le titre de fenêtre. Purge à la conversion : abandonnée (voir ci-dessous) |
+| **L10 — Features** | ✅ livré (inerte à dessein) | Enum `Feature` avec drapeau `optional`, `@RequiresFeature` + aspect (**s'applique aussi aux `GET`**), colonne `nav_item.required_feature` et filtrage dans `NavItemServiceImpl`, purge du cache `navTree` à l'activation, `licenseFeatureGuard` et page `/module-non-souscrit` |
+
+**Décisions §11 tranchées par défaut à l'implémentation** (modifiables sans recompilation pour les
+trois premières) : grâce **7 j**, liaison **`MAGASIN`** (révisée le 12/08/2026, cf. §3.4), tolérance d'empreinte **14 j**,
+télémétrie (couche 4) **hors v1**, CLI **dans ce dépôt** (module non référencé, donc jamais livré).
+
+**Écart assumé par rapport au §3.1** : `hardwareFingerprint` est calculée sur *nom d'hôte + adresses
+MAC physiques triées*, sans le numéro de série de la carte mère. L'obtenir impose de lancer un
+processus système (WMI, `dmidecode` avec les droits root) dont le succès dépend du contexte
+d'exécution : l'empreinte deviendrait non déterministe et produirait des divergences fantômes chez
+des clients légitimes. Voir `HardwareFingerprintProvider`.
+
+**Écart assumé par rapport au §5.6 (i18n)** : les libellés de licence sont écrits en français dans
+les composants, sans passer par `ngx-translate`. C'est la convention dominante du code récent —
+32 gabarits sur 347 utilisent les clés de traduction, et aucun des composants du Design System ni
+`NotificationService` ne le fait. Créer `i18n/fr/license.json` aurait produit des clés que rien ne
+lit. À reprendre le jour où une seconde langue devient un besoin réel, pour l'application entière.
+
+**Hors périmètre — contrôle de licence dans `pharmaSmart-batch`** (décision du 10/08/2026) : les
+jobs planifiés ne vérifieront pas `isWriteAllowed()`. Le blocage porte sur les **actions de
+l'utilisateur**, pas sur les traitements automatiques d'arrière-plan : interrompre une facturation
+nocturne ou une clôture à cause d'une échéance dépassée produirait des données incohérentes sans
+rien apporter à la contrainte commerciale, l'officine étant déjà en lecture seule côté applicatif.
+Le §6 est amendé en conséquence.
+
+**Sémantique de `features` — amendement au §3.6 (décision du 10/08/2026).** La règle initiale
+(« liste blanche exhaustive, un jeu vide accorde tout ») a été remplacée. `Feature` porte désormais
+un drapeau `optional` :
+
+- **couvert d'office** (`optional = false`) — tout le périmètre fonctionnel actuel : toujours
+  accordé, listé ou non ;
+- **optionnel** (`optional = true`) — à ce jour `CALLEBASSE`, `EXCLUSION_RAYON`, `EXCLUSION_TP` :
+  accordé uniquement s'il figure dans `features`.
+
+Motif : sous une liste blanche exhaustive, émettre une licence mentionnant une seule option aurait
+silencieusement retiré tout le reste, et il aurait fallu énumérer le catalogue entier à chaque
+émission. La règle retenue rend l'omission inoffensive et l'octroi explicite. Une licence ancienne,
+sans champ `features`, conserve tout l'existant sans ouvrir aucune option — le comportement voulu
+dans les deux sens.
+
+⚠ L'enum est **dupliqué côté client** (`ALL_FEATURES` dans `license.model.ts`, drapeau compris) :
+`licenseFeatureGuard` et l'écran d'administration appliquent la même règle. Toute évolution de
+`Feature.java` doit y être répercutée.
+
+**Portée de L10 — machinerie livrée, aucun menu ni route encore rattaché (décision du 10/08/2026).**
+`required_feature` est `NULL` sur tous les items : les menus existants sont donc tous chargés, sans
+filtre. C'est cohérent avec la sémantique ci-dessus — l'existant est couvert d'office, il n'y a rien
+à restreindre. Le rattachement servira aux trois options d'exclusion de CA quand leurs écrans
+arriveront ; il se fera alors item par item :
+
+- **menu** → `UPDATE nav_item SET required_feature = 'CALLEBASSE' WHERE code = '…'` (attention :
+  `nav_item.code` désigne un *menu*, `required_feature` un *module* — les deux nommages sont
+  indépendants, la correspondance est explicite et jamais dérivée) ;
+- **route Angular** → `data: { feature: 'CALLEBASSE' }, canActivate: [AuthGuard, licenseFeatureGuard]` ;
+- **API** → `@RequiresFeature(Feature.CALLEBASSE)` sur le contrôleur ou la méthode.
+
+**Portée de L6** : les trois mécanismes sont livrés et opérationnels, mais volontairement **opt-in**
+écran par écran, comme le prévoit le §5.4 (« à poser progressivement »). Seule la route
+`sales-home` est gardée à ce stade ; `appLicenseReadOnly` n'est encore posée nulle part. Un balayage
+de l'ensemble des écrans de saisie relève d'un passage dédié, à faire avec la recette fonctionnelle
+— poser la garde à l'aveugle sur des dizaines de routes ferait plus de dégâts qu'elle n'en éviterait.
+
+**Purge des données de démonstration — ❌ abandonnée (décision du 10/08/2026).** Activer une licence
+par-dessus une `DEMO` conserve toutes les données. Le §11.9 est tranché : pas de purge, ni proposée
+ni automatique. Motif : le périmètre de « ce qui est une donnée de démonstration » n'est pas
+définissable sans ambiguïté — ventes et mouvements de stock, certainement, mais le référentiel
+produits, les tiers-payants, les clients, les comptes créés pendant la démo ? Une suppression au
+périmètre approximatif serait irréversible et sans filet, pour un besoin qui reste occasionnel. Si un
+jeu de démonstration doit disparaître, c'est une intervention technique manuelle. Le §3.5 est amendé
+en conséquence.
+
+**Écart assumé sur le filigrane (§3.5, point 2)** : le plan prévoyait une règle CSS dans « les
+gabarits Thymeleaf communs ». Le code ne s'y prête pas — sur 135 gabarits, 7 seulement incluent
+`common/css.html`. Le filigrane est donc injecté au niveau du **rendu**, seul point réellement
+commun : `DemoWatermark.apply()` enveloppe les 16 appels à `setDocumentFromString`. Le drapeau est
+exposé statiquement (alimenté au démarrage par le bean) parce que les services de rendu concernés
+sont instanciés de façons trop diverses pour recevoir tous une injection ; c'est un booléen en
+lecture seule, sur le modèle de `SecurityUtils`. **Un nouveau service de rendu PDF devra penser à
+appeler `DemoWatermark.apply()`** — c'est la fragilité de cette approche, à surveiller en revue.
+
+**Note sur la FNE et le batch** : `certifierFacturesPendantes` est contrôlé bien qu'il s'agisse d'un
+traitement planifié. La consigne « pas de licence dans le batch » porte sur le blocage à
+l'expiration ; l'interdit fait à une démonstration d'émettre des factures normalisées est un sujet
+distinct, et le §3.5 le qualifie de non négociable.
 
 ---
 
@@ -198,7 +300,7 @@ c'est précisément ce que la couche 3 rend intenable.
 #### Couche 2 — Empreinte matérielle (blocante après période de tolérance)
 
 `hardwareFingerprint` calculée sur le poste serveur. Le client obtient son empreinte dans l'écran
-`admin/license` (§5.5) et la transmet au revendeur **avant** l'émission de la licence.
+`/licence` (§5.5) et la transmet au revendeur **avant** l'émission de la licence.
 
 Pour éviter de bloquer une officine sur un simple changement de matériel, comportement **gradué** :
 
@@ -226,7 +328,7 @@ La licence partagée devient inexploitable en conditions réelles.
 Deux ajouts mineurs pour verrouiller la cohérence :
 
 - afficher le `magasinName` **issu de la licence** (et non de la base) dans l'écran « À propos »
-  et dans l'écran `admin/license`, afin de rendre toute divergence immédiatement visible ;
+  et dans l'écran `/licence`, afin de rendre toute divergence immédiatement visible ;
 - mention discrète du `licenseId` en pied des documents PDF : permet d'identifier formellement la
   source d'une licence partagée lors d'un contrôle.
 
@@ -249,8 +351,15 @@ commerciale. On détecte le partage sans jamais rendre l'application dépendante
 | 3 — Nom sur documents | ❌ | Aucun (c'est la conséquence de la couche 1) | Perte de crédibilité commerciale, impossibilité de facturer |
 | 4 — Télémétrie | ❌ | Bloquer le domaine au pare-feu | Détection différée mais probable |
 
-> **Recommandation** : livrer avec `bindingPolicy = MAGASIN_AND_HARDWARE` par défaut, couches 1 à 3
-> actives, `taxId` renseigné dans la licence **uniquement** si le client l'a saisi dans son officine.
+> **Recommandation initiale** : livrer avec `bindingPolicy = MAGASIN_AND_HARDWARE` par défaut,
+> couches 1 à 3 actives, `taxId` renseigné dans la licence **uniquement** si le client l'a saisi.
+>
+> **Révisée le 12/08/2026** : le défaut du CLI passe à `MAGASIN`. L'empreinte n'existe qu'une fois le
+> logiciel installé, si bien que l'exiger imposait un aller-retour le jour de la mise en service —
+> pour une protection que le client peut de toute façon perdre au premier changement de serveur. La
+> liaison matérielle reste disponible et devient une décision de l'éditeur, prise client par client
+> quand le risque de partage le justifie. Les couches 1 et 3 (raison sociale, nom sur les documents)
+> restent actives dans tous les cas.
 > La couche 4 est un chantier séparé (infrastructure éditeur) et ne conditionne pas la v1.
 
 **Volet contractuel indispensable** : le contrat de licence doit mentionner explicitement le
@@ -265,7 +374,7 @@ Le champ **`licenseType`** (signé, donc infalsifiable) porte la distinction :
 |---|---|---|---|---|
 | `DEMO` | Démonstration commerciale, salons, formation | 30 j | `NONE` (installable partout) | Jeu de démo, sans valeur légale |
 | `TRIAL` | Essai chez un prospect réel | 30–60 j | `MAGASIN` | Données réelles, **conservées** à la conversion |
-| `SUBSCRIPTION` | Abonnement payant | 12 mois | `MAGASIN_AND_HARDWARE` | Production |
+| `SUBSCRIPTION` | Abonnement payant | 12 mois | `MAGASIN` (`MAGASIN_AND_HARDWARE` sur décision de l'éditeur) | Production |
 | `PARTNER` | Revendeur / support interne | 12 mois | `NONE` | Illimité, non facturé |
 
 #### `DEMO` vs `TRIAL` — le critère de décision
@@ -360,7 +469,7 @@ de démo en production. Les restrictions ci-dessous rendent cela inexploitable.
 
 #### Conversion démo → licence réelle
 
-À l'activation d'une licence `SUBSCRIPTION` par-dessus une `DEMO`, l'écran `admin/license`
+À l'activation d'une licence `SUBSCRIPTION` par-dessus une `DEMO`, l'écran `/licence`
 propose explicitement :
 
 - **conserver** les données (cas `TRIAL` chez un prospect réel) ;
@@ -503,12 +612,19 @@ Package `com.kobe.warehouse.license` :
 pharma-smart:
   license:
     enabled: true          # false en profil dev/test
-    file-path: ${user.home}/.pharmasmart/license.lic
+    file-path: ${PHARMA_LICENSE_FILE:}   # vide ⇒ résolu par LicenseProperties.resolveFilePath()
     warning-threshold-days: 30
     critical-threshold-days: 14
     fingerprint-mismatch-tolerance-days: 14   # cf. §3.4 couche 2
     clock-tolerance-hours: 24
 ```
+
+**Emplacement du fichier** — `%PROGRAMDATA%\PharmaSmart\license.lic` sous Windows,
+`~/.pharmasmart/license.lic` ailleurs. Ne **jamais** revenir à `${user.home}` dans la configuration
+Windows : le backend tourne en service `LocalSystem`, le fichier atterrirait dans
+`C:\Windows\System32\config\systemprofile\.pharmasmart\`, invisible pour le client comme pour les
+sauvegardes. Si le fichier manque alors que la base porte le jeton, il est réécrit automatiquement
+à la première évaluation.
 
 > `enabled: false` par défaut dans `application-dev.yml` et dans les tests
 > (`@SpringBootTest`) pour ne pas casser la CI existante.
@@ -732,8 +848,11 @@ L'activation se fait **exclusivement** depuis une interface applicative dédiée
 moment — et **non** depuis le wizard d'installation Tauri. C'est le même écran qui sert à la
 première activation, au renouvellement annuel et au diagnostic.
 
-**Route** : `admin/license` → `app/admin/license/license.routes.ts` (export par défaut, lazy
-`loadComponent`), `data: { authorities: [Authority.ADMIN] }`, `canActivate: [UserRouteAccessService]`.
+**Route** : `/licence` → `app/features/license/license.routes.ts` (export par défaut, lazy
+`loadComponent`), `data: { abilitySubject: 'gestion-licence' }`, `canActivate: [AuthGuard]`.
+L'écran a quitté `/admin/license` le 12/08/2026 : la route parente `/admin` est gardée par le sujet
+ABAC `admin`, qui refuse tout rôle non administrateur avant même d'atteindre l'écran — le privilège
+`pr-gere-licence` y serait resté lettre morte. `/admin/license` redirige vers la nouvelle route.
 
 **Composant** `LicenseAdminComponent` (standalone, `ChangeDetectionStrategy.OnPush`) — 4 blocs :
 
@@ -759,7 +878,7 @@ première activation, au renouvellement annuel et au diagnostic.
 - Upload : `multipart/form-data`, taille limitée (< 16 Ko), extension et signature validées côté serveur.
 
 **Cas « première installation »** : après le tout premier login admin, statut `MISSING` ⇒ bannière
-rouge + redirection proposée vers `admin/license`. Le wizard Tauri (`setup-wizard`) reste concentré
+rouge + redirection proposée vers `/licence`. Le wizard Tauri (`setup-wizard`) reste concentré
 sur la configuration du backend et **n'embarque aucune logique de licence**.
 
 ### 5.6 i18n
@@ -774,8 +893,8 @@ Ajouter les clés dans `src/main/webapp/i18n/fr/` (nouveau `license.json`) :
 
 | Cas | Décision |
 |---|---|
-| Application desktop **Tauri** | Le backend embarqué applique les mêmes règles. Le `setup-wizard` **ne gère pas la licence** (il reste dédié à la configuration du backend) : l'activation passe par l'écran `admin/license` (§5.5), y compris à la première installation |
-| **Batch** `pharmaSmart-batch` (jobs planifiés) | Les jobs d'écriture (facturation automatique, clôtures) doivent aussi vérifier `isWriteAllowed()` — l'AOP REST ne les couvre pas |
+| Application desktop **Tauri** | Le backend embarqué applique les mêmes règles. Le `setup-wizard` **ne gère pas la licence** (il reste dédié à la configuration du backend) : l'activation passe par l'écran `/licence` (§5.5), y compris à la première installation |
+| **Batch** `pharmaSmart-batch` (jobs planifiés) | ~~Doivent aussi vérifier `isWriteAllowed()`~~ → **hors périmètre (10/08/2026)** : les jobs nocturnes ne sont pas soumis au contrôle de licence. Le blocage vise les actions de l'utilisateur, pas les traitements automatiques, qu'une interruption en cours de route laisserait dans un état incohérent |
 | **API mobile** (`mobile/`, `mobile-inventory/`, `pharma-mobile-report/`) | Passent par `/api/**` → couvertes par l'aspect ; adapter les apps pour afficher le message du 402 |
 | **Migrations Flyway** au démarrage | Jamais bloquées (exécutées hors contexte web) |
 | Licence expirée + inventaire en cours | Autoriser explicitement la clôture d'inventaire ? → **non** : lecture seule stricte, l'inventaire reste en base et sera clôturé après renouvellement |
@@ -795,9 +914,9 @@ Ajouter les clés dans `src/main/webapp/i18n/fr/` (nouveau `license.json`) :
 | **L4 — Enforcement (B4)** | `@LicenseExempt`, `LicenseEnforcementAspect`, `LicenseEnforcementInterceptor`, handler dans `ExceptionTranslator`, recensement complet des exemptions | 3 j |
 | **L5 — Front B2/B3** | `LicenseService` Angular, toast au login, `LicenseBannerComponent`, i18n | 2 j |
 | **L6 — Front B4** | `license.interceptor.ts`, directive read-only, `licenseWriteGuard` | 2 j |
-| **L6bis — Écran d'activation** | Route `admin/license`, `LicenseAdminComponent` (statut, empreinte, dépôt du `.lic`, historique), lien depuis la bannière | 2 j |
+| **L6bis — Écran d'activation** | Route `/licence`, `LicenseAdminComponent` (statut, empreinte, dépôt du `.lic`, historique), lien depuis la bannière | 2 j |
 | **L7 — Recette & doc** | Scénarios de recette (§8), `HOW-TO-ACTIVER-LICENCE.md` pour le client, procédure interne de génération | 2 j |
-| **L8 — Cohérence documents** | `licenseId` en pied des PDF, affichage du `magasinName` **issu de la licence** dans « À propos » et `admin/license` — couche 3 §3.4 (le nom de l'officine est déjà imprimé, rien à développer côté templates) | 0,5 j |
+| ~~**L8 — Cohérence documents**~~ | **Abandonné (10/08/2026).** Le `magasinName` issu de la licence est déjà affiché dans `/licence` (livré avec L6bis) ; le `licenseId` en pied des PDF ne sera pas ajouté | — |
 | **L9 — Mode démonstration** | `licenseType`, filigrane PDF, désactivation FNE, quotas de volumétrie, bannière démo, purge des données à la conversion — §3.5 | 3 j |
 | **L10 — Features** | Enum `Feature`, `@RequiresFeature` + aspect, colonne `nav_item.required_feature` et filtrage dans `NavItemServiceImpl`, `licenseFeatureGuard`, page « Module non souscrit » — §3.6 | 3 j |
 
@@ -814,7 +933,7 @@ le socle (`licenseType` et `features` étant déjà présents dans le payload si
 2. Licence à J‑25 → toast au login uniquement, pas de bannière.
 3. Licence à J‑10 → toast **et** bannière permanente, bannière non fermable (vérifier absence de bouton et de contournement DOM/CSS).
 4. Licence expirée → `POST /api/sales` renvoie 402 + message ; `GET /api/sales` renvoie 200.
-5. Licence expirée → login toujours possible, écran `admin/license` accessible, dépôt d'une nouvelle licence par un ADMIN → statut `VALID` immédiat, bannière disparue, écriture rétablie **sans redémarrage ni rechargement de page**.
+5. Licence expirée → login toujours possible, écran `/licence` accessible, dépôt d'une nouvelle licence par un porteur de `pr-gere-licence` → statut `VALID` immédiat, bannière disparue, écriture rétablie **sans redémarrage ni rechargement de page**.
 6. Première installation sans licence → statut `MISSING`, bannière rouge avec lien « Gérer ma licence », activation possible dès le premier login admin.
 7. Fichier `.lic` modifié à la main (1 octet) → statut `INVALID`, message d'erreur explicite dans l'écran d'activation, entrée dans `license_audit`.
 8. Fichier `.lic` supprimé, licence présente en DB → statut inchangé (fallback DB).
@@ -873,8 +992,16 @@ le socle (`licenseType` et `features` étant déjà présents dans le payload si
 ## 10. Livrables documentaires
 
 - `docs/PLAN-GESTION-LICENCE.md` (ce document)
-- `HOW-TO-ACTIVER-LICENCE.md` — guide client non technique (sur le modèle de `HOW-TO-CONFIGURE-BACKEND.md`)
-- `docs/PROCEDURE-EMISSION-LICENCE.md` — procédure interne éditeur (usage du CLI, gestion des clés)
+- ✅ `pharmaSmart-license-cli/README.md` — référence des trois commandes de l'outil
+- ✅ `pharmaSmart-license-cli/PROCEDURE-EMISSION-LICENCE.md` — procédure interne éditeur : gestion
+  des clés et **10 cas concrets** (nouveau client, renouvellement, changement de serveur, changement
+  de raison sociale, essai, démo, ajout d'option, partenaire, rotation de clé, diagnostic d'un refus)
+- ✅ `pharmaSmart-license-cli/HOW-TO-ACTIVER-LICENCE.md` — guide client non technique
+
+> Les trois vivent dans le module CLI, qu'aucun autre ne référence : ils ne peuvent donc pas se
+> retrouver dans le JAR livré au client, ce qui serait le cas sous `src/main/resources`. Seule la
+> **clé publique** reste dans `pharmaSmart-core/src/main/resources/license/` — elle est lue à
+> l'exécution.
 
 ---
 

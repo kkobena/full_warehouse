@@ -1,0 +1,25 @@
+@import 'app/shared/scss/pharma-toolbar';
+
+.license-admin__fingerprint {
+  padding: 0.35rem 0.5rem;
+  border-radius: var(--p-content-border-radius);
+  word-break: break-all;
+  user-select: all;
+}
+
+.license-admin__dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 1.5rem;
+  border: 2px dashed var(--bs-border-color, #dee2e6);
+  border-radius: var(--p-content-border-radius);
+  text-align: center;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.license-admin__dropzone--active {
+  border-color: var(--bs-primary, #0d6efd);
+  background-color: rgba(13, 110, 253, 0.05);
+}

@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.mobile;
 
+import com.kobe.warehouse.aop.license.LicenseExempt;
 import com.kobe.warehouse.service.dto.mobile.DailySalesDTO;
 import com.kobe.warehouse.service.dto.mobile.ForecastRequestDTO;
 import com.kobe.warehouse.service.mobile.MobileForecastService;
@@ -36,6 +37,7 @@ public class MobileForecastResource {
      * @return List of daily sales data
      */
     @PostMapping("/history")
+    @LicenseExempt("Consultation : historique de ventes, POST uniquement pour porter les critères")
     public ResponseEntity<List<DailySalesDTO>> getForecastHistory(@Valid @RequestBody ForecastRequestDTO request) {
         LOG.debug("REST request to get forecast history: {}", request);
 

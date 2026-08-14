@@ -1,0 +1,230 @@
+<div class="pharma-smart-content">
+
+  <app-toolbar icon="pi pi-key me-2" title="Gérer ma licence">
+    <ng-container ngProjectAs="[toolbarHeaderExtra]">
+      @if (license(); as info) {
+        <app-badge [label]="statusLabel()" [severity]="statusSeverity()" />
+      }
+    </ng-container>
+  </app-toolbar>
+
+
+  <div class="license-admin px-3 py-2 ">
+
+
+    <div class="row row-cols-1 row-cols-lg-2 g-2">
+
+      <!-- ─────────────────────────── Statut ─────────────────────────── -->
+      <div class="col">
+        <app-card class="h-100" header="Statut de l'abonnement" icon="pi pi-info-circle text-info">
+          @if (license(); as info) {
+            <p class="mb-3">{{ info.message }}</p>
+
+            <dl class="row mb-0">
+              <dt class="col-sm-4">Type de licence</dt>
+              <dd class="col-sm-8">{{ typeLabels[info.licenseType] }}</dd>
+
+              <dt class="col-sm-4">Édition</dt>
+              <dd class="col-sm-8">{{ info.edition }}</dd>
+
+              <dt class="col-sm-4">Officine licenciée</dt>
+              <dd class="col-sm-8">{{ info.magasinName ?? '—' }}</dd>
+
+              <dt class="col-sm-4">Échéance</dt>
+              <dd class="col-sm-8">
+                @if (info.expiresAt) {
+                  {{ info.expiresAt | date: 'dd/MM/yyyy' }}
+                  <span class="text-muted">({{ expiryLabel() }})</span>
+                } @else {
+                  —
+                }
+              </dd>
+            </dl>
+          } @else {
+            <p class="text-muted mb-0">Statut de licence indisponible.</p>
+          }
+        </app-card>
+      </div>
+
+      <!-- ─────────────────────── Modules souscrits ─────────────────────── -->
+      <div class="col">
+        <app-card class="h-100" header="Modules souscrits" icon="pi pi-th-large text-primary">
+          <ul class="list-unstyled row row-cols-1 row-cols-md-2 g-2 mb-0">
+            @for (feature of allFeatures; track feature.code) {
+              <li class="col d-flex align-items-center gap-2">
+                @if (hasFeature(feature.code)) {
+                  <i aria-hidden="true" class="pi pi-check-circle text-success"></i>
+                  <span>{{ feature.label }}</span>
+                } @else {
+                  <i aria-hidden="true" class="pi pi-minus-circle text-muted"></i>
+                  <span class="text-muted">{{ feature.label }}</span>
+                }
+
+                @if (feature.optional) {
+                  <span class="badge text-bg-light border">option</span>
+                }
+              </li>
+            }
+          </ul>
+        </app-card>
+      </div>
+
+      @if (canManage()) {
+        <!-- ─────────────────── Demande d'activation (facultative) ─────────────────── -->
+        <div class="col">
+          <app-card class="h-100" header="Identification du poste"
+                    icon="pi pi-desktop text-secondary">
+
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <code class="license-admin__fingerprint">{{ fingerprint() ?? 'Indisponible' }}</code>
+              <app-button
+                (clicked)="copyFingerprint()"
+                [disabled]="!fingerprint()"
+                icon="pi pi-copy"
+                label="Copier l'empreinte"
+                severity="secondary"
+              />
+              <app-button
+                (clicked)="copyActivationRequest()"
+                icon="pi pi-clipboard"
+                label="Copier la demande"
+                severity="secondary"
+              />
+              @if (publisher()?.emails?.length) {
+                <a [href]="activationMailto()" class="btn btn-outline-primary btn-sm">
+                  <i aria-hidden="true" class="pi pi-envelope me-1"></i>Envoyer ma demande
+                </a>
+              }
+            </div>
+
+            @if (publisher(); as editeur) {
+              @if (editeur.emails.length || editeur.phones.length) {
+                <p class="text-muted small mb-0 mt-3">
+                  {{ editeur.name ?? "Éditeur" }} —
+                  @for (email of editeur.emails; track email) {
+                    <a [href]="'mailto:' + email" class="me-2">{{ email }}</a>
+                  }
+                  @for (phone of editeur.phones; track phone) {
+                    <a [href]="'tel:' + phone" class="me-2">{{ phone }}</a>
+                  }
+                </p>
+              }
+            }
+          </app-card>
+        </div>
+
+        <!-- ────────────────────────── Activation ────────────────────────── -->
+        <div class="col">
+          <app-card class="h-100" header="Activer une licence" icon="pi pi-upload text-success">
+            <div
+              (dragleave)="onDragLeave()"
+              (dragover)="onDragOver($event)"
+              (drop)="onDrop($event)"
+              [class.license-admin__dropzone--active]="dragging()"
+              class="license-admin__dropzone"
+            >
+              <i aria-hidden="true" class="pi pi-file-import fs-3 text-muted"></i>
+              <p class="mb-2">Déposez ici votre fichier <code>.lic</code></p>
+              <app-file-upload (filesSelected)="onFilesSelected($event)" [maxSizeMb]="1"
+                               accept=".lic"
+                               label="Choisir un fichier" />
+            </div>
+
+            @if (pendingFile(); as file) {
+              <div class="d-flex align-items-center gap-2 flex-wrap mt-3">
+                <span><i aria-hidden="true" class="pi pi-file me-1"></i>{{ file.name }}</span>
+                <app-button (clicked)="activate()" [loading]="activating()" icon="pi pi-check"
+                            label="Activer" />
+              </div>
+            }
+
+            @if (activationError(); as error) {
+              <div class="alert alert-danger mt-3 mb-0" role="alert">
+                <i aria-hidden="true" class="pi pi-times-circle me-1"></i>{{ error }}
+              </div>
+            }
+          </app-card>
+        </div>
+      } @else {
+        <div class="col-12">
+          <div class="alert alert-info mb-0" role="alert">
+            <i aria-hidden="true" class="pi pi-info-circle me-1"></i>
+            L'activation d'une licence requiert le privilège « Activer et renouveler la licence ».
+            Rapprochez-vous d'un administrateur.
+          </div>
+        </div>
+      }
+
+      <!-- ──────────────────────── Contacts support ──────────────────────── -->
+      @if (licenseService.support(); as support) {
+        @if (support.phones.length || support.emails.length || support.website
+        || support.whatsapp) {
+          <div class="col">
+            <app-card [header]="support.resellerName ?? 'Votre revendeur'" class="h-100"
+                      icon="pi pi-headphones text-info">
+              <ul class="list-unstyled mb-0 d-flex flex-column gap-2">
+                @for (phone of support.phones; track phone) {
+                  <li><i aria-hidden="true" class="pi pi-phone me-2"></i><a
+                    [href]="'tel:' + phone">{{ phone }}</a></li>
+                }
+                @for (email of support.emails; track email) {
+                  <li><i aria-hidden="true" class="pi pi-envelope me-2"></i><a
+                    [href]="'mailto:' + email">{{ email }}</a></li>
+                }
+                @if (support.whatsapp) {
+                  <li><i aria-hidden="true" class="pi pi-whatsapp me-2"></i>{{ support.whatsapp }}
+                  </li>
+                }
+                @if (support.website) {
+                  <li>
+                    <i aria-hidden="true" class="pi pi-globe me-2"></i>
+                    <a [href]="support.website" rel="noopener"
+                       target="_blank">{{ support.website }}</a>
+                  </li>
+                }
+              </ul>
+            </app-card>
+          </div>
+        }
+      }
+
+      @if (canManage()) {
+        <!-- ────────────────────────── Historique ────────────────────────── -->
+        <div class="col-12">
+          <app-card header="Historique" icon="pi pi-history text-secondary">
+            @if (auditEntries().length) {
+              <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                  <thead>
+                  <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Événement</th>
+                    <th scope="col">Détail</th>
+                    <th scope="col">Utilisateur</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                    @for (entry of auditEntries(); track entry.id) {
+                      <tr>
+                        <td class="text-nowrap">{{ entry.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+                        </td>
+                        <td>
+                          <app-badge [label]="auditLabels[entry.eventType]"
+                                     [severity]="auditSeverity(entry.eventType)" />
+                        </td>
+                        <td>{{ entry.detail ?? '—' }}</td>
+                        <td>{{ entry.userLogin ?? '—' }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <p class="text-muted mb-0">Aucun événement enregistré.</p>
+            }
+          </app-card>
+        </div>
+      }
+    </div>
+  </div>
+</div>

@@ -84,3 +84,9 @@ management:
   health:
     mail:
       enabled: false
+
+# Contrôle de licence désactivé dans les tests : garantit la non-régression de la CI existante
+# (aucun test n'a à connaître l'existence d'une licence pour écrire en base).
+pharma-smart:
+  license:
+    enabled: false

@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.commande;
 
+import com.kobe.warehouse.aop.license.LicenseExempt;
 import com.kobe.warehouse.domain.enumeration.RetourStatut;
 import com.kobe.warehouse.service.dto.AvoirFournisseurCommand;
 import com.kobe.warehouse.service.dto.AvoirFournisseurDTO;
@@ -366,6 +367,7 @@ public class RetourBonResource {
      * {@code POST  /retour-bons/export-groupe} : generate a grouped PDF for the given retour bons.
      */
     @PostMapping("/retour-bons/export-groupe")
+    @LicenseExempt("Consultation : export PDF groupé, aucune donnée modifiée")
     public ResponseEntity<byte[]> exportGroupe(@RequestBody List<Integer> ids) {
         log.debug("REST request to export groupe PDF for RetourBons : {}", ids);
         byte[] pdf = retourBonService.exportGroupe(ids);

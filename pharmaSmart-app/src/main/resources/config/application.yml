@@ -121,11 +121,7 @@ management:
       roles: 'ROLE_ADMIN'
       probes:
         enabled: true
-      group:
-        liveness:
-          include: livenessState
-        readiness:
-          include: readinessState,db
+
 
 server:
   servlet:
@@ -140,6 +136,37 @@ info:
   display-ribbon-on-profiles: 'dev'
 
 pharma-smart:
+  # Gestion de licence / abonnement —
+  license:
+    enabled: true
+    # Emplacement du fichier license.lic sur le poste serveur. Une copie du jeton est également
+    # conservée en base : supprimer ce fichier ne fait donc pas disparaître la licence.
+    # Laissé vide, l'emplacement est résolu par LicenseProperties.resolveFilePath() :
+
+    file-path: ${PHARMA_LICENSE_FILE:}
+    # Plusieurs clés acceptées : permet une rotation de la clé de l'éditeur sans invalider
+    # d'un coup toutes les licences déjà déployées.
+    public-keys:
+      - license/pharmasmart-public.pem
+    # Seuils d'alerte, ajustables sans recompilation : bloquer une officine un jour d'affluence
+    # est un incident commercial, la marge de manœuvre doit rester au support.
+    warning-threshold-days: 30   # toast à la connexion (B2)
+    critical-threshold-days: 14  # bannière permanente (B3)
+    # Délai de régularisation après un changement de serveur avant blocage.
+    fingerprint-mismatch-tolerance-days: 14
+    clock-tolerance-hours: 24
+    max-upload-bytes: 16384
+    # Coordonnées de l'ÉDITEUR, affichées dans l'écran « Gérer ma licence » et utilisées pour la
+    # demande d'activation. Contrairement aux contacts du revendeur, qui sont portés par la licence,
+    # celles-ci sont disponibles avant toute activation — c'est le moment où le client en a besoin.
+    publisher:
+      name: ${PHARMA_PUBLISHER_NAME:PharmaSmart}
+      emails:
+        - ${PHARMA_PUBLISHER_EMAIL:xx@gmail.com}
+      phones:
+        - ${PHARMA_PUBLISHER_PHONE:+33 0x xx xx xx xx}
+        - ${PHARMA_PUBLISHER_PHONE:+225 07 xx xx xx xx}
+
   # false (défaut) : JobOrchestrationService gère tout le pipeline nocturne.
   # true  : pharmaSmart-batch gère SEMOIS/Classification/Snapshot/Vues/Avoirs
   #         et HeavyJobsOrchestrationService prend en charge Facturation/FNE/Tournant.

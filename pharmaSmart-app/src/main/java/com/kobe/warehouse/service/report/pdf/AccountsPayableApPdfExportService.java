@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.report.pdf;
 
+import com.kobe.warehouse.service.license.DemoWatermark;
 import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.CompteFournisseurAPDTO;
@@ -81,7 +82,7 @@ public class AccountsPayableApPdfExportService extends AbstractStatistiqueReport
         String html = templateEngine.process(templateName, context);
         try (java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream()) {
             org.xhtmlrenderer.pdf.ITextRenderer renderer = new org.xhtmlrenderer.pdf.ITextRenderer();
-            renderer.setDocumentFromString(html);
+            renderer.setDocumentFromString(DemoWatermark.apply(html));
             renderer.layout();
             renderer.createPDF(out);
             return out.toByteArray();

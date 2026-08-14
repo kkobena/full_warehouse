@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest;
 
+import com.kobe.warehouse.aop.license.LicenseExempt;
 import com.kobe.warehouse.service.JwtService;
 import com.kobe.warehouse.service.dto.JwtTokenDTO;
 import com.kobe.warehouse.service.dto.LoginRequestDTO;
@@ -36,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/auth")
+@LicenseExempt("Sans connexion possible, l'utilisateur ne pourrait pas atteindre l'écran de renouvellement de licence")
 public class AuthenticationResource {
 
     private static final Logger log = LoggerFactory.getLogger(AuthenticationResource.class);

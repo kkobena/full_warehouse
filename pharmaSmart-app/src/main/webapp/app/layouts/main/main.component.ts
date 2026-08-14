@@ -23,6 +23,8 @@ import {BackendSplashComponent} from "app/shared/backend-splash/backend-splash.c
 import {TitlebarComponent} from "app/shared/titlebar/titlebar.component";
 import {SetupWizardComponent} from "app/core/setup/setup-wizard.component";
 import {ToastHostComponent} from "app/shared/ui/toast-host/toast-host.component";
+import {LicenseBannerComponent} from "app/layouts/license-banner/license-banner.component";
+import {LicenseService} from "app/core/license/license.service";
 import {TauriPrinterService} from "../../shared/services/tauri-printer.service";
 import {PeremptionAlertService} from "../../shared/services/peremption-alert.service";
 
@@ -31,13 +33,14 @@ import {PeremptionAlertService} from "../../shared/services/peremption-alert.ser
   templateUrl: "./main.component.html",
   styleUrl: "./main.component.scss",
   providers: [AppPageTitleStrategy],
-  imports: [RouterOutlet, CommonModule, BackendSplashComponent, TitlebarComponent, SetupWizardComponent, ToastHostComponent],
+  imports: [RouterOutlet, CommonModule, BackendSplashComponent, TitlebarComponent, SetupWizardComponent, ToastHostComponent, LicenseBannerComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   host: {"[class.tauri-mode]": "isTauriMode"}
 })
 export default class MainComponent implements OnInit {
   isTauriMode = false;
   protected readonly layoutService = inject(LayoutService);
+  protected readonly licenseService = inject(LicenseService);
   private readonly renderer: Renderer2;
   private readonly router = inject(Router);
   private readonly appPageTitleStrategy = inject(AppPageTitleStrategy);
@@ -47,6 +50,7 @@ export default class MainComponent implements OnInit {
   private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly peremptionAlertService = inject(PeremptionAlertService);
   private readonly ALERT_INTERVAL_MS = 15 * 60 * 1000; // 15 minutes
+  private readonly LICENSE_REFRESH_INTERVAL_MS = 60 * 60 * 1000; // 1 heure
 
   constructor() {
     this.renderer = this.rootRenderer.createRenderer(document.querySelector("html"), null);
@@ -75,5 +79,13 @@ export default class MainComponent implements OnInit {
 
     this.peremptionAlertService.fetchAlerts();
     setInterval(() => this.peremptionAlertService.fetchAlerts(), this.ALERT_INTERVAL_MS);
+
+    // Le statut est aussi chargé au login (pour le toast B2) ; ce chargement-ci couvre les
+    // rechargements de page et les sessions déjà ouvertes. Le rafraîchissement horaire fait
+    // apparaître la bannière le jour où la licence bascule, sans attendre une reconnexion.
+    // Le titre est calculé à la navigation, donc avant que le statut ne soit connu : on le rejoue
+    // une fois chargé, sans quoi la mention « [DÉMO] » n'apparaîtrait qu'au changement d'écran.
+    this.licenseService.load().subscribe(() => this.appPageTitleStrategy.updateTitle(this.router.routerState.snapshot));
+    setInterval(() => this.licenseService.load().subscribe(), this.LICENSE_REFRESH_INTERVAL_MS);
   }
 }

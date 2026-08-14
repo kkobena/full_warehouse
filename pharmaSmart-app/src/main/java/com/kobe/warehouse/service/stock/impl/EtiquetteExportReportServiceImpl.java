@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.stock.impl;
 
+import com.kobe.warehouse.service.license.DemoWatermark;
 import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Magasin;
@@ -96,7 +97,7 @@ public class EtiquetteExportReportServiceImpl extends CommonReportService {
             sharedContext.setReplacedElementFactory(ref);
             sharedContext.getTextRenderer().setSmoothingThreshold(0);
             sharedContext.setPrint(true);
-            renderer.setDocumentFromString(this.getTemplateAsHtml());
+            renderer.setDocumentFromString(DemoWatermark.apply(this.getTemplateAsHtml()));
             renderer.layout();
             renderer.createPDF(outputStream);
             return outputStream.toByteArray();

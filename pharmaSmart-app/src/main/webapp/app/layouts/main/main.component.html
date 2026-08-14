@@ -26,6 +26,7 @@
   [class.sidebar-collapsed]="layoutService.isSidebarMode() && layoutService.sidebarCollapsed()"
   [class.with-navbar]="layoutService.isNavbarMode()"
   [class.with-sidebar]="layoutService.isSidebarMode()"
+  [class.with-license-banner]="licenseService.showBanner()"
   class="main-content"
   id="main-content"
 >
@@ -47,5 +48,8 @@
   <app-backend-splash></app-backend-splash>
 }
 
+
+<!-- B3 : bannière permanente non masquable. Placée avant l'hôte des toasts, qui doit rester au-dessus. -->
+<app-license-banner />
 
 <app-toast-host />

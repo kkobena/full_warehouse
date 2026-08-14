@@ -35,6 +35,12 @@
   transition: margin-left 0.3s ease;
   padding-top: 0;
 
+  // La bannière de licence est en `position: fixed` : sans cette réserve, elle recouvrirait
+  // le bas de l'écran — typiquement les boutons de validation d'un formulaire long.
+  &.with-license-banner {
+    padding-bottom: 4.5rem;
+  }
+
 
   :host.tauri-mode & {
     padding-top: 32px;

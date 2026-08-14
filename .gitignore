@@ -293,4 +293,15 @@ sales-android/fastlane/readme.md
 /pharmaSmart-core/target/
 /mobile-inventory/build/
 /mobile-inventory/build/reports/
-/pharmaSmart-core/target/
+
+
+# Clés de signature des licences — la clé PRIVÉE ne doit JAMAIS être versionnée (cf. docs/PLAN-GESTION-LICENCE.md §4.3)
+/keys/
+*.lic
+# La clé PUBLIQUE, elle, doit être versionnée : elle est embarquée dans le livrable et sert à
+# vérifier les licences. Absente du dépôt, un build fait ailleurs produirait un jar incapable de
+# valider quoi que ce soit. Le répertoire reste fermé par défaut pour qu'une clé privée déposée
+# là par mégarde ne parte pas au commit.
+/pharmaSmart-core/src/main/resources/license/*
+!/pharmaSmart-core/src/main/resources/license/pharmasmart-public*.pem
+/pharmaSmart-license-cli/

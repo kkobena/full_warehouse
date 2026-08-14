@@ -50,8 +50,13 @@ export class LayoutService {
     return stored === 'navbar' || stored === 'sidebar' ? stored : 'navbar';
   }
 
+  /**
+   * Le rail réduit (70 px) est la présentation nominale : les sous-menus
+   * s'ouvrent en panneau flottant, la largeur du rail n'y change rien.
+   * Les utilisateurs ayant déjà exprimé une préférence la conservent.
+   */
   private loadSidebarCollapsed(): boolean {
-    return this.loadFromStorage(SIDEBAR_COLLAPSED_KEY, 'false') === 'true';
+    return this.loadFromStorage(SIDEBAR_COLLAPSED_KEY, 'true') === 'true';
   }
 
   private loadFromStorage(key: string, defaultValue: string): string {

@@ -1,68 +1,116 @@
-import { Component, DestroyRef, effect, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Router, RouterModule } from "@angular/router";
-import { CommonModule } from "@angular/common";
-import { fromEvent } from "rxjs";
-import { AccountService } from "app/core/auth/account.service";
-import { LoginService } from "app/login/login.service";
-import { NavItem } from "../navbar/navbar-item.model";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  effect,
+  inject,
+  OnInit,
+  signal
+} from "@angular/core";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
+import {NavigationEnd, Router, RouterModule} from "@angular/router";
+import {CommonModule} from "@angular/common";
+import {filter, fromEvent} from "rxjs";
+import {AccountService} from "app/core/auth/account.service";
+import {LoginService} from "app/login/login.service";
+import {NavItem} from "../navbar/navbar-item.model";
 import {
   faBars,
-  faChevronDown,
   faChevronRight,
   faServer,
   faSlidersH,
   faUserCircle
 } from "@fortawesome/free-solid-svg-icons";
-import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import { AppSettingsDialogComponent } from "../../shared/settings/app-settings-dialog.component";
-import { Authority } from "../../config/authority.constants";
-import { LayoutService } from "../../core/config/layout.service";
-import { environment } from "environments/environment";
-import { NavigationService } from "../../core/config/navigation.service";
-import { TauriPrinterService } from "../../shared/services/tauri-printer.service";
-import { AlertBadgeService } from "../../shared/services/alert-badge.service";
-import { NavStore } from "app/core/store/nav.store";
-import { FaIconComponent } from "@fortawesome/angular-fontawesome";
+import {NgbModal, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
+import {CdkConnectedOverlay, CdkOverlayOrigin, ConnectedPosition} from "@angular/cdk/overlay";
+import {SidebarFlyoutComponent} from "./sidebar-flyout/sidebar-flyout.component";
+import {AppSettingsDialogComponent} from "../../shared/settings/app-settings-dialog.component";
+import {Authority} from "../../config/authority.constants";
+import {LayoutService} from "../../core/config/layout.service";
+import {environment} from "environments/environment";
+import {NavigationService} from "../../core/config/navigation.service";
+import {TauriPrinterService} from "../../shared/services/tauri-printer.service";
+import {AlertBadgeService} from "../../shared/services/alert-badge.service";
+import {NavStore} from "app/core/store/nav.store";
+import {FaIconComponent} from "@fortawesome/angular-fontawesome";
+
+/** Délai avant qu'un survol ne bascule vers un autre menu déjà ouvert. */
+const HOVER_OPEN_DELAY_MS = 120;
 
 @Component({
-  selector: "jhi-sidebar",
-  imports: [CommonModule, RouterModule, NgbTooltip, FaIconComponent],
+  selector: "app-sidebar",
+  imports: [
+    CommonModule,
+    RouterModule,
+    NgbTooltip,
+    FaIconComponent,
+    CdkOverlayOrigin,
+    CdkConnectedOverlay,
+    SidebarFlyoutComponent
+  ],
   templateUrl: "./sidebar.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrls: ["./sidebar.component.scss"]
+  styleUrls: ["./sidebar.component.scss"],
+  host: {
+    "(document:keydown.escape)": "onEscape()"
+  }
 })
 export default class SidebarComponent implements OnInit {
+  navItems: NavItem[] = [];
+  /** Identifiant du seul menu ouvert, ou `null`. */
+  readonly openMenuId = signal<string | null>(null);
+  /** L'ouverture courante vient-elle du clavier ? Conditionne le vol de focus. */
+  readonly openedViaKeyboard = signal(false);
+  readonly faBars = faBars;
+  readonly faChevronRight = faChevronRight;
+  readonly faUserCircle = faUserCircle;
+  readonly faSlidersH = faSlidersH;
+  /**
+   * Positions du flyout, par ordre de préférence : à droite aligné en haut,
+   * puis aligné en bas si le panneau déborderait sous l'écran, puis à gauche
+   * si la place manque à droite. Le CDK bascule automatiquement.
+   */
+  readonly flyoutPositions: ConnectedPosition[] = [
+    {originX: "end", originY: "top", overlayX: "start", overlayY: "top", offsetX: 8},
+    {originX: "end", originY: "bottom", overlayX: "start", overlayY: "bottom", offsetX: 8},
+    {originX: "start", originY: "top", overlayX: "end", overlayY: "top", offsetX: -8}
+  ];
   protected account = inject(AccountService).trackCurrentAccount();
   protected version = "";
   protected readonly isMobileSignal = signal(window.innerWidth <= 768);
-  navItems: NavItem[] = [];
-  expandedItems = new Set<string>();
   protected layoutService = inject(LayoutService);
+  protected readonly alertBadgeService = inject(AlertBadgeService);
   private readonly loginService = inject(LoginService);
   private readonly router = inject(Router);
   private readonly modalService = inject(NgbModal);
   private readonly navigationService = inject(NavigationService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
-  protected readonly alertBadgeService = inject(AlertBadgeService);
   private readonly navStore = inject(NavStore);
-
-  readonly faBars = faBars;
-  readonly faChevronDown = faChevronDown;
-  readonly faChevronRight = faChevronRight;
-  readonly faUserCircle = faUserCircle;
-  readonly faSlidersH = faSlidersH;
+  private hoverOpenTimer?: number;
 
   constructor() {
-    const { VERSION } = environment;
+    const {VERSION} = environment;
     if (VERSION) {
       this.version = VERSION.toLowerCase().startsWith("v") ? VERSION : `v${VERSION}`;
     }
 
 
+    const destroyRef = inject(DestroyRef);
+
     fromEvent(window, "resize")
-      .pipe(takeUntilDestroyed(inject(DestroyRef)))
+      .pipe(takeUntilDestroyed(destroyRef))
       .subscribe(() => this.isMobileSignal.set(window.innerWidth <= 768));
+
+    // Une navigation déclenchée hors du panneau (lien profond, bouton retour…)
+    // doit aussi le refermer.
+    this.router.events
+      .pipe(
+        filter(event => event instanceof NavigationEnd),
+        takeUntilDestroyed(destroyRef)
+      )
+      .subscribe(() => this.closeMenu());
+
+    destroyRef.onDestroy(() => this.cancelHoverTimers());
 
     effect(() => {
       // Reactive : rebuilt when account, navTree (store) or alert counts change
@@ -74,6 +122,13 @@ export default class SidebarComponent implements OnInit {
       this.applyNavBadges(items, ruptureCount, urgentCount, peremptionCount);
       this.navItems = items;
     });
+  }
+
+  protected get isTauriAdmin(): boolean {
+    const account = this.account();
+    return this.tauriPrinterService.isRunningInTauri() &&
+      !!account &&
+      this.navigationService.hasAnyAuthority(Authority.ADMIN, account.authorities);
   }
 
   ngOnInit(): void {
@@ -92,51 +147,103 @@ export default class SidebarComponent implements OnInit {
     this.layoutService.toggleSidebarCollapsed();
   }
 
-  protected toggleItem(label: string): void {
-    if (this.expandedItems.has(label)) {
-      this.expandedItems.delete(label);
-    } else {
-      this.expandedItems.add(label);
+  /**
+   * Ouvre le flyout de l'entrée, ou le referme s'il l'était déjà.
+   * `event.detail === 0` distingue une activation clavier (Entrée/Espace) d'un
+   * vrai clic souris : seule la première justifie de déplacer le focus dans le
+   * panneau.
+   */
+  protected toggleMenu(item: NavItem, event?: MouseEvent): void {
+    this.cancelHoverTimers();
+    this.openedViaKeyboard.set(event?.detail === 0);
+    this.openMenuId.update(id => (id === item.id ? null : item.id));
+  }
+
+  protected closeMenu(): void {
+    this.cancelHoverTimers();
+    this.openMenuId.set(null);
+  }
+
+  /** Ferme le panneau ouvert et rend le focus à son déclencheur. */
+  protected onEscape(): void {
+    const id = this.openMenuId();
+    if (!id) {
+      return;
     }
+    this.closeMenu();
+    this.focusTrigger(id);
   }
 
-  protected expandItem(label: string): void {
-    this.expandedItems.add(label);
+  /** Flèche droite sur un déclencheur : ouvre et entre dans le panneau. */
+  protected onTriggerArrowRight(item: NavItem): void {
+    this.cancelHoverTimers();
+    this.openedViaKeyboard.set(true);
+    this.openMenuId.set(item.id);
   }
 
-  protected collapseItem(label: string): void {
-    this.expandedItems.delete(label);
-  }
-
-  protected isExpanded(label: string): boolean {
-    return this.expandedItems.has(label);
-  }
-
-  protected onParentMenuHover(label: string, isEntering: boolean): void {
-    if (isEntering) {
-      this.expandItem(label);
-    } else {
-      this.collapseItem(label);
+  /**
+   * Survol : ne sert qu'à **changer** de menu quand un panneau est déjà ouvert,
+   * comme dans une barre de menus classique.
+   *
+   * Il n'ouvre pas depuis un rail fermé — la souris traverse le rail en
+   * permanence et déclencherait des panneaux au passage ; le premier accès
+   * reste au clic. Il ne ferme pas non plus au `mouseleave` : un menu ouvert au
+   * clic doit survivre à une souris qui s'éloigne pendant la lecture.
+   */
+  protected onTriggerEnter(item: NavItem): void {
+    this.cancelHoverTimers();
+    if (!this.openMenuId() || this.openMenuId() === item.id) {
+      return;
     }
+    this.hoverOpenTimer = window.setTimeout(() => {
+      this.openedViaKeyboard.set(false);
+      this.openMenuId.set(item.id);
+    }, HOVER_OPEN_DELAY_MS);
   }
 
-  protected onParentMenuClick(label: string): void {
-    if (this.isCollapsed()) {
+  /** Traversée rapide du rail : annule la bascule en attente. */
+  protected onTriggerLeave(): void {
+    this.cancelHoverTimers();
+  }
+
+  /**
+   * Navigation depuis le panneau : on referme le panneau, sans toucher au rail.
+   * Sur mobile, la sidebar déployée recouvre l'écran et doit se retirer.
+   */
+  protected onFlyoutNavigate(): void {
+    this.closeMenu();
+    if (this.isMobile() && !this.isCollapsed()) {
       this.toggleSidebar();
-      this.expandItem(label);
-    } else {
-      this.toggleItem(label);
     }
   }
 
-  protected onMenuItemClick(clickHandler?: () => void): void {
-    if (clickHandler) clickHandler();
-    if (!this.isCollapsed()) this.toggleSidebar();
+  /**
+   * Le panneau n'a pas de backdrop, pour qu'un clic sur une autre entrée du
+   * rail bascule directement de menu. Il faut donc ignorer les clics sur les
+   * déclencheurs : sans ça, le clic fermerait ici puis rouvrirait via
+   * `toggleMenu`, et le menu ne se fermerait jamais.
+   */
+  protected onOverlayOutsideClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement | null;
+    if (target?.closest("[data-flyout-trigger]")) {
+      return;
+    }
+    this.closeMenu();
   }
 
-  protected onSubmenuItemClick(clickHandler?: () => void): void {
-    if (clickHandler) clickHandler();
-    if (!this.isCollapsed()) this.toggleSidebar();
+  /**
+   * Navigation depuis une entrée simple du rail. Le rail ne se replie plus
+   * après un clic : l'utilisateur perdait son menu à chaque navigation. Sur
+   * mobile en revanche, la sidebar recouvre l'écran et doit se retirer.
+   */
+  protected onMenuItemClick(clickHandler?: () => void): void {
+    if (clickHandler) {
+      clickHandler();
+    }
+    this.closeMenu();
+    if (this.isMobile() && !this.isCollapsed()) {
+      this.toggleSidebar();
+    }
   }
 
   protected login(): void {
@@ -149,25 +256,48 @@ export default class SidebarComponent implements OnInit {
   }
 
   protected openAppSettings(): void {
-    this.modalService.open(AppSettingsDialogComponent, { size: "lg", backdrop: "static", centered: true });
+    this.modalService.open(AppSettingsDialogComponent, {
+      size: "lg",
+      backdrop: "static",
+      centered: true
+    });
   }
 
   protected openConfigEditor(): void {
     void this.router.navigate(["/app-config"]);
   }
 
-  protected get isTauriAdmin(): boolean {
-    const account = this.account();
-    return this.tauriPrinterService.isRunningInTauri() &&
-      !!account &&
-      this.navigationService.hasAnyAuthority(Authority.ADMIN, account.authorities);
-  }
-
   protected hasAnyAuthority(authorities: string[] | string): boolean {
     const userIdentity = this.account();
-    if (!userIdentity) return false;
-    if (!Array.isArray(authorities)) authorities = [authorities];
+    if (!userIdentity) {
+      return false;
+    }
+    if (!Array.isArray(authorities)) {
+      authorities = [authorities];
+    }
     return userIdentity.authorities.some((authority: string) => authorities.includes(authority));
+  }
+
+  private cancelHoverTimers(): void {
+    if (this.hoverOpenTimer !== undefined) {
+      window.clearTimeout(this.hoverOpenTimer);
+      this.hoverOpenTimer = undefined;
+    }
+  }
+
+  /**
+   * L'identifiant vient du back-office (`code` du NavNode) : on compare la
+   * valeur de l'attribut plutôt que de l'injecter dans un sélecteur, ce qui
+   * évite d'avoir à l'échapper.
+   */
+  private focusTrigger(menuId: string): void {
+    const triggers = document.querySelectorAll<HTMLElement>("[data-flyout-trigger]");
+    for (const trigger of Array.from(triggers)) {
+      if (trigger.dataset["flyoutTrigger"] === menuId) {
+        trigger.focus();
+        return;
+      }
+    }
   }
 
   private buildNavItem(): NavItem[] {
@@ -175,25 +305,47 @@ export default class SidebarComponent implements OnInit {
 
     if (account) {
       const accountItems: NavItem[] = [
-        { label: "Menu horizontal", faIcon: faBars, click: () => this.layoutService.toggleLayout() },
-        { label: "Se déconnecter", faIcon: "sign-out-alt", click: () => this.logout() }
+        {
+          id: "layout.toggle",
+          label: "Menu horizontal",
+          faIcon: faBars,
+          click: () => this.layoutService.toggleLayout()
+        },
+        {
+          id: "account.logout",
+          label: "Se déconnecter",
+          faIcon: "sign-out-alt",
+          click: () => this.logout()
+        }
       ];
       if (this.navigationService.hasAnyAuthority(Authority.ADMIN, account.authorities) && this.tauriPrinterService.isRunningInTauri()) {
         accountItems.unshift({
+          id: "app-config",
           label: "Configuration avancée",
           faIcon: faSlidersH,
           click: () => this.openConfigEditor()
         });
       }
-      return this.navigationService.buildNavItemsFromStore({ additionalAccountMenuItems: accountItems });
+      return this.navigationService.buildNavItemsFromStore({additionalAccountMenuItems: accountItems});
     }
 
     const additionalAccountMenuItems: NavItem[] = [
-      { label: "Menu vertical", faIcon: faBars, click: () => this.layoutService.toggleLayout() },
-      { label: "Se connecter", faIcon: "sign-out-alt", click: () => this.login() }
+      {
+        id: "layout.toggle",
+        label: "Menu vertical",
+        faIcon: faBars,
+        click: () => this.layoutService.toggleLayout()
+      },
+      {
+        id: "account.login",
+        label: "Se connecter",
+        faIcon: "sign-out-alt",
+        click: () => this.login()
+      }
     ];
     if (this.tauriPrinterService.isRunningInTauri()) {
       additionalAccountMenuItems.unshift({
+        id: "server-settings",
         label: "Paramètres Serveur",
         faIcon: faServer,
         click: () => this.openAppSettings()

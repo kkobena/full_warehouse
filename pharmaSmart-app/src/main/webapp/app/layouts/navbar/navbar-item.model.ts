@@ -1,6 +1,14 @@
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 
 export interface NavItem {
+  /**
+   * Identifiant stable de l'entrée, unique dans l'arbre de navigation.
+   * Issu du `code` du NavNode côté back-office, ou d'une clé en dur pour les
+   * entrées construites par le front (menu Compte, bascule de layout…).
+   * Sert de clé d'état (menu ouvert) et de `track` dans les gabarits — le
+   * libellé ne peut pas jouer ce rôle : il est traduit et non unique.
+   */
+  id: string;
   label: string;
   routerLink?: string;
   authorities?: string[];
@@ -15,4 +23,20 @@ export interface NavItem {
   divider?: boolean;
   /** En-tête de groupe non-cliquable dans un sous-menu */
   groupLabel?: string;
+}
+
+/** Marques diacritiques combinantes (U+0300–U+036F), retirées après normalisation NFD. */
+const COMBINING_MARKS = /[̀-ͯ]/g;
+
+/**
+ * Repli lorsqu'aucun identifiant métier n'est disponible : dérive une clé
+ * lisible depuis un libellé (accents retirés, non-alphanumériques en tirets).
+ */
+export function navItemIdFromLabel(label: string): string {
+  return label
+    .normalize('NFD')
+    .replace(COMBINING_MARKS, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 }

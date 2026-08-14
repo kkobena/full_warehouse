@@ -29,9 +29,9 @@
   <!-- Navigation Menu -->
   <nav class="sidebar-nav" aria-label="Menu principal">
     <ul class="nav-list">
-      @for (item of navItems; track item.label) {
+      @for (item of navItems; track item.id) {
         <li class="nav-item">
-          <!-- Menu item without children -->
+          <!-- Entrée simple : navigation -->
           @if (!item.children && item.routerLink) {
             <a
               [routerLink]="item.routerLink"
@@ -59,7 +59,7 @@
             </a>
           }
 
-          <!-- Menu item with click handler -->
+          <!-- Entrée simple : action -->
           @if (!item.children && item.click && !item.routerLink) {
             <a
               (click)="onMenuItemClick(item.click)"
@@ -77,119 +77,62 @@
             </a>
           }
 
-          <!-- Menu item with children (expandable) -->
+          <!-- Entrée parente : ouvre le flyout, quelle que soit la largeur du rail -->
           @if (item.children && item.children.length > 0) {
-            <div
-              class="nav-item-with-children"
-              [class.hover-enabled]="isCollapsed()"
-              (mouseenter)="isCollapsed() && onParentMenuHover(item.label, true)"
-              (mouseleave)="isCollapsed() && onParentMenuHover(item.label, false)"
+            <button
+              type="button"
+              #trigger="cdkOverlayOrigin"
+              cdkOverlayOrigin
+              [attr.data-flyout-trigger]="item.id"
+              class="nav-link has-children"
+              [class.collapsed-item]="isCollapsed()"
+              [class.expanded]="openMenuId() === item.id"
+              [ngbTooltip]="isCollapsed() ? item.label : null"
+              placement="right"
+              aria-haspopup="menu"
+              [attr.aria-expanded]="openMenuId() === item.id"
+              (click)="toggleMenu(item, $event)"
+              (keydown.arrowright)="onTriggerArrowRight(item)"
+              (mouseenter)="onTriggerEnter(item)"
+              (mouseleave)="onTriggerLeave()"
             >
-              <a
-                class="nav-link has-children"
-                role="button"
-                [class.collapsed-item]="isCollapsed()"
-                [class.expanded]="isExpanded(item.label)"
-                [ngbTooltip]="isCollapsed() ? item.label : null"
-                placement="right"
-                [attr.aria-expanded]="!isCollapsed() && isExpanded(item.label)"
-                [attr.aria-controls]="'submenu-' + item.label"
-                (click)="onParentMenuClick(item.label)"
-              >
-                <span class="nav-icon">
-                  <fa-icon [icon]="item.faIcon"></fa-icon>
-                  @if (isCollapsed() && item.badge > 0) {
-                    <span class="sidebar-badge-dot bg-{{ item.badgeSeverity ?? 'danger' }}"></span>
-                  }
-                </span>
-                @if (!isCollapsed()) {
-                  <span class="nav-label">{{ item.label }}</span>
-                  @if (item.badge > 0) {
-                    <span class="badge rounded-pill bg-{{ item.badgeSeverity ?? 'danger' }} sidebar-badge ms-auto me-1">
-                      {{ item.badge > 99 ? '99+' : item.badge }}
-                    </span>
-                  }
-                  <span class="nav-arrow">
-                    <fa-icon [icon]="isExpanded(item.label) ? faChevronDown : faChevronRight"></fa-icon>
+              <span class="nav-icon">
+                <fa-icon [icon]="item.faIcon"></fa-icon>
+                @if (isCollapsed() && item.badge > 0) {
+                  <span class="sidebar-badge-dot bg-{{ item.badgeSeverity ?? 'danger' }}"></span>
+                }
+              </span>
+              @if (!isCollapsed()) {
+                <span class="nav-label">{{ item.label }}</span>
+                @if (item.badge > 0) {
+                  <span class="badge rounded-pill bg-{{ item.badgeSeverity ?? 'danger' }} sidebar-badge ms-auto me-1">
+                    {{ item.badge > 99 ? '99+' : item.badge }}
                   </span>
                 }
-              </a>
-
-              <!-- Submenu (inline when sidebar expanded) -->
-              @if (isExpanded(item.label) && !isCollapsed()) {
-                <ul class="submenu" [id]="'submenu-' + item.label" role="list">
-                  @for (child of item.children; track child.label) {
-                    @if (child.divider) {
-                      <li class="submenu-divider" role="separator"></li>
-                    } @else if (child.groupLabel) {
-                      <li class="submenu-group-label">{{ child.groupLabel }}</li>
-                    } @else {
-                      <li class="submenu-item">
-                        @if (child.routerLink) {
-                          <a [routerLink]="child.routerLink" routerLinkActive="active" class="submenu-link" (click)="onSubmenuItemClick()">
-                            <span class="submenu-icon">
-                              <fa-icon [icon]="child.faIcon"></fa-icon>
-                            </span>
-                            <span class="submenu-label">{{ child.label }}</span>
-                            @if (child.badge > 0) {
-                              <span class="badge rounded-pill bg-{{ child.badgeSeverity ?? 'danger' }} sidebar-badge ms-auto">
-                                {{ child.badge > 99 ? '99+' : child.badge }}
-                              </span>
-                            }
-                          </a>
-                        }
-                        @if (child.click && !child.routerLink) {
-                          <a (click)="onSubmenuItemClick(child.click)" class="submenu-link clickable">
-                            <span class="submenu-icon">
-                              <fa-icon [icon]="child.faIcon"></fa-icon>
-                            </span>
-                            <span class="submenu-label">{{ child.label }}</span>
-                          </a>
-                        }
-                      </li>
-                    }
-                  }
-                </ul>
+                <span class="nav-arrow">
+                  <fa-icon [icon]="faChevronRight"></fa-icon>
+                </span>
               }
+            </button>
 
-              <!-- Flyout submenu (when sidebar collapsed) -->
-              @if (isExpanded(item.label) && isCollapsed()) {
-                <ul class="submenu-flyout">
-                  <li class="flyout-header">{{ item.label }}</li>
-                  @for (child of item.children; track child.label) {
-                    @if (child.divider) {
-                      <li class="submenu-divider" role="separator"></li>
-                    } @else if (child.groupLabel) {
-                      <li class="submenu-group-label">{{ child.groupLabel }}</li>
-                    } @else {
-                      <li class="submenu-item">
-                        @if (child.routerLink) {
-                          <a [routerLink]="child.routerLink" routerLinkActive="active" class="submenu-link">
-                            <span class="submenu-icon">
-                              <fa-icon [icon]="child.faIcon"></fa-icon>
-                            </span>
-                            <span class="submenu-label">{{ child.label }}</span>
-                            @if (child.badge > 0) {
-                              <span class="badge rounded-pill bg-{{ child.badgeSeverity ?? 'danger' }} sidebar-badge ms-auto">
-                                {{ child.badge > 99 ? '99+' : child.badge }}
-                              </span>
-                            }
-                          </a>
-                        }
-                        @if (child.click && !child.routerLink) {
-                          <a (click)="child.click()" class="submenu-link clickable">
-                            <span class="submenu-icon">
-                              <fa-icon [icon]="child.faIcon"></fa-icon>
-                            </span>
-                            <span class="submenu-label">{{ child.label }}</span>
-                          </a>
-                        }
-                      </li>
-                    }
-                  }
-                </ul>
-              }
-            </div>
+            <ng-template
+              cdkConnectedOverlay
+              [cdkConnectedOverlayOrigin]="trigger"
+              [cdkConnectedOverlayOpen]="openMenuId() === item.id"
+              [cdkConnectedOverlayPositions]="flyoutPositions"
+              [cdkConnectedOverlayFlexibleDimensions]="true"
+              [cdkConnectedOverlayPush]="true"
+              (overlayOutsideClick)="onOverlayOutsideClick($event)"
+              (detach)="closeMenu()"
+            >
+              <app-sidebar-flyout
+                [item]="item"
+                [autoFocus]="openedViaKeyboard()"
+                [fullscreen]="isMobile()"
+                (navigate)="onFlyoutNavigate()"
+                (close)="onEscape()"
+              />
+            </ng-template>
           }
         </li>
       }

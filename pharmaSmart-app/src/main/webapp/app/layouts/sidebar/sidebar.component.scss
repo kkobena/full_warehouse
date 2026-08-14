@@ -31,10 +31,6 @@
     .logo-text {
       display: none;
     }
-
-    .submenu {
-      display: none !important;
-    }
   }
 
   // Sidebar Header
@@ -155,10 +151,6 @@
       margin: 0.25rem 0;
     }
 
-    .nav-item-with-children {
-      position: relative;
-    }
-
     .nav-link {
       display: flex;
       align-items: center;
@@ -168,6 +160,14 @@
       transition: all 0.3s;
       cursor: pointer;
       position: relative;
+
+      // Les entrées parentes sont des <button> : neutraliser le style natif
+      // pour qu'elles s'alignent sur les <a> voisins.
+      width: 100%;
+      border: 0;
+      background: transparent;
+      text-align: left;
+      font: inherit;
 
       &.collapsed-item {
         justify-content: center;
@@ -196,9 +196,13 @@
         transition: transform 0.3s;
       }
 
-      &.has-children {
-        &.expanded .nav-arrow {
-          transform: rotate(0deg);
+      // Le chevron pivote quand le flyout de l'entrée est ouvert
+      &.has-children.expanded {
+        background: rgba(52, 152, 219, 0.2);
+        color: #fff;
+
+        .nav-arrow {
+          transform: rotate(90deg);
         }
       }
 
@@ -226,149 +230,6 @@
 
       &.clickable {
         cursor: pointer;
-      }
-    }
-
-    // Submenu
-    .submenu {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      background: rgba(0, 0, 0, 0.15);
-      animation: slideDown 0.2s ease;
-
-      @keyframes slideDown {
-        from {
-          opacity: 0;
-          max-height: 0;
-          overflow: hidden;
-        }
-        to {
-          opacity: 1;
-          max-height: 500px;
-          overflow: visible;
-        }
-      }
-    }
-
-    .submenu-item {
-      margin: 0;
-    }
-
-    //Séparateur de groupe dans le sous-menu ─────────────────
-    .submenu-divider {
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      margin: 0.4rem 0.75rem;
-      list-style: none;
-    }
-
-    //En-tête de groupe non-cliquable ────────────────────────
-    .submenu-group-label {
-      padding: 0.5rem 0.75rem 0.2rem 3rem;
-      font-size: 0.68rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.09em;
-      color: rgba(255, 255, 255, 0.4);
-      pointer-events: none;
-      list-style: none;
-    }
-
-    .submenu-link {
-      display: flex;
-      align-items: center;
-      padding: 0.65rem 1rem 0.65rem 3rem;
-      color: rgba(236, 240, 241, 0.85);
-      text-decoration: none;
-      font-size: 0.9rem;
-      transition: all 0.3s;
-      cursor: pointer;
-
-      .submenu-icon {
-        font-size: 1rem;
-        width: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-      }
-
-      .submenu-label {
-        margin-left: 0.75rem;
-        white-space: nowrap;
-      }
-
-      &:hover {
-        background: rgba(52, 152, 219, 0.15);
-        color: #fff;
-        padding-left: 3.25rem;
-      }
-
-      &.active,
-      &.router-link-active {
-        background: rgba(52, 152, 219, 0.25);
-        color: #fff;
-        font-weight: 500;
-        border-left: 3px solid #2ecc71;
-      }
-    }
-
-    // Flyout submenu (when sidebar is collapsed)
-    .submenu-flyout {
-      position: absolute;
-      left: 70px;
-      top: 0;
-      min-width: 220px;
-      background: #34495e;
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      border-radius: 0 4px 4px 0;
-      box-shadow: 4px 0 15px rgba(0, 0, 0, 0.3);
-      z-index: 1100;
-      animation: flyoutSlideIn 0.2s ease;
-
-      @keyframes flyoutSlideIn {
-        from {
-          opacity: 0;
-          transform: translateX(-10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateX(0);
-        }
-      }
-
-      .flyout-header {
-        padding: 0.75rem 1rem;
-        font-weight: 600;
-        font-size: 0.95rem;
-        color: #3498db;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        background: rgba(0, 0, 0, 0.2);
-      }
-
-      .submenu-item {
-        margin: 0;
-      }
-
-      .submenu-link {
-        padding: 0.65rem 1rem;
-        color: rgba(236, 240, 241, 0.85);
-
-        &:hover {
-          background: rgba(52, 152, 219, 0.15);
-          color: #fff;
-          padding-left: 1.25rem;
-        }
-
-        &.active,
-        &.router-link-active {
-          background: rgba(52, 152, 219, 0.25);
-          color: #fff;
-          font-weight: 500;
-          border-left: 3px solid #2ecc71;
-        }
       }
     }
   }
@@ -480,8 +341,7 @@
 }
 
 // Alignement flex pour les liens qui ont un badge pill
-.nav-link,
-.submenu-link {
+.nav-link {
   display: flex;
   align-items: center;
 }

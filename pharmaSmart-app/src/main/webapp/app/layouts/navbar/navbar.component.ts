@@ -124,11 +124,12 @@ export default class NavbarComponent implements OnInit {
 
     if (account) {
       const accountItems: NavItem[] = [
-        {label: "Menu vertical", faIcon: faBars, click: () => this.layoutService.toggleLayout()},
-        {label: "Se déconnecter", faIcon: "sign-out-alt" as any, click: () => this.logout()}
+        {id: "layout.toggle", label: "Menu vertical", faIcon: faBars, click: () => this.layoutService.toggleLayout()},
+        {id: "account.logout", label: "Se déconnecter", faIcon: "sign-out-alt" as any, click: () => this.logout()}
       ];
       if (this.navigationService.hasAnyAuthority(Authority.ADMIN, account.authorities) && this.tauriPrinterService.isRunningInTauri()) {
         accountItems.unshift({
+          id: "app-config",
           label: "Configuration avancée",
           faIcon: faSlidersH,
           click: () => this.openConfigEditor()
@@ -141,11 +142,13 @@ export default class NavbarComponent implements OnInit {
 
     const additionalAccountMenuItems: NavItem[] = [
       {
+        id: "layout.toggle",
         label: "Menu vertical",
         faIcon: faBars,
         click: () => this.layoutService.toggleLayout()
       },
       {
+        id: "account.login",
         label: "Se connecter",
         faIcon: "sign-out-alt",
         click: () => this.login()
@@ -154,6 +157,7 @@ export default class NavbarComponent implements OnInit {
 
     if (this.tauriPrinterService.isRunningInTauri()) {
       additionalAccountMenuItems.unshift({
+        id: "server-settings",
         label: "Paramètres Serveur",
         faIcon: faServer,
         click: () => this.openAppSettings()

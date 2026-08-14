@@ -1,7 +1,7 @@
-import { Routes } from '@angular/router';
+import {Routes} from '@angular/router';
 
-import { AuthGuard } from 'app/core/auth/auth.guard';
-import { errorRoute } from './layouts/error/error.route';
+import {AuthGuard} from 'app/core/auth/auth.guard';
+import {errorRoute} from './layouts/error/error.route';
 
 const routes: Routes = [
   {
@@ -21,19 +21,15 @@ const routes: Routes = [
   },
   {
     path: 'admin',
-    // abilitySubject 'admin' : ROLE_ADMIN est bypassed (step 2 du guard).
-    // Tout autre rôle : can('access','admin')=false (pas de nav_item 'admin' dans son tree) → refusé.
-    data: { abilitySubject: 'admin' },
+
+    data: {abilitySubject: 'admin'},
     canActivate: [AuthGuard],
     loadChildren: () => import('./admin/admin.routes'),
   },
   {
-    // Hors de /admin à dessein : la garde de cette route parente refuse tout rôle non
-    // administrateur, ce qui rendrait inatteignable un écran dont l'accès se délègue désormais
-    // par le privilège 'pr-gere-licence' (nav item ACTION). Le sujet ABAC est l'item de menu
-    // 'gestion-licence' lui-même.
+
     path: 'licence',
-    data: { abilitySubject: 'gestion-licence' },
+    data: {abilitySubject: 'gestion-licence'},
     canActivate: [AuthGuard],
     loadChildren: () => import('./features/license/license.routes'),
   },

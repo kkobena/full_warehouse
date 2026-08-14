@@ -1,0 +1,82 @@
+<div
+  class="flyout-panel"
+  [class.fullscreen]="fullscreen()"
+  role="menu"
+  [attr.aria-label]="item().label"
+  cdkTrapFocus
+  [cdkTrapFocusAutoCapture]="autoFocus()"
+  (keydown)="onKeydown($event)"
+>
+  <!-- En-tête : icône + libellé du parent + badge cumulé -->
+  <div class="flyout-header">
+    @if (fullscreen()) {
+      <button type="button" class="flyout-back" (click)="close.emit()" aria-label="Retour au menu">
+        <fa-icon [icon]="faArrowLeft"></fa-icon>
+      </button>
+    } @else if (item().faIcon) {
+      <fa-icon class="flyout-header-icon" [icon]="item().faIcon!"></fa-icon>
+    }
+    <span class="flyout-header-label">{{ item().label }}</span>
+    @if (item().badge > 0) {
+      <span class="badge rounded-pill bg-{{ item().badgeSeverity ?? 'danger' }} flyout-badge">
+        {{ item().badge > 99 ? '99+' : item().badge }}
+      </span>
+    }
+    @if (fullscreen()) {
+      <button type="button" class="flyout-close" (click)="close.emit()" aria-label="Fermer le menu">
+        <fa-icon [icon]="faXmark"></fa-icon>
+      </button>
+    }
+  </div>
+
+  <!-- Corps : liste à plat -->
+  <div class="flyout-body">
+    @for (row of rows(); track row.key) {
+      @switch (row.kind) {
+        @case ('divider') {
+          <hr class="flyout-divider" role="separator" />
+        }
+        @case ('group') {
+          <div class="flyout-group">{{ row.label }}</div>
+        }
+        @case ('link') {
+          @if (row.item.routerLink) {
+            <a
+              appFlyoutItem
+              class="flyout-link"
+              [routerLink]="row.item.routerLink"
+              routerLinkActive="active"
+              (click)="onRowClick(row.item)"
+            >
+              <span class="flyout-link-icon">
+                @if (row.item.faIcon) {
+                  <fa-icon [fixedWidth]="true" [icon]="row.item.faIcon"></fa-icon>
+                }
+              </span>
+              <span class="flyout-link-label">{{ row.item.label }}</span>
+              @if (row.item.badge > 0) {
+                <span class="badge rounded-pill bg-{{ row.item.badgeSeverity ?? 'danger' }} flyout-badge ms-auto">
+                  {{ row.item.badge > 99 ? '99+' : row.item.badge }}
+                </span>
+              }
+            </a>
+          } @else {
+            <button appFlyoutItem type="button" class="flyout-link" (click)="onRowClick(row.item)">
+              <span class="flyout-link-icon">
+                @if (row.item.faIcon) {
+                  <fa-icon [fixedWidth]="true" [icon]="row.item.faIcon"></fa-icon>
+                }
+              </span>
+              <span class="flyout-link-label">{{ row.item.label }}</span>
+              @if (row.item.badge > 0) {
+                <span class="badge rounded-pill bg-{{ row.item.badgeSeverity ?? 'danger' }} flyout-badge ms-auto">
+                  {{ row.item.badge > 99 ? '99+' : row.item.badge }}
+                </span>
+              }
+            </button>
+          }
+        }
+      }
+    }
+  </div>
+</div>

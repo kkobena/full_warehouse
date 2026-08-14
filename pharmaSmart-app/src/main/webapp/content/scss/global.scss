@@ -1375,3 +1375,11 @@ table tfoot tr td {
   padding: 1rem;
   border-top: 2px solid #008cba;
 }
+
+/* ─── CDK Overlay ────────────────────────────────────────────────────────────
+   Le conteneur d'overlay du CDK est à z-index 1000, en dessous de la sidebar
+   (1050) : les panneaux flottants passeraient derrière elle. On le remonte
+   au-dessus de la sidebar, mais sous les modales ng-bootstrap (1055+). */
+.cdk-overlay-container {
+  z-index: 1052;
+}

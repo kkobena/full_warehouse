@@ -1,6 +1,6 @@
 import {inject, Injectable} from '@angular/core';
 import {TranslateService} from '@ngx-translate/core';
-import {NavItem} from 'app/layouts/navbar/navbar-item.model';
+import {NavItem, navItemIdFromLabel} from 'app/layouts/navbar/navbar-item.model';
 import {PeremptionAlertService} from '../../shared/services/peremption-alert.service';
 import {NavStore} from 'app/core/store/nav.store';
 import {INavNode} from 'app/shared/model/nav-item.model';
@@ -88,6 +88,7 @@ export class NavigationService {
   buildUnauthenticatedNavItems(additionalItems: NavItem[] = []): NavItem[] {
     return [
       {
+        id: 'account',
         label: this.translateLabel('account.main'),
         faIcon: 'user',
         children: additionalItems,
@@ -114,6 +115,7 @@ export class NavigationService {
       .map(n => {
         const perimesCount = n.code === 'peremptions' ? this.peremptionAlertService.urgentCount() : 0;
         return {
+          id: n.code || navItemIdFromLabel(n.libelle),
           label: n.libelle,
           routerLink: n.targetType === 'ROUTE' ? n.routerLink : undefined,
           faIcon: this.primeIconToFa(n.icon) as IconProp,
@@ -127,18 +129,19 @@ export class NavigationService {
   /** Construit le menu Compte (toujours présent, non issu du NavStore). */
   private buildAccountMenu(options: NavigationOptions): NavItem {
     const accountChildren: NavItem[] = [
-      { label: this.translateLabel('account.settings'), routerLink: '/account/settings', faIcon: 'wrench' },
+      { id: 'account.settings', label: this.translateLabel('account.settings'), routerLink: '/account/settings', faIcon: 'wrench' },
       {
+        id: 'account.cash-register',
         label: this.translateLabel('account.cashRegister'),
         routerLink: '/my-cash-register',
         faIcon: faCashRegister,
       },
-      { label: this.translateLabel('account.password'), routerLink: '/account/password', faIcon: 'lock' },
+      { id: 'account.password', label: this.translateLabel('account.password'), routerLink: '/account/password', faIcon: 'lock' },
     ];
     if (options.additionalAccountMenuItems) {
       accountChildren.push(...options.additionalAccountMenuItems);
     }
-    return { label: this.translateLabel('account.main'), faIcon: 'user', children: accountChildren };
+    return { id: 'account', label: this.translateLabel('account.main'), faIcon: 'user', children: accountChildren };
   }
 
   private translateLabel(key: string): string {

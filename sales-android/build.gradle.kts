@@ -186,7 +186,7 @@ dependencies {
     implementation("io.coil-kt:coil:2.7.0")
 
     // Paging 3 for pagination
-    implementation("androidx.paging:paging-runtime-ktx:3.5.0")
+    implementation("androidx.paging:paging-runtime-ktx:3.5.1")
 
     // Navigation component
     implementation("androidx.navigation:navigation-fragment-ktx:2.9.8")

@@ -8,6 +8,10 @@
 # appartient au binaire Rust — qui garde des fichiers sentinelles et skip si
 # l'opération a déjà eu lieu récemment.
 #
+# La répétition PT2H n'est qu'une OCCASION : le binaire n'en retient que deux par jour.
+# C'est voulu — le poste s'allume et s'éteint à des heures inconnues, un horaire fixe
+# raterait ses rendez-vous.
+#
 # Délais échelonnés pour ne pas saturer le CPU au démarrage :
 #   - check  : +2 min  (rapide, vérifie l'intégrité de la dernière nuit)
 #   - dump   : +3 min  (laisse la JVM démarrer)
@@ -15,7 +19,7 @@
 #   - base   : +7 min  (lourd, en dernier)
 #
 # Règles d'auto-skip dans le binaire Rust :
-#   dump  — toujours exécuté (+ répétition PT2H)
+#   dump  — au plus max_daily_dumps (2) par jour, espacés de min_dump_interval_hours (6 h)
 #   base  — skip si un base backup < 6 jours existe
 #   purge — skip si la dernière purge date de moins de 23 h
 #   check — toujours exécuté (léger, c'est son rôle)
@@ -92,7 +96,7 @@ $tRepeat.Repetition.Duration = ''
 
 Register-ScheduledTask `
     -TaskName 'PharmaSmart_Backup_Dump' `
-    -Description 'PharmaSmart — pg_dump toutes les 2 h (et au démarrage +3 min)' `
+    -Description 'PharmaSmart — pg_dump : occasion toutes les 2 h, 2 sauvegardes par jour au plus' `
     -Action    (New-ScheduledTaskAction -Execute $exe -Argument 'dump') `
     -Trigger   @($tBoot, $tRepeat) `
     -Settings  $commonSettings `
@@ -128,6 +132,6 @@ Write-Host ''
 Write-Host 'Toutes les tâches planifiées PharmaSmart_Backup_* ont été enregistrées.'
 Write-Host 'Résumé des déclencheurs :'
 Write-Host '  check  : chaque démarrage +2 min  (toujours exécuté)'
-Write-Host '  dump   : chaque démarrage +3 min  + répétition PT2H'
+Write-Host '  dump   : chaque démarrage +3 min  + répétition PT2H (2 dumps/jour au plus)'
 Write-Host '  purge  : chaque démarrage +5 min  (skip si < 23 h)'
 Write-Host '  base   : chaque démarrage +7 min  (skip si < 6 j)'

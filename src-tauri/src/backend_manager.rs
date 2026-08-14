@@ -653,7 +653,9 @@ pub async fn restart_backend(app: AppHandle) -> Result<u32, String> {
 
 #[cfg(test)]
 mod tests {
+  use super::build_jvm_args;
   use crate::config::AppConfig;
+  use std::path::Path;
 
   #[test]
     fn test_build_jvm_args_required_flags() {

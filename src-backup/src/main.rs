@@ -10,6 +10,8 @@ mod logger;
 mod pg_discover;
 mod purge;
 mod sentinel;
+#[cfg(test)]
+mod testing;
 
 #[derive(Parser)]
 #[command(name = "pharmasmart-backup", version, about = "Outil de sauvegarde PharmaSmart")]
@@ -20,13 +22,13 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Cmd {
-    /// pg_dump logique (à planifier toutes les 2 h)
+    /// pg_dump logique — au plus max_daily_dumps (2) par jour
     Dump,
-    /// pg_basebackup physique (hebdomadaire)
+    /// pg_basebackup physique — hebdomadaire (auto-skip si < 6 j)
     Base,
-    /// Rotation/purge des anciens fichiers
+    /// Rotation/purge des anciens fichiers (auto-skip si < 23 h)
     Purge,
-    /// Vérifie la présence d'un dump récent (< 3 h)
+    /// Vérifie la présence d'un dump récent (< max_dump_age_hours)
     Check,
 }
 

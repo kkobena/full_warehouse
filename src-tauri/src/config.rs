@@ -368,10 +368,58 @@ pub struct AppConfig {
     /// affiche l'écran de setup au lieu de démarrer le backend.
     #[serde(default = "default_setup_complete")]
     pub setup_complete: bool,
+    /// Sections de `config.json` que Tauri ne modélise pas — aujourd'hui `backup`, écrite par
+    /// l'installeur NSIS et lue par `pharmasmart-backup.exe`.
+    ///
+    /// <b>Indispensable.</b> `save()` sérialise cette structure entière et écrase `config.json` :
+    /// sans ce fourre-tout, la première sauvegarde depuis l'application (assistant de
+    /// configuration, écran base de données) faisait disparaître la section `backup`, et l'outil
+    /// de sauvegarde mourait ensuite à chaque exécution sur `missing field 'backup'` — dumps,
+    /// purge et contrôle compris, sans que rien n'apparaisse dans l'interface.
+    #[serde(flatten)]
+    pub extra: serde_json::Map<String, serde_json::Value>,
 }
 
 fn default_setup_complete() -> bool {
     false
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Régression : `save()` réécrit config.json à partir de cette structure. Toute section qu'elle
+    /// ne modélise pas doit survivre au cycle lecture → écriture, faute de quoi l'outil qui la lit
+    /// cesse de fonctionner sans que rien ne le signale.
+    #[test]
+    fn les_sections_inconnues_survivent_a_une_sauvegarde() {
+        let source = r#"{
+            "server": { "port": 9080 },
+            "logging": { "directory": "C:\\logs", "file": "C:\\logs\\app.log" },
+            "installation": { "directory": "C:\\PharmaSmart" },
+            "backup": {
+                "directory": "C:\\ProgramData\\PharmaSmart\\backups",
+                "db": "pharma_smart",
+                "host": "localhost",
+                "port": 5432,
+                "user": "pharmasmart_backup",
+                "retention_daily_days": 30
+            },
+            "setup_complete": true
+        }"#;
+
+        let config: AppConfig = serde_json::from_str(source).expect("lecture");
+        let rewritten: serde_json::Value =
+            serde_json::from_str(&serde_json::to_string(&config).expect("écriture")).expect("relecture");
+
+        let backup = rewritten.get("backup").expect("la section backup a disparu");
+        assert_eq!(backup["db"], "pharma_smart");
+        assert_eq!(backup["port"], 5432);
+        assert_eq!(backup["retention_daily_days"], 30);
+        // Les sections modélisées restent au bon endroit.
+        assert_eq!(rewritten["server"]["port"], 9080);
+        assert_eq!(rewritten["setup_complete"], true);
+    }
 }
 
 impl AppConfig {
@@ -419,6 +467,7 @@ impl Default for AppConfig {
             views: ViewsConfig::default(),
             database: DatabaseConfig::default(),
             setup_complete: false,
+            extra: serde_json::Map::new(),
         }
     }
 }
@@ -666,6 +715,7 @@ impl AppConfig {
             views: ViewsConfig::default(),
             database: DatabaseConfig::default(),
             setup_complete: false,
+            extra: serde_json::Map::new(),
         }
     }
 

@@ -40,16 +40,21 @@ src-backup/
     ├── dump.rs          # pg_dump logique
     ├── base.rs          # pg_basebackup physique
     ├── purge.rs         # rotation / suppression
-    ├── check.rs         # vérifie qu'un dump < 3 h existe
+    ├── check.rs         # vérifie qu'un dump assez récent existe
     └── logger.rs        # écriture horodatée dans backup.log
 ```
 
-| Commande | Fréquence recommandée | Rôle |
+| Commande | Déclenchement | Rôle |
 |---|---|---|
-| `dump`  | Toutes les 2 h (et au démarrage) | `pg_dump` compressé (.dump, format custom) |
-| `base`  | Hebdomadaire (dimanche 02 h 00)  | `pg_basebackup` tar+gzip pour PITR |
-| `purge` | Hebdomadaire (dimanche 03 h 00)  | Rotation selon rétention |
-| `check` | Hebdomadaire (lundi 08 h 00)     | Alerte si aucun dump récent |
+| `dump`  | Démarrage + toutes les 2 h — **2 exécutions réelles par jour** | `pg_dump` compressé (.dump, format custom) |
+| `base`  | Démarrage (auto-skip si < 6 j)  | `pg_basebackup` tar+gzip pour PITR |
+| `purge` | Démarrage (auto-skip si < 23 h) | Rotation selon rétention |
+| `check` | Démarrage                       | Alerte si aucun dump récent |
+
+> **Le Planificateur de tâches propose, le binaire dispose.** Un poste d'officine n'est pas allumé
+> 24 h/24 (hors gardes) : un horaire fixe raterait simplement ses rendez-vous. Les tâches se
+> présentent donc souvent, et chaque commande décide elle-même s'il y a lieu d'agir — d'où les
+> lignes `[SKIP]` dans `backup.log`, qui sont un fonctionnement normal et non une anomalie.
 
 ---
 
@@ -185,11 +190,28 @@ Section attendue :
     "user": "pharmasmart_backup",
     "retention_daily_days": 30,
     "retention_base_weeks": 4,
+    "max_daily_dumps": 2,
+    "min_dump_interval_hours": 6,
+    "max_dump_age_hours": 48,
+    "min_daily_kept": 10,
     "wal_archiving": false,
     "wal_directory": ""
   }
 }
 ```
+
+| Clé | Défaut | Rôle |
+|---|---|---|
+| `retention_daily_days` | 30 | Âge au-delà duquel un dump est purgeable |
+| `retention_base_weeks` | 4 | Idem pour les base backups |
+| `max_daily_dumps` | 2 | Dumps par jour calendaire — au-delà, la tâche se termine en `[SKIP]` |
+| `min_dump_interval_hours` | 6 | Écart minimum entre deux dumps, pour que le second couvre l'après-midi |
+| `max_dump_age_hours` | 48 | Seuil d'alerte de `check` (poste éteint la nuit et le dimanche) |
+| `min_daily_kept` | 10 | Dumps conservés même expirés — filet contre un poste éteint des semaines |
+
+> La section `backup` peut manquer : le binaire se replie alors sur la section `database` et
+> `%PROGRAMDATA%\PharmaSmart\backups`, en le signalant dans le log. Il ne s'arrête plus, comme
+> c'était le cas auparavant.
 
 Le mot de passe PostgreSQL est fourni **soit** par la variable d'environnement `PGPASSWORD`, **soit** par `%APPDATA%\postgresql\pgpass.conf` (recommandé, non versionné).
 
@@ -312,15 +334,17 @@ L'installeur NSIS généré :
 ```text
 pharmasmart-backup <COMMAND>
 
-  dump    pg_dump logique (à planifier toutes les 2 h)
-  base    pg_basebackup physique (hebdomadaire)
-  purge   Rotation/purge des anciens fichiers
-  check   Vérifie la présence d'un dump récent (< 3 h)
+  dump    pg_dump logique — au plus max_daily_dumps (2) par jour
+  base    pg_basebackup physique — hebdomadaire (auto-skip si < 6 j)
+  purge   Rotation/purge des anciens fichiers (auto-skip si < 23 h)
+  check   Vérifie la présence d'un dump récent (< max_dump_age_hours)
 ```
 
 ### `dump`
 
 - Crée `{backup.directory}/daily/pharmasmart_YYYYMMDD_HHMMSS.dump`
+- **Au plus `max_daily_dumps` (2) par jour**, espacés d'au moins `min_dump_interval_hours` (6 h) —
+  les exécutions excédentaires se terminent en `[SKIP]` sans toucher à la base
 - Format custom, compression `-Z 6` (~ 75 % de réduction, CPU modéré)
 - Verrous `ACCESS SHARE` uniquement → aucune interruption de service
 
@@ -331,13 +355,16 @@ pharmasmart-backup <COMMAND>
 
 ### `purge`
 
-- Supprime les dumps > `retention_daily_days` (défaut : 30 j)
-- Supprime les base backups > `retention_base_weeks` (défaut : 4 sem)
+- Supprime les dumps > `retention_daily_days` (défaut : 30 j), **sauf les `min_daily_kept` (10)
+  plus récents** — sur un poste resté éteint des semaines, tout est expiré et une purge purement
+  calendaire viderait le répertoire au moment où ce sont les seules sauvegardes qui restent
+- Supprime les base backups > `retention_base_weeks` (défaut : 4 sem), en gardant toujours les 2 derniers
+- Une entrée illisible ou verrouillée est signalée et ignorée : elle n'interrompt plus le balayage
 - Si `wal_archiving = true` : supprime les WAL > 7 j
 
 ### `check`
 
-- Renvoie **code 0** si un `*.dump` < 3 h existe dans `daily/`
+- Renvoie **code 0** si un `*.dump` de moins de `max_dump_age_hours` (48 h) existe dans `daily/`
 - Renvoie **code ≠ 0** sinon — idéal pour un monitoring (intégration avec Task Scheduler → email en cas d'échec)
 
 Chaque commande trace son résultat horodaté dans `{backup.directory}/logs/backup.log`.
@@ -370,10 +397,10 @@ Tâches créées :
 
 | Nom | Déclencheur | Détail |
 |---|---|---|
-| `PharmaSmart_Backup_Dump`  | `AtStartup` + `PT3M` **et** répétition `PT2H` | SYSTEM, priorité 6 (BELOW_NORMAL) |
-| `PharmaSmart_Backup_Base`  | Dimanche 02 h 00 (`StartWhenAvailable`) | SYSTEM |
-| `PharmaSmart_Backup_Purge` | Dimanche 03 h 00 (`StartWhenAvailable`) | SYSTEM |
-| `PharmaSmart_Backup_Check` | Lundi 08 h 00 (`StartWhenAvailable`)    | SYSTEM |
+| `PharmaSmart_Backup_Dump`  | `AtStartup` + `PT3M` **et** répétition `PT2H` — 2 dumps/jour au plus | SYSTEM, priorité 6 (BELOW_NORMAL) |
+| `PharmaSmart_Backup_Base`  | `AtStartup` + `PT7M` (auto-skip si < 6 j)  | SYSTEM |
+| `PharmaSmart_Backup_Purge` | `AtStartup` + `PT5M` (auto-skip si < 23 h) | SYSTEM |
+| `PharmaSmart_Backup_Check` | `AtStartup` + `PT2M`                      | SYSTEM |
 
 Vérification :
 
@@ -477,7 +504,8 @@ Voir [`docs/BACKUP-STRATEGY.md § 8`](../docs/BACKUP-STRATEGY.md#8-procédure-de
 | `Impossible de localiser le répertoire bin/ de PostgreSQL` | PostgreSQL non détecté | Définir `PGBIN` : `$env:PGBIN = "C:\Program Files\PostgreSQL\18\bin"` |
 | `pg_dump: error: connection ... password authentication failed` | Mot de passe manquant | Définir `PGPASSWORD` ou configurer `pgpass.conf` |
 | `pg_dump` OK en CLI mais la tâche planifiée échoue | Compte SYSTEM ne trouve pas le mot de passe | Mettre `pgpass.conf` dans `C:\Windows\System32\config\systemprofile\AppData\Roaming\postgresql\` |
-| Dumps présents mais jamais purgés | Tâche `Purge` jamais exécutée | `Start-ScheduledTask -TaskName PharmaSmart_Backup_Purge` |
+| Dumps présents mais jamais purgés | Aucun n'a encore dépassé `retention_daily_days`, ou le plancher `min_daily_kept` les protège | Vérifier les dates : `purge` journalise systématiquement le nombre de fichiers supprimés |
+| Plus aucune ligne dans `backup.log` | Le binaire meurt avant d'avoir chargé sa config | Lire `%PROGRAMDATA%\PharmaSmart\logs\backup-error.log` — c'est là que vont les erreurs de démarrage |
 | `check` renvoie une erreur | Aucun dump récent → surveillance OK | Relancer manuellement un `dump`, puis investiguer les logs |
 
 ### Activer le WAL archivage (périodes de garde)

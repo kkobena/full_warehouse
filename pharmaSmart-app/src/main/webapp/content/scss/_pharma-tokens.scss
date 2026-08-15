@@ -167,7 +167,12 @@
   --p-highlight-focus-background: var(--p-primary-100);
   --p-highlight-color: var(--p-primary-700);
   --p-highlight-focus-color: var(--p-primary-800);
-  --p-primary-color: var(--p-primary-500);
+  // Déplacé de 500 à 700 pour la conformité WCAG AA du texte blanc — même raison et
+  // même valeur que `$primary` dans `_pharma-bootstrap-palette.scss`. L'échelle
+  // numérique `--p-primary-*` reste fidèle à Aura ; seul ce token sémantique bouge,
+  // afin que les 44 consommateurs de `var(--p-primary-color)` restent alignés sur
+  // `.btn-primary`.
+  --p-primary-color: var(--p-primary-700);
   --p-primary-contrast-color: #ffffff;
   --p-surface-0: #ffffff;
   --p-surface-50: var(--p-slate-50);

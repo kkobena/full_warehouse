@@ -30,13 +30,13 @@ export type FlyoutRow =
   | { kind: 'link'; key: string; item: NavItem };
 
 @Component({
-  selector: 'app-sidebar-flyout',
+  selector: 'app-nav-flyout',
   imports: [RouterModule, FaIconComponent, CdkTrapFocus, FlyoutItemDirective],
-  templateUrl: './sidebar-flyout.component.html',
-  styleUrl: './sidebar-flyout.component.scss',
+  templateUrl: './nav-flyout.component.html',
+  styleUrl: './nav-flyout.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SidebarFlyoutComponent implements AfterViewInit, OnDestroy {
+export class NavFlyoutComponent implements AfterViewInit, OnDestroy {
   /** Entrée parente dont on affiche les enfants. */
   readonly item = input.required<NavItem>();
 
@@ -49,6 +49,13 @@ export class SidebarFlyoutComponent implements AfterViewInit, OnDestroy {
 
   /** Rendu plein écran (petits écrans) plutôt qu'en carte ancrée. */
   readonly fullscreen = input(false);
+
+  /**
+   * D'où sort le panneau : `'side'` pour un rail vertical (il glisse depuis la
+   * gauche), `'below'` pour une barre horizontale (il descend). N'influe que
+   * sur l'animation d'entrée — le positionnement est l'affaire de l'hôte.
+   */
+  readonly placement = input<'side' | 'below'>('side');
 
   /** Émis quand l'utilisateur active une ligne (navigation ou action). */
   readonly navigate = output<NavItem>();

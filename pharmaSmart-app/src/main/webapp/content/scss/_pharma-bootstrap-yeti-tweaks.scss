@@ -1,0 +1,204 @@
+// Surcharges de composants héritées du thème Bootswatch **yeti** 5.3.8, figées
+// dans le projet — portage de `bootswatch/dist/yeti/_bootswatch.scss`.
+//
+// À charger APRÈS `bootstrap/scss/bootstrap` : ces règles surchargent le CSS
+// généré par Bootstrap et consomment ses mixins (`shade-color`, `tint-color`,
+// `color-mode`, `box-shadow`).
+//
+// Le bloc `$web-font-path` d'origine, qui importait Open Sans depuis Google
+// Fonts, n'est pas repris : la police est déjà chargée localement via
+// `content/css/open-sans.css` (angular.json), et `vendor.scss` neutralisait
+// déjà cet import.
+//
+// Comme `_pharma-bootstrap-yeti-vars.scss`, ce fichier est une **copie
+// intentionnelle** : il rend le retrait de `bootswatch` visuellement neutre.
+// Chaque bloc est un choix de yeti, pas de Pharma-Smart, et peut être élagué
+// isolément — en re-diffant le CSS produit.
+
+// ── Navbar ───────────────────────────────────────────────────────────────────
+.navbar {
+  font-weight: $headings-font-weight;
+}
+
+// Retiré (lot B1) : `.bg-primary .dropdown-menu`, `.bg-dark` et `.bg-light .dropdown-menu`.
+// Yeti colorait les menus déroulants portés par une barre de couleur. Aucun gabarit du
+// projet ne combine `bg-primary` / `bg-light` avec un `dropdown`, et `bg-dark` n'est
+// utilisé nulle part — la navbar s'appuie sur `.navbar-chrome` et son propre panneau.
+
+// ── Boutons ──────────────────────────────────────────────────────────────────
+.btn {
+  &-primary {
+    border-color: shade-color($primary, 10%);
+  }
+
+  &-secondary {
+    border-color: shade-color($secondary, 10%);
+  }
+
+  &-success {
+    border-color: shade-color($success, 10%);
+  }
+
+  &-info {
+    color: $white;
+    border-color: shade-color($info, 10%);
+  }
+
+  &-danger {
+    border-color: shade-color($danger, 10%);
+  }
+
+  // `&-warning` retiré : le bouton d'avertissement est entièrement repris dans
+  // `_pharma-bootstrap-tweaks.scss` (fond ambré, texte foncé). Les déclarations de yeti
+  // — `color` et `border-color` posées en direct — l'emporteraient sur les custom
+  // properties générées par `button-variant`, qui est le mécanisme normal de Bootstrap.
+
+  &-light {
+    border-color: shade-color($light, 10%);
+  }
+
+  &-dark {
+    border-color: shade-color($dark, 10%);
+  }
+}
+
+.btn-outline-secondary {
+  color: var(--bs-primary-color);
+}
+
+// Retiré (lot B2) : les six règles `.btn-group .dropdown-toggle.btn-* ~ .dropdown-menu`,
+// qui coloraient le menu d'après la severity du bouton déclencheur.
+//
+// `app-split-button` — le seul consommateur — les neutralisait intégralement à coups de
+// `!important`, faute de pouvoir les battre autrement (4 classes de spécificité). Une
+// règle du thème et sa contre-règle s'annulaient : les deux ont été supprimées ensemble.
+// Le menu d'un split-button ressemble désormais à tous les autres menus de l'application.
+.btn-group {
+  .dropdown-menu {
+    border-top-width: 0;
+  }
+}
+
+// ── Typographie ──────────────────────────────────────────────────────────────
+.text-secondary {
+  color: $gray-700 !important;
+}
+
+// Retiré (lot B1) : `.blockquote-footer` — aucun usage dans le projet.
+
+// ── Tables ───────────────────────────────────────────────────────────────────
+table {
+  font-size: $font-size-sm;
+}
+
+.table-secondary,
+.table-light {
+  --#{$prefix}table-color: #{$body-color};
+}
+
+// ── Formulaires ──────────────────────────────────────────────────────────────
+// `.help-block` et `.form-control-feedback` retirés du sélecteur (lot B1) : ce sont des
+// classes Bootstrap 3, sans aucun usage dans le projet.
+label,
+.control-label,
+.checkbox,
+.radio {
+  font-size: $font-size-sm;
+}
+
+// ── Navigation ───────────────────────────────────────────────────────────────
+.dropdown-item {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  font-size: $font-size-sm;
+  font-weight: 300;
+}
+
+.nav-pills {
+  .active {
+    border: 1px solid shade-color($primary, 10%);
+  }
+}
+
+.breadcrumb {
+  font-size: $font-size-sm;
+  font-weight: 300;
+  text-transform: uppercase;
+  border: 1px solid $dropdown-border-color;
+}
+
+.pagination {
+  font-weight: 300;
+
+  .page-link {
+    margin-right: 0.1em;
+    margin-left: 0.1em;
+    border-color: transparent;
+    border-radius: 3px;
+
+    &:hover,
+    &:focus {
+      text-decoration: none;
+    }
+  }
+
+  .page-item.disabled {
+    .page-link {
+      border-color: transparent;
+    }
+  }
+}
+
+.pagination,
+.pagination-lg,
+.pagination-sm {
+  .page-item:first-child,
+  .page-item:last-child {
+    .page-link {
+      border-radius: 3px;
+    }
+  }
+}
+
+@include color-mode(dark) {
+  .pagination {
+    --bs-pagination-disabled-color: #{$gray-700};
+  }
+}
+
+.list-group {
+  font-size: $font-size-sm;
+  font-weight: 300;
+}
+
+.list-group-item.disabled,
+.list-group-item:disabled {
+  background-color: var(--bs-secondary-bg);
+}
+
+// ── Indicateurs ──────────────────────────────────────────────────────────────
+.alert {
+  font-size: $font-size-sm;
+  font-weight: 300;
+
+  .alert-link {
+    text-decoration: underline;
+  }
+}
+
+.badge {
+  &.bg-secondary,
+  &.bg-light {
+    color: $dark;
+  }
+}
+
+// Retiré (lot B1) : `.progress[value]` — habillage de l'élément HTML natif `<progress>`,
+// que le projet n'utilise nulle part (les barres de progression passent par `.progress`
+// de Bootstrap, un `<div>`, que ce sélecteur ne ciblait pas).
+
+// ── Popovers ─────────────────────────────────────────────────────────────────
+.popover-header {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}

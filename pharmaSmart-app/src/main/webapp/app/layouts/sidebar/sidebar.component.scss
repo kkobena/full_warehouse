@@ -4,13 +4,12 @@
   top: 10px;
   bottom: 0;
   width: 280px;
-  background: #2c3e50;
-  color: #ecf0f1;
+  background: var(--pharma-nav-bg);
+  color: var(--pharma-nav-fg);
   display: flex;
   flex-direction: column;
-  transition:
-    width 0.3s ease,
-    transform 0.3s ease;
+  transition: width 0.3s ease,
+  transform 0.3s ease;
   z-index: 1050;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -57,7 +56,7 @@
       .logo-text {
         font-size: 1.5rem;
         font-weight: 700;
-        color: #3498db;
+        color: var(--pharma-nav-accent);
         white-space: nowrap;
       }
 
@@ -70,7 +69,7 @@
     }
 
     .toggle-btn {
-      color: #ecf0f1;
+      color: var(--pharma-nav-fg);
       padding: 0.5rem;
       font-size: 1.25rem;
       border: none;
@@ -95,7 +94,7 @@
     background: rgba(0, 0, 0, 0.2);
 
     .user-avatar {
-      color: #3498db;
+      color: var(--pharma-nav-accent);
     }
 
     .user-info {
@@ -110,9 +109,10 @@
         text-overflow: ellipsis;
       }
 
+
       .user-role {
         font-size: 0.8rem;
-        opacity: 0.8;
+        color: var(--pharma-nav-fg-muted);
       }
     }
   }
@@ -155,7 +155,7 @@
       display: flex;
       align-items: center;
       padding: 0.75rem 1rem;
-      color: #ecf0f1;
+      color: var(--pharma-nav-fg);
       text-decoration: none;
       transition: all 0.3s;
       cursor: pointer;
@@ -198,7 +198,7 @@
 
       // Le chevron pivote quand le flyout de l'entrée est ouvert
       &.has-children.expanded {
-        background: rgba(52, 152, 219, 0.2);
+        background: var(--pharma-nav-accent-soft);
         color: #fff;
 
         .nav-arrow {
@@ -207,13 +207,13 @@
       }
 
       &:hover {
-        background: rgba(52, 152, 219, 0.2);
+        background: var(--pharma-nav-accent-soft);
         color: #fff;
       }
 
       &.active,
       &.router-link-active {
-        background: linear-gradient(90deg, #3498db 0%, rgba(52, 152, 219, 0.8) 100%);
+        background: linear-gradient(90deg, var(--pharma-nav-accent) 0%, rgba(52, 152, 219, 0.8) 100%);
         color: #fff;
         font-weight: 600;
 
@@ -224,7 +224,7 @@
           top: 0;
           bottom: 0;
           width: 4px;
-          background: #2ecc71;
+          background: var(--pharma-nav-active);
         }
       }
 
@@ -252,19 +252,19 @@
       .form-select {
         background: rgba(255, 255, 255, 0.1);
         border: 1px solid rgba(255, 255, 255, 0.2);
-        color: #ecf0f1;
+        color: var(--pharma-nav-fg);
         font-size: 0.875rem;
 
         &:focus {
           background: rgba(255, 255, 255, 0.15);
-          border-color: #3498db;
+          border-color: var(--pharma-nav-accent);
           box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
           color: #fff;
         }
 
         option {
-          background: #2c3e50;
-          color: #ecf0f1;
+          background: var(--pharma-nav-bg);
+          color: var(--pharma-nav-fg);
         }
       }
     }
@@ -281,7 +281,7 @@
         font-size: 0.75rem;
         font-weight: 500;
         color: rgba(255, 255, 255, 0.7);
-        background: rgba(52, 152, 219, 0.2);
+        background: var(--pharma-nav-accent-soft);
         padding: 0.25rem 0.5rem;
         border-radius: 4px;
       }
@@ -290,11 +290,11 @@
     .btn {
       font-size: 0.875rem;
       border-color: rgba(255, 255, 255, 0.3);
-      color: #ecf0f1;
+      color: var(--pharma-nav-fg);
 
       &:hover {
         background: rgba(255, 255, 255, 0.1);
-        border-color: #3498db;
+        border-color: var(--pharma-nav-accent);
         color: #fff;
       }
     }
@@ -336,7 +336,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  border: 1.5px solid #2c3e50;
+  border: 1.5px solid var(--pharma-nav-bg);
   display: block;
 }
 

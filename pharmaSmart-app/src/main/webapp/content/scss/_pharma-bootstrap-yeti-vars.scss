@@ -1,0 +1,146 @@
+// Variables héritées du thème Bootswatch **yeti** 5.3.8, figées dans le projet.
+//
+// Pourquoi ce fichier existe
+// -------------------------
+// L'application ne dépend plus du paquet `bootswatch`. Ces valeurs étaient
+// jusqu'ici fournies par `bootswatch/dist/yeti/variables` ; elles sont reprises
+// telles quelles pour que le retrait de la dépendance soit **visuellement
+// neutre**. Le fichier est donc, volontairement, une copie — pas un design.
+//
+// Ordre d'import
+// --------------
+// À charger APRÈS `pharma-bootstrap-palette` (qui assigne sans `!default` et
+// gagne donc) et AVANT `bootstrap/scss/variables`. Les `!default` conservés
+// reproduisent exactement la sémantique d'origine : ce qui est déjà défini en
+// amont n'est pas écrasé.
+//
+// Comment élaguer
+// ---------------
+// Chaque valeur ici est un choix de yeti, pas un choix de Pharma-Smart. Pour en
+// retirer une, la supprimer et re-differ le CSS produit : la variable retombera
+// sur le défaut Bootstrap, et le diff dira ce que ça change. Voir
+// docs/PLAN-HARMONISATION-NAVBAR-SIDEBAR.md pour la méthode.
+
+// ── Échelle de gris ──────────────────────────────────────────────────────────
+$white: #fff !default;
+$gray-100: #f8f9fa !default;
+$gray-200: #eee !default;
+$gray-300: #dee2e6 !default;
+$gray-400: #ccc !default;
+$gray-500: #adb5bd !default;
+$gray-600: #888 !default;
+$gray-700: #495057 !default;
+$gray-800: #333 !default;
+$gray-900: #222 !default;
+$black: #000 !default;
+
+// ── Couleurs de base ─────────────────────────────────────────────────────────
+// Note : `$primary`…`$danger` sont déjà fixés par `pharma-bootstrap-palette`.
+// Les teintes brutes ci-dessous restent utiles : Bootstrap en dérive les
+// échelles `$blue-100`…`$blue-900` et la map `$colors`.
+$blue: #008cba !default;
+$indigo: #6610f2 !default;
+$purple: #6f42c1 !default;
+$pink: #e83e8c !default;
+$red: #f04124 !default;
+$orange: #fd7e14 !default;
+$yellow: #e99002 !default;
+$green: #43ac6a !default;
+$teal: #20c997 !default;
+$cyan: #5bc0de !default;
+
+$primary: $blue !default;
+$secondary: $gray-200 !default;
+$success: $green !default;
+$info: $cyan !default;
+$warning: $yellow !default;
+$danger: $red !default;
+$light: $gray-200 !default;
+$dark: $gray-800 !default;
+
+// Retiré (lot B3) : `$min-contrast-ratio: 1.9`.
+//
+// C'était la variable la plus lourde de conséquences du fichier. Bootstrap est à 4.5
+// (seuil WCAG AA) ; yeti l'abaissait à 1.9, ce qui poussait `color-contrast()` à
+// choisir du texte blanc sur des fonds où il plafonnait à 2,28–3,96 de ratio. Six
+// variantes de bouton sur huit étaient non conformes.
+//
+// La palette a été foncée en conséquence (`_pharma-bootstrap-palette.scss`) : le blanc
+// atteint désormais 4,83 à 6,98 selon la severity. Le seuil peut donc revenir au défaut
+// Bootstrap — le choix du blanc reste le même, mais il est vérifié, et toute évolution
+// future de la palette sera contrôlée automatiquement à la compilation.
+
+// ── Composants ───────────────────────────────────────────────────────────────
+// `$border-radius`, `-sm` et `-lg` sont volontairement absents : yeti les met à
+// 0, `pharma-bootstrap-palette` impose les rayons Aura (6 / 4 / 8 px).
+//
+// Retiré (lot B4) : `$card-inner-border-radius: 0`.
+// Cohérent chez yeti, où TOUS les rayons valent 0. Ici, la carte avait un contour
+// arrondi à 6 px (Aura) et des angles internes carrés : l'en-tête et le pied
+// débordaient visuellement des coins. Bootstrap dérive désormais la valeur de
+// `$card-border-radius` moins l'épaisseur de bordure, comme prévu.
+
+// ── Typographie ──────────────────────────────────────────────────────────────
+// stylelint-disable-next-line value-keyword-case
+$font-family-sans-serif:
+  'Open Sans',
+  -apple-system,
+  BlinkMacSystemFont,
+  'Segoe UI',
+  Roboto,
+  'Helvetica Neue',
+  Arial,
+  sans-serif,
+  'Apple Color Emoji',
+  'Segoe UI Emoji',
+  'Segoe UI Symbol' !default;
+
+// Retiré (lot B4) : `$headings-font-weight: 300`.
+// Graisse « light », signature esthétique de yeti — jamais choisie pour ce projet, et
+// à contre-courant du preset Aura vers lequel le Design System migre (titres en 600).
+// Retombe sur le défaut Bootstrap, 500. Concerne les blocs `h1`…`h6` et `.h1`…`.h6`.
+
+// ── Tables ───────────────────────────────────────────────────────────────────
+$table-color: initial !default;
+$table-bg-scale: 0% !default;
+
+// ── Boutons ──────────────────────────────────────────────────────────────────
+// `$input-btn-padding-x` et `$btn-font-weight` sont déjà fixés par
+// `pharma-bootstrap-palette` — inutile de les reprendre.
+
+// ── Listes déroulantes ───────────────────────────────────────────────────────
+$dropdown-border-color: rgba($black, 0.1) !default;
+$dropdown-divider-bg: rgba($black, 0.1) !default;
+
+// ── Navbar ───────────────────────────────────────────────────────────────────
+$navbar-dark-color: rgba($white, 0.7) !default;
+$navbar-dark-hover-color: $white !default;
+
+// ── Pagination ───────────────────────────────────────────────────────────────
+$pagination-color: $gray-600 !default;
+$pagination-active-border-color: darken($primary, 5%) !default;
+$pagination-disabled-bg: transparent !default;
+$pagination-disabled-color: $gray-400 !default;
+
+// ── Badges ───────────────────────────────────────────────────────────────────
+$badge-font-weight: 300 !default;
+
+// Retiré (lot B4) : `$badge-padding-x: 1rem`.
+// Chez yeti les badges sont larges, presque des pilules. Dans une application dense —
+// 833 badges, souvent des compteurs en tableau — cette largeur coûte de la place sans
+// rien apporter. Retombe sur le défaut Bootstrap, 0.65em. Les badges de navigation
+// (`.sidebar-badge`, `.navbar-badge`) ne sont pas concernés : ils fixent déjà leur
+// propre padding.
+
+// ── Alertes ──────────────────────────────────────────────────────────────────
+$alert-link-font-weight: 400 !default;
+
+// ── Fil d'Ariane ─────────────────────────────────────────────────────────────
+$breadcrumb-padding-y: 0.375rem !default;
+$breadcrumb-padding-x: 0.75rem !default;
+$breadcrumb-border-radius: 3px !default;
+
+// ── Bouton de fermeture ──────────────────────────────────────────────────────
+$btn-close-color: $gray-600 !default;
+$btn-close-opacity: 0.6 !default;
+$btn-close-hover-opacity: 1 !default;

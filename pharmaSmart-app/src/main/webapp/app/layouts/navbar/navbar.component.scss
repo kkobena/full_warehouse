@@ -1,15 +1,7 @@
-@import 'bootstrap/scss/functions';
-@import 'bootswatch/dist/yeti/variables';
-@import 'bootstrap/scss/variables';
-
-/* ==========================================================================
-Navbar — style "application desktop" (~32px de hauteur)
-========================================================================== */
 
 .navbar-version {
   font-size: 0.6em;
-  color: $navbar-dark-color;
-  opacity: 0.7;
+  color: var(--pharma-nav-fg-muted);
 }
 
 .navbar-title {
@@ -26,15 +18,9 @@ Navbar — style "application desktop" (~32px de hauteur)
   padding: 0 0.75rem;
   min-height: unset;
 
-  // Fond du chrome applicatif — volontairement DÉCOUPLÉ de `.bg-primary`.
-  //
-  // `_pharma-bootstrap-palette.scss` aligne `$primary` sur l'émeraude Aura pour que
-  // les `p-button` → `app-button` gardent leur couleur pendant la migration. La navbar
-  // relève du branding, pas de la palette de composants : adossée à `.bg-primary` elle
-  // basculait du teal historique à l'émeraude. Ce token la met hors d'atteinte de la
-  // palette, et du futur thème custom (cf. plan de migration §8.8.2).
+
   &.navbar-chrome {
-    background-color: var(--pharma-navbar-bg);
+    background-color: var(--pharma-nav-bg);
   }
 
   // CSS variables Bootstrap 5 — style barre d'application desktop
@@ -58,22 +44,28 @@ Navbar — style "application desktop" (~32px de hauteur)
     font-weight: 400;
   }
 
-  .dropdown-item.active,
-  .dropdown-item.active:focus,
-  .dropdown-item.active:hover {
-    background-color: $dark;
-  }
-
-  // Fix : le caret Bootstrap ::after doit rester sur la même ligne que le label
-  a.nav-link.dropdown-toggle,
-  button.nav-link.dropdown-toggle {
+  // Déclencheur d'un panneau de sous-menu. C'est un <button> : on neutralise le
+  // style natif pour qu'il s'aligne sur les <a class="nav-link"> voisins.
+  button.nav-link.has-children {
+    border: 0;
+    background: transparent;
+    text-decoration: none;
     display: inline-flex;
     align-items: center;
 
-    &::after {
+    .nav-caret {
+      font-size: 0.65em;
+      margin-left: 0.25em;
       flex-shrink: 0;
-      margin-left: 0.2em;
-      vertical-align: middle;
+      transition: transform 0.2s ease;
+    }
+
+    &.expanded {
+      background-color: var(--pharma-nav-bg-hover);
+
+      .nav-caret {
+        transform: rotate(180deg);
+      }
     }
   }
 
@@ -83,8 +75,9 @@ Navbar — style "application desktop" (~32px de hauteur)
 
   .navbar-toggler {
     padding: 0.15rem 0.4rem;
+
     &:hover {
-      color: $navbar-dark-hover-color;
+      color: var(--pharma-nav-fg);
     }
   }
 }
@@ -107,11 +100,15 @@ Logo styles — taille desktop
   top: 0;
   z-index: 1020;
 
-  // Teal historique (Bootswatch yeti `$primary`). Premier token du vocabulaire
-  // `--pharma-*` ; à remonter en `:root` si d'autres éléments de chrome le partagent.
-  --pharma-navbar-bg: #008cba;
-  // Équivalent de `shade-color($primary, 10%)` chez yeti, figé sur le teal.
-  --pharma-navbar-bg-hover: #007ea7;
+  // Même teinte que le rail — hsl(210, 29%) — mais éclaircie d'un cran.
+  //
+  // `--pharma-nav-bg` (#2c3e50, L=24%) est calibré pour une colonne verticale,
+  // que l'œil lit comme un panneau. En bande pleine largeur de ~32 px au-dessus
+  // d'un contenu clair, la même valeur produit une arête horizontale très dure.
+  // On ne change ni la teinte ni la saturation : l'harmonie avec la sidebar
+  // tient sur la teinte, pas sur la luminosité.
+  --pharma-nav-bg: #3a5269; // L=32%
+  --pharma-nav-bg-hover: #45617d; // L=38%
 }
 
 /* ==========================================================================
@@ -142,67 +139,3 @@ Badge d'alerte dans la navbar (péremptions et autres alertes)
   animation: pulse-badge 1.8s ease-in-out infinite;
   display: inline-block;
 }
-
-.dropdown-item {
-  .badge {
-    font-size: 0.6rem;
-    flex-shrink: 0;
-  }
-}
-
-/* ==========================================================================
-Group labels dans les dropdowns (Référentiel : Produits / Commercial / Organisation)
-Utilisation de ::ng-deep car ng-bootstrap display="dynamic" déplace le menu hors du composant
-========================================================================== */
-// Yeti colorait les menus déroulants de la navbar via `.bg-primary .dropdown-menu`
-// (`bootswatch/dist/yeti/_bootswatch.scss:18`). En quittant `.bg-primary` pour
-// `.navbar-chrome` on perdait cette règle, d'où des menus blancs. Reproduite ici,
-// adossée au token de chrome plutôt qu'à `$primary`.
-:host ::ng-deep .navbar-chrome .dropdown-menu {
-  background-color: var(--pharma-navbar-bg);
-
-  .dropdown-item,
-  .dropdown-item:focus {
-    color: $navbar-dark-color;
-  }
-
-  .dropdown-item.active,
-  .dropdown-item:hover,
-  .dropdown-item:focus {
-    color: $white;
-    background-color: var(--pharma-navbar-bg-hover);
-  }
-}
-
-:host ::ng-deep .dropdown-menu {
-  font-size: 0.9rem;
-
-  .dropdown-item {
-    padding: 0.55rem 1.1rem;
-    line-height: 1.4;
-  }
-
-  .dropdown-header {
-    font-size: 0.72rem !important;
-    font-weight: 700 !important;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    color: #555 !important;
-    background: transparent;
-    padding: 0.65rem 1.1rem 0.25rem;
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
-    margin-top: 0.1rem;
-    pointer-events: none;
-
-    &:first-child {
-      border-top: none;
-      margin-top: 0;
-    }
-  }
-
-  .dropdown-divider {
-    margin: 0.25rem 0;
-    border-color: rgba(0, 0, 0, 0.1);
-  }
-}
-

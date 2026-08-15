@@ -1,4 +1,5 @@
-<aside class="sidebar" role="navigation" aria-label="Menu latéral" [class.collapsed]="isCollapsed()">
+<aside [class.collapsed]="isCollapsed()" aria-label="Menu latéral" class="sidebar"
+       role="navigation">
   <!-- Sidebar Header -->
   <div class="sidebar-header">
     @if (!isCollapsed()) {
@@ -6,7 +7,8 @@
         <span class="logo-text">Pharma Smart</span>
       </a>
     }
-    <button type="button" class="btn btn-link toggle-btn" (click)="toggleSidebar()" [attr.aria-label]="'Toggle sidebar'">
+    <button (click)="toggleSidebar()" [attr.aria-label]="'Toggle sidebar'" class="btn btn-link toggle-btn"
+            type="button">
       <fa-icon [icon]="faBars"></fa-icon>
     </button>
   </div>
@@ -19,28 +21,28 @@
       </div>
       <div class="user-info">
         <div class="user-name">{{ account()!.lastName }}</div>
-        <div class="user-role text-muted small">
-          {{ account()!.authorities[0] }}
+        <div class="user-role small">
+          {{ account()!.authority?.libelle }}
         </div>
       </div>
     </div>
   }
 
   <!-- Navigation Menu -->
-  <nav class="sidebar-nav" aria-label="Menu principal">
+  <nav aria-label="Menu principal" class="sidebar-nav">
     <ul class="nav-list">
       @for (item of navItems; track item.id) {
         <li class="nav-item">
           <!-- Entrée simple : navigation -->
           @if (!item.children && item.routerLink) {
             <a
-              [routerLink]="item.routerLink"
-              routerLinkActive="active"
-              class="nav-link"
+              (click)="onMenuItemClick()"
               [class.collapsed-item]="isCollapsed()"
               [ngbTooltip]="isCollapsed() ? item.label : null"
+              [routerLink]="item.routerLink"
+              class="nav-link"
               placement="right"
-              (click)="onMenuItemClick()"
+              routerLinkActive="active"
             >
               <span class="nav-icon">
                 <fa-icon [icon]="item.faIcon"></fa-icon>
@@ -51,7 +53,8 @@
               @if (!isCollapsed()) {
                 <span class="nav-label">{{ item.label }}</span>
                 @if (item.badge > 0) {
-                  <span class="badge rounded-pill bg-{{ item.badgeSeverity ?? 'danger' }} sidebar-badge ms-auto">
+                  <span
+                    class="badge rounded-pill bg-{{ item.badgeSeverity ?? 'danger' }} sidebar-badge ms-auto">
                     {{ item.badge > 99 ? '99+' : item.badge }}
                   </span>
                 }
@@ -63,9 +66,9 @@
           @if (!item.children && item.click && !item.routerLink) {
             <a
               (click)="onMenuItemClick(item.click)"
-              class="nav-link clickable"
               [class.collapsed-item]="isCollapsed()"
               [ngbTooltip]="isCollapsed() ? item.label : null"
+              class="nav-link clickable"
               placement="right"
             >
               <span class="nav-icon">
@@ -80,21 +83,21 @@
           <!-- Entrée parente : ouvre le flyout, quelle que soit la largeur du rail -->
           @if (item.children && item.children.length > 0) {
             <button
-              type="button"
               #trigger="cdkOverlayOrigin"
-              cdkOverlayOrigin
-              [attr.data-flyout-trigger]="item.id"
-              class="nav-link has-children"
-              [class.collapsed-item]="isCollapsed()"
-              [class.expanded]="openMenuId() === item.id"
-              [ngbTooltip]="isCollapsed() ? item.label : null"
-              placement="right"
-              aria-haspopup="menu"
-              [attr.aria-expanded]="openMenuId() === item.id"
               (click)="toggleMenu(item, $event)"
               (keydown.arrowright)="onTriggerArrowRight(item)"
               (mouseenter)="onTriggerEnter(item)"
               (mouseleave)="onTriggerLeave()"
+              [attr.aria-expanded]="openMenuId() === item.id"
+              [attr.data-flyout-trigger]="item.id"
+              [class.collapsed-item]="isCollapsed()"
+              [class.expanded]="openMenuId() === item.id"
+              [ngbTooltip]="isCollapsed() ? item.label : null"
+              aria-haspopup="menu"
+              cdkOverlayOrigin
+              class="nav-link has-children"
+              placement="right"
+              type="button"
             >
               <span class="nav-icon">
                 <fa-icon [icon]="item.faIcon"></fa-icon>
@@ -105,7 +108,8 @@
               @if (!isCollapsed()) {
                 <span class="nav-label">{{ item.label }}</span>
                 @if (item.badge > 0) {
-                  <span class="badge rounded-pill bg-{{ item.badgeSeverity ?? 'danger' }} sidebar-badge ms-auto me-1">
+                  <span
+                    class="badge rounded-pill bg-{{ item.badgeSeverity ?? 'danger' }} sidebar-badge ms-auto me-1">
                     {{ item.badge > 99 ? '99+' : item.badge }}
                   </span>
                 }
@@ -116,21 +120,21 @@
             </button>
 
             <ng-template
-              cdkConnectedOverlay
-              [cdkConnectedOverlayOrigin]="trigger"
-              [cdkConnectedOverlayOpen]="openMenuId() === item.id"
-              [cdkConnectedOverlayPositions]="flyoutPositions"
-              [cdkConnectedOverlayFlexibleDimensions]="true"
-              [cdkConnectedOverlayPush]="true"
-              (overlayOutsideClick)="onOverlayOutsideClick($event)"
               (detach)="closeMenu()"
+              (overlayOutsideClick)="onOverlayOutsideClick($event)"
+              [cdkConnectedOverlayFlexibleDimensions]="true"
+              [cdkConnectedOverlayOpen]="openMenuId() === item.id"
+              [cdkConnectedOverlayOrigin]="trigger"
+              [cdkConnectedOverlayPositions]="flyoutPositions"
+              [cdkConnectedOverlayPush]="true"
+              cdkConnectedOverlay
             >
-              <app-sidebar-flyout
-                [item]="item"
+              <app-nav-flyout
+                (close)="onEscape()"
+                (navigate)="onFlyoutNavigate()"
                 [autoFocus]="openedViaKeyboard()"
                 [fullscreen]="isMobile()"
-                (navigate)="onFlyoutNavigate()"
-                (close)="onEscape()"
+                [item]="item"
               />
             </ng-template>
           }
@@ -141,7 +145,7 @@
 
   <!-- Backdrop mobile (ferme la sidebar au clic extérieur sur petit écran) -->
   @if (!isCollapsed() && isMobile()) {
-    <div class="sidebar-backdrop" (click)="toggleSidebar()" aria-hidden="true"></div>
+    <div (click)="toggleSidebar()" aria-hidden="true" class="sidebar-backdrop"></div>
   }
 
   <!-- Sidebar Footer -->
@@ -149,8 +153,9 @@
     <div class="sidebar-footer">
       <!-- Config éditeur (Tauri + ADMIN uniquement) -->
       @if (isTauriAdmin) {
-        <button type="button" class="btn btn-link btn-sm sidebar-config-btn" (click)="openConfigEditor()"
-                title="Configuration avancée (DB, JVM, Mail…)">
+        <button (click)="openConfigEditor()" class="btn btn-link btn-sm sidebar-config-btn"
+                title="Configuration avancée (DB, JVM, Mail…)"
+                type="button">
           <i class="fa fa-sliders-h me-1"></i>
           @if (!isCollapsed()) {
             <span>Configuration avancée</span>

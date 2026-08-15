@@ -63,8 +63,8 @@ describe('SidebarComponent', () => {
           provide: NavigationService,
           useValue: {
             hasAnyAuthority: () => false,
-            buildNavItemsFromStore: () => [],
-            buildUnauthenticatedNavItems: () => [],
+            buildNavItems: () => [],
+            applyNavBadges: jest.fn(),
           },
         },
       ],

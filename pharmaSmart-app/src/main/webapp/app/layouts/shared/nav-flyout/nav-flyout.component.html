@@ -1,6 +1,7 @@
 <div
   class="flyout-panel"
   [class.fullscreen]="fullscreen()"
+  [class.from-below]="placement() === 'below'"
   role="menu"
   [attr.aria-label]="item().label"
   cdkTrapFocus

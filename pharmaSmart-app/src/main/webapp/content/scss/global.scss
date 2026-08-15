@@ -1,6 +1,6 @@
 @import 'bootstrap/scss/functions';
 @import 'bootstrap-icons/font/bootstrap-icons';
-@import 'bootswatch/dist/yeti/variables';
+@import 'pharma-bootstrap-yeti-vars';
 @import 'bootstrap/scss/variables';
 
 /* ==============================================================
@@ -1382,4 +1382,21 @@ table tfoot tr td {
    au-dessus de la sidebar, mais sous les modales ng-bootstrap (1055+). */
 .cdk-overlay-container {
   z-index: 1052;
+}
+
+/* ─── Chrome de navigation ───────────────────────────────────────────────────
+   Palette partagée par la navbar horizontale, le rail vertical et leurs
+   panneaux de sous-menu. Valeurs issues de la sidebar, promues en tokens pour
+   que les deux barres ne divergent plus.
+   Ce vocabulaire remplace `--pharma-navbar-bg`, qui portait le teal Bootswatch
+   et n'était consommé que par la navbar. */
+:root {
+  --pharma-nav-bg: #2c3e50;
+  --pharma-nav-bg-hover: #34495e;
+  --pharma-nav-panel: #34495e;
+  --pharma-nav-fg: #ecf0f1;
+  --pharma-nav-fg-muted: rgba(236, 240, 241, 0.85);
+  --pharma-nav-accent: #3498db;
+  --pharma-nav-accent-soft: rgba(52, 152, 219, 0.2);
+  --pharma-nav-active: #2ecc71;
 }

@@ -74,28 +74,6 @@ export interface AppSplitButtonItem {
     </div>
   `,
   styles: `
-    // Le thème Bootswatch "yeti" colore explicitement le menu déroulant d'après la
-    // severity du bouton (_bootswatch.scss : « .btn-group .dropdown-toggle.btn-info
-    // ~ .dropdown-menu { background-color: #0ea5e9; ... .dropdown-item { color: #fff } } »,
-    // une règle par variante). Sa spécificité (4 classes) bat les custom properties
-    // Bootstrap normales : il faut une sélecteur au moins aussi précis, pas juste
-    // réassigner --bs-dropdown-*. On neutralise donc explicitement pour les 8 variantes
-    // (y compris help/contrast, propres à ce Design System), quelle que soit la severity.
-    .btn-group .dropdown-toggle ~ .dropdown-menu {
-      background-color: var(--bs-body-bg) !important;
-      border-color: var(--bs-border-color) !important;
-
-      .dropdown-item {
-        color: var(--bs-body-color) !important;
-      }
-
-      .dropdown-item:hover,
-      .dropdown-item:focus {
-        background-color: var(--bs-tertiary-bg) !important;
-        color: var(--bs-body-color) !important;
-      }
-    }
-
     [ngbDropdownItem] {
       display: flex;
       align-items: center;

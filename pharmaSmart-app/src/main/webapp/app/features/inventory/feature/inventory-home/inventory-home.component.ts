@@ -1,4 +1,14 @@
-import {Component, computed, DestroyRef, effect, inject, OnInit, signal, ViewChild, ChangeDetectionStrategy} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  OnInit,
+  signal,
+  ViewChild
+} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
 import {
@@ -37,8 +47,13 @@ import {
 import {
   InventoryExportModalComponent
 } from '../../ui/inventory-export-modal/inventory-export-modal.component';
-import { AbilityService } from 'app/core/auth/ability.service';
-import {ButtonComponent, DataTableComponent, RowTogglerDirective, ToolbarComponent} from '../../../../shared/ui';
+import {AbilityService} from 'app/core/auth/ability.service';
+import {
+  ButtonComponent,
+  DataTableComponent,
+  RowTogglerDirective,
+  ToolbarComponent
+} from '../../../../shared/ui';
 import {InventoryApiService} from '../../data-access/services/inventory-api.service';
 import {ConfigurationService} from '../../../../shared/configuration.service';
 import {BlobDownloadService} from '../../../../shared/services/blob-download.service';
@@ -71,7 +86,8 @@ export class InventoryHomeComponent implements OnInit {
   readonly listFacade = inject(InventoryListFacade);
   readonly store = inject(InventoryStore);
   activeTab = signal<string>('en-cours');
-
+  page = signal(0);
+  size = signal(20);
   protected readonly toolbarTitle = computed(() => {
     switch (this.activeTab()) {
       case 'tournant':
@@ -82,7 +98,6 @@ export class InventoryHomeComponent implements OnInit {
         return 'Inventaires en cours';
     }
   });
-
   protected readonly toolbarIcon = computed(() => {
     switch (this.activeTab()) {
       case 'tournant':
@@ -93,16 +108,12 @@ export class InventoryHomeComponent implements OnInit {
         return 'pi pi-refresh';
     }
   });
-
-  private readonly ability = inject(AbilityService);
-
-  protected readonly showEnCours  = this.ability.canSignal('display', 'inventaire.en-cours');
-  protected readonly showTournant = this.ability.canSignal('display', 'inventaire.tournant');
-  protected readonly showClotures = this.ability.canSignal('display', 'inventaire.clotures');
-  page = signal(0);
-  size = signal(20);
   /** Inventaire dont l'export est en cours — pilote le spinner du bouton de sa ligne. */
   protected readonly exportingId = signal<number | null>(null);
+  private readonly ability = inject(AbilityService);
+  protected readonly showEnCours = this.ability.canSignal('display', 'inventaire.en-cours');
+  protected readonly showTournant = this.ability.canSignal('display', 'inventaire.tournant');
+  protected readonly showClotures = this.ability.canSignal('display', 'inventaire.clotures');
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly modal = inject(NgbModal);
@@ -136,34 +147,6 @@ export class InventoryHomeComponent implements OnInit {
     this.loadList();
   }
 
-  /**
-   * Restaure l'onglet transmis par l'éditeur (`?tab=`). Sans cela, tout retour depuis
-   * l'éditeur retombait sur « En cours », y compris en venant de « Clôturés » ou
-   * « Tournant ».
-   *
-   * L'onglet n'est repris que s'il est effectivement affiché : un `tab` obsolète ou
-   * interdit par les droits sélectionnerait un onglet inexistant, et la vue resterait vide.
-   */
-  private restoreTabFromRoute(): void {
-    const tab = this.route.snapshot.queryParamMap.get('tab');
-    if (tab && this.isTabAvailable(tab)) {
-      this.activeTab.set(tab);
-    }
-  }
-
-  private isTabAvailable(tab: string): boolean {
-    switch (tab) {
-      case 'en-cours':
-        return this.showEnCours();
-      case 'tournant':
-        return this.showTournant();
-      case 'clotures':
-        return this.showClotures();
-      default:
-        return false;
-    }
-  }
-
   protected onNavChange(evt: NgbNavChangeEvent): void {
     this.activeTab.set(evt.nextId);
     this.page.set(0);
@@ -187,6 +170,7 @@ export class InventoryHomeComponent implements OnInit {
       size: 'lg',
       backdrop: 'static',
       keyboard: false,
+      centered: true
     });
     ref.result.then(
       (inventory: IStoreInventory) => {
@@ -194,7 +178,8 @@ export class InventoryHomeComponent implements OnInit {
           this.openExportModalFor(inventory, () => this.navigateToEditor(inventory));
         }
       },
-      () => {},
+      () => {
+      },
     );
   }
 
@@ -214,18 +199,13 @@ export class InventoryHomeComponent implements OnInit {
     this.navigateToEditor(inventory);
   }
 
-  /**
-   * Ouvre l'éditeur en lui transmettant l'onglet d'origine : son bouton « Retour » nous
-   * ramène ainsi ici, et pas systématiquement sur « En cours ».
-   */
-  private navigateToEditor(inventory: IStoreInventory): void {
-    this.router.navigate(['/inventaire', inventory.id, 'edit'],
-      {queryParams: {tab: this.activeTab()}});
-  }
-
   protected openGapAnalysisFor(inventory: IStoreInventory): void {
     import('../../ui/gap-analysis-modal/gap-analysis-modal.component').then(m => {
-      const ref = this.modal.open(m.GapAnalysisModalComponent, {size: 'xl', backdrop: 'static',centered:true});
+      const ref = this.modal.open(m.GapAnalysisModalComponent, {
+        size: 'xl',
+        backdrop: 'static',
+        centered: true
+      });
       ref.componentInstance.inventoryId = inventory.id;
     });
   }
@@ -233,7 +213,6 @@ export class InventoryHomeComponent implements OnInit {
   protected exportPdf(inventory: IStoreInventory): void {
     this.openExportModalFor(inventory);
   }
-
 
   protected exportEnCoursPdf(inventory: IStoreInventory): void {
     const id = inventory.id!;
@@ -275,7 +254,7 @@ export class InventoryHomeComponent implements OnInit {
       const ref = this.modal.open(m.InventoryCloseModalComponent, {
         size: 'xl',
         backdrop: 'static',
-        centered:true
+        centered: true
       });
       ref.componentInstance.inventoryId = inventory.id;
       ref.result.then(
@@ -331,6 +310,43 @@ export class InventoryHomeComponent implements OnInit {
       EN_RUPTURE: 'Rupture',
     };
     return labels[cat ?? ''] ?? cat ?? '-';
+  }
+
+  /**
+   * Restaure l'onglet transmis par l'éditeur (`?tab=`). Sans cela, tout retour depuis
+   * l'éditeur retombait sur « En cours », y compris en venant de « Clôturés » ou
+   * « Tournant ».
+   *
+   * L'onglet n'est repris que s'il est effectivement affiché : un `tab` obsolète ou
+   * interdit par les droits sélectionnerait un onglet inexistant, et la vue resterait vide.
+   */
+  private restoreTabFromRoute(): void {
+    const tab = this.route.snapshot.queryParamMap.get('tab');
+    if (tab && this.isTabAvailable(tab)) {
+      this.activeTab.set(tab);
+    }
+  }
+
+  private isTabAvailable(tab: string): boolean {
+    switch (tab) {
+      case 'en-cours':
+        return this.showEnCours();
+      case 'tournant':
+        return this.showTournant();
+      case 'clotures':
+        return this.showClotures();
+      default:
+        return false;
+    }
+  }
+
+  /**
+   * Ouvre l'éditeur en lui transmettant l'onglet d'origine : son bouton « Retour » nous
+   * ramène ainsi ici, et pas systématiquement sur « En cours ».
+   */
+  private navigateToEditor(inventory: IStoreInventory): void {
+    this.router.navigate(['/inventaire', inventory.id, 'edit'],
+      {queryParams: {tab: this.activeTab()}});
   }
 
   private openExportModalFor(inventory: IStoreInventory, onClose?: () => void): void {

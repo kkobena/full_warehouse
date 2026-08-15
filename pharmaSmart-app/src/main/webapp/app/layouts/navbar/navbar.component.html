@@ -21,14 +21,22 @@
       <ul class="navbar-nav ms-auto">
         @for (item of navItems; track item.id) {
           @if (item.children && item.children.length > 0) {
-            <li
-              [routerLinkActiveOptions]="{ exact: true }"
-              class="nav-item dropdown pointer"
-              display="dynamic"
-              ngbDropdown
-              routerLinkActive="active"
-            >
-              <button class="nav-link btn btn-link dropdown-toggle" ngbDropdownToggle type="button">
+            <li class="nav-item">
+              <!-- Entrée parente : ouvre le panneau partagé avec la sidebar -->
+              <button
+                type="button"
+                #trigger="cdkOverlayOrigin"
+                cdkOverlayOrigin
+                [attr.data-flyout-trigger]="item.id"
+                class="nav-link btn btn-link has-children"
+                [class.expanded]="openMenuId() === item.id"
+                aria-haspopup="menu"
+                [attr.aria-expanded]="openMenuId() === item.id"
+                (click)="toggleMenu(item, $event)"
+                (keydown.arrowdown)="onTriggerArrowDown(item)"
+                (mouseenter)="onTriggerEnter(item)"
+                (mouseleave)="onTriggerLeave()"
+              >
                 <span class="d-flex align-items-center gap-1">
                   @if (item.faIcon) {
                     <fa-icon [icon]="item.faIcon"></fa-icon>
@@ -43,79 +51,67 @@
                       {{ item.badge > 99 ? '99+' : item.badge }}
                     </span>
                   }
+                  <fa-icon class="nav-caret" [icon]="faChevronDown"></fa-icon>
                 </span>
               </button>
-              <ul class="dropdown-menu" ngbDropdownMenu>
-                @for (child of item.children; track $index) {
-                  @if (child.divider) {
-                    <li>
-                      <hr class="dropdown-divider">
-                    </li>
-                  } @else if (child.groupLabel) {
-                    <li><h6 class="dropdown-header">{{ child.groupLabel }}</h6></li>
-                  } @else {
-                    <li>
-                      <a
-                        (click)="child.click ? child.click() : collapseNavbar()"
-                        [routerLinkActiveOptions]="{ exact: true }"
-                        [routerLink]="child.routerLink"
-                        class="dropdown-item d-flex align-items-center justify-content-between"
-                        routerLinkActive="active"
-                      >
-                        <span>
-                          @if (child.faIcon) {
-                            <fa-icon [fixedWidth]="true" [icon]="child.faIcon"></fa-icon>
-                          }
-                          <span>{{ child.label }}</span>
-                        </span>
-                        @if (child.badge > 0) {
-                          <span
-                            [class.pulse-badge]="(child.badgeSeverity ?? 'danger') === 'danger'"
-                            class="badge rounded-pill bg-{{ child.badgeSeverity ?? 'danger' }} ms-2">
-                            {{ child.badge > 99 ? '99+' : child.badge }}
-                          </span>
-                        }
-                      </a>
-                    </li>
-                  }
-                }
-              </ul>
+
+              <ng-template
+                cdkConnectedOverlay
+                [cdkConnectedOverlayOrigin]="trigger"
+                [cdkConnectedOverlayOpen]="openMenuId() === item.id"
+                [cdkConnectedOverlayPositions]="flyoutPositions"
+                [cdkConnectedOverlayFlexibleDimensions]="true"
+                [cdkConnectedOverlayPush]="true"
+                (overlayOutsideClick)="onOverlayOutsideClick($event)"
+                (detach)="closeMenu()"
+              >
+                <app-nav-flyout
+                  [item]="item"
+                  [autoFocus]="openedViaKeyboard()"
+                  [fullscreen]="isMobile()"
+                  placement="below"
+                  (navigate)="onFlyoutNavigate()"
+                  (close)="onEscape()"
+                />
+              </ng-template>
             </li>
-          } @else {
+          } @else if (item.routerLink) {
             <li [routerLinkActiveOptions]="{ exact: true }" class="nav-item"
                 routerLinkActive="active">
-              <a (click)="item.click ? item.click() : collapseNavbar()"
+              <a (click)="onLeafClick(item)"
                  [routerLink]="item.routerLink"
                  class="nav-link">
-                <span class="d-flex align-items-center gap-1">
-                  @if (item.faIcon) {
-                    <fa-icon [icon]="item.faIcon"></fa-icon>
-                  }
-                  <span>{{ item.label }}</span>
-                  @if (item.badge > 0) {
-                    <span
-                      [class.pulse-badge]="(item.badgeSeverity ?? 'danger') === 'danger'"
-                      class="badge rounded-pill bg-{{ item.badgeSeverity ?? 'danger' }} navbar-badge">
-                      {{ item.badge > 99 ? '99+' : item.badge }}
-                    </span>
-                  }
-                </span>
+                <ng-container [ngTemplateOutlet]="leafContent" [ngTemplateOutletContext]="{ $implicit: item }" />
               </a>
+            </li>
+          } @else {
+            <!-- Action sans cible de navigation : un <button>, pas un <a> sans href,
+                 qui serait hors du parcours clavier. -->
+            <li class="nav-item">
+              <button type="button" (click)="onLeafClick(item)" class="nav-link btn btn-link">
+                <ng-container [ngTemplateOutlet]="leafContent" [ngTemplateOutletContext]="{ $implicit: item }" />
+              </button>
             </li>
           }
         }
-        @if (isAdmin) {
-          <li [routerLinkActiveOptions]="{ exact: true }" class="nav-item"
-              routerLinkActive="active">
-            <a (click)="openCahierRecette(); collapseNavbar()" class="nav-link" role="button">
-              <span class="d-flex align-items-center gap-1">
-                <fa-icon [icon]="faClipboardCheck"></fa-icon>
-                <span>Guide des fonctionnalités</span>
-              </span>
-            </a>
-          </li>
-        }
       </ul>
+
+      <!-- Contenu commun aux entrées simples, qu'elles soient lien ou action -->
+      <ng-template #leafContent let-item>
+        <span class="d-flex align-items-center gap-1">
+          @if (item.faIcon) {
+            <fa-icon [icon]="item.faIcon"></fa-icon>
+          }
+          <span>{{ item.label }}</span>
+          @if (item.badge > 0) {
+            <span
+              [class.pulse-badge]="(item.badgeSeverity ?? 'danger') === 'danger'"
+              class="badge rounded-pill bg-{{ item.badgeSeverity ?? 'danger' }} navbar-badge">
+              {{ item.badge > 99 ? '99+' : item.badge }}
+            </span>
+          }
+        </span>
+      </ng-template>
 
       @if (isTauriAdmin) {
         <button (click)="openConfigEditor()" class="btn btn-link nav-config-btn ms-2"

@@ -1,18 +1,13 @@
-// Panneau flottant de sous-menu (rendu par le CDK Overlay, hors de .sidebar).
-// Les tokens sont redéclarés ici : le panneau n'hérite pas des variables posées
-// sur .sidebar puisqu'il vit dans le conteneur d'overlay en fin de <body>.
+// Panneau flottant de sous-menu (rendu par le CDK Overlay, hors du chrome).
+// Les tokens `--pharma-nav-*` sont posés en `:root` (content/scss/global.scss),
+// donc hérités ici bien que le panneau vive en fin de <body>.
 .flyout-panel {
-  --ps-sidebar-panel: #34495e;
-  --ps-sidebar-accent: #3498db;
-  --ps-sidebar-active: #2ecc71;
-  --ps-sidebar-fg: #ecf0f1;
-
   width: 280px;
   max-height: min(70vh, 560px);
   display: flex;
   flex-direction: column;
-  background: var(--ps-sidebar-panel);
-  color: var(--ps-sidebar-fg);
+  background: var(--pharma-nav-panel);
+  color: var(--pharma-nav-fg);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
@@ -31,11 +26,17 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
+  // Le panneau entre depuis son point d'ancrage : latéralement pour un rail
+  // vertical, du haut vers le bas pour une barre horizontale.
   .flyout-panel {
-    animation: flyoutIn 140ms ease-out;
+    animation: flyoutInFromSide 140ms ease-out;
   }
 
-  @keyframes flyoutIn {
+  .flyout-panel.from-below {
+    animation-name: flyoutInFromBelow;
+  }
+
+  @keyframes flyoutInFromSide {
     from {
       opacity: 0;
       transform: translateX(-8px);
@@ -43,6 +44,17 @@
     to {
       opacity: 1;
       transform: translateX(0);
+    }
+  }
+
+  @keyframes flyoutInFromBelow {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 }
@@ -57,14 +69,14 @@
   flex-shrink: 0;
 
   .flyout-header-icon {
-    color: var(--ps-sidebar-accent);
+    color: var(--pharma-nav-accent);
     font-size: 1rem;
   }
 
   .flyout-header-label {
     font-weight: 600;
     font-size: 0.95rem;
-    color: var(--ps-sidebar-accent);
+    color: var(--pharma-nav-accent);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -79,7 +91,7 @@
   .flyout-close {
     border: 0;
     background: transparent;
-    color: var(--ps-sidebar-fg);
+    color: var(--pharma-nav-fg);
     padding: 0.25rem 0.4rem;
     border-radius: 6px;
     cursor: pointer;
@@ -178,7 +190,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid var(--ps-sidebar-accent);
+    outline: 2px solid var(--pharma-nav-accent);
     outline-offset: -2px;
   }
 
@@ -187,7 +199,7 @@
     background: rgba(52, 152, 219, 0.25);
     color: #fff;
     font-weight: 500;
-    border-left-color: var(--ps-sidebar-active);
+    border-left-color: var(--pharma-nav-active);
   }
 }
 

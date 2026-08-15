@@ -17,13 +17,11 @@ import {NavItem} from "../navbar/navbar-item.model";
 import {
   faBars,
   faChevronRight,
-  faServer,
-  faSlidersH,
   faUserCircle
 } from "@fortawesome/free-solid-svg-icons";
 import {NgbModal, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
 import {CdkConnectedOverlay, CdkOverlayOrigin, ConnectedPosition} from "@angular/cdk/overlay";
-import {SidebarFlyoutComponent} from "./sidebar-flyout/sidebar-flyout.component";
+import {NavFlyoutComponent} from "../shared/nav-flyout/nav-flyout.component";
 import {AppSettingsDialogComponent} from "../../shared/settings/app-settings-dialog.component";
 import {Authority} from "../../config/authority.constants";
 import {LayoutService} from "../../core/config/layout.service";
@@ -46,7 +44,7 @@ const HOVER_OPEN_DELAY_MS = 120;
     FaIconComponent,
     CdkOverlayOrigin,
     CdkConnectedOverlay,
-    SidebarFlyoutComponent
+    NavFlyoutComponent
   ],
   templateUrl: "./sidebar.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -64,7 +62,6 @@ export default class SidebarComponent implements OnInit {
   readonly faBars = faBars;
   readonly faChevronRight = faChevronRight;
   readonly faUserCircle = faUserCircle;
-  readonly faSlidersH = faSlidersH;
   /**
    * Positions du flyout, par ordre de préférence : à droite aligné en haut,
    * puis aligné en bas si le panneau déborderait sous l'écran, puis à gauche
@@ -115,11 +112,16 @@ export default class SidebarComponent implements OnInit {
     effect(() => {
       // Reactive : rebuilt when account, navTree (store) or alert counts change
       this.navStore.navTree(); // déclenche la réactivité quand le store se charge
-      const items = this.buildNavItem();
-      const ruptureCount = this.alertBadgeService.ruptureCount();
-      const urgentCount = this.alertBadgeService.urgentCount();
-      const peremptionCount = this.alertBadgeService.peremptionCount();
-      this.applyNavBadges(items, ruptureCount, urgentCount, peremptionCount);
+      const items = this.navigationService.buildNavItems({
+        onLogin: () => this.login(),
+        onLogout: () => this.logout(),
+        onOpenConfigEditor: () => this.openConfigEditor(),
+        onOpenAppSettings: () => this.openAppSettings(),
+        onOpenCahierRecette: () => this.openCahierRecette()
+      });
+      // `applyNavBadges` lit les compteurs d'alerte : appelée dans l'effet, la
+      // lecture y est tracée et l'effet reste abonné à chacun d'eux.
+      this.navigationService.applyNavBadges(items);
       this.navItems = items;
     });
   }
@@ -267,16 +269,10 @@ export default class SidebarComponent implements OnInit {
     void this.router.navigate(["/app-config"]);
   }
 
-  protected hasAnyAuthority(authorities: string[] | string): boolean {
-    const userIdentity = this.account();
-    if (!userIdentity) {
-      return false;
-    }
-    if (!Array.isArray(authorities)) {
-      authorities = [authorities];
-    }
-    return userIdentity.authorities.some((authority: string) => authorities.includes(authority));
+  protected openCahierRecette(): void {
+    void this.router.navigate(["/cahier-recette"]);
   }
+
 
   private cancelHoverTimers(): void {
     if (this.hoverOpenTimer !== undefined) {
@@ -300,93 +296,6 @@ export default class SidebarComponent implements OnInit {
     }
   }
 
-  private buildNavItem(): NavItem[] {
-    const account = this.account();
 
-    if (account) {
-      const accountItems: NavItem[] = [
-        {
-          id: "layout.toggle",
-          label: "Menu horizontal",
-          faIcon: faBars,
-          click: () => this.layoutService.toggleLayout()
-        },
-        {
-          id: "account.logout",
-          label: "Se déconnecter",
-          faIcon: "sign-out-alt",
-          click: () => this.logout()
-        }
-      ];
-      if (this.navigationService.hasAnyAuthority(Authority.ADMIN, account.authorities) && this.tauriPrinterService.isRunningInTauri()) {
-        accountItems.unshift({
-          id: "app-config",
-          label: "Configuration avancée",
-          faIcon: faSlidersH,
-          click: () => this.openConfigEditor()
-        });
-      }
-      return this.navigationService.buildNavItemsFromStore({additionalAccountMenuItems: accountItems});
-    }
-
-    const additionalAccountMenuItems: NavItem[] = [
-      {
-        id: "layout.toggle",
-        label: "Menu vertical",
-        faIcon: faBars,
-        click: () => this.layoutService.toggleLayout()
-      },
-      {
-        id: "account.login",
-        label: "Se connecter",
-        faIcon: "sign-out-alt",
-        click: () => this.login()
-      }
-    ];
-    if (this.tauriPrinterService.isRunningInTauri()) {
-      additionalAccountMenuItems.unshift({
-        id: "server-settings",
-        label: "Paramètres Serveur",
-        faIcon: faServer,
-        click: () => this.openAppSettings()
-      });
-    }
-
-    return this.navigationService.buildUnauthenticatedNavItems(additionalAccountMenuItems);
-  }
-
-  /**
-   * Applique les mêmes badges que la navbar sur les items du sidebar :
-   * - /commande       → max(ruptureCount, urgentCount) — danger
-   * - /gestion-peremption → peremptionCount — danger
-   * - Parents         → somme propagée des enfants
-   */
-  private applyNavBadges(
-    items: NavItem[],
-    ruptureCount: number,
-    urgentCount: number,
-    peremptionCount: number
-  ): void {
-    for (const item of items) {
-      if (item.children?.length) {
-        this.applyNavBadges(item.children, ruptureCount, urgentCount, peremptionCount);
-        const total = item.children.reduce((sum, c) => sum + (c.badge ?? 0), 0);
-        item.badge = total > 0 ? total : undefined;
-        item.badgeSeverity = total > 0 ? "danger" : undefined;
-      } else {
-        if (item.routerLink === "/commande") {
-          const total = Math.max(ruptureCount, urgentCount);
-          item.badge = total > 0 ? total : undefined;
-          item.badgeSeverity = "danger";
-        } else if (item.routerLink === "/gestion-peremption") {
-          item.badge = peremptionCount > 0 ? peremptionCount : undefined;
-          item.badgeSeverity = "danger";
-        } else {
-          item.badge = undefined;
-          item.badgeSeverity = undefined;
-        }
-      }
-    }
-  }
 }
 

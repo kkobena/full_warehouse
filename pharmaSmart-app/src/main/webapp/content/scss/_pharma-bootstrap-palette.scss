@@ -2,8 +2,13 @@
 //
 // Cf. plan de migration §8.5. Objectif : quand un écran passe de `<p-button>` à
 // `<app-button>` (qui rend du `.btn` Bootstrap natif), la couleur ne change pas.
-// Sans ce fichier les boutons migrés passeraient de l'émeraude #10b981 au bleu-canard
-// #008cba de Bootswatch yeti, et l'app serait bicolore pendant toute la migration.
+// Sans ce fichier les boutons migrés passeraient à l'émeraude au bleu-canard
+// #008cba hérité de Bootswatch yeti, et l'app serait bicolore pendant toute la migration.
+//
+// Les nuances ont depuis été foncées pour la conformité WCAG AA — voir le bloc dédié
+// plus bas, et docs/PLAN-DECOMMISSIONNEMENT-BOOTSWATCH.md §3.3. Le token semantique
+// `--p-primary-color` de `_pharma-tokens.scss` a été déplacé en parallèle, pour que les
+// 44 consommateurs de `var(--p-primary-color)` ne divergent pas de `.btn-primary`.
 //
 // ⚠ Ce sont des variables **Sass**, pas CSS — et c'est indispensable :
 // Bootstrap 5.3 fige les couleurs de `.btn-*` à la compilation
@@ -11,7 +16,7 @@
 // aucun effet dessus. En passant par Sass, Bootstrap régénère aussi les nuances
 // hover/active et les `--bs-*-rgb` dont dépendent `.text-*` / `.bg-*` / `.border-*`.
 //
-// ⚠ Doit être importé AVANT `bootswatch/dist/yeti/variables`, qui déclare les mêmes
+// ⚠ Doit être importé AVANT `pharma-bootstrap-yeti-vars`, qui déclare les mêmes
 // variables en `!default` : la première définition gagne.
 //
 // Valeurs extraites de `Aura.components.button.colorScheme.light.root` — voir le
@@ -22,25 +27,51 @@
 //   ─────────────────────────────────────────────────────
 //   primary            {primary.color}   .btn-primary
 //   secondary          {surface.100}     .btn-secondary
-//   success            {green.500}       .btn-success
-//   info               {sky.500}         .btn-info
-//   warn               {orange.500}      .btn-warning
-//   danger             {red.500}         .btn-danger
-//   help               {purple.500}      .btn-help      (ajoutée)
+//   success            {green.700}       .btn-success
+//   info               {sky.700}         .btn-info
+//   warn               {orange.700}      .btn-warning
+//   danger             {red.600}         .btn-danger
+//   help               {purple.600}      .btn-help      (ajoutée)
 //   contrast           {surface.950}     .btn-contrast  (ajoutée)
+//
+// ─── Pourquoi des nuances 600/700 et non 500 ─────────────────────────────────
+//
+// Les severities Aura étaient prises au niveau 500. Sur ces fonds, du texte blanc
+// plafonne entre 2,28 et 3,96 de ratio — **sous le seuil WCAG AA de 4,5**. Le thème
+// yeti masquait le problème en abaissant `$min-contrast-ratio` à 1,9, ce qui poussait
+// `color-contrast()` de Bootstrap à choisir le blanc malgré tout.
+//
+// Deux issues existaient : laisser Bootstrap basculer au texte noir (conforme mais
+// change l'aspect de six variantes, et inverse le sens du survol), ou foncer les fonds
+// pour que le blanc devienne légitime. C'est la seconde qui a été retenue.
+//
+// Nuance la plus claire de chaque famille dont le ratio avec le blanc atteint 4,5 :
+//
+//   famille    500          600          700          retenu
+//   ───────────────────────────────────────────────────────────────
+//   emerald    2,54         3,77         5,48         700  #047857
+//   green      2,28         3,30         5,02         700  #15803d
+//   sky        2,77         4,10         5,93         700  #0369a1
+//   orange     2,80         3,56         5,18         700  #c2410c
+//   red        3,76         4,83         6,47         600  #dc2626
+//   purple     3,96         5,38         6,98         600  #9333ea
+//
+// `$min-contrast-ratio` est remonté au défaut Bootstrap (4,5) dans
+// `_pharma-bootstrap-yeti-vars.scss` : le choix du blanc est désormais correct **par
+// construction**, et toute évolution future de la palette sera vérifiée automatiquement.
 
-$primary: #10b981; // --p-emerald-500
+$primary: #047857; // --p-emerald-700
 // surface.100 d'Aura (#f1f5f9) était trop pâle — quasi invisible sur fond blanc sans
 // bordure. surface.300 garde un gris neutre mais avec un vrai contraste ; Bootstrap
 // calcule toujours un texte foncé dessus.
 $secondary: #cbd5e1; // --p-slate-300
-$success: #22c55e; // --p-green-500
-$info: #0ea5e9; // --p-sky-500
-$warning: #f97316; // --p-orange-500  (Aura utilise orange, pas amber)
-$danger: #ef4444; // --p-red-500
+$success: #15803d; // --p-green-700
+$info: #0369a1; // --p-sky-700
+$warning: #c2410c; // --p-orange-700  (Aura utilise orange, pas amber)
+$danger: #dc2626; // --p-red-600
 
 // Severities PrimeNG absentes de Bootstrap — injectées dans $theme-colors (vendor.scss).
-$pharma-help: #a855f7; // --p-purple-500
+$pharma-help: #9333ea; // --p-purple-600
 $pharma-contrast: #020617; // --p-slate-950
 
 // --- Rayons de bordure ---

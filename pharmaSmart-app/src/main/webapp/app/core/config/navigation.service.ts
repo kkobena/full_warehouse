@@ -2,11 +2,19 @@ import {inject, Injectable} from '@angular/core';
 import {TranslateService} from '@ngx-translate/core';
 import {NavItem, navItemIdFromLabel} from 'app/layouts/navbar/navbar-item.model';
 import {PeremptionAlertService} from '../../shared/services/peremption-alert.service';
+import {AlertBadgeService} from '../../shared/services/alert-badge.service';
+import {AccountService} from '../auth/account.service';
+import {TauriPrinterService} from '../../shared/services/tauri-printer.service';
+import {LayoutService} from './layout.service';
+import {Authority} from '../../config/authority.constants';
 import {NavStore} from 'app/core/store/nav.store';
 import {INavNode} from 'app/shared/model/nav-item.model';
 import {IconProp} from '@fortawesome/fontawesome-svg-core';
 import {
   faAlignJustify,
+  faBars,
+  faClipboardCheck,
+  faServer,
   faArrowsAltH,
   faArrowsRotate,
   faBook,
@@ -61,6 +69,20 @@ export interface NavigationOptions {
   additionalAccountMenuItems?: NavItem[];
 }
 
+/**
+ * Actions que le chrome de navigation délègue à son composant hôte.
+ *
+ * La bascule de mode (`layout.toggle`) n'y figure pas : elle ne dépend d'aucun
+ * état du composant et est traitée directement par le service.
+ */
+export interface NavMenuActions {
+  onLogin: () => void;
+  onLogout: () => void;
+  onOpenConfigEditor: () => void;
+  onOpenAppSettings: () => void;
+  onOpenCahierRecette: () => void;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -68,6 +90,71 @@ export class NavigationService {
   private readonly translate = inject(TranslateService);
   private readonly peremptionAlertService = inject(PeremptionAlertService);
   private readonly navStore = inject(NavStore);
+  private readonly alertBadgeService = inject(AlertBadgeService);
+  private readonly accountService = inject(AccountService);
+  private readonly tauriPrinterService = inject(TauriPrinterService);
+  private readonly layoutService = inject(LayoutService);
+
+  /**
+   * Construit l'arbre de navigation complet, identique pour la navbar
+   * horizontale et le rail vertical : entrées du `NavStore`, menu Compte, et
+   * entrées propres au chrome (bascule de mode, guide, configuration).
+   *
+   * C'est la source unique des deux barres — c'est ce qui garantit qu'elles
+   * n'affichent jamais des menus différents.
+   */
+  buildNavItems(actions: NavMenuActions): NavItem[] {
+    const account = this.accountService.trackCurrentAccount()();
+    const isTauri = this.tauriPrinterService.isRunningInTauri();
+    // Le libellé annonce le mode vers lequel on bascule, pas le mode courant.
+    const layoutToggle: NavItem = {
+      id: 'layout.toggle',
+      label: this.layoutService.isSidebar() ? 'Menu horizontal' : 'Menu vertical',
+      faIcon: faBars,
+      click: () => this.layoutService.toggleLayout(),
+    };
+
+    if (!account) {
+      const anonymousItems: NavItem[] = [
+        layoutToggle,
+        { id: 'account.login', label: 'Se connecter', faIcon: 'sign-out-alt', click: actions.onLogin },
+      ];
+      if (isTauri) {
+        anonymousItems.unshift({
+          id: 'server-settings',
+          label: 'Paramètres Serveur',
+          faIcon: faServer,
+          click: actions.onOpenAppSettings,
+        });
+      }
+      return this.buildUnauthenticatedNavItems(anonymousItems);
+    }
+
+    const isAdmin = this.hasAnyAuthority(Authority.ADMIN, account.authorities);
+    const accountItems: NavItem[] = [
+      layoutToggle,
+      { id: 'account.logout', label: 'Se déconnecter', faIcon: 'sign-out-alt', click: actions.onLogout },
+    ];
+    if (isAdmin && isTauri) {
+      accountItems.unshift({
+        id: 'app-config',
+        label: 'Configuration avancée',
+        faIcon: faSlidersH,
+        click: actions.onOpenConfigEditor,
+      });
+    }
+
+    const items = this.buildNavItemsFromStore({ additionalAccountMenuItems: accountItems });
+    if (isAdmin) {
+      items.push({
+        id: 'cahier-recette',
+        label: 'Guide des fonctionnalités',
+        faIcon: faClipboardCheck,
+        click: actions.onOpenCahierRecette,
+      });
+    }
+    return items;
+  }
 
   /**
    * Construit le menu depuis le NavStore dynamique.
@@ -97,6 +184,26 @@ export class NavigationService {
   }
 
   /**
+   * Applique les badges d'alerte sur l'arbre, **en place**.
+   *
+   * Règles :
+   * - `/commande`            → max(ruptures, urgents)      — danger
+   * - `/gestion-peremption`  → péremptions                 — danger
+   * - `/facturation`         → factures échues             — warning
+   * - parents                → somme propagée des enfants  — danger
+   *
+   * Partagé par la navbar et la sidebar : c'est ce qui garantit des badges
+   * identiques quel que soit le mode de navigation choisi.
+   */
+  applyNavBadges(items: NavItem[]): void {
+    const ruptureCount = this.alertBadgeService.ruptureCount();
+    const urgentCount = this.alertBadgeService.urgentCount();
+    const peremptionCount = this.alertBadgeService.peremptionCount();
+    const facturationOverdueCount = this.alertBadgeService.facturationOverdueCount();
+    this.applyBadgesRecursively(items, ruptureCount, urgentCount, peremptionCount, facturationOverdueCount);
+  }
+
+  /**
    * Check if user has any of the specified authorities
    */
   hasAnyAuthority(authorities: string[] | string, userAuthorities: string[]): boolean {
@@ -104,6 +211,36 @@ export class NavigationService {
       authorities = [authorities];
     }
     return userAuthorities.some((authority: string) => authorities.includes(authority));
+  }
+
+  private applyBadgesRecursively(
+    items: NavItem[],
+    ruptureCount: number,
+    urgentCount: number,
+    peremptionCount: number,
+    facturationOverdueCount: number
+  ): void {
+    for (const item of items) {
+      if (item.children?.length) {
+        this.applyBadgesRecursively(item.children, ruptureCount, urgentCount, peremptionCount, facturationOverdueCount);
+        const total = item.children.reduce((sum, c) => sum + (c.badge ?? 0), 0);
+        item.badge = total > 0 ? total : undefined;
+        item.badgeSeverity = total > 0 ? 'danger' : undefined;
+      } else if (item.routerLink === '/commande') {
+        const total = Math.max(ruptureCount, urgentCount);
+        item.badge = total > 0 ? total : undefined;
+        item.badgeSeverity = 'danger';
+      } else if (item.routerLink === '/gestion-peremption') {
+        item.badge = peremptionCount > 0 ? peremptionCount : undefined;
+        item.badgeSeverity = 'danger';
+      } else if (item.routerLink === '/facturation') {
+        item.badge = facturationOverdueCount > 0 ? facturationOverdueCount : undefined;
+        item.badgeSeverity = 'warning';
+      } else {
+        item.badge = undefined;
+        item.badgeSeverity = undefined;
+      }
+    }
   }
 
   /** Mappe récursivement les INavNode → NavItem. */

@@ -2,12 +2,12 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { DOWN_ARROW, TAB, UP_ARROW } from '@angular/cdk/keycodes';
 
-import { SidebarFlyoutComponent } from './sidebar-flyout.component';
+import { NavFlyoutComponent } from './nav-flyout.component';
 import { NavItem } from '../../navbar/navbar-item.model';
 
-describe('SidebarFlyoutComponent', () => {
-  let fixture: ComponentFixture<SidebarFlyoutComponent>;
-  let comp: SidebarFlyoutComponent;
+describe('NavFlyoutComponent', () => {
+  let fixture: ComponentFixture<NavFlyoutComponent>;
+  let comp: NavFlyoutComponent;
 
   /** Monte le panneau pour l'entrée parente donnée. */
   const mount = (item: NavItem, options: { autoFocus?: boolean } = {}): void => {
@@ -24,13 +24,13 @@ describe('SidebarFlyoutComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SidebarFlyoutComponent],
+      imports: [NavFlyoutComponent],
       // Route attrape-tout : les lignes portent de vrais `routerLink` et un clic
       // déclenche une navigation réelle, qui échouerait sans route déclarée.
       providers: [provideRouter([{ path: '**', children: [] }])],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(SidebarFlyoutComponent);
+    fixture = TestBed.createComponent(NavFlyoutComponent);
     comp = fixture.componentInstance;
   });
 

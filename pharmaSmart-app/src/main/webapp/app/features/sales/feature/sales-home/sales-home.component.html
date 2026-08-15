@@ -224,8 +224,8 @@
               </ng-template>
             </ng-container>
 
-            <!-- Tab ASSURANCE - Masqué en mode devis -->
-            @if (!isDevisMode()) {
+            <!-- Tab ASSURANCE - Masqué en mode devis ou sans le privilège pr-sale-assurance -->
+            @if (!isDevisMode() && canSaleAssurance()) {
               <ng-container ngbNavItem="assurance">
                 <a class="sale-type-link pharma-nav-vertical-link" ngbNavLink>
                   <i class="pi pi-shield sale-tab-icon"></i>
@@ -248,29 +248,31 @@
               </ng-container>
             }
 
-            <!-- Tab CARNET -->
-            <ng-container ngbNavItem="carnet">
-              <a class="sale-type-link pharma-nav-vertical-link" ngbNavLink>
-                <i class="pi pi-book sale-tab-icon"></i>
-                <span class="sale-tab-content">
-                  <span class="sale-tab-label">Carnet</span>
-                  <span class="sale-tab-subtitle">Vente à crédit</span>
-                </span>
-                <span class="link-arrow">›</span>
-              </a>
-              <ng-template ngbNavContent>
-                <app-sale-carnet
-                  (cashRegisterOpened)="onCashRegisterStatusChanged()"
-                  (switchToComptant)="onSwitchToComptant()"
-                  [(initSaleForEditInfo)]="initSaleForEditInfo"
-                  [isCashRegisterOpen]="isCashRegisterOpen()"
-                  [isDevis]="isDevisMode()"
-                  [isPresale]="isPresaleMode()"
-                  [isSmallScreen]="isSmallScreen()"
-                  [remises]="remises()"
-                  [showStock]="showStock()"></app-sale-carnet>
-              </ng-template>
-            </ng-container>
+            <!-- Tab CARNET - Masqué sans le privilège pr-sale-carnet -->
+            @if (canSaleCarnet()) {
+              <ng-container ngbNavItem="carnet">
+                <a class="sale-type-link pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-book sale-tab-icon"></i>
+                  <span class="sale-tab-content">
+                    <span class="sale-tab-label">Carnet</span>
+                    <span class="sale-tab-subtitle">Vente à crédit</span>
+                  </span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <app-sale-carnet
+                    (cashRegisterOpened)="onCashRegisterStatusChanged()"
+                    (switchToComptant)="onSwitchToComptant()"
+                    [(initSaleForEditInfo)]="initSaleForEditInfo"
+                    [isCashRegisterOpen]="isCashRegisterOpen()"
+                    [isDevis]="isDevisMode()"
+                    [isPresale]="isPresaleMode()"
+                    [isSmallScreen]="isSmallScreen()"
+                    [remises]="remises()"
+                    [showStock]="showStock()"></app-sale-carnet>
+                </ng-template>
+              </ng-container>
+            }
           </div>
         </div>
       </div>

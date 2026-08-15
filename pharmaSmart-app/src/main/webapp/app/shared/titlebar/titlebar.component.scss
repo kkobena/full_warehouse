@@ -1,10 +1,21 @@
 .titlebar {
+  // Même teinte que le rail et la navbar — hsl(210, 29%) — mais assombrie d'un
+  // cran. La barre de fenêtre est le bord physique de l'application : elle doit
+  // ancrer la pile (titlebar L=18% < sidebar L=24% < navbar L=32%) plutôt que
+  // d'introduire une couleur étrangère. Le dégradé descend de #22303d vers
+  // #2c3e50, si bien que le bas de la barre rejoint exactement la couleur de la
+  // sidebar et que l'angle haut-gauche ne montre aucune rupture.
+  --titlebar-bg-top: #22303d;
+  --titlebar-bg-bottom: var(--pharma-nav-bg, #2c3e50);
+  --titlebar-fg: var(--pharma-nav-fg, #ecf0f1);
+  --titlebar-fg-muted: var(--pharma-nav-fg-muted, rgba(236, 240, 241, 0.85));
+
   display: flex;
   justify-content: space-between;
   align-items: center;
   height: 32px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: linear-gradient(180deg, var(--titlebar-bg-top) 0%, var(--titlebar-bg-bottom) 100%);
+  color: var(--titlebar-fg);
   user-select: none;
   -webkit-user-select: none;
   -webkit-app-region: drag;
@@ -13,7 +24,9 @@
   left: 0;
   right: 0;
   z-index: 9999;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  // La navbar qui suit est plus claire : une ombre portée marquée créerait une
+  // arête. Un simple filet suffit à séparer les deux bandes.
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 
   .titlebar-left {
     display: flex;
@@ -30,6 +43,8 @@
       width: 20px;
       height: 20px;
       flex-shrink: 0;
+      // Même accent que le logo de la sidebar : le seul point de couleur du haut.
+      color: var(--pharma-nav-accent, #3498db);
 
       svg {
         width: 100%;
@@ -46,14 +61,15 @@
     }
 
     .route-divider {
+      color: var(--titlebar-fg-muted);
       opacity: 0.5;
       font-size: 12px;
       margin: 0 4px;
     }
 
     .current-route {
+      color: var(--titlebar-fg-muted);
       font-size: 12px;
-      opacity: 0.85;
       font-weight: 400;
       white-space: nowrap;
       overflow: hidden;
@@ -77,7 +93,7 @@
       background: rgba(255, 255, 255, 0.1);
       border: none;
       border-radius: 4px;
-      color: white;
+      color: var(--titlebar-fg);
       cursor: pointer;
       transition: all 0.2s ease;
       padding: 0;
@@ -120,7 +136,7 @@
       height: 100%;
       background: transparent;
       border: none;
-      color: white;
+      color: var(--titlebar-fg);
       cursor: pointer;
       transition: background-color 0.15s ease;
       padding: 0;

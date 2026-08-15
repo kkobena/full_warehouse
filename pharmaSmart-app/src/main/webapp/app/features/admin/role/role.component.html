@@ -1,16 +1,15 @@
-
 <div class="pharma-smart-content p-1">
 
   <!-- Toolbar -->
-  <app-toolbar icon="pi pi-shield" title="Rôles" [compact]="true">
+  <app-toolbar [compact]="true" icon="pi pi-shield" title="Rôles">
     <ng-container ngProjectAs="[toolbarActions]">
-      <div class="pharma-toolbar-actions">
+      <div class="pharma-toolbar-actions py-1">
         <app-button
-          label="Nouveau rôle"
+          (clicked)="openCreateForm()"
           icon="pi pi-plus"
+          label="Nouveau rôle"
           severity="success"
           size="small"
-          (clicked)="openCreateForm()"
         />
       </div>
     </ng-container>
@@ -18,8 +17,8 @@
 
   <!-- Table des rôles -->
   <app-data-table
-    [value]="roles()"
     [loading]="loading()"
+    [value]="roles()"
     class="p-datatable-sm"
   >
     <ng-template #header>
@@ -35,19 +34,20 @@
         <td>
           @if (editingName() === role.name) {
             <div class="d-flex align-items-center gap-2">
-              <input class="form-control"
-                [value]="editingLibelle"
-                (input)="editingLibelle = $any($event.target).value"
-                (keydown.enter)="saveEdit(role)"
-                (keydown.escape)="cancelEdit()"
-                (blur)="saveEdit(role)"
-                autofocus
+              <input (blur)="saveEdit(role)"
+                     (input)="editingLibelle = $any($event.target).value"
+                     (keydown.enter)="saveEdit(role)"
+                     (keydown.escape)="cancelEdit()"
+                     [value]="editingLibelle"
+                     autofocus
+                     class="form-control"
               />
             </div>
           } @else {
             <div class="libelle-display">
               <span>{{ role.libelle ?? role.name }}</span>
-              <button class="edit-btn" type="button" (click)="startEdit(role)" title="Modifier le libellé">
+              <button (click)="startEdit(role)" class="edit-btn" title="Modifier le libellé"
+                      type="button">
                 <i class="pi pi-pencil"></i>
               </button>
             </div>
@@ -58,23 +58,23 @@
         <td class="text-end">
           <div class="d-flex align-items-center justify-content-end gap-1">
             <app-button
+              (clicked)="managePermissions.emit(role.name!)"
+              [rounded]="true"
+              [text]="true"
               icon="pi pi-lock"
+              ngbTooltip="Gérer les autorisations"
               severity="help"
               size="small"
-              [text]="true"
-              [rounded]="true"
-              ngbTooltip="Gérer les autorisations"
-              (clicked)="managePermissions.emit(role.name!)"
             />
             @if (!isPredefined(role.name)) {
               <app-button
+                (clicked)="deleteRole(role)"
+                [rounded]="true"
+                [text]="true"
                 icon="pi pi-trash"
+                ngbTooltip="Supprimer ce rôle"
                 severity="danger"
                 size="small"
-                [text]="true"
-                [rounded]="true"
-                ngbTooltip="Supprimer ce rôle"
-                (clicked)="deleteRole(role)"
               />
             }
           </div>
@@ -84,7 +84,7 @@
 
     <ng-template #emptymessage>
       <tr>
-        <td colspan="3" class="text-center text-muted py-4">
+        <td class="text-center text-muted py-4" colspan="3">
           Aucun rôle trouvé.
         </td>
       </tr>

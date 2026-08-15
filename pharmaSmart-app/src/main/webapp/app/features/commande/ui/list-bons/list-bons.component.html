@@ -5,10 +5,10 @@
   <div class="view-panel">
     <div class="lb-detail-body">
       <app-commande-received
-        [showLotBtn]="showLotBtn()"
         (commandeChange)="onCommandeChange($event)"
         (retour)="onRetourSaisie()"
         [commande]="editingReceived()!"
+        [showLotBtn]="showLotBtn()"
       />
     </div>
   </div>
@@ -19,8 +19,9 @@
     <!-- ═════════════════════════════════════════════════════════════════════ -->
   <div class="cr-wrapper">
     <div class="view-panel__header view-panel__header--detail">
-      <app-button (clicked)="onRetourConsultation()" icon="pi pi-arrow-left" [text]="true" size="small"
-                label="Retour à la liste" />
+      <app-button (clicked)="onRetourConsultation()" [text]="true" icon="pi pi-arrow-left"
+                  label="Retour à la liste"
+                  size="small" />
       <div class="cr-header-actions">
         <app-button
           (clicked)="exportPdf(selectedClosed()!)"
@@ -63,7 +64,10 @@
             </span>
               <span class="lb-meta-chip lb-meta-chip--amount">
               <i class="pi pi-wallet"></i>
-                {{ (selectedClosed()!.receiptAmount ?? selectedClosed()!.grossAmount) | number:'1.0-0' }} F
+                {{
+                  (selectedClosed()!.receiptAmount
+                    ?? selectedClosed()!.grossAmount) | number:'1.0-0'
+                }} F
             </span>
             </div>
           </div>
@@ -76,8 +80,8 @@
         <!-- Panneau droit : lignes de commande (lecture seule) -->
         <div class="lb-split__right">
           <app-data-table
-            class="p-datatable-sm"
             [value]="closedOrderLines()"
+            class="p-datatable-sm"
             scrollHeight="flex"
           >
             <ng-template #header>
@@ -96,19 +100,25 @@
                 <td><span class="pharma-code">{{ line.produitCip }}</span></td>
                 <td>{{ line.produitLibelle }}</td>
                 <td class="text-end"><span class="pharma-qty-value">{{ line.initStock }}</span></td>
-                <td class="text-end"><span class="pharma-qty-value">{{ line.afterStock }}</span></td>
-                <td class="text-end"><span class="pharma-qty-value">{{ line.quantityReceived }}</span></td>
-                <td class="text-end"><span
-                  class="pharma-price">{{ line.orderCostAmount != null ? (line.orderCostAmount | number:'1.0-0') : '—' }}</span>
+                <td class="text-end"><span class="pharma-qty-value">{{ line.afterStock }}</span>
                 </td>
                 <td class="text-end"><span
-                  class="pharma-price">{{ line.orderUnitPrice != null ? (line.orderUnitPrice | number:'1.0-0') : '—' }}</span>
+                  class="pharma-qty-value">{{ line.quantityReceived }}</span></td>
+                <td class="text-end"><span
+                  class="pharma-price">{{
+                    line.orderCostAmount != null ? (line.orderCostAmount | number:'1.0-0') : '—'
+                  }}</span>
+                </td>
+                <td class="text-end"><span
+                  class="pharma-price">{{
+                    line.orderUnitPrice != null ? (line.orderUnitPrice | number:'1.0-0') : '—'
+                  }}</span>
                 </td>
               </tr>
             </ng-template>
             <ng-template #emptymessage>
               <tr>
-                <td colspan="7" class="pharma-empty-message">
+                <td class="pharma-empty-message" colspan="7">
                   <div class="pharma-empty-content">
                     <i class="pi pi-inbox"></i>
                     <p>Aucune ligne</p>
@@ -130,9 +140,9 @@
     <!-- ═════════════════════════════════════════════════════════════════════ -->
   <div class="view-panel">
     <app-retour-workspace
-      [bon]="retourWorkspaceBon()!"
       (avoirCreated)="onRetourWorkspaceDone()"
       (cancelled)="onRetourWorkspaceCancelled()"
+      [bon]="retourWorkspaceBon()!"
     />
   </div>
 
@@ -142,9 +152,9 @@
     <!-- ═════════════════════════════════════════════════════════════════════ -->
   <div class="view-panel">
     <app-reconciliation-workspace
-      [delivery]="reconciliationWorkspaceBon()!"
-      (done)="onReconciliationDone()"
       (cancelled)="onReconciliationCancelled()"
+      (done)="onReconciliationDone()"
+      [delivery]="reconciliationWorkspaceBon()!"
     />
   </div>
 
@@ -160,53 +170,58 @@
         <app-select
           (selectionChange)="onSearch()"
           [(ngModel)]="selectedStatut"
+          [clearable]="false"
           [items]="statutOptions"
-          class="lb-select lb-select--statut"
+          [style]="{ 'min-width': '170px' }"
           bindLabel="label"
           bindValue="value"
-          [clearable]="false"
+          class="lb-select lb-select--statut"
         />
 
-        <app-icon-field class="lb-search" [overlay]="true" icon="pi pi-search">
+        <app-icon-field [overlay]="true" class="lb-search" icon="pi pi-search">
           <input (keyup.enter)="onSearch()" [(ngModel)]="search" class="form-control"
                  placeholder="Référence, fournisseur…" type="text" />
         </app-icon-field>
 
         <app-fournisseur-select
+          (selectionChange)="onFournisseurChange($event)"
+          [style]="{ 'min-width': '200px' }"
           class="lb-select"
           placeholder="Fournisseur"
-          (selectionChange)="onFournisseurChange($event)"
         />
 
-        <app-float-label class="lb-date" label="Début" inputId="dtStart">
-          <pharma-date-picker
-            (selectionChange)="onSearch()"
-            [(ngModel)]="dtStart"
-            id="dtStart"
-          />
-        </app-float-label>
+        <pharma-date-picker
+          (selectionChange)="onSearch()" [(ngModel)]="dtStart"
+          [labelPosition]="'inline'"
+          [style]="{ 'width': '180px' }"
+          id="dtStart"
+          label="Du"
+        />
 
-        <app-float-label class="lb-date" label="Fin" inputId="dtEnd">
-          <pharma-date-picker
-            (selectionChange)="onSearch()"
-            [(ngModel)]="dtEnd"
-            id="dtEnd"
-          />
-        </app-float-label>
+
+        <pharma-date-picker
+          (selectionChange)="onSearch()"
+          [(ngModel)]="dtEnd"
+          [labelPosition]="'inline'"
+          [style]="{ 'width': '180px' }"
+          id="dtEnd"
+          label="Au"
+        />
+
 
       </div>
       <div class="su-action-bar__actions">
         <app-button (clicked)="onSearch()" icon="pi pi-search" label="Rechercher" severity="info"
-                  size="small" />
+                    size="small" />
       </div>
     </div>
 
     <!-- ── GRILLE BL ─────────────────────────────────────────────────────── -->
     <div class="lb-grid-wrap">
       <app-data-table
-        class="p-datatable-sm"
-        [value]="deliveries"
         [loading]="loading"
+        [value]="deliveries"
+        class="p-datatable-sm"
         dataKey="id"
         scrollHeight="flex"
       >
@@ -217,27 +232,36 @@
             <th style="width:145px">Référence</th>
             <th appSortableHeader="itemSize" class="text-end" style="width:90px">Art.</th>
             <th appSortableHeader="grossAmount" class="text-end" style="width:140px">Montant HT</th>
-            <th appSortableHeader="grossAmount" class="text-end" style="width:140px">Montant Tva</th>
-            <th appSortableHeader="receiptAmount" class="text-end" style="width:140px">Montant TTC</th>
+            <th appSortableHeader="grossAmount" class="text-end" style="width:140px">Montant Tva
+            </th>
+            <th appSortableHeader="receiptAmount" class="text-end" style="width:140px">Montant TTC
+            </th>
             <th style="width:200px">Statut</th>
             <th style="width:70px">Actions</th>
           </tr>
         </ng-template>
 
         <ng-template #body let-d>
-          <tr [ngClass]="getBlRowClass(d)" (click)="onRowClick(d)">
+          <tr (click)="onRowClick(d)" [ngClass]="getBlRowClass(d)">
             <td>{{ d.receiptDate ? (d.receiptDate | date:'dd/MM/yyyy') : '—' }}</td>
             <td>{{ d.fournisseurLibelle ?? '—' }}</td>
-            <td><span class="pharma-code">{{ d.receiptReference ?? d.orderReference ?? '—' }}</span></td>
+            <td><span class="pharma-code">{{ d.receiptReference ?? d.orderReference ?? '—' }}</span>
+            </td>
             <td class="text-end"><span class="pharma-qty-value">{{ d.itemSize }}</span></td>
             <td class="text-end">
-              <span class="pharma-total">{{ d.grossAmount != null ? (d.grossAmount | number:'1.0-0') : '—' }}</span>
+              <span class="pharma-total">{{
+                  d.grossAmount != null ? (d.grossAmount | number:'1.0-0') : '—'
+                }}</span>
             </td>
             <td class="text-end">
-              <span class="pharma-total">{{ d.taxAmount != null ? (d.taxAmount | number:'1.0-0') : '—' }}</span>
+              <span class="pharma-total">{{
+                  d.taxAmount != null ? (d.taxAmount | number:'1.0-0') : '—'
+                }}</span>
             </td>
             <td class="text-end">
-              <span class="pharma-total">{{ d.receiptAmount != null ? (d.receiptAmount | number:'1.0-0') : '—' }}</span>
+              <span class="pharma-total">{{
+                  d.receiptAmount != null ? (d.receiptAmount | number:'1.0-0') : '—'
+                }}</span>
             </td>
             <td>
               <app-list-bons-statut [delivery]="d" />
@@ -259,17 +283,18 @@
                     </span>
                   }
                   @default {
-                    <span class="bc__badge bc__badge--attente ms-1" title="Facture non encore rapprochée">
+                    <span class="bc__badge bc__badge--attente ms-1"
+                          title="Facture non encore rapprochée">
                       <i class="pi pi-clock"></i> Facture en attente
                     </span>
                   }
                 }
               }
             </td>
-            <td class="text-end" (click)="$event.stopPropagation()">
+            <td (click)="$event.stopPropagation()" class="text-end">
               <app-list-bons-actions
-                [delivery]="d"
                 (menuAction)="onBonMenuAction($event, d)"
+                [delivery]="d"
               />
             </td>
           </tr>
@@ -277,7 +302,7 @@
 
         <ng-template #emptymessage>
           <tr>
-            <td colspan="8" class="pharma-empty-message">
+            <td class="pharma-empty-message" colspan="8">
               <div class="pharma-empty-content">
                 <i class="pi pi-inbox"></i>
                 <p>Aucun bon de livraison</p>
@@ -298,7 +323,9 @@
       }
       <span class="lb-totals-bar__sep ms-auto"></span>
       <span class="lb-totals-bar__item">
-        {{ periodTotals()?.count ?? totalItems }} bon{{ (periodTotals()?.count ?? totalItems) > 1 ? 's' : '' }}
+        {{ periodTotals()?.count ?? totalItems }} bon{{
+          (periodTotals()?.count ?? totalItems) > 1 ? 's' : ''
+        }}
       </span>
       @if (periodTotals(); as t) {
         <span class="lb-totals-bar__item">

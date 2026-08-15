@@ -54,6 +54,7 @@ import {getNavChangeMessage, SaleType} from '../../../../entities/sales/selling-
 import {TranslateService} from '@ngx-translate/core';
 import {AuthorizationService} from '../../data-access/services/authorization.service';
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import { AbilityService } from '../../../../core/auth/ability.service';
 
 @Component({
   selector: 'app-sales-home',
@@ -134,6 +135,10 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   private notificationService = inject(NotificationService);
   private scanAudio = inject(ScanAudioFeedbackService);
   private authorizationService = inject(AuthorizationService);
+  private readonly ability = inject(AbilityService);
+  // ── Abilities : types de vente conditionnés par privilège d'action ─────
+  protected readonly canSaleAssurance = this.ability.canSignal('execute', 'pr-sale-assurance');
+  protected readonly canSaleCarnet = this.ability.canSignal('execute', 'pr-sale-carnet');
   private isPresaleFromRoute = signal(false);
   protected isPresaleMode = computed(() => this.isPresale() || this.isPresaleFromRoute());
   private isDevisFromRoute = signal(false);
@@ -318,7 +323,11 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
       event.preventDefault();
       const digit = event.code.replace('Digit', '');
       // En mode devis, pas de tab assurance (Alt+2 ignoré)
-      if (this.isDevisMode() && digit === '2') {
+      // Idem si le privilège d'action correspondant n'est pas accordé
+      if ((this.isDevisMode() || !this.canSaleAssurance()) && digit === '2') {
+        return;
+      }
+      if (!this.canSaleCarnet() && digit === '3') {
         return;
       }
       const tabMap: Record<string, string> = this.isDevisMode()

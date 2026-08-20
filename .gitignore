@@ -305,3 +305,5 @@ sales-android/fastlane/readme.md
 /pharmaSmart-core/src/main/resources/license/*
 !/pharmaSmart-core/src/main/resources/license/pharmasmart-public*.pem
 /pharmaSmart-license-cli/
+/mobile-inventory/build/reports/
+/mobile-inventory/build/reports/problems/

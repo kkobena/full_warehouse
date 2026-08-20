@@ -422,8 +422,9 @@ export class ProduitFormComponent implements OnInit {
           this.loadPrixReferences();
         }
       },
-      error: () => {
+      error: err => {
         this.isLoading = false;
+        this.notificationService.error(this.errorService.getErrorMessage(err), "Chargement des données de référence");
       }
     });
   }

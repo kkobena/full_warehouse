@@ -316,8 +316,8 @@
           </tr>
         </ng-template>
         <ng-template #body let-data>
-          <tr [class.table-danger]="data.peremptionStatut?.days < 0"
-              [class.table-warning]="data.peremptionStatut?.days >= 0 && data.peremptionStatut?.days <= 30">
+          <tr [class.pharma-row-danger]="data.peremptionStatut?.days < 0"
+              [class.pharma-row-warning]="data.peremptionStatut?.days >= 0 && data.peremptionStatut?.days <= 30">
             <td>
                  <span class="pharma-product-name">
                  {{ data.produitName }}

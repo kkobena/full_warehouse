@@ -314,9 +314,9 @@ export class SemoisSuggestionsComponent implements OnInit {
   getRowClass(s: ISemoisSuggestion): string {
     switch (this.getUrgenceLabel(s)) {
       case 'URGENT':
-        return 'table-danger';
+        return 'pharma-row-danger';
       case 'NORMAL':
-        return 'table-warning';
+        return 'pharma-row-warning';
       default:
         return '';
     }

@@ -29,7 +29,7 @@ export class ProduitFournisseursTabComponent {
 
   protected onAddFournisseur(): void {
     if (this.isDisabled()) return;
-    const modalRef = this.modalService.open(FormProduitFournisseurComponent, { centered:true, size: 'lg', backdrop: 'static' });
+    const modalRef = this.modalService.open(FormProduitFournisseurComponent, { centered:true, size: 'xl', backdrop: 'static' });
     modalRef.componentInstance.header = 'Ajouter un fournisseur';
     modalRef.componentInstance.produit = this.produit();
     modalRef.result.then(
@@ -40,7 +40,7 @@ export class ProduitFournisseursTabComponent {
 
   protected onEditFournisseur(fp: IFournisseurProduit): void {
     if (this.isDisabled()) return;
-    const modalRef = this.modalService.open(FormProduitFournisseurComponent, {centered:true, size: 'lg', backdrop: 'static' });
+    const modalRef = this.modalService.open(FormProduitFournisseurComponent, {centered:true, size: 'xl', backdrop: 'static' });
     modalRef.componentInstance.header = 'Modifier le fournisseur';
     modalRef.componentInstance.produit = this.produit();
     modalRef.componentInstance.entity = fp;

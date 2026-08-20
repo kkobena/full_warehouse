@@ -50,6 +50,9 @@ spring:
       hibernate.cache.use_second_level_cache: true
       hibernate.cache.use_query_cache: true
       hibernate.jdbc.batch_size: 50
+      # Regroupe les chargements d'associations en IN (...) au lieu d'un SELECT par ligne :
+      # filet de sécurité contre les N+1 des @ManyToOne EAGER du modèle.
+      hibernate.default_batch_fetch_size: 100
       hibernate.order_inserts: true
       hibernate.order_updates: true
       hibernate.query.fail_on_pagination_over_collection_fetch: true

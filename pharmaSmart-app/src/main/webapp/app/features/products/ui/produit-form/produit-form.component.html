@@ -60,7 +60,8 @@
                         <div class="form-field">
                           <label for="f_fournisseur">Fournisseur principal <span
                             class="required">*</span></label>
-                          <app-select-search [items]="fournisseurs" appendTo="body"
+                          <app-select-search [items]="fournisseurs" [virtualScroll]="true"
+                                             appendTo="body"
                                              bindLabel="libelle"
                                              bindValue="id" formControlName="fournisseurId"
                                              inputId="f_fournisseur"
@@ -168,7 +169,8 @@
                         <div class="form-field">
                           <label for="f_famille">Famille thérapeutique <span
                             class="required">*</span></label>
-                          <app-select-search [items]="familleProduits" appendTo="body"
+                          <app-select-search [items]="familleProduits" [virtualScroll]="true"
+                                             appendTo="body"
                                              bindLabel="libelle"
                                              bindValue="id" formControlName="familleId"
                                              inputId="f_famille"
@@ -181,7 +183,8 @@
                         <div class="form-field">
                           <label for="f_rayon">Rayon / Emplacement <span
                             class="required">*</span></label>
-                          <app-select-search [items]="rayons" appendTo="body"
+                          <app-select-search [items]="rayons" [virtualScroll]="true"
+                                             appendTo="body"
                                              bindLabel="libelle"
                                              bindValue="id" formControlName="rayonId"
                                              inputId="f_rayon"
@@ -516,6 +519,7 @@
                         <div class="form-field">
                           <label for="f_labo">Laboratoire fabricant</label>
                           <app-select-search [clearable]="true" [items]="laboratoires"
+                                             [virtualScroll]="true"
                                              appendTo="body"
                                              bindLabel="libelle" bindValue="id"
                                              formControlName="laboratoireId"
@@ -525,19 +529,21 @@
                         <div class="form-field">
                           <label for="f_forme">Forme galénique</label>
                           <app-select [clearable]="true" [items]="formeProduits"
-                                      appendTo="body"
+                                      [virtualScroll]="true" appendTo="body"
                                       bindLabel="libelle" bindValue="id" formControlName="formeId"
                                       inputId="f_forme" placeholder="Comprimé, gélule, sirop..." />
                         </div>
                         <div class="form-field">
                           <label for="f_gamme">Gamme</label>
-                          <app-select [clearable]="true" [items]="gammes" appendTo="body"
+                          <app-select [clearable]="true" [items]="gammes" [virtualScroll]="true"
+                                      appendTo="body"
                                       bindLabel="libelle" bindValue="id" formControlName="gammeId"
                                       inputId="f_gamme" placeholder="Sélectionner une gamme" />
                         </div>
                         <div class="form-field">
                           <label for="f_dci">DCI — Dénomination Commune Internationale</label>
-                          <app-select-search [clearable]="true" [items]="dcis" appendTo="body"
+                          <app-select-search [clearable]="true" [items]="dcis"
+                                             [virtualScroll]="true" appendTo="body"
                                              bindLabel="libelle" bindValue="id"
                                              formControlName="dciId"
                                              inputId="f_dci" placeholder="Ex : Amoxicilline" />
@@ -569,7 +575,7 @@
                                     label="Ajouter un tarif" severity="primary" size="small" />
                       </div>
                       <app-data-table [loading]="isLoadingPrix" [stripedRows]="true"
-                                      [value]="prixReferences" class="pharma-table">
+                                      [value]="prixReferences" >
                         <ng-template #header>
                           <tr class="pharma-table-head">
                             <th>Tiers payant</th>

@@ -1,6 +1,5 @@
+@use 'app/shared/scss/modal-theme' as *;
 @import 'app/shared/scss/table-common';
-@import 'app/shared/scss/modal-theme';
-
 :host {
   @include modal-theme;
 }

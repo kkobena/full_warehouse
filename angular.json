@@ -31,7 +31,10 @@
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "stylePreprocessorOptions": {
-              "includePaths": ["pharmaSmart-app/src/main/webapp"]
+              "includePaths": ["pharmaSmart-app/src/main/webapp"],
+              "sass": {
+                "silenceDeprecations": ["import"]
+              }
             },
             "assets": [
               "pharmaSmart-app/src/main/webapp/content",
@@ -49,6 +52,15 @@
               "node_modules/@angular/cdk/overlay-prebuilt.css",
               "node_modules/@angular/cdk/a11y-prebuilt.css",
               "pharmaSmart-app/src/main/webapp/content/scss/global.scss",
+              "pharmaSmart-app/src/main/webapp/content/scss/table-common-global.scss",
+              "pharmaSmart-app/src/main/webapp/content/scss/data-card-global.scss",
+              "pharmaSmart-app/src/main/webapp/content/scss/dashboard-common-global.scss",
+              "pharmaSmart-app/src/main/webapp/content/scss/kpi-strip-global.scss",
+              "pharmaSmart-app/src/main/webapp/content/scss/pharma-nav-tabs-global.scss",
+              "pharmaSmart-app/src/main/webapp/content/scss/pharma-nav-global.scss",
+              "pharmaSmart-app/src/main/webapp/content/scss/form-styles-global.scss",
+              "pharmaSmart-app/src/main/webapp/content/scss/action-bar-global.scss",
+              "pharmaSmart-app/src/main/webapp/content/scss/pharma-toolbar-global.scss",
               "pharmaSmart-app/src/main/webapp/content/css/open-sans.css",
               "node_modules/ngx-spinner/animations/timer.css",
               "node_modules/gridstack/dist/gridstack.min.css"

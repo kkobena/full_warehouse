@@ -1,6 +1,7 @@
 import { Component, DestroyRef, effect, inject, input, signal, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { finalize } from "rxjs/operators";
+import { Subscription } from "rxjs";
 import { NgbModal, NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
 import { NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import {
@@ -67,6 +68,10 @@ export class FactureDetailPanelComponent {
 
 
   private currentFactureId: number | null = null;
+  // Le détail d'une grosse facture peut être long : on annule la requête précédente
+  // quand l'utilisateur enchaîne les sélections de lignes.
+  private itemsSubscription?: Subscription;
+  private reglementsSubscription?: Subscription;
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly factureApiService = inject(FactureApiService);
   private readonly reglementApiService = inject(ReglementApiService);
@@ -245,8 +250,9 @@ export class FactureDetailPanelComponent {
 
   private loadItems(f: IFacture): void {
     if (!f.factureItemId) return;
+    this.itemsSubscription?.unsubscribe();
     this.loadingItems = true;
-    this.factureApiService
+    this.itemsSubscription = this.factureApiService
       .find(f.factureItemId)
       .pipe(
         finalize(() => (this.loadingItems = false)),
@@ -284,8 +290,9 @@ export class FactureDetailPanelComponent {
 
   private loadReglements(f: IFacture): void {
     if (!f.factureItemId) return;
+    this.reglementsSubscription?.unsubscribe();
     this.loadingReglements = true;
-    this.reglementApiService
+    this.reglementsSubscription = this.reglementApiService
       .findByInvoice(f.factureItemId)
       .pipe(
         finalize(() => (this.loadingReglements = false)),

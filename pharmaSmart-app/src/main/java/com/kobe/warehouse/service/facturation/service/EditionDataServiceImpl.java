@@ -166,7 +166,13 @@ public class EditionDataServiceImpl implements EditionDataService {
     @Override
     @Transactional(readOnly = true)
     public Optional<FactureDtoWrapper> getFacture(FactureItemId id) {
-        return Optional.ofNullable(buildFactureDtoWrapper(facturationRepository.findById(id).orElseThrow(()-> new GenericError("Facture non trouvée"))));
+        FactureTiersPayant facture = facturationRepository
+            .findOneWithDetails(id.getId(), id.getInvoiceDate())
+            .orElseThrow(() -> new GenericError("Facture non trouvée"));
+        facture
+            .getFactureTiersPayants()
+            .forEach(fille -> facturationRepository.findOneWithDetails(fille.getId().getId(), fille.getId().getInvoiceDate()));
+        return Optional.of(buildFactureDtoWrapper(facture));
     }
 
     @Override

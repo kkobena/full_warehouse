@@ -55,6 +55,7 @@ import { SelectBase } from './select.base';
       [notFoundText]="notFoundText()"
       [loadingText]="loadingText()"
       [appendTo]="appendTo()"
+      [virtualScroll]="virtualScroll()"
       [dropdownPosition]="dropdownPosition()"
       [labelForId]="inputId()"
       [attr.aria-label]="ariaLabel() || null"

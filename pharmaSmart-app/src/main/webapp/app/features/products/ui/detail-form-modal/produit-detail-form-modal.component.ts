@@ -36,7 +36,9 @@ export class ProduitDetailFormModalComponent implements OnInit, AfterViewInit {
   private readonly api = inject(ProductsApiService);
   private readonly fb = inject(FormBuilder);
   private readonly errorService = inject(ErrorService);
-  private readonly itemQtyInput = viewChild.required<ElementRef<HTMLElement>>("itemQty");
+  // #itemQty porte sur <app-input-number> : sans `read: ElementRef`, viewChild rend l'instance du
+  // composant, dont nativeElement est undefined.
+  private readonly itemQtyInput = viewChild.required<unknown, ElementRef<HTMLElement>>("itemQty", { read: ElementRef });
   private readonly notificationService = inject(NotificationService);
   protected editForm = this.fb.group({
     id: [null as number | null],

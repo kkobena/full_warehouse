@@ -178,9 +178,6 @@ public class SalesLine implements Persistable<SaleLineId>, Serializable, Cloneab
         return rates;
     }
 
-    //    public Long getId() {
-    //        return id;
-    //    }
 
     public void setRates(List<Rate> rates) {
         this.rates = rates;

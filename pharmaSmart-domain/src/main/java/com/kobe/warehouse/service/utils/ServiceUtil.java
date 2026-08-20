@@ -5,6 +5,8 @@ import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
 import com.kobe.warehouse.service.stock.dto.PeremptionStatut;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.Period;
@@ -23,17 +25,36 @@ public class ServiceUtil {
         return Integer.valueOf(date.format(DateTimeFormatter.ofPattern("yyyyMMdd")));
     }
 
-    public static long computeHtaxe(long ttc, int taxe) {
-        return ttc / (1 + (taxe / 100));
+    /**
+     * Montant hors taxe correspondant à un montant TTC, pour un taux de TVA exprimé en pourcentage
+     * entier (0, 9, 18…).
+     *
+     * <p>Pendant Java de la fonction SQL {@code ht_from_ttc} (cf.
+     * {@code V1.9.0__fix_tva_division_entiere.sql}) : les deux doivent rendre la même valeur, faute
+     * de quoi le rapport TVA et la facture normalisée cesseraient de se recouper.
+     *
+     * <p>Le calcul est mené en {@link BigDecimal} et non en {@code double} : sur des montants qui
+     * alimentent une déclaration fiscale, l'arithmétique binaire approchée n'a pas sa place. Le
+     * quotient est conservé à 10 décimales, l'arrondi étant à la charge de l'appelant — arrondir ici
+     * puis sommer accumulerait les erreurs ligne à ligne.
+     *
+     * @param ttc montant toutes taxes comprises
+     * @param tauxTva taux en pourcentage entier ; {@code 0} rend {@code ttc} inchangé
+     * @throws IllegalArgumentException si le taux rend le diviseur nul (taux de -100 %)
+     */
+    public static BigDecimal htFromTtc(BigDecimal ttc, int tauxTva) {
+        BigDecimal diviseur = BigDecimal.ONE.add(BigDecimal.valueOf(tauxTva).movePointLeft(2));
+        if (diviseur.signum() == 0) {
+            throw new IllegalArgumentException("Taux de TVA invalide : " + tauxTva);
+        }
+        return ttc.divide(diviseur, 10, RoundingMode.HALF_UP);
     }
 
-    public static int computeHtaxe(int ttc, int taxe) {
-        return ttc / (1 + (taxe / 100));
+    /** Variante entière : le montant HT est arrondi au franc le plus proche. */
+    public static long htFromTtc(long ttc, int tauxTva) {
+        return htFromTtc(BigDecimal.valueOf(ttc), tauxTva).setScale(0, RoundingMode.HALF_UP).longValue();
     }
 
-    public static long computeHtaxe(long ttc, double taxe) {
-        return (long) (ttc / (1 + (taxe / 100)));
-    }
     public static int arrondiTauxCouverture(int taux) {
 
         int arrondi = Math.round(taux / 5f) * 5;
@@ -42,7 +63,7 @@ public class ServiceUtil {
 
     }
     public static double calculHt(int ttc, int tva) {
-        return (ttc) * 1.0 / (1 + (tva / 100.f));
+        return htFromTtc(BigDecimal.valueOf(ttc), tva).doubleValue();
     }
     public static boolean isPaymentMode(String modePayment) {
         return (

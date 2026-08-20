@@ -22,7 +22,7 @@ import { AppSplitButtonItem, ButtonComponent, SplitButtonComponent, ToolbarCompo
 import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
 
 @Component({
-  selector: 'jhi-tableau-pharmacien',
+  selector: 'app-tableau-pharmacien',
   imports: [
     CommonModule,
     FormsModule,

@@ -44,7 +44,8 @@ public enum Feature {
     /** Exclusion des produits d'un rayon du chiffre d'affaires à déclarer. */
     EXCLUSION_RAYON(true),
     /** Exclusion des ventes faites à un tiers-payant du chiffre d'affaires à déclarer. */
-    EXCLUSION_TP(true);
+    EXCLUSION_TP(true),
+    EXCLUSION_UG(true);
 
     private final boolean optional;
 

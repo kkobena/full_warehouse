@@ -173,14 +173,13 @@
             </div>
 
             <div class="pharma-card-body p-0">
-              <div class="pharma-table">
+              <div>
                 <app-data-table
                   [paginator]="true"
                   [rowsPerPageOptions]="[10, 15, 20]"
                   [rows]="10"
                   [showCurrentPageReport]="true"
                   [value]="cashRegisters"
-                  class="pharma-table"
                   currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} caisses"
                   dataKey="id"
                 >

@@ -76,40 +76,19 @@ export type AppButtonSize = 'small' | 'normal' | 'large';
       padding-inline: var(--bs-btn-padding-y);
     }
 
-
-    // Bootstrap force line-height: var(--bs-btn-line-height) = 1.5, ce qui gonfle la
-    // boîte de texte du bouton par rapport au reste de l'interface.
-    //
-    // Contrairement au padding et à la taille de police, .btn-sm / .btn-lg ne
-    // redéfinissent PAS --bs-btn-line-height : la règle peut donc porter sur .btn sans
-    // risque d'aplatir les trois tailles, et elle couvre ainsi small et large aussi.
     .btn {
       --bs-btn-line-height: inherit;
     }
 
-    // Gabarit de la taille normale.
-    //
-    // La règle porte sur cette classe et non sur .btn : scopée par Angular, .btn
-    // pèserait 0-2-0 et écraserait .btn-sm / .btn-lg (0-1-0), qui redéfinissent
-    // justement --bs-btn-padding-x et --bs-btn-font-size. Les trois tailles
-    // s'aplatiraient en une seule.
     .app-btn-normal {
-      // Le preset Aura ne déclare AUCUNE taille de police sur le bouton par défaut : il
-      // hérite du contexte. Seules ses variantes sm et lg en fixent une. Bootstrap, lui,
-      // impose font-size: var(--bs-btn-font-size) = 1rem à tout .btn — sur une application
-      // dont la police ambiante est plus petite, chaque bouton migré grossissait.
+
       font-size: inherit;
 
-      // Resserrement horizontal demandé : les boutons rendaient trop larges par rapport
-      // au reste de l'interface. On reprend le padding horizontal de la variante sm
-      // d'Aura (--p-form-field-sm-padding-x) sans toucher au padding vertical, pour que
-      // la hauteur reste alignée sur celle des champs de formulaire.
+
       --bs-btn-padding-x: 0.625rem;
     }
 
-    // La classe .shadow-sm de Bootstrap (0 .125rem .25rem rgba(0,0,0,.075)) ne se voit
-    // pas sur un bouton plein. On reprend l'élévation de PrimeNG, seule à rendre
-    // l'attribut raised lisible.
+
     .app-btn-raised {
       box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2),
       0 2px 2px 0 rgba(0, 0, 0, 0.14),
@@ -121,12 +100,7 @@ export type AppButtonSize = 'small' | 'normal' | 'large';
       background-color: rgba(var(--bs-emphasis-color-rgb), 0.075);
     }
 
-    // Intégration dans un .input-group Bootstrap (ex. champ quantité + bouton
-    // « ajouter »). Bootstrap cible .input-group > .btn pour uniformiser la
-    // hauteur et supprimer les coins arrondis internes, mais app-button
-    // interpose ce wrapper entre .input-group et le bouton réel : ces
-    // règles ne l'atteignent jamais. On les reproduit ici. Suppose l'usage
-    // actuel — app-button toujours en dernière position du groupe.
+
     :host-context(.input-group) {
       display: flex;
       align-self: stretch;
@@ -138,12 +112,7 @@ export type AppButtonSize = 'small' | 'normal' | 'large';
       }
     }
 
-    // Intégration dans un .btn-group Bootstrap (remplace p-buttonGroup). Bootstrap fusionne
-    // les coins et le bord partagé via des sélecteurs qui ciblent .btn-group > .btn
-    // directement — app-button s'interpose entre les deux, donc ces règles ne matchent
-    // jamais. On les reproduit ici, au niveau du wrapper. !important est nécessaire côté
-    // rayon : [rounded]="true" pose .rounded-pill, qui est lui-même en !important et
-    // regagnerait sinon les coins qu'on vient d'aplatir sur les bords partagés.
+
     :host-context(.btn-group) {
       &:not(:first-child) .btn {
         margin-left: calc(var(--bs-border-width, 1px) * -1);

@@ -1,165 +1,254 @@
-<h5 class="mb-1">Ponction du chiffre d'affaires</h5>
-<p class="text-muted small">
-  Prélève un montant sur les ventes de la période, de la plus grosse à la plus petite, sans jamais
-  dépasser le plafond fixé par vente.
-</p>
+<app-toolbar icon="pi pi-percentage" title="Ponction du chiffre d'affaires" />
 
-<!-- 1. Période et paramètres -->
-<app-card [withHeader]="true" header="Paramètres" icon="pi pi-sliders-h" class="d-block mb-3">
-  <div class="row g-3">
-    <div class="col-md-3">
-      <pharma-date-picker
-        id="ponction-du"
-        label="Du"
-        labelPosition="top"
-        [ngModel]="dateDebut()"
-        (ngModelChange)="dateDebut.set($event); invaliderSimulation()"
-      />
-    </div>
-    <div class="col-md-3">
-      <pharma-date-picker
-        id="ponction-au"
-        label="Au"
-        labelPosition="top"
-        [ngModel]="dateFin()"
-        (ngModelChange)="dateFin.set($event); invaliderSimulation()"
-      />
-    </div>
-    <div class="col-md-3">
-      <label class="form-label small">Mode de calcul</label>
-      <app-pill-selector [items]="modeOptions" [ngModel]="modeCalcul()" (selectionChange)="modeCalcul.set($any($event)); invaliderSimulation()" />
-    </div>
-    <div class="col-md-3">
-      <label class="form-label small" for="valeur">
-        {{ modeCalcul() === 'POURCENTAGE' ? 'Taux (%)' : 'Montant (F)' }}
-      </label>
-      <input
-        id="valeur"
-        type="number"
-        min="0"
-        class="form-control form-control-sm"
-        [ngModel]="valeur()"
-        (ngModelChange)="valeur.set($event); invaliderSimulation()"
-      />
-    </div>
-    <div class="col-md-3">
-      <label class="form-label small" for="plafond">Plafond par vente (%)</label>
-      <input
-        id="plafond"
-        type="number"
-        min="1"
-        max="100"
-        step="0.5"
-        class="form-control form-control-sm"
-        [ngModel]="plafond()"
-        (ngModelChange)="plafond.set($event); invaliderSimulation()"
-      />
-      <small class="form-text text-muted">
-        @if (plafondDefaut() !== null && plafond() !== plafondDefaut()) {
-          Surcharge du plafond de l'officine ({{ plafondDefaut() }} %) pour cette ponction seulement.
-        } @else {
-          Aucune vente ne cédera plus que cette part de son montant.
-        }
-      </small>
-    </div>
-    <div class="col-md-9">
-      <label class="form-label small" for="commentaire">Commentaire</label>
-      <input
-        id="commentaire"
-        type="text"
-        class="form-control form-control-sm"
-        [ngModel]="commentaire()"
-        (ngModelChange)="commentaire.set($event)"
-      />
-    </div>
+
+<!-- 1. Saisie à gauche, ce que la période autorise à droite : on lit le plafond en saisissant -->
+<div class="row g-3 mb-3">
+  <div class="col-12 col-xl-5">
+    <!-- Grille 2×2 : mode de calcul en tête, puis les dates et les deux montants -->
+    <app-card [variant]="'form'" [withFooter]="true" class="d-block h-100 ">
+      <div class="mb-2">
+        <label class="form-label small">Mode de calcul</label>
+        <app-pill-selector (selectionChange)="modeCalcul.set($any($event)); invaliderSimulation()"
+                           [items]="modeOptions"
+                           [ngModel]="modeCalcul()" />
+      </div>
+      <div class="row g-2 align-items-start">
+
+        <div class="col-6">
+          <pharma-date-picker
+            (ngModelChange)="dateDebut.set($event); invaliderAssiette()"
+            [ngModel]="dateDebut()"
+            id="ponction-du"
+            label="Du"
+            labelPosition="top"
+          />
+        </div>
+        <div class="col-6">
+          <pharma-date-picker
+            (ngModelChange)="dateFin.set($event); invaliderAssiette()"
+            [ngModel]="dateFin()"
+            id="ponction-au"
+            label="Au"
+            labelPosition="top"
+          />
+        </div>
+
+        <div class="col-6">
+          <label class="form-label small" for="valeur">
+            {{ modeCalcul() === 'POURCENTAGE' ? 'Taux (%)' : 'Montant (F)' }}
+          </label>
+          <app-input-number
+            (ngModelChange)="valeur.set($event); invaliderSimulation()"
+            [invalid]="tauxAuDessusDuPlafond()"
+            [maxFractionDigits]="modeCalcul() === 'POURCENTAGE' ? 2 : 0"
+            [min]="0"
+            [ngModel]="valeur()"
+            inputId="valeur"
+            size="small"
+          />
+          @if (tauxAuDessusDuPlafond()) {
+            <small class="form-text text-danger">
+              Au-delà du plafond de {{ plafond() }} % par vente : aucune vente ne cédant davantage,
+              ce taux est inatteignable. Baissez-le, ou relevez le plafond.
+            </small>
+          } @else if (modeCalcul() === 'POURCENTAGE' && plafond() !== null) {
+            <small class="form-text text-muted">Au plus {{ plafond() }} %, le plafond par
+              vente.</small>
+          }
+        </div>
+        <div class="col-6">
+          <label class="form-label small" for="plafond">Plafond par vente (%)</label>
+          <app-input-number
+            (ngModelChange)="plafond.set($event); invaliderAssiette()"
+            [invalid]="plafondHorsBornes()"
+            [maxFractionDigits]="1"
+            [ngModel]="plafond()"
+            [step]="0.5"
+            inputId="plafond"
+            size="small"
+          />
+          @if (plafondHorsBornes()) {
+            <small class="form-text text-danger">
+              Le plafond s'exprime en part d'une vente : il doit rester entre 1 et 100 %.
+            </small>
+          } @else {
+            <small class="form-text text-muted">
+              @if (plafondDefaut() !== null && plafond() !== plafondDefaut()) {
+                Surcharge du plafond de l'officine ({{ plafondDefaut() }} %) pour cette ponction seulement.
+              } @else {
+                Aucune vente ne cédera plus que cette part de son montant.
+              }
+            </small>
+          }
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2" ngProjectAs="[cardFooter]">
+        <app-button
+          (clicked)="afficherAssiette()"
+          [disabled]="!periodeComplete() || chargementAssiette()"
+          [outlined]="true"
+          icon="pi pi-calculator"
+          label="Afficher le CA"
+          severity="info"
+        />
+        <app-button
+          (clicked)="simuler()"
+          [disabled]="!saisieComplete() || chargement()"
+          icon="pi pi-play"
+          label="Simuler"
+          severity="primary"
+        />
+      </div>
+    </app-card>
   </div>
 
-  <div class="mt-3">
-    <app-button
-      label="Simuler"
-      icon="pi pi-calculator"
-      severity="primary"
-      [disabled]="!saisieComplete() || chargement()"
-      (click)="simuler()"
-    />
+  <div class="col-12 col-xl-7">
+    @if (assiette(); as base) {
+      <app-card [withHeader]="true" class="d-block h-100" header="CA ponctionnable sur la période"
+                icon="pi pi-wallet">
+        <app-kpi-strip [loading]="chargementAssiette()" [skeletonCount]="4">
+          <app-kpi-item
+            [accent]="'secondary'"
+            [value]="base.caReel | number"
+            icon="pi pi-shopping-cart"
+            iconClass="text-secondary"
+            label="CA réel (Sans ordonnance)"
+          >
+            <ng-container ngProjectAs="[kpiSub]">{{ base.nombreVentesEligibles | number }} vente(s)
+              éligible(s)
+            </ng-container>
+          </app-kpi-item>
+          <app-kpi-item
+            [accent]="'primary'"
+            [value]="base.caEspece | number"
+            icon="pi pi-money-bill"
+            iconClass="text-primary"
+            label="CA espèce"
+            valueClass="text-primary"
+          >
+            <ng-container ngProjectAs="[kpiSub]">réglé en espèces sur ces ventes</ng-container>
+          </app-kpi-item>
+          <app-kpi-item
+            [accent]="'info'"
+            [value]="base.caAssietteTva0 | number"
+            icon="pi pi-percentage"
+            iconClass="text-info"
+            label="Assiette TVA 0"
+          >
+            <ng-container ngProjectAs="[kpiSub]">espèce de ces ventes seulement</ng-container>
+          </app-kpi-item>
+          <app-kpi-item
+            [accent]="'success'"
+            [value]="base.montantPonctionnable | number"
+            icon="pi pi-arrow-down"
+            iconClass="text-success"
+            label="Ponctionnable au maximum"
+            valueClass="text-success"
+          >
+            <ng-container ngProjectAs="[kpiSub]">plafond {{ base.plafondApplique }} % par vente
+            </ng-container>
+          </app-kpi-item>
+        </app-kpi-strip>
+
+      </app-card>
+    }
   </div>
-</app-card>
+</div>
 
 <!-- 2. Résultat -->
 @if (simulation(); as sim) {
-  <app-card [withHeader]="true" header="Résultat de la simulation" icon="pi pi-chart-bar" class="d-block mb-3">
-    <!--
-      La cascade du plus large au plus étroit : sans elle, un objectif refusé est incompréhensible —
-      on voit un gros chiffre d'affaires et un rejet, sans voir ce qui borne.
-    -->
-    <h6 class="mb-2">Assiette de la période</h6>
-    <table class="table table-sm w-auto mb-3">
-      <tbody>
-        <tr>
-          <td class="text-muted">Chiffre d'affaires réel</td>
-          <td class="text-end fw-semibold">{{ sim.caReel | number }}</td>
-        </tr>
-        <tr>
-          <td class="text-muted">Après exclusions (rayon, tiers-payant, UG)</td>
-          <td class="text-end fw-semibold">{{ sim.caApresExclusions | number }}</td>
-        </tr>
-        <tr>
-          <td class="text-muted ps-4">dont assiette à TVA 0</td>
-          <td class="text-end">{{ sim.caAssietteTva0 | number }}</td>
-        </tr>
-        <tr class="border-top">
-          <td class="text-muted">Montant maximal ponctionnable</td>
-          <td class="text-end fw-semibold">{{ sim.montantPonctionnable | number }}</td>
-        </tr>
-      </tbody>
-    </table>
+  <app-card [withHeader]="true" class="d-block mb-3" header="Résultat de la simulation"
+            icon="pi pi-chart-bar">
 
-    <p class="text-muted small">
-      Seuls les produits exonérés de TVA sont ponctionnables : la TVA facturée au client ne peut pas
-      être réduite. C'est ce qui explique l'écart entre le chiffre d'affaires et le plafond.
-    </p>
+    <app-hint storageKey="ponction-tva-exoneree">
+      Seuls les produits exonérés de TVA sont ponctionnables.
+    </app-hint>
 
     @for (avertissement of sim.avertissements; track avertissement) {
       <div class="alert alert-warning py-2 small">{{ avertissement }}</div>
     }
 
     @if (sim.objectifAtteignable) {
-      <div class="row g-3 mb-3">
-        <div class="col-sm-3">
-          <div class="border rounded p-2">
-            <div class="text-muted small">Objectif</div>
-            <div class="fs-5 fw-semibold">{{ sim.montantObjectif | number }}</div>
-          </div>
-        </div>
-        <div class="col-sm-3">
-          <div class="border rounded p-2">
-            <div class="text-muted small">Ponctionné</div>
-            <div class="fs-5 fw-semibold">{{ sim.montantPonctionne | number }}</div>
-          </div>
-        </div>
-        <div class="col-sm-3">
-          <div class="border rounded p-2">
-            <div class="text-muted small">CA déclaré</div>
-            <div class="fs-5 fw-semibold">{{ sim.caDeclare | number }}</div>
-          </div>
-        </div>
-        <div class="col-sm-3">
-          <div class="border rounded p-2">
-            <div class="text-muted small">Taux moyen / max</div>
-            <div class="fs-5 fw-semibold">{{ sim.tauxMoyenApplique }} % / {{ sim.tauxMaxApplique }} %</div>
-          </div>
-        </div>
-      </div>
+      <app-kpi-strip stripClass="mb-2">
+        <app-kpi-item
+          [accent]="'secondary'"
+          [value]="sim.montantObjectif | number"
+          icon="pi pi-flag"
+          iconClass="text-secondary"
+          label="Objectif"
+        />
+        <app-kpi-item
+          [accent]="'primary'"
+          [value]="sim.montantPonctionne | number"
+          icon="pi pi-arrow-down"
+          iconClass="text-primary"
+          label="Ponctionné"
+          valueClass="text-primary"
+        />
+        <app-kpi-item
+          [accent]="'success'"
+          [value]="sim.caDeclare | number"
+          icon="pi pi-file-edit"
+          iconClass="text-success"
+          label="CA déclaré"
+          valueClass="text-success"
+        />
+        <app-kpi-item
+          [accent]="'info'"
+          [value]="sim.tauxMoyenApplique"
+          icon="pi pi-percentage"
+          iconClass="text-info"
+          label="Taux moyen"
+          suffix=" %"
+        >
+          <ng-container ngProjectAs="[kpiSub]">max {{ sim.tauxMaxApplique }} % · plafond retenu
+            {{ sim.plafondApplique }} %
+          </ng-container>
+        </app-kpi-item>
+      </app-kpi-strip>
 
       <p class="small text-muted">
         {{ sim.nombreVentesImpactees | number }} vente(s) impactée(s) sur
         {{ sim.nombreVentesEligibles | number }} éligible(s).
       </p>
 
-      <h6 class="mt-3">Aperçu des premières ventes</h6>
-      <app-data-table [value]="sim.apercu" size="small" [stripedRows]="true" emptyMessage="Aucune vente retenue">
+      <app-data-table
+        [paginator]="true"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        [rows]="10"
+        [scrollable]="true"
+        [showCurrentPageReport]="true"
+        [stripedRows]="true"
+        [value]="sim.apercu"
+        emptyMessage="Aucune vente retenue"
+        scrollHeight="26rem"
+        size="small"
+      >
+        <!-- Titre et validation dans la légende : l'action reste visible en tête du tableau. -->
+        <ng-template #caption>
+          <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between w-100">
+            <h6 class="mb-0">Aperçu des premières ventes</h6>
+
+            <div class="d-flex gap-2 align-items-center">
+              @if (!peutValider()) {
+                <span class="text-muted small">
+                  La validation reste fermée tant que l'objectif dépasse le montant ponctionnable.
+                </span>
+              }
+              <app-button
+                (clicked)="demanderConfirmation()"
+                [disabled]="!peutValider() || chargement()"
+                icon="pi pi-check"
+                label="Valider la ponction"
+                severity="warn"
+              />
+            </div>
+          </div>
+        </ng-template>
+
         <ng-template #header>
-          <tr>
+          <tr class="pharma-table-head">
             <th style="width: 3rem">#</th>
             <th>Transaction</th>
             <th style="width: 8rem">Date</th>
@@ -180,26 +269,10 @@
         </ng-template>
       </app-data-table>
     }
-
-    <div class="d-flex gap-2 align-items-center mt-3">
-      <app-button
-        label="Valider la ponction"
-        icon="pi pi-check"
-        severity="warn"
-        [disabled]="!peutValider() || chargement()"
-        (click)="demanderConfirmation()"
-      />
-      @if (!peutValider()) {
-        <span class="text-muted small">
-          La validation reste fermée tant que l'objectif dépasse le montant ponctionnable.
-        </span>
-      }
-    </div>
   </app-card>
 } @else {
-  <p class="text-muted small">
-    <i class="pi pi-info-circle me-1"></i>
-    Aucune simulation en cours. Toute modification d'un paramètre efface le résultat précédent : on ne
-    valide jamais un calcul qu'on n'a pas sous les yeux.
-  </p>
+  <app-hint [dismissible]="false">
+    Aucune simulation en cours. Toute modification d'un paramètre efface le résultat précédent : on
+    ne valide jamais un calcul qu'on n'a pas sous les yeux.
+  </app-hint>
 }

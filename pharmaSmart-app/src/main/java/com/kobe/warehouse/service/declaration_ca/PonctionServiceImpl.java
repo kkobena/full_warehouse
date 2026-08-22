@@ -7,6 +7,7 @@ import com.kobe.warehouse.repository.CaPonctionDetailRepository;
 import com.kobe.warehouse.repository.CaPonctionRepository;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.declaration_ca.dto.ModeCalculPonction;
+import com.kobe.warehouse.service.declaration_ca.dto.PonctionAssietteDTO;
 import com.kobe.warehouse.service.declaration_ca.dto.PonctionDTO;
 import com.kobe.warehouse.service.declaration_ca.dto.PonctionLigneDTO;
 import com.kobe.warehouse.service.declaration_ca.dto.PonctionParamDTO;
@@ -14,8 +15,8 @@ import com.kobe.warehouse.service.declaration_ca.dto.PonctionParametresDTO;
 import com.kobe.warehouse.service.declaration_ca.dto.PonctionSimulationDTO;
 import com.kobe.warehouse.service.declaration_ca.dto.StatutPonction;
 import com.kobe.warehouse.service.errors.GenericError;
-import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.id_generator.CaPonctionIdGeneratorService;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -25,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,15 +34,26 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class PonctionServiceImpl implements PonctionService {
 
-    /** Aperçu montré à l'écran : assez pour juger, pas assez pour noyer. */
+    /**
+     * Aperçu montré à l'écran : assez pour juger, pas assez pour noyer.
+     */
     private static final int TAILLE_APERCU = 20;
 
-    private static final String[] MODES_REGLEMENT = { "CASH" };
+    /**
+     * Plus petite coupure en circulation : toute valeur ponctionnée en est un multiple.
+     */
+    private static final int PAS_MONETAIRE = 5;
 
-    /** Seule stratégie implémentée : les plus grosses ventes d'abord. */
+    private static final String[] MODES_REGLEMENT = {"CASH"};
+
+    /**
+     * Seule stratégie implémentée : les plus grosses ventes d'abord.
+     */
     private static final String STRATEGIE_PAR_DEFAUT = "DECROISSANT";
 
-    /** Seul le taux exonéré est ponctionnable (cf. D7). */
+    /**
+     * Seul le taux exonéré est ponctionnable
+     */
     private static final String TAUX_TVA_ELIGIBLES = "0";
 
     private final PonctionCalculator calculator;
@@ -90,18 +101,43 @@ public class PonctionServiceImpl implements PonctionService {
         );
 
         long caReel = caPeriodeRepository.caReel(param.dateDebut(), param.dateFin(), magasinId);
-        long caApresExclusions = caPeriodeRepository.caApresExclusions(param.dateDebut(), param.dateFin(), magasinId);
-        long objectif = objectif(param, caApresExclusions);
+        long caApresExclusions = caPeriodeRepository.caApresExclusions(param.dateDebut(),
+            param.dateFin(), magasinId);
+        long objectifDemande = objectif(param, caApresExclusions);
 
         List<String> avertissements = new ArrayList<>();
+
+        // Un taux se négocie, un montant s'exige : les deux modes ne se traitent pas pareil.
+        //
+        // Demander un taux égal au plafond par vente est structurellement à la limite — la somme
+        // des parts arrondies vente par vente reste sous la part du total, toujours. Refuser pour
+        // un franc d'écart obligeait à saisir 34 % pour obtenir 35, sans que rien ne l'explique.
+        // Le taux est donc une cible : s'il excède ce qui est prélevable, on prélève le maximum et
+        // on le dit. Un montant fixe, lui, a été nommé : le ramener sans permission produirait une
+        // ponction différente de celle qui a été demandée, et le refus reste la bonne réponse.
+        long objectif = objectifDemande;
+        if (param.modeCalcul() == ModeCalculPonction.POURCENTAGE && objectifDemande > assiette.montantPonctionnable()) {
+            objectif = auMultipleDeCinq(assiette.montantPonctionnable());
+            avertissements.add(
+                String.format(
+                    "Le taux demandé représente %d F, au-delà des %d F prélevables sur cette période : " +
+                    "l'objectif a été ramené au maximum. Le plafond par vente et la part de produits " +
+                    "exonérés bornent ce qui peut être prélevé.",
+                    objectifDemande,
+                    assiette.montantPonctionnable()
+                )
+            );
+        }
+
         boolean atteignable = objectif <= assiette.montantPonctionnable();
         if (!atteignable) {
             avertissements.add(messageObjectifInatteignable(objectif, assiette));
         }
         if (assiette.nombreVentes() == 0) {
             avertissements.add(
-                "Aucune vente éligible sur cette période : ventes comptant, closes, non différées, " +
-                "réglées en espèces, sans exclusion déjà appliquée et comportant des produits exonérés."
+                "Aucune vente éligible sur cette période : ventes comptant, closes, non différées, "
+                    +
+                    "réglées en espèces, sans exclusion déjà appliquée et comportant des produits exonérés."
             );
         }
         chevauchement(param).ifPresent(periode ->
@@ -109,7 +145,8 @@ public class PonctionServiceImpl implements PonctionService {
         );
 
         List<PonctionLigneDTO> lignes = atteignable && objectif > 0
-            ? calculator.repartir(param.dateDebut(), param.dateFin(), magasinId, plafond, MODES_REGLEMENT, objectif)
+            ? calculator.repartir(param.dateDebut(), param.dateFin(), magasinId, plafond,
+            MODES_REGLEMENT, objectif)
             : List.of();
 
         long ponctionne = lignes.stream().mapToLong(PonctionLigneDTO::montantPonctionne).sum();
@@ -129,6 +166,7 @@ public class PonctionServiceImpl implements PonctionService {
             tauxMoyen(ponctionne, caApresExclusions),
             tauxMax(lignes),
             atteignable,
+            plafond,
             appConfigurationService.getPonctionAnnulationMaxDays(),
             lignes.stream().limit(TAILLE_APERCU).toList(),
             avertissements
@@ -138,18 +176,20 @@ public class PonctionServiceImpl implements PonctionService {
     /**
      * Applique la ponction.
      *
-     * <p>L'ordre des écritures n'est pas indifférent : le détail est écrit d'abord, puis les totaux de
-     * l'en-tête en sont <strong>déduits</strong>. Les faire calculer séparément — ce qui était le cas —
-     * revenait à exécuter deux fois la même requête et à espérer qu'elle rende deux fois le même
-     * résultat ; une vente close entre les deux suffisait à les faire diverger, et l'invariant « le
-     * détail totalise le montant ponctionné » tombait silencieusement. Ici il est vrai par
+     * <p>L'ordre des écritures n'est pas indifférent : le détail est écrit d'abord, puis les totaux
+     * de
+     * l'en-tête en sont <strong>déduits</strong>. Les faire calculer séparément — ce qui était le
+     * cas — revenait à exécuter deux fois la même requête et à espérer qu'elle rende deux fois le
+     * même résultat ; une vente close entre les deux suffisait à les faire diverger, et l'invariant
+     * « le détail totalise le montant ponctionné » tombait silencieusement. Ici il est vrai par
      * construction.
      */
     @Override
     public PonctionDTO valider(PonctionParamDTO param) {
         PonctionSimulationDTO simulation = simuler(param);
         if (!simulation.objectifAtteignable()) {
-            throw new GenericError(messageObjectifInatteignable(simulation.montantObjectif(), simulation.montantPonctionnable()));
+            throw new GenericError(messageObjectifInatteignable(simulation.montantObjectif(),
+                simulation.montantPonctionnable()));
         }
         if (simulation.montantPonctionne() <= 0) {
             throw new GenericError("Aucune vente ne peut être ponctionnée sur cette période.");
@@ -168,6 +208,35 @@ public class PonctionServiceImpl implements PonctionService {
         ponctionRepository.alignerEnTeteSurLeDetail(id);
         calculator.appliquer(id);
         return lire(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PonctionAssietteDTO assiette(LocalDate dateDebut, LocalDate dateFin,
+        BigDecimal plafondParVente) {
+        if (dateFin.isBefore(dateDebut)) {
+            throw new GenericError("La date de fin précède la date de début.");
+        }
+        int magasinId = magasinId();
+        BigDecimal plafond =
+            plafondParVente == null ? appConfigurationService.getPonctionPlafondDefaut()
+                : plafondParVente;
+        if (plafond.signum() <= 0 || plafond.compareTo(BigDecimal.valueOf(100)) > 0) {
+            throw new GenericError("Le plafond par vente doit être compris entre 0 et 100 %.");
+        }
+
+        PonctionCalculator.Assiette assiette = calculator.calculerAssiette(dateDebut, dateFin,
+            magasinId, plafond, MODES_REGLEMENT);
+        return new PonctionAssietteDTO(
+            dateDebut,
+            dateFin,
+            caPeriodeRepository.caReel(dateDebut, dateFin, magasinId),
+            assiette.caEspece(),
+            assiette.assietteTva0(),
+            assiette.montantPonctionnable(),
+            assiette.nombreVentes(),
+            plafond
+        );
     }
 
     @Override
@@ -192,14 +261,19 @@ public class PonctionServiceImpl implements PonctionService {
                 ponction
                     .setStatut(StatutPonction.ANNULEE)
                     .setCanceledAt(LocalDateTime.now())
-                    .setCommentaire(motifAnnulationAutomatique(ponction.getCommentaire(), saleId, saleDate));
+                    .setCommentaire(
+                        motifAnnulationAutomatique(ponction.getCommentaire(), saleId, saleDate));
                 ponctionRepository.save(ponction);
             });
     }
 
-    /** Le motif est conservé dans le commentaire : sans lui, l'historique montre une annulation sans auteur ni cause. */
+    /**
+     * Le motif est conservé dans le commentaire : sans lui, l'historique montre une annulation sans
+     * auteur ni cause.
+     */
     private String motifAnnulationAutomatique(String commentaire, Long saleId, LocalDate saleDate) {
-        String motif = "Annulée automatiquement : la vente %d du %s a été annulée.".formatted(saleId, saleDate);
+        String motif = "Annulée automatiquement : la vente %d du %s a été annulée.".formatted(
+            saleId, saleDate);
         return commentaire == null || commentaire.isBlank() ? motif : commentaire + " — " + motif;
     }
 
@@ -224,7 +298,8 @@ public class PonctionServiceImpl implements PonctionService {
             );
         }
         calculator.annuler(id);
-        ponction.setStatut(StatutPonction.ANNULEE).setCanceledAt(LocalDateTime.now()).setCanceledBy(storageService.getUser());
+        ponction.setStatut(StatutPonction.ANNULEE).setCanceledAt(LocalDateTime.now())
+            .setCanceledBy(storageService.getUser());
         return versDto(ponctionRepository.save(ponction));
     }
 
@@ -232,7 +307,8 @@ public class PonctionServiceImpl implements PonctionService {
     @Override
     @Transactional(readOnly = true)
     public List<PonctionDTO> getHistorique() {
-        return ponctionRepository.findByMagasinIdOrderByDateDebutDesc(magasinId()).stream().map(this::versDto).toList();
+        return ponctionRepository.findByMagasinIdOrderByDateDebutDesc(magasinId()).stream()
+            .map(this::versDto).toList();
     }
 
     @Override
@@ -266,13 +342,14 @@ public class PonctionServiceImpl implements PonctionService {
     /**
      * Crée l'en-tête de la ponction.
      *
-     * <p>{@code saveAndFlush} et non {@code save} : c'est la contrainte d'exclusion GiST qui rejette
+     * <p>{@code saveAndFlush} et non {@code save} : c'est la contrainte d'exclusion GiST qui
+     * rejette
      * une période chevauchante, et elle ne parle qu'au moment où l'insertion atteint la base. Sans
      * vidage explicite, l'erreur ne surviendrait qu'à la validation de la transaction — trop tard
      * pour la traduire en message compréhensible.
      */
     private Integer insererPonction(PonctionParamDTO param, PonctionSimulationDTO simulation) {
-        AppUser appUser=storageService.getUser();
+        AppUser appUser = storageService.getUser();
         CaPonction entite = new CaPonction()
             .setId(idGeneratorService.getNextIdAsInt())
             .setMagasin(storageService.getDefaultConnectedUserMainStorage().getMagasin())
@@ -308,7 +385,6 @@ public class PonctionServiceImpl implements PonctionService {
             );
         }
     }
-
 
     // ===== Lectures et utilitaires =====
 
@@ -366,13 +442,29 @@ public class PonctionServiceImpl implements PonctionService {
      */
     private long objectif(PonctionParamDTO param, long caApresExclusions) {
         if (param.modeCalcul() == ModeCalculPonction.MONTANT_FIXE) {
-            return param.valeur().setScale(0, RoundingMode.HALF_UP).longValue();
+            return auMultipleDeCinq(param.valeur().setScale(0, RoundingMode.HALF_UP).longValue());
         }
-        return BigDecimal
-            .valueOf(caApresExclusions)
-            .multiply(param.valeur())
-            .divide(BigDecimal.valueOf(100), 0, RoundingMode.HALF_UP)
-            .longValue();
+        // FLOOR et non HALF_UP : arrondir par excès prélèverait au-delà du taux annoncé.
+        return auMultipleDeCinq(
+            BigDecimal
+                .valueOf(caApresExclusions)
+                .multiply(param.valeur())
+                .divide(BigDecimal.valueOf(100), 0, RoundingMode.FLOOR)
+                .longValue()
+        );
+    }
+
+    /**
+     * Ramène un montant au multiple de {@value #PAS_MONETAIRE} inférieur.
+     *
+     * <p>Vers le bas et jamais vers le haut : arrondir au plus proche ferait ponctionner au-delà
+     * de
+     * ce que le pharmacien a demandé, ce qu'aucun écran ne rattraperait. Le même pas est appliqué
+     * au plafond de chaque vente par {@link PonctionCalculator}, si bien que toute valeur
+     * ponctionnée — objectif, prise par vente, total — en est un multiple.
+     */
+    private long auMultipleDeCinq(long montant) {
+        return montant - Math.floorMod(montant, PAS_MONETAIRE);
     }
 
     private void controlerPeriode(PonctionParamDTO param) {
@@ -385,7 +477,9 @@ public class PonctionServiceImpl implements PonctionService {
         }
     }
 
-    /** Le contrôle applicatif double la contrainte GiST : il sert à prévenir avant, pas à garantir. */
+    /**
+     * Le contrôle applicatif double la contrainte GiST : il sert à prévenir avant, pas à garantir.
+     */
     private Optional<String> chevauchement(PonctionParamDTO param) {
         return ponctionRepository
             .findChevauchantes(
@@ -399,14 +493,15 @@ public class PonctionServiceImpl implements PonctionService {
             .map(p -> "du " + p.getDateDebut() + " au " + p.getDateFin());
     }
 
-    private String messageObjectifInatteignable(long objectif, PonctionCalculator.Assiette assiette) {
+    private String messageObjectifInatteignable(long objectif,
+        PonctionCalculator.Assiette assiette) {
         return messageObjectifInatteignable(objectif, assiette.montantPonctionnable());
     }
 
     private String messageObjectifInatteignable(long objectif, long ponctionnable) {
         return String.format(
             "Objectif inatteignable : %d F demandés pour un maximum de %d F. " +
-            "Le plafond par vente et la part de produits exonérés bornent ce qui peut être prélevé.",
+                "Le plafond par vente et la part de produits exonérés bornent ce qui peut être prélevé.",
             objectif,
             ponctionnable
         );
@@ -436,7 +531,9 @@ public class PonctionServiceImpl implements PonctionService {
             .orElse(BigDecimal.ZERO);
     }
 
-    /** Le plafond saisi, ou celui de l'officine. */
+    /**
+     * Le plafond saisi, ou celui de l'officine.
+     */
     private BigDecimal plafondEffectif(PonctionParamDTO param) {
         return param.plafondEffectif(appConfigurationService.getPonctionPlafondDefaut());
     }

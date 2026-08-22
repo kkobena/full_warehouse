@@ -46,7 +46,7 @@
       <ng-container ngProjectAs="[toolbarActions]">
         <div class="pharma-toolbar-actions">
           <div class="pharma-button-group">
-            <app-button (click)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher"
+            <app-button (clicked)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher"
                         severity="info"></app-button>
 
             <app-split-button
@@ -130,7 +130,7 @@
 
                   @if (customer.categorie === 'ASSURE') {
                     <app-button
-                      (click)="editAssureCustomer(customer)"
+                      (clicked)="editAssureCustomer(customer)"
                       [rounded]="true"
                       [text]="true"
                       data-placement="left"
@@ -142,7 +142,7 @@
                     </app-button>
                     @if (customer.typeTiersPayant === 'ASSURANCE') {
                       <app-button
-                        (click)="addAyantDroit(customer)"
+                        (clicked)="addAyantDroit(customer)"
                         [rounded]="true"
                         [text]="true"
                         data-placement="left"
@@ -157,7 +157,7 @@
 
                   @if (customer.categorie === 'STANDARD') {
                     <app-button
-                      (click)="editUninsuredCustomer(customer)"
+                      (clicked)="editUninsuredCustomer(customer)"
                       [rounded]="true"
                       [text]="true"
                       data-placement="left"
@@ -170,7 +170,7 @@
                   }
 
                   <app-button
-                    (click)="confirmRemove(customer)"
+                    (clicked)="confirmRemove(customer)"
                     [rounded]="true"
                     [text]="true"
                     icon="pi pi-trash"
@@ -180,7 +180,7 @@
                   >
                   </app-button>
                   <app-button
-                    (click)="confirmDesactivation(customer)"
+                    (clicked)="confirmDesactivation(customer)"
                     [rounded]="true"
                     [text]="true"
                     icon="pi pi-lock"
@@ -256,7 +256,7 @@
                                 <th style="width: 8%">Sexe</th>
                                 <th style="width: 15%; text-align: right">
                                   <app-button
-                                    (click)="addAyantDroit(customer)"
+                                    (clicked)="addAyantDroit(customer)"
                                     [rounded]="true"
                                     [text]="true"
                                     icon="pi pi-plus"
@@ -280,7 +280,7 @@
                                     <td class="text-right">
                                       <div class="btn-group">
                                         <app-button
-                                          (click)="editAyantDroit(customer, ayantDroit)"
+                                          (clicked)="editAyantDroit(customer, ayantDroit)"
                                           [rounded]="true"
                                           [text]="true"
                                           class="p-mb-3 mr-1"
@@ -289,7 +289,7 @@
                                           severity="success"
                                         ></app-button>
                                         <app-button
-                                          (click)="confirmRemoveAyantDroit(ayantDroit)"
+                                          (clicked)="confirmRemoveAyantDroit(ayantDroit)"
                                           [rounded]="true"
                                           [text]="true"
                                           class="p-mb-3"
@@ -327,7 +327,7 @@
                               @if (displayTiersPayantAddBtn(customer)) {
                                 <th style="width: 11%; text-align: right">
                                   <app-button
-                                    (click)="onAddNewTiersPayant(customer)"
+                                    (clicked)="onAddNewTiersPayant(customer)"
                                     [rounded]="true"
                                     [text]="true"
                                     icon="pi pi-plus"
@@ -359,7 +359,7 @@
                                     <td class="text-right">
                                       <div class="btn-group">
                                         <app-button
-                                          (click)="onEditTiersPayant(customer, tierspayant)"
+                                          (clicked)="onEditTiersPayant(customer, tierspayant)"
                                           [rounded]="true"
                                           [text]="true"
                                           class="p-mb-3 mr-1"
@@ -370,7 +370,7 @@
                                         @if (customer.typeTiersPayant === 'ASSURANCE'
                                         && customer.tiersPayants.length > 1) {
                                           <app-button
-                                            (click)="onRemoveTiersPayant(tierspayant)"
+                                            (clicked)="onRemoveTiersPayant(tierspayant)"
                                             [rounded]="true"
                                             [text]="true"
                                             class="p-mb-3"

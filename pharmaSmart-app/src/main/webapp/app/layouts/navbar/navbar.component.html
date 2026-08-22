@@ -4,7 +4,7 @@
     <a (click)="collapseNavbar()" class="navbar-brand logo" routerLink="/">
       <span class="logo-img"></span>
       <span class="navbar-title mr-2" jhiTranslate="global.title">Pharma Smart</span>
-      <span class="navbar-version">{{ version }}</span>
+      <span class="navbar-version">{{ version() }}</span>
     </a>
     <button
       (click)="toggleNavbar()"
@@ -19,7 +19,7 @@
 
     <div [ngbCollapse]="isNavbarCollapsed()" class="navbar-collapse collapse" id="navbarResponsive">
       <ul class="navbar-nav ms-auto">
-        @for (item of navItems; track item.id) {
+        @for (item of navItems(); track item.id) {
           @if (item.children && item.children.length > 0) {
             <li class="nav-item">
               <!-- Entrée parente : ouvre le panneau partagé avec la sidebar -->

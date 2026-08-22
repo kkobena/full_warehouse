@@ -10,11 +10,11 @@ import { JournalTiersPayantComponent } from '../journal-tiers-payant/journal-tie
 import { PonctionComponent } from '../ponction/ponction.component';
 import { PonctionHistoriqueComponent } from '../ponction-historique/ponction-historique.component';
 import { AuditComponent } from '../audit/audit.component';
-import {
-  BalanceReelleComponent,
-  TableauPharmacienReelComponent,
-  TaxeReportReelComponent,
-} from '../vues-reelles/vues-reelles.components';
+// Trois imports et non un barrel : chacun n'est atteint que par son bloc `@defer`, et un module
+// commun les aurait ramenés ensemble — près de 3 Mo pour un seul onglet ouvert.
+import { BalanceReelleComponent } from '../vues-reelles/balance-reelle.component';
+import { TaxeReportReelComponent } from '../vues-reelles/taxe-report-reel.component';
+import { TableauPharmacienReelComponent } from '../vues-reelles/tableau-pharmacien-reel.component';
 
 /**
  * Module « Retraitement du CA ».

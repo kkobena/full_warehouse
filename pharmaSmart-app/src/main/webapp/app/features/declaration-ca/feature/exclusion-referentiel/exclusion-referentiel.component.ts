@@ -4,8 +4,10 @@ import { FormsModule } from '@angular/forms';
 
 import { ButtonComponent } from 'app/shared/ui/button/button.component';
 import { BadgeComponent } from 'app/shared/ui/badge/badge.component';
+import { ToolbarComponent } from 'app/shared/ui/toolbar/toolbar.component';
 import { CheckboxComponent } from 'app/shared/ui/checkbox/checkbox.component';
 import { DataTableComponent } from 'app/shared/ui/data-table/data-table.component';
+import { HintComponent } from 'app/shared/ui/hint/hint.component';
 import { AppPillOption, PillSelectorComponent } from 'app/shared/ui/pill-selector/pill-selector.component';
 import { NotificationService } from 'app/shared/services/notification.service';
 import {
@@ -25,7 +27,7 @@ type Filtre = 'tous' | 'exclus' | 'non-exclus';
  */
 @Component({
   selector: 'app-exclusion-referentiel',
-  imports: [FormsModule, ButtonComponent, BadgeComponent, CheckboxComponent, DataTableComponent, PillSelectorComponent],
+  imports: [FormsModule, ButtonComponent, BadgeComponent, CheckboxComponent, DataTableComponent, HintComponent, PillSelectorComponent, ToolbarComponent],
   templateUrl: './exclusion-referentiel.component.html',
   styleUrl: './exclusion-referentiel.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

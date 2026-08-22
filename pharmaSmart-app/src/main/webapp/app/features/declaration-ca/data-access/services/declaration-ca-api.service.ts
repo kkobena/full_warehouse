@@ -57,6 +57,15 @@ export class DeclarationCaApiService {
     return this.http.get<PonctionParametres>(`${this.base}/ponctions/parametres`);
   }
 
+  /** L'assiette d'une période, sans objectif : ce qu'on peut prélever avant de décider combien. */
+  assietteePonction(dateDebut: string, dateFin: string, plafondParVente?: number | null): Observable<PonctionAssiette> {
+    let params = new HttpParams().set('dateDebut', dateDebut).set('dateFin', dateFin);
+    if (plafondParVente !== null && plafondParVente !== undefined) {
+      params = params.set('plafondParVente', plafondParVente);
+    }
+    return this.http.get<PonctionAssiette>(`${this.base}/ponctions/assiette`, { params });
+  }
+
   simuler(param: PonctionParam): Observable<PonctionSimulation> {
     return this.http.post<PonctionSimulation>(`${this.base}/ponctions/simulation`, param);
   }
@@ -138,6 +147,19 @@ export interface PonctionParam {
   commentaire?: string;
 }
 
+/** Ce qui est prélevable sur une période, avant toute saisie d'objectif. */
+export interface PonctionAssiette {
+  dateDebut: string;
+  dateFin: string;
+  caReel: number;
+  /** Encaissé en espèces sur les ventes éligibles — ce que la ponction peut mordre. */
+  caEspece: number;
+  caAssietteTva0: number;
+  montantPonctionnable: number;
+  nombreVentesEligibles: number;
+  plafondApplique: number;
+}
+
 export interface PonctionLigne {
   saleId: number;
   saleDate: string;
@@ -163,6 +185,8 @@ export interface PonctionSimulation {
   tauxMoyenApplique: number;
   tauxMaxApplique: number;
   objectifAtteignable: boolean;
+  /** Plafond par vente réellement retenu par le serveur : celui saisi, ou celui de l'officine. */
+  plafondApplique: number;
   delaiAnnulationJours: number;
   apercu: PonctionLigne[];
   avertissements: string[];

@@ -58,7 +58,7 @@
       <div class="pharma-toolbar-actions">
         <div class="pharma-button-group">
           <app-button
-            (click)="onSearch()"
+            (clicked)="onSearch()"
             [loading]="loadingBtn"
             [raised]="true"
             icon="pi pi-search"
@@ -66,7 +66,7 @@
             severity="info"
           />
           <app-button
-            (click)="onPrintPdf()"
+            (clicked)="onPrintPdf()"
             [loading]="loadingPdf"
             [raised]="true"
             icon="pi pi-file-pdf"
@@ -74,7 +74,7 @@
             severity="warn"
           />
           <app-button
-            (click)="onExportExcel()"
+            (clicked)="onExportExcel()"
             [loading]="loadingExcel"
             [raised]="true"
             icon="pi pi-file-excel"
@@ -118,7 +118,7 @@
           </app-icon-field>
           @if (selectedDatas.length > 0) {
             <app-button
-              (click)="onDeleteAll()"
+              (clicked)="onDeleteAll()"
               [raised]="true"
               icon="pi pi-trash"
               label="Supprimer la sélection ({{ selectedDatas.length }})"
@@ -171,7 +171,7 @@
           <td class="text-center">
             <div class="btn-group" role="group">
               <app-button
-                (click)="onView(r)"
+                (clicked)="onView(r)"
                 [rounded]="true"
                 [text]="true"
                 icon="pi pi-eye"
@@ -180,7 +180,7 @@
                 size="small"
               />
               <app-button
-                (click)="onPrint(r)"
+                (clicked)="onPrint(r)"
                 [rounded]="true"
                 [text]="true"
                 icon="pi pi-print"
@@ -189,7 +189,7 @@
                 size="small"
               />
               <app-button
-                (click)="onDelete(r)"
+                (clicked)="onDelete(r)"
                 [rounded]="true"
                 [text]="true"
                 icon="pi pi-trash"

@@ -1,20 +1,24 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from "@angular/core";
-import { CommonModule } from "@angular/common";
+import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} from "@angular/core";
+import {CommonModule} from "@angular/common";
 
-import { ButtonComponent } from "app/shared/ui/button/button.component";
-import { BadgeComponent } from "app/shared/ui/badge/badge.component";
-import { CardComponent } from "app/shared/ui/card/card.component";
-import { DataTableComponent } from "app/shared/ui/data-table/data-table.component";
-import { HintComponent } from "app/shared/ui/hint/hint.component";
-import { NotificationService } from "app/shared/services/notification.service";
-import { NgbConfirmDialogService } from "app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import {ButtonComponent} from "app/shared/ui/button/button.component";
+import {BadgeComponent} from "app/shared/ui/badge/badge.component";
+import {CardComponent} from "app/shared/ui/card/card.component";
+import {DataTableComponent} from "app/shared/ui/data-table/data-table.component";
+import {HintComponent} from "app/shared/ui/hint/hint.component";
+import {ToolbarComponent} from "app/shared/ui/toolbar/toolbar.component";
+import {NotificationService} from "app/shared/services/notification.service";
+import {
+  NgbConfirmDialogService
+} from "app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import {
   DeclarationCaApiService,
   Ponction,
   PonctionLigne,
   StatutPonction
 } from "../../data-access/services/declaration-ca-api.service";
-import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
+import {BlobDownloadService} from "../../../../shared/services/blob-download.service";
+import {ReactiveFormsModule} from "@angular/forms";
 
 /**
  * Historique des ponctions : ce qui a été fait, par qui, et comment le défaire.
@@ -25,24 +29,22 @@ import { BlobDownloadService } from "../../../../shared/services/blob-download.s
  */
 @Component({
   selector: "app-ponction-historique",
-  imports: [CommonModule, ButtonComponent, BadgeComponent, CardComponent, DataTableComponent, HintComponent],
+  imports: [CommonModule, ButtonComponent, BadgeComponent, CardComponent, DataTableComponent, HintComponent, ToolbarComponent, ReactiveFormsModule],
   templateUrl: "./ponction-historique.component.html",
   styleUrl: "./ponction-historique.component.scss",
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PonctionHistoriqueComponent implements OnInit {
-  private readonly api = inject(DeclarationCaApiService);
-  private readonly notification = inject(NotificationService);
-  private readonly confirmDialog = inject(NgbConfirmDialogService);
-  private readonly blobDownloadService = inject(BlobDownloadService);
-
   protected readonly ponctions = signal<Ponction[]>([]);
   protected readonly chargement = signal(false);
   protected readonly chargementDetail = signal(false);
   protected readonly selection = signal<Ponction | null>(null);
   protected readonly detail = signal<PonctionLigne[]>([]);
-
   protected readonly panelOpen = computed(() => this.selection() !== null);
+  private readonly api = inject(DeclarationCaApiService);
+  private readonly notification = inject(NotificationService);
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
+  private readonly blobDownloadService = inject(BlobDownloadService);
 
   ngOnInit(): void {
     this.charger();
@@ -133,21 +135,6 @@ export class PonctionHistoriqueComponent implements OnInit {
     );
   }
 
-  private annuler(ponction: Ponction): void {
-    this.chargement.set(true);
-    this.api.annulerPonction(ponction.id).subscribe({
-      next: () => {
-        this.notification.success("Ponction annulée : les montants d'origine sont rétablis");
-        this.fermerDetail();
-        this.charger();
-      },
-      error: erreur => {
-        this.chargement.set(false);
-        this.notification.error(erreur?.error?.detail ?? "L'annulation a échoué");
-      }
-    });
-  }
-
   protected severite(statut: StatutPonction): "success" | "secondary" | "danger" {
     switch (statut) {
       case "VALIDEE":
@@ -164,5 +151,20 @@ export class PonctionHistoriqueComponent implements OnInit {
       return "—";
     }
     return ((ponction.montantPonctionne * 100) / ponction.caApresExclusions).toFixed(2) + " %";
+  }
+
+  private annuler(ponction: Ponction): void {
+    this.chargement.set(true);
+    this.api.annulerPonction(ponction.id).subscribe({
+      next: () => {
+        this.notification.success("Ponction annulée : les montants d'origine sont rétablis");
+        this.fermerDetail();
+        this.charger();
+      },
+      error: erreur => {
+        this.chargement.set(false);
+        this.notification.error(erreur?.error?.detail ?? "L'annulation a échoué");
+      }
+    });
   }
 }

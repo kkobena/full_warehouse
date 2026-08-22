@@ -1,64 +1,73 @@
-<h5 class="mb-1">Contrôle de cohérence</h5>
-<p class="text-muted small">
-  Vérifie que le chiffre d'affaires déclaré reste cohérent entre les lignes de vente, les ventes et
-  les règlements. Ces trois valeurs sont écrites séparément : rien dans la base ne les empêche de
-  diverger.
-</p>
+<app-toolbar icon="pi pi-shield" title="Contrôle de cohérence">
+  <ng-container ngProjectAs="[toolbarFilters]">
+    <pharma-date-picker (ngModelChange)="dateDebut.set($event)" [ngModel]="dateDebut()"
+                        id="audit-du" label="Du"
+                        labelPosition="inline" />
+    <pharma-date-picker (ngModelChange)="dateFin.set($event)" [ngModel]="dateFin()" id="audit-au"
+                        label="Au"
+                        labelPosition="inline" />
+  </ng-container>
+
+  <ng-container ngProjectAs="[toolbarActions]">
+    <app-button (clicked)="controler()" [disabled]="chargement()" icon="pi pi-shield"
+                label="Contrôler" severity="primary" />
+  </ng-container>
+</app-toolbar>
+
+<div class="alert alert-info py-2 small d-flex align-items-start gap-2">
+  <i class="pi pi-info-circle mt-1"></i>
+  <span>
+    Vérifie que le chiffre d'affaires déclaré reste cohérent entre les lignes de vente, les ventes
+    et les règlements. Ces trois valeurs sont écrites séparément : rien dans la base ne les empêche
+    de diverger.
+  </span>
+</div>
 
 <app-hint storageKey="declaration-ca-audit">
   À lancer avant de transmettre une déclaration : le contrôle ne lit que des données, il peut être
   rejoué autant de fois que nécessaire.
 </app-hint>
-
-<div class="row g-2 align-items-end mb-3">
-  <div class="col-sm-3">
-    <pharma-date-picker id="audit-du" label="Du" labelPosition="top" [ngModel]="dateDebut()"
-                        (ngModelChange)="dateDebut.set($event)" />
-  </div>
-  <div class="col-sm-3">
-    <pharma-date-picker id="audit-au" label="Au" labelPosition="top" [ngModel]="dateFin()"
-                        (ngModelChange)="dateFin.set($event)" />
-  </div>
-  <div class="col-sm-3">
-    <app-button label="Contrôler" icon="pi pi-shield" severity="primary"
-                [disabled]="chargement()" (click)="controler()" />
-  </div>
-</div>
-
 @if (toutEstSain()) {
   <div class="alert alert-success py-2 small d-flex align-items-center gap-2">
     <i class="pi pi-check-circle"></i>
     <span>
-      Tous les invariants sont tenus{{ dateDebut() && dateFin() ? ' sur la période' : ' sur l\'ensemble de l\'historique' }}.
+      Tous les invariants sont tenus{{
+        dateDebut() && dateFin() ? ' sur la période' : ' sur l\'ensemble de l\'historique'
+      }}.
       Les états peuvent être déclarés en confiance.
     </span>
   </div>
 }
 
-@for (anomalie of anomalies(); track anomalie.code) {
-  <app-card class="d-block mb-2">
-    <div class="d-flex align-items-start gap-2">
-      @if (anomalie.nombreAnomalies > 0) {
-        <app-badge [label]="anomalie.code" severity="danger" />
-      } @else {
-        <app-badge [label]="anomalie.code" severity="success" />
-      }
-      <div class="flex-grow-1">
-        <div class="fw-semibold">{{ anomalie.libelle }}</div>
-        @if (anomalie.nombreAnomalies > 0) {
-          <p class="text-muted small mb-1">{{ anomalie.consequence }}</p>
-          <p class="small mb-1">
-            <strong>{{ anomalie.nombreAnomalies }}</strong> anomalie(s) détectée(s) :
-          </p>
-          <ul class="small mb-0">
-            @for (exemple of anomalie.exemples; track exemple) {
-              <li><code>{{ exemple }}</code></li>
+<!-- Deux colonnes : les contrôles se lisent en parallèle, et chaque carte reste courte. -->
+<div class="row row-cols-1 row-cols-md-2 g-2">
+  @for (anomalie of anomalies(); track anomalie.code) {
+    <div class="col">
+      <app-card class="d-block h-100">
+        <div class="d-flex align-items-start gap-2">
+          @if (anomalie.nombreAnomalies > 0) {
+            <app-badge [label]="anomalie.code" severity="danger" />
+          } @else {
+            <app-badge [label]="anomalie.code" severity="success" />
+          }
+          <div class="flex-grow-1">
+            <div class="fw-semibold">{{ anomalie.libelle }}</div>
+            @if (anomalie.nombreAnomalies > 0) {
+              <p class="text-muted small mb-1">{{ anomalie.consequence }}</p>
+              <p class="small mb-1">
+                <strong>{{ anomalie.nombreAnomalies }}</strong> anomalie(s) détectée(s) :
+              </p>
+              <ul class="small mb-0">
+                @for (exemple of anomalie.exemples; track exemple) {
+                  <li><code>{{ exemple }}</code></li>
+                }
+              </ul>
+            } @else {
+              <span class="text-muted small">Aucune anomalie</span>
             }
-          </ul>
-        } @else {
-          <span class="text-muted small">Aucune anomalie</span>
-        }
-      </div>
+          </div>
+        </div>
+      </app-card>
     </div>
-  </app-card>
-}
+  }
+</div>

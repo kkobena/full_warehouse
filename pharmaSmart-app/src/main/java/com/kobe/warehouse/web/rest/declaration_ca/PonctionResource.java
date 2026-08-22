@@ -4,13 +4,17 @@ import com.kobe.warehouse.aop.license.RequiresFeature;
 import com.kobe.warehouse.license.Feature;
 import com.kobe.warehouse.service.declaration_ca.PonctionService;
 import com.kobe.warehouse.web.rest.Utils;
+import com.kobe.warehouse.service.declaration_ca.dto.PonctionAssietteDTO;
 import com.kobe.warehouse.service.declaration_ca.dto.PonctionDTO;
 import com.kobe.warehouse.service.declaration_ca.dto.PonctionLigneDTO;
 import com.kobe.warehouse.service.declaration_ca.dto.PonctionParamDTO;
 import com.kobe.warehouse.service.declaration_ca.dto.PonctionParametresDTO;
 import com.kobe.warehouse.service.declaration_ca.dto.PonctionSimulationDTO;
 import jakarta.validation.Valid;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +24,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -56,6 +61,19 @@ public class PonctionResource {
         return ResponseEntity.ok(ponctionService.annuler(id));
     }
 
+
+    /**
+     * L'assiette d'une période. {@code GET} et non {@code POST} : trois scalaires, aucune écriture,
+     * et un résultat que le navigateur peut mettre en cache le temps d'un aller-retour.
+     */
+    @GetMapping("/assiette")
+    public ResponseEntity<PonctionAssietteDTO> getAssiette(
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateDebut,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFin,
+        @RequestParam(required = false) BigDecimal plafondParVente
+    ) {
+        return ResponseEntity.ok(ponctionService.assiette(dateDebut, dateFin, plafondParVente));
+    }
 
     @GetMapping("/parametres")
     public ResponseEntity<PonctionParametresDTO> getParametres() {

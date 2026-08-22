@@ -14,7 +14,7 @@
       <div class="pharma-toolbar-actions">
         <div class="pharma-button-group">
           <app-button
-            (click)="loadAll()"
+            (clicked)="loadAll()"
             [loading]="loadingBtn()"
             [raised]="true"
             icon="pi pi-search"
@@ -25,7 +25,7 @@
           />
 
           <app-button
-            (click)="printAll()"
+            (clicked)="printAll()"
             [loading]="loadingPdf"
             [raised]="true"
             icon="pi pi-file-pdf"

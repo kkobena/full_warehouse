@@ -47,14 +47,17 @@ const HOVER_OPEN_DELAY_MS = 120;
     NavFlyoutComponent
   ],
   templateUrl: "./sidebar.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ["./sidebar.component.scss"],
   host: {
     "(document:keydown.escape)": "onEscape()"
   }
 })
 export default class SidebarComponent implements OnInit {
-  navItems: NavItem[] = [];
+  // Signaux et non propriétés mutées : `navItems` est affecté depuis un `effect()` — le store de
+  // navigation se charge après le premier rendu — et rien n'y salit la vue. Sous `OnPush`, le menu
+  // serait resté vide ou figé sur son premier état.
+  readonly navItems = signal<NavItem[]>([]);
   /** Identifiant du seul menu ouvert, ou `null`. */
   readonly openMenuId = signal<string | null>(null);
   /** L'ouverture courante vient-elle du clavier ? Conditionne le vol de focus. */
@@ -73,7 +76,7 @@ export default class SidebarComponent implements OnInit {
     {originX: "start", originY: "top", overlayX: "end", overlayY: "top", offsetX: -8}
   ];
   protected account = inject(AccountService).trackCurrentAccount();
-  protected version = "";
+  protected readonly version = signal("");
   protected readonly isMobileSignal = signal(window.innerWidth <= 768);
   protected layoutService = inject(LayoutService);
   protected readonly alertBadgeService = inject(AlertBadgeService);
@@ -88,7 +91,7 @@ export default class SidebarComponent implements OnInit {
   constructor() {
     const {VERSION} = environment;
     if (VERSION) {
-      this.version = VERSION.toLowerCase().startsWith("v") ? VERSION : `v${VERSION}`;
+      this.version.set(VERSION.toLowerCase().startsWith("v") ? VERSION : `v${VERSION}`);
     }
 
 
@@ -122,7 +125,7 @@ export default class SidebarComponent implements OnInit {
       // `applyNavBadges` lit les compteurs d'alerte : appelée dans l'effet, la
       // lecture y est tracée et l'effet reste abonné à chacun d'eux.
       this.navigationService.applyNavBadges(items);
-      this.navItems = items;
+      this.navItems.set(items);
     });
   }
 
@@ -149,12 +152,7 @@ export default class SidebarComponent implements OnInit {
     this.layoutService.toggleSidebarCollapsed();
   }
 
-  /**
-   * Ouvre le flyout de l'entrée, ou le referme s'il l'était déjà.
-   * `event.detail === 0` distingue une activation clavier (Entrée/Espace) d'un
-   * vrai clic souris : seule la première justifie de déplacer le focus dans le
-   * panneau.
-   */
+
   protected toggleMenu(item: NavItem, event?: MouseEvent): void {
     this.cancelHoverTimers();
     this.openedViaKeyboard.set(event?.detail === 0);
@@ -183,15 +181,6 @@ export default class SidebarComponent implements OnInit {
     this.openMenuId.set(item.id);
   }
 
-  /**
-   * Survol : ne sert qu'à **changer** de menu quand un panneau est déjà ouvert,
-   * comme dans une barre de menus classique.
-   *
-   * Il n'ouvre pas depuis un rail fermé — la souris traverse le rail en
-   * permanence et déclencherait des panneaux au passage ; le premier accès
-   * reste au clic. Il ne ferme pas non plus au `mouseleave` : un menu ouvert au
-   * clic doit survivre à une souris qui s'éloigne pendant la lecture.
-   */
   protected onTriggerEnter(item: NavItem): void {
     this.cancelHoverTimers();
     if (!this.openMenuId() || this.openMenuId() === item.id) {

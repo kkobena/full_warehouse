@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 
-import { ButtonComponent } from 'app/shared/ui/button/button.component';
+import { CardComponent } from 'app/shared/ui/card/card.component';
+import { ToolbarComponent } from 'app/shared/ui/toolbar/toolbar.component';
 import { NotificationService } from 'app/shared/services/notification.service';
 import { DeclarationCaApiService } from '../../data-access/services/declaration-ca-api.service';
 
@@ -12,7 +13,7 @@ import { DeclarationCaApiService } from '../../data-access/services/declaration-
  */
 @Component({
   selector: 'app-exclusion-parametres',
-  imports: [ButtonComponent],
+  imports: [CardComponent, ToolbarComponent],
   templateUrl: './exclusion-parametres.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

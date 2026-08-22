@@ -5,8 +5,7 @@ import {
   inject,
   OnInit,
   Renderer2,
-  RendererFactory2
-} from "@angular/core";
+  RendererFactory2, signal} from "@angular/core";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {Router, RouterOutlet} from "@angular/router";
 import {LangChangeEvent, TranslateService} from "@ngx-translate/core";
@@ -34,11 +33,11 @@ import {PeremptionAlertService} from "../../shared/services/peremption-alert.ser
   styleUrl: "./main.component.scss",
   providers: [AppPageTitleStrategy],
   imports: [RouterOutlet, CommonModule, BackendSplashComponent, TitlebarComponent, SetupWizardComponent, ToastHostComponent, LicenseBannerComponent],
-  changeDetection: ChangeDetectionStrategy.Eager,
-  host: {"[class.tauri-mode]": "isTauriMode"}
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {"[class.tauri-mode]": "isTauriMode()"}
 })
 export default class MainComponent implements OnInit {
-  isTauriMode = false;
+  readonly isTauriMode = signal(false);
   protected readonly layoutService = inject(LayoutService);
   protected readonly licenseService = inject(LicenseService);
   private readonly renderer: Renderer2;
@@ -54,7 +53,7 @@ export default class MainComponent implements OnInit {
 
   constructor() {
     this.renderer = this.rootRenderer.createRenderer(document.querySelector("html"), null);
-    this.isTauriMode = this.tauriPrinterService.isRunningInTauri();
+    this.isTauriMode.set(this.tauriPrinterService.isRunningInTauri());
 
     /** Alt+V → Nouvelle Vente  */
     fromEvent<KeyboardEvent>(window, "keydown")

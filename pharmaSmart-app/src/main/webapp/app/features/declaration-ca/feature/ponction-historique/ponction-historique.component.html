@@ -1,23 +1,22 @@
-<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-  <div>
-    <h5 class="mb-1">Historique des ponctions</h5>
-    <p class="text-muted small mb-0">
-      Chaque ponction reste réversible pendant le délai configuré. L'annulation rétablit exactement
-      les montants d'origine, et libère la période.
-    </p>
-  </div>
-  <app-button
-    label="Actualiser"
-    icon="pi pi-refresh"
-    severity="secondary"
-    [outlined]="true"
-    [disabled]="chargement()"
-    (click)="charger()"
-  />
-</div>
+<app-toolbar icon="pi pi-history" title="Historique des ponctions">
+  <ng-container ngProjectAs="[toolbarActions]">
+    <div class="py-1">
+      <app-button
+        (clicked)="charger()"
+        [disabled]="chargement()"
+        [raised]="true"
+        icon="pi pi-refresh"
+        label="Actualiser"
+        severity="info"
+      />
+    </div>
+
+  </ng-container>
+</app-toolbar>
+
 
 <!-- Hint premier usage : masqué dès qu'un détail est ouvert, le conseil n'ayant alors plus d'objet -->
-<app-hint storageKey="ponction-historique" [visible]="!panelOpen()">
+<app-hint [visible]="!panelOpen()" storageKey="ponction-historique">
   Cliquez sur une ponction pour afficher le détail des ventes touchées, vente par vente.
 </app-hint>
 
@@ -25,18 +24,18 @@
 <div [class.panel-open]="panelOpen()" class="split-container">
   <div class="list-column">
     <app-data-table
-      [value]="ponctions()"
-      [loading]="chargement()"
-      size="small"
-      [stripedRows]="true"
-      dataKey="id"
-      selectionMode="single"
-      [selection]="selection()"
       (selectionChange)="onSelection($any($event))"
+      [loading]="chargement()"
+      [selection]="selection()"
+      [stripedRows]="true"
+      [value]="ponctions()"
+      dataKey="id"
       emptyMessage="Aucune ponction enregistrée"
+      selectionMode="single"
+      size="small"
     >
       <ng-template #header>
-        <tr>
+        <tr class="pharma-table-head">
           <th>Période</th>
           <th>Saisie</th>
           <th class="text-end">CA réel</th>
@@ -53,31 +52,34 @@
         <tr>
           <td>{{ ponction.dateDebut }} → {{ ponction.dateFin }}</td>
           <td class="small text-muted">
-            {{ ponction.valeurSaisie }}{{ ponction.modeCalcul === 'POURCENTAGE' ? ' %' : ' F' }} · plafond
+            {{ ponction.valeurSaisie }}{{ ponction.modeCalcul === 'POURCENTAGE' ? ' %' : ' F' }} ·
+            plafond
             {{ ponction.plafondParVente }} %
           </td>
           <td class="text-end">{{ ponction.caReel | number }}</td>
           <td class="text-end">{{ ponction.caDeclare | number }}</td>
           <td class="text-end fw-semibold">{{ ponction.montantPonctionne | number }}</td>
           <td class="text-end">{{ tauxEffectif(ponction) }}</td>
-          <td><app-badge [label]="ponction.statut" [severity]="severite(ponction.statut)" /></td>
+          <td>
+            <app-badge [label]="ponction.statut" [severity]="severite(ponction.statut)" />
+          </td>
           <td class="small text-muted">{{ ponction.auteur }}</td>
           <td class="text-end">
             <app-button
-              label="Justificatif"
-              icon="pi pi-file-pdf"
-              severity="secondary"
+              (clicked)="imprimer(ponction, $event)"
               [text]="true"
-              (click)="imprimer(ponction, $event)"
+              icon="pi pi-file-pdf"
+              label="Justificatif"
+              severity="secondary"
             />
             @if (annulable(ponction.statut)) {
               <app-button
-                label="Annuler"
-                icon="pi pi-undo"
-                severity="danger"
-                [text]="true"
+                (clicked)="demanderAnnulation(ponction, $event)"
                 [disabled]="chargement()"
-                (click)="demanderAnnulation(ponction, $event)"
+                [text]="true"
+                icon="pi pi-undo"
+                label="Annuler"
+                severity="danger"
               />
             }
           </td>
@@ -88,15 +90,16 @@
 
   @if (panelOpen()) {
     <div class="detail-column">
-      <app-card [withHeader]="true" header="Détail de la ponction" icon="pi pi-list" class="d-block">
+      <app-card [withHeader]="true" class="d-block" header="Détail de la ponction"
+                icon="pi pi-list">
         <div cardActions>
           <app-button
-            icon="pi pi-times"
-            severity="secondary"
-            [text]="true"
+            (clicked)="fermerDetail()"
             [iconOnly]="true"
+            [text]="true"
+            icon="pi pi-times"
             label="Fermer"
-            (click)="fermerDetail()"
+            severity="secondary"
           />
         </div>
 
@@ -111,15 +114,15 @@
         }
 
         <app-data-table
-          [value]="detail()"
           [loading]="chargementDetail()"
-          size="small"
           [scrollable]="true"
-          scrollHeight="calc(100vh - 24rem)"
+          [value]="detail()"
           emptyMessage="Aucune vente dans le détail"
+          scrollHeight="calc(100vh - 24rem)"
+          size="small"
         >
           <ng-template #header>
-            <tr>
+            <tr class="pharma-table-head">
               <th style="width: 3rem">#</th>
               <th>Transaction</th>
               <th style="width: 7rem">Date</th>

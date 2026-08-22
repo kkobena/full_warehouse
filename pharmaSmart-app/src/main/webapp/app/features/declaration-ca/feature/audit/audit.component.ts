@@ -6,6 +6,7 @@ import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { BadgeComponent } from 'app/shared/ui/badge/badge.component';
 import { ButtonComponent } from 'app/shared/ui/button/button.component';
 import { CardComponent } from 'app/shared/ui/card/card.component';
+import { ToolbarComponent } from 'app/shared/ui/toolbar/toolbar.component';
 import { HintComponent } from 'app/shared/ui/hint/hint.component';
 import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
 import { NGB_DATE_TO_ISO } from 'app/shared/util/warehouse-util';
@@ -31,6 +32,7 @@ import { Anomalie, DeclarationCaApiService } from '../../data-access/services/de
     BadgeComponent,
     ButtonComponent,
     CardComponent,
+    ToolbarComponent,
     HintComponent,
     PharmaDatePickerComponent,
   ],

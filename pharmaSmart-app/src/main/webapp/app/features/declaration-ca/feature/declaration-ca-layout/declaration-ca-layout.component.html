@@ -21,10 +21,18 @@
                   @defer (on immediate) {
                     <app-exclusion-referentiel
                       [referentiel]="'rayons'"
-                      titre="Exclusion de rayons"
-                      explication="Les ventes des produits rattachés à un rayon exclu ne comptent plus dans le chiffre d'affaires à déclarer." />
+                      explication="Les ventes des produits rattachés à un rayon exclu ne comptent plus dans le chiffre d'affaires à déclarer."
+                      titre="Exclusion de rayons" />
                   } @loading {
-                    <app-skeleton width="100%" height="240px" />
+                    <app-skeleton height="240px" width="100%" />
+                  } @error {
+                    <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
+                      <i class="pi pi-exclamation-triangle mt-1"></i>
+                      <span>
+                        Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
+                        code de l'écran n'a pas été récupéré par le navigateur.
+                      </span>
+                    </div>
                   }
                 </ng-template>
               </ng-container>
@@ -41,10 +49,18 @@
                   @defer (on immediate) {
                     <app-exclusion-referentiel
                       [referentiel]="'tiers-payants'"
-                      titre="Exclusion de tiers-payants"
-                      explication="Les ventes relevant d'un tiers-payant exclu sortent entièrement du chiffre d'affaires à déclarer." />
+                      explication="Les ventes relevant d'un tiers-payant exclu sortent entièrement du chiffre d'affaires à déclarer."
+                      titre="Exclusion de tiers-payants" />
                   } @loading {
-                    <app-skeleton width="100%" height="240px" />
+                    <app-skeleton height="240px" width="100%" />
+                  } @error {
+                    <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
+                      <i class="pi pi-exclamation-triangle mt-1"></i>
+                      <span>
+                        Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
+                        code de l'écran n'a pas été récupéré par le navigateur.
+                      </span>
+                    </div>
                   }
                 </ng-template>
               </ng-container>
@@ -61,7 +77,15 @@
                   @defer (on immediate) {
                     <app-exclusion-parametres />
                   } @loading {
-                    <app-skeleton width="100%" height="160px" />
+                    <app-skeleton height="160px" width="100%" />
+                  } @error {
+                    <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
+                      <i class="pi pi-exclamation-triangle mt-1"></i>
+                      <span>
+                        Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
+                        code de l'écran n'a pas été récupéré par le navigateur.
+                      </span>
+                    </div>
                   }
                 </ng-template>
               </ng-container>
@@ -78,7 +102,15 @@
                   @defer (on immediate) {
                     <app-journal-tiers-payant />
                   } @loading {
-                    <app-skeleton width="100%" height="320px" />
+                    <app-skeleton height="320px" width="100%" />
+                  } @error {
+                    <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
+                      <i class="pi pi-exclamation-triangle mt-1"></i>
+                      <span>
+                        Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
+                        code de l'écran n'a pas été récupéré par le navigateur.
+                      </span>
+                    </div>
                   }
                 </ng-template>
               </ng-container>
@@ -95,10 +127,18 @@
                   @defer (on immediate) {
                     <app-journal-lignes
                       [type]="'unites-gratuites'"
-                      titre="Unités gratuites vendues"
-                      explication="Les unités gratuites de ces lignes ont été retirées du chiffre d'affaires à déclarer. Le reste de la ligne y demeure." />
+                      explication="Les unités gratuites de ces lignes ont été retirées du chiffre d'affaires à déclarer. Le reste de la ligne y demeure."
+                      titre="Unités gratuites vendues" />
                   } @loading {
-                    <app-skeleton width="100%" height="320px" />
+                    <app-skeleton height="320px" width="100%" />
+                  } @error {
+                    <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
+                      <i class="pi pi-exclamation-triangle mt-1"></i>
+                      <span>
+                        Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
+                        code de l'écran n'a pas été récupéré par le navigateur.
+                      </span>
+                    </div>
                   }
                 </ng-template>
               </ng-container>
@@ -115,10 +155,18 @@
                   @defer (on immediate) {
                     <app-journal-lignes
                       [type]="'rayons'"
-                      titre="Produits de rayons exclus"
-                      explication="Ces lignes sortent entièrement du chiffre d'affaires à déclarer parce que leur produit relève d'un rayon exclu." />
+                      explication="Ces lignes sortent entièrement du chiffre d'affaires à déclarer parce que leur produit relève d'un rayon exclu."
+                      titre="Produits de rayons exclus" />
                   } @loading {
-                    <app-skeleton width="100%" height="320px" />
+                    <app-skeleton height="320px" width="100%" />
+                  } @error {
+                    <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
+                      <i class="pi pi-exclamation-triangle mt-1"></i>
+                      <span>
+                        Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
+                        code de l'écran n'a pas été récupéré par le navigateur.
+                      </span>
+                    </div>
                   }
                 </ng-template>
               </ng-container>
@@ -136,7 +184,15 @@
                   @defer (on immediate) {
                     <app-ponction />
                   } @loading {
-                    <app-skeleton width="100%" height="320px" />
+                    <app-skeleton height="320px" width="100%" />
+                  } @error {
+                    <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
+                      <i class="pi pi-exclamation-triangle mt-1"></i>
+                      <span>
+                        Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
+                        code de l'écran n'a pas été récupéré par le navigateur.
+                      </span>
+                    </div>
                   }
                 </ng-template>
               </ng-container>
@@ -146,14 +202,22 @@
               <ng-container ngbNavItem="ponction-historique">
                 <a class="pharma-nav-vertical-link" ngbNavLink>
                   <i class="pi pi-history"></i>
-                  <span>Historique</span>
+                  <span>Historique des ponctions</span>
                   <span class="link-arrow">›</span>
                 </a>
                 <ng-template ngbNavContent>
                   @defer (on immediate) {
                     <app-ponction-historique />
                   } @loading {
-                    <app-skeleton width="100%" height="240px" />
+                    <app-skeleton height="240px" width="100%" />
+                  } @error {
+                    <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
+                      <i class="pi pi-exclamation-triangle mt-1"></i>
+                      <span>
+                        Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
+                        code de l'écran n'a pas été récupéré par le navigateur.
+                      </span>
+                    </div>
                   }
                 </ng-template>
               </ng-container>
@@ -171,7 +235,15 @@
                   @defer (on immediate) {
                     <app-balance-reelle />
                   } @loading {
-                    <app-skeleton width="100%" height="240px" />
+                    <app-skeleton height="240px" width="100%" />
+                  } @error {
+                    <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
+                      <i class="pi pi-exclamation-triangle mt-1"></i>
+                      <span>
+                        Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
+                        code de l'écran n'a pas été récupéré par le navigateur.
+                      </span>
+                    </div>
                   }
                 </ng-template>
               </ng-container>
@@ -188,7 +260,15 @@
                   @defer (on immediate) {
                     <app-taxe-report-reel />
                   } @loading {
-                    <app-skeleton width="100%" height="240px" />
+                    <app-skeleton height="240px" width="100%" />
+                  } @error {
+                    <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
+                      <i class="pi pi-exclamation-triangle mt-1"></i>
+                      <span>
+                        Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
+                        code de l'écran n'a pas été récupéré par le navigateur.
+                      </span>
+                    </div>
                   }
                 </ng-template>
               </ng-container>
@@ -205,29 +285,45 @@
                   @defer (on immediate) {
                     <app-tableau-pharmacien-reel />
                   } @loading {
-                    <app-skeleton width="100%" height="240px" />
+                    <app-skeleton height="240px" width="100%" />
+                  } @error {
+                    <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
+                      <i class="pi pi-exclamation-triangle mt-1"></i>
+                      <span>
+                        Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
+                        code de l'écran n'a pas été récupéré par le navigateur.
+                      </span>
+                    </div>
                   }
                 </ng-template>
               </ng-container>
             }
 
-
-            @if (showAudit()) {
-              <ng-container ngbNavItem="audit">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-shield"></i>
-                  <span>Contrôle de cohérence</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  @defer (on immediate) {
-                    <app-audit-declaration-ca />
-                  } @loading {
-                    <app-skeleton width="100%" height="200px" />
-                  }
-                </ng-template>
-              </ng-container>
-            }
+            <!-- pas ok pour le moment -->
+            <!--      @if (showAudit()) {
+                    <ng-container ngbNavItem="audit">
+                      <a class="pharma-nav-vertical-link" ngbNavLink>
+                        <i class="pi pi-shield"></i>
+                        <span>Contrôle de cohérence</span>
+                        <span class="link-arrow">›</span>
+                      </a>
+                      <ng-template ngbNavContent>
+                        @defer (on immediate) {
+                          <app-audit-declaration-ca />
+                        } @loading {
+                          <app-skeleton height="200px" width="100%" />
+                        } @error {
+                          <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
+                            <i class="pi pi-exclamation-triangle mt-1"></i>
+                            <span>
+                              Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
+                              code de l'écran n'a pas été récupéré par le navigateur.
+                            </span>
+                          </div>
+                        }
+                      </ng-template>
+                    </ng-container>
+                  }-->
 
           </div>
         </div>

@@ -31,10 +31,17 @@
   <!-- Navigation Menu -->
   <nav aria-label="Menu principal" class="sidebar-nav">
     <ul class="nav-list">
-      @for (item of navItems; track item.id) {
+      @for (item of navItems(); track item.id) {
         <li class="nav-item">
+          <!--
+            `!item.children?.length` et non `!item.children` : un tableau vide est *truthy*, et un
+            menu dont tous les enfants sont filtrés en ressortait avec `children: []`. Il n'était
+            alors ni un lien — la condition échouait — ni un sous-menu, faute d'enfants à déplier :
+            l'entrée disparaissait de la sidebar tout en restant visible dans la navbar, qui
+            enchaîne ses cas en `@else if`.
+          -->
           <!-- Entrée simple : navigation -->
-          @if (!item.children && item.routerLink) {
+          @if (!item.children?.length && item.routerLink) {
             <a
               (click)="onMenuItemClick()"
               [class.collapsed-item]="isCollapsed()"
@@ -63,7 +70,7 @@
           }
 
           <!-- Entrée simple : action -->
-          @if (!item.children && item.click && !item.routerLink) {
+          @if (!item.children?.length && item.click && !item.routerLink) {
             <a
               (click)="onMenuItemClick(item.click)"
               [class.collapsed-item]="isCollapsed()"
@@ -164,9 +171,9 @@
       }
 
       <!-- Application Version -->
-      @if (version) {
+      @if (version()) {
         <div class="app-version">
-          <span class="version-number">{{ version }}</span>
+          <span class="version-number">{{ version() }}</span>
         </div>
       }
     </div>

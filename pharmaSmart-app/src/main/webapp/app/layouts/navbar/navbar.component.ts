@@ -1,4 +1,12 @@
-import {ChangeDetectionStrategy, Component, DestroyRef, effect, inject, OnInit, signal} from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  effect,
+  inject,
+  OnInit,
+  signal
+} from "@angular/core";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {NavigationEnd, Router, RouterModule} from "@angular/router";
 import {filter, fromEvent} from "rxjs";
@@ -12,7 +20,6 @@ import {CdkConnectedOverlay, CdkOverlayOrigin, ConnectedPosition} from "@angular
 import {NavFlyoutComponent} from "../shared/nav-flyout/nav-flyout.component";
 import {AppSettingsDialogComponent} from "../../shared/settings/app-settings-dialog.component";
 import {Authority} from "../../config/authority.constants";
-import {LayoutService} from "../../core/config/layout.service";
 import {NavigationService} from "../../core/config/navigation.service";
 import {TauriPrinterService} from "../../shared/services/tauri-printer.service";
 import {AlertBadgeService} from "../../shared/services/alert-badge.service";
@@ -28,7 +35,7 @@ const HOVER_OPEN_DELAY_MS = 120;
   selector: "app-navbar",
   templateUrl: "./navbar.component.html",
   styleUrl: "./navbar.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterModule,
     CommonModule,
@@ -64,12 +71,14 @@ export default class NavbarComponent implements OnInit {
   protected readonly faChevronDown = faChevronDown;
   protected isNavbarCollapsed = signal(true);
   protected readonly isMobileSignal = signal(window.innerWidth <= 768);
-  private hoverOpenTimer?: number;
-  protected version = "";
+  protected readonly version = signal("");
   protected account = inject(AccountService).trackCurrentAccount();
-  protected navItems: NavItem[] = [];
-  protected layoutService = inject(LayoutService);
+  // Signaux et non propriétés mutées : `navItems` est affecté depuis un `effect()` — le store de
+  // navigation se charge après le premier rendu — et rien n'y salit la vue. Sous `OnPush`, le menu
+  // serait resté vide ou figé sur son premier état.
+  protected readonly navItems = signal<NavItem[]>([]);
   protected readonly alertBadgeService = inject(AlertBadgeService);
+  private hoverOpenTimer?: number;
   private readonly loginService = inject(LoginService);
   private readonly router = inject(Router);
   private readonly modalService = inject(NgbModal);
@@ -81,7 +90,7 @@ export default class NavbarComponent implements OnInit {
 
     const {VERSION} = environment;
     if (VERSION) {
-      this.version = VERSION.toLowerCase().startsWith("v") ? VERSION : `v${VERSION}`;
+      this.version.set(VERSION.toLowerCase().startsWith("v") ? VERSION : `v${VERSION}`);
     }
     const destroyRef = inject(DestroyRef);
 
@@ -112,7 +121,7 @@ export default class NavbarComponent implements OnInit {
       // `applyNavBadges` lit les compteurs d'alerte : appelée dans l'effet, la
       // lecture y est tracée et l'effet reste abonné à chacun d'eux.
       this.navigationService.applyNavBadges(items);
-      this.navItems = items;
+      this.navItems.set(items);
     });
   }
 

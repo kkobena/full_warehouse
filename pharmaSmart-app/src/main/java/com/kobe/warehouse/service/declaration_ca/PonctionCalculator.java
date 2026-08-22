@@ -34,7 +34,13 @@ public class PonctionCalculator {
                  s.sale_date,
                  s.number_transaction,
                  sum(sl.amount_to_be_taken_into_account)                                 as montant_vente,
-                 sum(sl.amount_to_be_taken_into_account) filter (where sl.tax_value = 0) as base_tva0
+                 sum(sl.amount_to_be_taken_into_account) filter (where sl.tax_value = 0) as base_tva0,
+                 (select coalesce(sum(p.paid_amount), 0)
+                    from payment_transaction p
+                   where p.sale_id = s.id
+                     and p.sale_date = s.sale_date
+                     and p.dtype = 'SalePayment'
+                     and p.payment_mode_code in (:modes))                                as montant_regle
             from sales s
             join sales_line sl on sl.sales_id = s.id and sl.sales_sale_date = s.sale_date
            where s.sale_date between :dateDebut and :dateFin
@@ -64,6 +70,18 @@ public class PonctionCalculator {
      * Plafond par vente : le minimum entre la part autorisée du total et l'assiette exonérée
      * disponible. {@code floor} garantit qu'on ne dépasse jamais le pourcentage annoncé.
      *
+     * <p><strong>Le pas monétaire ne s'applique pas ici.</strong> Arrondir le plafond au multiple de
+     * 5 inférieur rendait un taux égal au plafond systématiquement inatteignable : on réclamait
+     * 35 % d'un chiffre d'affaires alors que chaque vente ne pouvait céder que « 35 % arrondis vers
+     * le bas », et la simulation refusait pour dix francs d'écart. Le plafond reste donc exact, et
+     * c'est la prise finale qui porte l'arrondi — cf. {@link #repartir}.
+     *
+     * <p><strong>Le montant encaissé borne le prélèvement.</strong> Une ponction retire du chiffre
+     * d'affaires ce que la caisse n'a pas encaissé autrement : prendre plus que ce que la vente a
+     * rapporté dans les modes retenus — les espèces aujourd'hui — reviendrait à effacer un montant
+     * dont la trace de règlement existe ailleurs. Sur une vente mixte, seule la part réglée ainsi
+     * est disponible.
+     *
      * <p>Le tri porte sur l'assiette exonérée et non sur le montant total : c'est elle qui détermine
      * la capacité réelle d'une vente, et trier sur le total ferait remonter en tête des ventes
      * majoritairement taxées, donc quasiment inéligibles.
@@ -71,10 +89,10 @@ public class PonctionCalculator {
     private static final String PLAFONNE =
         """
         plafonne as (
-          select e.id, e.sale_date, e.number_transaction, e.montant_vente, e.base_tva0,
-                 least(floor(e.montant_vente * :plafond / 100)::bigint, e.base_tva0) as cap,
+          select e.id, e.sale_date, e.number_transaction, e.montant_vente, e.base_tva0, e.montant_regle,
+                 least(floor(e.montant_vente * :plafond / 100)::bigint, e.base_tva0, e.montant_regle) as cap,
                  row_number() over (order by e.base_tva0 desc, e.sale_date, e.id)    as rang,
-                 sum(least(floor(e.montant_vente * :plafond / 100)::bigint, e.base_tva0))
+                 sum(least(floor(e.montant_vente * :plafond / 100)::bigint, e.base_tva0, e.montant_regle))
                      over (order by e.base_tva0 desc, e.sale_date, e.id
                            rows between unbounded preceding and current row)         as cumul
             from eligible e
@@ -87,7 +105,14 @@ public class PonctionCalculator {
         this.jdbcClient = jdbcClient;
     }
 
-    /** Assiette de la période, avant tout objectif : trois montants et deux compteurs. */
+    /**
+     * Assiette de la période, avant tout objectif : quatre montants et un compteur.
+     *
+     * <p>{@code caEspece} est encaissé, non déclarable : c'est la somme réglée en espèces sur les
+     * ventes éligibles. Il borne dans les faits ce qui est prélevable — une ponction retire du
+     * chiffre d'affaires ce que la caisse n'a pas encaissé autrement — et se lit à côté de
+     * l'assiette exonérée, qui, elle, ne dit rien du mode de règlement.
+     */
     @Transactional(readOnly = true)
     public Assiette calculerAssiette(LocalDate dateDebut, LocalDate dateFin, int magasinId, BigDecimal plafond, String[] modes) {
         String sql =
@@ -98,14 +123,15 @@ public class PonctionCalculator {
             """
             select coalesce(sum(p.base_tva0), 0),
                    coalesce(sum(p.cap), 0),
-                   count(*)
+                   count(*),
+                   coalesce(sum(p.montant_regle), 0)
               from plafonne p
             """;
         return jdbcClient
             .sql(sql)
             .params(parametres(dateDebut, dateFin, magasinId, modes, plafond))
             .query((rs, n) ->
-                new Assiette(rs.getLong(1), rs.getLong(2), rs.getInt(3))
+                new Assiette(rs.getLong(1), rs.getLong(2), rs.getInt(3), rs.getLong(4))
             )
             .single();
     }
@@ -115,7 +141,12 @@ public class PonctionCalculator {
      *
      * <p>{@code cumul - cap < objectif} sélectionne exactement les ventes situées avant le point de
      * coupure, et {@code least/greatest} donne à la dernière le solde nécessaire, sans dépasser son
-     * plafond. Le tri est total — {@code (base_tva0, sale_date, id)} — donc deux exécutions donnent
+     * plafond.
+     *
+     * <p><strong>Chaque prise est ramenée au multiple de 5 inférieur.</strong> La monnaie en
+     * circulation n'a pas de coupure en deçà : un montant déclaré en 1 F ou 2 F donnerait des états
+     * que la caisse ne peut pas justifier. La contrepartie est que le total prélevé peut rester
+     * quelques francs sous l'objectif — l'écran montre les deux, l'objectif et le ponctionné. Le tri est total — {@code (base_tva0, sale_date, id)} — donc deux exécutions donnent
      * le même résultat : la simulation vaut engagement.
      */
     @Transactional(readOnly = true)
@@ -134,9 +165,10 @@ public class PonctionCalculator {
             PLAFONNE +
             """
             select p.id, p.sale_date, p.number_transaction, p.montant_vente, p.base_tva0, p.rang,
-                   least(p.cap, greatest(0, :objectif - (p.cumul - p.cap))) as prise
+                   least(p.cap, greatest(0, :objectif - (p.cumul - p.cap))) / 5 * 5 as prise
               from plafonne p
              where p.cumul - p.cap < :objectif
+               and least(p.cap, greatest(0, :objectif - (p.cumul - p.cap))) >= 5
              order by p.rang
             """;
         Map<String, Object> params = parametres(dateDebut, dateFin, magasinId, modes, plafond);
@@ -190,9 +222,10 @@ public class PonctionCalculator {
             insert into ca_ponction_detail (ponction_id, sale_id, sale_date, montant_vente,
                                             montant_base, montant_ponctionne, rang, numero_transaction)
             select :ponctionId, p.id, p.sale_date, p.montant_vente, p.base_tva0,
-                   least(p.cap, greatest(0, :objectif - (p.cumul - p.cap))), p.rang, p.number_transaction
+                   least(p.cap, greatest(0, :objectif - (p.cumul - p.cap))) / 5 * 5, p.rang, p.number_transaction
               from plafonne p
              where p.cumul - p.cap < :objectif
+               and least(p.cap, greatest(0, :objectif - (p.cumul - p.cap))) >= 5
             """;
         Map<String, Object> params = parametres(dateDebut, dateFin, magasinId, modes, plafond);
         params.put("objectif", objectif);
@@ -369,6 +402,7 @@ public class PonctionCalculator {
      * @param assietteTva0 part exonérée des ventes éligibles — la seule ponctionnable
      * @param montantPonctionnable maximum atteignable une fois les plafonds appliqués
      * @param nombreVentes ventes éligibles
+     * @param caEspece encaissé en espèces sur ces mêmes ventes
      */
-    public record Assiette(long assietteTva0, long montantPonctionnable, int nombreVentes) {}
+    public record Assiette(long assietteTva0, long montantPonctionnable, int nombreVentes, long caEspece) {}
 }

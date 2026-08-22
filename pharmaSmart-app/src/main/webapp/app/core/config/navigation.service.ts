@@ -251,6 +251,14 @@ export class NavigationService {
       .sort((a, b) => a.ordre - b.ordre)
       .map(n => {
         const perimesCount = n.code === 'peremptions' ? this.peremptionAlertService.urgentCount() : 0;
+        // `undefined` et jamais `[]` quand tous les enfants sont filtrés.
+        //
+        // Le test portait sur les nœuds bruts (`n.children?.length`), pas sur le résultat du
+        // mappage : un parent dont tous les enfants sont des SECTION/ACTION, ou masqués par les
+        // permissions, ressortait avec un tableau vide. Un tableau vide est *truthy* — la sidebar
+        // le lisait comme « ce menu a des enfants », n'affichait pas le lien direct, puis
+        // n'affichait pas non plus de sous-menu faute d'enfants. L'entrée disparaissait.
+        const children = n.children?.length ? this.mapNodesToNavItems(n.children) : undefined;
         return {
           id: n.code || navItemIdFromLabel(n.libelle),
           label: n.libelle,
@@ -258,7 +266,7 @@ export class NavigationService {
           faIcon: this.primeIconToFa(n.icon) as IconProp,
           badge: perimesCount || undefined,
           badgeSeverity: perimesCount > 0 ? 'danger' : undefined,
-          children: n.children?.length ? this.mapNodesToNavItems(n.children) : undefined,
+          children: children?.length ? children : undefined,
         } as NavItem;
       });
   }

@@ -1,4 +1,2 @@
-// Styles communs des écrans de gestion : tableau et barre d'actions groupées. Les redéfinir
-// localement les ferait diverger des autres listes de l'application.
 @use 'app/shared/scss/table-common' as *;
 @use 'app/shared/scss/bulk-action-bar' as *;

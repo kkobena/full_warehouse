@@ -4,7 +4,7 @@
       <span>Assurances Complémentaires</span>
       @if (validSize) {
         <app-button
-          (click)="addTiersPayant()"
+          (clicked)="addTiersPayant()"
           [rounded]="true"
           class="ml-auto"
           icon="pi pi-plus"
@@ -25,7 +25,7 @@
             <div class="complementaire-card-header">
               <span class="complementaire-card-title">Assurance #{{ i + 1 }}</span>
               <app-button
-                (click)="confirmRemove(i)"
+                (clicked)="confirmRemove(i)"
                 [rounded]="true"
                 [text]="true"
                 icon="pi pi-times"

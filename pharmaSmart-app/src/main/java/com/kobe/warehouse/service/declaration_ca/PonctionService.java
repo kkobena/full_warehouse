@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.declaration_ca;
 
+import com.kobe.warehouse.service.declaration_ca.dto.PonctionAssietteDTO;
 import com.kobe.warehouse.service.declaration_ca.dto.PonctionDTO;
 import com.kobe.warehouse.service.declaration_ca.dto.PonctionLigneDTO;
 import com.kobe.warehouse.service.declaration_ca.dto.PonctionParamDTO;
@@ -31,6 +32,16 @@ public interface PonctionService {
      * la ponction est définitive : ses chiffres ont eu le temps d'être lus, imprimés ou transmis, et
      * les défaire rendrait un état déjà sorti impossible à reproduire.
      */
+    /**
+     * Ce qui est prélevable sur une période, sans objectif ni écriture.
+     *
+     * <p>Se consulte avant de saisir quoi que ce soit : la simulation exige un objectif, et refuse
+     * dès qu'il dépasse le maximum — ce qui ne dit pas quel est ce maximum.
+     *
+     * @param plafondParVente plafond à retenir ; celui de l'officine si {@code null}
+     */
+    PonctionAssietteDTO assiette(LocalDate dateDebut, LocalDate dateFin, java.math.BigDecimal plafondParVente);
+
     /** Les valeurs d'officine : plafond par defaut et delai d'annulation. */
     PonctionParametresDTO getParametres();
 

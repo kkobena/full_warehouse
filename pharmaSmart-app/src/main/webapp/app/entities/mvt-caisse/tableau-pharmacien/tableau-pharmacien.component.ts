@@ -1,27 +1,40 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy, input, computed } from '@angular/core';
-import { TableauPharmacienService } from './tableau-pharmacien.service';
-import { HttpResponse } from '@angular/common/http';
-import { FORMAT_ISO_DATE_TO_STRING_FR, NGB_DATE_TO_ISO } from '../../../shared/util/warehouse-util';
-import { TableauPharmacien, TableauPharmacienWrapper } from './tableau-pharmacien.model';
-import { ChartComponent } from 'app/shared/chart/chart.component';
-import { IGroupeFournisseur } from '../../../shared/model/groupe-fournisseur.model';
-import { MvtParamServiceService } from '../mvt-param-service.service';
-import { MvtCaisseParams } from '../mvt-caisse-util';
-import { VerticalBarChart } from '../../../shared/model/vertical-bar-chart.model';
-import { FormsModule } from '@angular/forms';
-import { ChartColorsUtilsService } from '../../../shared/util/chart-colors-utils.service';
-import { saveAs } from 'file-saver';
-import { extractFileName } from '../../../shared/util/file-utils';
-import { NotificationService } from '../../../shared/services/notification.service';
-import { finalize } from 'rxjs/operators';
-import { handleBlobForTauri } from '../../../shared/util/tauri-util';
-import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
-import { CommonModule } from "@angular/common";
-import { NgbDateStruct, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
-import { AppSplitButtonItem, ButtonComponent, SplitButtonComponent, ToolbarComponent } from '../../../shared/ui';
-import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  OnInit,
+  signal
+} from '@angular/core';
+import {TableauPharmacienService} from './tableau-pharmacien.service';
+import {HttpResponse} from '@angular/common/http';
+import {FORMAT_ISO_DATE_TO_STRING_FR, NGB_DATE_TO_ISO} from '../../../shared/util/warehouse-util';
+import {TableauPharmacien, TableauPharmacienWrapper} from './tableau-pharmacien.model';
+import {ChartComponent} from 'app/shared/chart/chart.component';
+import {IGroupeFournisseur} from '../../../shared/model/groupe-fournisseur.model';
+import {MvtParamServiceService} from '../mvt-param-service.service';
+import {MvtCaisseParams} from '../mvt-caisse-util';
+import {VerticalBarChart} from '../../../shared/model/vertical-bar-chart.model';
+import {FormsModule} from '@angular/forms';
+import {ChartColorsUtilsService} from '../../../shared/util/chart-colors-utils.service';
+import {saveAs} from 'file-saver';
+import {extractFileName} from '../../../shared/util/file-utils';
+import {NotificationService} from '../../../shared/services/notification.service';
+import {finalize} from 'rxjs/operators';
+import {handleBlobForTauri} from '../../../shared/util/tauri-util';
+import {TauriPrinterService} from '../../../shared/services/tauri-printer.service';
+import {CommonModule} from "@angular/common";
+import {NgbDateStruct, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {
+  AppSplitButtonItem,
+  ButtonComponent,
+  SplitButtonComponent,
+  ToolbarComponent
+} from '../../../shared/ui';
+import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
 
-import { ModeCa, ModeCaService } from '../mode-ca';
+import {ModeCa, ModeCaService} from '../mode-ca';
 
 @Component({
   selector: 'app-tableau-pharmacien',
@@ -36,7 +49,7 @@ import { ModeCa, ModeCaService } from '../mode-ca';
     NgbTooltip,
   ],
   templateUrl: './tableau-pharmacien.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./tableau-pharmacien.component.scss'],
 })
 export class TableauPharmacienComponent implements OnInit {
@@ -45,27 +58,24 @@ export class TableauPharmacienComponent implements OnInit {
    * n'a de sens que si l'officine a souscrit au moins un module de retraitement.
    */
   readonly mode = input<ModeCa | null>(null);
-
-  private readonly modeCaService = inject(ModeCaService);
-
-  protected readonly modeEffectif = computed<ModeCa>(() => this.mode() ?? this.modeCaService.modeComptabilite());
-  protected exportMenus: AppSplitButtonItem[];
-  protected fromDate: NgbDateStruct | null = null;
-  protected groupBy = 'daily';
-  protected toDate: NgbDateStruct | null = null;
-  protected loading = false;
-  protected affichage = 'table';
+  protected readonly exportMenus = signal<AppSplitButtonItem[]>([]);
+  protected readonly fromDate = signal<NgbDateStruct | null>(null);
+  protected readonly groupBy = signal('daily');
+  protected readonly toDate = signal<NgbDateStruct | null>(null);
+  protected readonly loading = signal(false);
+  protected readonly affichage = signal('table');
   protected typeAffichafes = [
-    { icon: 'pi pi-align-justify', value: 'table' },
-    { icon: 'pi pi-chart-bar', value: 'graphe' },
+    {icon: 'pi pi-align-justify', value: 'table'},
+    {icon: 'pi pi-chart-bar', value: 'graphe'},
   ];
-  protected tableauPharmacienWrapper: TableauPharmacienWrapper | null = null;
-  protected groupeFournisseurs: IGroupeFournisseur[] = [];
-  protected colspan = 9;
-  protected verticalBarChart: VerticalBarChart | null = null;
-  protected grossiste: VerticalBarChart | null = null;
-
-  protected showGrossisteChart = false;
+  protected readonly tableauPharmacienWrapper = signal<TableauPharmacienWrapper | null>(null);
+  protected readonly groupeFournisseurs = signal<IGroupeFournisseur[]>([]);
+  protected readonly colspan = signal(9);
+  protected readonly verticalBarChart = signal<VerticalBarChart | null>(null);
+  protected readonly grossiste = signal<VerticalBarChart | null>(null);
+  protected readonly showGrossisteChart = signal(false);
+  private readonly modeCaService = inject(ModeCaService);
+  protected readonly modeEffectif = computed<ModeCa>(() => this.mode() ?? this.modeCaService.modeComptabilite());
   private readonly tauriPrinterService = inject(TauriPrinterService);
   private tableauPharmacienService = inject(TableauPharmacienService);
   private mvtParamServiceService = inject(MvtParamServiceService);
@@ -73,7 +83,7 @@ export class TableauPharmacienComponent implements OnInit {
   private readonly notificationService = inject(NotificationService);
 
   ngOnInit(): void {
-    this.exportMenus = [
+    this.exportMenus.set([
       {
         label: 'PDF',
         icon: 'pi pi-file-pdf',
@@ -84,12 +94,12 @@ export class TableauPharmacienComponent implements OnInit {
         icon: 'pi pi-file-excel',
         command: () => this.onExcel(),
       },
-    ];
+    ]);
     const params = this.mvtParamServiceService.mvtCaisseParam();
     if (params) {
-      this.fromDate = params.fromDate;
-      this.toDate = params.toDate;
-      this.groupBy = params.groupBy || 'daily';
+      this.fromDate.set(params.fromDate);
+      this.toDate.set(params.toDate);
+      this.groupBy.set(params.groupBy || 'daily');
     }
     this.fetchGroupGrossisteToDisplay();
     this.onSearch();
@@ -100,7 +110,7 @@ export class TableauPharmacienComponent implements OnInit {
   }
 
   onSearch(): void {
-    this.loading = true;
+    this.loading.set(true);
     this.tableauPharmacienService
       .query({
         ...this.buildParams(),
@@ -115,9 +125,9 @@ export class TableauPharmacienComponent implements OnInit {
   protected fetchGroupGrossisteToDisplay(): void {
     this.tableauPharmacienService.fetchGroupGrossisteToDisplay().subscribe({
       next: (res: HttpResponse<IGroupeFournisseur[]>) => {
-        this.groupeFournisseurs = res.body || [];
+        this.groupeFournisseurs.set(res.body ?? []);
 
-        this.colspan = 2 + this.groupeFournisseurs.length;
+        this.colspan.set(2 + this.groupeFournisseurs().length);
       },
     });
   }
@@ -138,11 +148,11 @@ export class TableauPharmacienComponent implements OnInit {
   }
 
   protected onPrint(): void {
-    this.loading = true;
+    this.loading.set(true);
     this.updateParam();
     this.tableauPharmacienService
       .exportToPdf(this.buildParams())
-      .pipe(finalize(() => (this.loading = false)))
+      .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: blob => {
           if (this.tauriPrinterService.isRunningInTauri()) {
@@ -158,11 +168,11 @@ export class TableauPharmacienComponent implements OnInit {
   }
 
   protected onExcel(): void {
-    this.loading = true;
+    this.loading.set(true);
     this.updateParam();
     this.tableauPharmacienService
       .exportToExcel(this.buildParams())
-      .pipe(finalize(() => (this.loading = false)))
+      .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: resp => {
           const blob = resp.body;
@@ -179,32 +189,32 @@ export class TableauPharmacienComponent implements OnInit {
   }
 
   private onSuccess(data: TableauPharmacienWrapper | null): void {
-    this.tableauPharmacienWrapper = data || null;
-    this.loading = false;
-    this.buildChartData(this.tableauPharmacienWrapper.tableauPharmaciens);
+    this.tableauPharmacienWrapper.set(data ?? null);
+    this.loading.set(false);
+    this.buildChartData(this.tableauPharmacienWrapper()?.tableauPharmaciens ?? []);
   }
 
   private onError(): void {
     this.notificationService.error('Une erreur est survenue lors de la récupération des données');
-    this.tableauPharmacienWrapper = null;
-    this.loading = false;
+    this.tableauPharmacienWrapper.set(null);
+    this.loading.set(false);
   }
 
   private buildParams(): any {
     return {
       mode: this.modeEffectif(),
-      fromDate: this.fromDate ? NGB_DATE_TO_ISO(this.fromDate) : null,
-      toDate: this.toDate ? NGB_DATE_TO_ISO(this.toDate) : null,
-      groupBy: this.groupBy,
+      fromDate: this.fromDate() ? NGB_DATE_TO_ISO(this.fromDate()!) : null,
+      toDate: this.toDate() ? NGB_DATE_TO_ISO(this.toDate()!) : null,
+      groupBy: this.groupBy(),
       statuts: ['CLOSED'],
     };
   }
 
   private setParam(): void {
     const param: MvtCaisseParams = {
-      fromDate: this.fromDate,
-      toDate: this.toDate,
-      groupBy: this.groupBy,
+      fromDate: this.fromDate(),
+      toDate: this.toDate(),
+      groupBy: this.groupBy(),
     };
     this.mvtParamServiceService.setMvtCaisseParam(param);
   }
@@ -212,9 +222,9 @@ export class TableauPharmacienComponent implements OnInit {
   private updateParam(): void {
     const params = this.mvtParamServiceService.mvtCaisseParam();
     if (params) {
-      params.fromDate = this.fromDate;
-      params.toDate = this.toDate;
-      params.groupBy = this.groupBy;
+      params.fromDate = this.fromDate();
+      params.toDate = this.toDate();
+      params.groupBy = this.groupBy();
       this.mvtParamServiceService.setMvtCaisseParam(params);
     } else {
       this.setParam();
@@ -255,7 +265,7 @@ export class TableauPharmacienComponent implements OnInit {
 
     const finalData = new Map<string, any>();
     let i = 0;
-    this.groupeFournisseurs.forEach(groupe => {
+    this.groupeFournisseurs().forEach(groupe => {
       const montantAchats: number[] = [];
       const chartDataSet = {
         data: montantAchats,
@@ -270,10 +280,10 @@ export class TableauPharmacienComponent implements OnInit {
 
     dataSet.forEach(data => {
       const gr: any[] = [];
-      this.groupeFournisseurs.forEach((groupeGrossiste: any) => {
+      this.groupeFournisseurs().forEach((groupeGrossiste: any) => {
         const grossiste = data.grossistes.find((g: any) => g.id === groupeGrossiste.id);
         if (grossiste) {
-          gr.push({ id: grossiste.id, montantAchatNet: grossiste.montantAchatNet });
+          gr.push({id: grossiste.id, montantAchatNet: grossiste.montantAchatNet});
         }
       });
 
@@ -298,15 +308,15 @@ export class TableauPharmacienComponent implements OnInit {
     });
 
     if (finalData.size > 0) {
-      this.showGrossisteChart = true;
+      this.showGrossisteChart.set(true);
       this.buildGrossisteBarChat(labelsBarGrossiste, achatsGrossiste);
     } else {
-      this.showGrossisteChart = false;
+      this.showGrossisteChart.set(false);
     }
   }
 
   private buildBarChart(labels: string[], comptants: number[], credits: number[], montantNets: number[], montantRemises: number[]): void {
-    this.verticalBarChart = {
+    this.verticalBarChart.set({
       data: {
         labels,
         datasets: [
@@ -371,11 +381,11 @@ export class TableauPharmacienComponent implements OnInit {
           },
         },
       },
-    };
+    });
   }
 
   private buildGrossisteBarChat(labels: string[], achatsGrossiste: any = []): void {
-    this.grossiste = {
+    this.grossiste.set({
       data: {
         labels,
         datasets: achatsGrossiste,
@@ -415,6 +425,6 @@ export class TableauPharmacienComponent implements OnInit {
           },
         },
       },
-    };
+    });
   }
 }

@@ -16,6 +16,8 @@ import java.util.List;
  * @param caAssietteTva0 part exonérée : seule ponctionnable
  * @param montantPonctionnable Σ min(plafond × vente, assiette TVA 0) — le maximum atteignable
  * @param objectifAtteignable faux si l'objectif dépasse ce maximum ; la validation est alors refusée
+ * @param plafondApplique plafond par vente réellement retenu — celui saisi, ou celui de l'officine.
+ *     Renvoyé pour que l'écran montre ce qui a servi au calcul, et non ce qu'il croit avoir envoyé
  * @param delaiAnnulationJours jours pendant lesquels la ponction restera annulable — l'écran doit
  *     l'annoncer avant validation, sans quoi le pharmacien découvrirait l'irréversibilité trop tard
  */
@@ -34,6 +36,7 @@ public record PonctionSimulationDTO(
     BigDecimal tauxMoyenApplique,
     BigDecimal tauxMaxApplique,
     boolean objectifAtteignable,
+    BigDecimal plafondApplique,
     int delaiAnnulationJours,
     List<PonctionLigneDTO> apercu,
     List<String> avertissements

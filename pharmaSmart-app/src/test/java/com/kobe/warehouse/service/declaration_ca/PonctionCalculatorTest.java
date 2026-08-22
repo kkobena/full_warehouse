@@ -144,6 +144,65 @@ class PonctionCalculatorTest {
         vente(st, 4, 4_000, 6_000, false);
         vente(st, 5, 0, 10_000, false);
         vente(st, 6, 10_000, 0, true);
+
+        // Mai, période disjointe : deux ventes réglées en partie hors espèces, pour éprouver la
+        // borne du montant encaissé sans toucher aux attendus d'avril.
+        venteMixteReglement(st, 7, 10_000, 2_000);
+        venteMixteReglement(st, 8, 10_000, 1_003);
+    }
+
+    /**
+     * Une vente de mai entièrement exonérée, réglée pour partie en espèces et pour le reste en
+     * mobile money. Seule la part espèces est ponctionnable.
+     */
+    private static void venteMixteReglement(Statement st, int numero, int montantExonere, int montantEspece)
+        throws SQLException {
+        long id = 950_000L + numero;
+        st.executeUpdate(
+            """
+            INSERT INTO sales (dtype, id, sale_date, number_transaction, statut, ca, sales_amount,
+                               amount_to_be_paid, amount_to_be_taken_into_account, discount_amount,
+                               payroll_amount, rest_to_pay, monnaie, canceled, copy, imported, differe,
+                               to_ignore, nature_vente, origine_vente, payment_status, type_prescription,
+                               created_at, updated_at, effective_update_date, user_id, seller_id,
+                               caissier_id, magasin_id)
+            VALUES ('CashSale', %d, DATE '2026-05-10', 'PON-%d', 'CLOSED', 'CA', %d,
+                    %d, %d, 0, %d, 0, 0, false, false, false, false,
+                    false, 'COMPTANT', 'DIRECT', 'PAYE', 'PRESCRIPTION',
+                    now(), now(), now(), 1, 1, 1, 1)
+            """.formatted(id, numero, montantExonere, montantExonere, montantExonere, montantExonere)
+        );
+        ligneMai(st, id * 10, id, montantExonere);
+        reglement(st, id * 10, id, "CASH", montantEspece);
+        reglement(st, id * 10 + 1, id, "OM", montantExonere - montantEspece);
+    }
+
+    private static void ligneMai(Statement st, long ligneId, long venteId, int montant) throws SQLException {
+        st.executeUpdate(
+            """
+            INSERT INTO sales_line (id, sale_date, sales_id, sales_sale_date, produit_id,
+                                    quantity_requested, quantity_sold, quantity_ug, regular_unit_price,
+                                    net_unit_price, discount_unit_price, sales_amount, discount_amount,
+                                    tax_value, cost_amount, amount_to_be_taken_into_account, to_ignore,
+                                    created_at, updated_at, effective_update_date)
+            VALUES (%d, DATE '2026-05-10', %d, DATE '2026-05-10', 950001,
+                    %d, %d, 0, 1, 1, 0, %d, 0, 0, 0, %d, false, now(), now(), now())
+            """.formatted(ligneId, venteId, montant, montant, montant, montant)
+        );
+    }
+
+    private static void reglement(Statement st, long id, long venteId, String mode, int montant) throws SQLException {
+        st.executeUpdate(
+            """
+            INSERT INTO payment_transaction (dtype, id, transaction_date, sale_id, sale_date,
+                                             categorie_ca, created_at, credit, expected_amount,
+                                             montant_verse, paid_amount, reel_amount, type_transaction,
+                                             payment_mode_code, cash_register_id, part_assure, part_tiers_payant)
+            VALUES ('SalePayment', %d, DATE '2026-05-10', %d, DATE '2026-05-10',
+                    'CA', now(), false, %d, %d, %d, %d, 'CASH_SALE', '%s',
+                    (SELECT id FROM cash_register LIMIT 1), 0, 0)
+            """.formatted(id, venteId, montant, montant, montant, montant, mode)
+        );
     }
 
     private static void vente(Statement st, int numero, int montantExonere, int montantTaxe, boolean differe)
@@ -367,6 +426,43 @@ class PonctionCalculatorTest {
 
         // L'annulation rend le rapport à son état d'origine : c'est ce qui rend la ponction réversible.
         assertEquals(avant.get(0)[0], rapportTva().get(0)[0], "après annulation, le TTC exonéré est rétabli");
+    }
+
+    // ===== Borne du montant encaissé et pas monétaire =====
+
+    private static final LocalDate DEBUT_MAI = LocalDate.of(2026, 5, 1);
+    private static final LocalDate FIN_MAI = LocalDate.of(2026, 5, 31);
+
+    @Test
+    @DisplayName("Une vente n'est jamais ponctionnée au-delà de ce qu'elle a rapporté en espèces")
+    void priseBorneeParLeReglementEspeces() {
+        List<PonctionLigneDTO> lignes = calculator.repartir(DEBUT_MAI, FIN_MAI, MAGASIN, PLAFOND, CASH, 10_000);
+
+        PonctionLigneDTO partielle = lignes.stream().filter(l -> l.saleId() == 950_007L).findFirst().orElseThrow();
+        // Plafond 3 500, part exonérée 10 000, espèces 2 000 : c'est l'encaissement qui borne.
+        assertEquals(2_000, partielle.montantPonctionne());
+    }
+
+    @Test
+    @DisplayName("Le montant ponctionnable de la période ne dépasse pas l'espèce encaissée")
+    void ponctionnableBorneParLespece() {
+        PonctionCalculator.Assiette assiette = calculator.calculerAssiette(DEBUT_MAI, FIN_MAI, MAGASIN, PLAFOND, CASH);
+
+        assertEquals(3_003, assiette.caEspece(), "2 000 + 1 003 encaissés en espèces");
+        // Le plafond reste exact : c'est la prise, et non lui, qui sera ramenée au multiple de 5.
+        assertEquals(3_003, assiette.montantPonctionnable());
+    }
+
+    @Test
+    @DisplayName("Toute valeur ponctionnée est un multiple de 5, quitte à rester sous l'objectif")
+    void valeursMultiplesDeCinq() {
+        List<PonctionLigneDTO> lignes = calculator.repartir(DEBUT_MAI, FIN_MAI, MAGASIN, PLAFOND, CASH, 3_003);
+
+        for (PonctionLigneDTO ligne : lignes) {
+            assertEquals(0, ligne.montantPonctionne() % 5, "vente " + ligne.saleId() + " : " + ligne.montantPonctionne());
+        }
+        // 2 000 puis 1 003 ramené à 1 000 : trois francs restent au CA, faute de coupure pour les rendre.
+        assertEquals(3_000, lignes.stream().mapToLong(PonctionLigneDTO::montantPonctionne).sum());
     }
 
     /** Le rapport TVA déclaré, indexé par taux : {@code [montantTtc, montantTva]}. */

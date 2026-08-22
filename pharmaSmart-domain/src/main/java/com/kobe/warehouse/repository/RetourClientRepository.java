@@ -18,8 +18,16 @@ import org.springframework.util.StringUtils;
 @Repository
 public interface RetourClientRepository extends JpaRepository<RetourClient, Integer>, JpaSpecificationExecutor<RetourClient> {
 
+    /**
+     * Nombre de retours et montant total sur la periode, en une seule ligne.
+     *
+     * <p>Le type de retour est une liste et non un {@code Object[]} : une requete a plusieurs
+     * colonnes rend une <em>ligne</em> par resultat, et Spring Data la remet dans une liste meme
+     * quand l agregat n en produit qu une. Declarer {@code Object[]} faisait recevoir la liste
+     * des lignes vue comme un tableau, dont le premier element etait la ligne elle-meme.
+     */
     @Query("SELECT COUNT(r), COALESCE(SUM(r.montantTotal), 0) FROM RetourClient r WHERE r.createdAt >= :debut AND r.createdAt < :fin")
-    Object[] statsGlobales(@Param("debut") LocalDateTime debut, @Param("fin") LocalDateTime fin);
+    List<Object[]> statsGlobales(@Param("debut") LocalDateTime debut, @Param("fin") LocalDateTime fin);
 
     @Query("SELECT r.motif, COUNT(r) FROM RetourClient r WHERE r.createdAt >= :debut AND r.createdAt < :fin GROUP BY r.motif ORDER BY COUNT(r) DESC")
     List<Object[]> statsParMotif(@Param("debut") LocalDateTime debut, @Param("fin") LocalDateTime fin);

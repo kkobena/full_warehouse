@@ -72,6 +72,9 @@ public class PaymentTransaction implements Persistable<PaymentId>, Serializable 
     @Column(name = "montant_verse", nullable = false)
     private Integer montantVerse = 0;
 
+    @Column(name = "amount_to_be_taken_into_account")
+    private Integer amountToBeTakenIntoAccount;
+
     @NotNull
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -276,5 +279,19 @@ public class PaymentTransaction implements Persistable<PaymentId>, Serializable 
     @PostLoad
     void markNotNew() {
         this.isNew = false;
+    }
+
+    /**
+     * Montant du règlement à déclarer. {@code null} tant qu'aucun retraitement n'a eu lieu — le
+     * montant encaissé fait alors foi, ce qui évite une reprise de données et garde le cas courant
+     * lisible.
+     */
+    public Integer getAmountToBeTakenIntoAccount() {
+        return amountToBeTakenIntoAccount;
+    }
+
+    public PaymentTransaction setAmountToBeTakenIntoAccount(Integer amountToBeTakenIntoAccount) {
+        this.amountToBeTakenIntoAccount = amountToBeTakenIntoAccount;
+        return this;
     }
 }

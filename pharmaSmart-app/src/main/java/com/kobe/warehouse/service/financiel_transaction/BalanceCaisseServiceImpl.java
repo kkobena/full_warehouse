@@ -12,6 +12,7 @@ import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.dto.enumeration.TypeVenteDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseWrapper;
+import com.kobe.warehouse.service.declaration_ca.ModeChiffreAffaireResolver;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.financiel_transaction.dto.PaymentDTO;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
@@ -34,18 +35,20 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
 
     private static final Logger LOG = LoggerFactory.getLogger(BalanceCaisseServiceImpl.class);
     private final BalanceReportReportService balanceReportService;
+    private final ModeChiffreAffaireResolver modeResolver;
     private final SalesRepository salesRepository;
     private final ObjectMapper objectMapper;
     private final PaymentTransactionRepository paymentTransactionRepository;
     private final AppConfigurationService appConfigurationService;
 
-    public BalanceCaisseServiceImpl(
-        BalanceReportReportService balanceReportService,
+    public BalanceCaisseServiceImpl(BalanceReportReportService balanceReportService,
         SalesRepository salesRepository,
         PaymentTransactionRepository paymentTransactionRepository,
         AppConfigurationService appConfigurationService,
-        ObjectMapper objectMapper
+        ObjectMapper objectMapper,
+        ModeChiffreAffaireResolver modeResolver
     ) {
+        this.modeResolver = modeResolver;
         this.balanceReportService = balanceReportService;
         this.salesRepository = salesRepository;
         this.paymentTransactionRepository = paymentTransactionRepository;
@@ -72,8 +75,8 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
                 mvtParam.getToDate(),
                 mvtParam.getStatuts().stream().map(SalesStatut::name).toArray(String[]::new),
                 mvtParam.getCategorieChiffreAffaires().stream().map(CategorieChiffreAffaire::name).toArray(String[]::new),
-                mvtParam.isExcludeFreeUnit(),
-                BooleanUtils.toBoolean(mvtParam.getToIgnore())
+                BooleanUtils.toBoolean(mvtParam.getToIgnore()),
+                mvtParam.getModeName()
             );
 
             return objectMapper.readValue(jsonResult, new TypeReference<>() {});
@@ -85,7 +88,7 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
 
     @Override
     public BalanceCaisseWrapper getBalanceCaisse(MvtParam mvtParam) {
-        mvtParam.setExcludeFreeUnit(appConfigurationService.excludeFreeUnit());
+        mvtParam.setMode(modeResolver.resoudre(mvtParam.getMode()));
         return getBalanceCaisseNew(mvtParam);
     }
 

@@ -1,5 +1,6 @@
 package com.kobe.warehouse.repository;
 
+import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppConfiguration;
 import com.kobe.warehouse.domain.AppConfiguration_;
 import org.springframework.data.jpa.domain.Specification;
@@ -22,6 +23,7 @@ public interface AppConfigurationRepository extends JpaRepository<AppConfigurati
                 )
             );
         }
+        spec= spec.and((root, _, cb) -> cb.not(root.get(AppConfiguration_.name).in(EntityConstant.APP_PONCTION_ANNULATION_MAX_DAYS,EntityConstant.EXCLUDE_FREE_UNIT)));
         return spec;
     }
 }

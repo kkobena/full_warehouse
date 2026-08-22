@@ -8,6 +8,7 @@ import {
   AppSplitButtonItem,
   AppTableLazyLoadEvent,
   ButtonComponent,
+  HintComponent,
   IconFieldComponent,
   SelectComponent,
   SplitButtonComponent,
@@ -87,6 +88,7 @@ import {IProduitMergeResult} from "../../models/produit-merge.model";
     SelectComponent,
     SplitButtonComponent,
     ToolbarComponent,
+    HintComponent,
     IconFieldComponent,
     NgbTooltip,
     ProduitListComponent,
@@ -101,7 +103,6 @@ export class ProduitHomeComponent implements OnInit {
   protected loading = signal(false);
   protected selectedProduit = signal<IProduit | null>(null);
   protected panelOpen = computed(() => this.selectedProduit() !== null);
-  protected showHint = signal<boolean>(localStorage.getItem("produit-list-hint-dismissed") !== "1");
   protected selectedProduits = signal<IProduit[]>([]);
   protected hasSelection = computed(() => this.selectedProduits().length > 0);
   protected clearSelectionTrigger = signal(0);
@@ -195,11 +196,6 @@ export class ProduitHomeComponent implements OnInit {
 
   protected onClosePanel(): void {
     this.selectedProduit.set(null);
-  }
-
-  protected dismissHint(): void {
-    localStorage.setItem("produit-list-hint-dismissed", "1");
-    this.showHint.set(false);
   }
 
   protected onEditRequested(produit: IProduit): void {

@@ -129,6 +129,12 @@ public class SaleCommonService {
             int montantTva = saleItemAmount - htAmont;
             taxableAmount += montantTva;
             discount += Objects.requireNonNullElse(salesLine.getDiscountAmount(), 0);
+            // Le montant déclarable de la ligne n'était renseigné qu'à sa création : il dérivait
+            // ensuite silencieusement de quantity_requested × regular_unit_price à chaque
+            // changement de quantité ou de prix. Le réétablir ici — la seule méthode qui recalcule
+            // déjà tous les montants à partir des lignes — garantit par construction que la somme
+            // des lignes égale le montant de la vente.
+            salesLine.setAmountToBeTakenIntoAccount(saleItemAmount);
         }
 
         c.setSalesAmount(salesAmount);

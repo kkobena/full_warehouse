@@ -34,13 +34,18 @@ public class RetourAvoirDashboardService {
         this.avoirClientRepository = avoirClientRepository;
     }
 
+    /** Un agregat sans GROUP BY rend toujours une ligne ; la liste vide reste possible par prudence. */
+    private static Object[] premiereLigne(List<Object[]> lignes) {
+        return lignes.isEmpty() ? new Object[] { null, null } : lignes.getFirst();
+    }
+
     public RetourAvoirStatsDTO getStats(YearMonth mois) {
         YearMonth periode = Objects.requireNonNullElse(mois, YearMonth.now());
         LocalDateTime debut = periode.atDay(1).atStartOfDay();
         LocalDateTime fin = periode.atEndOfMonth().plusDays(1).atStartOfDay();
 
         // ── Retours ────────────────────────────────────────────────────────────
-        Object[] globaux = retourClientRepository.statsGlobales(debut, fin);
+        Object[] globaux = premiereLigne(retourClientRepository.statsGlobales(debut, fin));
         int nbRetours = globaux[0] != null ? ((Number) globaux[0]).intValue() : 0;
         int montantRetours = globaux[1] != null ? ((Number) globaux[1]).intValue() : 0;
 
@@ -66,7 +71,7 @@ public class RetourAvoirDashboardService {
             .toList();
 
         // ── Avoirs ─────────────────────────────────────────────────────────────
-        Object[] avoirsStats = avoirClientRepository.statsAvoirsOuverts();
+        Object[] avoirsStats = premiereLigne(avoirClientRepository.statsAvoirsOuverts());
         int nbAvoirsOuverts = avoirsStats[0] != null ? ((Number) avoirsStats[0]).intValue() : 0;
         int montantAvoirsOuverts = avoirsStats[1] != null ? ((Number) avoirsStats[1]).intValue() : 0;
 

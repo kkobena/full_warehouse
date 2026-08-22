@@ -1,7 +1,7 @@
 /**
  * Miroir de `com.kobe.warehouse.license.LicenseInfo` (backend).
  *
- * Cf. docs/PLAN-GESTION-LICENCE.md §5.1.
+ *
  */
 
 export type LicenseStatus =
@@ -77,32 +77,20 @@ export interface LicenseAuditEntry {
 }
 
 /**
- * Miroir de l'enum `Feature` du backend, **drapeau `optional` compris**.
+ * Un module du catalogue, tel que le serveur le décrit.
  *
- * Recopié ici pour deux raisons : l'écran de licence affiche aussi les modules **non** souscrits —
- * le client doit voir ce qu'il peut acheter en plus, ce que la seule liste du serveur ne permet
- * pas — et `LicenseService.hasFeature()` a besoin de savoir quels modules sont optionnels pour
- * appliquer la même règle d'octroi que le backend.
+ * Le catalogue n'est plus recopié ici : il est servi par `GET /api/license/features`. La copie qui
+ * existait avait déjà divergé — elle omettait les quatre modules optionnels, si bien que
+ * `hasFeature()` les tenait tous pour accordés et qu'aucune garde de route ne bloquait plus rien.
  *
  * `optional: false` = périmètre couvert d'office par toute licence.
  * `optional: true`  = module vendu séparément, accordé seulement s'il est listé dans la licence.
- *
- * ⚠ Toute évolution de `Feature.java` doit être répercutée ici, sinon le client et le serveur
- * divergeraient sur ce qui est accordé.
  */
-export const ALL_FEATURES: readonly { code: string; label: string; optional: boolean }[] = [
-  {code: 'CAISSE', label: 'Caisse / ventes', optional: false},
-  {code: 'FACTURATION', label: 'Tiers-payant & facturation', optional: false},
-  {code: 'COMPTABILITE', label: 'Comptabilité', optional: false},
-  {code: 'INVENTAIRE_AVANCE', label: 'Inventaire avancé', optional: false},
-  {code: 'REPORTS_AVANCES', label: 'Rapports avancés', optional: false},
-  {code: 'MOBILE', label: 'Applications mobiles', optional: false},
-  {code: 'FNE', label: 'Facture normalisée (FNE)', optional: false},
-  {code: 'MULTI_DEPOT', label: 'Multi-dépôts', optional: false}
-];
-
-/** Modules exigeant une souscription explicite. */
-export const OPTIONAL_FEATURES: ReadonlySet<string> = new Set(ALL_FEATURES.filter(f => f.optional).map(f => f.code));
+export interface FeatureInfo {
+  code: string;
+  label: string;
+  optional: boolean;
+}
 
 /** Libellés utilisateur des statuts — le back renvoie un enum, pas un texte à afficher. */
 export const LICENSE_STATUS_LABEL: Record<LicenseStatus, string> = {

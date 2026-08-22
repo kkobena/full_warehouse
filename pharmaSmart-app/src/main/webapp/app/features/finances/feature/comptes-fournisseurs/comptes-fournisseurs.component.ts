@@ -48,10 +48,12 @@ import {
 import {
   PharmaDatePickerComponent
 } from "../../../../shared/date-picker/pharma-date-picker.component";
+import { HintComponent } from 'app/shared/ui/hint/hint.component';
 
 @Component({
   selector: "app-comptes-fournisseurs",
   imports: [
+    HintComponent,
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
@@ -98,7 +100,6 @@ export class ComptesFournisseursComponent implements OnInit {
   fromDate = signal<NgbDateStruct | null>(null);
   toDate = signal<NgbDateStruct | null>(null);
 
-  showHint = signal<boolean>(localStorage.getItem("ap-hint-dismissed") !== "1");
 
   // ── Signal Forms ───────────────────────────────────────────────────────────
   montantSaisi = signal(0);
@@ -326,10 +327,6 @@ export class ComptesFournisseursComponent implements OnInit {
   }
 
   // ── Hint ───────────────────────────────────────────────────────────────────
-  dismissHint(): void {
-    localStorage.setItem("ap-hint-dismissed", "1");
-    this.showHint.set(false);
-  }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
   isSelected(c: ICompteFournisseurAP): boolean {

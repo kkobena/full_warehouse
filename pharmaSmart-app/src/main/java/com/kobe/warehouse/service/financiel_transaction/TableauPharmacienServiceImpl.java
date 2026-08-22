@@ -11,6 +11,7 @@ import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.dto.projection.ReponseRetourBonItemProjection;
 import com.kobe.warehouse.service.financiel_transaction.dto.AchatDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.FournisseurAchat;
+import com.kobe.warehouse.service.declaration_ca.ModeChiffreAffaireResolver;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienWrapper;
@@ -47,6 +48,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
 
     // Data access
     private final SalesRepository salesRepository;
+    private final ModeChiffreAffaireResolver modeResolver;
     private final CommandeDataService commandeDataService;
     private final AvoirFournisseurLineRepository avoirFournisseurLineRepository;
 
@@ -61,8 +63,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
     private final TableauPharmacienExportService exportService;
     private final TableauPharmacienReportReportService reportService;
 
-    public TableauPharmacienServiceImpl(
-        SalesRepository salesRepository,
+    public TableauPharmacienServiceImpl(SalesRepository salesRepository,
         CommandeDataService commandeDataService,
         AvoirFournisseurLineRepository avoirFournisseurLineRepository,
         AppConfigurationService appConfigurationService,
@@ -71,8 +72,10 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
         TableauPharmacienCalculator calculator,
         TableauPharmacienAggregator aggregator,
         TableauPharmacienExportService exportService,
-        TableauPharmacienReportReportService reportService
+        TableauPharmacienReportReportService reportService,
+        ModeChiffreAffaireResolver modeResolver
     ) {
+        this.modeResolver = modeResolver;
         this.salesRepository = salesRepository;
         this.commandeDataService = commandeDataService;
         this.avoirFournisseurLineRepository = avoirFournisseurLineRepository;
@@ -90,7 +93,9 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
         mvtParam.setStatuts(
             Set.of(SalesStatut.CLOSED, SalesStatut.CANCELED)
         );
-        mvtParam.setExcludeFreeUnit(appConfigurationService.excludeFreeUnit());
+        // Le mode arrive du client : un module non souscrit ne doit pas pouvoir être obtenu
+        // en forgeant la requête. Le masquage des menus ne protège que l'usage courant.
+        mvtParam.setMode(modeResolver.resoudre(mvtParam.getMode()));
         return computeTableauPharmacien(mvtParam);
     }
 
@@ -203,8 +208,8 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
                     mvtParam.getToDate(),
                     statuts,
                     categories,
-                    mvtParam.isExcludeFreeUnit(),
-                    BooleanUtils.toBoolean(mvtParam.getToIgnore())
+                    BooleanUtils.toBoolean(mvtParam.getToIgnore()),
+                    mvtParam.getModeName()
                 );
             } else {
                 jsonResult = salesRepository.fetchTableauPharmacienReport(
@@ -212,8 +217,8 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
                     mvtParam.getToDate(),
                     statuts,
                     categories,
-                    mvtParam.isExcludeFreeUnit(),
-                    BooleanUtils.toBoolean(mvtParam.getToIgnore())
+                    BooleanUtils.toBoolean(mvtParam.getToIgnore()),
+                    mvtParam.getModeName()
                 );
             }
             if (!StringUtils.hasLength(jsonResult)) {

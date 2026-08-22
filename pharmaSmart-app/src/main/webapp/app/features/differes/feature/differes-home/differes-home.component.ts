@@ -30,12 +30,14 @@ import {
   DiffereDetailPanelComponent
 } from "../../ui/differe-detail-panel/differe-detail-panel.component";
 import {BlobDownloadService} from "../../../../shared/services/blob-download.service";
+import { HintComponent } from 'app/shared/ui/hint/hint.component';
 
 type StatutDiffere = "PAYE" | "IMPAYE";
 
 @Component({
   selector: "app-differes-home",
   imports: [
+    HintComponent,
     FormsModule,
     ButtonComponent,
     PharmaDatePickerComponent,
@@ -65,7 +67,6 @@ export class DifferesHomeComponent implements OnInit {
   // Signal transmis à la liste
   protected readonly currentSearchParams = signal<IDiffereSearchParams | null>(null);
   // Hint premier usage
-  protected readonly showHint = signal<boolean>(localStorage.getItem("differes-hint-dismissed") !== "1");
   private readonly ability = inject(AbilityService);
   protected readonly canExecute = this.ability.canSignal("execute", "differes");
   protected readonly canExport = this.ability.canSignal("export", "differes");
@@ -109,10 +110,6 @@ export class DifferesHomeComponent implements OnInit {
       });
   }
 
-  dismissHint(): void {
-    localStorage.setItem("differes-hint-dismissed", "1");
-    this.showHint.set(false);
-  }
 
   private loadClients(): void {
     this.differeApiService

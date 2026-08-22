@@ -20,6 +20,7 @@ import {
   BadgeComponent,
   ButtonComponent,
   DataTableComponent,
+  HintComponent,
   IconFieldComponent,
   SelectComponent,
   SplitButtonComponent,
@@ -41,6 +42,7 @@ export type BedTab = "BROUILLON" | "HISTORIQUE";
   styleUrls: ["./bed-home.component.scss"],
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
+    HintComponent,
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -61,7 +63,6 @@ export class BedHomeComponent implements OnInit {
   readonly activeTab = signal<BedTab>("BROUILLON");
   readonly editingBed = signal<IBed | null>(null);
   readonly countBrouillon = signal<number>(0);
-  readonly showHint = signal<boolean>(true);
 
   protected search = "";
   protected filterMotif: MotifBed | null = null;
@@ -213,9 +214,6 @@ export class BedHomeComponent implements OnInit {
     );
   }
 
-  protected dismissHint(): void {
-    this.showHint.set(false);
-  }
 
   protected getStatutLabel(statut: string | undefined): string {
     return statut === "CLOSED" ? "Validé" : statut === "REQUESTED" ? "En cours" : (statut ?? "");

@@ -17,6 +17,21 @@ public class MvtParam {
     private Set<TypeVente> typeVentes;
     private boolean excludeFreeUnit;
     private Boolean toIgnore;
+    private ModeChiffreAffaire mode = ModeChiffreAffaire.DEFAUT;
+
+    public ModeChiffreAffaire getMode() {
+        return mode;
+    }
+
+    public MvtParam setMode(ModeChiffreAffaire mode) {
+        this.mode = Objects.requireNonNullElse(mode, ModeChiffreAffaire.DEFAUT);
+        return this;
+    }
+
+    /** Le nom attendu par le paramètre {@code p_mode} des fonctions de rapport. */
+    public String getModeName() {
+        return getMode().name();
+    }
 
     public Boolean getToIgnore() {
         return toIgnore;
@@ -123,7 +138,13 @@ public class MvtParam {
             toDate = LocalDate.now();
         }
 
-        return new MvtParam(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes, groupeBy);
+        MvtParam built = new MvtParam(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes, groupeBy);
+        // Le constructeur ne prend que les champs de période et de regroupement : sans ce report,
+        // tout ce qui a été positionné avant l'appel à build() serait silencieusement perdu.
+        built.excludeFreeUnit = excludeFreeUnit;
+        built.toIgnore = toIgnore;
+        built.mode = mode;
+        return built;
     }
 
     @Override

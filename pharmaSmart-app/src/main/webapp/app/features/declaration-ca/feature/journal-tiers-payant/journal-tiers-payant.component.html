@@ -1,0 +1,225 @@
+<!-- ── Toolbar : titre et barre de filtres ──────────────────────────────────── -->
+<app-toolbar icon="pi pi-building" title="Ventes tiers-payant exclues" [compact]="true">
+  <ng-container ngProjectAs="[toolbarFilters]">
+    <div class="pharma-toolbar-filters flex-wrap gap-2">
+      <pharma-date-picker
+        id="journal-tp-du"
+        label="Du"
+        [labelPosition]="'inline'"
+        [maxDate]="dateFin()"
+        [ngModel]="dateDebut()"
+        (ngModelChange)="dateDebut.set($event)"
+      />
+      <pharma-date-picker
+        id="journal-tp-au"
+        label="Au"
+        [labelPosition]="'inline'"
+        [minDate]="dateDebut()"
+        [ngModel]="dateFin()"
+        (ngModelChange)="dateFin.set($event)"
+      />
+
+      <select
+        id="journal-tp-filtre"
+        class="form-select"
+        style="max-width: 240px"
+        aria-label="Tiers-payant"
+        [ngModel]="tiersPayantId()"
+        (ngModelChange)="tiersPayantId.set($event)"
+      >
+        <option [ngValue]="null">Tous les tiers-payants exclus</option>
+        @for (tp of tiersPayants(); track tp.id) {
+          <option [ngValue]="tp.id">{{ tp.libelle }}</option>
+        }
+      </select>
+
+      <app-icon-field [overlay]="true" icon="pi pi-search">
+        <input
+          id="journal-tp-recherche"
+          type="search"
+          class="form-control"
+          placeholder="Ventes contenant ce produit…"
+          style="max-width: 240px"
+          [ngModel]="recherche()"
+          (ngModelChange)="recherche.set($event)"
+          (keyup.enter)="charger()"
+        />
+      </app-icon-field>
+    </div>
+  </ng-container>
+
+  <ng-container ngProjectAs="[toolbarActions]">
+    <div class="pharma-toolbar-actions">
+      <div class="pharma-button-group">
+        <app-button
+          label="Afficher"
+          icon="pi pi-search"
+          severity="info"
+          [disabled]="chargement()"
+          (clicked)="charger()"
+        />
+      </div>
+    </div>
+  </ng-container>
+</app-toolbar>
+
+<p class="text-muted small mt-2">
+  Les ventes relevant d'un tiers-payant exclu sortent entièrement du chiffre d'affaires à déclarer.
+  Le détail des produits se consulte vente par vente.
+</p>
+
+<app-hint storageKey="journal-tiers-payant" [visible]="!panelOpen()">
+  Cliquez sur une vente pour afficher les produits qui la composent.
+</app-hint>
+
+<!-- ── Indicateurs ─────────────────────────────────────────────────────────── -->
+<app-kpi-strip [loading]="chargement()" [skeletonCount]="4" stripClass="mb-3">
+  <app-kpi-item
+    [accent]="'primary'"
+    icon="pi pi-shopping-cart"
+    iconClass="text-primary"
+    label="Ventes exclues"
+    [value]="kpi()?.nombreVentes | number"
+    valueClass="text-primary"
+  >
+    <ng-container ngProjectAs="[kpiSub]">{{ kpi()?.nombreLignes | number }} ligne(s)</ng-container>
+  </app-kpi-item>
+
+  <app-kpi-item
+    [accent]="'secondary'"
+    icon="pi pi-tag"
+    iconClass="text-secondary"
+    label="Valeur TTC"
+    [value]="kpi()?.valeurTtc | number"
+    suffix="F"
+  />
+
+  <app-kpi-item
+    [accent]="'danger'"
+    icon="pi pi-minus-circle"
+    iconClass="text-danger"
+    label="Retiré du CA déclaré"
+    [value]="kpi()?.montantExclu | number"
+    suffix="F"
+    valueClass="text-danger"
+  />
+
+  <app-kpi-item
+    [accent]="'success'"
+    icon="pi pi-percentage"
+    iconClass="text-success"
+    label="Marge brute"
+    [value]="kpi()?.marge | number"
+    suffix="F"
+    valueClass="text-success"
+  >
+    <ng-container ngProjectAs="[kpiSub]">{{ kpi()?.tauxMarge | number: '1.1-1' }} % de taux de marge</ng-container>
+  </app-kpi-item>
+</app-kpi-strip>
+
+@if (tronque()) {
+  <div class="alert alert-warning py-2 small">
+    <i class="pi pi-exclamation-triangle me-1"></i>
+    La période dépasse le nombre de ventes affichables. Le tableau montre les plus récentes ;
+    <strong>les indicateurs ci-dessus restent complets</strong>.
+  </div>
+}
+
+<!-- ── Maître / détail ─────────────────────────────────────────────────────── -->
+<div [class.panel-open]="panelOpen()" class="split-container">
+  <div class="list-column">
+    <app-data-table
+      [value]="ventes()"
+      [loading]="chargement()"
+      size="small"
+      [stripedRows]="true"
+      dataKey="saleId"
+      selectionMode="single"
+      [selection]="selection()"
+      (selectionChange)="onSelection($any($event))"
+      [paginator]="true"
+      [rows]="25"
+      [rowsPerPageOptions]="[25, 50, 100]"
+      emptyMessage="Aucune vente tiers-payant exclue sur cette période"
+    >
+      <ng-template #header>
+        <tr>
+          <th style="width: 7rem">Date</th>
+          <th style="width: 9rem">Transaction</th>
+          <th>Tiers-payant</th>
+          <th>Client</th>
+          <th class="text-end" style="width: 5rem">Lignes</th>
+          <th class="text-end" style="width: 8rem">Valeur TTC</th>
+          <th class="text-end" style="width: 8rem">Marge</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-vente>
+        <tr>
+          <td>{{ vente.saleDate }}</td>
+          <td class="small">{{ vente.numeroTransaction }}</td>
+          <td class="small">{{ vente.tiersPayants }}</td>
+          <td class="small text-muted">{{ vente.client }}</td>
+          <td class="text-end">{{ vente.nombreLignes | number }}</td>
+          <td class="text-end fw-semibold">{{ vente.valeurTtc | number }}</td>
+          <td class="text-end" [class.text-success]="vente.marge > 0" [class.text-danger]="vente.marge < 0">
+            {{ vente.marge | number }}
+          </td>
+        </tr>
+      </ng-template>
+    </app-data-table>
+  </div>
+
+  @if (panelOpen()) {
+    <div class="detail-column">
+      <app-card [withHeader]="true" header="Produits de la vente" icon="pi pi-list" class="d-block">
+        <div cardActions>
+          <app-button
+            icon="pi pi-times"
+            severity="secondary"
+            [text]="true"
+            [iconOnly]="true"
+            label="Fermer"
+            (clicked)="fermerDetail()"
+          />
+        </div>
+
+        <p class="text-muted small">
+          {{ selection()!.numeroTransaction }} du {{ selection()!.saleDate }} ·
+          {{ selection()!.tiersPayants }} ·
+          {{ selection()!.valeurTtc | number }} F retirés du CA déclaré
+        </p>
+
+        <app-data-table
+          [value]="detail()"
+          [loading]="chargementDetail()"
+          size="small"
+          [scrollable]="true"
+          scrollHeight="calc(100vh - 32rem)"
+          emptyMessage="Aucune ligne dans cette vente"
+        >
+          <ng-template #header>
+            <tr>
+              <th style="width: 7rem">Code</th>
+              <th>Produit</th>
+              <th class="text-end" style="width: 5rem">Quantité</th>
+              <th class="text-end" style="width: 7rem">Valeur TTC</th>
+              <th class="text-end" style="width: 7rem">Marge</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-ligne>
+            <tr>
+              <td class="small text-muted">{{ ligne.codeProduit }}</td>
+              <td>{{ ligne.libelleProduit }}</td>
+              <td class="text-end">{{ ligne.quantite | number }}</td>
+              <td class="text-end">{{ ligne.valeurTtc | number }}</td>
+              <td class="text-end" [class.text-success]="ligne.marge > 0" [class.text-danger]="ligne.marge < 0">
+                {{ ligne.marge | number }}
+              </td>
+            </tr>
+          </ng-template>
+        </app-data-table>
+      </app-card>
+    </div>
+  }
+</div>

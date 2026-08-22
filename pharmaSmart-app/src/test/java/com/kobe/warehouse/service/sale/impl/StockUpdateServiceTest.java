@@ -10,6 +10,7 @@ import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.LogsService;
@@ -183,6 +184,59 @@ class StockUpdateServiceTest {
         verify(stockProduitRepository).save(
             argThat(sp -> sp.getUpdatedAt() != null && (oldTimestamp == null || sp.getUpdatedAt().isAfter(oldTimestamp)))
         );
+    }
+
+    @Test
+    void restoresRayonStockOnCancellation() {
+        SalesLine canceledLine = createSalesLine(-7, -2, 1000);
+        StockProduit stockProduit = createStockProduit(20, 3);
+
+        stockUpdateService.updateStockOnCancellation(canceledLine, stockProduit);
+
+        assertEquals(25, stockProduit.getQtyStock());
+        assertEquals(5, stockProduit.getQtyUG());
+        verify(stockProduitRepository).save(stockProduit);
+        verify(suggestionReassortService).createReserveSuggestionReassort(stockProduit);
+    }
+
+    @Test
+    void addsQuantityToExistingDepotStock() {
+        SalesLine line = createSalesLine(6, 0, 1000);
+        Storage depot = new Storage();
+        depot.setId(3);
+        StockProduit stockProduit = createStockProduit(10, 2);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(1, 3)).thenReturn(stockProduit);
+
+        StockUpdateService.StockUpdateResult result = stockUpdateService.updateStockDepot(line, depot);
+
+        assertEquals(12, result.quantityBefore());
+        assertEquals(18, result.quantityAfter());
+        assertEquals(18, stockProduit.getQtyStock());
+        assertEquals(18, stockProduit.getQtyVirtual());
+        verify(stockProduitRepository).save(stockProduit);
+    }
+
+    @Test
+    void createsMissingDepotStockBeforeAddingQuantity() {
+        SalesLine line = createSalesLine(4, 0, 1000);
+        Storage depot = new Storage();
+        depot.setId(3);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(1, 3)).thenReturn(null);
+
+        StockUpdateService.StockUpdateResult result = stockUpdateService.updateStockDepot(line, depot);
+
+        assertEquals(0, result.quantityBefore());
+        assertEquals(4, result.quantityAfter());
+        ArgumentCaptor<StockProduit> captor = ArgumentCaptor.forClass(StockProduit.class);
+        verify(stockProduitRepository).save(captor.capture());
+        StockProduit created = captor.getValue();
+        assertSame(line.getProduit(), created.getProduit());
+        assertSame(depot, created.getStorage());
+        assertEquals(4, created.getQtyStock());
+        assertEquals(0, created.getQtyUG());
+        assertEquals(4, created.getQtyVirtual());
+        assertNotNull(created.getCreatedAt());
+        assertEquals(created.getCreatedAt(), created.getUpdatedAt());
     }
 
     // Helper methods

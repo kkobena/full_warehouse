@@ -264,7 +264,7 @@ class TvaCalculationMigrationTest {
 
         long htBalance = 0;
         for (JsonNode l : appelJson(
-            "SELECT sales_balance(DATE '%s', DATE '%s', ARRAY['CLOSED'], ARRAY['CA'], false, false)"
+            "SELECT sales_balance(DATE '%s', DATE '%s', ARRAY['CLOSED'], ARRAY['CA'], false, 'DECLARE')"
                 .formatted(DATE_VENTE, DATE_VENTE)
         )) {
             htBalance += l.get("montantHt").asLong();
@@ -272,7 +272,7 @@ class TvaCalculationMigrationTest {
 
         long htTableau = 0;
         for (JsonNode l : appelJson(
-            "SELECT tableau_pharmacien_report(DATE '%s', DATE '%s', ARRAY['CLOSED'], ARRAY['CA'], false, false)"
+            "SELECT tableau_pharmacien_report(DATE '%s', DATE '%s', ARRAY['CLOSED'], ARRAY['CA'], false, 'DECLARE')"
                 .formatted(DATE_VENTE, DATE_VENTE)
         )) {
             htTableau += l.get("montantHt").asLong();
@@ -281,6 +281,49 @@ class TvaCalculationMigrationTest {
         assertEquals(3 * HT_ATTENDU_PAR_LIGNE, htTva, "rapport TVA");
         assertEquals(htTva, htBalance, "balance de caisse");
         assertEquals(htTva, htTableau, "tableau pharmacien");
+    }
+
+    // ===== Modes de lecture REEL / DECLARE =====
+
+
+
+    @Test
+    @DisplayName("Le mode par défaut est REEL : un paramètre oublié ne sous-déclare pas en silence")
+    void modeParDefautEstReel() throws SQLException {
+        long defaut = valeurEntiere(
+            """
+            SELECT coalesce(sum((l ->> 'montantTtc')::bigint), 0)
+              FROM jsonb_array_elements(
+                     sales_tva_report(DATE '%s', DATE '%s', ARRAY['CLOSED'], ARRAY['CA'], false)
+                   ) AS l
+            """.formatted(DATE_VENTE, DATE_VENTE)
+        );
+        assertEquals(totalTtc(rapportTva("REEL")), defaut, "l'état neutre est la donnée non retraitée");
+    }
+
+    @Test
+    @DisplayName("Les 5 fonctions des écrans de comptabilité acceptent le mode")
+    void lesCinqFonctionsAcceptentLeMode() throws SQLException {
+        String sql =
+            """
+            SELECT count(*) FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+             WHERE n.nspname = '%s'
+               AND p.proname IN ('sales_balance', 'sales_tva_report', 'sales_tva_report_journalier',
+                                 'tableau_pharmacien_report', 'tableau_pharmacien_month_report')
+               AND pg_get_function_identity_arguments(p.oid) LIKE '%%p_mode text%%'
+            """.formatted(SCHEMA);
+        assertEquals(5, valeurEntiere(sql));
+    }
+
+    @Test
+    @DisplayName("L'ancienne signature à six arguments a bien été supprimée")
+    void ancienneSignatureSupprimee() throws SQLException {
+        String sql =
+            """
+            SELECT count(*) FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+             WHERE n.nspname = '%s' AND p.proname = 'sales_balance'
+            """.formatted(SCHEMA);
+        assertEquals(1, valeurEntiere(sql), "deux surcharges rendraient tout appel à six arguments ambigu");
     }
 
     // ===== Non-régression structurelle =====
@@ -336,10 +379,22 @@ class TvaCalculationMigrationTest {
     }
 
     private JsonNode rapportTva() throws SQLException {
+        return rapportTva("DECLARE");
+    }
+
+    private JsonNode rapportTva(String mode) throws SQLException {
         return appelJson(
-            "SELECT sales_tva_report(DATE '%s', DATE '%s', ARRAY['CLOSED'], ARRAY['CA'], false, false)"
-                .formatted(DATE_VENTE, DATE_VENTE)
+            "SELECT sales_tva_report(DATE '%s', DATE '%s', ARRAY['CLOSED'], ARRAY['CA'], false, '%s')"
+                .formatted(DATE_VENTE, DATE_VENTE, mode)
         );
+    }
+
+    private long totalTtc(JsonNode lignes) {
+        long total = 0;
+        for (JsonNode ligne : lignes) {
+            total += ligne.get("montantTtc").asLong();
+        }
+        return total;
     }
 
     private JsonNode appelJson(String sql) throws SQLException {

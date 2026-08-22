@@ -1,4 +1,5 @@
 import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
+import { HintComponent } from 'app/shared/ui/hint/hint.component';
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { catchError, finalize, tap } from "rxjs/operators";
 import { forkJoin, of } from "rxjs";
@@ -38,6 +39,7 @@ import { BlobDownloadService } from "../../../../shared/services/blob-download.s
 @Component({
   selector: "app-facturation-home",
   imports: [
+    HintComponent,
     FormsModule,
     ButtonComponent,
     FloatLabelComponent,
@@ -86,7 +88,6 @@ export class FacturationHomeComponent implements OnInit {
   protected readonly currentSearchParams = signal<IInvoiceSearchParams | null>(null);
 
   // Hint premier usage
-  protected readonly showHint = signal<boolean>(localStorage.getItem("facturation-hint-dismissed") !== "1");
   private readonly translate = inject(TranslateService);
   private readonly factureApiService = inject(FactureApiService);
   private readonly tiersPayantService = inject(TiersPayantService);
@@ -150,10 +151,6 @@ export class FacturationHomeComponent implements OnInit {
   }
 
 
-  dismissHint(): void {
-    localStorage.setItem("facturation-hint-dismissed", "1");
-    this.showHint.set(false);
-  }
 
   searchTiersPayant(query: string): void {
     this.tiersPayantService

@@ -33,6 +33,8 @@ import com.kobe.warehouse.service.UtilisationCleSecuriteService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.PaymentDTO;
+import com.kobe.warehouse.service.declaration_ca.DeclarationCaService;
+import com.kobe.warehouse.service.declaration_ca.PonctionService;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.UtilisationCleSecuriteDTO;
@@ -79,6 +81,8 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     private final UtilisationCleSecuriteService utilisationCleSecuriteService;
     private final RemiseRepository remiseRepository;
     private final SalesManager salesManager;
+    private final DeclarationCaService declarationCaService;
+    private final PonctionService ponctionService;
 
     public SaleServiceImpl(SalesRepository salesRepository, UserRepository userRepository,
                            UninsuredCustomerRepository uninsuredCustomerRepository,
@@ -90,7 +94,9 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
                            RemiseRepository remiseRepository, CustomerDisplayService afficheurPosService,
                            SaleIdGeneratorService idGeneratorService, ObjectMapper objectMapper,
                            SalesManager salesManager,
-                           AppConfigurationService appConfigurationService) {
+                           AppConfigurationService appConfigurationService,
+                           DeclarationCaService declarationCaService,
+                           PonctionService ponctionService) {
         super(referenceService, storageService, userRepository, saleLineServiceFactory,
             cashRegisterService, posteRepository, afficheurPosService, idGeneratorService,
             objectMapper, appConfigurationService);
@@ -105,6 +111,8 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         this.utilisationCleSecuriteService = utilisationCleSecuriteService;
         this.remiseRepository = remiseRepository;
         this.salesManager = salesManager;
+        this.declarationCaService = declarationCaService;
+        this.ponctionService = ponctionService;
     }
 
     private AppUser getUserFormImport() {
@@ -268,6 +276,9 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         this.save(cashSale, dto);
         cashSale.setTvaEmbeded(buildTvaData(cashSale.getSalesLines()));
         paymentService.buildPaymentFromFromPaymentDTO(cashSale, dto);
+        // Après la création des règlements, avant la persistance : la réduction se répartit sur des
+        // règlements qui n'existaient pas encore à la clôture.
+        declarationCaService.appliquerExclusions(cashSale);
         salesRepository.save(cashSale);
         displayMonnaie(dto.getMontantRendu());
 
@@ -322,6 +333,11 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
                     throw new GenericError("La vente doit être clôturée pour être annulée");
                 }
                 checkCancellationDelay(sales.getSaleDate());
+                // La ponction cède devant l'annulation de vente : son montant a été réparti sur
+                // toutes ses ventes, et n'est pas décomposable ici sans refaire le calcul. La défaire
+                // en entier rétablit des montants exacts ; la laisser en place figerait un écart que
+                // plus rien n'explique. Avant la contrepassation, qui négate le montant rétabli.
+                ponctionService.annulerPourVente(id.getId(), sales.getSaleDate(), sales.getPonctionId());
                 CashSale copy = (CashSale) sales.clone();
                 copySale(sales, copy);
                 copy.setSaleDate(LocalDate.now());

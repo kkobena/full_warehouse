@@ -29,9 +29,8 @@ public class ServiceUtil {
      * Montant hors taxe correspondant à un montant TTC, pour un taux de TVA exprimé en pourcentage
      * entier (0, 9, 18…).
      *
-     * <p>Pendant Java de la fonction SQL {@code ht_from_ttc} (cf.
-     * {@code V1.9.0__fix_tva_division_entiere.sql}) : les deux doivent rendre la même valeur, faute
-     * de quoi le rapport TVA et la facture normalisée cesseraient de se recouper.
+     * <p>Pendant Java de la fonction SQL {@code ht_from_ttc} : les deux doivent rendre la même
+     * valeur, faute de quoi le rapport TVA et la facture normalisée cesseraient de se recouper.
      *
      * <p>Le calcul est mené en {@link BigDecimal} et non en {@code double} : sur des montants qui
      * alimentent une déclaration fiscale, l'arithmétique binaire approchée n'a pas sa place. Le

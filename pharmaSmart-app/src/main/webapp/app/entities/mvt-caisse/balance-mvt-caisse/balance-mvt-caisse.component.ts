@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, input, computed } from '@angular/core';
 import {MvtParamServiceService} from '../mvt-param-service.service';
 import {BalanceCaisseWrapper} from './balance-caisse.model';
 import {BalanceMvtCaisseService} from './balance-mvt-caisse.service';
@@ -15,6 +15,8 @@ import {NgbDateStruct, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {ButtonComponent, ToolbarComponent} from '../../../shared/ui';
 import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
 
+import { ModeCa, ModeCaService } from '../mode-ca';
+
 @Component({
   selector: 'app-balance-mvt-caisse',
   imports: [
@@ -30,6 +32,15 @@ import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date
   styleUrls: ['./balance-mvt-caisse.component.scss'],
 })
 export class BalanceMvtCaisseComponent implements OnInit {
+  /**
+   * Mode imposé par l'écran appelant. Laissé vide, il est déduit de la licence : le chiffre déclaré
+   * n'a de sens que si l'officine a souscrit au moins un module de retraitement.
+   */
+  readonly mode = input<ModeCa | null>(null);
+
+  private readonly modeCaService = inject(ModeCaService);
+
+  protected readonly modeEffectif = computed<ModeCa>(() => this.mode() ?? this.modeCaService.modeComptabilite());
   protected fromDate: NgbDateStruct | null = null;
   protected toDate: NgbDateStruct | null = null;
   protected loading = false;
@@ -103,6 +114,7 @@ export class BalanceMvtCaisseComponent implements OnInit {
 
   private buildParams(): any {
     return {
+      mode: this.modeEffectif(),
       fromDate: this.fromDate ? NGB_DATE_TO_ISO(this.fromDate) : null,
       toDate: this.toDate ? NGB_DATE_TO_ISO(this.toDate) : null,
       statuts: ['CLOSED'],

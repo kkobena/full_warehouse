@@ -14,7 +14,6 @@ import {NotificationService} from 'app/shared/services/notification.service';
 import {AbilityService} from 'app/core/auth/ability.service';
 import {LicenseService} from 'app/core/license/license.service';
 import {
-  ALL_FEATURES,
   LICENSE_AUDIT_LABEL,
   LICENSE_STATUS_LABEL,
   LICENSE_TYPE_LABEL,
@@ -40,7 +39,7 @@ import {APPEND_TO} from "../../shared/constants/pagination.constants";
 })
 export default class LicenseAdminComponent implements OnInit {
   protected readonly licenseService = inject(LicenseService);
-  protected readonly allFeatures = ALL_FEATURES;
+  protected readonly allFeatures = this.licenseService.features;
   protected readonly typeLabels = LICENSE_TYPE_LABEL;
   protected readonly auditLabels = LICENSE_AUDIT_LABEL;
   protected readonly fingerprint = signal<string | null>(null);

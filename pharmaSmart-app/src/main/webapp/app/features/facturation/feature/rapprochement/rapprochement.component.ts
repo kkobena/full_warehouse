@@ -1,4 +1,5 @@
 import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
+import { HintComponent } from 'app/shared/ui/hint/hint.component';
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { DecimalPipe } from "@angular/common";
@@ -47,6 +48,7 @@ interface IStatutOption {
 @Component({
   selector: "app-rapprochement",
   imports: [
+    HintComponent,
     FormsModule,
     DecimalPipe,
     RapprochementKpiBannerComponent,
@@ -82,7 +84,6 @@ export class RapprochementComponent implements OnInit {
   protected readonly selectedRappr = signal<IEtatRapprochement | null>(null);
   protected readonly panelOpen = computed(() => this.selectedRappr() !== null);
   protected readonly today = new Date().toISOString().split("T")[0];
-  protected readonly showHint = signal<boolean>(localStorage.getItem('rapprochement-hint-dismissed') !== '1');
   protected readonly kpi = computed<IRapprochementKpi | null>(() => {
     const data = this.rapprochements();
     if (data.length === 0) return null;
@@ -121,10 +122,6 @@ export class RapprochementComponent implements OnInit {
 
   ngOnInit(): void {
     this.onSearch();
-  }
-  dismissHint(): void {
-    localStorage.setItem('rapprochement-hint-dismissed', '1');
-    this.showHint.set(false);
   }
 
   onSearch(): void {

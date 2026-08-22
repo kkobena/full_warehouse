@@ -16,6 +16,7 @@ import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.RepartitionTiersPayantParTva;
 import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.SaleLineId;
+import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.Storage;
@@ -43,6 +44,7 @@ import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.UtilisationCleSecuriteService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
+import com.kobe.warehouse.service.declaration_ca.DeclarationCaService;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
@@ -52,6 +54,7 @@ import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleLineDTO;
 import com.kobe.warehouse.service.dto.records.UpdateSaleInfo;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.errors.NumBonAlreadyUseException;
 import com.kobe.warehouse.service.errors.PlafondVenteException;
 import com.kobe.warehouse.service.errors.ThirdPartySalesTiersPayantException;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
@@ -73,6 +76,7 @@ import com.kobe.warehouse.service.utils.CustomerDisplayService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -159,6 +163,8 @@ class ThirdPartySaleServiceImplTest {
     private ThirdPartyCalculationManager thirdPartyCalculationManager;
     @Mock
     private AssuredCustomerManager assuredCustomerManager;
+    @Mock
+    private DeclarationCaService declarationCaService;
 
     private ThirdPartySaleServiceImpl thirdPartySaleService;
 
@@ -204,7 +210,8 @@ class ThirdPartySaleServiceImplTest {
             thirdPartyClientManager,
             thirdPartyCalculationManager,
             assuredCustomerManager,
-            appConfigurationService
+            appConfigurationService,
+            declarationCaService
         );
 
         setupTestData();
@@ -449,19 +456,14 @@ class ThirdPartySaleServiceImplTest {
         SaleId saleId = new SaleId(1L, testDate);
         testSale.setStatut(SalesStatut.ACTIVE);
 
-        when(thirdPartySaleRepository.findOneWithEagerSalesLines(anyLong(),
-            any(LocalDate.class))).thenReturn(Optional.of(testSale));
-        lenient().when(thirdPartySaleRepository.save(any())).thenReturn(testSale);
-        lenient().when(thirdPartySaleLineService.findAllBySaleId(any()))
-            .thenReturn(List.of(testThirdPartySaleLine));
-        lenient().when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(testStorage);
+        when(thirdPartySaleRepository.findByIdAndSaleDate(1L, testDate))
+            .thenReturn(Optional.of(testSale));
 
-        // When
-        thirdPartySaleService.cancelSale(saleId, "");
+        GenericError error = assertThrows(GenericError.class,
+            () -> thirdPartySaleService.cancelSale(saleId, "motif"));
 
-        // Then
-        verify(thirdPartySaleRepository, atLeast(2)).save(
-            any(ThirdPartySales.class)); // Saves original and copy
+        assertEquals("La vente doit être clôturée pour être annulée", error.getMessage());
+        verify(thirdPartySaleRepository, never()).save(any());
     }
 
     @Test
@@ -469,13 +471,22 @@ class ThirdPartySaleServiceImplTest {
         // Given
         SaleId saleId = new SaleId(1L, testDate);
         testSale.setStatut(SalesStatut.CLOSED);
-        lenient().when(thirdPartySaleRepository.getReferenceById(saleId)).thenReturn(testSale);
+        SalePayment originalPayment = new SalePayment();
+        originalPayment.setSale(testSale);
+        testSale.getPayments().add(originalPayment);
+        when(thirdPartySaleRepository.findByIdAndSaleDate(1L, testDate))
+            .thenReturn(Optional.of(testSale));
+        when(cashRegisterService.getLastOpiningUserCashRegisterByUser(any()))
+            .thenReturn(new CashRegister());
+        when(appConfigurationService.getCancelSaleMaxDays()).thenReturn(30);
 
-        // When
-        thirdPartySaleService.cancelSale(saleId, "");
+        thirdPartySaleService.cancelSale(saleId, "motif");
 
-        // Then
-        verify(thirdPartySaleRepository, never()).delete(any(ThirdPartySales.class));
+        assertTrue(testSale.isCanceled());
+        assertEquals("motif", testSale.getCancelComment());
+        verify(thirdPartySaleRepository, times(2)).save(any(ThirdPartySales.class));
+        verify(paymentService).clonePayment(eq(originalPayment), any(ThirdPartySales.class));
+        verify(thirdPartyClientManager).clone(eq(testThirdPartySaleLine), any(ThirdPartySales.class));
     }
 
     // ============================================
@@ -525,8 +536,64 @@ class ThirdPartySaleServiceImplTest {
 
         // Then
         assertNotNull(result);
+        assertTrue(result.success());
         assertEquals(SalesStatut.CLOSED, testSale.getStatut());
-        verify(paymentService).buildPaymentFromFromPaymentDTO(any(Sales.class), any(SaleDTO.class));
+        assertEquals("BON001", testSale.getNumBon());
+        verify(thirdPartySaleRepository).findOneWithEagerSalesLines(1L, testDate);
+        InOrder finalizationOrder = inOrder(paymentService, declarationCaService,
+            thirdPartySaleRepository);
+        finalizationOrder.verify(paymentService)
+            .buildPaymentFromFromPaymentDTO(testSale, dto);
+        finalizationOrder.verify(declarationCaService).appliquerExclusions(testSale);
+        finalizationOrder.verify(thirdPartySaleRepository).save(testSale);
+    }
+
+    @Test
+    void testSave_WithoutTiersPayant_ThrowsExceptionBeforeDeclaration() {
+        ThirdPartySaleDTO dto = new ThirdPartySaleDTO();
+        dto.setSaleId(new SaleId(1L, testDate));
+        dto.setAmountToBePaid(1200);
+        dto.setPayrollAmount(1200);
+        dto.setRestToPay(0);
+        dto.setTiersPayants(new ArrayList<>());
+        testSale.setThirdPartySaleLines(new ArrayList<>());
+
+        when(thirdPartySaleRepository.findOneWithEagerSalesLines(1L, testDate))
+            .thenReturn(Optional.of(testSale));
+        when(thirdPartyClientManager.findAllBySaleId(testSale.getId()))
+            .thenReturn(List.of());
+
+        assertThrows(ThirdPartySalesTiersPayantException.class,
+            () -> thirdPartySaleService.save(dto));
+
+        verify(declarationCaService, never()).appliquerExclusions(any());
+        verify(thirdPartySaleRepository, never()).save(any());
+    }
+
+    @Test
+    void testSave_DuplicateNumBon_ThrowsExceptionBeforeDeclaration() {
+        ThirdPartySaleDTO dto = new ThirdPartySaleDTO();
+        dto.setSaleId(new SaleId(1L, testDate));
+        dto.setAmountToBePaid(1200);
+        dto.setPayrollAmount(1200);
+        dto.setRestToPay(0);
+        ClientTiersPayantDTO tiersPayant = new ClientTiersPayantDTO();
+        tiersPayant.setId(1);
+        tiersPayant.setNumBon("BON-DEJA-UTILISE");
+        dto.setTiersPayants(new ArrayList<>(List.of(tiersPayant)));
+
+        when(thirdPartySaleRepository.findOneWithEagerSalesLines(1L, testDate))
+            .thenReturn(Optional.of(testSale));
+        when(thirdPartyClientManager.findAllBySaleId(testSale.getId()))
+            .thenReturn(List.of(testThirdPartySaleLine));
+        when(thirdPartyClientManager.checkIfNumBonIsAlReadyUse(
+            "BON-DEJA-UTILISE", 1, 1L)).thenReturn(true);
+
+        assertThrows(NumBonAlreadyUseException.class,
+            () -> thirdPartySaleService.save(dto));
+
+        verify(declarationCaService, never()).appliquerExclusions(any());
+        verify(thirdPartySaleRepository, never()).save(any());
     }
 
     // ============================================
@@ -1124,7 +1191,7 @@ class ThirdPartySaleServiceImplTest {
         dto.setSaleCompositeId(new SaleId(1L, testDate));
 
         when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
-        when(salesManager.updateItemQuantityRequested(any(), any(), any())).thenReturn(dto);
+        when(salesManager.updateItemQuantityRequested(any(), any(), anyBoolean())).thenReturn(dto);
 
         // When
         SaleLineDTO result = thirdPartySaleService.updateItemQuantityRequested(dto, true);
@@ -1144,10 +1211,10 @@ class ThirdPartySaleServiceImplTest {
         dto.setSaleCompositeId(new SaleId(1L, testDate));
 
         when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
-        when(salesManager.updateItemQuantityRequested(any(), any(), any())).thenReturn(dto);
+        when(salesManager.updateItemQuantityRequested(any(), any(), anyBoolean())).thenReturn(dto);
 
         // When
-        SaleLineDTO result = thirdPartySaleService.updateItemQuantityRequested(dto, any());
+        SaleLineDTO result = thirdPartySaleService.updateItemQuantityRequested(dto, true);
 
         // Then
         assertNotNull(result);
@@ -1230,8 +1297,11 @@ class ThirdPartySaleServiceImplTest {
         // Then
         assertNotNull(result);
         assertTrue(result.success());
-        verify(paymentService).buildPaymentFromFromPaymentDTO(any(Sales.class), any(SaleDTO.class));
-        verify(thirdPartySaleRepository).save(any(ThirdPartySales.class));
+        InOrder editOrder = inOrder(paymentService, declarationCaService,
+            thirdPartySaleRepository);
+        editOrder.verify(paymentService).buildPaymentFromFromPaymentDTO(testSale, dto);
+        editOrder.verify(declarationCaService).appliquerExclusions(testSale);
+        editOrder.verify(thirdPartySaleRepository).save(testSale);
     }
 
     @Test
@@ -1795,7 +1865,7 @@ class ThirdPartySaleServiceImplTest {
         dto.setSaleCompositeId(new SaleId(1L, testDate));
 
         when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
-        when(salesManager.updateItemQuantityRequested(any(), any(), any())).thenReturn(dto);
+        when(salesManager.updateItemQuantityRequested(any(), any(), anyBoolean())).thenReturn(dto);
 
         // When
         SaleLineDTO result = thirdPartySaleService.updateItemQuantityRequested(dto, true);
@@ -1884,7 +1954,8 @@ class ThirdPartySaleServiceImplTest {
 
         lenient().when(clientTiersPayantRepository.getReferenceById(1))
             .thenReturn(testClientTiersPayant);
-        lenient().when(thirdPartySaleRepository.findOneById(1L)).thenReturn(testSale);
+        when(thirdPartySaleRepository.getReferenceById(new SaleId(1L, testDate)))
+            .thenReturn(testSale);
 
         ThirdPartySaleLine thirdPartySaleLine = new ThirdPartySaleLine();
         thirdPartySaleLine.setClientTiersPayant(testClientTiersPayant);
@@ -1909,7 +1980,8 @@ class ThirdPartySaleServiceImplTest {
 
         lenient().when(clientTiersPayantRepository.getReferenceById(1))
             .thenReturn(testClientTiersPayant);
-        lenient().when(thirdPartySaleRepository.findOneById(1L)).thenReturn(testSale);
+        when(thirdPartySaleRepository.getReferenceById(new SaleId(1L, testDate)))
+            .thenReturn(testSale);
 
         ThirdPartySaleLine thirdPartySaleLine = new ThirdPartySaleLine();
         thirdPartySaleLine.setClientTiersPayant(testClientTiersPayant);
@@ -1944,7 +2016,8 @@ class ThirdPartySaleServiceImplTest {
 
         lenient().when(clientTiersPayantRepository.getReferenceById(1))
             .thenReturn(testClientTiersPayant);
-        lenient().when(thirdPartySaleRepository.findOneById(1L)).thenReturn(testSale);
+        when(thirdPartySaleRepository.getReferenceById(new SaleId(1L, testDate)))
+            .thenReturn(testSale);
 
         ThirdPartySaleLine thirdPartySaleLine = new ThirdPartySaleLine();
         thirdPartySaleLine.setClientTiersPayant(testClientTiersPayant);
@@ -1962,6 +2035,452 @@ class ThirdPartySaleServiceImplTest {
         // Then
         // Verify that the manager was called
         verify(thirdPartyClientManager).addThirdPartySaleLineToSales(any(), any());
+    }
+
+    @Test
+    void savesPreventeAndUpdatesMatchingTiersPayant() {
+        testSale.setStatut(SalesStatut.PROCESSING);
+        testThirdPartySaleLine.setNumBon(null);
+        ThirdPartySaleDTO dto = new ThirdPartySaleDTO();
+        dto.setSaleId(testSale.getId());
+        ClientTiersPayantDTO tiersPayant = new ClientTiersPayantDTO();
+        tiersPayant.setId(testClientTiersPayant.getId());
+        tiersPayant.setNumBon("PRE-001");
+        dto.setTiersPayants(new ArrayList<>(List.of(tiersPayant)));
+        when(thirdPartySaleRepository.findOneWithEagerSalesLines(1L, testDate))
+            .thenReturn(Optional.of(testSale));
+        when(thirdPartyClientManager.findAllBySaleId(testSale.getId()))
+            .thenReturn(List.of(testThirdPartySaleLine));
+
+        thirdPartySaleService.savePrevente(dto, true);
+
+        assertEquals(SalesStatut.ACTIVE, testSale.getStatut());
+        assertEquals("PRE-001", testThirdPartySaleLine.getNumBon());
+        assertEquals("PRE-001", testSale.getNumBon());
+        verify(thirdPartySaleLineService).save(testThirdPartySaleLine);
+        verify(thirdPartyClientManager).updateClientTiersPayantAccount(testThirdPartySaleLine);
+        verify(thirdPartyClientManager).updateTiersPayantAccount(testThirdPartySaleLine);
+        verify(thirdPartySaleRepository).save(testSale);
+    }
+
+    @Test
+    void transformsProcessingSaleWithoutCloning() {
+        testSale.setStatut(SalesStatut.PROCESSING);
+        testSale.setNatureVente(NatureVente.CARNET);
+        when(thirdPartySaleRepository.findByIdAndSaleDate(1L, testDate))
+            .thenReturn(Optional.of(testSale));
+
+        SaleId result = thirdPartySaleService.transformToVenteEncour(testSale.getId());
+
+        assertEquals(testSale.getId(), result);
+        assertEquals(SalesStatut.ACTIVE, testSale.getStatut());
+        verify(thirdPartySaleRepository).save(testSale);
+        verify(thirdPartySaleRepository, never()).delete(any(ThirdPartySales.class));
+    }
+
+    @Test
+    void addsAyantDroitAndIgnoresNullRequest() {
+        UpdateSaleInfo update = new UpdateSaleInfo(testSale.getId(), 9);
+        AssuredCustomer ayantDroit = new AssuredCustomer();
+        ayantDroit.setId(9);
+        when(thirdPartySaleRepository.getReferenceById(testSale.getId())).thenReturn(testSale);
+        when(assuredCustomerRepository.getReferenceById(9)).thenReturn(ayantDroit);
+
+        thirdPartySaleService.addAyantDroitToSale(null);
+        thirdPartySaleService.addAyantDroitToSale(update);
+
+        assertSame(ayantDroit, testSale.getAyantDroit());
+        verify(thirdPartySaleRepository).save(testSale);
+    }
+
+    @Test
+    void updatesTiersPayantRateAndRejectsExceededLimit() throws Exception {
+        when(thirdPartyClientManager.updateTiersPayantTaux(1, testSale.getId(), 70))
+            .thenReturn(new ThirdPartyClientManager.UpdateTiersPayantTauxResult(testSale, null));
+        when(thirdPartyClientManager.updateTiersPayantTaux(1, testSale.getId(), 90))
+            .thenReturn(new ThirdPartyClientManager.UpdateTiersPayantTauxResult(testSale, "Plafond dépassé"));
+
+        thirdPartySaleService.updateTiersPayantTaux(1, testSale.getId(), 70);
+        assertThrows(PlafondVenteException.class,
+            () -> thirdPartySaleService.updateTiersPayantTaux(1, testSale.getId(), 90));
+
+        verify(customerDisplayService, times(2)).displaySaleTotal(testSale.getPartAssure());
+    }
+
+    @Test
+    void removesDiscountAndRecomputesAmounts() {
+        testSale.setRemise(new RemiseClient());
+        when(thirdPartySaleRepository.getReferenceById(testSale.getId())).thenReturn(testSale);
+
+        thirdPartySaleService.removeDiscount(testSale.getId());
+
+        assertNull(testSale.getRemise());
+        verify(thirdPartyCalculationManager).reComputeAndApplyAmounts(testSale, null, true);
+        verify(customerDisplayService).displaySaleTotal(testSale.getPartAssure());
+    }
+
+    @Test
+    void clonesDevisAndPersistsIndependentCollections() {
+        testSale.setStatut(SalesStatut.DEVIS);
+        testSale.setPayments(new HashSet<>());
+        when(thirdPartySaleRepository.findByIdAndSaleDate(1L, testDate))
+            .thenReturn(Optional.of(testSale));
+        when(saleIdGeneratorService.nextId()).thenReturn(22L);
+        when(thirdPartySaleRepository.saveAndFlush(any(ThirdPartySales.class)))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+        when(paymentService.clonePayments(anySet(), any(ThirdPartySales.class)))
+            .thenReturn(Set.of());
+        when(salesLineService.cloneSalesLine(anySet(), any(ThirdPartySales.class)))
+            .thenReturn(Set.of());
+        when(thirdPartyClientManager.clone(anyList(), any(ThirdPartySales.class)))
+            .thenReturn(List.of());
+
+        thirdPartySaleService.cloneDevis(testSale.getId());
+
+        verify(thirdPartySaleRepository).saveAndFlush(argThat(copy ->
+            copy != testSale && copy.getId().getId() == 22L && copy.getStatut() == SalesStatut.DEVIS
+        ));
+        verify(paymentService).saveAll(Set.of());
+        verify(salesLineService).saveAll(Set.of());
+        verify(thirdPartyClientManager).saveAll(List.of());
+        verify(thirdPartySaleRepository).flush();
+    }
+
+    @Test
+    void createSaleReportsExceededLimit() {
+        ThirdPartySaleDTO dto = new ThirdPartySaleDTO();
+        dto.setCustomerId(1);
+        dto.setNatureVente(NatureVente.ASSURANCE);
+        dto.setSellerId(1);
+        SaleLineDTO line = new SaleLineDTO();
+        line.setProduitId(1);
+        dto.setSalesLines(List.of(line));
+        dto.setTiersPayants(new ArrayList<>());
+        when(assuredCustomerRepository.getReferenceById(1)).thenReturn(testCustomer);
+        when(salesLineService.createSaleLineFromDTO(line, 1)).thenReturn(testSalesLine);
+        when(thirdPartySaleRepository.saveAndFlush(any(ThirdPartySales.class)))
+            .thenReturn(testSale);
+        when(thirdPartyClientManager.saveTiersPayantLines(dto, testSale))
+            .thenReturn("Plafond dépassé");
+
+        assertThrows(PlafondVenteException.class,
+            () -> thirdPartySaleService.createSale(dto));
+    }
+
+    @Test
+    void cancelSaleRejectsCanceledAndInvoicedSales() {
+        when(thirdPartySaleRepository.findByIdAndSaleDate(1L, testDate))
+            .thenReturn(Optional.of(testSale));
+        testSale.setCanceled(true);
+        assertThrows(GenericError.class,
+            () -> thirdPartySaleService.cancelSale(testSale.getId(), null));
+
+        testSale.setCanceled(false);
+        testSale.setStatut(SalesStatut.CLOSED);
+        testThirdPartySaleLine.setFactureTiersPayant(new FactureTiersPayant());
+        assertThrows(GenericError.class,
+            () -> thirdPartySaleService.cancelSale(testSale.getId(), null));
+    }
+
+    @Test
+    void putOnHoldDeletesSaleWithoutLines() {
+        testSale.setSalesLines(new HashSet<>());
+        ThirdPartySaleDTO dto = new ThirdPartySaleDTO();
+        dto.setId(1L);
+        when(thirdPartySaleRepository.findOneById(1L)).thenReturn(testSale);
+
+        ResponseDTO result = thirdPartySaleService.putThirdPartySaleOnHold(dto);
+
+        assertTrue(result.isSuccess());
+        verify(thirdPartySaleRepository).delete(testSale);
+        verify(thirdPartySaleRepository, never()).save(testSale);
+    }
+
+    @Test
+    void addThirdPartyLineReportsExceededLimit() {
+        ClientTiersPayantDTO dto = new ClientTiersPayantDTO();
+        SaleId saleId = testSale.getId();
+        when(thirdPartySaleRepository.getReferenceById(saleId)).thenReturn(testSale);
+        when(thirdPartyClientManager.addThirdPartySaleLineToSales(dto, saleId))
+            .thenReturn("Plafond dépassé");
+
+        assertThrows(PlafondVenteException.class,
+            () -> thirdPartySaleService.addThirdPartySaleLineToSales(dto, saleId));
+    }
+
+    @Test
+    void updateTransformedSaleReportsExceededLimit() {
+        ThirdPartySaleDTO dto = new ThirdPartySaleDTO();
+        dto.setSaleId(testSale.getId());
+        dto.setCustomerId(1);
+        when(thirdPartySaleRepository.getReferenceById(testSale.getId())).thenReturn(testSale);
+        when(assuredCustomerRepository.getReferenceById(1)).thenReturn(testCustomer);
+        when(thirdPartyCalculationManager.reComputeAndApplyAmounts(testSale, null, true))
+            .thenReturn("Plafond dépassé");
+
+        assertThrows(PlafondVenteException.class,
+            () -> thirdPartySaleService.updateTransformedSale(dto));
+    }
+
+    @Test
+    void delegatesAmountRecomputationsAfterApplyingDiscount() {
+        when(thirdPartyCalculationManager.computeThirdPartySaleAmounts(testSale))
+            .thenReturn("message");
+
+        assertEquals("message", thirdPartySaleService.computeThirdPartySaleAmounts(testSale));
+        thirdPartySaleService.upddateSaleAmountsOnRemovingItem(testSale);
+
+        verify(thirdPartyCalculationManager).computeThirdPartySaleAmounts(testSale);
+        verify(thirdPartyCalculationManager).upddateSaleAmountsOnRemovingItem(testSale);
+    }
+
+    @Test
+    void createSaleRejectsMissingCustomer() {
+        ThirdPartySaleDTO dto = new ThirdPartySaleDTO();
+        SaleLineDTO line = new SaleLineDTO();
+        dto.setSalesLines(List.of(line));
+        when(salesLineService.createSaleLineFromDTO(line, 1)).thenReturn(testSalesLine);
+
+        assertThrows(GenericError.class, () -> thirdPartySaleService.createSale(dto));
+    }
+
+    @Test
+    void changeCustomerReportsExceededLimit() {
+        AssuredCustomer replacement = new AssuredCustomer();
+        replacement.setId(2);
+        when(thirdPartySaleRepository.getReferenceById(testSale.getId())).thenReturn(testSale);
+        when(assuredCustomerRepository.getReferenceById(2)).thenReturn(replacement);
+        when(thirdPartyClientManager.saveTiersPayantLinesOnChangeCustomer(testSale))
+            .thenReturn("Plafond dépassé");
+
+        assertThrows(PlafondVenteException.class,
+            () -> thirdPartySaleService.changeCustomer(new UpdateSaleInfo(testSale.getId(), 2)));
+    }
+
+    @Test
+    void savePreventeRejectsDuplicateBonAndSortsSeveralPayers() {
+        ThirdPartySaleDTO duplicateDto = new ThirdPartySaleDTO();
+        duplicateDto.setSaleId(testSale.getId());
+        ClientTiersPayantDTO duplicate = new ClientTiersPayantDTO();
+        duplicate.setId(1);
+        duplicate.setNumBon("DUPLICATE");
+        duplicateDto.setTiersPayants(new ArrayList<>(List.of(duplicate)));
+        testSale.setStatut(SalesStatut.PROCESSING);
+        when(thirdPartySaleRepository.findOneWithEagerSalesLines(1L, testDate))
+            .thenReturn(Optional.of(testSale));
+        when(thirdPartyClientManager.findAllBySaleId(testSale.getId()))
+            .thenReturn(List.of(testThirdPartySaleLine));
+        when(thirdPartyClientManager.checkIfNumBonIsAlReadyUse("DUPLICATE", 1, 1L))
+            .thenReturn(true);
+        assertThrows(NumBonAlreadyUseException.class,
+            () -> thirdPartySaleService.savePrevente(duplicateDto, true));
+
+        ClientTiersPayant secondClient = new ClientTiersPayant();
+        secondClient.setId(2);
+        secondClient.setPriorite(PrioriteTiersPayant.R1);
+        ThirdPartySaleLine secondLine = new ThirdPartySaleLine();
+        secondLine.setId(2L);
+        secondLine.setSaleDate(testDate);
+        secondLine.setSale(testSale);
+        secondLine.setClientTiersPayant(secondClient);
+        secondLine.setNumBon("SECOND");
+        testThirdPartySaleLine.setNumBon("FIRST");
+        testSale.setThirdPartySaleLines(new ArrayList<>(List.of(secondLine, testThirdPartySaleLine)));
+        testSale.setStatut(SalesStatut.PROCESSING);
+        ThirdPartySaleDTO validDto = new ThirdPartySaleDTO();
+        validDto.setSaleId(testSale.getId());
+        validDto.setTiersPayants(new ArrayList<>());
+        when(thirdPartyClientManager.findAllBySaleId(testSale.getId()))
+            .thenReturn(List.of(secondLine, testThirdPartySaleLine));
+
+        thirdPartySaleService.savePrevente(validDto, false);
+
+        assertEquals("FIRST", testSale.getNumBon());
+    }
+
+    @Test
+    void editSaleRejectsDuplicateBonAndSortsSeveralPayers() {
+        ThirdPartySaleDTO duplicateDto = finalizedDto("DUPLICATE");
+        when(thirdPartySaleRepository.findOneWithEagerSalesLines(1L, testDate))
+            .thenReturn(Optional.of(testSale));
+        when(thirdPartyClientManager.findAllBySaleId(testSale.getId()))
+            .thenReturn(List.of(testThirdPartySaleLine));
+        when(thirdPartyClientManager.checkIfNumBonIsAlReadyUse("DUPLICATE", 1, 1L))
+            .thenReturn(true);
+        assertThrows(NumBonAlreadyUseException.class,
+            () -> thirdPartySaleService.editSale(duplicateDto));
+
+        ClientTiersPayant secondClient = new ClientTiersPayant();
+        secondClient.setId(2);
+        secondClient.setPriorite(PrioriteTiersPayant.R1);
+        ThirdPartySaleLine secondLine = new ThirdPartySaleLine();
+        secondLine.setId(2L);
+        secondLine.setSaleDate(testDate);
+        secondLine.setSale(testSale);
+        secondLine.setClientTiersPayant(secondClient);
+        secondLine.setNumBon("SECOND");
+        testThirdPartySaleLine.setNumBon("FIRST");
+        testSale.setThirdPartySaleLines(new ArrayList<>(List.of(secondLine, testThirdPartySaleLine)));
+        ThirdPartySaleDTO validDto = finalizedDto("FIRST");
+        ClientTiersPayantDTO secondDto = new ClientTiersPayantDTO();
+        secondDto.setId(2);
+        secondDto.setNumBon("SECOND");
+        validDto.setTiersPayants(new ArrayList<>(List.of(validDto.getTiersPayants().getFirst(), secondDto)));
+        when(thirdPartyClientManager.findAllBySaleId(testSale.getId()))
+            .thenReturn(List.of(testThirdPartySaleLine, secondLine));
+        when(thirdPartyClientManager.checkIfNumBonIsAlReadyUse(anyString(), anyInt(), eq(1L)))
+            .thenReturn(false);
+
+        thirdPartySaleService.editSale(validDto);
+
+        assertEquals("FIRST", testSale.getNumBon());
+    }
+
+    @Test
+    void copyForEditionValidatesStateAndCancelsOriginalAfterClone() throws Exception {
+        when(thirdPartySaleRepository.findByIdAndSaleDate(1L, testDate))
+            .thenReturn(Optional.empty());
+        assertThrows(GenericError.class,
+            () -> thirdPartySaleService.copiePourEdition(testSale.getId()));
+
+        when(thirdPartySaleRepository.findByIdAndSaleDate(1L, testDate))
+            .thenReturn(Optional.of(testSale));
+        testSale.setStatut(SalesStatut.ACTIVE);
+        assertThrows(GenericError.class,
+            () -> thirdPartySaleService.copiePourEdition(testSale.getId()));
+
+        testSale.setStatut(SalesStatut.CLOSED);
+        testSale.setCanceled(true);
+        assertThrows(GenericError.class,
+            () -> thirdPartySaleService.copiePourEdition(testSale.getId()));
+
+        testSale.setCanceled(false);
+        testSale.setPayments(new HashSet<>());
+        testSale.setCostAmount(100);
+        testSale.setHtAmount(1_000);
+        testSale.setPayrollAmount(1_200);
+        testSale.setRestToPay(0);
+        testSale.setAmountToBeTakenIntoAccount(0);
+        testSale.setTaxAmount(200);
+        when(saleIdGeneratorService.nextId()).thenReturn(30L, 31L);
+        when(cashRegisterService.getLastOpiningUserCashRegisterByUser(any()))
+            .thenReturn(new CashRegister());
+        when(appConfigurationService.getCancelSaleMaxDays()).thenReturn(30);
+        when(thirdPartySaleRepository.saveAndFlush(any(ThirdPartySales.class)))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+        when(paymentService.clonePayments(anySet(), any(ThirdPartySales.class))).thenReturn(Set.of());
+        when(salesLineService.cloneSalesLine(anySet(), any(ThirdPartySales.class))).thenReturn(Set.of());
+        when(thirdPartyClientManager.clone(anyList(), any(ThirdPartySales.class))).thenReturn(List.of());
+
+        SaleId copyId = thirdPartySaleService.copiePourEdition(testSale.getId());
+
+        assertEquals(30L, copyId.getId());
+        assertTrue(testSale.isCanceled());
+    }
+
+    @Test
+    void delegatesAuthorization() throws Exception {
+        com.kobe.warehouse.service.dto.UtilisationCleSecuriteDTO dto =
+            new com.kobe.warehouse.service.dto.UtilisationCleSecuriteDTO();
+
+        thirdPartySaleService.authorizeAction(dto);
+
+        verify(utilisationCleSecuriteService).authorizeAction(dto,
+            com.kobe.warehouse.service.sale.ThirdPartySaleService.class);
+    }
+
+    @Test
+    void updateCustomerInformationRejectsMissingLine() {
+        AssuredCustomerDTO customer = new AssuredCustomerDTO();
+        customer.setId(1);
+        customer.setNum("NUM001");
+        ThirdPartySaleLineDTO unknown = new ThirdPartySaleLineDTO();
+        unknown.setAssuranceSaleId(new AssuranceSaleId(99L, testDate));
+        unknown.setTaux((short) 80);
+        UpdateSale update = new UpdateSale(testSale.getId(), customer, null, Set.of(unknown),
+            new HashMap<>(), new HashMap<>());
+        testThirdPartySaleLine.setSaleDate(testDate);
+        when(thirdPartySaleRepository.getReferenceById(testSale.getId())).thenReturn(testSale);
+
+        assertThrows(GenericError.class,
+            () -> thirdPartySaleService.updateCustomerInformation(update));
+    }
+
+    @Test
+    void updateCustomerInformationCanReplaceLinePayer() throws Exception {
+        AssuredCustomerDTO customer = new AssuredCustomerDTO();
+        customer.setId(1);
+        customer.setNum("NUM001");
+        ThirdPartySaleLineDTO changed = new ThirdPartySaleLineDTO();
+        changed.setAssuranceSaleId(new AssuranceSaleId(1L, testDate));
+        changed.setTaux((short) 80);
+        changed.setClientTiersPayantId(2);
+        changed.setNumBon("NEW-BON");
+        UpdateSale update = new UpdateSale(testSale.getId(), customer, null, Set.of(changed),
+            new HashMap<>(), new HashMap<>());
+        ClientTiersPayant replacement = new ClientTiersPayant();
+        replacement.setId(2);
+        replacement.setPriorite(PrioriteTiersPayant.R1);
+        testThirdPartySaleLine.setSaleDate(testDate);
+        when(thirdPartySaleRepository.getReferenceById(testSale.getId())).thenReturn(testSale);
+        when(clientTiersPayantRepository.getReferenceById(2)).thenReturn(replacement);
+        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+
+        thirdPartySaleService.updateCustomerInformation(update);
+
+        assertSame(replacement, testThirdPartySaleLine.getClientTiersPayant());
+        assertEquals("NEW-BON", testThirdPartySaleLine.getNumBon());
+    }
+
+    @Test
+    void transformDevisClonesAndDeletesOriginalCollections() {
+        testSale.setStatut(SalesStatut.DEVIS);
+        testSale.setNatureVente(NatureVente.CARNET);
+        testSale.setPayments(new HashSet<>());
+        when(thirdPartySaleRepository.findByIdAndSaleDate(1L, testDate))
+            .thenReturn(Optional.of(testSale));
+        when(saleIdGeneratorService.nextId()).thenReturn(40L);
+        when(thirdPartySaleRepository.saveAndFlush(any(ThirdPartySales.class)))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+        when(paymentService.clonePayments(anySet(), any(ThirdPartySales.class))).thenReturn(Set.of());
+        when(salesLineService.cloneSalesLine(anySet(), any(ThirdPartySales.class))).thenReturn(Set.of());
+        when(thirdPartyClientManager.clone(anyList(), any(ThirdPartySales.class))).thenReturn(List.of());
+
+        SaleId result = thirdPartySaleService.transformToVenteEncour(testSale.getId());
+
+        assertEquals(40L, result.getId());
+        verify(salesLineService).deleteSaleLine(testSalesLine);
+        verify(thirdPartySaleLineService).delete(testThirdPartySaleLine);
+        verify(thirdPartySaleRepository).delete(testSale);
+    }
+
+    @Test
+    void transformAndCloneDevisReportLookupAndStateErrors() {
+        when(thirdPartySaleRepository.findByIdAndSaleDate(1L, testDate))
+            .thenReturn(Optional.empty());
+        assertThrows(GenericError.class,
+            () -> thirdPartySaleService.transformToVenteEncour(testSale.getId()));
+        assertThrows(GenericError.class,
+            () -> thirdPartySaleService.cloneDevis(testSale.getId()));
+
+        when(thirdPartySaleRepository.findByIdAndSaleDate(1L, testDate))
+            .thenReturn(Optional.of(testSale));
+        testSale.setStatut(SalesStatut.ACTIVE);
+        assertThrows(GenericError.class,
+            () -> thirdPartySaleService.cloneDevis(testSale.getId()));
+    }
+
+    private ThirdPartySaleDTO finalizedDto(String numBon) {
+        ThirdPartySaleDTO dto = new ThirdPartySaleDTO();
+        dto.setSaleId(testSale.getId());
+        dto.setAmountToBePaid(1_200);
+        dto.setPayrollAmount(1_200);
+        dto.setRestToPay(0);
+        ClientTiersPayantDTO payer = new ClientTiersPayantDTO();
+        payer.setId(1);
+        payer.setNumBon(numBon);
+        dto.setTiersPayants(new ArrayList<>(List.of(payer)));
+        return dto;
     }
 
 }

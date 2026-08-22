@@ -37,10 +37,6 @@ export type AppKpiAccent = 'primary' | 'success' | 'danger' | 'warning' | 'info'
   template: `
     <div [class]="stripClasses()">
       @if (loading()) {
-        <!--
-          Dimensions reprises telles quelles du markup d'origine, pour que la bascule
-          chargement → données ne provoque aucun saut de mise en page.
-        -->
         @for (i of skeletonSlots(); track i) {
           <div class="kpi-strip-item">
             <app-skeleton [shape]="'circle'" size="1.5rem" />

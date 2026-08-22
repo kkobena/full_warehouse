@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 
 import { LicenseService } from 'app/core/license/license.service';
-import { ALL_FEATURES } from 'app/core/license/license.model';
 
 /**
  * Page affichée lorsqu'un module n'est pas couvert par l'abonnement.
@@ -56,6 +55,6 @@ export default class FeatureNotIncludedComponent {
 
   protected readonly moduleLabel = computed(() => {
     const code = this.module();
-    return ALL_FEATURES.find(feature => feature.code === code)?.label ?? (code || 'demandé');
+    return this.licenseService.features().find(feature => feature.code === code)?.label ?? (code || 'demandé');
   });
 }

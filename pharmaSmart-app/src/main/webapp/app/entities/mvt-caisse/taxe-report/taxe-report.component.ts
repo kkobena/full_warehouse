@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnInit, ChangeDetectionStrategy, input, computed } from '@angular/core';
 import { TypeFinancialTransaction } from "../../cash-register/model/cash-register.model";
 import { HttpResponse } from "@angular/common/http";
 import { TaxeReportService } from "./taxe-report.service";
@@ -17,6 +17,8 @@ import { BlobDownloadService } from "../../../shared/services/blob-download.serv
 import { NgbDateStruct, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { ButtonComponent, SelectComponent, ToolbarComponent } from "../../../shared/ui";
 import { PharmaDatePickerComponent } from "../../../shared/date-picker/pharma-date-picker.component";
+import { ModeCa, ModeCaService } from '../mode-ca';
+
 @Component({
   selector: "app-taxe-report",
   imports: [
@@ -34,6 +36,15 @@ import { PharmaDatePickerComponent } from "../../../shared/date-picker/pharma-da
   styleUrls: ["./taxe-report.component.scss"]
 })
 export class TaxeReportComponent implements OnInit {
+  /**
+   * Mode imposé par l'écran appelant. Laissé vide, il est déduit de la licence : le chiffre déclaré
+   * n'a de sens que si l'officine a souscrit au moins un module de retraitement.
+   */
+  readonly mode = input<ModeCa | null>(null);
+
+  private readonly modeCaService = inject(ModeCaService);
+
+  protected readonly modeEffectif = computed<ModeCa>(() => this.mode() ?? this.modeCaService.modeComptabilite());
   protected fromDate: NgbDateStruct | null = null;
   protected toDate: NgbDateStruct | null = null;
   protected loading = false;
@@ -136,6 +147,7 @@ export class TaxeReportComponent implements OnInit {
 
   private buildParams(): any {
     return {
+      mode: this.modeEffectif(),
       fromDate: this.fromDate ? NGB_DATE_TO_ISO(this.fromDate) : null,
       toDate: this.toDate ? NGB_DATE_TO_ISO(this.toDate) : null,
       typeVentes: getTypeVentes(this.selectedVente),

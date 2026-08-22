@@ -1,6 +1,7 @@
 import { Routes } from "@angular/router";
 import { AuthGuard } from "../core/auth/auth.guard";
 import { licenseWriteGuard } from "../core/license/license-write.guard";
+import { licenseFeatureGuard } from "../core/license/license-feature.guard";
 
 const routes: Routes = [
 
@@ -254,6 +255,20 @@ const routes: Routes = [
     data: { pageTitle: "Comptabilité", abilitySubject: "comptabilite" },
     canActivate: [AuthGuard],
     loadChildren: () => import("../features/comptabilite/comptabilite.routes")
+  },
+
+  // ── Retraitement du CA (ABAC) ──────────────────────────────────────────────
+  {
+    path: "declaration-ca",
+    // Une seule des quatre options suffit à ouvrir le module : chaque onglet reste filtré par son
+    // propre required_feature. Sans cette garde, une URL collée menait à un écran sans onglet.
+    data: {
+      pageTitle: "Retraitement du CA",
+      abilitySubject: "declaration-ca",
+      features: ["EXCLUSION_RAYON", "EXCLUSION_TP", "EXCLUSION_UG", "CALLEBASSE"]
+    },
+    canActivate: [AuthGuard, licenseFeatureGuard],
+    loadChildren: () => import("../features/declaration-ca/declaration-ca.routes")
   }
 ];
 

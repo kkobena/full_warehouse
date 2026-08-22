@@ -1,0 +1,4 @@
+// Patron maitre / detail partage, comme l'historique des ponctions : le redefinir ici le ferait
+// diverger des autres ecrans a deux colonnes de l'application.
+@use 'app/shared/scss/split-panel' as *;
+@use 'app/shared/scss/table-common' as *;

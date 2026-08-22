@@ -5,8 +5,8 @@ import static com.kobe.warehouse.service.financiel_transaction.TableauPharmacien
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
-import com.kobe.warehouse.domain.GroupeFournisseur;
-import com.kobe.warehouse.repository.GroupeFournisseurRepository;
+import com.kobe.warehouse.domain.Fournisseur;
+import com.kobe.warehouse.repository.FournisseurRepository;
 import com.kobe.warehouse.service.dto.GroupeFournisseurDTO;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,8 +21,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class GroupeFournisseurManagerTest {
 
+    // Depuis la fusion des groupes et des fournisseurs, un « groupe » est un fournisseur sans
+    // parent : le manager interroge FournisseurRepository, plus GroupeFournisseurRepository.
     @Mock
-    private GroupeFournisseurRepository groupeFournisseurRepository;
+    private FournisseurRepository fournisseurRepository;
 
     @InjectMocks
     private GroupeFournisseurManager groupeFournisseurManager;
@@ -31,8 +33,8 @@ class GroupeFournisseurManagerTest {
 
     @Test
     void testGetDisplayedSupplierGroups_lessThanMaxGroups() {
-        List<GroupeFournisseur> groups = createGroupeFournisseurs(3);
-        when(groupeFournisseurRepository.findAllByOrderByOdreAsc()).thenReturn(groups);
+        List<Fournisseur> groups = fournisseursPrincipaux(3);
+        when(fournisseurRepository.findByParentIsNullOrderByOdreAsc()).thenReturn(groups);
 
         List<GroupeFournisseurDTO> result = groupeFournisseurManager.getDisplayedSupplierGroups();
 
@@ -45,8 +47,8 @@ class GroupeFournisseurManagerTest {
 
     @Test
     void testGetDisplayedSupplierGroups_equalToMaxGroups() {
-        List<GroupeFournisseur> groups = createGroupeFournisseurs(MAX_DISPLAYED_GROUPS);
-        when(groupeFournisseurRepository.findAllByOrderByOdreAsc()).thenReturn(groups);
+        List<Fournisseur> groups = fournisseursPrincipaux(MAX_DISPLAYED_GROUPS);
+        when(fournisseurRepository.findByParentIsNullOrderByOdreAsc()).thenReturn(groups);
 
         List<GroupeFournisseurDTO> result = groupeFournisseurManager.getDisplayedSupplierGroups();
 
@@ -56,8 +58,8 @@ class GroupeFournisseurManagerTest {
 
     @Test
     void testGetDisplayedSupplierGroups_moreThanMaxGroups() {
-        List<GroupeFournisseur> groups = createGroupeFournisseurs(6); // More than MAX_DISPLAYED_GROUPS (4)
-        when(groupeFournisseurRepository.findAllByOrderByOdreAsc()).thenReturn(groups);
+        List<Fournisseur> groups = fournisseursPrincipaux(6); // More than MAX_DISPLAYED_GROUPS (4)
+        when(fournisseurRepository.findByParentIsNullOrderByOdreAsc()).thenReturn(groups);
 
         List<GroupeFournisseurDTO> result = groupeFournisseurManager.getDisplayedSupplierGroups();
 
@@ -84,7 +86,7 @@ class GroupeFournisseurManagerTest {
 
     @Test
     void testGetDisplayedSupplierGroups_emptyList() {
-        when(groupeFournisseurRepository.findAllByOrderByOdreAsc()).thenReturn(new ArrayList<>());
+        when(fournisseurRepository.findByParentIsNullOrderByOdreAsc()).thenReturn(new ArrayList<>());
 
         List<GroupeFournisseurDTO> result = groupeFournisseurManager.getDisplayedSupplierGroups();
 
@@ -93,12 +95,12 @@ class GroupeFournisseurManagerTest {
 
     @Test
     void testGetDisplayedSupplierGroups_sortedByOdre() {
-        List<GroupeFournisseur> groups = new ArrayList<>();
-        groups.add(createGroupeFournisseur(3, "Supplier C", 30));
-        groups.add(createGroupeFournisseur(1, "Supplier A", 10));
-        groups.add(createGroupeFournisseur(2, "Supplier B", 20));
+        List<Fournisseur> groups = new ArrayList<>();
+        groups.add(fournisseurPrincipal(3, "Supplier C", 30));
+        groups.add(fournisseurPrincipal(1, "Supplier A", 10));
+        groups.add(fournisseurPrincipal(2, "Supplier B", 20));
 
-        when(groupeFournisseurRepository.findAllByOrderByOdreAsc()).thenReturn(groups);
+        when(fournisseurRepository.findByParentIsNullOrderByOdreAsc()).thenReturn(groups);
 
         List<GroupeFournisseurDTO> result = groupeFournisseurManager.getDisplayedSupplierGroups();
 
@@ -110,8 +112,8 @@ class GroupeFournisseurManagerTest {
 
     @Test
     void testGetDisplayedSupplierGroups_othersGroupHasCorrectOrder() {
-        List<GroupeFournisseur> groups = createGroupeFournisseurs(6);
-        when(groupeFournisseurRepository.findAllByOrderByOdreAsc()).thenReturn(groups);
+        List<Fournisseur> groups = fournisseursPrincipaux(6);
+        when(fournisseurRepository.findByParentIsNullOrderByOdreAsc()).thenReturn(groups);
 
         List<GroupeFournisseurDTO> result = groupeFournisseurManager.getDisplayedSupplierGroups();
 
@@ -127,8 +129,8 @@ class GroupeFournisseurManagerTest {
 
     @Test
     void testGetDisplayedGroupIds_lessThanMaxGroups() {
-        List<GroupeFournisseur> groups = createGroupeFournisseurs(3);
-        when(groupeFournisseurRepository.findAllByOrderByOdreAsc()).thenReturn(groups);
+        List<Fournisseur> groups = fournisseursPrincipaux(3);
+        when(fournisseurRepository.findByParentIsNullOrderByOdreAsc()).thenReturn(groups);
 
         Set<Integer> result = groupeFournisseurManager.getDisplayedGroupIds();
 
@@ -141,8 +143,8 @@ class GroupeFournisseurManagerTest {
 
     @Test
     void testGetDisplayedGroupIds_moreThanMaxGroups() {
-        List<GroupeFournisseur> groups = createGroupeFournisseurs(6);
-        when(groupeFournisseurRepository.findAllByOrderByOdreAsc()).thenReturn(groups);
+        List<Fournisseur> groups = fournisseursPrincipaux(6);
+        when(fournisseurRepository.findByParentIsNullOrderByOdreAsc()).thenReturn(groups);
 
         Set<Integer> result = groupeFournisseurManager.getDisplayedGroupIds();
 
@@ -159,7 +161,7 @@ class GroupeFournisseurManagerTest {
 
     @Test
     void testGetDisplayedGroupIds_emptyList() {
-        when(groupeFournisseurRepository.findAllByOrderByOdreAsc()).thenReturn(new ArrayList<>());
+        when(fournisseurRepository.findByParentIsNullOrderByOdreAsc()).thenReturn(new ArrayList<>());
 
         Set<Integer> result = groupeFournisseurManager.getDisplayedGroupIds();
 
@@ -168,8 +170,8 @@ class GroupeFournisseurManagerTest {
 
     @Test
     void testGetDisplayedGroupIds_excludesOthersGroupId() {
-        List<GroupeFournisseur> groups = createGroupeFournisseurs(6);
-        when(groupeFournisseurRepository.findAllByOrderByOdreAsc()).thenReturn(groups);
+        List<Fournisseur> groups = fournisseursPrincipaux(6);
+        when(fournisseurRepository.findByParentIsNullOrderByOdreAsc()).thenReturn(groups);
 
         Set<Integer> result = groupeFournisseurManager.getDisplayedGroupIds();
 
@@ -184,19 +186,19 @@ class GroupeFournisseurManagerTest {
 
     // ===== Helper Methods =====
 
-    private List<GroupeFournisseur> createGroupeFournisseurs(int count) {
-        List<GroupeFournisseur> groups = new ArrayList<>();
+    private List<Fournisseur> fournisseursPrincipaux(int count) {
+        List<Fournisseur> groups = new ArrayList<>();
         for (int i = 1; i <= count; i++) {
-            groups.add(createGroupeFournisseur(i, "Supplier " + i, i * 10));
+            groups.add(fournisseurPrincipal(i, "Supplier " + i, i * 10));
         }
         return groups;
     }
 
-    private GroupeFournisseur createGroupeFournisseur(int id, String libelle, int ordre) {
-        GroupeFournisseur groupe = new GroupeFournisseur();
-        groupe.setId(id);
-        groupe.setLibelle(libelle);
-        groupe.setOdre(ordre);
-        return groupe;
+    private Fournisseur fournisseurPrincipal(int id, String libelle, int ordre) {
+        Fournisseur fournisseur = new Fournisseur();
+        fournisseur.setId(id);
+        fournisseur.setLibelle(libelle);
+        fournisseur.setOdre(ordre);
+        return fournisseur;
     }
 }

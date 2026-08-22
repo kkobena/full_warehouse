@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy, input, computed } from '@angular/core';
 import { TableauPharmacienService } from './tableau-pharmacien.service';
 import { HttpResponse } from '@angular/common/http';
 import { FORMAT_ISO_DATE_TO_STRING_FR, NGB_DATE_TO_ISO } from '../../../shared/util/warehouse-util';
@@ -21,6 +21,8 @@ import { NgbDateStruct, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { AppSplitButtonItem, ButtonComponent, SplitButtonComponent, ToolbarComponent } from '../../../shared/ui';
 import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
 
+import { ModeCa, ModeCaService } from '../mode-ca';
+
 @Component({
   selector: 'app-tableau-pharmacien',
   imports: [
@@ -38,6 +40,15 @@ import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-da
   styleUrls: ['./tableau-pharmacien.component.scss'],
 })
 export class TableauPharmacienComponent implements OnInit {
+  /**
+   * Mode imposé par l'écran appelant. Laissé vide, il est déduit de la licence : le chiffre déclaré
+   * n'a de sens que si l'officine a souscrit au moins un module de retraitement.
+   */
+  readonly mode = input<ModeCa | null>(null);
+
+  private readonly modeCaService = inject(ModeCaService);
+
+  protected readonly modeEffectif = computed<ModeCa>(() => this.mode() ?? this.modeCaService.modeComptabilite());
   protected exportMenus: AppSplitButtonItem[];
   protected fromDate: NgbDateStruct | null = null;
   protected groupBy = 'daily';
@@ -181,6 +192,7 @@ export class TableauPharmacienComponent implements OnInit {
 
   private buildParams(): any {
     return {
+      mode: this.modeEffectif(),
       fromDate: this.fromDate ? NGB_DATE_TO_ISO(this.fromDate) : null,
       toDate: this.toDate ? NGB_DATE_TO_ISO(this.toDate) : null,
       groupBy: this.groupBy,

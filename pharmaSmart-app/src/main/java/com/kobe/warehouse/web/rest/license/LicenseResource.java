@@ -1,6 +1,7 @@
 package com.kobe.warehouse.web.rest.license;
 
 import com.kobe.warehouse.aop.license.LicenseExempt;
+import com.kobe.warehouse.license.Feature;
 import com.kobe.warehouse.license.LicenseInfo;
 import com.kobe.warehouse.license.LicenseProperties;
 import com.kobe.warehouse.repository.LicenseAuditRepository;
@@ -14,6 +15,8 @@ import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import java.util.Arrays;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -64,6 +67,29 @@ public class LicenseResource {
     public ResponseEntity<LicenseInfo> status() {
         return ResponseEntity.ok(licenseService.currentStatus());
     }
+
+    /**
+     * Catalogue des modules : code, intitulé et caractère optionnel.
+     *
+     * <p>Le navigateur ne doit pas tenir sa propre copie de l'enum {@code Feature}. Celle qui
+     * existait avait déjà divergé — elle omettait les quatre modules optionnels, si bien que
+     * {@code hasFeature()} les considérait tous comme accordés et qu'aucune garde de route ne
+     * bloquait plus rien.
+     *
+     * <p>Ni privilège ni licence valide ne sont exigés : l'écran de licence affiche aussi les
+     * modules <strong>non</strong> souscrits, pour que le client voie ce qu'il peut acheter.
+     */
+    @GetMapping("/features")
+    public ResponseEntity<List<FeatureDTO>> features() {
+        return ResponseEntity.ok(
+            Arrays.stream(Feature.values())
+                .map(feature -> new FeatureDTO(feature.name(), feature.getLibelle(), feature.isOptional()))
+                .toList()
+        );
+    }
+
+    /** Un module du catalogue, tel que l'écran de licence l'affiche. */
+    public record FeatureDTO(String code, String label, boolean optional) {}
 
     /**
      * Coordonnées de l'éditeur, telles que configurées dans {@code application.yml}.

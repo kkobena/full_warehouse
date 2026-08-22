@@ -21,6 +21,7 @@ export * from './float-label/float-label.component';
 export * from './form-field/form-field.component';
 export * from './forms/control-value-accessor.base';
 export * from './forms/key-filter.directive';
+export * from './hint/hint.component';
 export * from './icon-field/icon-field.component';
 export * from './input/input.component';
 export * from './input-number/input-number.component';

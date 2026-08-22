@@ -1,4 +1,5 @@
 import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
+import { HintComponent } from 'app/shared/ui/hint/hint.component';
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { DatePipe, DecimalPipe } from "@angular/common";
@@ -44,6 +45,7 @@ interface IAnneeOption {
 @Component({
   selector: "app-recapitulatif",
   imports: [
+    HintComponent,
     FormsModule,
     DecimalPipe,
     RecapitulatifKpiBannerComponent,
@@ -91,7 +93,6 @@ export class RecapitulatifComponent implements OnInit {
   // Master/detail state
   protected readonly selectedRow = signal<IRecapitulatifMensuelDto | null>(null);
   protected readonly panelOpen = computed(() => this.selectedRow() !== null);
-  protected readonly showHint = signal<boolean>(localStorage.getItem('recapitulatif-hint-dismissed') !== '1');
   protected readonly kpi = computed<IRecapitulatifKpi | null>(() => {
     const data = this.rows();
     if (data.length === 0) return null;
@@ -141,10 +142,6 @@ export class RecapitulatifComponent implements OnInit {
 
   closePanel(): void {
     this.selectedRow.set(null);
-  }
-  dismissHint(): void {
-    localStorage.setItem('recapitulatif-hint-dismissed', '1');
-    this.showHint.set(false);
   }
 
   onExportExcel(): void {

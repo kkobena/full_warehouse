@@ -1,0 +1,241 @@
+<div class="row">
+  <div class="col-lg-3 col-xl-2 col-md-4 col-sm-5">
+    <div class="pharma-nav-sidebar">
+      <div class="pharma-nav-sidebar-card">
+        <div class="pharma-nav-sidebar-header">
+          <i class="pi pi-percentage"></i>
+          <span>Retraitement du CA</span>
+        </div>
+        <div class="pharma-nav-sidebar-content">
+          <div #nav="ngbNav" (activeIdChange)="active.set($event)" [activeId]="active()"
+               class="nav flex-column nav-pills" ngbNav orientation="vertical">
+
+            @if (showRayon()) {
+              <ng-container ngbNavItem="exclusion-rayon">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-th-large"></i>
+                  <span>Rayons</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  @defer (on immediate) {
+                    <app-exclusion-referentiel
+                      [referentiel]="'rayons'"
+                      titre="Exclusion de rayons"
+                      explication="Les ventes des produits rattachés à un rayon exclu ne comptent plus dans le chiffre d'affaires à déclarer." />
+                  } @loading {
+                    <app-skeleton width="100%" height="240px" />
+                  }
+                </ng-template>
+              </ng-container>
+            }
+
+            @if (showTiersPayant()) {
+              <ng-container ngbNavItem="exclusion-tp">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-building"></i>
+                  <span>Tiers-payants</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  @defer (on immediate) {
+                    <app-exclusion-referentiel
+                      [referentiel]="'tiers-payants'"
+                      titre="Exclusion de tiers-payants"
+                      explication="Les ventes relevant d'un tiers-payant exclu sortent entièrement du chiffre d'affaires à déclarer." />
+                  } @loading {
+                    <app-skeleton width="100%" height="240px" />
+                  }
+                </ng-template>
+              </ng-container>
+            }
+
+            @if (showParametres()) {
+              <ng-container ngbNavItem="parametres">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-gift"></i>
+                  <span>Unités gratuites</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  @defer (on immediate) {
+                    <app-exclusion-parametres />
+                  } @loading {
+                    <app-skeleton width="100%" height="160px" />
+                  }
+                </ng-template>
+              </ng-container>
+            }
+
+            @if (showJournalTp()) {
+              <ng-container ngbNavItem="journal-tp">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-building"></i>
+                  <span>Ventes tiers-payant exclues</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  @defer (on immediate) {
+                    <app-journal-tiers-payant />
+                  } @loading {
+                    <app-skeleton width="100%" height="320px" />
+                  }
+                </ng-template>
+              </ng-container>
+            }
+
+            @if (showJournalUg()) {
+              <ng-container ngbNavItem="journal-ug">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-gift"></i>
+                  <span>Unités gratuites vendues</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  @defer (on immediate) {
+                    <app-journal-lignes
+                      [type]="'unites-gratuites'"
+                      titre="Unités gratuites vendues"
+                      explication="Les unités gratuites de ces lignes ont été retirées du chiffre d'affaires à déclarer. Le reste de la ligne y demeure." />
+                  } @loading {
+                    <app-skeleton width="100%" height="320px" />
+                  }
+                </ng-template>
+              </ng-container>
+            }
+
+            @if (showJournalRayon()) {
+              <ng-container ngbNavItem="journal-rayon">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-th-large"></i>
+                  <span>Produits de rayons exclus</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  @defer (on immediate) {
+                    <app-journal-lignes
+                      [type]="'rayons'"
+                      titre="Produits de rayons exclus"
+                      explication="Ces lignes sortent entièrement du chiffre d'affaires à déclarer parce que leur produit relève d'un rayon exclu." />
+                  } @loading {
+                    <app-skeleton width="100%" height="320px" />
+                  }
+                </ng-template>
+              </ng-container>
+            }
+
+
+            @if (showPonction()) {
+              <ng-container ngbNavItem="ponction">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-percentage"></i>
+                  <span>Ponction</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  @defer (on immediate) {
+                    <app-ponction />
+                  } @loading {
+                    <app-skeleton width="100%" height="320px" />
+                  }
+                </ng-template>
+              </ng-container>
+            }
+
+            @if (showHistorique()) {
+              <ng-container ngbNavItem="ponction-historique">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-history"></i>
+                  <span>Historique</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  @defer (on immediate) {
+                    <app-ponction-historique />
+                  } @loading {
+                    <app-skeleton width="100%" height="240px" />
+                  }
+                </ng-template>
+              </ng-container>
+            }
+
+
+            @if (showBalance()) {
+              <ng-container ngbNavItem="balance-reelle">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-calculator"></i>
+                  <span>Balance caisse réelle</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  @defer (on immediate) {
+                    <app-balance-reelle />
+                  } @loading {
+                    <app-skeleton width="100%" height="240px" />
+                  }
+                </ng-template>
+              </ng-container>
+            }
+
+            @if (showTaxeReport()) {
+              <ng-container ngbNavItem="taxe-report-reel">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-file-pdf"></i>
+                  <span>Rapport TVA réel</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  @defer (on immediate) {
+                    <app-taxe-report-reel />
+                  } @loading {
+                    <app-skeleton width="100%" height="240px" />
+                  }
+                </ng-template>
+              </ng-container>
+            }
+
+            @if (showTableau()) {
+              <ng-container ngbNavItem="tableau-pharmacien-reel">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-table"></i>
+                  <span>Tableau pharmacien réel</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  @defer (on immediate) {
+                    <app-tableau-pharmacien-reel />
+                  } @loading {
+                    <app-skeleton width="100%" height="240px" />
+                  }
+                </ng-template>
+              </ng-container>
+            }
+
+
+            @if (showAudit()) {
+              <ng-container ngbNavItem="audit">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-shield"></i>
+                  <span>Contrôle de cohérence</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  @defer (on immediate) {
+                    <app-audit-declaration-ca />
+                  } @loading {
+                    <app-skeleton width="100%" height="200px" />
+                  }
+                </ng-template>
+              </ng-container>
+            }
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-9 col-xl-10 col-md-8 col-sm-7 pharma-smart-content p-1">
+    <div [ngbNavOutlet]="nav"></div>
+  </div>
+</div>

@@ -1,0 +1,4 @@
+// Le patron maître / détail est partagé : le redéfinir ici le ferait diverger de l'écran des
+// produits, qui sert de référence visuelle.
+@use 'app/shared/scss/split-panel' as *;
+@use 'app/shared/scss/table-common' as *;

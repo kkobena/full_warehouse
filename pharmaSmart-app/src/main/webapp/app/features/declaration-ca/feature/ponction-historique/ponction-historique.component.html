@@ -1,0 +1,145 @@
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <div>
+    <h5 class="mb-1">Historique des ponctions</h5>
+    <p class="text-muted small mb-0">
+      Chaque ponction reste réversible pendant le délai configuré. L'annulation rétablit exactement
+      les montants d'origine, et libère la période.
+    </p>
+  </div>
+  <app-button
+    label="Actualiser"
+    icon="pi pi-refresh"
+    severity="secondary"
+    [outlined]="true"
+    [disabled]="chargement()"
+    (click)="charger()"
+  />
+</div>
+
+<!-- Hint premier usage : masqué dès qu'un détail est ouvert, le conseil n'ayant alors plus d'objet -->
+<app-hint storageKey="ponction-historique" [visible]="!panelOpen()">
+  Cliquez sur une ponction pour afficher le détail des ventes touchées, vente par vente.
+</app-hint>
+
+<!-- Split panel : la liste à gauche, le détail de la ponction sélectionnée à droite -->
+<div [class.panel-open]="panelOpen()" class="split-container">
+  <div class="list-column">
+    <app-data-table
+      [value]="ponctions()"
+      [loading]="chargement()"
+      size="small"
+      [stripedRows]="true"
+      dataKey="id"
+      selectionMode="single"
+      [selection]="selection()"
+      (selectionChange)="onSelection($any($event))"
+      emptyMessage="Aucune ponction enregistrée"
+    >
+      <ng-template #header>
+        <tr>
+          <th>Période</th>
+          <th>Saisie</th>
+          <th class="text-end">CA réel</th>
+          <th class="text-end">CA déclaré</th>
+          <th class="text-end">Ponctionné</th>
+          <th class="text-end">Taux effectif</th>
+          <th style="width: 8rem">Statut</th>
+          <th>Auteur</th>
+          <th style="width: 14rem"></th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-ponction>
+        <tr>
+          <td>{{ ponction.dateDebut }} → {{ ponction.dateFin }}</td>
+          <td class="small text-muted">
+            {{ ponction.valeurSaisie }}{{ ponction.modeCalcul === 'POURCENTAGE' ? ' %' : ' F' }} · plafond
+            {{ ponction.plafondParVente }} %
+          </td>
+          <td class="text-end">{{ ponction.caReel | number }}</td>
+          <td class="text-end">{{ ponction.caDeclare | number }}</td>
+          <td class="text-end fw-semibold">{{ ponction.montantPonctionne | number }}</td>
+          <td class="text-end">{{ tauxEffectif(ponction) }}</td>
+          <td><app-badge [label]="ponction.statut" [severity]="severite(ponction.statut)" /></td>
+          <td class="small text-muted">{{ ponction.auteur }}</td>
+          <td class="text-end">
+            <app-button
+              label="Justificatif"
+              icon="pi pi-file-pdf"
+              severity="secondary"
+              [text]="true"
+              (click)="imprimer(ponction, $event)"
+            />
+            @if (annulable(ponction.statut)) {
+              <app-button
+                label="Annuler"
+                icon="pi pi-undo"
+                severity="danger"
+                [text]="true"
+                [disabled]="chargement()"
+                (click)="demanderAnnulation(ponction, $event)"
+              />
+            }
+          </td>
+        </tr>
+      </ng-template>
+    </app-data-table>
+  </div>
+
+  @if (panelOpen()) {
+    <div class="detail-column">
+      <app-card [withHeader]="true" header="Détail de la ponction" icon="pi pi-list" class="d-block">
+        <div cardActions>
+          <app-button
+            icon="pi pi-times"
+            severity="secondary"
+            [text]="true"
+            [iconOnly]="true"
+            label="Fermer"
+            (click)="fermerDetail()"
+          />
+        </div>
+
+        <p class="text-muted small">
+          {{ selection()!.dateDebut }} → {{ selection()!.dateFin }} ·
+          {{ selection()!.nombreVentes | number }} vente(s) ·
+          {{ selection()!.montantPonctionne | number }} F retirés
+        </p>
+
+        @if (selection()!.commentaire) {
+          <p class="small fst-italic">« {{ selection()!.commentaire }} »</p>
+        }
+
+        <app-data-table
+          [value]="detail()"
+          [loading]="chargementDetail()"
+          size="small"
+          [scrollable]="true"
+          scrollHeight="calc(100vh - 24rem)"
+          emptyMessage="Aucune vente dans le détail"
+        >
+          <ng-template #header>
+            <tr>
+              <th style="width: 3rem">#</th>
+              <th>Transaction</th>
+              <th style="width: 7rem">Date</th>
+              <th class="text-end">Vente</th>
+              <th class="text-end">Dont exonéré</th>
+              <th class="text-end">Ponctionné</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-ligne>
+            <tr>
+              <td class="text-muted">{{ ligne.rang }}</td>
+              <td>{{ ligne.numeroTransaction }}</td>
+              <td>{{ ligne.saleDate }}</td>
+              <td class="text-end">{{ ligne.montantVente | number }}</td>
+              <td class="text-end text-muted">{{ ligne.montantBase | number }}</td>
+              <td class="text-end fw-semibold">{{ ligne.montantPonctionne | number }}</td>
+            </tr>
+          </ng-template>
+        </app-data-table>
+      </app-card>
+    </div>
+  }
+</div>

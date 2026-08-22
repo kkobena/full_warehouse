@@ -4,7 +4,7 @@ import { catchError, map, Observable, of, tap } from 'rxjs';
 
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
 import { NotificationService } from 'app/shared/services/notification.service';
-import { LicenseAuditEntry, LicenseInfo, OPTIONAL_FEATURES, PublisherContacts } from './license.model';
+import { FeatureInfo, LicenseAuditEntry, LicenseInfo, PublisherContacts } from './license.model';
 
 /**
  * État de licence partagé par la bannière, l'écran d'activation et les gardes de route.
@@ -22,6 +22,16 @@ export class LicenseService {
   private readonly notification = inject(NotificationService);
 
   private readonly _license = signal<LicenseInfo | null>(null);
+
+  /** Catalogue des modules, servi par le backend. Vide tant qu'il n'a pas été chargé. */
+  private readonly _features = signal<readonly FeatureInfo[]>([]);
+
+  readonly features = this._features.asReadonly();
+
+  /** Modules exigeant une souscription explicite — déduits du catalogue, jamais recopiés. */
+  private readonly optionalCodes = computed(
+    () => new Set(this._features().filter(feature => feature.optional).map(feature => feature.code)),
+  );
 
   readonly license = this._license.asReadonly();
 
@@ -47,7 +57,9 @@ export class LicenseService {
    * Statut non chargé ⇒ tout est accordé : le serveur reste seul juge et opposera un 402.
    */
   hasFeature(feature: string): boolean {
-    if (!OPTIONAL_FEATURES.has(feature)) {
+    const optionnels = this.optionalCodes();
+    // Catalogue pas encore chargé : on ne restreint rien — le serveur reste seul juge.
+    if (optionnels.size === 0 || !optionnels.has(feature)) {
       return true;
     }
     const info = this._license();
@@ -61,7 +73,21 @@ export class LicenseService {
    * fonctionner : on retombe silencieusement sur « statut inconnu », donc pas de bannière et pas de
    * restriction côté UI — c'est le serveur qui tranchera à la première écriture.
    */
+  /**
+   * Charge le catalogue des modules. Appelé en même temps que le statut : sans lui, `hasFeature()`
+   * ne saurait pas quels modules sont optionnels et les accorderait tous.
+   */
+  loadFeatures(): Observable<readonly FeatureInfo[]> {
+    return this.http.get<FeatureInfo[]>(this.config.getEndpointFor('api/license/features')).pipe(
+      tap(features => this._features.set(features)),
+      catchError(() => of([])),
+    );
+  }
+
   load(): Observable<LicenseInfo | null> {
+    if (this._features().length === 0) {
+      this.loadFeatures().subscribe();
+    }
     return this.http.get<LicenseInfo>(this.config.getEndpointFor('api/license/status')).pipe(
       tap(info => this._license.set(info)),
       catchError(() => {

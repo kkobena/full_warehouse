@@ -37,7 +37,7 @@
       <i class="pi pi-credit-card text-danger"></i>
       <div class="kpi-strip-body">
         <span class="kpi-strip-label">Total créances</span>
-        <span class="kpi-strip-value text-danger">{{ formatCurrency(totalCreances()) }} <small>FCFA</small></span>
+        <span class="kpi-strip-value text-danger">{{ formatCurrency(totalCreances()) }} <small appDevise></small></span>
         <span class="kpi-strip-sub">{{ formatNumber(totalNbFactures()) }} factures · {{ summary().length }} assureurs</span>
       </div>
     </div>

@@ -39,6 +39,9 @@ import java.util.stream.Stream;
 @Transactional
 public class AppConfigurationService {
 
+    /** Repli quand la configuration est absente : la zone franc reste le cas courant. */
+    private static final String DEVISE_DEFAUT = "FCFA";
+
     private static final BigDecimal PLAFOND_PONCTION_DEFAUT = new BigDecimal("35");
     private static final BigDecimal CENT = new BigDecimal("100");
 
@@ -283,6 +286,23 @@ public class AppConfigurationService {
                 }
             })
             .orElse(1);
+    }
+
+    /**
+     * Devise affichee a la suite des montants.
+     *
+     * <p>Purement typographique : elle est concatenee a un montant deja formate et n'entre dans
+     * aucun calcul. Une officine hors zone franc n'a donc qu'une ligne de configuration a changer.
+     */
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_DEVISE_CACHE)
+    public String getDevise() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_DEVISE)
+            .map(AppConfiguration::getValue)
+            .map(String::trim)
+            .filter(valeur -> !valeur.isEmpty())
+            .orElse(DEVISE_DEFAUT);
     }
 
     /** Plafond par defaut d'une ponction, en pourcentage du montant d'une vente. */

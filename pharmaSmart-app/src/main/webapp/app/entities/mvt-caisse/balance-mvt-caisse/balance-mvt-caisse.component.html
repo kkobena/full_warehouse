@@ -123,7 +123,7 @@
               <span class="balance-item-label">Total TTC</span>
               <div class="balance-item-value-wrapper">
                 <span class="balance-item-value">{{ balance.montantTtc | number }}</span>
-                <span class="balance-item-currency">FCFA</span>
+                <span class="balance-item-currency" appDevise></span>
               </div>
             </div>
 
@@ -131,7 +131,7 @@
               <span class="balance-item-label">Total TVA</span>
               <div class="balance-item-value-wrapper">
                 <span class="balance-item-value">{{ balance.montantTaxe | number }}</span>
-                <span class="balance-item-currency">FCFA</span>
+                <span class="balance-item-currency" appDevise></span>
               </div>
             </div>
 
@@ -139,7 +139,7 @@
               <span class="balance-item-label">Total HT</span>
               <div class="balance-item-value-wrapper">
                 <span class="balance-item-value">{{ balance.montantHt | number }}</span>
-                <span class="balance-item-currency">FCFA</span>
+                <span class="balance-item-currency" appDevise></span>
               </div>
             </div>
 
@@ -147,7 +147,7 @@
               <span class="balance-item-label">Total comptant</span>
               <div class="balance-item-value-wrapper">
                 <span class="balance-item-value">{{ balance.montantPaye | number }}</span>
-                <span class="balance-item-currency">FCFA</span>
+                <span class="balance-item-currency" appDevise></span>
               </div>
             </div>
 
@@ -155,7 +155,7 @@
               <span class="balance-item-label">Total achat</span>
               <div class="balance-item-value-wrapper">
                 <span class="balance-item-value">{{ balance.montantAchat | number }}</span>
-                <span class="balance-item-currency">FCFA</span>
+                <span class="balance-item-currency" appDevise></span>
               </div>
             </div>
 
@@ -163,7 +163,7 @@
               <span class="balance-item-label">Marge</span>
               <div class="balance-item-value-wrapper">
                 <span class="balance-item-value">{{ balance.montantMarge | number }}</span>
-                <span class="balance-item-currency">FCFA</span>
+                <span class="balance-item-currency" appDevise></span>
               </div>
             </div>
 
@@ -203,7 +203,7 @@
                   <span class="balance-item-label">{{ mvtCaisse.libelle }}</span>
                   <div class="balance-item-value-wrapper">
                     <span class="balance-item-value">{{ mvtCaisse.value | number }}</span>
-                    <span class="balance-item-currency">FCFA</span>
+                    <span class="balance-item-currency" appDevise></span>
                   </div>
                 </div>
               }
@@ -230,7 +230,7 @@
                     <span class="balance-item-label">{{ mvtCaisse.libelle }}</span>
                     <div class="balance-item-value-wrapper">
                       <span class="balance-item-value">{{ mvtCaisse.value * -1 | number }}</span>
-                      <span class="balance-item-currency">FCFA</span>
+                      <span class="balance-item-currency" appDevise></span>
                     </div>
                   </div>
                 } @else {
@@ -238,7 +238,7 @@
                     <span class="balance-item-label">{{ mvtCaisse.libelle }}</span>
                     <div class="balance-item-value-wrapper">
                       <span class="balance-item-value">{{ mvtCaisse.value | number }}</span>
-                      <span class="balance-item-currency">FCFA</span>
+                      <span class="balance-item-currency" appDevise></span>
                     </div>
                   </div>
                 }

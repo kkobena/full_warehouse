@@ -22,6 +22,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class AuditDeclarationCaService {
 
+    /**
+     * Les exemples sont lisibles tels quels : dates en JJ/MM/AAAA et montants séparés par milliers.
+     *
+     * <p>Le formatage est fait en SQL et non à l'écran parce que ces exemples sont des phrases
+     * assemblées ici — l'écran ne reçoit qu'une chaîne, sans savoir où commence un montant.
+     *
+     * <p>La virgule est un littéral du masque {@code to_char}, puis remplacée par une espace :
+     * le jeton {@code G} aurait suivi le {@code lc_numeric} du serveur, donc varié d'une
+     * installation à l'autre.
+     */
     /** Assez d'exemples pour retrouver les ventes, pas assez pour noyer l'écran. */
     private static final int MAX_EXEMPLES = 10;
 
@@ -68,8 +78,8 @@ public class AuditDeclarationCaService {
             "Le montant déclarable d'une ligne reste entre 0 et son montant réel",
             "Un montant hors de ces bornes fait apparaître un chiffre d'affaires déclaré supérieur à l'encaissé, ou négatif.",
             """
-            select sl.sales_id || ' du ' || sl.sale_date || ' : déclaré ' || sl.amount_to_be_taken_into_account
-                   || ' pour un réel de ' || (sl.quantity_requested * sl.regular_unit_price)
+            select sl.sales_id || ' du ' || to_char(sl.sale_date, 'DD/MM/YYYY') || ' : déclaré ' || replace(to_char(sl.amount_to_be_taken_into_account, 'FM999,999,999,999'), ',', ' ')
+                   || ' pour un réel de ' || replace(to_char(sl.quantity_requested * sl.regular_unit_price, 'FM999,999,999,999'), ',', ' ')
               from sales_line sl
               join sales s on s.id = sl.sales_id and s.sale_date = sl.sales_sale_date
              where sl.to_ignore = false
@@ -96,8 +106,8 @@ public class AuditDeclarationCaService {
             "La somme des lignes égale le montant déclarable de la vente",
             "Les rapports agrègent les lignes alors que les écrans de vente lisent la vente : les deux chiffres cesseraient de se recouper.",
             """
-            select s.id || ' du ' || s.sale_date || ' : vente ' || s.amount_to_be_taken_into_account
-                   || ' contre ' || coalesce(sum(sl.amount_to_be_taken_into_account), 0) || ' en lignes'
+            select s.id || ' du ' || to_char(s.sale_date, 'DD/MM/YYYY') || ' : vente ' || replace(to_char(s.amount_to_be_taken_into_account, 'FM999,999,999,999'), ',', ' ')
+                   || ' contre ' || replace(to_char(coalesce(sum(sl.amount_to_be_taken_into_account), 0), 'FM999,999,999,999'), ',', ' ') || ' en lignes'
               from sales s
               join sales_line sl on sl.sales_id = s.id and sl.sales_sale_date = s.sale_date
              where s.dtype <> 'VenteDepot'
@@ -122,9 +132,9 @@ public class AuditDeclarationCaService {
             "L'encaissement déclaré ne dépasse pas le chiffre d'affaires déclaré",
             "Un encaissement supérieur au chiffre déclaré rend l'état indéfendable : l'écart ne se rattache à rien.",
             """
-            select s.id || ' du ' || s.sale_date || ' : encaissé déclaré '
-                   || sum(coalesce(p.amount_to_be_taken_into_account, p.paid_amount))
-                   || ' pour un CA déclaré de ' || s.amount_to_be_taken_into_account
+            select s.id || ' du ' || to_char(s.sale_date, 'DD/MM/YYYY') || ' : encaissé déclaré '
+                   || replace(to_char(sum(coalesce(p.amount_to_be_taken_into_account, p.paid_amount)), 'FM999,999,999,999'), ',', ' ')
+                   || ' pour un CA déclaré de ' || replace(to_char(s.amount_to_be_taken_into_account, 'FM999,999,999,999'), ',', ' ')
               from sales s
               join payment_transaction p
                 on p.sale_id = s.id and p.sale_date = s.sale_date and p.dtype = 'SalePayment'
@@ -149,7 +159,7 @@ public class AuditDeclarationCaService {
             "Aucune ponction sur une ligne soumise à TVA",
             "Ponctionner une ligne taxée réduit la TVA collectée déclarée, alors qu'elle a été facturée au client.",
             """
-            select sl.sales_id || ' du ' || sl.sale_date || ' : taux ' || sl.tax_value
+            select sl.sales_id || ' du ' || to_char(sl.sale_date, 'DD/MM/YYYY') || ' : taux ' || sl.tax_value
               from sales_line sl
               join sales s on s.id = sl.sales_id and s.sale_date = sl.sales_sale_date
              where sl.exclusion_motif = 'PONCTION'
@@ -169,8 +179,8 @@ public class AuditDeclarationCaService {
             "Aucune vente n'a cédé plus que le plafond annoncé",
             "Le plafond par vente est ce qui rend la ponction discrète : le dépasser la rend visible.",
             """
-            select d.sale_id || ' du ' || d.sale_date || ' : ' || d.montant_ponctionne
-                   || ' pris sur ' || d.montant_vente || ' (plafond ' || p.plafond_par_vente || ' %)'
+            select d.sale_id || ' du ' || to_char(d.sale_date, 'DD/MM/YYYY') || ' : ' || replace(to_char(d.montant_ponctionne, 'FM999,999,999,999'), ',', ' ')
+                   || ' pris sur ' || replace(to_char(d.montant_vente, 'FM999,999,999,999'), ',', ' ') || ' (plafond ' || p.plafond_par_vente || ' %)'
               from ca_ponction_detail d
               join ca_ponction p on p.id = d.ponction_id
              where p.statut = 'VALIDEE'

@@ -25,9 +25,10 @@ import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date
 
 import {ModeCa, ModeCaService} from '../mode-ca';
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-balance-mvt-caisse',
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,

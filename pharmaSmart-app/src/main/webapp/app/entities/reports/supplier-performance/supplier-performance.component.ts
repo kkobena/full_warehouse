@@ -30,10 +30,11 @@ import {
   ISupplierPerformance,
   ISupplierPerformanceSummary
 } from 'app/shared/model/report';
-import {formatCurrency, formatDecimal, formatNumber} from 'app/shared/utils/format-utils';
+import { formatCurrency, formatDecimal, formatNumber, currencySymbol } from 'app/shared/utils/format-utils';
 import {TauriPrinterService} from '../../../shared/services/tauri-printer.service';
 import {handleBlobForTauri} from '../../../shared/util/tauri-util';
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 Chart.register(...registerables);
 
 interface FilterOption {
@@ -43,7 +44,7 @@ interface FilterOption {
 
 @Component({
   selector: 'app-supplier-performance',
-  imports: [FormsModule, NgbTooltip, ButtonComponent, DataTableComponent, OffcanvasComponent, SelectComponent, ToolbarComponent],
+  imports: [DeviseDirective, FormsModule, NgbTooltip, ButtonComponent, DataTableComponent, OffcanvasComponent, SelectComponent, ToolbarComponent],
   templateUrl: './supplier-performance.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './supplier-performance.component.scss',
@@ -291,12 +292,12 @@ export default class SupplierPerformanceComponent implements OnInit, OnDestroy {
           legend: {position: 'bottom', labels: {padding: 16}},
           tooltip: {
             callbacks: {
-              label: ctx => `${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)} FCFA`,
+              label: ctx => `${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)} ${currencySymbol()}`,
             },
           },
         },
         scales: {
-          y: {title: {display: true, text: 'Montant (FCFA)'}},
+          y: {title: {display: true, text: `Montant (${currencySymbol()})`}},
           x: {ticks: {maxRotation: 45}},
         },
       },

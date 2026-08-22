@@ -30,6 +30,8 @@ import { formatCurrency, formatDate, formatPercent } from "app/shared/utils/form
 import { Chart, ChartConfiguration, ChartData, registerables } from "chart.js";
 import { BlobDownloadService } from "../../../shared/services/blob-download.service";
 
+import { DeviseDirective } from 'app/shared/utils/devise';
+import { currencySymbol } from 'app/shared/utils/format-utils';
 Chart.register(...registerables);
 
 interface PeriodOption {
@@ -42,7 +44,7 @@ interface PeriodOption {
   templateUrl: "./dashboard-ca.component.html",
   styleUrl: "./dashboard-ca.component.scss",
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -253,7 +255,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
       labels: data.labels ?? [],
       datasets: [
         {
-          label: "CA (FCFA)",
+          label: `CA (${currencySymbol()})`,
           data: data.caValues ?? [],
           borderColor: "#2196F3",
           backgroundColor: "rgba(33, 150, 243, 0.1)",
@@ -374,12 +376,12 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
       labels: data.map(d => d.famille),
       datasets: [
         {
-          label: "CA (FCFA)",
+          label: `CA (${currencySymbol()})`,
           data: data.map(d => d.caTotal),
           backgroundColor: "#2196F3"
         },
         {
-          label: "Marge Brute (FCFA)",
+          label: `Marge Brute (${currencySymbol()})`,
           data: data.map(d => d.margeBrute),
           backgroundColor: "#4CAF50"
         }
@@ -422,7 +424,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
       data: {
         labels: data.labels ?? [],
         datasets: [{
-          label: "Panier moyen (FCFA)",
+          label: `Panier moyen (${currencySymbol()})`,
           data: data.values ?? [],
           borderColor: "#2196F3",
           backgroundColor: "rgba(33, 150, 243, 0.08)",

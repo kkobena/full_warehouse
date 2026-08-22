@@ -11,6 +11,7 @@ import { IDemarqueByMotif, IDemarqueKpi } from '../../../shared/model/report';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { ChartColorsUtilsService } from '../../../shared/util/chart-colors-utils.service';
 import { formatCurrency, formatNumber } from 'app/shared/utils/format-utils';
+import { DeviseDirective } from 'app/shared/utils/devise';
 import {
   ButtonComponent,
   DataTableComponent,
@@ -21,7 +22,7 @@ Chart.register(...registerables);
 
 @Component({
   selector: 'app-demarque',
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     PharmaDatePickerComponent,

@@ -48,7 +48,7 @@
       <i class="pi pi-tag text-danger"></i>
       <div class="kpi-strip-body">
         <span class="kpi-strip-label">Montant total remisé</span>
-        <span class="kpi-strip-value text-danger">{{ formatCurrency(kpi()?.totalRemise) }} <small>FCFA</small></span>
+        <span class="kpi-strip-value text-danger">{{ formatCurrency(kpi()?.totalRemise) }} <small appDevise></small></span>
         <span class="kpi-strip-sub">taux moyen : {{ formatDecimal(kpi()?.tauxRemise, 1) }}%</span>
       </div>
     </div>
@@ -57,7 +57,7 @@
       <i class="pi pi-wallet text-primary"></i>
       <div class="kpi-strip-body">
         <span class="kpi-strip-label">CA après remises</span>
-        <span class="kpi-strip-value text-primary">{{ formatCurrency(kpi()?.caApresRemise) }} <small>FCFA</small></span>
+        <span class="kpi-strip-value text-primary">{{ formatCurrency(kpi()?.caApresRemise) }} <small appDevise></small></span>
         <span class="kpi-strip-sub">encaissé net</span>
       </div>
     </div>

@@ -3,9 +3,10 @@ import { IDiffereSummary } from '../../data-access/models';
 import { CommonModule } from "@angular/common";
 import { KpiItemComponent, KpiStripComponent } from '../../../../shared/ui';
 
+import { DevisePipe } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-differe-kpi-banner',
-  imports: [CommonModule, KpiItemComponent, KpiStripComponent],
+  imports: [DevisePipe, CommonModule, KpiItemComponent, KpiStripComponent],
   templateUrl: './differe-kpi-banner.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './differe-kpi-banner.component.scss',

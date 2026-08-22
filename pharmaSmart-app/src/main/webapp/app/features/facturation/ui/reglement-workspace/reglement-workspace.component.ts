@@ -35,6 +35,7 @@ import {
 } from "../../data-access/models";
 import {ReglementFormComponent} from "../reglement-form/reglement-form.component";
 import {CommonModule} from "@angular/common";
+import { DeviseDirective } from 'app/shared/utils/devise';
 import {
   DataTableComponent,
   HeaderCheckboxComponent,
@@ -46,7 +47,7 @@ export type ReglementMode = "INDIVIDUEL" | "GROUPE";
 
 @Component({
   selector: "app-reglement-workspace",
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     ReglementFormComponent,

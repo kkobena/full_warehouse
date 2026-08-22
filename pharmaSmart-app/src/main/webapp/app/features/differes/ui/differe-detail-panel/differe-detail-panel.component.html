@@ -5,7 +5,7 @@
       <div class="panel-title-block">
         <div class="panel-libelle">{{ differe().firstName }} {{ differe().lastName }}</div>
         <div class="panel-meta">
-          <span class="pharma-badge pharma-badge-danger">Reste : {{ differe().rest | number }} FCFA</span>
+          <span class="pharma-badge pharma-badge-danger">Reste : {{ differe().rest | number }} <span appDevise></span></span>
           <span class="text-muted ms-2" style="font-size: 0.75rem">
             Total : {{ differe().saleAmount | number }} — Payé : {{ differe().paidAmount | number }}
           </span>
@@ -21,7 +21,7 @@
     @if (monnaie() > 0) {
       <div class="monnaie-bar">
         <i class="pi pi-info-circle"></i>
-        <span>Monnaie à rendre : <strong>{{ monnaie() | number }} FCFA</strong></span>
+        <span>Monnaie à rendre : <strong>{{ monnaie() | number }} <span appDevise></span></strong></span>
       </div>
     }
 

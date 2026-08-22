@@ -19,9 +19,9 @@
         <span class="text-muted">&nbsp;· {{ produit.codeCip }}</span>
       }
       <span class="ms-auto text-muted small">
-        PA&nbsp;<strong>{{ produit?.costAmount ?? 0 }}</strong>&nbsp;FCFA
+        PA&nbsp;<strong>{{ produit?.costAmount ?? 0 }}</strong>&nbsp;<span appDevise></span>
         &nbsp;·&nbsp;
-        PV&nbsp;<strong>{{ produit?.regularUnitPrice ?? 0 }}</strong>&nbsp;FCFA
+        PV&nbsp;<strong>{{ produit?.regularUnitPrice ?? 0 }}</strong>&nbsp;<span appDevise></span>
       </span>
     </div>
 

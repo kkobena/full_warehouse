@@ -94,6 +94,7 @@ import {ReceptionSequentialComponent} from "./sequential/reception-sequential.co
 import {ReceptionFinalizeModalComponent} from "./sequential/reception-finalize-modal.component";
 import {IConfiguration} from "../../../../shared/model/configuration.model";
 
+import { formatNumber } from 'app/shared/utils/format-utils';
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
 @Component({
@@ -1138,9 +1139,9 @@ export class CommandeReceivedComponent implements OnInit {
           if (!p.data) {
             return "";
           }
-          const val = p.data.orderCostAmount != null ? Number(p.data.orderCostAmount).toLocaleString("fr-FR") : "—";
+          const val = p.data.orderCostAmount != null ? formatNumber(Number(p.data.orderCostAmount)) : "—";
           if (p.data.costAmount != null && p.data.costAmount !== p.data.orderCostAmount) {
-            const tarif = Number(p.data.costAmount).toLocaleString("fr-FR");
+            const tarif = formatNumber(Number(p.data.costAmount));
             return `<span style="display:flex;align-items:center;gap:4px;white-space:nowrap">
               <span>${val}</span>
               <span title="Tarif catalogue : ${tarif} F" style="display:inline-flex;align-items:center;gap:2px;color:#dc3545;font-size:0.7rem;font-weight:600;cursor:help">
@@ -1161,9 +1162,9 @@ export class CommandeReceivedComponent implements OnInit {
           if (!p.data) {
             return "";
           }
-          const val = p.data.orderUnitPrice != null ? Number(p.data.orderUnitPrice).toLocaleString("fr-FR") : "—";
+          const val = p.data.orderUnitPrice != null ? formatNumber(Number(p.data.orderUnitPrice)) : "—";
           if (p.data.regularUnitPrice != null && p.data.regularUnitPrice !== p.data.orderUnitPrice) {
-            const tarif = Number(p.data.regularUnitPrice).toLocaleString("fr-FR");
+            const tarif = formatNumber(Number(p.data.regularUnitPrice));
             return `<span style="display:flex;align-items:center;gap:4px;white-space:nowrap">
               <span>${val}</span>
               <span title="Tarif catalogue : ${tarif} F" style="display:inline-flex;align-items:center;gap:2px;color:#dc3545;font-size:0.7rem;font-weight:600;cursor:help">
@@ -1184,7 +1185,7 @@ export class CommandeReceivedComponent implements OnInit {
             return "";
           }
           const qty = p.data.quantityRequested;
-          const val = qty != null ? Number(qty).toLocaleString("fr-FR") : "—";
+          const val = qty != null ? formatNumber(Number(qty)) : "—";
           const pcb = p.data.qteColis;
           const pcbAlert = pcb != null && pcb > 1 && qty != null && qty % pcb !== 0;
           const pcbBadge = pcbAlert
@@ -1206,7 +1207,7 @@ export class CommandeReceivedComponent implements OnInit {
             return "";
           }
           const qty = p.data.quantityReceivedTmp;
-          const val = qty != null ? Number(qty).toLocaleString("fr-FR") : "—";
+          const val = qty != null ? formatNumber(Number(qty)) : "—";
           const partial = qty !== p.data.quantityRequested;
           const pcb = p.data.qteColis;
           const pcbAlert = pcb != null && pcb > 1 && qty != null && qty > 0 && qty % pcb !== 0;
@@ -1306,7 +1307,7 @@ export class CommandeReceivedComponent implements OnInit {
       width: 95,
       type: "numericColumn",
       hide: true,
-      valueFormatter: (p: any) => p.value != null ? `${Number(p.value).toLocaleString("fr-FR")} F` : "—"
+      valueFormatter: (p: any) => p.value != null ? `${formatNumber(Number(p.value))} F` : "—"
     });
     cols.push({
       field: "netAmount",
@@ -1314,7 +1315,7 @@ export class CommandeReceivedComponent implements OnInit {
       width: 100,
       type: "numericColumn",
       hide: true,
-      valueFormatter: (p: any) => p.value != null ? `${Number(p.value).toLocaleString("fr-FR")} F` : "—"
+      valueFormatter: (p: any) => p.value != null ? `${formatNumber(Number(p.value))} F` : "—"
     });
 
 

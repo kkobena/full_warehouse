@@ -62,7 +62,7 @@
           <div class="kpi-strip-body">
             <span class="kpi-strip-label">CA Aujourd'hui</span>
             <span class="kpi-strip-value text-primary">{{ formatCurrency(sum.caToday) }}
-              <small>FCFA</small></span>
+              <small appDevise></small></span>
             <span class="kpi-strip-sub">
               <span
                 [class]="(sum.caTodayEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
@@ -82,7 +82,7 @@
           <div class="kpi-strip-body">
             <span class="kpi-strip-label">CA Semaine</span>
             <span class="kpi-strip-value text-success">{{ formatCurrency(sum.caWeek) }}
-              <small>FCFA</small></span>
+              <small appDevise></small></span>
             <span class="kpi-strip-sub">
               <span
                 [class]="(sum.caWeekEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
@@ -102,7 +102,7 @@
           <div class="kpi-strip-body">
             <span class="kpi-strip-label">CA Mois</span>
             <span class="kpi-strip-value text-warning">{{ formatCurrency(sum.caMonth) }}
-              <small>FCFA</small></span>
+              <small appDevise></small></span>
             <span class="kpi-strip-sub">
               <span
                 [class]="(sum.caMonthEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
@@ -111,7 +111,7 @@
                 {{ formatPercent(sum.caMonthEvolutionPct) }}%
               </span>
               — {{ sum.nbTransactionsMonth | number }} | {{ formatCurrency(sum.panierMoyenMonth) }}
-              FCFA
+              <span appDevise></span>
             </span>
           </div>
         </div>
@@ -123,7 +123,7 @@
           <div class="kpi-strip-body">
             <span class="kpi-strip-label">CA Année</span>
             <span class="kpi-strip-value text-danger">{{ formatCurrency(sum.caYear) }}
-              <small>FCFA</small></span>
+              <small appDevise></small></span>
             <span class="kpi-strip-sub">
               <span
                 [class]="(sum.caYearEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
@@ -144,7 +144,7 @@
               <span class="kpi-strip-label">Dettes fournisseurs</span>
               <span class="kpi-strip-value" style="color: #6f42c1">{{
                   formatCurrency(fin.totalDetteFournisseurs)
-                }} <small>FCFA</small></span>
+                }} <small appDevise></small></span>
               <span class="kpi-strip-sub">{{ fin.nbEcheancesEnRetard ?? 0 }}
                 échéance(s) en retard</span>
             </div>
@@ -156,7 +156,7 @@
               <span class="kpi-strip-label">Créances tiers-payants</span>
               <span class="kpi-strip-value" style="color: #0dcaf0">{{
                   formatCurrency(fin.totalCreancesTP)
-                }} <small>FCFA</small></span>
+                }} <small appDevise></small></span>
               <span class="kpi-strip-sub">{{ fin.nbFacturesImpayees ?? 0 }}
                 facture(s) impayée(s)</span>
             </div>
@@ -179,7 +179,7 @@
               <div class="ms-auto d-flex align-items-center flex-wrap gap-4">
                 <div>
                   <div class="text-muted small">Ce mois</div>
-                  <div class="fw-bold">{{ formatCurrency(basket.currentValue) }} FCFA</div>
+                  <div class="fw-bold">{{ formatCurrency(basket.currentValue) }} <span appDevise></span></div>
                 </div>
                 <span
                   [class]="'badge px-2 py-1 ' + ((basket.evolutionPct ?? 0) >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger')">
@@ -191,7 +191,7 @@
                 <div>
                   <div class="text-muted small">Meilleur mois</div>
                   <div class="fw-semibold">{{ basket.bestMonthLabel }}</div>
-                  <div class="small text-success">{{ formatCurrency(basket.bestMonthValue) }}FCFA
+                  <div class="small text-success">{{ formatCurrency(basket.bestMonthValue) }}<span appDevise></span>
                   </div>
                 </div>
                 <div>
@@ -287,7 +287,7 @@
                   <th>Produit</th>
                   <th>Code CIP</th>
                   <th class="text-end">Quantité Vendue</th>
-                  <th class="text-end">CA (FCFA)</th>
+                  <th class="text-end">CA (<span appDevise></span>)</th>
                   <th class="text-end">Prix Moyen</th>
                 </tr>
                 </thead>

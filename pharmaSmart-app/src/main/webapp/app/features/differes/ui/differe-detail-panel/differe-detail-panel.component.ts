@@ -15,9 +15,10 @@ import { IDiffere, INewReglementDiffere, IPaymentIdDiffere, IReglementDiffere } 
 import { ReglementDiffereFormComponent } from "../reglement-differe-form/reglement-differe-form.component";
 import { CommonModule } from "@angular/common";
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: "app-differe-detail-panel",
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     NgbNavModule,
     NgbTooltip,

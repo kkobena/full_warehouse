@@ -72,6 +72,7 @@ import {
 } from "../../ui/cloturer-avoir-modal/cloturer-avoir-modal.component";
 import {AvoirClientApiService} from "../../data-access/services/avoir-client-api.service";
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 interface SaleMenuEntry {
   label?: string;
   icon?: string;
@@ -86,7 +87,7 @@ interface SaleMenuEntry {
   styleUrl: "./sales-journal.component.scss",
   providers: [DatePipe, {provide: NgbDateParserFormatter, useClass: FrenchDateParserFormatter}],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,

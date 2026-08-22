@@ -38,10 +38,13 @@ import org.thymeleaf.context.Context;
 import org.xhtmlrenderer.layout.SharedContext;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 @Component
 public abstract class CommonReportService {
 
     protected final Logger log = LoggerFactory.getLogger(CommonReportService.class);
+    private AppConfigurationService appConfigurationService;
     private final FileStorageProperties fileStorageProperties;
     private final StorageService storageService;
 
@@ -160,9 +163,28 @@ public abstract class CommonReportService {
         return builder;
     }
 
+    /**
+     * Injecté par setter et non par constructeur : 24 services de rapport héritent de cette classe
+     * et 45 appels {@code super(...)} auraient été à reprendre pour une variable de présentation.
+     * Spring renseigne le setter sur toutes les sous-classes sans qu'aucune ait à le savoir.
+     */
+    @Autowired
+    public void setAppConfigurationService(AppConfigurationService appConfigurationService) {
+        this.appConfigurationService = appConfigurationService;
+    }
+
+    /**
+     * Contexte commun à tous les rapports.
+     *
+     * <p>{@code devise} y est posée une fois pour toutes : les gabarits l'affichaient en dur, ce qui
+     * imposait le franc CFA à toute officine imprimant une facture. Le repli couvre le cas où le
+     * service n'est pas injecté — un rapport instancié à la main dans un test, par exemple.
+     */
     protected Context getContext() {
         Locale locale = Locale.forLanguageTag("fr");
-        return new Context(locale);
+        Context context = new Context(locale);
+        context.setVariable("devise", appConfigurationService != null ? appConfigurationService.getDevise() : "FCFA");
+        return context;
     }
 
     public String buildPeriode(String title, ReportPeriode reportPeriode) {

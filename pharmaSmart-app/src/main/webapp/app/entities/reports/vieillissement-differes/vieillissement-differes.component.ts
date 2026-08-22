@@ -13,9 +13,10 @@ import {formatCurrency, formatNumber} from 'app/shared/utils/format-utils';
 import {forkJoin} from 'rxjs';
 import {ButtonComponent, DataTableComponent, SortableHeaderDirective, ToolbarComponent} from '../../../shared/ui';
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-vieillissement-differes',
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     PharmaDatePickerComponent,

@@ -42,12 +42,13 @@ import {
 } from "../../../features/partners/ui/fournisseur-select/fournisseur-select.component";
 import {NotificationService} from "../../../shared/services/notification.service";
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: "app-recap-produit-vendu",
   templateUrl: "./recap-produit-vendu.component.html",
   styleUrl: "./recap-produit-vendu.component.scss",
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     NgbNavModule,

@@ -8,7 +8,7 @@
         <div class="kpi-strip-body">
           <span class="kpi-strip-label"><span class="pareto-badge pareto-a-plus">A+</span> <small class="text-muted ms-1">≤ 60% CA</small></span>
           <span class="kpi-strip-value text-danger">{{ summary()!.nbProduitsAPlus | number }}</span>
-          <span class="kpi-strip-sub">{{ summary()!.pctCaClasseAPlus | number:'1.1-1' }}% · {{ formatCurrency(summary()!.caClasseAPlus) }} FCFA</span>
+          <span class="kpi-strip-sub">{{ summary()!.pctCaClasseAPlus | number:'1.1-1' }}% · {{ formatCurrency(summary()!.caClasseAPlus) }} <span appDevise></span></span>
         </div>
       </div>
 
@@ -18,7 +18,7 @@
         <div class="kpi-strip-body">
           <span class="kpi-strip-label"><span class="pareto-badge pareto-a">A</span> <small class="text-muted ms-1">60–80% CA</small></span>
           <span class="kpi-strip-value text-success">{{ summary()!.nbProduitsA | number }}</span>
-          <span class="kpi-strip-sub">{{ summary()!.pctCaClasseA | number:'1.1-1' }}% · {{ formatCurrency(summary()!.caClasseA) }} FCFA</span>
+          <span class="kpi-strip-sub">{{ summary()!.pctCaClasseA | number:'1.1-1' }}% · {{ formatCurrency(summary()!.caClasseA) }} <span appDevise></span></span>
         </div>
       </div>
 
@@ -28,7 +28,7 @@
         <div class="kpi-strip-body">
           <span class="kpi-strip-label"><span class="pareto-badge pareto-b">B</span> <small class="text-muted ms-1">80–95% CA</small></span>
           <span class="kpi-strip-value text-primary">{{ summary()!.nbProduitsB | number }}</span>
-          <span class="kpi-strip-sub">{{ summary()!.pctCaClasseB | number:'1.1-1' }}% · {{ formatCurrency(summary()!.caClasseB) }} FCFA</span>
+          <span class="kpi-strip-sub">{{ summary()!.pctCaClasseB | number:'1.1-1' }}% · {{ formatCurrency(summary()!.caClasseB) }} <span appDevise></span></span>
         </div>
       </div>
 
@@ -38,7 +38,7 @@
         <div class="kpi-strip-body">
           <span class="kpi-strip-label"><span class="pareto-badge pareto-c">C</span> <small class="text-muted ms-1">95–99% CA</small></span>
           <span class="kpi-strip-value text-warning">{{ summary()!.nbProduitsC | number }}</span>
-          <span class="kpi-strip-sub">{{ summary()!.pctCaClasseC | number:'1.1-1' }}% · {{ formatCurrency(summary()!.caClasseC) }} FCFA</span>
+          <span class="kpi-strip-sub">{{ summary()!.pctCaClasseC | number:'1.1-1' }}% · {{ formatCurrency(summary()!.caClasseC) }} <span appDevise></span></span>
         </div>
       </div>
 
@@ -48,7 +48,7 @@
         <div class="kpi-strip-body">
           <span class="kpi-strip-label"><span class="pareto-badge pareto-d">D</span> <small class="text-muted ms-1">&gt;99% / sans ventes</small></span>
           <span class="kpi-strip-value text-secondary">{{ summary()!.nbProduitsD | number }}</span>
-          <span class="kpi-strip-sub">{{ summary()!.pctCaClasseD | number:'1.1-1' }}% · {{ formatCurrency(summary()!.caClasseD) }} FCFA</span>
+          <span class="kpi-strip-sub">{{ summary()!.pctCaClasseD | number:'1.1-1' }}% · {{ formatCurrency(summary()!.caClasseD) }} <span appDevise></span></span>
         </div>
       </div>
 
@@ -59,7 +59,7 @@
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">Total Produits</span>
           <span class="kpi-strip-value text-primary">{{ summary()!.totalProduits | number }}</span>
-          <span class="kpi-strip-sub">CA {{ formatCurrency(summary()!.caGlobal) }} FCFA</span>
+          <span class="kpi-strip-sub">CA {{ formatCurrency(summary()!.caGlobal) }} <span appDevise></span></span>
         </div>
       </div>
 

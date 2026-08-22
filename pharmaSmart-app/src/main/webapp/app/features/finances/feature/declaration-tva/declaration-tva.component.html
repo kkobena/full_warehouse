@@ -30,24 +30,24 @@
       <div class="tva-summary-body">
         <div class="tva-row collectee">
           <span class="tva-label">TVA collectée <em>(sur ventes)</em></span>
-          <span class="tva-amount">{{ formatCurrency(s.tvaCollectee) }} FCFA</span>
+          <span class="tva-amount">{{ formatCurrency(s.tvaCollectee) }} <span appDevise></span></span>
         </div>
         <div class="tva-row deductible">
           <span class="tva-label">TVA déductible <em>(sur achats)</em></span>
-          <span class="tva-amount text-success">− {{ formatCurrency(s.tvaDeductible) }} FCFA</span>
+          <span class="tva-amount text-success">− {{ formatCurrency(s.tvaDeductible) }} <span appDevise></span></span>
         </div>
         <div class="tva-divider"></div>
         <div class="tva-row nette">
           <span class="tva-label fw-bold">TVA nette à payer</span>
           <span class="tva-amount fw-bold" [class.text-danger]="s.tvaNette > 0"
                 [class.text-success]="s.tvaNette <= 0">
-            {{ formatCurrency(s.tvaNette) }} FCFA
+            {{ formatCurrency(s.tvaNette) }} <span appDevise></span>
           </span>
         </div>
       </div>
       <div class="tva-summary-footer">
-        <span>Base HT ventes : {{ formatCurrency(s.montantHt) }} FCFA</span>
-        <span class="ms-4">Montant TTC : {{ formatCurrency(s.montantTtc) }} FCFA</span>
+        <span>Base HT ventes : {{ formatCurrency(s.montantHt) }} <span appDevise></span></span>
+        <span class="ms-4">Montant TTC : {{ formatCurrency(s.montantTtc) }} <span appDevise></span></span>
       </div>
     </div>
 

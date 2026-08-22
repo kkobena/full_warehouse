@@ -22,6 +22,8 @@ import { FournisseurSuggestionSummary, SuggestionLigneEnrichie } from '../../dat
 import { CommandeProductSearchComponent } from '../../../../ui/commande-product-search/commande-product-search.component';
 import { ProduitSearch } from 'app/shared/model';
 
+import { formatNumber } from 'app/shared/utils/format-utils';
+import { DeviseDirective } from 'app/shared/utils/devise';
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
 @Component({
@@ -29,7 +31,7 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
   templateUrl: './suggestion-produit-panel.component.html',
   styleUrls: ['./suggestion-produit-panel.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -252,7 +254,7 @@ export class SuggestionProduitPanelComponent {
       sortable: true,
       type: 'numericColumn',
       valueFormatter: (params: any) =>
-        params.value != null ? Number(params.value).toLocaleString('fr-FR') : '—',
+        params.value != null ? formatNumber(Number(params.value)) : '—',
     },
   ];
 

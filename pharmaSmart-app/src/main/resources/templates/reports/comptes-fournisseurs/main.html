@@ -29,7 +29,7 @@
         <div class="kpi-row" th:if="${summary != null}">
           <div class="kpi-box kpi-danger">
             <div class="kpi-label">Total dû</div>
-            <div class="kpi-value" th:text="${#numbers.formatInteger(summary.totalDu, 0, 'POINT') + ' FCFA'}"></div>
+            <div class="kpi-value" th:text="${#numbers.formatInteger(summary.totalDu, 0, 'POINT') +' '+devise}"></div>
           </div>
           <div class="kpi-box kpi-danger">
             <div class="kpi-label">Échéances dépassées</div>
@@ -83,7 +83,7 @@
             <tr>
               <td colspan="5" class="text-right"><strong>Total dû :</strong></td>
               <td class="text-right" style="font-weight: bold; color: #dc3545;">
-                <span th:text="${#numbers.formatInteger(totalSolde, 0, 'POINT') + ' FCFA'}"></span>
+                <span th:text="${#numbers.formatInteger(totalSolde, 0, 'POINT') +' '+devise}"></span>
               </td>
               <td colspan="2"></td>
             </tr>

@@ -1,21 +1,28 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
 
-import { ButtonComponent } from 'app/shared/ui/button/button.component';
-import { CardComponent } from 'app/shared/ui/card/card.component';
-import { ToolbarComponent } from 'app/shared/ui/toolbar/toolbar.component';
-import { DataTableComponent } from 'app/shared/ui/data-table/data-table.component';
-import { HintComponent } from 'app/shared/ui/hint/hint.component';
-import { InputNumberComponent } from 'app/shared/ui/input-number/input-number.component';
-import { KpiStripComponent } from 'app/shared/ui/kpi-strip/kpi-strip.component';
-import { KpiItemComponent } from 'app/shared/ui/kpi-strip/kpi-item.component';
-import { AppPillOption, PillSelectorComponent } from 'app/shared/ui/pill-selector/pill-selector.component';
-import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
-import { NGB_DATE_TO_ISO } from 'app/shared/util/warehouse-util';
-import { NotificationService } from 'app/shared/services/notification.service';
-import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import {ButtonComponent} from 'app/shared/ui/button/button.component';
+import {CardComponent} from 'app/shared/ui/card/card.component';
+import {ToolbarComponent} from 'app/shared/ui/toolbar/toolbar.component';
+import {DataTableComponent} from 'app/shared/ui/data-table/data-table.component';
+import {HintComponent} from 'app/shared/ui/hint/hint.component';
+import {DevisePipe} from 'app/shared/utils/devise';
+import {InputNumberComponent} from 'app/shared/ui/input-number/input-number.component';
+import {KpiStripComponent} from 'app/shared/ui/kpi-strip/kpi-strip.component';
+import {KpiItemComponent} from 'app/shared/ui/kpi-strip/kpi-item.component';
+import {
+  AppPillOption,
+  PillSelectorComponent
+} from 'app/shared/ui/pill-selector/pill-selector.component';
+import {PharmaDatePickerComponent} from 'app/shared/date-picker/pharma-date-picker.component';
+import {NGB_DATE_TO_ISO} from 'app/shared/util/warehouse-util';
+import {formatCurrencyWithUnit} from 'app/shared/utils/format-utils';
+import {NotificationService} from 'app/shared/services/notification.service';
+import {
+  NgbConfirmDialogService
+} from 'app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import {
   DeclarationCaApiService,
   ModeCalculPonction,
@@ -41,6 +48,7 @@ import {
     ToolbarComponent,
     DataTableComponent,
     HintComponent,
+    DevisePipe,
     InputNumberComponent,
     KpiStripComponent,
     KpiItemComponent,
@@ -52,10 +60,6 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PonctionComponent implements OnInit {
-  private readonly api = inject(DeclarationCaApiService);
-  private readonly notification = inject(NotificationService);
-  private readonly confirmDialog = inject(NgbConfirmDialogService);
-
   protected readonly dateDebut = signal<NgbDateStruct | null>(null);
   protected readonly dateFin = signal<NgbDateStruct | null>(null);
   protected readonly modeCalcul = signal<ModeCalculPonction>('POURCENTAGE');
@@ -63,19 +67,12 @@ export class PonctionComponent implements OnInit {
   protected readonly plafond = signal<number | null>(null);
   /** Le plafond de l'officine, rappelé sous le champ pour dire ce qu'on surcharge. */
   protected readonly plafondDefaut = signal<number | null>(null);
-
   protected readonly simulation = signal<PonctionSimulation | null>(null);
   protected readonly chargement = signal(false);
-
   protected readonly modeOptions: AppPillOption[] = [
-    { label: 'Pourcentage', value: 'POURCENTAGE', icon: 'pi pi-percentage' },
-    { label: 'Montant fixe', value: 'MONTANT_FIXE', icon: 'pi pi-money-bill' },
+    {label: 'Pourcentage', value: 'POURCENTAGE', icon: 'pi pi-percentage'},
+    {label: 'Montant fixe', value: 'MONTANT_FIXE', icon: 'pi pi-money-bill'},
   ];
-
-  protected readonly saisieComplete = computed(
-    () => !!this.dateDebut() && !!this.dateFin() && (this.valeur() ?? 0) > 0 && !this.tauxAuDessusDuPlafond() && !this.plafondHorsBornes(),
-  );
-
   /**
    * L'assiette de la période, obtenue sans objectif.
    *
@@ -85,12 +82,6 @@ export class PonctionComponent implements OnInit {
    */
   protected readonly assiette = signal<PonctionAssiette | null>(null);
   protected readonly chargementAssiette = signal(false);
-
-  /** Les dates suffisent : ni objectif ni mode de calcul n'entrent dans l'assiette. */
-  protected readonly periodeComplete = computed(
-    () => !!this.dateDebut() && !!this.dateFin() && !this.plafondHorsBornes(),
-  );
-
   /**
    * Le plafond saisi sort-il de l'intervalle admis ?
    *
@@ -102,7 +93,10 @@ export class PonctionComponent implements OnInit {
     const plafond = this.plafond();
     return plafond !== null && (plafond > 100 || plafond < 1);
   });
-
+  /** Les dates suffisent : ni objectif ni mode de calcul n'entrent dans l'assiette. */
+  protected readonly periodeComplete = computed(
+    () => !!this.dateDebut() && !!this.dateFin() && !this.plafondHorsBornes(),
+  );
   /**
    * Le taux global demandé dépasse-t-il le plafond par vente ?
    *
@@ -119,12 +113,17 @@ export class PonctionComponent implements OnInit {
     const plafond = this.plafond();
     return valeur !== null && plafond !== null && valeur > plafond;
   });
-
+  protected readonly saisieComplete = computed(
+    () => !!this.dateDebut() && !!this.dateFin() && (this.valeur() ?? 0) > 0 && !this.tauxAuDessusDuPlafond() && !this.plafondHorsBornes(),
+  );
   /** Valider exige une simulation à jour ET un objectif atteignable. */
   protected readonly peutValider = computed(() => {
     const simulation = this.simulation();
     return !!simulation && simulation.objectifAtteignable && simulation.montantPonctionne > 0;
   });
+  private readonly api = inject(DeclarationCaApiService);
+  private readonly notification = inject(NotificationService);
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
 
   ngOnInit(): void {
     this.api.parametresPonction().subscribe(parametres => {
@@ -196,13 +195,12 @@ export class PonctionComponent implements OnInit {
     this.confirmDialog.onConfirm(
       () => this.valider(),
       'Valider la ponction ?',
-      `<p><strong>${sim.montantPonctionne.toLocaleString('fr')} F</strong> seront retirés du chiffre
+      `<p><strong>${formatCurrencyWithUnit(sim.montantPonctionne)}</strong> seront retirés du chiffre
        d'affaires à déclarer, sur ${sim.nombreVentesImpactees} vente(s) de la période
        ${sim.dateDebut} → ${sim.dateFin}.</p>
        <p class="mb-0">Cette ponction restera annulable pendant
        <strong>${jours} jour${jours > 1 ? 's' : ''}</strong>. Passé ce délai elle sera
-       <strong>définitive</strong> : les chiffres auront pu être lus, imprimés ou transmis, et les
-       défaire rendrait un état déjà sorti impossible à reproduire.</p>`,
+       <strong>définitive</strong>`,
       'pi pi-exclamation-triangle',
     );
   }
@@ -214,7 +212,7 @@ export class PonctionComponent implements OnInit {
         this.chargement.set(false);
         this.simulation.set(null);
         this.notification.success(
-          `Ponction validée : ${ponction.montantPonctionne.toLocaleString('fr')} F retirés du CA à déclarer`,
+          `Ponction validée : ${formatCurrencyWithUnit(ponction.montantPonctionne)} retirés du CA à déclarer`,
         );
       },
       error: erreur => {

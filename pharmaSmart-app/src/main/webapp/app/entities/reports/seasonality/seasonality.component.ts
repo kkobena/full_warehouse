@@ -12,9 +12,10 @@ import {ChartBuilderService, ChartConfig} from '../../../shared/util/chart-build
 import {formatCurrency, formatNumber} from 'app/shared/utils/format-utils';
 import {ChartComponent} from "../../../shared/chart/chart.component";
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-seasonality',
-  imports: [CommonModule, FormsModule, DataTableComponent, ChartComponent, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent],
+  imports: [DeviseDirective, CommonModule, FormsModule, DataTableComponent, ChartComponent, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent],
   templateUrl: './seasonality.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./seasonality.component.scss'],

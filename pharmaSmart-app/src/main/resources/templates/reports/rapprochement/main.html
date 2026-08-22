@@ -22,17 +22,17 @@
       <div class="kpi-cell">
         <span class="kpi-label">Total facturé</span>
         <span class="kpi-value"
-              th:text="${#numbers.formatDecimal(totalFacture, 1, 'DEFAULT', 0, 'DEFAULT')} + ' FCFA'"></span>
+              th:text="${#numbers.formatDecimal(totalFacture, 1, 'DEFAULT', 0, 'DEFAULT')} +' '+${devise}"></span>
       </div>
       <div class="kpi-cell">
         <span class="kpi-label">Total réglé</span>
         <span class="kpi-value"
-              th:text="${#numbers.formatDecimal(totalRegle, 1, 'DEFAULT', 0, 'DEFAULT')} + ' FCFA'"></span>
+              th:text="${#numbers.formatDecimal(totalRegle, 1, 'DEFAULT', 0, 'DEFAULT')} +' '+${devise}"></span>
       </div>
       <div class="kpi-cell">
         <span class="kpi-label">Écart global</span>
         <span class="kpi-value"
-              th:text="${#numbers.formatDecimal(ecartTotal, 1, 'DEFAULT', 0, 'DEFAULT')} + ' FCFA'"></span>
+              th:text="${#numbers.formatDecimal(ecartTotal, 1, 'DEFAULT', 0, 'DEFAULT')} +' '+${devise}"></span>
       </div>
       <div class="kpi-cell">
         <span class="kpi-label">Organismes</span>
@@ -60,9 +60,9 @@
             <th>N° Facture</th>
             <th>Date facture</th>
             <th>Échéance</th>
-            <th class="text-right">Facturé (FCFA)</th>
-            <th class="text-right">Réglé (FCFA)</th>
-            <th class="text-right">Écart (FCFA)</th>
+            <th class="text-right">Facturé (<span th:text="${devise}"></span>)</th>
+            <th class="text-right">Réglé (<span th:text="${devise}"></span>)</th>
+            <th class="text-right">Écart (<span th:text="${devise}"></span>)</th>
             <th class="text-center">Statut</th>
           </tr>
         </thead>

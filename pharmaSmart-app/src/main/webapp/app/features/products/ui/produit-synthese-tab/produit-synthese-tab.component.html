@@ -144,7 +144,7 @@
           <span class="kpi-label">Marge absolue</span>
           <span class="kpi-value" style="color: #5cb85c">
             @if (margeAbsolue() != null) {
-              {{ margeAbsolue() | number: '1.0-0' }} FCFA
+              {{ margeAbsolue() | number: '1.0-0' }} <span appDevise></span>
             } @else {
               —
             }

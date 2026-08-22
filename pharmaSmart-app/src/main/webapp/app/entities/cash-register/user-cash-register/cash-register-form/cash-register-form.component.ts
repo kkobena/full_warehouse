@@ -7,9 +7,10 @@ import { ErrorService } from '../../../../shared/error.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { ButtonComponent, InputNumberComponent } from '../../../../shared/ui';
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'jhi-cash-register-form',
-  imports: [ButtonComponent, ReactiveFormsModule, InputNumberComponent],
+  imports: [DeviseDirective, ButtonComponent, ReactiveFormsModule, InputNumberComponent],
   templateUrl: './cash-register-form.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './cash-register-form.component.scss',

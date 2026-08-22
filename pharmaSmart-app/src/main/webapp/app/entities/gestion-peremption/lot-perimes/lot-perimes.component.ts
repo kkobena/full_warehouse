@@ -36,6 +36,7 @@ import {
 } from "../retour-groupe-perime-dialog/retour-groupe-perime-dialog.component";
 import { CommonModule } from "@angular/common";
 import { FournisseurSelectComponent } from "../../../features/partners/ui/fournisseur-select/fournisseur-select.component";
+import { currencySymbol } from 'app/shared/utils/format-utils';
 import {
   AppSplitButtonItem,
   AppTableLazyLoadEvent,
@@ -344,7 +345,7 @@ export class LotPerimesComponent implements OnInit {
     const message =
       `Retirer ${count} lot(s) du stock ?\n` +
       `Quantité totale : ${totalQty.toLocaleString("fr-FR")} unités\n` +
-      `Valeur achat estimée : ${totalValeur.toLocaleString("fr-FR")} FCFA\n\n` +
+      `Valeur achat estimée : ${totalValeur.toLocaleString("fr-FR")} ${currencySymbol()}\n\n` +
       `⚠️ Cette action est irréversible.`;
     this.confirmDialog.onConfirm(
       () => this.retirerStock(),

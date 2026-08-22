@@ -12,9 +12,10 @@ import {ButtonComponent, DataTableComponent, SortableHeaderDirective, ToolbarCom
 import {ChartComponent} from "../../../shared/chart/chart.component";
 import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-sales-by-staff',
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     DataTableComponent,

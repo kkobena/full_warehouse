@@ -74,6 +74,7 @@ import {
 import {AgGridAngular} from "ag-grid-angular";
 import {CommandeRequestedLineActionsComponent} from "./commande-requested-line-actions.component";
 
+import { formatNumber } from 'app/shared/utils/format-utils';
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
 @Component({
@@ -203,9 +204,9 @@ export class CommandeRequestedComponent implements OnInit {
           return "";
         }
         const val = p.data.orderCostAmount != null
-          ? Number(p.data.orderCostAmount).toLocaleString("fr-FR") : "—";
+          ? formatNumber(Number(p.data.orderCostAmount)) : "—";
         if (p.data.costAmount != null && p.data.costAmount !== p.data.orderCostAmount) {
-          const tarif = Number(p.data.costAmount).toLocaleString("fr-FR");
+          const tarif = formatNumber(Number(p.data.costAmount));
           return `<span style="display:flex;align-items:center;gap:4px;white-space:nowrap">
             <span>${val}</span>
             <span title="Tarif catalogue : ${tarif} F" style="display:inline-flex;align-items:center;gap:2px;color:#dc3545;font-size:0.7rem;font-weight:600;cursor:help">
@@ -230,9 +231,9 @@ export class CommandeRequestedComponent implements OnInit {
           return "";
         }
         const val = p.data.orderUnitPrice != null
-          ? Number(p.data.orderUnitPrice).toLocaleString("fr-FR") : "—";
+          ? formatNumber(Number(p.data.orderUnitPrice)) : "—";
         if (p.data.regularUnitPrice != null && p.data.regularUnitPrice !== p.data.orderUnitPrice) {
-          const tarif = Number(p.data.regularUnitPrice).toLocaleString("fr-FR");
+          const tarif = formatNumber(Number(p.data.regularUnitPrice));
           return `<span style="display:flex;align-items:center;gap:4px;white-space:nowrap">
             <span>${val}</span>
             <span title="Tarif catalogue : ${tarif} F" style="display:inline-flex;align-items:center;gap:2px;color:#dc3545;font-size:0.7rem;font-weight:600;cursor:help">
@@ -500,7 +501,7 @@ export class CommandeRequestedComponent implements OnInit {
   protected onCreateBon(): void {
     const montant = this.currentCommande?.grossAmount ?? 0;
     if (this.seuilMontantCommande > 0 && montant > this.seuilMontantCommande) {
-      const fmt = (n: number): string => n.toLocaleString("fr-FR");
+      const fmt = (n: number): string => formatNumber(n);
       this.confirmDialog.onConfirm(
         () => this.doCreateBon(),
         "Validation titulaire requise",

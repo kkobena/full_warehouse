@@ -44,7 +44,6 @@ export class FournisseurSelectComponent implements OnInit {
   disabled = input<boolean>(false);
   showClear = input<boolean>(true);
   /**
-   * Cible d'accrochage de l'overlay PrimeNG.
    * Par défaut 'body' (hors modal). Passer null dans une modal et gérer
    * (dropdownShow)/(dropdownHide) pour rendre le modal-body overflow:visible.
    */

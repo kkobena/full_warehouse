@@ -10,9 +10,10 @@ import { NgbConfirmDialogService } from "../../../shared/dialog/ngb-confirm-dial
 import { NotificationService } from "../../../shared/services/notification.service";
 import { ButtonComponent, InputNumberComponent } from "../../../shared/ui";
 
+import { DeviseDirective, DevisePipe } from 'app/shared/utils/devise';
 @Component({
   selector: "app-ticketing",
-  imports: [
+  imports: [DeviseDirective, DevisePipe, 
     CommonModule,
     FormsModule,
     ReactiveFormsModule,

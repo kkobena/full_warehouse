@@ -115,7 +115,7 @@ export class SemoisSuggestionsComponent implements OnInit {
     });
   }
 
-  /** PrimeNG 20 TablePageEvent n'a que first/rows (pas page). */
+
   onPageChange(event: { first: number; rows: number }): void {
     this.page.set(Math.floor(event.first / event.rows));
     this.itemsPerPage.set(event.rows);

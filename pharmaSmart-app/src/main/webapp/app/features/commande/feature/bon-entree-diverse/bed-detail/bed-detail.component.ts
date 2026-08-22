@@ -27,6 +27,7 @@ import { ProduitSearch } from "app/shared/model/produit.model";
 import { NotificationService } from "app/shared/services/notification.service";
 import { NgbConfirmDialogService } from "app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 
+import { formatNumber } from 'app/shared/utils/format-utils';
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
 @Component({
@@ -98,7 +99,7 @@ export class BedDetailComponent implements OnInit {
         type: "numericColumn",
         editable: () => brouillon,
         cellEditor: "agNumberCellEditor",
-        valueFormatter: p => (p.value != null ? Number(p.value).toLocaleString("fr-FR") : "—")
+        valueFormatter: p => (p.value != null ? formatNumber(Number(p.value)) : "—")
       },
       {
         colId: "total",
@@ -106,7 +107,7 @@ export class BedDetailComponent implements OnInit {
         width: 130,
         type: "numericColumn",
         valueGetter: p => (p.data?.quantite ?? 0) * (p.data?.prixAchat ?? 0),
-        valueFormatter: p => (p.value != null ? Number(p.value).toLocaleString("fr-FR") : "—")
+        valueFormatter: p => (p.value != null ? formatNumber(Number(p.value)) : "—")
       },
       {
         colId: "actions",

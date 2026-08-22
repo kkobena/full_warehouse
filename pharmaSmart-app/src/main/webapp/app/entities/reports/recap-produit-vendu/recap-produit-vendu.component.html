@@ -92,7 +92,7 @@
                   <span class="kpi-strip-label">CA Total</span>
                   <span class="kpi-strip-value text-success">{{
                       formatCurrency(summary()!.totalSalesAmount)
-                    }} <small>FCFA</small></span>
+                    }} <small appDevise></small></span>
                   <span class="kpi-strip-sub">chiffre d'affaires</span>
                 </div>
               </div>
@@ -105,7 +105,7 @@
                   <span class="kpi-strip-label">Coût d'achat</span>
                   <span class="kpi-strip-value text-warning">{{
                       formatCurrency(summary()!.totalPurchaseAmount)
-                    }} <small>FCFA</small></span>
+                    }} <small appDevise></small></span>
                   <span class="kpi-strip-sub">prix de revient</span>
                 </div>
               </div>
@@ -254,7 +254,7 @@
                   <span class="kpi-strip-label">Valeur vente</span>
                   <span class="kpi-strip-value text-success">{{
                       formatCurrency(unsoldSummary()?.totalSalesAmount || 0)
-                    }} <small>FCFA</small></span>
+                    }} <small appDevise></small></span>
                   <span class="kpi-strip-sub">prix de vente</span>
                 </div>
               </div>
@@ -267,7 +267,7 @@
                   <span class="kpi-strip-label">Coût d'achat</span>
                   <span class="kpi-strip-value text-danger">{{
                       formatCurrency(unsoldSummary()?.totalPurchaseAmount || 0)
-                    }} <small>FCFA</small></span>
+                    }} <small appDevise></small></span>
                   <span class="kpi-strip-sub">prix de revient</span>
                 </div>
               </div>

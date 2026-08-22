@@ -66,11 +66,7 @@ export type AppButtonSize = 'small' | 'normal' | 'large';
       display: none !important;
     }
 
-    // Bootstrap n'a pas d'équivalent au bouton carré "icon only" de PrimeNG.
-    //
-    // Le padding horizontal reprend le padding vertical de Bootstrap : à zéro, l'icône
-    // touchait les bords sur les variantes .btn-link (text) qui n'ont pas de fond pour
-    // donner l'illusion d'une marge. aspect-ratio garde le bouton carré.
+
     .app-btn-icon-only {
       aspect-ratio: 1;
       padding-inline: var(--bs-btn-padding-y);
@@ -155,7 +151,7 @@ export class ButtonComponent {
   readonly iconOnly = input<boolean>(false);
   /** Couleur du bouton (vocabulaire PrimeNG). */
   readonly severity = input<AppButtonSeverity>('primary');
-  readonly size = input<AppButtonSize>('small');
+  readonly size = input<AppButtonSize>('normal');
   /** Contour coloré sur fond transparent (`.btn-outline-*`). */
   readonly outlined = input<boolean>(false);
   /** Sans fond ni bordure (`.btn-link`). Prioritaire sur `outlined`. */

@@ -34,6 +34,7 @@ import {CustomMissingTranslationHandler} from './config/translation.config';
 import {translationInitializer} from './shared/language/translation.initializer';
 import {provideAnimationsAsync} from '@angular/platform-browser/animations/async';
 
+import { deviseInitializer } from 'app/shared/utils/devise.initializer';
 // --- Navigation error handler ---
 function handleNavigationError(e: NavigationError) {
   const router = inject(Router);
@@ -86,6 +87,8 @@ export const appConfig: ApplicationConfig = {
       },
     }),
     provideAppInitializer(translationInitializer),
+
+    provideAppInitializer(deviseInitializer),
     provideAppInitializer(() => {
       const tauriDeviceService = inject(TauriDeviceDetectionService);
       if (tauriDeviceService.isTauriAvailable()) {

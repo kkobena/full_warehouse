@@ -23,12 +23,13 @@ import { combineLatest, Subject } from "rxjs";
 import { debounceTime, distinctUntilChanged, startWith } from "rxjs/operators";
 import { FournisseurApiService } from "../../../partners/data-access/services/fournisseur-api.service";
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: "app-suggestion-home",
   templateUrl: "./suggestion-home.component.html",
   styleUrls: ["./suggestion-home.component.scss"],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     SuggestionFournisseurListComponent,

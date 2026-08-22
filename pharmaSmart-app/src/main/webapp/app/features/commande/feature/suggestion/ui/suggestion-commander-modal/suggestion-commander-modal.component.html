@@ -24,8 +24,8 @@
           <th style="width: 10rem;">CIP</th>
           <th>Produit</th>
           <th style="width: 4rem; text-align: right;">Qté</th>
-          <th style="width: 8rem; text-align: right;">Prix Achat. (FCFA)</th>
-          <th style="width: 9rem; text-align: right;">Montant (FCFA)</th>
+          <th style="width: 8rem; text-align: right;">Prix Achat. (<span appDevise></span>)</th>
+          <th style="width: 9rem; text-align: right;">Montant (<span appDevise></span>)</th>
         </tr>
       </ng-template>
       <ng-template #body let-ligne>
@@ -72,11 +72,11 @@
     <div class="d-flex justify-content-end align-items-center px-3 py-2 gap-3">
       @if (budgetRestant != null) {
         <span class="text-muted" style="font-size: 0.85rem;">
-          Budget restant : <strong>{{ budgetRestant | number : '1.0-0' }} FCFA</strong>
+          Budget restant : <strong>{{ budgetRestant | number : '1.0-0' }} <span appDevise></span></strong>
         </span>
       }
       <span class="fs-6 fw-bold text-dark">
-        Total : {{ montantTotal | number : '1.0-0' }} FCFA
+        Total : {{ montantTotal | number : '1.0-0' }} <span appDevise></span>
       </span>
     </div>
 

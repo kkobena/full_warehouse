@@ -8,6 +8,7 @@ import { NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
 import { ITopProduct } from "app/shared/model/report/top-product.model";
 import { TopProductsReportService } from "../services/top-products-report.service";
 import { DATE_FORMAT_ISO_DATE, retriveMonthLabel } from "../../../shared/util/warehouse-util";
+import { DeviseDirective } from 'app/shared/utils/devise';
 import {
   BadgeComponent,
   ButtonComponent,
@@ -26,7 +27,7 @@ interface ITopProductRanked extends ITopProduct {
   templateUrl: "./top-products.component.html",
   styleUrls: ["./top-products.component.scss"],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     NgbNavModule,

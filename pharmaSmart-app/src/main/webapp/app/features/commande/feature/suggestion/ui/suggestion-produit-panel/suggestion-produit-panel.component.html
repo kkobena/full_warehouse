@@ -149,7 +149,7 @@
         <i class="pi pi-check-circle me-1"></i>
         {{ lignesSelectionnees().length }} produit(s) sélectionné(s)
         &nbsp;·&nbsp;
-        {{ montantSelection() | number : '1.0-0' }} FCFA
+        {{ montantSelection() | number : '1.0-0' }} <span appDevise></span>
       </span>
       <div class="d-flex gap-2">
         <app-button

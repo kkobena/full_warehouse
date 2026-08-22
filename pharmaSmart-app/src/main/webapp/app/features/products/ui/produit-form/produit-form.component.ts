@@ -58,6 +58,7 @@ import {
 import {NotificationService} from "../../../../shared/services/notification.service";
 import {ErrorService} from "../../../../shared/error.service";
 import {HttpErrorResponse} from "@angular/common/http";
+import { DeviseDirective } from 'app/shared/utils/devise';
 import {
   FournisseurApiService
 } from "../../../partners/data-access/services/fournisseur-api.service";
@@ -67,7 +68,7 @@ import {
   templateUrl: "./produit-form.component.html",
   styleUrl: "./produit-form.component.scss",
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     ReactiveFormsModule,
     NgbNavModule,

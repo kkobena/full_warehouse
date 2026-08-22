@@ -15,13 +15,14 @@ import { VenteDepotApiService } from "../../data-access/services/vente-depot-api
 import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
 import { NotificationService } from "../../../../shared/services/notification.service";
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: "app-vente-depot-list",
   templateUrl: "./vente-depot-list.component.html",
   styleUrl: "./vente-depot-list.component.scss",
   providers: [{ provide: NgbDateParserFormatter, useClass: FrenchDateParserFormatter }],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,

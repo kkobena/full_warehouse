@@ -15,6 +15,7 @@ import { BlobDownloadService } from '../../../../shared/services/blob-download.s
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { createPeriodDateFilter } from '../period-date-filter';
 
+import { formatNumber } from 'app/shared/utils/format-utils';
 Chart.register(...registerables);
 
 @Component({
@@ -201,7 +202,7 @@ export class ProduitMouvementsTabComponent implements OnDestroy {
    */
   protected qty(val: number | undefined | null): string {
     if (!val) return '—';
-    return val.toLocaleString('fr-FR');
+    return formatNumber(val);
   }
 
   /**

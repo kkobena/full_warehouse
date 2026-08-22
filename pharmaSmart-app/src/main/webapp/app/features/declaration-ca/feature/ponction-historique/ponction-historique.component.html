@@ -49,39 +49,47 @@
       </ng-template>
 
       <ng-template #body let-ponction>
-        <tr>
-          <td>{{ ponction.dateDebut }} → {{ ponction.dateFin }}</td>
+        <!-- `appSelectableRow` : le gabarit fournit son propre <tr>, la table ne l'enveloppe
+             pas — sans la directive, la ligne n'écoute aucun clic. -->
+        <tr [appSelectableRow]="ponction">
+          <td>{{ ponction.dateDebut | date: 'dd/MM/yyyy' }} → {{ ponction.dateFin | date: 'dd/MM/yyyy' }}</td>
           <td class="small text-muted">
-            {{ ponction.valeurSaisie }}{{ ponction.modeCalcul === 'POURCENTAGE' ? ' %' : ' F' }} ·
+            {{ ponction.valeurSaisie }} {{ ponction.modeCalcul === 'POURCENTAGE' ? '%' : ('' | devise) }} ·
             plafond
             {{ ponction.plafondParVente }} %
           </td>
-          <td class="text-end">{{ ponction.caReel | number }}</td>
-          <td class="text-end">{{ ponction.caDeclare | number }}</td>
-          <td class="text-end fw-semibold">{{ ponction.montantPonctionne | number }}</td>
+          <td class="text-end">{{ ponction.caReel | number: '1.0-0' }}</td>
+          <td class="text-end">{{ ponction.caDeclare | number: '1.0-0' }}</td>
+          <td class="text-end fw-semibold">{{ ponction.montantPonctionne | number: '1.0-0' }}</td>
           <td class="text-end">{{ tauxEffectif(ponction) }}</td>
           <td>
             <app-badge [label]="ponction.statut" [severity]="severite(ponction.statut)" />
           </td>
           <td class="small text-muted">{{ ponction.auteur }}</td>
           <td class="text-end">
-            <app-button
-              (clicked)="imprimer(ponction, $event)"
-              [text]="true"
-              icon="pi pi-file-pdf"
-              label="Justificatif"
-              severity="secondary"
-            />
-            @if (annulable(ponction.statut)) {
+            <div class="btn-group">
               <app-button
-                (clicked)="demanderAnnulation(ponction, $event)"
-                [disabled]="chargement()"
+                (clicked)="imprimer(ponction, $event)"
+                [rounded]="true"
                 [text]="true"
-                icon="pi pi-undo"
-                label="Annuler"
-                severity="danger"
+                icon="pi pi-file-pdf"
+                ngbTooltip="Justificatif PDF"
+                severity="info"
+                size="small"
               />
-            }
+              @if (annulable(ponction.statut)) {
+                <app-button
+                  (clicked)="demanderAnnulation(ponction, $event)"
+                  [disabled]="chargement()"
+                  [rounded]="true"
+                  [text]="true"
+                  icon="pi pi-undo"
+                  ngbTooltip="Annuler la ponction"
+                  severity="danger"
+                  size="small"
+                />
+              }
+            </div>
           </td>
         </tr>
       </ng-template>
@@ -104,9 +112,9 @@
         </div>
 
         <p class="text-muted small">
-          {{ selection()!.dateDebut }} → {{ selection()!.dateFin }} ·
+          {{ selection()!.dateDebut | date: 'dd/MM/yyyy' }} → {{ selection()!.dateFin | date: 'dd/MM/yyyy' }} ·
           {{ selection()!.nombreVentes | number }} vente(s) ·
-          {{ selection()!.montantPonctionne | number }} F retirés
+          {{ selection()!.montantPonctionne | number: '1.0-0' }} <span appDevise></span> retirés
         </p>
 
         @if (selection()!.commentaire) {
@@ -135,10 +143,10 @@
             <tr>
               <td class="text-muted">{{ ligne.rang }}</td>
               <td>{{ ligne.numeroTransaction }}</td>
-              <td>{{ ligne.saleDate }}</td>
-              <td class="text-end">{{ ligne.montantVente | number }}</td>
-              <td class="text-end text-muted">{{ ligne.montantBase | number }}</td>
-              <td class="text-end fw-semibold">{{ ligne.montantPonctionne | number }}</td>
+              <td>{{ ligne.saleDate | date: 'dd/MM/yyyy' }}</td>
+              <td class="text-end">{{ ligne.montantVente | number: '1.0-0' }}</td>
+              <td class="text-end text-muted">{{ ligne.montantBase | number: '1.0-0' }}</td>
+              <td class="text-end fw-semibold">{{ ligne.montantPonctionne | number: '1.0-0' }}</td>
             </tr>
           </ng-template>
         </app-data-table>

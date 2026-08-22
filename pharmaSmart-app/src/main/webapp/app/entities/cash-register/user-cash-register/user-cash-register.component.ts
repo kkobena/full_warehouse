@@ -19,6 +19,7 @@ import {
   NgbConfirmDialogService
 } from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import {CommonModule} from "@angular/common";
+import { DeviseDirective } from 'app/shared/utils/devise';
 import {
   BadgeComponent,
   ButtonComponent,
@@ -28,7 +29,7 @@ import {
 
 @Component({
   selector: "app-user-cash-register",
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     RouterModule,
     ReactiveFormsModule,

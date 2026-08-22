@@ -59,7 +59,7 @@
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">Total dû</span>
           <span class="kpi-strip-value text-danger">{{ formatCurrency(summary()!.totalDu) }}</span>
-          <span class="kpi-strip-sub">FCFA</span>
+          <span class="kpi-strip-sub" appDevise></span>
         </div>
       </div>
 
@@ -179,7 +179,7 @@
                   <app-badge [label]="statutLabel(f.statut)" [ngbTooltip]="statutTooltip(f.statut)"
                              [severity]="statutSeverity(f.statut)" />
                   <span class="pharma-badge pharma-badge-danger ms-2">
-                    Solde : {{ formatCurrency(f.solde) }} FCFA
+                    Solde : {{ formatCurrency(f.solde) }} <span appDevise></span>
                   </span>
                   @if (f.phone) {
                     <span class="text-muted ms-2" style="font-size: 0.75rem;">
@@ -194,11 +194,11 @@
                 </div>
                 <!-- Récapitulatif financier -->
                 <div class="d-flex gap-4 mt-1" style="font-size: 0.82rem;">
-                  <span>Commandé : <strong>{{ formatCurrency(f.totalCommande) }}FCFA</strong></span>
+                  <span>Commandé : <strong>{{ formatCurrency(f.totalCommande) }}<span appDevise></span></strong></span>
                   <span>Réglé : <strong class="text-success">{{ formatCurrency(f.totalRegle) }}
-                    FCFA</strong></span>
+                    <span appDevise></span></strong></span>
                   <span>Solde : <strong class="text-danger">{{ formatCurrency(f.solde) }}
-                    FCFA</strong></span>
+                    <span appDevise></span></strong></span>
                 </div>
               </div>
               <div class="panel-actions">
@@ -346,15 +346,15 @@
                               class="pharma-code">{{ bl.numBon }}</code> :</span>
                             <span class="solde-value text-danger fw-bold">{{
                                 formatCurrency(bl.restantDu)
-                              }} FCFA</span>
+                              }} <span appDevise></span></span>
                             <span class="ms-3 text-muted" style="font-size: 0.8rem;">
-                              Solde global : {{ formatCurrency(solde()) }} FCFA
+                              Solde global : {{ formatCurrency(solde()) }} <span appDevise></span>
                             </span>
                           } @else {
                             <span class="solde-label">Solde à régler :</span>
                             <span class="solde-value text-danger fw-bold">{{
                                 formatCurrency(solde())
-                              }} FCFA</span>
+                              }} <span appDevise></span></span>
                           }
                         </div>
 
@@ -363,7 +363,7 @@
                             <!-- Ligne 1 : Montant | Date -->
                             <div class="row g-2 mb-3">
                               <div class="col-6">
-                                <app-float-label inputId="montant" label="Montant (FCFA)">
+                                <app-float-label inputId="montant" label="Montant (<span appDevise></span>)">
                                   <app-input-number formControlName="montant" inputId="montant" />
                                 </app-float-label>
                                 @if (montantSaisi() > solde()) {

@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.sale.impl;
 
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.AvoirClient;
 import com.kobe.warehouse.domain.Customer;
 import com.kobe.warehouse.domain.FournisseurProduit;
@@ -334,7 +335,7 @@ public class RetourClientServiceImpl implements RetourClientService {
     private RetourClientDTO toDTO(RetourClient r) {
         String customerName = buildCustomerName(r.getCustomer());
         String createdByName = r.getCreatedBy() != null
-            ? r.getCreatedBy().getFirstName() + " " + r.getCreatedBy().getLastName()
+            ? AppUserNames.fullName(r.getCreatedBy())
             : null;
         List<RetourClientLineDTO> lineDTOs = r.getLines().stream()
             .map(this::toLineDTO)

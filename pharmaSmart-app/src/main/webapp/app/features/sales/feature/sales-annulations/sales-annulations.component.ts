@@ -15,13 +15,14 @@ import { UserService } from "../../../../core/user/user.service";
 import { SalesApiService } from "../../data-access/services/sales-api.service";
 import { SalesStatut } from "../../models/enumerations/sales-statut.enum";
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: "app-sales-annulations",
   templateUrl: "./sales-annulations.component.html",
   styleUrl: "./sales-annulations.component.scss",
   providers: [{ provide: NgbDateParserFormatter, useClass: FrenchDateParserFormatter }],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,

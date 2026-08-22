@@ -7,6 +7,7 @@ import {NotificationService} from '../../../../shared/services/notification.serv
 import {CustomerDisplayService} from '../../data-access/services/customer-display.service';
 import {PaymentCompleteEvent} from '../../ui/payment-mode/payment-mode.component';
 
+import { formatCurrencyWithUnit } from 'app/shared/utils/format-utils';
 /**
  * Structure d'un paiement entrant depuis l'événement de paiement
  */
@@ -246,10 +247,13 @@ export function createPaymentHandling(context: PaymentHandlingContext) {
   }
 
   /**
-   * Formate un montant pour l'affichage
+   * Formate un montant pour l'affichage, devise comprise.
+   *
+   * La devise vient de la configuration de l'officine : elle était écrite en dur à chaque ligne des
+   * messages de confirmation, ce qui rendait l'écran de caisse inutilisable hors zone franc.
    */
   function formatAmount(amount: number): string {
-    return amount.toLocaleString();
+    return formatCurrencyWithUnit(amount);
   }
 
   /**
@@ -259,13 +263,13 @@ export function createPaymentHandling(context: PaymentHandlingContext) {
     return `
       <div>Le montant versé est inférieur au montant dû.</div><br>
       <div class="text-end mb-2">
-        Montant dû : <span class="fs-5 badge rounded-pill bg-danger-subtle text-danger-emphasis"><b>${formatAmount(amountToBePaid)} FCFA</b></span>
+        Montant dû : <span class="fs-5 badge rounded-pill bg-danger-subtle text-danger-emphasis"><b>${formatAmount(amountToBePaid)}</b></span>
       </div>
       <div class="text-end mb-2">
-        Montant versé : <span class="fs-5 badge rounded-pill bg-primary-subtle text-primary-emphasis"><b>${formatAmount(montantVerse)} FCFA</b></span>
+        Montant versé : <span class="fs-5 badge rounded-pill bg-primary-subtle text-primary-emphasis"><b>${formatAmount(montantVerse)}</b></span>
       </div>
       <div class="text-end mb-2">
-        Reste à payer : <span class="fs-5 badge rounded-pill bg-warning-subtle text-warning-emphasis"><b>${formatAmount(restToPay)} FCFA</b></span>
+        Reste à payer : <span class="fs-5 badge rounded-pill bg-warning-subtle text-warning-emphasis"><b>${formatAmount(restToPay)}</b></span>
       </div><br>
       <div>Voulez-vous régler le reste en différé ?</div>
     `;

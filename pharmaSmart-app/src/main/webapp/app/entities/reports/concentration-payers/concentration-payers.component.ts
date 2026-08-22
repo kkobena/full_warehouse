@@ -5,9 +5,10 @@ import { forkJoin } from 'rxjs';
 
 import { IConcentrationEvolution, IConcentrationOrganisme, IConcentrationSummary } from 'app/shared/model/report';
 import { ConcentrationPayersService } from '../services/concentration-payers.service';
-import { formatCurrency, formatNumber } from 'app/shared/utils/format-utils';
+import { formatCurrency, formatNumber, currencySymbol } from 'app/shared/utils/format-utils';
 
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
+import { DeviseDirective } from 'app/shared/utils/devise';
 import {
   DataTableComponent,
   SelectComponent
@@ -41,7 +42,7 @@ const CHART_BORDERS = [
   templateUrl: './concentration-payers.component.html',
   styleUrl: './concentration-payers.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     DataTableComponent,
@@ -209,14 +210,14 @@ export default class ConcentrationPayersComponent implements OnInit, OnDestroy {
                 const total = (evo.series ?? []).reduce((s, serie) =>
                   s + ((serie.caValues ?? [])[ctx.dataIndex] ?? 0), 0);
                 const pct = total > 0 ? Math.round((ctx.parsed.y / total) * 100) : 0;
-                return `${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)} FCFA (${pct}%)`;
+                return `${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)} ${currencySymbol()} (${pct}%)`;
               },
             },
           },
         },
         scales: {
           x: { stacked: true, ticks: { maxRotation: 45 } },
-          y: { stacked: true, title: { display: true, text: 'CA TP facturé (FCFA)' } },
+          y: { stacked: true, title: { display: true, text: `CA TP facturé (${currencySymbol()})` } },
         },
       },
     };

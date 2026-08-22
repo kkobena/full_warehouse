@@ -20,9 +20,10 @@ import {
 } from '../../../shared/ui';
 import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'jhi-activity-summary',
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     RouterLink,

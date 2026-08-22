@@ -46,7 +46,7 @@
         <i class="pi pi-shopping-cart text-primary"></i>
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">Valeur d'achat</span>
-          <span class="kpi-strip-value text-primary">{{ formatCurrency(summary()!.totalPurchaseValue) }} <small>FCFA</small></span>
+          <span class="kpi-strip-value text-primary">{{ formatCurrency(summary()!.totalPurchaseValue) }} <small appDevise></small></span>
           <span class="kpi-strip-sub">Coût total</span>
         </div>
       </div>
@@ -57,7 +57,7 @@
         <i class="pi pi-money-bill text-success"></i>
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">Valeur de vente</span>
-          <span class="kpi-strip-value text-success">{{ formatCurrency(summary()!.totalSalesValue) }} <small>FCFA</small></span>
+          <span class="kpi-strip-value text-success">{{ formatCurrency(summary()!.totalSalesValue) }} <small appDevise></small></span>
           <span class="kpi-strip-sub">Prix de vente</span>
         </div>
       </div>
@@ -68,7 +68,7 @@
         <i class="pi pi-percentage text-warning"></i>
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">Marge potentielle</span>
-          <span class="kpi-strip-value text-warning">{{ formatCurrency(summary()!.totalPotentialMargin) }} <small>FCFA</small></span>
+          <span class="kpi-strip-value text-warning">{{ formatCurrency(summary()!.totalPotentialMargin) }} <small appDevise></small></span>
           <span class="kpi-strip-sub">Gain possible</span>
         </div>
       </div>

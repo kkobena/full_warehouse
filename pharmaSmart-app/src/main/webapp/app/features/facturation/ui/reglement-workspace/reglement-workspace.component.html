@@ -21,7 +21,7 @@
       <div class="selection-summary">
         <i class="pi pi-check-square"></i>
         <span>{{ factureDossierSelectionnes().length }} dossier(s) sélectionné(s)</span>
-        <span class="selection-amount">→ {{ montantAPayer() | number }} FCFA</span>
+        <span class="selection-amount">→ {{ montantAPayer() | number }} <span appDevise></span></span>
       </div>
     }
 

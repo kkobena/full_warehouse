@@ -1098,8 +1098,6 @@
 // La barre rogne son débordement à trois niveaux (`.pharma-toolbar`,
 // `.pharma-toolbar-content`, `.pharma-toolbar-filters`) pour préserver ses coins
 // arrondis et contenir les filtres.
-//
-// PrimeNG n'en souffrait pas : chaque `p-select` / `p-multiselect` / `p-datepicker`
 // portait `appendTo="body"`, donc son panneau était projeté hors de la barre. Les
 // composants du Design System rendent dans le DOM — ng-select comme `NgbDropdown` —
 // et se faisaient donc tronquer par la barre.

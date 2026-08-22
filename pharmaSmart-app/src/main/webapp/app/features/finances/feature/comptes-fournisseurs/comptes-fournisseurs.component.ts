@@ -50,9 +50,11 @@ import {
 } from "../../../../shared/date-picker/pharma-date-picker.component";
 import { HintComponent } from 'app/shared/ui/hint/hint.component';
 
+import { DeviseDirective } from 'app/shared/utils/devise';
+import { currencySymbol } from 'app/shared/utils/format-utils';
 @Component({
   selector: "app-comptes-fournisseurs",
-  imports: [
+  imports: [DeviseDirective, 
     HintComponent,
     CommonModule,
     FormsModule,
@@ -282,7 +284,7 @@ export class ComptesFournisseursComponent implements OnInit {
     const modeLabel = this.modeReglementOptions.find(o => o.value === val.modeReglement)?.label ?? val.modeReglement;
     const ligne = this.selectedLigne();
     const blInfo = ligne ? ` — BL ${ligne.numBon}` : "";
-    const message = `Confirmer le règlement de ${this.formatCurrency(val.montant!)} FCFA par ${modeLabel}${blInfo} pour ${fournisseur.fournisseurName} ?`;
+    const message = `Confirmer le règlement de ${this.formatCurrency(val.montant!)} ${currencySymbol()} par ${modeLabel}${blInfo} pour ${fournisseur.fournisseurName} ?`;
 
     this.confirmDialog.onConfirm(
       () => this.doSaveReglement(),

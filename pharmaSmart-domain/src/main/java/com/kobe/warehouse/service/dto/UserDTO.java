@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Authority;
@@ -73,14 +74,14 @@ public class UserDTO implements Serializable {
         lastModifiedDate = user.getLastModifiedDate();
         authorities = user.getAuthorities().stream().map(Authority::getName).collect(Collectors.toSet());
         fullName = String.format("%s %s", user.getFirstName(), user.getLastName());
-        abbrName = String.format("%s. %s", user.getFirstName().charAt(0), user.getLastName());
+        abbrName = AppUserNames.shortName(user);
     }
 
     public static UserDTO user(AppUser user) {
         UserDTO userDTO = new UserDTO();
         userDTO.setId(user.getId());
         userDTO.setEmail(user.getEmail());
-        userDTO.setAbbrName(String.format("%s. %s", user.getFirstName().charAt(0), user.getLastName()));
+        userDTO.setAbbrName(AppUserNames.shortName(user));
         userDTO.setFullName(String.format("%s %s", user.getFirstName(), user.getLastName()));
         userDTO.setFirstName(user.getFirstName());
         userDTO.setLastName(user.getLastName());

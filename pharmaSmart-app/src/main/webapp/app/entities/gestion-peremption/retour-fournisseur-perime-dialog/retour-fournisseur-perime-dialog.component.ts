@@ -19,9 +19,10 @@ import { NotificationService } from '../../../shared/services/notification.servi
 import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
 import { NGB_DATE_TO_ISO } from '../../../shared/util/warehouse-util';
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-retour-fournisseur-perime-dialog',
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     ReactiveFormsModule,
     ButtonComponent,

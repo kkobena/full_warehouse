@@ -24,6 +24,8 @@ import {SalesForecastService} from "../services/sales-forecast.service";
 import {formatCurrency, formatMonth, formatPercent} from "app/shared/utils/format-utils";
 
 import {Chart, ChartConfiguration, ChartData, registerables} from "chart.js";
+import { DeviseDirective } from 'app/shared/utils/devise';
+import { currencySymbol } from 'app/shared/utils/format-utils';
 import {
   BadgeComponent,
   ButtonComponent,
@@ -49,7 +51,7 @@ interface PeriodOption {
   templateUrl: "./sales-forecast.component.html",
   styleUrl: "./sales-forecast.component.scss",
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     BadgeComponent,
@@ -202,7 +204,7 @@ export default class SalesForecastComponent implements OnInit, OnDestroy {
           title: {display: true, text: "Prévisions de Chiffre d'Affaires"},
           tooltip: {
             callbacks: {
-              label: context => `CA: ${this.formatCurrency(context.parsed.y)} FCFA`
+              label: context => `CA: ${this.formatCurrency(context.parsed.y)} ${currencySymbol()}`
             }
           }
         },

@@ -12,12 +12,13 @@ import { formatCurrency } from "app/shared/utils/format-utils";
 import { BlobDownloadService } from "../../../shared/services/blob-download.service";
 import { BadgeComponent, DataTableComponent, IconFieldComponent, OffcanvasComponent } from '../../../shared/ui';
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: "app-abc-pareto",
   templateUrl: "./abc-pareto.component.html",
   styleUrl: "./abc-pareto.component.scss",
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     NgbProgressbar,

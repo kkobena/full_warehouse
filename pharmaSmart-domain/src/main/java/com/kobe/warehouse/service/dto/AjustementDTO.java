@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.Ajustement;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.FournisseurProduit;
@@ -53,7 +54,7 @@ public class AjustementDTO {
             codeCip = fournisseurProduit.getCodeCip();
         }
         AppUser user = ajustement.getAjust().getUser();
-        userFullName = user.getFirstName() + " " + user.getLastName();
+        userFullName = AppUserNames.fullName(user);
         MotifAjustement motifAjustement = ajustement.getMotifAjustement();
         if (motifAjustement != null) {
             motifAjustementId = motifAjustement.getId();

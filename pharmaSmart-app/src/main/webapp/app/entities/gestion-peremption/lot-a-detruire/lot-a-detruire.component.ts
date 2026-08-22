@@ -25,6 +25,7 @@ import { NotificationService } from "../../../shared/services/notification.servi
 import { CommonModule } from "@angular/common";
 import { BlobDownloadService } from "../../../shared/services/blob-download.service";
 import { FournisseurSelectComponent } from "../../../features/partners/ui/fournisseur-select/fournisseur-select.component";
+import { currencySymbol } from 'app/shared/utils/format-utils';
 import {
   AppSplitButtonItem,
   AppTableLazyLoadEvent,
@@ -232,7 +233,7 @@ export class LotADetruireComponent implements OnInit {
     const message =
       `Détruire définitivement ${count} lot(s) ?\n` +
       `Quantité totale : ${totalQty.toLocaleString("fr-FR")} unités\n` +
-      `Valeur achat estimée : ${totalValeur.toLocaleString("fr-FR")} FCFA\n\n` +
+      `Valeur achat estimée : ${totalValeur.toLocaleString("fr-FR")} ${currencySymbol()}\n\n` +
       `⚠️ Cette action est irréversible.`;
     this.confirmDialog.onConfirm(
       () => this.destroyAll(),

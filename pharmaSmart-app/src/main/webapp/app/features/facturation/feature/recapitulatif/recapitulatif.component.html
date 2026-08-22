@@ -261,7 +261,7 @@
         <div class="recap-detail-solde-prev">
           <span class="text-muted small">Report solde précédent :</span>
           <span class="fw-semibold ms-2">{{ (selectedRow()?.soldePrecedent ?? 0) | number:'1.0-0' }}
-            FCFA</span>
+            <span appDevise></span></span>
           @if ((selectedRow()?.soldePrecedent ?? 0) > 0) {
             <span class="badge bg-warning text-dark ms-2 small">Solde reporté</span>
           }

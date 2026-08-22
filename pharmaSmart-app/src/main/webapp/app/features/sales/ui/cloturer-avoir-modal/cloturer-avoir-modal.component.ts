@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ButtonComponent, CardComponent, InputNumberComponent, SelectComponent } from '../../../../shared/ui';
+import { DeviseDirective, DevisePipe } from 'app/shared/utils/devise';
 import {
   AvoirClientApiService,
   CloturerAvoirRequest,
@@ -16,7 +17,7 @@ import {
   templateUrl: './cloturer-avoir-modal.component.html',
   styleUrl: './cloturer-avoir-modal.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, ButtonComponent, SelectComponent, InputNumberComponent, CardComponent],
+  imports: [DeviseDirective, DevisePipe, CommonModule, FormsModule, ButtonComponent, SelectComponent, InputNumberComponent, CardComponent],
 })
 export class CloturerAvoirModalComponent {
   readonly activeModal = inject(NgbActiveModal);

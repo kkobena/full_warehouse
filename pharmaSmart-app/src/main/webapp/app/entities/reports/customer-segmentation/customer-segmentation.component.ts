@@ -20,12 +20,13 @@ import {CustomerSegmentationReportService} from "../services/customer-segmentati
 import {TauriPrinterService} from "../../../shared/services/tauri-printer.service";
 import {handleBlobForTauri} from "../../../shared/util/tauri-util";
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: "jhi-customer-segmentation",
   templateUrl: "./customer-segmentation.component.html",
   styleUrl: "./customer-segmentation.component.scss",
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, BadgeComponent, ButtonComponent, DataTableComponent, SelectComponent, ToolbarComponent, SortableHeaderDirective]
+  imports: [DeviseDirective, CommonModule, FormsModule, BadgeComponent, ButtonComponent, DataTableComponent, SelectComponent, ToolbarComponent, SortableHeaderDirective]
 })
 export default class CustomerSegmentationComponent implements OnInit {
   customers = signal<ICustomerSegmentation[]>([]);

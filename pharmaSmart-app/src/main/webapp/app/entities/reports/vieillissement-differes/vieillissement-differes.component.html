@@ -48,7 +48,7 @@
       <i class="pi pi-users text-danger"></i>
       <div class="kpi-strip-body">
         <span class="kpi-strip-label">Solde restant dû</span>
-        <span class="kpi-strip-value text-danger">{{ formatCurrency(totalSolde()) }} <small>FCFA</small></span>
+        <span class="kpi-strip-value text-danger">{{ formatCurrency(totalSolde()) }} <small appDevise></small></span>
         <span class="kpi-strip-sub">{{ differes().length }} clients concernés</span>
       </div>
     </div>

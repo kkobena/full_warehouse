@@ -13,6 +13,7 @@ import { IFournisseur } from "app/shared/model/fournisseur.model";
 import { FournisseurSelectComponent } from "../../../../../partners/ui/fournisseur-select/fournisseur-select.component";
 import { FournisseurApiService } from "../../../../../partners/data-access/services/fournisseur-api.service";
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 export { CommanderModalResult } from "../../data-access/suggestion-commander.model";
 
 @Component({
@@ -20,7 +21,7 @@ export { CommanderModalResult } from "../../data-access/suggestion-commander.mod
   templateUrl: "./suggestion-commander-modal.component.html",
   styleUrls: ["./suggestion-commander-modal.scss"],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, ButtonComponent, SelectComponent, PharmaDatePickerComponent, DecimalPipe, FournisseurSelectComponent, DataTableComponent]
+  imports: [DeviseDirective, CommonModule, FormsModule, ButtonComponent, SelectComponent, PharmaDatePickerComponent, DecimalPipe, FournisseurSelectComponent, DataTableComponent]
 })
 export class SuggestionCommanderModalComponent implements OnInit {
   private readonly activeModal = inject(NgbActiveModal);

@@ -3,6 +3,7 @@ package com.kobe.warehouse.service.reassort.impl;
 import static java.util.Objects.isNull;
 
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.LigneReassort;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.RepartitionStockProduit;
@@ -10,7 +11,6 @@ import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.SuggestionReassort;
 import com.kobe.warehouse.domain.enumeration.StatutReassort;
-import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.domain.enumeration.TypeReassort;
 import com.kobe.warehouse.domain.enumeration.TypeRepartition;
 import com.kobe.warehouse.repository.RepartitionStockProduitRepository;
@@ -21,11 +21,11 @@ import com.kobe.warehouse.service.dto.StockProduitDTO;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.reassort.RepartitionStockService;
-import com.kobe.warehouse.service.stock.LotStockLocationService;
 import com.kobe.warehouse.service.reassort.dto.RepartionQueryDto;
 import com.kobe.warehouse.service.reassort.dto.RepartionSearchQueryDto;
 import com.kobe.warehouse.service.reassort.dto.RepartitionStockProduitDto;
 import com.kobe.warehouse.service.report.pdf.RepartitionStockPdfReportService;
+import com.kobe.warehouse.service.stock.LotStockLocationService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -317,7 +317,9 @@ public class RepartitionStockServiceImpl implements RepartitionStockService {
 
     @Override
     public void autoPutawayRayonToReserve(StockProduit rayonSp, StockProduit reserveSp, int qty) {
-        if (qty <= 0) return;
+        if (qty <= 0) {
+            return;
+        }
 
         int rayonInit = rayonSp.getTotalStockQuantity();
         int rayonFinal = rayonInit - qty;
@@ -464,7 +466,7 @@ public class RepartitionStockServiceImpl implements RepartitionStockService {
 
         // User full name
         dto.setUserFullName(
-            formatUserFullName(projection.getFirstName(), projection.getLastName()));
+            AppUserNames.shortName(projection.getFirstName(), projection.getLastName()));
 
         // Product information
         dto.setProduitName(projection.getProduitName());
@@ -488,16 +490,6 @@ public class RepartitionStockServiceImpl implements RepartitionStockService {
         ));
 
         return dto;
-    }
-
-    /**
-     * Formats user full name from first and last name
-     */
-    private String formatUserFullName(String firstName, String lastName) {
-        if (firstName != null && lastName != null) {
-            return firstName + " " + lastName;
-        }
-        return firstName != null ? firstName : lastName;
     }
 
     /**

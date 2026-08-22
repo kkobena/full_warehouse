@@ -13,9 +13,10 @@ import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { ChartBuilderService, ChartConfig } from '../../../shared/util/chart-builder.service';
 import { formatCurrency, formatDecimal, formatNumber } from 'app/shared/utils/format-utils';
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-remises-analysis',
-  imports: [CommonModule, FormsModule, DataTableComponent, ChartComponent, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent],
+  imports: [DeviseDirective, CommonModule, FormsModule, DataTableComponent, ChartComponent, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent],
   templateUrl: './remises-analysis.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./remises-analysis.component.scss'],

@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.Ajust;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Storage;
@@ -26,7 +27,7 @@ public class AjustDTO {
         this.commentaire = ajust.getCommentaire();
         AppUser user = ajust.getUser();
         this.userId = user.getId();
-        this.userFullName = user.getFirstName().concat(" ") + user.getLastName();
+        this.userFullName = AppUserNames.fullName(user);
     }
 
     public LocalDateTime getDateMtv() {

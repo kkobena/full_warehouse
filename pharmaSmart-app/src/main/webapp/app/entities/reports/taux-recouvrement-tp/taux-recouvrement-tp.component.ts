@@ -10,9 +10,10 @@ import { IFacturationKpi } from "../../../features/facturation/data-access/model
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { formatCurrency, formatDecimal, formatNumber } from 'app/shared/utils/format-utils';
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-taux-recouvrement-tp',
-  imports: [CommonModule, FormsModule, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent],
+  imports: [DeviseDirective, CommonModule, FormsModule, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent],
   templateUrl: './taux-recouvrement-tp.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./taux-recouvrement-tp.component.scss'],

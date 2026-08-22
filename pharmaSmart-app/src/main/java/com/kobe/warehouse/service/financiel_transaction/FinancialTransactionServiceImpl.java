@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.CashRegister;
@@ -161,7 +162,7 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         DefaultPayment paymentTransaction = defaultTransactionRepository.findById(idReglement).orElseThrow();
         AppUser user = paymentTransaction.getCashRegister().getUser();
         return new DefaultPaymentRecord(
-            user.getFirstName().concat(" ").concat(user.getLastName()),
+            AppUserNames.fullName(user),
             paymentTransaction.getCreatedAt(),
             paymentTransaction.getPaymentMode().getLibelle(),
             paymentTransaction.getPaidAmount(),
@@ -209,26 +210,9 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         // financialTransactionDTO.setOrganismeId(paymentTransaction.getObjectId());
         financialTransactionDTO.setCreatedAt(paymentTransaction.getCreatedAt());
         financialTransactionDTO.setCredit(paymentTransaction.isCredit());
-        /* switch (paymentTransaction.getTypeFinancialTransaction()) {
-            case REGLEMENT_DIFFERE:
-                Customer customer = this.customerRepository.getReferenceById(paymentTransaction.getObjectId());
-                financialTransactionDTO.setOrganismeName(customer.getFirstName().concat(" ").concat(customer.getLastName()));
-                break;
-            case REGLEMENT_TIERS_PAYANT:
-                financialTransactionDTO.setOrganismeName(
-                    tiersPayantRepository.getReferenceById(paymentTransaction.getObjectId()).getName()
-                );
-                break;
-            case REGLMENT_FOURNISSEUR:
-                financialTransactionDTO.setOrganismeName(
-                    fournisseurRepository.getReferenceById(paymentTransaction.getObjectId()).getLibelle()
-                );
-                break;
-            default:
-                throw new IllegalArgumentException("Unexpected value: " + paymentTransaction.getTypeFinancialTransaction());
-        }*/
+
         var user = paymentTransaction.getCashRegister().getUser();
-        financialTransactionDTO.setUserFullName(user.getFirstName().concat(" ").concat(user.getLastName()));
+        financialTransactionDTO.setUserFullName(AppUserNames.fullName(user));
         return financialTransactionDTO;
     }
 

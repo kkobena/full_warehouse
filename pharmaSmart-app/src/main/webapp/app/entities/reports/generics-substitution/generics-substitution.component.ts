@@ -12,11 +12,12 @@ import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { ChartColorsUtilsService } from '../../../shared/util/chart-colors-utils.service';
 import { formatCurrency, formatDecimal, formatNumber } from 'app/shared/utils/format-utils';
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-generics-substitution',
-  imports: [CommonModule, FormsModule, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent],
+  imports: [DeviseDirective, CommonModule, FormsModule, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent],
   templateUrl: './generics-substitution.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./generics-substitution.component.scss'],

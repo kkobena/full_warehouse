@@ -22,7 +22,7 @@
               <span class="pharma-live-total-label">Total</span>
               <span [class.pharma-amount-animated]="totalAmount > 0"
                     class="pharma-live-total-amount">
-                {{ totalAmount | number }} FCFA
+                {{ totalAmount | number }} <span appDevise></span>
               </span>
             </div>
           </div>
@@ -45,7 +45,7 @@
                   <span>Billets</span>
                 </div>
 
-                <!-- 10000 FCFA -->
+                <!-- 10000 <span appDevise></span> -->
                 <div class="pharma-ticketing-row">
                   <div class="pharma-ticketing-col pharma-col-type">
                     <div class="pharma-denomination-badge pharma-bill-10000">
@@ -72,7 +72,7 @@
                   </div>
                 </div>
 
-                <!-- 5000 FCFA -->
+                <!-- 5000 <span appDevise></span> -->
                 <div class="pharma-ticketing-row">
                   <div class="pharma-ticketing-col pharma-col-type">
                     <div class="pharma-denomination-badge pharma-bill-5000">
@@ -99,7 +99,7 @@
                   </div>
                 </div>
 
-                <!-- 2000 FCFA -->
+                <!-- 2000 <span appDevise></span> -->
                 <div class="pharma-ticketing-row">
                   <div class="pharma-ticketing-col pharma-col-type">
                     <div class="pharma-denomination-badge pharma-bill-2000">
@@ -126,7 +126,7 @@
                   </div>
                 </div>
 
-                <!-- 1000 FCFA -->
+                <!-- 1000 <span appDevise></span> -->
                 <div class="pharma-ticketing-row">
                   <div class="pharma-ticketing-col pharma-col-type">
                     <div class="pharma-denomination-badge pharma-bill-1000">
@@ -152,7 +152,7 @@
                       }} </span>
                   </div>
                 </div>
-                <!-- 500 FCFA -->
+                <!-- 500 <span appDevise></span> -->
                 <div class="pharma-ticketing-row">
                   <div class="pharma-ticketing-col pharma-col-type">
                     <div class="pharma-denomination-badge pharma-coin-500">
@@ -195,7 +195,7 @@
                       [showButtons]="true"
                       formControlName="otherAmount"
                       placeholder="0"
-                      suffix=" FCFA"
+                      [suffix]="' ' + ('' | devise)"
                     />
                   </div>
                   <div class="pharma-ticketing-col pharma-col-subtotal">
@@ -213,7 +213,7 @@
                   Montant Total
                 </div>
                 <div [class.pharma-amount-pulse]="totalAmount > 0" class="pharma-total-amount">
-                  {{ totalAmount | number }} <span class="pharma-currency">FCFA</span>
+                  {{ totalAmount | number }} <span class="pharma-currency" appDevise></span>
                 </div>
               </div>
             </form>

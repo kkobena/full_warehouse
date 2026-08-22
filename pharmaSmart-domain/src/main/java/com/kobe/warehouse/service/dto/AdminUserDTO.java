@@ -3,6 +3,7 @@ package com.kobe.warehouse.service.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.Authority;
 import com.kobe.warehouse.security.SecurityUtils;
 import jakarta.validation.constraints.Email;
@@ -68,15 +69,6 @@ public class AdminUserDTO implements Serializable {
 
     private String roleName;
 
-    public AuthorityDTO getAuthority() {
-        return authority;
-    }
-
-    public AdminUserDTO setAuthority(AuthorityDTO authority) {
-        this.authority = authority;
-        return this;
-    }
-
     public AdminUserDTO() {
         // Empty constructor needed for Jackson.
     }
@@ -94,11 +86,13 @@ public class AdminUserDTO implements Serializable {
         this.createdDate = user.getCreatedDate();
         this.lastModifiedBy = user.getLastModifiedBy();
         this.lastModifiedDate = user.getLastModifiedDate();
-        this.fullName = String.format("%s %s", user.getFirstName(), user.getLastName());
-        this.abbrName = String.format("%s. %s", user.getFirstName().charAt(0), user.getLastName());
-        Set<Authority> auths=user.getAuthorities();
+        this.fullName = AppUserNames.LastNameFirstName(user);
+        this.abbrName = AppUserNames.shortName(user);
+        Set<Authority> auths = user.getAuthorities();
         this.authorities = auths.stream().map(Authority::getName).collect(Collectors.toSet());
-        auths.stream().findFirst().ifPresent(first -> this.authority = new AuthorityDTO(first.getName(), first.getLibelle(), Set.of()));
+        auths.stream().findFirst().ifPresent(
+            first -> this.authority = new AuthorityDTO(first.getName(), first.getLibelle(),
+                Set.of()));
 
     }
 
@@ -115,12 +109,15 @@ public class AdminUserDTO implements Serializable {
         this.createdDate = user.getCreatedDate();
         this.lastModifiedBy = user.getLastModifiedBy();
         this.lastModifiedDate = user.getLastModifiedDate();
-        this.fullName = String.format("%s %s", user.getFirstName(), user.getLastName());
-        this.abbrName = String.format("%s. %s", user.getFirstName().charAt(0), user.getLastName());
+        this.fullName = AppUserNames.fullName(user);
+        this.abbrName = AppUserNames.shortName(user);
 
-        authorities0.stream().findFirst().ifPresent(first -> this.authority = new AuthorityDTO(first.getName(), first.getLibelle(), Set.of()));
+        authorities0.stream().findFirst().ifPresent(
+            first -> this.authority = new AuthorityDTO(first.getName(), first.getLibelle(),
+                Set.of()));
 
-        this.authorities =authorities0.stream().map(Authority::getName).collect(Collectors.toSet());
+        this.authorities = authorities0.stream().map(Authority::getName)
+            .collect(Collectors.toSet());
 
         for (String authority : this.authorities) {
             if (SecurityUtils.isAdmin(authority)) {
@@ -138,6 +135,15 @@ public class AdminUserDTO implements Serializable {
         }
 
         // this.roleName = Constants.PR_MOBILE_USER;
+    }
+
+    public AuthorityDTO getAuthority() {
+        return authority;
+    }
+
+    public AdminUserDTO setAuthority(AuthorityDTO authority) {
+        this.authority = authority;
+        return this;
     }
 
     private boolean isAdmin() {

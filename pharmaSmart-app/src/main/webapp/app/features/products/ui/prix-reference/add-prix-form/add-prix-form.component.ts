@@ -16,6 +16,7 @@ import { TiersPayantService } from "../../../../../entities/tiers-payant/tierspa
 import { ProduitService } from "../../../../../entities/produit/produit.service";
 import { formatNumber } from "../../../../../shared/utils/format-utils";
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 const PriceTypes = {
   REFERENCE: "REFERENCE",
   POURCENTAGE: "POURCENTAGE",
@@ -26,7 +27,7 @@ type PriceType = (typeof PriceTypes)[keyof typeof PriceTypes];
 
 @Component({
   selector: "app-add-prix-form",
-  imports: [ButtonComponent, ReactiveFormsModule, SelectComponent, SelectSearchComponent, InputNumberComponent, SwitchComponent, CardComponent],
+  imports: [DeviseDirective, ButtonComponent, ReactiveFormsModule, SelectComponent, SelectSearchComponent, InputNumberComponent, SwitchComponent, CardComponent],
   templateUrl: "./add-prix-form.component.html",
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ["add-prix-form.scss"]

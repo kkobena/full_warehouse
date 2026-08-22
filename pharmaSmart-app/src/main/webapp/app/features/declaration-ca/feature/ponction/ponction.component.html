@@ -35,7 +35,7 @@
 
         <div class="col-6">
           <label class="form-label small" for="valeur">
-            {{ modeCalcul() === 'POURCENTAGE' ? 'Taux (%)' : 'Montant (F)' }}
+            {{ modeCalcul() === 'POURCENTAGE' ? 'Taux (%)' : 'Montant (' + ('' | devise) + ')' }}
           </label>
           <app-input-number
             (ngModelChange)="valeur.set($event); invaliderSimulation()"
@@ -110,7 +110,7 @@
         <app-kpi-strip [loading]="chargementAssiette()" [skeletonCount]="4">
           <app-kpi-item
             [accent]="'secondary'"
-            [value]="base.caReel | number"
+            [value]="base.caReel | number: '1.0-0'"
             icon="pi pi-shopping-cart"
             iconClass="text-secondary"
             label="CA réel (Sans ordonnance)"
@@ -121,7 +121,7 @@
           </app-kpi-item>
           <app-kpi-item
             [accent]="'primary'"
-            [value]="base.caEspece | number"
+            [value]="base.caEspece | number: '1.0-0'"
             icon="pi pi-money-bill"
             iconClass="text-primary"
             label="CA espèce"
@@ -131,7 +131,7 @@
           </app-kpi-item>
           <app-kpi-item
             [accent]="'info'"
-            [value]="base.caAssietteTva0 | number"
+            [value]="base.caAssietteTva0 | number: '1.0-0'"
             icon="pi pi-percentage"
             iconClass="text-info"
             label="Assiette TVA 0"
@@ -140,7 +140,7 @@
           </app-kpi-item>
           <app-kpi-item
             [accent]="'success'"
-            [value]="base.montantPonctionnable | number"
+            [value]="base.montantPonctionnable | number: '1.0-0'"
             icon="pi pi-arrow-down"
             iconClass="text-success"
             label="Ponctionnable au maximum"
@@ -173,14 +173,14 @@
       <app-kpi-strip stripClass="mb-2">
         <app-kpi-item
           [accent]="'secondary'"
-          [value]="sim.montantObjectif | number"
+          [value]="sim.montantObjectif | number: '1.0-0'"
           icon="pi pi-flag"
           iconClass="text-secondary"
           label="Objectif"
         />
         <app-kpi-item
           [accent]="'primary'"
-          [value]="sim.montantPonctionne | number"
+          [value]="sim.montantPonctionne | number: '1.0-0'"
           icon="pi pi-arrow-down"
           iconClass="text-primary"
           label="Ponctionné"
@@ -188,7 +188,7 @@
         />
         <app-kpi-item
           [accent]="'success'"
-          [value]="sim.caDeclare | number"
+          [value]="sim.caDeclare | number: '1.0-0'"
           icon="pi pi-file-edit"
           iconClass="text-success"
           label="CA déclaré"
@@ -262,9 +262,9 @@
             <td class="text-muted">{{ ligne.rang }}</td>
             <td>{{ ligne.numeroTransaction }}</td>
             <td>{{ ligne.saleDate }}</td>
-            <td class="text-end">{{ ligne.montantVente | number }}</td>
-            <td class="text-end text-muted">{{ ligne.montantBase | number }}</td>
-            <td class="text-end fw-semibold">{{ ligne.montantPonctionne | number }}</td>
+            <td class="text-end">{{ ligne.montantVente | number: '1.0-0' }}</td>
+            <td class="text-end text-muted">{{ ligne.montantBase | number: '1.0-0' }}</td>
+            <td class="text-end fw-semibold">{{ ligne.montantPonctionne | number: '1.0-0' }}</td>
           </tr>
         </ng-template>
       </app-data-table>

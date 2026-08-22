@@ -15,9 +15,10 @@ import { ModifRetourProduitService } from "../../motif-retour-produit/motif-reto
 import { RetourBonService } from "../../commande/retour_fournisseur/retour-bon.service";
 import { NotificationService } from "../../../shared/services/notification.service";
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: "jhi-retour-groupe-perime-dialog",
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     ReactiveFormsModule,
     ButtonComponent,

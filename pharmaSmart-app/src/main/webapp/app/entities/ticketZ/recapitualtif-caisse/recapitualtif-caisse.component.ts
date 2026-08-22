@@ -27,9 +27,10 @@ import { IMagasin } from "../../../shared/model";
 import { EMPTY, Subject } from 'rxjs';
 import { catchError, finalize, map, takeUntil, tap } from 'rxjs/operators';
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-recapitualtif-caisse',
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,

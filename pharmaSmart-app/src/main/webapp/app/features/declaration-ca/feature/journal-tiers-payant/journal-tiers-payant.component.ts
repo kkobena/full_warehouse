@@ -6,6 +6,8 @@ import {NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
 import {ButtonComponent} from 'app/shared/ui/button/button.component';
 import {CardComponent} from 'app/shared/ui/card/card.component';
 import {DataTableComponent} from 'app/shared/ui/data-table/data-table.component';
+import {SelectableRowDirective} from 'app/shared/ui/data-table/selectable-row.directive';
+import {DeviseDirective} from 'app/shared/utils/devise';
 import {HintComponent} from 'app/shared/ui/hint/hint.component';
 import {IconFieldComponent} from 'app/shared/ui/icon-field/icon-field.component';
 import {ToolbarComponent} from 'app/shared/ui/toolbar/toolbar.component';
@@ -34,6 +36,8 @@ import {SelectComponent} from "../../../../shared/ui";
     ButtonComponent,
     CardComponent,
     DataTableComponent,
+    SelectableRowDirective,
+    DeviseDirective,
     HintComponent,
     IconFieldComponent,
     ToolbarComponent,

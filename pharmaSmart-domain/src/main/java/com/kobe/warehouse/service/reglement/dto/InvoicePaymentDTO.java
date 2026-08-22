@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.reglement.dto;
 
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.GroupeTiersPayant;
@@ -56,7 +57,7 @@ public class InvoicePaymentDTO {
         PaymentMode mode = invoicePayment.getPaymentMode();
         this.paymentMode = mode.getLibelle();
         AppUser u = invoicePayment.getCashRegister().getUser();
-        this.user = u.getFirstName() + " " + u.getLastName();
+        this.user = AppUserNames.fullName(u);
         var montantR = invoicePayment.getExpectedAmount() - invoicePayment.getPaidAmount();
         if (montantR > 0) {
             this.montantRestant = NumberUtil.formatToString(montantR);

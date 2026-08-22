@@ -15,7 +15,7 @@
               } @else {
                 <div class="kpi-value">
                   {{ formatCurrency(summary()?.totalDetteFournisseurs ?? 0) }}
-                  <span class="value-suffix">FCFA</span>
+                  <span class="value-suffix" appDevise></span>
                 </div>
               }
               @if ((summary()?.nbEcheancesEnRetard ?? 0) > 0) {
@@ -48,7 +48,7 @@
               } @else {
                 <div class="kpi-value">
                   {{ formatCurrency(summary()?.totalCreancesTP ?? 0) }}
-                  <span class="value-suffix">FCFA</span>
+                  <span class="value-suffix" appDevise></span>
                 </div>
               }
               @if ((summary()?.nbFacturesImpayees ?? 0) > 0) {

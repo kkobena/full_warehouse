@@ -14,6 +14,7 @@ import { IResponseDto } from '../../../../shared/util/response-dto';
 import { FournisseurApiService } from '../../data-access/services/fournisseur-api.service';
 import { FournisseurFormComponent } from '../../ui/fournisseur-form/fournisseur-form.component';
 import { CommonModule } from "@angular/common";
+import { DeviseDirective } from 'app/shared/utils/devise';
 import {
   AppTableLazyLoadEvent,
   BadgeComponent,
@@ -30,7 +31,7 @@ import {
   templateUrl: './fournisseur-home.component.html',
   styleUrls: ['./fournisseur-home.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,

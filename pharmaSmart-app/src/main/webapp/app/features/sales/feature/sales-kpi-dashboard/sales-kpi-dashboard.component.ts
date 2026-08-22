@@ -9,6 +9,7 @@ import { IDailySalesSummary } from '../../../../shared/model/report/daily-sales-
 import { IStockAlert, StockAlertType } from '../../../../shared/model/report/stock-alert.model';
 import { SalesSummaryReportService } from '../../../../entities/reports/services/sales-summary-report.service';
 import { StockAlertReportService } from '../../../../entities/reports/services/stock-alert-report.service';
+import { DeviseDirective } from 'app/shared/utils/devise';
 import {
   backgroundColor,
   hoverBackgroundColor,
@@ -30,7 +31,7 @@ interface KpiCard {
   templateUrl: './sales-kpi-dashboard.component.html',
   styleUrl: './sales-kpi-dashboard.component.scss',
   providers: [DatePipe],
-  imports: [CommonModule, ChartComponent, ButtonComponent, SkeletonComponent, BadgeComponent, DataTableComponent],
+  imports: [DeviseDirective, CommonModule, ChartComponent, ButtonComponent, SkeletonComponent, BadgeComponent, DataTableComponent],
 })
 export class SalesKpiDashboardComponent implements OnInit {
   private readonly summaryService = inject(SalesSummaryReportService);

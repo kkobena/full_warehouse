@@ -9,6 +9,7 @@ import { StockRotationReportService } from "../services/stock-rotation-report.se
 import { formatCurrency } from "app/shared/utils/format-utils";
 import { handleBlobForTauri } from "../../../shared/util/tauri-util";
 import { TauriPrinterService } from "../../../shared/services/tauri-printer.service";
+import { DeviseDirective } from 'app/shared/utils/devise';
 import {
   BadgeComponent,
   DataTableComponent,
@@ -20,7 +21,7 @@ import {
   templateUrl: "./stock-rotation.component.html",
   styleUrl: "./stock-rotation.component.scss",
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     BadgeComponent,

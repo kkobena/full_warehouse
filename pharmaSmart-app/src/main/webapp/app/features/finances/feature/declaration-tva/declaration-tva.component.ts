@@ -10,6 +10,7 @@ import { IDeclarationTvaSummary } from "../../data-access/models";
 import { formatCurrency } from "app/shared/utils/format-utils";
 import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 interface TypeVenteOption {
   label: string;
   value: string;
@@ -17,7 +18,7 @@ interface TypeVenteOption {
 
 @Component({
   selector: "app-declaration-tva",
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,

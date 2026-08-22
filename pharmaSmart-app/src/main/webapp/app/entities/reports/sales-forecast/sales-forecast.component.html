@@ -104,7 +104,7 @@
           <div class="kpi-strip-body">
             <span class="kpi-strip-label">Prévision 3 Mois</span>
             <span class="kpi-strip-value text-primary">{{ formatCurrency(sum.totalForecastedCA3M) }}
-              <small>FCFA</small></span>
+              <small appDevise></small></span>
             <span class="kpi-strip-sub">
               @if (sum.averageMonthlyGrowthPct != null) {
                 {{ formatPercent(sum.averageMonthlyGrowthPct) }}%/mois
@@ -122,7 +122,7 @@
           <div class="kpi-strip-body">
             <span class="kpi-strip-label">Prévision 6 Mois</span>
             <span class="kpi-strip-value text-success">{{ formatCurrency(sum.totalForecastedCA6M) }}
-              <small>FCFA</small></span>
+              <small appDevise></small></span>
             <span class="kpi-strip-sub">{{
                 getMethodLabel(sum.forecastMethod || 'LINEAR_REGRESSION')
               }}</span>
@@ -137,7 +137,7 @@
             <span class="kpi-strip-label">Prévision 12 Mois</span>
             <span class="kpi-strip-value text-warning">{{
                 formatCurrency(sum.totalForecastedCA12M)
-              }} <small>FCFA</small></span>
+              }} <small appDevise></small></span>
             <span class="kpi-strip-sub">
               @if (sum.predictedYearlyGrowthPct != null) {
                 Croissance : {{ formatPercent(sum.predictedYearlyGrowthPct) }}%/an
@@ -264,9 +264,9 @@
                 <thead class="pharma-table-head">
                 <tr>
                   <th>Période</th>
-                  <th class="text-end">CA Prévu (FCFA)</th>
-                  <th class="text-end">Limite Basse (FCFA)</th>
-                  <th class="text-end">Limite Haute (FCFA)</th>
+                  <th class="text-end">CA Prévu (<span appDevise></span>)</th>
+                  <th class="text-end">Limite Basse (<span appDevise></span>)</th>
+                  <th class="text-end">Limite Haute (<span appDevise></span>)</th>
                   <th class="text-center">Confiance</th>
                   <th>Méthode</th>
                 </tr>
@@ -402,11 +402,11 @@
         </div>
 
         <div class="mb-3">
-          <p class="fw-semibold mb-1">MAE — Erreur Absolue Moyenne (FCFA)</p>
+          <p class="fw-semibold mb-1">MAE — Erreur Absolue Moyenne (<span appDevise></span>)</p>
           <p class="text-sm text-muted mb-2">
-            Écart moyen en FCFA entre la prévision et le réel. Plus parlant pour un pharmacien : un
-            MAE de 500 000 FCFA signifie que la
-            prévision se trompe en moyenne de 500 000 FCFA par mois.
+            Écart moyen en <span appDevise></span> entre la prévision et le réel. Plus parlant pour un pharmacien : un
+            MAE de 500 000 <span appDevise></span> signifie que la
+            prévision se trompe en moyenne de 500 000 <span appDevise></span> par mois.
           </p>
         </div>
 
@@ -499,7 +499,7 @@
           <li>Horizon recommandé : <strong>3 mois</strong> (fiabilité maximale)</li>
           <li>Au-delà de 6 mois, basez-vous sur l'intervalle de confiance (scénario pessimiste)</li>
           <li>Recalculez après tout changement majeur (concurrence, rénovation)</li>
-          <li>Utilisez le MAE pour calibrer votre marge de sécurité en FCFA</li>
+          <li>Utilisez le MAE pour calibrer votre marge de sécurité en <span appDevise></span></li>
         </ul>
       </div>
     </div>

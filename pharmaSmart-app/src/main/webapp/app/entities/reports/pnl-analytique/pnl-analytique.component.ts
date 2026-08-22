@@ -8,6 +8,7 @@ import { PnlAnalytiqueService } from '../services/pnl-analytique.service';
 import { formatCurrency, formatPercent, formatNumber } from 'app/shared/utils/format-utils';
 
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
+import { DeviseDirective } from 'app/shared/utils/devise';
 import {
   DataTableComponent,
   SelectComponent
@@ -32,7 +33,7 @@ const CHART_COLORS = [
   templateUrl: './pnl-analytique.component.html',
   styleUrl: './pnl-analytique.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     DataTableComponent,

@@ -56,6 +56,7 @@ public class CacheConfiguration {
                 buildCache(EntityConstant.APP_CANCEL_SALE_MAX_DAYS_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.APP_PONCTION_ANNULATION_MAX_DAYS_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.APP_PONCTION_PLAFOND_DEFAUT_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.APP_DEVISE_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.APP_NOTIF_AVOIR_EMAIL_ENABLED_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.APP_NOTIF_AVOIR_SMS_ENABLED_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.APP_DELAI_RETOUR_CLIENT_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),

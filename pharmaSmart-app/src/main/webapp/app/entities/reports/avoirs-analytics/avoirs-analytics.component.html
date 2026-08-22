@@ -48,7 +48,7 @@
       <i class="pi pi-undo text-primary"></i>
       <div class="kpi-strip-body">
         <span class="kpi-strip-label">Avoirs actifs</span>
-        <span class="kpi-strip-value text-primary">{{ formatCurrency(totalMontant()) }} <small>FCFA</small></span>
+        <span class="kpi-strip-value text-primary">{{ formatCurrency(totalMontant()) }} <small appDevise></small></span>
         <span class="kpi-strip-sub">Émis + Imputés · {{ avoirs().length }} au total</span>
       </div>
     </div>

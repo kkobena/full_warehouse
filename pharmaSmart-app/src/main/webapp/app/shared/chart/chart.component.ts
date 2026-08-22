@@ -13,7 +13,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { ActiveElement, Chart, ChartType, Plugin, registerables } from 'chart.js';
+import {ActiveElement, Chart, ChartType, Plugin, registerables} from 'chart.js';
 
 Chart.register(...registerables);
 
@@ -24,10 +24,9 @@ export interface ChartSelectEvent {
 }
 
 /**
- * Wrapper Chart.js maison remplaçant `p-chart` (déprécié en PrimeNG v22, supprimé en v24
+ * Wrapper Chart.js
  * au profit de l'offre payante PrimeUI PRO Charts).
  *
- * API compatible avec l'ancien composant PrimeNG — migration :
  * ```html
  * <p-chart type="bar" [data]="config.data" [options]="config.options" height="300" />
  * devient
@@ -39,7 +38,8 @@ export interface ChartSelectEvent {
   selector: 'app-chart',
   template: `
     <div class="app-chart" [style.width]="containerWidth()" [style.height]="containerHeight()">
-      <canvas #canvas role="img" [attr.aria-label]="ariaLabel()" (click)="onCanvasClick($event)"></canvas>
+      <canvas #canvas role="img" [attr.aria-label]="ariaLabel()"
+              (click)="onCanvasClick($event)"></canvas>
     </div>
   `,
   styles: `
@@ -60,15 +60,13 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
   readonly responsive = input(true);
   readonly ariaLabel = input<string>();
   readonly dataSelect = output<ChartSelectEvent>();
-
+  protected readonly containerWidth = computed(() => this.normalizeSize(this.width()));
+  protected readonly containerHeight = computed(() => this.normalizeSize(this.height()));
   private readonly canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
   private readonly zone = inject(NgZone);
   private chart: Chart | null = null;
   private currentType: ChartType | null = null;
   private initialized = false;
-
-  protected readonly containerWidth = computed(() => this.normalizeSize(this.width()));
-  protected readonly containerHeight = computed(() => this.normalizeSize(this.height()));
 
   constructor() {
     effect(() => {
@@ -82,6 +80,11 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  /** Instance Chart.js sous-jacente (équivalent de `UIChart.chart`). */
+  get chartInstance(): Chart | null {
+    return this.chart;
+  }
+
   ngAfterViewInit(): void {
     this.initialized = true;
     this.render(this.type(), this.data(), this.options(), this.plugins());
@@ -89,11 +92,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.destroyChart();
-  }
-
-  /** Instance Chart.js sous-jacente (équivalent de `UIChart.chart`). */
-  get chartInstance(): Chart | null {
-    return this.chart;
   }
 
   /** Redessine le graphique avec les données courantes. */
@@ -115,10 +113,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (!this.chart) {
       return;
     }
-    const elements = this.chart.getElementsAtEventForMode(event, 'nearest', { intersect: true }, false);
+    const elements = this.chart.getElementsAtEventForMode(event, 'nearest', {intersect: true}, false);
     if (elements.length) {
-      const dataset = this.chart.getElementsAtEventForMode(event, 'dataset', { intersect: true }, false);
-      this.dataSelect.emit({ originalEvent: event, element: elements[0], dataset });
+      const dataset = this.chart.getElementsAtEventForMode(event, 'dataset', {intersect: true}, false);
+      this.dataSelect.emit({originalEvent: event, element: elements[0], dataset});
     }
   }
 

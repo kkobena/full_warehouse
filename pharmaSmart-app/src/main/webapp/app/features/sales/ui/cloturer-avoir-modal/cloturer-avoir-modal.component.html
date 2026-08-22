@@ -36,17 +36,17 @@
       </div>
       <div class="meta-item">
         <span class="meta-label">Montant initial</span>
-        <span class="meta-value meta-amount">{{ document?.montant | number: '1.0-0' }} FCFA</span>
+        <span class="meta-value meta-amount">{{ document?.montant | number: '1.0-0' }} <span appDevise></span></span>
       </div>
       @if ((document?.montantUtilise ?? 0) > 0) {
         <div class="meta-item">
           <span class="meta-label">Déjà utilisé</span>
-          <span class="meta-value text-warning fw-semibold">{{ document?.montantUtilise | number: '1.0-0' }} FCFA</span>
+          <span class="meta-value text-warning fw-semibold">{{ document?.montantUtilise | number: '1.0-0' }} <span appDevise></span></span>
         </div>
       }
       <div class="meta-item">
         <span class="meta-label">Solde disponible</span>
-        <span class="meta-value meta-amount fw-bold text-success">{{ montantDisponible() | number: '1.0-0' }} FCFA</span>
+        <span class="meta-value meta-amount fw-bold text-success">{{ montantDisponible() | number: '1.0-0' }} <span appDevise></span></span>
       </div>
       @if (document?.dateExpiration) {
         <div class="meta-item">
@@ -88,14 +88,14 @@
     <div class="mb-3">
       <label class="form-label fw-semibold">
         Montant à utiliser <span class="text-danger">*</span>
-        <span class="text-muted fw-normal small ms-1">(max. {{ montantDisponible() | number:'1.0-0' }} FCFA)</span>
+        <span class="text-muted fw-normal small ms-1">(max. {{ montantDisponible() | number:'1.0-0' }} <span appDevise></span>)</span>
       </label>
       <app-input-number
         [ngModel]="montantPartiel()"
         (ngModelChange)="montantPartiel.set($event)"
         [min]="1"
         [max]="montantDisponible()"
-        suffix=" FCFA"
+        [suffix]="' ' + ('' | devise)"
         placeholder="Montant partiel…" />
     </div>
   }

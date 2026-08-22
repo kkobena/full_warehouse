@@ -5,10 +5,11 @@ import { forkJoin } from 'rxjs';
 import { DataTableComponent } from '../../../shared/ui';
 import { IDsoOrganisme, IEncoursMensuel, IVieillissementGlobal } from 'app/shared/model/report';
 import { VieillissementCreancesService } from '../services/vieillissement-creances.service';
-import { formatCurrency, formatNumber } from 'app/shared/utils/format-utils';
+import { formatCurrency, formatNumber, currencySymbol } from 'app/shared/utils/format-utils';
 
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 Chart.register(...registerables);
 
 type TranchePill = 'all' | '0-30' | '31-60' | '61-90' | '90+';
@@ -18,7 +19,7 @@ type TranchePill = 'all' | '0-30' | '31-60' | '61-90' | '90+';
   templateUrl: './vieillissement-creances.component.html',
   styleUrl: './vieillissement-creances.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, DataTableComponent],
+  imports: [DeviseDirective, CommonModule, DataTableComponent],
 })
 export default class VieillissementCreancesComponent implements OnInit, OnDestroy {
   @ViewChild('encoursMensuelChartCanvas') encoursMensuelChartCanvas?: ElementRef<HTMLCanvasElement>;
@@ -142,10 +143,10 @@ export default class VieillissementCreancesComponent implements OnInit, OnDestro
           legend: { position: 'bottom', labels: { padding: 16 } },
           tooltip: {
             callbacks: {
-              label: ctx => `${ctx.dataset.label} : ${formatCurrency(ctx.parsed.y)} FCFA`,
+              label: ctx => `${ctx.dataset.label} : ${formatCurrency(ctx.parsed.y)} ${currencySymbol()}`,
               footer: items => {
                 const i = items[0].dataIndex;
-                return `Total facturé : ${formatCurrency(facture[i] ?? 0)} FCFA`;
+                return `Total facturé : ${formatCurrency(facture[i] ?? 0)} ${currencySymbol()}`;
               },
             },
           },
@@ -154,7 +155,7 @@ export default class VieillissementCreancesComponent implements OnInit, OnDestro
           x: { stacked: true, ticks: { maxRotation: 45 } },
           y: {
             stacked: true,
-            title: { display: true, text: 'Montant (FCFA)' },
+            title: { display: true, text: `Montant (${currencySymbol()})` },
           },
         },
       },

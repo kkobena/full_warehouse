@@ -48,7 +48,7 @@
       <div class="kpi-strip-body">
         <span class="kpi-strip-label">CA Période</span>
         <span class="kpi-strip-value text-primary">{{ formatCurrency(totalCA()) }}
-          <small>FCFA</small></span>
+          <small appDevise></small></span>
         <span class="kpi-strip-sub">{{ tableRows().length }} mois</span>
       </div>
     </div>
@@ -57,7 +57,7 @@
       <i class="pi pi-history text-secondary"></i>
       <div class="kpi-strip-body">
         <span class="kpi-strip-label">CA Période préc.</span>
-        <span class="kpi-strip-value">{{ formatCurrency(totalPrev()) }} <small>FCFA</small></span>
+        <span class="kpi-strip-value">{{ formatCurrency(totalPrev()) }} <small appDevise></small></span>
         <span class="kpi-strip-sub">même durée N-1</span>
       </div>
     </div>

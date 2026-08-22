@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.InventoryTransaction;
 import java.time.LocalDateTime;
@@ -25,8 +26,8 @@ public class InventoryTransactionDTO {
         this.transactionType = inventoryTransaction.getMouvementType().getValue();
         this.produitLibelle = inventoryTransaction.getProduit().getLibelle();
         AppUser user = inventoryTransaction.getUser();
-        this.userFullName = user.getFirstName() + " " + user.getLastName();
-        this.abbrName = String.format("%s. %s", user.getFirstName().charAt(0), user.getLastName());
+        this.userFullName = AppUserNames.fullName(user);
+        this.abbrName = AppUserNames.shortName(user);
     }
 
     public Integer getQuantity() {

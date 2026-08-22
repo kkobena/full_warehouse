@@ -131,7 +131,7 @@
       <div class="summary-item">
         <i class="pi pi-wallet"></i>
         <span class="summary-label">Total CA:</span>
-        <span class="summary-value">{{ totalSalesAmount() | number: '1.0-0' }} FCFA</span>
+        <span class="summary-value">{{ totalSalesAmount() | number: '1.0-0' }} <span appDevise></span></span>
       </div>
     </div>
 
@@ -260,7 +260,7 @@
                             <div class="activity-item-value-wrapper">
                               <span
                                 class="activity-item-value">{{ elRow?.salesAmount | number }}</span>
-                              <span class="activity-item-currency">FCFA</span>
+                              <span class="activity-item-currency" appDevise></span>
                             </div>
                           </div>
                           <div class="activity-item">
@@ -268,7 +268,7 @@
                             <div class="activity-item-value-wrapper">
                               <span
                                 class="activity-item-value">{{ elRow?.htAmount | number }}</span>
-                              <span class="activity-item-currency">FCFA</span>
+                              <span class="activity-item-currency" appDevise></span>
                             </div>
                           </div>
                           <div class="activity-item">
@@ -276,7 +276,7 @@
                             <div class="activity-item-value-wrapper">
                               <span
                                 class="activity-item-value">{{ elRow?.taxAmount | number }}</span>
-                              <span class="activity-item-currency">FCFA</span>
+                              <span class="activity-item-currency" appDevise></span>
                             </div>
                           </div>
                           <div class="activity-item">
@@ -284,7 +284,7 @@
                             <div class="activity-item-value-wrapper">
                               <span
                                 class="activity-item-value">{{ elRow?.partAssure | number }}</span>
-                              <span class="activity-item-currency">FCFA</span>
+                              <span class="activity-item-currency" appDevise></span>
                             </div>
                           </div>
                           <div class="activity-item activity-item-highlight">
@@ -292,7 +292,7 @@
                             <div class="activity-item-value-wrapper">
                               <span
                                 class="activity-item-value">{{ elRow?.partTiersPayant | number }}</span>
-                              <span class="activity-item-currency">FCFA</span>
+                              <span class="activity-item-currency" appDevise></span>
                             </div>
                           </div>
                           @if (elRow?.discountAmount > 0) {
@@ -301,7 +301,7 @@
                               <div class="activity-item-value-wrapper">
                                 <span
                                   class="activity-item-value">{{ elRow?.discountAmount | number }}</span>
-                                <span class="activity-item-currency">FCFA</span>
+                                <span class="activity-item-currency" appDevise></span>
                               </div>
                             </div>
                           }
@@ -310,7 +310,7 @@
                             <div class="activity-item-value-wrapper">
                               <span
                                 class="activity-item-value">{{ elRow?.restToPay | number }}</span>
-                              <span class="activity-item-currency">FCFA</span>
+                              <span class="activity-item-currency" appDevise></span>
                             </div>
                           </div>
                         </div>
@@ -454,7 +454,7 @@
                               <div class="activity-item-value-wrapper">
                                 <span
                                   class="activity-item-value">{{ payment?.paidAmount | number }}</span>
-                                <span class="activity-item-currency">FCFA</span>
+                                <span class="activity-item-currency" appDevise></span>
                               </div>
                             </div>
                           }

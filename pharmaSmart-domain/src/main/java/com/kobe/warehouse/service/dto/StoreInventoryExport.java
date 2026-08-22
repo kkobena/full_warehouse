@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.StoreInventory;
 import com.kobe.warehouse.domain.enumeration.InventoryType;
@@ -20,8 +21,7 @@ public class StoreInventoryExport {
     private String statut;
     private InventoryType inventoryType;
     private CategoryInventory inventoryCategory;
-    private String firstName;
-    private String lastName;
+
 
     public StoreInventoryExport(StoreInventory storeInventory) {
         this.inventoryValueCostBegin = storeInventory.getInventoryValueCostBegin();
@@ -31,7 +31,7 @@ public class StoreInventoryExport {
         this.inventoryValueCostAfter = storeInventory.getInventoryValueCostAfter();
         this.inventoryAmountAfter = storeInventory.getInventoryAmountAfter();
         AppUser user = storeInventory.getUser();
-        this.abbrName = String.format("%s. %s", user.getFirstName().charAt(0), user.getLastName());
+        this.abbrName = AppUserNames.shortName(user);
         this.statut = storeInventory.getStatut().name();
         this.inventoryType = storeInventory.getInventoryType();
         this.inventoryCategory = new CategoryInventory(storeInventory.getInventoryCategory());
@@ -54,8 +54,7 @@ public class StoreInventoryExport {
         this.inventoryValueCostAfter = inventoryValueCostAfter;
         this.inventoryAmountAfter = inventoryAmountAfter;
         this.abbrName = String.format("%s. %s", firstName.charAt(0), lastName);
-        this.firstName = firstName;
-        this.lastName = lastName;
+
     }
 
     public List<StoreInventoryStorageExport> getInventoryStorages() {

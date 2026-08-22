@@ -20,7 +20,7 @@
                 <div class="pharma-form-group">
                   <label class="pharma-label" for="cashFundAmount">
                     <i class="pi pi-money-bill"></i>
-                    Fonds de caisse (FCFA)
+                    Fonds de caisse (<span appDevise></span>)
                   </label>
                   <input
                     #cashFundAmountInput
@@ -83,7 +83,7 @@
                   <div class="pharma-info-content">
                     <span class="pharma-info-label">Fonds de caisse</span>
                     <span class="pharma-info-value">{{ cashRegisters[0]?.cashFund | number }}
-                      FCFA</span>
+                      <span appDevise></span></span>
                   </div>
                 </div>
 

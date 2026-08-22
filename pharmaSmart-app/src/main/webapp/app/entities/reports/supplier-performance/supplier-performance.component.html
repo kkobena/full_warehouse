@@ -69,7 +69,7 @@
           <span class="kpi-strip-label">Achats 30 jours</span>
           <span class="kpi-strip-value text-success">{{
               formatCurrency(summary()?.totalPurchaseAmountLast30Days)
-            }} <small>FCFA</small></span>
+            }} <small appDevise></small></span>
           <span class="kpi-strip-sub">{{ formatNumber(summary()?.totalOrdersLast30Days) }}
             commandes</span>
         </div>
@@ -83,7 +83,7 @@
           <span class="kpi-strip-label">Achats 12 mois</span>
           <span class="kpi-strip-value text-warning">{{
               formatCurrency(summary()?.totalPurchaseAmountLast12Months)
-            }} <small>FCFA</small></span>
+            }} <small appDevise></small></span>
           <span class="kpi-strip-sub">{{ formatNumber(summary()?.totalOrdersLast12Months) }}
             commandes</span>
         </div>
@@ -532,7 +532,7 @@
 
         <div class="card mb-2" style="border-left: 3px solid #4caf50">
           <div class="card-body p-2">
-            <p class="fw-semibold text-sm mb-1">Cas 1 : Fournisseur score 85, volume 50M FCFA/an</p>
+            <p class="fw-semibold text-sm mb-1">Cas 1 : Fournisseur score 85, volume 50M <span appDevise></span>/an</p>
             <p class="text-xs text-muted mb-0">
               <strong>Action :</strong> Fournisseur stratégique et performant. Négociez une remise
               de fidélité, proposez un contrat annuel

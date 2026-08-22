@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.declaration_ca;
 
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CaPonction;
 import com.kobe.warehouse.repository.CaPeriodeRepository;
@@ -116,13 +117,16 @@ public class PonctionServiceImpl implements PonctionService {
         // on le dit. Un montant fixe, lui, a été nommé : le ramener sans permission produirait une
         // ponction différente de celle qui a été demandée, et le refus reste la bonne réponse.
         long objectif = objectifDemande;
-        if (param.modeCalcul() == ModeCalculPonction.POURCENTAGE && objectifDemande > assiette.montantPonctionnable()) {
+        if (param.modeCalcul() == ModeCalculPonction.POURCENTAGE
+            && objectifDemande > assiette.montantPonctionnable()) {
             objectif = auMultipleDeCinq(assiette.montantPonctionnable());
             avertissements.add(
                 String.format(
-                    "Le taux demandé représente %d F, au-delà des %d F prélevables sur cette période : " +
-                    "l'objectif a été ramené au maximum. Le plafond par vente et la part de produits " +
-                    "exonérés bornent ce qui peut être prélevé.",
+                    "Le taux demandé représente %d F, au-delà des %d F prélevables sur cette période : "
+                        +
+                        "l'objectif a été ramené au maximum. Le plafond par vente et la part de produits "
+                        +
+                        "exonérés bornent ce qui peut être prélevé.",
                     objectifDemande,
                     assiette.montantPonctionnable()
                 )
@@ -176,13 +180,13 @@ public class PonctionServiceImpl implements PonctionService {
     /**
      * Applique la ponction.
      *
-     * <p>L'ordre des écritures n'est pas indifférent : le détail est écrit d'abord, puis les totaux
-     * de
-     * l'en-tête en sont <strong>déduits</strong>. Les faire calculer séparément — ce qui était le
-     * cas — revenait à exécuter deux fois la même requête et à espérer qu'elle rende deux fois le
-     * même résultat ; une vente close entre les deux suffisait à les faire diverger, et l'invariant
-     * « le détail totalise le montant ponctionné » tombait silencieusement. Ici il est vrai par
-     * construction.
+     * <p>L'ordre des écritures n'est pas indifférent : le détail est écrit d'abord, puis les
+     * totaux
+     * de l'en-tête en sont <strong>déduits</strong>. Les faire calculer séparément — ce qui était
+     * le cas — revenait à exécuter deux fois la même requête et à espérer qu'elle rende deux fois
+     * le même résultat ; une vente close entre les deux suffisait à les faire diverger, et
+     * l'invariant « le détail totalise le montant ponctionné » tombait silencieusement. Ici il est
+     * vrai par construction.
      */
     @Override
     public PonctionDTO valider(PonctionParamDTO param) {
@@ -343,10 +347,9 @@ public class PonctionServiceImpl implements PonctionService {
      * Crée l'en-tête de la ponction.
      *
      * <p>{@code saveAndFlush} et non {@code save} : c'est la contrainte d'exclusion GiST qui
-     * rejette
-     * une période chevauchante, et elle ne parle qu'au moment où l'insertion atteint la base. Sans
-     * vidage explicite, l'erreur ne surviendrait qu'à la validation de la transaction — trop tard
-     * pour la traduire en message compréhensible.
+     * rejette une période chevauchante, et elle ne parle qu'au moment où l'insertion atteint la
+     * base. Sans vidage explicite, l'erreur ne surviendrait qu'à la validation de la transaction —
+     * trop tard pour la traduire en message compréhensible.
      */
     private Integer insererPonction(PonctionParamDTO param, PonctionSimulationDTO simulation) {
         AppUser appUser = storageService.getUser();
@@ -420,20 +423,11 @@ public class PonctionServiceImpl implements PonctionService {
             p.getNombreVentes(),
             p.getStatut(),
             p.getCommentaire(),
-            nomComplet(p.getCreatedBy()),
+            AppUserNames.fullName(p.getCreatedBy()),
             p.getCreatedAt(),
             p.getValidatedAt(),
             p.getCanceledAt()
         );
-    }
-
-    private String nomComplet(AppUser utilisateur) {
-        if (utilisateur == null) {
-            return null;
-        }
-        String prenom = utilisateur.getFirstName();
-        String nom = utilisateur.getLastName();
-        return prenom == null || nom == null ? utilisateur.getLogin() : prenom + " " + nom;
     }
 
     /**
@@ -458,9 +452,8 @@ public class PonctionServiceImpl implements PonctionService {
      * Ramène un montant au multiple de {@value #PAS_MONETAIRE} inférieur.
      *
      * <p>Vers le bas et jamais vers le haut : arrondir au plus proche ferait ponctionner au-delà
-     * de
-     * ce que le pharmacien a demandé, ce qu'aucun écran ne rattraperait. Le même pas est appliqué
-     * au plafond de chaque vente par {@link PonctionCalculator}, si bien que toute valeur
+     * de ce que le pharmacien a demandé, ce qu'aucun écran ne rattraperait. Le même pas est
+     * appliqué au plafond de chaque vente par {@link PonctionCalculator}, si bien que toute valeur
      * ponctionnée — objectif, prise par vente, total — en est un multiple.
      */
     private long auMultipleDeCinq(long montant) {

@@ -10,12 +10,13 @@ import { FournisseurApiService } from "../../data-access/services/fournisseur-ap
 import { Fournisseur, IFournisseur } from "../../../../shared/model/fournisseur.model";
 import { ButtonComponent, CardComponent, KeyFilterDirective, SelectComponent } from "../../../../shared/ui";
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: "app-fournisseur-form",
   templateUrl: "./fournisseur-form.component.html",
   styleUrl: "./fournisseur-form.component.scss",
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     ReactiveFormsModule,

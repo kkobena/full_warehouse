@@ -12,6 +12,7 @@ import {DATE_FORMAT_ISO_DATE} from '../../../shared/util/warehouse-util';
 import {formatCurrency, formatDateFR, formatNumber} from 'app/shared/utils/format-utils';
 import {ButtonComponent, DataTableComponent, SortableHeaderDirective, ToolbarComponent} from '../../../shared/ui';
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 type AvoirStatut = 'DRAFT' | 'EMIS' | 'IMPUTE' | 'ANNULE';
 
 interface AvoirStatutStat {
@@ -24,7 +25,7 @@ interface AvoirStatutStat {
 
 @Component({
   selector: 'app-avoirs-analytics',
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     PharmaDatePickerComponent,

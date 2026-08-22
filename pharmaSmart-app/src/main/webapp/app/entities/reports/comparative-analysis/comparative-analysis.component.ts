@@ -16,6 +16,7 @@ import { formatCurrency } from "app/shared/utils/format-utils";
 
 import { Chart, ChartConfiguration, ChartData, registerables } from "chart.js";
 import { BlobDownloadService } from "../../../shared/services/blob-download.service";
+import { DeviseDirective } from 'app/shared/utils/devise';
 import {
   ButtonComponent,
   SelectComponent,
@@ -37,7 +38,7 @@ interface ComparisonTypeOption {
   templateUrl: "./comparative-analysis.component.html",
   styleUrl: "./comparative-analysis.component.scss",
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,

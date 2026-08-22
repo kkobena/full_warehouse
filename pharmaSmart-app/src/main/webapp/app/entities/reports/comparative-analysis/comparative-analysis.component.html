@@ -75,7 +75,7 @@
             <i class="pi pi-calendar text-primary"></i>
             <div class="kpi-strip-body">
               <span class="kpi-strip-label">CA Année en cours (YTD)</span>
-              <span class="kpi-strip-value text-primary">{{ formatCurrency(sum.ytdCurrentCA) }} <small>FCFA</small></span>
+              <span class="kpi-strip-value text-primary">{{ formatCurrency(sum.ytdCurrentCA) }} <small appDevise></small></span>
               <span class="kpi-strip-sub">
                 <span [class]="(sum.ytdEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
                   <i [class]="'pi ' + ((sum.ytdEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
@@ -92,7 +92,7 @@
             <i class="pi pi-chart-line text-success"></i>
             <div class="kpi-strip-body">
               <span class="kpi-strip-label">CA 12 derniers mois</span>
-              <span class="kpi-strip-value text-success">{{ formatCurrency(sum.last12MonthsCA) }} <small>FCFA</small></span>
+              <span class="kpi-strip-value text-success">{{ formatCurrency(sum.last12MonthsCA) }} <small appDevise></small></span>
               <span class="kpi-strip-sub">
                 <span [class]="(sum.last12MonthsEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
                   <i [class]="'pi ' + ((sum.last12MonthsEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
@@ -110,7 +110,7 @@
             <div class="kpi-strip-body">
               <span class="kpi-strip-label">Meilleur Mois</span>
               <span class="kpi-strip-value text-warning">{{ sum.bestMonthLabel }}</span>
-              <span class="kpi-strip-sub">{{ formatCurrency(sum.bestMonthCA) }} FCFA</span>
+              <span class="kpi-strip-sub">{{ formatCurrency(sum.bestMonthCA) }} <span appDevise></span></span>
             </div>
           </div>
 
@@ -120,7 +120,7 @@
             <i class="pi pi-chart-bar text-danger"></i>
             <div class="kpi-strip-body">
               <span class="kpi-strip-label">CA Moyen Mensuel</span>
-              <span class="kpi-strip-value text-danger">{{ formatCurrency(sum.avgMonthlyCA) }} <small>FCFA</small></span>
+              <span class="kpi-strip-value text-danger">{{ formatCurrency(sum.avgMonthlyCA) }} <small appDevise></small></span>
               <span class="kpi-strip-sub">Évolution moy : {{ formatPercent(sum.avgMonthlyEvolution) }}%</span>
             </div>
           </div>

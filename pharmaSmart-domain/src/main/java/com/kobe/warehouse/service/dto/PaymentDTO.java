@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Customer;
 import com.kobe.warehouse.domain.SalePayment;
@@ -38,7 +39,7 @@ public class PaymentDTO {
         this.paymentMode = new PaymentModeDTO(payment.getPaymentMode());
         AppUser user = payment.getCashRegister().getUser();
         this.userId = user.getId();
-        this.userFullName = user.getFirstName() + " " + user.getLastName();
+        this.userFullName = AppUserNames.fullName(user);
         Sales sales = payment.getSale();
         this.customer = sales.getCustomer();
         this.saleNumberTransaction = sales.getNumberTransaction();

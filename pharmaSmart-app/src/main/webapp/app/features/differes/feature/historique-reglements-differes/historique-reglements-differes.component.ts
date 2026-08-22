@@ -37,9 +37,10 @@ import {
 } from '../../data-access/models';
 import {BlobDownloadService} from "../../../../shared/services/blob-download.service";
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-historique-reglements-differes',
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,

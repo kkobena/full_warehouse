@@ -14,6 +14,7 @@ import { IFamilleProduit } from "../../../shared/model/famille-produit.model";
 import { IRayon } from "../../../shared/model/rayon.model";
 import { TauriPrinterService } from "../../../shared/services/tauri-printer.service";
 import { handleBlobForTauri } from "../../../shared/util/tauri-util";
+import { DeviseDirective } from 'app/shared/utils/devise';
 import {
   ButtonComponent,
   DataTableComponent,
@@ -26,7 +27,7 @@ import {
   templateUrl: "./stock-valuation.component.html",
   styleUrl: "./stock-valuation.component.scss",
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,

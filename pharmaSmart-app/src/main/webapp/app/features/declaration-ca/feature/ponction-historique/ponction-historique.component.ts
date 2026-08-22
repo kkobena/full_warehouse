@@ -1,10 +1,13 @@
 import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} from "@angular/core";
 import {CommonModule} from "@angular/common";
+import {NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
 
 import {ButtonComponent} from "app/shared/ui/button/button.component";
 import {BadgeComponent} from "app/shared/ui/badge/badge.component";
 import {CardComponent} from "app/shared/ui/card/card.component";
 import {DataTableComponent} from "app/shared/ui/data-table/data-table.component";
+import {SelectableRowDirective} from "app/shared/ui/data-table/selectable-row.directive";
+import {DeviseDirective, DevisePipe} from "app/shared/utils/devise";
 import {HintComponent} from "app/shared/ui/hint/hint.component";
 import {ToolbarComponent} from "app/shared/ui/toolbar/toolbar.component";
 import {NotificationService} from "app/shared/services/notification.service";
@@ -18,6 +21,7 @@ import {
   StatutPonction
 } from "../../data-access/services/declaration-ca-api.service";
 import {BlobDownloadService} from "../../../../shared/services/blob-download.service";
+import {formatCurrencyWithUnit} from "app/shared/utils/format-utils";
 import {ReactiveFormsModule} from "@angular/forms";
 
 /**
@@ -29,7 +33,7 @@ import {ReactiveFormsModule} from "@angular/forms";
  */
 @Component({
   selector: "app-ponction-historique",
-  imports: [CommonModule, ButtonComponent, BadgeComponent, CardComponent, DataTableComponent, HintComponent, ToolbarComponent, ReactiveFormsModule],
+  imports: [CommonModule, NgbTooltip, ButtonComponent, BadgeComponent, CardComponent, DataTableComponent, SelectableRowDirective, DeviseDirective, DevisePipe, HintComponent, ToolbarComponent, ReactiveFormsModule],
   templateUrl: "./ponction-historique.component.html",
   styleUrl: "./ponction-historique.component.scss",
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -127,7 +131,7 @@ export class PonctionHistoriqueComponent implements OnInit {
     this.confirmDialog.onConfirm(
       () => this.annuler(ponction),
       'Annuler cette ponction ?',
-      `<p>Les <strong>${ponction.montantPonctionne.toLocaleString('fr')} F</strong> retirés du chiffre
+      `<p>Les <strong>${formatCurrencyWithUnit(ponction.montantPonctionne)}</strong> retirés du chiffre
        d'affaires à déclarer seront <strong>rétablis</strong> sur les
        ${ponction.nombreVentes} vente(s) de la période ${ponction.dateDebut} → ${ponction.dateFin}.</p>
        <p class="mb-0">La période redeviendra disponible pour une nouvelle ponction.</p>`,

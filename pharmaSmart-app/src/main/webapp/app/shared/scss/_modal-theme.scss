@@ -89,17 +89,9 @@
       }
     }
 
-    // Cartes de regroupement (remplacent p-card dans les modales migrées).
-    //
-    // `.card` de Bootstrap est blanc sur fond blanc : sans l'ombre que PrimeNG posait
-    // sur p-card, le bloc devenait invisible et la modale paraissait délavée. On le
-    // détache par un fond légèrement teinté plutôt que par une ombre, plus sobre dans
-    // un contexte déjà encadré par la modale.
+
     .card {
-      // surface-100 (#f1f5f9) et non surface-50 (#f8fafc) : à 98 % de blanc, la teinte
-      // ne se distinguait pas du fond de la modale. Doit rester aligné sur `.card-form`
-      // de `shared/ui/card/card.component.scss`, qui porte le même habillage pour les
-      // cartes rendues par `app-card`.
+
       background-color: var(--p-surface-100);
       border: 1px solid var(--p-content-border-color);
       border-radius: var(--bs-border-radius);

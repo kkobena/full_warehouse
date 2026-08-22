@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.StoreInventory;
 import com.kobe.warehouse.domain.enumeration.InventoryStatut;
@@ -77,7 +78,7 @@ public class StoreInventoryDTO implements Serializable {
         target.inventoryValueCostAfter = source.getInventoryValueCostAfter();
         target.inventoryAmountAfter = source.getInventoryAmountAfter();
         AppUser user = source.getUser();
-        target.abbrName = String.format("%s. %s", user.getFirstName().charAt(0), user.getLastName());
+        target.abbrName = AppUserNames.shortName(user);
         target.statut = source.getStatut().name();
         target.inventoryType = source.getInventoryType();
         target.inventoryCategory = new CategoryInventory(source.getInventoryCategory());

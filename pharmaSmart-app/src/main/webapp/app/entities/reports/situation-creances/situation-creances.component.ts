@@ -5,6 +5,7 @@ import { TiersPayantReportService } from '../services/tiers-payant-report.servic
 import { BlobDownloadService } from '../../../shared/services/blob-download.service';
 import { ITiersPayantCreancesSummary } from 'app/shared/model/report/tiers-payant-report.model';
 import { formatCurrency, formatNumber } from 'app/shared/utils/format-utils';
+import { DeviseDirective } from 'app/shared/utils/devise';
 import {
   ButtonComponent,
   DataTableComponent
@@ -12,7 +13,7 @@ import {
 
 @Component({
   selector: 'app-situation-creances',
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     ButtonComponent,
     DataTableComponent

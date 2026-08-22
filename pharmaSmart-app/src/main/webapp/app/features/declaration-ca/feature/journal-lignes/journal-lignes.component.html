@@ -90,7 +90,7 @@
 
   <app-kpi-item
     [accent]="'secondary'"
-    [value]="kpi()?.valeurTtc | number"
+    [value]="kpi()?.valeurTtc | number: '1.0-0'"
     icon="pi pi-tag"
     iconClass="text-secondary"
     label="Valeur TTC"
@@ -103,7 +103,7 @@
   -->
   <app-kpi-item
     [accent]="'danger'"
-    [value]="kpi()?.montantExclu | number"
+    [value]="kpi()?.montantExclu | number: '1.0-0'"
     icon="pi pi-minus-circle"
     iconClass="text-danger"
     label="Retiré du CA déclaré"
@@ -113,7 +113,7 @@
 
   <app-kpi-item
     [accent]="'success'"
-    [value]="kpi()?.marge | number"
+    [value]="kpi()?.marge | number: '1.0-0'"
     icon="pi pi-percentage"
     iconClass="text-success"
     label="Marge brute"
@@ -171,7 +171,7 @@
 
   <ng-template #body let-ligne>
     <tr>
-      <td>{{ ligne.saleDate }}</td>
+      <td>{{ ligne.saleDate | date: 'dd/MM/yyyy' }}</td>
       <td class="small">{{ ligne.numeroTransaction }}</td>
       <td class="small text-muted">{{ ligne.codeProduit }}</td>
       <td>{{ ligne.libelleProduit }}</td>
@@ -182,11 +182,11 @@
       @if (estUg()) {
         <td class="text-end fw-semibold">{{ ligne.quantiteUg | number }}</td>
       }
-      <td class="text-end">{{ ligne.valeurTtc | number }}</td>
-      <td class="text-end text-danger">{{ ligne.montantExclu | number }}</td>
+      <td class="text-end">{{ ligne.valeurTtc | number: '1.0-0' }}</td>
+      <td class="text-end text-danger">{{ ligne.montantExclu | number: '1.0-0' }}</td>
       <td [class.text-danger]="ligne.marge < 0" [class.text-success]="ligne.marge > 0"
           class="text-end">
-        {{ ligne.marge | number }}
+        {{ ligne.marge | number: '1.0-0' }}
       </td>
     </tr>
   </ng-template>

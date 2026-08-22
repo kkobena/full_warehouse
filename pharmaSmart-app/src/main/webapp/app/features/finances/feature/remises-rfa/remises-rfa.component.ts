@@ -6,9 +6,10 @@ import { IRemiseRfaFournisseur, IAvoirFournisseur } from '../../data-access/mode
 import { formatCurrency } from 'app/shared/utils/format-utils';
 import { BadgeComponent, ButtonComponent, DataTableComponent, ToolbarComponent } from '../../../../shared/ui';
 
+import { DeviseDirective, DevisePipe } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-remises-rfa',
-  imports: [CommonModule, ButtonComponent, DataTableComponent, ToolbarComponent, BadgeComponent, NgbNavModule],
+  imports: [DeviseDirective, DevisePipe, CommonModule, ButtonComponent, DataTableComponent, ToolbarComponent, BadgeComponent, NgbNavModule],
   templateUrl: './remises-rfa.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './remises-rfa.component.scss',

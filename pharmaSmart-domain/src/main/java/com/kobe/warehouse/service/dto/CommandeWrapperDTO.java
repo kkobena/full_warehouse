@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.CommandeId;
@@ -53,7 +54,7 @@ public abstract class CommandeWrapperDTO {
         hasBeenSubmittedToPharmaML = commande.isHasBeenSubmittedToPharmaML();
         reliquatDeCommandeId = commande.getReliquatDeCommandeId();
         AppUser user1 = commande.getUser();
-        createdUser = String.format("%s. %s", user1.getFirstName().charAt(0), user1.getLastName());
+        createdUser = AppUserNames.shortName(user1);
         ReconciliationFactureFournisseur recon = commande.getReconciliation();
         if (recon != null) {
             reconciliationStatut = recon.getStatut();

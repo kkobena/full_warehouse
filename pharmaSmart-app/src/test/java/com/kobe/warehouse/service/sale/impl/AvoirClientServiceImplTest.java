@@ -68,7 +68,7 @@ class AvoirClientServiceImplTest {
         assertEquals(100L, result.saleId());
         assertEquals(200L, result.salesLineId());
         assertEquals("Alice Kouassi", result.customerName());
-        assertEquals("Paul Yao", result.sellerName());
+        assertEquals("Y.Paul", result.sellerName());
         assertEquals("CIP-FOURNISSEUR", result.codeCip());
         assertEquals(3_600, result.montantAvoir());
         verify(repository).findAll(finalSpec, pageable);

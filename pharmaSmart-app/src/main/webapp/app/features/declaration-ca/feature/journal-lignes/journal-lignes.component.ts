@@ -47,6 +47,14 @@ export type TypeJournalLignes = 'unites-gratuites' | 'rayons';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JournalLignesComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit alors le libellé du menu — ou son
+   * `titre_long` quand la barre nomme plus longuement — au lieu d'une valeur figée dans le gabarit.
+   */
+  readonly navCode = input<string>('');
+
   readonly type = input.required<TypeJournalLignes>();
   readonly titre = input.required<string>();
   /** Ce que le journal recense, rappelé au-dessus des filtres. */

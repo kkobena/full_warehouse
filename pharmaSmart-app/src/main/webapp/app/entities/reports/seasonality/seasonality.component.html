@@ -1,5 +1,5 @@
 <!-- Toolbar -->
-<app-toolbar icon="pi pi-chart-line" title="Saisonnalité du Chiffre d'Affaires">
+<app-toolbar [code]="navCode()" icon="pi pi-chart-line" title="Saisonnalité du Chiffre d'Affaires">
   <ng-container ngProjectAs="[toolbarFilters]">
     <div class="pharma-toolbar-filters">
       <pharma-date-picker

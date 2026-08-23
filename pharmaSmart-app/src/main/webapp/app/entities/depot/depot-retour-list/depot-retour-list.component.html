@@ -1,7 +1,7 @@
 <div class="container-fluid">
 
   <div class="pharma-smart-content p-1">
-    <app-toolbar icon="pi pi-undo" title="Retours dépôt">
+    <app-toolbar [code]="navCode()" icon="pi pi-undo" title="Retours dépôt">
       <ng-container ngProjectAs="[toolbarFilters]">
         <div class="pharma-toolbar-filters">
           <app-select

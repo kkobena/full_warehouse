@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal, input} from '@angular/core';
 
 import { CardComponent } from 'app/shared/ui/card/card.component';
 import { ToolbarComponent } from 'app/shared/ui/toolbar/toolbar.component';
@@ -18,6 +18,14 @@ import { DeclarationCaApiService } from '../../data-access/services/declaration-
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExclusionParametresComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit alors le libellé du menu — ou son
+   * `titre_long` quand la barre nomme plus longuement — au lieu d'une valeur figée dans le gabarit.
+   */
+  readonly navCode = input<string>('');
+
   private readonly api = inject(DeclarationCaApiService);
   private readonly notification = inject(NotificationService);
 

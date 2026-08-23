@@ -1,75 +1,58 @@
-<div class="row">
-  <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2">
-    <div class="pharma-nav-sidebar">
-      <div class="pharma-nav-sidebar-card">
-        <div class="pharma-nav-sidebar-header">
-          <i class="pi pi-building"></i>
-          <span>Gestion des dépôts</span>
-        </div>
+<app-nav-sidebar (collapsedChange)="menuReplie.set($event)" [collapsed]="menuReplie()"
+                 [collapsible]="true" [nav]="nav" contentColumnClass="col-xl-10 col-lg-10 col-md-10 col-sm-10"
+                 icon="pi pi-building" menuColumnClass="col-xl-2 col-lg-2 col-md-2 col-sm-2"
+                 title="Gestion des dépôts">
+  <div #nav="ngbNav" [(activeId)]="active"
+       class="nav flex-column nav-pills" ngbNav orientation="vertical">
 
-        <div class="pharma-nav-sidebar-content">
-          <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
-               orientation="vertical">
+    @if (showListeDepots()) {
+      <ng-container ngbNavItem="liste-depots">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="depot.liste-depots"
+                                fallbackIcon="pi pi-book"
+                                fallbackLabel="Liste des dépôts" />
+        </a>
+        <ng-template ngbNavContent>
+          <app-depot navCode="depot.liste-depots"></app-depot>
+        </ng-template>
+      </ng-container>
+    }
 
-            @if (showListeDepots()) {
-              <ng-container ngbNavItem="liste-depots">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-book"></i>
-                  <span>Liste des dépôts</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  <app-depot></app-depot>
-                </ng-template>
-              </ng-container>
-            }
+    @if (showStockDepot()) {
+      <ng-container ngbNavItem="stock-depot">       <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="depot.stock-depot"
+                                fallbackIcon="pi pi-box"
+                                fallbackLabel="Stock dépôt" />
+        </a>
+        <ng-template ngbNavContent>
+          <app-stock-depot navCode="depot.stock-depot"></app-stock-depot>
+        </ng-template>
+      </ng-container>
+    }
 
-            @if (showStockDepot()) {
-              <ng-container ngbNavItem="stock-depot">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-box"></i>
-                  <span>Stock dépôt</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  <app-stock-depot></app-stock-depot>
-                </ng-template>
-              </ng-container>
-            }
+    @if (showAchatDepot()) {
+      <ng-container ngbNavItem="achat-depot">       <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="depot.achat-depot"
+                                fallbackIcon="pi pi-fw pi-truck"
+                                fallbackLabel="Achats dépôt" />
+        </a>
+        <ng-template ngbNavContent>
+          <jhi-achat-depot navCode="depot.achat-depot"></jhi-achat-depot>
+        </ng-template>
+      </ng-container>
+    }
 
-            @if (showAchatDepot()) {
-              <ng-container ngbNavItem="achat-depot">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-fw pi-truck"></i>
-                  <span>Achats dépôt</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  <jhi-achat-depot></jhi-achat-depot>
-                </ng-template>
-              </ng-container>
-            }
+    @if (showRetourDepot()) {
+      <ng-container ngbNavItem="retour-depot">  <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="depot.retour-depot"
+                                fallbackIcon="pi pi-fw pi-undo"
+                                fallbackLabel="Retours dépôt" />
+        </a>
+        <ng-template ngbNavContent>
+          <app-depot-retour-list navCode="depot.retour-depot"></app-depot-retour-list>
+        </ng-template>
+      </ng-container>
+    }
 
-            @if (showRetourDepot()) {
-              <ng-container ngbNavItem="retour-depot">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-fw pi-undo"></i>
-                  <span>Retours dépôt</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  <app-depot-retour-list></app-depot-retour-list>
-                </ng-template>
-              </ng-container>
-            }
-
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
-
-  <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10">
-    <div [ngbNavOutlet]="nav"></div>
-  </div>
-</div>
+</app-nav-sidebar>

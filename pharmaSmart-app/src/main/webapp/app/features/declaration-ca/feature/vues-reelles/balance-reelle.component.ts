@@ -13,7 +13,7 @@ import { BalanceMvtCaisseComponent } from 'app/entities/mvt-caisse/balance-mvt-c
 @Component({
   selector: 'app-balance-reelle',
   imports: [BalanceMvtCaisseComponent],
-  template: ` <app-balance-mvt-caisse mode="REEL" />`,
+  template: ` <app-balance-mvt-caisse mode="REEL" navCode="declaration-ca.balance-reelle" />`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BalanceReelleComponent {}

@@ -14,11 +14,7 @@ import {filter, fromEvent} from "rxjs";
 import {AccountService} from "app/core/auth/account.service";
 import {LoginService} from "app/login/login.service";
 import {NavItem} from "../navbar/navbar-item.model";
-import {
-  faBars,
-  faChevronRight,
-  faUserCircle
-} from "@fortawesome/free-solid-svg-icons";
+import {faBars, faChevronRight, faUserCircle} from "@fortawesome/free-solid-svg-icons";
 import {NgbModal, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
 import {CdkConnectedOverlay, CdkOverlayOrigin, ConnectedPosition} from "@angular/cdk/overlay";
 import {NavFlyoutComponent} from "../shared/nav-flyout/nav-flyout.component";
@@ -54,9 +50,7 @@ const HOVER_OPEN_DELAY_MS = 120;
   }
 })
 export default class SidebarComponent implements OnInit {
-  // Signaux et non propriétés mutées : `navItems` est affecté depuis un `effect()` — le store de
-  // navigation se charge après le premier rendu — et rien n'y salit la vue. Sous `OnPush`, le menu
-  // serait resté vide ou figé sur son premier état.
+
   readonly navItems = signal<NavItem[]>([]);
   /** Identifiant du seul menu ouvert, ou `null`. */
   readonly openMenuId = signal<string | null>(null);

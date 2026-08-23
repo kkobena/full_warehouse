@@ -4,8 +4,7 @@ import {
   DestroyRef,
   effect,
   inject,
-  OnInit
-} from "@angular/core";
+  OnInit, signal} from "@angular/core";
 import {CommonModule} from "@angular/common";
 import {ActivatedRoute, RouterModule} from "@angular/router";
 import {
@@ -29,6 +28,8 @@ import {AlertBadgeService} from "../../../../shared/services/alert-badge.service
 import {BreadcrumbService} from "../../../../shared/components/breadcrumb/breadcrumb.service";
 import {AbilityService} from "app/core/auth/ability.service";
 
+import { NavSidebarComponent } from 'app/shared/ui/nav-sidebar/nav-sidebar.component';
+import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-link.component';
 /** Labels fil d'Ariane pour chaque onglet */
 const TAB_LABELS: Record<string, string> = {
   DASHBOARD: 'Tableau de bord Appro',
@@ -43,14 +44,13 @@ const TAB_LABELS: Record<string, string> = {
   templateUrl: "./commande-home.component.html",
   styleUrl: "./commande-home.component.scss",
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  imports: [NavSidebarComponent, NavSectionLinkComponent,
     CommonModule,
     RouterModule,
     NgbNav,
     NgbNavItem,
     NgbNavLink,
     NgbNavContent,
-    NgbNavOutlet,
     AppRetourFournisseurComponent,
     AppRepartitionStockComponent,
     ApproUnifiedDashboardComponent,
@@ -61,6 +61,9 @@ const TAB_LABELS: Record<string, string> = {
 })
 export class CommandeHomeComponent implements OnInit {
   protected active = "DASHBOARD";
+
+  /** Menu replié : rend la largeur au contenu quand il en manque. */
+  protected readonly menuReplie = signal(false);
   protected readonly alertBadgeService = inject(AlertBadgeService);
   private readonly route = inject(ActivatedRoute);
   private readonly commandCommonService = inject(CommandCommonService);

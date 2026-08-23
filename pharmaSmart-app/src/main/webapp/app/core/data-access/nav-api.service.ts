@@ -53,6 +53,15 @@ export class NavApiService {
     return this.http.patch<void>(this.config.getEndpointFor(`api/admin/nav/items/${id}/libelle`), { libelle });
   }
 
+  /**
+   * Titre de la barre d'outils de l'écran, quand il diffère du libellé du menu.
+   *
+   * <p>Une chaîne vide efface le titre long : la barre reprend alors le libellé.
+   */
+  updateNavItemTitreLong(id: number, titreLong: string): Observable<void> {
+    return this.http.patch<void>(this.config.getEndpointFor(`api/admin/nav/items/${id}/titre-long`), { titreLong });
+  }
+
 
   getAllRoles(): Observable<IAuthority[]> {
     return this.http.get<IAuthority[]>(this.config.getEndpointFor("api/authorities/all/v2"));

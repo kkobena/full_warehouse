@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnInit, ChangeDetectionStrategy, input} from "@angular/core";
 import { CashRegisterService } from "../../cash-register/cash-register.service";
 import { FormsModule } from "@angular/forms";
 import { ITEMS_PER_PAGE } from "../../../shared/constants/pagination.constants";
@@ -33,6 +33,15 @@ import { PharmaDatePickerComponent } from "../../../shared/date-picker/pharma-da
   templateUrl: "./gestion-caisse.component.html"
 })
 export class GestionCaisseComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   protected totalItems = 0;
   protected loading!: boolean;
   protected btnLoading = false;

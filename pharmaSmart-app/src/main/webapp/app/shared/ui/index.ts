@@ -31,6 +31,8 @@ export * from './modal/modal.component';
 export * from './month-picker/month-picker.component';
 export * from './offcanvas/offcanvas.component';
 export * from './nav-tabs/nav-tabs.component';
+export * from './nav-sidebar/nav-sidebar.component';
+export * from './nav-sidebar/nav-section-link.component';
 export * from './pill-selector/pill-selector.component';
 export * from './toolbar/toolbar.component';
 export * from './password/password.component';

@@ -1,337 +1,324 @@
-<div class="row">
-  <div class="col-lg-3 col-xl-2 col-md-4 col-sm-5">
-    <div class="pharma-nav-sidebar">
-      <div class="pharma-nav-sidebar-card">
-        <div class="pharma-nav-sidebar-header">
-          <i class="pi pi-percentage"></i>
-          <span>Retraitement du CA</span>
-        </div>
-        <div class="pharma-nav-sidebar-content">
-          <div #nav="ngbNav" (activeIdChange)="active.set($event)" [activeId]="active()"
-               class="nav flex-column nav-pills" ngbNav orientation="vertical">
+<app-nav-sidebar (collapsedChange)="menuReplie.set($event)" [collapsed]="menuReplie()"
+                 [collapsible]="true" [nav]="nav"
+                 contentColumnClass="col-lg-9 col-xl-10 col-md-8 col-sm-7 pharma-smart-content p-1"
+                 icon="pi pi-percentage" menuColumnClass="col-lg-3 col-xl-2 col-md-4 col-sm-5"
+                 title="Retraitement du CA">
+  <div #nav="ngbNav" (activeIdChange)="active.set($event)" [activeId]="active()"
+       class="nav flex-column nav-pills" ngbNav orientation="vertical">
 
-            @if (showRayon()) {
-              <ng-container ngbNavItem="exclusion-rayon">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-th-large"></i>
-                  <span>Rayons</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  @defer (on immediate) {
-                    <app-exclusion-referentiel
-                      [referentiel]="'rayons'"
-                      explication="Les ventes des produits rattachés à un rayon exclu ne comptent plus dans le chiffre d'affaires à déclarer."
-                      titre="Exclusion de rayons" />
-                  } @loading {
-                    <app-skeleton height="240px" width="100%" />
-                  } @error {
-                    <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
-                      <i class="pi pi-exclamation-triangle mt-1"></i>
-                      <span>
-                        Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
-                        code de l'écran n'a pas été récupéré par le navigateur.
-                      </span>
-                    </div>
-                  }
-                </ng-template>
-              </ng-container>
-            }
+    @if (showRayon()) {
+      <ng-container ngbNavItem="exclusion-rayon">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="declaration-ca.exclusion-rayon"
+                                fallbackIcon="pi pi-th-large"
+                                fallbackLabel="Rayons" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-exclusion-referentiel
+              [referentiel]="'rayons'"
+              explication="Les ventes des produits rattachés à un rayon exclu ne comptent plus dans le chiffre d'affaires à déclarer."
+              titre="Exclusion de rayons" />
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          } @error {
+            <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
+              <i class="pi pi-exclamation-triangle mt-1"></i>
+              <span>
+                Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
+                code de l'écran n'a pas été récupéré par le navigateur.
+              </span>
+            </div>
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-            @if (showTiersPayant()) {
-              <ng-container ngbNavItem="exclusion-tp">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-building"></i>
-                  <span>Tiers-payants</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  @defer (on immediate) {
-                    <app-exclusion-referentiel
-                      [referentiel]="'tiers-payants'"
-                      explication="Les ventes relevant d'un tiers-payant exclu sortent entièrement du chiffre d'affaires à déclarer."
-                      titre="Exclusion de tiers-payants" />
-                  } @loading {
-                    <app-skeleton height="240px" width="100%" />
-                  } @error {
-                    <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
-                      <i class="pi pi-exclamation-triangle mt-1"></i>
-                      <span>
-                        Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
-                        code de l'écran n'a pas été récupéré par le navigateur.
-                      </span>
-                    </div>
-                  }
-                </ng-template>
-              </ng-container>
-            }
+    @if (showTiersPayant()) {
+      <ng-container ngbNavItem="exclusion-tp">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="declaration-ca.exclusion-tp"
+                                fallbackIcon="pi pi-building"
+                                fallbackLabel="Tiers-payants" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-exclusion-referentiel
+              [referentiel]="'tiers-payants'"
+              explication="Les ventes relevant d'un tiers-payant exclu sortent entièrement du chiffre d'affaires à déclarer."
+              titre="Exclusion de tiers-payants" />
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          } @error {
+            <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
+              <i class="pi pi-exclamation-triangle mt-1"></i>
+              <span>
+                Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
+                code de l'écran n'a pas été récupéré par le navigateur.
+              </span>
+            </div>
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-            @if (showParametres()) {
-              <ng-container ngbNavItem="parametres">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-gift"></i>
-                  <span>Unités gratuites</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  @defer (on immediate) {
-                    <app-exclusion-parametres />
-                  } @loading {
-                    <app-skeleton height="160px" width="100%" />
-                  } @error {
-                    <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
-                      <i class="pi pi-exclamation-triangle mt-1"></i>
-                      <span>
-                        Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
-                        code de l'écran n'a pas été récupéré par le navigateur.
-                      </span>
-                    </div>
-                  }
-                </ng-template>
-              </ng-container>
-            }
+    @if (showParametres()) {
+      <ng-container ngbNavItem="parametres">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="declaration-ca.parametres"
+                                fallbackIcon="pi pi-gift"
+                                fallbackLabel="Unités gratuites" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-exclusion-parametres navCode="declaration-ca.parametres" />
+          } @loading {
+            <app-skeleton height="160px" width="100%" />
+          } @error {
+            <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
+              <i class="pi pi-exclamation-triangle mt-1"></i>
+              <span>
+                Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
+                code de l'écran n'a pas été récupéré par le navigateur.
+              </span>
+            </div>
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-            @if (showJournalTp()) {
-              <ng-container ngbNavItem="journal-tp">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-building"></i>
-                  <span>Ventes tiers-payant exclues</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  @defer (on immediate) {
-                    <app-journal-tiers-payant />
-                  } @loading {
-                    <app-skeleton height="320px" width="100%" />
-                  } @error {
-                    <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
-                      <i class="pi pi-exclamation-triangle mt-1"></i>
-                      <span>
-                        Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
-                        code de l'écran n'a pas été récupéré par le navigateur.
-                      </span>
-                    </div>
-                  }
-                </ng-template>
-              </ng-container>
-            }
+    @if (showJournalTp()) {
+      <ng-container ngbNavItem="journal-tp">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="declaration-ca.journal-tp"
+                                fallbackIcon="pi pi-building"
+                                fallbackLabel="Ventes tiers-payant exclues" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-journal-tiers-payant navCode="declaration-ca.journal-tp" />
+          } @loading {
+            <app-skeleton height="320px" width="100%" />
+          } @error {
+            <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
+              <i class="pi pi-exclamation-triangle mt-1"></i>
+              <span>
+                Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
+                code de l'écran n'a pas été récupéré par le navigateur.
+              </span>
+            </div>
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-            @if (showJournalUg()) {
-              <ng-container ngbNavItem="journal-ug">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-gift"></i>
-                  <span>Unités gratuites vendues</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  @defer (on immediate) {
-                    <app-journal-lignes
-                      [type]="'unites-gratuites'"
-                      explication="Les unités gratuites de ces lignes ont été retirées du chiffre d'affaires à déclarer. Le reste de la ligne y demeure."
-                      titre="Unités gratuites vendues" />
-                  } @loading {
-                    <app-skeleton height="320px" width="100%" />
-                  } @error {
-                    <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
-                      <i class="pi pi-exclamation-triangle mt-1"></i>
-                      <span>
-                        Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
-                        code de l'écran n'a pas été récupéré par le navigateur.
-                      </span>
-                    </div>
-                  }
-                </ng-template>
-              </ng-container>
-            }
+    @if (showJournalUg()) {
+      <ng-container ngbNavItem="journal-ug">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="declaration-ca.journal-ug"
+                                fallbackIcon="pi pi-gift"
+                                fallbackLabel="Unités gratuites vendues" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-journal-lignes
+              [type]="'unites-gratuites'"
+              explication="Les unités gratuites de ces lignes ont été retirées du chiffre d'affaires à déclarer. Le reste de la ligne y demeure."
+              titre="Unités gratuites vendues" />
+          } @loading {
+            <app-skeleton height="320px" width="100%" />
+          } @error {
+            <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
+              <i class="pi pi-exclamation-triangle mt-1"></i>
+              <span>
+                Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
+                code de l'écran n'a pas été récupéré par le navigateur.
+              </span>
+            </div>
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-            @if (showJournalRayon()) {
-              <ng-container ngbNavItem="journal-rayon">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-th-large"></i>
-                  <span>Produits de rayons exclus</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  @defer (on immediate) {
-                    <app-journal-lignes
-                      [type]="'rayons'"
-                      explication="Ces lignes sortent entièrement du chiffre d'affaires à déclarer parce que leur produit relève d'un rayon exclu."
-                      titre="Produits de rayons exclus" />
-                  } @loading {
-                    <app-skeleton height="320px" width="100%" />
-                  } @error {
-                    <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
-                      <i class="pi pi-exclamation-triangle mt-1"></i>
-                      <span>
-                        Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
-                        code de l'écran n'a pas été récupéré par le navigateur.
-                      </span>
-                    </div>
-                  }
-                </ng-template>
-              </ng-container>
-            }
+    @if (showJournalRayon()) {
+      <ng-container ngbNavItem="journal-rayon">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="declaration-ca.journal-rayon"
+                                fallbackIcon="pi pi-th-large"
+                                fallbackLabel="Produits de rayons exclus" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-journal-lignes
+              [type]="'rayons'"
+              explication="Ces lignes sortent entièrement du chiffre d'affaires à déclarer parce que leur produit relève d'un rayon exclu."
+              titre="Produits de rayons exclus" />
+          } @loading {
+            <app-skeleton height="320px" width="100%" />
+          } @error {
+            <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
+              <i class="pi pi-exclamation-triangle mt-1"></i>
+              <span>
+                Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
+                code de l'écran n'a pas été récupéré par le navigateur.
+              </span>
+            </div>
+          }
+        </ng-template>
+      </ng-container>
+    }
 
 
-            @if (showPonction()) {
-              <ng-container ngbNavItem="ponction">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-percentage"></i>
-                  <span>Ponction</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  @defer (on immediate) {
-                    <app-ponction />
-                  } @loading {
-                    <app-skeleton height="320px" width="100%" />
-                  } @error {
-                    <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
-                      <i class="pi pi-exclamation-triangle mt-1"></i>
-                      <span>
-                        Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
-                        code de l'écran n'a pas été récupéré par le navigateur.
-                      </span>
-                    </div>
-                  }
-                </ng-template>
-              </ng-container>
-            }
+    @if (showPonction()) {
+      <ng-container ngbNavItem="ponction">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="declaration-ca.ponction"
+                                fallbackIcon="pi pi-percentage"
+                                fallbackLabel="Ponction" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-ponction navCode="declaration-ca.ponction" />
+          } @loading {
+            <app-skeleton height="320px" width="100%" />
+          } @error {
+            <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
+              <i class="pi pi-exclamation-triangle mt-1"></i>
+              <span>
+                Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
+                code de l'écran n'a pas été récupéré par le navigateur.
+              </span>
+            </div>
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-            @if (showHistorique()) {
-              <ng-container ngbNavItem="ponction-historique">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-history"></i>
-                  <span>Historique des ponctions</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  @defer (on immediate) {
-                    <app-ponction-historique />
-                  } @loading {
-                    <app-skeleton height="240px" width="100%" />
-                  } @error {
-                    <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
-                      <i class="pi pi-exclamation-triangle mt-1"></i>
-                      <span>
-                        Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
-                        code de l'écran n'a pas été récupéré par le navigateur.
-                      </span>
-                    </div>
-                  }
-                </ng-template>
-              </ng-container>
-            }
+    @if (showHistorique()) {
+      <ng-container ngbNavItem="ponction-historique">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="declaration-ca.ponction-historique"
+                                fallbackIcon="pi pi-history"
+                                fallbackLabel="Historique des ponctions" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-ponction-historique navCode="declaration-ca.ponction-historique" />
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          } @error {
+            <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
+              <i class="pi pi-exclamation-triangle mt-1"></i>
+              <span>
+                Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
+                code de l'écran n'a pas été récupéré par le navigateur.
+              </span>
+            </div>
+          }
+        </ng-template>
+      </ng-container>
+    }
 
 
-            @if (showBalance()) {
-              <ng-container ngbNavItem="balance-reelle">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-calculator"></i>
-                  <span>Balance caisse réelle</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  @defer (on immediate) {
-                    <app-balance-reelle />
-                  } @loading {
-                    <app-skeleton height="240px" width="100%" />
-                  } @error {
-                    <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
-                      <i class="pi pi-exclamation-triangle mt-1"></i>
-                      <span>
-                        Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
-                        code de l'écran n'a pas été récupéré par le navigateur.
-                      </span>
-                    </div>
-                  }
-                </ng-template>
-              </ng-container>
-            }
+    @if (showBalance()) {
+      <ng-container ngbNavItem="balance-reelle">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="declaration-ca.balance-reelle"
+                                fallbackIcon="pi pi-calculator"
+                                fallbackLabel="Balance caisse réelle" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-balance-reelle />
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          } @error {
+            <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
+              <i class="pi pi-exclamation-triangle mt-1"></i>
+              <span>
+                Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
+                code de l'écran n'a pas été récupéré par le navigateur.
+              </span>
+            </div>
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-            @if (showTaxeReport()) {
-              <ng-container ngbNavItem="taxe-report-reel">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-file-pdf"></i>
-                  <span>Rapport TVA réel</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  @defer (on immediate) {
-                    <app-taxe-report-reel />
-                  } @loading {
-                    <app-skeleton height="240px" width="100%" />
-                  } @error {
-                    <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
-                      <i class="pi pi-exclamation-triangle mt-1"></i>
-                      <span>
-                        Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
-                        code de l'écran n'a pas été récupéré par le navigateur.
-                      </span>
-                    </div>
-                  }
-                </ng-template>
-              </ng-container>
-            }
+    @if (showTaxeReport()) {
+      <ng-container ngbNavItem="taxe-report-reel">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="declaration-ca.taxe-report-reel"
+                                fallbackIcon="pi pi-file-pdf"
+                                fallbackLabel="Rapport TVA réel" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-taxe-report-reel />
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          } @error {
+            <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
+              <i class="pi pi-exclamation-triangle mt-1"></i>
+              <span>
+                Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
+                code de l'écran n'a pas été récupéré par le navigateur.
+              </span>
+            </div>
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-            @if (showTableau()) {
-              <ng-container ngbNavItem="tableau-pharmacien-reel">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-table"></i>
-                  <span>Tableau pharmacien réel</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  @defer (on immediate) {
-                    <app-tableau-pharmacien-reel />
-                  } @loading {
-                    <app-skeleton height="240px" width="100%" />
-                  } @error {
-                    <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
-                      <i class="pi pi-exclamation-triangle mt-1"></i>
-                      <span>
-                        Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
-                        code de l'écran n'a pas été récupéré par le navigateur.
-                      </span>
-                    </div>
-                  }
-                </ng-template>
-              </ng-container>
-            }
+    @if (showTableau()) {
+      <ng-container ngbNavItem="tableau-pharmacien-reel">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="declaration-ca.tableau-pharmacien-reel"
+                                fallbackIcon="pi pi-table"
+                                fallbackLabel="Tableau pharmacien réel" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-tableau-pharmacien-reel />
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          } @error {
+            <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
+              <i class="pi pi-exclamation-triangle mt-1"></i>
+              <span>
+                Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
+                code de l'écran n'a pas été récupéré par le navigateur.
+              </span>
+            </div>
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-            <!-- pas ok pour le moment -->
-            <!--      @if (showAudit()) {
-                    <ng-container ngbNavItem="audit">
-                      <a class="pharma-nav-vertical-link" ngbNavLink>
-                        <i class="pi pi-shield"></i>
-                        <span>Contrôle de cohérence</span>
-                        <span class="link-arrow">›</span>
-                      </a>
-                      <ng-template ngbNavContent>
-                        @defer (on immediate) {
-                          <app-audit-declaration-ca />
-                        } @loading {
-                          <app-skeleton height="200px" width="100%" />
-                        } @error {
-                          <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
-                            <i class="pi pi-exclamation-triangle mt-1"></i>
-                            <span>
-                              Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
-                              code de l'écran n'a pas été récupéré par le navigateur.
-                            </span>
-                          </div>
-                        }
-                      </ng-template>
-                    </ng-container>
-                  }-->
-
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- pas ok pour le moment -->
+    <!--      @if (showAudit()) {
+            <ng-container ngbNavItem="audit">
+              <a class="pharma-nav-vertical-link" ngbNavLink>
+                <app-nav-section-link code="declaration-ca.audit"
+                                      fallbackIcon="pi pi-shield"
+                                      fallbackLabel="Contrôle de cohérence" />
+              </a>
+              <ng-template ngbNavContent>
+                @defer (on immediate) {
+                  <app-audit-declaration-ca navCode="declaration-ca.audit" />
+                } @loading {
+                  <app-skeleton height="200px" width="100%" />
+                } @error {
+                  <div class="alert alert-danger py-2 small d-flex align-items-start gap-2">
+                    <i class="pi pi-exclamation-triangle mt-1"></i>
+                    <span>
+                      Cet écran n'a pas pu être chargé. Rechargez la page ; si le problème persiste, le
+                      code de l'écran n'a pas été récupéré par le navigateur.
+                    </span>
+                  </div>
+                }
+              </ng-template>
+            </ng-container>
+          }-->
   </div>
-
-  <div class="col-lg-9 col-xl-10 col-md-8 col-sm-7 pharma-smart-content p-1">
-    <div [ngbNavOutlet]="nav"></div>
-  </div>
-</div>
+</app-nav-sidebar>

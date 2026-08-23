@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy, input} from "@angular/core";
 import { LotService } from "../../commande/lot/lot.service";
 import { LotFilterParam, LotLocation, LotPerimes, LotPerimeValeurSum } from "../model/lot-perimes";
 import { NGB_DATE_TO_ISO } from "../../../shared/util/warehouse-util";
@@ -87,6 +87,14 @@ import {
   styleUrl: "./lot-perimes.component.scss"
 })
 export class LotPerimesComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu, ou son `titre_long`
+   * quand la barre nomme plus longuement.
+   */
+  readonly navCode = input<string>('');
+
   protected payload: ProductsToDestroyPayload = null;
   protected exportMenus: AppSplitButtonItem[];
   protected selectedLotPerimes: LotPerimes[] = [];

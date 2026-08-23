@@ -1,5 +1,5 @@
 <!-- Toolbar -->
-<app-toolbar icon="pi pi-tag" title="Analyse des Remises">
+<app-toolbar [code]="navCode()" icon="pi pi-tag" title="Analyse des Remises">
   <ng-container ngProjectAs="[toolbarFilters]">
     <div class="pharma-toolbar-filters">
       <pharma-date-picker

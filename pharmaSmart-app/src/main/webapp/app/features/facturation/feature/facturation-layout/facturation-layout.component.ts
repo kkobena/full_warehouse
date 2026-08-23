@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, signal} from '@angular/core';
 import { AbilityService } from 'app/core/auth/ability.service';
 import { AlertBadgeService } from 'app/shared/services/alert-badge.service';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
@@ -13,9 +13,11 @@ import { ComptesFournisseursComponent } from '../../../finances/feature/comptes-
 import { RemisesRfaComponent } from '../../../finances/feature/remises-rfa/remises-rfa.component';
 import { SkeletonComponent } from 'app/shared/ui/skeleton/skeleton.component';
 
+import { NavSidebarComponent } from 'app/shared/ui/nav-sidebar/nav-sidebar.component';
+import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-link.component';
 @Component({
   selector: 'app-facturation-layout',
-  imports: [
+  imports: [NavSidebarComponent, NavSectionLinkComponent, 
     NgbNavModule,
     FacturationHomeComponent,
     HistoriqueReglementsComponent,
@@ -34,6 +36,9 @@ import { SkeletonComponent } from 'app/shared/ui/skeleton/skeleton.component';
 })
 export class FacturationLayoutComponent {
   protected active = 'edition';
+
+  /** Menu replié : rend la largeur au contenu quand il en manque. */
+  protected readonly menuReplie = signal(false);
   /** Fonctionnalité non stable — masquée en attendant correction */
   protected readonly showAvoir = true;
 

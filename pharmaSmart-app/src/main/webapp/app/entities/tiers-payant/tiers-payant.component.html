@@ -9,7 +9,7 @@
 }
 
 <div class="pharma-smart-content p-1">
-  <app-toolbar icon="pi pi-shield" title="Liste des tiers payants">
+  <app-toolbar [code]="navCode()" icon="pi pi-shield" title="Liste des tiers payants">
     <ng-container ngProjectAs="[toolbarFilters]">
 
       <label for="typeFilter">Type</label>

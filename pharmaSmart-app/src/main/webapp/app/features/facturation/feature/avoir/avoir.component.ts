@@ -7,8 +7,7 @@ import {
   OnInit,
   signal,
   TemplateRef,
-  ViewChild
-} from "@angular/core";
+  ViewChild, input} from "@angular/core";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {FormsModule} from "@angular/forms";
 import {DecimalPipe} from "@angular/common";
@@ -78,6 +77,15 @@ interface IKpiGroup {
   styleUrl: "./avoir.component.scss",
 })
 export class AvoirComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   @ViewChild("imputerModal") imputerModalTpl!: TemplateRef<any>;
   @ViewChild("annulerModal") annulerModalTpl!: TemplateRef<any>;
 

@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} from "@angular/core";
+import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, input} from "@angular/core";
 import {CommonModule} from "@angular/common";
 import {NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
 
@@ -39,6 +39,14 @@ import {ReactiveFormsModule} from "@angular/forms";
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PonctionHistoriqueComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit alors le libellé du menu — ou son
+   * `titre_long` quand la barre nomme plus longuement — au lieu d'une valeur figée dans le gabarit.
+   */
+  readonly navCode = input<string>('');
+
   protected readonly ponctions = signal<Ponction[]>([]);
   protected readonly chargement = signal(false);
   protected readonly chargementDetail = signal(false);

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy, input} from "@angular/core";
 import { ProductToDestroyService } from "../product-to-destroy.service";
 import { ITEMS_PER_PAGE } from "../../../shared/constants/pagination.constants";
 import { HttpHeaders, HttpResponse } from "@angular/common/http";
@@ -75,6 +75,14 @@ import {
   styleUrl: "./lot-a-detruire.component.scss"
 })
 export class LotADetruireComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu, ou son `titre_long`
+   * quand la barre nomme plus longuement.
+   */
+  readonly navCode = input<string>('');
+
   protected isMono = true;
   protected productToDestroySum: ProductToDestroySum = null;
   protected data: ProductToDestroy[] = [];

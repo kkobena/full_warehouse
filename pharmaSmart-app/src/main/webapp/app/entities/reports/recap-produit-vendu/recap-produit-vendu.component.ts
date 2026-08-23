@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, signal, viewChild} from "@angular/core";
+import {ChangeDetectionStrategy, Component, inject, OnInit, signal, viewChild, input} from "@angular/core";
 import {HttpResponse} from "@angular/common/http";
 import {CommonModule} from "@angular/common";
 import {FormsModule} from "@angular/forms";
@@ -67,6 +67,14 @@ import { DeviseDirective } from 'app/shared/utils/devise';
   ]
 })
 export default class RecapProduitVenduComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : ce rapport est parfois atteint depuis deux menus, qui ne le nomment
+   * pas de la même façon. Le titre suit celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   protected products = signal<IRecapProduitVendu[]>([]);
   protected unsoldProducts = signal<IRecapProduitVendu[]>([]);
   protected summary = signal<IRecapProduitVenduSummary | null>(null);

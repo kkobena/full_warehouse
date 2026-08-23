@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, viewChild, ChangeDetectionStrategy} from "@angular/core";
+import {ChangeDetectionStrategy, Component, inject, OnInit, viewChild, input} from "@angular/core";
 import {TiersPayantService} from "./tierspayant.service";
 import {Observable} from "rxjs";
 import {HttpHeaders, HttpResponse} from "@angular/common/http";
@@ -14,7 +14,9 @@ import {
   SplitButtonComponent,
   ToolbarComponent
 } from "../../shared/ui";
-import {JsonImportDialogComponent} from "../../shared/json-import-dialog/json-import-dialog.component";
+import {
+  JsonImportDialogComponent
+} from "../../shared/json-import-dialog/json-import-dialog.component";
 import {ITEMS_PER_PAGE} from "../../shared/constants/pagination.constants";
 import {ITiersPayant} from "../../shared/model";
 import {Router, RouterModule} from "@angular/router";
@@ -31,7 +33,7 @@ import {NotificationService} from "../../shared/services/notification.service";
 import {CommonModule} from "@angular/common";
 
 @Component({
-  selector: "jhi-tiers-payant",
+  selector: "app-tiers-payant",
   templateUrl: "./tiers-payant.component.html",
   styleUrls: ["./tiers-payant.component.scss"],
   providers: [NgbActiveModal],
@@ -48,10 +50,19 @@ import {CommonModule} from "@angular/common";
     IconFieldComponent,
     SelectComponent,
     SplitButtonComponent,
-  ToolbarComponent
+    ToolbarComponent
   ]
 })
 export class TiersPayantComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   protected tiersPayants?: ITiersPayant[] = [];
   protected responseDialog = false;
   protected onErrorOccur = false;

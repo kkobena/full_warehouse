@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy, input} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
@@ -23,11 +23,11 @@ import {
 } from '../../../shared/ui';
 
 @Component({
-  selector: "jhi-stock-valuation",
+  selector: "app-stock-valuation",
   templateUrl: "./stock-valuation.component.html",
   styleUrl: "./stock-valuation.component.scss",
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [DeviseDirective, 
+  imports: [DeviseDirective,
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -37,6 +37,14 @@ import {
   ]
 })
 export default class StockValuationComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement.
+   */
+  readonly navCode = input<string>('');
+
   valuations = signal<IStockValuation[]>([]);
   summary = signal<IStockValuationSummary | null>(null);
   isLoading = signal<boolean>(false);

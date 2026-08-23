@@ -1,6 +1,6 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-2">
-    <app-toolbar icon="pi pi-building" title="Gestion des Dépôts">
+    <app-toolbar [code]="navCode()" icon="pi pi-building" title="Gestion des Dépôts">
       <ng-container ngProjectAs="[toolbarActions]">
         <div class="pharma-toolbar-actions py-1">
           @if (canNewVente()) {

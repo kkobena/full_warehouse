@@ -1,4 +1,4 @@
-import { Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy, input} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
@@ -23,6 +23,14 @@ Chart.register(...registerables);
   styleUrls: ['./generics-substitution.component.scss'],
 })
 export default class GenericsSubstitutionComponent implements OnInit, OnDestroy {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : ce rapport est parfois atteint depuis deux menus, qui ne le nomment
+   * pas de la même façon. Le titre suit celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   @ViewChild('doughnutCanvas') doughnutCanvas?: ElementRef<HTMLCanvasElement>;
 
   protected readonly stats     = signal<IGenericsSubstitution | null>(null);

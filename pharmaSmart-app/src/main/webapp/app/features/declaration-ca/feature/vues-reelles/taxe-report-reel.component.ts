@@ -7,7 +7,7 @@ import {TaxeReportComponent} from 'app/entities/mvt-caisse/taxe-report/taxe-repo
   selector: 'app-taxe-report-reel',
   imports: [TaxeReportComponent],
   template: `
-    <app-taxe-report mode="REEL" />`,
+    <app-taxe-report mode="REEL" navCode="declaration-ca.taxe-report-reel" />`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaxeReportReelComponent {

@@ -20,6 +20,8 @@ import { AbilityService } from "app/core/auth/ability.service";
 import { RetourClientComponent } from "../retour-client/retour-client.component";
 import { SkeletonComponent } from "app/shared/ui/skeleton/skeleton.component";
 
+import { NavSidebarComponent } from 'app/shared/ui/nav-sidebar/nav-sidebar.component';
+import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-link.component';
 const TAB_LABELS: Record<SalesManagementTab, string> = {
   "journal": "Journal des ventes",
   "en-cours": "Ventes en cours",
@@ -37,7 +39,7 @@ const TAB_LABELS: Record<SalesManagementTab, string> = {
   templateUrl: "./sales-management-home.component.html",
   styleUrl: "./sales-management-home.component.scss",
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  imports: [NavSidebarComponent, NavSectionLinkComponent, 
     NgbNav,
     NgbNavItem,
     NgbNavLink,
@@ -61,6 +63,9 @@ export class SalesManagementHomeComponent implements OnInit {
 
   protected active = signal<SalesManagementTab>("journal");
 
+
+  /** Menu replié : rend la largeur au contenu quand il en manque. */
+  protected readonly menuReplie = signal(false);
   protected readonly showJournal = this.ability.canSignal("display", "ventes.journal");
   protected readonly showEnCours = this.ability.canSignal("display", "ventes.en-cours");
   protected readonly showPresales = this.ability.canSignal("display", "ventes.presales");

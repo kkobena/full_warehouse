@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, signal, viewChild, WritableSignal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal, viewChild, WritableSignal, ChangeDetectionStrategy, input} from '@angular/core';
 import { RecapitulatifCaisseService } from '../recapitulatif-caisse.service';
 import { TIMES } from '../../../shared/util/times';
 import { RecapParam } from '../model/recap-param.model';
@@ -28,9 +28,10 @@ import { EMPTY, Subject } from 'rxjs';
 import { catchError, finalize, map, takeUntil, tap } from 'rxjs/operators';
 
 import { DeviseDirective } from 'app/shared/utils/devise';
+import { ToolbarComponent } from 'app/shared/ui/toolbar/toolbar.component';
 @Component({
   selector: 'app-recapitualtif-caisse',
-  imports: [DeviseDirective, 
+  imports: [ToolbarComponent, DeviseDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -46,6 +47,14 @@ import { DeviseDirective } from 'app/shared/utils/devise';
   styleUrls: ['./recapitualtif-caisse.component.scss'],
 })
 export class RecapitualtifCaisseComponent implements OnInit, OnDestroy {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu, ex. `comptabilite.recapitulatif-caisse`.
+   *
+   * <p>Fourni par l'appelant : le titre de la barre suit le menu par lequel on est entré, et non
+   * une valeur figée dans le gabarit.
+   */
+  readonly navCode = input<string>('');
+
   // range15 = Array.from({ length: 5 }, (_, i) => i + 1);
   // `pharma-date-picker` (ng-bootstrap) travaille en `NgbDateStruct`, là où `p-datepicker`
   // manipulait des `Date`. La conversion vers l'ISO passe par `NGB_DATE_TO_ISO`.

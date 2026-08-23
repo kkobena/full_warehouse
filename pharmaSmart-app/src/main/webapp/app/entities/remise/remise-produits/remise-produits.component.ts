@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, OnInit, input} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {IResponseDto} from '../../../shared/util/response-dto';
@@ -31,6 +31,15 @@ import {ButtonComponent, DataTableComponent, SwitchComponent, ToolbarComponent} 
   styleUrl: './remise-produits.component.scss',
 })
 export class RemiseProduitsComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   protected responsedto!: IResponseDto;
   protected entites?: IRemise[];
   protected loading = false;

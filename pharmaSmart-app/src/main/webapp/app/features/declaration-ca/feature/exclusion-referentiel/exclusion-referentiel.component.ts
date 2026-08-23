@@ -33,6 +33,14 @@ type Filtre = 'tous' | 'exclus' | 'non-exclus';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExclusionReferentielComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit alors le libellé du menu — ou son
+   * `titre_long` quand la barre nomme plus longuement — au lieu d'une valeur figée dans le gabarit.
+   */
+  readonly navCode = input<string>('');
+
   readonly referentiel = input.required<ReferentielExclusion>();
   readonly titre = input.required<string>();
   /** Ce que l'exclusion produit concrètement, rappelé au-dessus du tableau. */

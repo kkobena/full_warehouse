@@ -1,44 +1,28 @@
 <div class="container-fluid">
-  <div class="row">
-    <div class="col-xl-2 col-lg-2 col-md-2 col-sm-4">
-      <!-- Modern Navigation Sidebar -->
-      <div class="pharma-nav-sidebar">
-        <div class="pharma-nav-sidebar-card">
-          <div class="pharma-nav-sidebar-header">
-            <i class="pi pi-building"></i>
-            <span>Tiers payants</span>
-          </div>
+  <app-nav-sidebar (collapsedChange)="menuReplie.set($event)" [collapsed]="menuReplie()"
+                   [collapsible]="true" [nav]="nav" contentColumnClass="col-xl-10 col-lg-10 col-md-10 col-sm-8 row"
+                   icon="pi pi-building" menuColumnClass="col-xl-2 col-lg-2 col-md-2 col-sm-4"
+                   title="Tiers payants">
+    <div #nav="ngbNav" [(activeId)]="active"
+         class="nav flex-column nav-pills" ngbNav orientation="vertical">
+      <ng-container ngbNavItem="tiers-payant">       <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="tiers-payant.tiers-payant"
+                                fallbackIcon="pi pi-shield"
+                                fallbackLabel="Tiers payants" />
+        </a>
+        <ng-template ngbNavContent>
+          <app-tiers-payant navCode="tiers-payant.tiers-payant"></app-tiers-payant>
+        </ng-template>
+      </ng-container>
 
-          <div class="pharma-nav-sidebar-content">
-            <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav orientation="vertical">
-              <ng-container ngbNavItem="tiers-payant">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-shield"></i>
-                  <span>Tiers payants</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  <jhi-tiers-payant></jhi-tiers-payant>
-                </ng-template>
-              </ng-container>
-
-              <ng-container ngbNavItem="groupe-tiers-payant">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-users"></i>
-                  <span>Groupe de tiers payants</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  <app-groupe-tiers-payant></app-groupe-tiers-payant>
-                </ng-template>
-              </ng-container>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ng-container ngbNavItem="groupe-tiers-payant">       <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="tiers-payant.groupe-tiers-payant"
+                                fallbackIcon="pi pi-users"
+                                fallbackLabel="Groupe de tiers payants" />
+        </a>
+        <ng-template ngbNavContent>
+          <app-groupe-tiers-payant navCode="tiers-payant.groupe-tiers-payant"></app-groupe-tiers-payant>
+        </ng-template>
+      </ng-container>
     </div>
-    <div class="col-xl-10 col-lg-10 col-md-10 col-sm-8 row">
-      <div [ngbNavOutlet]="nav"></div>
-    </div>
-  </div>
-</div>
+  </app-nav-sidebar>

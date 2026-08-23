@@ -1,51 +1,37 @@
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-lg-2 col-xl-2 col-md-2 col-sm-4">
-      <div class="pharma-nav-sidebar">
-        <div class="pharma-nav-sidebar-card">
-          <div class="pharma-nav-sidebar-header">
-            <i class="pi pi-users"></i>
-            <span>Clients &amp; Fournisseurs</span>
-          </div>
+<app-nav-sidebar (collapsedChange)="menuReplie.set($event)" [collapsed]="menuReplie()"
+                 [collapsible]="true" [nav]="nav"
+                 contentColumnClass="col-lg-10 col-xl-10 col-md-10 col-sm-8"
+                 icon="pi pi-users" menuColumnClass="col-lg-2 col-xl-2 col-md-2 col-sm-4"
+                 title="Clients &amp; Fournisseurs">
+  <div #nav="ngbNav" (activeIdChange)="active.set($event)" [activeId]="active()"
+       class="nav flex-column nav-pills" ngbNav orientation="vertical">
 
-          <div class="pharma-nav-sidebar-content">
-            <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
-                 orientation="vertical">
+    @if (showCustomerSegmentation()) {
+      <ng-container ngbNavItem="customer-segmentation">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="rapport-partners.customer-segmentation"
+                                fallbackIcon="pi pi-user"
+                                fallbackLabel="Segmentation Clients" />
+        </a>
+        <ng-template ngbNavContent>
+          <app-customer-segmentation navCode="rapport-partners.customer-segmentation"></app-customer-segmentation>
+        </ng-template>
+      </ng-container>
+    }
 
-              @if (showCustomerSegmentation()) {
-                <ng-container ngbNavItem="customer-segmentation">
-                  <a class="pharma-nav-vertical-link" ngbNavLink>
-                    <i class="pi pi-user"></i>
-                    <span>Segmentation Clients</span>
-                    <span class="link-arrow">›</span>
-                  </a>
-                  <ng-template ngbNavContent>
-                    <jhi-customer-segmentation></jhi-customer-segmentation>
-                  </ng-template>
-                </ng-container>
-              }
-
-              @if (showSupplierPerformance()) {
-                <ng-container ngbNavItem="supplier-performance">
-                  <a class="pharma-nav-vertical-link" ngbNavLink>
-                    <i class="pi pi-truck"></i>
-                    <span>Performance Fournisseurs</span>
-                    <span class="link-arrow">›</span>
-                  </a>
-                  <ng-template ngbNavContent>
-                    <app-supplier-performance></app-supplier-performance>
-                  </ng-template>
-                </ng-container>
-              }
-
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-lg-10 col-xl-10 col-md-10 col-sm-8">
-      <div [ngbNavOutlet]="nav"></div>
-    </div>
+    @if (showSupplierPerformance()) {
+      <ng-container ngbNavItem="supplier-performance">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="rapport-partners.supplier-performance"
+                                fallbackIcon="pi pi-truck"
+                                fallbackLabel="Performance Fournisseurs" />
+        </a>
+        <ng-template ngbNavContent>
+          <app-supplier-performance navCode="rapport-partners.supplier-performance"></app-supplier-performance>
+        </ng-template>
+      </ng-container>
+    }
   </div>
-</div>
+</app-nav-sidebar>
+
+

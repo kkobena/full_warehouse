@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy, input} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
@@ -35,6 +35,15 @@ import { DeviseDirective } from 'app/shared/utils/devise';
   ]
 })
 export class VenteDepotListComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   private readonly api = inject(VenteDepotApiService);
   private readonly blobDownload = inject(BlobDownloadService);
   private readonly notificationService = inject(NotificationService);

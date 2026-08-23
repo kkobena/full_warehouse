@@ -1,10 +1,12 @@
-import {ChangeDetectionStrategy, Component, inject} from "@angular/core";
+import {ChangeDetectionStrategy, Component, inject, signal} from "@angular/core";
 import {AbilityService} from "app/core/auth/ability.service";
 import {RouterModule} from "@angular/router";
 import {NgxSpinnerModule} from "ngx-spinner";
 import {ReactiveFormsModule} from "@angular/forms";
 import {VisualisationMvtCaisseComponent} from "./visualisation-mvt-caisse.component";
 import {GestionCaisseComponent} from "./gestion-caisse/gestion-caisse.component";
+import { NavSidebarComponent } from 'app/shared/ui/nav-sidebar/nav-sidebar.component';
+import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-link.component';
 import {
   NgbNav,
   NgbNavContent,
@@ -15,7 +17,7 @@ import {
 
 @Component({
   selector: "app-mvt-caisse",
-  imports: [
+  imports: [NavSidebarComponent, NavSectionLinkComponent, 
     RouterModule,
     NgxSpinnerModule,
     ReactiveFormsModule,
@@ -34,6 +36,9 @@ import {
 export class MvtCaisseComponent {
   protected active = "mvt-caisse";
 
+
+  /** Menu replié : rend la largeur au contenu quand il en manque. */
+  protected readonly menuReplie = signal(false);
   private readonly ability = inject(AbilityService);
 
   protected readonly showMvtCaisse = this.ability.canSignal("display", "mvt-caisse.mvt-caisse");

@@ -1,81 +1,74 @@
 <div class="pharma-smart-content p-1 ">
-  <!-- Modern Pharma Toolbar (Compact) -->
-  <div class="pharma-toolbar pharma-toolbar-compact">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-calculator"></i>
-      <span class="pharma-toolbar-title">Récapitulatif de caisse</span>
-    </div>
+  <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-calculator"
+               title="Récapitulatif de caisse">
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <app-select
+        (selectionChange)="onSelectedUsersChange()"
+        [(ngModel)]="onlyVente"
+        [clearable]="false"
+        [items]="mvts"
+        appendTo="body"
+        bindLabel="label"
+        bindValue="value"
+      />
 
-    <div class="pharma-toolbar-content">
-      <div class="pharma-toolbar-filters">
-        <app-select
-          (selectionChange)="onSelectedUsersChange()"
-          [(ngModel)]="onlyVente"
-          [clearable]="false"
-          [items]="mvts"
-          appendTo="body"
-          bindLabel="label"
-          bindValue="value"
-        />
+      <app-multi-select
+        [(ngModel)]="selectedUsersId"
+        [items]="users"
+        appendTo="body"
+        bindLabel="abbrName"
+        bindValue="id"
+        inputId="selectedUserId"
+        placeholder="Utilisateurs"
+      />
 
-        <app-multi-select
-          [(ngModel)]="selectedUsersId"
-          [items]="users"
-          appendTo="body"
-          bindLabel="abbrName"
-          bindValue="id"
-          inputId="selectedUserId"
-          placeholder="Utilisateurs"
-        />
+      <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate"
+                          [style]="{ 'max-width': '180px' }" id="fromDate"
+                          label="Du" />
 
-        <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate"
-                            [style]="{ 'max-width': '180px' }" id="fromDate"
-                            label="Du" />
+      <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate"
+                          [style]="{ 'max-width': '180px' }" id="toDate"
+                          label="Au" />
 
-        <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate"
-                            [style]="{ 'max-width': '180px' }" id="toDate"
-                            label="Au" />
-
-        <div class="pharma-hide-mobile">
-          <label class="pharma-dp-label" for="fromHour">De</label>
-          <app-select [(ngModel)]="fromTime" [clearable]="false" [items]="hous"
-                      appendTo="body"
-                      inputId="fromHour" />
-        </div>
-
-        <div class="pharma-hide-mobile">
-          <label class="pharma-dp-label" for="toHour">À</label>
-          <app-select [(ngModel)]="toTime" [clearable]="false" [items]="hous"
-                      appendTo="body"
-                      inputId="toHour" />
-        </div>
+      <div class="pharma-hide-mobile">
+        <label class="pharma-dp-label" for="fromHour">De</label>
+        <app-select [(ngModel)]="fromTime" [clearable]="false" [items]="hous"
+                    appendTo="body"
+                    inputId="fromHour" />
       </div>
 
-      <div class="pharma-toolbar-actions">
-        <div class="pharma-button-group">
-          <app-button
-            (clicked)="fetchTickets()"
-            [raised]="true"
-            icon="pi pi-search"
-            label="Rechercher"
-            ngbTooltip="Rechercher"
-            placement="top"
-            severity="primary"
-          />
-
-
-          <app-split-button [items]="messageBtn" [raised]="true" icon="pi pi-send" label="Message"
-                            ngbTooltip="Envoie par mail ou SMS"
-                            severity="info" />
-
-          <app-split-button [items]="exportMenus" [raised]="true" icon="pi pi-file-export"
-                            label="Exporter"
-                            ngbTooltip="Imprimer ou exporter en PDF"
-                            severity="help" />
-        </div>
+      <div class="pharma-hide-mobile">
+        <label class="pharma-dp-label" for="toHour">À</label>
+        <app-select [(ngModel)]="toTime" [clearable]="false" [items]="hous"
+                    appendTo="body"
+                    inputId="toHour" />
       </div>
-    </div>
-  </div>
+    </ng-container>
+
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-button-group">
+        <app-button
+          (clicked)="fetchTickets()"
+          [raised]="true"
+          icon="pi pi-search"
+          label="Rechercher"
+          ngbTooltip="Rechercher"
+          placement="top"
+          severity="primary"
+        />
+
+
+        <app-split-button [items]="messageBtn" [raised]="true" icon="pi pi-send" label="Message"
+                          ngbTooltip="Envoie par mail ou SMS"
+                          severity="info" />
+
+        <app-split-button [items]="exportMenus" [raised]="true" icon="pi pi-file-export"
+                          label="Exporter"
+                          ngbTooltip="Imprimer ou exporter en PDF"
+                          severity="help" />
+      </div>
+    </ng-container>
+  </app-toolbar>
 
   <!-- Recap Cards Container -->
   <div class="recap-cards-container mt-3 mb-3">

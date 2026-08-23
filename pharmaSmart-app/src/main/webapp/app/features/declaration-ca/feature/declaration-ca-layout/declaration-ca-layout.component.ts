@@ -3,6 +3,8 @@ import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { AbilityService } from 'app/core/auth/ability.service';
 import { SkeletonComponent } from 'app/shared/ui/skeleton/skeleton.component';
+import { NavSidebarComponent } from 'app/shared/ui/nav-sidebar/nav-sidebar.component';
+import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-link.component';
 import { ExclusionReferentielComponent } from '../exclusion-referentiel/exclusion-referentiel.component';
 import { ExclusionParametresComponent } from '../exclusion-parametres/exclusion-parametres.component';
 import { JournalLignesComponent } from '../journal-lignes/journal-lignes.component';
@@ -31,6 +33,8 @@ import { TableauPharmacienReelComponent } from '../vues-reelles/tableau-pharmaci
   selector: 'app-declaration-ca-layout',
   imports: [
     NgbNavModule,
+    NavSidebarComponent,
+    NavSectionLinkComponent,
     SkeletonComponent,
     ExclusionReferentielComponent,
     ExclusionParametresComponent,
@@ -49,6 +53,9 @@ import { TableauPharmacienReelComponent } from '../vues-reelles/tableau-pharmaci
 })
 export class DeclarationCaLayoutComponent {
   protected readonly active = signal<string>('exclusion-rayon');
+
+  /** Menu replié : les journaux affichent de larges tableaux, la place compte. */
+  protected readonly menuReplie = signal(false);
 
   private readonly ability = inject(AbilityService);
 

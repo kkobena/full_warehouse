@@ -1,4 +1,4 @@
-import { Component, inject, ViewChild, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, ViewChild, viewChild, ChangeDetectionStrategy, input} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { HttpResponse } from '@angular/common/http';
@@ -39,6 +39,15 @@ import { AppManualRepartitionComponent } from './ui/manual-repartition/manual-re
   ]
 })
 export class AppRepartitionStockComponent {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   @ViewChild('nav', { static: true }) nav!: NgbNav;
 
   protected search = '';

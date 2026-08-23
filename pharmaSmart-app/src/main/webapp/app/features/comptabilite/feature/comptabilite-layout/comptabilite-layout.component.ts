@@ -7,11 +7,15 @@ import { TableauPharmacienComponent } from '../../../../entities/mvt-caisse/tabl
 import { RecapitualtifCaisseComponent } from '../../../../entities/ticketZ/recapitualtif-caisse/recapitualtif-caisse.component';
 import { ActivitySummaryComponent } from '../../../../entities/raport-gestion/activity-summary/activity-summary.component';
 import { SkeletonComponent } from 'app/shared/ui/skeleton/skeleton.component';
+import { NavSidebarComponent } from 'app/shared/ui/nav-sidebar/nav-sidebar.component';
+import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-link.component';
 
 @Component({
   selector: 'app-comptabilite-layout',
   imports: [
     NgbNavModule,
+    NavSidebarComponent,
+    NavSectionLinkComponent,
     BalanceMvtCaisseComponent,
     TaxeReportComponent,
     TableauPharmacienComponent,
@@ -25,6 +29,9 @@ import { SkeletonComponent } from 'app/shared/ui/skeleton/skeleton.component';
 })
 export class ComptabiliteLayoutComponent {
   protected readonly active = signal<string>('balance');
+
+  /** Menu replié : l'écran de comptabilité affiche des tableaux larges, la place compte. */
+  protected readonly menuReplie = signal(false);
 
   private readonly ability = inject(AbilityService);
 

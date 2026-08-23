@@ -1,132 +1,111 @@
 
-  <div class="row">
-    <div class="col-lg-2 col-xl-2 col-xxl-2 col-md-3 col-sm-4">
-      <!-- Navigation Sidebar -->
-      <div class="pharma-nav-sidebar">
-        <div class="pharma-nav-sidebar-card">
-          <div class="pharma-nav-sidebar-header">
-            <i class="pi pi-box"></i>
-            <span>Achats &amp; Approvisionnements</span>
-          </div>
+  <app-nav-sidebar (collapsedChange)="menuReplie.set($event)" [collapsed]="menuReplie()"
+                   [collapsible]="true" [nav]="nav" contentColumnClass="col-lg-10 col-xl-10 col-xxl-10 col-md-9 col-sm-8"
+                   icon="pi pi-box" menuColumnClass="col-lg-2 col-xl-2 col-xxl-2 col-md-3 col-sm-4"
+                   title="Achats &amp; Approvisionnements">
+    <div #nav="ngbNav" [(activeId)]="active"
+         class="nav flex-column nav-pills" ngbNav orientation="vertical">
+      <!-- 1 ─ Dashboard unifié -->
+      @if (showDashboard()) {
+        <ng-container ngbNavItem="DASHBOARD">
+          <a class="pharma-nav-vertical-link" ngbNavLink>
+            <app-nav-section-link [arrow]="false" code="commande.dashboard"
+                                  fallbackIcon="pi pi-th-large"
+                                  fallbackLabel="Tableau de bord" />
+            @if (alertBadgeService.urgentCount() > 0) {
+              <span class="badge rounded-pill bg-danger sidebar-nav-badge ms-auto">
+                {{ alertBadgeService.urgentCount() > 99 ? '99+' : alertBadgeService.urgentCount() }}
+              </span>
+            }
+            <span class="link-arrow">›</span>
+          </a>
+          <ng-template ngbNavContent>
+            @defer (on immediate) {
+              <app-appro-unified-dashboard navCode="commande.dashboard" />
+            } @loading {
+              <app-skeleton width="100%" height="240px" />
+            }
+          </ng-template>
+        </ng-container>
+      }
 
-          <div class="pharma-nav-sidebar-content">
-            <div
-              #nav="ngbNav"
-              (navChange)="onNavChange($event)"
-              [(activeId)]="active"
-              class="nav flex-column nav-pills"
-              ngbNav
-              orientation="vertical"
-            >
-              <!-- 1 ─ Dashboard unifié -->
-              @if (showDashboard()) {
-                <ng-container ngbNavItem="DASHBOARD">
-                  <a class="pharma-nav-vertical-link" ngbNavLink>
-                    <i class="pi pi-th-large"></i>
-                    <span>Tableau de bord</span>
-                    @if (alertBadgeService.urgentCount() > 0) {
-                      <span class="badge rounded-pill bg-danger sidebar-nav-badge ms-auto">
-                        {{ alertBadgeService.urgentCount() > 99 ? '99+' : alertBadgeService.urgentCount() }}
-                      </span>
-                    }
-                    <span class="link-arrow">›</span>
-                  </a>
-                  <ng-template ngbNavContent>
-                    @defer (on immediate) {
-                      <app-appro-unified-dashboard />
-                    } @loading {
-                      <app-skeleton width="100%" height="240px" />
-                    }
-                  </ng-template>
-                </ng-container>
-              }
+      <!-- 2 ─ Commandes & Réceptions -->
+      @if (showSuggestions()) {
+        <ng-container ngbNavItem="SUGGESTIONS">
+          <a class="pharma-nav-vertical-link" ngbNavLink>
+            <app-nav-section-link [arrow]="false" code="commande.suggestions"
+                                  fallbackIcon="pi pi-lightbulb"
+                                  fallbackLabel="Commandes &amp; Réceptions" />
+            @if (alertBadgeService.ruptureCount() > 0) {
+              <span class="badge rounded-pill bg-warning text-dark sidebar-nav-badge ms-auto">
+                {{ alertBadgeService.ruptureCount() > 99 ? '99+' : alertBadgeService.ruptureCount() }}
+              </span>
+            }
+            <span class="link-arrow">›</span>
+          </a>
+          <ng-template ngbNavContent>
+            @defer (on immediate) {
+              <app-suggestions-unified />
+            } @loading {
+              <app-skeleton width="100%" height="240px" />
+            }
+          </ng-template>
+        </ng-container>
+      }
 
-              <!-- 2 ─ Commandes & Réceptions -->
-              @if (showSuggestions()) {
-                <ng-container ngbNavItem="SUGGESTIONS">
-                  <a class="pharma-nav-vertical-link" ngbNavLink>
-                    <i class="pi pi-lightbulb"></i>
-                    <span>Commandes &amp; Réceptions</span>
-                    @if (alertBadgeService.ruptureCount() > 0) {
-                      <span class="badge rounded-pill bg-warning text-dark sidebar-nav-badge ms-auto">
-                        {{ alertBadgeService.ruptureCount() > 99 ? '99+' : alertBadgeService.ruptureCount() }}
-                      </span>
-                    }
-                    <span class="link-arrow">›</span>
-                  </a>
-                  <ng-template ngbNavContent>
-                    @defer (on immediate) {
-                      <app-suggestions-unified />
-                    } @loading {
-                      <app-skeleton width="100%" height="240px" />
-                    }
-                  </ng-template>
-                </ng-container>
-              }
+      <!-- 3 ─ Répartition & Transferts -->
+      @if (showRepartitionStock()) {
+        <ng-container ngbNavItem="REPARTITION_STOCK">
+          <a class="pharma-nav-vertical-link" ngbNavLink>
+            <app-nav-section-link code="commande.repartition-stock"
+                                  fallbackIcon="pi pi-sync"
+                                  fallbackLabel="Répartition &amp; Transferts" />
+          </a>
+          <ng-template ngbNavContent>
+            @defer (on immediate) {
+              <app-repartition-stock navCode="commande.repartition-stock" />
+            } @loading {
+              <app-skeleton width="100%" height="240px" />
+            }
+          </ng-template>
+        </ng-container>
+      }
 
-              <!-- 3 ─ Répartition & Transferts -->
-              @if (showRepartitionStock()) {
-                <ng-container ngbNavItem="REPARTITION_STOCK">
-                  <a class="pharma-nav-vertical-link" ngbNavLink>
-                    <i class="pi pi-sync"></i>
-                    <span>Répartition &amp; Transferts</span>
-                    <span class="link-arrow">›</span>
-                  </a>
-                  <ng-template ngbNavContent>
-                    @defer (on immediate) {
-                      <app-repartition-stock />
-                    } @loading {
-                      <app-skeleton width="100%" height="240px" />
-                    }
-                  </ng-template>
-                </ng-container>
-              }
+      <!-- 4 ─ Retours fournisseurs -->
+      @if (showRetourFournisseur()) {
+        <ng-container ngbNavItem="RETOUR_FOURNISSEUR">
+          <a class="pharma-nav-vertical-link" ngbNavLink>
+            <app-nav-section-link code="commande.retour-fournisseur"
+                                  fallbackIcon="pi pi-replay"
+                                  fallbackLabel="Retours fournisseurs" />
+          </a>
+          <ng-template ngbNavContent>
+            @defer (on immediate) {
+              <app-retour-fournisseur />
+            } @loading {
+              <app-skeleton width="100%" height="240px" />
+            }
+          </ng-template>
+        </ng-container>
+      }
 
-              <!-- 4 ─ Retours fournisseurs -->
-              @if (showRetourFournisseur()) {
-                <ng-container ngbNavItem="RETOUR_FOURNISSEUR">
-                  <a class="pharma-nav-vertical-link" ngbNavLink>
-                    <i class="pi pi-replay"></i>
-                    <span>Retours fournisseurs</span>
-                    <span class="link-arrow">›</span>
-                  </a>
-                  <ng-template ngbNavContent>
-                    @defer (on immediate) {
-                      <app-retour-fournisseur />
-                    } @loading {
-                      <app-skeleton width="100%" height="240px" />
-                    }
-                  </ng-template>
-                </ng-container>
-              }
+      <!-- 5 ─ Bons d'Entrée Diverses -->
+      @if (showBed()) {
+        <ng-container ngbNavItem="BED">
+          <a class="pharma-nav-vertical-link" ngbNavLink>
+            <app-nav-section-link code="commande.bed"
+                                  fallbackIcon="pi pi-file-plus"
+                                  fallbackLabel="Bons d'Entrée Diverses" />
+          </a>
+          <ng-template ngbNavContent>
+            @defer (on immediate) {
+              <app-bed-home />
+            } @loading {
+              <app-skeleton width="100%" height="240px" />
+            }
+          </ng-template>
+        </ng-container>
+      }
 
-              <!-- 5 ─ Bons d'Entrée Diverses -->
-              @if (showBed()) {
-                <ng-container ngbNavItem="BED">
-                  <a class="pharma-nav-vertical-link" ngbNavLink>
-                    <i class="pi pi-file-plus"></i>
-                    <span>Bons d'Entrée Diverses</span>
-                    <span class="link-arrow">›</span>
-                  </a>
-                  <ng-template ngbNavContent>
-                    @defer (on immediate) {
-                      <app-bed-home />
-                    } @loading {
-                      <app-skeleton width="100%" height="240px" />
-                    }
-                  </ng-template>
-                </ng-container>
-              }
-
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
-
-    <div class="col-lg-10 col-xl-10 col-xxl-10 col-md-9 col-sm-8">
-      <div class="pharma-smart-content p-2">
-        <div [ngbNavOutlet]="nav"></div>
-      </div>
-    </div>
-  </div>
+  </app-nav-sidebar>

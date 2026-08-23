@@ -4,8 +4,7 @@ import {
   DestroyRef,
   inject,
   OnInit,
-  signal
-} from "@angular/core";
+  signal, input} from "@angular/core";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {CommonModule, DatePipe} from "@angular/common";
 import {FormsModule} from "@angular/forms";
@@ -107,6 +106,15 @@ interface SaleMenuEntry {
   ]
 })
 export class SalesJournalComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   // ── État ──────────────────────────────────────────────
   protected loading = signal(false);
   protected exportLoading = signal(false);

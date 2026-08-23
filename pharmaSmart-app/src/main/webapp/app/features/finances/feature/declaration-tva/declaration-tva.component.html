@@ -1,7 +1,7 @@
 <div class="declaration-tva">
 
   <!-- Toolbar filtres -->
-  <app-toolbar icon="pi pi-percentage" title="Déclaration TVA">
+  <app-toolbar [code]="navCode()" icon="pi pi-percentage" title="Déclaration TVA">
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="d-flex align-items-center gap-3 flex-wrap">
         <pharma-date-picker inputId="startDate" [ngModel]="startDate()" (ngModelChange)="startDate.set($event)" label="Du" />

@@ -46,6 +46,15 @@ export class BalanceMvtCaisseComponent implements OnInit {
    * n'a de sens que si l'officine a souscrit au moins un module de retraitement.
    */
   readonly mode = input<ModeCa | null>(null);
+
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu, ex. `comptabilite.balance`.
+   *
+   * <p>Fourni par l'appelant et non écrit en dur : cet écran est ouvert depuis deux menus — la
+   * Comptabilité et le Retraitement du CA — qui le nomment différemment. Le titre suit donc le
+   * menu par lequel on y est entré.
+   */
+  readonly navCode = input<string>('');
   protected readonly fromDate = signal<NgbDateStruct | null>(null);
   protected readonly toDate = signal<NgbDateStruct | null>(null);
   protected readonly loading = signal(false);

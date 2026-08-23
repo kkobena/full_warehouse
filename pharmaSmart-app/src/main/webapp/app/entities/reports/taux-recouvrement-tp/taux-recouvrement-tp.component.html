@@ -1,5 +1,5 @@
 <!-- Toolbar -->
-<app-toolbar icon="pi pi-percentage" title="Taux de Recouvrement Tiers-Payants">
+<app-toolbar [code]="navCode()" icon="pi pi-percentage" title="Taux de Recouvrement Tiers-Payants">
   <ng-container ngProjectAs="[toolbarFilters]">
     <div class="pharma-toolbar-filters">
       <pharma-date-picker

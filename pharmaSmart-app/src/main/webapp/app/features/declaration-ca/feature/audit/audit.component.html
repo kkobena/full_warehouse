@@ -1,4 +1,4 @@
-<app-toolbar icon="pi pi-shield" title="Contrôle de cohérence">
+<app-toolbar [code]="navCode()" icon="pi pi-shield" title="Contrôle de cohérence">
   <ng-container ngProjectAs="[toolbarFilters]">
     <pharma-date-picker (ngModelChange)="dateDebut.set($event)" [ngModel]="dateDebut()"
                         id="audit-du" label="Du"

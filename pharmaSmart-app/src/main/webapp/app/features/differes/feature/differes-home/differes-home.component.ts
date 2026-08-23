@@ -5,8 +5,7 @@ import {
   DestroyRef,
   inject,
   OnInit,
-  signal
-} from "@angular/core";
+  signal, input} from "@angular/core";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {finalize} from "rxjs/operators";
 import {FormsModule} from "@angular/forms";
@@ -52,6 +51,15 @@ type StatutDiffere = "PAYE" | "IMPAYE";
   styleUrl: "./differes-home.component.scss"
 })
 export class DifferesHomeComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   protected readonly store = inject(DiffereStore);
   protected readonly panelOpen = computed(() => this.store.panelOpen());
   // Toolbar state

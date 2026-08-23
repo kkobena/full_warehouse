@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, output, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, output, signal, ChangeDetectionStrategy, input} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { NavApiService, INavRole, IAuthority } from "app/core/data-access/nav-api.service";
@@ -21,6 +21,15 @@ const PREDEFINED = new Set([
   imports: [FormsModule, ButtonComponent, DataTableComponent, ToolbarComponent, NgbTooltip]
 })
 export class RoleComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   private readonly navApi      = inject(NavApiService);
   private readonly notif       = inject(NotificationService);
   private readonly modalService = inject(NgbModal);

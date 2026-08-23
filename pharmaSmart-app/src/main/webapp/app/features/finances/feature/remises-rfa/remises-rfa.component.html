@@ -1,5 +1,5 @@
 <div class="pharma-smart-content p-2">
-  <app-toolbar icon="pi pi-tag" title="Remises & RFA" [compact]="true">
+  <app-toolbar [code]="navCode()" icon="pi pi-tag" title="Remises & RFA" [compact]="true">
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-toolbar-actions">
         <app-button icon="pi pi-refresh" severity="secondary"  [text]="true" [rounded]="true" (clicked)="load()" [loading]="isLoading()" />

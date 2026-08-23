@@ -1,5 +1,5 @@
 <!-- Toolbar -->
-<app-toolbar icon="pi pi-minus-circle" title="Démarque &amp; Ajustements de Stock">
+<app-toolbar [code]="navCode()" icon="pi pi-minus-circle" title="Démarque &amp; Ajustements de Stock">
   <ng-container ngProjectAs="[toolbarFilters]">
     <div class="pharma-toolbar-filters">
       <pharma-date-picker

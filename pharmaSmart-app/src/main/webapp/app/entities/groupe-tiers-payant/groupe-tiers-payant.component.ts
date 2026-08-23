@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import { Component, computed, inject, signal, viewChild, ChangeDetectionStrategy, input} from "@angular/core";
 import { IResponseDto } from "app/shared/util/response-dto";
 import { IGroupeTiersPayant } from "app/shared/model/groupe-tierspayant.model";
 import { RouterModule } from "@angular/router";
@@ -41,6 +41,15 @@ import {
   ]
 })
 export class GroupeTiersPayantComponent {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   protected readonly search = signal("");
   protected readonly responsedto = signal<IResponseDto | null>(null);
   private readonly modalService = inject(NgbModal);

@@ -1,6 +1,6 @@
-<div class="pharma-smart-content p-2">
+<div class="pharma-smart-content p-1">
   <!-- Toolbar -->
-  <app-toolbar icon="pi pi-chart-line" title="Dashboard Chiffre d'Affaires">
+  <app-toolbar [code]="navCode()" icon="pi pi-chart-line" title="Dashboard Chiffre d'Affaires">
 
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
@@ -17,7 +17,8 @@
         />
 
         @if (selectedPeriod() === 'custom') {
-          <pharma-date-picker [(ngModel)]="startDate" [style]="{ 'max-width': '190px' }" id="fromDate"
+          <pharma-date-picker [(ngModel)]="startDate" [style]="{ 'max-width': '190px' }"
+                              id="fromDate"
                               label="Date début" />
           <pharma-date-picker [(ngModel)]="endDate" [style]="{ 'max-width': '190px' }" id="toDate"
                               label="Date fin" />
@@ -179,7 +180,8 @@
               <div class="ms-auto d-flex align-items-center flex-wrap gap-4">
                 <div>
                   <div class="text-muted small">Ce mois</div>
-                  <div class="fw-bold">{{ formatCurrency(basket.currentValue) }} <span appDevise></span></div>
+                  <div class="fw-bold">{{ formatCurrency(basket.currentValue) }} <span
+                    appDevise></span></div>
                 </div>
                 <span
                   [class]="'badge px-2 py-1 ' + ((basket.evolutionPct ?? 0) >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger')">
@@ -191,7 +193,8 @@
                 <div>
                   <div class="text-muted small">Meilleur mois</div>
                   <div class="fw-semibold">{{ basket.bestMonthLabel }}</div>
-                  <div class="small text-success">{{ formatCurrency(basket.bestMonthValue) }}<span appDevise></span>
+                  <div class="small text-success">{{ formatCurrency(basket.bestMonthValue) }}<span
+                    appDevise></span>
                   </div>
                 </div>
                 <div>
@@ -280,7 +283,7 @@
                 <p class="mt-3 text-muted">Aucun produit trouvé pour cette période</p>
               </div>
             } @else {
-              <table >
+              <table>
                 <thead class="pharma-table-head">
                 <tr>
                   <th>#</th>

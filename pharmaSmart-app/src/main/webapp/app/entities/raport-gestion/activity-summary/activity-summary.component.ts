@@ -1,29 +1,30 @@
-import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { ActivitySummaryService } from './activity-summary.service';
-import { ChiffreAffaire } from './model/chiffre-affaire.model';
-import { GroupeFournisseurAchat } from './model/groupe-fournisseur-achat.model';
-import { ReglementTiersPayant } from './model/reglement-tiers-payant.model';
-import { AchatTiersPayant } from './model/achat-tiers-payant.model';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { NGB_DATE_TO_ISO, TODAY_NGB_DATE } from '../../../shared/util/warehouse-util';
-import { BlobDownloadService } from '../../../shared/services/blob-download.service';
-import { finalize } from 'rxjs/operators';
-import { NotificationService } from '../../../shared/services/notification.service';
-import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import {ChangeDetectionStrategy, Component, computed, inject, signal, input} from '@angular/core';
+import {RouterLink} from '@angular/router';
+import {ActivitySummaryService} from './activity-summary.service';
+import {ChiffreAffaire} from './model/chiffre-affaire.model';
+import {GroupeFournisseurAchat} from './model/groupe-fournisseur-achat.model';
+import {ReglementTiersPayant} from './model/reglement-tiers-payant.model';
+import {AchatTiersPayant} from './model/achat-tiers-payant.model';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {NGB_DATE_TO_ISO, TODAY_NGB_DATE} from '../../../shared/util/warehouse-util';
+import {BlobDownloadService} from '../../../shared/services/blob-download.service';
+import {finalize} from 'rxjs/operators';
+import {NotificationService} from '../../../shared/services/notification.service';
+import {NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
 import {
   ButtonComponent,
   DataTableComponent,
   IconFieldComponent,
   ToolbarComponent
 } from '../../../shared/ui';
-import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
+import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
 
-import { DeviseDirective } from 'app/shared/utils/devise';
+import {DeviseDirective} from 'app/shared/utils/devise';
+
 @Component({
-  selector: 'jhi-activity-summary',
-  imports: [DeviseDirective, 
+  selector: 'app-activity-summary',
+  imports: [DeviseDirective,
     CommonModule,
     FormsModule,
     RouterLink,
@@ -38,6 +39,15 @@ import { DeviseDirective } from 'app/shared/utils/devise';
   styleUrl: './activity-summary.component.scss',
 })
 export class ActivitySummaryComponent {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu, ex. `comptabilite.balance`.
+   *
+   * <p>Fourni par l'appelant et non écrit en dur : cet écran est ouvert depuis deux menus — la
+   * Comptabilité et le Retraitement du CA — qui le nomment différemment. Le titre suit donc le
+   * menu par lequel on y est entré.
+   */
+  readonly navCode = input<string>('');
+
   protected loadingPdf = false;
   protected chiffreAffaire: ChiffreAffaire | null = null;
   protected groupeFournisseurAchats: GroupeFournisseurAchat[] | null = [];
@@ -56,6 +66,7 @@ export class ActivitySummaryComponent {
   private readonly activitySummaryService = inject(ActivitySummaryService);
   private readonly blobDownloadService = inject(BlobDownloadService);
   private readonly notificationService = inject(NotificationService);
+
   constructor() {
     this.loadAll();
   }

@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
+import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy, input} from "@angular/core";
 import { HintComponent } from 'app/shared/ui/hint/hint.component';
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { catchError, finalize, tap } from "rxjs/operators";
@@ -57,6 +57,15 @@ import { BlobDownloadService } from "../../../../shared/services/blob-download.s
   styleUrl: "./facturation-home.component.scss"
 })
 export class FacturationHomeComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   // Store & computed
   protected readonly store = inject(FacturationStore);
   protected readonly panelOpen = computed(() => this.store.panelOpen());

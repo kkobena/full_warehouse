@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnInit, ChangeDetectionStrategy, input} from "@angular/core";
 import { HttpResponse } from "@angular/common/http";
 import { Router, RouterModule } from "@angular/router";
 import { IMagasin } from "../../shared/model";
@@ -24,6 +24,15 @@ import { ButtonComponent, DataTableComponent, IconFieldComponent, ToolbarCompone
   styleUrl: "./depot.component.scss"
 })
 export class DepotComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   protected readonly ability = inject(AbilityService);
   protected readonly canNewVente = this.ability.canSignal("execute", "depot.liste-depots");
   protected readonly canCreate = this.ability.canSignal("create", "depot.liste-depots");

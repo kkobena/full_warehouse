@@ -58,9 +58,11 @@ import {InventoryApiService} from '../../data-access/services/inventory-api.serv
 import {ConfigurationService} from '../../../../shared/configuration.service';
 import {BlobDownloadService} from '../../../../shared/services/blob-download.service';
 
+import { NavSidebarComponent } from 'app/shared/ui/nav-sidebar/nav-sidebar.component';
+import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-link.component';
 @Component({
   selector: 'app-inventory-home',
-  imports: [
+  imports: [NavSidebarComponent, NavSectionLinkComponent, 
     CommonModule,
     ButtonComponent,
     ToolbarComponent,
@@ -81,6 +83,39 @@ import {BlobDownloadService} from '../../../../shared/services/blob-download.ser
   styleUrl: './inventory-home.component.scss',
 })
 export class InventoryHomeComponent implements OnInit {
+  /** Menu replié : les grilles d'inventaire sont larges, la place compte. */
+  protected readonly menuReplie = signal(false);
+
+  /**
+   * En-tête du menu, qui suit l'onglet ouvert.
+   *
+   * <p>Cet écran nomme son menu d'après ce qu'on y fait — « Tournant », « Clôturés » — là où les
+   * autres portent un titre fixe. Deux `computed` remplacent le `@switch` que portait le gabarit :
+   * `app-nav-sidebar` prend son titre et son icône en entrée, il n'y avait rien à ajouter au
+   * composant partagé.
+   */
+  protected readonly enteteTitre = computed(() => {
+    switch (this.activeTab()) {
+      case 'tournant':
+        return 'Tournant';
+      case 'clotures':
+        return 'Clôturés';
+      default:
+        return 'Inventaires';
+    }
+  });
+
+  protected readonly enteteIcone = computed(() => {
+    switch (this.activeTab()) {
+      case 'tournant':
+        return 'pi pi-sync';
+      case 'clotures':
+        return 'pi pi-lock';
+      default:
+        return 'pi pi-list-check';
+    }
+  });
+
   @ViewChild(PlanningTournantListComponent) planningList?: PlanningTournantListComponent;
 
   readonly listFacade = inject(InventoryListFacade);
@@ -88,6 +123,15 @@ export class InventoryHomeComponent implements OnInit {
   activeTab = signal<string>('en-cours');
   page = signal(0);
   size = signal(20);
+  /**
+   * Code de l'entrée de navigation de l'onglet ouvert.
+   *
+   * <p>Cet écran n'a qu'une barre d'outils pour ses trois onglets : son titre suit donc l'onglet
+   * actif, et le code avec lui. `toolbarTitle` reste en repli, pour le cas où la section n'existe
+   * pas dans l'arbre servi à cet utilisateur.
+   */
+  protected readonly codeOngletActif = computed(() => `inventaire.${this.activeTab()}`);
+
   protected readonly toolbarTitle = computed(() => {
     switch (this.activeTab()) {
       case 'tournant':

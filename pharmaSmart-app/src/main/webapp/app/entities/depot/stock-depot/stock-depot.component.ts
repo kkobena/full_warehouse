@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, OnInit, input} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {NgbModal, NgbPagination} from '@ng-bootstrap/ng-bootstrap';
 import {
@@ -50,6 +50,15 @@ import {MagasinService} from '../../magasin/magasin.service';
   styleUrl: './stock-depot.component.scss',
 })
 export class StockDepotComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   protected produits!: IProduit[];
   protected selectedDepot: IMagasin | null = null;
   protected depots: IMagasin[] = [];

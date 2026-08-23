@@ -1,523 +1,528 @@
-<!-- ─── Shell toolbar : header + barre des 2 onglets ──────────────── -->
-<div class="pharma-toolbar">
+<div class="pharma-smart-content p-1">
+  <div class="pharma-toolbar">
 
-  <!-- Header bleu : titre -->
-  <div class="pharma-toolbar-header">
-    <i class="pi pi-replay"></i>
-    <span class="su-title">Retours fournisseur</span>
+    <!-- Header bleu : titre -->
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-replay"></i>
+      <span class="su-title">Retours fournisseur</span>
+    </div>
+
+
+    <app-nav-tabs>
+      <div
+        (activeIdChange)="setTab($event)"
+        [activeId]="activeTab()"
+        class="nav pharma-nav-tabs"
+        ngbNav
+      >
+        <ng-container ngbNavItem="EN_ATTENTE">
+          <a
+            class="pharma-nav-tab-link"
+            ngbNavLink
+            ngbTooltip="Retours en attente de réponse fournisseur ou en cours de traitement"
+            placement="bottom"
+          >
+            <i class="pi pi-clock"></i>
+            <span>En attente</span>
+            @if (countEnAttente() > 0) {
+              <span class="badge text-bg-warning rounded-pill">{{ countEnAttente() }}</span>
+            }
+          </a>
+        </ng-container>
+
+        <ng-container ngbNavItem="AVOIRS">
+          <a
+            class="pharma-nav-tab-link"
+            ngbNavLink
+            ngbTooltip="Encours des avoirs fournisseurs en attente de remboursement"
+            placement="bottom"
+          >
+            <i class="pi pi-wallet"></i>
+            <span>Avoirs</span>
+            @if (countAvoirs() > 0) {
+              <span class="badge text-bg-warning rounded-pill">{{ countAvoirs() }}</span>
+            }
+          </a>
+        </ng-container>
+
+        <ng-container ngbNavItem="GROUPE">
+          <a
+            class="pharma-nav-tab-link"
+            ngbNavLink
+            ngbTooltip="Bordereau groupé des retours par fournisseur"
+            placement="bottom"
+          >
+            <i class="pi pi-objects-column"></i>
+            <span>Groupé</span>
+          </a>
+        </ng-container>
+
+        <ng-container ngbNavItem="HISTORIQUE">
+          <a
+            class="pharma-nav-tab-link"
+            ngbNavLink
+            ngbTooltip="Historique des retours clôturés (avoir fournisseur reçu)"
+            placement="bottom"
+          >
+            <i class="pi pi-history"></i>
+            <span>Historique</span>
+          </a>
+        </ng-container>
+      </div>
+    </app-nav-tabs>
   </div>
 
+  <!-- ─── Barre de filtres (su-action-bar, cohérent avec list-bons) ────── -->
+  @if (activeTab() !== 'AVOIRS' && activeTab() !== 'GROUPE') {
+    <app-action-bar>
+      <ng-container ngProjectAs="[actionBarFilters]">
 
-  <app-nav-tabs>
-    <div
-      (activeIdChange)="setTab($event)"
-      [activeId]="activeTab()"
-      class="nav pharma-nav-tabs"
-      ngbNav
-    >
-      <ng-container ngbNavItem="EN_ATTENTE">
-        <a
-          class="pharma-nav-tab-link"
-          ngbNavLink
-          ngbTooltip="Retours en attente de réponse fournisseur ou en cours de traitement"
-          placement="bottom"
-        >
-          <i class="pi pi-clock"></i>
-          <span>En attente</span>
-          @if (countEnAttente() > 0) {
-            <span class="badge text-bg-warning rounded-pill">{{ countEnAttente() }}</span>
-          }
-        </a>
+        <!-- Recherche texte -->
+        <app-icon-field [overlay]="true" class="lb-search" icon="pi pi-search">
+          <input (keyup.enter)="onSearch()" [(ngModel)]="search" class="form-control"
+                 placeholder="Fournisseur, référence…" type="text" />
+        </app-icon-field>
+
+        <!-- Filtre statut : visible uniquement sur l'onglet "En attente" -->
+        @if (activeTab() === 'EN_ATTENTE') {
+          <app-select
+            (selectionChange)="onSearch()"
+            [(ngModel)]="selectedStatut"
+            [clearable]="false"
+            [items]="enAttenteStatutOptions"
+            [style]="{ 'min-width': '150px' }"
+            appendTo="body"
+            bindLabel="label"
+            bindValue="value"
+            placeholder="Statut"
+          />
+        }
+
+        <pharma-date-picker (ngModelChange)="onSearch()" [(ngModel)]="dtStart"
+                            [style]="{ 'max-width': '180px' }"
+                            class="lb-date"
+                            id="dtStart" label="Début" />
+
+        <pharma-date-picker (ngModelChange)="onSearch()" [(ngModel)]="dtEnd"
+                            [style]="{ 'max-width': '180px' }"
+                            class="lb-date"
+                            id="dtEnd" label="Fin" />
+
       </ng-container>
 
-      <ng-container ngbNavItem="AVOIRS">
-        <a
-          class="pharma-nav-tab-link"
-          ngbNavLink
-          ngbTooltip="Encours des avoirs fournisseurs en attente de remboursement"
-          placement="bottom"
-        >
-          <i class="pi pi-wallet"></i>
-          <span>Avoirs</span>
-          @if (countAvoirs() > 0) {
-            <span class="badge text-bg-warning rounded-pill">{{ countAvoirs() }}</span>
-          }
-        </a>
-      </ng-container>
-
-      <ng-container ngbNavItem="GROUPE">
-        <a
-          class="pharma-nav-tab-link"
-          ngbNavLink
-          ngbTooltip="Bordereau groupé des retours par fournisseur"
-          placement="bottom"
-        >
-          <i class="pi pi-objects-column"></i>
-          <span>Groupé</span>
-        </a>
-      </ng-container>
-
-      <ng-container ngbNavItem="HISTORIQUE">
-        <a
-          class="pharma-nav-tab-link"
-          ngbNavLink
-          ngbTooltip="Historique des retours clôturés (avoir fournisseur reçu)"
-          placement="bottom"
-        >
-          <i class="pi pi-history"></i>
-          <span>Historique</span>
-        </a>
-      </ng-container>
-    </div>
-  </app-nav-tabs>
-</div>
-
-<!-- ─── Barre de filtres (su-action-bar, cohérent avec list-bons) ────── -->
-@if (activeTab() !== 'AVOIRS' && activeTab() !== 'GROUPE') {
-  <app-action-bar>
-    <ng-container ngProjectAs="[actionBarFilters]">
-
-      <!-- Recherche texte -->
-      <app-icon-field [overlay]="true" class="lb-search" icon="pi pi-search">
-        <input (keyup.enter)="onSearch()" [(ngModel)]="search" class="form-control"
-               placeholder="Fournisseur, référence…" type="text" />
-      </app-icon-field>
-
-      <!-- Filtre statut : visible uniquement sur l'onglet "En attente" -->
-      @if (activeTab() === 'EN_ATTENTE') {
-        <app-select
-          (selectionChange)="onSearch()"
-          [(ngModel)]="selectedStatut"
-          [clearable]="false"
-          [items]="enAttenteStatutOptions"
-          [style]="{ 'min-width': '150px' }"
-          appendTo="body"
-          bindLabel="label"
-          bindValue="value"
-          placeholder="Statut"
+      <ng-container ngProjectAs="[actionBarActions]">
+        <!--  <app-button (clicked)="onNewRetour()" icon="pi pi-plus" label="Nouveau retour"
+                    severity="primary" size="small" />-->
+        <app-button (clicked)="onSearch()" icon="pi pi-search" label="Rechercher"
+                    severity="info" size="small" />
+        <app-split-button
+          [items]="exportMenus"
+          icon="pi pi-download"
+          label="Exporter"
+          severity="help"
+          size="small"
         />
-      }
+      </ng-container>
+    </app-action-bar>
+  }
 
-      <pharma-date-picker (ngModelChange)="onSearch()" [(ngModel)]="dtStart" [style]="{ 'max-width': '180px' }"
-                          class="lb-date"
-                          id="dtStart" label="Début" />
+  @if (activeTab() !== 'AVOIRS' && activeTab() !== 'GROUPE') {
+    <div>
+      <app-data-table
+        (onLazyLoad)="onPageChange($event)"
+        [lazy]="true"
+        [loading]="loading()"
+        [paginator]="true"
+        [rowsPerPageOptions]="[10, 20, 30, 50]"
+        [rows]="itemsPerPage"
+        [showCurrentPageReport]="true"
+        [size]="'small'"
+        [totalRecords]="totalRecords()"
+        [value]="retourBons()"
+        currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+        dataKey="id"
+      >
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th style="width: 3rem"></th>
+            <th>Date</th>
+            <th>Référence</th>
+            <th>Commande</th>
+            <th>Fournisseur</th>
+            <th class="text-center">Nb. Lignes</th>
+            <th class="text-center">Qté Totale</th>
+            <th class="text-right">Montant</th>
+            <th>Statut</th>
+            <th>Commentaire</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </ng-template>
 
-      <pharma-date-picker (ngModelChange)="onSearch()" [(ngModel)]="dtEnd" [style]="{ 'max-width': '180px' }"
-                          class="lb-date"
-                          id="dtEnd" label="Fin" />
-
-    </ng-container>
-
-    <ng-container ngProjectAs="[actionBarActions]">
-      <!--  <app-button (clicked)="onNewRetour()" icon="pi pi-plus" label="Nouveau retour"
-                  severity="primary" size="small" />-->
-      <app-button (clicked)="onSearch()" icon="pi pi-search" label="Rechercher"
-                  severity="info" size="small" />
-      <app-split-button
-        [items]="exportMenus"
-        icon="pi pi-download"
-        label="Exporter"
-        severity="help"
-        size="small"
-      />
-    </ng-container>
-  </app-action-bar>
-}
-
-@if (activeTab() !== 'AVOIRS' && activeTab() !== 'GROUPE') {
-  <div>
-    <app-data-table
-      (onLazyLoad)="onPageChange($event)"
-      [lazy]="true"
-      [loading]="loading()"
-      [paginator]="true"
-      [rowsPerPageOptions]="[10, 20, 30, 50]"
-      [rows]="itemsPerPage"
-      [showCurrentPageReport]="true"
-      [size]="'small'"
-      [totalRecords]="totalRecords()"
-      [value]="retourBons()"
-      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
-      dataKey="id"
-    >
-      <ng-template #header>
-        <tr class="pharma-table-head">
-          <th style="width: 3rem"></th>
-          <th>Date</th>
-          <th>Référence</th>
-          <th>Commande</th>
-          <th>Fournisseur</th>
-          <th class="text-center">Nb. Lignes</th>
-          <th class="text-center">Qté Totale</th>
-          <th class="text-right">Montant</th>
-          <th>Statut</th>
-          <th>Commentaire</th>
-          <th class="text-center">Actions</th>
-        </tr>
-      </ng-template>
-
-      <ng-template #body let-expanded="expanded" let-retourBon>
-        <tr>
-          <td>
-            <app-button
-              [appRowToggler]="retourBon"
-              [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-              [rounded]="true"
-              [text]="true"
-              type="button"
-            />
-          </td>
-          <td>
-            <small>{{ retourBon.dateMtv | date: 'dd/MM/yyyy HH:mm' }}</small>
-          </td>
-          <td>
-            @if (retourBon.reference) {
-              <span class="pharma-code">{{ retourBon.reference }}</span>
-            } @else {
-              <span class="text-muted">—</span>
-            }
-          </td>
-          <td>
-            @if (retourBon.horsCommande) {
-              <span class="badge bg-warning text-dark me-1"
-                    ngbTooltip="Retour créé sans référence de commande (lot hors entrée en stock)"
-                    placement="top">
-              <i class="pi pi-exclamation-triangle me-1"></i>Hors commande
-            </span>
-              <small class="text-muted">{{ retourBon.fournisseurLibelle }}</small>
-            } @else {
-              <div class="font-weight-bold">{{ retourBon.receiptReference }}</div>
-              <small class="text-muted">{{ retourBon.receiptDate | date: 'dd/MM/yyyy' }}</small>
-            }
-          </td>
-          <td>{{ retourBon.fournisseurLibelle }}</td>
-          <td class="text-center">
-            <span class="pharma-price">{{ getTotalItems(retourBon) }}</span>
-          </td>
-          <td class="text-center">
-            <span class="pharma-qty-value">{{ getTotalQuantity(retourBon) | number }}</span>
-          </td>
-          <td class="text-right">
-            <span class="pharma-price">{{ (retourBon.montantTotal ?? 0) | number:'1.0-0' }} F</span>
-            @if (retourBon.delayWarning) {
-              <i class="pi pi-exclamation-triangle text-warning ms-1"
-                 ngbTooltip="Retour effectué plus de 365 jours après la commande"
-                 placement="top"></i>
-            }
-          </td>
-          <td>
-            <app-badge [label]="getStatusLabel(retourBon.statut!)"
-                       [severity]="getStatusSeverity(retourBon.statut!)" />
-          </td>
-          <td>
-            <small class="text-muted">{{ retourBon.commentaire }}</small>
-          </td>
-          <td class="text-center">
-            <div class="d-flex justify-content-center gap-1">
-              <!-- Impression disponible sur tous les onglets -->
+        <ng-template #body let-expanded="expanded" let-retourBon>
+          <tr>
+            <td>
               <app-button
-                (clicked)="downloadPdf(retourBon)"
+                [appRowToggler]="retourBon"
+                [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
                 [rounded]="true"
                 [text]="true"
-                icon="pi pi-print"
-                ngbTooltip="Imprimer le bon de retour"
-                placement="top"
-                severity="secondary"
-                size="small"
+                type="button"
               />
+            </td>
+            <td>
+              <small>{{ retourBon.dateMtv | date: 'dd/MM/yyyy HH:mm' }}</small>
+            </td>
+            <td>
+              @if (retourBon.reference) {
+                <span class="pharma-code">{{ retourBon.reference }}</span>
+              } @else {
+                <span class="text-muted">—</span>
+              }
+            </td>
+            <td>
+              @if (retourBon.horsCommande) {
+                <span class="badge bg-warning text-dark me-1"
+                      ngbTooltip="Retour créé sans référence de commande (lot hors entrée en stock)"
+                      placement="top">
+              <i class="pi pi-exclamation-triangle me-1"></i>Hors commande
+            </span>
+                <small class="text-muted">{{ retourBon.fournisseurLibelle }}</small>
+              } @else {
+                <div class="font-weight-bold">{{ retourBon.receiptReference }}</div>
+                <small class="text-muted">{{ retourBon.receiptDate | date: 'dd/MM/yyyy' }}</small>
+              }
+            </td>
+            <td>{{ retourBon.fournisseurLibelle }}</td>
+            <td class="text-center">
+              <span class="pharma-price">{{ getTotalItems(retourBon) }}</span>
+            </td>
+            <td class="text-center">
+              <span class="pharma-qty-value">{{ getTotalQuantity(retourBon) | number }}</span>
+            </td>
+            <td class="text-right">
+              <span class="pharma-price">{{ (retourBon.montantTotal ?? 0) | number:'1.0-0' }}
+                F</span>
+              @if (retourBon.delayWarning) {
+                <i class="pi pi-exclamation-triangle text-warning ms-1"
+                   ngbTooltip="Retour effectué plus de 365 jours après la commande"
+                   placement="top"></i>
+              }
+            </td>
+            <td>
+              <app-badge [label]="getStatusLabel(retourBon.statut!)"
+                         [severity]="getStatusSeverity(retourBon.statut!)" />
+            </td>
+            <td>
+              <small class="text-muted">{{ retourBon.commentaire }}</small>
+            </td>
+            <td class="text-center">
+              <div class="d-flex justify-content-center gap-1">
+                <!-- Impression disponible sur tous les onglets -->
+                <app-button
+                  (clicked)="downloadPdf(retourBon)"
+                  [rounded]="true"
+                  [text]="true"
+                  icon="pi pi-print"
+                  ngbTooltip="Imprimer le bon de retour"
+                  placement="top"
+                  severity="secondary"
+                  size="small"
+                />
 
-              <!-- Actions d'édition : uniquement onglet "En attente" + statut VALIDATED -->
-              @if (activeTab() === 'EN_ATTENTE') {
-                @if (retourBon.statut === RetourBonStatut.VALIDATED) {
-                  <app-button
-                    (clicked)="editRetour(retourBon)"
-                    [rounded]="true"
-                    [text]="true"
-                    icon="pi pi-file-edit"
-                    ngbTooltip="Modifier le retour"
-                    placement="top"
-                    severity="info"
-                    size="small"
-                  />
-                  <app-button
-                    (clicked)="deleteRetour(retourBon)"
-                    [rounded]="true"
-                    [text]="true"
-                    icon="pi pi-trash"
-                    ngbTooltip="Supprimer le retour"
-                    placement="top"
-                    severity="danger"
-                    size="small"
-                  />
-                  <app-button
-                    (clicked)="markAsProcessing(retourBon)"
-                    [rounded]="true"
-                    [text]="true"
-                    icon="pi pi-send"
-                    ngbTooltip="Marquer en cours de traitement (envoyé au fournisseur)"
-                    placement="top"
-                    severity="warn"
-                    size="small"
-                  />
-                  @if (retourBon.ediCompatible) {
+                <!-- Actions d'édition : uniquement onglet "En attente" + statut VALIDATED -->
+                @if (activeTab() === 'EN_ATTENTE') {
+                  @if (retourBon.statut === RetourBonStatut.VALIDATED) {
                     <app-button
-                      (clicked)="sendEdi(retourBon)"
+                      (clicked)="editRetour(retourBon)"
                       [rounded]="true"
                       [text]="true"
-                      icon="pi pi-sitemap"
-                      ngbTooltip="Envoyer via PharmaML"
+                      icon="pi pi-file-edit"
+                      ngbTooltip="Modifier le retour"
                       placement="top"
-                      severity="secondary"
+                      severity="info"
+                      size="small"
+                    />
+                    <app-button
+                      (clicked)="deleteRetour(retourBon)"
+                      [rounded]="true"
+                      [text]="true"
+                      icon="pi pi-trash"
+                      ngbTooltip="Supprimer le retour"
+                      placement="top"
+                      severity="danger"
+                      size="small"
+                    />
+                    <app-button
+                      (clicked)="markAsProcessing(retourBon)"
+                      [rounded]="true"
+                      [text]="true"
+                      icon="pi pi-send"
+                      ngbTooltip="Marquer en cours de traitement (envoyé au fournisseur)"
+                      placement="top"
+                      severity="warn"
+                      size="small"
+                    />
+                    @if (retourBon.ediCompatible) {
+                      <app-button
+                        (clicked)="sendEdi(retourBon)"
+                        [rounded]="true"
+                        [text]="true"
+                        icon="pi pi-sitemap"
+                        ngbTooltip="Envoyer via PharmaML"
+                        placement="top"
+                        severity="secondary"
+                        size="small"
+                      />
+                    }
+                    <app-button
+                      (clicked)="setSupplierResponse(retourBon)"
+                      [rounded]="true"
+                      [text]="true"
+                      icon="pi pi-check-square"
+                      ngbTooltip="Saisir la réponse fournisseur"
+                      placement="top"
+                      severity="success"
+                      size="small"
+                    />
+                  } @else if (retourBon.statut === RetourBonStatut.PROCESSING) {
+                    <app-button
+                      (clicked)="setSupplierResponse(retourBon)"
+                      [rounded]="true"
+                      [text]="true"
+                      icon="pi pi-check-square"
+                      ngbTooltip="Saisir la réponse fournisseur"
+                      placement="top"
+                      severity="success"
+                      size="small"
+                    />
+                  } @else if (retourBon.statut === RetourBonStatut.PARTIALLY_ACCEPTED) {
+                    <app-button
+                      (clicked)="closeManually(retourBon)"
+                      [rounded]="true"
+                      [text]="true"
+                      icon="pi pi-lock"
+                      ngbTooltip="Clôturer manuellement (acceptation partielle)"
+                      placement="top"
+                      severity="warn"
                       size="small"
                     />
                   }
-                  <app-button
-                    (clicked)="setSupplierResponse(retourBon)"
-                    [rounded]="true"
-                    [text]="true"
-                    icon="pi pi-check-square"
-                    ngbTooltip="Saisir la réponse fournisseur"
-                    placement="top"
-                    severity="success"
-                    size="small"
-                  />
-                } @else if (retourBon.statut === RetourBonStatut.PROCESSING) {
-                  <app-button
-                    (clicked)="setSupplierResponse(retourBon)"
-                    [rounded]="true"
-                    [text]="true"
-                    icon="pi pi-check-square"
-                    ngbTooltip="Saisir la réponse fournisseur"
-                    placement="top"
-                    severity="success"
-                    size="small"
-                  />
-                } @else if (retourBon.statut === RetourBonStatut.PARTIALLY_ACCEPTED) {
-                  <app-button
-                    (clicked)="closeManually(retourBon)"
-                    [rounded]="true"
-                    [text]="true"
-                    icon="pi pi-lock"
-                    ngbTooltip="Clôturer manuellement (acceptation partielle)"
-                    placement="top"
-                    severity="warn"
-                    size="small"
-                  />
+                } @else {
+                  <!-- Historique : lecture seule, juste un indicateur clôturé -->
+                  <i class="pi pi-check-circle text-success" ngbTooltip="Clôturé"
+                     placement="top"></i>
                 }
-              } @else {
-                <!-- Historique : lecture seule, juste un indicateur clôturé -->
-                <i class="pi pi-check-circle text-success" ngbTooltip="Clôturé"
-                   placement="top"></i>
-              }
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-
-      <ng-template #emptymessage>
-        <tr>
-          <td class="pharma-empty-message" colspan="11">
-            <div class="pharma-empty-content">
-              <i class="pi pi-inbox"></i>
-              @if (activeTab() === 'EN_ATTENTE') {
-                <p>Aucun retour en attente</p>
-                <small>Tous les retours ont été traités ou utilisez "Nouveau retour" pour en créer
-                  un</small>
-              } @else {
-                <p>Aucun retour dans l'historique</p>
-                <small>Les retours clôturés (avoir reçu) apparaîtront ici</small>
-              }
-              <!--   <app-button
-                   (clicked)="onNewRetour()"
-                   icon="pi pi-plus"
-                   label="Nouveau retour"
-                   severity="primary"
-                   size="small"
-                 />-->
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-
-      <ng-template #expandedrow let-retourBon>
-        <tr class="pharma-expanded-row">
-          <td colspan="11">
-            <div class="pharma-sub-table-container">
-              <div class="pharma-sub-table-header">
-                <i class="pi pi-list"></i>
-                <span>Détails du retour #{{ retourBon.id }}</span>
               </div>
-              <div class="pharma-sub-table-body">
-                @if (retourBon.retourBonItems && retourBon.retourBonItems.length > 0) {
-                  <table class="table table-sm mb-0">
-                    <thead class="pharma-table-head">
-                    <tr>
-                      <th class="text-center" style="width: 3rem">#</th>
-                      <th style="width: 100px">CIP</th>
-                      <th>Produit</th>
-                      <th style="width: 120px">Lot</th>
-                      <th class="text-center" style="width: 100px">Qté Retournée</th>
-                      <th class="text-center" style="width: 100px">Qté Acceptée</th>
-                      <th style="width: 200px">Motif de retour</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                      @for (item of retourBon.retourBonItems; track item.id; let idx = $index) {
-                        <tr>
-                          <td class="text-center">
-                            <span class="pharma-row-number">{{ idx + 1 }}</span>
-                          </td>
-                          <td>
-                            <span class="pharma-code">{{ item.produitCip }}</span>
-                          </td>
-                          <td>
-                            <span class="pharma-product-name">{{ item.produitLibelle }}</span>
-                          </td>
-                          <td>
-                            <small class="text-muted">{{ item.lotNumero }}</small>
-                          </td>
-                          <td class="text-center">
-                            <span class="pharma-qty-value">{{ item.qtyMvt | number }}</span>
-                          </td>
-                          <td class="text-center">
-                            <span class="pharma-price">{{ item.acceptedQty | number }}</span>
-                          </td>
-                          <td>{{ item.motifRetourLibelle }}</td>
-                        </tr>
-                      }
-                    </tbody>
-                    <tfoot class="pharma-table-footer">
-                    <tr>
-                      <td class="text-start" colspan="4">
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template #emptymessage>
+          <tr>
+            <td class="pharma-empty-message" colspan="11">
+              <div class="pharma-empty-content">
+                <i class="pi pi-inbox"></i>
+                @if (activeTab() === 'EN_ATTENTE') {
+                  <p>Aucun retour en attente</p>
+                  <small>Tous les retours ont été traités ou utilisez "Nouveau retour" pour en créer
+                    un</small>
+                } @else {
+                  <p>Aucun retour dans l'historique</p>
+                  <small>Les retours clôturés (avoir reçu) apparaîtront ici</small>
+                }
+                <!--   <app-button
+                     (clicked)="onNewRetour()"
+                     icon="pi pi-plus"
+                     label="Nouveau retour"
+                     severity="primary"
+                     size="small"
+                   />-->
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template #expandedrow let-retourBon>
+          <tr class="pharma-expanded-row">
+            <td colspan="11">
+              <div class="pharma-sub-table-container">
+                <div class="pharma-sub-table-header">
+                  <i class="pi pi-list"></i>
+                  <span>Détails du retour #{{ retourBon.id }}</span>
+                </div>
+                <div class="pharma-sub-table-body">
+                  @if (retourBon.retourBonItems && retourBon.retourBonItems.length > 0) {
+                    <table class="table table-sm mb-0">
+                      <thead class="pharma-table-head">
+                      <tr>
+                        <th class="text-center" style="width: 3rem">#</th>
+                        <th style="width: 100px">CIP</th>
+                        <th>Produit</th>
+                        <th style="width: 120px">Lot</th>
+                        <th class="text-center" style="width: 100px">Qté Retournée</th>
+                        <th class="text-center" style="width: 100px">Qté Acceptée</th>
+                        <th style="width: 200px">Motif de retour</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                        @for (item of retourBon.retourBonItems; track item.id; let idx = $index) {
+                          <tr>
+                            <td class="text-center">
+                              <span class="pharma-row-number">{{ idx + 1 }}</span>
+                            </td>
+                            <td>
+                              <span class="pharma-code">{{ item.produitCip }}</span>
+                            </td>
+                            <td>
+                              <span class="pharma-product-name">{{ item.produitLibelle }}</span>
+                            </td>
+                            <td>
+                              <small class="text-muted">{{ item.lotNumero }}</small>
+                            </td>
+                            <td class="text-center">
+                              <span class="pharma-qty-value">{{ item.qtyMvt | number }}</span>
+                            </td>
+                            <td class="text-center">
+                              <span class="pharma-price">{{ item.acceptedQty | number }}</span>
+                            </td>
+                            <td>{{ item.motifRetourLibelle }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                      <tfoot class="pharma-table-footer">
+                      <tr>
+                        <td class="text-start" colspan="4">
                         <span class="pharma-footer-label">
                           <i class="pi pi-calculator"></i>
                           <span>Total:</span>
                         </span>
-                      </td>
-                      <td class="text-center">
+                        </td>
+                        <td class="text-center">
                         <span class="pharma-footer-total">{{
                             getTotalQuantity(retourBon) | number
                           }}</span>
-                      </td>
-                      <td class="text-center">
+                        </td>
+                        <td class="text-center">
                         <span class="pharma-footer-total">{{
                             getTotalAccepted(retourBon) | number
                           }}</span>
-                      </td>
-                      <td></td>
-                    </tr>
-                    </tfoot>
-                  </table>
-                } @else {
-                  <div class="p-3 text-center text-muted">
-                    <i class="pi pi-info-circle me-2"></i>
-                    Aucune ligne de retour
-                  </div>
-                }
-              </div>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-    </app-data-table>
-  </div>
-}
-
-@if (activeTab() === 'AVOIRS') {
-  <div class="su-content-panel">
-    <app-avoir-encours />
-  </div>
-}
-
-@if (activeTab() === 'GROUPE') {
-  <div class="su-content-panel">
-    <!-- <div class="su-groupe-toolbar">
-       <app-button icon="pi pi-refresh" label="Actualiser" severity="secondary" size="small" (clicked)="loadGroupes()" />
-     </div>-->
-    <app-data-table [loading]="loadingGroupes()" [size]="'small'" [value]="retourBonsGroupes()"
-                    class="mt-2"
-                    dataKey="fournisseurId">
-      <ng-template #header>
-        <tr class="pharma-table-head">
-          <th style="width:3rem"></th>
-          <th>Fournisseur</th>
-          <th class="text-center">Nb. retours</th>
-          <th class="text-right">Montant total</th>
-          <th class="text-center">Actions</th>
-        </tr>
-      </ng-template>
-      <ng-template #body let-expanded="expanded" let-groupe>
-        <tr>
-          <td>
-            <app-button [appRowToggler]="groupe"
-                        [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                        [rounded]="true" [text]="true" type="button" />
-          </td>
-          <td class="pharma-product-name">{{ groupe.fournisseurLibelle }}</td>
-          <td class="text-center"><span class="pharma-price">{{ groupe.nbRetours }}</span></td>
-          <td class="text-right"><span
-            class="pharma-price">{{ groupe.montantTotal | number:'1.0-0' }} F</span></td>
-          <td class="text-center">
-            <app-button (clicked)="exportGroupePdf(groupe)" [rounded]="true" [text]="true"
-                        icon="pi pi-file-pdf"
-                        ngbTooltip="Bordereau groupé PDF"
-                        placement="top" severity="danger"
-                        size="small" />
-          </td>
-        </tr>
-      </ng-template>
-      <ng-template #expandedrow let-groupe>
-        <tr class="pharma-expanded-row">
-          <td colspan="5">
-            <div class="pharma-sub-table-container">
-              <table class="table table-sm mb-0">
-                <thead class="pharma-table-head">
-                <tr>
-                  <th>Référence</th>
-                  <th>Commande</th>
-                  <th>Date</th>
-                  <th>Statut</th>
-                  <th class="text-right">Montant</th>
-                  <th class="text-center">PDF</th>
-                </tr>
-                </thead>
-                <tbody>
-                  @for (bon of groupe.retourBons; track bon.id) {
-                    <tr>
-                      <td><span class="pharma-code">{{ bon.reference ?? '#' + bon.id }}</span></td>
-                      <td><small>{{ bon.receiptReference ?? '—' }}</small></td>
-                      <td><small>{{ bon.dateMtv | date:'dd/MM/yyyy' }}</small></td>
-                      <td>
-                        <app-badge [label]="getStatusLabel(bon.statut!)"
-                                   [severity]="getStatusSeverity(bon.statut!)" />
-                      </td>
-                      <td class="text-right"><span class="pharma-price">{{
-                          (bon.montantTotal ?? 0) | number:'1.0-0'
-                        }} F</span></td>
-                      <td class="text-center">
-                        <app-button (clicked)="downloadPdf(bon)" [rounded]="true" [text]="true"
-                                    icon="pi pi-print" ngbTooltip="PDF individuel"
-                                    placement="top" severity="secondary"
-                                    size="small" />
-                      </td>
-                    </tr>
+                        </td>
+                        <td></td>
+                      </tr>
+                      </tfoot>
+                    </table>
+                  } @else {
+                    <div class="p-3 text-center text-muted">
+                      <i class="pi pi-info-circle me-2"></i>
+                      Aucune ligne de retour
+                    </div>
                   }
-                </tbody>
-              </table>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-      <ng-template #emptymessage>
-        <tr>
-          <td colspan="5">
-            <div class="pharma-empty-content">
-              <i class="pi pi-check-circle"></i>
-              <p>Aucun retour ouvert par fournisseur</p>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-    </app-data-table>
-  </div>
-}
+                </div>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    </div>
+  }
+
+  @if (activeTab() === 'AVOIRS') {
+    <div class="su-content-panel">
+      <app-avoir-encours />
+    </div>
+  }
+
+  @if (activeTab() === 'GROUPE') {
+    <div class="su-content-panel">
+      <!-- <div class="su-groupe-toolbar">
+         <app-button icon="pi pi-refresh" label="Actualiser" severity="secondary" size="small" (clicked)="loadGroupes()" />
+       </div>-->
+      <app-data-table [loading]="loadingGroupes()" [size]="'small'" [value]="retourBonsGroupes()"
+                      class="mt-2"
+                      dataKey="fournisseurId">
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th style="width:3rem"></th>
+            <th>Fournisseur</th>
+            <th class="text-center">Nb. retours</th>
+            <th class="text-right">Montant total</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-expanded="expanded" let-groupe>
+          <tr>
+            <td>
+              <app-button [appRowToggler]="groupe"
+                          [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                          [rounded]="true" [text]="true" type="button" />
+            </td>
+            <td class="pharma-product-name">{{ groupe.fournisseurLibelle }}</td>
+            <td class="text-center"><span class="pharma-price">{{ groupe.nbRetours }}</span></td>
+            <td class="text-right"><span
+              class="pharma-price">{{ groupe.montantTotal | number:'1.0-0' }} F</span></td>
+            <td class="text-center">
+              <app-button (clicked)="exportGroupePdf(groupe)" [rounded]="true" [text]="true"
+                          icon="pi pi-file-pdf"
+                          ngbTooltip="Bordereau groupé PDF"
+                          placement="top" severity="danger"
+                          size="small" />
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template #expandedrow let-groupe>
+          <tr class="pharma-expanded-row">
+            <td colspan="5">
+              <div class="pharma-sub-table-container">
+                <table class="table table-sm mb-0">
+                  <thead class="pharma-table-head">
+                  <tr>
+                    <th>Référence</th>
+                    <th>Commande</th>
+                    <th>Date</th>
+                    <th>Statut</th>
+                    <th class="text-right">Montant</th>
+                    <th class="text-center">PDF</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                    @for (bon of groupe.retourBons; track bon.id) {
+                      <tr>
+                        <td><span class="pharma-code">{{ bon.reference ?? '#' + bon.id }}</span>
+                        </td>
+                        <td><small>{{ bon.receiptReference ?? '—' }}</small></td>
+                        <td><small>{{ bon.dateMtv | date:'dd/MM/yyyy' }}</small></td>
+                        <td>
+                          <app-badge [label]="getStatusLabel(bon.statut!)"
+                                     [severity]="getStatusSeverity(bon.statut!)" />
+                        </td>
+                        <td class="text-right"><span class="pharma-price">{{
+                            (bon.montantTotal ?? 0) | number:'1.0-0'
+                          }} F</span></td>
+                        <td class="text-center">
+                          <app-button (clicked)="downloadPdf(bon)" [rounded]="true" [text]="true"
+                                      icon="pi pi-print" ngbTooltip="PDF individuel"
+                                      placement="top" severity="secondary"
+                                      size="small" />
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template #emptymessage>
+          <tr>
+            <td colspan="5">
+              <div class="pharma-empty-content">
+                <i class="pi pi-check-circle"></i>
+                <p>Aucun retour ouvert par fournisseur</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    </div>
+  }
+</div>

@@ -1,5 +1,5 @@
 <div class="pharma-smart-content p-2">
-  <app-toolbar [compact]="true" icon="pi pi-table" title="Tableau de bord pharmacien">
+  <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-table" title="Tableau de bord pharmacien">
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
         <pharma-date-picker [ngModel]="fromDate()" (ngModelChange)="fromDate.set($event)" [maxDate]="toDate()" [style]="{ 'max-width': '180px' }" id="dateDebut"

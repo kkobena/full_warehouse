@@ -6,8 +6,7 @@ import {
   OnDestroy,
   OnInit,
   signal,
-  ViewChild
-} from '@angular/core';
+  ViewChild, input} from '@angular/core';
 
 import {FormsModule} from '@angular/forms';
 import {HttpResponse} from '@angular/common/http';
@@ -50,6 +49,14 @@ interface FilterOption {
   styleUrl: './supplier-performance.component.scss',
 })
 export default class SupplierPerformanceComponent implements OnInit, OnDestroy {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : ce rapport est parfois atteint depuis deux menus, qui ne le nomment
+   * pas de la même façon. Le titre suit celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   @ViewChild('montantsChartCanvas') montantsChartCanvas?: ElementRef<HTMLCanvasElement>;
   @ViewChild('delaisChartCanvas') delaisChartCanvas?: ElementRef<HTMLCanvasElement>;
 

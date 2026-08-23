@@ -3,12 +3,14 @@ import { NgbNav, NgbNavContent, NgbNavItem, NgbNavLink, NgbNavOutlet } from '@ng
 import { NavManagerComponent } from '../nav-manager/nav-manager.component';
 import { RoleComponent } from '../role/role.component';
 
+import { NavSidebarComponent } from 'app/shared/ui/nav-sidebar/nav-sidebar.component';
+import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-link.component';
 @Component({
   selector: 'app-access-managment-home',
   templateUrl: './access-managment-home.component.html',
   styleUrl: './access-managment-home.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  imports: [NavSidebarComponent, NavSectionLinkComponent, 
     NgbNav, NgbNavContent, NgbNavItem, NgbNavLink, NgbNavOutlet,
     NavManagerComponent,
     RoleComponent,
@@ -17,6 +19,9 @@ import { RoleComponent } from '../role/role.component';
 export class AccessManagmentHomeComponent {
   protected active = 'roles';
 
+
+  /** Menu replié : rend la largeur au contenu quand il en manque. */
+  protected readonly menuReplie = signal(false);
   /** Rôle dont on veut gérer les autorisations (passé à nav-manager). */
   protected readonly pendingRole = signal<string | null>(null);
 

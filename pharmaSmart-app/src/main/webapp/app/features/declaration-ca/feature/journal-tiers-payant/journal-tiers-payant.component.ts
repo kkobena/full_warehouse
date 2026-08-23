@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, input} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
@@ -51,6 +51,14 @@ import {SelectComponent} from "../../../../shared/ui";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JournalTiersPayantComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit alors le libellé du menu — ou son
+   * `titre_long` quand la barre nomme plus longuement — au lieu d'une valeur figée dans le gabarit.
+   */
+  readonly navCode = input<string>('');
+
   protected readonly dateDebut = signal<NgbDateStruct>(debutDuMois());
   protected readonly dateFin = signal<NgbDateStruct>(aujourdHui());
   protected readonly recherche = signal('');

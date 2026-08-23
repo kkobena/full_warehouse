@@ -19,9 +19,11 @@ import { PeremptionAlertService } from "../../shared/services/peremption-alert.s
 import { RouterLink } from "@angular/router";
 import { CommonModule } from "@angular/common";
 
+import { NavSidebarComponent } from 'app/shared/ui/nav-sidebar/nav-sidebar.component';
+import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-link.component';
 @Component({
   selector: "jhi-gestion-peremption",
-  imports: [
+  imports: [NavSidebarComponent, NavSectionLinkComponent, 
     NgbNav,
     NgbNavContent,
     NgbNavItem,
@@ -40,6 +42,9 @@ import { CommonModule } from "@angular/common";
 })
 export class GestionPeremptionComponent implements OnInit {
   protected active = "lot-perimes";
+
+  /** Menu replié : rend la largeur au contenu quand il en manque. */
+  protected readonly menuReplie = signal(false);
   protected lotPerimesCount = 0;
   protected lotADetruireCount = 0;
   protected alertDismissed = signal(true);

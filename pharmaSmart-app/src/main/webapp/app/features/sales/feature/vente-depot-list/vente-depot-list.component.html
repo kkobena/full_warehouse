@@ -1,6 +1,6 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-1">
-    <app-toolbar [compact]="true" icon="pi pi-warehouse" title="Ventes dépôt">
+    <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-warehouse" title="Ventes dépôt">
       <ng-container ngProjectAs="[toolbarFilters]">
         <app-icon-field [overlay]="true" icon="pi pi-search">
           <input (keyup.enter)="onSearch()" [(ngModel)]="search" class="form-control"

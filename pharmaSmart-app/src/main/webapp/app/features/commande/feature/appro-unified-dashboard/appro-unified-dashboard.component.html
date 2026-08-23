@@ -1,10 +1,12 @@
-<app-toolbar icon="pi pi-th-large" title="Tableau de bord Approvisionnement">
-  <ng-container ngProjectAs="[toolbarFilters]">
-    @if (lastRefresh()) {
-      <small class="text-muted">Mis à jour : {{ lastRefresh() | date: 'HH:mm:ss' }}</small>
-    }
-    @if (semoisFraicheur()) {
-      <span class="ms-3">
+<div class="pharma-smart-content p-1">
+  <app-toolbar [code]="navCode()" icon="pi pi-th-large"
+               title="Tableau de bord Approvisionnement">
+    <ng-container ngProjectAs="[toolbarFilters]">
+      @if (lastRefresh()) {
+        <small class="text-muted">Mis à jour : {{ lastRefresh() | date: 'HH:mm:ss' }}</small>
+      }
+      @if (semoisFraicheur()) {
+        <span class="ms-3">
         <app-badge
           [label]="semoisFraicheurLabel"
           [severity]="semoisFraicheurSeverity"
@@ -13,395 +15,397 @@
           placement="bottom"
         />
       </span>
-    }
-  </ng-container>
+      }
+    </ng-container>
 
-  <ng-container ngProjectAs="[toolbarActions]">
-    <div class="pharma-button-group">
-      <app-button
-        (clicked)="navigateToSemoisSuggestions()"
-        icon="pi pi-exclamation-triangle"
-        label="Commander les urgents"
-        ngbTooltip="Commander tous les articles en rupture ou sous le seuil de sécurité VMM"
-        placement="bottom"
-        severity="danger"
-        size="small"
-      />
-      <app-button
-        (clicked)="navigateToCommandeEnCours()"
-        icon="pi pi-plus"
-        label="Nouvelle commande"
-        ngbTooltip="Créer une commande manuelle"
-        placement="bottom"
-        severity="primary"
-        size="small"
-      />
-      <app-button
-        (clicked)="loadAll()"
-        [loading]="isLoading"
-        icon="pi pi-refresh"
-        ngbTooltip="Actualiser le tableau de bord"
-        placement="bottom"
-        severity="secondary"
-        size="small"
-      />
-    </div>
-  </ng-container>
-</app-toolbar>
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-button-group">
+        <app-button
+          (clicked)="navigateToSemoisSuggestions()"
+          icon="pi pi-exclamation-triangle"
+          label="Commander les urgents"
+          ngbTooltip="Commander tous les articles en rupture ou sous le seuil de sécurité VMM"
+          placement="bottom"
+          severity="danger"
+          size="small"
+        />
+        <app-button
+          (clicked)="navigateToCommandeEnCours()"
+          icon="pi pi-plus"
+          label="Nouvelle commande"
+          ngbTooltip="Créer une commande manuelle"
+          placement="bottom"
+          severity="primary"
+          size="small"
+        />
+        <app-button
+          (clicked)="loadAll()"
+          [loading]="isLoading"
+          icon="pi pi-refresh"
+          ngbTooltip="Actualiser le tableau de bord"
+          placement="bottom"
+          severity="secondary"
+          size="small"
+        />
+      </div>
+    </ng-container>
+  </app-toolbar>
 
-<!-- ─── SKELETON ─────────────────────────────────────────────────────────── -->
-@if (isLoading && !commandeDashboard() && !semoisDashboard()) {
-  <div class="row mt-2">
-    @for (_ of [1, 2, 3, 4, 5, 6]; track $index) {
-      <div class="col-12 col-md-2 mb-2">
-        <div class="card h-100">
-          <div class="card-body">
-            <app-skeleton class="mb-2" height="2rem" />
-            <app-skeleton height="1.5rem" />
+  <!-- ─── SKELETON ─────────────────────────────────────────────────────────── -->
+  @if (isLoading && !commandeDashboard() && !semoisDashboard()) {
+    <div class="row mt-2">
+      @for (_ of [1, 2, 3, 4, 5, 6]; track $index) {
+        <div class="col-12 col-md-2 mb-2">
+          <div class="card h-100">
+            <div class="card-body">
+              <app-skeleton class="mb-2" height="2rem" />
+              <app-skeleton height="1.5rem" />
+            </div>
           </div>
         </div>
-      </div>
-    }
-  </div>
-}
+      }
+    </div>
+  }
 
 
-<!-- ═══════════════════════════════════════════════════════════════════════════
-     SECTION 2 — KPIs fusionnés (Commandes + SEMOIS)
-════════════════════════════════════════════════════════════════════════════ -->
-@if (commandeDashboard(); as db) {
-  <app-kpi-strip stripClass="mt-1 mb-2">
+  <!-- ═══════════════════════════════════════════════════════════════════════════
+       SECTION 2 — KPIs fusionnés (Commandes + SEMOIS)
+  ════════════════════════════════════════════════════════════════════════════ -->
+  @if (commandeDashboard(); as db) {
+    <app-kpi-strip stripClass="mt-1 mb-2">
 
-    <!-- ── Commandes en cours ── -->
-    <app-kpi-item
-      (click)="navigateToCommandeEnCours()"
-      [accent]="'primary'"
-      [value]="db.totalRequested"
-      class="clickable"
-      icon="pi pi-file-edit"
-      iconClass="text-primary"
-      label="En cours"
-      valueClass="text-primary"
-    >
-      <ng-container ngProjectAs="[kpiSub]">Commandes</ng-container>
-    </app-kpi-item>
-
-    <!-- ── À réceptionner ── -->
-    <app-kpi-item
-      (click)="navigateToReceptionEnAttente()"
-      [accent]="'warning'"
-      [value]="db.totalReceived"
-      class="clickable"
-      icon="pi pi-truck"
-      iconClass="text-warning"
-      label="À réceptionner"
-      valueClass="text-warning"
-    >
-      <ng-container ngProjectAs="[kpiSub]">Bons livraison</ng-container>
-    </app-kpi-item>
-
-    @if (semoisDashboard(); as sd) {
-      <!-- ── Ruptures stock ── -->
+      <!-- ── Commandes en cours ── -->
       <app-kpi-item
-        (click)="navigateToSemoisSuggestions()"
-        [accent]="'danger'"
-        [value]="sd.nbRupture"
+        (click)="navigateToCommandeEnCours()"
+        [accent]="'primary'"
+        [value]="db.totalRequested"
         class="clickable"
-        icon="pi pi-exclamation-triangle"
-        iconClass="text-danger"
-        label="Ruptures"
-        valueClass="text-danger"
+        icon="pi pi-file-edit"
+        iconClass="text-primary"
+        label="En cours"
+        valueClass="text-primary"
       >
-        <ng-container ngProjectAs="[kpiSub]">Stock critique</ng-container>
+        <ng-container ngProjectAs="[kpiSub]">Commandes</ng-container>
       </app-kpi-item>
 
-      <!-- ── Sous seuil VMM ── -->
+      <!-- ── À réceptionner ── -->
       <app-kpi-item
-        (click)="navigateToSemoisSuggestions()"
+        (click)="navigateToReceptionEnAttente()"
         [accent]="'warning'"
-        [value]="sd.nbSousSeuil"
+        [value]="db.totalReceived"
         class="clickable"
-        icon="pi pi-shopping-bag"
+        icon="pi pi-truck"
         iconClass="text-warning"
-        label="Sous seuil"
+        label="À réceptionner"
         valueClass="text-warning"
       >
-        <ng-container ngProjectAs="[kpiSub]">À commander</ng-container>
+        <ng-container ngProjectAs="[kpiSub]">Bons livraison</ng-container>
       </app-kpi-item>
 
-      <!-- ── Stock OK ── -->
+      @if (semoisDashboard(); as sd) {
+        <!-- ── Ruptures stock ── -->
+        <app-kpi-item
+          (click)="navigateToSemoisSuggestions()"
+          [accent]="'danger'"
+          [value]="sd.nbRupture"
+          class="clickable"
+          icon="pi pi-exclamation-triangle"
+          iconClass="text-danger"
+          label="Ruptures"
+          valueClass="text-danger"
+        >
+          <ng-container ngProjectAs="[kpiSub]">Stock critique</ng-container>
+        </app-kpi-item>
+
+        <!-- ── Sous seuil VMM ── -->
+        <app-kpi-item
+          (click)="navigateToSemoisSuggestions()"
+          [accent]="'warning'"
+          [value]="sd.nbSousSeuil"
+          class="clickable"
+          icon="pi pi-shopping-bag"
+          iconClass="text-warning"
+          label="Sous seuil"
+          valueClass="text-warning"
+        >
+          <ng-container ngProjectAs="[kpiSub]">À commander</ng-container>
+        </app-kpi-item>
+
+        <!-- ── Stock OK ── -->
+        <app-kpi-item
+          [accent]="'success'"
+          [value]="sd.nbOk"
+          icon="pi pi-check-circle"
+          iconClass="text-success"
+          label="Stock nominal"
+          valueClass="text-success"
+        >
+          <ng-container ngProjectAs="[kpiSub]">Optimal</ng-container>
+        </app-kpi-item>
+      }
+
+      <!-- ── Lots périmés (partagé depuis /api/dashboard/alert-counts) ── -->
       <app-kpi-item
-        [accent]="'success'"
-        [value]="sd.nbOk"
-        icon="pi pi-check-circle"
-        iconClass="text-success"
-        label="Stock nominal"
-        valueClass="text-success"
+        (click)="peremptionCount() > 0 && navigateToPeremptions()"
+        [accent]="peremptionCount() > 0 ? 'danger' : 'success'"
+        [iconClass]="peremptionCount() > 0 ? 'text-danger' : 'text-success'"
+        [valueClass]="peremptionCount() > 0 ? 'text-danger' : 'text-success'"
+        [value]="peremptionCount()"
+        class="clickable"
+        icon="pi pi-clock"
+        label="Péremptions"
+        ngbTooltip="Lots déjà périmés ou expirant très prochainement — cliquer pour gérer"
+        placement="bottom"
       >
-        <ng-container ngProjectAs="[kpiSub]">Optimal</ng-container>
+        <ng-container ngProjectAs="[kpiSub]">
+          @if (peremptionCount() > 0) {
+            lots à traiter
+          } @else {
+            RAS
+          }
+        </ng-container>
       </app-kpi-item>
-    }
 
-    <!-- ── Lots périmés (partagé depuis /api/dashboard/alert-counts) ── -->
-    <app-kpi-item
-      (click)="peremptionCount() > 0 && navigateToPeremptions()"
-      [accent]="peremptionCount() > 0 ? 'danger' : 'success'"
-      [iconClass]="peremptionCount() > 0 ? 'text-danger' : 'text-success'"
-      [valueClass]="peremptionCount() > 0 ? 'text-danger' : 'text-success'"
-      [value]="peremptionCount()"
-      class="clickable"
-      icon="pi pi-clock"
-      label="Péremptions"
-      ngbTooltip="Lots déjà périmés ou expirant très prochainement — cliquer pour gérer"
-      placement="bottom"
-    >
-      <ng-container ngProjectAs="[kpiSub]">
-        @if (peremptionCount() > 0) {
-          lots à traiter
-        } @else {
-          RAS
-        }
-      </ng-container>
-    </app-kpi-item>
+    </app-kpi-strip>
+  }
 
-  </app-kpi-strip>
-}
+  <!-- ═══════════════════════════════════════════════════════════════════════════
+       SECTION 4 — Alertes de rupture + Santé du stock
+  ════════════════════════════════════════════════════════════════════════════ -->
+  @if (semoisDashboard(); as sd) {
+    <div class="row mt-2">
 
-<!-- ═══════════════════════════════════════════════════════════════════════════
-     SECTION 4 — Alertes de rupture + Santé du stock
-════════════════════════════════════════════════════════════════════════════ -->
-@if (semoisDashboard(); as sd) {
-  <div class="row mt-2">
-
-    <!-- Top produits urgents -->
-    <div class="col-12 col-lg-8 mb-3">
-      <div class="card h-100 data-card">
-        <div class="card-header">
-          <h5 class="card-title">
-            <i class="pi pi-exclamation-triangle text-danger"></i>
-            Alertes urgentes — Top produits à risque
-          </h5>
-          <app-button
-            (clicked)="navigateToSemoisSuggestions()"
-            [text]="true"
-            icon="pi pi-arrow-right"
-            label="Voir tout"
-            severity="danger"
-            size="small"
-          />
-        </div>
-        <div class="card-body p-0">
-          <app-data-table
-            [rows]="7"
-            [value]="sd.topUrgents"
-            class="p-datatable-sm"
-          >
-            <ng-template #header>
-              <tr class="pharma-table-head">
-                <th>Produit</th>
-                <th class="text-center">Urgence</th>
-                <th class="text-end">Stock act.</th>
-                <th class="text-end">Couverture</th>
-                <th class="text-end">Qté cmd.</th>
-              </tr>
-            </ng-template>
-            <ng-template #body let-produit>
-              <tr (click)="navigateToSemoisSuggestions()" class="cursor-pointer pharma-row-hover">
-                <td>
-                  <div class="fw-medium small">{{ produit.libelle }}</div>
-                  <small class="text-muted">{{ produit.codeCip }}</small>
-                </td>
-                <td class="text-center">
-                  <app-badge
-                    [label]="produit.stockActuel < produit.margeSecurite ? 'RUPTURE' : 'SOUS SEUIL'"
-                    [severity]="getUrgenceSeverity(produit)"
-                  />
-                </td>
-                <td [ngClass]="getCouvertureClass(produit)" class="text-end">
-                  {{ produit.stockActuel | number }}
-                </td>
-                <td [ngClass]="getCouvertureClass(produit)" class="text-end">
-                  {{ getCouvertureMois(produit) | number: '1.1-1' }} mois
-                </td>
-                <td
-                  class="text-end fw-bold pharma-price">{{ produit.quantiteACommander | number }}
-                </td>
-              </tr>
-            </ng-template>
-            <ng-template #emptymessage>
-              <tr>
-                <td class="text-center py-3" colspan="5">
-                  <i class="pi pi-check-circle text-success me-2"></i>
-                  <span class="text-muted">Aucune alerte urgente</span>
-                </td>
-              </tr>
-            </ng-template>
-          </app-data-table>
+      <!-- Top produits urgents -->
+      <div class="col-12 col-lg-8 mb-3">
+        <div class="card h-100 data-card">
+          <div class="card-header">
+            <h5 class="card-title">
+              <i class="pi pi-exclamation-triangle text-danger"></i>
+              Alertes urgentes — Top produits à risque
+            </h5>
+            <app-button
+              (clicked)="navigateToSemoisSuggestions()"
+              [text]="true"
+              icon="pi pi-arrow-right"
+              label="Voir tout"
+              severity="danger"
+              size="small"
+            />
+          </div>
+          <div class="card-body p-0">
+            <app-data-table
+              [rows]="7"
+              [value]="sd.topUrgents"
+              class="p-datatable-sm"
+            >
+              <ng-template #header>
+                <tr class="pharma-table-head">
+                  <th>Produit</th>
+                  <th class="text-center">Urgence</th>
+                  <th class="text-end">Stock act.</th>
+                  <th class="text-end">Couverture</th>
+                  <th class="text-end">Qté cmd.</th>
+                </tr>
+              </ng-template>
+              <ng-template #body let-produit>
+                <tr (click)="navigateToSemoisSuggestions()" class="cursor-pointer pharma-row-hover">
+                  <td>
+                    <div class="fw-medium small">{{ produit.libelle }}</div>
+                    <small class="text-muted">{{ produit.codeCip }}</small>
+                  </td>
+                  <td class="text-center">
+                    <app-badge
+                      [label]="produit.stockActuel < produit.margeSecurite ? 'RUPTURE' : 'SOUS SEUIL'"
+                      [severity]="getUrgenceSeverity(produit)"
+                    />
+                  </td>
+                  <td [ngClass]="getCouvertureClass(produit)" class="text-end">
+                    {{ produit.stockActuel | number }}
+                  </td>
+                  <td [ngClass]="getCouvertureClass(produit)" class="text-end">
+                    {{ getCouvertureMois(produit) | number: '1.1-1' }} mois
+                  </td>
+                  <td
+                    class="text-end fw-bold pharma-price">{{ produit.quantiteACommander | number }}
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template #emptymessage>
+                <tr>
+                  <td class="text-center py-3" colspan="5">
+                    <i class="pi pi-check-circle text-success me-2"></i>
+                    <span class="text-muted">Aucune alerte urgente</span>
+                  </td>
+                </tr>
+              </ng-template>
+            </app-data-table>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Performance stock -->
-    <div class="col-12 col-lg-4 mb-3">
-      <div class="card h-100 data-card">
-        <div class="card-header">
-          <h5 class="card-title">
-            <i class="pi pi-percentage text-primary"></i>
-            Santé du stock
-          </h5>
-          <span class="text-muted small">{{ sd.totalProduits }} produits</span>
-        </div>
-        <div class="card-body">
-          <div class="mb-3">
-            <div class="d-flex justify-content-between mb-1">
-              <span class="text-success fw-semibold small">Produits couverts</span>
-              <span class="text-success fw-bold small">{{ getTauxOk() | number: '1.0-1' }}%</span>
-            </div>
-            <div class="progress" style="height: 6px">
-              <div [style.width.%]="getTauxOk()" class="progress-bar bg-success"></div>
-            </div>
+      <!-- Performance stock -->
+      <div class="col-12 col-lg-4 mb-3">
+        <div class="card h-100 data-card">
+          <div class="card-header">
+            <h5 class="card-title">
+              <i class="pi pi-percentage text-primary"></i>
+              Santé du stock
+            </h5>
+            <span class="text-muted small">{{ sd.totalProduits }} produits</span>
           </div>
-          <div class="mb-3">
-            <div class="d-flex justify-content-between mb-1">
-              <span class="text-danger fw-semibold small">Produits à risque</span>
-              <span class="text-danger fw-bold small">{{ getTauxRisque() | number: '1.0-1' }}
-                %</span>
+          <div class="card-body">
+            <div class="mb-3">
+              <div class="d-flex justify-content-between mb-1">
+                <span class="text-success fw-semibold small">Produits couverts</span>
+                <span class="text-success fw-bold small">{{ getTauxOk() | number: '1.0-1' }}%</span>
+              </div>
+              <div class="progress" style="height: 6px">
+                <div [style.width.%]="getTauxOk()" class="progress-bar bg-success"></div>
+              </div>
             </div>
-            <div class="progress" style="height: 6px">
-              <div [style.width.%]="getTauxRisque()" class="progress-bar bg-danger"></div>
+            <div class="mb-3">
+              <div class="d-flex justify-content-between mb-1">
+                <span class="text-danger fw-semibold small">Produits à risque</span>
+                <span class="text-danger fw-bold small">{{ getTauxRisque() | number: '1.0-1' }}
+                  %</span>
+              </div>
+              <div class="progress" style="height: 6px">
+                <div [style.width.%]="getTauxRisque()" class="progress-bar bg-danger"></div>
+              </div>
             </div>
-          </div>
-          <div class="border-top pt-3 mt-2">
-            <div class="d-flex justify-content-between small text-muted mb-1">
-              <span>Surstock</span>
-              <span class="text-info fw-semibold">{{ sd.nbSurstock }}</span>
-            </div>
-            <div class="d-flex justify-content-between small text-muted">
-              <span>Non configurés</span>
-              <span class="fw-semibold">{{ sd.nbSansConfig }}</span>
-            </div>
-            <div class="d-flex justify-content-between small text-muted mt-1">
-              <span>Unités manquantes</span>
-              <span class="text-danger fw-semibold">{{ sd.totalUnitesManquantes | number }}</span>
+            <div class="border-top pt-3 mt-2">
+              <div class="d-flex justify-content-between small text-muted mb-1">
+                <span>Surstock</span>
+                <span class="text-info fw-semibold">{{ sd.nbSurstock }}</span>
+              </div>
+              <div class="d-flex justify-content-between small text-muted">
+                <span>Non configurés</span>
+                <span class="fw-semibold">{{ sd.nbSansConfig }}</span>
+              </div>
+              <div class="d-flex justify-content-between small text-muted mt-1">
+                <span>Unités manquantes</span>
+                <span class="text-danger fw-semibold">{{ sd.totalUnitesManquantes | number }}</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-}
+  }
 
-<!-- ═══════════════════════════════════════════════════════════════════════════
-     SECTION 4 — Flux commandes
-════════════════════════════════════════════════════════════════════════════ -->
-@if (commandeDashboard(); as db) {
-  <div class="row mt-1">
+  <!-- ═══════════════════════════════════════════════════════════════════════════
+       SECTION 4 — Flux commandes
+  ════════════════════════════════════════════════════════════════════════════ -->
+  @if (commandeDashboard(); as db) {
+    <div class="row mt-1">
 
-    <!-- Commandes en cours -->
-    <div class="col-12 col-lg-6 col-xl-6 col-md-12 mb-3">
-      <div class="card h-100 data-card">
-        <div class="card-header">
-          <h5 class="card-title">
-            <i class="pi pi-file-edit text-primary"></i>
-            Commandes en cours
-          </h5>
-          <app-badge [label]="db.totalRequested.toString()" severity="info" />
-        </div>
-        <div class="card-body p-0">
-          <app-data-table
-            [paginator]="db.commandesRequested.length > 6"
-            [rows]="6"
-            [value]="db.commandesRequested"
-            class="p-datatable-sm"
-          >
-            <ng-template #header>
-              <tr class="pharma-table-head">
-                <th>Fournisseur</th>
-                <th class="text-end">Montant</th>
-                <th class="text-center">Date</th>
-                <th></th>
-              </tr>
-            </ng-template>
-            <ng-template #body let-row>
-              <tr (click)="openCommande(row)" class="cursor-pointer pharma-row-hover">
-                <td>
-                  <span class="fw-medium small">{{ row.fournisseurLibelle }}</span>
-                  @if (row.reliquatDeCommandeId != null) {
-                    <app-badge class="ms-1" label="RELIQUAT" severity="warn"
-                               style="font-size:0.6rem" />
-                  }
-                </td>
-                <td class="text-end pharma-price small">{{ row.grossAmount | number }} F</td>
-                <td class="text-center text-muted small">{{ row.orderDate | date: 'dd/MM/yyyy' }}
-                </td>
-                <td class="text-end">
-                  <app-button (clicked)="openCommande(row)" [text]="true" icon="pi pi-arrow-right"
-                              ngbTooltip="Ouvrir" severity="secondary"
-                              size="small" />
-                </td>
-              </tr>
-            </ng-template>
-            <ng-template #emptymessage>
-              <tr>
-                <td class="text-center text-muted py-3 small" colspan="4">Aucune commande en cours
-                </td>
-              </tr>
-            </ng-template>
-          </app-data-table>
-        </div>
-      </div>
-    </div>
-
-    <!-- En attente de réception -->
-    <div class="col-12 col-lg-6 col-xl-6 col-md-12  mb-3">
-      <div class="card h-100 data-card">
-        <div class="card-header">
-          <h5 class="card-title">
-            <i class="pi pi-truck text-warning"></i>
-            En attente de réception
-          </h5>
-          <app-badge [label]="db.totalReceived.toString()" severity="warn" />
-        </div>
-        <div class="card-body p-0">
-          <app-data-table
-            [paginator]="db.commandesReceived.length > 6"
-            [rows]="6"
-            [value]="db.commandesReceived"
-            class="p-datatable-sm"
-          >
-            <ng-template #header>
-              <tr class="pharma-table-head">
-                <th>Fournisseur</th>
-                <th>Réf. BL</th>
-                <th class="text-center">Date</th>
-                <th></th>
-              </tr>
-            </ng-template>
-            <ng-template #body let-row>
-              <tr (click)="openCommande(row)" class="cursor-pointer pharma-row-hover">
-                <td class="small">{{ row.fournisseurLibelle }}</td>
-                <td class="text-muted small">{{ row.orderReference ?? '—' }}</td>
-                <td class="text-center text-muted small">{{ row.orderDate | date: 'dd/MM/yyyy' }}
-                </td>
-                <td class="text-end">
-                  <app-button (clicked)="openCommande(row)" [text]="true" icon="pi pi-arrow-right"
-                              ngbTooltip="Saisir la réception" placement="left" severity="secondary"
-                              size="small" />
-                </td>
-              </tr>
-            </ng-template>
-            <ng-template #emptymessage>
-              <tr>
-                <td class="text-center text-muted py-3 small" colspan="4">Aucune réception en
-                  attente
-                </td>
-              </tr>
-            </ng-template>
-          </app-data-table>
+      <!-- Commandes en cours -->
+      <div class="col-12 col-lg-6 col-xl-6 col-md-12 mb-3">
+        <div class="card h-100 data-card">
+          <div class="card-header">
+            <h5 class="card-title">
+              <i class="pi pi-file-edit text-primary"></i>
+              Commandes en cours
+            </h5>
+            <app-badge [label]="db.totalRequested.toString()" severity="info" />
+          </div>
+          <div class="card-body p-0">
+            <app-data-table
+              [paginator]="db.commandesRequested.length > 6"
+              [rows]="6"
+              [value]="db.commandesRequested"
+              class="p-datatable-sm"
+            >
+              <ng-template #header>
+                <tr class="pharma-table-head">
+                  <th>Fournisseur</th>
+                  <th class="text-end">Montant</th>
+                  <th class="text-center">Date</th>
+                  <th></th>
+                </tr>
+              </ng-template>
+              <ng-template #body let-row>
+                <tr (click)="openCommande(row)" class="cursor-pointer pharma-row-hover">
+                  <td>
+                    <span class="fw-medium small">{{ row.fournisseurLibelle }}</span>
+                    @if (row.reliquatDeCommandeId != null) {
+                      <app-badge class="ms-1" label="RELIQUAT" severity="warn"
+                                 style="font-size:0.6rem" />
+                    }
+                  </td>
+                  <td class="text-end pharma-price small">{{ row.grossAmount | number }} F</td>
+                  <td class="text-center text-muted small">{{ row.orderDate | date: 'dd/MM/yyyy' }}
+                  </td>
+                  <td class="text-end">
+                    <app-button (clicked)="openCommande(row)" [text]="true" icon="pi pi-arrow-right"
+                                ngbTooltip="Ouvrir" severity="secondary"
+                                size="small" />
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template #emptymessage>
+                <tr>
+                  <td class="text-center text-muted py-3 small" colspan="4">Aucune commande en cours
+                  </td>
+                </tr>
+              </ng-template>
+            </app-data-table>
+          </div>
         </div>
       </div>
+
+      <!-- En attente de réception -->
+      <div class="col-12 col-lg-6 col-xl-6 col-md-12  mb-3">
+        <div class="card h-100 data-card">
+          <div class="card-header">
+            <h5 class="card-title">
+              <i class="pi pi-truck text-warning"></i>
+              En attente de réception
+            </h5>
+            <app-badge [label]="db.totalReceived.toString()" severity="warn" />
+          </div>
+          <div class="card-body p-0">
+            <app-data-table
+              [paginator]="db.commandesReceived.length > 6"
+              [rows]="6"
+              [value]="db.commandesReceived"
+              class="p-datatable-sm"
+            >
+              <ng-template #header>
+                <tr class="pharma-table-head">
+                  <th>Fournisseur</th>
+                  <th>Réf. BL</th>
+                  <th class="text-center">Date</th>
+                  <th></th>
+                </tr>
+              </ng-template>
+              <ng-template #body let-row>
+                <tr (click)="openCommande(row)" class="cursor-pointer pharma-row-hover">
+                  <td class="small">{{ row.fournisseurLibelle }}</td>
+                  <td class="text-muted small">{{ row.orderReference ?? '—' }}</td>
+                  <td class="text-center text-muted small">{{ row.orderDate | date: 'dd/MM/yyyy' }}
+                  </td>
+                  <td class="text-end">
+                    <app-button (clicked)="openCommande(row)" [text]="true" icon="pi pi-arrow-right"
+                                ngbTooltip="Saisir la réception" placement="left"
+                                severity="secondary"
+                                size="small" />
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template #emptymessage>
+                <tr>
+                  <td class="text-center text-muted py-3 small" colspan="4">Aucune réception en
+                    attente
+                  </td>
+                </tr>
+              </ng-template>
+            </app-data-table>
+          </div>
+        </div>
+      </div>
+
     </div>
+  }
 
-  </div>
-}
-
+</div>

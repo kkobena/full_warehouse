@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from "@angular/core";
+import {ChangeDetectionStrategy, Component, inject, input, OnInit, signal} from "@angular/core";
 import {HttpResponse} from "@angular/common/http";
 import {CommonModule} from "@angular/common";
 import {FormsModule} from "@angular/forms";
@@ -20,15 +20,24 @@ import {CustomerSegmentationReportService} from "../services/customer-segmentati
 import {TauriPrinterService} from "../../../shared/services/tauri-printer.service";
 import {handleBlobForTauri} from "../../../shared/util/tauri-util";
 
-import { DeviseDirective } from 'app/shared/utils/devise';
+import {DeviseDirective} from 'app/shared/utils/devise';
+
 @Component({
-  selector: "jhi-customer-segmentation",
+  selector: "app-customer-segmentation",
   templateUrl: "./customer-segmentation.component.html",
   styleUrl: "./customer-segmentation.component.scss",
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [DeviseDirective, CommonModule, FormsModule, BadgeComponent, ButtonComponent, DataTableComponent, SelectComponent, ToolbarComponent, SortableHeaderDirective]
 })
 export default class CustomerSegmentationComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement.
+   */
+  readonly navCode = input<string>('');
+
   customers = signal<ICustomerSegmentation[]>([]);
   classificationCounts = signal<Partial<Record<CustomerClassification, number>>>({});
   isLoading = signal<boolean>(false);

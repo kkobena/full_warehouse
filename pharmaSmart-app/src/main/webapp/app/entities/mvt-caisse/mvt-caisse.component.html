@@ -1,53 +1,38 @@
 <div class="container-fluid">
-  <div class="row">
-    <div class="col-lg-2 col-xl-2 col-md-3 col-sm-4">
-      <div class="pharma-nav-sidebar">
-        <div class="pharma-nav-sidebar-card">
-          <div class="pharma-nav-sidebar-header">
-            <i class="pi pi-wallet"></i>
-            <span>Gestion de caisse</span>
-          </div>
+  <app-nav-sidebar (collapsedChange)="menuReplie.set($event)" [collapsed]="menuReplie()"
+                   [collapsible]="true" [nav]="nav" contentColumnClass="col-lg-10 col-xl-10 col-md-9 col-sm-8"
+                   icon="pi pi-wallet" menuColumnClass="col-lg-2 col-xl-2 col-md-3 col-sm-4"
+                   title="Gestion de caisse">
+    <div #nav="ngbNav" [(activeId)]="active"
+         class="nav flex-column nav-pills" ngbNav orientation="vertical">
 
-          <div class="pharma-nav-sidebar-content">
-            <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
-                 orientation="vertical">
-
-              @if (showMvtCaisse()) {
-                <ng-container ngbNavItem="mvt-caisse">
-                  <a class="pharma-nav-vertical-link" ngbNavLink>
-                    <i class="pi pi-arrows-h"></i>
-                    <span>Mouvements de caisse</span>
-                    <span class="link-arrow">›</span>
-                  </a>
-                  <ng-template ngbNavContent>
-                    <app-visualisation-mvt-caisse></app-visualisation-mvt-caisse>
-                  </ng-template>
-                </ng-container>
-              }
+      @if (showMvtCaisse()) {
+        <ng-container ngbNavItem="mvt-caisse">
+          <a class="pharma-nav-vertical-link" ngbNavLink>
+            <app-nav-section-link code="mvt-caisse.mvt-caisse"
+                                  fallbackIcon="pi pi-arrows-h"
+                                  fallbackLabel="Mouvements de caisse" />
+          </a>
+          <ng-template ngbNavContent>
+            <app-visualisation-mvt-caisse navCode="mvt-caisse.mvt-caisse"></app-visualisation-mvt-caisse>
+          </ng-template>
+        </ng-container>
+      }
 
 
-              @if (showGestionCaisse()) {
-                <ng-container ngbNavItem="gestion-caisse">
-                  <a class="pharma-nav-vertical-link" ngbNavLink>
-                    <i class="pi pi-cog"></i>
-                    <span>Gestion de caisse</span>
-                    <span class="link-arrow">›</span>
-                  </a>
-                  <ng-template ngbNavContent>
-                    <app-gestion-caisse></app-gestion-caisse>
-                  </ng-template>
-                </ng-container>
-              }
+      @if (showGestionCaisse()) {
+        <ng-container ngbNavItem="gestion-caisse">       <a class="pharma-nav-vertical-link" ngbNavLink>
+            <app-nav-section-link code="mvt-caisse.gestion-caisse"
+                                  fallbackIcon="pi pi-cog"
+                                  fallbackLabel="Gestion de caisse" />
+          </a>
+          <ng-template ngbNavContent>
+            <app-gestion-caisse navCode="mvt-caisse.gestion-caisse"></app-gestion-caisse>
+          </ng-template>
+        </ng-container>
+      }
 
 
 
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
-    <div class="col-lg-10 col-xl-10 col-md-9 col-sm-8">
-      <div [ngbNavOutlet]="nav"></div>
-    </div>
-  </div>
-</div>
+  </app-nav-sidebar>

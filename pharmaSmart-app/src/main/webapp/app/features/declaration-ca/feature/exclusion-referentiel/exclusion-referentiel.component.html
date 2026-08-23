@@ -1,4 +1,4 @@
-<app-toolbar [title]="titre()" icon="pi pi-eye-slash">
+<app-toolbar [code]="navCode()" [title]="titre()" icon="pi pi-eye-slash">
   <app-badge
     [label]="nombreExclus() + ' exclu' + (nombreExclus() > 1 ? 's' : '')"
     [severity]="nombreExclus() > 0 ? 'warn' : 'secondary'"

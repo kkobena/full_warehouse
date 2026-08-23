@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from "@angular/core";
+import {ChangeDetectionStrategy, Component, inject, OnInit, signal, input} from "@angular/core";
 import {CommonModule, DatePipe} from "@angular/common";
 import {Router} from "@angular/router";
 import {HttpResponse} from "@angular/common/http";
@@ -41,6 +41,15 @@ import {
   ],
 })
 export class ApproUnifiedDashboardComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   readonly loadingCommandes = signal(true);
   readonly loadingSemois = signal(true);
   readonly lastRefresh = signal<Date | null>(null);

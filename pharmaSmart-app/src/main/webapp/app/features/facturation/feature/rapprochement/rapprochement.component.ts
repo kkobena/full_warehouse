@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
+import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy, input} from "@angular/core";
 import { HintComponent } from 'app/shared/ui/hint/hint.component';
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
@@ -64,6 +64,15 @@ interface IStatutOption {
   styleUrl: "./rapprochement.component.scss"
 })
 export class RapprochementComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   protected readonly statutOptions: IStatutOption[] = [
     { label: "Payé", value: "PAID" },
     { label: "Partiel", value: "PARTIALLY_PAID" },

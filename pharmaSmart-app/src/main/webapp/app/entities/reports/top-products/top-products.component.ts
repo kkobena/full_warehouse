@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy, input} from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { forkJoin } from "rxjs";
@@ -40,6 +40,14 @@ interface ITopProductRanked extends ITopProduct {
   ]
 })
 export default class TopProductsComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : ce rapport est parfois atteint depuis deux menus, qui ne le nomment
+   * pas de la même façon. Le titre suit celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   protected topProductsByRevenue = signal<ITopProductRanked[]>([]);
   protected topProductsByQuantity = signal<ITopProductRanked[]>([]);
   protected isLoading = signal<boolean>(false);

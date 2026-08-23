@@ -1,5 +1,5 @@
 import { NGB_DATE_TO_ISO } from '../../../shared/util/warehouse-util';
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy, input} from "@angular/core";
 import { HttpResponse } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
@@ -34,6 +34,14 @@ import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-da
   ]
 })
 export default class SalesSummaryComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : ce rapport est parfois atteint depuis deux menus, qui ne le nomment
+   * pas de la même façon. Le titre suit celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   summaries = signal<IDailySalesSummary[]>([]);
   isLoading = signal<boolean>(false);
   startDate = signal<NgbDateStruct | null>(null);

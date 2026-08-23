@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit} from "@angular/core";
+import {ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, input} from "@angular/core";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {finalize} from "rxjs/operators";
 import {HttpResponse} from "@angular/common/http";
@@ -66,6 +66,15 @@ import {
   styleUrl: "./historique-reglements.component.scss"
 })
 export class HistoriqueReglementsComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   protected datas: Reglement[] = [];
   protected selectedDatas: Reglement[] = [];
   protected loadingBtn = false;

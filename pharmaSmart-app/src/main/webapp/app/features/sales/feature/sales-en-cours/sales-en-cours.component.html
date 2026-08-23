@@ -1,7 +1,7 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-2">
     <!-- Modern Pharma Toolbar (Standard) -->
-    <app-toolbar icon="pi pi-clock" title="Ventes en cours">
+    <app-toolbar [code]="navCode()" icon="pi pi-clock" title="Ventes en cours">
       <ng-container ngProjectAs="[toolbarFilters]">
         <app-select
           (selectionChange)="load()"

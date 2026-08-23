@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy, input} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { RemiseRfaApiService } from '../../data-access/services/remise-rfa-api.service';
@@ -15,6 +15,15 @@ import { DeviseDirective, DevisePipe } from 'app/shared/utils/devise';
   styleUrl: './remises-rfa.component.scss',
 })
 export class RemisesRfaComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   rfas = signal<IRemiseRfaFournisseur[]>([]);
   avoirs = signal<IAvoirFournisseur[]>([]);
   isLoading = signal(false);

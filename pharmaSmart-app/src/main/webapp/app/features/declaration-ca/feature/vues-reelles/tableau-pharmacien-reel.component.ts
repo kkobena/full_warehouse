@@ -6,7 +6,7 @@ import { TableauPharmacienComponent } from 'app/entities/mvt-caisse/tableau-phar
 @Component({
   selector: 'app-tableau-pharmacien-reel',
   imports: [TableauPharmacienComponent],
-  template: ` <app-tableau-pharmacien mode="REEL" />`,
+  template: ` <app-tableau-pharmacien mode="REEL" navCode="declaration-ca.tableau-pharmacien-reel" />`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TableauPharmacienReelComponent {}

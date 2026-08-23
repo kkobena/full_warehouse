@@ -45,6 +45,15 @@ export class NavManagerComponent implements OnInit {
   /** ID de l'item dont on édite le libellé */
   protected readonly editingItemId = signal<number | null>(null);
   protected editingLibelle = "";
+  /**
+   * Quel champ est en cours d'édition sur la ligne ouverte.
+   *
+   * <p>Le libellé sert au menu, étroit et repliable ; le titre long à la barre d'outils de
+   * l'écran, qui a toute la largeur. Les deux se saisissent au même endroit, mais jamais en même
+   * temps — une ligne, un champ.
+   */
+  protected readonly editingField = signal<"libelle" | "titreLong">("libelle");
+  protected editingTitreLong = "";
   /** Terme de recherche — filtre par libellé, bypasse le collapse */
   protected readonly searchTerm = signal("");
   /** Arbre brut conservé pour la prévisualisation */
@@ -185,7 +194,43 @@ export class NavManagerComponent implements OnInit {
   // ── Édition inline du libellé ────────────────────────────────────────────
   startEdit(item: FlatNavNode): void {
     this.editingItemId.set(item.id);
+    this.editingField.set("libelle");
     this.editingLibelle = item.libelle;
+  }
+
+  /**
+   * Ouvre la saisie du titre long.
+   *
+   * <p>Pré-rempli avec le libellé quand aucun titre long n'existe : c'est la valeur qu'affiche la
+   * barre aujourd'hui, et le point de départ naturel pour l'allonger.
+   */
+  startEditTitreLong(item: FlatNavNode): void {
+    this.editingItemId.set(item.id);
+    this.editingField.set("titreLong");
+    this.editingTitreLong = item.titreLong ?? item.libelle;
+  }
+
+  saveTitreLong(item: FlatNavNode): void {
+    const saisi = this.editingTitreLong.trim();
+    // Égal au libellé, le titre long n'apporte rien : on l'efface pour que la barre suive le menu.
+    const titreLong = saisi === item.libelle ? "" : saisi;
+    if (titreLong === (item.titreLong ?? "")) {
+      this.cancelEdit();
+      return;
+    }
+    this.navApi.updateNavItemTitreLong(item.id, titreLong).subscribe({
+      next: () => {
+        const patch = (list: FlatNavNode[]) =>
+          list.map(i => (i.id === item.id ? { ...i, titreLong: titreLong || undefined } : i));
+        this.flatItems.update(patch);
+        this.visibleItems.update(patch);
+        this.cancelEdit();
+        this.notificationService.success(
+          titreLong ? "Titre de la barre d'outils mis à jour." : "Titre de la barre d'outils effacé : le libellé du menu s'applique.",
+        );
+      },
+      error: () => this.notificationService.error("Échec de la mise à jour du titre."),
+    });
   }
 
   saveEdit(item: FlatNavNode): void {
@@ -209,7 +254,9 @@ export class NavManagerComponent implements OnInit {
 
   cancelEdit(): void {
     this.editingItemId.set(null);
+    this.editingField.set("libelle");
     this.editingLibelle = "";
+    this.editingTitreLong = "";
   }
 
   /** Indentation progressive : grand écart entre GROUP (depth=0) et ses enfants. */

@@ -1,123 +1,92 @@
-<div class="row">
-  <!-- ── Sidebar navigation ──────────────────────────────────────────────── -->
-  <div class="col-lg-2 col-xl-2 col-xxl-2 col-md-3 col-sm-4">
-    <div class="pharma-nav-sidebar">
-      <div class="pharma-nav-sidebar-card">
-        <div class="pharma-nav-sidebar-header">
-          @switch (activeTab()) {
-            @case ('tournant') {
-              <i class="pi pi-sync"></i><span>Tournant</span>
-            }
-            @case ('clotures') {
-              <i class="pi pi-lock"></i><span>Clôturés</span>
-            }
-            @default {
-              <i class="pi pi-list-check"></i><span>Inventaires</span>
-            }
+<app-nav-sidebar (collapsedChange)="menuReplie.set($event)" [collapsed]="menuReplie()"
+                 [collapsible]="true" [icon]="enteteIcone()" [nav]="nav"
+                 [title]="enteteTitre()"
+                 contentColumnClass="col-xl-10 col-lg-10 col-md-9 col-sm-8 pharma-smart-content p-1"
+                 menuColumnClass="col-lg-2 col-xl-2 col-xxl-2 col-md-3 col-sm-4">
+  <div #nav="ngbNav" (navChange)="onNavChange($event)" [(activeId)]="activeTab"
+       class="nav flex-column nav-pills" ngbNav orientation="vertical">
+          @if (showEnCours()) {
+            <ng-container ngbNavItem="en-cours">
+              <a class="pharma-nav-vertical-link" ngbNavLink>
+                <app-nav-section-link code="inventaire.en-cours"
+                                      fallbackIcon="pi pi-refresh"
+                                      fallbackLabel="En cours" />
+              </a>
+              <ng-template ngbNavContent>
+                <ng-container *ngTemplateOutlet="enCoursTable" />
+              </ng-template>
+            </ng-container>
           }
-        </div>
-
-        <div class="pharma-nav-sidebar-content">
-          <div
-            #nav="ngbNav"
-            (navChange)="onNavChange($event)"
-            [(activeId)]="activeTab"
-            class="nav flex-column nav-pills"
-            ngbNav
-            orientation="vertical"
-          >
-            @if (showEnCours()) {
-              <ng-container ngbNavItem="en-cours">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-refresh"></i>
-                  <span>En cours</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  <ng-container *ngTemplateOutlet="enCoursTable" />
-                </ng-template>
-              </ng-container>
-            }
-            @if (showTournant()) {
-              <ng-container ngbNavItem="tournant">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-sync"></i>
-                  <span>Tournant</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  <app-planning-tournant-list />
-                </ng-template>
-              </ng-container>
-            }
-            @if (showClotures()) {
-              <ng-container ngbNavItem="clotures">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-lock"></i>
-                  <span>Clôturés</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  <ng-container *ngTemplateOutlet="cloturesTable" />
-                </ng-template>
-              </ng-container>
-            }
-          </div>
-        </div>
-      </div>
-    </div>
+          @if (showTournant()) {
+            <ng-container ngbNavItem="tournant">
+              <a class="pharma-nav-vertical-link" ngbNavLink>
+                <app-nav-section-link code="inventaire.tournant"
+                                      fallbackIcon="pi pi-sync"
+                                      fallbackLabel="Tournant" />
+              </a>
+              <ng-template ngbNavContent>
+                <app-planning-tournant-list />
+              </ng-template>
+            </ng-container>
+          }
+          @if (showClotures()) {
+            <ng-container ngbNavItem="clotures">
+              <a class="pharma-nav-vertical-link" ngbNavLink>
+                <app-nav-section-link code="inventaire.clotures"
+                                      fallbackIcon="pi pi-lock"
+                                      fallbackLabel="Clôturés" />
+              </a>
+              <ng-template ngbNavContent>
+                <ng-container *ngTemplateOutlet="cloturesTable" />
+              </ng-template>
+            </ng-container>
+          }
   </div>
 
-  <!-- ── Contenu principal ───────────────────────────────────────────────── -->
-  <div class="col-xl-10 col-lg-10 col-md-9 col-sm-8 ">
-    <div class="pharma-smart-content p-1">
-
-      <!-- Modern Pharma Toolbar -->
-      <app-toolbar [icon]="toolbarIcon()" [title]="toolbarTitle()">
-        <ng-container ngProjectAs="[toolbarActions]">
-          <div class="pharma-toolbar-actions py-1">
-            <div class="pharma-button-group">
-              @if (isTournantTab()) {
+  <ng-container ngProjectAs="[navContent]">
+    <app-toolbar [code]="codeOngletActif()" [icon]="toolbarIcon()" [title]="toolbarTitle()">
+      <ng-container ngProjectAs="[toolbarActions]">
+        <div class="pharma-toolbar-actions py-1">
+          <div class="pharma-button-group">
+            @if (isTournantTab()) {
+              <app-button
+                (clicked)="openCreatePlanningModal()"
+                [raised]="true"
+                icon="pi pi-plus"
+                label="Nouveau planning"
+                ngbTooltip="Nouveau planning tournant"
+                [severity]="'primary'"
+                [size]="'small'"
+              />
+            } @else {
+              <app-button
+                (clicked)="loadList()"
+                [raised]="true"
+                icon="pi pi-refresh"
+                label="Actualiser"
+                ngbTooltip="Actualiser la liste"
+                [severity]="'info'"
+                [size]="'small'"
+              />
+              @if (activeTab() === 'en-cours') {
                 <app-button
-                  (clicked)="openCreatePlanningModal()"
+                  [size]="'small'"
+                  (clicked)="openCreateModal()"
                   [raised]="true"
                   icon="pi pi-plus"
-                  label="Nouveau planning"
-                  ngbTooltip="Nouveau planning tournant"
-                  [severity]="'primary'"
-                  [size]="'small'"
+                  label="Nouveau"
+                  ngbTooltip="Nouvel inventaire"
+                  severity="success"
                 />
-              } @else {
-                <app-button
-                  (clicked)="loadList()"
-                  [raised]="true"
-                  icon="pi pi-refresh"
-                  label="Actualiser"
-                  ngbTooltip="Actualiser la liste"
-                  [severity]="'info'"
-                  [size]="'small'"
-                />
-                @if (activeTab() === 'en-cours') {
-                  <app-button
-                    [size]="'small'"
-                    (clicked)="openCreateModal()"
-                    [raised]="true"
-                    icon="pi pi-plus"
-                    label="Nouveau"
-                    ngbTooltip="Nouvel inventaire"
-                    severity="success"
-                  />
-                }
               }
-            </div>
+            }
           </div>
-        </ng-container>
-      </app-toolbar>
+        </div>
+      </ng-container>
+    </app-toolbar>
+  </ng-container>
+</app-nav-sidebar>
 
-      <div [ngbNavOutlet]="nav"></div>
-    </div>
-  </div>
-</div>
 
 <!-- ── Template : inventaires EN COURS ───────────────────────────────────────── -->
 <ng-template #enCoursTable>

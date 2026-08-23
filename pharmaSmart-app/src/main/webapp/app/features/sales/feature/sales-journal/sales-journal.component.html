@@ -1,7 +1,7 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-1">
     <!-- Modern Pharma Toolbar -->
-    <app-toolbar [compact]="true" icon="pi pi-shopping-cart" title="Journal des ventes">
+    <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-shopping-cart" title="Journal des ventes">
       <ng-container ngProjectAs="[toolbarFilters]">
         <app-multi-select
           (selectionChange)="onTypeVenteChange()"

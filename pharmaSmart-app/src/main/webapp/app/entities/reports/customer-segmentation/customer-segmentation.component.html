@@ -1,5 +1,5 @@
-<div class="pharma-smart-content p-2">
-  <app-toolbar icon="pi pi-users" title="Segmentation Clients (Analyse RFM)">
+<div class="pharma-smart-content p-1">
+  <app-toolbar [code]="navCode()" icon="pi pi-users" title="Segmentation Clients (Analyse RFM)">
 
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters flex gap-2">
@@ -96,7 +96,8 @@
       <i class="pi pi-dollar text-success"></i>
       <div class="kpi-strip-body">
         <span class="kpi-strip-label">CA total 12m</span>
-        <span class="kpi-strip-value text-success">{{ getTotalSpent() | number: '1.0-0' }} <small appDevise></small></span>
+        <span class="kpi-strip-value text-success">{{ getTotalSpent() | number: '1.0-0' }} <small
+          appDevise></small></span>
         <span class="kpi-strip-sub">chiffre d'affaires</span>
       </div>
     </div>
@@ -107,7 +108,8 @@
       <i class="pi pi-shopping-cart text-warning"></i>
       <div class="kpi-strip-body">
         <span class="kpi-strip-label">Panier moyen</span>
-        <span class="kpi-strip-value text-warning">{{ getAverageBasket() | number: '1.0-0' }}<small appDevise></small></span>
+        <span class="kpi-strip-value text-warning">{{ getAverageBasket() | number: '1.0-0' }}<small
+          appDevise></small></span>
         <span class="kpi-strip-sub">par client</span>
       </div>
     </div>

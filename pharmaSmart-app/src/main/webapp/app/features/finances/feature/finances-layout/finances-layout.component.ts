@@ -7,9 +7,11 @@ import { ComptesFournisseursComponent } from '../comptes-fournisseurs/comptes-fo
 import { RemisesRfaComponent } from '../remises-rfa/remises-rfa.component';
 import { ExportComptableComponent } from '../export-comptable/export-comptable.component';
 
+import { NavSidebarComponent } from 'app/shared/ui/nav-sidebar/nav-sidebar.component';
+import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-link.component';
 @Component({
   selector: 'app-finances-layout',
-  imports: [
+  imports: [NavSidebarComponent, NavSectionLinkComponent, 
     NgbNavModule,
     FinancesDashboardComponent,
     DeclarationTvaComponent,
@@ -24,6 +26,9 @@ import { ExportComptableComponent } from '../export-comptable/export-comptable.c
 export class FinancesLayoutComponent {
   active = signal<string>('dashboard');
 
+
+  /** Menu replié : rend la largeur au contenu quand il en manque. */
+  protected readonly menuReplie = signal(false);
   private readonly ability = inject(AbilityService);
 
   protected readonly showDashboard          = this.ability.canSignal('display', 'finances.dashboard');

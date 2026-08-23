@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, input, OnInit, signal} from '@angular/core';
 import {HttpResponse} from '@angular/common/http';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
@@ -19,7 +19,7 @@ import {
 const ITEMS_PER_PAGE = 15;
 
 @Component({
-  selector: 'jhi-stock-alerts',
+  selector: 'app-stock-alerts',
   templateUrl: './stock-alerts.component.html',
   styleUrl: './stock-alerts.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -33,6 +33,14 @@ const ITEMS_PER_PAGE = 15;
   ],
 })
 export default class StockAlertsComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement.
+   */
+  readonly navCode = input<string>('');
+
   alerts = signal<IStockAlert[]>([]);
   alertCounts = signal<Record<string, number>>({});
   selectedAlertTypes = signal<StockAlertType[]>([]);
@@ -105,10 +113,14 @@ export default class StockAlertsComponent implements OnInit {
 
   getAlertClass(alertType?: StockAlertType): string {
     switch (alertType) {
-      case StockAlertType.RUPTURE:    return 'alert-badge alert-rupture';
-      case StockAlertType.ALERTE:     return 'alert-badge alert-alerte';
-      case StockAlertType.PEREMPTION: return 'alert-badge alert-peremption';
-      default:                        return 'alert-badge alert-peremption';
+      case StockAlertType.RUPTURE:
+        return 'alert-badge alert-rupture';
+      case StockAlertType.ALERTE:
+        return 'alert-badge alert-alerte';
+      case StockAlertType.PEREMPTION:
+        return 'alert-badge alert-peremption';
+      default:
+        return 'alert-badge alert-peremption';
     }
   }
 

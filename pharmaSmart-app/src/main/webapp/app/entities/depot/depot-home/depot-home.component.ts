@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, signal} from '@angular/core';
 import { AbilityService } from 'app/core/auth/ability.service';
 import { NgbNav, NgbNavContent, NgbNavItem, NgbNavLink, NgbNavLinkBase, NgbNavOutlet } from '@ng-bootstrap/ng-bootstrap';
 import { DepotComponent } from '../depot.component';
@@ -7,9 +7,11 @@ import { StockDepotComponent } from '../stock-depot/stock-depot.component';
 import { DepotRetourListComponent } from '../depot-retour-list/depot-retour-list.component';
 import { CommonModule } from '@angular/common';
 
+import { NavSidebarComponent } from 'app/shared/ui/nav-sidebar/nav-sidebar.component';
+import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-link.component';
 @Component({
   selector: 'jhi-depot-home',
-  imports: [
+  imports: [NavSidebarComponent, NavSectionLinkComponent, 
     NgbNav,
     NgbNavContent,
     NgbNavItem,
@@ -29,6 +31,9 @@ import { CommonModule } from '@angular/common';
 export class DepotHomeComponent {
   protected active = 'liste-depots';
 
+
+  /** Menu replié : rend la largeur au contenu quand il en manque. */
+  protected readonly menuReplie = signal(false);
   private readonly ability = inject(AbilityService);
 
   protected readonly showListeDepots = this.ability.canSignal('display', 'depot.liste-depots');

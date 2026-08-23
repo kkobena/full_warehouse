@@ -1,5 +1,5 @@
 <!-- ── Toolbar : titre et barre de filtres ──────────────────────────────────── -->
-<app-toolbar [compact]="true" [icon]="icone()" [title]="titre()">
+<app-toolbar [code]="navCode()" [compact]="true" [icon]="icone()" [title]="titre()">
   <ng-container ngProjectAs="[toolbarFilters]">
     <div class="pharma-toolbar-filters flex-wrap gap-2">
       <pharma-date-picker

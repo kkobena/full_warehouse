@@ -1,5 +1,5 @@
 <div class="pharma-smart-content p-1">
-  <app-toolbar [compact]="true" icon="pi pi-ban" title="Annulations de ventes">
+  <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-ban" title="Annulations de ventes">
     <ng-container ngProjectAs="[toolbarFilters]">
       <app-select
         [(ngModel)]="selectedUserId"

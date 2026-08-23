@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import {signal, AfterViewInit, Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { PrixReference } from "../model/prix-reference.model";
@@ -29,7 +29,7 @@ type PriceType = (typeof PriceTypes)[keyof typeof PriceTypes];
   selector: "app-add-prix-form",
   imports: [DeviseDirective, ButtonComponent, ReactiveFormsModule, SelectComponent, SelectSearchComponent, InputNumberComponent, SwitchComponent, CardComponent],
   templateUrl: "./add-prix-form.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ["add-prix-form.scss"]
 })
 export class AddPrixFormComponent implements OnInit, AfterViewInit {
@@ -40,9 +40,9 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
   isFromProduit = true;
 
   // Template accessible properties
-  protected isSaving = false;
-  protected tiersPayants: ITiersPayant[] = [];
-  protected produits: IProduit[] = [];
+  protected readonly isSaving = signal(false);
+  protected readonly tiersPayants = signal([]);
+  protected readonly produits = signal([]);
   protected pricesType: { code: PriceType; libelle: string }[] = [
     {
       code: PriceTypes.REFERENCE,
@@ -101,7 +101,7 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    this.isSaving = true;
+    this.isSaving.set(true);
     const prixReference = this.createFromForm();
     if (prixReference.type !== PriceTypes.POURCENTAGE && prixReference.price > this.produit?.regularUnitPrice) {
       const message = `Le prix que vous avez saisi  <span class="fs-4 fw-semibold text-danger"> (${formatNumber(prixReference.price)})</span> est supérieur au prix de vente au public <span class="fs-4 fw-semibold text-success">(${formatNumber(this.produit?.regularUnitPrice)})</span>. Voulez-vous continuer ?`;
@@ -140,7 +140,7 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<{}>>): void {
-    result.pipe(finalize(() => (this.isSaving = false))).subscribe({
+    result.pipe(finalize(() => (this.isSaving.set(false)))).subscribe({
       next: () => this.onSaveSuccess(),
       error: (err: any) => this.onSaveError(err)
     });
@@ -229,7 +229,7 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
       })
       .subscribe({
         next: (res: HttpResponse<ITiersPayant[]>) => {
-          this.tiersPayants = res.body || [];
+          this.tiersPayants.set(res.body || []);
         },
         error: (err: HttpErrorResponse) => this.onSaveError(err)
       });
@@ -244,7 +244,7 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
       })
       .subscribe({
         next: (res: HttpResponse<IProduit[]>) => {
-          this.produits = res.body || [];
+          this.produits.set(res.body || []);
         },
         error: (err: HttpErrorResponse) => this.onSaveError(err)
       });

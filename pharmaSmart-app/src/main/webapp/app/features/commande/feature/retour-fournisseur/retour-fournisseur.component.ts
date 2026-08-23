@@ -57,7 +57,7 @@ export type RetourTab = "EN_ATTENTE" | "HISTORIQUE" | "AVOIRS" | "GROUPE";
   selector: "app-retour-fournisseur",
   templateUrl: "./retour-fournisseur.component.html",
   styleUrls: ["./retour-fournisseur.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -77,10 +77,10 @@ export type RetourTab = "EN_ATTENTE" | "HISTORIQUE" | "AVOIRS" | "GROUPE";
   ]
 })
 export class AppRetourFournisseurComponent implements OnInit {
-  protected search = "";
-  protected selectedStatut: RetourBonStatut | null = RetourBonStatut.VALIDATED;
-  protected dtStart: NgbDateStruct | null = null;
-  protected dtEnd: NgbDateStruct | null = null;
+  protected readonly search = signal("");
+  protected readonly selectedStatut = signal<RetourBonStatut | null>(RetourBonStatut.VALIDATED);
+  protected readonly dtStart = signal<NgbDateStruct | null>(null);
+  protected readonly dtEnd = signal<NgbDateStruct | null>(null);
 
   /** Onglet actif : retours en cours (VALIDATED/PROCESSING) ou historique (CLOSED) */
   protected activeTab = signal<RetourTab>("EN_ATTENTE");
@@ -145,9 +145,9 @@ export class AppRetourFournisseurComponent implements OnInit {
       return;
     }
     this.activeTab.set(tab);
-    this.search = "";
-    this.dtStart = null;
-    this.dtEnd = null;
+    this.search.set("");
+    this.dtStart.set(null);
+    this.dtEnd.set(null);
     this.loadBadges();
     if (tab === "AVOIRS") {
       return;
@@ -156,7 +156,7 @@ export class AppRetourFournisseurComponent implements OnInit {
       this.loadGroupes();
       return;
     }
-    this.selectedStatut = tab === "EN_ATTENTE" ? null : RetourBonStatut.CLOSED;
+    this.selectedStatut.set(tab === "EN_ATTENTE" ? null : RetourBonStatut.CLOSED);
     this.page.set(0);
     this.loadAll();
   }
@@ -194,20 +194,20 @@ export class AppRetourFournisseurComponent implements OnInit {
       page: this.page(),
       size: this.itemsPerPage
     };
-    if (this.dtStart) {
-      query.dtStart = NGB_DATE_TO_ISO(this.dtStart);
+    if (this.dtStart()) {
+      query.dtStart = NGB_DATE_TO_ISO(this.dtStart());
     }
-    if (this.dtEnd) {
-      query.dtEnd = NGB_DATE_TO_ISO(this.dtEnd);
+    if (this.dtEnd()) {
+      query.dtEnd = NGB_DATE_TO_ISO(this.dtEnd());
     }
-    if (this.search) {
-      query.search = this.search;
+    if (this.search()) {
+      query.search = this.search();
     }
 
     if (this.activeTab() === "HISTORIQUE") {
       query.statut = RetourBonStatut.CLOSED;
-    } else if (this.selectedStatut) {
-      query.statut = this.selectedStatut;
+    } else if (this.selectedStatut()) {
+      query.statut = this.selectedStatut();
     } else {
       // EN_ATTENTE sans filtre : exclure CLOSED
       query.excludeStatut = RetourBonStatut.CLOSED;
@@ -399,20 +399,20 @@ export class AppRetourFournisseurComponent implements OnInit {
     const statutToUse =
       this.activeTab() === "HISTORIQUE"
         ? RetourBonStatut.CLOSED
-        : this.selectedStatut;
+        : this.selectedStatut();
 
     const params: Record<string, string> = {};
     if (statutToUse) {
       params["statut"] = statutToUse;
     }
-    if (this.dtStart) {
-      params["dtStart"] = NGB_DATE_TO_ISO(this.dtStart)!;
+    if (this.dtStart()) {
+      params["dtStart"] = NGB_DATE_TO_ISO(this.dtStart())!;
     }
-    if (this.dtEnd) {
-      params["dtEnd"] = NGB_DATE_TO_ISO(this.dtEnd)!;
+    if (this.dtEnd()) {
+      params["dtEnd"] = NGB_DATE_TO_ISO(this.dtEnd())!;
     }
-    if (this.search) {
-      params["search"] = this.search;
+    if (this.search()) {
+      params["search"] = this.search();
     }
 
     this.retourBonService.export(format, params).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({

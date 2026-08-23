@@ -36,7 +36,7 @@ import {formatDecimal, formatNumber, formatPercent} from 'app/shared/utils/forma
     PharmaDatePickerComponent,
   ],
   templateUrl: './market-basket.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './market-basket.component.scss',
 })
 export default class MarketBasketComponent implements OnInit {

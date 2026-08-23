@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import { Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy, signal } from "@angular/core";
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { CashRegister } from "../model/cash-register.model";
 import { Ticketing } from "../model/ticketing.model";
@@ -22,7 +22,7 @@ import { DeviseDirective, DevisePipe } from 'app/shared/utils/devise';
   ],
 
   templateUrl: "./ticketing-improved.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ["./ticketing-improved.scss"]
 })
 export class TicketingComponent implements OnInit {
@@ -30,8 +30,7 @@ export class TicketingComponent implements OnInit {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly entityService = inject(CashRegisterService);
   protected fb = inject(FormBuilder);
-  protected isSaving = false;
-  protected display = false;
+  protected readonly isSaving = signal(false);
   protected totalAmount = 0;
   protected editForm = this.fb.group({
     id: new FormControl<number | null>(null, {}),
@@ -107,11 +106,11 @@ export class TicketingComponent implements OnInit {
   }
 
   private doTicketing(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const ticketing = this.createFromForm();
     this.entityService.doTicketing(ticketing).subscribe({
       next: () => {
-        this.isSaving = false;
+        this.isSaving.set(false);
 
         this.notificationService.success("Billetage effectué avec succès");
         setTimeout(() => {
@@ -119,7 +118,7 @@ export class TicketingComponent implements OnInit {
         }, 2000);
       },
       error: () => {
-        this.isSaving = false;
+        this.isSaving.set(false);
         this.showError();
       }
     });

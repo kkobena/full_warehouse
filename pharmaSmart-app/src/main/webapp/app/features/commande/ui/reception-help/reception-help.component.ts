@@ -114,7 +114,7 @@ import { ButtonComponent } from "app/shared/ui";
   imports: [
     ButtonComponent
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ["reception-help.scss"]
 })
 export class ReceptionHelpComponent {

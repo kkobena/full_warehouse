@@ -77,7 +77,7 @@
               <div class="regler-panel">
                 <app-reglement-differe-form
                   [differe]="differe()"
-                  [isSaving]="isSaving"
+                  [isSaving]="isSaving()"
                   (reglementParams)="onSaveReglement($event)"
                   (rendu)="onMonnaieChange($event)" />
               </div>
@@ -92,7 +92,7 @@
             <span>Historique</span>
           </a>
           <ng-template ngbNavContent>
-            @if (loadingReglements) {
+            @if (loadingReglements()) {
               <div class="d-flex justify-content-center p-4">
                 <div class="spinner-border text-primary" role="status" style="width: 40px; height: 40px">
                   <span class="visually-hidden">Chargement…</span>

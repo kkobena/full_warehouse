@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, viewChild} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, OnInit, viewChild, signal } from '@angular/core';
 import {RouterModule} from '@angular/router';
 import {HttpErrorResponse, HttpHeaders, HttpResponse} from '@angular/common/http';
 import {Observable} from 'rxjs';
@@ -32,7 +32,7 @@ import {
   selector: 'app-laboratoire-produit',
   templateUrl: './laboratoire-produit.component.html',
   styleUrl: './laboratoire-produit.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterModule,
     FormsModule,
@@ -46,11 +46,11 @@ import {
 })
 export class LaboratoireProduitComponent implements OnInit {
   protected responsedto!: IResponseDto;
-  protected entites: ILaboratoire[] = [];
-  protected totalItems = 0;
+  protected readonly entites = signal<ILaboratoire[]>([]);
+  protected readonly totalItems = signal(0);
   protected itemsPerPage = ITEMS_PER_PAGE;
-  protected page = 0;
-  protected loading = false;
+  protected readonly page = signal(0);
+  protected readonly loading = signal(false);
   private readonly modalService = inject(NgbModal);
   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly errorService = inject(ErrorService);
@@ -63,9 +63,9 @@ export class LaboratoireProduitComponent implements OnInit {
   }
 
   protected loadPage(page?: number, search?: string): void {
-    const pageToLoad: number = page || this.page;
+    const pageToLoad: number = page || this.page();
     const query: string = search || '';
-    this.loading = true;
+    this.loading.set(true);
     this.entityService
       .query({
         page: pageToLoad,
@@ -79,15 +79,15 @@ export class LaboratoireProduitComponent implements OnInit {
   }
 
   protected lazyLoading(event: AppTableLazyLoadEvent): void {
-    this.page = event.first / event.rows;
-    this.loading = true;
+    this.page.set(event.first / event.rows);
+    this.loading.set(true);
     this.entityService
       .query({
-        page: this.page,
+        page: this.page(),
         size: event.rows,
       })
       .subscribe({
-        next: (res: HttpResponse<ILaboratoire[]>) => this.onSuccess(res.body, res.headers, this.page),
+        next: (res: HttpResponse<ILaboratoire[]>) => this.onSuccess(res.body, res.headers, this.page()),
         error: err => this.onError(err),
       });
   }
@@ -156,14 +156,14 @@ export class LaboratoireProduitComponent implements OnInit {
   }
 
   private onSuccess(data: ILaboratoire[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get('X-Total-Count'));
-    this.page = page;
-    this.entites = data || [];
-    this.loading = false;
+    this.totalItems.set(Number(headers.get('X-Total-Count')));
+    this.page.set(page);
+    this.entites.set(data || []);
+    this.loading.set(false);
   }
 
   private onError(error: HttpErrorResponse): void {
-    this.loading = false;
+    this.loading.set(false);
     this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 

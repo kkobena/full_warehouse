@@ -35,7 +35,7 @@
 
     @if (hasMultipleStorages) {
       <app-select
-        [(ngModel)]="selectedStorage"
+        [ngModel]="selectedStorage()" (ngModelChange)="selectedStorage.set($event)"
         [clearable]="true"
         [items]="productStorages"
         [style]="{ 'min-width': '170px' }"
@@ -48,7 +48,7 @@
     <!-- Filtre multi-types de mouvement (visibilité colonnes + filtre serveur) -->
     <app-multi-select
       (selectionChange)="onTypesChange($event)"
-      [(ngModel)]="selectedTypes"
+      [ngModel]="selectedTypes()" (ngModelChange)="selectedTypes.set($event)"
       [clearable]="true"
       [items]="MOVEMENT_TYPE_OPTIONS"
       [style]="{ 'min-width': '210px' }"
@@ -140,53 +140,53 @@
       </tr>
       <!-- Ligne 2 : colonnes détaillées -->
       <tr class="pharma-table-head">
-        @if (isFieldVisible('saleQuantity')) {
+        @if (isFieldVisible('saleQuantity()')) {
           <th class="text-end" title="Quantité vendue (comptant + tiers-payant)">Vente
           </th>
         }
-        @if (isFieldVisible('retourFournisseurQuantity')) {
+        @if (isFieldVisible('retourFournisseurQuantity()')) {
           <th class="text-end" title="Quantité retournée au fournisseur">Ret.
             four.
           </th>
         }
-        @if (isFieldVisible('perimeQuantity')) {
+        @if (isFieldVisible('perimeQuantity()')) {
           <th class="text-end" title="Quantité retirée pour péremption">
             Périmée
           </th>
         }
-        @if (isFieldVisible('ajustementNegatifQuantity')) {
+        @if (isFieldVisible('ajustementNegatifQuantity()')) {
           <th class="text-end" title="Ajustement négatif de stock">Ajust.−
           </th>
         }
-        @if (isFieldVisible('deconNegatifQuantity')) {
+        @if (isFieldVisible('deconNegatifQuantity()')) {
           <th class="text-end" title="Déconditionnement sortant (boîte → unités)">Décon.−
           </th>
         }
-        @if (isFieldVisible('mouvementStockOut')) {
+        @if (isFieldVisible('mouvementStockOut()')) {
           <th class="text-end" title="Déplacement de stock sortant (vers réserve)">Transf.↓
           </th>
         }
-        @if (isFieldVisible('deleveryQuantity')) {
+        @if (isFieldVisible('deleveryQuantity()')) {
           <th class="text-end" title="Entrée en stock (réception fournisseur)">Entrée
           </th>
         }
-        @if (isFieldVisible('ajustementPositifQuantity')) {
+        @if (isFieldVisible('ajustementPositifQuantity()')) {
           <th class="text-end" title="Ajustement positif de stock">Ajust.+
           </th>
         }
-        @if (isFieldVisible('deconPositifQuantity')) {
+        @if (isFieldVisible('deconPositifQuantity()')) {
           <th class="text-end" title="Déconditionnement entrant (retour en boîte)">Décon.+
           </th>
         }
-        @if (isFieldVisible('canceledQuantity')) {
+        @if (isFieldVisible('canceledQuantity()')) {
           <th class="text-end" title="Vente annulée — quantité remise en stock">Annulée
           </th>
         }
-        @if (isFieldVisible('mouvementStockIn')) {
+        @if (isFieldVisible('mouvementStockIn()')) {
           <th class="text-end" title="Déplacement de stock entrant (depuis rayon)">Transf.↑
           </th>
         }
-        @if (hasDepot() && isFieldVisible('retourDepot')) {
+        @if (hasDepot() && isFieldVisible('retourDepot()')) {
           <th class="text-end" title="Retour depuis le dépôt">Ret. dépôt</th>
         }
       </tr>
@@ -196,61 +196,61 @@
       <tr [class]="rowClass(row)">
         <td>{{ row.mvtDate | date: 'dd/MM/yyyy' }}</td>
         <td class="text-end"><span class="pharma-qty-value">{{ row.initStock | number }}</span></td>
-        @if (isFieldVisible('saleQuantity')) {
+        @if (isFieldVisible('saleQuantity()')) {
           <td class="text-end"><span [class.mvt-qty-zero]="!row.saleQuantity">{{
               qty(row.saleQuantity)
             }}</span></td>
         }
-        @if (isFieldVisible('retourFournisseurQuantity')) {
+        @if (isFieldVisible('retourFournisseurQuantity()')) {
           <td class="text-end"><span [class.mvt-qty-zero]="!row.retourFournisseurQuantity">{{
               qty(row.retourFournisseurQuantity)
             }}</span></td>
         }
-        @if (isFieldVisible('perimeQuantity')) {
+        @if (isFieldVisible('perimeQuantity()')) {
           <td class="text-end"><span [class.mvt-qty-zero]="!row.perimeQuantity">{{
               qty(row.perimeQuantity)
             }}</span></td>
         }
-        @if (isFieldVisible('ajustementNegatifQuantity')) {
+        @if (isFieldVisible('ajustementNegatifQuantity()')) {
           <td class="text-end"><span [class.mvt-qty-zero]="!row.ajustementNegatifQuantity">{{
               qty(row.ajustementNegatifQuantity)
             }}</span></td>
         }
-        @if (isFieldVisible('deconNegatifQuantity')) {
+        @if (isFieldVisible('deconNegatifQuantity()')) {
           <td class="text-end"><span [class.mvt-qty-zero]="!row.deconNegatifQuantity">{{
               qty(row.deconNegatifQuantity)
             }}</span></td>
         }
-        @if (isFieldVisible('mouvementStockOut')) {
+        @if (isFieldVisible('mouvementStockOut()')) {
           <td class="text-end"><span [class.mvt-qty-zero]="!row.mouvementStockOut">{{
               qty(row.mouvementStockOut)
             }}</span></td>
         }
-        @if (isFieldVisible('deleveryQuantity')) {
+        @if (isFieldVisible('deleveryQuantity()')) {
           <td class="text-end"><span [class.mvt-qty-zero]="!row.deleveryQuantity">{{
               qty(row.deleveryQuantity)
             }}</span></td>
         }
-        @if (isFieldVisible('ajustementPositifQuantity')) {
+        @if (isFieldVisible('ajustementPositifQuantity()')) {
           <td class="text-end"><span [class.mvt-qty-zero]="!row.ajustementPositifQuantity">{{
               qty(row.ajustementPositifQuantity)
             }}</span></td>
         }
-        @if (isFieldVisible('deconPositifQuantity')) {
+        @if (isFieldVisible('deconPositifQuantity()')) {
           <td class="text-end"><span [class.mvt-qty-zero]="!row.deconPositifQuantity">{{
               qty(row.deconPositifQuantity)
             }}</span></td>
         }
-        @if (isFieldVisible('canceledQuantity')) {
+        @if (isFieldVisible('canceledQuantity()')) {
           <td class="text-end text-danger"><span
             [class.mvt-qty-zero]="!row.canceledQuantity">{{ qty(row.canceledQuantity) }}</span></td>
         }
-        @if (isFieldVisible('mouvementStockIn')) {
+        @if (isFieldVisible('mouvementStockIn()')) {
           <td class="text-end"><span [class.mvt-qty-zero]="!row.mouvementStockIn">{{
               qty(row.mouvementStockIn)
             }}</span></td>
         }
-        @if (hasDepot() && isFieldVisible('retourDepot')) {
+        @if (hasDepot() && isFieldVisible('retourDepot()')) {
           <td class="text-end"><span [class.mvt-qty-zero]="!row.retourDepot">{{
               qty(row.retourDepot)
             }}</span></td>
@@ -279,52 +279,52 @@
       @if (entites().length > 0) {
         <tr class="pharma-table-footer">
           <td colspan="2"><span class="pharma-footer-label">Totaux</span></td>
-          @if (isFieldVisible('saleQuantity')) {
+          @if (isFieldVisible('saleQuantity()')) {
             <td class="text-end"><span
-              class="pharma-footer-value">{{ saleQuantity | number }}</span></td>
+              class="pharma-footer-value">{{ saleQuantity() | number }}</span></td>
           }
-          @if (isFieldVisible('retourFournisseurQuantity')) {
+          @if (isFieldVisible('retourFournisseurQuantity()')) {
             <td class="text-end"><span
-              class="pharma-footer-value">{{ retourFournisseurQuantity | number }}</span></td>
+              class="pharma-footer-value">{{ retourFournisseurQuantity() | number }}</span></td>
           }
-          @if (isFieldVisible('perimeQuantity')) {
+          @if (isFieldVisible('perimeQuantity()')) {
             <td class="text-end"><span
-              class="pharma-footer-value">{{ perimeQuantity | number }}</span></td>
+              class="pharma-footer-value">{{ perimeQuantity() | number }}</span></td>
           }
-          @if (isFieldVisible('ajustementNegatifQuantity')) {
+          @if (isFieldVisible('ajustementNegatifQuantity()')) {
             <td class="text-end"><span
-              class="pharma-footer-value">{{ ajustementNegatifQuantity | number }}</span></td>
+              class="pharma-footer-value">{{ ajustementNegatifQuantity() | number }}</span></td>
           }
-          @if (isFieldVisible('deconNegatifQuantity')) {
+          @if (isFieldVisible('deconNegatifQuantity()')) {
             <td class="text-end"><span
-              class="pharma-footer-value">{{ deconNegatifQuantity | number }}</span></td>
+              class="pharma-footer-value">{{ deconNegatifQuantity() | number }}</span></td>
           }
-          @if (isFieldVisible('mouvementStockOut')) {
+          @if (isFieldVisible('mouvementStockOut()')) {
             <td class="text-end"><span
-              class="pharma-footer-value">{{ mouvementStockOut | number }}</span></td>
+              class="pharma-footer-value">{{ mouvementStockOut() | number }}</span></td>
           }
-          @if (isFieldVisible('deleveryQuantity')) {
+          @if (isFieldVisible('deleveryQuantity()')) {
             <td class="text-end"><span
-              class="pharma-footer-value">{{ deleveryQuantity | number }}</span></td>
+              class="pharma-footer-value">{{ deleveryQuantity() | number }}</span></td>
           }
-          @if (isFieldVisible('ajustementPositifQuantity')) {
+          @if (isFieldVisible('ajustementPositifQuantity()')) {
             <td class="text-end"><span
-              class="pharma-footer-value">{{ ajustementPositifQuantity | number }}</span></td>
+              class="pharma-footer-value">{{ ajustementPositifQuantity() | number }}</span></td>
           }
-          @if (isFieldVisible('deconPositifQuantity')) {
+          @if (isFieldVisible('deconPositifQuantity()')) {
             <td class="text-end"><span
-              class="pharma-footer-value">{{ deconPositifQuantity | number }}</span></td>
+              class="pharma-footer-value">{{ deconPositifQuantity() | number }}</span></td>
           }
-          @if (isFieldVisible('canceledQuantity')) {
+          @if (isFieldVisible('canceledQuantity()')) {
             <td class="text-end text-danger"><span
-              class="pharma-footer-value">{{ canceledQuantity | number }}</span></td>
+              class="pharma-footer-value">{{ canceledQuantity() | number }}</span></td>
           }
-          @if (isFieldVisible('mouvementStockIn')) {
+          @if (isFieldVisible('mouvementStockIn()')) {
             <td class="text-end"><span
-              class="pharma-footer-value">{{ mouvementStockIn | number }}</span></td>
+              class="pharma-footer-value">{{ mouvementStockIn() | number }}</span></td>
           }
-          @if (hasDepot() && isFieldVisible('retourDepot')) {
-            <td class="text-end"><span class="pharma-footer-value">{{ retourDepot | number }}</span>
+          @if (hasDepot() && isFieldVisible('retourDepot()')) {
+            <td class="text-end"><span class="pharma-footer-value">{{ retourDepot() | number }}</span>
             </td>
           }
           <td colspan="3"></td>

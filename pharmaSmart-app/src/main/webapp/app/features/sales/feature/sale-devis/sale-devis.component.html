@@ -8,7 +8,7 @@
       <app-icon-field icon="pi pi-search" [overlay]="true" class="search-input-wrapper">
         <input #searchInput
                (keydown.enter)="onSearchCustomer()"
-               [(ngModel)]="search"
+               [ngModel]="search()" (ngModelChange)="search.set($event)"
                autocomplete="off"
                class="form-control search-input"
                placeholder="Rechercher un client..."

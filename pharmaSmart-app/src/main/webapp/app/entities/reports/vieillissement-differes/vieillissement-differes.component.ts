@@ -26,7 +26,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
     ToolbarComponent
   ],
   templateUrl: './vieillissement-differes.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./vieillissement-differes.component.scss'],
 })
 export default class VieillissementDifferesComponent implements OnInit {

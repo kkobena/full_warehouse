@@ -9,7 +9,7 @@
           <app-multi-select
             (searched)="searchTiersPayant($event)"
             [(ngModel)]="selectedTiersPayants"
-            [items]="tiersPayantSuggestions"
+            [items]="tiersPayantSuggestions()"
             [minSearchLength]="2"
             appendTo="body"
             bindLabel="fullName"
@@ -17,7 +17,7 @@
           />
         </app-float-label>
 
-        <pharma-date-picker [(ngModel)]="modelStartDate" [style]="{ 'max-width': '180px' }" id="rapr-du"
+        <pharma-date-picker [ngModel]="modelStartDate()" (ngModelChange)="modelStartDate.set($event)" [style]="{ 'max-width': '180px' }" id="rapr-du"
                             label="Du" />
 
         <pharma-date-picker [(ngModel)]="modelEndDate" [style]="{ 'max-width': '180px' }" id="rapr-au"

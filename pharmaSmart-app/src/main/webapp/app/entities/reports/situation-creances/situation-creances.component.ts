@@ -19,7 +19,7 @@ import {
     DataTableComponent
   ],
   templateUrl: './situation-creances.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./situation-creances.component.scss'],
 })
 export default class SituationCreancesComponent implements OnInit {

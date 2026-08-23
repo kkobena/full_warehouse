@@ -60,7 +60,7 @@ interface IStatutOption {
     PharmaDatePickerComponent
   ],
   templateUrl: "./rapprochement.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./rapprochement.component.scss"
 })
 export class RapprochementComponent implements OnInit {
@@ -79,10 +79,10 @@ export class RapprochementComponent implements OnInit {
     { label: "Impayé", value: "NOT_PAID" }
   ];
 
-  protected modelStartDate: NgbDateStruct;
+  protected readonly modelStartDate = signal<NgbDateStruct | undefined>(undefined);
   protected modelEndDate: NgbDateStruct = TODAY_NGB_DATE();
   protected selectedStatut: string[] = [];
-  protected tiersPayantSuggestions: ITiersPayant[] = [];
+  protected readonly tiersPayantSuggestions = signal<ITiersPayant[]>([]);
   protected selectedTiersPayants: ITiersPayant[] = [];
 
   protected readonly rapprochements = signal<IEtatRapprochement[]>([]);
@@ -126,7 +126,7 @@ export class RapprochementComponent implements OnInit {
   constructor() {
     const d = new Date();
     d.setMonth(d.getMonth() - 1);
-    this.modelStartDate = { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
+    this.modelStartDate.set({ year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() });
   }
 
   ngOnInit(): void {
@@ -180,7 +180,7 @@ export class RapprochementComponent implements OnInit {
     this.tiersPayantService
       .query({ page: 0, search: query, size: 10 })
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(res => (this.tiersPayantSuggestions = res.body ?? []));
+      .subscribe(res => (this.tiersPayantSuggestions.set(res.body ?? [])));
   }
 
   openReglementModal(ligne: ILigneRapprochement): void {
@@ -307,7 +307,7 @@ export class RapprochementComponent implements OnInit {
 
   private buildParams(): any {
     return {
-      startDate: NGB_DATE_TO_ISO(this.modelStartDate),
+      startDate: NGB_DATE_TO_ISO(this.modelStartDate()),
       endDate: NGB_DATE_TO_ISO(this.modelEndDate),
       tiersPayantIds: this.selectedTiersPayants.map(t => t.id),
       statuts: this.selectedStatut ?? []

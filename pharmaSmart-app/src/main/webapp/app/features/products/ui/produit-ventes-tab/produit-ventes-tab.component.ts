@@ -22,7 +22,7 @@ Chart.register(...registerables);
   selector: 'app-produit-ventes-tab',
   templateUrl: './produit-ventes-tab.component.html',
   styleUrls: ['./produit-ventes-tab.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

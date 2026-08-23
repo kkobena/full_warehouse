@@ -15,7 +15,7 @@ Chart.register(...registerables);
   selector: 'app-cash-flow-bfr',
   templateUrl: './cash-flow-bfr.component.html',
   styleUrl: './cash-flow-bfr.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeviseDirective, CommonModule],
 })
 export default class CashFlowBfrComponent implements OnInit, OnDestroy {

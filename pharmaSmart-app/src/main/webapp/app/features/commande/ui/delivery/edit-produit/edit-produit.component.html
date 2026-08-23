@@ -87,7 +87,7 @@
             <div class="form-field form-field-full">
               <label for="tvaId">Tva<span class="required">*</span></label>
               <app-select
-                [items]="tvas"
+                [items]="tvas()"
                 bindLabel="tva"
                 bindValue="id"
                 formControlName="tvaId"
@@ -101,7 +101,7 @@
             <div class="form-field form-field-full">
               <label for="rayonId">Rayon</label>
               <app-select
-                [items]="rayons"
+                [items]="rayons()"
                 bindLabel="libelle"
                 bindValue="id"
                 formControlName="rayonId"
@@ -135,7 +135,7 @@
     </app-button>
 
     <app-button
-      [disabled]="editForm.invalid || isSaving || !isValid"
+      [disabled]="editForm.invalid || isSaving() || !isValid()"
       [raised]="true"
       icon="pi pi-check"
       label="Enregistrer"

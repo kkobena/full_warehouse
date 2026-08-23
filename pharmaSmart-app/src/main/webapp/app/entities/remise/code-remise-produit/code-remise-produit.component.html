@@ -19,7 +19,7 @@
         </tr>
       </thead>
       <tbody class="table-group-divider">
-        @for (code of entites; track code.value; let i = $index) {
+        @for (code of entites(); track code.value; let i = $index) {
           <tr>
             <td>{{ code.value }}</td>
             @if (code.value !== '0') {

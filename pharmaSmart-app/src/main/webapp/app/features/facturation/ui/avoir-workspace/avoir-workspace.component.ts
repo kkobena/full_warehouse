@@ -40,7 +40,7 @@ interface LigneSaisie extends IFactureItem {
     SelectableRowDirective
   ],
   templateUrl: './avoir-workspace.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './avoir-workspace.component.scss',
 })
 export class AvoirWorkspaceComponent {
@@ -53,15 +53,13 @@ export class AvoirWorkspaceComponent {
   protected loadingAvoirs = signal(false);
   protected showForm = signal(false);
   protected saving = signal(false);
-
-  protected mode: AvoirMode = 'global';
-  protected montantAvoir: number | null = null;
-  protected montantTva: number | null = null;
-  protected montantHt: number | null = null;
-  protected motifDraft = '';
-  protected lignes: LigneSaisie[] = [];
-  protected selectedLignes: LigneSaisie[] = [];
-
+  protected readonly mode = signal<AvoirMode>('global');
+  protected readonly montantAvoir = signal<number | null>(null);
+  protected readonly montantTva = signal<number | null>(null);
+  protected readonly montantHt = signal<number | null>(null);
+  protected readonly motifDraft = signal<string>('');
+  protected readonly lignes = signal<LigneSaisie[]>([]);
+  protected readonly selectedLignes = signal<LigneSaisie[]>([]);
   private readonly avoirApiService = inject(AvoirApiService);
   private readonly notificationService = inject(NotificationService);
   private readonly modalService = inject(NgbModal);
@@ -83,11 +81,11 @@ export class AvoirWorkspaceComponent {
   }
 
   get totalLignes(): number {
-    return this.selectedLignes.reduce((sum, l) => sum + (l.montant ?? 0), 0);
+    return this.selectedLignes().reduce((sum, l) => sum + (l.montant ?? 0), 0);
   }
 
   get montantEffectif(): number {
-    return this.mode === 'global' ? (this.montantAvoir ?? 0) : this.totalLignes;
+    return this.mode() === 'global' ? (this.montantAvoir() ?? 0) : this.totalLignes;
   }
 
   protected onNouvelAvoir(): void {
@@ -102,30 +100,30 @@ export class AvoirWorkspaceComponent {
   }
 
   protected isFieldsValid(): boolean {
-    if (this.mode === 'global') {
-      if (this.montantAvoir === null || this.montantAvoir <= 0 || this.montantAvoir > this.maxMontant) {
+    if (this.mode() === 'global') {
+      if (this.montantAvoir() === null || this.montantAvoir() <= 0 || this.montantAvoir() > this.maxMontant) {
         return false;
       }
-      if (this.montantTva !== null && this.montantHt !== null) {
-        if (this.montantTva + this.montantHt > this.montantAvoir) return false;
+      if (this.montantTva() !== null && this.montantHt() !== null) {
+        if (this.montantTva() + this.montantHt() > this.montantAvoir()) return false;
       }
       return true;
     }
-    return this.selectedLignes.length > 0 && this.selectedLignes.every(l => !!l.motifRejet?.trim());
+    return this.selectedLignes().length > 0 && this.selectedLignes().every(l => !!l.motifRejet?.trim());
   }
 
   get tvaHtDepasseMontant(): boolean {
-    if (this.montantAvoir === null || this.montantTva === null || this.montantHt === null) return false;
-    return this.montantTva + this.montantHt > this.montantAvoir;
+    if (this.montantAvoir() === null || this.montantTva() === null || this.montantHt() === null) return false;
+    return this.montantTva() + this.montantHt() > this.montantAvoir();
   }
 
   protected isSelected(ligne: LigneSaisie): boolean {
-    return this.selectedLignes.includes(ligne);
+    return this.selectedLignes().includes(ligne);
   }
 
   protected onEnregistrer(): void {
     if (!this.isFieldsValid()) return;
-    this.motifDraft = '';
+    this.motifDraft.set('');
     const ref = this.modalService.open(this.motifModalTpl, { size: 'sm', centered: true });
     ref.result.then((motif: string) => this.doSave(motif)).catch(() => {});
   }
@@ -138,13 +136,13 @@ export class AvoirWorkspaceComponent {
       motif: motif.trim(),
     };
 
-    if (this.mode === 'global') {
-      command.montantAvoir = this.montantAvoir!;
-      if (this.montantTva != null) command.montantTva = this.montantTva;
-      if (this.montantHt != null) command.montantHt = this.montantHt;
+    if (this.mode() === 'global') {
+      command.montantAvoir = this.montantAvoir()!;
+      if (this.montantTva() != null) command.montantTva = this.montantTva();
+      if (this.montantHt() != null) command.montantHt = this.montantHt();
     } else {
       command.montantAvoir = this.totalLignes;
-      command.lignes = this.selectedLignes.map(l => ({
+      command.lignes = this.selectedLignes().map(l => ({
         saleLineId: l.saleId,
         montantAvoir: l.montant,
         motifRejet: l.motifRejet,
@@ -187,18 +185,18 @@ export class AvoirWorkspaceComponent {
   }
 
   private initLignes(): void {
-    this.lignes = this.factureItems().map(item => ({ ...item, motifRejet: '' }));
-    this.selectedLignes = [];
+    this.lignes.set(this.factureItems().map(item => ({ ...item, motifRejet: '' })));
+    this.selectedLignes.set([]);
   }
 
   private resetForm(): void {
-    this.mode = 'global';
-    this.montantAvoir = null;
-    this.montantTva = null;
-    this.montantHt = null;
-    this.motifDraft = '';
-    this.lignes = [];
-    this.selectedLignes = [];
+    this.mode.set('global');
+    this.montantAvoir.set(null);
+    this.montantTva.set(null);
+    this.montantHt.set(null);
+    this.motifDraft.set('');
+    this.lignes.set([]);
+    this.selectedLignes.set([]);
   }
 
   private loadAvoirs(f: IFacture): void {

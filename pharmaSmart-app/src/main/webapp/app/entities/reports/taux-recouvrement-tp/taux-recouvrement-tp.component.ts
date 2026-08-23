@@ -15,7 +15,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
   selector: 'app-taux-recouvrement-tp',
   imports: [DeviseDirective, CommonModule, FormsModule, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent],
   templateUrl: './taux-recouvrement-tp.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./taux-recouvrement-tp.component.scss'],
 })
 export default class TauxRecouvrementTpComponent implements OnInit {

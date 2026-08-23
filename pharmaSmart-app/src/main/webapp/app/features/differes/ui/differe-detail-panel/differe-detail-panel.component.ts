@@ -28,7 +28,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
     ReglementDiffereFormComponent
   ],
   templateUrl: "./differe-detail-panel.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ["./differe-detail-panel.component.scss"]
 })
 export class DiffereDetailPanelComponent {
@@ -36,8 +36,8 @@ export class DiffereDetailPanelComponent {
   readonly canExecute = input<boolean>(true);
 
   protected activeTab = signal<string>("detail");
-  protected loadingReglements = false;
-  protected isSaving = false;
+  protected readonly loadingReglements = signal(false);
+  protected readonly isSaving = signal(false);
   protected monnaie = signal(0);
   protected reglements = signal<IReglementDiffere[]>([]);
 
@@ -85,11 +85,11 @@ export class DiffereDetailPanelComponent {
   }
 
   onSaveReglement(params: INewReglementDiffere): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     this.differeApiService
       .doReglement(params)
       .pipe(
-        finalize(() => (this.isSaving = false)),
+        finalize(() => (this.isSaving.set(false))),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
@@ -162,11 +162,11 @@ export class DiffereDetailPanelComponent {
   private loadReglements(): void {
     const d = this.differe();
     if (!d?.customerId) return;
-    this.loadingReglements = true;
+    this.loadingReglements.set(true);
     this.differeApiService
       .getReglementsDifferes({ customerId: d.customerId, page: 0, size: 50 })
       .pipe(
-        finalize(() => (this.loadingReglements = false)),
+        finalize(() => (this.loadingReglements.set(false))),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({

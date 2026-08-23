@@ -5,8 +5,7 @@ import {
   ElementRef,
   inject,
   OnInit,
-  viewChild
-} from "@angular/core";
+  viewChild, signal } from "@angular/core";
 import {IProduit} from "../../../shared/model";
 import {
   FournisseurProduit,
@@ -38,7 +37,7 @@ import {
   selector: "app-form-produit-fournisseur",
   templateUrl: "./form-produit-fournisseur.component.html",
   styleUrls: ["./form-produit.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -55,10 +54,10 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
   produit?: IProduit;
   entity?: IFournisseurProduit;
   protected fb = inject(UntypedFormBuilder);
-  protected isSaving = false;
-  protected isValid = true;
+  protected readonly isSaving = signal(false);
+  protected readonly isValid = signal(true);
   protected fournisseurSelectedId!: number;
-  protected fournisseurs: IFournisseur[] = [];
+  protected readonly fournisseurs = signal<IFournisseur[]>([]);
   protected editForm = this.fb.group({
     id: [],
     prixUni: [null, [Validators.required, Validators.min(1)]],
@@ -77,7 +76,7 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
   private readonly activeModal = inject(NgbActiveModal);
 
   save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const produitFournisseur = this.createFrom();
     if (produitFournisseur.id !== undefined && produitFournisseur.id) {
       this.subscribeToSaveResponse(this.produitService.updateProduitFournisseur(produitFournisseur));
@@ -132,9 +131,9 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
       })
       .subscribe((res: HttpResponse<IFournisseur[]>) => {
         if (this.entity) {
-          this.fournisseurs = res.body || [];
+          this.fournisseurs.set(res.body || []);
         } else {
-          this.fournisseurs = res.body.filter(p => !this.produit?.fournisseurProduits?.some(fp => fp.fournisseurId === p.id)) || [];
+          this.fournisseurs.set(res.body.filter(p => !this.produit?.fournisseurProduits?.some(fp => fp.fournisseurId === p.id)) || []);
         }
       });
   }
@@ -142,13 +141,13 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
   protected handlePrixAchatInput(event: any): void {
     const value = Number(event.target.value);
     const unitPrice = Number(this.editForm.get(["prixUni"]).value);
-    this.isValid = value < unitPrice;
+    this.isValid.set(value < unitPrice);
   }
 
   protected handlePrixUnitaireInput(event: any): void {
     const value = Number(event.target.value);
     const costAmount = Number(this.editForm.get(["prixAchat"]).value);
-    this.isValid = costAmount < value;
+    this.isValid.set(costAmount < value);
   }
 
   protected onChange(fournisseurId: number): void {
@@ -156,7 +155,7 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<IFournisseurProduit>>): void {
-    result.pipe(finalize(() => (this.isSaving = false))).subscribe({
+    result.pipe(finalize(() => (this.isSaving.set(false)))).subscribe({
       next: (res: HttpResponse<IFournisseurProduit>) => this.onSaveSuccess(res.body),
       error: error => this.onSaveError(error)
     });

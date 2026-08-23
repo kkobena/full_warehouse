@@ -49,7 +49,7 @@ interface PeriodOption {
   selector: "app-sales-forecast",
   templateUrl: "./sales-forecast.component.html",
   styleUrl: "./sales-forecast.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeviseDirective, 
     CommonModule,
     FormsModule,

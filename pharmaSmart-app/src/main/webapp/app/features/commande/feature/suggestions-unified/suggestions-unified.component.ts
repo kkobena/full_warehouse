@@ -24,7 +24,7 @@ import {DeliveryService} from "app/entities/commande/delevery/delivery.service";
   selector: "app-suggestions-unified",
   templateUrl: "./suggestions-unified.component.html",
   styleUrls: ["./suggestions-unified.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     ButtonComponent,

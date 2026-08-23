@@ -19,26 +19,26 @@
         </div>
 
         <!-- Stock Rayon Info (if exists in create mode) -->
-        @if (!isEditMode && stockRayonProduit) {
+        @if (!isEditMode() && stockRayonProduit()) {
           <div class="form-field form-field-full">
             <span class="field-label">Stock Rayon actuel</span>
             <div class="form-row">
               <div class="form-field">
                 <div class="info-box">
                   <span class="info-label">Quantité</span>
-                  <span class="info-value ms-2">{{ stockRayonProduit.qtyStock ?? 0 }}</span>
+                  <span class="info-value ms-2">{{ stockRayonProduit().qtyStock ?? 0 }}</span>
                 </div>
               </div>
               <div class="form-field">
                 <div class="info-box">
                   <span class="info-label">Seuil mini</span>
-                  <span class="info-value ms-2">{{ stockRayonProduit.seuilMini ?? 0 }}</span>
+                  <span class="info-value ms-2">{{ stockRayonProduit().seuilMini ?? 0 }}</span>
                 </div>
               </div>
               <div class="form-field">
                 <div class="info-box info-highlight">
                   <span class="info-label">Transférable</span>
-                  <span class="info-value ms-2">{{ maxTransferableQty }}</span>
+                  <span class="info-value ms-2">{{ maxTransferableQty() }}</span>
                 </div>
               </div>
             </div>
@@ -72,7 +72,7 @@
         </div>
 
         <!-- Stock Reassort (only for PRINCIPAL/Rayon in edit mode) -->
-        @if (isEditMode && isStockRayon) {
+        @if (isEditMode() && isStockRayon) {
 
           <div class="form-row">
 
@@ -126,14 +126,14 @@
         }
 
         <!-- Transfer Option (only in create mode and if stock rayon exists) -->
-        @if (!isEditMode && stockRayonProduit && maxTransferableQty > 0) {
+        @if (!isEditMode() && stockRayonProduit() && maxTransferableQty() > 0) {
           <div class="form-field form-field-full">
             <div class="p-field-checkbox">
-              <app-checkbox formControlName="withTransfer" label="Transférer du stock depuis le rayon"/>
+              <app-checkbox formControlName="withTransfer()" label="Transférer du stock depuis le rayon"/>
             </div>
           </div>
 
-          @if (withTransfer) {
+          @if (withTransfer()) {
             <div class="form-field form-field-full">
               <label for="field_transferQuantity">Quantité à transférer<span class="required">*</span></label>
               <input
@@ -144,7 +144,7 @@
                 name="transferQuantity"
                 [appKeyFilter]="'pint'"
                 type="number"
-                [max]="maxTransferableQty"
+                [max]="maxTransferableQty()"
                 min="1"
               />
               @if (editForm.get('transferQuantity')!.invalid && (editForm.get('transferQuantity')!.dirty || editForm.get('transferQuantity')!.touched)) {
@@ -156,7 +156,7 @@
                     <small class="form-text text-danger">La quantité doit être au moins 1.</small>
                   }
                   @if (editForm.get('transferQuantity')?.errors?.max) {
-                    <small class="form-text text-danger">La quantité ne peut pas dépasser {{ maxTransferableQty }}
+                    <small class="form-text text-danger">La quantité ne peut pas dépasser {{ maxTransferableQty() }}
                       .</small>
                   }
                 </div>
@@ -166,7 +166,7 @@
         }
 
         <!-- Info message for create mode -->
-        @if (!isEditMode) {
+        @if (!isEditMode()) {
           <div class="form-field form-field-full">
             <div class="info-message">
               <i class="pi pi-info-circle"></i>
@@ -182,10 +182,10 @@
     <app-button (clicked)="cancel()" class="mr-1" icon="pi pi-times" label="Annuler" [raised]="true" severity="secondary"
               type="button"/>
     <app-button
-      [loading]="isSaving"
+      [loading]="isSaving()"
       [disabled]="!isFormValid()"
       icon="pi pi-check"
-      [label]="isEditMode ? 'Modifier' : 'Créer'"
+      [label]="isEditMode() ? 'Modifier' : 'Créer'"
       [raised]="true"
       severity="primary"
       type="submit"

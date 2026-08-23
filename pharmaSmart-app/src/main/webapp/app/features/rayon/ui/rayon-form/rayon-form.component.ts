@@ -1,5 +1,4 @@
-import {
-  AfterViewInit,
+import {signal, AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
@@ -29,7 +28,7 @@ import {
   selector: "app-rayon-form",
   templateUrl: "./rayon-form.component.html",
   styleUrl: "./rayon-form.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     ReactiveFormsModule,
@@ -43,8 +42,8 @@ export class RayonFormComponent implements OnInit, AfterViewInit {
   header = "";
   entity: IRayon | null = null;
 
-  protected storages: Storage[] = [];
-  protected isSaving = false;
+  protected readonly storages = signal([]);
+  protected readonly isSaving = signal(false);
   protected readonly typeZoneOptions = TYPE_ZONE_OPTIONS;
 
   protected readonly fb = inject(UntypedFormBuilder);
@@ -80,10 +79,10 @@ export class RayonFormComponent implements OnInit, AfterViewInit {
     if (this.editForm.invalid) {
       return;
     }
-    this.isSaving = true;
+    this.isSaving.set(true);
     const rayon = this.buildFromForm();
     const call = rayon.id ? this.rayonApi.update(rayon) : this.rayonApi.create(rayon);
-    call.pipe(finalize(() => (this.isSaving = false))).subscribe({
+    call.pipe(finalize(() => (this.isSaving.set(false)))).subscribe({
       next: (res: HttpResponse<IRayon>) => this.activeModal.close(res.body),
       error: err => this.notificationService.error(this.errorService.getErrorMessage(err))
     });
@@ -98,11 +97,11 @@ export class RayonFormComponent implements OnInit, AfterViewInit {
       this.storageService
         .fetchStorages({magasinId: magasin.id})
         .subscribe((res: HttpResponse<Storage[]>) => {
-          this.storages = res.body ?? [];
+          this.storages.set(res.body ?? []);
           if (this.entity) {
             this.patchForm(this.entity);
           } else {
-            const principal = this.storages.find(s => s.type === "PRINCIPAL");
+            const principal = this.storages().find(s => s.type === "PRINCIPAL");
             this.editForm.get("storageId")?.setValue(principal?.id ?? null);
           }
         });

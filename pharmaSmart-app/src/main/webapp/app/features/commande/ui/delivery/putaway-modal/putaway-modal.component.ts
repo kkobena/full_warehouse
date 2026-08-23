@@ -8,7 +8,7 @@ import { IPutawayPreviewItem } from '../../../../../entities/commande/commande.s
   selector: 'app-putaway-modal',
   templateUrl: './putaway-modal.component.html',
   styleUrls: ['./putaway-modal.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DecimalPipe, ButtonComponent, BadgeComponent, NgbTooltip],
 })
 export class PutawayModalComponent {

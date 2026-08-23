@@ -26,7 +26,7 @@ import {
   selector: "app-stock-valuation",
   templateUrl: "./stock-valuation.component.html",
   styleUrl: "./stock-valuation.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeviseDirective,
     CommonModule,
     FormsModule,

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy, signal } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { DateNaissDirective } from '../../../shared/date-naiss.directive';
 import TranslateDirective from '../../../shared/language/translate.directive';
@@ -38,7 +38,7 @@ import {
     SelectSearchComponent
   ],
   templateUrl: './customer-carnet.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./customer-carnet-component.scss'],
 })
 export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -46,10 +46,10 @@ export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy
   entity?: ICustomer;
   categorie: string | null = null;
 
-  protected isSaving = false;
+  protected readonly isSaving = signal(false);
   protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
   protected tiersPayant!: ITiersPayant | null;
-  protected tiersPayants: ITiersPayant[] = [];
+  protected readonly tiersPayants = signal<ITiersPayant[]>([]);
   protected firstName = viewChild.required<ElementRef>('firstName');
   protected fb = inject(UntypedFormBuilder);
   protected editForm = this.fb.group({
@@ -106,7 +106,7 @@ export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy
       },
       (resp: ITiersPayant) => {
         if (resp) {
-          this.tiersPayants.push(resp);
+          this.tiersPayants().push(resp);
           this.editForm.patchValue({ tiersPayantId: resp });
         }
       },
@@ -116,12 +116,12 @@ export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   onSaveError(error: any): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 
   save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
 
     const customer = this.createFromForm();
 
@@ -148,9 +148,9 @@ export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
-        this.tiersPayants = res.body!;
-        if (this.tiersPayants.length === 0) {
-          this.tiersPayants.push({ id: null, fullName: 'Ajouter un nouveau tiers-payant' });
+        this.tiersPayants.set(res.body!);
+        if (this.tiersPayants().length === 0) {
+          this.tiersPayants().push({ id: null, fullName: 'Ajouter un nouveau tiers-payant' });
         }
       });
   }
@@ -201,7 +201,7 @@ export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
-    result.pipe(finalize(() => (this.isSaving = false))).subscribe({
+    result.pipe(finalize(() => (this.isSaving.set(false)))).subscribe({
       next: (res: HttpResponse<ICustomer>) => this.onSaveSuccess(res.body),
       error: (error: any) => this.onSaveError(error),
     });

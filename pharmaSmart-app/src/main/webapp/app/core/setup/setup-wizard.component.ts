@@ -17,7 +17,7 @@ interface SetupDefaults {
   selector: 'app-setup-wizard',
   templateUrl: './setup-wizard.component.html',
   styleUrls: ['./setup-wizard.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ReactiveFormsModule, NgOptimizedImage, ButtonComponent, PasswordComponent],
 })
 export class SetupWizardComponent implements OnInit, OnDestroy {

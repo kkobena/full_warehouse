@@ -35,7 +35,7 @@ interface AvoirStatutStat {
     ToolbarComponent
   ],
   templateUrl: './avoirs-analytics.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./avoirs-analytics.component.scss'],
 })
 export default class AvoirsAnalyticsComponent implements OnInit {

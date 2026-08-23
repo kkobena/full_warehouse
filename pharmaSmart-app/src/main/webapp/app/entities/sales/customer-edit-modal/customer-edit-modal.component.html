@@ -46,7 +46,7 @@
           size="small"
           type="button"
         />
-        <div formGroupName="customer">
+        <div formGroupName="customer()">
           <div class="form-row">
             <div class="form-field-inline">
               <label for="field_num">Matricule <span class="required">*</span></label>
@@ -93,8 +93,8 @@
           size="small"
           type="button"
         />
-        @if (ayantDroit && customer.id !== ayantDroit.id) {
-          <div formGroupName="ayantDroit">
+        @if (ayantDroit() && customer().id !== ayantDroit().id) {
+          <div formGroupName="ayantDroit()">
             <div class="form-row">
               <div class="form-field-inline form-field-full">
                 <label for="field_ayantdroit_num">Matricule <span class="required">*</span></label>
@@ -126,12 +126,12 @@
     </div>
 
     <!-- Third Party Sale Lines Section -->
-    @if (thirdPartySaleLines?.length > 0) {
+    @if (thirdPartySaleLines()?.length > 0) {
       <div class="section-header-compact">
         <i class="pi pi-building"></i>
         <span>Tiers Payants</span>
       </div>
-      <div class="card-grid-2col-compact" formArrayName="thirdPartySaleLines">
+      <div class="card-grid-2col-compact" formArrayName="thirdPartySaleLines()">
         @for (group of thirdPartySaleLinesFomArray.controls; track group; let i = $index) {
           <app-card [formGroupName]="i" [variant]="'form'" [withHeader]="true">
             <div class="section-header" ngProjectAs="[cardHeader]">
@@ -170,7 +170,7 @@
     <app-button (clicked)="cancel()" icon="pi pi-times" label="Annuler" severity="secondary"
                 type="button" />
     <app-button
-      [disabled]="editForm.invalid || isSaving || !hasFormChanged()"
+      [disabled]="editForm.invalid || isSaving() || !hasFormChanged()"
       icon="pi pi-save"
       label="Sauvegarder"
       severity="primary"

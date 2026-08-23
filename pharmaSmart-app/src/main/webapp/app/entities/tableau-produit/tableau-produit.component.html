@@ -7,14 +7,14 @@
       </div>
 
       <div class="card-body">
-        @if (entites && entites.length > 0) {
+        @if (entites() && entites().length > 0) {
           <app-data-table
             [(selection)]="selectedEl"
-            [loading]="loading"
+            [loading]="loading()"
             [paginator]="false"
             [selectionMode]="'single'"
             [showGridlines]="true"
-            [value]="entites"
+            [value]="entites()"
             dataKey="id"
           >
             <ng-template #header>

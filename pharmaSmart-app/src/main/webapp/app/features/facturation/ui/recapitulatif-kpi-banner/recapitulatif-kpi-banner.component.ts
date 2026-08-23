@@ -8,7 +8,7 @@ import { KpiItemComponent, KpiStripComponent } from "../../../../shared/ui";
   selector: "app-recapitulatif-kpi-banner",
   imports: [CommonModule, NgbTooltip, KpiItemComponent, KpiStripComponent],
   templateUrl: "./recapitulatif-kpi-banner.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./recapitulatif-kpi-banner.component.scss"
 })
 export class RecapitulatifKpiBannerComponent {

@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy, signal } from "@angular/core";
 import { ICustomer } from "../../../shared/model";
 import { AssureFormStepService } from "./assure-form-step.service";
 import { AssureStepComponent } from "./assure-step.component";
@@ -24,16 +24,15 @@ import { ButtonComponent, NavTabsComponent } from "../../../shared/ui";
     NavTabsComponent
   ],
   templateUrl: "./assure-form-step.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ["./assured-form-step.component.scss"]
 })
 export class AssureFormStepComponent implements OnInit, OnDestroy {
   header: string;
   entity?: ICustomer;
-  active: number | undefined = 0;
-  isSaving = false;
+  protected readonly isSaving = signal(false);
   typeAssure: string | undefined;
-  activeStep = 1;
+  protected readonly activeStep = signal(1);
   ayantDroitStepComponent = viewChild<AyantDroitStepComponent>("ayantDroitStep");
   assureStepComponent = viewChild<AssureStepComponent>("assureStep");
   protected readonly commonService = inject(CommonService);
@@ -66,7 +65,7 @@ export class AssureFormStepComponent implements OnInit, OnDestroy {
 
   onGoBackFromAyantDroit(index: number): void {
     this.ayantDroitStepComponent().goBack();
-    this.activeStep = index;
+    this.activeStep.set(index);
   }
 
   currentCustomerState(): void {
@@ -84,7 +83,7 @@ export class AssureFormStepComponent implements OnInit, OnDestroy {
 
   onGoAyantDroit(index: number): void {
     this.currentCustomerState();
-    this.activeStep = index;
+    this.activeStep.set(index);
   }
 
   cancel(): void {
@@ -96,7 +95,7 @@ export class AssureFormStepComponent implements OnInit, OnDestroy {
   }
 
   save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     this.onCompleteAssure();
     const customer = this.assureFormStepService.assure();
     if (customer.id !== undefined && customer.id) {
@@ -110,7 +109,7 @@ export class AssureFormStepComponent implements OnInit, OnDestroy {
   private subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
     result
       .pipe(
-        finalize(() => (this.isSaving = false)),
+        finalize(() => (this.isSaving.set(false))),
         takeUntil(this.destroy$)
       )
       .subscribe({

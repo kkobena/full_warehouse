@@ -10,7 +10,7 @@ import { IDashboardLayout } from 'app/shared/model/dashboard-layout.model';
   selector: 'jhi-load-layout-modal',
   imports: [CommonModule, ButtonComponent, BadgeComponent, NgbTooltip],
   templateUrl: './load-layout-modal.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './load-layout-modal.component.scss',
 })
 export class LoadLayoutModalComponent {

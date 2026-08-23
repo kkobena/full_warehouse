@@ -15,7 +15,6 @@ import { LotService } from "../commande/lot/lot.service";
 import { ProductToDestroyService } from "./product-to-destroy.service";
 import { LotFilterParam } from "./model/lot-perimes";
 import { ProductToDestroyFilter } from "./model/product-to-destroy";
-import { PeremptionAlertService } from "../../shared/services/peremption-alert.service";
 import { RouterLink } from "@angular/router";
 import { CommonModule } from "@angular/common";
 
@@ -37,7 +36,7 @@ import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-l
     NgbNavOutlet
   ],
   templateUrl: "./gestion-peremption.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ["./gestion-peremption.scss"]
 })
 export class GestionPeremptionComponent implements OnInit {
@@ -45,11 +44,10 @@ export class GestionPeremptionComponent implements OnInit {
 
   /** Menu replié : rend la largeur au contenu quand il en manque. */
   protected readonly menuReplie = signal(false);
-  protected lotPerimesCount = 0;
-  protected lotADetruireCount = 0;
+  protected readonly lotPerimesCount = signal(0);
+  protected readonly lotADetruireCount = signal(0);
   protected alertDismissed = signal(true);
 
-  protected readonly peremptionAlertService = inject(PeremptionAlertService);
   private readonly ability = inject(AbilityService);
 
   protected readonly showLotPerimes    = this.ability.canSignal('display', 'peremptions.lot-perimes');
@@ -69,18 +67,18 @@ export class GestionPeremptionComponent implements OnInit {
     this.lotService.getSum({} as LotFilterParam).subscribe({
       next: res => {
         console.log(res.body);
-        this.lotPerimesCount = res.body?.count ?? 0;
+        this.lotPerimesCount.set(res.body?.count ?? 0);
       },
       error: () => {
-        this.lotPerimesCount = 0;
+        this.lotPerimesCount.set(0);
       }
     });
     this.productToDestroyService.getSum({ destroyed: false, editing: false } as ProductToDestroyFilter).subscribe({
       next: res => {
-        this.lotADetruireCount = res.body?.productCount ?? 0;
+        this.lotADetruireCount.set(res.body?.productCount ?? 0);
       },
       error: () => {
-        this.lotADetruireCount = 0;
+        this.lotADetruireCount.set(0);
       }
     });
   }

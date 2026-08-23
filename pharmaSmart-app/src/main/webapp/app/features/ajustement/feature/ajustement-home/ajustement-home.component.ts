@@ -48,7 +48,7 @@ import {
   selector: 'app-ajustement-home',
   templateUrl: './ajustement-home.component.html',
   styleUrl: './ajustement-home.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     RouterModule,
@@ -75,7 +75,7 @@ export class AjustementHomeComponent implements OnInit {
   protected fromDate: NgbDateStruct = TODAY_NGB_DATE();
   protected toDate: NgbDateStruct = TODAY_NGB_DATE();
   protected user: IUser | null = {id: null, abbrName: 'TOUT'};
-  protected users: IUser[] = [];
+  protected readonly users = signal<IUser[]>([]);
   protected typeFilter = 'TOUT';
   protected readonly typeOptions = [
     {label: 'Tout', value: 'TOUT'},
@@ -174,7 +174,7 @@ export class AjustementHomeComponent implements OnInit {
     this.userService.query()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((res: HttpResponse<User[]>) => {
-        this.users = [{id: null, abbrName: 'TOUT'}, ...(res.body ?? [])];
+        this.users.set([{id: null, abbrName: 'TOUT'}, ...(res.body ?? [])]);
       });
   }
 }

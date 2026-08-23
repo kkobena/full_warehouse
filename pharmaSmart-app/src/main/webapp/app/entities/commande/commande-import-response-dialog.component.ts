@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnDestroy, ChangeDetectionStrategy, signal } from "@angular/core";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { ICommandeResponse } from "../../shared/model/commande-response.model";
 import { CommandeService } from "./commande.service";
@@ -12,12 +12,12 @@ import { BlobDownloadService } from "../../shared/services/blob-download.service
   selector: "app-commande-import-response-dialog",
   templateUrl: "./commande-import-response-dialog.component.html",
   styleUrls: ["./commande-import-response-dialog.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ButtonComponent, CommonModule]
 })
 export class CommandeImportResponseDialogComponent implements OnDestroy {
   responseCommande?: ICommandeResponse;
-  hiddenInfo = true;
+  protected readonly hiddenInfo = signal(true);
   private activeModal = inject(NgbActiveModal);
   private commandeService = inject(CommandeService);
   private destroy$ = new Subject<void>();
@@ -39,7 +39,7 @@ export class CommandeImportResponseDialogComponent implements OnDestroy {
       .subscribe({
         next: blod => {
           this.blobDownloadService.downloadCsv(blod, `${this.responseCommande.reference}`);
-          this.hiddenInfo = false;
+          this.hiddenInfo.set(false);
         }
       });
   }

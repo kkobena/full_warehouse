@@ -69,7 +69,7 @@ import {
   selector: "app-list-bons",
   templateUrl: "./list-bons.component.html",
   styleUrls: ["./list-bons.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -110,11 +110,11 @@ export class AppListBonsComponent implements OnInit {
   protected dtStart: NgbDateStruct | null = null;
   protected dtEnd: NgbDateStruct | null = null;
   protected selectedStatut: string | null = null;
-  protected deliveries: IDelivery[] = [];
-  protected loading = false;
+  protected readonly deliveries = signal<IDelivery[]>([]);
+  protected readonly loading = signal(false);
   protected itemsPerPage = ITEMS_PER_PAGE;
-  protected page = 0;
-  protected totalItems = 0;
+  protected readonly page = signal(0);
+  protected readonly totalItems = signal(0);
   protected showLotBtn = signal(false);
   protected readonly statutOptions = [
     {label: "Tous les bons", value: null},
@@ -134,7 +134,7 @@ export class AppListBonsComponent implements OnInit {
   private readonly configurationService = inject(ConfigurationService);
 
   protected get totalPages(): number {
-    return Math.max(1, Math.ceil(this.totalItems / this.itemsPerPage));
+    return Math.max(1, Math.ceil(this.totalItems() / this.itemsPerPage));
   }
 
   // ── Row styling ────────────────────────────────────────────────────────────
@@ -211,7 +211,7 @@ export class AppListBonsComponent implements OnInit {
 
   onRetourSaisie(): void {
     this.editingReceived.set(null);
-    this.loadPage(this.page);
+    this.loadPage(this.page());
   }
 
   onCommandeChange(c: ICommande | null): void {
@@ -298,7 +298,7 @@ export class AppListBonsComponent implements OnInit {
 
   onRetourWorkspaceDone(): void {
     this.retourWorkspaceBon.set(null);
-    this.loadPage(this.page);
+    this.loadPage(this.page());
   }
 
   onRetourWorkspaceCancelled(): void {
@@ -307,7 +307,7 @@ export class AppListBonsComponent implements OnInit {
 
   onReconciliationDone(): void {
     this.reconciliationWorkspaceBon.set(null);
-    this.loadPage(this.page);
+    this.loadPage(this.page());
   }
 
   onReconciliationCancelled(): void {
@@ -359,7 +359,7 @@ export class AppListBonsComponent implements OnInit {
             next: () => {
               this.spinner().hide();
               this.notificationService.success("Bon annulé avec succès");
-              this.loadPage(this.page);
+              this.loadPage(this.page());
             },
             error: () => {
               this.spinner().hide();
@@ -393,7 +393,7 @@ export class AppListBonsComponent implements OnInit {
         }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
           next: () => {
             this.notificationService.success("Retour complet créé avec succès");
-            this.loadPage(this.page);
+            this.loadPage(this.page());
           },
           error: () => {
             this.notificationService.error("Erreur lors de la création du retour complet");
@@ -422,7 +422,7 @@ export class AppListBonsComponent implements OnInit {
   // ── Chargement des données ────────────────────────────────────────────────
 
   private fetchDeliveries(page: number, size: number): void {
-    this.loading = true;
+    this.loading.set(true);
     const query: any = {page, size, search: this.search};
     if (this.selectedStatut) {
       query.statuts = [this.selectedStatut];
@@ -454,14 +454,14 @@ export class AppListBonsComponent implements OnInit {
             (list.body ?? []).filter(d => d.orderStatus === "RECEIVED" || (d as any).statut === "RECEIVED").length
           );
         },
-        error: () => (this.loading = false)
+        error: () => this.loading.set(false)
       });
   }
 
   private onSuccess(data: IDelivery[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get("X-Total-Count"));
-    this.page = page;
-    this.deliveries = data ?? [];
-    this.loading = false;
+    this.totalItems.set(Number(headers.get("X-Total-Count")));
+    this.page.set(page);
+    this.deliveries.set(data ?? []);
+    this.loading.set(false);
   }
 }

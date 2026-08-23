@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnChanges, Output, signal} from '@angular/core';
+import { ChangeDetectionStrategy,Component, EventEmitter, Input, OnChanges, Output, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
@@ -15,6 +15,7 @@ export interface InlineLotSelection {
   selector: 'app-inline-lot-selection',
 
   imports: [CommonModule, FormsModule, ButtonComponent, NgbTooltip],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="inline-lot-selection">
       <!-- Summary Header -->

@@ -22,7 +22,7 @@ const ITEMS_PER_PAGE = 15;
   selector: 'app-stock-alerts',
   templateUrl: './stock-alerts.component.html',
   styleUrl: './stock-alerts.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

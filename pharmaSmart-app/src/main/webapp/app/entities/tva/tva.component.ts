@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
 import {TvaService} from './tva.service';
 import {HttpResponse} from '@angular/common/http';
 import {ITva} from '../../shared/model/tva.model';
@@ -16,16 +16,13 @@ import {
   selector: 'app-tva',
   templateUrl: './tva.component.html',
   styleUrl: './tva.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, TranslatePipe, ButtonComponent, DataTableComponent, SelectableRowDirective, NgbTooltip],
 })
 export class TvaComponent implements OnInit {
-  protected tvas?: ITva[];
-  // `null` et non `undefined` : le `model()` de `app-data-table` ne transporte que
-  // `T | T[] | null`, et la liaison bidirectionnelle doit pouvoir lui réécrire la valeur.
+  protected readonly tvas = signal<ITva[] | undefined>(undefined);
   protected selectedTva: ITva | null = null;
-  protected loading!: boolean;
-  protected isSaving = false;
+  protected readonly loading = signal<boolean | undefined>(undefined);
   private readonly tvaService = inject(TvaService);
   private readonly modalService = inject(NgbModal);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
@@ -57,7 +54,7 @@ export class TvaComponent implements OnInit {
   }
 
   protected loadPage(): void {
-    this.loading = true;
+    this.loading.set(true);
     this.tvaService
       .query({
         page: 0,
@@ -84,11 +81,11 @@ export class TvaComponent implements OnInit {
   }
 
   private onSuccess(data: ITva[] | null): void {
-    this.tvas = data || [];
-    this.loading = false;
+    this.tvas.set(data || []);
+    this.loading.set(false);
   }
 
   private onError(): void {
-    this.loading = false;
+    this.loading.set(false);
   }
 }

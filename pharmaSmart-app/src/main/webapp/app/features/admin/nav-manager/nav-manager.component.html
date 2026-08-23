@@ -33,7 +33,7 @@
             } @else {
               <app-select-search
                 (ngModelChange)="loadRoleItems()"
-                [(ngModel)]="selectedRole"
+                [ngModel]="selectedRole()" (ngModelChange)="selectedRole.set($event)"
                 [clearable]="true"
                 [items]="availableRoles()"
                 [optionTemplate]="roleOption"
@@ -139,20 +139,20 @@
                       @if (editingItemId() === item.id && editingField() === 'libelle') {
                         <input
                           (blur)="saveEdit(item)"
-                          (input)="editingLibelle = $any($event.target).value"
+                          (input)="editingLibelle.set($any($event.target).value)"
                           (keydown.enter)="saveEdit(item)"
                           (keydown.escape)="cancelEdit()"
-                          [value]="editingLibelle"
+                          [value]="editingLibelle()"
                           autofocus
                           class="libelle-input"
                         />
                       } @else if (editingItemId() === item.id && editingField() === 'titreLong') {
                         <input
                           (blur)="saveTitreLong(item)"
-                          (input)="editingTitreLong = $any($event.target).value"
+                          (input)="editingTitreLong.set($any($event.target).value)"
                           (keydown.enter)="saveTitreLong(item)"
                           (keydown.escape)="cancelEdit()"
-                          [value]="editingTitreLong"
+                          [value]="editingTitreLong()"
                           autofocus
                           class="libelle-input"
                           placeholder="Titre de la barre d'outils"
@@ -293,7 +293,7 @@
             <ng-template #emptymessage>
               <tr>
                 <td class="text-center text-muted py-4" colspan="9">
-                  @if (!selectedRole) {
+                  @if (!selectedRole()) {
                     Sélectionnez un rôle pour afficher les items de navigation.
                   } @else {
                     Aucun item trouvé.
@@ -329,7 +329,7 @@
         </a>
         <ng-template ngbNavContent>
           <div class="p-3">
-            @if (!selectedRole) {
+            @if (!selectedRole()) {
               <div class="text-center text-muted py-5">
                 <i class="pi pi-eye-slash fs-3 d-block mb-2"></i>
                 Sélectionnez un rôle dans l'onglet <strong>Permissions</strong> pour prévisualiser
@@ -339,7 +339,7 @@
               <div class="text-center text-muted py-5">
                 <i class="pi pi-ban fs-3 d-block mb-2 text-danger"></i>
                 Aucun item visible pour <strong>{{
-                  selectedRole.libelle ?? selectedRole.name
+                  selectedRole().libelle ?? selectedRole().name
                 }}</strong>.
                 Activez la colonne "Afficher" dans les permissions.
               </div>
@@ -347,7 +347,7 @@
               <div class="preview-info-bar mb-3">
                 <i class="pi pi-info-circle me-1"></i>
                 Aperçu de la navbar pour le rôle
-                <strong>{{ selectedRole.libelle ?? selectedRole.name }}</strong>
+                <strong>{{ selectedRole().libelle ?? selectedRole().name }}</strong>
                 selon les permissions actuellement cochées.
                 <span class="text-muted ms-2">(Les items de type ACTION sont masqués)</span>
               </div>

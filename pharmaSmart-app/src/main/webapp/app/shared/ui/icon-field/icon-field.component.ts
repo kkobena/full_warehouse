@@ -1,4 +1,4 @@
-import {Component, computed, input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, input} from '@angular/core';
 
 /**
  * Champ avec icône du Design System — remplace le couple `p-iconfield` / `p-inputicon`.
@@ -80,6 +80,7 @@ import {Component, computed, input} from '@angular/core';
       padding-right: 2.5rem;
     }
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IconFieldComponent {
   readonly icon = input.required<string>();

@@ -57,7 +57,7 @@ export type ReglementMode = "INDIVIDUEL" | "GROUPE";
     RowCheckboxComponent
   ],
   templateUrl: "./reglement-workspace.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./reglement-workspace.component.scss"
 })
 export class ReglementWorkspaceComponent {
@@ -69,7 +69,7 @@ export class ReglementWorkspaceComponent {
   protected dossierFactureProjectionSignal = signal<IDossierFactureProjection | null>(null);
   protected factureDossierSelectionnes = signal<IReglementFactureDossier[]>([]);
   protected readonly partialPayment = signal(false);
-  protected isSaving = false;
+  protected readonly isSaving = signal(false);
   protected readonly ModeEditionReglement = ModeEditionReglement;
 
   protected montantAPayer = computed(() =>
@@ -162,11 +162,11 @@ export class ReglementWorkspaceComponent {
   }
 
   onSaveReglement(params: IReglementParams): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     this.reglementApiService
       .doReglement(this.buildReglementParams(params))
       .pipe(
-        finalize(() => (this.isSaving = false)),
+        finalize(() => (this.isSaving.set(false))),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({

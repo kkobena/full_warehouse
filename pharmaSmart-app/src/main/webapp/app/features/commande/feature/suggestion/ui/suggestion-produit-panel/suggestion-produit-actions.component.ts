@@ -1,4 +1,4 @@
-import {Component, ChangeDetectionStrategy} from '@angular/core';
+import {signal, Component, ChangeDetectionStrategy} from '@angular/core';
 import {ICellRendererAngularComp} from 'ag-grid-angular';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {ButtonComponent} from 'app/shared/ui';
@@ -7,7 +7,7 @@ import {SuggestionLigneEnrichie} from '../../data-access/suggestion-enrichie.mod
 @Component({
   selector: 'app-suggestion-produit-actions',
   imports: [ButtonComponent, NgbTooltip],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="d-flex gap-1">
       @if (showReset) {
@@ -49,14 +49,14 @@ import {SuggestionLigneEnrichie} from '../../data-access/suggestion-enrichie.mod
 })
 export class SuggestionProduitActionsComponent implements ICellRendererAngularComp {
   private params!: any;
-  protected showReset = false;
-  protected showCompare = false;
+  protected readonly showReset = signal(false);
+  protected readonly showCompare = signal(false);
 
   agInit(params: any): void {
     this.params = params;
     const ligne: SuggestionLigneEnrichie = params.data;
-    this.showReset = !!ligne?.quantiteModifieeManuel;
-    this.showCompare = !!ligne?.produitId;
+    this.showReset.set(!!ligne?.quantiteModifieeManuel);
+    this.showCompare.set(!!ligne?.produitId);
   }
 
   refresh(): boolean {

@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -19,7 +19,7 @@ import {ButtonComponent, KeyFilterDirective} from '../../../shared/ui';
   selector: 'app-form-tableau',
   imports: [ButtonComponent, FormsModule, ReactiveFormsModule, KeyFilterDirective],
   templateUrl: './form-tableau.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./form-tableau.scss'],
 })
 export class FormTableauComponent implements OnInit {
@@ -38,7 +38,7 @@ export class FormTableauComponent implements OnInit {
       nonNullable: true,
     }),
   });
-  protected isSaving = false;
+  protected readonly isSaving = signal(false);
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
   private readonly entityService = inject(TableauProduitService);
@@ -55,7 +55,7 @@ export class FormTableauComponent implements OnInit {
   }
 
   protected save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const entity = this.createFromForm();
 
     if (entity.id !== undefined && entity.id !== null) {
@@ -74,12 +74,12 @@ export class FormTableauComponent implements OnInit {
   }
 
   private onSaveSuccess(): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.activeModal.close();
   }
 
   private onSaveError(error: HttpErrorResponse): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 

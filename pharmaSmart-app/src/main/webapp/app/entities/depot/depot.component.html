@@ -25,14 +25,14 @@
     <app-data-table
       #dt
       [globalFilterFields]="['name', 'fullName', 'address', 'phone', 'email']"
-      [loading]="loading"
+      [loading]="loading()"
       [paginator]="true"
       [rowsPerPageOptions]="[10, 25, 50]"
       [rows]="10"
       [showCurrentPageReport]="true"
       [size]="'small'"
       [stripedRows]="true"
-      [value]="depots"
+      [value]="depots()"
 
       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} dépôts"
     >

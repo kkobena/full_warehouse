@@ -9,7 +9,7 @@ import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-l
   selector: 'app-access-managment-home',
   templateUrl: './access-managment-home.component.html',
   styleUrl: './access-managment-home.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NavSidebarComponent, NavSectionLinkComponent, 
     NgbNav, NgbNavContent, NgbNavItem, NgbNavLink, NgbNavOutlet,
     NavManagerComponent,
@@ -17,7 +17,7 @@ import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-l
   ],
 })
 export class AccessManagmentHomeComponent {
-  protected active = 'roles';
+  protected readonly active = signal('roles');
 
 
   /** Menu replié : rend la largeur au contenu quand il en manque. */
@@ -27,6 +27,6 @@ export class AccessManagmentHomeComponent {
 
   openPermissions(roleName: string): void {
     this.pendingRole.set(roleName);
-    this.active = 'autorisations';
+    this.active.set('autorisations');
   }
 }

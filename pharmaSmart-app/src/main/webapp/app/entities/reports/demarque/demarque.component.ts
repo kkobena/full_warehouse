@@ -31,7 +31,7 @@ Chart.register(...registerables);
     ToolbarComponent
   ],
   templateUrl: './demarque.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./demarque.component.scss'],
 })
 export default class DemarqueComponent implements OnInit, OnDestroy {

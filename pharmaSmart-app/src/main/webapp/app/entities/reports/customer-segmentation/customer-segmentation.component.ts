@@ -26,7 +26,7 @@ import {DeviseDirective} from 'app/shared/utils/devise';
   selector: "app-customer-segmentation",
   templateUrl: "./customer-segmentation.component.html",
   styleUrl: "./customer-segmentation.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeviseDirective, CommonModule, FormsModule, BadgeComponent, ButtonComponent, DataTableComponent, SelectComponent, ToolbarComponent, SortableHeaderDirective]
 })
 export default class CustomerSegmentationComponent implements OnInit {

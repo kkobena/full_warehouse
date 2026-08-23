@@ -26,7 +26,7 @@ import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-l
     SkeletonComponent,
   ],
   templateUrl: './stock-reports.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './stock-reports.component.scss',
 })
 export default class StockReportsComponent implements OnInit {

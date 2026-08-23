@@ -9,7 +9,7 @@ import { CommonModule } from "@angular/common";
   selector: "jhi-user-mgmt-detail",
   templateUrl: "./user-management-detail.component.html",
   styleUrl: "./user-management-detail.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, ButtonComponent, RouterLink, ToolbarComponent, BadgeComponent]
 })
 export default class UserManagementDetailComponent {

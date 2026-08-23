@@ -46,7 +46,7 @@ import { CommonModule } from "@angular/common";
     AvoirWorkspaceComponent
   ],
   templateUrl: "./facture-detail-panel.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./facture-detail-panel.component.scss"
 })
 export class FactureDetailPanelComponent {
@@ -55,10 +55,10 @@ export class FactureDetailPanelComponent {
   readonly canExport  = input<boolean>(true);
   readonly activeTabRequest = input<string | null>(null);
 
-  protected loadingItems = false;
-  protected certifying = false;
-  protected loadingReglements = false;
-  protected loadingPdf = false;
+  protected readonly loadingItems = signal(false);
+  protected readonly certifying = signal(false);
+  protected readonly loadingReglements = signal(false);
+  protected readonly loadingPdf = signal(false);
   protected certificationLoading = false;
   protected factureItems = signal<IFactureItem[]>([]);
   protected reglements = signal<IReglement[]>([]);
@@ -155,10 +155,10 @@ export class FactureDetailPanelComponent {
   }
 
   private onCertifySingle(facture: IFacture): void {
-    this.certifying = true;
+    this.certifying.set(true);
     this.certificationApiService.certify(facture.factureItemId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: response => {
-        this.certifying = false;
+        this.certifying.set(false);
         const fneResponse = response.body;
         if (fneResponse) {
           this.confirmDialog.onConfirm(
@@ -170,7 +170,7 @@ export class FactureDetailPanelComponent {
 
       },
       error: err => {
-        this.certifying = false;
+        this.certifying.set(false);
         this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur de certification FNE");
 
       }
@@ -190,15 +190,15 @@ export class FactureDetailPanelComponent {
 
 
   private onCertifyGroupInvoice(facture: IFacture): void {
-    this.certifying = true;
+    this.certifying.set(true);
     this.certificationApiService.certifyGroupe(facture.factureItemId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
-        this.certifying = false;
+        this.certifying.set(false);
         this.notificationService.success("Toutes les factures du groupe ont été certifiées avec succès auprès du FNE.", "Certification groupe");
 
       },
       error: err => {
-        this.certifying = false;
+        this.certifying.set(false);
         this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur de certification FNE");
       }
     });
@@ -232,11 +232,11 @@ export class FactureDetailPanelComponent {
   onExportPdf(): void {
     const f = this.facture();
     if (!f?.factureItemId) return;
-    this.loadingPdf = true;
+    this.loadingPdf.set(true);
     this.factureApiService
       .exportToPdf(f.factureItemId)
       .pipe(
-        finalize(() => (this.loadingPdf = false)),
+        finalize(() => (this.loadingPdf.set(false))),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
@@ -251,11 +251,11 @@ export class FactureDetailPanelComponent {
   private loadItems(f: IFacture): void {
     if (!f.factureItemId) return;
     this.itemsSubscription?.unsubscribe();
-    this.loadingItems = true;
+    this.loadingItems.set(true);
     this.itemsSubscription = this.factureApiService
       .find(f.factureItemId)
       .pipe(
-        finalize(() => (this.loadingItems = false)),
+        finalize(() => (this.loadingItems.set(false))),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
@@ -291,11 +291,11 @@ export class FactureDetailPanelComponent {
   private loadReglements(f: IFacture): void {
     if (!f.factureItemId) return;
     this.reglementsSubscription?.unsubscribe();
-    this.loadingReglements = true;
+    this.loadingReglements.set(true);
     this.reglementsSubscription = this.reglementApiService
       .findByInvoice(f.factureItemId)
       .pipe(
-        finalize(() => (this.loadingReglements = false)),
+        finalize(() => (this.loadingReglements.set(false))),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({

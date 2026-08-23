@@ -17,7 +17,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
   selector: "app-abc-pareto",
   templateUrl: "./abc-pareto.component.html",
   styleUrl: "./abc-pareto.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeviseDirective, 
     CommonModule,
     FormsModule,

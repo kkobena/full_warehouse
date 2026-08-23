@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpResponse } from '@angular/common/http';
@@ -17,13 +17,13 @@ import { ButtonComponent, CardComponent, SelectComponent, ToolbarComponent } fro
     ToolbarComponent,
   ],
   templateUrl: './depot-form.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./depot-form.component.scss'],
 })
 export class DepotFormComponent implements OnInit, AfterViewInit {
   protected depotForm!: FormGroup;
-  protected isEditMode = false;
-  protected isSaving = false;
+  protected readonly isEditMode = signal(false);
+  protected readonly isSaving = signal(false);
   protected depotId?: number;
 
   protected typeMagasinOptions = [
@@ -46,7 +46,7 @@ export class DepotFormComponent implements OnInit, AfterViewInit {
 
     this.route.params.subscribe(params => {
       if (params['id'] && params['id'] !== 'new') {
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.depotId = +params['id'];
         this.loadDepot(this.depotId);
       }
@@ -116,27 +116,27 @@ export class DepotFormComponent implements OnInit, AfterViewInit {
 
   save(): void {
     if (this.depotForm.valid) {
-      this.isSaving = true;
+      this.isSaving.set(true);
       const depot = this.createFromForm();
 
       if (depot.id) {
         this.magasinService.update(depot).subscribe({
           next: () => {
-            this.isSaving = false;
+            this.isSaving.set(false);
             this.router.navigate(['/depot']);
           },
           error: () => {
-            this.isSaving = false;
+            this.isSaving.set(false);
           },
         });
       } else {
         this.magasinService.create(depot).subscribe({
           next: () => {
-            this.isSaving = false;
+            this.isSaving.set(false);
             this.router.navigate(['/depot']);
           },
           error: () => {
-            this.isSaving = false;
+            this.isSaving.set(false);
           },
         });
       }

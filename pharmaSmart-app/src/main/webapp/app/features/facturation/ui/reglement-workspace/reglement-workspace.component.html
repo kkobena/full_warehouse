@@ -10,7 +10,7 @@
         [allSelection]="isAllSelected()"
         [dossierIds]="dossierIds()"
         [facture]="dossierFactureProjectionSignal()"
-        [isSaving]="isSaving"
+        [isSaving]="isSaving()"
         [montantAPayer]="totalAmount"
         [typeFacture]="mode() === 'GROUPE' ? ModeEditionReglement.GROUP : ModeEditionReglement.SINGLE"
       />

@@ -18,7 +18,7 @@ import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-pi
   selector: 'jhi-form-lot',
   templateUrl: './form-lot.component.html',
   styleUrls: ['form-lot.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     ButtonComponent,
@@ -35,11 +35,11 @@ export class FormLotComponent implements OnInit, AfterViewInit {
   deliveryItem?: AbstractOrderItem;
   commandeId?: number;
   protected fb = inject(FormBuilder);
-  protected isSaving = false;
-  protected numLotAlreadyExist = false;
-  protected maxDate: NgbDateStruct | null = null;
-  protected minDate: NgbDateStruct | null = null;
-  protected showUgControl = false;
+  protected readonly isSaving = signal(false);
+  protected readonly numLotAlreadyExist = signal(false);
+  protected readonly maxDate = signal<NgbDateStruct | null>(null);
+  protected readonly minDate = signal<NgbDateStruct | null>(null);
+  protected readonly showUgControl = signal(false);
   protected expiryWarning = signal<'none' | 'soon' | 'critical'>('none');
   protected editForm = this.fb.group({
     id: new FormControl<number | null>(null, {}),
@@ -70,9 +70,9 @@ export class FormLotComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.maxDate = FormLotComponent.toNgbDate(new Date());
-    this.minDate = FormLotComponent.toNgbDate(new Date());
-    this.showUgControl = Number(this.deliveryItem.freeQty) > 0 || this.getLotUgQuantity() < Number(this.deliveryItem.freeQty);
+    this.maxDate.set(FormLotComponent.toNgbDate(new Date()));
+    this.minDate.set(FormLotComponent.toNgbDate(new Date()));
+    this.showUgControl.set(Number(this.deliveryItem.freeQty) > 0 || this.getLotUgQuantity() < Number(this.deliveryItem.freeQty));
     if (this.entity) {
       this.updateForm(this.entity);
     }
@@ -104,7 +104,7 @@ export class FormLotComponent implements OnInit, AfterViewInit {
   }
 
   save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const entity = this.createFromForm();
     if (entity.id != undefined) {
       this.subscribeToSaveResponse(this.entityService.editLot(entity));
@@ -143,8 +143,8 @@ export class FormLotComponent implements OnInit, AfterViewInit {
 
   onValidateNumLot(event: any): void {
     const numLot = event.target.value;
-    this.numLotAlreadyExist = this.deliveryItem.lots.some(lot => lot.numLot === numLot && lot.id !== this.entity.id);
-    if (this.numLotAlreadyExist) {
+    this.numLotAlreadyExist.set(this.deliveryItem.lots.some(lot => lot.numLot === numLot && lot.id !== this.entity.id));
+    if (this.numLotAlreadyExist()) {
       this.notificationService.error(`Le numero de lot [ ${numLot} ] est déjà enregistré pour cette ligne de commande`, 'Erreur');
     }
   }
@@ -169,7 +169,7 @@ export class FormLotComponent implements OnInit, AfterViewInit {
   }
 
   protected onSaveError(err: HttpErrorResponse): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur');
   }
 

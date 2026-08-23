@@ -15,7 +15,7 @@ import { DefaultDashboardComponent } from './default-dashboard/default-dashboard
   selector: 'jhi-home',
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterModule,
     SkeletonComponent,

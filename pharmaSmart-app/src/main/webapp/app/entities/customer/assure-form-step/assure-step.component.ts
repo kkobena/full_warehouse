@@ -36,17 +36,14 @@ import {
     SelectSearchComponent
   ],
   templateUrl: './assure-step.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./assured-form-step.component.scss'],
 })
 export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
-  header: string | null = null;
   entity?: ICustomer;
-  isSaving = false;
-  isValid = true;
   minLength = 2;
   tiersPayant!: ITiersPayant | null;
-  tiersPayants: ITiersPayant[] = [];
+  protected readonly tiersPayants = signal<ITiersPayant[]>([]);
   tiersPayantAlreadyAdded = signal<IClientTiersPayant[]>([]);
 
   commonService = inject(CommonService);
@@ -105,9 +102,9 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
         const alreadyAddedIds = this.tiersPayantAlreadyAdded().map(tp => tp.tiersPayantId ?? tp.tiersPayant?.id);
-        this.tiersPayants = res.body.filter(tp => !alreadyAddedIds.includes(tp.id));
-        if (this.tiersPayants.length === 0) {
-          this.tiersPayants.push({id: null, fullName: 'Ajouter un nouveau tiers-payant'});
+        this.tiersPayants.set(res.body.filter(tp => !alreadyAddedIds.includes(tp.id)));
+        if (this.tiersPayants().length === 0) {
+          this.tiersPayants().push({id: null, fullName: 'Ajouter un nouveau tiers-payant'});
         }
       });
   }
@@ -165,7 +162,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       (resp: ITiersPayant) => {
         if (resp) {
-          this.tiersPayants.push(resp);
+          this.tiersPayants().push(resp);
           this.editForm.patchValue({tiersPayantId: resp});
           this.addToAlreadyAdded(resp);
         }

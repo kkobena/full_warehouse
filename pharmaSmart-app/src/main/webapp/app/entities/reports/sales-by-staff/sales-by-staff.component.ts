@@ -26,7 +26,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
     ToolbarComponent
   ],
   templateUrl: './sales-by-staff.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./sales-by-staff.component.scss'],
 })
 export default class SalesByStaffComponent implements OnInit {

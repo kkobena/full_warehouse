@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnDestroy, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import {signal, AfterViewInit, Component, ElementRef, inject, OnDestroy, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { IDelivery } from 'app/shared/model/delevery.model';
 import { saveAs } from 'file-saver';
 import { DATE_FORMAT_DD_MM_YYYY_HH_MM_SS } from 'app/shared/util/warehouse-util';
@@ -16,11 +16,11 @@ import { ButtonComponent, CardComponent, KeyFilterDirective } from 'app/shared/u
   selector: 'jhi-etiquette-delevery',
   templateUrl: './etiquette.component.html',
   styleUrls: ['etiquette.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, KeyFilterDirective, ButtonComponent, FormsModule, CardComponent],
 })
 export class EtiquetteComponent implements AfterViewInit, OnDestroy {
-  isSaving = false;
+  protected readonly isSaving = signal(false);
   entity?: IDelivery;
   header = 'Impression des étiquettes';
   protected startAt = 1;
@@ -42,12 +42,12 @@ export class EtiquetteComponent implements AfterViewInit, OnDestroy {
   }
 
   save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     this.printEtiquette();
   }
 
   cancel(): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.activeModal.dismiss();
   }
 
@@ -57,7 +57,7 @@ export class EtiquetteComponent implements AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (blob: Blob) => {
-          this.isSaving = false;
+          this.isSaving.set(false);
           if (this.tauriPrinterService.isRunningInTauri()) {
             handleBlobForTauri(blob, this.entity.receiptReference);
           } else {
@@ -66,7 +66,7 @@ export class EtiquetteComponent implements AfterViewInit, OnDestroy {
           this.cancel();
         },
         error: () => {
-          this.isSaving = false;
+          this.isSaving.set(false);
         },
       });
   }

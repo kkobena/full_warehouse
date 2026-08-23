@@ -6,8 +6,7 @@ import {
   input,
   output,
   viewChild,
-  ViewEncapsulation
-} from '@angular/core';
+  ViewEncapsulation, signal } from '@angular/core';
 import {NgStyle} from '@angular/common';
 import {ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR} from '@angular/forms';
 import {
@@ -80,7 +79,7 @@ import {FrenchDateParserFormatter} from '../../config/french-date-parser-formatt
                [id]="id()"
                [minDate]="minDate()"
                [maxDate]="maxDate()"
-               [disabled]="isDisabled || disabled()"
+               [disabled]="isDisabled() || disabled()"
                [readonly]="readOnly()"
                (input)="onManualInput($event)"
         />
@@ -88,7 +87,7 @@ import {FrenchDateParserFormatter} from '../../config/french-date-parser-formatt
           class="btn pharma-dp-btn"
           type="button"
           (click)="dp.toggle()"
-          [disabled]="isDisabled || disabled()"
+          [disabled]="isDisabled() || disabled()"
           [attr.aria-label]="'Ouvrir le calendrier pour ' + label()"
         >
           <i class="pi pi-calendar"></i>
@@ -138,7 +137,7 @@ export class PharmaDatePickerComponent implements ControlValueAccessor {
 
   /** Émis après la mise à jour du modèle — voir la note sur `(ngModelChange)` ci-dessus. */
   readonly selectionChange = output<NgbDateStruct | null>();
-  protected isDisabled = false;
+  protected readonly isDisabled = signal(false);
   private readonly dpRef = viewChild.required<NgbInputDatepicker>('dp');
   private readonly dpInputRef = viewChild.required('dpInput', {read: ElementRef<HTMLInputElement>});
 
@@ -168,7 +167,7 @@ export class PharmaDatePickerComponent implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.isDisabled = isDisabled;
+    this.isDisabled.set(isDisabled);
   }
 
   selectToday(): void {

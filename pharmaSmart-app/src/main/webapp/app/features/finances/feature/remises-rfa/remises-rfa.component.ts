@@ -11,7 +11,7 @@ import { DeviseDirective, DevisePipe } from 'app/shared/utils/devise';
   selector: 'app-remises-rfa',
   imports: [DeviseDirective, DevisePipe, CommonModule, ButtonComponent, DataTableComponent, ToolbarComponent, BadgeComponent, NgbNavModule],
   templateUrl: './remises-rfa.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './remises-rfa.component.scss',
 })
 export class RemisesRfaComponent implements OnInit {

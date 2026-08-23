@@ -71,9 +71,9 @@
           <div class="form-field form-field-full">
             <label class="form-control-label" for="field_qrCode">QR Code (optionnel)</label>
             <input (change)="onQrCodeSelect($event)" accept="image/*" class="form-control" id="field_qrCode" type="file" />
-            @if (qrCodePreview) {
+            @if (qrCodePreview()) {
               <div class="mt-2">
-                <img [src]="qrCodePreview" alt="QR Code Preview" class="img-thumbnail" style="max-height: 200px" />
+                <img [src]="qrCodePreview()" alt="QR Code Preview" class="img-thumbnail" style="max-height: 200px" />
                 <app-button (clicked)="onQrCodeRemove()" [raised]="true" buttonClass="ml-2" icon="pi pi-times"
                             label="Supprimer" severity="danger" size="small" />
               </div>
@@ -88,7 +88,7 @@
   <div class="form-actions-compact">
     <app-button (clicked)="cancel()" [raised]="true" buttonClass="mr-2" icon="pi pi-times" label="Annuler" severity="secondary" />
     <app-button
-      [disabled]="editForm.invalid || isSaving || !isValid"
+      [disabled]="editForm.invalid || isSaving() || !isValid"
       [raised]="true"
       buttonClass="mr-2"
       icon="pi pi-check"

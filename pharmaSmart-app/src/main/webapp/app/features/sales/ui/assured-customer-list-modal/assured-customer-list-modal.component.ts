@@ -20,7 +20,7 @@ import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constant
   selector: 'app-assured-customer-list-modal',
   imports: [CommonModule, FormsModule, ButtonComponent, DataTableComponent, NgbTooltip, IconFieldComponent, CardComponent],
   templateUrl: './assured-customer-list-modal.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./assured-customer-list-modal.component.scss'],
 })
 export class AssuredCustomerListModalComponent implements OnInit, AfterViewInit {
@@ -28,13 +28,22 @@ export class AssuredCustomerListModalComponent implements OnInit, AfterViewInit 
   headerLibelle = 'Sélection client assuré';
 
   /** Terme de recherche initial - peut être prérempli */
-  searchString = '';
+  protected readonly searchString = signal('');
+
+  /** `showCommonModal` affecte les proprietes de l'instance : il ne peut pas ecrire dans un signal. */
+  set search(valeur: string) {
+    this.searchString.set(valeur ?? '');
+  }
 
   /** Type de tiers payant (ASSURANCE ou CARNET) */
   typeTiersPayant = 'ASSURANCE';
 
   /** Liste de clients preloadés (si fournie par le parent) */
-  preloadedCustomers: ICustomer[] | null = null;
+  protected readonly preloadedCustomers = signal<ICustomer[] | null>(null);
+
+  set preloaded(valeur: ICustomer[] | null) {
+    this.preloadedCustomers.set(valeur);
+  }
 
   customers = signal<ICustomer[]>([]);
   loading = signal(false);
@@ -48,7 +57,7 @@ export class AssuredCustomerListModalComponent implements OnInit, AfterViewInit 
   private readonly customerService = inject(CustomerService);
   private readonly destroyRef = inject(DestroyRef);
   private searchSubject$ = new Subject<string>();
-  private page = 0;
+  private readonly page = signal(0);
 
   ngOnInit(): void {
     // Debounce search input
@@ -57,10 +66,11 @@ export class AssuredCustomerListModalComponent implements OnInit, AfterViewInit 
     });
 
     // Si des clients sont preloadés, les afficher directement
-    if (this.preloadedCustomers && this.preloadedCustomers.length > 0) {
-      this.customers.set(this.preloadedCustomers);
-      this.totalItems.set(this.preloadedCustomers.length);
-    } else if (this.searchString) {
+    const precharges = this.preloadedCustomers();
+    if (precharges && precharges.length > 0) {
+      this.customers.set(precharges);
+      this.totalItems.set(precharges.length);
+    } else if (this.searchString()) {
       // Si un searchTerm est fourni sans preload, lancer la recherche
       this.loadPage(1);
     }
@@ -74,8 +84,8 @@ export class AssuredCustomerListModalComponent implements OnInit, AfterViewInit 
 
   protected onSearchInput(): void {
     // Dès que l'utilisateur tape, on passe en mode recherche serveur
-    this.preloadedCustomers = null;
-    this.searchSubject$.next(this.searchString || '');
+    this.preloadedCustomers.set(null);
+    this.searchSubject$.next(this.searchString() || '');
   }
 
   protected onKeydown(event: KeyboardEvent): void {
@@ -103,18 +113,18 @@ export class AssuredCustomerListModalComponent implements OnInit, AfterViewInit 
   }
 
   protected clearSearch(): void {
-    this.searchString = '';
+    this.searchString.set('');
     this.onSearchInput();
   }
 
   protected loadPage(page?: number): void {
-    const pageToLoad: number = page || this.page || 1;
+    const pageToLoad: number = page || this.page() || 1;
     this.loading.set(true);
     this.customerService
       .queryAssuredCustomer({
         page: pageToLoad - 1,
         size: this.itemsPerPage,
-        search: this.searchString,
+        search: this.searchString(),
         typeTiersPayant: this.typeTiersPayant,
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -125,19 +135,19 @@ export class AssuredCustomerListModalComponent implements OnInit, AfterViewInit 
   }
 
   protected lazyLoading(event: AppTableLazyLoadEvent): void {
-    if (event && !this.preloadedCustomers) {
-      this.page = event.first! / event.rows!;
+    if (event && !this.preloadedCustomers()) {
+      this.page.set(event.first! / event.rows!);
       this.loading.set(true);
       this.customerService
         .queryAssuredCustomer({
-          page: this.page,
+          page: this.page(),
           size: event.rows,
-          search: this.searchString,
+          search: this.searchString(),
           typeTiersPayant: this.typeTiersPayant,
         })
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
-          next: (res: HttpResponse<ICustomer[]>) => this.onSuccess(res.body, res.headers, this.page),
+          next: (res: HttpResponse<ICustomer[]>) => this.onSuccess(res.body, res.headers, this.page()),
           error: () => this.onError(),
         });
     }
@@ -145,7 +155,7 @@ export class AssuredCustomerListModalComponent implements OnInit, AfterViewInit 
 
   private onSuccess(data: ICustomer[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems.set(Number(headers.get('X-Total-Count')) || 0);
-    this.page = page;
+    this.page.set(page);
     this.customers.set(data || []);
     this.loading.set(false);
   }

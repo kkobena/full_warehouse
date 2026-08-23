@@ -72,7 +72,7 @@ import { currencySymbol } from 'app/shared/utils/format-utils';
     CardComponent
   ],
   templateUrl: "./comptes-fournisseurs.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./comptes-fournisseurs.component.scss"
 })
 export class ComptesFournisseursComponent implements OnInit {

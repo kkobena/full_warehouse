@@ -113,9 +113,9 @@
     <app-button (clicked)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button"/>
 
     <app-button
-      [disabled]="editForm.invalid || isSaving"
+      [disabled]="editForm.invalid || isSaving()"
       [raised]="true"
-      [loading]="isSaving"
+      [loading]="isSaving()"
       icon="pi pi-check"
       id="save-entity"
       label="Enregistrer"

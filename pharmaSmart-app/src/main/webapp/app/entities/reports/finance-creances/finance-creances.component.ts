@@ -11,7 +11,7 @@ type Periode = 'quarter' | 'year';
   selector: 'app-finance-creances',
   imports: [NgbNavModule, VieillissementCreancesComponent, ConcentrationPayersComponent],
   templateUrl: './finance-creances.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./finance-creances.component.scss'],
 })
 export default class FinanceCreancesComponent {

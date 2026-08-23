@@ -21,7 +21,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
   templateUrl: "./sales-annulations.component.html",
   styleUrl: "./sales-annulations.component.scss",
   providers: [{ provide: NgbDateParserFormatter, useClass: FrenchDateParserFormatter }],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
@@ -48,13 +48,12 @@ export class SalesAnnulationsComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly SalesStatut = SalesStatut;
   protected loading = signal(false);
-  protected sales: ISales[] = [];
-  protected users: IUser[] = [];
-  protected totalItems = 0;
-  protected page = 0;
-  protected itemsPerPage = ITEMS_PER_PAGE;
+  protected readonly sales = signal<ISales[]>([]);
+  protected readonly users = signal<IUser[]>([]);
+  protected readonly totalItems = signal(0);
+  protected readonly page = signal(0);
+  protected readonly itemsPerPage = signal(ITEMS_PER_PAGE);
 
   protected search = "";
   protected selectedUserId: number | null = null;
@@ -70,12 +69,12 @@ export class SalesAnnulationsComponent implements OnInit {
 
   private loadAllUsers(): void {
     this.userService.query().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(res => {
-      this.users = res.body || [];
+      this.users.set(res.body || []);
     });
   }
 
   protected loadPage(page?: number): void {
-    const pageToLoad = page ?? this.page;
+    const pageToLoad = page ?? this.page();
     const params = {
       statuts: [SalesStatut.CANCELED],
       search: this.search || null,
@@ -86,7 +85,7 @@ export class SalesAnnulationsComponent implements OnInit {
     this.loading.set(true);
     this.api.querySales({
       page: pageToLoad,
-      size: this.itemsPerPage,
+      size: this.itemsPerPage(),
       ...params
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -108,16 +107,16 @@ export class SalesAnnulationsComponent implements OnInit {
   }
 
   private onSuccess(data: ISales[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get("X-Total-Count"));
-    this.page = page;
-    this.sales = data || [];
+    this.totalItems.set(Number(headers.get("X-Total-Count")));
+    this.page.set(page);
+    this.sales.set(data || []);
   }
 
   protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event.first != null && event.rows != null) {
-      this.page = event.first / event.rows;
-      this.itemsPerPage = event.rows;
-      this.loadPage(this.page);
+      this.page.set(event.first / event.rows);
+      this.itemsPerPage.set(event.rows);
+      this.loadPage(this.page());
     }
   }
 

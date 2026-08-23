@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy, signal } from '@angular/core';
 import { Customer, ICustomer } from 'app/shared/model/customer.model';
 import { ErrorService } from 'app/shared/error.service';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
@@ -18,7 +18,7 @@ import {
   selector: 'app-uninsured-customer-form',
   templateUrl: './uninsured-customer-form.component.html',
   styleUrls: ['./uninsured-customer-component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     ReactiveFormsModule,
@@ -30,7 +30,7 @@ import {
 export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit, OnDestroy {
   title: string | null = null;
   entity?: ICustomer;
-  protected isSaving = false;
+  protected readonly isSaving = signal(false);
   protected isValid = true;
   protected firstName = viewChild.required<ElementRef>('firstName');
   protected fb = inject(UntypedFormBuilder);
@@ -64,7 +64,7 @@ export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit, On
   }
 
   save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const customer = this.createFromForm();
     if (customer.id !== undefined && customer.id) {
       customer.type = 'STANDARD';
@@ -104,7 +104,7 @@ export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit, On
   private subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
     result
       .pipe(
-        finalize(() => (this.isSaving = false)),
+        finalize(() => (this.isSaving.set(false))),
         takeUntil(this.destroy$),
       )
       .subscribe({

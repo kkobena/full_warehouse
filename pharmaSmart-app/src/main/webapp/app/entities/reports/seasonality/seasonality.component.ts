@@ -17,7 +17,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
   selector: 'app-seasonality',
   imports: [DeviseDirective, CommonModule, FormsModule, DataTableComponent, ChartComponent, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent],
   templateUrl: './seasonality.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./seasonality.component.scss'],
 })
 export default class SeasonalityComponent implements OnInit {

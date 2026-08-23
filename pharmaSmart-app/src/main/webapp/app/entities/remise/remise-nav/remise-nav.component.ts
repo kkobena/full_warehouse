@@ -27,7 +27,7 @@ import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-l
     NgbNavOutlet
   ],
   templateUrl: './remise-nav.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./remise-nav.scss'],
 })
 export class RemiseNavComponent {

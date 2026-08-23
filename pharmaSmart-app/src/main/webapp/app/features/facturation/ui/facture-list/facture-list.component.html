@@ -2,7 +2,7 @@
   (onLazyLoad)="lazyLoading($event)"
   (selectionChange)="onSelectionChange($event)"
   [lazy]="true"
-  [loading]="loading"
+  [loading]="loading()"
   [paginator]="true"
   [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
   [rows]="itemsPerPage"

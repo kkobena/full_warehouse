@@ -18,7 +18,7 @@
             placeholder=" " type="text" />
         </app-float-label>
 
-        <pharma-date-picker [(ngModel)]="modelStartDate" [style]="{ 'max-width': '180px' }"
+        <pharma-date-picker [ngModel]="modelStartDate()" (ngModelChange)="modelStartDate.set($event)" [style]="{ 'max-width': '180px' }"
                             id="hrDu"
                             label="Du" />
 
@@ -30,7 +30,7 @@
             <app-select-search
               (searched)="searchGroupeTiersPayant($event)"
               [(ngModel)]="selectedGroupeTiersPayant"
-              [items]="groupeTiersPayants"
+              [items]="groupeTiersPayants()"
               [style]="{ minWidth: '180px' }"
               appendTo="body"
               bindLabel="name"
@@ -42,7 +42,7 @@
             <app-select-search
               (searched)="searchTiersPayant($event)"
               [(ngModel)]="selectedTiersPayant"
-              [items]="tiersPayants"
+              [items]="tiersPayants()"
               [minSearchLength]="minLength"
               [style]="{ minWidth: '300px' }"
               appendTo="body"
@@ -59,7 +59,7 @@
         <div class="pharma-button-group">
           <app-button
             (clicked)="onSearch()"
-            [loading]="loadingBtn"
+            [loading]="loadingBtn()"
             [raised]="true"
             icon="pi pi-search"
             label="Rechercher"
@@ -67,7 +67,7 @@
           />
           <app-button
             (clicked)="onPrintPdf()"
-            [loading]="loadingPdf"
+            [loading]="loadingPdf()"
             [raised]="true"
             icon="pi pi-file-pdf"
             label="Imprimer"
@@ -75,7 +75,7 @@
           />
           <app-button
             (clicked)="onExportExcel()"
-            [loading]="loadingExcel"
+            [loading]="loadingExcel()"
             [raised]="true"
             icon="pi pi-file-excel"
             label="Excel"
@@ -90,7 +90,7 @@
   <div class="px-2">
     <app-data-table
       #reglementTable
-      [(selection)]="selectedDatas"
+      [selection]="selectedDatas()" (selectionChange)="selectedDatas.set($any($event))"
       [paginator]="true"
       [rowsPerPageOptions]="[10, 15, 20, 25, 30, 100]"
       [rows]="15"
@@ -99,7 +99,7 @@
       [showCurrentPageReport]="true"
       [size]="'small'"
       [stripedRows]="true"
-      [value]="datas"
+      [value]="datas()"
       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} règlements"
       dataKey="id.id"
       groupRowsBy="organismeId"
@@ -116,12 +116,12 @@
               class="form-control"
               placeholder="Filtrer dans la liste..." type="text" />
           </app-icon-field>
-          @if (selectedDatas.length > 0) {
+          @if (selectedDatas().length > 0) {
             <app-button
               (clicked)="onDeleteAll()"
               [raised]="true"
               icon="pi pi-trash"
-              label="Supprimer la sélection ({{ selectedDatas.length }})"
+              label="Supprimer la sélection ({{ selectedDatas().length }})"
               severity="danger"
             />
           }

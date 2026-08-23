@@ -41,7 +41,7 @@
       severity="primary"
       icon="pi pi-check"
       label="Enregistrer"
-      [disabled]="editForm.invalid || isSaving"
+      [disabled]="editForm.invalid || isSaving()"
       id="save-entity"
       type="submit"
       (clicked)="save()"

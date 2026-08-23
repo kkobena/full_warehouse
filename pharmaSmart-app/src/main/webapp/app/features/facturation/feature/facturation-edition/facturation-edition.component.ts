@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { finalize } from "rxjs/operators";
 import { HttpResponse } from "@angular/common/http";
@@ -61,7 +61,7 @@ import {
     SwitchComponent
   ],
   templateUrl: "./facturation-edition.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./facturation-edition.component.scss"
 })
 export class FacturationEditionComponent implements OnInit {
@@ -70,30 +70,30 @@ export class FacturationEditionComponent implements OnInit {
   protected readonly minLength = 2;
 
   protected modeEdition: string | null = null;
-  protected typeTiersPayant: string | null = null;
+  protected readonly typeTiersPayant = signal<string | null>(null);
   protected factureProvisoire = false;
   protected modelStartDate: NgbDateStruct = this.todayNgb();
   protected modelEndDate: NgbDateStruct = this.todayNgb();
 
-  protected groupeTiersPayants: IGroupeTiersPayant[] = [];
-  protected selectedGroupeTiersPayants: IGroupeTiersPayant[] = [];
-  protected tiersPayants: ITiersPayant[] = [];
-  protected selectedTiersPayants: ITiersPayant[] = [];
+  protected readonly groupeTiersPayants = signal<IGroupeTiersPayant[]>([]);
+  protected readonly selectedGroupeTiersPayants = signal<IGroupeTiersPayant[]>([]);
+  protected readonly tiersPayants = signal<ITiersPayant[]>([]);
+  protected readonly selectedTiersPayants = signal<ITiersPayant[]>([]);
 
-  protected tiersPayantDossierFactures: ITiersPayantDossierFacture[] = [];
-  protected dossierFactures: IDossierFacture[] = [];
-  protected selectedDossiers: IDossierFacture[] = [];
-  protected selectedTiersPayantDossiers: ITiersPayantDossierFacture[] = [];
+  protected readonly tiersPayantDossierFactures = signal<ITiersPayantDossierFacture[]>([]);
+  protected readonly dossierFactures = signal<IDossierFacture[]>([]);
+  protected readonly selectedDossiers = signal<IDossierFacture[]>([]);
+  protected readonly selectedTiersPayantDossiers = signal<ITiersPayantDossierFacture[]>([]);
 
-  protected totalItems = 0;
-  protected totalItemsTp = 0;
+  protected readonly totalItems = signal(0);
+  protected readonly totalItemsTp = signal(0);
   protected readonly itemsPerPage = 15;
-  protected page = 0;
-  protected pageTp = 0;
+  protected readonly page = signal(0);
+  protected readonly pageTp = signal(0);
 
-  protected searching = false;
-  protected editing = false;
-  protected exporting = false;
+  protected readonly searching = signal(false);
+  protected readonly editing = signal(false);
+  protected readonly exporting = signal(false);
 
   private readonly factureApiService = inject(FactureApiService);
   private readonly tiersPayantService = inject(TiersPayantService);
@@ -139,11 +139,11 @@ export class FacturationEditionComponent implements OnInit {
 
   lazyLoadingTp(event: any): void {
     if (event) {
-      this.pageTp = Math.floor((event.first ?? 0) / (event.rows ?? this.itemsPerPage));
-      this.searching = true;
+      this.pageTp.set(Math.floor((event.first ?? 0) / (event.rows ?? this.itemsPerPage)));
+      this.searching.set(true);
       this.factureApiService
-        .queryEditionData({ page: this.pageTp, size: event.rows, ...this.buildSearchParams() })
-        .pipe(finalize(() => (this.searching = false)), takeUntilDestroyed(this.destroyRef))
+        .queryEditionData({ page: this.pageTp(), size: event.rows, ...this.buildSearchParams() })
+        .pipe(finalize(() => (this.searching.set(false))), takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: res => this.onDataSuccess(res.body, res.headers),
           error: err => this.onError(err)
@@ -153,11 +153,11 @@ export class FacturationEditionComponent implements OnInit {
 
   lazyLoadingBons(event: any): void {
     if (event) {
-      this.page = Math.floor((event.first ?? 0) / (event.rows ?? this.itemsPerPage));
-      this.searching = true;
+      this.page.set(Math.floor((event.first ?? 0) / (event.rows ?? this.itemsPerPage)));
+      this.searching.set(true);
       this.factureApiService
-        .queryBons({ page: this.page, size: event.rows, ...this.buildSearchParams() })
-        .pipe(finalize(() => (this.searching = false)), takeUntilDestroyed(this.destroyRef))
+        .queryBons({ page: this.page(), size: event.rows, ...this.buildSearchParams() })
+        .pipe(finalize(() => (this.searching.set(false))), takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: res => this.onBonsSuccess(res.body, res.headers),
           error: err => this.onError(err)
@@ -169,22 +169,22 @@ export class FacturationEditionComponent implements OnInit {
     this.tiersPayantService
       .query({ page: 0, search, size: 10 })
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({ next: (res: HttpResponse<ITiersPayant[]>) => (this.tiersPayants = res.body ?? []) });
+      .subscribe({ next: (res: HttpResponse<ITiersPayant[]>) => (this.tiersPayants.set(res.body ?? [])) });
   }
 
   private loadGroupTiersPayant(search = ""): void {
     this.groupeTiersPayantService
       .query({ page: 0, search, size: 10 })
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({ next: (res: HttpResponse<IGroupeTiersPayant[]>) => (this.groupeTiersPayants = res.body ?? []) });
+      .subscribe({ next: (res: HttpResponse<IGroupeTiersPayant[]>) => (this.groupeTiersPayants.set(res.body ?? [])) });
   }
 
   private loadBons(): void {
-    this.searching = true;
-    this.page = 0;
+    this.searching.set(true);
+    this.page.set(0);
     this.factureApiService
       .queryBons({ page: 0, size: this.itemsPerPage, ...this.buildSearchParams() })
-      .pipe(finalize(() => (this.searching = false)), takeUntilDestroyed(this.destroyRef))
+      .pipe(finalize(() => (this.searching.set(false))), takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: res => this.onBonsSuccess(res.body, res.headers),
         error: err => this.onError(err)
@@ -192,11 +192,11 @@ export class FacturationEditionComponent implements OnInit {
   }
 
   private loadData(): void {
-    this.searching = true;
-    this.pageTp = 0;
+    this.searching.set(true);
+    this.pageTp.set(0);
     this.factureApiService
       .queryEditionData({ page: 0, size: this.itemsPerPage, ...this.buildSearchParams() })
-      .pipe(finalize(() => (this.searching = false)), takeUntilDestroyed(this.destroyRef))
+      .pipe(finalize(() => (this.searching.set(false))), takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: res => this.onDataSuccess(res.body, res.headers),
         error: err => this.onError(err)
@@ -204,10 +204,10 @@ export class FacturationEditionComponent implements OnInit {
   }
 
   private doEdit(): void {
-    this.editing = true;
+    this.editing.set(true);
     this.factureApiService
       .editInvoices(this.buildEditionParams())
-      .pipe(finalize(() => (this.editing = false)), takeUntilDestroyed(this.destroyRef))
+      .pipe(finalize(() => (this.editing.set(false))), takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: HttpResponse<IFactureEditionResponse>) => {
           if (res.body) {
@@ -229,10 +229,10 @@ export class FacturationEditionComponent implements OnInit {
   }
 
   private downloadPdf(response: IFactureEditionResponse): void {
-    this.exporting = true;
+    this.exporting.set(true);
     this.factureApiService
       .exportAllInvoices(response)
-      .pipe(finalize(() => (this.exporting = false)), takeUntilDestroyed(this.destroyRef))
+      .pipe(finalize(() => (this.exporting.set(false))), takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (blob) => this.downloadDocumentService.downloadPdf(blob, "factures_edition"),
         error: err => this.onError(err)
@@ -240,13 +240,13 @@ export class FacturationEditionComponent implements OnInit {
   }
 
   private onBonsSuccess(data: IDossierFacture[] | null, headers: any): void {
-    this.dossierFactures = data ?? [];
-    this.totalItems = Number(headers.get("X-Total-Count"));
+    this.dossierFactures.set(data ?? []);
+    this.totalItems.set(Number(headers.get("X-Total-Count")));
   }
 
   private onDataSuccess(data: ITiersPayantDossierFacture[] | null, headers: any): void {
-    this.tiersPayantDossierFactures = data ?? [];
-    this.totalItemsTp = Number(headers.get("X-Total-Count"));
+    this.tiersPayantDossierFactures.set(data ?? []);
+    this.totalItemsTp.set(Number(headers.get("X-Total-Count")));
   }
 
   private onError(err: any): void {
@@ -254,13 +254,13 @@ export class FacturationEditionComponent implements OnInit {
   }
 
   private resetResults(): void {
-    this.tiersPayantDossierFactures = [];
-    this.dossierFactures = [];
-    this.selectedDossiers = [];
-    this.selectedTiersPayantDossiers = [];
-    this.typeTiersPayant = null;
-    this.selectedGroupeTiersPayants = [];
-    this.selectedTiersPayants = [];
+    this.tiersPayantDossierFactures.set([]);
+    this.dossierFactures.set([]);
+    this.selectedDossiers.set([]);
+    this.selectedTiersPayantDossiers.set([]);
+    this.typeTiersPayant.set(null);
+    this.selectedGroupeTiersPayants.set([]);
+    this.selectedTiersPayants.set([]);
   }
 
   private buildSearchParams(): IEditionSearchParams {
@@ -269,9 +269,9 @@ export class FacturationEditionComponent implements OnInit {
       endDate: this.ngbDateToIso(this.modelEndDate),
       modeEdition: this.modeEdition ?? "ALL",
       factureProvisoire: this.factureProvisoire,
-      groupIds: this.selectedGroupeTiersPayants.map(g => g.id),
-      tiersPayantIds: this.selectedTiersPayants.map(tp => tp.id),
-      categorieTiersPayants: this.typeTiersPayant ? [this.typeTiersPayant] : [],
+      groupIds: this.selectedGroupeTiersPayants().map(g => g.id),
+      tiersPayantIds: this.selectedTiersPayants().map(tp => tp.id),
+      categorieTiersPayants: this.typeTiersPayant() ? [this.typeTiersPayant()] : [],
       all: !this.modeEdition
     };
   }
@@ -289,10 +289,10 @@ export class FacturationEditionComponent implements OnInit {
   private buildEditionParams(): IEditionSearchParams {
     const base = this.buildSearchParams();
     if (this.modeEdition === "SELECTION_BON") {
-      return { ...base, ids: this.selectedDossiers.map(d => d.id!) };
+      return { ...base, ids: this.selectedDossiers().map(d => d.id!) };
     }
     if (this.modeEdition === "SELECTED" || this.modeEdition === "GROUP") {
-      return { ...base, ids: this.selectedTiersPayantDossiers.map(d => d.id) };
+      return { ...base, ids: this.selectedTiersPayantDossiers().map(d => d.id) };
     }
     return base;
   }

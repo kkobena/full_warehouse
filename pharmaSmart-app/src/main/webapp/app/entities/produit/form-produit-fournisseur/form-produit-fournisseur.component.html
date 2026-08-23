@@ -23,7 +23,7 @@
             Fournisseur <span class="text-danger">*</span>
           </label>
           <app-select #fournisseurSelect (selectionChange)="onChange($event)"
-                      [items]="fournisseurs" bindLabel="libelle"
+                      [items]="fournisseurs()" bindLabel="libelle"
                       bindValue="id" formControlName="fournisseurId" inputId="field_fournisseurId"
                       placeholder="Sélectionner" />
           @if (editForm.get('fournisseurId')!.invalid && editForm.get('fournisseurId')!.touched) {
@@ -113,7 +113,7 @@
   <div class="modal-footer py-2">
     <app-button (clicked)="cancel()" [raised]="true" icon="pi pi-times"
                 label="Annuler" severity="secondary" type="button" />
-    <app-button [disabled]="editForm.invalid || isSaving || !isValid" [loading]="isSaving"
+    <app-button [disabled]="editForm.invalid || isSaving() || !isValid()" [loading]="isSaving()"
                 [raised]="true" icon="pi pi-check"
                 label="Enregistrer" severity="primary" type="submit" />
   </div>

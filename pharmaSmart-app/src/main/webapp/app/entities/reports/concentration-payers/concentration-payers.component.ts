@@ -41,7 +41,7 @@ const CHART_BORDERS = [
   selector: 'app-concentration-payers',
   templateUrl: './concentration-payers.component.html',
   styleUrl: './concentration-payers.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeviseDirective, 
     CommonModule,
     FormsModule,

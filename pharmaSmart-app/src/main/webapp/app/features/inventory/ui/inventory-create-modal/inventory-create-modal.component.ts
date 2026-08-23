@@ -30,7 +30,7 @@ const GROUP_LABELS: Record<string, string> = {scope: 'Périmètre', thematic: 'T
   imports: [CommonModule, ReactiveFormsModule, ButtonComponent, SelectComponent, SelectSearchComponent, InputNumberComponent, PharmaDatePickerComponent, CardComponent],
   templateUrl: './inventory-create-modal.component.html',
   styleUrl: './inventory-create-modal.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InventoryCreateModalComponent implements OnInit {
   readonly activeModal = inject(NgbActiveModal);

@@ -9,7 +9,7 @@ import {ButtonComponent, CardComponent, FileUploadComponent} from "../ui";
   selector: "app-json-import-dialog",
   templateUrl: "./json-import-dialog.component.html",
   styleUrls: ["./json-import-dialog.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ButtonComponent, CardComponent, FileUploadComponent]
 })
 export class JsonImportDialogComponent {

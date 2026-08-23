@@ -30,7 +30,7 @@ import {
                 severity="secondary" type="button" />
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
     `
       .modal-body {

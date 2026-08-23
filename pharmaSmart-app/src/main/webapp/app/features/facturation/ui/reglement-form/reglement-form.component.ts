@@ -56,7 +56,7 @@ import {PharmaDatePickerComponent} from 'app/shared/date-picker/pharma-date-pick
     CardComponent
   ],
   templateUrl: "./reglement-form.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./reglement-form.component.scss"
 })
 export class ReglementFormComponent implements AfterViewInit {
@@ -76,7 +76,7 @@ export class ReglementFormComponent implements AfterViewInit {
   readonly partialPayment = output<boolean>();
   readonly reglementParams = output<IReglementParams>();
   readonly maxDate = TODAY_NGB_DATE();
-  protected paymentModes: IPaymentMode[] = [];
+  protected readonly paymentModes = signal([]);
   protected montantSaisi = signal(0);
   protected validMontantSaisi = computed(() => {
     if (this.allSelection()) {
@@ -85,7 +85,6 @@ export class ReglementFormComponent implements AfterViewInit {
     return this.montantSaisi() >= (this.montantAPayer() ?? 0);
   });
 
-  protected monnaie = computed(() => (this.montantAPayer() ?? 0) - this.montantVerse);
 
   private readonly fb = inject(FormBuilder);
   readonly reglementForm = this.fb.group({
@@ -191,7 +190,7 @@ export class ReglementFormComponent implements AfterViewInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((res: HttpResponse<IPaymentMode[]>) => {
         if (res.body) {
-          this.paymentModes = res.body;
+          this.paymentModes.set(res.body);
           this.setDefaultModeReglement();
           // Initialize amount after payment modes are loaded (replaces setTimeout)
           this.reglementForm.get("amount").setValue(this.initTotalAmount);
@@ -243,7 +242,7 @@ export class ReglementFormComponent implements AfterViewInit {
   }
 
   private setDefaultModeReglement(): void {
-    const defaultMode = this.paymentModes.find(m => m.code === this.CH);
+    const defaultMode = this.paymentModes().find(m => m.code === this.CH);
     if (defaultMode) {
       this.reglementForm.get("modePaimentCode").setValue(defaultMode.code);
     }

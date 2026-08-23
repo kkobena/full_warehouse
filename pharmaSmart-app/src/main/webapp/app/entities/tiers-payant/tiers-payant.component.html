@@ -1,4 +1,4 @@
-@if (responseDialog) {
+@if (responseDialog()) {
   <div class="mb-2">
     <span
       [ngClass]="responsedto?.size === responsedto?.totalSize ? 'text-success fw-bold' : 'text-danger fw-bold'">{{
@@ -54,7 +54,7 @@
         />
 
         <app-split-button
-          [items]="tiersPayantSplitbuttons"
+          [items]="tiersPayantSplitbuttons()"
           [raised]="true"
           icon="pi pi-user-plus"
           label="Nouveau tiers payant"
@@ -64,19 +64,19 @@
     </ng-container>
   </app-toolbar>
 
-  @if (tiersPayants && tiersPayants.length > 0) {
+  @if (tiersPayants() && tiersPayants().length > 0) {
     <app-data-table
       (onLazyLoad)="lazyLoading($event)"
       [lazy]="true"
-      [loading]="loading"
+      [loading]="loading()"
       [paginator]="true"
       [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
       [rows]="itemsPerPage"
       [selectionMode]="'single'"
       [showCurrentPageReport]="true"
       [size]="'small'"
-      [totalRecords]="totalItems"
-      [value]="tiersPayants"
+      [totalRecords]="totalItems()"
+      [value]="tiersPayants()"
       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords}"
       dataKey="id"
     >

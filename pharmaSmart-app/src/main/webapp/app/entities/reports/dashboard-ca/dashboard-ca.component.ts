@@ -43,7 +43,7 @@ interface PeriodOption {
   selector: "app-dashboard-ca",
   templateUrl: "./dashboard-ca.component.html",
   styleUrl: "./dashboard-ca.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeviseDirective, 
     CommonModule,
     FormsModule,

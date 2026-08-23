@@ -1,7 +1,7 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-2">
     <div class="depot-form-container">
-      <app-toolbar icon="pi pi-building" [title]="(isEditMode ? 'Modifier' : 'Nouveau') + ' Dépôt'">
+      <app-toolbar icon="pi pi-building" [title]="(isEditMode() ? 'Modifier' : 'Nouveau') + ' Dépôt'">
         <ng-container ngProjectAs="[toolbarActions]">
           <div class="pharma-toolbar-actions">
             <app-button (clicked)="cancel()" [text]="true" icon="pi pi-arrow-left" label="Retour" severity="secondary" />
@@ -181,9 +181,9 @@
         <div class="form-actions-compact">
           <app-button (clicked)="cancel()" [text]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
           <app-button
-            [disabled]="depotForm.invalid || isSaving"
-            [label]="isEditMode ? 'Mettre à jour' : 'Créer'"
-            [loading]="isSaving"
+            [disabled]="depotForm.invalid || isSaving()"
+            [label]="isEditMode() ? 'Mettre à jour' : 'Créer'"
+            [loading]="isSaving()"
             icon="pi pi-check"
             severity="primary"
             type="submit"

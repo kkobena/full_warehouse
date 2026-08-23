@@ -31,7 +31,7 @@ import { ErrorService } from "../../../../../shared/error.service";
   templateUrl: "./reception-sequential.component.html",
   styleUrls: ["./reception-sequential.component.scss"],
   host: { "(window:keydown)": "onKeydown($event)" },
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, ButtonComponent, NgbTooltip]
 })
 export class ReceptionSequentialComponent {
@@ -61,10 +61,10 @@ export class ReceptionSequentialComponent {
 
   // ── Saisie lot inline ────────────────────────────────────────────────────
   protected readonly lineLots = signal<ILot[]>([]);
-  protected draftLotNum = "";
-  protected draftLotExpiry = "";
-  protected draftLotQty: number | null = null;
-  protected draftLotUg: number | null = null;
+  protected readonly draftLotNum = signal("");
+  protected readonly draftLotExpiry = signal("");
+  protected readonly draftLotQty = signal<number | null>(null);
+  protected readonly draftLotUg = signal<number | null>(null);
   protected readonly lotSaving = signal(false);
   protected readonly expiryWarning = signal<"none" | "soon" | "critical">("none");
   protected readonly lotJustAdded = signal(false);
@@ -73,7 +73,7 @@ export class ReceptionSequentialComponent {
   /** Code scanné en attente d'association au CIP de la ligne courante. */
   protected readonly pendingCipAssociation = signal<string | null>(null);
   protected readonly isEditingCip = signal(false);
-  protected draftCip = "";
+  protected readonly draftCip = signal("");
 
   /** Pré-remplissage en attente, appliqué quand on entre en step lot. */
   private pendingPrefill: { numLot: string; expiry: string } | null = null;
@@ -384,35 +384,35 @@ export class ReceptionSequentialComponent {
 
   // ── ÉTAPE 2 : Saisie lot inline ──────────────────────────────────────────
   protected recomputeLotUg(): void {
-    const qty = this.draftLotQty;
+    const qty = this.draftLotQty();
     const remQty = this.remainingLotQty();
     const remUg = this.remainingLotUg();
     if (remUg === 0 || !qty || qty <= 0) {
-      this.draftLotUg = remUg > 0 ? remUg : null;
+      this.draftLotUg.set(remUg > 0 ? remUg : null);
       return;
     }
-    this.draftLotUg = qty >= remQty ? remUg : (Math.round(remUg * qty / remQty) || 0);
+    this.draftLotUg.set(qty >= remQty ? remUg : (Math.round(remUg * qty / remQty) || 0));
   }
 
   protected onLotExpiryInput(value: string): void {
-    this.draftLotExpiry = this.autoFormatExpiry(value);
-    this.expiryWarning.set(this.calcExpiryWarning(this.draftLotExpiry));
+    this.draftLotExpiry.set(this.autoFormatExpiry(value));
+    this.expiryWarning.set(this.calcExpiryWarning(this.draftLotExpiry()));
   }
 
   protected onSaveLot(): void {
     const line = this.currentLine();
     if (!line || this.lotSaving()) return;
 
-    if (!this.draftLotNum.trim()) {
+    if (!this.draftLotNum().trim()) {
       this.notificationService.error("Le numéro de lot est obligatoire", "Lot");
       return;
     }
-    const expiryDate = this.formatExpiryForSave(this.draftLotExpiry);
+    const expiryDate = this.formatExpiryForSave(this.draftLotExpiry());
     if (!expiryDate) {
       this.notificationService.error("Format invalide. Utilisez MM/AAAA (ex: 06/2028)", "Lot");
       return;
     }
-    const qty = this.isUgOnlyLotMode() ? 0 : (this.draftLotQty ?? 0);
+    const qty = this.isUgOnlyLotMode() ? 0 : (this.draftLotQty() ?? 0);
     if (!this.isUgOnlyLotMode() && qty <= 0) {
       this.notificationService.error("La quantité doit être supérieure à 0", "Lot");
       return;
@@ -421,19 +421,19 @@ export class ReceptionSequentialComponent {
       this.notificationService.error(`Qté (${qty}) dépasse le restant (${this.remainingLotQty()})`, "Lot");
       return;
     }
-    const ug = this.draftLotUg ?? 0;
+    const ug = this.draftLotUg() ?? 0;
     if (ug > this.remainingLotUg()) {
       this.notificationService.error(`UG (${ug}) dépasse le restant (${this.remainingLotUg()})`, "Lot");
       return;
     }
-    if (this.lineLots().some(l => l.numLot === this.draftLotNum.trim())) {
-      this.notificationService.error(`Lot "${this.draftLotNum}" déjà enregistré pour cette ligne`, "Doublon");
+    if (this.lineLots().some(l => l.numLot === this.draftLotNum().trim())) {
+      this.notificationService.error(`Lot "${this.draftLotNum()}" déjà enregistré pour cette ligne`, "Doublon");
       return;
     }
 
     this.lotSaving.set(true);
     this.lotService.addLot({
-      numLot: this.draftLotNum.trim(),
+      numLot: this.draftLotNum().trim(),
       expiryDate,
       quantityReceived: qty,
       ugQuantityReceived: ug,
@@ -465,12 +465,12 @@ export class ReceptionSequentialComponent {
 
   /** Appliquer le lot courant à toutes les lignes sans lot ayant une quantité reçue. */
   protected onApplyLotToAll(): void {
-    const expiryDate = this.formatExpiryForSave(this.draftLotExpiry);
-    if (!this.draftLotNum.trim() || !expiryDate) return;
+    const expiryDate = this.formatExpiryForSave(this.draftLotExpiry());
+    if (!this.draftLotNum().trim() || !expiryDate) return;
     const targets = this.linesForBatch();
     if (!targets.length) return;
 
-    const numLot = this.draftLotNum.trim();
+    const numLot = this.draftLotNum().trim();
     this.lotSaving.set(true);
 
     forkJoin(
@@ -540,12 +540,12 @@ export class ReceptionSequentialComponent {
 
   protected onSaveDraftCip(): void {
     const line = this.currentLine();
-    if (!this.draftCip.trim() || !line) return;
-    line.produitCip = this.draftCip.trim();
+    if (!this.draftCip().trim() || !line) return;
+    line.produitCip = this.draftCip().trim();
     this.commandeService.updateCip(line).subscribe({
       next: () => {
         this.isEditingCip.set(false);
-        this.draftCip = "";
+        this.draftCip.set("");
         if (line.id) this.cipUpdated.emit(line.id);
         this.lineChanged.emit(line);
         this.notificationService.success(`CIP mis à jour : ${line.produitCip}`, "CIP");
@@ -582,15 +582,15 @@ export class ReceptionSequentialComponent {
   }
 
   protected canSaveLot(): boolean {
-    if (!this.draftLotNum.trim() || !this.draftLotExpiry || this.lotSaving()) return false;
-    if (!this.formatExpiryForSave(this.draftLotExpiry)) return false;
-    if (this.isUgOnlyLotMode()) return (this.draftLotUg ?? 0) > 0;
-    return (this.draftLotQty ?? 0) > 0;
+    if (!this.draftLotNum().trim() || !this.draftLotExpiry() || this.lotSaving()) return false;
+    if (!this.formatExpiryForSave(this.draftLotExpiry())) return false;
+    if (this.isUgOnlyLotMode()) return (this.draftLotUg() ?? 0) > 0;
+    return (this.draftLotQty() ?? 0) > 0;
   }
 
   protected canApplyToAll(): boolean {
-    return !!this.draftLotNum.trim() &&
-      !!this.formatExpiryForSave(this.draftLotExpiry) &&
+    return !!this.draftLotNum().trim() &&
+      !!this.formatExpiryForSave(this.draftLotExpiry()) &&
       this.linesForBatch().length > 0 &&
       !this.lotSaving();
   }
@@ -602,17 +602,17 @@ export class ReceptionSequentialComponent {
   }
 
   private resetLotDraft(): void {
-    this.draftLotNum = "";
-    this.draftLotExpiry = "";
+    this.draftLotNum.set("");
+    this.draftLotExpiry.set("");
     this.expiryWarning.set("none");
     const rem = this.remainingLotQty();
     const remUg = this.remainingLotUg();
-    this.draftLotQty = rem > 0 ? rem : null;
-    this.draftLotUg = remUg > 0 ? remUg : null;
+    this.draftLotQty.set(rem > 0 ? rem : null);
+    this.draftLotUg.set(remUg > 0 ? remUg : null);
   }
 
   private applyPrefill(pf: { numLot: string; expiry: string }): void {
-    this.draftLotNum = pf.numLot;
+    this.draftLotNum.set(pf.numLot);
     this.onLotExpiryInput(pf.expiry);
     setTimeout(() => this.focusNumLot(), 50);
   }

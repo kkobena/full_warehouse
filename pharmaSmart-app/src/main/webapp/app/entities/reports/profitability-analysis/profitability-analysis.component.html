@@ -171,18 +171,18 @@
           <app-data-table
             (onPage)="onPageChange($event)"
             (onSort)="onSort($event)"
-            [first]="first"
+            [first]="first()"
             [lazy]="true"
             [loading]="isLoading()"
             [paginator]="true"
             [rowsPerPageOptions]="[10, 20, 50]"
-            [rows]="pageSize"
+            [rows]="pageSize()"
             [scrollable]="true"
             [showCurrentPageReport]="true"
             [totalRecords]="totalRecords()"
             [value]="products()"
             [size]="'small'"
-            currentPageReportTemplate="{first} - {last} sur {totalRecords} produits"
+            currentPageReportTemplate="{first()} - {last} sur {totalRecords} produits"
             scrollHeight="500px"
           >
             <ng-template #header>

@@ -8,7 +8,7 @@
     <app-card [variant]="'form'">
       <div class="form-grid-compact">
 
-        @if (isNotValid) {
+        @if (isNotValid()) {
           <div class="alert alert-dismissible alert-danger">
             <strong>Stock insuffisant</strong>
           </div>
@@ -68,8 +68,8 @@
       type="button"
     />
     <app-button
-      [disabled]="editForm.invalid || isSaving || isNotValid"
-      [loading]="isSaving"
+      [disabled]="editForm.invalid || isSaving() || isNotValid()"
+      [loading]="isSaving()"
       [raised]="true"
       icon="pi pi-check"
       label="Enregistrer"

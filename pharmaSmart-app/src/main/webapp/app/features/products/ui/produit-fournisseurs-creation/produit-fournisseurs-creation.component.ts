@@ -10,7 +10,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
   selector: 'app-produit-fournisseurs-creation',
   templateUrl: './produit-fournisseurs-creation.component.html',
   styleUrl: './produit-fournisseurs-creation.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeviseDirective, CommonModule, ReactiveFormsModule, ButtonComponent, SelectSearchComponent, KeyFilterDirective],
 })
 export class ProduitFournisseursCreationComponent {

@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, model, OnDestroy} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, model, OnDestroy, signal } from '@angular/core';
 import {FormArray, ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
 import {HttpResponse} from '@angular/common/http';
 import {IClientTiersPayant, ICustomer, ITiersPayant} from '../../../shared/model';
@@ -37,16 +37,16 @@ import {
     NgbTooltip
   ],
   templateUrl: './complementaire-step.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./assured-form-step.component.scss'],
 })
 export class ComplementaireStepComponent implements OnDestroy {
   assureFormStepService = inject(AssureFormStepService);
   customerService = inject(CustomerService);
   tiersPayant: ITiersPayant | null = null;
-  tiersPayants: ITiersPayant[] = [];
+  protected readonly tiersPayants = signal<ITiersPayant[]>([]);
   tiersPayantAlreadyAdded = model<IClientTiersPayant[]>([]);
-  validSize = true;
+  protected readonly validSize = signal(true);
   protected fb = inject(UntypedFormBuilder);
   protected catgories = [
     {label: 'RC1', value: 1},
@@ -98,7 +98,7 @@ export class ComplementaireStepComponent implements OnDestroy {
 
   validateTiersPayantSize(): void {
     const tiersPayants = this.convertFormAsFormArray();
-    this.validSize = tiersPayants.length < 3;
+    this.validSize.set(tiersPayants.length < 3);
   }
 
   convertFormAsFormArray(): FormArray {
@@ -130,7 +130,7 @@ export class ComplementaireStepComponent implements OnDestroy {
       },
       (resp: ITiersPayant) => {
         if (resp) {
-          this.tiersPayants.push(resp);
+          this.tiersPayants().push(resp);
           this.convertFormAsFormArray().at(index).patchValue({tiersPayant: resp});
           this.addToAlreadyAdded(resp);
         }
@@ -156,9 +156,9 @@ export class ComplementaireStepComponent implements OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
         const alreadyAddedIds = this.tiersPayantAlreadyAdded().map(tp => tp.tiersPayantId ?? tp.tiersPayant?.id);
-        this.tiersPayants = res.body.filter(tp => !alreadyAddedIds.includes(tp.id));
-        if (this.tiersPayants.length === 0) {
-          this.tiersPayants.push({id: null, fullName: 'Ajouter un nouveau tiers-payant'});
+        this.tiersPayants.set(res.body.filter(tp => !alreadyAddedIds.includes(tp.id)));
+        if (this.tiersPayants().length === 0) {
+          this.tiersPayants().push({id: null, fullName: 'Ajouter un nouveau tiers-payant'});
         }
       });
   }

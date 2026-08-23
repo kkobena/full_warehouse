@@ -25,7 +25,7 @@ type RetourLine = ISaleLineForRetour & {
   selector: "app-retour-client-modal",
   templateUrl: "./retour-client-modal.component.html",
   styleUrl: "./retour-client-modal.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, ButtonComponent, SelectSearchComponent, InputNumberComponent, CheckboxComponent, CardComponent],
 })
 export class RetourClientModalComponent {

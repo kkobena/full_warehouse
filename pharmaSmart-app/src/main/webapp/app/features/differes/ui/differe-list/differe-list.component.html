@@ -1,7 +1,7 @@
 <app-data-table
   (onLazyLoad)="lazyLoading($event)"
   [lazy]="true"
-  [loading]="loading"
+  [loading]="loading()"
   [paginator]="true"
   [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
   [rows]="itemsPerPage"

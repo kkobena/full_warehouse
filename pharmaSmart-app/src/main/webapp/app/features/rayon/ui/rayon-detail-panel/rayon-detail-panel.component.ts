@@ -14,7 +14,7 @@ import { BadgeComponent, ButtonComponent } from '../../../../shared/ui';
   selector: 'app-rayon-detail-panel',
   templateUrl: './rayon-detail-panel.component.html',
   styleUrl: './rayon-detail-panel.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgbNavModule, ButtonComponent, BadgeComponent, NgbTooltip, RayonProduitsTabComponent],
 })
 export class RayonDetailPanelComponent {

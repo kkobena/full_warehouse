@@ -26,8 +26,8 @@
     </app-toolbar>
 
     <app-data-table
-      [loading]="loading"
-      [value]="filteredEntities"
+      [loading]="loading()"
+      [value]="filteredEntities()"
       class="p-datatable-sm"
       dataKey="id"
     >

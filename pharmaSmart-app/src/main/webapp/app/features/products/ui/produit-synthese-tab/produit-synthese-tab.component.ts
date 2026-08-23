@@ -19,7 +19,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
   selector: 'app-produit-synthese-tab',
   templateUrl: './produit-synthese-tab.component.html',
   styleUrls: ['./produit-synthese-tab.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeviseDirective, CommonModule, FormsModule, NgbTooltip, ButtonComponent, BadgeComponent, SwitchComponent],
 })
 export class ProduitSyntheseTabComponent {

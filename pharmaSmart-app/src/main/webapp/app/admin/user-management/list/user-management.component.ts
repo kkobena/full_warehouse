@@ -18,7 +18,7 @@ import {NotificationService} from "../../../shared/services/notification.service
   selector: "jhi-user-mgmt",
   templateUrl: "./user-management.component.html",
   styleUrls: ["./user-management.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     RouterModule,
@@ -35,7 +35,7 @@ export default class UserManagementComponent implements OnInit {
   isLoading = signal(false);
   totalItems = signal(0);
   itemsPerPage = 50;
-  page!: number;
+  protected readonly page = signal<number | undefined>(undefined);
   sortState = sortStateSignal({});
   filterQuery = signal("");
 
@@ -87,7 +87,7 @@ export default class UserManagementComponent implements OnInit {
     this.isLoading.set(true);
     this.userService
       .query({
-        page: this.page - 1,
+        page: this.page() - 1,
         size: this.itemsPerPage,
         sort: this.sortService.buildSortParam(this.sortState(), "id")
       })
@@ -101,7 +101,7 @@ export default class UserManagementComponent implements OnInit {
   }
 
   onPageChange(event: { first: number; rows: number }): void {
-    this.page = Math.floor(event.first / event.rows) + 1;
+    this.page.set(Math.floor(event.first / event.rows) + 1);
     this.loadAll();
   }
 
@@ -113,7 +113,7 @@ export default class UserManagementComponent implements OnInit {
     this.router.navigate(["./"], {
       relativeTo: this.activatedRoute.parent,
       queryParams: {
-        page: this.page,
+        page: this.page(),
         sort: this.sortService.buildSortParam(sortState ?? this.sortState())
       }
     });
@@ -122,7 +122,7 @@ export default class UserManagementComponent implements OnInit {
   private handleNavigation(): void {
     combineLatest([this.activatedRoute.data, this.activatedRoute.queryParamMap]).subscribe(([data, params]) => {
       const page = params.get("page");
-      this.page = +(page ?? 1);
+      this.page.set(+(page ?? 1));
       this.sortState.set(this.sortService.parseSortParam(params.get(SORT) ?? data.defaultSort));
       this.loadAll();
     });

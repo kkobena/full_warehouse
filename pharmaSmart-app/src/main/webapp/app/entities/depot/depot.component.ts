@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy, input} from "@angular/core";
+import { Component, inject, OnInit, ChangeDetectionStrategy, input, signal } from "@angular/core";
 import { HttpResponse } from "@angular/common/http";
 import { Router, RouterModule } from "@angular/router";
 import { IMagasin } from "../../shared/model";
@@ -20,7 +20,7 @@ import { ButtonComponent, DataTableComponent, IconFieldComponent, ToolbarCompone
     IconFieldComponent
   ],
   templateUrl: "./depot.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./depot.component.scss"
 })
 export class DepotComponent implements OnInit {
@@ -39,8 +39,8 @@ export class DepotComponent implements OnInit {
   protected readonly canEdit = this.ability.canSignal("edit", "depot.liste-depots");
   protected readonly canDelete = this.ability.canSignal("delete", "depot.liste-depots");
   protected readonly canReturn = this.ability.canSignal("access", "depot.retour-depot");
-  protected depots: IMagasin[] = [];
-  protected loading = false;
+  protected readonly depots = signal<IMagasin[]>([]);
+  protected readonly loading = signal(false);
   private magasinService = inject(MagasinService);
   private router = inject(Router);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
@@ -51,14 +51,14 @@ export class DepotComponent implements OnInit {
   }
 
   loadAll(): void {
-    this.loading = true;
+    this.loading.set(true);
     this.magasinService.fetchAllDepots().subscribe({
       next: (res: HttpResponse<IMagasin[]>) => {
-        this.depots = res.body || [];
-        this.loading = false;
+        this.depots.set(res.body || []);
+        this.loading.set(false);
       },
       error: () => {
-        this.loading = false;
+        this.loading.set(false);
         this.notificationService.error("Une erreur est survenue lors du chargement des dépôts.");
       }
     });

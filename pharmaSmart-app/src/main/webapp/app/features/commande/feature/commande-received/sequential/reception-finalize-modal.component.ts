@@ -8,7 +8,7 @@ import { IOrderLine } from "../../../../../shared/model/order-line.model";
   selector: "app-reception-finalize-modal",
   templateUrl: "./reception-finalize-modal.component.html",
   styleUrls: ["./reception-finalize-modal.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, ButtonComponent]
 })
 export class ReceptionFinalizeModalComponent {

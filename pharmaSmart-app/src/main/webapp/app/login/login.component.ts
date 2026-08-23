@@ -29,7 +29,7 @@ import {CommonModule} from "@angular/common";
     SwitchComponent,
   ],
   templateUrl: './login.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./login.component.scss'],
 })
 export default class LoginComponent implements OnInit, AfterViewInit {

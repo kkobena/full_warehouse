@@ -20,7 +20,7 @@ import {
   selector: "app-profitability-analysis",
   templateUrl: "./profitability-analysis.component.html",
   styleUrls: ["./profitability-analysis.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -55,8 +55,8 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
   protected seuilFaibleMarge = 10;
 
   // Pagination
-  protected pageSize = 20;
-  protected first = 0;
+  protected readonly pageSize = signal(20);
+  protected readonly first = signal(0);
 
 
   protected familleOptions = signal<{ label: string; value: number | null }[]>([
@@ -77,13 +77,13 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
 
     const req = {
       page,
-      size: this.pageSize,
+      size: this.pageSize(),
       familleProduitId: this.selectedFamilleId() ?? undefined,
       search: this.searchQuery() || undefined
     };
 
     const obs = this.showFaibleMarge()
-      ? this.margeService.getFaibleMarge(this.seuilFaibleMarge, { page, size: this.pageSize })
+      ? this.margeService.getFaibleMarge(this.seuilFaibleMarge, { page, size: this.pageSize() })
       : this.margeService.getMarges(req);
 
     obs.subscribe({
@@ -110,7 +110,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
 
   protected onFilterChange(): void {
     this.showFaibleMarge.set(false);
-    this.first = 0;
+    this.first.set(0);
     this.loadProducts(0);
     this.loadSummary();
   }
@@ -118,7 +118,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
   protected onSearchChange(value: string): void {
     this.searchQuery.set(value);
     this.showFaibleMarge.set(false);
-    this.first = 0;
+    this.first.set(0);
     this.loadProducts(0);
   }
 
@@ -126,7 +126,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
     this.selectedFamilleId.set(null);
     this.searchQuery.set("");
     this.showFaibleMarge.set(false);
-    this.first = 0;
+    this.first.set(0);
     this.loadProducts(0);
     this.loadSummary();
   }
@@ -135,18 +135,18 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
     this.showFaibleMarge.set(true);
     this.selectedFamilleId.set(null);
     this.searchQuery.set("");
-    this.first = 0;
+    this.first.set(0);
     this.loadProducts(0);
   }
 
   protected onPageChange(event: any): void {
-    this.first = event.first;
-    this.pageSize = event.rows;
+    this.first.set(event.first);
+    this.pageSize.set(event.rows);
     this.loadProducts(event.first / event.rows);
   }
 
   protected onSort(event: any): void {
-    this.first = 0;
+    this.first.set(0);
     this.loadProducts(0);
   }
 

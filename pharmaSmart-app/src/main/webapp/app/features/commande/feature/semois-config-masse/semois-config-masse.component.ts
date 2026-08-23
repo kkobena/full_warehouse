@@ -26,7 +26,7 @@ interface IPreviewClassificationItem {
   selector: 'app-semois-config-masse',
   templateUrl: './semois-config-masse.component.html',
   styleUrls: ['./semois-config-masse.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, ButtonComponent, ToolbarComponent, NgbNavModule, DataTableComponent, BadgeComponent],
 })
 export class SemoisConfigMasseComponent implements OnInit {

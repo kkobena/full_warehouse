@@ -12,7 +12,7 @@
                     label="Ajouter un ayant droit" severity="primary" />
       </ng-container>
     </app-toolbar>
-    @if (customers.length > 0) {
+    @if (customers().length > 0) {
       <div class="table-responsive mt-1">
         <table class="table table-striped table-bordered table-hover">
           <thead class="pharma-table-head">
@@ -26,7 +26,7 @@
           </tr>
           </thead>
           <tbody>
-            @for (ayantDroit of customers; track ayantDroit.id; let i = $index) {
+            @for (ayantDroit of customers(); track ayantDroit.id; let i = $index) {
               <tr (dblclick)="onDbleClick(ayantDroit)" style="cursor: pointer">
                 <td style="text-align: left">{{ i + 1 }}</td>
                 <td>{{ ayantDroit.firstName }}</td>

@@ -36,7 +36,7 @@ import { PharmaDatePickerComponent } from "../../../shared/date-picker/pharma-da
     RouterLink
   ],
   templateUrl: "./depot-retour-list.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./depot-retour-list.component.scss"
 })
 export class DepotRetourListComponent implements OnInit {

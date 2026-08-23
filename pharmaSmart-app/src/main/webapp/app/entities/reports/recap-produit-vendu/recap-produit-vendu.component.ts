@@ -47,7 +47,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
   selector: "app-recap-produit-vendu",
   templateUrl: "./recap-produit-vendu.component.html",
   styleUrl: "./recap-produit-vendu.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeviseDirective, 
     CommonModule,
     FormsModule,

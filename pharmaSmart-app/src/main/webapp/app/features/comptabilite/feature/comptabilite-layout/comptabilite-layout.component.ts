@@ -24,7 +24,7 @@ import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-l
     SkeletonComponent,
   ],
   templateUrl: './comptabilite-layout.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './comptabilite-layout.component.scss',
 })
 export class ComptabiliteLayoutComponent {

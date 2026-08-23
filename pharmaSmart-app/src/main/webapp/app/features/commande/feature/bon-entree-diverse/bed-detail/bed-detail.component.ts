@@ -34,7 +34,7 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
   selector: "app-bed-detail",
   templateUrl: "./bed-detail.component.html",
   styleUrls: ["./bed-detail.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -122,7 +122,7 @@ export class BedDetailComponent implements OnInit {
   // ── Ajout produit ──────────────────────────────────────────────────────────
   readonly selectedProduit = signal<ProduitSearch | null>(null);
   readonly addingLigne = signal(false);
-  protected ligneQuantite = 1;
+  protected readonly ligneQuantite = signal(1);
 
   readonly productSearch = viewChild<CommandeProductSearchComponent>("productSearch");
 
@@ -190,7 +190,7 @@ export class BedDetailComponent implements OnInit {
 
   onAjouterLigne(): void {
     const produit = this.selectedProduit();
-    if (!produit || this.ligneQuantite <= 0) {
+    if (!produit || this.ligneQuantite() <= 0) {
       this.notificationService.error("Sélectionnez un produit et une quantité valide", "Validation");
       return;
     }
@@ -202,7 +202,7 @@ export class BedDetailComponent implements OnInit {
 
     const ligne: IBedLigne = {
       fournisseurProduitId: fp.id,
-      quantite: this.ligneQuantite,
+      quantite: this.ligneQuantite(),
       prixAchat: fp.prixAchat ?? 0,
       prixVente: fp.prixUni
     };
@@ -247,7 +247,7 @@ export class BedDetailComponent implements OnInit {
 
   private resetAddForm(): void {
     this.selectedProduit.set(null);
-    this.ligneQuantite = 1;
+    this.ligneQuantite.set(1);
     this.productSearch()?.reset();
   }
 

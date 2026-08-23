@@ -212,8 +212,8 @@
           <app-button (clicked)="previousState()" [text]="true" icon="pi pi-times" label="Annuler"
                       severity="secondary" />
           <app-button
-            [disabled]="editForm.invalid || isSaving"
-            [loading]="isSaving"
+            [disabled]="editForm.invalid || isSaving()"
+            [loading]="isSaving()"
             icon="pi pi-check"
             label="Enregistrer"
             severity="primary"

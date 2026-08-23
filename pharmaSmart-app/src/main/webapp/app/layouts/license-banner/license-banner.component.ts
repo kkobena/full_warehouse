@@ -1,21 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import {ChangeDetectionStrategy, Component, computed, inject} from '@angular/core';
+import {RouterLink} from '@angular/router';
 
-import { LicenseService } from 'app/core/license/license.service';
+import {LicenseService} from 'app/core/license/license.service';
 
-/**
- * Exigence **B3** — bannière permanente d'alerte de licence.
- *
- * **Volontairement non masquable** : aucun bouton de fermeture, aucun `localStorage` de masquage.
- * Une bannière qu'on peut faire disparaître serait fermée le premier jour et oubliée jusqu'à la
- * coupure — ce qui est exactement la situation qu'elle existe pour éviter. La seule façon de la
- * faire disparaître est de renouveler la licence.
- *
- * Elle porte toujours un accès direct à l'écran d'activation : un utilisateur alerté doit trouver
- * la sortie en un clic, sans avoir à explorer les menus.
- *
- * Cf. docs/PLAN-GESTION-LICENCE.md §5.3.
- */
 @Component({
   selector: 'app-license-banner',
   imports: [RouterLink],
@@ -46,7 +33,8 @@ import { LicenseService } from 'app/core/license/license.service';
             </div>
           }
 
-          <a routerLink="/licence" class="btn btn-sm btn-dark license-banner__action"> Gérer ma licence </a>
+          <a routerLink="/licence" class="btn btn-sm btn-dark license-banner__action"> Gérer ma
+            licence </a>
         </div>
       </div>
     }

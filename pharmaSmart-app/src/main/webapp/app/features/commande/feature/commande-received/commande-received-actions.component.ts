@@ -1,4 +1,4 @@
-import {Component, ChangeDetectionStrategy} from '@angular/core';
+import {Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import {ICellRendererAngularComp} from 'ag-grid-angular';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {ButtonComponent} from '../../../../shared/ui';
@@ -7,7 +7,7 @@ import {IOrderLine} from '../../../../shared/model/order-line.model';
 @Component({
   selector: 'app-commande-received-actions',
   imports: [ButtonComponent, NgbTooltip],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="btn-group">
       <app-button
@@ -30,7 +30,7 @@ import {IOrderLine} from '../../../../shared/model/order-line.model';
         size="small"
         (clicked)="onEdit($event)"
       />
-      @if (showLot) {
+      @if (showLot()) {
         <app-button
           [text]="true"
           [rounded]="true"
@@ -59,12 +59,12 @@ import {IOrderLine} from '../../../../shared/model/order-line.model';
 })
 export class CommandeReceivedActionsComponent implements ICellRendererAngularComp {
   private params!: any;
-  protected showLot = false;
+  protected readonly showLot = signal(false);
 
   agInit(params: any): void {
     this.params = params;
     const line: IOrderLine = params.data;
-    this.showLot = (line?.lots?.length ?? 0) > 0 || !!params.context.componentParent.showLotBtn;
+    this.showLot.set((line?.lots?.length ?? 0) > 0 || !!params.context.componentParent.showLotBtn);
   }
 
   refresh(): boolean {

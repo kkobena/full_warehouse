@@ -2,7 +2,7 @@
   <div ngProjectAs="[cardHeader]" class="section-header">
       <i class="pi pi-shield"></i>
       <span>Assurances Complémentaires</span>
-      @if (validSize) {
+      @if (validSize()) {
         <app-button
           (clicked)="addTiersPayant()"
           [rounded]="true"
@@ -20,7 +20,7 @@
   <form [formGroup]="editForm" name="editForm">
     <div class="complementaire-grid">
       @for (tiersPayant of editFormGroups.controls; track i; let i = $index) {
-        <div class="complementaire-card" formArrayName="tiersPayants">
+        <div class="complementaire-card" formArrayName="tiersPayants()">
           <ng-container [formGroupName]="i">
             <div class="complementaire-card-header">
               <span class="complementaire-card-title">Assurance #{{ i + 1 }}</span>
@@ -49,7 +49,7 @@
                     (searched)="searchTiersPayant($event)"
                     (selectionChange)="onSelectTiersPayant($event, i)"
                     [minSearchLength]="minLength"
-                    [items]="tiersPayants"
+                    [items]="tiersPayants()"
                     formControlName="tiersPayant"
                     bindLabel="fullName"
                     placeholder="Taper pour rechercher"

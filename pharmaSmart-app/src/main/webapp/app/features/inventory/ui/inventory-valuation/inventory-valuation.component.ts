@@ -20,7 +20,7 @@ import {
   selector: 'app-inventory-valuation',
   imports: [CommonModule, FormsModule, DataTableComponent, SelectComponent, KpiStripComponent, KpiItemComponent],
   templateUrl: './inventory-valuation.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './inventory-valuation.component.scss',
 })
 export class InventoryValuationComponent implements OnInit {

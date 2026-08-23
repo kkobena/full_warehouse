@@ -17,13 +17,13 @@ interface WidgetOption {
   selector: 'jhi-add-widget-modal',
   imports: [CommonModule, ButtonComponent],
   templateUrl: './add-widget-modal.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './add-widget-modal.component.scss',
 })
 export class AddWidgetModalComponent {
   activeModal = inject(NgbActiveModal);
 
-  selectedWidgetType: WidgetType | null = null;
+  protected readonly selectedWidgetType = signal<WidgetType | null>(null);
 
   availableWidgets: WidgetOption[] = [
     {
@@ -75,14 +75,14 @@ export class AddWidgetModalComponent {
   }
 
   selectWidget(type: WidgetType): void {
-    this.selectedWidgetType = type;
+    this.selectedWidgetType.set(type);
   }
 
   addWidget(): void {
-    if (!this.selectedWidgetType) {
+    if (!this.selectedWidgetType()) {
       return;
     }
 
-    this.activeModal.close(this.selectedWidgetType);
+    this.activeModal.close(this.selectedWidgetType());
   }
 }

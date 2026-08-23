@@ -29,7 +29,7 @@ Chart.register(...registerables);
     SortableHeaderDirective
   ],
   templateUrl: './client-retention.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./client-retention.component.scss'],
 })
 export default class ClientRetentionComponent implements OnInit, OnDestroy {

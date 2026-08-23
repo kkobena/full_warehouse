@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from "@angular/core";
 import { HttpHeaders, HttpResponse } from "@angular/common/http";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 
@@ -18,28 +18,28 @@ import { AlertComponent } from "../../shared/alert/alert.component";
   selector: "app-categorie",
   templateUrl: "./categorie.component.html",
   styleUrls: ["./categorie.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterModule, TranslateDirective, AlertErrorComponent, FaIconComponent, AlertComponent]
 })
 export class CategorieComponent implements OnInit {
-  categories: ICategorie[];
-  itemsPerPage: number;
-  links: any;
-  page: number;
-  predicate: string;
-  ascending: boolean;
+  protected readonly categories = signal<ICategorie[] | undefined>(undefined);
+  protected readonly itemsPerPage = signal<number | undefined>(undefined);
+  protected readonly links = signal<any | undefined>(undefined);
+  protected readonly page = signal<number | undefined>(undefined);
+  protected readonly predicate = signal<string | undefined>(undefined);
+  protected readonly ascending = signal<boolean | undefined>(undefined);
   protected categorieService = inject(CategorieService);
   protected modalService = inject(NgbModal);
 
   constructor() {
-    this.categories = [];
-    this.itemsPerPage = ITEMS_PER_PAGE;
-    this.page = 0;
-    this.links = {
+    this.categories.set([]);
+    this.itemsPerPage.set(ITEMS_PER_PAGE);
+    this.page.set(0);
+    this.links.set({
       last: 0
-    };
-    this.predicate = "id";
-    this.ascending = true;
+    });
+    this.predicate.set("id");
+    this.ascending.set(true);
   }
 
   loadAll(): void {
@@ -52,13 +52,13 @@ export class CategorieComponent implements OnInit {
 
   /** Vide la liste et la recharge depuis la première page. */
   reset(): void {
-    this.page = 0;
-    this.categories = [];
+    this.page.set(0);
+    this.categories.set([]);
     this.loadAll();
   }
 
   loadPage(page: number): void {
-    this.page = page;
+    this.page.set(page);
     this.loadAll();
   }
 
@@ -88,14 +88,14 @@ export class CategorieComponent implements OnInit {
   }
 
   sort(): string[] {
-    const result = [this.predicate + "," + (this.ascending ? "asc" : "desc")];
-    if (this.predicate !== "id") {
+    const result = [this.predicate() + "," + (this.ascending() ? "asc" : "desc")];
+    if (this.predicate() !== "id") {
       result.push("id");
     }
     return result;
   }
 
   protected paginateCategories(data: ICategorie[] | null, headers: HttpHeaders): void {
-    this.categories = data || [];
+    this.categories.set(data || []);
   }
 }

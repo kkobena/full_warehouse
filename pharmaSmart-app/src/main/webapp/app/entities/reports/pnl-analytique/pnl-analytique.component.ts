@@ -32,7 +32,7 @@ const CHART_COLORS = [
   selector: 'app-pnl-analytique',
   templateUrl: './pnl-analytique.component.html',
   styleUrl: './pnl-analytique.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeviseDirective, 
     CommonModule,
     FormsModule,

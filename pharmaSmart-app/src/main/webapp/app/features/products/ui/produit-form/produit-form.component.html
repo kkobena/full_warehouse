@@ -12,7 +12,7 @@
         </ng-container>
       </app-toolbar>
 
-      @if (isLoading) {
+      @if (isLoading()) {
         <div class="loading-state">
           <i class="pi pi-spin pi-spinner loading-icon"></i>
           <p>Chargement des données de référence...</p>
@@ -658,7 +658,7 @@
           <div class="form-actions-compact">
             <app-button (clicked)="previousState()" [text]="true" icon="pi pi-times" label="Annuler"
                         severity="secondary" type="button" />
-            <app-button [disabled]="editForm.invalid || isSaving || !isPriceValid"
+            <app-button [disabled]="editForm.invalid || isSaving() || !isPriceValid"
                         [loading]="isSaving" icon="pi pi-check" label="Enregistrer"
                         severity="primary"
                         type="submit" />

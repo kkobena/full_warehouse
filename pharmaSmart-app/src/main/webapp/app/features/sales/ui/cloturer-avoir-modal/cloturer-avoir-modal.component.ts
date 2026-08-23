@@ -16,7 +16,7 @@ import {
   selector: 'app-cloturer-avoir-modal',
   templateUrl: './cloturer-avoir-modal.component.html',
   styleUrl: './cloturer-avoir-modal.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeviseDirective, DevisePipe, CommonModule, FormsModule, ButtonComponent, SelectComponent, InputNumberComponent, CardComponent],
 })
 export class CloturerAvoirModalComponent {

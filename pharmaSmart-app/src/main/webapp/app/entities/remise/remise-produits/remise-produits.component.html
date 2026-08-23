@@ -15,14 +15,14 @@
     </ng-container>
   </app-toolbar>
 
-  @if (entites && entites?.length > 0) {
+  @if (entites() && entites()?.length > 0) {
     <app-data-table
       (onLazyLoad)="lazyLoading()"
       [lazy]="true"
-      [loading]="loading"
+      [loading]="loading()"
       [paginator]="false"
       [showGridlines]="true"
-      [value]="entites"
+      [value]="entites()"
       dataKey="id"
     >
       <ng-template #header>

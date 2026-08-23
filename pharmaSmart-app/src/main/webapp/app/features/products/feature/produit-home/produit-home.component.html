@@ -4,7 +4,7 @@
       <app-icon-field [overlay]="true" icon="pi pi-search">
         <input
           (keyup.enter)="onSearch()"
-          [(ngModel)]="search"
+          [ngModel]="search()" (ngModelChange)="search.set($event)"
           class="form-control"
           placeholder="Rechercher (CIP, libellé, EAN)..."
           style="width: 220px"
@@ -14,7 +14,7 @@
 
       <app-select
         (selectionChange)="onFilterChange()"
-        [(ngModel)]="selectedFilter"
+        [ngModel]="selectedFilter()" (ngModelChange)="selectedFilter.set($event)"
         [items]="filterOptions"
         [style]="{ 'min-width': '180px' }"
         appendTo="body"
@@ -160,7 +160,7 @@
         [clearSelectionTrigger]="clearSelectionTrigger()"
         [loading]="loading()"
         [produits]="produits()"
-        [rows]="rows"
+        [rows]="rows()"
         [selectedProduit]="selectedProduit()"
         [totalItems]="totalItems()"
       />

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter, map } from 'rxjs/operators';
@@ -15,6 +15,7 @@ export interface Breadcrumb {
 @Component({
   selector: 'app-breadcrumb',
   imports: [RouterModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (breadcrumbs().length > 0 || tabCrumb()) {
       <nav aria-label="Fil d'Ariane" class="breadcrumb-nav">

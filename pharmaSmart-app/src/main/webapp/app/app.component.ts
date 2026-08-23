@@ -14,7 +14,7 @@ import {ThemeService} from 'app/core/theme/theme.service';
   selector: 'app',
   template: `
     <app-main></app-main> `,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MainComponent],
 })
 export default class AppComponent {

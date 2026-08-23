@@ -21,7 +21,7 @@ const PARAM_GESTION_STOCK = 'APP_GESTION_STOCK';
   selector: 'app-parametre',
   imports: [ButtonComponent, ToolbarComponent, IconFieldComponent, DataTableComponent],
   templateUrl: './parametre.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./parametre.component.scss'],
 })
 export class ParametreComponent implements OnInit {

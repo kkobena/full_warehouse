@@ -18,7 +18,7 @@ type TranchePill = 'all' | '0-30' | '31-60' | '61-90' | '90+';
   selector: 'app-vieillissement-creances',
   templateUrl: './vieillissement-creances.component.html',
   styleUrl: './vieillissement-creances.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeviseDirective, CommonModule, DataTableComponent],
 })
 export default class VieillissementCreancesComponent implements OnInit, OnDestroy {

@@ -18,7 +18,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
   selector: 'app-remises-analysis',
   imports: [DeviseDirective, CommonModule, FormsModule, DataTableComponent, ChartComponent, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent],
   templateUrl: './remises-analysis.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./remises-analysis.component.scss'],
 })
 export default class RemisesAnalysisComponent implements OnInit {

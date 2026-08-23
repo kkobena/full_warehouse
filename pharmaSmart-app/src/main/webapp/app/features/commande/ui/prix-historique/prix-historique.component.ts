@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import {signal, Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { DecimalPipe, DatePipe, NgTemplateOutlet } from '@angular/common';
 import { NgbActiveModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { BadgeComponent } from 'app/shared/ui';
@@ -8,7 +8,7 @@ import { CommandeService, IPriceHistory } from '../../../../entities/commande/co
   selector: 'app-prix-historique',
   templateUrl: './prix-historique.component.html',
   styleUrls: ['./prix-historique.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DecimalPipe, DatePipe, NgTemplateOutlet, BadgeComponent, NgbTooltip],
 })
 export class PrixHistoriqueComponent implements OnInit {
@@ -16,8 +16,8 @@ export class PrixHistoriqueComponent implements OnInit {
   produitLibelle!: string;
   header!: string;
 
-  protected historique: IPriceHistory[] = [];
-  protected loading = true;
+  protected readonly historique = signal([]);
+  protected readonly loading = signal(true);
 
   private readonly activeModal = inject(NgbActiveModal);
   private readonly commandeService = inject(CommandeService);
@@ -25,11 +25,11 @@ export class PrixHistoriqueComponent implements OnInit {
   ngOnInit(): void {
     this.commandeService.getPriceHistory(this.fournisseurProduitId).subscribe({
       next: data => {
-        this.historique = data;
-        this.loading = false;
+        this.historique.set(data);
+        this.loading.set(false);
       },
       error: () => {
-        this.loading = false;
+        this.loading.set(false);
       },
     });
   }

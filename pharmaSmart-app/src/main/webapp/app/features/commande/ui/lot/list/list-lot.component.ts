@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import {signal, Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ILot } from 'app/shared/model/lot.model';
 import { LotService } from '../../../../../entities/commande/lot/lot.service';
 import { FormLotComponent } from '../form/form-lot.component';
@@ -19,16 +19,16 @@ import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ng
   selector: 'jhi-list-lot',
   templateUrl: './list-lot.component.html',
   styleUrls: ['../../../../../entities/common-modal.component.scss', './list-lot.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, ButtonComponent, NgbTooltip, DataTableComponent, CardComponent],
 })
 export class ListLotComponent implements OnInit, OnDestroy {
-  lots: ILot[] = [];
+  protected readonly lots = signal([]);
   header = 'Liste des lots';
   selectedEl!: ILot;
   deliveryItem?: IOrderLine;
   commandeId?: number;
-  showUgAddNewBtn = true;
+  protected readonly showUgAddNewBtn = signal(true);
   private readonly entityService = inject(LotService);
   private destroy$ = new Subject<void>();
   private readonly modalService = inject(NgbModal);
@@ -38,7 +38,7 @@ export class ListLotComponent implements OnInit, OnDestroy {
   private readonly confirmDialog = inject(NgbConfirmDialogService);
 
   ngOnInit(): void {
-    this.lots = this.deliveryItem.lots;
+    this.lots.set(this.deliveryItem.lots);
     this.showAddBtn();
   }
 
@@ -48,7 +48,7 @@ export class ListLotComponent implements OnInit, OnDestroy {
   }
 
   showAddBtn(): void {
-    this.showUgAddNewBtn = this.getLotQunatity() < (this.deliveryItem.quantityReceived || this.deliveryItem.quantityRequested);
+    this.showUgAddNewBtn.set(this.getLotQunatity() < (this.deliveryItem.quantityReceived || this.deliveryItem.quantityRequested));
   }
 
   edit(lot: ILot): void {
@@ -72,7 +72,7 @@ export class ListLotComponent implements OnInit, OnDestroy {
   }
 
   private getLotQunatity(): number {
-    return this.lots.reduce((first, second) => first + second.quantityReceived, 0);
+    return this.lots().reduce((first, second) => first + second.quantityReceived, 0);
   }
 
   private openConfirmDialog(lot: ILot): void {
@@ -94,8 +94,8 @@ export class ListLotComponent implements OnInit, OnDestroy {
   }
 
   private removeLotFromLotsArray(lot: ILot): void {
-    const newLots = this.lots.filter(e => e.numLot !== lot.numLot);
-    this.lots = newLots;
+    const newLots = this.lots().filter(e => e.numLot !== lot.numLot);
+    this.lots.set(newLots);
     this.deliveryItem.lots = newLots;
     this.showAddBtn();
   }
@@ -115,8 +115,8 @@ export class ListLotComponent implements OnInit, OnDestroy {
           if (entity) {
             this.removeLotFromLotsArray(entity);
           }
-          this.lots.push(updateLot);
-          this.deliveryItem.lots = this.lots;
+          this.lots().push(updateLot);
+          this.deliveryItem.lots = this.lots();
           this.showAddBtn();
         }
       },

@@ -46,6 +46,7 @@ let nextId = 0;
       />
     </div>
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MonthPickerComponent extends ControlValueAccessorBase<Date> {
   readonly label = input<string>('');

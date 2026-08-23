@@ -19,7 +19,7 @@ Chart.register(...registerables);
   selector: 'app-generics-substitution',
   imports: [DeviseDirective, CommonModule, FormsModule, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent],
   templateUrl: './generics-substitution.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./generics-substitution.component.scss'],
 })
 export default class GenericsSubstitutionComponent implements OnInit, OnDestroy {

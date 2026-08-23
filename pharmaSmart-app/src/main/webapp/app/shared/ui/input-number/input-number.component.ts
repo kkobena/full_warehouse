@@ -1,4 +1,4 @@
-import {Component, computed, ElementRef, forwardRef, input, signal, viewChild} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, ElementRef, forwardRef, input, signal, viewChild} from '@angular/core';
 import {NG_VALUE_ACCESSOR} from '@angular/forms';
 
 import {ControlValueAccessorBase} from '../forms/control-value-accessor.base';
@@ -88,9 +88,7 @@ import {ControlValueAccessorBase} from '../forms/control-value-accessor.base';
       display: block;
     }
 
-    // Groupe dédié plutôt que \`.input-group\` Bootstrap : le radius des boutons
-    // d'extrémité est posé explicitement ci-dessous, sans dépendre des sélecteurs
-    // \`:first-child\`/\`:last-child\` de Bootstrap (fragiles dès qu'un wrapper s'intercale).
+
     .app-input-number-group {
       display: flex;
       align-items: stretch;
@@ -168,6 +166,7 @@ import {ControlValueAccessorBase} from '../forms/control-value-accessor.base';
       padding-inline: 0.65rem;
     }
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InputNumberComponent extends ControlValueAccessorBase<number> {
   readonly placeholder = input<string>('');

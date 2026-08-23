@@ -7,7 +7,7 @@ import { AppTableLazyLoadEvent, BadgeComponent, ButtonComponent, DataTableCompon
   selector: 'app-rayon-list',
   templateUrl: './rayon-list.component.html',
   styleUrl: './rayon-list.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DataTableComponent, ButtonComponent, BadgeComponent, NgbTooltip]
 })
 export class RayonListComponent {

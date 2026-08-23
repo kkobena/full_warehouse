@@ -21,7 +21,7 @@ import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-da
   selector: "app-sales-summary",
   templateUrl: "./sales-summary.component.html",
   styleUrl: "./sales-summary.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit} from "@angular/core";
+import {ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal } from "@angular/core";
 import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from "@angular/forms";
 import {ErrorService} from "../../../shared/error.service";
 import {
@@ -35,7 +35,7 @@ import TranslateDirective from "../../../shared/language/translate.directive";
     TranslateDirective
   ],
   templateUrl: "./customer-tiers-payant.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ["./customer-tiers-payant.component.scss"]
 })
 export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
@@ -54,9 +54,9 @@ export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
     plafondJournalier: [],
     plafondAbsolu: []
   });
-  protected isSaving = false;
+  protected readonly isSaving = signal(false);
   protected isValid = true;
-  protected tiersPayants: ITiersPayant[] = [];
+  protected readonly tiersPayants = signal<ITiersPayant[]>([]);
   private readonly errorService = inject(ErrorService);
   private readonly tiersPayantService = inject(TiersPayantService);
   private readonly customerService = inject(CustomerService);
@@ -76,7 +76,7 @@ export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
   }
 
   save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const clientTiersPayant = this.createFromForm();
     if (clientTiersPayant.id !== undefined && clientTiersPayant.id) {
       this.subscribeToSaveResponse(this.customerService.updateTiersPayant(clientTiersPayant));
@@ -104,9 +104,9 @@ export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
-        this.tiersPayants = res.body!;
-        if (this.tiersPayants.length === 0) {
-          this.tiersPayants.push({id: null, fullName: "Ajouter un nouveau tiers-payant"});
+        this.tiersPayants.set(res.body!);
+        if (this.tiersPayants().length === 0) {
+          this.tiersPayants().push({id: null, fullName: "Ajouter un nouveau tiers-payant"});
         }
       });
   }
@@ -139,14 +139,14 @@ export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
-    result.pipe(finalize(() => (this.isSaving = false))).subscribe({
+    result.pipe(finalize(() => (this.isSaving.set(false)))).subscribe({
       next: (res: HttpResponse<ICustomer>) => this.onSaveSuccess(res.body),
       error: (error: any) => this.onSaveError(error)
     });
   }
 
   protected onSaveSuccess(iCustomer: ICustomer | null): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.activeModal.close(iCustomer);
   }
 

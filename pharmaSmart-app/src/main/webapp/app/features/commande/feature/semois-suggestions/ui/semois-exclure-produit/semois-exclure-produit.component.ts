@@ -16,7 +16,7 @@ const DUREE_OPTIONS = [
 @Component({
   selector: 'app-semois-exclure-produit',
   templateUrl: './semois-exclure-produit.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, ButtonComponent, SelectComponent],
 })
 export class SemoisExclureProduitComponent {
@@ -28,7 +28,6 @@ export class SemoisExclureProduitComponent {
 
   readonly dureeJours = signal<number>(30);
   readonly motif = signal<string>('');
-  readonly isSaving = signal<boolean>(false);
 
   readonly dureeOptions = DUREE_OPTIONS;
 

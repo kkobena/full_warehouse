@@ -17,7 +17,7 @@ const PREDEFINED = new Set([
   selector: 'app-role',
   templateUrl: './role.component.html',
   styleUrl: './role.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, ButtonComponent, DataTableComponent, ToolbarComponent, NgbTooltip]
 })
 export class RoleComponent implements OnInit {
@@ -42,7 +42,7 @@ export class RoleComponent implements OnInit {
 
   // ── Édition inline du libellé ────────────────────────────────────────────
   protected readonly editingName = signal<string | null>(null);
-  protected editingLibelle = '';
+  protected readonly editingLibelle = signal('');
 
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   ngOnInit(): void {
@@ -78,11 +78,11 @@ export class RoleComponent implements OnInit {
   // ── Édition libellé ───────────────────────────────────────────────────────
   protected startEdit(role: INavRole): void {
     this.editingName.set(role.name ?? null);
-    this.editingLibelle = role.libelle ?? '';
+    this.editingLibelle.set(role.libelle ?? '');
   }
 
   protected saveEdit(role: INavRole): void {
-    const libelle = this.editingLibelle.trim();
+    const libelle = this.editingLibelle().trim();
     if (!libelle || libelle === role.libelle) { this.cancelEdit(); return; }
     this.navApi.updateRoleLibelle(role.name!, libelle).subscribe({
       next: () => {
@@ -96,7 +96,7 @@ export class RoleComponent implements OnInit {
 
   protected cancelEdit(): void {
     this.editingName.set(null);
-    this.editingLibelle = '';
+    this.editingLibelle.set('');
   }
 
   // ── Suppression ───────────────────────────────────────────────────────────

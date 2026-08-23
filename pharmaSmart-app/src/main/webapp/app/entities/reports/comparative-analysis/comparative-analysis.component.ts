@@ -37,7 +37,7 @@ interface ComparisonTypeOption {
   selector: "app-comparative-analysis",
   templateUrl: "./comparative-analysis.component.html",
   styleUrl: "./comparative-analysis.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeviseDirective, 
     CommonModule,
     FormsModule,

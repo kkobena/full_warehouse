@@ -19,7 +19,7 @@ const newUser: IUser = {
   selector: 'jhi-user-mgmt-update',
   templateUrl: './user-management-update.component.html',
   styleUrl: './user-management-update.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, CardComponent, ButtonComponent, ToolbarComponent, AlertErrorComponent, SelectComponent]
 })
 export default class UserManagementUpdateComponent implements OnInit {
@@ -47,7 +47,7 @@ export default class UserManagementUpdateComponent implements OnInit {
     langKey: new FormControl(userTemplate.langKey, { nonNullable: true }),
     authorities: new FormControl<string | null>(null, { validators: [Validators.required] }),
   });
-  protected isAdmin = false;
+  protected readonly isAdmin = signal(false);
   private userService = inject(UserManagementService);
   private route = inject(ActivatedRoute);
   private readonly api = inject(NavApiService);
@@ -55,7 +55,7 @@ export default class UserManagementUpdateComponent implements OnInit {
   ngOnInit(): void {
     this.route.data.subscribe(({ user }) => {
       if (user) {
-        this.isAdmin = user.id === 3;
+        this.isAdmin.set(user.id === 3);
         // p-select attend une string (optionValue="name"), pas un tableau.
         // On extrait le premier rôle pour l'affichage, on le rewrappe en tableau à la sauvegarde.
         this.editForm.reset({

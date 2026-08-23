@@ -1,11 +1,9 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   inject,
   OnDestroy,
-  OnInit
-} from '@angular/core';
+  OnInit, signal } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BackendStatus, BackendStatusService} from 'app/core/tauri/backend-status.service';
 import {Subscription} from 'rxjs';
@@ -17,27 +15,25 @@ const HIDDEN_STATES = new Set(['ready', 'stopped', 'stopping']);
   selector: 'app-backend-splash',
   templateUrl: './backend-splash.component.html',
   styleUrls: ['./backend-splash.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule],
 })
 export class BackendSplashComponent implements OnInit, OnDestroy {
-  visible = false;
-  status: BackendStatus = {
+  protected readonly visible = signal(false);
+  protected readonly status = signal<BackendStatus>({
     status: 'initializing',
     progress: 0,
     message: 'Initialisation...',
-  };
-  title = 'PharmaSmart';
+  });
+  protected readonly title = signal('PharmaSmart');
   private readonly backendStatusService = inject(BackendStatusService);
-  private readonly cdr = inject(ChangeDetectorRef);
   private subscription?: Subscription;
 
   ngOnInit(): void {
     this.subscription = this.backendStatusService.getBackendStatus().subscribe(status => {
-      this.status = status;
-      this.visible = !HIDDEN_STATES.has(status.status);
-      this.title = this.resolveTitle(status);
-      this.cdr.detectChanges();
+      this.status.set(status);
+      this.visible.set(!HIDDEN_STATES.has(status.status));
+      this.title.set(this.resolveTitle(status));
     });
   }
 
@@ -46,11 +42,11 @@ export class BackendSplashComponent implements OnInit, OnDestroy {
   }
 
   close(): void {
-    this.visible = false;
+    this.visible.set(false);
   }
 
   getStatusColor(): string {
-    switch (this.status.status) {
+    switch (this.status().status) {
       case 'error':
         return 'danger';
       case 'ready':
@@ -61,7 +57,7 @@ export class BackendSplashComponent implements OnInit, OnDestroy {
   }
 
   getStatusIcon(): string {
-    switch (this.status.status) {
+    switch (this.status().status) {
       case 'error':
         return 'fa-times-circle text-danger';
       case 'ready':
@@ -90,6 +86,6 @@ export class BackendSplashComponent implements OnInit, OnDestroy {
     if (['checking_java', 'finding_jar', 'starting', 'launched', 'restarting'].includes(status.status)) {
       return 'PharmaSmart';
     }
-    return this.title; // conserve le titre actuel
+    return this.title(); // conserve le titre actuel
   }
 }

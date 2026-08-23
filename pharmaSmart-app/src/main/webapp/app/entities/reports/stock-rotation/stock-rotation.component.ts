@@ -20,7 +20,7 @@ import {
   selector: "jhi-stock-rotation",
   templateUrl: "./stock-rotation.component.html",
   styleUrl: "./stock-rotation.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeviseDirective, 
     CommonModule,
     FormsModule,

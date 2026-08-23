@@ -31,7 +31,7 @@
     }
 
     <!-- Produits pris en compte -->
-    <div [class]="responseCommandeItemNonPrisEnCompte.length > 0 ? 'col-sm-3' : 'col-sm-8'">
+    <div [class]="responseCommandeItemNonPrisEnCompte().length > 0 ? 'col-sm-3' : 'col-sm-8'">
       <div class="response-card response-card--success">
         <div class="response-card-header">
           <i class="pi pi-check-circle"></i>
@@ -39,7 +39,7 @@
         </div>
         <div class="response-card-body">
           <span class="response-counter">
-            {{ responseCommandeItem.length | number }}
+            {{ responseCommandeItem().length | number }}
             <span class="response-counter-total">/ {{ (commande?.orderLines?.length ?? 0) | number }}</span>
           </span>
         </div>
@@ -47,19 +47,19 @@
     </div>
 
     <!-- Produits en rupture / partiels -->
-    @if (responseCommandeItemNonPrisEnCompte.length > 0) {
+    @if (responseCommandeItemNonPrisEnCompte().length > 0) {
       <div class="col-sm-9">
         <div class="response-card response-card--warn">
           <div class="response-card-header">
             <i class="pi pi-exclamation-triangle"></i>
             <span>Produits en rupture ou partiels</span>
             <span class="response-counter-badge ms-auto">
-              {{ responseCommandeItemNonPrisEnCompte.length | number }}
+              {{ responseCommandeItemNonPrisEnCompte().length | number }}
               / {{ (commande?.orderLines?.length ?? 0) | number }}
             </span>
           </div>
           <div class="response-card-body">
-            @if (responseCommandeItemNonPrisEnCompte.length < (commande?.orderLines?.length ?? 0)) {
+            @if (responseCommandeItemNonPrisEnCompte().length < (commande?.orderLines?.length ?? 0)) {
               <table class="pharma-table">
                 <thead>
                   <tr class="pharma-table-head">
@@ -71,7 +71,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  @for (item of responseCommandeItemNonPrisEnCompte; track item.codeCip) {
+                  @for (item of responseCommandeItemNonPrisEnCompte(); track item.codeCip) {
                     <tr>
                       <td class="pharma-code">{{ item.codeCip }}</td>
                       <td class="pharma-entity-name">{{ item.produitLibelle }}</td>
@@ -94,14 +94,14 @@
       </div>
     }
 
-    <!-- Produits hors commande (extraItems) -->
-    @if (extraItems.length > 0) {
+    <!-- Produits hors commande (extraItems()) -->
+    @if (extraItems().length > 0) {
       <div class="col-12">
         <div class="response-card response-card--info">
           <div class="response-card-header">
             <i class="pi pi-info-circle"></i>
             <span>Produits hors commande proposés par le grossiste</span>
-            <span class="response-counter-badge ms-auto">{{ extraItems.length | number }}</span>
+            <span class="response-counter-badge ms-auto">{{ extraItems().length | number }}</span>
           </div>
           <div class="response-card-body">
             <table>
@@ -112,7 +112,7 @@
                 </tr>
               </thead>
               <tbody>
-                @for (item of extraItems; track item.codeCip) {
+                @for (item of extraItems(); track item.codeCip) {
                   <tr>
                     <td class="pharma-code">{{ item.codeCip }}</td>
                     <td class="text-right">{{ item.quantitePriseEnCompte | number }}</td>

@@ -45,7 +45,7 @@ interface FilterOption {
   selector: 'app-supplier-performance',
   imports: [DeviseDirective, FormsModule, NgbTooltip, ButtonComponent, DataTableComponent, OffcanvasComponent, SelectComponent, ToolbarComponent],
   templateUrl: './supplier-performance.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './supplier-performance.component.scss',
 })
 export default class SupplierPerformanceComponent implements OnInit, OnDestroy {

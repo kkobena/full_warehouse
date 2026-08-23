@@ -1,31 +1,15 @@
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  inject,
-  OnInit,
-  viewChild
-} from "@angular/core";
-import {CashRegisterService} from "../cash-register.service";
-import {RouterModule} from "@angular/router";
-import {ConfigurationService} from "../../../shared/configuration.service";
-import {CashRegister, CashRegisterStatut} from "../model/cash-register.model";
-import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from "@angular/forms";
-import {left} from "@popperjs/core";
-import {ErrorService} from "../../../shared/error.service";
-import {NotificationService} from "../../../shared/services/notification.service";
-import {
-  NgbConfirmDialogService
-} from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import {CommonModule} from "@angular/common";
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, inject, OnInit, viewChild, signal } from "@angular/core";
+import { CashRegisterService } from "../cash-register.service";
+import { RouterModule } from "@angular/router";
+import { ConfigurationService } from "../../../shared/configuration.service";
+import { CashRegister, CashRegisterStatut } from "../model/cash-register.model";
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
+import { ErrorService } from "../../../shared/error.service";
+import { NotificationService } from "../../../shared/services/notification.service";
+import { NgbConfirmDialogService } from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import { CommonModule } from "@angular/common";
 import { DeviseDirective } from 'app/shared/utils/devise';
-import {
-  BadgeComponent,
-  ButtonComponent,
-  DataTableComponent,
-  KeyFilterDirective
-} from "../../../shared/ui";
+import { BadgeComponent, ButtonComponent, DataTableComponent, KeyFilterDirective } from "../../../shared/ui";
 
 @Component({
   selector: "app-user-cash-register",
@@ -39,15 +23,14 @@ import {
     DataTableComponent
   ],
   templateUrl: "./user-cash-register.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ["./user-cash-register.scss"]
 })
 export class UserCashRegisterComponent implements OnInit, AfterViewInit {
   protected cashFundAmountInput = viewChild<ElementRef>("cashFundAmountInput");
   protected fb = inject(FormBuilder);
   protected overtureCaisseAuto = false;
-  protected isSaving = false;
-  protected openCaisse = false;
+  protected readonly openCaisse = signal(false);
   protected cashFundAmount: number | null = null;
   protected cashRegisters: CashRegister[] = [];
   protected editForm = this.fb.group({
@@ -57,11 +40,6 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
     })
   });
 
-  protected readonly left = left;
-  protected readonly OPEN = CashRegisterStatut.OPEN;
-  protected readonly VALIDATED = CashRegisterStatut.VALIDATED;
-  protected readonly PENDING = CashRegisterStatut.PENDING;
-  protected readonly CLOSED = CashRegisterStatut.CLOSED;
   private readonly notificationService = inject(NotificationService);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly errorService = inject(ErrorService);
@@ -69,7 +47,7 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
   private readonly configService = inject(ConfigurationService);
 
   ngAfterViewInit(): void {
-    if (this.openCaisse || this.cashRegisters.length === 0) {
+    if (this.openCaisse() || this.cashRegisters.length === 0) {
       this.setCashFundControlFocus();
     }
   }
@@ -114,7 +92,7 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
         next: res => {
           if (res.body) {
             this.notificationService.success("Caisse ouverte avec succès");
-            this.openCaisse = false;
+            this.openCaisse.set(false);
             this.fetchCashRegisters();
           }
         },
@@ -130,7 +108,7 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
   }
 
   protected onOpenCashRegister(): void {
-    this.openCaisse = true;
+    this.openCaisse.set(true);
     this.setCashFundControlFocus();
   }
 

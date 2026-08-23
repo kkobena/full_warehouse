@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy, signal } from "@angular/core";
 import { FamilleProduitService } from "./famille-produit.service";
 import { HttpErrorResponse, HttpHeaders, HttpResponse } from "@angular/common/http";
 import { Observable } from "rxjs";
@@ -26,17 +26,16 @@ import { NotificationService } from "../../shared/services/notification.service"
   selector: "app-famille-produit",
   templateUrl: "./famille-produit.component.html",
   styleUrl: "./famille-produit.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ButtonComponent, DataTableComponent, SelectableRowDirective, IconFieldComponent, NgbTooltip, SpinnerComponent]
 })
 export class FamilleProduitComponent implements OnInit {
   responsedto!: IResponseDto;
-  entites?: IFamilleProduit[];
-  totalItems = 0;
+  protected readonly entites = signal<IFamilleProduit[] | undefined>(undefined);
+  protected readonly totalItems = signal(0);
   itemsPerPage = ITEMS_PER_PAGE;
-  page = 0;
-  loading!: boolean;
-  isSaving = false;
+  protected readonly page = signal(0);
+  protected readonly loading = signal<boolean | undefined>(undefined);
   private readonly entityService = inject(FamilleProduitService);
   private readonly modalService = inject(NgbModal);
   private readonly errorService = inject(ErrorService);
@@ -49,9 +48,9 @@ export class FamilleProduitComponent implements OnInit {
   }
 
   loadPage(page?: number, search?: string): void {
-    const pageToLoad: number = page || this.page;
+    const pageToLoad: number = page || this.page();
     const query: string = search || "";
-    this.loading = true;
+    this.loading.set(true);
     this.entityService
       .query({
         page: pageToLoad,
@@ -65,16 +64,16 @@ export class FamilleProduitComponent implements OnInit {
   }
 
   lazyLoading(event: AppTableLazyLoadEvent): void {
-    this.page = event.first / event.rows;
-    this.loading = true;
+    this.page.set(event.first / event.rows);
+    this.loading.set(true);
     this.entityService
       .query({
-        page: this.page,
+        page: this.page(),
         size: event.rows,
         search: ""
       })
       .subscribe({
-        next: (res: HttpResponse<IFamilleProduit[]>) => this.onSuccess(res.body, res.headers, this.page),
+        next: (res: HttpResponse<IFamilleProduit[]>) => this.onSuccess(res.body, res.headers, this.page()),
         error: err => this.onError(err)
       });
   }
@@ -159,14 +158,14 @@ export class FamilleProduitComponent implements OnInit {
   }
 
   protected onSuccess(data: IFamilleProduit[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get("X-Total-Count"));
-    this.page = page;
-    this.entites = data || [];
-    this.loading = false;
+    this.totalItems.set(Number(headers.get("X-Total-Count")));
+    this.page.set(page);
+    this.entites.set(data || []);
+    this.loading.set(false);
   }
 
   protected onError(error: HttpErrorResponse): void {
-    this.loading = false;
+    this.loading.set(false);
     this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 

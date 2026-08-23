@@ -25,7 +25,7 @@ import { CommandeProductSearchComponent } from '../../../commande/ui/commande-pr
   selector: 'app-ajustement-form',
   templateUrl: './ajustement-form.component.html',
   styleUrl: './ajustement-form.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -59,7 +59,7 @@ export class AjustementFormComponent implements OnInit, AfterViewInit {
   );
 
   /** Valeur saisie : positive = entrée, négative = sortie. */
-  protected qty = 0;
+  protected readonly qty = signal(0);
 
   private lastEvent$ = toObservable(this.facade.lastEvent).pipe(
     filter((e): e is AjustEvent => e !== null),
@@ -134,7 +134,7 @@ export class AjustementFormComponent implements OnInit, AfterViewInit {
   // ── Product ───────────────────────────────────────────────────────────────
 
   private resetEntry(): void {
-    this.qty = 0;
+    this.qty.set(0);
     this.produitSearch.set(null);
     this.facade.setProduit(null);
     this.productSearch()?.reset();
@@ -147,7 +147,7 @@ export class AjustementFormComponent implements OnInit, AfterViewInit {
   protected onProduitSelected(p: ProduitSearch | null): void {
     this.produitSearch.set(p);
     this.facade.setProduit(p ? this.adaptProduit(p) : null);
-    this.qty = p ? 1 : 0;
+    this.qty.set(p ? 1 : 0);
     if (p) {
       setTimeout(() => {
         const input = this.qtyBox()?.nativeElement.querySelector('input');
@@ -165,7 +165,7 @@ export class AjustementFormComponent implements OnInit, AfterViewInit {
 
   protected onAddLine(): void {
     if (!this.canAdd) return;
-    this.facade.addLine(this.qty);
+    this.facade.addLine(this.qty());
   }
 
   protected onDeleteLine(line: IAjustement): void {
@@ -219,15 +219,15 @@ export class AjustementFormComponent implements OnInit, AfterViewInit {
   // ── Computed ─────────────────────────────────────────────────────────────
 
   protected get lotVisible(): boolean {
-    return this.facade.gestionLot() && !!this.facade.selectedProduit() && this.qty > 0;
+    return this.facade.gestionLot() && !!this.facade.selectedProduit() && this.qty() > 0;
   }
 
   protected get canAdd(): boolean {
-    return !!this.facade.selectedProduit() && !!this.facade.selectedMotif() && this.qty !== 0;
+    return !!this.facade.selectedProduit() && !!this.facade.selectedMotif() && this.qty() !== 0;
   }
 
   protected get stockAfter(): number {
-    return this.facade.stockActuel() + this.qty;
+    return this.facade.stockActuel() + this.qty();
   }
 
   protected lotOptionLabel(lot: ILotItem): string {

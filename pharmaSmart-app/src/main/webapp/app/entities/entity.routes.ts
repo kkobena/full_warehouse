@@ -83,7 +83,7 @@ const routes: Routes = [
     loadChildren: () => import("./motif-retour-produit/motif-retour-produit.route")
   },
   {
-    // nav_item code = 'parametres' (avec 's') — voir V1.4.7
+
     path: "parametre",
     data: { pageTitle: "Paramètres", abilitySubject: "parametres" },
     canActivate: [AuthGuard],

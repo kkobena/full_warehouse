@@ -59,7 +59,7 @@ interface IAnneeOption {
     ToolbarComponent
   ],
   templateUrl: "./recapitulatif.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./recapitulatif.component.scss"
 })
 export class RecapitulatifComponent implements OnInit {
@@ -92,7 +92,7 @@ export class RecapitulatifComponent implements OnInit {
   protected annee: number = Math.max(new Date().getFullYear(), 2026);
   protected selectedMois: number = new Date().getMonth() + 1;
   protected selectedTypeFacture = "";
-  protected tiersPayantSuggestions: ITiersPayant[] = [];
+  protected readonly tiersPayantSuggestions = signal<ITiersPayant[]>([]);
   protected selectedTiersPayants: ITiersPayant[] = [];
 
   protected readonly rows = signal<IRecapitulatifMensuelDto[]>([]);
@@ -186,7 +186,7 @@ export class RecapitulatifComponent implements OnInit {
     this.tiersPayantService
       .query({ page: 0, search: query, size: 10 })
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(res => (this.tiersPayantSuggestions = res.body ?? []));
+      .subscribe(res => (this.tiersPayantSuggestions.set(res.body ?? [])));
   }
 
   statutLabel(statut?: string): string {

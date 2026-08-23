@@ -13,7 +13,7 @@ import { ButtonComponent, CardComponent, FileUploadComponent, SelectComponent } 
   selector: 'app-file-response-modal',
   imports: [FormsModule, ButtonComponent, CardComponent, FileUploadComponent, SelectComponent, SpinnerComponent],
   templateUrl: './file-response-modal.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['file-response.scss'],
 })
 export class FileResponseModalComponent {

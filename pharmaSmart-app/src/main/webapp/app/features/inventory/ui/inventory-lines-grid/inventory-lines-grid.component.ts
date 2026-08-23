@@ -1,4 +1,4 @@
-import {Component, computed, effect, inject, input, output, ChangeDetectionStrategy} from '@angular/core';
+import {Component, computed, effect, inject, input, output, ChangeDetectionStrategy, signal } from '@angular/core';
 import {CommonModule, formatDate} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {
@@ -37,7 +37,7 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
   selector: 'app-inventory-lines-grid',
   imports: [CommonModule, FormsModule, AgGridAngular, SelectComponent, NgbTooltip],
   templateUrl: './inventory-lines-grid.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './inventory-lines-grid.component.scss',
 })
 export class InventoryLinesGridComponent {
@@ -67,9 +67,9 @@ export class InventoryLinesGridComponent {
 
   /** Filtres d'écart retirés en mode aveugle (privilège pr-voir-stock-inventaire) */
   readonly lineFilters = computed(() => lineFiltersFor(this.blindMode()));
-  selectedLineFilter: InventoryLineFilter = 'NONE';
+  protected readonly selectedLineFilter = signal<InventoryLineFilter>('NONE');
   selectedStorageId: number | null = null;
-  selectedRayonId: number | null = null;
+  protected readonly selectedRayonId = signal<number | null>(null);
   quickFilterText = '';
   readonly rowData = computed(() => this.store.lines());
   readonly columnDefs = computed<ColDef[]>(() => [
@@ -255,8 +255,8 @@ export class InventoryLinesGridComponent {
     // retombe sur « Tous », sinon la grille resterait filtrée sur une information
     // que l'opérateur n'a pas le droit de voir.
     effect(() => {
-      if (this.blindMode() && isGapLineFilter(this.selectedLineFilter)) {
-        this.selectedLineFilter = 'NONE';
+      if (this.blindMode() && isGapLineFilter(this.selectedLineFilter())) {
+        this.selectedLineFilter.set('NONE');
         this.emitFilterChange();
       }
     });
@@ -371,7 +371,7 @@ export class InventoryLinesGridComponent {
   }
 
   onStorageFilterChange(): void {
-    this.selectedRayonId = null;
+    this.selectedRayonId.set(null);
     this.storageChange.emit(this.selectedStorageId);
     this.emitFilterChange();
   }
@@ -529,9 +529,9 @@ export class InventoryLinesGridComponent {
 
   private emitFilterChange(): void {
     this.filterChange.emit({
-      lineFilter: this.selectedLineFilter,
+      lineFilter: this.selectedLineFilter(),
       storageId: this.selectedStorageId,
-      rayonId: this.selectedRayonId,
+      rayonId: this.selectedRayonId(),
       search: this.quickFilterText,
     });
   }

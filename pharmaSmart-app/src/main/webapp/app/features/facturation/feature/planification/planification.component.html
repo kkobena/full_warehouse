@@ -90,7 +90,7 @@
     <div
       #mainNav="ngbNav"
       (activeIdChange)="onMainTabChange($event)"
-      [activeId]="activeMainTab"
+      [activeId]="activeMainTab()"
       class="nav pharma-nav-tabs"
       ngbNav
       orientation="horizontal"

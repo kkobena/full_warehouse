@@ -10,17 +10,17 @@
     <app-data-table
       (onLazyLoad)="lazyLoading($event)"
       [lazy]="true"
-      [loading]="loading"
+      [loading]="loading()"
       [paginator]="true"
       [rowsPerPageOptions]="[10, 15, 20]"
       [rows]="itemsPerPage"
-      [totalRecords]="totalItems"
-      [value]="customers"
+      [totalRecords]="totalItems()"
+      [value]="customers()"
       dataKey="id"
     >
       <ng-template #caption>
         <div class="d-flex justify-content-between align-items-center gap-2">
-          <app-icon-field [icon]="loading ? 'pi pi-spinner pi-spin' : 'pi pi-search'"
+          <app-icon-field [icon]="loading() ? 'pi pi-spinner pi-spin' : 'pi pi-search'"
                           [overlay]="true"
                           class="flex-grow-1">
             <input
@@ -58,7 +58,7 @@
         <tr
           (click)="onRowSelect(customer)"
           (dblclick)="onDbleClick(customer)"
-          [class.selected-row]="selectedCustomer?.id === customer.id"
+          [class.selected-row]="selectedCustomer()?.id === customer.id"
           class="customer-row"
         >
           <td>
@@ -136,9 +136,9 @@
 <div class="modal-footer">
   <app-button (clicked)="cancel()" [raised]="true" icon="pi pi-times" label="Fermer"
               severity="secondary" type="button" />
-  @if (selectedCustomer) {
+  @if (selectedCustomer()) {
     <app-button
-      (clicked)="onSelect(selectedCustomer)"
+      (clicked)="onSelect(selectedCustomer())"
       [raised]="true"
       icon="pi pi-check"
       label="Sélectionner"

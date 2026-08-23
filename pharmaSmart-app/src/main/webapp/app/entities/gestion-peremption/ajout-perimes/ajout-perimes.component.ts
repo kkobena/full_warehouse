@@ -1,10 +1,5 @@
-import { Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
-import {
-  APPEND_TO,
-  ITEMS_PER_PAGE,
-  PRODUIT_COMBO_MIN_LENGTH,
-  PRODUIT_COMBO_RESULT_SIZE
-} from "../../../shared/constants/pagination.constants";
+import { Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy, signal } from "@angular/core";
+import { ITEMS_PER_PAGE, PRODUIT_COMBO_RESULT_SIZE } from "../../../shared/constants/pagination.constants";
 import { TranslatePipe } from "@ngx-translate/core";
 import { FormsModule } from "@angular/forms";
 import { IProduit } from "../../../shared/model";
@@ -24,16 +19,7 @@ import { CommonModule } from "@angular/common";
 import { NgbConfirmDialogService } from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { NotificationService } from "../../../shared/services/notification.service";
 import { ErrorService } from "../../../shared/error.service";
-import {
-  BadgeComponent,
-  ButtonComponent,
-  DataTableComponent,
-  EditableCellComponent,
-  FloatLabelComponent,
-  IconFieldComponent,
-  KeyFilterDirective,
-  ToolbarComponent
-} from "../../../shared/ui";
+import { BadgeComponent, ButtonComponent, DataTableComponent, EditableCellComponent, FloatLabelComponent, IconFieldComponent, KeyFilterDirective, ToolbarComponent } from "../../../shared/ui";
 
 @Component({
   selector: "jhi-ajout-perimes",
@@ -57,28 +43,24 @@ import {
     SpinnerComponent
   ],
   templateUrl: "./ajout-perimes.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ["./ajout-perimes.component.scss"]
 })
 export class AjoutPerimesComponent implements OnInit {
-  protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
-  protected readonly ITEMS_PER_PAGE = ITEMS_PER_PAGE;
   protected readonly PRODUIT_COMBO_RESULT_SIZE = PRODUIT_COMBO_RESULT_SIZE;
-  protected readonly APPEND_TO = APPEND_TO;
   protected readonly itemsPerPage = ITEMS_PER_PAGE;
-  protected page!: number;
-  protected loading!: boolean;
-  protected ngbPaginationPage = 1;
-  protected totalItems = 0;
+  protected readonly page = signal<number | undefined>(undefined);
+  protected readonly loading = signal<boolean | undefined>(undefined);
+  protected readonly ngbPaginationPage = signal(1);
+  protected readonly totalItems = signal(0);
   protected includeDetail = true;
-  protected produits: IProduit[] = [];
-  protected data: ProductToDestroy[] = [];
-  protected produitSelected?: IProduit | null = null;
+  protected readonly data = signal<ProductToDestroy[]>([]);
+  protected readonly produitSelected = signal<IProduit | null>(null);
   protected searchTerm?: string;
   protected datePeremention = viewChild.required<PharmaDatePickerComponent>("datePeremention");
-  protected dateValue: NgbDateStruct | null = null;
+  protected readonly dateValue = signal<NgbDateStruct | null>(null);
   protected numLotCmpt = viewChild.required<ElementRef>("numLot");
-  protected isSaving = false;
+  protected readonly isSaving = signal(false);
   private produitQteCmpt = viewChild.required<QuantiteProdutSaisieComponent>("produitQteCmpt");
   private produitComponent = viewChild.required<ProduitAutocompleteComponent>("produitComponent");
   private readonly confimDialog = inject(NgbConfirmDialogService);
@@ -97,7 +79,7 @@ export class AjoutPerimesComponent implements OnInit {
   }
 
   protected get canAddQuantity(): boolean {
-    return this.numLotValue && !!this.produitSelected && !!this.dateValue;
+    return this.numLotValue && !!this.produitSelected() && !!this.dateValue();
   }
 
   protected get disableButton(): boolean {
@@ -139,7 +121,7 @@ export class AjoutPerimesComponent implements OnInit {
         this.productToDestroyService.closeCurrent().subscribe({
           next: () => {
             this.spinner().hide();
-            this.data = [];
+            this.data.set([]);
             this.notificationService.info("La clôture a été effectuée avec succès.");
           },
           error: err => {
@@ -154,7 +136,7 @@ export class AjoutPerimesComponent implements OnInit {
   }
 
   protected onSelect(selectedProduit?: IProduit): void {
-    this.produitSelected = selectedProduit || null;
+    this.produitSelected.set(selectedProduit || null);
     setTimeout(() => {
       const el = this.numLotCmpt().nativeElement;
       el.focus();
@@ -164,7 +146,7 @@ export class AjoutPerimesComponent implements OnInit {
 
   protected onNumLot(event: any): void {
     const numLot = event.target.value;
-    if (!numLot || !this.produitSelected) {
+    if (!numLot || !this.produitSelected()) {
       return;
     }
     this.datePeremention().getFocus();
@@ -176,14 +158,14 @@ export class AjoutPerimesComponent implements OnInit {
 
   protected addQuantity(qte: number): void {
     if (qte > 0) {
-      if (this.produitSelected?.totalQuantity <= 0) {
+      if (this.produitSelected()?.totalQuantity <= 0) {
         this.notificationService.error("Le produit n'a plus de stock");
       } else {
-        if (qte > this.produitSelected?.totalQuantity) {
+        if (qte > this.produitSelected()?.totalQuantity) {
           this.produitQteCmpt().focusProduitControl();
           this.notificationService.error(`La quantité saisie est supérieure à la quantité totale disponible pour ce produit.`);
         } else {
-          this.isSaving = true;
+          this.isSaving.set(true);
           this.onAddItem(qte);
         }
       }
@@ -191,7 +173,7 @@ export class AjoutPerimesComponent implements OnInit {
   }
 
   protected modifyProductQuantity(item: ProductToDestroy, inputValue: any): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     this.productToDestroyService
       .modifyProductQuantity({
         id: item.id,
@@ -202,7 +184,7 @@ export class AjoutPerimesComponent implements OnInit {
           this.onAddSuccess();
         },
         error: err => {
-          this.isSaving = false;
+          this.isSaving.set(false);
           this.loadPage();
           this.onError(err);
         }
@@ -220,16 +202,16 @@ export class AjoutPerimesComponent implements OnInit {
 
   protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event) {
-      this.page = event.first / event.rows;
-      this.loading = true;
+      this.page.set(event.first / event.rows);
+      this.loading.set(true);
       this.productToDestroyService
         .queryForEdit({
-          page: this.page,
+          page: this.page(),
           size: event.rows,
           ...this.buidParams()
         })
         .subscribe({
-          next: (res: HttpResponse<ProductToDestroy[]>) => this.onSuccess(res.body, res.headers, this.page),
+          next: (res: HttpResponse<ProductToDestroy[]>) => this.onSuccess(res.body, res.headers, this.page()),
           error: () => this.onError()
         });
     }
@@ -252,16 +234,16 @@ export class AjoutPerimesComponent implements OnInit {
   }
 
   private onSuccess(data: ProductToDestroy[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get("X-Total-Count"));
-    this.page = page;
-    this.data = data || [];
-    this.ngbPaginationPage = this.page;
-    this.loading = false;
+    this.totalItems.set(Number(headers.get("X-Total-Count")));
+    this.page.set(page);
+    this.data.set(data || []);
+    this.ngbPaginationPage.set(this.page());
+    this.loading.set(false);
   }
 
   private onFetchError(): void {
-    this.ngbPaginationPage = this.page ?? 1;
-    this.loading = false;
+    this.ngbPaginationPage.set(this.page() ?? 1);
+    this.loading.set(false);
   }
 
   private onAddItem(qte: number): void {
@@ -270,30 +252,30 @@ export class AjoutPerimesComponent implements OnInit {
         this.onAddSuccess();
       },
       error: err => {
-        this.isSaving = false;
+        this.isSaving.set(false);
         this.onError(err);
       }
     });
   }
 
   private onAddSuccess(): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.loadPage();
-    this.produitSelected = null;
+    this.produitSelected.set(null);
     this.numLotCmpt().nativeElement.value = "";
     this.produitComponent().getFocus();
-    this.dateValue = null;
+    this.dateValue.set(null);
     this.produitQteCmpt().reset();
   }
 
   private buildItem(quantity: number): ProductToDestroyPayload {
     return {
       editing: true,
-      produitId: this.produitSelected?.id,
-      datePeremption: NGB_DATE_TO_ISO(this.dateValue),
+      produitId: this.produitSelected()?.id,
+      datePeremption: NGB_DATE_TO_ISO(this.dateValue()),
       quantity,
       numLot: this.numLotCmpt()?.nativeElement.value,
-      stockInitial: this.produitSelected?.totalQuantity
+      stockInitial: this.produitSelected()?.totalQuantity
     };
   }
 
@@ -302,7 +284,7 @@ export class AjoutPerimesComponent implements OnInit {
   }
 
   private loadPage(page?: number): void {
-    const pageToLoad: number = page || this.page || 1;
+    const pageToLoad: number = page || this.page() || 1;
     this.productToDestroyService
       .queryForEdit({
         page: pageToLoad - 1,

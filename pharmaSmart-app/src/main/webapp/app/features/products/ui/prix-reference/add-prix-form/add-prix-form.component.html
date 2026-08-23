@@ -45,7 +45,7 @@
           <label class="form-label form-label-sm" for="tiersPayantId">
             Tiers payant <span class="text-danger">*</span>
           </label>
-          <app-select-search [items]="tiersPayants" formControlName="tiersPayantId" inputId="tiersPayantId"
+          <app-select-search [items]="tiersPayants()" formControlName="tiersPayantId" inputId="tiersPayantId"
                     bindLabel="fullName" bindValue="id"
                     placeholder="Sélectionner"/>
           @let tp = editForm.get('tiersPayantId');
@@ -58,7 +58,7 @@
           <label class="form-label form-label-sm" for="produitId">
             Produit <span class="text-danger">*</span>
           </label>
-          <app-select-search [items]="produits" formControlName="produitId" inputId="produitId"
+          <app-select-search [items]="produits()" formControlName="produitId" inputId="produitId"
                     bindLabel="libelle" bindValue="id"
                     placeholder="Sélectionner"/>
           @let pid = editForm.get('produitId');
@@ -109,7 +109,7 @@
   <div class="modal-footer py-2">
     <app-button (clicked)="cancel()" icon="pi pi-times" label="Annuler"
               severity="secondary" [text]="true" type="button"/>
-    <app-button [disabled]="editForm.invalid || isSaving" [loading]="isSaving"
+    <app-button [disabled]="editForm.invalid || isSaving()" [loading]="isSaving()"
               icon="pi pi-check" label="Enregistrer"
               severity="primary" type="submit"/>
   </div>

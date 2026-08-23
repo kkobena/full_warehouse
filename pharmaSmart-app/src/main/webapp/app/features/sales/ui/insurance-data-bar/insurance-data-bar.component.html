@@ -2,8 +2,8 @@
 <div class="assurance-data-wrapper">
   <!-- Search Section - Toujours visible pour permettre changement de client -->
   <div class="search-section">
-    <app-icon-field icon="pi pi-search" [overlay]="true" class="search-input-wrapper">
-      <input #searchInput (keydown.enter)="load()" [(ngModel)]="search" autocomplete="off" class="form-control search-input"
+    <app-icon-field icon="pi pi-search()" [overlay]="true" class="search-input-wrapper">
+      <input #searchInput (keydown.enter)="load()" [ngModel]="search()" (ngModelChange)="search.set($event)" autocomplete="off" class="form-control search-input"
              placeholder="Rechercher un client assuré..." type="text"/>
     </app-icon-field>
   </div>

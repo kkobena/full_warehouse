@@ -21,7 +21,7 @@ import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ng
     SelectComponent
   ],
   templateUrl: './avoir-encours.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './avoir-encours.component.scss',
 })
 export class AvoirEncoursComponent implements OnInit {
@@ -33,7 +33,7 @@ export class AvoirEncoursComponent implements OnInit {
   protected avoirs = signal<IAvoirFournisseur[]>([]);
   protected selectedFournisseurId = signal<number | null>(null);
   protected selectedFournisseurLibelle = signal<string>('');
-  protected detailStatut: AvoirFournisseurStatut | null = 'EN_ATTENTE';
+  protected readonly detailStatut = signal<AvoirFournisseurStatut | null>('EN_ATTENTE');
   protected loadingEncours = signal(false);
   protected loadingDetail = signal(false);
 
@@ -60,7 +60,7 @@ export class AvoirEncoursComponent implements OnInit {
   protected selectFournisseur(row: IAvoirEncoursFournisseur): void {
     this.selectedFournisseurId.set(row.fournisseurId!);
     this.selectedFournisseurLibelle.set(row.fournisseurLibelle ?? '');
-    this.detailStatut = 'EN_ATTENTE';
+    this.detailStatut.set('EN_ATTENTE');
     this.loadDetail();
   }
 
@@ -72,7 +72,7 @@ export class AvoirEncoursComponent implements OnInit {
     const fournisseurId = this.selectedFournisseurId();
     if (!fournisseurId) return;
     this.loadingDetail.set(true);
-    const statut = this.detailStatut ?? undefined;
+    const statut = this.detailStatut() ?? undefined;
     this.avoirService.query({ statut, fournisseurId, size: 200 }).subscribe({
       next: res => { this.avoirs.set(res.body ?? []); this.loadingDetail.set(false); },
       error: () => { this.notificationService.error('Erreur chargement avoirs'); this.loadingDetail.set(false); },

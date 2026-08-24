@@ -8,7 +8,7 @@ import { NgxSpinnerComponent } from "ngx-spinner";
 
 import { FrenchDateParserFormatter } from "../../../../config/french-date-parser-formatter";
 import { PharmaDatePickerComponent } from "../../../../shared/date-picker/pharma-date-picker.component";
-import { ButtonComponent, DataTableComponent, IconFieldComponent, SelectComponent, ToolbarComponent } from "../../../../shared/ui";
+import { ButtonComponent, DataTableComponent, IconFieldComponent, SelectComponent, ToolbarComponent, RowTogglerDirective } from "../../../../shared/ui";
 import { ISales, SaleId } from "../../../../shared/model/sales.model";
 import { SalesApiService } from "../../data-access/services/sales-api.service";
 import { NotificationService } from "../../../../shared/services/notification.service";
@@ -22,7 +22,7 @@ import { BlobDownloadService } from "../../../../shared/services/blob-download.s
   styleUrls: ["./devis-list.component.scss"],
   providers: [{ provide: NgbDateParserFormatter, useClass: FrenchDateParserFormatter }],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
+  imports: [RowTogglerDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,

@@ -219,8 +219,8 @@
     <!-- ── GRILLE BL ─────────────────────────────────────────────────────── -->
     <div class="lb-grid-wrap">
       <app-data-table
-        [loading]="loading"
-        [value]="deliveries"
+        [loading]="loading()"
+        [value]="deliveries()"
         class="p-datatable-sm"
         dataKey="id"
         scrollHeight="flex"
@@ -345,7 +345,7 @@
       <div class="pagination-bar">
         <app-button
           (clicked)="goToPage(page() - 1)"
-          [disabled]="page === 0"
+          [disabled]="page() === 0"
           icon="pi pi-angle-left"
           ngbTooltip="Page précédente"
           severity="secondary"
@@ -355,7 +355,7 @@
           bon(s)</span>
         <app-button
           (clicked)="goToPage(page() + 1)"
-          [disabled]="page >= totalPages - 1"
+          [disabled]="page() >= totalPages - 1"
           icon="pi pi-angle-right"
           ngbTooltip="Page suivante"
           severity="secondary"

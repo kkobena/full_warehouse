@@ -77,7 +77,7 @@
               </label>
               <pharma-date-picker
                 (selectionChange)="onExpiryDateSelected($event)"
-                [minDate]="minDate"
+                [minDate]="minDate()"
                 class="w-full"
                 formControlName="expiryDate"
                 id="expiryDate"
@@ -104,7 +104,7 @@
             <div class="form-field form-field-full">
               <label for="manufacturingDate">Date de fabrication</label>
               <pharma-date-picker
-                [maxDate]="maxDate"
+                [maxDate]="maxDate()"
                 class="w-full"
                 formControlName="manufacturingDate"
                 id="manufacturingDate"

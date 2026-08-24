@@ -4,9 +4,12 @@ import {CommonModule} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 
 import {
+  AppBadgeSeverity,
   BadgeComponent,
   ButtonComponent,
   DataTableComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   SelectComponent,
   SortableHeaderDirective,
   ToolbarComponent
@@ -27,7 +30,7 @@ import {DeviseDirective} from 'app/shared/utils/devise';
   templateUrl: "./customer-segmentation.component.html",
   styleUrl: "./customer-segmentation.component.scss",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeviseDirective, CommonModule, FormsModule, BadgeComponent, ButtonComponent, DataTableComponent, SelectComponent, ToolbarComponent, SortableHeaderDirective]
+  imports: [DeviseDirective, CommonModule, FormsModule, BadgeComponent, ButtonComponent, DataTableComponent, SelectComponent, ToolbarComponent, SortableHeaderDirective, KpiStripComponent, KpiItemComponent]
 })
 export default class CustomerSegmentationComponent implements OnInit {
   /**
@@ -171,7 +174,7 @@ export default class CustomerSegmentationComponent implements OnInit {
     return sum / customers.length;
   }
 
-  getClassificationSeverity(classification: CustomerClassification | undefined): string {
+  getClassificationSeverity(classification: CustomerClassification | undefined): AppBadgeSeverity {
     if (!classification) {
       return "secondary";
     }
@@ -219,7 +222,7 @@ export default class CustomerSegmentationComponent implements OnInit {
     }
   }
 
-  getRFMScoreSeverity(score: number | undefined): string {
+  getRFMScoreSeverity(score: number | undefined): AppBadgeSeverity {
     if (!score) {
       return "secondary";
     }
@@ -235,7 +238,7 @@ export default class CustomerSegmentationComponent implements OnInit {
     return "danger";
   }
 
-  getRecencySeverity(days: number | undefined): string {
+  getRecencySeverity(days: number | undefined): AppBadgeSeverity {
     if (!days) {
       return "secondary";
     }

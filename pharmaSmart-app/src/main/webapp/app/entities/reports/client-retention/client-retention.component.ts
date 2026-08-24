@@ -17,7 +17,7 @@ import {ClientRetentionReportService} from '../services/client-retention-report.
 import {IClientRetentionKpi, IClientRetentionRow} from '../../../shared/model/report';
 import {ChartColorsUtilsService} from '../../../shared/util/chart-colors-utils.service';
 import {formatCurrency, formatNumber} from 'app/shared/utils/format-utils';
-import {DataTableComponent, SortableHeaderDirective} from '../../../shared/ui';
+import { DataTableComponent, KpiItemComponent, KpiStripComponent, SortableHeaderDirective } from '../../../shared/ui';
 
 Chart.register(...registerables);
 
@@ -26,7 +26,9 @@ Chart.register(...registerables);
   imports: [
     CommonModule,
     DataTableComponent,
-    SortableHeaderDirective
+    SortableHeaderDirective,
+    KpiStripComponent,
+    KpiItemComponent
   ],
   templateUrl: './client-retention.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

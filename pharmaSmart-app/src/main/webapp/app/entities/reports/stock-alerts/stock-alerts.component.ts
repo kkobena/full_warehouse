@@ -12,6 +12,8 @@ import {
   AppTableLazyLoadEvent,
   ButtonComponent,
   DataTableComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   MultiSelectComponent,
   ToolbarComponent
 } from '../../../shared/ui';
@@ -29,7 +31,9 @@ const ITEMS_PER_PAGE = 15;
     ButtonComponent,
     DataTableComponent,
     MultiSelectComponent,
-    ToolbarComponent
+    ToolbarComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ],
 })
 export default class StockAlertsComponent implements OnInit {

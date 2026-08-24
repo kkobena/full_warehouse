@@ -1,217 +1,216 @@
-<div class="container-fluid">
-  <div class="pharma-smart-content p-1">
-    <app-toolbar [code]="navCode()" icon="pi pi-shopping-cart" title="Achats dépôts">
-      <ng-container ngProjectAs="[toolbarFilters]">
-        <div class="pharma-toolbar-filters">
-          <app-select
-            (selectionChange)="onSelectDepot()"
-            [(ngModel)]="selectedDepot"
-            [items]="depotOptions"
-            [style]="{ 'min-width': '200px' }"
-            appendTo="body"
-            bindLabel="displayLabel"
-            class="pharma-select-modern"
-            inputId="depots()"
-            placeholder="Sélectionner un dépôt"
-            size="large"
-          />
+<div class="pharma-smart-content p-1">
+  <app-toolbar [code]="navCode()" icon="pi pi-shopping-cart" title="Achats dépôts">
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <div class="pharma-toolbar-filters">
+        <app-select
+          (selectionChange)="onSelectDepot()"
+          [(ngModel)]="selectedDepot"
+          [items]="depotOptions"
+          [style]="{ 'min-width': '200px' }"
+          appendTo="body"
+          bindLabel="displayLabel"
+          class="pharma-select-modern"
+          inputId="depots"
+          placeholder="Sélectionner un dépôt"
+          size="large"
+        />
 
-          <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate"
-                              [style]="{ 'max-width': '180px' }" id="fromDate"
-                              label="Du" />
+        <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate"
+                            [style]="{ 'max-width': '180px' }" id="fromDate"
+                            label="Du" />
 
-          <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate"
-                              [style]="{ 'max-width': '180px' }" id="toDate"
-                              label="Au" />
-        </div>
-      </ng-container>
-      <ng-container ngProjectAs="[toolbarActions]">
-        <div class="pharma-toolbar-actions">
-          <app-button (clicked)="loadPage()" [raised]="true" icon="pi pi-search"
-                      label="Rechercher"
-                      severity="info" size="small" />
-          <app-button [raised]="true"
-                      [routerLink]="['/sales-home', 'vente-depot']"
-                      icon="pi pi-shopping-cart"
-                      label="Nouvelle vente"
-                      severity="primary"
-                      size="small"
-          />
-          <app-button [raised]="true" [routerLink]="['/depot', 'new-return']" icon="pi pi-undo"
-                      label="Retour dépôt" severity="warn" size="small" />
-        </div>
-      </ng-container>
-    </app-toolbar>
-    <div class="mt-3 -mb-3">
-      @if (sales() && sales().length > 0) {
-        <app-data-table
-          (onLazyLoad)="lazyLoading($event)"
-          [(selection)]="selectedEl"
-          [lazy]="true"
-          [loading]="loading()"
-          [paginator]="true"
-          [rowsPerPageOptions]="[5, 10, 15, 20, 30, 50]"
-          [rows]="itemsPerPage()"
-          [selectionMode]="'single'"
-          [showCurrentPageReport]="true"
-          [stripedRows]="true"
-          [totalRecords]="totalItems()"
-          [value]="sales()"
-          currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} ventes"
-          dataKey="id"
-        >
-          <ng-template #header>
-            <tr class="pharma-table-head">
-              <th style="width: 3%"></th>
-              <th>Date</th>
-              <th>Référence</th>
-              <th>Nbre d'articles</th>
-              <th>Montant</th>
-              <th style="width: 20%">Dépôt</th>
+        <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate"
+                            [style]="{ 'max-width': '180px' }" id="toDate"
+                            label="Au" />
+      </div>
+    </ng-container>
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-toolbar-actions">
+        <app-button (clicked)="loadPage()" [raised]="true" icon="pi pi-search"
+                    label="Rechercher"
+                    severity="info" size="small" />
+        <app-button [raised]="true"
+                    [routerLink]="['/sales-home', 'vente-depot']"
+                    icon="pi pi-shopping-cart"
+                    label="Nouvelle vente"
+                    severity="primary"
+                    size="small"
+        />
+        <app-button [raised]="true" [routerLink]="['/depot', 'new-return']" icon="pi pi-undo"
+                    label="Retour dépôt" severity="warn" size="small" />
+      </div>
+    </ng-container>
+  </app-toolbar>
+  <div class="mt-3 -mb-3">
+    @if (sales() && sales().length > 0) {
+      <app-data-table
+        (onLazyLoad)="lazyLoading($event)"
+        [(selection)]="selectedEl"
+        [lazy]="true"
+        [loading]="loading()"
+        [paginator]="true"
+        [rowsPerPageOptions]="[5, 10, 15, 20, 30, 50]"
+        [rows]="itemsPerPage()"
+        [selectionMode]="'single'"
+        [showCurrentPageReport]="true"
+        [stripedRows]="true"
+        [totalRecords]="totalItems()"
+        [value]="sales()"
+        currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} ventes"
+        dataKey="id"
+      >
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th style="width: 3%"></th>
+            <th>Date</th>
+            <th>Référence</th>
+            <th>Nbre d'articles</th>
+            <th>Montant</th>
+            <th style="width: 20%">Dépôt</th>
 
-              <th>Caissier</th>
-              <th style="width: 10%"></th>
-            </tr>
-          </ng-template>
-          <ng-template #body let-expanded="expanded" let-sale>
-            <tr>
-              <td>
+            <th>Caissier</th>
+            <th style="width: 10%"></th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-expanded="expanded" let-sale>
+          <tr>
+            <td>
+              <app-button
+                [appRowToggler]="sale"
+                [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                [rounded]="true"
+                [text]="true"
+                type="button"
+              />
+            </td>
+            <td>{{ sale.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+
+            <td>
+              <span class="pharma-code">{{ sale.numberTransaction }}</span>
+            </td>
+            <td class="text-right">{{ sale.salesLines.length | number }}</td>
+            <td class="pharma-total">{{ sale.salesAmount | number }}</td>
+            <td class="pharma-entity-name">{{ sale.magasin?.fullName }}</td>
+
+            <td>{{ sale.cassier?.abbrName }}</td>
+            <td>
+              <div class="btn-group d-flex justify-content-end">
                 <app-button
-                  [appRowToggler]="sale"
-                  [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                  (clicked)="printSale(sale)"
                   [rounded]="true"
                   [text]="true"
-                  type="button"
+                  icon="pi pi-print"
+                  ngbTooltip="Imprimer"
+                  placement="top"
+                  severity="secondary"
+                  size="small"
                 />
-              </td>
-              <td>{{ sale.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
-
-              <td>
-                <span class="pharma-code">{{ sale.numberTransaction }}</span>
-              </td>
-              <td class="text-right">{{ sale.salesLines.length | number }}</td>
-              <td class="pharma-total">{{ sale.salesAmount | number }}</td>
-              <td class="pharma-entity-name">{{ sale.magasin?.fullName }}</td>
-
-              <td>{{ sale.cassier?.abbrName }}</td>
-              <td>
-                <div class="btn-group d-flex justify-content-end">
+                <div class="d-inline-block" container="body" ngbDropdown
+                     placement="bottom-end top-end bottom-start top-start">
                   <app-button
-                    (clicked)="printSale(sale)"
                     [rounded]="true"
                     [text]="true"
-                    icon="pi pi-print"
-                    ngbTooltip="Imprimer"
+                    icon="pi pi-file-export"
+                    ngbDropdownToggle
+                    ngbTooltip="Exporter"
                     placement="top"
-                    severity="secondary"
+                    severity="primary"
                     size="small"
                   />
-                  <div class="d-inline-block" container="body" ngbDropdown
-                       placement="bottom-end top-end bottom-start top-start">
-                    <app-button
-                      [rounded]="true"
-                      [text]="true"
-                      icon="pi pi-file-export"
-                      ngbDropdownToggle
-                      ngbTooltip="Exporter"
-                      placement="top"
-                      severity="primary"
-                      size="small"
-                    />
-                    <div ngbDropdownMenu>
-                      <button (click)="exportWithFormat('csv', sale)" ngbDropdownItem type="button">
-                        <i class="pi pi-file me-2"></i>Exporter en CSV
-                      </button>
-                      <button (click)="exportWithFormat('excel', sale)" ngbDropdownItem
-                              type="button">
-                        <i class="pi pi-file-excel me-2"></i>Exporter en Excel
-                      </button>
-                      <button (click)="printInvoice(sale)" ngbDropdownItem type="button">
-                        <i class="pi pi-file-pdf me-2"></i>Exporter en PDF
-                      </button>
-                    </div>
+                  <div ngbDropdownMenu>
+                    <button (click)="exportWithFormat('csv', sale)" ngbDropdownItem type="button">
+                      <i class="pi pi-file me-2"></i>Exporter en CSV
+                    </button>
+                    <button (click)="exportWithFormat('excel', sale)" ngbDropdownItem
+                            type="button">
+                      <i class="pi pi-file-excel me-2"></i>Exporter en Excel
+                    </button>
+                    <button (click)="printInvoice(sale)" ngbDropdownItem type="button">
+                      <i class="pi pi-file-pdf me-2"></i>Exporter en PDF
+                    </button>
                   </div>
                 </div>
-              </td>
-            </tr>
-          </ng-template>
-          <ng-template #expandedrow let-elRow>
-            <tr class="pharma-expanded-row">
-              <td colspan="10">
-                <div class="pharma-sub-table-card pharma-smart">
-                  <div class="card">
-                    <div class="card-header bg-info text-white">
-                      <i class="pi pi-list"></i>
-                      LISTES DES PRODUITS
-                    </div>
-                    <div class="card-body">
-                      <app-data-table
-                        [paginator]="true"
-                        [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
-                        [rows]="10"
-                        [selectionMode]="'single'"
-                        [showCurrentPageReport]="true"
-                        [stripedRows]="true"
-                        [value]="elRow.salesLines"
-                        class="rowexpansion-table"
-                        currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-                        dataKey="id"
-                      >
-                        <ng-template #header>
-                          <tr class="pharma-table-head">
-                            <th style="width: 5%">#</th>
-                            <th style="width: 10%">CODE</th>
-                            <th style="width: 44%">LIBELLE</th>
-                            <th class="text-right" style="width: 8%">QTE.D</th>
-                            <th class="text-right" style="width: 8%">QTE.S</th>
-                            <th class="text-right" style="width: 9%">PU</th>
-                            <th class="text-right" style="width: 10%">TOTAL</th>
-                          </tr>
-                        </ng-template>
-                        <ng-template #body let-rowIndex="rowIndex" let-saleLine>
-                          <tr
-                            [ngClass]="{
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template #expandedrow let-elRow>
+          <tr class="pharma-expanded-row">
+            <td colspan="10">
+              <div class="pharma-sub-table-card pharma-smart">
+                <div class="card">
+                  <div class="card-header bg-info text-white">
+                    <i class="pi pi-list"></i>
+                    LISTES DES PRODUITS
+                  </div>
+                  <div class="card-body">
+                    <app-data-table
+                      [paginator]="true"
+                      [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+                      [rows]="10"
+                      [selectionMode]="'single'"
+                      [showCurrentPageReport]="true"
+                      [stripedRows]="true"
+                      [value]="elRow.salesLines"
+                      class="rowexpansion-table"
+                      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+                      dataKey="id"
+                    >
+                      <ng-template #header>
+                        <tr class="pharma-table-head">
+                          <th style="width: 5%">#</th>
+                          <th style="width: 10%">CODE</th>
+                          <th style="width: 44%">LIBELLE</th>
+                          <th class="text-right" style="width: 8%">QTE.D</th>
+                          <th class="text-right" style="width: 8%">QTE.S</th>
+                          <th class="text-right" style="width: 9%">PU</th>
+                          <th class="text-right" style="width: 10%">TOTAL</th>
+                        </tr>
+                      </ng-template>
+                      <ng-template #body let-rowIndex="rowIndex" let-saleLine>
+                        <tr
+                          [ngClass]="{
                               'pharma-row-warning': saleLine.quantitySold < saleLine.quantityRequested,
                               'pharma-row-hover': true,
                             }"
-                          >
-                            <td style="text-align: left">
-                              <span class="pharma-row-number"> {{ rowIndex + 1 }}</span>
-                            </td>
-                            <td>
-                              <span class="pharma-code">{{ saleLine.code }}</span>
-                            </td>
-                            <td>
-                              <span class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
-                            </td>
-                            <td
-                              class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}
-                            </td>
-                            <td
-                              class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}
-                            </td>
-                            <td
-                              class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}
-                            </td>
-                            <td class="pharma-total px-1"
-                                style="text-align: right; font-weight: bold">
-                              {{ saleLine.salesAmount | number }}
-                            </td>
-                          </tr>
-                        </ng-template>
-                      </app-data-table>
-                    </div>
+                        >
+                          <td style="text-align: left">
+                            <span class="pharma-row-number"> {{ rowIndex + 1 }}</span>
+                          </td>
+                          <td>
+                            <span class="pharma-code">{{ saleLine.code }}</span>
+                          </td>
+                          <td>
+                            <span class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
+                          </td>
+                          <td
+                            class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}
+                          </td>
+                          <td
+                            class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}
+                          </td>
+                          <td
+                            class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}
+                          </td>
+                          <td class="pharma-total px-1"
+                              style="text-align: right; font-weight: bold">
+                            {{ saleLine.salesAmount | number }}
+                          </td>
+                        </tr>
+                      </ng-template>
+                    </app-data-table>
                   </div>
                 </div>
-              </td>
-            </tr>
-          </ng-template>
-        </app-data-table>
-      } @else {
-        <div class="alert alert-warning" id="no-result">
-          <span>Aucune donnée trouvée</span>
-        </div>
-      }
-    </div>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    } @else {
+      <div class="alert alert-warning" id="no-result">
+        <span>Aucune donnée trouvée</span>
+      </div>
+    }
   </div>
 </div>
+

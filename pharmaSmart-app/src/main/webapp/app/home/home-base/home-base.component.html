@@ -273,7 +273,7 @@
             <i class="pi pi-chart-pie text-success"></i>
             Ventes par tiers payant
           </h5>
-          <app-select (selectionChange)="onTopTiersPayantChange($event)" [ngModel]="TOP_MAX_TP()" (ngModelChange)="TOP_MAX_TP.set($event)"
+          <app-select (selectionChange)="onTopTiersPayantChange($any($event))" [ngModel]="TOP_MAX_TP()" (ngModelChange)="TOP_MAX_TP.set($any($event))"
                       [items]="tops" bindLabel="label"></app-select>
         </div>
         <div class="card-body py-4">
@@ -339,7 +339,7 @@
                       type="button">12 mois
               </button>
             </div>
-            <app-select (selectionChange)="onTopFournisseurChange($event)"
+            <app-select (selectionChange)="onTopFournisseurChange($any($event))"
                         [ngModel]="TOP_MAX_FOURNISSEUR()" (ngModelChange)="TOP_MAX_FOURNISSEUR.set($event)"
                         [items]="tops" bindLabel="label"></app-select>
           </div>
@@ -417,7 +417,7 @@
             <i class="pi pi-chart-bar text-warning"></i>
             Meilleures ventes en valeur
           </h5>
-          <app-select (selectionChange)="onTopAmountChange($event)" [ngModel]="TOP_MAX_AMOUNT()" (ngModelChange)="TOP_MAX_AMOUNT.set($event)"
+          <app-select (selectionChange)="onTopAmountChange($any($event))" [ngModel]="TOP_MAX_AMOUNT()" (ngModelChange)="TOP_MAX_AMOUNT.set($any($event))"
                       [items]="tops" bindLabel="label"></app-select>
         </div>
         <div class="card-body p-0">
@@ -491,7 +491,7 @@
             <i class="pi pi-chart-bar text-primary"></i>
             Meilleures ventes en quantité
           </h5>
-          <app-select (selectionChange)="onTopQuantityChange($event)" [ngModel]="TOP_MAX_QUANTITY()" (ngModelChange)="TOP_MAX_QUANTITY.set($event)"
+          <app-select (selectionChange)="onTopQuantityChange($any($event))" [ngModel]="TOP_MAX_QUANTITY()" (ngModelChange)="TOP_MAX_QUANTITY.set($any($event))"
                       [items]="tops" bindLabel="label"></app-select>
         </div>
         <div class="card-body p-0">

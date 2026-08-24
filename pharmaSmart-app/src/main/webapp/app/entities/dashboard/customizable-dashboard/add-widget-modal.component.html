@@ -9,7 +9,7 @@
 <div class="modal-body">
   <div class="widget-grid">
     @for (widget of availableWidgets; track widget.value) {
-      <div class="widget-option-card" [class.selected]="selectedWidgetType === widget.value" (click)="selectWidget(widget.value)">
+      <div class="widget-option-card" [class.selected]="selectedWidgetType() === widget.value" (click)="selectWidget(widget.value)">
         <div class="widget-option-icon">
           <i class="pi" [ngClass]="widget.icon"></i>
         </div>
@@ -17,7 +17,7 @@
           <div class="widget-option-title">{{ widget.label }}</div>
           <div class="widget-option-description">{{ widget.description }}</div>
         </div>
-        @if (selectedWidgetType === widget.value) {
+        @if (selectedWidgetType() === widget.value) {
           <div class="widget-option-check">
             <i class="pi pi-check-circle"></i>
           </div>

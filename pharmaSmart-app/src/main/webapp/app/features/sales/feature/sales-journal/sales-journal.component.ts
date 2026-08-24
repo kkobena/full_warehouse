@@ -3,8 +3,10 @@ import {
   Component,
   DestroyRef,
   inject,
+  input,
   OnInit,
-  signal, input} from "@angular/core";
+  signal
+} from "@angular/core";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {CommonModule, DatePipe} from "@angular/common";
 import {FormsModule} from "@angular/forms";
@@ -71,7 +73,8 @@ import {
 } from "../../ui/cloturer-avoir-modal/cloturer-avoir-modal.component";
 import {AvoirClientApiService} from "../../data-access/services/avoir-client-api.service";
 
-import { DeviseDirective } from 'app/shared/utils/devise';
+import {DeviseDirective} from 'app/shared/utils/devise';
+
 interface SaleMenuEntry {
   label?: string;
   icon?: string;
@@ -86,7 +89,7 @@ interface SaleMenuEntry {
   styleUrl: "./sales-journal.component.scss",
   providers: [DatePipe, {provide: NgbDateParserFormatter, useClass: FrenchDateParserFormatter}],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeviseDirective, 
+  imports: [DeviseDirective,
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -325,7 +328,8 @@ export class SalesJournalComponent implements OnInit {
     table.toggleRow(sale);
     if (sale.saleId && !(sale as ISales & { _loaded?: boolean })._loaded) {
       this.api.findSale(sale.saleId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(detail => {
-        Object.assign(sale, detail, {_loaded: true});
+        const chargee = {...sale, ...detail, _loaded: true};
+        this.sales.update(lignes => lignes.map(l => (l === sale ? chargee : l)));
       });
     }
   }

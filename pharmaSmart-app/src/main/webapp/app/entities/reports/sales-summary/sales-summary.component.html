@@ -33,52 +33,23 @@
   </app-toolbar>
 
   <!-- KPI Strip -->
-  <div class="kpi-strip mt-2 mb-2">
-
-    <div class="kpi-strip-item primary-accent">
-      <i class="pi pi-dollar text-primary"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">CA Total</span>
-        <span class="kpi-strip-value text-primary">{{ getTotalCA() | number: '1.0-0' }}
-          <small>F CFA</small></span>
-        <span class="kpi-strip-sub">chiffre d'affaires</span>
-      </div>
-    </div>
-
-    <div class="kpi-strip-divider"></div>
-
-    <div class="kpi-strip-item success-accent">
-      <i class="pi pi-money-bill text-success"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">CA Net</span>
-        <span class="kpi-strip-value text-success">{{ getTotalCANet() | number: '1.0-0' }} <small>F CFA</small></span>
-        <span class="kpi-strip-sub">après remises</span>
-      </div>
-    </div>
-
-    <div class="kpi-strip-divider"></div>
-
-    <div class="kpi-strip-item warning-accent">
-      <i class="pi pi-shopping-cart text-warning"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">Nombre de ventes</span>
-        <span class="kpi-strip-value text-warning">{{ getTotalVentes() }}</span>
-        <span class="kpi-strip-sub">transactions</span>
-      </div>
-    </div>
-
-    <div class="kpi-strip-divider"></div>
-
-    <div class="kpi-strip-item danger-accent">
-      <i class="pi pi-shopping-bag text-danger"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">Panier moyen</span>
-        <span class="kpi-strip-value text-danger">{{ getAveragePanier() | number: '1.0-0' }} <small>F CFA</small></span>
-        <span class="kpi-strip-sub">par transaction</span>
-      </div>
-    </div>
-
-  </div>
+  <app-kpi-strip stripClass="mt-2 mb-2">
+    <app-kpi-item [accent]="'primary'" icon="pi pi-dollar" iconClass="text-primary" label="CA Total" [value]="getTotalCA() | number: '1.0-0'" valueClass="text-primary">
+      <span ngProjectAs="[kpiValue]">&ngsp;<small>F CFA</small></span>
+      <ng-container ngProjectAs="[kpiSub]">chiffre d'affaires</ng-container>
+    </app-kpi-item>
+    <app-kpi-item [accent]="'success'" icon="pi pi-money-bill" iconClass="text-success" label="CA Net" [value]="getTotalCANet() | number: '1.0-0'" valueClass="text-success">
+      <span ngProjectAs="[kpiValue]">&ngsp;<small>F CFA</small></span>
+      <ng-container ngProjectAs="[kpiSub]">après remises</ng-container>
+    </app-kpi-item>
+    <app-kpi-item [accent]="'warning'" icon="pi pi-shopping-cart" iconClass="text-warning" label="Nombre de ventes" [value]="getTotalVentes()" valueClass="text-warning">
+      <ng-container ngProjectAs="[kpiSub]">transactions</ng-container>
+    </app-kpi-item>
+    <app-kpi-item [accent]="'danger'" icon="pi pi-shopping-bag" iconClass="text-danger" label="Panier moyen" [value]="getAveragePanier() | number: '1.0-0'" valueClass="text-danger">
+      <span ngProjectAs="[kpiValue]">&ngsp;<small>F CFA</small></span>
+      <ng-container ngProjectAs="[kpiSub]">par transaction</ng-container>
+    </app-kpi-item>
+  </app-kpi-strip>
 
   <!-- Sales Table -->
   <div class="row mt-3">

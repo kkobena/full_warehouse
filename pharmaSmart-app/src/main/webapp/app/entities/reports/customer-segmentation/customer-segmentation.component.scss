@@ -2,82 +2,7 @@
 @import 'app/shared/scss/table-common';
 @import 'app/shared/scss/pharma-toolbar';
 @import 'app/shared/scss/dashboard-common';
-@import 'app/shared/scss/kpi-strip';
 
-
-// Card enhancements
-p-card {
-  ::ng-deep {
-    .p-card {
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      border-radius: 8px;
-      border: none;
-      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      }
-
-      .p-card-body {
-        padding: 1.25rem;
-      }
-
-      .p-card-content {
-        padding: 0;
-      }
-
-      .p-card-header {
-        padding: 1rem 1.25rem;
-        background-color: var(--surface-section);
-        border-bottom: 1px solid var(--surface-border);
-        border-radius: 8px 8px 0 0;
-      }
-    }
-  }
-}
-
-// Table enhancements
-p-table {
-  ::ng-deep {
-    .p-datatable {
-      .p-datatable-thead > tr > th {
-        background-color: var(--primary-color);
-        color: white;
-        font-weight: 600;
-        padding: 1rem;
-        border: none;
-
-        &:first-child {
-          border-radius: 8px 0 0 0;
-        }
-
-        &:last-child {
-          border-radius: 0 8px 0 0;
-        }
-      }
-
-      .p-datatable-tbody > tr {
-        transition: background-color 0.2s;
-
-        &:hover {
-          background-color: var(--surface-hover);
-        }
-
-        > td {
-          padding: 0.875rem 1rem;
-          border-bottom: 1px solid var(--surface-border);
-        }
-      }
-
-      .p-paginator {
-        border-top: 1px solid var(--surface-border);
-        padding: 1rem;
-        background-color: var(--surface-section);
-      }
-    }
-  }
-}
 
 // RFM Score styling
 .rfm-score {
@@ -180,10 +105,6 @@ tr.inactive-row {
     flex-direction: column;
     width: 100%;
 
-    p-select,
-    p-button {
-      width: 100%;
-    }
   }
 
   .grid > .col-12 {
@@ -211,8 +132,4 @@ tr.inactive-row {
     page-break-before: always;
   }
 
-  p-card {
-    box-shadow: none;
-    border: 1px solid #dee2e6;
-  }
 }

@@ -9,6 +9,7 @@ import { formatCurrency, currencySymbol } from 'app/shared/utils/format-utils';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 
 import { DeviseDirective } from 'app/shared/utils/devise';
+import { KpiItemComponent, KpiStripComponent } from '../../../shared/ui';
 Chart.register(...registerables);
 
 @Component({
@@ -16,7 +17,7 @@ Chart.register(...registerables);
   templateUrl: './cash-flow-bfr.component.html',
   styleUrl: './cash-flow-bfr.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeviseDirective, CommonModule],
+  imports: [DeviseDirective, CommonModule, KpiStripComponent, KpiItemComponent],
 })
 export default class CashFlowBfrComponent implements OnInit, OnDestroy {
   @ViewChild('evolutionChartCanvas') evolutionChartCanvas?: ElementRef<HTMLCanvasElement>;

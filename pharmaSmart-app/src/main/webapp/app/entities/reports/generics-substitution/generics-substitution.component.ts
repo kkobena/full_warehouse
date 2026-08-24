@@ -6,7 +6,7 @@ import { Chart, registerables } from 'chart.js';
 
 import { DashboardCAService } from '../services/dashboard-ca.service';
 import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
-import { ButtonComponent, ToolbarComponent } from '../../../shared/ui';
+import { ButtonComponent, KpiItemComponent, KpiStripComponent, ToolbarComponent } from '../../../shared/ui';
 import { IGenericsSubstitution } from '../../../shared/model/report';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { ChartColorsUtilsService } from '../../../shared/util/chart-colors-utils.service';
@@ -17,7 +17,7 @@ Chart.register(...registerables);
 
 @Component({
   selector: 'app-generics-substitution',
-  imports: [DeviseDirective, CommonModule, FormsModule, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent],
+  imports: [DeviseDirective, CommonModule, FormsModule, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent, KpiStripComponent, KpiItemComponent],
   templateUrl: './generics-substitution.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./generics-substitution.component.scss'],

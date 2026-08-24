@@ -199,7 +199,7 @@
                       bindLabel="label"
                       bindValue="value"
                       placeholder="Assigner"
-                      (selectionChange)="addDevice(port, $event)"
+                      (selectionChange)="addDevice(port, $any($event))"
                       appendTo="body"
                     />
                   </div>

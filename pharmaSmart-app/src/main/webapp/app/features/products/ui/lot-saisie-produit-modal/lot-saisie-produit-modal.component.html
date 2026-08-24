@@ -45,7 +45,7 @@
           <label class="field-label required">Date de péremption</label>
           <pharma-date-picker
             [class.is-invalid]="form.get('expiryDate')?.invalid && form.get('expiryDate')?.touched"
-            [minDate]="todayStruct"
+            [minDate]="todayStruct()"
             formControlName="expiryDate"
             id="expiryDate"
             label=""
@@ -123,7 +123,7 @@
           <label class="field-label">Date de fabrication <span
             class="optional">(optionnel)</span></label>
           <pharma-date-picker
-            [maxDate]="todayMaxStruct"
+            [maxDate]="todayMaxStruct()"
             formControlName="manufacturingDate"
             id="manufacturingDate"
             label=""

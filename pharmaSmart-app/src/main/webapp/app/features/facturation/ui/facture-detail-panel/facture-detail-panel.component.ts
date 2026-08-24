@@ -8,8 +8,7 @@ import {
   BadgeComponent,
   ButtonComponent,
   DataTableComponent,
-  NavTabsComponent
-} from "../../../../shared/ui";
+  NavTabsComponent, AppBadgeSeverity } from "../../../../shared/ui";
 import { NotificationService } from "../../../../shared/services/notification.service";
 import { ErrorService } from "../../../../shared/error.service";
 
@@ -87,7 +86,7 @@ export class FactureDetailPanelComponent {
     return this.facture()?.groupeFactureId != null;
   }
 
-  getStatutSeverity(statut: string): string {
+  getStatutSeverity(statut: string): AppBadgeSeverity {
     switch (statut) {
       case "PAID":
         return "success";

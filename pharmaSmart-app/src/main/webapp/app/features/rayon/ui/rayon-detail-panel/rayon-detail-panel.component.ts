@@ -8,7 +8,7 @@ import { CloneRayonProduitsFormComponent } from '../clone-rayon-produits-form/cl
 import { InventoryCreateModalComponent } from '../../../../features/inventory/ui/inventory-create-modal/inventory-create-modal.component';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { IResponseDto } from '../../../../shared/util/response-dto';
-import { BadgeComponent, ButtonComponent } from '../../../../shared/ui';
+import { BadgeComponent, ButtonComponent, AppBadgeSeverity } from '../../../../shared/ui';
 
 @Component({
   selector: 'app-rayon-detail-panel',
@@ -91,7 +91,7 @@ export class RayonDetailPanelComponent {
     this.activeTab.set(String(tab));
   }
 
-  protected typeZoneSev(typeZone?: string): string {
+  protected typeZoneSev(typeZone?: string): AppBadgeSeverity {
     if (!typeZone) return 'secondary';
     return TYPE_ZONE_SEVERITY[typeZone as keyof typeof TYPE_ZONE_SEVERITY] ?? 'secondary';
   }

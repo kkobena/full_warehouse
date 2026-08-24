@@ -22,7 +22,7 @@
           <label class="form-label form-label-sm" for="field_fournisseurId">
             Fournisseur <span class="text-danger">*</span>
           </label>
-          <app-select #fournisseurSelect (selectionChange)="onChange($event)"
+          <app-select #fournisseurSelect (selectionChange)="onChange($any($event))"
                       [items]="fournisseurs()" bindLabel="libelle"
                       bindValue="id" formControlName="fournisseurId" inputId="field_fournisseurId"
                       placeholder="Sélectionner" />

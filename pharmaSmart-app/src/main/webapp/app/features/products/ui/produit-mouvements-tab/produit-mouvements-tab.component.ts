@@ -1,4 +1,4 @@
-import { Component, effect, ElementRef, inject, input, OnDestroy, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { afterNextRender, Component, effect, ElementRef, inject, Injector, input, OnDestroy, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
@@ -47,6 +47,7 @@ export class ProduitMouvementsTabComponent implements OnDestroy {
   protected hasDepot = signal(false);
   protected showChart = signal(false);
 
+  private readonly injector = inject(Injector);
   private readonly canvasRef = viewChild<ElementRef<HTMLCanvasElement>>('stockChart');
   private chart?: Chart;
 
@@ -129,7 +130,7 @@ export class ProduitMouvementsTabComponent implements OnDestroy {
       const rows = this.entites();
       if (visible && rows.length > 0) {
         // Defer to let Angular render the canvas first
-        setTimeout(() => this.buildChart(rows), 0);
+        afterNextRender(() => this.buildChart(rows), {injector: this.injector});
       } else if (!visible) {
         this.chart?.destroy();
         this.chart = undefined;
@@ -227,7 +228,7 @@ export class ProduitMouvementsTabComponent implements OnDestroy {
         this.entites.set(res.body ?? []);
         this.loading.set(false);
         if (this.showChart() && (res.body ?? []).length > 0) {
-          setTimeout(() => this.buildChart(res.body!), 0);
+          afterNextRender(() => this.buildChart(res.body!), {injector: this.injector});
         }
       },
       error: () => this.loading.set(false),

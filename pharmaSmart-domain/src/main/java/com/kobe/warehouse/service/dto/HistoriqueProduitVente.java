@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.kobe.warehouse.domain.AppUserNames;
 import java.time.LocalDateTime;
 
 public record HistoriqueProduitVente(
@@ -16,8 +17,9 @@ public record HistoriqueProduitVente(
     String firstName,
     String lastName
 ) {
+
     @JsonProperty("user")
     public String getUser() {
-        return firstName + " " + lastName;
+        return AppUserNames.shortName(lastName, firstName);
     }
 }

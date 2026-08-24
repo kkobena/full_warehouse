@@ -13,6 +13,8 @@ import {
   BadgeComponent,
   ButtonComponent,
   DataTableComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   MonthPickerComponent,
   SelectComponent,
   ToolbarComponent
@@ -36,7 +38,9 @@ interface ITopProductRanked extends ITopProduct {
     DataTableComponent,
     MonthPickerComponent,
     SelectComponent,
-    ToolbarComponent
+    ToolbarComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ]
 })
 export default class TopProductsComponent implements OnInit {

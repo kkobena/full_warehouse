@@ -19,7 +19,7 @@
 
       <div class="pharma-card-body">
         <div class="pharma-form-group">
-          <label class="pharma-label" for="cashFundAmount()">
+          <label class="pharma-label" for="cashFundAmount">
             <i class="pi pi-money-bill"></i>
             Fonds de caisse (<span appDevise></span>)
           </label>
@@ -28,7 +28,7 @@
             #cashFundAmountInput
             [inputClass]="'pharma-input-modern'"
             [inputId]="'cashFundAmount'"
-            formControlName="cashFundAmount()"
+            formControlName="cashFundAmount"
             placeholder="Entrez le montant du fonds"
           />
           @if (editForm.get('cashFundAmount')?.invalid && editForm.get('cashFundAmount')?.touched) {

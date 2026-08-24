@@ -25,14 +25,14 @@ import { BackendManagerService } from '../services/backend-manager.service';
 
         <form #settingsForm="ngForm">
           <div class="mb-3">
-            <label for="apiServerUrl()" class="form-label">
+            <label for="apiServerUrl" class="form-label">
               <strong>Adresse du Serveur Backend</strong>
             </label>
             <input
               type="url"
               class="form-control"
-              id="apiServerUrl()"
-              name="apiServerUrl()"
+              id="apiServerUrl"
+              name="apiServerUrl"
               [ngModel]="apiServerUrl()" (ngModelChange)="apiServerUrl.set($event)"
               placeholder="http://192.168.1.100:8080"
               required

@@ -36,8 +36,7 @@ import {
   DataTableComponent,
   FloatLabelComponent,
   MultiSelectComponent,
-  ToolbarComponent
-} from "../../../../shared/ui";
+  ToolbarComponent, RowTogglerDirective } from "../../../../shared/ui";
 import { PharmaDatePickerComponent } from "../../../../shared/date-picker/pharma-date-picker.component";
 
 interface IStatutOption {
@@ -47,7 +46,7 @@ interface IStatutOption {
 
 @Component({
   selector: "app-rapprochement",
-  imports: [
+  imports: [RowTogglerDirective, 
     HintComponent,
     FormsModule,
     DecimalPipe,

@@ -36,7 +36,7 @@
             (searched)="searchFacture($event)"
             [ngModel]="selectedFacture()" (ngModelChange)="selectedFacture.set($event)"
             [minSearchLength]="2"
-            [items]="factureSuggestions"
+            [items]="factureSuggestions()"
             [optionTemplate]="tplFactureOrigine"
             [style]="{ width: '100%' }"
             bindLabel="numFacture"
@@ -75,7 +75,7 @@
           <app-input-number
             [ngModel]="montantAvoir()" (ngModelChange)="montantAvoir.set($event)"
             inputId="av-montant"
-            [max]="selectedFacture?.montantRegle ?? undefined"
+            [max]="selectedFacture()?.montantRegle ?? undefined"
             style="width: 100%"
           />
           </app-float-label>

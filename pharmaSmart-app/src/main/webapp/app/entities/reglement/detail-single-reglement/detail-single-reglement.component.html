@@ -66,7 +66,7 @@
       <ng-template #caption>
         <app-icon-field [overlay]="true" icon="pi pi-search">
           <input
-            (input)="fact.filterGlobal($event.target.value, 'contains')"
+            (input)="fact.filterGlobal($event.target.value)"
             class="form-control"
             placeholder="Rechercher un dossier"
             style="width: 280px"

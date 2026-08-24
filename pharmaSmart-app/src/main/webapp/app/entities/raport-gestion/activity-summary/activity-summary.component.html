@@ -324,7 +324,7 @@
                 <div class="d-flex">
                   <app-icon-field [overlay]="true" icon="pi pi-search">
                     <input
-                      (input)="tbReglementTiersPayants.filterGlobal($event.target.value, 'contains')"
+                      (input)="tbReglementTiersPayants.filterGlobal($event.target.value)"
                       [(ngModel)]="searchReglement"
                       class="form-control"
                       placeholder="Filtrer" type="text" />
@@ -393,7 +393,7 @@
                 <div class="d-flex">
                   <app-icon-field [overlay]="true" icon="pi pi-search">
                     <input
-                      (input)="tb.filterGlobal($event.target.value, 'contains')"
+                      (input)="tb.filterGlobal($event.target.value)"
                       [(ngModel)]="searchAchat"
                       class="form-control"
                       placeholder="Filtrer" type="text" />

@@ -99,11 +99,11 @@
         />
       </div>
       <div>
-        <label class="form-label small mb-0" for="selectedFilter()">Filtrer par</label>
+        <label class="form-label small mb-0" for="selectedFilter">Filtrer par</label>
         <app-select
           (selectionChange)="onFilterCommandeLines()"
           [ngModel]="selectedFilter()" (ngModelChange)="selectedFilter.set($event)"
-          inputId="selectedFilter()"
+          inputId="selectedFilter"
           [items]="filtres()"
           bindLabel="label"
           bindValue="value"

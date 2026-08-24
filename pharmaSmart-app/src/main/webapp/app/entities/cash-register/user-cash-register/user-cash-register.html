@@ -1,7 +1,7 @@
-<div class="container-fluid">
-  <div class="pharma-smart-content p-3">
-    <!-- CASE 1: Open Cash Register Form -->
-    @if (openCaisse || cashRegisters.length === 0) {
+<div class="pharma-smart-content p-3">
+  <!-- CASE 1: Open Cash Register Form -->
+  <div class="py-5">
+    @if (openCaisse() || cashRegisters().length === 0) {
       <div class="row justify-content-center">
         <div class="col-xl-5 col-lg-6 col-md-8 col-sm-10">
           <div class="pharma-card-modern">
@@ -43,13 +43,13 @@
 
                 <div class="pharma-card-actions">
                   <app-button
-                    [disabled]="editForm.invalid || isSaving"
-                    [loading]="isSaving"
+                    [disabled]="editForm.invalid || isSaving()"
+                    [loading]="isSaving()"
                     [raised]="true"
+                    class="w-full"
                     icon="pi pi-check-circle"
                     label="Ouvrir la caisse"
                     severity="success"
-                    class="w-full"
                     type="submit"
                   />
                 </div>
@@ -58,7 +58,7 @@
           </div>
         </div>
       </div>
-    } @else if (cashRegisters.length === 1) {
+    } @else if (cashRegisters().length === 1) {
       <div class="row justify-content-center">
         <div class="col-xl-6 col-lg-8 col-md-10">
           <div class="pharma-card-modern">
@@ -82,7 +82,7 @@
                   </div>
                   <div class="pharma-info-content">
                     <span class="pharma-info-label">Fonds de caisse</span>
-                    <span class="pharma-info-value">{{ cashRegisters[0]?.cashFund | number }}
+                    <span class="pharma-info-value">{{ cashRegisters()[0]?.cashFund | number }}
                       <span appDevise></span></span>
                   </div>
                 </div>
@@ -95,7 +95,7 @@
                   <div class="pharma-info-content">
                     <span class="pharma-info-label">Date d'ouverture</span>
                     <span
-                      class="pharma-info-value">{{ cashRegisters[0]?.created | date: 'dd/MM/yyyy HH:mm' }}</span>
+                      class="pharma-info-value">{{ cashRegisters()[0]?.created | date: 'dd/MM/yyyy HH:mm' }}</span>
                   </div>
                 </div>
 
@@ -103,31 +103,31 @@
                 <div class="pharma-info-item pharma-info-item-full">
                   <div
                     [ngClass]="{
-                         'bg-warning-light': cashRegisters[0].statut === OPEN || cashRegisters[0].statut === PENDING,
-                         'bg-secondary-light': cashRegisters[0].statut === CLOSED,
-                         'bg-info-light': cashRegisters[0].statut === VALIDATED
+                         'bg-warning-light': cashRegisters()[0].statut === OPEN || cashRegisters()[0].statut === PENDING,
+                         'bg-secondary-light': cashRegisters()[0].statut === CLOSED,
+                         'bg-info-light': cashRegisters()[0].statut === VALIDATED
                        }"
                     class="pharma-info-icon"
                   >
                     <i
                       [ngClass]="{
-                         'pi-clock text-warning': cashRegisters[0].statut === OPEN || cashRegisters[0].statut === PENDING,
-                         'pi-lock text-secondary': cashRegisters[0].statut === CLOSED,
-                         'pi-check-circle text-info': cashRegisters[0].statut === VALIDATED
+                         'pi-clock text-warning': cashRegisters()[0].statut === OPEN || cashRegisters()[0].statut === PENDING,
+                         'pi-lock text-secondary': cashRegisters()[0].statut === CLOSED,
+                         'pi-check-circle text-info': cashRegisters()[0].statut === VALIDATED
                        }"
                       class="pi"
                     ></i>
                   </div>
                   <div class="pharma-info-content">
                     <span class="pharma-info-label">Statut de la caisse</span>
-                    @if (cashRegisters[0].statut === OPEN) {
-                      <app-badge icon="pi pi-clock" severity="warn" label="En cours" />
-                    } @else if (cashRegisters[0].statut === CLOSED) {
-                      <app-badge icon="pi pi-lock" severity="secondary" label="Fermée" />
-                    } @else if (cashRegisters[0].statut === PENDING) {
-                      <app-badge icon="pi pi-hourglass" severity="warn" label="En attente" />
-                    } @else if (cashRegisters[0].statut === VALIDATED) {
-                      <app-badge icon="pi pi-check-circle" severity="success" label="Validée" />
+                    @if (cashRegisters()[0].statut === OPEN) {
+                      <app-badge icon="pi pi-clock" label="En cours" severity="warn" />
+                    } @else if (cashRegisters()[0].statut === CLOSED) {
+                      <app-badge icon="pi pi-lock" label="Fermée" severity="secondary" />
+                    } @else if (cashRegisters()[0].statut === PENDING) {
+                      <app-badge icon="pi pi-hourglass" label="En attente" severity="warn" />
+                    } @else if (cashRegisters()[0].statut === VALIDATED) {
+                      <app-badge icon="pi pi-check-circle" label="Validée" severity="success" />
                     }
                   </div>
                 </div>
@@ -137,7 +137,7 @@
             <div class="pharma-card-footer">
               <div class="pharma-button-group-flex">
                 <app-button (clicked)="previousState()" [outlined]="true" icon="pi pi-arrow-left"
-                          label="Retour" severity="secondary" />
+                            label="Retour" severity="secondary" />
                 <app-button
                   (clicked)="onOpenCashRegister()"
                   [hidden]="hasOpingCashRegister()"
@@ -148,7 +148,7 @@
                 />
                 <app-button
                   [raised]="true"
-                  [routerLink]="['/my-cash-register', cashRegisters[0].id, 'billetage']"
+                  [routerLink]="['/my-cash-register', cashRegisters()[0].id, 'billetage']"
                   icon="pi pi-wallet"
                   label="Fermer la caisse"
                   severity="primary"
@@ -179,7 +179,7 @@
                   [rowsPerPageOptions]="[10, 15, 20]"
                   [rows]="10"
                   [showCurrentPageReport]="true"
-                  [value]="cashRegisters"
+                  [value]="cashRegisters()"
                   currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} caisses"
                   dataKey="id"
                 >
@@ -214,15 +214,15 @@
                       </td>
                       <td class="text-center">
                         @if (cashRegister.statut === 'OPEN' || cashRegister.statut === 'En cours') {
-                          <app-badge icon="pi pi-clock" severity="success" label="En cours" />
+                          <app-badge icon="pi pi-clock" label="En cours" severity="success" />
                         } @else if (cashRegister.statut === 'CLOSED' || cashRegister.statut
                         === 'Fermée') {
-                          <app-badge icon="pi pi-lock" severity="secondary" label="Fermée" />
+                          <app-badge icon="pi pi-lock" label="Fermée" severity="secondary" />
                         } @else if (cashRegister.statut === 'PENDING' || cashRegister.statut
                         === 'En attente') {
-                          <app-badge icon="pi pi-hourglass" severity="warn" label="En attente" />
+                          <app-badge icon="pi pi-hourglass" label="En attente" severity="warn" />
                         } @else {
-                          <app-badge icon="pi pi-check-circle" severity="info" label="Validée" />
+                          <app-badge icon="pi pi-check-circle" label="Validée" severity="info" />
                         }
                       </td>
                       <td class="text-center">
@@ -261,4 +261,5 @@
       </div>
     }
   </div>
+
 </div>

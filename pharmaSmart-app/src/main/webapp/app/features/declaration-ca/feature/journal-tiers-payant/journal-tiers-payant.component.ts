@@ -130,8 +130,10 @@ export class JournalTiersPayantComponent implements OnInit {
   }
 
   private chargerTiersPayants(): void {
-    this.api.lister('tiers-payants', true).subscribe({
-      next: items => this.tiersPayants.set(items),
+    // Le contenu d'une liste déroulante, pas un tableau : on demande donc une page assez large
+    // pour tenir la totalité des tiers-payants exclus, qui se comptent en dizaines.
+    this.api.lister('tiers-payants', { page: 0, size: 500, exclus: true }).subscribe({
+      next: reponse => this.tiersPayants.set(reponse.body ?? []),
       // Silencieux : le filtre est un confort, son absence n'empêche pas de consulter le journal.
       error: () => this.tiersPayants.set([]),
     });

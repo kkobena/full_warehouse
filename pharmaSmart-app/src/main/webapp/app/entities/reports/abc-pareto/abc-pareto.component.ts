@@ -10,7 +10,14 @@ import { ClassePareto } from "app/shared/model/report/classe-pareto.enum";
 import { ABCParetoReportService } from "../services/abc-pareto-report.service";
 import { formatCurrency } from "app/shared/utils/format-utils";
 import { BlobDownloadService } from "../../../shared/services/blob-download.service";
-import { BadgeComponent, DataTableComponent, IconFieldComponent, OffcanvasComponent } from '../../../shared/ui';
+import {
+  BadgeComponent,
+  DataTableComponent,
+  IconFieldComponent,
+  KpiItemComponent,
+  KpiStripComponent,
+  OffcanvasComponent
+} from '../../../shared/ui';
 
 import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
@@ -25,7 +32,9 @@ import { DeviseDirective } from 'app/shared/utils/devise';
     BadgeComponent,
     DataTableComponent,
     IconFieldComponent,
-    OffcanvasComponent
+    OffcanvasComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ]
 })
 export default class ABCParetoComponent implements OnInit {

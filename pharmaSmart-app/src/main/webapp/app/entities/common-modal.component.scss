@@ -24,11 +24,6 @@
   .modal-body {
     padding: 1rem;
 
-    p-card {
-      ::ng-deep .p-card-body {
-        padding: 1rem;
-      }
-    }
   }
 
   .form-field {
@@ -51,28 +46,6 @@
     i {
       color: var(--primary-color);
       font-size: 0.875rem;
-    }
-  }
-
-  p-inputgroup {
-    width: 100%;
-
-    ::ng-deep {
-      .p-inputtext,
-      .p-select,
-      .p-inputnumber-input,
-      .p-datepicker-input {
-        font-size: 0.875rem;
-      }
-
-      .p-inputgroup-addon {
-        padding: 0.5rem;
-        min-width: 2.5rem;
-
-        i {
-          font-size: 0.875rem;
-        }
-      }
     }
   }
 

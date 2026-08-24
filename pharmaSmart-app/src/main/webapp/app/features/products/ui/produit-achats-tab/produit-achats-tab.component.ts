@@ -1,4 +1,4 @@
-import { Component, effect, ElementRef, inject, input, OnDestroy, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { afterNextRender, Component, effect, ElementRef, inject, Injector, input, OnDestroy, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AppTableLazyLoadEvent, ButtonComponent, DataTableComponent, PillSelectorComponent } from 'app/shared/ui';
@@ -48,6 +48,7 @@ export class ProduitAchatsTabComponent implements OnDestroy {
   protected itemsPerPage = ITEMS_PER_PAGE;
 
   private chart?: Chart;
+  private readonly injector = inject(Injector);
   private readonly canvasRef = viewChild<ElementRef<HTMLCanvasElement>>('achatsChart');
   private readonly statService = inject(ProduitStatService);
   private readonly downloadService = inject(BlobDownloadService);
@@ -111,7 +112,7 @@ export class ProduitAchatsTabComponent implements OnDestroy {
     this.statService.getProduitHistoriqueAchat({ ...this.buildParam(0), size: 3000 }).subscribe({
       next: res => {
         this.loadingChart.set(false);
-        setTimeout(() => this.buildChart(res.body ?? []), 0);
+        afterNextRender(() => this.buildChart(res.body ?? []), {injector: this.injector});
       },
       error: () => this.loadingChart.set(false),
     });

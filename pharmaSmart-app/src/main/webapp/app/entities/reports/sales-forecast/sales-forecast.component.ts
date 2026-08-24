@@ -28,6 +28,8 @@ import { currencySymbol } from 'app/shared/utils/format-utils';
 import {
   BadgeComponent,
   ButtonComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   OffcanvasComponent,
   SelectComponent,
   ToolbarComponent
@@ -57,7 +59,9 @@ interface PeriodOption {
     ButtonComponent,
     OffcanvasComponent,
     SelectComponent,
-    ToolbarComponent
+    ToolbarComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ]
 })
 export default class SalesForecastComponent implements OnInit, OnDestroy {

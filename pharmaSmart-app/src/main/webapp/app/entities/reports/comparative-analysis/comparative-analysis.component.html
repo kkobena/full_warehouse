@@ -69,63 +69,31 @@
 
       <!-- Summary Cards -->
       @if (summary(); as sum) {
-        <div class="kpi-strip mt-2 mb-2">
-
-          <div class="kpi-strip-item primary-accent">
-            <i class="pi pi-calendar text-primary"></i>
-            <div class="kpi-strip-body">
-              <span class="kpi-strip-label">CA Année en cours (YTD)</span>
-              <span class="kpi-strip-value text-primary">{{ formatCurrency(sum.ytdCurrentCA) }} <small appDevise></small></span>
-              <span class="kpi-strip-sub">
-                <span [class]="(sum.ytdEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
-                  <i [class]="'pi ' + ((sum.ytdEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
-                  {{ formatPercent(sum.ytdEvolutionPct) }}%
-                </span>
-                vs année précédente
-              </span>
-            </div>
-          </div>
-
-          <div class="kpi-strip-divider"></div>
-
-          <div class="kpi-strip-item success-accent">
-            <i class="pi pi-chart-line text-success"></i>
-            <div class="kpi-strip-body">
-              <span class="kpi-strip-label">CA 12 derniers mois</span>
-              <span class="kpi-strip-value text-success">{{ formatCurrency(sum.last12MonthsCA) }} <small appDevise></small></span>
-              <span class="kpi-strip-sub">
-                <span [class]="(sum.last12MonthsEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
-                  <i [class]="'pi ' + ((sum.last12MonthsEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
-                  {{ formatPercent(sum.last12MonthsEvolutionPct) }}%
-                </span>
-                vs 12 mois précédents
-              </span>
-            </div>
-          </div>
-
-          <div class="kpi-strip-divider"></div>
-
-          <div class="kpi-strip-item warning-accent">
-            <i class="pi pi-star-fill text-warning"></i>
-            <div class="kpi-strip-body">
-              <span class="kpi-strip-label">Meilleur Mois</span>
-              <span class="kpi-strip-value text-warning">{{ sum.bestMonthLabel }}</span>
-              <span class="kpi-strip-sub">{{ formatCurrency(sum.bestMonthCA) }} <span appDevise></span></span>
-            </div>
-          </div>
-
-          <div class="kpi-strip-divider"></div>
-
-          <div class="kpi-strip-item danger-accent">
-            <i class="pi pi-chart-bar text-danger"></i>
-            <div class="kpi-strip-body">
-              <span class="kpi-strip-label">CA Moyen Mensuel</span>
-              <span class="kpi-strip-value text-danger">{{ formatCurrency(sum.avgMonthlyCA) }} <small appDevise></small></span>
-              <span class="kpi-strip-sub">Évolution moy : {{ formatPercent(sum.avgMonthlyEvolution) }}%</span>
-            </div>
-          </div>
-
-        </div>
+        <app-kpi-strip stripClass="mt-2 mb-2">
+          <app-kpi-item [accent]="'primary'" icon="pi pi-calendar" iconClass="text-primary" label="CA Année en cours (YTD)" [value]="formatCurrency(sum.ytdCurrentCA)" valueClass="text-primary">
+            <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+            <ng-container ngProjectAs="[kpiSub]"><span [class]="(sum.ytdEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
+                            <i [class]="'pi ' + ((sum.ytdEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+                            {{ formatPercent(sum.ytdEvolutionPct) }}%
+                          </span>
+                          vs année précédente</ng-container>
+          </app-kpi-item>
+          <app-kpi-item [accent]="'success'" icon="pi pi-chart-line" iconClass="text-success" label="CA 12 derniers mois" [value]="formatCurrency(sum.last12MonthsCA)" valueClass="text-success">
+            <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+            <ng-container ngProjectAs="[kpiSub]"><span [class]="(sum.last12MonthsEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
+                            <i [class]="'pi ' + ((sum.last12MonthsEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+                            {{ formatPercent(sum.last12MonthsEvolutionPct) }}%
+                          </span>
+                          vs 12 mois précédents</ng-container>
+          </app-kpi-item>
+          <app-kpi-item [accent]="'warning'" icon="pi pi-star-fill" iconClass="text-warning" label="Meilleur Mois" [value]="sum.bestMonthLabel" valueClass="text-warning">
+            <ng-container ngProjectAs="[kpiSub]">{{ formatCurrency(sum.bestMonthCA) }} <span appDevise></span></ng-container>
+          </app-kpi-item>
+          <app-kpi-item [accent]="'danger'" icon="pi pi-chart-bar" iconClass="text-danger" label="CA Moyen Mensuel" [value]="formatCurrency(sum.avgMonthlyCA)" valueClass="text-danger">
+            <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+            <ng-container ngProjectAs="[kpiSub]">Évolution moy : {{ formatPercent(sum.avgMonthlyEvolution) }}%</ng-container>
+          </app-kpi-item>
+        </app-kpi-strip>
       }
 
       <!-- Evolution Chart -->

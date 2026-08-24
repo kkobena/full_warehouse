@@ -10,7 +10,7 @@ import {SuggestionLigneEnrichie} from '../../data-access/suggestion-enrichie.mod
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="d-flex gap-1">
-      @if (showReset) {
+      @if (showReset()) {
         <app-button
           [text]="true"
           [rounded]="true"
@@ -22,7 +22,7 @@ import {SuggestionLigneEnrichie} from '../../data-access/suggestion-enrichie.mod
           (clicked)="onReset($event)"
         />
       }
-      @if (showCompare) {
+      @if (showCompare()) {
         <app-button
           [text]="true"
           [rounded]="true"

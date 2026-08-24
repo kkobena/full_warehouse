@@ -10,6 +10,8 @@ import {
   ButtonComponent,
   FloatLabelComponent,
   InputNumberComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   ToolbarComponent
 } from '../../../shared/ui';
 import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
@@ -34,6 +36,8 @@ import {formatDecimal, formatNumber, formatPercent} from 'app/shared/utils/forma
     InputNumberComponent,
     ToolbarComponent,
     PharmaDatePickerComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ],
   templateUrl: './market-basket.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -42,8 +42,7 @@ import {
   IconFieldComponent,
   InputNumberComponent,
   SelectComponent,
-  ToolbarComponent
-} from "../../../../shared/ui";
+  ToolbarComponent, AppBadgeSeverity } from "../../../../shared/ui";
 import {
   PharmaDatePickerComponent
 } from "../../../../shared/date-picker/pharma-date-picker.component";
@@ -387,7 +386,7 @@ export class ComptesFournisseursComponent implements OnInit {
     return "Commandes très en retard (délai critique dépassé)";
   }
 
-  ligneSeverity(statut: StatutLigne): string {
+  ligneSeverity(statut: StatutLigne): AppBadgeSeverity {
     if (statut === "EN_RETARD") {
       return "danger";
     }

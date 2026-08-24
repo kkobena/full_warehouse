@@ -12,7 +12,7 @@
           bindLabel="label"
         />
 
-        <app-float-label inputId="searchTerm()"
+        <app-float-label inputId="searchTerm"
                          label="{{ 'warehouseApp.labels.searchPlaceholder' | translate }}">
           <app-icon-field [overlay]="true" icon="pi pi-search">
             <input
@@ -20,7 +20,7 @@
               [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)"
               [style]="{ 'min-width': '200px' }"
               class="form-control"
-              id="searchTerm()"
+              id="searchTerm"
               type="text"
             />
           </app-icon-field>
@@ -86,7 +86,7 @@
         </div>
 
         @if (!isMono()) {
-          <app-float-label [style]="{ 'min-width': '200px' }" inputId="magasins()"
+          <app-float-label [style]="{ 'min-width': '200px' }" inputId="magasins"
                            label="{{ 'warehouseApp.labels.magasin' | translate }}">
             <app-select
               (selectionChange)="onMagasinChange()"
@@ -95,10 +95,10 @@
               [items]="magasins()"
               appendTo="body"
               bindLabel="fullName"
-              inputId="magasins()"
+              inputId="magasins"
             />
           </app-float-label>
-          <app-float-label [style]="{ 'min-width': '200px' }" inputId="storages()"
+          <app-float-label [style]="{ 'min-width': '200px' }" inputId="storages"
                            label="{{ 'warehouseApp.labels.typeStockage' | translate }}">
             <app-select
               (selectionChange)="onStorageChange()"
@@ -107,12 +107,12 @@
               [items]="storages()"
               appendTo="body"
               bindLabel="name"
-              inputId="storages()"
+              inputId="storages"
             />
           </app-float-label>
         }
 
-        <app-float-label [style]="{ 'min-width': '300px' }" inputId="rayons()"
+        <app-float-label [style]="{ 'min-width': '300px' }" inputId="rayons"
                          label="{{ 'warehouseApp.labels.rayons' | translate }}">
           <app-select
             (selectionChange)="onSearch()"
@@ -121,7 +121,7 @@
             [items]="rayons()"
             appendTo="body"
             bindLabel="libelle"
-            inputId="rayons()"
+            inputId="rayons"
           />
         </app-float-label>
 

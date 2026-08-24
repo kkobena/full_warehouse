@@ -255,7 +255,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                   <app-icon-field [overlay]="true" icon="pi pi-search">
                     <input
-                      (input)="bonTable.filterGlobal($any($event.target).value, 'contains')"
+                      (input)="bonTable.filterGlobal($any($event.target).value)"
                       class="form-control"
                       placeholder="Filtrer dans la liste..." type="text" />
                   </app-icon-field>

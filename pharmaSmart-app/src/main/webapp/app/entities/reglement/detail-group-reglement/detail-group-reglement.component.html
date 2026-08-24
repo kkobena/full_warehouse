@@ -69,7 +69,7 @@
           <ng-template #caption>
             <app-icon-field [overlay]="true" icon="pi pi-search">
               <input
-                (input)="factLeft.filterGlobal($event.target.value, 'contains')"
+                (input)="factLeft.filterGlobal($event.target.value)"
                 class="form-control form-control-sm"
                 placeholder="Filtrer"
                 style="width: 220px"
@@ -126,7 +126,7 @@
             <ng-template #caption>
               <app-icon-field [overlay]="true" icon="pi pi-search">
                 <input
-                  (input)="factRight.filterGlobal($event.target.value, 'contains')"
+                  (input)="factRight.filterGlobal($event.target.value)"
                   class="form-control form-control-sm"
                   placeholder="Filtrer"
                   style="width: 220px"

@@ -7,7 +7,7 @@ import { Router, RouterLink } from "@angular/router";
 import { NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { NgxSpinnerComponent } from "ngx-spinner";
 
-import { ButtonComponent, DataTableComponent, IconFieldComponent, AppTableLazyLoadEvent, SelectComponent, ToolbarComponent } from "../../../../shared/ui";
+import { ButtonComponent, DataTableComponent, IconFieldComponent, AppTableLazyLoadEvent, SelectComponent, ToolbarComponent, RowTogglerDirective } from "../../../../shared/ui";
 import { SalesStatut } from "../../../../shared/model";
 import { ISales, SaleId } from "../../../../shared/model/sales.model";
 import { SalesApiService } from "../../data-access/services/sales-api.service";
@@ -21,7 +21,7 @@ import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-d
   templateUrl: "./presale-list.component.html",
   styleUrl: "./presale-list.component.scss",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
+  imports: [RowTogglerDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,

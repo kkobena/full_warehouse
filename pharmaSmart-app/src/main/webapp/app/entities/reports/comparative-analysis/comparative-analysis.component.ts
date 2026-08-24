@@ -19,6 +19,8 @@ import { BlobDownloadService } from "../../../shared/services/blob-download.serv
 import { DeviseDirective } from 'app/shared/utils/devise';
 import {
   ButtonComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   SelectComponent,
   ToolbarComponent
 } from '../../../shared/ui';
@@ -43,7 +45,9 @@ interface ComparisonTypeOption {
     FormsModule,
     ButtonComponent,
     SelectComponent,
-    ToolbarComponent
+    ToolbarComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ]
 })
 export default class ComparativeAnalysisComponent implements OnInit {

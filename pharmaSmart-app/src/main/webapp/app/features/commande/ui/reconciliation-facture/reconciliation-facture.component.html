@@ -123,7 +123,7 @@
     [label]="isReconcilie ? 'Valider — Rapproché' : 'Enregistrer avec écart'"
     [severity]="isReconcilie ? 'primary' : 'warn'"
     size="small"
-    [loading]="saving"
+    [loading]="saving()"
     [disabled]="!canSave || saving()"
   />
 </div>

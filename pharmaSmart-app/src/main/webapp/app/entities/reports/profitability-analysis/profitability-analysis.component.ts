@@ -11,6 +11,8 @@ import {
   ButtonComponent,
   DataTableComponent,
   IconFieldComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   OffcanvasComponent,
   SelectComponent,
   ToolbarComponent
@@ -30,7 +32,9 @@ import {
     IconFieldComponent,
     OffcanvasComponent,
     SelectComponent,
-    ToolbarComponent
+    ToolbarComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ]
 })
 export default class ProfitabilityAnalysisComponent implements OnInit {

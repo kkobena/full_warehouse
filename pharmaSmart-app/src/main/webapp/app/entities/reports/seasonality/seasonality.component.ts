@@ -2,7 +2,13 @@ import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, in
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
-import {ButtonComponent, DataTableComponent, ToolbarComponent} from '../../../shared/ui';
+import {
+  ButtonComponent,
+  DataTableComponent,
+  KpiItemComponent,
+  KpiStripComponent,
+  ToolbarComponent
+} from '../../../shared/ui';
 
 import {DashboardCAService} from '../services/dashboard-ca.service';
 import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
@@ -15,7 +21,7 @@ import {ChartComponent} from "../../../shared/chart/chart.component";
 import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-seasonality',
-  imports: [DeviseDirective, CommonModule, FormsModule, DataTableComponent, ChartComponent, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent],
+  imports: [DeviseDirective, CommonModule, FormsModule, DataTableComponent, ChartComponent, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent, KpiStripComponent, KpiItemComponent],
   templateUrl: './seasonality.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./seasonality.component.scss'],

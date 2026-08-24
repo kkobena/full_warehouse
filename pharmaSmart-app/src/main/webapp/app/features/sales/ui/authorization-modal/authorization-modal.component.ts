@@ -67,24 +67,24 @@ import { UtilisationCleSecurite } from '../../../../entities/action-autorisation
             />
           </div>
 
-          @if (errorMessage) {
+          @if (errorMessage()) {
             <div class="alert alert-danger">
               <i class="pi pi-times-circle"></i>
-              {{ errorMessage }}
+              {{ errorMessage() }}
             </div>
           }
         </form>
       </div>
 
       <div class="modal-footer">
-        <app-button label="Annuler" severity="secondary" [outlined]="true" (clicked)="cancel()" [disabled]="isSaving" />
+        <app-button label="Annuler" severity="secondary" [outlined]="true" (clicked)="cancel()" [disabled]="isSaving()" />
         <app-button
           label="Autoriser"
           severity="success"
           icon="pi pi-check"
           (clicked)="authorize()"
-          [disabled]="!securityKey || isSaving"
-          [loading]="isSaving"
+          [disabled]="!securityKey || isSaving()"
+          [loading]="isSaving()"
         />
       </div>
     </div>

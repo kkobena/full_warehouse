@@ -111,7 +111,7 @@
         <div class="d-flex justify-content-between align-items-center gap-2">
           <app-icon-field [overlay]="true" icon="pi pi-search">
             <input
-              (input)="reglementTable.filterGlobal($event.target['value'], 'contains')"
+              (input)="reglementTable.filterGlobal($event.target['value'])"
               [style]="{ width: '280px' }"
               class="form-control"
               placeholder="Filtrer dans la liste..." type="text" />

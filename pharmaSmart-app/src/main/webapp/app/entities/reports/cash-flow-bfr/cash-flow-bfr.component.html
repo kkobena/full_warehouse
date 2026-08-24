@@ -21,52 +21,28 @@
 @if (!isLoading() && snapshot()) {
 
   <!-- ===== KPI STRIP ===== -->
-  <div class="kpi-strip mt-2 mb-2">
-    <div class="kpi-strip-item primary-accent">
-      <i class="pi pi-box text-primary"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">Stock (DIO)</span>
-        <span class="kpi-strip-value text-primary">{{ formatCurrency(snapshot()!.stockValue) }} <small appDevise></small></span>
-        <span class="kpi-strip-sub">{{ snapshot()!.dio }} jours de stock</span>
-      </div>
-    </div>
-    <div class="kpi-strip-divider"></div>
-    <div class="kpi-strip-item warning-accent">
-      <i class="pi pi-users text-warning"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">Créances TP (DSO)</span>
-        <span class="kpi-strip-value text-warning">{{ formatCurrency(snapshot()!.creancesTp) }} <small appDevise></small></span>
-        <span class="kpi-strip-sub">{{ snapshot()!.dso }}j recouvrement</span>
-      </div>
-    </div>
-    <div class="kpi-strip-divider"></div>
-    <div class="kpi-strip-item success-accent">
-      <i class="pi pi-truck text-success"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">Dettes Fournisseurs (DPO)</span>
-        <span class="kpi-strip-value text-success">{{ formatCurrency(snapshot()!.dettesFournisseurs) }} <small appDevise></small></span>
-        <span class="kpi-strip-sub">{{ snapshot()!.dpo }}j délai fournisseur</span>
-      </div>
-    </div>
-    <div class="kpi-strip-divider"></div>
-    <div class="kpi-strip-item primary-accent">
-      <i class="pi pi-chart-line text-primary"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">Besoin en Fonds de Roulement (BFR)</span>
-        <span class="kpi-strip-value text-primary">{{ formatCurrency(snapshot()!.bfr) }} <small appDevise></small></span>
-        <span class="kpi-strip-sub">Stock + Créances − Dettes</span>
-      </div>
-    </div>
-    <div class="kpi-strip-divider"></div>
-    <div class="kpi-strip-item primary-accent">
-      <i class="pi pi-sync text-primary"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">Cycle de trésorerie (CCC)</span>
-        <span class="kpi-strip-value text-primary">{{ snapshot()!.ccc }} <small>jours</small></span>
-        <span class="kpi-strip-sub">DIO + DSO − DPO</span>
-      </div>
-    </div>
-  </div>
+  <app-kpi-strip stripClass="mt-2 mb-2">
+    <app-kpi-item [accent]="'primary'" icon="pi pi-box" iconClass="text-primary" label="Stock (DIO)" [value]="formatCurrency(snapshot()!.stockValue)" valueClass="text-primary">
+      <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+      <ng-container ngProjectAs="[kpiSub]">{{ snapshot()!.dio }} jours de stock</ng-container>
+    </app-kpi-item>
+    <app-kpi-item [accent]="'warning'" icon="pi pi-users" iconClass="text-warning" label="Créances TP (DSO)" [value]="formatCurrency(snapshot()!.creancesTp)" valueClass="text-warning">
+      <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+      <ng-container ngProjectAs="[kpiSub]">{{ snapshot()!.dso }}j recouvrement</ng-container>
+    </app-kpi-item>
+    <app-kpi-item [accent]="'success'" icon="pi pi-truck" iconClass="text-success" label="Dettes Fournisseurs (DPO)" [value]="formatCurrency(snapshot()!.dettesFournisseurs)" valueClass="text-success">
+      <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+      <ng-container ngProjectAs="[kpiSub]">{{ snapshot()!.dpo }}j délai fournisseur</ng-container>
+    </app-kpi-item>
+    <app-kpi-item [accent]="'primary'" icon="pi pi-chart-line" iconClass="text-primary" label="Besoin en Fonds de Roulement (BFR)" [value]="formatCurrency(snapshot()!.bfr)" valueClass="text-primary">
+      <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+      <ng-container ngProjectAs="[kpiSub]">Stock + Créances − Dettes</ng-container>
+    </app-kpi-item>
+    <app-kpi-item [accent]="'primary'" icon="pi pi-sync" iconClass="text-primary" label="Cycle de trésorerie (CCC)" [value]="snapshot()!.ccc" valueClass="text-primary">
+      <span ngProjectAs="[kpiValue]">&ngsp;<small>jours</small></span>
+      <ng-container ngProjectAs="[kpiSub]">DIO + DSO − DPO</ng-container>
+    </app-kpi-item>
+  </app-kpi-strip>
 
 }
 

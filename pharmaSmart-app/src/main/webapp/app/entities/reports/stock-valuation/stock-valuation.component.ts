@@ -18,6 +18,8 @@ import { DeviseDirective } from 'app/shared/utils/devise';
 import {
   ButtonComponent,
   DataTableComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   SelectComponent,
   ToolbarComponent
 } from '../../../shared/ui';
@@ -33,7 +35,9 @@ import {
     ButtonComponent,
     DataTableComponent,
     SelectComponent,
-    ToolbarComponent
+    ToolbarComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ]
 })
 export default class StockValuationComponent implements OnInit {

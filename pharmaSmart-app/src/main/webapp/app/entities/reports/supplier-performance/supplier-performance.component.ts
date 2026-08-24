@@ -18,6 +18,8 @@ import {Chart, ChartConfiguration, registerables} from 'chart.js';
 import {
   ButtonComponent,
   DataTableComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   OffcanvasComponent,
   SelectComponent,
   ToolbarComponent
@@ -43,7 +45,7 @@ interface FilterOption {
 
 @Component({
   selector: 'app-supplier-performance',
-  imports: [DeviseDirective, FormsModule, NgbTooltip, ButtonComponent, DataTableComponent, OffcanvasComponent, SelectComponent, ToolbarComponent],
+  imports: [DeviseDirective, FormsModule, NgbTooltip, ButtonComponent, DataTableComponent, OffcanvasComponent, SelectComponent, ToolbarComponent, KpiStripComponent, KpiItemComponent],
   templateUrl: './supplier-performance.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './supplier-performance.component.scss',

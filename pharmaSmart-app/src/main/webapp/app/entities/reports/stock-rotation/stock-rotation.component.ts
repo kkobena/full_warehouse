@@ -11,8 +11,11 @@ import { handleBlobForTauri } from "../../../shared/util/tauri-util";
 import { TauriPrinterService } from "../../../shared/services/tauri-printer.service";
 import { DeviseDirective } from 'app/shared/utils/devise';
 import {
+  AppBadgeSeverity,
   BadgeComponent,
   DataTableComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   OffcanvasComponent
 } from '../../../shared/ui';
 
@@ -26,7 +29,9 @@ import {
     FormsModule,
     BadgeComponent,
     DataTableComponent,
-    OffcanvasComponent
+    OffcanvasComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ]
 })
 export default class StockRotationComponent implements OnInit {
@@ -182,7 +187,7 @@ export default class StockRotationComponent implements OnInit {
     }
   }
 
-  getRotationRateSeverity(rate: number | undefined): string {
+  getRotationRateSeverity(rate: number | undefined): AppBadgeSeverity {
     if (!rate) {
       return "secondary";
     }

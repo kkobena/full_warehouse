@@ -10,8 +10,7 @@ import {
   ButtonComponent,
   DataTableComponent,
   HeaderCheckboxComponent,
-  RowCheckboxComponent
-} from "../../../../shared/ui";
+  RowCheckboxComponent, AppBadgeSeverity } from "../../../../shared/ui";
 
 import { NotificationService } from "../../../../shared/services/notification.service";
 import { ErrorService } from "../../../../shared/error.service";
@@ -99,7 +98,7 @@ export class FactureListComponent {
     }
   }
 
-  getStatutSeverity(statut: string): string {
+  getStatutSeverity(statut: string): AppBadgeSeverity {
     switch (statut) {
       case "PAID":
         return "success";

@@ -37,7 +37,7 @@
             <div class="d-flex">
               <app-icon-field [overlay]="true" icon="pi pi-search">
                 <input
-                  (input)="fact.filterGlobal($event.target.value, 'contains')"
+                  (input)="fact.filterGlobal($event.target.value)"
                   [(ngModel)]="searchValue"
                   class="form-control"
                   placeholder="Filtrer" type="text" />

@@ -632,6 +632,77 @@ En ne gardant que les appels en **position de rendu** — interpolation, liaison
 
 Attention en relisant ce genre de détecteur : `(keyup.enter)` et `(keydown.enter)` contiennent un
 point, et un filtre naïf sur `(\w+)=` les prend pour des positions de rendu.
+## Le défaut que le compilateur ne voit pas : un signal lu sans parenthèses
+
+`[items]="familleProduits"` — sans les parenthèses — passe **la fonction signal** au lieu du
+tableau. La liste arrive vide, aucune erreur nulle part. Ça ne casse la compilation que si l'entrée
+cible est typée précisément ; dès qu'elle accepte `any[]`, c'est silencieux.
+
+Origine dans ce chantier : la première version de la réécriture de gabarits excluait les
+identifiants précédés d'un guillemet, pour épargner les chaînes de caractères. Or `"` ouvre aussi
+une **expression de liaison**. La règle a été corrigée en cours de route, mais les composants
+convertis avant gardaient des lectures nues.
+
+### Ce qui est sûr, et ce qui ne l'est pas
+
+La liaison **bidirectionnelle** est sûre — vérifié dans `@angular/core` :
+
+```js
+function ɵɵtwoWayProperty(propName, value, sanitizer) {
+  if (isWritableSignal(value)) { value = value(); }   // Angular déballe
+}
+function ɵɵtwoWayBindingSet(target, value) {
+  const canWrite = isWritableSignal(target);
+  canWrite && target.set(value);                      // et sait écrire
+}
+```
+
+`[(ngModel)]="monSignal"` fonctionne donc dans les deux sens, et les 46 occurrences du dépôt ne
+sont pas des défauts. C'est la liaison **unidirectionnelle** qui casse : `ɵɵproperty` ne déballe
+rien. Corollaire utile : `twoWayBindingSet` renvoie `false` quand la cible n'est pas un signal
+writable, et Angular retombe alors sur l'affectation de propriété — d'où l'erreur « Attempt to
+assign to const or readonly variable » sur un `readonly`.
+
+### Le relevé, et ce qu'il a trouvé
+
+Chercher le nom d'un signal dans tout le gabarit ne donne rien d'exploitable — 832 résultats, du
+bruit. Il faut n'inspecter que les endroits où le gabarit **évalue du TypeScript** : `[prop]="…"`,
+`(event)="…"`, `{{ … }}`, `@if` / `@for` / `@switch`. En écartant les liaisons bidirectionnelles,
+les écritures `x.set(…)` et les alias de boucle, il restait **39 lectures nues réelles**, toutes
+corrigées :
+
+| écran | lectures |
+|---|---:|
+| `produit-form` (familles, rayons, TVA, fournisseurs, laboratoires…) | 14 |
+| `authorization-modal` | 5 |
+| `avoir-workspace`, `avoir-form-modal` | 5 |
+| `list-bons`, `lot-saisie-produit-modal`, `suggestion-produit-actions` | 6 |
+| `add-widget-modal`, `reconciliation-facture`, `rayon-produits-tab` | 4 |
+| liaisons unidirectionnelles `[prop]="signal"` (1re série) | 5 |
+
+Les 19 résultats restants sont des faux positifs assumés : le nom apparaît dans une **chaîne**
+(`['/sales-home/devis']`, `'app-btn-icon '`) ou comme **clé d'objet** (`{ first: first() }`).
+
+### Le défaut jumeau : des parenthèses là où il ne fallait pas
+
+La même réécriture a produit la faute inverse — coller `()` à la valeur d'un attribut **statique**,
+qui n'est pas une expression mais une chaîne :
+
+```html
+<input formControlName="cashFundAmount()">   <!-- « Cannot find control with name » -->
+<div ngbNavItem="avoirs()">                  <!-- l'identifiant d'onglet ne correspond plus -->
+<label for="searchTerm()">                   <!-- le label ne pointe plus sur son champ -->
+```
+
+**46 attributs** ont été restaurés sur 16 fichiers, dont les plus graves — `formControlName`,
+`formGroupName`, `formArrayName`, `ngbNavItem` — qui échouent à l'exécution, et les plus discrets
+— `id`, `for`, `inputId` — qui cassent silencieusement l'association label/champ.
+
+Le repérage tient en une expression : un nom d'attribut précédé d'une espace (donc ni `[prop]=`, ni
+`(event)=`) dont la valeur est exactement `identifiant()`.
+
+**À retenir pour la suite** : après toute réécriture automatique de gabarits, repasser ce relevé.
+Le build ne rattrapera pas ces défauts — l'écran, lui, les montre tout de suite.
 ## La suite : retirer `zone.js`
 
 Maintenant que les 436 composants sont `OnPush`, Zone ne sert presque plus à rien. Elle déclenche

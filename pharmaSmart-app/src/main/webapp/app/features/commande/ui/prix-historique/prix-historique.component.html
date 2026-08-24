@@ -6,12 +6,12 @@
 </div>
 
 <div class="modal-body">
-  @if (loading) {
-    <div class="ph-loading">
+  @if (loading()) {
+    <div class="ph-loading()">
       <i class="pi pi-spin pi-spinner"></i>
-      <span>Chargement de l'historique…</span>
+      <span>Chargement de l'historique()…</span>
     </div>
-  } @else if (historique.length === 0) {
+  } @else if (historique().length === 0) {
     <div class="ph-empty">
       <i class="pi pi-info-circle"></i>
       <span>Aucun changement de prix enregistré pour ce produit.</span>
@@ -32,7 +32,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (h of historique; track h.id) {
+        @for (h of historique(); track h.id) {
           <tr>
             <td class="ph-date">{{ h.changedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
             <td class="text-right ph-amount">{{ h.oldPrixAchat | number }}</td>

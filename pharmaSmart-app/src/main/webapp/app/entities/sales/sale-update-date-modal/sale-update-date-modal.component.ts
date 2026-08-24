@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, ChangeDetectionStrategy, signal } from "@angular/core";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { NgbActiveModal, NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 
@@ -17,14 +17,14 @@ import { PharmaDatePickerComponent } from "../../../shared/date-picker/pharma-da
   selector: "app-sale-update-date-modal",
   templateUrl: "./sale-update-date-modal.component.html",
   styleUrls: ["./sale-update-date-modal.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ReactiveFormsModule, ButtonComponent, BadgeComponent, CardComponent, PharmaDatePickerComponent]
 })
 export class SaleUpdateDateModalComponent {
   sale: ISales | null = null;
   protected activeModal = inject(NgbActiveModal);
   protected fb = inject(FormBuilder);
-  protected isSaving = false;
+  protected readonly isSaving = signal(false);
 
   protected editForm = this.fb.group({
     updatedAt: new FormControl<NgbDateStruct | null>(null, {
@@ -40,7 +40,7 @@ export class SaleUpdateDateModalComponent {
   }
 
   protected save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const formDate = this.editForm.get("updatedAt")?.value;
     const isoDate = NGB_DATE_TO_ISO(formDate);
     const updatedSale = { ...this.sale, updatedAt: isoDate ? dayjs(isoDate).toISOString() : undefined };
@@ -48,7 +48,7 @@ export class SaleUpdateDateModalComponent {
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ISales>>): void {
-    result.pipe(finalize(() => (this.isSaving = false))).subscribe({
+    result.pipe(finalize(() => (this.isSaving.set(false)))).subscribe({
       next: res => this.onSaveSuccess(res.body),
       error: () => this.onSaveError()
     });

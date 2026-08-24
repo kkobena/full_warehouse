@@ -10,7 +10,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
 @Repository
-public interface AppConfigurationRepository extends JpaRepository<AppConfiguration, String>, JpaSpecificationExecutor<AppConfiguration> {
+public interface AppConfigurationRepository extends JpaRepository<AppConfiguration, String>,
+    JpaSpecificationExecutor<AppConfiguration> {
 
     static Specification<AppConfiguration> buildSpec(String search) {
         Specification<AppConfiguration> spec = Specification.unrestricted();
@@ -23,7 +24,9 @@ public interface AppConfigurationRepository extends JpaRepository<AppConfigurati
                 )
             );
         }
-        spec= spec.and((root, _, cb) -> cb.not(root.get(AppConfiguration_.name).in(EntityConstant.APP_PONCTION_ANNULATION_MAX_DAYS,EntityConstant.EXCLUDE_FREE_UNIT)));
+        spec = spec.and((root, _, cb) -> cb.not(root.get(AppConfiguration_.name)
+            .in(EntityConstant.APP_PONCTION_ANNULATION_MAX_DAYS,
+                EntityConstant.EXCLUDE_FREE_UNIT)));
         return spec;
     }
 }

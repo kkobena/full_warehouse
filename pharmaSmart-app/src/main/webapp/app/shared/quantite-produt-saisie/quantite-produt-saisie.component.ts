@@ -1,4 +1,4 @@
-import { Component, ElementRef, input, output, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import {signal, Component, ElementRef, input, output, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ButtonComponent, FloatLabelComponent, KeyFilterDirective } from '../ui';
@@ -6,7 +6,7 @@ import { ButtonComponent, FloatLabelComponent, KeyFilterDirective } from '../ui'
 @Component({
   selector: 'jhi-quantite-produt-saisie',
   imports: [FormsModule, FloatLabelComponent, ButtonComponent, TranslatePipe, KeyFilterDirective],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-float-label label="{{ 'warehouseApp.gestionPerimes.labels.quantiteSaisie' | translate }}" inputId="quantiteSaisie">
       <div class="input-group">
@@ -18,7 +18,7 @@ import { ButtonComponent, FloatLabelComponent, KeyFilterDirective } from '../ui'
           class="form-control"
           id="quantiteSaisie"
           placeholder=" "
-          [(ngModel)]="quantite"
+          [ngModel]="quantite()" (ngModelChange)="quantite.set($event)"
           [disabled]="!isValid()"
           (keydown.enter)="onAdd()"
         />
@@ -34,15 +34,15 @@ export class QuantiteProdutSaisieComponent {
   style = input<{}>();
   addQuantite = output<number>();
   enterPressed = output();
-  quantite: number | null = null;
+  readonly quantite = signal<number | null>(null);
   protected quantityBox = viewChild.required<ElementRef>('quantityBox');
 
   get enabledButton(): boolean {
-    return this.quantite > 0;
+    return this.quantite() > 0;
   }
 
   get value(): number {
-    return this.quantite;
+    return this.quantite();
   }
 
   focusProduitControl(): void {
@@ -54,11 +54,11 @@ export class QuantiteProdutSaisieComponent {
   }
 
   reset(value?: number): void {
-    this.quantite = value || null;
+    this.quantite.set(value || null);
   }
 
   protected onAdd(): void {
-    const value = this.quantite;
+    const value = this.quantite();
     if (this.isValid() && value != null) {
       this.addQuantite.emit(value);
     }
@@ -70,17 +70,17 @@ export class QuantiteProdutSaisieComponent {
 
   incrementQuantity(amount = 1): void {
     if (this.isValid()) {
-      const currentValue = this.quantite || 0;
-      this.quantite = currentValue + amount;
+      const currentValue = this.quantite() || 0;
+      this.quantite.set(currentValue + amount);
       this.focusProduitControl();
     }
   }
 
   decrementQuantity(amount = 1): void {
     if (this.isValid()) {
-      const currentValue = this.quantite || 0;
+      const currentValue = this.quantite() || 0;
       const newValue = currentValue - amount;
-      this.quantite = newValue > 0 ? newValue : 1;
+      this.quantite.set(newValue > 0 ? newValue : 1);
       this.focusProduitControl();
     }
   }

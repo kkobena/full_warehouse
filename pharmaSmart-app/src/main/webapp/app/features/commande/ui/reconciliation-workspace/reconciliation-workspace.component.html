@@ -42,13 +42,13 @@
 
           <div class="rw-field">
             <label class="rw-label">Référence <span class="text-danger">*</span></label>
-            <input class="form-control" [appKeyFilter]="'alphanum'" [(ngModel)]="factureReference"
+            <input class="form-control" [appKeyFilter]="'alphanum'" [ngModel]="factureReference()" (ngModelChange)="factureReference.set($event)"
                    type="text" maxlength="50" placeholder="N° facture fournisseur" />
           </div>
 
           <div class="rw-field">
             <label class="rw-label">Date facture</label>
-            <pharma-date-picker [(ngModel)]="factureDate" id="factureDate" />
+            <pharma-date-picker [ngModel]="factureDate()" (ngModelChange)="factureDate.set($event)" id="factureDate" />
           </div>
         </div>
 
@@ -69,7 +69,7 @@
               <span class="rw-row-label">Montant HT</span>
               <span class="rw-val rw-val--ref">{{ blMontantHT | number:'1.0-0' }} F</span>
               <span class="rw-val">
-                <app-input-number [(ngModel)]="factureMontantHT" [min]="0" style="width: 115px" />
+                <app-input-number [ngModel]="factureMontantHT()" (ngModelChange)="factureMontantHT.set($event)" [min]="0" style="width: 115px" />
               </span>
               <span class="rw-ecart" [class.rw-ecart--ok]="ecartHT === 0" [class.rw-ecart--err]="ecartHT !== 0">
                 @if (ecartHT === 0) { <i class="pi pi-check-circle"></i> } @else { <i class="pi pi-exclamation-triangle"></i> }
@@ -81,7 +81,7 @@
               <span class="rw-row-label">TVA</span>
               <span class="rw-val rw-val--ref">{{ blTVA | number:'1.0-0' }} F</span>
               <span class="rw-val">
-                <app-input-number [(ngModel)]="factureTVA" [min]="0" style="width: 115px" />
+                <app-input-number [ngModel]="factureTVA()" (ngModelChange)="factureTVA.set($event)" [min]="0" style="width: 115px" />
               </span>
               <span class="rw-ecart" [class.rw-ecart--ok]="ecartTVA === 0" [class.rw-ecart--err]="ecartTVA !== 0">
                 @if (ecartTVA === 0) { <i class="pi pi-check-circle"></i> } @else { <i class="pi pi-exclamation-triangle"></i> }

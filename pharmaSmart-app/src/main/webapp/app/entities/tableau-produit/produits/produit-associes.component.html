@@ -1,7 +1,7 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-1">
     <div class="justify-content-center">
-      <app-toolbar icon="pi pi-list" title="Produits associés au tableau">
+      <app-toolbar icon="pi pi-list" title="Produits associés au tableau()">
         <ng-container ngProjectAs="[toolbarActions]">
           <div class="py-1">
             <app-button (clicked)="previousState()" icon="pi pi-angle-double-left" label="Retour"
@@ -11,11 +11,11 @@
       </app-toolbar>
       <div class="row mt-2 g-2">
         <div class="col-6">
-          <app-card bodyClass="p-0" header="Produits non associés à ce tableau">
+          <app-card bodyClass="p-0" header="Produits non associés à ce tableau()">
             <ng-container ngProjectAs="[cardActions]">
               <app-button
                 (clicked)="moveAllToTarget()"
-                [disabled]="!produitsSource.length"
+                [disabled]="!produitsSource().length"
                 icon="pi pi-angle-double-right"
                 label="Tout associer"
                 severity="secondary"
@@ -31,7 +31,7 @@
                 type="text"
               />
             </div>
-            <app-data-table [scrollable]="true" [size]="'small'" [value]="produitsSource"
+            <app-data-table [scrollable]="true" [size]="'small'" [value]="produitsSource()"
                             scrollHeight="calc(100vh - 480px)">
               <ng-template #header>
                 <tr class="pharma-table-head">
@@ -66,7 +66,7 @@
             <ng-container ngProjectAs="[cardActions]">
               <app-button
                 (clicked)="moveAllToSource()"
-                [disabled]="!produitsTarget.length"
+                [disabled]="!produitsTarget().length"
                 icon="pi pi-angle-double-left"
                 label="Tout retirer"
                 severity="secondary"
@@ -82,7 +82,7 @@
                 type="text"
               />
             </div>
-            <app-data-table [scrollable]="true" [size]="'small'" [value]="produitsTarget"
+            <app-data-table [scrollable]="true" [size]="'small'" [value]="produitsTarget()"
                             scrollHeight="calc(100vh - 480px)">
               <ng-template #header>
                 <tr class="pharma-table-head">

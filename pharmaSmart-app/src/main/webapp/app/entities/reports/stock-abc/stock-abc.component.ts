@@ -11,7 +11,7 @@ import StockRotationComponent from '../stock-rotation/stock-rotation.component';
   selector: 'jhi-stock-abc',
   imports: [NgbNavModule, ABCParetoComponent, StockRotationComponent, FormsModule, SelectComponent, ButtonComponent],
   templateUrl: './stock-abc.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./stock-abc.component.scss'],
 })
 export default class StockABCComponent {

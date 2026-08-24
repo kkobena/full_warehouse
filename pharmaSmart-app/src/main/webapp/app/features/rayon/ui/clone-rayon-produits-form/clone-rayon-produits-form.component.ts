@@ -24,7 +24,7 @@ interface StorageRow {
   selector: 'app-clone-rayon-produits-form',
   templateUrl: './clone-rayon-produits-form.component.html',
   styleUrl: './clone-rayon-produits-form.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, ButtonComponent, SelectSearchComponent],
 })
 export class CloneRayonProduitsFormComponent implements OnInit {

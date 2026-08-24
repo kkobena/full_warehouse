@@ -1,4 +1,4 @@
-import { Component, forwardRef, input } from '@angular/core';
+import {ChangeDetectionStrategy, Component, forwardRef, input} from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { ControlValueAccessorBase } from '../forms/control-value-accessor.base';
@@ -33,6 +33,7 @@ let nextId = 0;
       }
     </div>
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SwitchComponent extends ControlValueAccessorBase<boolean> {
   readonly label = input<string>('');

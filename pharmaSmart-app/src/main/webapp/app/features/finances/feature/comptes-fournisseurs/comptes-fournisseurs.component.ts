@@ -42,8 +42,7 @@ import {
   IconFieldComponent,
   InputNumberComponent,
   SelectComponent,
-  ToolbarComponent
-} from "../../../../shared/ui";
+  ToolbarComponent, AppBadgeSeverity } from "../../../../shared/ui";
 import {
   PharmaDatePickerComponent
 } from "../../../../shared/date-picker/pharma-date-picker.component";
@@ -72,7 +71,7 @@ import { currencySymbol } from 'app/shared/utils/format-utils';
     CardComponent
   ],
   templateUrl: "./comptes-fournisseurs.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./comptes-fournisseurs.component.scss"
 })
 export class ComptesFournisseursComponent implements OnInit {
@@ -387,7 +386,7 @@ export class ComptesFournisseursComponent implements OnInit {
     return "Commandes très en retard (délai critique dépassé)";
   }
 
-  ligneSeverity(statut: StatutLigne): string {
+  ligneSeverity(statut: StatutLigne): AppBadgeSeverity {
     if (statut === "EN_RETARD") {
       return "danger";
     }

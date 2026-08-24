@@ -29,7 +29,7 @@ import {
   selector: "app-groupe-tiers-payant",
   templateUrl: "./groupe-tiers-payant.component.html",
   styleUrls: ["./group-tiers-payant.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterModule,
     FormsModule,
@@ -64,7 +64,6 @@ export class GroupeTiersPayantComponent {
   );
 
   protected readonly entites = computed(() => this.groupTiersPayantResult()?.body ?? []);
-  protected readonly loading = computed(() => !this.groupTiersPayantResult());
   private readonly spinner = viewChild.required<SpinnerComponent>("spinner");
 
   onSearch(): void {

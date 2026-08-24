@@ -22,7 +22,7 @@
             >{{ (responseCommande?.items)!.length | number }} /{{ responseCommande?.totalItemCount | number }}</span
           >
         </p>
-        <div [hidden]="hiddenInfo" class="alert-warning">
+        <div [hidden]="hiddenInfo()" class="alert-warning">
           <h4>Le fichier sera disponible dans quelques instant.... Veuillez cliquer sur le lien dans queleques secondes</h4>
         </div>
         <h4>

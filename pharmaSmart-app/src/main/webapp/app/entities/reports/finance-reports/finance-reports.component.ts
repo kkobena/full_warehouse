@@ -37,7 +37,7 @@ import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-l
     SkeletonComponent,
   ],
   templateUrl: './finance-reports.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './finance-reports.component.scss',
 })
 export default class FinanceReportsComponent implements OnInit {

@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, DestroyRef, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy} from '@angular/core';
+import {signal, AfterViewInit, Component, DestroyRef, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy} from '@angular/core';
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {NgxSpinnerService} from "ngx-spinner";
@@ -18,14 +18,14 @@ import {ButtonComponent, CardComponent} from "../../../../shared/ui";
     ReactiveFormsModule
   ],
   templateUrl: './annulation-vente-message.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './annulation-vente-message.component.scss',
 })
 export class AnnulationVenteMessageComponent implements OnInit, AfterViewInit {
   readonly activeModal = inject(NgbActiveModal);
   form!: FormGroup;
   sale: ISales;
-  protected isSaving = false;
+  protected readonly isSaving = signal(false);
   private readonly api = inject(SalesApiService);
   private readonly spinner = inject(NgxSpinnerService);
   private readonly fb = inject(FormBuilder);
@@ -52,7 +52,7 @@ export class AnnulationVenteMessageComponent implements OnInit, AfterViewInit {
     }
     const cancelComment = this.form.getRawValue().cancelComment;
 
-    this.isSaving = true;
+    this.isSaving.set(true);
     this.spinner.show();
 
     const updateObservable$ =
@@ -62,12 +62,12 @@ export class AnnulationVenteMessageComponent implements OnInit, AfterViewInit {
       .subscribe({
         next: resp => {
           this.spinner.hide();
-          this.isSaving = false;
+          this.isSaving.set(false);
           this.activeModal.close(resp.body);
         },
         error: err => {
           this.spinner.hide();
-          this.isSaving = false;
+          this.isSaving.set(false);
           this.notificationService.error(this.errorService.getErrorMessage(err), 'Annulation de vente échouée');
         },
       });

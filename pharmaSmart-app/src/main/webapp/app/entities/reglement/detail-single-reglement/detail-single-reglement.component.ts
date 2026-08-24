@@ -1,6 +1,6 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {NgbActiveModal, NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {InvoicePaymentItem, Reglement} from '../model/reglement.model';
 import {ReglementService} from '../reglement.service';
 import {HttpResponse} from '@angular/common/http';
@@ -28,15 +28,14 @@ import {
     KpiStripComponent
   ],
   templateUrl: './detail-single-reglement.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./detail-single-reglement.component.scss'],
 })
 export class DetailSingleReglementComponent implements OnInit {
-  modalService = inject(NgbModal);
   activeModal = inject(NgbActiveModal);
   reglementService = inject(ReglementService);
   reglement: Reglement | null = null;
-  protected datas: InvoicePaymentItem[] = [];
+  protected readonly datas = signal<InvoicePaymentItem[]>([]);
   protected scrollHeight = 'calc(100vh - 350px)';
 
   cancel(): void {
@@ -46,7 +45,7 @@ export class DetailSingleReglementComponent implements OnInit {
   ngOnInit(): void {
     if (this.reglement) {
       this.reglementService.getItems(this.reglement.id).subscribe((res: HttpResponse<InvoicePaymentItem[]>) => {
-        this.datas = res.body || [];
+        this.datas.set(res.body || []);
       });
     }
   }

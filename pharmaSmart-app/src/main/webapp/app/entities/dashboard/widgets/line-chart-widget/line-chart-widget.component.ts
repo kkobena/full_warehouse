@@ -1,11 +1,21 @@
-import { Component, Input, OnInit, ViewChild, ElementRef, AfterViewInit, signal, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Chart, ChartConfiguration, ChartData, registerables } from 'chart.js';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  Input,
+  OnDestroy,
+  OnInit,
+  signal,
+  ViewChild
+} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {Chart, ChartConfiguration, ChartData, registerables} from 'chart.js';
 
 Chart.register(...registerables);
 
 @Component({
-  selector: 'jhi-line-chart-widget',
+  selector: 'app-line-chart-widget',
 
   imports: [CommonModule],
   template: `
@@ -25,13 +35,13 @@ Chart.register(...registerables);
       }
     `,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LineChartWidgetComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild('chartCanvas', { static: false }) chartCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('chartCanvas', {static: false}) chartCanvas!: ElementRef<HTMLCanvasElement>;
   @Input() config: any;
-
-  private chart: Chart | null = null;
   isReady = signal<boolean>(false);
+  private chart: Chart | null = null;
 
   ngOnInit(): void {
     // Component initialized
@@ -42,10 +52,14 @@ export class LineChartWidgetComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   createChart(): void {
-    if (!this.chartCanvas) return;
+    if (!this.chartCanvas) {
+      return;
+    }
 
     const ctx = this.chartCanvas.nativeElement.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      return;
+    }
 
     // Demo data
     const labels = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'];

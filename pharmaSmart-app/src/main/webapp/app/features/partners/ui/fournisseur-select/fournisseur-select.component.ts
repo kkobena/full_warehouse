@@ -28,7 +28,7 @@ interface IFournisseurOption extends IFournisseur {
   selector: 'app-fournisseur-select',
   templateUrl: './fournisseur-select.component.html',
   styleUrls: ['./fournisseur-select.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, SelectSearchComponent, MultiSelectComponent, FloatLabelComponent],
 })
 export class FournisseurSelectComponent implements OnInit {
@@ -57,10 +57,8 @@ export class FournisseurSelectComponent implements OnInit {
 
   readonly fournisseurs = signal<IFournisseur[]>([]);
   readonly groupedFournisseurs = signal<IFournisseurOption[]>([]);
-
-  selectedSingle: IFournisseur | null = null;
-  selectedMultiple: IFournisseur[] = [];
-
+  readonly selectedSingle = signal<IFournisseur | null>(null);
+  readonly selectedMultiple = signal<IFournisseur[]>([]);
   private readonly api = inject(FournisseurApiService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -69,17 +67,17 @@ export class FournisseurSelectComponent implements OnInit {
       const id = this.selectedId();
       const list = this.fournisseurs();
       if (id == null) {
-        this.selectedSingle = null;
+        this.selectedSingle.set(null);
         return;
       }
       const found = list.find(f => f.id === id) ?? null;
       // En mode groupé, un principal qui possède des agences est un en-tête de groupe
       // (non sélectionnable) — ne pas le pré-sélectionner pour éviter l'incohérence UI.
       if (found && !found.parentId && this.grouped() && list.some(f => f.parentId === found.id)) {
-        this.selectedSingle = null;
+        this.selectedSingle.set(null);
         return;
       }
-      this.selectedSingle = found;
+      this.selectedSingle.set(found);
     });
   }
 
@@ -96,8 +94,8 @@ export class FournisseurSelectComponent implements OnInit {
   }
 
   reset(): void {
-    this.selectedSingle = null;
-    this.selectedMultiple = [];
+    this.selectedSingle.set(null);
+    this.selectedMultiple.set([]);
     this.selectionChange.emit(null);
     this.multiSelectionChange.emit([]);
   }

@@ -93,7 +93,7 @@
           size="small"
           type="button"
         />
-        @if (ayantDroit && customer.id !== ayantDroit.id) {
+        @if (ayantDroit() && customer().id !== ayantDroit().id) {
           <div formGroupName="ayantDroit">
             <div class="form-row">
               <div class="form-field-inline form-field-full">
@@ -126,7 +126,7 @@
     </div>
 
     <!-- Third Party Sale Lines Section -->
-    @if (thirdPartySaleLines?.length > 0) {
+    @if (thirdPartySaleLines()?.length > 0) {
       <div class="section-header-compact">
         <i class="pi pi-building"></i>
         <span>Tiers Payants</span>
@@ -170,7 +170,7 @@
     <app-button (clicked)="cancel()" icon="pi pi-times" label="Annuler" severity="secondary"
                 type="button" />
     <app-button
-      [disabled]="editForm.invalid || isSaving || !hasFormChanged()"
+      [disabled]="editForm.invalid || isSaving() || !hasFormChanged()"
       icon="pi pi-save"
       label="Sauvegarder"
       severity="primary"

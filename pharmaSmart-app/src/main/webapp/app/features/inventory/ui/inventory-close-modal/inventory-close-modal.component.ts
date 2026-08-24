@@ -19,7 +19,7 @@ import {ButtonComponent, KpiItemComponent, KpiStripComponent} from '../../../../
   selector: 'app-inventory-close-modal',
   imports: [CommonModule, ButtonComponent, KpiStripComponent, KpiItemComponent],
   templateUrl: './inventory-close-modal.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './inventory-close-modal.component.scss',
 })
 export class InventoryCloseModalComponent implements OnInit {

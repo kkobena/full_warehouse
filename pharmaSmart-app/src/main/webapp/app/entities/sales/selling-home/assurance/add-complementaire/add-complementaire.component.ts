@@ -6,8 +6,7 @@ import {
   OnInit,
   AfterViewInit,
   viewChild,
-  ChangeDetectionStrategy
-} from '@angular/core';
+  ChangeDetectionStrategy, signal } from '@angular/core';
 import {
   ClientTiersPayant,
   IClientTiersPayant
@@ -38,23 +37,22 @@ import {ButtonComponent, CardComponent, KeyFilterDirective, SelectComponent, Swi
     SwitchComponent,
   ],
   templateUrl: './add-complementaire.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./add-complementaire.component.scss'],
 })
 export class AddComplementaireComponent implements OnInit, AfterViewInit {
   tiersPayant = viewChild.required('tiersPayant', { read: ElementRef<HTMLElement> });
   numBon = viewChild.required<ElementRef>('numBon');
   assure?: ICustomer | null;
-  isSaving = false;
-  isValid = true;
+  protected readonly isSaving = signal(false);
+  protected readonly isValid = signal(true);
   tiersPayantsExisting: IClientTiersPayant[] = [];
-  tiersPayants: IClientTiersPayant[] = [];
 
-  protected selectedTiersPayant: IClientTiersPayant | null = null;
+  protected readonly selectedTiersPayant = signal<IClientTiersPayant | null>(null);
   protected originalTiersPayant: IClientTiersPayant | null = null;
-  protected showPrioriteSwitch = false;
-  protected isPrioriteEnabled = false;
-  protected prioriteValue = 0;
+  protected readonly showPrioriteSwitch = signal(false);
+  protected readonly isPrioriteEnabled = signal(false);
+  protected readonly prioriteValue = signal(0);
 
   protected fb = inject(FormBuilder);
   protected editForm = this.fb.group({
@@ -105,21 +103,21 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
       this.saveWithBackendCall();
     } else {
       // If only numBon changed, just close with data
-      this.isSaving = true;
+      this.isSaving.set(true);
       this.activeModal.close(this.createFromForm());
     }
   }
 
   onSelect(tiersPayantId: number): void {
-    this.selectedTiersPayant = this.assure.tiersPayants.find(e => e.id === Number(tiersPayantId));
-    if (this.selectedTiersPayant) {
+    this.selectedTiersPayant.set(this.assure.tiersPayants.find(e => e.id === Number(tiersPayantId)));
+    if (this.selectedTiersPayant()) {
       // Store original state for change detection
-      this.originalTiersPayant = {...this.selectedTiersPayant};
-      this.updateForm(this.selectedTiersPayant);
+      this.originalTiersPayant = {...this.selectedTiersPayant()};
+      this.updateForm(this.selectedTiersPayant());
 
       // Show priorite switch if priorite is not 0, but keep it unchecked by default
-      this.showPrioriteSwitch = this.selectedTiersPayant.categorie !== 0;
-      this.isPrioriteEnabled = false;
+      this.showPrioriteSwitch.set(this.selectedTiersPayant().categorie !== 0);
+      this.isPrioriteEnabled.set(false);
 
       setTimeout(() => {
         this.numBon().nativeElement.focus();
@@ -127,14 +125,14 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
     } else {
       this.editForm.reset();
       this.originalTiersPayant = null;
-      this.showPrioriteSwitch = false;
-      this.isPrioriteEnabled = false;
+      this.showPrioriteSwitch.set(false);
+      this.isPrioriteEnabled.set(false);
     }
-    this.prioriteValue = this.selectedTiersPayant.categorie;
+    this.prioriteValue.set(this.selectedTiersPayant().categorie);
   }
 
   onPrioriteToggle(checked: boolean): void {
-    this.prioriteValue = checked ? 0 : this.selectedTiersPayant?.categorie;
+    this.prioriteValue.set(checked ? 0 : this.selectedTiersPayant()?.categorie);
   }
 
   protected getTiersPayants(): IClientTiersPayant[] {
@@ -163,9 +161,9 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
       numBon: formValue.numBon,
       categorie: formValue.categorie,
       taux: formValue.taux,
-      priorite: this.prioriteValue,
+      priorite: this.prioriteValue(),
       customerId: this.assure?.id,
-      tiersPayantId: this.selectedTiersPayant?.tiersPayantId,
+      tiersPayantId: this.selectedTiersPayant()?.tiersPayantId,
       num: formValue.num,
       tiersPayantFullName: formValue.tiersPayantFullName,
     };
@@ -180,7 +178,7 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
     return (
       this.originalTiersPayant.taux !== currentValues.taux ||
       this.originalTiersPayant.num !== currentValues.num ||
-      this.originalTiersPayant.categorie != this.prioriteValue ||
+      this.originalTiersPayant.categorie != this.prioriteValue() ||
       this.originalTiersPayant.categorie !== currentValues.categorie
     );
   }
@@ -190,13 +188,13 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
   }
 
   private saveWithBackendCall(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const clientTiersPayant = this.createFromForm();
 
     this.customerService
       .updateTiersPayant(clientTiersPayant)
       .pipe(
-        finalize(() => (this.isSaving = false)),
+        finalize(() => (this.isSaving.set(false))),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
@@ -206,8 +204,8 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
           }
         },
         error: () => {
-          this.isValid = false;
-          this.isSaving = false;
+          this.isValid.set(false);
+          this.isSaving.set(false);
         },
       });
   }

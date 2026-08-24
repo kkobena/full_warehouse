@@ -35,7 +35,7 @@ import {DeviseDirective} from 'app/shared/utils/devise';
     PharmaDatePickerComponent
   ],
   templateUrl: './activity-summary.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './activity-summary.component.scss',
 })
 export class ActivitySummaryComponent {
@@ -48,11 +48,11 @@ export class ActivitySummaryComponent {
    */
   readonly navCode = input<string>('');
 
-  protected loadingPdf = false;
-  protected chiffreAffaire: ChiffreAffaire | null = null;
-  protected groupeFournisseurAchats: GroupeFournisseurAchat[] | null = [];
-  protected reglementTiersPayants: ReglementTiersPayant[] | null = [];
-  protected achatTiersPayant: AchatTiersPayant[] | null = [];
+  protected readonly loadingPdf = signal(false);
+  protected readonly chiffreAffaire = signal<ChiffreAffaire | null>(null);
+  protected readonly groupeFournisseurAchats = signal<GroupeFournisseurAchat[] | null>([]);
+  protected readonly reglementTiersPayants = signal<ReglementTiersPayant[] | null>([]);
+  protected readonly achatTiersPayant = signal<AchatTiersPayant[] | null>([]);
   protected fromDate: NgbDateStruct | null = TODAY_NGB_DATE();
   protected toDate: NgbDateStruct | null = TODAY_NGB_DATE();
   protected searchAchat: string | null = null;
@@ -80,10 +80,10 @@ export class ActivitySummaryComponent {
   }
 
   protected printAll(): void {
-    this.loadingPdf = true;
+    this.loadingPdf.set(true);
     this.activitySummaryService
       .onPrintPdf(this.buildRequest())
-      .pipe(finalize(() => (this.loadingPdf = false)))
+      .pipe(finalize(() => (this.loadingPdf.set(false))))
       .subscribe({
         next: blob => this.blobDownloadService.downloadPdf(blob, 'rapport-activite'),
         error: () => this.notificationService.error("Une erreur est survenue lors de l'export PDF"),
@@ -91,18 +91,18 @@ export class ActivitySummaryComponent {
   }
 
   protected getRecetteTotal(): number {
-    return this.chiffreAffaire?.recettes?.reduce((acc, val) => acc + val.montantReel, 0) || 0;
+    return this.chiffreAffaire()?.recettes?.reduce((acc, val) => acc + val.montantReel, 0) || 0;
   }
 
   protected getTotalMouvementCaisse(): number {
-    return this.chiffreAffaire?.mouvementCaisses?.reduce((acc, val) => acc + val.montant, 0) || 0;
+    return this.chiffreAffaire()?.mouvementCaisses?.reduce((acc, val) => acc + val.montant, 0) || 0;
   }
 
   private queryCa(query: any): void {
     this.loadingCa.set(true);
     this.activitySummaryService.queryCa(query).subscribe({
       next: res => {
-        this.chiffreAffaire = res.body;
+        this.chiffreAffaire.set(res.body);
         this.loadingCa.set(false);
       },
       error: err => this.loadingCa.set(false),
@@ -113,7 +113,7 @@ export class ActivitySummaryComponent {
     this.loadingAchat.set(true);
     this.activitySummaryService.getGroupeFournisseurAchat(query).subscribe({
       next: res => {
-        this.groupeFournisseurAchats = res.body;
+        this.groupeFournisseurAchats.set(res.body);
         this.loadingAchat.set(false);
       },
       error: err => this.loadingAchat.set(false),
@@ -124,7 +124,7 @@ export class ActivitySummaryComponent {
     this.loadingReglement.set(true);
     this.activitySummaryService.getReglementTiersPayants(query).subscribe({
       next: res => {
-        this.reglementTiersPayants = res.body;
+        this.reglementTiersPayants.set(res.body);
         this.loadingReglement.set(false);
       },
       error: err => this.loadingReglement.set(false),
@@ -135,7 +135,7 @@ export class ActivitySummaryComponent {
     this.loadingAchatTp.set(true);
     this.activitySummaryService.getAchatTiersPayant(query).subscribe({
       next: res => {
-        this.achatTiersPayant = res.body;
+        this.achatTiersPayant.set(res.body);
         this.loadingAchatTp.set(false);
       },
       error: err => this.loadingAchatTp.set(false),

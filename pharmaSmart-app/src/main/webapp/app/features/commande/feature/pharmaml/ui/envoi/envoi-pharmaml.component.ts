@@ -15,7 +15,7 @@ import {NGB_DATE_TO_ISO, TODAY_NGB_DATE} from '../../../../../../shared/util/war
   selector: 'app-envoi-pharmaml',
   imports: [CommonModule, FormsModule, ButtonComponent, CardComponent, PharmaDatePickerComponent, SelectComponent],
   templateUrl: './envoi-pharmaml.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./envoi-pharmaml.scss'],
 })
 export class EnvoiPharmamlComponent {

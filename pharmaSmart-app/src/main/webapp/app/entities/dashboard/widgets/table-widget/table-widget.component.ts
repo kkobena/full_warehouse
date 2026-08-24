@@ -1,10 +1,10 @@
-import { Component, Input, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {ChangeDetectionStrategy, Component, Input, OnInit, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
 
 type TableRow = Record<string, any>;
 
 @Component({
-  selector: 'jhi-table-widget',
+  selector: 'app-table-widget',
 
   imports: [CommonModule],
   template: `
@@ -18,11 +18,11 @@ type TableRow = Record<string, any>;
         <div class="table-responsive">
           <table class="table-widget-table">
             <thead>
-              <tr>
-                @for (col of columns(); track col.field) {
-                  <th>{{ col.header }}</th>
-                }
-              </tr>
+            <tr>
+              @for (col of columns(); track col.field) {
+                <th>{{ col.header }}</th>
+              }
+            </tr>
             </thead>
             <tbody>
               @for (row of rows(); track $index) {
@@ -77,6 +77,7 @@ type TableRow = Record<string, any>;
       }
     `,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TableWidgetComponent implements OnInit {
   @Input() config: any;
@@ -93,22 +94,24 @@ export class TableWidgetComponent implements OnInit {
     // Demo data
     if (!this.config || this.rows().length === 0) {
       this.columns.set([
-        { field: 'product', header: 'Produit', type: 'string' },
-        { field: 'quantity', header: 'Quantité', type: 'number' },
-        { field: 'amount', header: 'Montant', type: 'currency' },
+        {field: 'product', header: 'Produit', type: 'string'},
+        {field: 'quantity', header: 'Quantité', type: 'number'},
+        {field: 'amount', header: 'Montant', type: 'currency'},
       ]);
 
       this.rows.set([
-        { product: 'Doliprane 1000mg', quantity: 125, amount: 45000 },
-        { product: 'Paracétamol 500mg', quantity: 98, amount: 32000 },
-        { product: 'Ibuprofène 400mg', quantity: 87, amount: 28500 },
-        { product: 'Amoxicilline 500mg', quantity: 76, amount: 25000 },
+        {product: 'Doliprane 1000mg', quantity: 125, amount: 45000},
+        {product: 'Paracétamol 500mg', quantity: 98, amount: 32000},
+        {product: 'Ibuprofène 400mg', quantity: 87, amount: 28500},
+        {product: 'Amoxicilline 500mg', quantity: 76, amount: 25000},
       ]);
     }
   }
 
   formatValue(value: any, type?: string): string {
-    if (value === null || value === undefined) return '';
+    if (value === null || value === undefined) {
+      return '';
+    }
 
     switch (type) {
       case 'number':

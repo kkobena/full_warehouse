@@ -17,11 +17,7 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { TranslatePipe } from "@ngx-translate/core";
-import {
-  APPEND_TO,
-  PRODUIT_COMBO_MIN_LENGTH,
-  PRODUIT_NOT_FOUND
-} from "../../../../shared/constants/pagination.constants";
+import {APPEND_TO, PRODUIT_COMBO_MIN_LENGTH} from "../../../../shared/constants/pagination.constants";
 import { ProduitSearch } from "../../../../shared/model";
 import { ProduitService } from "../../../../entities/produit/produit.service";
 import { catchError, debounceTime, filter, of, Subject, Subscription } from "rxjs";
@@ -45,7 +41,7 @@ import { FloatLabelComponent, SelectSearchComponent } from "../../../../shared/u
   selector: "app-product-search",
   templateUrl: "./product-search.component.html",
   styleUrls: ["./product-search.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [SelectSearchComponent, FormsModule, FloatLabelComponent, TranslatePipe, CommonModule]
 })
 export class ProductSearchComponent implements OnInit, OnDestroy {
@@ -76,7 +72,6 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
 
   // Constants
   protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
-  protected readonly PRODUIT_NOT_FOUND = PRODUIT_NOT_FOUND;
   protected readonly APPEND_TO = APPEND_TO;
 
   // Services
@@ -102,8 +97,8 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   protected readonly typeaheadSink$ = new Subject<string>();
 
   // Scanner state
-  private isScanning = false;
-  private isManualSearching = false;
+  private readonly isScanning = signal(false);
+  private readonly isManualSearching = signal(false);
   private manualSearchTimeout: ReturnType<typeof setTimeout> | null = null;
   private keydownListener?: (event: KeyboardEvent) => void;
   private animationFrameId: number | null = null;
@@ -123,7 +118,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
     if (typeof value === "string") {
       return;
     }
-    if (this.isScanning) {
+    if (this.isScanning()) {
       if (isDevMode()) {
         console.debug("[Scanner] Setter bloqué pendant le scan");
       }
@@ -151,7 +146,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
           this.setupBarcodeScanner();
         } else if (!enabled && this.keydownListener) {
           this.removeBarcodeScanner();
-          this.isScanning = false;
+          this.isScanning.set(false);
           this.stopInputClearLoop();
         }
       },
@@ -179,18 +174,18 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
     }
 
     // Abort scan if user is manually searching
-    if (this.isScanning) {
-      this.isScanning = false;
+    if (this.isScanning()) {
+      this.isScanning.set(false);
       this.stopInputClearLoop();
     }
 
-    this.isManualSearching = true;
+    this.isManualSearching.set(true);
 
     if (this.manualSearchTimeout) {
       clearTimeout(this.manualSearchTimeout);
     }
     this.manualSearchTimeout = setTimeout(() => {
-      this.isManualSearching = false;
+      this.isManualSearching.set(false);
       this.manualSearchTimeout = null;
     }, 600);
 
@@ -223,7 +218,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   }
 
   onNgModelChange(value: ProduitSearch | null): void {
-    if (this.isScanning) {
+    if (this.isScanning()) {
       return;
     }
     this.produitSelected = value;
@@ -249,8 +244,8 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   }
 
   reset(): void {
-    this.isScanning = false;
-    this.isManualSearching = false;
+    this.isScanning.set(false);
+    this.isManualSearching.set(false);
     if (this.manualSearchTimeout) {
       clearTimeout(this.manualSearchTimeout);
       this.manualSearchTimeout = null;
@@ -297,7 +292,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
           // Scan détecté (frappe rapide) puis abandonné côté service sans code valide :
           // sans ce cas, `isScanning` restait bloqué à `true` et la boucle de nettoyage
           // vidait le champ en continu, rendant la saisie manuelle impossible en vente.
-          this.isScanning = false;
+          this.isScanning.set(false);
           this.stopInputClearLoop();
         }
       });
@@ -311,18 +306,18 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
 
   private onScanStart(): void {
     const isOpen = this.produitboxCmp()?.isOpen();
-    if (this.isManualSearching || isOpen) {
+    if (this.isManualSearching() || isOpen) {
       return;
     }
-    this.isScanning = true;
+    this.isScanning.set(true);
     this.clearInputValue();
     this.startInputClearLoop();
   }
 
   private onScanComplete(scannedCode: string): void {
     const isOpen = this.produitboxCmp()?.isOpen();
-    if (this.isManualSearching || isOpen) {
-      this.isScanning = false;
+    if (this.isManualSearching() || isOpen) {
+      this.isScanning.set(false);
       this.stopInputClearLoop();
       return;
     }
@@ -334,7 +329,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
     this.searchByBarcode(scannedCode);
 
     setTimeout(() => {
-      this.isScanning = false;
+      this.isScanning.set(false);
     }, 400);
   }
 
@@ -356,8 +351,8 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
     const startedAt = Date.now();
     const maxDurationMs = 2000;
     const clearLoop = () => {
-      if (!this.isScanning || Date.now() - startedAt > maxDurationMs) {
-        this.isScanning = false;
+      if (!this.isScanning() || Date.now() - startedAt > maxDurationMs) {
+        this.isScanning.set(false);
         return;
       }
       this.clearInputValue();
@@ -401,7 +396,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError(err => {
-          this.isScanning = false;
+          this.isScanning.set(false);
           this.produits.set([]);
           return of({ body: [] });
         })
@@ -416,11 +411,11 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
         } else if (result.length > 1) {
           this.produits.set(result);
           this.selectProduit.set(null);
-          this.isScanning = false;
+          this.isScanning.set(false);
         } else {
           this.selectProduit.set(null);
           this.produits.set([]);
-          this.isScanning = false;
+          this.isScanning.set(false);
         }
       });
   }

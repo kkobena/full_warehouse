@@ -23,7 +23,7 @@ import {InventoryProgressRecord} from '../../models';
       </div>
     }
   `,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './inventory-progress-bar.component.scss',
 })
 export class InventoryProgressBarComponent {

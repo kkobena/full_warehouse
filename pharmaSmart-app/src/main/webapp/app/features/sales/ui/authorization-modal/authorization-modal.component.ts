@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import {signal, Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -67,29 +67,29 @@ import { UtilisationCleSecurite } from '../../../../entities/action-autorisation
             />
           </div>
 
-          @if (errorMessage) {
+          @if (errorMessage()) {
             <div class="alert alert-danger">
               <i class="pi pi-times-circle"></i>
-              {{ errorMessage }}
+              {{ errorMessage() }}
             </div>
           }
         </form>
       </div>
 
       <div class="modal-footer">
-        <app-button label="Annuler" severity="secondary" [outlined]="true" (clicked)="cancel()" [disabled]="isSaving" />
+        <app-button label="Annuler" severity="secondary" [outlined]="true" (clicked)="cancel()" [disabled]="isSaving()" />
         <app-button
           label="Autoriser"
           severity="success"
           icon="pi pi-check"
           (clicked)="authorize()"
-          [disabled]="!securityKey || isSaving"
-          [loading]="isSaving"
+          [disabled]="!securityKey || isSaving()"
+          [loading]="isSaving()"
         />
       </div>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
     `
       .authorization-modal {
@@ -199,8 +199,8 @@ export class AuthorizationModalComponent {
   // Form state
   securityKey: string = '';
   comment: string = '';
-  isSaving: boolean = false;
-  errorMessage: string = '';
+  protected readonly isSaving = signal(false);
+  protected readonly errorMessage = signal('');
 
   // Services
   private readonly activeModal = inject(NgbActiveModal);
@@ -213,12 +213,12 @@ export class AuthorizationModalComponent {
 
   authorize(): void {
     if (!this.securityKey) {
-      this.errorMessage = 'La clé de sécurité est requise';
+      this.errorMessage.set('La clé de sécurité est requise');
       return;
     }
 
-    this.isSaving = true;
-    this.errorMessage = '';
+    this.isSaving.set(true);
+    this.errorMessage.set('');
 
     const authRequest: UtilisationCleSecurite = {
       entityId: this.saleId!,
@@ -232,12 +232,12 @@ export class AuthorizationModalComponent {
 
     service.authorizeAction(authRequest).subscribe({
       next: () => {
-        this.isSaving = false;
+        this.isSaving.set(false);
         this.activeModal.close(true);
       },
       error: error => {
-        this.isSaving = false;
-        this.errorMessage = this.extractErrorMessage(error);
+        this.isSaving.set(false);
+        this.errorMessage.set(this.extractErrorMessage(error));
       },
     });
   }

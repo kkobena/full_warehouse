@@ -6,8 +6,7 @@ import {
   ElementRef,
   inject,
   OnInit,
-  viewChild
-} from '@angular/core';
+  viewChild, signal } from '@angular/core';
 import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
 import {Observable} from 'rxjs';
 import {FamilleProduitService} from '../famille-produit.service';
@@ -23,14 +22,14 @@ import {NotificationService} from "../../../shared/services/notification.service
   selector: 'jhi-form-famille',
   templateUrl: './form-famille.component.html',
   styleUrls: ['./form-famille.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonComponent, SelectComponent],
 })
 export class FormFamilleComponent implements OnInit, AfterViewInit {
   familleProduit?: IFamilleProduit;
   header = '';
-  protected isSaving = false;
-  protected categorieproduits: ICategorie[] = [];
+  protected readonly isSaving = signal(false);
+  protected readonly categorieproduits = signal<ICategorie[]>([]);
   protected fb = inject(UntypedFormBuilder);
   protected editForm = this.fb.group({
     id: [],
@@ -69,13 +68,13 @@ export class FormFamilleComponent implements OnInit, AfterViewInit {
   protected populateAssurrance(): void {
     this.categorieProduitService.query({search: ''}).subscribe({
       next: (res: HttpResponse<ICategorie[]>) => {
-        this.categorieproduits = res.body;
+        this.categorieproduits.set(res.body);
       },
     });
   }
 
   protected save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const entity = this.createFromForm();
     if (entity.id !== undefined && entity.id !== null) {
       this.subscribeToSaveResponse(this.entityService.update(entity));
@@ -89,7 +88,7 @@ export class FormFamilleComponent implements OnInit, AfterViewInit {
   }
 
   protected onSaveError(): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.notificationService.error("Erreur interne du serveur.");
   }
 

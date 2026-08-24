@@ -68,7 +68,7 @@ import {BlobDownloadService} from "../../../../shared/services/blob-download.ser
     InventoryValuationComponent
   ],
   templateUrl: "./inventory-editor.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./inventory-editor.component.scss"
 })
 export class InventoryEditorComponent implements OnInit {

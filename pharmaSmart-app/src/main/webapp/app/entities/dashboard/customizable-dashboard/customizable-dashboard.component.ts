@@ -30,7 +30,7 @@ import { AddWidgetModalComponent } from './add-widget-modal.component';
   selector: 'jhi-customizable-dashboard',
   imports: [CommonModule, FormsModule, ButtonComponent, BadgeComponent, ToolbarComponent],
   templateUrl: './customizable-dashboard.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './customizable-dashboard.component.scss',
 })
 export default class CustomizableDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -46,7 +46,7 @@ export default class CustomizableDashboardComponent implements OnInit, AfterView
   isEditMode = signal<boolean>(false);
 
   // GridStack
-  private grid: GridStack | null = null;
+  private readonly grid = signal<GridStack | null>(null);
 
   // Available widget types
   availableWidgets = [
@@ -69,13 +69,13 @@ export default class CustomizableDashboardComponent implements OnInit, AfterView
   }
 
   ngOnDestroy(): void {
-    this.grid?.destroy(false);
+    this.grid()?.destroy(false);
   }
 
   initializeGrid(): void {
     if (!this.gridContainer) return;
 
-    this.grid = GridStack.init(
+    this.grid.set(GridStack.init(
       {
         cellHeight: 80,
         margin: 10,
@@ -85,7 +85,7 @@ export default class CustomizableDashboardComponent implements OnInit, AfterView
         acceptWidgets: true,
       },
       this.gridContainer.nativeElement,
-    );
+    ));
 
     // Load current layout into grid
     if (this.currentLayout()?.config) {
@@ -97,10 +97,10 @@ export default class CustomizableDashboardComponent implements OnInit, AfterView
   }
 
   loadLayoutIntoGrid(config: ILayoutConfig): void {
-    if (!this.grid) return;
+    if (!this.grid()) return;
 
     // Clear existing widgets
-    this.grid.removeAll();
+    this.grid().removeAll();
 
     // Add widgets to grid
     config.items.forEach(item => {
@@ -119,7 +119,7 @@ export default class CustomizableDashboardComponent implements OnInit, AfterView
       content.innerHTML = this.createWidgetContent(item.widget);
 
       el.appendChild(content);
-      this.grid.addWidget(el);
+      this.grid().addWidget(el);
     });
   }
 
@@ -154,12 +154,12 @@ export default class CustomizableDashboardComponent implements OnInit, AfterView
   }
 
   updateGridEditMode(): void {
-    if (!this.grid) return;
+    if (!this.grid()) return;
 
     if (this.isEditMode()) {
-      this.grid.enable();
+      this.grid().enable();
     } else {
-      this.grid.disable();
+      this.grid().disable();
     }
   }
 
@@ -168,7 +168,7 @@ export default class CustomizableDashboardComponent implements OnInit, AfterView
 
     modalRef.result.then(
       (widgetType: WidgetType) => {
-        if (widgetType && this.grid) {
+        if (widgetType && this.grid()) {
           const widgetConfig: IWidgetConfig = {
             type: widgetType,
             title: this.getWidgetLabel(widgetType),
@@ -189,7 +189,7 @@ export default class CustomizableDashboardComponent implements OnInit, AfterView
           content.innerHTML = this.createWidgetContent(widgetConfig);
 
           el.appendChild(content);
-          this.grid.addWidget(el);
+          this.grid().addWidget(el);
         }
       },
       () => {
@@ -207,12 +207,12 @@ export default class CustomizableDashboardComponent implements OnInit, AfterView
 
     modalRef.result.then(
       (result: { name: string; description: string; scope: DashboardScope }) => {
-        if (!this.grid) return;
+        if (!this.grid()) return;
 
         const items: IGridStackItem[] = [];
 
         // Get all widgets from grid
-        this.grid.getGridItems().forEach((el, index) => {
+        this.grid().getGridItems().forEach((el, index) => {
           const node = el.gridstackNode;
           if (node) {
             items.push({

@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, input} from "@angular/core";
+import {ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, input, signal } from "@angular/core";
 import {FormsModule} from "@angular/forms";
 import {
   MvtCaisse,
@@ -51,7 +51,7 @@ import {PharmaDatePickerComponent} from "../../shared/date-picker/pharma-date-pi
     NgbTooltip
   ],
   templateUrl: "./visualisation-mvt-caisse.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ["./visualisation-mvt-caisse.scss"]
 })
 export class VisualisationMvtCaisseComponent implements OnInit, OnDestroy {
@@ -64,23 +64,22 @@ export class VisualisationMvtCaisseComponent implements OnInit, OnDestroy {
    */
   readonly navCode = input<string>('');
 
-  protected mvtCaisses: MvtCaisse[] = [];
-  protected mvtCaisseSum: MvtCaisseWrapper | null = null;
-  protected totalItems = 0;
-  protected loading!: boolean;
-  protected btnLoading = false;
-  protected page = 0;
-  protected predicate!: string;
-  protected ngbPaginationPage = 1;
+  protected readonly mvtCaisses = signal<MvtCaisse[]>([]);
+  protected readonly mvtCaisseSum = signal<MvtCaisseWrapper | null>(null);
+  protected readonly totalItems = signal(0);
+  protected readonly loading = signal<boolean | undefined>(undefined);
+  protected readonly btnLoading = signal(false);
+  protected readonly page = signal(0);
+  protected readonly ngbPaginationPage = signal(1);
   protected readonly itemsPerPage = 10;
-  protected fromDate: NgbDateStruct | null = null;
-  protected toDate: NgbDateStruct | null = null;
+  protected readonly fromDate = signal<NgbDateStruct | null>(null);
+  protected readonly toDate = signal<NgbDateStruct | null>(null);
   protected fromTime: Date | undefined;
   protected toTime: Date | undefined;
   protected order = "ASC";
-  protected selectedUser: IUser | null = null;
-  protected selectedModes: IPaymentMode[] = [];
-  protected users: IUser[];
+  protected readonly selectedUser = signal<IUser | null>(null);
+  protected readonly selectedModes = signal<IPaymentMode[]>([]);
+  protected readonly users = signal<IUser[] | undefined>(undefined);
   protected types: TypeFinancialTransaction[] = [
     TypeFinancialTransaction.ENTREE_CAISSE,
     TypeFinancialTransaction.SORTIE_CAISSE,
@@ -90,8 +89,8 @@ export class VisualisationMvtCaisseComponent implements OnInit, OnDestroy {
     TypeFinancialTransaction.CREDIT_SALE
   ];
   protected typeOptions = this.types.map(type => ({label: type, value: type}));
-  protected selectedTypes: TypeFinancialTransaction[] = [];
-  protected paymentModes: IPaymentMode[] = [];
+  protected readonly selectedTypes = signal<TypeFinancialTransaction[]>([]);
+  protected readonly paymentModes = signal<IPaymentMode[]>([]);
 
   private readonly userService = inject(UserService);
   private readonly mvtCaisseService = inject(MvtCaisseServiceService);
@@ -106,11 +105,11 @@ export class VisualisationMvtCaisseComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (this.mvtParamServiceService.mvtCaisseParam()) {
-      this.fromDate = this.mvtParamServiceService.mvtCaisseParam().fromDate;
-      this.toDate = this.mvtParamServiceService.mvtCaisseParam().toDate;
-      this.selectedTypes = this.mvtParamServiceService.mvtCaisseParam().selectedTypes;
-      this.selectedModes = this.mvtParamServiceService.mvtCaisseParam().paymentModes;
-      this.selectedUser = this.mvtParamServiceService.mvtCaisseParam().selectedUser;
+      this.fromDate.set(this.mvtParamServiceService.mvtCaisseParam().fromDate);
+      this.toDate.set(this.mvtParamServiceService.mvtCaisseParam().toDate);
+      this.selectedTypes.set(this.mvtParamServiceService.mvtCaisseParam().selectedTypes);
+      this.selectedModes.set(this.mvtParamServiceService.mvtCaisseParam().paymentModes);
+      this.selectedUser.set(this.mvtParamServiceService.mvtCaisseParam().selectedUser);
     }
     this.loadModes();
     this.loadUsers();
@@ -124,15 +123,15 @@ export class VisualisationMvtCaisseComponent implements OnInit, OnDestroy {
   }
 
   onSearch(): void {
-    this.btnLoading = true;
+    this.btnLoading.set(true);
     this.loadPage();
     this.loadSum();
     this.updateParam();
   }
 
   loadPage(page?: number): void {
-    const pageToLoad: number = page || this.page;
-    this.loading = true;
+    const pageToLoad: number = page || this.page();
+    this.loading.set(true);
     this.mvtCaisseService
       .findAllMvts({
         page: pageToLoad,
@@ -143,7 +142,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, OnDestroy {
         next: (res: HttpResponse<MvtCaisse[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
         error: () => this.onError(),
         complete: () => {
-          this.btnLoading = false;
+          this.btnLoading.set(false);
         }
       });
   }
@@ -163,41 +162,41 @@ export class VisualisationMvtCaisseComponent implements OnInit, OnDestroy {
 
   protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event) {
-      this.page = event.first / event.rows;
-      this.loading = true;
+      this.page.set(event.first / event.rows);
+      this.loading.set(true);
       this.mvtCaisseService
         .findAllMvts({
-          page: this.page,
+          page: this.page(),
           size: event.rows,
           ...this.buildParams()
         })
         .subscribe({
-          next: (res: HttpResponse<MvtCaisse[]>) => this.onSuccess(res.body, res.headers, this.page),
+          next: (res: HttpResponse<MvtCaisse[]>) => this.onSuccess(res.body, res.headers, this.page()),
           error: () => this.onError()
         });
     }
   }
 
   protected onError(): void {
-    this.ngbPaginationPage = this.page ?? 1;
-    this.btnLoading = false;
+    this.ngbPaginationPage.set(this.page() ?? 1);
+    this.btnLoading.set(false);
   }
 
   protected onPrint(): void {
-    this.btnLoading = true;
+    this.btnLoading.set(true);
     this.updateParam();
     this.mvtCaisseService.exportToPdf(this.buildParams()).subscribe({
       next: blob => {
-        this.btnLoading = false;
+        this.btnLoading.set(false);
         this.blobDownloadService.downloadPdf(blob, "visualisation-mouvements-caisse");
 
       },
       error: () => {
-        this.btnLoading = false;
+        this.btnLoading.set(false);
         this.notificationService.error("Erreur", "Une erreur est survenue lors de l'exportation");
       },
       complete: () => {
-        this.btnLoading = false;
+        this.btnLoading.set(false);
       }
     });
   }
@@ -218,52 +217,52 @@ export class VisualisationMvtCaisseComponent implements OnInit, OnDestroy {
   }
 
   private onSuccess(data: MvtCaisse[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get("X-Total-Count"));
-    this.page = page;
+    this.totalItems.set(Number(headers.get("X-Total-Count")));
+    this.page.set(page);
 
-    this.mvtCaisses = data || [];
-    this.loading = false;
+    this.mvtCaisses.set(data || []);
+    this.loading.set(false);
   }
 
   private buildParams(): any {
     return {
-      fromDate: this.fromDate ? NGB_DATE_TO_ISO(this.fromDate) : null,
-      toDate: this.toDate ? NGB_DATE_TO_ISO(this.toDate) : null,
+      fromDate: this.fromDate() ? NGB_DATE_TO_ISO(this.fromDate()) : null,
+      toDate: this.toDate() ? NGB_DATE_TO_ISO(this.toDate()) : null,
       fromTime: this.fromTime,
       toTime: this.toTime,
-      typeFinancialTransactions: this.selectedTypes?.map(type => getTypeName(type)),
-      paymentModes: this.selectedModes?.map(mode => mode.code),
-      userId: this.selectedUser?.id,
+      typeFinancialTransactions: this.selectedTypes()?.map(type => getTypeName(type)),
+      paymentModes: this.selectedModes()?.map(mode => mode.code),
+      userId: this.selectedUser()?.id,
       order: this.order
     };
   }
 
   private loadModes(): void {
     this.modeService.query().subscribe((res: HttpResponse<IPaymentMode[]>) => {
-      this.paymentModes = res.body || [];
+      this.paymentModes.set(res.body || []);
     });
   }
 
   private loadUsers(): void {
     this.userService.query().subscribe((res: HttpResponse<IUser[]>) => {
-      this.users = res.body || [];
+      this.users.set(res.body || []);
     });
   }
 
   private loadSum(): void {
     this.mvtCaisseService.findAllMvtsSum(this.buildParams()).subscribe((res: HttpResponse<MvtCaisseWrapper>) => {
-      this.mvtCaisseSum = res.body || null;
-      this.loading = false;
+      this.mvtCaisseSum.set(res.body || null);
+      this.loading.set(false);
     });
   }
 
   private setParam(): void {
     const param: MvtCaisseParams = {
-      fromDate: this.fromDate,
-      toDate: this.toDate,
-      selectedTypes: this.selectedTypes,
-      paymentModes: this.selectedModes,
-      selectedUser: this.selectedUser
+      fromDate: this.fromDate(),
+      toDate: this.toDate(),
+      selectedTypes: this.selectedTypes(),
+      paymentModes: this.selectedModes(),
+      selectedUser: this.selectedUser()
     };
     this.mvtParamServiceService.setMvtCaisseParam(param);
   }
@@ -271,11 +270,11 @@ export class VisualisationMvtCaisseComponent implements OnInit, OnDestroy {
   private updateParam(): void {
     const params = this.mvtParamServiceService.mvtCaisseParam();
     if (params) {
-      params.fromDate = this.fromDate;
-      params.toDate = this.toDate;
-      params.selectedTypes = this.selectedTypes;
-      params.paymentModes = this.selectedModes;
-      params.selectedUser = this.selectedUser;
+      params.fromDate = this.fromDate();
+      params.toDate = this.toDate();
+      params.selectedTypes = this.selectedTypes();
+      params.paymentModes = this.selectedModes();
+      params.selectedUser = this.selectedUser();
       this.mvtParamServiceService.setMvtCaisseParam(params);
     } else {
       this.setParam();

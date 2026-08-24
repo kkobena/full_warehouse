@@ -5,7 +5,9 @@ import {
   inject,
   OnInit,
   Renderer2,
-  RendererFactory2, signal} from "@angular/core";
+  RendererFactory2,
+  signal
+} from "@angular/core";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {Router, RouterOutlet} from "@angular/router";
 import {LangChangeEvent, TranslateService} from "@ngx-translate/core";
@@ -78,12 +80,6 @@ export default class MainComponent implements OnInit {
 
     this.peremptionAlertService.fetchAlerts();
     setInterval(() => this.peremptionAlertService.fetchAlerts(), this.ALERT_INTERVAL_MS);
-
-    // Le statut est aussi chargé au login (pour le toast B2) ; ce chargement-ci couvre les
-    // rechargements de page et les sessions déjà ouvertes. Le rafraîchissement horaire fait
-    // apparaître la bannière le jour où la licence bascule, sans attendre une reconnexion.
-    // Le titre est calculé à la navigation, donc avant que le statut ne soit connu : on le rejoue
-    // une fois chargé, sans quoi la mention « [DÉMO] » n'apparaîtrait qu'au changement d'écran.
     this.licenseService.load().subscribe(() => this.appPageTitleStrategy.updateTitle(this.router.routerState.snapshot));
     setInterval(() => this.licenseService.load().subscribe(), this.LICENSE_REFRESH_INTERVAL_MS);
   }

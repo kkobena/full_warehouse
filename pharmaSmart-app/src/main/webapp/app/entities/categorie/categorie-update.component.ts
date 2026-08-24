@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
@@ -16,11 +16,11 @@ import { AlertErrorComponent } from "../../shared/alert/alert-error.component";
 @Component({
   selector: 'app-categorie-update',
   templateUrl: './categorie-update.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, ReactiveFormsModule, FaIconComponent, TranslateDirective, AlertErrorComponent]
 })
 export class CategorieUpdateComponent implements OnInit {
-  isSaving = false;
+  protected readonly isSaving = signal(false);
   protected categorieService = inject(CategorieService);
   protected activatedRoute = inject(ActivatedRoute);
   private fb = inject(UntypedFormBuilder);
@@ -48,7 +48,7 @@ export class CategorieUpdateComponent implements OnInit {
   }
 
   save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const categorie = this.createFromForm();
     if (categorie.id !== undefined) {
       this.subscribeToSaveResponse(this.categorieService.update(categorie));
@@ -58,7 +58,7 @@ export class CategorieUpdateComponent implements OnInit {
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ICategorie>>): void {
-    result.pipe(finalize(() => (this.isSaving = false))).subscribe({
+    result.pipe(finalize(() => (this.isSaving.set(false)))).subscribe({
       next: () => this.onSaveSuccess(),
       error: () => this.onSaveError(),
     });

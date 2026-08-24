@@ -1,397 +1,203 @@
-<div class="container-fluid">
-  <div class="pharma-smart-content p-2">
-    <app-toolbar icon="pi pi-users" title="Liste des clients">
+<div class="pharma-smart-content p-1">
+  <app-toolbar icon="pi pi-users" title="Liste des clients">
 
-      <ng-container ngProjectAs="[toolbarFilters]">
-        <div class="pharma-toolbar-filters">
-          <app-float-label inputId="typeFilter" label="Filtrer par type">
-            <app-select
-              (selectionChange)="onTypeChange()"
-              [(ngModel)]="typeSelected"
-              [appendTo]="'body'"
-              [items]="types"
-              [searchable]="false"
-              [style]="{ 'min-width': '170px' }"
-              inputId="typeFilter"
-              size="large"
-            >
-            </app-select>
-          </app-float-label>
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <div class="pharma-toolbar-filters">
+        <app-float-label inputId="typeFilter" label="Filtrer par type">
+          <app-select
+            (ngModelChange)="typeSelected.set($event)"
+            (selectionChange)="onTypeChange()" [appendTo]="'body'"
+            [items]="types"
+            [ngModel]="typeSelected()"
+            [searchable]="false"
+            [style]="{ 'min-width': '170px' }"
+            inputId="typeFilter"
+            size="large"
+          >
+          </app-select>
+        </app-float-label>
 
-          <app-float-label inputId="statutFilter" label="Statut">
-            <app-select
-              (selectionChange)="onTypeChange()"
-              [(ngModel)]="statutSelected"
-              [appendTo]="'body'"
-              [items]="statuts"
-              [searchable]="false"
-              [style]="{ 'min-width': '170px' }"
-              bindLabel="label"
-              bindValue="value"
-              inputId="statutFilter"
-              size="large"
-            >
-            </app-select>
-          </app-float-label>
+        <app-float-label inputId="statutFilter" label="Statut">
+          <app-select
+            (ngModelChange)="statutSelected.set($event)"
+            (selectionChange)="onTypeChange()" [appendTo]="'body'"
+            [items]="statuts"
+            [ngModel]="statutSelected()"
+            [searchable]="false"
+            [style]="{ 'min-width': '170px' }"
+            bindLabel="label"
+            bindValue="value"
+            inputId="statutFilter"
+            size="large"
+          >
+          </app-select>
+        </app-float-label>
 
-          <div class="pharma-search-input">
-            <app-icon-field [overlay]="true" icon="pi pi-search">
-              <input (keyup.enter)="onSearch()" [(ngModel)]="search"
-                     class="form-control" placeholder="Taper pour rechercher" type="text" />
-            </app-icon-field>
-          </div>
+        <div class="pharma-search-input">
+          <app-icon-field [overlay]="true" icon="pi pi-search">
+            <input (keyup.enter)="onSearch()" [(ngModel)]="search"
+                   class="form-control" placeholder="Taper pour rechercher" type="text" />
+          </app-icon-field>
         </div>
-      </ng-container>
+      </div>
+    </ng-container>
 
-      <ng-container ngProjectAs="[toolbarActions]">
-        <div class="pharma-toolbar-actions">
-          <div class="pharma-button-group">
-            <app-button (clicked)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher"
-                        severity="info"></app-button>
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-toolbar-actions">
+        <div class="pharma-button-group">
+          <app-button (clicked)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher"
+                      severity="info"></app-button>
 
-            <app-split-button
-              [items]="newCustomerbuttons"
-              [raised]="true"
-              icon="pi pi-user-plus"
-              label="Nouveau client"
-              severity="success"
-            ></app-split-button>
-          </div>
+          <app-split-button
+            [items]="newCustomerbuttons()"
+            [raised]="true"
+            icon="pi pi-user-plus"
+            label="Nouveau client"
+            severity="success"
+          ></app-split-button>
         </div>
-      </ng-container>
-    </app-toolbar>
+      </div>
+    </ng-container>
+  </app-toolbar>
 
-    <div class="mt-3 mb-2">
-      @if (customers && customers.length > 0) {
-        <app-data-table
-          (onLazyLoad)="lazyLoading($event)"
-          [lazy]="true"
-          [loading]="loading"
-          [paginator]="true"
-          [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
-          [rows]="itemsPerPage"
-          [showCurrentPageReport]="true"
-          [totalRecords]="totalItems"
-          [value]="customers"
-          class="p-datatable-sm p-datatable-striped"
-          currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} client"
-          dataKey="id"
-        >
-          <ng-template #header>
-            <tr class="pharma-table-head">
-              <th style="width: 3%"></th>
-              <th style="width: 10%">Catégorie</th>
-              <th style="width: 30%">Nom et Prénom(s)</th>
-              <th style="width: 10%">Identifiant</th>
-              <th style="width: 12%">Numéro assuré</th>
-              <th style="width: 10%">Téléphone</th>
-              <th style="width: 10%">Encours</th>
+  <div class="mt-3 mb-2">
+    @if (customers() && customers().length > 0) {
+      <app-data-table
+        (onLazyLoad)="lazyLoading($event)"
+        [lazy]="true"
+        [loading]="loading()"
+        [paginator]="true"
+        [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+        [rows]="itemsPerPage"
+        [showCurrentPageReport]="true"
+        [totalRecords]="totalItems()"
+        [value]="customers()"
+        class="p-datatable-sm p-datatable-striped"
+        currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} client"
+        dataKey="id"
+      >
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th style="width: 3%"></th>
+            <th style="width: 10%">Catégorie</th>
+            <th style="width: 30%">Nom et Prénom(s)</th>
+            <th style="width: 10%">Identifiant</th>
+            <th style="width: 12%">Numéro assuré</th>
+            <th style="width: 10%">Téléphone</th>
+            <th style="width: 10%">Encours</th>
 
-              <th style="width: 15%"></th>
-            </tr>
-          </ng-template>
-          <ng-template #body let-customer let-expanded="expanded">
-            <tr>
-              <td>
+            <th style="width: 15%"></th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-customer let-expanded="expanded">
+          <tr>
+            <td>
+              <app-button
+                [appRowToggler]="customer"
+                [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                [rounded]="true"
+                [text]="true"
+                type="button"
+              />
+            </td>
+            <td>
+              <span class="pharma-badge pharma-badge-info">{{ customer.categorie }}</span>
+            </td>
+            <td>
+              <div class="pharma-entity-name">{{ customer.fullName }}</div>
+            </td>
+            <td>
+              <span class="pharma-code">{{ customer.code }}</span>
+            </td>
+            <td>{{ customer.num }}</td>
+            <td>{{ customer.phone }}</td>
+            <td class="text-right">
+              <span class="pharma-total">{{ customer.encours | number }}</span>
+            </td>
+            <td class="text-right">
+              <div class="btn-group">
                 <app-button
-                  [appRowToggler]="customer"
-                  [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                  [rounded]="true"
+                  [routerLink]="['/customer', customer.id, 'view']"
+                  [text]="true"
+                  icon="pi pi-eye"
+                  ngbTooltip="Voir détails"
+                  severity="info"
+                  type="submit"
+                >
+                </app-button>
+
+                @if (customer.categorie === 'ASSURE') {
+                  <app-button
+                    (clicked)="editAssureCustomer(customer)"
+                    [rounded]="true"
+                    [text]="true"
+                    data-placement="left"
+                    icon="pi pi-pencil"
+                    ngbTooltip="Editer"
+                    severity="primary"
+                    type="button"
+                  >
+                  </app-button>
+                  @if (customer.typeTiersPayant === 'ASSURANCE') {
+                    <app-button
+                      (clicked)="addAyantDroit(customer)"
+                      [rounded]="true"
+                      [text]="true"
+                      data-placement="left"
+                      icon="pi pi-users"
+                      ngbTooltip="Ajouter un ayant droit"
+                      severity="contrast"
+                      type="button"
+                    >
+                    </app-button>
+                  }
+                }
+
+                @if (customer.categorie === 'STANDARD') {
+                  <app-button
+                    (clicked)="editUninsuredCustomer(customer)"
+                    [rounded]="true"
+                    [text]="true"
+                    data-placement="left"
+                    icon="pi pi-pencil"
+                    ngbTooltip="Editer"
+                    severity="primary"
+                    type="button"
+                  >
+                  </app-button>
+                }
+
+                <app-button
+                  (clicked)="confirmRemove(customer)"
                   [rounded]="true"
                   [text]="true"
+                  icon="pi pi-trash"
+                  ngbTooltip="Supprimer"
+                  severity="danger"
                   type="button"
-                />
-              </td>
-              <td>
-                <span class="pharma-badge pharma-badge-info">{{ customer.categorie }}</span>
-              </td>
-              <td>
-                <div class="pharma-entity-name">{{ customer.fullName }}</div>
-              </td>
-              <td>
-                <span class="pharma-code">{{ customer.code }}</span>
-              </td>
-              <td>{{ customer.num }}</td>
-              <td>{{ customer.phone }}</td>
-              <td class="text-right">
-                <span class="pharma-total">{{ customer.encours | number }}</span>
-              </td>
-              <td class="text-right">
-                <div class="btn-group">
-                  <app-button
-                    [rounded]="true"
-                    [routerLink]="['/customer', customer.id, 'view']"
-                    [text]="true"
-                    icon="pi pi-eye"
-                    ngbTooltip="Voir détails"
-                    severity="info"
-                    type="submit"
-                  >
-                  </app-button>
-
-                  @if (customer.categorie === 'ASSURE') {
-                    <app-button
-                      (clicked)="editAssureCustomer(customer)"
-                      [rounded]="true"
-                      [text]="true"
-                      data-placement="left"
-                      icon="pi pi-pencil"
-                      ngbTooltip="Editer"
-                      severity="primary"
-                      type="button"
-                    >
-                    </app-button>
-                    @if (customer.typeTiersPayant === 'ASSURANCE') {
-                      <app-button
-                        (clicked)="addAyantDroit(customer)"
-                        [rounded]="true"
-                        [text]="true"
-                        data-placement="left"
-                        icon="pi pi-users"
-                        ngbTooltip="Ajouter un ayant droit"
-                        severity="contrast"
-                        type="button"
-                      >
-                      </app-button>
-                    }
-                  }
-
-                  @if (customer.categorie === 'STANDARD') {
-                    <app-button
-                      (clicked)="editUninsuredCustomer(customer)"
-                      [rounded]="true"
-                      [text]="true"
-                      data-placement="left"
-                      icon="pi pi-pencil"
-                      ngbTooltip="Editer"
-                      severity="primary"
-                      type="button"
-                    >
-                    </app-button>
-                  }
-
-                  <app-button
-                    (clicked)="confirmRemove(customer)"
-                    [rounded]="true"
-                    [text]="true"
-                    icon="pi pi-trash"
-                    ngbTooltip="Supprimer"
-                    severity="danger"
-                    type="button"
-                  >
-                  </app-button>
-                  <app-button
-                    (clicked)="confirmDesactivation(customer)"
-                    [rounded]="true"
-                    [text]="true"
-                    icon="pi pi-lock"
-                    ngbTooltip="Désativer"
-                    severity="warn"
-                    type="button"
-                  >
-                  </app-button>
-                </div>
-              </td>
-            </tr>
-          </ng-template>
-          <ng-template #expandedrow let-customer>
-            <tr class="pharma-expanded-row">
-              <td colspan="8">
-                @if (customer.type === 'ASSURE') {
-                  <div class="row pharma-smart">
-                    <div class="col-md-5 mb-3 mt-3">
-                      <app-card [variant]="'form'">
-                        <ng-template #title>
-                          <div class="card-title info-title">
-                            <i class="pi pi-info-circle mr-2"></i>
-                            INFORMATIONS COMPLEMENTAIRES DU CLIENT
-                          </div>
-                        </ng-template>
-
-                        <div class="grid">
-                          <div class="col-12">
-                            <div class="field">
-                              <label>Date de naissance</label>
-                              <span>{{
-                                  customer?.datNaiss | date: 'dd/MM/yyyy'
-                                }}</span>
-                            </div>
-                            <div class="field">
-                              <label>Date de création</label>
-                              <span>{{
-                                  customer?.createdAt | date: 'dd/MM/yyyy'
-                                }}</span>
-                            </div>
-
-                            <div class="field">
-                              <label>Date de modification</label>
-                              <span>{{
-                                  customer?.updatedAt | date: 'dd/MM/yyyy'
-                                }}</span>
-                            </div>
-                            <div class="field">
-                              <label>Sexe</label>
-                              <span>{{ customer?.sexe }}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </app-card>
-                    </div>
-
-                    <div class="row col-md-7 mb-3 mt-3">
-                      @if (customer.typeTiersPayant === 'ASSURANCE') {
-                        <div class="mb-3">
-                          <app-card [variant]="'form'">
-                            <ng-template #title>
-                              <div class="card-title primary-title">
-                                <i class="pi pi-users mr-2"></i>
-                                AYANTS DROITS
-                              </div>
-                            </ng-template>
-                            <table class="table table-striped">
-                              <thead class="pharma-table-head">
-                              <tr>
-                                <th style="width: 40%">Nom et prenom(s)</th>
-                                <th style="width: 20%">N° Sécu</th>
-                                <th style="width: 17%">Date de naissance</th>
-                                <th style="width: 8%">Sexe</th>
-                                <th style="width: 15%; text-align: right">
-                                  <app-button
-                                    (clicked)="addAyantDroit(customer)"
-                                    [rounded]="true"
-                                    [text]="true"
-                                    icon="pi pi-plus"
-                                    ngbTooltip="Ajouter un ayant droit"
-                                    severity="info"
-                                  ></app-button>
-                                </th>
-                              </tr>
-                              </thead>
-                              <tbody>
-                                @for (ayantDroit of customer.ayantDroits; track ayantDroit?.id) {
-                                  <tr>
-                                    <td>{{ ayantDroit?.fullName }}</td>
-                                    <td>{{ ayantDroit?.numAyantDroit }}</td>
-                                    <td>{{
-
-                                        ayantDroit?.datNaiss | date: 'dd/MM/yyyy'
-                                      }}
-                                    </td>
-                                    <td>{{ ayantDroit?.sexe }}</td>
-                                    <td class="text-right">
-                                      <div class="btn-group">
-                                        <app-button
-                                          (clicked)="editAyantDroit(customer, ayantDroit)"
-                                          [rounded]="true"
-                                          [text]="true"
-                                          class="p-mb-3 mr-1"
-                                          icon="pi pi-pencil"
-                                          ngbTooltip="Editer"
-                                          severity="success"
-                                        ></app-button>
-                                        <app-button
-                                          (clicked)="confirmRemoveAyantDroit(ayantDroit)"
-                                          [rounded]="true"
-                                          [text]="true"
-                                          class="p-mb-3"
-                                          icon="pi pi-trash"
-                                          ngbTooltip="Supprimer"
-                                          severity="danger"
-                                        ></app-button>
-                                      </div>
-                                    </td>
-                                  </tr>
-                                }
-                              </tbody>
-                            </table>
-                          </app-card>
-                        </div>
-                      }
-                      <div class="mb-3">
-                        <app-card [variant]="'form'">
-                          <ng-template #title>
-                            <div class="card-title secondary-title">
-                              <i class="pi pi-building mr-2"></i>
-                              TIERS PAYANTS
-                            </div>
-                          </ng-template>
-                          <table class="table table-striped">
-                            <thead class="pharma-table-head">
-                            <tr>
-                              <th style="width: 28%">Tiers-payant</th>
-                              <th style="width: 14%">N° Sécu</th>
-                              <th style="width: 7%">Taux</th>
-                              <th style="width: 8%">Catégorie</th>
-                              <th style="width: 13%">Plafond encours</th>
-                              <th style="width: 13%">Plafond vente</th>
-                              <!--                                            <th style="width:8%;">Plafond absolu ?</th>-->
-                              @if (displayTiersPayantAddBtn(customer)) {
-                                <th style="width: 11%; text-align: right">
-                                  <app-button
-                                    (clicked)="onAddNewTiersPayant(customer)"
-                                    [rounded]="true"
-                                    [text]="true"
-                                    icon="pi pi-plus"
-                                    ngbTooltip="Ajouter un tiers-payant"
-                                    severity="info"
-                                  ></app-button>
-                                </th>
-                              }
-                            </tr>
-                            </thead>
-                            <tbody>
-                              @for (tierspayant of customer.tiersPayants; track tierspayant?.id; let i = $index) {
-                                <tr>
-                                  <td>{{ tierspayant?.tiersPayantFullName }}</td>
-                                  <td>{{ tierspayant?.num }}</td>
-                                  <td>{{ tierspayant?.taux }}</td>
-                                  <td>{{ tierspayant?.priorite }}</td>
-                                  <td>{{
-                                      tierspayant?.plafondConso | number
-                                    }}
-                                  </td>
-                                  <td>{{
-
-                                      tierspayant?.plafondJournalier | number
-                                    }}
-                                  </td>
-                                  <!--                                            <td>{{tierspayant?.plafondAbsolu }}</td>-->
-                                  @if (displayTiersPayantAction) {
-                                    <td class="text-right">
-                                      <div class="btn-group">
-                                        <app-button
-                                          (clicked)="onEditTiersPayant(customer, tierspayant)"
-                                          [rounded]="true"
-                                          [text]="true"
-                                          class="p-mb-3 mr-1"
-                                          icon="pi pi-pencil"
-                                          ngbTooltip="Editer les infos du tierspayant"
-                                          severity="success"
-                                        ></app-button>
-                                        @if (customer.typeTiersPayant === 'ASSURANCE'
-                                        && customer.tiersPayants.length > 1) {
-                                          <app-button
-                                            (clicked)="onRemoveTiersPayant(tierspayant)"
-                                            [rounded]="true"
-                                            [text]="true"
-                                            class="p-mb-3"
-                                            icon="pi pi-trash"
-                                            ngbTooltip="Supprimer"
-                                            severity="danger"
-                                          ></app-button>
-                                        }
-                                      </div>
-                                    </td>
-                                  }
-                                </tr>
-                              }
-                            </tbody>
-                          </table>
-                        </app-card>
-                      </div>
-                    </div>
-                  </div>
-                } @else {
-                  <div class="mb-3 mt-3 pharma-smart pharma-smart-content">
+                >
+                </app-button>
+                <app-button
+                  (clicked)="confirmDesactivation(customer)"
+                  [rounded]="true"
+                  [text]="true"
+                  icon="pi pi-lock"
+                  ngbTooltip="Désativer"
+                  severity="warn"
+                  type="button"
+                >
+                </app-button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template #expandedrow let-customer>
+          <tr class="pharma-expanded-row">
+            <td colspan="8">
+              @if (customer.type === 'ASSURE') {
+                <div class="row pharma-smart">
+                  <div class="col-md-5 mb-3 mt-3">
                     <app-card [variant]="'form'">
                       <ng-template #title>
                         <div class="card-title info-title">
@@ -429,17 +235,209 @@
                       </div>
                     </app-card>
                   </div>
-                }
-              </td>
-            </tr>
-          </ng-template>
-        </app-data-table>
-      } @else {
-        <div class="alert alert-warning mt-2">
-          <span>Aucune donnée trouvée</span>
-        </div>
-      }
-    </div>
+
+                  <div class="row col-md-7 mb-3 mt-3">
+                    @if (customer.typeTiersPayant === 'ASSURANCE') {
+                      <div class="mb-3">
+                        <app-card [variant]="'form'">
+                          <ng-template #title>
+                            <div class="card-title primary-title">
+                              <i class="pi pi-users mr-2"></i>
+                              AYANTS DROITS
+                            </div>
+                          </ng-template>
+                          <table class="table table-striped">
+                            <thead class="pharma-table-head">
+                            <tr>
+                              <th style="width: 40%">Nom et prenom(s)</th>
+                              <th style="width: 20%">N° Sécu</th>
+                              <th style="width: 17%">Date de naissance</th>
+                              <th style="width: 8%">Sexe</th>
+                              <th style="width: 15%; text-align: right">
+                                <app-button
+                                  (clicked)="addAyantDroit(customer)"
+                                  [rounded]="true"
+
+                                  icon="pi pi-plus"
+                                  ngbTooltip="Ajouter un ayant droit"
+                                  severity="info"
+                                ></app-button>
+                              </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                              @for (ayantDroit of customer.ayantDroits; track ayantDroit?.id) {
+                                <tr>
+                                  <td>{{ ayantDroit?.fullName }}</td>
+                                  <td>{{ ayantDroit?.numAyantDroit }}</td>
+                                  <td>{{
+
+                                      ayantDroit?.datNaiss | date: 'dd/MM/yyyy'
+                                    }}
+                                  </td>
+                                  <td>{{ ayantDroit?.sexe }}</td>
+                                  <td class="text-right">
+                                    <div class="btn-group">
+                                      <app-button
+                                        (clicked)="editAyantDroit(customer, ayantDroit)"
+                                        [rounded]="true"
+                                        [text]="true"
+                                        class="p-mb-3 mr-1"
+                                        icon="pi pi-pencil"
+                                        ngbTooltip="Editer"
+                                        severity="success"
+                                      ></app-button>
+                                      <app-button
+                                        (clicked)="confirmRemoveAyantDroit(ayantDroit)"
+                                        [rounded]="true"
+                                        [text]="true"
+                                        class="p-mb-3"
+                                        icon="pi pi-trash"
+                                        ngbTooltip="Supprimer"
+                                        severity="danger"
+                                      ></app-button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              }
+                            </tbody>
+                          </table>
+                        </app-card>
+                      </div>
+                    }
+                    <div class="mb-3">
+                      <app-card [variant]="'form'">
+                        <ng-template #title>
+                          <div class="card-title secondary-title">
+                            <i class="pi pi-building mr-2"></i>
+                            TIERS PAYANTS
+                          </div>
+                        </ng-template>
+                        <table class="table table-striped">
+                          <thead class="pharma-table-head">
+                          <tr>
+                            <th style="width: 28%">Tiers-payant</th>
+                            <th style="width: 14%">N° Sécu</th>
+                            <th style="width: 7%">Taux</th>
+                            <th style="width: 8%">Catégorie</th>
+                            <th style="width: 13%">Plafond encours</th>
+                            <th style="width: 13%">Plafond vente</th>
+                            <!--                                            <th style="width:8%;">Plafond absolu ?</th>-->
+                            @if (displayTiersPayantAddBtn(customer)) {
+                              <th style="width: 11%; text-align: right">
+                                <app-button
+                                  (clicked)="onAddNewTiersPayant(customer)"
+                                  [rounded]="true"
+                                  icon="pi pi-plus"
+                                  ngbTooltip="Ajouter un tiers-payant"
+                                  severity="info"
+                                ></app-button>
+                              </th>
+                            }
+                          </tr>
+                          </thead>
+                          <tbody>
+                            @for (tierspayant of customer.tiersPayants; track tierspayant?.id; let i = $index) {
+                              <tr>
+                                <td>{{ tierspayant?.tiersPayantFullName }}</td>
+                                <td>{{ tierspayant?.num }}</td>
+                                <td>{{ tierspayant?.taux }}</td>
+                                <td>{{ tierspayant?.priorite }}</td>
+                                <td>{{
+                                    tierspayant?.plafondConso | number
+                                  }}
+                                </td>
+                                <td>{{
+
+                                    tierspayant?.plafondJournalier | number
+                                  }}
+                                </td>
+                                <!--                                            <td>{{tierspayant?.plafondAbsolu }}</td>-->
+                                @if (displayTiersPayantAction) {
+                                  <td class="text-right">
+                                    <div class="btn-group">
+                                      <app-button
+                                        (clicked)="onEditTiersPayant(customer, tierspayant)"
+                                        [rounded]="true"
+                                        [text]="true"
+                                        class="p-mb-3 mr-1"
+                                        icon="pi pi-pencil"
+                                        ngbTooltip="Editer les infos du tierspayant"
+                                        severity="success"
+                                      ></app-button>
+                                      @if (customer.typeTiersPayant === 'ASSURANCE'
+                                      && customer.tiersPayants.length > 1) {
+                                        <app-button
+                                          (clicked)="onRemoveTiersPayant(tierspayant)"
+                                          [rounded]="true"
+                                          [text]="true"
+                                          class="p-mb-3"
+                                          icon="pi pi-trash"
+                                          ngbTooltip="Supprimer"
+                                          severity="danger"
+                                        ></app-button>
+                                      }
+                                    </div>
+                                  </td>
+                                }
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      </app-card>
+                    </div>
+                  </div>
+                </div>
+              } @else {
+                <div class="mb-3 mt-3 pharma-smart pharma-smart-content">
+                  <app-card [variant]="'form'">
+                    <ng-template #title>
+                      <div class="card-title info-title">
+                        <i class="pi pi-info-circle mr-2"></i>
+                        INFORMATIONS COMPLEMENTAIRES DU CLIENT
+                      </div>
+                    </ng-template>
+
+                    <div class="grid">
+                      <div class="col-12">
+                        <div class="field">
+                          <label>Date de naissance</label>
+                          <span>{{
+                              customer?.datNaiss | date: 'dd/MM/yyyy'
+                            }}</span>
+                        </div>
+                        <div class="field">
+                          <label>Date de création</label>
+                          <span>{{
+                              customer?.createdAt | date: 'dd/MM/yyyy'
+                            }}</span>
+                        </div>
+
+                        <div class="field">
+                          <label>Date de modification</label>
+                          <span>{{
+                              customer?.updatedAt | date: 'dd/MM/yyyy'
+                            }}</span>
+                        </div>
+                        <div class="field">
+                          <label>Sexe</label>
+                          <span>{{ customer?.sexe }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </app-card>
+                </div>
+              }
+            </td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    } @else {
+      <div class="alert alert-warning mt-2">
+        <span>Aucune donnée trouvée</span>
+      </div>
+    }
   </div>
 </div>
+
 <jhi-spinner #spinner></jhi-spinner>

@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import { Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy, signal } from "@angular/core";
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { CashRegister } from "../model/cash-register.model";
 import { Ticketing } from "../model/ticketing.model";
@@ -22,7 +22,7 @@ import { DeviseDirective, DevisePipe } from 'app/shared/utils/devise';
   ],
 
   templateUrl: "./ticketing-improved.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ["./ticketing-improved.scss"]
 })
 export class TicketingComponent implements OnInit {
@@ -30,9 +30,9 @@ export class TicketingComponent implements OnInit {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly entityService = inject(CashRegisterService);
   protected fb = inject(FormBuilder);
-  protected isSaving = false;
+  protected readonly isSaving = signal(false);
   protected display = false;
-  protected totalAmount = 0;
+  protected readonly totalAmount = signal(0);
   protected editForm = this.fb.group({
     id: new FormControl<number | null>(null, {}),
     numberOf10Thousand: new FormControl<number | null>(null, {}),
@@ -42,12 +42,12 @@ export class TicketingComponent implements OnInit {
     numberOf500Hundred: new FormControl<number | null>(null, {}),
     otherAmount: new FormControl<number | null>(null, {})
   });
-  protected selectedCashRegister: CashRegister | null = null;
+  protected readonly selectedCashRegister = signal<CashRegister | null>(null);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly notificationService = inject(NotificationService);
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({ cashRegister }) => (this.selectedCashRegister = cashRegister));
+    this.activatedRoute.data.subscribe(({ cashRegister }) => (this.selectedCashRegister.set(cashRegister)));
     this.editForm.valueChanges.subscribe(() => this.computeTotalAmount());
   }
 
@@ -74,7 +74,7 @@ export class TicketingComponent implements OnInit {
   protected createFromForm(): Ticketing {
     return {
       ...new Ticketing(),
-      cashRegisterId: this.selectedCashRegister.id,
+      cashRegisterId: this.selectedCashRegister().id,
       id: this.editForm.get(["id"]).value,
       numberOf10Thousand: this.editForm.get(["numberOf10Thousand"]).value ? this.editForm.get(["numberOf10Thousand"]).value : 0,
       numberOf5Thousand: this.editForm.get(["numberOf5Thousand"]).value ? this.editForm.get(["numberOf5Thousand"]).value : 0,
@@ -87,10 +87,10 @@ export class TicketingComponent implements OnInit {
 
   protected save(): void {
     const message =
-      this.totalAmount === 0
+      this.totalAmount() === 0
         ? "Le montant total doit être supérieur à <b>0</b>. Etes-vous sûr de vouloir continuer ?"
         : `le montant total est de <span class="fs-4 badge rounded-pill bg-secondary"><b> ${formatNumber(
-          this.totalAmount
+          this.totalAmount()
         )}  </b></span> . Etes-vous sûr de vouloir continuer ?`;
 
     this.confirmTicketing(message);
@@ -107,11 +107,11 @@ export class TicketingComponent implements OnInit {
   }
 
   private doTicketing(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const ticketing = this.createFromForm();
     this.entityService.doTicketing(ticketing).subscribe({
       next: () => {
-        this.isSaving = false;
+        this.isSaving.set(false);
 
         this.notificationService.success("Billetage effectué avec succès");
         setTimeout(() => {
@@ -119,19 +119,18 @@ export class TicketingComponent implements OnInit {
         }, 2000);
       },
       error: () => {
-        this.isSaving = false;
+        this.isSaving.set(false);
         this.showError();
       }
     });
   }
 
   private computeTotalAmount(): void {
-    this.totalAmount =
-      parseInt(this.editForm.get(["numberOf10Thousand"]).value ? this.editForm.get(["numberOf10Thousand"]).value : 0) * 10000 +
+    this.totalAmount.set(parseInt(this.editForm.get(["numberOf10Thousand"]).value ? this.editForm.get(["numberOf10Thousand"]).value : 0) * 10000 +
       parseInt(this.editForm.get(["numberOf5Thousand"]).value ? this.editForm.get(["numberOf5Thousand"]).value : 0) * 5000 +
       parseInt(this.editForm.get(["numberOf2Thousand"]).value ? this.editForm.get(["numberOf2Thousand"]).value : 0) * 2000 +
       parseInt(this.editForm.get(["numberOf1Thousand"]).value ? this.editForm.get(["numberOf1Thousand"]).value : 0) * 1000 +
       parseInt(this.editForm.get(["numberOf500Hundred"]).value ? this.editForm.get(["numberOf500Hundred"]).value : 0) * 500 +
-      parseInt(this.editForm.get(["otherAmount"]).value ? this.editForm.get(["otherAmount"]).value : 0);
+      parseInt(this.editForm.get(["otherAmount"]).value ? this.editForm.get(["otherAmount"]).value : 0));
   }
 }

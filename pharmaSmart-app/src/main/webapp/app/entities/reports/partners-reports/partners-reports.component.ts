@@ -12,7 +12,7 @@ import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-l
   selector: "jhi-partners-reports",
   imports: [NavSidebarComponent, NavSectionLinkComponent, CommonModule, NgbNavModule, CustomerSegmentationComponent, SupplierPerformanceComponent],
   templateUrl: "./partners-reports.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./partners-reports.component.scss"
 })
 export default class PartnersReportsComponent implements OnInit {

@@ -11,7 +11,7 @@ import { ProductsApiService } from "../../data-access/services/products-api.serv
   selector: "app-produit-generiques-modal",
   templateUrl: "./produit-generiques-modal.component.html",
   styleUrls: ["./produit-generiques-modal.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, ButtonComponent, DataTableComponent, BadgeComponent, CardComponent]
 })
 export class ProduitGeneriquesModalComponent implements OnInit {

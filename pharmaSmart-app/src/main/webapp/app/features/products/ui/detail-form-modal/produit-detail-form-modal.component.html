@@ -109,15 +109,15 @@
       size="small"
       type="button"
       (clicked)="cancel()"
-      [disabled]="isSaving"
+      [disabled]="isSaving()"
     />
     <app-button
       label="Enregistrer"
       icon="pi pi-check"
       size="small"
       type="submit"
-      [disabled]="editForm.invalid || isSaving"
-      [loading]="isSaving"
+      [disabled]="editForm.invalid || isSaving()"
+      [loading]="isSaving()"
     />
   </div>
 </form>

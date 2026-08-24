@@ -23,7 +23,7 @@ import { ISales } from "../../../../shared/model";
   templateUrl: "./retour-client.component.html",
   styleUrl: "./retour-client.component.scss",
   providers: [{ provide: NgbDateParserFormatter, useClass: FrenchDateParserFormatter }],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -49,10 +49,10 @@ export class RetourClientComponent implements OnInit {
   private readonly modalService = inject(NgbModal);
 
   protected loading = signal(false);
-  protected retours: IRetourClient[] = [];
-  protected totalItems = 0;
-  protected page = 0;
-  protected itemsPerPage = ITEMS_PER_PAGE;
+  protected readonly retours = signal<IRetourClient[]>([]);
+  protected readonly totalItems = signal(0);
+  protected readonly page = signal(0);
+  protected readonly itemsPerPage = signal(ITEMS_PER_PAGE);
 
   protected search = "";
   protected fromDate: NgbDateStruct = this.todayNgb();
@@ -60,7 +60,6 @@ export class RetourClientComponent implements OnInit {
 
   protected saleIdInput: number | null = null;
   protected saleDateInput: Date = new Date();
-  protected readonly today = new Date();
 
   protected readonly motifOptions: { label: string; value: MotifRetourClient }[] = [
     { label: "Erreur de dispensation", value: "ERREUR_DISPENSATION" },
@@ -81,11 +80,11 @@ export class RetourClientComponent implements OnInit {
   }
 
   protected loadPage(page?: number): void {
-    const p = page ?? this.page;
+    const p = page ?? this.page();
     this.loading.set(true);
     this.api.query({
       page: p,
-      size: this.itemsPerPage,
+      size: this.itemsPerPage(),
       search: this.search || null,
       fromDate: this.ngbDateToIso(this.fromDate),
       toDate: this.ngbDateToIso(this.toDate)
@@ -94,9 +93,9 @@ export class RetourClientComponent implements OnInit {
       .subscribe({
         next: res => {
           this.loading.set(false);
-          this.totalItems = Number(res.headers.get("X-Total-Count"));
-          this.page = p;
-          this.retours = res.body ?? [];
+          this.totalItems.set(Number(res.headers.get("X-Total-Count")));
+          this.page.set(p);
+          this.retours.set(res.body ?? []);
         },
         error: () => this.loading.set(false)
       });
@@ -104,9 +103,9 @@ export class RetourClientComponent implements OnInit {
 
   protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event.first != null && event.rows != null) {
-      this.page = event.first / event.rows;
-      this.itemsPerPage = event.rows;
-      this.loadPage(this.page);
+      this.page.set(event.first / event.rows);
+      this.itemsPerPage.set(event.rows);
+      this.loadPage(this.page());
     }
   }
 

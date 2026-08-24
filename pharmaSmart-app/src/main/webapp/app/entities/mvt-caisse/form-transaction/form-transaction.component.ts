@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { ErrorService } from '../../../shared/error.service';
@@ -28,13 +28,12 @@ import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-da
     PharmaDatePickerComponent,
   ],
   templateUrl: './form-transaction.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['../../common-modal.component.scss'],
 })
 export class FormTransactionComponent implements OnInit {
-  isSaving = false;
+  protected readonly isSaving = signal(false);
   isValid = true;
-  appendTo = 'body';
   maxDate = TODAY_NGB_DATE();
   header: string | null = null;
   protected errorService = inject(ErrorService);
@@ -45,7 +44,7 @@ export class FormTransactionComponent implements OnInit {
     TypeFinancialTransaction.REGLEMENT_TIERS_PAYANT,
     TypeFinancialTransaction.REGLMENT_FOURNISSEUR,
   ];
-  protected paymentModes: IPaymentMode[] = [];
+  protected readonly paymentModes = signal<IPaymentMode[]>([]);
   private fb = inject(FormBuilder);
   editForm = this.fb.group({
     amount: new FormControl<number | null>(null, {
@@ -70,13 +69,12 @@ export class FormTransactionComponent implements OnInit {
   ngOnInit(): void {
     this.modeService.query().subscribe((res: HttpResponse<IPaymentMode[]>) => {
       if (res.body) {
-        this.paymentModes =
-          res.body.map((paymentMode: IPaymentMode) => {
+        this.paymentModes.set(res.body.map((paymentMode: IPaymentMode) => {
             return {
               libelle: paymentMode.libelle,
               code: paymentMode.code,
             };
-          }) || [];
+          }) || []);
       }
     });
     this.editForm.get(['paymentMode']).setValue({ code: 'CASH', libelle: 'ESPECE' });
@@ -87,7 +85,7 @@ export class FormTransactionComponent implements OnInit {
   }
 
   save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const entity = this.createFromForm();
     this.subscribeToSaveResponse(this.mvtCaisseService.create(entity));
   }
@@ -111,12 +109,12 @@ export class FormTransactionComponent implements OnInit {
   }
 
   protected onSaveSuccess(paymentId: PaymentId | null): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.activeModal.close(paymentId);
   }
 
   protected onSaveError(error: any): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 }

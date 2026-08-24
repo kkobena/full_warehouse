@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
+import {Component, inject, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
 import {Router} from '@angular/router';
 import {ActivatedRoute} from '@angular/router';
 import {ICommande} from 'app/shared/model/commande.model';
@@ -16,11 +16,11 @@ import {CommandeReceivedComponent} from '../commande-received/commande-received.
 @Component({
   selector: 'app-commande-detail',
   templateUrl: './commande-detail.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommandeRequestedComponent, CommandeReceivedComponent],
 })
 export class CommandeDetailComponent implements OnInit {
-  protected commande: ICommande | null = null;
+  protected readonly commande = signal<ICommande | null>(null);
   protected readonly RECEIVED = OrderStatut.RECEIVED;
 
   private readonly activatedRoute = inject(ActivatedRoute);
@@ -30,19 +30,19 @@ export class CommandeDetailComponent implements OnInit {
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({commande}) => {
       if (commande?.id) {
-        this.commande = commande;
+        this.commande.set(commande);
       } else if (this.commandCommonService.currentCommand()?.id) {
-        this.commande = this.commandCommonService.currentCommand();
+        this.commande.set(this.commandCommonService.currentCommand());
       }
       // commande peut être null pour une nouvelle saisie (route 'new') — c'est valide
 
-      if (this.commande?.orderStatus === OrderStatut.CLOSED) {
+      if (this.commande()?.orderStatus === OrderStatut.CLOSED) {
         this.router.navigate(['/commande']);
       }
     });
   }
 
   protected onCommandeChange(commande: ICommande | null): void {
-    this.commande = commande;
+    this.commande.set(commande);
   }
 }

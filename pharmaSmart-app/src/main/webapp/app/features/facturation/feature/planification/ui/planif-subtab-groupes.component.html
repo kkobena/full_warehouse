@@ -8,7 +8,7 @@
     bindValue="value"
     [placeholder]="'Périodicité ' + (mode() === 'def' ? 'déf.' : 'prov.')"
     (selectionChange)="loadGroupes()"
-    style="width: 180px"
+    [style]="{ 'width': '180px' }"
   />
   <app-button (clicked)="loadGroupes()" icon="pi pi-refresh" [text]="true" size="small" ngbTooltip="Actualiser" />
 </div>

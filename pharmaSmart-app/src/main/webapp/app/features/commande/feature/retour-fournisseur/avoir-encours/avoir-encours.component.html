@@ -84,7 +84,7 @@
         <div class="ae-detail-filters">
           <app-select
             (selectionChange)="onDetailStatutChange()"
-            [(ngModel)]="detailStatut"
+            [ngModel]="detailStatut()" (ngModelChange)="detailStatut.set($event)"
             [clearable]="false"
             [items]="statutOptions"
             appendTo="body"

@@ -45,7 +45,7 @@ import {UserVendeurService} from '../../../../entities/sales/service/user-vendeu
   selector: 'app-pending-sales-list',
   templateUrl: './pending-sales-list.component.html',
   styleUrls: ['./pending-sales-list.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy, signal } from "@angular/core";
 import { HttpResponse } from "@angular/common/http";
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
 import { Observable, Subject } from "rxjs";
@@ -14,15 +14,15 @@ import { NotificationService } from "../../shared/services/notification.service"
   selector: "app-mode-payment-update",
   templateUrl: "./mode-payment-update.component.html",
   styleUrls: ["./mode-payment-update.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, ReactiveFormsModule, ButtonComponent]
 })
 export class ModePaymentUpdateComponent implements OnInit, AfterViewInit, OnDestroy {
   title: string | null = null;
   entity?: IPaymentMode;
   qrCodeFile: File | null = null;
-  qrCodePreview: string | null = null;
-  protected isSaving = false;
+  protected readonly qrCodePreview = signal<string | null>(null);
+  protected readonly isSaving = signal(false);
   protected isValid = true;
   protected codeField = viewChild.required<ElementRef>("codeField");
   protected fb = inject(UntypedFormBuilder);
@@ -67,7 +67,7 @@ export class ModePaymentUpdateComponent implements OnInit, AfterViewInit, OnDest
   }
 
   save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     this.subscribeToSaveResponse(this.modePaymentService.update(this.createFromForm(), this.qrCodeFile));
   }
 
@@ -80,7 +80,7 @@ export class ModePaymentUpdateComponent implements OnInit, AfterViewInit, OnDest
       // Preview
       const reader = new FileReader();
       reader.onload = (e: any) => {
-        this.qrCodePreview = e.target.result;
+        this.qrCodePreview.set(e.target.result);
       };
       reader.readAsDataURL(file);
     }
@@ -88,13 +88,13 @@ export class ModePaymentUpdateComponent implements OnInit, AfterViewInit, OnDest
 
   onQrCodeRemove(): void {
     this.qrCodeFile = null;
-    this.qrCodePreview = null;
+    this.qrCodePreview.set(null);
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<IPaymentMode>>): void {
     result
       .pipe(
-        finalize(() => (this.isSaving = false)),
+        finalize(() => (this.isSaving.set(false))),
         takeUntil(this.destroy$)
       )
       .subscribe({

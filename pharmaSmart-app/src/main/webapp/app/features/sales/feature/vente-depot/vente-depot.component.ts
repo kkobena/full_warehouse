@@ -37,8 +37,6 @@ import {FinalyseSale, SaleId} from '../../../../shared/model/sales.model';
 import {IMagasin, IRemise, ISalesLine, ProduitSearch} from '../../../../shared/model';
 import {SaleLineId} from '../../../../shared/model/sales-line.model';
 import {IUser} from '../../../../core/user/user.model';
-import {showCommonError} from '../../../../entities/sales/selling-home/sale-helper';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ErrorService} from '../../../../shared/error.service';
 @Component({
   selector: 'app-vente-depot',
@@ -58,7 +56,7 @@ import {ErrorService} from '../../../../shared/error.service';
     NgxSpinnerComponent,
   ],
   templateUrl: './vente-depot.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './vente-depot.component.scss',
 })
 export class VenteDepotComponent implements OnInit, ProductSearchHost {
@@ -86,7 +84,6 @@ export class VenteDepotComponent implements OnInit, ProductSearchHost {
   private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly notificationService = inject(NotificationService);
   private readonly customerDisplay = inject(CustomerDisplayService);
-  private readonly modalService = inject(NgbModal);
   private readonly errorService = inject(ErrorService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly spinner = inject(NgxSpinnerService);
@@ -96,9 +93,9 @@ export class VenteDepotComponent implements OnInit, ProductSearchHost {
   readonly canModifyPrice = signal<boolean>(false);
 
   // ── État local ────────────────────────────────────────────────
-  protected selectedDepot: IMagasin | null = null;
+  protected readonly selectedDepot = signal<IMagasin | null>(null);
   protected userCaissier: IUser | null = null;
-  protected userSeller: IUser | undefined;
+  protected readonly userSeller = signal<IUser | undefined>(undefined);
 
   // Force Stock state signals (requis par les mixins)
   readonly waitingForForceStockSuccess = signal<boolean>(false);
@@ -202,7 +199,7 @@ export class VenteDepotComponent implements OnInit, ProductSearchHost {
     const account = this.accountService.trackCurrentAccount();
     this.userCaissier = {...account()} as IUser;
     this.facade.setCashier(this.userCaissier);
-    this.userSeller = this.userCaissier ?? undefined;
+    this.userSeller.set(this.userCaissier ?? undefined);
     this.facade.setSeller(this.userCaissier ?? null);
 
     // Souscription au succès d'ajout de produit (reset sélection + affichage client)
@@ -242,7 +239,7 @@ export class VenteDepotComponent implements OnInit, ProductSearchHost {
 
   protected previousState(): void {
     this.facade.resetForNewSession();
-    this.selectedDepot = null;
+    this.selectedDepot.set(null);
     window.history.back();
   }
 
@@ -308,7 +305,7 @@ export class VenteDepotComponent implements OnInit, ProductSearchHost {
   // ── Handlers toolbar ──────────────────────────────────────────
 
   protected onSelectUser(): void {
-    this.facade.setSeller(this.userSeller ?? null);
+    this.facade.setSeller(this.userSeller() ?? null);
     this.productSearchComponent()?.getFocus();
   }
 
@@ -317,11 +314,11 @@ export class VenteDepotComponent implements OnInit, ProductSearchHost {
       this.confirmDialog.onConfirm(
         () => {
           this.facade
-            .changeDepot(this.facade.currentSale()!.saleId, this.selectedDepot!.id)
+            .changeDepot(this.facade.currentSale()!.saleId, this.selectedDepot()!.id)
             .pipe(take(1))
             .subscribe({
               next: () => {
-                this.facade.setSelectedDepot(this.selectedDepot);
+                this.facade.setSelectedDepot(this.selectedDepot());
                 this.productSearchComponent()?.getFocus();
               },
               error: error => this.onCommonError(error),
@@ -331,12 +328,12 @@ export class VenteDepotComponent implements OnInit, ProductSearchHost {
         'Voulez-vous vraiment changer le dépôt de la vente en cours ?',
         null,
         () => {
-          this.facade.setSelectedDepot(this.selectedDepot);
+          this.facade.setSelectedDepot(this.selectedDepot());
           this.productSearchComponent()?.getFocus();
         },
       );
     } else {
-      this.facade.setSelectedDepot(this.selectedDepot);
+      this.facade.setSelectedDepot(this.selectedDepot());
       this.productSearchComponent()?.getFocus();
     }
   }
@@ -448,8 +445,8 @@ export class VenteDepotComponent implements OnInit, ProductSearchHost {
 
   private resetAll(): void {
     this.facade.resetForNewSession();
-    this.selectedDepot = null;
-    this.userSeller = this.userCaissier ?? undefined;
+    this.selectedDepot.set(null);
+    this.userSeller.set(this.userCaissier ?? undefined);
     this.facade.setSeller(this.userCaissier ?? null);
     this.productHandling.resetProductSelection();
   }
@@ -476,7 +473,7 @@ export class VenteDepotComponent implements OnInit, ProductSearchHost {
     if (status === 412) {
       this.productHandling.resetProductSelection();
     } else {
-      showCommonError(this.modalService, this.errorService.getErrorMessage(error?.error ?? error));
+      this.notificationService.error(this.errorService.getErrorMessage(error?.error ?? error), 'Erreur');
     }
   }
 }

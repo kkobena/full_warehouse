@@ -20,7 +20,7 @@ import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-l
     ExportComptableComponent,
   ],
   templateUrl: './finances-layout.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './finances-layout.component.scss',
 })
 export class FinancesLayoutComponent {

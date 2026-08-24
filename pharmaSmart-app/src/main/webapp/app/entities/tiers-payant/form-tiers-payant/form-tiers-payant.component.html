@@ -115,7 +115,7 @@
             <app-select
               appendTo="body"
               [clearable]="false"
-              [items]="groupeTiersPayants"
+              [items]="groupeTiersPayants()"
               bindLabel="name"
               bindValue="id"
               formControlName="groupeTiersPayantId"
@@ -168,7 +168,7 @@
             <app-select
               appendTo="body"
               [clearable]="false"
-              [items]="modelFacture"
+              [items]="modelFacture()"
               bindLabel="value"
               bindValue="key"
               formControlName="modelFacture"
@@ -322,8 +322,8 @@
     <app-button (clicked)="cancel()" [text]="true" icon="pi pi-times" label="Annuler"
                 severity="secondary" />
     <app-button
-      [disabled]="editForm.invalid || isSaving || !isValid"
-      [loading]="isSaving"
+      [disabled]="editForm.invalid || isSaving() || !isValid"
+      [loading]="isSaving()"
       icon="pi pi-check"
       label="Enregistrer"
       severity="primary"

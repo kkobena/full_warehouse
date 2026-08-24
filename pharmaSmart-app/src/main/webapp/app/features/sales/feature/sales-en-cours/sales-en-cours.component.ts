@@ -34,7 +34,7 @@ import {NotificationService} from "../../../../shared/services/notification.serv
   selector: "app-sales-en-cours",
   templateUrl: "./sales-en-cours.component.html",
   styleUrls: ["./sales-en-cours.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -62,10 +62,10 @@ export class SalesEnCoursComponent implements OnInit {
   protected readonly canDeleteEnCours = this.ability.canSignal("execute", "ventes.en-cours.delete");
 
   protected loading = signal(false);
-  protected sales: ISales[] = [];
-  protected totalItems = 0;
-  protected page = 0;
-  protected itemsPerPage = ITEMS_PER_PAGE;
+  protected readonly sales = signal<ISales[]>([]);
+  protected readonly totalItems = signal(0);
+  protected readonly page = signal(0);
+  protected readonly itemsPerPage = signal(ITEMS_PER_PAGE);
   protected typeVentes = ["TOUT", "VNO", "VO"];
   protected typeVenteSelected = "TOUT";
   protected search = "";
@@ -82,12 +82,12 @@ export class SalesEnCoursComponent implements OnInit {
   }
 
   protected loadPage(page?: number): void {
-    const pageToLoad = page ?? this.page;
+    const pageToLoad = page ?? this.page();
     this.loading.set(true);
     this.api
       .queryManagement({
         page: pageToLoad,
-        size: this.itemsPerPage,
+        size: this.itemsPerPage(),
         search: this.search || null,
         type: this.typeVenteSelected,
         statut: [SalesStatut.ACTIVE]
@@ -104,9 +104,9 @@ export class SalesEnCoursComponent implements OnInit {
 
   protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event.first != null && event.rows != null) {
-      this.page = event.first / event.rows;
-      this.itemsPerPage = event.rows;
-      this.loadPage(this.page);
+      this.page.set(event.first / event.rows);
+      this.itemsPerPage.set(event.rows);
+      this.loadPage(this.page());
     }
   }
 
@@ -135,9 +135,9 @@ export class SalesEnCoursComponent implements OnInit {
   }
 
   private onSuccess(data: ISales[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get("X-Total-Count"));
-    this.page = page;
-    this.sales = data || [];
+    this.totalItems.set(Number(headers.get("X-Total-Count")));
+    this.page.set(page);
+    this.sales.set(data || []);
   }
 
   private deleteSale(sale: ISales): void {

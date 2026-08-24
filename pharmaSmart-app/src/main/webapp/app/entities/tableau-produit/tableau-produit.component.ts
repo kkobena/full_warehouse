@@ -1,9 +1,8 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { Router, RouterModule } from "@angular/router";
 import { HttpResponse } from "@angular/common/http";
 import { TableauProduitService } from "./tableau-produit.service";
-import { IResponseDto } from "../../shared/util/response-dto";
 import { ITableau } from "../../shared/model/tableau.model";
 import { ButtonComponent, DataTableComponent, SelectableRowDirective } from "../../shared/ui";
 import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
@@ -15,18 +14,17 @@ import { NotificationService } from "../../shared/services/notification.service"
   selector: "app-tableau-produit",
   templateUrl: "./tableau-produit.component.html",
   styleUrl: "./tableau-produit.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, RouterModule, ButtonComponent, DataTableComponent, SelectableRowDirective, NgbTooltip]
 })
 export class TableauProduitComponent implements OnInit {
   protected fileDialog?: boolean;
-  protected responsedto!: IResponseDto;
-  protected entites?: ITableau[];
+  protected readonly entites = signal<ITableau[] | undefined>(undefined);
   // `null` et non `undefined` : le `model()` de `app-data-table` ne transporte que
   // `T | T[] | null`, et la liaison bidirectionnelle doit pouvoir lui réécrire la valeur.
   protected selectedEl: ITableau | null = null;
-  protected loading = false;
-  protected displayDialog?: boolean;
+  protected readonly loading = signal(false);
+  protected readonly displayDialog = signal<boolean | undefined>(undefined);
   private readonly entityService = inject(TableauProduitService);
   private readonly router = inject(Router);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
@@ -38,12 +36,12 @@ export class TableauProduitComponent implements OnInit {
   }
 
   cancel(): void {
-    this.displayDialog = false;
+    this.displayDialog.set(false);
     this.fileDialog = false;
   }
 
   protected loadPage(): void {
-    this.loading = true;
+    this.loading.set(true);
     this.entityService.query().subscribe({
       next: (res: HttpResponse<ITableau[]>) => this.onSuccess(res.body),
       error: () => this.onError()
@@ -74,7 +72,7 @@ export class TableauProduitComponent implements OnInit {
     modalRef.result.then(r => {
       this.loadPage();
     });
-    this.displayDialog = true;
+    this.displayDialog.set(true);
   }
 
   protected onEdit(entity: ITableau): void {
@@ -88,7 +86,7 @@ export class TableauProduitComponent implements OnInit {
     modalRef.result.then(r => {
       this.loadPage();
     });
-    this.displayDialog = true;
+    this.displayDialog.set(true);
   }
 
   protected delete(entity: ITableau): void {
@@ -107,12 +105,12 @@ export class TableauProduitComponent implements OnInit {
 
   private onSuccess(data: ITableau[] | null): void {
     this.router.navigate(["/tableaux"]);
-    this.entites = data || [];
-    this.loading = false;
+    this.entites.set(data || []);
+    this.loading.set(false);
   }
 
   private onError(): void {
-    this.loading = false;
+    this.loading.set(false);
     this.notificationService.error("Erreur lors du chargement des données");
   }
 }

@@ -43,7 +43,7 @@ const TAB_LABELS: Record<string, string> = {
   selector: "app-commande-home",
   templateUrl: "./commande-home.component.html",
   styleUrl: "./commande-home.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NavSidebarComponent, NavSectionLinkComponent,
     CommonModule,
     RouterModule,
@@ -60,7 +60,7 @@ const TAB_LABELS: Record<string, string> = {
   ]
 })
 export class CommandeHomeComponent implements OnInit {
-  protected active = "DASHBOARD";
+  protected readonly active = signal("DASHBOARD");
 
   /** Menu replié : rend la largeur au contenu quand il en manque. */
   protected readonly menuReplie = signal(false);
@@ -81,8 +81,8 @@ export class CommandeHomeComponent implements OnInit {
 
     effect(() => {
       const nav = this.commandCommonService.commandPreviousActiveNav();
-      if (nav !== this.active) {
-        this.active = nav;
+      if (nav !== this.active()) {
+        this.active.set(nav);
         this.breadcrumbService.setTabCrumb(TAB_LABELS[nav] ?? nav);
       }
     });
@@ -92,20 +92,20 @@ export class CommandeHomeComponent implements OnInit {
 
     this.route.queryParams.subscribe(params => {
       if (params["tab"]) {
-        this.active = params["tab"];
-        this.commandCommonService.updateCommandPreviousActiveNav(this.active);
+        this.active.set(params["tab"]);
+        this.commandCommonService.updateCommandPreviousActiveNav(this.active());
       } else {
-        this.active = this.commandCommonService.commandPreviousActiveNav();
+        this.active.set(this.commandCommonService.commandPreviousActiveNav());
       }
-      this.breadcrumbService.setTabCrumb(TAB_LABELS[this.active] ?? this.active);
+      this.breadcrumbService.setTabCrumb(TAB_LABELS[this.active()] ?? this.active());
     });
     this.alertBadgeService.init();
   }
 
   protected onNavChange(evt: NgbNavChangeEvent): void {
-    this.active = evt.nextId;
-    this.commandCommonService.updateCommandPreviousActiveNav(this.active);
-    this.breadcrumbService.setTabCrumb(TAB_LABELS[this.active] ?? this.active);
+    this.active.set(evt.nextId);
+    this.commandCommonService.updateCommandPreviousActiveNav(this.active());
+    this.breadcrumbService.setTabCrumb(TAB_LABELS[this.active()] ?? this.active());
   }
 }
 

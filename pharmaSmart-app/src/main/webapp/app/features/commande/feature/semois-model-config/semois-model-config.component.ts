@@ -10,7 +10,7 @@ import { ConfigurationService, ModelReapproOption } from "app/shared/configurati
   selector: "app-semois-model-config",
   templateUrl: "./semois-model-config.component.html",
   styleUrls: ["./semois-model-config.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, ButtonComponent, RadioComponent, ToolbarComponent]
 })
 export class SemoisModelConfigComponent implements OnInit {

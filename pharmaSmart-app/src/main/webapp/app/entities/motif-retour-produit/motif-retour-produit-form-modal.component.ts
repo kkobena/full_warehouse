@@ -10,7 +10,7 @@ import { ModifRetourProduitService } from "./motif-retour-produit.service";
   selector: "app-motif-retour-produit-form-modal",
   imports: [CommonModule, FormsModule, ButtonComponent, ReactiveFormsModule],
   styleUrl: "./form-motif-retour-fourn.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="modal-header">
       <h4 class="modal-title">

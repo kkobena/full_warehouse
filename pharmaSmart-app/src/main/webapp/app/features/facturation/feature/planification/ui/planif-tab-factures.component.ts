@@ -28,7 +28,7 @@ import { PlanifDetailPanelComponent } from "./planif-detail-panel.component";
     PlanifDetailPanelComponent
   ],
   templateUrl: "./planif-tab-factures.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./planif-tab-factures.component.scss"
 })
 export class PlanifTabFacturesComponent {

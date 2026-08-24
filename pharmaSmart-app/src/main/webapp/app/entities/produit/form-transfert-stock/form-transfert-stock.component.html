@@ -43,24 +43,24 @@
           <div class="form-field">
             <span class="field-label">Quantité transférable max</span>
             <div class="info-box info-highlight">
-              <span class="info-value">{{ maxTransferableQty }}</span>
+              <span class="info-value">{{ maxTransferableQty() }}</span>
             </div>
           </div>
         </div>
 
         <!-- Destination information (auto-detected or new reserve) -->
-        @if (!isCreatingNewReserve && stockProduitDest) {
+        @if (!isCreatingNewReserve() && stockProduitDest()) {
           <div class="form-field form-field-full">
             <span class="field-label">Emplacement destination</span>
             <div class="info-box">
-              <span class="info-label">{{ getStorageDisplayName(stockProduitDest) }}</span>
-              <span class="stock-info ml-2">(Stock actuel: {{ stockProduitDest.qtyStock ?? 0 }})</span>
+              <span class="info-label">{{ getStorageDisplayName(stockProduitDest()) }}</span>
+              <span class="stock-info ml-2">(Stock actuel: {{ stockProduitDest().qtyStock ?? 0 }})</span>
             </div>
           </div>
         }
 
         <!-- Creating new reserve section -->
-        @if (isCreatingNewReserve) {
+        @if (isCreatingNewReserve()) {
           <div class="form-field form-field-full">
             <div class="info-message">
               <i class="pi pi-info-circle"></i>
@@ -106,7 +106,7 @@
             name="quantity"
             [appKeyFilter]="'pint'"
             type="number"
-            [max]="maxTransferableQty"
+            [max]="maxTransferableQty()"
             min="1"
           />
           @if (editForm.get('quantity')!.invalid && (editForm.get('quantity')!.dirty || editForm.get('quantity')!.touched)) {
@@ -118,11 +118,11 @@
                 <small class="form-text text-danger">La quantité doit être au moins 1.</small>
               }
               @if (editForm.get('quantity')?.errors?.max) {
-                <small class="form-text text-danger">La quantité ne peut pas dépasser {{ maxTransferableQty }}.</small>
+                <small class="form-text text-danger">La quantité ne peut pas dépasser {{ maxTransferableQty() }}.</small>
               }
             </div>
           }
-          @if (maxTransferableQty === 0) {
+          @if (maxTransferableQty() === 0) {
             <small class="form-text text-warning">
               <i class="pi pi-exclamation-triangle"></i>
               Aucune quantité disponible pour le transfert (stock au seuil minimum).
@@ -136,7 +136,7 @@
   <div class="modal-footer">
     <app-button (clicked)="cancel()" class="mr-1" icon="pi pi-times" label="Annuler" [raised]="true" severity="secondary"
               type="button"/>
-    <app-button [loading]="isSaving" [disabled]="!isFormValid()" icon="pi pi-check" label="Transférer" [raised]="true"
+    <app-button [loading]="isSaving()" [disabled]="!isFormValid()" icon="pi pi-check" label="Transférer" [raised]="true"
               severity="primary" type="submit"/>
   </div>
 </form>

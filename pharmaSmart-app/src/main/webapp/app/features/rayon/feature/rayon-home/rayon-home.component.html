@@ -5,8 +5,8 @@
       <div class="pharma-toolbar-filters">
         <app-float-label label="Emplacement" inputId="rhStorage">
           <app-select
-            [(ngModel)]="selectedStorage"
-            [items]="storages"
+            [ngModel]="selectedStorage()" (ngModelChange)="selectedStorage.set($event)"
+            [items]="storages()"
             bindLabel="storageType"
             [clearable]="true"
             (selectionChange)="onStorageChange()"
@@ -82,7 +82,7 @@
             placement="left"
             severity="help"
             [raised]="true"
-            [disabled]="!selectedStorage"
+            [disabled]="!selectedStorage()"
           />
           <app-button
             (clicked)="addNew()"
@@ -105,8 +105,8 @@
         [rayons]="rayons()"
         [totalItems]="totalItems()"
         [loading]="loading()"
-        [rows]="rows"
-        [first]="page * rows"
+        [rows]="rows()"
+        [first]="page() * rows()"
         [selectedRayon]="selectedRayon()"
         (rayonSelected)="onRayonSelected($event)"
         (lazyLoad)="onLazyLoad($event)"

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy, signal } from "@angular/core";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ProduitService } from "../produit.service";
@@ -25,17 +25,17 @@ import { ButtonComponent, CardComponent, FileUploadComponent, SelectComponent } 
     SpinnerComponent
   ],
   templateUrl: "./import-produit-modal.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ["../../common-modal.component.scss"]
 })
 export class ImportProduitModalComponent implements OnInit {
   type: string | null = null;
   fournisseurService = inject(FournisseurApiService);
-  protected isSaving = false;
-  protected title: string | null = null;
-  protected fournisseurs: IFournisseur[] = [];
+  protected readonly isSaving = signal(false);
+  protected readonly title = signal<string | null>(null);
+  protected readonly fournisseurs = signal<IFournisseur[]>([]);
   protected accept = ".csv";
-  protected file: File | null = null;
+  protected readonly file = signal<File | null>(null);
   protected selectedFournisseurId: number | null = null;
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
@@ -44,7 +44,7 @@ export class ImportProduitModalComponent implements OnInit {
   private readonly spinner = viewChild.required<SpinnerComponent>("spinner");
 
   get isFileUploadValid(): boolean {
-    return !!this.file && !this.isSaving && !!this.selectedFournisseurId;
+    return !!this.file() && !this.isSaving() && !!this.selectedFournisseurId;
   }
 
   cancel(): void {
@@ -53,17 +53,17 @@ export class ImportProduitModalComponent implements OnInit {
 
   onUpload(): void {
     this.spinner().show();
-    this.isSaving = true;
+    this.isSaving.set(true);
     this.uploadFileResponse(this.produitService.uploadFile(this.buildFormData()));
   }
 
   ngOnInit(): void {
     if (this.type === "NOUVELLE_INSTALLATION") {
-      this.title = "Nouvelle Installation";
+      this.title.set("Nouvelle Installation");
     } else if (this.type === "BASCULEMENT") {
-      this.title = "Basculement";
+      this.title.set("Basculement");
     } else {
-      this.title = "Basculement de perstige";
+      this.title.set("Basculement de perstige");
     }
     this.fournisseurService
       .queryParents({
@@ -71,16 +71,16 @@ export class ImportProduitModalComponent implements OnInit {
         size: 9999
       })
       .subscribe((res: HttpResponse<IFournisseur[]>) => {
-        this.fournisseurs = res.body || [];
+        this.fournisseurs.set(res.body || []);
       });
   }
 
   protected onFilesSelected(files: File[]): void {
-    this.file = files[0] ?? null;
+    this.file.set(files[0] ?? null);
   }
 
   private buildFormData(): FormData {
-    const file = this.file!;
+    const file = this.file()!;
     const formData: FormData = new FormData();
     const body = new Blob(
       [
@@ -103,7 +103,7 @@ export class ImportProduitModalComponent implements OnInit {
       .pipe(
         finalize(() => {
           this.spinner().hide();
-          this.isSaving = false;
+          this.isSaving.set(false);
         })
       )
       .subscribe({
@@ -118,7 +118,7 @@ export class ImportProduitModalComponent implements OnInit {
 
   private onSaveError(error: HttpErrorResponse): void {
     this.spinner().hide();
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 }

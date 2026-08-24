@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import {signal, Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
@@ -23,7 +23,7 @@ interface RetourLine {
   selector: "app-retour-depuis-reception",
   templateUrl: "./retour-depuis-reception.component.html",
   styleUrls: ["./retour-depuis-reception.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, ButtonComponent, InputNumberComponent, DataTableComponent, SelectComponent]
 })
 export class RetourDepuisReceptionComponent implements OnInit {
@@ -31,11 +31,11 @@ export class RetourDepuisReceptionComponent implements OnInit {
   orderLines: IOrderLine[] = [];
   header = "Retour fournisseur";
 
-  protected retourLines: RetourLine[] = [];
+  protected readonly retourLines = signal([]);
   protected commentaire = "";
-  protected saving = false;
+  protected readonly saving = signal(false);
 
-  protected motifs: IMotifRetourProduit[] = [];
+  protected readonly motifs = signal([]);
 
   private readonly activeModal = inject(NgbActiveModal);
   private readonly avoirService = inject(AvoirFournisseurService);
@@ -43,50 +43,53 @@ export class RetourDepuisReceptionComponent implements OnInit {
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
   ngOnInit(): void {
-    this.motifService.query({ size: 999 }).subscribe({ next: res => (this.motifs = res.body ?? []) });
-    this.retourLines = this.orderLines
-      .filter(l => (l.quantityReceived ?? 0) > 0)  //On ne peut retourner une quantité qu'on a pas reçu
-      .map(l => ({
-        orderLine: l,
-        qtyRetour: 0,
-        maxQty: l.quantityReceived ?? 0,
-        motifRetourId: null as number | null
-      }));
+    this.motifService.query({ size: 999 }).subscribe({ next: res => (this.motifs.set(res.body ?? [])) });
+    this.retourLines.set(
+      this.orderLines
+        //On ne peut retourner une quantité qu'on a pas reçu
+        .filter(l => (l.quantityReceived ?? 0) > 0)
+        .map(l => ({
+          orderLine: l,
+          qtyRetour: 0,
+          maxQty: l.quantityReceived ?? 0,
+          motifRetourId: null as number | null,
+        })),
+    );
   }
 
   protected get hasSelection(): boolean {
-    return this.retourLines.some(r => r.qtyRetour > 0);
+    return this.retourLines().some(r => r.qtyRetour > 0);
   }
 
   protected get canSave(): boolean {
-    const sel = this.retourLines.filter(r => r.qtyRetour > 0);
+    const sel = this.retourLines().filter(r => r.qtyRetour > 0);
     return sel.length > 0 && sel.every(r => r.motifRetourId != null);
   }
 
   protected get isRetourComplet(): boolean {
-    return this.retourLines.length > 2 && this.retourLines.every(r => r.qtyRetour === r.maxQty);
+    return this.retourLines().length > 2 && this.retourLines().every(r => r.qtyRetour === r.maxQty);
   }
 
   protected get totalLignes(): number {
-    return this.retourLines.filter(r => r.qtyRetour > 0).length;
+    return this.retourLines().filter(r => r.qtyRetour > 0).length;
   }
 
   protected get totalUnites(): number {
-    return this.retourLines.reduce((s, r) => s + r.qtyRetour, 0);
+    return this.retourLines().reduce((s, r) => s + r.qtyRetour, 0);
   }
   protected onSelectAll(): void {
-    this.retourLines.forEach(r => (r.qtyRetour = r.maxQty));
+    this.retourLines().forEach(r => (r.qtyRetour = r.maxQty));
   }
 
   protected onReset(): void {
-    this.retourLines.forEach(r => {
+    this.retourLines().forEach(r => {
       r.qtyRetour = 0;
       r.motifRetourId = null;
     });
   }
 
   protected onSubmit(): void {
-    const selected = this.retourLines.filter(r => r.qtyRetour > 0);
+    const selected = this.retourLines().filter(r => r.qtyRetour > 0);
     if (selected.length === 0) return;
 
     const command: IAvoirFromBonLignesCommand = {
@@ -104,10 +107,10 @@ export class RetourDepuisReceptionComponent implements OnInit {
       }))
     };
 
-    this.saving = true;
+    this.saving.set(true);
     this.avoirService.createFromReception(command).subscribe({
       next: (avoir: IAvoirFournisseur) => {
-        this.saving = false;
+        this.saving.set(false);
         this.notificationService.success(
           `Avoir ${avoir.reference ?? ''} créé — ${selected.length} ligne(s), ${this.totalUnites} unité(s)`,
           "Retour fournisseur"
@@ -115,7 +118,7 @@ export class RetourDepuisReceptionComponent implements OnInit {
         this.activeModal.close(avoir);
       },
       error: err => {
-        this.saving = false;
+        this.saving.set(false);
         this.notificationService.error(this.errorService.getErrorMessage(err), "Retour fournisseur");
       }
     });

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -10,7 +10,7 @@ import { BackendManagerService } from '../services/backend-manager.service';
   selector: 'app-app-settings-dialog',
   imports: [CommonModule, FormsModule, CardComponent, ButtonComponent],
   styleUrls: ['../../entities/common-modal.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="modal-header">
       <h4 class="modal-title">Configuration du serveur</h4>
@@ -33,7 +33,7 @@ import { BackendManagerService } from '../services/backend-manager.service';
               class="form-control"
               id="apiServerUrl"
               name="apiServerUrl"
-              [(ngModel)]="apiServerUrl"
+              [ngModel]="apiServerUrl()" (ngModelChange)="apiServerUrl.set($event)"
               placeholder="http://192.168.1.100:8080"
               required
               pattern="http?://.+"
@@ -42,9 +42,9 @@ import { BackendManagerService } from '../services/backend-manager.service';
           </div>
 
           <div class="d-flex gap-2 mb-3">
-            <button type="button" class="btn btn-sm btn-outline-primary" (click)="testConnection()" [disabled]="testing || !apiServerUrl">
-              <i class="bi" [ngClass]="testing ? 'bi-hourglass-split' : 'bi-wifi'"></i>
-              {{ testing ? 'Test en cours...' : 'Tester la connexion' }}
+            <button type="button" class="btn btn-sm btn-outline-primary" (click)="testConnection()" [disabled]="testing() || !apiServerUrl()">
+              <i class="bi" [ngClass]="testing() ? 'bi-hourglass-split' : 'bi-wifi'"></i>
+              {{ testing() ? 'Test en cours...' : 'Tester la connexion' }}
             </button>
 
             <button type="button" class="btn btn-sm btn-outline-secondary" (click)="resetToDefaults()">
@@ -52,34 +52,34 @@ import { BackendManagerService } from '../services/backend-manager.service';
               Réinitialiser
             </button>
           </div>
-          @if (connectionTestResult !== null) {
+          @if (connectionTestResult() !== null) {
             <div
               class="alert"
               [class]="{
-                'alert-success': connectionTestResult === true,
-                'alert-danger': connectionTestResult === false,
+                'alert-success': connectionTestResult() === true,
+                'alert-danger': connectionTestResult() === false,
               }"
             >
               <i
                 class="bi"
                 [class]="{
-                  'bi-check-circle': connectionTestResult === true,
-                  'bi-x-circle': connectionTestResult === false,
+                  'bi-check-circle': connectionTestResult() === true,
+                  'bi-x-circle': connectionTestResult() === false,
                 }"
               ></i>
 
-              {{ connectionTestResult ? 'Connexion réussie!' : errorMsg }}
+              {{ connectionTestResult() ? 'Connexion réussie!' : errorMsg() }}
             </div>
           }
 
-          @if (isRestarting) {
+          @if (isRestarting()) {
             <div class="alert alert-info">
               <div class="d-flex align-items-center mb-2">
                 <i class="bi bi-arrow-repeat me-2"></i>
-                <strong>{{ restartMessage }}</strong>
+                <strong>{{ restartMessage() }}</strong>
               </div>
-              <div class="progress" role="progressbar" [attr.aria-valuenow]="restartProgress" aria-valuemin="0" aria-valuemax="100">
-                <div class="progress-bar" [style.width.%]="restartProgress"></div>
+              <div class="progress" role="progressbar" [attr.aria-valuenow]="restartProgress()" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar" [style.width.%]="restartProgress()"></div>
               </div>
               <small class="text-muted mt-2 d-block">Veuillez patienter pendant le redémarrage du serveur...</small>
             </div>
@@ -108,8 +108,8 @@ import { BackendManagerService } from '../services/backend-manager.service';
         type="button"
       ></app-button>
       <app-button
-        [disabled]="!apiServerUrl || testing || isRestarting"
-        [loading]="isRestarting"
+        [disabled]="!apiServerUrl() || testing() || isRestarting()"
+        [loading]="isRestarting()"
         class="mr-1"
         icon="pi pi-check-lg"
         label="Enregistrer et Redémarrer"
@@ -122,14 +122,14 @@ import { BackendManagerService } from '../services/backend-manager.service';
   `,
 })
 export class AppSettingsDialogComponent implements OnInit {
-  protected apiServerUrl = '';
-  protected errorMsg = "Échec de la connexion. Vérifiez l'adresse et réessayez.";
-  protected testing = false;
-  protected connectionTestResult: boolean | null = null;
-  protected isRestarting = false;
-  protected restartMessage = 'Redémarrage en cours...';
-  protected restartProgress = 0;
-  protected isBundledBackend = false;
+  protected readonly apiServerUrl = signal('');
+  protected readonly errorMsg = signal("Échec de la connexion. Vérifiez l'adresse et réessayez.");
+  protected readonly testing = signal(false);
+  protected readonly connectionTestResult = signal<boolean | null>(null);
+  protected readonly isRestarting = signal(false);
+  protected readonly restartMessage = signal('Redémarrage en cours...');
+  protected readonly restartProgress = signal(0);
+  protected readonly isBundledBackend = signal(false);
 
   private readonly backendManager = inject(BackendManagerService);
 
@@ -140,34 +140,34 @@ export class AppSettingsDialogComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     const settings = this.appSettingsService.getSettings();
-    this.apiServerUrl = settings.apiServerUrl;
+    this.apiServerUrl.set(settings.apiServerUrl);
 
     // Check if running in Tauri bundled backend mode
-    this.isBundledBackend = await this.backendManager.isBundledBackendAvailable();
+    this.isBundledBackend.set(await this.backendManager.isBundledBackendAvailable());
   }
 
   async testConnection(): Promise<void> {
-    this.testing = true;
-    this.connectionTestResult = null;
+    this.testing.set(true);
+    this.connectionTestResult.set(null);
 
     try {
-      this.connectionTestResult = await this.appSettingsService.testConnection(this.apiServerUrl);
+      this.connectionTestResult.set(await this.appSettingsService.testConnection(this.apiServerUrl()));
     } catch (error) {
-      this.connectionTestResult = false;
+      this.connectionTestResult.set(false);
     } finally {
-      this.testing = false;
+      this.testing.set(false);
     }
   }
 
   resetToDefaults(): void {
-    this.apiServerUrl = 'http://localhost:9080';
-    this.connectionTestResult = null;
+    this.apiServerUrl.set('http://localhost:9080');
+    this.connectionTestResult.set(null);
   }
 
   async save(): Promise<void> {
-    this.appSettingsService.updateApiServerUrl(this.apiServerUrl);
+    this.appSettingsService.updateApiServerUrl(this.apiServerUrl());
 
-    if (this.isBundledBackend) {
+    if (this.isBundledBackend()) {
       // Persist the port to config.json so the backend restarts on the right port.
       await this.savePortToConfig();
       this.restartBackendAndClose();
@@ -179,7 +179,7 @@ export class AppSettingsDialogComponent implements OnInit {
 
   private async savePortToConfig(): Promise<void> {
     try {
-      const url = new URL(this.apiServerUrl);
+      const url = new URL(this.apiServerUrl());
       const port = parseInt(url.port || '9080', 10);
       if (!isNaN(port) && port > 0 && port < 65536) {
         const { invoke } = await import('@tauri-apps/api/core');
@@ -191,15 +191,15 @@ export class AppSettingsDialogComponent implements OnInit {
   }
 
   private restartBackendAndClose(): void {
-    this.isRestarting = true;
-    this.restartMessage = 'Arrêt du serveur...';
-    this.restartProgress = 10;
+    this.isRestarting.set(true);
+    this.restartMessage.set('Arrêt du serveur...');
+    this.restartProgress.set(10);
 
     this.backendManager.restartBackend().subscribe({
       next: message => {
         console.log('Backend restart successful:', message);
-        this.restartMessage = 'Redémarrage terminé!';
-        this.restartProgress = 100;
+        this.restartMessage.set('Redémarrage terminé!');
+        this.restartProgress.set(100);
 
         // Close dialog and reload after successful restart
         setTimeout(() => {
@@ -209,10 +209,10 @@ export class AppSettingsDialogComponent implements OnInit {
       },
       error: error => {
         console.error('Backend restart failed:', error);
-        this.isRestarting = false;
-        this.restartMessage = 'Échec du redémarrage';
-        this.connectionTestResult = false;
-        this.errorMsg = 'Échec du redémarrage du serveur: ' + error;
+        this.isRestarting.set(false);
+        this.restartMessage.set('Échec du redémarrage');
+        this.connectionTestResult.set(false);
+        this.errorMsg.set('Échec du redémarrage du serveur: ' + error);
 
         // Fallback: try reloading anyway
         setTimeout(() => {
@@ -236,9 +236,9 @@ export class AppSettingsDialogComponent implements OnInit {
 
     progressSteps.forEach(step => {
       setTimeout(() => {
-        if (this.isRestarting && this.restartProgress < 100) {
-          this.restartProgress = step.progress;
-          this.restartMessage = step.message;
+        if (this.isRestarting() && this.restartProgress() < 100) {
+          this.restartProgress.set(step.progress);
+          this.restartMessage.set(step.message);
         }
       }, step.delay);
     });

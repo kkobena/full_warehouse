@@ -1,4 +1,4 @@
-import { Component, inject, ViewChild, viewChild, ChangeDetectionStrategy, input} from '@angular/core';
+import { Component, inject, ViewChild, viewChild, ChangeDetectionStrategy, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { HttpResponse } from '@angular/common/http';
@@ -22,7 +22,7 @@ import { AppManualRepartitionComponent } from './ui/manual-repartition/manual-re
   selector: 'app-repartition-stock',
   templateUrl: './repartition-stock.component.html',
   styleUrls: ['./repartition-stock.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     ButtonComponent,
@@ -50,18 +50,18 @@ export class AppRepartitionStockComponent {
 
   @ViewChild('nav', { static: true }) nav!: NgbNav;
 
-  protected search = '';
-  protected dtStart: NgbDateStruct | null = TODAY_NGB_DATE();
-  protected dtEnd: NgbDateStruct | null = TODAY_NGB_DATE();
+  protected readonly search = signal('');
+  protected readonly dtStart = signal<NgbDateStruct | null>(TODAY_NGB_DATE());
+  protected readonly dtEnd = signal<NgbDateStruct | null>(TODAY_NGB_DATE());
   protected activeTab = 'historique';
   protected readonly appendTo = APPEND_TO;
 
   // Filtres avancés historique
-  protected filterTypeRepartition: string = 'TOUT';
-  protected filterUserId: number | null = null;
-  protected filterStorageId: number | null = null;
-  protected users: IUser[] = [];
-  protected storages: Storage[] = [];
+  protected readonly filterTypeRepartition = signal<string>('TOUT');
+  protected readonly filterUserId = signal<number | null>(null);
+  protected readonly filterStorageId = signal<number | null>(null);
+  protected readonly users = signal<IUser[]>([]);
+  protected readonly storages = signal<Storage[]>([]);
 
   protected typeRepartitionOptions = [
     { label: 'Tous les mouvements', value: 'TOUT' },
@@ -85,7 +85,7 @@ export class AppRepartitionStockComponent {
   private loadUsers(): void {
     this.userService.query({ size: 200 }).subscribe({
       next: (res: HttpResponse<IUser[]>) => {
-        this.users = res.body ?? [];
+        this.users.set(res.body ?? []);
       },
     });
   }
@@ -93,7 +93,7 @@ export class AppRepartitionStockComponent {
   private loadStorages(): void {
     this.storageService.fetchUserStorages().subscribe({
       next: (res: HttpResponse<Storage[]>) => {
-        this.storages = res.body ?? [];
+        this.storages.set(res.body ?? []);
       },
     });
   }
@@ -105,24 +105,24 @@ export class AppRepartitionStockComponent {
   }
 
   onResetFilters(): void {
-    this.search = '';
-    this.dtStart = TODAY_NGB_DATE();
-    this.dtEnd = TODAY_NGB_DATE();
-    this.filterTypeRepartition = 'TOUT';
-    this.filterUserId = null;
-    this.filterStorageId = null;
+    this.search.set('');
+    this.dtStart.set(TODAY_NGB_DATE());
+    this.dtEnd.set(TODAY_NGB_DATE());
+    this.filterTypeRepartition.set('TOUT');
+    this.filterUserId.set(null);
+    this.filterStorageId.set(null);
     this.repartitionList()?.onSearch();
   }
 
   exportToPdf(): void {
     this.repartitionStockService
       .exportToPdf({
-        dateDebut: NGB_DATE_TO_ISO(this.dtStart),
-        dateFin: NGB_DATE_TO_ISO(this.dtEnd),
-        searchTerm: this.search || null,
-        typeRepartition: this.filterTypeRepartition !== 'TOUT' ? this.filterTypeRepartition : undefined,
-        userId: this.filterUserId ?? undefined,
-        storageId: this.filterStorageId ?? undefined,
+        dateDebut: NGB_DATE_TO_ISO(this.dtStart()),
+        dateFin: NGB_DATE_TO_ISO(this.dtEnd()),
+        searchTerm: this.search() || null,
+        typeRepartition: this.filterTypeRepartition() !== 'TOUT' ? this.filterTypeRepartition() : undefined,
+        userId: this.filterUserId() ?? undefined,
+        storageId: this.filterStorageId() ?? undefined,
       })
       .subscribe(blob => {
         if (this.tauriPrinterService.isRunningInTauri()) {

@@ -1,4 +1,4 @@
-import { Component, effect, ElementRef, inject, input, OnDestroy, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { afterNextRender, Component, effect, ElementRef, inject, Injector, input, OnDestroy, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
@@ -22,7 +22,7 @@ Chart.register(...registerables);
   selector: 'app-produit-mouvements-tab',
   templateUrl: './produit-mouvements-tab.component.html',
   styleUrls: ['./produit-mouvements-tab.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -45,34 +45,30 @@ export class ProduitMouvementsTabComponent implements OnDestroy {
   protected loading = signal(false);
   protected exporting = signal(false);
   protected hasDepot = signal(false);
-  protected storages = signal<IStorage[]>([]);
   protected showChart = signal(false);
 
+  private readonly injector = inject(Injector);
   private readonly canvasRef = viewChild<ElementRef<HTMLCanvasElement>>('stockChart');
   private chart?: Chart;
 
   protected readonly periodFilter = createPeriodDateFilter({ defaultKey: 'today', onChange: () => this.load() });
-
-  protected selectedStorage: IStorage | null = null;
-
+  protected readonly selectedStorage = signal<IStorage | null>(null);
   /** Filtre multi-types de mouvement (null / [] = tous) — lié via ngModel */
-  protected selectedTypes: string[] | null = [];
-
+  protected readonly selectedTypes = signal<string[] | null>([]);
   // Totaux footer
-  protected saleQuantity: number | null = null;
-  protected deleveryQuantity: number | null = null;
-  protected retourFournisseurQuantity: number | null = null;
-  protected perimeQuantity: number | null = null;
-  protected ajustementPositifQuantity: number | null = null;
-  protected ajustementNegatifQuantity: number | null = null;
-  protected deconPositifQuantity: number | null = null;
-  protected deconNegatifQuantity: number | null = null;
-  protected canceledQuantity: number | null = null;
-  protected mouvementStockIn: number | null = null;
-  protected mouvementStockOut: number | null = null;
-  protected retourDepot: number | null = null;
-  protected storeInventoryQuantity: number | null = null;
-
+  protected readonly saleQuantity = signal<number | null>(null);
+  protected readonly deleveryQuantity = signal<number | null>(null);
+  protected readonly retourFournisseurQuantity = signal<number | null>(null);
+  protected readonly perimeQuantity = signal<number | null>(null);
+  protected readonly ajustementPositifQuantity = signal<number | null>(null);
+  protected readonly ajustementNegatifQuantity = signal<number | null>(null);
+  protected readonly deconPositifQuantity = signal<number | null>(null);
+  protected readonly deconNegatifQuantity = signal<number | null>(null);
+  protected readonly canceledQuantity = signal<number | null>(null);
+  protected readonly mouvementStockIn = signal<number | null>(null);
+  protected readonly mouvementStockOut = signal<number | null>(null);
+  protected readonly retourDepot = signal<number | null>(null);
+  protected readonly storeInventoryQuantity = signal<number | null>(null);
   // ── Options de filtre type (depuis enum MouvementProduit Java) ─
   protected readonly MOVEMENT_TYPE_OPTIONS: { label: string; value: string }[] = [
     { label: 'Vente', value: 'SALE' },
@@ -134,7 +130,7 @@ export class ProduitMouvementsTabComponent implements OnDestroy {
       const rows = this.entites();
       if (visible && rows.length > 0) {
         // Defer to let Angular render the canvas first
-        setTimeout(() => this.buildChart(rows), 0);
+        afterNextRender(() => this.buildChart(rows), {injector: this.injector});
       } else if (!visible) {
         this.chart?.destroy();
         this.chart = undefined;
@@ -164,7 +160,7 @@ export class ProduitMouvementsTabComponent implements OnDestroy {
 
   /** Normalise null → [] (p-multiselect retourne null lors du clear) */
   private get activeTypes(): string[] {
-    return this.selectedTypes ?? [];
+    return this.selectedTypes() ?? [];
   }
 
   /** Retourne true si la colonne doit être affichée ([] = tous visibles) */
@@ -218,7 +214,7 @@ export class ProduitMouvementsTabComponent implements OnDestroy {
 
   /** Appelé par (selectionChange) de app-multi-select — couvre aussi le clic sur la croix de remise à zéro. */
   protected onTypesChange(value: string[] | null): void {
-    this.selectedTypes = value;
+    this.selectedTypes.set(value);
     this.load();
   }
 
@@ -232,7 +228,7 @@ export class ProduitMouvementsTabComponent implements OnDestroy {
         this.entites.set(res.body ?? []);
         this.loading.set(false);
         if (this.showChart() && (res.body ?? []).length > 0) {
-          setTimeout(() => this.buildChart(res.body!), 0);
+          afterNextRender(() => this.buildChart(res.body!), {injector: this.injector});
         }
       },
       error: () => this.loading.set(false),
@@ -364,25 +360,25 @@ export class ProduitMouvementsTabComponent implements OnDestroy {
     return {
       produitId: this.produitId(),
       ...this.periodFilter.dateParams(),
-      storageId: this.selectedStorage?.id,
+      storageId: this.selectedStorage()?.id,
       mouvementTypes: this.activeTypes.length ? this.activeTypes : undefined,
     };
   }
 
   private computeTotaux(summaries: ProduitAuditingSum[]): void {
     const find = (type: MouvementProduit) => summaries.find(s => s.mouvementProduitType === type)?.quantity ?? null;
-    this.saleQuantity = find(MouvementProduit.SALE);
-    this.deleveryQuantity = find(MouvementProduit.ENTREE_STOCK);
-    this.retourFournisseurQuantity = find(MouvementProduit.RETOUR_FOURNISSEUR);
-    this.perimeQuantity = find(MouvementProduit.RETRAIT_PERIME);
-    this.ajustementPositifQuantity = find(MouvementProduit.AJUSTEMENT_IN);
-    this.ajustementNegatifQuantity = find(MouvementProduit.AJUSTEMENT_OUT);
-    this.deconPositifQuantity = find(MouvementProduit.DECONDTION_IN);
-    this.deconNegatifQuantity = find(MouvementProduit.DECONDTION_OUT);
-    this.canceledQuantity = find(MouvementProduit.CANCEL_SALE);
-    this.mouvementStockIn = find(MouvementProduit.MOUVEMENT_STOCK_IN);
-    this.mouvementStockOut = find(MouvementProduit.MOUVEMENT_STOCK_OUT);
-    this.retourDepot = find(MouvementProduit.RETOUR_DEPOT);
-    this.storeInventoryQuantity = find(MouvementProduit.INVENTAIRE);
+    this.saleQuantity.set(find(MouvementProduit.SALE));
+    this.deleveryQuantity.set(find(MouvementProduit.ENTREE_STOCK));
+    this.retourFournisseurQuantity.set(find(MouvementProduit.RETOUR_FOURNISSEUR));
+    this.perimeQuantity.set(find(MouvementProduit.RETRAIT_PERIME));
+    this.ajustementPositifQuantity.set(find(MouvementProduit.AJUSTEMENT_IN));
+    this.ajustementNegatifQuantity.set(find(MouvementProduit.AJUSTEMENT_OUT));
+    this.deconPositifQuantity.set(find(MouvementProduit.DECONDTION_IN));
+    this.deconNegatifQuantity.set(find(MouvementProduit.DECONDTION_OUT));
+    this.canceledQuantity.set(find(MouvementProduit.CANCEL_SALE));
+    this.mouvementStockIn.set(find(MouvementProduit.MOUVEMENT_STOCK_IN));
+    this.mouvementStockOut.set(find(MouvementProduit.MOUVEMENT_STOCK_OUT));
+    this.retourDepot.set(find(MouvementProduit.RETOUR_DEPOT));
+    this.storeInventoryQuantity.set(find(MouvementProduit.INVENTAIRE));
   }
 }

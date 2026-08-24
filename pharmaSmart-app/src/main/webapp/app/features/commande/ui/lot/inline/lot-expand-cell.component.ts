@@ -35,7 +35,7 @@ import { ILot } from "../../../../../shared/model/lot.model";
       }
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     .lec-wrap {
       display: flex; align-items: center; gap: 4px;

@@ -16,7 +16,7 @@ import {
   selector: "app-suggestion-fournisseur-list",
   templateUrl: "./suggestion-fournisseur-list.component.html",
   styleUrls: ["./suggestion-fournisseur-list.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     DecimalPipe,

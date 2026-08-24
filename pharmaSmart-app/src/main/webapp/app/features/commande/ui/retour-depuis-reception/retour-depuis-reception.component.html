@@ -7,7 +7,7 @@
 
 <div class="modal-body rdr-body">
 
-  @if (retourLines.length === 0) {
+  @if (retourLines().length === 0) {
     <div class="pharma-empty-content py-4">
       <i class="pi pi-inbox"></i>
       <p>Aucun article reçu sur cette commande</p>
@@ -31,7 +31,7 @@
     <!-- Tableau -->
     <app-data-table
       [showGridlines]="true"
-      [value]="retourLines"
+      [value]="retourLines()"
       class="p-datatable-sm"
       scrollHeight="45vh"
     >
@@ -62,7 +62,7 @@
             <app-select
               [(ngModel)]="row.motifRetourId"
               [disabled]="row.qtyRetour === 0"
-              [items]="motifs"
+              [items]="motifs()"
               [style]="{width: '100%'}"
               bindLabel="libelle"
               bindValue="id"
@@ -95,8 +95,8 @@
               size="small" />
   <app-button
     (clicked)="onSubmit()"
-    [disabled]="!canSave || saving"
-    [loading]="saving"
+    [disabled]="!canSave || saving()"
+    [loading]="saving()"
     icon="pi pi-check"
     label="Créer l'avoir"
     severity="primary"

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject, input, ChangeDetectionStrategy } from "@angular/core";
+import {signal, Component, DestroyRef, effect, inject, input, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { finalize } from "rxjs/operators";
 import { HttpHeaders } from "@angular/common/http";
@@ -19,14 +19,14 @@ import { IDiffere, IDiffereSearchParams } from "../../data-access/models";
     DataTableComponent
   ],
   templateUrl: "./differe-list.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ["./differe-list.component.scss"]
 })
 export class DiffereListComponent {
   readonly searchParams = input<IDiffereSearchParams | null>(null);
 
-  protected loading = false;
-  protected page = 0;
+  protected readonly loading = signal(false);
+  protected readonly page = signal(0);
   protected readonly itemsPerPage = ITEMS_PER_PAGE;
 
   protected readonly store = inject(DiffereStore);
@@ -39,7 +39,7 @@ export class DiffereListComponent {
     effect(() => {
       const params = this.searchParams();
       if (params !== null) {
-        this.page = 0;
+        this.page.set(0);
         this.loadPage(params);
         this.loadSummary(params);
       }
@@ -53,18 +53,18 @@ export class DiffereListComponent {
   lazyLoading(event: AppTableLazyLoadEvent): void {
     const params = this.searchParams();
     if (event && params) {
-      this.page = Math.floor((event.first ?? 0) / (event.rows ?? this.itemsPerPage));
+      this.page.set(Math.floor((event.first ?? 0) / (event.rows ?? this.itemsPerPage)));
       this.loadPage(params, event.rows ?? this.itemsPerPage);
     }
   }
 
   private loadPage(params: IDiffereSearchParams, rows = this.itemsPerPage): void {
-    this.loading = true;
+    this.loading.set(true);
     this.store.setLoading(true);
     this.differeApiService
-      .query({ ...params, page: this.page, size: rows })
+      .query({ ...params, page: this.page(), size: rows })
       .pipe(
-        finalize(() => (this.loading = false)),
+        finalize(() => (this.loading.set(false))),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({

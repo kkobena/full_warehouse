@@ -301,8 +301,6 @@
   width: 100%;
 
   jhi-produit-autocomplete,
-  p-floatlabel,
-  p-autocomplete,
   .p-autocomplete,
   .p-floatlabel {
     width: 100%;
@@ -334,14 +332,6 @@
   padding-top: 0.25rem !important;
   padding-bottom: 0.25rem !important;
 
-  p-floatlabel {
-    min-width: 180px;
-    flex-shrink: 1;
-
-    input {
-      width: 100%;
-    }
-  }
 }
 
 // ====================================
@@ -546,20 +536,6 @@
     }
   }
 
-  p-tag {
-    flex-shrink: 0;
-
-    .p-tag {
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 0.2rem 0.5rem;
-      border-radius: 6px;
-      white-space: nowrap;
-      overflow: visible;
-      text-overflow: clip;
-    }
-  }
-
   // Stock badge specific styling
   &.pharma-info-badge-stock {
     .pharma-info-badge-label i {
@@ -573,11 +549,6 @@
       color: $pharma-info;
     }
 
-    p-tag .p-tag {
-      max-width: 150px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
   }
 }
 
@@ -686,11 +657,6 @@
         flex-shrink: 0 !important;
       }
 
-      // Override floatlabel min-width for 14-inch screens
-      p-floatlabel {
-        min-width: 150px;
-        flex-shrink: 2;
-      }
     }
 
     // Scope actions to compact toolbar only
@@ -772,29 +738,13 @@
         }
       }
 
-      p-tag {
-        flex-shrink: 0;
-
-        .p-tag {
-          font-size: 0.75rem;
-          padding: 0.2rem 0.45rem;
-          white-space: nowrap;
-        }
-      }
-
       &.pharma-info-badge-rayon {
-        p-tag .p-tag {
-          max-width: 120px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
       }
     }
 
     // Scope input sizing to compact toolbar only
     .p-select,
-    .p-datepicker,
-    p-floatlabel {
+    .p-datepicker {
       font-size: 0.8125rem;
 
       .p-select-label,
@@ -815,55 +765,6 @@
       input {
         padding: 0.4rem 0.5rem !important;
         font-size: 0.8125rem !important;
-      }
-    }
-
-    // Reduce datepicker width in compact mode
-    p-datepicker {
-      display: inline-flex;
-      width: 135px;
-      flex-shrink: 0;
-
-      .p-datepicker {
-        display: inline-flex !important;
-        align-items: stretch !important;
-        width: 100%;
-
-        input {
-          flex: 1 1 auto;
-          min-width: 0;
-          max-width: calc(100% - 1.75rem);
-          padding: 0.4rem 0.5rem !important;
-          font-size: 0.8125rem !important;
-          border-top-right-radius: 0 !important;
-          border-bottom-right-radius: 0 !important;
-        }
-
-        .p-datepicker-trigger {
-          flex: 0 0 1.75rem;
-          width: 1.75rem !important;
-          height: auto !important;
-          padding: 0 !important;
-          margin-left: 0 !important;
-          display: flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          border-top-left-radius: 0 !important;
-          border-bottom-left-radius: 0 !important;
-
-          .p-icon {
-            font-size: 0.875rem !important;
-          }
-        }
-      }
-    }
-
-    p-floatlabel {
-      display: inline-flex;
-      flex-shrink: 0;
-
-      p-datepicker {
-        width: 100%;
       }
     }
 
@@ -906,24 +807,6 @@
 
   // Further reduce input widths on medium screens
   .pharma-toolbar-compact {
-    p-datepicker {
-      width: 125px;
-
-      .p-datepicker {
-        input {
-          max-width: calc(100% - 1.75rem);
-        }
-
-        .p-datepicker-trigger {
-          flex: 0 0 1.75rem;
-          width: 1.75rem !important;
-        }
-      }
-    }
-
-    p-floatlabel {
-    }
-
     .p-select,
     .p-multiselect {
       max-width: 180px;
@@ -1048,9 +931,6 @@
       }
     }
 
-    p-tag .p-tag {
-      font-size: 0.75rem;
-    }
   }
 }
 

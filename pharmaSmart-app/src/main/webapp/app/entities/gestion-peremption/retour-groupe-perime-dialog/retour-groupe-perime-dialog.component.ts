@@ -27,7 +27,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
     DataTableComponent
   ],
   templateUrl: "./retour-groupe-perime-dialog.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ["./retour-lot-pereme-groupe.scss"]
 })
 export class RetourGroupePerimeDialogComponent implements OnInit {

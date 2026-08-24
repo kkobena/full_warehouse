@@ -47,7 +47,7 @@ type StatutDiffere = "PAYE" | "IMPAYE";
     DiffereDetailPanelComponent
   ],
   templateUrl: "./differes-home.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./differes-home.component.scss"
 })
 export class DifferesHomeComponent implements OnInit {
@@ -63,7 +63,7 @@ export class DifferesHomeComponent implements OnInit {
   protected readonly store = inject(DiffereStore);
   protected readonly panelOpen = computed(() => this.store.panelOpen());
   // Toolbar state
-  protected modelStartDate: NgbDateStruct;
+  protected readonly modelStartDate = signal<NgbDateStruct | undefined>(undefined);
   protected modelEndDate: NgbDateStruct = TODAY_NGB_DATE();
   protected customerId: number | null = null;
   protected statut: StatutDiffere = "IMPAYE";
@@ -71,7 +71,7 @@ export class DifferesHomeComponent implements OnInit {
     {id: "IMPAYE", label: "En cours"},
     {id: "PAYE", label: "Soldé"}
   ];
-  protected loadingPdf = false;
+  protected readonly loadingPdf = signal(false);
   // Signal transmis à la liste
   protected readonly currentSearchParams = signal<IDiffereSearchParams | null>(null);
   // Hint premier usage
@@ -87,7 +87,7 @@ export class DifferesHomeComponent implements OnInit {
   constructor() {
     const d = new Date();
     d.setMonth(d.getMonth() - 1);
-    this.modelStartDate = {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()};
+    this.modelStartDate.set({year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()});
   }
 
   ngOnInit(): void {
@@ -102,11 +102,11 @@ export class DifferesHomeComponent implements OnInit {
   }
 
   exportPdf(): void {
-    this.loadingPdf = true;
+    this.loadingPdf.set(true);
     this.differeApiService
       .exportListToPdf(this.buildParams())
       .pipe(
-        finalize(() => (this.loadingPdf = false)),
+        finalize(() => (this.loadingPdf.set(false))),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
@@ -132,7 +132,7 @@ export class DifferesHomeComponent implements OnInit {
   private buildParams(): IDiffereSearchParams {
     const params: IDiffereSearchParams = {
       paymentStatuses: [this.statut],
-      fromDate: NGB_DATE_TO_ISO(this.modelStartDate),
+      fromDate: NGB_DATE_TO_ISO(this.modelStartDate()),
       toDate: NGB_DATE_TO_ISO(this.modelEndDate)
     };
     if (this.customerId) {

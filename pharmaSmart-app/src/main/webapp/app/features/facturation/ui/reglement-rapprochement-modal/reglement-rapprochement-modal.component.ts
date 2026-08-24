@@ -34,20 +34,18 @@ import {
     SelectComponent
   ],
   templateUrl: "./reglement-rapprochement-modal.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./reglement-rapprochement-modal.component.scss"
 })
 export class ReglementRapprochementModalComponent implements AfterViewInit {
   @Input({ required: true }) ligne!: ILigneRapprochement;
 
-  readonly CASH = "CASH";
   readonly CH = "CH";
   readonly VIR = "VIREMENT";
 
-  protected readonly typeFacture = ModeEditionReglement.FACTURE_TOTAL;
   readonly activeModal = inject(NgbActiveModal);
 
-  protected paymentModes: IPaymentMode[] = [];
+  protected readonly paymentModes = signal([]);
   protected isSaving = false;
 
   protected montantSaisi = signal(0);
@@ -116,7 +114,7 @@ export class ReglementRapprochementModalComponent implements AfterViewInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((res: HttpResponse<IPaymentMode[]>) => {
         if (res.body) {
-          this.paymentModes = res.body;
+          this.paymentModes.set(res.body);
           this.setDefaultModeReglement();
           this.reglementForm.get("amount").setValue(this.initTotalAmount);
         }
@@ -157,7 +155,7 @@ export class ReglementRapprochementModalComponent implements AfterViewInit {
   }
 
   private setDefaultModeReglement(): void {
-    const defaultMode = this.paymentModes.find(m => m.code === this.CH);
+    const defaultMode = this.paymentModes().find(m => m.code === this.CH);
     if (defaultMode) {
       this.reglementForm.get("modePaimentCode").setValue(defaultMode.code);
     }

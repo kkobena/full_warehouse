@@ -80,9 +80,18 @@ public class PonctionResource {
         return ResponseEntity.ok(ponctionService.getParametres());
     }
 
+    /**
+     * L'historique, éventuellement borné à une période.
+     *
+     * <p>Les bornes sont facultatives : sans elles, l'écran s'ouvre sur la totalité de l'historique,
+     * comme avant l'ajout du filtre.
+     */
     @GetMapping
-    public ResponseEntity<List<PonctionDTO>> getHistorique() {
-        return ResponseEntity.ok(ponctionService.getHistorique());
+    public ResponseEntity<List<PonctionDTO>> getHistorique(
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateDebut,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFin
+    ) {
+        return ResponseEntity.ok(ponctionService.getHistorique(dateDebut, dateFin));
     }
 
     @GetMapping("/{id}/pdf")

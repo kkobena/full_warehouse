@@ -1,5 +1,5 @@
 <div class="modal-header">
-  <h4 class="modal-title">{{ title }}</h4>
+  <h4 class="modal-title">{{ title() }}</h4>
   <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
 </div>
 <div class="modal-body">
@@ -9,7 +9,7 @@
         style="font-weight: 900; color: red">*</span></label>
       <app-select
         [(ngModel)]="selectedFournisseurId"
-        [items]="fournisseurs"
+        [items]="fournisseurs()"
         bindLabel="libelle"
         bindValue="id"
         inputId="fournisseurId"
@@ -37,7 +37,7 @@
 
   <app-button
     (clicked)="onUpload()"
-    [disabled]="!isFileUploadValid || isSaving"
+    [disabled]="!isFileUploadValid || isSaving()"
     icon="pi pi-upload"
     label="Enrégistrer"
     severity="primary"

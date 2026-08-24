@@ -1,4 +1,4 @@
-import {Component, forwardRef, input, TemplateRef, viewChild} from '@angular/core';
+import {ChangeDetectionStrategy, Component, forwardRef, input, TemplateRef, viewChild} from '@angular/core';
 import {NgStyle, NgTemplateOutlet} from '@angular/common';
 import {
   NgOptgroupTemplateDirective,
@@ -89,6 +89,7 @@ import {SelectBase} from './select.base';
       }
     </ng-select>
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SelectSearchComponent extends SelectBase<unknown> {
   /**

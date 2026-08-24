@@ -5,12 +5,15 @@ import {FormsModule} from "@angular/forms";
 import {NgbDateStruct, NgbNavChangeEvent, NgbNavModule} from "@ng-bootstrap/ng-bootstrap";
 
 import {
+  AppBadgeSeverity,
   AppSplitButtonItem,
   BadgeComponent,
   ButtonComponent,
   CheckboxComponent,
   DataTableComponent,
   InputNumberComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   OffcanvasComponent,
   SelectComponent,
   SplitButtonComponent,
@@ -47,7 +50,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
   selector: "app-recap-produit-vendu",
   templateUrl: "./recap-produit-vendu.component.html",
   styleUrl: "./recap-produit-vendu.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
@@ -63,7 +66,9 @@ import { DeviseDirective } from 'app/shared/utils/devise';
     ToolbarComponent,
     PharmaDatePickerComponent,
     SpinnerComponent,
-    FournisseurSelectComponent
+    FournisseurSelectComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ]
 })
 export default class RecapProduitVenduComponent implements OnInit {
@@ -446,7 +451,7 @@ export default class RecapProduitVenduComponent implements OnInit {
     return ((product.totalSalesAmount - product.totalPurchaseAmount) / product.totalSalesAmount) * 100;
   }
 
-  protected getMarginSeverity(margin: number): string {
+  protected getMarginSeverity(margin: number): AppBadgeSeverity {
     if (margin >= 30) {
       return "success";
     }

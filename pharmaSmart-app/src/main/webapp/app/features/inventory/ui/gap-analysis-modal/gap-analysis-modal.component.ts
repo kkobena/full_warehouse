@@ -33,7 +33,7 @@ interface PendingChange {
   selector: 'app-gap-analysis-modal',
   imports: [CommonModule, FormsModule, ButtonComponent, SelectSearchComponent, DataTableComponent, NgbTooltip, CardComponent],
   templateUrl: './gap-analysis-modal.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './gap-analysis-modal.component.scss',
 })
 export class GapAnalysisModalComponent implements OnInit {

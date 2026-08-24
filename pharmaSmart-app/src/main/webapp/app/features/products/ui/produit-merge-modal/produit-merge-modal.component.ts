@@ -54,7 +54,7 @@ const ENTITY_LABELS: Record<string, string> = {
   selector: 'app-produit-merge-modal',
   templateUrl: './produit-merge-modal.component.html',
   styleUrls: ['./produit-merge-modal.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, ButtonComponent, CardComponent, RadioComponent, SpinnerComponent],
 })
 export class ProduitMergeModalComponent implements OnInit {

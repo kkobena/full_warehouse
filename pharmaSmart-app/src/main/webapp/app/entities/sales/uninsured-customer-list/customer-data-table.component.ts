@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, output, viewChild } from "@angular/core";
+import { ChangeDetectionStrategy, AfterViewInit, Component, ElementRef, inject, output, viewChild, signal } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ICustomer } from "../../../shared/model";
 import { CustomerService } from "../../customer/customer.service";
@@ -20,11 +20,12 @@ import { ButtonComponent, DataTableComponent, IconFieldComponent } from "../../.
     IconFieldComponent,
     NgbTooltip
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./customer-data-table.component.html",
   styleUrls: ["./customer-data-table.scss"]
 })
 export class CustomerDataTableComponent implements AfterViewInit {
-  customers: ICustomer[] = [];
+  protected readonly customers = signal<ICustomer[]>([]);
   searchString?: string | null = "";
   readonly closeModalEvent = output<boolean>();
   protected searchInput = viewChild.required<ElementRef>("searchInput");
@@ -46,7 +47,7 @@ export class CustomerDataTableComponent implements AfterViewInit {
       .queryUninsuredCustomers({
         search: this.searchString
       })
-      .subscribe(res => (this.customers = res.body!));
+      .subscribe(res => (this.customers.set(res.body!)));
   }
 
   protected addUninsuredCustomer(): void {

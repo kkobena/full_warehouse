@@ -11,7 +11,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
   selector: 'app-finances-dashboard',
   imports: [DeviseDirective, CommonModule, RouterLink, DashboardCAComponent],
   templateUrl: './finances-dashboard.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './finances-dashboard.component.scss',
 })
 export class FinancesDashboardComponent implements OnInit {

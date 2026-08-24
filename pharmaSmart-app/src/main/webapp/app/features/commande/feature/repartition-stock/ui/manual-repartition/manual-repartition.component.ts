@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import {signal, Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
@@ -37,7 +37,7 @@ export interface IRepartitionRow {
   selector: 'app-manual-repartition',
   templateUrl: './manual-repartition.component.html',
   styleUrls: ['./manual-repartition.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     ButtonComponent,
@@ -55,11 +55,11 @@ export class AppManualRepartitionComponent implements OnInit {
   protected produitbox = viewChild<ProduitSearchAutocompleteScannerComponent>('produitbox');
   protected quantityBox = viewChild<QuantiteProdutSaisieComponent>('quantityBox');
 
-  repartitionRows: IRepartitionRow[] = [];
-  isSaving = false;
-  produitSelected: ProduitSearch | null = null;
+  protected readonly repartitionRows = signal<IRepartitionRow[]>([]);
+  protected readonly isSaving = signal(false);
+  protected readonly produitSelected = signal<ProduitSearch | null>(null);
   selectedStorageId?: number | null = null;
-  storages: IStorage[] = [];
+  protected readonly storages = signal<IStorage[]>([]);
 
   ngOnInit(): void {
     this.loadStorages();
@@ -68,15 +68,15 @@ export class AppManualRepartitionComponent implements OnInit {
   protected loadStorages(): void {
     this.storageService.fetchUserStorages().subscribe({
       next: (res: HttpResponse<IStorage[]>) => {
-        this.storages = res.body || [];
+        this.storages.set(res.body || []);
       },
     });
   }
 
   protected onStorageChange(): void {
-    this.produitSelected = null;
+    this.produitSelected.set(null);
     this.produitbox()?.reset();
-    this.repartitionRows = [];
+    this.repartitionRows.set([]);
     this.setProductBoxFocus();
   }
 
@@ -86,14 +86,14 @@ export class AppManualRepartitionComponent implements OnInit {
     }
     if (!this.selectedStorageId) {
       this.notificationService.warning('Veuillez sélectionner un emplacement', 'Emplacement');
-      this.produitSelected = null;
+      this.produitSelected.set(null);
       this.produitbox()?.reset();
       return;
     }
     const stockInSelectedStorage = produit.stocks?.find(s => s.storage === this.selectedStorageId);
     if (!stockInSelectedStorage) {
       this.notificationService.info("Aucun stock trouvé pour ce produit dans l'emplacement sélectionné", 'Recherche');
-      this.produitSelected = null;
+      this.produitSelected.set(null);
       this.produitbox()?.reset();
       this.setProductBoxFocus();
       return;
@@ -103,7 +103,7 @@ export class AppManualRepartitionComponent implements OnInit {
         'La quantité disponible dans cet emplacement est insuffisante pour effectuer une répartition',
         'Stock insuffisant',
       );
-      this.produitSelected = null;
+      this.produitSelected.set(null);
       this.produitbox()?.reset();
       this.setProductBoxFocus();
       return;
@@ -114,20 +114,20 @@ export class AppManualRepartitionComponent implements OnInit {
         'Ce produit ne possède de réserve. Vous devez en créer une pour pouvoir effectuer une répartition.',
         'Stock Réserve',
       );
-      this.produitSelected = null;
+      this.produitSelected.set(null);
       this.produitbox()?.reset();
       this.setProductBoxFocus();
     } else {
-      this.produitSelected = produit;
+      this.produitSelected.set(produit);
       this.quantityBox()?.focusProduitControl();
     }
   }
 
   protected addQuantity(quantity: number): void {
-    if (!this.produitSelected || !quantity || quantity <= 0 || !this.selectedStorageId) {
+    if (!this.produitSelected() || !quantity || quantity <= 0 || !this.selectedStorageId) {
       return;
     }
-    const stockInSelectedStorage = this.produitSelected.stocks?.find(s => s.storage === this.selectedStorageId);
+    const stockInSelectedStorage = this.produitSelected().stocks?.find(s => s.storage === this.selectedStorageId);
     if (!stockInSelectedStorage) {
       this.notificationService.warning('Stock source non trouvé', 'Stock');
       return;
@@ -139,31 +139,31 @@ export class AppManualRepartitionComponent implements OnInit {
       );
       return;
     }
-    const otherStocks = this.produitSelected.stocks?.filter(s => s.storage !== this.selectedStorageId) || [];
+    const otherStocks = this.produitSelected().stocks?.filter(s => s.storage !== this.selectedStorageId) || [];
     const availableDestinations: IStockProduit[] = otherStocks.map(stock => ({
       id: stock.id,
       qtyStock: stock.quantite,
-      storage: this.storages.find(s => s.id === stock.storage),
+      storage: this.storages().find(s => s.id === stock.storage),
       produit: {
-        id: this.produitSelected.id,
-        libelle: this.produitSelected.libelle,
-        codeCip: this.produitSelected.fournisseurProduit?.codeCip,
+        id: this.produitSelected().id,
+        libelle: this.produitSelected().libelle,
+        codeCip: this.produitSelected().fournisseurProduit?.codeCip,
         stockProduits: [] as IStockProduit[],
       },
     }));
     const stockSource: IStockProduit = {
       id: stockInSelectedStorage.id,
       qtyStock: stockInSelectedStorage.quantite,
-      storage: this.storages.find(s => s.id === stockInSelectedStorage.storage),
+      storage: this.storages().find(s => s.id === stockInSelectedStorage.storage),
       produit: {
-        id: this.produitSelected.id,
-        libelle: this.produitSelected.libelle,
-        codeCip: this.produitSelected.fournisseurProduit?.codeCip,
+        id: this.produitSelected().id,
+        libelle: this.produitSelected().libelle,
+        codeCip: this.produitSelected().fournisseurProduit?.codeCip,
         stockProduits: availableDestinations,
       },
     };
     this.addRow(stockSource, quantity);
-    this.produitSelected = null;
+    this.produitSelected.set(null);
     this.produitbox()?.reset();
     this.quantityBox()?.reset();
     this.setProductBoxFocus();
@@ -181,7 +181,7 @@ export class AppManualRepartitionComponent implements OnInit {
       availableDestinations,
     };
     this.validateRow(newRow);
-    this.repartitionRows.push(newRow);
+    this.repartitionRows().push(newRow);
   }
 
   protected getAvailableDestinations(stockSource: IStockProduit): IStockProduit[] {
@@ -192,7 +192,7 @@ export class AppManualRepartitionComponent implements OnInit {
   }
 
   protected removeRow(row: IRepartitionRow): void {
-    this.repartitionRows = this.repartitionRows.filter(r => r.id !== row.id);
+    this.repartitionRows.set(this.repartitionRows().filter(r => r.id !== row.id));
   }
 
   protected validateRow(row: IRepartitionRow): void {
@@ -222,7 +222,7 @@ export class AppManualRepartitionComponent implements OnInit {
   }
 
   protected get isFormValid(): boolean {
-    return this.repartitionRows.length > 0 && this.repartitionRows.every(row => row.isValid);
+    return this.repartitionRows().length > 0 && this.repartitionRows().every(row => row.isValid);
   }
 
   protected save(): void {
@@ -230,7 +230,7 @@ export class AppManualRepartitionComponent implements OnInit {
       this.notificationService.warning('Veuillez corriger les erreurs avant de soumettre', 'Validation');
       return;
     }
-    const requests: IManualRepartitionRequest[] = this.repartitionRows
+    const requests: IManualRepartitionRequest[] = this.repartitionRows()
       .filter(row => row.isValid && row.stockSource && (row.stockDestination || row.createNewDestination))
       .map(row => ({
         stockSourceId: row.stockSource!.id,
@@ -239,25 +239,25 @@ export class AppManualRepartitionComponent implements OnInit {
         seuilMini: row.seuilMini,
         createNewDestination: row.createNewDestination === true,
       }));
-    this.isSaving = true;
+    this.isSaving.set(true);
     this.repartitionService.processManualRepartition(requests).subscribe({
       next: () => {
-        this.isSaving = false;
+        this.isSaving.set(false);
         this.notificationService.success(`${requests.length} répartition(s) effectuée(s) avec succès`);
-        this.repartitionRows = [];
-        this.produitSelected = null;
+        this.repartitionRows.set([]);
+        this.produitSelected.set(null);
         this.produitbox()?.reset();
         this.setProductBoxFocus();
       },
       error: () => {
-        this.isSaving = false;
+        this.isSaving.set(false);
         this.notificationService.error('Erreur lors du traitement des répartitions');
       },
     });
   }
 
   get validRowsCount(): number {
-    return this.repartitionRows?.filter(r => r.isValid)?.length ?? 0;
+    return this.repartitionRows()?.filter(r => r.isValid)?.length ?? 0;
   }
 
   protected canCreateReserve(row: IRepartitionRow): boolean {

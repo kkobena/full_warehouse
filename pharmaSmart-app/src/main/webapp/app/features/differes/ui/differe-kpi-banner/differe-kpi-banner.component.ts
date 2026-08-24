@@ -8,7 +8,7 @@ import { DevisePipe } from 'app/shared/utils/devise';
   selector: 'app-differe-kpi-banner',
   imports: [DevisePipe, CommonModule, KpiItemComponent, KpiStripComponent],
   templateUrl: './differe-kpi-banner.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './differe-kpi-banner.component.scss',
 })
 export class DiffereKpiBannerComponent {

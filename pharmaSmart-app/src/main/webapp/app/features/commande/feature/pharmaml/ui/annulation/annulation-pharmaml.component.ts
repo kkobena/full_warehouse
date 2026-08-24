@@ -11,7 +11,7 @@ import {ErrorService} from "../../../../../../shared/error.service";
   selector: 'app-annulation-pharmaml',
   imports: [FormsModule, ButtonComponent],
   styleUrls: ['./annulation-pharmaml.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="modal-header">
       <h5 class="modal-title">Annuler la commande PharmaML</h5>

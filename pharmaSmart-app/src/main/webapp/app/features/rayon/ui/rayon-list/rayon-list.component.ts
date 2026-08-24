@@ -1,13 +1,13 @@
 import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { IRayon, TYPE_ZONE_SEVERITY } from '../../models/rayon.model';
-import { AppTableLazyLoadEvent, BadgeComponent, ButtonComponent, DataTableComponent } from '../../../../shared/ui';
+import { AppTableLazyLoadEvent, BadgeComponent, ButtonComponent, DataTableComponent, AppBadgeSeverity } from '../../../../shared/ui';
 
 @Component({
   selector: 'app-rayon-list',
   templateUrl: './rayon-list.component.html',
   styleUrl: './rayon-list.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DataTableComponent, ButtonComponent, BadgeComponent, NgbTooltip]
 })
 export class RayonListComponent {
@@ -64,7 +64,7 @@ export class RayonListComponent {
     return this.selectedRayon()?.id === rayon.id;
   }
 
-  protected typeZoneSev(typeZone?: string): string {
+  protected typeZoneSev(typeZone?: string): AppBadgeSeverity {
     if (!typeZone) return 'secondary';
     return this.typeZoneSeverity[typeZone as keyof typeof this.typeZoneSeverity] ?? 'secondary';
   }

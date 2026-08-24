@@ -19,7 +19,7 @@ import {TranslatePipe} from "@ngx-translate/core";
 @Component({
   selector: 'jhi-password-reset-finish',
   imports: [RouterModule, FormsModule, ReactiveFormsModule, PasswordStrengthBarComponent, TranslatePipe],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './password-reset-finish.component.html',
 })
 export default class PasswordResetFinishComponent implements OnInit, AfterViewInit {

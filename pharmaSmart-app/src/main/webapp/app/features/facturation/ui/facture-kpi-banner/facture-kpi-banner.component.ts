@@ -6,7 +6,7 @@ import { CommonModule } from "@angular/common";
   selector: "app-facture-kpi-banner",
   imports: [CommonModule],
   templateUrl: "./facture-kpi-banner.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./facture-kpi-banner.component.scss"
 })
 export class FactureKpiBannerComponent {

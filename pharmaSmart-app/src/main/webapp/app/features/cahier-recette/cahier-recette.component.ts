@@ -28,7 +28,7 @@ function withoutHidden(modules: ModuleRecette[]): ModuleRecette[] {
   selector: 'app-cahier-recette',
   imports: [CommonModule, FormsModule, ButtonComponent, BadgeComponent],
   templateUrl: './cahier-recette.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './cahier-recette.component.scss',
 })
 export class CahierRecetteComponent {

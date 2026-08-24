@@ -1,8 +1,9 @@
 package com.kobe.warehouse.service.declaration_ca;
 
 import com.kobe.warehouse.service.declaration_ca.dto.ExclusionItemDTO;
-import java.util.List;
 import java.util.Set;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Gère les référentiels dont les ventes peuvent être écartées du chiffre d'affaires à déclarer :
@@ -13,11 +14,23 @@ import java.util.Set;
  */
 public interface ExclusionReferentielService {
     /**
-     * @param exclus {@code null} pour tout lister, sinon filtre sur l'état d'exclusion
+     * Une page de rayons de l'emplacement de l'utilisateur connecté.
+     *
+     * <p>Filtre et recherche sont des prédicats SQL, pas un tri du résultat : écrémer une page
+     * déjà découpée renverrait des pages de tailles inégales et un total faux.
+     *
+     * @param exclus   {@code null} pour tout lister, sinon filtre sur l'état d'exclusion
+     * @param search   recherche sur le libellé ou le code ; {@code null} ou vide pour l'ignorer
      */
-    List<ExclusionItemDTO> listerRayons(Boolean exclus);
+    Page<ExclusionItemDTO> listerRayons(Boolean exclus, String search, Pageable pageable);
 
-    List<ExclusionItemDTO> listerTiersPayants(Boolean exclus);
+    /**
+     * Une page de tiers-payants candidats à l'exclusion.
+     *
+     * <p>Restreinte aux tiers-payants actifs et hors {@code CARNET} / {@code DEPOT} : ces deux
+     * catégories ne portent pas de chiffre d'affaires tiers-payant à écarter.
+     */
+    Page<ExclusionItemDTO> listerTiersPayants(Boolean exclus, String search, Pageable pageable);
 
     /**
      * Positionne l'état d'exclusion de plusieurs rayons.

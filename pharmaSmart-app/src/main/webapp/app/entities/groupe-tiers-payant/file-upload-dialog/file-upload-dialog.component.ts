@@ -7,7 +7,7 @@ import {ButtonComponent, CardComponent, FileUploadComponent} from '../../../shar
   selector: 'app-file-upload-dialog',
   templateUrl: './file-upload-dialog.component.html',
   styleUrls: ['./file-upload-dialog.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, ButtonComponent, CardComponent, FileUploadComponent],
 })
 export class FileUploadDialogComponent {

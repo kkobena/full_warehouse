@@ -13,16 +13,16 @@
               <h3 class="pharma-card-title">Billetage de caisse</h3>
               <p class="pharma-card-subtitle">
                 <i class="pi pi-calendar mr-1"></i>
-                Session du {{ selectedCashRegister?.created | date: 'dd/MM/yyyy HH:mm' }}
+                Session du {{ selectedCashRegister()?.created | date: 'dd/MM/yyyy HH:mm' }}
               </p>
             </div>
 
             <!-- Real-time Total Display -->
             <div class="pharma-live-total">
               <span class="pharma-live-total-label">Total</span>
-              <span [class.pharma-amount-animated]="totalAmount > 0"
+              <span [class.pharma-amount-animated]="totalAmount() > 0"
                     class="pharma-live-total-amount">
-                {{ totalAmount | number }} <span appDevise></span>
+                {{ totalAmount() | number }} <span appDevise></span>
               </span>
             </div>
           </div>
@@ -212,8 +212,8 @@
                   <i class="pi pi-calculator"></i>
                   Montant Total
                 </div>
-                <div [class.pharma-amount-pulse]="totalAmount > 0" class="pharma-total-amount">
-                  {{ totalAmount | number }} <span class="pharma-currency" appDevise></span>
+                <div [class.pharma-amount-pulse]="totalAmount() > 0" class="pharma-total-amount">
+                  {{ totalAmount() | number }} <span class="pharma-currency" appDevise></span>
                 </div>
               </div>
             </form>
@@ -226,8 +226,8 @@
                           label="Retour" severity="secondary" />
               <app-button
                 (clicked)="save()"
-                [disabled]="editForm.invalid || isSaving"
-                [loading]="isSaving"
+                [disabled]="editForm.invalid || isSaving()"
+                [loading]="isSaving()"
                 [raised]="true"
                 icon="pi pi-check-circle"
                 label="Valider le billetage"

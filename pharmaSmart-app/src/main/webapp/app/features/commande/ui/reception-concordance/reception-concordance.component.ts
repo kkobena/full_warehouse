@@ -19,7 +19,7 @@ export interface ConcordanceStats {
   selector: 'app-reception-concordance',
   templateUrl: './reception-concordance.component.html',
   styleUrls: ['./reception-concordance.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DecimalPipe, BadgeComponent, NgbTooltip],
 })
 export class ReceptionConcordanceComponent {

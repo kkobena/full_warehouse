@@ -20,7 +20,7 @@ interface ResponseLine {
   selector: "app-supplier-response-modal",
   imports: [CommonModule, FormsModule, ButtonComponent, DataTableComponent, InputNumberComponent, EditableCellComponent, NgbTooltip],
   templateUrl: "./supplier-response-modal.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./supplier-response-modal.component.scss"
 })
 export class SupplierResponseModalComponent implements OnInit {

@@ -13,8 +13,8 @@
       />
 
       <app-multi-select
-        [(ngModel)]="selectedUsersId"
-        [items]="users"
+        [ngModel]="selectedUsersId()" (ngModelChange)="selectedUsersId.set($event)"
+        [items]="users()"
         appendTo="body"
         bindLabel="abbrName"
         bindValue="id"
@@ -58,11 +58,11 @@
         />
 
 
-        <app-split-button [items]="messageBtn" [raised]="true" icon="pi pi-send" label="Message"
+        <app-split-button [items]="messageBtn()" [raised]="true" icon="pi pi-send" label="Message"
                           ngbTooltip="Envoie par mail ou SMS"
                           severity="info" />
 
-        <app-split-button [items]="exportMenus" [raised]="true" icon="pi pi-file-export"
+        <app-split-button [items]="exportMenus()" [raised]="true" icon="pi pi-file-export"
                           label="Exporter"
                           ngbTooltip="Imprimer ou exporter en PDF"
                           severity="help" />
@@ -72,7 +72,7 @@
 
   <!-- Recap Cards Container -->
   <div class="recap-cards-container mt-3 mb-3">
-    @let summary = ticketZ?.summaries || [];
+    @let summary = ticketZ()?.summaries || [];
 
     <!-- Summary Card (General) -->
     @if (summary.length) {
@@ -102,7 +102,7 @@
 
     <!-- Cashier Cards Container -->
     <div [class.full-width]="!summary.length" class="cashier-cards-grid">
-      @for (recap of ticketZ?.datas; track recap.userName) {
+      @for (recap of ticketZ()?.datas; track recap.userName) {
         <div class="recap-card recap-card-secondary">
           <div class="recap-card-header">
             <div class="recap-card-icon recap-card-icon-small">

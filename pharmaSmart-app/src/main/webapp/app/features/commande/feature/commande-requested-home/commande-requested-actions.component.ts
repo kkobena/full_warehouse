@@ -1,4 +1,4 @@
-import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy, signal } from '@angular/core';
 import {
   NgbDropdown,
   NgbDropdownItem,
@@ -20,7 +20,7 @@ interface MenuEntry {
 @Component({
   selector: 'app-commande-requested-actions',
   imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, NgbTooltip],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div ngbDropdown container="body" placement="bottom-end">
       <button

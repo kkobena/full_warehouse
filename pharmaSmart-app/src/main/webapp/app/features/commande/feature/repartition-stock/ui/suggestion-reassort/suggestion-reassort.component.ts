@@ -27,7 +27,7 @@ ModuleRegistry.registerModules([AllCommunityModule]);
   templateUrl: './suggestion-reassort.component.html',
   styleUrls: ['./suggestion-reassort.scss'],
   imports: [CommonModule, DataTableComponent, ButtonComponent, BadgeComponent, NgbTooltip, RowTogglerDirective, AgGridAngular],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppSuggestionReassortComponent {
   readonly typeReassort = input<string>('RAYON');

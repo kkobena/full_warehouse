@@ -11,7 +11,7 @@ import { ModifRetourProduitService } from 'app/entities/motif-retour-produit/mot
   selector: 'app-retour-complet-modal',
   imports: [CommonModule, FormsModule, ButtonComponent, SelectComponent],
   templateUrl: './retour-complet-modal.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './retour-complet-modal.component.scss',
 })
 export class RetourCompletModalComponent implements OnInit {

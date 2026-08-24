@@ -40,7 +40,7 @@ import {
   selector: "app-import-suggestion-modal",
   templateUrl: "./import-suggestion-modal.component.html",
   styleUrls: ["./import-suggestion.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

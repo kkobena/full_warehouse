@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import {signal, Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { NgbActiveModal, NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { PrixReferenceService } from "../prix-reference.service";
 import { PrixReference } from "../model/prix-reference.model";
@@ -14,14 +14,14 @@ import { NgbConfirmDialogService } from "../../../../../shared/dialog/ngb-confir
   imports: [CommonModule, ButtonComponent, NgbTooltip, CardComponent],
 
   templateUrl: "./list-prix-reference.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ["./list-prix-reference.component.scss"]
 })
 export class ListPrixReferenceComponent implements OnInit {
   produit: IProduit | null = null;
   tiersPayant: ITiersPayant | null = null;
   isFromProduit = true;
-  protected prixReferences: PrixReference[] = [];
+  protected readonly prixReferences = signal([]);
   private readonly activeModal = inject(NgbActiveModal);
   private readonly entityService = inject(PrixReferenceService);
   private readonly modalService = inject(NgbModal);
@@ -50,11 +50,11 @@ export class ListPrixReferenceComponent implements OnInit {
   protected load(): void {
     if (this.isFromProduit && this.produit) {
       this.entityService.query(this.produit.id).subscribe(res => {
-        this.prixReferences = res.body || [];
+        this.prixReferences.set(res.body || []);
       });
     } else if (this.tiersPayant) {
       this.entityService.queryByTiersPayantId(this.tiersPayant.id).subscribe(res => {
-        this.prixReferences = res.body || [];
+        this.prixReferences.set(res.body || []);
       });
     }
   }

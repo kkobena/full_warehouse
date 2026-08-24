@@ -17,11 +17,7 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {TranslatePipe} from '@ngx-translate/core';
 import {DecimalPipe} from '@angular/common';
-import {
-  APPEND_TO,
-  PRODUIT_COMBO_MIN_LENGTH,
-  PRODUIT_NOT_FOUND
-} from '../constants/pagination.constants';
+import {APPEND_TO, PRODUIT_COMBO_MIN_LENGTH} from '../constants/pagination.constants';
 import {ProduitSearch} from '../model';
 import {ProduitService} from '../../entities/produit/produit.service';
 import {catchError, debounceTime, filter, of, Subject, Subscription} from 'rxjs';
@@ -31,7 +27,7 @@ import {FloatLabelComponent, SelectSearchComponent} from '../ui';
 @Component({
   selector: 'app-produit-search-autocomplete-scanner',
   imports: [SelectSearchComponent, FormsModule, FloatLabelComponent, TranslatePipe, DecimalPipe],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './produit-search-autocomplete-scanner.component.html',
 })
 export class ProduitSearchAutocompleteScannerComponent implements OnDestroy, OnInit {
@@ -56,7 +52,6 @@ export class ProduitSearchAutocompleteScannerComponent implements OnDestroy, OnI
   onBarcodeScanned = output<string>();
 
   protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
-  protected readonly PRODUIT_NOT_FOUND = PRODUIT_NOT_FOUND;
   protected readonly APPEND_TO = APPEND_TO;
 
   private readonly produitService = inject(ProduitService);
@@ -73,8 +68,8 @@ export class ProduitSearchAutocompleteScannerComponent implements OnDestroy, OnI
    */
   protected readonly typeaheadSink$ = new Subject<string>();
 
-  private isScanning = false;
-  private isManualSearching = false;
+  private readonly isScanning = signal(false);
+  private readonly isManualSearching = signal(false);
   private manualSearchTimeout: ReturnType<typeof setTimeout> | null = null;
   private keydownListener?: (event: KeyboardEvent) => void;
   private animationFrameId: number | null = null;
@@ -100,7 +95,7 @@ export class ProduitSearchAutocompleteScannerComponent implements OnDestroy, OnI
     if (typeof value === 'string') {
       return;
     }
-    if (this.isScanning) {
+    if (this.isScanning()) {
       return;
     }
     if (this._produitSelected() !== value) {
@@ -128,7 +123,7 @@ export class ProduitSearchAutocompleteScannerComponent implements OnDestroy, OnI
         } else if (!enabled && this.keydownListener) {
           // Scanner désactivé mais encore configuré
           this.removeBarcodeScanner();
-          this.isScanning = false;
+          this.isScanning.set(false);
           this.stopInputClearLoop();
         }
       },
@@ -149,20 +144,20 @@ export class ProduitSearchAutocompleteScannerComponent implements OnDestroy, OnI
   searchFn(term: string): void {
     // If a scan was wrongly detected (e.g., from fast typing), abort it.
     // User interaction with the search box should always have priority.
-    if (this.isScanning) {
-      this.isScanning = false;
+    if (this.isScanning()) {
+      this.isScanning.set(false);
       this.stopInputClearLoop();
     }
 
     // Flag that a manual search is in progress to prevent the scanner from starting.
-    this.isManualSearching = true;
+    this.isManualSearching.set(true);
 
     // Debounce the reset of the manual search flag.
     if (this.manualSearchTimeout) {
       clearTimeout(this.manualSearchTimeout);
     }
     this.manualSearchTimeout = setTimeout(() => {
-      this.isManualSearching = false;
+      this.isManualSearching.set(false);
       this.manualSearchTimeout = null;
     }, 600); // Must be longer than the scan detector's timeout.
 
@@ -182,7 +177,7 @@ export class ProduitSearchAutocompleteScannerComponent implements OnDestroy, OnI
   }
 
   onNgModelChange(value: ProduitSearch | null): void {
-    if (this.isScanning) {
+    if (this.isScanning()) {
       return;
     }
     this.produitSelected = value;
@@ -209,8 +204,8 @@ export class ProduitSearchAutocompleteScannerComponent implements OnDestroy, OnI
   }
 
   reset(): void {
-    this.isScanning = false;
-    this.isManualSearching = false;
+    this.isScanning.set(false);
+    this.isManualSearching.set(false);
     if (this.manualSearchTimeout) {
       clearTimeout(this.manualSearchTimeout);
       this.manualSearchTimeout = null;
@@ -253,7 +248,7 @@ export class ProduitSearchAutocompleteScannerComponent implements OnDestroy, OnI
           // produire de code valide : sans ce cas, `isScanning` restait bloqué à `true`
           // et la boucle de nettoyage de la saisie continuait à vider le champ à chaque
           // frame, rendant la saisie manuelle impossible jusqu'au rechargement de la page.
-          this.isScanning = false;
+          this.isScanning.set(false);
           this.stopInputClearLoop();
         }
       });
@@ -269,10 +264,10 @@ export class ProduitSearchAutocompleteScannerComponent implements OnDestroy, OnI
     // Ignorer si l'utilisateur est en train de faire une recherche manuelle
     // On vérifie : le flag isManualSearching OU si le dropdown est visible
     const isOpen = this.produitboxCmp()?.isOpen();
-    if (this.isManualSearching || isOpen) {
+    if (this.isManualSearching() || isOpen) {
       return;
     }
-    this.isScanning = true;
+    this.isScanning.set(true);
     this.clearInputValue();
     this.startInputClearLoop();
   }
@@ -281,8 +276,8 @@ export class ProduitSearchAutocompleteScannerComponent implements OnDestroy, OnI
     // Ignorer si l'utilisateur est en train de faire une recherche manuelle
     // On vérifie : le flag isManualSearching OU si le dropdown est visible
     const isOpen = this.produitboxCmp()?.isOpen();
-    if (this.isManualSearching || isOpen) {
-      this.isScanning = false;
+    if (this.isManualSearching() || isOpen) {
+      this.isScanning.set(false);
       this.stopInputClearLoop();
       return;
     }
@@ -296,7 +291,7 @@ export class ProduitSearchAutocompleteScannerComponent implements OnDestroy, OnI
 
     // Délai avant de désactiver le mode scan pour éviter les mises à jour indésirables
     setTimeout(() => {
-      this.isScanning = false;
+      this.isScanning.set(false);
     }, 400);
   }
 
@@ -327,8 +322,8 @@ export class ProduitSearchAutocompleteScannerComponent implements OnDestroy, OnI
     const startedAt = Date.now();
     const maxDurationMs = 2000;
     const clearLoop = () => {
-      if (!this.isScanning || Date.now() - startedAt > maxDurationMs) {
-        this.isScanning = false;
+      if (!this.isScanning() || Date.now() - startedAt > maxDurationMs) {
+        this.isScanning.set(false);
         return;
       }
       this.clearInputValue();
@@ -373,7 +368,7 @@ export class ProduitSearchAutocompleteScannerComponent implements OnDestroy, OnI
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError(err => {
-          this.isScanning = false;
+          this.isScanning.set(false);
           this.produits.set([]);
           return of({body: []});
         }),
@@ -389,11 +384,11 @@ export class ProduitSearchAutocompleteScannerComponent implements OnDestroy, OnI
         } else if (result.length > 1) {
           this.produits.set(result);
           this.selectProduit.set(null);
-          this.isScanning = false;
+          this.isScanning.set(false);
         } else {
           this.selectProduit.set(null);
           this.produits.set([]);
-          this.isScanning = false;
+          this.isScanning.set(false);
         }
       });
   }

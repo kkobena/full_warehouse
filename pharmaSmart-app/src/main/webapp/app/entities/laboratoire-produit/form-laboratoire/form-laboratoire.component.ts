@@ -1,5 +1,5 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { LaboratoireProduitService } from '../laboratoire-produit.service';
@@ -14,14 +14,14 @@ import { finalize } from 'rxjs/operators';
   selector: 'app-form-laboratoire',
   templateUrl: './form-laboratoire.component.html',
   styleUrls: ['./form-laboratoire.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, ReactiveFormsModule, ButtonComponent],
 })
 export class FormLaboratoireComponent implements OnInit, AfterViewInit {
   header = '';
   laboratoire: ILaboratoire | null = null;
   protected fb = inject(UntypedFormBuilder);
-  protected isSaving = false;
+  protected readonly isSaving = signal(false);
   protected editForm = this.fb.group({
     id: [],
     libelle: [null, [Validators.required]],
@@ -52,7 +52,7 @@ export class FormLaboratoireComponent implements OnInit, AfterViewInit {
   }
 
   protected save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const entity = this.createFromForm();
     if (entity.id !== undefined && entity.id !== null) {
       this.subscribeToSaveResponse(this.entityService.update(entity));
@@ -66,7 +66,7 @@ export class FormLaboratoireComponent implements OnInit, AfterViewInit {
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<ILaboratoire>>): void {
-    result.pipe(finalize(() => (this.isSaving = false))).subscribe({
+    result.pipe(finalize(() => (this.isSaving.set(false)))).subscribe({
       next: (res: HttpResponse<ILaboratoire>) => this.onSaveSuccess(res.body),
       error: err => this.onSaveError(err),
     });

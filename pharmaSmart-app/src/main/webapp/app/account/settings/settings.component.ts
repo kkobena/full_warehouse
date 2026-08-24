@@ -15,7 +15,7 @@ const initialAccount: Account = {} as Account;
   selector: "app-settings",
   imports: [CommonModule, FormsModule, ReactiveFormsModule, AlertErrorComponent, FindLanguageFromKeyPipe, ButtonComponent],
   templateUrl: "./settings.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ["./settings.scss"]
 })
 export default class SettingsComponent implements OnInit {

@@ -9,9 +9,12 @@ import { IDailySalesSummary } from "app/shared/model/report/daily-sales-summary.
 import { SalesSummaryReportService } from "../services/sales-summary-report.service";
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import {
+  AppBadgeSeverity,
   BadgeComponent,
   ButtonComponent,
   DataTableComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   SelectComponent,
   ToolbarComponent
 } from '../../../shared/ui';
@@ -21,7 +24,7 @@ import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-da
   selector: "app-sales-summary",
   templateUrl: "./sales-summary.component.html",
   styleUrl: "./sales-summary.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -30,7 +33,9 @@ import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-da
     DataTableComponent,
     SelectComponent,
     ToolbarComponent,
-    PharmaDatePickerComponent
+    PharmaDatePickerComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ]
 })
 export default class SalesSummaryComponent implements OnInit {
@@ -115,7 +120,7 @@ export default class SalesSummaryComponent implements OnInit {
   }
 
 
-  getSeverityForType(type: string | undefined): string {
+  getSeverityForType(type: string | undefined): AppBadgeSeverity {
     if (!type) return "secondary";
     switch (type) {
       case "VO":

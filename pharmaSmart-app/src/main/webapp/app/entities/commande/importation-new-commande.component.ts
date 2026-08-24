@@ -1,7 +1,7 @@
-import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy, signal } from "@angular/core";
 import { IFournisseur } from "../../shared/model/fournisseur.model";
 import { CommandeService } from "./commande.service";
-import { NgbActiveModal, NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { ErrorService } from "../../shared/error.service";
 import { ICommandeResponse } from "../../shared/model/commande-response.model";
 import { HttpErrorResponse } from "@angular/common/http";
@@ -18,33 +18,32 @@ import { CommonModule } from "@angular/common";
   selector: "app-importation-new-commande",
   templateUrl: "./importation-new-commande.component.html",
   styleUrls: ["./form-import-new.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, FileUploadComponent, ButtonComponent, FournisseurSelectComponent, CardComponent, SpinnerComponent, SelectComponent]
 })
 export class ImportationNewCommandeComponent implements OnInit {
   header = "";
-  protected isSaving = false;
+  protected readonly isSaving = signal(false);
   fournisseurSelectedId!: number;
   modelSelected!: string;
-  models: any[];
-  file: any;
+  protected readonly models = signal<any[] | undefined>(undefined);
+  protected readonly file = signal<any | undefined>(undefined);
   commandeResponse!: ICommandeResponse | null;
   private readonly commandeService = inject(CommandeService);
-  protected readonly modalService = inject(NgbModal);
   private readonly spinner = viewChild.required<SpinnerComponent>("spinner");
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
   private readonly activeModal = inject(NgbActiveModal);
 
   constructor() {
-    this.models = [
+    this.models.set([
       { label: "LABOREX", value: "LABOREX" },
       { label: "COPHARMED", value: "COPHARMED" },
       { label: "DPCI", value: "DPCI" },
       { label: "TEDIS", value: "TEDIS" },
       { label: "Cip  quantité", value: "CIP_QTE" },
       { label: "Cip quantité prix achat", value: "CIP_QTE_PA" }
-    ];
+    ]);
   }
 
   ngOnInit(): void {
@@ -55,9 +54,9 @@ export class ImportationNewCommandeComponent implements OnInit {
   }
 
   protected save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const formData: FormData = new FormData();
-    const file = this.file;
+    const file = this.file();
 
     formData.append("commande", file, file.name);
     this.spinner().show();
@@ -66,7 +65,7 @@ export class ImportationNewCommandeComponent implements OnInit {
       .pipe(
         finalize(() => {
           this.spinner().hide();
-          this.isSaving = false;
+          this.isSaving.set(false);
         })
       )
       .subscribe({
@@ -81,7 +80,7 @@ export class ImportationNewCommandeComponent implements OnInit {
   }
 
   protected onFilesSelected(files: File[]): void {
-    this.file = files[0] ?? null;
+    this.file.set(files[0] ?? null);
   }
 
   protected cancel(): void {
@@ -89,7 +88,7 @@ export class ImportationNewCommandeComponent implements OnInit {
   }
 
   protected isValidForm(): boolean {
-    return !!this.file && !!this.modelSelected && !!this.fournisseurSelectedId;
+    return !!this.file() && !!this.modelSelected && !!this.fournisseurSelectedId;
   }
 
   private onCommonError(error: HttpErrorResponse): void {

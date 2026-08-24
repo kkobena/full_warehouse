@@ -7,7 +7,7 @@ import { ButtonComponent } from 'app/shared/ui';
   selector: 'app-retour-commentaire-modal',
   imports: [FormsModule, ButtonComponent],
   styleUrls: ['./retour-commentiare.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="modal-header">
       <h5 class="modal-title"><i class="pi pi-check-circle me-2"></i>Confirmer la création du retour</h5>

@@ -2,7 +2,7 @@
   <app-float-label label="{{ placeholder() }}" inputId="fournisseur-multi-select">
     <app-multi-select
       inputId="fournisseur-multi-select"
-      [(ngModel)]="selectedMultiple"
+      [ngModel]="selectedMultiple()" (ngModelChange)="selectedMultiple.set($event)"
       (ngModelChange)="onMultiChange($event)"
       [items]="grouped() ? groupedFournisseurs() : fournisseurs()"
       [groupBy]="grouped() ? 'groupLabel' : ''"
@@ -19,7 +19,7 @@
   <app-float-label label="{{ placeholder() }}" inputId="fournisseur-select">
     <app-select-search
       inputId="fournisseur-select"
-      [(ngModel)]="selectedSingle"
+      [ngModel]="selectedSingle()" (ngModelChange)="selectedSingle.set($event)"
       (ngModelChange)="onSingleChange($event)"
       [items]="grouped() ? groupedFournisseurs() : fournisseurs()"
       [groupBy]="grouped() ? 'groupLabel' : ''"

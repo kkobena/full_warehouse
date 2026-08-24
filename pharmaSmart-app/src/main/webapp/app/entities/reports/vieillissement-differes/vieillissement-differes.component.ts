@@ -11,7 +11,14 @@ import {IDiffere, IDiffereSummary} from "../../../features/differes/data-access/
 import {DATE_FORMAT_ISO_DATE} from '../../../shared/util/warehouse-util';
 import {formatCurrency, formatNumber} from 'app/shared/utils/format-utils';
 import {forkJoin} from 'rxjs';
-import {ButtonComponent, DataTableComponent, SortableHeaderDirective, ToolbarComponent} from '../../../shared/ui';
+import {
+  ButtonComponent,
+  DataTableComponent,
+  KpiItemComponent,
+  KpiStripComponent,
+  SortableHeaderDirective,
+  ToolbarComponent
+} from '../../../shared/ui';
 
 import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
@@ -23,10 +30,12 @@ import { DeviseDirective } from 'app/shared/utils/devise';
     ButtonComponent,
     DataTableComponent,
     SortableHeaderDirective,
-    ToolbarComponent
+    ToolbarComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ],
   templateUrl: './vieillissement-differes.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./vieillissement-differes.component.scss'],
 })
 export default class VieillissementDifferesComponent implements OnInit {

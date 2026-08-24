@@ -7,7 +7,7 @@
               <jhi-produit-autocomplete
                 #produitComponent
                 (selectedProduit)="onSelect($event)"
-                [(ngModel)]="produitSelected"
+                [ngModel]="produitSelected()" (ngModelChange)="produitSelected.set($event)"
                 [includeDetails]="includeDetail"
                 [pageSize]="PRODUIT_COMBO_RESULT_SIZE"
               >
@@ -17,7 +17,7 @@
               <input
                 #numLot
                 (keyup.enter)="onNumLot($event)"
-                [disabled]="!produitSelected"
+                [disabled]="!produitSelected()"
                 [appKeyFilter]="'alphanum'"
                 autocomplete="off"
                 class="form-control"
@@ -28,7 +28,7 @@
             <div class="mr-1">
               <pharma-date-picker
                 #datePeremention
-                [(ngModel)]="dateValue"
+                [ngModel]="dateValue()" (ngModelChange)="dateValue.set($event)"
                 (selectionChange)="onDatePerementionChange($event)"
                 [disabled]="numLotIsEmpty"
                 id="datePeremtion"
@@ -52,7 +52,7 @@
             <div class="pharma-button-group">
               <app-button
                 (clicked)="onClose()"
-                [disabled]="data.length == 0 || isSaving"
+                [disabled]="data().length == 0 || isSaving()"
                 [label]="'warehouseApp.buttons.closeAction' | translate"
                 icon="pi pi-lock"
                 severity="info"
@@ -73,14 +73,14 @@
     <app-data-table
       (onLazyLoad)="lazyLoading($event)"
       [lazy]="true"
-      [loading]="loading"
+      [loading]="loading()"
       [paginator]="true"
       [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
       [rows]="itemsPerPage"
       [showCurrentPageReport]="false"
       [showGridlines]="true"
-      [totalRecords]="totalItems"
-      [value]="data"
+      [totalRecords]="totalItems()"
+      [value]="data()"
       dataKey="id"
     >
       <ng-template #caption>
@@ -105,25 +105,25 @@
       <ng-template #body let-data>
         <tr>
           <td class="pharma-product-name">
-            {{ data.produitName }}
+            {{ data().produitName }}
           </td>
 
           <td class="pharma-code">
-            {{ data.produitCodeCip }}
+            {{ data().produitCodeCip }}
           </td>
           <td class="pharma-code">
-            {{ data.numLot }}
+            {{ data().numLot }}
           </td>
           <td>
-            {{ data.datePeremption }}
+            {{ data().datePeremption }}
           </td>
           <td class="amount-column text-right">
             <app-editable-cell>
               <ng-template #input>
                 <input
                   #quantityInput
-                  (keydown.enter)="modifyProductQuantity(data, quantityInput.value)"
-                  [(ngModel)]="data.quantity"
+                  (keydown.enter)="modifyProductQuantity(data(), quantityInput.value)"
+                  [(ngModel)]="data().quantity"
                   autocomplete="off"
                   class="form-control form-control-sm text-end"
                   required
@@ -131,28 +131,28 @@
                 />
               </ng-template>
               <ng-template #output>
-                <span class="pharma-qty-value">{{ data.quantity | number }}</span>
+                <span class="pharma-qty-value">{{ data().quantity | number }}</span>
               </ng-template>
             </app-editable-cell>
           </td>
 
           <td class="text-right amount-column">
-            <span class="pharma-price">{{ data.prixAchat | number }}</span>
+            <span class="pharma-price">{{ data().prixAchat | number }}</span>
           </td>
           <td class="text-right amount-column">
-            <span class="pharma-price">{{ data.prixUni | number }}</span>
+            <span class="pharma-price">{{ data().prixUni | number }}</span>
           </td>
           <td class="text-center">
-            <app-badge [severity]="getSeverity(data.peremptionStatut)" [label]="data.peremptionStatut.libelle" />
+            <app-badge [severity]="getSeverity(data().peremptionStatut)" [label]="data().peremptionStatut.libelle" />
           </td>
 
           <td class="pharma-entity-name">
-            {{ data.fournisseur }}
+            {{ data().fournisseur }}
           </td>
 
           <td class="text-right">
             <app-button
-              (clicked)="onRemoveItem(data)"
+              (clicked)="onRemoveItem(data())"
               [rounded]="true"
               [text]="true"
               icon="pi pi-trash"

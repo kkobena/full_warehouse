@@ -53,7 +53,7 @@
           <app-select-search
             (searched)="searchTiersPayant($event)"
             (selectionChange)="onSelectTiersPayant($event)"
-            [items]="tiersPayants"
+            [items]="tiersPayants()"
             [minSearchLength]="minLength"
             appendTo="body"
             bindLabel="fullName"

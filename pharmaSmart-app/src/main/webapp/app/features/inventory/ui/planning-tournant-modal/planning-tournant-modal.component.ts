@@ -24,7 +24,7 @@ interface IUserOption extends IUser {
   selector: 'app-planning-tournant-modal',
   imports: [CommonModule, ReactiveFormsModule, ButtonComponent, SelectComponent, SelectSearchComponent, PharmaDatePickerComponent, NgbTooltip, CardComponent],
   templateUrl: './planning-tournant-modal.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './planning-tournant-modal.component.scss',
 })
 export class PlanningTournantModalComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild, AfterViewInit, ElementRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, viewChild, AfterViewInit, ElementRef, ChangeDetectionStrategy, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { NotificationService } from '../../../shared/services/notification.service';
 import { ErrorService } from '../../../shared/error.service';
@@ -15,17 +15,17 @@ import { ButtonComponent, CardComponent, CheckboxComponent, KeyFilterDirective }
   selector: 'jhi-form-stock-produit',
   imports: [FormsModule, ReactiveFormsModule, ButtonComponent, CardComponent, KeyFilterDirective, CheckboxComponent],
   templateUrl: './form-stock-produit.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './form-stock-produit.component.scss',
 })
 export class FormStockProduitComponent implements OnInit, AfterViewInit {
   produit?: IProduit;
   stockProduit?: IStockProduit;
-  isSaving = false;
-  isEditMode = false;
-  withTransfer = false;
-  maxTransferableQty = 0;
-  stockRayonProduit?: IStockProduit;
+  protected readonly isSaving = signal(false);
+  protected readonly isEditMode = signal(false);
+  protected readonly withTransfer = signal(false);
+  protected readonly maxTransferableQty = signal(0);
+  protected readonly stockRayonProduit = signal<IStockProduit | undefined>(undefined);
 
   fb = inject(UntypedFormBuilder);
   editForm = this.fb.group({
@@ -46,9 +46,9 @@ export class FormStockProduitComponent implements OnInit, AfterViewInit {
   //  private readonly stockReassortInput = viewChild<ElementRef>('stockReassortInput');
 
   ngOnInit(): void {
-    this.isEditMode = !!this.stockProduit?.id;
+    this.isEditMode.set(!!this.stockProduit?.id);
 
-    if (this.isEditMode) {
+    if (this.isEditMode()) {
       this.editForm.patchValue({
         seuilMini: this.stockProduit!.seuilMini,
         stockReassort: this.stockProduit!.stockReassort,
@@ -71,7 +71,7 @@ export class FormStockProduitComponent implements OnInit, AfterViewInit {
   }
 
   get title(): string {
-    if (this.isEditMode) {
+    if (this.isEditMode()) {
       const stockType = this.stockProduit?.storageType || 'Stock';
       return `Modifier ${stockType}`;
     }
@@ -83,7 +83,7 @@ export class FormStockProduitComponent implements OnInit, AfterViewInit {
   }
 
   isFormValid(): boolean {
-    if (this.isSaving || !this.editForm.valid) {
+    if (this.isSaving() || !this.editForm.valid) {
       return false;
     }
 
@@ -92,9 +92,9 @@ export class FormStockProduitComponent implements OnInit, AfterViewInit {
       return false;
     }
 
-    if (!this.isEditMode && this.withTransfer) {
+    if (!this.isEditMode() && this.withTransfer()) {
       const transferQuantity = this.editForm.get('transferQuantity')!.value;
-      return transferQuantity > 0 && transferQuantity <= this.maxTransferableQty;
+      return transferQuantity > 0 && transferQuantity <= this.maxTransferableQty();
     }
 
     return true;
@@ -105,9 +105,9 @@ export class FormStockProduitComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    this.isSaving = true;
+    this.isSaving.set(true);
 
-    if (this.isEditMode) {
+    if (this.isEditMode()) {
       this.updateStockProduit();
     } else {
       this.createStockProduit();
@@ -120,11 +120,11 @@ export class FormStockProduitComponent implements OnInit, AfterViewInit {
 
   private setupTransferWatcher(): void {
     this.editForm.get('withTransfer')!.valueChanges.subscribe(value => {
-      this.withTransfer = value;
+      this.withTransfer.set(value);
       if (value) {
         this.editForm
           .get('transferQuantity')!
-          .setValidators([Validators.required, Validators.min(1), Validators.max(this.maxTransferableQty)]);
+          .setValidators([Validators.required, Validators.min(1), Validators.max(this.maxTransferableQty())]);
         this.editForm.get('transferQuantity')!.enable();
       } else {
         this.editForm.get('transferQuantity')!.clearValidators();
@@ -137,12 +137,12 @@ export class FormStockProduitComponent implements OnInit, AfterViewInit {
 
   private findStockRayon(): void {
     const stockProduits = this.produit?.stockProduits || [];
-    this.stockRayonProduit = stockProduits.find(sp => sp.type === 'PRINCIPAL');
+    this.stockRayonProduit.set(stockProduits.find(sp => sp.type === 'PRINCIPAL'));
 
-    if (this.stockRayonProduit) {
-      const qtyStock = this.stockRayonProduit.qtyStock || 0;
-      const seuilMini = this.stockRayonProduit.seuilMini || 0;
-      this.maxTransferableQty = Math.max(0, qtyStock - seuilMini);
+    if (this.stockRayonProduit()) {
+      const qtyStock = this.stockRayonProduit().qtyStock || 0;
+      const seuilMini = this.stockRayonProduit().seuilMini || 0;
+      this.maxTransferableQty.set(Math.max(0, qtyStock - seuilMini));
     }
   }
 
@@ -150,7 +150,7 @@ export class FormStockProduitComponent implements OnInit, AfterViewInit {
     const seuilMini = this.editForm.get('seuilMini')!.value;
     const stockReassort = this.editForm.get('stockReassort')!.value;
     let transferQuantity = 0;
-    if (this.withTransfer && this.stockRayonProduit) {
+    if (this.withTransfer() && this.stockRayonProduit()) {
       transferQuantity = this.editForm.get('transferQuantity')!.value;
     }
 
@@ -161,12 +161,12 @@ export class FormStockProduitComponent implements OnInit, AfterViewInit {
       qtyStock: transferQuantity || 0,
       qtyVirtual: 0,
       qtyUG: 0,
-      withTransfer: this.withTransfer && this.stockRayonProduit && transferQuantity > 0,
+      withTransfer: this.withTransfer() && this.stockRayonProduit() && transferQuantity > 0,
     };
 
     this.stockProduitService
       .create(newStock)
-      .pipe(finalize(() => (this.isSaving = false)))
+      .pipe(finalize(() => (this.isSaving.set(false))))
       .subscribe({
         next: response => {
           const createdStock = response.body!;
@@ -181,7 +181,7 @@ export class FormStockProduitComponent implements OnInit, AfterViewInit {
     const transferQuantity = this.editForm.get('transferQuantity')!.value;
 
     const transferRequest = {
-      stockSourceId: this.stockRayonProduit!.id!,
+      stockSourceId: this.stockRayonProduit()!.id!,
       stockDestinationId: newReserveStock.id!,
       quantity: transferQuantity,
     };
@@ -207,7 +207,7 @@ export class FormStockProduitComponent implements OnInit, AfterViewInit {
 
     this.stockProduitService
       .update(updatedStock)
-      .pipe(finalize(() => (this.isSaving = false)))
+      .pipe(finalize(() => (this.isSaving.set(false))))
       .subscribe({
         next: response => this.onSaveSuccess([response.body!]),
         error: (error: HttpErrorResponse) => this.onSaveError(error),

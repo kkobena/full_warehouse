@@ -10,7 +10,14 @@ import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date
 import {IAvoir} from "../../../features/facturation/data-access/models";
 import {DATE_FORMAT_ISO_DATE} from '../../../shared/util/warehouse-util';
 import {formatCurrency, formatDateFR, formatNumber} from 'app/shared/utils/format-utils';
-import {ButtonComponent, DataTableComponent, SortableHeaderDirective, ToolbarComponent} from '../../../shared/ui';
+import {
+  ButtonComponent,
+  DataTableComponent,
+  KpiItemComponent,
+  KpiStripComponent,
+  SortableHeaderDirective,
+  ToolbarComponent
+} from '../../../shared/ui';
 
 import { DeviseDirective } from 'app/shared/utils/devise';
 type AvoirStatut = 'DRAFT' | 'EMIS' | 'IMPUTE' | 'ANNULE';
@@ -32,10 +39,12 @@ interface AvoirStatutStat {
     ButtonComponent,
     DataTableComponent,
     SortableHeaderDirective,
-    ToolbarComponent
+    ToolbarComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ],
   templateUrl: './avoirs-analytics.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./avoirs-analytics.component.scss'],
 })
 export default class AvoirsAnalyticsComponent implements OnInit {

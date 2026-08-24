@@ -26,7 +26,7 @@
         </label>
         <app-select-search
           (selectionChange)="onSelectUser()"
-          [(ngModel)]="userSeller"
+          [ngModel]="userSeller()" (ngModelChange)="userSeller.set($event)"
           [searchable]="false"
           appendTo="body"
           [items]="userVendeurService.vendeurs()"
@@ -45,7 +45,7 @@
         </label>
         <app-select-search
           (selectionChange)="onSelectDepot()"
-          [(ngModel)]="selectedDepot"
+          [ngModel]="selectedDepot()" (ngModelChange)="selectedDepot.set($event)"
           [searchable]="false"
           appendTo="body"
           [items]="facade.depots()"

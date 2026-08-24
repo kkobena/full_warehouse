@@ -1,13 +1,13 @@
-@if (rowData?.length > 0) {
+@if (rowData()?.length > 0) {
   <app-data-table
     [lazy]="true"
-    [loading]="loading"
+    [loading]="loading()"
     [paginator]="true"
-    [rows]="itemsPerPage"
+    [rows]="itemsPerPage()"
     [rowsPerPageOptions]="[10, 20, 30, 50]"
     [stripedRows]="true"
-    [totalRecords]="totalItems"
-    [value]="rowData"
+    [totalRecords]="totalItems()"
+    [value]="rowData()"
     (onLazyLoad)="onPageChange($event)"
     class="p-datatable-sm"
     dataKey="id"

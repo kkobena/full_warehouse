@@ -16,43 +16,20 @@
 @if (!isLoading() && kpi()) {
 
   <!-- KPI Strip -->
-  <div class="kpi-strip mt-2 mb-3">
-    <div class="kpi-strip-item success-accent">
-      <i class="pi pi-check-circle text-success"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">Clients actifs</span>
-        <span class="kpi-strip-value text-success">{{ formatNumber(kpi()?.clientsActifs) }}</span>
-        <span class="kpi-strip-sub">achat ≤ 30 j · {{ tauxActifs() }}%</span>
-      </div>
-    </div>
-    <div class="kpi-strip-divider"></div>
-    <div class="kpi-strip-item warning-accent">
-      <i class="pi pi-exclamation-triangle text-warning"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">À risque</span>
-        <span class="kpi-strip-value text-warning">{{ formatNumber(kpi()?.clientsARisque) }}</span>
-        <span class="kpi-strip-sub">31 – 90 j · {{ tauxRisque() }}%</span>
-      </div>
-    </div>
-    <div class="kpi-strip-divider"></div>
-    <div class="kpi-strip-item danger-accent">
-      <i class="pi pi-times-circle text-danger"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">Perdus</span>
-        <span class="kpi-strip-value text-danger">{{ formatNumber(kpi()?.clientsPerdus) }}</span>
-        <span class="kpi-strip-sub">> 90 j · {{ tauxPerdus() }}%</span>
-      </div>
-    </div>
-    <div class="kpi-strip-divider"></div>
-    <div class="kpi-strip-item primary-accent">
-      <i class="pi pi-users text-primary"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">Total clients</span>
-        <span class="kpi-strip-value text-primary">{{ formatNumber(kpi()?.totalClients) }}</span>
-        <span class="kpi-strip-sub">CA moyen : {{ formatCurrency(kpi()?.caMoyenParClient) }}</span>
-      </div>
-    </div>
-  </div>
+  <app-kpi-strip stripClass="mt-2 mb-3">
+    <app-kpi-item [accent]="'success'" icon="pi pi-check-circle" iconClass="text-success" label="Clients actifs" [value]="formatNumber(kpi()?.clientsActifs)" valueClass="text-success">
+      <ng-container ngProjectAs="[kpiSub]">achat ≤ 30 j · {{ tauxActifs() }}%</ng-container>
+    </app-kpi-item>
+    <app-kpi-item [accent]="'warning'" icon="pi pi-exclamation-triangle" iconClass="text-warning" label="À risque" [value]="formatNumber(kpi()?.clientsARisque)" valueClass="text-warning">
+      <ng-container ngProjectAs="[kpiSub]">31 – 90 j · {{ tauxRisque() }}%</ng-container>
+    </app-kpi-item>
+    <app-kpi-item [accent]="'danger'" icon="pi pi-times-circle" iconClass="text-danger" label="Perdus" [value]="formatNumber(kpi()?.clientsPerdus)" valueClass="text-danger">
+      <ng-container ngProjectAs="[kpiSub]">> 90 j · {{ tauxPerdus() }}%</ng-container>
+    </app-kpi-item>
+    <app-kpi-item [accent]="'primary'" icon="pi pi-users" iconClass="text-primary" label="Total clients" [value]="formatNumber(kpi()?.totalClients)" valueClass="text-primary">
+      <ng-container ngProjectAs="[kpiSub]">CA moyen : {{ formatCurrency(kpi()?.caMoyenParClient) }}</ng-container>
+    </app-kpi-item>
+  </app-kpi-strip>
 
   <!-- Chart + Table -->
   <div class="row g-3">

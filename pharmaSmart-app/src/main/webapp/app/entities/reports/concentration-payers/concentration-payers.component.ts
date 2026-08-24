@@ -9,10 +9,7 @@ import { formatCurrency, formatNumber, currencySymbol } from 'app/shared/utils/f
 
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { DeviseDirective } from 'app/shared/utils/devise';
-import {
-  DataTableComponent,
-  SelectComponent
-} from '../../../shared/ui';
+import { DataTableComponent, KpiItemComponent, KpiStripComponent, SelectComponent } from '../../../shared/ui';
 
 Chart.register(...registerables);
 
@@ -41,12 +38,14 @@ const CHART_BORDERS = [
   selector: 'app-concentration-payers',
   templateUrl: './concentration-payers.component.html',
   styleUrl: './concentration-payers.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     DataTableComponent,
-    SelectComponent
+    SelectComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ],
 })
 export default class ConcentrationPayersComponent implements OnInit, OnDestroy {

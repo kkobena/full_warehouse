@@ -28,6 +28,8 @@ import { currencySymbol } from 'app/shared/utils/format-utils';
 import {
   BadgeComponent,
   ButtonComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   OffcanvasComponent,
   SelectComponent,
   ToolbarComponent
@@ -49,7 +51,7 @@ interface PeriodOption {
   selector: "app-sales-forecast",
   templateUrl: "./sales-forecast.component.html",
   styleUrl: "./sales-forecast.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
@@ -57,7 +59,9 @@ interface PeriodOption {
     ButtonComponent,
     OffcanvasComponent,
     SelectComponent,
-    ToolbarComponent
+    ToolbarComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ]
 })
 export default class SalesForecastComponent implements OnInit, OnDestroy {

@@ -29,7 +29,7 @@
         <div class="form-field form-field-full">
           <label for="modePaimentCode">Mode de paiement<span class="required">*</span></label>
           <app-select
-            [items]="paymentModes"
+            [items]="paymentModes()"
             appendTo="body"
             bindLabel="libelle"
             bindValue="code"

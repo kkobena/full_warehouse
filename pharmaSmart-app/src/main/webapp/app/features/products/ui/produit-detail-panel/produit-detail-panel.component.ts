@@ -35,7 +35,7 @@ import {ProduitRayonsTabComponent} from '../produit-rayons-tab/produit-rayons-ta
   selector: 'app-produit-detail-panel',
   templateUrl: './produit-detail-panel.component.html',
   styleUrl: './produit-detail-panel.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     RouterModule,

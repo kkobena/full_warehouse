@@ -51,7 +51,7 @@
     }
   </div>
 
-  <!-- List mode -->
+  <!-- List mode() -->
   @if (!showForm()) {
     @if (loadingAvoirs()) {
       <div class="d-flex justify-content-center p-3">
@@ -103,20 +103,20 @@
       <div class="aw-mode-selector">
         <span class="aw-info-label">Type</span>
         <label class="aw-radio-label">
-          <input type="radio" [(ngModel)]="mode" value="global" /> Montant global
+          <input type="radio" [ngModel]="mode()" (ngModelChange)="mode.set($event)" value="global" /> Montant global
         </label>
         <label class="aw-radio-label">
-          <input type="radio" [(ngModel)]="mode" value="ligne" /> Par ligne de dossier
+          <input type="radio" [ngModel]="mode()" (ngModelChange)="mode.set($event)" value="ligne" /> Par ligne de dossier
         </label>
       </div>
 
       <!-- Mode global : montant + TVA + HT -->
-      @if (mode === 'global') {
+      @if (mode() === 'global') {
         <div class="aw-fields-row">
           <div class="aw-field">
             <app-float-label inputId="aw-montant" label="Montant avoir *">
               <app-input-number
-                [(ngModel)]="montantAvoir"
+                [ngModel]="montantAvoir()" (ngModelChange)="montantAvoir.set($event)"
                 inputId="aw-montant"
                 [min]="1"
                 [max]="maxMontant"
@@ -125,18 +125,18 @@
                 style="width: 100%"
               />
           </app-float-label>
-            @if (montantAvoir !== null && montantAvoir > maxMontant) {
+            @if (montantAvoir() !== null && montantAvoir() > maxMontant) {
               <small class="text-danger">Max&nbsp;: {{ maxMontant | number: '1.0-0' }}</small>
             }
           </div>
           <div class="aw-field">
             <app-float-label inputId="aw-tva" label="dont TVA">
-              <app-input-number [(ngModel)]="montantTva" id="aw-tva" [min]="0" style="width: 100%" />
+              <app-input-number [ngModel]="montantTva()" (ngModelChange)="montantTva.set($event)" id="aw-tva" [min]="0" style="width: 100%" />
           </app-float-label>
           </div>
           <div class="aw-field">
             <app-float-label inputId="aw-ht" label="dont HT">
-              <app-input-number [(ngModel)]="montantHt" id="aw-ht" [min]="0" style="width: 100%" />
+              <app-input-number [ngModel]="montantHt()" (ngModelChange)="montantHt.set($event)" id="aw-ht" [min]="0" style="width: 100%" />
           </app-float-label>
           </div>
         </div>
@@ -146,13 +146,13 @@
       }
 
       <!-- Mode par ligne de dossier (scrollable) -->
-      @if (mode === 'ligne') {
-        @if (lignes.length === 0) {
+      @if (mode() === 'ligne') {
+        @if (lignes().length === 0) {
           <p class="text-muted small px-3 py-2">Aucun dossier disponible pour cette facture.</p>
         } @else {
           <app-data-table
-            [value]="lignes"
-            [(selection)]="selectedLignes"
+            [value]="lignes()"
+            [selection]="selectedLignes()" (selectionChange)="selectedLignes.set($any($event))"
             selectionMode="multiple"
             [stripedRows]="true"
             class="p-datatable-sm aw-lignes-table"
@@ -174,7 +174,7 @@
                 <td class="text-end pharma-price small">{{ ligne.montant | number: '1.0-0' }}</td>
                 <td>
                   <input
-                    [(ngModel)]="lignes[i].motifRejet"
+                    [(ngModel)]="lignes()[i].motifRejet"
                     [disabled]="!isSelected(ligne)"
                     placeholder="Motif…"
                     class="aw-motif-input"
@@ -202,7 +202,7 @@
   <div class="modal-body py-2">
     <app-float-label inputId="aw-motif-draft" label="Motif *">
       <textarea
-        [(ngModel)]="motifDraft"
+        [ngModel]="motifDraft()" (ngModelChange)="motifDraft.set($event)"
         inputId="aw-motif-draft"
         rows="3"
         style="width: 100%; resize: vertical"
@@ -222,8 +222,8 @@
       icon="pi pi-check"
       severity="primary"
       size="small"
-      [disabled]="!motifDraft.trim()"
-      (clicked)="modal.close(motifDraft)"
+      [disabled]="!motifDraft().trim()"
+      (clicked)="modal.close(motifDraft())"
     />
   </div>
 </ng-template>

@@ -17,18 +17,18 @@
         </div>
       </div>
 
-      @if (paymentModes && paymentModes.length > 0) {
+      @if (paymentModes() && paymentModes().length > 0) {
         <app-data-table
           (onLazyLoad)="lazyLoading($event)"
           [lazy]="true"
-          [loading]="loading"
+          [loading]="loading()"
           [paginator]="true"
           [rows]="itemsPerPage"
           [selectionMode]="'single'"
           [size]="'small'"
           [stripedRows]="true"
-          [totalRecords]="totalItems"
-          [value]="paymentModes"
+          [totalRecords]="totalItems()"
+          [value]="paymentModes()"
           dataKey="code"
         >
           <ng-template #header>

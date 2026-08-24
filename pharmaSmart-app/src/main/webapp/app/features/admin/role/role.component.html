@@ -35,10 +35,10 @@
           @if (editingName() === role.name) {
             <div class="d-flex align-items-center gap-2">
               <input (blur)="saveEdit(role)"
-                     (input)="editingLibelle = $any($event.target).value"
+                     (input)="editingLibelle.set($any($event.target).value)"
                      (keydown.enter)="saveEdit(role)"
                      (keydown.escape)="cancelEdit()"
-                     [value]="editingLibelle"
+                     [value]="editingLibelle()"
                      autofocus
                      class="form-control"
               />

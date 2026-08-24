@@ -19,7 +19,7 @@
           [(ngModel)]="modelSelected"
           [searchable]="false"
           appendTo="body"
-          [items]="models"
+          [items]="models()"
           bindLabel="label"
           bindValue="value"
           placeholder="Séléctionner un model de fichier "
@@ -51,7 +51,7 @@
 
   <app-button
     (clicked)="save()"
-    [disabled]="isSaving || !isValidForm()"
+    [disabled]="isSaving() || !isValidForm()"
     icon="pi pi-check"
     id="save-entity"
     label="Enregister"

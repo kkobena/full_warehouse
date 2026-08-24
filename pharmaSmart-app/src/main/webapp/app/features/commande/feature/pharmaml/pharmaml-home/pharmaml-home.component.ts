@@ -40,7 +40,7 @@ const TERMINAL_STATUTS: PharmaMlStatut[] = ['SUBMITTED', 'PARTIAL', 'REJECTED', 
   selector: 'app-pharmaml-home',
   imports: [CommonModule, ButtonComponent, SplitButtonComponent, BadgeComponent, DataTableComponent, NgbTooltip],
   templateUrl: './pharmaml-home.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./pharmaml-home.scss'],
 })
 export class PharmamlHomeComponent implements OnInit, OnDestroy {

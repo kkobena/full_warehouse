@@ -26,6 +26,28 @@ public interface CaPonctionRepository extends JpaRepository<CaPonction, Integer>
     List<CaPonction> findByMagasinIdOrderByDateDebutDesc(Integer magasinId);
 
     /**
+     * Historique restreint à une période, de la plus récente à la plus ancienne.
+     *
+     * <p>Le critère est le <strong>recouvrement</strong> et non l'inclusion : une ponction du
+     * 25 janvier au 5 février doit rester visible quand on interroge janvier. Exiger qu'elle tienne
+     * entièrement dans l'intervalle la ferait disparaître des deux mois à la fois.
+     */
+    @Query(
+        """
+        select p from CaPonction p
+         where p.magasin.id = :magasinId
+           and p.dateDebut <= :dateFin
+           and p.dateFin >= :dateDebut
+         order by p.dateDebut desc
+        """
+    )
+    List<CaPonction> findHistoriqueSurPeriode(
+        @Param("magasinId") Integer magasinId,
+        @Param("dateDebut") LocalDate dateDebut,
+        @Param("dateFin") LocalDate dateFin
+    );
+
+    /**
      * Ponctions dont la période recouvre celle demandée.
      *
      * <p>Deux intervalles fermés se chevauchent si chacun commence avant que l'autre ne finisse —

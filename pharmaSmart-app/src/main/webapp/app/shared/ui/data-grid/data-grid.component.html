@@ -1,0 +1,239 @@
+<div
+  class="app-data-grid__scroller"
+  [class.app-data-grid__scroller--scrollable]="scrollable()"
+  [style.height]="scrollHeight() || null"
+  [style.max-height]="maxScrollHeight() || null"
+>
+  <table
+    [attr.aria-busy]="loading()"
+    [attr.aria-colcount]="renderedColumnCount()"
+    [attr.aria-label]="ariaLabel()"
+    [attr.aria-rowcount]="displayedRows().length + 1"
+    [class]="tableClasses()"
+    role="grid"
+  >
+    <colgroup>
+      @if (hasDetailTemplate()) {
+        <col class="app-data-grid__control-column" />
+      }
+      @if (showSelectionCheckboxes()) {
+        <col class="app-data-grid__control-column" />
+      }
+      @for (column of visibleColumns(); track trackColumn($index, column)) {
+        <col
+          [style.max-width.px]="columnMaxWidth(column)"
+          [style.min-width.px]="columnMinWidth(column)"
+          [style.width]="columnWidth(column)"
+        />
+      }
+    </colgroup>
+
+    <thead [class.app-data-grid__head--sticky]="scrollable() && stickyHeader()">
+      <tr class="pharma-table-head" role="row">
+        @if (hasDetailTemplate()) {
+          <th aria-label="Détails" class="app-data-grid__control-cell" role="columnheader"></th>
+        }
+        @if (showSelectionCheckboxes()) {
+          <th class="app-data-grid__control-cell" role="columnheader">
+            @if (showHeaderCheckbox() && selectionMode() !== 'single') {
+              <input
+                type="checkbox"
+                aria-label="Sélectionner toutes les lignes affichées"
+                [checked]="allDisplayedSelected()"
+                [indeterminate]="partiallyDisplayedSelected()"
+                [disabled]="displayedRows().length === 0"
+                (change)="toggleAllDisplayed()"
+              />
+            }
+          </th>
+        }
+        @for (column of visibleColumns(); track trackColumn($index, column)) {
+          <th
+            role="columnheader"
+            [attr.aria-colindex]="$index + auxiliaryColumnCount() + 1"
+            [attr.aria-sort]="ariaSort(column)"
+            [attr.title]="column.headerTooltip || null"
+            [class.app-data-grid__cell--pinned]="column.pinned"
+            [class.app-data-grid__cell--pinned-left]="column.pinned === 'left'"
+            [class.app-data-grid__cell--pinned-right]="column.pinned === 'right'"
+            [class.app-data-grid__header-cell--fixed]="!isResizable(column)"
+            [class.app-data-grid__header-cell--resizable]="isResizable(column)"
+            [class.text-center]="column.align === 'center'"
+            [class.text-end]="column.align === 'right'"
+            [style.left.px]="column.pinned === 'left' ? pinnedOffset(column) : null"
+            [style.max-width.px]="columnMaxWidth(column)"
+            [style.min-width.px]="columnMinWidth(column)"
+            [style.right.px]="column.pinned === 'right' ? pinnedOffset(column) : null"
+            [style.width]="columnWidth(column)"
+          >
+            @if (column.sortable) {
+              <button
+                type="button"
+                class="app-data-grid__sort-button"
+                [attr.aria-label]="'Trier par ' + column.header"
+                (click)="toggleSort(column)"
+              >
+                <span>{{ column.header }}</span>
+                <i
+                  aria-hidden="true"
+                  class="pi"
+                  [class.pi-sort-alt]="ariaSort(column) === 'none'"
+                  [class.pi-sort-amount-down]="ariaSort(column) === 'descending'"
+                  [class.pi-sort-amount-up-alt]="ariaSort(column) === 'ascending'"
+                ></i>
+              </button>
+            } @else {
+              {{ column.header }}
+            }
+            @if (isResizable(column)) {
+              <span
+                role="separator"
+                tabindex="0"
+                class="app-data-grid__resize-handle"
+                aria-orientation="vertical"
+                [attr.aria-label]="'Redimensionner la colonne ' + column.header"
+                [attr.aria-valuemax]="column.maxWidth ?? null"
+                [attr.aria-valuemin]="column.minWidth ?? 60"
+                [attr.aria-valuenow]="currentColumnWidth(column)"
+                (dblclick)="$event.stopPropagation(); resetColumnWidth(column)"
+                (keydown)="resizeColumnWithKeyboard($event, column)"
+                (pointercancel)="finishColumnResize($event, column)"
+                (pointerdown)="startColumnResize($event, column)"
+                (pointermove)="continueColumnResize($event, column)"
+                (pointerup)="finishColumnResize($event, column)"
+              ></span>
+            }
+          </th>
+        }
+      </tr>
+    </thead>
+
+    <tbody>
+      @for (row of displayedRows(); track trackRow($index, row); let rowIndex = $index) {
+        @let rowCtx = rowContext(row, rowIndex);
+        <tr
+          role="row"
+          [attr.aria-controls]="canExpand(row) ? detailPanelId(row) : null"
+          [attr.aria-expanded]="canExpand(row) ? isExpanded(row) : null"
+          [attr.aria-rowindex]="rowIndex + 2"
+          [attr.aria-selected]="selectionMode() ? isSelected(row) : null"
+          [class.app-data-grid__row--selectable]="selectionMode()"
+          [class.app-data-grid__row--selected]="isSelected(row)"
+          [ngClass]="rowClass()?.(rowCtx) ?? null"
+          (click)="onRowClick($event, row, rowIndex)"
+        >
+          @if (hasDetailTemplate()) {
+            <td class="app-data-grid__control-cell" role="gridcell">
+              @if (canExpand(row)) {
+                <button
+                  type="button"
+                  class="app-data-grid__detail-toggle"
+                  [attr.aria-controls]="detailPanelId(row)"
+                  [attr.aria-expanded]="isExpanded(row)"
+                  [attr.aria-label]="isExpanded(row) ? 'Masquer le détail' : 'Afficher le détail'"
+                  (click)="$event.stopPropagation(); toggleDetail(row)"
+                >
+                  <i aria-hidden="true" class="pi" [class.pi-chevron-down]="isExpanded(row)" [class.pi-chevron-right]="!isExpanded(row)"></i>
+                </button>
+              }
+            </td>
+          }
+          @if (showSelectionCheckboxes()) {
+            <td class="app-data-grid__control-cell" role="gridcell">
+              <input
+                type="checkbox"
+                [attr.aria-label]="isSelected(row) ? 'Désélectionner la ligne' : 'Sélectionner la ligne'"
+                [checked]="isSelected(row)"
+                [disabled]="!rowSelectable()(row)"
+                (click)="$event.stopPropagation()"
+                (change)="toggleSelection(row)"
+              />
+            </td>
+          }
+          @for (column of visibleColumns(); track trackColumn($index, column); let columnIndex = $index) {
+            @let cell = cellContext(row, rowIndex, column);
+            @let cellTemplate = templateFor(column.id);
+            <td
+              role="gridcell"
+              [attr.aria-colindex]="columnIndex + auxiliaryColumnCount() + 1"
+              [attr.data-grid-column]="columnIndex"
+              [attr.data-grid-row]="rowIndex"
+              [attr.title]="resolvedTooltip(cell)"
+              [attr.tabindex]="isActiveCell(row, column, rowIndex, columnIndex) ? 0 : -1"
+              [class.app-data-grid__cell--pinned]="column.pinned"
+              [class.app-data-grid__cell--pinned-left]="column.pinned === 'left'"
+              [class.app-data-grid__cell--pinned-right]="column.pinned === 'right'"
+              [class.app-data-grid__cell--editing]="isEditingCell(row, column)"
+              [class.text-center]="column.align === 'center'"
+              [class.text-end]="column.align === 'right'"
+              [ngClass]="resolvedCellClass(cell)"
+              [style.left.px]="column.pinned === 'left' ? pinnedOffset(column) : null"
+              [style.max-width.px]="columnMaxWidth(column)"
+              [style.min-width.px]="columnMinWidth(column)"
+              [style.right.px]="column.pinned === 'right' ? pinnedOffset(column) : null"
+              [style.width]="columnWidth(column)"
+              (click)="onCellClick($event, row, rowIndex, column, columnIndex)"
+              (dblclick)="onCellDoubleClick($event, row, rowIndex, column, columnIndex)"
+              (focus)="activateCell(row, column)"
+              (keydown)="navigateCell($event, rowIndex, columnIndex)"
+            >
+              @if (isEditingCell(row, column)) {
+                <input
+                  #cellEditor
+                  class="app-data-grid__editor"
+                  autocomplete="off"
+                  [attr.aria-invalid]="editorError() ? true : null"
+                  [attr.aria-label]="'Modifier ' + column.header"
+                  [attr.max]="column.editorOptions?.max ?? null"
+                  [attr.maxlength]="column.editorOptions?.maxLength ?? null"
+                  [attr.min]="column.editorOptions?.min ?? null"
+                  [attr.step]="column.editorOptions?.step ?? null"
+                  [attr.title]="editorError()"
+                  [class.is-invalid]="editorError()"
+                  [type]="editorType(column)"
+                  [value]="editorValue()"
+                  (blur)="onEditorBlur($event)"
+                  (input)="updateEditorValue($event)"
+                  (keydown)="onEditorKeydown($event)"
+                />
+              } @else if (cellTemplate) {
+                <ng-container [ngTemplateOutlet]="cellTemplate" [ngTemplateOutletContext]="cellTemplateContext(cell)" />
+              } @else {
+                {{ displayValue(cell) }}
+              }
+            </td>
+          }
+        </tr>
+
+        @if (isExpanded(row) && detailTemplate()) {
+          <tr class="app-data-grid__detail-row" role="row">
+            <td
+              role="gridcell"
+              class="app-data-grid__detail-cell"
+              [attr.colspan]="renderedColumnCount()"
+              [id]="detailPanelId(row)"
+            >
+              @let detail = detailContext(row, rowIndex);
+              <ng-container [ngTemplateOutlet]="detailTemplate()!" [ngTemplateOutletContext]="detailTemplateContext(detail)" />
+            </td>
+          </tr>
+        }
+      } @empty {
+        @if (!loading()) {
+          <tr role="row">
+            <td role="gridcell" class="app-data-grid__empty" [attr.colspan]="renderedColumnCount()">
+              {{ emptyMessage() }}
+            </td>
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+
+  @if (loading()) {
+    <div class="app-data-grid__loading" role="status" aria-live="polite">
+      <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+      <span>Chargement…</span>
+    </div>
+  }
+</div>

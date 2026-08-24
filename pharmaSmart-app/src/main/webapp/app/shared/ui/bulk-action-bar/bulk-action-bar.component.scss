@@ -1,0 +1,46 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.app-bulk-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.4rem 0.75rem;
+  background: #eff6ff;
+  border-bottom: 1px solid #bfdbfe;
+
+  &__count {
+    margin-right: 0.25rem;
+    color: #1e40af;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .app-bulk-action-bar {
+    align-items: stretch;
+    flex-direction: column;
+
+    &__count {
+      margin-right: 0;
+    }
+
+    &__actions {
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    }
+  }
+}

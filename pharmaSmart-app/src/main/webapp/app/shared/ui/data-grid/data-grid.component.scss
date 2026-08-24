@@ -1,0 +1,222 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.app-data-grid__scroller {
+  position: relative;
+  min-width: 0;
+  overflow-x: auto;
+
+  &--scrollable {
+    overflow-y: auto;
+    overscroll-behavior: contain auto;
+  }
+}
+
+.app-data-grid__table {
+  width: 100%;
+  min-width: max-content;
+  margin-bottom: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  th,
+  td {
+    vertical-align: middle;
+  }
+
+  th {
+    color: var(--p-text-color);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  td {
+    background: var(--p-surface-0);
+  }
+
+  &--large {
+    th,
+    td {
+      padding: 0.75rem;
+    }
+  }
+}
+
+.app-data-grid__header-cell--resizable {
+  position: relative;
+}
+
+.app-data-grid__head--sticky th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: var(--p-surface-0);
+}
+
+.app-data-grid__control-column,
+.app-data-grid__control-cell {
+  width: 2.75rem;
+  min-width: 2.75rem;
+  text-align: center;
+}
+
+.app-data-grid__sort-button,
+.app-data-grid__detail-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  border: 0;
+}
+
+.app-data-grid__sort-button {
+  width: 100%;
+  justify-content: inherit;
+  padding-right: 0.75rem;
+  font: inherit;
+  text-align: inherit;
+
+  .pi {
+    font-size: 0.75rem;
+    opacity: 0.7;
+  }
+}
+
+.app-data-grid__resize-handle {
+  position: absolute;
+  top: 0;
+  right: -0.25rem;
+  bottom: 0;
+  z-index: 1;
+  width: 0.5rem;
+  cursor: col-resize;
+  touch-action: none;
+
+  &::after {
+    position: absolute;
+    top: 20%;
+    right: 0.25rem;
+    bottom: 20%;
+    width: 1px;
+    content: '';
+    background: var(--p-content-border-color, #dee2e6);
+    opacity: 0;
+  }
+
+  &:hover::after,
+  &:focus-visible::after {
+    width: 2px;
+    background: var(--bs-primary);
+    opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: 0;
+  }
+}
+
+.app-data-grid__detail-toggle {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.25rem;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--p-surface-100);
+  }
+}
+
+.app-data-grid__row--selectable {
+  cursor: pointer;
+}
+
+.app-data-grid__row--selected > td {
+  background: var(--p-highlight-bg, #e7f1ff);
+}
+
+.app-data-grid__cell--editing {
+  padding: 0 !important;
+  box-shadow: inset 0 0 0 2px var(--bs-primary);
+}
+
+.app-data-grid__editor {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding: 0.45rem 0.5rem;
+  color: inherit;
+  text-align: inherit;
+  background: var(--p-surface-0);
+  border: 0;
+  border-radius: 0;
+  outline: 0;
+
+  &.is-invalid {
+    color: var(--bs-danger);
+    background: var(--bs-danger-bg-subtle);
+    box-shadow: inset 0 0 0 2px var(--bs-danger);
+  }
+}
+
+.app-data-grid__cell--pinned {
+  position: sticky;
+  z-index: 2;
+  background: var(--p-surface-0);
+  background-clip: padding-box;
+}
+
+.app-data-grid__cell--pinned-left {
+  box-shadow: 2px 0 4px rgb(0 0 0 / 8%);
+}
+
+.app-data-grid__cell--pinned-right {
+  box-shadow: -2px 0 4px rgb(0 0 0 / 8%);
+}
+
+.app-data-grid__head--sticky .app-data-grid__cell--pinned {
+  z-index: 4;
+}
+
+.app-data-grid__detail-cell {
+  padding: 0;
+  background: var(--p-surface-50);
+}
+
+.app-data-grid__empty {
+  padding: 2rem 1rem !important;
+  color: var(--p-text-muted-color);
+  text-align: center;
+}
+
+.app-data-grid__loading {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--p-text-muted-color);
+  background: rgb(255 255 255 / 65%);
+}
+
+.app-data-grid__table [role='gridcell']:focus-visible,
+.app-data-grid__sort-button:focus-visible,
+.app-data-grid__detail-toggle:focus-visible {
+  outline: 2px solid var(--bs-primary);
+  outline-offset: -2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-data-grid__table *,
+  .app-data-grid__table *::before,
+  .app-data-grid__table *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

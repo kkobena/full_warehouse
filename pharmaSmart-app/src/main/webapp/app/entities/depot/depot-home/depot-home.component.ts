@@ -25,7 +25,7 @@ import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-l
     CommonModule,
   ],
   templateUrl: './depot-home.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './depot-home.component.scss',
 })
 export class DepotHomeComponent {

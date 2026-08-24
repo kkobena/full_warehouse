@@ -5,8 +5,7 @@ import {
   ElementRef,
   inject,
   OnInit,
-  viewChild
-} from "@angular/core";
+  viewChild, signal } from "@angular/core";
 import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from "@angular/forms";
 import {GroupeTiersPayant, IGroupeTiersPayant} from "app/shared/model/groupe-tierspayant.model";
 import {ErrorService} from "app/shared/error.service";
@@ -33,7 +32,7 @@ import {
   selector: "app-form-groupe-tiers-payant",
   templateUrl: "./form-groupe-tiers-payant.component.html",
   styleUrls: ["./form-groupe-tiers-payant.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     ReactiveFormsModule,
@@ -49,14 +48,13 @@ import {
 export class FormGroupeTiersPayantComponent implements OnInit, AfterViewInit {
   header = "";
   entity?: IGroupeTiersPayant;
-  protected ordreTrisFacture: OrdreTrisFacture[] = [];
+  protected readonly ordreTrisFacture = signal<OrdreTrisFacture[]>([]);
   protected readonly periodicitesOptions = [
     {label: "Mensuel", value: "MENSUEL"},
     {label: "Quinzainière", value: "QUINZAINE"},
     {label: "Bimensuel", value: "BIMENSUEL"}
   ];
-  protected isSaving = false;
-  protected isValid = true;
+  protected readonly isSaving = signal(false);
   protected fb = inject(UntypedFormBuilder);
   protected name = viewChild.required<ElementRef>("name");
   protected editForm = this.fb.group({
@@ -94,7 +92,7 @@ export class FormGroupeTiersPayantComponent implements OnInit, AfterViewInit {
 
   loadOrdreTrisFacture(): void {
     this.tiersPayantService.getOrdreTrisFacture().subscribe(res => {
-      this.ordreTrisFacture = res.body || [];
+      this.ordreTrisFacture.set(res.body || []);
     });
   }
 
@@ -120,7 +118,7 @@ export class FormGroupeTiersPayantComponent implements OnInit, AfterViewInit {
   }
 
   save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const groupeTiersPayant = this.createFromForm();
     if (groupeTiersPayant.id !== undefined && groupeTiersPayant.id) {
       this.subscribeToSaveResponse(this.groupeTiersPayantService.update(groupeTiersPayant));
@@ -155,13 +153,13 @@ export class FormGroupeTiersPayantComponent implements OnInit, AfterViewInit {
   }
 
   protected onSaveSuccess(groupeTiersPayant: IGroupeTiersPayant | null): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.notificationService.success("Opération effectuée avec succès");
     this.activeModal.close(groupeTiersPayant);
   }
 
   protected onSaveError(error: any): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 }

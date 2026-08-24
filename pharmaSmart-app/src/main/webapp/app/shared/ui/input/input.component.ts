@@ -1,4 +1,4 @@
-import { Component, computed, forwardRef, input } from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, forwardRef, input} from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { ControlValueAccessorBase } from '../forms/control-value-accessor.base';
@@ -30,6 +30,7 @@ import { ControlValueAccessorBase } from '../forms/control-value-accessor.base';
       (blur)="onTouched()"
     />
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InputComponent extends ControlValueAccessorBase<string> {
   readonly type = input<'text' | 'email' | 'tel' | 'url' | 'search'>('text');

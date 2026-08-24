@@ -7,7 +7,7 @@ import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
   template: `
     <ngx-spinner [fullScreen]="fullScreen()" bdColor="rgba(255,255,255,0.5)" color="#f13151" size="medium" type="timer"></ngx-spinner>
   `,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './spinner.component.scss',
 })
 export class SpinnerComponent {

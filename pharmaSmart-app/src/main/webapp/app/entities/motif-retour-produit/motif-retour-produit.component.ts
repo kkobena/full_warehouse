@@ -16,7 +16,7 @@ import { NgbConfirmDialogService } from "../../shared/dialog/ngb-confirm-dialog/
 
   imports: [CommonModule, FormsModule, ButtonComponent, DataTableComponent, NgbTooltip],
   templateUrl: "./motif-retour-produit.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./motif-retour-produit.component.scss"
 })
 export class MotifRetourProduitComponent implements OnInit {

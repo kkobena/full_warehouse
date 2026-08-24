@@ -16,7 +16,6 @@ import {
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {ActivatedRoute} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
 import {NgbConfirmDialogService} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
@@ -44,7 +43,6 @@ import {AuthorizationService} from '../../data-access/services/authorization.ser
 import {CustomerDisplayService} from '../../data-access/services/customer-display.service';
 import {NotificationService} from '../../../../shared/services/notification.service';
 import {IClientTiersPayant, ICustomer, IRemise, ISalesLine, ProduitSearch} from '../../../../shared/model';
-import {UserVendeurService} from '../../../../entities/sales/service/user-vendeur.service';
 import {
   CashRegisterFormComponent
 } from '../../../../entities/cash-register/user-cash-register/cash-register-form/cash-register-form.component';
@@ -80,7 +78,7 @@ import {IThirdPartySaleLine} from "../../../../shared/model/third-party-sale-lin
   host: {
     '(window:keydown)': 'handleKeyboardEvent($event)',
   },
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -142,7 +140,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     })) : null;
   });
 
-  protected userVendeurService = inject(UserVendeurService);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   // Services
   private facade = inject(SalesFacade);
@@ -169,11 +166,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     const tiersPayants = sale?.tiersPayants || [];
     return !!sale && lines.length > 0 && !!customer && tiersPayants.length > 0 && !this.isSaving();
   });
-  loading = this.facade.loading;
-  cashier = this.facade.cashier;
-  seller = this.facade.seller;
 
-  plafondIsReached = this.facade.plafondIsReached;
   private customerSearchService = inject(CustomerSearchService);
   private authorizationService = inject(AuthorizationService);
   private notificationService = inject(NotificationService);
@@ -181,7 +174,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   private modalService = inject(NgbModal);
   private destroyRef = inject(DestroyRef);
   private spinner = inject(NgxSpinnerService);
-  private route = inject(ActivatedRoute);
   // Computed pour convertir l'input isCashRegisterOpen en Signal<boolean>
   private isCashRegisterOpenSignal = computed(() => this.isCashRegisterOpen() ?? false);
   // ===== Product Handling Mixin =====
@@ -527,10 +519,10 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
       this.modalService,
       AssuredCustomerListModalComponent,
       {
-        searchString: event?.searchTerm || '',
+        search: event?.searchTerm || '',
         headerLibelle: 'CLIENTS ASSURÉS',
         typeTiersPayant: 'ASSURANCE',
-        preloadedCustomers: event?.customers?.length ? event.customers : null,
+        preloaded: event?.customers?.length ? event.customers : null,
       },
       (customer: ICustomer) => {
         if (customer) {

@@ -5,7 +5,7 @@ import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
 import { FactureApiService } from '../../../features/facturation/data-access/services/facture-api.service';
 import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
-import { ButtonComponent, ToolbarComponent } from '../../../shared/ui';
+import { ButtonComponent, KpiItemComponent, KpiStripComponent, ToolbarComponent } from '../../../shared/ui';
 import { IFacturationKpi } from "../../../features/facturation/data-access/models";
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { formatCurrency, formatDecimal, formatNumber } from 'app/shared/utils/format-utils';
@@ -13,9 +13,9 @@ import { formatCurrency, formatDecimal, formatNumber } from 'app/shared/utils/fo
 import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-taux-recouvrement-tp',
-  imports: [DeviseDirective, CommonModule, FormsModule, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent],
+  imports: [DeviseDirective, CommonModule, FormsModule, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent, KpiStripComponent, KpiItemComponent],
   templateUrl: './taux-recouvrement-tp.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./taux-recouvrement-tp.component.scss'],
 })
 export default class TauxRecouvrementTpComponent implements OnInit {

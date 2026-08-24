@@ -6,8 +6,7 @@ import {
   input,
   OnInit,
   output,
-  viewChild
-} from "@angular/core";
+  viewChild, signal } from "@angular/core";
 import {HttpResponse} from "@angular/common/http";
 import {IFournisseur} from "../../../../shared/model/fournisseur.model";
 import {Observable} from "rxjs";
@@ -85,7 +84,7 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
     "(window:keydown.F9)": "onKeyF9($event)",
     "(window:keydown.escape)": "onKeyEscape($event)"
   },
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -102,15 +101,14 @@ export class CommandeRequestedComponent implements OnInit {
   commande = input<ICommande | null | undefined>(null);
   commandeChange = output<ICommande | null>();
 
-  protected orderLines: IOrderLine[] = [];
-  protected selectedEl: IOrderLine[] = [];
+  protected readonly orderLines = signal<IOrderLine[]>([]);
+  protected readonly selectedEl = signal<IOrderLine[]>([]);
   protected quantiteSaisie = 1;
-  protected produitSelected: ProduitSearch | null = null;
-  protected selectedProvider?: number | null = null;
-  protected showLotBtn = false;
+  protected readonly produitSelected = signal<ProduitSearch | null>(null);
+  protected readonly selectedProvider = signal<number | null>(null);
   protected seuilMontantCommande = 0;
-  protected currentCommande?: ICommande | null = null;
-  protected pharmamlActions: AppSplitButtonItem[] = [];
+  protected readonly currentCommande = signal<ICommande | null>(null);
+  protected readonly pharmamlActions = signal<AppSplitButtonItem[]>([]);
 
   protected readonly quantityBox = viewChild.required<ElementRef>("quantityBox");
   protected readonly productSearch = viewChild.required<CommandeProductSearchComponent>("productSearch");
@@ -276,7 +274,7 @@ export class CommandeRequestedComponent implements OnInit {
   private readonly commandCommonService = inject(CommandCommonService);
 
   protected get isLocked(): boolean {
-    return !!this.currentCommande?.hasBeenSubmittedToPharmaML;
+    return !!this.currentCommande()?.hasBeenSubmittedToPharmaML;
   }
 
   ngOnInit(): void {
@@ -284,14 +282,14 @@ export class CommandeRequestedComponent implements OnInit {
     if (c?.commandeId) {
       // Load full commande with order lines (the list query uses commandes-without-order-lines)
       this.commandeService.find(c.commandeId).subscribe(res => {
-        this.currentCommande = res.body;
-        this.orderLines = this.currentCommande?.orderLines ?? [];
-        this.selectedProvider = this.currentCommande?.fournisseurId;
+        this.currentCommande.set(res.body);
+        this.orderLines.set(this.currentCommande()?.orderLines ?? []);
+        this.selectedProvider.set(this.currentCommande()?.fournisseurId);
         this.buildPharmamlActions();
         this.focusProduitBox();
       });
     } else {
-      this.selectedProvider = null;
+      this.selectedProvider.set(null);
     }
     //this.loadSeuilMontant();
   }
@@ -303,7 +301,7 @@ export class CommandeRequestedComponent implements OnInit {
   }
 
   protected onSelectionChanged(): void {
-    this.selectedEl = this.gridApi?.getSelectedRows() ?? [];
+    this.selectedEl.set(this.gridApi?.getSelectedRows() ?? []);
   }
 
 
@@ -348,7 +346,7 @@ export class CommandeRequestedComponent implements OnInit {
   }
 
   protected openEnvoi(): void {
-    if (!this.currentCommande?.commandeId) {
+    if (!this.currentCommande()?.commandeId) {
       return;
     }
     const ref = this.modalService.open(EnvoiPharmamlComponent, {
@@ -356,7 +354,7 @@ export class CommandeRequestedComponent implements OnInit {
       backdrop: "static",
       centered: true
     });
-    (ref.componentInstance as EnvoiPharmamlComponent).commandeId = this.currentCommande.commandeId;
+    (ref.componentInstance as EnvoiPharmamlComponent).commandeId = this.currentCommande().commandeId;
     ref.result.then(
       (result: IPharmamlCommandeResponse) => {
         if (result.reliquatCommandeId != null) {
@@ -374,7 +372,7 @@ export class CommandeRequestedComponent implements OnInit {
   }
 
   protected openReponse(): void {
-    if (!this.currentCommande?.commandeId) {
+    if (!this.currentCommande()?.commandeId) {
       return;
     }
     const ref = this.modalService.open(ReponsePharmamlComponent, {
@@ -383,15 +381,15 @@ export class CommandeRequestedComponent implements OnInit {
       centered: true
     });
     const inst = ref.componentInstance as ReponsePharmamlComponent;
-    inst.commandeRef = this.currentCommande.orderReference ?? "";
-    inst.orderId = this.currentCommande.commandeId.id.toString();
+    inst.commandeRef = this.currentCommande().orderReference ?? "";
+    inst.orderId = this.currentCommande().commandeId.id.toString();
     ref.result.then(() => {
     }, () => {
     });
   }
 
   protected ouvrirComparaison(): void {
-    if (!this.currentCommande?.commandeId) {
+    if (!this.currentCommande()?.commandeId) {
       return;
     }
     const ref = this.modalService.open(DispoComparaisonComponent, {
@@ -401,8 +399,8 @@ export class CommandeRequestedComponent implements OnInit {
       scrollable: true
     });
     const inst = ref.componentInstance as DispoComparaisonComponent;
-    inst.commandeId = this.currentCommande.commandeId;
-    inst.header = `Comparaison disponibilité — ${this.currentCommande.orderReference ?? ""}`;
+    inst.commandeId = this.currentCommande().commandeId;
+    inst.header = `Comparaison disponibilité — ${this.currentCommande().orderReference ?? ""}`;
   }
 
   protected previousState(): void {
@@ -424,19 +422,19 @@ export class CommandeRequestedComponent implements OnInit {
   }
 
   protected onAddOrderLine(quantityRequested: number): void {
-    if (!this.produitSelected) {
+    if (!this.produitSelected()) {
       return;
     }
-    if (!this.selectedProvider) {
+    if (!this.selectedProvider()) {
       this.notificationService.error("Veuillez selectionner un fournisseur", "Erreur");
       return;
     }
-    if (this.currentCommande?.id !== undefined) {
+    if (this.currentCommande()?.id !== undefined) {
       this.subscribeToSaveOrderLine(
-        this.commandeService.createOrUpdateOrderLine(this.buildOrderLine(this.produitSelected, quantityRequested))
+        this.commandeService.createOrUpdateOrderLine(this.buildOrderLine(this.produitSelected(), quantityRequested))
       );
     } else {
-      this.subscribeToSaveOrderLine(this.commandeService.create(this.buildCommande(this.produitSelected, quantityRequested)));
+      this.subscribeToSaveOrderLine(this.commandeService.create(this.buildCommande(this.produitSelected(), quantityRequested)));
     }
   }
 
@@ -458,7 +456,7 @@ export class CommandeRequestedComponent implements OnInit {
 
   protected onUpdateOrderCostAmount(orderLine: IOrderLine, event: any): void {
     const amount = Number(event.target.value);
-    if (this.currentCommande && amount > 0) {
+    if (this.currentCommande() && amount > 0) {
       orderLine.orderCostAmount = amount;
       this.subscribeToSaveOrderLine(this.commandeService.updateOrderCostAmount(orderLine));
     }
@@ -466,14 +464,14 @@ export class CommandeRequestedComponent implements OnInit {
 
   protected onUpdateOrderUnitPrice(orderLine: IOrderLine, event: any): void {
     const price = Number(event.target.value);
-    if (this.currentCommande && price > 0) {
+    if (this.currentCommande() && price > 0) {
       orderLine.orderUnitPrice = price;
       this.subscribeToSaveOrderLine(this.commandeService.updateOrderUnitPrice(orderLine));
     }
   }
 
   protected onDeleteOrderLine(orderLine: IOrderLine): void {
-    if (this.currentCommande) {
+    if (this.currentCommande()) {
       this.commandeService.deleteOrderLineById(orderLine.orderLineId).subscribe(() => this.refreshCommande());
     }
   }
@@ -499,7 +497,7 @@ export class CommandeRequestedComponent implements OnInit {
   }
 
   protected onCreateBon(): void {
-    const montant = this.currentCommande?.grossAmount ?? 0;
+    const montant = this.currentCommande()?.grossAmount ?? 0;
     if (this.seuilMontantCommande > 0 && montant > this.seuilMontantCommande) {
       const fmt = (n: number): string => formatNumber(n);
       this.confirmDialog.onConfirm(
@@ -519,9 +517,9 @@ export class CommandeRequestedComponent implements OnInit {
       centered: true,
       backdrop: "static"
     });
-    modalRef.componentInstance.commandeId = this.currentCommande!.commandeId;
-    modalRef.componentInstance.fournisseurId = this.currentCommande!.fournisseurId;
-    modalRef.componentInstance.commandeFournisseurId = this.currentCommande!.fournisseurId;
+    modalRef.componentInstance.commandeId = this.currentCommande()!.commandeId;
+    modalRef.componentInstance.fournisseurId = this.currentCommande()!.fournisseurId;
+    modalRef.componentInstance.commandeFournisseurId = this.currentCommande()!.fournisseurId;
     modalRef.result.then(
       imported => {
         if (imported) {
@@ -537,7 +535,7 @@ export class CommandeRequestedComponent implements OnInit {
     showCommonModal(
       this.modalService,
       FileResponseModalComponent,
-      {commandeSelected: this.currentCommande, header: "IMPORTER REPONSE"},
+      {commandeSelected: this.currentCommande(), header: "IMPORTER REPONSE"},
       (responseCommande: IResponseCommande) => {
         if (responseCommande) {
           this.refreshCommande();
@@ -549,20 +547,20 @@ export class CommandeRequestedComponent implements OnInit {
   }
 
   protected onProductSelected(product: ProduitSearch | null): void {
-    this.produitSelected = product;
+    this.produitSelected.set(product);
     if (product) {
       this.focusAndSelect(this.quantityBox().nativeElement, 50);
     }
   }
 
   protected onProductScanned(product: ProduitSearch): void {
-    this.produitSelected = product;
+    this.produitSelected.set(product);
     this.focusAndSelect(this.quantityBox().nativeElement, 50);
   }
 
   protected onFournisseurSelected(f: IFournisseur | null): void {
-    this.selectedProvider = f?.id ?? null;
-    if (this.currentCommande?.id) {
+    this.selectedProvider.set(f?.id ?? null);
+    if (this.currentCommande()?.id) {
       this.changeGrossiste();
     } else {
       this.focusProduitBox();
@@ -612,7 +610,7 @@ export class CommandeRequestedComponent implements OnInit {
       EditProduitComponent,
       {
         deliveryItem: orderLine,
-        delivery: this.currentCommande,
+        delivery: this.currentCommande(),
         header: `EDITION DU PRODUIT ${orderLine.produitLibelle} [${orderLine.produitCip}]`
       },
       null,
@@ -628,7 +626,7 @@ export class CommandeRequestedComponent implements OnInit {
   // `Event` et non `KeyboardEvent` : c'est le type que fournit un host listener Angular.
   protected onKeyF9(event: Event): void {
     event.preventDefault();
-    if (this.currentCommande?.id) {
+    if (this.currentCommande()?.id) {
       this.onCreateBon();
     }
   }
@@ -645,8 +643,8 @@ export class CommandeRequestedComponent implements OnInit {
   }
 
   private buildPharmamlActions(): void {
-    if (this.isLocked || this.currentCommande?.orderStatus === "RECEIVED") {
-      this.pharmamlActions = [
+    if (this.isLocked || this.currentCommande()?.orderStatus === "RECEIVED") {
+      this.pharmamlActions.set([
         {label: "Voir réponse", icon: "pi pi-file", command: () => this.openReponse()},
         {
           label: "Comparer multi-grossistes",
@@ -654,9 +652,9 @@ export class CommandeRequestedComponent implements OnInit {
           separatorBefore: true,
           command: () => this.ouvrirComparaison()
         }
-      ];
+      ]);
     } else {
-      this.pharmamlActions = [
+      this.pharmamlActions.set([
         {label: "Envoyer via PharmaML", icon: "pi pi-send", command: () => this.openEnvoi()},
         {label: "Voir réponse", icon: "pi pi-file", command: () => this.openReponse()},
         {
@@ -665,7 +663,7 @@ export class CommandeRequestedComponent implements OnInit {
           separatorBefore: true,
           command: () => this.ouvrirComparaison()
         }
-      ];
+      ]);
     }
   }
 
@@ -673,7 +671,7 @@ export class CommandeRequestedComponent implements OnInit {
     showCommonModal(
       this.modalService,
       DeliveryModalComponent,
-      {commande: this.currentCommande, header: "CREATION DU BON DE LIVRAISON"},
+      {commande: this.currentCommande(), header: "CREATION DU BON DE LIVRAISON"},
       commande => {
         if (commande) {
           this.commandCommonService.pendingOpenDeliveryId.set(commande.commandeId);
@@ -691,7 +689,7 @@ export class CommandeRequestedComponent implements OnInit {
       backdrop: "static"
     });
     modalRef.componentInstance.responseCommande = responseCommande;
-    modalRef.componentInstance.commande = this.currentCommande;
+    modalRef.componentInstance.commande = this.currentCommande();
     modalRef.result.then(
       result => {
         if (result === "DELETE") {
@@ -708,14 +706,14 @@ export class CommandeRequestedComponent implements OnInit {
   }
 
   private deleteCommandeApresRuptureTotale(): void {
-    if (!this.currentCommande?.commandeId) {
+    if (!this.currentCommande()?.commandeId) {
       return;
     }
-    this.commandeService.delete(this.currentCommande.commandeId).subscribe({
+    this.commandeService.delete(this.currentCommande().commandeId).subscribe({
       next: () => {
-        this.currentCommande = null;
-        this.orderLines = [];
-        this.selectedProvider = null;
+        this.currentCommande.set(null);
+        this.orderLines.set([]);
+        this.selectedProvider.set(null);
         this.commandeChange.emit(null);
         this.notificationService.success("Commande supprimée", "Suppression");
       },
@@ -724,27 +722,27 @@ export class CommandeRequestedComponent implements OnInit {
   }
 
   private reloadCommande(): void {
-    if (!this.currentCommande?.commandeId) {
+    if (!this.currentCommande()?.commandeId) {
       return;
     }
-    this.commandeService.find(this.currentCommande.commandeId).subscribe(res => {
-      this.currentCommande = res.body;
-      this.orderLines = this.currentCommande?.orderLines ?? [];
+    this.commandeService.find(this.currentCommande().commandeId).subscribe(res => {
+      this.currentCommande.set(res.body);
+      this.orderLines.set(this.currentCommande()?.orderLines ?? []);
       this.buildPharmamlActions();
-      this.commandeChange.emit(this.currentCommande);
+      this.commandeChange.emit(this.currentCommande());
     });
   }
 
   private refreshCommande(): void {
-    if (!this.currentCommande?.commandeId) {
+    if (!this.currentCommande()?.commandeId) {
       return;
     }
-    this.commandeService.find(this.currentCommande.commandeId).subscribe(res => {
-      this.currentCommande = res.body;
-      this.orderLines = this.currentCommande?.orderLines ?? [];
+    this.commandeService.find(this.currentCommande().commandeId).subscribe(res => {
+      this.currentCommande.set(res.body);
+      this.orderLines.set(this.currentCommande()?.orderLines ?? []);
       this.buildPharmamlActions();
       this.focusProduitBox();
-      this.commandeChange.emit(this.currentCommande);
+      this.commandeChange.emit(this.currentCommande());
     });
   }
 
@@ -753,11 +751,11 @@ export class CommandeRequestedComponent implements OnInit {
       return;
     }
     this.commandeService.find(commandeId).subscribe(res => {
-      this.currentCommande = res.body;
-      this.orderLines = this.currentCommande?.orderLines ?? [];
+      this.currentCommande.set(res.body);
+      this.orderLines.set(this.currentCommande()?.orderLines ?? []);
       this.buildPharmamlActions();
       this.resetProductInput();
-      this.commandeChange.emit(this.currentCommande);
+      this.commandeChange.emit(this.currentCommande());
     });
   }
 
@@ -765,29 +763,29 @@ export class CommandeRequestedComponent implements OnInit {
     if (this.quantityBox()) {
       this.quantityBox().nativeElement.value = 1;
     }
-    this.produitSelected = null;
+    this.produitSelected.set(null);
     this.productSearch()?.reset();
     this.focusProduitBox();
   }
 
   private deleteSelectedLines(): void {
-    if (!this.currentCommande?.commandeId) {
+    if (!this.currentCommande()?.commandeId) {
       return;
     }
-    const ids = this.selectedEl.map(e => e.orderLineId);
-    this.commandeService.deleteOrderLinesByIds(this.currentCommande.commandeId, ids).subscribe(() => {
-      this.selectedEl = [];
+    const ids = this.selectedEl().map(e => e.orderLineId);
+    this.commandeService.deleteOrderLinesByIds(this.currentCommande().commandeId, ids).subscribe(() => {
+      this.selectedEl.set([]);
       this.refreshCommande();
     });
   }
 
   private changeGrossiste(): void {
-    if (!this.currentCommande) {
+    if (!this.currentCommande()) {
       return;
     }
-    this.currentCommande.fournisseurId = this.selectedProvider;
-    const cmdId = this.currentCommande.commandeId;
-    this.commandeService.changeGrossiste(this.currentCommande).subscribe({
+    this.currentCommande().fournisseurId = this.selectedProvider();
+    const cmdId = this.currentCommande().commandeId;
+    this.commandeService.changeGrossiste(this.currentCommande()).subscribe({
       next: () => this.onSaveSuccess(cmdId),
       error: error => {
         this.notificationService.error(this.errorService.getErrorMessage(error), "Erreur");
@@ -805,7 +803,7 @@ export class CommandeRequestedComponent implements OnInit {
 
   private subscribeUpdateOrderLine(result: Observable<HttpResponse<{}>>): void {
     result.subscribe({
-      next: () => this.onSaveSuccess(this.currentCommande?.commandeId),
+      next: () => this.onSaveSuccess(this.currentCommande()?.commandeId),
       error: err => this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur")
     });
   }
@@ -816,9 +814,9 @@ export class CommandeRequestedComponent implements OnInit {
       produitId: produit.id,
       totalQuantity: produit.totalQuantity,
       commande:
-        this.currentCommande?.id !== undefined
-          ? this.currentCommande
-          : {...new Commande(), fournisseurId: this.selectedProvider},
+        this.currentCommande()?.id !== undefined
+          ? this.currentCommande()
+          : {...new Commande(), fournisseurId: this.selectedProvider()},
       quantityRequested
     };
   }
@@ -826,7 +824,7 @@ export class CommandeRequestedComponent implements OnInit {
   private buildCommande(produit: ProduitSearch, quantityRequested: number): ICommande {
     return {
       ...new Commande(),
-      fournisseurId: this.selectedProvider,
+      fournisseurId: this.selectedProvider(),
       orderLines: [this.buildOrderLine(produit, quantityRequested)]
     };
   }

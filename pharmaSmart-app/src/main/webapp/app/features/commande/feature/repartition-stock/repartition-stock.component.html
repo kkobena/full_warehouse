@@ -3,26 +3,26 @@
     <ng-container ngProjectAs="[toolbarFilters]">
       @if (activeTab === 'historique') {
         <app-icon-field [overlay]="true" icon="pi pi-search">
-          <input (keyup.enter)="onSearch()" [(ngModel)]="search" class="form-control"
+          <input (keyup.enter)="onSearch()" [ngModel]="search()" (ngModelChange)="search.set($event)" class="form-control"
                  placeholder="Produit, opérateur…" type="text" />
         </app-icon-field>
         <pharma-date-picker
           (selectionChange)="onSearch()"
-          [(ngModel)]="dtStart"
+          [ngModel]="dtStart()" (ngModelChange)="dtStart.set($event)"
           [style]="{ 'max-width': '180px' }"
           id="dtStart"
           label="Du"
         />
         <pharma-date-picker
           (selectionChange)="onSearch()"
-          [(ngModel)]="dtEnd"
+          [ngModel]="dtEnd()" (ngModelChange)="dtEnd.set($event)"
           [style]="{ 'max-width': '180px' }"
           id="dtEnd"
           label="Au"
         />
         <app-select
           (selectionChange)="onSearch()"
-          [(ngModel)]="filterTypeRepartition"
+          [ngModel]="filterTypeRepartition()" (ngModelChange)="filterTypeRepartition.set($event)"
           [clearable]="false"
           [items]="typeRepartitionOptions"
           appendTo="body"
@@ -31,12 +31,12 @@
           inputId="filterType"
           placeholder="Type de mouvement"
         />
-        @if (users.length > 1) {
+        @if (users().length > 1) {
           <app-select
             (selectionChange)="onSearch()"
-            [(ngModel)]="filterUserId"
+            [ngModel]="filterUserId()" (ngModelChange)="filterUserId.set($event)"
             [clearable]="true"
-            [items]="users"
+            [items]="users()"
             appendTo="body"
             bindLabel="login"
             bindValue="id"
@@ -44,12 +44,12 @@
             placeholder="Opérateur"
           />
         }
-        @if (storages.length > 1) {
+        @if (storages().length > 1) {
           <app-select
             (selectionChange)="onSearch()"
-            [(ngModel)]="filterStorageId"
+            [ngModel]="filterStorageId()" (ngModelChange)="filterStorageId.set($event)"
             [clearable]="true"
-            [items]="storages"
+            [items]="storages()"
             appendTo="body"
             bindLabel="name"
             bindValue="id"
@@ -92,12 +92,12 @@
         </a>
         <ng-template ngbNavContent>
           <app-repartition-list
-            [fromDate]="dtStart"
-            [searchTerm]="search"
-            [storageId]="filterStorageId"
-            [toDate]="dtEnd"
-            [typeRepartition]="filterTypeRepartition"
-            [userId]="filterUserId"
+            [fromDate]="dtStart()"
+            [searchTerm]="search()"
+            [storageId]="filterStorageId()"
+            [toDate]="dtEnd()"
+            [typeRepartition]="filterTypeRepartition()"
+            [userId]="filterUserId()"
           />
         </ng-template>
       </ng-container>

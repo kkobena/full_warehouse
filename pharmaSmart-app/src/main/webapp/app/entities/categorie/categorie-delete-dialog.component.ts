@@ -11,7 +11,7 @@ import { FaIconComponent } from "@fortawesome/angular-fontawesome";
 
 @Component({
   templateUrl: './categorie-delete-dialog.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, AlertErrorComponent, TranslateDirective, FaIconComponent]
 })
 export class CategorieDeleteDialogComponent {

@@ -11,7 +11,7 @@ import { DashboardScope } from 'app/shared/model/dashboard-layout.model';
   selector: 'jhi-save-layout-modal',
   imports: [CommonModule, FormsModule, ButtonComponent, SelectComponent],
   templateUrl: './save-layout-modal.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './save-layout-modal.component.scss',
 })
 export class SaveLayoutModalComponent {

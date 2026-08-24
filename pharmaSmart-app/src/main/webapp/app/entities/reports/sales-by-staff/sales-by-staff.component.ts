@@ -8,7 +8,14 @@ import {IPerformanceVendeur} from '../../../shared/model/report';
 import {DATE_FORMAT_ISO_DATE} from '../../../shared/util/warehouse-util';
 import {ChartBuilderService, ChartConfig} from '../../../shared/util/chart-builder.service';
 import {formatCurrency, formatDecimal, formatNumber} from 'app/shared/utils/format-utils';
-import {ButtonComponent, DataTableComponent, SortableHeaderDirective, ToolbarComponent} from '../../../shared/ui';
+import {
+  ButtonComponent,
+  DataTableComponent,
+  KpiItemComponent,
+  KpiStripComponent,
+  SortableHeaderDirective,
+  ToolbarComponent
+} from '../../../shared/ui';
 import {ChartComponent} from "../../../shared/chart/chart.component";
 import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
 
@@ -23,10 +30,12 @@ import { DeviseDirective } from 'app/shared/utils/devise';
     ChartComponent,
     PharmaDatePickerComponent,
     ButtonComponent,
-    ToolbarComponent
+    ToolbarComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ],
   templateUrl: './sales-by-staff.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./sales-by-staff.component.scss'],
 })
 export default class SalesByStaffComponent implements OnInit {

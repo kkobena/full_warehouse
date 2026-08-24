@@ -8,7 +8,7 @@
     bindValue="value"
     [placeholder]="'Périodicité ' + (mode() === 'def' ? 'déf.' : 'prov.')"
     (selectionChange)="loadTps()"
-    style="width: 170px"
+    [style]="{ 'width': '170px' }"
   />
   <app-select
     appendTo="body"
@@ -19,7 +19,7 @@
     bindValue="value"
     placeholder="Catégorie"
     (selectionChange)="loadTps()"
-    style="width: 140px"
+    [style]="{ 'width': '140px' }"
   />
   <app-button (clicked)="loadTps()" icon="pi pi-refresh" [text]="true" size="small" ngbTooltip="Actualiser" placement="left" />
 </div>
@@ -52,7 +52,7 @@
         bindLabel="label"
         bindValue="value"
         placeholder="Période…"
-        style="width: 150px"
+        [style]="{ 'width': '150px' }"
       />
       <app-button
         (clicked)="onMassSetPeriodicite()"

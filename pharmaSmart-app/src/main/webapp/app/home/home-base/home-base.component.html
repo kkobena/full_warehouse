@@ -97,14 +97,14 @@
         </div>
         <div class="custom-segment-control">
           <div class="segment-track">
-            <div [class.active-right]="showGraphs" class="segment-slider"></div>
-            <button (click)="showGraphs = false;" [class.active]="!showGraphs"
+            <div [class.active-right]="showGraphs()" class="segment-slider"></div>
+            <button (click)="showGraphs.set(false)" [class.active]="!showGraphs()"
                     class="segment-option"
                     type="button">
               <i class="pi pi-table"></i>
               <span>Vue Tabulaire</span>
             </button>
-            <button (click)="showGraphs = true;" [class.active]="showGraphs" class="segment-option"
+            <button (click)="showGraphs.set(true)" [class.active]="showGraphs()" class="segment-option"
                     type="button">
               <i class="pi pi-chart-bar"></i>
               <span>Vue Graphique</span>
@@ -137,9 +137,9 @@
         <i class="pi pi-shopping-cart text-primary"></i>
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">CA Net</span>
-          <span class="kpi-strip-value text-primary">{{ venteRecord?.netAmount | number }}</span>
+          <span class="kpi-strip-value text-primary">{{ venteRecord()?.netAmount | number }}</span>
           <span class="kpi-strip-sub">
-            {{ venteRecord?.saleCount | number }} ventes
+            {{ venteRecord()?.saleCount | number }} ventes
             @if (caEvolutionPct !== undefined && caEvolutionPct !== null) {
               · <i [class]="(caEvolutionPct ?? 0) >= 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down'"></i>
               {{ caEvolutionPct | number:'1.1-1' }}%
@@ -155,9 +155,9 @@
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">Marge brute</span>
           <span
-            class="kpi-strip-value text-success">{{ margeSummary?.margeBruteGlobale | number }}</span>
-          <span class="kpi-strip-sub">{{ margeSummary?.tauxMargeMoyen | number:'1.1-1' }}
-            % · coût {{ margeSummary?.coutAchatGlobal | number }}</span>
+            class="kpi-strip-value text-success">{{ margeSummary()?.margeBruteGlobale | number }}</span>
+          <span class="kpi-strip-sub">{{ margeSummary()?.tauxMargeMoyen | number:'1.1-1' }}
+            % · coût {{ margeSummary()?.coutAchatGlobal | number }}</span>
         </div>
       </div>
 
@@ -167,9 +167,9 @@
         <i class="pi pi-wallet" style="color: var(--bs-info)"></i>
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">Ventes comptant</span>
-          <span class="kpi-strip-value">{{ vno?.netAmount | number }}</span>
-          <span class="kpi-strip-sub">{{ vno?.saleCount | number }}
-            ventes · annulées {{ canceled?.netAmount | number }}</span>
+          <span class="kpi-strip-value">{{ vno()?.netAmount | number }}</span>
+          <span class="kpi-strip-sub">{{ vno()?.saleCount | number }}
+            ventes · annulées {{ canceled()?.netAmount | number }}</span>
         </div>
       </div>
 
@@ -179,9 +179,9 @@
         <i class="pi pi-credit-card text-danger"></i>
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">Créances TP</span>
-          <span class="kpi-strip-value text-danger">{{ totalCreances | number }}</span>
-          <span class="kpi-strip-sub">&gt;90j {{ creancesPlusDe90j | number }}
-            · recouv. {{ facturationKpi?.tauxRecouvrement | number:'1.0-1' }}%</span>
+          <span class="kpi-strip-value text-danger">{{ totalCreances() | number }}</span>
+          <span class="kpi-strip-sub">&gt;90j {{ creancesPlusDe90j() | number }}
+            · recouv. {{ facturationKpi()?.tauxRecouvrement | number:'1.0-1' }}%</span>
         </div>
       </div>
 
@@ -192,9 +192,9 @@
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">Achats fournisseurs</span>
           <span
-            class="kpi-strip-value text-warning">{{ achatRecord?.receiptAmount | number }}</span>
-          <span class="kpi-strip-sub">{{ achatRecord?.achatCount | number }}
-            cdes · HT {{ achatRecord?.netAmount | number }}</span>
+            class="kpi-strip-value text-warning">{{ achatRecord()?.receiptAmount | number }}</span>
+          <span class="kpi-strip-sub">{{ achatRecord()?.achatCount | number }}
+            cdes · HT {{ achatRecord()?.netAmount | number }}</span>
         </div>
       </div>
 
@@ -205,8 +205,8 @@
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">Stock valorisé</span>
           <span
-            class="kpi-strip-value text-success">{{ stockValuationSummary?.totalPurchaseValue | number }}</span>
-          <span class="kpi-strip-sub">{{ stockValuationSummary?.totalProducts | number }} réf. · marge pot. {{ stockValuationSummary?.averageMarginPercentage | number:'1.1-1' }}
+            class="kpi-strip-value text-success">{{ stockValuationSummary()?.totalPurchaseValue | number }}</span>
+          <span class="kpi-strip-sub">{{ stockValuationSummary()?.totalProducts | number }} réf. · marge pot. {{ stockValuationSummary()?.averageMarginPercentage | number:'1.1-1' }}
             %</span>
         </div>
       </div>
@@ -217,9 +217,9 @@
         <i class="pi pi-users text-warning"></i>
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">Différés clients</span>
-          <span class="kpi-strip-value text-warning">{{ differeSummary?.rest | number }}</span>
-          <span class="kpi-strip-sub">accordé {{ differeSummary?.saleAmount | number }}
-            · remb. {{ differeSummary?.paidAmount | number }}</span>
+          <span class="kpi-strip-value text-warning">{{ differeSummary()?.rest | number }}</span>
+          <span class="kpi-strip-sub">accordé {{ differeSummary()?.saleAmount | number }}
+            · remb. {{ differeSummary()?.paidAmount | number }}</span>
         </div>
       </div>
 
@@ -238,15 +238,15 @@
           </h5>
         </div>
         <div class="card-body py-4">
-          @if (!showGraphs) {
+          @if (!showGraphs()) {
             <ul class="list-group list-group-flush">
-              @for (mode of venteModePaiments; track mode.libelle) {
+              @for (mode of venteModePaiments(); track mode.libelle) {
                 <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                   {{ mode.libelle }}
                   <span class="fw-semibold text-primary fs-6">{{ mode?.paidAmount | number }}</span>
                 </li>
               }
-              @if (venteModePaiments.length === 0) {
+              @if (venteModePaiments().length === 0) {
                 <li class="list-group-item text-center text-muted py-4">
                   <div class="pharma-empty-content">
                     <i class="pi pi-inbox" style="font-size: 2rem"></i>
@@ -257,7 +257,7 @@
             </ul>
           } @else {
             <div class="d-flex justify-content-center align-items-center h-100">
-              <app-chart [data]="modePaimentChartData" [options]="modePaimentChartOptions"
+              <app-chart [data]="modePaimentChartData()" [options]="modePaimentChartOptions()"
                          height="300" type="pie"></app-chart>
             </div>
           }
@@ -273,13 +273,13 @@
             <i class="pi pi-chart-pie text-success"></i>
             Ventes par tiers payant
           </h5>
-          <app-select (selectionChange)="onTopTiersPayantChange($event)" [(ngModel)]="TOP_MAX_TP"
+          <app-select (selectionChange)="onTopTiersPayantChange($any($event))" [ngModel]="TOP_MAX_TP()" (ngModelChange)="TOP_MAX_TP.set($any($event))"
                       [items]="tops" bindLabel="label"></app-select>
         </div>
         <div class="card-body py-4">
-          @if (!showGraphs) {
+          @if (!showGraphs()) {
             <ul class="list-group list-group-flush">
-              @for (tp of tiersPayantAchat; track tp.tiersPayantName; let i = $index) {
+              @for (tp of tiersPayantAchat(); track tp.tiersPayantName; let i = $index) {
                 <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                   <div class="d-flex align-items-center gap-2">
                     @if (i === 0) {
@@ -296,7 +296,7 @@
                   <span class="fw-semibold text-success fs-6">{{ tp?.montantTtc | number }}</span>
                 </li>
               }
-              @if (tiersPayantAchat.length === 0) {
+              @if (tiersPayantAchat().length === 0) {
                 <li class="list-group-item text-center text-muted py-4">
                   <div class="pharma-empty-content">
                     <i class="pi pi-inbox" style="font-size: 2rem"></i>
@@ -307,7 +307,7 @@
             </ul>
           } @else {
             <div class="d-flex justify-content-center align-items-center h-100">
-              <app-chart [data]="tiersPayantChartData" [options]="tiersPayantChartOptions"
+              <app-chart [data]="tiersPayantChartData()" [options]="tiersPayantChartOptions()"
                          height="300" type="doughnut"></app-chart>
             </div>
           }
@@ -339,15 +339,15 @@
                       type="button">12 mois
               </button>
             </div>
-            <app-select (selectionChange)="onTopFournisseurChange($event)"
-                        [(ngModel)]="TOP_MAX_FOURNISSEUR"
+            <app-select (selectionChange)="onTopFournisseurChange($any($event))"
+                        [ngModel]="TOP_MAX_FOURNISSEUR()" (ngModelChange)="TOP_MAX_FOURNISSEUR.set($event)"
                         [items]="tops" bindLabel="label"></app-select>
           </div>
         </div>
         <div class="card-body py-4">
-          @if (!showGraphs) {
+          @if (!showGraphs()) {
             <ul class="list-group list-group-flush">
-              @for (f of topFournisseurs; track f.fournisseurId; let i = $index) {
+              @for (f of topFournisseurs(); track f.fournisseurId; let i = $index) {
                 <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                   <div class="d-flex align-items-center gap-2">
                     @if (i === 0) {
@@ -380,7 +380,7 @@
                 </span>
                 </li>
               }
-              @if (topFournisseurs.length === 0) {
+              @if (topFournisseurs().length === 0) {
                 <li class="list-group-item text-center text-muted py-4">
                   <div class="pharma-empty-content">
                     <i class="pi pi-inbox" style="font-size: 2rem"></i>
@@ -391,18 +391,18 @@
             </ul>
           } @else {
             <div class="d-flex justify-content-center align-items-center h-100">
-              <app-chart [data]="fournisseurChartData" [options]="fournisseurChartOptions"
+              <app-chart [data]="fournisseurChartData()" [options]="fournisseurChartOptions()"
                          height="300" type="doughnut"></app-chart>
             </div>
           }
         </div>
-        @if (supplierSummary) {
+        @if (supplierSummary()) {
           <div class="card-footer d-flex justify-content-between">
             <span
-              class="footer-label">Qualité : <strong>{{ supplierSummary.avgConformityRate | number:'1.0-1' }}
+              class="footer-label">Qualité : <strong>{{ supplierSummary().avgConformityRate | number:'1.0-1' }}
               %</strong></span>
             <span
-              class="badge bg-info-subtle text-info">{{ supplierSummary.avgDeliveryDays | number:'1.0-1' }}
+              class="badge bg-info-subtle text-info">{{ supplierSummary().avgDeliveryDays | number:'1.0-1' }}
               j délai moy.</span>
           </div>
         }
@@ -417,12 +417,12 @@
             <i class="pi pi-chart-bar text-warning"></i>
             Meilleures ventes en valeur
           </h5>
-          <app-select (selectionChange)="onTopAmountChange($event)" [(ngModel)]="TOP_MAX_AMOUNT"
+          <app-select (selectionChange)="onTopAmountChange($any($event))" [ngModel]="TOP_MAX_AMOUNT()" (ngModelChange)="TOP_MAX_AMOUNT.set($any($event))"
                       [items]="tops" bindLabel="label"></app-select>
         </div>
         <div class="card-body p-0">
-          @if (!showGraphs) {
-            <app-data-table [scrollable]="true" [stripedRows]="true" [value]="rowAmount"
+          @if (!showGraphs()) {
+            <app-data-table [scrollable]="true" [stripedRows]="true" [value]="rowAmount()"
                             scrollHeight="400px">
               <ng-template #header>
                 <tr class="pharma-table-head">
@@ -454,8 +454,8 @@
                 <tr>
                   <td></td>
                   <td class="fw-bold">Total</td>
-                  <td class="text-end fw-bold">{{ totalQuantityTopAmount | number }}</td>
-                  <td class="text-end fw-bold">{{ totalAmountTopAmount | number }}</td>
+                  <td class="text-end fw-bold">{{ totalQuantityTopAmount() | number }}</td>
+                  <td class="text-end fw-bold">{{ totalAmountTopAmount() | number }}</td>
                 </tr>
               </ng-template>
               <ng-template #emptymessage>
@@ -472,7 +472,7 @@
             </app-data-table>
           } @else {
             <div class="p-3">
-              <app-chart [data]="amountChartData" [options]="amountChartOptions" height="400px"
+              <app-chart [data]="amountChartData()" [options]="amountChartOptions()" height="400px"
                          type="bar"></app-chart>
             </div>
           }
@@ -491,12 +491,12 @@
             <i class="pi pi-chart-bar text-primary"></i>
             Meilleures ventes en quantité
           </h5>
-          <app-select (selectionChange)="onTopQuantityChange($event)" [(ngModel)]="TOP_MAX_QUANTITY"
+          <app-select (selectionChange)="onTopQuantityChange($any($event))" [ngModel]="TOP_MAX_QUANTITY()" (ngModelChange)="TOP_MAX_QUANTITY.set($any($event))"
                       [items]="tops" bindLabel="label"></app-select>
         </div>
         <div class="card-body p-0">
-          @if (!showGraphs) {
-            <app-data-table [scrollable]="true" [stripedRows]="true" [value]="rowQuantity"
+          @if (!showGraphs()) {
+            <app-data-table [scrollable]="true" [stripedRows]="true" [value]="rowQuantity()"
                             scrollHeight="400px">
               <ng-template #header>
                 <tr class="pharma-table-head">
@@ -528,8 +528,8 @@
                 <tr>
                   <td></td>
                   <td class="fw-bold">Total</td>
-                  <td class="text-end fw-bold">{{ totalAmountTopQuantity | number }}</td>
-                  <td class="text-end fw-bold">{{ totalQuantityToQuantity | number }}</td>
+                  <td class="text-end fw-bold">{{ totalAmountTopQuantity() | number }}</td>
+                  <td class="text-end fw-bold">{{ totalQuantityToQuantity() | number }}</td>
                 </tr>
               </ng-template>
               <ng-template #emptymessage>
@@ -546,7 +546,7 @@
             </app-data-table>
           } @else {
             <div class="p-3">
-              <app-chart [data]="quantityChartData" [options]="quantityChartOptions" height="400px"
+              <app-chart [data]="quantityChartData()" [options]="quantityChartOptions()" height="400px"
                          type="bar"></app-chart>
             </div>
           }
@@ -578,8 +578,8 @@
         <div class="card-body p-0">
 
           @if (activePareto === 'qty') {
-            @if (!showGraphs) {
-              <app-data-table [scrollable]="true" [stripedRows]="true" [value]="row20x80"
+            @if (!showGraphs()) {
+              <app-data-table [scrollable]="true" [stripedRows]="true" [value]="row20x80()"
                               scrollHeight="400px">
                 <ng-template #header>
                   <tr class="pharma-table-head">
@@ -600,8 +600,8 @@
                 <ng-template #footer>
                   <tr>
                     <td class="fw-bold" colspan="2">Total</td>
-                    <td class="text-end fw-bold">{{ totalQuantity20x80 | number }}</td>
-                    <td class="text-end fw-bold">{{ totalQuantityAvg | number }}</td>
+                    <td class="text-end fw-bold">{{ totalQuantity20x80() | number }}</td>
+                    <td class="text-end fw-bold">{{ totalQuantityAvg() | number }}</td>
                   </tr>
                 </ng-template>
                 <ng-template #emptymessage>
@@ -619,13 +619,13 @@
               </app-data-table>
             } @else {
               <div class="p-3">
-                <app-chart [data]="twentyEightyChartData" [options]="twentyEightyChartOptions"
+                <app-chart [data]="twentyEightyChartData()" [options]="twentyEightyChartOptions()"
                            height="400px" type="bar"></app-chart>
               </div>
             }
           } @else {
-            @if (!showGraphs) {
-              <app-data-table [scrollable]="true" [stripedRows]="true" [value]="row20x80Montant"
+            @if (!showGraphs()) {
+              <app-data-table [scrollable]="true" [stripedRows]="true" [value]="row20x80Montant()"
                               scrollHeight="400px">
                 <ng-template #header>
                   <tr class="pharma-table-head">
@@ -646,8 +646,8 @@
                 <ng-template #footer>
                   <tr>
                     <td class="fw-bold" colspan="2">Total</td>
-                    <td class="text-end fw-bold">{{ totalAmount20x80 | number }}</td>
-                    <td class="text-end fw-bold">{{ totalAmountAvg | number }}</td>
+                    <td class="text-end fw-bold">{{ totalAmount20x80() | number }}</td>
+                    <td class="text-end fw-bold">{{ totalAmountAvg() | number }}</td>
                   </tr>
                 </ng-template>
                 <ng-template #emptymessage>
@@ -665,9 +665,9 @@
               </app-data-table>
             } @else {
               <div class="p-3">
-                <!-- P0 Bug Fix : utilisation de twentyEightyMontantChartData pour le montant -->
-                <app-chart [data]="twentyEightyMontantChartData"
-                           [options]="twentyEightyChartOptions"
+                <!-- P0 Bug Fix : utilisation de twentyEightyMontantChartData() pour le montant -->
+                <app-chart [data]="twentyEightyMontantChartData()"
+                           [options]="twentyEightyChartOptions()"
                            height="400px" type="bar"></app-chart>
               </div>
             }

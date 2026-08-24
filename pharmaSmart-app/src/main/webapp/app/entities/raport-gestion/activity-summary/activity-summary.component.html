@@ -26,7 +26,7 @@
 
           <app-button
             (clicked)="printAll()"
-            [loading]="loadingPdf"
+            [loading]="loadingPdf()"
             [raised]="true"
             icon="pi pi-file-pdf"
             label="Imprimer"
@@ -40,9 +40,9 @@
   </app-toolbar>
 
   <!-- Activity Summary Cards -->
-  @if (chiffreAffaire) {
+  @if (chiffreAffaire()) {
     <div class="activity-cards-container mt-3">
-      @let ca = chiffreAffaire.chiffreAffaire;
+      @let ca = chiffreAffaire().chiffreAffaire;
       @if (ca) {
         <!-- Card 1: Chiffre d'affaires -->
         <div class="activity-card activity-card-primary">
@@ -131,7 +131,7 @@
         </div>
       }
 
-      @let achat = chiffreAffaire.achats;
+      @let achat = chiffreAffaire().achats;
       @if (achat) {
         <!-- Card 2: Total des achats -->
         <div class="activity-card activity-card-success">
@@ -172,7 +172,7 @@
         </div>
       }
 
-      @let recettes = chiffreAffaire.recettes;
+      @let recettes = chiffreAffaire().recettes;
       @if (recettes) {
         <!-- Card 3: Recettes -->
         <div class="activity-card activity-card-info">
@@ -210,7 +210,7 @@
         </div>
       }
 
-      @let mvts = chiffreAffaire.mouvementCaisses;
+      @let mvts = chiffreAffaire().mouvementCaisses;
       @if (mvts) {
         <!-- Card 4: Mouvements de caisse -->
         <div class="activity-card activity-card-warning">
@@ -250,7 +250,7 @@
     </div>
   }
 
-  @if (groupeFournisseurAchats && groupeFournisseurAchats.length) {
+  @if (groupeFournisseurAchats() && groupeFournisseurAchats().length) {
     <div class="row  p-2">
       <div class="card h-100 data-card">
         <div class="card-header">
@@ -266,7 +266,7 @@
             [paginator]="true"
             [rowsPerPageOptions]="[10, 15, 20]"
             [rows]="10"
-            [value]="groupeFournisseurAchats"
+            [value]="groupeFournisseurAchats()"
             dataKey="libelle"
           >
             <ng-template #header>
@@ -299,7 +299,7 @@
       </div>
     </div>
   }
-  @if (reglementTiersPayants && reglementTiersPayants.length) {
+  @if (reglementTiersPayants() && reglementTiersPayants().length) {
     <div class="row  p-2">
       <div class="card h-100 data-card">
         <div class="card-header">
@@ -316,7 +316,7 @@
               [paginator]="true"
               [rowsPerPageOptions]="[10, 15, 20]"
               [rows]="10"
-              [value]="reglementTiersPayants"
+              [value]="reglementTiersPayants()"
               dataKey="libelle"
 
             >
@@ -324,7 +324,7 @@
                 <div class="d-flex">
                   <app-icon-field [overlay]="true" icon="pi pi-search">
                     <input
-                      (input)="tbReglementTiersPayants.filterGlobal($event.target.value, 'contains')"
+                      (input)="tbReglementTiersPayants.filterGlobal($event.target.value)"
                       [(ngModel)]="searchReglement"
                       class="form-control"
                       placeholder="Filtrer" type="text" />
@@ -369,7 +369,7 @@
     </div>
   }
 
-  @if (achatTiersPayant && achatTiersPayant.length) {
+  @if (achatTiersPayant() && achatTiersPayant().length) {
     <div class="row p-2">
       <div class="card h-100 data-card">
         <div class="card-header">
@@ -386,14 +386,14 @@
               [paginator]="true"
               [rowsPerPageOptions]="[10, 15, 20]"
               [rows]="10"
-              [value]="achatTiersPayant"
+              [value]="achatTiersPayant()"
               dataKey="libelle"
             >
               <ng-template #caption>
                 <div class="d-flex">
                   <app-icon-field [overlay]="true" icon="pi pi-search">
                     <input
-                      (input)="tb.filterGlobal($event.target.value, 'contains')"
+                      (input)="tb.filterGlobal($event.target.value)"
                       [(ngModel)]="searchAchat"
                       class="form-control"
                       placeholder="Filtrer" type="text" />

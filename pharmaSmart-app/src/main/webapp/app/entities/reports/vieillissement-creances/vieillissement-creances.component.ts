@@ -2,7 +2,7 @@ import { Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, Vie
 import { CommonModule } from '@angular/common';
 import { forkJoin } from 'rxjs';
 
-import { DataTableComponent } from '../../../shared/ui';
+import { DataTableComponent, KpiStripComponent, KpiItemComponent } from '../../../shared/ui';
 import { IDsoOrganisme, IEncoursMensuel, IVieillissementGlobal } from 'app/shared/model/report';
 import { VieillissementCreancesService } from '../services/vieillissement-creances.service';
 import { formatCurrency, formatNumber, currencySymbol } from 'app/shared/utils/format-utils';
@@ -18,8 +18,8 @@ type TranchePill = 'all' | '0-30' | '31-60' | '61-90' | '90+';
   selector: 'app-vieillissement-creances',
   templateUrl: './vieillissement-creances.component.html',
   styleUrl: './vieillissement-creances.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [DeviseDirective, CommonModule, DataTableComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DeviseDirective, CommonModule, DataTableComponent, KpiStripComponent, KpiItemComponent],
 })
 export default class VieillissementCreancesComponent implements OnInit, OnDestroy {
   @ViewChild('encoursMensuelChartCanvas') encoursMensuelChartCanvas?: ElementRef<HTMLCanvasElement>;

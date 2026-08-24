@@ -30,18 +30,18 @@
         </div>
       </div>
 
-      @if (entites && entites.length > 0) {
+      @if (entites() && entites().length > 0) {
         <app-data-table
           (onLazyLoad)="lazyLoading($event)"
           [lazy]="true"
-          [loading]="loading"
+          [loading]="loading()"
           [paginator]="true"
           [rows]="itemsPerPage"
           [selectionMode]="'single'"
           [size]="'small'"
           [stripedRows]="true"
-          [totalRecords]="totalItems"
-          [value]="entites"
+          [totalRecords]="totalItems()"
+          [value]="entites()"
           dataKey="id"
         >
           <ng-template #header>

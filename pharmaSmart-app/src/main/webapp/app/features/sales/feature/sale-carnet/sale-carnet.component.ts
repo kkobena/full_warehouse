@@ -73,7 +73,7 @@ import {SaleForEditInfo} from '../../../../shared/model/sales.model';
   host: {
     '(window:keydown)': 'handleKeyboardEvent($event)',
   },
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -142,9 +142,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   readonly salesLines = this.facade.salesLines;
   readonly selectedCustomer = this.facade.selectedCustomer;
   readonly selectedProduct = this.facade.selectedProduct;
-  readonly loading = this.facade.loading;
   readonly isSaving = this.facade.isSaving;
-  readonly plafondIsReached = this.facade.plafondIsReached;
   readonly isAvoir = this.facade.isAvoir;
   private authorizationService = inject(AuthorizationService);
   private notificationService = inject(NotificationService);
@@ -415,10 +413,10 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
       this.modalService,
       AssuredCustomerListModalComponent,
       {
-        searchString: event?.searchTerm || '',
+        search: event?.searchTerm || '',
         headerLibelle: 'CLIENTS CARNET',
         typeTiersPayant: 'CARNET',
-        preloadedCustomers: event?.customers?.length ? event.customers : null,
+        preloaded: event?.customers?.length ? event.customers : null,
       },
       (customer: ICustomer) => {
         if (customer) {

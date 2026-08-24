@@ -10,7 +10,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
   selector: 'app-suggestion-comparaison',
   templateUrl: './suggestion-comparaison.component.html',
   styleUrls: ['./suggestion-comparaison.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeviseDirective, CommonModule, BadgeComponent, ButtonComponent, DecimalPipe],
 })
 export class SuggestionComparaisonComponent implements OnInit {

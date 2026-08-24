@@ -42,7 +42,7 @@ interface MenuEntry {
   selector: "app-produit-list",
   templateUrl: "./produit-list.component.html",
   styleUrls: ["./produit-list.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

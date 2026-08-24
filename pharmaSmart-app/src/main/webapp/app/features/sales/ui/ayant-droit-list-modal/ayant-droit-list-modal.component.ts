@@ -12,7 +12,7 @@ import { showCommonModal } from '../../../../entities/sales/selling-home/sale-he
   selector: 'app-ayant-droit-list-modal',
   templateUrl: './ayant-droit-list-modal.component.html',
   styleUrls: ['./ayant-droit-list.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, ButtonComponent, DataTableComponent, NgbTooltip, ToolbarComponent, CardComponent],
 })
 export class AyantDroitListModalComponent implements OnInit {

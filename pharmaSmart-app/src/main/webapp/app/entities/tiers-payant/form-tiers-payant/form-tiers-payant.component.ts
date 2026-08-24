@@ -5,8 +5,7 @@ import {
   ElementRef,
   inject,
   OnInit,
-  viewChild
-} from "@angular/core";
+  viewChild, signal } from "@angular/core";
 import {LowerCasePipe} from "@angular/common";
 import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from "@angular/forms";
 import {ErrorService} from "app/shared/error.service";
@@ -33,7 +32,7 @@ import {
   selector: "app-form-tiers-payant",
   templateUrl: "./form-tiers-payant.component.html",
   styleUrls: ["./form-tiers-payant.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     ReactiveFormsModule,
@@ -52,10 +51,10 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
   categorie?: string | null = null;
   protected fb = inject(UntypedFormBuilder);
   protected name = viewChild.required<ElementRef>("name");
-  protected isSaving = false;
+  protected readonly isSaving = signal(false);
   protected isValid = true;
-  protected groupeTiersPayants: IGroupeTiersPayant[] = [];
-  protected modelFacture: ModelFacture[] = [];
+  protected readonly groupeTiersPayants = signal<IGroupeTiersPayant[]>([]);
+  protected readonly modelFacture = signal<ModelFacture[]>([]);
   protected readonly periodicitesOptions = [
     {label: "Mensuel", value: "MENSUEL"},
     {label: "Quinzainière", value: "QUINZAINE"},
@@ -98,7 +97,7 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
     }
     this.loadModelFacture();
     this.populate().then(r => {
-      this.groupeTiersPayants = r;
+      this.groupeTiersPayants.set(r);
     });
   }
 
@@ -114,7 +113,7 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
 
   loadModelFacture(): void {
     this.tiersPayantService.getModelFacture().subscribe(res => {
-      this.modelFacture = res.body;
+      this.modelFacture.set(res.body);
     });
   }
 
@@ -123,7 +122,7 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
   }
 
   save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const tiersPayant = this.createFromForm();
     if (tiersPayant.id !== undefined && tiersPayant.id) {
       this.subscribeToSaveResponse(this.tiersPayantService.update(tiersPayant));
@@ -140,12 +139,12 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
   }
 
   protected onSaveSuccess(tiersPayant: ITiersPayant | null): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.activeModal.close(tiersPayant);
   }
 
   protected onSaveError(error: any): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 

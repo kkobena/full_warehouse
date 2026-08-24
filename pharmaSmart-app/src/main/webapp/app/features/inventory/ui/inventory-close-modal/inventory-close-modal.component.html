@@ -33,7 +33,7 @@
 
       <app-kpi-item
         [accent]="'danger'"
-        [value]="progress()?.linesWithGap ?? 0 | number: '1.0-0' : 'fr'"
+        [value]="progress()?.withGap ?? 0 | number: '1.0-0' : 'fr'"
         icon="pi pi-exclamation-triangle"
         iconClass="text-danger"
         label="Lignes avec écart"

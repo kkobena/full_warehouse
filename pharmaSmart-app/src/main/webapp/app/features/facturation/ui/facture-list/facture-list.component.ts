@@ -10,8 +10,7 @@ import {
   ButtonComponent,
   DataTableComponent,
   HeaderCheckboxComponent,
-  RowCheckboxComponent
-} from "../../../../shared/ui";
+  RowCheckboxComponent, AppBadgeSeverity } from "../../../../shared/ui";
 
 import { NotificationService } from "../../../../shared/services/notification.service";
 import { ErrorService } from "../../../../shared/error.service";
@@ -38,7 +37,7 @@ import { BlobDownloadService } from "../../../../shared/services/blob-download.s
     RowCheckboxComponent
   ],
   templateUrl: "./facture-list.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./facture-list.component.scss"
 })
 export class FactureListComponent {
@@ -50,9 +49,9 @@ export class FactureListComponent {
   readonly factureSelected = output<IFacture>();
   readonly createAvoir = output<IFacture>();
 
-  protected loading = false;
-  protected certifying = false;
-  protected page = 0;
+  protected readonly loading = signal(false);
+  protected readonly certifying = signal(false);
+  protected readonly page = signal(0);
   protected readonly itemsPerPage = ITEMS_PER_PAGE;
   protected selectedFactures = signal<IFacture[]>([]);
 
@@ -70,7 +69,7 @@ export class FactureListComponent {
     effect(() => {
       const params = this.searchParams();
       if (params !== null) {
-        this.page = 0;
+        this.page.set(0);
         this.loadPage(params);
       }
     });
@@ -94,12 +93,12 @@ export class FactureListComponent {
   lazyLoading(event: AppTableLazyLoadEvent): void {
     const params = this.searchParams();
     if (event && params) {
-      this.page = Math.floor((event.first ?? 0) / (event.rows ?? this.itemsPerPage));
+      this.page.set(Math.floor((event.first ?? 0) / (event.rows ?? this.itemsPerPage)));
       this.loadPage(params, event.rows ?? this.itemsPerPage);
     }
   }
 
-  getStatutSeverity(statut: string): string {
+  getStatutSeverity(statut: string): AppBadgeSeverity {
     switch (statut) {
       case "PAID":
         return "success";
@@ -157,10 +156,10 @@ export class FactureListComponent {
   }
 
   private onCertifySingle(facture: IFacture): void {
-    this.certifying = true;
+    this.certifying.set(true);
     this.certificationApiService.certify(facture.factureItemId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: response => {
-        this.certifying = false;
+        this.certifying.set(false);
         const fneResponse = response.body;
         if (fneResponse) {
           this.confirmDialog.onConfirm(
@@ -172,7 +171,7 @@ export class FactureListComponent {
 
       },
       error: err => {
-        this.certifying = false;
+        this.certifying.set(false);
         this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur de certification FNE");
 
       }
@@ -192,15 +191,15 @@ export class FactureListComponent {
 
 
   private onCertifyGroupInvoice(facture: IFacture): void {
-    this.certifying = true;
+    this.certifying.set(true);
     this.certificationApiService.certifyGroupe(facture.factureItemId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
-        this.certifying = false;
+        this.certifying.set(false);
         this.notificationService.success("Toutes les factures du groupe ont été certifiées avec succès auprès du FNE.", "Certification groupe");
 
       },
       error: err => {
-        this.certifying = false;
+        this.certifying.set(false);
         this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur de certification FNE");
       }
     });
@@ -235,12 +234,12 @@ export class FactureListComponent {
   }
 
   private loadPage(params: IInvoiceSearchParams, rows = this.itemsPerPage): void {
-    this.loading = true;
+    this.loading.set(true);
     this.store.setLoading(true);
     this.factureApiService
-      .query({ ...params, page: this.page, size: rows } as any)
+      .query({ ...params, page: this.page(), size: rows } as any)
       .pipe(
-        finalize(() => (this.loading = false)),
+        finalize(() => (this.loading.set(false))),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({

@@ -1,4 +1,4 @@
-import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
@@ -18,7 +18,7 @@ import {
   selector: 'app-ajustement-lines-table',
   templateUrl: './ajustement-lines-table.component.html',
   styleUrl: './ajustement-lines-table.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -43,7 +43,7 @@ export class AjustementLinesTableComponent {
   readonly searchChange    = output<string>();
 
   protected search = '';
-  protected selectedRows: IAjustement[] = [];
+  protected readonly selectedRows = signal<IAjustement[]>([]);
 
   protected directionLabel(qtyMvt: number): string {
     return (qtyMvt ?? 0) >= 0 ? 'ENTRÉE' : 'SORTIE';
@@ -72,7 +72,7 @@ export class AjustementLinesTableComponent {
   }
 
   protected onDeleteSelection(): void {
-    this.deleteSelection.emit(this.selectedRows);
-    this.selectedRows = [];
+    this.deleteSelection.emit(this.selectedRows());
+    this.selectedRows.set([]);
   }
 }

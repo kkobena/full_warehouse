@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ModifAjustementService } from '../motif-ajustement.service';
 import { IMotifAjustement, MotifAjustement } from '../../../shared/model/motif-ajustement.model';
@@ -14,7 +14,7 @@ import { finalize } from 'rxjs/operators';
   selector: 'app-form-motif-ajustement',
   templateUrl: './form-motif-ajustement.component.html',
   styleUrls: ['./form-motif-ajustement.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, ReactiveFormsModule, ButtonComponent],
 })
 export class FormMotifAjustementComponent implements OnInit, AfterViewInit {
@@ -22,7 +22,7 @@ export class FormMotifAjustementComponent implements OnInit, AfterViewInit {
   entity?: IMotifAjustement;
   private readonly entityService = inject(ModifAjustementService);
   protected fb = inject(UntypedFormBuilder);
-  protected isSaving = false;
+  protected readonly isSaving = signal(false);
   protected editForm = this.fb.group({
     id: [],
     libelle: [null, [Validators.required]],
@@ -52,7 +52,7 @@ export class FormMotifAjustementComponent implements OnInit, AfterViewInit {
   }
 
   protected save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const entity = this.createFromForm();
     if (entity.id !== undefined && entity.id !== null) {
       this.subscribeToSaveResponse(this.entityService.update(entity));
@@ -66,7 +66,7 @@ export class FormMotifAjustementComponent implements OnInit, AfterViewInit {
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<IMotifAjustement>>): void {
-    result.pipe(finalize(() => (this.isSaving = false))).subscribe({
+    result.pipe(finalize(() => (this.isSaving.set(false)))).subscribe({
       next: (response: HttpResponse<IMotifAjustement>) => this.onSaveSuccess(response.body),
       error: err => this.onSaveError(err),
     });

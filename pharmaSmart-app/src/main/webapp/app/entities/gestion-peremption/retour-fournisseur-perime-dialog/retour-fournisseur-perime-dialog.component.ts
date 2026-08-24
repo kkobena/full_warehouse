@@ -33,7 +33,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
     PharmaDatePickerComponent,
   ],
   templateUrl: './retour-fournisseur-perime-dialog.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./retour-lot-pereme.scss'],
 })
 export class RetourFournisseurPerimeDialogComponent implements OnInit {

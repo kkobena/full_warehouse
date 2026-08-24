@@ -20,7 +20,7 @@ import { KpiItemComponent } from 'app/shared/ui/kpi-strip/kpi-item.component';
   selector: 'app-planning-tournant-list',
   imports: [CommonModule, KpiStripComponent, KpiItemComponent, ButtonComponent, BadgeComponent, DataTableComponent, NgbTooltip, DatePipe],
   templateUrl: './planning-tournant-list.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './planning-tournant-list.component.scss',
 })
 export class PlanningTournantListComponent implements OnInit {

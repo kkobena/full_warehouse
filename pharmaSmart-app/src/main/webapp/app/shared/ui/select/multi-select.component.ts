@@ -1,4 +1,4 @@
-import { Component, forwardRef, input, TemplateRef } from '@angular/core';
+import {ChangeDetectionStrategy, Component, forwardRef, input, TemplateRef} from '@angular/core';
 import { NgStyle, NgTemplateOutlet } from '@angular/common';
 import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { NgOptgroupTemplateDirective, NgOptionTemplateDirective, NgSelectComponent } from '@ng-select/ng-select';
@@ -77,6 +77,7 @@ import { SelectBase } from './select.base';
       }
     </ng-select>
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MultiSelectComponent extends SelectBase<unknown[]> {
   /** Referme le panneau après chaque choix. `false` par défaut : on enchaîne les sélections. */

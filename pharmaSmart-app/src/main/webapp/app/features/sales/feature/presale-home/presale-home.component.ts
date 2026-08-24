@@ -5,7 +5,7 @@ import { SalesHomeComponent } from '../sales-home/sales-home.component';
   selector: 'app-presale-home',
   templateUrl: './presale-home.component.html',
   styleUrls: ['./presale-home.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [SalesHomeComponent],
 })
 export class PresaleHomeComponent {}

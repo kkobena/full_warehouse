@@ -33,7 +33,7 @@ import {
   selector: "app-appro-unified-dashboard",
   templateUrl: "./appro-unified-dashboard.component.html",
   styleUrls: ["./appro-unified-dashboard.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe, CommonModule,
     NgbTooltip, KpiStripComponent, KpiItemComponent,

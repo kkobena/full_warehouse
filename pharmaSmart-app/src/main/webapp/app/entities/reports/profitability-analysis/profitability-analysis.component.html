@@ -69,51 +69,23 @@
 
   <!-- KPI Strip -->
   @if (summary()) {
-    <div class="kpi-strip mt-2 mb-2">
-
-      <div class="kpi-strip-item primary-accent">
-        <i class="pi pi-chart-bar text-primary"></i>
-        <div class="kpi-strip-body">
-          <span class="kpi-strip-label">CA Total</span>
-          <span class="kpi-strip-value text-primary">{{ summary()!.caTotalGlobal | number: '1.0-0' }} <small>F CFA</small></span>
-          <span class="kpi-strip-sub">chiffre d'affaires</span>
-        </div>
-      </div>
-
-      <div class="kpi-strip-divider"></div>
-
-      <div class="kpi-strip-item success-accent">
-        <i class="pi pi-money-bill text-success"></i>
-        <div class="kpi-strip-body">
-          <span class="kpi-strip-label">Marge brute globale</span>
-          <span class="kpi-strip-value text-success">{{ summary()!.margeBruteGlobale | number: '1.0-0' }} <small>F CFA</small></span>
-          <span class="kpi-strip-sub">profit brut</span>
-        </div>
-      </div>
-
-      <div class="kpi-strip-divider"></div>
-
-      <div class="kpi-strip-item warning-accent">
-        <i class="pi pi-percentage text-warning"></i>
-        <div class="kpi-strip-body">
-          <span class="kpi-strip-label">Taux de marge moyen</span>
-          <span class="kpi-strip-value text-warning">{{ summary()!.tauxMargeMoyen | number: '1.2-2' }} <small>%</small></span>
-          <span class="kpi-strip-sub">rentabilité moyenne</span>
-        </div>
-      </div>
-
-      <div class="kpi-strip-divider"></div>
-
-      <div class="kpi-strip-item danger-accent">
-        <i class="pi pi-box text-danger"></i>
-        <div class="kpi-strip-body">
-          <span class="kpi-strip-label">Produits analysés</span>
-          <span class="kpi-strip-value text-danger">{{ summary()!.totalProduits | number }}</span>
-          <span class="kpi-strip-sub">références</span>
-        </div>
-      </div>
-
-    </div>
+    <app-kpi-strip stripClass="mt-2 mb-2">
+      <app-kpi-item [accent]="'primary'" icon="pi pi-chart-bar" iconClass="text-primary" label="CA Total" [value]="summary()!.caTotalGlobal | number: '1.0-0'" valueClass="text-primary">
+        <span ngProjectAs="[kpiValue]">&ngsp;<small>F CFA</small></span>
+        <ng-container ngProjectAs="[kpiSub]">chiffre d'affaires</ng-container>
+      </app-kpi-item>
+      <app-kpi-item [accent]="'success'" icon="pi pi-money-bill" iconClass="text-success" label="Marge brute globale" [value]="summary()!.margeBruteGlobale | number: '1.0-0'" valueClass="text-success">
+        <span ngProjectAs="[kpiValue]">&ngsp;<small>F CFA</small></span>
+        <ng-container ngProjectAs="[kpiSub]">profit brut</ng-container>
+      </app-kpi-item>
+      <app-kpi-item [accent]="'warning'" icon="pi pi-percentage" iconClass="text-warning" label="Taux de marge moyen" [value]="summary()!.tauxMargeMoyen | number: '1.2-2'" valueClass="text-warning">
+        <span ngProjectAs="[kpiValue]">&ngsp;<small>%</small></span>
+        <ng-container ngProjectAs="[kpiSub]">rentabilité moyenne</ng-container>
+      </app-kpi-item>
+      <app-kpi-item [accent]="'danger'" icon="pi pi-box" iconClass="text-danger" label="Produits analysés" [value]="summary()!.totalProduits | number" valueClass="text-danger">
+        <ng-container ngProjectAs="[kpiSub]">références</ng-container>
+      </app-kpi-item>
+    </app-kpi-strip>
 
     <!-- Cartes marge insuffisante / bonne marge -->
     <div class="row mt-2">
@@ -171,18 +143,18 @@
           <app-data-table
             (onPage)="onPageChange($event)"
             (onSort)="onSort($event)"
-            [first]="first"
+            [first]="first()"
             [lazy]="true"
             [loading]="isLoading()"
             [paginator]="true"
             [rowsPerPageOptions]="[10, 20, 50]"
-            [rows]="pageSize"
+            [rows]="pageSize()"
             [scrollable]="true"
             [showCurrentPageReport]="true"
             [totalRecords]="totalRecords()"
             [value]="products()"
             [size]="'small'"
-            currentPageReportTemplate="{first} - {last} sur {totalRecords} produits"
+            currentPageReportTemplate="{first()} - {last} sur {totalRecords} produits"
             scrollHeight="500px"
           >
             <ng-template #header>

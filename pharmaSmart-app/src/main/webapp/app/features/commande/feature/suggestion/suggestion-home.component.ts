@@ -28,7 +28,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
   selector: "app-suggestion-home",
   templateUrl: "./suggestion-home.component.html",
   styleUrls: ["./suggestion-home.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeviseDirective, 
     CommonModule,
     FormsModule,

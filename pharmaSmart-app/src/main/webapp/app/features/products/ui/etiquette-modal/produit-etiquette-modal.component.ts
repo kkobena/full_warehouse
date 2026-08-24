@@ -14,7 +14,7 @@ import { BlobDownloadService } from "../../../../shared/services/blob-download.s
   selector: "app-produit-etiquette-modal",
   templateUrl: "./produit-etiquette-modal.component.html",
   styleUrls: ["./produit-etiquette-modal.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, ButtonComponent, InputNumberComponent, CardComponent]
 })
 export class ProduitEtiquetteModalComponent implements AfterViewInit{

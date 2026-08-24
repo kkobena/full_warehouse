@@ -35,7 +35,7 @@ import { BadgeComponent, ButtonComponent, CardComponent, SelectComponent } from 
   selector: "app-form-poste",
   templateUrl: "./form-poste.component.html",
   styleUrl: "./form-poste.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -51,7 +51,7 @@ export class FormPosteComponent implements OnInit, AfterViewInit, OnDestroy {
   title = "";
   entity: IPoste;
   protected fb = inject(UntypedFormBuilder);
-  protected isSaving = false;
+  protected readonly isSaving = signal(false);
   protected editForm = this.fb.group({
     id: [],
     name: [null, [Validators.required, Validators.maxLength(100)]],
@@ -108,7 +108,7 @@ export class FormPosteComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   protected save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const entity = this.createFromForm();
 
     if (entity.id) {
@@ -353,7 +353,7 @@ export class FormPosteComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private onSaveError(error: HttpErrorResponse): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 

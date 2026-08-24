@@ -1,4 +1,4 @@
-import {Component, computed, effect, inject, input, output, ChangeDetectionStrategy} from '@angular/core';
+import {Component, computed, effect, inject, input, output, ChangeDetectionStrategy, signal } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {
@@ -38,7 +38,7 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
   selector: 'app-inventory-lot-grid',
   imports: [CommonModule, FormsModule, AgGridAngular, SelectComponent, NgbTooltip],
   templateUrl: './inventory-lot-grid.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './inventory-lot-grid.component.scss',
 })
 export class InventoryLotGridComponent {
@@ -64,9 +64,9 @@ export class InventoryLotGridComponent {
 
   /** Filtres d'écart retirés en mode aveugle (privilège pr-voir-stock-inventaire) */
   readonly lotFilters = computed(() => lineFiltersFor(this.blindMode()));
-  selectedLotFilter: InventoryLineFilter = 'NONE';
+  protected readonly selectedLotFilter = signal<InventoryLineFilter>('NONE');
   selectedStorageId: number | null = null;
-  selectedRayonId: number | null = null;
+  protected readonly selectedRayonId = signal<number | null>(null);
   quickFilterText = '';
 
   readonly lots = computed(() => this.store.lotLines());
@@ -212,8 +212,8 @@ export class InventoryLotGridComponent {
     // retombe sur « Tous », sinon la grille resterait filtrée sur une information
     // que l'opérateur n'a pas le droit de voir.
     effect(() => {
-      if (this.blindMode() && isGapLineFilter(this.selectedLotFilter)) {
-        this.selectedLotFilter = 'NONE';
+      if (this.blindMode() && isGapLineFilter(this.selectedLotFilter())) {
+        this.selectedLotFilter.set('NONE');
         this.emitFilterChange();
       }
     });
@@ -330,7 +330,7 @@ export class InventoryLotGridComponent {
   }
 
   onStorageFilterChange(): void {
-    this.selectedRayonId = null;
+    this.selectedRayonId.set(null);
     this.storageChange.emit(this.selectedStorageId);
     this.emitFilterChange();
   }
@@ -491,9 +491,9 @@ export class InventoryLotGridComponent {
 
   private emitFilterChange(): void {
     this.filterChange.emit({
-      lineFilter: this.selectedLotFilter,
+      lineFilter: this.selectedLotFilter(),
       storageId: this.selectedStorageId,
-      rayonId: this.selectedRayonId,
+      rayonId: this.selectedRayonId(),
       search: this.quickFilterText,
     });
   }

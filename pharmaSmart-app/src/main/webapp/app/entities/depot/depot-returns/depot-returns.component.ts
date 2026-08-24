@@ -8,20 +8,13 @@ import { QuantiteProdutSaisieComponent } from "app/shared/quantite-produt-saisie
 import { RetourDepot } from "app/shared/model/retour-depot.model";
 import { IRetourDepotItem, RetourDepotItem } from "app/shared/model/retour-depot-item.model";
 import { RetourDepotService } from "../retour-depot.service";
-import { ITEMS_PER_PAGE } from "app/shared/constants/pagination.constants";
 import { debounceTime, Subject, Subscription } from "rxjs";
 import { finalize } from "rxjs/operators";
 import { IMagasin, IProduit } from "../../../shared/model";
 import { MagasinService } from "../../magasin/magasin.service";
 import { StockDepotService } from "../stock-depot/stock-depot.service";
 import { NotificationService } from "../../../shared/services/notification.service";
-import {
-  ButtonComponent,
-  DataTableComponent,
-  EditableCellComponent,
-  SelectComponent,
-  SelectSearchComponent
-} from "../../../shared/ui";
+import { ButtonComponent, DataTableComponent, EditableCellComponent, SelectComponent, SelectSearchComponent } from "../../../shared/ui";
 
 @Component({
   selector: "app-depot-returns",
@@ -37,7 +30,7 @@ import {
     NgbTooltip
   ],
   templateUrl: "./depot-returns.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./depot-returns.component.scss"
 })
 export class DepotReturnsComponent implements OnInit, OnDestroy {
@@ -58,8 +51,6 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
   protected returnQuantity = signal<number>(1);
   protected retourDepotItems = signal<IRetourDepotItem[]>([]);
   protected isSaving = signal<boolean>(false);
-  protected totalRecords = signal<number>(0);
-  protected itemsPerPage = ITEMS_PER_PAGE;
 
   private readonly searchTrigger$ = new Subject<string>();
   private searchSubscription: Subscription | undefined;

@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import {HttpHeaders, HttpResponse} from '@angular/common/http';
 import {FormeProduitService} from './forme-produit.service';
 import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
@@ -21,15 +21,15 @@ import {
   selector: 'app-forme-produit',
   templateUrl: './forme-produit.component.html',
   styleUrl: './forme-produit.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ButtonComponent, DataTableComponent, SelectableRowDirective, IconFieldComponent, NgbTooltip],
 })
 export class FormeProduitComponent implements OnInit {
-  protected entites?: IFormProduit[];
-  protected totalItems = 0;
+  protected readonly entites = signal<IFormProduit[] | undefined>(undefined);
+  protected readonly totalItems = signal(0);
   protected itemsPerPage = ITEMS_PER_PAGE;
-  protected page = 0;
-  protected loading!: boolean;
+  protected readonly page = signal(0);
+  protected readonly loading = signal<boolean | undefined>(undefined);
 
   private readonly modalService = inject(NgbModal);
   private readonly entityService = inject(FormeProduitService);
@@ -44,8 +44,8 @@ export class FormeProduitComponent implements OnInit {
   }
 
   protected loadPage(page?: number, search?: string): void {
-    const pageToLoad: number = page || this.page;
-    this.loading = true;
+    const pageToLoad: number = page || this.page();
+    this.loading.set(true);
     this.entityService
       .query({
         page: pageToLoad,
@@ -60,15 +60,15 @@ export class FormeProduitComponent implements OnInit {
 
   protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event) {
-      this.page = event.first / event.rows;
-      this.loading = true;
+      this.page.set(event.first / event.rows);
+      this.loading.set(true);
       this.entityService
         .query({
-          page: this.page,
+          page: this.page(),
           size: event.rows,
         })
         .subscribe({
-          next: (res: HttpResponse<IFormProduit[]>) => this.onSuccess(res.body, res.headers, this.page),
+          next: (res: HttpResponse<IFormProduit[]>) => this.onSuccess(res.body, res.headers, this.page()),
           error: () => this.onError(),
         });
     }
@@ -127,13 +127,13 @@ export class FormeProduitComponent implements OnInit {
   }
 
   private onSuccess(data: IFormProduit[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get('X-Total-Count'));
-    this.page = page;
-    this.entites = data || [];
-    this.loading = false;
+    this.totalItems.set(Number(headers.get('X-Total-Count')));
+    this.page.set(page);
+    this.entites.set(data || []);
+    this.loading.set(false);
   }
 
   private onError(): void {
-    this.loading = false;
+    this.loading.set(false);
   }
 }

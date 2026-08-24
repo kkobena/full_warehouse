@@ -1,11 +1,11 @@
-@if (commande?.orderStatus !== RECEIVED) {
+@if (commande()?.orderStatus !== RECEIVED) {
   <app-commande-requested
-    [commande]="commande"
+    [commande]="commande()"
     (commandeChange)="onCommandeChange($event)"
   />
-} @else if (commande) {
+} @else if (commande()) {
   <app-commande-received
-    [commande]="commande"
+    [commande]="commande()"
     (commandeChange)="onCommandeChange($event)"
   />
 }

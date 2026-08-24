@@ -4,7 +4,7 @@ import {Component, effect, ElementRef, inject, input, Renderer2, ChangeDetection
   selector: 'jhi-password-strength-bar',
   imports: [],
   templateUrl: './password-strength-bar.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './password-strength-bar.component.scss',
 })
 export default class PasswordStrengthBarComponent {

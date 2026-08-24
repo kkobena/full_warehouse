@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import {signal, AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
 import { CommonModule } from "@angular/common";
 import { HttpErrorResponse, HttpResponse } from "@angular/common/http";
@@ -15,7 +15,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
   selector: "app-fournisseur-form",
   templateUrl: "./fournisseur-form.component.html",
   styleUrl: "./fournisseur-form.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
@@ -31,9 +31,9 @@ export class FournisseurFormComponent implements OnInit, AfterViewInit {
   presetParentId: number | null = null;
   title = "Fournisseur";
 
-  protected parents: IFournisseur[] = [];
-  protected isSaving = false;
-  protected isAgenceMode = false;
+  protected readonly parents = signal([]);
+  protected readonly isSaving = signal(false);
+  protected readonly isAgenceMode = signal(false);
   protected readonly blockSpace = /[^\s]/;
 
   protected readonly fb = inject(UntypedFormBuilder);
@@ -65,7 +65,7 @@ export class FournisseurFormComponent implements OnInit, AfterViewInit {
   private readonly libelleInput = viewChild.required<ElementRef>("libelleInput");
 
   ngOnInit(): void {
-    this.isAgenceMode = this.presetParentId != null || (this.fournisseur?.parentId != null);
+    this.isAgenceMode.set(this.presetParentId != null || (this.fournisseur?.parentId != null));
     this.loadParents();
     if (this.fournisseur) {
       this.updateForm(this.fournisseur);
@@ -79,16 +79,16 @@ export class FournisseurFormComponent implements OnInit, AfterViewInit {
   }
 
   protected save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const entity = this.createFromForm();
     const obs: Observable<IFournisseur> = entity.id ? this.api.update(entity) : this.api.create(entity);
     obs.subscribe({
       next: () => {
-        this.isSaving = false;
+        this.isSaving.set(false);
         this.activeModal.close();
       },
       error: (err: HttpErrorResponse) => {
-        this.isSaving = false;
+        this.isSaving.set(false);
         this.notif.error(this.errorService.getErrorMessage(err));
       }
     });
@@ -101,7 +101,7 @@ export class FournisseurFormComponent implements OnInit, AfterViewInit {
   private loadParents(): void {
     this.api.queryParents({ page: 0, size: 9999 }).subscribe({
       next: (res: HttpResponse<IFournisseur[]>) => {
-        this.parents = res.body ?? [];
+        this.parents.set(res.body ?? []);
       }
     });
   }

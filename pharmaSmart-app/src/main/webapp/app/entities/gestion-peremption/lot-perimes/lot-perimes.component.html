@@ -5,7 +5,7 @@
       <div class="pharma-toolbar-filters">
         <app-select
           (selectionChange)="onFilterChange()"
-          [(ngModel)]="selectedType"
+          [ngModel]="selectedType()" (ngModelChange)="selectedType.set($event)"
           [items]="types"
           [style]="{ 'min-width': '180px' }"
           appendTo="body"
@@ -18,7 +18,7 @@
           <app-icon-field [overlay]="true" icon="pi pi-search">
             <input
               (keyup.enter)="onSearch()"
-              [(ngModel)]="searchTerm"
+              [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)"
               [style]="{ 'max-width': '300px' }"
               class="form-control form-control-sm"
               id="searchTerm"
@@ -31,7 +31,7 @@
                          label="{{ 'warehouseApp.labels.dayCount' | translate }}">
           <input
             (keyup.enter)="onSearch()"
-            [(ngModel)]="dayCount"
+            [ngModel]="dayCount()" (ngModelChange)="dayCount.set($event)"
             [appKeyFilter]="'int'"
             [style]="{ 'max-width': '110px' }"
             autocomplete="off"
@@ -57,10 +57,10 @@
 
           <app-button
             (clicked)="toggleAdvancedFilters()"
-            [icon]="showAdvancedFilters ? 'pi pi-filter-slash' : 'pi pi-sliders-h'"
-            [label]="showAdvancedFilters ? 'Masquer filtres' : 'Filtres avancés'"
+            [icon]="showAdvancedFilters() ? 'pi pi-filter-slash' : 'pi pi-sliders-h'"
+            [label]="showAdvancedFilters() ? 'Masquer filtres' : 'Filtres avancés'"
             [outlined]="true"
-            [severity]="showAdvancedFilters ? 'contrast' : 'secondary'"
+            [severity]="showAdvancedFilters() ? 'contrast' : 'secondary'"
             ngbTooltip="Afficher/masquer les filtres avancés"
             type="button"
           />
@@ -75,7 +75,7 @@
           />
 
           <app-split-button
-            [items]="exportMenus"
+            [items]="exportMenus()"
             [raised]="true"
             icon="pi pi-download"
             label="{{ 'warehouseApp.buttons.export' | translate }}"
@@ -86,14 +86,14 @@
     </ng-container>
 
     <!-- Filtres AVANCÉS : masqués par défaut -->
-    @if (showAdvancedFilters) {
+    @if (showAdvancedFilters()) {
       <div class="advanced-filters-row">
         <div style="max-width: 140px">
           <pharma-date-picker
             (selectionChange)="onFilterChange()"
-            [(ngModel)]="fromDate"
+            [ngModel]="fromDate()" (ngModelChange)="fromDate.set($event)"
             [labelPosition]="'top'"
-            [maxDate]="toDate"
+            [maxDate]="toDate()"
             id="dateDebut"
             label="{{ 'warehouseApp.labels.du' | translate }}"
           ></pharma-date-picker>
@@ -102,9 +102,9 @@
         <div style="max-width: 140px">
           <pharma-date-picker
             (selectionChange)="onFilterChange()"
-            [(ngModel)]="toDate"
+            [ngModel]="toDate()" (ngModelChange)="toDate.set($event)"
             [labelPosition]="'top'"
-            [minDate]="fromDate"
+            [minDate]="fromDate()"
             id="dateFin"
             label="{{ 'warehouseApp.labels.au' | translate }}"
           ></pharma-date-picker>
@@ -114,9 +114,9 @@
                          label="{{ 'warehouseApp.labels.magasin' | translate }}">
           <app-select
             (selectionChange)="onMagasinChange()"
-            [(ngModel)]="selectedMagasin"
+            [ngModel]="selectedMagasin()" (ngModelChange)="selectedMagasin.set($event)"
             [clearable]="true"
-            [items]="magasins"
+            [items]="magasins()"
             appendTo="body"
             bindLabel="fullName"
             inputId="magasins"
@@ -127,9 +127,9 @@
                          label="{{ 'warehouseApp.labels.typeStockage' | translate }}">
           <app-select
             (selectionChange)="onStorageChange()"
-            [(ngModel)]="selectedStorage"
+            [ngModel]="selectedStorage()" (ngModelChange)="selectedStorage.set($event)"
             [clearable]="true"
-            [items]="storages"
+            [items]="storages()"
             appendTo="body"
             bindLabel="name"
             inputId="storages"
@@ -140,9 +140,9 @@
                          label="{{ 'warehouseApp.labels.rayons' | translate }}">
           <app-select
             (selectionChange)="onSearch()"
-            [(ngModel)]="selectedRayon"
+            [ngModel]="selectedRayon()" (ngModelChange)="selectedRayon.set($event)"
             [clearable]="true"
-            [items]="rayons"
+            [items]="rayons()"
             appendTo="body"
             bindLabel="libelle"
             inputId="rayons"
@@ -152,7 +152,7 @@
         <app-fournisseur-select
           (selectionChange)="onFournisseurSelected($event)"
           [grouped]="true"
-          [selectedId]="selectedFournisseur?.id ?? null"
+          [selectedId]="selectedFournisseur()?.id ?? null"
           [style]="{ 'min-width': '200px' }"
         />
 
@@ -160,9 +160,9 @@
                          label="Famille de produit">
           <app-select
             (selectionChange)="onSearch()"
-            [(ngModel)]="selectedFamilleProduit"
+            [ngModel]="selectedFamilleProduit()" (ngModelChange)="selectedFamilleProduit.set($event)"
             [clearable]="true"
-            [items]="famillesProduit"
+            [items]="famillesProduit()"
             appendTo="body"
             bindLabel="libelle"
             inputId="familleProduit"
@@ -184,9 +184,9 @@
   <hr />
 
   <!-- Bulk action bar -->
-  @if (selectedLotPerimes?.length >= 1) {
+  @if (selectedLotPerimes()?.length >= 1) {
     <div class="bulk-action-bar">
-      <span class="bulk-count">{{ selectedLotPerimes.length }} lot(s) sélectionné(s)</span>
+      <span class="bulk-count">{{ selectedLotPerimes().length }} lot(s) sélectionné(s)</span>
       <app-button
         (clicked)="confirmAll()"
         [outlined]="true"
@@ -208,13 +208,13 @@
     </div>
   }
 
-  @if (lotPerimeValeurSum) {
+  @if (lotPerimeValeurSum()) {
     <app-kpi-strip stripClass="mb-2 mt-1">
       <!-- KPI 1 — Lots périmés (cliquable) -->
       <app-kpi-item
         (click)="filterByPerimes()"
         [accent]="'danger'"
-        [value]="lotPerimeValeurSum.count | number"
+        [value]="lotPerimeValeurSum().count | number"
         class="clickable"
         icon="pi pi-filter"
         iconClass="text-danger"
@@ -225,14 +225,14 @@
       >
         <ng-container ngProjectAs="[kpiSub]">
           {{ 'warehouseApp.gestionPerimes.labels.quantitesProduit' | translate }}
-          : {{ lotPerimeValeurSum.quantite | number }}
+          : {{ lotPerimeValeurSum().quantite | number }}
         </ng-container>
       </app-kpi-item>
 
       <!-- KPI 2 — Valeurs (informatif) -->
       <app-kpi-item
         [accent]="'warning'"
-        [value]="lotPerimeValeurSum.valeurAchat | number"
+        [value]="lotPerimeValeurSum().valeurAchat | number"
         icon="pi pi-wallet"
         iconClass="text-warning"
         label="{{ 'warehouseApp.gestionPerimes.labels.valeursAchat' | translate }}"
@@ -240,7 +240,7 @@
       >
         <ng-container ngProjectAs="[kpiSub]">
           {{ 'warehouseApp.gestionPerimes.labels.valeursVente' | translate }}
-          : {{ lotPerimeValeurSum.valeurVente | number }}
+          : {{ lotPerimeValeurSum().valeurVente | number }}
         </ng-container>
       </app-kpi-item>
 
@@ -248,7 +248,7 @@
       <app-kpi-item
         (click)="filterByUpcoming30()"
         [accent]="'primary'"
-        [value]="lotPerimeValeurSum.prochainesPerimes | number"
+        [value]="lotPerimeValeurSum().prochainesPerimes | number"
         class="clickable"
         icon="pi pi-filter"
         iconClass="text-primary"
@@ -262,7 +262,7 @@
       <app-kpi-item
         (click)="navigateToRetours()"
         [accent]="'success'"
-        [value]="lotPerimeValeurSum.retoursFourn | number"
+        [value]="lotPerimeValeurSum().retoursFourn | number"
         class="clickable"
         icon="pi pi-reply"
         iconClass="text-success"
@@ -278,21 +278,21 @@
     </app-kpi-strip>
   }
 
-  @if (data && data.length) {
+  @if (data() && data().length) {
     <div>
       <app-data-table
         (onLazyLoad)="lazyLoading($event)"
-        [(selection)]="selectedLotPerimes"
+        [selection]="selectedLotPerimes()" (selectionChange)="selectedLotPerimes.set($any($event))"
         [lazy]="true"
-        [loading]="loading"
+        [loading]="loading()"
         [paginator]="true"
         [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
         [rows]="itemsPerPage"
         [showCurrentPageReport]="false"
         [showGridlines]="true"
         [size]="'small'"
-        [totalRecords]="totalItems"
-        [value]="data"
+        [totalRecords]="totalItems()"
+        [value]="data()"
         dataKey="id"
         selectionMode="multiple"
       >
@@ -316,62 +316,62 @@
           </tr>
         </ng-template>
         <ng-template #body let-data>
-          <tr [class.pharma-row-danger]="data.peremptionStatut?.days < 0"
-              [class.pharma-row-warning]="data.peremptionStatut?.days >= 0 && data.peremptionStatut?.days <= 30">
+          <tr [class.pharma-row-danger]="data().peremptionStatut?.days < 0"
+              [class.pharma-row-warning]="data().peremptionStatut?.days >= 0 && data().peremptionStatut?.days <= 30">
             <td>
                  <span class="pharma-product-name">
-                 {{ data.produitName }}
+                 {{ data().produitName }}
               </span>
 
             </td>
             <td>
               <span class="pharma-code">
-                 {{ data.produitCode }}
+                 {{ data().produitCode }}
               </span>
 
             </td>
             <td>
-              <span class="pharma-badge  pharma-badge-info"> {{ data.numLot }}</span>
+              <span class="pharma-badge  pharma-badge-info"> {{ data().numLot }}</span>
 
             </td>
             <td>
-              {{ data.datePeremption }}
+              {{ data().datePeremption }}
             </td>
             <td class="text-right amount-column">
-              <span class="pharma-qty-value">{{ data.quantity | number }}</span>
+              <span class="pharma-qty-value">{{ data().quantity | number }}</span>
             </td>
             <td class="text-right amount-column">
-              <span class="pharma-price">{{ data.prixAchat | number }}</span>
+              <span class="pharma-price">{{ data().prixAchat | number }}</span>
             </td>
             <td class="text-right amount-column">
-              <span class="pharma-price">{{ data.prixVente | number }}</span>
+              <span class="pharma-price">{{ data().prixVente | number }}</span>
             </td>
             <td class="text-center">
-              <app-badge [label]="data.peremptionStatut?.libelle ?? ''"
-                         [severity]="getSeverity(data.peremptionStatut)" />
+              <app-badge [label]="data().peremptionStatut?.libelle ?? ''"
+                         [severity]="getSeverity(data().peremptionStatut)" />
             </td>
             <td class="pharma-entity-name">
-              {{ data.fournisseur }}
+              {{ data().fournisseur }}
             </td>
             <td class="pharma-entity-name">
-              {{ data.rayonName }}
+              {{ data().rayonName }}
             </td>
             <td class="text-center">
-              @if (getSingleLocation(data); as loc) {
+              @if (getSingleLocation(data()); as loc) {
                 <!-- Lot dans 1 seul emplacement → retrait automatiquement ciblé -->
                 <span
                   [ngbTooltip]="'Qté : ' + (loc.qty | number) + ' — Retrait ciblé sur cet emplacement'"
                   class="pharma-badge pharma-badge-info">
                   <i class="pi pi-map-marker me-1"></i>{{ loc.storageName }}
                 </span>
-              } @else if (isMultiLocation(data)) {
+              } @else if (isMultiLocation(data())) {
                 <!-- Lot multi-site → sélecteur d'emplacement obligatoire -->
                 <div class="d-flex flex-column gap-1 align-items-center">
                   <app-select
-                    (ngModelChange)="onLocationSelect(data, $event)"
+                    (ngModelChange)="onLocationSelect(data(), $event)"
                     [clearable]="true"
-                    [items]="locationOptions(data)"
-                    [ngModel]="selectedLocationMap.get(data.id)"
+                    [items]="locationOptions(data())"
+                    [ngModel]="selectedLocationMap.get(data().id)"
                     [small]="true"
                     [style]="{'min-width':'140px'}"
                     appendTo="body"
@@ -379,7 +379,7 @@
                     bindValue="storageId"
                     placeholder="Choisir emplacement"
                   />
-                  @if (!selectedLocationMap.get(data.id)) {
+                  @if (!selectedLocationMap.get(data().id)) {
                     <small class="text-warning"><i class="pi pi-exclamation-triangle"></i>
                       Requis</small>
                   }
@@ -390,14 +390,14 @@
               }
             </td>
             <td class="text-center">
-              <app-row-checkbox [row]="data" />
+              <app-row-checkbox [row]="data()" />
             </td>
             <td>
               <div class="btn-group">
-                <app-button (clicked)="confirmRetirerDialog(data)" [text]="true" icon="pi pi-trash"
+                <app-button (clicked)="confirmRetirerDialog(data())" [text]="true" icon="pi pi-trash"
                             ngbTooltip="Retirer du stock" placement="left"
                             severity="danger" />
-                <app-button (clicked)="confirmRetourFournisseurDialog(data)" [text]="true"
+                <app-button (clicked)="confirmRetourFournisseurDialog(data())" [text]="true"
                             icon="pi pi-reply" ngbTooltip="Faire un retour fournisseur"
                             placement="left" severity="info" />
               </div>

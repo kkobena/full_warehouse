@@ -5,7 +5,7 @@
   </div>
   <div class="rpt-header__search">
     <app-select-search
-      [(ngModel)]="selectedProduit"
+      [ngModel]="selectedProduit()" (ngModelChange)="selectedProduit.set($event)"
       [items]="searchSuggestions()"
       (searched)="onComplete($event)"
       (selectionChange)="onProduitSelected($event)"
@@ -27,7 +27,7 @@
   <app-data-table
     [value]="produits()"
     [loading]="loading()"
-    [rows]="rows"
+    [rows]="rows()"
     [totalRecords]="totalItems()"
     [lazy]="true"
     [paginator]="true"
@@ -35,7 +35,7 @@
     (onLazyLoad)="onLazyLoad($event)"
     dataKey="id"
     selectionMode="multiple"
-    [(selection)]="selectedProduits"
+    [selection]="selectedProduits()" (selectionChange)="selectedProduits.set($any($event))"
     class="p-datatable-sm"
   >
     <ng-template #caption>
@@ -48,10 +48,10 @@
             (input)="onFilterChange($any($event.target).value)"
           />
         </app-icon-field>
-        @if (selectedProduits.length > 0) {
+        @if (selectedProduits().length > 0) {
           <app-button
             icon="pi pi-arrows-h"
-            [label]="'Déplacer (' + selectedProduits.length + ')'"
+            [label]="'Déplacer (' + selectedProduits().length + ')'"
             severity="info"
             size="small"
             (clicked)="onMoveSelected()"

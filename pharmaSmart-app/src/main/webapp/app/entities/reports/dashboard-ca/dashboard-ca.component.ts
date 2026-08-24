@@ -6,7 +6,13 @@ import { RouterModule } from "@angular/router";
 
 import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 
-import { ButtonComponent, SelectComponent, ToolbarComponent } from '../../../shared/ui';
+import {
+  ButtonComponent,
+  KpiItemComponent,
+  KpiStripComponent,
+  SelectComponent,
+  ToolbarComponent
+} from '../../../shared/ui';
 import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
 import { NGB_DATE_TO_ISO } from '../../../shared/util/warehouse-util';
 
@@ -43,7 +49,7 @@ interface PeriodOption {
   selector: "app-dashboard-ca",
   templateUrl: "./dashboard-ca.component.html",
   styleUrl: "./dashboard-ca.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
@@ -51,7 +57,9 @@ interface PeriodOption {
     SelectComponent,
     ToolbarComponent,
     PharmaDatePickerComponent,
-    RouterModule
+    RouterModule,
+    KpiStripComponent,
+    KpiItemComponent
   ]
 })
 export default class DashboardCAComponent implements OnInit, OnDestroy {

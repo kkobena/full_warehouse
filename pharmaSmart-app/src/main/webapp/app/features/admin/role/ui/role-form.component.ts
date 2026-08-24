@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import {signal, AfterViewInit, Component, ElementRef, inject, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import {
   AbstractControl,
   FormBuilder,
@@ -18,14 +18,14 @@ const ROLE_PATTERN = /^[A-Z][A-Z0-9_]*$/;
   selector: "app-role-form",
   templateUrl: "./role-form.component.html",
   styleUrl: "./role-form.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, ReactiveFormsModule, ButtonComponent, CardComponent, KeyFilterDirective]
 })
 export class RoleFormComponent implements AfterViewInit {
   /** Existing role names — set by parent for uniqueness check. */
   existingNames: string[] = [];
 
-  protected isSaving = false;
+  protected readonly isSaving = signal(false);
 
   private readonly activeModal = inject(NgbActiveModal);
   private readonly navApi = inject(NavApiService);
@@ -51,14 +51,14 @@ export class RoleFormComponent implements AfterViewInit {
     const suffix = this.editForm.get("suffix")!.value!.trim().toUpperCase();
     const name = `ROLE_${suffix}`;
     const libelle = this.editForm.get("libelle")!.value?.trim() || name;
-    this.isSaving = true;
+    this.isSaving.set(true);
     this.navApi.createRole(name, libelle).subscribe({
       next: () => {
-        this.isSaving = false;
+        this.isSaving.set(false);
         this.activeModal.close({ name, libelle });
       },
       error: () => {
-        this.isSaving = false;
+        this.isSaving.set(false);
         this.notif.error("Erreur lors de la création du rôle.");
       }
     });

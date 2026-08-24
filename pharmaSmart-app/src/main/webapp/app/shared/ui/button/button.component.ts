@@ -1,4 +1,4 @@
-import {Component, computed, input, output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, input, output} from '@angular/core';
 
 
 export type AppButtonSeverity =
@@ -128,6 +128,7 @@ export type AppButtonSize = 'small' | 'normal' | 'large';
       }
     }
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ButtonComponent {
   /** `warn` et `contrast` diffèrent entre les deux vocabulaires ; le reste est identique. */

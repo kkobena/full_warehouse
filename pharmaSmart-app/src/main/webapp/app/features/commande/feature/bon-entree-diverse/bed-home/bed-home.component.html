@@ -49,7 +49,7 @@
         <app-icon-field [overlay]="true" class="lb-search" icon="pi pi-search">
           <input
             (keyup.enter)="onSearch()"
-            [(ngModel)]="search"
+            [ngModel]="search()" (ngModelChange)="search.set($event)"
             class="form-control"
             placeholder="Référence, libellé…"
             type="text" />
@@ -57,7 +57,7 @@
 
         <app-select
           (selectionChange)="onSearch()"
-          [(ngModel)]="filterMotif"
+          [ngModel]="filterMotif()" (ngModelChange)="filterMotif.set($event)"
           [clearable]="true"
           [items]="motifOptions"
           bindLabel="label"
@@ -67,7 +67,7 @@
 
         <pharma-date-picker
           (selectionChange)="onSearch()"
-          [(ngModel)]="dtStart"
+          [ngModel]="dtStart()" (ngModelChange)="dtStart.set($event)"
           class="lb-date"
           id="bedDtStart"
           label="Début"
@@ -75,7 +75,7 @@
 
         <pharma-date-picker
           (selectionChange)="onSearch()"
-          [(ngModel)]="dtEnd"
+          [ngModel]="dtEnd()" (ngModelChange)="dtEnd.set($event)"
           class="lb-date"
           id="bedDtEnd"
           label="Fin"

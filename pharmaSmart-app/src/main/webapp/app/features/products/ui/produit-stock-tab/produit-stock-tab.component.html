@@ -90,7 +90,7 @@
                 size="small"
                 [severity]="lotUrgent() ? 'warn' : 'secondary'"
                 [outlined]="true"
-                [ngbTooltip]="lotUrgent() ? 'Lot ' + lotUrgent()!.numLot + ' expire le ' + lotUrgent()!.datePeremption + ' — déplacer en priorité' : 'Transférer du rayon vers la réserve'"
+                [ngbTooltip]="lotUrgent() ? 'Lot ' + lotUrgent()!.numLot + ' expire le ' + lotUrgent()!.expiryDate + ' — déplacer en priorité' : 'Transférer du rayon vers la réserve'"
                 [disabled]="isDisabled()"
                 (clicked)="onTransfert(rayon)"
               />

@@ -1102,9 +1102,9 @@ dans le flux de vente — volontairement minimal, pour ne pas alourdir l'encaiss
 ### 6.2 API REST (`web/rest/declaration_ca/`)
 
 ```
-GET    /api/declaration-ca/rayons?exclus={bool}          → liste paginée + drapeau      [EXCLUSION_RAYON]
+GET    /api/declaration-ca/rayons?exclus={bool}&search=&page=&size=  → page + X-Total-Count [EXCLUSION_RAYON]
 PUT    /api/declaration-ca/rayons/exclusion              → { ids: [], exclure: bool }   [EXCLUSION_RAYON]
-GET    /api/declaration-ca/tiers-payants?exclus={bool}                                  [EXCLUSION_TP]
+GET    /api/declaration-ca/tiers-payants?exclus={bool}&search=&page=&size=             [EXCLUSION_TP]
 PUT    /api/declaration-ca/tiers-payants/exclusion       → { ids: [], exclure: bool }   [EXCLUSION_TP]
 GET    /api/declaration-ca/parametres                    → { excludeFreeUnit, plafond } [EXCLUSION_UG]
 PUT    /api/declaration-ca/parametres                                                   [EXCLUSION_UG]
@@ -1113,7 +1113,7 @@ GET    /api/declaration-ca/ponctions/assiette?fromDate&toDate  → CA réel + CA
 POST   /api/declaration-ca/ponctions/simulation               → PonctionSimulationDTO    [CALLEBASSE]
 POST   /api/declaration-ca/ponctions                          → valide (201)             [CALLEBASSE]
 DELETE /api/declaration-ca/ponctions/{id}                     → annule + restaure        [CALLEBASSE]
-GET    /api/declaration-ca/ponctions                          → historique paginé        [CALLEBASSE]
+GET    /api/declaration-ca/ponctions?dateDebut&dateFin        → historique de la période [CALLEBASSE]
 GET    /api/declaration-ca/ponctions/{id}/detail              → détail par vente         [CALLEBASSE]
 GET    /api/declaration-ca/ponctions/{id}/pdf                 → justificatif             [CALLEBASSE]
 

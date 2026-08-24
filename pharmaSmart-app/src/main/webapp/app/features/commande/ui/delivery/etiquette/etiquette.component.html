@@ -33,7 +33,7 @@
   ></app-button>
   <app-button
     (clicked)="save()"
-    [disabled]="isSaving || startAt === 0 || startAt > 64"
+    [disabled]="isSaving() || startAt === 0 || startAt > 64"
     [raised]="true"
     icon="pi pi-check"
     label="Enregistrer"

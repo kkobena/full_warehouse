@@ -17,7 +17,7 @@ import { PlanificationStateService } from '../planification-state.service';
       }
     `,
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (state.isLoadingHistorique(planId())) {
       <div class="d-flex justify-content-center p-4">

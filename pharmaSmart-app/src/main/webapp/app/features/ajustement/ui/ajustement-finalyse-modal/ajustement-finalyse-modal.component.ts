@@ -7,14 +7,13 @@ import {ButtonComponent} from '../../../../shared/ui';
   selector: 'app-ajustement-finalyse-modal',
   templateUrl: './ajustement-finalyse-modal.component.html',
   styleUrls: ['./ajustement-finalyse-modal.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, ButtonComponent],
 })
 export class AjustementFinalyseModalComponent implements AfterViewInit {
   readonly activeModal = inject(NgbActiveModal);
   private commentaireInput = viewChild.required<ElementRef>('commentaireInput');
   protected commentaire = '';
-  protected isSaving = false;
 
   ngAfterViewInit(): void {
     setTimeout(() => {

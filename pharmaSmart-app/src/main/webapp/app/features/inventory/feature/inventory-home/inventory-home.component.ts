@@ -79,7 +79,7 @@ import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-l
     InventoryValuationComponent,
   ],
   templateUrl: './inventory-home.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './inventory-home.component.scss',
 })
 export class InventoryHomeComponent implements OnInit {

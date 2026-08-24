@@ -1,5 +1,5 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import {signal, Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
@@ -21,7 +21,7 @@ import { NGB_DATE_TO_ISO } from 'app/shared/util/warehouse-util';
   selector: 'app-form-delivery',
   templateUrl: './delivery-modal.component.html',
   styleUrls: ['./form-delevery.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     ButtonComponent,
@@ -39,10 +39,10 @@ export class DeliveryModalComponent implements OnInit {
   header = '';
   commande: ICommande;
   isEdit = false;
-  protected isSaving = false;
+  protected readonly isSaving = signal(false);
   protected blockSpace: RegExp = /^[a-zA-Z0-9_\-]+$/;
   protected fb = inject(FormBuilder);
-  protected maxDate: NgbDateStruct | null = null;
+  protected readonly maxDate = signal(null);
   protected minDate: NgbDateStruct | null = null;
   protected editForm = this.fb.group({
     id: new FormControl<number | null>(null, {}),
@@ -69,7 +69,7 @@ export class DeliveryModalComponent implements OnInit {
   private readonly errorService = inject(ErrorService);
 
   ngOnInit(): void {
-    this.maxDate = DeliveryModalComponent.toNgbDate(new Date());
+    this.maxDate.set(DeliveryModalComponent.toNgbDate(new Date()));
     this.updateForm(this.commande);
     this.minDate = DeliveryModalComponent.toNgbDate(new Date(this.commande.createdAt));
     this.editForm
@@ -93,7 +93,7 @@ export class DeliveryModalComponent implements OnInit {
   }
 
   save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const entity = this.createFrom();
     this.spinner.show();
     if (this.isEdit) {
@@ -112,7 +112,7 @@ export class DeliveryModalComponent implements OnInit {
       .pipe(
         finalize(() => {
           this.spinner.hide();
-          this.isSaving = false;
+          this.isSaving.set(false);
         }),
       )
       .subscribe({

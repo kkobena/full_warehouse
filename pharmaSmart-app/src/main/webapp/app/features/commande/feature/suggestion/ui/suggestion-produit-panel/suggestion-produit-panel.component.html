@@ -106,7 +106,7 @@
           <div class="input-group">
             <input
               #quantityBox
-              [(ngModel)]="quantiteSaisie"
+              [ngModel]="quantiteSaisie()" (ngModelChange)="quantiteSaisie.set($event)"
               (keydown.enter)="onAjouter()"
               class="form-control"
               placeholder="Qté"

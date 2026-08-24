@@ -1,3 +1,5 @@
+import { AppBadgeSeverity } from 'app/shared/ui/badge/badge.component';
+
 export type TypeZone =
   | 'AMBIANT'
   | 'FROID'
@@ -29,7 +31,7 @@ export const TYPE_ZONE_OPTIONS: { label: string; value: TypeZone }[] = [
   { label: 'Para', value: 'PARA' },
 ];
 
-export const TYPE_ZONE_SEVERITY: Record<TypeZone, string> = {
+export const TYPE_ZONE_SEVERITY: Record<TypeZone, AppBadgeSeverity> = {
   AMBIANT: 'secondary',
   FROID: 'info',
   OTC: 'success',

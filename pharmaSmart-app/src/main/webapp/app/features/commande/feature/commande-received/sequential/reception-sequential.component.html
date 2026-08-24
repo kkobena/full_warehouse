@@ -178,7 +178,7 @@
             <app-button size="small" severity="secondary" icon="pi pi-pencil"
                       label="Modifier CIP" (clicked)="isEditingCip.set(true)" />
           } @else {
-            <input type="text" class="form-control rh-seq__prov-cip-input" [(ngModel)]="draftCip"
+            <input type="text" class="form-control rh-seq__prov-cip-input" [ngModel]="draftCip()" (ngModelChange)="draftCip.set($event)"
                    placeholder="Nouveau CIP"
                    (keydown.enter)="onSaveDraftCip()"
                    (keydown.escape)="isEditingCip.set(false)" />
@@ -375,7 +375,7 @@
               <div class="rh-seq__row">
                 <label class="rh-seq__row-label" for="rh-numlot">N° lot</label>
                 <input #numLotInput id="rh-numlot" type="text" class="form-control rh-seq__lot-input rh-seq__lot-input--num"
-                       [(ngModel)]="draftLotNum"
+                       [ngModel]="draftLotNum()" (ngModelChange)="draftLotNum.set($event)"
                        placeholder="ex: A1B2C3"
                        autocomplete="off"
                        (focus)="selectOnFocus($event)"
@@ -386,7 +386,7 @@
               <div class="rh-seq__row">
                 <label class="rh-seq__row-label" for="rh-expiry">Péremption</label>
                 <input id="rh-expiry" type="text" class="form-control rh-seq__lot-input rh-seq__lot-input--exp"
-                       [ngModel]="draftLotExpiry"
+                       [ngModel]="draftLotExpiry()"
                        (ngModelChange)="onLotExpiryInput($event)"
                        placeholder="MM/AAAA"
                        maxlength="7"
@@ -402,7 +402,7 @@
                 <div class="rh-seq__row">
                   <label class="rh-seq__row-label" for="rh-lotqty">Qté lot</label>
                   <input id="rh-lotqty" type="number" class="form-control rh-seq__lot-input rh-seq__lot-input--qty"
-                         [(ngModel)]="draftLotQty"
+                         [ngModel]="draftLotQty()" (ngModelChange)="draftLotQty.set($event)"
                          (input)="recomputeLotUg()"
                          [max]="remainingLotQty()" min="1"
                          autocomplete="off"
@@ -416,7 +416,7 @@
                 <div class="rh-seq__row">
                   <label class="rh-seq__row-label" for="rh-lotug">UG lot</label>
                   <input id="rh-lotug" type="number" class="form-control rh-seq__lot-input rh-seq__lot-input--qty"
-                         [(ngModel)]="draftLotUg"
+                         [ngModel]="draftLotUg()" (ngModelChange)="draftLotUg.set($event)"
                          [max]="remainingLotUg()" min="0"
                          autocomplete="off"
                          (focus)="selectOnFocus($event)"
@@ -467,7 +467,7 @@
         </div>
 
         <!-- Lot commun : visible dès qu'il y a des lignes éligibles et un lot valide saisi -->
-        @if (linesForBatch().length > 0 && draftLotNum && formatExpiryForSave(draftLotExpiry)) {
+        @if (linesForBatch().length > 0 && draftLotNum() && formatExpiryForSave(draftLotExpiry())) {
           <div class="rh-seq__batch-bar">
             <i class="pi pi-clone rh-seq__batch-icon"></i>
             <span class="rh-seq__batch-label">
@@ -480,7 +480,7 @@
                       label="Appliquer à toutes"
                       severity="info"
                       size="small"
-                      ngbTooltip="Appliquer ce lot ({{ draftLotNum }}) à toutes les lignes sans lot ayant une quantité reçue"
+                      ngbTooltip="Appliquer ce lot ({{ draftLotNum() }}) à toutes les lignes sans lot ayant une quantité reçue"
                       placement="top" />
           </div>
         }

@@ -13,7 +13,7 @@ import {CommonModule} from "@angular/common";
 @Component({
   selector: 'jhi-password',
   imports: [CommonModule, FormsModule, ReactiveFormsModule, CardComponent, AppPasswordComponent, ButtonComponent, TranslateDirective],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './password.component.html',
 })
 export default class PasswordComponent implements OnInit {

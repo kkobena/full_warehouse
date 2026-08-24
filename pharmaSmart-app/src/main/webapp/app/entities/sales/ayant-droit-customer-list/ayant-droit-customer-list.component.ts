@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from "@angular/core";
 
 import { Customer, ICustomer } from "app/shared/model/customer.model";
 import { CustomerService } from "app/entities/customer/customer.service";
@@ -11,7 +11,7 @@ import { ButtonComponent, CardComponent, ToolbarComponent } from "../../../share
   selector: "app-ayant-droit-customer-list",
   templateUrl: "./ayant-droit-customer-list.component.html",
   styleUrls: ["./ayant-droit-customer-list.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -21,7 +21,7 @@ import { ButtonComponent, CardComponent, ToolbarComponent } from "../../../share
   ]
 })
 export class AyantDroitCustomerListComponent implements OnInit {
-  customers: ICustomer[] = [];
+  protected readonly customers = signal<ICustomer[]>([]);
   assure?: ICustomer | null;
   header: string;
   private readonly customerService = inject(CustomerService);
@@ -44,7 +44,7 @@ export class AyantDroitCustomerListComponent implements OnInit {
   }
 
   loadCustomers(): void {
-    this.customerService.queryAyantDroits(this.assure.id).subscribe(res => (this.customers = res.body!));
+    this.customerService.queryAyantDroits(this.assure.id).subscribe(res => (this.customers.set(res.body!)));
   }
 
   addAyantDroit(): void {

@@ -1,7 +1,7 @@
 <div class="modal-header">
   <div class="modal-title">
     <h4>
-      Ajouter des produits à ce code remise
+      Ajouter des produits() à ce code remise
       <app-badge [label]="codeRemise?.value" />
     </h4>
   </div>
@@ -16,13 +16,13 @@
       (onLazyLoad)="lazyLoading($event)"
       [(selection)]="selectedProduits"
       [lazy]="true"
-      [loading]="loading"
+      [loading]="loading()"
       [paginator]="true"
       [rows]="itemsPerPage"
       [selectionMode]="'multiple'"
       [showGridlines]="true"
-      [totalRecords]="totalItems"
-      [value]="produits"
+      [totalRecords]="totalItems()"
+      [value]="produits()"
       dataKey="id"
     >
       <ng-template #caption>
@@ -31,7 +31,7 @@
             <app-select
               (selectionChange)="loadData()"
               [(ngModel)]="selectedRayon"
-              [items]="rayons"
+              [items]="rayons()"
               [style]="{ 'min-width': '250px' }"
               appendTo="body"
               bindLabel="libelle"
@@ -88,7 +88,7 @@
               severity="secondary" type="button" />
   <app-button
     (clicked)="onSave()"
-    [disabled]="selectedProduits.length === 0 || isSaving"
+    [disabled]="selectedProduits.length === 0 || isSaving()"
     class="p-mr-2"
     icon="pi pi-check"
     label="Enregistrer"

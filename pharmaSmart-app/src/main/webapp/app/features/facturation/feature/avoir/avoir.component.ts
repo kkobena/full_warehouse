@@ -73,7 +73,7 @@ interface IKpiGroup {
     NgbTooltip
   ],
   templateUrl: "./avoir.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./avoir.component.scss",
 })
 export class AvoirComponent implements OnInit {
@@ -97,24 +97,24 @@ export class AvoirComponent implements OnInit {
     {label: "Annulé", value: "ANNULE"},
   ];
 
-  protected modelStartDate: NgbDateStruct;
+  protected readonly modelStartDate = signal<NgbDateStruct | undefined>(undefined);
   protected modelEndDate: NgbDateStruct = TODAY_NGB_DATE();
   protected selectedStatut = "";
   protected numAvoirSearch = "";
-  protected tiersPayantSuggestions: ITiersPayant[] = [];
+  protected readonly tiersPayantSuggestions = signal<ITiersPayant[]>([]);
   protected selectedTiersPayants: ITiersPayant[] = [];
 
   protected readonly avoirs = signal<IAvoir[]>([]);
   protected readonly loading = signal(false);
 
   // Imputation dialog
-  protected currentImputerAvoir: IAvoir | null = null;
-  protected selectedTargetFacture: IFacture | null = null;
-  protected factureCibleSuggestions: IFacture[] = [];
+  protected readonly currentImputerAvoir = signal<IAvoir | null>(null);
+  protected readonly selectedTargetFacture = signal<IFacture | null>(null);
+  protected readonly factureCibleSuggestions = signal<IFacture[]>([]);
 
   // Annulation dialog
-  protected currentAnnulerAvoir: IAvoir | null = null;
-  protected motifAnnulation = "";
+  protected readonly currentAnnulerAvoir = signal<IAvoir | null>(null);
+  protected readonly motifAnnulation = signal("");
 
   protected readonly kpi = computed<Record<string, IKpiGroup>>(() => {
     const groups: Record<string, IKpiGroup> = {
@@ -164,7 +164,7 @@ export class AvoirComponent implements OnInit {
 
     const d = new Date();
     d.setMonth(d.getMonth() - 1);
-    this.modelStartDate = {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()};
+    this.modelStartDate.set({year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()});
   }
 
   ngOnInit(): void {
@@ -215,9 +215,9 @@ export class AvoirComponent implements OnInit {
   }
 
   onOpenImputer(avoir: IAvoir): void {
-    this.currentImputerAvoir = avoir;
-    this.selectedTargetFacture = null;
-    this.factureCibleSuggestions = [];
+    this.currentImputerAvoir.set(avoir);
+    this.selectedTargetFacture.set(null);
+    this.factureCibleSuggestions.set([]);
     const ref = this.modalService.open(this.imputerModalTpl, {
       size: "md",
       centered: true,
@@ -228,8 +228,8 @@ export class AvoirComponent implements OnInit {
   }
 
   onOpenAnnuler(avoir: IAvoir): void {
-    this.currentAnnulerAvoir = avoir;
-    this.motifAnnulation = "";
+    this.currentAnnulerAvoir.set(avoir);
+    this.motifAnnulation.set("");
     const ref = this.modalService.open(this.annulerModalTpl, {size: "sm", centered: true});
     ref.result.then((motif: string) => this.doAnnuler(avoir, motif)).catch(() => {
     });
@@ -239,11 +239,11 @@ export class AvoirComponent implements OnInit {
     this.tiersPayantService
       .query({page: 0, search: query, size: 10})
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(res => (this.tiersPayantSuggestions = res.body ?? []));
+      .subscribe(res => (this.tiersPayantSuggestions.set(res.body ?? [])));
   }
 
   searchFactureCible(query: string): void {
-    const tp = this.currentImputerAvoir?.tiersPayantId;
+    const tp = this.currentImputerAvoir()?.tiersPayantId;
     const toIso = (d: Date) =>
       `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
     const today = new Date();
@@ -257,14 +257,14 @@ export class AvoirComponent implements OnInit {
         tiersPayantIds: tp ? [tp] : [],
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(res => (this.factureCibleSuggestions = res.body ?? []));
+      .subscribe(res => (this.factureCibleSuggestions.set(res.body ?? [])));
   }
 
   canConfirmImputer(): boolean {
-    if (!this.selectedTargetFacture || !this.currentImputerAvoir) {
+    if (!this.selectedTargetFacture() || !this.currentImputerAvoir()) {
       return false;
     }
-    return (this.currentImputerAvoir.montantAvoir ?? 0) <= (this.selectedTargetFacture.montantRestant ?? 0);
+    return (this.currentImputerAvoir().montantAvoir ?? 0) <= (this.selectedTargetFacture().montantRestant ?? 0);
   }
 
   getStatutSeverity(statut?: string): "secondary" | "info" | "success" | "danger" | "warn" {
@@ -331,8 +331,8 @@ export class AvoirComponent implements OnInit {
   }
 
   private doImputer(): void {
-    const avoir = this.currentImputerAvoir;
-    const facture = this.selectedTargetFacture;
+    const avoir = this.currentImputerAvoir();
+    const facture = this.selectedTargetFacture();
     if (!avoir?.id || !facture?.factureItemId) {
       return;
     }
@@ -362,7 +362,7 @@ export class AvoirComponent implements OnInit {
 
   private buildParams(): any {
     return {
-      startDate: NGB_DATE_TO_ISO(this.modelStartDate),
+      startDate: NGB_DATE_TO_ISO(this.modelStartDate()),
       endDate: NGB_DATE_TO_ISO(this.modelEndDate),
       tiersPayantIds: this.selectedTiersPayants.map(t => t.id),
       statut: this.selectedStatut || undefined,

@@ -18,6 +18,8 @@ import { DeviseDirective } from 'app/shared/utils/devise';
 import {
   ButtonComponent,
   DataTableComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   SelectComponent,
   ToolbarComponent
 } from '../../../shared/ui';
@@ -26,14 +28,16 @@ import {
   selector: "app-stock-valuation",
   templateUrl: "./stock-valuation.component.html",
   styleUrl: "./stock-valuation.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeviseDirective,
     CommonModule,
     FormsModule,
     ButtonComponent,
     DataTableComponent,
     SelectComponent,
-    ToolbarComponent
+    ToolbarComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ]
 })
 export default class StockValuationComponent implements OnInit {

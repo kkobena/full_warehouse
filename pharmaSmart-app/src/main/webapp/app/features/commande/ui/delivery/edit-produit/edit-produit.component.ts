@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import {signal, Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { FournisseurProduit, IFournisseurProduit } from 'app/shared/model/fournisseur-produit.model';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
@@ -23,7 +23,7 @@ import { ButtonComponent, CardComponent, KeyFilterDirective, SelectComponent } f
   selector: 'jhi-edit-produit',
   templateUrl: './edit-produit.component.html',
   styleUrls: ['./form-edition-produit.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     ButtonComponent,
@@ -40,10 +40,10 @@ export class EditProduitComponent implements OnInit {
   delivery: ICommande | null;
   header: string | null = null;
   protected fb = inject(UntypedFormBuilder);
-  protected tvas: ITva[] = [];
-  protected rayons: IRayon[] = [];
-  protected isSaving = false;
-  protected isValid = true;
+  protected readonly tvas = signal([]);
+  protected readonly rayons = signal([]);
+  protected readonly isSaving = signal(false);
+  protected readonly isValid = signal(true);
   protected fournisseurPrduit: IFournisseurProduit | null;
   protected produit: IProduit;
   protected editForm = this.fb.group({
@@ -63,7 +63,7 @@ export class EditProduitComponent implements OnInit {
   private readonly activeModal = inject(NgbActiveModal);
 
   save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     this.subscribeToSaveResponse(this.produitService.updateProduitFournisseurFromCommande(this.createFromForm()));
   }
 
@@ -94,7 +94,7 @@ export class EditProduitComponent implements OnInit {
 
   protected populate(): void {
     this.tvaService.query().subscribe((res: HttpResponse<ITva[]>) => {
-      this.tvas = res.body || [];
+      this.tvas.set(res.body || []);
     });
     this.rayonService
       .query({
@@ -102,7 +102,7 @@ export class EditProduitComponent implements OnInit {
         size: 9999,
       })
       .subscribe((res: HttpResponse<IRayon[]>) => {
-        this.rayons = res.body || [];
+        this.rayons.set(res.body || []);
       });
   }
 
@@ -119,7 +119,7 @@ export class EditProduitComponent implements OnInit {
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<{}>>): void {
-    result.pipe(finalize(() => (this.isSaving = false))).subscribe({
+    result.pipe(finalize(() => this.isSaving.set(false))).subscribe({
       next: () => this.onSaveSuccess(),
       error: error => this.onSaveError(error),
     });
@@ -152,6 +152,6 @@ export class EditProduitComponent implements OnInit {
   }
 
   private validatePrices(prixAchat: number, prixUni: number): void {
-    this.isValid = prixAchat < prixUni;
+    this.isValid.set(prixAchat < prixUni);
   }
 }

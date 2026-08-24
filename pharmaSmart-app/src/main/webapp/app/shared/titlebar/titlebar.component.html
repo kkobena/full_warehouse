@@ -10,7 +10,7 @@
     </div>
     <span class="app-title" data-tauri-drag-region>{{ title }}</span>
     <span class="route-divider" data-tauri-drag-region>-</span>
-    <span class="current-route" data-tauri-drag-region>{{ currentRoute }}</span>
+    <span class="current-route" data-tauri-drag-region>{{ currentRoute() }}</span>
   </div>
 
   <!-- Titlebar Actions -->
@@ -32,13 +32,13 @@
       </svg>
     </button>
 
-    <button (click)="maximizeWindow()" [title]="isMaximized ? 'Restaurer' : 'Agrandir'" class="titlebar-button maximize" type="button">
-      @if (!isMaximized) {
+    <button (click)="maximizeWindow()" [title]="isMaximized() ? 'Restaurer' : 'Agrandir'" class="titlebar-button maximize" type="button">
+      @if (!isMaximized()) {
         <svg height="12" viewBox="0 0 12 12" width="12">
           <rect height="9" stroke="currentColor" stroke-width="1" width="9" x="1.5" y="1.5" />
         </svg>
       }
-      @if (isMaximized) {
+      @if (isMaximized()) {
         <svg height="12" viewBox="0 0 12 12" width="12">
           <rect height="7" stroke="currentColor" stroke-width="1" width="7" x="3" y="2" />
           <rect height="7" stroke="currentColor" stroke-width="1" width="7" x="2" y="3" />

@@ -1,4 +1,4 @@
-import { Component, computed, input, output } from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, input, output} from '@angular/core';
 
 export type AppBadgeSeverity = 'primary' | 'secondary' | 'success' | 'info' | 'warn' | 'danger' | 'help' | 'contrast';
 
@@ -79,6 +79,7 @@ export type AppBadgeSeverity = 'primary' | 'secondary' | 'success' | 'info' | 'w
       color: var(--p-surface-0);
     }
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BadgeComponent {
   readonly label = input<string>('');

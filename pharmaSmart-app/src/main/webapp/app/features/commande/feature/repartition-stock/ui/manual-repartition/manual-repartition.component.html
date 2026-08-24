@@ -11,7 +11,7 @@
           (selectionChange)="onStorageChange()"
           [(ngModel)]="selectedStorageId"
           [clearable]="true"
-          [items]="storages"
+          [items]="storages()"
           [style]="{ 'max-width': '220px' }"
           appendTo="body"
           bindLabel="name"
@@ -39,8 +39,8 @@
         <jhi-quantite-produt-saisie
           #quantityBox
           (addQuantite)="addQuantity($event)"
-          [disabledButton]="!produitSelected"
-          [isValid]="!!produitSelected"
+          [disabledButton]="!produitSelected()"
+          [isValid]="!!produitSelected()"
           class="pharma-quantity-input"
         >
         </jhi-quantite-produt-saisie>
@@ -49,9 +49,9 @@
       <div class="search-actions ml-auto">
         <app-button
           (clicked)="save()"
-          [disabled]="!isFormValid || isSaving"
+          [disabled]="!isFormValid || isSaving()"
           [label]="'Valider (' + validRowsCount + ')'"
-          [loading]="isSaving"
+          [loading]="isSaving()"
           icon="pi pi-check"
           severity="success"
           size="large"
@@ -60,9 +60,9 @@
     </div>
   </div>
 
-  @if (repartitionRows.length > 0) {
+  @if (repartitionRows().length > 0) {
     <div class="repartition-table-container">
-      <app-data-table [scrollable]="true" [value]="repartitionRows"
+      <app-data-table [scrollable]="true" [value]="repartitionRows()"
                       class="p-datatable-sm" scrollHeight="calc(100vh - 250px)">
         <ng-template #header>
           <tr class="pharma-table-head">
@@ -223,7 +223,7 @@
       <div class="summary-footer mt-2">
         <div class="alert alert-info mb-0">
           <i class="pi pi-info-circle me-2"></i>
-          <strong>{{ repartitionRows.length }}</strong> ligne(s) •
+          <strong>{{ repartitionRows().length }}</strong> ligne(s) •
           <strong>{{ validRowsCount }}</strong> valide(s)
         </div>
       </div>

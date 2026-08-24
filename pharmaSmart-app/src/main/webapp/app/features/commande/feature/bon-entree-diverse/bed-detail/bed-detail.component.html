@@ -66,7 +66,7 @@
             <input
               class="form-control"
               type="number"
-              [(ngModel)]="ligneQuantite"
+              [ngModel]="ligneQuantite()" (ngModelChange)="ligneQuantite.set($event)"
               placeholder="Qté"
               min="1" />
             <app-button
@@ -74,7 +74,7 @@
               severity="primary"
               type="button"
               [loading]="addingLigne()"
-              [disabled]="!selectedProduit() || ligneQuantite <= 0"
+              [disabled]="!selectedProduit() || ligneQuantite() <= 0"
               (clicked)="onAjouterLigne()"
             />
           </div>

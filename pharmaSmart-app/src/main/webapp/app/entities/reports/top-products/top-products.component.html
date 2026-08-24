@@ -1,77 +1,50 @@
-<div class="pharma-smart-content p-2">
+<div class="pharma-smart-content p-1">
   <!-- Modern Pharma Toolbar (Compact) -->
   <app-toolbar [code]="navCode()" icon="pi pi-star-fill" title="Top Produits">
 
     <ng-container ngProjectAs="[toolbarFilters]">
-        <div class="pharma-toolbar-filters flex gap-2">
-          <app-month-picker [(ngModel)]="selectedMonth" (ngModelChange)="onFilterChange()" style="max-width: 160px" />
-          <app-select
-            (selectionChange)="onFilterChange()"
-            [(ngModel)]="limit"
-            [items]="limitOptions"
-            [style]="{ 'max-width': '150px' }"
-            appendTo="body"
-            bindLabel="label"
-            bindValue="value"
-            placeholder="Limite"
-          />
-        </div>
-      </ng-container>
+      <div class="pharma-toolbar-filters flex gap-2">
+        <app-month-picker (ngModelChange)="onFilterChange()" [(ngModel)]="selectedMonth"
+                          style="max-width: 160px" />
+        <app-select
+          (selectionChange)="onFilterChange()"
+          [(ngModel)]="limit"
+          [items]="limitOptions"
+          [style]="{ 'max-width': '150px' }"
+          appendTo="body"
+          bindLabel="label"
+          bindValue="value"
+          placeholder="Limite"
+        />
+      </div>
+    </ng-container>
 
-<ng-container ngProjectAs="[toolbarActions]">
-        <div>
-          <app-button (clicked)="loadTopProducts()" icon="pi pi-refresh" label="Rafraîchir" severity="primary"
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div>
+        <app-button (clicked)="loadTopProducts()" icon="pi pi-refresh" label="Rafraîchir"
+                    severity="primary"
                     size="small" />
-        </div>
-      </ng-container>
+      </div>
+    </ng-container>
   </app-toolbar>
 
   <!-- KPI Strip -->
-  <div class="kpi-strip mt-2 mb-2">
-
-    <div class="kpi-strip-item success-accent">
-      <i class="pi pi-money-bill text-success"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">CA Total</span>
-        <span class="kpi-strip-value text-success">{{ getTotalRevenue() | number:'1.0-0' }} <small appDevise></small></span>
-        <span class="kpi-strip-sub">Top produits</span>
-      </div>
-    </div>
-
-    <div class="kpi-strip-divider"></div>
-
-    <div class="kpi-strip-item primary-accent">
-      <i class="pi pi-box text-primary"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">Quantité vendue</span>
-        <span class="kpi-strip-value text-primary">{{ getTotalQuantity() | number }}</span>
-        <span class="kpi-strip-sub">unités</span>
-      </div>
-    </div>
-
-    <div class="kpi-strip-divider"></div>
-
-    <div class="kpi-strip-item warning-accent">
-      <i class="pi pi-shopping-cart text-warning"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">Nombre de ventes</span>
-        <span class="kpi-strip-value text-warning">{{ getTotalSales() | number }}</span>
-        <span class="kpi-strip-sub">transactions</span>
-      </div>
-    </div>
-
+  <app-kpi-strip stripClass="mt-2 mb-2">
+    <app-kpi-item [accent]="'success'" icon="pi pi-money-bill" iconClass="text-success" label="CA Total" [value]="getTotalRevenue() | number:'1.0-0'" valueClass="text-success">
+      <span ngProjectAs="[kpiValue]">&ngsp;<small
+              appDevise></small></span>
+      <ng-container ngProjectAs="[kpiSub]">Top produits</ng-container>
+    </app-kpi-item>
+    <app-kpi-item [accent]="'primary'" icon="pi pi-box" iconClass="text-primary" label="Quantité vendue" [value]="getTotalQuantity() | number" valueClass="text-primary">
+      <ng-container ngProjectAs="[kpiSub]">unités</ng-container>
+    </app-kpi-item>
+    <app-kpi-item [accent]="'warning'" icon="pi pi-shopping-cart" iconClass="text-warning" label="Nombre de ventes" [value]="getTotalSales() | number" valueClass="text-warning">
+      <ng-container ngProjectAs="[kpiSub]">transactions</ng-container>
+    </app-kpi-item>
     @if (selectedMonth()) {
-      <div class="kpi-strip-divider"></div>
-      <div class="kpi-strip-item primary-accent">
-        <i class="pi pi-calendar text-primary"></i>
-        <div class="kpi-strip-body">
-          <span class="kpi-strip-label">Période</span>
-          <span class="kpi-strip-value text-primary">{{ getMonthLabel() }}</span>
-        </div>
-      </div>
+    <app-kpi-item [accent]="'primary'" icon="pi pi-calendar" iconClass="text-primary" label="Période" [value]="getMonthLabel()" valueClass="text-primary" />
     }
-
-  </div>
+  </app-kpi-strip>
 
   <!-- Tabbed Tables -->
   <div class="row mt-3">
@@ -96,15 +69,17 @@
                   [rows]="20"
                   [scrollable]="true"
                   [showCurrentPageReport]="true"
-                  [value]="topProductsByRevenue()"
                   [size]="'small'"
+                  [value]="topProductsByRevenue()"
                   currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
                   scrollHeight="500px"
                 >
                   <ng-template #header>
                     <tr class="pharma-table-head">
                       <th>Rang</th>
-                      <th class="text-center" title="Évolution du rang vs mois précédent">Δ Rang M-1</th>
+                      <th class="text-center" title="Évolution du rang vs mois précédent">Δ Rang
+                        M-1
+                      </th>
                       <th>Code CIP</th>
                       <th>Produit</th>
                       <th class="text-end">Nb ventes</th>
@@ -127,7 +102,8 @@
                       </td>
                       <td class="text-center">
                         @if (product.rankDelta === null) {
-                          <span class="badge bg-primary-subtle text-primary" style="font-size:.7rem">NEW</span>
+                          <span class="badge bg-primary-subtle text-primary"
+                                style="font-size:.7rem">NEW</span>
                         } @else if (product.rankDelta === 0) {
                           <span class="text-muted">—</span>
                         } @else if (product.rankDelta > 0) {
@@ -149,7 +125,9 @@
                       <td class="text-end fw-bold text-success pharma-total">
                         {{ product.caGenere | number: '1.0-0' }} F CFA
                       </td>
-                      <td class="text-end pharma-price">{{ product.prixMoyen | number: '1.0-2' }} F CFA</td>
+                      <td class="text-end pharma-price">{{ product.prixMoyen | number: '1.0-2' }} F
+                        CFA
+                      </td>
                     </tr>
                   </ng-template>
                   <ng-template #emptymessage>
@@ -172,15 +150,17 @@
                   [rows]="20"
                   [scrollable]="true"
                   [showCurrentPageReport]="true"
-                  [value]="topProductsByQuantity()"
                   [size]="'small'"
+                  [value]="topProductsByQuantity()"
                   currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
                   scrollHeight="500px"
                 >
                   <ng-template #header>
                     <tr class="pharma-table-head">
                       <th>Rang</th>
-                      <th class="text-center" title="Évolution du rang vs mois précédent">Δ Rang M-1</th>
+                      <th class="text-center" title="Évolution du rang vs mois précédent">Δ Rang
+                        M-1
+                      </th>
                       <th>Code CIP</th>
                       <th>Produit</th>
                       <th class="text-end">Nb ventes</th>
@@ -203,7 +183,8 @@
                       </td>
                       <td class="text-center">
                         @if (product.rankDelta === null) {
-                          <span class="badge bg-primary-subtle text-primary" style="font-size:.7rem">NEW</span>
+                          <span class="badge bg-primary-subtle text-primary"
+                                style="font-size:.7rem">NEW</span>
                         } @else if (product.rankDelta === 0) {
                           <span class="text-muted">—</span>
                         } @else if (product.rankDelta > 0) {
@@ -221,9 +202,16 @@
                       </td>
                       <td>{{ product.libelle }}</td>
                       <td class="text-end pharma-qty-value">{{ product.nbVentes || 0 }}</td>
-                      <td class="text-end fw-bold text-primary pharma-qty-value">{{ product.qteVendue || 0 }}</td>
-                      <td class="text-end pharma-total">{{ product.caGenere | number: '1.0-0' }} F CFA</td>
-                      <td class="text-end pharma-price">{{ product.prixMoyen | number: '1.0-2' }} F CFA</td>
+                      <td class="text-end fw-bold text-primary pharma-qty-value">{{
+                          product.qteVendue || 0
+                        }}
+                      </td>
+                      <td class="text-end pharma-total">{{ product.caGenere | number: '1.0-0' }} F
+                        CFA
+                      </td>
+                      <td class="text-end pharma-price">{{ product.prixMoyen | number: '1.0-2' }} F
+                        CFA
+                      </td>
                     </tr>
                   </ng-template>
                   <ng-template #emptymessage>

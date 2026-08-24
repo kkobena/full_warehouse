@@ -17,7 +17,7 @@
           </tr>
         </thead>
         <tbody class="table-group-divider">
-          @for (remise of entites; track remise.id; let i = $index) {
+          @for (remise of entites(); track remise.id; let i = $index) {
             <tr (dblclick)="onDbleClick(remise)" style="cursor: pointer">
               <td>{{ remise.type }}</td>
               <td>{{ remise.valeur }}</td>

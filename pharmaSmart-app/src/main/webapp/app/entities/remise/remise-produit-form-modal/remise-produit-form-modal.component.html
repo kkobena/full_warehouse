@@ -28,7 +28,7 @@
           }
           <app-select
             appendTo="body"
-            [items]="remisesCodes"
+            [items]="remisesCodes()"
             formControlName="codeRemise"
             inputId="codeRemise"
             bindLabel="value"
@@ -83,7 +83,7 @@
       type="button"
     />
     <app-button
-      [disabled]="editForm.invalid || isSaving || !isValid"
+      [disabled]="editForm.invalid || isSaving() || !isValid"
       [raised]="true"
       class="p-mr-2"
       icon="pi pi-check"

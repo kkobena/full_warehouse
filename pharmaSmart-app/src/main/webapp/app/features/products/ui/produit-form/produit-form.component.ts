@@ -67,7 +67,7 @@ import {
   selector: "app-produit-form",
   templateUrl: "./produit-form.component.html",
   styleUrl: "./produit-form.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeviseDirective, 
     CommonModule,
     ReactiveFormsModule,
@@ -91,25 +91,25 @@ export class ProduitFormComponent implements OnInit {
   // FormArrays création uniquement
   readonly fournisseursSupplementaires = new FormArray<FormGroup>([]);
   readonly prixReferenceCreationArray = new FormArray<FormGroup>([]);
-  protected isSaving = false;
-  protected isLoading = true;
-  protected activeTab = "essentiel";
+  protected readonly isSaving = signal(false);
+  protected readonly isLoading = signal(true);
+  protected readonly activeTab = signal("essentiel");
   /** Produit courant (signal) — alimenté après chargement, rechargé après refresh */
   protected readonly currentProduit = signal<IProduit | null>(null);
   // Listes de référence
-  protected formeProduits: IFormProduit[] = [];
-  protected familleProduits: IFamilleProduit[] = [];
-  protected laboratoires: ILaboratoire[] = [];
-  protected gammes: IGammeProduit[] = [];
-  protected tvas: ITva[] = [];
-  protected fournisseurs: IFournisseur[] = [];
-  protected rayons: IRayon[] = [];
-  protected remisesCodes: CodeRemise[] = [];
-  protected dcis: Dci[] = [];
+  protected readonly formeProduits = signal<IFormProduit[]>([]);
+  protected readonly familleProduits = signal<IFamilleProduit[]>([]);
+  protected readonly laboratoires = signal<ILaboratoire[]>([]);
+  protected readonly gammes = signal<IGammeProduit[]>([]);
+  protected readonly tvas = signal<ITva[]>([]);
+  protected readonly fournisseurs = signal<IFournisseur[]>([]);
+  protected readonly rayons = signal<IRayon[]>([]);
+  protected readonly remisesCodes = signal<CodeRemise[]>([]);
+  protected readonly dcis = signal<Dci[]>([]);
   // Prix de référence assurance
-  protected prixReferences: PrixReference[] = [];
-  protected isLoadingPrix = false;
-  protected tiersPayants: ITiersPayant[] = [];
+  protected readonly prixReferences = signal<PrixReference[]>([]);
+  protected readonly isLoadingPrix = signal(false);
+  protected readonly tiersPayants = signal<ITiersPayant[]>([]);
   // Options statiques
   protected readonly statutLegalOptions = STATUT_LEGAL_OPTIONS;
   protected readonly classeCriticiteOptions = CLASSE_CRITICITE_OPTIONS;
@@ -210,7 +210,7 @@ export class ProduitFormComponent implements OnInit {
 
   get principalFournisseurLibelle(): string {
     const id = this.editForm.get("fournisseurId")?.value;
-    return this.fournisseurs.find(f => f.id === id)?.libelle ?? "";
+    return this.fournisseurs().find(f => f.id === id)?.libelle ?? "";
   }
 
   get principalCip(): string {
@@ -250,7 +250,7 @@ export class ProduitFormComponent implements OnInit {
 
   /** Focus le premier champ de l'onglet activé */
   protected onTabChange(tabId: string): void {
-    this.activeTab = tabId;
+    this.activeTab.set(tabId);
     this.focusFirstField(tabId);
   }
 
@@ -273,14 +273,14 @@ export class ProduitFormComponent implements OnInit {
     if (!id) {
       return;
     }
-    this.isLoadingPrix = true;
+    this.isLoadingPrix.set(true);
     this.prixReferenceService.query(id).subscribe({
       next: res => {
-        this.prixReferences = res.body ?? [];
-        this.isLoadingPrix = false;
+        this.prixReferences.set(res.body ?? []);
+        this.isLoadingPrix.set(false);
       },
       error: () => {
-        this.isLoadingPrix = false;
+        this.isLoadingPrix.set(false);
       }
     });
   }
@@ -349,7 +349,7 @@ export class ProduitFormComponent implements OnInit {
   }
 
   protected save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const produit = this.buildProduit();
     const isCreating = !produit.id;
     const obs$ = produit.id ? this.produitService.update(produit) : this.produitService.create(produit);
@@ -406,25 +406,25 @@ export class ProduitFormComponent implements OnInit {
       tiersPayants: this.tiersPayantService.query({page: 0, size: 9999, sort: ["fullName,asc"]})
     }).subscribe({
       next: data => {
-        this.tvas = data.tvas.body ?? [];
-        this.fournisseurs = data.fournisseurs.body ?? [];
-        this.rayons = data.rayons.body ?? [];
-        this.laboratoires = data.laboratoires.body ?? [];
-        this.gammes = data.gammes.body ?? [];
-        this.familleProduits = data.familles.body ?? [];
-        this.formeProduits = data.formes.body ?? [];
-        this.remisesCodes = data.remises.body ?? [];
-        this.dcis = data.dcis.body ?? [];
-        this.tiersPayants = data.tiersPayants.body ?? [];
-        this.isLoading = false;
+        this.tvas.set(data.tvas.body ?? []);
+        this.fournisseurs.set(data.fournisseurs.body ?? []);
+        this.rayons.set(data.rayons.body ?? []);
+        this.laboratoires.set(data.laboratoires.body ?? []);
+        this.gammes.set(data.gammes.body ?? []);
+        this.familleProduits.set(data.familles.body ?? []);
+        this.formeProduits.set(data.formes.body ?? []);
+        this.remisesCodes.set(data.remises.body ?? []);
+        this.dcis.set(data.dcis.body ?? []);
+        this.tiersPayants.set(data.tiersPayants.body ?? []);
+        this.isLoading.set(false);
         this.updateForm(produit);
-        this.focusFirstField(this.activeTab, 300);
+        this.focusFirstField(this.activeTab(), 300);
         if (produit.id) {
           this.loadPrixReferences();
         }
       },
       error: err => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.notificationService.error(this.errorService.getErrorMessage(err), "Chargement des données de référence");
       }
     });
@@ -580,7 +580,7 @@ export class ProduitFormComponent implements OnInit {
   }
 
   private onSaveSuccess(produit: IProduit, id: number | undefined, isCreating: boolean): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     const msg = isCreating
       ? `Le produit "${produit.libelle}" a été créé avec succès.`
       : `Le produit "${produit.libelle}" a été modifié avec succès.`;
@@ -592,7 +592,7 @@ export class ProduitFormComponent implements OnInit {
   }
 
   private onSaveError(error: HttpErrorResponse): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.notificationService.error(this.errorService.getErrorMessage(error), "Echec de création de produit");
   }
 }

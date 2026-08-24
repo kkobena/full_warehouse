@@ -38,7 +38,7 @@ const TAB_LABELS: Record<SalesManagementTab, string> = {
   selector: "app-sales-management-home",
   templateUrl: "./sales-management-home.component.html",
   styleUrl: "./sales-management-home.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NavSidebarComponent, NavSectionLinkComponent, 
     NgbNav,
     NgbNavItem,

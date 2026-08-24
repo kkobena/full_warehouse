@@ -45,7 +45,7 @@
           <app-multi-select
             (searched)="searchTiersPayant($event)"
             [(ngModel)]="selectedTiersPayants"
-            [items]="tiersPayantSuggestions"
+            [items]="tiersPayantSuggestions()"
             [minSearchLength]="2"
             appendTo="body"
             bindLabel="fullName"

@@ -43,34 +43,18 @@
 @if (!isLoading() && kpi()) {
 
   <!-- KPI Strip -->
-  <div class="kpi-strip mt-2 mb-3">
-    <div class="kpi-strip-item danger-accent">
-      <i class="pi pi-minus-circle text-danger"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">Valeur perdue</span>
-        <span class="kpi-strip-value text-danger">{{ formatCurrency(kpi()?.valeurPerdue) }} <small appDevise></small></span>
-        <span class="kpi-strip-sub">au coût d'achat</span>
-      </div>
-    </div>
-    <div class="kpi-strip-divider"></div>
-    <div class="kpi-strip-item warning-accent">
-      <i class="pi pi-box text-warning"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">Quantité perdue</span>
-        <span class="kpi-strip-value text-warning">{{ formatNumber(kpi()?.totalQtyPerdue) }}</span>
-        <span class="kpi-strip-sub">unités sorties du stock</span>
-      </div>
-    </div>
-    <div class="kpi-strip-divider"></div>
-    <div class="kpi-strip-item">
-      <i class="pi pi-file-edit text-secondary"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">Ajustements</span>
-        <span class="kpi-strip-value">{{ formatNumber(kpi()?.nbAjustements) }}</span>
-        <span class="kpi-strip-sub">bons d'ajustement clôturés</span>
-      </div>
-    </div>
-  </div>
+  <app-kpi-strip stripClass="mt-2 mb-3">
+    <app-kpi-item [accent]="'danger'" icon="pi pi-minus-circle" iconClass="text-danger" label="Valeur perdue" [value]="formatCurrency(kpi()?.valeurPerdue)" valueClass="text-danger">
+      <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+      <ng-container ngProjectAs="[kpiSub]">au coût d'achat</ng-container>
+    </app-kpi-item>
+    <app-kpi-item [accent]="'warning'" icon="pi pi-box" iconClass="text-warning" label="Quantité perdue" [value]="formatNumber(kpi()?.totalQtyPerdue)" valueClass="text-warning">
+      <ng-container ngProjectAs="[kpiSub]">unités sorties du stock</ng-container>
+    </app-kpi-item>
+    <app-kpi-item icon="pi pi-file-edit" iconClass="text-secondary" label="Ajustements" [value]="formatNumber(kpi()?.nbAjustements)">
+      <ng-container ngProjectAs="[kpiSub]">bons d'ajustement clôturés</ng-container>
+    </app-kpi-item>
+  </app-kpi-strip>
 
   <!-- Chart + Table -->
   <div class="row g-3 mb-3">

@@ -57,19 +57,19 @@
       <app-card bodyClass="p-0" customClass="h-100" header="Factures règlées" icon="pi pi-file-edit text-primary">
         <app-data-table
           #factLeft
-          [(selection)]="selectedItem"
+          [selection]="selectedItem()" (selectionChange)="selectedItem.set($any($event))"
           [globalFilterFields]="['organisme', 'codeFacture']"
           [scrollHeight]="scrollHeight"
           [scrollable]="true"
           [selectionMode]="'single'"
           [stripedRows]="true"
-          [value]="reglements"
+          [value]="reglements()"
           dataKey="id"
         >
           <ng-template #caption>
             <app-icon-field [overlay]="true" icon="pi pi-search">
               <input
-                (input)="factLeft.filterGlobal($event.target.value, 'contains')"
+                (input)="factLeft.filterGlobal($event.target.value)"
                 class="form-control form-control-sm"
                 placeholder="Filtrer"
                 style="width: 220px"
@@ -113,7 +113,7 @@
 
     <!-- Right Column: Dossiers -->
     <div class="col-xl-7 col-lg-7 col-md-12">
-      @if (selectedItem) {
+      @if (selectedItem()) {
         <app-card bodyClass="p-0" customClass="h-100" header="Dossiers" icon="pi pi-folder text-warning">
           <app-data-table
             #factRight
@@ -121,12 +121,12 @@
             [scrollHeight]="scrollHeight"
             [scrollable]="true"
             [stripedRows]="true"
-            [value]="datas"
+            [value]="datas()"
           >
             <ng-template #caption>
               <app-icon-field [overlay]="true" icon="pi pi-search">
                 <input
-                  (input)="factRight.filterGlobal($event.target.value, 'contains')"
+                  (input)="factRight.filterGlobal($event.target.value)"
                   class="form-control form-control-sm"
                   placeholder="Filtrer"
                   style="width: 220px"

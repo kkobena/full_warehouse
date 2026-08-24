@@ -38,7 +38,7 @@ import {
   selector: 'app-rayon-home',
   templateUrl: './rayon-home.component.html',
   styleUrl: './rayon-home.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     ToolbarComponent,
@@ -58,11 +58,11 @@ export class RayonHomeComponent implements OnInit {
   protected selectedRayon = signal<IRayon | null>(null);
   protected panelOpen = computed(() => this.selectedRayon() !== null);
 
-  protected page = 0;
-  protected rows = ITEMS_PER_PAGE;
+  protected readonly page = signal(0);
+  protected readonly rows = signal(ITEMS_PER_PAGE);
 
-  protected storages: Storage[] = [];
-  protected selectedStorage: Storage | null = null;
+  protected readonly storages = signal<Storage[]>([]);
+  protected readonly selectedStorage = signal<Storage | null>(null);
   protected selectedTypeZone: TypeZone | null = null;
   protected search = '';
   protected readonly typeZoneOptions = TYPE_ZONE_OPTIONS;
@@ -85,19 +85,19 @@ export class RayonHomeComponent implements OnInit {
   }
 
   protected onStorageChange(): void {
-    this.page = 0;
+    this.page.set(0);
     this.selectedRayon.set(null);
     this.loadPage();
   }
 
   protected onSearch(): void {
-    this.page = 0;
+    this.page.set(0);
     this.loadPage();
   }
 
   protected onLazyLoad(event: AppTableLazyLoadEvent): void {
-    this.page = Math.floor((event.first ?? 0) / (event.rows ?? this.rows));
-    this.rows = event.rows ?? this.rows;
+    this.page.set(Math.floor((event.first ?? 0) / (event.rows ?? this.rows())));
+    this.rows.set(event.rows ?? this.rows());
     this.loadPage();
   }
 
@@ -154,7 +154,7 @@ export class RayonHomeComponent implements OnInit {
   }
 
   protected importRayonProduits(): void {
-    if (!this.selectedStorage?.id) return;
+    if (!this.selectedStorage()?.id) return;
     showCommonModal(
       this.modalService,
       FileUploadDialogComponent,
@@ -163,7 +163,7 @@ export class RayonHomeComponent implements OnInit {
         const fd = new FormData();
         fd.append('importcsv', result);
         this.rayonProduitApi
-          .importCsv(fd, this.selectedStorage!.id)
+          .importCsv(fd, this.selectedStorage()!.id)
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe({
             next: res => {
@@ -219,8 +219,8 @@ export class RayonHomeComponent implements OnInit {
 
   protected exportCsv(): void {
     this.downloadService.downloadFromObservable(
-      this.rayonApi.exportCsv(this.selectedStorage?.id),
-      `rayons_${this.selectedStorage?.id ?? 'export'}`,
+      this.rayonApi.exportCsv(this.selectedStorage()?.id),
+      `rayons_${this.selectedStorage()?.id ?? 'export'}`,
       'csv',
       undefined,
       undefined,
@@ -242,7 +242,7 @@ export class RayonHomeComponent implements OnInit {
       if (rayon) {
         this.onRayonEdited(saved);
       } else {
-        this.page = 0;
+        this.page.set(0);
         this.loadPage();
       }
     });
@@ -271,8 +271,8 @@ export class RayonHomeComponent implements OnInit {
         .fetchStorages({ magasinId: magasin.id })
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((res: HttpResponse<Storage[]>) => {
-          this.storages = res.body ?? [];
-          this.selectedStorage = this.storages.find(s => s.type === 'PRINCIPAL') ?? null;
+          this.storages.set(res.body ?? []);
+          this.selectedStorage.set(this.storages().find(s => s.type === 'PRINCIPAL') ?? null);
           this.loadPage();
         });
     });
@@ -282,10 +282,10 @@ export class RayonHomeComponent implements OnInit {
     this.loading.set(true);
     this.rayonApi
       .query({
-        page: this.page,
-        size: this.rows,
+        page: this.page(),
+        size: this.rows(),
         search: this.search || undefined,
-        storageId: this.selectedStorage?.id ?? undefined,
+        storageId: this.selectedStorage()?.id ?? undefined,
         typeZone: this.selectedTypeZone ?? undefined,
       })
       .pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.loading.set(false)))

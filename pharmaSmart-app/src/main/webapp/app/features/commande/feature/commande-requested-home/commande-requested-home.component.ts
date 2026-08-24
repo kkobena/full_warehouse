@@ -52,7 +52,7 @@ import {
   selector: 'app-commande-requested-home',
   templateUrl: './commande-requested-home.component.html',
   styleUrls: ['./commande-requested-home.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

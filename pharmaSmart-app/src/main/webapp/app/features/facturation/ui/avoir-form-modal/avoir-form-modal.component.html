@@ -10,18 +10,18 @@
   <div class="row g-3">
 
     <!-- Contexte facture (depuis fiche ou workspace) -->
-    @if (isFromFacture && selectedFacture) {
+    @if (isFromFacture && selectedFacture()) {
       <div class="col-12">
         <div class="d-flex flex-wrap gap-2">
           <span class="pharma-badge pharma-badge-secondary">
-            <i class="pi pi-receipt me-1"></i>{{ selectedFacture.numFacture }}
+            <i class="pi pi-receipt me-1"></i>{{ selectedFacture().numFacture }}
           </span>
-          <span class="pharma-badge pharma-badge-info">{{ selectedFacture.tiersPayantName }}</span>
+          <span class="pharma-badge pharma-badge-info">{{ selectedFacture().tiersPayantName }}</span>
           <span class="pharma-badge pharma-badge-secondary">
-            Net&nbsp;: {{ selectedFacture.montantNet | number: '1.0-0' }}
+            Net&nbsp;: {{ selectedFacture().montantNet | number: '1.0-0' }}
           </span>
           <span class="pharma-badge pharma-badge-success">
-            Réglé&nbsp;: {{ selectedFacture.montantRegle | number: '1.0-0' }}
+            Réglé&nbsp;: {{ selectedFacture().montantRegle | number: '1.0-0' }}
           </span>
         </div>
       </div>
@@ -34,9 +34,9 @@
           <app-select-search
             appendTo="body"
             (searched)="searchFacture($event)"
-            [(ngModel)]="selectedFacture"
+            [ngModel]="selectedFacture()" (ngModelChange)="selectedFacture.set($event)"
             [minSearchLength]="2"
-            [items]="factureSuggestions"
+            [items]="factureSuggestions()"
             [optionTemplate]="tplFactureOrigine"
             [style]="{ width: '100%' }"
             bindLabel="numFacture"
@@ -63,9 +63,9 @@
       <div class="col-12">
         <div class="d-flex align-items-center gap-2">
           <span class="text-muted small">Montant avoir</span>
-          <span class="pharma-price fw-semibold fs-6">{{ montantAvoir | number: '1.0-0' }}</span>
-          @if (selectedFacture?.montantRegle) {
-            <span class="text-muted small">/ max {{ selectedFacture.montantRegle | number: '1.0-0' }}</span>
+          <span class="pharma-price fw-semibold fs-6">{{ montantAvoir() | number: '1.0-0' }}</span>
+          @if (selectedFacture()?.montantRegle) {
+            <span class="text-muted small">/ max {{ selectedFacture().montantRegle | number: '1.0-0' }}</span>
           }
         </div>
       </div>
@@ -73,15 +73,15 @@
       <div class="col-md-6">
         <app-float-label inputId="av-montant" label="Montant avoir *">
           <app-input-number
-            [(ngModel)]="montantAvoir"
+            [ngModel]="montantAvoir()" (ngModelChange)="montantAvoir.set($event)"
             inputId="av-montant"
-            [max]="selectedFacture?.montantRegle ?? undefined"
+            [max]="selectedFacture()?.montantRegle ?? undefined"
             style="width: 100%"
           />
           </app-float-label>
-        @if (montantAvoir !== null && selectedFacture && montantAvoir > (selectedFacture.montantRegle ?? 0)) {
+        @if (montantAvoir() !== null && selectedFacture() && montantAvoir() > (selectedFacture().montantRegle ?? 0)) {
           <small class="text-danger">
-            Dépasse le montant réglé ({{ selectedFacture.montantRegle | number: '1.0-0' }})
+            Dépasse le montant réglé ({{ selectedFacture().montantRegle | number: '1.0-0' }})
           </small>
         }
       </div>

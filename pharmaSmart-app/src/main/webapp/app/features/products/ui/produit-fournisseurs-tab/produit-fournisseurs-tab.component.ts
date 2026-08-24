@@ -14,7 +14,7 @@ import { formatCurrencyWithUnit } from 'app/shared/utils/format-utils';
   selector: 'app-produit-fournisseurs-tab',
   templateUrl: './produit-fournisseurs-tab.component.html',
   styleUrls: ['./produit-fournisseurs-tab.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, DataTableComponent, NgbTooltip, ButtonComponent, SwitchComponent],
 })
 export class ProduitFournisseursTabComponent {

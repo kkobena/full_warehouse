@@ -60,7 +60,16 @@ public interface PonctionService {
     void annulerPourVente(Long saleId, LocalDate saleDate, Integer ponctionId);
 
 
-    List<PonctionDTO> getHistorique();
+    /**
+     * L'historique d'une officine, éventuellement restreint à une période.
+     *
+     * <p>Les deux bornes vont de pair : une seule renseignée est ignorée, faute de savoir si l'autre
+     * côté doit être ouvert ou vide — l'écran envoie toujours les deux.
+     *
+     * @param dateDebut borne basse incluse, {@code null} pour tout l'historique
+     * @param dateFin   borne haute incluse, {@code null} pour tout l'historique
+     */
+    List<PonctionDTO> getHistorique(LocalDate dateDebut, LocalDate dateFin);
 
     /** Le détail d'une ponction : ce qui a été retiré, vente par vente. */
     List<PonctionLigneDTO> getDetail(Integer id);

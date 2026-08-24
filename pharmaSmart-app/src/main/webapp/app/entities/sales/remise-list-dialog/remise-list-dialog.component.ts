@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { IRemise, RemiseType } from '../../../shared/model/remise.model';
 import { RemiseService } from '../../remise/remise.service';
 import { HttpResponse } from '@angular/common/http';
@@ -9,13 +9,13 @@ import { FaIconComponent } from "@fortawesome/angular-fontawesome";
 @Component({
   selector: 'app-remise-list-dialog',
   imports: [FormsModule, FaIconComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './remise-list-dialog.component.html',
   styleUrls: ['./remise-list-dialog.component.scss'],
 })
 export class RemiseListDialogComponent implements OnInit {
-  types: RemiseType[] = [RemiseType.remiseProduit, RemiseType.remiseClient];
   entityService = inject(RemiseService);
-  entites?: IRemise[];
+  protected readonly entites = signal<IRemise[] | undefined>(undefined);
   type: RemiseType = null;
   activeModal = inject(NgbActiveModal);
 
@@ -26,7 +26,7 @@ export class RemiseListDialogComponent implements OnInit {
   load(): void {
     this.entityService.query().subscribe({
       next: (res: HttpResponse<IRemise[]>) => {
-        this.entites = res.body.filter(remise => remise.enable);
+        this.entites.set(res.body.filter(remise => remise.enable));
       },
     });
   }

@@ -718,13 +718,10 @@ $gray-border: #e2e8f0;
   color: $warning-orange !important;
 }
 
-.bg-info-subtle {
-  background-color: rgba($primary-light, 0.1) !important;
-}
-
-.text-info {
-  color: $primary-light !important;
-}
+// `.text-info` et `.bg-info-subtle` ne sont PAS redefinis ici : ce sont des
+// utilitaires Bootstrap globaux. Les forcer au cyan yeti ($primary-light, #5bc0de)
+// rendait l'icone d'un `<app-button [text]="true" severity="info">` quasi illisible
+// sur fond clair. Ils suivent desormais la palette ($info = #0369a1).
 
 .bg-secondary-subtle {
   background-color: rgba($text-secondary, 0.1) !important;

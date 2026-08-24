@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin } from 'rxjs';
@@ -28,6 +28,7 @@ interface KpiCard {
 
 @Component({
   selector: 'app-sales-kpi-dashboard',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './sales-kpi-dashboard.component.html',
   styleUrl: './sales-kpi-dashboard.component.scss',
   providers: [DatePipe],
@@ -46,13 +47,13 @@ export class SalesKpiDashboardComponent implements OnInit {
   protected ruptureAlerts = signal<IStockAlert[]>([]);
   protected ruptureLoading = signal(false);
 
-  protected kpiToday: KpiCard = { label: 'CA du jour', value: 0, subtitle: '0 ventes', icon: 'pi pi-sun', colorClass: 'kpi-primary' };
-  protected kpiWeek: KpiCard = { label: 'CA semaine', value: 0, subtitle: '0 ventes', icon: 'pi pi-calendar-week', colorClass: 'kpi-success' };
-  protected kpiMonth: KpiCard = { label: 'CA du mois', value: 0, subtitle: '0 ventes', icon: 'pi pi-calendar', colorClass: 'kpi-info' };
-  protected kpiBasket: KpiCard = { label: 'Panier moyen', value: 0, subtitle: "aujourd'hui", icon: 'pi pi-shopping-cart', colorClass: 'kpi-warning' };
+  protected readonly kpiToday = signal<KpiCard>({ label: 'CA du jour', value: 0, subtitle: '0 ventes', icon: 'pi pi-sun', colorClass: 'kpi-primary' });
+  protected readonly kpiWeek = signal<KpiCard>({ label: 'CA semaine', value: 0, subtitle: '0 ventes', icon: 'pi pi-calendar-week', colorClass: 'kpi-success' });
+  protected readonly kpiMonth = signal<KpiCard>({ label: 'CA du mois', value: 0, subtitle: '0 ventes', icon: 'pi pi-calendar', colorClass: 'kpi-info' });
+  protected readonly kpiBasket = signal<KpiCard>({ label: 'Panier moyen', value: 0, subtitle: "aujourd'hui", icon: 'pi pi-shopping-cart', colorClass: 'kpi-warning' });
 
-  protected chartData: any = null;
-  protected chartOptions: any = null;
+  protected readonly chartData = signal<any>(null);
+  protected readonly chartOptions = signal<any>(null);
 
   ngOnInit(): void {
     this.loadKpis();
@@ -109,10 +110,10 @@ export class SalesKpiDashboardComponent implements OnInit {
     const nbToday = sumVentes(todayData);
     const panierMoyen = nbToday > 0 ? Math.round(caToday / nbToday) : 0;
 
-    this.kpiToday = { ...this.kpiToday, value: caToday, subtitle: `${nbToday} vente(s)` };
-    this.kpiWeek = { ...this.kpiWeek, value: sumCA(weekData), subtitle: `${sumVentes(weekData)} vente(s)` };
-    this.kpiMonth = { ...this.kpiMonth, value: sumCA(monthData), subtitle: `${sumVentes(monthData)} vente(s)` };
-    this.kpiBasket = { ...this.kpiBasket, value: panierMoyen };
+    this.kpiToday.set({ ...this.kpiToday(), value: caToday, subtitle: `${nbToday} vente(s)` });
+    this.kpiWeek.set({ ...this.kpiWeek(), value: sumCA(weekData), subtitle: `${sumVentes(weekData)} vente(s)` });
+    this.kpiMonth.set({ ...this.kpiMonth(), value: sumCA(monthData), subtitle: `${sumVentes(monthData)} vente(s)` });
+    this.kpiBasket.set({ ...this.kpiBasket(), value: panierMoyen });
   }
 
   private buildChart(monthData: IDailySalesSummary[]): void {
@@ -128,7 +129,7 @@ export class SalesKpiDashboardComponent implements OnInit {
     const bgs = backgroundColor(ds);
     const hovers = hoverBackgroundColor(ds);
 
-    this.chartData = {
+    this.chartData.set({
       labels,
       datasets: [{
         label: 'CA par type (mois en cours)',
@@ -137,9 +138,9 @@ export class SalesKpiDashboardComponent implements OnInit {
         hoverBackgroundColor: hovers.slice(0, labels.length),
         borderWidth: 1,
       }],
-    };
+    });
 
-    this.chartOptions = {
+    this.chartOptions.set({
       responsive: true,
       plugins: {
         legend: { labels: { color: textColor(ds) } },
@@ -148,7 +149,7 @@ export class SalesKpiDashboardComponent implements OnInit {
         x: { ticks: { color: textColorSecondary(ds) }, grid: { color: surfaceBorder(ds) } },
         y: { ticks: { color: textColorSecondary(ds) }, grid: { color: surfaceBorder(ds) } },
       },
-    };
+    });
   }
 
   private getWeekStart(): Date {

@@ -6,6 +6,7 @@ import com.kobe.warehouse.domain.TiersPayant_;
 import com.kobe.warehouse.domain.enumeration.Periodicite;
 import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -17,8 +18,11 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TiersPayantRepository extends JpaRepository<TiersPayant, Integer>, JpaSpecificationExecutor<TiersPayant> {
-    Optional<TiersPayant> findOneByNameOrFullNameOrCodeOrganisme(String name, String fullName, String codeOrganisme);
+public interface TiersPayantRepository extends JpaRepository<TiersPayant, Integer>,
+    JpaSpecificationExecutor<TiersPayant> {
+
+    Optional<TiersPayant> findOneByNameOrFullNameOrCodeOrganisme(String name, String fullName,
+        String codeOrganisme);
 
     Optional<TiersPayant> findOneByNameOrFullName(String name, String fullName);
 
@@ -32,7 +36,8 @@ public interface TiersPayantRepository extends JpaRepository<TiersPayant, Intege
           AND t.inclureFacturationAutoDefinitive = true
           AND t.statut = 'ACTIF'
         """)
-    List<Integer> findAllIdsForAutoGenerationDefinitive(@Param("periodicite") Periodicite periodicite);
+    List<Integer> findAllIdsForAutoGenerationDefinitive(
+        @Param("periodicite") Periodicite periodicite);
 
     @Query("""
         SELECT t.id FROM TiersPayant t
@@ -63,7 +68,8 @@ public interface TiersPayantRepository extends JpaRepository<TiersPayant, Intege
           AND t.inclureFacturationAutoProvisoire = true
           AND t.statut = 'ACTIF'
         """)
-    List<Integer> findAllIdsForAutoGenerationProvisoire(@Param("periodicite") Periodicite periodicite);
+    List<Integer> findAllIdsForAutoGenerationProvisoire(
+        @Param("periodicite") Periodicite periodicite);
 
     @Query("""
         SELECT t.id FROM TiersPayant t
@@ -91,7 +97,8 @@ public interface TiersPayantRepository extends JpaRepository<TiersPayant, Intege
     }
 
     default Specification<TiersPayant> specialisationByGroup(Integer groupId) {
-        return (root, _, cb) -> cb.equal(root.get(TiersPayant_.groupeTiersPayant).get(GroupeTiersPayant_.id), groupId);
+        return (root, _, cb) -> cb.equal(
+            root.get(TiersPayant_.groupeTiersPayant).get(GroupeTiersPayant_.id), groupId);
     }
 
     default Specification<TiersPayant> specialisationQueryString(String queryValue) {
@@ -107,11 +114,37 @@ public interface TiersPayantRepository extends JpaRepository<TiersPayant, Intege
         return (root, _, cb) -> cb.equal(root.get(TiersPayant_.categorie), categorie);
     }
 
-    default Specification<TiersPayant> specialisationPeriodiciteDefinitive(Periodicite periodicite) {
-        return (root, _, cb) -> cb.equal(root.get(TiersPayant_.periodiciteFactureDefinitive), periodicite);
+    default Specification<TiersPayant> specialisationPeriodiciteDefinitive(
+        Periodicite periodicite) {
+        return (root, _, cb) -> cb.equal(root.get(TiersPayant_.periodiciteFactureDefinitive),
+            periodicite);
     }
 
-    default Specification<TiersPayant> specialisationPeriodiciteProvisoire(Periodicite periodicite) {
-        return (root, _, cb) -> cb.equal(root.get(TiersPayant_.periodiciteFactureProvisoire), periodicite);
+    default Specification<TiersPayant> specialisationPeriodiciteProvisoire(
+        Periodicite periodicite) {
+        return (root, _, cb) -> cb.equal(root.get(TiersPayant_.periodiciteFactureProvisoire),
+            periodicite);
+    }
+
+    default Specification<TiersPayant> notIn(EnumSet<TiersPayantCategorie> tiersPayantCategories) {
+        return (root, _, cb) -> cb.not(root.get(TiersPayant_.categorie).in(tiersPayantCategories));
+    }
+
+    default Specification<TiersPayant> isActif() {
+        return (root, _, cb) -> cb.equal(root.get(TiersPayant_.statut), TiersPayantStatut.ACTIF);
+    }
+
+    /**
+     * Filtre sur l'exclusion du chiffre d'affaires à déclarer.
+     *
+     * <p>Un prédicat et non un filtre en mémoire : sans lui, la pagination compterait les lignes
+     * avant filtrage et rendrait des pages incomplètes.
+     */
+    default Specification<TiersPayant> isBeExclude(boolean exclus) {
+        return (root, _, cb) -> cb.equal(root.get(TiersPayant_.beExclude), exclus);
+    }
+
+    default Specification<TiersPayant> notEqual(TiersPayantCategorie tiersPayantCategorie) {
+        return (root, _, cb) -> cb.notEqual(root.get(TiersPayant_.categorie), tiersPayantCategorie);
     }
 }

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy, signal } from "@angular/core";
 import { Customer, ICustomer } from "app/shared/model/customer.model";
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
 import { ErrorService } from "app/shared/error.service";
@@ -21,7 +21,7 @@ import {
   selector: "app-form-ayant-droit",
   templateUrl: "./form-ayant-droit.component.html",
   styleUrls: ["./form-ayant-droit-component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     ReactiveFormsModule,
@@ -38,7 +38,7 @@ export class FormAyantDroitComponent implements OnInit, AfterViewInit, OnDestroy
   assure?: ICustomer;
   protected firstName = viewChild.required<ElementRef>("firstName");
   protected fb = inject(UntypedFormBuilder);
-  protected isSaving = false;
+  protected readonly isSaving = signal(false);
   protected isValid = true;
   protected editForm = this.fb.group({
     id: [],
@@ -66,7 +66,7 @@ export class FormAyantDroitComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const customer = this.createFromForm();
     if (customer.id !== undefined && customer.id) {
       this.subscribeToSaveResponse(this.customerService.updateAyantDroit(customer));
@@ -114,7 +114,7 @@ export class FormAyantDroitComponent implements OnInit, AfterViewInit, OnDestroy
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
     result
       .pipe(
-        finalize(() => (this.isSaving = false)),
+        finalize(() => (this.isSaving.set(false))),
         takeUntil(this.destroy$)
       )
       .subscribe({

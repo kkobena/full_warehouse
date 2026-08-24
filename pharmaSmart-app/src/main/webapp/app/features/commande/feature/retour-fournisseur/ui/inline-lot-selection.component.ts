@@ -179,7 +179,7 @@ export interface InlineLotSelection {
       }
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
     `
       .inline-lot-selection {

@@ -34,7 +34,7 @@ import {
   selector: 'app-semois-suggestions',
   templateUrl: './semois-suggestions.component.html',
   styleUrls: ['./semois-suggestions.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

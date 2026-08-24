@@ -5,8 +5,7 @@ import {
   ElementRef,
   inject,
   OnInit,
-  viewChild
-} from '@angular/core';
+  viewChild, signal } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -27,7 +26,7 @@ import {ITva, Tva} from '../../../shared/model/tva.model';
   selector: 'app-form-tva',
   imports: [ButtonComponent, FormsModule, ReactiveFormsModule, KeyFilterDirective],
   templateUrl: './form-tva.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./form-tva.scss'],
 })
 export class FormTvaComponent implements OnInit, AfterViewInit {
@@ -40,7 +39,7 @@ export class FormTvaComponent implements OnInit, AfterViewInit {
       nonNullable: true,
     }),
   });
-  protected isSaving = false;
+  protected readonly isSaving = signal(false);
   private readonly taux = viewChild.required<ElementRef>('taux');
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
@@ -61,17 +60,17 @@ export class FormTvaComponent implements OnInit, AfterViewInit {
   }
 
   protected save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     this.subscribeToSaveResponse(this.tvaService.create(this.createFromForm()));
   }
 
   private onSaveSuccess(): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.activeModal.close();
   }
 
   private onSaveError(error: HttpErrorResponse): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 

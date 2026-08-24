@@ -6,6 +6,7 @@ import { AppKpiAccent } from './kpi-strip.component';
  * Un indicateur du bandeau `app-kpi-strip`.
  *
  * `value` couvre le cas courant ; pour une valeur composée, projeter dans `[kpiValue]`.
+ * De même pour `label`, dont l'emplacement `[kpiLabel]` accueille un libellé à badge.
  * Le sous-texte passe toujours par la projection `[kpiSub]`, parce qu'il porte le plus
  * souvent une flèche d'évolution conditionnelle.
  *
@@ -33,7 +34,16 @@ import { AppKpiAccent } from './kpi-strip.component';
     }
 
     <div class="kpi-strip-body">
-      <span class="kpi-strip-label">{{ label() }}</span>
+      <!--
+        Le libellé porte parfois un badge — la classe ABC d'un produit, l'état d'une
+        alerte — qu'une chaîne ne saurait rendre : il est alors projeté dans le slot
+        kpiLabel, et l'entrée label reste vide. (Pas de guillemet oblique dans ce
+        commentaire : il vit dans un littéral de gabarit, qu'il fermerait.)
+      -->
+      <span class="kpi-strip-label">
+        {{ label() }}
+        <ng-content select="[kpiLabel]" />
+      </span>
 
       <!--
         value et suffix sont interpolés séparément, jamais concaténés côté appelant :
@@ -54,6 +64,7 @@ import { AppKpiAccent } from './kpi-strip.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class KpiItemComponent {
+  /** Libellé. Pour un libellé composé (badge, sous-titre), projeter dans `[kpiLabel]`. */
   readonly label = input<string>('');
 
   /** Valeur principale. Pour un contenu composé, projeter dans `[kpiValue]`. */

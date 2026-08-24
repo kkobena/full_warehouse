@@ -41,7 +41,7 @@ import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-l
     SkeletonComponent,
   ],
   templateUrl: "./sales-reports.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./sales-reports.component.scss"
 })
 export default class SalesReportsComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import {signal, Component, ChangeDetectionStrategy } from '@angular/core';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { ButtonComponent } from '../../../../../../shared/ui';
@@ -7,9 +7,9 @@ import { IBedLigne } from '../../data-access/bed.model';
 @Component({
   selector: 'app-bed-line-actions',
   imports: [ButtonComponent, NgbTooltip],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    @if (isBrouillon) {
+    @if (isBrouillon()) {
       <app-button
         [text]="true"
         [rounded]="true"
@@ -27,11 +27,11 @@ import { IBedLigne } from '../../data-access/bed.model';
 })
 export class BedLineActionsComponent implements ICellRendererAngularComp {
   private params!: any;
-  protected isBrouillon = false;
+  protected readonly isBrouillon = signal(false);
 
   agInit(params: any): void {
     this.params = params;
-    this.isBrouillon = !!params.context?.componentParent?.isBrouillon;
+    this.isBrouillon.set(!!params.context?.componentParent?.isBrouillon);
   }
 
   refresh(): boolean {

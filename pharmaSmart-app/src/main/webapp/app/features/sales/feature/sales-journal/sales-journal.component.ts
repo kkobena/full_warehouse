@@ -3,8 +3,10 @@ import {
   Component,
   DestroyRef,
   inject,
+  input,
   OnInit,
-  signal, input} from "@angular/core";
+  signal
+} from "@angular/core";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {CommonModule, DatePipe} from "@angular/common";
 import {FormsModule} from "@angular/forms";
@@ -71,7 +73,8 @@ import {
 } from "../../ui/cloturer-avoir-modal/cloturer-avoir-modal.component";
 import {AvoirClientApiService} from "../../data-access/services/avoir-client-api.service";
 
-import { DeviseDirective } from 'app/shared/utils/devise';
+import {DeviseDirective} from 'app/shared/utils/devise';
+
 interface SaleMenuEntry {
   label?: string;
   icon?: string;
@@ -85,8 +88,8 @@ interface SaleMenuEntry {
   templateUrl: "./sales-journal.component.html",
   styleUrl: "./sales-journal.component.scss",
   providers: [DatePipe, {provide: NgbDateParserFormatter, useClass: FrenchDateParserFormatter}],
-  changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [DeviseDirective, 
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DeviseDirective,
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -118,11 +121,11 @@ export class SalesJournalComponent implements OnInit {
   // ── État ──────────────────────────────────────────────
   protected loading = signal(false);
   protected exportLoading = signal(false);
-  protected sales: ISales[] = [];
-  protected users: IUser[] = [];
-  protected totalItems = 0;
-  protected page = 0;
-  protected itemsPerPage = ITEMS_PER_PAGE;
+  protected readonly sales = signal<ISales[]>([]);
+  protected readonly users = signal<IUser[]>([]);
+  protected readonly totalItems = signal(0);
+  protected readonly page = signal(0);
+  protected readonly itemsPerPage = signal(ITEMS_PER_PAGE);
   protected useSimpleSale = false;
   // ── Filtres ───────────────────────────────────────────
   protected readonly typeVentes = [
@@ -130,15 +133,15 @@ export class SalesJournalComponent implements OnInit {
     {label: "Assurance", value: "ASSURANCE"},
     {label: "Carnet", value: "CARNET"}
   ];
-  protected typeVenteSelected: string[] = [];
-  protected search = "";
-  protected global = true;
-  protected selectedUserId: number | null = null;
+  protected readonly typeVenteSelected = signal<string[]>([]);
+  protected readonly search = signal("");
+  protected readonly global = signal(true);
+  protected readonly selectedUserId = signal<number | null>(null);
   protected selectedCassierId: number | null = null;
-  protected fromDate: NgbDateStruct = this.todayNgb();
-  protected toDate: NgbDateStruct = this.todayNgb();
-  protected fromHour = "01:00";
-  protected toHour = "23:59";
+  protected readonly fromDate = signal<NgbDateStruct>(this.todayNgb());
+  protected readonly toDate = signal<NgbDateStruct>(this.todayNgb());
+  protected readonly fromHour = signal("01:00");
+  protected readonly toHour = signal("23:59");
   protected hours = TIMES;
   // ── Permissions ───────────────────────────────────────
   protected readonly SalesStatut = SalesStatut;
@@ -151,7 +154,6 @@ export class SalesJournalComponent implements OnInit {
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly datePipe = inject(DatePipe);
   private readonly modalService = inject(NgbModal);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly ability = inject(AbilityService);
@@ -306,8 +308,8 @@ export class SalesJournalComponent implements OnInit {
   }
 
   protected loadPage(page?: number): void {
-    const pageToLoad = page ?? this.page;
-    this.fetchSales(pageToLoad, this.itemsPerPage);
+    const pageToLoad = page ?? this.page();
+    this.fetchSales(pageToLoad, this.itemsPerPage());
     this.saveParams();
   }
 
@@ -316,9 +318,9 @@ export class SalesJournalComponent implements OnInit {
 
   protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event.first != null && event.rows != null) {
-      this.page = event.first / event.rows;
-      this.itemsPerPage = event.rows;
-      this.fetchSales(this.page, this.itemsPerPage);
+      this.page.set(event.first / event.rows);
+      this.itemsPerPage.set(event.rows);
+      this.fetchSales(this.page(), this.itemsPerPage());
     }
   }
 
@@ -326,7 +328,8 @@ export class SalesJournalComponent implements OnInit {
     table.toggleRow(sale);
     if (sale.saleId && !(sale as ISales & { _loaded?: boolean })._loaded) {
       this.api.findSale(sale.saleId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(detail => {
-        Object.assign(sale, detail, {_loaded: true});
+        const chargee = {...sale, ...detail, _loaded: true};
+        this.sales.update(lignes => lignes.map(l => (l === sale ? chargee : l)));
       });
     }
   }
@@ -400,17 +403,17 @@ export class SalesJournalComponent implements OnInit {
   }
 
   protected exportJournal(): void {
-    const fileName = `journal-ventes-${this.compactNgbDate(this.fromDate)}-${this.compactNgbDate(this.toDate)}`;
+    const fileName = `journal-ventes-${this.compactNgbDate(this.fromDate())}-${this.compactNgbDate(this.toDate())}`;
     this.blobDownload.downloadFromObservable(
       this.api.exportJournal({
-        search: this.search || null,
-        types: this.typeVenteSelected,
-        fromDate: this.ngbDateToIso(this.fromDate),
-        toDate: this.ngbDateToIso(this.toDate),
-        fromHour: this.fromHour,
-        toHour: this.toHour,
-        global: this.global,
-        userId: this.selectedUserId,
+        search: this.search() || null,
+        types: this.typeVenteSelected(),
+        fromDate: this.ngbDateToIso(this.fromDate()),
+        toDate: this.ngbDateToIso(this.toDate()),
+        fromHour: this.fromHour(),
+        toHour: this.toHour(),
+        global: this.global(),
+        userId: this.selectedUserId(),
         caissierUserId: this.selectedCassierId
       }),
       fileName,
@@ -425,33 +428,33 @@ export class SalesJournalComponent implements OnInit {
 
   private restoreParams(): void {
     const p = this.toolbarService.params();
-    this.typeVenteSelected = p.typeVente ?? [];
-    this.search = p.search || "";
-    this.global = p.global ?? true;
-    this.selectedUserId = p.selectedUserId;
+    this.typeVenteSelected.set(p.typeVente ?? []);
+    this.search.set(p.search || "");
+    this.global.set(p.global ?? true);
+    this.selectedUserId.set(p.selectedUserId);
     this.selectedCassierId = p.selectedCassierId;
-    this.fromDate = p.fromDate || this.todayNgb();
-    this.toDate = p.toDate || this.todayNgb();
-    this.fromHour = p.fromHour || "01:00";
-    this.toHour = p.toHour || "23:59";
+    this.fromDate.set(p.fromDate || this.todayNgb());
+    this.toDate.set(p.toDate || this.todayNgb());
+    this.fromHour.set(p.fromHour || "01:00");
+    this.toHour.set(p.toHour || "23:59");
   }
 
   private loadAllUsers(): void {
     this.userService.query().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(res => {
-      this.users = res.body || [];
+      this.users.set(res.body || []);
     });
   }
 
   private buildParams(): any {
     return {
-      search: this.search || null,
-      types: this.typeVenteSelected,
-      fromDate: this.ngbDateToIso(this.fromDate),
-      toDate: this.ngbDateToIso(this.toDate),
-      fromHour: this.fromHour,
-      toHour: this.toHour,
-      global: this.global,
-      userId: this.selectedUserId
+      search: this.search() || null,
+      types: this.typeVenteSelected(),
+      fromDate: this.ngbDateToIso(this.fromDate()),
+      toDate: this.ngbDateToIso(this.toDate()),
+      fromHour: this.fromHour(),
+      toHour: this.toHour(),
+      global: this.global(),
+      userId: this.selectedUserId()
     };
   }
 
@@ -479,23 +482,23 @@ export class SalesJournalComponent implements OnInit {
   }
 
   private onSuccess(data: ISales[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get("X-Total-Count"));
-    this.page = page;
-    this.sales = data || [];
+    this.totalItems.set(Number(headers.get("X-Total-Count")));
+    this.page.set(page);
+    this.sales.set(data || []);
     this.loading.set(false);
   }
 
   private saveParams(): void {
     this.toolbarService.update({
-      typeVente: this.typeVenteSelected,
-      search: this.search || null,
-      global: this.global,
-      selectedUserId: this.selectedUserId,
+      typeVente: this.typeVenteSelected(),
+      search: this.search() || null,
+      global: this.global(),
+      selectedUserId: this.selectedUserId(),
       selectedCassierId: this.selectedCassierId,
-      fromDate: this.fromDate,
-      toDate: this.toDate,
-      fromHour: this.fromHour,
-      toHour: this.toHour
+      fromDate: this.fromDate(),
+      toDate: this.toDate(),
+      fromHour: this.fromHour(),
+      toHour: this.toHour()
     });
   }
 

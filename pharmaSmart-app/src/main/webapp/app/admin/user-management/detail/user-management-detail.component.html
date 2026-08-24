@@ -1,147 +1,145 @@
-<div class="container-fluid">
-  <div class="pharma-smart-content p-1">
-    <app-toolbar icon="pi pi-user" title="Détails de l'utilisateur">
-      <ng-container ngProjectAs="[toolbarHeaderExtra]">
-        @if (user()) {
-          <app-badge [label]="user()!.login" class="ml-2" severity="info"></app-badge>
-          @if (user()!.activated) {
-            <app-badge class="ml-2" icon="pi pi-check-circle" label="Activé"
-                       severity="success"></app-badge>
-          } @else {
-            <app-badge class="ml-2" icon="pi pi-times-circle" label="Désactivé"
-                       severity="danger"></app-badge>
-          }
+<div class="pharma-smart-content p-1">
+  <app-toolbar icon="pi pi-user" title="Détails de l'utilisateur">
+    <ng-container ngProjectAs="[toolbarHeaderExtra]">
+      @if (user()) {
+        <app-badge [label]="user()!.login" class="ml-2" severity="info"></app-badge>
+        @if (user()!.activated) {
+          <app-badge class="ml-2" icon="pi pi-check-circle" label="Activé"
+                     severity="success"></app-badge>
+        } @else {
+          <app-badge class="ml-2" icon="pi pi-times-circle" label="Désactivé"
+                     severity="danger"></app-badge>
         }
-      </ng-container>
-      <ng-container ngProjectAs="[toolbarActions]">
-        <div class="pharma-button-group py-1">
-          <app-button
-            [raised]="true"
-            [routerLink]="['../../', user()!.login, 'edit']"
-            icon="pi pi-pencil"
-            label="Modifier"
-            severity="primary"
-            type="button"
-          ></app-button>
-          <app-button
-            [raised]="true"
-            icon="pi pi-arrow-left"
-            label="Retour"
-            routerLink="../../"
-            severity="secondary"
-            type="button"
-          ></app-button>
+      }
+    </ng-container>
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-button-group py-1">
+        <app-button
+          [raised]="true"
+          [routerLink]="['../../', user()!.login, 'edit']"
+          icon="pi pi-pencil"
+          label="Modifier"
+          severity="primary"
+          type="button"
+        ></app-button>
+        <app-button
+          [raised]="true"
+          icon="pi pi-arrow-left"
+          label="Retour"
+          routerLink="../../"
+          severity="secondary"
+          type="button"
+        ></app-button>
+      </div>
+    </ng-container>
+  </app-toolbar>
+
+  @if (user()) {
+    <div class="user-detail-content">
+      <!-- Personal Information Card -->
+      <div class="detail-card">
+        <div class="detail-card-header">
+          <i class="pi pi-id-card"></i>
+          <span class="detail-card-title">Informations personnelles</span>
         </div>
-      </ng-container>
-    </app-toolbar>
-
-    @if (user()) {
-      <div class="user-detail-content">
-        <!-- Personal Information Card -->
-        <div class="detail-card">
-          <div class="detail-card-header">
-            <i class="pi pi-id-card"></i>
-            <span class="detail-card-title">Informations personnelles</span>
-          </div>
-          <div class="detail-card-body">
-            <div class="detail-row">
-              <div class="detail-item">
-                <label class="detail-label">
-                  <i class="pi pi-user"></i>
-                  <span>Login</span>
-                </label>
-                <div class="detail-value">{{ user()!.login }}</div>
-              </div>
-              <div class="detail-item">
-                <label class="detail-label">
-                  <i class="pi pi-at"></i>
-                  <span>Email</span>
-                </label>
-                <div class="detail-value">{{ user()!.email }}</div>
-              </div>
+        <div class="detail-card-body">
+          <div class="detail-row">
+            <div class="detail-item">
+              <label class="detail-label">
+                <i class="pi pi-user"></i>
+                <span>Login</span>
+              </label>
+              <div class="detail-value">{{ user()!.login }}</div>
             </div>
-            <div class="detail-row">
-              <div class="detail-item">
-                <label class="detail-label">
-                  <i class="pi pi-user"></i>
-                  <span>Prénom</span>
-                </label>
-                <div class="detail-value">{{ user()!.firstName }}</div>
-              </div>
-              <div class="detail-item">
-                <label class="detail-label">
-                  <i class="pi pi-user"></i>
-                  <span>Nom</span>
-                </label>
-                <div class="detail-value">{{ user()!.lastName }}</div>
-              </div>
+            <div class="detail-item">
+              <label class="detail-label">
+                <i class="pi pi-at"></i>
+                <span>Email</span>
+              </label>
+              <div class="detail-value">{{ user()!.email }}</div>
             </div>
           </div>
-        </div>
-
-        <!-- Account Information Card -->
-        <div class="detail-card">
-          <div class="detail-card-header">
-            <i class="pi pi-info-circle"></i>
-            <span class="detail-card-title">Informations du compte</span>
-          </div>
-          <div class="detail-card-body">
-            <div class="detail-row">
-              <div class="detail-item">
-                <label class="detail-label">
-                  <i class="pi pi-user-plus"></i>
-                  <span>Créé par</span>
-                </label>
-                <div class="detail-value">{{ user()!.createdBy }}</div>
-              </div>
-              <div class="detail-item">
-                <label class="detail-label">
-                  <i class="pi pi-calendar"></i>
-                  <span>Créé le</span>
-                </label>
-                <div class="detail-value">{{ user()!.createdDate | date : 'dd/MM/yyyy HH:mm' }}
-                </div>
-              </div>
+          <div class="detail-row">
+            <div class="detail-item">
+              <label class="detail-label">
+                <i class="pi pi-user"></i>
+                <span>Prénom</span>
+              </label>
+              <div class="detail-value">{{ user()!.firstName }}</div>
             </div>
-            <div class="detail-row">
-              <div class="detail-item">
-                <label class="detail-label">
-                  <i class="pi pi-user-edit"></i>
-                  <span>Modifié par</span>
-                </label>
-                <div class="detail-value">{{ user()!.lastModifiedBy }}</div>
-              </div>
-              <div class="detail-item">
-                <label class="detail-label">
-                  <i class="pi pi-calendar"></i>
-                  <span>Modifié le</span>
-                </label>
-                <div
-                  class="detail-value">{{ user()!.lastModifiedDate | date : 'dd/MM/yyyy HH:mm' }}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Roles & Permissions Card -->
-        <div class="detail-card">
-          <div class="detail-card-header">
-            <i class="pi pi-shield"></i>
-            <span class="detail-card-title">Droits</span>
-          </div>
-          <div class="detail-card-body">
-            <div class="authorities-list">
-              @if (user()) {
-                <app-badge [label]="user()!.authority?.libelle" icon="pi pi-key"></app-badge>
-
-              } @else {
-                <span class="text-muted">Aucun rôle assigné</span>
-              }
+            <div class="detail-item">
+              <label class="detail-label">
+                <i class="pi pi-user"></i>
+                <span>Nom</span>
+              </label>
+              <div class="detail-value">{{ user()!.lastName }}</div>
             </div>
           </div>
         </div>
       </div>
-    }
-  </div>
+
+      <!-- Account Information Card -->
+      <div class="detail-card">
+        <div class="detail-card-header">
+          <i class="pi pi-info-circle"></i>
+          <span class="detail-card-title">Informations du compte</span>
+        </div>
+        <div class="detail-card-body">
+          <div class="detail-row">
+            <div class="detail-item">
+              <label class="detail-label">
+                <i class="pi pi-user-plus"></i>
+                <span>Créé par</span>
+              </label>
+              <div class="detail-value">{{ user()!.createdBy }}</div>
+            </div>
+            <div class="detail-item">
+              <label class="detail-label">
+                <i class="pi pi-calendar"></i>
+                <span>Créé le</span>
+              </label>
+              <div class="detail-value">{{ user()!.createdDate | date : 'dd/MM/yyyy HH:mm' }}
+              </div>
+            </div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-item">
+              <label class="detail-label">
+                <i class="pi pi-user-edit"></i>
+                <span>Modifié par</span>
+              </label>
+              <div class="detail-value">{{ user()!.lastModifiedBy }}</div>
+            </div>
+            <div class="detail-item">
+              <label class="detail-label">
+                <i class="pi pi-calendar"></i>
+                <span>Modifié le</span>
+              </label>
+              <div
+                class="detail-value">{{ user()!.lastModifiedDate | date : 'dd/MM/yyyy HH:mm' }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Roles & Permissions Card -->
+      <div class="detail-card">
+        <div class="detail-card-header">
+          <i class="pi pi-shield"></i>
+          <span class="detail-card-title">Droits</span>
+        </div>
+        <div class="detail-card-body">
+          <div class="authorities-list">
+            @if (user()) {
+              <app-badge [label]="user()!.authority?.libelle" icon="pi pi-key"></app-badge>
+
+            } @else {
+              <span class="text-muted">Aucun rôle assigné</span>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
 </div>

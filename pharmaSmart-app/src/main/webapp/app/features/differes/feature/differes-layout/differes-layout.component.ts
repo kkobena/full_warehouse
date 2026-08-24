@@ -9,7 +9,7 @@ import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-l
   selector: 'app-differes-layout',
   imports: [NavSidebarComponent, NavSectionLinkComponent, NgbNavModule, DifferesHomeComponent, HistoriqueReglementsDifferesComponent],
   templateUrl: './differes-layout.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './differes-layout.component.scss',
 })
 export class DifferesLayoutComponent {

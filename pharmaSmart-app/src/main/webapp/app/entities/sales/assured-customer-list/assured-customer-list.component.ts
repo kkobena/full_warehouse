@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy, signal } from "@angular/core";
 import { ICustomer, ISales } from "../../../shared/model";
 import { CustomerService } from "../../customer/customer.service";
 import { FormsModule } from "@angular/forms";
@@ -15,7 +15,7 @@ import { AppTableLazyLoadEvent, ButtonComponent, CardComponent, DataTableCompone
   selector: "app-assured-customer-list",
   templateUrl: "./assured-customer-list.component.html",
   styleUrls: ["./assured-customer-list.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -27,15 +27,15 @@ import { AppTableLazyLoadEvent, ButtonComponent, CardComponent, DataTableCompone
   ]
 })
 export class AssuredCustomerListComponent implements OnInit, OnDestroy {
-  customers: ICustomer[] = [];
+  protected readonly customers = signal<ICustomer[]>([]);
   searchString?: string | null = "";
   headerLibelle: string;
   protected itemsPerPage = ITEMS_PER_PAGE;
-  protected page!: number;
-  protected ngbPaginationPage = 1;
-  protected totalItems = 0;
-  protected loading!: boolean;
-  protected selectedCustomer: ICustomer | null = null;
+  protected readonly page = signal<number | undefined>(undefined);
+  protected readonly ngbPaginationPage = signal(1);
+  protected readonly totalItems = signal(0);
+  protected readonly loading = signal<boolean | undefined>(undefined);
+  protected readonly selectedCustomer = signal<ICustomer | null>(null);
   private readonly currentSaleService = inject(CurrentSaleService);
   private readonly customerService = inject(CustomerService);
   private readonly activeModal = inject(NgbActiveModal);
@@ -61,13 +61,13 @@ export class AssuredCustomerListComponent implements OnInit, OnDestroy {
   protected onKeydown(event: KeyboardEvent): void {
     if (event.key === "Escape") {
       this.cancel();
-    } else if (event.key === "Enter" && this.selectedCustomer) {
-      this.onSelect(this.selectedCustomer);
+    } else if (event.key === "Enter" && this.selectedCustomer()) {
+      this.onSelect(this.selectedCustomer());
     }
   }
 
   protected onRowSelect(customer: ICustomer): void {
-    this.selectedCustomer = customer;
+    this.selectedCustomer.set(customer);
   }
 
   protected onDbleClick(customer: ICustomer): void {
@@ -83,7 +83,7 @@ export class AssuredCustomerListComponent implements OnInit, OnDestroy {
   }
 
   protected loadPage(page?: number): void {
-    const pageToLoad: number = page || this.page || 1;
+    const pageToLoad: number = page || this.page() || 1;
     this.customerService
       .queryAssuredCustomer({
         page: pageToLoad - 1,
@@ -99,33 +99,33 @@ export class AssuredCustomerListComponent implements OnInit, OnDestroy {
 
   protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event) {
-      this.page = event.first / event.rows;
-      this.loading = true;
+      this.page.set(event.first / event.rows);
+      this.loading.set(true);
       this.customerService
         .queryAssuredCustomer({
-          page: this.page,
+          page: this.page(),
           size: event.rows,
           search: this.searchString,
           typeTiersPayant: this.currentSaleService.typeVo()
         })
         .subscribe({
-          next: (res: HttpResponse<ISales[]>) => this.onSuccess(res.body, res.headers, this.page),
+          next: (res: HttpResponse<ISales[]>) => this.onSuccess(res.body, res.headers, this.page()),
           error: () => this.onError()
         });
     }
   }
 
   private onSuccess(data: ICustomer[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get("X-Total-Count"));
+    this.totalItems.set(Number(headers.get("X-Total-Count")));
 
-    this.page = page;
-    this.customers = data || [];
-    this.ngbPaginationPage = this.page;
-    this.loading = false;
+    this.page.set(page);
+    this.customers.set(data || []);
+    this.ngbPaginationPage.set(this.page());
+    this.loading.set(false);
   }
 
   private onError(): void {
-    this.ngbPaginationPage = this.page ?? 1;
-    this.loading = false;
+    this.ngbPaginationPage.set(this.page() ?? 1);
+    this.loading.set(false);
   }
 }

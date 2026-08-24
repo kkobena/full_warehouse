@@ -13,6 +13,8 @@ import {
   BadgeComponent,
   ButtonComponent,
   DataTableComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   MonthPickerComponent,
   SelectComponent,
   ToolbarComponent
@@ -26,7 +28,7 @@ interface ITopProductRanked extends ITopProduct {
   selector: "app-top-products",
   templateUrl: "./top-products.component.html",
   styleUrls: ["./top-products.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
@@ -36,7 +38,9 @@ interface ITopProductRanked extends ITopProduct {
     DataTableComponent,
     MonthPickerComponent,
     SelectComponent,
-    ToolbarComponent
+    ToolbarComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ]
 })
 export default class TopProductsComponent implements OnInit {

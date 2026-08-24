@@ -26,7 +26,7 @@
             [text]="true"
             size="small"
             severity="warn"
-            [loading]="loadingPdf"
+            [loading]="loadingPdf()"
             ngbTooltip="Exporter PDF"
             placement="left"
             (clicked)="onExportPdf()"
@@ -84,7 +84,7 @@
             <span>Détail</span>
           </a>
           <ng-template ngbNavContent>
-            @if (loadingItems) {
+            @if (loadingItems()) {
               <div class="d-flex justify-content-center p-4">
                 <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Chargement…</span>
@@ -146,7 +146,7 @@
             <span>Versements</span>
           </a>
           <ng-template ngbNavContent>
-            @if (loadingReglements) {
+            @if (loadingReglements()) {
               <div class="d-flex justify-content-center p-4">
                 <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Chargement…</span>

@@ -1,481 +1,486 @@
-<div class="container-fluid">
-  <div class="pharma-smart-content p-1">
-    <!-- Modern Pharma Toolbar -->
-    <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-shopping-cart" title="Journal des ventes">
-      <ng-container ngProjectAs="[toolbarFilters]">
-        <app-multi-select
-          (selectionChange)="onTypeVenteChange()"
-          [(ngModel)]="typeVenteSelected"
-          [clearable]="true"
-          [items]="typeVentes"
-          [style]="{ 'max-width': '180px' }"
-          appendTo="body"
-          bindLabel="label"
-          bindValue="value"
-          placeholder="Type de vente"
-        />
+<div class="pharma-smart-content p-1">
+  <!-- Modern Pharma Toolbar -->
+  <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-shopping-cart"
+               title="Journal des ventes">
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <app-multi-select
+        (ngModelChange)="typeVenteSelected.set($event)"
+        (selectionChange)="onTypeVenteChange()" [clearable]="true"
+        [items]="typeVentes"
+        [ngModel]="typeVenteSelected()"
+        [style]="{ 'max-width': '180px' }"
+        appendTo="body"
+        bindLabel="label"
+        bindValue="value"
+        placeholder="Type de vente"
+      />
 
-        <app-select
-          [(ngModel)]="selectedUserId"
-          [clearable]="true"
-          [items]="users"
-          [style]="{ 'min-width': '180px' }"
-          appendTo="body"
-          bindLabel="abbrName"
-          bindValue="id"
-          inputId="selectedUserId"
-          placeholder="Caissier"
-        />
+      <app-select
+        (ngModelChange)="selectedUserId.set($event)" [clearable]="true"
+        [items]="users()"
+        [ngModel]="selectedUserId()"
+        [style]="{ 'min-width': '180px' }"
+        appendTo="body"
+        bindLabel="abbrName"
+        bindValue="id"
+        inputId="selectedUserId"
+        placeholder="Caissier"
+      />
 
 
-        <div class="pharma-compact-search mr-1">
-          <div class="input-group">
-            <input (keyup.enter)="onSearch()" class="form-control" placeholder="Rechercher..."
-                   type="text" />
-            <span class="input-group-text">
-              <app-checkbox [(ngModel)]="global" ngbTooltip="Recherche globale" />
+      <div class="pharma-compact-search mr-1">
+        <div class="input-group">
+          <input (keyup.enter)="onSearch()" class="form-control" placeholder="Rechercher..."
+                 type="text" />
+          <span class="input-group-text">
+              <app-checkbox (ngModelChange)="global.set($event)" [ngModel]="global()"
+                            ngbTooltip="Recherche globale" />
             </span>
-          </div>
         </div>
+      </div>
 
-        <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate"
-                            [style]="{ 'max-width': '180px' }" id="fromDate"
-                            label="Du" />
+      <pharma-date-picker (ngModelChange)="fromDate.set($event)" [maxDate]="toDate()"
+                          [ngModel]="fromDate()"
+                          [style]="{ 'max-width': '180px' }" id="fromDate"
+                          label="Du" />
 
-        <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate"
-                            [style]="{ 'max-width': '180px' }" id="toDate"
-                            label="Au" />
+      <pharma-date-picker (ngModelChange)="toDate.set($event)" [minDate]="fromDate()"
+                          [ngModel]="toDate()"
+                          [style]="{ 'max-width': '180px' }" id="toDate"
+                          label="Au" />
 
-        <div class="pharma-hide-mobile">
-          <app-select [(ngModel)]="fromHour" [items]="hours" [searchable]="false"
-                      [style]="{ 'max-width': '110px' }" appendTo="body" />
-        </div>
+      <div class="pharma-hide-mobile">
+        <app-select (ngModelChange)="fromHour.set($event)" [items]="hours" [ngModel]="fromHour()"
+                    [searchable]="false"
+                    [style]="{ 'max-width': '110px' }" appendTo="body" />
+      </div>
 
-        <div class="pharma-hide-mobile">
-          <app-select [(ngModel)]="toHour" [items]="hours" [searchable]="false"
-                      [style]="{ 'max-width': '110px' }" appendTo="body" />
-        </div>
-      </ng-container>
+      <div class="pharma-hide-mobile">
+        <app-select (ngModelChange)="toHour.set($event)" [items]="hours" [ngModel]="toHour()"
+                    [searchable]="false"
+                    [style]="{ 'max-width': '110px' }" appendTo="body" />
+      </div>
+    </ng-container>
 
-      <ng-container ngProjectAs="[toolbarActions]">
-        <div class="pharma-button-group pharma-hide-mobile">
-          <app-button (clicked)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher"
-                      severity="info" />
-          <app-button
-            (clicked)="exportJournal()"
-            [hidden]="true"
-            [loading]="exportLoading()"
-            [raised]="true"
-            icon="pi pi-file-excel"
-            label="Exporter"
-            ngbTooltip="Exporter le journal filtré en Excel"
-            placement="bottom"
-            severity="secondary"
-          />
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-button-group pharma-hide-mobile">
+        <app-button (clicked)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher"
+                    severity="info" />
+        <app-button
+          (clicked)="exportJournal()"
+          [hidden]="true"
+          [loading]="exportLoading()"
+          [raised]="true"
+          icon="pi pi-file-excel"
+          label="Exporter"
+          ngbTooltip="Exporter le journal filtré en Excel"
+          placement="bottom"
+          severity="secondary"
+        />
 
 
-          @if (canCreateVente()) {
-            <div>
-              <app-button
-                (clicked)="openNewSalesHome()"
-                [raised]="true"
-                icon="pi pi-shopping-bag"
-                label="Nouvelle vente"
-                severity="primary"
-              />
-            </div>
-          }
-        </div>
-
-        <div class="pharma-button-group pharma-show-mobile">
-          <app-button
-            (clicked)="loadPage()"
-            [raised]="true"
-            [rounded]="true"
-            icon="pi pi-search"
-            ngbTooltip="Rechercher"
-            placement="top"
-            severity="info"
-          />
-
-          @if (useSimpleSale) {
-            <app-button
-              [raised]="true"
-              [rounded]="true"
-              [routerLink]="['/sales/comptant', false, 'new']"
-              icon="pi pi-wallet"
-              ngbTooltip="Vente Comptant"
-              placement="top"
-              severity="success"
-            />
-          } @else if (canCreateVente()) {
+        @if (canCreateVente()) {
+          <div>
             <app-button
               (clicked)="openNewSalesHome()"
               [raised]="true"
-              [rounded]="true"
               icon="pi pi-shopping-bag"
-              ngbTooltip="Point de Vente"
-              placement="top"
+              label="Nouvelle vente"
               severity="primary"
             />
-          }
-        </div>
-      </ng-container>
-    </app-toolbar>
-    <div class="journal-summary-bar">
-      <div class="summary-item">
-        <i class="pi pi-list"></i>
-        <span class="summary-label">Nombre de ventes :</span>
-        <span class="summary-value">{{ totalItems | number }}</span>
+          </div>
+        }
       </div>
-      <div class="summary-item">
-        <i class="pi pi-wallet"></i>
-        <span class="summary-label">Total CA:</span>
-        <span class="summary-value">{{ totalSalesAmount() | number: '1.0-0' }} <span appDevise></span></span>
+
+      <div class="pharma-button-group pharma-show-mobile">
+        <app-button
+          (clicked)="loadPage()"
+          [raised]="true"
+          [rounded]="true"
+          icon="pi pi-search"
+          ngbTooltip="Rechercher"
+          placement="top"
+          severity="info"
+        />
+
+        @if (useSimpleSale) {
+          <app-button
+            [raised]="true"
+            [rounded]="true"
+            [routerLink]="['/sales()/comptant', false, 'new']"
+            icon="pi pi-wallet"
+            ngbTooltip="Vente Comptant"
+            placement="top"
+            severity="success"
+          />
+        } @else if (canCreateVente()) {
+          <app-button
+            (clicked)="openNewSalesHome()"
+            [raised]="true"
+            [rounded]="true"
+            icon="pi pi-shopping-bag"
+            ngbTooltip="Point de Vente"
+            placement="top"
+            severity="primary"
+          />
+        }
       </div>
+    </ng-container>
+  </app-toolbar>
+  <div class="journal-summary-bar">
+    <div class="summary-item">
+      <i class="pi pi-list"></i>
+      <span class="summary-label">Nombre de ventes :</span>
+      <span class="summary-value">{{ totalItems() | number }}</span>
     </div>
+    <div class="summary-item">
+      <i class="pi pi-wallet"></i>
+      <span class="summary-label">Total CA:</span>
+      <span class="summary-value">{{ totalSalesAmount() | number: '1.0-0' }} <span appDevise></span></span>
+    </div>
+  </div>
 
-    <div class="mt-3 -mb-3">
-      @if (sales && sales.length > 0) {
-        <app-data-table
-          #salesTable
-          (onLazyLoad)="lazyLoading($event)"
-          [lazy]="true"
-          [loading]="loading()"
-          [paginator]="true"
-          [rowsPerPageOptions]="[5, 10, 15, 20, 30, 50]"
-          [rows]="itemsPerPage"
-          [showCurrentPageReport]="true"
-          [stripedRows]="true"
-          [totalRecords]="totalItems"
-          [value]="sales"
-          class="p-datatable-sm p-datatable-striped"
-          currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} ventes"
-          dataKey="id"
-        >
-          <ng-template #header>
-            <tr class="pharma-table-head">
-              <th style="width: 3%"></th>
-              <th style="width: 10%">Date</th>
-              <th style="width: 9%">Type</th>
-              <th style="width: 9%">Référence</th>
-              <th class="text-right" style="width: 5%">Articles</th>
-              <th class="text-right" style="width: 8%">Montant</th>
-              <th style="width: 15%">Client</th>
-              <th style="width: 13%">Vendeur</th>
-              <th style="width: 12%">Caissier</th>
-              <th style="width: 5%"></th>
-            </tr>
-          </ng-template>
-          <ng-template #body let-expanded="expanded" let-sale>
-            <tr [class.pharma-negative-canceled-row]="sale.canceled  && sale.salesAmount>0">
-              <td>
-                <app-button
-                  (clicked)="onRowToggle(sale, salesTable)"
-                  [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                  [rounded]="true"
-                  [text]="true"
+  <div class="mt-2 -mb-2">
+    @if (sales() && sales().length > 0) {
+      <app-data-table
+        #salesTable
+        (onLazyLoad)="lazyLoading($event)"
+        [lazy]="true"
+        [loading]="loading()"
+        [paginator]="true"
+        [rowsPerPageOptions]="[5, 10, 15, 20, 30, 50]"
+        [rows]="itemsPerPage()"
+        [showCurrentPageReport]="true"
+        [stripedRows]="true"
+        [totalRecords]="totalItems()"
+        [value]="sales()"
+        class="p-datatable-sm p-datatable-striped"
+        currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} ventes"
+        dataKey="id"
+      >
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th style="width: 3%"></th>
+            <th style="width: 10%">Date</th>
+            <th style="width: 9%">Type</th>
+            <th style="width: 9%">Référence</th>
+            <th class="text-right" style="width: 5%">Articles</th>
+            <th class="text-right" style="width: 8%">Montant</th>
+            <th style="width: 15%">Client</th>
+            <th style="width: 13%">Vendeur</th>
+            <th style="width: 12%">Caissier</th>
+            <th style="width: 5%"></th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-expanded="expanded" let-sale>
+          <tr [class.pharma-negative-canceled-row]="sale.canceled  && sale.salesAmount>0">
+            <td>
+              <app-button
+                (clicked)="onRowToggle(sale, salesTable)"
+                [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                [rounded]="true"
+                [text]="true"
+                type="button"
+              />
+            </td>
+            <td>{{ sale.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+            <td>
+              @if (sale.natureVente === 'ASSURANCE') {
+                <span class="pharma-badge pharma-badge-info">Assurance</span>
+              } @else if (sale.natureVente === 'CARNET') {
+                <span class="pharma-badge pharma-badge-warning">Carnet</span>
+              } @else {
+                <span class="pharma-badge pharma-badge-info" ngbTooltip="Vente sans ordonnance"
+                      placement="top">Comptant</span>
+              }
+              @if (sale.canceled || sale.statut === SalesStatut.CANCELED) {
+                <span class="pharma-badge pharma-badge-danger ms-1">Annulée</span>
+              }
+            </td>
+            <td>
+              <span class="pharma-code">{{ sale.numberTransaction }}</span>
+            </td>
+            <td class="text-right">{{
+                (sale.itemCount || sale.salesLines?.length)  | number
+              }}
+            </td>
+            <td
+              [ngClass]="sale.salesAmount < 0 || sale.canceled ? 'pharma-price-negative' : 'pharma-price'">
+              {{ sale.salesAmount | number }}
+            </td>
+            <td class="pharma-entity-name">{{ sale.customer?.fullName }}</td>
+            <td>{{ sale.seller?.abbrName }}</td>
+            <td>{{ sale.cassier?.abbrName }}</td>
+            <td class="text-right">
+              <div container="body" ngbDropdown
+                   placement="bottom-end top-end bottom-start top-start">
+                <button
+                  (click)="$event.stopPropagation()"
+                  aria-label="Actions"
+                  class="btn btn-sm btn-link text-secondary app-actions-toggle"
+                  ngbDropdownToggle
+                  ngbTooltip="Actions"
+                  placement="left"
                   type="button"
-                />
-              </td>
-              <td>{{ sale.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
-              <td>
-                @if (sale.natureVente === 'ASSURANCE') {
-                  <span class="pharma-badge pharma-badge-info">Assurance</span>
-                } @else if (sale.natureVente === 'CARNET') {
-                  <span class="pharma-badge pharma-badge-warning">Carnet</span>
-                } @else {
-                  <span class="pharma-badge pharma-badge-info" ngbTooltip="Vente sans ordonnance"
-                        placement="top">Comptant</span>
-                }
-                @if (sale.canceled || sale.statut === SalesStatut.CANCELED) {
-                  <span class="pharma-badge pharma-badge-danger ms-1">Annulée</span>
-                }
-              </td>
-              <td>
-                <span class="pharma-code">{{ sale.numberTransaction }}</span>
-              </td>
-              <td class="text-right">{{
-                  (sale.itemCount || sale.salesLines?.length)  | number
-                }}
-              </td>
-              <td
-                [ngClass]="sale.salesAmount < 0 || sale.canceled ? 'pharma-price-negative' : 'pharma-price'">
-                {{ sale.salesAmount | number }}
-              </td>
-              <td class="pharma-entity-name">{{ sale.customer?.fullName }}</td>
-              <td>{{ sale.seller?.abbrName }}</td>
-              <td>{{ sale.cassier?.abbrName }}</td>
-              <td class="text-right">
-                <div container="body" ngbDropdown
-                     placement="bottom-end top-end bottom-start top-start">
-                  <button
-                    (click)="$event.stopPropagation()"
-                    aria-label="Actions"
-                    class="btn btn-sm btn-link text-secondary app-actions-toggle"
-                    ngbDropdownToggle
-                    ngbTooltip="Actions"
-                    placement="left"
-                    type="button"
-                  >
-                    <i aria-hidden="true" class="pi pi-ellipsis-v"></i>
-                  </button>
-                  <div ngbDropdownMenu>
-                    @for (item of buildMenuItems(sale); track $index) {
-                      @if (item.separator) {
-                        <div class="dropdown-divider"></div>
-                      } @else {
-                        <button (click)="item.command!()" [class.text-danger]="item.danger"
-                                ngbDropdownItem
-                                type="button">
-                          <i [class]="item.icon" aria-hidden="true"></i> {{ item.label }}
-                        </button>
-                      }
+                >
+                  <i aria-hidden="true" class="pi pi-ellipsis-v"></i>
+                </button>
+                <div ngbDropdownMenu>
+                  @for (item of buildMenuItems(sale); track $index) {
+                    @if (item.separator) {
+                      <div class="dropdown-divider"></div>
+                    } @else {
+                      <button (click)="item.command!()" [class.text-danger]="item.danger"
+                              ngbDropdownItem
+                              type="button">
+                        <i [class]="item.icon" aria-hidden="true"></i> {{ item.label }}
+                      </button>
                     }
-                  </div>
-                </div>
-              </td>
-            </tr>
-          </ng-template>
-          <ng-template #expandedrow let-elRow>
-            <tr class="pharma-expanded-row">
-              <td colspan="10">
-                <div class="expanded-row-container">
-                  @if (elRow.categorie !== 'VNO') {
-                    <div class="expanded-cards-container">
-                      <!-- Card Informations Générales -->
-                      <div class="activity-card activity-card-primary">
-                        <div class="activity-card-header">
-                          <div class="activity-card-icon activity-card-icon-small">
-                            <i class="pi pi-info-circle"></i>
-                          </div>
-                          <div class="activity-card-header-content">
-                            <h3 class="activity-card-title">Informations Générales</h3>
-                            <span class="activity-card-subtitle">Détails financiers</span>
-                          </div>
-                        </div>
-                        <div class="activity-card-body">
-                          <div class="activity-item">
-                            <span class="activity-item-label">Montant TTC</span>
-                            <div class="activity-item-value-wrapper">
-                              <span
-                                class="activity-item-value">{{ elRow?.salesAmount | number }}</span>
-                              <span class="activity-item-currency" appDevise></span>
-                            </div>
-                          </div>
-                          <div class="activity-item">
-                            <span class="activity-item-label">Montant HT</span>
-                            <div class="activity-item-value-wrapper">
-                              <span
-                                class="activity-item-value">{{ elRow?.htAmount | number }}</span>
-                              <span class="activity-item-currency" appDevise></span>
-                            </div>
-                          </div>
-                          <div class="activity-item">
-                            <span class="activity-item-label">Montant Taxe</span>
-                            <div class="activity-item-value-wrapper">
-                              <span
-                                class="activity-item-value">{{ elRow?.taxAmount | number }}</span>
-                              <span class="activity-item-currency" appDevise></span>
-                            </div>
-                          </div>
-                          <div class="activity-item">
-                            <span class="activity-item-label">Montant Assuré</span>
-                            <div class="activity-item-value-wrapper">
-                              <span
-                                class="activity-item-value">{{ elRow?.partAssure | number }}</span>
-                              <span class="activity-item-currency" appDevise></span>
-                            </div>
-                          </div>
-                          <div class="activity-item activity-item-highlight">
-                            <span class="activity-item-label">Montant Assurance</span>
-                            <div class="activity-item-value-wrapper">
-                              <span
-                                class="activity-item-value">{{ elRow?.partTiersPayant | number }}</span>
-                              <span class="activity-item-currency" appDevise></span>
-                            </div>
-                          </div>
-                          @if (elRow?.discountAmount > 0) {
-                            <div class="activity-item activity-item-danger">
-                              <span class="activity-item-label">Remise</span>
-                              <div class="activity-item-value-wrapper">
-                                <span
-                                  class="activity-item-value">{{ elRow?.discountAmount | number }}</span>
-                                <span class="activity-item-currency" appDevise></span>
-                              </div>
-                            </div>
-                          }
-                          <div class="activity-item">
-                            <span class="activity-item-label">Reste à payer</span>
-                            <div class="activity-item-value-wrapper">
-                              <span
-                                class="activity-item-value">{{ elRow?.restToPay | number }}</span>
-                              <span class="activity-item-currency" appDevise></span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Card Tiers Payants -->
-                      @if (elRow?.thirdPartySaleLines?.length) {
-                        <div class="activity-card activity-card-info">
-                          <div class="activity-card-header">
-                            <div class="activity-card-icon activity-card-icon-small">
-                              <i class="pi pi-shield"></i>
-                            </div>
-                            <div class="activity-card-header-content">
-                              <h3 class="activity-card-title">Tiers Payants</h3>
-                              <span class="activity-card-subtitle">Répartition assurances</span>
-                            </div>
-                          </div>
-                          <div class="activity-card-table-body">
-                            <app-data-table
-                              [value]="elRow.thirdPartySaleLines"
-                              class=" rowexpansion-table"
-                              dataKey="tiersPayantFullName"
-                            >
-                              <ng-template #header>
-                                <tr class="pharma-table-head">
-                                  <th style="width: 50%">Assureur</th>
-                                  <th class="text-right" style="width: 20%">Taux</th>
-                                  <th class="text-right" style="width: 30%">Montant</th>
-                                </tr>
-                              </ng-template>
-                              <ng-template #body let-tp>
-                                <tr>
-                                  <td>
-                                    <span
-                                      class="pharma-entity-name">{{ tp?.tiersPayantFullName }}</span>
-                                  </td>
-                                  <td class="text-right">
-                                    <span class="fs-6">{{ tp?.taux }}%</span>
-                                  </td>
-                                  <td
-                                    class="fs-6 text-right pharma-price">{{ tp?.montant | number }}
-                                  </td>
-                                </tr>
-                              </ng-template>
-                            </app-data-table>
-                          </div>
-                        </div>
-                      }
-
-
-                    </div>
                   }
-
-                  <!-- Table des produits -->
+                </div>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template #expandedrow let-elRow>
+          <tr class="pharma-expanded-row">
+            <td colspan="10">
+              <div class="expanded-row-container">
+                @if (elRow.categorie !== 'VNO') {
                   <div class="expanded-cards-container">
-                    <div class="activity-card activity-card-products">
+                    <!-- Card Informations Générales -->
+                    <div class="activity-card activity-card-primary">
                       <div class="activity-card-header">
                         <div class="activity-card-icon activity-card-icon-small">
-                          <i class="pi pi-list"></i>
+                          <i class="pi pi-info-circle"></i>
                         </div>
                         <div class="activity-card-header-content">
-                          <h3 class="activity-card-title">Liste des produits</h3>
-                          <span class="activity-card-subtitle">{{ elRow.salesLines?.length }}
-                            article(s)</span>
+                          <h3 class="activity-card-title">Informations Générales</h3>
+                          <span class="activity-card-subtitle">Détails financiers</span>
                         </div>
                       </div>
-                      <div class="activity-card-table-body">
-                        <app-data-table
-                          [paginator]="true"
-                          [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
-                          [rows]="10"
-                          [showCurrentPageReport]="true"
-                          [stripedRows]="true"
-                          [value]="elRow.salesLines"
-                          class="rowexpansion-table"
-                          currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-                          dataKey="id"
-                        >
-                          <ng-template #header>
-                            <tr class="pharma-table-head">
-                              <th style="width: 5%">#</th>
-                              <th style="width: 10%">CODE</th>
-                              <th style="width: 44%">LIBELLE</th>
-                              <th class="text-right" style="width: 8%">QTE.D</th>
-                              <th class="text-right" style="width: 8%">QTE.S</th>
-                              <th class="text-right" style="width: 9%">PU</th>
-                              <th class="text-right" style="width: 10%">TOTAL</th>
-                            </tr>
-                          </ng-template>
-                          <ng-template #body let-rowIndex="rowIndex" let-saleLine>
-                            <tr
-                              [ngClass]="{
+                      <div class="activity-card-body">
+                        <div class="activity-item">
+                          <span class="activity-item-label">Montant TTC</span>
+                          <div class="activity-item-value-wrapper">
+                              <span
+                                class="activity-item-value">{{ elRow?.salesAmount | number }}</span>
+                            <span appDevise class="activity-item-currency"></span>
+                          </div>
+                        </div>
+                        <div class="activity-item">
+                          <span class="activity-item-label">Montant HT</span>
+                          <div class="activity-item-value-wrapper">
+                              <span
+                                class="activity-item-value">{{ elRow?.htAmount | number }}</span>
+                            <span appDevise class="activity-item-currency"></span>
+                          </div>
+                        </div>
+                        <div class="activity-item">
+                          <span class="activity-item-label">Montant Taxe</span>
+                          <div class="activity-item-value-wrapper">
+                              <span
+                                class="activity-item-value">{{ elRow?.taxAmount | number }}</span>
+                            <span appDevise class="activity-item-currency"></span>
+                          </div>
+                        </div>
+                        <div class="activity-item">
+                          <span class="activity-item-label">Montant Assuré</span>
+                          <div class="activity-item-value-wrapper">
+                              <span
+                                class="activity-item-value">{{ elRow?.partAssure | number }}</span>
+                            <span appDevise class="activity-item-currency"></span>
+                          </div>
+                        </div>
+                        <div class="activity-item activity-item-highlight">
+                          <span class="activity-item-label">Montant Assurance</span>
+                          <div class="activity-item-value-wrapper">
+                              <span
+                                class="activity-item-value">{{ elRow?.partTiersPayant | number }}</span>
+                            <span appDevise class="activity-item-currency"></span>
+                          </div>
+                        </div>
+                        @if (elRow?.discountAmount > 0) {
+                          <div class="activity-item activity-item-danger">
+                            <span class="activity-item-label">Remise</span>
+                            <div class="activity-item-value-wrapper">
+                                <span
+                                  class="activity-item-value">{{ elRow?.discountAmount | number }}</span>
+                              <span appDevise class="activity-item-currency"></span>
+                            </div>
+                          </div>
+                        }
+                        <div class="activity-item">
+                          <span class="activity-item-label">Reste à payer</span>
+                          <div class="activity-item-value-wrapper">
+                              <span
+                                class="activity-item-value">{{ elRow?.restToPay | number }}</span>
+                            <span appDevise class="activity-item-currency"></span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Card Tiers Payants -->
+                    @if (elRow?.thirdPartySaleLines?.length) {
+                      <div class="activity-card activity-card-info">
+                        <div class="activity-card-header">
+                          <div class="activity-card-icon activity-card-icon-small">
+                            <i class="pi pi-shield"></i>
+                          </div>
+                          <div class="activity-card-header-content">
+                            <h3 class="activity-card-title">Tiers Payants</h3>
+                            <span class="activity-card-subtitle">Répartition assurances</span>
+                          </div>
+                        </div>
+                        <div class="activity-card-table-body">
+                          <app-data-table
+                            [value]="elRow.thirdPartySaleLines"
+                            class=" rowexpansion-table"
+                            dataKey="tiersPayantFullName"
+                          >
+                            <ng-template #header>
+                              <tr class="pharma-table-head">
+                                <th style="width: 50%">Assureur</th>
+                                <th class="text-right" style="width: 20%">Taux</th>
+                                <th class="text-right" style="width: 30%">Montant</th>
+                              </tr>
+                            </ng-template>
+                            <ng-template #body let-tp>
+                              <tr>
+                                <td>
+                                    <span
+                                      class="pharma-entity-name">{{ tp?.tiersPayantFullName }}</span>
+                                </td>
+                                <td class="text-right">
+                                  <span class="fs-6">{{ tp?.taux }}%</span>
+                                </td>
+                                <td
+                                  class="fs-6 text-right pharma-price">{{ tp?.montant | number }}
+                                </td>
+                              </tr>
+                            </ng-template>
+                          </app-data-table>
+                        </div>
+                      </div>
+                    }
+
+
+                  </div>
+                }
+
+                <!-- Table des produits -->
+                <div class="expanded-cards-container">
+                  <div class="activity-card activity-card-products">
+                    <div class="activity-card-header">
+                      <div class="activity-card-icon activity-card-icon-small">
+                        <i class="pi pi-list"></i>
+                      </div>
+                      <div class="activity-card-header-content">
+                        <h3 class="activity-card-title">Liste des produits</h3>
+                        <span class="activity-card-subtitle">{{ elRow.salesLines?.length }}
+                          article(s)</span>
+                      </div>
+                    </div>
+                    <div class="activity-card-table-body">
+                      <app-data-table
+                        [paginator]="true"
+                        [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+                        [rows]="10"
+                        [showCurrentPageReport]="true"
+                        [stripedRows]="true"
+                        [value]="elRow.salesLines"
+                        class="rowexpansion-table"
+                        currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+                        dataKey="id"
+                      >
+                        <ng-template #header>
+                          <tr class="pharma-table-head">
+                            <th style="width: 5%">#</th>
+                            <th style="width: 10%">CODE</th>
+                            <th style="width: 44%">LIBELLE</th>
+                            <th class="text-right" style="width: 8%">QTE.D</th>
+                            <th class="text-right" style="width: 8%">QTE.S</th>
+                            <th class="text-right" style="width: 9%">PU</th>
+                            <th class="text-right" style="width: 10%">TOTAL</th>
+                          </tr>
+                        </ng-template>
+                        <ng-template #body let-rowIndex="rowIndex" let-saleLine>
+                          <tr
+                            [ngClass]="{
                               'pharma-row-warning': saleLine.quantitySold < saleLine.quantityRequested,
                               'pharma-row-hover': true,
                             }"
-                            >
-                              <td style="text-align: left">
-                                <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
-                              </td>
-                              <td>
-                                <span class="pharma-code">{{ saleLine.code }}</span>
-                              </td>
-                              <td>
+                          >
+                            <td style="text-align: left">
+                              <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
+                            </td>
+                            <td>
+                              <span class="pharma-code">{{ saleLine.code }}</span>
+                            </td>
+                            <td>
                                 <span
                                   class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
-                              </td>
-                              <td
-                                class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}
-                              </td>
-                              <td
-                                class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}
-                              </td>
-                              <td
-                                class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}
-                              </td>
-                              <td class="pharma-total" style="text-align: right; font-weight: bold">
-                                {{ saleLine.salesAmount | number }}
-                              </td>
-                            </tr>
-                          </ng-template>
-                        </app-data-table>
-                      </div>
+                            </td>
+                            <td
+                              class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}
+                            </td>
+                            <td
+                              class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}
+                            </td>
+                            <td
+                              class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}
+                            </td>
+                            <td class="pharma-total" style="text-align: right; font-weight: bold">
+                              {{ saleLine.salesAmount | number }}
+                            </td>
+                          </tr>
+                        </ng-template>
+                      </app-data-table>
                     </div>
-                    <!-- Card Paiements -->
-                    @if (elRow?.payments?.length) {
-                      <div class="activity-card activity-card-success">
-                        <div class="activity-card-header">
-                          <div class="activity-card-icon activity-card-icon-small">
-                            <i class="pi pi-wallet"></i>
-                          </div>
-                          <div class="activity-card-header-content">
-                            <h3 class="activity-card-title">Paiements</h3>
-                            <span class="activity-card-subtitle">Modes de règlement</span>
-                          </div>
+                  </div>
+                  <!-- Card Paiements -->
+                  @if (elRow?.payments?.length) {
+                    <div class="activity-card activity-card-success">
+                      <div class="activity-card-header">
+                        <div class="activity-card-icon activity-card-icon-small">
+                          <i class="pi pi-wallet"></i>
                         </div>
-                        <div class="activity-card-body">
-                          @for (payment of elRow?.payments; track payment) {
-                            <div class="activity-item">
+                        <div class="activity-card-header-content">
+                          <h3 class="activity-card-title">Paiements</h3>
+                          <span class="activity-card-subtitle">Modes de règlement</span>
+                        </div>
+                      </div>
+                      <div class="activity-card-body">
+                        @for (payment of elRow?.payments; track payment) {
+                          <div class="activity-item">
                               <span
                                 class="activity-item-label">{{ payment?.paymentMode?.libelle }}</span>
-                              <div class="activity-item-value-wrapper">
+                            <div class="activity-item-value-wrapper">
                                 <span
                                   class="activity-item-value">{{ payment?.paidAmount | number }}</span>
-                                <span class="activity-item-currency" appDevise></span>
-                              </div>
+                              <span appDevise class="activity-item-currency"></span>
                             </div>
-                          }
-                        </div>
+                          </div>
+                        }
                       </div>
-                    }
-                  </div>
-
+                    </div>
+                  }
                 </div>
-              </td>
-            </tr>
-          </ng-template>
-        </app-data-table>
-      } @else {
-        <div class="alert alert-warning" id="no-result">
-          <span>Aucune donnée trouvée</span>
-        </div>
-      }
-    </div>
+
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    } @else {
+      <div class="alert alert-warning" id="no-result">
+        <span>Aucune donnée trouvée</span>
+      </div>
+    }
   </div>
 </div>
+
 
 <ngx-spinner [fullScreen]="true" bdColor="rgba(255,255,255,0.5)" color="#f13151" name="sale-spinner"
              size="medium"

@@ -15,6 +15,8 @@ import { DeviseDirective } from 'app/shared/utils/devise';
 import {
   ButtonComponent,
   DataTableComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   ToolbarComponent
 } from '../../../shared/ui';
 
@@ -28,10 +30,12 @@ Chart.register(...registerables);
     PharmaDatePickerComponent,
     ButtonComponent,
     DataTableComponent,
-    ToolbarComponent
+    ToolbarComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ],
   templateUrl: './demarque.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./demarque.component.scss'],
 })
 export default class DemarqueComponent implements OnInit, OnDestroy {

@@ -36,11 +36,6 @@
   align-items: center;
   gap: 0.75rem;
 
-  p-button {
-    ::ng-deep .p-button {
-      min-width: 120px;
-    }
-  }
 }
 
 // Tauri loading message

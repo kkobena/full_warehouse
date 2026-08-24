@@ -21,7 +21,7 @@ export interface ComparaisonRow {
   selector: "app-dispo-comparaison",
   templateUrl: "./dispo-comparaison.component.html",
   styleUrls: ["./dispo-comparaison.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, BadgeComponent, ButtonComponent, DataTableComponent, FournisseurSelectComponent]
 })
 export class DispoComparaisonComponent {

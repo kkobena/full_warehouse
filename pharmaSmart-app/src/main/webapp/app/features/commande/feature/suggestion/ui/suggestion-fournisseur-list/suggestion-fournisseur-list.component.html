@@ -8,7 +8,7 @@
     scrollHeight="flex"
     [selectionMode]="'multiple'"
     [selection]="selectionMultiple()"
-    (selectionChange)="onSelectionChange($event)"
+    (selectionChange)="onSelectionChange($any($event))"
   >
     <ng-template #header>
       <tr class="pharma-table-head">

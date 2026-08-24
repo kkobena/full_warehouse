@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ProduitService } from './produit.service';
 import { IProduit, Produit } from '../../shared/model/produit.model';
@@ -13,6 +13,7 @@ import { ButtonComponent, CardComponent, InputNumberComponent } from '../../shar
 
 @Component({
   selector: 'jhi-detail-form-dialog',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './detail-form-dialog.component.html',
   styleUrls: ['./detail-form-dialog.scss'],
   imports: [CommonModule, ReactiveFormsModule, FormsModule, InputNumberComponent, ButtonComponent, CardComponent],
@@ -21,8 +22,7 @@ export class DetailFormDialogComponent implements OnInit, AfterViewInit {
   produit?: Produit;
   entity?: Produit;
   protected activeModal = inject(NgbActiveModal);
-  protected isSaving = false;
-  protected isValid = true;
+  protected readonly isSaving = signal(false);
   protected fb = inject(UntypedFormBuilder);
   protected editForm = this.fb.group({
     id: [],
@@ -61,7 +61,7 @@ export class DetailFormDialogComponent implements OnInit, AfterViewInit {
   }
 
   protected save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const produit = this.createFromForm();
     if (produit.id !== undefined && produit.id !== null) {
       this.subscribeToSaveResponse(this.produitService.updateDetail(produit));
@@ -82,12 +82,12 @@ export class DetailFormDialogComponent implements OnInit, AfterViewInit {
   }
 
   private onSaveSuccess(): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.activeModal.close('saved');
   }
 
   private onSaveError(error: HttpErrorResponse): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 

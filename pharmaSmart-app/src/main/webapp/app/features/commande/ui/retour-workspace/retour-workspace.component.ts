@@ -27,7 +27,7 @@ interface RetourLine {
   selector: 'app-retour-workspace',
   imports: [CommonModule, FormsModule, ButtonComponent, DataTableComponent, InputNumberComponent, SelectComponent],
   templateUrl: './retour-workspace.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './retour-workspace.component.scss',
 })
 export class RetourWorkspaceComponent implements OnInit {

@@ -21,14 +21,11 @@ import {
     RadioComponent
   ],
   templateUrl: './ayant-droit-step.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./assured-form-step.component.scss'],
 })
 export class AyantDroitStepComponent implements OnInit {
-  assure?: ICustomer;
   ayantDroit: ICustomer;
-  isSaving = false;
-  isValid = true;
   assureFormStepService = inject(AssureFormStepService);
   fb = inject(UntypedFormBuilder);
   editForm = this.fb.group({

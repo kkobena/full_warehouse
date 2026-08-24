@@ -30,7 +30,7 @@ import {
     NgbNavLink
   ],
   templateUrl: "./mvt-caisse.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ["./mvt-caisse.component.scss"]
 })
 export class MvtCaisseComponent {

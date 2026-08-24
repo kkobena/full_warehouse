@@ -3,7 +3,7 @@
                    [collapsible]="true" [nav]="nav" contentColumnClass="col-xl-10 col-lg-10 col-md-9 col-sm-8"
                    icon="pi pi-shield" menuColumnClass="col-lg-2 col-xl-2 col-xxl-2 col-md-3 col-sm-4"
                    title="Rôles &amp; Autorisations">
-    <div #nav="ngbNav" [(activeId)]="active"
+    <div #nav="ngbNav" [activeId]="active()" (activeIdChange)="active.set($any($event))"
          class="nav flex-column nav-pills" ngbNav orientation="vertical">
       <ng-container ngbNavItem="roles">        <a class="pharma-nav-vertical-link" ngbNavLink>
           <app-nav-section-link code="access-management.roles"

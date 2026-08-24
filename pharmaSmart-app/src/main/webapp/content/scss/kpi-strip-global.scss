@@ -90,6 +90,24 @@ $_ks-border:  #e2e8f0;
   margin: 0 0.2rem;
 }
 
+// ── Teintes hors palette ───────────────────────────────────────────────────
+//
+// `iconClass` et `valueClass` d'`app-kpi-item` designent des classes appliquees a
+// l'interieur de la vue du composant : une regle definie dans le scss d'un ecran ne
+// les atteint pas (encapsulation). Ces trois teintes, sans equivalent dans la palette
+// d'accents, vivent donc ici, avec le reste des styles globaux du bandeau.
+.kpi-orange {
+  color: #f97316;
+}
+
+.kpi-violet {
+  color: #6f42c1;
+}
+
+.kpi-cyan {
+  color: #0dcaf0;
+}
+
 @media (max-width: 576px) {
   .kpi-strip-divider { display: none; }
   .kpi-strip-item    { min-width: calc(50% - 0.5rem); }

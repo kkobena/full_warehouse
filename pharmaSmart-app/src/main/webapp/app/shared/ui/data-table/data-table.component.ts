@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, TemplateRef, ViewEncapsulation, computed, contentChild, input, linkedSignal, model, output, signal } from '@angular/core';
+import {ChangeDetectionStrategy, Component, TemplateRef, ViewEncapsulation, computed, contentChild, input, linkedSignal, model, output, signal} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPagination } from '@ng-bootstrap/ng-bootstrap';
 
@@ -51,6 +51,7 @@ import { AppTableColumn, AppTableHost, AppTableLazyLoadEvent } from './table.typ
   // Emulated, les règles ci-dessous (`.app-sortable`, `.app-frozen-column`, colonne figée,
   // en-tête collant…) ne les atteindraient donc jamais. Même choix que `pharma-date-picker`.
   encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DataTableComponent<T = Record<string, unknown>> implements AppTableHost {
   readonly value = input.required<readonly T[]>();

@@ -21,7 +21,7 @@
           </label>
           <app-select
             #tiersPayant
-            (selectionChange)="onSelect($event)"
+            (selectionChange)="onSelect($any($event))"
             [items]="getTiersPayants()"
             formControlName="tiersPayant"
             inputId="tiersPayant"
@@ -47,7 +47,7 @@
           />
         </div>
 
-        @if (selectedTiersPayant) {
+        @if (selectedTiersPayant()) {
           <div class="border-top pt-2 mt-2">
             <!-- Taux and Matricule in one row -->
             <div class="row mb-2">
@@ -58,7 +58,7 @@
                     Taux (%)
                   </label>
                   <input class="form-control" formControlName="taux" id="taux" max="100" min="5" placeholder="Taux" type="number" />
-                  <small class="text-muted">Initial: {{ selectedTiersPayant.taux }}%</small>
+                  <small class="text-muted">Initial: {{ selectedTiersPayant().taux }}%</small>
                 </div>
               </div>
               <div class="col-md-6">
@@ -76,13 +76,13 @@
                     placeholder="Matricule"
                     type="text"
                   />
-                  <small class="text-muted">Initial: {{ selectedTiersPayant.num }}</small>
+                  <small class="text-muted">Initial: {{ selectedTiersPayant().num }}</small>
                 </div>
               </div>
             </div>
 
             <!-- Priorite -->
-            @if (showPrioriteSwitch) {
+            @if (showPrioriteSwitch()) {
               <div class="mb-2 p-2 bg-light rounded">
                 <label class="form-label fw-semibold mb-1">
                   <i class="pi pi-star-fill me-1"></i>
@@ -91,11 +91,11 @@
                 <div class="d-flex align-items-center gap-2">
                   <app-switch
                     (ngModelChange)="onPrioriteToggle($event)"
-                    [(ngModel)]="isPrioriteEnabled"
-                    [disabled]="selectedTiersPayant.categorie === 0"
+                    [ngModel]="isPrioriteEnabled()" (ngModelChange)="isPrioriteEnabled.set($event)"
+                    [disabled]="selectedTiersPayant().categorie === 0"
                     [inputId]="'prioriteSwitch'"
                   />
-                  <input [(ngModel)]="prioriteValue" [ngModelOptions]="{ standalone: true }" id="priorite" type="hidden" />
+                  <input [ngModel]="prioriteValue()" (ngModelChange)="prioriteValue.set($event)" [ngModelOptions]="{ standalone: true }" id="priorite" type="hidden" />
                 </div>
               </div>
             }
@@ -108,8 +108,8 @@
   <div class="modal-footer bg-light p-2">
     <app-button (clicked)="cancel()" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
     <app-button
-      [disabled]="editForm.invalid || isSaving || !isValid"
-      [loading]="isSaving"
+      [disabled]="editForm.invalid || isSaving() || !isValid()"
+      [loading]="isSaving()"
       icon="pi pi-check"
       label="Ajouter"
       severity="primary"

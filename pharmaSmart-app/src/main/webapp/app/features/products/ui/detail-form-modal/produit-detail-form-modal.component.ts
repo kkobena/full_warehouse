@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import {signal, AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
@@ -14,7 +14,7 @@ import { NotificationService } from "../../../../shared/services/notification.se
   selector: "app-produit-detail-form-modal",
   templateUrl: "./produit-detail-form-modal.component.html",
   styleUrls: ["./produit-detail-form-modal.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -30,7 +30,7 @@ export class ProduitDetailFormModalComponent implements OnInit, AfterViewInit {
   /** Existing child product — set for edit mode */
   entity?: IProduit;
 
-  protected isSaving = false;
+  protected readonly isSaving = signal(false);
 
   private readonly activeModal = inject(NgbActiveModal);
   private readonly api = inject(ProductsApiService);
@@ -76,7 +76,7 @@ export class ProduitDetailFormModalComponent implements OnInit, AfterViewInit {
 
   protected save(): void {
     if (this.editForm.invalid) return;
-    this.isSaving = true;
+    this.isSaving.set(true);
     const produit = this.buildFromForm();
     const request = produit.id != null
       ? this.api.updateProduitDetail(produit)
@@ -124,12 +124,12 @@ export class ProduitDetailFormModalComponent implements OnInit, AfterViewInit {
   }
 
   private onSaveSuccess(): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.activeModal.close("saved");
   }
 
   private onSaveError(error: HttpErrorResponse): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.notificationService.error(this.errorService.getErrorMessage(error), "Erreur de decondition");
   }
 }

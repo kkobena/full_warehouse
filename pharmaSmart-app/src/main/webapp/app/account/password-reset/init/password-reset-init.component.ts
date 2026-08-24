@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, ElementRef, inject, signal, viewChild, ChangeDetectionStrategy} from '@angular/core';
-import {FormBuilder, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 
 
 import {PasswordResetInitService} from './password-reset-init.service';
@@ -10,14 +10,14 @@ import {TranslatePipe} from "@ngx-translate/core";
 @Component({
   selector: 'jhi-password-reset-init',
   imports: [FormsModule, ReactiveFormsModule, AlertErrorComponent, TranslateDirective, TranslatePipe],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './password-reset-init.component.html',
 })
 export default class PasswordResetInitComponent implements AfterViewInit {
   email = viewChild.required<ElementRef>('email');
 
   success = signal(false);
-  resetRequestForm;
+  protected resetRequestForm!: FormGroup;
 
   private readonly passwordResetInitService = inject(PasswordResetInitService);
   private readonly fb = inject(FormBuilder);

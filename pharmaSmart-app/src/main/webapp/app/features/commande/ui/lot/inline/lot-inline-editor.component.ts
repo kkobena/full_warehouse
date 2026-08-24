@@ -57,14 +57,14 @@ import { ErrorService } from "../../../../../shared/error.service";
                   <!-- Ligne en mode édition -->
                   <tr class="lie-row-editing">
                     <td>
-                      <input [(ngModel)]="editNumLot" placeholder="N° lot"
+                      <input [ngModel]="editNumLot()" (ngModelChange)="editNumLot.set($event)" placeholder="N° lot"
                              class="lie-field lie-field--numlot"
                              (keydown.tab)="$event.stopPropagation()"
                              (keydown.enter)="onSaveEdit()"
                              (keydown.escape)="onCancelEdit()" />
                     </td>
                     <td>
-                      <input [(ngModel)]="editExpiry" placeholder="jj/MM/AAAA" maxlength="10"
+                      <input [ngModel]="editExpiry()" (ngModelChange)="editExpiry.set($event)" placeholder="jj/MM/AAAA" maxlength="10"
                              class="lie-field lie-field--expiry"
                              placeholder="MM/AAAA" maxlength="7"
                              [class.lie-expiry-soon]="editExpiryWarning() === 'soon'"
@@ -75,7 +75,7 @@ import { ErrorService } from "../../../../../shared/error.service";
                              (keydown.escape)="onCancelEdit()" />
                     </td>
                     <td>
-                      <input type="number" [(ngModel)]="editQty"
+                      <input type="number" [ngModel]="editQty()" (ngModelChange)="editQty.set($event)"
                              [min]="1" [max]="editMaxQty()"
                              class="lie-field lie-field--qty"
                              (ngModelChange)="onEditQtyInput($event)"
@@ -85,7 +85,7 @@ import { ErrorService } from "../../../../../shared/error.service";
                     </td>
                     @if (showUg()) {
                       <td>
-                        <input type="number" [(ngModel)]="editUg"
+                        <input type="number" [ngModel]="editUg()" (ngModelChange)="editUg.set($event)"
                                [min]="0" [max]="editMaxUg()"
                                class="lie-field lie-field--ug"
                                (ngModelChange)="onEditUgInput($event)"
@@ -134,23 +134,23 @@ import { ErrorService } from "../../../../../shared/error.service";
         <!-- Formulaire d'ajout — visible uniquement si la quantité n'est pas couverte et pas en cours d'édition -->
         @if ((remainingQty() > 0 || isUgOnlyMode()) && !editingLot()) {
           <div class="lie-draft">
-            <input #numLotInput [(ngModel)]="draftNumLot" placeholder="N° lot"
+            <input #numLotInput [ngModel]="draftNumLot()" (ngModelChange)="draftNumLot.set($event)" placeholder="N° lot"
                    class="lie-field lie-field--numlot"
                    (keydown.tab)="$event.stopPropagation()" (keydown.enter)="onSaveDraft()" />
-            <input [(ngModel)]="draftExpiry" placeholder="MM/AAAA" maxlength="7"
+            <input [ngModel]="draftExpiry()" (ngModelChange)="draftExpiry.set($event)" placeholder="MM/AAAA" maxlength="7"
                    class="lie-field lie-field--expiry"
                    [class.lie-expiry-soon]="expiryWarning() === 'soon'"
                    [class.lie-expiry-critical]="expiryWarning() === 'critical'"
                    (ngModelChange)="onExpiryInput($event)"
                    (keydown.tab)="$event.stopPropagation()" (keydown.enter)="onSaveDraft()" />
-            <input type="number" [(ngModel)]="draftQty"
+            <input type="number" [ngModel]="draftQty()" (ngModelChange)="draftQty.set($event)"
                    [min]="isUgOnlyMode() ? 0 : 1" [max]="remainingQty()"
                    [disabled]="isUgOnlyMode()"
                    placeholder="Qté" class="lie-field lie-field--qty"
                    (ngModelChange)="onQtyInput($event)"
                    (keydown.tab)="$event.stopPropagation()" (keydown.enter)="onSaveDraft()" />
             @if (showUg()) {
-              <input type="number" [(ngModel)]="draftUg" [min]="0" [max]="remainingUg()"
+              <input type="number" [ngModel]="draftUg()" (ngModelChange)="draftUg.set($event)" [min]="0" [max]="remainingUg()"
                      placeholder="UG" class="lie-field lie-field--ug"
                      (ngModelChange)="onUgInput($event)"
                      (keydown.tab)="$event.stopPropagation()" (keydown.enter)="onSaveDraft()" />
@@ -163,7 +163,7 @@ import { ErrorService } from "../../../../../shared/error.service";
       </div>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: block;
@@ -336,16 +336,16 @@ export class LotInlineEditorComponent implements ICellRendererAngularComp {
   protected readonly editExpiryWarning = signal<"none" | "soon" | "critical">("none");
 
   // Draft fields (new lot)
-  protected draftNumLot = "";
-  protected draftExpiry = "";
-  protected draftQty: number | null = null;
-  protected draftUg: number | null = null;
+  protected readonly draftNumLot = signal("");
+  protected readonly draftExpiry = signal("");
+  protected readonly draftQty = signal<number | null>(null);
+  protected readonly draftUg = signal<number | null>(null);
 
   // Edit fields (existing lot)
-  protected editNumLot = "";
-  protected editExpiry = "";
-  protected editQty: number | null = null;
-  protected editUg: number | null = null;
+  protected readonly editNumLot = signal("");
+  protected readonly editExpiry = signal("");
+  protected readonly editQty = signal<number | null>(null);
+  protected readonly editUg = signal<number | null>(null);
 
   protected readonly remainingQty = computed(() => {
     const line = this.line();
@@ -376,13 +376,13 @@ export class LotInlineEditorComponent implements ICellRendererAngularComp {
   protected readonly showUg = computed(() => (this.line()?.freeQty ?? 0) > 0);
 
   protected canSave(): boolean {
-    if (!this.draftNumLot || !this.draftExpiry || this.saving()) return false;
-    if (this.isUgOnlyMode()) return (this.draftUg ?? 0) > 0;
-    return (this.draftQty ?? 0) > 0;
+    if (!this.draftNumLot() || !this.draftExpiry() || this.saving()) return false;
+    if (this.isUgOnlyMode()) return (this.draftUg() ?? 0) > 0;
+    return (this.draftQty() ?? 0) > 0;
   }
 
   protected canSaveEdit(): boolean {
-    return !!this.editNumLot && !!this.editExpiry && (this.editQty ?? 0) > 0 && !this.saving();
+    return !!this.editNumLot() && !!this.editExpiry() && (this.editQty() ?? 0) > 0 && !this.saving();
   }
 
   private params!: ICellRendererParams;
@@ -393,12 +393,12 @@ export class LotInlineEditorComponent implements ICellRendererAngularComp {
     this.line.set(line);
     this.lots.set([...(line.lots ?? [])]);
     if (this.isUgOnlyMode()) {
-      this.draftQty = 0;
-      this.draftUg = this.remainingUg();
+      this.draftQty.set(0);
+      this.draftUg.set(this.remainingUg());
     } else {
       const total = line.quantityReceivedTmp ?? line.quantityReceived ?? line.quantityRequested ?? 0;
       const covered = (line.lots ?? []).reduce((s, l) => s + (l.quantityReceived ?? 0), 0);
-      this.draftQty = Math.max(1, total - covered);
+      this.draftQty.set(Math.max(1, total - covered));
     }
     // Focus automatique sur le champ N° lot après rendu
     setTimeout(() => this.numLotInput()?.nativeElement.focus(), 80);
@@ -412,51 +412,51 @@ export class LotInlineEditorComponent implements ICellRendererAngularComp {
 
   protected onQtyInput(v: number | null): void {
     const max = this.remainingQty();
-    if ((v ?? 0) > max) this.draftQty = max;
+    if ((v ?? 0) > max) this.draftQty.set(max);
   }
 
   protected onUgInput(v: number | null): void {
     const max = this.remainingUg();
-    if ((v ?? 0) > max) this.draftUg = max;
+    if ((v ?? 0) > max) this.draftUg.set(max);
   }
 
   protected onExpiryInput(value: string): void {
-    this.draftExpiry = this.autoFormat(value);
-    this.expiryWarning.set(this.calcWarning(this.draftExpiry));
+    this.draftExpiry.set(this.autoFormat(value));
+    this.expiryWarning.set(this.calcWarning(this.draftExpiry()));
   }
 
   protected onSaveDraft(): void {
     const line = this.line();
-    if (!line || !this.draftNumLot || !this.draftExpiry) return;
-    if (!this.isUgOnlyMode() && !(this.draftQty ?? 0)) return;
+    if (!line || !this.draftNumLot() || !this.draftExpiry()) return;
+    if (!this.isUgOnlyMode() && !(this.draftQty() ?? 0)) return;
 
-    const qty = this.draftQty!;
+    const qty = this.draftQty()!;
     const max = this.remainingQty();
     if (qty > max) {
       this.notify.error(`Quantité (${qty}) dépasse le restant (${max})`, "Lot");
       return;
     }
 
-    const ug = this.draftUg ?? 0;
+    const ug = this.draftUg() ?? 0;
     const maxUg = this.remainingUg();
     if (ug > maxUg) {
       this.notify.error(`UG (${ug}) dépasse le restant UG (${maxUg})`, "Lot");
       return;
     }
 
-    const expiryDate = this.formatExpiry(this.draftExpiry);
+    const expiryDate = this.formatExpiry(this.draftExpiry());
     if (!expiryDate) {
       this.notify.error("Format date invalide. Utilisez jj/MM/AAAA (ex: 01/06/2026)", "Lot");
       return;
     }
-    if (this.lots().some(l => l.numLot === this.draftNumLot)) {
-      this.notify.error(`Le lot "${this.draftNumLot}" est déjà enregistré pour cette ligne`, "Lot doublon");
+    if (this.lots().some(l => l.numLot === this.draftNumLot())) {
+      this.notify.error(`Le lot "${this.draftNumLot()}" est déjà enregistré pour cette ligne`, "Lot doublon");
       return;
     }
 
     this.saving.set(true);
     this.lotService.addLot({
-      numLot: this.draftNumLot, expiryDate,
+      numLot: this.draftNumLot(), expiryDate,
       quantityReceived: qty, ugQuantityReceived: ug,
       receiptItemId: line.orderLineId
     }).subscribe({
@@ -464,18 +464,18 @@ export class LotInlineEditorComponent implements ICellRendererAngularComp {
         const saved = res.body!;
         const updated = [...this.lots(), saved];
         this.lots.set(updated);
-        this.draftNumLot = "";
-        this.draftExpiry = "";
+        this.draftNumLot.set("");
+        this.draftExpiry.set("");
         this.expiryWarning.set("none");
         this.saving.set(false);
         const rem = this.remainingQty();
         const remUg = this.remainingUg();
         if (rem <= 0 && remUg > 0) {
-          this.draftQty = 0;
-          this.draftUg = remUg;
+          this.draftQty.set(0);
+          this.draftUg.set(remUg);
         } else {
-          this.draftQty = rem > 0 ? rem : null;
-          this.draftUg = null;
+          this.draftQty.set(rem > 0 ? rem : null);
+          this.draftUg.set(null);
         }
         this.params.context.componentParent.onLotSaved(line, updated);
         if (rem <= 0 && remUg <= 0) setTimeout(() => this.params.context.componentParent.onCollapseRow(line), 600);
@@ -491,11 +491,11 @@ export class LotInlineEditorComponent implements ICellRendererAngularComp {
 
   protected onStartEdit(lot: ILot): void {
     this.editingLot.set(lot);
-    this.editNumLot = lot.numLot ?? "";
-    this.editExpiry = lot.expiryDate ? this.isoToDisplay(lot.expiryDate) : "";
-    this.editQty = lot.quantityReceived ?? null;
-    this.editUg = lot.ugQuantityReceived ?? null;
-    this.editExpiryWarning.set(this.calcWarning(this.editExpiry));
+    this.editNumLot.set(lot.numLot ?? "");
+    this.editExpiry.set(lot.expiryDate ? this.isoToDisplay(lot.expiryDate) : "");
+    this.editQty.set(lot.quantityReceived ?? null);
+    this.editUg.set(lot.ugQuantityReceived ?? null);
+    this.editExpiryWarning.set(this.calcWarning(this.editExpiry()));
   }
 
   protected onCancelEdit(): void {
@@ -503,37 +503,37 @@ export class LotInlineEditorComponent implements ICellRendererAngularComp {
   }
 
   protected onEditExpiryInput(value: string): void {
-    this.editExpiry = this.autoFormat(value);
-    this.editExpiryWarning.set(this.calcWarning(this.editExpiry));
+    this.editExpiry.set(this.autoFormat(value));
+    this.editExpiryWarning.set(this.calcWarning(this.editExpiry()));
   }
 
   protected onEditQtyInput(v: number | null): void {
     const max = this.editMaxQty();
-    if ((v ?? 0) > max) this.editQty = max;
+    if ((v ?? 0) > max) this.editQty.set(max);
   }
 
   protected onEditUgInput(v: number | null): void {
     const max = this.editMaxUg();
-    if ((v ?? 0) > max) this.editUg = max;
+    if ((v ?? 0) > max) this.editUg.set(max);
   }
 
   protected onSaveEdit(): void {
     const editing = this.editingLot();
-    if (!editing || !this.editNumLot || !this.editExpiry || !(this.editQty ?? 0)) return;
+    if (!editing || !this.editNumLot() || !this.editExpiry() || !(this.editQty() ?? 0)) return;
 
-    const qty = this.editQty!;
+    const qty = this.editQty()!;
     if (qty > this.editMaxQty()) {
       this.notify.error(`Quantité (${qty}) dépasse le maximum autorisé (${this.editMaxQty()})`, "Lot");
       return;
     }
 
-    const ug = this.editUg ?? 0;
+    const ug = this.editUg() ?? 0;
     if (ug > this.editMaxUg()) {
       this.notify.error(`UG (${ug}) dépasse le maximum autorisé (${this.editMaxUg()})`, "Lot");
       return;
     }
 
-    const expiryDate = this.formatExpiry(this.editExpiry);
+    const expiryDate = this.formatExpiry(this.editExpiry());
     if (!expiryDate) {
       this.notify.error("Format date invalide. Utilisez jj/MM/AAAA", "Lot");
       return;
@@ -542,7 +542,7 @@ export class LotInlineEditorComponent implements ICellRendererAngularComp {
     this.saving.set(true);
     this.lotService.editLot({
       ...editing,
-      numLot: this.editNumLot, expiryDate,
+      numLot: this.editNumLot(), expiryDate,
       quantityReceived: qty, ugQuantityReceived: ug
     }).subscribe({
       next: res => {
@@ -578,7 +578,7 @@ export class LotInlineEditorComponent implements ICellRendererAngularComp {
         const updated = this.lots().filter(l => l.id !== lot.id);
         this.lots.set(updated);
         const rem = this.remainingQty();
-        this.draftQty = rem > 0 ? rem : 1;
+        this.draftQty.set(rem > 0 ? rem : 1);
         this.params.context.componentParent.onLotSaved(this.line()!, updated);
       }
     });

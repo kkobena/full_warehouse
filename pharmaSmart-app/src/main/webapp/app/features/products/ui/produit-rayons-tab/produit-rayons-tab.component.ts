@@ -17,7 +17,7 @@ import {ErrorService} from '../../../../shared/error.service';
   selector: 'app-produit-rayons-tab',
   templateUrl: './produit-rayons-tab.component.html',
   styleUrl: './produit-rayons-tab.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ButtonComponent, NgbTooltip],
 })
 export class ProduitRayonsTabComponent {

@@ -1,21 +1,20 @@
 <app-card [variant]="'form'" [withHeader]="true">
-  <div ngProjectAs="[cardHeader]" class="section-header">
-      <i class="pi pi-shield"></i>
-      <span>Assurances Complémentaires</span>
-      @if (validSize) {
-        <app-button
-          (clicked)="addTiersPayant()"
-          [rounded]="true"
-          class="ml-auto"
-          icon="pi pi-plus"
-          ngbTooltip="Ajouter un tiers payant"
-          severity="info"
-          size="small"
-          type="button"
-        >
-        </app-button>
-      }
-    </div>
+  <div class="section-header" ngProjectAs="[cardHeader]">
+    <i class="pi pi-shield"></i>
+    <span>Assurances Complémentaires</span>
+    @if (validSize()) {
+      <app-button
+        (clicked)="addTiersPayant()"
+        [rounded]="true"
+        icon="pi pi-plus"
+        ngbTooltip="Ajouter un tiers payant"
+        severity="info"
+        size="small"
+        type="button"
+      >
+      </app-button>
+    }
+  </div>
 
   <form [formGroup]="editForm" name="editForm">
     <div class="complementaire-grid">
@@ -45,13 +44,13 @@
                 <div class="form-field form-field-full">
                   <label>Tiers-payant <span class="required">*</span></label>
                   <app-select-search
-                    appendTo="body"
                     (searched)="searchTiersPayant($event)"
                     (selectionChange)="onSelectTiersPayant($event, i)"
+                    [items]="tiersPayants()"
                     [minSearchLength]="minLength"
-                    [items]="tiersPayants"
-                    formControlName="tiersPayant"
+                    appendTo="body"
                     bindLabel="fullName"
+                    formControlName="tiersPayant"
                     placeholder="Taper pour rechercher"
                   />
                 </div>
@@ -59,15 +58,15 @@
                 <!-- Numéro de sécurité -->
                 <div class="form-field">
                   <label>Numéro de sécurité <span class="required">*</span></label>
-                  <input autocomplete="off" class="form-control" formControlName="num"
-                         [appKeyFilter]="'alphanum'" />
+                  <input [appKeyFilter]="'alphanum'" autocomplete="off" class="form-control"
+                         formControlName="num" />
                 </div>
 
                 <!-- Taux -->
                 <div class="form-field">
                   <label>Taux (%) <span class="required">*</span></label>
-                  <input autocomplete="off" class="form-control" formControlName="taux"
-                         [appKeyFilter]="'int'" />
+                  <input [appKeyFilter]="'int'" autocomplete="off" class="form-control"
+                         formControlName="taux" />
                 </div>
 
                 <!-- Ordre -->
@@ -76,9 +75,9 @@
                   <app-select
                     [items]="catgories"
                     appendTo="body"
-                    formControlName="priorite"
                     bindLabel="label"
                     bindValue="value"
+                    formControlName="priorite"
                   >
                   </app-select>
                 </div>

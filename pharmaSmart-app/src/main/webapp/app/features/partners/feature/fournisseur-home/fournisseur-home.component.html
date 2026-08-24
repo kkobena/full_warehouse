@@ -1,7 +1,7 @@
 <jhi-spinner #spinner></jhi-spinner>
 
 <div class="pharma-smart-content p-1">
-  <app-toolbar icon="pi pi-briefcase" title="Gestion des fournisseurs">
+  <app-toolbar icon="pi pi-briefcase" title="Gestion des fournisseurs()">
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-search-input">
         <app-icon-field icon="pi pi-search">
@@ -25,9 +25,9 @@
     [lazy]="true"
     [loading]="loading()"
     [paginator]="true"
-    [rows]="itemsPerPage"
-    [totalRecords]="totalItems"
-    [value]="fournisseurs"
+    [rows]="itemsPerPage()"
+    [totalRecords]="totalItems()"
+    [value]="fournisseurs()"
     class="p-datatable-sm"
     dataKey="id"
   >

@@ -4,8 +4,7 @@ import {
   inject,
   OnDestroy,
   OnInit,
-  viewChild
-} from "@angular/core";
+  viewChild, signal } from "@angular/core";
 import {HttpHeaders, HttpResponse} from "@angular/common/http";
 import {ActivatedRoute, Data, ParamMap, Router, RouterLink} from "@angular/router";
 import {combineLatest, Observable, Subject} from "rxjs";
@@ -54,7 +53,7 @@ import {
   selector: "app-customer",
   templateUrl: "./customer.component.html",
   styleUrls: ["./customer.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -74,23 +73,23 @@ import {
 })
 export class CustomerComponent implements OnInit, OnDestroy {
   translate = inject(TranslateService);
-  customers?: ICustomer[];
+  protected readonly customers = signal<ICustomer[] | undefined>(undefined);
   types: string[] = ["TOUT", "ASSURE", "STANDARD"];
   statuts: object[] = [
     {value: "ENABLE", label: "Actifs"},
     {value: "DISABLE", label: "Désactivés"}
   ];
-  typeSelected = "";
-  statutSelected = "ENABLE";
+  protected readonly typeSelected = signal("");
+  protected readonly statutSelected = signal("ENABLE");
   search = "";
-  totalItems = 0;
+  protected readonly totalItems = signal(0);
   itemsPerPage = ITEMS_PER_PAGE;
-  page!: number;
-  predicate!: string;
-  ascending!: boolean;
-  loading!: boolean;
-  ngbPaginationPage = 1;
-  newCustomerbuttons: AppSplitButtonItem[];
+  protected readonly page = signal<number | undefined>(undefined);
+  protected readonly predicate = signal<string | undefined>(undefined);
+  protected readonly ascending = signal<boolean | undefined>(undefined);
+  protected readonly loading = signal<boolean | undefined>(undefined);
+  protected readonly ngbPaginationPage = signal(1);
+  protected readonly newCustomerbuttons = signal<AppSplitButtonItem[] | undefined>(undefined);
   displayTiersPayantAction = true;
   responseDialog = false;
   protected customerService = inject(CustomerService);
@@ -104,7 +103,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
 
 
   constructor() {
-    this.newCustomerbuttons = [
+    this.newCustomerbuttons.set([
       {
         label: "Assuré",
         icon: "pi pi-user-plus",
@@ -125,7 +124,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
         icon: "pi pi-user-plus",
         command: () => this.addUninsuredCustomer()
       }
-    ];
+    ]);
   }
 
   ngOnDestroy(): void {
@@ -142,15 +141,15 @@ export class CustomerComponent implements OnInit, OnDestroy {
   }
 
   loadPage(page?: number, dontNavigate?: boolean): void {
-    const pageToLoad: number = page || this.page || 1;
+    const pageToLoad: number = page || this.page() || 1;
     this.customerService
       .query({
         page: pageToLoad - 1,
         size: this.itemsPerPage,
         sort: this.sort(),
-        type: this.typeSelected,
+        type: this.typeSelected(),
         search: this.search,
-        status: this.statutSelected
+        status: this.statutSelected()
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -161,28 +160,28 @@ export class CustomerComponent implements OnInit, OnDestroy {
 
   lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event) {
-      this.page = event.first / event.rows;
-      this.loading = true;
+      this.page.set(event.first / event.rows);
+      this.loading.set(true);
       this.customerService
         .query({
-          page: this.page,
+          page: this.page(),
           size: event.rows,
           sort: this.sort(),
-          type: this.typeSelected,
+          type: this.typeSelected(),
           search: this.search,
-          status: this.statutSelected
+          status: this.statutSelected()
         })
         .pipe(takeUntil(this.destroy$))
         .subscribe({
-          next: (res: HttpResponse<ICustomer[]>) => this.onSuccess(res.body, res.headers, this.page, false),
+          next: (res: HttpResponse<ICustomer[]>) => this.onSuccess(res.body, res.headers, this.page(), false),
           error: () => this.onError()
         });
     }
   }
 
   ngOnInit(): void {
-    this.typeSelected = "TOUT";
-    this.statutSelected = "ENABLE";
+    this.typeSelected.set("TOUT");
+    this.statutSelected.set("ENABLE");
     this.handleNavigation();
     this.loadPage();
     //   this.registerChangeInCustomers();
@@ -234,8 +233,8 @@ export class CustomerComponent implements OnInit, OnDestroy {
   }
 
   sort(): string[] {
-    const result = [this.predicate + "," + (this.ascending ? "asc" : "desc")];
-    if (this.predicate !== "id") {
+    const result = [this.predicate() + "," + (this.ascending() ? "asc" : "desc")];
+    if (this.predicate() !== "id") {
       result.push("id");
     }
     return result;
@@ -435,9 +434,9 @@ export class CustomerComponent implements OnInit, OnDestroy {
       const sort = (params.get("sort") ?? data["defaultSort"]).split(",");
       const predicate = sort[0];
       const ascending = sort[1] === "asc";
-      if (pageNumber !== this.page || predicate !== this.predicate || ascending !== this.ascending) {
-        this.predicate = predicate;
-        this.ascending = ascending;
+      if (pageNumber !== this.page() || predicate !== this.predicate() || ascending !== this.ascending()) {
+        this.predicate.set(predicate);
+        this.ascending.set(ascending);
         this.loadPage(pageNumber, true);
       }
     })
@@ -446,25 +445,25 @@ export class CustomerComponent implements OnInit, OnDestroy {
   }
 
   private onSuccess(data: ICustomer[] | null, headers: HttpHeaders, page: number, navigate: boolean): void {
-    this.totalItems = Number(headers.get("X-Total-Count"));
-    this.page = page;
+    this.totalItems.set(Number(headers.get("X-Total-Count")));
+    this.page.set(page);
     if (navigate) {
       this.router.navigate(["/customer"], {
         queryParams: {
-          page: this.page,
+          page: this.page(),
           size: this.itemsPerPage,
-          sort: this.predicate + "," + (this.ascending ? "asc" : "desc")
+          sort: this.predicate() + "," + (this.ascending() ? "asc" : "desc")
         }
       });
     }
-    this.customers = data || [];
-    this.ngbPaginationPage = this.page;
-    this.loading = false;
+    this.customers.set(data || []);
+    this.ngbPaginationPage.set(this.page());
+    this.loading.set(false);
   }
 
   private onError(): void {
-    this.loading = false;
-    this.ngbPaginationPage = this.page ?? 1;
+    this.loading.set(false);
+    this.ngbPaginationPage.set(this.page() ?? 1);
   }
 
   private handleServiceCall(observable: Observable<any>, successCallback: () => void): void {

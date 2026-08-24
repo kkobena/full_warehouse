@@ -40,7 +40,7 @@ export type BedTab = "BROUILLON" | "HISTORIQUE";
   selector: "app-bed-home",
   templateUrl: "./bed-home.component.html",
   styleUrls: ["./bed-home.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     HintComponent,
     CommonModule,
@@ -64,13 +64,13 @@ export class BedHomeComponent implements OnInit {
   readonly editingBed = signal<IBed | null>(null);
   readonly countBrouillon = signal<number>(0);
 
-  protected search = "";
-  protected filterMotif: MotifBed | null = null;
-  protected dtStart: NgbDateStruct | null = null;
-  protected dtEnd: NgbDateStruct | null = null;
+  protected readonly search = signal("");
+  protected readonly filterMotif = signal<MotifBed | null>(null);
+  protected readonly dtStart = signal<NgbDateStruct | null>(null);
+  protected readonly dtEnd = signal<NgbDateStruct | null>(null);
 
   readonly itemsPerPage = ITEMS_PER_PAGE;
-  private page = 0;
+  private readonly page = signal(0);
 
   readonly motifOptions = MOTIFS_BED;
 
@@ -92,11 +92,11 @@ export class BedHomeComponent implements OnInit {
   protected setTab(tab: BedTab): void {
     if (this.activeTab() === tab) return;
     this.activeTab.set(tab);
-    this.search = "";
-    this.filterMotif = null;
-    this.dtStart = null;
-    this.dtEnd = null;
-    this.page = 0;
+    this.search.set("");
+    this.filterMotif.set(null);
+    this.dtStart.set(null);
+    this.dtEnd.set(null);
+    this.page.set(0);
     this.loadBadges();
     this.loadAll();
   }
@@ -112,12 +112,12 @@ export class BedHomeComponent implements OnInit {
   }
 
   protected onSearch(): void {
-    this.page = 0;
+    this.page.set(0);
     this.loadAll();
   }
 
   protected onPageChange(event: AppTableLazyLoadEvent): void {
-    this.page = Math.floor(event.first / event.rows);
+    this.page.set(Math.floor(event.first / event.rows));
     this.loadAll();
   }
 
@@ -126,12 +126,12 @@ export class BedHomeComponent implements OnInit {
     const orderStatus = this.activeTab() === "BROUILLON" ? "REQUESTED" : "CLOSED";
     this.bedService
       .findAll({
-        search: this.search || undefined,
-        motifBed: this.filterMotif || undefined,
+        search: this.search() || undefined,
+        motifBed: this.filterMotif() || undefined,
         orderStatus,
-        fromDate: this.dtStart ? NGB_DATE_TO_ISO(this.dtStart)! : undefined,
-        toDate: this.dtEnd ? NGB_DATE_TO_ISO(this.dtEnd)! : undefined,
-        page: this.page,
+        fromDate: this.dtStart() ? NGB_DATE_TO_ISO(this.dtStart())! : undefined,
+        toDate: this.dtEnd() ? NGB_DATE_TO_ISO(this.dtEnd())! : undefined,
+        page: this.page(),
         size: this.itemsPerPage
       })
       .pipe(

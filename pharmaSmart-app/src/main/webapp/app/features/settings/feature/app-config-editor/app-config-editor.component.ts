@@ -36,7 +36,7 @@ export interface AppConfigDto {
   selector: 'app-config-editor',
   templateUrl: './app-config-editor.component.html',
   styleUrls: ['./app-config-editor.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ReactiveFormsModule, ButtonComponent, PasswordComponent, NgbNavModule, ToolbarComponent]
 })
 export class AppConfigEditorComponent implements OnInit {

@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
@@ -15,6 +15,16 @@ export interface ExclusionItem {
 /** Les deux référentiels partagent le même écran : le type ne change que l'URL appelée. */
 export type ReferentielExclusion = 'rayons' | 'tiers-payants';
 
+/** Ce que le serveur attend pour découper et filtrer une page du référentiel. */
+export interface ExclusionPageRequest {
+  page: number;
+  size: number;
+  /** `null` ou absent pour ne pas filtrer sur l'état d'exclusion. */
+  exclus?: boolean | null;
+  /** Recherche sur le libellé ou le code. */
+  search?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class DeclarationCaApiService {
   private readonly http = inject(HttpClient);
@@ -22,12 +32,19 @@ export class DeclarationCaApiService {
 
   private readonly base = this.config.getEndpointFor('api/declaration-ca');
 
-  lister(referentiel: ReferentielExclusion, exclus?: boolean): Observable<ExclusionItem[]> {
-    let params = new HttpParams();
-    if (exclus !== undefined) {
-      params = params.set('exclus', exclus);
+  /**
+   * Une page du référentiel. Filtre et recherche partent au serveur : la page reçue est déjà
+   * la bonne, et l'en-tête `X-Total-Count` compte l'ensemble filtré, pas ce qui est affiché.
+   */
+  lister(referentiel: ReferentielExclusion, requete: ExclusionPageRequest): Observable<HttpResponse<ExclusionItem[]>> {
+    let params = new HttpParams().set('page', requete.page).set('size', requete.size);
+    if (requete.exclus !== undefined && requete.exclus !== null) {
+      params = params.set('exclus', requete.exclus);
     }
-    return this.http.get<ExclusionItem[]>(`${this.base}/${referentiel}`, { params });
+    if (requete.search) {
+      params = params.set('search', requete.search);
+    }
+    return this.http.get<ExclusionItem[]>(`${this.base}/${referentiel}`, { params, observe: 'response' });
   }
 
   /**
@@ -78,8 +95,16 @@ export class DeclarationCaApiService {
     return this.http.delete<Ponction>(`${this.base}/ponctions/${id}`);
   }
 
-  historiquePonctions(): Observable<Ponction[]> {
-    return this.http.get<Ponction[]>(`${this.base}/ponctions`);
+  /**
+   * L'historique, éventuellement borné à une période. Les deux bornes vont de pair : le serveur
+   * ignore un filtre à moitié renseigné plutôt que d'ouvrir un côté au hasard.
+   */
+  historiquePonctions(dateDebut?: string, dateFin?: string): Observable<Ponction[]> {
+    let params = new HttpParams();
+    if (dateDebut && dateFin) {
+      params = params.set('dateDebut', dateDebut).set('dateFin', dateFin);
+    }
+    return this.http.get<Ponction[]>(`${this.base}/ponctions`, { params });
   }
 
   detailPonction(id: number): Observable<PonctionLigne[]> {

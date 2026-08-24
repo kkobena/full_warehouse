@@ -1,4 +1,4 @@
-import {Component, computed, forwardRef, input, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, forwardRef, input, signal} from '@angular/core';
 import {NG_VALUE_ACCESSOR} from '@angular/forms';
 
 import {ControlValueAccessorBase} from '../forms/control-value-accessor.base';
@@ -52,6 +52,7 @@ import {ControlValueAccessorBase} from '../forms/control-value-accessor.base';
       display: block;
     }
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PasswordComponent extends ControlValueAccessorBase<string> {
   readonly placeholder = input<string>('');

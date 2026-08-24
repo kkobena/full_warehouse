@@ -1,4 +1,4 @@
-import {Component, computed, input, output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, input, output} from '@angular/core';
 import {
   NgbDropdown,
   NgbDropdownButtonItem,
@@ -104,6 +104,7 @@ export interface AppSplitButtonItem {
       --bs-btn-padding-x: 0.625rem;
     }
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SplitButtonComponent {
   private static readonly BOOTSTRAP_VARIANT: Record<AppButtonSeverity, string> = {

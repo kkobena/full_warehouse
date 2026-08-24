@@ -310,9 +310,12 @@ public class PonctionServiceImpl implements PonctionService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<PonctionDTO> getHistorique() {
-        return ponctionRepository.findByMagasinIdOrderByDateDebutDesc(magasinId()).stream()
-            .map(this::versDto).toList();
+    public List<PonctionDTO> getHistorique(LocalDate dateDebut, LocalDate dateFin) {
+        Integer magasinId = magasinId();
+        List<CaPonction> ponctions = (dateDebut == null || dateFin == null)
+            ? ponctionRepository.findByMagasinIdOrderByDateDebutDesc(magasinId)
+            : ponctionRepository.findHistoriqueSurPeriode(magasinId, dateDebut, dateFin);
+        return ponctions.stream().map(this::versDto).toList();
     }
 
     @Override

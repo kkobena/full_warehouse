@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, DestroyRef, ElementRef, inject, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import {signal, AfterViewInit, Component, DestroyRef, ElementRef, inject, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
@@ -14,15 +14,15 @@ import { ProductsApiService } from '../../data-access/services/products-api.serv
   selector: 'app-produit-decondition-modal',
   templateUrl: './produit-decondition-modal.component.html',
   styleUrls: ['./produit-decondition-modal.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, ReactiveFormsModule, FormsModule, InputNumberComponent, ButtonComponent, CardComponent],
 })
 export class ProduitDeconditionModalComponent implements AfterViewInit {
   produit!: IProduit;
 
   activeModal = inject(NgbActiveModal);
-  isSaving = false;
-  isNotValid = false;
+  protected readonly isSaving = signal(false);
+  protected readonly isNotValid = signal(false);
 
   protected fb = inject(UntypedFormBuilder);
   editForm = this.fb.group({
@@ -52,7 +52,7 @@ export class ProduitDeconditionModalComponent implements AfterViewInit {
   }
 
   save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     this.subscribeToSaveResponse(
       this.api.createDecondition({
         qtyMvt: this.editForm.get(['qtyMvt']).value,
@@ -66,7 +66,7 @@ export class ProduitDeconditionModalComponent implements AfterViewInit {
   }
 
   onQuantitySoldBoxChanged(qty: number | null): void {
-    this.isNotValid = (this.produit.totalQuantity ?? 0) < Number(qty ?? 0);
+    this.isNotValid.set((this.produit.totalQuantity ?? 0) < Number(qty ?? 0));
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<unknown>>): void {
@@ -77,12 +77,12 @@ export class ProduitDeconditionModalComponent implements AfterViewInit {
   }
 
   protected onSaveSuccess(): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.activeModal.close();
   }
 
   protected onSaveError(): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.notificationService.error('Erreur lors du déconditionnement', 'Erreur');
   }
 }

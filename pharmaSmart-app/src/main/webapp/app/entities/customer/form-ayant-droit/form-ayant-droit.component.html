@@ -121,7 +121,7 @@
       type="button"
     ></app-button>
     <app-button
-      [disabled]="editForm.invalid || isSaving || !isValid"
+      [disabled]="editForm.invalid || isSaving() || !isValid"
       [raised]="true"
       icon="pi pi-check"
       label="Enregistrer"

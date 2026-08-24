@@ -28,7 +28,7 @@ interface TypeVenteOption {
     SelectComponent
   ],
   templateUrl: "./declaration-tva.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./declaration-tva.component.scss"
 })
 export class DeclarationTvaComponent implements OnInit {

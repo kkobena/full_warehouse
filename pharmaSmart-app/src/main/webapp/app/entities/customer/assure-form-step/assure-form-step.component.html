@@ -8,8 +8,8 @@
   <app-nav-tabs [nav]="stepNav">
     <div
       #stepNav="ngbNav"
-      (activeIdChange)="activeStep = $event"
-      [activeId]="activeStep"
+      (activeIdChange)="activeStep.set($event)"
+      [activeId]="activeStep()"
       class="nav pharma-nav-tabs"
       ngbNav
     >
@@ -39,14 +39,14 @@
 </div>
 
 <div class="form-actions-compact">
-  @if (activeStep === 1) {
+  @if (activeStep() === 1) {
     <app-button (clicked)="cancel()" [text]="true" icon="pi pi-times" label="Annuler" severity="secondary"
                 type="button"></app-button>
     @if (assureStepComponent()?.editForm.valid) {
       <app-button
         (clicked)="save()"
-        [disabled]="isSaving"
-        [loading]="isSaving"
+        [disabled]="isSaving()"
+        [loading]="isSaving()"
         icon="pi pi-check"
         label="Enregistrer"
         severity="primary"
@@ -60,7 +60,7 @@
       }
     }
   }
-  @if (activeStep === 2) {
+  @if (activeStep() === 2) {
     <app-button
       (clicked)="onGoBackFromAyantDroit(1)"
       [text]="true"
@@ -73,8 +73,8 @@
     @if (ayantDroitStepComponent()?.isValidForm()) {
       <app-button
         (clicked)="save()"
-        [disabled]="isSaving"
-        [loading]="isSaving"
+        [disabled]="isSaving()"
+        [loading]="isSaving()"
         icon="pi pi-check"
         label="Enregistrer"
         severity="primary"

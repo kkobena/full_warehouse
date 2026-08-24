@@ -31,7 +31,7 @@ import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-l
     SkeletonComponent,
   ],
   templateUrl: './facturation-layout.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './facturation-layout.component.scss',
 })
 export class FacturationLayoutComponent {

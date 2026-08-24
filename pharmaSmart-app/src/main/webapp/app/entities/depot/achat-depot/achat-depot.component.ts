@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy, input} from "@angular/core";
+import { Component, inject, OnInit, ChangeDetectionStrategy, input, signal } from "@angular/core";
 import { NgbDateStruct, NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { ITEMS_PER_PAGE } from "../../../shared/constants/pagination.constants";
 import { ISales, SaleId } from "../../../shared/model/sales.model";
@@ -49,7 +49,7 @@ import { PharmaDatePickerComponent } from "../../../shared/date-picker/pharma-da
     NgbDropdownItem
   ],
   templateUrl: "./achat-depot.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./achat-depot.component.scss"
 })
 export class AchatDepotComponent implements OnInit {
@@ -63,19 +63,19 @@ export class AchatDepotComponent implements OnInit {
   readonly navCode = input<string>('');
 
   protected selectedDepot: IMagasin | null = null;
-  protected totalItems = 0;
-  protected loading!: boolean;
-  protected page = 0;
-  protected itemsPerPage = ITEMS_PER_PAGE;
-  protected sales: ISales[] = [];
+  protected readonly totalItems = signal(0);
+  protected readonly loading = signal<boolean | undefined>(undefined);
+  protected readonly page = signal(0);
+  protected readonly itemsPerPage = signal(ITEMS_PER_PAGE);
+  protected readonly sales = signal<ISales[]>([]);
   protected selectedEl?: ISales;
   protected users: IUser[] = [];
   protected selectedUserId: number | null;
   protected search = "";
   protected fromDate: NgbDateStruct = this.dateToNgbStruct(new Date());
   protected toDate: NgbDateStruct = this.dateToNgbStruct(new Date());
-  protected isLargeScreen = true;
-  protected depots: IMagasin[] = [];
+  protected readonly isLargeScreen = signal(true);
+  protected readonly depots = signal<IMagasin[]>([]);
   private readonly salesService = inject(SalesService);
   private readonly stockDepotService = inject(StockDepotService);
   private readonly userService = inject(UserService);
@@ -89,7 +89,7 @@ export class AchatDepotComponent implements OnInit {
 
   /** Options du sélecteur de dépôt, avec l'adresse ajoutée au libellé (remplace le `#item` custom de `p-select`). */
   protected get depotOptions(): (IMagasin & { displayLabel: string })[] {
-    return this.depots.map(depot => ({
+    return this.depots().map(depot => ({
       ...depot,
       displayLabel: depot.address ? `${depot.name} — ${depot.address}` : depot.name
     }));
@@ -101,14 +101,14 @@ export class AchatDepotComponent implements OnInit {
 
   populate(): void {
     this.magasinService.fetchAllDepots().subscribe((res: HttpResponse<IMagasin[]>) => {
-      this.depots = res.body || [];
+      this.depots.set(res.body || []);
     });
   }
 
   ngOnInit(): void {
     const width = window.innerWidth;
     if (width < 1800) {
-      this.isLargeScreen = false;
+      this.isLargeScreen.set(false);
     }
     this.loadAllUsers();
     this.populate();
@@ -143,15 +143,15 @@ export class AchatDepotComponent implements OnInit {
   }
 
   protected loadPage(page?: number): void {
-    const pageToLoad: number = page || this.page;
-    this.fetchSales(pageToLoad, this.itemsPerPage);
+    const pageToLoad: number = page || this.page();
+    this.fetchSales(pageToLoad, this.itemsPerPage());
   }
 
   protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event) {
-      this.page = event.first / event.rows;
-      this.itemsPerPage = event.rows;
-      this.fetchSales(this.page, this.itemsPerPage);
+      this.page.set(event.first / event.rows);
+      this.itemsPerPage.set(event.rows);
+      this.fetchSales(this.page(), this.itemsPerPage());
     }
   }
 
@@ -178,19 +178,19 @@ export class AchatDepotComponent implements OnInit {
   }
 
   protected onSuccess(data: ISales[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get("X-Total-Count"));
-    this.page = page;
-    this.sales = data || [];
-    this.loading = false;
+    this.totalItems.set(Number(headers.get("X-Total-Count")));
+    this.page.set(page);
+    this.sales.set(data || []);
+    this.loading.set(false);
   }
 
   protected onError(): void {
-    this.loading = false;
+    this.loading.set(false);
     this.notificationService.error("Une erreur est survenue. Veuillez réessayer.");
   }
 
   private fetchSales(page: number, size: number): void {
-    this.loading = true;
+    this.loading.set(true);
     this.stockDepotService
       .fetchSales({
         page,

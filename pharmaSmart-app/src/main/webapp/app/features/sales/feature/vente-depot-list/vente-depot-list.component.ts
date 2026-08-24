@@ -13,7 +13,6 @@ import { ITEMS_PER_PAGE } from "../../../../shared/constants/pagination.constant
 import { ISales } from "../../../../shared/model";
 import { VenteDepotApiService } from "../../data-access/services/vente-depot-api.service";
 import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
-import { NotificationService } from "../../../../shared/services/notification.service";
 
 import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
@@ -21,7 +20,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
   templateUrl: "./vente-depot-list.component.html",
   styleUrl: "./vente-depot-list.component.scss",
   providers: [{ provide: NgbDateParserFormatter, useClass: FrenchDateParserFormatter }],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
@@ -46,21 +45,20 @@ export class VenteDepotListComponent implements OnInit {
 
   private readonly api = inject(VenteDepotApiService);
   private readonly blobDownload = inject(BlobDownloadService);
-  private readonly notificationService = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected loading = signal(false);
-  protected sales: ISales[] = [];
-  protected totalItems = 0;
-  protected page = 0;
-  protected itemsPerPage = ITEMS_PER_PAGE;
+  protected readonly sales = signal<ISales[]>([]);
+  protected readonly totalItems = signal(0);
+  protected readonly page = signal(0);
+  protected readonly itemsPerPage = signal(ITEMS_PER_PAGE);
 
   protected search = "";
   protected fromDate: NgbDateStruct = this.todayNgb();
   protected toDate: NgbDateStruct = this.todayNgb();
 
   get totalAmount(): number {
-    return this.sales.reduce((sum, s) => sum + (s.salesAmount ?? 0), 0);
+    return this.sales().reduce((sum, s) => sum + (s.salesAmount ?? 0), 0);
   }
 
   ngOnInit(): void {
@@ -68,11 +66,11 @@ export class VenteDepotListComponent implements OnInit {
   }
 
   protected loadPage(page?: number): void {
-    const pageToLoad = page ?? this.page;
+    const pageToLoad = page ?? this.page();
     this.loading.set(true);
     this.api.query({
       page: pageToLoad,
-      size: this.itemsPerPage,
+      size: this.itemsPerPage(),
       search: this.search || null,
       fromDate: this.ngbDateToIso(this.fromDate),
       toDate: this.ngbDateToIso(this.toDate)
@@ -88,16 +86,16 @@ export class VenteDepotListComponent implements OnInit {
   }
 
   private onSuccess(data: ISales[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get("X-Total-Count"));
-    this.page = page;
-    this.sales = data || [];
+    this.totalItems.set(Number(headers.get("X-Total-Count")));
+    this.page.set(page);
+    this.sales.set(data || []);
   }
 
   protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event.first != null && event.rows != null) {
-      this.page = event.first / event.rows;
-      this.itemsPerPage = event.rows;
-      this.loadPage(this.page);
+      this.page.set(event.first / event.rows);
+      this.itemsPerPage.set(event.rows);
+      this.loadPage(this.page());
     }
   }
 

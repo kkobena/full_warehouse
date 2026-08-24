@@ -28,7 +28,7 @@ export interface RayonAssignResult {
   selector: 'app-rayon-assign-form',
   templateUrl: './rayon-assign-form.component.html',
   styleUrl: './rayon-assign-form.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, ButtonComponent, IconFieldComponent, NgbTooltip, SelectSearchComponent, CardComponent],
 })
 export class RayonAssignFormComponent implements OnInit {

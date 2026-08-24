@@ -11,7 +11,7 @@ import { BadgeComponent, ButtonComponent } from 'app/shared/ui';
   selector: 'app-nav-reorder',
   templateUrl: './nav-reorder.component.html',
   styleUrl: './nav-reorder.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, DragDropModule, ButtonComponent, BadgeComponent],
 })
 export class NavReorderComponent implements OnInit {

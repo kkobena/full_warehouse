@@ -8,11 +8,10 @@ import { NgxSpinnerComponent } from "ngx-spinner";
 
 import { FrenchDateParserFormatter } from "../../../../config/french-date-parser-formatter";
 import { PharmaDatePickerComponent } from "../../../../shared/date-picker/pharma-date-picker.component";
-import { ButtonComponent, DataTableComponent, IconFieldComponent, SelectComponent, ToolbarComponent } from "../../../../shared/ui";
+import { ButtonComponent, DataTableComponent, IconFieldComponent, SelectComponent, ToolbarComponent, RowTogglerDirective } from "../../../../shared/ui";
 import { ISales, SaleId } from "../../../../shared/model/sales.model";
 import { SalesApiService } from "../../data-access/services/sales-api.service";
 import { NotificationService } from "../../../../shared/services/notification.service";
-import { TauriPrinterService } from "../../../../shared/services/tauri-printer.service";
 import { AbilityService } from "../../../../core/auth/ability.service";
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
@@ -22,8 +21,8 @@ import { BlobDownloadService } from "../../../../shared/services/blob-download.s
   templateUrl: "./devis-list.component.html",
   styleUrls: ["./devis-list.component.scss"],
   providers: [{ provide: NgbDateParserFormatter, useClass: FrenchDateParserFormatter }],
-  changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [RowTogglerDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -50,13 +49,12 @@ export class DevisListComponent implements OnInit {
 
   private readonly api = inject(SalesApiService);
   private readonly router = inject(Router);
-  private readonly tauriPrinter = inject(TauriPrinterService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly ability = inject(AbilityService);
   protected readonly canDeleteDevis = this.ability.canSignal("execute", "ventes.devis.delete");
   protected readonly canExportDevis = this.ability.canSignal("execute", "ventes.devis.export");
   protected loading = signal(false);
-  protected sales: ISales[] = [];
+  protected readonly sales = signal<ISales[]>([]);
   protected typeVentes = ["TOUT", "VNO", "VO"];
   protected typeVenteSelected = "TOUT";
   protected search = "";
@@ -82,7 +80,7 @@ export class DevisListComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: res => {
-          this.sales = res.body || [];
+          this.sales.set(res.body || []);
           this.loading.set(false);
         },
         error: () => this.loading.set(false)

@@ -35,7 +35,7 @@
           Mode de règlement
         </label>
         <app-select
-          [items]="paymentModes"
+          [items]="paymentModes()"
           bindLabel="libelle"
           formControlName="paymentMode"
           inputId="field_paymentMode"
@@ -104,8 +104,8 @@
   <div class="modal-footer">
     <app-button (clicked)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
     <app-button
-      [disabled]="editForm.invalid || isSaving || !isValid"
-      [loading]="isSaving"
+      [disabled]="editForm.invalid || isSaving() || !isValid"
+      [loading]="isSaving()"
       [raised]="true"
       icon="pi pi-check"
       id="save-entity"

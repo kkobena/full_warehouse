@@ -26,7 +26,7 @@ import {
   selector: "app-poste",
   templateUrl: "./poste.component.html",
   styleUrls: ["./poste.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     ButtonComponent,
@@ -41,9 +41,9 @@ import {
   ]
 })
 export class PosteComponent implements OnInit {
-  protected loading?: boolean;
+  protected readonly loading = signal<boolean | undefined>(undefined);
   protected entites: IPoste[] = [];
-  protected filteredEntities: IPoste[] = [];
+  protected readonly filteredEntities = signal<IPoste[]>([]);
   protected searchQuery = "";
   protected devicesMap = signal<Record<number, IPosteDevice[]>>({});
   private readonly entityService = inject(PosteService);
@@ -58,7 +58,7 @@ export class PosteComponent implements OnInit {
   }
 
   protected loadAll(): void {
-    this.loading = true;
+    this.loading.set(true);
     this.entityService.fetchAll().subscribe({
       next: (res: HttpResponse<IPoste[]>) => this.onSuccess(res.body),
       error: err => this.onError(err)
@@ -161,25 +161,25 @@ export class PosteComponent implements OnInit {
 
   private applyFilter(): void {
     if (!this.searchQuery) {
-      this.filteredEntities = [...this.entites];
+      this.filteredEntities.set([...this.entites]);
     } else {
-      this.filteredEntities = this.entites.filter(
+      this.filteredEntities.set(this.entites.filter(
         entity =>
           entity.name?.toLowerCase().includes(this.searchQuery) ||
           entity.address?.toLowerCase().includes(this.searchQuery) ||
           entity.posteNumber?.toLowerCase().includes(this.searchQuery)
-      );
+      ));
     }
   }
 
   private onSuccess(data: IPoste[] | null): void {
     this.entites = data || [];
-    this.filteredEntities = [...this.entites];
-    this.loading = false;
+    this.filteredEntities.set([...this.entites]);
+    this.loading.set(false);
   }
 
   private onError(error: HttpErrorResponse): void {
-    this.loading = false;
+    this.loading.set(false);
     this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 }

@@ -255,8 +255,11 @@ class AuditDeclarationCaServiceTest {
         AnomalieDTO anomalie = controle("V2");
 
         assertEquals(1, anomalie.nombreAnomalies());
-        assertTrue(anomalie.exemples().getFirst().contains("7000"),
-            "l'exemple doit citer les deux montants");
+        String exemple = anomalie.exemples().getFirst();
+        // Les montants sont formatés avec un espace comme séparateur de milliers (FM999,999,999,999
+        // dont la virgule est remplacée par une espace) : « 7 000 » et non « 7000 ».
+        assertTrue(exemple.contains("7 000") && exemple.contains("10 000"),
+            "l'exemple doit citer les deux montants : " + exemple);
 
         executer("UPDATE sales SET amount_to_be_taken_into_account = 10000 WHERE id = 960001");
         assertTrue(controle("V2").estSain());

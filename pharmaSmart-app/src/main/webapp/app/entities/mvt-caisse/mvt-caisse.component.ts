@@ -1,29 +1,22 @@
-import {ChangeDetectionStrategy, Component, inject, signal} from "@angular/core";
-import {AbilityService} from "app/core/auth/ability.service";
-import {RouterModule} from "@angular/router";
-import {NgxSpinnerModule} from "ngx-spinner";
-import {ReactiveFormsModule} from "@angular/forms";
-import {VisualisationMvtCaisseComponent} from "./visualisation-mvt-caisse.component";
-import {GestionCaisseComponent} from "./gestion-caisse/gestion-caisse.component";
-import { NavSidebarComponent } from 'app/shared/ui/nav-sidebar/nav-sidebar.component';
-import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-link.component';
-import {
-  NgbNav,
-  NgbNavContent,
-  NgbNavItem,
-  NgbNavLink,
-  NgbNavOutlet
-} from "@ng-bootstrap/ng-bootstrap";
+import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
+import { AbilityService } from "app/core/auth/ability.service";
+import { RouterModule } from "@angular/router";
+import { NgxSpinnerModule } from "ngx-spinner";
+import { ReactiveFormsModule } from "@angular/forms";
+import { VisualisationMvtCaisseComponent } from "./visualisation-mvt-caisse.component";
+import { GestionCaisseComponent } from "./gestion-caisse/gestion-caisse.component";
+import { NavSidebarComponent } from "app/shared/ui/nav-sidebar/nav-sidebar.component";
+import { NavSectionLinkComponent } from "app/shared/ui/nav-sidebar/nav-section-link.component";
+import { NgbNav, NgbNavContent, NgbNavItem, NgbNavLink } from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
   selector: "app-mvt-caisse",
-  imports: [NavSidebarComponent, NavSectionLinkComponent, 
+  imports: [NavSidebarComponent, NavSectionLinkComponent,
     RouterModule,
     NgxSpinnerModule,
     ReactiveFormsModule,
     VisualisationMvtCaisseComponent,
     GestionCaisseComponent,
-    NgbNavOutlet,
     NgbNav,
     NgbNavItem,
     NgbNavContent,

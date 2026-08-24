@@ -269,13 +269,14 @@ class PonctionApplicationTest {
             st.executeUpdate("DELETE FROM sales WHERE id IN (970001, 970003)");
         }
 
-        // 25 lignes à 400 pour 10 000. Le plafond borne la prise à 3 500, qui se diviserait
-        // exactement ; 3 487 donne 139 par ligne au prorata, soit 3 475, et laisse 12 francs à
-        // placer — un par ligne, aux plus fortes décimales.
+        // 25 lignes à 400 pour 10 000. Le plafond borne la prise à 3 500 ; chaque prise étant ramenée
+        // au multiple de 5 inférieur, un objectif de 3 487 donne une prise de 3 485, qui se divise
+        // en 139 par ligne au prorata, soit 3 475, et laisse 10 francs à placer — un par ligne, aux
+        // plus fortes décimales.
         ponctionner(970_002, 3_487);
 
         assertEquals(
-            10_000 - 3_487,
+            10_000 - 3_485,
             valeur("SELECT sum(amount_to_be_taken_into_account) FROM sales_line WHERE sales_id = 970002"),
             "la somme des lignes égale exactement la prise"
         );
@@ -285,14 +286,14 @@ class PonctionApplicationTest {
             "aucune ligne ne passe sous zéro"
         );
         assertEquals(
-            12,
+            10,
             valeur("SELECT count(*) FROM sales_line WHERE sales_id = 970002 AND amount_to_be_taken_into_account = 400 - 140"),
-            "douze lignes portent le franc supplémentaire, pas une seule les douze"
+            "dix lignes portent le franc supplémentaire, pas une seule les dix"
         );
         assertEquals(
-            13,
+            15,
             valeur("SELECT count(*) FROM sales_line WHERE sales_id = 970002 AND amount_to_be_taken_into_account = 400 - 139"),
-            "les treize autres s'en tiennent à leur part entière"
+            "les quinze autres s'en tiennent à leur part entière"
         );
     }
 

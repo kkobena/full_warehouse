@@ -1,13 +1,6 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from "@angular/core";
 import { AbilityService } from "app/core/auth/ability.service";
-import {
-  NgbNav,
-  NgbNavContent,
-  NgbNavItem,
-  NgbNavLink,
-  NgbNavLinkBase,
-  NgbNavOutlet
-} from "@ng-bootstrap/ng-bootstrap";
+import { NgbNav, NgbNavContent, NgbNavItem, NgbNavLink, NgbNavLinkBase } from "@ng-bootstrap/ng-bootstrap";
 import { TranslatePipe } from "@ngx-translate/core";
 import { LotPerimesComponent } from "./lot-perimes/lot-perimes.component";
 import { LotADetruireComponent } from "./lot-a-detruire/lot-a-detruire.component";
@@ -15,14 +8,14 @@ import { LotService } from "../commande/lot/lot.service";
 import { ProductToDestroyService } from "./product-to-destroy.service";
 import { LotFilterParam } from "./model/lot-perimes";
 import { ProductToDestroyFilter } from "./model/product-to-destroy";
-import { RouterLink } from "@angular/router";
 import { CommonModule } from "@angular/common";
 
-import { NavSidebarComponent } from 'app/shared/ui/nav-sidebar/nav-sidebar.component';
-import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-link.component';
+import { NavSidebarComponent } from "app/shared/ui/nav-sidebar/nav-sidebar.component";
+import { NavSectionLinkComponent } from "app/shared/ui/nav-sidebar/nav-section-link.component";
+
 @Component({
-  selector: "jhi-gestion-peremption",
-  imports: [NavSidebarComponent, NavSectionLinkComponent, 
+  selector: "app-gestion-peremption",
+  imports: [NavSidebarComponent, NavSectionLinkComponent,
     NgbNav,
     NgbNavContent,
     NgbNavItem,
@@ -31,9 +24,7 @@ import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-l
     TranslatePipe,
     LotPerimesComponent,
     LotADetruireComponent,
-    CommonModule,
-    RouterLink,
-    NgbNavOutlet
+    CommonModule
   ],
   templateUrl: "./gestion-peremption.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -50,8 +41,8 @@ export class GestionPeremptionComponent implements OnInit {
 
   private readonly ability = inject(AbilityService);
 
-  protected readonly showLotPerimes    = this.ability.canSignal('display', 'peremptions.lot-perimes');
-  protected readonly showLotADetruire  = this.ability.canSignal('display', 'peremptions.lot-a-detruire');
+  protected readonly showLotPerimes = this.ability.canSignal("display", "peremptions.lot-perimes");
+  protected readonly showLotADetruire = this.ability.canSignal("display", "peremptions.lot-a-detruire");
   private readonly lotService = inject(LotService);
   private readonly productToDestroyService = inject(ProductToDestroyService);
 

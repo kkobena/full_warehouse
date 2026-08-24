@@ -92,9 +92,12 @@ public class PonctionCalculator {
           select e.id, e.sale_date, e.number_transaction, e.montant_vente, e.base_tva0, e.montant_regle,
                  least(floor(e.montant_vente * :plafond / 100)::bigint, e.base_tva0, e.montant_regle) as cap,
                  row_number() over (order by e.base_tva0 desc, e.sale_date, e.id)    as rang,
-                 sum(least(floor(e.montant_vente * :plafond / 100)::bigint, e.base_tva0, e.montant_regle))
+                 -- PostgreSQL renvoie du numeric pour sum(bigint) : sans ce cast, « cumul » n'est
+                 -- plus entier et /5*5 cesse de tronquer, laissant passer des prises non multiples
+                 -- de 5 (ex. 1003 au lieu de 1000).
+                 (sum(least(floor(e.montant_vente * :plafond / 100)::bigint, e.base_tva0, e.montant_regle))
                      over (order by e.base_tva0 desc, e.sale_date, e.id
-                           rows between unbounded preceding and current row)         as cumul
+                           rows between unbounded preceding and current row))::bigint as cumul
             from eligible e
         )
         """;

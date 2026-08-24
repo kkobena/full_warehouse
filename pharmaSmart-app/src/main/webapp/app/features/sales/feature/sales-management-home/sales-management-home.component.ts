@@ -1,12 +1,5 @@
-import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
-import {
-  NgbNav,
-  NgbNavChangeEvent,
-  NgbNavContent,
-  NgbNavItem,
-  NgbNavLink,
-  NgbNavOutlet
-} from "@ng-bootstrap/ng-bootstrap";
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import { NgbNav, NgbNavChangeEvent, NgbNavContent, NgbNavItem, NgbNavLink } from "@ng-bootstrap/ng-bootstrap";
 import { SalesManagementTab, SaleToolbarService } from "../../data-access/services/sale-toolbar.service";
 import { SalesJournalComponent } from "../sales-journal/sales-journal.component";
 import { SalesEnCoursComponent } from "../sales-en-cours/sales-en-cours.component";
@@ -20,8 +13,9 @@ import { AbilityService } from "app/core/auth/ability.service";
 import { RetourClientComponent } from "../retour-client/retour-client.component";
 import { SkeletonComponent } from "app/shared/ui/skeleton/skeleton.component";
 
-import { NavSidebarComponent } from 'app/shared/ui/nav-sidebar/nav-sidebar.component';
-import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-link.component';
+import { NavSidebarComponent } from "app/shared/ui/nav-sidebar/nav-sidebar.component";
+import { NavSectionLinkComponent } from "app/shared/ui/nav-sidebar/nav-section-link.component";
+
 const TAB_LABELS: Record<SalesManagementTab, string> = {
   "journal": "Journal des ventes",
   "en-cours": "Ventes en cours",
@@ -39,12 +33,11 @@ const TAB_LABELS: Record<SalesManagementTab, string> = {
   templateUrl: "./sales-management-home.component.html",
   styleUrl: "./sales-management-home.component.scss",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NavSidebarComponent, NavSectionLinkComponent, 
+  imports: [NavSidebarComponent, NavSectionLinkComponent,
     NgbNav,
     NgbNavItem,
     NgbNavLink,
     NgbNavContent,
-    NgbNavOutlet,
     SalesJournalComponent,
     SalesEnCoursComponent,
     PresaleListComponent,

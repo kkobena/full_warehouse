@@ -1,4 +1,4 @@
-import { Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy, input} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
@@ -11,9 +11,12 @@ import { IDemarqueByMotif, IDemarqueKpi } from '../../../shared/model/report';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { ChartColorsUtilsService } from '../../../shared/util/chart-colors-utils.service';
 import { formatCurrency, formatNumber } from 'app/shared/utils/format-utils';
+import { DeviseDirective } from 'app/shared/utils/devise';
 import {
   ButtonComponent,
   DataTableComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   ToolbarComponent
 } from '../../../shared/ui';
 
@@ -21,19 +24,29 @@ Chart.register(...registerables);
 
 @Component({
   selector: 'app-demarque',
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     PharmaDatePickerComponent,
     ButtonComponent,
     DataTableComponent,
-    ToolbarComponent
+    ToolbarComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ],
   templateUrl: './demarque.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./demarque.component.scss'],
 })
 export default class DemarqueComponent implements OnInit, OnDestroy {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : ce rapport est parfois atteint depuis deux menus, qui ne le nomment
+   * pas de la même façon. Le titre suit celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   @ViewChild('doughnutCanvas') doughnutCanvas?: ElementRef<HTMLCanvasElement>;
 
   protected readonly kpi       = signal<IDemarqueKpi | null>(null);

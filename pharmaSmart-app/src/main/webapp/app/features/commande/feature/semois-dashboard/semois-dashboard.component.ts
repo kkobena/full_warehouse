@@ -20,7 +20,7 @@ import {
   selector: 'app-semois-dashboard',
   templateUrl: './semois-dashboard.component.html',
   styleUrls: ['./semois-dashboard.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
     DecimalPipe,

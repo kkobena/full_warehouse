@@ -3,14 +3,14 @@
   <div class="view-panel__header view-panel__header--detail">
     <app-button (clicked)="previousState()" [text]="true" icon="pi pi-arrow-left" label="Retour à la liste"
                 size="small" />
-    @if (currentCommande) {
-      <span class="view-panel__title">{{ currentCommande.fournisseur?.libelle }}</span>
+    @if (currentCommande()) {
+      <span class="view-panel__title">{{ currentCommande().fournisseur?.libelle }}</span>
       <span class="view-panel__meta">
         <i class="pi pi-file"></i>&nbsp;{{
-          currentCommande.receiptReference ?? currentCommande.orderReference
+          currentCommande().receiptReference ?? currentCommande().orderReference
         }}
         &nbsp;·&nbsp;
-        {{ currentCommande.receiptDate | date:'dd/MM/yyyy' }}
+        {{ currentCommande().receiptDate | date:'dd/MM/yyyy' }}
       </span>
     }
     <div class="cr-header-actions">
@@ -69,7 +69,7 @@
         severity="danger"
         size="small"
       />
-      <app-split-button [items]="exportbuttons" icon="pi pi-file-export" label="Exporter"
+      <app-split-button [items]="exportbuttons()" icon="pi pi-file-export" label="Exporter"
                         severity="warn"
                         size="small" />
     </div>
@@ -102,9 +102,9 @@
         <label class="form-label small mb-0" for="selectedFilter">Filtrer par</label>
         <app-select
           (selectionChange)="onFilterCommandeLines()"
-          [(ngModel)]="selectedFilter"
+          [ngModel]="selectedFilter()" (ngModelChange)="selectedFilter.set($event)"
           inputId="selectedFilter"
-          [items]="filtres"
+          [items]="filtres()"
           bindLabel="label"
           bindValue="value"
           [clearable]="false"
@@ -117,7 +117,7 @@
             <input
               #scanInputRef
               (keyup.enter)="onScanReception()"
-              [(ngModel)]="scanValue"
+              [ngModel]="scanValue()" (ngModelChange)="scanValue.set($event)"
               autocomplete="off"
               class="form-control"
               placeholder="Scanner CIP / DataMatrix…"
@@ -202,8 +202,8 @@
         <app-button
           (clicked)="toggleLeftPanel()"
           [hidden]="viewMode() === 'sequential'"
-          [icon]="showLeftPanel ? 'pi pi-angle-double-left' : 'pi pi-angle-double-right'"
-          [label]="showLeftPanel ? 'Fermer récap' : 'Récap BL'"
+          [icon]="showLeftPanel() ? 'pi pi-angle-double-left' : 'pi pi-angle-double-right'"
+          [label]="showLeftPanel() ? 'Fermer récap' : 'Récap BL'"
           [outlined]="true"
           ngbTooltip="Afficher / masquer le panneau concordance & récapitulatif BL"
           placement="bottom"
@@ -252,16 +252,16 @@
         (lineChanged)="onSequentialLineChanged($event)"
         [lastScanResult]="lastScanResult()"
         [lotPrefill]="scanLotPrefill()"
-        [orderLines]="orderLines"
+        [orderLines]="orderLines()"
         [showLotBtn]="showLotBtn()"
       />
 
     } @else {
       <!-- LEFT PANEL : concordance + résumé (toggle) -->
-      @if (showLeftPanel) {
+      @if (showLeftPanel()) {
         <div class="cr-panel-left">
           <app-reception-concordance
-            [orderLines]="orderLines"
+            [orderLines]="orderLines()"
             [showLotInfo]="showLotBtn()"
           />
           <div class="reception-summary-card">
@@ -272,31 +272,31 @@
             <div class="summary-content">
               <div class="summary-row">
                 <span class="summary-key"><i class="pi pi-building"></i> Grossiste</span>
-                <span class="summary-val">{{ currentCommande?.fournisseurLibelle }}</span>
+                <span class="summary-val">{{ currentCommande()?.fournisseurLibelle }}</span>
               </div>
               <div class="summary-row">
                 <span class="summary-key"><i class="pi pi-file"></i> N° BL</span>
-                <span class="summary-val">{{ currentCommande?.receiptReference }}</span>
+                <span class="summary-val">{{ currentCommande()?.receiptReference }}</span>
               </div>
-              @if (currentCommande?.orderReference) {
+              @if (currentCommande()?.orderReference) {
                 <div class="summary-row">
                   <span class="summary-key"><i class="pi pi-hashtag"></i> N° Cmde</span>
-                  <span class="summary-val po-ref">{{ currentCommande.orderReference }}</span>
+                  <span class="summary-val po-ref">{{ currentCommande().orderReference }}</span>
                 </div>
               }
               <div class="summary-row">
                 <span class="summary-key"><i class="pi pi-calendar"></i> Date BL</span>
                 <span
-                  class="summary-val">{{ currentCommande?.receiptDate | date: 'dd/MM/yyyy' }}</span>
+                  class="summary-val">{{ currentCommande()?.receiptDate | date: 'dd/MM/yyyy' }}</span>
               </div>
               <div class="summary-row highlight">
                 <span class="summary-key"><i class="pi pi-wallet"></i> Montant HT</span>
-                <span class="summary-val amount">{{ currentCommande?.receiptAmount | number }}
+                <span class="summary-val amount">{{ currentCommande()?.receiptAmount | number }}
                   F</span>
               </div>
               <div class="summary-row highlight">
                 <span class="summary-key"><i class="pi pi-percentage"></i> Taxe</span>
-                <span class="summary-val amount">{{ currentCommande?.taxAmount | number }} F</span>
+                <span class="summary-val amount">{{ currentCommande()?.taxAmount | number }} F</span>
               </div>
             </div>
           </div>
@@ -305,12 +305,12 @@
 
       <!-- RIGHT PANEL : AG Grid des lignes -->
       <div class="cr-panel-right">
-        @if (currentCommande) {
+        @if (currentCommande()) {
           <ag-grid-angular
             (cellClicked)="onCellClicked($event)"
             (cellValueChanged)="onCellValueChanged($event)"
             (gridReady)="onGridReady($event)"
-            [columnDefs]="columnDefs"
+            [columnDefs]="columnDefs()"
             [context]="gridContext"
             [defaultColDef]="defaultColDef"
             [enableCellEditingOnBackspace]="true"
@@ -321,27 +321,27 @@
             [getRowId]="getRowId"
             [isFullWidthRow]="isFullWidthRow"
             [rowClassRules]="rowClassRules"
-            [rowData]="displayRows"
+            [rowData]="displayRows()"
             [singleClickEdit]="true"
             [theme]="theme"
             class="cr-grid"
           />
           <!-- Footer totaux + progression lots -->
           <div class="cr-grid-footer">
-            <span>Valeur achat : <strong>{{ currentCommande.grossAmount | number }}F</strong></span>
-            <span>Valeur vente : <strong>{{ currentCommande.orderAmount | number }}F</strong></span>
+            <span>Valeur achat : <strong>{{ currentCommande().grossAmount | number }}F</strong></span>
+            <span>Valeur vente : <strong>{{ currentCommande().orderAmount | number }}F</strong></span>
             @if (showLotBtn()) {
               <span class="cr-lot-progress ms-auto">
               <i class="pi pi-box me-1"></i>
               Lots :
               <strong [class.text-success]="lignesSansLot === 0"
                       [class.text-warning]="lignesSansLot > 0">
-                {{ orderLines.length - lignesSansLot }} / {{ orderLines.length }}
+                {{ orderLines().length - lignesSansLot }} / {{ orderLines().length }}
               </strong>
               <span class="cr-lot-bar ms-2">
                 <span
                   [class.cr-lot-bar__fill--ok]="lignesSansLot === 0"
-                  [style.width.%]="orderLines.length > 0 ? ((orderLines.length - lignesSansLot) / orderLines.length) * 100 : 0"
+                  [style.width.%]="orderLines().length > 0 ? ((orderLines().length - lignesSansLot) / orderLines().length) * 100 : 0"
                   class="cr-lot-bar__fill"
                 ></span>
               </span>

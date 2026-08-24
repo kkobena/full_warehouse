@@ -1,0 +1,52 @@
+:host {
+  display: block;
+}
+
+// Le repli agit sur des liens *projetés* : ils portent l'encapsulation du gabarit appelant, et
+// une règle encapsulée ici ne les atteindrait pas. `::ng-deep` est borné par `:host`, donc rien
+// ne fuit hors de ce menu.
+:host ::ng-deep .pharma-nav-sidebar-content {
+  transition: opacity 0.2s ease;
+}
+
+:host ::ng-deep .pharma-nav-sidebar.is-collapsed {
+  .pharma-nav-vertical-link {
+    justify-content: center;
+    padding-inline: 0.5rem;
+
+    // Le libellé et le chevron déborderaient d'une colonne réduite à la largeur d'un bouton.
+    //
+    // Les badges d'alerte, eux, **restent** : ce sont des compteurs de ruptures, de péremptions ou
+    // de factures échues, et les masquer priverait le pharmacien de la seule information qui doit
+    // le faire rouvrir le menu. Repliés, ils se réduisent à une pastille posée sur l'icône, comme
+    // dans la barre latérale principale.
+    span:not([class*='badge']) {
+      display: none;
+    }
+
+    position: relative;
+
+    [class*='badge'] {
+      position: absolute;
+      top: 0.15rem;
+      right: 0.15rem;
+      min-width: 0.5rem;
+      height: 0.5rem;
+      margin: 0 !important;
+      padding: 0;
+      border-radius: 50%;
+      // Le compte chiffré ne tient pas dans une pastille : seule la présence d'alertes est
+      // signalée, le nombre se lit en dépliant.
+      font-size: 0;
+      line-height: 0;
+      overflow: hidden;
+    }
+  }
+}
+
+.pharma-nav-sidebar-header {
+  // Le bouton de repli se cale à droite du titre, et reste seul quand le titre disparaît.
+  .nav-sidebar-toggle {
+    margin-left: auto;
+  }
+}

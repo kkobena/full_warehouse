@@ -1,5 +1,5 @@
 import { NGB_DATE_TO_ISO } from '../../../shared/util/warehouse-util';
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy, input} from "@angular/core";
 import { HttpResponse } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
@@ -9,9 +9,12 @@ import { IDailySalesSummary } from "app/shared/model/report/daily-sales-summary.
 import { SalesSummaryReportService } from "../services/sales-summary-report.service";
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import {
+  AppBadgeSeverity,
   BadgeComponent,
   ButtonComponent,
   DataTableComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   SelectComponent,
   ToolbarComponent
 } from '../../../shared/ui';
@@ -21,7 +24,7 @@ import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-da
   selector: "app-sales-summary",
   templateUrl: "./sales-summary.component.html",
   styleUrl: "./sales-summary.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -30,10 +33,20 @@ import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-da
     DataTableComponent,
     SelectComponent,
     ToolbarComponent,
-    PharmaDatePickerComponent
+    PharmaDatePickerComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ]
 })
 export default class SalesSummaryComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : ce rapport est parfois atteint depuis deux menus, qui ne le nomment
+   * pas de la même façon. Le titre suit celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   summaries = signal<IDailySalesSummary[]>([]);
   isLoading = signal<boolean>(false);
   startDate = signal<NgbDateStruct | null>(null);
@@ -107,7 +120,7 @@ export default class SalesSummaryComponent implements OnInit {
   }
 
 
-  getSeverityForType(type: string | undefined): string {
+  getSeverityForType(type: string | undefined): AppBadgeSeverity {
     if (!type) return "secondary";
     switch (type) {
       case "VO":

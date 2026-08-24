@@ -1,7 +1,7 @@
 <div class="container-fluid">
 
   <div class="pharma-smart-content p-1">
-    <app-toolbar icon="pi pi-undo" title="Retours dépôt">
+    <app-toolbar [code]="navCode()" icon="pi pi-undo" title="Retours dépôt">
       <ng-container ngProjectAs="[toolbarFilters]">
         <div class="pharma-toolbar-filters">
           <app-select
@@ -38,7 +38,7 @@
 
     <div class="card mt-2">
       <div class="card-body p-0">
-        <div class="pharma-table">
+        <div>
           <app-data-table
             (onLazyLoad)="onPageChange($event)"
             [lazy]="true"

@@ -18,7 +18,7 @@
 
       <app-select
         (selectionChange)="onLotFilterChange()"
-        [(ngModel)]="selectedLotFilter"
+        [ngModel]="selectedLotFilter()" (ngModelChange)="selectedLotFilter.set($event)"
         [items]="lotFilters()"
         [style]="{ width: '150px' }"
         appendTo="body"
@@ -46,7 +46,7 @@
       @if (rayons().length > 0) {
         <app-select
           (selectionChange)="onRayonFilterChange()"
-          [(ngModel)]="selectedRayonId"
+          [ngModel]="selectedRayonId()" (ngModelChange)="selectedRayonId.set($event)"
           [items]="rayons()"
           [clearable]="true"
           [style]="{ 'min-width': '300px' }"

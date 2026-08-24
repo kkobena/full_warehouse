@@ -5,7 +5,6 @@
 }
 
 
-
 // ── Groupes de champs conditionnels ─────────────────────────────────────────
 .field-group {
   background: #f8f9fa;
@@ -31,7 +30,7 @@
   }
 }
 
-// ── Sélecteur de catégorie avec icône (::ng-deep car rendu dans overlay PrimeNG) ──
+
 ::ng-deep .category-option {
   display: flex;
   align-items: center;
@@ -85,13 +84,3 @@
   }
 }
 
-.modal-body.overflow-visible {
-  overflow-y: visible !important;
-  overflow-x: visible !important;
-}
-
-
-::ng-deep .p-select-overlay,
-::ng-deep .p-select-list-container {
-  z-index: 10000 !important;
-}

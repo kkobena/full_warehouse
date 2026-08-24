@@ -1,5 +1,5 @@
 <!-- Toolbar -->
-<app-toolbar icon="pi pi-tag" title="Analyse des Remises">
+<app-toolbar [code]="navCode()" icon="pi pi-tag" title="Analyse des Remises">
   <ng-container ngProjectAs="[toolbarFilters]">
     <div class="pharma-toolbar-filters">
       <pharma-date-picker
@@ -43,43 +43,22 @@
 @if (!isLoading() && kpi()) {
 
   <!-- KPI Strip -->
-  <div class="kpi-strip mt-2 mb-3">
-    <div class="kpi-strip-item danger-accent">
-      <i class="pi pi-tag text-danger"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">Montant total remisé</span>
-        <span class="kpi-strip-value text-danger">{{ formatCurrency(kpi()?.totalRemise) }} <small>FCFA</small></span>
-        <span class="kpi-strip-sub">taux moyen : {{ formatDecimal(kpi()?.tauxRemise, 1) }}%</span>
-      </div>
-    </div>
-    <div class="kpi-strip-divider"></div>
-    <div class="kpi-strip-item primary-accent">
-      <i class="pi pi-wallet text-primary"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">CA après remises</span>
-        <span class="kpi-strip-value text-primary">{{ formatCurrency(kpi()?.caApresRemise) }} <small>FCFA</small></span>
-        <span class="kpi-strip-sub">encaissé net</span>
-      </div>
-    </div>
-    <div class="kpi-strip-divider"></div>
-    <div class="kpi-strip-item warning-accent">
-      <i class="pi pi-percentage text-warning"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">Ventes avec remise</span>
-        <span class="kpi-strip-value text-warning">{{ formatNumber(kpi()?.nbVentesAvecRemise) }}</span>
-        <span class="kpi-strip-sub">{{ tauxParticipation() }}% des ventes totales</span>
-      </div>
-    </div>
-    <div class="kpi-strip-divider"></div>
-    <div class="kpi-strip-item">
-      <i class="pi pi-shopping-cart text-secondary"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">Total ventes</span>
-        <span class="kpi-strip-value">{{ formatNumber(kpi()?.nbVentesTotal) }}</span>
-        <span class="kpi-strip-sub">transactions</span>
-      </div>
-    </div>
-  </div>
+  <app-kpi-strip stripClass="mt-2 mb-3">
+    <app-kpi-item [accent]="'danger'" icon="pi pi-tag" iconClass="text-danger" label="Montant total remisé" [value]="formatCurrency(kpi()?.totalRemise)" valueClass="text-danger">
+      <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+      <ng-container ngProjectAs="[kpiSub]">taux moyen : {{ formatDecimal(kpi()?.tauxRemise, 1) }}%</ng-container>
+    </app-kpi-item>
+    <app-kpi-item [accent]="'primary'" icon="pi pi-wallet" iconClass="text-primary" label="CA après remises" [value]="formatCurrency(kpi()?.caApresRemise)" valueClass="text-primary">
+      <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+      <ng-container ngProjectAs="[kpiSub]">encaissé net</ng-container>
+    </app-kpi-item>
+    <app-kpi-item [accent]="'warning'" icon="pi pi-percentage" iconClass="text-warning" label="Ventes avec remise" [value]="formatNumber(kpi()?.nbVentesAvecRemise)" valueClass="text-warning">
+      <ng-container ngProjectAs="[kpiSub]">{{ tauxParticipation() }}% des ventes totales</ng-container>
+    </app-kpi-item>
+    <app-kpi-item icon="pi pi-shopping-cart" iconClass="text-secondary" label="Total ventes" [value]="formatNumber(kpi()?.nbVentesTotal)">
+      <ng-container ngProjectAs="[kpiSub]">transactions</ng-container>
+    </app-kpi-item>
+  </app-kpi-strip>
 
   <!-- Chart + Table -->
   <div class="row g-3">

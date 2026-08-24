@@ -1,6 +1,6 @@
 <div class="pharma-smart-content p-1">
   <!-- Modern Pharma Toolbar ---->
-  <app-toolbar icon="pi pi-chart-bar" title="Rapport d'activité">
+  <app-toolbar [code]="navCode()" icon="pi pi-chart-bar" title="Rapport d'activité">
 
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
@@ -14,7 +14,7 @@
       <div class="pharma-toolbar-actions">
         <div class="pharma-button-group">
           <app-button
-            (click)="loadAll()"
+            (clicked)="loadAll()"
             [loading]="loadingBtn()"
             [raised]="true"
             icon="pi pi-search"
@@ -25,8 +25,8 @@
           />
 
           <app-button
-            (click)="printAll()"
-            [loading]="loadingPdf"
+            (clicked)="printAll()"
+            [loading]="loadingPdf()"
             [raised]="true"
             icon="pi pi-file-pdf"
             label="Imprimer"
@@ -40,9 +40,9 @@
   </app-toolbar>
 
   <!-- Activity Summary Cards -->
-  @if (chiffreAffaire) {
+  @if (chiffreAffaire()) {
     <div class="activity-cards-container mt-3">
-      @let ca = chiffreAffaire.chiffreAffaire;
+      @let ca = chiffreAffaire().chiffreAffaire;
       @if (ca) {
         <!-- Card 1: Chiffre d'affaires -->
         <div class="activity-card activity-card-primary">
@@ -60,7 +60,7 @@
               <span class="activity-item-label">Montant TTC</span>
               <div class="activity-item-value-wrapper">
                 <span class="activity-item-value">{{ ca.montantTtc | number }}</span>
-                <span class="activity-item-currency">FCFA</span>
+                <span class="activity-item-currency" appDevise></span>
               </div>
             </div>
 
@@ -68,7 +68,7 @@
               <span class="activity-item-label">Montant TVA</span>
               <div class="activity-item-value-wrapper">
                 <span class="activity-item-value">{{ ca.montantTva | number }}</span>
-                <span class="activity-item-currency">FCFA</span>
+                <span class="activity-item-currency" appDevise></span>
               </div>
             </div>
 
@@ -76,7 +76,7 @@
               <span class="activity-item-label">Montant HT</span>
               <div class="activity-item-value-wrapper">
                 <span class="activity-item-value">{{ ca.montantHt | number }}</span>
-                <span class="activity-item-currency">FCFA</span>
+                <span class="activity-item-currency" appDevise></span>
               </div>
             </div>
 
@@ -84,7 +84,7 @@
               <span class="activity-item-label">Montant remise</span>
               <div class="activity-item-value-wrapper">
                 <span class="activity-item-value">{{ ca.montantRemise | number }}</span>
-                <span class="activity-item-currency">FCFA</span>
+                <span class="activity-item-currency" appDevise></span>
               </div>
             </div>
 
@@ -92,7 +92,7 @@
               <span class="activity-item-label">Montant net</span>
               <div class="activity-item-value-wrapper">
                 <span class="activity-item-value">{{ ca.montantNet | number }}</span>
-                <span class="activity-item-currency">FCFA</span>
+                <span class="activity-item-currency" appDevise></span>
               </div>
             </div>
 
@@ -100,7 +100,7 @@
               <span class="activity-item-label">Montant espèce</span>
               <div class="activity-item-value-wrapper">
                 <span class="activity-item-value">{{ ca.montantEspece | number }}</span>
-                <span class="activity-item-currency">FCFA</span>
+                <span class="activity-item-currency" appDevise></span>
               </div>
             </div>
 
@@ -108,7 +108,7 @@
               <span class="activity-item-label">Autres règlements</span>
               <div class="activity-item-value-wrapper">
                 <span class="activity-item-value">{{ ca.montantAutreModePaiement | number }}</span>
-                <span class="activity-item-currency">FCFA</span>
+                <span class="activity-item-currency" appDevise></span>
               </div>
             </div>
 
@@ -116,7 +116,7 @@
               <span class="activity-item-label">Montant crédit</span>
               <div class="activity-item-value-wrapper">
                 <span class="activity-item-value">{{ ca.montantCredit | number }}</span>
-                <span class="activity-item-currency">FCFA</span>
+                <span class="activity-item-currency" appDevise></span>
               </div>
             </div>
 
@@ -124,14 +124,14 @@
               <span class="activity-item-label">Marge</span>
               <div class="activity-item-value-wrapper">
                 <span class="activity-item-value">{{ ca.marge | number }}</span>
-                <span class="activity-item-currency">FCFA</span>
+                <span class="activity-item-currency" appDevise></span>
               </div>
             </div>
           </div>
         </div>
       }
 
-      @let achat = chiffreAffaire.achats;
+      @let achat = chiffreAffaire().achats;
       @if (achat) {
         <!-- Card 2: Total des achats -->
         <div class="activity-card activity-card-success">
@@ -149,7 +149,7 @@
               <span class="activity-item-label">Montant TTC</span>
               <div class="activity-item-value-wrapper">
                 <span class="activity-item-value">{{ achat.montantTtc | number }}</span>
-                <span class="activity-item-currency">FCFA</span>
+                <span class="activity-item-currency" appDevise></span>
               </div>
             </div>
 
@@ -157,7 +157,7 @@
               <span class="activity-item-label">Montant TVA</span>
               <div class="activity-item-value-wrapper">
                 <span class="activity-item-value">{{ achat.montantTva | number }}</span>
-                <span class="activity-item-currency">FCFA</span>
+                <span class="activity-item-currency" appDevise></span>
               </div>
             </div>
 
@@ -165,14 +165,14 @@
               <span class="activity-item-label">Montant HT</span>
               <div class="activity-item-value-wrapper">
                 <span class="activity-item-value">{{ achat.montantHt | number }}</span>
-                <span class="activity-item-currency">FCFA</span>
+                <span class="activity-item-currency" appDevise></span>
               </div>
             </div>
           </div>
         </div>
       }
 
-      @let recettes = chiffreAffaire.recettes;
+      @let recettes = chiffreAffaire().recettes;
       @if (recettes) {
         <!-- Card 3: Recettes -->
         <div class="activity-card activity-card-info">
@@ -191,7 +191,7 @@
                 <span class="activity-item-label">{{ recette.modePaimentLibelle }}</span>
                 <div class="activity-item-value-wrapper">
                   <span class="activity-item-value">{{ recette.montantReel | number }}</span>
-                  <span class="activity-item-currency">FCFA</span>
+                  <span class="activity-item-currency" appDevise></span>
                 </div>
               </div>
             }
@@ -202,7 +202,7 @@
                 <span class="activity-item-label">Total</span>
                 <div class="activity-item-value-wrapper">
                   <span class="activity-item-value">{{ total | number }}</span>
-                  <span class="activity-item-currency">FCFA</span>
+                  <span class="activity-item-currency" appDevise></span>
                 </div>
               </div>
             }
@@ -210,7 +210,7 @@
         </div>
       }
 
-      @let mvts = chiffreAffaire.mouvementCaisses;
+      @let mvts = chiffreAffaire().mouvementCaisses;
       @if (mvts) {
         <!-- Card 4: Mouvements de caisse -->
         <div class="activity-card activity-card-warning">
@@ -229,7 +229,7 @@
                 <span class="activity-item-label">{{ mvt.libelle }}</span>
                 <div class="activity-item-value-wrapper">
                   <span class="activity-item-value">{{ mvt.montant | number }}</span>
-                  <span class="activity-item-currency">FCFA</span>
+                  <span class="activity-item-currency" appDevise></span>
                 </div>
               </div>
             }
@@ -240,7 +240,7 @@
                 <span class="activity-item-label">Total</span>
                 <div class="activity-item-value-wrapper">
                   <span class="activity-item-value">{{ totalMvts | number }}</span>
-                  <span class="activity-item-currency">FCFA</span>
+                  <span class="activity-item-currency" appDevise></span>
                 </div>
               </div>
             }
@@ -250,7 +250,7 @@
     </div>
   }
 
-  @if (groupeFournisseurAchats && groupeFournisseurAchats.length) {
+  @if (groupeFournisseurAchats() && groupeFournisseurAchats().length) {
     <div class="row  p-2">
       <div class="card h-100 data-card">
         <div class="card-header">
@@ -266,8 +266,7 @@
             [paginator]="true"
             [rowsPerPageOptions]="[10, 15, 20]"
             [rows]="10"
-            [value]="groupeFournisseurAchats"
-            class="pharma-table"
+            [value]="groupeFournisseurAchats()"
             dataKey="libelle"
           >
             <ng-template #header>
@@ -300,7 +299,7 @@
       </div>
     </div>
   }
-  @if (reglementTiersPayants && reglementTiersPayants.length) {
+  @if (reglementTiersPayants() && reglementTiersPayants().length) {
     <div class="row  p-2">
       <div class="card h-100 data-card">
         <div class="card-header">
@@ -317,16 +316,15 @@
               [paginator]="true"
               [rowsPerPageOptions]="[10, 15, 20]"
               [rows]="10"
-              [value]="reglementTiersPayants"
-              class="pharma-table"
+              [value]="reglementTiersPayants()"
               dataKey="libelle"
-              stripedRows="true"
+
             >
               <ng-template #caption>
                 <div class="d-flex">
                   <app-icon-field [overlay]="true" icon="pi pi-search">
                     <input
-                      (input)="tbReglementTiersPayants.filterGlobal($event.target.value, 'contains')"
+                      (input)="tbReglementTiersPayants.filterGlobal($event.target.value)"
                       [(ngModel)]="searchReglement"
                       class="form-control"
                       placeholder="Filtrer" type="text" />
@@ -371,7 +369,7 @@
     </div>
   }
 
-  @if (achatTiersPayant && achatTiersPayant.length) {
+  @if (achatTiersPayant() && achatTiersPayant().length) {
     <div class="row p-2">
       <div class="card h-100 data-card">
         <div class="card-header">
@@ -388,15 +386,14 @@
               [paginator]="true"
               [rowsPerPageOptions]="[10, 15, 20]"
               [rows]="10"
-              [value]="achatTiersPayant"
-              class="pharma-table"
+              [value]="achatTiersPayant()"
               dataKey="libelle"
             >
               <ng-template #caption>
                 <div class="d-flex">
                   <app-icon-field [overlay]="true" icon="pi pi-search">
                     <input
-                      (input)="tb.filterGlobal($event.target.value, 'contains')"
+                      (input)="tb.filterGlobal($event.target.value)"
                       [(ngModel)]="searchAchat"
                       class="form-control"
                       placeholder="Filtrer" type="text" />

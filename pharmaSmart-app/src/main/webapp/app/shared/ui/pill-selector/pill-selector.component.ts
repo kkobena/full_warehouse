@@ -1,4 +1,4 @@
-import {Component, forwardRef, input, output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, forwardRef, input, output} from '@angular/core';
 import {NG_VALUE_ACCESSOR} from '@angular/forms';
 
 import {ControlValueAccessorBase} from '../forms/control-value-accessor.base';
@@ -110,6 +110,7 @@ export interface AppPillOption {
       }
     }
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PillSelectorComponent extends ControlValueAccessorBase<unknown> {
   readonly items = input.required<readonly AppPillOption[]>();

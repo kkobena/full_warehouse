@@ -1,4 +1,4 @@
-@import 'app/shared/scss/modal-theme';
+@use 'app/shared/scss/modal-theme' as *;
 @import 'app/shared/scss/table-common';
 
 @include modal-theme;

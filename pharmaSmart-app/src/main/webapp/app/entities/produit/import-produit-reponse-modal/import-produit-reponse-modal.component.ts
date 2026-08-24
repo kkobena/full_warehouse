@@ -10,7 +10,7 @@ import { ButtonComponent, CardComponent } from '../../../shared/ui';
   selector: 'jhi-import-produit-reponse-modal',
   imports: [CardComponent, ButtonComponent],
   templateUrl: './import-produit-reponse-modal.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['../../common-modal.component.scss'],
 })
 export class ImportProduitReponseModalComponent {

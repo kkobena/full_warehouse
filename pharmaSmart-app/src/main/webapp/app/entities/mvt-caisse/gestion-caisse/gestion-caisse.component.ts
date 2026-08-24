@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnInit, ChangeDetectionStrategy, input, signal } from "@angular/core";
 import { CashRegisterService } from "../../cash-register/cash-register.service";
 import { FormsModule } from "@angular/forms";
 import { ITEMS_PER_PAGE } from "../../../shared/constants/pagination.constants";
@@ -29,22 +29,30 @@ import { PharmaDatePickerComponent } from "../../../shared/date-picker/pharma-da
     BadgeComponent,
     NgbTooltip
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./gestion-caisse.component.html"
 })
 export class GestionCaisseComponent implements OnInit {
-  protected totalItems = 0;
-  protected loading!: boolean;
-  protected btnLoading = false;
-  protected page = 0;
-  protected predicate!: string;
-  protected ngbPaginationPage = 1;
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
+  protected readonly totalItems = signal(0);
+  protected readonly loading = signal<boolean | undefined>(undefined);
+  protected readonly btnLoading = signal(false);
+  protected readonly page = signal(0);
+  protected readonly ngbPaginationPage = signal(1);
   protected readonly itemsPerPage = ITEMS_PER_PAGE;
-  protected fromDate: NgbDateStruct | null = null;
-  protected toDate: NgbDateStruct | null = null;
-  protected selectedUser: IUser | null = null;
-  protected users: IUser[];
-  protected datas: CashRegister[];
+  protected readonly fromDate = signal<NgbDateStruct | null>(null);
+  protected readonly toDate = signal<NgbDateStruct | null>(null);
+  protected readonly selectedUser = signal<IUser | null>(null);
+  protected readonly users = signal<IUser[] | undefined>(undefined);
+  protected readonly datas = signal<CashRegister[] | undefined>(undefined);
   protected readonly OPEN = CashRegisterStatut.OPEN;
   protected readonly VALIDATED = CashRegisterStatut.VALIDATED;
   protected readonly CLOSED = CashRegisterStatut.CLOSED;
@@ -54,14 +62,14 @@ export class GestionCaisseComponent implements OnInit {
   private readonly notificationService = inject(NotificationService);
 
   onSearch(): void {
-    this.btnLoading = true;
+    this.btnLoading.set(true);
     this.loadPage();
     this.updateParam();
   }
 
   loadPage(page?: number): void {
-    const pageToLoad: number = page || this.page;
-    this.loading = true;
+    const pageToLoad: number = page || this.page();
+    this.loading.set(true);
     this.entityService
       .query({
         page: pageToLoad,
@@ -71,16 +79,16 @@ export class GestionCaisseComponent implements OnInit {
         next: (res: HttpResponse<MvtCaisse[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
         error: () => this.onError(),
         complete: () => {
-          this.btnLoading = false;
+          this.btnLoading.set(false);
         }
       });
   }
 
   ngOnInit(): void {
     if (this.mvtParamServiceService.mvtCaisseParam()) {
-      this.fromDate = this.mvtParamServiceService.mvtCaisseParam().fromDate;
-      this.toDate = this.mvtParamServiceService.mvtCaisseParam().toDate;
-      this.selectedUser = this.mvtParamServiceService.mvtCaisseParam().selectedUser;
+      this.fromDate.set(this.mvtParamServiceService.mvtCaisseParam().fromDate);
+      this.toDate.set(this.mvtParamServiceService.mvtCaisseParam().toDate);
+      this.selectedUser.set(this.mvtParamServiceService.mvtCaisseParam().selectedUser);
     }
     this.loadUsers();
     this.onSearch();
@@ -91,24 +99,24 @@ export class GestionCaisseComponent implements OnInit {
   }
 
   protected onSuccess(data: CashRegister[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get("X-Total-Count"));
-    this.page = page;
+    this.totalItems.set(Number(headers.get("X-Total-Count")));
+    this.page.set(page);
 
-    this.datas = data || [];
-    this.loading = false;
+    this.datas.set(data || []);
+    this.loading.set(false);
   }
 
   protected onError(): void {
-    this.ngbPaginationPage = this.page ?? 1;
-    this.btnLoading = false;
+    this.ngbPaginationPage.set(this.page() ?? 1);
+    this.btnLoading.set(false);
   }
 
   private updateParam(): void {
     const params = this.mvtParamServiceService.mvtCaisseParam();
     if (params) {
-      params.fromDate = this.fromDate;
-      params.toDate = this.toDate;
-      params.selectedUser = this.selectedUser;
+      params.fromDate = this.fromDate();
+      params.toDate = this.toDate();
+      params.selectedUser = this.selectedUser();
       this.mvtParamServiceService.setMvtCaisseParam(params);
     } else {
       this.setParam();
@@ -117,15 +125,15 @@ export class GestionCaisseComponent implements OnInit {
 
   private loadUsers(): void {
     this.userService.query().subscribe((res: HttpResponse<IUser[]>) => {
-      this.users = res.body || [];
+      this.users.set(res.body || []);
     });
   }
 
   private setParam(): void {
     const param: MvtCaisseParams = {
-      fromDate: this.fromDate,
-      toDate: this.toDate,
-      selectedUser: this.selectedUser
+      fromDate: this.fromDate(),
+      toDate: this.toDate(),
+      selectedUser: this.selectedUser()
     };
     this.mvtParamServiceService.setMvtCaisseParam(param);
   }
@@ -134,9 +142,9 @@ export class GestionCaisseComponent implements OnInit {
     return {
       statuts: [CashRegisterStatut.OPEN, CashRegisterStatut.VALIDATED, CashRegisterStatut.CLOSED, CashRegisterStatut.PENDING],
       size: this.itemsPerPage,
-      fromDate: this.fromDate ? NGB_DATE_TO_ISO(this.fromDate) : null,
-      toDate: this.toDate ? NGB_DATE_TO_ISO(this.toDate) : null,
-      userId: this.selectedUser?.id
+      fromDate: this.fromDate() ? NGB_DATE_TO_ISO(this.fromDate()) : null,
+      toDate: this.toDate() ? NGB_DATE_TO_ISO(this.toDate()) : null,
+      userId: this.selectedUser()?.id
     };
   }
 }

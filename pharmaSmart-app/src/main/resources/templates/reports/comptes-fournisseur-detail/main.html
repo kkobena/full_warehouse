@@ -36,15 +36,15 @@
           <div class="recap-row">
             <div class="recap-box">
               <div class="recap-label">Total commandé</div>
-              <div class="recap-value" th:text="${#numbers.formatInteger(compte.totalCommande, 0, 'POINT') + ' FCFA'}"></div>
+              <div class="recap-value" th:text="${#numbers.formatInteger(compte.totalCommande, 0, 'POINT') +' '+devise}"></div>
             </div>
             <div class="recap-box">
               <div class="recap-label">Total réglé</div>
-              <div class="recap-value text-success" th:text="${#numbers.formatInteger(compte.totalRegle, 0, 'POINT') + ' FCFA'}"></div>
+              <div class="recap-value text-success" th:text="${#numbers.formatInteger(compte.totalRegle, 0, 'POINT') +' '+devise}"></div>
             </div>
             <div class="recap-box">
               <div class="recap-label">Solde dû</div>
-              <div class="recap-value text-danger" th:text="${#numbers.formatInteger(compte.solde, 0, 'POINT') + ' FCFA'}"></div>
+              <div class="recap-value text-danger" th:text="${#numbers.formatInteger(compte.solde, 0, 'POINT') +' '+devise}"></div>
             </div>
           </div>
         </div>
@@ -82,7 +82,7 @@
             <tr>
               <td colspan="5" class="text-right"><strong>Restant total :</strong></td>
               <td class="text-right" style="font-weight: bold; color: #dc3545;">
-                <span th:text="${#numbers.formatInteger(totalRestant, 0, 'POINT') + ' FCFA'}"></span>
+                <span th:text="${#numbers.formatInteger(totalRestant, 0, 'POINT') +' '+devise}"></span>
               </td>
               <td></td>
             </tr>

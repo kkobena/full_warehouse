@@ -58,6 +58,12 @@ public final class EntityConstant {
     public static final String APP_NTH_MOIS_CONSOMMATION_CACHE = "APP_NTH_MOIS_CONSOMMATION_CACHE";
     public static final String APP_CANCEL_SALE_MAX_DAYS = "APP_CANCEL_SALE_MAX_DAYS"; // Délai maximum (en jours) pour annuler une vente clôturée
     public static final String APP_CANCEL_SALE_MAX_DAYS_CACHE = "APP_CANCEL_SALE_MAX_DAYS_CACHE";
+    public static final String APP_PONCTION_ANNULATION_MAX_DAYS = "APP_PONCTION_ANNULATION_MAX_DAYS"; // Délai (en jours) pour annuler une ponction validée
+    public static final String APP_PONCTION_ANNULATION_MAX_DAYS_CACHE = "APP_PONCTION_ANNULATION_MAX_DAYS_CACHE";
+    public static final String APP_PONCTION_PLAFOND_DEFAUT = "APP_PONCTION_PLAFOND_DEFAUT"; // Part maximale d'une vente qu'une ponction peut retirer
+    public static final String APP_DEVISE = "APP_DEVISE"; // Devise affichee a la suite des montants
+    public static final String APP_PONCTION_PLAFOND_DEFAUT_CACHE = "APP_PONCTION_PLAFOND_DEFAUT_CACHE";
+    public static final String APP_DEVISE_CACHE = "APP_DEVISE_CACHE";
     public static final String APP_RECEPTION_MIN_EXPIRY_DAYS = "APP_RECEPTION_MIN_EXPIRY_DAYS"; // Durée minimale (en jours) de validité d'un lot à la réception
     public static final String APP_RECEPTION_MIN_EXPIRY_DAYS_CACHE = "APP_RECEPTION_MIN_EXPIRY_DAYS_CACHE";
     public static final String APP_SEUIL_VARIATION_PRIX = "APP_SEUIL_VARIATION_PRIX"; // Seuil (%) de variation de prix d'achat déclenchant une alerte à la réception

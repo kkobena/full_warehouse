@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { IPaymentMode } from '../../shared/model/payment-mode.model';
@@ -18,15 +18,15 @@ import { ModePaymentUpdateComponent } from './mode-payment-update.component';
   selector: 'app-mode-payment',
   templateUrl: './mode-payment.component.html',
   styleUrls: ['./mode-payment.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ButtonComponent, DataTableComponent, SelectableRowDirective, IconFieldComponent, NgbTooltip],
 })
 export class ModePaymentComponent implements OnInit {
-  protected paymentModes?: IPaymentMode[];
-  protected totalItems = 0;
+  protected readonly paymentModes = signal<IPaymentMode[] | undefined>(undefined);
+  protected readonly totalItems = signal(0);
   protected itemsPerPage = ITEMS_PER_PAGE;
-  protected page = 0;
-  protected loading!: boolean;
+  protected readonly page = signal(0);
+  protected readonly loading = signal<boolean | undefined>(undefined);
 
   private readonly modalService = inject(NgbModal);
   private readonly modePaymentService = inject(ModePaymentService);
@@ -40,8 +40,8 @@ export class ModePaymentComponent implements OnInit {
   }
 
   protected loadPage(page?: number, search?: string): void {
-    const pageToLoad: number = page || this.page;
-    this.loading = true;
+    const pageToLoad: number = page || this.page();
+    this.loading.set(true);
     this.modePaymentService
       .query({
         page: pageToLoad,
@@ -56,15 +56,15 @@ export class ModePaymentComponent implements OnInit {
 
   protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event) {
-      this.page = event.first / event.rows;
-      this.loading = true;
+      this.page.set(event.first / event.rows);
+      this.loading.set(true);
       this.modePaymentService
         .query({
-          page: this.page,
+          page: this.page(),
           size: event.rows,
         })
         .subscribe({
-          next: (res: HttpResponse<IPaymentMode[]>) => this.onSuccess(res.body, res.headers, this.page),
+          next: (res: HttpResponse<IPaymentMode[]>) => this.onSuccess(res.body, res.headers, this.page()),
           error: () => this.onError(),
         });
     }
@@ -86,13 +86,13 @@ export class ModePaymentComponent implements OnInit {
   }
 
   private onSuccess(data: IPaymentMode[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get('X-Total-Count'));
-    this.page = page;
-    this.paymentModes = data || [];
-    this.loading = false;
+    this.totalItems.set(Number(headers.get('X-Total-Count')));
+    this.page.set(page);
+    this.paymentModes.set(data || []);
+    this.loading.set(false);
   }
 
   private onError(): void {
-    this.loading = false;
+    this.loading.set(false);
   }
 }

@@ -1,7 +1,7 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-1">
 
-    <app-toolbar [compact]="true" icon="pi pi-replay" title="Avoirs clients">
+    <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-replay" title="Avoirs clients">
       <ng-container ngProjectAs="[toolbarFilters]">
         <app-select
           (ngModelChange)="onStatutChange($event)"
@@ -13,7 +13,7 @@
         />
 
         <app-icon-field [overlay]="true" icon="pi pi-search">
-          <input (keyup.enter)="onSearch()" [(ngModel)]="search" class="form-control"
+          <input (keyup.enter)="onSearch()" [ngModel]="search()" (ngModelChange)="search.set($event)" class="form-control"
                  placeholder="Référence, produit..." type="text" />
         </app-icon-field>
 
@@ -36,13 +36,13 @@
       <div class="summary-item">
         <i class="pi pi-list"></i>
         <span class="summary-label">Nombre total :</span>
-        <span class="summary-value">{{ documentsTotal | number }}</span>
+        <span class="summary-value">{{ documentsTotal() | number }}</span>
       </div>
       <div class="summary-item">
         <i class="pi pi-wallet"></i>
         <span class="summary-label">Montant total :</span>
         <span class="summary-value avoir-amount">{{ totalMontantDocuments | number: '1.0-0' }}
-          FCFA</span>
+          <span appDevise></span></span>
       </div>
     </div>
 
@@ -52,11 +52,11 @@
       [loading]="loading()"
       [paginator]="true"
       [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
-      [rows]="itemsPerPage"
+      [rows]="itemsPerPage()"
       [showCurrentPageReport]="true"
       [size]="'small'"
       [stripedRows]="true"
-      [totalRecords]="documentsTotal"
+      [totalRecords]="documentsTotal()"
       [value]="documents()"
       currentPageReportTemplate="{first} – {last} sur {totalRecords}"
       dataKey="id"

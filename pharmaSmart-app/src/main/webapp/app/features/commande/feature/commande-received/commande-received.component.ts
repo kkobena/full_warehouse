@@ -94,6 +94,7 @@ import {ReceptionSequentialComponent} from "./sequential/reception-sequential.co
 import {ReceptionFinalizeModalComponent} from "./sequential/reception-finalize-modal.component";
 import {IConfiguration} from "../../../../shared/model/configuration.model";
 
+import { formatNumber } from 'app/shared/utils/format-utils';
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
 @Component({
@@ -101,7 +102,7 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
   templateUrl: "./commande-received.component.html",
   styleUrls: ["./commande-received.component.scss"],
   providers: [ReceptionScannerService, ScanOrchestratorService],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -125,20 +126,20 @@ export class CommandeReceivedComponent implements OnInit {
   retour = output<void>();
   showLotBtn = input(false);
   readonly scanInputRef = viewChild<ElementRef>("scanInputRef");
-  protected orderLines: IOrderLine[] = [];
-  protected displayRows: any[] = [];
+  protected readonly orderLines = signal<IOrderLine[]>([]);
+  protected readonly displayRows = signal<any[]>([]);
   protected search?: string;
   protected tris = "UPDATE";
-  protected selectedFilter = "ALL";
-  protected showLeftPanel = true;
+  protected readonly selectedFilter = signal("ALL");
+  protected readonly showLeftPanel = signal(true);
   // ── Vue séquentielle / grille ─────────────────────────────────────────────
   protected readonly viewMode = signal<"grid" | "sequential">(
     (localStorage.getItem("reception-view-mode") as "grid" | "sequential") ?? "sequential"
   );
   protected putWayMode = signal<string>("MANUAL");
-  protected currentCommande!: ICommande;
-  protected filtres: any[];
-  protected exportbuttons: AppSplitButtonItem[];
+  protected readonly currentCommande = signal<ICommande | undefined>(undefined);
+  protected readonly filtres = signal<any[] | undefined>(undefined);
+  protected readonly exportbuttons = signal<AppSplitButtonItem[] | undefined>(undefined);
   protected readonly sorts = SORT;
   // ── AG Grid ───────────────────────────────────────────────────────────────
   protected readonly theme = themeAlpine;
@@ -157,13 +158,13 @@ export class CommandeReceivedComponent implements OnInit {
     "pharma-row-provisional": p => !p.data?.__type && !!p.data?.provisionalCode,
     "cr-lot-editor-row": p => p.data?.__type === "lot-editor"
   };
-  protected columnDefs: ColDef<any>[] = [];
+  protected readonly columnDefs = signal<ColDef<any>[]>([]);
   protected readonly gridContext: {
     componentParent: CommandeReceivedComponent
   } = {componentParent: this};
   protected readonly fullWidthCellRenderer = LotInlineEditorComponent;
   // ── Scan réception ────────────────────────────────────────────────────────
-  protected scanValue = "";
+  protected readonly scanValue = signal("");
   protected readonly lastScanResult = signal<IReceptionScanResult | null>(null);
   /** Pré-remplissage lot transmis au composant séquentiel après un scan DataMatrix sans lot auto-créé. */
   protected readonly scanLotPrefill = signal<{ numLot: string; expiry: string } | null>(null);
@@ -198,15 +199,14 @@ export class CommandeReceivedComponent implements OnInit {
   /** Mode scanner actif (badge UI) — délégué à l'orchestrateur. */
   protected readonly scannerMode = this.scanOrchestrator.scannerMode;
   /** Bouton reconnexion CDC visible — délégué à l'orchestrateur. */
-  protected readonly canReconnectScanner = this.scanOrchestrator.canReconnect;
 
   constructor() {
-    this.filtres = [
+    this.filtres.set([
       {label: "Prix d'achat differents", value: "NOT_EQUAL"},
       {label: "Code cip  à mettre à jour", value: "PROVISOL_CIP"},
       {label: "Tous", value: "ALL"}
-    ];
-    this.exportbuttons = [
+    ]);
+    this.exportbuttons.set([
       {
         label: "PDF",
         icon: "pi pi-file-pdf",
@@ -217,7 +217,7 @@ export class CommandeReceivedComponent implements OnInit {
         icon: "pi pi-file-excel",
         command: () => this.exportCSV()
       }
-    ];
+    ]);
 
     // HID source : codes 'complete' du buffer scanner réception.
     const hidSource$ = this.receptionScanner.onScanEvent$.pipe(
@@ -233,7 +233,7 @@ export class CommandeReceivedComponent implements OnInit {
   }
 
   protected get lignesPcbAlert(): number {
-    return this.orderLines.filter(l => {
+    return this.orderLines().filter(l => {
       const pcb = l.qteColis;
       if (!pcb || pcb <= 1) {
         return false;
@@ -247,29 +247,29 @@ export class CommandeReceivedComponent implements OnInit {
     if (!this.showLotBtn()) {
       return 0;
     }
-    return this.orderLines.filter(l => (l.lots?.length ?? 0) === 0).length;
+    return this.orderLines().filter(l => (l.lots?.length ?? 0) === 0).length;
   }
 
   //Taux de service : lignes où quantityReceivedTmp >= quantityRequested / total
   protected get tauxService(): number {
-    if (!this.orderLines.length) {
+    if (!this.orderLines().length) {
       return 0;
     }
-    const served = this.orderLines.filter(
+    const served = this.orderLines().filter(
       l => l.updated && l.quantityRequested != null &&
         (l.quantityReceivedTmp ?? 0) >= l.quantityRequested &&
         l.quantityRequested > 0
     ).length;
-    return Math.round((served / this.orderLines.length) * 100);
+    return Math.round((served / this.orderLines().length) * 100);
   }
 
   ngOnInit(): void {
 
     this.initPutAway();
-    this.currentCommande = this.commande();
-    this.orderLines = (this.currentCommande.orderLines as IOrderLine[]) ?? [];
+    this.currentCommande.set(this.commande());
+    this.orderLines.set((this.currentCommande().orderLines as IOrderLine[]) ?? []);
 
-    this.columnDefs = this.buildColumnDefs();
+    this.columnDefs.set(this.buildColumnDefs());
     this.refreshDisplayRows();
     this.setupBarcodeScanner();
   }
@@ -293,7 +293,7 @@ export class CommandeReceivedComponent implements OnInit {
       return;
     }
     this.expandedLineIds.delete(line.id);
-    const found = this.orderLines.find(l => l.id === line.id);
+    const found = this.orderLines().find(l => l.id === line.id);
     if (found) {
       (found as any).__expanded = false;
     }
@@ -301,7 +301,7 @@ export class CommandeReceivedComponent implements OnInit {
   }
 
   onLotSaved(line: IOrderLine, lots: ILot[]): void {
-    const found = this.orderLines.find(l => l.id === line.id);
+    const found = this.orderLines().find(l => l.id === line.id);
     if (found) {
       found.lots = lots;
     }
@@ -345,19 +345,19 @@ export class CommandeReceivedComponent implements OnInit {
   }
 
   protected toggleLeftPanel(): void {
-    this.showLeftPanel = !this.showLeftPanel;
+    this.showLeftPanel.set(!this.showLeftPanel());
   }
 
   protected onSequentialLineChanged(updatedLine: IOrderLine): void {
     // effacer le prefill DataMatrix dès que la ligne est validée (consommé)
     this.scanLotPrefill.set(null);
-    const idx = this.orderLines.findIndex(l => l.id === updatedLine.id);
+    const idx = this.orderLines().findIndex(l => l.id === updatedLine.id);
     if (idx !== -1) {
-      this.orderLines = [
-        ...this.orderLines.slice(0, idx),
+      this.orderLines.set([
+        ...this.orderLines().slice(0, idx),
         updatedLine,
-        ...this.orderLines.slice(idx + 1)
-      ];
+        ...this.orderLines().slice(idx + 1)
+      ]);
       this.refreshDisplayRows();
     }
   }
@@ -369,11 +369,11 @@ export class CommandeReceivedComponent implements OnInit {
       centered: true
     });
     const instance = ref.componentInstance as ReceptionFinalizeModalComponent;
-    instance.orderLines = this.orderLines;
-    instance.commandeRef = this.currentCommande.orderReference ?? this.currentCommande.receiptReference ?? "";
-    instance.fournisseurLibelle = this.currentCommande.fournisseur?.libelle ?? "";
+    instance.orderLines = this.orderLines();
+    instance.commandeRef = this.currentCommande().orderReference ?? this.currentCommande().receiptReference ?? "";
+    instance.fournisseurLibelle = this.currentCommande().fournisseur?.libelle ?? "";
     //  Lignes dont le CIP a été mis à jour pendant cette réception
-    instance.updatedCipLines = this.orderLines.filter(l => l.id && this.updatedCipLineIds.has(l.id));
+    instance.updatedCipLines = this.orderLines().filter(l => l.id && this.updatedCipLineIds.has(l.id));
 
     ref.result.then(
       result => {
@@ -392,13 +392,13 @@ export class CommandeReceivedComponent implements OnInit {
 
   protected onFilterCommandeLines(): void {
     const query = {
-      commandeId: this.currentCommande.id,
+      commandeId: this.currentCommande().id,
       search: this.search,
-      filterCommaneEnCours: this.selectedFilter,
+      filterCommaneEnCours: this.selectedFilter(),
       orderBy: this.tris
     };
     this.commandeService.filterCommandeLines(query).subscribe(res => {
-      this.orderLines = res.body!;
+      this.orderLines.set(res.body!);
       this.expandedLineIds.clear();
       this.refreshDisplayRows();
     });
@@ -417,7 +417,7 @@ export class CommandeReceivedComponent implements OnInit {
       if (qty >= 0) {
         line.quantityReceived = qty;
         line.quantityReceivedTmp = qty;
-        this.orderLines = [...this.orderLines];
+        this.orderLines.set([...this.orderLines()]);
         this.gridApi?.refreshCells({
           rowNodes: [event.node],
           columns: ["afterStock", "statut", "quantityReceivedTmp"],
@@ -435,7 +435,7 @@ export class CommandeReceivedComponent implements OnInit {
       const qty = Number(event.newValue);
       if (qty >= 0) {
         line.freeQty = qty;
-        this.orderLines = [...this.orderLines];
+        this.orderLines.set([...this.orderLines()]);
         this.gridApi?.refreshCells({rowNodes: [event.node], columns: ["afterStock"], force: true});
         this.commandeService.updateQuantityUG(line).subscribe({
           next: () => this.refreshCommande(),
@@ -489,7 +489,7 @@ export class CommandeReceivedComponent implements OnInit {
   }
 
   protected onToutValider(): void {
-    const allLines = this.currentCommande.orderLines as IOrderLine[] ?? [];
+    const allLines = this.currentCommande().orderLines as IOrderLine[] ?? [];
     const linesToUpdate = allLines.filter(l => !l.updated);
     if (linesToUpdate.length === 0) {
       this.notificationService.info("Aucune ligne en attente de validation", "Tout valider");
@@ -499,7 +499,7 @@ export class CommandeReceivedComponent implements OnInit {
   }
 
   protected onDeleteOrderLine(orderLine: IOrderLine): void {
-    if (this.currentCommande) {
+    if (this.currentCommande()) {
       this.commandeService.deleteOrderLineById(orderLine.orderLineId).subscribe(() => this.refreshCommande());
     }
   }
@@ -526,7 +526,7 @@ export class CommandeReceivedComponent implements OnInit {
     showCommonModal(
       this.modalService,
       FileResponseModalComponent,
-      {commandeSelected: this.currentCommande, header: "IMPORTER RÉPONSE"},
+      {commandeSelected: this.currentCommande(), header: "IMPORTER RÉPONSE"},
       (responseCommande: IResponseCommande) => {
         if (responseCommande) {
           this.refreshCommande();
@@ -543,7 +543,7 @@ export class CommandeReceivedComponent implements OnInit {
       size: "lg",
       centered: true
     });
-    (ref.componentInstance as ReconciliationFactureComponent).commande = this.currentCommande;
+    (ref.componentInstance as ReconciliationFactureComponent).commande = this.currentCommande();
   }
 
   protected onRetourFournisseur(): void {
@@ -551,9 +551,9 @@ export class CommandeReceivedComponent implements OnInit {
       this.modalService,
       RetourDepuisReceptionComponent,
       {
-        commande: this.currentCommande,
-        orderLines: this.orderLines,
-        header: `Retour fournisseur — ${this.currentCommande.receiptReference ?? this.currentCommande.orderReference ?? ""}`
+        commande: this.currentCommande(),
+        orderLines: this.orderLines(),
+        header: `Retour fournisseur — ${this.currentCommande().receiptReference ?? this.currentCommande().orderReference ?? ""}`
       },
       () => this.refreshCommande(),
       "xl"
@@ -590,7 +590,7 @@ export class CommandeReceivedComponent implements OnInit {
       EditProduitComponent,
       {
         deliveryItem: orderLine,
-        delivery: this.currentCommande,
+        delivery: this.currentCommande(),
         header: `EDITION DU PRODUIT ${orderLine.produitLibelle} [${orderLine.produitCip}]`
       },
       null,
@@ -616,7 +616,7 @@ export class CommandeReceivedComponent implements OnInit {
   }
 
   protected exportPdf(): void {
-    this.commandeService.exportToPdf(this.currentCommande.commandeId).subscribe(blob => {
+    this.commandeService.exportToPdf(this.currentCommande().commandeId).subscribe(blob => {
       if (this.tauriPrinterService.isRunningInTauri()) {
         handleBlobForTauri(blob, "commande_en_cours");
       } else {
@@ -626,7 +626,7 @@ export class CommandeReceivedComponent implements OnInit {
   }
 
   protected exportCSV(): void {
-    this.commandeService.exportToCsv(this.currentCommande.commandeId).subscribe(blob => {
+    this.commandeService.exportToCsv(this.currentCommande().commandeId).subscribe(blob => {
       if (this.tauriPrinterService.isRunningInTauri()) {
         handleBlobForTauri(blob, "commande_en_cours", "csv");
       } else {
@@ -636,11 +636,11 @@ export class CommandeReceivedComponent implements OnInit {
   }
 
   protected onScanReception(): void {
-    const raw = this.scanValue?.trim();
+    const raw = this.scanValue()?.trim();
     if (!raw) {
       return;
     }
-    this.scanValue = "";
+    this.scanValue.set("");
 
     // Anti-rebond : ignorer un même code reçu trop vite (double trigger / rebond mécanique)
     const now = Date.now();
@@ -651,7 +651,7 @@ export class CommandeReceivedComponent implements OnInit {
     }
     this.lastReceptionScan = {code: raw, at: now};
 
-    this.deliveryService.scanReception(this.currentCommande.id, raw)
+    this.deliveryService.scanReception(this.currentCommande().id, raw)
       .pipe(timeout(CommandeReceivedComponent.SCAN_RECEPTION_TIMEOUT_MS))
       .subscribe({
         next: res => {
@@ -659,7 +659,7 @@ export class CommandeReceivedComponent implements OnInit {
           if (!result.found) {
             this.audioFeedback.beepError();
             //  Enrichir le signal avec les lignes provisoires + le code scanné
-            const provisionalLines = this.orderLines
+            const provisionalLines = this.orderLines()
               .filter(l => l.provisionalCode)
               .map(l => ({id: l.id!, libelle: l.produitLibelle!}));
             this.lastScanResult.set({...result, provisionalLines, scannedCode: raw});
@@ -668,14 +668,14 @@ export class CommandeReceivedComponent implements OnInit {
           }
 
           this.audioFeedback.beepSuccess();
-          const idx = this.orderLines.findIndex(l => l.id === result.orderLineId);
+          const idx = this.orderLines().findIndex(l => l.id === result.orderLineId);
           if (idx === -1) {
             this.lastScanResult.set(result);
             this.scheduleClearScanResult();
             return;
           }
 
-          const currentLine = this.orderLines[idx];
+          const currentLine = this.orderLines()[idx];
           const increment = result.scannedQty ?? 1;
           const oldQty = currentLine.quantityReceived ?? 0;
           const newQty = oldQty + increment;
@@ -796,8 +796,8 @@ export class CommandeReceivedComponent implements OnInit {
       l.quantityReceived = l.quantityRequested ?? 0;
       l.quantityReceivedTmp = l.quantityRequested ?? 0;
     }
-    this.selectedFilter = "ALL";
-    this.orderLines = [...allLines];
+    this.selectedFilter.set("ALL");
+    this.orderLines.set([...allLines]);
     this.refreshDisplayRows();
     this.deliveryService.batchUpdateQuantityReceived(linesToUpdate).subscribe({
       next: () => this.refreshCommande(),
@@ -807,13 +807,13 @@ export class CommandeReceivedComponent implements OnInit {
   }
 
   private canValidate(): boolean {
-    const allLines = this.currentCommande.orderLines as IOrderLine[] ?? [];
+    const allLines = this.currentCommande().orderLines as IOrderLine[] ?? [];
     const linesToUpdate = allLines.filter(l => !l.updated);
     return linesToUpdate.length === 0;
   }
 
   private countLignesNonSaisies(): number {
-    const allLines = this.currentCommande.orderLines as IOrderLine[] ?? [];
+    const allLines = this.currentCommande().orderLines as IOrderLine[] ?? [];
     return allLines.filter(l => !l.updated).length;
   }
 
@@ -828,7 +828,7 @@ export class CommandeReceivedComponent implements OnInit {
     // Sans gestion de lot : les lignes non saisies sont considérées conformes (quantityReceived = quantityRequested côté backend)
     this.conformeSansLot = !this.showLotBtn();
 
-    this.commandeService.checkPriceVariation(this.currentCommande.commandeId).subscribe({
+    this.commandeService.checkPriceVariation(this.currentCommande().commandeId).subscribe({
       next: res => {
         const lignesAnomalie = res.body ?? [];
         if (lignesAnomalie.length > 0) {
@@ -887,7 +887,7 @@ export class CommandeReceivedComponent implements OnInit {
   }
 
   private buildConformeSansLotMessage(lignesNonSaisies: number, ecartsPrixAcceptes = false): string {
-    const total = (this.currentCommande.orderLines ?? []).length;
+    const total = (this.currentCommande().orderLines ?? []).length;
     const prefixe = ecartsPrixAcceptes
       ? "Ecarts de prix déjà acceptés."
       : "";
@@ -904,7 +904,7 @@ export class CommandeReceivedComponent implements OnInit {
       this.onFinalize(false);
       return;
     }
-    this.commandeService.getPutawayPreview(this.currentCommande.commandeId).subscribe({
+    this.commandeService.getPutawayPreview(this.currentCommande().commandeId).subscribe({
       next: (items: IPutawayPreviewItem[]) => {
         if (!items || items.length === 0) {
           this.onFinalize(false);
@@ -925,12 +925,12 @@ export class CommandeReceivedComponent implements OnInit {
   }
 
   private applyScanResult(idx: number, result: IReceptionScanResult, newQty: number): void {
-    const updated = {...this.orderLines[idx]};
+    const updated = {...this.orderLines()[idx]};
     updated.quantityReceived = newQty;
     updated.quantityReceivedTmp = newQty;
     updated.updated = true; // ← marquer comme saisi pour que statut / tauxService / concordance soient corrects
-    this.orderLines = [...this.orderLines];
-    this.orderLines[idx] = updated;
+    this.orderLines.set([...this.orderLines()]);
+    this.orderLines()[idx] = updated;
     this.refreshDisplayRows();
 
     const rowNode = this.gridApi?.getRowNode(String(updated.id));
@@ -976,7 +976,7 @@ export class CommandeReceivedComponent implements OnInit {
     this.scanOrchestrator.onScan$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(code => {
-        this.scanValue = code;
+        this.scanValue.set(code);
         this.onScanReception();
       });
 
@@ -1138,9 +1138,9 @@ export class CommandeReceivedComponent implements OnInit {
           if (!p.data) {
             return "";
           }
-          const val = p.data.orderCostAmount != null ? Number(p.data.orderCostAmount).toLocaleString("fr-FR") : "—";
+          const val = p.data.orderCostAmount != null ? formatNumber(Number(p.data.orderCostAmount)) : "—";
           if (p.data.costAmount != null && p.data.costAmount !== p.data.orderCostAmount) {
-            const tarif = Number(p.data.costAmount).toLocaleString("fr-FR");
+            const tarif = formatNumber(Number(p.data.costAmount));
             return `<span style="display:flex;align-items:center;gap:4px;white-space:nowrap">
               <span>${val}</span>
               <span title="Tarif catalogue : ${tarif} F" style="display:inline-flex;align-items:center;gap:2px;color:#dc3545;font-size:0.7rem;font-weight:600;cursor:help">
@@ -1161,9 +1161,9 @@ export class CommandeReceivedComponent implements OnInit {
           if (!p.data) {
             return "";
           }
-          const val = p.data.orderUnitPrice != null ? Number(p.data.orderUnitPrice).toLocaleString("fr-FR") : "—";
+          const val = p.data.orderUnitPrice != null ? formatNumber(Number(p.data.orderUnitPrice)) : "—";
           if (p.data.regularUnitPrice != null && p.data.regularUnitPrice !== p.data.orderUnitPrice) {
-            const tarif = Number(p.data.regularUnitPrice).toLocaleString("fr-FR");
+            const tarif = formatNumber(Number(p.data.regularUnitPrice));
             return `<span style="display:flex;align-items:center;gap:4px;white-space:nowrap">
               <span>${val}</span>
               <span title="Tarif catalogue : ${tarif} F" style="display:inline-flex;align-items:center;gap:2px;color:#dc3545;font-size:0.7rem;font-weight:600;cursor:help">
@@ -1184,7 +1184,7 @@ export class CommandeReceivedComponent implements OnInit {
             return "";
           }
           const qty = p.data.quantityRequested;
-          const val = qty != null ? Number(qty).toLocaleString("fr-FR") : "—";
+          const val = qty != null ? formatNumber(Number(qty)) : "—";
           const pcb = p.data.qteColis;
           const pcbAlert = pcb != null && pcb > 1 && qty != null && qty % pcb !== 0;
           const pcbBadge = pcbAlert
@@ -1206,7 +1206,7 @@ export class CommandeReceivedComponent implements OnInit {
             return "";
           }
           const qty = p.data.quantityReceivedTmp;
-          const val = qty != null ? Number(qty).toLocaleString("fr-FR") : "—";
+          const val = qty != null ? formatNumber(Number(qty)) : "—";
           const partial = qty !== p.data.quantityRequested;
           const pcb = p.data.qteColis;
           const pcbAlert = pcb != null && pcb > 1 && qty != null && qty > 0 && qty % pcb !== 0;
@@ -1306,7 +1306,7 @@ export class CommandeReceivedComponent implements OnInit {
       width: 95,
       type: "numericColumn",
       hide: true,
-      valueFormatter: (p: any) => p.value != null ? `${Number(p.value).toLocaleString("fr-FR")} F` : "—"
+      valueFormatter: (p: any) => p.value != null ? `${formatNumber(Number(p.value))} F` : "—"
     });
     cols.push({
       field: "netAmount",
@@ -1314,7 +1314,7 @@ export class CommandeReceivedComponent implements OnInit {
       width: 100,
       type: "numericColumn",
       hide: true,
-      valueFormatter: (p: any) => p.value != null ? `${Number(p.value).toLocaleString("fr-FR")} F` : "—"
+      valueFormatter: (p: any) => p.value != null ? `${formatNumber(Number(p.value))} F` : "—"
     });
 
 
@@ -1337,26 +1337,26 @@ export class CommandeReceivedComponent implements OnInit {
       backdrop: "static"
     });
     modalRef.componentInstance.responseCommande = responseCommande;
-    modalRef.componentInstance.commande = this.currentCommande;
+    modalRef.componentInstance.commande = this.currentCommande();
   }
 
   private refreshDisplayRows(): void {
     const rows: any[] = [];
-    for (const line of this.orderLines) {
+    for (const line of this.orderLines()) {
       rows.push(line);
       if (this.expandedLineIds.has(line.id!)) {
         rows.push({__type: "lot-editor", __line: line, __id: `lot-editor-${line.id}`});
       }
     }
-    this.displayRows = rows;
-    this.gridApi?.setGridOption("rowData", this.displayRows);
+    this.displayRows.set(rows);
+    this.gridApi?.setGridOption("rowData", this.displayRows());
   }
 
   private refreshCommande(): void {
-    this.commandeService.find(this.currentCommande.commandeId).subscribe(res => {
-      this.currentCommande = res.body;
-      this.orderLines = this.currentCommande.orderLines as IOrderLine[];
-      this.commandeChange.emit(this.currentCommande);
+    this.commandeService.find(this.currentCommande().commandeId).subscribe(res => {
+      this.currentCommande.set(res.body);
+      this.orderLines.set(this.currentCommande().orderLines as IOrderLine[]);
+      this.commandeChange.emit(this.currentCommande());
       this.expandedLineIds.clear();
       this.refreshDisplayRows();
     });
@@ -1366,7 +1366,7 @@ export class CommandeReceivedComponent implements OnInit {
     this.spinner().show();
     this.deliveryService
       .finalizeSaisieEntreeStock({
-        ...this.currentCommande,
+        ...this.currentCommande(),
         doTransfer,
         conformeSansLot: this.conformeSansLot
       })
@@ -1383,7 +1383,7 @@ export class CommandeReceivedComponent implements OnInit {
   }
 
   private checkReliquat(afterCallback: () => void): void {
-    const lignesPartielles = this.orderLines.filter(
+    const lignesPartielles = this.orderLines().filter(
       l => (l.quantityReceivedTmp ?? 0) < (l.quantityRequested ?? 0)
     );
     if (lignesPartielles.length === 0) {
@@ -1396,7 +1396,7 @@ export class CommandeReceivedComponent implements OnInit {
     );
     this.confirmDialog.onConfirm(
       () => {
-        this.commandeService.createReliquat(this.currentCommande.commandeId).subscribe({
+        this.commandeService.createReliquat(this.currentCommande().commandeId).subscribe({
           next: res => {
             this.notificationService.success(
               `Reliquat #${res.body!.orderReference ?? res.body!.id} créé (${lignesPartielles.length} article(s))`,
@@ -1419,12 +1419,12 @@ export class CommandeReceivedComponent implements OnInit {
 
   private confirmPrintTicket(commandeId: CommandeId): void {
     this.confirmDialog.onConfirm(
-      () => this.printEtiquette({...this.currentCommande, commandeId}),
+      () => this.printEtiquette({...this.currentCommande(), commandeId}),
       "Impression",
       "Voullez-vous imprimer les étiquettes ?",
       null,
       () => {
-        this.currentCommande = null;
+        this.currentCommande.set(null);
         this.commandeChange.emit(null);
         this.previousState();
       }
@@ -1440,14 +1440,14 @@ export class CommandeReceivedComponent implements OnInit {
         header: `IMPRIMER LES ETIQUETTES DU BON DE LIVRAISON [ ${commande.receiptReference} ] `
       },
       () => {
-        this.currentCommande = null;
+        this.currentCommande.set(null);
         this.commandeChange.emit(null);
         this.previousState();
       },
       "lg",
       null,
       () => {
-        this.currentCommande = null;
+        this.currentCommande.set(null);
         this.commandeChange.emit(null);
         this.previousState();
       }

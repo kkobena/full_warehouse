@@ -1,46 +1,29 @@
 <div class="container-fluid">
-  <div class="row">
-    <div class="col-lg-2 col-xl-2 col-xxl-2 col-md-3 col-sm-4">
-      <!-- Modern Navigation Sidebar -->
-      <div class="pharma-nav-sidebar">
-        <div class="pharma-nav-sidebar-card">
-          <div class="pharma-nav-sidebar-header">
-            <i class="pi pi-percentage"></i>
-            <span>Gestion remises</span>
-          </div>
+  <app-nav-sidebar (collapsedChange)="menuReplie.set($event)" [collapsed]="menuReplie()"
+                   [collapsible]="true" [nav]="nav" contentColumnClass="col-lg-10 col-xl-10 col-xxl-10 col-md-9 col-sm-8"
+                   icon="pi pi-percentage" menuColumnClass="col-lg-2 col-xl-2 col-xxl-2 col-md-3 col-sm-4"
+                   title="Gestion remises">
+    <div #nav="ngbNav" [(activeId)]="active"
+         class="nav flex-column nav-pills" ngbNav orientation="vertical">
+      <ng-container ngbNavItem="remise-produit">      <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="remise.remise-produit"
+                                fallbackIcon="pi pi-box"
+                                fallbackLabel="Remises produit" />
+        </a>
+        <ng-template ngbNavContent>
+          <app-remise-produits navCode="remise.remise-produit"></app-remise-produits>
+        </ng-template>
+      </ng-container>
 
-          <div class="pharma-nav-sidebar-content">
-            <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
-                 orientation="vertical">
-              <ng-container ngbNavItem="remise-produit">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-box"></i>
-                  <span>Remises produit</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  <app-remise-produits></app-remise-produits>
-                </ng-template>
-              </ng-container>
-
-              <ng-container ngbNavItem="code-remise-produit">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-tag"></i>
-                  <span>Codes remise</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  <app-code-remise-produit></app-code-remise-produit>
-                </ng-template>
-              </ng-container>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ng-container ngbNavItem="code-remise-produit">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="remise.code-remise-produit"
+                                fallbackIcon="pi pi-tag"
+                                fallbackLabel="Codes remise" />
+        </a>
+        <ng-template ngbNavContent>
+          <app-code-remise-produit></app-code-remise-produit>
+        </ng-template>
+      </ng-container>
     </div>
-
-    <div class="col-lg-10 col-xl-10 col-xxl-10 col-md-9 col-sm-8">
-      <div [ngbNavOutlet]="nav"></div>
-    </div>
-  </div>
-</div>
+  </app-nav-sidebar>

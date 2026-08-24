@@ -1,10 +1,10 @@
-<div class="pharma-smart-content p-2">
-    <app-toolbar icon="pi pi-balance-scale" title="Balance de caisse">
+<div class="pharma-smart-content p-1">
+    <app-toolbar [code]="navCode()" icon="pi pi-balance-scale" title="Balance de caisse">
       <ng-container ngProjectAs="[toolbarFilters]">
         <div class="pharma-toolbar-filters">
-          <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate" id="dateDebut" label="Du" />
+          <pharma-date-picker [ngModel]="fromDate()" (ngModelChange)="fromDate.set($event)" [maxDate]="toDate()" id="dateDebut" label="Du" />
 
-          <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate" id="dateFin" label="Au" />
+          <pharma-date-picker [ngModel]="toDate()" (ngModelChange)="toDate.set($event)" [minDate]="fromDate()" id="dateFin" label="Au" />
         </div>
       </ng-container>
 
@@ -13,8 +13,8 @@
           <div class="pharma-button-group">
             <app-button
               (clicked)="onSearch()"
-              [disabled]="loading"
-              [loading]="loading"
+              [disabled]="loading()"
+              [loading]="loading()"
               [raised]="true"
               icon="pi pi-search"
               label="Rechercher"
@@ -24,7 +24,7 @@
 
             <app-button
               (clicked)="onPrint()"
-              [loading]="loading"
+              [loading]="loading()"
               [outlined]="true"
               icon="pi pi-print"
               label="Imprimer"
@@ -36,8 +36,8 @@
       </ng-container>
     </app-toolbar>
   <div class="row mt-3 mb-3 px-2">
-    @if (balanceMvtCaisseWrapper) {
-      @if (balanceMvtCaisseWrapper.balanceCaisses.length > 0) {
+    @if (balanceMvtCaisseWrapper(); as balance) {
+      @if (balance.balanceCaisses.length > 0) {
         <div class="col-12">
           <div class="table-responsive">
             <table class="table table-secondary table-striped table-bordered table-hover">
@@ -64,7 +64,7 @@
                 </tr>
               </thead>
               <tbody>
-                @for (item of balanceMvtCaisseWrapper.balanceCaisses; track $index) {
+                @for (item of balance.balanceCaisses; track $index) {
                   <tr>
                     <td>{{ item.typeVeTypeAffichage }}</td>
                     <td class="amount-td-column">{{ item.count | number }}</td>
@@ -86,19 +86,19 @@
               <tfoot>
                 <tr>
                   <td class="tf-column">Total</td>
-                  <td class="amount-column">{{ balanceMvtCaisseWrapper.count | number }}</td>
-                  <td class="amount-column">{{ balanceMvtCaisseWrapper.montantTtc | number }}</td>
-                  <td class="amount-column">{{ balanceMvtCaisseWrapper.montantDiscount | number }}</td>
-                  <td class="amount-column">{{ balanceMvtCaisseWrapper.montantNet | number }}</td>
+                  <td class="amount-column">{{ balance.count | number }}</td>
+                  <td class="amount-column">{{ balance.montantTtc | number }}</td>
+                  <td class="amount-column">{{ balance.montantDiscount | number }}</td>
+                  <td class="amount-column">{{ balance.montantNet | number }}</td>
                   <td class="amount-column">100</td>
-                  <td class="amount-column">{{ balanceMvtCaisseWrapper.panierMoyen | number }}</td>
-                  <td class="amount-column">{{ balanceMvtCaisseWrapper.montantCash | number }}</td>
-                  <td class="amount-column">{{ balanceMvtCaisseWrapper.montantCheck | number }}</td>
-                  <td class="amount-column">{{ balanceMvtCaisseWrapper.montantCard | number }}</td>
-                  <td class="amount-column">{{ balanceMvtCaisseWrapper.montantVirement | number }}</td>
-                  <td class="amount-column">{{ balanceMvtCaisseWrapper.montantMobileMoney | number }}</td>
-                  <td class="amount-column">{{ balanceMvtCaisseWrapper.montantDiffere | number }}</td>
-                  <td class="amount-column">{{ balanceMvtCaisseWrapper.partTiersPayant | number }}</td>
+                  <td class="amount-column">{{ balance.panierMoyen | number }}</td>
+                  <td class="amount-column">{{ balance.montantCash | number }}</td>
+                  <td class="amount-column">{{ balance.montantCheck | number }}</td>
+                  <td class="amount-column">{{ balance.montantCard | number }}</td>
+                  <td class="amount-column">{{ balance.montantVirement | number }}</td>
+                  <td class="amount-column">{{ balance.montantMobileMoney | number }}</td>
+                  <td class="amount-column">{{ balance.montantDiffere | number }}</td>
+                  <td class="amount-column">{{ balance.partTiersPayant | number }}</td>
                 </tr>
               </tfoot>
             </table>
@@ -122,55 +122,55 @@
             <div class="balance-item">
               <span class="balance-item-label">Total TTC</span>
               <div class="balance-item-value-wrapper">
-                <span class="balance-item-value">{{ balanceMvtCaisseWrapper.montantTtc | number }}</span>
-                <span class="balance-item-currency">FCFA</span>
+                <span class="balance-item-value">{{ balance.montantTtc | number }}</span>
+                <span class="balance-item-currency" appDevise></span>
               </div>
             </div>
 
             <div class="balance-item">
               <span class="balance-item-label">Total TVA</span>
               <div class="balance-item-value-wrapper">
-                <span class="balance-item-value">{{ balanceMvtCaisseWrapper.montantTaxe | number }}</span>
-                <span class="balance-item-currency">FCFA</span>
+                <span class="balance-item-value">{{ balance.montantTaxe | number }}</span>
+                <span class="balance-item-currency" appDevise></span>
               </div>
             </div>
 
             <div class="balance-item">
               <span class="balance-item-label">Total HT</span>
               <div class="balance-item-value-wrapper">
-                <span class="balance-item-value">{{ balanceMvtCaisseWrapper.montantHt | number }}</span>
-                <span class="balance-item-currency">FCFA</span>
+                <span class="balance-item-value">{{ balance.montantHt | number }}</span>
+                <span class="balance-item-currency" appDevise></span>
               </div>
             </div>
 
             <div class="balance-item">
               <span class="balance-item-label">Total comptant</span>
               <div class="balance-item-value-wrapper">
-                <span class="balance-item-value">{{ balanceMvtCaisseWrapper.montantPaye | number }}</span>
-                <span class="balance-item-currency">FCFA</span>
+                <span class="balance-item-value">{{ balance.montantPaye | number }}</span>
+                <span class="balance-item-currency" appDevise></span>
               </div>
             </div>
 
             <div class="balance-item">
               <span class="balance-item-label">Total achat</span>
               <div class="balance-item-value-wrapper">
-                <span class="balance-item-value">{{ balanceMvtCaisseWrapper.montantAchat | number }}</span>
-                <span class="balance-item-currency">FCFA</span>
+                <span class="balance-item-value">{{ balance.montantAchat | number }}</span>
+                <span class="balance-item-currency" appDevise></span>
               </div>
             </div>
 
             <div class="balance-item balance-item-highlight">
               <span class="balance-item-label">Marge</span>
               <div class="balance-item-value-wrapper">
-                <span class="balance-item-value">{{ balanceMvtCaisseWrapper.montantMarge | number }}</span>
-                <span class="balance-item-currency">FCFA</span>
+                <span class="balance-item-value">{{ balance.montantMarge | number }}</span>
+                <span class="balance-item-currency" appDevise></span>
               </div>
             </div>
 
             <div class="balance-item balance-item-small">
               <span class="balance-item-label">Ratio V/A</span>
               <div class="balance-item-value-wrapper">
-                <span class="balance-item-value">{{ balanceMvtCaisseWrapper.ratioVenteAchat | number }}</span>
+                <span class="balance-item-value">{{ balance.ratioVenteAchat | number }}</span>
                 <span class="balance-item-currency">%</span>
               </div>
             </div>
@@ -178,7 +178,7 @@
             <div class="balance-item balance-item-small">
               <span class="balance-item-label">Ratio A/V</span>
               <div class="balance-item-value-wrapper">
-                <span class="balance-item-value">{{ balanceMvtCaisseWrapper.ratioAchatVente | number }}</span>
+                <span class="balance-item-value">{{ balance.ratioAchatVente | number }}</span>
                 <span class="balance-item-currency">%</span>
               </div>
             </div>
@@ -186,7 +186,7 @@
         </div>
 
         <!-- Card 2: Montant ventes par modes règlement -->
-        @if (balanceMvtCaisseWrapper.mvtCaissesByModes.length > 0) {
+        @if (balance.mvtCaissesByModes.length > 0) {
           <div class="balance-card balance-card-success">
             <div class="balance-card-header">
               <div class="balance-card-icon balance-card-icon-small">
@@ -198,12 +198,12 @@
               </div>
             </div>
             <div class="balance-card-body">
-              @for (mvtCaisse of balanceMvtCaisseWrapper.mvtCaissesByModes; track mvtCaisse.key) {
+              @for (mvtCaisse of balance.mvtCaissesByModes; track mvtCaisse.key) {
                 <div class="balance-item">
                   <span class="balance-item-label">{{ mvtCaisse.libelle }}</span>
                   <div class="balance-item-value-wrapper">
                     <span class="balance-item-value">{{ mvtCaisse.value | number }}</span>
-                    <span class="balance-item-currency">FCFA</span>
+                    <span class="balance-item-currency" appDevise></span>
                   </div>
                 </div>
               }
@@ -212,7 +212,7 @@
         }
 
         <!-- Card 3: Information sur les mouvements de caisse -->
-        @if (balanceMvtCaisseWrapper.mvtCaisses.length > 0) {
+        @if (balance.mvtCaisses.length > 0) {
           <div class="balance-card balance-card-warning">
             <div class="balance-card-header">
               <div class="balance-card-icon balance-card-icon-small">
@@ -224,13 +224,13 @@
               </div>
             </div>
             <div class="balance-card-body">
-              @for (mvtCaisse of balanceMvtCaisseWrapper.mvtCaisses; track mvtCaisse.key) {
+              @for (mvtCaisse of balance.mvtCaisses; track mvtCaisse.key) {
                 @if (mvtCaisse.key === 'SORTIE_CAISSE') {
                   <div class="balance-item balance-item-danger">
                     <span class="balance-item-label">{{ mvtCaisse.libelle }}</span>
                     <div class="balance-item-value-wrapper">
                       <span class="balance-item-value">{{ mvtCaisse.value * -1 | number }}</span>
-                      <span class="balance-item-currency">FCFA</span>
+                      <span class="balance-item-currency" appDevise></span>
                     </div>
                   </div>
                 } @else {
@@ -238,7 +238,7 @@
                     <span class="balance-item-label">{{ mvtCaisse.libelle }}</span>
                     <div class="balance-item-value-wrapper">
                       <span class="balance-item-value">{{ mvtCaisse.value | number }}</span>
-                      <span class="balance-item-currency">FCFA</span>
+                      <span class="balance-item-currency" appDevise></span>
                     </div>
                   </div>
                 }

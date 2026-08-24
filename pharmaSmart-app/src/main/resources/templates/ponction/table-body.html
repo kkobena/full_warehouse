@@ -1,0 +1,28 @@
+<table class="main-table">
+  <thead>
+    <tr>
+      <th class="text-left">Rang</th>
+      <th class="text-left">Transaction</th>
+      <th class="text-left">Date</th>
+      <th class="text-right">Montant vente</th>
+      <th class="text-right">Dont exonéré</th>
+      <th class="text-right">Ponctionné</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr th:class="${itmStat.last}?'last-item':''" th:each="itm : ${items}">
+      <td class="text-left" th:text="${itm.rang}"></td>
+      <td class="text-left" th:text="${itm.numeroTransaction}"></td>
+      <td class="text-left" th:text="${#temporals.format(itm.saleDate, 'dd-MM-yyyy')}"></td>
+      <td class="unit" th:text="${#numbers.formatInteger(itm.montantVente,3,'WHITESPACE')}"></td>
+      <td class="unit" th:text="${#numbers.formatInteger(itm.montantBase,3,'WHITESPACE')}"></td>
+      <td class="unit" th:text="${#numbers.formatInteger(itm.montantPonctionne,3,'WHITESPACE')}"></td>
+    </tr>
+  </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="5">Total ponctionné</td>
+      <td class="unit" th:text="${#numbers.formatInteger(reportSummary.montantPonctionne,3,'WHITESPACE')}"></td>
+    </tr>
+  </tfoot>
+</table>

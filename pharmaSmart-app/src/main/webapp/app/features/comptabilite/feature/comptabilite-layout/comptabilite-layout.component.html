@@ -1,109 +1,91 @@
-<div class="row">
-  <!-- Sidebar -->
-  <div class="col-lg-2 col-xl-2 col-xxl-2 col-md-3 col-sm-4">
-    <div class="pharma-nav-sidebar">
-      <div class="pharma-nav-sidebar-card">
-        <div class="pharma-nav-sidebar-header">
-          <i class="pi pi-book"></i>
-          <span>Comptabilité</span>
-        </div>
-        <div class="pharma-nav-sidebar-content">
-          <div #nav="ngbNav" (activeIdChange)="active.set($event)" [activeId]="active()"
-               class="nav flex-column nav-pills" ngbNav orientation="vertical">
+<app-nav-sidebar (collapsedChange)="menuReplie.set($event)" [collapsed]="menuReplie()"
+                 [collapsible]="true" [nav]="nav"
+                 icon="pi pi-book" title="Comptabilité">
+  <div #nav="ngbNav" (activeIdChange)="active.set($event)" [activeId]="active()"
+       class="nav flex-column nav-pills" ngbNav orientation="vertical">
+    @if (showBalance()) {
+      <ng-container ngbNavItem="balance">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="comptabilite.balance"
+                                fallbackIcon="pi pi-calculator"
+                                fallbackLabel="Balance caisse" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-balance-mvt-caisse navCode="comptabilite.balance" />
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-            @if (showBalance()) {
-              <ng-container ngbNavItem="balance">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-calculator"></i>
-                  <span>Balance caisse</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  @defer (on immediate) {
-                    <app-balance-mvt-caisse />
-                  } @loading {
-                    <app-skeleton width="100%" height="240px" />
-                  }
-                </ng-template>
-              </ng-container>
-            }
+    @if (showTaxeReport()) {
+      <ng-container ngbNavItem="taxe-report">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="comptabilite.taxe-report"
+                                fallbackIcon="pi pi-file-pdf"
+                                fallbackLabel="Rapport TVA" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-taxe-report navCode="comptabilite.taxe-report" />
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-            @if (showTaxeReport()) {
-              <ng-container ngbNavItem="taxe-report">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-file-pdf"></i>
-                  <span>Rapport TVA</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  @defer (on immediate) {
-                    <app-taxe-report />
-                  } @loading {
-                    <app-skeleton width="100%" height="240px" />
-                  }
-                </ng-template>
-              </ng-container>
-            }
+    @if (showTableauPharmacien()) {
+      <ng-container ngbNavItem="tableau-pharmacien">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="comptabilite.tableau-pharmacien"
+                                fallbackIcon="pi pi-table"
+                                fallbackLabel="Tableau pharmacien" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-tableau-pharmacien navCode="comptabilite.tableau-pharmacien" />
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-            @if (showTableauPharmacien()) {
-              <ng-container ngbNavItem="tableau-pharmacien">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-table"></i>
-                  <span>Tableau pharmacien</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  @defer (on immediate) {
-                    <jhi-tableau-pharmacien />
-                  } @loading {
-                    <app-skeleton width="100%" height="240px" />
-                  }
-                </ng-template>
-              </ng-container>
-            }
+    @if (showRecapCaisse()) {
+      <ng-container ngbNavItem="recapitulatif-caisse">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="comptabilite.recapitulatif-caisse"
+                                fallbackIcon="pi pi-chart-bar"
+                                fallbackLabel="Récapitulatif de caisse" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-recapitualtif-caisse navCode="comptabilite.recapitulatif-caisse" />
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-            @if (showRecapCaisse()) {
-              <ng-container ngbNavItem="recapitulatif-caisse">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-chart-bar"></i>
-                  <span>Récapitulatif de caisse</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  @defer (on immediate) {
-                    <app-recapitualtif-caisse />
-                  } @loading {
-                    <app-skeleton width="100%" height="240px" />
-                  }
-                </ng-template>
-              </ng-container>
-            }
-
-            @if (showRaportActivite()) {
-              <ng-container ngbNavItem="raport-activite">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-chart-line"></i>
-                  <span>Rapport d'activité</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  @defer (on immediate) {
-                    <jhi-activity-summary />
-                  } @loading {
-                    <app-skeleton width="100%" height="240px" />
-                  }
-                </ng-template>
-              </ng-container>
-            }
-
-          </div>
-        </div>
-      </div>
-    </div>
+    @if (showRaportActivite()) {
+      <ng-container ngbNavItem="raport-activite">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="comptabilite.raport-activite"
+                                fallbackIcon="pi pi-chart-line"
+                                fallbackLabel="Rapport d'activité" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-activity-summary navCode="comptabilite.raport-activite" />
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          }
+        </ng-template>
+      </ng-container>
+    }
   </div>
-
-  <!-- Contenu principal -->
-  <div class="col-xl-10 col-lg-10 col-md-9 col-sm-8">
-    <div [ngbNavOutlet]="nav"></div>
-  </div>
-</div>
+</app-nav-sidebar>

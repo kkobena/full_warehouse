@@ -18,6 +18,44 @@ export function formatCurrency(value: number | undefined | null): string {
 }
 
 /**
+ * Devise affichée à la suite des montants.
+ *
+ * Variable de module plutôt qu'injection : les fonctions de ce fichier sont appelées depuis des
+ * gabarits, des formateurs AG Grid et des mixins — des endroits sans injecteur. La valeur vient de
+ * `app_configuration.APP_DEVISE`, posée une fois au démarrage par {@link setCurrencyUnit} ; le
+ * repli couvre le temps de l'appel et les tests, qui n'ont pas à connaître ce réglage.
+ */
+let currencyUnit = 'FCFA';
+
+/** Fixe la devise pour toute l'application. Appelé au démarrage depuis `app.config.ts`. */
+export function setCurrencyUnit(unit: string | undefined | null): void {
+  const trimmed = unit?.trim();
+  if (trimmed) {
+    currencyUnit = trimmed;
+  }
+}
+
+/** La devise courante, pour les rares endroits qui composent leur libellé eux-mêmes. */
+export function currencySymbol(): string {
+  return currencyUnit;
+}
+
+/**
+ * Format a number as currency, unit included.
+ *
+ * Companion to {@link formatCurrency}, which deliberately omits the unit so that templates can
+ * place it themselves. This one is for strings built in TypeScript — confirmation dialogs, toast
+ * messages — where the unit was previously appended by hand at each call site.
+ *
+ * @param value - The numeric value to format
+ * @returns Formatted currency string with the configured unit
+ * @example formatCurrencyWithUnit(1234567) // "1 234 567 FCFA"
+ */
+export function formatCurrencyWithUnit(value: number | undefined | null): string {
+  return `${formatCurrency(value)} ${currencyUnit}`;
+}
+
+/**
  * Format a number with French locale formatting
  * @param value - The numeric value to format
  * @returns Formatted number string

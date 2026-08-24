@@ -1,4 +1,5 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
+import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy, input} from "@angular/core";
+import { HintComponent } from 'app/shared/ui/hint/hint.component';
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { catchError, finalize, tap } from "rxjs/operators";
 import { forkJoin, of } from "rxjs";
@@ -38,6 +39,7 @@ import { BlobDownloadService } from "../../../../shared/services/blob-download.s
 @Component({
   selector: "app-facturation-home",
   imports: [
+    HintComponent,
     FormsModule,
     ButtonComponent,
     FloatLabelComponent,
@@ -51,10 +53,19 @@ import { BlobDownloadService } from "../../../../shared/services/blob-download.s
     FactureDetailPanelComponent
   ],
   templateUrl: "./facturation-home.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./facturation-home.component.scss"
 })
 export class FacturationHomeComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   // Store & computed
   protected readonly store = inject(FacturationStore);
   protected readonly panelOpen = computed(() => this.store.panelOpen());
@@ -70,23 +81,21 @@ export class FacturationHomeComponent implements OnInit {
   protected readonly minLength = 2;
   protected factureGroupees = false;
   protected factureProvisoire = false;
-  protected deleteAllSpinner = false;
-  protected modelStartDate: NgbDateStruct;
+  protected readonly deleteAllSpinner = signal(false);
+  protected readonly modelStartDate = signal<NgbDateStruct | undefined>(undefined);
   protected modelEndDate: NgbDateStruct = TODAY_NGB_DATE();
   protected search = "";
   protected selectedStatut: string | null = null;
-  protected tiersPayants: ITiersPayant[] = [];
-  protected selectedTiersPayants: ITiersPayant[] = [];
-  protected groupeTiersPayants: IGroupeTiersPayant[] = [];
-  protected selectedGroupeTiersPayants: IGroupeTiersPayant[] = [];
-  protected loadingBtn = false;
-  protected loadingExport = false;
+  protected readonly tiersPayants = signal<ITiersPayant[]>([]);
+  protected readonly selectedTiersPayants = signal<ITiersPayant[]>([]);
+  protected readonly groupeTiersPayants = signal<IGroupeTiersPayant[]>([]);
+  protected readonly selectedGroupeTiersPayants = signal<IGroupeTiersPayant[]>([]);
+  protected readonly loadingExport = signal(false);
 
   // Signal transmis à la liste pour déclencher la recherche
   protected readonly currentSearchParams = signal<IInvoiceSearchParams | null>(null);
 
   // Hint premier usage
-  protected readonly showHint = signal<boolean>(localStorage.getItem("facturation-hint-dismissed") !== "1");
   private readonly translate = inject(TranslateService);
   private readonly factureApiService = inject(FactureApiService);
   private readonly tiersPayantService = inject(TiersPayantService);
@@ -102,7 +111,7 @@ export class FacturationHomeComponent implements OnInit {
 
     const d = new Date();
     d.setMonth(d.getMonth() - 1);
-    this.modelStartDate = { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
+    this.modelStartDate.set({ year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() });
   }
 
   ngOnInit(): void {
@@ -120,16 +129,16 @@ export class FacturationHomeComponent implements OnInit {
   }
 
   onGroupToggle(): void {
-    this.selectedTiersPayants = [];
-    this.selectedGroupeTiersPayants = [];
+    this.selectedTiersPayants.set([]);
+    this.selectedGroupeTiersPayants.set([]);
     this.onSearch();
   }
 
   onExport(): void {
-    this.loadingExport = true;
+    this.loadingExport.set(true);
     this.factureApiService
       .exportExcel(this.buildSearchParams())
-      .pipe(finalize(() => (this.loadingExport = false)), takeUntilDestroyed(this.destroyRef))
+      .pipe(finalize(() => (this.loadingExport.set(false))), takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: blob => {
           this.downloadDocumentService.downloadExcel(blob, "factures");
@@ -150,23 +159,19 @@ export class FacturationHomeComponent implements OnInit {
   }
 
 
-  dismissHint(): void {
-    localStorage.setItem("facturation-hint-dismissed", "1");
-    this.showHint.set(false);
-  }
 
   searchTiersPayant(query: string): void {
     this.tiersPayantService
       .query({ page: 0, search: query, size: 10 })
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(res => (this.tiersPayants = res.body ?? []));
+      .subscribe(res => (this.tiersPayants.set(res.body ?? [])));
   }
 
   searchGroupTiersPayant(query: string): void {
     this.groupeTiersPayantService
       .query({ page: 0, search: query, size: 10 })
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(res => (this.groupeTiersPayants = res.body ?? []));
+      .subscribe(res => (this.groupeTiersPayants.set(res.body ?? [])));
   }
 
   private deleteAll(selected: IFacture[]): void {
@@ -176,7 +181,7 @@ export class FacturationHomeComponent implements OnInit {
       return;
     }
 
-    this.deleteAllSpinner = true;
+    this.deleteAllSpinner.set(true);
 
     // Chaque requête gère sa propre erreur → forkJoin peut toujours se terminer
     const deletes$ = deletable.map(f =>
@@ -192,7 +197,7 @@ export class FacturationHomeComponent implements OnInit {
     // PAS de takeUntilDestroyed : on laisse les requêtes HTTP se terminer
     // naturellement pour éviter "message channel closed before a response was received"
     forkJoin(deletes$)
-      .pipe(finalize(() => (this.deleteAllSpinner = false)))
+      .pipe(finalize(() => (this.deleteAllSpinner.set(false))))
       .subscribe({
         next: () => {
           this.store.clearSelection();
@@ -214,13 +219,13 @@ export class FacturationHomeComponent implements OnInit {
 
   private buildSearchParams(): IInvoiceSearchParams {
     const params: IInvoiceSearchParams = {
-      startDate: NGB_DATE_TO_ISO(this.modelStartDate),
+      startDate: NGB_DATE_TO_ISO(this.modelStartDate()),
       endDate: NGB_DATE_TO_ISO(this.modelEndDate),
       search: this.search || undefined,
       factureGroupees: this.factureGroupees,
       factureProvisoire: this.factureProvisoire,
-      groupIds: this.selectedGroupeTiersPayants.map(g => g.id),
-      tiersPayantIds: this.selectedTiersPayants.map(t => t.id)
+      groupIds: this.selectedGroupeTiersPayants().map(g => g.id),
+      tiersPayantIds: this.selectedTiersPayants().map(t => t.id)
     };
     if (this.selectedStatut) {
       params.statuts = [this.selectedStatut];

@@ -6,8 +6,12 @@ const {
 
 module.exports = {
   transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$|dayjs/esm)'],
+  // `__VERSION__` et `SERVER_API_URL` sont injectées à la compilation par le builder Angular.
+  // Jest ne les connaît pas : sans elles, tout test montant un composant qui atteint un service
+  // les utilisant échoue à l'import, avant même d'exécuter la moindre assertion.
   globals: {
     __VERSION__: 'test',
+    SERVER_API_URL: '',
   },
   roots: ['<rootDir>', `<rootDir>/${baseUrl}`],
   modulePaths: [`<rootDir>/${baseUrl}`],

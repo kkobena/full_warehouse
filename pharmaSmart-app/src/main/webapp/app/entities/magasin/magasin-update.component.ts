@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy, signal } from '@angular/core';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 
 import { FormControl, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
@@ -15,12 +15,12 @@ import { NotificationService } from "../../shared/services/notification.service"
   selector: 'app-magasin-update',
   templateUrl: './magasin-update.component.html',
   styleUrl: './magasin-update.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterModule, ReactiveFormsModule, ButtonComponent, CardComponent, ToolbarComponent]
 })
 export class MagasinUpdateComponent implements OnInit {
   protected fb = inject(UntypedFormBuilder);
-  protected isSaving = false;
+  protected readonly isSaving = signal(false);
   protected editForm = this.fb.group({
     id: [],
     name: [null, [Validators.required]],
@@ -73,7 +73,7 @@ export class MagasinUpdateComponent implements OnInit {
   }
 
   protected save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const magasin = this.createFromForm();
     if (magasin.id !== undefined) {
       this.subscribeToSaveResponse(this.magasinService.update(magasin));
@@ -90,12 +90,12 @@ export class MagasinUpdateComponent implements OnInit {
   }
 
   private onSaveSuccess(): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.previousState();
   }
 
   private onSaveError(error: HttpErrorResponse): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 

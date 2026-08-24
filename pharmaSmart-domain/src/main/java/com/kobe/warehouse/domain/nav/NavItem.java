@@ -55,6 +55,16 @@ public class NavItem implements Serializable {
     @Column(name = "icon", length = 80)
     private String icon;
 
+    /**
+     * Titre affiché dans la barre d'outils de l'écran, quand il diffère du libellé du menu.
+     *
+     * <p>Le libellé sert un menu étroit et repliable, donc court ; la barre d'outils a toute la
+     * largeur et peut nommer précisément. Nul, la barre reprend le libellé — c'est le cas courant,
+     * et le renseigner partout ferait diverger les deux au premier renommage.
+     */
+    @Column(name = "titre_long", length = 150)
+    private String titreLong;
+
     @Column(name = "router_link", length = 150)
     private String routerLink;
 
@@ -140,6 +150,15 @@ public class NavItem implements Serializable {
 
     public NavItem setIcon(String icon) {
         this.icon = icon;
+        return this;
+    }
+
+    public String getTitreLong() {
+        return titreLong;
+    }
+
+    public NavItem setTitreLong(String titreLong) {
+        this.titreLong = titreLong;
         return this;
     }
 

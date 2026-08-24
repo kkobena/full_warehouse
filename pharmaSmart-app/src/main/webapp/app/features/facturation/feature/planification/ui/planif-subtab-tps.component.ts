@@ -26,7 +26,7 @@ import { PlanificationStateService } from '../planification-state.service';
     SwitchComponent
   ],
   templateUrl: './planif-subtab-tps.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './planif-subtab-tps.component.scss',
 })
 export class PlanifSubtabTpsComponent {

@@ -1,12 +1,12 @@
 <app-data-table
-  [(selection)]="selectedRows"
+  [selection]="selectedRows()" (selectionChange)="selectedRows.set($any($event))"
   [loading]="loading()"
   [paginator]="true"
   [rowsPerPageOptions]="[10, 15, 20, 50]"
   [rows]="15"
   [selectionMode]="'multiple'"
   [value]="lines()"
-  class="pharma-table"
+  class="p-datatable-sm"
   dataKey="id"
 >
   <ng-template #caption>
@@ -20,10 +20,10 @@
           type="text"
         />
       </app-icon-field>
-      @if (selectedRows.length > 0) {
+      @if (selectedRows().length > 0) {
         <app-button
           (clicked)="onDeleteSelection()"
-          [label]="'Supprimer (' + selectedRows.length + ')'"
+          [label]="'Supprimer (' + selectedRows().length + ')'"
           [outlined]="true"
           icon="pi pi-trash"
           severity="danger"

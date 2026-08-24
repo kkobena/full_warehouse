@@ -8,31 +8,17 @@
 @if (!isLoading() && summary()) {
 
   <!-- ===== KPI STRIP ===== -->
-  <div class="kpi-strip mt-2 mb-2">
-    <div class="kpi-strip-item primary-accent">
-      <i class="pi pi-building text-primary"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">CA TP total (période)</span>
-        <span class="kpi-strip-value text-primary">{{ formatCurrency(summary()!.totalCaTp) }} <small>FCFA</small></span>
-      </div>
-    </div>
-    <div class="kpi-strip-divider"></div>
-    <div class="kpi-strip-item danger-accent">
-      <i class="pi pi-exclamation-circle text-danger"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">Total impayé (période)</span>
-        <span class="kpi-strip-value text-danger">{{ formatCurrency(summary()!.totalImpaye) }} <small>FCFA</small></span>
-      </div>
-    </div>
-    <div class="kpi-strip-divider"></div>
-    <div class="kpi-strip-item success-accent">
-      <i class="pi pi-check-circle text-success"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">Total règlement (période)</span>
-        <span class="kpi-strip-value text-success">{{ formatCurrency(summary()!.totalRegle) }} <small>FCFA</small></span>
-      </div>
-    </div>
-  </div>
+  <app-kpi-strip stripClass="mt-2 mb-2">
+    <app-kpi-item [accent]="'primary'" icon="pi pi-building" iconClass="text-primary" label="CA TP total (période)" [value]="formatCurrency(summary()!.totalCaTp)" valueClass="text-primary">
+      <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+    </app-kpi-item>
+    <app-kpi-item [accent]="'danger'" icon="pi pi-exclamation-circle" iconClass="text-danger" label="Total impayé (période)" [value]="formatCurrency(summary()!.totalImpaye)" valueClass="text-danger">
+      <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+    </app-kpi-item>
+    <app-kpi-item [accent]="'success'" icon="pi pi-check-circle" iconClass="text-success" label="Total règlement (période)" [value]="formatCurrency(summary()!.totalRegle)" valueClass="text-success">
+      <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+    </app-kpi-item>
+  </app-kpi-strip>
 
   <!-- ===== CONCENTRATION BAR CHART ===== -->
   @if ((summary()!.organismes?.length ?? 0) > 0) {
@@ -47,7 +33,7 @@
           [(ngModel)]="selectedSummaryTopN"
           bindLabel="label"
           bindValue="value"
-          (selectionChange)="onSummaryTopNChange($event.value)"
+          (selectionChange)="onSummaryTopNChange($any($event).value)"
           [style]="{ minWidth: '110px' }"
           appendTo="body">
         </app-select>
@@ -59,7 +45,7 @@
               <div class="fw-semibold">{{ org.organisme }}</div>
               <div class="text-end small">
                 <span class="fw-bold">{{ org.partPct?.toFixed(1) }} %</span>
-                <span class="text-muted ms-2">{{ formatCurrency(org.caTp) }} FCFA</span>
+                <span class="text-muted ms-2">{{ formatCurrency(org.caTp) }} <span appDevise></span></span>
                 @if (org.delaiReglement) {
                   <span class="text-muted ms-2">· délai {{ org.delaiReglement }}j</span>
                 }
@@ -100,7 +86,7 @@
       [(ngModel)]="selectedStressTopN"
       bindLabel="label"
       bindValue="value"
-      (selectionChange)="onStressTopNChange($event.value)"
+      (selectionChange)="onStressTopNChange($any($event).value)"
       [style]="{ minWidth: '110px' }"
       appendTo="body">
     </app-select>
@@ -131,7 +117,7 @@
             <td class="fw-semibold">{{ org.organisme }}</td>
             <td class="text-end">{{ org.partPct?.toFixed(1) }} %</td>
             <td class="text-end fw-bold" [class.text-danger]="(org.stressImpact30j ?? 0) > 0">
-              {{ formatCurrency(org.stressImpact30j) }} FCFA
+              {{ formatCurrency(org.stressImpact30j) }} <span appDevise></span>
             </td>
             <td class="text-center">
               @if ((org.partPct ?? 0) >= 30) {
@@ -170,7 +156,7 @@
         [(ngModel)]="selectedEvolutionTopN"
         bindLabel="label"
         bindValue="value"
-        (selectionChange)="onEvolutionTopNChange($event.value)"
+        (selectionChange)="onEvolutionTopNChange($any($event).value)"
         [style]="{ minWidth: '110px' }"
         appendTo="body">
       </app-select>

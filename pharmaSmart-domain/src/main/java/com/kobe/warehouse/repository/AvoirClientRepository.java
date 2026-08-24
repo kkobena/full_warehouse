@@ -29,9 +29,10 @@ public interface AvoirClientRepository extends JpaRepository<AvoirClient, Intege
 
     List<AvoirClient> findByCustomerIdOrderByCreatedAtDesc(Integer customerId);
 
+    /** Nombre d avoirs ouverts et reste a servir : une seule ligne, rendue dans une liste. */
     @org.springframework.data.jpa.repository.Query(
         "SELECT COUNT(a), COALESCE(SUM(a.montant - a.montantUtilise), 0) FROM AvoirClient a WHERE a.statut = 'OUVERT'")
-    Object[] statsAvoirsOuverts();
+    List<Object[]> statsAvoirsOuverts();
 
     @org.springframework.data.jpa.repository.Query(
         "SELECT COUNT(a) FROM AvoirClient a WHERE a.statut = 'OUVERT' AND a.dateExpiration IS NOT NULL AND a.dateExpiration < :seuil")

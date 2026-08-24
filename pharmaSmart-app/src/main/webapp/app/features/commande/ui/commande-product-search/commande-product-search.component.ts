@@ -20,7 +20,7 @@ import {FloatLabelComponent, SelectSearchComponent} from '../../../../shared/ui'
   selector: 'app-commande-product-search',
   templateUrl: './commande-product-search.component.html',
   styleUrls: ['./commande-product-search.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [SelectSearchComponent, FormsModule, FloatLabelComponent, DecimalPipe],
 })
 export class CommandeProductSearchComponent implements OnInit, OnDestroy {
@@ -57,8 +57,8 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
    */
   protected readonly typeaheadSink$ = new Subject<string>();
 
-  private isScanning = false;
-  private isManualSearching = false;
+  private readonly isScanning = signal(false);
+  private readonly isManualSearching = signal(false);
   private manualSearchTimeout: ReturnType<typeof setTimeout> | null = null;
   private keydownListener?: (event: KeyboardEvent) => void;
   private animationFrameId: number | null = null;
@@ -77,7 +77,7 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
 
   set produitSelected(value: any) {
     if (typeof value === 'string') return;
-    if (this.isScanning) return;
+    if (this.isScanning()) return;
     if (this._produitSelected() !== value) {
       this._produitSelected.set(value as ProduitSearch | null);
     }
@@ -101,14 +101,14 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
   }
 
   searchFn(term: string): void {
-    if (this.isScanning) {
-      this.isScanning = false;
+    if (this.isScanning()) {
+      this.isScanning.set(false);
       this.stopInputClearLoop();
     }
-    this.isManualSearching = true;
+    this.isManualSearching.set(true);
     if (this.manualSearchTimeout) clearTimeout(this.manualSearchTimeout);
     this.manualSearchTimeout = setTimeout(() => {
-      this.isManualSearching = false;
+      this.isManualSearching.set(false);
       this.manualSearchTimeout = null;
     }, 600);
     this.searchTrigger$.next(term);
@@ -132,7 +132,7 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
   }
 
   onNgModelChange(value: ProduitSearch | null): void {
-    if (this.isScanning) return;
+    if (this.isScanning()) return;
     this.produitSelected = value;
   }
 
@@ -152,8 +152,8 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
   }
 
   reset(): void {
-    this.isScanning = false;
-    this.isManualSearching = false;
+    this.isScanning.set(false);
+    this.isManualSearching.set(false);
     if (this.manualSearchTimeout) {
       clearTimeout(this.manualSearchTimeout);
       this.manualSearchTimeout = null;
@@ -185,7 +185,7 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
           // Scan détecté puis abandonné côté service (jamais de code valide) : sans ce
           // cas, `isScanning` restait bloqué et la boucle de nettoyage vidait le champ en
           // continu, rendant la saisie manuelle impossible.
-          this.isScanning = false;
+          this.isScanning.set(false);
           this.stopInputClearLoop();
         }
       });
@@ -196,16 +196,16 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
 
   private onScanStart(): void {
     const isOpen = this.produitboxCmp()?.isOpen();
-    if (this.isManualSearching || isOpen) return;
-    this.isScanning = true;
+    if (this.isManualSearching() || isOpen) return;
+    this.isScanning.set(true);
     this.clearInputValue();
     this.startInputClearLoop();
   }
 
   private onScanComplete(scannedCode: string): void {
     const isOpen = this.produitboxCmp()?.isOpen();
-    if (this.isManualSearching || isOpen) {
-      this.isScanning = false;
+    if (this.isManualSearching() || isOpen) {
+      this.isScanning.set(false);
       this.stopInputClearLoop();
       return;
     }
@@ -213,7 +213,7 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
     this.clearInputValue();
     this.searchByBarcode(scannedCode);
     setTimeout(() => {
-      this.isScanning = false;
+      this.isScanning.set(false);
     }, 400);
   }
 
@@ -224,7 +224,7 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
 
   private startInputClearLoop(): void {
     const clearLoop = () => {
-      if (!this.isScanning) return;
+      if (!this.isScanning()) return;
       this.clearInputValue();
       this.animationFrameId = requestAnimationFrame(clearLoop);
     };
@@ -254,7 +254,7 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError(() => {
-          this.isScanning = false;
+          this.isScanning.set(false);
           this.produits.set([]);
           return of({body: []});
         }),
@@ -270,11 +270,11 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
         } else if (result.length > 1) {
           this.produits.set(result);
           this.selectProduit.set(null);
-          this.isScanning = false;
+          this.isScanning.set(false);
         } else {
           this.selectProduit.set(null);
           this.produits.set([]);
-          this.isScanning = false;
+          this.isScanning.set(false);
         }
       });
   }

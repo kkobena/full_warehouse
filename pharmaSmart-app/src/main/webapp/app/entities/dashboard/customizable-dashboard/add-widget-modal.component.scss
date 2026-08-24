@@ -1,5 +1,4 @@
-@import 'app/shared/scss/modal-theme';
-
+@use 'app/shared/scss/modal-theme' as *;
 @include modal-theme;
 
 .widget-grid {

@@ -34,7 +34,7 @@ import {
   selector: 'app-semois-suggestions',
   templateUrl: './semois-suggestions.component.html',
   styleUrls: ['./semois-suggestions.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -115,7 +115,7 @@ export class SemoisSuggestionsComponent implements OnInit {
     });
   }
 
-  /** PrimeNG 20 TablePageEvent n'a que first/rows (pas page). */
+
   onPageChange(event: { first: number; rows: number }): void {
     this.page.set(Math.floor(event.first / event.rows));
     this.itemsPerPage.set(event.rows);
@@ -314,9 +314,9 @@ export class SemoisSuggestionsComponent implements OnInit {
   getRowClass(s: ISemoisSuggestion): string {
     switch (this.getUrgenceLabel(s)) {
       case 'URGENT':
-        return 'table-danger';
+        return 'pharma-row-danger';
       case 'NORMAL':
-        return 'table-warning';
+        return 'pharma-row-warning';
       default:
         return '';
     }

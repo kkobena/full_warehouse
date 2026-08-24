@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.ClassificationConfig;
 
 import java.time.LocalDateTime;
@@ -50,7 +51,7 @@ public record ClassificationConfigDTO(
             entity.getAutoClassificationEnabled(),
             entity.getUpdatedAt(),
             entity.getUpdatedBy() != null ?
-                (entity.getUpdatedBy().getFirstName() + " " + entity.getUpdatedBy().getLastName()).trim() : null
+                (AppUserNames.fullName(entity.getUpdatedBy())).trim() : null
         );
     }
 

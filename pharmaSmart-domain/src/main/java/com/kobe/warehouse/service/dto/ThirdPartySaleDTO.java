@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.Util;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AssuredCustomer;
@@ -62,9 +63,9 @@ public class ThirdPartySaleDTO extends SaleDTO {
     }
 
     /**
-     * Pré-remplit le builder avec les champs scalaires de l'entité.
-     * Les champs suivants sont laissés à la charge de l'appelant :
-     * customer, salesLines, payments, thirdPartySaleLines, tiersPayants, numBon.
+     * Pré-remplit le builder avec les champs scalaires de l'entité. Les champs suivants sont
+     * laissés à la charge de l'appelant : customer, salesLines, payments, thirdPartySaleLines,
+     * tiersPayants, numBon.
      */
     public static Builder from(ThirdPartySales thirdPartySales) {
         Builder builder = new Builder();
@@ -86,12 +87,12 @@ public class ThirdPartySaleDTO extends SaleDTO {
         builder.createdAt = thirdPartySales.getCreatedAt();
         builder.updatedAt = thirdPartySales.getUpdatedAt();
         AppUser user = thirdPartySales.getUser();
-        builder.userFullName = user.getFirstName() + " " + user.getLastName();
+        builder.userFullName = AppUserNames.fullName(user);
         builder.numberTransaction = thirdPartySales.getNumberTransaction();
         builder.natureVente = thirdPartySales.getNatureVente();
         builder.typePrescription = thirdPartySales.getTypePrescription();
-        UserDTO seller =  UserDTO.user(thirdPartySales.getSeller());
-        UserDTO cassier =  UserDTO.user(thirdPartySales.getCaissier());
+        UserDTO seller = UserDTO.user(thirdPartySales.getSeller());
+        UserDTO cassier = UserDTO.user(thirdPartySales.getCaissier());
         builder.seller = seller;
         builder.cassier = cassier;
         builder.cassierId = cassier.getId();
@@ -161,7 +162,6 @@ public class ThirdPartySaleDTO extends SaleDTO {
         builder.partTiersPayant = thirdPartySales.getPartTiersPayant();
         builder.hasPriceOption = thirdPartySales.isHasPriceOption();
 
-
         return builder;
     }
 
@@ -204,7 +204,8 @@ public class ThirdPartySaleDTO extends SaleDTO {
 
             thirdPartySaleLineDTOS.add(new ThirdPartySaleLineDTO(thirdPartySaleLine));
             clientTiersPayantDTOS.add(
-                new ClientTiersPayantDTO(thirdPartySaleLine.getClientTiersPayant()).setNumBon(thirdPartySaleLine.getNumBon())
+                new ClientTiersPayantDTO(thirdPartySaleLine.getClientTiersPayant()).setNumBon(
+                    thirdPartySaleLine.getNumBon())
             );
         });
         if (StringUtils.isEmpty(this.numBon) && !thirdPartySaleLineDTOS.isEmpty()) {
@@ -254,7 +255,8 @@ public class ThirdPartySaleDTO extends SaleDTO {
         return thirdPartySaleLines;
     }
 
-    public ThirdPartySaleDTO setThirdPartySaleLines(List<ThirdPartySaleLineDTO> thirdPartySaleLines) {
+    public ThirdPartySaleDTO setThirdPartySaleLines(
+        List<ThirdPartySaleLineDTO> thirdPartySaleLines) {
         this.thirdPartySaleLines = thirdPartySaleLines;
         return this;
     }
@@ -369,7 +371,8 @@ public class ThirdPartySaleDTO extends SaleDTO {
         private boolean hasPriceOption;
         private String num;
 
-        private Builder() {}
+        private Builder() {
+        }
 
         Builder(ThirdPartySaleDTO existing) {
             // SaleDTO fields
@@ -479,6 +482,7 @@ public class ThirdPartySaleDTO extends SaleDTO {
             this.userFullName = userFullName;
             return this;
         }
+
         public Builder num(String num) {
             this.num = num;
             return this;
@@ -845,7 +849,7 @@ public class ThirdPartySaleDTO extends SaleDTO {
             dto.setCanceled(canceled);
             dto.setMagasin(magasin);
             // ThirdPartySaleDTO fields
-            if (!Objects.equals(customer.getId(), ayantDroitId)){
+            if (!Objects.equals(customer.getId(), ayantDroitId)) {
                 dto.setAyantDroitId(ayantDroitId);
                 dto.setAyantDroit(ayantDroit);
             }

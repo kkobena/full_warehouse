@@ -112,7 +112,7 @@
 
   <div class="form-actions-compact">
     <app-button
-      (click)="cancel()"
+      (clicked)="cancel()"
       [raised]="true"
       class="mr-2"
       icon="pi pi-times"
@@ -121,7 +121,7 @@
       type="button"
     ></app-button>
     <app-button
-      [disabled]="editForm.invalid || isSaving || !isValid"
+      [disabled]="editForm.invalid || isSaving() || !isValid"
       [raised]="true"
       icon="pi pi-check"
       label="Enregistrer"

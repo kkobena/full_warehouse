@@ -27,13 +27,14 @@ import { ProduitSearch } from "app/shared/model/produit.model";
 import { NotificationService } from "app/shared/services/notification.service";
 import { NgbConfirmDialogService } from "app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 
+import { formatNumber } from 'app/shared/utils/format-utils';
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
 @Component({
   selector: "app-bed-detail",
   templateUrl: "./bed-detail.component.html",
   styleUrls: ["./bed-detail.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -98,7 +99,7 @@ export class BedDetailComponent implements OnInit {
         type: "numericColumn",
         editable: () => brouillon,
         cellEditor: "agNumberCellEditor",
-        valueFormatter: p => (p.value != null ? Number(p.value).toLocaleString("fr-FR") : "—")
+        valueFormatter: p => (p.value != null ? formatNumber(Number(p.value)) : "—")
       },
       {
         colId: "total",
@@ -106,7 +107,7 @@ export class BedDetailComponent implements OnInit {
         width: 130,
         type: "numericColumn",
         valueGetter: p => (p.data?.quantite ?? 0) * (p.data?.prixAchat ?? 0),
-        valueFormatter: p => (p.value != null ? Number(p.value).toLocaleString("fr-FR") : "—")
+        valueFormatter: p => (p.value != null ? formatNumber(Number(p.value)) : "—")
       },
       {
         colId: "actions",
@@ -121,7 +122,7 @@ export class BedDetailComponent implements OnInit {
   // ── Ajout produit ──────────────────────────────────────────────────────────
   readonly selectedProduit = signal<ProduitSearch | null>(null);
   readonly addingLigne = signal(false);
-  protected ligneQuantite = 1;
+  protected readonly ligneQuantite = signal(1);
 
   readonly productSearch = viewChild<CommandeProductSearchComponent>("productSearch");
 
@@ -189,7 +190,7 @@ export class BedDetailComponent implements OnInit {
 
   onAjouterLigne(): void {
     const produit = this.selectedProduit();
-    if (!produit || this.ligneQuantite <= 0) {
+    if (!produit || this.ligneQuantite() <= 0) {
       this.notificationService.error("Sélectionnez un produit et une quantité valide", "Validation");
       return;
     }
@@ -201,7 +202,7 @@ export class BedDetailComponent implements OnInit {
 
     const ligne: IBedLigne = {
       fournisseurProduitId: fp.id,
-      quantite: this.ligneQuantite,
+      quantite: this.ligneQuantite(),
       prixAchat: fp.prixAchat ?? 0,
       prixVente: fp.prixUni
     };
@@ -246,7 +247,7 @@ export class BedDetailComponent implements OnInit {
 
   private resetAddForm(): void {
     this.selectedProduit.set(null);
-    this.ligneQuantite = 1;
+    this.ligneQuantite.set(1);
     this.productSearch()?.reset();
   }
 

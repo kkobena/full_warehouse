@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy } from "@angular/core";
+import { Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy, input} from "@angular/core";
 import { HttpResponse } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
@@ -6,7 +6,13 @@ import { RouterModule } from "@angular/router";
 
 import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 
-import { ButtonComponent, SelectComponent, ToolbarComponent } from '../../../shared/ui';
+import {
+  ButtonComponent,
+  KpiItemComponent,
+  KpiStripComponent,
+  SelectComponent,
+  ToolbarComponent
+} from '../../../shared/ui';
 import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
 import { NGB_DATE_TO_ISO } from '../../../shared/util/warehouse-util';
 
@@ -30,6 +36,8 @@ import { formatCurrency, formatDate, formatPercent } from "app/shared/utils/form
 import { Chart, ChartConfiguration, ChartData, registerables } from "chart.js";
 import { BlobDownloadService } from "../../../shared/services/blob-download.service";
 
+import { DeviseDirective } from 'app/shared/utils/devise';
+import { currencySymbol } from 'app/shared/utils/format-utils';
 Chart.register(...registerables);
 
 interface PeriodOption {
@@ -41,18 +49,28 @@ interface PeriodOption {
   selector: "app-dashboard-ca",
   templateUrl: "./dashboard-ca.component.html",
   styleUrl: "./dashboard-ca.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,
     SelectComponent,
     ToolbarComponent,
     PharmaDatePickerComponent,
-    RouterModule
+    RouterModule,
+    KpiStripComponent,
+    KpiItemComponent
   ]
 })
 export default class DashboardCAComponent implements OnInit, OnDestroy {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : ce rapport est parfois atteint depuis deux menus, qui ne le nomment
+   * pas de la même façon. Le titre suit celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   @ViewChild("evolutionChartCanvas") evolutionChartCanvas?: ElementRef<HTMLCanvasElement>;
   @ViewChild("paymentChartCanvas") paymentChartCanvas?: ElementRef<HTMLCanvasElement>;
   @ViewChild("familyChartCanvas") familyChartCanvas?: ElementRef<HTMLCanvasElement>;
@@ -253,7 +271,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
       labels: data.labels ?? [],
       datasets: [
         {
-          label: "CA (FCFA)",
+          label: `CA (${currencySymbol()})`,
           data: data.caValues ?? [],
           borderColor: "#2196F3",
           backgroundColor: "rgba(33, 150, 243, 0.1)",
@@ -374,12 +392,12 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
       labels: data.map(d => d.famille),
       datasets: [
         {
-          label: "CA (FCFA)",
+          label: `CA (${currencySymbol()})`,
           data: data.map(d => d.caTotal),
           backgroundColor: "#2196F3"
         },
         {
-          label: "Marge Brute (FCFA)",
+          label: `Marge Brute (${currencySymbol()})`,
           data: data.map(d => d.margeBrute),
           backgroundColor: "#4CAF50"
         }
@@ -422,7 +440,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
       data: {
         labels: data.labels ?? [],
         datasets: [{
-          label: "Panier moyen (FCFA)",
+          label: `Panier moyen (${currencySymbol()})`,
           data: data.values ?? [],
           borderColor: "#2196F3",
           backgroundColor: "rgba(33, 150, 243, 0.08)",

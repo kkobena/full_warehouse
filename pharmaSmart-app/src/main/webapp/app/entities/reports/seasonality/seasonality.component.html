@@ -1,5 +1,5 @@
 <!-- Toolbar -->
-<app-toolbar icon="pi pi-chart-line" title="Saisonnalité du Chiffre d'Affaires">
+<app-toolbar [code]="navCode()" icon="pi pi-chart-line" title="Saisonnalité du Chiffre d'Affaires">
   <ng-container ngProjectAs="[toolbarFilters]">
     <div class="pharma-toolbar-filters">
       <pharma-date-picker
@@ -42,37 +42,22 @@
 
 @if (!isLoading() && chartConfig()) {
   <!-- KPI strip -->
-  <div class="kpi-strip mt-2 mb-3">
-    <div class="kpi-strip-item primary-accent">
-      <i class="pi pi-chart-bar text-primary"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">CA Période</span>
-        <span class="kpi-strip-value text-primary">{{ formatCurrency(totalCA()) }}
-          <small>FCFA</small></span>
-        <span class="kpi-strip-sub">{{ tableRows().length }} mois</span>
-      </div>
-    </div>
-    <div class="kpi-strip-divider"></div>
-    <div class="kpi-strip-item">
-      <i class="pi pi-history text-secondary"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">CA Période préc.</span>
-        <span class="kpi-strip-value">{{ formatCurrency(totalPrev()) }} <small>FCFA</small></span>
-        <span class="kpi-strip-sub">même durée N-1</span>
-      </div>
-    </div>
-    <div class="kpi-strip-divider"></div>
-    <div class="kpi-strip-item">
-      <i [class]="'pi ' + evoIcon(totalEvo()) + ' ' + evoClass(totalEvo())"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">Évolution</span>
-        <span class="kpi-strip-value {{ evoClass(totalEvo()) }}">{{
-            totalEvo() > 0 ? '+' : ''
-          }}{{ totalEvo() }} %</span>
-        <span class="kpi-strip-sub">vs période précédente</span>
-      </div>
-    </div>
-  </div>
+  <app-kpi-strip stripClass="mt-2 mb-3">
+    <app-kpi-item [accent]="'primary'" icon="pi pi-chart-bar" iconClass="text-primary" label="CA Période" [value]="formatCurrency(totalCA())" valueClass="text-primary">
+      <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+      <ng-container ngProjectAs="[kpiSub]">{{ tableRows().length }} mois</ng-container>
+    </app-kpi-item>
+    <app-kpi-item icon="pi pi-history" iconClass="text-secondary" label="CA Période préc." [value]="formatCurrency(totalPrev())">
+      <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+      <ng-container ngProjectAs="[kpiSub]">même durée N-1</ng-container>
+    </app-kpi-item>
+    <app-kpi-item [icon]="'pi ' + evoIcon(totalEvo()) + ' ' + evoClass(totalEvo())" label="Évolution" [valueClass]="evoClass(totalEvo())">
+      <ng-container ngProjectAs="[kpiValue]">{{
+                totalEvo() > 0 ? '+' : ''
+              }}{{ totalEvo() }} %</ng-container>
+      <ng-container ngProjectAs="[kpiSub]">vs période précédente</ng-container>
+    </app-kpi-item>
+  </app-kpi-strip>
 
   <!-- Chart -->
   <div class="card data-card mb-3">

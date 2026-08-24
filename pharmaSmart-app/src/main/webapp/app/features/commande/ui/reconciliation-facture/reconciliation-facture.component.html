@@ -22,7 +22,7 @@
       <span class="rf-val rf-val--ref">{{ blMontantHT | number }} F</span>
       <span class="rf-val">
         <app-input-number
-          [(ngModel)]="factureMontantHT"
+          [ngModel]="factureMontantHT()" (ngModelChange)="factureMontantHT.set($event)"
           [min]="0"
           inputClass="rf-number-input"
           style="width: 130px"
@@ -44,7 +44,7 @@
       <span class="rf-val rf-val--ref">{{ blTVA | number }} F</span>
       <span class="rf-val">
         <app-input-number
-          [(ngModel)]="factureTVA"
+          [ngModel]="factureTVA()" (ngModelChange)="factureTVA.set($event)"
           [min]="0"
           inputClass="rf-number-input"
           style="width: 130px"
@@ -93,7 +93,7 @@
       <input
         class="form-control"
         [appKeyFilter]="'alphanum'"
-        [(ngModel)]="factureReference"
+        [ngModel]="factureReference()" (ngModelChange)="factureReference.set($event)"
         type="text"
         maxlength="50"
       />
@@ -101,7 +101,7 @@
     <div class="rf-meta__field">
       <label class="form-label small fw-semibold">Date facture</label>
       <pharma-date-picker
-        [(ngModel)]="factureDate"
+        [ngModel]="factureDate()" (ngModelChange)="factureDate.set($event)"
         id="factureDate"
       />
     </div>
@@ -123,7 +123,7 @@
     [label]="isReconcilie ? 'Valider — Rapproché' : 'Enregistrer avec écart'"
     [severity]="isReconcilie ? 'primary' : 'warn'"
     size="small"
-    [loading]="saving"
-    [disabled]="!canSave || saving"
+    [loading]="saving()"
+    [disabled]="!canSave || saving()"
   />
 </div>

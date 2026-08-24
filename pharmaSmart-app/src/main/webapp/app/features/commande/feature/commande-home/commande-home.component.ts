@@ -4,8 +4,7 @@ import {
   DestroyRef,
   effect,
   inject,
-  OnInit
-} from "@angular/core";
+  OnInit, signal} from "@angular/core";
 import {CommonModule} from "@angular/common";
 import {ActivatedRoute, RouterModule} from "@angular/router";
 import {
@@ -29,6 +28,8 @@ import {AlertBadgeService} from "../../../../shared/services/alert-badge.service
 import {BreadcrumbService} from "../../../../shared/components/breadcrumb/breadcrumb.service";
 import {AbilityService} from "app/core/auth/ability.service";
 
+import { NavSidebarComponent } from 'app/shared/ui/nav-sidebar/nav-sidebar.component';
+import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-link.component';
 /** Labels fil d'Ariane pour chaque onglet */
 const TAB_LABELS: Record<string, string> = {
   DASHBOARD: 'Tableau de bord Appro',
@@ -42,15 +43,14 @@ const TAB_LABELS: Record<string, string> = {
   selector: "app-commande-home",
   templateUrl: "./commande-home.component.html",
   styleUrl: "./commande-home.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [NavSidebarComponent, NavSectionLinkComponent,
     CommonModule,
     RouterModule,
     NgbNav,
     NgbNavItem,
     NgbNavLink,
     NgbNavContent,
-    NgbNavOutlet,
     AppRetourFournisseurComponent,
     AppRepartitionStockComponent,
     ApproUnifiedDashboardComponent,
@@ -60,7 +60,10 @@ const TAB_LABELS: Record<string, string> = {
   ]
 })
 export class CommandeHomeComponent implements OnInit {
-  protected active = "DASHBOARD";
+  protected readonly active = signal("DASHBOARD");
+
+  /** Menu replié : rend la largeur au contenu quand il en manque. */
+  protected readonly menuReplie = signal(false);
   protected readonly alertBadgeService = inject(AlertBadgeService);
   private readonly route = inject(ActivatedRoute);
   private readonly commandCommonService = inject(CommandCommonService);
@@ -78,8 +81,8 @@ export class CommandeHomeComponent implements OnInit {
 
     effect(() => {
       const nav = this.commandCommonService.commandPreviousActiveNav();
-      if (nav !== this.active) {
-        this.active = nav;
+      if (nav !== this.active()) {
+        this.active.set(nav);
         this.breadcrumbService.setTabCrumb(TAB_LABELS[nav] ?? nav);
       }
     });
@@ -89,20 +92,20 @@ export class CommandeHomeComponent implements OnInit {
 
     this.route.queryParams.subscribe(params => {
       if (params["tab"]) {
-        this.active = params["tab"];
-        this.commandCommonService.updateCommandPreviousActiveNav(this.active);
+        this.active.set(params["tab"]);
+        this.commandCommonService.updateCommandPreviousActiveNav(this.active());
       } else {
-        this.active = this.commandCommonService.commandPreviousActiveNav();
+        this.active.set(this.commandCommonService.commandPreviousActiveNav());
       }
-      this.breadcrumbService.setTabCrumb(TAB_LABELS[this.active] ?? this.active);
+      this.breadcrumbService.setTabCrumb(TAB_LABELS[this.active()] ?? this.active());
     });
     this.alertBadgeService.init();
   }
 
   protected onNavChange(evt: NgbNavChangeEvent): void {
-    this.active = evt.nextId;
-    this.commandCommonService.updateCommandPreviousActiveNav(this.active);
-    this.breadcrumbService.setTabCrumb(TAB_LABELS[this.active] ?? this.active);
+    this.active.set(evt.nextId);
+    this.commandCommonService.updateCommandPreviousActiveNav(this.active());
+    this.breadcrumbService.setTabCrumb(TAB_LABELS[this.active()] ?? this.active());
   }
 }
 

@@ -148,9 +148,9 @@
           <div class="col-md-6">
             <label class="form-label fw-semibold">Avoir estimé</label>
             <div class="alert alert-success py-2 mb-0 text-center">
-              <strong class="fs-5">{{ avoirEstime | number }} FCFA</strong>
+              <strong class="fs-5">{{ avoirEstime | number }} <span appDevise></span></strong>
               <small class="d-block text-muted mt-1">
-                {{ quantityValue | number }} × {{ lot.prixAchat | number }} FCFA/unité
+                {{ quantityValue | number }} × {{ lot.prixAchat | number }} <span appDevise></span>/unité
               </small>
             </div>
           </div>

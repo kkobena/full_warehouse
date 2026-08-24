@@ -5,7 +5,7 @@ import { SalesHomeComponent } from '../sales-home/sales-home.component';
   selector: 'app-devis-home',
   templateUrl: './devis-home.component.html',
   styleUrls: ['./devis-home.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [SalesHomeComponent],
 })
 export class DevisHomeComponent {}

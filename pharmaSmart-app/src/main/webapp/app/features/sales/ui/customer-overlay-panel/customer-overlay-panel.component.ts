@@ -21,7 +21,7 @@ import { CommonModule } from "@angular/common";
   selector: 'app-customer-overlay-panel',
   imports: [CommonModule, ButtonComponent, FormsModule, NgbPopover, NgbTooltip, CustomerSearchTableComponent],
   templateUrl: './customer-overlay-panel.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./customer-overlay-panel.component.scss'],
 })
 export class CustomerOverlayPanelComponent {

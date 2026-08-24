@@ -1,4 +1,4 @@
-import { Component, computed, ElementRef, inject, OnInit, signal, ViewChild, ChangeDetectionStrategy } from "@angular/core";
+import { Component, computed, ElementRef, inject, OnInit, signal, ViewChild, ChangeDetectionStrategy, input} from "@angular/core";
 import { HttpResponse } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
@@ -16,8 +16,11 @@ import { formatCurrency } from "app/shared/utils/format-utils";
 
 import { Chart, ChartConfiguration, ChartData, registerables } from "chart.js";
 import { BlobDownloadService } from "../../../shared/services/blob-download.service";
+import { DeviseDirective } from 'app/shared/utils/devise';
 import {
   ButtonComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   SelectComponent,
   ToolbarComponent
 } from '../../../shared/ui';
@@ -36,16 +39,26 @@ interface ComparisonTypeOption {
   selector: "app-comparative-analysis",
   templateUrl: "./comparative-analysis.component.html",
   styleUrl: "./comparative-analysis.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,
     SelectComponent,
-    ToolbarComponent
+    ToolbarComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ]
 })
 export default class ComparativeAnalysisComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : ce rapport est parfois atteint depuis deux menus, qui ne le nomment
+   * pas de la même façon. Le titre suit celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   @ViewChild("evolutionChartCanvas") evolutionChartCanvas?: ElementRef<HTMLCanvasElement>;
   @ViewChild("typeChartCanvas") typeChartCanvas?: ElementRef<HTMLCanvasElement>;
   @ViewChild("familyChartCanvas") familyChartCanvas?: ElementRef<HTMLCanvasElement>;

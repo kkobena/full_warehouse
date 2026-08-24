@@ -18,7 +18,7 @@ import { FloatLabelComponent, SelectSearchComponent } from '../ui';
       multi: true,
     },
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './produit-autocomplete.component.html',
 })
 export class ProduitAutocompleteComponent implements ControlValueAccessor, OnDestroy {

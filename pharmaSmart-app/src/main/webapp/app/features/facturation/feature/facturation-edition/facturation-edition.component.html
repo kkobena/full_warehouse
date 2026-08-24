@@ -69,7 +69,7 @@
             @if (modeEdition === 'TYPE') {
               <app-float-label inputId="edType" label="Type tiers-payant">
                 <app-select
-                  [(ngModel)]="typeTiersPayant"
+                  [ngModel]="typeTiersPayant()" (ngModelChange)="typeTiersPayant.set($event)"
                   [items]="typeTiersPayants"
                   appendTo="body"
                   bindLabel="value"
@@ -84,8 +84,8 @@
               <app-float-label inputId="edGroupe" label="Groupes tiers-payants">
                 <app-multi-select
                   (searched)="searchGroupTiersPayant($event)"
-                  [(ngModel)]="selectedGroupeTiersPayants"
-                  [items]="groupeTiersPayants"
+                  [ngModel]="selectedGroupeTiersPayants()" (ngModelChange)="selectedGroupeTiersPayants.set($event)"
+                  [items]="groupeTiersPayants()"
                   [minSearchLength]="minLength"
                   appendTo="body"
                   bindLabel="name"
@@ -99,8 +99,8 @@
               <app-float-label inputId="edTp" label="Tiers-payants">
                 <app-multi-select
                   (searched)="searchTiersPayant($event)"
-                  [(ngModel)]="selectedTiersPayants"
-                  [items]="tiersPayants"
+                  [ngModel]="selectedTiersPayants()" (ngModelChange)="selectedTiersPayants.set($event)"
+                  [items]="tiersPayants()"
                   [minSearchLength]="minLength"
                   appendTo="body"
                   bindLabel="fullName"
@@ -114,17 +114,17 @@
           <!-- Boutons actions -->
           <div class="edition-actions">
             <app-button
-              (click)="onSearch()"
-              [loading]="searching"
+              (clicked)="onSearch()"
+              [loading]="searching()"
               [raised]="true"
               icon="pi pi-search"
               label="Rechercher"
               severity="info"
             />
             <app-button
-              (click)="onEdit()"
+              (clicked)="onEdit()"
               [disabled]="!modeEdition"
-              [loading]="editing"
+              [loading]="editing()"
               [raised]="true"
               icon="pi pi-check"
               label="Éditer"
@@ -144,16 +144,16 @@
             <i class="pi pi-table text-primary"></i>
             Résultats
           </h5>
-          @if (exporting) {
+          @if (exporting()) {
             <span class="small text-muted ms-auto">
               <i class="pi pi-spin pi-spinner"></i> Téléchargement…
             </span>
           }
 
           <app-button
-            (click)="onEdit()"
+            (clicked)="onEdit()"
             [disabled]="!modeEdition"
-            [loading]="editing"
+            [loading]="editing()"
             [raised]="true"
             icon="pi pi-check"
             label="Éditer"
@@ -168,17 +168,17 @@
             <app-data-table
               #tpTable
               (onLazyLoad)="lazyLoadingTp($event)"
-              [(selection)]="selectedTiersPayantDossiers"
+              [selection]="selectedTiersPayantDossiers()" (selectionChange)="selectedTiersPayantDossiers.set($any($event))"
               [lazy]="true"
-              [loading]="searching"
+              [loading]="searching()"
               [paginator]="true"
               [rowsPerPageOptions]="[15, 20, 30, 50]"
               [rows]="itemsPerPage"
               [showCurrentPageReport]="true"
               [size]="'small'"
               [stripedRows]="true"
-              [totalRecords]="totalItemsTp"
-              [value]="tiersPayantDossierFactures"
+              [totalRecords]="totalItemsTp()"
+              [value]="tiersPayantDossierFactures()"
               currentPageReportTemplate="{first}-{last} sur {totalRecords}"
               dataKey="id"
             >
@@ -186,7 +186,7 @@
                 <div class="d-flex justify-content-end">
                   @if (modeEdition === 'SELECTED' || modeEdition === 'GROUP') {
                     <span class="me-3 small text-muted align-self-center">
-                      {{ selectedTiersPayantDossiers.length }} sélectionné(s)
+                      {{ selectedTiersPayantDossiers().length }} sélectionné(s)
                     </span>
                   }
 
@@ -237,17 +237,17 @@
             <app-data-table
               #bonTable
               (onLazyLoad)="lazyLoadingBons($event)"
-              [(selection)]="selectedDossiers"
+              [selection]="selectedDossiers()" (selectionChange)="selectedDossiers.set($any($event))"
               [lazy]="true"
-              [loading]="searching"
+              [loading]="searching()"
               [paginator]="true"
               [rowsPerPageOptions]="[15, 20, 30, 50]"
               [rows]="itemsPerPage"
               [showCurrentPageReport]="true"
               [size]="'small'"
               [stripedRows]="true"
-              [totalRecords]="totalItems"
-              [value]="dossierFactures"
+              [totalRecords]="totalItems()"
+              [value]="dossierFactures()"
               currentPageReportTemplate="{first}-{last} sur {totalRecords}"
               dataKey="id"
             >
@@ -255,12 +255,12 @@
                 <div class="d-flex justify-content-between align-items-center">
                   <app-icon-field [overlay]="true" icon="pi pi-search">
                     <input
-                      (input)="bonTable.filterGlobal($any($event.target).value, 'contains')"
+                      (input)="bonTable.filterGlobal($any($event.target).value)"
                       class="form-control"
                       placeholder="Filtrer dans la liste..." type="text" />
                   </app-icon-field>
                   <div class="d-flex align-items-center gap-2">
-                    <span class="small text-muted">{{ selectedDossiers.length }}
+                    <span class="small text-muted">{{ selectedDossiers().length }}
                       sélectionné(s)</span>
 
                   </div>

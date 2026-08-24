@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import { ChangeDetectionStrategy,Component, signal } from '@angular/core';
 
 import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
 import {ICellRendererAngularComp} from 'ag-grid-angular';
@@ -8,9 +8,10 @@ import {ButtonComponent} from '../../../shared/ui';
 @Component({
   imports: [FontAwesomeModule, NgbTooltipModule, ButtonComponent],
   selector: 'app-commande-btn',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="btn-group btn-group-sm" role="group">
-      @if (showEditBtn) {
+      @if (showEditBtn()) {
         <app-button
           [text]="true"
           [rounded]="true"
@@ -21,7 +22,7 @@ import {ButtonComponent} from '../../../shared/ui';
           ngbTooltip="Modifier le produit"
         />
       }
-      @if (showLotBtn) {
+      @if (showLotBtn()) {
         <app-button
           [text]="true"
           [rounded]="true"
@@ -36,8 +37,8 @@ import {ButtonComponent} from '../../../shared/ui';
 })
 export class CommandeBtnComponent implements ICellRendererAngularComp {
   params!: any;
-  showLotBtn = false;
-  showEditBtn = false;
+  protected readonly showLotBtn = signal(false);
+  protected readonly showEditBtn = signal(false);
 
   refresh(): boolean {
     return false;
@@ -46,8 +47,8 @@ export class CommandeBtnComponent implements ICellRendererAngularComp {
   agInit(params: any): void {
     this.params = params;
 
-    this.showLotBtn = this.params.context.componentParent.showLotBtn;
-    this.showEditBtn = this.params.context.componentParent.showEditBtn;
+    this.showLotBtn.set(this.params.context.componentParent.showLotBtn);
+    this.showEditBtn.set(this.params.context.componentParent.showEditBtn);
   }
 
   onAddLot(): void {

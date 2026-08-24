@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
+import com.kobe.warehouse.domain.AppUserNames;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.kobe.warehouse.Util;
@@ -151,7 +152,7 @@ public class SaleDTO implements Serializable {
         this.payments = sale.getPayments().stream().map(PaymentDTO::new).toList();
 
         AppUser user = sale.getUser();
-        this.userFullName = user.getFirstName() + " " + user.getLastName();
+        this.userFullName = AppUserNames.fullName(user);
         this.numberTransaction = sale.getNumberTransaction();
         this.natureVente = sale.getNatureVente();
         this.typePrescription = sale.getTypePrescription();

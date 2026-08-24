@@ -15,9 +15,6 @@ export type AppCardVariant = 'data' | 'form';
 /**
  * Carte du Design System — rend du Bootstrap 5 natif habillé en `.data-card`.
  *
- * Remplace `p-card`. L'implémentation précédente encapsulait `p-card` de PrimeNG : elle
- * ne retirait donc aucune dépendance et ne survivait pas à la Phase 4 du plan de
- * migration. Celle-ci n'a plus aucun lien avec PrimeNG.
  *
  * L'en-tête n'est rendu que si `header` ou `icon` est renseigné, ou si du contenu est
  * projeté dans `[cardActions]`. Pour un en-tête entièrement libre, projeter dans

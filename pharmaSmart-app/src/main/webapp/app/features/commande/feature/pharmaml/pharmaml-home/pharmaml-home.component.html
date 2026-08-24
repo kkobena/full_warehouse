@@ -64,7 +64,7 @@
         @if (loadingDisponibilite()) {
           <div class="text-center text-muted py-2"><i class="pi pi-spin pi-spinner"></i></div>
         } @else {
-          <app-data-table [value]="disponibilites()" class="p-datatable-sm pharma-table w-100">
+          <app-data-table [value]="disponibilites()" class="p-datatable-sm  w-100">
             <ng-template #header>
               <tr class="pharma-table-head">
                 <th>Code</th>
@@ -107,7 +107,7 @@
         [paginator]="historique().length > 5"
         [rows]="5"
         [value]="historique()"
-        class="w-100 p-datatable-sm pharma-table"
+        class="w-100 p-datatable-sm "
       >
         <ng-template #header>
           <tr class="pharma-table-head">

@@ -1,4 +1,5 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
+import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy, input} from "@angular/core";
+import { HintComponent } from 'app/shared/ui/hint/hint.component';
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { DecimalPipe } from "@angular/common";
@@ -35,8 +36,7 @@ import {
   DataTableComponent,
   FloatLabelComponent,
   MultiSelectComponent,
-  ToolbarComponent
-} from "../../../../shared/ui";
+  ToolbarComponent, RowTogglerDirective } from "../../../../shared/ui";
 import { PharmaDatePickerComponent } from "../../../../shared/date-picker/pharma-date-picker.component";
 
 interface IStatutOption {
@@ -46,7 +46,8 @@ interface IStatutOption {
 
 @Component({
   selector: "app-rapprochement",
-  imports: [
+  imports: [RowTogglerDirective, 
+    HintComponent,
     FormsModule,
     DecimalPipe,
     RapprochementKpiBannerComponent,
@@ -58,20 +59,29 @@ interface IStatutOption {
     PharmaDatePickerComponent
   ],
   templateUrl: "./rapprochement.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./rapprochement.component.scss"
 })
 export class RapprochementComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   protected readonly statutOptions: IStatutOption[] = [
     { label: "Payé", value: "PAID" },
     { label: "Partiel", value: "PARTIALLY_PAID" },
     { label: "Impayé", value: "NOT_PAID" }
   ];
 
-  protected modelStartDate: NgbDateStruct;
+  protected readonly modelStartDate = signal<NgbDateStruct | undefined>(undefined);
   protected modelEndDate: NgbDateStruct = TODAY_NGB_DATE();
   protected selectedStatut: string[] = [];
-  protected tiersPayantSuggestions: ITiersPayant[] = [];
+  protected readonly tiersPayantSuggestions = signal<ITiersPayant[]>([]);
   protected selectedTiersPayants: ITiersPayant[] = [];
 
   protected readonly rapprochements = signal<IEtatRapprochement[]>([]);
@@ -82,7 +92,6 @@ export class RapprochementComponent implements OnInit {
   protected readonly selectedRappr = signal<IEtatRapprochement | null>(null);
   protected readonly panelOpen = computed(() => this.selectedRappr() !== null);
   protected readonly today = new Date().toISOString().split("T")[0];
-  protected readonly showHint = signal<boolean>(localStorage.getItem('rapprochement-hint-dismissed') !== '1');
   protected readonly kpi = computed<IRapprochementKpi | null>(() => {
     const data = this.rapprochements();
     if (data.length === 0) return null;
@@ -116,15 +125,11 @@ export class RapprochementComponent implements OnInit {
   constructor() {
     const d = new Date();
     d.setMonth(d.getMonth() - 1);
-    this.modelStartDate = { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
+    this.modelStartDate.set({ year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() });
   }
 
   ngOnInit(): void {
     this.onSearch();
-  }
-  dismissHint(): void {
-    localStorage.setItem('rapprochement-hint-dismissed', '1');
-    this.showHint.set(false);
   }
 
   onSearch(): void {
@@ -174,7 +179,7 @@ export class RapprochementComponent implements OnInit {
     this.tiersPayantService
       .query({ page: 0, search: query, size: 10 })
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(res => (this.tiersPayantSuggestions = res.body ?? []));
+      .subscribe(res => (this.tiersPayantSuggestions.set(res.body ?? [])));
   }
 
   openReglementModal(ligne: ILigneRapprochement): void {
@@ -301,7 +306,7 @@ export class RapprochementComponent implements OnInit {
 
   private buildParams(): any {
     return {
-      startDate: NGB_DATE_TO_ISO(this.modelStartDate),
+      startDate: NGB_DATE_TO_ISO(this.modelStartDate()),
       endDate: NGB_DATE_TO_ISO(this.modelEndDate),
       tiersPayantIds: this.selectedTiersPayants.map(t => t.id),
       statuts: this.selectedStatut ?? []

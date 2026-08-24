@@ -1,18 +1,18 @@
 <!-- Toolbar -->
-<app-toolbar icon="pi pi-percentage" title="Taux de Recouvrement Tiers-Payants">
+<app-toolbar [code]="navCode()" icon="pi pi-percentage" title="Taux de Recouvrement Tiers-Payants">
   <ng-container ngProjectAs="[toolbarFilters]">
     <div class="pharma-toolbar-filters">
       <pharma-date-picker
-        label="Du"
-        id="trt-from"
-        [ngModel]="fromStruct()"
         (ngModelChange)="fromDate.set(structToDate($event))"
+        [ngModel]="fromStruct()"
+        id="trt-from"
+        label="Du"
       />
       <pharma-date-picker
-        label="Au"
-        id="trt-to"
-        [ngModel]="toStruct()"
         (ngModelChange)="toDate.set(structToDate($event))"
+        [ngModel]="toStruct()"
+        id="trt-to"
+        label="Au"
       />
     </div>
   </ng-container>
@@ -20,14 +20,14 @@
   <ng-container ngProjectAs="[toolbarActions]">
     <div>
       <app-button
-        type="button"
-        icon="pi pi-search"
-        label="Rechercher"
+        (clicked)="load()"
         [loading]="isLoading()"
         [raised]="true"
+        icon="pi pi-search"
+        label="Rechercher"
         severity="primary"
         size="small"
-        (clicked)="load()"
+        type="button"
       />
     </div>
   </ng-container>
@@ -43,49 +43,45 @@
 @if (!isLoading() && kpi()) {
 
   <!-- KPI Strip principal -->
-  <div class="kpi-strip mt-2 mb-3">
-    <div class="kpi-strip-item primary-accent">
-      <i [class]="tauxIcon()"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">Taux de recouvrement</span>
-        <span class="kpi-strip-value {{ tauxColor() }}" style="font-size: 2rem; font-weight: 700;">
-          {{ formatDecimal(kpi()?.tauxRecouvrement, 1) }} %
-        </span>
-        <span class="kpi-strip-sub">
-          @if ((kpi()?.tauxRecouvrement ?? 0) >= 80) { Excellent }
-          @else if ((kpi()?.tauxRecouvrement ?? 0) >= 50) { À surveiller }
-          @else { Insuffisant }
-        </span>
-      </div>
-    </div>
-    <div class="kpi-strip-divider"></div>
-    <div class="kpi-strip-item success-accent">
-      <i class="pi pi-check-circle text-success"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">Montant réglé</span>
-        <span class="kpi-strip-value text-success">{{ formatCurrency(kpi()?.totalRegle) }} <small>FCFA</small></span>
-        <span class="kpi-strip-sub">{{ formatNumber(kpi()?.countFactures) }} factures</span>
-      </div>
-    </div>
-    <div class="kpi-strip-divider"></div>
-    <div class="kpi-strip-item danger-accent">
-      <i class="pi pi-times-circle text-danger"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">Montant restant</span>
-        <span class="kpi-strip-value text-danger">{{ formatCurrency(kpi()?.totalRestant) }}</span>
-        <span class="kpi-strip-sub">{{ formatNumber(kpi()?.countImpayees) }} impayées</span>
-      </div>
-    </div>
-    <div class="kpi-strip-divider"></div>
-    <div class="kpi-strip-item warning-accent">
-      <i class="pi pi-clock text-warning"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">En retard</span>
-        <span class="kpi-strip-value text-warning">{{ formatNumber(kpi()?.countEnRetard) }}</span>
-        <span class="kpi-strip-sub">factures en retard de paiement</span>
-      </div>
-    </div>
-  </div>
+  <app-kpi-strip stripClass="mt-2 mb-2">
+    <app-kpi-item [accent]="'primary'" [icon]="tauxIcon()" label="Taux de recouvrement">
+      <!--
+        La valeur est projetée plutôt que passée par [value] : elle porte une taille
+        propre, et un style d'appelant ne franchirait pas l'encapsulation de app-kpi-item.
+      -->
+      <span [class]="tauxColor()" ngProjectAs="[kpiValue]"
+            style="font-size: 2rem; font-weight: 700;">
+        {{ formatDecimal(kpi()?.tauxRecouvrement, 1) }} %
+      </span>
+      <ng-container ngProjectAs="[kpiSub]">
+        @if ((kpi()?.tauxRecouvrement ?? 0) >= 80) {
+          Excellent
+        } @else if ((kpi()?.tauxRecouvrement ?? 0) >= 50) {
+          À surveiller
+        } @else {
+          Insuffisant
+        }
+      </ng-container>
+    </app-kpi-item>
+    <app-kpi-item [accent]="'success'" [value]="formatCurrency(kpi()?.totalRegle)" icon="pi pi-check-circle"
+                  iconClass="text-success" label="Montant réglé"
+                  valueClass="text-success">
+      <span ngProjectAs="[kpiValue]"><small appDevise></small></span>
+      <ng-container ngProjectAs="[kpiSub]">{{ formatNumber(kpi()?.countFactures) }}factures
+      </ng-container>
+    </app-kpi-item>
+    <app-kpi-item [accent]="'danger'" [value]="formatCurrency(kpi()?.totalRestant)" icon="pi pi-times-circle"
+                  iconClass="text-danger" label="Montant restant"
+                  valueClass="text-danger">
+      <ng-container ngProjectAs="[kpiSub]">{{ formatNumber(kpi()?.countImpayees) }}impayées
+      </ng-container>
+    </app-kpi-item>
+    <app-kpi-item [accent]="'warning'" [value]="formatNumber(kpi()?.countEnRetard)" icon="pi pi-clock"
+                  iconClass="text-warning" label="En retard"
+                  valueClass="text-warning">
+      <ng-container ngProjectAs="[kpiSub]">factures en retard de paiement</ng-container>
+    </app-kpi-item>
+  </app-kpi-strip>
 
   <!-- Tableau de bord récapitulatif -->
   <div class="row g-3 mt-1">
@@ -103,7 +99,8 @@
           <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex justify-content-between px-0">
               <span>Total facturé</span>
-              <span class="fw-bold">{{ formatCurrency(kpi()?.totalFacture) }} FCFA</span>
+              <span class="fw-bold">{{ formatCurrency(kpi()?.totalFacture) }} <span
+                appDevise></span></span>
             </li>
             <li class="list-group-item d-flex justify-content-between px-0">
               <span class="text-success">Montant réglé</span>

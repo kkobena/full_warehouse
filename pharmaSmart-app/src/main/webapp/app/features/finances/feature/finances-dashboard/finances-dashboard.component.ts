@@ -6,11 +6,12 @@ import { FinancesDashboardApiService } from '../../data-access/services/finances
 import { IFinancesSummary } from '../../data-access/models';
 import { formatCurrency } from 'app/shared/utils/format-utils';
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-finances-dashboard',
-  imports: [CommonModule, RouterLink, DashboardCAComponent],
+  imports: [DeviseDirective, CommonModule, RouterLink, DashboardCAComponent],
   templateUrl: './finances-dashboard.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './finances-dashboard.component.scss',
 })
 export class FinancesDashboardComponent implements OnInit {

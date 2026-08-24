@@ -1,8 +1,14 @@
-import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, input} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
-import {ButtonComponent, DataTableComponent, ToolbarComponent} from '../../../shared/ui';
+import {
+  ButtonComponent,
+  DataTableComponent,
+  KpiItemComponent,
+  KpiStripComponent,
+  ToolbarComponent
+} from '../../../shared/ui';
 
 import {DashboardCAService} from '../services/dashboard-ca.service';
 import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
@@ -12,14 +18,23 @@ import {ChartBuilderService, ChartConfig} from '../../../shared/util/chart-build
 import {formatCurrency, formatNumber} from 'app/shared/utils/format-utils';
 import {ChartComponent} from "../../../shared/chart/chart.component";
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-seasonality',
-  imports: [CommonModule, FormsModule, DataTableComponent, ChartComponent, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent],
+  imports: [DeviseDirective, CommonModule, FormsModule, DataTableComponent, ChartComponent, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent, KpiStripComponent, KpiItemComponent],
   templateUrl: './seasonality.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./seasonality.component.scss'],
 })
 export default class SeasonalityComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : ce rapport est parfois atteint depuis deux menus, qui ne le nomment
+   * pas de la même façon. Le titre suit celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   protected readonly currentEvolution = signal<IDashboardCAEvolution | null>(null);
   protected readonly previousEvolution = signal<IDashboardCAEvolution | null>(null);
   protected readonly isLoading = signal(false);

@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.stock.impl;
 
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Magasin;
@@ -172,7 +173,7 @@ public class RetourDepotServiceImpl implements RetourDepotService {
         dto.setId(retourDepot.getId());
         dto.setDateMtv(retourDepot.getDateMtv());
         AppUser user = retourDepot.getUser();
-        dto.setUserFullName(user.getFirstName() + " " + user.getLastName());
+        dto.setUserFullName(AppUserNames.fullName(user));
         Magasin depot = retourDepot.getDepot();
         dto.setDepotId(depot.getId());
         dto.setDepotName(depot.getFullName());

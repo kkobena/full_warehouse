@@ -18,7 +18,7 @@ interface FlatNavNode extends INavNode {
   selector: "app-nav-manager",
   templateUrl: "./nav-manager.component.html",
   styleUrl: "./nav-manager.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule, FormsModule,
     DataTableComponent, CheckboxComponent, SelectSearchComponent,
@@ -44,13 +44,22 @@ export class NavManagerComponent implements OnInit {
   protected readonly savingRows = signal<Set<number>>(new Set());
   /** ID de l'item dont on édite le libellé */
   protected readonly editingItemId = signal<number | null>(null);
-  protected editingLibelle = "";
+  protected readonly editingLibelle = signal("");
+  /**
+   * Quel champ est en cours d'édition sur la ligne ouverte.
+   *
+   * <p>Le libellé sert au menu, étroit et repliable ; le titre long à la barre d'outils de
+   * l'écran, qui a toute la largeur. Les deux se saisissent au même endroit, mais jamais en même
+   * temps — une ligne, un champ.
+   */
+  protected readonly editingField = signal<"libelle" | "titreLong">("libelle");
+  protected readonly editingTitreLong = signal("");
   /** Terme de recherche — filtre par libellé, bypasse le collapse */
   protected readonly searchTerm = signal("");
   /** Arbre brut conservé pour la prévisualisation */
   private readonly rawTree = signal<INavNode[]>([]);
   protected readonly availableRoles = signal<IAuthority[]>([]);
-  protected selectedRole: IAuthority | null = null;
+  protected readonly selectedRole = signal<IAuthority | null>(null);
   //La fonctionnalité pas totalement OK
   protected showTabReorder=false;
 
@@ -72,8 +81,8 @@ export class NavManagerComponent implements OnInit {
       const roles = this.availableRoles();
       if (!roleName || roles.length === 0) return;
       const found = roles.find(r => r.name === roleName);
-      if (found && found.name !== this.selectedRole?.name) {
-        this.selectedRole = found;
+      if (found && found.name !== this.selectedRole()?.name) {
+        this.selectedRole.set(found);
         this.loadRoleItems();
       }
     });
@@ -144,7 +153,7 @@ export class NavManagerComponent implements OnInit {
 
   /** Accorde ou révoque toutes les permissions sur un menu et ses enfants, puis sauvegarde. */
   grantSubtree(item: FlatNavNode, grant: boolean): void {
-    if (!this.selectedRole) return;
+    if (!this.selectedRole()) return;
     const subtree = this.getSubtree(item);
     subtree.forEach(n => {
       n.assignment = grant
@@ -160,10 +169,10 @@ export class NavManagerComponent implements OnInit {
 
   // ── Sauvegarde auto d'une permission ────────────────────────────────────
   onPermissionChange(item: FlatNavNode): void {
-    if (!this.selectedRole) return;
+    if (!this.selectedRole()) return;
     const rowId = item.id;
     this.savingRows.update(s => new Set(s).add(rowId));
-    this.navApi.updateSinglePermission(this.selectedRole.name, item.assignment).subscribe({
+    this.navApi.updateSinglePermission(this.selectedRole().name, item.assignment).subscribe({
       next: () => {
         this.savingRows.update(s => {
           const n = new Set(s);
@@ -185,11 +194,47 @@ export class NavManagerComponent implements OnInit {
   // ── Édition inline du libellé ────────────────────────────────────────────
   startEdit(item: FlatNavNode): void {
     this.editingItemId.set(item.id);
-    this.editingLibelle = item.libelle;
+    this.editingField.set("libelle");
+    this.editingLibelle.set(item.libelle);
+  }
+
+  /**
+   * Ouvre la saisie du titre long.
+   *
+   * <p>Pré-rempli avec le libellé quand aucun titre long n'existe : c'est la valeur qu'affiche la
+   * barre aujourd'hui, et le point de départ naturel pour l'allonger.
+   */
+  startEditTitreLong(item: FlatNavNode): void {
+    this.editingItemId.set(item.id);
+    this.editingField.set("titreLong");
+    this.editingTitreLong.set(item.titreLong ?? item.libelle);
+  }
+
+  saveTitreLong(item: FlatNavNode): void {
+    const saisi = this.editingTitreLong().trim();
+    // Égal au libellé, le titre long n'apporte rien : on l'efface pour que la barre suive le menu.
+    const titreLong = saisi === item.libelle ? "" : saisi;
+    if (titreLong === (item.titreLong ?? "")) {
+      this.cancelEdit();
+      return;
+    }
+    this.navApi.updateNavItemTitreLong(item.id, titreLong).subscribe({
+      next: () => {
+        const patch = (list: FlatNavNode[]) =>
+          list.map(i => (i.id === item.id ? { ...i, titreLong: titreLong || undefined } : i));
+        this.flatItems.update(patch);
+        this.visibleItems.update(patch);
+        this.cancelEdit();
+        this.notificationService.success(
+          titreLong ? "Titre de la barre d'outils mis à jour." : "Titre de la barre d'outils effacé : le libellé du menu s'applique.",
+        );
+      },
+      error: () => this.notificationService.error("Échec de la mise à jour du titre."),
+    });
   }
 
   saveEdit(item: FlatNavNode): void {
-    const libelle = this.editingLibelle.trim();
+    const libelle = this.editingLibelle().trim();
     if (!libelle || libelle === item.libelle) {
       this.cancelEdit();
       return;
@@ -209,7 +254,9 @@ export class NavManagerComponent implements OnInit {
 
   cancelEdit(): void {
     this.editingItemId.set(null);
-    this.editingLibelle = "";
+    this.editingField.set("libelle");
+    this.editingLibelle.set("");
+    this.editingTitreLong.set("");
   }
 
   /** Indentation progressive : grand écart entre GROUP (depth=0) et ses enfants. */
@@ -236,7 +283,7 @@ export class NavManagerComponent implements OnInit {
   }
 
   loadRoleItems(): void {
-    if (!this.selectedRole) {
+    if (!this.selectedRole()) {
       this.flatItems.set([]);
       this.rawTree.set([]);
       this.visibleItems.set([]);
@@ -246,7 +293,7 @@ export class NavManagerComponent implements OnInit {
     }
     this.loading.set(true);
     this.collapsedGroups.set(new Set());
-    this.navApi.getAllNavItemsForRole(this.selectedRole.name).subscribe({
+    this.navApi.getAllNavItemsForRole(this.selectedRole().name).subscribe({
       next: items => {
         this.rawTree.set(items);
         const flat = this.flattenWithDepth(items, 0);

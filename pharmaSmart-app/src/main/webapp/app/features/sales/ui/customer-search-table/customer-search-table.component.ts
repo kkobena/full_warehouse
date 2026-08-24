@@ -30,7 +30,7 @@ import {showCommonModal} from '../../../../entities/sales/selling-home/sale-help
   selector: 'app-customer-search-table',
   imports: [CommonModule, FormsModule, ButtonComponent, DataTableComponent, IconFieldComponent, NgbTooltip],
   templateUrl: './customer-search-table.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
     `
       @import 'app/shared/scss/table-common';

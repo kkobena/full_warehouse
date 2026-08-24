@@ -1,7 +1,7 @@
 <div class="pharma-smart-content p-1">
-  <app-toolbar [compact]="true" icon="pi pi-ban" title="Retours clients">
+  <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-ban" title="Retours clients">
     <ng-container ngProjectAs="[toolbarFilters]">
-      <!-- Filtres liste des retours -->
+      <!-- Filtres liste des retours() -->
       <app-icon-field [overlay]="true" icon="pi pi-search">
         <input (keyup.enter)="onSearch()" [(ngModel)]="search" class="form-control"
                placeholder="Réf. retour ou vente…"
@@ -29,10 +29,10 @@
     [loading]="loading()"
     [paginator]="true"
     [rowsPerPageOptions]="[10, 20, 50]"
-    [rows]="itemsPerPage"
+    [rows]="itemsPerPage()"
     [showCurrentPageReport]="true"
-    [totalRecords]="totalItems"
-    [value]="retours"
+    [totalRecords]="totalItems()"
+    [value]="retours()"
     class="p-datatable-sm p-datatable-striped"
     currentPageReportTemplate="{first} – {last} sur {totalRecords}"
     dataKey="id">

@@ -21,7 +21,7 @@ import { PlanifSubtabTpsComponent } from './planif-subtab-tps.component';
     PlanifSubtabTpsComponent,
   ],
   templateUrl: './planif-detail-panel.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './planif-detail-panel.component.scss',
 })
 export class PlanifDetailPanelComponent {

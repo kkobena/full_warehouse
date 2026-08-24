@@ -4,7 +4,6 @@ import { TranslateService } from '@ngx-translate/core';
 import { ICustomer } from '../../../shared/model';
 import { ISales } from '../../../shared/model';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 
 export enum SaleType {
   COMPTANT = 'comptant',
@@ -71,15 +70,6 @@ export function getNavChangeMessage(nextId: string, translate: TranslateService)
   }
 }
 
-// Common error handler to display dialog
-export function showCommonError(modalService: NgbModal, message: string, infoClass = 'alert alert-danger'): void {
-  const modalRef = modalService.open(AlertInfoComponent, {
-    backdrop: 'static',
-    centered: true,
-  });
-  modalRef.componentInstance.message = message;
-  modalRef.componentInstance.infoClass = infoClass;
-}
 
 export function showCommonModal<T>(
   modalService: NgbModal,

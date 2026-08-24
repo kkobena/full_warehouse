@@ -79,7 +79,7 @@
         <div class="quantity-input-wrapper d-flex gap-1">
           <app-input-number
             #qtyBox
-            [(ngModel)]="qty"
+            [ngModel]="qty()" (ngModelChange)="qty.set($event)"
             [showButtons]="true"
             incrementButtonIcon="pi pi-plus"
             decrementButtonIcon="pi pi-minus"
@@ -120,7 +120,7 @@
           </div>
 
           <!-- Stock après -->
-          @if (qty !== 0) {
+          @if (qty() !== 0) {
             <div
               class="meta-item"
               [class.low-stock]="stockAfter < 0"

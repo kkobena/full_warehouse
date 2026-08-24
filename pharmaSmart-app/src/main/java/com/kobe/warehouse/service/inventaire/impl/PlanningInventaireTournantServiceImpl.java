@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.inventaire.impl;
 
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.domain.PlanningInventaireTournant;
@@ -40,9 +41,9 @@ public class PlanningInventaireTournantServiceImpl implements PlanningInventaire
      * {@code v_abc_pareto_analysis.classe_pareto} (5 classes depuis V1.3.3, seuils 60/80/95/99).
      *
      * <p>La liste était limitée à A/B/C : la constitution de l'inventaire filtrant sur
-     * {@code abc.classe_pareto = :classePareto}, ni A_PLUS (les 60 premiers % du CA) ni D
-     * (produits sans vente sur 12 mois) n'étaient jamais comptés — soit les deux extrémités,
-     * les plus sensibles.
+     * {@code abc.classe_pareto = :classePareto}, ni A_PLUS (les 60 premiers % du CA) ni D (produits
+     * sans vente sur 12 mois) n'étaient jamais comptés — soit les deux extrémités, les plus
+     * sensibles.
      */
     private static final List<String> ABC_CLASSES = List.of("A_PLUS", "A", "B", "C", "D");
 
@@ -67,6 +68,18 @@ public class PlanningInventaireTournantServiceImpl implements PlanningInventaire
         this.storageRepository = storageRepository;
         this.userRepository = userRepository;
         this.inventaireCreationService = inventaireCreationService;
+    }
+
+    private static String abcClasseAt(int index) {
+        return ABC_CLASSES.get(Math.floorMod(index, ABC_CLASSES.size()));
+    }
+
+    /**
+     * Libellé lisible d'une classe Pareto : la base stocke {@code A_PLUS}, l'écran affiche
+     * {@code A+}.
+     */
+    private static String paretoLabel(String classePareto) {
+        return "A_PLUS".equals(classePareto) ? "A+" : classePareto;
     }
 
     @Override
@@ -118,6 +131,8 @@ public class PlanningInventaireTournantServiceImpl implements PlanningInventaire
         return toRecord(planningRepository.saveAndFlush(entity));
     }
 
+    // ── Package-level : appelé par le scheduler ──────────────────────────────
+
     @Override
     public Long executerManuellement(Integer planningId) {
         PlanningInventaireTournant planning = planningRepository.getReferenceById(planningId);
@@ -125,6 +140,8 @@ public class PlanningInventaireTournantServiceImpl implements PlanningInventaire
         planningRepository.saveAndFlush(planning);
         return inventoryId;
     }
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
 
     @Override
     @Transactional(readOnly = true)
@@ -164,8 +181,6 @@ public class PlanningInventaireTournantServiceImpl implements PlanningInventaire
             prochaineTournant);
     }
 
-    // ── Package-level : appelé par le scheduler ──────────────────────────────
-
     /**
      * Exécute tous les plannings échus et sauvegarde les avancements. Appelé par
      */
@@ -188,8 +203,6 @@ public class PlanningInventaireTournantServiceImpl implements PlanningInventaire
             .filter(Objects::nonNull)
             .toList();
     }
-
-    // ── Helpers ──────────────────────────────────────────────────────────────
 
     /**
      * Exécute un planning : détermine le critère courant, crée l'inventaire, et avance la rotation.
@@ -274,15 +287,6 @@ public class PlanningInventaireTournantServiceImpl implements PlanningInventaire
         }
     }
 
-    private static String abcClasseAt(int index) {
-        return ABC_CLASSES.get(Math.floorMod(index, ABC_CLASSES.size()));
-    }
-
-    /** Libellé lisible d'une classe Pareto : la base stocke {@code A_PLUS}, l'écran affiche {@code A+}. */
-    private static String paretoLabel(String classePareto) {
-        return "A_PLUS".equals(classePareto) ? "A+" : classePareto;
-    }
-
     private LocalDate nextExecutionDate(FrequenceTournant frequence) {
         LocalDate today = LocalDate.now();
         return switch (frequence) {
@@ -340,7 +344,7 @@ public class PlanningInventaireTournantServiceImpl implements PlanningInventaire
             storage != null ? storage.getId() : null,
             storage != null ? storage.getName() : null,
             user != null ? user.getId() : null,
-            user != null ? (user.getFirstName() + " " + user.getLastName()).trim() : null,
+            user != null ? (AppUserNames.fullName(user)).trim() : null,
             e.getProchaineExecution(),
             Boolean.TRUE.equals(e.getActif()),
             e.getCritereIndexCourant(),

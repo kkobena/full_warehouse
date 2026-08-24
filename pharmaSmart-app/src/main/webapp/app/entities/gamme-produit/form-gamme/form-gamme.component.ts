@@ -6,8 +6,7 @@ import {
   ElementRef,
   inject,
   OnInit,
-  viewChild
-} from '@angular/core';
+  viewChild, signal } from '@angular/core';
 import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
 import {Observable} from 'rxjs';
 import {GammeProduitService} from '../gamme-produit.service';
@@ -22,14 +21,14 @@ import {NotificationService} from "../../../shared/services/notification.service
   selector: 'app-form-gamme',
   templateUrl: './form-gamme.component.html',
   styleUrls: ['./form-gamme.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonComponent, KeyFilterDirective],
 })
 export class FormGammeComponent implements OnInit, AfterViewInit {
   header = '';
   gamme: IGammeProduit | null = null;
   protected fb = inject(UntypedFormBuilder);
-  protected isSaving = false;
+  protected readonly isSaving = signal(false);
   protected editForm = this.fb.group({
     id: [],
     code: [],
@@ -54,7 +53,7 @@ export class FormGammeComponent implements OnInit, AfterViewInit {
   }
 
   protected save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const entity = this.createFromForm();
     if (entity.id !== undefined && entity.id !== null) {
       this.subscribeToSaveResponse(this.entityService.update(entity));
@@ -79,7 +78,7 @@ export class FormGammeComponent implements OnInit, AfterViewInit {
   }
 
   private onSaveError(error: HttpErrorResponse): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 

@@ -31,7 +31,7 @@ const MOTIFS: { value: MotifRetour; label: string }[] = [
   selector: 'app-retour-pharmaml',
   imports: [CommonModule, FormsModule, ButtonComponent, DataTableComponent, SelectComponent],
   styleUrls: ['./retour-pharmam.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="modal-header">
       <h5 class="modal-title">Retour marchandise</h5>

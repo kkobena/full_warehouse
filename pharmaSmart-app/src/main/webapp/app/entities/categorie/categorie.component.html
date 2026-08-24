@@ -12,13 +12,13 @@
 
   <jhi-alert></jhi-alert>
 
-  @if (categories?.length === 0) {
+  @if (categories()?.length === 0) {
     <div class="alert alert-warning" id="no-result">
-      <span jhiTranslate="warehouseApp.categorie.home.notFound">No categories found</span>
+      <span jhiTranslate="warehouseApp.categorie.home.notFound">No categories() found</span>
     </div>
   }
 
-  @if (categories && categories.length > 0) {
+  @if (categories() && categories().length > 0) {
     <div class="table-responsive" id="entities">
       <table aria-describedby="page-heading" class="table table-striped">
         <thead class="pharma-table-head">
@@ -36,7 +36,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (categorie of categories; track trackId($index, categorie)) {
+          @for (categorie of categories(); track trackId($index, categorie)) {
             <tr>
               <td>
                 <a [routerLink]="['/categorie', categorie.id, 'view']">{{ categorie.id }}</a>

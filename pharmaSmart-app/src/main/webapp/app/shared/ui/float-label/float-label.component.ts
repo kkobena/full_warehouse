@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import {ChangeDetectionStrategy, Component, input} from '@angular/core';
 
 let nextId = 0;
 
@@ -35,6 +35,7 @@ let nextId = 0;
     <label [for]="inputId()">{{ label() }}</label>
   `,
   styleUrl: './float-label.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FloatLabelComponent {
   readonly label = input<string>('');

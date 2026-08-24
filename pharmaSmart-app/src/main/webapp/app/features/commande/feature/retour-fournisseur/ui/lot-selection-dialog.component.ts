@@ -114,7 +114,7 @@ export interface LotSelection {
       <app-button label="Confirmer" severity="primary" icon="pi pi-check" [disabled]="!isValid()" (clicked)="onConfirm()" />
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
     `
       .lot-selection-content {

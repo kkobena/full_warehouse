@@ -18,7 +18,7 @@ interface FormatOption {
   selector: "app-export-comptable",
   imports: [CommonModule, FormsModule, PharmaDatePickerComponent, CheckboxComponent],
   templateUrl: "./export-comptable.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./export-comptable.component.scss"
 })
 export class ExportComptableComponent {

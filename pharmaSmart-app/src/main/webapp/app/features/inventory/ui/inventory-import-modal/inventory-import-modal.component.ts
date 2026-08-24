@@ -12,7 +12,7 @@ import { ErrorService } from "../../../../shared/error.service";
   selector: "app-inventory-import-modal",
   imports: [CommonModule, ButtonComponent, CardComponent, DataTableComponent, KpiStripComponent, KpiItemComponent],
   templateUrl: "./inventory-import-modal.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./inventory-import-modal.component.scss"
 })
 export class InventoryImportModalComponent implements OnInit {

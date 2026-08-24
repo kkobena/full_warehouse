@@ -1,5 +1,4 @@
-@import '../../../shared/scss/modal-theme';
-@import '../../../shared/scss/form-styles';
+@use '../../../shared/scss/modal-theme' as *;
 
 :host {
   @include modal-theme;

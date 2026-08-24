@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {ISales} from 'app/shared/model/sales.model';
 import {ISalesLine} from 'app/shared/model/sales-line.model';
@@ -22,17 +22,17 @@ import {AlertErrorComponent} from "../../shared/alert/alert-error.component";
 
   templateUrl: './customer-detail.component.html',
   styleUrls: ['./customer-detail.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgbNavModule, ButtonComponent, NavTabsComponent, TranslateDirective, CommonModule, AlertErrorComponent, CardComponent]
 })
 export class CustomerDetailComponent implements OnInit, OnDestroy {
-  customer: ICustomer | null = null;
-  sales: ISales[] = [];
-  avoirs: IAvoirClientDocument[] = [];
-  selectedRowIndex?: number;
-  selectedRowSaleLines?: ISalesLine[] = [];
-  saleSelected?: ISales;
-  magasin?: IMagasin;
+  protected readonly customer = signal<ICustomer | null>(null);
+  protected readonly sales = signal<ISales[]>([]);
+  protected readonly avoirs = signal<IAvoirClientDocument[]>([]);
+  protected readonly selectedRowIndex = signal<number | undefined>(undefined);
+  protected readonly selectedRowSaleLines = signal<ISalesLine[]>([]);
+  protected readonly saleSelected = signal<ISales | undefined>(undefined);
+  protected readonly magasin = signal<IMagasin | undefined>(undefined);
   protected activatedRoute = inject(ActivatedRoute);
   protected customerService = inject(CustomerService);
   protected magasinService = inject(MagasinService);
@@ -40,7 +40,7 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   get avoirsOuverts(): IAvoirClientDocument[] {
-    return this.avoirs.filter(a => a.statut === 'OUVERT');
+    return this.avoirs().filter(a => a.statut === 'OUVERT');
   }
 
   get soldeTotalAvoirs(): number {
@@ -48,12 +48,12 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({customer}) => (this.customer = customer));
+    this.activatedRoute.data.subscribe(({customer}) => (this.customer.set(customer)));
     this.loadSales();
     this.loadAvoirs();
-    this.selectedRowIndex = 0;
+    this.selectedRowIndex.set(0);
     this.magasinService.findCurrentUserMagasin().then(magasin => {
-      this.magasin = magasin;
+      this.magasin.set(magasin);
     });
   }
 
@@ -67,14 +67,14 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
   }
 
   loadAvoirs(): void {
-    if (!this.customer?.id) {
+    if (!this.customer()?.id) {
       return;
     }
     this.customerService
-      .avoirsByCustomer(this.customer.id)
+      .avoirsByCustomer(this.customer().id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: avoirs => (this.avoirs = avoirs), error: () => {
+        next: avoirs => (this.avoirs.set(avoirs)), error: () => {
         }
       });
   }
@@ -86,7 +86,7 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
   loadSales(): void {
     this.customerService
       .purchases({
-        customerId: this.customer.id,
+        customerId: this.customer().id,
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -96,15 +96,15 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
   }
 
   clickRow(item: ISales): void {
-    this.selectedRowIndex = item.id;
-    this.selectedRowSaleLines = item.salesLines;
-    this.saleSelected = item;
+    this.selectedRowIndex.set(item.id);
+    this.selectedRowSaleLines.set(item.salesLines);
+    this.saleSelected.set(item);
   }
 
   print(): void {
-    if (this.saleSelected !== null && this.saleSelected !== undefined) {
+    if (this.saleSelected() !== null && this.saleSelected() !== undefined) {
       this.salesService
-        .print(this.saleSelected.saleId)
+        .print(this.saleSelected().saleId)
         .pipe(takeUntil(this.destroy$))
         .subscribe(blod => {
           const blobUrl = URL.createObjectURL(blod);
@@ -114,7 +114,7 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
   }
 
   protected onSuccess(data: ISales[] | null): void {
-    this.sales = data || [];
+    this.sales.set(data || []);
   }
 
   protected onError(): void {

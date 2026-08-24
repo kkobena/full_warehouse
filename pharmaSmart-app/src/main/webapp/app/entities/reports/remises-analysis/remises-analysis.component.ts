@@ -1,8 +1,14 @@
-import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy, input} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonComponent, DataTableComponent, ToolbarComponent } from '../../../shared/ui';
+import {
+  ButtonComponent,
+  DataTableComponent,
+  KpiItemComponent,
+  KpiStripComponent,
+  ToolbarComponent
+} from '../../../shared/ui';
 import { ChartComponent } from 'app/shared/chart/chart.component';
 import { forkJoin } from 'rxjs';
 
@@ -13,14 +19,23 @@ import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { ChartBuilderService, ChartConfig } from '../../../shared/util/chart-builder.service';
 import { formatCurrency, formatDecimal, formatNumber } from 'app/shared/utils/format-utils';
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-remises-analysis',
-  imports: [CommonModule, FormsModule, DataTableComponent, ChartComponent, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent],
+  imports: [DeviseDirective, CommonModule, FormsModule, DataTableComponent, ChartComponent, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent, KpiStripComponent, KpiItemComponent],
   templateUrl: './remises-analysis.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./remises-analysis.component.scss'],
 })
 export default class RemisesAnalysisComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : ce rapport est parfois atteint depuis deux menus, qui ne le nomment
+   * pas de la même façon. Le titre suit celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   protected readonly kpi          = signal<IRemisesAnalysisKpi | null>(null);
   protected readonly topProducts  = signal<ITopRemiseProduit[]>([]);
   protected readonly isLoading    = signal(false);

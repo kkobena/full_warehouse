@@ -59,7 +59,6 @@ import com.kobe.warehouse.service.stock.StockEntryService;
 import com.kobe.warehouse.service.stock.csv.CsvImportStrategy;
 import com.kobe.warehouse.service.stock.csv.ParsedCsvRecord;
 import com.kobe.warehouse.service.utils.FileUtil;
-import com.kobe.warehouse.service.utils.ServiceUtil;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -665,7 +664,8 @@ public class StockEntryServiceImpl implements StockEntryService {
         commande.setDiscountAmount(0);
         commande.setTaxAmount(deliveryReceipt.getTaxAmount());
         commande.setReceiptReference(deliveryReceipt.getReceiptReference());
-        commande.setHtAmount(ServiceUtil.computeHtaxe(commande.getGrossAmount(), commande.getTaxAmount()));
+        // taxAmount est un montant de taxe, pas un taux : le HT s'obtient par soustraction
+        commande.setHtAmount(commande.getGrossAmount() - commande.getTaxAmount());
         // deliveryReceipt.setOrderReference(deliveryReceipt.getReceiptReference());
         commandeRepository.save(commande);
         return commande;

@@ -12,7 +12,7 @@ import {ErrorService} from "../../../../../../shared/error.service";
   selector: 'app-substitution-pharmaml',
   imports: [CommonModule, ButtonComponent, DataTableComponent, BadgeComponent, NgbTooltip],
   templateUrl: './substitution-pharmaml.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./substitution-pharmaml.scss'],
 })
 export class SubstitutionPharmamlComponent implements OnInit {

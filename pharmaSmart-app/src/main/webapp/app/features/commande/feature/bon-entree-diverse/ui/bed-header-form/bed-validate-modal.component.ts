@@ -19,7 +19,7 @@ export interface BedValidateResult {
   selector: "app-bed-validate-modal",
   templateUrl: "./bed-validate-modal.component.html",
   styleUrls: ["./bed-validate-modal.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

@@ -7,7 +7,7 @@ import { GapAnalysisApiService } from '../../data-access/services/gap-analysis-a
   selector: 'app-gap-summary',
   imports: [CommonModule],
   templateUrl: './gap-summary.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './gap-summary.component.scss',
 })
 export class GapSummaryComponent implements OnInit {

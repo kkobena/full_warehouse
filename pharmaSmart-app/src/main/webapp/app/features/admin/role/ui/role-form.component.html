@@ -65,8 +65,8 @@
       type="button"
     />
     <app-button
-      [disabled]="editForm.invalid || isSaving"
-      [loading]="isSaving"
+      [disabled]="editForm.invalid || isSaving()"
+      [loading]="isSaving()"
       [raised]="true"
       icon="pi pi-check"
       label="Créer"

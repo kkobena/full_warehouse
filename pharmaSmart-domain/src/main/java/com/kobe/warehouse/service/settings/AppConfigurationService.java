@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.settings;
 
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppConfiguration;
+import com.kobe.warehouse.domain.enumeration.ParametreValueType;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.enumeration.AcceptationSubstitutionMode;
 import com.kobe.warehouse.domain.enumeration.ModelReapprovisionnement;
@@ -9,6 +10,12 @@ import com.kobe.warehouse.domain.enumeration.PutawayMode;
 import com.kobe.warehouse.repository.AppConfigurationRepository;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.settings.dto.AppConfigurationDto;
+import java.math.BigDecimal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.Cache;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +23,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -23,17 +32,37 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 @Service
 @Transactional
 public class AppConfigurationService {
 
+    /** Repli quand la configuration est absente : la zone franc reste le cas courant. */
+    private static final String DEVISE_DEFAUT = "FCFA";
+
+    private static final BigDecimal PLAFOND_PONCTION_DEFAUT = new BigDecimal("35");
+    private static final BigDecimal CENT = new BigDecimal("100");
+
+    private static final Logger LOG = LoggerFactory.getLogger(AppConfigurationService.class);
+
     private final UserService userService;
     private final AppConfigurationRepository appConfigurationRepository;
+    /**
+     * Optionnel : {@code pharmaSmart-batch} embarque ce service sans activer le cache. L'exiger
+     * empêcherait le batch de démarrer, et il n'aurait de toute façon rien à vider.
+     */
+    private final ObjectProvider<CacheManager> cacheManager;
 
-    public AppConfigurationService(UserService userService, AppConfigurationRepository appConfigurationRepository) {
+    public AppConfigurationService(
+        UserService userService,
+        AppConfigurationRepository appConfigurationRepository,
+        ObjectProvider<CacheManager> cacheManager
+    ) {
         this.userService = userService;
         this.appConfigurationRepository = appConfigurationRepository;
+        this.cacheManager = cacheManager;
     }
 
     @Transactional(readOnly = true)
@@ -107,7 +136,8 @@ public class AppConfigurationService {
                 configuration.setUpdated(LocalDateTime.now());
                 configuration.setValidatedBy(userService.getUser());
                 return appConfigurationRepository.save(configuration);
-            });
+            })
+            .ifPresent(configuration -> eviderLeCache(configuration.getName()));
     }
 
 
@@ -177,6 +207,31 @@ public class AppConfigurationService {
             .orElse(7);
     }
 
+    /**
+     * Active ou non l'exclusion des unités gratuites du chiffre d'affaires à déclarer.
+     *
+     * <p>L'éviction est indispensable : {@link #excludeFreeUnit()} est {@code @Cacheable}, et sans
+     * elle le basculement resterait sans effet jusqu'au redémarrage.
+     */
+    @Transactional
+    public void setExcludeFreeUnit(boolean exclure) {
+        AppConfiguration configuration = appConfigurationRepository
+            .findById(EntityConstant.EXCLUDE_FREE_UNIT)
+            .orElseGet(() -> {
+                AppConfiguration nouvelle = new AppConfiguration();
+                nouvelle.setName(EntityConstant.EXCLUDE_FREE_UNIT);
+                nouvelle.setDescription("Exclure les unités gratuites du chiffre d'affaires à déclarer");
+                nouvelle.setCreated(LocalDateTime.now());
+                nouvelle.setValueType(ParametreValueType.BOOLEAN);
+                return nouvelle;
+            });
+        configuration.setValue(Boolean.toString(exclure));
+        configuration.setUpdated(LocalDateTime.now());
+        configuration.setValidatedBy(userService.getUser());
+        appConfigurationRepository.save(configuration);
+        eviderLeCache(EntityConstant.EXCLUDE_FREE_UNIT);
+    }
+
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.EXCLUDE_FREE_UNIT)
     public boolean excludeFreeUnit() {
@@ -209,6 +264,64 @@ public class AppConfigurationService {
             return false;
         }
 
+    }
+
+    /**
+     * Délai, en jours, pendant lequel une ponction validée reste annulable.
+     *
+     * <p>Un jour par défaut : au-delà, les chiffres ont eu le temps d'être lus, imprimés ou
+     * transmis, et les défaire rendrait un état déjà sorti impossible à reproduire.
+     */
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_PONCTION_ANNULATION_MAX_DAYS_CACHE)
+    public int getPonctionAnnulationMaxDays() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_PONCTION_ANNULATION_MAX_DAYS)
+            .map(AppConfiguration::getValue)
+            .map(valeur -> {
+                try {
+                    return Integer.parseInt(valeur.trim());
+                } catch (NumberFormatException _) {
+                    return 1;
+                }
+            })
+            .orElse(1);
+    }
+
+    /**
+     * Devise affichee a la suite des montants.
+     *
+     * <p>Purement typographique : elle est concatenee a un montant deja formate et n'entre dans
+     * aucun calcul. Une officine hors zone franc n'a donc qu'une ligne de configuration a changer.
+     */
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_DEVISE_CACHE)
+    public String getDevise() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_DEVISE)
+            .map(AppConfiguration::getValue)
+            .map(String::trim)
+            .filter(valeur -> !valeur.isEmpty())
+            .orElse(DEVISE_DEFAUT);
+    }
+
+    /** Plafond par defaut d'une ponction, en pourcentage du montant d'une vente. */
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_PONCTION_PLAFOND_DEFAUT_CACHE)
+    public BigDecimal getPonctionPlafondDefaut() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_PONCTION_PLAFOND_DEFAUT)
+            .map(AppConfiguration::getValue)
+            .map(valeur -> {
+                try {
+                    return new BigDecimal(valeur.trim());
+                } catch (NumberFormatException _) {
+                    return PLAFOND_PONCTION_DEFAUT;
+                }
+            })
+            // Hors des bornes, la valeur saisie ne veut rien dire : on retombe sur le defaut.
+            .filter(plafond -> plafond.signum() > 0 && plafond.compareTo(CENT) <= 0)
+            .orElse(PLAFOND_PONCTION_DEFAUT);
     }
 
     @Transactional(readOnly = true)
@@ -415,6 +528,7 @@ public class AppConfigurationService {
             newConfig.setValidatedBy(userService.getUser());
             appConfigurationRepository.save(newConfig);
         }
+        eviderLeCache(EntityConstant.APP_MODEL_REAPPRO);
     }
 
 
@@ -532,8 +646,58 @@ public class AppConfigurationService {
     @Transactional
     public void update(AppConfiguration appConfiguration) {
         appConfigurationRepository.save(appConfiguration);
-
+        eviderLeCache(appConfiguration.getName());
     }
+    /**
+     * Vide le cache d'un paramètre qui vient d'être écrit.
+     *
+     * <p>Sans cela, tous les lecteurs {@code @Cacheable} de cette classe continuent de servir
+     * l'ancienne valeur pendant 24 heures : le paramètre passe à l'écran, et rien ne change dans
+     * l'application.
+     *
+     * <p>Deux conventions de nommage cohabitent — le cache porte soit le nom du paramètre
+     * ({@code EXCLUDE_FREE_UNIT}), soit ce nom suffixé ({@code APP_SEUIL_VARIATION_PRIX_CACHE}).
+     * Les deux sont tentées, ce qui évite d'entretenir une table de correspondance qu'on oublierait
+     * de compléter en ajoutant un paramètre.
+     *
+     * <p>Programmatique et non {@code @CacheEvict} : l'annotation passe par le proxy, donc reste
+     * sans effet dès qu'une méthode de cette classe en appelle une autre. Ici l'appel direct
+     * fonctionne dans tous les cas.
+     */
+    private void eviderLeCache(String nomParametre) {
+        CacheManager gestionnaire = cacheManager.getIfAvailable();
+        if (gestionnaire == null) {
+            return;
+        }
+        List<Cache> caches = Stream
+            .of(nomParametre, nomParametre + "_CACHE")
+            .map(gestionnaire::getCache)
+            .filter(Objects::nonNull)
+            .toList();
+
+        if (caches.isEmpty()) {
+            // Un paramètre sans cache est le cas courant ; en journaliser la trace permet de
+            // distinguer « rien à vider » de « cache mal nommé, donc jamais vidé ».
+            LOG.debug("Aucun cache à vider pour le paramètre {}", nomParametre);
+            return;
+        }
+
+        // Après validation de la transaction : vider avant laisserait une lecture concurrente
+        // repeupler le cache avec la valeur d'avant l'écriture.
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        caches.forEach(Cache::clear);
+                    }
+                }
+            );
+        } else {
+            caches.forEach(Cache::clear);
+        }
+    }
+
     private AppConfigurationDto toDto(AppConfiguration appConfiguration) {
         return new AppConfigurationDto(
             appConfiguration.getName(),

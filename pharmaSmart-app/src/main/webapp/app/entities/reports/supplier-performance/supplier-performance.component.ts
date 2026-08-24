@@ -6,8 +6,7 @@ import {
   OnDestroy,
   OnInit,
   signal,
-  ViewChild
-} from '@angular/core';
+  ViewChild, input} from '@angular/core';
 
 import {FormsModule} from '@angular/forms';
 import {HttpResponse} from '@angular/common/http';
@@ -19,6 +18,8 @@ import {Chart, ChartConfiguration, registerables} from 'chart.js';
 import {
   ButtonComponent,
   DataTableComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   OffcanvasComponent,
   SelectComponent,
   ToolbarComponent
@@ -30,10 +31,11 @@ import {
   ISupplierPerformance,
   ISupplierPerformanceSummary
 } from 'app/shared/model/report';
-import {formatCurrency, formatDecimal, formatNumber} from 'app/shared/utils/format-utils';
+import { formatCurrency, formatDecimal, formatNumber, currencySymbol } from 'app/shared/utils/format-utils';
 import {TauriPrinterService} from '../../../shared/services/tauri-printer.service';
 import {handleBlobForTauri} from '../../../shared/util/tauri-util';
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 Chart.register(...registerables);
 
 interface FilterOption {
@@ -43,12 +45,20 @@ interface FilterOption {
 
 @Component({
   selector: 'app-supplier-performance',
-  imports: [FormsModule, NgbTooltip, ButtonComponent, DataTableComponent, OffcanvasComponent, SelectComponent, ToolbarComponent],
+  imports: [DeviseDirective, FormsModule, NgbTooltip, ButtonComponent, DataTableComponent, OffcanvasComponent, SelectComponent, ToolbarComponent, KpiStripComponent, KpiItemComponent],
   templateUrl: './supplier-performance.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './supplier-performance.component.scss',
 })
 export default class SupplierPerformanceComponent implements OnInit, OnDestroy {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : ce rapport est parfois atteint depuis deux menus, qui ne le nomment
+   * pas de la même façon. Le titre suit celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   @ViewChild('montantsChartCanvas') montantsChartCanvas?: ElementRef<HTMLCanvasElement>;
   @ViewChild('delaisChartCanvas') delaisChartCanvas?: ElementRef<HTMLCanvasElement>;
 
@@ -291,12 +301,12 @@ export default class SupplierPerformanceComponent implements OnInit, OnDestroy {
           legend: {position: 'bottom', labels: {padding: 16}},
           tooltip: {
             callbacks: {
-              label: ctx => `${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)} FCFA`,
+              label: ctx => `${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)} ${currencySymbol()}`,
             },
           },
         },
         scales: {
-          y: {title: {display: true, text: 'Montant (FCFA)'}},
+          y: {title: {display: true, text: `Montant (${currencySymbol()})`}},
           x: {ticks: {maxRotation: 45}},
         },
       },

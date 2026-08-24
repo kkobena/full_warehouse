@@ -120,4 +120,4 @@ pharma-smart:
   # Contrôle de licence désactivé en développement : ni l'aspect ni l'intercepteur d'écriture
   # ne sont créés, la chaîne d'exécution reste celle d'avant l'introduction de la licence.
   license:
-    enabled: true
+    enabled: false

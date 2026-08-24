@@ -1,4 +1,14 @@
-import {Component, computed, DestroyRef, inject, Injector, OnInit, output, signal, ChangeDetectionStrategy} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  Injector,
+  OnInit,
+  output,
+  signal
+} from '@angular/core';
 import {takeUntilDestroyed, toObservable} from '@angular/core/rxjs-interop';
 import {CommonModule, DatePipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
@@ -16,24 +26,33 @@ import {
 import {ICommande} from 'app/shared/model/commande.model';
 import {CommandeId} from 'app/shared/model/abstract-commande.model';
 import {CommandeService} from '../../../../entities/commande/commande.service';
-import {NgbConfirmDialogService} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import {
+  NgbConfirmDialogService
+} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import {NotificationService} from '../../../../shared/services/notification.service';
 import {TauriPrinterService} from '../../../../shared/services/tauri-printer.service';
 import {handleBlobForTauri} from '../../../../shared/util/tauri-util';
 import {showCommonModal} from '../../../../entities/sales/selling-home/sale-helper';
-import {ImportationNewCommandeComponent} from '../../../../entities/commande/importation-new-commande.component';
+import {
+  ImportationNewCommandeComponent
+} from '../../../../entities/commande/importation-new-commande.component';
 import {ICommandeResponse} from '../../../../shared/model/commande-response.model';
-import {CommandeImportResponseDialogComponent} from '../../../../entities/commande/commande-import-response-dialog.component';
+import {
+  CommandeImportResponseDialogComponent
+} from '../../../../entities/commande/commande-import-response-dialog.component';
 import {CommandeRequestedComponent} from '../commande-requested/commande-requested.component';
 import {CommandCommonService} from '../../../../entities/commande/command-common.service';
 import {DeliveryModalComponent} from '../../ui/delivery/delivery-modal/delivery-modal.component';
-import {CommandeRequestedAction, CommandeRequestedActionsComponent} from './commande-requested-actions.component';
+import {
+  CommandeRequestedAction,
+  CommandeRequestedActionsComponent
+} from './commande-requested-actions.component';
 
 @Component({
   selector: 'app-commande-requested-home',
   templateUrl: './commande-requested-home.component.html',
   styleUrls: ['./commande-requested-home.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -61,32 +80,23 @@ export class CommandeRequestedHomeComponent implements OnInit {
   readonly totalItems = signal(0);
   readonly currentPage = signal(0);
   readonly rows = 30;
-
-  // ── Recherche ─────────────────────────────────────────────────────────────
-  protected searchText = '';
-
-  // ── Sélection multiple (native PrimeNG) ───────────────────────────────────
   readonly selectionMultiple = signal<ICommande[]>([]);
   readonly selectionCount = computed(() => this.selectionMultiple().length);
   readonly canFusionner = computed(() => {
     const sel = this.selectionMultiple();
-    if (sel.length < 2) return false;
+    if (sel.length < 2) {
+      return false;
+    }
     const fId = sel[0].fournisseur?.id;
     return sel.every(c => c.fournisseur?.id === fId);
   });
-
   // ── Totaux page courante ───────────────────────────────────────────────────
   readonly totalAmount = computed(() =>
     this.commandes().reduce((s, c) => s + (c.grossAmount ?? 0), 0),
   );
-
-  // ── Row styling ────────────────────────────────────────────────────────────
-  getRowClass(c: ICommande): Record<string, boolean> {
-    return {
-      'row-reliquat': !!c.reliquatDeCommandeId,
-    };
-  }
-
+  readonly totalPages = computed(() => Math.ceil(this.totalItems() / this.rows));
+  // ── Recherche ─────────────────────────────────────────────────────────────
+  protected searchText = '';
   private readonly commandeService = inject(CommandeService);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly notificationService = inject(NotificationService);
@@ -95,6 +105,13 @@ export class CommandeRequestedHomeComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
   private readonly commandCommonService = inject(CommandCommonService);
+
+  // ── Row styling ────────────────────────────────────────────────────────────
+  getRowClass(c: ICommande): Record<string, boolean> {
+    return {
+      'row-reliquat': !!c.reliquatDeCommandeId,
+    };
+  }
 
   ngOnInit(): void {
     this.loadPage(0);
@@ -125,6 +142,8 @@ export class CommandeRequestedHomeComponent implements OnInit {
       });
   }
 
+  // ── Navigation master/detail ──────────────────────────────────────────────
+
   loadPage(page = 0): void {
     this.loading.set(true);
     this.commandeService
@@ -150,8 +169,6 @@ export class CommandeRequestedHomeComponent implements OnInit {
       });
   }
 
-  // ── Navigation master/detail ──────────────────────────────────────────────
-
   onEditer(c: ICommande): void {
     this.editingCommande.set(c);
   }
@@ -165,21 +182,31 @@ export class CommandeRequestedHomeComponent implements OnInit {
     this.loadPage(this.currentPage());
   }
 
+  // ── Actions unitaires ─────────────────────────────────────────────────────
+
   onCommandeChange(c: ICommande | null): void {
     if (c) {
       this.editingCommande.set(c);
     }
   }
 
-  // ── Actions unitaires ─────────────────────────────────────────────────────
-
   onCommandeMenuAction(action: CommandeRequestedAction, c: ICommande): void {
     switch (action) {
-      case 'editer':       this.onEditer(c); break;
-      case 'receptionner': this.onReceptionner(c); break;
-      case 'exportCsv':    this.exportCsv(c); break;
-      case 'exportPdf':    this.exportPdf(c); break;
-      case 'supprimer':    this.onSupprimerCommande(c); break;
+      case 'editer':
+        this.onEditer(c);
+        break;
+      case 'receptionner':
+        this.onReceptionner(c);
+        break;
+      case 'exportCsv':
+        this.exportCsv(c);
+        break;
+      case 'exportPdf':
+        this.exportPdf(c);
+        break;
+      case 'supprimer':
+        this.onSupprimerCommande(c);
+        break;
     }
   }
 
@@ -217,9 +244,13 @@ export class CommandeRequestedHomeComponent implements OnInit {
     });
   }
 
+  // ── Importation (modale existante) ────────────────────────────────────────
+
   onReceptionner(c: ICommande): void {
     this.commandeService.find(c.commandeId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(res => {
-      if (!res.body) return;
+      if (!res.body) {
+        return;
+      }
       showCommonModal(
         this.modalService,
         DeliveryModalComponent,
@@ -232,8 +263,6 @@ export class CommandeRequestedHomeComponent implements OnInit {
       );
     });
   }
-
-  // ── Importation (modale existante) ────────────────────────────────────────
 
   onImportation(): void {
     showCommonModal(
@@ -250,16 +279,16 @@ export class CommandeRequestedHomeComponent implements OnInit {
     );
   }
 
-  // ── Sélection native PrimeNG ──────────────────────────────────────────────
+  // ── Bulk actions ──────────────────────────────────────────────────────────
 
   onSelectionChange(items: ICommande[]): void {
     this.selectionMultiple.set(items);
   }
 
-  // ── Bulk actions ──────────────────────────────────────────────────────────
-
   onFusionner(): void {
-    if (!this.canFusionner()) return;
+    if (!this.canFusionner()) {
+      return;
+    }
     const ids = this.selectionMultiple().map(c => c.commandeId);
 
     this.commandeService
@@ -274,6 +303,8 @@ export class CommandeRequestedHomeComponent implements OnInit {
         error: () => this.notificationService.error('Erreur lors de la fusion', 'Erreur'),
       });
   }
+
+  // ── Pagination ────────────────────────────────────────────────────────────
 
   onSupprimerSelection(): void {
     const count = this.selectionCount();
@@ -296,10 +327,6 @@ export class CommandeRequestedHomeComponent implements OnInit {
     );
   }
 
-  // ── Pagination ────────────────────────────────────────────────────────────
-
-  readonly totalPages = computed(() => Math.ceil(this.totalItems() / this.rows));
-
   goToPage(page: number): void {
     if (page >= 0 && page < this.totalPages()) {
       this.loadPage(page);
@@ -316,6 +343,9 @@ export class CommandeRequestedHomeComponent implements OnInit {
   }
 
   private openImportResponseDialog(response: ICommandeResponse): void {
-    this.modalService.open(CommandeImportResponseDialogComponent, {size: 'xl', scrollable: true}).componentInstance.response = response;
+    this.modalService.open(CommandeImportResponseDialogComponent, {
+      size: 'xl',
+      scrollable: true
+    }).componentInstance.response = response;
   }
 }

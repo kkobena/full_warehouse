@@ -1,14 +1,14 @@
 import { Component, DestroyRef, effect, inject, input, signal, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { finalize } from "rxjs/operators";
+import { Subscription } from "rxjs";
 import { NgbModal, NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
 import { NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import {
   BadgeComponent,
   ButtonComponent,
   DataTableComponent,
-  NavTabsComponent
-} from "../../../../shared/ui";
+  NavTabsComponent, AppBadgeSeverity } from "../../../../shared/ui";
 import { NotificationService } from "../../../../shared/services/notification.service";
 import { ErrorService } from "../../../../shared/error.service";
 
@@ -45,7 +45,7 @@ import { CommonModule } from "@angular/common";
     AvoirWorkspaceComponent
   ],
   templateUrl: "./facture-detail-panel.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./facture-detail-panel.component.scss"
 })
 export class FactureDetailPanelComponent {
@@ -54,10 +54,10 @@ export class FactureDetailPanelComponent {
   readonly canExport  = input<boolean>(true);
   readonly activeTabRequest = input<string | null>(null);
 
-  protected loadingItems = false;
-  protected certifying = false;
-  protected loadingReglements = false;
-  protected loadingPdf = false;
+  protected readonly loadingItems = signal(false);
+  protected readonly certifying = signal(false);
+  protected readonly loadingReglements = signal(false);
+  protected readonly loadingPdf = signal(false);
   protected certificationLoading = false;
   protected factureItems = signal<IFactureItem[]>([]);
   protected reglements = signal<IReglement[]>([]);
@@ -67,6 +67,10 @@ export class FactureDetailPanelComponent {
 
 
   private currentFactureId: number | null = null;
+  // Le détail d'une grosse facture peut être long : on annule la requête précédente
+  // quand l'utilisateur enchaîne les sélections de lignes.
+  private itemsSubscription?: Subscription;
+  private reglementsSubscription?: Subscription;
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly factureApiService = inject(FactureApiService);
   private readonly reglementApiService = inject(ReglementApiService);
@@ -82,7 +86,7 @@ export class FactureDetailPanelComponent {
     return this.facture()?.groupeFactureId != null;
   }
 
-  getStatutSeverity(statut: string): string {
+  getStatutSeverity(statut: string): AppBadgeSeverity {
     switch (statut) {
       case "PAID":
         return "success";
@@ -150,10 +154,10 @@ export class FactureDetailPanelComponent {
   }
 
   private onCertifySingle(facture: IFacture): void {
-    this.certifying = true;
+    this.certifying.set(true);
     this.certificationApiService.certify(facture.factureItemId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: response => {
-        this.certifying = false;
+        this.certifying.set(false);
         const fneResponse = response.body;
         if (fneResponse) {
           this.confirmDialog.onConfirm(
@@ -165,7 +169,7 @@ export class FactureDetailPanelComponent {
 
       },
       error: err => {
-        this.certifying = false;
+        this.certifying.set(false);
         this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur de certification FNE");
 
       }
@@ -185,15 +189,15 @@ export class FactureDetailPanelComponent {
 
 
   private onCertifyGroupInvoice(facture: IFacture): void {
-    this.certifying = true;
+    this.certifying.set(true);
     this.certificationApiService.certifyGroupe(facture.factureItemId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
-        this.certifying = false;
+        this.certifying.set(false);
         this.notificationService.success("Toutes les factures du groupe ont été certifiées avec succès auprès du FNE.", "Certification groupe");
 
       },
       error: err => {
-        this.certifying = false;
+        this.certifying.set(false);
         this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur de certification FNE");
       }
     });
@@ -227,11 +231,11 @@ export class FactureDetailPanelComponent {
   onExportPdf(): void {
     const f = this.facture();
     if (!f?.factureItemId) return;
-    this.loadingPdf = true;
+    this.loadingPdf.set(true);
     this.factureApiService
       .exportToPdf(f.factureItemId)
       .pipe(
-        finalize(() => (this.loadingPdf = false)),
+        finalize(() => (this.loadingPdf.set(false))),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
@@ -245,11 +249,12 @@ export class FactureDetailPanelComponent {
 
   private loadItems(f: IFacture): void {
     if (!f.factureItemId) return;
-    this.loadingItems = true;
-    this.factureApiService
+    this.itemsSubscription?.unsubscribe();
+    this.loadingItems.set(true);
+    this.itemsSubscription = this.factureApiService
       .find(f.factureItemId)
       .pipe(
-        finalize(() => (this.loadingItems = false)),
+        finalize(() => (this.loadingItems.set(false))),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
@@ -284,11 +289,12 @@ export class FactureDetailPanelComponent {
 
   private loadReglements(f: IFacture): void {
     if (!f.factureItemId) return;
-    this.loadingReglements = true;
-    this.reglementApiService
+    this.reglementsSubscription?.unsubscribe();
+    this.loadingReglements.set(true);
+    this.reglementsSubscription = this.reglementApiService
       .findByInvoice(f.factureItemId)
       .pipe(
-        finalize(() => (this.loadingReglements = false)),
+        finalize(() => (this.loadingReglements.set(false))),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({

@@ -19,7 +19,7 @@ import {ErrorService} from "../../../../../../shared/error.service";
   selector: 'app-reponse-pharmaml',
   imports: [CommonModule, ButtonComponent, DataTableComponent, BadgeComponent, CardComponent],
   templateUrl: './reponse-pharmaml.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./reponse-pharmaml.scss'],
 })
 export class ReponsePharmamlComponent implements OnInit {

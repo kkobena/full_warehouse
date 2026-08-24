@@ -1,4 +1,4 @@
-import {Component, ChangeDetectionStrategy} from '@angular/core';
+import {Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import {ICellRendererAngularComp} from 'ag-grid-angular';
 import {AppBadgeSeverity, BadgeComponent} from '../../../../shared/ui';
 import {IOrderLine} from '../../../../shared/model/order-line.model';
@@ -13,13 +13,13 @@ const SEVERITY_MAP: Record<string, AppBadgeSeverity> = {
 @Component({
   selector: 'app-commande-received-statut',
   imports: [BadgeComponent],
-  template: `<app-badge [label]="label" [severity]="severity" [rounded]="true" />`,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  template: `<app-badge [label]="label()" [severity]="severity()" [rounded]="true" />`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`:host { display:flex; align-items:center; justify-content:center; height:100% }`],
 })
 export class CommandeReceivedStatutComponent implements ICellRendererAngularComp {
-  protected label = '';
-  protected severity: AppBadgeSeverity = 'secondary';
+  protected readonly label = signal('');
+  protected readonly severity = signal<AppBadgeSeverity>('secondary');
 
   agInit(params: any): void {
     this.update(params);
@@ -34,7 +34,7 @@ export class CommandeReceivedStatutComponent implements ICellRendererAngularComp
     const line: IOrderLine = params.data;
     if (!line) return;
     const s: {label: string; severity: string} = params.context.componentParent.lineStatut(line);
-    this.label = s.label;
-    this.severity = SEVERITY_MAP[s.severity] ?? 'secondary';
+    this.label.set(s.label);
+    this.severity.set(SEVERITY_MAP[s.severity] ?? 'secondary');
   }
 }

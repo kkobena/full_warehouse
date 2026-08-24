@@ -14,11 +14,13 @@ import {
 } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import {BadgeComponent, ButtonComponent, DataTableComponent} from '../../../../shared/ui';
 
+import { KpiStripComponent } from 'app/shared/ui/kpi-strip/kpi-strip.component';
+import { KpiItemComponent } from 'app/shared/ui/kpi-strip/kpi-item.component';
 @Component({
   selector: 'app-planning-tournant-list',
-  imports: [CommonModule, ButtonComponent, BadgeComponent, DataTableComponent, NgbTooltip, DatePipe],
+  imports: [CommonModule, KpiStripComponent, KpiItemComponent, ButtonComponent, BadgeComponent, DataTableComponent, NgbTooltip, DatePipe],
   templateUrl: './planning-tournant-list.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './planning-tournant-list.component.scss',
 })
 export class PlanningTournantListComponent implements OnInit {

@@ -7,9 +7,11 @@ import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.SalesRepository;
 import com.kobe.warehouse.service.dto.DoughnutChart;
 import com.kobe.warehouse.service.dto.ReportPeriode;
+import com.kobe.warehouse.service.declaration_ca.ModeChiffreAffaireResolver;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.financiel_transaction.dto.TaxeDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.TaxeWrapperDTO;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -26,19 +28,24 @@ public class TaxeServiceImpl implements TaxeService, MvtCommonService {
 
     private static final Logger LOG = LoggerFactory.getLogger(TaxeServiceImpl.class);
     private final TvaReportReportService tvaReportService;
+    private final ModeChiffreAffaireResolver modeResolver;
     private final DeclarationTvaPdfReportService declarationTvaPdfReportService;
     private final SalesRepository salesRepository;
     private final ObjectMapper objectMapper;
+    private final AppConfigurationService appConfigurationService;
 
-    public TaxeServiceImpl(
-        TvaReportReportService tvaReportService,
+    public TaxeServiceImpl(TvaReportReportService tvaReportService,
         DeclarationTvaPdfReportService declarationTvaPdfReportService,
         SalesRepository salesRepository,
-        ObjectMapper objectMapper
+        AppConfigurationService appConfigurationService,
+        ObjectMapper objectMapper,
+        ModeChiffreAffaireResolver modeResolver
     ) {
+        this.modeResolver = modeResolver;
         this.tvaReportService = tvaReportService;
         this.declarationTvaPdfReportService = declarationTvaPdfReportService;
         this.salesRepository = salesRepository;
+        this.appConfigurationService = appConfigurationService;
         this.objectMapper = objectMapper;
     }
 
@@ -96,6 +103,8 @@ public class TaxeServiceImpl implements TaxeService, MvtCommonService {
             mvtParam.setStatuts(
                 Set.of( SalesStatut.CLOSED,SalesStatut.CANCELED)
             );
+
+            mvtParam.setMode(modeResolver.resoudre(mvtParam.getMode()));
             String jsonResult;
             if ("daily".equals(mvtParam.getGroupeBy())) {
                 jsonResult = salesRepository.fetchSalesTvaReportJournalier(
@@ -103,8 +112,8 @@ public class TaxeServiceImpl implements TaxeService, MvtCommonService {
                     mvtParam.getToDate(),
                     mvtParam.getStatuts().stream().map(SalesStatut::name).toArray(String[]::new),
                     mvtParam.getCategorieChiffreAffaires().stream().map(CategorieChiffreAffaire::name).toArray(String[]::new),
-                    mvtParam.isExcludeFreeUnit(),
-                    BooleanUtils.toBoolean(mvtParam.getToIgnore())
+                    BooleanUtils.toBoolean(mvtParam.getToIgnore()),
+                    mvtParam.getModeName()
                 );
             } else {
                 jsonResult = salesRepository.fetchSalesTvaReport(
@@ -112,8 +121,8 @@ public class TaxeServiceImpl implements TaxeService, MvtCommonService {
                     mvtParam.getToDate(),
                     mvtParam.getStatuts().stream().map(SalesStatut::name).toArray(String[]::new),
                     mvtParam.getCategorieChiffreAffaires().stream().map(CategorieChiffreAffaire::name).toArray(String[]::new),
-                    mvtParam.isExcludeFreeUnit(),
-                    BooleanUtils.toBoolean(mvtParam.getToIgnore())
+                    BooleanUtils.toBoolean(mvtParam.getToIgnore()),
+                    mvtParam.getModeName()
                 );
             }
             return objectMapper.readValue(jsonResult, new TypeReference<>() {});

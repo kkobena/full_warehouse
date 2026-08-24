@@ -1,7 +1,7 @@
 <div class="pharma-smart-content p-1">
 
   <!-- Toolbar -->
-  <app-toolbar [compact]="true" icon="pi pi-arrows-h" title="État de rapprochement">
+  <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-arrows-h" title="État de rapprochement">
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
 
@@ -9,7 +9,7 @@
           <app-multi-select
             (searched)="searchTiersPayant($event)"
             [(ngModel)]="selectedTiersPayants"
-            [items]="tiersPayantSuggestions"
+            [items]="tiersPayantSuggestions()"
             [minSearchLength]="2"
             appendTo="body"
             bindLabel="fullName"
@@ -17,7 +17,7 @@
           />
         </app-float-label>
 
-        <pharma-date-picker [(ngModel)]="modelStartDate" [style]="{ 'max-width': '180px' }" id="rapr-du"
+        <pharma-date-picker [ngModel]="modelStartDate()" (ngModelChange)="modelStartDate.set($event)" [style]="{ 'max-width': '180px' }" id="rapr-du"
                             label="Du" />
 
         <pharma-date-picker [(ngModel)]="modelEndDate" [style]="{ 'max-width': '180px' }" id="rapr-au"
@@ -65,15 +65,9 @@
   <!-- KPI globaux -->
   <app-rapprochement-kpi-banner [kpi]="kpi()" [loading]="loading()" />
   <!-- Hint premier usage -->
-  @if (showHint() && !panelOpen()) {
-    <div class="pharma-hint">
-      <i class="pi pi-info-circle"></i>
-      <span>Cliquez sur une ligne pour afficher le détail .</span>
-      <button (click)="dismissHint()" aria-label="Fermer" class="pharma-hint-close" type="button">
-        <i class="pi pi-times"></i>
-      </button>
-    </div>
-  }
+  <app-hint storageKey="rapprochement" [visible]="!panelOpen()">
+    Cliquez sur une ligne pour afficher le détail .
+  </app-hint>
   <!-- Split master/detail -->
   <div [class.panel-open]="panelOpen()" class="split-container">
 

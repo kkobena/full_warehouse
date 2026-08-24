@@ -24,7 +24,7 @@ import {ErrorService} from "../../../../shared/error.service";
   selector: 'app-semois-classe-config',
   templateUrl: './semois-classe-config.component.html',
   styleUrls: ['./semois-classe-config.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, BadgeComponent, DataTableComponent, ButtonComponent, NgbTooltip, InputNumberComponent, CheckboxComponent, SkeletonComponent, CardComponent],
 })
 export class SemoisClasseConfigComponent implements OnInit {

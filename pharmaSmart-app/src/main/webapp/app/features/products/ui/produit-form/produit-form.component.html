@@ -1,5 +1,5 @@
 <div class="container-fluid">
-  <div class="pharma-smart-content p-2">
+  <div class="pharma-smart-content p-1">
     <div class="produit-form-container">
 
       <!-- En-tête toolbar -->
@@ -12,7 +12,7 @@
         </ng-container>
       </app-toolbar>
 
-      @if (isLoading) {
+      @if (isLoading()) {
         <div class="loading-state">
           <i class="pi pi-spin pi-spinner loading-icon"></i>
           <p>Chargement des données de référence...</p>
@@ -23,7 +23,7 @@
 
 
           <div class="pharma-nav-tabs-container">
-            <div #nav="ngbNav" (activeIdChange)="onTabChange($event)" [activeId]="activeTab"
+            <div #nav="ngbNav" (activeIdChange)="onTabChange($event)" [activeId]="activeTab()"
                  class="nav pharma-nav-tabs" ngbNav>
 
               <!-- ── ONGLET 1 : ESSENTIEL ──────────────────────────────── -->
@@ -60,7 +60,8 @@
                         <div class="form-field">
                           <label for="f_fournisseur">Fournisseur principal <span
                             class="required">*</span></label>
-                          <app-select-search [items]="fournisseurs" appendTo="body"
+                          <app-select-search [items]="fournisseurs()" [virtualScroll]="true"
+                                             appendTo="body"
                                              bindLabel="libelle"
                                              bindValue="id" formControlName="fournisseurId"
                                              inputId="f_fournisseur"
@@ -124,7 +125,7 @@
                                    class="form-control w-full" formControlName="costAmount"
                                    id="f_costAmount"
                                    placeholder="" />
-                            <span class="currency-symbol">FCFA</span>
+                            <span appDevise class="currency-symbol"></span>
                           </div>
                           @if (editForm.get('costAmount')?.invalid && editForm.get(
                             'costAmount')?.touched) {
@@ -141,7 +142,7 @@
                                    class="form-control w-full" formControlName="regularUnitPrice"
                                    id="f_regularUnitPrice"
                                    placeholder="" />
-                            <span class="currency-symbol">FCFA</span>
+                            <span appDevise class="currency-symbol"></span>
                           </div>
                           @if (editForm.get('regularUnitPrice')?.invalid && editForm.get(
                             'regularUnitPrice')?.touched) {
@@ -150,7 +151,7 @@
                         </div>
                         <div class="form-field">
                           <label for="f_tva">TVA <span class="required">*</span></label>
-                          <app-select [items]="tvas" appendTo="body" bindLabel="tva"
+                          <app-select [items]="tvas()" appendTo="body" bindLabel="tva"
                                       bindValue="id" formControlName="tvaId"
                                       inputId="f_tva" placeholder="Sélectionner" />
                           @if (editForm.get('tvaId')?.invalid && editForm.get('tvaId')?.touched) {
@@ -168,7 +169,8 @@
                         <div class="form-field">
                           <label for="f_famille">Famille thérapeutique <span
                             class="required">*</span></label>
-                          <app-select-search [items]="familleProduits" appendTo="body"
+                          <app-select-search [items]="familleProduits()" [virtualScroll]="true"
+                                             appendTo="body"
                                              bindLabel="libelle"
                                              bindValue="id" formControlName="familleId"
                                              inputId="f_famille"
@@ -181,7 +183,8 @@
                         <div class="form-field">
                           <label for="f_rayon">Rayon / Emplacement <span
                             class="required">*</span></label>
-                          <app-select-search [items]="rayons" appendTo="body"
+                          <app-select-search [items]="rayons()" [virtualScroll]="true"
+                                             appendTo="body"
                                              bindLabel="libelle"
                                              bindValue="id" formControlName="rayonId"
                                              inputId="f_rayon"
@@ -231,7 +234,7 @@
                                      autocomplete="off"
                                      class="form-control w-full" formControlName="itemCostAmount"
                                      id="f_itemCostAmount" />
-                              <span class="currency-symbol">FCFA</span>
+                              <span appDevise class="currency-symbol"></span>
                             </div>
                           </div>
                           <div class="form-field">
@@ -243,7 +246,7 @@
                                      class="form-control w-full"
                                      formControlName="itemRegularUnitPrice"
                                      id="f_itemRegularUnitPrice" />
-                              <span class="currency-symbol">FCFA</span>
+                              <span appDevise class="currency-symbol"></span>
                             </div>
                           </div>
                         </div>
@@ -276,7 +279,7 @@
                       } @else {
                         <app-produit-fournisseurs-creation
                           [formArray]="fournisseursSupplementaires"
-                          [fournisseurs]="fournisseurs"
+                          [fournisseurs]="fournisseurs()"
                           [principalCip]="principalCip"
                           [principalFournisseurId]="editForm.get('fournisseurId')?.value"
                           [principalLibelle]="principalFournisseurLibelle"
@@ -359,7 +362,7 @@
                           @if (isRemisable) {
                             <div class="bool-card-sub">
                               <label for="f_remiseCode">Code de remise</label>
-                              <app-select [clearable]="true" [items]="remisesCodes"
+                              <app-select [clearable]="true" [items]="remisesCodes()"
                                           appendTo="body"
                                           bindLabel="value" bindValue="value"
                                           formControlName="remiseCode" inputId="f_remiseCode"
@@ -515,7 +518,8 @@
                         </div>
                         <div class="form-field">
                           <label for="f_labo">Laboratoire fabricant</label>
-                          <app-select-search [clearable]="true" [items]="laboratoires"
+                          <app-select-search [clearable]="true" [items]="laboratoires()"
+                                             [virtualScroll]="true"
                                              appendTo="body"
                                              bindLabel="libelle" bindValue="id"
                                              formControlName="laboratoireId"
@@ -524,20 +528,22 @@
                         </div>
                         <div class="form-field">
                           <label for="f_forme">Forme galénique</label>
-                          <app-select [clearable]="true" [items]="formeProduits"
-                                      appendTo="body"
+                          <app-select [clearable]="true" [items]="formeProduits()"
+                                      [virtualScroll]="true" appendTo="body"
                                       bindLabel="libelle" bindValue="id" formControlName="formeId"
                                       inputId="f_forme" placeholder="Comprimé, gélule, sirop..." />
                         </div>
                         <div class="form-field">
                           <label for="f_gamme">Gamme</label>
-                          <app-select [clearable]="true" [items]="gammes" appendTo="body"
+                          <app-select [clearable]="true" [items]="gammes()" [virtualScroll]="true"
+                                      appendTo="body"
                                       bindLabel="libelle" bindValue="id" formControlName="gammeId"
                                       inputId="f_gamme" placeholder="Sélectionner une gamme" />
                         </div>
                         <div class="form-field">
                           <label for="f_dci">DCI — Dénomination Commune Internationale</label>
-                          <app-select-search [clearable]="true" [items]="dcis" appendTo="body"
+                          <app-select-search [clearable]="true" [items]="dcis()"
+                                             [virtualScroll]="true" appendTo="body"
                                              bindLabel="libelle" bindValue="id"
                                              formControlName="dciId"
                                              inputId="f_dci" placeholder="Ex : Amoxicilline" />
@@ -568,8 +574,8 @@
                         <app-button (clicked)="onAddPrix()" [outlined]="true" icon="pi pi-plus"
                                     label="Ajouter un tarif" severity="primary" size="small" />
                       </div>
-                      <app-data-table [loading]="isLoadingPrix" [stripedRows]="true"
-                                      [value]="prixReferences" class="pharma-table">
+                      <app-data-table [loading]="isLoadingPrix()" [stripedRows]="true"
+                                      [value]="prixReferences()">
                         <ng-template #header>
                           <tr class="pharma-table-head">
                             <th>Tiers payant</th>
@@ -585,7 +591,7 @@
                             <td>{{ prix.tiersPayantName }}</td>
                             <td>{{ prix.typeLibelle }}</td>
                             <td class="text-end">@if (prix.price) {
-                              {{ prix.price }} FCFA
+                              {{ prix.price }} <span appDevise></span>
                             }</td>
                             <td class="text-end">@if (prix.rate) {
                               {{ prix.rate }}%
@@ -633,7 +639,7 @@
                     } @else {
                       <app-produit-prix-creation
                         [formArray]="prixReferenceCreationArray"
-                        [tiersPayants]="tiersPayants"
+                        [tiersPayants]="tiersPayants()"
                       />
                     }</app-card>
 
@@ -652,8 +658,8 @@
           <div class="form-actions-compact">
             <app-button (clicked)="previousState()" [text]="true" icon="pi pi-times" label="Annuler"
                         severity="secondary" type="button" />
-            <app-button [disabled]="editForm.invalid || isSaving || !isPriceValid"
-                        [loading]="isSaving" icon="pi pi-check" label="Enregistrer"
+            <app-button [disabled]="editForm.invalid || isSaving() || !isPriceValid"
+                        [loading]="isSaving()" icon="pi pi-check" label="Enregistrer"
                         severity="primary"
                         type="submit" />
           </div>

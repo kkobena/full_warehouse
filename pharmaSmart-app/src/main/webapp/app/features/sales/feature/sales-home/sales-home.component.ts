@@ -12,47 +12,39 @@
   viewChild,
   ChangeDetectionStrategy
 } from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {CommonModule} from '@angular/common';
-import {Router} from '@angular/router';
-import {FormsModule} from '@angular/forms';
-import {
-  NgbNav,
-  NgbNavChangeEvent,
-  NgbNavContent,
-  NgbNavItem,
-  NgbNavLink,
-  NgbNavOutlet,
-  NgbTooltip,
-} from '@ng-bootstrap/ng-bootstrap';
-import {ButtonComponent, OffcanvasComponent, SelectSearchComponent} from '../../../../shared/ui';
-import {SaleCreationComponent} from '../sale-creation/sale-creation.component';
-import {SaleAssuranceComponent} from '../sale-assurance/sale-assurance.component';
-import {SaleCarnetComponent} from '../sale-carnet/sale-carnet.component';
-import {SaleDevisComponent} from '../sale-devis/sale-devis.component';
-import {CustomerOverlayPanelComponent, PendingSalesListComponent} from '../../ui';
-import {SalesFacade} from '../../data-access/facades/sales.facade';
-import {UserVendeurService} from '../../../../entities/sales/service/user-vendeur.service';
-import {IUser} from '../../../../core/user/user.model';
-import {CustomerDisplayService} from '../../data-access/services/customer-display.service';
-import {MagasinService} from '../../../../entities/magasin/magasin.service';
-import {AccountService} from '../../../../core/auth/account.service';
-import {CashRegisterService} from '../../../../entities/cash-register/cash-register.service';
-import {RemiseCacheService} from '../../data-access/services/remise-cache.service';
-import {SalesApiService} from '../../data-access/services/sales-api.service';
-import {finalize, interval, TimeoutError} from 'rxjs';
-import {timeout} from 'rxjs/operators';
-import {ProduitSearch, SalesStatut} from '../../../../shared/model';
-import {SaleForEditInfo, SaleId} from '../../../../shared/model/sales.model';
-import {GlobalScannerService} from '../../../../shared/global-scanner.service';
-import {ProduitService} from '../../../../entities/produit/produit.service';
-import {NotificationService} from '../../../../shared/services/notification.service';
-import {ScanAudioFeedbackService} from '../../../../shared/services/scan-audio-feedback.service';
-import {SalesScannerService} from '../../data-access/services/sales-scanner.service';
-import {ScanOrchestratorService} from '../../../../shared/scanner';
-import {getNavChangeMessage, SaleType} from '../../../../entities/sales/selling-home/sale-helper';
-import {TranslateService} from '@ngx-translate/core';
-import {AuthorizationService} from '../../data-access/services/authorization.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { NgbNav, NgbNavChangeEvent, NgbNavContent, NgbNavItem, NgbNavLink, NgbNavOutlet, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, OffcanvasComponent, SelectSearchComponent } from '../../../../shared/ui';
+import { SaleCreationComponent } from '../sale-creation/sale-creation.component';
+import { SaleAssuranceComponent } from '../sale-assurance/sale-assurance.component';
+import { SaleCarnetComponent } from '../sale-carnet/sale-carnet.component';
+import { SaleDevisComponent } from '../sale-devis/sale-devis.component';
+import { CustomerOverlayPanelComponent, PendingSalesListComponent } from '../../ui';
+import { SalesFacade } from '../../data-access/facades/sales.facade';
+import { UserVendeurService } from '../../../../entities/sales/service/user-vendeur.service';
+import { IUser } from '../../../../core/user/user.model';
+import { CustomerDisplayService } from '../../data-access/services/customer-display.service';
+import { MagasinService } from '../../../../entities/magasin/magasin.service';
+import { AccountService } from '../../../../core/auth/account.service';
+import { CashRegisterService } from '../../../../entities/cash-register/cash-register.service';
+import { RemiseCacheService } from '../../data-access/services/remise-cache.service';
+import { SalesApiService } from '../../data-access/services/sales-api.service';
+import { finalize, interval, TimeoutError } from 'rxjs';
+import { timeout } from 'rxjs/operators';
+import { ProduitSearch, SalesStatut } from '../../../../shared/model';
+import { SaleForEditInfo, SaleId } from '../../../../shared/model/sales.model';
+import { GlobalScannerService } from '../../../../shared/global-scanner.service';
+import { ProduitService } from '../../../../entities/produit/produit.service';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { ScanAudioFeedbackService } from '../../../../shared/services/scan-audio-feedback.service';
+import { SalesScannerService } from '../../data-access/services/sales-scanner.service';
+import { ScanOrchestratorService } from '../../../../shared/scanner';
+import { getNavChangeMessage, SaleType } from '../../../../entities/sales/selling-home/sale-helper';
+import { TranslateService } from '@ngx-translate/core';
+import { AuthorizationService } from '../../data-access/services/authorization.service';
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { AbilityService } from '../../../../core/auth/ability.service';
 
@@ -64,7 +56,7 @@ import { AbilityService } from '../../../../core/auth/ability.service';
     '(window:keydown)': 'handleGlobalKeyboardEvent($event)',
   },
   providers: [ScanOrchestratorService, SalesScannerService],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -105,8 +97,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   protected userSeller = signal<IUser | null>(null);
   protected appendTo = 'body'; // Utilisé dans app-select-search du template
   protected produitSelected: any | null = null;
-  protected disableButton = true;
-  protected PRODUIT_COMBO_RESULT_SIZE = 10;
+  protected readonly disableButton = signal(true);
   protected pendingSalesSidebar = signal(false);
   protected countPendingSales = signal('0');
   // Responsive state - passé aux composants enfants
@@ -125,12 +116,10 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   protected remises = this.remiseCacheService.remises;
   private readonly translate = inject(TranslateService);
   /** Conservé pour le cas où GlobalScannerService est appelé directement ailleurs. */
-  private globalScanner = inject(GlobalScannerService);
   /** Orchestrateur unifié HID + CDC — point d'entrée unique pour le scan vente. */
   private readonly salesScanner = inject(SalesScannerService);
   /** Mode scanner courant exposé au template (badge SERIAL / bouton reconnexion). */
   protected readonly scannerMode = this.salesScanner.scannerMode;
-  protected readonly canReconnectScanner = this.salesScanner.canReconnect;
   private produitService = inject(ProduitService);
   private notificationService = inject(NotificationService);
   private scanAudio = inject(ScanAudioFeedbackService);
@@ -163,7 +152,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     this.salesFacade.resetCurrentSale();
     // Auto-disable button when no product selected
     effect(() => {
-      this.disableButton = !this.produitSelected;
+      this.disableButton.set(!this.produitSelected);
     });
 
     // Effect pour traiter un scan en attente quand le chargement se termine

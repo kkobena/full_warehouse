@@ -1,6 +1,9 @@
 package com.kobe.warehouse.service.reassort.impl;
 
+import static java.util.Objects.isNull;
+
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.LigneReassort;
 import com.kobe.warehouse.domain.Magasin;
@@ -9,7 +12,6 @@ import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.SuggestionReassort;
 import com.kobe.warehouse.domain.enumeration.StatutReassort;
-import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.domain.enumeration.TypeReassort;
 import com.kobe.warehouse.repository.LigneReassortRepository;
 import com.kobe.warehouse.repository.SuggestionReassortRepository;
@@ -21,21 +23,16 @@ import com.kobe.warehouse.service.reassort.dto.LigneReassortDto;
 import com.kobe.warehouse.service.reassort.dto.ReassortRecord;
 import com.kobe.warehouse.service.reassort.dto.SuggestionReassortDto;
 import jakarta.validation.constraints.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-
-import static java.util.Objects.isNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 @Service
 @Transactional
@@ -48,7 +45,10 @@ public class SuggestionReassortServiceImpl implements SuggestionReassortService 
     private final StorageService storageService;
     private final ReferenceService referenceService;
 
-    public SuggestionReassortServiceImpl(SuggestionReassortRepository suggestionReassortRepository, LigneReassortRepository ligneReassortRepository, RepartitionStockService repartitionStockService, StorageService storageService, ReferenceService referenceService) {
+    public SuggestionReassortServiceImpl(SuggestionReassortRepository suggestionReassortRepository,
+        LigneReassortRepository ligneReassortRepository,
+        RepartitionStockService repartitionStockService, StorageService storageService,
+        ReferenceService referenceService) {
         this.suggestionReassortRepository = suggestionReassortRepository;
         this.ligneReassortRepository = ligneReassortRepository;
         this.repartitionStockService = repartitionStockService;
@@ -62,8 +62,8 @@ public class SuggestionReassortServiceImpl implements SuggestionReassortService 
     }
 
     /**
-     * orderLines doit etre filtrer avant l'appel de cette methode
-     * Uniquement les produits avec un stock reserve defini
+     * orderLines doit etre filtrer avant l'appel de cette methode Uniquement les produits avec un
+     * stock reserve defini
      *
      * @param reassortRecords
      */
@@ -79,7 +79,8 @@ public class SuggestionReassortServiceImpl implements SuggestionReassortService 
         }
         Magasin magasin = user.getMagasin();
 
-        SuggestionReassortContext context = findOrCreateSuggestionReassort(magasin, user, TypeReassort.RESERVE);
+        SuggestionReassortContext context = findOrCreateSuggestionReassort(magasin, user,
+            TypeReassort.RESERVE);
         SuggestionReassort suggestionReassort = context.suggestionReassort();
         boolean isNewSuggestion = context.isNew();
 
@@ -88,20 +89,26 @@ public class SuggestionReassortServiceImpl implements SuggestionReassortService 
             Optional<LigneReassort> oldLigneReassort = isNewSuggestion ?
                 findExistingLigneReassort(ligneReassorts, reassortRecord.stockProduit().getId()) :
                 Optional.empty();
-            createLigneReassortEntity(isNewSuggestion, suggestionReassort, reassortRecord, oldLigneReassort);
+            createLigneReassortEntity(isNewSuggestion, suggestionReassort, reassortRecord,
+                oldLigneReassort);
         }
         suggestionReassortRepository.save(suggestionReassort);
     }
 
-    private void createLigneReassortEntity(boolean isNewSuggestion, SuggestionReassort suggestionReassort,
-                                           ReassortRecord reassortRecord, Optional<LigneReassort> oldLigneReassort) {
+    private void createLigneReassortEntity(boolean isNewSuggestion,
+        SuggestionReassort suggestionReassort,
+        ReassortRecord reassortRecord, Optional<LigneReassort> oldLigneReassort) {
         StockProduit stockProduit = reassortRecord.stockProduit();
         if (isNull(stockProduit.getSeuilMini())) {
-            LOG.debug("Le produit {} n'a pas de seuil mini defini, pas de creation de ligne reassort", stockProduit.getId());
+            LOG.debug(
+                "Le produit {} n'a pas de seuil mini defini, pas de creation de ligne reassort",
+                stockProduit.getId());
             return;
         }
-        if (Objects.requireNonNullElse(stockProduit.getQtyStock(), 0) >= stockProduit.getSeuilMini()) {
-            LOG.debug("Le produit {} a un stock suffisant en reserve ({}), pas de creation de ligne reassort",
+        if (Objects.requireNonNullElse(stockProduit.getQtyStock(), 0)
+            >= stockProduit.getSeuilMini()) {
+            LOG.debug(
+                "Le produit {} a un stock suffisant en reserve ({}), pas de creation de ligne reassort",
                 stockProduit.getId(), stockProduit.getQtyStock());
             return;
         }
@@ -110,7 +117,8 @@ public class SuggestionReassortServiceImpl implements SuggestionReassortService 
             qtyToReassort = reassortRecord.availableQuantity();
         }
 
-        updateOrCreateLigneReassort(isNewSuggestion, suggestionReassort, stockProduit, qtyToReassort, oldLigneReassort);
+        updateOrCreateLigneReassort(isNewSuggestion, suggestionReassort, stockProduit,
+            qtyToReassort, oldLigneReassort);
     }
 
     @Override
@@ -128,9 +136,11 @@ public class SuggestionReassortServiceImpl implements SuggestionReassortService 
 
     @Override
     public void validateSuggestionReassort(Integer suggestionId) {
-        SuggestionReassort suggestionReassort = suggestionReassortRepository.getReferenceById(suggestionId);
+        SuggestionReassort suggestionReassort = suggestionReassortRepository.getReferenceById(
+            suggestionId);
         if (suggestionReassort.getStatut() != StatutReassort.OPEN) {
-            LOG.debug("Impossible de valider une suggestion de reassort qui n'est pas en statut OPEN");
+            LOG.debug(
+                "Impossible de valider une suggestion de reassort qui n'est pas en statut OPEN");
             return;
         }
         suggestionReassort.setUpdatedAt(LocalDateTime.now());
@@ -169,6 +179,7 @@ public class SuggestionReassortServiceImpl implements SuggestionReassortService 
 
     private SuggestionReassortDto mapToDto(SuggestionReassort suggestion) {
         SuggestionReassortDto dto = new SuggestionReassortDto();
+        AppUser appUser = suggestion.getLastUserEdit();
         dto.setId(suggestion.getId());
         dto.setReference(suggestion.getReference());
         dto.setCreated(suggestion.getCreatedAt());
@@ -176,8 +187,8 @@ public class SuggestionReassortServiceImpl implements SuggestionReassortService 
         dto.setStatut(suggestion.getStatut());
         dto.setTypeReassort(suggestion.getTypeReassort());
 
-        if (suggestion.getLastUserEdit() != null) {
-            dto.setUserFullName(suggestion.getLastUserEdit().getFirstName() + " " + suggestion.getLastUserEdit().getLastName());
+        if (appUser != null) {
+            dto.setUserFullName(AppUserNames.fullName(appUser));
         }
 
         if (suggestion.getLigneReassorts() != null) {
@@ -230,23 +241,31 @@ public class SuggestionReassortServiceImpl implements SuggestionReassortService 
     public void createRayonSuggestionReassort(@NotNull StockProduit stockProduitDest) {
         int qtyToReassort = Objects.requireNonNullElse(stockProduitDest.getStockReassort(), 0);
         if (qtyToReassort <= 0) {
-            LOG.debug("Le produit {} n'a pas de qty a reassortir en rayon definie", stockProduitDest.getId());
+            LOG.debug("Le produit {} n'a pas de qty a reassortir en rayon definie",
+                stockProduitDest.getId());
             return;
         }
         Produit produit = stockProduitDest.getProduit();
         Set<StockProduit> stockProduits = produit.getStockProduits();
         if (stockProduits.size() == 1) {
-            LOG.debug("Le produit {} n'est stocke que dans un seul stockage, pas de suggestion de reassort possible", produit.getId());
+            LOG.debug(
+                "Le produit {} n'est stocke que dans un seul stockage, pas de suggestion de reassort possible",
+                produit.getId());
             return;
         }
         Storage storage = stockProduitDest.getStorage();
         if (!storage.getStorageType().isVendable()) {
-            LOG.debug("Le produit {} n'est pas dans un stockage vendable, pas de suggestion de reassort possible", produit.getId());
+            LOG.debug(
+                "Le produit {} n'est pas dans un stockage vendable, pas de suggestion de reassort possible",
+                produit.getId());
             return;
         }
         StockProduit stockSrc = getStockReserve(stockProduits);
-        if (isNull(stockSrc) || Objects.requireNonNullElse(stockSrc.getTotalStockQuantity(), 0) <= 0) {
-            LOG.debug("Le produit {} n'a pas de stock en reserve , pas de suggestion de reassort possible", produit.getId());
+        if (isNull(stockSrc)
+            || Objects.requireNonNullElse(stockSrc.getTotalStockQuantity(), 0) <= 0) {
+            LOG.debug(
+                "Le produit {} n'a pas de stock en reserve , pas de suggestion de reassort possible",
+                produit.getId());
             return;
         }
 
@@ -254,13 +273,16 @@ public class SuggestionReassortServiceImpl implements SuggestionReassortService 
         Magasin magasin = user.getMagasin();
         TypeReassort typeReassort = TypeReassort.RAYON;
 
-        SuggestionReassortContext context = findOrCreateSuggestionReassort(magasin, user, typeReassort);
+        SuggestionReassortContext context = findOrCreateSuggestionReassort(magasin, user,
+            typeReassort);
         SuggestionReassort suggestionReassort = context.suggestionReassort();
         boolean isNewSuggestion = context.isNew();
 
         Set<LigneReassort> ligneReassorts = suggestionReassort.getLigneReassorts();
-        Optional<LigneReassort> oldLigneReassort = findExistingLigneReassort(ligneReassorts, stockProduitDest.getId());
-        createLigneReassortForStockRayon(isNewSuggestion, suggestionReassort, stockProduitDest, stockSrc, oldLigneReassort);
+        Optional<LigneReassort> oldLigneReassort = findExistingLigneReassort(ligneReassorts,
+            stockProduitDest.getId());
+        createLigneReassortForStockRayon(isNewSuggestion, suggestionReassort, stockProduitDest,
+            stockSrc, oldLigneReassort);
 
         suggestionReassortRepository.save(suggestionReassort);
 
@@ -271,32 +293,42 @@ public class SuggestionReassortServiceImpl implements SuggestionReassortService 
     public void createReserveSuggestionReassort(@NotNull StockProduit stockProduitSrc) {
         Produit produit = stockProduitSrc.getProduit();
 
-        if (stockProduitSrc.getTotalStockQuantity() <= Objects.requireNonNullElse(stockProduitSrc.getSeuilMini(), 0)) {
+        if (stockProduitSrc.getTotalStockQuantity() <= Objects.requireNonNullElse(
+            stockProduitSrc.getSeuilMini(), 0)) {
             return;
         }
         Set<StockProduit> stockProduits = produit.getStockProduits();
-        if (stockProduits.size() == 1 || isNull(stockProduitSrc.getStockMaxi()) || stockProduitSrc.getStockMaxi() == 0 || stockProduitSrc.getStockMaxi() > stockProduitSrc.getTotalStockQuantity()) {
-            LOG.debug("Le produit {} n'est stocke que dans un seul stockage, pas de suggestion de reassort possible", produit.getId());
+        if (stockProduits.size() == 1 || isNull(stockProduitSrc.getStockMaxi())
+            || stockProduitSrc.getStockMaxi() == 0
+            || stockProduitSrc.getStockMaxi() > stockProduitSrc.getTotalStockQuantity()) {
+            LOG.debug(
+                "Le produit {} n'est stocke que dans un seul stockage, pas de suggestion de reassort possible",
+                produit.getId());
             return;
         }
         StockProduit stockDest = getStockReserve(stockProduits);
-        if (isNull(stockDest) || stockDest.getTotalStockQuantity() >= Objects.requireNonNullElse(stockDest.getSeuilMini(), 0)) {
-            LOG.debug("Le produit {} n'a pas de stock en reserve ou le stock reserve est suffisant, pas de suggestion de reassort possible", produit.getId());
+        if (isNull(stockDest) || stockDest.getTotalStockQuantity() >= Objects.requireNonNullElse(
+            stockDest.getSeuilMini(), 0)) {
+            LOG.debug(
+                "Le produit {} n'a pas de stock en reserve ou le stock reserve est suffisant, pas de suggestion de reassort possible",
+                produit.getId());
             return;
         }
         AppUser user = getCurrentUser();
         Magasin magasin = user.getMagasin();
         TypeReassort typeReassort = TypeReassort.RESERVE;
 
-
-        SuggestionReassortContext context = findOrCreateSuggestionReassort(magasin, user, typeReassort);
+        SuggestionReassortContext context = findOrCreateSuggestionReassort(magasin, user,
+            typeReassort);
         SuggestionReassort suggestionReassort = context.suggestionReassort();
         boolean isNewSuggestion = context.isNew();
 
         Set<LigneReassort> ligneReassorts = suggestionReassort.getLigneReassorts();
-        Optional<LigneReassort> oldLigneReassort = findExistingLigneReassort(ligneReassorts, stockDest.getId());
+        Optional<LigneReassort> oldLigneReassort = findExistingLigneReassort(ligneReassorts,
+            stockDest.getId());
 
-        createLigneReassortForStockReserve(isNewSuggestion, suggestionReassort, stockDest, stockProduitSrc, oldLigneReassort);
+        createLigneReassortForStockReserve(isNewSuggestion, suggestionReassort, stockDest,
+            stockProduitSrc, oldLigneReassort);
         suggestionReassortRepository.save(suggestionReassort);
 
 
@@ -304,7 +336,9 @@ public class SuggestionReassortServiceImpl implements SuggestionReassortService 
 
     @Override
     public void autoExecuteOverflowForProducts(Set<Integer> produitIds) {
-        if (CollectionUtils.isEmpty(produitIds)) return;
+        if (CollectionUtils.isEmpty(produitIds)) {
+            return;
+        }
 
         AppUser user = getCurrentUser();
         SuggestionReassort suggestion = suggestionReassortRepository
@@ -312,7 +346,9 @@ public class SuggestionReassortServiceImpl implements SuggestionReassortService 
                 StatutReassort.OPEN, user.getMagasin().getId(), TypeReassort.RESERVE)
             .orElse(null);
 
-        if (suggestion == null) return;
+        if (suggestion == null) {
+            return;
+        }
 
         Storage rayonStorage = storageService.getDefaultConnectedUserMainStorage();
 
@@ -327,9 +363,12 @@ public class SuggestionReassortServiceImpl implements SuggestionReassortService 
                 .findFirst()
                 .orElse(null);
 
-            if (rayonSp == null) continue;
+            if (rayonSp == null) {
+                continue;
+            }
 
-            repartitionStockService.autoPutawayRayonToReserve(rayonSp, reserveSp, ligne.getQuantity());
+            repartitionStockService.autoPutawayRayonToReserve(rayonSp, reserveSp,
+                ligne.getQuantity());
 
             suggestion.getLigneReassorts().remove(ligne);
             ligneReassortRepository.delete(ligne);
@@ -354,10 +393,12 @@ public class SuggestionReassortServiceImpl implements SuggestionReassortService 
      * @param typeReassort the type of reassortment
      * @return a pair of SuggestionReassort and boolean indicating if it's new
      */
-    private SuggestionReassortContext findOrCreateSuggestionReassort(Magasin magasin, AppUser user, TypeReassort typeReassort) {
+    private SuggestionReassortContext findOrCreateSuggestionReassort(Magasin magasin, AppUser user,
+        TypeReassort typeReassort) {
         boolean isNewSuggestion = false;
         SuggestionReassort suggestionReassort = suggestionReassortRepository
-            .findOneByStatutAndMagasinIdAndTypeReassort(StatutReassort.OPEN, magasin.getId(), typeReassort)
+            .findOneByStatutAndMagasinIdAndTypeReassort(StatutReassort.OPEN, magasin.getId(),
+                typeReassort)
             .orElse(null);
 
         if (isNull(suggestionReassort)) {
@@ -382,7 +423,8 @@ public class SuggestionReassortServiceImpl implements SuggestionReassortService 
      * @param stockProduitId the stock produit ID to search for
      * @return Optional containing the found LigneReassort
      */
-    private Optional<LigneReassort> findExistingLigneReassort(Set<LigneReassort> ligneReassorts, Integer stockProduitId) {
+    private Optional<LigneReassort> findExistingLigneReassort(Set<LigneReassort> ligneReassorts,
+        Integer stockProduitId) {
         return ligneReassorts.stream()
             .filter(lr -> lr.getStockProduit().getId().equals(stockProduitId))
             .findFirst();
@@ -397,9 +439,10 @@ public class SuggestionReassortServiceImpl implements SuggestionReassortService 
      * @param qtyToReassort      the quantity to reassort
      * @param oldLigneReassort   optional existing LigneReassort to update
      */
-    private void updateOrCreateLigneReassort(boolean isNewSuggestion, SuggestionReassort suggestionReassort,
-                                             StockProduit stockProduit, int qtyToReassort,
-                                             Optional<LigneReassort> oldLigneReassort) {
+    private void updateOrCreateLigneReassort(boolean isNewSuggestion,
+        SuggestionReassort suggestionReassort,
+        StockProduit stockProduit, int qtyToReassort,
+        Optional<LigneReassort> oldLigneReassort) {
         oldLigneReassort.ifPresentOrElse(
             lr -> {
                 lr.setQuantity(qtyToReassort);
@@ -420,29 +463,28 @@ public class SuggestionReassortServiceImpl implements SuggestionReassortService 
         );
     }
 
-    private void createLigneReassortForStockRayon(boolean isNewSuggestion, SuggestionReassort suggestionReassort,
-                                                  StockProduit stockProduitDesc, StockProduit reserveStockProduit,
-                                                  Optional<LigneReassort> oldLigneReassort) {
+    private void createLigneReassortForStockRayon(boolean isNewSuggestion,
+        SuggestionReassort suggestionReassort,
+        StockProduit stockProduitDesc, StockProduit reserveStockProduit,
+        Optional<LigneReassort> oldLigneReassort) {
         int qtyToReassort = stockProduitDesc.getStockReassort();
         if (reserveStockProduit.getTotalStockQuantity() <= qtyToReassort) {
             qtyToReassort = reserveStockProduit.getTotalStockQuantity();
         }
 
-        updateOrCreateLigneReassort(isNewSuggestion, suggestionReassort, stockProduitDesc, qtyToReassort, oldLigneReassort);
+        updateOrCreateLigneReassort(isNewSuggestion, suggestionReassort, stockProduitDesc,
+            qtyToReassort, oldLigneReassort);
     }
 
-    private void createLigneReassortForStockReserve(boolean isNewSuggestion, SuggestionReassort suggestionReassort,
-                                                    StockProduit stockProduitDest, StockProduit stockProduitSrc, Optional<LigneReassort> oldLigneReassort) {
+    private void createLigneReassortForStockReserve(boolean isNewSuggestion,
+        SuggestionReassort suggestionReassort,
+        StockProduit stockProduitDest, StockProduit stockProduitSrc,
+        Optional<LigneReassort> oldLigneReassort) {
 
         int qtyMaxiSrc = Objects.requireNonNullElse(stockProduitSrc.getStockMaxi(), 0);
         int availableToReassort = stockProduitSrc.getTotalStockQuantity() - qtyMaxiSrc;
-        updateOrCreateLigneReassort(isNewSuggestion, suggestionReassort, stockProduitDest, availableToReassort, oldLigneReassort);
-    }
-
-    /**
-     * Context holder for SuggestionReassort creation
-     */
-    private record SuggestionReassortContext(SuggestionReassort suggestionReassort, boolean isNew) {
+        updateOrCreateLigneReassort(isNewSuggestion, suggestionReassort, stockProduitDest,
+            availableToReassort, oldLigneReassort);
     }
 
     private StockProduit getStockReserve(Set<StockProduit> stockProduits) {
@@ -465,5 +507,12 @@ public class SuggestionReassortServiceImpl implements SuggestionReassortService 
             .filter(sp -> Objects.equals(sp.getStorage(), storageRayon))
             .findFirst()
             .orElse(null);
+    }
+
+    /**
+     * Context holder for SuggestionReassort creation
+     */
+    private record SuggestionReassortContext(SuggestionReassort suggestionReassort, boolean isNew) {
+
     }
 }

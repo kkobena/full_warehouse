@@ -12,11 +12,9 @@ import {INavNode} from 'app/shared/model/nav-item.model';
 import {IconProp} from '@fortawesome/fontawesome-svg-core';
 import {
   faAlignJustify,
-  faBars,
-  faClipboardCheck,
-  faServer,
   faArrowsAltH,
   faArrowsRotate,
+  faBars,
   faBook,
   faBookmark,
   faBoxOpen,
@@ -25,6 +23,7 @@ import {
   faCalendarTimes,
   faCashRegister,
   faChartBar,
+  faClipboardCheck,
   faClipboardList,
   faClock,
   faCog,
@@ -44,6 +43,7 @@ import {
   faPercent,
   faRotateLeft,
   faSdCard,
+  faServer,
   faShield,
   faShippingFast,
   faShoppingBag,
@@ -117,7 +117,12 @@ export class NavigationService {
     if (!account) {
       const anonymousItems: NavItem[] = [
         layoutToggle,
-        { id: 'account.login', label: 'Se connecter', faIcon: 'sign-out-alt', click: actions.onLogin },
+        {
+          id: 'account.login',
+          label: 'Se connecter',
+          faIcon: 'sign-out-alt',
+          click: actions.onLogin
+        },
       ];
       if (isTauri) {
         anonymousItems.unshift({
@@ -133,7 +138,12 @@ export class NavigationService {
     const isAdmin = this.hasAnyAuthority(Authority.ADMIN, account.authorities);
     const accountItems: NavItem[] = [
       layoutToggle,
-      { id: 'account.logout', label: 'Se déconnecter', faIcon: 'sign-out-alt', click: actions.onLogout },
+      {
+        id: 'account.logout',
+        label: 'Se déconnecter',
+        faIcon: 'sign-out-alt',
+        click: actions.onLogout
+      },
     ];
     if (isAdmin && isTauri) {
       accountItems.unshift({
@@ -144,7 +154,7 @@ export class NavigationService {
       });
     }
 
-    const items = this.buildNavItemsFromStore({ additionalAccountMenuItems: accountItems });
+    const items = this.buildNavItemsFromStore({additionalAccountMenuItems: accountItems});
     if (isAdmin) {
       items.push({
         id: 'cahier-recette',
@@ -251,6 +261,8 @@ export class NavigationService {
       .sort((a, b) => a.ordre - b.ordre)
       .map(n => {
         const perimesCount = n.code === 'peremptions' ? this.peremptionAlertService.urgentCount() : 0;
+
+        const children = n.children?.length ? this.mapNodesToNavItems(n.children) : undefined;
         return {
           id: n.code || navItemIdFromLabel(n.libelle),
           label: n.libelle,
@@ -258,7 +270,7 @@ export class NavigationService {
           faIcon: this.primeIconToFa(n.icon) as IconProp,
           badge: perimesCount || undefined,
           badgeSeverity: perimesCount > 0 ? 'danger' : undefined,
-          children: n.children?.length ? this.mapNodesToNavItems(n.children) : undefined,
+          children: children?.length ? children : undefined,
         } as NavItem;
       });
   }
@@ -266,19 +278,34 @@ export class NavigationService {
   /** Construit le menu Compte (toujours présent, non issu du NavStore). */
   private buildAccountMenu(options: NavigationOptions): NavItem {
     const accountChildren: NavItem[] = [
-      { id: 'account.settings', label: this.translateLabel('account.settings'), routerLink: '/account/settings', faIcon: 'wrench' },
+      {
+        id: 'account.settings',
+        label: this.translateLabel('account.settings'),
+        routerLink: '/account/settings',
+        faIcon: 'wrench'
+      },
       {
         id: 'account.cash-register',
         label: this.translateLabel('account.cashRegister'),
         routerLink: '/my-cash-register',
         faIcon: faCashRegister,
       },
-      { id: 'account.password', label: this.translateLabel('account.password'), routerLink: '/account/password', faIcon: 'lock' },
+      {
+        id: 'account.password',
+        label: this.translateLabel('account.password'),
+        routerLink: '/account/password',
+        faIcon: 'lock'
+      },
     ];
     if (options.additionalAccountMenuItems) {
       accountChildren.push(...options.additionalAccountMenuItems);
     }
-    return { id: 'account', label: this.translateLabel('account.main'), faIcon: 'user', children: accountChildren };
+    return {
+      id: 'account',
+      label: this.translateLabel('account.main'),
+      faIcon: 'user',
+      children: accountChildren
+    };
   }
 
   private translateLabel(key: string): string {
@@ -289,69 +316,69 @@ export class NavigationService {
   private primeIconToFa(primeIcon?: string): IconProp {
     const map: Record<string, IconProp> = {
       // Navigation & listes
-      'pi pi-list':              faThList,
-      'pi pi-align-justify':     faAlignJustify,
-      'pi pi-th-large':          faTableCells,
-      'pi pi-table':             faTable,
-      'pi pi-sitemap':           faSitemap,
+      'pi pi-list': faThList,
+      'pi pi-align-justify': faAlignJustify,
+      'pi pi-th-large': faTableCells,
+      'pi pi-table': faTable,
+      'pi pi-sitemap': faSitemap,
       // Ventes & caisse
-      'pi pi-shopping-bag':      faShoppingBag,
-      'pi pi-shopping-cart':     faShoppingCart,
-      'pi pi-shop':              faStore,
-      'pi pi-wallet':            faWallet,
-      'pi pi-coins':             faCoins,
-      'pi pi-money-bill':        faMoneyBill,
-      'pi pi-dollar':            faDollarSign,
-      'pi pi-credit-card':       faCreditCard,
-      'pi pi-calculator':        faCalculator,
-      'pi pi-percentage':        faPercent,
+      'pi pi-shopping-bag': faShoppingBag,
+      'pi pi-shopping-cart': faShoppingCart,
+      'pi pi-shop': faStore,
+      'pi pi-wallet': faWallet,
+      'pi pi-coins': faCoins,
+      'pi pi-money-bill': faMoneyBill,
+      'pi pi-dollar': faDollarSign,
+      'pi pi-credit-card': faCreditCard,
+      'pi pi-calculator': faCalculator,
+      'pi pi-percentage': faPercent,
       // Stock & livraison
-      'pi pi-truck':             faTruck,
-      'pi pi-send':              faShippingFast,
-      'pi pi-box':               faBoxOpen,
+      'pi pi-truck': faTruck,
+      'pi pi-send': faShippingFast,
+      'pi pi-box': faBoxOpen,
       // Fichiers & documents
-      'pi pi-file-pdf':          faFileInvoice,
-      'pi pi-file-edit':         faFilePen,
-      'pi pi-file-plus':         faFileCirclePlus,
-      'pi pi-file-minus':        faFileAlt,
-      'pi pi-clipboard':         faClipboardList,
+      'pi pi-file-pdf': faFileInvoice,
+      'pi pi-file-edit': faFilePen,
+      'pi pi-file-plus': faFileCirclePlus,
+      'pi pi-file-minus': faFileAlt,
+      'pi pi-clipboard': faClipboardList,
       // Temps & état
-      'pi pi-clock':             faClock,
-      'pi pi-calendar-times':    faCalendarTimes,
-      'pi pi-history':           faClock,
-      'pi pi-bookmark':          faBookmark,
+      'pi pi-clock': faClock,
+      'pi pi-calendar-times': faCalendarTimes,
+      'pi pi-history': faClock,
+      'pi pi-bookmark': faBookmark,
       // Actions & contrôles
-      'pi pi-refresh':           faArrowsRotate,
-      'pi pi-sync':              faArrowsRotate,
-      'pi pi-replay':            faRotateLeft,
-      'pi pi-undo':              faRotateLeft,
-      'pi pi-arrows-h':          faArrowsAltH,
-      'pi pi-sort-amount-down':  faSortAmountDown,
-      'pi pi-sliders-h':         faSlidersH,
-      'pi pi-trash':             faTrash,
-      'pi pi-lock':              faLock,
+      'pi pi-refresh': faArrowsRotate,
+      'pi pi-sync': faArrowsRotate,
+      'pi pi-replay': faRotateLeft,
+      'pi pi-undo': faRotateLeft,
+      'pi pi-arrows-h': faArrowsAltH,
+      'pi pi-sort-amount-down': faSortAmountDown,
+      'pi pi-sliders-h': faSlidersH,
+      'pi pi-trash': faTrash,
+      'pi pi-lock': faLock,
       // Personnes & organisations
-      'pi pi-users':             faUsers,
-      'pi pi-user':              faUsers,
-      'pi pi-building':          faBuilding,
-      'pi pi-shield':            faShield,
+      'pi pi-users': faUsers,
+      'pi pi-user': faUsers,
+      'pi pi-building': faBuilding,
+      'pi pi-shield': faShield,
       // Référentiel
-      'pi pi-book':              faBook,
-      'pi pi-tags':              faTags,
-      'pi pi-star-fill':         faStar,
-      'pi pi-lightbulb':         faLightbulb,
+      'pi pi-book': faBook,
+      'pi pi-tags': faTags,
+      'pi pi-star-fill': faStar,
+      'pi pi-lightbulb': faLightbulb,
       // Rapports
-      'pi pi-chart-bar':         faChartBar,
-      'pi pi-chart-line':        faChartBar,
+      'pi pi-chart-bar': faChartBar,
+      'pi pi-chart-line': faChartBar,
       // Admin & config
-      'pi pi-cog':               faCog,
-      'pi pi-cogs':              faCogs,
-      'pi pi-desktop':           faDesktop,
+      'pi pi-cog': faCog,
+      'pi pi-cogs': faCogs,
+      'pi pi-desktop': faDesktop,
       // Alertes
       'pi pi-exclamation-triangle': faExclamationTriangle,
       // Flux
-      'pi pi-stream':            faStream,
-      'pi pi-sd-card':           faSdCard,
+      'pi pi-stream': faStream,
+      'pi pi-sd-card': faSdCard,
     };
     return (primeIcon && map[primeIcon]) || (faCog as IconProp);
   }

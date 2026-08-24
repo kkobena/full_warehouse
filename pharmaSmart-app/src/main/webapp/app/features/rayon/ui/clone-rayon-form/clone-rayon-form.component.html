@@ -14,7 +14,7 @@
         <label for="cf-magasin">Magasin destination <span class="required">*</span></label>
         <app-select
           formControlName="magasinId"
-          [items]="magasins"
+          [items]="magasins()"
           bindLabel="fullName"
           bindValue="id"
           inputId="cf-magasin"
@@ -30,7 +30,7 @@
         <label for="cf-storage">Emplacement destination <span class="required">*</span></label>
         <app-select
           formControlName="storageId"
-          [items]="storages"
+          [items]="storages()"
           bindLabel="storageType"
           bindValue="id"
           inputId="cf-storage"
@@ -55,8 +55,8 @@
       type="button"
     />
     <app-button
-      [disabled]="editForm.invalid || isSaving || rayons.length === 0"
-      [loading]="isSaving"
+      [disabled]="editForm.invalid || isSaving() || rayons.length === 0"
+      [loading]="isSaving()"
       icon="pi pi-copy"
       label="Cloner"
       severity="primary"

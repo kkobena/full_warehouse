@@ -1,16 +1,16 @@
 @use 'app/shared/scss/pharma-nav' as *;
 @use 'app/shared/scss/table-common' as tc;
-@use  'app/shared/scss/pharma-toolbar' as tb;
+@use 'app/shared/scss/pharma-toolbar' as tb;
 // ── Variables locales ─────────────────────────────────────────────────────────
-$group-color:    #1e40af;
-$group-bg:       #dbeafe;
-$group-border:   #3b82f6;
-$route-border:   #93c5fd;
-$action-color:   #92400e;
-$action-bg:      #fffbf0;
-$action-border:  #f59e0b;
-$section-color:  #5b21b6;
-$section-bg:     #f5f3ff;
+$group-color: #1e40af;
+$group-bg: #dbeafe;
+$group-border: #3b82f6;
+$route-border: #93c5fd;
+$action-color: #92400e;
+$action-bg: #fffbf0;
+$action-border: #f59e0b;
+$section-color: #5b21b6;
+$section-bg: #f5f3ff;
 $section-border: #a78bfa;
 
 // ── En-tête de carte ──────────────────────────────────────────────────────────
@@ -21,7 +21,10 @@ $section-border: #a78bfa;
   h5 {
     color: $pharma-text;
     font-weight: 600;
-    i { color: $pharma-primary; }
+
+    i {
+      color: $pharma-primary;
+    }
   }
 }
 
@@ -29,6 +32,7 @@ $section-border: #a78bfa;
 .role-selector-bar {
   background: $pharma-bg;
   border-bottom: 1px solid $pharma-border;
+
   label {
     color: $pharma-text;
     font-size: 0.875rem;
@@ -110,7 +114,10 @@ $section-border: #a78bfa;
 
   &:hover {
     background: rgba($group-border, 0.15);
-    i { color: $group-color; }
+
+    i {
+      color: $group-color;
+    }
   }
 }
 
@@ -175,8 +182,15 @@ $section-border: #a78bfa;
 // Variante toggle pour ROUTE (plus discret que GROUP)
 .route-toggle {
   border-color: rgba($route-border, 0.5) !important;
-  i { color: #6b7280 !important; }
-  &:hover { background: rgba($route-border, 0.15) !important; border-color: $route-border !important; }
+
+  i {
+    color: #6b7280 !important;
+  }
+
+  &:hover {
+    background: rgba($route-border, 0.15) !important;
+    border-color: $route-border !important;
+  }
 }
 
 // ── Icône GROUP (dossier) ─────────────────────────────────────────────────────
@@ -282,9 +296,6 @@ $section-border: #a78bfa;
   }
 }
 
-// ═════════════════════════════════════════════════════════════════════════════
-//  STYLES DES LIGNES (via ::ng-deep car dans p-table)
-// ═════════════════════════════════════════════════════════════════════════════
 
 // ── Ligne GROUP ───────────────────────────────────────────────────────────────
 :host ::ng-deep .row-group {
@@ -392,8 +403,6 @@ $section-border: #a78bfa;
 
 // ── En-tête tableau ───────────────────────────────────────────────────────────
 :host ::ng-deep .pharma-table-head th {
-  background: linear-gradient(to bottom, #f1f5f9, #e8edf3) !important;
-  color: #475569;
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -426,7 +435,10 @@ $section-border: #a78bfa;
 
 .preview-nav-item {
   position: relative;
-  &:hover .preview-dropdown { display: block; }
+
+  &:hover .preview-dropdown {
+    display: block;
+  }
 }
 
 .preview-nav-label {
@@ -440,13 +452,20 @@ $section-border: #a78bfa;
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.15s;
-  &:hover { background: rgba(255,255,255,0.12); }
-  i:first-child { color: #aed6f1; font-size: 0.85rem; }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  i:first-child {
+    color: #aed6f1;
+    font-size: 0.85rem;
+  }
 }
 
 .preview-route {
   font-size: 0.7rem;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 3px;
   padding: 1px 5px;
   color: #aed6f1;
@@ -462,7 +481,7 @@ $section-border: #a78bfa;
   background: #fff;
   border: 1px solid #dfe3e8;
   border-radius: 6px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
   z-index: 100;
   padding: 4px 0;
 }
@@ -475,8 +494,16 @@ $section-border: #a78bfa;
   color: #333;
   gap: 6px;
   cursor: default;
-  &:hover { background: #f5f7fa; }
-  .preview-route { background: #f0f2f5; color: #888; margin-left: auto; }
+
+  &:hover {
+    background: #f5f7fa;
+  }
+
+  .preview-route {
+    background: #f0f2f5;
+    color: #888;
+    margin-left: auto;
+  }
 }
 
 .preview-summary {
@@ -551,12 +578,34 @@ $section-border: #a78bfa;
   background: #dcfce7;
   color: #16a34a;
 
-  &:hover { background: #16a34a; color: #fff; }
+  &:hover {
+    background: #16a34a;
+    color: #fff;
+  }
 }
 
 .bulk-revoke {
   background: #fee2e2;
   color: #dc2626;
 
-  &:hover { background: #dc2626; color: #fff; }
+  &:hover {
+    background: #dc2626;
+    color: #fff;
+  }
+}
+
+/* Rappel discret du titre de barre d'outils, à côté du libellé du menu : les deux se lisent
+   d'un coup d'œil, sans avoir à ouvrir la saisie pour savoir lequel est renseigné. */
+.titre-long-hint {
+  margin-left: 0.4rem;
+  padding: 0.05rem 0.35rem;
+  border-radius: 3px;
+  background: var(--bs-tertiary-bg, #f1f3f5);
+  color: var(--bs-secondary-color, #6c757d);
+  font-size: 0.7rem;
+  font-style: italic;
+  white-space: nowrap;
+  max-width: 16rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

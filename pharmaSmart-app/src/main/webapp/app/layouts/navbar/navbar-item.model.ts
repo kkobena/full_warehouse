@@ -1,13 +1,7 @@
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 
 export interface NavItem {
-  /**
-   * Identifiant stable de l'entrée, unique dans l'arbre de navigation.
-   * Issu du `code` du NavNode côté back-office, ou d'une clé en dur pour les
-   * entrées construites par le front (menu Compte, bascule de layout…).
-   * Sert de clé d'état (menu ouvert) et de `track` dans les gabarits — le
-   * libellé ne peut pas jouer ce rôle : il est traduit et non unique.
-   */
+
   id: string;
   label: string;
   routerLink?: string;

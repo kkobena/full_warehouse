@@ -1,4 +1,5 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
+import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy, input} from "@angular/core";
+import { HintComponent } from 'app/shared/ui/hint/hint.component';
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { DatePipe, DecimalPipe } from "@angular/common";
@@ -17,6 +18,7 @@ import {
 import { RecapitulatifApiService } from "../../data-access/services/recapitulatif-api.service";
 import { RecapitulatifKpiBannerComponent } from "../../ui/recapitulatif-kpi-banner/recapitulatif-kpi-banner.component";
 import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
+import { DeviseDirective } from 'app/shared/utils/devise';
 import {
   ButtonComponent,
   DataTableComponent,
@@ -43,7 +45,8 @@ interface IAnneeOption {
 
 @Component({
   selector: "app-recapitulatif",
-  imports: [
+  imports: [DeviseDirective, 
+    HintComponent,
     FormsModule,
     DecimalPipe,
     RecapitulatifKpiBannerComponent,
@@ -56,10 +59,19 @@ interface IAnneeOption {
     ToolbarComponent
   ],
   templateUrl: "./recapitulatif.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./recapitulatif.component.scss"
 })
 export class RecapitulatifComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   protected readonly moisOptions: IMoisOption[] = [
     { label: "Janvier", value: 1 }, { label: "Février", value: 2 },
     { label: "Mars", value: 3 }, { label: "Avril", value: 4 },
@@ -80,7 +92,7 @@ export class RecapitulatifComponent implements OnInit {
   protected annee: number = Math.max(new Date().getFullYear(), 2026);
   protected selectedMois: number = new Date().getMonth() + 1;
   protected selectedTypeFacture = "";
-  protected tiersPayantSuggestions: ITiersPayant[] = [];
+  protected readonly tiersPayantSuggestions = signal<ITiersPayant[]>([]);
   protected selectedTiersPayants: ITiersPayant[] = [];
 
   protected readonly rows = signal<IRecapitulatifMensuelDto[]>([]);
@@ -91,7 +103,6 @@ export class RecapitulatifComponent implements OnInit {
   // Master/detail state
   protected readonly selectedRow = signal<IRecapitulatifMensuelDto | null>(null);
   protected readonly panelOpen = computed(() => this.selectedRow() !== null);
-  protected readonly showHint = signal<boolean>(localStorage.getItem('recapitulatif-hint-dismissed') !== '1');
   protected readonly kpi = computed<IRecapitulatifKpi | null>(() => {
     const data = this.rows();
     if (data.length === 0) return null;
@@ -142,10 +153,6 @@ export class RecapitulatifComponent implements OnInit {
   closePanel(): void {
     this.selectedRow.set(null);
   }
-  dismissHint(): void {
-    localStorage.setItem('recapitulatif-hint-dismissed', '1');
-    this.showHint.set(false);
-  }
 
   onExportExcel(): void {
     this.loadingExport.set(true);
@@ -179,7 +186,7 @@ export class RecapitulatifComponent implements OnInit {
     this.tiersPayantService
       .query({ page: 0, search: query, size: 10 })
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(res => (this.tiersPayantSuggestions = res.body ?? []));
+      .subscribe(res => (this.tiersPayantSuggestions.set(res.body ?? [])));
   }
 
   statutLabel(statut?: string): string {

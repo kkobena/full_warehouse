@@ -1,4 +1,6 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+
+import { NavStore } from 'app/core/store/nav.store';
 
 /**
  * Barre d'outils d'écran — en-tête coloré, filtres à gauche, actions à droite.
@@ -43,7 +45,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
           <i [class]="icon()" aria-hidden="true"></i>
         }
 
-        <span class="pharma-toolbar-title">{{ title() }}</span>
+        <span class="pharma-toolbar-title">{{ resolvedTitle() }}</span>
 
         @if (subtitle()) {
           <span class="pharma-toolbar-subtitle">{{ subtitle() }}</span>
@@ -70,8 +72,34 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ToolbarComponent {
-  /** Titre affiché dans l'en-tête. */
+  /** Titre affiché dans l'en-tête, quand aucun {@link code} ne le fournit. */
   readonly title = input<string>('');
+
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu, ex. `declaration-ca.ponction`.
+   *
+   * <p>Renseigné, le titre vient de la base : `titre_long` s'il existe, le libellé du menu sinon.
+   * L'administrateur qui renomme une entrée voit donc le changement ici comme dans le menu, au lieu
+   * de deux valeurs qui divergent en silence.
+   *
+   * <p>`titre_long` existe parce que les deux libellés n'ont pas le même métier : le menu vit dans
+   * une colonne repliable et doit rester court, la barre dispose de toute la largeur et peut nommer
+   * précisément — « Ponction » d'un côté, « Ponction du chiffre d'affaires » de l'autre.
+   */
+  readonly code = input<string>('');
+
+  private readonly navStore = inject(NavStore);
+
+  /**
+   * Le titre effectif : la base d'abord, l'entrée `title` en dernier recours.
+   *
+   * <p>Le repli n'est pas une commodité : un code absent de l'arbre — item désactivé, installation
+   * plus ancienne — laisserait sinon un écran sans titre.
+   */
+  protected readonly resolvedTitle = computed(() => {
+    const noeud = this.code() ? this.navStore.node(this.code()) : undefined;
+    return noeud?.titreLong || noeud?.libelle || this.title();
+  });
 
   /** Classe d'icône précédant le titre, ex. `pi pi-shield`. */
   readonly icon = input<string>('');

@@ -1,16 +1,19 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, signal, viewChild} from "@angular/core";
+import {ChangeDetectionStrategy, Component, inject, OnInit, signal, viewChild, input} from "@angular/core";
 import {HttpResponse} from "@angular/common/http";
 import {CommonModule} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {NgbDateStruct, NgbNavChangeEvent, NgbNavModule} from "@ng-bootstrap/ng-bootstrap";
 
 import {
+  AppBadgeSeverity,
   AppSplitButtonItem,
   BadgeComponent,
   ButtonComponent,
   CheckboxComponent,
   DataTableComponent,
   InputNumberComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   OffcanvasComponent,
   SelectComponent,
   SplitButtonComponent,
@@ -42,12 +45,13 @@ import {
 } from "../../../features/partners/ui/fournisseur-select/fournisseur-select.component";
 import {NotificationService} from "../../../shared/services/notification.service";
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: "app-recap-produit-vendu",
   templateUrl: "./recap-produit-vendu.component.html",
   styleUrl: "./recap-produit-vendu.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     NgbNavModule,
@@ -62,10 +66,20 @@ import {NotificationService} from "../../../shared/services/notification.service
     ToolbarComponent,
     PharmaDatePickerComponent,
     SpinnerComponent,
-    FournisseurSelectComponent
+    FournisseurSelectComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ]
 })
 export default class RecapProduitVenduComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : ce rapport est parfois atteint depuis deux menus, qui ne le nomment
+   * pas de la même façon. Le titre suit celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   protected products = signal<IRecapProduitVendu[]>([]);
   protected unsoldProducts = signal<IRecapProduitVendu[]>([]);
   protected summary = signal<IRecapProduitVenduSummary | null>(null);
@@ -437,7 +451,7 @@ export default class RecapProduitVenduComponent implements OnInit {
     return ((product.totalSalesAmount - product.totalPurchaseAmount) / product.totalSalesAmount) * 100;
   }
 
-  protected getMarginSeverity(margin: number): string {
+  protected getMarginSeverity(margin: number): AppBadgeSeverity {
     if (margin >= 30) {
       return "success";
     }

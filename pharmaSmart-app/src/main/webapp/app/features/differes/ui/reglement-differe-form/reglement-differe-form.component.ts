@@ -23,7 +23,7 @@ import { IDiffere, INewReglementDiffere } from '../../data-access/models';
     SelectComponent,
   ],
   templateUrl: './reglement-differe-form.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './reglement-differe-form.component.scss',
 })
 export class ReglementDiffereFormComponent implements AfterViewInit {
@@ -38,7 +38,7 @@ export class ReglementDiffereFormComponent implements AfterViewInit {
   readonly rendu = output<number>();
 
   readonly maxDate: NgbDateStruct = TODAY_NGB_DATE();
-  protected paymentModes: IPaymentMode[] = [];
+  protected readonly paymentModes = signal([]);
 
   protected montantSaisi = signal(0);
   protected validMontantSaisi = computed(() => this.montantSaisi() > 0);
@@ -92,7 +92,7 @@ export class ReglementDiffereFormComponent implements AfterViewInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((res: HttpResponse<IPaymentMode[]>) => {
         if (res.body) {
-          this.paymentModes = res.body;
+          this.paymentModes.set(res.body);
           this.setDefaultMode();
           // Initialise le montant dès que les modes sont chargés (remplace setTimeout)
           this.reglementForm.get('amount').setValue(this.initTotalAmount);
@@ -145,7 +145,7 @@ export class ReglementDiffereFormComponent implements AfterViewInit {
   }
 
   private setDefaultMode(): void {
-    const cash = this.paymentModes.find(m => m.code === this.CASH);
+    const cash = this.paymentModes().find(m => m.code === this.CASH);
     if (cash) {
       this.reglementForm.get('modePaimentCode').setValue(cash.code);
     }

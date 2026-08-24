@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, signal, viewChild, WritableSignal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal, viewChild, WritableSignal, ChangeDetectionStrategy, input} from '@angular/core';
 import { RecapitulatifCaisseService } from '../recapitulatif-caisse.service';
 import { TIMES } from '../../../shared/util/times';
 import { RecapParam } from '../model/recap-param.model';
@@ -27,9 +27,11 @@ import { IMagasin } from "../../../shared/model";
 import { EMPTY, Subject } from 'rxjs';
 import { catchError, finalize, map, takeUntil, tap } from 'rxjs/operators';
 
+import { DeviseDirective } from 'app/shared/utils/devise';
+import { ToolbarComponent } from 'app/shared/ui/toolbar/toolbar.component';
 @Component({
   selector: 'app-recapitualtif-caisse',
-  imports: [
+  imports: [ToolbarComponent, DeviseDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -41,10 +43,18 @@ import { catchError, finalize, map, takeUntil, tap } from 'rxjs/operators';
     SpinnerComponent,
   ],
   templateUrl: './recapitualtif-caisse.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./recapitualtif-caisse.component.scss'],
 })
 export class RecapitualtifCaisseComponent implements OnInit, OnDestroy {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu, ex. `comptabilite.recapitulatif-caisse`.
+   *
+   * <p>Fourni par l'appelant : le titre de la barre suit le menu par lequel on est entré, et non
+   * une valeur figée dans le gabarit.
+   */
+  readonly navCode = input<string>('');
+
   // range15 = Array.from({ length: 5 }, (_, i) => i + 1);
   // `pharma-date-picker` (ng-bootstrap) travaille en `NgbDateStruct`, là où `p-datepicker`
   // manipulait des `Date`. La conversion vers l'ISO passe par `NGB_DATE_TO_ISO`.
@@ -56,12 +66,12 @@ export class RecapitualtifCaisseComponent implements OnInit, OnDestroy {
     { label: 'Les ventes uniquement', value: true },
     { label: 'Tous les mouvemente', value: false },
   ];
-  protected exportMenus: AppSplitButtonItem[];
-  protected messageBtn: AppSplitButtonItem[];
+  protected readonly exportMenus = signal<AppSplitButtonItem[] | undefined>(undefined);
+  protected readonly messageBtn = signal<AppSplitButtonItem[] | undefined>(undefined);
   protected onlyVente = false;
-  protected ticketZ: Ticket = null;
-  protected users: IUser[] = [];
-  protected selectedUsersId: (number | null)[] = [null];
+  protected readonly ticketZ = signal<Ticket>(null);
+  protected readonly users = signal<IUser[]>([]);
+  protected readonly selectedUsersId = signal<(number | null)[]>([null]);
   protected readonly hous = TIMES;
   private readonly recapitulatifCaisseService = inject(RecapitulatifCaisseService);
   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
@@ -90,11 +100,11 @@ export class RecapitualtifCaisseComponent implements OnInit, OnDestroy {
       .pipe(
         map((res: HttpResponse<IUser[]>) => res.body || []),
         tap(users => {
-          this.users = [{ id: null, abbrName: 'TOUT' }, ...users];
+          this.users.set([{ id: null, abbrName: 'TOUT' }, ...users]);
         }),
         catchError(error => {
           console.error('Error loading users:', error);
-          this.users = [{ id: null, abbrName: 'TOUT' }];
+          this.users.set([{ id: null, abbrName: 'TOUT' }]);
           return EMPTY;
         }),
         takeUntil(this.destroy$),
@@ -153,7 +163,7 @@ export class RecapitualtifCaisseComponent implements OnInit, OnDestroy {
       .pipe(
         map(response => response.body),
         tap(ticketZ => {
-          this.ticketZ = ticketZ;
+          this.ticketZ.set(ticketZ);
         }),
         catchError(error => {
           this.notificationService.error('Erreur lors de la récupération des tickets', 'Erreur');
@@ -166,8 +176,8 @@ export class RecapitualtifCaisseComponent implements OnInit, OnDestroy {
   }
 
   protected onSelectedUsersChange(): void {
-    if (this.selectedUsersId.length === 0) {
-      this.selectedUsersId = [null]; // Sélectionne l'option "TOUT" si aucune autre n'est sélectionnée
+    if (this.selectedUsersId().length === 0) {
+      this.selectedUsersId.set([null]); // Sélectionne l'option "TOUT" si aucune autre n'est sélectionnée
     }
   }
 
@@ -226,7 +236,7 @@ export class RecapitualtifCaisseComponent implements OnInit, OnDestroy {
   }
 
   private initializeMenus(): void {
-    this.exportMenus = [
+    this.exportMenus.set([
       {
         label: 'Imprimer',
         icon: 'pi pi-print',
@@ -237,15 +247,15 @@ export class RecapitualtifCaisseComponent implements OnInit, OnDestroy {
         icon: 'pi pi-file-excel',
         command: () => this.exportToPdf(),
       },
-    ];
+    ]);
 
-    this.messageBtn = [
+    this.messageBtn.set([
       {
         label: 'Mail',
         icon: 'pi pi-inbox',
         command: () => this.sentMail(),
       },
-    ];
+    ]);
   }
 
   private checkEmailConfiguration(): void {
@@ -267,7 +277,7 @@ export class RecapitualtifCaisseComponent implements OnInit, OnDestroy {
   }
 
   private buildParams(): RecapParam {
-    const usersId = this.selectedUsersId.filter((id): id is number => id !== null);
+    const usersId = this.selectedUsersId().filter((id): id is number => id !== null);
     return {
       fromDate: NGB_DATE_TO_ISO(this.fromDate),
       toDate: NGB_DATE_TO_ISO(this.toDate),

@@ -1,8 +1,9 @@
-import { Component, effect, ElementRef, input, OnDestroy, viewChild } from '@angular/core';
+import {ChangeDetectionStrategy, Component, effect, ElementRef, input, OnDestroy, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { IVenteMois } from '../../models/vente-mois.model';
 
+import { formatNumber } from 'app/shared/utils/format-utils';
 Chart.register(...registerables);
 
 @Component({
@@ -10,6 +11,7 @@ Chart.register(...registerables);
   templateUrl: './produit-historique-tab.component.html',
   styleUrls: ['./produit-historique-tab.scss'],
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProduitHistoriqueTabComponent implements OnDestroy {
   readonly ventes = input<IVenteMois[]>([]);
@@ -66,7 +68,7 @@ export class ProduitHistoriqueTabComponent implements OnDestroy {
             callbacks: {
               afterLabel: (ctx) => {
                 const vente = ventes[ctx.dataIndex];
-                const ca = (vente.montantCa / 100).toLocaleString('fr-FR', { minimumFractionDigits: 0 });
+                const ca = formatNumber(vente.montantCa / 100);
                 return `CA : ${ca} XOF  |  ${vente.nombreVentes} vente(s)`;
               },
             },

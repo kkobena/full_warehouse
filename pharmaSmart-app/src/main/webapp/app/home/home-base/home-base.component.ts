@@ -90,7 +90,7 @@ interface PeriodOption {
     SkeletonComponent
   ],
   templateUrl: "./home-base.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./home-base.component.scss"
 })
 export class HomeBaseComponent implements OnInit {
@@ -112,60 +112,60 @@ export class HomeBaseComponent implements OnInit {
   protected lastUpdate = signal<Date | null>(null);
   protected activePareto: "qty" | "amt" = "qty";
   // ─── State ──────────────────────────────────────────────────────
-  protected venteRecord: VenteRecord | null = null;
-  protected canceled: VenteRecord | null = null;
-  protected rowQuantity: ProductStatRecord[] = [];
-  protected rowAmount: ProductStatRecord[] = [];
-  protected row20x80: ProductStatParetoRecord[] = [];
-  protected row20x80Montant: ProductStatParetoRecord[] = [];
-  protected achatRecord: AchatRecord | null = null;
+  protected readonly venteRecord = signal<VenteRecord | null>(null);
+  protected readonly canceled = signal<VenteRecord | null>(null);
+  protected readonly rowQuantity = signal<ProductStatRecord[]>([]);
+  protected readonly rowAmount = signal<ProductStatRecord[]>([]);
+  protected readonly row20x80 = signal<ProductStatParetoRecord[]>([]);
+  protected readonly row20x80Montant = signal<ProductStatParetoRecord[]>([]);
+  protected readonly achatRecord = signal<AchatRecord | null>(null);
   protected assurance: VenteRecord | null = null;
-  protected vno: VenteRecord | null = null;
-  protected venteModePaiments: VenteModePaimentRecord[] = [];
+  protected readonly vno = signal<VenteRecord | null>(null);
+  protected readonly venteModePaiments = signal<VenteModePaimentRecord[]>([]);
   protected dashboardPeriode: CaPeriodeFilter | null = CaPeriodeFilter.daily;
-  protected TOP_MAX_QUANTITY: TopSelection;
-  protected TOP_MAX_AMOUNT: TopSelection;
-  protected TOP_MAX_TP: TopSelection;
-  protected totalAmountTopQuantity = 0;
-  protected totalQuantityToQuantity = 0;
-  protected totalAmountTopAmount = 0;
-  protected totalQuantityTopAmount = 0;
-  protected totalAmount20x80 = 0;
-  protected totalQuantityAvg = 0;
-  protected totalAmountAvg = 0;
-  protected totalQuantity20x80 = 0;
-  protected tiersPayantAchat: TiersPayantAchat[] = [];
+  protected readonly TOP_MAX_QUANTITY = signal<TopSelection | undefined>(undefined);
+  protected readonly TOP_MAX_AMOUNT = signal<TopSelection | undefined>(undefined);
+  protected readonly TOP_MAX_TP = signal<TopSelection | undefined>(undefined);
+  protected readonly totalAmountTopQuantity = signal(0);
+  protected readonly totalQuantityToQuantity = signal(0);
+  protected readonly totalAmountTopAmount = signal(0);
+  protected readonly totalQuantityTopAmount = signal(0);
+  protected readonly totalAmount20x80 = signal(0);
+  protected readonly totalQuantityAvg = signal(0);
+  protected readonly totalAmountAvg = signal(0);
+  protected readonly totalQuantity20x80 = signal(0);
+  protected readonly tiersPayantAchat = signal<TiersPayantAchat[]>([]);
   // ─── KPI P1 ─────────────────────────────────────────────────────
-  protected margeSummary: IMargeSummary | null = null;
+  protected readonly margeSummary = signal<IMargeSummary | null>(null);
   protected caSummary: IDashboardCASummary | null = null;
-  protected stockValuationSummary: IStockValuationSummary | null = null;
+  protected readonly stockValuationSummary = signal<IStockValuationSummary | null>(null);
   protected creancesSummary: ITiersPayantCreancesSummary[] = [];
-  protected totalCreances = 0;
-  protected creancesPlusDe90j = 0;
+  protected readonly totalCreances = signal(0);
+  protected readonly creancesPlusDe90j = signal(0);
   // ─── KPI P2 ─────────────────────────────────────────────────────
-  protected differeSummary: IDiffereSummary | null = null;
-  protected facturationKpi: IFacturationKpi | null = null;
+  protected readonly differeSummary = signal<IDiffereSummary | null>(null);
+  protected readonly facturationKpi = signal<IFacturationKpi | null>(null);
   // ─── Fournisseurs P3 ────────────────────────────────────────────
-  protected topFournisseurs: ISupplierPerformance[] = [];
-  protected supplierSummary: ISupplierPerformanceSummary | null = null;
+  protected readonly topFournisseurs = signal<ISupplierPerformance[]>([]);
+  protected readonly supplierSummary = signal<ISupplierPerformanceSummary | null>(null);
   protected fournisseurPeriod: "30d" | "12m" = "30d";
-  protected TOP_MAX_FOURNISSEUR: TopSelection;
-  protected fournisseurChartData: any;
-  protected fournisseurChartOptions: any;
+  protected readonly TOP_MAX_FOURNISSEUR = signal<TopSelection | undefined>(undefined);
+  protected readonly fournisseurChartData = signal<any | undefined>(undefined);
+  protected readonly fournisseurChartOptions = signal<any | undefined>(undefined);
   // ─── Charts ──────────────────────────────────────────────────────
   protected readonly toggleStateService = inject(ToggleStateService);
-  protected showGraphs = false;
-  protected quantityChartData: any;
-  protected quantityChartOptions: any;
-  protected amountChartData: any;
-  protected amountChartOptions: any;
-  protected twentyEightyChartData: any;
-  protected twentyEightyMontantChartData: any;
-  protected twentyEightyChartOptions: any;
-  protected modePaimentChartData: any;
-  protected modePaimentChartOptions: any;
-  protected tiersPayantChartData: any;
-  protected tiersPayantChartOptions: any;
+  protected readonly showGraphs = signal(false);
+  protected readonly quantityChartData = signal<any | undefined>(undefined);
+  protected readonly quantityChartOptions = signal<any | undefined>(undefined);
+  protected readonly amountChartData = signal<any | undefined>(undefined);
+  protected readonly amountChartOptions = signal<any | undefined>(undefined);
+  protected readonly twentyEightyChartData = signal<any | undefined>(undefined);
+  protected readonly twentyEightyMontantChartData = signal<any | undefined>(undefined);
+  protected readonly twentyEightyChartOptions = signal<any | undefined>(undefined);
+  protected readonly modePaimentChartData = signal<any | undefined>(undefined);
+  protected readonly modePaimentChartOptions = signal<any | undefined>(undefined);
+  protected readonly tiersPayantChartData = signal<any | undefined>(undefined);
+  protected readonly tiersPayantChartOptions = signal<any | undefined>(undefined);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dashboardService = inject(DashboardService);
   private readonly produitStatService = inject(ProduitStatService);
@@ -184,10 +184,10 @@ export class HomeBaseComponent implements OnInit {
   private surfaceBorder: string;
 
   constructor() {
-    this.TOP_MAX_QUANTITY = this.tops[1];
-    this.TOP_MAX_AMOUNT = this.tops[1];
-    this.TOP_MAX_TP = this.tops[1];
-    this.TOP_MAX_FOURNISSEUR = this.tops[0];
+    this.TOP_MAX_QUANTITY.set(this.tops[1]);
+    this.TOP_MAX_AMOUNT.set(this.tops[1]);
+    this.TOP_MAX_TP.set(this.tops[1]);
+    this.TOP_MAX_FOURNISSEUR.set(this.tops[0]);
   }
 
   get peremptionCount(): number {
@@ -241,7 +241,7 @@ export class HomeBaseComponent implements OnInit {
   protected onPeriodeChange(p: CaPeriodeFilter): void {
     this.activePeriode.set(p);
     this.dashboardPeriode = p;
-    this.showGraphs = this.toggleStateService.toggleState();
+    this.showGraphs.set(this.toggleStateService.toggleState());
     this.loadDashboardData();
   }
 
@@ -258,12 +258,12 @@ export class HomeBaseComponent implements OnInit {
       produitCa: this.produitStatService.fetchPoduitCa({
         dashboardPeriode: this.dashboardPeriode,
         order: OrderBy.QUANTITY_SOLD,
-        size: this.TOP_MAX_QUANTITY?.value
+        size: this.TOP_MAX_QUANTITY()?.value
       }),
       produitAmount: this.produitStatService.fetchPoduitCa({
         dashboardPeriode: this.dashboardPeriode,
         order: OrderBy.AMOUNT,
-        size: this.TOP_MAX_AMOUNT?.value
+        size: this.TOP_MAX_AMOUNT()?.value
       }),
       twentyEighty: this.produitStatService.fetch20x80({
         dashboardPeriode: this.dashboardPeriode,
@@ -275,7 +275,7 @@ export class HomeBaseComponent implements OnInit {
       }),
       tiersPayantAchat: this.tiersPayantService.fetchAchatTiersPayant({
         dashboardPeriode: this.dashboardPeriode,
-        limit: this.TOP_MAX_TP?.value
+        limit: this.TOP_MAX_TP()?.value
       }),
       // P1 — KPI services
       margeSummary: this.margeReportService.getMargeSummary(),
@@ -283,7 +283,7 @@ export class HomeBaseComponent implements OnInit {
       stockValuation: this.stockValuationReportService.getStockValuationSummary(),
       creancesSummary: this.tiersPayantReportService.getCreancesSummary(),
       // P3 — Fournisseurs
-      topFournisseurs: this.supplierService.getTopSuppliersByVolume(this.TOP_MAX_FOURNISSEUR.value),
+      topFournisseurs: this.supplierService.getTopSuppliersByVolume(this.TOP_MAX_FOURNISSEUR().value),
       supplierSummary: this.supplierService.getSupplierPerformanceSummary(),
       // P2 — Différés & Facturation
       differeSummary: this.differeApiService.getDiffereSummary({}),
@@ -302,18 +302,18 @@ export class HomeBaseComponent implements OnInit {
         this.onFetch20x80AmountSuccess(data.twentyEightyMontant.body);
         this.onFetchTiersPayantSuccess(data.tiersPayantAchat.body);
         // P1
-        this.margeSummary = data.margeSummary.body;
+        this.margeSummary.set(data.margeSummary.body);
         this.caSummary = data.caSummary.body;
-        this.stockValuationSummary = data.stockValuation.body;
+        this.stockValuationSummary.set(data.stockValuation.body);
         this.creancesSummary = data.creancesSummary.body ?? [];
-        this.totalCreances = this.creancesSummary.reduce((s, c) => s + (c.montantTotal ?? 0), 0);
-        this.creancesPlusDe90j = this.creancesSummary.reduce((s, c) => s + (c.montantPlusDe90Jours ?? 0), 0);
+        this.totalCreances.set(this.creancesSummary.reduce((s, c) => s + (c.montantTotal ?? 0), 0));
+        this.creancesPlusDe90j.set(this.creancesSummary.reduce((s, c) => s + (c.montantPlusDe90Jours ?? 0), 0));
         // P3
-        this.topFournisseurs = data.topFournisseurs.body ?? [];
-        this.supplierSummary = data.supplierSummary.body;
+        this.topFournisseurs.set(data.topFournisseurs.body ?? []);
+        this.supplierSummary.set(data.supplierSummary.body);
         // P2
-        this.differeSummary = data.differeSummary.body;
-        this.facturationKpi = data.facturationKpi.body;
+        this.differeSummary.set(data.differeSummary.body);
+        this.facturationKpi.set(data.facturationKpi.body);
         this.buildAllCharts();
         this.isLoading.set(false);
         this.lastUpdate.set(new Date());
@@ -325,7 +325,7 @@ export class HomeBaseComponent implements OnInit {
   }
 
   protected onTopQuantityChange(top: TopSelection): void {
-    this.TOP_MAX_QUANTITY = top;
+    this.TOP_MAX_QUANTITY.set(top);
     this.produitStatService
       .fetchPoduitCa({
         dashboardPeriode: this.dashboardPeriode,
@@ -339,7 +339,7 @@ export class HomeBaseComponent implements OnInit {
   }
 
   protected onTopAmountChange(top: TopSelection): void {
-    this.TOP_MAX_AMOUNT = top;
+    this.TOP_MAX_AMOUNT.set(top);
     this.produitStatService
       .fetchPoduitCa({
         dashboardPeriode: this.dashboardPeriode,
@@ -353,7 +353,7 @@ export class HomeBaseComponent implements OnInit {
   }
 
   protected onTopTiersPayantChange(top: TopSelection): void {
-    this.TOP_MAX_TP = top;
+    this.TOP_MAX_TP.set(top);
     this.tiersPayantService
       .fetchAchatTiersPayant({dashboardPeriode: this.dashboardPeriode, limit: top.value})
       .subscribe(res => {
@@ -363,32 +363,32 @@ export class HomeBaseComponent implements OnInit {
   }
 
   protected onTopFournisseurChange(top: TopSelection): void {
-    this.TOP_MAX_FOURNISSEUR = top;
+    this.TOP_MAX_FOURNISSEUR.set(top);
     this.supplierService.getTopSuppliersByVolume(top.value)
       .subscribe(res => {
-        this.topFournisseurs = res.body ?? [];
+        this.topFournisseurs.set(res.body ?? []);
         this.buildFournisseurChart();
       });
   }
 
   protected buildFournisseurChart(): void {
-    const items = this.topFournisseurs.slice(0, this.TOP_MAX_FOURNISSEUR.value);
+    const items = this.topFournisseurs().slice(0, this.TOP_MAX_FOURNISSEUR().value);
     const amounts = this.fournisseurPeriod === "30d"
       ? items.map(f => f.purchaseAmountLast30Days ?? 0)
       : items.map(f => f.purchaseAmountLast12Months ?? 0);
-    this.fournisseurChartData = {
+    this.fournisseurChartData.set({
       labels: items.map(f => f.fournisseurName?.slice(0, 18) ?? ""),
       datasets: [{
         data: amounts,
         backgroundColor: ["#008cba", "#5bc0de", "#43ac6a", "#e99002", "#f04124"],
         borderWidth: 2
       }]
-    };
-    this.fournisseurChartOptions = {
+    });
+    this.fournisseurChartOptions.set({
       responsive: true,
       maintainAspectRatio: false,
       plugins: {legend: {position: "right", labels: {boxWidth: 12, font: {size: 10}}}}
-    };
+    });
   }
 
   protected voirPeremptions(): void {
@@ -415,72 +415,72 @@ export class HomeBaseComponent implements OnInit {
     if (!ca) {
       return;
     }
-    this.venteRecord = ca.close;
-    this.canceled = ca.canceled;
+    this.venteRecord.set(ca.close);
+    this.canceled.set(ca.canceled);
   }
 
   private onCaAchatSuccess(achatRecordIn: AchatRecord | null): void {
-    this.achatRecord = achatRecordIn;
+    this.achatRecord.set(achatRecordIn);
   }
 
   private onCaByTypeVenteSuccess(venteByTypeRecords: VenteByTypeRecord[] | null): void {
     if (!venteByTypeRecords) {
       return;
     }
-    this.vno = venteByTypeRecords.find(e => e.typeVente === "CashSale")?.venteRecord;
+    this.vno.set(venteByTypeRecords.find(e => e.typeVente === "CashSale")?.venteRecord);
     this.assurance = venteByTypeRecords.find(e => e.typeVente === "ThirdPartySales")?.venteRecord;
   }
 
   private onGetCaByModePaimentSuccess(venteModePaimentRecords: VenteModePaimentRecord[] | []): void {
-    this.venteModePaiments = venteModePaimentRecords;
+    this.venteModePaiments.set(venteModePaimentRecords);
   }
 
   private onFetchTiersPayantSuccess(tps: TiersPayantAchat[] | []): void {
-    this.tiersPayantAchat = tps;
+    this.tiersPayantAchat.set(tps);
   }
 
   private onFetchPoduitCaSuccess(productStatRecords: ProductStatRecord[] | []): void {
-    this.rowQuantity = productStatRecords;
+    this.rowQuantity.set(productStatRecords);
     this.computeAmountTopQuantity();
   }
 
   private onFetchPoduitAmountSuccess(productStatRecords: ProductStatRecord[] | []): void {
-    this.rowAmount = productStatRecords;
+    this.rowAmount.set(productStatRecords);
     this.computeAmountTopAmount();
   }
 
   private onFetch20x80AmountSuccess(productStatRecords: ProductStatParetoRecord[] | []): void {
-    this.row20x80Montant = productStatRecords;
+    this.row20x80Montant.set(productStatRecords);
     this.computeAmountrow20x80Amount();
   }
 
   private onFetch20x80Success(productStatRecords: ProductStatParetoRecord[] | []): void {
-    this.row20x80 = productStatRecords;
+    this.row20x80.set(productStatRecords);
     this.computeAmountrow20x80();
   }
 
   private computeAmountTopQuantity(): void {
-    this.totalQuantityToQuantity = this.rowQuantity.reduce((sum, p) => sum + p.quantitySold, 0);
-    this.totalAmountTopQuantity = this.rowQuantity.reduce((sum, p) => sum + p.montantHt, 0);
+    this.totalQuantityToQuantity.set(this.rowQuantity().reduce((sum, p) => sum + p.quantitySold, 0));
+    this.totalAmountTopQuantity.set(this.rowQuantity().reduce((sum, p) => sum + p.montantHt, 0));
   }
 
   private computeAmountTopAmount(): void {
-    this.totalQuantityTopAmount = this.rowAmount.reduce((sum, p) => sum + p.quantitySold, 0);
-    this.totalAmountTopAmount = this.rowAmount.reduce((sum, p) => sum + p.montantHt, 0);
+    this.totalQuantityTopAmount.set(this.rowAmount().reduce((sum, p) => sum + p.quantitySold, 0));
+    this.totalAmountTopAmount.set(this.rowAmount().reduce((sum, p) => sum + p.montantHt, 0));
   }
 
   private computeAmountrow20x80Amount(): void {
-    if (this.row20x80Montant?.length) {
-      this.totalAmount20x80 = this.row20x80Montant[0].totalGlobal;
+    if (this.row20x80Montant()?.length) {
+      this.totalAmount20x80.set(this.row20x80Montant()[0].totalGlobal);
     }
-    this.totalAmountAvg = this.row20x80Montant?.reduce((sum, p) => sum + p.pourcentage, 0);
+    this.totalAmountAvg.set(this.row20x80Montant()?.reduce((sum, p) => sum + p.pourcentage, 0));
   }
 
   private computeAmountrow20x80(): void {
-    if (this.row20x80?.length) {
-      this.totalQuantity20x80 = this.row20x80[0].totalGlobal;
+    if (this.row20x80()?.length) {
+      this.totalQuantity20x80.set(this.row20x80()[0].totalGlobal);
     }
-    this.totalQuantityAvg = this.row20x80?.reduce((sum, p) => sum + p.pourcentage, 0);
+    this.totalQuantityAvg.set(this.row20x80()?.reduce((sum, p) => sum + p.pourcentage, 0));
   }
 
   private initializeChartStyles(): void {
@@ -500,56 +500,56 @@ export class HomeBaseComponent implements OnInit {
   }
 
   private buildQuantityChart(): void {
-    this.quantityChartData = {
-      labels: this.rowQuantity.map(p => p.libelle.slice(0, 20)),
+    this.quantityChartData.set({
+      labels: this.rowQuantity().map(p => p.libelle.slice(0, 20)),
       datasets: [{
         type: "bar",
         label: "Quantité vendue",
         backgroundColor: this.documentStyle.getPropertyValue("--p-primary-200"),
-        data: this.rowQuantity.map(p => p.quantitySold)
+        data: this.rowQuantity().map(p => p.quantitySold)
       }]
-    };
-    this.quantityChartOptions = this.getCommonChartOptions();
+    });
+    this.quantityChartOptions.set(this.getCommonChartOptions());
   }
 
   private buildAmountChart(): void {
-    this.amountChartData = {
-      labels: this.rowAmount.map(p => p.libelle.slice(0, 20)),
+    this.amountChartData.set({
+      labels: this.rowAmount().map(p => p.libelle.slice(0, 20)),
       datasets: [{
         type: "bar",
         label: "Montant HT",
         backgroundColor: this.documentStyle.getPropertyValue("--p-blue-200"),
-        data: this.rowAmount.map(p => p.montantHt)
+        data: this.rowAmount().map(p => p.montantHt)
       }]
-    };
-    this.amountChartOptions = this.getCommonChartOptions();
+    });
+    this.amountChartOptions.set(this.getCommonChartOptions());
   }
 
   // ─── Actions de navigation ────────────────────────────────────────────────
 
   private build2080Chart(): void {
     // Pareto quantité
-    this.twentyEightyChartData = {
-      labels: this.row20x80.map(p => p.libelle.slice(0, 20)),
+    this.twentyEightyChartData.set({
+      labels: this.row20x80().map(p => p.libelle.slice(0, 20)),
       datasets: [
         {
           type: "line",
           label: "% Quantité cumulé",
           borderColor: this.documentStyle.getPropertyValue("--p-cyan-300"),
           tension: 0.4,
-          data: this.row20x80.map(p => p.pourcentage)
+          data: this.row20x80().map(p => p.pourcentage)
         },
         {
           type: "bar",
           label: "Quantité",
           backgroundColor: this.documentStyle.getPropertyValue("--p-orange-300"),
-          data: this.row20x80.map(p => p.total)
+          data: this.row20x80().map(p => p.total)
         }
       ]
-    };
+    });
 
-    this.twentyEightyMontantChartData = {
-      labels: this.row20x80Montant.map(p => p.libelle.slice(0, 20)),
+    this.twentyEightyMontantChartData.set({
+      labels: this.row20x80Montant().map(p => p.libelle.slice(0, 20)),
       datasets: [
         {
           type: "line",
@@ -557,43 +557,43 @@ export class HomeBaseComponent implements OnInit {
           borderColor: "rgba(234,88,12,1)",
           backgroundColor: "rgba(234,88,12,0.08)",
           tension: 0.4,
-          data: this.row20x80Montant.map(p => p.pourcentage)
+          data: this.row20x80Montant().map(p => p.pourcentage)
         },
         {
           type: "bar",
           label: "Montant",
           backgroundColor: "rgba(234,88,12,0.7)",
-          data: this.row20x80Montant.map(p => p.total)
+          data: this.row20x80Montant().map(p => p.total)
         }
       ]
-    };
-    this.twentyEightyChartOptions = this.getCommonChartOptions();
+    });
+    this.twentyEightyChartOptions.set(this.getCommonChartOptions());
   }
 
   private buildModePaimentChart(): void {
-    this.modePaimentChartData = {
-      labels: this.venteModePaiments.map(p => p.libelle),
+    this.modePaimentChartData.set({
+      labels: this.venteModePaiments().map(p => p.libelle),
       datasets: [{
-        data: this.venteModePaiments.map(p => p.paidAmount),
+        data: this.venteModePaiments().map(p => p.paidAmount),
         backgroundColor: backgroundColor(this.documentStyle),
         hoverBackgroundColor: hoverBackgroundColor(this.documentStyle)
       }]
-    };
-    this.modePaimentChartOptions = this.getCommonPieChartOptions();
+    });
+    this.modePaimentChartOptions.set(this.getCommonPieChartOptions());
   }
 
   private buildTiersPayantChart(): void {
     const bgs = backgroundColor(this.documentStyle);
     const hovers = hoverBackgroundColor(this.documentStyle);
-    this.tiersPayantChartData = {
-      labels: this.tiersPayantAchat.map(p => p.tiersPayantName),
+    this.tiersPayantChartData.set({
+      labels: this.tiersPayantAchat().map(p => p.tiersPayantName),
       datasets: [{
-        data: this.tiersPayantAchat.map(p => p.montantTtc),
+        data: this.tiersPayantAchat().map(p => p.montantTtc),
         backgroundColor: bgs.reverse(),
         hoverBackgroundColor: hovers.reverse()
       }]
-    };
-    this.tiersPayantChartOptions = this.getCommonPieChartOptions();
+    });
+    this.tiersPayantChartOptions.set(this.getCommonPieChartOptions());
   }
 
   private getCommonChartOptions(): any {

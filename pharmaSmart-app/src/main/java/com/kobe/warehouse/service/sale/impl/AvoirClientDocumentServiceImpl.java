@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.sale.impl;
 
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AvoirClient;
 import com.kobe.warehouse.domain.Commande;
@@ -215,7 +216,7 @@ public class AvoirClientDocumentServiceImpl implements AvoirClientDocumentServic
             : null;
 
         String closedByName = ac.getClosedBy() != null
-            ? ac.getClosedBy().getFirstName() + " " + ac.getClosedBy().getLastName()
+            ? AppUserNames.fullName(ac.getClosedBy())
             : null;
 
         String commandeRef = ac.getCommande() != null ? ac.getCommande().getReceiptReference() : null;

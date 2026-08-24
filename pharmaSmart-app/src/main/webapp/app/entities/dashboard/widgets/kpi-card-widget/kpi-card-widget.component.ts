@@ -1,8 +1,8 @@
-import { Component, Input, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {ChangeDetectionStrategy, Component, Input, OnInit, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
 
 @Component({
-  selector: 'jhi-kpi-card-widget',
+  selector: 'app-kpi-card-widget',
 
   imports: [CommonModule],
   template: `
@@ -59,6 +59,7 @@ import { CommonModule } from '@angular/common';
       }
     `,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class KpiCardWidgetComponent implements OnInit {
   @Input() config: any;

@@ -5,12 +5,13 @@ import { BadgeComponent, ButtonComponent } from 'app/shared/ui';
 import { IFournisseurProduit } from 'app/shared/model/fournisseur-produit.model';
 import { SuggestionFacadeService } from '../../data-access/suggestion-facade.service';
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-suggestion-comparaison',
   templateUrl: './suggestion-comparaison.component.html',
   styleUrls: ['./suggestion-comparaison.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, BadgeComponent, ButtonComponent, DecimalPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DeviseDirective, CommonModule, BadgeComponent, ButtonComponent, DecimalPipe],
 })
 export class SuggestionComparaisonComponent implements OnInit {
   private readonly facade = inject(SuggestionFacadeService);

@@ -19,9 +19,11 @@ import RemisesAnalysisComponent from "../remises-analysis/remises-analysis.compo
 import ClientRetentionComponent from "../client-retention/client-retention.component";
 import { SkeletonComponent } from "app/shared/ui/skeleton/skeleton.component";
 
+import { NavSidebarComponent } from 'app/shared/ui/nav-sidebar/nav-sidebar.component';
+import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-link.component';
 @Component({
   selector: "jhi-sales-reports",
-  imports: [
+  imports: [NavSidebarComponent, NavSectionLinkComponent, 
     CommonModule,
     NgbNavModule,
     DashboardCAComponent,
@@ -39,12 +41,15 @@ import { SkeletonComponent } from "app/shared/ui/skeleton/skeleton.component";
     SkeletonComponent,
   ],
   templateUrl: "./sales-reports.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./sales-reports.component.scss"
 })
 export default class SalesReportsComponent implements OnInit {
   active = signal<string>("dashboard-ca");
 
+
+  /** Menu replié : ces rapports affichent de larges tableaux et graphiques. */
+  protected readonly menuReplie = signal(false);
   private readonly ability = inject(AbilityService);
 
   protected readonly showDashboardCa           = this.ability.canSignal("display", "rapport-ventes.dashboard-ca");

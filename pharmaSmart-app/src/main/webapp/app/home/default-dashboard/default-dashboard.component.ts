@@ -9,7 +9,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
   selector: 'app-default-dashboard',
   templateUrl: './default-dashboard.component.html',
   styleUrl: './default-dashboard.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, RouterModule],
 })
 export class DefaultDashboardComponent {

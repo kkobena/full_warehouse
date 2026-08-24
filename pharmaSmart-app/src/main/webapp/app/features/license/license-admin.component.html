@@ -50,7 +50,7 @@
       <div class="col">
         <app-card class="h-100" header="Modules souscrits" icon="pi pi-th-large text-primary">
           <ul class="list-unstyled row row-cols-1 row-cols-md-2 g-2 mb-0">
-            @for (feature of allFeatures; track feature.code) {
+            @for (feature of allFeatures(); track feature.code) {
               <li class="col d-flex align-items-center gap-2">
                 @if (hasFeature(feature.code)) {
                   <i aria-hidden="true" class="pi pi-check-circle text-success"></i>

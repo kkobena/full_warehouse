@@ -1,6 +1,6 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-2">
-    <app-toolbar icon="pi pi-box" title="Produits">
+    <app-toolbar [code]="navCode()" icon="pi pi-box" title="Produits">
         <ng-container ngProjectAs="[toolbarFilters]">
           <div class="pharma-toolbar-filters">
             <app-select
@@ -44,7 +44,7 @@
       </app-toolbar>
 
     <div class="mt-2">
-      <app-data-table [value]="produits" class="pharma-table" dataKey="id">
+      <app-data-table [value]="produits()"  dataKey="id">
         <ng-template #header>
           <tr class="pharma-table-head">
             <th style="width: 8%">Cip</th>
@@ -101,7 +101,7 @@
               <div class="pharma-empty-content">
                 <i class="pi pi-inbox"></i>
                 <p>Aucune donnée trouvée</p>
-                <small>Sélectionner un dépôt pour afficher ses produits</small>
+                <small>Sélectionner un dépôt pour afficher ses produits()</small>
               </div>
             </td>
           </tr>
@@ -111,9 +111,9 @@
         <div class="d-flex justify-content-center">
           <ngb-pagination
             (pageChange)="loadPage($event)"
-            [(page)]="ngbPaginationPage"
+            [page]="ngbPaginationPage()" (pageChange)="ngbPaginationPage.set($any($event))"
             [boundaryLinks]="true"
-            [collectionSize]="totalItems"
+            [collectionSize]="totalItems()"
             [maxSize]="5"
             [pageSize]="itemsPerPage"
             [rotate]="true"

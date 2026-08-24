@@ -9,11 +9,12 @@ import { ProduitService } from 'app/entities/produit/produit.service';
 import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import { FormProduitFournisseurComponent } from 'app/entities/produit/form-produit-fournisseur/form-produit-fournisseur.component';
 
+import { formatCurrencyWithUnit } from 'app/shared/utils/format-utils';
 @Component({
   selector: 'app-produit-fournisseurs-tab',
   templateUrl: './produit-fournisseurs-tab.component.html',
   styleUrls: ['./produit-fournisseurs-tab.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, DataTableComponent, NgbTooltip, ButtonComponent, SwitchComponent],
 })
 export class ProduitFournisseursTabComponent {
@@ -29,7 +30,7 @@ export class ProduitFournisseursTabComponent {
 
   protected onAddFournisseur(): void {
     if (this.isDisabled()) return;
-    const modalRef = this.modalService.open(FormProduitFournisseurComponent, { centered:true, size: 'lg', backdrop: 'static' });
+    const modalRef = this.modalService.open(FormProduitFournisseurComponent, { centered:true, size: 'xl', backdrop: 'static' });
     modalRef.componentInstance.header = 'Ajouter un fournisseur';
     modalRef.componentInstance.produit = this.produit();
     modalRef.result.then(
@@ -40,7 +41,7 @@ export class ProduitFournisseursTabComponent {
 
   protected onEditFournisseur(fp: IFournisseurProduit): void {
     if (this.isDisabled()) return;
-    const modalRef = this.modalService.open(FormProduitFournisseurComponent, {centered:true, size: 'lg', backdrop: 'static' });
+    const modalRef = this.modalService.open(FormProduitFournisseurComponent, {centered:true, size: 'xl', backdrop: 'static' });
     modalRef.componentInstance.header = 'Modifier le fournisseur';
     modalRef.componentInstance.produit = this.produit();
     modalRef.componentInstance.entity = fp;
@@ -72,7 +73,7 @@ export class ProduitFournisseursTabComponent {
 
   protected formatPrix(montant?: number | null): string {
     if (montant == null) return '—';
-    return montant.toLocaleString('fr-FR', { minimumFractionDigits: 0 }) + ' FCFA';
+    return formatCurrencyWithUnit(montant);
   }
 
   private execDelete(fp: IFournisseurProduit): void {

@@ -69,6 +69,14 @@ public interface NavItemService {
     void updateLibelle(Integer id, String libelle);
 
     /**
+     * Titre affiché dans la barre d'outils de l'écran, quand il diffère du libellé du menu.
+     *
+     * <p>Vidé, il est remis à {@code null} plutôt qu'à la chaîne vide : la barre reprend alors le
+     * libellé, et un renommage du menu la suit de nouveau.
+     */
+    void updateTitreLong(Integer id, String titreLong);
+
+    /**
      * Retourne uniquement les codes des items ACTION exécutables pour les rôles donnés.
      * Réponse légère destinée aux clients qui n'affichent pas le menu (mobile) :
      * évite de transférer tout l'arbre de navigation pour tester quelques permissions.

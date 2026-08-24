@@ -10,7 +10,7 @@ import { PlanificationStateService } from '../planification-state.service';
   selector: 'app-planif-tab-fne',
   imports: [DatePipe, FormsModule, NgbTooltip, ButtonComponent, DataTableComponent, SwitchComponent],
   templateUrl: './planif-tab-fne.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './planif-tab-fne.component.scss',
 })
 export class PlanifTabFneComponent {

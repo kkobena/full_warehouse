@@ -24,32 +24,44 @@ package com.kobe.warehouse.license;
  */
 public enum Feature {
     /** POS / ventes / caisse. */
-    CAISSE(false),
+    CAISSE(false, "Caisse / ventes"),
     /** Tiers-payant, assurances, factures clients. */
-    FACTURATION(false),
+    FACTURATION(false, "Tiers-payant & facturation"),
     /** Comptabilité, journaux, comptes fournisseurs. */
-    COMPTABILITE(false),
+    COMPTABILITE(false, "Comptabilité"),
     /** Inventaire tournant, planification. */
-    INVENTAIRE_AVANCE(false),
+    INVENTAIRE_AVANCE(false, "Inventaire avancé"),
     /** Rapports comparatifs et évolutifs. */
-    REPORTS_AVANCES(false),
+    REPORTS_AVANCES(false, "Rapports avancés"),
     /** APIs des applications mobiles. */
-    MOBILE(false),
+    MOBILE(false, "Applications mobiles"),
     /** Certification des factures normalisées. */
-    FNE(false),
+    FNE(false, "Facture normalisée (FNE)"),
     /** Gestion de plusieurs {@code Storage} / magasins. */
-    MULTI_DEPOT(false),
+    MULTI_DEPOT(false, "Multi-dépôts"),
     /** Exclusion de certaines ventes du chiffre d'affaires à déclarer. */
-    CALLEBASSE(true),
+    CALLEBASSE(true, "Ponction du chiffre d'affaires"),
     /** Exclusion des produits d'un rayon du chiffre d'affaires à déclarer. */
-    EXCLUSION_RAYON(true),
+    EXCLUSION_RAYON(true, "Exclusion de rayons"),
     /** Exclusion des ventes faites à un tiers-payant du chiffre d'affaires à déclarer. */
-    EXCLUSION_TP(true);
+    EXCLUSION_TP(true, "Exclusion de tiers-payants"),
+    EXCLUSION_UG(true, "Exclusion des unités gratuites");
 
     private final boolean optional;
+    private final String libelle;
 
-    Feature(boolean optional) {
+    Feature(boolean optional, String libelle) {
         this.optional = optional;
+        this.libelle = libelle;
+    }
+
+    /**
+     * Intitulé affiché au client. Porté ici et non recopié côté navigateur : deux référentiels
+     * finissent toujours par diverger — celui du front omettait les quatre modules optionnels, ce qui
+     * faisait croire à l'application qu'ils étaient tous accordés.
+     */
+    public String getLibelle() {
+        return libelle;
     }
 
     /**

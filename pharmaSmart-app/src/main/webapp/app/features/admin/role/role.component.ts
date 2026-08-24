@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, output, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, output, signal, ChangeDetectionStrategy, input} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { NavApiService, INavRole, IAuthority } from "app/core/data-access/nav-api.service";
@@ -17,10 +17,19 @@ const PREDEFINED = new Set([
   selector: 'app-role',
   templateUrl: './role.component.html',
   styleUrl: './role.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, ButtonComponent, DataTableComponent, ToolbarComponent, NgbTooltip]
 })
 export class RoleComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   private readonly navApi      = inject(NavApiService);
   private readonly notif       = inject(NotificationService);
   private readonly modalService = inject(NgbModal);
@@ -33,7 +42,7 @@ export class RoleComponent implements OnInit {
 
   // ── Édition inline du libellé ────────────────────────────────────────────
   protected readonly editingName = signal<string | null>(null);
-  protected editingLibelle = '';
+  protected readonly editingLibelle = signal('');
 
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   ngOnInit(): void {
@@ -69,11 +78,11 @@ export class RoleComponent implements OnInit {
   // ── Édition libellé ───────────────────────────────────────────────────────
   protected startEdit(role: INavRole): void {
     this.editingName.set(role.name ?? null);
-    this.editingLibelle = role.libelle ?? '';
+    this.editingLibelle.set(role.libelle ?? '');
   }
 
   protected saveEdit(role: INavRole): void {
-    const libelle = this.editingLibelle.trim();
+    const libelle = this.editingLibelle().trim();
     if (!libelle || libelle === role.libelle) { this.cancelEdit(); return; }
     this.navApi.updateRoleLibelle(role.name!, libelle).subscribe({
       next: () => {
@@ -87,7 +96,7 @@ export class RoleComponent implements OnInit {
 
   protected cancelEdit(): void {
     this.editingName.set(null);
-    this.editingLibelle = '';
+    this.editingLibelle.set('');
   }
 
   // ── Suppression ───────────────────────────────────────────────────────────

@@ -1,12 +1,5 @@
-import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
-import {
-  NgbNav,
-  NgbNavChangeEvent,
-  NgbNavContent,
-  NgbNavItem,
-  NgbNavLink,
-  NgbNavOutlet
-} from "@ng-bootstrap/ng-bootstrap";
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import { NgbNav, NgbNavChangeEvent, NgbNavContent, NgbNavItem, NgbNavLink } from "@ng-bootstrap/ng-bootstrap";
 import { SalesManagementTab, SaleToolbarService } from "../../data-access/services/sale-toolbar.service";
 import { SalesJournalComponent } from "../sales-journal/sales-journal.component";
 import { SalesEnCoursComponent } from "../sales-en-cours/sales-en-cours.component";
@@ -19,6 +12,9 @@ import { BreadcrumbService } from "../../../../shared/components/breadcrumb/brea
 import { AbilityService } from "app/core/auth/ability.service";
 import { RetourClientComponent } from "../retour-client/retour-client.component";
 import { SkeletonComponent } from "app/shared/ui/skeleton/skeleton.component";
+
+import { NavSidebarComponent } from "app/shared/ui/nav-sidebar/nav-sidebar.component";
+import { NavSectionLinkComponent } from "app/shared/ui/nav-sidebar/nav-section-link.component";
 
 const TAB_LABELS: Record<SalesManagementTab, string> = {
   "journal": "Journal des ventes",
@@ -36,13 +32,12 @@ const TAB_LABELS: Record<SalesManagementTab, string> = {
   selector: "app-sales-management-home",
   templateUrl: "./sales-management-home.component.html",
   styleUrl: "./sales-management-home.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [NavSidebarComponent, NavSectionLinkComponent,
     NgbNav,
     NgbNavItem,
     NgbNavLink,
     NgbNavContent,
-    NgbNavOutlet,
     SalesJournalComponent,
     SalesEnCoursComponent,
     PresaleListComponent,
@@ -61,6 +56,9 @@ export class SalesManagementHomeComponent implements OnInit {
 
   protected active = signal<SalesManagementTab>("journal");
 
+
+  /** Menu replié : rend la largeur au contenu quand il en manque. */
+  protected readonly menuReplie = signal(false);
   protected readonly showJournal = this.ability.canSignal("display", "ventes.journal");
   protected readonly showEnCours = this.ability.canSignal("display", "ventes.en-cours");
   protected readonly showPresales = this.ability.canSignal("display", "ventes.presales");

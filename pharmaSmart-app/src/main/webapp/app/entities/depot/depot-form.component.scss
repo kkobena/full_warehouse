@@ -86,9 +86,8 @@
         margin-top: 0.125rem;
       }
 
-      input,
-      textarea,
-      p-select {
+      input:not(.form-check-input),
+      textarea {
         width: 100%;
       }
 
@@ -185,9 +184,6 @@
     .form-actions-compact {
       flex-direction: column-reverse;
 
-      p-button {
-        width: 100%;
-      }
     }
   }
 }

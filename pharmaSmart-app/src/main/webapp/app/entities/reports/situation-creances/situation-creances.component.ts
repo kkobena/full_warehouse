@@ -5,20 +5,20 @@ import { TiersPayantReportService } from '../services/tiers-payant-report.servic
 import { BlobDownloadService } from '../../../shared/services/blob-download.service';
 import { ITiersPayantCreancesSummary } from 'app/shared/model/report/tiers-payant-report.model';
 import { formatCurrency, formatNumber } from 'app/shared/utils/format-utils';
-import {
-  ButtonComponent,
-  DataTableComponent
-} from '../../../shared/ui';
+import { DeviseDirective } from 'app/shared/utils/devise';
+import { ButtonComponent, DataTableComponent, KpiItemComponent, KpiStripComponent } from '../../../shared/ui';
 
 @Component({
   selector: 'app-situation-creances',
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     ButtonComponent,
-    DataTableComponent
+    DataTableComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ],
   templateUrl: './situation-creances.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./situation-creances.component.scss'],
 })
 export default class SituationCreancesComponent implements OnInit {

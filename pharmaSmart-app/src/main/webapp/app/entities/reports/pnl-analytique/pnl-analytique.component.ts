@@ -8,8 +8,12 @@ import { PnlAnalytiqueService } from '../services/pnl-analytique.service';
 import { formatCurrency, formatPercent, formatNumber } from 'app/shared/utils/format-utils';
 
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
+import { DeviseDirective } from 'app/shared/utils/devise';
 import {
+  AppKpiAccent,
   DataTableComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   SelectComponent
 } from '../../../shared/ui';
 
@@ -31,12 +35,14 @@ const CHART_COLORS = [
   selector: 'app-pnl-analytique',
   templateUrl: './pnl-analytique.component.html',
   styleUrl: './pnl-analytique.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     DataTableComponent,
-    SelectComponent
+    SelectComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ],
 })
 export default class PnlAnalytiqueComponent implements OnInit, OnDestroy {
@@ -93,6 +99,16 @@ export default class PnlAnalytiqueComponent implements OnInit, OnDestroy {
     for (let y = current; y >= 2025; y--) result.push(y);
     return result;
   })();
+
+  /**
+   * Accents et teintes d'icone du bandeau des segments, parcourus en boucle : le nombre
+   * de segments varie et ne correspond a aucune couleur en particulier.
+   *
+   * <p>Le tableau est type `AppKpiAccent[]` plutot qu'infere : `[accent]` refuserait un
+   * `string[]` a la verification de gabarit.
+   */
+  protected readonly segmentAccents: AppKpiAccent[] = ['primary', 'success', 'info', 'warning'];
+  protected readonly segmentIconClasses = ['text-primary', 'text-success', 'text-info', 'text-warning'];
 
   protected readonly formatCurrency = formatCurrency;
   protected readonly formatPercent = formatPercent;

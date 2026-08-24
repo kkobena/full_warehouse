@@ -1,7 +1,7 @@
-import { Component, computed, ElementRef, forwardRef, input, signal, viewChild } from '@angular/core';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import {ChangeDetectionStrategy, Component, computed, ElementRef, forwardRef, input, signal, viewChild} from '@angular/core';
+import {NG_VALUE_ACCESSOR} from '@angular/forms';
 
-import { ControlValueAccessorBase } from '../forms/control-value-accessor.base';
+import {ControlValueAccessorBase} from '../forms/control-value-accessor.base';
 
 /**
  * Champ numérique du Design System — remplace `p-inputnumber`.
@@ -20,10 +20,15 @@ import { ControlValueAccessorBase } from '../forms/control-value-accessor.base';
  */
 @Component({
   selector: 'app-input-number',
-  providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => InputNumberComponent), multi: true }],
+  providers: [{
+    provide: NG_VALUE_ACCESSOR,
+    useExisting: forwardRef(() => InputNumberComponent),
+    multi: true
+  }],
   template: `
     @if (showButtons()) {
-      <div class="app-input-number-group" [class.app-input-number-group--sm]="size() === 'small'" [class.app-input-number-group--lg]="size() === 'large'">
+      <div class="app-input-number-group" [class.app-input-number-group--sm]="size() === 'small'"
+           [class.app-input-number-group--lg]="size() === 'large'">
         <button
           class="app-input-number-btn app-input-number-btn--start"
           type="button"
@@ -35,6 +40,8 @@ import { ControlValueAccessorBase } from '../forms/control-value-accessor.base';
         <input
           #field
           type="text"
+          [attr.autocomplete]="autocomplete()"
+          [attr.name]="name() || null"
           [attr.inputmode]="inputMode()"
           [attr.id]="inputId() || null"
           [class]="inputClasses()"
@@ -60,6 +67,8 @@ import { ControlValueAccessorBase } from '../forms/control-value-accessor.base';
       <input
         #field
         type="text"
+        [attr.autocomplete]="autocomplete()"
+        [attr.name]="name() || null"
         [attr.inputmode]="inputMode()"
         [attr.id]="inputId() || null"
         [class]="inputClasses()"
@@ -79,9 +88,7 @@ import { ControlValueAccessorBase } from '../forms/control-value-accessor.base';
       display: block;
     }
 
-    // Groupe dédié plutôt que \`.input-group\` Bootstrap : le radius des boutons
-    // d'extrémité est posé explicitement ci-dessous, sans dépendre des sélecteurs
-    // \`:first-child\`/\`:last-child\` de Bootstrap (fragiles dès qu'un wrapper s'intercale).
+
     .app-input-number-group {
       display: flex;
       align-items: stretch;
@@ -159,6 +166,7 @@ import { ControlValueAccessorBase } from '../forms/control-value-accessor.base';
       padding-inline: 0.65rem;
     }
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InputNumberComponent extends ControlValueAccessorBase<number> {
   readonly placeholder = input<string>('');
@@ -192,6 +200,24 @@ export class InputNumberComponent extends ControlValueAccessorBase<number> {
 
   readonly inputClass = input<string>('');
 
+  /**
+   * Complétion du navigateur. `off` par défaut : un champ numérique métier — un taux, un plafond,
+   * une quantité — n'a rien à gagner d'une suggestion, et tout à perdre d'un remplissage
+   * automatique.
+   *
+   * <p>Chrome ignore délibérément `off` sur les formulaires qu'il croit reconnaître. Une valeur
+   * hors du vocabulaire standard, `'one-time-code'` par exemple, le désarme là où `off` échoue :
+   * c'est le recours quand la suggestion persiste.
+   */
+  readonly autocomplete = input<string>('off');
+
+  /**
+   * Attribut `name` du champ natif. Vide par défaut, et ce n'est pas un oubli : c'est lui qui
+   * alimente l'historique de saisie du navigateur, celui qui déroule une liste des valeurs déjà
+   * tapées. Sans `name`, il n'y a rien à retenir donc rien à proposer.
+   */
+  readonly name = input<string>('');
+
   /** Affiche les boutons +/- de part et d'autre du champ (remplace `[showButtons]` de `p-inputnumber`). */
   readonly showButtons = input<boolean>(false);
 
@@ -201,35 +227,27 @@ export class InputNumberComponent extends ControlValueAccessorBase<number> {
   readonly incrementButtonIcon = input<string>('pi pi-plus');
 
   readonly decrementButtonIcon = input<string>('pi pi-minus');
-
+  /** `numeric` par défaut (le projet manipule surtout des entiers) ; `decimal` dès que des décimales sont autorisées. */
+  protected readonly inputMode = computed(() => (this.maxFractionDigits() > 0 ? 'decimal' : 'numeric'));
+  protected readonly inputClasses = computed(() => {
+    const classes = ['form-control'];
+    if (this.size() === 'small') {
+      classes.push('form-control-sm');
+    }
+    if (this.size() === 'large') {
+      classes.push('form-control-lg');
+    }
+    if (this.invalid()) {
+      classes.push('is-invalid');
+    }
+    if (this.inputClass()) {
+      classes.push(this.inputClass());
+    }
+    return classes.join(' ');
+  });
   /** Pendant la saisie on affiche la frappe telle quelle ; le formatage n'a lieu qu'au blur. */
   private readonly editing = signal(false);
   private readonly rawInput = signal('');
-
-  private readonly fieldRef = viewChild<ElementRef<HTMLInputElement>>('field');
-
-  /** Donne le focus au champ natif — API programmatique pour les composants parents. */
-  focus(): void {
-    this.fieldRef()?.nativeElement.focus();
-  }
-
-  /** Sélectionne le contenu du champ ; à appeler après `focus()`. */
-  select(): void {
-    this.fieldRef()?.nativeElement.select();
-  }
-
-  /** `numeric` par défaut (le projet manipule surtout des entiers) ; `decimal` dès que des décimales sont autorisées. */
-  protected readonly inputMode = computed(() => (this.maxFractionDigits() > 0 ? 'decimal' : 'numeric'));
-
-  protected readonly inputClasses = computed(() => {
-    const classes = ['form-control'];
-    if (this.size() === 'small') classes.push('form-control-sm');
-    if (this.size() === 'large') classes.push('form-control-lg');
-    if (this.invalid()) classes.push('is-invalid');
-    if (this.inputClass()) classes.push(this.inputClass());
-    return classes.join(' ');
-  });
-
   protected readonly displayValue = computed(() => {
     if (this.editing()) {
       return this.rawInput();
@@ -244,6 +262,17 @@ export class InputNumberComponent extends ControlValueAccessorBase<number> {
     }).format(value);
     return `${this.prefix()}${formatted}${this.suffix()}`;
   });
+  private readonly fieldRef = viewChild<ElementRef<HTMLInputElement>>('field');
+
+  /** Donne le focus au champ natif — API programmatique pour les composants parents. */
+  focus(): void {
+    this.fieldRef()?.nativeElement.focus();
+  }
+
+  /** Sélectionne le contenu du champ ; à appeler après `focus()`. */
+  select(): void {
+    this.fieldRef()?.nativeElement.select();
+  }
 
   protected onFocus(): void {
     const value = this.value();
@@ -291,8 +320,12 @@ export class InputNumberComponent extends ControlValueAccessorBase<number> {
     }
     const min = this.min();
     const max = this.max();
-    if (min !== undefined && value < min) return min;
-    if (max !== undefined && value > max) return max;
+    if (min !== undefined && value < min) {
+      return min;
+    }
+    if (max !== undefined && value > max) {
+      return max;
+    }
     return value;
   }
 }

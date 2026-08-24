@@ -7,7 +7,7 @@ import { IRapprochementKpi } from "../../data-access/models";
   selector: "app-rapprochement-kpi-banner",
   imports: [CommonModule, KpiStripComponent, KpiItemComponent],
   templateUrl: "./rapprochement-kpi-banner.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./rapprochement-kpi-banner.component.scss"
 })
 export class RapprochementKpiBannerComponent {

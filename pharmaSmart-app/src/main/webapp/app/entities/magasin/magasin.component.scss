@@ -72,10 +72,6 @@
         word-break: break-word;
       }
 
-      p-tag {
-        flex-shrink: 0;
-      }
-
       // For multiline content
       &.detail-value-multiline {
         align-items: flex-start;

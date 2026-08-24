@@ -1,34 +1,14 @@
-// Surcharges Bootstrap **propres au projet**.
-//
-// À ne pas confondre avec `_pharma-bootstrap-yeti-tweaks.scss`, qui est un portage
-// historique du thème Bootswatch. Ici, chaque règle est une décision de Pharma-Smart.
-//
-// À charger APRÈS `bootstrap/scss/bootstrap` et après les tweaks yeti, pour pouvoir
-// corriger les deux.
 
-// ─── Bouton d'avertissement : fond ambré, texte foncé ────────────────────────
-//
-// Les cinq autres severities ont été foncées pour que le texte blanc atteigne le seuil
-// WCAG AA (cf. `_pharma-bootstrap-palette.scss`). Appliquée à `warning`, cette recette
-// donnait un orange brûlé (#c2410c) : conforme, mais un avertissement ne se lit plus
-// comme un avertissement quand il est aussi sombre qu'une erreur.
-//
-// La convention établie pour ce cas est l'inverse : fond clair ambré, texte foncé.
-// C'est aussi la seule severity où elle s'impose — l'ambre ne fonctionne pas en texte
-// blanc, et le rouge ou le vert ne fonctionnent pas en fond clair.
-//
-// ⚠ `$warning` lui-même n'est PAS touché : 176 usages de `.text-warning` affichent cette
-// couleur en **texte sur fond clair**, où l'ambre tomberait à 1,67 de ratio. La variable
-// reste donc à l'orange foncé, lisible en texte, et seule la variante pleine du bouton
-// est traitée à part. `.btn-outline-warning` continue elle aussi d'utiliser `$warning`,
-// ce qui est correct : une bordure et un libellé ambrés sur blanc seraient illisibles.
-//
-// La couleur du texte n'est pas écrite en dur : `button-variant` la dérive via
-// `color-contrast()`, qui retient le noir (12,58 de ratio) parce que le blanc échoue
-// (1,67) au seuil de 4,5 rétabli en B3. Le survol suit automatiquement — éclaircissement
-// et non assombrissement, comme pour toute variante à texte foncé.
 $pharma-btn-warning-bg: #fbbf24; // --p-amber-400
 
 .btn-warning {
   @include button-variant($pharma-btn-warning-bg, $pharma-btn-warning-bg);
+}
+
+// ====================================
+// Icone d'un bouton du Design System
+// ====================================
+
+.btn .app-btn-icon {
+  color: inherit;
 }

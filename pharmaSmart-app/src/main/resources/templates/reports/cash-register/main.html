@@ -22,11 +22,11 @@
               <tr>
                 <td class="summary-item">
                   <div class="summary-label">Total Ventes</div>
-                  <div class="summary-value" th:text="${#numbers.formatDecimal(totalSales, 1, 'DEFAULT', 0, 'DEFAULT')} + ' FCFA'"></div>
+                  <div class="summary-value" th:text="${#numbers.formatDecimal(totalSales, 1, 'DEFAULT', 0, 'DEFAULT')} +' '+${devise}"></div>
                 </td>
                 <td class="summary-item">
                   <div class="summary-label">Total Écarts</div>
-                  <div class="summary-value" th:text="${#numbers.formatDecimal(totalDiscrepancy, 1, 'DEFAULT', 0, 'DEFAULT')} + ' FCFA'"></div>
+                  <div class="summary-value" th:text="${#numbers.formatDecimal(totalDiscrepancy, 1, 'DEFAULT', 0, 'DEFAULT')} +' '+${devise}"></div>
                 </td>
               </tr>
             </tbody>
@@ -77,7 +77,7 @@
                       <tr>
                         <td th:each="breakdown : ${report.paymentModeBreakdowns}">
                           <span th:text="${breakdown.modePaiement}"></span>:
-                          <strong th:text="${#numbers.formatDecimal(breakdown.amount, 1, 'DEFAULT', 0, 'DEFAULT')} + ' FCFA (' + ${breakdown.count} + ')'"></strong>
+                          <strong th:text="${#numbers.formatDecimal(breakdown.amount, 1, 'DEFAULT', 0, 'DEFAULT')} + ' '+${devise}+' (' + ${breakdown.count} + ')'"></strong>
                         </td>
                       </tr>
                     </tbody>

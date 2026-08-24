@@ -1,5 +1,5 @@
 <div class="pharma-smart-content p-2">
-  <app-toolbar icon="pi pi-percentage" title="Liste des remises produits">
+  <app-toolbar [code]="navCode()" icon="pi pi-percentage" title="Liste des remises produits">
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-toolbar-actions py-1">
         <app-button
@@ -15,15 +15,14 @@
     </ng-container>
   </app-toolbar>
 
-  @if (entites && entites?.length > 0) {
+  @if (entites() && entites()?.length > 0) {
     <app-data-table
       (onLazyLoad)="lazyLoading()"
       [lazy]="true"
-      [loading]="loading"
+      [loading]="loading()"
       [paginator]="false"
       [showGridlines]="true"
-      [value]="entites"
-      class="pharma-table"
+      [value]="entites()"
       dataKey="id"
     >
       <ng-template #header>

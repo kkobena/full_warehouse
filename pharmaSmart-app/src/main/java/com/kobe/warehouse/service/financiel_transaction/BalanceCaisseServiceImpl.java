@@ -8,13 +8,13 @@ import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TransactionTypeAffichage;
 import com.kobe.warehouse.repository.PaymentTransactionRepository;
 import com.kobe.warehouse.repository.SalesRepository;
+import com.kobe.warehouse.service.declaration_ca.ModeChiffreAffaireResolver;
 import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.dto.enumeration.TypeVenteDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseWrapper;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.financiel_transaction.dto.PaymentDTO;
-import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.DateUtil;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -34,34 +34,38 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
 
     private static final Logger LOG = LoggerFactory.getLogger(BalanceCaisseServiceImpl.class);
     private final BalanceReportReportService balanceReportService;
+    private final ModeChiffreAffaireResolver modeResolver;
     private final SalesRepository salesRepository;
     private final ObjectMapper objectMapper;
     private final PaymentTransactionRepository paymentTransactionRepository;
-    private final AppConfigurationService appConfigurationService;
 
-    public BalanceCaisseServiceImpl(
-        BalanceReportReportService balanceReportService,
+
+    public BalanceCaisseServiceImpl(BalanceReportReportService balanceReportService,
         SalesRepository salesRepository,
         PaymentTransactionRepository paymentTransactionRepository,
-        AppConfigurationService appConfigurationService,
-        ObjectMapper objectMapper
+        ObjectMapper objectMapper,
+        ModeChiffreAffaireResolver modeResolver
     ) {
+        this.modeResolver = modeResolver;
         this.balanceReportService = balanceReportService;
         this.salesRepository = salesRepository;
         this.paymentTransactionRepository = paymentTransactionRepository;
-        this.appConfigurationService = appConfigurationService;
         this.objectMapper = objectMapper;
     }
 
     public BalanceCaisseWrapper getBalanceCaisseNew(MvtParam mvtParam) {
         mvtParam.setStatuts(
-            Set.of( SalesStatut.CLOSED,SalesStatut.CANCELED)
+            Set.of(SalesStatut.CLOSED, SalesStatut.CANCELED)
         );
-        List<BalanceCaisseDTO> mvt = paymentTransactionRepository.fetchPaymentTransactionsForBalanceCaisse(mvtParam);
-        BalanceCaisseWrapper balanceCaisseWrapper = computeBalanceCaisses(fetchBalanceCaisse(mvtParam));
+        List<BalanceCaisseDTO> mvt = paymentTransactionRepository.fetchPaymentTransactionsForBalanceCaisse(
+            mvtParam);
+        BalanceCaisseWrapper balanceCaisseWrapper = computeBalanceCaisses(
+            fetchBalanceCaisse(mvtParam));
         updateModePayment(balanceCaisseWrapper, mvt);
         computeMvts(balanceCaisseWrapper, mvt);
-        balanceCaisseWrapper.setPeriode("Du " + DateUtil.format(mvtParam.getFromDate()) + " au " + DateUtil.format(mvtParam.getToDate()));
+        balanceCaisseWrapper.setPeriode(
+            "Du " + DateUtil.format(mvtParam.getFromDate()) + " au " + DateUtil.format(
+                mvtParam.getToDate()));
         return balanceCaisseWrapper;
     }
 
@@ -71,12 +75,14 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
                 mvtParam.getFromDate(),
                 mvtParam.getToDate(),
                 mvtParam.getStatuts().stream().map(SalesStatut::name).toArray(String[]::new),
-                mvtParam.getCategorieChiffreAffaires().stream().map(CategorieChiffreAffaire::name).toArray(String[]::new),
-                mvtParam.isExcludeFreeUnit(),
-                BooleanUtils.toBoolean(mvtParam.getToIgnore())
+                mvtParam.getCategorieChiffreAffaires().stream().map(CategorieChiffreAffaire::name)
+                    .toArray(String[]::new),
+                BooleanUtils.toBoolean(mvtParam.getToIgnore()),
+                mvtParam.getModeName()
             );
 
-            return objectMapper.readValue(jsonResult, new TypeReference<>() {});
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {
+            });
         } catch (Exception e) {
             LOG.error(null, e);
             return List.of();
@@ -85,7 +91,7 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
 
     @Override
     public BalanceCaisseWrapper getBalanceCaisse(MvtParam mvtParam) {
-        mvtParam.setExcludeFreeUnit(appConfigurationService.excludeFreeUnit());
+        mvtParam.setMode(modeResolver.resoudre(mvtParam.getMode()));
         return getBalanceCaisseNew(mvtParam);
     }
 
@@ -118,7 +124,8 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
                     break;
                 case VenteDepot:
                     balanceCaisseWrapper.setMontantDepot(
-                        typeVenteListEntry.getValue().stream().mapToLong(BalanceCaisseDTO::getMontantTtc).sum()
+                        typeVenteListEntry.getValue().stream()
+                            .mapToLong(BalanceCaisseDTO::getMontantTtc).sum()
                     );
                     break;
             }
@@ -135,7 +142,8 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
         }
 
         if (balanceCaisseWrapper.getCount() > 0) {
-            balanceCaisseWrapper.setPanierMoyen(balanceCaisseWrapper.getMontantTtc() / balanceCaisseWrapper.getCount());
+            balanceCaisseWrapper.setPanierMoyen(
+                balanceCaisseWrapper.getMontantTtc() / balanceCaisseWrapper.getCount());
         }
         computeRatioVenteAchat(balanceCaisseWrapper);
         computeRatioAchatVente(balanceCaisseWrapper);
@@ -149,7 +157,8 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
             return;
         }
         balanceCaisseWrapper.setRatioVenteAchat(
-            BigDecimal.valueOf((double) balanceCaisseWrapper.getMontantTtc() / balanceCaisseWrapper.getMontantAchat())
+            BigDecimal.valueOf((double) balanceCaisseWrapper.getMontantTtc()
+                    / balanceCaisseWrapper.getMontantAchat())
                 .setScale(2, RoundingMode.HALF_UP)
                 .floatValue()
         );
@@ -160,47 +169,70 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
             return;
         }
         balanceCaisseWrapper.setRatioAchatVente(
-            BigDecimal.valueOf((double) balanceCaisseWrapper.getMontantAchat() / balanceCaisseWrapper.getMontantTtc())
+            BigDecimal.valueOf((double) balanceCaisseWrapper.getMontantAchat()
+                    / balanceCaisseWrapper.getMontantTtc())
                 .setScale(2, RoundingMode.HALF_UP)
                 .floatValue()
         );
     }
 
-    private void computePercent(BalanceCaisseDTO balanceCaisse, BalanceCaisseWrapper balanceCaisseWrapper) {
+    private void computePercent(BalanceCaisseDTO balanceCaisse,
+        BalanceCaisseWrapper balanceCaisseWrapper) {
         var pourcentage = (short) Math.round(
-            ((double) balanceCaisse.getMontantNet() * 100) / Math.abs(balanceCaisseWrapper.getMontantNet())
+            ((double) balanceCaisse.getMontantNet() * 100) / Math.abs(
+                balanceCaisseWrapper.getMontantNet())
         );
         balanceCaisse.setTypeSalePercent(pourcentage);
     }
 
-    private void updateBalanceCaisseWrapper(BalanceCaisseWrapper balanceCaisseWrapper, BalanceCaisseDTO b) {
+    private void updateBalanceCaisseWrapper(BalanceCaisseWrapper balanceCaisseWrapper,
+        BalanceCaisseDTO b) {
         if (Objects.isNull(b)) {
             return;
         }
         balanceCaisseWrapper.setCount(balanceCaisseWrapper.getCount() + b.getCount());
-        balanceCaisseWrapper.setMontantDiscount(balanceCaisseWrapper.getMontantDiscount() + b.getMontantDiscount());
-        balanceCaisseWrapper.setMontantTtc(balanceCaisseWrapper.getMontantTtc() + b.getMontantTtc());
-        balanceCaisseWrapper.setMontantPaye(balanceCaisseWrapper.getMontantPaye() + b.getMontantPaye());
+        balanceCaisseWrapper.setMontantDiscount(
+            balanceCaisseWrapper.getMontantDiscount() + b.getMontantDiscount());
+        balanceCaisseWrapper.setMontantTtc(
+            balanceCaisseWrapper.getMontantTtc() + b.getMontantTtc());
+        balanceCaisseWrapper.setMontantPaye(
+            balanceCaisseWrapper.getMontantPaye() + b.getMontantPaye());
         balanceCaisseWrapper.setMontantHt(balanceCaisseWrapper.getMontantHt() + b.getMontantHt());
-        balanceCaisseWrapper.setMontantNet(balanceCaisseWrapper.getMontantNet() + b.getMontantNet());
-        balanceCaisseWrapper.setMontantAchat(balanceCaisseWrapper.getMontantAchat() + b.getMontantAchat());
-        balanceCaisseWrapper.setMontantMarge(balanceCaisseWrapper.getMontantMarge() + b.getMontantMarge());
-        balanceCaisseWrapper.setAmountToBePaid(balanceCaisseWrapper.getAmountToBePaid() + b.getAmountToBePaid());
+        balanceCaisseWrapper.setMontantNet(
+            balanceCaisseWrapper.getMontantNet() + b.getMontantNet());
+        balanceCaisseWrapper.setMontantAchat(
+            balanceCaisseWrapper.getMontantAchat() + b.getMontantAchat());
+        balanceCaisseWrapper.setMontantMarge(
+            balanceCaisseWrapper.getMontantMarge() + b.getMontantMarge());
+        balanceCaisseWrapper.setAmountToBePaid(
+            balanceCaisseWrapper.getAmountToBePaid() + b.getAmountToBePaid());
         balanceCaisseWrapper.setAmountToBeTakenIntoAccount(
             balanceCaisseWrapper.getAmountToBeTakenIntoAccount() + b.getAmountToBeTakenIntoAccount()
         );
-        balanceCaisseWrapper.setMontantNetUg(balanceCaisseWrapper.getMontantNetUg() + b.getMontantNetUg());
-        balanceCaisseWrapper.setMontantTtcUg(balanceCaisseWrapper.getMontantTtcUg() + b.getMontantTtcUg());
-        balanceCaisseWrapper.setMontantHtUg(balanceCaisseWrapper.getMontantHtUg() + b.getMontantHtUg());
-        balanceCaisseWrapper.setPartAssure(balanceCaisseWrapper.getPartAssure() + b.getPartAssure());
-        balanceCaisseWrapper.setMontantTaxe(balanceCaisseWrapper.getMontantTaxe() + b.getMontantTaxe());
-        balanceCaisseWrapper.setPartTiersPayant(balanceCaisseWrapper.getPartTiersPayant() + b.getPartTiersPayant());
-        balanceCaisseWrapper.setMontantCash(balanceCaisseWrapper.getMontantCash() + b.getMontantCash());
-        balanceCaisseWrapper.setMontantMobileMoney(balanceCaisseWrapper.getMontantMobileMoney() + b.getMontantMobileMoney());
-        balanceCaisseWrapper.setMontantCard(balanceCaisseWrapper.getMontantCard() + b.getMontantCard());
-        balanceCaisseWrapper.setMontantVirement(balanceCaisseWrapper.getMontantVirement() + b.getMontantVirement());
-        balanceCaisseWrapper.setMontantCheck(balanceCaisseWrapper.getMontantCheck() + b.getMontantCheck());
-        balanceCaisseWrapper.setMontantDiffere(balanceCaisseWrapper.getMontantDiffere() + b.getMontantDiffere());
+        balanceCaisseWrapper.setMontantNetUg(
+            balanceCaisseWrapper.getMontantNetUg() + b.getMontantNetUg());
+        balanceCaisseWrapper.setMontantTtcUg(
+            balanceCaisseWrapper.getMontantTtcUg() + b.getMontantTtcUg());
+        balanceCaisseWrapper.setMontantHtUg(
+            balanceCaisseWrapper.getMontantHtUg() + b.getMontantHtUg());
+        balanceCaisseWrapper.setPartAssure(
+            balanceCaisseWrapper.getPartAssure() + b.getPartAssure());
+        balanceCaisseWrapper.setMontantTaxe(
+            balanceCaisseWrapper.getMontantTaxe() + b.getMontantTaxe());
+        balanceCaisseWrapper.setPartTiersPayant(
+            balanceCaisseWrapper.getPartTiersPayant() + b.getPartTiersPayant());
+        balanceCaisseWrapper.setMontantCash(
+            balanceCaisseWrapper.getMontantCash() + b.getMontantCash());
+        balanceCaisseWrapper.setMontantMobileMoney(
+            balanceCaisseWrapper.getMontantMobileMoney() + b.getMontantMobileMoney());
+        balanceCaisseWrapper.setMontantCard(
+            balanceCaisseWrapper.getMontantCard() + b.getMontantCard());
+        balanceCaisseWrapper.setMontantVirement(
+            balanceCaisseWrapper.getMontantVirement() + b.getMontantVirement());
+        balanceCaisseWrapper.setMontantCheck(
+            balanceCaisseWrapper.getMontantCheck() + b.getMontantCheck());
+        balanceCaisseWrapper.setMontantDiffere(
+            balanceCaisseWrapper.getMontantDiffere() + b.getMontantDiffere());
     }
 
     private void upadateBalance(
@@ -216,7 +248,9 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
 
                 ModePaimentCode modePaimentCode = ModePaimentCode.fromName(p.code());
                 if (Objects.nonNull(modePaimentCode)) {
-                    mvtCaissesByModes.add(new com.kobe.warehouse.service.dto.records.Tuple(p.code(), p.libelle(), p.paidAmount()));
+                    mvtCaissesByModes.add(
+                        new com.kobe.warehouse.service.dto.records.Tuple(p.code(), p.libelle(),
+                            p.paidAmount()));
                     switch (modePaimentCode) {
                         case CASH:
                             b.setMontantCash(b.getMontantCash() + p.paidAmount());
@@ -251,29 +285,35 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
         }
     }
 
-    private void computeMvts(BalanceCaisseWrapper balanceCaisseWrapper, List<BalanceCaisseDTO> balanceCaisses) {
+    private void computeMvts(BalanceCaisseWrapper balanceCaisseWrapper,
+        List<BalanceCaisseDTO> balanceCaisses) {
         balanceCaisses
             .stream()
             .collect(Collectors.groupingBy(BalanceCaisseDTO::getTypeVeTypeAffichage))
             .forEach((k, v) -> {
                 long amount = v.stream().mapToLong(BalanceCaisseDTO::getMontantPaye).sum();
-                balanceCaisseWrapper.getMvtCaisses().add(new com.kobe.warehouse.service.dto.records.Tuple(k.name(), k.getValue(), amount));
+                balanceCaisseWrapper.getMvtCaisses().add(
+                    new com.kobe.warehouse.service.dto.records.Tuple(k.name(), k.getValue(),
+                        amount));
             });
     }
 
-    private List<com.kobe.warehouse.service.dto.records.Tuple> computeMvtModesPaiment(List<BalanceCaisseDTO> balanceCaisses) {
+    private List<com.kobe.warehouse.service.dto.records.Tuple> computeMvtModesPaiment(
+        List<BalanceCaisseDTO> balanceCaisses) {
         List<com.kobe.warehouse.service.dto.records.Tuple> mvtCaissesByModes = new ArrayList<>();
         balanceCaisses
             .stream()
             .collect(Collectors.groupingBy(BalanceCaisseDTO::getModePaiement))
             .forEach((k, v) -> {
                 long amount = v.stream().mapToLong(BalanceCaisseDTO::getMontantPaye).sum();
-                mvtCaissesByModes.add(new com.kobe.warehouse.service.dto.records.Tuple(k, v.getFirst().getLibelleModePaiement(), amount));
+                mvtCaissesByModes.add(new com.kobe.warehouse.service.dto.records.Tuple(k,
+                    v.getFirst().getLibelleModePaiement(), amount));
             });
         return mvtCaissesByModes;
     }
 
-    private void updateModePayment(BalanceCaisseWrapper balanceCaisseWrapper, List<BalanceCaisseDTO> balanceCaisses) {
+    private void updateModePayment(BalanceCaisseWrapper balanceCaisseWrapper,
+        List<BalanceCaisseDTO> balanceCaisses) {
         List<com.kobe.warehouse.service.dto.records.Tuple> mvtCaissesByModes = balanceCaisseWrapper.getMvtCaissesByModes();
         mvtCaissesByModes.addAll(computeMvtModesPaiment(balanceCaisses));
         balanceCaisseWrapper.setMvtCaissesByModes(new ArrayList<>());
@@ -284,15 +324,16 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
                 long amount = v.stream().mapToLong(e -> Long.parseLong(e.value().toString())).sum();
                 balanceCaisseWrapper
                     .getMvtCaissesByModes()
-                    .add(new com.kobe.warehouse.service.dto.records.Tuple(k, v.getFirst().libelle(), amount));
+                    .add(new com.kobe.warehouse.service.dto.records.Tuple(k, v.getFirst().libelle(),
+                        amount));
             });
     }
 
     @Override
     public byte[] exportToPdf(MvtParam mvtParam) {
         return this.balanceReportService.exportToPdfBytes(
-                getBalanceCaisse(mvtParam),
-                new ReportPeriode(mvtParam.getFromDate(), mvtParam.getToDate())
-            );
+            getBalanceCaisse(mvtParam),
+            new ReportPeriode(mvtParam.getFromDate(), mvtParam.getToDate())
+        );
     }
 }

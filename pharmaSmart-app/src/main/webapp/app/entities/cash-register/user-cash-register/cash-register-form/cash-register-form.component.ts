@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy, signal } from '@angular/core';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { CashRegisterService } from '../../cash-register.service';
@@ -7,16 +7,17 @@ import { ErrorService } from '../../../../shared/error.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { ButtonComponent, InputNumberComponent } from '../../../../shared/ui';
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'jhi-cash-register-form',
-  imports: [ButtonComponent, ReactiveFormsModule, InputNumberComponent],
+  imports: [DeviseDirective, ButtonComponent, ReactiveFormsModule, InputNumberComponent],
   templateUrl: './cash-register-form.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './cash-register-form.component.scss',
 })
 export class CashRegisterFormComponent implements OnInit, AfterViewInit {
   protected isSaving = false;
-  protected cashFundAmount: number | null = null;
+  protected readonly cashFundAmount = signal<number | null>(null);
   protected cashFundAmountInput = viewChild('cashFundAmountInput', { read: ElementRef<HTMLElement> });
   protected fb = inject(FormBuilder);
   protected editForm = this.fb.group({
@@ -44,9 +45,9 @@ export class CashRegisterFormComponent implements OnInit, AfterViewInit {
       if (res.body) {
         const otherValue = res.body.otherValue;
         if (otherValue) {
-          this.cashFundAmount = parseInt(otherValue);
+          this.cashFundAmount.set(parseInt(otherValue));
         }
-        this.editForm.get(['cashFundAmount']).setValue(this.cashFundAmount);
+        this.editForm.get(['cashFundAmount']).setValue(this.cashFundAmount());
       }
     });
   }
@@ -70,7 +71,7 @@ export class CashRegisterFormComponent implements OnInit, AfterViewInit {
     setTimeout(() => {
       const inputElement = this.cashFundAmountInput()?.nativeElement.querySelector('input');
       inputElement?.focus();
-      this.editForm.get(['cashFundAmount'])?.setValue(this.cashFundAmount);
+      this.editForm.get(['cashFundAmount'])?.setValue(this.cashFundAmount());
       inputElement?.select();
     }, 100);
   }

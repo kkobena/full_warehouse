@@ -1,17 +1,17 @@
 <div class="pharma-smart-content p-2">
-  <app-toolbar [compact]="true" icon="pi pi-wallet" title="Mouvements de caisse">
+  <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-wallet" title="Mouvements de caisse">
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
-        <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate"
+        <pharma-date-picker [ngModel]="fromDate()" (ngModelChange)="fromDate.set($event)" [maxDate]="toDate()"
                             [style]="{ 'max-width': '180px' }" id="dateDebut"
                             label="Du" />
 
-        <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate"
+        <pharma-date-picker [ngModel]="toDate()" (ngModelChange)="toDate.set($event)" [minDate]="fromDate()"
                             [style]="{ 'max-width': '180px' }" id="dateFin"
                             label="Au" />
 
         <app-multi-select
-          [(ngModel)]="selectedTypes"
+          [ngModel]="selectedTypes()" (ngModelChange)="selectedTypes.set($event)"
           [clearable]="true"
           [items]="typeOptions"
           appendTo="body"
@@ -22,9 +22,9 @@
         />
 
         <app-multi-select
-          [(ngModel)]="selectedModes"
+          [ngModel]="selectedModes()" (ngModelChange)="selectedModes.set($event)"
           [clearable]="true"
-          [items]="paymentModes"
+          [items]="paymentModes()"
           appendTo="body"
           bindLabel="libelle"
           inputId="modeR"
@@ -32,9 +32,9 @@
         />
 
         <app-select
-          [(ngModel)]="selectedUser"
+          [ngModel]="selectedUser()" (ngModelChange)="selectedUser.set($event)"
           [clearable]="true"
-          [items]="users"
+          [items]="users()"
           appendTo="body"
           bindLabel="abbrName"
           inputId="op"
@@ -48,7 +48,7 @@
         <div class="pharma-button-group">
           <app-button
             (clicked)="onSearch()"
-            [loading]="btnLoading"
+            [loading]="btnLoading()"
             [raised]="true"
             icon="pi pi-search"
             label="Rechercher"
@@ -67,7 +67,7 @@
 
           <app-button
             (clicked)="onPrint()"
-            [loading]="btnLoading"
+            [loading]="btnLoading()"
             [outlined]="true"
             [raised]="true"
             icon="pi pi-print"
@@ -80,7 +80,7 @@
     </ng-container>
   </app-toolbar>
   <div class="row mt-3 mb-3 px-2">
-    @if (mvtCaisses && mvtCaisses.length > 0) {
+    @if (mvtCaisses() && mvtCaisses().length > 0) {
       <div class="col-md-12 col-lg-8 col-xl-9 col-xxl-9 col-sm-12 mb-2">
         <div class="card  data-card">
           <div class="card-header">
@@ -93,12 +93,12 @@
             <app-data-table
               (onLazyLoad)="lazyLoading($event)"
               [lazy]="true"
-              [loading]="loading"
+              [loading]="loading()"
               [paginator]="true"
               [rowsPerPageOptions]="[10, 20, 30, 50]"
               [rows]="itemsPerPage"
-              [totalRecords]="totalItems"
-              [value]="mvtCaisses"
+              [totalRecords]="totalItems()"
+              [value]="mvtCaisses()"
               dataKey="id"
             >
               <ng-template #header>
@@ -142,7 +142,7 @@
           </div>
         </div>
       </div>
-      @if (mvtCaisseSum) {
+      @if (mvtCaisseSum()) {
         <div class="col-md-12 col-lg-4 col-xl-3 col-xxl-3 col-sm-12 pharma-smart">
           <div class="card  data-card mb-2">
             <div class="card-header">
@@ -154,37 +154,37 @@
             <div class="card-body">
               <div class="grid">
                 <div class="col-12">
-                  @if (mvtCaisseSum.totalPaymentAmount > 0) {
+                  @if (mvtCaisseSum().totalPaymentAmount > 0) {
                     <div class="field">
                       <label>Total ventes</label>
-                      <span>{{ mvtCaisseSum.totalPaymentAmount | number }}</span>
+                      <span>{{ mvtCaisseSum().totalPaymentAmount | number }}</span>
                     </div>
                   }
-                  @if (mvtCaisseSum.creditedAmount > 0) {
+                  @if (mvtCaisseSum().creditedAmount > 0) {
                     <div class="field">
                       <label>Total entrée</label>
-                      <span class="text-success">{{ mvtCaisseSum.creditedAmount | number }}</span>
+                      <span class="text-success">{{ mvtCaisseSum().creditedAmount | number }}</span>
                     </div>
                   }
-                  @if (mvtCaisseSum.debitedAmount > 0) {
+                  @if (mvtCaisseSum().debitedAmount > 0) {
                     <div class="field">
                       <label>Total sortiee</label>
                       <span class="text-danger">{{
-                          mvtCaisseSum.debitedAmount * -1 | number
+                          mvtCaisseSum().debitedAmount * -1 | number
                         }}</span>
                     </div>
                   }
-                  @if (mvtCaisseSum.debitedAmount > 0) {
+                  @if (mvtCaisseSum().debitedAmount > 0) {
                     <div class="field">
                       <label>Total Mobile</label>
-                      <span>{{ mvtCaisseSum.totalMobileAmount | number }}</span>
+                      <span>{{ mvtCaisseSum().totalMobileAmount | number }}</span>
                     </div>
                   }
                 </div>
               </div>
             </div>
           </div>
-          @if (mvtCaisseSum.modesPaiementAmounts.length > 0) {
+          @if (mvtCaisseSum().modesPaiementAmounts.length > 0) {
             <div class="card data-card mb-2">
               <div class="card-header">
                 <h5 class="card-title">
@@ -195,7 +195,7 @@
               <div class="card-body">
                 <div class="grid">
                   <div class="col-12">
-                    @for (mode of mvtCaisseSum.modesPaiementAmounts; track mode.key) {
+                    @for (mode of mvtCaisseSum().modesPaiementAmounts; track mode.key) {
                       <div class="field">
                         <label> {{ mode.libelle }}</label>
                         <span>{{ mode.value | number }}</span>
@@ -206,7 +206,7 @@
               </div>
             </div>
           }
-          @if (mvtCaisseSum.typeTransactionAmounts.length > 0) {
+          @if (mvtCaisseSum().typeTransactionAmounts.length > 0) {
             <div class="card  data-card mb-2">
               <div class="card-header">
                 <h5 class="card-title">
@@ -217,7 +217,7 @@
               <div class="card-body">
                 <div class="grid">
                   <div class="col-12">
-                    @for (mode of mvtCaisseSum.typeTransactionAmounts; track mode.key) {
+                    @for (mode of mvtCaisseSum().typeTransactionAmounts; track mode.key) {
                       <div class="field">
                         <label> {{ mode.libelle }}</label>
                         @if (mode.key === 'SORTIE_CAISSE') {

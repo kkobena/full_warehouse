@@ -30,7 +30,7 @@ import {
     SelectSearchComponent
   ],
   templateUrl: "./avoir-form-modal.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./avoir-form-modal.component.scss"
 })
 export class AvoirFormModalComponent implements OnInit {
@@ -38,9 +38,9 @@ export class AvoirFormModalComponent implements OnInit {
   /** Montant pré-saisi dans le workspace — affiché en lecture seule dans la modal */
   prefillMontantAvoir?: number;
 
-  protected selectedFacture: IFacture | null = null;
-  protected factureSuggestions: IFacture[] = [];
-  protected montantAvoir: number | null = null;
+  protected readonly selectedFacture = signal<IFacture | null>(null);
+  protected readonly factureSuggestions = signal<IFacture[]>([]);
+  protected readonly montantAvoir = signal<number | null>(null);
   protected montantTva: number | null = null;
   protected montantHt: number | null = null;
   protected motif = "";
@@ -63,20 +63,20 @@ export class AvoirFormModalComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.prefillFacture) {
-      this.selectedFacture = this.prefillFacture;
+      this.selectedFacture.set(this.prefillFacture);
     }
     if (this.prefillMontantAvoir != null) {
-      this.montantAvoir = this.prefillMontantAvoir;
+      this.montantAvoir.set(this.prefillMontantAvoir);
     }
   }
 
   protected isFormValid(): boolean {
-    const montantRegle = this.selectedFacture?.montantRegle ?? 0;
+    const montantRegle = this.selectedFacture()?.montantRegle ?? 0;
     return (
-      !!this.selectedFacture?.factureId &&
-      this.montantAvoir !== null &&
-      this.montantAvoir > 0 &&
-      this.montantAvoir <= montantRegle &&
+      !!this.selectedFacture()?.factureId &&
+      this.montantAvoir() !== null &&
+      this.montantAvoir() > 0 &&
+      this.montantAvoir() <= montantRegle &&
       !!this.motif.trim()
     );
   }
@@ -89,7 +89,7 @@ export class AvoirFormModalComponent implements OnInit {
     this.factureApiService
       .query({ search: query, startDate: toIso(fiveYearsAgo), endDate: toIso(today), statuts: ['PAID', 'PARTIALLY_PAID'] })
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(res => (this.factureSuggestions = res.body ?? []));
+      .subscribe(res => (this.factureSuggestions.set(res.body ?? [])));
   }
 
   getStatutLabel(statut: string): string {
@@ -114,9 +114,9 @@ export class AvoirFormModalComponent implements OnInit {
     if (!this.isFormValid()) return;
 
     const command: IAvoirCommand = {
-      factureId: this.selectedFacture!.factureItemId.id,
-      factureDate: this.selectedFacture!.factureItemId.invoiceDate,
-      montantAvoir: this.montantAvoir!,
+      factureId: this.selectedFacture()!.factureItemId.id,
+      factureDate: this.selectedFacture()!.factureItemId.invoiceDate,
+      montantAvoir: this.montantAvoir()!,
       montantTva: this.montantTva ?? undefined,
       montantHt: this.montantHt ?? undefined,
       motif: this.motif.trim()

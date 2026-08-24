@@ -6,16 +6,21 @@ import { NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
 import CustomerSegmentationComponent from "../customer-segmentation/customer-segmentation.component";
 import SupplierPerformanceComponent from "../supplier-performance/supplier-performance.component";
 
+import { NavSidebarComponent } from 'app/shared/ui/nav-sidebar/nav-sidebar.component';
+import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-link.component';
 @Component({
   selector: "jhi-partners-reports",
-  imports: [CommonModule, NgbNavModule, CustomerSegmentationComponent, SupplierPerformanceComponent],
+  imports: [NavSidebarComponent, NavSectionLinkComponent, CommonModule, NgbNavModule, CustomerSegmentationComponent, SupplierPerformanceComponent],
   templateUrl: "./partners-reports.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./partners-reports.component.scss"
 })
 export default class PartnersReportsComponent implements OnInit {
   active = signal<string>("customer-segmentation");
 
+
+  /** Menu replié : ces rapports affichent de larges tableaux et graphiques. */
+  protected readonly menuReplie = signal(false);
   private readonly ability = inject(AbilityService);
 
   protected readonly showCustomerSegmentation = this.ability.canSignal("display", "rapport-partners.customer-segmentation");

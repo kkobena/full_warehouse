@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy, input, signal } from "@angular/core";
 import { ProductToDestroyService } from "../product-to-destroy.service";
 import { ITEMS_PER_PAGE } from "../../../shared/constants/pagination.constants";
 import { HttpHeaders, HttpResponse } from "@angular/common/http";
@@ -25,6 +25,7 @@ import { NotificationService } from "../../../shared/services/notification.servi
 import { CommonModule } from "@angular/common";
 import { BlobDownloadService } from "../../../shared/services/blob-download.service";
 import { FournisseurSelectComponent } from "../../../features/partners/ui/fournisseur-select/fournisseur-select.component";
+import { currencySymbol } from 'app/shared/utils/format-utils';
 import {
   AppSplitButtonItem,
   AppTableLazyLoadEvent,
@@ -70,33 +71,41 @@ import {
     FournisseurSelectComponent
   ],
   templateUrl: "./lot-a-detruire.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./lot-a-detruire.component.scss"
 })
 export class LotADetruireComponent implements OnInit {
-  protected isMono = true;
-  protected productToDestroySum: ProductToDestroySum = null;
-  protected data: ProductToDestroy[] = [];
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu, ou son `titre_long`
+   * quand la barre nomme plus longuement.
+   */
+  readonly navCode = input<string>('');
+
+  protected readonly isMono = signal(true);
+  protected readonly productToDestroySum = signal<ProductToDestroySum>(null);
+  protected readonly data = signal<ProductToDestroy[]>([]);
   protected selectedItems: ProductToDestroy[] = [];
-  protected selectedMagasin: IMagasin = null;
-  protected selectedStorage: Storage = null;
-  protected selectedFournisseur: IFournisseur = null;
-  protected selectedRayon: IRayon = null;
+  protected readonly selectedMagasin = signal<IMagasin>(null);
+  protected readonly selectedStorage = signal<Storage>(null);
+  protected readonly selectedFournisseur = signal<IFournisseur>(null);
+  protected readonly selectedRayon = signal<IRayon>(null);
   protected produitId: number;
   protected numLot: string;
-  protected searchTerm: string;
-  protected fromDate: NgbDateStruct = null;
-  protected toDate: NgbDateStruct = null;
-  protected storages: Storage[] = [];
-  protected rayons: IRayon[] = [];
-  protected magasins: IMagasin[] = [];
-  protected showAdvancedFilters = false;
+  protected readonly searchTerm = signal<string | undefined>(undefined);
+  protected readonly fromDate = signal<NgbDateStruct>(null);
+  protected readonly toDate = signal<NgbDateStruct>(null);
+  protected readonly storages = signal<Storage[]>([]);
+  protected readonly rayons = signal<IRayon[]>([]);
+  protected readonly magasins = signal<IMagasin[]>([]);
+  protected readonly showAdvancedFilters = signal(false);
   protected readonly itemsPerPage = ITEMS_PER_PAGE;
-  protected page!: number;
-  protected loading!: boolean;
-  protected ngbPaginationPage = 1;
-  protected totalItems = 0;
-  protected exportMenus: AppSplitButtonItem[];
+  protected readonly page = signal<number | undefined>(undefined);
+  protected readonly loading = signal<boolean | undefined>(undefined);
+  protected readonly ngbPaginationPage = signal(1);
+  protected readonly totalItems = signal(0);
+  protected readonly exportMenus = signal<AppSplitButtonItem[] | undefined>(undefined);
   protected types: any[] = [
     {
       label: "Déjà détruits",
@@ -111,7 +120,7 @@ export class LotADetruireComponent implements OnInit {
       value: null
     }
   ];
-  protected selectedType: any = null;
+  protected readonly selectedType = signal<any>(null);
   private readonly productToDestroyService = inject(ProductToDestroyService);
   private readonly configurationService = inject(ConfigurationService);
   private readonly rayonService = inject(RayonService);
@@ -123,10 +132,10 @@ export class LotADetruireComponent implements OnInit {
   private readonly downloadDocumentService = inject(BlobDownloadService);
 
   ngOnInit(): void {
-    this.selectedType = this.types[2];
+    this.selectedType.set(this.types[2]);
     this.findConfigStock();
 
-    this.exportMenus = [
+    this.exportMenus.set([
       {
         label: "PDF",
         icon: "pi pi-file-pdf",
@@ -142,7 +151,7 @@ export class LotADetruireComponent implements OnInit {
         icon: "pi pi-file-export",
         command: () => this.onExport("csv")
       }
-    ];
+    ]);
     this.onSearch();
     this.getSum();
   }
@@ -172,23 +181,23 @@ export class LotADetruireComponent implements OnInit {
   }
 
   protected toggleAdvancedFilters(): void {
-    this.showAdvancedFilters = !this.showAdvancedFilters;
+    this.showAdvancedFilters.set(!this.showAdvancedFilters());
   }
 
   protected onFournisseurSelected(f: IFournisseur | null): void {
-    this.selectedFournisseur = f;
+    this.selectedFournisseur.set(f);
     this.onSearch();
   }
 
   protected resetFilters(): void {
-    this.selectedType = this.types[2];
-    this.searchTerm = null;
-    this.fromDate = null;
-    this.toDate = null;
-    this.selectedFournisseur = null;
-    this.selectedRayon = null;
-    this.selectedMagasin = null;
-    this.selectedStorage = null;
+    this.selectedType.set(this.types[2]);
+    this.searchTerm.set(null);
+    this.fromDate.set(null);
+    this.toDate.set(null);
+    this.selectedFournisseur.set(null);
+    this.selectedRayon.set(null);
+    this.selectedMagasin.set(null);
+    this.selectedStorage.set(null);
     this.onSearch();
   }
 
@@ -204,16 +213,16 @@ export class LotADetruireComponent implements OnInit {
 
   protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event) {
-      this.page = event.first / event.rows;
-      this.loading = true;
+      this.page.set(event.first / event.rows);
+      this.loading.set(true);
       this.productToDestroyService
         .query({
-          page: this.page,
+          page: this.page(),
           size: event.rows,
           ...this.buidParams()
         })
         .subscribe({
-          next: (res: HttpResponse<ProductToDestroy[]>) => this.onSuccess(res.body, res.headers, this.page),
+          next: (res: HttpResponse<ProductToDestroy[]>) => this.onSuccess(res.body, res.headers, this.page()),
           error: () => this.onError()
         });
     }
@@ -221,7 +230,7 @@ export class LotADetruireComponent implements OnInit {
 
   protected getSum(): void {
     this.productToDestroyService.getSum(this.buidParams()).subscribe(res => {
-      this.productToDestroySum = res.body;
+      this.productToDestroySum.set(res.body);
     });
   }
 
@@ -232,7 +241,7 @@ export class LotADetruireComponent implements OnInit {
     const message =
       `Détruire définitivement ${count} lot(s) ?\n` +
       `Quantité totale : ${totalQty.toLocaleString("fr-FR")} unités\n` +
-      `Valeur achat estimée : ${totalValeur.toLocaleString("fr-FR")} FCFA\n\n` +
+      `Valeur achat estimée : ${totalValeur.toLocaleString("fr-FR")} ${currencySymbol()}\n\n` +
       `⚠️ Cette action est irréversible.`;
     this.confirmDialog.onConfirm(
       () => this.destroyAll(),
@@ -242,8 +251,8 @@ export class LotADetruireComponent implements OnInit {
   }
 
   private fetchStorages(): void {
-    this.storageService.fetchStorages({ magasinId: this.selectedMagasin?.id }).subscribe((res: HttpResponse<Storage[]>) => {
-      this.storages = res.body || [];
+    this.storageService.fetchStorages({ magasinId: this.selectedMagasin()?.id }).subscribe((res: HttpResponse<Storage[]>) => {
+      this.storages.set(res.body || []);
     });
   }
 
@@ -265,8 +274,8 @@ export class LotADetruireComponent implements OnInit {
       {
         next: res => {
           if (res.body) {
-            this.isMono = Number(res.body.value) === 0;
-            if (!this.isMono) {
+            this.isMono.set(Number(res.body.value) === 0);
+            if (!this.isMono()) {
               this.fetchMagasin();
             }
             this.fetchRayon();
@@ -283,17 +292,17 @@ export class LotADetruireComponent implements OnInit {
     this.rayonService
       .query({
         page: 0,
-        storageId: this.selectedStorage?.id,
+        storageId: this.selectedStorage()?.id,
         size: 9999
       })
       .subscribe((res: HttpResponse<IRayon[]>) => {
-        this.rayons = res.body || [];
+        this.rayons.set(res.body || []);
       });
   }
 
   private fetchMagasin(): void {
     this.magasinSrevice.fetchAll().subscribe((res: HttpResponse<IMagasin[]>) => {
-      this.magasins = res.body || [];
+      this.magasins.set(res.body || []);
     });
   }
 
@@ -328,11 +337,11 @@ export class LotADetruireComponent implements OnInit {
 
   /** Reflète l'état « tout sélectionné » de la table, sans dépendre de son ordre d'initialisation dans le template. */
   private isAllSelected(): boolean {
-    if (!this.data.length) {
+    if (!this.data().length) {
       return false;
     }
     const selectedIds = new Set(this.selectedItems.map(item => item.id));
-    return this.data.every(item => selectedIds.has(item.id));
+    return this.data().every(item => selectedIds.has(item.id));
   }
 
   private destroyAll(): void {
@@ -349,37 +358,37 @@ export class LotADetruireComponent implements OnInit {
 
   private buidParams(): ProductToDestroyFilter {
     return {
-      searchTerm: this.searchTerm,
-      fromDate: this.fromDate ? NGB_DATE_TO_ISO(this.fromDate) : undefined,
-      toDate: this.toDate ? NGB_DATE_TO_ISO(this.toDate) : undefined,
-      fournisseurId: this.selectedFournisseur?.id,
-      rayonId: this.selectedRayon?.id,
-      magasinId: this.selectedMagasin?.id,
-      destroyed: this.selectedType?.value,
-      storageId: this.selectedStorage?.id,
+      searchTerm: this.searchTerm(),
+      fromDate: this.fromDate() ? NGB_DATE_TO_ISO(this.fromDate()) : undefined,
+      toDate: this.toDate() ? NGB_DATE_TO_ISO(this.toDate()) : undefined,
+      fournisseurId: this.selectedFournisseur()?.id,
+      rayonId: this.selectedRayon()?.id,
+      magasinId: this.selectedMagasin()?.id,
+      destroyed: this.selectedType()?.value,
+      storageId: this.selectedStorage()?.id,
       editing: false
     };
   }
 
   private onSuccess(data: ProductToDestroy[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get("X-Total-Count"));
-    this.page = page;
-    this.data = data || [];
-    this.ngbPaginationPage = this.page;
-    this.loading = false;
+    this.totalItems.set(Number(headers.get("X-Total-Count")));
+    this.page.set(page);
+    this.data.set(data || []);
+    this.ngbPaginationPage.set(this.page());
+    this.loading.set(false);
   }
 
   private onError(): void {
     this.spinner().hide();
-    this.ngbPaginationPage = this.page ?? 1;
-    this.loading = false;
+    this.ngbPaginationPage.set(this.page() ?? 1);
+    this.loading.set(false);
     this.notificationService.error("Une erreur est survenue", "Erreur");
   }
 
   private loadPage(page?: number): void {
     // spinner affiché au début, masqué dans onSuccess/onError
-    this.loading = true;
-    const pageToLoad: number = page || this.page || 1;
+    this.loading.set(true);
+    const pageToLoad: number = page || this.page() || 1;
     this.productToDestroyService
       .query({
         page: pageToLoad - 1,

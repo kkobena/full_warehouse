@@ -15,7 +15,7 @@ import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-pi
   selector: 'app-lot-saisie-produit-modal',
   templateUrl: './lot-saisie-produit-modal.component.html',
   styleUrls: ['./lot-saisie-produit-modal.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -35,9 +35,9 @@ export class LotSaisieProduitModalComponent implements OnInit, AfterViewInit {
   protected storages = signal<IStorage[]>([]);
 
   /** Date d'aujourd'hui en NgbDateStruct (minDate péremption) */
-  protected todayStruct: NgbDateStruct;
+  protected readonly todayStruct = signal<NgbDateStruct | undefined>(undefined);
   /** Date d'aujourd'hui en NgbDateStruct (maxDate fabrication) */
-  protected todayMaxStruct: NgbDateStruct;
+  protected readonly todayMaxStruct = signal<NgbDateStruct | undefined>(undefined);
 
   @ViewChild('numLotInput') private numLotInput!: ElementRef<HTMLInputElement>;
 
@@ -49,8 +49,8 @@ export class LotSaisieProduitModalComponent implements OnInit, AfterViewInit {
 
   constructor() {
     const now = new Date();
-    this.todayStruct = { year: now.getFullYear(), month: now.getMonth() + 1, day: now.getDate() };
-    this.todayMaxStruct = { ...this.todayStruct };
+    this.todayStruct.set({ year: now.getFullYear(), month: now.getMonth() + 1, day: now.getDate() });
+    this.todayMaxStruct.set({ ...this.todayStruct() });
   }
 
   ngOnInit(): void {

@@ -1,6 +1,6 @@
-<div class="pharma-smart-content p-2">
+<div class="pharma-smart-content p-1">
   <!-- Toolbar -->
-  <app-toolbar icon="pi pi-chart-line" title="Dashboard Chiffre d'Affaires">
+  <app-toolbar [code]="navCode()" icon="pi pi-chart-line" title="Dashboard Chiffre d'Affaires">
 
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
@@ -17,7 +17,8 @@
         />
 
         @if (selectedPeriod() === 'custom') {
-          <pharma-date-picker [(ngModel)]="startDate" [style]="{ 'max-width': '190px' }" id="fromDate"
+          <pharma-date-picker [(ngModel)]="startDate" [style]="{ 'max-width': '190px' }"
+                              id="fromDate"
                               label="Date début" />
           <pharma-date-picker [(ngModel)]="endDate" [style]="{ 'max-width': '190px' }" id="toDate"
                               label="Date fin" />
@@ -55,115 +56,61 @@
   } @else {
     <!-- KPI Strip -->
     @if (summary(); as sum) {
-      <div class="kpi-strip mt-2 mb-2">
-
-        <div class="kpi-strip-item primary-accent">
-          <i class="pi pi-calendar text-primary"></i>
-          <div class="kpi-strip-body">
-            <span class="kpi-strip-label">CA Aujourd'hui</span>
-            <span class="kpi-strip-value text-primary">{{ formatCurrency(sum.caToday) }}
-              <small>FCFA</small></span>
-            <span class="kpi-strip-sub">
-              <span
-                [class]="(sum.caTodayEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
-                <i
-                  [class]="'pi ' + ((sum.caTodayEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
-                {{ formatPercent(sum.caTodayEvolutionPct) }}%
-              </span>
-              vs hier — {{ sum.nbTransactionsToday | number }} transact.
-            </span>
-          </div>
-        </div>
-
-        <div class="kpi-strip-divider"></div>
-
-        <div class="kpi-strip-item success-accent">
-          <i class="pi pi-calendar-plus text-success"></i>
-          <div class="kpi-strip-body">
-            <span class="kpi-strip-label">CA Semaine</span>
-            <span class="kpi-strip-value text-success">{{ formatCurrency(sum.caWeek) }}
-              <small>FCFA</small></span>
-            <span class="kpi-strip-sub">
-              <span
-                [class]="(sum.caWeekEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
-                <i
-                  [class]="'pi ' + ((sum.caWeekEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
-                {{ formatPercent(sum.caWeekEvolutionPct) }}%
-              </span>
-              — {{ sum.nbTransactionsWeek | number }} transact.
-            </span>
-          </div>
-        </div>
-
-        <div class="kpi-strip-divider"></div>
-
-        <div class="kpi-strip-item warning-accent">
-          <i class="pi pi-chart-bar text-warning"></i>
-          <div class="kpi-strip-body">
-            <span class="kpi-strip-label">CA Mois</span>
-            <span class="kpi-strip-value text-warning">{{ formatCurrency(sum.caMonth) }}
-              <small>FCFA</small></span>
-            <span class="kpi-strip-sub">
-              <span
-                [class]="(sum.caMonthEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
-                <i
-                  [class]="'pi ' + ((sum.caMonthEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
-                {{ formatPercent(sum.caMonthEvolutionPct) }}%
-              </span>
-              — {{ sum.nbTransactionsMonth | number }} | {{ formatCurrency(sum.panierMoyenMonth) }}
-              FCFA
-            </span>
-          </div>
-        </div>
-
-        <div class="kpi-strip-divider"></div>
-
-        <div class="kpi-strip-item danger-accent">
-          <i class="pi pi-chart-line text-danger"></i>
-          <div class="kpi-strip-body">
-            <span class="kpi-strip-label">CA Année</span>
-            <span class="kpi-strip-value text-danger">{{ formatCurrency(sum.caYear) }}
-              <small>FCFA</small></span>
-            <span class="kpi-strip-sub">
-              <span
-                [class]="(sum.caYearEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
-                <i
-                  [class]="'pi ' + ((sum.caYearEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
-                {{ formatPercent(sum.caYearEvolutionPct) }}%
-              </span>
-              — {{ sum.nbTransactionsYear | number }} | {{ formatPercent(sum.tauxMargeYear) }}% marge
-            </span>
-          </div>
-        </div>
-
+      <app-kpi-strip stripClass="mt-2 mb-2">
+        <app-kpi-item [accent]="'primary'" icon="pi pi-calendar" iconClass="text-primary" label="CA Aujourd'hui" [value]="formatCurrency(sum.caToday)" valueClass="text-primary">
+          <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+          <ng-container ngProjectAs="[kpiSub]"><span
+                        [class]="(sum.caTodayEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
+                        <i
+                          [class]="'pi ' + ((sum.caTodayEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+                        {{ formatPercent(sum.caTodayEvolutionPct) }}%
+                      </span>
+                      vs hier — {{ sum.nbTransactionsToday | number }} transact.</ng-container>
+        </app-kpi-item>
+        <app-kpi-item [accent]="'success'" icon="pi pi-calendar-plus" iconClass="text-success" label="CA Semaine" [value]="formatCurrency(sum.caWeek)" valueClass="text-success">
+          <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+          <ng-container ngProjectAs="[kpiSub]"><span
+                        [class]="(sum.caWeekEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
+                        <i
+                          [class]="'pi ' + ((sum.caWeekEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+                        {{ formatPercent(sum.caWeekEvolutionPct) }}%
+                      </span>
+                      — {{ sum.nbTransactionsWeek | number }} transact.</ng-container>
+        </app-kpi-item>
+        <app-kpi-item [accent]="'warning'" icon="pi pi-chart-bar" iconClass="text-warning" label="CA Mois" [value]="formatCurrency(sum.caMonth)" valueClass="text-warning">
+          <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+          <ng-container ngProjectAs="[kpiSub]"><span
+                        [class]="(sum.caMonthEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
+                        <i
+                          [class]="'pi ' + ((sum.caMonthEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+                        {{ formatPercent(sum.caMonthEvolutionPct) }}%
+                      </span>
+                      — {{ sum.nbTransactionsMonth | number }} | {{ formatCurrency(sum.panierMoyenMonth) }}
+                      <span appDevise></span></ng-container>
+        </app-kpi-item>
+        <app-kpi-item [accent]="'danger'" icon="pi pi-chart-line" iconClass="text-danger" label="CA Année" [value]="formatCurrency(sum.caYear)" valueClass="text-danger">
+          <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+          <ng-container ngProjectAs="[kpiSub]"><span
+                        [class]="(sum.caYearEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
+                        <i
+                          [class]="'pi ' + ((sum.caYearEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+                        {{ formatPercent(sum.caYearEvolutionPct) }}%
+                      </span>
+                      — {{ sum.nbTransactionsYear | number }} | {{ formatPercent(sum.tauxMargeYear) }}% marge</ng-container>
+        </app-kpi-item>
         @if (summaryFinances(); as fin) {
-          <div class="kpi-strip-divider"></div>
-          <div class="kpi-strip-item" style="border-left: 3px solid #6f42c1">
-            <i class="pi pi-building" style="color: #6f42c1"></i>
-            <div class="kpi-strip-body">
-              <span class="kpi-strip-label">Dettes fournisseurs</span>
-              <span class="kpi-strip-value" style="color: #6f42c1">{{
-                  formatCurrency(fin.totalDetteFournisseurs)
-                }} <small>FCFA</small></span>
-              <span class="kpi-strip-sub">{{ fin.nbEcheancesEnRetard ?? 0 }}
-                échéance(s) en retard</span>
-            </div>
-          </div>
-          <div class="kpi-strip-divider"></div>
-          <div class="kpi-strip-item" style="border-left: 3px solid #0dcaf0">
-            <i class="pi pi-users" style="color: #0dcaf0"></i>
-            <div class="kpi-strip-body">
-              <span class="kpi-strip-label">Créances tiers-payants</span>
-              <span class="kpi-strip-value" style="color: #0dcaf0">{{
-                  formatCurrency(fin.totalCreancesTP)
-                }} <small>FCFA</small></span>
-              <span class="kpi-strip-sub">{{ fin.nbFacturesImpayees ?? 0 }}
-                facture(s) impayée(s)</span>
-            </div>
-          </div>
+        <app-kpi-item icon="pi pi-building" iconClass="kpi-violet" label="Dettes fournisseurs" [value]="formatCurrency(fin.totalDetteFournisseurs)" valueClass="kpi-violet" style="border-left: 3px solid #6f42c1">
+          <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+          <ng-container ngProjectAs="[kpiSub]">{{ fin.nbEcheancesEnRetard ?? 0 }}
+                        échéance(s) en retard</ng-container>
+        </app-kpi-item>
+        <app-kpi-item icon="pi pi-users" iconClass="kpi-cyan" label="Créances tiers-payants" [value]="formatCurrency(fin.totalCreancesTP)" valueClass="kpi-cyan" style="border-left: 3px solid #0dcaf0">
+          <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+          <ng-container ngProjectAs="[kpiSub]">{{ fin.nbFacturesImpayees ?? 0 }}
+                        facture(s) impayée(s)</ng-container>
+        </app-kpi-item>
         }
-
-      </div>
+      </app-kpi-strip>
     }
 
     <!-- Tendances — GAP-C2 : Panier Moyen 12 mois -->
@@ -179,7 +126,8 @@
               <div class="ms-auto d-flex align-items-center flex-wrap gap-4">
                 <div>
                   <div class="text-muted small">Ce mois</div>
-                  <div class="fw-bold">{{ formatCurrency(basket.currentValue) }} FCFA</div>
+                  <div class="fw-bold">{{ formatCurrency(basket.currentValue) }} <span
+                    appDevise></span></div>
                 </div>
                 <span
                   [class]="'badge px-2 py-1 ' + ((basket.evolutionPct ?? 0) >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger')">
@@ -191,7 +139,8 @@
                 <div>
                   <div class="text-muted small">Meilleur mois</div>
                   <div class="fw-semibold">{{ basket.bestMonthLabel }}</div>
-                  <div class="small text-success">{{ formatCurrency(basket.bestMonthValue) }}FCFA
+                  <div class="small text-success">{{ formatCurrency(basket.bestMonthValue) }}<span
+                    appDevise></span>
                   </div>
                 </div>
                 <div>
@@ -280,14 +229,14 @@
                 <p class="mt-3 text-muted">Aucun produit trouvé pour cette période</p>
               </div>
             } @else {
-              <table class="pharma-table">
+              <table>
                 <thead class="pharma-table-head">
                 <tr>
                   <th>#</th>
                   <th>Produit</th>
                   <th>Code CIP</th>
                   <th class="text-end">Quantité Vendue</th>
-                  <th class="text-end">CA (FCFA)</th>
+                  <th class="text-end">CA (<span appDevise></span>)</th>
                   <th class="text-end">Prix Moyen</th>
                 </tr>
                 </thead>

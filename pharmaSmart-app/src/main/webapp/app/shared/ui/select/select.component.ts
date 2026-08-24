@@ -1,4 +1,4 @@
-import { Component, forwardRef } from '@angular/core';
+import {ChangeDetectionStrategy, Component, forwardRef} from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { NgSelectComponent } from '@ng-select/ng-select';
@@ -55,6 +55,7 @@ import { SelectBase } from './select.base';
       [notFoundText]="notFoundText()"
       [loadingText]="loadingText()"
       [appendTo]="appendTo()"
+      [virtualScroll]="virtualScroll()"
       [dropdownPosition]="dropdownPosition()"
       [labelForId]="inputId()"
       [attr.aria-label]="ariaLabel() || null"
@@ -65,5 +66,6 @@ import { SelectBase } from './select.base';
       (blur)="onTouched()"
     />
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SelectComponent extends SelectBase<unknown> {}

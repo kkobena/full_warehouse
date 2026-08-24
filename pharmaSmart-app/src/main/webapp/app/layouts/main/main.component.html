@@ -2,7 +2,7 @@
 <a class="skip-link" href="#main-content">Aller au contenu principal</a>
 
 <!-- Custom Titlebar (Tauri only) -->
-@if (isTauriMode) {
+@if (isTauriMode()) {
   <app-titlebar></app-titlebar>
 }
 
@@ -42,7 +42,7 @@
   </div>
 </div>
 
-@if (isTauriMode) {
+@if (isTauriMode()) {
   <!-- Setup wizard : s'affiche avant le splash quand setup_complete = false -->
   <app-setup-wizard></app-setup-wizard>
   <app-backend-splash></app-backend-splash>

@@ -1,6 +1,6 @@
 
 <div class="pharma-smart-content p-2">
-  <app-toolbar icon="pi pi-building" title="Menu groupe de tiers payant">
+  <app-toolbar [code]="navCode()" icon="pi pi-building" title="Menu groupe de tiers payant">
 
     <ng-container ngProjectAs="[toolbarFilters]">
         <div class="pharma-toolbar-filters">
@@ -21,7 +21,7 @@
         <div class="pharma-toolbar-actions">
           <div class="pharma-button-group">
             <app-button
-              (click)="showFileDialog()"
+              (clicked)="showFileDialog()"
               icon="pi pi-upload"
               label="Importer"
               [raised]="true"
@@ -29,7 +29,7 @@
               type="button"
             ></app-button>
             <app-button
-              (click)="addGroupeTiersPayant()"
+              (clicked)="addGroupeTiersPayant()"
               icon="pi pi-check"
               label="Nouveau"
               [raised]="true"
@@ -65,7 +65,7 @@
             <td style="text-align: center">
               <app-button
                 severity="success"
-                (click)="editGroupeTiersPayant(groupeTiersPayant)"
+                (clicked)="editGroupeTiersPayant(groupeTiersPayant)"
                 class="p-mr-2"
                 icon="pi pi-pencil"
                 [rounded]="true"
@@ -74,7 +74,7 @@
                 type="button"
               ></app-button>
               <app-button
-                (click)="onConfirmDelete(groupeTiersPayant)"
+                (clicked)="onConfirmDelete(groupeTiersPayant)"
                 severity="danger"
                 icon="pi pi-trash"
                 [text]="true"

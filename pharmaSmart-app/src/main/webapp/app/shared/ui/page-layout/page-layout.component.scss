@@ -1,0 +1,35 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.app-page-layout {
+  --app-page-layout-gap: 0.75rem;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--app-page-layout-gap);
+  min-width: 0;
+
+  &--compact {
+    --app-page-layout-gap: 0.5rem;
+  }
+
+  &__header,
+  &__guidance,
+  &__context,
+  &__body {
+    min-width: 0;
+  }
+
+  &__guidance,
+  &__context {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.25rem;
+
+    &:empty {
+      display: none;
+    }
+  }
+}

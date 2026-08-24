@@ -7,6 +7,8 @@ public record NavNodeDTO(
     String code,
     String libelle,
     String icon,
+    /** Titre de la barre d'outils quand il diffère du libellé ; nul le plus souvent. */
+    String titreLong,
     String routerLink,
     int ordre,
     String badgeType,

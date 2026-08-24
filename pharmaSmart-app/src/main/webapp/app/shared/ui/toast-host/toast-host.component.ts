@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
 import {NgbToast} from '@ng-bootstrap/ng-bootstrap';
 
 import {NotificationService, NotificationSeverity} from 'app/shared/services/notification.service';
@@ -7,7 +7,6 @@ import {NotificationService, NotificationSeverity} from 'app/shared/services/not
  * Rend les notifications de `NotificationService` — remplace `<p-toast>`.
  *
  * À monter **une seule fois** dans le layout racine : le service est global, une pile
- * unique suffit. C'est la différence avec `p-toast`, que chaque écran devait déclarer.
  *
  * L'auto-fermeture est déléguée à `NgbToast` (`[delay]` + `(hidden)`), qui gère aussi
  * la pause au survol.
@@ -44,6 +43,7 @@ import {NotificationService, NotificationSeverity} from 'app/shared/services/not
       z-index: 1090;
     }
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ToastHostComponent {
   private static readonly BOOTSTRAP_VARIANT: Record<NotificationSeverity, string> = {

@@ -1,18 +1,18 @@
 <div class="pharma-smart-content p-2">
-  <app-toolbar icon="pi pi-briefcase" title="Gestion de caisse">
+  <app-toolbar [code]="navCode()" icon="pi pi-briefcase" title="Gestion de caisse">
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
-        <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate" [style]="{ 'max-width': '180px' }" id="dateDebut"
+        <pharma-date-picker [ngModel]="fromDate()" (ngModelChange)="fromDate.set($event)" [maxDate]="toDate()" [style]="{ 'max-width': '180px' }" id="dateDebut"
                             label="Du" />
 
-        <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate" [style]="{ 'max-width': '180px' }" id="dateFin"
+        <pharma-date-picker [ngModel]="toDate()" (ngModelChange)="toDate.set($event)" [minDate]="fromDate()" [style]="{ 'max-width': '180px' }" id="dateFin"
                             label="Au" />
 
         <app-select
           (selectionChange)="onSearch()"
-          [(ngModel)]="selectedUser"
+          [ngModel]="selectedUser()" (ngModelChange)="selectedUser.set($event)"
           [clearable]="true"
-          [items]="users"
+          [items]="users()"
           [style]="{ 'min-width': '200px' }"
           appendTo="body"
           bindLabel="abbrName"
@@ -26,7 +26,7 @@
         <div class="pharma-button-group">
           <app-button
             (clicked)="onSearch()"
-            [loading]="btnLoading"
+            [loading]="btnLoading()"
             [raised]="true"
             icon="pi pi-search"
             label="Rechercher"
@@ -39,16 +39,16 @@
   </app-toolbar>
 
   <div class="mvt-caisse-data-section mt-3 mb-3">
-    @if (datas && datas.length > 0) {
+    @if (datas() && datas().length > 0) {
       <div>
         <app-data-table
           [lazy]="true"
-          [loading]="loading"
+          [loading]="loading()"
           [paginator]="true"
           [rowsPerPageOptions]="[5, 10, 15, 20, 30, 50]"
           [rows]="itemsPerPage"
-          [totalRecords]="totalItems"
-          [value]="datas"
+          [totalRecords]="totalItems()"
+          [value]="datas()"
           dataKey="id"
         >
           <ng-template #header>

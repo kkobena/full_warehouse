@@ -14,6 +14,7 @@ import { IResponseDto } from '../../../../shared/util/response-dto';
 import { FournisseurApiService } from '../../data-access/services/fournisseur-api.service';
 import { FournisseurFormComponent } from '../../ui/fournisseur-form/fournisseur-form.component';
 import { CommonModule } from "@angular/common";
+import { DeviseDirective } from 'app/shared/utils/devise';
 import {
   AppTableLazyLoadEvent,
   BadgeComponent,
@@ -29,8 +30,8 @@ import {
   selector: 'app-fournisseur-home',
   templateUrl: './fournisseur-home.component.html',
   styleUrls: ['./fournisseur-home.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -45,10 +46,10 @@ import {
   ],
 })
 export class FournisseurHomeComponent implements OnInit {
-  protected fournisseurs: IFournisseur[] = [];
-  protected totalItems = 0;
-  protected page = 0;
-  protected itemsPerPage = ITEMS_PER_PAGE;
+  protected readonly fournisseurs = signal<IFournisseur[]>([]);
+  protected readonly totalItems = signal(0);
+  protected readonly page = signal(0);
+  protected readonly itemsPerPage = signal(ITEMS_PER_PAGE);
   protected loading = signal(false);
   protected search = '';
 
@@ -67,9 +68,9 @@ export class FournisseurHomeComponent implements OnInit {
   }
 
   protected loadPage(page = 0): void {
-    this.page = page;
+    this.page.set(page);
     this.loading.set(true);
-    this.api.queryParents({ page, size: this.itemsPerPage, search: this.search })
+    this.api.queryParents({ page, size: this.itemsPerPage(), search: this.search })
       .subscribe({
         next: (res: HttpResponse<IFournisseur[]>) => this.onSuccess(res.body, res.headers, page),
         error: err => this.onError(err),
@@ -77,11 +78,11 @@ export class FournisseurHomeComponent implements OnInit {
   }
 
   protected lazyLoading(event: AppTableLazyLoadEvent): void {
-    const page = Math.floor((event.first ?? 0) / (event.rows ?? this.itemsPerPage));
-    this.page = page;
-    this.itemsPerPage = event.rows ?? this.itemsPerPage;
+    const page = Math.floor((event.first ?? 0) / (event.rows ?? this.itemsPerPage()));
+    this.page.set(page);
+    this.itemsPerPage.set(event.rows ?? this.itemsPerPage());
     this.loading.set(true);
-    this.api.queryParents({ page, size: this.itemsPerPage, search: this.search })
+    this.api.queryParents({ page, size: this.itemsPerPage(), search: this.search })
       .subscribe({
         next: (res: HttpResponse<IFournisseur[]>) => this.onSuccess(res.body, res.headers, page),
         error: err => this.onError(err),
@@ -115,7 +116,7 @@ export class FournisseurHomeComponent implements OnInit {
     ref.componentInstance.presetParentId = null;
     ref.componentInstance.title = `Modifier ${f.libelle}`;
     ref.result.then(() => {
-      this.loadPage(this.page);
+      this.loadPage(this.page());
       if (f.parentId) this.refreshAgences(f.parentId);
     }, () => {});
   }
@@ -187,9 +188,9 @@ export class FournisseurHomeComponent implements OnInit {
   }
 
   private onSuccess(data: IFournisseur[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get('X-Total-Count'));
-    this.page = page;
-    this.fournisseurs = data ?? [];
+    this.totalItems.set(Number(headers.get('X-Total-Count')));
+    this.page.set(page);
+    this.fournisseurs.set(data ?? []);
     this.loading.set(false);
   }
 

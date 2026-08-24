@@ -1,6 +1,6 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-2">
-    <app-toolbar icon="pi pi-building" title="Gestion des Dépôts">
+    <app-toolbar [code]="navCode()" icon="pi pi-building" title="Gestion des Dépôts">
       <ng-container ngProjectAs="[toolbarActions]">
         <div class="pharma-toolbar-actions py-1">
           @if (canNewVente()) {
@@ -25,15 +25,15 @@
     <app-data-table
       #dt
       [globalFilterFields]="['name', 'fullName', 'address', 'phone', 'email']"
-      [loading]="loading"
+      [loading]="loading()"
       [paginator]="true"
       [rowsPerPageOptions]="[10, 25, 50]"
       [rows]="10"
       [showCurrentPageReport]="true"
       [size]="'small'"
       [stripedRows]="true"
-      [value]="depots"
-      class="pharma-table"
+      [value]="depots()"
+
       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} dépôts"
     >
       <ng-template #caption>

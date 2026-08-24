@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy, input, signal } from "@angular/core";
 import { LotService } from "../../commande/lot/lot.service";
 import { LotFilterParam, LotLocation, LotPerimes, LotPerimeValeurSum } from "../model/lot-perimes";
 import { NGB_DATE_TO_ISO } from "../../../shared/util/warehouse-util";
@@ -36,6 +36,7 @@ import {
 } from "../retour-groupe-perime-dialog/retour-groupe-perime-dialog.component";
 import { CommonModule } from "@angular/common";
 import { FournisseurSelectComponent } from "../../../features/partners/ui/fournisseur-select/fournisseur-select.component";
+import { currencySymbol } from 'app/shared/utils/format-utils';
 import {
   AppSplitButtonItem,
   AppTableLazyLoadEvent,
@@ -82,29 +83,36 @@ import {
     KpiItemComponent
   ],
   templateUrl: "./lot-perimes.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./lot-perimes.component.scss"
 })
 export class LotPerimesComponent implements OnInit {
-  protected payload: ProductsToDestroyPayload = null;
-  protected exportMenus: AppSplitButtonItem[];
-  protected selectedLotPerimes: LotPerimes[] = [];
-  protected lotPerimeValeurSum: LotPerimeValeurSum = null;
-  protected storages: Storage[] = [];
-  protected rayons: IRayon[] = [];
-  protected magasins: IMagasin[] = [];
-  protected famillesProduit: IFamilleProduit[] = [];
-  protected selectedMagasin: IMagasin = null;
-  protected selectedStorage: Storage = null;
-  protected selectedFournisseur: IFournisseur = null;
-  protected selectedFamilleProduit: IFamilleProduit = null;
-  protected selectedRayon: IRayon = null;
-  protected data: LotPerimes[] = [];
-  protected dayCount: number;
-  protected searchTerm: string;
-  protected fromDate: NgbDateStruct = null;
-  protected toDate: NgbDateStruct = null;
-  protected showAdvancedFilters = false;
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu, ou son `titre_long`
+   * quand la barre nomme plus longuement.
+   */
+  readonly navCode = input<string>('');
+
+  protected readonly exportMenus = signal<AppSplitButtonItem[] | undefined>(undefined);
+  protected readonly selectedLotPerimes = signal<LotPerimes[]>([]);
+  protected readonly lotPerimeValeurSum = signal<LotPerimeValeurSum>(null);
+  protected readonly storages = signal<Storage[]>([]);
+  protected readonly rayons = signal<IRayon[]>([]);
+  protected readonly magasins = signal<IMagasin[]>([]);
+  protected readonly famillesProduit = signal<IFamilleProduit[]>([]);
+  protected readonly selectedMagasin = signal<IMagasin>(null);
+  protected readonly selectedStorage = signal<Storage>(null);
+  protected readonly selectedFournisseur = signal<IFournisseur>(null);
+  protected readonly selectedFamilleProduit = signal<IFamilleProduit>(null);
+  protected readonly selectedRayon = signal<IRayon>(null);
+  protected readonly data = signal<LotPerimes[]>([]);
+  protected readonly dayCount = signal<number | undefined>(undefined);
+  protected readonly searchTerm = signal<string | undefined>(undefined);
+  protected readonly fromDate = signal<NgbDateStruct>(null);
+  protected readonly toDate = signal<NgbDateStruct>(null);
+  protected readonly showAdvancedFilters = signal(false);
   /**
    * Stocke le storageId sélectionné par l'utilisateur pour chaque lot multi-site.
    * Clé = lot.id, Valeur = storageId choisi.
@@ -112,9 +120,9 @@ export class LotPerimesComponent implements OnInit {
   protected selectedLocationMap = new Map<number, number>();
 
   protected readonly itemsPerPage = ITEMS_PER_PAGE;
-  protected page!: number;
-  protected loading!: boolean;
-  protected totalItems = 0;
+  protected readonly page = signal<number | undefined>(undefined);
+  protected readonly loading = signal<boolean | undefined>(undefined);
+  protected readonly totalItems = signal(0);
   protected types: any[] = [
     {
       label: "Déjà périmé",
@@ -129,7 +137,7 @@ export class LotPerimesComponent implements OnInit {
       value: "ALL"
     }
   ];
-  protected selectedType: any = null;
+  protected readonly selectedType = signal<any>(null);
   private readonly rayonService = inject(RayonService);
   private readonly familleProduitService = inject(FamilleProduitService);
   private readonly magasinSrevice = inject(MagasinService);
@@ -144,11 +152,11 @@ export class LotPerimesComponent implements OnInit {
   private readonly commandCommonService = inject(CommandCommonService);
 
   ngOnInit(): void {
-    this.selectedType = this.types[2];
+    this.selectedType.set(this.types[2]);
     this.findConfigStock();
     this.fetchFamillesProduit();
     this.getSum();
-    this.exportMenus = [
+    this.exportMenus.set([
       {
         label: "PDF",
         icon: "pi pi-file-pdf",
@@ -164,7 +172,7 @@ export class LotPerimesComponent implements OnInit {
         icon: "pi pi-file-export",
         command: () => this.onExport("csv")
       }
-    ];
+    ]);
     this.onSearch();
   }
 
@@ -189,60 +197,60 @@ export class LotPerimesComponent implements OnInit {
 
   /** Toggle panneau filtres avancés */
   protected toggleAdvancedFilters(): void {
-    this.showAdvancedFilters = !this.showAdvancedFilters;
+    this.showAdvancedFilters.set(!this.showAdvancedFilters());
   }
 
   /** KPI card 1 — Lots déjà périmés */
   protected filterByPerimes(): void {
-    this.selectedType = this.types.find(t => t.value === "PERIME");
-    this.dayCount = null;
-    this.fromDate = null;
-    this.toDate = null;
+    this.selectedType.set(this.types.find(t => t.value === "PERIME"));
+    this.dayCount.set(null);
+    this.fromDate.set(null);
+    this.toDate.set(null);
     this.onSearch();
   }
 
   /** KPI card 3 — Prochaines péremptions dans 30j */
   protected filterByUpcoming30(): void {
-    this.selectedType = this.types.find(t => t.value === "EN_COURS");
-    this.dayCount = 30;
-    this.fromDate = null;
-    this.toDate = null;
+    this.selectedType.set(this.types.find(t => t.value === "EN_COURS"));
+    this.dayCount.set(30);
+    this.fromDate.set(null);
+    this.toDate.set(null);
     this.onSearch();
   }
 
   /** Réinitialise tous les filtres */
   protected onFournisseurSelected(f: IFournisseur | null): void {
-    this.selectedFournisseur = f;
+    this.selectedFournisseur.set(f);
     this.onSearch();
   }
 
   protected resetFilters(): void {
-    this.selectedType = this.types[2];
-    this.dayCount = null;
-    this.searchTerm = null;
-    this.fromDate = null;
-    this.toDate = null;
-    this.selectedFournisseur = null;
-    this.selectedRayon = null;
-    this.selectedFamilleProduit = null;
-    this.selectedMagasin = null;
-    this.selectedStorage = null;
+    this.selectedType.set(this.types[2]);
+    this.dayCount.set(null);
+    this.searchTerm.set(null);
+    this.fromDate.set(null);
+    this.toDate.set(null);
+    this.selectedFournisseur.set(null);
+    this.selectedRayon.set(null);
+    this.selectedFamilleProduit.set(null);
+    this.selectedMagasin.set(null);
+    this.selectedStorage.set(null);
     this.selectedLocationMap.clear();
     this.onSearch();
   }
 
   protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event) {
-      this.page = event.first / event.rows;
-      this.loading = true;
+      this.page.set(event.first / event.rows);
+      this.loading.set(true);
       this.lotService
         .fetchLotPerimes({
-          page: this.page,
+          page: this.page(),
           size: event.rows,
           ...this.buidParams()
         })
         .subscribe({
-          next: (res: HttpResponse<LotPerimes[]>) => this.onSuccess(res.body, res.headers, this.page),
+          next: (res: HttpResponse<LotPerimes[]>) => this.onSuccess(res.body, res.headers, this.page()),
           error: () => this.onError()
         });
     }
@@ -251,10 +259,10 @@ export class LotPerimesComponent implements OnInit {
   protected getSum(): void {
     this.lotService.getSum(this.buidParams()).subscribe({
       next: (res: HttpResponse<LotPerimeValeurSum>) => {
-        this.lotPerimeValeurSum = res.body || null;
+        this.lotPerimeValeurSum.set(res.body || null);
       },
       error: () => {
-        this.lotPerimeValeurSum = null;
+        this.lotPerimeValeurSum.set(null);
       }
     });
   }
@@ -286,7 +294,7 @@ export class LotPerimesComponent implements OnInit {
     if (lot.locations?.length === 1) {
       return lot.locations[0].storageId;
     }
-    return this.selectedLocationMap.get(lot.id) ?? this.selectedStorage?.id;
+    return this.selectedLocationMap.get(lot.id) ?? this.selectedStorage()?.id;
   }
 
   /** Options du sélecteur d'emplacement, libellé pré-formaté (remplace le `#item` custom de `p-select`) */
@@ -338,13 +346,13 @@ export class LotPerimesComponent implements OnInit {
   }
 
   protected confirmAll(): void {
-    const count = this.selectedLotPerimes.length;
-    const totalQty = this.selectedLotPerimes.reduce((s, l) => s + (l.quantity ?? 0), 0);
-    const totalValeur = this.selectedLotPerimes.reduce((s, l) => s + (l.prixAchat ?? 0) * (l.quantity ?? 0), 0);
+    const count = this.selectedLotPerimes().length;
+    const totalQty = this.selectedLotPerimes().reduce((s, l) => s + (l.quantity ?? 0), 0);
+    const totalValeur = this.selectedLotPerimes().reduce((s, l) => s + (l.prixAchat ?? 0) * (l.quantity ?? 0), 0);
     const message =
       `Retirer ${count} lot(s) du stock ?\n` +
       `Quantité totale : ${totalQty.toLocaleString("fr-FR")} unités\n` +
-      `Valeur achat estimée : ${totalValeur.toLocaleString("fr-FR")} FCFA\n\n` +
+      `Valeur achat estimée : ${totalValeur.toLocaleString("fr-FR")} ${currencySymbol()}\n\n` +
       `⚠️ Cette action est irréversible.`;
     this.confirmDialog.onConfirm(
       () => this.retirerStock(),
@@ -354,14 +362,14 @@ export class LotPerimesComponent implements OnInit {
   }
 
   protected confirmRetourGroupeDialog(): void {
-    if (this.selectedLotPerimes.length === 0) return;
+    if (this.selectedLotPerimes().length === 0) return;
 
     const modalRef = this.modalService.open(RetourGroupePerimeDialogComponent, {
       size: "xl",
       backdrop: "static",
       centered: true
     });
-    modalRef.componentInstance.lots = [...this.selectedLotPerimes];
+    modalRef.componentInstance.lots = [...this.selectedLotPerimes()];
 
     modalRef.closed.subscribe((result: any) => {
       if (result?.totalCreated > 0) {
@@ -370,7 +378,7 @@ export class LotPerimesComponent implements OnInit {
           "Succès"
         );
       }
-      this.selectedLotPerimes = [];
+      this.selectedLotPerimes.set([]);
       this.loadPage();
     });
   }
@@ -410,8 +418,8 @@ export class LotPerimesComponent implements OnInit {
   }
 
   private fetchStorages(): void {
-    this.storageService.fetchStorages({ magasinId: this.selectedMagasin?.id }).subscribe((res: HttpResponse<Storage[]>) => {
-      this.storages = res.body || [];
+    this.storageService.fetchStorages({ magasinId: this.selectedMagasin()?.id }).subscribe((res: HttpResponse<Storage[]>) => {
+      this.storages.set(res.body || []);
     });
   }
 
@@ -422,33 +430,33 @@ export class LotPerimesComponent implements OnInit {
 
   private buidParams(): LotFilterParam {
     return {
-      dayCount: this.dayCount,
-      searchTerm: this.searchTerm,
-      fromDate: NGB_DATE_TO_ISO(this.fromDate),
-      toDate: NGB_DATE_TO_ISO(this.toDate),   // ✅ BUG CORRIGÉ (était fromDate)
-      fournisseurId: this.selectedFournisseur?.id,
-      rayonId: this.selectedRayon?.id,
-      familleProduitId: this.selectedFamilleProduit?.id,
-      magasinId: this.selectedMagasin?.id,
-      storageId: this.selectedStorage?.id,
-      type: this.selectedType?.value
+      dayCount: this.dayCount(),
+      searchTerm: this.searchTerm(),
+      fromDate: NGB_DATE_TO_ISO(this.fromDate()),
+      toDate: NGB_DATE_TO_ISO(this.toDate()),   // ✅ BUG CORRIGÉ (était fromDate)
+      fournisseurId: this.selectedFournisseur()?.id,
+      rayonId: this.selectedRayon()?.id,
+      familleProduitId: this.selectedFamilleProduit()?.id,
+      magasinId: this.selectedMagasin()?.id,
+      storageId: this.selectedStorage()?.id,
+      type: this.selectedType()?.value
     };
   }
 
   private onSuccess(data: LotPerimes[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get("X-Total-Count"));
-    this.page = page;
-    this.data = data || [];
-    this.loading = false;
+    this.totalItems.set(Number(headers.get("X-Total-Count")));
+    this.page.set(page);
+    this.data.set(data || []);
+    this.loading.set(false);
   }
 
   private onError(): void {
-    this.loading = false;
+    this.loading.set(false);
     this.spinner().hide();
   }
 
   private loadPage(page?: number): void {
-    const pageToLoad: number = page || this.page || 1;
+    const pageToLoad: number = page || this.page() || 1;
     this.lotService
       .fetchLotPerimes({
         page: pageToLoad - 1,
@@ -465,11 +473,11 @@ export class LotPerimesComponent implements OnInit {
     this.rayonService
       .query({
         page: 0,
-        storageId: this.selectedStorage?.id,
+        storageId: this.selectedStorage()?.id,
         size: 9999
       })
       .subscribe((res: HttpResponse<IRayon[]>) => {
-        this.rayons = res.body || [];
+        this.rayons.set(res.body || []);
       });
   }
 
@@ -477,13 +485,13 @@ export class LotPerimesComponent implements OnInit {
     this.familleProduitService
       .query({ page: 0, size: 9999 })
       .subscribe((res: HttpResponse<IFamilleProduit[]>) => {
-        this.famillesProduit = res.body || [];
+        this.famillesProduit.set(res.body || []);
       });
   }
 
   private fetchMagasin(): void {
     this.magasinSrevice.fetchAll().subscribe((res: HttpResponse<IMagasin[]>) => {
-      this.magasins = res.body || [];
+      this.magasins.set(res.body || []);
     });
   }
 
@@ -492,7 +500,7 @@ export class LotPerimesComponent implements OnInit {
       lotId: lot.id,
       quantity: lot.quantity,
       produitId: lot.produitId,
-      fournisseurId: this.selectedFournisseur?.id,
+      fournisseurId: this.selectedFournisseur()?.id,
       // Résolution de l'emplacement :
       // 1. Lot dans 1 seul emplacement → automatique
       // 2. Lot multi-site → utiliser la sélection utilisateur ou le filtre storage
@@ -503,10 +511,10 @@ export class LotPerimesComponent implements OnInit {
 
   private buildPayloads(lot?: LotPerimes): ProductsToDestroyPayload {
     return {
-      magasinId: this.selectedMagasin?.id,
+      magasinId: this.selectedMagasin()?.id,
       products: lot
         ? [this.buildPayload(lot)]
-        : this.selectedLotPerimes.map(d => this.buildPayload(d))
+        : this.selectedLotPerimes().map(d => this.buildPayload(d))
     };
   }
 

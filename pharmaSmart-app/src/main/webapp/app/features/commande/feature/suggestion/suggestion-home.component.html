@@ -5,11 +5,11 @@
     <div>
       <strong>Dépassement du budget mensuel !</strong>
       Montant estimé :
-      <strong>{{ facade.budget()!.montantEstime | number }} FCFA</strong>
+      <strong>{{ facade.budget()!.montantEstime | number }} <span appDevise></span></strong>
       · Budget mensuel :
-      <strong>{{ facade.budget()!.budgetMensuel | number }} FCFA</strong>
+      <strong>{{ facade.budget()!.budgetMensuel | number }} <span appDevise></span></strong>
       · Déjà commandé ce mois :
-      <strong>{{ facade.budget()!.montantCommande | number }} FCFA</strong>
+      <strong>{{ facade.budget()!.montantCommande | number }} <span appDevise></span></strong>
     </div>
   </div>
 }
@@ -91,7 +91,7 @@
       <span class="view-panel__meta">
         <i class="pi pi-tag"></i>&nbsp;{{ editingFournisseur()!.nbProduits }} produit(s)
         &nbsp;·&nbsp;
-        {{ editingFournisseur()!.montantEstime | number : '1.0-0' }} FCFA
+        {{ editingFournisseur()!.montantEstime | number : '1.0-0' }} <span appDevise></span>
       </span>
       @if (editingFournisseur()!.nbUrgents > 0) {
         <span class="view-panel__urgent">

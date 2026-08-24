@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy, input} from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { forkJoin } from "rxjs";
@@ -8,10 +8,13 @@ import { NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
 import { ITopProduct } from "app/shared/model/report/top-product.model";
 import { TopProductsReportService } from "../services/top-products-report.service";
 import { DATE_FORMAT_ISO_DATE, retriveMonthLabel } from "../../../shared/util/warehouse-util";
+import { DeviseDirective } from 'app/shared/utils/devise';
 import {
   BadgeComponent,
   ButtonComponent,
   DataTableComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   MonthPickerComponent,
   SelectComponent,
   ToolbarComponent
@@ -25,8 +28,8 @@ interface ITopProductRanked extends ITopProduct {
   selector: "app-top-products",
   templateUrl: "./top-products.component.html",
   styleUrls: ["./top-products.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     NgbNavModule,
@@ -35,10 +38,20 @@ interface ITopProductRanked extends ITopProduct {
     DataTableComponent,
     MonthPickerComponent,
     SelectComponent,
-    ToolbarComponent
+    ToolbarComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ]
 })
 export default class TopProductsComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : ce rapport est parfois atteint depuis deux menus, qui ne le nomment
+   * pas de la même façon. Le titre suit celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   protected topProductsByRevenue = signal<ITopProductRanked[]>([]);
   protected topProductsByQuantity = signal<ITopProductRanked[]>([]);
   protected isLoading = signal<boolean>(false);

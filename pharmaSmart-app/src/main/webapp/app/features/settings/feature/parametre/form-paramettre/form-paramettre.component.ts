@@ -1,5 +1,5 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { ILaboratoire } from '../../../../../shared/model/laboratoire.model';
@@ -15,14 +15,14 @@ import { ButtonComponent, CardComponent, CheckboxComponent, KeyFilterDirective }
   selector: 'app-form-laboratoire',
   templateUrl: './form-paramettre.component.html',
   styleUrls: ['./form-paramettre.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, ReactiveFormsModule, ButtonComponent, CardComponent, CheckboxComponent, KeyFilterDirective],
 })
 export class FormParamettreComponent implements OnInit {
   header = '';
   entity: IConfiguration | null = null;
   protected fb = inject(UntypedFormBuilder);
-  protected isSaving = false;
+  protected readonly isSaving = signal(false);
   protected editForm = this.fb.group({
     name: [Validators.required],
     description: [null, [Validators.required]],
@@ -47,7 +47,7 @@ export class FormParamettreComponent implements OnInit {
   }
 
   protected save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const entity = this.createFromForm();
     this.subscribeToSaveResponse(this.configurationService.update(entity));
   }
@@ -57,7 +57,7 @@ export class FormParamettreComponent implements OnInit {
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<ILaboratoire>>): void {
-    result.pipe(finalize(() => (this.isSaving = false))).subscribe({
+    result.pipe(finalize(() => (this.isSaving.set(false)))).subscribe({
       next: (res: HttpResponse<ILaboratoire>) => this.onSaveSuccess(res.body),
       error: err => this.onSaveError(err),
     });

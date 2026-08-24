@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy, input} from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { HttpResponse } from "@angular/common/http";
 import { RouterLink } from "@angular/router";
@@ -36,10 +36,19 @@ import { PharmaDatePickerComponent } from "../../../shared/date-picker/pharma-da
     RouterLink
   ],
   templateUrl: "./depot-retour-list.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./depot-retour-list.component.scss"
 })
 export class DepotRetourListComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   private readonly retourDepotService = inject(RetourDepotService);
   private readonly magasinService = inject(MagasinService);
 

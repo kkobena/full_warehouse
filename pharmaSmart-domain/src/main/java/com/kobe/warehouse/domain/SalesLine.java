@@ -2,7 +2,10 @@ package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.service.sale.calculation.dto.Rate;
 import jakarta.persistence.Column;
+import com.kobe.warehouse.domain.enumeration.ExclusionMotif;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
@@ -129,6 +132,10 @@ public class SalesLine implements Persistable<SaleLineId>, Serializable, Cloneab
     @Column(name = "amount_to_be_taken_into_account", nullable = false)
     private Integer amountToBeTakenIntoAccount;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "exclusion_motif", length = 20)
+    private ExclusionMotif exclusionMotif;
+
     @Column(name = "after_stock")
     private Integer afterStock;
 
@@ -178,9 +185,6 @@ public class SalesLine implements Persistable<SaleLineId>, Serializable, Cloneab
         return rates;
     }
 
-    //    public Long getId() {
-    //        return id;
-    //    }
 
     public void setRates(List<Rate> rates) {
         this.rates = rates;
@@ -358,6 +362,15 @@ public class SalesLine implements Persistable<SaleLineId>, Serializable, Cloneab
 
     public SalesLine setAmountToBeTakenIntoAccount(Integer amountToBeTakenIntoAccount) {
         this.amountToBeTakenIntoAccount = amountToBeTakenIntoAccount;
+        return this;
+    }
+
+    public ExclusionMotif getExclusionMotif() {
+        return exclusionMotif;
+    }
+
+    public SalesLine setExclusionMotif(ExclusionMotif exclusionMotif) {
+        this.exclusionMotif = exclusionMotif;
         return this;
     }
 

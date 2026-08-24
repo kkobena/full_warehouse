@@ -4,17 +4,16 @@
 </div>
 <div class="modal-body">
   <app-card [variant]="'form'">
-    @if (showUgAddNewBtn) {
+    @if (showUgAddNewBtn()) {
       <div class="mb-1" style="text-align: right">
         <app-button (clicked)="add()" severity="info" [raised]="true" icon="pi pi-check" label="Ajouter un nouveau lot" type="button"></app-button>
       </div>
     }
 
-    @if (lots?.length > 0) {
+    @if (lots()?.length > 0) {
       <app-data-table
-        class="pharma-table"
         [(selection)]="selectedEl"
-        [value]="lots"
+        [value]="lots()"
         dataKey="numLot"
         [selectionMode]="'single'"
         [stripedRows]="true"

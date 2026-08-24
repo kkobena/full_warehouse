@@ -1,7 +1,6 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, OnInit, input, signal } from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {IResponseDto} from '../../../shared/util/response-dto';
 import {IRemise} from '../../../shared/model';
 import {RemiseService} from '../remise.service';
 import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
@@ -27,13 +26,21 @@ import {ButtonComponent, DataTableComponent, SwitchComponent, ToolbarComponent} 
     ToolbarComponent,
   ],
   templateUrl: './remise-produits.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './remise-produits.component.scss',
 })
 export class RemiseProduitsComponent implements OnInit {
-  protected responsedto!: IResponseDto;
-  protected entites?: IRemise[];
-  protected loading = false;
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
+  protected readonly entites = signal<IRemise[] | undefined>(undefined);
+  protected readonly loading = signal(false);
   private readonly ngModalService = inject(NgbModal);
   private readonly entityService = inject(RemiseService);
   private readonly notificationService = inject(NotificationService);
@@ -41,7 +48,7 @@ export class RemiseProduitsComponent implements OnInit {
   private readonly errorService = inject(ErrorService);
 
   loadPage(): void {
-    this.loading = true;
+    this.loading.set(true);
     this.entityService.query({typeRemise: 'PRODUIT'}).subscribe({
       next: (res: HttpResponse<IRemise[]>) => this.onSuccess(res.body),
       error: () => this.onError(),
@@ -113,12 +120,12 @@ export class RemiseProduitsComponent implements OnInit {
 
   private onSuccess(data: IRemise[] | null): void {
     //    this.router.navigate(['/remises']);
-    this.entites = data || [];
-    this.loading = false;
+    this.entites.set(data || []);
+    this.loading.set(false);
   }
 
   private onError(): void {
-    this.loading = false;
+    this.loading.set(false);
   }
 
   private onSaveSuccess(): void {

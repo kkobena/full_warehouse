@@ -18,6 +18,7 @@ import jakarta.persistence.criteria.Predicate;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.data.domain.Page;
@@ -55,6 +56,25 @@ public interface FacturationRepository
         ORDER BY f.created ASC
         """)
     List<FactureTiersPayant> findPendingFneCertification();
+
+
+    @Query(
+        """
+            SELECT f FROM FactureTiersPayant f
+            LEFT JOIN FETCH f.tiersPayant
+            LEFT JOIN FETCH f.groupeTiersPayant
+            LEFT JOIN FETCH f.facturesDetails d
+            LEFT JOIN FETCH d.sale s
+            LEFT JOIN FETCH s.ayantDroit
+            LEFT JOIN FETCH s.customer
+            LEFT JOIN FETCH s.remise
+            LEFT JOIN FETCH d.clientTiersPayant c
+            LEFT JOIN FETCH c.assuredCustomer
+            LEFT JOIN FETCH c.tiersPayant
+            WHERE f.id = :id AND f.invoiceDate = :invoiceDate
+            """
+    )
+    Optional<FactureTiersPayant> findOneWithDetails(@Param("id") Long id, @Param("invoiceDate") LocalDate invoiceDate);
 
     @Query("SELECT o FROM  FactureTiersPayant o WHERE o.generationCode=:generationCode AND o.invoiceDate >=:invoiceDate  ")
     List<FactureTiersPayant> findAll(

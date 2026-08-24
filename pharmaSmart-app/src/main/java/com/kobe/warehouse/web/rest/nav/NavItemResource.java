@@ -139,7 +139,25 @@ public class NavItemResource {
         navItemService.updateLibelle(id, request.libelle());
         return ResponseEntity.ok().build();
     }
+
+    /**
+     * PATCH /api/admin/nav/items/{id}/titre-long : met à jour le titre de la barre d'outils.
+     *
+     * <p>Contrairement au libellé, la valeur vide est acceptée : elle efface le titre long, et la
+     * barre reprend alors le libellé du menu.
+     */
+    @PatchMapping("/admin/nav/items/{id}/titre-long")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> updateNavItemTitreLong(
+        @PathVariable Integer id,
+        @RequestBody UpdateTitreLongRequest request
+    ) {
+        navItemService.updateTitreLong(id, request.titreLong());
+        return ResponseEntity.ok().build();
+    }
 }
 
 record UpdateLibelleRequest(String libelle) {}
+
+record UpdateTitreLongRequest(String titreLong) {}
 

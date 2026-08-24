@@ -1,4 +1,4 @@
-import { Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy, input} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
@@ -6,22 +6,31 @@ import { Chart, registerables } from 'chart.js';
 
 import { DashboardCAService } from '../services/dashboard-ca.service';
 import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
-import { ButtonComponent, ToolbarComponent } from '../../../shared/ui';
+import { ButtonComponent, KpiItemComponent, KpiStripComponent, ToolbarComponent } from '../../../shared/ui';
 import { IGenericsSubstitution } from '../../../shared/model/report';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { ChartColorsUtilsService } from '../../../shared/util/chart-colors-utils.service';
 import { formatCurrency, formatDecimal, formatNumber } from 'app/shared/utils/format-utils';
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-generics-substitution',
-  imports: [CommonModule, FormsModule, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent],
+  imports: [DeviseDirective, CommonModule, FormsModule, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent, KpiStripComponent, KpiItemComponent],
   templateUrl: './generics-substitution.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./generics-substitution.component.scss'],
 })
 export default class GenericsSubstitutionComponent implements OnInit, OnDestroy {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : ce rapport est parfois atteint depuis deux menus, qui ne le nomment
+   * pas de la même façon. Le titre suit celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   @ViewChild('doughnutCanvas') doughnutCanvas?: ElementRef<HTMLCanvasElement>;
 
   protected readonly stats     = signal<IGenericsSubstitution | null>(null);

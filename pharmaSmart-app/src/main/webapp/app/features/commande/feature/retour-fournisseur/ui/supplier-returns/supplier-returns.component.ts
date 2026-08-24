@@ -4,13 +4,7 @@ import { HttpResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
-import {
-  ButtonComponent,
-  DataTableComponent,
-  EditableCellComponent,
-  FloatLabelComponent,
-  SelectSearchComponent,
-} from 'app/shared/ui';
+import { ButtonComponent, DataTableComponent, EditableCellComponent, FloatLabelComponent, SelectSearchComponent } from 'app/shared/ui';
 import { QuantiteProdutSaisieComponent } from 'app/shared/quantite-produt-saisie/quantite-produt-saisie.component';
 import { NotificationService } from 'app/shared/services/notification.service';
 import { IFournisseur } from 'app/shared/model/fournisseur.model';
@@ -19,7 +13,6 @@ import { IRetourBonItem, RetourBonItem } from 'app/shared/model/retour-bon-item.
 import { IMotifRetourProduit } from 'app/shared/model/motif-retour-produit.model';
 import { AbstractOrderItem } from 'app/shared/model/abstract-order-item.model';
 import { ModifRetourProduitService } from 'app/entities/motif-retour-produit/motif-retour-produit.service';
-import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { debounceTime, Subject, Subscription } from 'rxjs';
 import { IDeliveryItem } from 'app/shared/model/delivery-item';
 import { finalize } from 'rxjs/operators';
@@ -45,7 +38,7 @@ import { ConfigurationService } from "../../../../../../shared/configuration.ser
     InlineLotSelectionComponent,
   ],
   templateUrl: './supplier-returns.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './supplier-returns.component.scss',
 })
 export class SupplierReturnsComponent implements OnInit, OnDestroy {
@@ -53,7 +46,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
   private readonly commandeService = inject(DeliveryService);
   private readonly configurationService = inject(ConfigurationService);
 
-  protected delaiRetourSeuil = 365;
+  protected readonly delaiRetourSeuil = signal(365);
   private readonly motifRetourProduitService = inject(ModifRetourProduitService);
   private readonly notificationService = inject(NotificationService);
   private readonly router = inject(Router);
@@ -64,7 +57,6 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
   private readonly motifSelectEl = viewChild('motifSelect', { read: ElementRef<HTMLElement> });
   @ViewChild('quantiteBox') quantiteBox: QuantiteProdutSaisieComponent | undefined;
 
-  protected fournisseurs = signal<IFournisseur[]>([]);
   protected commandes = signal<ICommande[]>([]);
   protected filteredCommandes = signal<ICommande[]>([]);
   protected motifRetours = signal<IMotifRetourProduit[]>([]);
@@ -79,8 +71,6 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
   protected commentaire = signal<string>('');
   protected isSaving = signal<boolean>(false);
   protected delayWarning = signal<boolean>(false);
-  protected totalRecords = signal<number>(0);
-  protected itemsPerPage = ITEMS_PER_PAGE;
 
   protected isEditMode = signal<boolean>(false);
   protected editRetourBonId = signal<number | null>(null);
@@ -117,7 +107,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
     this.configurationService.find('APP_DELAI_RETOUR_FOURNISSEUR').subscribe({
       next: res => {
         const val = parseInt(res.body?.value ?? '', 10);
-        if (!isNaN(val)) this.delaiRetourSeuil = val;
+        if (!isNaN(val)) this.delaiRetourSeuil.set(val);
       },
     });
   }
@@ -127,7 +117,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
     const order = new Date(orderDate);
     const today = new Date();
     const diffDays = Math.floor((today.getTime() - order.getTime()) / 86_400_000);
-    this.delayWarning.set(diffDays > this.delaiRetourSeuil);
+    this.delayWarning.set(diffDays > this.delaiRetourSeuil());
   }
 
   ngOnDestroy(): void {

@@ -146,7 +146,7 @@
                     }} ligne(s)</span>
                 </div>
                 <app-data-table
-                  (selectionChange)="onSelectionChange(s.id, $event)"
+                  (selectionChange)="onSelectionChange(s.id, $any($event))"
                   [selectionMode]="'multiple'"
                   [selection]="selectedLines()[s.id] ?? []"
                   [value]="filteredLinesOf(s)"

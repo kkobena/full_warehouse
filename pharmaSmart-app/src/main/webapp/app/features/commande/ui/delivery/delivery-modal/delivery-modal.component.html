@@ -34,7 +34,7 @@
             <div class="form-field form-field-full">
               <label for="receiptDate">Date de livraison<span class="required">*</span></label>
               <pharma-date-picker
-                [maxDate]="maxDate"
+                [maxDate]="maxDate()"
                 formControlName="receiptDate"
                 id="receiptDate"
               />
@@ -115,7 +115,7 @@
     </app-button>
 
     <app-button
-      [disabled]="editForm.invalid || isSaving"
+      [disabled]="editForm.invalid || isSaving()"
       icon="pi pi-check"
       id="save-entity"
       label="Enregister"

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import {signal, Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 import { ButtonComponent } from "../../../../shared/ui";
@@ -9,7 +9,7 @@ import { TauriPrinterService } from "../../../../shared/services/tauri-printer.s
   selector: "app-fne-certificate-viewer",
   imports: [ButtonComponent],
   templateUrl: "./fne-certificate-viewer.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ["./fne-certificate-viewer.component.scss"]
 })
 export class FneCertificateViewerComponent implements OnInit {
@@ -17,15 +17,15 @@ export class FneCertificateViewerComponent implements OnInit {
   reference: string;
 
   protected safeUrl: SafeResourceUrl;
-  protected isRunningInTauri = false;
+  protected readonly isRunningInTauri = signal(false);
   private readonly activeModal = inject(NgbActiveModal);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly tauriPrinterService = inject(TauriPrinterService);
 
   ngOnInit(): void {
-    this.isRunningInTauri = this.tauriPrinterService.isRunningInTauri();
+    this.isRunningInTauri.set(this.tauriPrinterService.isRunningInTauri());
 
-    if (this.isRunningInTauri) {
+    if (this.isRunningInTauri()) {
       void this.openInExternalBrowser();
       setTimeout(() => this.close(), 1500);
     } else {
@@ -39,7 +39,7 @@ export class FneCertificateViewerComponent implements OnInit {
   }
 
   async openInExternalBrowser(): Promise<void> {
-    if (this.isRunningInTauri) {
+    if (this.isRunningInTauri()) {
       try {
         const { open } = await import("@tauri-apps/plugin-shell");
         await open(this.tokenUrl);

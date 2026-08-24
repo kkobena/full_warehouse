@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import {ChangeDetectionStrategy, Component, input} from '@angular/core';
 
 /**
  * Enveloppe de champ de formulaire — libellé, message d'erreur et texte d'aide.
@@ -58,6 +58,7 @@ import { Component, input } from '@angular/core';
       font-size: 0.875rem;
     }
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FormFieldComponent {
   readonly label = input<string>('');

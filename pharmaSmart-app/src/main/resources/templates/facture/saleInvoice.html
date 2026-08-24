@@ -251,8 +251,8 @@
                 <tr>
                   <td colspan="3"></td>
                   <td colspan="2">SOUS-TOTAL</td>
-                  <td th:if="${sale.netAmount ge 1000}" th:text="${#numbers.formatInteger(sale.netAmount,3,'WHITESPACE')+' FCFA' }"></td>
-                  <td th:if="${sale.netAmount lt 1000}" th:text="${sale.netAmount+' FCFA' }"></td>
+                  <td th:if="${sale.netAmount ge 1000}" th:text="${#numbers.formatInteger(sale.netAmount,3,'WHITESPACE')+' '+devise }"></td>
+                  <td th:if="${sale.netAmount lt 1000}" th:text="${sale.netAmount+' '+devise }"></td>
                 </tr>
                 <tr th:each="tva : ${sale.tvaEmbededs}">
                   <td colspan="3"></td>
@@ -260,24 +260,24 @@
                     TVA
                     <th:block th:text="${' '+tva.tva+' %'}"></th:block>
                   </td>
-                  <td th:if="${tva.amount ge 1000}" th:text="${ #numbers.formatInteger(tva.amount,3,'WHITESPACE')  +' FCFA'}"></td>
-                  <td th:if="${tva.amount lt 1000}" th:text="${ tva.amount +' FCFA'}"></td>
+                  <td th:if="${tva.amount ge 1000}" th:text="${ #numbers.formatInteger(tva.amount,3,'WHITESPACE')  +' '+devise}"></td>
+                  <td th:if="${tva.amount lt 1000}" th:text="${ tva.amount +' '+devise}"></td>
                 </tr>
 
                 <tr th:if="${sale.taxAmount gt 0}">
                   <td colspan="3"></td>
                   <td colspan="2">TOTAL TVA</td>
-                  <td th:if="${sale.taxAmount ge 1000}" th:text="${ #numbers.formatInteger(sale.taxAmount,3,'WHITESPACE') +' FCFA'}"></td>
-                  <td th:if="${sale.taxAmount lt 1000}" th:text="${ sale.taxAmount +' FCFA'}"></td>
+                  <td th:if="${sale.taxAmount ge 1000}" th:text="${ #numbers.formatInteger(sale.taxAmount,3,'WHITESPACE') +' '+devise}"></td>
+                  <td th:if="${sale.taxAmount lt 1000}" th:text="${ sale.taxAmount +' '+devise}"></td>
                 </tr>
                 <tr>
                   <td colspan="3"></td>
                   <td colspan="2">GRAND TOTAL</td>
                   <td
                     th:if="${sale.salesAmount ge 1000}"
-                    th:text="${ #numbers.formatInteger(sale.salesAmount,3,'WHITESPACE') +' FCFA'}"
+                    th:text="${ #numbers.formatInteger(sale.salesAmount,3,'WHITESPACE') +' '+devise}"
                   ></td>
-                  <td th:if="${sale.salesAmount lt 1000}" th:text="${ sale.salesAmount +' FCFA'}"></td>
+                  <td th:if="${sale.salesAmount lt 1000}" th:text="${ sale.salesAmount +' '+devise}"></td>
                 </tr>
               </tfoot>
             </table>
@@ -288,10 +288,10 @@
                 class="notice"
                 style="text-align: left; font-weight: 700"
                 th:if="${sale.netAmount ge 1000}"
-                th:text="${' Arrêté la présente facture à la somme de '+ #numbers.formatInteger( sale.netAmount ,3,'WHITESPACE')+' FCFA'}"
+                th:text="${' Arrêté la présente facture à la somme de '+ #numbers.formatInteger( sale.netAmount ,3,'WHITESPACE')+' '+devise}"
               ></div>
               <div class="notice" style="text-align: center; font-weight: 700" th:if="${sale.netAmount lt 1000}">
-                <h2 th:text="${' Arrêté la présente facture à la somme de '+  sale.netAmount +' FCFA'}"></h2>
+                <h2 th:text="${' Arrêté la présente facture à la somme de '+  sale.netAmount +' '+devise}"></h2>
               </div>
             </div>
           </main>

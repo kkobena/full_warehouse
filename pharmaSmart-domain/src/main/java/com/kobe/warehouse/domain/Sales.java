@@ -137,6 +137,13 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
     @Column(name = "to_ignore", nullable = false)
     private boolean toIgnore = false;
 
+    /**
+     * Ponction ayant réduit le montant déclarable de cette vente, {@code null} si aucune.
+     *
+     */
+    @Column(name = "ponction_id", insertable = false, updatable = false)
+    private Integer ponctionId;
+
     @Column(name = "copy", nullable = false)
     private boolean copy = false;
 
@@ -435,6 +442,11 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
     public Sales setToIgnore(boolean toIgnore) {
         this.toIgnore = toIgnore;
         return this;
+    }
+
+    /** Lecture seule : la valeur est posée par le traitement de ponction, jamais par l'entité. */
+    public Integer getPonctionId() {
+        return ponctionId;
     }
 
     public boolean isCopy() {

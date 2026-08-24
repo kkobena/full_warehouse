@@ -1384,12 +1384,7 @@ table tfoot tr td {
   z-index: 1052;
 }
 
-/* ─── Chrome de navigation ───────────────────────────────────────────────────
-   Palette partagée par la navbar horizontale, le rail vertical et leurs
-   panneaux de sous-menu. Valeurs issues de la sidebar, promues en tokens pour
-   que les deux barres ne divergent plus.
-   Ce vocabulaire remplace `--pharma-navbar-bg`, qui portait le teal Bootswatch
-   et n'était consommé que par la navbar. */
+
 :root {
   --pharma-nav-bg: #2c3e50;
   --pharma-nav-bg-hover: #34495e;

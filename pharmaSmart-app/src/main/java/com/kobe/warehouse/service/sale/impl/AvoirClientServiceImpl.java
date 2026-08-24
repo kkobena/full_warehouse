@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.sale.impl;
 
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.Customer;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.SalesLine;
@@ -43,7 +44,7 @@ public class AvoirClientServiceImpl implements AvoirClientService {
         String customerName = customer != null
             ? (customer.getFirstName() + " " + Objects.requireNonNullElse(customer.getLastName(), "")).strip()
             : null;
-        String sellerName = sale.getSeller().getFirstName() + " " + sale.getSeller().getLastName();
+        String sellerName = AppUserNames.fullName(sale.getSeller());
         FournisseurProduit fp = sl.getProduit().getFournisseurProduitPrincipal();
         String codeCip = fp != null ? fp.getCodeCip() : sl.getProduit().getCodeEanLaboratoire();
         int montant = sl.getQuantityAvoir() * sl.getNetUnitPrice();

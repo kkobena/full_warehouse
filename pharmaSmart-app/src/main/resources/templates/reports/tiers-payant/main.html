@@ -13,7 +13,7 @@
         <!-- Total Summary -->
         <div class="total-summary">
           <strong>Créances totales:</strong>
-          <span th:text="${#numbers.formatDecimal(totalCreances, 1, 'DEFAULT', 0, 'DEFAULT')} + ' FCFA'"></span>
+          <span th:text="${#numbers.formatDecimal(totalCreances, 1, 'DEFAULT', 0, 'DEFAULT')} +' '+${devise}"></span>
         </div>
 
         <!-- Summary by Group Section -->

@@ -34,6 +34,7 @@ import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.UtilisationCleSecuriteService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
+import com.kobe.warehouse.service.declaration_ca.DeclarationCaService;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
@@ -77,6 +78,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -106,6 +108,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     private final ThirdPartyClientManager thirdPartyClientManager;
     private final ThirdPartyCalculationManager thirdPartyCalculationManager;
     private final AssuredCustomerManager assuredCustomerManager;
+    private final DeclarationCaService declarationCaService;
 
     public ThirdPartySaleServiceImpl(ThirdPartySaleLineService thirdPartySaleLineService,
                                      ClientTiersPayantRepository clientTiersPayantRepository,
@@ -122,7 +125,8 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
                                      ThirdPartyClientManager thirdPartyClientManager,
                                      ThirdPartyCalculationManager thirdPartyCalculationManager,
                                      AssuredCustomerManager assuredCustomerManager,
-                                     AppConfigurationService appConfigurationService) {
+                                      AppConfigurationService appConfigurationService,
+                                      DeclarationCaService declarationCaService) {
         super(referenceService, storageService, userRepository, saleLineServiceFactory,
             cashRegisterService, posteRepository, afficheurPosService, idGeneratorService,
             objectMapper, appConfigurationService);
@@ -144,6 +148,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         this.thirdPartyClientManager = thirdPartyClientManager;
         this.thirdPartyCalculationManager = thirdPartyCalculationManager;
         this.assuredCustomerManager = assuredCustomerManager;
+        this.declarationCaService = declarationCaService;
     }
 
     @Override
@@ -366,6 +371,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         new ArrayList<>(p.getThirdPartySaleLines()).stream()
             .min(Comparator.comparing(e -> e.getClientTiersPayant().getPriorite().getValue()))
             .ifPresent(o -> p.setNumBon(o.getNumBon()));
+        declarationCaService.appliquerExclusions(p);
         thirdPartySaleRepository.save(p);
         return new FinalyseSaleDTO(p.getId(), true);
     }
@@ -482,6 +488,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         ThirdPartySales c = new ThirdPartySales();
         setId(c);
         c.setSalesAmount(cashSale.getSalesAmount());
+        c.setAmountToBeTakenIntoAccount(Objects.requireNonNullElse(cashSale.getAmountToBeTakenIntoAccount(), 0));
         c.setOrigineVente(OrigineVente.DIRECT);
         c.setCostAmount(cashSale.getCostAmount());
         c.setNumberTransaction(cashSale.getNumberTransaction());
@@ -629,6 +636,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         new ArrayList<>(p.getThirdPartySaleLines()).stream()
             .min(Comparator.comparing(e -> e.getClientTiersPayant().getPriorite().getValue()))
             .ifPresent(o -> p.setNumBon(o.getNumBon()));
+        declarationCaService.appliquerExclusions(p);
         thirdPartySaleRepository.save(p);
         return new FinalyseSaleDTO(p.getId(), true);
     }

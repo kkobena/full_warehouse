@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -14,6 +14,7 @@ import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ng
 
 @Component({
   selector: 'app-bed-lignes',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './bed-lignes.component.html',
   styleUrls: ['./bed-lignes.component.scss'],
   imports: [
@@ -34,8 +35,8 @@ export class BedLignesComponent {
   readonly retour = output<void>();
 
   readonly selectedProduit = signal<ProduitSearch | null>(null);
-  protected ligneQuantite = 1;
-  protected lignePrixAchat = 0;
+  protected readonly ligneQuantite = signal(1);
+  protected readonly lignePrixAchat = signal(0);
   readonly produitSuggestions = signal<ProduitSearch[]>([]);
   readonly addingLigne = signal(false);
 
@@ -71,13 +72,13 @@ export class BedLignesComponent {
 
   onProduitSelect(produit: ProduitSearch | null): void {
     this.selectedProduit.set(produit);
-    this.lignePrixAchat = produit?.fournisseurProduit?.prixAchat ?? 0;
+    this.lignePrixAchat.set(produit?.fournisseurProduit?.prixAchat ?? 0);
   }
 
   onAjouterLigne(): void {
     const bed = this.bed();
     const produit = this.selectedProduit();
-    if (!bed?.id || !produit || this.ligneQuantite <= 0) {
+    if (!bed?.id || !produit || this.ligneQuantite() <= 0) {
       this.notificationService.error('Sélectionnez un produit et une quantité valide', 'Validation');
       return;
     }
@@ -89,8 +90,8 @@ export class BedLignesComponent {
     this.addingLigne.set(true);
     const ligne: IBedLigne = {
       fournisseurProduitId: fp.id,
-      quantite: this.ligneQuantite,
-      prixAchat: this.lignePrixAchat,
+      quantite: this.ligneQuantite(),
+      prixAchat: this.lignePrixAchat(),
       prixVente: fp.prixUni,
     };
     this.bedService
@@ -103,8 +104,8 @@ export class BedLignesComponent {
         next: updated => {
           this.bedUpdated.emit(updated);
           this.selectedProduit.set(null);
-          this.ligneQuantite = 1;
-          this.lignePrixAchat = 0;
+          this.ligneQuantite.set(1);
+          this.lignePrixAchat.set(0);
         },
         error: () => this.notificationService.error("Erreur lors de l'ajout de la ligne", 'Erreur'),
       });

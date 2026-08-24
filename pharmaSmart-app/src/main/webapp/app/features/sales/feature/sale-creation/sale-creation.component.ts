@@ -39,7 +39,6 @@ import {CustomerDisplayService} from '../../data-access/services/customer-displa
 import {NotificationService} from '../../../../shared/services/notification.service';
 import {ICustomer, IRemise, ISalesLine, ProduitSearch} from '../../../../shared/model';
 import {IUser} from '../../../../core/user/user.model';
-import {UserVendeurService} from '../../../../entities/sales/service/user-vendeur.service';
 import {
   createDeconditionnementHandling,
   createForceStockHandling,
@@ -69,7 +68,7 @@ import {SaleForEditInfo} from '../../../../shared/model/sales.model';
   host: {
     '(window:keydown)': 'handleKeyboardEvent($event)',
   },
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -126,12 +125,9 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   // State depuis le store (signals computed)
   currentSale = this.facade.currentSale;
   salesLines = this.facade.salesLines;
-  selectedCustomer = this.facade.selectedCustomer;
   selectedProduct = this.facade.selectedProduct;
   canSave = this.facade.canSave;
   isSaving = this.facade.isSaving;
-  loading = this.facade.loading;
-  protected userVendeurService = inject(UserVendeurService);
   private authorizationService = inject(AuthorizationService);
   private notificationService = inject(NotificationService);
   private customerDisplay = inject(CustomerDisplayService);

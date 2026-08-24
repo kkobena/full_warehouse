@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {ButtonComponent} from '../ui';
@@ -28,7 +28,7 @@ interface CategoryDisplay {
     <div class="modal-header">
       <h4 class="modal-title">
         <i class="bi bi-keyboard"></i> Raccourcis Clavier - PharmaSmart
-        @if (isRunningInTauri) {
+        @if (isRunningInTauri()) {
           <span class="badge bg-success ms-2">Mode Desktop</span>
         } @else {
           <span class="badge bg-info ms-2">Mode Web</span>
@@ -39,9 +39,9 @@ interface CategoryDisplay {
 
     <div class="modal-body">
       <!-- Environment Info -->
-      <div [class]="isRunningInTauri ? 'alert alert-success mb-4' : 'alert alert-info mb-4'">
+      <div [class]="isRunningInTauri() ? 'alert alert-success mb-4' : 'alert alert-info mb-4'">
         <i class="bi bi-info-circle"></i>
-        @if (isRunningInTauri) {
+        @if (isRunningInTauri()) {
           <strong>Mode Application
             :</strong> Vous avez accès à tous les raccourcis, y compris les raccourcis Ctrl avancés qui ne
             sont pas disponibles dans le navigateur.
@@ -76,7 +76,7 @@ interface CategoryDisplay {
 
       <!-- Shortcuts Grid -->
       <div class="shortcuts-grid">
-        @for (category of sortedCategories; track category.title) {
+        @for (category of sortedCategories(); track category.title) {
           <div class="shortcut-category mb-4"
                [class.desktop-only]="category.title.includes('Desktop')">
             <h5 class="category-title">
@@ -129,7 +129,7 @@ interface CategoryDisplay {
       <div class="tips-section mt-4 p-3 bg-light rounded">
         <h6 class="mb-3"><i class="bi bi-star-fill text-warning"></i> Conseils d'Utilisation</h6>
         <ul class="small mb-0">
-          @if (isRunningInTauri) {
+          @if (isRunningInTauri()) {
             <li><strong>Mode Expert :</strong> Les raccourcis Ctrl permettent un flux de travail
               ultra-rapide
             </li>
@@ -160,7 +160,7 @@ interface CategoryDisplay {
         <div class="d-flex flex-wrap gap-3">
           <span><span class="badge bg-danger">Essentiel</span> = Raccourci indispensable</span>
           <span><span class="badge bg-danger">Important</span> = Très utilisé</span>
-          @if (isRunningInTauri) {
+          @if (isRunningInTauri()) {
             <span><span class="badge bg-success">Desktop</span> = Exclusif application</span>
             <span><span class="badge bg-warning">Admin</span> = Droits requis</span>
           } @else {
@@ -184,7 +184,7 @@ interface CategoryDisplay {
                   severity="primary" type="button"></app-button>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
     `
       .modal-body {
@@ -423,12 +423,12 @@ export class ShortcutsHelpDialogComponent implements OnInit {
   public activeModal = inject(NgbActiveModal);
   public shortcutsService?: ShortcutsProvider;
 
-  sortedCategories: CategoryDisplay[] = [];
-  isRunningInTauri = false;
+  protected readonly sortedCategories = signal<CategoryDisplay[]>([]);
+  protected readonly isRunningInTauri = signal(false);
 
   ngOnInit(): void {
     if (this.shortcutsService) {
-      this.isRunningInTauri = this.shortcutsService.isRunningInTauri();
+      this.isRunningInTauri.set(this.shortcutsService.isRunningInTauri());
       this.loadDynamicShortcuts();
     }
   }
@@ -464,7 +464,7 @@ export class ShortcutsHelpDialogComponent implements OnInit {
     });
 
     // Sort categories by order
-    this.sortedCategories = categories.sort((a, b) => a.order - b.order);
+    this.sortedCategories.set(categories.sort((a, b) => a.order - b.order));
   }
 
   private convertToDisplay(shortcut: KeyboardShortcut): ShortcutDisplay {

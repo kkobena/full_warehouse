@@ -11,9 +11,11 @@ import StockABCComponent from '../stock-abc/stock-abc.component';
 import DemarqueComponent from '../demarque/demarque.component';
 import { SkeletonComponent } from 'app/shared/ui/skeleton/skeleton.component';
 
+import { NavSidebarComponent } from 'app/shared/ui/nav-sidebar/nav-sidebar.component';
+import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-link.component';
 @Component({
   selector: 'app-stock-reports',
-  imports: [
+  imports: [NavSidebarComponent, NavSectionLinkComponent, 
     CommonModule,
     NgbNavModule,
     StockAlertsComponent,
@@ -24,12 +26,15 @@ import { SkeletonComponent } from 'app/shared/ui/skeleton/skeleton.component';
     SkeletonComponent,
   ],
   templateUrl: './stock-reports.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './stock-reports.component.scss',
 })
 export default class StockReportsComponent implements OnInit {
   active = signal<string>('stock-alerts');
 
+
+  /** Menu replié : ces rapports affichent de larges tableaux et graphiques. */
+  protected readonly menuReplie = signal(false);
   private readonly ability = inject(AbilityService);
 
   protected readonly showStockAlerts = this.ability.canSignal('display', 'rapport-stock.stock-alerts');

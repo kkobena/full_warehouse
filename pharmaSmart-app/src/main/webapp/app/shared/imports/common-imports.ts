@@ -7,10 +7,13 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
-// Composants du Design System (remplacent les anciens modules PrimeNG)
-// NgbModule couvre déjà le remplacement de TooltipModule (NgbTooltip est inclus).
-// DividerModule n'a pas d'équivalent : un simple <hr> suffit dans les templates.
-import {ButtonComponent, CardComponent, DataTableComponent, SelectSearchComponent} from 'app/shared/ui';
+
+import {
+  ButtonComponent,
+  CardComponent,
+  DataTableComponent,
+  SelectSearchComponent
+} from 'app/shared/ui';
 
 // Contrôle d'accès fin (ABAC)
 import {HasAbilityDirective} from 'app/shared/auth/has-ability.directive';
@@ -26,7 +29,6 @@ export const COMMON_IMPORTS = [
   ReactiveFormsModule,
   FontAwesomeModule,
   NgbModule,
-  // Design System (remplace les anciens modules PrimeNG)
   ButtonComponent,
   DataTableComponent,
   CardComponent,

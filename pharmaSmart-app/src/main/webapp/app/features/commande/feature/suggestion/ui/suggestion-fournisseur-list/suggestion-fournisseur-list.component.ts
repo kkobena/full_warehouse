@@ -1,14 +1,22 @@
-import { Component, computed, input, output, signal, ChangeDetectionStrategy } from "@angular/core";
-import { CommonModule, DecimalPipe } from "@angular/common";
-import { FournisseurSuggestionSummary } from "../../data-access/suggestion-enrichie.model";
-import { DataTableComponent, HeaderCheckboxComponent, RowCheckboxComponent, SortableHeaderDirective } from "app/shared/ui";
-import { SuggestionFournisseurAction, SuggestionFournisseurActionsComponent } from "./suggestion-fournisseur-actions.component";
+import {ChangeDetectionStrategy, Component, computed, input, output, signal} from "@angular/core";
+import {CommonModule, DecimalPipe} from "@angular/common";
+import {FournisseurSuggestionSummary} from "../../data-access/suggestion-enrichie.model";
+import {
+  DataTableComponent,
+  HeaderCheckboxComponent,
+  RowCheckboxComponent,
+  SortableHeaderDirective
+} from "app/shared/ui";
+import {
+  SuggestionFournisseurAction,
+  SuggestionFournisseurActionsComponent
+} from "./suggestion-fournisseur-actions.component";
 
 @Component({
   selector: "app-suggestion-fournisseur-list",
   templateUrl: "./suggestion-fournisseur-list.component.html",
   styleUrls: ["./suggestion-fournisseur-list.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     DecimalPipe,
@@ -20,11 +28,21 @@ import { SuggestionFournisseurAction, SuggestionFournisseurActionsComponent } fr
   ],
 })
 export class SuggestionFournisseurListComponent {
+  // ── Row styling ────────────────────────────────────────────────────────────
+  private static readonly STATUT_STYLES: Record<string, { [k: string]: string }> = {
+    VALIDEE: {background: "#d1fae5", color: "#065f46"},
+    EN_ATTENTE_VALIDATION: {background: "#fef3c7", color: "#92400e"},
+    COMMANDEE: {background: "#dbeafe", color: "#1e40af"},
+  };
+  private static readonly STATUT_LABELS: Record<string, string> = {
+    VALIDEE: "Validée",
+    EN_ATTENTE_VALIDATION: "En attente",
+    COMMANDEE: "Commandée",
+  };
   // ── Inputs / Outputs ───────────────────────────────────────────────────────
   fournisseurs = input<FournisseurSuggestionSummary[]>([]);
   selected = input<FournisseurSuggestionSummary | null>(null);
   loading = input(false);
-
   fournisseurSelected = output<FournisseurSuggestionSummary>();
   supprimerSuggestionRequest = output<number>();
   supprimerSelectionRequest = output<number[]>();
@@ -35,17 +53,16 @@ export class SuggestionFournisseurListComponent {
   commanderRequest = output<FournisseurSuggestionSummary>();
   selectionCountChange = output<number>();
   canFusionnerChange = output<boolean>();
-
-  // ── Sélection multiple (native PrimeNG) ───────────────────────────────────
   readonly selectionMultiple = signal<FournisseurSuggestionSummary[]>([]);
   readonly selectionCount = computed(() => this.selectionMultiple().length);
   readonly canFusionner = computed(() => {
     const sel = this.selectionMultiple();
-    if (sel.length < 2) return false;
+    if (sel.length < 2) {
+      return false;
+    }
     const fId = sel[0].fournisseurId;
     return sel.every(f => f.fournisseurId === fId);
   });
-
   // ── Totaux ─────────────────────────────────────────────────────────────────
   readonly totalMontant = computed(() =>
     this.fournisseurs().reduce((s, f) => s + f.montantEstime, 0),
@@ -53,19 +70,6 @@ export class SuggestionFournisseurListComponent {
   readonly totalUrgents = computed(() =>
     this.fournisseurs().reduce((s, f) => s + f.nbUrgents, 0),
   );
-
-  // ── Row styling ────────────────────────────────────────────────────────────
-  private static readonly STATUT_STYLES: Record<string, { [k: string]: string }> = {
-    VALIDEE: { background: "#d1fae5", color: "#065f46" },
-    EN_ATTENTE_VALIDATION: { background: "#fef3c7", color: "#92400e" },
-    COMMANDEE: { background: "#dbeafe", color: "#1e40af" },
-  };
-
-  private static readonly STATUT_LABELS: Record<string, string> = {
-    VALIDEE: "Validée",
-    EN_ATTENTE_VALIDATION: "En attente",
-    COMMANDEE: "Commandée",
-  };
 
   getRowClass(f: FournisseurSuggestionSummary): Record<string, boolean> {
     const isActive = this.selected()?.suggestionId === f.suggestionId;
@@ -76,7 +80,9 @@ export class SuggestionFournisseurListComponent {
   }
 
   getStatutStyle(statut: string | null | undefined): { [key: string]: string } {
-    if (!statut) return {};
+    if (!statut) {
+      return {};
+    }
     return (
       SuggestionFournisseurListComponent.STATUT_STYLES[statut] ?? {
         background: "#f3f4f6",
@@ -103,12 +109,24 @@ export class SuggestionFournisseurListComponent {
 
   onSuggestionMenuAction(action: SuggestionFournisseurAction, f: FournisseurSuggestionSummary): void {
     switch (action) {
-      case 'editer':     this.onRowClick(f); break;
-      case 'valider':    this.onValider(f); break;
-      case 'commander':  this.onCommander(f); break;
-      case 'exportPdf':  this.onExportPdf(f); break;
-      case 'exportCsv':  this.onExportCsv(f); break;
-      case 'supprimer':  this.onSupprimer(f); break;
+      case 'editer':
+        this.onRowClick(f);
+        break;
+      case 'valider':
+        this.onValider(f);
+        break;
+      case 'commander':
+        this.onCommander(f);
+        break;
+      case 'exportPdf':
+        this.onExportPdf(f);
+        break;
+      case 'exportCsv':
+        this.onExportCsv(f);
+        break;
+      case 'supprimer':
+        this.onSupprimer(f);
+        break;
     }
   }
 
@@ -129,7 +147,9 @@ export class SuggestionFournisseurListComponent {
   }
 
   onSupprimer(f: FournisseurSuggestionSummary): void {
-    if (f.suggestionId) this.supprimerSuggestionRequest.emit(f.suggestionId);
+    if (f.suggestionId) {
+      this.supprimerSuggestionRequest.emit(f.suggestionId);
+    }
   }
 
   // ── Bulk actions ───────────────────────────────────────────────────────────

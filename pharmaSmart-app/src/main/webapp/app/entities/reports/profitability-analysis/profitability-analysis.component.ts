@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy, input} from "@angular/core";
 import { HttpResponse } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
@@ -11,6 +11,8 @@ import {
   ButtonComponent,
   DataTableComponent,
   IconFieldComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   OffcanvasComponent,
   SelectComponent,
   ToolbarComponent
@@ -20,7 +22,7 @@ import {
   selector: "app-profitability-analysis",
   templateUrl: "./profitability-analysis.component.html",
   styleUrls: ["./profitability-analysis.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -30,10 +32,20 @@ import {
     IconFieldComponent,
     OffcanvasComponent,
     SelectComponent,
-    ToolbarComponent
+    ToolbarComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ]
 })
 export default class ProfitabilityAnalysisComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : ce rapport est parfois atteint depuis deux menus, qui ne le nomment
+   * pas de la même façon. Le titre suit celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   protected products = signal<IMargeDTO[]>([]);
   protected summary = signal<IMargeSummary | null>(null);
   protected isLoading = signal<boolean>(false);
@@ -47,8 +59,8 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
   protected seuilFaibleMarge = 10;
 
   // Pagination
-  protected pageSize = 20;
-  protected first = 0;
+  protected readonly pageSize = signal(20);
+  protected readonly first = signal(0);
 
 
   protected familleOptions = signal<{ label: string; value: number | null }[]>([
@@ -69,13 +81,13 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
 
     const req = {
       page,
-      size: this.pageSize,
+      size: this.pageSize(),
       familleProduitId: this.selectedFamilleId() ?? undefined,
       search: this.searchQuery() || undefined
     };
 
     const obs = this.showFaibleMarge()
-      ? this.margeService.getFaibleMarge(this.seuilFaibleMarge, { page, size: this.pageSize })
+      ? this.margeService.getFaibleMarge(this.seuilFaibleMarge, { page, size: this.pageSize() })
       : this.margeService.getMarges(req);
 
     obs.subscribe({
@@ -102,7 +114,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
 
   protected onFilterChange(): void {
     this.showFaibleMarge.set(false);
-    this.first = 0;
+    this.first.set(0);
     this.loadProducts(0);
     this.loadSummary();
   }
@@ -110,7 +122,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
   protected onSearchChange(value: string): void {
     this.searchQuery.set(value);
     this.showFaibleMarge.set(false);
-    this.first = 0;
+    this.first.set(0);
     this.loadProducts(0);
   }
 
@@ -118,7 +130,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
     this.selectedFamilleId.set(null);
     this.searchQuery.set("");
     this.showFaibleMarge.set(false);
-    this.first = 0;
+    this.first.set(0);
     this.loadProducts(0);
     this.loadSummary();
   }
@@ -127,18 +139,18 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
     this.showFaibleMarge.set(true);
     this.selectedFamilleId.set(null);
     this.searchQuery.set("");
-    this.first = 0;
+    this.first.set(0);
     this.loadProducts(0);
   }
 
   protected onPageChange(event: any): void {
-    this.first = event.first;
-    this.pageSize = event.rows;
+    this.first.set(event.first);
+    this.pageSize.set(event.rows);
     this.loadProducts(event.first / event.rows);
   }
 
   protected onSort(event: any): void {
-    this.first = 0;
+    this.first.set(0);
     this.loadProducts(0);
   }
 

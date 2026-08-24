@@ -15,9 +15,10 @@ import { ModifRetourProduitService } from "../../motif-retour-produit/motif-reto
 import { RetourBonService } from "../../commande/retour_fournisseur/retour-bon.service";
 import { NotificationService } from "../../../shared/services/notification.service";
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: "jhi-retour-groupe-perime-dialog",
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     ReactiveFormsModule,
     ButtonComponent,
@@ -26,7 +27,7 @@ import { NotificationService } from "../../../shared/services/notification.servi
     DataTableComponent
   ],
   templateUrl: "./retour-groupe-perime-dialog.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ["./retour-lot-pereme-groupe.scss"]
 })
 export class RetourGroupePerimeDialogComponent implements OnInit {

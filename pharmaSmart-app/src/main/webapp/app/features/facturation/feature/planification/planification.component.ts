@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { ButtonComponent } from '../../../../shared/ui';
 
@@ -10,19 +10,19 @@ import { PlanifTabFacturesComponent, PlanifTabFneComponent } from './ui';
   providers: [PlanificationStateService],
   imports: [ButtonComponent, NgbNavModule, PlanifTabFacturesComponent, PlanifTabFneComponent],
   templateUrl: './planification.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './planification.component.scss',
 })
 export class PlanificationComponent implements OnInit {
   protected readonly state = inject(PlanificationStateService);
-  protected activeMainTab = 'def';
+  protected readonly activeMainTab = signal('def');
 
   ngOnInit(): void {
     this.state.load();
   }
 
   protected onMainTabChange(tab: string): void {
-    this.activeMainTab = tab;
+    this.activeMainTab.set(tab);
     this.state.onMainTabChange(tab);
   }
 }

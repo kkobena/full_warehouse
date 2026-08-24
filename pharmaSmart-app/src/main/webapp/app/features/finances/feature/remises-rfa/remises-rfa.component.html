@@ -1,5 +1,5 @@
 <div class="pharma-smart-content p-2">
-  <app-toolbar icon="pi pi-tag" title="Remises & RFA" [compact]="true">
+  <app-toolbar [code]="navCode()" icon="pi pi-tag" title="Remises & RFA" [compact]="true">
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-toolbar-actions">
         <app-button icon="pi pi-refresh" severity="secondary"  [text]="true" [rounded]="true" (clicked)="load()" [loading]="isLoading()" />
@@ -44,7 +44,7 @@
                     </div>
                   }
                 </td>
-                <td class="text-end">{{ r.palierRfa ? formatCurrency(r.palierRfa) + ' FCFA' : '—' }}</td>
+                <td class="text-end">{{ r.palierRfa ? (r.palierRfa | devise) : '—' }}</td>
                 <td class="text-end">{{ formatCurrency(r.caCommandeN) }}</td>
                 <td class="text-end">
                   <div class="progress-rfa">
@@ -93,7 +93,7 @@
                 <td>{{ a.fournisseurName }}</td>
                 <td><code>{{ a.numAvoir }}</code></td>
                 <td>{{ a.dateAvoir }}</td>
-                <td class="text-end fw-semibold">{{ formatCurrency(a.montant) }} FCFA</td>
+                <td class="text-end fw-semibold">{{ formatCurrency(a.montant) }} <span appDevise></span></td>
                 <td>
                   <app-badge [label]="a.statut"
                          [severity]="a.statut === 'RECU' ? 'success' : a.statut === 'EN_ATTENTE' ? 'warn' : 'secondary'" />

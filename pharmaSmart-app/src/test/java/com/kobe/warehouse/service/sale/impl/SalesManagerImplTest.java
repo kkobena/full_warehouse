@@ -153,7 +153,7 @@ class SalesManagerImplTest {
         testCashSale.getSalesLines().add(testSalesLine);
 
         when(salesLineService.getOneById(any())).thenReturn(testSalesLine);
-        doNothing().when(salesLineService).updateItemQuantityRequested(any(), any(), anyInt());
+        doNothing().when(salesLineService).incrementItemQuantityRequested(any(), any(), anyInt());
         doNothing().when(saleService).upddateCashSaleAmounts(any());
 
         // When
@@ -161,10 +161,27 @@ class SalesManagerImplTest {
 
         // Then
         assertNotNull(result);
-        verify(salesLineService).updateItemQuantityRequested(eq(dto), eq(testSalesLine), eq(1));
+        verify(salesLineService).incrementItemQuantityRequested(eq(dto), eq(testSalesLine), eq(1));
         verify(saleService).upddateCashSaleAmounts(testCashSale);
         verify(cashSaleRepository).saveAndFlush(testCashSale);
         verify(customerDisplayService).displaySaleTotal(testCashSale.getNetAmount());
+    }
+
+    @Test
+    void testUpdateItemQuantityRequested_WithoutIncrement() {
+        SaleLineDTO dto = new SaleLineDTO();
+        dto.setSaleLineId(new SaleLineId(1L, testDate));
+        dto.setQuantityRequested(4);
+        testSalesLine.setSales(testCashSale);
+        when(salesLineService.getOneById(dto.getSaleLineId())).thenReturn(testSalesLine);
+
+        SaleLineDTO result = salesManager.updateItemQuantityRequested(dto, testCashSale, false);
+
+        assertNotNull(result);
+        verify(salesLineService).updateItemQuantityRequested(dto, testSalesLine, 1);
+        verify(salesLineService, never()).incrementItemQuantityRequested(any(), any(), anyInt());
+        verify(saleService).upddateCashSaleAmounts(testCashSale);
+        verify(cashSaleRepository).saveAndFlush(testCashSale);
     }
 
     @Test
@@ -179,7 +196,7 @@ class SalesManagerImplTest {
         testThirdPartySale.getSalesLines().add(testSalesLine);
 
         when(salesLineService.getOneById(any())).thenReturn(testSalesLine);
-        doNothing().when(salesLineService).updateItemQuantityRequested(any(), any(), anyInt());
+        doNothing().when(salesLineService).incrementItemQuantityRequested(any(), any(), anyInt());
         when(thirdPartySaleService.computeThirdPartySaleAmounts(any())).thenReturn(null);
 
         // When
@@ -187,7 +204,7 @@ class SalesManagerImplTest {
 
         // Then
         assertNotNull(result);
-        verify(salesLineService).updateItemQuantityRequested(eq(dto), eq(testSalesLine), eq(1));
+        verify(salesLineService).incrementItemQuantityRequested(eq(dto), eq(testSalesLine), eq(1));
         verify(thirdPartySaleService).computeThirdPartySaleAmounts(testThirdPartySale);
         verify(customerDisplayService).displaySaleTotal(testThirdPartySale.getPartAssure());
     }
@@ -204,7 +221,7 @@ class SalesManagerImplTest {
         testVenteDepot.getSalesLines().add(testSalesLine);
 
         when(salesLineService.getOneById(any())).thenReturn(testSalesLine);
-        doNothing().when(salesLineService).updateItemQuantityRequested(any(), any(), anyInt());
+        doNothing().when(salesLineService).incrementItemQuantityRequested(any(), any(), anyInt());
         doNothing().when(saleCommonService).computeSaleEagerAmount(any());
         doNothing().when(saleCommonService).proccessDiscount(any());
         doNothing().when(saleCommonService).arrondirMontantCaisse(any());
@@ -214,7 +231,7 @@ class SalesManagerImplTest {
 
         // Then
         assertNotNull(result);
-        verify(salesLineService).updateItemQuantityRequested(eq(dto), eq(testSalesLine), eq(1));
+        verify(salesLineService).incrementItemQuantityRequested(eq(dto), eq(testSalesLine), eq(1));
         verify(saleCommonService).computeSaleEagerAmount(testVenteDepot);
         verify(saleCommonService).proccessDiscount(testVenteDepot);
         verify(saleCommonService).arrondirMontantCaisse(testVenteDepot);
@@ -390,6 +407,18 @@ class SalesManagerImplTest {
     }
 
     @Test
+    void testDeleteSaleLineById_RejectsUnknownSaleSubtype() {
+        Sales unknownSale = new Sales();
+        unknownSale.setSalesLines(new HashSet<>());
+        testSalesLine.setSales(unknownSale);
+        unknownSale.getSalesLines().add(testSalesLine);
+
+        assertThrows(IllegalStateException.class, () -> salesManager.deleteSaleLineById(testSalesLine));
+
+        verify(salesLineService).deleteSaleLine(testSalesLine);
+    }
+
+    @Test
     void testUpdateItemQuantityRequested_ThrowsPlafondVenteException() {
         // Given
         SaleLineDTO dto = new SaleLineDTO();
@@ -403,7 +432,7 @@ class SalesManagerImplTest {
         testThirdPartySale.setPayments(new HashSet<>());
 
         when(salesLineService.getOneById(any())).thenReturn(testSalesLine);
-        doNothing().when(salesLineService).updateItemQuantityRequested(any(), any(), anyInt());
+        doNothing().when(salesLineService).incrementItemQuantityRequested(any(), any(), anyInt());
         when(thirdPartySaleService.computeThirdPartySaleAmounts(any())).thenReturn("Plafond dépassé");
 
         // When & Then

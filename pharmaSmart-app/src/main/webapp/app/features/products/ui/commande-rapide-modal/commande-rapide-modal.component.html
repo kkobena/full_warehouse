@@ -51,7 +51,7 @@
       <label class="form-label cr-label">Fournisseur <span class="text-danger">*</span></label>
       <app-select
         [items]="fournisseurs()"
-        [(ngModel)]="selectedFournisseurProduit"
+        [ngModel]="selectedFournisseurProduit()" (ngModelChange)="selectedFournisseurProduit.set($event)"
         bindLabel="fournisseurLibelle"
         (selectionChange)="onFournisseurChange()"
         placeholder="Sélectionner un fournisseur..."
@@ -59,28 +59,28 @@
       />
     </div>
 
-    @if (selectedFournisseurProduit) {
+    @if (selectedFournisseurProduit()) {
       <div class="cr-details-row mb-3">
         <div class="cr-detail-item">
           <span class="cr-detail-label">Prix d'achat</span>
-          <span class="cr-detail-value">{{ selectedFournisseurProduit.prixAchat | number:'1.0-0' }} F</span>
+          <span class="cr-detail-value">{{ selectedFournisseurProduit().prixAchat | number:'1.0-0' }} F</span>
         </div>
-        @if (selectedFournisseurProduit.prixUni) {
+        @if (selectedFournisseurProduit().prixUni) {
           <div class="cr-detail-item">
             <span class="cr-detail-label">Prix uni frs</span>
-            <span class="cr-detail-value">{{ selectedFournisseurProduit.prixUni | number:'1.0-0' }} F</span>
+            <span class="cr-detail-value">{{ selectedFournisseurProduit().prixUni | number:'1.0-0' }} F</span>
           </div>
         }
-        @if (selectedFournisseurProduit.qteColis) {
+        @if (selectedFournisseurProduit().qteColis) {
           <div class="cr-detail-item">
             <span class="cr-detail-label">Qté / colis</span>
-            <span class="cr-detail-value">{{ selectedFournisseurProduit.qteColis }}</span>
+            <span class="cr-detail-value">{{ selectedFournisseurProduit().qteColis }}</span>
           </div>
         }
-        @if (selectedFournisseurProduit.qteMinimaleCommande) {
+        @if (selectedFournisseurProduit().qteMinimaleCommande) {
           <div class="cr-detail-item">
             <span class="cr-detail-label">Qté min</span>
-            <span class="cr-detail-value">{{ selectedFournisseurProduit.qteMinimaleCommande }}</span>
+            <span class="cr-detail-value">{{ selectedFournisseurProduit().qteMinimaleCommande }}</span>
           </div>
         }
       </div>
@@ -89,13 +89,13 @@
     <div class="mb-3">
       <label class="form-label cr-label">Quantité <span class="text-danger">*</span></label>
       <app-input-number #quantiteInput
-        [(ngModel)]="quantite"
+        [ngModel]="quantite()" (ngModelChange)="quantite.set($event)"
         [min]="1"
         [showButtons]="true"
       />
     </div>
 
-    @if (selectedFournisseurProduit?.prixAchat && quantite > 0) {
+    @if (selectedFournisseurProduit()?.prixAchat && quantite() > 0) {
       <div class="cr-total">
         <span class="cr-total-label">Montant estimé (achat)</span>
         <span class="cr-total-value">{{ totalEstime | number:'1.0-0' }} F</span>
@@ -118,7 +118,7 @@
     label="Commander"
     icon="pi pi-check"
     size="small"
-    [disabled]="!selectedFournisseurProduit || quantite < 1 || loading()"
+    [disabled]="!selectedFournisseurProduit() || quantite() < 1 || loading()"
     [loading]="submitting()"
     (clicked)="onSubmit()"
   />

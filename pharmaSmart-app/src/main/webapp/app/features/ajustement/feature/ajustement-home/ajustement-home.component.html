@@ -25,7 +25,7 @@
           (selectionChange)="onSearch()"
           [(ngModel)]="user"
           [appendTo]="appendTo"
-          [items]="users"
+          [items]="users()"
           bindLabel="abbrName"
           inputId="userFilter"
           placeholder="Opérateur"

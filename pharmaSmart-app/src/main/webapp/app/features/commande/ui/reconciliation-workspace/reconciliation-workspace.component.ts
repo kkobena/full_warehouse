@@ -21,7 +21,7 @@ import { ReconciliationFournisseurService } from "../../data-access/reconciliati
   selector: 'app-reconciliation-workspace',
   templateUrl: './reconciliation-workspace.component.html',
   styleUrls: ['./reconciliation-workspace.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -53,10 +53,10 @@ export class ReconciliationWorkspaceComponent implements OnInit {
   protected orderLines = signal<IOrderLine[]>([]);
   protected existing = signal<IReconciliationFactureFournisseur | null>(null);
 
-  protected factureReference = '';
-  protected factureDate: NgbDateStruct | null = null;
-  protected factureMontantHT: number | null = null;
-  protected factureTVA: number | null = null;
+  protected readonly factureReference = signal('');
+  protected readonly factureDate = signal<NgbDateStruct | null>(null);
+  protected readonly factureMontantHT = signal<number | null>(null);
+  protected readonly factureTVA = signal<number | null>(null);
 
   private static toNgbDate(date: Date): NgbDateStruct {
     return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
@@ -73,16 +73,16 @@ export class ReconciliationWorkspaceComponent implements OnInit {
         this.orderLines.set(((commande.body as any)?.orderLines ?? []) as IOrderLine[]);
         if (recon) {
           this.existing.set(recon);
-          this.factureReference = recon.factureReference ?? '';
-          this.factureDate = recon.factureDate ? ReconciliationWorkspaceComponent.toNgbDate(new Date(recon.factureDate)) : null;
-          this.factureMontantHT = recon.factureMontantHT ?? null;
-          this.factureTVA = recon.factureTVA ?? null;
+          this.factureReference.set(recon.factureReference ?? '');
+          this.factureDate.set(recon.factureDate ? ReconciliationWorkspaceComponent.toNgbDate(new Date(recon.factureDate)) : null);
+          this.factureMontantHT.set(recon.factureMontantHT ?? null);
+          this.factureTVA.set(recon.factureTVA ?? null);
         } else {
-          this.factureReference = (d as any).receiptReference ?? '';
+          this.factureReference.set((d as any).receiptReference ?? '');
           const rawDate = (d as any).receiptDate ?? (d as any).orderDate;
-          this.factureDate = rawDate ? ReconciliationWorkspaceComponent.toNgbDate(new Date(rawDate)) : null;
-          this.factureMontantHT = null;
-          this.factureTVA = (d as any).taxAmount ?? 0;
+          this.factureDate.set(rawDate ? ReconciliationWorkspaceComponent.toNgbDate(new Date(rawDate)) : null);
+          this.factureMontantHT.set(null);
+          this.factureTVA.set((d as any).taxAmount ?? 0);
         }
         this.loading.set(false);
       },
@@ -106,15 +106,15 @@ export class ReconciliationWorkspaceComponent implements OnInit {
   }
 
   protected get factureTTC(): number {
-    return (this.factureMontantHT ?? 0) + (this.factureTVA ?? 0);
+    return (this.factureMontantHT() ?? 0) + (this.factureTVA() ?? 0);
   }
 
   protected get ecartHT(): number {
-    return (this.factureMontantHT ?? 0) - this.blMontantHT;
+    return (this.factureMontantHT() ?? 0) - this.blMontantHT;
   }
 
   protected get ecartTVA(): number {
-    return (this.factureTVA ?? 0) - this.blTVA;
+    return (this.factureTVA() ?? 0) - this.blTVA;
   }
 
   protected get ecartTTC(): number {
@@ -126,7 +126,7 @@ export class ReconciliationWorkspaceComponent implements OnInit {
   }
 
   protected get canSave(): boolean {
-    return !!this.factureReference?.trim() && this.factureMontantHT !== null;
+    return !!this.factureReference()?.trim() && this.factureMontantHT() !== null;
   }
 
   protected onSubmit(): void {
@@ -134,10 +134,10 @@ export class ReconciliationWorkspaceComponent implements OnInit {
     const d = this.delivery();
     const cmdId = d.commandeId ?? { id: d.id!, orderDate: d.orderDate ?? d.receiptDate! };
     const cmd: IReconciliationCommand = {
-      factureReference: this.factureReference.trim(),
-      factureDate: NGB_DATE_TO_ISO(this.factureDate),
-      factureMontantHT: this.factureMontantHT!,
-      factureTVA: this.factureTVA ?? 0,
+      factureReference: this.factureReference().trim(),
+      factureDate: NGB_DATE_TO_ISO(this.factureDate()),
+      factureMontantHT: this.factureMontantHT()!,
+      factureTVA: this.factureTVA() ?? 0,
     };
     this.saving.set(true);
     this.reconciliationService.save(cmdId.id!, cmdId.orderDate!, cmd).subscribe({

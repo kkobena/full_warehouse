@@ -1,8 +1,8 @@
 <div class="pharma-smart-content p-1">
-  @if (customer) {
+  @if (customer()) {
     <h4 class="mb-3">
       <span jhiTranslate="warehouseApp.customer.detail.title">Client</span>
-      {{ customer.firstName + ' ' + customer.lastName }}
+      {{ customer().firstName + ' ' + customer().lastName }}
     </h4>
   }
 
@@ -17,7 +17,7 @@
         <ng-template ngbNavContent>
           <div class="row">
             <div class="col-4 ">
-              <app-card>   @if (sales && sales.length > 0) {
+              <app-card>   @if (sales() && sales().length > 0) {
                 <div class="table-responsive table-sm table-hover">
                   <table class="table table-striped">
                     <thead class="pharma-table-head">
@@ -31,9 +31,9 @@
                     </tr>
                     </thead>
                     <tbody>
-                      @for (sale of sales; track sale) {
+                      @for (sale of sales(); track sale) {
                         <tr (click)="clickRow(sale)"
-                            [class.active]="selectedRowIndex === sale.id">
+                            [class.active]="selectedRowIndex() === sale.id">
                           <td>{{ sale.numberTransaction }}</td>
                           <td>{{ sale.updatedAt | date: 'dd/MM/yyyy' }}</td>
                           <td class="text-end pharma-total">{{ sale.salesAmount | number }}</td>
@@ -48,31 +48,31 @@
             <div class="col-8 ">
               <app-card>
                 <jhi-alert-error></jhi-alert-error>
-                @if (saleSelected) {
+                @if (saleSelected()) {
                   <div class="card" id="print-area">
                     <div class="card-body" id="invoice-content">
                       <div class="invoice">
                         <div class="invoice-header">
-                          @if (magasin) {
+                          @if (magasin()) {
                             <div class="invoice-company">
-                              <div class="company-name">{{ magasin?.name }}</div>
-                              @if (magasin?.phone) {
-                                <div>{{ magasin?.phone }}</div>
+                              <div class="company-name">{{ magasin()?.name }}</div>
+                              @if (magasin()?.phone) {
+                                <div>{{ magasin()?.phone }}</div>
                               }
-                              @if (magasin?.address) {
-                                <div>{{ magasin?.address }}</div>
+                              @if (magasin()?.address) {
+                                <div>{{ magasin()?.address }}</div>
                               }
                             </div>
                           }
                           <div class="invoice-details">
                             <div class="invoice-label">DATE</div>
                             <div
-                              class="invoice-value">{{ saleSelected?.updatedAt | date: 'dd/MM/yyyy' }}
+                              class="invoice-value">{{ saleSelected()?.updatedAt | date: 'dd/MM/yyyy' }}
                             </div>
                             <div class="invoice-label"><span
                               jhiTranslate="warehouseApp.customer.detail.invoice">FACTURE</span> #
                             </div>
-                            <div class="invoice-value">{{ saleSelected?.numberTransaction }}</div>
+                            <div class="invoice-value">{{ saleSelected()?.numberTransaction }}</div>
                           </div>
                         </div>
                         <div class="invoice-to">
@@ -81,11 +81,11 @@
                           </div>
                           <div class="invoice-to-info">
                             <div>{{
-                                saleSelected?.customer?.firstName + ' '
-                                + saleSelected?.customer?.lastName
+                                saleSelected()?.customer?.firstName + ' '
+                                + saleSelected()?.customer?.lastName
                               }}
                             </div>
-                            <div>{{ saleSelected?.customer?.phone }}</div>
+                            <div>{{ saleSelected()?.customer?.phone }}</div>
                           </div>
                         </div>
                         <div class="invoice-items">
@@ -105,7 +105,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                              @for (saleLine of selectedRowSaleLines; track saleLine) {
+                              @for (saleLine of selectedRowSaleLines(); track saleLine) {
                                 <tr>
                                   <td><span
                                     class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
@@ -127,7 +127,7 @@
                           <div class="invoice-details">
                             <div class="invoice-label pharma-footer-label">TOTAL</div>
                             <div
-                              class="invoice-value pharma-footer-total">{{ saleSelected?.salesAmount | number }}
+                              class="invoice-value pharma-footer-total">{{ saleSelected()?.salesAmount | number }}
                             </div>
                           </div>
                         </div>
@@ -163,7 +163,7 @@
             </div>
           }
 
-          @if (avoirs.length === 0) {
+          @if (avoirs().length === 0) {
             <p class="text-muted">Aucun avoir pour ce client.</p>
           } @else {
             <div class="table-responsive table-sm">
@@ -180,7 +180,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                  @for (avoir of avoirs; track avoir.id) {
+                  @for (avoir of avoirs(); track avoir.id) {
                     <tr>
                       <td><code>{{ avoir.reference }}</code></td>
                       <td>{{ avoir.produitLibelle }}</td>
@@ -218,7 +218,7 @@
                       <td>
                         @if (avoir.id) {
                           <app-button
-                            (click)="openAvoirPdf(avoir.id)"
+                            (clicked)="openAvoirPdf(avoir.id)"
                             [text]="true"
                             icon="pi pi-file-pdf"
                             severity="secondary"
@@ -241,7 +241,7 @@
   <div class="mt-3">
     <app-button (clicked)="previousState()" icon="pi pi-arrow-left" label="Retour"
                 severity="secondary"></app-button>
-    @if (saleSelected) {
+    @if (saleSelected()) {
       <app-button (clicked)="print()" class="ms-2" icon="pi pi-print" label="Imprimer"
                   severity="warn" type="button"></app-button>
     }

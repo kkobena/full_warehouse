@@ -5,8 +5,7 @@ import {
   ElementRef,
   inject,
   OnInit,
-  viewChild
-} from '@angular/core';
+  viewChild, signal } from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {RemiseService} from '../remise.service';
@@ -22,7 +21,7 @@ import {ButtonComponent, CardComponent, SelectComponent} from '../../../shared/u
 
   imports: [ReactiveFormsModule, ButtonComponent, CardComponent, SelectComponent],
   templateUrl: './remise-produit-form-modal.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./remise-form-form.scss'],
 })
 export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
@@ -62,9 +61,9 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
     }),
   });
   protected entity: IRemise | null = null;
-  protected isSaving = false;
+  protected readonly isSaving = signal(false);
   protected title: string | null = null;
-  protected remisesCodes: CodeRemise[] = [];
+  protected readonly remisesCodes = signal<CodeRemise[]>([]);
 
   private readonly activeModal = inject(NgbActiveModal);
 
@@ -88,7 +87,7 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
     this.editForm.get('codeRemise').valueChanges.subscribe(value => {
       if (value) {
         // this.editForm.get('grilles').reset();
-        const cordeRemise = this.remisesCodes.find(code => code.value === value);
+        const cordeRemise = this.remisesCodes().find(code => code.value === value);
         this.addGrille(cordeRemise);
       }
     });
@@ -115,7 +114,7 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
   }
 
   protected save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const entity = this.createFromForm();
 
     if (entity.id) {
@@ -154,13 +153,13 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
     this.entityService.queryCodes().subscribe(async (res: HttpResponse<CodeRemise[]>) => {
       const codes = res.body.filter(code => code.value != '0') || [];
       const grilles = await this.fetchGrilles();
-      this.remisesCodes = codes.filter(code => !grilles.find(grille => grille.code === code.codeVo || grille.code === code.codeVno));
+      this.remisesCodes.set(codes.filter(code => !grilles.find(grille => grille.code === code.codeVo || grille.code === code.codeVno)));
     });
   }
 
   private fetchAllCode(): void {
     this.entityService.queryCodes().subscribe((res: HttpResponse<CodeRemise[]>) => {
-      this.remisesCodes = res.body.filter(code => code.value != '0') || [];
+      this.remisesCodes.set(res.body.filter(code => code.value != '0') || []);
     });
   }
 
@@ -177,12 +176,12 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
   }
 
   private onSaveSuccess(): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.activeModal.close();
   }
 
   private onSaveError(error: HttpErrorResponse): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 

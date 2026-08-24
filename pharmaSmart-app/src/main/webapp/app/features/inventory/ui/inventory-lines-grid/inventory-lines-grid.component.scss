@@ -93,7 +93,7 @@
     }
   }
 
-  // PrimeNG selects compacts dans le caption
+
   ::ng-deep {
     .p-select {
       flex-shrink: 0;
@@ -119,7 +119,9 @@
     white-space: nowrap;
     flex-shrink: 0;
 
-    i { font-size: 0.75rem; }
+    i {
+      font-size: 0.75rem;
+    }
   }
 }
 

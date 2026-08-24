@@ -35,7 +35,8 @@
 
           <div class="form-field form-field-full">
             <label for="field_lastName">Prénom(s) <span class="required">*</span> </label>
-            <input autocomplete="off" class="form-control" formControlName="lastName" id="field_lastName"
+            <input autocomplete="off" class="form-control" formControlName="lastName"
+                   id="field_lastName"
                    name="lastName" type="text" />
             @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty
               || editForm.get('lastName')!.touched)) {
@@ -53,7 +54,7 @@
             <app-select-search
               (searched)="searchTiersPayant($event)"
               (selectionChange)="onSelectTiersPayant($event)"
-              [items]="tiersPayants"
+              [items]="tiersPayants()"
               [minSearchLength]="PRODUIT_COMBO_MIN_LENGTH"
               [style]="{ width: '100%' }"
               appendTo="body"
@@ -75,7 +76,8 @@
           </div>
           <div class="form-field form-field-full">
             <label for="field_num">Numéro de sécurité <span class="required">*</span> </label>
-            <input [appKeyFilter]="'alphanum'" autocomplete="off" class="form-control" formControlName="num"
+            <input [appKeyFilter]="'alphanum'" autocomplete="off" class="form-control"
+                   formControlName="num"
                    id="field_num" name="num" type="text" />
             @if (editForm.get('num')!.invalid && (editForm.get('num')!.dirty || editForm.get(
               'num')!.touched)) {
@@ -90,7 +92,8 @@
 
           <div class="form-field form-field-full">
             <label for="field_taux">Taux(%)<span class="required">*</span></label>
-            <input [appKeyFilter]="'int'" autocomplete="off" class="form-control" formControlName="taux"
+            <input [appKeyFilter]="'int'" autocomplete="off" class="form-control"
+                   formControlName="taux"
                    id="field_taux" name="taux" type="text" />
             @if (editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty || editForm.get(
               'taux')!.touched)) {
@@ -112,7 +115,8 @@
         <div class="form-grid-compact">
           <div class="form-field form-field-full">
             <label for="field_phone">Téléphone</label>
-            <input [appKeyFilter]="'int'" autocomplete="off" class="form-control" formControlName="phone"
+            <input [appKeyFilter]="'int'" autocomplete="off" class="form-control"
+                   formControlName="phone"
                    id="field_phone" name="phone" type="text" />
           </div>
 
@@ -132,8 +136,9 @@
           </div>
 
           <div class="form-field form-field-full">
-            <label for="email" for="email">E-mail</label>
-            <input autocomplete="off" class="form-control" formControlName="email" id="email" name="email"
+            <label for="email">E-mail</label>
+            <input autocomplete="off" class="form-control" formControlName="email" id="email"
+                   name="email"
                    type="email" />
           </div>
           <div class="form-field form-field-full">
@@ -152,7 +157,7 @@
 
   <div class="form-actions-compact">
     <app-button
-      (click)="cancel()"
+      (clicked)="cancel()"
       [raised]="true"
       data-dismiss="modal"
       icon="pi pi-times"
@@ -162,7 +167,7 @@
     />
 
     <app-button
-      [disabled]="editForm.invalid || isSaving"
+      [disabled]="editForm.invalid || isSaving()"
       [raised]="true"
       icon="pi pi-check"
       label="Enregistrer"

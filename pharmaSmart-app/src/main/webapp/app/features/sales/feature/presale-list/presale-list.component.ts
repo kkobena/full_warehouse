@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy, input} from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
@@ -7,7 +7,7 @@ import { Router, RouterLink } from "@angular/router";
 import { NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { NgxSpinnerComponent } from "ngx-spinner";
 
-import { ButtonComponent, DataTableComponent, IconFieldComponent, AppTableLazyLoadEvent, SelectComponent, ToolbarComponent } from "../../../../shared/ui";
+import { ButtonComponent, DataTableComponent, IconFieldComponent, AppTableLazyLoadEvent, SelectComponent, ToolbarComponent, RowTogglerDirective } from "../../../../shared/ui";
 import { SalesStatut } from "../../../../shared/model";
 import { ISales, SaleId } from "../../../../shared/model/sales.model";
 import { SalesApiService } from "../../data-access/services/sales-api.service";
@@ -20,8 +20,8 @@ import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-d
   selector: "app-presale-list",
   templateUrl: "./presale-list.component.html",
   styleUrl: "./presale-list.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [RowTogglerDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -35,6 +35,15 @@ import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-d
   ]
 })
 export class PresaleListComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   private readonly api = inject(SalesApiService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
@@ -44,10 +53,10 @@ export class PresaleListComponent implements OnInit {
   protected useSimpleSale = false;
   protected loading = signal(false);
   protected transforming = signal(false);
-  protected sales: ISales[] = [];
-  protected totalItems = 0;
-  protected page = 0;
-  protected itemsPerPage = ITEMS_PER_PAGE;
+  protected readonly sales = signal<ISales[]>([]);
+  protected readonly totalItems = signal(0);
+  protected readonly page = signal(0);
+  protected readonly itemsPerPage = signal(ITEMS_PER_PAGE);
   protected typeVentes = ["TOUT", "VNO", "VO"];
   protected typeVenteSelected = "TOUT";
   protected search = "";
@@ -59,12 +68,12 @@ export class PresaleListComponent implements OnInit {
   }
 
   protected loadPage(page?: number): void {
-    const pageToLoad = page ?? this.page;
+    const pageToLoad = page ?? this.page();
     this.loading.set(true);
     this.api
       .queryManagement({
         page: pageToLoad,
-        size: this.itemsPerPage,
+        size: this.itemsPerPage(),
         search: this.search || null,
         type: this.typeVenteSelected,
         statut: [SalesStatut.PROCESSING, SalesStatut.PENDING]
@@ -80,16 +89,16 @@ export class PresaleListComponent implements OnInit {
   }
 
   private onSuccess(data: ISales[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get("X-Total-Count"));
-    this.page = page;
-    this.sales = data || [];
+    this.totalItems.set(Number(headers.get("X-Total-Count")));
+    this.page.set(page);
+    this.sales.set(data || []);
   }
 
   protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event.first != null && event.rows != null) {
-      this.page = event.first / event.rows;
-      this.itemsPerPage = event.rows;
-      this.loadPage(this.page);
+      this.page.set(event.first / event.rows);
+      this.itemsPerPage.set(event.rows);
+      this.loadPage(this.page());
     }
   }
 

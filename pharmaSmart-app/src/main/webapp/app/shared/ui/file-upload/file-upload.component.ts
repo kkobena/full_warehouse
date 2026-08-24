@@ -1,4 +1,4 @@
-import { Component, ElementRef, computed, input, output, signal, viewChild } from '@angular/core';
+import {ChangeDetectionStrategy, Component, ElementRef, computed, input, output, signal, viewChild} from '@angular/core';
 
 /**
  * Sélecteur de fichiers — remplace `p-fileupload` en mode « basic ».
@@ -40,6 +40,7 @@ import { Component, ElementRef, computed, input, output, signal, viewChild } fro
       }
     </div>
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FileUploadComponent {
   readonly label = input<string>('Choisir un fichier');

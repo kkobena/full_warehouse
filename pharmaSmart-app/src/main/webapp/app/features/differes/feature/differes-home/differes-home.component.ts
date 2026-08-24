@@ -5,8 +5,7 @@ import {
   DestroyRef,
   inject,
   OnInit,
-  signal
-} from "@angular/core";
+  signal, input} from "@angular/core";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {finalize} from "rxjs/operators";
 import {FormsModule} from "@angular/forms";
@@ -30,12 +29,14 @@ import {
   DiffereDetailPanelComponent
 } from "../../ui/differe-detail-panel/differe-detail-panel.component";
 import {BlobDownloadService} from "../../../../shared/services/blob-download.service";
+import { HintComponent } from 'app/shared/ui/hint/hint.component';
 
 type StatutDiffere = "PAYE" | "IMPAYE";
 
 @Component({
   selector: "app-differes-home",
   imports: [
+    HintComponent,
     FormsModule,
     ButtonComponent,
     PharmaDatePickerComponent,
@@ -46,14 +47,23 @@ type StatutDiffere = "PAYE" | "IMPAYE";
     DiffereDetailPanelComponent
   ],
   templateUrl: "./differes-home.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./differes-home.component.scss"
 })
 export class DifferesHomeComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   protected readonly store = inject(DiffereStore);
   protected readonly panelOpen = computed(() => this.store.panelOpen());
   // Toolbar state
-  protected modelStartDate: NgbDateStruct;
+  protected readonly modelStartDate = signal<NgbDateStruct | undefined>(undefined);
   protected modelEndDate: NgbDateStruct = TODAY_NGB_DATE();
   protected customerId: number | null = null;
   protected statut: StatutDiffere = "IMPAYE";
@@ -61,11 +71,10 @@ export class DifferesHomeComponent implements OnInit {
     {id: "IMPAYE", label: "En cours"},
     {id: "PAYE", label: "Soldé"}
   ];
-  protected loadingPdf = false;
+  protected readonly loadingPdf = signal(false);
   // Signal transmis à la liste
   protected readonly currentSearchParams = signal<IDiffereSearchParams | null>(null);
   // Hint premier usage
-  protected readonly showHint = signal<boolean>(localStorage.getItem("differes-hint-dismissed") !== "1");
   private readonly ability = inject(AbilityService);
   protected readonly canExecute = this.ability.canSignal("execute", "differes");
   protected readonly canExport = this.ability.canSignal("export", "differes");
@@ -78,7 +87,7 @@ export class DifferesHomeComponent implements OnInit {
   constructor() {
     const d = new Date();
     d.setMonth(d.getMonth() - 1);
-    this.modelStartDate = {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()};
+    this.modelStartDate.set({year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()});
   }
 
   ngOnInit(): void {
@@ -93,11 +102,11 @@ export class DifferesHomeComponent implements OnInit {
   }
 
   exportPdf(): void {
-    this.loadingPdf = true;
+    this.loadingPdf.set(true);
     this.differeApiService
       .exportListToPdf(this.buildParams())
       .pipe(
-        finalize(() => (this.loadingPdf = false)),
+        finalize(() => (this.loadingPdf.set(false))),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
@@ -109,10 +118,6 @@ export class DifferesHomeComponent implements OnInit {
       });
   }
 
-  dismissHint(): void {
-    localStorage.setItem("differes-hint-dismissed", "1");
-    this.showHint.set(false);
-  }
 
   private loadClients(): void {
     this.differeApiService
@@ -127,7 +132,7 @@ export class DifferesHomeComponent implements OnInit {
   private buildParams(): IDiffereSearchParams {
     const params: IDiffereSearchParams = {
       paymentStatuses: [this.statut],
-      fromDate: NGB_DATE_TO_ISO(this.modelStartDate),
+      fromDate: NGB_DATE_TO_ISO(this.modelStartDate()),
       toDate: NGB_DATE_TO_ISO(this.modelEndDate)
     };
     if (this.customerId) {

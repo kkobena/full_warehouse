@@ -8,7 +8,7 @@ import {TranslateService} from "@ngx-translate/core";
   selector: "jhi-error",
   templateUrl: "./error.component.html",
   styleUrl: "./error.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: []
 })
 export default class ErrorComponent implements OnInit, OnDestroy {

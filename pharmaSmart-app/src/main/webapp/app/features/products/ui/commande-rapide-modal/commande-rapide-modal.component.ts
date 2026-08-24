@@ -16,7 +16,7 @@ import { CommandCommonService } from "app/entities/commande/command-common.servi
   selector: "app-commande-rapide-modal",
   templateUrl: "./commande-rapide-modal.component.html",
   styleUrls: ["./commande-rapide-modal.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, ButtonComponent, SelectComponent, InputNumberComponent, CardComponent]
 })
 export class CommandeRapideModalComponent implements OnInit, AfterViewInit {
@@ -25,8 +25,8 @@ export class CommandeRapideModalComponent implements OnInit, AfterViewInit {
   protected fournisseurs = signal<IFournisseurProduit[]>([]);
   protected loading = signal(false);
   protected submitting = signal(false);
-  protected selectedFournisseurProduit: IFournisseurProduit | null = null;
-  protected quantite = 1;
+  protected readonly selectedFournisseurProduit = signal<IFournisseurProduit | null>(null);
+  protected readonly quantite = signal(1);
 
   private readonly activeModal = inject(NgbActiveModal);
   private readonly commandeService = inject(CommandeService);
@@ -45,8 +45,8 @@ export class CommandeRapideModalComponent implements OnInit, AfterViewInit {
         next: (list) => {
           this.fournisseurs.set(list);
           const principal = list.find(f => f.principal) ?? list[0] ?? null;
-          this.selectedFournisseurProduit = principal;
-          this.quantite = principal?.qteMinimaleCommande ?? 1;
+          this.selectedFournisseurProduit.set(principal);
+          this.quantite.set(principal?.qteMinimaleCommande ?? 1);
           this.loading.set(false);
         },
         error: () => this.loading.set(false)
@@ -65,24 +65,24 @@ export class CommandeRapideModalComponent implements OnInit, AfterViewInit {
   }
 
   protected onFournisseurChange(): void {
-    const fp = this.selectedFournisseurProduit;
+    const fp = this.selectedFournisseurProduit();
     if (fp?.qteMinimaleCommande) {
-      this.quantite = fp.qteMinimaleCommande;
+      this.quantite.set(fp.qteMinimaleCommande);
     }
   }
 
   protected get totalEstime(): number {
-    const fp = this.selectedFournisseurProduit;
+    const fp = this.selectedFournisseurProduit();
     if (!fp?.prixAchat) return 0;
-    return this.quantite * fp.prixAchat;
+    return this.quantite() * fp.prixAchat;
   }
 
   protected onSubmit(): void {
-    const fp = this.selectedFournisseurProduit;
-    if (!fp || this.quantite < 1) return;
+    const fp = this.selectedFournisseurProduit();
+    if (!fp || this.quantite() < 1) return;
     this.submitting.set(true);
 
-    this.commandeService.createCommandeRapide(this.produit.totalQuantity, fp.id!, this.quantite)
+    this.commandeService.createCommandeRapide(this.produit.totalQuantity, fp.id!, this.quantite())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {

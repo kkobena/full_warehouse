@@ -1,4 +1,4 @@
-import {Component, inject, input, OnInit, signal} from '@angular/core';
+import { ChangeDetectionStrategy,Component, inject, input, OnInit, signal} from '@angular/core';
 
 import {Facture} from '../facture.model';
 import {CommonModule} from '@angular/common';
@@ -16,18 +16,19 @@ import {CardComponent, DataTableComponent, IconFieldComponent} from '../../../sh
     DataTableComponent,
     IconFieldComponent
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './groupe-facture-detail.component.html',
   styleUrls: ['./groupe-facture-detail.component.scss'],
 })
 export class GroupeFactureDetailComponent implements OnInit {
   readonly groupeFacture = input<Facture | null>(null);
   groupeFactureSignal = signal(this.groupeFacture());
-  selectedFacture: Facture | null = null;
+  protected readonly selectedFacture = signal<Facture | null>(null);
   factureService = inject(FactureService);
   searchValue: string | undefined;
 
   onRowSelect(factureItem: Facture) {
-    this.selectedFacture = factureItem;
+    this.selectedFacture.set(factureItem);
   }
 
   ngOnInit(): void {

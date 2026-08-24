@@ -219,8 +219,8 @@
     <!-- ── GRILLE BL ─────────────────────────────────────────────────────── -->
     <div class="lb-grid-wrap">
       <app-data-table
-        [loading]="loading"
-        [value]="deliveries"
+        [loading]="loading()"
+        [value]="deliveries()"
         class="p-datatable-sm"
         dataKey="id"
         scrollHeight="flex"
@@ -323,8 +323,8 @@
       }
       <span class="lb-totals-bar__sep ms-auto"></span>
       <span class="lb-totals-bar__item">
-        {{ periodTotals()?.count ?? totalItems }} bon{{
-          (periodTotals()?.count ?? totalItems) > 1 ? 's' : ''
+        {{ periodTotals()?.count ?? totalItems() }} bon{{
+          (periodTotals()?.count ?? totalItems()) > 1 ? 's' : ''
         }}
       </span>
       @if (periodTotals(); as t) {
@@ -341,21 +341,21 @@
     </div>
 
     <!-- ── PAGINATION ──────────────────────────────────────────────────────── -->
-    @if (totalItems > itemsPerPage) {
+    @if (totalItems() > itemsPerPage) {
       <div class="pagination-bar">
         <app-button
-          (clicked)="goToPage(page - 1)"
-          [disabled]="page === 0"
+          (clicked)="goToPage(page() - 1)"
+          [disabled]="page() === 0"
           icon="pi pi-angle-left"
           ngbTooltip="Page précédente"
           severity="secondary"
           size="small"
         />
-        <span class="pagination-info">Page {{ page + 1 }} / {{ totalPages }} · {{ totalItems }}
+        <span class="pagination-info">Page {{ page() + 1 }} / {{ totalPages }} · {{ totalItems() }}
           bon(s)</span>
         <app-button
-          (clicked)="goToPage(page + 1)"
-          [disabled]="page >= totalPages - 1"
+          (clicked)="goToPage(page() + 1)"
+          [disabled]="page() >= totalPages - 1"
           icon="pi pi-angle-right"
           ngbTooltip="Page suivante"
           severity="secondary"

@@ -4,18 +4,20 @@ import { forkJoin } from 'rxjs';
 
 import { IBfrEvolution, IBfrSnapshot } from 'app/shared/model/report';
 import { CashFlowBfrService } from '../services/cash-flow-bfr.service';
-import { formatCurrency } from 'app/shared/utils/format-utils';
+import { formatCurrency, currencySymbol } from 'app/shared/utils/format-utils';
 
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 
+import { DeviseDirective } from 'app/shared/utils/devise';
+import { KpiItemComponent, KpiStripComponent } from '../../../shared/ui';
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-cash-flow-bfr',
   templateUrl: './cash-flow-bfr.component.html',
   styleUrl: './cash-flow-bfr.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DeviseDirective, CommonModule, KpiStripComponent, KpiItemComponent],
 })
 export default class CashFlowBfrComponent implements OnInit, OnDestroy {
   @ViewChild('evolutionChartCanvas') evolutionChartCanvas?: ElementRef<HTMLCanvasElement>;
@@ -100,12 +102,12 @@ export default class CashFlowBfrComponent implements OnInit, OnDestroy {
           legend: { position: 'bottom', labels: { padding: 16 } },
           tooltip: {
             callbacks: {
-              label: ctx => `${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)} FCFA`,
+              label: ctx => `${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)} ${currencySymbol()}`,
             },
           },
         },
         scales: {
-          y: { title: { display: true, text: 'Montant (FCFA)' } },
+          y: { title: { display: true, text: `Montant (${currencySymbol()})` } },
           x: { ticks: { maxRotation: 45 } },
         },
       },

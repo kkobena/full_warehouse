@@ -8,7 +8,7 @@ import { SemoisService } from 'app/entities/semois/semois.service';
 @Component({
   selector: 'app-semois-exclusion-panel',
   templateUrl: './semois-exclusion-panel.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, ButtonComponent, DataTableComponent, NgbTooltip],
 })
 export class SemoisExclusionPanelComponent implements OnInit {

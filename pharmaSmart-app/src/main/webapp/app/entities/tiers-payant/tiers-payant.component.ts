@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, viewChild, ChangeDetectionStrategy} from "@angular/core";
+import {ChangeDetectionStrategy, Component, inject, OnInit, viewChild, input, signal } from "@angular/core";
 import {TiersPayantService} from "./tierspayant.service";
 import {Observable} from "rxjs";
 import {HttpHeaders, HttpResponse} from "@angular/common/http";
@@ -14,7 +14,9 @@ import {
   SplitButtonComponent,
   ToolbarComponent
 } from "../../shared/ui";
-import {JsonImportDialogComponent} from "../../shared/json-import-dialog/json-import-dialog.component";
+import {
+  JsonImportDialogComponent
+} from "../../shared/json-import-dialog/json-import-dialog.component";
 import {ITEMS_PER_PAGE} from "../../shared/constants/pagination.constants";
 import {ITiersPayant} from "../../shared/model";
 import {Router, RouterModule} from "@angular/router";
@@ -31,11 +33,11 @@ import {NotificationService} from "../../shared/services/notification.service";
 import {CommonModule} from "@angular/common";
 
 @Component({
-  selector: "jhi-tiers-payant",
+  selector: "app-tiers-payant",
   templateUrl: "./tiers-payant.component.html",
   styleUrls: ["./tiers-payant.component.scss"],
   providers: [NgbActiveModal],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -48,27 +50,35 @@ import {CommonModule} from "@angular/common";
     IconFieldComponent,
     SelectComponent,
     SplitButtonComponent,
-  ToolbarComponent
+    ToolbarComponent
   ]
 })
 export class TiersPayantComponent implements OnInit {
-  protected tiersPayants?: ITiersPayant[] = [];
-  protected responseDialog = false;
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
+  protected readonly tiersPayants = signal<ITiersPayant[]>([]);
+  protected readonly responseDialog = signal(false);
   protected onErrorOccur = false;
   protected responsedto!: IResponseDto;
-  protected isSaving = false;
+  protected readonly isSaving = signal(false);
   protected jsonFileUploadProgress = 0;
   protected jsonFileUploadStatutProgress = "Importation des tiers-payant en cours...";
   protected itemsPerPage = ITEMS_PER_PAGE;
-  protected page!: number;
-  protected predicate!: string;
-  protected ngbPaginationPage = 1;
-  protected totalItems = 0;
-  protected loading!: boolean;
+  protected readonly page = signal<number | undefined>(undefined);
+  protected readonly ngbPaginationPage = signal(1);
+  protected readonly totalItems = signal(0);
+  protected readonly loading = signal<boolean | undefined>(undefined);
   protected type: string[] = ["TOUT", "ASSURANCE", "CARNET", "DEPOT"];
   protected typeSelected = "TOUT";
   protected search = "";
-  protected tiersPayantSplitbuttons: AppSplitButtonItem[];
+  protected readonly tiersPayantSplitbuttons = signal<AppSplitButtonItem[] | undefined>(undefined);
   private readonly entityService = inject(TiersPayantService);
   private readonly errorService = inject(ErrorService);
   private readonly router = inject(Router);
@@ -78,7 +88,7 @@ export class TiersPayantComponent implements OnInit {
   private readonly notificationService = inject(NotificationService);
 
   constructor() {
-    this.tiersPayantSplitbuttons = [
+    this.tiersPayantSplitbuttons.set([
       {
         label: "ASSURANCE",
         command: () => this.addTiersPayantAssurance()
@@ -91,7 +101,7 @@ export class TiersPayantComponent implements OnInit {
         label: "DEPOT",
         command: () => this.addDepot()
       }
-    ];
+    ]);
   }
 
   ngOnInit(): void {
@@ -115,11 +125,11 @@ export class TiersPayantComponent implements OnInit {
 
   cancel(): void {
     this.onErrorOccur = false;
-    this.responseDialog = false;
+    this.responseDialog.set(false);
   }
 
   loadPage(page?: number, dontNavigate?: boolean): void {
-    const pageToLoad: number = page || this.page || 1;
+    const pageToLoad: number = page || this.page() || 1;
     this.entityService
       .query({
         page: pageToLoad - 1,
@@ -135,17 +145,17 @@ export class TiersPayantComponent implements OnInit {
 
   lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event) {
-      this.page = event.first / event.rows;
-      this.loading = true;
+      this.page.set(event.first / event.rows);
+      this.loading.set(true);
       this.entityService
         .query({
-          page: this.page,
+          page: this.page(),
           size: event.rows,
           type: this.typeSelected,
           search: this.search
         })
         .subscribe({
-          next: (res: HttpResponse<ITiersPayant[]>) => this.onSuccess(res.body, res.headers, this.page, false),
+          next: (res: HttpResponse<ITiersPayant[]>) => this.onSuccess(res.body, res.headers, this.page(), false),
           error: () => this.onError()
         });
     }
@@ -250,12 +260,12 @@ export class TiersPayantComponent implements OnInit {
   }
 
   protected onSaveError(error: any): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 
   protected onImportError(): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.spinner().hide();
     this.notificationService.error("Enregistrement a échoué");
   }
@@ -273,23 +283,23 @@ export class TiersPayantComponent implements OnInit {
   }
 
   protected onSuccess(data: ITiersPayant[] | null, headers: HttpHeaders, page: number, navigate: boolean): void {
-    this.totalItems = Number(headers.get("X-Total-Count"));
-    this.page = page;
+    this.totalItems.set(Number(headers.get("X-Total-Count")));
+    this.page.set(page);
     if (navigate) {
       this.router.navigate(["/tiers-payant"], {
         queryParams: {
-          page: this.page,
+          page: this.page(),
           size: this.itemsPerPage
         }
       });
     }
-    this.tiersPayants = data || [];
-    this.ngbPaginationPage = this.page;
-    this.loading = false;
+    this.tiersPayants.set(data || []);
+    this.ngbPaginationPage.set(this.page());
+    this.loading.set(false);
   }
 
   protected onError(): void {
-    this.loading = false;
-    this.ngbPaginationPage = this.page ?? 1;
+    this.loading.set(false);
+    this.ngbPaginationPage.set(this.page() ?? 1);
   }
 }

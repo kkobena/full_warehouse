@@ -84,7 +84,7 @@
               <small class="text-muted d-block">/ {{ lot.quantity | number }}</small>
             </td>
             <td class="text-right fw-semibold">
-              {{ (itemGroup.get('quantity')?.value ?? 0) * (lot.prixAchat ?? 0) | number }} FCFA
+              {{ (itemGroup.get('quantity')?.value ?? 0) * (lot.prixAchat ?? 0) | number }} <span appDevise></span>
             </td>
           </tr>
         </ng-template>
@@ -97,7 +97,7 @@
           <strong>{{ selectedCount }}</strong> lot(s) sélectionné(s)
         </span>
         <span>
-          Avoir total estimé : <strong class="fs-5">{{ totalAvoir | number }} FCFA</strong>
+          Avoir total estimé : <strong class="fs-5">{{ totalAvoir | number }} <span appDevise></span></strong>
         </span>
       </div>
 

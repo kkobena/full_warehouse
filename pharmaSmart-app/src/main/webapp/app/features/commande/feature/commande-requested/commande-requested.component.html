@@ -5,7 +5,7 @@
 
     <!-- Actions gauche -->
     <div class="d-flex gap-2 align-items-center flex-wrap">
-      @if (currentCommande?.commandeId && !isLocked) {
+      @if (currentCommande()?.commandeId && !isLocked) {
         <app-button
           (clicked)="onImportSuggestion()"
           icon="pi pi-lightbulb"
@@ -25,7 +25,7 @@
           size="small"
         />
       }
-      @if (currentCommande?.commandeId) {
+      @if (currentCommande()?.commandeId) {
         <app-button
           (clicked)="onCreateBon()"
           icon="pi pi-truck"
@@ -36,16 +36,16 @@
           size="small"
         />
       }
-      @if (selectedEl.length > 0 && !isLocked) {
+      @if (selectedEl().length > 0 && !isLocked) {
         <app-button
           (clicked)="confirmDeleteAll()"
           icon="pi pi-times"
-          label="Supprimer ({{ selectedEl.length }})"
+          label="Supprimer ({{ selectedEl().length }})"
           severity="danger"
           size="small"
         />
       }
-      @if (seuilMontantCommande > 0 && (currentCommande?.grossAmount ?? 0) > seuilMontantCommande) {
+      @if (seuilMontantCommande > 0 && (currentCommande()?.grossAmount ?? 0) > seuilMontantCommande) {
         <app-badge
           [ngbTooltip]="'Seuil : ' + (seuilMontantCommande | number) + ' F'"
           icon="pi pi-exclamation-triangle"
@@ -58,17 +58,17 @@
 
     <!-- Actions PharmaML — droite -->
     <div>
-      @if (currentCommande?.commandeId) {
-        @if (isLocked || currentCommande?.orderStatus === 'RECEIVED') {
+      @if (currentCommande()?.commandeId) {
+        @if (isLocked || currentCommande()?.orderStatus === 'RECEIVED') {
           <app-split-button
-            [items]="pharmamlActions"
+            [items]="pharmamlActions()"
             icon="pi pi-check-circle"
             label="Actions réception"
             severity="info"
           />
         } @else {
           <app-split-button
-            [items]="pharmamlActions"
+            [items]="pharmamlActions()"
             icon="pi pi-send"
             label="Actions PharmaML"
             severity="info"
@@ -86,10 +86,10 @@
       <span>Soumise via <strong>PharmaML</strong> — modifications désactivées.</span>
     </div>
   }
-  @if (currentCommande?.reliquatDeCommandeId != null) {
+  @if (currentCommande()?.reliquatDeCommandeId != null) {
     <div class="cr-banner cr-banner--reliquat">
       <i class="pi pi-arrow-right-arrow-left"></i>
-      <span>Reliquat de la commande <strong>#{{ currentCommande!.reliquatDeCommandeId }}</strong></span>
+      <span>Reliquat de la commande <strong>#{{ currentCommande()!.reliquatDeCommandeId }}</strong></span>
     </div>
   }
 
@@ -101,7 +101,7 @@
           (selectionChange)="onFournisseurSelected($event)"
           [disabled]="isLocked"
           [grouped]="true"
-          [selectedId]="selectedProvider ?? null"
+          [selectedId]="selectedProvider() ?? null"
           placeholder="Sélectionner un fournisseur..."
         />
       </div>
@@ -125,7 +125,7 @@
             />
             <app-button
               (clicked)="onQuantity()"
-              [disabled]="!produitSelected"
+              [disabled]="!produitSelected()"
               icon="pi pi-plus"
               severity="primary"
               type="button"
@@ -135,20 +135,20 @@
       }
     </div>
 
-    @if (produitSelected) {
+    @if (produitSelected()) {
       <div class="produit-meta">
         <span class="meta-item">
           <i class="pi pi-barcode"></i>
-          {{ produitSelected?.fournisseurProduit?.codeCip }}
+          {{ produitSelected()?.fournisseurProduit?.codeCip }}
         </span>
         <span class="meta-item">
           <i class="pi pi-tag"></i>
-          {{ produitSelected?.regularUnitPrice | number }} F
+          {{ produitSelected()?.regularUnitPrice | number }} F
         </span>
-        @if (produitSelected?.totalQuantity !== undefined) {
-          <span [class.low-stock]="produitSelected!.totalQuantity! < 10" class="meta-item">
+        @if (produitSelected()?.totalQuantity !== undefined) {
+          <span [class.low-stock]="produitSelected()!.totalQuantity! < 10" class="meta-item">
             <i class="pi pi-database"></i>
-            Stock : {{ produitSelected?.totalQuantity | number }}
+            Stock : {{ produitSelected()?.totalQuantity | number }}
           </span>
         }
       </div>
@@ -159,13 +159,13 @@
   <div class="grid-wrapper flex-grow-1">
 
     <!-- CAPTION — totaux + compteur lignes -->
-    @if (currentCommande && orderLines.length > 0) {
+    @if (currentCommande() && orderLines().length > 0) {
       <div class="grid-caption">
-        <span class="grid-caption__count">{{ orderLines.length }} ligne(s)</span>
+        <span class="grid-caption__count">{{ orderLines().length }} ligne(s)</span>
         <span class="grid-caption__totals ms-auto">
-          Achat&nbsp;: <strong>{{ currentCommande.grossAmount | number }}&nbsp;F</strong>
+          Achat&nbsp;: <strong>{{ currentCommande().grossAmount | number }}&nbsp;F</strong>
           &nbsp;·&nbsp;
-          Vente&nbsp;: <strong>{{ currentCommande.orderAmount | number }}&nbsp;F</strong>
+          Vente&nbsp;: <strong>{{ currentCommande().orderAmount | number }}&nbsp;F</strong>
         </span>
       </div>
     }
@@ -175,7 +175,7 @@
 
       <!-- AG GRID -->
       <div class="flex-grow-1 overflow-hidden h-100">
-        @if (currentCommande) {
+        @if (currentCommande()) {
           <ag-grid-angular
             (cellClicked)="onCellClicked($event)"
             (cellValueChanged)="onCellValueChanged($event)"
@@ -189,7 +189,7 @@
             [enterNavigatesVerticallyAfterEdit]="true"
             [getRowId]="getRowId"
             [rowClassRules]="rowClassRules"
-            [rowData]="orderLines"
+            [rowData]="orderLines()"
             [rowSelection]="rowSelection"
             [singleClickEdit]="true"
             [stopEditingWhenCellsLoseFocus]="true"

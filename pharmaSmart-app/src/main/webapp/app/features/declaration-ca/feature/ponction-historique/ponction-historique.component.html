@@ -1,0 +1,240 @@
+<app-toolbar [code]="navCode()" icon="pi pi-history" title="Historique des ponctions">
+  <ng-container ngProjectAs="[toolbarFilters]">
+    <div class="pharma-toolbar-filters flex-wrap gap-2">
+      <pharma-date-picker
+        (ngModelChange)="dateDebut.set($event)"
+        [labelPosition]="'inline'"
+        [maxDate]="dateFin()"
+        [ngModel]="dateDebut()"
+        id="ponction-historique-du"
+        label="Du"
+      />
+      <pharma-date-picker
+        (ngModelChange)="dateFin.set($event)"
+        [labelPosition]="'inline'"
+        [minDate]="dateDebut()"
+        [ngModel]="dateFin()"
+        id="ponction-historique-au"
+        label="Au"
+      />
+    </div>
+  </ng-container>
+
+  <ng-container ngProjectAs="[toolbarActions]">
+    <div class="py-1">
+      <app-button
+        (clicked)="charger()"
+        [disabled]="chargement()"
+        [raised]="true"
+        icon="pi pi-refresh"
+        label="Actualiser"
+        severity="info"
+      />
+    </div>
+
+  </ng-container>
+</app-toolbar>
+
+
+<!-- ── Cumuls de la période : montants sur les seules ponctions validées ─────── -->
+<app-kpi-strip [loading]="chargement()" [skeletonCount]="5" stripClass="mb-2">
+  <app-kpi-item
+    [accent]="'primary'"
+    [value]="resume().nombre | number"
+    icon="pi pi-history"
+    iconClass="text-primary"
+    label="Ponctions"
+    valueClass="text-primary"
+  >
+    <ng-container ngProjectAs="[kpiSub]">
+      {{ resume().nombreValidees | number }} validée(s)@if (resume().nombreAnnulees > 0) {
+      · {{ resume().nombreAnnulees | number }} annulée(s)
+    }
+    </ng-container>
+  </app-kpi-item>
+
+  <app-kpi-item
+    [accent]="'secondary'"
+    [value]="resume().caReel | number: '1.0-0'"
+    icon="pi pi-chart-line"
+    iconClass="text-secondary"
+    label="CA réel cumulé"
+    suffix="F"
+  />
+
+  <app-kpi-item
+    [accent]="'info'"
+    [value]="resume().caDeclare | number: '1.0-0'"
+    icon="pi pi-file"
+    iconClass="text-info"
+    label="CA déclaré cumulé"
+    suffix="F"
+    valueClass="text-info"
+  />
+
+  <app-kpi-item
+    [accent]="'danger'"
+    [value]="resume().montantPonctionne | number: '1.0-0'"
+    icon="pi pi-minus-circle"
+    iconClass="text-danger"
+    label="Total ponctionné"
+    suffix="F"
+    valueClass="text-danger"
+  >
+    <ng-container ngProjectAs="[kpiSub]">
+      sur {{ resume().nombreVentes | number }} vente(s)
+    </ng-container>
+  </app-kpi-item>
+
+  <app-kpi-item
+    [accent]="'warning'"
+    [value]="resume().tauxEffectif | number: '1.2-2'"
+    icon="pi pi-percentage"
+    iconClass="text-warning"
+    label="Taux effectif moyen"
+    suffix="%"
+    valueClass="text-warning"
+  >
+    <ng-container ngProjectAs="[kpiSub]">du CA après exclusions</ng-container>
+  </app-kpi-item>
+</app-kpi-strip>
+
+
+<!-- Hint premier usage : masqué dès qu'un détail est ouvert, le conseil n'ayant alors plus d'objet -->
+<app-hint [visible]="!panelOpen()" storageKey="ponction-historique">
+  Cliquez sur une ponction pour afficher le détail des ventes touchées, vente par vente.
+</app-hint>
+
+<!-- Split panel : la liste à gauche, le détail de la ponction sélectionnée à droite -->
+<div [class.panel-open]="panelOpen()" class="split-container">
+  <div class="list-column">
+    <app-data-table
+      (selectionChange)="onSelection($any($event))"
+      [loading]="chargement()"
+      [selection]="selection()"
+      [stripedRows]="true"
+      [value]="ponctions()"
+      dataKey="id"
+      emptyMessage="Aucune ponction sur la période"
+      selectionMode="single"
+      size="small"
+    >
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th>Période</th>
+          <th>Saisie</th>
+          <th class="text-end">CA réel</th>
+          <th class="text-end">CA déclaré</th>
+          <th class="text-end">Ponctionné</th>
+          <th class="text-end">Taux effectif</th>
+          <th style="width: 8rem">Statut</th>
+          <th>Auteur</th>
+          <th style="width: 14rem"></th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-ponction>
+
+        <tr [appSelectableRow]="ponction">
+          <td>{{ ponction.dateDebut | date: 'dd/MM/yyyy' }} → {{ ponction.dateFin | date: 'dd/MM/yyyy' }}</td>
+          <td class="small text-muted">
+            {{ ponction.valeurSaisie }} {{ ponction.modeCalcul === 'POURCENTAGE' ? '%' : ('' | devise) }} ·
+            plafond
+            {{ ponction.plafondParVente }} %
+          </td>
+          <td class="text-end">{{ ponction.caReel | number: '1.0-0' }}</td>
+          <td class="text-end">{{ ponction.caDeclare | number: '1.0-0' }}</td>
+          <td class="text-end fw-semibold">{{ ponction.montantPonctionne | number: '1.0-0' }}</td>
+          <td class="text-end">{{ tauxEffectif(ponction) }}</td>
+          <td>
+            <app-badge [label]="ponction.statut" [severity]="severite(ponction.statut)" />
+          </td>
+          <td class="small text-muted">{{ ponction.auteur }}</td>
+          <td class="text-end">
+            <div class="btn-group">
+              <app-button
+                (clicked)="imprimer(ponction, $event)"
+                [rounded]="true"
+                [text]="true"
+                icon="pi pi-file-pdf"
+                ngbTooltip="Justificatif PDF"
+                severity="info"
+                size="small"
+              />
+              @if (annulable(ponction.statut)) {
+                <app-button
+                  (clicked)="demanderAnnulation(ponction, $event)"
+                  [disabled]="chargement()"
+                  [rounded]="true"
+                  [text]="true"
+                  icon="pi pi-undo"
+                  ngbTooltip="Annuler la ponction"
+                  severity="danger"
+                  size="small"
+                />
+              }
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </app-data-table>
+  </div>
+
+  @if (panelOpen()) {
+    <div class="detail-column">
+      <app-card [withHeader]="true" class="d-block" header="Détail de la ponction"
+                icon="pi pi-list">
+        <div cardActions>
+          <app-button
+            (clicked)="fermerDetail()"
+            [iconOnly]="true"
+            [text]="true"
+            icon="pi pi-times"
+            label="Fermer"
+            severity="secondary"
+          />
+        </div>
+
+        <p class="text-muted small">
+          {{ selection()!.dateDebut | date: 'dd/MM/yyyy' }} → {{ selection()!.dateFin | date: 'dd/MM/yyyy' }} ·
+          {{ selection()!.nombreVentes | number }} vente(s) ·
+          {{ selection()!.montantPonctionne | number: '1.0-0' }} <span appDevise></span> retirés
+        </p>
+
+        @if (selection()!.commentaire) {
+          <p class="small fst-italic">« {{ selection()!.commentaire }} »</p>
+        }
+
+        <app-data-table
+          [loading]="chargementDetail()"
+          [scrollable]="true"
+          [value]="detail()"
+          emptyMessage="Aucune vente dans le détail"
+          scrollHeight="calc(100vh - 24rem)"
+          size="small"
+        >
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th style="width: 3rem">#</th>
+              <th>Transaction</th>
+              <th style="width: 7rem">Date</th>
+              <th class="text-end">Vente</th>
+              <th class="text-end">Dont exonéré</th>
+              <th class="text-end">Ponctionné</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-ligne>
+            <tr>
+              <td class="text-muted">{{ ligne.rang }}</td>
+              <td>{{ ligne.numeroTransaction }}</td>
+              <td>{{ ligne.saleDate | date: 'dd/MM/yyyy' }}</td>
+              <td class="text-end">{{ ligne.montantVente | number: '1.0-0' }}</td>
+              <td class="text-end text-muted">{{ ligne.montantBase | number: '1.0-0' }}</td>
+              <td class="text-end fw-semibold">{{ ligne.montantPonctionne | number: '1.0-0' }}</td>
+            </tr>
+          </ng-template>
+        </app-data-table>
+      </app-card>
+    </div>
+  }
+</div>

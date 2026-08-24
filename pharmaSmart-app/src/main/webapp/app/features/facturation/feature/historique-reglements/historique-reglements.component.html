@@ -1,7 +1,7 @@
 <div class="pharma-smart-content">
 
   <!-- Toolbar -->
-  <app-toolbar [compact]="true" icon="pi pi-history" title="Historique des règlements factures">
+  <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-history" title="Historique des règlements factures">
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
         <div class="d-flex align-items-center gap-2 me-2">
@@ -18,7 +18,7 @@
             placeholder=" " type="text" />
         </app-float-label>
 
-        <pharma-date-picker [(ngModel)]="modelStartDate" [style]="{ 'max-width': '180px' }"
+        <pharma-date-picker [ngModel]="modelStartDate()" (ngModelChange)="modelStartDate.set($event)" [style]="{ 'max-width': '180px' }"
                             id="hrDu"
                             label="Du" />
 
@@ -30,7 +30,7 @@
             <app-select-search
               (searched)="searchGroupeTiersPayant($event)"
               [(ngModel)]="selectedGroupeTiersPayant"
-              [items]="groupeTiersPayants"
+              [items]="groupeTiersPayants()"
               [style]="{ minWidth: '180px' }"
               appendTo="body"
               bindLabel="name"
@@ -42,7 +42,7 @@
             <app-select-search
               (searched)="searchTiersPayant($event)"
               [(ngModel)]="selectedTiersPayant"
-              [items]="tiersPayants"
+              [items]="tiersPayants()"
               [minSearchLength]="minLength"
               [style]="{ minWidth: '300px' }"
               appendTo="body"
@@ -58,24 +58,24 @@
       <div class="pharma-toolbar-actions">
         <div class="pharma-button-group">
           <app-button
-            (click)="onSearch()"
-            [loading]="loadingBtn"
+            (clicked)="onSearch()"
+            [loading]="loadingBtn()"
             [raised]="true"
             icon="pi pi-search"
             label="Rechercher"
             severity="info"
           />
           <app-button
-            (click)="onPrintPdf()"
-            [loading]="loadingPdf"
+            (clicked)="onPrintPdf()"
+            [loading]="loadingPdf()"
             [raised]="true"
             icon="pi pi-file-pdf"
             label="Imprimer"
             severity="warn"
           />
           <app-button
-            (click)="onExportExcel()"
-            [loading]="loadingExcel"
+            (clicked)="onExportExcel()"
+            [loading]="loadingExcel()"
             [raised]="true"
             icon="pi pi-file-excel"
             label="Excel"
@@ -90,7 +90,7 @@
   <div class="px-2">
     <app-data-table
       #reglementTable
-      [(selection)]="selectedDatas"
+      [selection]="selectedDatas()" (selectionChange)="selectedDatas.set($any($event))"
       [paginator]="true"
       [rowsPerPageOptions]="[10, 15, 20, 25, 30, 100]"
       [rows]="15"
@@ -99,7 +99,7 @@
       [showCurrentPageReport]="true"
       [size]="'small'"
       [stripedRows]="true"
-      [value]="datas"
+      [value]="datas()"
       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} règlements"
       dataKey="id.id"
       groupRowsBy="organismeId"
@@ -111,17 +111,17 @@
         <div class="d-flex justify-content-between align-items-center gap-2">
           <app-icon-field [overlay]="true" icon="pi pi-search">
             <input
-              (input)="reglementTable.filterGlobal($event.target['value'], 'contains')"
+              (input)="reglementTable.filterGlobal($event.target['value'])"
               [style]="{ width: '280px' }"
               class="form-control"
               placeholder="Filtrer dans la liste..." type="text" />
           </app-icon-field>
-          @if (selectedDatas.length > 0) {
+          @if (selectedDatas().length > 0) {
             <app-button
-              (click)="onDeleteAll()"
+              (clicked)="onDeleteAll()"
               [raised]="true"
               icon="pi pi-trash"
-              label="Supprimer la sélection ({{ selectedDatas.length }})"
+              label="Supprimer la sélection ({{ selectedDatas().length }})"
               severity="danger"
             />
           }
@@ -171,7 +171,7 @@
           <td class="text-center">
             <div class="btn-group" role="group">
               <app-button
-                (click)="onView(r)"
+                (clicked)="onView(r)"
                 [rounded]="true"
                 [text]="true"
                 icon="pi pi-eye"
@@ -180,7 +180,7 @@
                 size="small"
               />
               <app-button
-                (click)="onPrint(r)"
+                (clicked)="onPrint(r)"
                 [rounded]="true"
                 [text]="true"
                 icon="pi pi-print"
@@ -189,7 +189,7 @@
                 size="small"
               />
               <app-button
-                (click)="onDelete(r)"
+                (clicked)="onDelete(r)"
                 [rounded]="true"
                 [text]="true"
                 icon="pi pi-trash"

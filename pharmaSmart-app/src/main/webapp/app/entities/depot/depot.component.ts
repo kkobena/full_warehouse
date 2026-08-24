@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, OnInit, ChangeDetectionStrategy, input, signal } from "@angular/core";
 import { HttpResponse } from "@angular/common/http";
 import { Router, RouterModule } from "@angular/router";
 import { IMagasin } from "../../shared/model";
@@ -20,18 +20,27 @@ import { ButtonComponent, DataTableComponent, IconFieldComponent, ToolbarCompone
     IconFieldComponent
   ],
   templateUrl: "./depot.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./depot.component.scss"
 })
 export class DepotComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   protected readonly ability = inject(AbilityService);
   protected readonly canNewVente = this.ability.canSignal("execute", "depot.liste-depots");
   protected readonly canCreate = this.ability.canSignal("create", "depot.liste-depots");
   protected readonly canEdit = this.ability.canSignal("edit", "depot.liste-depots");
   protected readonly canDelete = this.ability.canSignal("delete", "depot.liste-depots");
   protected readonly canReturn = this.ability.canSignal("access", "depot.retour-depot");
-  protected depots: IMagasin[] = [];
-  protected loading = false;
+  protected readonly depots = signal<IMagasin[]>([]);
+  protected readonly loading = signal(false);
   private magasinService = inject(MagasinService);
   private router = inject(Router);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
@@ -42,14 +51,14 @@ export class DepotComponent implements OnInit {
   }
 
   loadAll(): void {
-    this.loading = true;
+    this.loading.set(true);
     this.magasinService.fetchAllDepots().subscribe({
       next: (res: HttpResponse<IMagasin[]>) => {
-        this.depots = res.body || [];
-        this.loading = false;
+        this.depots.set(res.body || []);
+        this.loading.set(false);
       },
       error: () => {
-        this.loading = false;
+        this.loading.set(false);
         this.notificationService.error("Une erreur est survenue lors du chargement des dépôts.");
       }
     });

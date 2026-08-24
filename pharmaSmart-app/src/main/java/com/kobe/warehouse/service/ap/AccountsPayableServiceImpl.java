@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.ap;
 
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.PaymentFournisseur;
@@ -98,14 +99,18 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
         Set<Integer> actifs = new HashSet<>();
 
         for (Commande c : commandes) {
-            if (c.getFournisseur() == null) continue;
+            if (c.getFournisseur() == null) {
+                continue;
+            }
             Integer fId = c.getFournisseur().getId();
             actifs.add(fId);
 
             long gross = (long) Objects.requireNonNullElse(c.getFinalAmount(), 0);
             long paid = paidMap.getOrDefault(intId(c), 0L);
             long restant = gross - paid;
-            if (restant > 0) totalDu += restant;
+            if (restant > 0) {
+                totalDu += restant;
+            }
 
             LocalDate ech = computeEcheance(c);
             if (ech.isBefore(now)) {
@@ -115,12 +120,14 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
             }
         }
 
-        return new FournisseurAPSummaryDTO(totalDu, depassees.size(), prochaines.size(), actifs.size());
+        return new FournisseurAPSummaryDTO(totalDu, depassees.size(), prochaines.size(),
+            actifs.size());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<LigneFournisseurAPDTO> getLignes(Integer fournisseurId, StatutLigneFournisseurAP statut, Pageable pageable) {
+    public Page<LigneFournisseurAPDTO> getLignes(Integer fournisseurId,
+        StatutLigneFournisseurAP statut, Pageable pageable) {
         List<Commande> commandes = loadUnpaidCommandes(fournisseurId, null, null);
         Map<Integer, Long> paidMap = loadPaidAmounts(commandes);
 
@@ -131,9 +138,12 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
                 long montantRegle = paidMap.getOrDefault(intId(c), 0L);
                 long restantDu = montant - montantRegle;
                 LocalDate ech = computeEcheance(c);
-                StatutLigneFournisseurAP s = computeStatutLigne(c.getPaimentStatut(), montantRegle, ech, now);
-                String numBon = Objects.requireNonNullElse(c.getReceiptReference(), c.getOrderReference());
-                return new LigneFournisseurAPDTO(intId(c), numBon, c.getOrderDate().toString(), ech.toString(), montant, montantRegle, restantDu, s.name());
+                StatutLigneFournisseurAP s = computeStatutLigne(c.getPaimentStatut(), montantRegle,
+                    ech, now);
+                String numBon = Objects.requireNonNullElse(c.getReceiptReference(),
+                    c.getOrderReference());
+                return new LigneFournisseurAPDTO(intId(c), numBon, c.getOrderDate().toString(),
+                    ech.toString(), montant, montantRegle, restantDu, s.name());
             })
             .filter(dto -> statut == null || statut.name().equals(dto.statut()))
             .sorted(Comparator.comparing(LigneFournisseurAPDTO::dateCommande))
@@ -156,7 +166,7 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
             String operateur = null;
             if (pf.getCashRegister() != null && pf.getCashRegister().getUser() != null) {
                 var u = pf.getCashRegister().getUser();
-                operateur = u.getFirstName() + " " + u.getLastName();
+                operateur = AppUserNames.fullName(u);
             }
             return new ReglementBLDTO(
                 pf.getId() != null ? pf.getId().getId() : null,
@@ -176,7 +186,8 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
 
         int remaining = command.montant();
         List<PaymentFournisseur> toSave = new ArrayList<>();
-        LocalDate paymentDate = LocalDate.parse(command.dateReglement(), DateTimeFormatter.ISO_DATE);
+        LocalDate paymentDate = LocalDate.parse(command.dateReglement(),
+            DateTimeFormatter.ISO_DATE);
 
         // Si commandeId fourni, imputer sur ce BL en priorité
         if (command.commandeId() != null) {
@@ -186,18 +197,28 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
 
         // Distribuer le restant sur les autres commandes (FIFO)
         for (Commande commande : commandes) {
-            if (remaining <= 0) break;
-            if (command.commandeId() != null && intId(commande).equals(command.commandeId())) continue;
+            if (remaining <= 0) {
+                break;
+            }
+            if (command.commandeId() != null && intId(commande).equals(command.commandeId())) {
+                continue;
+            }
 
             long alreadyPaid = paidMap.getOrDefault(intId(commande), 0L);
-            long restant = (long) Objects.requireNonNullElse(commande.getFinalAmount(), 0) - alreadyPaid;
-            if (restant <= 0) continue;
+            long restant =
+                (long) Objects.requireNonNullElse(commande.getFinalAmount(), 0) - alreadyPaid;
+            if (restant <= 0) {
+                continue;
+            }
 
             int allocated = (int) Math.min(remaining, restant);
             remaining -= allocated;
-            toSave.add(buildPayment(commande, allocated, (int) restant, command.montant(), paymentDate, command));
+            toSave.add(
+                buildPayment(commande, allocated, (int) restant, command.montant(), paymentDate,
+                    command));
 
-            if (alreadyPaid + allocated >= (long) Objects.requireNonNullElse(commande.getFinalAmount(), 0)) {
+            if (alreadyPaid + allocated >= (long) Objects.requireNonNullElse(
+                commande.getFinalAmount(), 0)) {
                 commande.setPaimentStatut(PaimentStatut.PAID);
                 commandeRepository.save(commande);
             }
@@ -232,9 +253,12 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
                 long montantRegle = paidMap.getOrDefault(intId(c), 0L);
                 long restantDu = montant - montantRegle;
                 LocalDate ech = computeEcheance(c);
-                StatutLigneFournisseurAP s = computeStatutLigne(c.getPaimentStatut(), montantRegle, ech, now);
-                String numBon = Objects.requireNonNullElse(c.getReceiptReference(), c.getOrderReference());
-                return new LigneFournisseurAPDTO(intId(c), numBon, c.getOrderDate().toString(), ech.toString(), montant, montantRegle, restantDu, s.name());
+                StatutLigneFournisseurAP s = computeStatutLigne(c.getPaimentStatut(), montantRegle,
+                    ech, now);
+                String numBon = Objects.requireNonNullElse(c.getReceiptReference(),
+                    c.getOrderReference());
+                return new LigneFournisseurAPDTO(intId(c), numBon, c.getOrderDate().toString(),
+                    ech.toString(), montant, montantRegle, restantDu, s.name());
             })
             .sorted(Comparator.comparing(LigneFournisseurAPDTO::dateCommande))
             .collect(Collectors.toList());
@@ -254,17 +278,25 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
         List<PaymentFournisseur> toSave
     ) {
         for (Commande commande : commandes) {
-            if (!intId(commande).equals(commandeId)) continue;
+            if (!intId(commande).equals(commandeId)) {
+                continue;
+            }
 
             long alreadyPaid = paidMap.getOrDefault(intId(commande), 0L);
-            long restant = (long) Objects.requireNonNullElse(commande.getFinalAmount(), 0) - alreadyPaid;
-            if (restant <= 0) break;
+            long restant =
+                (long) Objects.requireNonNullElse(commande.getFinalAmount(), 0) - alreadyPaid;
+            if (restant <= 0) {
+                break;
+            }
 
             int allocated = (int) Math.min(remaining, restant);
             remaining -= allocated;
-            toSave.add(buildPayment(commande, allocated, (int) restant, command.montant(), paymentDate, command));
+            toSave.add(
+                buildPayment(commande, allocated, (int) restant, command.montant(), paymentDate,
+                    command));
 
-            if (alreadyPaid + allocated >= (long) Objects.requireNonNullElse(commande.getFinalAmount(), 0)) {
+            if (alreadyPaid + allocated >= (long) Objects.requireNonNullElse(
+                commande.getFinalAmount(), 0)) {
                 commande.setPaimentStatut(PaimentStatut.PAID);
                 commandeRepository.save(commande);
             }
@@ -297,7 +329,8 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
         return pf;
     }
 
-    private CompteFournisseurAPDTO buildCompteFournisseur(List<Commande> fCmds, Map<Integer, Long> paidMap) {
+    private CompteFournisseurAPDTO buildCompteFournisseur(List<Commande> fCmds,
+        Map<Integer, Long> paidMap) {
         Fournisseur f = fCmds.getFirst().getFournisseur();
         int creditDays = resolveJoursCredit(f);
         int critiqueDays = resolveJoursCritique(f);
@@ -332,7 +365,7 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
 
         StatutCompteFournisseur statut = hasCritique ? StatutCompteFournisseur.CRITIQUE
             : hasEnRetard ? StatutCompteFournisseur.EN_RETARD
-            : StatutCompteFournisseur.A_JOUR;
+                : StatutCompteFournisseur.A_JOUR;
 
         return new CompteFournisseurAPDTO(
             f.getId(), f.getLibelle(), f.getCode(), f.getPhone(), f.getMobile(),
@@ -344,23 +377,32 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
     }
 
     private int resolveJoursCredit(Fournisseur f) {
-        if (f.getJoursCredit() != null) return f.getJoursCredit();
+        if (f.getJoursCredit() != null) {
+            return f.getJoursCredit();
+        }
         Fournisseur parent = f.getParent();
-        if (parent != null && parent.getJoursCredit() != null) return parent.getJoursCredit();
+        if (parent != null && parent.getJoursCredit() != null) {
+            return parent.getJoursCredit();
+        }
         return appConfigurationService.getApDefaultCreditDays();
     }
 
     private int resolveJoursCritique(Fournisseur f) {
-        if (f.getJoursCritique() != null) return f.getJoursCritique();
+        if (f.getJoursCritique() != null) {
+            return f.getJoursCritique();
+        }
         Fournisseur parent = f.getParent();
-        if (parent != null && parent.getJoursCritique() != null) return parent.getJoursCritique();
+        if (parent != null && parent.getJoursCritique() != null) {
+            return parent.getJoursCritique();
+        }
         return appConfigurationService.getApDefaultCritiqueDays();
     }
 
     @Override
     @Transactional(readOnly = true)
     public long countOverdue() {
-        return commandeRepository.countOverdueCommandesAp(appConfigurationService.getApDefaultCreditDays());
+        return commandeRepository.countOverdueCommandesAp(
+            appConfigurationService.getApDefaultCreditDays());
     }
 
     private Integer intId(Commande c) {
@@ -369,7 +411,8 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
 
     private LocalDate computeEcheance(Commande c) {
         Fournisseur f = c.getFournisseur();
-        int days = (f != null) ? resolveJoursCredit(f) : appConfigurationService.getApDefaultCreditDays();
+        int days =
+            (f != null) ? resolveJoursCredit(f) : appConfigurationService.getApDefaultCreditDays();
         return computeEcheanceFor(c, days);
     }
 
@@ -378,23 +421,34 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
         return base.plusDays(creditDays);
     }
 
-    private StatutLigneFournisseurAP computeStatutLigne(PaimentStatut paimentStatut, long montantRegle, LocalDate echeance, LocalDate now) {
-        if (paimentStatut == PaimentStatut.PAID) return StatutLigneFournisseurAP.REGLE;
-        if (montantRegle > 0) return StatutLigneFournisseurAP.PARTIEL;
-        if (echeance.isBefore(now)) return StatutLigneFournisseurAP.EN_RETARD;
+    private StatutLigneFournisseurAP computeStatutLigne(PaimentStatut paimentStatut,
+        long montantRegle, LocalDate echeance, LocalDate now) {
+        if (paimentStatut == PaimentStatut.PAID) {
+            return StatutLigneFournisseurAP.REGLE;
+        }
+        if (montantRegle > 0) {
+            return StatutLigneFournisseurAP.PARTIEL;
+        }
+        if (echeance.isBefore(now)) {
+            return StatutLigneFournisseurAP.EN_RETARD;
+        }
         return StatutLigneFournisseurAP.EN_ATTENTE;
     }
 
-    private List<Commande> loadUnpaidCommandes(Integer fournisseurId, LocalDate fromDate, LocalDate toDate) {
+    private List<Commande> loadUnpaidCommandes(Integer fournisseurId, LocalDate fromDate,
+        LocalDate toDate) {
         if (fournisseurId != null) {
             return commandeRepository.findUnpaidCommandesApByFournisseurAndPeriod(
                 CLOSED, PaimentStatut.PAID, fournisseurId, fromDate, toDate);
         }
-        return commandeRepository.findUnpaidCommandesApByPeriod(CLOSED, PaimentStatut.PAID, fromDate, toDate);
+        return commandeRepository.findUnpaidCommandesApByPeriod(CLOSED, PaimentStatut.PAID,
+            fromDate, toDate);
     }
 
     private Map<Integer, Long> loadPaidAmounts(List<Commande> commandes) {
-        if (commandes.isEmpty()) return Map.of();
+        if (commandes.isEmpty()) {
+            return Map.of();
+        }
 
         List<Integer> ids = commandes.stream()
             .map(this::intId)

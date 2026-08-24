@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -7,13 +7,13 @@ import { filter } from 'rxjs/operators';
   selector: 'app-titlebar',
   imports: [CommonModule],
   templateUrl: './titlebar.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./titlebar.component.scss'],
 })
 export class TitlebarComponent implements OnInit {
   title = 'PharmaSmart';
-  currentRoute = '';
-  isMaximized = false;
+  protected readonly currentRoute = signal('');
+  protected readonly isMaximized = signal(false);
 
   private readonly router = inject(Router);
   async ngOnInit(): Promise<void> {
@@ -21,16 +21,16 @@ export class TitlebarComponent implements OnInit {
     const appWindow = getCurrentWindow();
 
     // Check initial maximize state
-    this.isMaximized = await appWindow.isMaximized();
+    this.isMaximized.set(await appWindow.isMaximized());
 
     // Listen for resize events to update maximize state
     await appWindow.listen('tauri://resize', async () => {
-      this.isMaximized = await appWindow.isMaximized();
+      this.isMaximized.set(await appWindow.isMaximized());
     });
 
     // Track current route for displaying in titlebar
     this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe((event: any) => {
-      this.currentRoute = this.getRouteTitle(event.url);
+      this.currentRoute.set(this.getRouteTitle(event.url));
     });
   }
 
@@ -43,7 +43,7 @@ export class TitlebarComponent implements OnInit {
     const { getCurrentWindow } = await import('@tauri-apps/api/window');
     const appWindow = getCurrentWindow();
 
-    if (this.isMaximized) {
+    if (this.isMaximized()) {
       await appWindow.unmaximize();
     } else {
       await appWindow.maximize();

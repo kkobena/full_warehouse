@@ -1,191 +1,181 @@
 
-  <div class="row">
-    <div class="col-lg-2 col-xl-2 col-xxl-2 col-md-3 col-sm-4">
-      <div class="pharma-nav-sidebar">
-        <div class="pharma-nav-sidebar-card">
-          <div class="pharma-nav-sidebar-header">
-            <i class="pi pi-receipt"></i>
-            <span>Facturation</span>
-          </div>
-          <div class="pharma-nav-sidebar-content">
-            <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav orientation="vertical">
+  <app-nav-sidebar (collapsedChange)="menuReplie.set($event)" [collapsed]="menuReplie()"
+                   [collapsible]="true" [nav]="nav" contentColumnClass="col-xl-10 col-lg-10 col-md-9 col-sm-8 "
+                   icon="pi pi-receipt" menuColumnClass="col-lg-2 col-xl-2 col-xxl-2 col-md-3 col-sm-4"
+                   title="Facturation">
+    <div #nav="ngbNav" [(activeId)]="active"
+         class="nav flex-column nav-pills" ngbNav orientation="vertical">
 
-              <!-- 1. Édition — acte d'entrée : grouper les lots et émettre les factures -->
-              @if (showEdition()) {
-                <ng-container ngbNavItem="edition">
-                  <a class="pharma-nav-vertical-link" ngbNavLink>
-                    <i class="pi pi-file-plus"></i>
-                    <span>Édition de factures</span>
-                    <span class="link-arrow">›</span>
-                  </a>
-                  <ng-template ngbNavContent>
-                    @defer (on immediate) {
-                      <app-facturation-edition />
-                    } @loading {
-                      <app-skeleton width="100%" height="240px" />
-                    }
-                  </ng-template>
-                </ng-container>
-              }
+      <!-- 1. Édition — acte d'entrée : grouper les lots et émettre les factures -->
+      @if (showEdition()) {
+        <ng-container ngbNavItem="edition">
+          <a class="pharma-nav-vertical-link" ngbNavLink>
+            <app-nav-section-link code="facturation.edition"
+                                  fallbackIcon="pi pi-file-plus"
+                                  fallbackLabel="Édition de factures" />
+          </a>
+          <ng-template ngbNavContent>
+            @defer (on immediate) {
+              <app-facturation-edition />
+            } @loading {
+              <app-skeleton width="100%" height="240px" />
+            }
+          </ng-template>
+        </ng-container>
+      }
 
-              <!-- 2. Factures — suivi quotidien des factures émises -->
-              @if (showFactures()) {
-                <ng-container ngbNavItem="factures">
-                  <a class="pharma-nav-vertical-link" ngbNavLink>
-                    <i class="pi pi-list"></i>
-                    <span>Factures</span>
-                    @if (alertBadgeService.facturationOverdueCount() > 0) {
-                      <span class="badge rounded-pill bg-warning text-dark sidebar-nav-badge ms-auto">
-                        {{ alertBadgeService.facturationOverdueCount() > 99 ? '99+' : alertBadgeService.facturationOverdueCount() }}
-                      </span>
-                    }
-                    <span class="link-arrow">›</span>
-                  </a>
-                  <ng-template ngbNavContent>
-                    @defer (on immediate) {
-                      <app-facturation-home />
-                    } @loading {
-                      <app-skeleton width="100%" height="240px" />
-                    }
-                  </ng-template>
-                </ng-container>
-              }
+      <!-- 2. Factures — suivi quotidien des factures émises -->
+      @if (showFactures()) {
+        <ng-container ngbNavItem="factures">
+          <a class="pharma-nav-vertical-link" ngbNavLink>
+            <app-nav-section-link [arrow]="false" code="facturation.factures"
+                                  fallbackIcon="pi pi-list"
+                                  fallbackLabel="Factures" />
+            @if (alertBadgeService.facturationOverdueCount() > 0) {
+              <span class="badge rounded-pill bg-warning text-dark sidebar-nav-badge ms-auto">
+                {{ alertBadgeService.facturationOverdueCount() > 99 ? '99+' : alertBadgeService.facturationOverdueCount() }}
+              </span>
+            }
+            <span class="link-arrow">›</span>
+          </a>
+          <ng-template ngbNavContent>
+            @defer (on immediate) {
+              <app-facturation-home navCode="facturation.factures" />
+            } @loading {
+              <app-skeleton width="100%" height="240px" />
+            }
+          </ng-template>
+        </ng-container>
+      }
 
-              <!--  Historique règlements — encaissements reçus -->
-              @if (showHistorique()) {
-                <ng-container ngbNavItem="historique">
-                  <a class="pharma-nav-vertical-link" ngbNavLink>
-                    <i class="pi pi-history"></i>
-                    <span>Historique règlements</span>
-                    <span class="link-arrow">›</span>
-                  </a>
-                  <ng-template ngbNavContent>
-                    @defer (on immediate) {
-                      <app-historique-reglements />
-                    } @loading {
-                      <app-skeleton width="100%" height="240px" />
-                    }
-                  </ng-template>
-                </ng-container>
-              }
+      <!--  Historique règlements — encaissements reçus -->
+      @if (showHistorique()) {
+        <ng-container ngbNavItem="historique">
+          <a class="pharma-nav-vertical-link" ngbNavLink>
+            <app-nav-section-link code="facturation.historique"
+                                  fallbackIcon="pi pi-history"
+                                  fallbackLabel="Historique règlements" />
+          </a>
+          <ng-template ngbNavContent>
+            @defer (on immediate) {
+              <app-historique-reglements navCode="facturation.historique" />
+            } @loading {
+              <app-skeleton width="100%" height="240px" />
+            }
+          </ng-template>
+        </ng-container>
+      }
 
-              <!--  Rapprochement — pointer règlements vs factures, identifier les impayés -->
-              @if (showRapprochement()) {
-                <ng-container ngbNavItem="rapprochement">
-                  <a class="pharma-nav-vertical-link" ngbNavLink>
-                    <i class="pi pi-arrows-h"></i>
-                    <span>Rapprochement</span>
-                    <span class="link-arrow">›</span>
-                  </a>
-                  <ng-template ngbNavContent>
-                    @defer (on immediate) {
-                      <app-rapprochement />
-                    } @loading {
-                      <app-skeleton width="100%" height="240px" />
-                    }
-                  </ng-template>
-                </ng-container>
-              }
+      <!--  Rapprochement — pointer règlements vs factures, identifier les impayés -->
+      @if (showRapprochement()) {
+        <ng-container ngbNavItem="rapprochement">
+          <a class="pharma-nav-vertical-link" ngbNavLink>
+            <app-nav-section-link code="facturation.rapprochement"
+                                  fallbackIcon="pi pi-arrows-h"
+                                  fallbackLabel="Rapprochement" />
+          </a>
+          <ng-template ngbNavContent>
+            @defer (on immediate) {
+              <app-rapprochement navCode="facturation.rapprochement" />
+            } @loading {
+              <app-skeleton width="100%" height="240px" />
+            }
+          </ng-template>
+        </ng-container>
+      }
 
-              <!--  Récapitulatif — synthèse périodique pour le pharmacien -->
-              @if (showRecapitulatif()) {
-                <ng-container ngbNavItem="recapitulatif">
-                  <a class="pharma-nav-vertical-link" ngbNavLink>
-                    <i class="pi pi-chart-bar"></i>
-                    <span>Récapitulatif</span>
-                    <span class="link-arrow">›</span>
-                  </a>
-                  <ng-template ngbNavContent>
-                    @defer (on immediate) {
-                      <app-recapitulatif />
-                    } @loading {
-                      <app-skeleton width="100%" height="240px" />
-                    }
-                  </ng-template>
-                </ng-container>
-              }
-              <!-- 8. Comptes fournisseurs — suivi des dettes AP -->
-              @if (showComptesFournisseurs()) {
-                <ng-container ngbNavItem="comptes-fournisseurs">
-                  <a class="pharma-nav-vertical-link" ngbNavLink>
-                    <i class="pi pi-truck"></i>
-                    <span>Comptes fournisseurs</span>
-                    @if (alertBadgeService.comptesFournisseursOverdueCount() > 0) {
-                      <span class="badge rounded-pill bg-warning text-dark sidebar-nav-badge ms-auto">
-                        {{ alertBadgeService.comptesFournisseursOverdueCount() > 99 ? '99+' : alertBadgeService.comptesFournisseursOverdueCount() }}
-                      </span>
-                    }
-                    <span class="link-arrow">›</span>
-                  </a>
-                  <ng-template ngbNavContent>
-                    @defer (on immediate) {
-                      <app-comptes-fournisseurs />
-                    } @loading {
-                      <app-skeleton width="100%" height="240px" />
-                    }
-                  </ng-template>
-                </ng-container>
-              }
+      <!--  Récapitulatif — synthèse périodique pour le pharmacien -->
+      @if (showRecapitulatif()) {
+        <ng-container ngbNavItem="recapitulatif">
+          <a class="pharma-nav-vertical-link" ngbNavLink>
+            <app-nav-section-link code="facturation.recapitulatif"
+                                  fallbackIcon="pi pi-chart-bar"
+                                  fallbackLabel="Récapitulatif" />
+          </a>
+          <ng-template ngbNavContent>
+            @defer (on immediate) {
+              <app-recapitulatif navCode="facturation.recapitulatif" />
+            } @loading {
+              <app-skeleton width="100%" height="240px" />
+            }
+          </ng-template>
+        </ng-container>
+      }
+      <!-- 8. Comptes fournisseurs — suivi des dettes AP -->
+      @if (showComptesFournisseurs()) {
+        <ng-container ngbNavItem="comptes-fournisseurs">
+          <a class="pharma-nav-vertical-link" ngbNavLink>
+            <app-nav-section-link [arrow]="false" code="facturation.comptes-fournisseurs"
+                                  fallbackIcon="pi pi-truck"
+                                  fallbackLabel="Comptes fournisseurs" />
+            @if (alertBadgeService.comptesFournisseursOverdueCount() > 0) {
+              <span class="badge rounded-pill bg-warning text-dark sidebar-nav-badge ms-auto">
+                {{ alertBadgeService.comptesFournisseursOverdueCount() > 99 ? '99+' : alertBadgeService.comptesFournisseursOverdueCount() }}
+              </span>
+            }
+            <span class="link-arrow">›</span>
+          </a>
+          <ng-template ngbNavContent>
+            @defer (on immediate) {
+              <app-comptes-fournisseurs navCode="facturation.comptes-fournisseurs" />
+            } @loading {
+              <app-skeleton width="100%" height="240px" />
+            }
+          </ng-template>
+        </ng-container>
+      }
 
-              <!-- 9. Remises & RFA -->
-              @if (showRemisesRfa()) {
-                <ng-container ngbNavItem="remises-rfa">
-                  <a class="pharma-nav-vertical-link" ngbNavLink>
-                    <i class="pi pi-tag"></i>
-                    <span>Remises & RFA</span>
-                    <span class="link-arrow">›</span>
-                  </a>
-                  <ng-template ngbNavContent>
-                    @defer (on immediate) {
-                      <app-remises-rfa />
-                    } @loading {
-                      <app-skeleton width="100%" height="240px" />
-                    }
-                  </ng-template>
-                </ng-container>
-              }
-              <!--  Avoirs — opération exceptionnelle (litiges, trop-perçus) -->
-              @if (showAvoir && showAvoirs()) {
-                <ng-container ngbNavItem="avoirs">
-                  <a class="pharma-nav-vertical-link" ngbNavLink>
-                    <i class="pi pi-wallet"></i>
-                    <span>Avoirs TP</span>
-                    <span class="link-arrow">›</span>
-                  </a>
-                  <ng-template ngbNavContent>
-                    @defer (on immediate) {
-                      <app-avoir />
-                    } @loading {
-                      <app-skeleton width="100%" height="240px" />
-                    }
-                  </ng-template>
-                </ng-container>
-              }
+      <!-- 9. Remises & RFA -->
+      @if (showRemisesRfa()) {
+        <ng-container ngbNavItem="remises-rfa">
+          <a class="pharma-nav-vertical-link" ngbNavLink>
+            <app-nav-section-link code="facturation.remises-rfa"
+                                  fallbackIcon="pi pi-tag"
+                                  fallbackLabel="Remises & RFA" />
+          </a>
+          <ng-template ngbNavContent>
+            @defer (on immediate) {
+              <app-remises-rfa navCode="facturation.remises-rfa" />
+            } @loading {
+              <app-skeleton width="100%" height="240px" />
+            }
+          </ng-template>
+        </ng-container>
+      }
+      <!--  Avoirs — opération exceptionnelle (litiges, trop-perçus) -->
+      @if (showAvoir && showAvoirs()) {
+        <ng-container ngbNavItem="avoirs">
+          <a class="pharma-nav-vertical-link" ngbNavLink>
+            <app-nav-section-link code="facturation.avoirs"
+                                  fallbackIcon="pi pi-wallet"
+                                  fallbackLabel="Avoirs TP" />
+          </a>
+          <ng-template ngbNavContent>
+            @defer (on immediate) {
+              <app-avoir navCode="facturation.avoirs" />
+            } @loading {
+              <app-skeleton width="100%" height="240px" />
+            }
+          </ng-template>
+        </ng-container>
+      }
 
-              <!-- 7. Automatisation — configuration planification, rarement touché -->
-              @if (showAutomatisation()) {
-                <ng-container ngbNavItem="automatisation">
-                  <a class="pharma-nav-vertical-link" ngbNavLink>
-                    <i class="pi pi-cog"></i>
-                    <span>Automatisation</span>
-                    <span class="link-arrow">›</span>
-                  </a>
-                  <ng-template ngbNavContent>
-                    @defer (on immediate) {
-                      <app-planification />
-                    } @loading {
-                      <app-skeleton width="100%" height="240px" />
-                    }
-                  </ng-template>
-                </ng-container>
-              }
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- 7. Automatisation — configuration planification, rarement touché -->
+      @if (showAutomatisation()) {
+        <ng-container ngbNavItem="automatisation">
+          <a class="pharma-nav-vertical-link" ngbNavLink>
+            <app-nav-section-link code="facturation.automatisation"
+                                  fallbackIcon="pi pi-cog"
+                                  fallbackLabel="Automatisation" />
+          </a>
+          <ng-template ngbNavContent>
+            @defer (on immediate) {
+              <app-planification />
+            } @loading {
+              <app-skeleton width="100%" height="240px" />
+            }
+          </ng-template>
+        </ng-container>
+      }
     </div>
-
-    <div class="col-xl-10 col-lg-10 col-md-9 col-sm-8 ">
-      <div [ngbNavOutlet]="nav"></div>
-    </div>
-  </div>
+  </app-nav-sidebar>

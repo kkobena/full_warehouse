@@ -42,7 +42,7 @@ import { NotificationService } from "../../shared/services/notification.service"
     NgbTooltip
   ],
   templateUrl: "./caissier-dashboard.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ["./caissier-dashboard.component.scss"]
 })
 export class CaissierDashboardComponent implements OnInit, OnDestroy {

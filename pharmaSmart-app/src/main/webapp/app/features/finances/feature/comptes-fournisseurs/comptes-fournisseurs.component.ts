@@ -5,8 +5,7 @@ import {
   DestroyRef,
   inject,
   OnInit,
-  signal
-} from "@angular/core";
+  signal, input} from "@angular/core";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {CommonModule} from "@angular/common";
 import {
@@ -43,15 +42,18 @@ import {
   IconFieldComponent,
   InputNumberComponent,
   SelectComponent,
-  ToolbarComponent
-} from "../../../../shared/ui";
+  ToolbarComponent, AppBadgeSeverity } from "../../../../shared/ui";
 import {
   PharmaDatePickerComponent
 } from "../../../../shared/date-picker/pharma-date-picker.component";
+import { HintComponent } from 'app/shared/ui/hint/hint.component';
 
+import { DeviseDirective } from 'app/shared/utils/devise';
+import { currencySymbol } from 'app/shared/utils/format-utils';
 @Component({
   selector: "app-comptes-fournisseurs",
-  imports: [
+  imports: [DeviseDirective, 
+    HintComponent,
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
@@ -69,10 +71,19 @@ import {
     CardComponent
   ],
   templateUrl: "./comptes-fournisseurs.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./comptes-fournisseurs.component.scss"
 })
 export class ComptesFournisseursComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   // ── State ──────────────────────────────────────────────────────────────────
   comptes = signal<ICompteFournisseurAP[]>([]);
   summary = signal<IFournisseurAPSummary | null>(null);
@@ -98,7 +109,6 @@ export class ComptesFournisseursComponent implements OnInit {
   fromDate = signal<NgbDateStruct | null>(null);
   toDate = signal<NgbDateStruct | null>(null);
 
-  showHint = signal<boolean>(localStorage.getItem("ap-hint-dismissed") !== "1");
 
   // ── Signal Forms ───────────────────────────────────────────────────────────
   montantSaisi = signal(0);
@@ -281,7 +291,7 @@ export class ComptesFournisseursComponent implements OnInit {
     const modeLabel = this.modeReglementOptions.find(o => o.value === val.modeReglement)?.label ?? val.modeReglement;
     const ligne = this.selectedLigne();
     const blInfo = ligne ? ` — BL ${ligne.numBon}` : "";
-    const message = `Confirmer le règlement de ${this.formatCurrency(val.montant!)} FCFA par ${modeLabel}${blInfo} pour ${fournisseur.fournisseurName} ?`;
+    const message = `Confirmer le règlement de ${this.formatCurrency(val.montant!)} ${currencySymbol()} par ${modeLabel}${blInfo} pour ${fournisseur.fournisseurName} ?`;
 
     this.confirmDialog.onConfirm(
       () => this.doSaveReglement(),
@@ -326,10 +336,6 @@ export class ComptesFournisseursComponent implements OnInit {
   }
 
   // ── Hint ───────────────────────────────────────────────────────────────────
-  dismissHint(): void {
-    localStorage.setItem("ap-hint-dismissed", "1");
-    this.showHint.set(false);
-  }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
   isSelected(c: ICompteFournisseurAP): boolean {
@@ -380,7 +386,7 @@ export class ComptesFournisseursComponent implements OnInit {
     return "Commandes très en retard (délai critique dépassé)";
   }
 
-  ligneSeverity(statut: StatutLigne): string {
+  ligneSeverity(statut: StatutLigne): AppBadgeSeverity {
     if (statut === "EN_RETARD") {
       return "danger";
     }

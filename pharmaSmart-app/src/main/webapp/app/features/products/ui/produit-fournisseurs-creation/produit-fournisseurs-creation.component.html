@@ -38,7 +38,7 @@
           <div class="input-currency">
             <input appKeyFilter="int" class="form-control w-full" formControlName="prixAchat"
                    [class.ng-invalid]="!isPrixValid(row) || (row.get('prixAchat')?.invalid && row.get('prixAchat')?.touched)"/>
-            <span class="currency-symbol">FCFA</span>
+            <span class="currency-symbol" appDevise></span>
           </div>
         </div>
         <div class="form-field">
@@ -46,7 +46,7 @@
           <div class="input-currency">
             <input appKeyFilter="int" class="form-control w-full" formControlName="prixUni"
                    [class.ng-invalid]="!isPrixValid(row) || (row.get('prixUni')?.invalid && row.get('prixUni')?.touched)"/>
-            <span class="currency-symbol">FCFA</span>
+            <span class="currency-symbol" appDevise></span>
           </div>
         </div>
         <div class="form-field">

@@ -26,7 +26,7 @@ const GROUP_BY_OPTIONS = [
   selector: 'app-inventory-export-modal',
   imports: [CommonModule, FormsModule, ButtonComponent, SelectComponent, CardComponent],
   templateUrl: './inventory-export-modal.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './inventory-export-modal.component.scss',
 })
 export class InventoryExportModalComponent implements OnInit {
@@ -38,7 +38,7 @@ export class InventoryExportModalComponent implements OnInit {
   exportGroupBy = 'RAYON';
   selectedFilter = 'NONE';
   selectedStorageId: number | null = null;
-  selectedRayonId: number | null = null;
+  protected readonly selectedRayonId = signal(null);
   search = '';
   storages = signal<IStorage[]>([]);
   rayons = signal<IRayon[]>([]);
@@ -65,7 +65,7 @@ export class InventoryExportModalComponent implements OnInit {
   }
 
   onStorageChange(storageId: number | null): void {
-    this.selectedRayonId = null;
+    this.selectedRayonId.set(null);
     this.rayons.set([]);
     if (storageId) {
       this.rayonService
@@ -85,8 +85,8 @@ export class InventoryExportModalComponent implements OnInit {
     if (this.selectedStorageId) {
       filterParams['storageId'] = this.selectedStorageId;
     }
-    if (this.selectedRayonId) {
-      filterParams['rayonId'] = this.selectedRayonId;
+    if (this.selectedRayonId()) {
+      filterParams['rayonId'] = this.selectedRayonId();
     }
     if (this.selectedFilter !== 'NONE') {
       filterParams['selectedFilter'] = this.selectedFilter;

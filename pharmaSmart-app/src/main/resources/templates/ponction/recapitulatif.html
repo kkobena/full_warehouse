@@ -1,0 +1,38 @@
+<div>
+  <table class="main-table" th:fragment="recapitulatif">
+    <tbody>
+    <tr>
+      <td>Chiffre d'affaires encaissé</td>
+      <td class="unit"
+          th:text="${#numbers.formatInteger(reportSummary.caReel,3,'WHITESPACE')}"></td>
+    </tr>
+
+    <tr>
+      <td>Montant ponctionné</td>
+      <td class="unit"
+          th:text="${#numbers.formatInteger(reportSummary.montantPonctionne,3,'WHITESPACE')}"></td>
+    </tr>
+    <tr class="last-item">
+      <td>Chiffre d'affaires déclaré</td>
+      <td class="unit"
+          th:text="${#numbers.formatInteger(reportSummary.caDeclare,3,'WHITESPACE')}"></td>
+    </tr>
+    <tr>
+      <td>Base de calcul</td>
+      <td class="unit" th:text="${modeCalcul}"></td>
+    </tr>
+    <tr>
+      <td>Plafond appliqué par vente</td>
+      <td class="unit" th:text="${reportSummary.plafondParVente} + ' %'"></td>
+    </tr>
+    <tr>
+      <td>Ventes touchées</td>
+      <td class="unit" th:text="${reportSummary.nombreVentes}"></td>
+    </tr>
+    <tr th:if="${reportSummary.commentaire}">
+      <td>Motif</td>
+      <td class="unit" th:text="${reportSummary.commentaire}"></td>
+    </tr>
+    </tbody>
+  </table>
+</div>

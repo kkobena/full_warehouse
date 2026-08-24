@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import {signal, Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { HttpResponse } from "@angular/common/http";
@@ -18,15 +18,15 @@ import { ButtonComponent, SelectComponent } from "../../../../shared/ui";
   selector: "app-clone-rayon-form",
   templateUrl: "./clone-rayon-form.component.html",
   styleUrl: "./clone-rayon-form.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ReactiveFormsModule, ButtonComponent, SelectComponent]
 })
 export class CloneRayonFormComponent implements OnInit {
   rayons: IRayon[] = [];
 
-  protected magasins: IMagasin[] = [];
-  protected storages: Storage[] = [];
-  protected isSaving = false;
+  protected readonly magasins = signal([]);
+  protected readonly storages = signal([]);
+  protected readonly isSaving = signal(false);
 
   protected readonly editForm = inject(UntypedFormBuilder).group({
     magasinId: [null, [Validators.required]],
@@ -46,7 +46,7 @@ export class CloneRayonFormComponent implements OnInit {
       .fetchAll()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((res: HttpResponse<IMagasin[]>) => {
-        this.magasins = res.body ?? [];
+        this.magasins.set(res.body ?? []);
       });
 
     this.editForm
@@ -58,7 +58,7 @@ export class CloneRayonFormComponent implements OnInit {
           .fetchStorages({ magasinId })
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe((res: HttpResponse<Storage[]>) => {
-            this.storages = res.body ?? [];
+            this.storages.set(res.body ?? []);
             this.editForm.get("storageId")!.reset();
           });
       });
@@ -66,13 +66,13 @@ export class CloneRayonFormComponent implements OnInit {
 
   protected save(): void {
     if (this.editForm.invalid) return;
-    this.isSaving = true;
+    this.isSaving.set(true);
     const storageId = this.editForm.get("storageId")!.value as number;
     this.rayonApi
       .cloner(this.rayons, storageId)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        finalize(() => (this.isSaving = false))
+        finalize(() => (this.isSaving.set(false)))
       )
       .subscribe({
         next: res => this.activeModal.close(res.body),

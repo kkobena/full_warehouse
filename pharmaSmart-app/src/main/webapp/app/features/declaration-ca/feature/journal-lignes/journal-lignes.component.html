@@ -1,0 +1,193 @@
+<!-- ── Toolbar : titre et barre de filtres ──────────────────────────────────── -->
+<app-toolbar [code]="navCode()" [compact]="true" [icon]="icone()" [title]="titre()">
+  <ng-container ngProjectAs="[toolbarFilters]">
+    <div class="pharma-toolbar-filters flex-wrap gap-2">
+      <pharma-date-picker
+        (ngModelChange)="dateDebut.set($event)"
+        [id]="'journal-' + type() + '-du'"
+        [labelPosition]="'inline'"
+        [maxDate]="dateFin()"
+        [ngModel]="dateDebut()"
+        label="Du"
+      />
+      <pharma-date-picker
+        (ngModelChange)="dateFin.set($event)"
+        [id]="'journal-' + type() + '-au'"
+        [labelPosition]="'inline'"
+        [minDate]="dateDebut()"
+        [ngModel]="dateFin()"
+        label="Au"
+      />
+
+      <app-icon-field [overlay]="true" icon="pi pi-search">
+        <input
+          (keyup.enter)="charger()"
+          (ngModelChange)="recherche.set($event)"
+          [id]="'journal-' + type() + '-recherche'"
+          [ngModel]="recherche()"
+          class="form-control"
+          placeholder="Code CIP, EAN, libellé…"
+          style="max-width: 260px"
+          type="search"
+        />
+      </app-icon-field>
+    </div>
+  </ng-container>
+
+  <ng-container ngProjectAs="[toolbarActions]">
+    <div class="pharma-toolbar-actions">
+      <div class="pharma-button-group">
+        <app-button
+          (clicked)="charger()"
+          [disabled]="chargement()"
+          icon="pi pi-search"
+          label="Afficher"
+          severity="info"
+        />
+      </div>
+    </div>
+  </ng-container>
+</app-toolbar>
+
+<app-hint [storageKey]="'journal-' + type() + '-explication'">{{ explication() }}</app-hint>
+
+
+<!-- ── Indicateurs ─────────────────────────────────────────────────────────── -->
+<app-kpi-strip [loading]="chargement()" [skeletonCount]="5" stripClass="mb-2">
+  <app-kpi-item
+    [accent]="'primary'"
+    [value]="kpi()?.nombreLignes | number"
+    icon="pi pi-list"
+    iconClass="text-primary"
+    label="Lignes concernées"
+    valueClass="text-primary"
+  >
+    <ng-container ngProjectAs="[kpiSub]">{{ kpi()?.nombreVentes | number }} vente(s)</ng-container>
+  </app-kpi-item>
+
+  @if (estUg()) {
+    <app-kpi-item
+      [accent]="'info'"
+      [value]="kpi()?.quantiteUg | number"
+      icon="pi pi-gift"
+      iconClass="text-info"
+      label="Unités gratuites"
+      valueClass="text-info"
+    >
+      <ng-container ngProjectAs="[kpiSub]">sur {{ kpi()?.quantite | number }} unités vendues
+      </ng-container>
+    </app-kpi-item>
+  } @else {
+    <app-kpi-item
+      [accent]="'info'"
+      [value]="kpi()?.quantite | number"
+      icon="pi pi-box"
+      iconClass="text-info"
+      label="Quantité vendue"
+      valueClass="text-info"
+    />
+  }
+
+  <app-kpi-item
+    [accent]="'secondary'"
+    [value]="kpi()?.valeurTtc | number: '1.0-0'"
+    icon="pi pi-tag"
+    iconClass="text-secondary"
+    label="Valeur TTC"
+    suffix="F"
+  />
+
+  <!--
+    Ce que la déclaration perd. Distinct de la valeur TTC pour les seules unités gratuites :
+    ailleurs, la ligne entière sort et les deux montants coïncident.
+  -->
+  <app-kpi-item
+    [accent]="'danger'"
+    [value]="kpi()?.montantExclu | number: '1.0-0'"
+    icon="pi pi-minus-circle"
+    iconClass="text-danger"
+    label="Retiré du CA déclaré"
+    suffix="F"
+    valueClass="text-danger"
+  />
+
+  <app-kpi-item
+    [accent]="'success'"
+    [value]="kpi()?.marge | number: '1.0-0'"
+    icon="pi pi-percentage"
+    iconClass="text-success"
+    label="Marge brute"
+    suffix="F"
+    valueClass="text-success"
+  >
+    <ng-container ngProjectAs="[kpiSub]">{{ kpi()?.tauxMarge | number: '1.1-1' }} % de taux de
+      marge
+    </ng-container>
+  </app-kpi-item>
+</app-kpi-strip>
+
+@if (tronque()) {
+  <div class="alert alert-warning py-2 small">
+    <i class="pi pi-exclamation-triangle me-1"></i>
+    La période dépasse le nombre de lignes affichables. Le tableau montre les plus récentes ;
+    <strong>les indicateurs ci-dessus restent complets</strong>. Affinez la période ou la recherche
+    pour consulter le détail.
+  </div>
+}
+<app-hint [storageKey]="'journal-' + type()">
+  Les indicateurs portent sur la totalité de la période, même lorsque le tableau n'en affiche
+  qu'une partie.
+</app-hint>
+<!-- ── Détail ──────────────────────────────────────────────────────────────── -->
+<app-data-table
+  [loading]="chargement()"
+  [paginator]="true"
+  [rowsPerPageOptions]="[25, 50, 100]"
+  [rows]="25"
+  [showCurrentPageReport]="true"
+  [stripedRows]="true"
+  [value]="lignes()"
+  emptyMessage="Aucune ligne écartée sur cette période"
+  size="small"
+>
+  <ng-template #header>
+    <tr class="pharma-table-head">
+      <th style="width: 7rem">Date</th>
+      <th style="width: 9rem">Transaction</th>
+      <th style="width: 8rem">Code</th>
+      <th>Produit</th>
+      @if (!estUg()) {
+        <th style="width: 12rem">Rayon</th>
+      }
+      <th class="text-end" style="width: 6rem">Quantité</th>
+      @if (estUg()) {
+        <th class="text-end" style="width: 5rem">Dont UG</th>
+      }
+      <th class="text-end" style="width: 8rem">Valeur TTC</th>
+      <th class="text-end" style="width: 8rem">Retiré du CA</th>
+      <th class="text-end" style="width: 8rem">Marge</th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-ligne>
+    <tr>
+      <td>{{ ligne.saleDate | date: 'dd/MM/yyyy' }}</td>
+      <td class="small">{{ ligne.numeroTransaction }}</td>
+      <td class="small text-muted">{{ ligne.codeProduit }}</td>
+      <td>{{ ligne.libelleProduit }}</td>
+      @if (!estUg()) {
+        <td class="small text-muted">{{ ligne.rayon }}</td>
+      }
+      <td class="text-end">{{ ligne.quantite | number }}</td>
+      @if (estUg()) {
+        <td class="text-end fw-semibold">{{ ligne.quantiteUg | number }}</td>
+      }
+      <td class="text-end">{{ ligne.valeurTtc | number: '1.0-0' }}</td>
+      <td class="text-end text-danger">{{ ligne.montantExclu | number: '1.0-0' }}</td>
+      <td [class.text-danger]="ligne.marge < 0" [class.text-success]="ligne.marge > 0"
+          class="text-end">
+        {{ ligne.marge | number: '1.0-0' }}
+      </td>
+    </tr>
+  </ng-template>
+</app-data-table>

@@ -1,6 +1,6 @@
 <div class="pharma-smart-content p-2">
   <!-- Toolbar -->
-  <app-toolbar icon="pi pi-chart-line" title="Prévisions de Ventes">
+  <app-toolbar [code]="navCode()" icon="pi pi-chart-line" title="Prévisions de Ventes">
 
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
@@ -97,75 +97,38 @@
         </div>
       }
 
-      <div class="kpi-strip mt-2 mb-2">
-
-        <div class="kpi-strip-item primary-accent">
-          <i class="pi pi-calendar text-primary"></i>
-          <div class="kpi-strip-body">
-            <span class="kpi-strip-label">Prévision 3 Mois</span>
-            <span class="kpi-strip-value text-primary">{{ formatCurrency(sum.totalForecastedCA3M) }}
-              <small>FCFA</small></span>
-            <span class="kpi-strip-sub">
-              @if (sum.averageMonthlyGrowthPct != null) {
-                {{ formatPercent(sum.averageMonthlyGrowthPct) }}%/mois
-              } @else {
-                Tendance non calculable
-              }
-            </span>
-          </div>
-        </div>
-
-        <div class="kpi-strip-divider"></div>
-
-        <div class="kpi-strip-item success-accent">
-          <i class="pi pi-chart-bar text-success"></i>
-          <div class="kpi-strip-body">
-            <span class="kpi-strip-label">Prévision 6 Mois</span>
-            <span class="kpi-strip-value text-success">{{ formatCurrency(sum.totalForecastedCA6M) }}
-              <small>FCFA</small></span>
-            <span class="kpi-strip-sub">{{
-                getMethodLabel(sum.forecastMethod || 'LINEAR_REGRESSION')
-              }}</span>
-          </div>
-        </div>
-
-        <div class="kpi-strip-divider"></div>
-
-        <div class="kpi-strip-item warning-accent">
-          <i class="pi pi-chart-line text-warning"></i>
-          <div class="kpi-strip-body">
-            <span class="kpi-strip-label">Prévision 12 Mois</span>
-            <span class="kpi-strip-value text-warning">{{
-                formatCurrency(sum.totalForecastedCA12M)
-              }} <small>FCFA</small></span>
-            <span class="kpi-strip-sub">
-              @if (sum.predictedYearlyGrowthPct != null) {
-                Croissance : {{ formatPercent(sum.predictedYearlyGrowthPct) }}%/an
-              } @else {
-                Croissance non calculable
-              }
-            </span>
-          </div>
-        </div>
-
-        <div class="kpi-strip-divider"></div>
-
-        <div class="kpi-strip-item danger-accent">
-          <i class="pi pi-check-circle text-danger"></i>
-          <div class="kpi-strip-body">
-            <span class="kpi-strip-label">Précision du Modèle</span>
-            <span class="kpi-strip-value text-danger">
-              @if (sum.modelAccuracyPct != null) {
-                {{ formatPercent(sum.modelAccuracyPct) }} <small>%</small>
-              } @else {
-                <span style="font-size: 0.9rem">Non calculable</span>
-              }
-            </span>
-            <span class="kpi-strip-sub">{{ sum.dataPointsUsed }} mois de données</span>
-          </div>
-        </div>
-
-      </div>
+      <app-kpi-strip stripClass="mt-2 mb-2">
+        <app-kpi-item [accent]="'primary'" icon="pi pi-calendar" iconClass="text-primary" label="Prévision 3 Mois" [value]="formatCurrency(sum.totalForecastedCA3M)" valueClass="text-primary">
+          <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+          <ng-container ngProjectAs="[kpiSub]">@if (sum.averageMonthlyGrowthPct != null) {
+                        {{ formatPercent(sum.averageMonthlyGrowthPct) }}%/mois
+                      } @else {
+                        Tendance non calculable
+                      }</ng-container>
+        </app-kpi-item>
+        <app-kpi-item [accent]="'success'" icon="pi pi-chart-bar" iconClass="text-success" label="Prévision 6 Mois" [value]="formatCurrency(sum.totalForecastedCA6M)" valueClass="text-success">
+          <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+          <ng-container ngProjectAs="[kpiSub]">{{
+                        getMethodLabel(sum.forecastMethod || 'LINEAR_REGRESSION')
+                      }}</ng-container>
+        </app-kpi-item>
+        <app-kpi-item [accent]="'warning'" icon="pi pi-chart-line" iconClass="text-warning" label="Prévision 12 Mois" [value]="formatCurrency(sum.totalForecastedCA12M)" valueClass="text-warning">
+          <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+          <ng-container ngProjectAs="[kpiSub]">@if (sum.predictedYearlyGrowthPct != null) {
+                        Croissance : {{ formatPercent(sum.predictedYearlyGrowthPct) }}%/an
+                      } @else {
+                        Croissance non calculable
+                      }</ng-container>
+        </app-kpi-item>
+        <app-kpi-item [accent]="'danger'" icon="pi pi-check-circle" iconClass="text-danger" label="Précision du Modèle" valueClass="text-danger">
+          <ng-container ngProjectAs="[kpiValue]">@if (sum.modelAccuracyPct != null) {
+                        {{ formatPercent(sum.modelAccuracyPct) }} <small>%</small>
+                      } @else {
+                        <span style="font-size: 0.9rem">Non calculable</span>
+                      }</ng-container>
+          <ng-container ngProjectAs="[kpiSub]">{{ sum.dataPointsUsed }} mois de données</ng-container>
+        </app-kpi-item>
+      </app-kpi-strip>
 
       <!-- Alerte saisonnalité -->
       @if (sum.seasonalityDetected) {
@@ -260,13 +223,13 @@
                 <p class="mt-3 text-muted">Aucune prévision disponible</p>
               </div>
             } @else {
-              <table class="pharma-table">
+              <table>
                 <thead class="pharma-table-head">
                 <tr>
                   <th>Période</th>
-                  <th class="text-end">CA Prévu (FCFA)</th>
-                  <th class="text-end">Limite Basse (FCFA)</th>
-                  <th class="text-end">Limite Haute (FCFA)</th>
+                  <th class="text-end">CA Prévu (<span appDevise></span>)</th>
+                  <th class="text-end">Limite Basse (<span appDevise></span>)</th>
+                  <th class="text-end">Limite Haute (<span appDevise></span>)</th>
                   <th class="text-center">Confiance</th>
                   <th>Méthode</th>
                 </tr>
@@ -402,11 +365,11 @@
         </div>
 
         <div class="mb-3">
-          <p class="fw-semibold mb-1">MAE — Erreur Absolue Moyenne (FCFA)</p>
+          <p class="fw-semibold mb-1">MAE — Erreur Absolue Moyenne (<span appDevise></span>)</p>
           <p class="text-sm text-muted mb-2">
-            Écart moyen en FCFA entre la prévision et le réel. Plus parlant pour un pharmacien : un
-            MAE de 500 000 FCFA signifie que la
-            prévision se trompe en moyenne de 500 000 FCFA par mois.
+            Écart moyen en <span appDevise></span> entre la prévision et le réel. Plus parlant pour un pharmacien : un
+            MAE de 500 000 <span appDevise></span> signifie que la
+            prévision se trompe en moyenne de 500 000 <span appDevise></span> par mois.
           </p>
         </div>
 
@@ -499,7 +462,7 @@
           <li>Horizon recommandé : <strong>3 mois</strong> (fiabilité maximale)</li>
           <li>Au-delà de 6 mois, basez-vous sur l'intervalle de confiance (scénario pessimiste)</li>
           <li>Recalculez après tout changement majeur (concurrence, rénovation)</li>
-          <li>Utilisez le MAE pour calibrer votre marge de sécurité en FCFA</li>
+          <li>Utilisez le MAE pour calibrer votre marge de sécurité en <span appDevise></span></li>
         </ul>
       </div>
     </div>

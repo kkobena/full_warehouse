@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild, AfterViewInit, ElementRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, viewChild, AfterViewInit, ElementRef, ChangeDetectionStrategy, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { NotificationService } from '../../../shared/services/notification.service';
 import { ErrorService } from '../../../shared/error.service';
@@ -14,16 +14,16 @@ import { ButtonComponent, CardComponent, KeyFilterDirective } from '../../../sha
   selector: 'jhi-form-transfert-stock',
   imports: [FormsModule, ReactiveFormsModule, ButtonComponent, CardComponent, KeyFilterDirective],
   templateUrl: './form-transfert-stock.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './form-transfert-stock.component.scss',
 })
 export class FormTransfertStockComponent implements OnInit, AfterViewInit {
   produit?: IProduit;
   stockProduitSrc?: IStockProduit;
-  stockProduitDest?: IStockProduit;
-  isSaving = false;
-  maxTransferableQty = 0;
-  isCreatingNewReserve = false;
+  protected readonly stockProduitDest = signal<IStockProduit | undefined>(undefined);
+  protected readonly isSaving = signal(false);
+  protected readonly maxTransferableQty = signal(0);
+  protected readonly isCreatingNewReserve = signal(false);
 
   fb = inject(UntypedFormBuilder);
   editForm = this.fb.group({
@@ -43,10 +43,10 @@ export class FormTransfertStockComponent implements OnInit, AfterViewInit {
     this.calculateMaxTransferableQty();
 
     // Update validators based on context
-    this.editForm.get('quantity')!.setValidators([Validators.required, Validators.min(1), Validators.max(this.maxTransferableQty)]);
+    this.editForm.get('quantity')!.setValidators([Validators.required, Validators.min(1), Validators.max(this.maxTransferableQty())]);
 
     // Make seuilMini required if creating new reserve
-    if (this.isCreatingNewReserve) {
+    if (this.isCreatingNewReserve()) {
       this.editForm.get('seuilMini')!.setValidators([Validators.required, Validators.min(0)]);
     }
   }
@@ -54,7 +54,7 @@ export class FormTransfertStockComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     // Set focus on the appropriate field
     setTimeout(() => {
-      if (this.isCreatingNewReserve && this.seuilMiniInput()) {
+      if (this.isCreatingNewReserve() && this.seuilMiniInput()) {
         this.seuilMiniInput()!.nativeElement.focus();
       } else if (this.quantityInput()) {
         this.quantityInput()!.nativeElement.focus();
@@ -66,10 +66,10 @@ export class FormTransfertStockComponent implements OnInit, AfterViewInit {
     const sourceLabel = this.stockProduitSrc ? this.getStorageDisplayName(this.stockProduitSrc) : 'Source inconnue';
     let destLabel = '';
 
-    if (this.isCreatingNewReserve) {
+    if (this.isCreatingNewReserve()) {
       destLabel = 'Nouvelle Réserve';
-    } else if (this.stockProduitDest) {
-      destLabel = this.getStorageDisplayName(this.stockProduitDest);
+    } else if (this.stockProduitDest()) {
+      destLabel = this.getStorageDisplayName(this.stockProduitDest());
     } else {
       destLabel = 'Destination inconnue';
     }
@@ -78,14 +78,14 @@ export class FormTransfertStockComponent implements OnInit, AfterViewInit {
   }
 
   isFormValid(): boolean {
-    if (this.isSaving || !this.editForm.valid) {
+    if (this.isSaving() || !this.editForm.valid) {
       return false;
     }
 
     const quantity = this.editForm.get('quantity')!.value;
-    const hasValidQuantity = quantity > 0 && quantity <= this.maxTransferableQty;
+    const hasValidQuantity = quantity > 0 && quantity <= this.maxTransferableQty();
 
-    if (this.isCreatingNewReserve) {
+    if (this.isCreatingNewReserve()) {
       const seuilMini = this.editForm.get('seuilMini')!.value;
       return hasValidQuantity && seuilMini !== null && seuilMini >= 0;
     }
@@ -98,20 +98,20 @@ export class FormTransfertStockComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    this.isSaving = true;
+    this.isSaving.set(true);
     const quantity = this.editForm.get('quantity')!.value;
-    const seuilMini = this.isCreatingNewReserve ? this.editForm.get('seuilMini')!.value : undefined;
+    const seuilMini = this.isCreatingNewReserve() ? this.editForm.get('seuilMini')!.value : undefined;
 
     const request = {
       stockSourceId: this.stockProduitSrc ? this.stockProduitSrc.id : undefined,
-      stockDestinationId: this.isCreatingNewReserve ? null : this.stockProduitDest ? this.stockProduitDest.id : null,
+      stockDestinationId: this.isCreatingNewReserve() ? null : this.stockProduitDest() ? this.stockProduitDest().id : null,
       quantity,
       seuilMini,
     };
 
     this.repartitionStockService
       .processManualRepartition(request)
-      .pipe(finalize(() => (this.isSaving = false)))
+      .pipe(finalize(() => (this.isSaving.set(false))))
       .subscribe({
         next: () => this.onSaveSuccess(),
         error: (error: HttpErrorResponse) => this.onSaveError(error),
@@ -133,12 +133,12 @@ export class FormTransfertStockComponent implements OnInit, AfterViewInit {
 
       // Si 2 stocks: la destination est automatiquement l'autre stock
       if (stockProduits.length === 2) {
-        this.stockProduitDest = stockProduits.find(sp => sp.id !== srcId);
-        this.isCreatingNewReserve = false;
+        this.stockProduitDest.set(stockProduits.find(sp => sp.id !== srcId));
+        this.isCreatingNewReserve.set(false);
       } else if (stockProduits.length === 1) {
         // Si 1 seul stock: on crée une nouvelle réserve
-        this.stockProduitDest = undefined;
-        this.isCreatingNewReserve = true;
+        this.stockProduitDest.set(undefined);
+        this.isCreatingNewReserve.set(true);
       }
     }
   }
@@ -151,10 +151,10 @@ export class FormTransfertStockComponent implements OnInit, AfterViewInit {
       // Si la source est SAFETY_STOCK (Réserve), on peut transférer tout le stock
       // Si la source est PRINCIPAL (Rayon), on doit respecter le seuil mini
       if (type === 'SAFETY_STOCK') {
-        this.maxTransferableQty = qtyStock;
+        this.maxTransferableQty.set(qtyStock);
       } else {
         const seuilMini = this.stockProduitSrc.seuilMini || 0;
-        this.maxTransferableQty = Math.max(0, qtyStock - seuilMini);
+        this.maxTransferableQty.set(Math.max(0, qtyStock - seuilMini));
       }
     }
   }

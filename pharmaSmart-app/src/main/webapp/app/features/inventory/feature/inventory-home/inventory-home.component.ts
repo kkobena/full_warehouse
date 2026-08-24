@@ -8,9 +8,9 @@ import {
   OnInit,
   signal,
   ViewChild
-} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {ActivatedRoute, Router} from '@angular/router';
+} from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { ActivatedRoute, Router } from "@angular/router";
 import {
   NgbModal,
   NgbNav,
@@ -18,49 +18,34 @@ import {
   NgbNavContent,
   NgbNavItem,
   NgbNavLink,
-  NgbNavOutlet,
   NgbTooltip
-} from '@ng-bootstrap/ng-bootstrap';
-import {NotificationService} from '../../../../shared/services/notification.service';
-import {takeUntilDestroyed, toObservable} from '@angular/core/rxjs-interop';
-import {catchError, filter, finalize, map, of, switchMap} from 'rxjs';
-import {InventoryListFacade} from '../../data-access/facades/inventory-list.facade';
-import {InventoryStore} from '../../data-access/store/inventory.store';
-import {
-  InventoryCreateModalComponent
-} from '../../ui/inventory-create-modal/inventory-create-modal.component';
-import {IStoreInventory} from '../../../../shared/model';
-import {InventoryEvent} from '../../models';
-import {
-  NgbConfirmDialogService
-} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
-import {
-  PlanningTournantListComponent
-} from '../../ui/planning-tournant-list/planning-tournant-list.component';
-import {
-  PlanningTournantModalComponent
-} from '../../ui/planning-tournant-modal/planning-tournant-modal.component';
-import {GapSummaryComponent} from '../../ui/gap-summary/gap-summary.component';
-import {
-  InventoryValuationComponent
-} from '../../ui/inventory-valuation/inventory-valuation.component';
-import {
-  InventoryExportModalComponent
-} from '../../ui/inventory-export-modal/inventory-export-modal.component';
-import {AbilityService} from 'app/core/auth/ability.service';
-import {
-  ButtonComponent,
-  DataTableComponent,
-  RowTogglerDirective,
-  ToolbarComponent
-} from '../../../../shared/ui';
-import {InventoryApiService} from '../../data-access/services/inventory-api.service';
-import {ConfigurationService} from '../../../../shared/configuration.service';
-import {BlobDownloadService} from '../../../../shared/services/blob-download.service';
+} from "@ng-bootstrap/ng-bootstrap";
+import { NotificationService } from "../../../../shared/services/notification.service";
+import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
+import { catchError, filter, finalize, map, of, switchMap } from "rxjs";
+import { InventoryListFacade } from "../../data-access/facades/inventory-list.facade";
+import { InventoryStore } from "../../data-access/store/inventory.store";
+import { InventoryCreateModalComponent } from "../../ui/inventory-create-modal/inventory-create-modal.component";
+import { IStoreInventory } from "../../../../shared/model";
+import { InventoryEvent } from "../../models";
+import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import { PlanningTournantListComponent } from "../../ui/planning-tournant-list/planning-tournant-list.component";
+import { PlanningTournantModalComponent } from "../../ui/planning-tournant-modal/planning-tournant-modal.component";
+import { GapSummaryComponent } from "../../ui/gap-summary/gap-summary.component";
+import { InventoryValuationComponent } from "../../ui/inventory-valuation/inventory-valuation.component";
+import { InventoryExportModalComponent } from "../../ui/inventory-export-modal/inventory-export-modal.component";
+import { AbilityService } from "app/core/auth/ability.service";
+import { ButtonComponent, DataTableComponent, RowTogglerDirective, ToolbarComponent } from "../../../../shared/ui";
+import { InventoryApiService } from "../../data-access/services/inventory-api.service";
+import { ConfigurationService } from "../../../../shared/configuration.service";
+import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
+
+import { NavSidebarComponent } from "app/shared/ui/nav-sidebar/nav-sidebar.component";
+import { NavSectionLinkComponent } from "app/shared/ui/nav-sidebar/nav-section-link.component";
 
 @Component({
-  selector: 'app-inventory-home',
-  imports: [
+  selector: "app-inventory-home",
+  imports: [NavSidebarComponent, NavSectionLinkComponent,
     CommonModule,
     ButtonComponent,
     ToolbarComponent,
@@ -68,52 +53,93 @@ import {BlobDownloadService} from '../../../../shared/services/blob-download.ser
     NgbNavItem,
     NgbNavLink,
     NgbNavContent,
-    NgbNavOutlet,
     NgbTooltip,
     DataTableComponent,
     RowTogglerDirective,
     PlanningTournantListComponent,
     GapSummaryComponent,
-    InventoryValuationComponent,
+    InventoryValuationComponent
   ],
-  templateUrl: './inventory-home.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './inventory-home.component.scss',
+  templateUrl: "./inventory-home.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  styleUrl: "./inventory-home.component.scss"
 })
 export class InventoryHomeComponent implements OnInit {
+  /** Menu replié : les grilles d'inventaire sont larges, la place compte. */
+  protected readonly menuReplie = signal(false);
+
+  /**
+   * En-tête du menu, qui suit l'onglet ouvert.
+   *
+   * <p>Cet écran nomme son menu d'après ce qu'on y fait — « Tournant », « Clôturés » — là où les
+   * autres portent un titre fixe. Deux `computed` remplacent le `@switch` que portait le gabarit :
+   * `app-nav-sidebar` prend son titre et son icône en entrée, il n'y avait rien à ajouter au
+   * composant partagé.
+   */
+  protected readonly enteteTitre = computed(() => {
+    switch (this.activeTab()) {
+      case "tournant":
+        return "Tournant";
+      case "clotures":
+        return "Clôturés";
+      default:
+        return "Inventaires";
+    }
+  });
+
+  protected readonly enteteIcone = computed(() => {
+    switch (this.activeTab()) {
+      case "tournant":
+        return "pi pi-sync";
+      case "clotures":
+        return "pi pi-lock";
+      default:
+        return "pi pi-list-check";
+    }
+  });
+
   @ViewChild(PlanningTournantListComponent) planningList?: PlanningTournantListComponent;
 
   readonly listFacade = inject(InventoryListFacade);
   readonly store = inject(InventoryStore);
-  activeTab = signal<string>('en-cours');
+  activeTab = signal<string>("en-cours");
   page = signal(0);
   size = signal(20);
+  /**
+   * Code de l'entrée de navigation de l'onglet ouvert.
+   *
+   * <p>Cet écran n'a qu'une barre d'outils pour ses trois onglets : son titre suit donc l'onglet
+   * actif, et le code avec lui. `toolbarTitle` reste en repli, pour le cas où la section n'existe
+   * pas dans l'arbre servi à cet utilisateur.
+   */
+  protected readonly codeOngletActif = computed(() => `inventaire.${this.activeTab()}`);
+
   protected readonly toolbarTitle = computed(() => {
     switch (this.activeTab()) {
-      case 'tournant':
-        return 'Inventaire tournant';
-      case 'clotures':
-        return 'Inventaires clôturés';
+      case "tournant":
+        return "Inventaire tournant";
+      case "clotures":
+        return "Inventaires clôturés";
       default:
-        return 'Inventaires en cours';
+        return "Inventaires en cours";
     }
   });
   protected readonly toolbarIcon = computed(() => {
     switch (this.activeTab()) {
-      case 'tournant':
-        return 'pi pi-sync';
-      case 'clotures':
-        return 'pi pi-lock';
+      case "tournant":
+        return "pi pi-sync";
+      case "clotures":
+        return "pi pi-lock";
       default:
-        return 'pi pi-refresh';
+        return "pi pi-refresh";
     }
   });
   /** Inventaire dont l'export est en cours — pilote le spinner du bouton de sa ligne. */
   protected readonly exportingId = signal<number | null>(null);
   private readonly ability = inject(AbilityService);
-  protected readonly showEnCours = this.ability.canSignal('display', 'inventaire.en-cours');
-  protected readonly showTournant = this.ability.canSignal('display', 'inventaire.tournant');
-  protected readonly showClotures = this.ability.canSignal('display', 'inventaire.clotures');
+  protected readonly showEnCours = this.ability.canSignal("display", "inventaire.en-cours");
+  protected readonly showTournant = this.ability.canSignal("display", "inventaire.tournant");
+  protected readonly showClotures = this.ability.canSignal("display", "inventaire.clotures");
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly modal = inject(NgbModal);
@@ -124,7 +150,7 @@ export class InventoryHomeComponent implements OnInit {
   private readonly notificationService = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
   private lastEvent$ = toObservable(this.store.lastEvent).pipe(
-    filter((e): e is InventoryEvent => e !== null),
+    filter((e): e is InventoryEvent => e !== null)
   );
 
   constructor() {
@@ -133,7 +159,7 @@ export class InventoryHomeComponent implements OnInit {
       if (!err) {
         return;
       }
-      this.notificationService.error(err, 'Erreur');
+      this.notificationService.error(err, "Erreur");
       // Consommée : un signal dont la valeur ne change pas ne redéclenche pas l'effect,
       // deux erreurs identiques successives ne produiraient qu'une seule notification.
       this.store.setError(null);
@@ -154,21 +180,21 @@ export class InventoryHomeComponent implements OnInit {
   }
 
   protected loadList(): void {
-    if (this.activeTab() === 'tournant') {
+    if (this.activeTab() === "tournant") {
       return;
     }
-    const statuts = this.activeTab() === 'en-cours' ? ['CREATE', 'PROCESSING'] : ['CLOSED'];
-    this.listFacade.loadList({page: this.page(), size: this.size(), statuts});
+    const statuts = this.activeTab() === "en-cours" ? ["CREATE", "PROCESSING"] : ["CLOSED"];
+    this.listFacade.loadList({ page: this.page(), size: this.size(), statuts });
   }
 
   protected isTournantTab(): boolean {
-    return this.activeTab() === 'tournant';
+    return this.activeTab() === "tournant";
   }
 
   protected openCreateModal(): void {
     const ref = this.modal.open(InventoryCreateModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      size: "lg",
+      backdrop: "static",
       keyboard: false,
       centered: true
     });
@@ -179,12 +205,12 @@ export class InventoryHomeComponent implements OnInit {
         }
       },
       () => {
-      },
+      }
     );
   }
 
   protected openCreatePlanningModal(): void {
-    const ref = this.modal.open(PlanningTournantModalComponent, {size: 'lg', backdrop: 'static'});
+    const ref = this.modal.open(PlanningTournantModalComponent, { size: "lg", backdrop: "static" });
     ref.closed.subscribe(() => {
       this.planningList?.loadAll();
       this.planningList?.loadDashboard();
@@ -200,10 +226,10 @@ export class InventoryHomeComponent implements OnInit {
   }
 
   protected openGapAnalysisFor(inventory: IStoreInventory): void {
-    import('../../ui/gap-analysis-modal/gap-analysis-modal.component').then(m => {
+    import("../../ui/gap-analysis-modal/gap-analysis-modal.component").then(m => {
       const ref = this.modal.open(m.GapAnalysisModalComponent, {
-        size: 'xl',
-        backdrop: 'static',
+        size: "xl",
+        backdrop: "static",
         centered: true
       });
       ref.componentInstance.inventoryId = inventory.id;
@@ -218,17 +244,17 @@ export class InventoryHomeComponent implements OnInit {
     const id = inventory.id!;
     this.exportingId.set(id);
 
-    this.configurationService.find('APP_GESTION_LOT_INVENTAIRE')
+    this.configurationService.find("APP_GESTION_LOT_INVENTAIRE")
       .pipe(
-        map(res => res.body?.value === '1'),
+        map(res => res.body?.value === "1"),
         catchError(() => of(false)),
-        switchMap(gestionLot => this.inventoryApi.exportToPdf(id, 'RAYON', {}, gestionLot)),
+        switchMap(gestionLot => this.inventoryApi.exportToPdf(id, "RAYON", {}, gestionLot)),
         finalize(() => this.exportingId.set(null)),
-        takeUntilDestroyed(this.destroyRef),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: blob => this.blobDownloadService.downloadPdf(blob, `inventaire-${id}`),
-        error: () => this.notificationService.error("Échec de l'export PDF", 'Erreur'),
+        error: () => this.notificationService.error("Échec de l'export PDF", "Erreur")
       });
   }
 
@@ -239,9 +265,9 @@ export class InventoryHomeComponent implements OnInit {
   protected deleteInventory(inventory: IStoreInventory): void {
     this.confirmDialog.onConfirm(
       () => this.listFacade.deleteInventory(inventory.id!),
-      'Suppression inventaire',
+      "Suppression inventaire",
       `Supprimer l'inventaire "${inventory.description ?? inventory.id}" ?`,
-      'pi pi-trash',
+      "pi pi-trash"
     );
   }
 
@@ -250,10 +276,10 @@ export class InventoryHomeComponent implements OnInit {
    * l'éditeur : l'action est irréversible, elle ne doit pas se confirmer à l'aveugle.
    */
   protected closeInventory(inventory: IStoreInventory): void {
-    import('../../ui/inventory-close-modal/inventory-close-modal.component').then(m => {
+    import("../../ui/inventory-close-modal/inventory-close-modal.component").then(m => {
       const ref = this.modal.open(m.InventoryCloseModalComponent, {
-        size: 'xl',
-        backdrop: 'static',
+        size: "xl",
+        backdrop: "static",
         centered: true
       });
       ref.componentInstance.inventoryId = inventory.id;
@@ -265,51 +291,51 @@ export class InventoryHomeComponent implements OnInit {
         },
         () => {
           // fermeture / annulation
-        },
+        }
       );
     });
   }
 
   protected getStatutBadgeClass(statut?: string): string {
     switch (statut) {
-      case 'CREATE':
-        return 'pharma-badge-primary';
-      case 'PROCESSING':
-        return 'pharma-badge-warning';
-      case 'CLOSED':
-        return 'pharma-badge-success';
+      case "CREATE":
+        return "pharma-badge-primary";
+      case "PROCESSING":
+        return "pharma-badge-warning";
+      case "CLOSED":
+        return "pharma-badge-success";
       default:
-        return 'pharma-badge-secondary';
+        return "pharma-badge-secondary";
     }
   }
 
   protected getStatutLabel(statut?: string): string {
     switch (statut) {
-      case 'CREATE':
-        return 'Créé';
-      case 'PROCESSING':
-        return 'En cours';
-      case 'CLOSED':
-        return 'Clôturé';
+      case "CREATE":
+        return "Créé";
+      case "PROCESSING":
+        return "En cours";
+      case "CLOSED":
+        return "Clôturé";
       default:
-        return statut ?? '-';
+        return statut ?? "-";
     }
   }
 
   protected getCategoryLabel(cat?: string): string {
     const labels: Record<string, string> = {
-      MAGASIN: 'Global (magasin)',
-      STORAGE: 'Emplacement',
-      RAYON: 'Rayon',
-      FAMILLY: 'Famille',
-      PERIME: 'Périmés',
-      ALERTE_PEREMPTION: 'Alerte péremption',
-      VENDU: 'Vendus (période)',
-      INVENDU: 'Invendus (période)',
-      SOUS_SEUIL: 'Sous seuil',
-      EN_RUPTURE: 'Rupture',
+      MAGASIN: "Global (magasin)",
+      STORAGE: "Emplacement",
+      RAYON: "Rayon",
+      FAMILLY: "Famille",
+      PERIME: "Périmés",
+      ALERTE_PEREMPTION: "Alerte péremption",
+      VENDU: "Vendus (période)",
+      INVENDU: "Invendus (période)",
+      SOUS_SEUIL: "Sous seuil",
+      EN_RUPTURE: "Rupture"
     };
-    return labels[cat ?? ''] ?? cat ?? '-';
+    return labels[cat ?? ""] ?? cat ?? "-";
   }
 
   /**
@@ -321,7 +347,7 @@ export class InventoryHomeComponent implements OnInit {
    * interdit par les droits sélectionnerait un onglet inexistant, et la vue resterait vide.
    */
   private restoreTabFromRoute(): void {
-    const tab = this.route.snapshot.queryParamMap.get('tab');
+    const tab = this.route.snapshot.queryParamMap.get("tab");
     if (tab && this.isTabAvailable(tab)) {
       this.activeTab.set(tab);
     }
@@ -329,11 +355,11 @@ export class InventoryHomeComponent implements OnInit {
 
   private isTabAvailable(tab: string): boolean {
     switch (tab) {
-      case 'en-cours':
+      case "en-cours":
         return this.showEnCours();
-      case 'tournant':
+      case "tournant":
         return this.showTournant();
-      case 'clotures':
+      case "clotures":
         return this.showClotures();
       default:
         return false;
@@ -345,21 +371,21 @@ export class InventoryHomeComponent implements OnInit {
    * ramène ainsi ici, et pas systématiquement sur « En cours ».
    */
   private navigateToEditor(inventory: IStoreInventory): void {
-    this.router.navigate(['/inventaire', inventory.id, 'edit'],
-      {queryParams: {tab: this.activeTab()}});
+    this.router.navigate(["/inventaire", inventory.id, "edit"],
+      { queryParams: { tab: this.activeTab() } });
   }
 
   private openExportModalFor(inventory: IStoreInventory, onClose?: () => void): void {
     const ref = this.modal.open(InventoryExportModalComponent, {
-      size: 'md',
-      backdrop: 'static',
+      size: "md",
+      backdrop: "static"
     });
     ref.componentInstance.inventoryId = inventory.id;
     ref.componentInstance.inventoryDescription = inventory.description ?? `#${inventory.id}`;
     // always resolve (export or skip), then run optional callback
     ref.result.then(
       () => onClose?.(),
-      () => onClose?.(),
+      () => onClose?.()
     );
   }
 
@@ -368,15 +394,15 @@ export class InventoryHomeComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((event: InventoryEvent) => {
         switch (event.type) {
-          case 'INVENTORY_CREATED':
+          case "INVENTORY_CREATED":
             // Navigation handled in openCreateModal after export modal
             break;
-          case 'INVENTORY_DELETED':
-            this.notificationService.success('Inventaire supprimé', 'Succès');
+          case "INVENTORY_DELETED":
+            this.notificationService.success("Inventaire supprimé", "Succès");
             this.loadList();
             break;
-          case 'INVENTORY_CLOSED':
-            this.notificationService.success('Inventaire clôturé avec succès', 'Succès');
+          case "INVENTORY_CLOSED":
+            this.notificationService.success("Inventaire clôturé avec succès", "Succès");
             this.loadList();
             break;
         }

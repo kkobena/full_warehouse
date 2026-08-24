@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, DestroyRef, effect, inject, OnInit, signal, ChangeDetectionStrategy, input} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -25,13 +25,14 @@ import {
 import { SaleToolbarService } from '../../data-access/services/sale-toolbar.service';
 import { CloturerAvoirModalComponent } from '../../ui/cloturer-avoir-modal/cloturer-avoir-modal.component';
 
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-avoirs-client-list',
   templateUrl: './avoirs-client-list.component.html',
   styleUrl: './avoirs-client-list.component.scss',
   providers: [{ provide: NgbDateParserFormatter, useClass: FrenchDateParserFormatter }],
-  changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -45,6 +46,15 @@ import { CloturerAvoirModalComponent } from '../../ui/cloturer-avoir-modal/clotu
   ],
 })
 export class AvoirsClientListComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   private readonly api = inject(AvoirClientApiService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly modalService = inject(NgbModal);
@@ -54,11 +64,11 @@ export class AvoirsClientListComponent implements OnInit {
   protected statut = signal<AvoirClientStatut | null>('OUVERT');
 
   protected documents = signal<IAvoirClientDocument[]>([]);
-  protected documentsTotal = 0;
-  protected documentsPage = 0;
-  protected itemsPerPage = ITEMS_PER_PAGE;
+  protected readonly documentsTotal = signal(0);
+  protected readonly documentsPage = signal(0);
+  protected readonly itemsPerPage = signal(ITEMS_PER_PAGE);
 
-  protected search = '';
+  protected readonly search = signal('');
   protected fromDate: NgbDateStruct = this.todayNgb();
   protected toDate: NgbDateStruct = this.todayNgb();
 
@@ -88,7 +98,7 @@ export class AvoirsClientListComponent implements OnInit {
     effect(() => {
       const ref = this.toolbarService.avoirSaleRef();
       if (ref) {
-        this.search = ref;
+        this.search.set(ref);
         this.statut.set('OUVERT');
         this.loadDocuments(0, 'OUVERT');
         this.toolbarService.clearAvoirSaleRef();
@@ -106,13 +116,13 @@ export class AvoirsClientListComponent implements OnInit {
   }
 
   protected loadDocuments(page?: number, statut?: AvoirClientStatut | null): void {
-    const pageToLoad = page ?? this.documentsPage;
+    const pageToLoad = page ?? this.documentsPage();
     const statutFilter = statut !== undefined ? statut : this.statut();
     this.loading.set(true);
     this.api.queryDocuments({
       page: pageToLoad,
-      size: this.itemsPerPage,
-      search: this.search || null,
+      size: this.itemsPerPage(),
+      search: this.search() || null,
       fromDate: this.ngbDateToIso(this.fromDate),
       toDate: this.ngbDateToIso(this.toDate),
       statut: statutFilter,
@@ -121,8 +131,8 @@ export class AvoirsClientListComponent implements OnInit {
       .subscribe({
         next: res => {
           this.loading.set(false);
-          this.documentsTotal = Number(res.headers.get('X-Total-Count'));
-          this.documentsPage = pageToLoad;
+          this.documentsTotal.set(Number(res.headers.get('X-Total-Count')));
+          this.documentsPage.set(pageToLoad);
           this.documents.set(res.body ?? []);
         },
         error: () => this.loading.set(false),
@@ -131,9 +141,9 @@ export class AvoirsClientListComponent implements OnInit {
 
   protected lazyLoadingDocuments(event: AppTableLazyLoadEvent): void {
     if (event.first != null && event.rows != null) {
-      this.documentsPage = event.first / event.rows;
-      this.itemsPerPage = event.rows;
-      this.loadDocuments(this.documentsPage);
+      this.documentsPage.set(event.first / event.rows);
+      this.itemsPerPage.set(event.rows);
+      this.loadDocuments(this.documentsPage());
     }
   }
 

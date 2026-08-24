@@ -73,6 +73,7 @@ public final class Constant {
     public static final String RETOUR_BON_TEMPLATE_FILE = "retour/main";
     public static final int RETOUR_BON_PAGE_SIZE = 40;
     public static final String DECLARATION_TVA_TEMPLATE_FILE = "declaration-tva/main";
+    public static final String PONCTION_TEMPLATE_FILE = "ponction/main";
 
     /** Procès-Verbal officiel de destruction — Art. R. 4235-12 CSP */
     public static final String PV_DESTRUCTION_TEMPLATE_FILE = "gestion_perimes/pv_destruction/main";

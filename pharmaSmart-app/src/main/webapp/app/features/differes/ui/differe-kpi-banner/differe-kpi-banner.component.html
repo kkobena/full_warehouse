@@ -6,7 +6,7 @@
       icon="pi pi-credit-card"
       iconClass="text-primary"
       label="Total différé"
-      suffix="FCFA"
+      [suffix]="'' | devise"
       valueClass="text-primary"
     />
 
@@ -16,7 +16,7 @@
       icon="pi pi-check-circle"
       iconClass="text-success"
       label="Total payé"
-      suffix="FCFA"
+      [suffix]="'' | devise"
       valueClass="text-success"
     />
 
@@ -26,7 +26,7 @@
       icon="pi pi-exclamation-circle"
       iconClass="text-danger"
       label="Reste à payer"
-      suffix="FCFA"
+      [suffix]="'' | devise"
       valueClass="text-danger"
     />
   </app-kpi-strip>

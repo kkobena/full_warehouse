@@ -1,47 +1,50 @@
 <!-- KPI Dashboard -->
 @if (dashboard(); as d) {
-  <div class="tournant-kpi-grid">
-    <div class="tournant-kpi-card">
-      <div class="kpi-icon kpi-primary"><i class="pi pi-calendar"></i></div>
-      <div class="kpi-body">
-        <div class="kpi-value">{{ d.nbPlanningsActifs }}</div>
-        <div class="kpi-label">Plannings actifs</div>
-      </div>
-    </div>
-    <div class="tournant-kpi-card">
-      <div class="kpi-icon kpi-success"><i class="pi pi-check-circle"></i></div>
-      <div class="kpi-body">
-        <div class="kpi-value">{{ d.nbInventairesCeMois }}</div>
-        <div class="kpi-label">Inventaires ce mois</div>
-      </div>
-    </div>
-    <div class="tournant-kpi-card">
-      <div class="kpi-icon kpi-info"><i class="pi pi-chart-pie"></i></div>
-      <div class="kpi-body">
-        <div class="kpi-value">{{ d.tauxCouverturePct }}%</div>
-        <div class="kpi-label">Taux de couverture</div>
-      </div>
-    </div>
-    <div class="tournant-kpi-card">
-      <div class="kpi-icon kpi-warning"><i class="pi pi-clock"></i></div>
-      <div class="kpi-body">
-        <div class="kpi-value">{{ d.prochaineTournant ? (d.prochaineTournant | date:'dd/MM') : '—' }}</div>
-        <div class="kpi-label">Prochain tournant</div>
-      </div>
-    </div>
-  </div>
+  <app-kpi-strip stripClass="mb-2">
+    <app-kpi-item
+      [accent]="'primary'"
+      [value]="d.nbPlanningsActifs"
+      icon="pi pi-calendar"
+      iconClass="text-primary"
+      label="Plannings actifs"
+      valueClass="text-primary"
+    />
+    <app-kpi-item
+      [accent]="'success'"
+      [value]="d.nbInventairesCeMois"
+      icon="pi pi-check-circle"
+      iconClass="text-success"
+      label="Inventaires ce mois"
+      valueClass="text-success"
+    />
+    <app-kpi-item
+      [accent]="'info'"
+      [value]="d.tauxCouverturePct"
+      icon="pi pi-chart-pie"
+      iconClass="text-info"
+      label="Taux de couverture"
+      suffix=" %"
+    />
+    <app-kpi-item
+      [accent]="'warning'"
+      [value]="d.prochaineTournant ? (d.prochaineTournant | date: 'dd/MM') : '—'"
+      icon="pi pi-clock"
+      iconClass="text-warning"
+      label="Prochain tournant"
+    />
+  </app-kpi-strip>
 }
 
 <!-- Table -->
 <div class="pharma-table-wrapper">
   <app-data-table
-    [value]="plannings()"
     [loading]="loading()"
     [paginator]="true"
-    [rows]="10"
     [rowsPerPageOptions]="[10, 20, 50]"
-    dataKey="id"
+    [rows]="10"
+    [value]="plannings()"
     class="p-datatable-sm"
+    dataKey="id"
   >
     <ng-template #header>
       <tr class="pharma-table-head">
@@ -83,7 +86,8 @@
         <td>
           @if (isOverdue(p)) {
             <span class="pharma-badge pharma-badge-danger">
-              <i class="pi pi-exclamation-triangle me-1"></i>{{ p.prochaineExecution | date:'dd/MM/yyyy' }}
+              <i
+                class="pi pi-exclamation-triangle me-1"></i>{{ p.prochaineExecution | date:'dd/MM/yyyy' }}
             </span>
           } @else {
             {{ p.prochaineExecution | date:'dd/MM/yyyy' }}
@@ -93,23 +97,24 @@
         <td class="text-center">{{ p.nbExecutions ?? 0 }}</td>
         <td class="text-center">
           <app-badge [label]="p.actif ? 'Actif' : 'Inactif'"
-                 [severity]="p.actif ? 'success' : 'secondary'" />
+                     [severity]="p.actif ? 'success' : 'secondary'" />
         </td>
         <td class="text-center">
           <div class="pharma-action-buttons">
-            <app-button icon="pi pi-play" [rounded]="true" [text]="true" severity="success"
-                      ngbTooltip="Exécuter maintenant"
-                      (clicked)="executerManuellement(p)" />
-            <app-button [icon]="p.actif ? 'pi pi-pause' : 'pi pi-play'" [rounded]="true" [text]="true"
-                      [severity]="p.actif ? 'warn' : 'info'"
-                      [ngbTooltip]="p.actif ? 'Désactiver' : 'Activer'"
-                      (clicked)="toggleActif(p)" />
-            <app-button icon="pi pi-pencil" [rounded]="true" [text]="true"
-                      ngbTooltip="Modifier"
-                      (clicked)="openEditModal(p)" />
-            <app-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger"
-                      ngbTooltip="Supprimer"
-                      (clicked)="delete(p)" />
+            <app-button (clicked)="executerManuellement(p)" [rounded]="true" [text]="true" icon="pi pi-play"
+                        ngbTooltip="Exécuter maintenant"
+                        severity="success" />
+            <app-button (clicked)="toggleActif(p)" [icon]="p.actif ? 'pi pi-pause' : 'pi pi-play'"
+                        [ngbTooltip]="p.actif ? 'Désactiver' : 'Activer'"
+                        [rounded]="true"
+                        [severity]="p.actif ? 'warn' : 'info'"
+                        [text]="true" />
+            <app-button (clicked)="openEditModal(p)" [rounded]="true" [text]="true"
+                        icon="pi pi-pencil"
+                        ngbTooltip="Modifier" />
+            <app-button (clicked)="delete(p)" [rounded]="true" [text]="true" icon="pi pi-trash"
+                        ngbTooltip="Supprimer"
+                        severity="danger" />
           </div>
         </td>
       </tr>
@@ -122,9 +127,10 @@
             <div class="pharma-empty-content">
               <i class="pi pi-calendar-times"></i>
               <p>Aucun planning tournant configuré</p>
-              <small>Créez votre premier planning pour automatiser les inventaires tournants.</small>
-              <app-button label="Créer le premier planning" icon="pi pi-plus"
-                        [outlined]="true" (clicked)="openCreateModal()" />
+              <small>Créez votre premier planning pour automatiser les inventaires
+                tournants.</small>
+              <app-button (clicked)="openCreateModal()" [outlined]="true"
+                          icon="pi pi-plus" label="Créer le premier planning" />
             </div>
           </div>
         </td>

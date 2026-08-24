@@ -61,6 +61,15 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
     )
     BigDecimal getDiffereSoldeByCustomerId(Integer customerId);
 
+    /*
+     * ATTENTION au paramètre `toIgnore` : il n'exclut pas les lignes ignorées, il filtre par
+     * égalité (`where sl.to_ignore = p_to_ignore`).
+     *   - `false` (cas courant) → seules les lignes NON ignorées, ce qui est le comportement voulu ;
+     *   - `true`                → seules les lignes ignorées, et non « tout sauf elles ».
+     * Il n'existe donc aucune valeur qui rende la totalité des lignes. Ne pas le passer à `true`
+     * en croyant élargir le périmètre.
+     */
+
     @Query(value = "SELECT sales_summary_json(:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:canceled)", nativeQuery = true)
     String fetchSalesSummary(
         @Param("startDate") LocalDate startDate,
@@ -92,7 +101,7 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
     );
 
     @Query(
-        value = "SELECT sales_balance(:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:excludeFreeQty,:toIgnore)",
+        value = "SELECT sales_balance(:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:toIgnore,:mode)",
         nativeQuery = true
     )
     String fetchSalesBalance(
@@ -100,12 +109,12 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
         @Param("endDate") LocalDate endDate,
         @Param("statuts") String[] statuts,
         @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire,
-        @Param("excludeFreeQty") boolean excludeFreeQty,
-        @Param("toIgnore") boolean toIgnore
+        @Param("toIgnore") boolean toIgnore,
+        @Param("mode") String mode
     );
 
     @Query(
-        value = "SELECT sales_tva_report(:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:excludeFreeQty,:toIgnore)",
+        value = "SELECT sales_tva_report(:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:toIgnore,:mode)",
         nativeQuery = true
     )
     String fetchSalesTvaReport(
@@ -113,12 +122,12 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
         @Param("endDate") LocalDate endDate,
         @Param("statuts") String[] statuts,
         @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire,
-        @Param("excludeFreeQty") boolean excludeFreeQty,
-        @Param("toIgnore") boolean toIgnore
+        @Param("toIgnore") boolean toIgnore,
+        @Param("mode") String mode
     );
 
     @Query(
-        value = "SELECT sales_tva_report_journalier(:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:excludeFreeQty,:toIgnore)",
+        value = "SELECT sales_tva_report_journalier(:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:toIgnore,:mode)",
         nativeQuery = true
     )
     String fetchSalesTvaReportJournalier(
@@ -126,12 +135,12 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
         @Param("endDate") LocalDate endDate,
         @Param("statuts") String[] statuts,
         @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire,
-        @Param("excludeFreeQty") boolean excludeFreeQty,
-        @Param("toIgnore") boolean toIgnore
+        @Param("toIgnore") boolean toIgnore,
+        @Param("mode") String mode
     );
 
     @Query(
-        value = "SELECT tableau_pharmacien_report(:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:excludeFreeQty,:toIgnore)",
+        value = "SELECT tableau_pharmacien_report(:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:toIgnore,:mode)",
         nativeQuery = true
     )
     String fetchTableauPharmacienReport(
@@ -139,12 +148,12 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
         @Param("endDate") LocalDate endDate,
         @Param("statuts") String[] statuts,
         @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire,
-        @Param("excludeFreeQty") boolean excludeFreeQty,
-        @Param("toIgnore") boolean toIgnore
+        @Param("toIgnore") boolean toIgnore,
+        @Param("mode") String mode
     );
 
     @Query(
-        value = "SELECT tableau_pharmacien_month_report(:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:excludeFreeQty,:toIgnore)",
+        value = "SELECT tableau_pharmacien_month_report(:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:toIgnore,:mode)",
         nativeQuery = true
     )
     String fetchTableauPharmacienReportMensuel(
@@ -152,8 +161,8 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
         @Param("endDate") LocalDate endDate,
         @Param("statuts") String[] statuts,
         @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire,
-        @Param("excludeFreeQty") boolean excludeFreeQty,
-        @Param("toIgnore") boolean toIgnore
+        @Param("toIgnore") boolean toIgnore,
+        @Param("mode") String mode
     );
 
     @Query(value = "SELECT fetch_product_quantity_sold_json(:startDate, :endDate)", nativeQuery = true)

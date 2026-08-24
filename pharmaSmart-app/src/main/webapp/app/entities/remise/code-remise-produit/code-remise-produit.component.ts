@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import {RemiseService} from '../remise.service';
 import {CodeRemise, IRemise} from '../../../shared/model/remise.model';
 import {HttpResponse} from '@angular/common/http';
@@ -13,18 +13,18 @@ import {
   selector: 'app-code-remise-produit',
   imports: [FaIconComponent],
   templateUrl: './code-remise-produit.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./code-remise-produit.component.scss'],
 })
 export class CodeRemiseProduitComponent implements OnInit {
-  entites?: CodeRemise[];
+  protected readonly entites = signal<CodeRemise[] | undefined>(undefined);
   private readonly entityService = inject(RemiseService);
   private readonly ngModalService = inject(NgbModal);
 
   load(): void {
     this.entityService.queryFullCodes().subscribe({
       next: (res: HttpResponse<CodeRemise[]>) => {
-        this.entites = res.body || [];
+        this.entites.set(res.body || []);
       },
     });
   }

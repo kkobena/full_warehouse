@@ -1,48 +1,24 @@
 <div class="pharma-smart-content p-2">
 
   <!-- KPI Strip -->
-  <div class="kpi-strip mt-2 mb-2">
-
-    <div class="kpi-strip-item success-accent">
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label"><span class="rotation-badge rotation-a">A</span> <small class="text-muted ms-1">z ≥ 1.96</small></span>
-        <span class="kpi-strip-value text-success">{{ abcCounts().A || 0 | number }}</span>
-        <span class="kpi-strip-sub">Forte rotation</span>
-      </div>
-    </div>
-
-    <div class="kpi-strip-divider"></div>
-
-    <div class="kpi-strip-item primary-accent">
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label"><span class="rotation-badge rotation-b">B</span> <small class="text-muted ms-1">z ≥ 1.65</small></span>
-        <span class="kpi-strip-value text-primary">{{ abcCounts().B || 0 | number }}</span>
-        <span class="kpi-strip-sub">Rotation moyenne</span>
-      </div>
-    </div>
-
-    <div class="kpi-strip-divider"></div>
-
-    <div class="kpi-strip-item warning-accent">
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label"><span class="rotation-badge rotation-c">C</span> <small class="text-muted ms-1">z &lt; 1.65</small></span>
-        <span class="kpi-strip-value text-warning">{{ abcCounts().C || 0 | number }}</span>
-        <span class="kpi-strip-sub">Faible rotation</span>
-      </div>
-    </div>
-
-    <div class="kpi-strip-divider"></div>
-
-    <div class="kpi-strip-item danger-accent">
-      <i class="pi pi-box text-danger"></i>
-      <div class="kpi-strip-body">
-        <span class="kpi-strip-label">Valeur stock</span>
-        <span class="kpi-strip-value text-danger">{{ formatCurrency(getTotalStockValue()) }} <small>FCFA</small></span>
-        <span class="kpi-strip-sub">{{ rotations().length | number }} produits</span>
-      </div>
-    </div>
-
-  </div>
+  <app-kpi-strip stripClass="mt-2 mb-2">
+    <app-kpi-item [accent]="'success'" [value]="abcCounts().A || 0 | number" valueClass="text-success">
+      <ng-container ngProjectAs="[kpiLabel]"><span class="rotation-badge rotation-a">A</span> <small class="text-muted ms-1">z ≥ 1.96</small></ng-container>
+      <ng-container ngProjectAs="[kpiSub]">Forte rotation</ng-container>
+    </app-kpi-item>
+    <app-kpi-item [accent]="'primary'" [value]="abcCounts().B || 0 | number" valueClass="text-primary">
+      <ng-container ngProjectAs="[kpiLabel]"><span class="rotation-badge rotation-b">B</span> <small class="text-muted ms-1">z ≥ 1.65</small></ng-container>
+      <ng-container ngProjectAs="[kpiSub]">Rotation moyenne</ng-container>
+    </app-kpi-item>
+    <app-kpi-item [accent]="'warning'" [value]="abcCounts().C || 0 | number" valueClass="text-warning">
+      <ng-container ngProjectAs="[kpiLabel]"><span class="rotation-badge rotation-c">C</span> <small class="text-muted ms-1">z &lt; 1.65</small></ng-container>
+      <ng-container ngProjectAs="[kpiSub]">Faible rotation</ng-container>
+    </app-kpi-item>
+    <app-kpi-item [accent]="'danger'" icon="pi pi-box" iconClass="text-danger" label="Valeur stock" [value]="formatCurrency(getTotalStockValue())" valueClass="text-danger">
+      <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+      <ng-container ngProjectAs="[kpiSub]">{{ rotations().length | number }} produits</ng-container>
+    </app-kpi-item>
+  </app-kpi-strip>
 
   <!-- Stock Rotation Table -->
   <div class="card data-card">

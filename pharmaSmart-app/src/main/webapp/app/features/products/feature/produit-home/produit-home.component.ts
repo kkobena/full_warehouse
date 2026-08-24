@@ -8,12 +8,12 @@ import {
   AppSplitButtonItem,
   AppTableLazyLoadEvent,
   ButtonComponent,
+  HintComponent,
   IconFieldComponent,
   SelectComponent,
   SplitButtonComponent,
   ToolbarComponent,
 } from "app/shared/ui";
-import {Authority} from "app/shared/constants/authority.constants";
 import {AbilityService} from "app/core/auth/ability.service";
 import {IProduit} from "app/shared/model/produit.model";
 import {IFamilleProduit} from "app/shared/model/famille-produit.model";
@@ -78,7 +78,7 @@ import {IProduitMergeResult} from "../../models/produit-merge.model";
   selector: "app-produit-home",
   templateUrl: "./produit-home.component.html",
   styleUrls: ["./produit-home.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     RouterModule,
@@ -87,6 +87,7 @@ import {IProduitMergeResult} from "../../models/produit-merge.model";
     SelectComponent,
     SplitButtonComponent,
     ToolbarComponent,
+    HintComponent,
     IconFieldComponent,
     NgbTooltip,
     ProduitListComponent,
@@ -94,14 +95,12 @@ import {IProduitMergeResult} from "../../models/produit-merge.model";
   ]
 })
 export class ProduitHomeComponent implements OnInit {
-  protected readonly Authority = Authority;
 
   protected produits = signal<IProduit[]>([]);
   protected totalItems = signal(0);
   protected loading = signal(false);
   protected selectedProduit = signal<IProduit | null>(null);
   protected panelOpen = computed(() => this.selectedProduit() !== null);
-  protected showHint = signal<boolean>(localStorage.getItem("produit-list-hint-dismissed") !== "1");
   protected selectedProduits = signal<IProduit[]>([]);
   protected hasSelection = computed(() => this.selectedProduits().length > 0);
   protected clearSelectionTrigger = signal(0);
@@ -116,14 +115,14 @@ export class ProduitHomeComponent implements OnInit {
     {label: "Tous", value: "ALL"}
   ];
 
-  protected search = "";
-  protected selectedFilter = "ENABLE";
+  protected readonly search = signal("");
+  protected readonly selectedFilter = signal("ENABLE");
   protected selectedFamilleId: number | null = null;
   protected selectedRayonId: number | null = null;
-  protected page = 0;
-  protected rows = 15;
-  protected sortField = "libelle";
-  protected sortOrder = 1;
+  protected readonly page = signal(0);
+  protected readonly rows = signal(15);
+  protected readonly sortField = signal("libelle");
+  protected readonly sortOrder = signal(1);
   protected importMenuItems: AppSplitButtonItem[] = [
     {
       label: "Nouvelle installation",
@@ -162,30 +161,30 @@ export class ProduitHomeComponent implements OnInit {
     if (navState?.highlightId && navState?.highlightCip) {
       this.pendingHighlightId = navState.highlightId;
       // Forcer la recherche sur le codeCip unique → produit toujours en page 0
-      this.search = navState.highlightCip;
-      this.selectedFilter = "ALL"; // Inclure produits actifs et inactifs
+      this.search.set(navState.highlightCip);
+      this.selectedFilter.set("ALL"); // Inclure produits actifs et inactifs
     }
 
     this.loadPage();
   }
 
   protected onLazyLoad(event: AppTableLazyLoadEvent): void {
-    this.page = Math.floor((event.first ?? 0) / (event.rows ?? this.rows));
-    this.rows = event.rows ?? this.rows;
+    this.page.set(Math.floor((event.first ?? 0) / (event.rows ?? this.rows())));
+    this.rows.set(event.rows ?? this.rows());
     if (event.sortField) {
-      this.sortField = Array.isArray(event.sortField) ? event.sortField[0] : event.sortField;
-      this.sortOrder = event.sortOrder ?? 1;
+      this.sortField.set(Array.isArray(event.sortField) ? event.sortField[0] : event.sortField);
+      this.sortOrder.set(event.sortOrder ?? 1);
     }
     this.loadPage();
   }
 
   protected onSearch(): void {
-    this.page = 0;
+    this.page.set(0);
     this.loadPage();
   }
 
   protected onFilterChange(): void {
-    this.page = 0;
+    this.page.set(0);
     this.loadPage();
   }
 
@@ -195,11 +194,6 @@ export class ProduitHomeComponent implements OnInit {
 
   protected onClosePanel(): void {
     this.selectedProduit.set(null);
-  }
-
-  protected dismissHint(): void {
-    localStorage.setItem("produit-list-hint-dismissed", "1");
-    this.showHint.set(false);
   }
 
   protected onEditRequested(produit: IProduit): void {
@@ -437,20 +431,20 @@ export class ProduitHomeComponent implements OnInit {
   private loadPage(): void {
     this.loading.set(true);
     const req: any = {
-      page: this.page,
-      size: this.rows,
-      search: this.search || "",
-      sort: [`${this.sortField},${this.sortOrder === 1 ? "asc" : "desc"}`]
+      page: this.page(),
+      size: this.rows(),
+      search: this.search() || "",
+      sort: [`${this.sortField()},${this.sortOrder() === 1 ? "asc" : "desc"}`]
     };
 
-    if (this.selectedFilter === "DECONDITIONNABLE") {
+    if (this.selectedFilter() === "DECONDITIONNABLE") {
       req.deconditionnable = true;
       req.status = "ENABLE";
-    } else if (this.selectedFilter === "DECONDITIONNE") {
+    } else if (this.selectedFilter() === "DECONDITIONNE") {
       req.deconditionne = true;
       req.status = "ENABLE";
-    } else if (this.selectedFilter !== "ALL") {
-      req.status = this.selectedFilter;
+    } else if (this.selectedFilter() !== "ALL") {
+      req.status = this.selectedFilter();
     }
 
     if (this.selectedFamilleId) {

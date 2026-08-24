@@ -65,30 +65,21 @@
     } @else {
 
       <!-- KPI strip par segment -->
-      <div class="kpi-strip mb-3">
+      <app-kpi-strip stripClass="mb-3">
         @for (seg of segmentData(); track seg.segment; let i = $index) {
-          @if (i > 0) {
-            <div class="kpi-strip-divider"></div>
-          }
-          <div [class]="'kpi-strip-item ' + ['primary-accent','success-accent','info-accent','warning-accent'][i % 4]">
-            <i [class]="'pi pi-chart-bar ' + ['text-primary','text-success','text-info','text-warning'][i % 4]"></i>
-            <div class="kpi-strip-body">
-              <span class="kpi-strip-label">{{ seg.segmentLabel }}</span>
-              <span class="kpi-strip-value">{{ formatCurrency(seg.ca) }} <small>FCFA</small></span>
-              <span class="kpi-strip-sub">{{ formatPercent(seg.tauxMarge) }}% marge</span>
-            </div>
-          </div>
+          <app-kpi-item [accent]="segmentAccents[i % segmentAccents.length]" icon="pi pi-chart-bar"
+                        [iconClass]="segmentIconClasses[i % segmentIconClasses.length]"
+                        [label]="seg.segmentLabel" [value]="formatCurrency(seg.ca)">
+            <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+            <ng-container ngProjectAs="[kpiSub]">{{ formatPercent(seg.tauxMarge) }}% marge</ng-container>
+          </app-kpi-item>
         }
-        <div class="kpi-strip-divider"></div>
-        <div class="kpi-strip-item danger-accent">
-          <i class="pi pi-calculator text-danger"></i>
-          <div class="kpi-strip-body">
-            <span class="kpi-strip-label">Total</span>
-            <span class="kpi-strip-value text-danger">{{ formatCurrency(totalSegment().ca) }} <small>FCFA</small></span>
-            <span class="kpi-strip-sub">{{ formatPercent(totalSegment().tauxMarge) }}% marge · {{ formatNumber(totalSegment().nbTransactions) }} tx</span>
-          </div>
-        </div>
-      </div>
+        <app-kpi-item [accent]="'danger'" icon="pi pi-calculator" iconClass="text-danger"
+                      label="Total" [value]="formatCurrency(totalSegment().ca)" valueClass="text-danger">
+          <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+          <ng-container ngProjectAs="[kpiSub]">{{ formatPercent(totalSegment().tauxMarge) }}% marge · {{ formatNumber(totalSegment().nbTransactions) }} tx</ng-container>
+        </app-kpi-item>
+      </app-kpi-strip>
 
       <!-- Tableau détail segment -->
       <div class="card data-card mb-3">
@@ -103,10 +94,10 @@
             <ng-template #header>
               <tr class="pharma-table-head">
                 <th>Type de vente</th>
-                <th class="text-end">CA (FCFA)</th>
+                <th class="text-end">CA (<span appDevise></span>)</th>
                 <th class="text-end">Part du CA</th>
-                <th class="text-end">Coût achat (FCFA)</th>
-                <th class="text-end">Marge brute (FCFA)</th>
+                <th class="text-end">Coût achat (<span appDevise></span>)</th>
+                <th class="text-end">Marge brute (<span appDevise></span>)</th>
                 <th class="text-end">Taux marge</th>
                 <th class="text-end">Transactions</th>
               </tr>
@@ -172,18 +163,18 @@
           </h5>
         </div>
         <div class="card-body p-0">
-          <app-data-table [value]="sortedFamille()" class="pharma-table" [stripedRows]="true">
+          <app-data-table [value]="sortedFamille()"  [stripedRows]="true">
             <ng-template #header>
               <tr class="pharma-table-head">
                 <th>#</th>
                 <th>Famille</th>
                 <th class="text-end sortable" (click)="sortFamille('ca')">
-                  CA (FCFA) <i [class]="sortIcon('ca')"></i>
+                  CA (<span appDevise></span>) <i [class]="sortIcon('ca')"></i>
                 </th>
                 <th class="text-end">Part du CA</th>
-                <th class="text-end">Coût achat (FCFA)</th>
+                <th class="text-end">Coût achat (<span appDevise></span>)</th>
                 <th class="text-end sortable" (click)="sortFamille('margeBrute')">
-                  Marge brute (FCFA) <i [class]="sortIcon('margeBrute')"></i>
+                  Marge brute (<span appDevise></span>) <i [class]="sortIcon('margeBrute')"></i>
                 </th>
                 <th class="text-end sortable" (click)="sortFamille('tauxMarge')">
                   Taux marge <i [class]="sortIcon('tauxMarge')"></i>

@@ -1,255 +1,253 @@
-@if (!editingBed()) {
+<div class="pharma-smart-content p-1">
 
-  <!-- ─── Toolbar : titre + onglets ──────────────────────────────────────── -->
-  <div class="pharma-toolbar su-parent-toolbar">
+  @if (!editingBed()) {
 
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-file-plus"></i>
-      <span class="su-title">Bons d'Entrée Diverses</span>
+    <!-- ─── Toolbar : titre + onglets ──────────────────────────────────────── -->
+    <div class="pharma-toolbar su-parent-toolbar">
+
+      <div class="pharma-toolbar-header">
+        <i class="pi pi-file-plus"></i>
+        <span class="su-title">Bons d'Entrée Diverses</span>
+      </div>
+
+      <div class="su-source-tabs-bar">
+
+        <button
+          (click)="setTab('BROUILLON')"
+          [class.su-tab--active]="activeTab() === 'BROUILLON'"
+          class="su-tab"
+          ngbTooltip="BED en cours de saisie"
+          placement="bottom"
+          type="button"
+        >
+          <i class="pi pi-file-edit"></i>
+          En attente
+          @if (countBrouillon() > 0) {
+            <span class="su-tab-badge su-tab-badge--warn">{{ countBrouillon() }}</span>
+          }
+        </button>
+
+        <button
+          (click)="setTab('HISTORIQUE')"
+          [class.su-tab--active]="activeTab() === 'HISTORIQUE'"
+          class="su-tab"
+          ngbTooltip="BED validés — stock crédité"
+          placement="bottom"
+          type="button"
+        >
+          <i class="pi pi-history"></i>
+          Historique
+        </button>
+
+      </div>
     </div>
 
-    <div class="su-source-tabs-bar">
+    <!-- ─── Barre de filtres ─────────────────────────────────────────────── -->
+    <div class="su-action-bar">
+      <div class="su-action-bar__filters">
 
-      <button
-        class="su-tab"
-        [class.su-tab--active]="activeTab() === 'BROUILLON'"
-        (click)="setTab('BROUILLON')"
-        type="button"
-        ngbTooltip="BED en cours de saisie"
-        placement="bottom"
+        <app-icon-field [overlay]="true" class="lb-search" icon="pi pi-search">
+          <input
+            (keyup.enter)="onSearch()"
+            [ngModel]="search()" (ngModelChange)="search.set($event)"
+            class="form-control"
+            placeholder="Référence, libellé…"
+            type="text" />
+        </app-icon-field>
+
+        <app-select
+          (selectionChange)="onSearch()"
+          [ngModel]="filterMotif()" (ngModelChange)="filterMotif.set($event)"
+          [clearable]="true"
+          [items]="motifOptions"
+          bindLabel="label"
+          bindValue="value"
+          placeholder="Tous les motifs"
+        />
+
+        <pharma-date-picker
+          (selectionChange)="onSearch()"
+          [ngModel]="dtStart()" (ngModelChange)="dtStart.set($event)"
+          class="lb-date"
+          id="bedDtStart"
+          label="Début"
+        />
+
+        <pharma-date-picker
+          (selectionChange)="onSearch()"
+          [ngModel]="dtEnd()" (ngModelChange)="dtEnd.set($event)"
+          class="lb-date"
+          id="bedDtEnd"
+          label="Fin"
+        />
+
+      </div>
+
+      <div class="su-action-bar__actions">
+        <app-button
+          (clicked)="onNouveauBed()"
+          icon="pi pi-plus"
+          label="Nouveau"
+          severity="primary"
+          size="small"
+        />
+        <app-split-button
+          [items]="importMenuItems"
+          [outlined]="true"
+          icon="pi pi-upload"
+          label="Importer stock"
+          severity="warn"
+          size="small"
+        />
+        <app-button
+          (clicked)="onSearch()"
+          icon="pi pi-search"
+          label="Rechercher"
+          severity="info"
+          size="small"
+        />
+      </div>
+    </div>
+
+    <!-- Hint premier usage -->
+    <app-hint [visible]="activeTab() === 'BROUILLON'" storageKey="bed">
+      Cliquez sur <strong>Éditer</strong> pour modifier un BED en cours, ou utilisez <strong>Voir
+      détail</strong> pour consulter un BED validé.
+    </app-hint>
+
+    <!-- ─── Tableau ──────────────────────────────────────────────────────── -->
+    <div>
+      <app-data-table
+        (onLazyLoad)="onPageChange($event)"
+        [lazy]="true"
+        [loading]="loading()"
+        [paginator]="true"
+        [rowsPerPageOptions]="[10, 20, 30, 50]"
+        [rows]="itemsPerPage"
+        [showCurrentPageReport]="true"
+        [totalRecords]="totalRecords()"
+        [value]="beds()"
+        class="p-datatable-sm"
+        currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+        dataKey="id"
       >
-        <i class="pi pi-file-edit"></i>
-        En attente
-        @if (countBrouillon() > 0) {
-          <span class="su-tab-badge su-tab-badge--warn">{{ countBrouillon() }}</span>
-        }
-      </button>
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th style="width: 160px">Référence</th>
+            <th style="width: 110px">Date</th>
+            <th>Motif</th>
+            <th>Fournisseur</th>
+            <th class="text-center" style="width: 80px">Lignes</th>
+            <th class="text-end" style="width: 130px">Montant</th>
+            <th style="width: 110px">Statut</th>
+            <th class="text-center" style="width: 100px">Actions</th>
+          </tr>
+        </ng-template>
 
-      <button
-        class="su-tab"
-        [class.su-tab--active]="activeTab() === 'HISTORIQUE'"
-        (click)="setTab('HISTORIQUE')"
-        type="button"
-        ngbTooltip="BED validés — stock crédité"
-        placement="bottom"
-      >
-        <i class="pi pi-history"></i>
-        Historique
-      </button>
+        <ng-template #body let-b>
+          <tr (click)="onEditer(b)" style="cursor:pointer">
+            <td><span class="pharma-code">{{ b.receiptReference ?? '—' }}</span></td>
+            <td><small>{{ b.orderDate | date:'dd/MM/yyyy' }}</small></td>
+            <td>{{ b.motifLabel ?? '—' }}</td>
+            <td>{{ b.fournisseurLibelle ?? '—' }}</td>
+            <td class="text-center">
+              <span class="pharma-price">{{ b.lignesCount }}</span>
+            </td>
+            <td class="text-end">
+              <span class="pharma-price">{{ b.grossAmount | number:'1.0-0' }} F</span>
+            </td>
+            <td>
+              <app-badge
+                [label]="getStatutLabel(b.orderStatus)"
+                [severity]="getStatutSeverity(b.orderStatus)"
+              />
+            </td>
+            <td (click)="$event.stopPropagation()" class="text-center">
+              <div class="d-flex justify-content-center gap-1">
+                @if (b.orderStatus === 'REQUESTED') {
+                  <app-button
+                    (clicked)="onEditer(b)"
+                    [rounded]="true"
+                    [text]="true"
+                    icon="pi pi-pen-to-square"
+                    ngbTooltip="Éditer"
+                    placement="top"
+                    severity="info"
+                    size="small"
+                  />
+                  <app-button
+                    (clicked)="onValiderDepuisListe(b)"
+                    [rounded]="true"
+                    [text]="true"
+                    icon="pi pi-check"
+                    ngbTooltip="Valider le BED"
+                    placement="top"
+                    severity="success"
+                    size="small"
+                  />
+                  <app-button
+                    (clicked)="onSupprimerBed(b)"
+                    [rounded]="true"
+                    [text]="true"
+                    icon="pi pi-trash"
+                    ngbTooltip="Supprimer"
+                    placement="top"
+                    severity="danger"
+                    size="small"
+                  />
+                } @else {
+                  <app-button
+                    (clicked)="onEditer(b)"
+                    [rounded]="true"
+                    [text]="true"
+                    icon="pi pi-eye"
+                    ngbTooltip="Voir détail"
+                    placement="top"
+                    severity="secondary"
+                    size="small"
+                  />
+                }
+              </div>
+            </td>
+          </tr>
+        </ng-template>
 
+        <ng-template #emptymessage>
+          <tr>
+            <td class="pharma-empty-message" colspan="8">
+              <div class="pharma-empty-content">
+                <i class="pi pi-inbox"></i>
+                @if (activeTab() === 'BROUILLON') {
+                  <p>Aucun BED en brouillon</p>
+                  <small>Cliquez sur "Nouveau BED" pour créer un bon d'entrée diverse</small>
+                } @else {
+                  <p>Aucun BED validé</p>
+                  <small>Les bons d'entrée diverses validés apparaîtront ici</small>
+                }
+                <app-button
+                  (clicked)="onNouveauBed()"
+                  icon="pi pi-plus"
+                  label="Nouveau"
+                  severity="primary"
+                  size="small"
+                />
+
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </app-data-table>
     </div>
-  </div>
 
-  <!-- ─── Barre de filtres ─────────────────────────────────────────────── -->
-  <div class="su-action-bar">
-    <div class="su-action-bar__filters">
-
-      <app-icon-field class="lb-search" [overlay]="true" icon="pi pi-search">
-        <input
-          [(ngModel)]="search"
-          (keyup.enter)="onSearch()"
-          class="form-control"
-          placeholder="Référence, libellé…"
-          type="text" />
-      </app-icon-field>
-
-      <app-select
-        [(ngModel)]="filterMotif"
-        (selectionChange)="onSearch()"
-        [items]="motifOptions"
-        bindLabel="label"
-        bindValue="value"
-        placeholder="Tous les motifs"
-        [clearable]="true"
-      />
-
-      <pharma-date-picker
-        class="lb-date"
-        [(ngModel)]="dtStart"
-        (selectionChange)="onSearch()"
-        id="bedDtStart"
-        label="Début"
-      />
-
-      <pharma-date-picker
-        class="lb-date"
-        [(ngModel)]="dtEnd"
-        (selectionChange)="onSearch()"
-        id="bedDtEnd"
-        label="Fin"
-      />
-
-    </div>
-
-    <div class="su-action-bar__actions">
-      <app-button
-        (clicked)="onNouveauBed()"
-        icon="pi pi-plus"
-        label="Nouveau"
-        severity="primary"
-        size="small"
-      />
-      <app-split-button
-        label="Importer stock"
-        icon="pi pi-upload"
-        [items]="importMenuItems"
-        severity="warn"
-        [outlined]="true"
-        size="small"
-      />
-      <app-button
-        (clicked)="onSearch()"
-        icon="pi pi-search"
-        label="Rechercher"
-        severity="info"
-        size="small"
-      />
-    </div>
-  </div>
-
-  <!-- ─── Hint premier usage ─────────────────────────────────────────── -->
-  @if (showHint() && activeTab() === 'BROUILLON') {
-    <div class="pharma-hint">
-      <i class="pi pi-info-circle"></i>
-      <span>Cliquez sur <strong>Éditer</strong> pour modifier un BED en cours, ou utilisez <strong>Voir détail</strong> pour consulter un BED validé.</span>
-      <button type="button" class="pharma-hint-close" (click)="dismissHint()" aria-label="Fermer">
-        <i class="pi pi-times"></i>
-      </button>
-    </div>
   }
 
-  <!-- ─── Tableau ──────────────────────────────────────────────────────── -->
-  <div>
-    <app-data-table
-      [value]="beds()"
-      [rows]="itemsPerPage"
-      [totalRecords]="totalRecords()"
-      [loading]="loading()"
-      class="p-datatable-sm"
-      [paginator]="true"
-      [rowsPerPageOptions]="[10, 20, 30, 50]"
-      [lazy]="true"
-      (onLazyLoad)="onPageChange($event)"
-      dataKey="id"
-      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
-      [showCurrentPageReport]="true"
-    >
-      <ng-template #header>
-        <tr class="pharma-table-head">
-          <th style="width: 160px">Référence</th>
-          <th style="width: 110px">Date</th>
-          <th>Motif</th>
-          <th>Fournisseur</th>
-          <th class="text-center" style="width: 80px">Lignes</th>
-          <th class="text-end" style="width: 130px">Montant</th>
-          <th style="width: 110px">Statut</th>
-          <th class="text-center" style="width: 100px">Actions</th>
-        </tr>
-      </ng-template>
-
-      <ng-template #body let-b>
-        <tr (click)="onEditer(b)" style="cursor:pointer">
-          <td><span class="pharma-code">{{ b.receiptReference ?? '—' }}</span></td>
-          <td><small>{{ b.orderDate | date:'dd/MM/yyyy' }}</small></td>
-          <td>{{ b.motifLabel ?? '—' }}</td>
-          <td>{{ b.fournisseurLibelle ?? '—' }}</td>
-          <td class="text-center">
-            <span class="pharma-price">{{ b.lignesCount }}</span>
-          </td>
-          <td class="text-end">
-            <span class="pharma-price">{{ b.grossAmount | number:'1.0-0' }} F</span>
-          </td>
-          <td>
-            <app-badge
-              [label]="getStatutLabel(b.orderStatus)"
-              [severity]="getStatutSeverity(b.orderStatus)"
-            />
-          </td>
-          <td class="text-center" (click)="$event.stopPropagation()">
-            <div class="d-flex justify-content-center gap-1">
-              @if (b.orderStatus === 'REQUESTED') {
-                <app-button
-                  icon="pi pi-pen-to-square"
-                  [text]="true"
-                  [rounded]="true"
-                  severity="info"
-                  size="small"
-                  ngbTooltip="Éditer"
-                  placement="top"
-                  (clicked)="onEditer(b)"
-                />
-                <app-button
-                  icon="pi pi-check"
-                  [text]="true"
-                  [rounded]="true"
-                  severity="success"
-                  size="small"
-                  ngbTooltip="Valider le BED"
-                  placement="top"
-                  (clicked)="onValiderDepuisListe(b)"
-                />
-                <app-button
-                  icon="pi pi-trash"
-                  [text]="true"
-                  [rounded]="true"
-                  severity="danger"
-                  size="small"
-                  ngbTooltip="Supprimer"
-                  placement="top"
-                  (clicked)="onSupprimerBed(b)"
-                />
-              } @else {
-                <app-button
-                  icon="pi pi-eye"
-                  [text]="true"
-                  [rounded]="true"
-                  severity="secondary"
-                  size="small"
-                  ngbTooltip="Voir détail"
-                  placement="top"
-                  (clicked)="onEditer(b)"
-                />
-              }
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-
-      <ng-template #emptymessage>
-        <tr>
-          <td colspan="8" class="pharma-empty-message">
-            <div class="pharma-empty-content">
-              <i class="pi pi-inbox"></i>
-              @if (activeTab() === 'BROUILLON') {
-                <p>Aucun BED en brouillon</p>
-                <small>Cliquez sur "Nouveau BED" pour créer un bon d'entrée diverse</small>
-              } @else {
-                <p>Aucun BED validé</p>
-                <small>Les bons d'entrée diverses validés apparaîtront ici</small>
-              }
-              <app-button
-                (clicked)="onNouveauBed()"
-                icon="pi pi-plus"
-                label="Nouveau"
-                severity="primary"
-                size="small"
-              />
-
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-    </app-data-table>
-  </div>
-
-}
-
-@if (editingBed()) {
-  <div class="bed-detail-body">
-    <app-bed-detail
-      [bed]="editingBed()!"
-      (retour)="onRetour()"
-      (bedChange)="editingBed.set($event)"
-    />
-  </div>
-}
+  @if (editingBed()) {
+    <div class="bed-detail-body">
+      <app-bed-detail
+        (bedChange)="editingBed.set($event)"
+        (retour)="onRetour()"
+        [bed]="editingBed()!"
+      />
+    </div>
+  }
+</div>

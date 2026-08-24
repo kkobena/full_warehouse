@@ -20,7 +20,7 @@ import {
   selector: "app-produit-stock-tab",
   templateUrl: "./produit-stock-tab.component.html",
   styleUrls: ["./produit-stock-tab.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, ButtonComponent, NgbTooltip]
 })
 export class ProduitStockTabComponent {

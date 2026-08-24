@@ -13,12 +13,14 @@ import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-d
 import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
 import { NotificationService } from '../../../../shared/services/notification.service';
 
+import { formatCurrencyWithUnit } from 'app/shared/utils/format-utils';
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-produit-synthese-tab',
   templateUrl: './produit-synthese-tab.component.html',
   styleUrls: ['./produit-synthese-tab.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, NgbTooltip, ButtonComponent, BadgeComponent, SwitchComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DeviseDirective, CommonModule, FormsModule, NgbTooltip, ButtonComponent, BadgeComponent, SwitchComponent],
 })
 export class ProduitSyntheseTabComponent {
   readonly produit = input.required<IProduit>();
@@ -193,7 +195,7 @@ export class ProduitSyntheseTabComponent {
 
   protected formatPrix(montant?: number | null): string {
     if (montant == null) return '—';
-    return montant.toLocaleString('fr-FR', { minimumFractionDigits: 0 }) + ' FCFA';
+    return formatCurrencyWithUnit(montant);
   }
 
   protected formatDate(date?: any): string {

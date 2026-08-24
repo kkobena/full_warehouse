@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.ClassificationCriticiteLog;
 import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
 import com.kobe.warehouse.domain.enumeration.ClassificationType;
@@ -63,7 +64,7 @@ public record ClassificationLogDTO(
             entity.getRaisonChangement(),
             entity.getClassificationType(),
             entity.getUser() != null ?
-                (entity.getUser().getFirstName() + " " + entity.getUser().getLastName()).trim() : null,
+                (AppUserNames.fullName(entity.getUser())).trim() : null,
             entity.getCreatedAt()
         );
     }

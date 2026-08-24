@@ -1,4 +1,4 @@
-import { Component, computed, forwardRef, input } from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, forwardRef, input} from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { ControlValueAccessorBase } from '../forms/control-value-accessor.base';
@@ -37,6 +37,7 @@ let nextId = 0;
       }
     </div>
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RadioComponent extends ControlValueAccessorBase<unknown> {
   /** Valeur portée par cette option ; devient la valeur du modèle une fois sélectionnée. */

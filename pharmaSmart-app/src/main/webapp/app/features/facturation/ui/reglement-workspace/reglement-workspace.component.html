@@ -10,7 +10,7 @@
         [allSelection]="isAllSelected()"
         [dossierIds]="dossierIds()"
         [facture]="dossierFactureProjectionSignal()"
-        [isSaving]="isSaving"
+        [isSaving]="isSaving()"
         [montantAPayer]="totalAmount"
         [typeFacture]="mode() === 'GROUPE' ? ModeEditionReglement.GROUP : ModeEditionReglement.SINGLE"
       />
@@ -21,7 +21,7 @@
       <div class="selection-summary">
         <i class="pi pi-check-square"></i>
         <span>{{ factureDossierSelectionnes().length }} dossier(s) sélectionné(s)</span>
-        <span class="selection-amount">→ {{ montantAPayer() | number }} FCFA</span>
+        <span class="selection-amount">→ {{ montantAPayer() | number }} <span appDevise></span></span>
       </div>
     }
 
@@ -52,7 +52,7 @@
             </span>
             <app-icon-field [overlay]="true" icon="pi pi-search">
               <input pSize="small"
-                     (input)="factureDossierTable.filterGlobal($event.target['value'], 'contains')"
+                     (input)="factureDossierTable.filterGlobal($event.target['value'])"
                      placeholder="Filtrer..."
                      type="text" class="form-control" />
             </app-icon-field>

@@ -1,137 +1,135 @@
-<div class="container-fluid">
-  <div class="pharma-smart-content py-1">
+<div class="pharma-smart-content py-1">
 
-    <app-toolbar icon="pi pi-users" title="Utilisateurs">
-      <ng-container ngProjectAs="[toolbarActions]">
-        <app-button
-          [raised]="true"
-          [routerLink]="['./new']"
-          icon="pi pi-plus"
-          label="Nouvel utilisateur"
-          severity="primary"
-        />
-      </ng-container>
-    </app-toolbar>
+  <app-toolbar icon="pi pi-users" title="Utilisateurs">
+    <ng-container ngProjectAs="[toolbarActions]">
+      <app-button
+        [raised]="true"
+        [routerLink]="['./new']"
+        icon="pi pi-plus"
+        label="Nouvel utilisateur"
+        severity="primary"
+      />
+    </ng-container>
+  </app-toolbar>
 
-    @if (users() !== null) {
-      <app-data-table
-        [paginator]="true"
-        [rows]="itemsPerPage"
-        [value]="filteredUsers()"
-        class="mt-2 pharma-table"
-      >
-        <ng-template #caption>
-          <div class="d-flex justify-content-end">
-            <app-icon-field [overlay]="true" icon="pi pi-search">
-              <input
-                (input)="onFilter($event)"
-                class="form-control"
-                placeholder="Rechercher…"
-                type="text"
-              />
-            </app-icon-field>
-          </div>
-        </ng-template>
+  @if (users() !== null) {
+    <app-data-table
+      [paginator]="true"
+      [rows]="itemsPerPage"
+      [value]="filteredUsers()"
+    >
+      <ng-template #caption>
+        <div class="d-flex justify-content-end">
+          <app-icon-field [overlay]="true" icon="pi pi-search">
+            <input
+              (input)="onFilter($event)"
+              class="form-control"
+              placeholder="Rechercher…"
+              type="text"
+            />
+          </app-icon-field>
+        </div>
+      </ng-template>
 
-        <ng-template #header>
-          <tr class="pharma-table-head">
-            <th>Login</th>
-            <th>Nom</th>
-            <th>Prénom</th>
-            <th>Rôle</th>
-            <th>Statut</th>
-            <th class="text-end">Actions</th>
-          </tr>
-        </ng-template>
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th>Login</th>
+          <th>Nom</th>
+          <th>Prénom</th>
+          <th>Rôle</th>
+          <th>Statut</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </ng-template>
 
-        <ng-template #body let-user>
-          <tr>
-            <td>
-              <a [routerLink]="['./', user.login, 'view']" class="fw-semibold">{{ user.login }}</a>
-            </td>
-            <td>{{ user.lastName }}</td>
-            <td>{{ user.firstName }}</td>
-            <td>
+      <ng-template #body let-user>
+        <tr>
+          <td>
+            <a [routerLink]="['./', user.login, 'view']" class="fw-semibold">{{ user.login }}</a>
+          </td>
+          <td>{{ user.lastName }}</td>
+          <td>{{ user.firstName }}</td>
+          <td>
 
-              <span class="pharma-badge pharma-badge-info me-1">{{ user.authority?.libelle }}</span>
+            <span class="pharma-badge pharma-badge-info me-1">{{ user.authority?.libelle }}</span>
 
-            </td>
-            <td>
-              <div class="d-flex align-items-center gap-2">
-                <!-- Badge statut (indicateur, non-cliquable) -->
-                @if (user.activated) {
-                  <span class="pharma-badge pharma-badge-success">Actif</span>
-                } @else {
-                  <span class="pharma-badge pharma-badge-secondary">Inactif</span>
-                }
-                <!-- Bouton action (label = ce qui va se passer) -->
-                @if (!user.activated) {
+          </td>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <!-- Badge statut (indicateur, non-cliquable) -->
+              @if (user.activated) {
+                <span class="pharma-badge pharma-badge-success">Actif</span>
+              } @else {
+                <span class="pharma-badge pharma-badge-secondary">Inactif</span>
+              }
+              <!-- Bouton action (label = ce qui va se passer) -->
+              @if (!user.activated) {
+                <app-button
+                  (clicked)="setActive(user, true)"
+                  [outlined]="true"
+                  icon="pi pi-power-off"
+                  label="Activer"
+                  severity="success"
+                  size="small"
+                />
+              } @else {
+                @if (user.id !== 3) {
                   <app-button
-                    (clicked)="setActive(user, true)"
+                    (clicked)="setActive(user, false)"
+                    [disabled]="currentAccount()?.login === user.login"
                     [outlined]="true"
-                    icon="pi pi-power-off"
-                    label="Activer"
-                    severity="success"
+                    icon="pi pi-ban"
+                    label="Désactiver"
+                    severity="danger"
                     size="small"
                   />
-                } @else {
-                  @if (user.id !== 3) {
-                    <app-button
-                      (clicked)="setActive(user, false)"
-                      [disabled]="currentAccount()?.login === user.login"
-                      [outlined]="true"
-                      icon="pi pi-ban"
-                      label="Désactiver"
-                      severity="danger"
-                      size="small"
-                    />
-
-                  }
 
                 }
-              </div>
-            </td>
-            <td class="text-end">
-              <app-button
-                [rounded]="true"
-                [routerLink]="['./', user.login, 'view']"
-                [text]="true"
-                icon="pi pi-eye"
-                ngbTooltip="Voir"
-                severity="info"
-              />
-              <app-button
-                [rounded]="true"
-                [routerLink]="['./', user.login, 'edit']"
-                [text]="true"
-                icon="pi pi-pencil"
-                ngbTooltip="Modifier"
-                severity="primary"
-              />
-              @if (user.id !== 3) {
-                <app-button
-                  (clicked)="deleteUser(user)"
-                  [disabled]="currentAccount()?.login === user.login"
-                  [rounded]="true"
-                  [text]="true"
-                  icon="pi pi-trash"
-                  ngbTooltip="Supprimer"
-                  severity="danger"
-                />
+
               }
+            </div>
+          </td>
+          <td class="text-end">
+            <app-button
+              [rounded]="true"
+              [routerLink]="['./', user.login, 'view']"
+              [text]="true"
+              icon="pi pi-eye"
+              ngbTooltip="Voir"
+              severity="info"
+            />
+            <app-button
+              [rounded]="true"
+              [routerLink]="['./', user.login, 'edit']"
+              [text]="true"
+              icon="pi pi-pencil"
+              ngbTooltip="Modifier"
+              severity="primary"
+            />
+            @if (user.id !== 3) {
+              <app-button
+                (clicked)="deleteUser(user)"
+                [disabled]="currentAccount()?.login === user.login"
+                [rounded]="true"
+                [text]="true"
+                icon="pi pi-trash"
+                ngbTooltip="Supprimer"
+                severity="danger"
+              />
+            }
 
-            </td>
-          </tr>
-        </ng-template>
+          </td>
+        </tr>
+      </ng-template>
 
-        <ng-template #emptymessage>
-          <tr>
-            <td class="text-center text-muted py-4" colspan="6">Aucun utilisateur trouvé.</td>
-          </tr>
-        </ng-template>
-      </app-data-table>
+      <ng-template #emptymessage>
+        <tr>
+          <td class="text-center text-muted py-4" colspan="6">Aucun utilisateur trouvé.</td>
+        </tr>
+      </ng-template>
+    </app-data-table>
 
-    }
+  }
 
-  </div>
 </div>
+

@@ -32,7 +32,7 @@ import { IClientTiersPayant } from '../../../../shared/model';
     NgbTooltip,
   ],
   templateUrl: './insurance-data-bar.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./insurance-data-bar.component.scss'],
 })
 export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
@@ -56,7 +56,7 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
   readonly removeTiersPayant = output<IClientTiersPayant>();
   readonly focusProductSearch = output<void>();
 
-  protected search: string = '';
+  protected readonly search = signal<string>('');
   protected selectedTiersPayants: WritableSignal<IClientTiersPayant[]> = signal<IClientTiersPayant[]>([]);
   protected divClass: Signal<string> = computed(() => this.getDivClassForCount(this.selectedTiersPayants().length));
   protected divCustomer: Signal<string> = computed(() => this.getDivCustomerClassForCount(this.selectedTiersPayants().length));
@@ -180,7 +180,7 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
   }
 
   protected load(): void {
-    if (!this.search) {
+    if (!this.search()) {
       return;
     }
 
@@ -191,7 +191,7 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
     const currentSaleType = this.saleType();
     this.customerService
       .queryAssuredCustomer({
-        search: this.search,
+        search: this.search(),
         size: 5,
         typeTiersPayant: currentSaleType,
       })
@@ -221,7 +221,7 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
   }
 
   private handleMultipleCustomersFound(customers: ICustomer[]): void {
-    this.openCustomerList.emit({ customers, searchTerm: this.search });
+    this.openCustomerList.emit({ customers, searchTerm: this.search() });
     this.clearSearch();
   }
 
@@ -241,7 +241,7 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
   }
 
   private clearSearch(): void {
-    this.search = '';
+    this.search.set('');
   }
 
   public focusFirstBon(): void {

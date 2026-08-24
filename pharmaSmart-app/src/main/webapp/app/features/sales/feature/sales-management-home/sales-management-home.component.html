@@ -1,163 +1,143 @@
-<div class="row">
-  <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2">
-    <div class="pharma-nav-sidebar">
-      <div class="pharma-nav-sidebar-card">
-        <div class="pharma-nav-sidebar-header">
-          <i class="pi pi-shopping-cart"></i>
-          <span>Gestion des ventes</span>
-        </div>
+<app-nav-sidebar (collapsedChange)="menuReplie.set($event)" [collapsed]="menuReplie()"
+                 [collapsible]="true" [nav]="nav" contentColumnClass="col-xl-10 col-lg-10 col-md-10 col-sm-10"
+                 icon="pi pi-shopping-cart" menuColumnClass="col-xl-2 col-lg-2 col-md-2 col-sm-2"
+                 title="Gestion des ventes">
+  <div #nav="ngbNav" (activeIdChange)="active.set($event)" [activeId]="active()"
+       class="nav flex-column nav-pills" ngbNav orientation="vertical">
+    @if (showJournal()) {
+      <ng-container ngbNavItem="journal">
+        <a class="pharma-nav-vertical-link"ngbNavLink>
+          <app-nav-section-link code="ventes.journal"
+                                fallbackIcon="pi pi-book"
+                                fallbackLabel="Journal des ventes" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-sales-journal navCode="ventes.journal" />
+          } @loading {
+            <app-skeleton width="100%" height="240px" />
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-        <div class="pharma-nav-sidebar-content">
-          <div
-            #nav="ngbNav"
-            [(activeId)]="active"
-            (navChange)="onNavChange($event)"
-            class="nav flex-column nav-pills"
-            ngbNav
-            orientation="vertical"
-          >
-            @if (showJournal()) {
-              <ng-container ngbNavItem="journal">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-book"></i>
-                  <span>Journal des ventes</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  @defer (on immediate) {
-                    <app-sales-journal />
-                  } @loading {
-                    <app-skeleton width="100%" height="240px" />
-                  }
-                </ng-template>
-              </ng-container>
-            }
+    @if (showEnCours()) {
+      <ng-container ngbNavItem="en-cours">
+        <a class="pharma-nav-vertical-link"ngbNavLink>
+          <app-nav-section-link code="ventes.en-cours"
+                                fallbackIcon="pi pi-clock"
+                                fallbackLabel="Ventes en cours" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-sales-en-cours navCode="ventes.en-cours" />
+          } @loading {
+            <app-skeleton width="100%" height="240px" />
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-            @if (showEnCours()) {
-              <ng-container ngbNavItem="en-cours">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-clock"></i>
-                  <span>Ventes en cours</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  @defer (on immediate) {
-                    <app-sales-en-cours />
-                  } @loading {
-                    <app-skeleton width="100%" height="240px" />
-                  }
-                </ng-template>
-              </ng-container>
-            }
+    @if (showPresales()) {
+      <ng-container ngbNavItem="presales">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="ventes.presales"
+                                fallbackIcon="pi pi-bookmark"
+                                fallbackLabel="Pré-ventes" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-presale-list navCode="ventes.presales" />
+          } @loading {
+            <app-skeleton width="100%" height="240px" />
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-            @if (showPresales()) {
-              <ng-container ngbNavItem="presales">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-bookmark"></i>
-                  <span>Pré-ventes</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  @defer (on immediate) {
-                    <app-presale-list />
-                  } @loading {
-                    <app-skeleton width="100%" height="240px" />
-                  }
-                </ng-template>
-              </ng-container>
-            }
+    @if (showDevis()) {
+      <ng-container ngbNavItem="devis">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="ventes.devis"
+                                fallbackIcon="pi pi-file-edit"
+                                fallbackLabel="Proformas" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-devis-list navCode="ventes.devis" />
+          } @loading {
+            <app-skeleton width="100%" height="240px" />
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-            @if (showDevis()) {
-              <ng-container ngbNavItem="devis">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-file-edit"></i>
-                  <span>Proformas</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  @defer (on immediate) {
-                    <app-devis-list />
-                  } @loading {
-                    <app-skeleton width="100%" height="240px" />
-                  }
-                </ng-template>
-              </ng-container>
-            }
+    @if (showAnnulations()) {
+      <ng-container ngbNavItem="annulations">
+        <a class="pharma-nav-vertical-link"ngbNavLink>
+          <app-nav-section-link code="ventes.annulations"
+                                fallbackIcon="pi pi-ban"
+                                fallbackLabel="Annulations" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-sales-annulations navCode="ventes.annulations" />
+          } @loading {
+            <app-skeleton width="100%" height="240px" />
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-            @if (showAnnulations()) {
-              <ng-container ngbNavItem="annulations">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-ban"></i>
-                  <span>Annulations</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  @defer (on immediate) {
-                    <app-sales-annulations />
-                  } @loading {
-                    <app-skeleton width="100%" height="240px" />
-                  }
-                </ng-template>
-              </ng-container>
-            }
+    @if (showVenteDepot()) {
+      <ng-container ngbNavItem="vente-depot">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="ventes.vente-depot"
+                                fallbackIcon="pi pi-warehouse"
+                                fallbackLabel="Ventes dépôt" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-vente-depot-list navCode="ventes.vente-depot" />
+          } @loading {
+            <app-skeleton width="100%" height="240px" />
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-            @if (showVenteDepot()) {
-              <ng-container ngbNavItem="vente-depot">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-warehouse"></i>
-                  <span>Ventes dépôt</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  @defer (on immediate) {
-                    <app-vente-depot-list />
-                  } @loading {
-                    <app-skeleton width="100%" height="240px" />
-                  }
-                </ng-template>
-              </ng-container>
-            }
+    @if (showAvoirs()) {
+      <ng-container ngbNavItem="avoirs">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="ventes.avoirs"
+                                fallbackIcon="pi pi-replay"
+                                fallbackLabel="Avoirs clients" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-avoirs-client-list navCode="ventes.avoirs" />
+          } @loading {
+            <app-skeleton width="100%" height="240px" />
+          }
+        </ng-template>
+      </ng-container>
+    }
+    @if (showRetourClient()) {
+      <ng-container ngbNavItem="retour-client">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="ventes.retours-client"
+                                fallbackIcon="pi pi-undo"
+                                fallbackLabel="Retours clients" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-retour-client navCode="ventes.retours-client" />
+          } @loading {
+            <app-skeleton width="100%" height="240px" />
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-            @if (showAvoirs()) {
-              <ng-container ngbNavItem="avoirs">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-replay"></i>
-                  <span>Avoirs clients</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  @defer (on immediate) {
-                    <app-avoirs-client-list />
-                  } @loading {
-                    <app-skeleton width="100%" height="240px" />
-                  }
-                </ng-template>
-              </ng-container>
-            }
-            @if (showRetourClient()) {
-              <ng-container ngbNavItem="retour-client">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-undo"></i>
-                  <span>Retours clients</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  @defer (on immediate) {
-                    <app-retour-client />
-                  } @loading {
-                    <app-skeleton width="100%" height="240px" />
-                  }
-                </ng-template>
-              </ng-container>
-            }
-
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
-
-  <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10">
-    <div [ngbNavOutlet]="nav"></div>
-  </div>
-</div>
+</app-nav-sidebar>

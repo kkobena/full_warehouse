@@ -22,14 +22,16 @@ import { FournisseurSuggestionSummary, SuggestionLigneEnrichie } from '../../dat
 import { CommandeProductSearchComponent } from '../../../../ui/commande-product-search/commande-product-search.component';
 import { ProduitSearch } from 'app/shared/model';
 
+import { formatNumber } from 'app/shared/utils/format-utils';
+import { DeviseDirective } from 'app/shared/utils/devise';
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
 @Component({
   selector: 'app-suggestion-produit-panel',
   templateUrl: './suggestion-produit-panel.component.html',
   styleUrls: ['./suggestion-produit-panel.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -252,7 +254,7 @@ export class SuggestionProduitPanelComponent {
       sortable: true,
       type: 'numericColumn',
       valueFormatter: (params: any) =>
-        params.value != null ? Number(params.value).toLocaleString('fr-FR') : '—',
+        params.value != null ? formatNumber(Number(params.value)) : '—',
     },
   ];
 
@@ -335,7 +337,7 @@ export class SuggestionProduitPanelComponent {
   readonly urgenceFilter = signal<string>('TOUS');
   readonly selectedLignes = signal<SuggestionLigneEnrichie[]>([]);
   readonly produitEnCours = signal<ProduitSearch | null>(null);
-  quantiteSaisie = 1;
+  protected readonly quantiteSaisie = signal(1);
 
 
   // ─── Computed ────────────────────────────────────────────────────────────────
@@ -477,7 +479,7 @@ export class SuggestionProduitPanelComponent {
       return;
     }
     this.produitEnCours.set(produit);
-    this.quantiteSaisie = 1;
+    this.quantiteSaisie.set(1);
     // Laisser l'overlay autocomplete se fermer avant de prendre le focus
     setTimeout(() => {
       const el = this.quantityBoxRef()?.nativeElement;
@@ -492,10 +494,10 @@ export class SuggestionProduitPanelComponent {
     const produitId = produit.id;
     const fournisseurProduitId = produit.fournisseurProduit?.id;
     if (!produitId || !fournisseurProduitId) return;
-    const quantite = Number(this.quantiteSaisie) || 1;
+    const quantite = Number(this.quantiteSaisie()) || 1;
     this.ajouterProduit.emit({ produitId, fournisseurProduitId, quantite });
     this.produitEnCours.set(null);
-    this.quantiteSaisie = 1;
+    this.quantiteSaisie.set(1);
     requestAnimationFrame(() => {
       this.searchComp()?.reset();
       this.searchComp()?.getFocus();

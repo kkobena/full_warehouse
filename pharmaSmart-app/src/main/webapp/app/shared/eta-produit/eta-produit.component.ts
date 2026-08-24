@@ -24,7 +24,7 @@ interface EtatBadge {
       }
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
     .etat-produit-bar {
       display: inline-flex;

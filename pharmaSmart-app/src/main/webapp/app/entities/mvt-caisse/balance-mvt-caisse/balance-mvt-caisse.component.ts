@@ -1,4 +1,12 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  OnInit,
+  signal
+} from '@angular/core';
 import {MvtParamServiceService} from '../mvt-param-service.service';
 import {BalanceCaisseWrapper} from './balance-caisse.model';
 import {BalanceMvtCaisseService} from './balance-mvt-caisse.service';
@@ -15,9 +23,12 @@ import {NgbDateStruct, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {ButtonComponent, ToolbarComponent} from '../../../shared/ui';
 import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
 
+import {ModeCa, ModeCaService} from '../mode-ca';
+
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-balance-mvt-caisse',
-  imports: [
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -26,14 +37,30 @@ import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date
     NgbTooltip,
   ],
   templateUrl: './balance-mvt-caisse.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./balance-mvt-caisse.component.scss'],
 })
 export class BalanceMvtCaisseComponent implements OnInit {
-  protected fromDate: NgbDateStruct | null = null;
-  protected toDate: NgbDateStruct | null = null;
-  protected loading = false;
-  protected balanceMvtCaisseWrapper: BalanceCaisseWrapper | null = null;
+  /**
+   * Mode imposé par l'écran appelant. Laissé vide, il est déduit de la licence : le chiffre déclaré
+   * n'a de sens que si l'officine a souscrit au moins un module de retraitement.
+   */
+  readonly mode = input<ModeCa | null>(null);
+
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu, ex. `comptabilite.balance`.
+   *
+   * <p>Fourni par l'appelant et non écrit en dur : cet écran est ouvert depuis deux menus — la
+   * Comptabilité et le Retraitement du CA — qui le nomment différemment. Le titre suit donc le
+   * menu par lequel on y est entré.
+   */
+  readonly navCode = input<string>('');
+  protected readonly fromDate = signal<NgbDateStruct | null>(null);
+  protected readonly toDate = signal<NgbDateStruct | null>(null);
+  protected readonly loading = signal(false);
+  protected readonly balanceMvtCaisseWrapper = signal<BalanceCaisseWrapper | null>(null);
+  private readonly modeCaService = inject(ModeCaService);
+  protected readonly modeEffectif = computed<ModeCa>(() => this.mode() ?? this.modeCaService.modeComptabilite());
   private mvtParamServiceService = inject(MvtParamServiceService);
   private balanceMvtCaisseService = inject(BalanceMvtCaisseService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
@@ -42,14 +69,14 @@ export class BalanceMvtCaisseComponent implements OnInit {
   ngOnInit(): void {
     const params = this.mvtParamServiceService.mvtCaisseParam();
     if (params) {
-      this.fromDate = params.fromDate;
-      this.toDate = params.toDate;
+      this.fromDate.set(params.fromDate);
+      this.toDate.set(params.toDate);
     }
     this.onSearch();
   }
 
   onSearch(): void {
-    this.loading = true;
+    this.loading.set(true);
     this.balanceMvtCaisseService
       .query({
         ...this.buildParams(),
@@ -66,7 +93,7 @@ export class BalanceMvtCaisseComponent implements OnInit {
       .exportToPdf({
         ...this.buildParams(),
       })
-      .pipe(finalize(() => (this.loading = false)))
+      .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: blob => {
           if (this.tauriPrinterService.isRunningInTauri()) {
@@ -84,8 +111,8 @@ export class BalanceMvtCaisseComponent implements OnInit {
 
   private setParam(): void {
     const param: MvtCaisseParams = {
-      fromDate: this.fromDate,
-      toDate: this.toDate,
+      fromDate: this.fromDate(),
+      toDate: this.toDate(),
     };
     this.mvtParamServiceService.setMvtCaisseParam(param);
   }
@@ -93,8 +120,8 @@ export class BalanceMvtCaisseComponent implements OnInit {
   private updateParam(): void {
     const params = this.mvtParamServiceService.mvtCaisseParam();
     if (params) {
-      params.fromDate = this.fromDate;
-      params.toDate = this.toDate;
+      params.fromDate = this.fromDate();
+      params.toDate = this.toDate();
       this.mvtParamServiceService.setMvtCaisseParam(params);
     } else {
       this.setParam();
@@ -103,20 +130,21 @@ export class BalanceMvtCaisseComponent implements OnInit {
 
   private buildParams(): any {
     return {
-      fromDate: this.fromDate ? NGB_DATE_TO_ISO(this.fromDate) : null,
-      toDate: this.toDate ? NGB_DATE_TO_ISO(this.toDate) : null,
+      mode: this.modeEffectif(),
+      fromDate: this.fromDate() ? NGB_DATE_TO_ISO(this.fromDate()!) : null,
+      toDate: this.toDate() ? NGB_DATE_TO_ISO(this.toDate()!) : null,
       statuts: ['CLOSED'],
     };
   }
 
   private onSuccess(data: BalanceCaisseWrapper | null): void {
-    this.balanceMvtCaisseWrapper = data || null;
-    this.loading = false;
+    this.balanceMvtCaisseWrapper.set(data ?? null);
+    this.loading.set(false);
   }
 
   private onError(): void {
     this.notificationService.error('Une erreur est survenue lors de la récupération des données');
-    this.balanceMvtCaisseWrapper = null;
-    this.loading = false;
+    this.balanceMvtCaisseWrapper.set(null);
+    this.loading.set(false);
   }
 }

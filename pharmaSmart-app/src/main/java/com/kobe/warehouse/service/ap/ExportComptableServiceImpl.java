@@ -10,6 +10,7 @@ import com.kobe.warehouse.service.financiel_transaction.FinancialTransactionServ
 import com.kobe.warehouse.service.financiel_transaction.TaxeService;
 import com.kobe.warehouse.service.financiel_transaction.TvaReportReportService;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseDTO;
+import com.kobe.warehouse.service.declaration_ca.ModeChiffreAffaireResolver;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.financiel_transaction.dto.TaxeDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.TaxeWrapperDTO;
@@ -47,6 +48,7 @@ public class ExportComptableServiceImpl implements ExportComptableService {
     private static final int ROW_WINDOW = 100;
 
     private final TaxeService taxeService;
+    private final ModeChiffreAffaireResolver modeResolver;
     private final CommandeRepository commandeRepository;
     private final FinancialTransactionService transactionService;
     private final CsvExportService csvExportService;
@@ -60,8 +62,10 @@ public class ExportComptableServiceImpl implements ExportComptableService {
         CommandeRepository commandeRepository,
         FinancialTransactionService transactionService,
         CsvExportService csvExportService,
-        TvaReportReportService tvaReportService
+        TvaReportReportService tvaReportService,
+        ModeChiffreAffaireResolver modeResolver
     ) {
+        this.modeResolver = modeResolver;
         this.taxeService = taxeService;
         this.commandeRepository = commandeRepository;
         this.transactionService = transactionService;
@@ -543,8 +547,16 @@ public class ExportComptableServiceImpl implements ExportComptableService {
 
     // ─── Helpers communs ────────────────────────────────────────────────────────
 
+    /**
+     * L'export destiné au comptable lit le chiffre <strong>déclaré</strong> — dès lors que l'officine
+     * a souscrit un module de retraitement. Sans souscription, le résolveur rend le chiffre réel,
+     * qui lui est de toute façon identique.
+     *
+     * <p>Le mode est posé explicitement : le défaut de {@link MvtParam} est {@code REEL}, et le
+     * laisser jouer ici enverrait au comptable un chiffre différent de celui de ses écrans.
+     */
     private MvtParam buildParam(LocalDate start, LocalDate end) {
-        return new MvtParam().setFromDate(start).setToDate(end).build();
+        return new MvtParam().setFromDate(start).setToDate(end).setMode(modeResolver.modeComptabilite()).build();
     }
 
     private String period(LocalDate from, LocalDate to) {

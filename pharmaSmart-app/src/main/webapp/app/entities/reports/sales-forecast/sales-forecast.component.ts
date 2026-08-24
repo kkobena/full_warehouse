@@ -6,8 +6,7 @@ import {
   OnDestroy,
   OnInit,
   signal,
-  ViewChild
-} from "@angular/core";
+  ViewChild, input} from "@angular/core";
 import {HttpResponse} from "@angular/common/http";
 import {CommonModule} from "@angular/common";
 import {FormsModule} from "@angular/forms";
@@ -24,9 +23,13 @@ import {SalesForecastService} from "../services/sales-forecast.service";
 import {formatCurrency, formatMonth, formatPercent} from "app/shared/utils/format-utils";
 
 import {Chart, ChartConfiguration, ChartData, registerables} from "chart.js";
+import { DeviseDirective } from 'app/shared/utils/devise';
+import { currencySymbol } from 'app/shared/utils/format-utils';
 import {
   BadgeComponent,
   ButtonComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   OffcanvasComponent,
   SelectComponent,
   ToolbarComponent
@@ -48,18 +51,28 @@ interface PeriodOption {
   selector: "app-sales-forecast",
   templateUrl: "./sales-forecast.component.html",
   styleUrl: "./sales-forecast.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
     BadgeComponent,
     ButtonComponent,
     OffcanvasComponent,
     SelectComponent,
-    ToolbarComponent
+    ToolbarComponent,
+    KpiStripComponent,
+    KpiItemComponent
   ]
 })
 export default class SalesForecastComponent implements OnInit, OnDestroy {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : ce rapport est parfois atteint depuis deux menus, qui ne le nomment
+   * pas de la même façon. Le titre suit celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   @ViewChild("forecastChartCanvas") forecastChartCanvas?: ElementRef<HTMLCanvasElement>;
   @ViewChild("confidenceChartCanvas") confidenceChartCanvas?: ElementRef<HTMLCanvasElement>;
 
@@ -202,7 +215,7 @@ export default class SalesForecastComponent implements OnInit, OnDestroy {
           title: {display: true, text: "Prévisions de Chiffre d'Affaires"},
           tooltip: {
             callbacks: {
-              label: context => `CA: ${this.formatCurrency(context.parsed.y)} FCFA`
+              label: context => `CA: ${this.formatCurrency(context.parsed.y)} ${currencySymbol()}`
             }
           }
         },

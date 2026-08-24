@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit} from "@angular/core";
+import {ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, input, signal } from "@angular/core";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {finalize} from "rxjs/operators";
 import {HttpResponse} from "@angular/common/http";
@@ -62,22 +62,31 @@ import {
     NgbTooltip
   ],
   templateUrl: "./historique-reglements.component.html",
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./historique-reglements.component.scss"
 })
 export class HistoriqueReglementsComponent implements OnInit {
-  protected datas: Reglement[] = [];
-  protected selectedDatas: Reglement[] = [];
-  protected loadingBtn = false;
-  protected loadingPdf = false;
-  protected loadingExcel = false;
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
+  protected readonly datas = signal<Reglement[]>([]);
+  protected readonly selectedDatas = signal<Reglement[]>([]);
+  protected readonly loadingBtn = signal(false);
+  protected readonly loadingPdf = signal(false);
+  protected readonly loadingExcel = signal(false);
   protected factureGroup = false;
   protected search: string | null = null;
-  protected modelStartDate: NgbDateStruct;
+  protected readonly modelStartDate = signal<NgbDateStruct | undefined>(undefined);
   protected modelEndDate: NgbDateStruct = TODAY_NGB_DATE();
-  protected groupeTiersPayants: IGroupeTiersPayant[] = [];
+  protected readonly groupeTiersPayants = signal<IGroupeTiersPayant[]>([]);
   protected selectedGroupeTiersPayant: IGroupeTiersPayant | undefined;
-  protected tiersPayants: ITiersPayant[] = [];
+  protected readonly tiersPayants = signal<ITiersPayant[]>([]);
   protected selectedTiersPayant: ITiersPayant | undefined;
   protected readonly minLength = 2;
 
@@ -95,7 +104,7 @@ export class HistoriqueReglementsComponent implements OnInit {
   constructor() {
     const d = new Date();
     d.setMonth(d.getMonth() - 1);
-    this.modelStartDate = {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()};
+    this.modelStartDate.set({year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()});
   }
 
   ngOnInit(): void {
@@ -161,11 +170,11 @@ export class HistoriqueReglementsComponent implements OnInit {
     this.confirmDialog.onConfirm(
       () => {
         this.reglementService
-          .deleteAll({ids: this.selectedDatas.map(e => e.id.id)})
+          .deleteAll({ids: this.selectedDatas().map(e => e.id.id)})
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe({
             next: () => {
-              this.selectedDatas = [];
+              this.selectedDatas.set([]);
               this.fetchData();
             },
             error: err =>
@@ -178,11 +187,11 @@ export class HistoriqueReglementsComponent implements OnInit {
   }
 
   onPrintPdf(): void {
-    this.loadingPdf = true;
+    this.loadingPdf.set(true);
     this.reglementService
       .onPrintPdf(this.buildParams())
       .pipe(
-        finalize(() => (this.loadingPdf = false)),
+        finalize(() => (this.loadingPdf.set(false))),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
@@ -193,11 +202,11 @@ export class HistoriqueReglementsComponent implements OnInit {
   }
 
   onExportExcel(): void {
-    this.loadingExcel = true;
+    this.loadingExcel.set(true);
     this.reglementService
       .exportExcel(this.buildParams())
       .pipe(
-        finalize(() => (this.loadingExcel = false)),
+        finalize(() => (this.loadingExcel.set(false))),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
@@ -211,33 +220,33 @@ export class HistoriqueReglementsComponent implements OnInit {
     this.tiersPayantService
       .query({page: 0, search: query, size: 10})
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((res: HttpResponse<ITiersPayant[]>) => (this.tiersPayants = res.body ?? []));
+      .subscribe((res: HttpResponse<ITiersPayant[]>) => (this.tiersPayants.set(res.body ?? [])));
   }
 
   searchGroupeTiersPayant(query: string): void {
     this.groupeTiersPayantService
       .query({page: 0, search: query, size: 10})
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((res: HttpResponse<IGroupeTiersPayant[]>) => (this.groupeTiersPayants = res.body ?? []));
+      .subscribe((res: HttpResponse<IGroupeTiersPayant[]>) => (this.groupeTiersPayants.set(res.body ?? [])));
   }
 
   getTotalByGroupe(organismeId: number): number {
-    return this.datas
+    return this.datas()
       .filter(d => d.organismeId === organismeId)
       .reduce((acc, cur) => acc + (cur.totalAmount ?? 0), 0);
   }
 
   private fetchData(): void {
-    this.loadingBtn = true;
+    this.loadingBtn.set(true);
     this.reglementService
       .query(this.buildParams())
       .pipe(
-        finalize(() => (this.loadingBtn = false)),
+        finalize(() => (this.loadingBtn.set(false))),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (res: HttpResponse<Reglement[]>) => {
-          this.datas = res.body ?? [];
+          this.datas.set(res.body ?? []);
         },
         error: err =>
           this.notificationService.error(this.errorService.getErrorMessage(err), "Chargement")
@@ -250,7 +259,7 @@ export class HistoriqueReglementsComponent implements OnInit {
       organismeId: this.factureGroup
         ? this.selectedGroupeTiersPayant?.id
         : this.selectedTiersPayant?.id,
-      fromDate: NGB_DATE_TO_ISO(this.modelStartDate),
+      fromDate: NGB_DATE_TO_ISO(this.modelStartDate()),
       toDate: NGB_DATE_TO_ISO(this.modelEndDate),
       grouped: this.factureGroup
     };

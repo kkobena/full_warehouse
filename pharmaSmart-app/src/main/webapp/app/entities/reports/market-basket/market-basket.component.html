@@ -1,6 +1,6 @@
 <div class="pharma-smart-content p-2">
   <!-- Toolbar -->
-  <app-toolbar icon="pi pi-shopping-bag" title="Analyse du Panier (Cross-selling)">
+  <app-toolbar [code]="navCode()" icon="pi pi-shopping-bag" title="Analyse du Panier (Cross-selling)">
 
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters pt-1">
@@ -51,57 +51,20 @@
   } @else {
     <!-- KPI Strip -->
     @if (summary(); as sum) {
-      <div class="kpi-strip mt-2 mb-2">
-
-        <div class="kpi-strip-item primary-accent">
-          <i class="pi pi-shopping-cart text-primary"></i>
-          <div class="kpi-strip-body">
-            <span class="kpi-strip-label">Total transactions</span>
-            <span class="kpi-strip-value text-primary">{{
-                formatNumber(sum.totalTransactions)
-              }}</span>
-            <span class="kpi-strip-sub">{{ formatNumber(sum.totalProducts) }}produits uniques</span>
-          </div>
-        </div>
-
-        <div class="kpi-strip-divider"></div>
-
-        <div class="kpi-strip-item success-accent">
-          <i class="pi pi-shopping-bag text-success"></i>
-          <div class="kpi-strip-body">
-            <span class="kpi-strip-label">Taille moy. panier</span>
-            <span class="kpi-strip-value text-success">{{
-                formatDecimal(sum.averageBasketSize)
-              }}</span>
-            <span class="kpi-strip-sub">articles / transaction</span>
-          </div>
-        </div>
-
-        <div class="kpi-strip-divider"></div>
-
-        <div class="kpi-strip-item warning-accent">
-          <i class="pi pi-link text-warning"></i>
-          <div class="kpi-strip-body">
-            <span class="kpi-strip-label">Associations trouvées</span>
-            <span class="kpi-strip-value text-warning">{{
-                formatNumber(sum.totalAssociations)
-              }}</span>
-            <span class="kpi-strip-sub">paires de produits</span>
-          </div>
-        </div>
-
-        <div class="kpi-strip-divider"></div>
-
-        <div class="kpi-strip-item danger-accent">
-          <i class="pi pi-chart-line text-danger"></i>
-          <div class="kpi-strip-body">
-            <span class="kpi-strip-label">Corrélation max (lift)</span>
-            <span class="kpi-strip-value text-danger">{{ formatDecimal(sum.maxLift) }}</span>
-            <span class="kpi-strip-sub">{{ getLiftLabel(sum.maxLift) }}</span>
-          </div>
-        </div>
-
-      </div>
+      <app-kpi-strip stripClass="mt-2 mb-2">
+        <app-kpi-item [accent]="'primary'" icon="pi pi-shopping-cart" iconClass="text-primary" label="Total transactions" [value]="formatNumber(sum.totalTransactions)" valueClass="text-primary">
+          <ng-container ngProjectAs="[kpiSub]">{{ formatNumber(sum.totalProducts) }}produits uniques</ng-container>
+        </app-kpi-item>
+        <app-kpi-item [accent]="'success'" icon="pi pi-shopping-bag" iconClass="text-success" label="Taille moy. panier" [value]="formatDecimal(sum.averageBasketSize)" valueClass="text-success">
+          <ng-container ngProjectAs="[kpiSub]">articles / transaction</ng-container>
+        </app-kpi-item>
+        <app-kpi-item [accent]="'warning'" icon="pi pi-link" iconClass="text-warning" label="Associations trouvées" [value]="formatNumber(sum.totalAssociations)" valueClass="text-warning">
+          <ng-container ngProjectAs="[kpiSub]">paires de produits</ng-container>
+        </app-kpi-item>
+        <app-kpi-item [accent]="'danger'" icon="pi pi-chart-line" iconClass="text-danger" label="Corrélation max (lift)" [value]="formatDecimal(sum.maxLift)" valueClass="text-danger">
+          <ng-container ngProjectAs="[kpiSub]">{{ getLiftLabel(sum.maxLift) }}</ng-container>
+        </app-kpi-item>
+      </app-kpi-strip>
 
       <!-- Most Frequent Pair Alert -->
       @if (sum.mostFrequentPair && sum.mostFrequentPair !== 'Aucune') {
@@ -147,7 +110,7 @@
                   confiance</p>
               </div>
             } @else {
-              <table class="pharma-table">
+              <table >
                 <thead class="pharma-table-head">
                 <tr>
                   <th>Produit A</th>

@@ -1,4 +1,4 @@
-@if (visible) {
+@if (visible()) {
   <div class="backend-splash-overlay">
     <div class="backend-splash-container">
       <div class="backend-splash-content">
@@ -8,29 +8,29 @@
         </div>
 
         <!-- Titre -->
-        <h2 class="backend-splash-title">{{ title }}</h2>
+        <h2 class="backend-splash-title">{{ title() }}</h2>
 
         <!-- Message d'état -->
-        <p class="backend-splash-message">{{ status.message }}</p>
+        <p class="backend-splash-message">{{ status().message }}</p>
 
         <!-- Barre de progression -->
-        @if (status.status !== 'error') {
+        @if (status().status !== 'error') {
           <div class="backend-splash-progress">
             <div class="progress custom-progress-bar" role="progressbar"
-                 [attr.aria-valuenow]="status.progress" aria-valuemin="0" aria-valuemax="100">
-              <div class="progress-bar" [style.width.%]="status.progress">{{ status.progress }}%</div>
+                 [attr.aria-valuenow]="status().progress" aria-valuemin="0" aria-valuemax="100">
+              <div class="progress-bar" [style.width.%]="status().progress">{{ status().progress }}%</div>
             </div>
           </div>
         }
 
         <!-- Détail en cas d'erreur -->
-        @if (status.status === 'error') {
+        @if (status().status === 'error') {
           <div class="backend-splash-error">
             <p>
               <i class="fa fa-exclamation-triangle"></i>
               Échec du démarrage du backend
             </p>
-            <small>{{ status.message }}</small>
+            <small>{{ status().message }}</small>
             <button type="button" class="btn btn-outline-light btn-sm mt-3" (click)="close()">
               <i class="fa fa-times"></i> Fermer
             </button>

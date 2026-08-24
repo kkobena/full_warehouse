@@ -14,7 +14,7 @@ const PRICE_TYPES = [
   selector: 'app-produit-prix-creation',
   templateUrl: './produit-prix-creation.component.html',
   styleUrl: './produit-prix-creation.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, ReactiveFormsModule, ButtonComponent, SelectSearchComponent, SelectComponent, InputNumberComponent, SwitchComponent],
 })
 export class ProduitPrixCreationComponent {

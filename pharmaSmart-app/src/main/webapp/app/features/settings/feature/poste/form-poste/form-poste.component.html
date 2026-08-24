@@ -199,7 +199,7 @@
                       bindLabel="label"
                       bindValue="value"
                       placeholder="Assigner"
-                      (selectionChange)="addDevice(port, $event)"
+                      (selectionChange)="addDevice(port, $any($event))"
                       appendTo="body"
                     />
                   </div>
@@ -230,7 +230,7 @@
 
   <div class="form-actions-compact">
     <app-button icon="pi pi-times" label="Annuler" severity="secondary" type="button" (clicked)="cancel()" />
-    <app-button label="Enregistrer" severity="primary" type="submit" [disabled]="editForm.invalid" [loading]="isSaving" />
+    <app-button label="Enregistrer" severity="primary" type="submit" [disabled]="editForm.invalid" [loading]="isSaving()" />
   </div>
 </form>
 

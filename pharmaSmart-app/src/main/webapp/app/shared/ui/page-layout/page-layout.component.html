@@ -1,0 +1,22 @@
+<div
+  [attr.aria-label]="ariaLabel() || null"
+  [attr.aria-labelledby]="labelledBy() || null"
+  [attr.role]="regionRole()"
+  [class]="layoutClasses()"
+>
+  <header class="app-page-layout__header">
+    <ng-content select="[pageHeader]" />
+  </header>
+
+  <div class="app-page-layout__guidance">
+    <ng-content select="[pageGuidance]" />
+  </div>
+
+  <div class="app-page-layout__context">
+    <ng-content select="[pageContext]" />
+  </div>
+
+  <div class="app-page-layout__body">
+    <ng-content />
+  </div>
+</div>

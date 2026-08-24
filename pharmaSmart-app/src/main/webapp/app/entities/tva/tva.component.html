@@ -20,13 +20,13 @@
       </div>
 
       <div class="mt-2">
-        @if (tvas && tvas.length > 0) {
+        @if (tvas() && tvas().length > 0) {
           <app-data-table
             [(selection)]="selectedTva"
-            [loading]="loading"
+            [loading]="loading()"
             [selectionMode]="'single'"
             [size]="'small'"
-            [value]="tvas"
+            [value]="tvas()"
             dataKey="id"
           >
             <ng-template #header>

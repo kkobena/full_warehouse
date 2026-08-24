@@ -6,8 +6,7 @@ import {
   ElementRef,
   inject,
   OnInit,
-  viewChild
-} from '@angular/core';
+  viewChild, signal } from '@angular/core';
 import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
 import {Observable} from 'rxjs';
 import {FamilleProduit} from '../../../shared/model/famille-produit.model';
@@ -23,13 +22,13 @@ import {NotificationService} from "../../../shared/services/notification.service
   selector: 'jhi-form-famille',
   templateUrl: './form-forme-produit.component.html',
   styleUrls: ['./form-forme.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonComponent],
 })
 export class FormFormeProduitComponent implements OnInit, AfterViewInit {
   entity: IFormProduit | null = null;
   header = '';
-  protected isSaving = false;
+  protected readonly isSaving = signal(false);
   protected fb = inject(UntypedFormBuilder);
   protected editForm = this.fb.group({
     id: [],
@@ -62,7 +61,7 @@ export class FormFormeProduitComponent implements OnInit, AfterViewInit {
   }
 
   protected save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const entity = this.createFromForm();
     if (entity.id !== undefined && entity.id !== null) {
       this.subscribeToSaveResponse(this.entityService.update(entity));
@@ -76,7 +75,7 @@ export class FormFormeProduitComponent implements OnInit, AfterViewInit {
   }
 
   private onSaveError(error: HttpErrorResponse): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 

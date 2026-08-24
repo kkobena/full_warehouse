@@ -26,7 +26,7 @@
             <input
               class="form-control"
               type="number"
-              [(ngModel)]="ligneQuantite"
+              [ngModel]="ligneQuantite()" (ngModelChange)="ligneQuantite.set($event)"
               min="1"
               placeholder="Qté" />
             <span class="input-group-text addon-label">u.</span>
@@ -37,7 +37,7 @@
             <input
               class="form-control"
               type="number"
-              [(ngModel)]="lignePrixAchat"
+              [ngModel]="lignePrixAchat()" (ngModelChange)="lignePrixAchat.set($event)"
               min="0"
               placeholder="Prix achat" />
             <span class="input-group-text addon-label">F</span>
@@ -49,7 +49,7 @@
           severity="primary"
           size="small"
           [loading]="addingLigne()"
-          [disabled]="!selectedProduit() || ligneQuantite <= 0"
+          [disabled]="!selectedProduit() || ligneQuantite() <= 0"
           (clicked)="onAjouterLigne()"
         />
       </div>

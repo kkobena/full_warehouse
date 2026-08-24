@@ -1,12 +1,15 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from "@angular/core";
+import {ChangeDetectionStrategy, Component, inject, input, OnInit, signal} from "@angular/core";
 import {HttpResponse} from "@angular/common/http";
 import {CommonModule} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 
 import {
+  AppBadgeSeverity,
   BadgeComponent,
   ButtonComponent,
   DataTableComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   SelectComponent,
   SortableHeaderDirective,
   ToolbarComponent
@@ -20,14 +23,24 @@ import {CustomerSegmentationReportService} from "../services/customer-segmentati
 import {TauriPrinterService} from "../../../shared/services/tauri-printer.service";
 import {handleBlobForTauri} from "../../../shared/util/tauri-util";
 
+import {DeviseDirective} from 'app/shared/utils/devise';
+
 @Component({
-  selector: "jhi-customer-segmentation",
+  selector: "app-customer-segmentation",
   templateUrl: "./customer-segmentation.component.html",
   styleUrl: "./customer-segmentation.component.scss",
-  changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, FormsModule, BadgeComponent, ButtonComponent, DataTableComponent, SelectComponent, ToolbarComponent, SortableHeaderDirective]
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DeviseDirective, CommonModule, FormsModule, BadgeComponent, ButtonComponent, DataTableComponent, SelectComponent, ToolbarComponent, SortableHeaderDirective, KpiStripComponent, KpiItemComponent]
 })
 export default class CustomerSegmentationComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement.
+   */
+  readonly navCode = input<string>('');
+
   customers = signal<ICustomerSegmentation[]>([]);
   classificationCounts = signal<Partial<Record<CustomerClassification, number>>>({});
   isLoading = signal<boolean>(false);
@@ -161,7 +174,7 @@ export default class CustomerSegmentationComponent implements OnInit {
     return sum / customers.length;
   }
 
-  getClassificationSeverity(classification: CustomerClassification | undefined): string {
+  getClassificationSeverity(classification: CustomerClassification | undefined): AppBadgeSeverity {
     if (!classification) {
       return "secondary";
     }
@@ -209,7 +222,7 @@ export default class CustomerSegmentationComponent implements OnInit {
     }
   }
 
-  getRFMScoreSeverity(score: number | undefined): string {
+  getRFMScoreSeverity(score: number | undefined): AppBadgeSeverity {
     if (!score) {
       return "secondary";
     }
@@ -225,7 +238,7 @@ export default class CustomerSegmentationComponent implements OnInit {
     return "danger";
   }
 
-  getRecencySeverity(days: number | undefined): string {
+  getRecencySeverity(days: number | undefined): AppBadgeSeverity {
     if (!days) {
       return "secondary";
     }

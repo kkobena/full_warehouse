@@ -20,7 +20,7 @@ interface MenuEntry {
 @Component({
   selector: 'app-list-bons-actions',
   imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, NgbTooltip],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div ngbDropdown container="body" placement="bottom-end">
       <button

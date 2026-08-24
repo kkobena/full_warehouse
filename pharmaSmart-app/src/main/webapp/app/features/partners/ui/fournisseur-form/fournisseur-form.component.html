@@ -35,10 +35,10 @@
                    [appKeyFilter]="'alphanum'" />
           </div>
 
-          @if (isAgenceMode) {
+          @if (isAgenceMode()) {
             <div class="form-field form-field-full">
               <label for="field_parent">Fournisseur principal</label>
-              <app-select class="w-full" [items]="parents" formControlName="parentId"
+              <app-select class="w-full" [items]="parents()" formControlName="parentId"
                         inputId="field_parent" bindLabel="libelle" bindValue="id"
                         placeholder="Sélectionner le fournisseur principal" />
             </div>
@@ -69,7 +69,7 @@
                    id="field_addresspostale" />
           </div>
 
-          @if (!isAgenceMode) {
+          @if (!isAgenceMode()) {
             <div class="form-field form-field-full mt-2">
               <small class="text-muted fw-semibold" style="text-transform:uppercase;letter-spacing:.04em;">
                 <i class="pi pi-truck me-1"></i>Logistique
@@ -96,7 +96,7 @@
 
       <!-- ── Colonne droite ── -->
       <app-card [variant]="'form'">
-        @if (!isAgenceMode) {
+        @if (!isAgenceMode()) {
           <ng-container ngProjectAs="[cardHeader]">
             <span class="section-header">Conditions Commerciales</span>
           </ng-container>
@@ -115,7 +115,7 @@
             </div>
 
             <div class="form-field form-field-full">
-              <label for="field_palierRfa">Seuil d'achat annuel — RFA (FCFA)
+              <label for="field_palierRfa">Seuil d'achat annuel — RFA (<span appDevise></span>)
                 <small class="text-muted ms-1">— montant à partir duquel la remise s'applique</small>
               </label>
               <input autocomplete="off" class="form-control w-full" formControlName="palierRfa" id="field_palierRfa"
@@ -203,7 +203,7 @@
 
   <div class="modal-footer">
     <app-button (clicked)="cancel()" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
-    <app-button [disabled]="editForm.invalid || isSaving" icon="pi pi-check"
+    <app-button [disabled]="editForm.invalid || isSaving()" icon="pi pi-check"
               label="Enregistrer" severity="success" type="submit" />
   </div>
 </form>

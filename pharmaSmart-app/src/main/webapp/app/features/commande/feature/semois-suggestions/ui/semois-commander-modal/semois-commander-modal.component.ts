@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
 import {CommonModule, DecimalPipe} from '@angular/common';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {BadgeComponent, ButtonComponent} from "../../../../../../shared/ui";
@@ -16,6 +16,7 @@ export interface SemoisCommandeLine {
   selector: 'app-semois-commander-modal',
   templateUrl: './semois-commander-modal.component.html',
   imports: [CommonModule, DecimalPipe, BadgeComponent, ButtonComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SemoisCommanderModalComponent {
   /** Lignes SEMOIS à commander — setté via componentInstance */

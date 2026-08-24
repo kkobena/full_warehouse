@@ -4,8 +4,7 @@ import {
   DestroyRef,
   inject,
   OnInit,
-  signal
-} from "@angular/core";
+  signal, input} from "@angular/core";
 import {CommonModule} from "@angular/common";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {FormsModule} from "@angular/forms";
@@ -35,7 +34,7 @@ import {NotificationService} from "../../../../shared/services/notification.serv
   selector: "app-sales-en-cours",
   templateUrl: "./sales-en-cours.component.html",
   styleUrls: ["./sales-en-cours.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -50,14 +49,23 @@ import {NotificationService} from "../../../../shared/services/notification.serv
   ]
 })
 export class SalesEnCoursComponent implements OnInit {
+  /**
+   * Code de l'entrée de navigation dont cet écran est le contenu.
+   *
+   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
+   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
+   * de celui par lequel on est entré.
+   */
+  readonly navCode = input<string>('');
+
   protected readonly ability = inject(AbilityService);
   protected readonly canDeleteEnCours = this.ability.canSignal("execute", "ventes.en-cours.delete");
 
   protected loading = signal(false);
-  protected sales: ISales[] = [];
-  protected totalItems = 0;
-  protected page = 0;
-  protected itemsPerPage = ITEMS_PER_PAGE;
+  protected readonly sales = signal<ISales[]>([]);
+  protected readonly totalItems = signal(0);
+  protected readonly page = signal(0);
+  protected readonly itemsPerPage = signal(ITEMS_PER_PAGE);
   protected typeVentes = ["TOUT", "VNO", "VO"];
   protected typeVenteSelected = "TOUT";
   protected search = "";
@@ -74,12 +82,12 @@ export class SalesEnCoursComponent implements OnInit {
   }
 
   protected loadPage(page?: number): void {
-    const pageToLoad = page ?? this.page;
+    const pageToLoad = page ?? this.page();
     this.loading.set(true);
     this.api
       .queryManagement({
         page: pageToLoad,
-        size: this.itemsPerPage,
+        size: this.itemsPerPage(),
         search: this.search || null,
         type: this.typeVenteSelected,
         statut: [SalesStatut.ACTIVE]
@@ -96,9 +104,9 @@ export class SalesEnCoursComponent implements OnInit {
 
   protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event.first != null && event.rows != null) {
-      this.page = event.first / event.rows;
-      this.itemsPerPage = event.rows;
-      this.loadPage(this.page);
+      this.page.set(event.first / event.rows);
+      this.itemsPerPage.set(event.rows);
+      this.loadPage(this.page());
     }
   }
 
@@ -127,9 +135,9 @@ export class SalesEnCoursComponent implements OnInit {
   }
 
   private onSuccess(data: ISales[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get("X-Total-Count"));
-    this.page = page;
-    this.sales = data || [];
+    this.totalItems.set(Number(headers.get("X-Total-Count")));
+    this.page.set(page);
+    this.sales.set(data || []);
   }
 
   private deleteSale(sale: ISales): void {

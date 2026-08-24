@@ -1,7 +1,7 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-2">
     <!-- Modern Pharma Toolbar (Standard) -->
-    <app-toolbar icon="pi pi-clock" title="Ventes en cours">
+    <app-toolbar [code]="navCode()" icon="pi pi-clock" title="Ventes en cours">
       <ng-container ngProjectAs="[toolbarFilters]">
         <app-select
           (selectionChange)="load()"
@@ -26,7 +26,7 @@
           @if (useSimpleSale) {
             <app-button
               [raised]="true"
-              [routerLink]="['/sales/comptant', false, 'new']"
+              [routerLink]="['/sales()/comptant', false, 'new']"
               icon="pi pi-wallet"
               label="Vente Comptant"
               severity="success"
@@ -52,10 +52,10 @@
         [loading]="loading()"
         [paginator]="true"
         [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
-        [rows]="itemsPerPage"
+        [rows]="itemsPerPage()"
         [showCurrentPageReport]="true"
-        [totalRecords]="totalItems"
-        [value]="sales"
+        [totalRecords]="totalItems()"
+        [value]="sales()"
         currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} ventes en cours"
         dataKey="id"
       >
@@ -150,7 +150,7 @@
                       [showCurrentPageReport]="true"
                       [stripedRows]="true"
                       [value]="elRow.salesLines"
-                      class="pharma-table rowexpansion-table"
+                      class="rowexpansion-table"
                       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
                       dataKey="id"
                     >

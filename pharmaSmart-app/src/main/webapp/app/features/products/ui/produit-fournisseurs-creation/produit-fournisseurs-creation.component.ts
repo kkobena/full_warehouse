@@ -4,12 +4,14 @@ import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } fr
 import { ButtonComponent, KeyFilterDirective, SelectSearchComponent } from 'app/shared/ui';
 import { IFournisseur } from 'app/shared/model/fournisseur.model';
 
+import { formatCurrencyWithUnit } from 'app/shared/utils/format-utils';
+import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-produit-fournisseurs-creation',
   templateUrl: './produit-fournisseurs-creation.component.html',
   styleUrl: './produit-fournisseurs-creation.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, ReactiveFormsModule, ButtonComponent, SelectSearchComponent, KeyFilterDirective],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DeviseDirective, CommonModule, ReactiveFormsModule, ButtonComponent, SelectSearchComponent, KeyFilterDirective],
 })
 export class ProduitFournisseursCreationComponent {
   readonly principalLibelle = input.required<string>();
@@ -65,6 +67,6 @@ export class ProduitFournisseursCreationComponent {
 
   formatPrix(val: number | null | undefined): string {
     if (val == null) return '—';
-    return val.toLocaleString('fr-FR') + ' FCFA';
+    return formatCurrencyWithUnit(val);
   }
 }

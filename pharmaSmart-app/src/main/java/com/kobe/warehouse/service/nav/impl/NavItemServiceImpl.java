@@ -309,6 +309,7 @@ public class NavItemServiceImpl implements NavItemService {
             item.getCode(),
             item.getLibelle(),
             item.getIcon(),
+            item.getTitreLong(),
             item.getRouterLink(),
             item.getOrdre(),
             item.getBadgeType() != null ? item.getBadgeType().name() : "NONE",
@@ -323,6 +324,16 @@ public class NavItemServiceImpl implements NavItemService {
     public void updateLibelle(Integer id, String libelle) {
         NavItem item = navItemRepository.getReferenceById(id);
         item.setLibelle(libelle.trim());
+        navItemRepository.save(item);
+    }
+
+    @Override
+    @CacheEvict(cacheNames = EntityConstant.NAV_TREE_CACHE, allEntries = true)
+    public void updateTitreLong(Integer id, String titreLong) {
+        NavItem item = navItemRepository.getReferenceById(id);
+        String valeur = titreLong == null ? null : titreLong.trim();
+        // Une chaîne vide ferait diverger la barre du menu au premier renommage : on efface.
+        item.setTitreLong(valeur == null || valeur.isEmpty() ? null : valeur);
         navItemRepository.save(item);
     }
 
@@ -345,7 +356,8 @@ public class NavItemServiceImpl implements NavItemService {
                 NavPermissionsDTO perms = permMap.getOrDefault(item.getId(), NavPermissionsDTO.noAccess());
                 List<NavNodeDTO> children = buildAdminTree(allItems, permMap, item.getId());
                 result.add(new NavNodeDTO(
-                    item.getId(), item.getCode(), item.getLibelle(), item.getIcon(), item.getRouterLink(),
+                    item.getId(), item.getCode(), item.getLibelle(), item.getIcon(), item.getTitreLong(),
+                    item.getRouterLink(),
                     item.getOrdre(),
                     item.getBadgeType() != null ? item.getBadgeType().name() : "NONE",
                     item.getTargetType() != null ? item.getTargetType().name() : "ROUTE",

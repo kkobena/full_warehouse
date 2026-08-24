@@ -122,7 +122,8 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         salesLine.setQuantityRequested(dto.getQuantityRequested());
         salesLine.setQuantitySold(calculateQuantitySold(salesLine.getQuantityRequested(), currentStockQuantity));
         salesLine.setSalesAmount(salesLine.getQuantityRequested() * salesLine.getRegularUnitPrice());
-        salesLine.setAmountToBeTakenIntoAccount(salesLine.getAmountToBeTakenIntoAccount());
+        // Valeur de départ ; elle est réétablie à chaque recalcul par SaleCommonService#updateAmounts
+        salesLine.setAmountToBeTakenIntoAccount(salesLine.getSalesAmount());
         salesLine.setDiscountAmount(0);
         salesLine.setDiscountUnitPrice(0);
         salesLine.setCodeScan(dto.getCodeScan());

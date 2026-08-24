@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, signal } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -13,7 +13,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
         <h5 class="confirm-title">{{ header }}</h5>
       </div>
       <div class="confirm-body">
-        <div [innerHTML]="safeMessage"></div>
+        <div [innerHTML]="safeMessage()"></div>
       </div>
       <div class="confirm-footer">
         <button type="button" class="confirm-btn confirm-btn-reject" (click)="activeModal.dismiss('reject')">
@@ -30,7 +30,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
       </div>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
     .confirm-dialog {
       border-radius: 12px;
@@ -134,7 +134,7 @@ export class NgbConfirmDialogContentComponent {
   private readonly sanitizer = inject(DomSanitizer);
   header = '';
   icon = 'pi pi-info-circle';
-  safeMessage: SafeHtml = '';
+  protected readonly safeMessage = signal<SafeHtml>('');
 
   /**
    * Garde pour empêcher l'acceptation immédiate par un Enter résiduel.
@@ -150,7 +150,7 @@ export class NgbConfirmDialogContentComponent {
 
   set message(value: string) {
     // bypassSecurityTrustHtml car le contenu est généré en interne (pas d'input utilisateur)
-    this.safeMessage = this.sanitizer.bypassSecurityTrustHtml(value);
+    this.safeMessage.set(this.sanitizer.bypassSecurityTrustHtml(value));
   }
 
   accept(): void {

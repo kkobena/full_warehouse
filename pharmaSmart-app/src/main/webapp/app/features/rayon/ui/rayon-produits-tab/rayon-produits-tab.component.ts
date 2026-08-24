@@ -27,7 +27,7 @@ interface ProduitInRayon extends IProduit {
   selector: 'app-rayon-produits-tab',
   templateUrl: './rayon-produits-tab.component.html',
   styleUrl: './rayon-produits-tab.component.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     DataTableComponent,
@@ -45,14 +45,12 @@ export class RayonProduitsTabComponent {
   protected produits = signal<ProduitInRayon[]>([]);
   protected totalItems = signal(0);
   protected loading = signal(false);
-  protected rows = 10;
-  protected page = 0;
-
-  protected selectedProduit: IProduit | null = null;
+  protected readonly rows = signal<number>(10);
+  protected readonly page = signal(0);
+  protected readonly selectedProduit = signal<IProduit | null>(null);
   protected searchSuggestions = signal<IProduit[]>([]);
   protected filterText = signal('');
-  protected selectedProduits: ProduitInRayon[] = [];
-
+  protected readonly selectedProduits = signal<ProduitInRayon[]>([]);
   private readonly api = inject(RayonProduitApiService);
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
@@ -64,23 +62,23 @@ export class RayonProduitsTabComponent {
       const rayon = this.rayon();
       if (!rayon?.id || rayon.id === this.currentRayonId) return;
       this.currentRayonId = rayon.id;
-      this.page = 0;
+      this.page.set(0);
       this.filterText.set('');
-      this.selectedProduits = [];
-      this.loadProduits(rayon, 0, this.rows, '');
+      this.selectedProduits.set([]);
+      this.loadProduits(rayon, 0, this.rows(), '');
     });
   }
 
   protected onLazyLoad(event: AppTableLazyLoadEvent): void {
-    this.page = Math.floor((event.first ?? 0) / (event.rows ?? this.rows));
-    this.rows = event.rows ?? this.rows;
-    this.loadProduits(this.rayon(), this.page, this.rows, this.filterText());
+    this.page.set(Math.floor((event.first ?? 0) / (event.rows ?? this.rows())));
+    this.rows.set(event.rows ?? this.rows());
+    this.loadProduits(this.rayon(), this.page(), this.rows(), this.filterText());
   }
 
   protected onFilterChange(value: string): void {
     this.filterText.set(value);
-    this.page = 0;
-    this.loadProduits(this.rayon(), 0, this.rows, value);
+    this.page.set(0);
+    this.loadProduits(this.rayon(), 0, this.rows(), value);
   }
 
   protected onComplete(query: string): void {
@@ -147,12 +145,12 @@ export class RayonProduitsTabComponent {
   }
 
   protected onMoveSelected(): void {
-    if (!this.selectedProduits.length) return;
-    const title = this.selectedProduits.length === 1
-      ? `Déplacer "${this.selectedProduits[0].libelle}"`
-      : `Déplacer ${this.selectedProduits.length} produits`;
+    if (!this.selectedProduits().length) return;
+    const title = this.selectedProduits().length === 1
+      ? `Déplacer "${this.selectedProduits()[0].libelle}"`
+      : `Déplacer ${this.selectedProduits().length} produits`;
     this.openMoveModal(
-      [...this.selectedProduits],
+      [...this.selectedProduits()],
       this.rayon().storageId!,
       this.rayon().id!,
       title,
@@ -191,9 +189,9 @@ export class RayonProduitsTabComponent {
       const produitIds = produits.map(p => p.id!);
       this.api.moveBatch(produitIds, result.rayonId).subscribe({
         next: () => {
-          this.selectedProduits = [];
-          this.page = 0;
-          this.loadProduits(this.rayon(), 0, this.rows, this.filterText());
+          this.selectedProduits.set([]);
+          this.page.set(0);
+          this.loadProduits(this.rayon(), 0, this.rows(), this.filterText());
           const msg = produits.length === 1
             ? `"${produits[0].libelle}" déplacé avec succès`
             : `${produits.length} produits déplacés avec succès`;
@@ -205,10 +203,10 @@ export class RayonProduitsTabComponent {
   }
 
   private afterAssign(produit: IProduit, message?: string): void {
-    this.selectedProduit = null;
+    this.selectedProduit.set(null);
     this.searchSuggestions.set([]);
-    this.page = 0;
-    this.loadProduits(this.rayon(), 0, this.rows, this.filterText());
+    this.page.set(0);
+    this.loadProduits(this.rayon(), 0, this.rows(), this.filterText());
     this.notificationService.success(message ?? `"${produit.libelle}" affecté au rayon`);
   }
 

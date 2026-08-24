@@ -7,7 +7,7 @@ import { IProduit } from 'app/shared/model/produit.model';
   selector: 'app-produit-deconditions-tab',
   templateUrl: './produit-deconditions-tab.component.html',
   styleUrls: ['./produit-deconditions-tab.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, DataTableComponent],
 })
 export class ProduitDeconditionsTabComponent {

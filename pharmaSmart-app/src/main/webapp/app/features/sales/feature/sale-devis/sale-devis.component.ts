@@ -71,7 +71,7 @@ import {SaleForEditInfo} from '../../../../shared/model/sales.model';
   host: {
     '(window:keydown)': 'handleKeyboardEvent($event)',
   },
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -117,7 +117,7 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
   readonly forceStockContext = signal<'addProduct' | 'editCell' | null>(null);
   customers = signal<ICustomer[]>([]);
   // Customer search
-  protected search = '';
+  protected readonly search = signal('');
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   // Services
   private facade = inject(SalesFacade);
@@ -127,7 +127,6 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
   // Helper method pour savoir si un client est sélectionné
   hasCustomer = computed(() => !!this.selectedCustomer());
   readonly selectedProduct = this.facade.selectedProduct;
-  readonly loading = this.facade.loading;
   readonly isSaving = this.facade.isSaving;
   // Computed signals
   readonly canSave = computed(() => {
@@ -473,11 +472,11 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
   }
 
   protected onSearchCustomer(): void {
-    if (!this.search) {
+    if (!this.search()) {
       return;
     }
-    this.customerHandling.searchCustomers(this.search, 1, 5);
-    this.search = '';
+    this.customerHandling.searchCustomers(this.search(), 1, 5);
+    this.search.set('');
   }
 
   protected onOpenCustomerList(): void {

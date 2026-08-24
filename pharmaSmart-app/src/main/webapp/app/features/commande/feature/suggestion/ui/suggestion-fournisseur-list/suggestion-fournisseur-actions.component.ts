@@ -21,7 +21,7 @@ interface MenuEntry {
 @Component({
   selector: 'app-suggestion-fournisseur-actions',
   imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, NgbTooltip],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div ngbDropdown container="body" placement="bottom-end">
       <button

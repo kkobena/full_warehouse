@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, Input, OnInit, ChangeDetectionStrategy, signal } from "@angular/core";
 import { NgbActiveModal, NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { IClientTiersPayant, ICustomer, ISales } from "../../../shared/model";
 import { FormArray, FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
@@ -22,7 +22,7 @@ import { ButtonComponent, CardComponent, KeyFilterDirective, KpiItemComponent, K
   selector: "app-customer-edit-modal",
   templateUrl: "./customer-edit-modal.component.html",
   styleUrls: ["./customer-edit-modal.component.scss"],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -37,9 +37,9 @@ import { ButtonComponent, CardComponent, KeyFilterDirective, KpiItemComponent, K
 })
 export class CustomerEditModalComponent implements OnInit {
   @Input() sale: ISales;
-  customer: ICustomer;
-  ayantDroit: ICustomer;
-  thirdPartySaleLines: IThirdPartySaleLine[];
+  protected readonly customer = signal<ICustomer | undefined>(undefined);
+  protected readonly ayantDroit = signal<ICustomer | undefined>(undefined);
+  protected readonly thirdPartySaleLines = signal<IThirdPartySaleLine[] | undefined>(undefined);
   protected fb = inject(UntypedFormBuilder);
   protected editForm = this.fb.group({
     customer: this.fb.group({
@@ -50,7 +50,7 @@ export class CustomerEditModalComponent implements OnInit {
       phone: []
     })
   });
-  protected isSaving = false;
+  protected readonly isSaving = signal(false);
   private initialFormValue: any;
   private activeModal = inject(NgbActiveModal);
   private assuranceService = inject(AssuranceService);
@@ -63,17 +63,17 @@ export class CustomerEditModalComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.customer = this.sale.customer;
-    this.ayantDroit = this.sale.ayantDroit?.id !== this.customer.id ? this.sale.ayantDroit : null;
-    this.thirdPartySaleLines = this.sale.thirdPartySaleLines;
+    this.customer.set(this.sale.customer);
+    this.ayantDroit.set(this.sale.ayantDroit?.id !== this.customer().id ? this.sale.ayantDroit : null);
+    this.thirdPartySaleLines.set(this.sale.thirdPartySaleLines);
     this.currentSaleService.setTypeVo(this.sale.natureVente);
     this.patchCustomerForm();
 
     this.patchAyantDroitForm();
 
-    if (this.thirdPartySaleLines && this.thirdPartySaleLines.length > 0) {
+    if (this.thirdPartySaleLines() && this.thirdPartySaleLines().length > 0) {
       this.editForm.addControl("thirdPartySaleLines", this.fb.array([]));
-      this.thirdPartySaleLines.forEach(line => {
+      this.thirdPartySaleLines().forEach(line => {
         this.thirdPartySaleLinesFomArray.push(
           this.fb.group({
             id: [line.id],
@@ -98,7 +98,7 @@ export class CustomerEditModalComponent implements OnInit {
   }
 
   protected save(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const updateSale = this.createFromForm();
     if (this.isValidTauxCouverture(updateSale)) {
       this.subscribeToSaveResponse(this.assuranceService.updateCustomerInformation(updateSale));
@@ -116,7 +116,7 @@ export class CustomerEditModalComponent implements OnInit {
       },
       (resp: ICustomer) => {
         if (resp) {
-          this.customer = resp;
+          this.customer.set(resp);
           this.patchCustomerForm();
           this.rebuildThirdPartySaleLines();
         }
@@ -133,7 +133,7 @@ export class CustomerEditModalComponent implements OnInit {
       AddComplementaireComponent,
       {
         tiersPayantsExisting: [],
-        assure: this.customer
+        assure: this.customer()
       },
       (resp: IClientTiersPayant) => {
         if (resp) {
@@ -152,13 +152,13 @@ export class CustomerEditModalComponent implements OnInit {
       this.modalService,
       AyantDroitCustomerListComponent,
       {
-        assure: this.customer,
-        header: "LISTE DES AYANTS DROITS DU CLIENT [" + this.customer.fullName + "]"
+        assure: this.customer(),
+        header: "LISTE DES AYANTS DROITS DU CLIENT [" + this.customer().fullName + "]"
       },
       (resp: ICustomer) => {
         if (resp) {
           if (resp.id) {
-            this.ayantDroit = resp;
+            this.ayantDroit.set(resp);
             this.patchAyantDroitForm();
           } else {
             this.openAyantDroitForm(resp);
@@ -175,12 +175,12 @@ export class CustomerEditModalComponent implements OnInit {
       FormAyantDroitComponent,
       {
         entity: ayantDroit,
-        assure: this.customer,
+        assure: this.customer(),
         title: "FORMULAIRE D'AJOUT D'UN AYANT DROIT"
       },
       (resp: ICustomer) => {
         if (resp) {
-          this.ayantDroit = resp;
+          this.ayantDroit.set(resp);
           this.patchAyantDroitForm();
         }
       },
@@ -216,13 +216,13 @@ export class CustomerEditModalComponent implements OnInit {
   }
 
   private onSaveSuccess(): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.notificationService.success("Vente modifiée avec succès");
     this.activeModal.close();
   }
 
   private onSaveError(error: unknown): void {
-    this.isSaving = false;
+    this.isSaving.set(false);
     this.notificationService.error(this.errorService.getErrorMessage(error));
   }
 
@@ -257,9 +257,9 @@ export class CustomerEditModalComponent implements OnInit {
 
   private rebuildThirdPartySaleLines(): void {
     this.thirdPartySaleLinesFomArray.clear();
-    const tps = this.customer?.tiersPayants || [];
+    const tps = this.customer()?.tiersPayants || [];
     tps.forEach((line, index) => {
-      const tpData = this.thirdPartySaleLines.at(index);
+      const tpData = this.thirdPartySaleLines().at(index);
       this.thirdPartySaleLinesFomArray.push(
         this.fb.group({
           id: tpData?.id,
@@ -281,7 +281,7 @@ export class CustomerEditModalComponent implements OnInit {
   private isValidTauxCouverture(updateSale: UpdateSale): boolean {
     if (this.checkCustomerHasBeenChanged()) {
       return (
-        this.thirdPartySaleLines?.reduce((sum, current) => sum + current.taux, 0) ===
+        this.thirdPartySaleLines()?.reduce((sum, current) => sum + current.taux, 0) ===
         updateSale?.thirdPartySaleLines?.reduce((sum, current) => sum + current.taux, 0)
       );
     }
@@ -289,7 +289,7 @@ export class CustomerEditModalComponent implements OnInit {
   }
 
   private patchAyantDroitForm(): void {
-    if (this.ayantDroit) {
+    if (this.ayantDroit()) {
       const ayantDroitControl = this.editForm.get("ayantDroit");
       if (!ayantDroitControl) {
         this.editForm.addControl(
@@ -305,24 +305,24 @@ export class CustomerEditModalComponent implements OnInit {
 
       this.editForm.patchValue({
         ayantDroit: {
-          id: this.ayantDroit.id,
-          num: this.ayantDroit.numAyantDroit,
-          firstName: this.ayantDroit.firstName,
-          lastName: this.ayantDroit.lastName
+          id: this.ayantDroit().id,
+          num: this.ayantDroit().numAyantDroit,
+          firstName: this.ayantDroit().firstName,
+          lastName: this.ayantDroit().lastName
         }
       });
     }
   }
 
   private patchCustomerForm(): void {
-    const tiersPayants = this.customer?.tiersPayants || [];
+    const tiersPayants = this.customer()?.tiersPayants || [];
     this.editForm.patchValue({
       customer: {
-        id: this.customer.id,
+        id: this.customer().id,
         num: tiersPayants.length > 0 ? tiersPayants[0].num : this.sale.tiersPayants.at(0).num,
-        firstName: this.customer.firstName,
-        lastName: this.customer.lastName,
-        phone: this.customer.phone
+        firstName: this.customer().firstName,
+        lastName: this.customer().lastName,
+        phone: this.customer().phone
       }
     });
   }

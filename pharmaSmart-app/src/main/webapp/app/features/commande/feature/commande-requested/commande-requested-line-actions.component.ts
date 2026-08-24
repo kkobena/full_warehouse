@@ -1,4 +1,4 @@
-import {Component, ChangeDetectionStrategy} from '@angular/core';
+import {Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import {ICellRendererAngularComp} from 'ag-grid-angular';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {ButtonComponent} from '../../../../shared/ui';
@@ -7,7 +7,7 @@ import {IOrderLine} from '../../../../shared/model/order-line.model';
 @Component({
   selector: 'app-commande-requested-line-actions',
   imports: [ButtonComponent, NgbTooltip],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="btn-group">
       <app-button
@@ -29,7 +29,7 @@ import {IOrderLine} from '../../../../shared/model/order-line.model';
         ngbTooltip="Supprimer"
         placement="top"
         size="small"
-        [disabled]="isLocked"
+        [disabled]="isLocked()"
         (clicked)="onDelete($event)"
       />
     </div>
@@ -37,15 +37,15 @@ import {IOrderLine} from '../../../../shared/model/order-line.model';
 })
 export class CommandeRequestedLineActionsComponent implements ICellRendererAngularComp {
   private params!: any;
-  protected showLot = false;
-  protected isLocked = false;
+  protected readonly showLot = signal(false);
+  protected readonly isLocked = signal(false);
 
   agInit(params: any): void {
     this.params = params;
     const line: IOrderLine = params.data;
     const parent = params.context.componentParent;
-    this.showLot = (line?.lots?.length ?? 0) > 0 || !!parent.showLotBtn;
-    this.isLocked = !!parent.isLocked;
+    this.showLot.set((line?.lots?.length ?? 0) > 0 || !!parent.showLotBtn);
+    this.isLocked.set(!!parent.isLocked);
   }
 
   refresh(): boolean {

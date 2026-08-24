@@ -25,15 +25,15 @@
           <span>Vendeur</span>
         </label>
         <app-select-search
-          (selectionChange)="onSelectUser()"
-          [ngModel]="userSeller()" (ngModelChange)="userSeller.set($event)"
+          (ngModelChange)="userSeller.set($event)"
+          (selectionChange)="onSelectUser()" [items]="userVendeurService.vendeurs()"
+          [ngModel]="userSeller()"
           [searchable]="false"
+          [style]="{ 'min-width': '200px' }"
           appendTo="body"
-          [items]="userVendeurService.vendeurs()"
-          placeholder="Sélectionner un vendeur"
-          [style]="{ width: '200px' }"
-          class="pharma-select-modern"
           bindLabel="abbrName"
+          class="pharma-select-modern"
+          placeholder="Sélectionner un vendeur"
         />
       </div>
 
@@ -44,16 +44,16 @@
           <span>Dépôt</span>
         </label>
         <app-select-search
-          (selectionChange)="onSelectDepot()"
-          [ngModel]="selectedDepot()" (ngModelChange)="selectedDepot.set($event)"
-          [searchable]="false"
-          appendTo="body"
-          [items]="facade.depots()"
-          placeholder="Sélectionner un dépôt"
-          [style]="{ width: '250px' }"
-          class="pharma-select-modern"
-          bindLabel="name"
+          (ngModelChange)="selectedDepot.set($event)"
+          (selectionChange)="onSelectDepot()" [items]="facade.depots()"
+          [ngModel]="selectedDepot()"
           [optionTemplate]="depotItem"
+          [searchable]="false"
+          [style]="{ 'min-width': '250px' }"
+          appendTo="body"
+          bindLabel="name"
+          class="pharma-select-modern"
+          placeholder="Sélectionner un dépôt"
         />
         <ng-template #depotItem let-depot>
           <div class="depot-option">
@@ -75,7 +75,8 @@
               <i class="pi pi-user"></i>
               <div class="info-content">
                 <span class="info-label">Responsable</span>
-                <span class="info-value">{{ selected.managerFirstName }} {{ selected.managerLastName }}</span>
+                <span
+                  class="info-value">{{ selected.managerFirstName }} {{ selected.managerLastName }}</span>
               </div>
             </div>
             @if (selected.phone) {
@@ -100,14 +101,14 @@
       <!-- RECHERCHE PRODUIT -->
       <app-product-search-section
         #produitbox
+        (addQuantite)="addQuantity($event)"
+        (onKeyEnter)="onSaveKeyDown($event)"
+        (productScanned)="onProductScanned($event)"
+        (productSelected)="onProductSelected($event)"
         [autofocus]="true"
+        [saleType]="'COMPTANT'"
         [selectedProduct]="facade.selectedProduct()"
         [showStock]="true"
-        [saleType]="'COMPTANT'"
-        (productSelected)="onProductSelected($event)"
-        (productScanned)="onProductScanned($event)"
-        (onKeyEnter)="onSaveKeyDown($event)"
-        (addQuantite)="addQuantity($event)"
       />
 
       <!-- CONTENU : LISTE + RÉSUMÉ/ACTIONS -->
@@ -116,47 +117,47 @@
           <!-- Colonne gauche : liste des produits -->
           <div class="products-section">
             <app-product-list
-              [salesLines]="facade.currentSale()?.salesLines ?? []"
-              [saleId]="facade.currentSale()?.id"
-              [saleType]="'COMPTANT'"
-              [remises]="remiseCacheService.remises()"
-              [currentRemise]="facade.currentSale()?.remise ?? null"
-              [canEditPrice]="canModifyPrice()"
-              [showRemiseSection]="false"
-              [isEditable]="true"
+              (authorizationRequired)="onAuthorizationRequired($event)"
+              (priceChanged)="onPriceChanged($event)"
               (quantityChanged)="onQuantitySoldChanged($event)"
               (quantityRequestedChanged)="onQuantityRequestedChanged($event)"
-              (priceChanged)="onPriceChanged($event)"
-              (authorizationRequired)="onAuthorizationRequired($event)"
               (remiseSelected)="onRemiseSelected($event)"
               (removeRemise)="onRemoveRemise()"
+              [canEditPrice]="canModifyPrice()"
+              [currentRemise]="facade.currentSale()?.remise ?? null"
+              [isEditable]="true"
+              [remises]="remiseCacheService.remises()"
+              [saleId]="facade.currentSale()?.id"
+              [saleType]="'COMPTANT'"
+              [salesLines]="facade.currentSale()?.salesLines ?? []"
+              [showRemiseSection]="false"
             />
           </div>
 
           <!-- Colonne droite : résumé + actions -->
           <div class="summary-section">
             <app-sale-summary
-              [totalAmount]="facade.currentSale()?.salesAmount ?? 0"
-              [discountAmount]="facade.currentSale()?.discountAmount ?? 0"
-              [taxAmount]="facade.currentSale()?.taxAmount ?? 0"
-              [netAmount]="facade.currentSale()?.netAmount ?? 0"
               [amountToBePaid]="facade.currentSale()?.amountToBePaid ?? 0"
-              [itemCount]="facade.currentSale()?.salesLines?.length ?? 0"
               [currentRemise]="facade.currentSale()?.remise ?? null"
+              [discountAmount]="facade.currentSale()?.discountAmount ?? 0"
               [isAvoir]="facade.isAvoir()"
+              [itemCount]="facade.currentSale()?.salesLines?.length ?? 0"
+              [netAmount]="facade.currentSale()?.netAmount ?? 0"
               [saleType]="'COMPTANT'"
+              [taxAmount]="facade.currentSale()?.taxAmount ?? 0"
+              [totalAmount]="facade.currentSale()?.salesAmount ?? 0"
             />
 
             <app-sale-actions
-              [canSave]="facade.canSave()"
+              (cancel)="onCancel()"
+              (save)="save()"
               [canCancel]="!!facade.currentSale()"
+              [canSaveAsPresale]="false"
+              [canSave]="facade.canSave()"
               [isSaving]="facade.loading()"
               [saleType]="'COMPTANT'"
-              [canSaveAsPresale]="false"
-              [showPrintButton]="false"
               [showButtonEnAttente]="false"
-              (save)="save()"
-              (cancel)="onCancel()"
+              [showPrintButton]="false"
             />
           </div>
         </div>

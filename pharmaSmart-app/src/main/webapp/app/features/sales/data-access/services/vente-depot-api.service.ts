@@ -18,9 +18,39 @@ export class VenteDepotApiService {
   private readonly stockDpotsUrl = SERVER_API_URL + 'api/stock-depots/sales';
   private readonly http = inject(HttpClient);
 
+  /**
+   * Ventes dépôt paginées, **sans les lignes** : le serveur ne renseigne que `itemCount`.
+   * Le détail se charge au dépliage, via {@link findSaleLines}.
+   */
   query(req?: any): Observable<HttpResponse<ISales[]>> {
     const options = createRequestOptions(req);
     return this.http.get<ISales[]>(this.stockDpotsUrl, { params: options, observe: 'response' });
+  }
+
+  /** Lignes d'une vente, chargées à la demande quand l'utilisateur déplie sa ligne. */
+  findSaleLines(saleId: SaleId): Observable<ISalesLine[]> {
+    return this.http.get<ISalesLine[]>(`${SERVER_API_URL}api/sales-lines/${saleId.id}/${saleId.saleDate}`);
+  }
+
+  /**
+   * Export tableur d'une vente dépôt.
+   *
+   * <p>Servi par `StockDepotResource`, pas par `/api/vente-depot` : c'est le même couple
+   * d'endpoints que celui de l'écran « Achats dépôts ».
+   */
+  exportToExcel(saleId: SaleId): Observable<HttpResponse<Blob>> {
+    return this.exportSale(saleId, 'excel');
+  }
+
+  exportToCsv(saleId: SaleId): Observable<HttpResponse<Blob>> {
+    return this.exportSale(saleId, 'csv');
+  }
+
+  private exportSale(saleId: SaleId, format: 'excel' | 'csv'): Observable<HttpResponse<Blob>> {
+    return this.http.get(`${SERVER_API_URL}api/stock-depots/export/${saleId.id}/${saleId.saleDate}/${format}`, {
+      observe: 'response',
+      responseType: 'blob',
+    });
   }
 
   create(sales: ISales): Observable<HttpResponse<ISales>> {

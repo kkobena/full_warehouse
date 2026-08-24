@@ -1,126 +1,114 @@
-<div class="container-fluid">
-  <div class="pharma-smart-content p-2">
-    <app-toolbar [code]="navCode()" icon="pi pi-box" title="Produits">
-        <ng-container ngProjectAs="[toolbarFilters]">
-          <div class="pharma-toolbar-filters">
-            <app-select
-              (selectionChange)="onSelectDepot()"
-              [(ngModel)]="selectedDepot"
-              appendTo="body"
-              [items]="depotOptions"
-              placeholder="Sélectionner un dépôt"
-              [style]="{ 'min-width': '200px' }"
-              class="pharma-select-modern"
-              inputId="depots"
-              bindLabel="displayLabel"
-            />
+<div class="pharma-smart-content p-1">
+  <app-toolbar [code]="navCode()" icon="pi pi-box" title="Produits">
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <div class="pharma-toolbar-filters">
+        <app-select
+          (ngModelChange)="selectedDepot.set($event)"
+          (selectionChange)="onSelectDepot()"
+          [items]="depotOptions()"
+          [ngModel]="selectedDepot()"
+          [style]="{ 'min-width': '200px' }"
+          appendTo="body"
+          bindLabel="displayLabel"
+          class="pharma-select-modern"
+          inputId="depots"
+          placeholder="Sélectionner un dépôt"
+        />
 
-            <div class="pharma-compact-search">
-              <app-icon-field [overlay]="true" icon="pi pi-search">
-                <input (keyup.enter)="onSearch($event)" placeholder="Rechercher..." class="form-control"
-                       type="text" />
-              </app-icon-field>
-            </div>
-          </div>
-        </ng-container>
-
-        <ng-container ngProjectAs="[toolbarActions]">
-          <div class="pharma-toolbar-actions">
-            <app-button
-              [raised]="true"
-              [routerLink]="['/sales-home', 'vente-depot']"
-              icon="pi pi-shopping-cart"
-              label="Nouvelle vente"
-              severity="primary"
-              size="small"
-            />
-            <app-button (clicked)="onOpenImportDialog()" icon="pi pi-upload" label="Importation"
-                      severity="help" size="small" />
-
-            <app-button [routerLink]="['/depot', 'new-return']" icon="pi pi-undo" label="Retour dépôt"
-                      severity="warn" size="small" />
-          </div>
-        </ng-container>
-      </app-toolbar>
-
-    <div class="mt-2">
-      <app-data-table [value]="produits()"  dataKey="id">
-        <ng-template #header>
-          <tr class="pharma-table-head">
-            <th style="width: 8%">Cip</th>
-            <th style="width: 11%">Code EAN</th>
-            <th style="width: 24%"><span jhiTranslate="warehouseApp.produit.libelle">Libelle</span>
-            </th>
-            <th style="text-align: right; width: 6%"><span
-              jhiTranslate="warehouseApp.produit.quantity">Quantity</span></th>
-
-            <th style="text-align: right; width: 8%"><span
-              jhiTranslate="warehouseApp.produit.costAmount">Prix achat </span></th>
-            <th style="text-align: right; width: 8%">
-              <span jhiTranslate="warehouseApp.produit.regularUnitPrice">Regular Unit Price</span>
-            </th>
-          </tr>
-        </ng-template>
-        <ng-template #body let-produit>
-          <tr>
-            <td>
-              <span class="pharma-code">{{ produit.codeCip }}</span>
-            </td>
-            <td>
-              <span class="pharma-code">{{ produit.codeEan }}</span>
-            </td>
-            <td>
-              <div class="pharma-product-name">{{ produit.libelle }}</div>
-            </td>
-            @if (produit.totalQuantity < 0) {
-              <td class="amount-column red-400"
-                  style="text-align: right">{{ produit.totalQuantity | number }}
-              </td>
-            } @else if (produit.totalQuantity === 0) {
-              <td class="amount-column orange-400"
-                  style="text-align: right">{{ produit.totalQuantity | number }}
-              </td>
-            } @else {
-              <td class="amount-column"
-                  style="text-align: right">{{ produit.totalQuantity | number }}
-              </td>
-            }
-
-            <td style="text-align: right">
-              <span class="pharma-price">{{ produit.costAmount | number }}</span>
-            </td>
-            <td style="text-align: right">
-              <span class="pharma-price">{{ produit.regularUnitPrice | number }}</span>
-            </td>
-          </tr>
-        </ng-template>
-
-        <ng-template #emptymessage>
-          <tr>
-            <td class="pharma-empty-message" colspan="10">
-              <div class="pharma-empty-content">
-                <i class="pi pi-inbox"></i>
-                <p>Aucune donnée trouvée</p>
-                <small>Sélectionner un dépôt pour afficher ses produits()</small>
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-      </app-data-table>
-      <div class="mt-2">
-        <div class="d-flex justify-content-center">
-          <ngb-pagination
-            (pageChange)="loadPage($event)"
-            [page]="ngbPaginationPage()" (pageChange)="ngbPaginationPage.set($any($event))"
-            [boundaryLinks]="true"
-            [collectionSize]="totalItems()"
-            [maxSize]="5"
-            [pageSize]="itemsPerPage"
-            [rotate]="true"
-          ></ngb-pagination>
+        <div class="pharma-compact-search">
+          <app-icon-field [overlay]="true" icon="pi pi-search">
+            <input (keyup.enter)="onSearch($event)" class="form-control" placeholder="Rechercher..."
+                   type="text" />
+          </app-icon-field>
         </div>
       </div>
-    </div>
+    </ng-container>
+
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-toolbar-actions">
+        <app-button
+          [raised]="true"
+          [routerLink]="['/sales-home', 'vente-depot']"
+          icon="pi pi-shopping-cart"
+          label="Nouvelle vente"
+          severity="primary"
+          size="small"
+        />
+        <app-button (clicked)="onOpenImportDialog()" icon="pi pi-upload" label="Importation"
+                    severity="help" size="small" />
+
+        <app-button [routerLink]="['/depot', 'new-return']" icon="pi pi-undo" label="Retour dépôt"
+                    severity="warn" size="small" />
+      </div>
+    </ng-container>
+  </app-toolbar>
+
+  <div class="mt-2">
+    <app-data-table [value]="produits()" dataKey="id">
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th style="width: 8%">Cip</th>
+          <th style="width: 11%">Code EAN</th>
+          <th style="width: 24%"><span jhiTranslate="warehouseApp.produit.libelle">Libelle</span>
+          </th>
+          <th style="text-align: right; width: 6%"><span
+            jhiTranslate="warehouseApp.produit.quantity">Quantity</span></th>
+
+          <th style="text-align: right; width: 8%"><span
+            jhiTranslate="warehouseApp.produit.costAmount">Prix achat </span></th>
+          <th style="text-align: right; width: 8%">
+            <span jhiTranslate="warehouseApp.produit.regularUnitPrice">Regular Unit Price</span>
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-produit>
+        <tr>
+          <td>
+            <span class="pharma-code">{{ produit.codeCip }}</span>
+          </td>
+          <td>
+            <span class="pharma-code">{{ produit.codeEan }}</span>
+          </td>
+          <td>
+            <div class="pharma-product-name">{{ produit.libelle }}</div>
+          </td>
+          @if (produit.totalQuantity < 0) {
+            <td class="amount-column red-400"
+                style="text-align: right">{{ produit.totalQuantity | number }}
+            </td>
+          } @else if (produit.totalQuantity === 0) {
+            <td class="amount-column orange-400"
+                style="text-align: right">{{ produit.totalQuantity | number }}
+            </td>
+          } @else {
+            <td class="amount-column"
+                style="text-align: right">{{ produit.totalQuantity | number }}
+            </td>
+          }
+
+          <td style="text-align: right">
+            <span class="pharma-price">{{ produit.costAmount | number }}</span>
+          </td>
+          <td style="text-align: right">
+            <span class="pharma-price">{{ produit.regularUnitPrice | number }}</span>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td class="pharma-empty-message" colspan="10">
+            <div class="pharma-empty-content">
+              <i class="pi pi-inbox"></i>
+              <p>Aucune donnée trouvée</p>
+              <small>Sélectionner un dépôt pour afficher ses produits()</small>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </app-data-table>
+   
   </div>
 </div>
+
 

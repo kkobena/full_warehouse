@@ -1,5 +1,11 @@
 @import 'app/shared/scss/table-common';
 @import 'app/shared/scss/pharma-toolbar';
+@import 'app/shared/scss/expanded-row';
+
+// Le bouton d'actions porte déjà son « ⋮ » : masquer le chevron que Bootstrap ajoute.
+.app-actions-toggle::after {
+  display: none;
+}
 
 .journal-summary-bar {
   display: flex;

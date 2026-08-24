@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { DatePipe, DecimalPipe, NgClass } from '@angular/common';
 
 import { IReapproDashboard, IClasseBreakdown, ITopUrgentDTO } from 'app/shared/model/semois/semois-dashboard.model';
@@ -41,6 +42,7 @@ export class SemoisDashboardComponent implements OnInit {
 
   private readonly semoisService = inject(SemoisService);
   private readonly commandCommonService = inject(CommandCommonService);
+  private readonly router = inject(Router);
 
   ngOnInit(): void {
     this.loadDashboard();
@@ -60,9 +62,22 @@ export class SemoisDashboardComponent implements OnInit {
     });
   }
 
-  /** Bascule vers l'onglet SEMOIS_SUGGESTIONS dans commande-home */
+  /**
+   * Bascule vers l'onglet « Commandes & Réceptions » de commande-home.
+   *
+   * <p>L'identifiant est celui d'un `ngbNavItem` de `commande-home` — les cinq valeurs
+   * possibles sont les clés de son `TAB_LABELS`. `'SEMOIS_SUGGESTIONS'`, écrit ici avant que
+   * les onglets ne soient renommés, ne correspondait plus à aucun d'eux : il ne changeait donc
+   * rien, et laissait surtout le signal partagé sur une valeur qu'aucun onglet ne reconnaît,
+   * de sorte que l'ouverture suivante de commande-home n'affichait aucun contenu.
+   *
+   * <p>L'écran vit sur une autre route (`/semois/dashboard`) : le signal seul ne mène nulle
+   * part, il faut aussi router vers `/commande`. L'onglet est lu au `ngOnInit` de
+   * `commande-home`, qui retombe sur ce signal en l'absence de paramètre `tab`.
+   */
   navigateToSuggestions(_classe?: ClasseCriticite): void {
-    this.commandCommonService.updateCommandPreviousActiveNav('SEMOIS_SUGGESTIONS');
+    this.commandCommonService.updateCommandPreviousActiveNav('SUGGESTIONS');
+    this.router.navigate(['/commande']);
   }
 
   // ─── Getters calculés ───────────────────────────────────────────

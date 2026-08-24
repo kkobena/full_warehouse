@@ -9,7 +9,6 @@ import {CommonModule} from "@angular/common";
 import {ActivatedRoute, RouterModule} from "@angular/router";
 import {
   NgbNav,
-  NgbNavChangeEvent,
   NgbNavContent,
   NgbNavItem,
   NgbNavLink,
@@ -102,10 +101,21 @@ export class CommandeHomeComponent implements OnInit {
     this.alertBadgeService.init();
   }
 
-  protected onNavChange(evt: NgbNavChangeEvent): void {
-    this.active.set(evt.nextId);
-    this.commandCommonService.updateCommandPreviousActiveNav(this.active());
-    this.breadcrumbService.setTabCrumb(TAB_LABELS[this.active()] ?? this.active());
+  /**
+   * Clic sur un onglet du menu latéral.
+   *
+   * <p>Doit écrire dans le service **autant que** dans `active` : les deux signaux forment un
+   * invariant. `commandPreviousActiveNav` est le canal par lequel les écrans demandent un
+   * changement d'onglet (`navigateToAnalyse()`, `navigateToBonsLivraison()`…), et l'effet du
+   * constructeur ne réagit qu'à un vrai changement de valeur. Laisser le service en arrière
+   * rendait le clic suivant sans effet — `set('SUGGESTIONS')` sur un signal qui vaut déjà
+   * `'SUGGESTIONS'` ne notifie personne — et faisait reculer l'onglet, l'effet ramenant `active`
+   * sur la valeur périmée du service.
+   */
+  protected onActiveIdChange(id: string): void {
+    this.active.set(id);
+    this.commandCommonService.updateCommandPreviousActiveNav(id);
+    this.breadcrumbService.setTabCrumb(TAB_LABELS[id] ?? id);
   }
 }
 

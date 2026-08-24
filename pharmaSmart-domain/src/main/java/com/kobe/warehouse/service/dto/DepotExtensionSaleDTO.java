@@ -9,7 +9,12 @@ public class DepotExtensionSaleDTO extends SaleDTO {
     }
 
     public DepotExtensionSaleDTO(VenteDepot sale) {
-        super(sale);
+        this(sale, true);
+    }
+
+    /** @see SaleDTO#SaleDTO(com.kobe.warehouse.domain.Sales, boolean) */
+    public DepotExtensionSaleDTO(VenteDepot sale, boolean withSalesLines) {
+        super(sale, withSalesLines);
         this.magasin = new MagasinDTO(sale.getDepot());
     }
 }

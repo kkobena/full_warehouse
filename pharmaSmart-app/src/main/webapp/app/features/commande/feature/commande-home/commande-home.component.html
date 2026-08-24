@@ -3,7 +3,7 @@
                    [collapsible]="true" [nav]="nav" contentColumnClass="col-lg-10 col-xl-10 col-xxl-10 col-md-9 col-sm-8"
                    icon="pi pi-box" menuColumnClass="col-lg-2 col-xl-2 col-xxl-2 col-md-3 col-sm-4"
                    title="Achats &amp; Approvisionnements">
-    <div #nav="ngbNav" [activeId]="active()" (activeIdChange)="active.set($any($event))"
+    <div #nav="ngbNav" [activeId]="active()" (activeIdChange)="onActiveIdChange($any($event))"
          class="nav flex-column nav-pills" ngbNav orientation="vertical">
       <!-- 1 ─ Dashboard unifié -->
       @if (showDashboard()) {

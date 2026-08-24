@@ -1,29 +1,29 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy, input} from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { HttpResponse } from "@angular/common/http";
-import { RouterLink } from "@angular/router";
-import { FormsModule } from "@angular/forms";
-import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
-import { IRetourDepot } from "app/shared/model/retour-depot.model";
-import { RetourDepotService } from "../retour-depot.service";
-import { MagasinService } from "../../magasin/magasin.service";
-import { IMagasin } from "../../../shared/model";
-import { ITEMS_PER_PAGE } from "app/shared/constants/pagination.constants";
-import dayjs from "dayjs/esm";
-import { NGB_DATE_TO_ISO } from "../../../shared/util/warehouse-util";
-import { NotificationService } from "../../../shared/services/notification.service";
+import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { HttpResponse } from '@angular/common/http';
+import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { IRetourDepot } from 'app/shared/model/retour-depot.model';
+import { RetourDepotService } from '../retour-depot.service';
+import { MagasinService } from '../../magasin/magasin.service';
+import { IMagasin } from '../../../shared/model';
+import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
+import dayjs from 'dayjs/esm';
+import { NGB_DATE_TO_ISO } from '../../../shared/util/warehouse-util';
+import { NotificationService } from '../../../shared/services/notification.service';
 import {
   AppTableLazyLoadEvent,
   ButtonComponent,
   DataTableComponent,
   RowTogglerDirective,
   SelectComponent,
-  ToolbarComponent
-} from "../../../shared/ui";
-import { PharmaDatePickerComponent } from "../../../shared/date-picker/pharma-date-picker.component";
+  ToolbarComponent,
+} from '../../../shared/ui';
+import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
 
 @Component({
-  selector: "app-depot-retour-list",
+  selector: 'app-depot-retour-list',
   imports: [
     CommonModule,
     FormsModule,
@@ -33,11 +33,11 @@ import { PharmaDatePickerComponent } from "../../../shared/date-picker/pharma-da
     ToolbarComponent,
     PharmaDatePickerComponent,
     RowTogglerDirective,
-    RouterLink
+    RouterLink,
   ],
-  templateUrl: "./depot-retour-list.component.html",
+  templateUrl: './depot-retour-list.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrl: "./depot-retour-list.component.scss"
+  styleUrl: './depot-retour-list.component.scss',
 })
 export class DepotRetourListComponent implements OnInit {
   /**
@@ -53,10 +53,10 @@ export class DepotRetourListComponent implements OnInit {
   private readonly magasinService = inject(MagasinService);
 
   protected depots = signal<IMagasin[]>([]);
-  protected selectedDepot: IMagasin | null = null;
+  protected readonly selectedDepot = signal<IMagasin | null>(null);
   protected fromDate: NgbDateStruct | null = this.dateToNgbStruct(new Date());
   protected toDate: NgbDateStruct | null = this.dateToNgbStruct(new Date());
-  protected search = "";
+  protected search = '';
 
   protected retourDepots = signal<IRetourDepot[]>([]);
   protected loading = signal<boolean>(false);
@@ -66,13 +66,21 @@ export class DepotRetourListComponent implements OnInit {
 
   private readonly notificationService = inject(NotificationService);
 
-  /** Options du sélecteur de dépôt, avec l'adresse ajoutée au libellé (remplace le `#item` custom de `p-select`). */
-  protected get depotOptions(): (IMagasin & { displayLabel: string })[] {
-    return this.depots().map(depot => ({
+  /**
+   * Options du sélecteur de dépôt, avec l'adresse ajoutée au libellé.
+   *
+   * `computed` et non un accesseur : `items` est un `model()` signal côté `ng-select`, donc
+   * une nouvelle référence de tableau à chaque cycle de détection lui fait reconstruire toute
+   * sa liste d'options — et le `track` du `@for` porte sur l'objet option, si bien que chaque
+   * `<div>` de la liste est détruit puis recréé sous le curseur, ce qui rend les options
+   * inclicquables : `mousedown` et `mouseup` ne tombent plus sur le même nœud.
+   */
+  protected readonly depotOptions = computed<(IMagasin & { displayLabel: string })[]>(() =>
+    this.depots().map(depot => ({
       ...depot,
-      displayLabel: depot.address ? `${depot.name} — ${depot.address}` : depot.name
-    }));
-  }
+      displayLabel: depot.address ? `${depot.name} — ${depot.address}` : depot.name,
+    })),
+  );
 
   ngOnInit(): void {
     this.loadDepots();
@@ -84,8 +92,8 @@ export class DepotRetourListComponent implements OnInit {
         this.depots.set(res.body || []);
       },
       error: () => {
-        this.notificationService.error("Erreur lors du chargement des dépôts");
-      }
+        this.notificationService.error('Erreur lors du chargement des dépôts');
+      },
     });
   }
 
@@ -103,7 +111,7 @@ export class DepotRetourListComponent implements OnInit {
     this.loading.set(true);
     const query: any = {
       page: this.page(),
-      size: this.itemsPerPage
+      size: this.itemsPerPage,
     };
 
     if (this.fromDate) {
@@ -117,8 +125,8 @@ export class DepotRetourListComponent implements OnInit {
       query.search = this.search;
     }
 
-    if (this.selectedDepot) {
-      query.depotId = this.selectedDepot.id;
+    if (this.selectedDepot()) {
+      query.depotId = this.selectedDepot()!.id;
     }
 
     this.retourDepotService.query(query).subscribe({
@@ -130,17 +138,17 @@ export class DepotRetourListComponent implements OnInit {
       },
       complete: () => {
         this.loading.set(false);
-      }
+      },
     });
   }
 
   protected onSuccess(data: IRetourDepot[] | null, headers: any): void {
-    this.totalRecords.set(Number(headers.get("X-Total-Count")));
+    this.totalRecords.set(Number(headers.get('X-Total-Count')));
     this.retourDepots.set(data || []);
   }
 
   protected onError(): void {
-    this.notificationService.error("Erreur lors du chargement des retours dépôt");
+    this.notificationService.error('Erreur lors du chargement des retours dépôt');
   }
 
   protected onPageChange(event: AppTableLazyLoadEvent): void {
@@ -153,7 +161,7 @@ export class DepotRetourListComponent implements OnInit {
   }
 
   protected formatDate(date: string | undefined): string {
-    return date ? dayjs(date).format("DD/MM/YYYY HH:mm") : "";
+    return date ? dayjs(date).format('DD/MM/YYYY HH:mm') : '';
   }
 
   protected getTotalItems(retourDepot: IRetourDepot): number {

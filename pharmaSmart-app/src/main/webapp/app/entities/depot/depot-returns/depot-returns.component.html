@@ -1,27 +1,25 @@
-<div class="container-fluid">
-  <div class="pharma-smart-content">
-    <!-- HEADER TOOLBAR -->
-    <div class="pharma-sales-header">
-      <div class="header-left">
-        <app-button size="small"
-                  (clicked)="navigateToList()"
+<div class="pharma-smart-content py-1">
+  <!-- HEADER TOOLBAR -->
+  <div class="pharma-sales-header">
+    <div class="header-left">
+      <app-button (clicked)="navigateToList()"
                   [rounded]="true"
                   [text]="true"
                   class="back-button"
                   icon="pi pi-arrow-left"
                   ngbTooltip="Retour à la liste"
-        />
+                  size="small"
+      />
 
-        <div class="page-title">
-          <h1>Retours Dépôt</h1>
-          <p class="subtitle">Gestion des retours dépôt</p>
-        </div>
+      <div class="page-title">
+        <h1>Retours Dépôt</h1>
+        <p class="subtitle">Gestion des retours dépôt</p>
       </div>
+    </div>
 
-      <div class="header-actions">
-        <!-- Save Button -->
-        <app-button size="small"
-                  (clicked)="save()"
+    <div class="header-actions">
+      <!-- Save Button -->
+      <app-button (clicked)="save()"
                   [disabled]="!canSave() || isSaving()"
                   [loading]="isSaving()"
                   [outlined]="false"
@@ -29,188 +27,191 @@
                   icon="pi pi-save"
                   label="Enregistrer"
                   severity="primary"
-        />
+                  size="small"
+      />
 
-        <!-- Cancel Button -->
-        <app-button size="small"
-                  (clicked)="reset()"
+      <!-- Cancel Button -->
+      <app-button (clicked)="reset()"
                   [outlined]="true"
                   class="cancel-btn"
                   icon="pi pi-times"
                   label="Annuler"
                   severity="secondary"
-        />
-      </div>
+                  size="small"
+      />
+    </div>
+  </div>
+
+  <!-- DEPOT AND PRODUCT SELECTION SECTION -->
+  <div class="order-search-section">
+    <div class="search-section-header">
+      <i class="pi pi-search"></i>
+      <span>Sélection du dépôt et des produits</span>
     </div>
 
-    <!-- DEPOT AND PRODUCT SELECTION SECTION -->
-    <div class="order-search-section">
-      <div class="search-section-header">
-        <i class="pi pi-search"></i>
-        <span>Sélection du dépôt et des produits</span>
+    <div class="search-controls">
+      <!-- Depot Select -->
+      <div class="depot-select-input">
+        <app-select
+          #depotSelect
+          (selectionChange)="onDepotChange()"
+          [(ngModel)]="selectedDepot"
+          [items]="depots()"
+          appendTo="body"
+          bindLabel="name"
+          class="w-100"
+          inputId="depot-select"
+          placeholder="Sélectionner un dépôt..."
+          size="large"
+        />
       </div>
 
-      <div class="search-controls">
-        <!-- Depot Select -->
-        <div class="depot-select-input">
-          <app-select
-            #depotSelect
-            [(ngModel)]="selectedDepot"
-            [items]="depots()"
-            bindLabel="name"
-            size="large"
-            appendTo="body"
-            placeholder="Sélectionner un dépôt..."
-            (selectionChange)="onDepotChange()"
-            inputId="depot-select"
-            class="w-100"
-          />
-        </div>
-
-        <!-- Product Search Autocomplete -->
-        <div class="product-search-input">
-          <app-select-search
-            #productAutoComplete
-            [(ngModel)]="selectedProduct"
-            [items]="filteredProducts()"
-            (searched)="searchProducts($event)"
-            (selectionChange)="onProductSelect()"
-            [minSearchLength]="2"
-            appendTo="body"
-            notFoundText="Aucun produit trouvé"
-            bindLabel="libelle"
-            [clearable]="true"
-            [disabled]="!selectedDepot()"
-            inputId="product-search"
-            placeholder="Rechercher un produit..."
-            [optionTemplate]="productOption"
-            class="w-100 pharma-autocomplete"
-          />
-          <ng-template #productOption let-product>
-            <div class="d-flex justify-content-between align-items-center w-100">
-              <div class="flex-grow-1">
-                <div>
-                  <span class="pharma-code me-2">{{ product.codeCip }}</span>
-                  <span>{{ product.libelle }}</span>
-                </div>
-                <div class="mt-1">
+      <!-- Product Search Autocomplete -->
+      <div class="product-search-input">
+        <app-select-search
+          #productAutoComplete
+          (searched)="searchProducts($event)"
+          (selectionChange)="onProductSelect()"
+          [(ngModel)]="selectedProduct"
+          [clearable]="true"
+          [disabled]="!selectedDepot()"
+          [items]="filteredProducts()"
+          [minSearchLength]="2"
+          [optionTemplate]="productOption"
+          appendTo="body"
+          bindLabel="libelle"
+          class="w-100 pharma-autocomplete"
+          inputId="product-search"
+          notFoundText="Aucun produit trouvé"
+          placeholder="Rechercher un produit..."
+        />
+        <ng-template #productOption let-product>
+          <div class="d-flex justify-content-between align-items-center w-100">
+            <div class="flex-grow-1">
+              <div>
+                <span class="pharma-code me-2">{{ product.codeCip }}</span>
+                <span>{{ product.libelle }}</span>
+              </div>
+              <div class="mt-1">
                   <span class="badge bg-primary">
                     <i class="pi pi-box me-1"></i>
                     Stock: <strong>{{ product.totalQuantity | number }}</strong>
                   </span>
-                </div>
               </div>
             </div>
-          </ng-template>
-        </div>
-
-        <!-- Quantity Input with Add Button -->
-        <div class="quantity-input-wrapper">
-          <jhi-quantite-produt-saisie
-            #quantiteBox
-            (addQuantite)="onAddReturnLine($event)"
-            [isValid]="!!selectedProduct()"
-            [disabledButton]="!selectedProduct()"
-            class="pharma-quantity-input"
-          >
-          </jhi-quantite-produt-saisie>
-        </div>
+          </div>
+        </ng-template>
       </div>
 
-      <!-- Meta Information -->
-      @if (selectedDepot()) {
-        <div class="order-meta">
+      <!-- Quantity Input with Add Button -->
+      <div class="quantity-input-wrapper">
+        <jhi-quantite-produt-saisie
+          #quantiteBox
+          (addQuantite)="onAddReturnLine($event)"
+          [disabledButton]="!selectedProduct()"
+          [isValid]="!!selectedProduct()"
+          class="pharma-quantity-input"
+        >
+        </jhi-quantite-produt-saisie>
+      </div>
+    </div>
+
+    <!-- Meta Information -->
+    @if (selectedDepot()) {
+      <div class="order-meta">
+        <div class="meta-item">
+          <i class="pi pi-building"></i>
+          <span
+          >Dépôt: <strong>{{ selectedDepot()?.name }}</strong></span
+          >
+        </div>
+
+        @if (selectedProduct()) {
           <div class="meta-item">
-            <i class="pi pi-building"></i>
+            <i class="pi pi-box"></i>
             <span
-            >Dépôt: <strong>{{ selectedDepot()?.name }}</strong></span
+            >CIP: <strong>{{ selectedProduct()?.codeCip }}</strong></span
             >
           </div>
 
-          @if (selectedProduct()) {
-            <div class="meta-item">
-              <i class="pi pi-box"></i>
-              <span
-              >CIP: <strong>{{ selectedProduct()?.codeCip }}</strong></span
-              >
-            </div>
-
-            <div class="meta-item" style="background-color: #e3f2fd; padding: 0.5rem; border-radius: 4px">
-              <i class="pi pi-inbox text-primary"></i>
-              <span class="text-primary"
-              >Stock Dépôt: <strong
-                style="font-size: 1.1rem">{{ selectedProduct()?.totalQuantity | number }}</strong></span
-              >
-            </div>
-          }
-        </div>
-      }
-    </div>
-
-    <div class="card">
-      <div class="card-body">
-        <!-- Return Lines Table -->
-        @if (retourDepotItems().length > 0) {
-          <div class="mb-4">
-            <h5>Produits à retourner</h5>
-            <app-data-table [value]="retourDepotItems()" >
-              <ng-template #header>
-                <tr class="pharma-table-head">
-                  <th>CIP</th>
-                  <th>Produit</th>
-                  <th class="text-end">
-                    <i class="pi pi-inbox me-1"></i>
-                    <span class="text-primary">Stock Dépôt</span>
-                  </th>
-                  <th class="text-end pharma-qty-value">Qté à Retourner</th>
-                  <th class="text-center">Action</th>
-                </tr>
-              </ng-template>
-              <ng-template #body let-item let-rowIndex="rowIndex">
-                <tr>
-                  <td>
-                    <span class="pharma-code">{{ item.produitCip }}</span>
-                  </td>
-                  <td>
-                    <span class="pharma-product-name">{{ item.produitLibelle }}</span>
-                  </td>
-                  <td class="text-end" style="background-color: #f5f9fc; font-weight: 600; color: #1976d2">
-                    {{ getMaxReturnQuantity(item) | number }}
-                  </td>
-                  <td class="text-end pharma-qty-value">
-                    <app-editable-cell>
-                      <ng-template #input>
-                        <input
-                          type="number"
-                          [(ngModel)]="item.qtyMvt"
-                          (ngModelChange)="onQuantityChange(item)"
-                          [min]="1"
-                          [max]="getMaxReturnQuantity(item)"
-                          class="form-control form-control-sm text-end"
-                        />
-                      </ng-template>
-                      <ng-template #output>
-                        <span class="pharma-price">{{ item.qtyMvt | number }}</span>
-                      </ng-template>
-                    </app-editable-cell>
-                  </td>
-                  <td class="text-center">
-                    <app-button
-                      icon="pi pi-trash"
-                      severity="danger"
-                      [text]="true"
-                      [rounded]="true"
-                      (clicked)="removeReturnLine(rowIndex)"
-                      ngbTooltip="Supprimer"
-                      placement="top"
-                    />
-                  </td>
-                </tr>
-              </ng-template>
-            </app-data-table>
+          <div class="meta-item"
+               style="background-color: #e3f2fd; padding: 0.5rem; border-radius: 4px">
+            <i class="pi pi-inbox text-primary"></i>
+            <span class="text-primary"
+            >Stock Dépôt: <strong
+              style="font-size: 1.1rem">{{ selectedProduct()?.totalQuantity | number }}</strong></span
+            >
           </div>
         }
       </div>
+    }
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <!-- Return Lines Table -->
+      @if (retourDepotItems().length > 0) {
+        <div class="mb-4">
+          <h5>Produits à retourner</h5>
+          <app-data-table [value]="retourDepotItems()">
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th>CIP</th>
+                <th>Produit</th>
+                <th class="text-end">
+                  <i class="pi pi-inbox me-1"></i>
+                  <span class="text-primary">Stock Dépôt</span>
+                </th>
+                <th class="text-end pharma-qty-value">Qté à Retourner</th>
+                <th class="text-center">Action</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-item let-rowIndex="rowIndex">
+              <tr>
+                <td>
+                  <span class="pharma-code">{{ item.produitCip }}</span>
+                </td>
+                <td>
+                  <span class="pharma-product-name">{{ item.produitLibelle }}</span>
+                </td>
+                <td class="text-end"
+                    style="background-color: #f5f9fc; font-weight: 600; color: #1976d2">
+                  {{ getMaxReturnQuantity(item) | number }}
+                </td>
+                <td class="text-end pharma-qty-value">
+                  <app-editable-cell>
+                    <ng-template #input>
+                      <input
+                        (ngModelChange)="onQuantityChange(item)"
+                        [(ngModel)]="item.qtyMvt"
+                        [max]="getMaxReturnQuantity(item)"
+                        [min]="1"
+                        class="form-control form-control-sm text-end"
+                        type="number"
+                      />
+                    </ng-template>
+                    <ng-template #output>
+                      <span class="pharma-price">{{ item.qtyMvt | number }}</span>
+                    </ng-template>
+                  </app-editable-cell>
+                </td>
+                <td class="text-center">
+                  <app-button
+                    (clicked)="removeReturnLine(rowIndex)"
+                    [rounded]="true"
+                    [text]="true"
+                    icon="pi pi-trash"
+                    ngbTooltip="Supprimer"
+                    placement="top"
+                    severity="danger"
+                  />
+                </td>
+              </tr>
+            </ng-template>
+          </app-data-table>
+        </div>
+      }
     </div>
   </div>
 </div>
+

@@ -4,14 +4,33 @@ import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { HttpHeaders } from "@angular/common/http";
 import { RouterLink } from "@angular/router";
-import { NgbDateParserFormatter, NgbDateStruct, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
+import {
+  NgbDateParserFormatter,
+  NgbDateStruct,
+  NgbDropdown,
+  NgbDropdownItem,
+  NgbDropdownMenu,
+  NgbDropdownToggle,
+  NgbTooltip
+} from "@ng-bootstrap/ng-bootstrap";
 
 import { FrenchDateParserFormatter } from "../../../../config/french-date-parser-formatter";
 import { PharmaDatePickerComponent } from "../../../../shared/date-picker/pharma-date-picker.component";
-import { ButtonComponent, DataTableComponent, IconFieldComponent, AppTableLazyLoadEvent, ToolbarComponent } from "../../../../shared/ui";
+import {
+  AppTableLazyLoadEvent,
+  ButtonComponent,
+  DataTableComponent,
+  IconFieldComponent,
+  SkeletonComponent,
+  ToolbarComponent
+} from "../../../../shared/ui";
 import { ITEMS_PER_PAGE } from "../../../../shared/constants/pagination.constants";
 import { ISales } from "../../../../shared/model";
+import { SaleId } from "../../../../shared/model/sales.model";
 import { VenteDepotApiService } from "../../data-access/services/vente-depot-api.service";
+import { SalesApiService } from "../../data-access/services/sales-api.service";
+import { TauriPrinterService } from "../../../../shared/services/tauri-printer.service";
+import { NotificationService } from "../../../../shared/services/notification.service";
 import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
 
 import { DeviseDirective } from 'app/shared/utils/devise';
@@ -21,7 +40,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
   styleUrl: "./vente-depot-list.component.scss",
   providers: [{ provide: NgbDateParserFormatter, useClass: FrenchDateParserFormatter }],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeviseDirective, 
+  imports: [DeviseDirective,
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -29,22 +48,24 @@ import { DeviseDirective } from 'app/shared/utils/devise';
     ToolbarComponent,
     PharmaDatePickerComponent,
     IconFieldComponent,
+    SkeletonComponent,
     NgbTooltip,
+    NgbDropdown,
+    NgbDropdownToggle,
+    NgbDropdownMenu,
+    NgbDropdownItem,
     RouterLink
   ]
 })
 export class VenteDepotListComponent implements OnInit {
-  /**
-   * Code de l'entrée de navigation dont cet écran est le contenu.
-   *
-   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
-   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
-   * de celui par lequel on est entré.
-   */
+
   readonly navCode = input<string>('');
 
   private readonly api = inject(VenteDepotApiService);
   private readonly blobDownload = inject(BlobDownloadService);
+  private readonly salesApi = inject(SalesApiService);
+  private readonly tauriPrinterService = inject(TauriPrinterService);
+  private readonly notificationService = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected loading = signal(false);
@@ -101,6 +122,78 @@ export class VenteDepotListComponent implements OnInit {
 
   protected onSearch(): void {
     this.loadPage(0);
+  }
+
+  /**
+   * Déplie ou replie la ligne, et charge son détail au premier dépliage.
+   *
+   * <p>`/api/stock-depots/sales` ne renvoie plus les lignes — la colonne « Articles » lit
+   * `itemCount`. La vente est remplacée dans le signal plutôt que mutée : la table est `OnPush`,
+   * et le dépliage est mémorisé par la clé `dataKey="id"`, que la copie conserve.
+   */
+  protected onRowToggle(sale: ISales, table: DataTableComponent<ISales>): void {
+    table.toggleRow(sale);
+    if (!sale.saleId || (sale as ISales & { _loaded?: boolean })._loaded) {
+      return;
+    }
+    this.api
+      .findSaleLines(sale.saleId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(salesLines => {
+        const chargee = { ...sale, salesLines, _loaded: true };
+        this.sales.update(lignes => lignes.map(l => (l === sale ? chargee : l)));
+      });
+  }
+
+  /**
+   * Export tableur de la vente. Le PDF passe par {@link printInvoice} : c'est la même facture.
+   *
+   * <p>`downloadFromObservable` choisit seul entre téléchargement navigateur et boîte
+   * « Enregistrer sous » de Tauri.
+   */
+  protected exportWithFormat(format: 'excel' | 'csv', sale: ISales): void {
+    if (!sale.saleId) {
+      return;
+    }
+    const source$ = format === 'excel' ? this.api.exportToExcel(sale.saleId) : this.api.exportToCsv(sale.saleId);
+    this.blobDownload.downloadFromObservable(source$, `vente-depot-${sale.numberTransaction}`, format);
+  }
+
+  /**
+   * Réimprime le ticket de caisse, comme sur l'écran « Achats dépôts ».
+   *
+   * <p>Sous Tauri l'impression est locale : le serveur renvoie la trame ESC/POS brute, que le
+   * côté Rust pousse vers l'imprimante thermique. Dans un navigateur, c'est le serveur qui
+   * imprime, sur l'imprimante configurée pour le poste.
+   */
+  protected printSale(sale: ISales): void {
+    if (!sale.saleId) {
+      return;
+    }
+    if (this.tauriPrinterService.isRunningInTauri()) {
+      this.printReceiptForTauri(sale.saleId);
+      return;
+    }
+    this.salesApi
+      .reprintReceiptComptant(sale.saleId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({ error: () => this.notificationService.error("Le ticket n'a pas pu être imprimé.") });
+  }
+
+  private printReceiptForTauri(saleId: SaleId): void {
+    this.salesApi
+      .getEscPosReceiptForTauri(saleId, true)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: async escposData => {
+          try {
+            await this.tauriPrinterService.printEscPosFromBuffer(escposData);
+          } catch {
+            this.notificationService.error("Le ticket n'a pas pu être envoyé à l'imprimante.");
+          }
+        },
+        error: () => this.notificationService.error("Le ticket n'a pas pu être imprimé.")
+      });
   }
 
   protected printInvoice(sale: ISales): void {

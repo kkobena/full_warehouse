@@ -413,8 +413,50 @@ public class SaleDataService {
 
         List<VenteDepot> results = q.getResultList();
 
-        return new PageImpl<>(results.stream().map(this::buildDepotExtensionSaleDTO).toList(),
-            pageable, totalCount);
+        return new PageImpl<>(buildDepotExtensionSaleDTOs(results), pageable, totalCount);
+    }
+
+    /**
+     * Projette la page en DTO **sans les lignes de vente**.
+     *
+     * <p>Le tableau des achats dépôt n'affiche qu'un nombre d'articles tant que la ligne est
+     * repliée ; charger les lignes ici coûtait une requête par vente, sur toute la page. Elles
+     * sont donc laissées de côté et {@code itemCount} est renseigné par un unique comptage
+     * groupé. Le détail est servi à la demande par {@code GET /api/sales-lines/{id}/{saleDate}}
+     * quand l'utilisateur déplie la ligne.
+     */
+    private List<DepotExtensionSaleDTO> buildDepotExtensionSaleDTOs(List<VenteDepot> ventes) {
+        if (ventes.isEmpty()) {
+            return List.of();
+        }
+        Map<SaleId, Long> itemCounts = countSalesLinesBySale(ventes);
+        return ventes
+            .stream()
+            .map(vente -> {
+                DepotExtensionSaleDTO dto = new DepotExtensionSaleDTO(vente, false);
+                dto.setItemCount(itemCounts.getOrDefault(vente.getId(), 0L).intValue());
+                return dto;
+            })
+            .toList();
+    }
+
+    private Map<SaleId, Long> countSalesLinesBySale(List<VenteDepot> ventes) {
+        return em
+            .createQuery(
+                """
+                SELECT sl.sales.id, sl.sales.saleDate, COUNT(sl)
+                FROM SalesLine sl
+                WHERE sl.sales IN :ventes
+                GROUP BY sl.sales.id, sl.sales.saleDate
+                """,
+                Object[].class
+            )
+            .setParameter("ventes", ventes)
+            .getResultList()
+            .stream()
+            .collect(
+                Collectors.toMap(row -> new SaleId((Long) row[0], (LocalDate) row[1]), row -> (Long) row[2])
+            );
     }
 
     public Page<SaleDTO> listVenteTerminees(
@@ -892,10 +934,6 @@ public class SaleDataService {
             });
     }
 
-
-    private DepotExtensionSaleDTO buildDepotExtensionSaleDTO(VenteDepot venteDepot) {
-        return new DepotExtensionSaleDTO(venteDepot);
-    }
 
     private SaleDTO buildSaleDTO(Sales s) {
         if (s instanceof ThirdPartySales thirdPartySales) {

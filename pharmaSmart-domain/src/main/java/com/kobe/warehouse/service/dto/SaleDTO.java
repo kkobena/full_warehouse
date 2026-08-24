@@ -100,6 +100,18 @@ public class SaleDTO implements Serializable {
     }
 
     public SaleDTO(Sales sale) {
+        this(sale, true);
+    }
+
+    /**
+     * @param withSalesLines {@code false} pour un DTO de liste : les lignes ne sont pas
+     *     projetées et {@code salesLines} reste vide. La collection étant paresseuse, ne pas y
+     *     toucher évite une requête par vente — c'est tout l'intérêt. L'appelant est alors
+     *     responsable de renseigner {@link #itemCount}, que la ligne repliée affiche à la place
+     *     de {@code salesLines.length}, et le détail se charge à la demande via
+     *     {@code GET /api/sales-lines/{id}/{saleDate}}.
+     */
+    public SaleDTO(Sales sale, boolean withSalesLines) {
         this.saleId = sale.getId();
         this.id = saleId.getId();
         this.commentaire = sale.getCommentaire();
@@ -141,8 +153,9 @@ public class SaleDTO implements Serializable {
         this.statut = sale.getStatut();
         this.createdAt = sale.getCreatedAt();
         this.updatedAt = sale.getUpdatedAt();
-        buildItemDTOFromSaleLines(sale
-            .getSalesLines());
+        if (withSalesLines) {
+            buildItemDTOFromSaleLines(sale.getSalesLines());
+        }
        /* this.salesLines = sale
             .getSalesLines()
             .stream()

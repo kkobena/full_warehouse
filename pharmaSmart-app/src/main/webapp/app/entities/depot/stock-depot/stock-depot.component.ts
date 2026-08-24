@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgbModal, NgbPagination } from '@ng-bootstrap/ng-bootstrap';
 import { ButtonComponent, DataTableComponent, IconFieldComponent, SelectComponent, ToolbarComponent } from '../../../shared/ui';
 import TranslateDirective from '../../../shared/language/translate.directive';
-import { IMagasin, IProduit } from "../../../shared/model";
+import { IMagasin, IProduit } from '../../../shared/model';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { IResponseDto } from '../../../shared/util/response-dto';
 import { IProduitCriteria, ProduitCriteria } from '../../../shared/model/produit-criteria.model';
@@ -31,7 +31,6 @@ import { MagasinService } from '../../magasin/magasin.service';
     TranslateDirective,
     FormsModule,
     RouterLink,
-
   ],
   templateUrl: './stock-depot.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,16 +47,24 @@ export class StockDepotComponent implements OnInit {
   readonly navCode = input<string>('');
 
   protected readonly produits = signal<IProduit[] | undefined>(undefined);
-  protected selectedDepot: IMagasin | null = null;
+  protected readonly selectedDepot = signal<IMagasin | null>(null);
   protected readonly depots = signal<IMagasin[]>([]);
 
-  /** Options du sélecteur de dépôt, avec l'adresse ajoutée au libellé (remplace le `#item` custom de `p-select`). */
-  protected get depotOptions(): (IMagasin & { displayLabel: string })[] {
-    return this.depots().map(depot => ({
+  /**
+   * Options du sélecteur de dépôt, avec l'adresse ajoutée au libellé.
+   *
+   * `computed` et non un accesseur : `items` est un `model()` signal côté `ng-select`, donc
+   * une nouvelle référence de tableau à chaque cycle de détection lui fait reconstruire toute
+   * sa liste d'options — et le `track` du `@for` porte sur l'objet option, si bien que chaque
+   * `<div>` de la liste est détruit puis recréé sous le curseur, ce qui rend les options
+   * inclicquables : `mousedown` et `mouseup` ne tombent plus sur le même nœud.
+   */
+  protected readonly depotOptions = computed<(IMagasin & { displayLabel: string })[]>(() =>
+    this.depots().map(depot => ({
       ...depot,
-      displayLabel: depot.address ? `${depot.name} — ${depot.address}` : depot.name
-    }));
-  }
+      displayLabel: depot.address ? `${depot.name} — ${depot.address}` : depot.name,
+    })),
+  );
   protected readonly totalItems = signal(0);
   protected itemsPerPage = ITEMS_PER_PAGE;
   protected readonly page = signal<number | undefined>(undefined);
@@ -71,7 +78,6 @@ export class StockDepotComponent implements OnInit {
   private readonly modalService = inject(NgbModal);
   private readonly stockDepotService = inject(StockDepotService);
   private readonly magasinService = inject(MagasinService);
-  
 
   constructor() {
     this.criteria.set(new ProduitCriteria());
@@ -103,7 +109,7 @@ export class StockDepotComponent implements OnInit {
   }
 
   loadPage(page?: number, dontNavigate?: boolean): void {
-    if (this.selectedDepot !== null) {
+    if (this.selectedDepot() !== null) {
       const pageToLoad: number = page || this.page() || 1;
       let statut = 'ENABLE';
       if (this.criteria()) {
@@ -125,7 +131,7 @@ export class StockDepotComponent implements OnInit {
           deconditionne: this.criteria().deconditionne,
           deconditionnable: this.criteria().deconditionnable,
           status: statut,
-          magasinId: this.selectedDepot ? this.selectedDepot.id : undefined,
+          magasinId: this.selectedDepot()?.id ?? undefined,
         })
         .subscribe({
           next: (res: HttpResponse<IProduit[]>) => this.onSuccess(res.body, res.headers, pageToLoad, !dontNavigate),
@@ -161,8 +167,7 @@ export class StockDepotComponent implements OnInit {
   }
 
   private showResponse(responsedto: IResponseDto): void {
-    showCommonModal(this.modalService, ImportProduitReponseModalComponent, {responsedto}, () => {
-    }, 'lg');
+    showCommonModal(this.modalService, ImportProduitReponseModalComponent, { responsedto }, () => {}, 'lg');
   }
 
   private onError(): void {

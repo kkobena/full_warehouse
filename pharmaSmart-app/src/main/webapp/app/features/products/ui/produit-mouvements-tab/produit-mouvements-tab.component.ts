@@ -1,4 +1,17 @@
-import { afterNextRender, Component, effect, ElementRef, inject, Injector, input, OnDestroy, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  Injector,
+  input,
+  OnDestroy,
+  signal,
+  viewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
@@ -33,8 +46,8 @@ Chart.register(...registerables);
     PharmaDatePickerComponent,
     PillSelectorComponent,
     TranslatePipe,
-    MultiSelectComponent
-  ]
+    MultiSelectComponent,
+  ],
 })
 export class ProduitMouvementsTabComponent implements OnDestroy {
   readonly produitId = input.required<number>();
@@ -105,12 +118,19 @@ export class ProduitMouvementsTabComponent implements OnDestroy {
   };
 
   private readonly OUT_FIELDS = [
-    'saleQuantity', 'retourFournisseurQuantity', 'perimeQuantity',
-    'ajustementNegatifQuantity', 'deconNegatifQuantity', 'mouvementStockOut',
+    'saleQuantity',
+    'retourFournisseurQuantity',
+    'perimeQuantity',
+    'ajustementNegatifQuantity',
+    'deconNegatifQuantity',
+    'mouvementStockOut',
   ];
   private readonly IN_FIELDS = [
-    'deleveryQuantity', 'ajustementPositifQuantity', 'deconPositifQuantity',
-    'canceledQuantity', 'mouvementStockIn',
+    'deleveryQuantity',
+    'ajustementPositifQuantity',
+    'deconPositifQuantity',
+    'canceledQuantity',
+    'mouvementStockIn',
   ];
 
   private readonly statService = inject(ProduitStatService);
@@ -130,7 +150,7 @@ export class ProduitMouvementsTabComponent implements OnDestroy {
       const rows = this.entites();
       if (visible && rows.length > 0) {
         // Defer to let Angular render the canvas first
-        afterNextRender(() => this.buildChart(rows), {injector: this.injector});
+        afterNextRender(() => this.buildChart(rows), { injector: this.injector });
       } else if (!visible) {
         this.chart?.destroy();
         this.chart = undefined;
@@ -145,16 +165,20 @@ export class ProduitMouvementsTabComponent implements OnDestroy {
   // ── Emplacements du produit (dérivés de stockProduits) ────────
 
   /** Emplacements de stockage de CE produit, mappés depuis stockProduits */
-  protected get productStorages(): IStorage[] {
-    return (this.produit()?.stockProduits ?? [])
+  /**
+   * `computed` et non un accesseur : `items` est un `model()` signal côté `ng-select`, donc
+   * une nouvelle référence de tableau à chaque cycle de détection lui fait reconstruire toute
+   * sa liste d'options — et le `track` du `@for` porte sur l'objet option, si bien que chaque
+   * `<div>` de la liste est détruit puis recréé sous le curseur.
+   */
+  protected readonly productStorages = computed<IStorage[]>(() =>
+    (this.produit()?.stockProduits ?? [])
       .filter(sp => sp.storageId != null && sp.storageName)
-      .map(sp => ({ id: sp.storageId, name: sp.storageName }) as IStorage);
-  }
+      .map(sp => ({ id: sp.storageId, name: sp.storageName }) as IStorage),
+  );
 
   /** Afficher le sélecteur d'emplacement seulement si le produit a 2+ stocks */
-  protected get hasMultipleStorages(): boolean {
-    return this.productStorages.length > 1;
-  }
+  protected readonly hasMultipleStorages = computed(() => this.productStorages().length > 1);
 
   // ── Visibilité des colonnes ───────────────────────────────────
 
@@ -228,7 +252,7 @@ export class ProduitMouvementsTabComponent implements OnDestroy {
         this.entites.set(res.body ?? []);
         this.loading.set(false);
         if (this.showChart() && (res.body ?? []).length > 0) {
-          afterNextRender(() => this.buildChart(res.body!), {injector: this.injector});
+          afterNextRender(() => this.buildChart(res.body!), { injector: this.injector });
         }
       },
       error: () => this.loading.set(false),
@@ -271,15 +295,23 @@ export class ProduitMouvementsTabComponent implements OnDestroy {
 
     const labels = rows.map(r => fmtDate(r.mvtDate));
     const stockData = rows.map(r => r.afterStock ?? 0);
-    const inData = rows.map(r =>
-      (r.deleveryQuantity ?? 0) + (r.ajustementPositifQuantity ?? 0) +
-      (r.deconPositifQuantity ?? 0) + (r.canceledQuantity ?? 0) +
-      (r.mouvementStockIn ?? 0) + (r.retourDepot ?? 0),
+    const inData = rows.map(
+      r =>
+        (r.deleveryQuantity ?? 0) +
+        (r.ajustementPositifQuantity ?? 0) +
+        (r.deconPositifQuantity ?? 0) +
+        (r.canceledQuantity ?? 0) +
+        (r.mouvementStockIn ?? 0) +
+        (r.retourDepot ?? 0),
     );
-    const outData = rows.map(r =>
-      (r.saleQuantity ?? 0) + (r.retourFournisseurQuantity ?? 0) +
-      (r.perimeQuantity ?? 0) + (r.ajustementNegatifQuantity ?? 0) +
-      (r.deconNegatifQuantity ?? 0) + (r.mouvementStockOut ?? 0),
+    const outData = rows.map(
+      r =>
+        (r.saleQuantity ?? 0) +
+        (r.retourFournisseurQuantity ?? 0) +
+        (r.perimeQuantity ?? 0) +
+        (r.ajustementNegatifQuantity ?? 0) +
+        (r.deconNegatifQuantity ?? 0) +
+        (r.mouvementStockOut ?? 0),
     );
 
     const config: ChartConfiguration = {

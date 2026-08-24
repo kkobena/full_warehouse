@@ -33,11 +33,11 @@
       />
     </div>
 
-    @if (hasMultipleStorages) {
+    @if (hasMultipleStorages()) {
       <app-select
         [ngModel]="selectedStorage()" (ngModelChange)="selectedStorage.set($event)"
         [clearable]="true"
-        [items]="productStorages"
+        [items]="productStorages()"
         [style]="{ 'min-width': '170px' }"
         appendTo="body"
         bindLabel="name"

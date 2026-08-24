@@ -1,7 +1,13 @@
 @import 'app/shared/scss/table-common';
 @import 'app/shared/scss/pharma-toolbar';
+@import 'app/shared/scss/expanded-row';
 $pharma-primary: #5b89a6;
 $border-radius: $pharma-radius;
+// Le bouton d'actions porte déjà son « ⋮ » : masquer le chevron que Bootstrap ajoute.
+.app-actions-toggle::after {
+  display: none;
+}
+
 .pharma-select-modern {
   border-radius: $border-radius;
   border-color: $gray-300;

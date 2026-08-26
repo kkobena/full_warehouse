@@ -1,26 +1,42 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NgbDateStruct, NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
-import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
-import { ISales, SaleId } from '../../../shared/model/sales.model';
-import { IUser } from '../../../core/user/user.model';
-import { SalesService } from '../../sales/sales.service';
-import { UserService } from '../../../core/user/user.service';
-import { debounceTime, Subject } from 'rxjs';
-import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { handleBlobForTauri } from '../../../shared/util/tauri-util';
-import { IMagasin } from '../../../shared/model';
-import { FormsModule } from '@angular/forms';
-import { MagasinService } from '../../magasin/magasin.service';
-import { RouterLink } from '@angular/router';
-import { StockDepotService } from '../stock-depot/stock-depot.service';
-import { NGB_DATE_TO_ISO } from '../../../shared/util/warehouse-util';
-import { saveAs } from 'file-saver';
-import { extractFileName2 } from '../../../shared/util/file-utils';
-import { CommonModule } from '@angular/common';
-import { BlobDownloadService } from '../../../shared/services/blob-download.service';
-import { NotificationService } from '../../../shared/services/notification.service';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  input,
+  OnInit,
+  signal
+} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {
+  NgbDateStruct,
+  NgbDropdown,
+  NgbDropdownItem,
+  NgbDropdownMenu,
+  NgbDropdownToggle,
+  NgbTooltip
+} from '@ng-bootstrap/ng-bootstrap';
+import {ITEMS_PER_PAGE} from '../../../shared/constants/pagination.constants';
+import {ISales, SaleId} from '../../../shared/model/sales.model';
+import {IUser} from '../../../core/user/user.model';
+import {SalesService} from '../../sales/sales.service';
+import {UserService} from '../../../core/user/user.service';
+import {debounceTime, Subject} from 'rxjs';
+import {TauriPrinterService} from '../../../shared/services/tauri-printer.service';
+import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {handleBlobForTauri} from '../../../shared/util/tauri-util';
+import {IMagasin} from '../../../shared/model';
+import {FormsModule} from '@angular/forms';
+import {MagasinService} from '../../magasin/magasin.service';
+import {RouterLink} from '@angular/router';
+import {StockDepotService} from '../stock-depot/stock-depot.service';
+import {NGB_DATE_TO_ISO} from '../../../shared/util/warehouse-util';
+import {saveAs} from 'file-saver';
+import {extractFileName2} from '../../../shared/util/file-utils';
+import {CommonModule} from '@angular/common';
+import {BlobDownloadService} from '../../../shared/services/blob-download.service';
+import {NotificationService} from '../../../shared/services/notification.service';
 import {
   AppTableLazyLoadEvent,
   ButtonComponent,
@@ -29,10 +45,10 @@ import {
   SkeletonComponent,
   ToolbarComponent,
 } from '../../../shared/ui';
-import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
+import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
 
 @Component({
-  selector: 'jhi-achat-depot',
+  selector: 'app-achat-depot',
   imports: [
     CommonModule,
     ButtonComponent,
@@ -54,13 +70,7 @@ import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-da
   styleUrl: './achat-depot.component.scss',
 })
 export class AchatDepotComponent implements OnInit {
-  /**
-   * Code de l'entrée de navigation dont cet écran est le contenu.
-   *
-   * <p>Fourni par le layout : le titre de la barre suit le libellé du menu — ou son `titre_long`
-   * quand la barre nomme plus longuement. Un écran atteint depuis deux menus affiche donc le nom
-   * de celui par lequel on est entré.
-   */
+
   readonly navCode = input<string>('');
 
   protected readonly selectedDepot = signal<IMagasin | null>(null);
@@ -80,11 +90,6 @@ export class AchatDepotComponent implements OnInit {
   /**
    * Options du sélecteur de dépôt, avec l'adresse ajoutée au libellé.
    *
-   * `computed` et non un accesseur : `items` est un `model()` signal côté `ng-select`, donc
-   * une nouvelle référence de tableau à chaque cycle de détection lui fait reconstruire toute
-   * sa liste d'options — et le `track` du `@for` porte sur l'objet option, si bien que chaque
-   * `<div>` de la liste est détruit puis recréé sous le curseur, ce qui rend les options
-   * inclicquables : `mousedown` et `mouseup` ne tombent plus sur le même nœud.
    */
   protected readonly depotOptions = computed<(IMagasin & { displayLabel: string })[]>(() =>
     this.depots().map(depot => ({
@@ -125,7 +130,7 @@ export class AchatDepotComponent implements OnInit {
   loadAllUsers(): void {
     this.userService.query().subscribe((res: HttpResponse<IUser[]>) => {
       if (res.body) {
-        this.users = [{ id: null, abbrName: 'TOUT' }];
+        this.users = [{id: null, abbrName: 'TOUT'}];
         this.users = [...this.users, ...res.body];
       }
     });
@@ -151,17 +156,7 @@ export class AchatDepotComponent implements OnInit {
     this.searchSubject.next();
   }
 
-  /**
-   * Déplie ou replie la ligne, et charge son détail au premier dépliage.
-   *
-   * <p>La table est passée par référence de gabarit (`#salesTable`) plutôt que déclarée en
-   * `viewChild` : le bouton vit dans le template `#body`, donc dans la portée de la table.
-   *
-   * <p>`/api/stock-depots/sales` ne renvoie plus les lignes — la colonne « Nbre d'articles »
-   * lit `itemCount`, que le serveur calcule par un comptage groupé. La vente est remplacée dans
-   * le signal plutôt que mutée : la table est `OnPush`, et le dépliage est mémorisé par la clé
-   * `dataKey="id"`, que la copie conserve — la ligne reste donc ouverte.
-   */
+
   protected onRowToggle(sale: ISales, table: DataTableComponent<ISales>): void {
     table.toggleRow(sale);
     if (!sale.saleId || (sale as ISales & { _loaded?: boolean })._loaded) {
@@ -250,7 +245,7 @@ export class AchatDepotComponent implements OnInit {
   }
 
   private dateToNgbStruct(date: Date): NgbDateStruct {
-    return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
+    return {year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate()};
   }
 
   private buildCriteria(): any {

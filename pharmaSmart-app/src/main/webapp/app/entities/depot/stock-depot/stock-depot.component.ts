@@ -1,22 +1,40 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { NgbModal, NgbPagination } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonComponent, DataTableComponent, IconFieldComponent, SelectComponent, ToolbarComponent } from '../../../shared/ui';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  OnInit,
+  signal
+} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {
+  ButtonComponent,
+  DataTableComponent,
+  IconFieldComponent,
+  SelectComponent,
+  ToolbarComponent
+} from '../../../shared/ui';
 import TranslateDirective from '../../../shared/language/translate.directive';
-import { IMagasin, IProduit } from '../../../shared/model';
-import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
-import { IResponseDto } from '../../../shared/util/response-dto';
-import { IProduitCriteria, ProduitCriteria } from '../../../shared/model/produit-criteria.model';
-import { ActivatedRoute, Data, ParamMap, RouterLink } from '@angular/router';
-import { Statut } from '../../../shared/model/enumerations/statut.model';
-import { ImportProduitModalComponent } from '../../produit/import-produit-modal/import-produit-modal.component';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { showCommonModal } from '../../sales/selling-home/sale-helper';
-import { ImportProduitReponseModalComponent } from '../../produit/import-produit-reponse-modal/import-produit-reponse-modal.component';
-import { combineLatest } from 'rxjs';
-import { FormsModule } from '@angular/forms';
-import { StockDepotService } from './stock-depot.service';
-import { MagasinService } from '../../magasin/magasin.service';
+import {IMagasin, IProduit} from '../../../shared/model';
+import {ITEMS_PER_PAGE} from '../../../shared/constants/pagination.constants';
+import {IResponseDto} from '../../../shared/util/response-dto';
+import {IProduitCriteria, ProduitCriteria} from '../../../shared/model/produit-criteria.model';
+import {ActivatedRoute, Data, ParamMap, RouterLink} from '@angular/router';
+import {Statut} from '../../../shared/model/enumerations/statut.model';
+import {
+  ImportProduitModalComponent
+} from '../../produit/import-produit-modal/import-produit-modal.component';
+import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {showCommonModal} from '../../sales/selling-home/sale-helper';
+import {
+  ImportProduitReponseModalComponent
+} from '../../produit/import-produit-reponse-modal/import-produit-reponse-modal.component';
+import {combineLatest} from 'rxjs';
+import {FormsModule} from '@angular/forms';
+import {StockDepotService} from './stock-depot.service';
+import {MagasinService} from '../../magasin/magasin.service';
 
 @Component({
   selector: 'app-stock-depot',
@@ -24,7 +42,6 @@ import { MagasinService } from '../../magasin/magasin.service';
     CommonModule,
     ButtonComponent,
     IconFieldComponent,
-    NgbPagination,
     SelectComponent,
     DataTableComponent,
     ToolbarComponent,
@@ -167,7 +184,8 @@ export class StockDepotComponent implements OnInit {
   }
 
   private showResponse(responsedto: IResponseDto): void {
-    showCommonModal(this.modalService, ImportProduitReponseModalComponent, { responsedto }, () => {}, 'lg');
+    showCommonModal(this.modalService, ImportProduitReponseModalComponent, {responsedto}, () => {
+    }, 'lg');
   }
 
   private onError(): void {

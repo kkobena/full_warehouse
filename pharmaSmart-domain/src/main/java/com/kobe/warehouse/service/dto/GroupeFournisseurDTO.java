@@ -1,15 +1,11 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Fournisseur;
-import com.kobe.warehouse.domain.GroupeFournisseur;
 import jakarta.validation.constraints.NotNull;
-
 import java.io.Serial;
 import java.io.Serializable;
 
-/**
- * A DTO for the {@link com.kobe.warehouse.domain.GroupeFournisseur} entity.
- */
+
 public class GroupeFournisseurDTO implements Serializable {
 
     @Serial
@@ -63,25 +59,6 @@ public class GroupeFournisseurDTO implements Serializable {
         tauxRfa = fournisseur.getTauxRfa();
     }
 
-    public GroupeFournisseurDTO(GroupeFournisseur groupeFournisseur) {
-        id = groupeFournisseur.getId();
-        libelle = groupeFournisseur.getLibelle();
-        addresspostale = groupeFournisseur.getAddresspostale();
-        numFaxe = groupeFournisseur.getNumFaxe();
-        email = groupeFournisseur.getEmail();
-        tel = groupeFournisseur.getTel();
-        odre = groupeFournisseur.getOdre();
-        codeRecepteurPharmaMl = groupeFournisseur.getCodeRecepteurPharmaMl();
-        codeOfficePharmaMl = groupeFournisseur.getCodeOfficePharmaMl();
-        urlPharmaMl = groupeFournisseur.getUrlPharmaMl();
-        idRecepteurPharmaMl = groupeFournisseur.getIdRecepteurPharmaMl();
-        delaiLivraisonJours = groupeFournisseur.getDelaiLivraisonJours();
-        frequenceCommandeJours = groupeFournisseur.getFrequenceCommandeJours();
-        joursCredit = groupeFournisseur.getJoursCredit();
-        joursCritique = groupeFournisseur.getJoursCritique();
-        palierRfa = groupeFournisseur.getPalierRfa();
-        tauxRfa = groupeFournisseur.getTauxRfa();
-    }
 
     public Integer getDelaiLivraisonJours() {
         return delaiLivraisonJours;
@@ -198,17 +175,41 @@ public class GroupeFournisseurDTO implements Serializable {
         return this;
     }
 
-    public Integer getJoursCredit() { return joursCredit; }
-    public GroupeFournisseurDTO setJoursCredit(Integer joursCredit) { this.joursCredit = joursCredit; return this; }
+    public Integer getJoursCredit() {
+        return joursCredit;
+    }
 
-    public Integer getJoursCritique() { return joursCritique; }
-    public GroupeFournisseurDTO setJoursCritique(Integer joursCritique) { this.joursCritique = joursCritique; return this; }
+    public GroupeFournisseurDTO setJoursCredit(Integer joursCredit) {
+        this.joursCredit = joursCredit;
+        return this;
+    }
 
-    public Long getPalierRfa() { return palierRfa; }
-    public GroupeFournisseurDTO setPalierRfa(Long palierRfa) { this.palierRfa = palierRfa; return this; }
+    public Integer getJoursCritique() {
+        return joursCritique;
+    }
 
-    public Integer getTauxRfa() { return tauxRfa; }
-    public GroupeFournisseurDTO setTauxRfa(Integer tauxRfa) { this.tauxRfa = tauxRfa; return this; }
+    public GroupeFournisseurDTO setJoursCritique(Integer joursCritique) {
+        this.joursCritique = joursCritique;
+        return this;
+    }
+
+    public Long getPalierRfa() {
+        return palierRfa;
+    }
+
+    public GroupeFournisseurDTO setPalierRfa(Long palierRfa) {
+        this.palierRfa = palierRfa;
+        return this;
+    }
+
+    public Integer getTauxRfa() {
+        return tauxRfa;
+    }
+
+    public GroupeFournisseurDTO setTauxRfa(Integer tauxRfa) {
+        this.tauxRfa = tauxRfa;
+        return this;
+    }
 
     @Override
     public boolean equals(Object o) {

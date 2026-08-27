@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.dci.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.kobe.warehouse.domain.Dci;
 
 public class DciDTO {
@@ -7,6 +8,10 @@ public class DciDTO {
     private long id;
     private String code;
     private String libelle;
+
+    @JsonCreator
+    public DciDTO() {
+    }
 
     public DciDTO(Dci dci) {
         this.id = dci.getId();

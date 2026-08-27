@@ -1,0 +1,40 @@
+@use 'app/shared/scss/modal-theme' as *;
+
+:host {
+  @include modal-theme;
+}
+
+.import-format {
+  margin-bottom: 0.5rem;
+  font-size: 0.82rem;
+}
+
+.import-regles {
+  margin: 0 0 1rem;
+  padding-left: 1.1rem;
+  font-size: 0.78rem;
+  color: var(--p-text-muted-color);
+
+  li + li {
+    margin-top: 0.15rem;
+  }
+}
+
+.import-bilan {
+  margin-top: 1rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.35rem;
+  border-left: 3px solid var(--p-primary-color);
+  background: var(--p-content-hover-background);
+  font-size: 0.82rem;
+
+  small {
+    display: block;
+    margin-top: 0.2rem;
+    color: var(--p-text-muted-color);
+  }
+
+  &--erreur {
+    border-left-color: var(--p-red-500, #ef4444);
+  }
+}

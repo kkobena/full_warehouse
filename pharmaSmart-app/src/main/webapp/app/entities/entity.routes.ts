@@ -37,6 +37,13 @@ const routes: Routes = [
     loadChildren: () => import("./gamme-produit/gamme-produit.route")
   },
   {
+    // Substances actives. L'abilitySubject reprend le code du nav_item « dci ».
+    path: "dci",
+    data: { pageTitle: "Dénominations Communes Internationales", abilitySubject: "dci" },
+    canActivate: [AuthGuard],
+    loadChildren: () => import("../features/dci/dci.routes")
+  },
+  {
     path: "laboratoire",
     data: { pageTitle: "warehouseApp.laboratoire.home.title", abilitySubject: "laboratoire" },
     canActivate: [AuthGuard],

@@ -1,0 +1,65 @@
+<div class="modal-header">
+  <h4 class="modal-title">{{ header }}</h4>
+  <button (click)="cancel()" aria-label="Fermer" class="btn-close" type="button"></button>
+</div>
+
+<form (ngSubmit)="save()" [formRoot]="dciForm" novalidate role="form">
+  <div class="modal-body">
+    <app-card [variant]="'form'">
+      <div class="form-grid-compact">
+        <div class="form-field form-field-full">
+          <label for="dciLibelle">Libellé<span class="required">*</span></label>
+          <input
+            #libelleInput
+            [formField]="dciForm.libelle"
+            autocomplete="off"
+            class="form-control"
+            id="dciLibelle"
+            type="text"
+          />
+          @if (dciForm.libelle().touched() && dciForm.libelle().invalid()) {
+            <div>
+              @for (erreur of dciForm.libelle().errors(); track erreur.kind) {
+                <small class="form-text text-danger">{{ erreur.message }}</small>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="form-field form-field-full">
+          <label for="dciCode">Code</label>
+          <input
+            [formField]="dciForm.code"
+            autocomplete="off"
+            class="form-control"
+            id="dciCode"
+            placeholder="Laisser vide pour générer depuis le libellé"
+            type="text"
+          />
+          <small class="form-text text-muted">
+            Facultatif. Sans code, il est dérivé du libellé et rendu unique.
+          </small>
+          @if (dciForm.code().touched() && dciForm.code().invalid()) {
+            <div>
+              @for (erreur of dciForm.code().errors(); track erreur.kind) {
+                <small class="form-text text-danger">{{ erreur.message }}</small>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </app-card>
+  </div>
+
+  <div class="modal-footer">
+    <app-button (clicked)="cancel()" icon="pi pi-times" label="Annuler" severity="secondary" />
+    <app-button
+      [disabled]="dciForm().invalid() || isSaving()"
+      [raised]="true"
+      icon="pi pi-check"
+      label="Enregistrer"
+      severity="primary"
+      type="submit"
+    />
+  </div>
+</form>

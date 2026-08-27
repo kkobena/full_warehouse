@@ -1,0 +1,10 @@
+@use 'app/shared/scss/modal-theme' as *;
+
+:host {
+  @include modal-theme;
+}
+
+.form-text.text-muted {
+  font-size: 0.72rem;
+  font-style: italic;
+}

@@ -139,8 +139,7 @@ public class DciServiceImpl implements DciService {
             Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder()
                 .setDelimiter(';')
                 .setSkipHeaderRecord(true)
-                .setTrim(true)
-                .build()
+                .setTrim(true).get()
                 .parse(br);
 
             for (CSVRecord record : records) {
@@ -173,7 +172,7 @@ public class DciServiceImpl implements DciService {
                     Dci dci = new Dci();
                     dci.setLibelle(libelle);
                     dci.setCode(resolveCode(code, libelle, null));
-                   
+
                     this.dciRepository.saveAndFlush(dci);
                     importes.incrementAndGet();
                 } catch (Exception e) {

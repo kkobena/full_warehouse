@@ -1,5 +1,8 @@
 package com.kobe.warehouse.repository;
 
+import static java.util.Objects.isNull;
+import static org.springframework.util.StringUtils.hasText;
+
 import com.kobe.warehouse.domain.FamilleProduit_;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.FournisseurProduit_;
@@ -13,11 +16,17 @@ import com.kobe.warehouse.domain.StockProduit_;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.service.dto.produit.HistoriqueProduitInfo;
-import com.kobe.warehouse.service.dto.projection.Id;
 import com.kobe.warehouse.service.scheduler.dto.SemoisEligibleItem;
 import com.kobe.warehouse.service.stock.dto.LotFilterParam;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Join;
+import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -25,25 +34,38 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-
-import static java.util.Objects.isNull;
-import static org.springframework.util.StringUtils.hasText;
-
 /**
  * Spring Data repository for the Produit entity.
  */
 @SuppressWarnings("unused")
 @Repository
 public interface ProduitRepository
-    extends JpaRepository<Produit, Integer>, JpaSpecificationExecutor<Produit>, SpecificationBuilder, ProduitCustomRepository {
+    extends JpaRepository<Produit, Integer>, JpaSpecificationExecutor<Produit>,
+    SpecificationBuilder, ProduitCustomRepository {
+
+    /** Nombre de produits rattachés à une substance active — garde-fou avant suppression. */
+    long countByDciId(Integer dciId);
+
+    /**
+     * Produits d'une substance active, pour le détail de l'écran DCI.
+     *
+     * <p>Les jointures de fetch évitent une requête par ligne sur la famille et sur le fournisseur
+     * principal, qui portent respectivement le libellé de famille et le code CIP affichés.
+     *
+     * <p>Volontairement non paginé : une molécule compte quelques dizaines de présentations au
+     * plus, et la pagination cohabite mal avec un {@code JOIN FETCH}.
+     */
+    @Query(
+        """
+        SELECT p FROM Produit p
+        LEFT JOIN FETCH p.famille
+        LEFT JOIN FETCH p.fournisseurProduitPrincipal
+        WHERE p.dci.id = :dciId
+        ORDER BY p.libelle
+        """
+    )
+    List<Produit> findAllByDciIdForDetail(@Param("dciId") Integer dciId);
+
     @Query(value = "SELECT * FROM gettopqty80percentproducts(:startDate, :endDate, :caList, :statutList)", nativeQuery = true)
     List<Object[]> getTopQty80PercentProducts(
         @Param("startDate") LocalDate startDate,
@@ -61,10 +83,12 @@ public interface ProduitRepository
     );
 
     @Query(value = "SELECT search_produits_json(:qtext, :magasin, :limitResult)", nativeQuery = true)
-    String searchProduitsJson(@Param("qtext") String qtext, @Param("magasin") Integer magasin, @Param("limitResult") Integer limitResult);
+    String searchProduitsJson(@Param("qtext") String qtext, @Param("magasin") Integer magasin,
+        @Param("limitResult") Integer limitResult);
 
     @Query(value = "SELECT search_produits_by_storage_json(:qtext, :storageId, :limitResult)", nativeQuery = true)
-    String searchProductsByStorage(@Param("qtext") String qtext, @Param("storageId") Integer storageId, @Param("limitResult") Integer limitResult);
+    String searchProductsByStorage(@Param("qtext") String qtext,
+        @Param("storageId") Integer storageId, @Param("limitResult") Integer limitResult);
 
     Produit findFirstByParentId(Integer parentId);
 
@@ -124,7 +148,8 @@ public interface ProduitRepository
         return (root, _, cb) -> {
             Join<Produit, FournisseurProduit> produitJoin = root.join(Produit_.fournisseurProduits);
 
-            return cb.equal(produitJoin.get(FournisseurProduit_.fournisseur).get(Fournisseur_.id), fournisseurId);
+            return cb.equal(produitJoin.get(FournisseurProduit_.fournisseur).get(Fournisseur_.id),
+                fournisseurId);
         };
     }
 
@@ -134,7 +159,8 @@ public interface ProduitRepository
         }
 
         return (root, query, cb) -> {
-            Join<Produit, RayonProduit> rayonJoin = root.join(Produit_.rayonProduits); // collection join
+            Join<Produit, RayonProduit> rayonJoin = root.join(
+                Produit_.rayonProduits); // collection join
 
             return cb.equal(rayonJoin.get(RayonProduit_.id), rayonId);
         };
@@ -144,7 +170,8 @@ public interface ProduitRepository
         if (isNull(familleProduitId)) {
             return null;
         }
-        return (root, _, cb) -> cb.equal(root.get(Produit_.famille).get(FamilleProduit_.id), familleProduitId);
+        return (root, _, cb) -> cb.equal(root.get(Produit_.famille).get(FamilleProduit_.id),
+            familleProduitId);
     }
 
     default Specification<Produit> buildCombinedSpecification(LotFilterParam param) {
@@ -160,7 +187,8 @@ public interface ProduitRepository
     }
 
     default Specification<Produit> specialisationCritereRecherche(String queryString) {
-        return (root, query, cb) -> cb.like(cb.upper(root.get(Produit_.libelle)), queryString.toUpperCase());
+        return (root, query, cb) -> cb.like(cb.upper(root.get(Produit_.libelle)),
+            queryString.toUpperCase());
     }
 
     default Specification<Produit> specialisationTypeProduit(TypeProduit typeProduit) {
@@ -188,7 +216,6 @@ public interface ProduitRepository
 
     /**
      * Charge une page de produits actifs non-DETAIL avec eager fetch du fournisseur principal
-     * et sa chaîne (groupe_fournisseur) pour le calcul du délai de livraison en cascade.
      */
     @Query(value = """
         SELECT DISTINCT p FROM Produit p
@@ -199,23 +226,23 @@ public interface ProduitRepository
           AND p.typeProduit <> com.kobe.warehouse.domain.enumeration.TypeProduit.DETAIL
         """,
         countQuery = """
-        SELECT COUNT(p) FROM Produit p
-        WHERE p.status = com.kobe.warehouse.domain.enumeration.Status.ENABLE
-          AND p.typeProduit <> com.kobe.warehouse.domain.enumeration.TypeProduit.DETAIL
-        """)
+            SELECT COUNT(p) FROM Produit p
+            WHERE p.status = com.kobe.warehouse.domain.enumeration.Status.ENABLE
+              AND p.typeProduit <> com.kobe.warehouse.domain.enumeration.TypeProduit.DETAIL
+            """)
     Page<Produit> findActiveNonDetailWithFournisseur(Pageable pageable);
 
     /**
-     * Retourne les IDs des produits actifs non-DETAIL présents dans la collection donnée.
-     * Utilisé par le batch SEMOIS pour le bulk-load des SemoisConfiguration.
+     * Retourne les IDs des produits actifs non-DETAIL présents dans la collection donnée. Utilisé
+     * par le batch SEMOIS pour le bulk-load des SemoisConfiguration.
      */
     @Query("SELECT p.id FROM Produit p WHERE p.id IN :ids")
     List<Integer> findIdsByIdIn(@Param("ids") Collection<Integer> ids);
 
     /**
-     * Charge les produits éligibles au batch SEMOIS sous forme de projection légère paginée.
-     * Agrège le stock physique par magasin en SQL (évite le chargement des collections)
-     * et inclut les données SemoisConfiguration via LEFT JOIN pour éliminer le N+1 batch-load.
+     * Charge les produits éligibles au batch SEMOIS sous forme de projection légère paginée. Agrège
+     * le stock physique par magasin en SQL (évite le chargement des collections) et inclut les
+     * données SemoisConfiguration via LEFT JOIN pour éliminer le N+1 batch-load.
      */
     @Query("""
         SELECT new com.kobe.warehouse.service.scheduler.dto.SemoisEligibleItem(

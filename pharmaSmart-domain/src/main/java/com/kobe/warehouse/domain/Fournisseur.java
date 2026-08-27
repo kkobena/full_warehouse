@@ -21,10 +21,10 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
- * A Fournisseur.
- * Un fournisseur avec parent_id=null est un fournisseur principal (ex-GroupeFournisseur).
- * Un fournisseur avec parent_id non-null est une agence rattachée au fournisseur principal.
- * Les FournisseurProduit (codes/prix) sont toujours attachés au fournisseur principal.
+ * A Fournisseur. Un fournisseur avec parent_id=null est un fournisseur principal
+ * (ex-GroupeFournisseur). Un fournisseur avec parent_id non-null est une agence rattachée au
+ * fournisseur principal. Les FournisseurProduit (codes/prix) sont toujours attachés au fournisseur
+ * principal.
  */
 @Entity
 @Table(name = "fournisseur")
@@ -71,32 +71,48 @@ public class Fournisseur implements Serializable {
     @JoinColumn(name = "parent_id")
     @JsonIgnoreProperties(value = "agences", allowSetters = true)
     private Fournisseur parent;
-
+    /**
+     * Les agences d'un grossiste NB les commandes sont passées chez les agences si le grossite a
+     * des agences sinon chez le grossiste directement.
+     */
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
     @JsonIgnoreProperties(value = "parent", allowSetters = true)
     private List<Fournisseur> agences = new ArrayList<>();
 
-    /** Délai de livraison en jours. Null = utiliser le délai du groupe fournisseur. */
+    /**
+     * Délai de livraison en jours. Null = utiliser le délai du groupe fournisseur.
+     */
     @Column(name = "delai_livraison_jours")
     private Integer delaiLivraisonJours;
 
-    /**  Fréquence de commande en jours. Null = utiliser la fréquence du groupe fournisseur. */
+    /**
+     * Fréquence de commande en jours. Null = utiliser la fréquence du groupe fournisseur.
+     */
     @Column(name = "frequence_commande_jours")
     private Integer frequenceCommandeJours;
 
-    /** Délai de paiement en jours. Null = utiliser la valeur par défaut de l'application. */
+    /**
+     * Délai de paiement en jours. Null = utiliser la valeur par défaut de l'application.
+     */
     @Column(name = "jours_credit")
     private Integer joursCredit;
 
-    /** Délai supplémentaire (en jours après l'échéance) avant de passer en statut CRITIQUE. Null = valeur par défaut. */
+    /**
+     * Délai supplémentaire (en jours après l'échéance) avant de passer en statut CRITIQUE. Null =
+     * valeur par défaut.
+     */
     @Column(name = "jours_critique")
     private Integer joursCritique;
 
-    /** Seuil CA annuel (FCFA) à atteindre pour déclencher la RFA. Null = pas de RFA configurée. */
+    /**
+     * Seuil CA annuel (FCFA) à atteindre pour déclencher la RFA. Null = pas de RFA configurée.
+     */
     @Column(name = "palier_rfa")
     private Long palierRfa;
 
-    /** Taux RFA en % entier (ex : 2 = 2 %). Null = pas de taux configuré. */
+    /**
+     * Taux RFA en % entier (ex : 2 = 2 %). Null = pas de taux configuré.
+     */
     @Column(name = "taux_rfa")
     private Integer tauxRfa;
 
@@ -115,7 +131,9 @@ public class Fournisseur implements Serializable {
     @Column(name = "code_recepteur_pharma_ml", length = 50)
     private String codeRecepteurPharmaMl;
 
-    /** Code de l'officine chez le grossiste dans EMETTEUR(id, Id_Client). */
+    /**
+     * Code de l'officine chez le grossiste dans EMETTEUR(id, Id_Client).
+     */
     @Column(name = "id_recepteur_pharma_ml", length = 50)
     private String idRecepteurPharmaMl;
 
@@ -227,11 +245,6 @@ public class Fournisseur implements Serializable {
         return parent;
     }
 
-    public Fournisseur setParent(Fournisseur parent) {
-        this.parent = parent;
-        return this;
-    }
-
     public List<Fournisseur> getAgences() {
         return agences;
     }
@@ -261,6 +274,11 @@ public class Fournisseur implements Serializable {
 
     public boolean isParent() {
         return parent == null;
+    }
+
+    public Fournisseur setParent(Fournisseur parent) {
+        this.parent = parent;
+        return this;
     }
 
     @Override
@@ -342,46 +360,70 @@ public class Fournisseur implements Serializable {
         return this;
     }
 
-    public String getUrlPharmaMl() { return urlPharmaMl; }
-    public Fournisseur setUrlPharmaMl(String urlPharmaMl) { this.urlPharmaMl = urlPharmaMl; return this; }
+    public String getUrlPharmaMl() {
+        return urlPharmaMl;
+    }
 
-    public String getCodeOfficePharmaMl() { return codeOfficePharmaMl; }
-    public Fournisseur setCodeOfficePharmaMl(String codeOfficePharmaMl) { this.codeOfficePharmaMl = codeOfficePharmaMl; return this; }
+    public Fournisseur setUrlPharmaMl(String urlPharmaMl) {
+        this.urlPharmaMl = urlPharmaMl;
+        return this;
+    }
 
-    public String getCodeRecepteurPharmaMl() { return codeRecepteurPharmaMl; }
-    public Fournisseur setCodeRecepteurPharmaMl(String codeRecepteurPharmaMl) { this.codeRecepteurPharmaMl = codeRecepteurPharmaMl; return this; }
+    public String getCodeOfficePharmaMl() {
+        return codeOfficePharmaMl;
+    }
 
-    public String getIdRecepteurPharmaMl() { return idRecepteurPharmaMl; }
-    public Fournisseur setIdRecepteurPharmaMl(String idRecepteurPharmaMl) { this.idRecepteurPharmaMl = idRecepteurPharmaMl; return this; }
+    public Fournisseur setCodeOfficePharmaMl(String codeOfficePharmaMl) {
+        this.codeOfficePharmaMl = codeOfficePharmaMl;
+        return this;
+    }
+
+    public String getCodeRecepteurPharmaMl() {
+        return codeRecepteurPharmaMl;
+    }
+
+    public Fournisseur setCodeRecepteurPharmaMl(String codeRecepteurPharmaMl) {
+        this.codeRecepteurPharmaMl = codeRecepteurPharmaMl;
+        return this;
+    }
+
+    public String getIdRecepteurPharmaMl() {
+        return idRecepteurPharmaMl;
+    }
+
+    public Fournisseur setIdRecepteurPharmaMl(String idRecepteurPharmaMl) {
+        this.idRecepteurPharmaMl = idRecepteurPharmaMl;
+        return this;
+    }
 
     @Override
     public String toString() {
         return (
             "Fournisseur{" +
-            "id=" +
-            getId() +
-            ", libelle='" +
-            getLibelle() +
-            "'" +
-            ", numFaxe='" +
-            getNumFaxe() +
-            "'" +
-            ", addressePostal='" +
-            getAddressePostal() +
-            "'" +
-            ", phone='" +
-            getPhone() +
-            "'" +
-            ", mobile='" +
-            getMobile() +
-            "'" +
-            ", site='" +
-            getSite() +
-            "'" +
-            ", code='" +
-            getCode() +
-            "'" +
-            "}"
+                "id=" +
+                getId() +
+                ", libelle='" +
+                getLibelle() +
+                "'" +
+                ", numFaxe='" +
+                getNumFaxe() +
+                "'" +
+                ", addressePostal='" +
+                getAddressePostal() +
+                "'" +
+                ", phone='" +
+                getPhone() +
+                "'" +
+                ", mobile='" +
+                getMobile() +
+                "'" +
+                ", site='" +
+                getSite() +
+                "'" +
+                ", code='" +
+                getCode() +
+                "'" +
+                "}"
         );
     }
 }

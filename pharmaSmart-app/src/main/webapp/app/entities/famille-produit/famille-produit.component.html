@@ -1,6 +1,6 @@
 <div class="container">
   <div class="justify-content-center">
-    <div class="pharma-smart-content p-2">
+    <div class="pharma-smart-content p-1">
       <div class="pharma-toolbar">
         <div class="pharma-toolbar-header">
           <i class="pi pi-sitemap"></i>
@@ -11,15 +11,18 @@
           <div class="pharma-toolbar-filters">
             <div class="pharma-search-input">
               <app-icon-field [overlay]="true" icon="pi pi-search">
-                <input (keyup.enter)="search($event)" class="form-control" placeholder="Taper pour rechercher" type="text" />
+                <input (keyup.enter)="search($event)" class="form-control"
+                       placeholder="Taper pour rechercher" type="text" />
               </app-icon-field>
             </div>
           </div>
 
           <div class="pharma-toolbar-actions">
             <div class="pharma-button-group">
-              <app-button (clicked)="addNewEntity()" [raised]="true" icon="pi pi-check" label="Nouveau" severity="primary" />
-              <app-button (clicked)="showFileDialog()" [raised]="true" icon="pi pi-upload" label="Importer" severity="help" />
+              <app-button (clicked)="addNewEntity()" [raised]="true" icon="pi pi-check"
+                          label="Nouveau" severity="primary" />
+              <app-button (clicked)="showFileDialog()" [raised]="true" icon="pi pi-upload"
+                          label="Importer" severity="help" />
             </div>
           </div>
         </div>
@@ -57,10 +60,14 @@
               </td>
               <td>{{ elRow.categorieLibelle }}</td>
               <td style="text-align: right">
-                <app-button (clicked)="onEdit(elRow)" [iconOnly]="true" [rounded]="true" [text]="true"
-                            ariaLabel="Modifier" icon="pi pi-pencil" ngbTooltip="Modifier" severity="success" />
-                <app-button (clicked)="delete(elRow)" [iconOnly]="true" [rounded]="true" [text]="true"
-                            ariaLabel="Supprimer" icon="pi pi-trash" ngbTooltip="Supprimer" severity="danger" />
+                <app-button (clicked)="onEdit(elRow)" [iconOnly]="true" [rounded]="true"
+                            [text]="true"
+                            ariaLabel="Modifier" icon="pi pi-pencil" ngbTooltip="Modifier"
+                            severity="success" />
+                <app-button (clicked)="delete(elRow)" [iconOnly]="true" [rounded]="true"
+                            [text]="true"
+                            ariaLabel="Supprimer" icon="pi pi-trash" ngbTooltip="Supprimer"
+                            severity="danger" />
               </td>
             </tr>
           </ng-template>

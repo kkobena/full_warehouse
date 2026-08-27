@@ -1,7 +1,7 @@
 <jhi-spinner #spinner></jhi-spinner>
 
 <div class="pharma-smart-content p-1">
-  <app-toolbar icon="pi pi-briefcase" title="Gestion des fournisseurs()">
+  <app-toolbar icon="pi pi-briefcase" title="Gestion des fournisseurs">
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-search-input">
         <app-icon-field icon="pi pi-search">
@@ -104,14 +104,16 @@
         <td appFrozenColumn="right" class="text-end">
           <div class="btn-group">
             <app-button (clicked)="editFournisseur(f)" [rounded]="true"
-                        [severity]="'success'" [text]="true" icon="pi pi-pencil" ngbTooltip="Modifier"
+                        [severity]="'success'" [text]="true" icon="pi pi-pencil"
+                        ngbTooltip="Modifier"
                         placement="left" />
             <app-button (clicked)="addAgence(f)" [rounded]="true"
                         [severity]="'info'" [text]="true" icon="pi pi-building"
                         ngbTooltip="Ajouter une agence"
                         placement="left" />
             <app-button (clicked)="deleteParent(f)" [rounded]="true"
-                        [severity]="'danger'" [text]="true" icon="pi pi-trash" ngbTooltip="Supprimer"
+                        [severity]="'danger'" [text]="true" icon="pi pi-trash"
+                        ngbTooltip="Supprimer"
                         placement="left" />
           </div>
         </td>

@@ -1,0 +1,188 @@
+<app-page-layout ariaLabel="Dénominations Communes Internationales"
+                 class="pharma-smart-content py-1"
+                 density="compact">
+  <app-toolbar
+    [compact]="true"
+    icon="pi pi-bookmark"
+    ngProjectAs="[pageHeader]"
+    title="DCI"
+  >
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <div class="pharma-toolbar-filters">
+        <div class="pharma-compact-search">
+          <app-icon-field icon="pi pi-search">
+            <input
+              (keyup.enter)="onSearch()"
+              [(ngModel)]="saisie"
+              class="form-control"
+              placeholder="Rechercher un libellé ou un code…"
+            />
+          </app-icon-field>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-toolbar-actions">
+        <div class="pharma-button-group">
+          <app-button
+            (clicked)="importer()"
+            [raised]="true"
+            icon="pi pi-upload"
+            label="Importer"
+            ngbTooltip="Importer un CSV (code;libelle)"
+            placement="left"
+            severity="secondary"
+          />
+          <app-button
+            (clicked)="creer()"
+            [raised]="true"
+            icon="pi pi-plus"
+            label="Nouvelle DCI"
+            severity="primary"
+          />
+        </div>
+      </div>
+    </ng-container>
+  </app-toolbar>
+
+  <!-- Masqué dès qu'un détail est ouvert : le conseil n'a alors plus d'objet. -->
+  <app-hint [visible]="!panelOpen()" ngProjectAs="[pageGuidance]" storageKey="dci-home">
+    Cliquez sur une DCI pour voir les produits qui portent cette substance active.
+  </app-hint>
+
+  <!-- Split : la liste à gauche, les produits de la DCI sélectionnée à droite. -->
+  <div [class.panel-open]="panelOpen()" class="split-container">
+    <div class="list-column">
+      <app-data-table
+        (onLazyLoad)="onLazyLoad($event)"
+        (selectionChange)="onSelection($any($event))"
+        [first]="first()"
+        [lazy]="true"
+        [loading]="loading()"
+        [paginator]="true"
+        [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+        [rows]="rows()"
+        [selection]="selection()"
+        [stripedRows]="true"
+        [totalRecords]="total()"
+        [value]="dcis()"
+        class="p-datatable-sm"
+        dataKey="id"
+        emptyMessage="Aucune DCI. Créez-en une ou importez un fichier CSV."
+        selectionMode="single"
+        size="small"
+      >
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th style="width: 18%">Code</th>
+            <th>Libellé</th>
+            <th style="width: 12rem; text-align: center">Actions</th>
+          </tr>
+        </ng-template>
+
+        <ng-template #body let-dci>
+          <tr [appSelectableRow]="dci">
+            <td><span class="pharma-code">{{ dci.code }}</span></td>
+            <td><span class="pharma-entity-name">{{ dci.libelle }}</span></td>
+            <td style="text-align: right">
+              <div class="btn-group">
+                <app-button
+                  (clicked)="voirDetail(dci, $event)"
+                  [rounded]="true"
+                  [text]="true"
+                  icon="pi pi-eye"
+                  ngbTooltip="Voir les produits rattachés"
+                  severity="info"
+                  size="small"
+                />
+                <app-button
+                  (clicked)="modifier(dci, $event)"
+                  [rounded]="true"
+                  [text]="true"
+                  icon="pi pi-pencil"
+                  ngbTooltip="Modifier"
+                  severity="primary"
+                  size="small"
+                />
+                <app-button
+                  (clicked)="supprimer(dci, $event)"
+                  [rounded]="true"
+                  [text]="true"
+                  icon="pi pi-trash"
+                  ngbTooltip="Supprimer"
+                  severity="danger"
+                  size="small"
+                />
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    </div>
+
+    @if (panelOpen()) {
+      <div class="detail-column">
+        <app-card [withHeader]="true" class="d-block" header="Produits rattachés"
+                  icon="pi pi-box">
+          <div cardActions>
+            <app-button
+              (clicked)="fermerDetail()"
+              [iconOnly]="true"
+              [text]="true"
+              icon="pi pi-times"
+              label="Fermer"
+              severity="secondary"
+            />
+          </div>
+
+          <p class="text-muted small">
+            {{ selection()!.libelle }}
+            @if (!chargementDetail()) {
+              · {{ produits().length | number }} produit(s)
+            }
+          </p>
+
+          <app-data-table
+            [loading]="chargementDetail()"
+            [scrollable]="true"
+            [value]="produits()"
+            emptyMessage="Aucun produit ne porte cette substance active."
+            scrollHeight="calc(100vh - 22rem)"
+            size="small"
+          >
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th>Produit</th>
+                <th style="width: 9rem">CIP</th>
+                <th>Famille</th>
+                <th class="text-end" style="width: 7rem">Prix</th>
+                <th style="width: 6rem">Statut</th>
+              </tr>
+            </ng-template>
+
+            <ng-template #body let-produit>
+              <tr>
+                <td><span class="pharma-entity-name">{{ produit.libelle }}</span></td>
+                <td>
+                  @if (produit.codeCip) {
+                    <span class="pharma-code">{{ produit.codeCip }}</span>
+                  } @else {
+                    <span class="text-muted small">—</span>
+                  }
+                </td>
+                <td class="small text-muted">{{ produit.famille ?? '—' }}</td>
+                <td class="text-end">{{ produit.prixVente | number: '1.0-0' }}</td>
+                <td>
+                  @if (produit.statut) {
+                    <app-badge [label]="produit.statut" [severity]="severiteStatut(produit.statut)" />
+                  }
+                </td>
+              </tr>
+            </ng-template>
+          </app-data-table>
+        </app-card>
+      </div>
+    }
+  </div>
+</app-page-layout>

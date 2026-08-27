@@ -1,0 +1,60 @@
+<div class="modal-header">
+  <h4 class="modal-title">Importer des DCI</h4>
+  <button (click)="annuler()" aria-label="Fermer" class="btn-close" type="button"></button>
+</div>
+
+<div class="modal-body">
+  <app-card [variant]="'form'">
+    <p class="import-format">
+      Fichier <strong>CSV</strong>, séparateur <code>;</code>, colonnes
+      <code>code;libelle</code>. La première ligne est considérée comme un en-tête.
+    </p>
+    <ul class="import-regles">
+      <li><strong>libelle</strong> — obligatoire, et unique.</li>
+      <li>
+        <strong>code</strong> — facultatif. Laissé vide, il est dérivé du libellé puis rendu
+        unique.
+      </li>
+      <li>Une ligne sans libellé, ou déjà connue, est ignorée sans faire échouer l’import.</li>
+    </ul>
+
+    <div class="form-field form-field-full">
+      <label for="dciCsv">Fichier</label>
+      <input
+        (change)="onFileSelected($event)"
+        accept=".csv,text/csv"
+        class="form-control"
+        id="dciCsv"
+        type="file"
+      />
+    </div>
+
+    @if (resultat(); as bilan) {
+      <div class="import-bilan" [class.import-bilan--erreur]="!bilan.success">
+        <div>{{ bilan.message }}</div>
+        @if (bilan.totalSize) {
+          <small>
+            {{ bilan.size ?? 0 }} importée(s) · {{ bilan.errorSize ?? 0 }} ignorée(s) ·
+            {{ bilan.totalSize }} ligne(s) lue(s)
+          </small>
+        }
+      </div>
+    }
+  </app-card>
+</div>
+
+<div class="modal-footer">
+  <app-button (clicked)="annuler()" icon="pi pi-times" label="Annuler" severity="secondary" />
+  @if (resultat()) {
+    <app-button (clicked)="fermer()" [raised]="true" icon="pi pi-check" label="Terminer" severity="primary" />
+  } @else {
+    <app-button
+      (clicked)="importer()"
+      [disabled]="!fichier() || enCours()"
+      [raised]="true"
+      icon="pi pi-upload"
+      label="Importer"
+      severity="primary"
+    />
+  }
+</div>

@@ -190,7 +190,7 @@ dependencies {
 
     // Navigation component
     implementation("androidx.navigation:navigation-fragment-ktx:2.9.8")
-    implementation("androidx.navigation:navigation-ui-ktx:2.9.8")
+    implementation("androidx.navigation:navigation-ui-ktx:2.10.0")
 
     // ViewPager2 for responsive layouts
     implementation("androidx.viewpager2:viewpager2:1.1.0")

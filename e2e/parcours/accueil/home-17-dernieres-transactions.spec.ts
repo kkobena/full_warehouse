@@ -30,7 +30,10 @@ scenario('HOME-17', async ({ etape, page }) => {
     const detail = bloc(page).getByRole('button');
     if ((await detail.count()) > 0) {
       await detail.first().click();
-      await expect(page.locator('.modal-content:visible')).toBeVisible();
+      // Le bouton conduit au JOURNAL DES VENTES, où la vente se retrouve — il n'ouvre pas
+      // encore le détail de CETTE vente-là (`voirDetailVente` navigue sans transmettre son
+      // identifiant). Le parcours illustre donc le chemin tel qu'il est.
+      await expect(page).toHaveURL(/sales-home\/gestion/);
     } else {
       await expect(bloc(page)).toContainText('Aucune transaction dans cette session');
     }

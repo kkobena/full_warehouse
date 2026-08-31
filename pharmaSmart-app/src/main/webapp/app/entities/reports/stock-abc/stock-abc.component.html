@@ -75,6 +75,13 @@
                     icon="pi pi-question-circle" label="Aide" severity="secondary" size="small" />
         <app-button (clicked)="paretoComp?.showTopContributors()"
                     icon="pi pi-star" label="Top 50 Contributeurs" severity="info" size="small" />
+        <!--
+          L'onglet Rotation offrait son export PDF, pas celui-ci — alors que `exportToPdf()`
+          existe des deux côtés. Le classement ABC est pourtant le document qu'on emporte en
+          réunion d'achat : c'est lui qui dit quelles références méritent qu'on s'en occupe.
+        -->
+        <app-button (clicked)="paretoComp?.exportToPdf()"
+                    icon="pi pi-file-pdf" label="Exporter PDF" severity="danger" size="small" />
         <app-button (clicked)="paretoComp?.loadABCPareto()"
                     icon="pi pi-refresh" label="Rafraîchir" severity="primary" size="small" />
       </div>

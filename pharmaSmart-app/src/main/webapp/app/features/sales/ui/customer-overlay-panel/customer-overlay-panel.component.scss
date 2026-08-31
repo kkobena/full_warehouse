@@ -68,8 +68,21 @@ $border-radius-sm: 6px;
     }
 
     .add-customer-btn {
+      // Le battement attire l'oeil sur le bouton tant qu'aucun client n'est rattache. Il etait
+      // INFINI : le bouton ne s'immobilisait jamais, et un element qui bouge sans fin est plus
+      // difficile a viser -- pour une souris comme pour une main qui tremble. Trois battements
+      // disent la meme chose, puis le bouton se tient tranquille.
       ::ng-deep .btn {
-        animation: pulse-subtle 2s ease-in-out infinite;
+        animation: pulse-subtle 2s ease-in-out 3;
+      }
+    }
+
+    // Et rien du tout pour qui a demande a son systeme de limiter les animations.
+    @media (prefers-reduced-motion: reduce) {
+      .add-customer-btn {
+        ::ng-deep .btn {
+          animation: none;
+        }
       }
     }
   }

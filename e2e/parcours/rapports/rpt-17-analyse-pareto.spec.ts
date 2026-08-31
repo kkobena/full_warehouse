@@ -38,5 +38,15 @@ scenario('RPT-17', async ({ etape, page }) => {
     // La colonne du cumul, qui est tout l'intérêt du Pareto : elle ne redescend jamais.
     await expect(contenu).toContainText(/CONTRIBUTION/i);
     await expect(contenu).toContainText(/CLASSE PARETO/i);
+
+    // Le classement s'emporte en réunion d'achat. L'export est déclenché pour de bon : son
+    // gabarit Thymeleaf manquait, et l'onglet n'avait pas de bouton pour l'appeler.
+    const reponse = page.waitForResponse(
+      r => r.url().includes('/api/abc-pareto/export') && r.request().method() === 'GET',
+    );
+    await page.getByRole('button', { name: 'Exporter PDF' }).click();
+    const pdf = await reponse;
+    expect(pdf.status(), "L'export PDF du classement ABC a échoué.").toBe(200);
+    expect((await pdf.body()).subarray(0, 4).toString('latin1')).toBe('%PDF');
   });
 });

@@ -104,7 +104,7 @@ Deux échappatoires, explicites et tracées dans le rapport :
 | 2 — liage au cahier de recette | fait, vérifié par `npm run e2e:liage` |
 | 3 — captures et index | fait |
 | 4 — injection des images dans le guide | fait |
-| 5 — volume (50 à 70 scénarios) | **objectif dépassé — 403 parcours sur 11 modules ; 32 scénarios masqués, motif documenté dans le modèle (écran non branché, entrée de navigation désactivée, fonctionnalité sans interface) ; le jeu de démonstration est complété au fil des parcours, chaque manque étant doublé d'un contrôle dans `99_verification.sql`** |
+| 5 — volume (50 à 70 scénarios) | **objectif dépassé — 402 parcours sur 11 modules ; 35 scénarios masqués, motif documenté dans le modèle (écran non branché, entrée de navigation désactivée, fonctionnalité sans interface) ; le jeu de démonstration est complété au fil des parcours, chaque manque étant doublé d'un contrôle dans `99_verification.sql`** |
 
 ## Avant chaque campagne
 

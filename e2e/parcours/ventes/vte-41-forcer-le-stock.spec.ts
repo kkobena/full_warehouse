@@ -25,7 +25,10 @@ scenario('VTE-41', async ({ etape, page }) => {
     // Le panneau du produit affiche le stock du rayon : la quantité demandée le dépasse
     // largement, et c'est le serveur qui tranche — pas l'écran.
     await expect(page.locator('#main-content')).toContainText(/Rayon\s*:/);
-    await ajouterAuPanier(page, '500');
+    // Une quantite volontairement absurde : les produits vedettes du jeu de demonstration
+    // sont approvisionnes pour la campagne, et 500 boites ne les depassaient plus. Le
+    // parcours ne doit pas dependre du niveau de stock du jour.
+    await ajouterAuPanier(page, '9999');
   });
 
   await etape(2, async () => {

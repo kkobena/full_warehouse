@@ -2,15 +2,20 @@ package com.kobe.warehouse.service.cahier_recette;
 
 import com.kobe.warehouse.service.license.DemoWatermark;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
+import org.xhtmlrenderer.pdf.ITextOutputDevice;
 import org.xhtmlrenderer.pdf.ITextRenderer;
+import org.xhtmlrenderer.pdf.ITextUserAgent;
 import org.xhtmlrenderer.pdf.PagePosition;
 
 /**
@@ -41,6 +46,9 @@ public class CahierRecettePdfService {
 
     private static final String TEMPLATE = "cahier-recette/main";
     private static final Pattern TOC_ID_PATTERN = Pattern.compile("^(module|feature)-.*");
+
+    /** Les actifs Angular (dont content/) atterrissent sous static/ dans le classpath. */
+    private static final String CLASSPATH_PREFIX = "static/";
 
     private final SpringTemplateEngine templateEngine;
     private final CahierRecetteDataService dataService;
@@ -73,12 +81,47 @@ public class CahierRecettePdfService {
         return templateEngine.process(TEMPLATE, context);
     }
 
+    /**
+     * Renderer dont l'agent utilisateur sait résoudre les images depuis le CLASSPATH.
+     * <p>
+     * {@link ITextRenderer#setDocumentFromString(String)} est appelé sans URL de base : sans
+     * cet agent, une {@code <img src="content/captures/...">} du guide ne serait résolue nulle
+     * part et le PDF sortirait avec des images manquantes — sans erreur, ce qui est le pire des
+     * cas. Passer une URL de base {@code file:} ne conviendrait pas non plus : les captures
+     * vivent dans les ressources, qui ne sont pas des fichiers une fois l'application packagée
+     * en jar.
+     * <p>
+     * Les chemins du guide sont relatifs et servis par Angular depuis {@code content/} ; côté
+     * backend, ils se retrouvent dans le classpath sous {@code static/}, d'où le préfixe.
+     */
+    private ITextRenderer newRenderer() {
+        ITextOutputDevice outputDevice = new ITextOutputDevice(ITextRenderer.DEFAULT_DOTS_PER_POINT);
+        ITextUserAgent userAgent = new ITextUserAgent(outputDevice,
+            ITextRenderer.DEFAULT_DOTS_PER_PIXEL) {
+            @Override
+            public String resolveURI(String uri) {
+                // Laisse les chemins relatifs intacts : c'est openStream qui les résout.
+                return uri;
+            }
+
+            @Override
+            protected InputStream openStream(String uri) throws IOException {
+                ClassPathResource resource = new ClassPathResource(CLASSPATH_PREFIX + uri);
+                if (resource.exists()) {
+                    return resource.getInputStream();
+                }
+                return super.openStream(uri);
+            }
+        };
+        return new ITextRenderer(outputDevice, userAgent);
+    }
+
     // Instance dédiée à cette passe : elle rend le HTML "numéros de page vides" et son
     // createPDF() jetable ne sert qu'à peupler les positions de page (cf. javadoc de
     // classe) — on ne la réutilise pas pour la passe finale, qui charge un HTML différent
     // (numéros remplis) sur un writer PDF déjà écrit une première fois.
     private Map<String, Integer> findPageNumbers(String html) throws Exception {
-        ITextRenderer renderer = new ITextRenderer();
+        ITextRenderer renderer = newRenderer();
         renderer.setDocumentFromString(DemoWatermark.apply(html));
         renderer.layout();
         try (ByteArrayOutputStream discard = new ByteArrayOutputStream()) {
@@ -94,7 +137,7 @@ public class CahierRecettePdfService {
     // les numéros de page réels injectés dans la TOC — un document différent de celui de
     // la 1ʳᵉ passe, sur un renderer qui n'a pas encore écrit de PDF.
     private byte[] renderPdf(String html) throws Exception {
-        ITextRenderer renderer = new ITextRenderer();
+        ITextRenderer renderer = newRenderer();
         renderer.setDocumentFromString(DemoWatermark.apply(html));
         renderer.layout();
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {

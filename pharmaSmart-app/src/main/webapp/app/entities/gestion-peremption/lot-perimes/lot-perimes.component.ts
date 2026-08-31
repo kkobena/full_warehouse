@@ -1,42 +1,53 @@
-import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy, input, signal } from "@angular/core";
-import { LotService } from "../../commande/lot/lot.service";
-import { LotFilterParam, LotLocation, LotPerimes, LotPerimeValeurSum } from "../model/lot-perimes";
-import { NGB_DATE_TO_ISO } from "../../../shared/util/warehouse-util";
-import { HttpHeaders, HttpResponse } from "@angular/common/http";
-import { ITEMS_PER_PAGE } from "../../../shared/constants/pagination.constants";
-import { FormsModule } from "@angular/forms";
-import { RayonService } from "../../rayon/rayon.service";
-import { IRayon } from "../../../shared/model/rayon.model";
-import { IFournisseur } from "../../../shared/model/fournisseur.model";
-import { MagasinService } from "../../magasin/magasin.service";
-import { IMagasin } from "../../../shared/model";
-import { Storage } from "../../storage/storage.model";
-import { StorageService } from "../../storage/storage.service";
-import { TranslatePipe } from "@ngx-translate/core";
-import { IFamilleProduit } from "../../../shared/model/famille-produit.model";
-import { FamilleProduitService } from "../../famille-produit/famille-produit.service";
-import { NgbDateStruct, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import { Router, RouterLink } from "@angular/router";
-import { CommandCommonService } from "../../commande/command-common.service";
-import { PeremptionStatut } from "../model/peremption-statut";
-import { ProductToDestroyService } from "../product-to-destroy.service";
-import { ProductsToDestroyPayload, ProductToDestroyPayload } from "../model/product-to-destroy";
-import { PharmaDatePickerComponent } from "../../../shared/date-picker/pharma-date-picker.component";
-import { saveAs } from "file-saver";
-import { extractFileName2 } from "../../../shared/util/file-utils";
-import { SpinnerComponent } from "../../../shared/spinner/spinner.component";
-import { NgbConfirmDialogService } from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
-import { NotificationService } from "../../../shared/services/notification.service";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  input,
+  OnInit,
+  signal,
+  viewChild
+} from "@angular/core";
+import {LotService} from "../../commande/lot/lot.service";
+import {LotFilterParam, LotLocation, LotPerimes, LotPerimeValeurSum} from "../model/lot-perimes";
+import {NGB_DATE_TO_ISO} from "../../../shared/util/warehouse-util";
+import {HttpHeaders, HttpResponse} from "@angular/common/http";
+import {ITEMS_PER_PAGE} from "../../../shared/constants/pagination.constants";
+import {FormsModule} from "@angular/forms";
+import {RayonService} from "../../rayon/rayon.service";
+import {IRayon} from "../../../shared/model/rayon.model";
+import {IFournisseur} from "../../../shared/model/fournisseur.model";
+import {MagasinService} from "../../magasin/magasin.service";
+import {IMagasin} from "../../../shared/model";
+import {Storage} from "../../storage/storage.model";
+import {StorageService} from "../../storage/storage.service";
+import {TranslatePipe} from "@ngx-translate/core";
+import {IFamilleProduit} from "../../../shared/model/famille-produit.model";
+import {FamilleProduitService} from "../../famille-produit/famille-produit.service";
+import {NgbDateStruct, NgbModal, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
+import {Router, RouterLink} from "@angular/router";
+import {CommandCommonService} from "../../commande/command-common.service";
+import {PeremptionStatut} from "../model/peremption-statut";
+import {ProductToDestroyService} from "../product-to-destroy.service";
+import {ProductsToDestroyPayload, ProductToDestroyPayload} from "../model/product-to-destroy";
+import {PharmaDatePickerComponent} from "../../../shared/date-picker/pharma-date-picker.component";
+import {saveAs} from "file-saver";
+import {extractFileName2} from "../../../shared/util/file-utils";
+import {SpinnerComponent} from "../../../shared/spinner/spinner.component";
+import {
+  NgbConfirmDialogService
+} from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import {NotificationService} from "../../../shared/services/notification.service";
 import {
   RetourFournisseurPerimeDialogComponent
 } from "../retour-fournisseur-perime-dialog/retour-fournisseur-perime-dialog.component";
 import {
   RetourGroupePerimeDialogComponent
 } from "../retour-groupe-perime-dialog/retour-groupe-perime-dialog.component";
-import { CommonModule } from "@angular/common";
-import { FournisseurSelectComponent } from "../../../features/partners/ui/fournisseur-select/fournisseur-select.component";
-import { currencySymbol } from 'app/shared/utils/format-utils';
+import {CommonModule} from "@angular/common";
+import {
+  FournisseurSelectComponent
+} from "../../../features/partners/ui/fournisseur-select/fournisseur-select.component";
+import {currencySymbol} from 'app/shared/utils/format-utils';
 import {
   AppSplitButtonItem,
   AppTableLazyLoadEvent,
@@ -100,7 +111,6 @@ export class LotPerimesComponent implements OnInit {
   protected readonly lotPerimeValeurSum = signal<LotPerimeValeurSum>(null);
   protected readonly storages = signal<Storage[]>([]);
   protected readonly rayons = signal<IRayon[]>([]);
-  protected readonly magasins = signal<IMagasin[]>([]);
   protected readonly famillesProduit = signal<IFamilleProduit[]>([]);
   protected readonly selectedMagasin = signal<IMagasin>(null);
   protected readonly selectedStorage = signal<Storage>(null);
@@ -176,10 +186,6 @@ export class LotPerimesComponent implements OnInit {
     this.onSearch();
   }
 
-  protected onMagasinChange(): void {
-    this.fetchStorages();
-    this.onSearch();
-  }
 
   protected onSearch(): void {
     this.getSum();
@@ -268,9 +274,15 @@ export class LotPerimesComponent implements OnInit {
   }
 
   protected getSeverity(status: PeremptionStatut): "danger" | "warn" | "info" {
-    if (!status) return "info";
-    if (status.days < 0) return "danger";
-    if (status.days === 0) return "warn";
+    if (!status) {
+      return "info";
+    }
+    if (status.days < 0) {
+      return "danger";
+    }
+    if (status.days === 0) {
+      return "warn";
+    }
     return "info";
   }
 
@@ -362,7 +374,9 @@ export class LotPerimesComponent implements OnInit {
   }
 
   protected confirmRetourGroupeDialog(): void {
-    if (this.selectedLotPerimes().length === 0) return;
+    if (this.selectedLotPerimes().length === 0) {
+      return;
+    }
 
     const modalRef = this.modalService.open(RetourGroupePerimeDialogComponent, {
       size: "xl",
@@ -418,7 +432,7 @@ export class LotPerimesComponent implements OnInit {
   }
 
   private fetchStorages(): void {
-    this.storageService.fetchStorages({ magasinId: this.selectedMagasin()?.id }).subscribe((res: HttpResponse<Storage[]>) => {
+    this.storageService.fetchStorages({magasinId: this.selectedMagasin()?.id}).subscribe((res: HttpResponse<Storage[]>) => {
       this.storages.set(res.body || []);
     });
   }
@@ -483,17 +497,19 @@ export class LotPerimesComponent implements OnInit {
 
   private fetchFamillesProduit(): void {
     this.familleProduitService
-      .query({ page: 0, size: 9999 })
+      .query({page: 0, size: 9999})
       .subscribe((res: HttpResponse<IFamilleProduit[]>) => {
         this.famillesProduit.set(res.body || []);
       });
   }
 
   private fetchMagasin(): void {
-    this.magasinSrevice.fetchAll().subscribe((res: HttpResponse<IMagasin[]>) => {
-      this.magasins.set(res.body || []);
+    this.magasinSrevice.getCurrenttUserMagasin().subscribe((res: HttpResponse<IMagasin>) => {
+      this.selectedMagasin.set(res.body);
+      this.fetchStorages();
     });
   }
+
 
   private buildPayload(lot: LotPerimes): ProductToDestroyPayload {
     return {
@@ -501,10 +517,6 @@ export class LotPerimesComponent implements OnInit {
       quantity: lot.quantity,
       produitId: lot.produitId,
       fournisseurId: this.selectedFournisseur()?.id,
-      // Résolution de l'emplacement :
-      // 1. Lot dans 1 seul emplacement → automatique
-      // 2. Lot multi-site → utiliser la sélection utilisateur ou le filtre storage
-      // 3. null → cascade automatique backend (PRINCIPAL en premier)
       storageId: this.resolveStorageId(lot)
     };
   }

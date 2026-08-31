@@ -29,7 +29,6 @@ import com.kobe.warehouse.domain.Tableau_;
 import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.Tva_;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
-import com.kobe.warehouse.domain.enumeration.MouvementProduit;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
@@ -40,7 +39,6 @@ import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.dto.StockProduitDTO;
 import com.kobe.warehouse.service.dto.builder.ProduitBuilder;
 import com.kobe.warehouse.service.dto.projection.LastDateProjection;
-import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -82,7 +80,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
     private final EtatProduitService etatProduitService;
     private final SalesLineRepository salesLineRepository;
     private final OrderLineRepository orderLineRepository;
-    private final InventoryTransactionService inventoryTransactionService;
+
     private final EntityManager em;
     private final MagasinRepository magasinRepository;
 
@@ -95,7 +93,6 @@ public class CustomizedProductRepository implements CustomizedProductService {
         EtatProduitService etatProduitService,
         SalesLineRepository salesLineRepository,
         OrderLineRepository orderLineRepository,
-        InventoryTransactionService inventoryTransactionService,
         EntityManager em,
         MagasinRepository magasinRepository
     ) {
@@ -105,7 +102,6 @@ public class CustomizedProductRepository implements CustomizedProductService {
         this.etatProduitService = etatProduitService;
         this.salesLineRepository = salesLineRepository;
         this.orderLineRepository = orderLineRepository;
-        this.inventoryTransactionService = inventoryTransactionService;
         this.em = em;
         this.magasinRepository = magasinRepository;
     }
@@ -237,13 +233,8 @@ public class CustomizedProductRepository implements CustomizedProductService {
                 );
                 if (!produitCriteria.isDepot()) {
                     produitCriteria.setId(p.getId());
-                    dto.setLastDateOfSale(lastSale(produitCriteria));
-                    dto.setLastInventoryDate(
-                        inventoryTransactionService.fetchLastDateByTypeAndProduitId(
-                            MouvementProduit.INVENTAIRE, p.getId())
-                    );
-                    dto.setLastOrderDate(lastOrder(produitCriteria));
-                    dto.setEtatProduit(this.etatProduitService.getEtatProduit(dto.getId(),
+
+                    dto.setEtatProduit(this.etatProduitService.getEtatProduit(p.getId(),
                         dto.getTotalQuantity()));
                 }
 
@@ -313,7 +304,8 @@ public class CustomizedProductRepository implements CustomizedProductService {
                     cb.isNotNull(fRoot.get(Fournisseur_.parent))
                 ));
             predicates.add(cb.or(
-                cb.equal(root.get(FournisseurProduit_.fournisseur).get(Fournisseur_.id), fournisseurId),
+                cb.equal(root.get(FournisseurProduit_.fournisseur).get(Fournisseur_.id),
+                    fournisseurId),
                 cb.equal(root.get(FournisseurProduit_.fournisseur).get(Fournisseur_.id), parentSq)
             ));
             predicates.add(cb.isNull(root.get(FournisseurProduit_.produit).get(Produit_.parent)));
@@ -444,6 +436,16 @@ public class CustomizedProductRepository implements CustomizedProductService {
         }
         if (Objects.nonNull(produitCriteria.getRemisable())) {
             predicates.add(cb.notEqual(root.get(Produit_.codeRemise), CodeRemise.NONE));
+        }
+        // Les produits d'UN code de remise donné : c'est ce qui permet de voir ce qu'une
+        // grille couvre réellement, plutôt que de le déduire produit par produit.
+        // La substance active : c'est par elle qu'on retrouve toute une famille de
+        // génériques, et qu'on repère ce qui n'en porte aucune.
+        if (Objects.nonNull(produitCriteria.getDciId())) {
+            predicates.add(cb.equal(root.get(Produit_.dci).get("id"), produitCriteria.getDciId()));
+        }
+        if (Objects.nonNull(produitCriteria.getCodeRemise())) {
+            predicates.add(cb.equal(root.get(Produit_.codeRemise), produitCriteria.getCodeRemise()));
         }
         return predicates;
     }

@@ -21,7 +21,6 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
 
     private static final Logger LOG = LoggerFactory.getLogger(CashSaleReceiptService.class);
     private CashSaleDTO cashSale;
-    private int avoirCount;
 
     public CashSaleReceiptService(AppConfigurationService appConfigurationService) {
         super(appConfigurationService);
@@ -32,16 +31,19 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
         return cashSale;
     }
 
+    /**
+     * Le nombre d'unités non servies, calculé À CHAQUE APPEL depuis la vente courante.
+     */
     @Override
     protected int getAvoirCount() {
-        return avoirCount;
+        return cashSale.getSalesLines().stream()
+            .mapToInt(line -> line.getQuantityRequested() - line.getQuantitySold()).sum();
     }
 
     @Override
     public List<CashSaleReceiptItem> getItems() {
         List<CashSaleReceiptItem> items = new ArrayList<>();
         for (SaleLineDTO line : cashSale.getSalesLines()) {
-            avoirCount += (line.getQuantityRequested() - line.getQuantitySold());
             items.add((CashSaleReceiptItem) fromSaleLine(line));
         }
 
@@ -62,7 +64,8 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
         List<HeaderFooterItem> headerItems = new ArrayList<>();
         if (cashSale.getCustomer() != null) {
             UninsuredCustomerDTO customer = (UninsuredCustomerDTO) cashSale.getCustomer();
-            headerItems.add(new HeaderFooterItem("Client: " + customer.getFullName(), 1, PLAIN_FONT));
+            headerItems.add(
+                new HeaderFooterItem("Client: " + customer.getFullName(), 1, PLAIN_FONT));
             if (StringUtils.hasLength(customer.getPhone())) {
                 headerItems.add(new HeaderFooterItem("Tél: " + customer.getPhone(), 1, PLAIN_FONT));
             }
@@ -86,7 +89,8 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
         return headerItems;*/
     }
 
-    public byte[] generateEscPosReceiptForTauri(CashSaleDTO sale, boolean isEdit) throws IOException {
+    public byte[] generateEscPosReceiptForTauri(CashSaleDTO sale, boolean isEdit)
+        throws IOException {
         this.cashSale = sale;
         return generateEscPosReceipt(isEdit);
     }

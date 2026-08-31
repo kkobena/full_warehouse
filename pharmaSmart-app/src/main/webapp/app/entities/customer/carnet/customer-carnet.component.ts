@@ -89,8 +89,16 @@ export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy
   cancel(): void {
     this.activeModal.dismiss();
   }
+  /**
+   * Même puits que dans `assure-step.component.ts`, et pour la même raison : sans un sujet
+   * ABONNÉ derrière `[typeahead]`, ng-select refiltre localement les résultats du serveur sur
+   * leur libellé — chercher un organisme par son sigle ne renvoyait « Aucun résultat ».
+   * L'abonnement est vide : il n'existe que pour donner un observateur au sujet.
+   */
+  protected readonly typeaheadSink$ = new Subject<string>();
 
   ngOnInit(): void {
+    this.typeaheadSink$.pipe(takeUntil(this.destroy$)).subscribe();
     if (this.entity) {
       this.updateForm(this.entity);
     }

@@ -9,7 +9,7 @@
           <button (click)="voirPeremptions()" class="quick-alert-card quick-alert-danger"
                   title="Voir les lots périmés dans Gestion Péremptions"
                   type="button">
-            <i class="pi pi-clock"></i>
+            <i aria-hidden="true" class="pi pi-clock"></i>
             <span class="quick-alert-label">Péremptions</span>
             <span class="quick-alert-badge">{{ peremptionCount }}</span>
           </button>
@@ -18,7 +18,7 @@
           <button (click)="voirRuptures()" class="quick-alert-card quick-alert-danger"
                   title="Voir les ruptures de stock"
                   type="button">
-            <i class="pi pi-exclamation-triangle"></i>
+            <i aria-hidden="true" class="pi pi-exclamation-triangle"></i>
             <span class="quick-alert-label">Ruptures</span>
             <span class="quick-alert-badge">{{ ruptureCount }}</span>
           </button>
@@ -27,7 +27,7 @@
           <button (click)="voirUrgents()" class="quick-alert-card quick-alert-warn"
                   title="Produits à réapprovisionner en urgence"
                   type="button">
-            <i class="pi pi-shopping-bag"></i>
+            <i aria-hidden="true" class="pi pi-shopping-bag"></i>
             <span class="quick-alert-label">À commander</span>
             <span class="quick-alert-badge">{{ urgentCount }}</span>
           </button>
@@ -36,7 +36,7 @@
           <button (click)="voirAjustements()" class="quick-alert-card quick-alert-info"
                   title="Voir les ajustements de stock"
                   type="button">
-            <i class="pi pi-sliders-h"></i>
+            <i aria-hidden="true" class="pi pi-sliders-h"></i>
             <span class="quick-alert-label">Ajustements</span>
             <span class="quick-alert-badge">{{ ajustementCount }}</span>
           </button>
@@ -45,7 +45,7 @@
           <button (click)="voirModifPrix()" class="quick-alert-card quick-alert-warn"
                   title="Voir les modifications de prix"
                   type="button">
-            <i class="pi pi-dollar"></i>
+            <i aria-hidden="true" class="pi pi-dollar"></i>
             <span class="quick-alert-label">Modif. Prix</span>
             <span class="quick-alert-badge">{{ prixModifCount }}</span>
           </button>
@@ -60,7 +60,7 @@
                   [title]="opt.label"
                   class="periode-pill"
                   type="button">
-            <i [class]="opt.icon"></i>
+            <i [class]="opt.icon" aria-hidden="true"></i>
             <span class="pill-label">{{ opt.label }}</span>
           </button>
         }
@@ -70,28 +70,28 @@
       <div class="d-flex align-items-center gap-2">
         @if (lastUpdate()) {
           <span class="last-update-label">
-          <i class="pi pi-clock"></i> {{ lastUpdate() | date:'HH:mm' }}
+          <i aria-hidden="true" class="pi pi-clock"></i> {{ lastUpdate() | date:'HH:mm' }}
         </span>
         }
         <div class="dashboard-periode-selector">
           <a class="periode-pill" routerLink="/reports/sales"
              title="Tableau de bord CA avancé avec exports">
-            <i class="pi pi-external-link"></i>
+            <i aria-hidden="true" class="pi pi-external-link"></i>
             <span class="pill-label">CA avancé</span>
           </a>
           <a class="periode-pill" routerLink="/reports/finance"
              title="Marges & Résultat par segment et famille">
-            <i class="pi pi-chart-line"></i>
+            <i aria-hidden="true" class="pi pi-chart-line"></i>
             <span class="pill-label">Marges & Résultat</span>
           </a>
           <a class="periode-pill" routerLink="/facturation"
              title="Facturation tiers-payants">
-            <i class="pi pi-receipt"></i>
+            <i aria-hidden="true" class="pi pi-receipt"></i>
             <span class="pill-label">Facturation</span>
           </a>
           <a class="periode-pill" routerLink="/differes"
              title="Différés clients">
-            <i class="pi pi-calendar-times"></i>
+            <i aria-hidden="true" class="pi pi-calendar-times"></i>
             <span class="pill-label">Différés</span>
           </a>
         </div>
@@ -101,12 +101,13 @@
             <button (click)="showGraphs.set(false)" [class.active]="!showGraphs()"
                     class="segment-option"
                     type="button">
-              <i class="pi pi-table"></i>
+              <i aria-hidden="true" class="pi pi-table"></i>
               <span>Vue Tabulaire</span>
             </button>
-            <button (click)="showGraphs.set(true)" [class.active]="showGraphs()" class="segment-option"
+            <button (click)="showGraphs.set(true)" [class.active]="showGraphs()"
+                    class="segment-option"
                     type="button">
-              <i class="pi pi-chart-bar"></i>
+              <i aria-hidden="true" class="pi pi-chart-bar"></i>
               <span>Vue Graphique</span>
             </button>
           </div>
@@ -134,14 +135,15 @@
     <div class="kpi-strip mb-2">
 
       <div class="kpi-strip-item primary-accent">
-        <i class="pi pi-shopping-cart text-primary"></i>
+        <i aria-hidden="true" class="pi pi-shopping-cart text-primary"></i>
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">CA Net</span>
           <span class="kpi-strip-value text-primary">{{ venteRecord()?.netAmount | number }}</span>
           <span class="kpi-strip-sub">
             {{ venteRecord()?.saleCount | number }} ventes
             @if (caEvolutionPct !== undefined && caEvolutionPct !== null) {
-              · <i [class]="(caEvolutionPct ?? 0) >= 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down'"></i>
+              · <i [class]="(caEvolutionPct ?? 0) >= 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down'"
+                   aria-hidden="true"></i>
               {{ caEvolutionPct | number:'1.1-1' }}%
             }
           </span>
@@ -151,7 +153,7 @@
       <div class="kpi-strip-divider"></div>
 
       <div class="kpi-strip-item success-accent">
-        <i class="pi pi-percentage text-success"></i>
+        <i aria-hidden="true" class="pi pi-percentage text-success"></i>
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">Marge brute</span>
           <span
@@ -163,20 +165,48 @@
 
       <div class="kpi-strip-divider"></div>
 
+
       <div class="kpi-strip-item">
-        <i class="pi pi-wallet" style="color: var(--bs-info)"></i>
+        <i aria-hidden="true" class="pi pi-wallet" style="color: var(--bs-info)"></i>
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">Ventes comptant</span>
           <span class="kpi-strip-value">{{ vno()?.netAmount | number }}</span>
           <span class="kpi-strip-sub">{{ vno()?.saleCount | number }}
-            ventes · annulées {{ canceled()?.netAmount | number }}</span>
+            vente(s) · annulée(s) {{ canceled()?.netAmount | number }}</span>
         </div>
       </div>
 
       <div class="kpi-strip-divider"></div>
 
+      <div class="kpi-strip-item">
+        <i aria-hidden="true" class="pi pi-id-card" style="color: var(--bs-primary)"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">Ventes tiers payant</span>
+          <span class="kpi-strip-value">{{ assurance()?.netAmount | number }}</span>
+          <span class="kpi-strip-sub">{{ assurance()?.saleCount | number }}
+            vente(s) · part payeur {{ assurance()?.partTiersPayant | number }}</span>
+        </div>
+      </div>
+      @if (venteDepot()?.saleCount != 0) {
+        <div class="kpi-strip-divider"></div>
+
+        <div class="kpi-strip-item">
+          <i aria-hidden="true" class="pi pi-send" style="color: var(--bs-secondary)"></i>
+          <div class="kpi-strip-body">
+            <span class="kpi-strip-label">Ventes dépôt</span>
+            <span class="kpi-strip-value">{{ venteDepot()?.netAmount | number }}</span>
+
+            <span class="kpi-strip-sub">{{ venteDepot()?.saleCount | number }}
+              vente(s) dépôt</span>
+          </div>
+        </div>
+
+      }
+
+      <div class="kpi-strip-divider"></div>
+
       <div class="kpi-strip-item danger-accent">
-        <i class="pi pi-credit-card text-danger"></i>
+        <i aria-hidden="true" class="pi pi-credit-card text-danger"></i>
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">Créances TP</span>
           <span class="kpi-strip-value text-danger">{{ totalCreances() | number }}</span>
@@ -188,7 +218,7 @@
       <div class="kpi-strip-divider"></div>
 
       <div class="kpi-strip-item warning-accent">
-        <i class="pi pi-truck text-warning"></i>
+        <i aria-hidden="true" class="pi pi-truck text-warning"></i>
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">Achats fournisseurs</span>
           <span
@@ -201,7 +231,7 @@
       <div class="kpi-strip-divider"></div>
 
       <div class="kpi-strip-item success-accent">
-        <i class="pi pi-box text-success"></i>
+        <i aria-hidden="true" class="pi pi-box text-success"></i>
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">Stock valorisé</span>
           <span
@@ -214,7 +244,7 @@
       <div class="kpi-strip-divider"></div>
 
       <div class="kpi-strip-item warning-accent">
-        <i class="pi pi-users text-warning"></i>
+        <i aria-hidden="true" class="pi pi-users text-warning"></i>
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">Différés clients</span>
           <span class="kpi-strip-value text-warning">{{ differeSummary()?.rest | number }}</span>
@@ -233,7 +263,7 @@
       <div class="card h-100 data-card">
         <div class="card-header">
           <h5 class="card-title">
-            <i class="pi pi-credit-card text-info"></i>
+            <i aria-hidden="true" class="pi pi-credit-card text-info"></i>
             Total par mode de règlement
           </h5>
         </div>
@@ -249,7 +279,7 @@
               @if (venteModePaiments().length === 0) {
                 <li class="list-group-item text-center text-muted py-4">
                   <div class="pharma-empty-content">
-                    <i class="pi pi-inbox" style="font-size: 2rem"></i>
+                    <i aria-hidden="true" class="pi pi-inbox" style="font-size: 2rem"></i>
                     <p class="mt-2 mb-0">Aucune donnée sur la période</p>
                   </div>
                 </li>
@@ -270,11 +300,12 @@
       <div class="card h-100 data-card">
         <div class="card-header">
           <h5 class="card-title">
-            <i class="pi pi-chart-pie text-success"></i>
+            <i aria-hidden="true" class="pi pi-chart-pie text-success"></i>
             Ventes par tiers payant
           </h5>
-          <app-select (selectionChange)="onTopTiersPayantChange($any($event))" [ngModel]="TOP_MAX_TP()" (ngModelChange)="TOP_MAX_TP.set($any($event))"
-                      [items]="tops" bindLabel="label"></app-select>
+          <app-select (ngModelChange)="TOP_MAX_TP.set($any($event))"
+                      (selectionChange)="onTopTiersPayantChange($any($event))" [items]="tops"
+                      [ngModel]="TOP_MAX_TP()" bindLabel="label"></app-select>
         </div>
         <div class="card-body py-4">
           @if (!showGraphs()) {
@@ -299,7 +330,7 @@
               @if (tiersPayantAchat().length === 0) {
                 <li class="list-group-item text-center text-muted py-4">
                   <div class="pharma-empty-content">
-                    <i class="pi pi-inbox" style="font-size: 2rem"></i>
+                    <i aria-hidden="true" class="pi pi-inbox" style="font-size: 2rem"></i>
                     <p class="mt-2 mb-0">Aucune donnée sur la période</p>
                   </div>
                 </li>
@@ -316,38 +347,39 @@
     </div>
   </div>
 
-  <!-- ─── Fournisseurs (P3) + Meilleures ventes en valeur ───────────────────── -->
+
   <div class="row">
     <!-- Achats par fournisseur -->
     <div class="col-xl-6 col-md-6 mb-2">
       <div class="card h-100 data-card">
         <div class="card-header">
           <h5 class="card-title">
-            <i class="pi pi-truck text-warning"></i>
+            <i aria-hidden="true" class="pi pi-truck text-warning"></i>
             Achats par fournisseur
           </h5>
           <div class="d-flex align-items-center gap-2">
             <div class="dashboard-periode-selector">
-              <button (click)="fournisseurPeriod = '30d'; buildFournisseurChart()"
-                      [class.active]="fournisseurPeriod === '30d'"
+              <button (click)="fournisseurPeriod.set('30d'); buildFournisseurChart()"
+                      [class.active]="fournisseurPeriod() === '30d'"
                       class="periode-pill"
                       type="button">30 j
               </button>
-              <button (click)="fournisseurPeriod = '12m'; buildFournisseurChart()"
-                      [class.active]="fournisseurPeriod === '12m'"
+              <button (click)="fournisseurPeriod.set('12m'); buildFournisseurChart()"
+                      [class.active]="fournisseurPeriod() === '12m'"
                       class="periode-pill"
                       type="button">12 mois
               </button>
             </div>
-            <app-select (selectionChange)="onTopFournisseurChange($any($event))"
-                        [ngModel]="TOP_MAX_FOURNISSEUR()" (ngModelChange)="TOP_MAX_FOURNISSEUR.set($event)"
-                        [items]="tops" bindLabel="label"></app-select>
+            <app-select (ngModelChange)="TOP_MAX_FOURNISSEUR.set($event)"
+                        (selectionChange)="onTopFournisseurChange($any($event))"
+                        [items]="tops"
+                        [ngModel]="TOP_MAX_FOURNISSEUR()" bindLabel="label"></app-select>
           </div>
         </div>
         <div class="card-body py-4">
           @if (!showGraphs()) {
             <ul class="list-group list-group-flush">
-              @for (f of topFournisseurs(); track f.fournisseurId; let i = $index) {
+              @for (f of fournisseursClasses(); track f.fournisseurId; let i = $index) {
                 <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                   <div class="d-flex align-items-center gap-2">
                     @if (i === 0) {
@@ -374,7 +406,7 @@
                   </div>
                   <span class="fw-semibold text-warning fs-6">
                   {{
-                      (fournisseurPeriod === '30d' ? f.purchaseAmountLast30Days
+                      (fournisseurPeriod() === '30d' ? f.purchaseAmountLast30Days
                         : f.purchaseAmountLast12Months) | number
                     }}
                 </span>
@@ -383,7 +415,7 @@
               @if (topFournisseurs().length === 0) {
                 <li class="list-group-item text-center text-muted py-4">
                   <div class="pharma-empty-content">
-                    <i class="pi pi-inbox" style="font-size: 2rem"></i>
+                    <i aria-hidden="true" class="pi pi-inbox" style="font-size: 2rem"></i>
                     <p class="mt-2 mb-0">Aucun fournisseur disponible</p>
                   </div>
                 </li>
@@ -409,16 +441,18 @@
       </div>
     </div>
 
-    <!-- Meilleures ventes en valeur — avec rang (P4) -->
+
     <div class="col-xl-6 col-md-6 mb-2">
       <div class="card h-100 data-card">
         <div class="card-header">
           <h5 class="card-title">
-            <i class="pi pi-chart-bar text-warning"></i>
+            <i aria-hidden="true" class="pi pi-chart-bar text-warning"></i>
             Meilleures ventes en valeur
           </h5>
-          <app-select (selectionChange)="onTopAmountChange($any($event))" [ngModel]="TOP_MAX_AMOUNT()" (ngModelChange)="TOP_MAX_AMOUNT.set($any($event))"
-                      [items]="tops" bindLabel="label"></app-select>
+          <app-select (ngModelChange)="TOP_MAX_AMOUNT.set($any($event))"
+                      (selectionChange)="onTopAmountChange($any($event))"
+                      [items]="tops"
+                      [ngModel]="TOP_MAX_AMOUNT()" bindLabel="label"></app-select>
         </div>
         <div class="card-body p-0">
           @if (!showGraphs()) {
@@ -462,7 +496,8 @@
                 <tr>
                   <td class="pharma-empty-message" colspan="4">
                     <div class="pharma-empty-content">
-                      <i class="pi pi-inbox"
+                      <i aria-hidden="true"
+                         class="pi pi-inbox"
                          style="font-size: 2rem; color: var(--bs-secondary-color)"></i>
                       <p class="mt-2 text-muted mb-0">Aucune donnée sur la période sélectionnée</p>
                     </div>
@@ -481,18 +516,20 @@
     </div>
   </div>
 
-  <!-- ─── Meilleures ventes en quantité + Pareto en onglets (P4) ─────────────── -->
+
   <div class="row">
     <!-- Meilleures ventes en quantité — avec rang -->
     <div class="col-lg-6 mb-2">
       <div class="card h-100 data-card">
         <div class="card-header">
           <h5 class="card-title">
-            <i class="pi pi-chart-bar text-primary"></i>
+            <i aria-hidden="true" class="pi pi-chart-bar text-primary"></i>
             Meilleures ventes en quantité
           </h5>
-          <app-select (selectionChange)="onTopQuantityChange($any($event))" [ngModel]="TOP_MAX_QUANTITY()" (ngModelChange)="TOP_MAX_QUANTITY.set($any($event))"
-                      [items]="tops" bindLabel="label"></app-select>
+          <app-select (ngModelChange)="TOP_MAX_QUANTITY.set($any($event))"
+                      (selectionChange)="onTopQuantityChange($any($event))"
+                      [items]="tops"
+                      [ngModel]="TOP_MAX_QUANTITY()" bindLabel="label"></app-select>
         </div>
         <div class="card-body p-0">
           @if (!showGraphs()) {
@@ -536,7 +573,8 @@
                 <tr>
                   <td class="pharma-empty-message" colspan="4">
                     <div class="pharma-empty-content">
-                      <i class="pi pi-inbox"
+                      <i aria-hidden="true"
+                         class="pi pi-inbox"
                          style="font-size: 2rem; color: var(--bs-secondary-color)"></i>
                       <p class="mt-2 text-muted mb-0">Aucune donnée sur la période sélectionnée</p>
                     </div>
@@ -546,7 +584,8 @@
             </app-data-table>
           } @else {
             <div class="p-3">
-              <app-chart [data]="quantityChartData()" [options]="quantityChartOptions()" height="400px"
+              <app-chart [data]="quantityChartData()" [options]="quantityChartOptions()"
+                         height="400px"
                          type="bar"></app-chart>
             </div>
           }
@@ -554,24 +593,24 @@
       </div>
     </div>
 
-    <!-- Analyse Pareto 20/80 — onglets Quantité / Montant (P4) -->
+    <!-- Analyse Pareto 20/80 — onglets Quantité / Montant  -->
     <div class="col-lg-6 mb-2">
       <div class="card h-100 data-card">
         <div class="card-header">
           <h5 class="card-title">
-            <i class="pi pi-chart-line text-info"></i>
+            <i aria-hidden="true" class="pi pi-chart-line text-info"></i>
             Analyse Pareto 20/80
           </h5>
           <div class="dashboard-periode-selector">
             <button (click)="activePareto = 'qty'" [class.active]="activePareto === 'qty'"
                     class="periode-pill"
                     type="button">
-              <i class="pi pi-sort-amount-down"></i> Quantité
+              <i aria-hidden="true" class="pi pi-sort-amount-down"></i> Quantité
             </button>
             <button (click)="activePareto = 'amt'" [class.active]="activePareto === 'amt'"
                     class="periode-pill"
                     type="button">
-              <i class="pi pi-dollar"></i> Montant
+              <i aria-hidden="true" class="pi pi-dollar"></i> Montant
             </button>
           </div>
         </div>
@@ -608,7 +647,8 @@
                   <tr>
                     <td class="pharma-empty-message" colspan="4">
                       <div class="pharma-empty-content">
-                        <i class="pi pi-inbox"
+                        <i aria-hidden="true"
+                           class="pi pi-inbox"
                            style="font-size: 2rem; color: var(--bs-secondary-color)"></i>
                         <p class="mt-2 text-muted mb-0">Aucune donnée sur la période
                           sélectionnée</p>
@@ -654,7 +694,8 @@
                   <tr>
                     <td class="pharma-empty-message" colspan="4">
                       <div class="pharma-empty-content">
-                        <i class="pi pi-inbox"
+                        <i aria-hidden="true"
+                           class="pi pi-inbox"
                            style="font-size: 2rem; color: var(--bs-secondary-color)"></i>
                         <p class="mt-2 text-muted mb-0">Aucune donnée sur la période
                           sélectionnée</p>
@@ -665,7 +706,7 @@
               </app-data-table>
             } @else {
               <div class="p-3">
-                <!-- P0 Bug Fix : utilisation de twentyEightyMontantChartData() pour le montant -->
+
                 <app-chart [data]="twentyEightyMontantChartData()"
                            [options]="twentyEightyChartOptions()"
                            height="400px" type="bar"></app-chart>

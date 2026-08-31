@@ -1,0 +1,115 @@
+// ── Bandeau de totaux d'une grille ───────────────────────────────────────────
+//
+// Les chiffres qui ENGAGENT — ce qu'une commande coûte, ce qu'un bon rapporte, combien de
+// lignes ont été saisies — se lisent en diagonale, et pas dans une phrase en petit gris au
+// bas de l'écran. Ce bandeau les écrit comme des indicateurs : un libellé discret au-dessus,
+// la valeur en gros dessous, et le compteur en pastille.
+//
+// Employé par la commande fournisseur (`commande-requested`) et par la liste des bons de
+// livraison (`list-bons`), pour que le même chiffre se présente de la même façon d'un écran
+// à l'autre.
+//
+// Usage :
+//   <div class="grid-caption">
+//     <span class="grid-caption__count"><i class="pi pi-list"></i><strong>13</strong> ligne(s)</span>
+//     <span class="grid-caption__totals ms-auto">
+//       <span class="grid-caption__stat">
+//         <span class="grid-caption__stat-label">Achat</span>
+//         <span class="grid-caption__stat-value grid-caption__stat-value--achat">…</span>
+//       </span>
+//       <span class="grid-caption__sep"></span>
+//       …
+//     </span>
+//   </div>
+
+// Variables locales, déclarées `!default` : ce partiel est importé par des composants dont
+// les chaînes d'imports diffèrent, et dépendre de l'ordre d'importation le rendrait cassant.
+// Une palette qui définit déjà ces noms les emporte.
+$gc-primary: #5b89a6 !default;
+$gc-success: #5cb85c !default;
+$gc-white: #ffffff !default;
+$gc-border: #dfe3e8 !default;
+$gc-muted: #6c757d !default;
+$gc-text: #333333 !default;
+
+.grid-caption {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 0.9rem;
+  background: $gc-white;
+  border-bottom: 1px solid $gc-border;
+  flex-shrink: 0;
+
+  // En pied de liste, la bordure passe au-dessus.
+  &--footer {
+    border-bottom: 0;
+    border-top: 1px solid $gc-border;
+  }
+
+  // Le compteur : une pastille, pas une note de bas de page. C'est le premier chiffre qu'on
+  // vérifie quand on compare un bon à ce qu'on a saisi.
+  &__count {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    background: rgba($gc-primary, 0.1);
+    color: $gc-primary;
+    font-size: 0.8rem;
+    white-space: nowrap;
+
+    strong {
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    i { font-size: 0.75rem; }
+  }
+
+  // Variante d'alerte : ce qui reste À FAIRE (bons en attente de saisie, par exemple).
+  &__count--attente {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  &__totals {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.9rem;
+    white-space: nowrap;
+  }
+
+  &__stat {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.1;
+  }
+
+  &__stat-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: $gc-muted;
+  }
+
+  &__stat-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: $gc-text;
+
+    &--achat { color: $gc-primary; }
+    // Ce que la marchandise rapportera : c'est la recette, d'où le vert.
+    &--vente { color: $gc-success; }
+    &--neutre { color: $gc-text; }
+  }
+
+  &__sep {
+    width: 1px;
+    align-self: stretch;
+    background: $gc-border;
+  }
+}

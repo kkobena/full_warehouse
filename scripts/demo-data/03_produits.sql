@@ -167,7 +167,24 @@ INSERT INTO tmp_fam_cfg VALUES
  300, 9000, 48, 18, 'SANS_LISTE', NULL);
 
 -- ---------------------------------------------------------------------------
--- 1. Produits DETAIL autonomes (550)
+-- 1. Produits PACKAGE non déconditionnables (550)
+--
+-- Le catalogue courant : ce qu'on achète au grossiste et qu'on délivre tel
+-- quel — une boîte de DOLIPRANE, un tube d'ARNICA, une bande de crêpe, une
+-- boîte de lait infantile. Ce sont des produits à part entière : ils ont leur
+-- fournisseur, ils se commandent, ils se classent (ABC), ils entrent dans le
+-- calcul de réapprovisionnement.
+--
+-- Ils ont porté 'DETAIL' par erreur. DETAIL ne désigne PAS « vendu à l'unité »
+-- mais un DÉCONDITIONNÉ — l'unité issue d'une boîte, qui porte parent_id et ne
+-- se commande jamais (§2 ci-dessous). L'application s'appuie sur cette
+-- convention : ClassificationCriticiteService et SemoisCalculationService
+-- écartent les DETAIL du calcul de classe et des suggestions de réappro, et le
+-- catalogue les range sous le filtre « Déconditionnés ». Typés DETAIL, 550 des
+-- 600 produits en étaient donc silencieusement exclus.
+--
+-- item_qty vaut 1 : le nombre d'unités par boîte n'a de sens que pour un
+-- produit déconditionnable, et ceux-ci ne le sont pas.
 --
 -- Prix déterministes : le multiplicateur premier étale les valeurs dans la
 -- fourchette sans recourir à random(), pour que deux exécutions produisent
@@ -185,7 +202,7 @@ INSERT INTO produit (
 )
 SELECT
     p.libelle,
-    'DETAIL',
+    'PACKAGE',
     'ENABLE',
     p.cost,
     p.prix,
@@ -270,8 +287,8 @@ CREATE TEMP TABLE tmp_decond (
 -- Le libellé combine base et conditionnement : les deux indices doivent varier
 -- indépendamment, sinon (base, item_qty) ne prend que 5 valeurs distinctes au
 -- lieu de 25 et le ON CONFLICT en écarte silencieusement 20.
---   base     ← i % 5        (change à chaque ligne)
---   item_qty ← (i / 5) % 5  (change tous les 5)
+--   base     <- i % 5        (change à chaque ligne)
+--   item_qty <- (i / 5) % 5  (change tous les 5)
 INSERT INTO tmp_decond
 SELECT
     (ARRAY['AMOXICILLINE SIROP','METRONIDAZOLE SIROP','PARACETAMOL SIROP',
@@ -338,9 +355,10 @@ SELECT
     d.base || ' ' || d.item_qty || ' UNITES DETAIL',
     'DETAIL',
     'ENABLE',
-    (pk.cost_amount / pk.item_qty)::int,
-    (pk.regular_unit_price / pk.item_qty)::int,
-    (pk.regular_unit_price / pk.item_qty)::int,
+    -- Même règle sur les prix déduits d'un conditionnement : multiples de 5.
+    greatest(5, (5 * round((pk.cost_amount::numeric / pk.item_qty) / 5.0))::int),
+    greatest(5, (5 * round((pk.regular_unit_price::numeric / pk.item_qty) / 5.0))::int),
+    greatest(5, (5 * round((pk.regular_unit_price::numeric / pk.item_qty) / 5.0))::int),
     1, 0, 0, 0,
     false, true, true, false, false,
     'LISTE_II',
@@ -366,6 +384,11 @@ ON CONFLICT (libelle, type_produit) DO NOTHING;
 -- d'un même produit. La contrainte d'unicité porte sur (code_cip,
 -- fournisseur_id), ce qui l'autorise.
 --
+-- CIP et EAN ne sont PAS le même code, et la colonne les distingue : le CIP
+-- tient sur 7 chiffres (CIP7), l'EAN sur 13. Les deux portaient ici le même
+-- EAN-13, ce qui donnait des « CIP » de treize chiffres — impossibles à saisir
+-- au comptoir, et faux dès qu'on les compare à un bon de commande.
+--
 -- Répartition : chaque produit est référencé chez 1 à 3 principaux, choisis de
 -- façon déterministe à partir de son identifiant.
 -- ---------------------------------------------------------------------------
@@ -377,10 +400,14 @@ INSERT INTO fournisseur_produit (
 SELECT
     p.id,
     f.id,
-    '340' || lpad((100000 + p.id)::text, 10, '0'),
+    -- CIP7 : sept chiffres, le format que porte une boîte française.
+    lpad((1000000 + p.id)::text, 7, '0'),
+    -- EAN-13 : le code-barres, treize chiffres, préfixe 340 (France).
     '340' || lpad((100000 + p.id)::text, 10, '0'),
     -- Le prix d'achat varie légèrement d'un grossiste à l'autre.
-    greatest(1, (p.cost_amount * (100 + ((p.id + f.rang * 7) % 9) - 4) / 100)::int),
+    -- Arrondi au multiple de 5 : la plus petite pièce en FCFA vaut 5 francs, et un prix qui
+    -- ne l'est pas produit des totaux impossibles à rendre en espèces.
+    greatest(5, (5 * round((p.cost_amount * (100 + ((p.id + f.rang * 7) % 9) - 4) / 100.0) / 5.0))::int),
     p.regular_unit_price,
     CASE WHEN p.id % 7 = 0 THEN 10 WHEN p.id % 3 = 0 THEN 5 ELSE 1 END,
     CASE WHEN p.id % 11 = 0 THEN 5 ELSE 0 END,
@@ -396,7 +423,7 @@ CROSS JOIN LATERAL (
            row_number() OVER (ORDER BY pr.odre, pr.id) AS rang,
            count(*)     OVER ()                        AS total
       FROM fournisseur pr
-     WHERE pr.parent_id IS NULL          -- ← invariant : jamais une agence
+     WHERE pr.parent_id IS NULL          -- <- invariant : jamais une agence
 ) f
 -- Le fournisseur est choisi par décalage tournant, et non par les premiers
 -- rangs : sinon les derniers principaux ne référenceraient aucun produit et
@@ -416,29 +443,82 @@ UPDATE produit p
    AND p.fournisseur_produit_principal_id IS NULL;
 
 -- ---------------------------------------------------------------------------
+-- Stupéfiants et psychotropes
+--
+-- Le catalogue ne connaissait que SANS_LISTE, LISTE_I et LISTE_II : deux
+-- statuts manquaient, et avec eux tout ce qu'ils entraînent — traçabilité du
+-- lot obligatoire (`StatutLegal.isTracabilityLotObligatoire`) et surtout
+-- INTERDICTION DE RETOUR (`isRetourInterdit`). L'écran de retour client refuse
+-- ces lignes et les oriente vers la destruction réglementaire : sans un seul
+-- produit concerné, ce refus ne pouvait ni s'observer ni s'illustrer.
+--
+-- Les molécules retenues sont celles qui portent réellement ces statuts en
+-- officine ; leur nombre reste faible, comme dans la réalité.
+-- ---------------------------------------------------------------------------
+UPDATE produit
+   SET statut_legal = 'STUPEFIANTS'
+ WHERE libelle LIKE 'TRAMADOL%';
+
+UPDATE produit
+   SET statut_legal = 'PSO'
+ WHERE libelle LIKE 'DIAZEPAM%'
+    OR libelle LIKE 'BROMAZEPAM%';
+
+DO $$
+DECLARE v_stup int; v_pso int;
+BEGIN
+    SELECT count(*) INTO v_stup FROM produit WHERE statut_legal = 'STUPEFIANTS';
+    SELECT count(*) INTO v_pso  FROM produit WHERE statut_legal = 'PSO';
+    IF v_stup = 0 OR v_pso = 0 THEN
+        RAISE EXCEPTION 'Aucun stupéfiant (%) ou psychotrope (%) : le refus de retour ne pourra pas être montré', v_stup, v_pso;
+    END IF;
+    RAISE NOTICE '   % stupéfiant(s), % psychotrope(s)', v_stup, v_pso;
+END $$;
+
+-- ---------------------------------------------------------------------------
 -- 4. Rayons commerciaux et affectation des produits
 --
 -- Les rayons « SANS EMPLACEMENT » (id 2 et 3) existent déjà, posés par Flyway.
 -- Unicité : (code, storage_id) et (libelle, storage_id).
+--
+-- type_zone est lu par Hibernate en @Enumerated(STRING) : toute valeur absente
+-- de TypeZone fait échouer le chargement de l'entité côté application, pas au
+-- moment de l'INSERT. Les valeurs admises sont AMBIANT, FROID, OTC, ORDONNANCE,
+-- TOXIQUE, RESERVE, PARA — « VENTE », employé ici auparavant, n'en fait pas
+-- partie et provoquait « No enum constant TypeZone.VENTE » à l'ouverture de
+-- l'écran des rayons.
+--
+-- La répartition ci-dessous couvre cinq des sept valeurs. TOXIQUE et RESERVE
+-- restent inutilisés : ils supposeraient des rayons dédiés, et donc de revoir
+-- l'affectation des produits juste en dessous.
 -- ---------------------------------------------------------------------------
 INSERT INTO rayon (code, libelle, to_exclude, storage_id, type_zone, position)
 SELECT v.code, v.libelle, false, s.id, v.type_zone, v.position
   FROM (VALUES
-    ('ANTA', 'ANTALGIQUES ET ANTIPYRETIQUES', 'VENTE',   'A1'),
-    ('ANTB', 'ANTIBIOTIQUES',                 'VENTE',   'A2'),
-    ('CARD', 'CARDIOLOGIE ET TENSION',        'VENTE',   'B1'),
-    ('DIAB', 'DIABETE ET METABOLISME',        'VENTE',   'B2'),
-    ('GAST', 'GASTRO-ENTEROLOGIE',            'VENTE',   'C1'),
-    ('RESP', 'RESPIRATOIRE ET ALLERGIE',      'VENTE',   'C2'),
-    ('DERM', 'DERMATOLOGIE',                  'VENTE',   'D1'),
-    ('HOME', 'HOMEOPATHIE',                   'VENTE',   'D2'),
-    ('NUTR', 'NUTRITION ET DIETETIQUE',       'VENTE',   'E1'),
-    ('PARA', 'PARAPHARMACIE',                 'VENTE',   'E2'),
-    ('ACCE', 'ACCESSOIRES ET DISPOSITIFS',    'VENTE',   'F1'),
-    ('DIVE', 'DIVERS',                        'VENTE',   'F2')
+    ('ANTA', 'ANTALGIQUES ET ANTIPYRETIQUES', 'OTC',        'A1'),
+    ('ANTB', 'ANTIBIOTIQUES',                 'ORDONNANCE', 'A2'),
+    ('CARD', 'CARDIOLOGIE ET TENSION',        'ORDONNANCE', 'B1'),
+    -- Insulines et analogues : chaîne du froid.
+    ('DIAB', 'DIABETE ET METABOLISME',        'FROID',      'B2'),
+    ('GAST', 'GASTRO-ENTEROLOGIE',            'OTC',        'C1'),
+    ('RESP', 'RESPIRATOIRE ET ALLERGIE',      'OTC',        'C2'),
+    ('DERM', 'DERMATOLOGIE',                  'OTC',        'D1'),
+    ('HOME', 'HOMEOPATHIE',                   'OTC',        'D2'),
+    ('NUTR', 'NUTRITION ET DIETETIQUE',       'PARA',       'E1'),
+    ('PARA', 'PARAPHARMACIE',                 'PARA',       'E2'),
+    ('ACCE', 'ACCESSOIRES ET DISPOSITIFS',    'PARA',       'F1'),
+    ('DIVE', 'DIVERS',                        'AMBIANT',    'F2')
   ) AS v(code, libelle, type_zone, position)
   JOIN storage s ON s.storage_type = 'PRINCIPAL' AND s.magasin_id = 1
-ON CONFLICT (code, storage_id) DO NOTHING;
+-- DO UPDATE et non DO NOTHING : rayon figure dans la liste de préservation de
+-- 00_reset.sql, donc les lignes survivent au reset. Avec DO NOTHING, une valeur
+-- erronée déjà chargée — comme le « VENTE » d'avant — resterait en base malgré
+-- toutes les relances. Le script doit converger, pas seulement s'abstenir.
+-- Seules les colonnes non uniques sont réécrites : toucher libelle risquerait
+-- de heurter l'unicité (libelle, storage_id) depuis une autre ligne.
+ON CONFLICT (code, storage_id) DO UPDATE
+   SET type_zone = EXCLUDED.type_zone,
+       position  = EXCLUDED.position;
 
 -- Affectation : un rayon et un seul par produit, déduit de sa famille.
 INSERT INTO rayon_produit (produit_id, rayon_id)

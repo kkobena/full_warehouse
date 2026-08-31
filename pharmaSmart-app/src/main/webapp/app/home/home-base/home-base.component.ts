@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   inject,
   OnInit,
@@ -99,7 +100,7 @@ export class HomeBaseComponent implements OnInit {
 
   // Alert counters — via AlertBadgeService (signaux)
   protected readonly alertBadgeService = inject(AlertBadgeService);
-  // ─── Période (P2) ───────────────────────────────────────────────
+
   protected readonly periodeOptions: PeriodOption[] = [
     {label: "Auj.", value: CaPeriodeFilter.daily, icon: "pi pi-sun"},
     {label: "Semaine", value: CaPeriodeFilter.weekly, icon: "pi pi-calendar"},
@@ -119,7 +120,10 @@ export class HomeBaseComponent implements OnInit {
   protected readonly row20x80 = signal<ProductStatParetoRecord[]>([]);
   protected readonly row20x80Montant = signal<ProductStatParetoRecord[]>([]);
   protected readonly achatRecord = signal<AchatRecord | null>(null);
-  protected assurance: VenteRecord | null = null;
+  /** Ventes ordonnancées (tiers payant) de la période. */
+  protected readonly assurance = signal<VenteRecord | null>(null);
+  /** Ventes dépôt : un transfert vers un dépositaire, hors chiffre d'affaires déclaré. */
+  protected readonly venteDepot = signal<VenteRecord | null>(null);
   protected readonly vno = signal<VenteRecord | null>(null);
   protected readonly venteModePaiments = signal<VenteModePaimentRecord[]>([]);
   protected dashboardPeriode: CaPeriodeFilter | null = CaPeriodeFilter.daily;
@@ -148,7 +152,21 @@ export class HomeBaseComponent implements OnInit {
   // ─── Fournisseurs P3 ────────────────────────────────────────────
   protected readonly topFournisseurs = signal<ISupplierPerformance[]>([]);
   protected readonly supplierSummary = signal<ISupplierPerformanceSummary | null>(null);
-  protected fournisseurPeriod: "30d" | "12m" = "30d";
+  protected readonly fournisseurPeriod = signal<"30d" | "12m">("30d");
+
+  /**
+   * Classement des fournisseurs RECALCULÉ sur la période affichée.
+   *
+   * L'API classe par volume douze mois. Affiché tel quel sous le bouton « 30 j », le
+   * palmarès mettait en tête un fournisseur au montant inférieur à celui du deuxième :
+   * les rangs venaient d'une période, les montants d'une autre.
+   */
+  protected readonly fournisseursClasses = computed(() => {
+    const periode = this.fournisseurPeriod();
+    const montant = (f: ISupplierPerformance): number =>
+      (periode === "30d" ? f.purchaseAmountLast30Days : f.purchaseAmountLast12Months) ?? 0;
+    return [...this.topFournisseurs()].sort((a, b) => montant(b) - montant(a));
+  });
   protected readonly TOP_MAX_FOURNISSEUR = signal<TopSelection | undefined>(undefined);
   protected readonly fournisseurChartData = signal<any | undefined>(undefined);
   protected readonly fournisseurChartOptions = signal<any | undefined>(undefined);
@@ -372,8 +390,8 @@ export class HomeBaseComponent implements OnInit {
   }
 
   protected buildFournisseurChart(): void {
-    const items = this.topFournisseurs().slice(0, this.TOP_MAX_FOURNISSEUR().value);
-    const amounts = this.fournisseurPeriod === "30d"
+    const items = this.fournisseursClasses().slice(0, this.TOP_MAX_FOURNISSEUR().value);
+    const amounts = this.fournisseurPeriod() === "30d"
       ? items.map(f => f.purchaseAmountLast30Days ?? 0)
       : items.map(f => f.purchaseAmountLast12Months ?? 0);
     this.fournisseurChartData.set({
@@ -427,8 +445,12 @@ export class HomeBaseComponent implements OnInit {
     if (!venteByTypeRecords) {
       return;
     }
-    this.vno.set(venteByTypeRecords.find(e => e.typeVente === "CashSale")?.venteRecord);
-    this.assurance = venteByTypeRecords.find(e => e.typeVente === "ThirdPartySales")?.venteRecord;
+    // Les trois types que l'officine pratique. Le tiers payant était déjà rapporté par le
+    // serveur mais n'aboutissait nulle part à l'écran : le bandeau n'annonçait que le
+    // comptant, en le nommant « ventes », ce qui laissait croire que c'était tout.
+    this.vno.set(venteByTypeRecords.find(e => e.typeVente === "CashSale")?.venteRecord ?? null);
+    this.assurance.set(venteByTypeRecords.find(e => e.typeVente === "ThirdPartySales")?.venteRecord ?? null);
+    this.venteDepot.set(venteByTypeRecords.find(e => e.typeVente === "VenteDepot")?.venteRecord ?? null);
   }
 
   private onGetCaByModePaimentSuccess(venteModePaimentRecords: VenteModePaimentRecord[] | []): void {

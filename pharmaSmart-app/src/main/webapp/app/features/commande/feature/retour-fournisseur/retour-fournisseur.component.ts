@@ -50,6 +50,7 @@ import {
 import {
   PharmaDatePickerComponent
 } from "../../../../shared/date-picker/pharma-date-picker.component";
+import { DevisePipe } from 'app/shared/utils/devise';
 
 export type RetourTab = "EN_ATTENTE" | "HISTORIQUE" | "AVOIRS" | "GROUPE";
 
@@ -74,7 +75,7 @@ export type RetourTab = "EN_ATTENTE" | "HISTORIQUE" | "AVOIRS" | "GROUPE";
     RowTogglerDirective,
     SelectComponent,
     SplitButtonComponent
-  ]
+  , DevisePipe]
 })
 export class AppRetourFournisseurComponent implements OnInit {
   protected readonly search = signal("");

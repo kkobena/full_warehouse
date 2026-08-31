@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
@@ -10,15 +11,16 @@ import {
   OnInit,
   output,
   signal,
-  viewChild,
-  ChangeDetectionStrategy
+  viewChild
 } from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
-import {NgbConfirmDialogService} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import {
+  NgbConfirmDialogService
+} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import {
   AssuredCustomerListModalComponent,
   AyantDroitListModalComponent,
@@ -30,19 +32,32 @@ import {
   SaleType,
   ThirdPartyAmount,
 } from '../../ui';
-import {AssureFormStepComponent} from '../../../../entities/customer/assure-form-step/assure-form-step.component';
-import {FormAyantDroitComponent} from '../../../../entities/customer/form-ayant-droit/form-ayant-droit.component';
+import {
+  AssureFormStepComponent
+} from '../../../../entities/customer/assure-form-step/assure-form-step.component';
+import {
+  FormAyantDroitComponent
+} from '../../../../entities/customer/form-ayant-droit/form-ayant-droit.component';
 import {
   AddComplementaireComponent
 } from '../../../../entities/sales/selling-home/assurance/add-complementaire/add-complementaire.component';
 import {showCommonModal} from '../../../../entities/sales/selling-home/sale-helper';
-import {PaymentCompleteEvent, PaymentModeComponent} from '../../ui/payment-mode/payment-mode.component';
+import {
+  PaymentCompleteEvent,
+  PaymentModeComponent
+} from '../../ui/payment-mode/payment-mode.component';
 import {SalesFacade} from '../../data-access/facades/sales.facade';
 import {CustomerSearchService} from '../../data-access/services/customer-search.service';
 import {AuthorizationService} from '../../data-access/services/authorization.service';
 import {CustomerDisplayService} from '../../data-access/services/customer-display.service';
 import {NotificationService} from '../../../../shared/services/notification.service';
-import {IClientTiersPayant, ICustomer, IRemise, ISalesLine, ProduitSearch} from '../../../../shared/model';
+import {
+  IClientTiersPayant,
+  ICustomer,
+  IRemise,
+  ISalesLine,
+  ProduitSearch
+} from '../../../../shared/model';
 import {
   CashRegisterFormComponent
 } from '../../../../entities/cash-register/user-cash-register/cash-register-form/cash-register-form.component';
@@ -139,7 +154,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
       amount: item.montant || 0,
     })) : null;
   });
-
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   // Services
   private facade = inject(SalesFacade);
@@ -166,7 +180,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     const tiersPayants = sale?.tiersPayants || [];
     return !!sale && lines.length > 0 && !!customer && tiersPayants.length > 0 && !this.isSaving();
   });
-
   private customerSearchService = inject(CustomerSearchService);
   private authorizationService = inject(AuthorizationService);
   private notificationService = inject(NotificationService);
@@ -254,6 +267,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
         changeAmount: () => comp.changeAmount(),
         changeExact: () => comp.changeExact(),
         focusFirstMode: () => comp.focusFirstMode(),
+        validate: () => comp.validate(),
       };
     },
     openCashRegister: () => this.openCashRegister(),
@@ -553,26 +567,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     }
   }
 
-  private addAyantDroit(): void {
-    showCommonModal(
-      this.modalService,
-      FormAyantDroitComponent,
-      {
-        entity: undefined,
-        assure: this.selectedCustomer(),
-        title: "FORMULAIRE D'AJOUT D'AYANT DROIT",
-      },
-      (newAyantDroit: ICustomer) => {
-        if (newAyantDroit) {
-          this.facade.setAyantDroit(newAyantDroit);
-          this.productHandling.focusProductSearch();
-        }
-      },
-      'xl', null,
-      () => this.productHandling.focusProductSearch()
-    );
-  }
-
   onLoadAyantDroits(): void {
     const customer = this.selectedCustomer();
     if (!customer) {
@@ -602,6 +596,15 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     }
 
 
+  }
+
+  /**
+   * Message d'un contrôle de règlement refusé — référence bancaire manquante, commentaire de
+   * différé vide. Sans cette liaison, le refus était SILENCIEUX : le bouton ne faisait rien,
+   * et l'utilisateur cliquait à nouveau.
+   */
+  onPaymentError(error: string): void {
+    this.notificationService.error(error);
   }
 
   onAddComplementaire(): void {
@@ -656,7 +659,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     // Utiliser la facade pour mettre à jour les tiers payants de manière réactive
     this.facade.updateSaleTiersPayants(tiersPayants);
   }
-
 
   onRemiseSelected(remise: IRemise): void {
     const currentSale = this.currentSale();
@@ -753,10 +755,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     }
   }
 
-  // ============================================
-  // Handlers pour remise globale (depuis ProductListComponent caption)
-  // ============================================
-
   putOnStandby(): void {
     const sale = this.currentSale();
     if (!sale || this.salesLines().length === 0) {
@@ -771,6 +769,10 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
 
     this.facade.putOnStandby();
   }
+
+  // ============================================
+  // Handlers pour remise globale (depuis ProductListComponent caption)
+  // ============================================
 
   onSaveAsPresale(transform: boolean = true): void {
     if (!this.validateAssuranceSale()) {
@@ -794,10 +796,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
       });
   }
 
-  // ============================================
-  // Actions de vente
-  // ============================================
-
   onCancel(): void {
     // Si pas de lignes, reset simple sans confirmation
     if (this.salesLines().length === 0) {
@@ -813,6 +811,10 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     );
   }
 
+  // ============================================
+  // Actions de vente
+  // ============================================
+
   handleKeyboardEvent(event: KeyboardEvent): void {
     this.keyboardShortcutsMixin.handleKeyboardEvent(event);
   }
@@ -825,6 +827,25 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     this.productHandling.focusProductSearch();
   }
 
+  private addAyantDroit(): void {
+    showCommonModal(
+      this.modalService,
+      FormAyantDroitComponent,
+      {
+        entity: undefined,
+        assure: this.selectedCustomer(),
+        title: "FORMULAIRE D'AJOUT D'AYANT DROIT",
+      },
+      (newAyantDroit: ICustomer) => {
+        if (newAyantDroit) {
+          this.facade.setAyantDroit(newAyantDroit);
+          this.productHandling.focusProductSearch();
+        }
+      },
+      'xl', null,
+      () => this.productHandling.focusProductSearch()
+    );
+  }
 
   private initializeEffects(): void {
     this.setupSavingStateEffect();

@@ -1,22 +1,25 @@
-<div class="pharma-smart-content p-2">
+<div class="pharma-smart-content p-1">
   <app-toolbar [code]="navCode()" icon="pi pi-chart-line" title="Synthèse des Ventes Quotidiennes">
 
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
         <pharma-date-picker (ngModelChange)="onFilterChange()" [(ngModel)]="startDate"
-                            id="ssDateDebut" label="Date début" />
+                            [style]="{ 'width': '180px' }"
+                            id="ssDateDebut" label="Du" />
         <pharma-date-picker (ngModelChange)="onFilterChange()" [(ngModel)]="endDate"
+                            [style]="{ 'width': '180px' }"
                             id="ssDateFin"
-                            label="Date fin" />
+                            label="Au" />
         <app-select
           (selectionChange)="onFilterChange()"
           [(ngModel)]="selectedTypeVente"
           [clearable]="true"
           [items]="typeVenteOptions"
-          [style]="{ 'min-width': '150px' }"
+          [style]="{ 'min-width': '250px' }"
           appendTo="body"
           bindLabel="label"
           bindValue="value"
+          inputId="ssTypeVente"
           placeholder="Type de vente"
           size="large"
         />
@@ -34,22 +37,75 @@
 
   <!-- KPI Strip -->
   <app-kpi-strip stripClass="mt-2 mb-2">
-    <app-kpi-item [accent]="'primary'" icon="pi pi-dollar" iconClass="text-primary" label="CA Total" [value]="getTotalCA() | number: '1.0-0'" valueClass="text-primary">
-      <span ngProjectAs="[kpiValue]">&ngsp;<small>F CFA</small></span>
+    <app-kpi-item [accent]="'primary'" [value]="getTotalCA() | number: '1.0-0'" icon="pi pi-dollar"
+                  iconClass="text-primary"
+                  label="CA Total" valueClass="text-primary">
+      <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">chiffre d'affaires</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'success'" icon="pi pi-money-bill" iconClass="text-success" label="CA Net" [value]="getTotalCANet() | number: '1.0-0'" valueClass="text-success">
-      <span ngProjectAs="[kpiValue]">&ngsp;<small>F CFA</small></span>
+    <app-kpi-item [accent]="'success'" [value]="getTotalCANet() | number: '1.0-0'"
+                  icon="pi pi-money-bill"
+                  iconClass="text-success" label="CA Net"
+                  valueClass="text-success">
+      <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">après remises</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'warning'" icon="pi pi-shopping-cart" iconClass="text-warning" label="Nombre de ventes" [value]="getTotalVentes()" valueClass="text-warning">
+    <app-kpi-item [accent]="'warning'" [value]="getTotalVentes()" icon="pi pi-shopping-cart"
+                  iconClass="text-warning" label="Nombre de ventes" valueClass="text-warning">
       <ng-container ngProjectAs="[kpiSub]">transactions</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'danger'" icon="pi pi-shopping-bag" iconClass="text-danger" label="Panier moyen" [value]="getAveragePanier() | number: '1.0-0'" valueClass="text-danger">
-      <span ngProjectAs="[kpiValue]">&ngsp;<small>F CFA</small></span>
+    <app-kpi-item [accent]="'danger'" [value]="getAveragePanier() | number: '1.0-0'"
+                  icon="pi pi-shopping-bag"
+                  iconClass="text-danger" label="Panier moyen"
+                  valueClass="text-danger">
+      <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">par transaction</ng-container>
     </app-kpi-item>
   </app-kpi-strip>
+
+  <!--
+    Ventilation par type de vente, SANS filtrer : les quatre indicateurs ci-dessus totalisent
+    la période tous types confondus, et la question qu'on se pose devant cet écran est
+    justement la part de chacun — ce qui est encaissé, ce qui attend un règlement, ce qui a
+    été transféré. Le détail se calcule sur les lignes déjà chargées.
+  -->
+  @if (ventilationParType().length > 0) {
+    <div class="card data-card mt-2">
+      <div class="card-header py-2">
+        <h6 class="card-title mb-0">
+          <i class="pi pi-tags text-info me-1"></i>Répartition par type de vente
+        </h6>
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-sm mb-0">
+          <thead>
+          <tr class="pharma-table-head">
+            <th>Type de vente</th>
+            <th class="text-end">Nb ventes</th>
+            <th class="text-end">CA total</th>
+            <th class="text-end">CA net</th>
+            <th class="text-end">Panier moyen</th>
+            <th class="text-end">Part du CA net</th>
+          </tr>
+          </thead>
+          <tbody>
+            @for (ligne of ventilationParType(); track ligne.type) {
+              <tr>
+                <td>
+                  <app-badge [label]="ligne.libelle" [severity]="ligne.severity" />
+                </td>
+                <td class="text-end pharma-qty-value">{{ ligne.nbVentes | number }}</td>
+                <td class="text-end pharma-price">{{ ligne.caTotal | number }}</td>
+                <td class="text-end pharma-price">{{ ligne.caNet | number }}</td>
+                <td class="text-end pharma-price">{{ ligne.panierMoyen | number }}</td>
+                <td class="text-end pharma-price">{{ ligne.part | number: '1.0-1' }} %</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
 
   <!-- Sales Table -->
   <div class="row mt-3">
@@ -89,19 +145,18 @@
               <tr>
                 <td>{{ summary.saleDate | date: 'dd/MM/yyyy' }}</td>
                 <td>
-                  <app-badge [severity]="getSeverityForType(summary.typeVente)">{{
-                      summary.typeVente || 'N/A'
-                    }}
+                  <app-badge [label]="getLibelleType(summary.typeVente)"
+                             [severity]="getSeverityForType(summary.typeVente)">
                   </app-badge>
                 </td>
                 <td class="text-end pharma-qty-value">{{ summary.nbVentes || 0 }}</td>
-                <td class="text-end pharma-price">{{ summary.caTotal | number: '1.0-0' }} F CFA</td>
-                <td class="text-end pharma-price">{{ summary.caNet | number: '1.0-0' }} F CFA</td>
-                <td class="text-end pharma-price">{{ summary.totalRemises | number: '1.0-0' }} F
-                  CFA
+                <td class="text-end pharma-price">{{ summary.caTotal | number }}</td>
+                <td class="text-end pharma-price">{{ summary.caNet | number }}</td>
+                <td class="text-end pharma-price">{{ summary.totalRemises | number }}
+
                 </td>
-                <td class="text-end pharma-price">{{ summary.panierMoyen | number: '1.0-2' }} F
-                  CFA
+                <td class="text-end pharma-price">{{ summary.panierMoyen | number: '1.0-2' }}
+
                 </td>
               </tr>
             </ng-template>

@@ -3,10 +3,11 @@
     <i class="pi pi-shopping-cart me-2 text-primary"></i>
     Commander — <strong>{{ fournisseurLibelle }}</strong>
   </h5>
-  <button type="button" class="btn-close" aria-label="Fermer" (click)="cancel()"></button>
+  <button (click)="cancel()" aria-label="Fermer" class="btn-close" type="button"></button>
 </div>
 
-<div class="modal-body d-flex flex-column p-2" style="overflow: hidden; max-height: calc(90vh - 130px);">
+<div class="modal-body d-flex flex-column p-2"
+     style="overflow: hidden; max-height: calc(90vh - 130px);">
 
   <!-- ═══════════════════════════════════════════════════════════════════
        ZONE SCROLLABLE — tableau des lignes
@@ -37,24 +38,27 @@
             <span class="fw-semibold" style="font-size: 0.85rem;">{{ ligne.libelle }}</span>
           </td>
           <td style="text-align: right; font-size: 0.875rem;">
-          <span class="pharma-qty-value">{{ ligne.quantite | number : '1.0-0' }}</span>
+            <span class="pharma-qty-value">{{ ligne.quantite | number : '1.0-0' }}</span>
             @if (ligne.quantiteModifiee) {
               <i class="pi pi-pencil ms-1 text-warning" style="font-size: 0.7rem;"
                  title="Quantité modifiée manuellement"></i>
             }
           </td>
           <td style="text-align: right; font-size: 0.875rem;">
-           <span class="pharma-price">{{ ligne.prixAchat | number : '1.0-0' }}</span>
+            <span class="pharma-price">{{ ligne.prixAchat | number : '1.0-0' }}</span>
           </td>
           <td style="text-align: right; font-size: 0.875rem; font-weight: 500;">
-          <span class="pharma-total">{{ ligne.quantite * ligne.prixAchat | number : '1.0-0' }}</span>
+            <span class="pharma-total">{{
+                ligne.quantite * ligne.prixAchat | number : '1.0-0'
+              }}</span>
           </td>
         </tr>
       </ng-template>
     </app-data-table>
 
     @if (lignesModifiees.length > 0) {
-      <div class="d-flex align-items-center gap-2 px-3 py-2 bg-warning-subtle border-top border-warning-subtle">
+      <div
+        class="d-flex align-items-center gap-2 px-3 py-2 bg-warning-subtle border-top border-warning-subtle">
         <i class="pi pi-exclamation-triangle text-warning"></i>
         <span class="text-warning-emphasis" style="font-size: 0.85rem;">
           <strong>{{ lignesModifiees.length }}</strong> quantité(s) ont été modifiées manuellement.
@@ -72,11 +76,11 @@
     <div class="d-flex justify-content-end align-items-center px-3 py-2 gap-3">
       @if (budgetRestant != null) {
         <span class="text-muted" style="font-size: 0.85rem;">
-          Budget restant : <strong>{{ budgetRestant | number : '1.0-0' }} <span appDevise></span></strong>
+          Budget restant : <strong>{{ budgetRestant | number }}</strong>
         </span>
       }
       <span class="fs-6 fw-bold text-dark">
-        Total : {{ montantTotal | number : '1.0-0' }} <span appDevise></span>
+        Total : {{ montantTotal | number }}
       </span>
     </div>
 
@@ -89,28 +93,33 @@
 
         @if (hasAgences()) {
           <!-- Bandeau : le principal a des agences → sélection obligatoire -->
-          <div class="d-flex align-items-center gap-2 px-3 py-2 mb-2 rounded border border-warning-subtle bg-warning-subtle">
+          <div
+            class="d-flex align-items-center gap-2 px-3 py-2 mb-2 rounded border border-warning-subtle bg-warning-subtle">
             <i class="pi pi-sitemap text-warning"></i>
             <span style="font-size: 0.82rem;">
-              Sélectionnez l'agence de <strong class="text-warning-emphasis fw-semibold">{{ fournisseurLibelle }}</strong>  (ou un autre fournisseur) à qui passer la commande.
+              Sélectionnez l'agence de <strong
+              class="text-warning-emphasis fw-semibold">{{ fournisseurLibelle }}</strong>  (ou un autre fournisseur) à qui passer la commande.
             </span>
           </div>
         }
 
         <label class="form-label fw-semibold text-secondary mb-1"
                style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;">
-          Fournisseur de commande @if (hasAgences()) { <span class="text-danger">*</span> }
+          Fournisseur de commande @if (hasAgences()) {
+          <span class="text-danger">*</span>
+        }
         </label>
 
         <div class="d-flex align-items-center gap-2">
           <app-fournisseur-select
-            class="flex-grow-1 min-w-0"
-            [selectedId]="fournisseurId ?? null"
-            [grouped]="true"
             (selectionChange)="onFournisseurSelected($event)"
+            [grouped]="true"
+            [selectedId]="fournisseurId ?? null"
+            class="flex-grow-1 min-w-0"
           />
           @if (isFournisseurDifferent) {
-            <span class="badge text-bg-warning d-flex align-items-center gap-1" style="font-size: 0.75rem;">
+            <span class="badge text-bg-warning d-flex align-items-center gap-1"
+                  style="font-size: 0.75rem;">
               <i class="pi pi-info-circle"></i>
               Différent de la suggestion
             </span>
@@ -139,19 +148,24 @@
           Mode de transmission
         </label>
         <div class="d-flex gap-3">
-          <div class="mode-option" [class.active]="modeCommande() === 'INTERNE'" (click)="modeCommande.set('INTERNE')">
+          <div (click)="modeCommande.set('INTERNE')" [class.active]="modeCommande() === 'INTERNE'"
+               class="mode-option">
             <i class="pi pi-server me-2"></i>
             <div>
               <div class="fw-semibold" style="font-size: 0.85rem;">Commande interne</div>
-              <div class="text-muted" style="font-size: 0.75rem;">Enregistrée dans le système uniquement</div>
+              <div class="text-muted" style="font-size: 0.75rem;">Enregistrée dans le système
+                uniquement
+              </div>
             </div>
           </div>
-          <div class="mode-option" [class.active]="modeCommande() === 'PHARMAML'"
-               (click)="modeCommande.set('PHARMAML')">
+          <div (click)="modeCommande.set('PHARMAML')" [class.active]="modeCommande() === 'PHARMAML'"
+               class="mode-option">
             <i class="pi pi-send me-2 text-primary"></i>
             <div>
               <div class="fw-semibold" style="font-size: 0.85rem;">Via PharmaML</div>
-              <div class="text-muted" style="font-size: 0.75rem;">Transmise électroniquement au grossiste</div>
+              <div class="text-muted" style="font-size: 0.75rem;">Transmise électroniquement au
+                grossiste
+              </div>
             </div>
           </div>
         </div>
@@ -159,7 +173,8 @@
 
       <!-- ── Options PharmaML ─────────────────────────────────────────────── -->
       @if (modeCommande() === 'PHARMAML') {
-        <div class="pharmaml-options mt-3 p-3 rounded border border-primary-subtle bg-primary-subtle">
+        <div
+          class="pharmaml-options mt-3 p-3 rounded border border-primary-subtle bg-primary-subtle">
           <div class="d-flex align-items-center gap-2 mb-3">
             <i class="pi pi-info-circle text-primary"></i>
             <span class="fw-semibold text-primary" style="font-size: 0.85rem;">Paramètres d'envoi PharmaML</span>
@@ -168,12 +183,12 @@
             <div class="col-md-6">
               <label class="form-label small fw-semibold">Type de commande</label>
               <app-select
+                (ngModelChange)="pharmamlTypeCommande.set($event)"
+                [clearable]="false"
                 [items]="typeCommandeOptions"
                 [ngModel]="pharmamlTypeCommande()"
-                (ngModelChange)="pharmamlTypeCommande.set($event)"
                 bindLabel="label"
                 bindValue="value"
-                [clearable]="false"
                 class="w-100"
               />
             </div>
@@ -183,11 +198,11 @@
                 <span class="text-muted fw-normal">(optionnel)</span>
               </label>
               <pharma-date-picker
-                [ngModel]="pharmamlDateLivraison()"
                 (ngModelChange)="pharmamlDateLivraison.set($event)"
                 [minDate]="minDate"
-                placeholder="jj/mm/aaaa"
+                [ngModel]="pharmamlDateLivraison()"
                 class="w-100"
+                placeholder="jj/mm/aaaa"
               />
             </div>
             <div class="col-12">
@@ -196,11 +211,11 @@
                 <span class="text-muted fw-normal">(optionnel)</span>
               </label>
               <textarea
-                class="form-control form-control-sm"
-                rows="2"
-                placeholder="Ajouter un commentaire..."
-                [ngModel]="pharmamlCommentaire()"
                 (ngModelChange)="pharmamlCommentaire.set($event)"
+                [ngModel]="pharmamlCommentaire()"
+                class="form-control form-control-sm"
+                placeholder="Ajouter un commentaire..."
+                rows="2"
               ></textarea>
             </div>
           </div>
@@ -213,16 +228,16 @@
 
 <div class="modal-footer">
   <app-button
-    label="Annuler"
-    icon="pi pi-times"
-    severity="secondary"
     (clicked)="cancel()"
+    icon="pi pi-times"
+    label="Annuler"
+    severity="secondary"
   />
   <app-button
-    [label]="modeCommande() === 'PHARMAML' ? 'Valider et envoyer via PharmaML' : 'Valider et commander'"
-    [icon]="modeCommande() === 'PHARMAML' ? 'pi pi-send' : 'pi pi-shopping-cart'"
-    [severity]="modeCommande() === 'PHARMAML' ? 'primary' : 'success'"
-    [disabled]="!canConfirm()"
     (clicked)="confirm()"
+    [disabled]="!canConfirm()"
+    [icon]="modeCommande() === 'PHARMAML' ? 'pi pi-send' : 'pi pi-shopping-cart'"
+    [label]="modeCommande() === 'PHARMAML' ? 'Valider et envoyer via PharmaML' : 'Valider et commander'"
+    [severity]="modeCommande() === 'PHARMAML' ? 'primary' : 'success'"
   />
 </div>

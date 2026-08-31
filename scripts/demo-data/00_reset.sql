@@ -40,6 +40,10 @@ DECLARE
         'app_user', 'authority', 'user_authority',
         -- Référentiels produit
         'tva', 'categorie', 'famille_produit', 'form_produit',
+        -- Motifs de retour et d'ajustement : référentiels posés par migration, sans
+        -- lesquels ni un retour fournisseur, ni un avoir, ni une ligne d'ajustement ne
+        -- peuvent être créés — le motif y est obligatoire.
+        'motif_retour_produit', 'motif_ajustement',
         -- Paramétrage
         'app_configuration', 'payment_mode', 'groupe_fournisseur',
         'semois_configuration', 'semois_classe_config', 'classification_config',
@@ -47,7 +51,15 @@ DECLARE
         'nav_item', 'nav_item_role', 'nav_permission', 'nav_item_user_order',
         'dashboard_layout', 'dashboard_layout_authority',
         -- Planification et licence
-        'scheduled_report', 'license_state', 'license_audit'
+        --
+        -- Les deux tables de planification sont des REFERENTIELS, pas des donnees
+        -- metier : la migration V1.4.6 y pose une ligne par periodicite et par nature
+        -- de facture, plus celle de la certification FNE, et l'ecran n'offre aucun
+        -- moyen d'en creer. Les vider laissait donc l'onglet « Automatisation »
+        -- definitivement desert — Flyway ne rejoue pas une migration deja appliquee.
+        'planification_facturation', 'planification_certification_fne',
+        'scheduled_report', 'license_state', 'license_audit',
+        'dci'
     ];
     v_tables text;
     v_count  int;

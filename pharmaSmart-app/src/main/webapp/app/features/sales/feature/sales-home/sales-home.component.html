@@ -9,10 +9,18 @@
         <span class="drawer-subtitle">Reprendre une vente en cours</span>
       </div>
     </div>
-    <app-pending-sales-list
-      (closed)="closePendingSales()"
-      (saleResumed)="onSaleResumed($event)"
-    />
+    <!--
+      La liste n'est construite QUE pendant que le tiroir est ouvert : elle charge les ventes
+      garées à son initialisation, et l'instance survivait jusque-là à la fermeture. Une vente
+      mise en attente APRÈS la première ouverture n'apparaissait donc jamais — le compteur du
+      bouton affichait « 1 » au-dessus d'une liste vide, et il fallait deviner « Actualiser ».
+    -->
+    @if (pendingSalesSidebar()) {
+      <app-pending-sales-list
+        (closed)="closePendingSales()"
+        (saleResumed)="onSaleResumed($event)"
+      />
+    }
   </app-offcanvas>
 }
 
@@ -123,6 +131,7 @@
         <button
           (click)="openPendingSales()"
           [disabled]="salesFacade.currentSale() !== null"
+          aria-label="Voir les ventes en attente"
           class="btn btn-sm btn-outline-info app-btn-normal d-inline-flex align-items-center justify-content-center gap-2 pending-sales-btn"
           ngbTooltip="Voir les ventes en attente"
           placement="left"

@@ -1,0 +1,23 @@
+@use 'app/shared/scss/modal-theme' as *;
+@import 'app/shared/scss/form-styles';
+
+:host {
+  @include modal-theme;
+}
+
+.field-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--p-text-color, #212529);
+  margin-bottom: 0.35rem;
+}
+
+// L'aperçu des produits retenus : de quoi vérifier la sélection sans quitter la modal,
+// sans pour autant dérouler deux cents libellés.
+.produits-retenus {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}

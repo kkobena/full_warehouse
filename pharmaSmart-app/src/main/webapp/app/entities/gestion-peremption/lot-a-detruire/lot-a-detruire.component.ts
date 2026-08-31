@@ -1,31 +1,45 @@
-import { Component, inject, OnInit, viewChild, ChangeDetectionStrategy, input, signal } from "@angular/core";
-import { ProductToDestroyService } from "../product-to-destroy.service";
-import { ITEMS_PER_PAGE } from "../../../shared/constants/pagination.constants";
-import { HttpHeaders, HttpResponse } from "@angular/common/http";
-import { NGB_DATE_TO_ISO } from "../../../shared/util/warehouse-util";
-import { ProductToDestroy, ProductToDestroyFilter, ProductToDestroySum } from "../model/product-to-destroy";
-import { TranslatePipe } from "@ngx-translate/core";
-import { IMagasin } from "../../../shared/model";
-import { Storage } from "../../storage/storage.model";
-import { IFournisseur } from "../../../shared/model/fournisseur.model";
-import { IRayon } from "../../../shared/model/rayon.model";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { NgbDateStruct, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import { Params } from "../../../shared/model/enumerations/params.model";
-import { ConfigurationService } from "../../../shared/configuration.service";
-import { RayonService } from "../../rayon/rayon.service";
-import { MagasinService } from "../../magasin/magasin.service";
-import { StorageService } from "../../storage/storage.service";
-import { RouterLink } from "@angular/router";
-import { PeremptionStatut } from "../model/peremption-statut";
-import { PharmaDatePickerComponent } from "../../../shared/date-picker/pharma-date-picker.component";
-import { SpinnerComponent } from "../../../shared/spinner/spinner.component";
-import { NgbConfirmDialogService } from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { NotificationService } from "../../../shared/services/notification.service";
-import { CommonModule } from "@angular/common";
-import { BlobDownloadService } from "../../../shared/services/blob-download.service";
-import { FournisseurSelectComponent } from "../../../features/partners/ui/fournisseur-select/fournisseur-select.component";
-import { currencySymbol } from 'app/shared/utils/format-utils';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  input,
+  OnInit,
+  signal,
+  viewChild
+} from "@angular/core";
+import {ProductToDestroyService} from "../product-to-destroy.service";
+import {ITEMS_PER_PAGE} from "../../../shared/constants/pagination.constants";
+import {HttpHeaders, HttpResponse} from "@angular/common/http";
+import {NGB_DATE_TO_ISO} from "../../../shared/util/warehouse-util";
+import {
+  ProductToDestroy,
+  ProductToDestroyFilter,
+  ProductToDestroySum
+} from "../model/product-to-destroy";
+import {TranslatePipe} from "@ngx-translate/core";
+import {IMagasin} from "../../../shared/model";
+import {Storage} from "../../storage/storage.model";
+import {IFournisseur} from "../../../shared/model/fournisseur.model";
+import {IRayon} from "../../../shared/model/rayon.model";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {NgbDateStruct, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
+import {ConfigurationService} from "../../../shared/configuration.service";
+import {RayonService} from "../../rayon/rayon.service";
+import {MagasinService} from "../../magasin/magasin.service";
+import {StorageService} from "../../storage/storage.service";
+import {PeremptionStatut} from "../model/peremption-statut";
+import {PharmaDatePickerComponent} from "../../../shared/date-picker/pharma-date-picker.component";
+import {SpinnerComponent} from "../../../shared/spinner/spinner.component";
+import {
+  NgbConfirmDialogService
+} from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import {NotificationService} from "../../../shared/services/notification.service";
+import {CommonModule} from "@angular/common";
+import {BlobDownloadService} from "../../../shared/services/blob-download.service";
+import {
+  FournisseurSelectComponent
+} from "../../../features/partners/ui/fournisseur-select/fournisseur-select.component";
+import {currencySymbol} from 'app/shared/utils/format-utils';
 import {
   AppSplitButtonItem,
   AppTableLazyLoadEvent,
@@ -45,7 +59,7 @@ import {
 } from "../../../shared/ui";
 
 @Component({
-  selector: "jhi-lot-a-detruire",
+  selector: "app-lot-a-detruire",
   imports: [
     ButtonComponent,
     FloatLabelComponent,
@@ -67,7 +81,6 @@ import {
     NgbTooltip,
     PharmaDatePickerComponent,
     SpinnerComponent,
-    RouterLink,
     FournisseurSelectComponent
   ],
   templateUrl: "./lot-a-detruire.component.html",
@@ -98,7 +111,6 @@ export class LotADetruireComponent implements OnInit {
   protected readonly toDate = signal<NgbDateStruct>(null);
   protected readonly storages = signal<Storage[]>([]);
   protected readonly rayons = signal<IRayon[]>([]);
-  protected readonly magasins = signal<IMagasin[]>([]);
   protected readonly showAdvancedFilters = signal(false);
   protected readonly itemsPerPage = ITEMS_PER_PAGE;
   protected readonly page = signal<number | undefined>(undefined);
@@ -157,9 +169,15 @@ export class LotADetruireComponent implements OnInit {
   }
 
   protected getSeverity(status: PeremptionStatut): "danger" | "warn" | "info" {
-    if (!status) return "info";
-    if (status.days < 0) return "danger";
-    if (status.days === 0) return "warn";
+    if (!status) {
+      return "info";
+    }
+    if (status.days < 0) {
+      return "danger";
+    }
+    if (status.days === 0) {
+      return "warn";
+    }
     return "info";
   }
 
@@ -201,10 +219,6 @@ export class LotADetruireComponent implements OnInit {
     this.onSearch();
   }
 
-  protected onMagasinChange(): void {
-    this.fetchStorages();
-    this.onSearch();
-  }
 
   protected onSearch(): void {
     this.getSum();
@@ -251,7 +265,7 @@ export class LotADetruireComponent implements OnInit {
   }
 
   private fetchStorages(): void {
-    this.storageService.fetchStorages({ magasinId: this.selectedMagasin()?.id }).subscribe((res: HttpResponse<Storage[]>) => {
+    this.storageService.fetchStorages({magasinId: this.selectedMagasin()?.id}).subscribe((res: HttpResponse<Storage[]>) => {
       this.storages.set(res.body || []);
     });
   }
@@ -264,27 +278,17 @@ export class LotADetruireComponent implements OnInit {
         all: false
       })
       .subscribe({
-        next: () => this.loadPage(),
+        next: () => {
+          this.spinner().hide();
+          this.loadPage();
+        },
         error: () => this.onError()
       });
   }
 
   private findConfigStock(): void {
-    this.configurationService.getParamByKey(Params.APP_GESTION_STOCK).subscribe(
-      {
-        next: res => {
-          if (res.body) {
-            this.isMono.set(Number(res.body.value) === 0);
-            if (!this.isMono()) {
-              this.fetchMagasin();
-            }
-            this.fetchRayon();
+    this.fetchMagasin();
 
-          }
-
-        }
-      }
-    );
 
   }
 
@@ -301,8 +305,9 @@ export class LotADetruireComponent implements OnInit {
   }
 
   private fetchMagasin(): void {
-    this.magasinSrevice.fetchAll().subscribe((res: HttpResponse<IMagasin[]>) => {
-      this.magasins.set(res.body || []);
+    this.magasinSrevice.getCurrenttUserMagasin().subscribe((res: HttpResponse<IMagasin>) => {
+      this.selectedMagasin.set(res.body);
+      this.fetchStorages();
     });
   }
 
@@ -387,7 +392,6 @@ export class LotADetruireComponent implements OnInit {
 
   private loadPage(page?: number): void {
     // spinner affiché au début, masqué dans onSuccess/onError
-    this.loading.set(true);
     const pageToLoad: number = page || this.page() || 1;
     this.productToDestroyService
       .query({

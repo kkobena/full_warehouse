@@ -2,6 +2,8 @@ package com.kobe.warehouse.service.impl;
 
 import com.kobe.warehouse.domain.FormProduit;
 import com.kobe.warehouse.repository.FormProduitRepository;
+import com.kobe.warehouse.repository.ProduitRepository;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.dto.FormProduitDTO;
 import com.kobe.warehouse.service.referential.FormProduitService;
 import java.util.Optional;
@@ -19,8 +21,10 @@ public class FormProduitServiceImpl implements FormProduitService {
     private final Logger log = LoggerFactory.getLogger(FormProduitServiceImpl.class);
 
     private final FormProduitRepository formProduitRepository;
+    private final ProduitRepository produitRepository;
 
-    public FormProduitServiceImpl(FormProduitRepository formProduitRepository) {
+    public FormProduitServiceImpl(FormProduitRepository formProduitRepository, ProduitRepository produitRepository) {
+        this.produitRepository = produitRepository;
         this.formProduitRepository = formProduitRepository;
     }
 
@@ -72,6 +76,16 @@ public class FormProduitServiceImpl implements FormProduitService {
      */
     @Override
     public void delete(Integer id) {
+        // Un référentiel encore porté par des fiches ne peut pas disparaître : la
+        // requête échouerait sur la contrainte de clé étrangère, en HTTP 500 et sans
+        // rien dire d'utile. On compte d'abord, et l'on explique.
+        long rattaches = this.produitRepository.countByFormeId(id);
+        if (rattaches > 0) {
+            throw new GenericError(
+                "La forme est encore utilisée par %d produit(s) : suppression impossible.".formatted(rattaches),
+                "referentielUtilise"
+            );
+        }
         log.debug("Request to delete FormProduit : {}", id);
         formProduitRepository.deleteById(id);
     }

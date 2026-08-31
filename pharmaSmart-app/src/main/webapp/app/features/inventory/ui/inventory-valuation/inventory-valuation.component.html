@@ -63,13 +63,18 @@
 <!-- ── Sélecteur de ventilation ──────────────────────────────────────────── -->
 <div class="val-group-selector">
   <span class="val-group-label">Ventiler par</span>
+  <!-- `selectionChange`, PAS `ngModelChange` : app-select affecte la valeur PUIS émet cet
+       évènement, tandis qu'un `(ngModelChange)` déclaré avant le `[(ngModel)]` s'exécute
+       AVANT l'affectation — la ventilation partait alors avec le regroupement précédent et
+       le tableau ne changeait pas. -->
   <app-select
     [style]="{ 'min-width': '250px' }"
-    (ngModelChange)="onGroupByChange()"
+    (selectionChange)="onGroupByChange()"
     [(ngModel)]="selectedGroupBy"
     [items]="groupByOptions"
     bindLabel="label"
     bindValue="value"
+    inputId="invVentilation"
     [small]="true"
   />
 </div>

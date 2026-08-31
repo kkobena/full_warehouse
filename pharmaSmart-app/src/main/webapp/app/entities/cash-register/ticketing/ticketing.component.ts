@@ -88,10 +88,10 @@ export class TicketingComponent implements OnInit {
   protected save(): void {
     const message =
       this.totalAmount() === 0
-        ? "Le montant total doit être supérieur à <b>0</b>. Etes-vous sûr de vouloir continuer ?"
-        : `le montant total est de <span class="fs-4 badge rounded-pill bg-secondary"><b> ${formatNumber(
+        ? "Le montant total doit être supérieur à <b>0</b>. Êtes-vous sûr de vouloir continuer ?"
+        : `Le montant compté est de <span class="fs-4 badge rounded-pill bg-secondary"><b>${formatNumber(
           this.totalAmount()
-        )}  </b></span> . Etes-vous sûr de vouloir continuer ?`;
+        )}</b></span>. Êtes-vous sûr de vouloir continuer ?`;
 
     this.confirmTicketing(message);
   }

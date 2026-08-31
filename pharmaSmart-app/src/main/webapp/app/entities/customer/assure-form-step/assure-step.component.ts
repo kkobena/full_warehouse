@@ -41,6 +41,18 @@ import {
 })
 export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
   entity?: ICustomer;
+  /**
+   * Le puits de frappe branché sur `[typeahead]` de `app-select-search`.
+   *
+   * Sans lui, ng-select refiltre LOCALEMENT les options sur leur `bindLabel` après la
+   * recherche serveur : taper « CNPS » interrogeait bien l'API, qui renvoyait la CAISSE
+   * NATIONALE DE PREVOYANCE SOCIALE — dont le libellé ne contient pas « CNPS » — et la liste
+   * affichait « Aucun résultat ». Le champ paraissait vide alors que la réponse était là.
+   * Branché ET ABONNÉ : ng-select ne renonce à son filtrage local que si le sujet a au moins
+   * un observateur — un sujet passé sans abonnement le laisse filtrer comme avant, et le
+   * défaut reste entier. D'où l'abonnement vide de `ngOnInit`.
+   */
+  protected readonly typeaheadSink$ = new Subject<string>();
   minLength = 2;
   tiersPayant!: ITiersPayant | null;
   protected readonly tiersPayants = signal<ITiersPayant[]>([]);
@@ -70,6 +82,9 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
+    // Abonnement volontairement vide : il n'existe que pour donner un observateur au sujet
+    // (voir `typeaheadSink$`). Les termes sont traités par `(searched)`.
+    this.typeaheadSink$.pipe(takeUntil(this.destroy$)).subscribe();
     const entity = this.assureFormStepService.assure();
     if (entity) {
       this.updateForm(entity);

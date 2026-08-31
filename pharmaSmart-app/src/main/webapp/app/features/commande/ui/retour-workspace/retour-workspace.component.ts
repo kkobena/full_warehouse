@@ -13,6 +13,7 @@ import { DeliveryService } from 'app/entities/commande/delevery/delivery.service
 import { ModifRetourProduitService } from 'app/entities/motif-retour-produit/motif-retour-produit.service';
 import { NotificationService } from 'app/shared/services/notification.service';
 import { RetourCommentaireModalComponent } from './retour-commentaire-modal.component';
+import { DevisePipe } from 'app/shared/utils/devise';
 
 interface RetourLine {
   orderLine: AbstractOrderItem;
@@ -25,7 +26,7 @@ interface RetourLine {
 
 @Component({
   selector: 'app-retour-workspace',
-  imports: [CommonModule, FormsModule, ButtonComponent, DataTableComponent, InputNumberComponent, SelectComponent],
+  imports: [CommonModule, FormsModule, ButtonComponent, DataTableComponent, InputNumberComponent, SelectComponent, DevisePipe],
   templateUrl: './retour-workspace.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './retour-workspace.component.scss',

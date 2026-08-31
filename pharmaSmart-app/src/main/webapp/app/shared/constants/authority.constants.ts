@@ -43,18 +43,24 @@ export enum Authority {
   MVT_CAISSE = 'mvt-caisse',
   BALANCE_CAISSE = 'balance-caisse',
   TABLEAU_PHARMACIEN = 'tableau-pharmacien',
-  PR_FORCE_STOCK = 'PR_FORCE_STOCK',
+  // Les privilèges (PR_*) portent le CODE de leur `nav_item` en base, et rien d'autre.
+  // C'est ce code que le back-office résout (`NavItemRepository.findByCode`) pour vérifier
+  // qu'un rôle détient le privilège, et c'est lui que l'AbilityService interroge côté front.
+  // Les anciennes valeurs en capitales (« PR_FORCE_STOCK »…) n'existaient dans aucune des
+  // deux tables : les contrôles renvoyaient toujours faux, et l'autorisation par clé de
+  // sécurité échouait systématiquement, sans message qui l'explique.
+  PR_FORCE_STOCK = 'pr-force-stock',
   PR_SHOW_STOCK = 'PR_SHOW_STOCK',
-  PR_MODIFIER_PRIX = 'PR_MODIFIER_PRIX',
-  PR_MODIFICATION_VENTE = 'PR_MODIFICATION_VENTE',
-  PR_ANNULATION_VENTE = 'PR_ANNULATION_VENTE',
+  PR_MODIFIER_PRIX = 'pr-modifier-prix',
+  PR_MODIFICATION_VENTE = 'pr-modifier-vente',
+  PR_ANNULATION_VENTE = 'pr-annuler-vente',
   ROLE_RESPONSABLE_COMMANDE = 'ROLE_RESPONSABLE_COMMANDE',
   ROLE_CAISSIER = 'ROLE_CAISSIER',
   ROLE_VENDEUR = 'ROLE_VENDEUR',
   PARAMETRE = 'parametre',
-  PR_VOIR_STOCK_INVENTAIRE = 'PR_VOIR_STOCK_INVENTAIRE',
-  PR_AJOUTER_REMISE_VENTE = 'PR_AJOUTER_REMISE_VENTE',
-  PR_SUPPRIME_PRODUIT_VENTE = 'PR_SUPPRIME_PRODUIT_VENTE',
+  PR_VOIR_STOCK_INVENTAIRE = 'pr-voir-stock-inventaire',
+  PR_AJOUTER_REMISE_VENTE = 'pr-remise-vente',
+  PR_SUPPRIME_PRODUIT_VENTE = 'pr-supprimer-ligne-vente',
   EDITION_FACTURATION = 'edition-factures',
   GESTION_REGLEMENT_FACTURE = 'reglement-facture',
   GESTION_DIFFERE = 'gestion-differe',

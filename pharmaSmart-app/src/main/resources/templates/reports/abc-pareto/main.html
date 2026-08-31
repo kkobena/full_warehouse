@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Analyse ABC Pareto</title>
+    <style th:replace="~{common/css}"></style>
+  </head>
+  <body>
+    <header th:replace="~{common/commonheader}"></header>
+    <div class="invoice">
+      <main>
+        <!--
+          Cinq classes plutôt que trois : la classe D isole les produits sans aucune vente,
+          qu'un ABC classique noie dans le C alors qu'ils sont précisément ce qui immobilise
+          de l'argent sans rien rapporter.
+        -->
+        <div class="alert-summary">
+          <table class="summary-table">
+            <tbody>
+              <tr>
+                <td class="summary-item">
+                  <strong>A+ (≤ 60 % du CA)&nbsp;:</strong>
+                  <span th:text="${summary.nbProduitsAPlus ?: 0}"></span> réf. —
+                  <span
+                    th:text="${summary.pctCaClasseAPlus != null ? #numbers.formatDecimal(summary.pctCaClasseAPlus, 1, 1) : '0,0'} + ' %'"
+                  ></span>
+                </td>
+                <td class="summary-item">
+                  <strong>A (60–80 %)&nbsp;:</strong>
+                  <span th:text="${summary.nbProduitsA ?: 0}"></span> réf. —
+                  <span
+                    th:text="${summary.pctCaClasseA != null ? #numbers.formatDecimal(summary.pctCaClasseA, 1, 1) : '0,0'} + ' %'"
+                  ></span>
+                </td>
+                <td class="summary-item">
+                  <strong>B (80–95 %)&nbsp;:</strong>
+                  <span th:text="${summary.nbProduitsB ?: 0}"></span> réf. —
+                  <span
+                    th:text="${summary.pctCaClasseB != null ? #numbers.formatDecimal(summary.pctCaClasseB, 1, 1) : '0,0'} + ' %'"
+                  ></span>
+                </td>
+              </tr>
+              <tr>
+                <td class="summary-item">
+                  <strong>C (95–99 %)&nbsp;:</strong>
+                  <span th:text="${summary.nbProduitsC ?: 0}"></span> réf. —
+                  <span
+                    th:text="${summary.pctCaClasseC != null ? #numbers.formatDecimal(summary.pctCaClasseC, 1, 1) : '0,0'} + ' %'"
+                  ></span>
+                </td>
+                <td class="summary-item alerte">
+                  <strong>D (&gt; 99 % / sans vente)&nbsp;:</strong>
+                  <span th:text="${summary.nbProduitsD ?: 0}"></span> réf. —
+                  <span
+                    th:text="${summary.pctCaClasseD != null ? #numbers.formatDecimal(summary.pctCaClasseD, 1, 1) : '0,0'} + ' %'"
+                  ></span>
+                </td>
+                <td class="summary-item">
+                  <strong>Total&nbsp;:</strong>
+                  <span th:text="${summary.totalProduits ?: 0}"></span> réf. —
+                  <span
+                    th:text="${#numbers.formatInteger(summary.caGlobal ?: 0, 0, 'WHITESPACE')} + ' ' + ${devise}"
+                  ></span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <table class="main-table">
+          <thead>
+            <tr>
+              <th class="text-right">Rang</th>
+              <th>Produit</th>
+              <th>Code CIP</th>
+              <th>Famille</th>
+              <th class="text-right">CA total</th>
+              <th class="text-right">Qté vendue</th>
+              <th class="text-right">Fréq. (mois)</th>
+              <th class="text-right">Contribution</th>
+              <th class="text-right">CA cumulé</th>
+              <th>Classe</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="p : ${products}">
+              <td class="text-right" th:text="${p.rang}"></td>
+              <td th:text="${p.libelle}"></td>
+              <td th:text="${p.codeCip}"></td>
+              <td th:text="${p.famille}"></td>
+              <td class="text-right" th:text="${#numbers.formatInteger(p.caTotal ?: 0, 0, 'WHITESPACE')}"></td>
+              <td class="text-right" th:text="${p.qteVendue}"></td>
+              <td class="text-right" th:text="${p.frequenceMois}"></td>
+              <td
+                class="text-right"
+                th:text="${p.contributionPct != null ? #numbers.formatDecimal(p.contributionPct, 1, 2) : '0,00'} + ' %'"
+              ></td>
+              <td
+                class="text-right"
+                th:text="${p.caCumulePct != null ? #numbers.formatDecimal(p.caCumulePct, 1, 2) : '0,00'} + ' %'"
+              ></td>
+              <td th:text="${p.classeActuelle}"></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="10" class="text-right">
+                <strong>Total&nbsp;: <span th:text="${products.size()}"></span> référence(s)</strong>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </main>
+    </div>
+  </body>
+</html>

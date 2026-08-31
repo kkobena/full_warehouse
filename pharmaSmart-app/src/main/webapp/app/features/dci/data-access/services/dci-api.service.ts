@@ -59,6 +59,18 @@ export class DciApiService {
     return this.http.get<IDciProduit[]>(`${this.resourceUrl}/${dciId}/produits`);
   }
 
+  /**
+   * Rattache plusieurs produits à une DCI, en une seule requête.
+   *
+   * <p>Rend le nombre de produits effectivement modifiés : une sélection peut vieillir entre
+   * l'écran et l'envoi, et le compte rendu doit dire ce qui a réellement été fait.
+   */
+  rattacherProduits(dciId: number, produitIds: number[]): Observable<HttpResponse<number>> {
+    return this.http.post<number>(`${this.resourceUrl}/${dciId}/produits`, produitIds, {
+      observe: 'response',
+    });
+  }
+
   create(dci: IDci): Observable<HttpResponse<IDci>> {
     return this.http.post<IDci>(this.resourceUrl, dci, { observe: 'response' });
   }

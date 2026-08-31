@@ -1,108 +1,109 @@
 <div class="pharma-smart-content p-1">
-<div class="pharma-toolbar su-parent-toolbar">
+  <div class="pharma-toolbar su-parent-toolbar">
 
-  <!-- Header bleu : titre + indicateur fraîcheur + bouton config -->
-  <div class="pharma-toolbar-header">
-    <i class="pi pi-lightbulb"></i>
-    <span class="su-title">Gestion des approvisionnements</span>
+    <!-- Header bleu : titre + indicateur fraîcheur + bouton config -->
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-lightbulb"></i>
+      <span class="su-title">Gestion des approvisionnements</span>
 
-    <div class="su-header-end ms-auto">
-      @if (semoisFraicheur()) {
-        <app-badge
-          [label]="semoisFraicheurLabel"
-          [severity]="semoisFraicheurSeverity"
-          icon="pi pi-clock"
-          ngbTooltip="Fraîcheur du calcul VMM (Vente Mensuelle Moyenne). Mise à jour automatique quotidienne selon le planning configuré."
-          placement="bottom"
-        />
-      }
-      <div class="su-config-btn-wrap">
-        <app-button
-          icon="pi pi-sliders-h"
-          label="Classes produits"
-          [outlined]="true"
-          size="small"
-          ngbTooltip="Paramétrage des classes A/B/C/D et des règles de réapprovisionnement automatique par classe"
-          placement="bottom"
-          (clicked)="ouvrirConfigCriticite()"
-        />
+      <div class="su-header-end ms-auto">
+        @if (semoisFraicheur()) {
+          <app-badge
+            [label]="semoisFraicheurLabel"
+            [severity]="semoisFraicheurSeverity"
+            icon="pi pi-clock"
+            ngbTooltip="Fraîcheur du calcul VMM (Vente Mensuelle Moyenne). Mise à jour automatique quotidienne selon le planning configuré."
+            placement="bottom"
+          />
+        }
+        <div class="su-config-btn-wrap">
+          <app-button
+            (clicked)="ouvrirConfigCriticite()"
+            [outlined]="false"
+            [severity]="'info'"
+            icon="pi pi-sliders-h"
+            label="Classes produits"
+            ngbTooltip="Paramétrage des classes A/B/C/D et des règles de réapprovisionnement automatique par classe"
+            placement="bottom"
+            size="small"
+          />
+        </div>
       </div>
+    </div>
+
+    <!-- Barre des 3 onglets -->
+    <div class="su-source-tabs-bar">
+
+      <!-- Onglet 1 : Propositions d'achat (GENEREE) -->
+      <button
+        (click)="setSource('REAPPRO')"
+        [class.su-tab--active]="activeSource() === 'REAPPRO'"
+        class="su-tab"
+        ngbTooltip="Propositions d'achat générées automatiquement selon la VMM — en attente de validation"
+        placement="bottom"
+        type="button"
+      >
+        <i class="pi pi-inbox"></i>
+        Propositions d'achat
+        @if (countReappro() > 0) {
+          <span class="su-tab-badge su-tab-badge--primary">{{ countReappro() }}</span>
+        }
+      </button>
+
+      <!-- Onglet 2 : Commandes fournisseurs (REQUESTED) -->
+      <button
+        (click)="setSource('COMMANDES_A_PASSER')"
+        [class.su-tab--active]="activeSource() === 'COMMANDES_A_PASSER'"
+        class="su-tab"
+        ngbTooltip="Bons de commande en cours de préparation, prêts à être transmis aux fournisseurs"
+        placement="bottom"
+        type="button"
+      >
+        <i class="pi pi-cart-plus"></i>
+        Commandes fournisseurs
+        <span class="su-tab-badge su-tab-badge--success">{{ countCommandesAPasser() }}</span>
+      </button>
+
+      <!-- Onglet 3 : Réceptions (bons de livraison à traiter) -->
+      <button
+        (click)="setSource('BONS_DE_LIVRAISON')"
+        [class.su-tab--active]="activeSource() === 'BONS_DE_LIVRAISON'"
+        class="su-tab"
+        ngbTooltip="Bons de livraison reçus des fournisseurs, en attente de réception en stock"
+        placement="bottom"
+        type="button"
+      >
+        <i class="pi pi-truck"></i>
+        Réceptions
+        @if (countBonsLivraison() > 0) {
+          <span class="su-tab-badge su-tab-badge--warn">{{ countBonsLivraison() }}</span>
+        }
+      </button>
+
+      <!-- Onglet 4 : Tableau de bord stock (lecture seule) -->
+      <button
+        (click)="setSource('ANALYSE')"
+        [class.su-tab--active]="activeSource() === 'ANALYSE'"
+        class="su-tab"
+        ngbTooltip="Tableau de bord : niveaux de stock par classe A/B/C/D et seuils de rupture"
+        placement="bottom"
+        type="button"
+      >
+        <i class="pi pi-chart-bar"></i>
+        Tableau de bord stock
+      </button>
+
     </div>
   </div>
 
-  <!-- Barre des 3 onglets -->
-  <div class="su-source-tabs-bar">
-
-    <!-- Onglet 1 : Propositions d'achat (GENEREE) -->
-    <button
-      class="su-tab"
-      [class.su-tab--active]="activeSource() === 'REAPPRO'"
-      (click)="setSource('REAPPRO')"
-      type="button"
-      ngbTooltip="Propositions d'achat générées automatiquement selon la VMM — en attente de validation"
-      placement="bottom"
-    >
-      <i class="pi pi-inbox"></i>
-      Propositions d'achat
-      @if (countReappro() > 0) {
-        <span class="su-tab-badge su-tab-badge--primary">{{ countReappro() }}</span>
-      }
-    </button>
-
-    <!-- Onglet 2 : Commandes fournisseurs (REQUESTED) -->
-    <button
-      class="su-tab"
-      [class.su-tab--active]="activeSource() === 'COMMANDES_A_PASSER'"
-      (click)="setSource('COMMANDES_A_PASSER')"
-      type="button"
-      ngbTooltip="Bons de commande en cours de préparation, prêts à être transmis aux fournisseurs"
-      placement="bottom"
-    >
-      <i class="pi pi-cart-plus"></i>
-      Commandes fournisseurs
-      <span class="su-tab-badge su-tab-badge--success">{{ countCommandesAPasser() }}</span>
-    </button>
-
-    <!-- Onglet 3 : Réceptions (bons de livraison à traiter) -->
-    <button
-      class="su-tab"
-      [class.su-tab--active]="activeSource() === 'BONS_DE_LIVRAISON'"
-      (click)="setSource('BONS_DE_LIVRAISON')"
-      type="button"
-      ngbTooltip="Bons de livraison reçus des fournisseurs, en attente de réception en stock"
-      placement="bottom"
-    >
-      <i class="pi pi-truck"></i>
-      Réceptions
-      @if (countBonsLivraison() > 0) {
-        <span class="su-tab-badge su-tab-badge--warn">{{ countBonsLivraison() }}</span>
-      }
-    </button>
-
-    <!-- Onglet 4 : Tableau de bord stock (lecture seule) -->
-    <button
-      class="su-tab"
-      [class.su-tab--active]="activeSource() === 'ANALYSE'"
-      (click)="setSource('ANALYSE')"
-      type="button"
-      ngbTooltip="Tableau de bord : niveaux de stock par classe A/B/C/D et seuils de rupture"
-      placement="bottom"
-    >
-      <i class="pi pi-chart-bar"></i>
-      Tableau de bord stock
-    </button>
-
-  </div>
-</div>
-
-<!-- ─── Contenu selon la source active ──────────────────────────────── -->
-@if (activeSource() === 'REAPPRO') {
-  <app-suggestion-home />
-} @else if (activeSource() === 'COMMANDES_A_PASSER') {
-  <app-commande-requested-home (countChange)="countCommandesAPasser.set($event)" />
-} @else if (activeSource() === 'BONS_DE_LIVRAISON') {
-  <app-list-bons />
-} @else {
-  <app-semois-suggestions />
-}
+  <!-- ─── Contenu selon la source active ──────────────────────────────── -->
+  @if (activeSource() === 'REAPPRO') {
+    <app-suggestion-home />
+  } @else if (activeSource() === 'COMMANDES_A_PASSER') {
+    <app-commande-requested-home (countChange)="countCommandesAPasser.set($event)" />
+  } @else if (activeSource() === 'BONS_DE_LIVRAISON') {
+    <app-list-bons />
+  } @else {
+    <app-semois-suggestions />
+  }
 </div>

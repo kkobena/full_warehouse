@@ -50,6 +50,14 @@
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-toolbar-actions">
         <div class="pharma-button-group">
+
+          <app-button
+            (clicked)="openNouvelAvoir()"
+            [raised]="true"
+            icon="pi pi-plus"
+            label="Nouvel avoir"
+            severity="success"
+          />
           <app-button
             (clicked)="onSearch()"
             [loading]="loading()"
@@ -58,12 +66,15 @@
             label="Rechercher"
             severity="info"
           />
+
           <app-split-button
+            (clicked)="onExportExcel()"
             [items]="exportMenuItems"
             [raised]="true"
             icon="pi pi-file-excel"
+            [outlined]="true"
             label="Exporter"
-            severity="warn"
+            severity="danger"
           />
 
         </div>
@@ -73,36 +84,54 @@
 
   <!-- KPI bar -->
   @if (avoirs().length > 0) {
-    <div class="kpi-bar">
-      <div class="kpi-tile kpi-draft">
-        <span class="kpi-label">Brouillons</span>
-        <span class="kpi-count">{{ kpi()['DRAFT'].count }}</span>
-        <span class="kpi-amount">{{ kpi()['DRAFT'].total | number:'1.0-0' }}</span>
-      </div>
-      <div class="kpi-tile kpi-emis">
-        <span class="kpi-label">Émis</span>
-        <span class="kpi-count">{{ kpi()['EMIS'].count }}</span>
-        <span class="kpi-amount">{{ kpi()['EMIS'].total | number:'1.0-0' }}</span>
-      </div>
-      <div class="kpi-tile kpi-impute">
-        <span class="kpi-label">Imputés</span>
-        <span class="kpi-count">{{ kpi()['IMPUTE'].count }}</span>
-        <span class="kpi-amount">{{ kpi()['IMPUTE'].total | number:'1.0-0' }}</span>
-      </div>
-      <div class="kpi-tile kpi-annule">
-        <span class="kpi-label">Annulés</span>
-        <span class="kpi-count">{{ kpi()['ANNULE'].count }}</span>
-        <span class="kpi-amount">{{ kpi()['ANNULE'].total | number:'1.0-0' }}</span>
-      </div>
-    </div>
+    <!--
+      Bandeau commun `app-kpi-strip` plutôt qu'un `.kpi-bar` propre à cet écran : mêmes
+      proportions, mêmes séparateurs et même squelette de chargement que partout ailleurs.
+      La VALEUR mise en avant est le nombre d'avoirs — c'est ce qu'on compte — et le montant
+      cumulé passe en sous-titre, où il explique le nombre.
+    -->
+    <app-kpi-strip [loading]="loading()" [skeletonCount]="4" stripClass="mt-2 mb-2">
+      <app-kpi-item [accent]="'secondary'" [value]="kpi()['DRAFT'].count" icon="pi pi-file-edit"
+                    iconClass="text-secondary" label="Brouillons" valueClass="text-secondary">
+        <ng-container ngProjectAs="[kpiSub]">
+          {{ kpi()['DRAFT'].total | number: '1.0-0' }} <span appDevise></span>
+        </ng-container>
+      </app-kpi-item>
+
+      <app-kpi-item [accent]="'info'" [value]="kpi()['EMIS'].count" icon="pi pi-send"
+                    iconClass="text-info" label="Émis" valueClass="text-info">
+        <ng-container ngProjectAs="[kpiSub]">
+          {{ kpi()['EMIS'].total | number: '1.0-0' }} <span appDevise></span>
+        </ng-container>
+      </app-kpi-item>
+
+      <app-kpi-item [accent]="'success'" [value]="kpi()['IMPUTE'].count" icon="pi pi-link"
+                    iconClass="text-success" label="Imputés" valueClass="text-success">
+        <ng-container ngProjectAs="[kpiSub]">
+          {{ kpi()['IMPUTE'].total | number: '1.0-0' }} <span appDevise></span>
+        </ng-container>
+      </app-kpi-item>
+
+      <app-kpi-item [accent]="'danger'" [value]="kpi()['ANNULE'].count" icon="pi pi-ban"
+                    iconClass="text-danger" label="Annulés" valueClass="text-danger">
+        <ng-container ngProjectAs="[kpiSub]">
+          {{ kpi()['ANNULE'].total | number: '1.0-0' }} <span appDevise></span>
+        </ng-container>
+      </app-kpi-item>
+    </app-kpi-strip>
   }
 
-  <!-- Table -->
+
   <app-data-table
     [loading]="loading()"
+    [paginator]="true"
+    [rows]="15"
+    [rowsPerPageOptions]="[10, 15, 25, 50]"
     [scrollable]="true"
+    [showCurrentPageReport]="true"
     [size]="'small'"
     [value]="avoirs()"
+    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} avoirs"
     scrollHeight="flex"
   >
     <ng-template #header>
@@ -179,7 +208,7 @@
               size="small"
             />
             <app-button
-              (clicked)="openNouvelAvoir(avoir.factureOrigineId, avoir.factureOrigineDate, avoir.tiersPayantId)"
+              (clicked)="openNouvelAvoir(avoir.factureOrigineId, avoir.factureOrigineDate)"
               [text]="true"
               icon="pi pi-plus"
               ngbTooltip="Créer un avoir sur cette facture"

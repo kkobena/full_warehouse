@@ -1,112 +1,125 @@
 <!-- Toolbar -->
-<div class="pharma-toolbar">
-  <div class="pharma-toolbar-header">
-    <i class="pi pi-heart"></i>
-    <span class="pharma-toolbar-title">Rétention Clients</span>
+<div class="pharma-smart-content p-1">
+  <div class="pharma-toolbar">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-heart"></i>
+      <span class="pharma-toolbar-title">Rétention Clients</span>
+    </div>
   </div>
+
+  <!-- Loading -->
+  @if (isLoading()) {
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 300px">
+      <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
+    </div>
+  }
+
+  @if (!isLoading() && kpi()) {
+
+    <!-- KPI Strip -->
+    <app-kpi-strip stripClass="mt-2 mb-3">
+      <app-kpi-item [accent]="'success'" [value]="formatNumber(kpi()?.clientsActifs)" icon="pi pi-check-circle"
+                    iconClass="text-success" label="Clients actifs"
+                    valueClass="text-success">
+        <ng-container ngProjectAs="[kpiSub]">achat ≤ 30 j · {{ tauxActifs() }}%</ng-container>
+      </app-kpi-item>
+      <app-kpi-item [accent]="'warning'" [value]="formatNumber(kpi()?.clientsARisque)" icon="pi pi-exclamation-triangle"
+                    iconClass="text-warning" label="À risque"
+                    valueClass="text-warning">
+        <ng-container ngProjectAs="[kpiSub]">31 – 90 j · {{ tauxRisque() }}%</ng-container>
+      </app-kpi-item>
+      <app-kpi-item [accent]="'danger'" [value]="formatNumber(kpi()?.clientsPerdus)" icon="pi pi-times-circle"
+                    iconClass="text-danger" label="Perdus"
+                    valueClass="text-danger">
+        <ng-container ngProjectAs="[kpiSub]">> 90 j · {{ tauxPerdus() }}%</ng-container>
+      </app-kpi-item>
+      <app-kpi-item [accent]="'primary'" [value]="formatNumber(kpi()?.totalClients)" icon="pi pi-users"
+                    iconClass="text-primary" label="Total clients"
+                    valueClass="text-primary">
+        <ng-container ngProjectAs="[kpiSub]">CA moyen : {{
+            formatCurrency(kpi()?.caMoyenParClient)
+          }}
+        </ng-container>
+      </app-kpi-item>
+    </app-kpi-strip>
+
+    <!-- Chart + Table -->
+    <div class="row g-3">
+
+      <!-- Doughnut -->
+      <div class="col-md-4">
+        <div class="card data-card h-100">
+          <div class="card-header">
+            <h5 class="card-title">
+              <i class="pi pi-chart-pie text-primary"></i>
+              Répartition par segment
+            </h5>
+          </div>
+          <div class="card-body" style="position: relative; height: 300px">
+            <canvas #doughnutCanvas></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Client list -->
+      <div class="col-md-8">
+        <div class="card data-card">
+          <app-data-table
+            [initialSortOrder]="-1"
+            [paginator]="true"
+            [rows]="50"
+            [scrollable]="true"
+            [size]="'small'"
+            [stripedRows]="true"
+            [value]="clients()"
+            initialSortField="joursAbsence"
+            scrollHeight="calc(100vh - 420px)"
+          >
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th appSortableHeader="nom">Client</th>
+                <th appSortableHeader="nbAchats" class="text-end">Achats</th>
+                <th appSortableHeader="caTotal" class="text-end">CA total</th>
+                <th appSortableHeader="derniereVisite">Dernière visite</th>
+                <th appSortableHeader="joursAbsence" class="text-end">Absence</th>
+                <th>Segment</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-c>
+              <tr>
+                <td><strong>{{ c.nom }}</strong></td>
+                <td class="text-end">{{ formatNumber(c.nbAchats) }}</td>
+                <td class="text-end">{{ formatCurrency(c.caTotal) }}</td>
+                <td>{{ c.derniereVisite }}</td>
+                <td class="text-end fw-semibold">{{ c.joursAbsence }} j</td>
+                <td>
+                  <span class="badge {{ segmentBadge(c) }}">{{ segmentLabel(c) }}</span>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+              <tr>
+                <td class="pharma-empty-message" colspan="6">
+                  <div class="pharma-empty-content">
+                    <i class="pi pi-inbox" style="font-size: 2rem"></i>
+                    <p class="mt-2 mb-0">Aucun client avec historique d'achat</p>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </app-data-table>
+        </div>
+      </div>
+
+    </div>
+  }
+
+  @if (!isLoading() && !kpi()) {
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 200px">
+      <div class="pharma-empty-content">
+        <i class="pi pi-inbox" style="font-size: 2.5rem"></i>
+        <p class="mt-2 mb-0 text-muted">Aucune donnée disponible</p>
+      </div>
+    </div>
+  }
 </div>
-
-<!-- Loading -->
-@if (isLoading()) {
-  <div class="d-flex justify-content-center align-items-center" style="min-height: 300px">
-    <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
-  </div>
-}
-
-@if (!isLoading() && kpi()) {
-
-  <!-- KPI Strip -->
-  <app-kpi-strip stripClass="mt-2 mb-3">
-    <app-kpi-item [accent]="'success'" icon="pi pi-check-circle" iconClass="text-success" label="Clients actifs" [value]="formatNumber(kpi()?.clientsActifs)" valueClass="text-success">
-      <ng-container ngProjectAs="[kpiSub]">achat ≤ 30 j · {{ tauxActifs() }}%</ng-container>
-    </app-kpi-item>
-    <app-kpi-item [accent]="'warning'" icon="pi pi-exclamation-triangle" iconClass="text-warning" label="À risque" [value]="formatNumber(kpi()?.clientsARisque)" valueClass="text-warning">
-      <ng-container ngProjectAs="[kpiSub]">31 – 90 j · {{ tauxRisque() }}%</ng-container>
-    </app-kpi-item>
-    <app-kpi-item [accent]="'danger'" icon="pi pi-times-circle" iconClass="text-danger" label="Perdus" [value]="formatNumber(kpi()?.clientsPerdus)" valueClass="text-danger">
-      <ng-container ngProjectAs="[kpiSub]">> 90 j · {{ tauxPerdus() }}%</ng-container>
-    </app-kpi-item>
-    <app-kpi-item [accent]="'primary'" icon="pi pi-users" iconClass="text-primary" label="Total clients" [value]="formatNumber(kpi()?.totalClients)" valueClass="text-primary">
-      <ng-container ngProjectAs="[kpiSub]">CA moyen : {{ formatCurrency(kpi()?.caMoyenParClient) }}</ng-container>
-    </app-kpi-item>
-  </app-kpi-strip>
-
-  <!-- Chart + Table -->
-  <div class="row g-3">
-
-    <!-- Doughnut -->
-    <div class="col-md-4">
-      <div class="card data-card h-100">
-        <div class="card-header">
-          <h5 class="card-title">
-            <i class="pi pi-chart-pie text-primary"></i>
-            Répartition par segment
-          </h5>
-        </div>
-        <div class="card-body" style="position: relative; height: 300px">
-          <canvas #doughnutCanvas></canvas>
-        </div>
-      </div>
-    </div>
-
-    <!-- Client list -->
-    <div class="col-md-8">
-      <div class="card data-card">
-        <app-data-table
-          [value]="clients()"
-          [scrollable]="true"
-          scrollHeight="calc(100vh - 420px)"
-          [stripedRows]="true"
-          [size]="'small'"
-          initialSortField="joursAbsence"
-          [initialSortOrder]="-1"
-          [paginator]="true"
-          [rows]="50"
-        >
-          <ng-template #header>
-            <tr class="pharma-table-head">
-              <th appSortableHeader="nom">Client </th>
-              <th class="text-end" appSortableHeader="nbAchats">Achats </th>
-              <th class="text-end" appSortableHeader="caTotal">CA total </th>
-              <th appSortableHeader="derniereVisite">Dernière visite </th>
-              <th class="text-end" appSortableHeader="joursAbsence">Absence </th>
-              <th>Segment</th>
-            </tr>
-          </ng-template>
-          <ng-template #body let-c>
-            <tr>
-              <td><strong>{{ c.nom }}</strong></td>
-              <td class="text-end">{{ formatNumber(c.nbAchats) }}</td>
-              <td class="text-end">{{ formatCurrency(c.caTotal) }}</td>
-              <td>{{ c.derniereVisite }}</td>
-              <td class="text-end fw-semibold">{{ c.joursAbsence }} j</td>
-              <td>
-                <span class="badge {{ segmentBadge(c) }}">{{ segmentLabel(c) }}</span>
-              </td>
-            </tr>
-          </ng-template>
-          <ng-template #emptymessage>
-            <tr>
-              <td colspan="6" class="pharma-empty-message">
-                <div class="pharma-empty-content">
-                  <i class="pi pi-inbox" style="font-size: 2rem"></i>
-                  <p class="mt-2 mb-0">Aucun client avec historique d'achat</p>
-                </div>
-              </td>
-            </tr>
-          </ng-template>
-        </app-data-table>
-      </div>
-    </div>
-
-  </div>
-}
-
-@if (!isLoading() && !kpi()) {
-  <div class="d-flex justify-content-center align-items-center" style="min-height: 200px">
-    <div class="pharma-empty-content">
-      <i class="pi pi-inbox" style="font-size: 2.5rem"></i>
-      <p class="mt-2 mb-0 text-muted">Aucune donnée disponible</p>
-    </div>
-  </div>
-}

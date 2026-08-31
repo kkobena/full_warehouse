@@ -213,7 +213,15 @@ public class ThirdPartyCalculationManagerImpl implements ThirdPartyCalculationMa
                 }
                 ti.setTaux(cmpTaux / 100.0f);
                 ti.setPriorite(clientTiersPayant.getPriorite());
-                Optional.ofNullable(tiersPayant.getPlafondConso()).ifPresent(v -> ti.setPlafondConso(BigDecimal.valueOf(v)));
+                // Plafond CLIENT, et non plafond de l'organisme : il est comparé à la
+                // consommation du CONTRAT (ligne suivante), pas à celle de l'organisme.
+                // Confronter un cumul client à une enveloppe globale rendait le plafonnement
+                // inopérant — l'enveloppe se compte en dizaines de millions, la consommation
+                // d'un assuré en dizaines de milliers. `SaleDataService` alimente d'ailleurs
+                // le même champ depuis `getPlafondConsoClient()`.
+                Optional
+                    .ofNullable(tiersPayant.getPlafondConsoClient())
+                    .ifPresent(v -> ti.setPlafondConso(BigDecimal.valueOf(v)));
                 Optional.ofNullable(clientTiersPayant.getConsoMensuelle()).ifPresent(v -> ti.setConsoMensuelle(BigDecimal.valueOf(v)));
                 Optional
                     .ofNullable(tiersPayant.getPlafondJournalierClient())

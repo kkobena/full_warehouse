@@ -84,11 +84,17 @@ INSERT INTO facture_tiers_payant (
     montant_regle, remise_forfetaire, generation_code,
     montant_ttc, montant_ht, montant_tva, montant_net,
     repartitions, statut, origine_generation,
-    tiers_payant_id, user_id, created, updated
+    tiers_payant_id, groupe_tiers_payant_id, user_id, created, updated
 )
 SELECT
     f.id, f.invoice_date,
-    'FA' || to_char(f.invoice_date, 'YYYYMM') || lpad(f.rang::text, 4, '0'),
+    -- Le numero suit le format de l'APPLICATION : ANNEE_0001 (voir
+    -- AbstractEditionFactureService.getFactureNumber). Le loader ecrivait
+    -- « FA2026080049 », une forme inventee ici : l'ecran, qui n'affiche que ce
+    -- qui suit le souligne, rendait alors le numero entier, et le manuel
+    -- montrait une numerotation que le logiciel ne produit jamais. Le rang est
+    -- global a l'annee, comme le compteur du service.
+    to_char(f.invoice_date, 'YYYY') || '_' || lpad(f.rang::text, 4, '0'),
     f.debut_periode, f.fin_periode, false,
     -- Réglée intégralement, partiellement, ou pas du tout.
     CASE WHEN f.rang % 3 = 0 THEN f.montant
@@ -104,10 +110,16 @@ SELECT
          ELSE 'NOT_PAID' END,
     'MANUELLE',
     f.tierspayant_id,
+    -- Le groupe du tiers payant est RECOPIÉ sur la facture. Sans lui, toute la
+    -- chaîne des créances part à zéro : la synthèse par groupe, la bande
+    -- d'indicateurs de l'accueil et le vieillissement des créances regroupent
+    -- par ce champ, laissé nul jusqu'ici.
+    tp.groupe_tiers_payant_id,
     u.id,
     f.invoice_date + TIME '09:00:00',
     f.invoice_date + TIME '09:00:00'
 FROM tmp_facture f
+JOIN tiers_payant tp ON tp.id = f.tierspayant_id
 CROSS JOIN LATERAL (SELECT id FROM app_user WHERE login = 'admin' LIMIT 1) u
 LEFT JOIN (
     SELECT facture_id,
@@ -185,6 +197,57 @@ BEGIN
     IF v_statuts > 0 THEN RAISE EXCEPTION '% facture(s) au statut hors contrainte', v_statuts; END IF;
 
     RAISE NOTICE '% factures tiers-payant.', v_fact;
+END $$;
+
+
+-- ---------------------------------------------------------------------------
+-- Une facture IMPAYEE pour l'organisme sans email
+--
+-- La certification fiscale (FNE) n'est offerte que sur une facture definitive
+-- ET impayee. Or c'est justement sur l'organisme incomplet — ASACI, prive
+-- d'adresse electronique a dessein — qu'il faut pouvoir tenter la
+-- certification, pour voir le garde-fou la refuser. Sans facture impayee chez
+-- lui, le bouton n'apparait sur aucune ligne et le cas reste indemontrable.
+--
+-- On force la plus recente de ses factures a l'impaye. Aucun encaissement ne la
+-- vise : 14b_reglements ne regle que les factures dont montant_regle est deja
+-- non nul.
+-- ---------------------------------------------------------------------------
+UPDATE facture_tiers_payant f
+   SET statut = 'NOT_PAID',
+       montant_regle = 0,
+       updated = now()
+ WHERE (f.id, f.invoice_date) = (
+     SELECT ftp.id, ftp.invoice_date
+       FROM facture_tiers_payant ftp
+       JOIN tiers_payant tp ON tp.id = ftp.tiers_payant_id
+      WHERE tp.name = 'ASACI' AND NOT ftp.facture_provisoire
+      ORDER BY ftp.invoice_date DESC
+      LIMIT 1
+ );
+
+-- Les LIGNES suivent la facture : une facture impayee dont les bons se disent
+-- regles est une incoherence que le controle « Reglement de ligne coherent avec
+-- la facture » releve aussitot.
+UPDATE third_party_sale_line t
+   SET montant_regle = 0
+  FROM facture_tiers_payant f
+  JOIN tiers_payant tp ON tp.id = f.tiers_payant_id
+ WHERE t.facture_tiers_payant_id = f.id
+   AND t.invoice_date = f.invoice_date
+   AND tp.name = 'ASACI'
+   AND f.statut = 'NOT_PAID';
+
+DO $$
+DECLARE v_n INTEGER;
+BEGIN
+    SELECT count(*) INTO v_n
+      FROM facture_tiers_payant f
+      JOIN tiers_payant tp ON tp.id = f.tiers_payant_id
+     WHERE tp.name = 'ASACI' AND f.statut = 'NOT_PAID' AND NOT f.facture_provisoire;
+    IF v_n = 0 THEN
+        RAISE EXCEPTION 'Aucune facture impayee chez l''organisme sans email : le refus de certification FNE ne se demontre pas';
+    END IF;
 END $$;
 
 \echo '<< 14_facturation : terminé'

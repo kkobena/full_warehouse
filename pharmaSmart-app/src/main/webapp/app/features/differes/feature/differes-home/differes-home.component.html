@@ -1,6 +1,7 @@
 <div class="pharma-smart-content p-1">
   <!-- Toolbar -->
-  <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-credit-card" title="Ventes à crédit (différés)">
+  <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-credit-card"
+               title="Ventes à crédit (différés)">
     <ng-container ngProjectAs="[toolbarFilters]">
 
       <label for="dhClient">Client</label>
@@ -8,7 +9,7 @@
         [(ngModel)]="customerId"
         [clearable]="true"
         [items]="store.clients()"
-        [style]="{ 'min-width': '150px' }"
+        [style]="{ 'min-width': '180px' }"
         appendTo="body"
         bindLabel="fullName"
         bindValue="id"
@@ -21,6 +22,7 @@
         [(ngModel)]="statut"
         [clearable]="false"
         [items]="typesDifferes"
+        [style]="{ 'min-width': '200px' }"
         appendTo="body"
         bindLabel="label"
         bindValue="id"
@@ -28,10 +30,12 @@
       />
 
 
-      <pharma-date-picker [ngModel]="modelStartDate()" (ngModelChange)="modelStartDate.set($event)" [maxDate]="modelEndDate" [style]="{ 'max-width': '180px' }"
+      <pharma-date-picker (ngModelChange)="modelStartDate.set($event)" [maxDate]="modelEndDate"
+                          [ngModel]="modelStartDate()" [style]="{ 'max-width': '180px' }"
                           id="dhDu" label="Du" />
 
-      <pharma-date-picker [(ngModel)]="modelEndDate" [minDate]="modelStartDate()" [style]="{ 'max-width': '180px' }"
+      <pharma-date-picker [(ngModel)]="modelEndDate" [minDate]="modelStartDate()"
+                          [style]="{ 'max-width': '180px' }"
                           id="dhAu" label="Au" />
     </ng-container>
 
@@ -62,7 +66,7 @@
   <!-- KPI Banner -->
   <app-differe-kpi-banner [summary]="store.summary()" />
   <!-- Hint premier usage -->
-  <app-hint storageKey="differes" [visible]="!panelOpen()">
+  <app-hint [visible]="!panelOpen()" storageKey="differes">
     Cliquez sur un client pour afficher le détail de ses ventes à crédit et procéder au règlement.
   </app-hint>
 

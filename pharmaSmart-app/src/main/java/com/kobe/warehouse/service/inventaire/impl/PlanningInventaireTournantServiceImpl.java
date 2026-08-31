@@ -5,6 +5,7 @@ import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.domain.PlanningInventaireTournant;
 import com.kobe.warehouse.domain.Rayon;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.enumeration.CritereTournant;
 import com.kobe.warehouse.domain.enumeration.FrequenceTournant;
@@ -26,6 +27,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -241,11 +243,17 @@ public class PlanningInventaireTournantServiceImpl implements PlanningInventaire
 
     private StoreInventoryRecord buildRayonRecord(PlanningInventaireTournant planning,
         Integer storageId, Integer userId) {
+        // Le stockage de référence est FACULTATIF sur le planning — l'écran annonce d'ailleurs
+        // « Tous les storages ». Sans lui, la rotation porte donc sur tous les rayons de
+        // l'officine, et non sur une liste vide : celle-ci faisait échouer l'exécution en
+        // HTTP 500, sur un planning que rien ne signalait comme incomplet.
         List<Rayon> rayons = storageId != null
             ? rayonRepository.findAllByStorageIdOrderByLibelle(storageId)
-            : List.of();
+            : rayonRepository.findAll(Sort.by(Sort.Direction.ASC, "libelle"));
         if (rayons.isEmpty()) {
-            throw new IllegalStateException("Aucun rayon trouvé pour storage=" + storageId);
+            throw new GenericError(
+                "Aucun rayon n'est défini : le planning par rayon n'a rien à inventorier.",
+                "rayonIntrouvable");
         }
         int idx = planning.getCritereIndexCourant() % rayons.size();
         Rayon rayon = rayons.get(idx);
@@ -258,7 +266,9 @@ public class PlanningInventaireTournantServiceImpl implements PlanningInventaire
         Integer storageId, Integer userId) {
         List<FamilleProduit> familles = familleProduitRepository.findAllByOrderByLibelleAsc();
         if (familles.isEmpty()) {
-            throw new IllegalStateException("Aucune famille de produits trouvée");
+            throw new GenericError(
+                "Aucune famille de produits n'est définie : le planning par famille n'a rien à inventorier.",
+                "familleIntrouvable");
         }
         int idx = planning.getCritereIndexCourant() % familles.size();
         FamilleProduit famille = familles.get(idx);

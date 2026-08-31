@@ -14,6 +14,7 @@
           appendTo="body"
           bindLabel="label"
           bindValue="value"
+          inputId="tpLimite"
           placeholder="Limite"
         />
       </div>
@@ -30,19 +31,27 @@
 
   <!-- KPI Strip -->
   <app-kpi-strip stripClass="mt-2 mb-2">
-    <app-kpi-item [accent]="'success'" icon="pi pi-money-bill" iconClass="text-success" label="CA Total" [value]="getTotalRevenue() | number:'1.0-0'" valueClass="text-success">
+    <app-kpi-item [accent]="'success'" [value]="getTotalRevenue() | number:'1.0-0'"
+                  icon="pi pi-money-bill"
+                  iconClass="text-success" label="CA Total"
+                  valueClass="text-success">
       <span ngProjectAs="[kpiValue]">&ngsp;<small
-              appDevise></small></span>
+        appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">Top produits</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'primary'" icon="pi pi-box" iconClass="text-primary" label="Quantité vendue" [value]="getTotalQuantity() | number" valueClass="text-primary">
+    <app-kpi-item [accent]="'primary'" [value]="getTotalQuantity() | number" icon="pi pi-box"
+                  iconClass="text-primary" label="Quantité vendue"
+                  valueClass="text-primary">
       <ng-container ngProjectAs="[kpiSub]">unités</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'warning'" icon="pi pi-shopping-cart" iconClass="text-warning" label="Nombre de ventes" [value]="getTotalSales() | number" valueClass="text-warning">
+    <app-kpi-item [accent]="'warning'" [value]="getTotalSales() | number" icon="pi pi-shopping-cart"
+                  iconClass="text-warning" label="Nombre de ventes"
+                  valueClass="text-warning">
       <ng-container ngProjectAs="[kpiSub]">transactions</ng-container>
     </app-kpi-item>
     @if (selectedMonth()) {
-    <app-kpi-item [accent]="'primary'" icon="pi pi-calendar" iconClass="text-primary" label="Période" [value]="getMonthLabel()" valueClass="text-primary" />
+      <app-kpi-item [accent]="'primary'" [value]="getMonthLabel()" icon="pi pi-calendar"
+                    iconClass="text-primary" label="Période" valueClass="text-primary" />
     }
   </app-kpi-strip>
 
@@ -92,10 +101,9 @@
                     <tr>
                       <td>
                         @if (i < 3) {
-                          <app-badge [severity]="i === 0 ? 'success' : i === 1 ? 'info' : 'warn'">
-                            <i class="pi pi-star-fill mr-1"></i>
-                            {{ i + 1 }}
-                          </app-badge>
+                          <app-badge [label]="(i + 1).toString()"
+                                     [severity]="i === 0 ? 'success' : i === 1 ? 'info' : 'warn'"
+                                     icon="pi pi-star-fill" />
                         } @else {
                           <span class="fw-bold">{{ i + 1 }}</span>
                         }
@@ -103,7 +111,7 @@
                       <td class="text-center">
                         @if (product.rankDelta === null) {
                           <span class="badge bg-primary-subtle text-primary"
-                                style="font-size:.7rem">NEW</span>
+                                style="font-size:.7rem">Nouveau</span>
                         } @else if (product.rankDelta === 0) {
                           <span class="text-muted">—</span>
                         } @else if (product.rankDelta > 0) {
@@ -123,10 +131,10 @@
                       <td class="text-end pharma-qty-value">{{ product.nbVentes || 0 }}</td>
                       <td class="text-end pharma-qty-value">{{ product.qteVendue || 0 }}</td>
                       <td class="text-end fw-bold text-success pharma-total">
-                        {{ product.caGenere | number: '1.0-0' }} F CFA
+                        {{ product.caGenere | number }}
                       </td>
-                      <td class="text-end pharma-price">{{ product.prixMoyen | number: '1.0-2' }} F
-                        CFA
+                      <td class="text-end pharma-price">{{ product.prixMoyen | number: '1.0-2' }}
+
                       </td>
                     </tr>
                   </ng-template>
@@ -173,10 +181,9 @@
                     <tr>
                       <td>
                         @if (i < 3) {
-                          <app-badge [severity]="i === 0 ? 'success' : i === 1 ? 'info' : 'warn'">
-                            <i class="pi pi-star-fill mr-1"></i>
-                            {{ i + 1 }}
-                          </app-badge>
+                          <app-badge [label]="(i + 1).toString()"
+                                     [severity]="i === 0 ? 'success' : i === 1 ? 'info' : 'warn'"
+                                     icon="pi pi-star-fill" />
                         } @else {
                           <span class="fw-bold">{{ i + 1 }}</span>
                         }
@@ -206,10 +213,11 @@
                           product.qteVendue || 0
                         }}
                       </td>
-                      <td class="text-end pharma-total">{{ product.caGenere | number: '1.0-0' }} F
+                      <td class="text-end pharma-total">{{ product.caGenere | devise }}
                         CFA
                       </td>
-                      <td class="text-end pharma-price">{{ product.prixMoyen | number: '1.0-2' }} F
+                      <td class="text-end pharma-price">{{ product.prixMoyen | number: '1.0-2' }}
+                        <span appDevise></span>
                         CFA
                       </td>
                     </tr>

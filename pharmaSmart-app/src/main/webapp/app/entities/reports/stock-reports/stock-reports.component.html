@@ -1,96 +1,96 @@
-<div class="container-fluid">
-  <app-nav-sidebar (collapsedChange)="menuReplie.set($event)" [collapsed]="menuReplie()"
-                   [collapsible]="true" [nav]="nav"
-                   contentColumnClass="col-lg-10 col-xl-10 col-md-10 col-sm-8 pharma-smart-content"
-                   icon="pi pi-box" menuColumnClass="col-lg-2 col-xl-2 col-md-2 col-sm-4"
-                   title="Stock &amp; Inventaire">
-    <div #nav="ngbNav" (activeIdChange)="active.set($event)" [activeId]="active()"
-         class="nav flex-column nav-pills" ngbNav orientation="vertical">
+<app-nav-sidebar (collapsedChange)="menuReplie.set($event)" [collapsed]="menuReplie()"
+                 [collapsible]="true" [nav]="nav"
+                 contentColumnClass="col-lg-10 col-xl-10 col-md-10 col-sm-8 pharma-smart-content p-1"
+                 icon="pi pi-box" menuColumnClass="col-lg-2 col-xl-2 col-md-2 col-sm-4"
+                 title="Stock &amp; Inventaire">
+  <div #nav="ngbNav" (activeIdChange)="active.set($event)" [activeId]="active()"
+       class="nav flex-column nav-pills" ngbNav orientation="vertical">
 
-      @if (showStockAlerts()) {
-        <ng-container ngbNavItem="stock-alerts">
-          <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="rapport-stock.stock-alerts"
-                                  fallbackIcon="pi pi-exclamation-triangle"
-                                  fallbackLabel="Alertes de Stock" />
-          </a>
-          <ng-template ngbNavContent>
-            @defer (on immediate) {
-              <app-stock-alerts navCode="rapport-stock.stock-alerts"></app-stock-alerts>
-            } @loading {
-              <app-skeleton height="240px" width="100%" />
-            }
-          </ng-template>
-        </ng-container>
-      }
+    @if (showStockAlerts()) {
+      <ng-container ngbNavItem="stock-alerts">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="rapport-stock.stock-alerts"
+                                fallbackIcon="pi pi-exclamation-triangle"
+                                fallbackLabel="Alertes de Stock" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-stock-alerts navCode="rapport-stock.stock-alerts"></app-stock-alerts>
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-      @if (showStockValuation()) {
-        <ng-container ngbNavItem="stock-valuation">
-          <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="rapport-stock.stock-valuation"
-                                  fallbackIcon="pi pi-dollar"
-                                  fallbackLabel="Valorisation du Stock" />
-          </a>
-          <ng-template ngbNavContent>
-            @defer (on immediate) {
-              <app-stock-valuation navCode="rapport-stock.stock-valuation"></app-stock-valuation>
-            } @loading {
-              <app-skeleton height="240px" width="100%" />
-            }
-          </ng-template>
-        </ng-container>
-      }
+    @if (showStockValuation()) {
+      <ng-container ngbNavItem="stock-valuation">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="rapport-stock.stock-valuation"
+                                fallbackIcon="pi pi-dollar"
+                                fallbackLabel="Valorisation du Stock" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-stock-valuation navCode="rapport-stock.stock-valuation"></app-stock-valuation>
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-      @if (showRecapProduit()) {
-        <ng-container ngbNavItem="recap-produit-vendu">
-          <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="rapport-stock.recap-produit-vendu"
-                                  fallbackIcon="pi pi-chart-bar"
-                                  fallbackLabel="Récap Produits Vendus/Invendus" />
-          </a>
-          <ng-template ngbNavContent>
-            @defer (on immediate) {
-              <app-recap-produit-vendu navCode="rapport-stock.recap-produit-vendu"></app-recap-produit-vendu>
-            } @loading {
-              <app-skeleton height="240px" width="100%" />
-            }
-          </ng-template>
-        </ng-container>
-      }
+    @if (showRecapProduit()) {
+      <ng-container ngbNavItem="recap-produit-vendu">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="rapport-stock.recap-produit-vendu"
+                                fallbackIcon="pi pi-chart-bar"
+                                fallbackLabel="Récap Produits Vendus/Invendus" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-recap-produit-vendu
+              navCode="rapport-stock.recap-produit-vendu"></app-recap-produit-vendu>
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-      @if (showStockAbc()) {
-        <ng-container ngbNavItem="stock-abc">
-          <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="rapport-stock.stock-abc"
-                                  fallbackIcon="pi pi-chart-pie"
-                                  fallbackLabel="Analyse ABC" />
-          </a>
-          <ng-template ngbNavContent>
-            @defer (on immediate) {
-              <jhi-stock-abc />
-            } @loading {
-              <app-skeleton height="240px" width="100%" />
-            }
-          </ng-template>
-        </ng-container>
-      }
+    @if (showStockAbc()) {
+      <ng-container ngbNavItem="stock-abc">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="rapport-stock.stock-abc"
+                                fallbackIcon="pi pi-chart-pie"
+                                fallbackLabel="Analyse ABC" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-stock-abc />
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-      @if (showDemarque()) {
-        <ng-container ngbNavItem="demarque">
-          <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="rapport-stock.demarque"
-                                  fallbackIcon="pi pi-minus-circle"
-                                  fallbackLabel="Démarque &amp; Ajustements" />
-          </a>
-          <ng-template ngbNavContent>
-            @defer (on immediate) {
-              <app-demarque navCode="rapport-stock.demarque" />
-            } @loading {
-              <app-skeleton height="240px" width="100%" />
-            }
-          </ng-template>
-        </ng-container>
-      }
-    </div>
-  </app-nav-sidebar>
-</div>
+    @if (showDemarque()) {
+      <ng-container ngbNavItem="demarque">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="rapport-stock.demarque"
+                                fallbackIcon="pi pi-minus-circle"
+                                fallbackLabel="Démarque &amp; Ajustements" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-demarque navCode="rapport-stock.demarque" />
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          }
+        </ng-template>
+      </ng-container>
+    }
+  </div>
+</app-nav-sidebar>
+

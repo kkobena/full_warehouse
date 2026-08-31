@@ -89,10 +89,7 @@ public class DashboardCARepository {
             " WHERE tpsl.statut NOT IN ('PAID', 'DELETE')";
 
     private static final String NB_ECHEANCES_RETARD_SQL =
-        "SELECT COUNT(*) FROM commande c" +
-            " JOIN fournisseur f ON c.fournisseur_id = f.id WHERE c.paiment_status != 'PAID' AND c.order_status = 'CLOSED'"
-            +
-            "   AND (COALESCE(c.receipt_date, c.order_date) (COALESCE(f.jours_credit,  30) || ' days')::interval) < CURRENT_DATE";
+        "SELECT COUNT(*) FROM commande c JOIN fournisseur f ON c.fournisseur_id = f.id WHERE c.paiment_status != 'PAID' AND c.order_status = 'CLOSED' AND (COALESCE(c.receipt_date, c.order_date) + (COALESCE(f.jours_credit,  30) || ' days')::interval) < CURRENT_DATE";
 
     private static final String NB_FACTURES_IMPAYEES_SQL =
         "SELECT COUNT(*) FROM sales s" +

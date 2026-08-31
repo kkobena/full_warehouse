@@ -261,10 +261,29 @@ public class ComparativeReportServiceImpl implements ComparativeReportService {
         return BigDecimal.valueOf((current - previous) * 100.0 / previous).setScale(2, RoundingMode.HALF_UP);
     }
 
+    /**
+     * Libelle d'affichage d'une NATURE de vente.
+     *
+     * <p>Deux vocabulaires cohabitent dans l'application, et cette methode les confondait : elle
+     * attendait les codes d'affichage {@code VNO} / {@code VO} alors que la requete regroupe sur
+     * {@code sales.nature_vente}, dont les valeurs sont {@code COMPTANT}, {@code ASSURANCE} et
+     * {@code CARNET}. Aucun cas ne correspondait donc jamais, et le {@code default} renvoyait le
+     * nom brut de l'enum : le tableau et le PDF affichaient « ASSURANCE » en capitales, la ou le
+     * reste de l'application ecrit « Assurance ».
+     *
+     * <p>Les libelles sont ceux de {@code LIBELLES_NATURE_VENTE} dans
+     * {@code type-vente.constants.ts}, que l'ecran applique de son cote : ils ne sont repris ici
+     * que pour le PDF, qui n'a pas acces a cette table. La vente DEPOT n'apparait pas : elle est
+     * hors du chiffre d'affaires declare et la requete l'ecarte deja par {@code s.ca = 'CA'}.
+     */
     private String getSalesTypeLabel(String type) {
+        if (type == null) {
+            return "";
+        }
         return switch (type) {
-            case "VNO" -> "VNO";
-            case "VO" -> "VO";
+            case "COMPTANT" -> "Comptant";
+            case "ASSURANCE" -> "Assurance";
+            case "CARNET" -> "Carnet";
             default -> type;
         };
     }

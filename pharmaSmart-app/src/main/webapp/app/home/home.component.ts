@@ -56,7 +56,6 @@ export default class HomeComponent implements OnInit, OnDestroy {
               // Redirection si isRoute=true
               if (this.dashboardResolver.isRoute()) {
                 const path = this.dashboardResolver.routePath();
-                console.error('path', path);
                 if (path) {
                   this.router.navigate([path]);
                 }

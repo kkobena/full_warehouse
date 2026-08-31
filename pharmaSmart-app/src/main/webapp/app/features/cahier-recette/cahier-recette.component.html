@@ -121,6 +121,25 @@
               </ol>
             </section>
 
+            @if (scenario.captures?.length) {
+              <section class="scenario-doc__section">
+                <h4>Illustrations</h4>
+                <div class="scenario-doc__captures">
+                  @for (capture of scenario.captures; track capture.ordre) {
+                    <figure class="scenario-doc__capture">
+                      <!--
+                        loading="lazy" : un scénario peut porter une dizaine d'images, et le
+                        guide en affiche plusieurs par écran. Sans cela, changer de menu
+                        déclencherait autant de requêtes que d'images hors champ.
+                      -->
+                      <img [src]="capture.fichier" [alt]="capture.legende" loading="lazy" />
+                      <figcaption>{{ capture.ordre }}. {{ capture.legende }}</figcaption>
+                    </figure>
+                  }
+                </div>
+              </section>
+            }
+
             <section class="scenario-doc__section">
               <h4>Résultat attendu</h4>
               <p>{{ scenario.resultatAttendu }}</p>

@@ -164,9 +164,13 @@ describe('ButtonComponent', () => {
       expect(button().getAttribute('aria-label')).toBe('Supprimer');
     });
 
-    it("hors iconOnly, aucun aria-label n'est posé (le texte visible suffit)", () => {
-      fixture.componentRef.setInput('label', 'Enregistrer');
-      expect(button().getAttribute('aria-label')).toBeNull();
+    it('hors iconOnly, le label sert aussi de nom accessible', () => {
+      // Une barre d'outils étroite réduit le libellé visible à une largeur nulle : sans
+      // aria-label, le bouton n'aurait plus aucun nom accessible. Le texte étant identique
+      // au libellé, le nom accessible contient bien le texte visible.
+      fixture.componentRef.setInput('label', 'Rechercher');
+      fixture.detectChanges();
+      expect(button().getAttribute('aria-label')).toBe('Rechercher');
     });
   });
 

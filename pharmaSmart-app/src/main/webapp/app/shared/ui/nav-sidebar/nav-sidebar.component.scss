@@ -9,6 +9,25 @@
   transition: opacity 0.2s ease;
 }
 
+// Badges de compteur des liens du menu — ruptures, péremptions, factures échues.
+//
+// La règle vit ICI, dans le composant qui rend la colonne, et non chez chacun des dix-huit
+// écrans qui l'emploient : elle était recopiée dans le module commandes et absente de celui
+// de facturation, dont les badges s'affichaient donc à la taille par défaut de Bootstrap.
+//
+// ::ng-deep est nécessaire : les badges appartiennent au gabarit APPELANT, projeté ici par
+// <ng-content>, donc hors de portée de l'encapsulation de style de ce composant.
+:host ::ng-deep .pharma-nav-sidebar:not(.is-collapsed) .pharma-nav-vertical-link {
+  [class*='badge'] {
+    font-size: 0.6rem;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    line-height: 16px;
+    flex-shrink: 0;
+  }
+}
+
 :host ::ng-deep .pharma-nav-sidebar.is-collapsed {
   .pharma-nav-vertical-link {
     justify-content: center;

@@ -30,6 +30,7 @@ import {IStorage} from '../../../../shared/model/magasin.model';
 import {IRayon} from '../../../../shared/model/rayon.model';
 import {InventoryCategoryType} from "../../../../shared/model/store-inventory.model";
 import {SelectComponent} from '../../../../shared/ui';
+import {AG_GRID_LOCALE_FR} from '../../../../shared/ui/ag-grid/ag-grid-locale.fr';
 
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
@@ -41,6 +42,9 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
   styleUrl: './inventory-lines-grid.component.scss',
 })
 export class InventoryLinesGridComponent {
+  /** Libellés français d'AG Grid — voir shared/ui/ag-grid. */
+  protected readonly localeFr = AG_GRID_LOCALE_FR;
+
   readonly inventoryId = input.required<number>();
   readonly inventoryCategoryType = input<InventoryCategoryType>();
   readonly blindMode = input<boolean>(false);

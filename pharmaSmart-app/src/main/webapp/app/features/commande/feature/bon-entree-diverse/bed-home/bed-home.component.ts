@@ -33,6 +33,7 @@ import { showCommonModal } from "../../../../../entities/sales/selling-home/sale
 import {
   ImportProduitReponseModalComponent
 } from "../../../../../entities/produit/import-produit-reponse-modal/import-produit-reponse-modal.component";
+import { DevisePipe } from 'app/shared/utils/devise';
 
 export type BedTab = "BROUILLON" | "HISTORIQUE";
 
@@ -54,7 +55,7 @@ export type BedTab = "BROUILLON" | "HISTORIQUE";
     BedDetailComponent,
     SplitButtonComponent,
     SelectComponent,
-  ]
+   DevisePipe]
 })
 export class BedHomeComponent implements OnInit {
   readonly beds = signal<IBedSummary[]>([]);

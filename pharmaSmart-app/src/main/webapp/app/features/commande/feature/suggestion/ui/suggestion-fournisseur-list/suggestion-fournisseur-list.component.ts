@@ -11,6 +11,7 @@ import {
   SuggestionFournisseurAction,
   SuggestionFournisseurActionsComponent
 } from "./suggestion-fournisseur-actions.component";
+import { DevisePipe } from 'app/shared/utils/devise';
 
 @Component({
   selector: "app-suggestion-fournisseur-list",
@@ -19,13 +20,12 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
-    DecimalPipe,
     DataTableComponent,
     HeaderCheckboxComponent,
     RowCheckboxComponent,
     SortableHeaderDirective,
     SuggestionFournisseurActionsComponent,
-  ],
+   DevisePipe],
 })
 export class SuggestionFournisseurListComponent {
   // ── Row styling ────────────────────────────────────────────────────────────
@@ -48,6 +48,8 @@ export class SuggestionFournisseurListComponent {
   supprimerSelectionRequest = output<number[]>();
   fusionnerRequest = output<number[]>();
   validerRequest = output<FournisseurSuggestionSummary>();
+  /** Demande de disponibilité chez les grossistes pour la proposition de cette ligne. */
+  dispoRequest = output<FournisseurSuggestionSummary>();
   exportPdfRequest = output<FournisseurSuggestionSummary>();
   exportCsvRequest = output<FournisseurSuggestionSummary>();
   commanderRequest = output<FournisseurSuggestionSummary>();
@@ -117,6 +119,9 @@ export class SuggestionFournisseurListComponent {
         break;
       case 'commander':
         this.onCommander(f);
+        break;
+      case 'dispo':
+        this.dispoRequest.emit(f);
         break;
       case 'exportPdf':
         this.onExportPdf(f);

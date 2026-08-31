@@ -1,7 +1,8 @@
 <div class="cr-wrapper">
   <!-- HEADER -->
   <div class="view-panel__header view-panel__header--detail">
-    <app-button (clicked)="previousState()" [text]="true" icon="pi pi-arrow-left" label="Retour à la liste"
+    <app-button (clicked)="previousState()" [text]="true" icon="pi pi-arrow-left"
+                label="Retour à la liste"
                 size="small" />
     @if (currentCommande()) {
       <span class="view-panel__title">{{ currentCommande().fournisseur?.libelle }}</span>
@@ -91,23 +92,24 @@
         <app-select
           (selectionChange)="onFilterCommandeLines()"
           [(ngModel)]="tris"
-          inputId="ordre"
+          [clearable]="false"
           [items]="sorts"
           bindLabel="label"
           bindValue="code"
-          [clearable]="false"
+          inputId="ordre"
         />
       </div>
       <div>
         <label class="form-label small mb-0" for="selectedFilter">Filtrer par</label>
         <app-select
+          (ngModelChange)="selectedFilter.set($event)"
           (selectionChange)="onFilterCommandeLines()"
-          [ngModel]="selectedFilter()" (ngModelChange)="selectedFilter.set($event)"
-          inputId="selectedFilter"
-          [items]="filtres()"
+          [clearable]="false" [items]="filtres()"
+          [ngModel]="selectedFilter()"
+          [style]="{ 'min-width': '150px' }"
           bindLabel="label"
           bindValue="value"
-          [clearable]="false"
+          inputId="selectedFilter"
         />
       </div>
       <!-- Scan douchette -->
@@ -117,7 +119,7 @@
             <input
               #scanInputRef
               (keyup.enter)="onScanReception()"
-              [ngModel]="scanValue()" (ngModelChange)="scanValue.set($event)"
+              (ngModelChange)="scanValue.set($event)" [ngModel]="scanValue()"
               autocomplete="off"
               class="form-control"
               placeholder="Scanner CIP / DataMatrix…"
@@ -143,9 +145,10 @@
                 <span class="ms-1">(lot {{ lastScanResult()!.lotNumero }})</span>
               }
               @if (lastScanResult()!.fmdStatus === 'PRESENT') {
-                <span [ngbTooltip]="'FMD : numéro de série enregistré (' + (lastScanResult()!.serialNumber ?? '') + ')'"
-                      class="cr-fmd-badge cr-fmd-badge--ok"
-                      placement="top">
+                <span
+                  [ngbTooltip]="'FMD : numéro de série enregistré (' + (lastScanResult()!.serialNumber ?? '') + ')'"
+                  class="cr-fmd-badge cr-fmd-badge--ok"
+                  placement="top">
                   <i class="pi pi-shield"></i> FMD ✓
                 </span>
               }
@@ -191,7 +194,8 @@
               <i class="pi pi-list"></i>
               <span>Séquentiel</span>
             </button>
-            <button (click)="setViewMode('grid')" [class.active]="viewMode() === 'grid'" class="segment-option"
+            <button (click)="setViewMode('grid')" [class.active]="viewMode() === 'grid'"
+                    class="segment-option"
                     ngbTooltip="Vue tableau complète"
                     placement="bottom" type="button">
               <i class="pi pi-table"></i>
@@ -291,12 +295,11 @@
               </div>
               <div class="summary-row highlight">
                 <span class="summary-key"><i class="pi pi-wallet"></i> Montant HT</span>
-                <span class="summary-val amount">{{ currentCommande()?.receiptAmount | number }}
-                  F</span>
+                <span class="summary-val amount">{{ currentCommande()?.receiptAmount | devise }}</span>
               </div>
               <div class="summary-row highlight">
                 <span class="summary-key"><i class="pi pi-percentage"></i> Taxe</span>
-                <span class="summary-val amount">{{ currentCommande()?.taxAmount | number }} F</span>
+                <span class="summary-val amount">{{ currentCommande()?.taxAmount | devise }}</span>
               </div>
             </div>
           </div>
@@ -306,7 +309,47 @@
       <!-- RIGHT PANEL : AG Grid des lignes -->
       <div class="cr-panel-right">
         @if (currentCommande()) {
+          <!--
+            BANDEAU TOTAUX — au-dessus de la grille : la valeur de ce qui entre et
+            l'avancement des lots sont ce qu'on surveille pendant la saisie, pas ce qu'on
+            découvre en bas de page une fois la réception faite.
+          -->
+          <div class="grid-caption">
+            <span class="grid-caption__totals">
+              <span class="grid-caption__stat">
+                <span class="grid-caption__stat-label">Valeur achat</span>
+                <span class="grid-caption__stat-value grid-caption__stat-value--achat">
+                  {{ currentCommande().grossAmount | devise }}
+                </span>
+              </span>
+              <span aria-hidden="true" class="grid-caption__sep"></span>
+              <span class="grid-caption__stat">
+                <span class="grid-caption__stat-label">Valeur vente</span>
+                <span class="grid-caption__stat-value grid-caption__stat-value--vente">
+                  {{ currentCommande().orderAmount | devise }}
+                </span>
+              </span>
+            </span>
+            @if (showLotBtn()) {
+              <span class="cr-lot-progress ms-auto">
+                <i class="pi pi-box me-1"></i>
+                Lots&nbsp;:
+                <strong [class.text-success]="lignesSansLot === 0"
+                        [class.text-warning]="lignesSansLot > 0">
+                  {{ orderLines().length - lignesSansLot }} / {{ orderLines().length }}
+                </strong>
+                <span class="cr-lot-bar ms-2">
+                  <span
+                    [class.cr-lot-bar__fill--ok]="lignesSansLot === 0"
+                    [style.width.%]="orderLines().length > 0 ? ((orderLines().length - lignesSansLot) / orderLines().length) * 100 : 0"
+                    class="cr-lot-bar__fill"
+                  ></span>
+                </span>
+              </span>
+            }
+          </div>
           <ag-grid-angular
+    [localeText]="localeFr"
             (cellClicked)="onCellClicked($event)"
             (cellValueChanged)="onCellValueChanged($event)"
             (gridReady)="onGridReady($event)"
@@ -326,28 +369,6 @@
             [theme]="theme"
             class="cr-grid"
           />
-          <!-- Footer totaux + progression lots -->
-          <div class="cr-grid-footer">
-            <span>Valeur achat : <strong>{{ currentCommande().grossAmount | number }}F</strong></span>
-            <span>Valeur vente : <strong>{{ currentCommande().orderAmount | number }}F</strong></span>
-            @if (showLotBtn()) {
-              <span class="cr-lot-progress ms-auto">
-              <i class="pi pi-box me-1"></i>
-              Lots :
-              <strong [class.text-success]="lignesSansLot === 0"
-                      [class.text-warning]="lignesSansLot > 0">
-                {{ orderLines().length - lignesSansLot }} / {{ orderLines().length }}
-              </strong>
-              <span class="cr-lot-bar ms-2">
-                <span
-                  [class.cr-lot-bar__fill--ok]="lignesSansLot === 0"
-                  [style.width.%]="orderLines().length > 0 ? ((orderLines().length - lignesSansLot) / orderLines().length) * 100 : 0"
-                  class="cr-lot-bar__fill"
-                ></span>
-              </span>
-            </span>
-            }
-          </div>
         }
       </div>
 

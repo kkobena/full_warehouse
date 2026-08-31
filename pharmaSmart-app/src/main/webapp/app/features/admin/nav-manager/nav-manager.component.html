@@ -31,13 +31,16 @@
               <div class="spinner-border spinner-border-sm" role="status"
                    style="width: 24px; height: 24px;"></div>
             } @else {
+
               <app-select-search
-                (ngModelChange)="loadRoleItems()"
-                [ngModel]="selectedRole()" (ngModelChange)="selectedRole.set($event)"
-                [clearable]="true"
+                (ngModelChange)="selectedRole.set($event)"
+                (selectionChange)="loadRoleItems()" [clearable]="true"
                 [items]="availableRoles()"
+                [ngModel]="selectedRole()"
                 [optionTemplate]="roleOption"
+                [style]="{ 'min-width': '300px' }"
                 bindLabel="libelle"
+                inputId="navRole"
                 placeholder="Sélectionner un rôle"
               />
               <ng-template #roleOption let-role>
@@ -100,7 +103,8 @@
                     <span [style.padding-left]="indentRem(item.depth)" class="item-label">
                       @if (item.targetType === 'GROUP') {
                         <button (click)="toggleGroup(item.id)" class="group-toggle" type="button">
-                          <i [class.pi-chevron-down]="!collapsedGroups().has(item.id)" [class.pi-chevron-right]="collapsedGroups().has(item.id)"
+                          <i [class.pi-chevron-down]="!collapsedGroups().has(item.id)"
+                             [class.pi-chevron-right]="collapsedGroups().has(item.id)"
                              class="pi"></i>
                         </button>
                         <span class="group-icon-wrap">
@@ -109,7 +113,8 @@
                       } @else if (item.targetType === 'ROUTE' && item.children?.length) {
                         <button (click)="toggleGroup(item.id)" class="group-toggle route-toggle"
                                 type="button">
-                          <i [class.pi-chevron-down]="!collapsedGroups().has(item.id)" [class.pi-chevron-right]="collapsedGroups().has(item.id)"
+                          <i [class.pi-chevron-down]="!collapsedGroups().has(item.id)"
+                             [class.pi-chevron-right]="collapsedGroups().has(item.id)"
                              class="pi"></i>
                         </button>
                         <span class="tree-branch"></span>
@@ -159,7 +164,15 @@
                         />
                       } @else {
                         <span class="item-libelle">{{ item.libelle }}</span>
-                        <button (click)="$event.stopPropagation(); startEdit(item)" class="edit-label-btn"
+                        <!--
+                          `aria-label` en plus de `title` : le `title` seul laisse le bouton
+                          sans nom pour une partie des lecteurs d'écran — et pour les outils
+                          qui les imitent — puisqu'il n'est qu'un ultime recours dans le calcul
+                          du nom accessible.
+                        -->
+                        <button (click)="$event.stopPropagation(); startEdit(item)"
+                                aria-label="Modifier le libellé du menu"
+                                class="edit-label-btn"
                                 title="Modifier le libellé du menu"
                                 type="button">
                           <i class="pi pi-pencil"></i>
@@ -170,7 +183,9 @@
                           écran doté d'une barre d'outils. Un menu ou une action n'en affiche pas.
                         -->
                         @if (item.targetType === 'SECTION') {
-                          <button (click)="$event.stopPropagation(); startEditTitreLong(item)" [title]="item.titreLong
+                          <button (click)="$event.stopPropagation(); startEditTitreLong(item)"
+                                  aria-label="Définir le titre de la barre d'outils"
+                                  [title]="item.titreLong
                                     ? 'Titre de la barre : ' + item.titreLong
                                     : 'Définir un titre de barre (le libellé du menu s’applique par défaut)'"
                                   class="edit-label-btn"
@@ -209,6 +224,7 @@
                     <span class="bulk-actions">
                         <button
                           (click)="$event.stopPropagation(); grantSubtree(item, true)"
+                          aria-label="Tout accorder sur cette branche"
                           class="bulk-btn bulk-grant"
                           title="Tout accorder (menu + enfants)"
                           type="button">
@@ -216,6 +232,7 @@
                         </button>
                         <button
                           (click)="$event.stopPropagation(); grantSubtree(item, false)"
+                          aria-label="Tout révoquer sur cette branche"
                           class="bulk-btn bulk-revoke"
                           title="Tout révoquer (menu + enfants)"
                           type="button">
@@ -226,50 +243,60 @@
                 </td>
 
                 <!-- Colonnes nav (désactivées pour ACTION) -->
+                <!--
+                  L'ORDRE des deux liaisons compte, et il est ici l'inverse de ce qu'il était.
+                  `[(ngModel)]` se décompose en `[ngModel]` + `(ngModelChange)` qui écrit la
+                  nouvelle valeur dans le modèle, et Angular exécute les gestionnaires de
+                  `ngModelChange` dans l'ordre où ils sont DÉCLARÉS. Avec
+                  `(ngModelChange)="onPermissionChange(item)"` en premier, l'enregistrement
+                  partait avec l'ANCIENNE valeur : décocher une case envoyait « coché », et la
+                  permission n'était jamais retirée. La liaison bidirectionnelle vient donc
+                  d'abord, l'enregistrement ensuite.
+                -->
                 <td [class.cell-na]="item.targetType === 'ACTION'" class="text-center perm-cell">
                   @if (item.targetType !== 'ACTION') {
-                    <app-checkbox (ngModelChange)="onPermissionChange(item)"
-                                  [(ngModel)]="item.assignment.canDisplay" />
+                    <app-checkbox [(ngModel)]="item.assignment.canDisplay"
+                                  (ngModelChange)="onPermissionChange(item)" />
                   } @else {
                     <span class="na-dash">—</span>
                   }
                 </td>
                 <td [class.cell-na]="item.targetType === 'ACTION'" class="text-center perm-cell">
                   @if (item.targetType !== 'ACTION') {
-                    <app-checkbox (ngModelChange)="onPermissionChange(item)"
-                                  [(ngModel)]="item.assignment.canAccess" />
+                    <app-checkbox [(ngModel)]="item.assignment.canAccess"
+                                  (ngModelChange)="onPermissionChange(item)" />
                   } @else {
                     <span class="na-dash">—</span>
                   }
                 </td>
                 <td [class.cell-na]="item.targetType === 'ACTION'" class="text-center perm-cell">
                   @if (item.targetType !== 'ACTION') {
-                    <app-checkbox (ngModelChange)="onPermissionChange(item)"
-                                  [(ngModel)]="item.assignment.canCreate" />
+                    <app-checkbox [(ngModel)]="item.assignment.canCreate"
+                                  (ngModelChange)="onPermissionChange(item)" />
                   } @else {
                     <span class="na-dash">—</span>
                   }
                 </td>
                 <td [class.cell-na]="item.targetType === 'ACTION'" class="text-center perm-cell">
                   @if (item.targetType !== 'ACTION') {
-                    <app-checkbox (ngModelChange)="onPermissionChange(item)"
-                                  [(ngModel)]="item.assignment.canEdit" />
+                    <app-checkbox [(ngModel)]="item.assignment.canEdit"
+                                  (ngModelChange)="onPermissionChange(item)" />
                   } @else {
                     <span class="na-dash">—</span>
                   }
                 </td>
                 <td [class.cell-na]="item.targetType === 'ACTION'" class="text-center perm-cell">
                   @if (item.targetType !== 'ACTION') {
-                    <app-checkbox (ngModelChange)="onPermissionChange(item)"
-                                  [(ngModel)]="item.assignment.canDelete" />
+                    <app-checkbox [(ngModel)]="item.assignment.canDelete"
+                                  (ngModelChange)="onPermissionChange(item)" />
                   } @else {
                     <span class="na-dash">—</span>
                   }
                 </td>
                 <td [class.cell-na]="item.targetType === 'ACTION'" class="text-center perm-cell">
                   @if (item.targetType !== 'ACTION') {
-                    <app-checkbox (ngModelChange)="onPermissionChange(item)"
-                                  [(ngModel)]="item.assignment.canExport" />
+                    <app-checkbox [(ngModel)]="item.assignment.canExport"
+                                  (ngModelChange)="onPermissionChange(item)" />
                   } @else {
                     <span class="na-dash">—</span>
                   }
@@ -279,8 +306,8 @@
                     class="text-center perm-cell execute-col">
                   @if (item.targetType === 'ACTION') {
                     <app-checkbox
-                      (ngModelChange)="onPermissionChange(item)"
                       [(ngModel)]="item.assignment.canExecute"
+                      (ngModelChange)="onPermissionChange(item)"
                       title="Autoriser l'exécution de cette action métier"
                     />
                   } @else {

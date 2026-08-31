@@ -17,6 +17,7 @@
         />
         <app-button
           (clicked)="onImporterReponseCommande()"
+          [outlined]="true"
           icon="pi pi-download"
           label="Importer réponse"
           ngbTooltip="Importer la réponse / fichier du grossiste"
@@ -45,7 +46,8 @@
           size="small"
         />
       }
-      @if (seuilMontantCommande > 0 && (currentCommande()?.grossAmount ?? 0) > seuilMontantCommande) {
+      @if (seuilMontantCommande > 0 && (currentCommande()?.grossAmount ?? 0)
+      > seuilMontantCommande) {
         <app-badge
           [ngbTooltip]="'Seuil : ' + (seuilMontantCommande | number) + ' F'"
           icon="pi pi-exclamation-triangle"
@@ -59,20 +61,33 @@
     <!-- Actions PharmaML — droite -->
     <div>
       @if (currentCommande()?.commandeId) {
-        @if (isLocked || currentCommande()?.orderStatus === 'RECEIVED') {
-          <app-split-button
-            [items]="pharmamlActions()"
-            icon="pi pi-check-circle"
-            label="Actions réception"
-            severity="info"
-          />
+        @if (currentCommande()?.orderStatus === 'RECEIVED') {
+          <!-- <app-split-button
+             [items]="pharmamlActions()"
+             [outlined]="true"
+             icon="pi pi-check-circle"
+             label="Actions réception"
+             severity="warn"
+           />-->
         } @else {
-          <app-split-button
-            [items]="pharmamlActions()"
-            icon="pi pi-send"
-            label="Actions PharmaML"
-            severity="info"
-          />
+          @if (!currentCommande().hasBeenSubmittedToPharmaML) {
+            <app-button
+              (clicked)="openEnvoi()"
+              [label]="'Envoyer via PharmaML'"
+              [outlined]="true"
+              icon="pi pi-send"
+              severity="warn"
+              size="small"
+            />
+            <!--<app-split-button
+              [items]="pharmamlActions()"
+              [outlined]="true"
+              icon="pi pi-send"
+              label="Actions PharmaML"
+              severity="warn"
+            />-->
+          }
+
         }
       }
     </div>
@@ -143,7 +158,7 @@
         </span>
         <span class="meta-item">
           <i class="pi pi-tag"></i>
-          {{ produitSelected()?.regularUnitPrice | number }} F
+          {{ produitSelected()?.regularUnitPrice | devise }}
         </span>
         @if (produitSelected()?.totalQuantity !== undefined) {
           <span [class.low-stock]="produitSelected()!.totalQuantity! < 10" class="meta-item">
@@ -160,12 +175,31 @@
 
     <!-- CAPTION — totaux + compteur lignes -->
     @if (currentCommande() && orderLines().length > 0) {
+      <!--
+        Ce bandeau porte les deux chiffres qui engagent l'officine — ce que la commande
+        COÛTE et ce qu'elle RAPPORTERA — et le nombre de lignes saisies. Ils sont donc
+        écrits comme des indicateurs, libellé au-dessus et valeur en gros, et non comme
+        une phrase en gris à côté de la grille.
+      -->
       <div class="grid-caption">
-        <span class="grid-caption__count">{{ orderLines().length }} ligne(s)</span>
+        <span class="grid-caption__count">
+          <i aria-hidden="true" class="pi pi-list"></i>
+          <strong>{{ orderLines().length }}</strong> ligne(s)
+        </span>
         <span class="grid-caption__totals ms-auto">
-          Achat&nbsp;: <strong>{{ currentCommande().grossAmount | number }}&nbsp;F</strong>
-          &nbsp;·&nbsp;
-          Vente&nbsp;: <strong>{{ currentCommande().orderAmount | number }}&nbsp;F</strong>
+          <span class="grid-caption__stat">
+            <span class="grid-caption__stat-label">Achat</span>
+            <span class="grid-caption__stat-value grid-caption__stat-value--achat">
+              {{ currentCommande().grossAmount | devise }}
+            </span>
+          </span>
+          <span aria-hidden="true" class="grid-caption__sep"></span>
+          <span class="grid-caption__stat">
+            <span class="grid-caption__stat-label">Vente</span>
+            <span class="grid-caption__stat-value grid-caption__stat-value--vente">
+              {{ currentCommande().orderAmount | devise }}
+            </span>
+          </span>
         </span>
       </div>
     }
@@ -188,6 +222,7 @@
             [enableCellEditingOnBackspace]="true"
             [enterNavigatesVerticallyAfterEdit]="true"
             [getRowId]="getRowId"
+            [localeText]="localeFr"
             [rowClassRules]="rowClassRules"
             [rowData]="orderLines()"
             [rowSelection]="rowSelection"
@@ -203,6 +238,18 @@
           </div>
         }
       </div>
+
+
+      @if (currentCommande() && isLocked) {
+        <div class="pharmaml-col">
+          <app-pharmaml-home
+            [commandeId]="currentCommande().commandeId"
+            [commandeRef]="currentCommande().orderReference ?? ''"
+            [isSubmited]="isLocked"
+            [orderStatus]="currentCommande().orderStatus"
+          />
+        </div>
+      }
 
     </div>
   </div>

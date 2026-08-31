@@ -2,6 +2,7 @@
 @import 'app/features/commande/commande-shared';
 @import 'app/shared/scss/pharma-toolbar';
 @import 'app/shared/scss/table-common';
+@import 'app/shared/scss/grid-caption';
 
 // ── HOST (flex item dans .lb-detail-body) ──────────────────────────────────
 // Sans :host, le host-element reste à height:auto → chaîne flex brisée → grille à 0px
@@ -62,19 +63,6 @@
 
 // ── FOOTER TOTAUX ──────────────────────────────────────────────────────────
 
-.cr-grid-footer {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  padding: 0.4rem 1rem;
-  background: $gray-100;
-  border-top: 1px solid $gray-200;
-  font-size: 0.8rem;
-  color: $gray-600;
-
-  strong { color: $pharma-primary; font-weight: 700; }
-}
 
 // ── SCAN DOUCHETTE ──────────────────────────────────────────────────────────
 

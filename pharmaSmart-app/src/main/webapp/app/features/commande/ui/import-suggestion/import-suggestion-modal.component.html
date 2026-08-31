@@ -23,11 +23,17 @@
               style="width:13rem"
               type="text" />
           </app-icon-field>
+          <!--
+            Les propositions appartiennent à un grossiste PRINCIPAL, jamais à une agence :
+            filtrer sur la liste groupée revenait à proposer des agences qui ne portent
+            aucune proposition, et à n'en trouver aucune.
+          -->
           <app-fournisseur-select
             (multiSelectionChange)="onFournisseursSelected($event)"
-            [grouped]="true"
             [multiple]="true"
-            class="flex-grow-1 min-w-0"
+            [parentsOnly]="true"
+            [style]="{ 'min-width': '400px' }"
+            placeholder="Grossiste"
           />
           <span class="text-muted small ms-auto">{{ suggestions().length }} résultat(s)</span>
         </div>
@@ -81,12 +87,12 @@
             <span class="pharma-qty-value">{{ s.nombreLignes ?? 0 }}</span>
           </td>
           <td class="text-end"><span class="pharma-total">{{
-              (s.montantEstimeAchat ?? 0) | number : '1.0-0'
-            }} </span>F
+              (s.montantEstimeAchat ?? 0) | number
+            }} </span>
           </td>
           <td class="text-end"><span class="pharma-price">{{
-              (s.montantEstimeVente ?? 0) | number : '1.0-0'
-            }} </span>F
+              (s.montantEstimeVente ?? 0) | number
+            }} </span>
           </td>
           <td class="text-end">
             @if (selectedLineCount(s) > 0) {
@@ -95,19 +101,19 @@
                 [disabled]="importingId() !== null"
                 [label]="'Importer (' + selectedLineCount(s) + ')'"
                 [loading]="importingId() === s.id"
+                [size]="'small'"
                 icon="pi pi-check-square"
                 ngbTooltip="Importer uniquement les lignes sélectionnées"
-                placement="left"
                 severity="success"
-                size="small"
+
               />
             } @else {
               <app-button
                 (clicked)="onImport(s)"
                 [disabled]="importingId() !== null"
                 [loading]="importingId() === s.id"
+                [text]="true"
                 icon="pi pi-download"
-                label="Importer tout"
                 ngbTooltip="Fusionner toutes les lignes de cette suggestion dans la commande en cours"
                 placement="left"
                 severity="primary"
@@ -176,7 +182,7 @@
                       <td>{{ line.fournisseurProduitLibelle }}</td>
                       <td class="text-end">{{ line.currentStock ?? 0 }}</td>
                       <td class="text-end fw-semibold">{{ line.quantity }}</td>
-                      <td class="text-end">{{ (line.prixAchat ?? 0) | number : '1.0-0' : 'fr' }}F
+                      <td class="text-end">{{ (line.prixAchat ?? 0) | number }}
                       </td>
                       <td>
                         @if (line.etatProduit) {

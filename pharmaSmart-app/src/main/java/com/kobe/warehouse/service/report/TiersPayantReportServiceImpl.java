@@ -4,13 +4,11 @@ import com.kobe.warehouse.service.dto.report.TiersPayantCreancesSummaryDTO;
 import com.kobe.warehouse.service.dto.report.TiersPayantInvoiceDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
+import java.time.LocalDate;
+import java.util.List;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.sql.Date;
-import java.time.LocalDate;
-import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -42,9 +40,10 @@ public class TiersPayantReportServiceImpl implements TiersPayantReportService {
         sql.append("f.statut, ");
         sql.append("CAST(CURRENT_DATE - f.invoice_date AS INTEGER) as days_since_invoice ");
         sql.append("FROM facture_tiers_payant f ");
-        sql.append("INNER JOIN groupe_tiers_payant gtp ON f.groupe_tiers_payant_id = gtp.id ");
+        sql.append("LEFT JOIN groupe_tiers_payant gtp ON f.groupe_tiers_payant_id = gtp.id ");
         sql.append("LEFT JOIN tiers_payant tp ON f.tiers_payant_id = tp.id ");
-        sql.append("LEFT JOIN third_party_sale_line fi ON f.id = fi.facture_tiers_payant_id AND f.invoice_date = fi.invoice_date ");
+        sql.append(
+            "LEFT JOIN third_party_sale_line fi ON f.id = fi.facture_tiers_payant_id AND f.invoice_date = fi.invoice_date ");
         sql.append("WHERE f.statut IN ('NOT_PAID', 'PARTIALLY_PAID') ");
 
         if (groupeTiersPayantId != null) {
@@ -69,7 +68,8 @@ public class TiersPayantReportServiceImpl implements TiersPayantReportService {
             }
         }
 
-        sql.append("GROUP BY f.id, f.num_facture, f.invoice_date, tp.name, gtp.name, f.montant_regle, f.statut ");
+        sql.append(
+            "GROUP BY f.id, f.num_facture, f.invoice_date, tp.name, gtp.name, f.montant_regle, f.statut ");
         sql.append("ORDER BY f.invoice_date DESC");
 
         Query query = entityManager.createNativeQuery(sql.toString());
@@ -86,7 +86,7 @@ public class TiersPayantReportServiceImpl implements TiersPayantReportService {
             .map(row -> {
                 Long factureId = row[0] != null ? ((Number) row[0]).longValue() : null;
                 String numeroFacture = (String) row[1];
-                LocalDate dateFacture = row[2] != null ? LocalDate.parse(row[2]+"") : null;
+                LocalDate dateFacture = row[2] != null ? LocalDate.parse(row[2] + "") : null;
                 String tiersPayantLibelle = (String) row[3];
                 String groupeTiersPayantLibelle = (String) row[4];
                 Integer montantFacture = row[5] != null ? ((Number) row[5]).intValue() : 0;
@@ -118,21 +118,33 @@ public class TiersPayantReportServiceImpl implements TiersPayantReportService {
     @Override
     @Cacheable(value = "tiersPayantCreances", key = "'summary'")
     public List<TiersPayantCreancesSummaryDTO> getCreancesSummary() {
+        // Une facture porte PLUSIEURS lignes de bons : agréger d'abord par facture, sinon
+        // `montant_regle` est retranché autant de fois qu'elle a de lignes et les tranches
+        // d'ancienneté ressortent NÉGATIVES. Le montant de la facture est lu sur la facture
+        // elle-même (`montant_ttc`), qui vaut la somme de ses bons.
         String sql =
             "SELECT " +
                 "gtp.id, " +
-                "gtp.name as groupe_tiers_payant_libelle, " +
-                "COUNT(f.id) as nombre_factures, " +
-                "SUM(fi.montant) as montant_total, " +
-                "SUM(CASE WHEN (CURRENT_DATE - f.invoice_date) < 30 THEN fi.montant - f.montant_regle ELSE 0 END) as moins_30j, " +
-                "SUM(CASE WHEN (CURRENT_DATE - f.invoice_date) BETWEEN 30 AND 60 THEN fi.montant - f.montant_regle ELSE 0 END) as entre_30_60j, " +
-                "SUM(CASE WHEN (CURRENT_DATE - f.invoice_date) BETWEEN 60 AND 90 THEN fi.montant - f.montant_regle ELSE 0 END) as entre_60_90j, " +
-                "SUM(CASE WHEN (CURRENT_DATE - f.invoice_date) > 90 THEN fi.montant - f.montant_regle ELSE 0 END) as plus_90j " +
-                "FROM groupe_tiers_payant gtp " +
-                "INNER JOIN facture_tiers_payant f ON gtp.id = f.groupe_tiers_payant_id " +
-                "LEFT JOIN third_party_sale_line fi ON f.id = fi.facture_tiers_payant_id AND f.invoice_date = fi.invoice_date " +
-                "WHERE f.statut IN ('NOT_PAID', 'PARTIALLY_PAID') " +
-                "GROUP BY gtp.id, gtp.name " +
+                "COALESCE(gtp.name, tp.name) as groupe_tiers_payant_libelle, " +
+                "COUNT(*) as nombre_factures, " +
+                "SUM(f.montant_total) as montant_total, " +
+                "SUM(CASE WHEN f.anciennete < 30 THEN f.reste_du ELSE 0 END) as moins_30j, " +
+                "SUM(CASE WHEN f.anciennete BETWEEN 30 AND 60 THEN f.reste_du ELSE 0 END) as entre_30_60j, "
+                +
+                "SUM(CASE WHEN f.anciennete BETWEEN 61 AND 90 THEN f.reste_du ELSE 0 END) as entre_60_90j, "
+                +
+                "SUM(CASE WHEN f.anciennete > 90 THEN f.reste_du ELSE 0 END) as plus_90j " +
+                "FROM (" +
+                "  SELECT ft.id, ft.groupe_tiers_payant_id, ft.tiers_payant_id, " +
+                "         ft.montant_ttc as montant_total, " +
+                "         GREATEST(ft.montant_ttc - ft.montant_regle, 0) as reste_du, " +
+                "         (CURRENT_DATE - ft.invoice_date) as anciennete " +
+                "    FROM facture_tiers_payant ft " +
+                "   WHERE ft.statut IN ('NOT_PAID', 'PARTIALLY_PAID')" +
+                ") f " +
+                "LEFT JOIN groupe_tiers_payant gtp ON gtp.id = f.groupe_tiers_payant_id " +
+                "LEFT JOIN tiers_payant tp ON tp.id = f.tiers_payant_id " +
+                "GROUP BY gtp.id, COALESCE(gtp.name, tp.name) " +
                 "ORDER BY montant_total DESC";
 
         Query query = entityManager.createNativeQuery(sql);
@@ -167,7 +179,8 @@ public class TiersPayantReportServiceImpl implements TiersPayantReportService {
     }
 
     @Override
-    public List<TiersPayantInvoiceDTO> getPaymentHistory(Integer groupeTiersPayantId, LocalDate startDate, LocalDate endDate) {
+    public List<TiersPayantInvoiceDTO> getPaymentHistory(Integer groupeTiersPayantId,
+        LocalDate startDate, LocalDate endDate) {
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT ");
         sql.append("f.id, ");
@@ -180,9 +193,10 @@ public class TiersPayantReportServiceImpl implements TiersPayantReportService {
         sql.append("0 as montant_restant, ");
         sql.append("f.statut ");
         sql.append("FROM facture_tiers_payant f ");
-        sql.append("INNER JOIN groupe_tiers_payant gtp ON f.groupe_tiers_payant_id = gtp.id ");
+        sql.append("LEFT JOIN groupe_tiers_payant gtp ON f.groupe_tiers_payant_id = gtp.id ");
         sql.append("LEFT JOIN tiers_payant tp ON f.tiers_payant_id = tp.id ");
-        sql.append("LEFT JOIN third_party_sale_line fi ON f.id = fi.facture_tiers_payant_id AND f.invoice_date = fi.invoice_date ");
+        sql.append(
+            "LEFT JOIN third_party_sale_line fi ON f.id = fi.facture_tiers_payant_id AND f.invoice_date = fi.invoice_date ");
         sql.append("WHERE f.statut = 'PAID' ");
         sql.append("AND f.invoice_date BETWEEN :startDate AND :endDate ");
 
@@ -190,7 +204,8 @@ public class TiersPayantReportServiceImpl implements TiersPayantReportService {
             sql.append("AND f.groupe_tiers_payant_id = :groupeTiersPayantId ");
         }
 
-        sql.append("GROUP BY f.id, f.num_facture, f.invoice_date, tp.name, gtp.name, f.montant_regle, f.statut ");
+        sql.append(
+            "GROUP BY f.id, f.num_facture, f.invoice_date, tp.name, gtp.name, f.montant_regle, f.statut ");
         sql.append("ORDER BY f.invoice_date DESC");
 
         Query query = entityManager.createNativeQuery(sql.toString());
@@ -209,7 +224,7 @@ public class TiersPayantReportServiceImpl implements TiersPayantReportService {
             .map(row -> {
                 Long factureId = row[0] != null ? ((Number) row[0]).longValue() : null;
                 String numeroFacture = (String) row[1];
-                LocalDate dateFacture = row[2] != null ? LocalDate.parse(row[2]+"") : null;
+                LocalDate dateFacture = row[2] != null ? LocalDate.parse(row[2] + "") : null;
                 String tiersPayantLibelle = (String) row[3];
                 String groupeTiersPayantLibelle = (String) row[4];
                 Integer montantFacture = row[5] != null ? ((Number) row[5]).intValue() : 0;
@@ -236,7 +251,9 @@ public class TiersPayantReportServiceImpl implements TiersPayantReportService {
 
 
     private TiersPayantInvoiceDTO.InvoiceStatus mapInvoiceStatus(String statut) {
-        if (statut == null) return TiersPayantInvoiceDTO.InvoiceStatus.UNPAID;
+        if (statut == null) {
+            return TiersPayantInvoiceDTO.InvoiceStatus.UNPAID;
+        }
         return switch (statut) {
             case "PAID" -> TiersPayantInvoiceDTO.InvoiceStatus.PAID;
             case "PARTIALLY_PAID" -> TiersPayantInvoiceDTO.InvoiceStatus.PARTIAL;

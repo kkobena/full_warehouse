@@ -32,7 +32,7 @@
                                   fallbackIcon="pi pi-list"
                                   fallbackLabel="Factures" />
             @if (alertBadgeService.facturationOverdueCount() > 0) {
-              <span class="badge rounded-pill bg-warning text-dark sidebar-nav-badge ms-auto">
+              <span class="badge rounded-pill bg-warning text-white sidebar-nav-badge ms-auto">
                 {{ alertBadgeService.facturationOverdueCount() > 99 ? '99+' : alertBadgeService.facturationOverdueCount() }}
               </span>
             }
@@ -109,7 +109,7 @@
                                   fallbackIcon="pi pi-truck"
                                   fallbackLabel="Comptes fournisseurs" />
             @if (alertBadgeService.comptesFournisseursOverdueCount() > 0) {
-              <span class="badge rounded-pill bg-warning text-dark sidebar-nav-badge ms-auto">
+              <span class="badge rounded-pill bg-warning text-white sidebar-nav-badge ms-auto">
                 {{ alertBadgeService.comptesFournisseursOverdueCount() > 99 ? '99+' : alertBadgeService.comptesFournisseursOverdueCount() }}
               </span>
             }

@@ -1,19 +1,7 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  effect,
-  inject,
-  OnInit, signal} from "@angular/core";
+import {ChangeDetectionStrategy, Component, effect, inject, OnInit, signal} from "@angular/core";
 import {CommonModule} from "@angular/common";
 import {ActivatedRoute, RouterModule} from "@angular/router";
-import {
-  NgbNav,
-  NgbNavContent,
-  NgbNavItem,
-  NgbNavLink,
-  NgbNavOutlet
-} from "@ng-bootstrap/ng-bootstrap";
+import {NgbNav, NgbNavContent, NgbNavItem, NgbNavLink} from "@ng-bootstrap/ng-bootstrap";
 import {CommandCommonService} from "../../../../entities/commande/command-common.service";
 import {AppRetourFournisseurComponent} from "../retour-fournisseur/retour-fournisseur.component";
 import {AppRepartitionStockComponent} from "../repartition-stock/repartition-stock.component";
@@ -24,11 +12,11 @@ import {SuggestionsUnifiedComponent} from "../suggestions-unified/suggestions-un
 import {BedHomeComponent} from "../bon-entree-diverse/bed-home/bed-home.component";
 import {SkeletonComponent} from "app/shared/ui/skeleton/skeleton.component";
 import {AlertBadgeService} from "../../../../shared/services/alert-badge.service";
-import {BreadcrumbService} from "../../../../shared/components/breadcrumb/breadcrumb.service";
 import {AbilityService} from "app/core/auth/ability.service";
 
-import { NavSidebarComponent } from 'app/shared/ui/nav-sidebar/nav-sidebar.component';
-import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-link.component';
+import {NavSidebarComponent} from 'app/shared/ui/nav-sidebar/nav-sidebar.component';
+import {NavSectionLinkComponent} from 'app/shared/ui/nav-sidebar/nav-section-link.component';
+
 /** Labels fil d'Ariane pour chaque onglet */
 const TAB_LABELS: Record<string, string> = {
   DASHBOARD: 'Tableau de bord Appro',
@@ -66,7 +54,7 @@ export class CommandeHomeComponent implements OnInit {
   protected readonly alertBadgeService = inject(AlertBadgeService);
   private readonly route = inject(ActivatedRoute);
   private readonly commandCommonService = inject(CommandCommonService);
-  private readonly breadcrumbService = inject(BreadcrumbService);
+  // private readonly breadcrumbService = inject(BreadcrumbService);
   private readonly ability = inject(AbilityService);
 
   protected readonly showDashboard = this.ability.canSignal('display', 'commande.dashboard');
@@ -76,13 +64,13 @@ export class CommandeHomeComponent implements OnInit {
   protected readonly showBed = this.ability.canSignal('display', 'commande.bed');
 
   constructor() {
-    inject(DestroyRef).onDestroy(() => this.breadcrumbService.clearTabCrumb());
+    //inject(DestroyRef).onDestroy(() => this.breadcrumbService.clearTabCrumb());
 
     effect(() => {
       const nav = this.commandCommonService.commandPreviousActiveNav();
       if (nav !== this.active()) {
         this.active.set(nav);
-        this.breadcrumbService.setTabCrumb(TAB_LABELS[nav] ?? nav);
+        //  this.breadcrumbService.setTabCrumb(TAB_LABELS[nav] ?? nav);
       }
     });
   }
@@ -96,7 +84,7 @@ export class CommandeHomeComponent implements OnInit {
       } else {
         this.active.set(this.commandCommonService.commandPreviousActiveNav());
       }
-      this.breadcrumbService.setTabCrumb(TAB_LABELS[this.active()] ?? this.active());
+      //   this.breadcrumbService.setTabCrumb(TAB_LABELS[this.active()] ?? this.active());
     });
     this.alertBadgeService.init();
   }
@@ -115,7 +103,7 @@ export class CommandeHomeComponent implements OnInit {
   protected onActiveIdChange(id: string): void {
     this.active.set(id);
     this.commandCommonService.updateCommandPreviousActiveNav(id);
-    this.breadcrumbService.setTabCrumb(TAB_LABELS[id] ?? id);
+    // this.breadcrumbService.setTabCrumb(TAB_LABELS[id] ?? id);
   }
 }
 

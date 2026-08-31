@@ -1,5 +1,6 @@
 <app-nav-sidebar (collapsedChange)="menuReplie.set($event)" [collapsed]="menuReplie()"
-                 [collapsible]="true" [nav]="nav" contentColumnClass="col-10 col-md-10 col-sm-10 pharma-smart-content p-1"
+                 [collapsible]="true" [nav]="nav"
+                 contentColumnClass="col-10 col-md-10 col-sm-10 pharma-smart-content p-1"
                  icon="pi pi-exclamation-triangle" menuColumnClass="col-2 col-md-2 col-sm-2"
                  title="Gestion péremption">
   <div #nav="ngbNav" [(activeId)]="active"
@@ -8,10 +9,14 @@
     @if (showLotPerimes()) {
       <ng-container ngbNavItem="lot-perimes">
         <a class="pharma-nav-vertical-link" ngbNavLink>
-          <app-nav-section-link [arrow]="false" [fallbackLabel]="'warehouseApp.gestionPerimes.menu.produitPerimes' | translate"
-                                code="peremptions.lot-perimes" fallbackIcon="pi pi-calendar-times" />
+          <app-nav-section-link [arrow]="false"
+                                [fallbackLabel]="'warehouseApp.gestionPerimes.menu.produitPerimes' | translate"
+                                code="peremptions.lot-perimes"
+                                fallbackIcon="pi pi-calendar-times" />
           @if (lotPerimesCount() > 0) {
-            <span class="badge bg-danger ms-auto">{{ lotPerimesCount() > 99 ? '99+' : (lotPerimesCount() | number) }}</span>
+            <span class="badge bg-danger ms-auto">{{
+                lotPerimesCount() > 99 ? '99+' : (lotPerimesCount() | number)
+              }}</span>
           }
           <span class="link-arrow">›</span>
         </a>
@@ -24,15 +29,18 @@
     @if (showLotADetruire()) {
       <ng-container ngbNavItem="lot-a-detruire">
         <a class="pharma-nav-vertical-link" ngbNavLink>
-          <app-nav-section-link [arrow]="false" [fallbackLabel]="'warehouseApp.gestionPerimes.menu.lotToDestroy' | translate"
+          <app-nav-section-link [arrow]="false"
+                                [fallbackLabel]="'warehouseApp.gestionPerimes.menu.lotToDestroy' | translate"
                                 code="peremptions.lot-a-detruire" fallbackIcon="pi pi-trash" />
           @if (lotADetruireCount() > 0) {
-            <span class="badge bg-warning text-dark ms-auto">{{ lotADetruireCount() > 99 ? '99+' : (lotADetruireCount() | number) }}</span>
+            <span class="badge bg-warning text-white ms-auto">{{
+                lotADetruireCount() > 99 ? '99+' : (lotADetruireCount() | number)
+              }}</span>
           }
           <span class="link-arrow">›</span>
         </a>
         <ng-template ngbNavContent>
-          <jhi-lot-a-detruire navCode="peremptions.lot-a-detruire"></jhi-lot-a-detruire>
+          <app-lot-a-detruire navCode="peremptions.lot-a-detruire"></app-lot-a-detruire>
         </ng-template>
       </ng-container>
     }

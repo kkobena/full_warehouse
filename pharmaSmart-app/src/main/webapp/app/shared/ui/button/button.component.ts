@@ -207,5 +207,17 @@ export class ButtonComponent {
     return classes.join(' ');
   });
 
-  protected readonly resolvedAriaLabel = computed(() => this.ariaLabel() || (this.iconOnly() ? this.label() : '') || null);
+  /**
+   * Nom accessible du bouton.
+   *
+   * Le repli sur `label` ne se limite pas au mode `iconOnly` : dans une barre d'outils étroite,
+   * le libellé visible est réduit à une largeur NULLE par la mise en page. Il reste dans le DOM
+   * mais sort du nom accessible — le bouton devient anonyme pour un lecteur d'écran, et
+   * introuvable par son intitulé. Mesuré sur l'écran des différés : largeur 0 à 1280 et 1440 px,
+   * 85 px à 1920.
+   *
+   * Poser systématiquement l'`aria-label` ne nuit pas quand le texte est visible : il lui est
+   * alors identique, donc le nom accessible contient bien le libellé visible (WCAG 2.5.3).
+   */
+  protected readonly resolvedAriaLabel = computed(() => this.ariaLabel() || this.label() || null);
 }

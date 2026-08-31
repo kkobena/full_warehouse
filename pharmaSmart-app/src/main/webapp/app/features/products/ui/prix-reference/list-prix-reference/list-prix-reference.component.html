@@ -14,7 +14,7 @@
           <th>Cip</th>
         }
         <th>Option de prix</th>
-        <th class="text-right">Prix dé référence</th>
+        <th class="text-right">Prix de référence</th>
         <th class="text-right">Taux de remboursement</th>
         <th class="text-right">
           <app-button
@@ -49,7 +49,8 @@
               <app-button
                 (clicked)="onEdit(prix)"
                 icon="pi pi-pencil"
-                ngbTooltip="Editer"
+                ariaLabel="Modifier le tarif"
+                ngbTooltip="Éditer"
                 [rounded]="true"
                 [text]="true"
                 severity="primary"
@@ -59,6 +60,7 @@
               <app-button
                 (clicked)="onConfirmDelete(prix)"
                 icon="pi pi-trash"
+                ariaLabel="Supprimer le tarif"
                 ngbTooltip="Supprimer"
                 [rounded]="true"
                 [text]="true"
@@ -69,6 +71,7 @@
                 <app-button
                   (clicked)="onCancel(prix)"
                   icon="pi pi-ban"
+                  ariaLabel="Désactiver le tarif"
                   ngbTooltip="Désactiver"
                   [rounded]="true"
                   [text]="true"
@@ -79,6 +82,7 @@
                 <app-button
                   (clicked)="onCancel(prix)"
                   icon="pi pi-check"
+                  ariaLabel="Activer le tarif"
                   ngbTooltip="Activer"
                   [rounded]="true"
                   [text]="true"

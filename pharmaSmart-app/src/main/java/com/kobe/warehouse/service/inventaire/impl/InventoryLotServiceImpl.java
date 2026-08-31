@@ -105,7 +105,11 @@ public class InventoryLotServiceImpl implements InventoryLotService {
             return lotRepository.getReferenceById(record.lotId());
         }
         if (record.numLot() != null) {
-            return lotRepository.findByNumLot(record.numLot())
+            // Le numéro de lot n'est unique QUE PAR PRODUIT : chercher sur le seul numéro
+            // ramenait le lot d'un AUTRE produit portant le même — ou faisait échouer la
+            // requête, le type ne promettant qu'un résultat. La ligne d'inventaire donne le
+            // produit, il n'y a aucune raison de s'en priver.
+            return lotRepository.findByNumLotAndProduitId(record.numLot(), line.getProduit().getId())
                 .orElseGet(() -> {
                     Lot newLot = new Lot();
                     newLot.setNumLot(record.numLot());

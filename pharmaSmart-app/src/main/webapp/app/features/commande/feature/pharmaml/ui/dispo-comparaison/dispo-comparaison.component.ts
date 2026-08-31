@@ -10,6 +10,7 @@ import { PharmamlApiService } from "../../../../data-access/pharmaml-api.service
 import { NotificationService } from "../../../../../../shared/services/notification.service";
 import { ErrorService } from "../../../../../../shared/error.service";
 import { FournisseurSelectComponent } from "../../../../../partners/ui/fournisseur-select/fournisseur-select.component";
+import { DevisePipe } from "app/shared/utils/devise";
 
 export interface ComparaisonRow {
   codeProduit: string;
@@ -22,7 +23,7 @@ export interface ComparaisonRow {
   templateUrl: "./dispo-comparaison.component.html",
   styleUrls: ["./dispo-comparaison.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, BadgeComponent, ButtonComponent, DataTableComponent, FournisseurSelectComponent]
+  imports: [CommonModule, FormsModule, BadgeComponent, ButtonComponent, DataTableComponent, FournisseurSelectComponent, DevisePipe]
 })
 export class DispoComparaisonComponent {
   commandeId!: CommandeId;
@@ -32,8 +33,19 @@ export class DispoComparaisonComponent {
   readonly selectedFournisseurs = signal<IFournisseur[]>([]);
   readonly rows = signal<ComparaisonRow[]>([]);
   readonly loading = signal(false);
+  /** Une comparaison a déjà été lancée : sans cela, « aucun résultat » et « pas encore
+   * lancé » s'affichent de la même façon, et l'utilisateur croit n'avoir rien cliqué. */
+  readonly comparaisonFaite = signal(false);
+  /** Grossistes qui n'ont pas répondu — le serveur les rend sans libellé. */
+  readonly echecs = signal<number[]>([]);
 
   readonly hasResults = computed(() => this.rows().length > 0);
+  readonly libelleEchecs = computed(() =>
+    this.colonnes()
+      .filter(f => this.echecs().includes(f.id!))
+      .map(f => f.libelle)
+      .join(', '),
+  );
   readonly colonnes = computed(() => this.selectedFournisseurs().filter(f => f.id != null));
 
   private readonly activeModal = inject(NgbActiveModal);
@@ -47,6 +59,7 @@ export class DispoComparaisonComponent {
 
     this.loading.set(true);
     this.rows.set([]);
+    this.echecs.set([]);
 
     const grossisteIds = grossistes.map(f => f.id!);
 
@@ -58,6 +71,7 @@ export class DispoComparaisonComponent {
       next: res => {
         const results: IDispoGrossisteResult[] = res.body ?? [];
         const produits = new Map<string, ComparaisonRow>();
+        this.echecs.set(results.filter(r => !r.fournisseurLibelle).map(r => r.grossisteId));
 
         results.forEach(result => {
           result.produits.forEach(info => {
@@ -78,6 +92,7 @@ export class DispoComparaisonComponent {
           )
         );
         this.loading.set(false);
+        this.comparaisonFaite.set(true);
       },
       error: (error) => {
         this.loading.set(false),
@@ -89,6 +104,8 @@ export class DispoComparaisonComponent {
   onFournisseurChange(value: IFournisseur[]): void {
     this.selectedFournisseurs.set(value);
     this.rows.set([]);
+    this.echecs.set([]);
+    this.comparaisonFaite.set(false);
   }
 
   infoFor(row: ComparaisonRow, fournisseurId: number): IInfoProduit | undefined {

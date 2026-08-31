@@ -29,11 +29,14 @@
         </div>
         <div class="col-6 col-md-3">
           <small class="text-muted d-block mb-1">Date péremption</small>
-          <strong class="text-danger">{{ lot.datePeremption | date:'dd/MM/yyyy' }}</strong>
+          <!-- La date arrive DÉJÀ MISE EN FORME par le serveur (« 28/11/2026 ») : la passer
+               au pipe `date`, qui attend une date ISO, ne rendait rien — le champ restait
+               vide dans la modale alors que la liste affichait la même valeur. -->
+          <strong class="text-danger">{{ lot.datePeremption }}</strong>
         </div>
         <div class="col-6 col-md-3">
           <small class="text-muted d-block mb-1">Stock disponible</small>
-          <strong>{{ lot.quantity | number }}</strong>
+          <strong>{{ lot.quantity }}</strong>
         </div>
         <div class="col-6 col-md-3">
           <small class="text-muted d-block mb-1">Fournisseur</small>

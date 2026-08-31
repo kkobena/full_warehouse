@@ -3,7 +3,7 @@
   @if (loading()) {
     <!-- Skeleton pendant la résolution du layout -->
     <div class="d-flex justify-content-center align-items-center" style="height: 60vh">
-      <app-skeleton width="100%" height="160px" />
+      <app-skeleton height="160px" width="100%" />
     </div>
   } @else if (!isRoute()) {
 
@@ -11,46 +11,47 @@
 
       @case ('PHARMACIEN') {
         @defer (on immediate) {
-          <div class="container-fluid"><app-home-base></app-home-base></div>
+
+          <app-home-base></app-home-base>
+
         } @loading {
-          <app-skeleton width="100%" height="160px" />
+          <app-skeleton height="160px" width="100%" />
         }
       }
-
       @case ('CAISSIER') {
         @defer (on immediate) {
           <app-caissier-dashboard></app-caissier-dashboard>
         } @loading {
-          <app-skeleton width="100%" height="160px" />
+          <app-skeleton height="160px" width="100%" />
         }
       }
-
       @case ('COMMANDE') {
         @defer (on immediate) {
           <app-commande-home></app-commande-home>
         } @loading {
-          <app-skeleton width="100%" height="160px" />
+          <app-skeleton height="160px" width="100%" />
         }
       }
-
       @default {
         <!--
           DEFAULT ou componentKey inconnu :
-          - layoutConfig présent → GridStack personnalisé (TODO Phase 4)
+          - layoutConfig présent → GridStack personnalisé (TODO )
           - sinon → DefaultDashboard
         -->
         @if (resolvedLayout()?.layoutConfig) {
           <!-- TODO : <app-customizable-dashboard [layout]="resolvedLayout()"> -->
           @defer (on immediate) {
-            <div class="container-fluid"><app-home-base></app-home-base></div>
+            <div class="container-fluid">
+              <app-home-base></app-home-base>
+            </div>
           } @loading {
-            <app-skeleton width="100%" height="160px" />
+            <app-skeleton height="160px" width="100%" />
           }
         } @else {
           @defer (on immediate) {
             <app-default-dashboard></app-default-dashboard>
           } @loading {
-            <app-skeleton width="100%" height="160px" />
+            <app-skeleton height="160px" width="100%" />
           }
         }
       }

@@ -12,7 +12,8 @@ import {
   IComparativeSummary
 } from "app/shared/model/report/comparative-report.model";
 import { ComparativeReportService } from "../services/comparative-report.service";
-import { formatCurrency } from "app/shared/utils/format-utils";
+import { currencySymbol, formatCurrency } from "app/shared/utils/format-utils";
+import { libelleNatureVente } from "app/shared/constants/type-vente.constants";
 
 import { Chart, ChartConfiguration, ChartData, registerables } from "chart.js";
 import { BlobDownloadService } from "../../../shared/services/blob-download.service";
@@ -33,6 +34,24 @@ type FamilySortColumn = "currentYearCA" | "previousYearCA" | "evolutionPct";
 interface ComparisonTypeOption {
   label: string;
   value: string;
+}
+
+/**
+ * Etiquette d'infobulle d'un graphique de montants : le nom de la serie, puis le montant
+ * separe par milliers et suivi de la devise de l'officine.
+ *
+ * Chart.js rend par defaut le nombre brut -- « 22406090 » --, illisible a l'oeil et muet sur
+ * l'unite. C'est le seul endroit ou le montant exact d'une barre se lit.
+ */
+function etiquetteMontant(contexte: { dataset: { label?: string }; parsed: { y: number } }): string {
+  const serie = contexte.dataset.label ? `${contexte.dataset.label} : ` : "";
+  return `${serie}${formatCurrency(contexte.parsed.y)} ${currencySymbol()}`;
+}
+
+/** Même étiquette, pour les graphiques à barres horizontales : le montant y est porté par X. */
+function etiquetteMontantHorizontal(contexte: { dataset: { label?: string }; parsed: { x: number } }): string {
+  const serie = contexte.dataset.label ? `${contexte.dataset.label} : ` : "";
+  return `${serie}${formatCurrency(contexte.parsed.x)} ${currencySymbol()}`;
 }
 
 @Component({
@@ -115,6 +134,12 @@ export default class ComparativeAnalysisComponent implements OnInit {
   protected yearOptions: number[] = [];
 
   protected formatCurrency = formatCurrency;
+  /**
+   * Le libelle vient de la table partagee plutot que du serveur : c'est elle qui fixe le
+   * vocabulaire de l'application, et un ecran qui la contourne finit par dire autre chose que
+   * son voisin. Le serveur envoie le CODE, l'ecran choisit les mots.
+   */
+  protected libelleNatureVente = libelleNatureVente;
 
   private evolutionChart?: Chart;
   private typeChart?: Chart;
@@ -330,9 +355,12 @@ export default class ComparativeAnalysisComponent implements OnInit {
         responsive: true,
         plugins: {
           legend: { position: "top" },
-          title: { display: true, text: "Évolution Comparative du CA" }
+          // Le titre du graphique repetait celui de la carte qui le porte : deux fois la
+          // meme phrase, et autant de hauteur en moins pour les barres.
+          title: { display: false },
+          tooltip: { callbacks: { label: contexte => etiquetteMontant(contexte) } }
         },
-        scales: { y: { beginAtZero: true } }
+        scales: { y: { beginAtZero: true, ticks: { callback: value => formatCurrency(Number(value)) } } }
       }
     };
     this.evolutionChart = new Chart(ctx, config);
@@ -351,7 +379,9 @@ export default class ComparativeAnalysisComponent implements OnInit {
 
     const year = this.selectedYear();
     const chartData: ChartData<"bar"> = {
-      labels: data.map(d => d.saleTypeLabel ?? ""),
+      // Meme table que le tableau au-dessous : le graphique et ses lignes doivent nommer
+      // les memes choses des memes mots.
+      labels: data.map(d => libelleNatureVente(d.saleType)),
       datasets: [
         { label: `CA ${year}`, data: data.map(d => d.currentYearCA ?? 0), backgroundColor: "#4CAF50" },
         { label: `CA ${year - 1}`, data: data.map(d => d.previousYearCA ?? 0), backgroundColor: "#9C27B0" }
@@ -362,7 +392,14 @@ export default class ComparativeAnalysisComponent implements OnInit {
       data: chartData,
       options: {
         responsive: true,
-        plugins: { legend: { position: "top" }, title: { display: true, text: "CA par Type de Vente" } }
+        plugins: {
+          legend: { position: "top" },
+          title: { display: false },
+          // Les montants ne se lisaient nulle part : l'axe portait des nombres bruts sans
+          // separateur ni devise, et le survol d'une barre n'en disait pas davantage.
+          tooltip: { callbacks: { label: contexte => etiquetteMontant(contexte) } }
+        },
+        scales: { y: { beginAtZero: true, ticks: { callback: value => formatCurrency(Number(value)) } } }
       }
     };
     this.typeChart = new Chart(ctx, config);
@@ -396,9 +433,10 @@ export default class ComparativeAnalysisComponent implements OnInit {
         responsive: true,
         plugins: {
           legend: { position: "top" },
-          title: { display: true, text: `Top 15 fournisseurs — ${year} vs ${year - 1}` }
+          title: { display: true, text: `Top 15 fournisseurs — ${year} vs ${year - 1}` },
+          tooltip: { callbacks: { label: contexte => etiquetteMontantHorizontal(contexte) } }
         },
-        scales: { x: { beginAtZero: true } }
+        scales: { x: { beginAtZero: true, ticks: { callback: value => formatCurrency(Number(value)) } } }
       }
     };
     this.fournisseurChart = new Chart(ctx, config);
@@ -432,9 +470,10 @@ export default class ComparativeAnalysisComponent implements OnInit {
         responsive: true,
         plugins: {
           legend: { position: "top" },
-          title: { display: true, text: `Top 15 familles — ${year} vs ${year - 1}` }
+          title: { display: true, text: `Top 15 familles — ${year} vs ${year - 1}` },
+          tooltip: { callbacks: { label: contexte => etiquetteMontantHorizontal(contexte) } }
         },
-        scales: { x: { beginAtZero: true } }
+        scales: { x: { beginAtZero: true, ticks: { callback: value => formatCurrency(Number(value)) } } }
       }
     };
     this.familyChart = new Chart(ctx, config);

@@ -73,9 +73,6 @@ export default class NavbarComponent implements OnInit {
   protected readonly isMobileSignal = signal(window.innerWidth <= 768);
   protected readonly version = signal("");
   protected account = inject(AccountService).trackCurrentAccount();
-  // Signaux et non propriétés mutées : `navItems` est affecté depuis un `effect()` — le store de
-  // navigation se charge après le premier rendu — et rien n'y salit la vue. Sous `OnPush`, le menu
-  // serait resté vide ou figé sur son premier état.
   protected readonly navItems = signal<NavItem[]>([]);
   protected readonly alertBadgeService = inject(AlertBadgeService);
   private hoverOpenTimer?: number;
@@ -109,17 +106,13 @@ export default class NavbarComponent implements OnInit {
     destroyRef.onDestroy(() => this.cancelHoverTimers());
 
     effect(() => {
-      // Reactive: rebuilds nav items whenever account, navTree (store) or alert counts change
       this.navStore.navTree(); // déclenche la réactivité quand le store se charge
       const items = this.navigationService.buildNavItems({
         onLogin: () => this.login(),
         onLogout: () => this.logout(),
         onOpenConfigEditor: () => this.openConfigEditor(),
-        onOpenAppSettings: () => this.openAppSettings(),
-        onOpenCahierRecette: () => this.openCahierRecette()
+        onOpenAppSettings: () => this.openAppSettings()
       });
-      // `applyNavBadges` lit les compteurs d'alerte : appelée dans l'effet, la
-      // lecture y est tracée et l'effet reste abonné à chacun d'eux.
       this.navigationService.applyNavBadges(items);
       this.navItems.set(items);
     });
@@ -165,10 +158,6 @@ export default class NavbarComponent implements OnInit {
 
   protected openConfigEditor(): void {
     void this.router.navigate(["/app-config"]);
-  }
-
-  protected openCahierRecette(): void {
-    void this.router.navigate(["/cahier-recette"]);
   }
 
   protected isMobile(): boolean {

@@ -59,6 +59,18 @@ public class DciResource {
         return ResponseEntity.created(new URI("/api/dci/" + result.getId())).body(result);
     }
 
+    /**
+     * Rattache plusieurs produits à une DCI en une fois — l'affectation en masse depuis le
+     * catalogue, là où la fiche produit ne permettait de le faire qu'une par une.
+     */
+    @PostMapping("/{id}/produits")
+    public ResponseEntity<Integer> rattacherProduits(
+        @PathVariable Integer id,
+        @RequestBody List<Integer> produitIds
+    ) {
+        return ResponseEntity.ok(dciService.rattacherProduits(id, produitIds));
+    }
+
     @PutMapping
     public ResponseEntity<DciDTO> update(@RequestBody DciDTO dto) {
         return ResponseEntity.ok().body(dciService.update(dto));

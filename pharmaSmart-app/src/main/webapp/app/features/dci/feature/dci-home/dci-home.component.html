@@ -1,5 +1,5 @@
 <app-page-layout ariaLabel="Dénominations Communes Internationales"
-                 class="pharma-smart-content py-1"
+                 class="pharma-smart-content p-1"
                  density="compact">
   <app-toolbar
     [compact]="true"
@@ -25,6 +25,14 @@
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-toolbar-actions">
         <div class="pharma-button-group">
+
+          <app-button
+            (clicked)="creer()"
+            [raised]="true"
+            icon="pi pi-plus"
+            label="Nouvelle DCI"
+            severity="primary"
+          />
           <app-button
             (clicked)="importer()"
             [raised]="true"
@@ -33,13 +41,6 @@
             ngbTooltip="Importer un CSV (code;libelle)"
             placement="left"
             severity="secondary"
-          />
-          <app-button
-            (clicked)="creer()"
-            [raised]="true"
-            icon="pi pi-plus"
-            label="Nouvelle DCI"
-            severity="primary"
           />
         </div>
       </div>
@@ -137,9 +138,10 @@
           </div>
 
           <p class="text-muted small">
-            {{ selection()!.libelle }}
+            <span class="pharma-badge">  {{ selection()!.libelle }}</span>&nbsp;&nbsp;
             @if (!chargementDetail()) {
-              · {{ produits().length | number }} produit(s)
+              <span
+                class="pharma-badge pharma-badge-info">   {{ produits().length | number }}</span> produit(s)
             }
           </p>
 
@@ -157,7 +159,7 @@
                 <th style="width: 9rem">CIP</th>
                 <th>Famille</th>
                 <th class="text-end" style="width: 7rem">Prix</th>
-                <th style="width: 6rem">Statut</th>
+
               </tr>
             </ng-template>
 
@@ -173,11 +175,7 @@
                 </td>
                 <td class="small text-muted">{{ produit.famille ?? '—' }}</td>
                 <td class="text-end">{{ produit.prixVente | number: '1.0-0' }}</td>
-                <td>
-                  @if (produit.statut) {
-                    <app-badge [label]="produit.statut" [severity]="severiteStatut(produit.statut)" />
-                  }
-                </td>
+
               </tr>
             </ng-template>
           </app-data-table>

@@ -63,20 +63,23 @@
         }
       </ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'success'" [value]="formatCurrency(kpi()?.totalRegle)" icon="pi pi-check-circle"
+    <app-kpi-item [accent]="'success'" [value]="formatCurrency(kpi()?.totalRegle)"
+                  icon="pi pi-check-circle"
                   iconClass="text-success" label="Montant réglé"
                   valueClass="text-success">
       <span ngProjectAs="[kpiValue]"><small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">{{ formatNumber(kpi()?.countFactures) }}factures
       </ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'danger'" [value]="formatCurrency(kpi()?.totalRestant)" icon="pi pi-times-circle"
+    <app-kpi-item [accent]="'danger'" [value]="formatCurrency(kpi()?.totalRestant)"
+                  icon="pi pi-times-circle"
                   iconClass="text-danger" label="Montant restant"
                   valueClass="text-danger">
       <ng-container ngProjectAs="[kpiSub]">{{ formatNumber(kpi()?.countImpayees) }}impayées
       </ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'warning'" [value]="formatNumber(kpi()?.countEnRetard)" icon="pi pi-clock"
+    <app-kpi-item [accent]="'warning'" [value]="formatNumber(kpi()?.countEnRetard)"
+                  icon="pi pi-clock"
                   iconClass="text-warning" label="En retard"
                   valueClass="text-warning">
       <ng-container ngProjectAs="[kpiSub]">factures en retard de paiement</ng-container>
@@ -99,16 +102,20 @@
           <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex justify-content-between px-0">
               <span>Total facturé</span>
-              <span class="fw-bold">{{ formatCurrency(kpi()?.totalFacture) }} <span
+              <span class="fw-bold">{{ formatCurrency(kpi()?.totalFacture) }} &ngsp; <span
                 appDevise></span></span>
             </li>
             <li class="list-group-item d-flex justify-content-between px-0">
               <span class="text-success">Montant réglé</span>
-              <span class="fw-bold text-success">{{ formatCurrency(kpi()?.totalRegle) }}</span>
+              <span class="fw-bold text-success">{{ formatCurrency(kpi()?.totalRegle) }}
+                &ngsp; <span
+                  appDevise></span></span>
             </li>
             <li class="list-group-item d-flex justify-content-between px-0">
               <span class="text-danger">Montant restant</span>
-              <span class="fw-bold text-danger">{{ formatCurrency(kpi()?.totalRestant) }}</span>
+              <span class="fw-bold text-danger">{{ formatCurrency(kpi()?.totalRestant) }}
+                &ngsp; <span
+                  appDevise></span></span>
             </li>
           </ul>
         </div>

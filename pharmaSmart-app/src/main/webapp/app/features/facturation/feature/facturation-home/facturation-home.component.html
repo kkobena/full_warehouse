@@ -39,7 +39,8 @@
           -->
           <app-multi-select
             (searched)="searchGroupTiersPayant($event)"
-            [ngModel]="selectedGroupeTiersPayants()" (ngModelChange)="selectedGroupeTiersPayants.set($event)"
+            (ngModelChange)="selectedGroupeTiersPayants.set($event)"
+            [ngModel]="selectedGroupeTiersPayants()"
             [items]="groupeTiersPayants()"
             [minSearchLength]="minLength"
             appendTo="body"
@@ -51,7 +52,8 @@
         <app-float-label inputId="fhTp" label="Tiers-payant">
           <app-multi-select
             (searched)="searchTiersPayant($event)"
-            [ngModel]="selectedTiersPayants()" (ngModelChange)="selectedTiersPayants.set($event)"
+            (ngModelChange)="selectedTiersPayants.set($event)"
+            [ngModel]="selectedTiersPayants()"
             [items]="tiersPayants()"
             [minSearchLength]="minLength"
             appendTo="body"

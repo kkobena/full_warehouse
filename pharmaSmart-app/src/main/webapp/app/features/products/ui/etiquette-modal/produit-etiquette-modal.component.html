@@ -14,15 +14,17 @@
     }
     @if (produit.regularUnitPrice) {
       <div style="font-size: 0.78rem; color: #198754; margin-top: 2px; font-weight: 600">
-        {{ produit.regularUnitPrice | number:'1.0-0' }} F
+        {{ produit.regularUnitPrice | devise }}
       </div>
     }
   </div>
 
   <div class="row g-3">
     <div class="col-6">
-      <label class="form-label et-label">Nombre d'étiquettes <span class="text-danger">*</span></label>
+      <label class="form-label et-label" for="etiquetteQty">Nombre d'étiquettes <span
+        class="text-danger">*</span></label>
       <app-input-number #qtyInput
+        inputId="etiquetteQty"
         [(ngModel)]="qty"
         [min]="1"
         [max]="64"
@@ -30,8 +32,9 @@
       />
     </div>
     <div class="col-6">
-      <label class="form-label et-label">Position de départ</label>
+      <label class="form-label et-label" for="etiquetteStartAt">Position de départ</label>
       <app-input-number
+        inputId="etiquetteStartAt"
         [(ngModel)]="startAt"
         [min]="1"
         [max]="65"

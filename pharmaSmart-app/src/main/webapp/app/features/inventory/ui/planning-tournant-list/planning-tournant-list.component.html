@@ -102,17 +102,21 @@
         <td class="text-center">
           <div class="pharma-action-buttons">
             <app-button (clicked)="executerManuellement(p)" [rounded]="true" [text]="true" icon="pi pi-play"
+                        ariaLabel="Exécuter maintenant"
                         ngbTooltip="Exécuter maintenant"
                         severity="success" />
             <app-button (clicked)="toggleActif(p)" [icon]="p.actif ? 'pi pi-pause' : 'pi pi-play'"
+                        [ariaLabel]="p.actif ? 'Désactiver' : 'Activer'"
                         [ngbTooltip]="p.actif ? 'Désactiver' : 'Activer'"
                         [rounded]="true"
                         [severity]="p.actif ? 'warn' : 'info'"
                         [text]="true" />
             <app-button (clicked)="openEditModal(p)" [rounded]="true" [text]="true"
+                        ariaLabel="Modifier le planning"
                         icon="pi pi-pencil"
                         ngbTooltip="Modifier" />
             <app-button (clicked)="delete(p)" [rounded]="true" [text]="true" icon="pi pi-trash"
+                        ariaLabel="Supprimer le planning"
                         ngbTooltip="Supprimer"
                         severity="danger" />
           </div>

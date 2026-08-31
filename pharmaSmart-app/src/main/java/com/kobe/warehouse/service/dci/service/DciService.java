@@ -24,6 +24,13 @@ public interface DciService {
     List<DciProduitDTO> findProduits(Integer dciId);
 
     /**
+     * Rattache une liste de produits à une DCI, en une seule opération.
+     *
+     * @return le nombre de produits effectivement modifiés.
+     */
+    int rattacherProduits(Integer dciId, List<Integer> produitIds);
+
+    /**
      * Importe un fichier CSV « code;libelle ».
      *
      * <p>Le libellé est obligatoire ; le code est facultatif et sera dérivé du libellé lorsqu'il

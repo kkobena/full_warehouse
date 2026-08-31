@@ -37,6 +37,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -107,15 +108,55 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
         }
     }
 
+    /**
+     * Stock de départ à consigner sur une mise au rebut de lot.
+     *
+     * <p>Trois sources, de la plus précise à la plus large : ce que l'appelant a fourni, la
+     * quantité du lot avant retrait, puis le stock total du produit — un lot dont la quantité
+     * n'est pas tenue (reprise, saisie manuelle) reste ainsi traçable.
+     *
+     * @throws GenericError si aucune ne donne un stock positif : retirer d'un stock vide n'a
+     *                      pas de sens, et le dire vaut mieux qu'un échec technique.
+     */
+    private int stockInitialDuLot(ProductToDestroyPayload payload, Lot lot, Magasin magasin) {
+        int stock = Objects.requireNonNullElse(payload.stockInitial(), 0);
+        if (stock < 1) {
+            stock = Objects.requireNonNullElse(lot.getQuantity(), 0);
+        }
+        if (stock < 1) {
+            stock = findStockProduits(magasin.getId(), lot.getProduit().getId())
+                .stream()
+                .mapToInt(StockProduit::getQtyStock)
+                .sum();
+        }
+        if (stock < 1) {
+            throw new GenericError(
+                "Le lot " + lot.getNumLot() + " n'a plus de stock : il n'y a rien à retirer.");
+        }
+        return stock;
+    }
+
+    /**
+     * Le couple produit/fournisseur d'origine du lot, ou {@code null} s'il n'a pas de réception.
+     */
+    private FournisseurProduit fournisseurProduitDuLot(Lot lot) {
+        if (isNull(lot) || isNull(lot.getOrderLine())) {
+            return null;
+        }
+        return lot.getOrderLine().getFournisseurProduit();
+    }
+
     private ProductsToDestroy addProductQuantity(ProductToDestroyPayload productToDestroyPayload,
         Lot lot, Magasin magasin) {
-        FournisseurProduit fournisseurProduit =
-            nonNull(lot) ? lot.getOrderLine().getFournisseurProduit() : null;
-        // Lot lot = null;
+        // `lot.orderLine` est NULLABLE : un lot peut exister sans réception d'origine — saisi
+        // à la main sur un stock déjà présent, ou repris d'une migration. Le déréférencer
+        // sans précaution faisait échouer la mise au rebut en HTTP 500, précisément sur les
+        // lots les plus anciens.
+        FournisseurProduit fournisseurProduit = fournisseurProduitDuLot(lot);
         if (isNull(lot) && nonNull(productToDestroyPayload.lotId())) {
             lot = this.lotRepository.findById(productToDestroyPayload.lotId()).orElse(null);
             if (nonNull(lot)) {
-                fournisseurProduit = lot.getOrderLine().getFournisseurProduit();
+                fournisseurProduit = fournisseurProduitDuLot(lot);
             }
         } else {
             if (isNull(fournisseurProduit) && nonNull(productToDestroyPayload.fournisseurId())) {
@@ -134,7 +175,7 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
             }
         }
         ProductsToDestroy productsToDestroy = new ProductsToDestroy();
-        productsToDestroy.setStockInitial(productToDestroyPayload.stockInitial());
+
         productsToDestroy.setEditing(productToDestroyPayload.editing());
         productsToDestroy.setCreated(LocalDateTime.now());
         productsToDestroy.setUpdated(productsToDestroy.getCreated());
@@ -148,7 +189,18 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
             productsToDestroy.setPrixUnit(lot.getPrixUnit());
             productsToDestroy.setNumLot(lot.getNumLot());
             productsToDestroy.setDatePeremption(lot.getExpiryDate());
+            // Le stock d'AVANT le retrait, que la ligne de mise au rebut a vocation à
+            // consigner : sans lui, une destruction ne dit plus sur quel stock elle a porté.
+            //
+            // Il n'était jamais renseigné sur cette branche — l'écran ne l'envoie pas, un lot
+            // le portant déjà — et restait donc à zéro, que la contrainte @Min(1) de l'entité
+            // refuse. Le retrait d'un lot périmé échouait ainsi en HTTP 500, sans que la
+            // moindre trace n'en dise la raison.
+            productsToDestroy.setStockInitial(
+                stockInitialDuLot(productToDestroyPayload, lot, magasin));
         } else {
+            productsToDestroy.setStockInitial(
+                Objects.requireNonNullElse(productToDestroyPayload.stockInitial(), 0));
             // Produit product = fournisseurProduit.getProduit();
             // productsToDestroy.setDatePeremption(product.getPerimeAt());
             productsToDestroy.setPrixAchat(fournisseurProduit.getPrixAchat());
@@ -166,7 +218,12 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
             } else {
                 productsToDestroy.setDatePeremption(productToDestroyPayload.datePeremption());
                 productsToDestroy.setNumLot(productToDestroyPayload.numLot());
-                productsToDestroy.setStockInitial(productToDestroyPayload.stockInitial());
+                // Même déballage risqué qu'à la construction : `stockInitial` est un Integer
+                // NULLABLE dans la charge utile — l'écran ne l'envoie pas quand la ligne
+                // vient d'une saisie manuelle — et l'affecter à un `int` levait un NPE, rendu
+                // en HTTP 500 sans le moindre message exploitable.
+                productsToDestroy.setStockInitial(
+                    Objects.requireNonNullElse(productToDestroyPayload.stockInitial(), 0));
             }
         }
         productsToDestroy.setMagasin(magasin);
@@ -224,7 +281,11 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
     @Override
     @Transactional
     public void addProductQuantity(ProductToDestroyPayload productToDestroyPayload) {
-        Lot lot = this.lotRepository.findByNumLot(productToDestroyPayload.numLot()).orElse(null);
+        // Numéro + produit : la vraie clé d'un lot (voir updateLot).
+        Lot lot = this.lotRepository.findByNumLotAndProduitId(
+            productToDestroyPayload.numLot(),
+            productToDestroyPayload.produitId()
+        ).orElse(null);
         this.productsToDestroyRepository.findByNumLotAndFournisseurProduitProduitId(
             productToDestroyPayload.numLot(),
             productToDestroyPayload.produitId()
@@ -276,7 +337,10 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
     public void modifyProductQuantity(ProductToDestroyPayload productToDestroyPayload) {
         ProductsToDestroy productsToDestroy = this.productsToDestroyRepository.getReferenceById(
             productToDestroyPayload.id());
-        Lot lot = this.lotRepository.findByNumLot(productToDestroyPayload.numLot()).orElse(null);
+        Lot lot = this.lotRepository.findByNumLotAndProduitId(
+            productToDestroyPayload.numLot(),
+            productsToDestroy.getFournisseurProduit().getProduit().getId()
+        ).orElse(null);
         prevaliderLot(lot, productToDestroyPayload.quantity());
         productsToDestroy.setQuantity(productToDestroyPayload.quantity());
         productsToDestroy.setUpdated(LocalDateTime.now());
@@ -384,7 +448,15 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
         if (!hasText(productsToDestroy.getNumLot())) {
             return;
         }
-        this.lotRepository.findByNumLot(productsToDestroy.getNumLot()).ifPresent(lot -> {
+        // Le numéro de lot n'est unique QUE PAR PRODUIT : deux fournisseurs livrent
+        // couramment un « LOT-2026-014 » chacun. Chercher sur le seul numéro rendait donc
+        // plusieurs lignes là où le type promet au plus une, et le retrait groupé échouait en
+        // HTTP 500 dès que deux produits partageaient un numéro — ce que le retrait d'un lot
+        // isolé ne rencontrait presque jamais.
+        this.lotRepository.findByNumLotAndProduitId(
+            productsToDestroy.getNumLot(),
+            productsToDestroy.getFournisseurProduit().getProduit().getId()
+        ).ifPresent(lot -> {
             int qty = productsToDestroy.getQuantity();
             // 1. Mettre à jour le total du lot
             int newLotQty = Math.max(lot.getQuantity() - qty, 0);

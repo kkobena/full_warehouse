@@ -1,10 +1,20 @@
-import { Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy, input} from "@angular/core";
-import { HttpResponse } from "@angular/common/http";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { RouterModule } from "@angular/router";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  input,
+  OnDestroy,
+  OnInit,
+  signal,
+  ViewChild
+} from "@angular/core";
+import {HttpResponse} from "@angular/common/http";
+import {CommonModule} from "@angular/common";
+import {FormsModule} from "@angular/forms";
+import {RouterModule} from "@angular/router";
 
-import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
+import {NgbDateStruct} from "@ng-bootstrap/ng-bootstrap";
 
 import {
   ButtonComponent,
@@ -13,8 +23,8 @@ import {
   SelectComponent,
   ToolbarComponent
 } from '../../../shared/ui';
-import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
-import { NGB_DATE_TO_ISO } from '../../../shared/util/warehouse-util';
+import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
+import {NGB_DATE_TO_ISO} from '../../../shared/util/warehouse-util';
 
 import {
   IBasketEvolution,
@@ -25,19 +35,27 @@ import {
   IProductFamilyCA,
   IProductFamilySummary
 } from "app/shared/model/report";
-import { ITopProduct } from "app/shared/model/report/top-product.model";
-import { DashboardCAService } from "../services/dashboard-ca.service";
+import {ITopProduct} from "app/shared/model/report/top-product.model";
+import {DashboardCAService} from "../services/dashboard-ca.service";
+import {SalesSummaryReportService} from "../services/sales-summary-report.service";
+import {IDailySalesSummary} from "app/shared/model/report/daily-sales-summary.model";
+import {libelleTypeVente} from "app/shared/constants/type-vente.constants";
 import {
   FinancesDashboardApiService
 } from "../../../features/finances/data-access/services/finances-dashboard-api.service";
-import { IFinancesSummary } from "../../../features/finances/data-access/models";
-import { formatCurrency, formatDate, formatPercent } from "app/shared/utils/format-utils";
+import {IFinancesSummary} from "../../../features/finances/data-access/models";
+import {
+  currencySymbol,
+  formatCurrency,
+  formatDate,
+  formatPercent
+} from "app/shared/utils/format-utils";
 
-import { Chart, ChartConfiguration, ChartData, registerables } from "chart.js";
-import { BlobDownloadService } from "../../../shared/services/blob-download.service";
+import {Chart, ChartConfiguration, ChartData, registerables} from "chart.js";
+import {BlobDownloadService} from "../../../shared/services/blob-download.service";
 
-import { DeviseDirective } from 'app/shared/utils/devise';
-import { currencySymbol } from 'app/shared/utils/format-utils';
+import {DeviseDirective} from 'app/shared/utils/devise';
+
 Chart.register(...registerables);
 
 interface PeriodOption {
@@ -50,8 +68,7 @@ interface PeriodOption {
   templateUrl: "./dashboard-ca.component.html",
   styleUrl: "./dashboard-ca.component.scss",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeviseDirective, 
-    CommonModule,
+  imports: [DeviseDirective, CommonModule,
     FormsModule,
     ButtonComponent,
     SelectComponent,
@@ -87,21 +104,29 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
   isLoading = signal<boolean>(false);
   summaryFinances = signal<IFinancesSummary | null>(null);
   periodOptions: PeriodOption[] = [
-    { label: "Aujourd'hui", value: "today" },
-    { label: "7 derniers jours", value: "week" },
-    { label: "30 derniers jours", value: "month" },
-    { label: "Cette année", value: "year" },
-    { label: "Période personnalisée", value: "custom" }
+    {label: "Aujourd'hui", value: "today"},
+    {label: "7 derniers jours", value: "week"},
+    {label: "30 derniers jours", value: "month"},
+    {label: "Cette année", value: "year"},
+    {label: "Période personnalisée", value: "custom"}
   ];
   // Format methods using shared utilities
   formatCurrency = formatCurrency;
   formatPercent = formatPercent;
+  /**
+   * Ventilation par type de vente : comptant, tiers payant, dépôt. Elle vient de la synthèse
+   * quotidienne (`mv_daily_sales_summary`), agrégée sur la période affichée.
+   */
+  protected readonly typeVenteData = signal<
+    { typeVente: string; libelle: string; nbVentes: number; caNet: number; part: number }[]
+  >([]);
   // Charts
   private evolutionChart?: Chart;
   private paymentChart?: Chart;
   private familyChart?: Chart;
   private basketChart?: Chart;
   private dashboardCAService = inject(DashboardCAService);
+  private readonly salesSummaryService = inject(SalesSummaryReportService);
   private readonly financesDashboardApi = inject(FinancesDashboardApiService);
   private readonly blobDownloadService = inject(BlobDownloadService);
 
@@ -131,7 +156,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
     });
 
     // Calculate date range based on selected period
-    const { start, end } = this.getDateRange();
+    const {start, end} = this.getDateRange();
 
 
     this.dashboardCAService.getEvolutionData("daily", start, end).subscribe({
@@ -154,6 +179,16 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
       },
       error() {
         console.error("Error loading payment method data");
+      }
+    });
+
+
+    this.salesSummaryService.getDailySalesSummary(start, end).subscribe({
+      next: (res: HttpResponse<IDailySalesSummary[]>) => {
+        this.typeVenteData.set(this.agregerParTypeVente(res.body ?? []));
+      },
+      error() {
+        console.error("Error loading sales type data");
       }
     });
 
@@ -185,7 +220,9 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
     this.dashboardCAService.getBasketEvolution().subscribe({
       next: res => {
         this.basketEvolution.set(res.body);
-        if (res.body) this.createBasketChart(res.body);
+        if (res.body) {
+          this.createBasketChart(res.body);
+        }
       }
     });
   }
@@ -193,7 +230,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
   onPeriodChange(): void {
     const period = this.selectedPeriod();
     if (period !== "custom") {
-      const { start, end } = this.getDateRange();
+      const {start, end} = this.getDateRange();
       this.startDate.set(this.dateToNgbStruct(new Date(start)));
       this.endDate.set(this.dateToNgbStruct(new Date(end)));
     }
@@ -214,7 +251,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
   }
 
   exportToPdf(): void {
-    const { start, end } = this.getDateRange();
+    const {start, end} = this.getDateRange();
     this.dashboardCAService.exportDashboardToPdf(start, end)
 
       .subscribe(resp => {
@@ -425,7 +462,9 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
   }
 
   private createBasketChart(data: IBasketEvolution): void {
-    if (this.basketChart) this.basketChart.destroy();
+    if (this.basketChart) {
+      this.basketChart.destroy();
+    }
 
     if (!this.basketChartCanvas) {
       setTimeout(() => this.createBasketChart(data), 100);
@@ -433,7 +472,9 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
     }
 
     const ctx = this.basketChartCanvas.nativeElement.getContext("2d");
-    if (!ctx) return;
+    if (!ctx) {
+      return;
+    }
 
     const config: ChartConfiguration<"line"> = {
       type: "line",
@@ -453,10 +494,10 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
+        plugins: {legend: {display: false}},
         scales: {
-          y: { beginAtZero: false, ticks: { font: { size: 10 } } },
-          x: { ticks: { font: { size: 10 } } }
+          y: {beginAtZero: false, ticks: {font: {size: 10}}},
+          x: {ticks: {font: {size: 10}}}
         }
       }
     };
@@ -486,7 +527,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
   }
 
   private dateToNgbStruct(date: Date): NgbDateStruct {
-    return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
+    return {year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate()};
   }
 
   private ngbStructToDate(struct: NgbDateStruct): Date {
@@ -525,12 +566,36 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
     };
   }
 
+
+  private agregerParTypeVente(
+    lignes: IDailySalesSummary[],
+  ): { typeVente: string; libelle: string; nbVentes: number; caNet: number; part: number }[] {
+    const cumul = new Map<string, { nbVentes: number; caNet: number }>();
+    for (const ligne of lignes) {
+      const type = ligne.typeVente ?? 'Inconnu';
+      const courant = cumul.get(type) ?? {nbVentes: 0, caNet: 0};
+      courant.nbVentes += ligne.nbVentes ?? 0;
+      courant.caNet += ligne.caNet ?? 0;
+      cumul.set(type, courant);
+    }
+    const total = Array.from(cumul.values()).reduce((somme, item) => somme + item.caNet, 0);
+    return Array.from(cumul.entries())
+      .map(([typeVente, item]) => ({
+        typeVente,
+        libelle: libelleTypeVente(typeVente),
+        nbVentes: item.nbVentes,
+        caNet: item.caNet,
+        part: total > 0 ? (item.caNet * 100) / total : 0,
+      }))
+      .sort((a, b) => b.caNet - a.caNet);
+  }
+
   private aggregatePaymentMethodData(data: IPaymentMethodCA[]): IPaymentMethodSummary[] {
     const map = new Map<string, { total: number; count: number; code: string }>();
 
     data.forEach(item => {
       const key = item.paymentMethod ?? "Unknown";
-      const existing = map.get(key) || { total: 0, count: 0, code: item.paymentCode ?? "" };
+      const existing = map.get(key) || {total: 0, count: 0, code: item.paymentCode ?? ""};
       existing.total += item.montantTotal ?? 0;
       existing.count += item.nbPayments ?? 0;
       map.set(key, existing);
@@ -554,7 +619,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
 
     data.forEach(item => {
       const key = item.famille ?? "Non classé";
-      const existing = map.get(key) || { ca: 0, marge: 0, tauxMarge: 0, count: 0 };
+      const existing = map.get(key) || {ca: 0, marge: 0, tauxMarge: 0, count: 0};
       existing.ca += item.caTotal ?? 0;
       existing.marge += item.margeBrute ?? 0;
       existing.count++;

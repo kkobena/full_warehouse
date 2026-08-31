@@ -1,7 +1,8 @@
 <div class="pharma-smart-content p-1">
 
   <!-- Toolbar -->
-  <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-chart-bar" title="Récapitulatif mensuel">
+  <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-chart-bar"
+               title="Récapitulatif mensuel">
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
         <app-float-label inputId="recap-type" label="">
@@ -91,7 +92,7 @@
   <!-- KPI globaux -->
   <app-recapitulatif-kpi-banner [kpi]="kpi()" [loading]="loading()" />
   <!-- Hint premier usage -->
-  <app-hint storageKey="recapitulatif" [visible]="!panelOpen()">
+  <app-hint [visible]="!panelOpen()" storageKey="recapitulatif">
     Cliquez sur une ligne pour afficher le détail .
   </app-hint>
   <!-- Split master/detail -->
@@ -99,11 +100,17 @@
 
     <!-- Colonne maître : liste des organismes -->
     <div class="list-column">
+
       <app-data-table
         [loading]="loading()"
+        [paginator]="true"
+        [rowsPerPageOptions]="[10, 15, 25, 50]"
+        [rows]="15"
         [scrollable]="true"
+        [showCurrentPageReport]="true"
         [size]="'small'"
         [value]="rows()"
+        currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} lignes"
         dataKey="tiersPayantId"
         scrollHeight="flex"
         selectionMode="single"
@@ -130,7 +137,7 @@
         <ng-template #body let-row>
           <tr
             (click)="onRowSelect(row)"
-            [class.recap-row-selected]="selectedRow()?.tiersPayantId === row.tiersPayantId"
+            [class.ligne-selected]="selectedRow()?.tiersPayantId === row.tiersPayantId"
             style="cursor:pointer"
           >
             <td>
@@ -263,7 +270,7 @@
           <span class="fw-semibold ms-2">{{ (selectedRow()?.soldePrecedent ?? 0) | number:'1.0-0' }}
             <span appDevise></span></span>
           @if ((selectedRow()?.soldePrecedent ?? 0) > 0) {
-            <span class="badge bg-warning text-dark ms-2 small">Solde reporté</span>
+            <span class="badge bg-warning text-white ms-2 small">Solde reporté</span>
           }
         </div>
 

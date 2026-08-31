@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
@@ -9,8 +10,7 @@ import {
   OnInit,
   output,
   signal,
-  viewChild,
-  ChangeDetectionStrategy
+  viewChild
 } from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {take} from 'rxjs/operators';
@@ -18,7 +18,9 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
-import {NgbConfirmDialogService} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import {
+  NgbConfirmDialogService
+} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import {
   CustomerSelectionModalComponent,
   ProductListComponent,
@@ -27,7 +29,10 @@ import {
   SaleSummaryComponent,
   SaleType,
 } from '../../ui';
-import {PaymentCompleteEvent, PaymentModeComponent} from '../../ui/payment-mode/payment-mode.component';
+import {
+  PaymentCompleteEvent,
+  PaymentModeComponent
+} from '../../ui/payment-mode/payment-mode.component';
 
 import {
   CashRegisterFormComponent
@@ -92,7 +97,6 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
       reset: (qty: number) => section.resetQuantity(qty),
     };
   });
-  private readonly confirmDialog = inject(NgbConfirmDialogService);
   paymentMode = viewChild<PaymentModeComponent>('paymentMode');
   initSaleForEditInfo = model<SaleForEditInfo>(null);
   productAddedSuccess = output<void>();
@@ -117,9 +121,9 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   // Force Stock state signals
   waitingForForceStockSuccess = signal<boolean>(false);
   forceStockContext = signal<'addProduct' | 'editCell' | null>(null);
-  // UI state for sidebar and pending sales
   // Vendeur sélectionné
   selectedSeller = signal<IUser | null>(null);
+  // UI state for sidebar and pending sales
   // Services
   protected facade = inject(SalesFacade);
   // State depuis le store (signals computed)
@@ -128,6 +132,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   selectedProduct = this.facade.selectedProduct;
   canSave = this.facade.canSave;
   isSaving = this.facade.isSaving;
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
   private authorizationService = inject(AuthorizationService);
   private notificationService = inject(NotificationService);
   private customerDisplay = inject(CustomerDisplayService);
@@ -239,6 +244,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
         changeAmount: () => comp.changeAmount(),
         changeExact: () => comp.changeExact(),
         focusFirstMode: () => comp.focusFirstMode(),
+        validate: () => comp.validate(),
       };
     },
     openCashRegister: () => this.openCashRegister(),
@@ -263,21 +269,6 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     this.deconditionnementHandling.initializeEffects();
     this.initializeEffects();
   }
-
-  private initializeEffects(): void {
-    this.setupSavingStateEffect();
-  }
-
-  /**
-   * Effect pour contrôler le spinner selon l'état de sauvegarde
-   */
-  private setupSavingStateEffect(): void {
-    effect(() => {
-      const active = this.facade.loading() || this.isSaving();
-      active ? this.spinner.show('sale-spinner') : this.spinner.hide('sale-spinner');
-    });
-  }
-
 
   /**
    * Méthode publique pour mettre le focus sur la recherche produit
@@ -311,8 +302,6 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     this.canEditPrice.set(this.authorizationService.canModifyPrice());
   }
 
-  // ===== Handlers pour ProductSearchComponent =====
-
   /**
    * Délègue au mixin productHandling
    * Focus automatique sur quantité après sélection
@@ -328,6 +317,8 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   onAddQuantity(quantity: number): void {
     this.productHandling.onAddQuantity(quantity);
   }
+
+  // ===== Handlers pour ProductSearchComponent =====
 
   /**
    * Délègue au mixin productHandling
@@ -351,14 +342,12 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
 
     // Si vente en cours avec des lignes
     if (currentSale && currentSale.salesLines && currentSale.salesLines.length > 0) {
-      // Le composant payment est INLINE (pas de modal), juste focus dessus
+
       setTimeout(() => {
         this.paymentMode()?.focusFirstMode();
       }, 100);
     }
   }
-
-  // ===== Handlers pour ProductListComponent =====
 
   onLineQuantityChanged(data: { line: ISalesLine; newQty: number }): void {
     if (data.line.id) {
@@ -373,6 +362,8 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     }
     // Focus géré via souscription à lineUpdatedSuccess$
   }
+
+  // ===== Handlers pour ProductListComponent =====
 
   onLineRemoved(line: ISalesLine): void {
     if (line.saleLineId) {
@@ -427,8 +418,6 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     // Focus géré via souscription à lineUpdatedSuccess$
   }
 
-  // ===== Handlers pour remise globale (depuis ProductListComponent caption) =====
-
   onRemiseSelected(remise: IRemise): void {
     const currentSale = this.currentSale();
     if (!currentSale) {
@@ -480,12 +469,21 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     }
   }
 
-  // ===== Handlers pour SaleActionsComponent =====
+  // ===== Handlers pour remise globale (depuis ProductListComponent caption) =====
 
   /**
    * Appelé par le bouton Save
    * Construit l'événement de paiement et délègue à la validation commune
    */
+  /**
+   * Message d'un contrôle de règlement refusé — référence bancaire manquante, commentaire de
+   * différé vide. Sans cette liaison, le refus était SILENCIEUX : le bouton ne faisait rien,
+   * et l'utilisateur cliquait à nouveau.
+   */
+  onPaymentError(error: string): void {
+    this.notificationService.error('Erreur', error);
+  }
+
   onSave(): void {
     // Construire l'événement de paiement depuis le composant payment-mode
     const event = this.paymentHandling.buildPaymentEvent();
@@ -493,6 +491,8 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
       this.validateAndProcessPayment(event);
     }
   }
+
+  // ===== Handlers pour SaleActionsComponent =====
 
   /**
    * Appelé quand l'utilisateur valide le paiement depuis le composant payment-mode (Enter dans input)
@@ -646,7 +646,6 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     }
   }
 
-
   onSellerChange(seller: IUser): void {
     this.selectedSeller.set(seller);
     // Utiliser le facade pour définir le vendeur dans le store centralisé
@@ -659,6 +658,20 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
 
   handleKeyboardEvent(event: KeyboardEvent): void {
     this.keyboardShortcuts.handleKeyboardEvent(event);
+  }
+
+  private initializeEffects(): void {
+    this.setupSavingStateEffect();
+  }
+
+  /**
+   * Effect pour contrôler le spinner selon l'état de sauvegarde
+   */
+  private setupSavingStateEffect(): void {
+    effect(() => {
+      const active = this.facade.loading() || this.isSaving();
+      active ? this.spinner.show('sale-spinner') : this.spinner.hide('sale-spinner');
+    });
   }
 
   /**
@@ -794,7 +807,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
           const message = isAvoir
             ? 'Un client est obligatoire pour un avoir (livraison partielle)'
             : 'Un client est obligatoire pour une vente différée';
-          this.notificationService.warning('Client requis', message);
+          this.notificationService.warning(message, 'Client requis');
         }
       },
       () => {
@@ -802,7 +815,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
         const message = isAvoir
           ? 'Un client est obligatoire pour un avoir (livraison partielle)'
           : 'Un client est obligatoire pour une vente différée';
-        this.notificationService.warning('Vente annulée', message);
+        this.notificationService.warning(message, 'Vente annulée');
       },
     );
   }

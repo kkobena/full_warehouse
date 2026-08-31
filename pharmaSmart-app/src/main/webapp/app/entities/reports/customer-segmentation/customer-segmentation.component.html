@@ -9,9 +9,11 @@
           [clearable]="true"
           [disabled]="showChampionsOnly() || showAtRiskOnly()"
           [items]="classificationOptions"
+          [style]="{ 'min-width': '250px' }"
           appendTo="body"
           bindLabel="label"
           bindValue="value"
+          inputId="segClassification"
           placeholder="Classification"
           size="large"
         />
@@ -23,7 +25,16 @@
         <app-button (clicked)="onClearFilters()" class="mr-1" icon="pi pi-filter-slash"
                     label="Effacer les filtres"
                     severity="secondary" size="small" />
-        <!--   <app-button class="mr-1"  size="small" label="Exporter PDF" icon="pi pi-file-pdf" severity="warn" (clicked)="exportToPdf()" />-->
+        <!--
+          Le bouton etait commente alors que tout ce qu'il declenche existe :
+          `exportToPdf()`, le service front et l'endpoint
+          `CustomerSegmentationReportResource`. La segmentation est un document qui se
+          transmet -- on cible une action commerciale a plusieurs -- et elle n'avait
+          aucune sortie.
+        -->
+        <app-button (clicked)="exportToPdf()" class="mr-1" icon="pi pi-file-pdf"
+                    label="Exporter PDF"
+                    severity="warn" size="small" />
         <app-button (clicked)="loadCustomers()" class="mr-1" icon="pi pi-refresh" label="Rafraîchir"
                     severity="primary" size="small" />
       </div>
@@ -32,32 +43,48 @@
 
   <!-- KPI Strip — Segments -->
   <app-kpi-strip stripClass="mt-2 mb-2">
-    <app-kpi-item [accent]="'success'" icon="pi pi-star" iconClass="text-success" label="Champions" [value]="classificationCounts().CHAMPION || 0" valueClass="text-success">
+    <app-kpi-item [accent]="'success'" [value]="classificationCounts().CHAMPION || 0" icon="pi pi-star" iconClass="text-success"
+                  label="Champions" valueClass="text-success">
       <ng-container ngProjectAs="[kpiSub]">meilleurs clients</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'primary'" icon="pi pi-heart" iconClass="text-primary" label="Fidèles &amp; Actifs" [value]="(classificationCounts().LOYAL || 0) + (classificationCounts().ACTIVE || 0)" valueClass="text-primary">
+    <app-kpi-item [accent]="'primary'" [value]="(classificationCounts().LOYAL || 0) + (classificationCounts().ACTIVE || 0)" icon="pi pi-heart"
+                  iconClass="text-primary"
+                  label="Fidèles &amp; Actifs"
+                  valueClass="text-primary">
       <ng-container ngProjectAs="[kpiSub]">clients réguliers</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'warning'" icon="pi pi-exclamation-triangle" iconClass="text-warning" label="À risque" [value]="(classificationCounts().AT_RISK || 0) + (classificationCounts().NEED_ATTENTION || 0)" valueClass="text-warning">
+    <app-kpi-item [accent]="'warning'" [value]="(classificationCounts().AT_RISK || 0) + (classificationCounts().NEED_ATTENTION || 0)" icon="pi pi-exclamation-triangle"
+                  iconClass="text-warning"
+                  label="À risque"
+                  valueClass="text-warning">
       <ng-container ngProjectAs="[kpiSub]">besoin d'attention</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'danger'" icon="pi pi-times-circle" iconClass="text-danger" label="Inactifs" [value]="classificationCounts().INACTIVE || 0" valueClass="text-danger">
+    <app-kpi-item [accent]="'danger'" [value]="classificationCounts().INACTIVE || 0" icon="pi pi-times-circle"
+                  iconClass="text-danger" label="Inactifs"
+                  valueClass="text-danger">
       <ng-container ngProjectAs="[kpiSub]">clients perdus</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'primary'" icon="pi pi-users" iconClass="text-primary" label="Total clients" [value]="getTotalCustomers()" valueClass="text-primary">
+    <app-kpi-item [accent]="'primary'" [value]="getTotalCustomers()" icon="pi pi-users"
+                  iconClass="text-primary" label="Total clients" valueClass="text-primary">
       <ng-container ngProjectAs="[kpiSub]">tous segments</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'success'" icon="pi pi-dollar" iconClass="text-success" label="CA total 12m" [value]="getTotalSpent() | number: '1.0-0'" valueClass="text-success">
+    <app-kpi-item [accent]="'success'" [value]="getTotalSpent() | number: '1.0-0'" icon="pi pi-dollar"
+                  iconClass="text-success" label="CA total 12m"
+                  valueClass="text-success">
       <span ngProjectAs="[kpiValue]">&ngsp;<small
-              appDevise></small></span>
+        appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">chiffre d'affaires</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'warning'" icon="pi pi-shopping-cart" iconClass="text-warning" label="Panier moyen" [value]="getAverageBasket() | number: '1.0-0'" valueClass="text-warning">
+    <app-kpi-item [accent]="'warning'" [value]="getAverageBasket() | number: '1.0-0'" icon="pi pi-shopping-cart"
+                  iconClass="text-warning" label="Panier moyen"
+                  valueClass="text-warning">
       <span ngProjectAs="[kpiValue]">&ngsp;<small
-              appDevise></small></span>
+        appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">par client</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'danger'" icon="pi pi-chart-line" iconClass="text-danger" label="Score RFM moy." [value]="getAverageRFMScore() | number: '1.1-2'" valueClass="text-danger">
+    <app-kpi-item [accent]="'danger'" [value]="getAverageRFMScore() | number: '1.1-2'" icon="pi pi-chart-line"
+                  iconClass="text-danger" label="Score RFM moy."
+                  valueClass="text-danger">
       <ng-container ngProjectAs="[kpiSub]">sur 5</ng-container>
     </app-kpi-item>
   </app-kpi-strip>
@@ -99,21 +126,18 @@
               <td>{{ customer.customerName }}</td>
               <td>{{ customer.phone }}</td>
               <td>
-                <app-badge [severity]="getClassificationSeverity(customer.customerClassification)">
-                  {{ getClassificationLabel(customer.customerClassification) }}
-                </app-badge>
+                <app-badge [label]="getClassificationLabel(customer.customerClassification)"
+                           [severity]="getClassificationSeverity(customer.customerClassification)" />
               </td>
               <td>{{ customer.lastPurchaseDate | date: 'dd/MM/yyyy' }}</td>
               <td class="text-end">
-                <app-badge [severity]="getRecencySeverity(customer.daysSinceLastPurchase)"> {{
-                    customer.daysSinceLastPurchase || 0
-                  }} j
-                </app-badge>
+                <app-badge [label]="(customer.daysSinceLastPurchase || 0) + ' j'"
+                           [severity]="getRecencySeverity(customer.daysSinceLastPurchase)" />
               </td>
               <td class="text-end">{{ customer.nbPurchasesLastYear || 0 }}</td>
-              <td class="text-end fw-bold">{{ customer.totalSpentLastYear | number: '1.0-0' }}F
+              <td class="text-end fw-bold">{{ customer.totalSpentLastYear | devise }}
               </td>
-              <td class="text-end">{{ customer.avgBasketValue | number: '1.0-0' }} F</td>
+              <td class="text-end">{{ customer.avgBasketValue | devise }}</td>
               <td class="text-center">
                 <span class="rfm-score">{{ customer.recencyScore || 0 }}</span>
               </td>
@@ -124,9 +148,8 @@
                 <span class="rfm-score">{{ customer.monetaryScore || 0 }}</span>
               </td>
               <td class="text-center">
-                <app-badge [severity]="getRFMScoreSeverity(customer.rfmSegment)">
-                  {{ customer.rfmSegment || 0 }}
-                </app-badge>
+                <app-badge [label]="(customer.rfmSegment || 0).toString()"
+                           [severity]="getRFMScoreSeverity(customer.rfmSegment)" />
               </td>
             </tr>
           </ng-template>

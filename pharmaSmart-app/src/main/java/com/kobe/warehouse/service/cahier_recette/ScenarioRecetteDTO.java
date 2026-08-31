@@ -11,5 +11,7 @@ public record ScenarioRecetteDTO(
     String prerequis,
     List<String> etapes,
     String resultatAttendu,
-    Boolean hidden
+    Boolean hidden,
+    /** Captures d'écran injectées à la génération ; null tant qu'aucune campagne n'a tourné. */
+    List<CaptureEcranDTO> captures
 ) {}

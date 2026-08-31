@@ -79,17 +79,18 @@
 
         <!-- Recherche texte -->
         <app-icon-field [overlay]="true" class="lb-search" icon="pi pi-search">
-          <input (keyup.enter)="onSearch()" [ngModel]="search()" (ngModelChange)="search.set($event)" class="form-control"
+          <input (keyup.enter)="onSearch()" (ngModelChange)="search.set($event)"
+                 [ngModel]="search()" class="form-control"
                  placeholder="Fournisseur, référence…" type="text" />
         </app-icon-field>
 
         <!-- Filtre statut : visible uniquement sur l'onglet "En attente" -->
         @if (activeTab() === 'EN_ATTENTE') {
           <app-select
-            (selectionChange)="onSearch()"
-            [ngModel]="selectedStatut()" (ngModelChange)="selectedStatut.set($event)"
-            [clearable]="false"
+            (ngModelChange)="selectedStatut.set($event)"
+            (selectionChange)="onSearch()" [clearable]="false"
             [items]="enAttenteStatutOptions"
+            [ngModel]="selectedStatut()"
             [style]="{ 'min-width': '150px' }"
             appendTo="body"
             bindLabel="label"
@@ -98,24 +99,33 @@
           />
         }
 
-        <pharma-date-picker (ngModelChange)="onSearch()" [ngModel]="dtStart()" (ngModelChange)="dtStart.set($event)"
-                            [style]="{ 'max-width': '180px' }"
-                            class="lb-date"
-                            id="dtStart" label="Début" />
+        <pharma-date-picker
+          (ngModelChange)="dtStart.set($event);onSearch()"
+          [ngModel]="dtStart()"
+          [style]="{ 'max-width': '180px' }"
+          class="lb-date"
+          id="dtStart" label="Du" />
 
-        <pharma-date-picker (ngModelChange)="onSearch()" [ngModel]="dtEnd()" (ngModelChange)="dtEnd.set($event)"
-                            [style]="{ 'max-width': '180px' }"
-                            class="lb-date"
-                            id="dtEnd" label="Fin" />
+        <pharma-date-picker
+          (ngModelChange)="dtEnd.set($event);onSearch()"
+          [ngModel]="dtEnd()"
+          [style]="{ 'max-width': '180px' }"
+          class="lb-date"
+          id="dtEnd" label="Au" />
 
       </ng-container>
 
       <ng-container ngProjectAs="[actionBarActions]">
-        <!--  <app-button (clicked)="onNewRetour()" icon="pi pi-plus" label="Nouveau retour"
-                    severity="primary" size="small" />-->
+
         <app-button (clicked)="onSearch()" icon="pi pi-search" label="Rechercher"
                     severity="info" size="small" />
+        <!--
+          L'action principale du bouton scindé n'était rattachée à rien : cliquer
+          « Exporter » ne faisait rien, et seul le chevron menait quelque part. Elle sort
+          l'Excel, le format que la comptabilité reprend ; le menu garde le CSV.
+        -->
         <app-split-button
+          (clicked)="exportRetourBons('excel')"
           [items]="exportMenus"
           icon="pi pi-download"
           label="Exporter"
@@ -181,7 +191,7 @@
             </td>
             <td>
               @if (retourBon.horsCommande) {
-                <span class="badge bg-warning text-dark me-1"
+                <span class="badge bg-warning text-white me-1"
                       ngbTooltip="Retour créé sans référence de commande (lot hors entrée en stock)"
                       placement="top">
               <i class="pi pi-exclamation-triangle me-1"></i>Hors commande
@@ -200,8 +210,7 @@
               <span class="pharma-qty-value">{{ getTotalQuantity(retourBon) | number }}</span>
             </td>
             <td class="text-right">
-              <span class="pharma-price">{{ (retourBon.montantTotal ?? 0) | number:'1.0-0' }}
-                F</span>
+              <span class="pharma-price">{{ (retourBon.montantTotal ?? 0) | devise }}</span>
               @if (retourBon.delayWarning) {
                 <i class="pi pi-exclamation-triangle text-warning ms-1"
                    ngbTooltip="Retour effectué plus de 365 jours après la commande"
@@ -330,13 +339,7 @@
                   <p>Aucun retour dans l'historique</p>
                   <small>Les retours clôturés (avoir reçu) apparaîtront ici</small>
                 }
-                <!--   <app-button
-                     (clicked)="onNewRetour()"
-                     icon="pi pi-plus"
-                     label="Nouveau retour"
-                     severity="primary"
-                     size="small"
-                   />-->
+
               </div>
             </td>
           </tr>
@@ -459,7 +462,7 @@
             <td class="pharma-product-name">{{ groupe.fournisseurLibelle }}</td>
             <td class="text-center"><span class="pharma-price">{{ groupe.nbRetours }}</span></td>
             <td class="text-right"><span
-              class="pharma-price">{{ groupe.montantTotal | number:'1.0-0' }} F</span></td>
+              class="pharma-price">{{ groupe.montantTotal | devise }}</span></td>
             <td class="text-center">
               <app-button (clicked)="exportGroupePdf(groupe)" [rounded]="true" [text]="true"
                           icon="pi pi-file-pdf"
@@ -495,9 +498,7 @@
                           <app-badge [label]="getStatusLabel(bon.statut!)"
                                      [severity]="getStatusSeverity(bon.statut!)" />
                         </td>
-                        <td class="text-right"><span class="pharma-price">{{
-                            (bon.montantTotal ?? 0) | number:'1.0-0'
-                          }} F</span></td>
+                        <td class="text-right"><span class="pharma-price">{{ (bon.montantTotal ?? 0) | devise }}</span></td>
                         <td class="text-center">
                           <app-button (clicked)="downloadPdf(bon)" [rounded]="true" [text]="true"
                                       icon="pi pi-print" ngbTooltip="PDF individuel"

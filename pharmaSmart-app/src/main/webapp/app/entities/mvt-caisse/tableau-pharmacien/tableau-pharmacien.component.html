@@ -40,7 +40,13 @@
             severity="info"
           />
 
+          <!--
+            L'action principale du bouton scindé n'était rattachée à rien : cliquer
+            « Exporter » ne faisait rien, seul le chevron menait quelque part. Elle sort le
+            PDF, le format que l'on remet ; le menu garde l'Excel, pour retravailler.
+          -->
           <app-split-button
+            (clicked)="onPrint()"
             [items]="exportMenus()"
             [raised]="true"
             icon="pi pi-download"
@@ -72,7 +78,7 @@
             <thead class="pharma-table-head">
             <tr>
               <th class="text-center" rowspan="2">Date</th>
-              <th class="text-center" colspan="5">Chiffres d'affaitre</th>
+              <th class="text-center" colspan="5">Chiffre d'affaires</th>
               <th [colSpan]="colspan()" class="text-center">Achats</th>
               <th class="text-center" colspan="2">Ratios</th>
             </tr>

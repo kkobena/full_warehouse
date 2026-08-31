@@ -1,144 +1,151 @@
-<!-- Toolbar -->
-<app-toolbar [code]="navCode()" icon="pi pi-chart-line" title="Saisonnalité du Chiffre d'Affaires">
-  <ng-container ngProjectAs="[toolbarFilters]">
-    <div class="pharma-toolbar-filters">
-      <pharma-date-picker
-        label="Du"
-        id="seas-from"
-        [ngModel]="fromStruct()"
-        (ngModelChange)="fromDate.set(structToDate($event))"
-      />
-      <pharma-date-picker
-        label="Au"
-        id="seas-to"
-        [ngModel]="toStruct()"
-        (ngModelChange)="toDate.set(structToDate($event))"
-      />
+<div class="pharma-smart-content p-1">
+  <app-toolbar [code]="navCode()" icon="pi pi-chart-line"
+               title="Saisonnalité du Chiffre d'Affaires">
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <div class="pharma-toolbar-filters">
+        <pharma-date-picker
+          (ngModelChange)="fromDate.set(structToDate($event))"
+          [ngModel]="fromStruct()"
+          id="seas-from"
+          label="Du"
+        />
+        <pharma-date-picker
+          (ngModelChange)="toDate.set(structToDate($event))"
+          [ngModel]="toStruct()"
+          id="seas-to"
+          label="Au"
+        />
+      </div>
+    </ng-container>
+
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div>
+        <app-button
+          (clicked)="load()"
+          [loading]="isLoading()"
+          [raised]="true"
+          icon="pi pi-search"
+          label="Rechercher"
+          severity="primary"
+          size="small"
+          type="button"
+        />
+      </div>
+    </ng-container>
+  </app-toolbar>
+
+  <!-- Loading -->
+  @if (isLoading()) {
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 300px">
+      <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
     </div>
-  </ng-container>
+  }
 
-  <ng-container ngProjectAs="[toolbarActions]">
-    <div>
-      <app-button
-        type="button"
-        icon="pi pi-search"
-        label="Rechercher"
-        [loading]="isLoading()"
-        [raised]="true"
-        severity="primary"
-        size="small"
-        (clicked)="load()"
-      />
+  @if (!isLoading() && chartConfig()) {
+    <!-- KPI strip -->
+    <app-kpi-strip stripClass="mt-2 mb-3">
+      <app-kpi-item [accent]="'primary'" [value]="formatCurrency(totalCA())" icon="pi pi-chart-bar"
+                    iconClass="text-primary" label="CA Période"
+                    valueClass="text-primary">
+        <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+        <ng-container ngProjectAs="[kpiSub]">{{ tableRows().length }} mois</ng-container>
+      </app-kpi-item>
+      <app-kpi-item [value]="formatCurrency(totalPrev())" icon="pi pi-history" iconClass="text-secondary"
+                    label="CA Période préc.">
+        <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+        <ng-container ngProjectAs="[kpiSub]">même durée N-1</ng-container>
+      </app-kpi-item>
+      <app-kpi-item [icon]="'pi ' + evoIcon(totalEvo()) + ' ' + evoClass(totalEvo())"
+                    [valueClass]="evoClass(totalEvo())" label="Évolution">
+        <ng-container ngProjectAs="[kpiValue]">{{
+            totalEvo() > 0 ? '+' : ''
+          }}{{ totalEvo() }} %
+        </ng-container>
+        <ng-container ngProjectAs="[kpiSub]">vs période précédente</ng-container>
+      </app-kpi-item>
+    </app-kpi-strip>
+
+    <!-- Chart -->
+    <div class="card data-card mb-3">
+      <div class="card-header">
+        <h5 class="card-title">
+          <i class="pi pi-chart-bar text-primary"></i>
+          Évolution mensuelle du CA
+        </h5>
+      </div>
+      <div class="card-body" style="height: 350px">
+        <app-chart
+          [data]="chartConfig()!.data"
+          [options]="chartConfig()!.options"
+          height="320px"
+          type="bar"
+        />
+      </div>
     </div>
-  </ng-container>
-</app-toolbar>
 
-<!-- Loading -->
-@if (isLoading()) {
-  <div class="d-flex justify-content-center align-items-center" style="min-height: 300px">
-    <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
-  </div>
-}
-
-@if (!isLoading() && chartConfig()) {
-  <!-- KPI strip -->
-  <app-kpi-strip stripClass="mt-2 mb-3">
-    <app-kpi-item [accent]="'primary'" icon="pi pi-chart-bar" iconClass="text-primary" label="CA Période" [value]="formatCurrency(totalCA())" valueClass="text-primary">
-      <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-      <ng-container ngProjectAs="[kpiSub]">{{ tableRows().length }} mois</ng-container>
-    </app-kpi-item>
-    <app-kpi-item icon="pi pi-history" iconClass="text-secondary" label="CA Période préc." [value]="formatCurrency(totalPrev())">
-      <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-      <ng-container ngProjectAs="[kpiSub]">même durée N-1</ng-container>
-    </app-kpi-item>
-    <app-kpi-item [icon]="'pi ' + evoIcon(totalEvo()) + ' ' + evoClass(totalEvo())" label="Évolution" [valueClass]="evoClass(totalEvo())">
-      <ng-container ngProjectAs="[kpiValue]">{{
-                totalEvo() > 0 ? '+' : ''
-              }}{{ totalEvo() }} %</ng-container>
-      <ng-container ngProjectAs="[kpiSub]">vs période précédente</ng-container>
-    </app-kpi-item>
-  </app-kpi-strip>
-
-  <!-- Chart -->
-  <div class="card data-card mb-3">
-    <div class="card-header">
-      <h5 class="card-title">
-        <i class="pi pi-chart-bar text-primary"></i>
-        Évolution mensuelle du CA
-      </h5>
-    </div>
-    <div class="card-body" style="height: 350px">
-      <app-chart
-        [data]="chartConfig()!.data"
-        [options]="chartConfig()!.options"
-        height="320px"
-        type="bar"
-      />
-    </div>
-  </div>
-
-  <!-- Table -->
-  <div class="card data-card">
-    <app-data-table
-      [scrollable]="true"
-      [size]="'small'"
-      [stripedRows]="true"
-      [value]="tableRows()"
-      scrollHeight="calc(100vh - 620px)"
-    >
-      <ng-template #header>
-        <tr class="pharma-table-head">
-          <th>Mois</th>
-          <th class="text-end">CA Période</th>
-          <th class="text-end">CA Période préc.</th>
-          <th class="text-end">Transactions</th>
-          <th class="text-end">Évolution</th>
-        </tr>
-      </ng-template>
-      <ng-template #body let-row>
-        <tr>
-          <td><strong>{{ row.label }}</strong></td>
-          <td class="text-end">{{ formatCurrency(row.ca) }}</td>
-          <td class="text-end text-muted">{{ formatCurrency(row.caPrev) }}</td>
-          <td class="text-end">{{ formatNumber(row.transactions) }}</td>
-          <td class="text-end">
+    <!-- Table -->
+    <div class="card data-card">
+      <app-data-table
+        [scrollable]="true"
+        [size]="'small'"
+        [stripedRows]="true"
+        [value]="tableRows()"
+        scrollHeight="calc(100vh - 620px)"
+      >
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th>Mois</th>
+            <th class="text-end">CA Période</th>
+            <th class="text-end">CA Période préc.</th>
+            <th class="text-end">Transactions</th>
+            <th class="text-end">Évolution</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-row>
+          <tr>
+            <td><strong>{{ row.label }}</strong></td>
+            <td class="text-end">{{ formatCurrency(row.ca) }}</td>
+            <td class="text-end text-muted">{{ formatCurrency(row.caPrev) }}</td>
+            <td class="text-end">{{ formatNumber(row.transactions) }}</td>
+            <td class="text-end">
             <span class="{{ evoClass(row.evolution) }} fw-semibold">
               <i class="pi {{ evoIcon(row.evolution) }} me-1" style="font-size:.75rem"></i>
               {{ row.evolution > 0 ? '+' : '' }}{{ row.evolution }} %
             </span>
-          </td>
-        </tr>
-      </ng-template>
-      <ng-template #footer>
-        <tr class="fw-bold">
-          <td>Total</td>
-          <td class="text-end text-primary">{{ formatCurrency(totalCA()) }}</td>
-          <td class="text-end text-muted">{{ formatCurrency(totalPrev()) }}</td>
-          <td class="text-end">—</td>
-          <td class="text-end {{ evoClass(totalEvo()) }}">
-            {{ totalEvo() > 0 ? '+' : '' }}{{ totalEvo() }} %
-          </td>
-        </tr>
-      </ng-template>
-      <ng-template #emptymessage>
-        <tr>
-          <td class="pharma-empty-message" colspan="5">
-            <div class="pharma-empty-content">
-              <i class="pi pi-inbox" style="font-size: 2rem"></i>
-              <p class="mt-2 mb-0">Aucune donnée sur cette période</p>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-    </app-data-table>
-  </div>
-}
-
-@if (!isLoading() && !chartConfig()) {
-  <div class="d-flex justify-content-center align-items-center" style="min-height: 200px">
-    <div class="pharma-empty-content">
-      <i class="pi pi-inbox" style="font-size: 2.5rem"></i>
-      <p class="mt-2 mb-0 text-muted">Aucune donnée disponible pour cette période</p>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template #footer>
+          <tr class="fw-bold">
+            <td>Total</td>
+            <td class="text-end text-primary">{{ formatCurrency(totalCA()) }}</td>
+            <td class="text-end text-muted">{{ formatCurrency(totalPrev()) }}</td>
+            <td class="text-end">—</td>
+            <td class="text-end {{ evoClass(totalEvo()) }}">
+              {{ totalEvo() > 0 ? '+' : '' }}{{ totalEvo() }} %
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template #emptymessage>
+          <tr>
+            <td class="pharma-empty-message" colspan="5">
+              <div class="pharma-empty-content">
+                <i class="pi pi-inbox" style="font-size: 2rem"></i>
+                <p class="mt-2 mb-0">Aucune donnée sur cette période</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </app-data-table>
     </div>
-  </div>
-}
+  }
+
+  @if (!isLoading() && !chartConfig()) {
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 200px">
+      <div class="pharma-empty-content">
+        <i class="pi pi-inbox" style="font-size: 2.5rem"></i>
+        <p class="mt-2 mb-0 text-muted">Aucune donnée disponible pour cette période</p>
+      </div>
+    </div>
+  }
+</div>

@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
+import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import java.io.Serializable;
@@ -31,6 +32,10 @@ public class ProduitCriteria implements Serializable {
     private String search;
     private Boolean deconditionne;
     private Boolean remisable;
+    /** Code de remise porté par le produit — pour lister ce qu'une grille couvre réellement. */
+    private CodeRemise codeRemise;
+    /** Substance active : filtrer le catalogue sur une DCI, et voir d'un coup ce qui la porte. */
+    private Integer dciId;
     private Integer tableauId;
     private Integer storageId;
     private TypeProduit typeProduit;
@@ -287,6 +292,24 @@ public class ProduitCriteria implements Serializable {
 
     public ProduitCriteria setRayonNot(Integer rayonNot) {
         this.rayonNot = rayonNot;
+        return this;
+    }
+
+    public Integer getDciId() {
+        return dciId;
+    }
+
+    public ProduitCriteria setDciId(Integer dciId) {
+        this.dciId = dciId;
+        return this;
+    }
+
+    public CodeRemise getCodeRemise() {
+        return codeRemise;
+    }
+
+    public ProduitCriteria setCodeRemise(CodeRemise codeRemise) {
+        this.codeRemise = codeRemise;
         return this;
     }
 

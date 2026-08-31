@@ -4,7 +4,7 @@
       <app-icon-field [overlay]="true" icon="pi pi-search">
         <input
           (keyup.enter)="onSearch()"
-          [ngModel]="search()" (ngModelChange)="search.set($event)"
+          (ngModelChange)="search.set($event)" [ngModel]="search()"
           class="form-control"
           placeholder="Rechercher (CIP, libellé, EAN)..."
           style="width: 220px"
@@ -13,13 +13,15 @@
       </app-icon-field>
 
       <app-select
-        (selectionChange)="onFilterChange()"
-        [ngModel]="selectedFilter()" (ngModelChange)="selectedFilter.set($event)"
-        [items]="filterOptions"
+        (ngModelChange)="selectedFilter.set($event)"
+        (selectionChange)="onFilterChange()" [items]="filterOptions"
+        [ngModel]="selectedFilter()"
         [style]="{ 'min-width': '180px' }"
         appendTo="body"
+        ariaLabel="État du catalogue"
         bindLabel="label"
         bindValue="value"
+        inputId="produitFiltreEtat"
         placeholder="Filtre..."
       />
 
@@ -30,9 +32,26 @@
         [items]="familles()"
         [style]="{ 'min-width': '200px' }"
         appendTo="body"
+        ariaLabel="Famille thérapeutique"
         bindLabel="libelle"
         bindValue="id"
+        inputId="produitFiltreFamille"
         placeholder="Famille..."
+      />
+
+
+      <app-select-search
+        (ngModelChange)="onDciChange($event)"
+        (searched)="chercherDci($event)"
+        [items]="dcis()"
+        [minSearchLength]="2"
+        [ngModel]="selectedDci()"
+        [style]="{ 'min-width': '220px' }"
+        appendTo="body"
+        ariaLabel="Taper pour rechercher (DCI)"
+        bindLabel="libelle"
+        inputId="produitFiltreDci"
+        placeholder="DCI..."
       />
 
       <app-select
@@ -40,61 +59,40 @@
         [(ngModel)]="selectedRayonId"
         [clearable]="true"
         [items]="rayons()"
-        [style]="{ 'min-width': '200px' }"
+        [style]="{ 'min-width': '300px' }"
         appendTo="body"
+        ariaLabel="Rayon"
         bindLabel="libelle"
         bindValue="id"
+        inputId="produitFiltreRayon"
         placeholder="Rayon..."
       />
     </ng-container>
 
     <ng-container ngProjectAs="[toolbarActions]">
       @if (canCreate()) {
-        <app-split-button
-          [items]="importMenuItems"
-          [outlined]="true"
-          icon="pi pi-upload"
-          label="Importer"
-          severity="secondary"
-
-        />
         <app-button
           (clicked)="onNewProduit()"
           icon="pi pi-plus"
           label="Nouveau"
 
         />
+        <app-split-button
+          [items]="importMenuItems"
+          [outlined]="true"
+          icon="pi pi-upload"
+          label="Importer"
+          severity="warn"
+
+        />
+
       }
     </ng-container>
   </app-toolbar>
 
-  <!-- Légende code couleur stock -->
-  <div [hidden]="true" class="stock-legend">
-    <span class="legend-label">Stock :</span>
-    <span class="legend-item">
-      <span class="legend-dot dot-success"></span>Normal
-    </span>
-    <span class="legend-item">
-      <span class="legend-dot dot-warning"></span>Sous seuil
-    </span>
-    <span class="legend-item">
-      <span class="legend-dot dot-danger"></span>Rupture
-    </span>
-    <span class="legend-sep">|</span>
-    <span class="legend-item">
-      <span class="legend-dot dot-critical"></span>Péremption &lt; 3 mois
-    </span>
-    <span class="legend-item">
-      <span class="legend-dot dot-expiry"></span>Péremption &lt; 6 mois
-    </span>
-    <span class="legend-sep">|</span>
-    <span class="legend-item">
-      <span class="legend-dot dot-marge-low"></span>Marge &lt; 15%
-    </span>
-  </div>
 
   <!-- Hint premier usage : masqué dès qu'un détail est ouvert, le conseil n'ayant alors plus d'objet -->
-  <app-hint storageKey="produit-list" [visible]="!panelOpen()">
+  <app-hint [visible]="!panelOpen()" storageKey="produit-list">
     Cliquez sur une ligne pour afficher le détail du produit. Utilisez le menu
     <i class="pi pi-ellipsis-v"></i> pour accéder aux autres actions.
   </app-hint>
@@ -118,6 +116,17 @@
           icon="pi pi-play"
           label="Réactiver"
           severity="success"
+          size="small"
+        />
+      }
+      @if (canEdit()) {
+
+        <app-button
+          (clicked)="onBulkDci()"
+          [outlined]="true"
+          icon="pi pi-bookmark"
+          label="Affecter une DCI"
+          severity="info"
           size="small"
         />
       }

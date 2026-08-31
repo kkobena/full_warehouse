@@ -6,6 +6,7 @@ import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.enumeration.OptionPrixType;
 import com.kobe.warehouse.repository.PrixReferenceRepository;
 import com.kobe.warehouse.service.UserService;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.produit_prix.dto.PrixReferenceDTO;
 import java.util.List;
 import java.util.Optional;
@@ -67,6 +68,22 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
 
     @Override
     public void add(PrixReferenceDTO dto) {
+        // Un couple (produit, tiers payant) ne porte qu'UN tarif : deux règles de
+        // remboursement pour le même organisme sur le même produit n'auraient pas de sens, et
+        // la base le refuse par une contrainte d'unicité. Sans ce contrôle, l'utilisateur qui
+        // ressaisissait un tarif existant récoltait une erreur 500 muette — la fenêtre restait
+        // ouverte, rien ne s'enregistrait, et rien ne le disait.
+        this.prixReferenceRepository
+            .findAllByProduitIdAndTiersPayantId(dto.getProduitId(), dto.getTiersPayantId())
+            .stream()
+            .findFirst()
+            .ifPresent(existant -> {
+                throw new GenericError(
+                    "Ce produit a déjà un tarif pour ce tiers payant : modifiez-le plutôt que d'en créer un second.",
+                    "tarifAssuranceDejaDefini"
+                );
+            });
+
         OptionPrixProduit optionPrixProduit = new OptionPrixProduit();
         optionPrixProduit.setProduit(new Produit().id(dto.getProduitId()));
         optionPrixProduit.setTiersPayant(new TiersPayant().setId(dto.getTiersPayantId()));

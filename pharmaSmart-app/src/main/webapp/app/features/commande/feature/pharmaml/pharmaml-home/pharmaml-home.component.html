@@ -6,7 +6,7 @@
     </h5>
     <div class="card-header-actions">
       @if (polling()) {
-        <app-badge icon="pi pi-spin pi-spinner" severity="info" label="En attente..." />
+        <app-badge icon="pi pi-spin pi-spinner" label="En attente..." severity="info" />
       }
       @if (substitutionsEnAttente().length > 0) {
         <app-button
@@ -19,21 +19,31 @@
         />
       }
       @if (orderStatus() === 'RECEIVED' || isSubmited()) {
-        <app-split-button
-          [items]="actionsReceived()"
-          icon="pi pi-check-circle"
-          label="Actions réception"
-          severity="success"
-          size="small"
-        ></app-split-button>
+        <!-- <app-split-button
+           [items]="actionsReceived()"
+           [outlined]="true"
+           icon="pi pi-check-circle"
+           label="Actions réception"
+           severity="info"
+           size="small"
+         />-->
       } @else {
-        <app-split-button
+
+        <app-button
+          (clicked)="openEnvoi()"
+          [label]="'Envoyer via PharmaML'"
+          [outlined]="true"
+          icon="pi pi-send"
+          severity="info"
+          size="small"
+        />
+        <!--<app-split-button
           [items]="actionsRequested()"
           icon="pi pi-send"
           label="Actions PharmaML"
           severity="info"
           size="small"
-        ></app-split-button>
+        />-->
       }
     </div>
   </div>
@@ -43,61 +53,22 @@
     @if (lastResult(); as res) {
       <div class="pharmaml-last-result mb-2">
         <app-badge
-          [severity]="res.success ? 'success' : 'warn'"
           [label]="res.successCount + ' / ' + res.totalProduit + ' acceptés'"
+          [severity]="res.success ? 'success' : 'warn'"
         />
         @if (res.outOfStockCount > 0) {
           <app-badge [label]="res.outOfStockCount + ' rupture(s)'" severity="danger" />
         }
         @if (res.reliquatCommandeId != null) {
-          <app-badge icon="pi pi-copy" ngbTooltip="Une commande reliquat a été créée automatiquement"
-                 severity="info"
-                 label="Reliquat créé" />
+          <app-badge icon="pi pi-copy"
+                     label="Reliquat créé"
+                     ngbTooltip="Une commande reliquat a été créée automatiquement"
+                     severity="info" />
         }
       </div>
     }
 
-    <!-- Disponibilités -->
-    @if (loadingDisponibilite() || disponibilites().length > 0) {
-      <div class="pharmaml-panel-section mb-2">
-        <p class="pharmaml-section-title"><i class="pi pi-search me-1"></i>Disponibilités</p>
-        @if (loadingDisponibilite()) {
-          <div class="text-center text-muted py-2"><i class="pi pi-spin pi-spinner"></i></div>
-        } @else {
-          <app-data-table [value]="disponibilites()" class="p-datatable-sm  w-100">
-            <ng-template #header>
-              <tr class="pharma-table-head">
-                <th>Code</th>
-                <th>Désignation</th>
-                <th class="text-center">Stock</th>
-                <th class="text-center">P.A</th>
-                <th class="text-center">Dispo</th>
-              </tr>
-            </ng-template>
-            <ng-template #body let-info>
-              <tr>
-                <td><code>{{ info.codeProduit }}</code></td>
-                <td>{{ info.designation ?? '—' }}</td>
-                <td class="text-center">{{ info.stockDisponible }}</td>
-                <td class="text-center">{{ info.prixAchat | number: '1.0-0' }}</td>
-                <td class="text-center">
-                  @if (info.disponible) {
-                    <app-badge severity="success" label="Oui" />
-                  } @else {
-                    <app-badge severity="danger" label="Rupture" />
-                  }
-                </td>
-              </tr>
-            </ng-template>
-            <ng-template #emptymessage>
-              <tr>
-                <td class="text-center text-muted" colspan="5">Aucune information disponible</td>
-              </tr>
-            </ng-template>
-          </app-data-table>
-        }
-      </div>
-    }
+
 
     <!-- Historique -->
     <div class="pharmaml-panel-section">
@@ -119,10 +90,10 @@
         </ng-template>
         <ng-template #body let-envoi>
           <tr>
-            <td>{{ envoi.createdAt | date: 'dd/MM HH:mm' }}</td>
+            <td>{{ envoi.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
             <td>
-              <app-badge [severity]="statutSeverity(envoi.statut)"
-                     [label]="libelleStatut(envoi.statut)" />
+              <app-badge [label]="libelleStatut(envoi.statut)"
+                         [severity]="statutSeverity(envoi.statut)" />
             </td>
             <td class="text-center">
               @if (envoi.lignesAcceptees != null) {

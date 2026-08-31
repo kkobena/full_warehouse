@@ -31,6 +31,7 @@ import { RecapitulatifCaisseService } from "app/entities/ticketZ/recapitulatif-c
 import { RecapParam } from "app/entities/ticketZ/model/recap-param.model";
 import { DATE_FORMAT_ISO_DATE } from "app/shared/util/warehouse-util";
 import { NotificationService } from "../../shared/services/notification.service";
+import { formatCurrencyWithUnit } from "app/shared/utils/format-utils";
 
 @Component({
   selector: "app-caissier-dashboard",
@@ -215,9 +216,13 @@ export class CaissierDashboardComponent implements OnInit, OnDestroy {
   }
 
   // ─── Helpers formatage ─────────────────────────────────────────────────────
+  /**
+   * La devise vient du paramétrage de l'officine, jamais d'une constante : le même écran sert
+   * une pharmacie de la zone franc et une autre qui ne l'est pas.
+   */
   protected formatCurrency(value: number): string {
     if (value == null) return "—";
-    return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XOF" }).format(value);
+    return formatCurrencyWithUnit(value);
   }
 
   protected getTypeVenteLabel(type: string): string {

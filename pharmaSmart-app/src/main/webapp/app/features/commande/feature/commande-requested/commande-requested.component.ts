@@ -6,7 +6,9 @@ import {
   input,
   OnInit,
   output,
-  viewChild, signal } from "@angular/core";
+  signal,
+  viewChild
+} from "@angular/core";
 import {HttpResponse} from "@angular/common/http";
 import {IFournisseur} from "../../../../shared/model/fournisseur.model";
 import {Observable} from "rxjs";
@@ -44,10 +46,11 @@ import {
   NgbConfirmDialogService
 } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import {ProduitSearch} from "../../../../shared/model";
-import {EnvoiPharmamlComponent, ReponsePharmamlComponent} from "../pharmaml";
+import {EnvoiPharmamlComponent, PharmamlHomeComponent, ReponsePharmamlComponent} from "../pharmaml";
 import {
   DispoComparaisonComponent
 } from "../pharmaml/ui/dispo-comparaison/dispo-comparaison.component";
+import {COMPARAISON_DISPONIBILITE_ACTIVE} from "../pharmaml/pharmaml.constants";
 import {IPharmamlCommandeResponse} from "../../../../shared/model/pharmaml.model";
 import {
   CommandeProductSearchComponent
@@ -73,7 +76,10 @@ import {
 import {AgGridAngular} from "ag-grid-angular";
 import {CommandeRequestedLineActionsComponent} from "./commande-requested-line-actions.component";
 
-import { formatNumber } from 'app/shared/utils/format-utils';
+import {formatNumber} from 'app/shared/utils/format-utils';
+import {AG_GRID_LOCALE_FR} from '../../../../shared/ui/ag-grid/ag-grid-locale.fr';
+import {DevisePipe} from 'app/shared/utils/devise';
+
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
 @Component({
@@ -95,12 +101,14 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
     FournisseurSelectComponent,
     SplitButtonComponent,
     AgGridAngular
-  ]
+    , DevisePipe,
+    PharmamlHomeComponent]
 })
 export class CommandeRequestedComponent implements OnInit {
   commande = input<ICommande | null | undefined>(null);
   commandeChange = output<ICommande | null>();
-
+  /** Libellés français d'AG Grid — voir shared/ui/ag-grid. */
+  protected readonly localeFr = AG_GRID_LOCALE_FR;
   protected readonly orderLines = signal<IOrderLine[]>([]);
   protected readonly selectedEl = signal<IOrderLine[]>([]);
   protected quantiteSaisie = 1;
@@ -393,7 +401,7 @@ export class CommandeRequestedComponent implements OnInit {
       return;
     }
     const ref = this.modalService.open(DispoComparaisonComponent, {
-      size: "lg",
+      size: "xl",
       backdrop: "static",
       centered: true,
       scrollable: true
@@ -480,7 +488,7 @@ export class CommandeRequestedComponent implements OnInit {
     this.confirmDialog.onConfirm(
       () => this.onDeleteOrderLine(item),
       "Suppression",
-      "Voullez-vous supprimer de la commande ce produit ?",
+      "Voulez-vous supprimer de la commande ce produit ?",
       null,
       () => this.resetProductInput()
     );
@@ -490,7 +498,7 @@ export class CommandeRequestedComponent implements OnInit {
     this.confirmDialog.onConfirm(
       () => this.deleteSelectedLines(),
       "Suppression",
-      "Voullez-vous supprimer toutes les lignes ?",
+      "Voulez-vous supprimer toutes les lignes ?",
       null,
       () => this.resetProductInput()
     );
@@ -515,11 +523,15 @@ export class CommandeRequestedComponent implements OnInit {
       size: "xl",
       scrollable: true,
       centered: true,
-      backdrop: "static"
+      backdrop: "static",
+      modalDialogClass: "facture-modal-dialog"
     });
     modalRef.componentInstance.commandeId = this.currentCommande()!.commandeId;
     modalRef.componentInstance.fournisseurId = this.currentCommande()!.fournisseurId;
     modalRef.componentInstance.commandeFournisseurId = this.currentCommande()!.fournisseurId;
+    // Le PRINCIPAL de l'agence servie : c'est lui qui porte les propositions d'achat.
+    modalRef.componentInstance.commandeFournisseurPrincipalId =
+      this.currentCommande()!.fournisseur?.parentId ?? this.currentCommande()!.fournisseurId;
     modalRef.result.then(
       imported => {
         if (imported) {
@@ -559,6 +571,13 @@ export class CommandeRequestedComponent implements OnInit {
   }
 
   protected onFournisseurSelected(f: IFournisseur | null): void {
+    // Le sélecteur est groupé : un clic sur l'EN-TÊTE d'un groupe rend le grossiste
+    // principal, qui ne porte pas d'identifiant de livraison. Le retenir viderait le
+    // fournisseur de la commande sans que rien ne le signale — l'écran redemanderait
+    // simplement d'en choisir un.
+    if (f && f.id == null) {
+      return;
+    }
     this.selectedProvider.set(f?.id ?? null);
     if (this.currentCommande()?.id) {
       this.changeGrossiste();
@@ -646,25 +665,29 @@ export class CommandeRequestedComponent implements OnInit {
     if (this.isLocked || this.currentCommande()?.orderStatus === "RECEIVED") {
       this.pharmamlActions.set([
         {label: "Voir réponse", icon: "pi pi-file", command: () => this.openReponse()},
-        {
-          label: "Comparer multi-grossistes",
-          icon: "pi pi-chart-bar",
-          separatorBefore: true,
-          command: () => this.ouvrirComparaison()
-        }
+        ...this.comparaisonAction()
       ]);
     } else {
       this.pharmamlActions.set([
         {label: "Envoyer via PharmaML", icon: "pi pi-send", command: () => this.openEnvoi()},
-        {label: "Voir réponse", icon: "pi pi-file", command: () => this.openReponse()},
-        {
-          label: "Comparer multi-grossistes",
-          icon: "pi pi-chart-bar",
-          separatorBefore: true,
-          command: () => this.ouvrirComparaison()
-        }
+        ...this.comparaisonAction()
       ]);
     }
+  }
+
+  // Masquée tant que le répartiteur ne sait pas répondre à une demande d'information :
+  // cf. COMPARAISON_DISPONIBILITE_ACTIVE.
+  private comparaisonAction(): AppSplitButtonItem[] {
+    return COMPARAISON_DISPONIBILITE_ACTIVE
+      ? [
+          {
+            label: "Comparer multi-grossistes",
+            icon: "pi pi-chart-bar",
+            separatorBefore: true,
+            command: () => this.ouvrirComparaison()
+          }
+        ]
+      : [];
   }
 
   private doCreateBon(): void {
@@ -678,7 +701,7 @@ export class CommandeRequestedComponent implements OnInit {
           this.commandCommonService.navigateToBonsLivraison();
         }
       },
-      "lg"
+      "xl"
     );
   }
 

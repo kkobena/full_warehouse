@@ -73,11 +73,21 @@
 
     <!-- Colonne maître : liste des organismes -->
     <div class="list-column p-2">
+      <!--
+        Pagination : l'état de rapprochement d'une année couvre plusieurs dizaines
+        d'organismes-périodes, que la page rendait d'un bloc — on faisait défiler pour
+        chercher, et l'impression comme la lecture y perdaient.
+      -->
       <app-data-table
         [loading]="loading()"
+        [paginator]="true"
+        [rows]="15"
+        [rowsPerPageOptions]="[10, 15, 25, 50]"
         [scrollable]="true"
+        [showCurrentPageReport]="true"
         [size]="'small'"
         [value]="rapprochements()"
+        currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} lignes"
         scrollHeight="flex"
       >
         <ng-template #header>
@@ -98,7 +108,7 @@
         <ng-template #body let-rappr>
           <tr
             (click)="onRowSelect(rappr)"
-            [class.rapr-row-selected]="selectedRappr()?.tiersPayantName === rappr.tiersPayantName"
+            [class.ligne-selected]="selectedRappr()?.tiersPayantName === rappr.tiersPayantName"
             style="cursor:pointer"
           >
             <td>
@@ -130,6 +140,7 @@
                   (clicked)="onRowSelect(rappr)"
                   [rounded]="true"
                   [text]="true"
+                  ariaLabel="Voir le détail du rapprochement"
                   icon="pi pi-eye"
                   ngbTooltip="Voir détail"
                   placement="left"
@@ -228,6 +239,7 @@
                       [appRowToggler]="ligne"
                       [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
                       [text]="true"
+                      ariaLabel="Voir les règlements de la facture"
                       size="small"
                     />
                   }
@@ -296,6 +308,7 @@
                               <app-button
                                 (clicked)="onAnnulerReglement(ligne, rg)"
                                 [text]="true"
+                                ariaLabel="Annuler ce règlement"
                                 icon="pi pi-trash"
                                 severity="danger"
                                 size="small"

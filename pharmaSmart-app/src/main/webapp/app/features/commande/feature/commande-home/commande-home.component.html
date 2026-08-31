@@ -37,7 +37,7 @@
                                   fallbackIcon="pi pi-lightbulb"
                                   fallbackLabel="Commandes &amp; Réceptions" />
             @if (alertBadgeService.ruptureCount() > 0) {
-              <span class="badge rounded-pill bg-warning text-dark sidebar-nav-badge ms-auto">
+              <span class="badge rounded-pill bg-warning text-white sidebar-nav-badge ms-auto">
                 {{ alertBadgeService.ruptureCount() > 99 ? '99+' : alertBadgeService.ruptureCount() }}
               </span>
             }

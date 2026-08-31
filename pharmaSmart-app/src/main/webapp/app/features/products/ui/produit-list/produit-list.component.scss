@@ -1,7 +1,6 @@
 @import 'app/shared/scss/table-common';
 
-// L'icône ellipsis suffit à signaler un menu — pas besoin du chevron que
-// ngbDropdownToggle ajoute via .dropdown-toggle::after.
+
 .app-actions-toggle::after {
   display: none;
 }
@@ -16,9 +15,17 @@
   font-size: 0.78rem;
   font-weight: 600;
 
-  &.marge-low  { color: #d9534f; }
-  &.marge-ok   { color: #f0ad4e; }
-  &.marge-good { color: #5cb85c; }
+  &.marge-low {
+    color: #d9534f;
+  }
+
+  &.marge-ok {
+    color: #f0ad4e;
+  }
+
+  &.marge-good {
+    color: #5cb85c;
+  }
 }
 
 // Colonne Jours de stock
@@ -26,7 +33,15 @@
   font-size: 0.78rem;
   font-weight: 600;
 
-  &.jours-critical { color: #d9534f; }
-  &.jours-warning  { color: #d9534f; }
-  &.jours-low      { color: #f0ad4e; }
+  &.jours-critical {
+    color: #d9534f;
+  }
+
+  &.jours-warning {
+    color: #d9534f;
+  }
+
+  &.jours-low {
+    color: #f0ad4e;
+  }
 }

@@ -1,468 +1,486 @@
-<div class="pharma-smart-content p-2">
-  <!-- Modern Pharma Toolbar -->
-  <app-toolbar [code]="navCode()" icon="pi pi-chart-bar" title="Récapitulatif Produits Vendus/Invendus">
+<!-- Modern Pharma Toolbar -->
+<app-toolbar [code]="navCode()" icon="pi pi-chart-bar"
+             title="Récapitulatif Produits Vendus/Invendus">
 
-    <ng-container ngProjectAs="[toolbarFilters]">
-      <div class="pharma-toolbar-filters py-1">
-        <input [(ngModel)]="searchTerm" [style]="{ 'max-width': '200px' }" class="form-control"
-               placeholder="Rechercher un produit..."
-               type="text" />
-        <pharma-date-picker (ngModelChange)="onFilterChange()" [(ngModel)]="startDate"
-                            [style]="{ 'max-width': '180px' }"
-                            id="startDate" label="Du" />
-        <pharma-date-picker [(ngModel)]="endDate" [style]="{ 'max-width': '180px' }" id="endDate"
-                            label="Au" />
-      </div>
-    </ng-container>
-
-    <ng-container ngProjectAs="[toolbarActions]">
-      <div class="flex gap-1">
-        <app-button
-          (clicked)="toggleFiltersDrawer()"
-          [outlined]="true"
-          icon="pi pi-filter"
-          label="Filtres avancés"
-          severity="secondary"
-          size="small"
-        />
-
-        <app-button (clicked)="loadCurrentTabData()" icon="pi pi-refresh" label="Rechercher"
-                    severity="primary" size="small" />
-
-        <app-split-button [items]="actionsMenuItems()" icon="pi pi-cog" label="Actions"
-                          severity="info" size="small" />
-
-        <app-split-button [items]="exportMenuItems()" icon="pi pi-file-pdf" label="Exporter"
-                          severity="warn" size="small" />
-        <app-button (clicked)="onClearFilters()" icon="pi pi-filter-slash" label="Effacer filtres"
-                    severity="secondary" size="small" />
-      </div>
-    </ng-container>
-  </app-toolbar>
-
-  <!-- Tabs -->
-  <div class="pharma-nav-tabs-container">
-    <div
-      #nav="ngbNav"
-      (navChange)="onTabChange($event)"
-      [(activeId)]="activeTab"
-      class="nav pharma-nav-tabs"
-      ngbNav
-      orientation="horizontal"
-    >
-      <ng-container ngbNavItem="vendus">
-        <a class="pharma-nav-tab-link" ngbNavLink>
-          <i class="pi pi-shopping-cart"></i>
-          <span>Produits Vendus</span>
-        </a>
-        <ng-template ngbNavContent>
-          <!-- KPI Strip -->
-          @if (summary()) {
-            <app-kpi-strip stripClass="mt-2 mb-2">
-              <app-kpi-item [accent]="'primary'" icon="pi pi-shopping-cart" iconClass="text-primary" label="Quantité vendue" [value]="summary()!.quantitySold || 0 | number" valueClass="text-primary">
-                <ng-container ngProjectAs="[kpiSub]">unités</ng-container>
-              </app-kpi-item>
-              <app-kpi-item [accent]="'danger'" icon="pi pi-replay" iconClass="text-danger" label="Quantité avoir" [value]="summary()!.quantityAvoir || 0 | number" valueClass="text-danger">
-                <ng-container ngProjectAs="[kpiSub]">retours</ng-container>
-              </app-kpi-item>
-              <app-kpi-item [accent]="'success'" icon="pi pi-money-bill" iconClass="text-success" label="CA Total" [value]="formatCurrency(summary()!.totalSalesAmount)" valueClass="text-success">
-                <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-                <ng-container ngProjectAs="[kpiSub]">chiffre d'affaires</ng-container>
-              </app-kpi-item>
-              <app-kpi-item [accent]="'warning'" icon="pi pi-dollar" iconClass="text-warning" label="Coût d'achat" [value]="formatCurrency(summary()!.totalPurchaseAmount)" valueClass="text-warning">
-                <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-                <ng-container ngProjectAs="[kpiSub]">prix de revient</ng-container>
-              </app-kpi-item>
-            </app-kpi-strip>
-          }
-
-          <!-- Products Table -->
-          <div class="card h-100 data-card mt-1">
-            <div class="card-header">
-              <h5 class="card-title">
-                <i class="pi pi-table text-info"></i>
-                Produits Vendus
-              </h5>
-            </div>
-            <div class="card-body p-0">
-              <app-data-table
-                (onPage)="onPageChange($event)"
-                [lazy]="true"
-                [loading]="isLoading()"
-                [paginator]="true"
-                [rowsPerPageOptions]="[10, 20, 50, 100]"
-                [rows]="itemsPerPage()"
-                [scrollable]="true"
-                [showCurrentPageReport]="true"
-                [size]="'small'"
-                [totalRecords]="totalItems()"
-                [value]="products()"
-                currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-                scrollHeight="500px"
-              >
-                <ng-template #header>
-                  <tr class="pharma-table-head">
-                    <th>Produit</th>
-                    <th>Code CIP</th>
-                    <th>Code EAN</th>
-                    <th>Rayon</th>
-                    <th class="text-end">Qté Vendue</th>
-                    <th class="text-end">Qté Avoir</th>
-                    <th class="text-end">Stock</th>
-                    <th class="text-end">CA Ventes</th>
-                    <th class="text-end">Coût Achat</th>
-                    <th class="text-end">Marge %</th>
-                  </tr>
-                </ng-template>
-
-                <ng-template #body let-product>
-                  <tr>
-                    <td>{{ product.libelle }}</td>
-                    <td>
-                      <span class="pharma-code">{{ product.codeCip }}</span>
-                    </td>
-                    <td>
-                      <span class="pharma-code">{{ product.codeEanLaboratoire }}</span>
-                    </td>
-                    <td>{{ product.rayonName }}</td>
-                    <td class="text-end pharma-qty-value">{{
-                        product.quantitySold || 0 | number
-                      }}
-                    </td>
-                    <td class="text-end pharma-qty-avoir">{{
-                        product.quantityAvoir || 0 | number
-                      }}
-                    </td>
-                    <td class="text-end">
-                      <span
-                        [class]="{
-                          'bg-success-subtle text-success': (product.stock || 0) > 50,
-                          'bg-warning-subtle text-warning': (product.stock || 0) > 10 && (product.stock || 0) <= 50,
-                          'bg-danger-subtle text-danger': (product.stock || 0) <= 10,
-                        }"
-                        class="px-2 py-1 rounded fw-semibold"
-                      >
-                        {{ product.stock || 0 | number }}
-                      </span>
-                    </td>
-                    <td class="text-end pharma-total">{{
-                        product.totalSalesAmount || 0 | number: '1.0-0'
-                      }} F
-                    </td>
-                    <td class="text-end pharma-price">{{
-                        product.totalPurchaseAmount || 0 | number: '1.0-0'
-                      }} F
-                    </td>
-                    <td class="text-end">
-                      <app-badge
-                        [label]="(getMarginPercentage(product) | number: '1.2-2') + '%'"
-                        [rounded]="true"
-                        [severity]="getMarginSeverity(getMarginPercentage(product))"
-                      />
-                    </td>
-                  </tr>
-                </ng-template>
-
-                <ng-template #emptymessage>
-                  <tr>
-                    <td class="text-center p-4" colspan="10">
-                      <i class="pi pi-inbox text-muted" style="font-size: 3rem"></i>
-                      <p class="mt-3 text-muted">Aucun produit trouvé</p>
-                    </td>
-                  </tr>
-                </ng-template>
-              </app-data-table>
-            </div>
-          </div>
-        </ng-template>
-      </ng-container>
-
-      <ng-container ngbNavItem="invendus">
-        <a class="pharma-nav-tab-link" ngbNavLink>
-          <i class="pi pi-times-circle"></i>
-          <span>Produits Invendus</span>
-        </a>
-        <ng-template ngbNavContent>
-          <!-- KPI Strip -->
-          @if (unsoldSummary()) {
-            <app-kpi-strip stripClass="mt-2 mb-2">
-              <app-kpi-item [accent]="'primary'" icon="pi pi-box" iconClass="text-primary" label="Nb produits" [value]="unsoldSummary()?.totalProducts | number" valueClass="text-primary">
-                <ng-container ngProjectAs="[kpiSub]">références</ng-container>
-              </app-kpi-item>
-              <app-kpi-item [accent]="'warning'" icon="pi pi-database" iconClass="text-warning" label="Stock total" [value]="unsoldSummary()?.totalStock | number" valueClass="text-warning">
-                <ng-container ngProjectAs="[kpiSub]">unités</ng-container>
-              </app-kpi-item>
-              <app-kpi-item [accent]="'success'" icon="pi pi-money-bill" iconClass="text-success" label="Valeur vente" [value]="formatCurrency(unsoldSummary()?.totalSalesAmount || 0)" valueClass="text-success">
-                <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-                <ng-container ngProjectAs="[kpiSub]">prix de vente</ng-container>
-              </app-kpi-item>
-              <app-kpi-item [accent]="'danger'" icon="pi pi-dollar" iconClass="text-danger" label="Coût d'achat" [value]="formatCurrency(unsoldSummary()?.totalPurchaseAmount || 0)" valueClass="text-danger">
-                <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-                <ng-container ngProjectAs="[kpiSub]">prix de revient</ng-container>
-              </app-kpi-item>
-            </app-kpi-strip>
-          }
-
-          <!-- Unsold Products Table -->
-          <div class="card h-100 data-card">
-            <div class="card-header">
-              <h5 class="card-title">
-                <i class="pi pi-table text-warning"></i>
-                Produits Invendus
-              </h5>
-            </div>
-            <div class="card-body p-0">
-              <app-data-table
-                (onPage)="onPageChange($event)"
-                [lazy]="true"
-                [loading]="isLoading()"
-                [paginator]="true"
-                [rowsPerPageOptions]="[10, 20, 50, 100]"
-                [rows]="itemsPerPage()"
-                [scrollable]="true"
-                [showCurrentPageReport]="true"
-                [size]="'small'"
-                [totalRecords]="totalItems()"
-                [value]="unsoldProducts()"
-                currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-                scrollHeight="500px"
-              >
-                <ng-template #header>
-                  <tr class="pharma-table-head">
-                    <th>Produit</th>
-                    <th>Code CIP</th>
-                    <th>Code EAN</th>
-                    <th>Rayon</th>
-                    <th class="text-end">Stock</th>
-                    <th class="text-end">Seuil Mini</th>
-                    <th class="text-end">Valeur Vente</th>
-                    <th class="text-end">Coût Achat</th>
-                  </tr>
-                </ng-template>
-
-                <ng-template #body let-product>
-                  <tr>
-                    <td>{{ product.libelle }}</td>
-                    <td>
-                      <span class="pharma-code">{{ product.codeCip }}</span>
-                    </td>
-                    <td>
-                      <span class="pharma-code">{{ product.codeEanLaboratoire }}</span>
-                    </td>
-                    <td>{{ product.rayonName }}</td>
-                    <td class="text-end">
-                      <span
-                        [class]="{
-                          'bg-success-subtle text-success': (product.stock || 0) > 50,
-                          'bg-warning-subtle text-warning': (product.stock || 0) > 10 && (product.stock || 0) <= 50,
-                          'bg-danger-subtle text-danger': (product.stock || 0) <= 10,
-                        }"
-                        class="px-2 py-1 rounded fw-semibold"
-                      >
-                        {{ product.stock || 0 | number }}
-                      </span>
-                    </td>
-                    <td class="text-end">{{ product.seuilMini || 0 | number }}</td>
-                    <td class="text-end pharma-price">{{
-                        product.totalSalesAmount || 0 | number: '1.0-0'
-                      }} F
-                    </td>
-                    <td class="text-end pharma-price">{{
-                        product.totalPurchaseAmount || 0 | number: '1.0-0'
-                      }} F
-                    </td>
-                  </tr>
-                </ng-template>
-
-                <ng-template #emptymessage>
-                  <tr>
-                    <td class="text-center p-4" colspan="8">
-                      <i class="pi pi-inbox text-muted" style="font-size: 3rem"></i>
-                      <p class="mt-3 text-muted">Aucun produit invendu trouvé</p>
-                    </td>
-                  </tr>
-                </ng-template>
-              </app-data-table>
-            </div>
-          </div>
-        </ng-template>
-      </ng-container>
+  <ng-container ngProjectAs="[toolbarFilters]">
+    <div class="pharma-toolbar-filters py-1">
+      <input [(ngModel)]="searchTerm" [style]="{ 'max-width': '200px' }" class="form-control"
+             placeholder="Rechercher un produit..."
+             type="text" />
+      <pharma-date-picker (ngModelChange)="onFilterChange()" [(ngModel)]="startDate"
+                          [style]="{ 'max-width': '180px' }"
+                          id="startDate" label="Du" />
+      <pharma-date-picker [(ngModel)]="endDate" [style]="{ 'max-width': '180px' }" id="endDate"
+                          label="Au" />
     </div>
-    <div class="pharma-nav-tabs-outlet">
-      <div [ngbNavOutlet]="nav"></div>
+  </ng-container>
+
+  <ng-container ngProjectAs="[toolbarActions]">
+    <div class="flex gap-1">
+      <app-button
+        (clicked)="toggleFiltersDrawer()"
+        [outlined]="true"
+        icon="pi pi-filter"
+        label="Filtres avancés"
+        severity="secondary"
+        size="small"
+      />
+
+      <app-button (clicked)="loadCurrentTabData()" icon="pi pi-refresh" label="Rechercher"
+                  severity="primary" size="small" />
+
+
+      <app-split-button (clicked)="createInventory()" [items]="actionsMenuItems()"
+                        icon="pi pi-cog" label="Actions"
+                        severity="info" size="small" />
+
+      <app-split-button (clicked)="exportToPdf()" [items]="exportMenuItems()"
+                        icon="pi pi-file-pdf" label="Exporter"
+                        severity="warn" size="small" />
+      <app-button (clicked)="onClearFilters()" icon="pi pi-filter-slash" label="Effacer filtres"
+                  severity="secondary" size="small" />
+    </div>
+  </ng-container>
+</app-toolbar>
+
+<!-- Tabs -->
+<div class="pharma-nav-tabs-container">
+  <div
+    #nav="ngbNav"
+    (navChange)="onTabChange($event)"
+    [(activeId)]="activeTab"
+    class="nav pharma-nav-tabs"
+    ngbNav
+    orientation="horizontal"
+  >
+    <ng-container ngbNavItem="vendus">
+      <a class="pharma-nav-tab-link" ngbNavLink>
+        <i class="pi pi-shopping-cart"></i>
+        <span>Produits Vendus</span>
+      </a>
+      <ng-template ngbNavContent>
+        <!-- KPI Strip -->
+        @if (summary()) {
+          <app-kpi-strip stripClass="mt-2 mb-2">
+            <app-kpi-item [accent]="'primary'" [value]="summary()!.quantitySold || 0 | number" icon="pi pi-shopping-cart"
+                          iconClass="text-primary" label="Quantité vendue"
+                          valueClass="text-primary">
+              <ng-container ngProjectAs="[kpiSub]">unités</ng-container>
+            </app-kpi-item>
+            <app-kpi-item [accent]="'danger'" [value]="summary()!.quantityAvoir || 0 | number" icon="pi pi-replay"
+                          iconClass="text-danger" label="Quantité avoir"
+                          valueClass="text-danger">
+              <ng-container ngProjectAs="[kpiSub]">retours</ng-container>
+            </app-kpi-item>
+            <app-kpi-item [accent]="'success'" [value]="formatCurrency(summary()!.totalSalesAmount)" icon="pi pi-money-bill"
+                          iconClass="text-success" label="CA Total"
+                          valueClass="text-success">
+              <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+              <ng-container ngProjectAs="[kpiSub]">chiffre d'affaires</ng-container>
+            </app-kpi-item>
+            <app-kpi-item [accent]="'warning'" [value]="formatCurrency(summary()!.totalPurchaseAmount)" icon="pi pi-dollar"
+                          iconClass="text-warning"
+                          label="Coût d'achat"
+                          valueClass="text-warning">
+              <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+              <ng-container ngProjectAs="[kpiSub]">prix de revient</ng-container>
+            </app-kpi-item>
+          </app-kpi-strip>
+        }
+
+        <!-- Products Table -->
+        <div class="card h-100 data-card mt-1">
+          <div class="card-header">
+            <h5 class="card-title">
+              <i class="pi pi-table text-info"></i>
+              Produits Vendus
+            </h5>
+          </div>
+          <div class="card-body p-0">
+            <app-data-table
+              (onPage)="onPageChange($event)"
+              [lazy]="true"
+              [loading]="isLoading()"
+              [paginator]="true"
+              [rowsPerPageOptions]="[10, 20, 50, 100]"
+              [rows]="itemsPerPage()"
+              [scrollable]="true"
+              [showCurrentPageReport]="true"
+              [size]="'small'"
+              [totalRecords]="totalItems()"
+              [value]="products()"
+              currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+              scrollHeight="500px"
+            >
+              <ng-template #header>
+                <tr class="pharma-table-head">
+                  <th>Produit</th>
+                  <th>Code CIP</th>
+                  <th>Code EAN</th>
+                  <th>Rayon</th>
+                  <th class="text-end">Qté Vendue</th>
+                  <th class="text-end">Qté Avoir</th>
+                  <th class="text-end">Stock</th>
+                  <th class="text-end">CA Ventes</th>
+                  <th class="text-end">Coût Achat</th>
+                  <th class="text-end">Marge %</th>
+                </tr>
+              </ng-template>
+
+              <ng-template #body let-product>
+                <tr>
+                  <td>{{ product.libelle }}</td>
+                  <td>
+                    <span class="pharma-code">{{ product.codeCip }}</span>
+                  </td>
+                  <td>
+                    <span class="pharma-code">{{ product.codeEanLaboratoire }}</span>
+                  </td>
+                  <td>{{ product.rayonName }}</td>
+                  <td class="text-end pharma-qty-value">{{
+                      product.quantitySold || 0 | number
+                    }}
+                  </td>
+                  <td class="text-end pharma-qty-avoir">{{
+                      product.quantityAvoir || 0 | number
+                    }}
+                  </td>
+                  <td class="text-end">
+                      <span
+                        [class]="{
+                          'bg-success-subtle text-success': (product.stock || 0) > 50,
+                          'bg-warning-subtle text-warning': (product.stock || 0) > 10 && (product.stock || 0) <= 50,
+                          'bg-danger-subtle text-danger': (product.stock || 0) <= 10,
+                        }"
+                        class="px-2 py-1 rounded fw-semibold"
+                      >
+                        {{ product.stock || 0 | number }}
+                      </span>
+                  </td>
+                  <td class="text-end pharma-total">{{ product.totalSalesAmount || 0 | devise }}
+                  </td>
+                  <td class="text-end pharma-price">{{ product.totalPurchaseAmount || 0 | devise }}
+                  </td>
+                  <td class="text-end">
+                    <app-badge
+                      [label]="(getMarginPercentage(product) | number: '1.2-2') + '%'"
+                      [rounded]="true"
+                      [severity]="getMarginSeverity(getMarginPercentage(product))"
+                    />
+                  </td>
+                </tr>
+              </ng-template>
+
+              <ng-template #emptymessage>
+                <tr>
+                  <td class="text-center p-4" colspan="10">
+                    <i class="pi pi-inbox text-muted" style="font-size: 3rem"></i>
+                    <p class="mt-3 text-muted">Aucun produit trouvé</p>
+                  </td>
+                </tr>
+              </ng-template>
+            </app-data-table>
+          </div>
+        </div>
+      </ng-template>
+    </ng-container>
+
+    <ng-container ngbNavItem="invendus">
+      <a class="pharma-nav-tab-link" ngbNavLink>
+        <i class="pi pi-times-circle"></i>
+        <span>Produits Invendus</span>
+      </a>
+      <ng-template ngbNavContent>
+        <!-- KPI Strip -->
+        @if (unsoldSummary()) {
+          <app-kpi-strip stripClass="mt-2 mb-2">
+            <app-kpi-item [accent]="'primary'" [value]="unsoldSummary()?.totalProducts | number" icon="pi pi-box"
+                          iconClass="text-primary" label="Nb produits"
+                          valueClass="text-primary">
+              <ng-container ngProjectAs="[kpiSub]">références</ng-container>
+            </app-kpi-item>
+            <app-kpi-item [accent]="'warning'" [value]="unsoldSummary()?.totalStock | number" icon="pi pi-database"
+                          iconClass="text-warning" label="Stock total"
+                          valueClass="text-warning">
+              <ng-container ngProjectAs="[kpiSub]">unités</ng-container>
+            </app-kpi-item>
+            <app-kpi-item [accent]="'success'" [value]="formatCurrency(unsoldSummary()?.totalSalesAmount || 0)" icon="pi pi-money-bill"
+                          iconClass="text-success"
+                          label="Valeur vente"
+                          valueClass="text-success">
+              <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+              <ng-container ngProjectAs="[kpiSub]">prix de vente</ng-container>
+            </app-kpi-item>
+            <app-kpi-item [accent]="'danger'" [value]="formatCurrency(unsoldSummary()?.totalPurchaseAmount || 0)" icon="pi pi-dollar"
+                          iconClass="text-danger"
+                          label="Coût d'achat"
+                          valueClass="text-danger">
+              <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+              <ng-container ngProjectAs="[kpiSub]">prix de revient</ng-container>
+            </app-kpi-item>
+          </app-kpi-strip>
+        }
+
+        <!-- Unsold Products Table -->
+        <div class="card h-100 data-card">
+          <div class="card-header">
+            <h5 class="card-title">
+              <i class="pi pi-table text-warning"></i>
+              Produits Invendus
+            </h5>
+          </div>
+          <div class="card-body p-0">
+            <app-data-table
+              (onPage)="onPageChange($event)"
+              [lazy]="true"
+              [loading]="isLoading()"
+              [paginator]="true"
+              [rowsPerPageOptions]="[10, 20, 50, 100]"
+              [rows]="itemsPerPage()"
+              [scrollable]="true"
+              [showCurrentPageReport]="true"
+              [size]="'small'"
+              [totalRecords]="totalItems()"
+              [value]="unsoldProducts()"
+              currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+              scrollHeight="500px"
+            >
+              <ng-template #header>
+                <tr class="pharma-table-head">
+                  <th>Produit</th>
+                  <th>Code CIP</th>
+                  <th>Code EAN</th>
+                  <th>Rayon</th>
+                  <th class="text-end">Stock</th>
+                  <th class="text-end">Seuil Mini</th>
+                  <th class="text-end">Valeur Vente</th>
+                  <th class="text-end">Coût Achat</th>
+                </tr>
+              </ng-template>
+
+              <ng-template #body let-product>
+                <tr>
+                  <td>{{ product.libelle }}</td>
+                  <td>
+                    <span class="pharma-code">{{ product.codeCip }}</span>
+                  </td>
+                  <td>
+                    <span class="pharma-code">{{ product.codeEanLaboratoire }}</span>
+                  </td>
+                  <td>{{ product.rayonName }}</td>
+                  <td class="text-end">
+                      <span
+                        [class]="{
+                          'bg-success-subtle text-success': (product.stock || 0) > 50,
+                          'bg-warning-subtle text-warning': (product.stock || 0) > 10 && (product.stock || 0) <= 50,
+                          'bg-danger-subtle text-danger': (product.stock || 0) <= 10,
+                        }"
+                        class="px-2 py-1 rounded fw-semibold"
+                      >
+                        {{ product.stock || 0 | number }}
+                      </span>
+                  </td>
+                  <td class="text-end">{{ product.seuilMini || 0 | number }}</td>
+                  <td class="text-end pharma-price">{{ product.totalSalesAmount || 0 | devise }}
+                  </td>
+                  <td class="text-end pharma-price">{{ product.totalPurchaseAmount || 0 | devise }}
+                  </td>
+                </tr>
+              </ng-template>
+
+              <ng-template #emptymessage>
+                <tr>
+                  <td class="text-center p-4" colspan="8">
+                    <i class="pi pi-inbox text-muted" style="font-size: 3rem"></i>
+                    <p class="mt-3 text-muted">Aucun produit invendu trouvé</p>
+                  </td>
+                </tr>
+              </ng-template>
+            </app-data-table>
+          </div>
+        </div>
+      </ng-template>
+    </ng-container>
+  </div>
+  <div class="pharma-nav-tabs-outlet">
+    <div [ngbNavOutlet]="nav"></div>
+  </div>
+</div>
+
+<!-- Advanced Filters Drawer -->
+<app-offcanvas [(visible)]="filtersDrawerVisible" position="right" width="580px">
+  <div appOffcanvasHeader>
+    <div class="d-flex align-items-center gap-2">
+      <i class="pi pi-filter text-primary" style="font-size: 1.5rem"></i>
+      <span class="fw-bold fs-5">Filtres Avancés</span>
     </div>
   </div>
 
-  <!-- Advanced Filters Drawer -->
-  <app-offcanvas [(visible)]="filtersDrawerVisible" position="right" width="580px">
-    <div appOffcanvasHeader>
-      <div class="d-flex align-items-center gap-2">
-        <i class="pi pi-filter text-primary" style="font-size: 1.5rem"></i>
-        <span class="fw-bold fs-5">Filtres Avancés</span>
+  <div class="p-1">
+    <!-- Time Range Section -->
+    <div class="mb-2">
+      <h6 class="text-primary fw-bold mb-2"><i class="pi pi-clock me-2"></i>Période de temps</h6>
+      <div class="row g-2">
+        <div class="col-6">
+          <label class="form-label text-sm">Heure début</label>
+          <input [(ngModel)]="startTime" class="form-control w-100" placeholder="HH:mm"
+                 type="time" />
+        </div>
+        <div class="col-6">
+          <label class="form-label text-sm">Heure fin</label>
+          <input [(ngModel)]="endTime" class="form-control w-100" placeholder="HH:mm"
+                 type="time" />
+        </div>
       </div>
     </div>
 
-    <div class="p-1">
-      <!-- Time Range Section -->
-      <div class="mb-2">
-        <h6 class="text-primary fw-bold mb-2"><i class="pi pi-clock me-2"></i>Période de temps</h6>
-        <div class="row g-2">
-          <div class="col-6">
-            <label class="form-label text-sm">Heure début</label>
-            <input [(ngModel)]="startTime" class="form-control w-100" placeholder="HH:mm"
-                   type="time" />
-          </div>
-          <div class="col-6">
-            <label class="form-label text-sm">Heure fin</label>
-            <input [(ngModel)]="endTime" class="form-control w-100" placeholder="HH:mm"
-                   type="time" />
-          </div>
+    <hr />
+
+    <!-- Selection Filters Section -->
+    <div class="mb-2">
+      <h6 class="text-primary fw-bold mb-2"><i class="pi pi-filter-fill me-2"></i>Filtres de
+        sélection</h6>
+      <div class="row g-2">
+        <div class="col-12">
+          <label class="form-label text-sm">Utilisateur</label>
+          <app-select
+            [(ngModel)]="selectedUser"
+            [clearable]="true"
+            [items]="userOptions()"
+            [style]="{ width: '100%' }"
+            appendTo="body"
+            bindLabel="abbrName"
+            placeholder="Sélectionner un utilisateur"
+          />
         </div>
-      </div>
-
-      <hr />
-
-      <!-- Selection Filters Section -->
-      <div class="mb-2">
-        <h6 class="text-primary fw-bold mb-2"><i class="pi pi-filter-fill me-2"></i>Filtres de
-          sélection</h6>
-        <div class="row g-2">
-          <div class="col-12">
-            <label class="form-label text-sm">Utilisateur</label>
-            <app-select
-              [(ngModel)]="selectedUser"
-              [clearable]="true"
-              [items]="userOptions()"
-              [style]="{ width: '100%' }"
-              appendTo="body"
-              bindLabel="abbrName"
-              placeholder="Sélectionner un utilisateur"
-            />
-          </div>
-          <div class="col-6">
-            <label class="form-label text-sm">Rayon</label>
-            <app-select
-              (selectionChange)="onFilterChange()"
-              [(ngModel)]="selectedRayon"
-              [clearable]="true"
-              [items]="rayonOptions()"
-              [style]="{ width: '100%' }"
-              appendTo="body"
-              bindLabel="libelle"
-              placeholder="Sélectionner un rayon"
-            />
-          </div>
-          <div class="col-6">
-            <label class="form-label text-sm">Fournisseur</label>
-            <app-fournisseur-select
-              (selectionChange)="selectedFournisseur.set($event)"
-              [grouped]="true"
-              [selectedId]="selectedFournisseur()?.id ?? null"
-              placeholder="Sélectionner un fournisseur"
-            />
-          </div>
+        <div class="col-6">
+          <label class="form-label text-sm">Rayon</label>
+          <app-select
+            (selectionChange)="onFilterChange()"
+            [(ngModel)]="selectedRayon"
+            [clearable]="true"
+            [items]="rayonOptions()"
+            [style]="{ width: '100%' }"
+            appendTo="body"
+            bindLabel="libelle"
+            placeholder="Sélectionner un rayon"
+          />
         </div>
-      </div>
-
-      <hr />
-
-      <div class="mb-2">
-        <h6 class="text-primary fw-bold mb-2"><i class="pi pi-sliders-h me-2"></i>Filtres de seuil
-        </h6>
-        <div class="row g-2">
-          <div class="col-6">
-            <label class="form-label text-sm">Filtre de seuil</label>
-            <app-select
-              [(ngModel)]="selectedSeuilFilter"
-              [clearable]="true"
-              [items]="seuilFilterOptions()"
-              [style]="{ width: '100%' }"
-              appendTo="body"
-              bindLabel="label"
-              bindValue="value"
-              placeholder="Sélectionner un filtre de seuil"
-            />
-          </div>
-          @if (selectedSeuilFilter()) {
-            <div class="col-6">
-              <label class="form-label text-sm">Valeur du seuil</label>
-              <app-input-number [(ngModel)]="seuilValue" [min]="0" [style]="{ width: '100%' }"
-                                placeholder="Entrez la valeur" />
-            </div>
-          }
+        <div class="col-6">
+          <!-- Pas de <label> ici : `app-fournisseur-select` porte déjà son propre libellé
+               flottant, tiré de son `placeholder`. En ajouter un second empilait deux
+               intitulés, le flottant venant chevaucher le bord du champ. -->
+          <app-fournisseur-select
+            (selectionChange)="selectedFournisseur.set($event)"
+            [grouped]="true"
+            [selectedId]="selectedFournisseur()?.id ?? null"
+            placeholder="Sélectionner un fournisseur"
+          />
         </div>
-      </div>
-
-      <hr />
-
-      <!-- Stock Filters Section -->
-      <div class="mb-2">
-        <h6 class="text-primary fw-bold mb-2"><i class="pi pi-box me-2"></i>Filtres de stock</h6>
-        <div class="row g-2">
-          <div class="col-6">
-            <label class="form-label text-sm">Filtre de stock</label>
-            <app-select
-              [(ngModel)]="selectedStockFilter"
-              [clearable]="true"
-              [items]="stockFilterOptions()"
-              [style]="{ width: '100%' }"
-              appendTo="body"
-              bindLabel="label"
-              bindValue="value"
-              placeholder="Sélectionner un filtre de stock"
-            />
-          </div>
-          @if (selectedStockFilter() && selectedStockFilter() !== 'OUT_OF_STOCK') {
-            <div class="col-6">
-              <label class="form-label text-sm">Valeur du stock</label>
-              <app-input-number [(ngModel)]="stockValue" [style]="{ width: '100%' }" />
-            </div>
-          }
-        </div>
-      </div>
-
-      <hr />
-
-      <!-- Quantity & Price Filters Section -->
-      <div class="mb-2">
-        <h6 class="text-primary fw-bold mb-2"><i class="pi pi-shopping-cart me-2"></i>Filtres de
-          quantité et prix</h6>
-        <div class="row g-2">
-          @if (activeTab() === 'vendus') {
-            <div class="col-6">
-              <label class="form-label text-sm">Quantité minimale vendue</label>
-              <app-input-number [(ngModel)]="minQuantitySold" [style]="{ width: '100%' }" />
-            </div>
-          }
-
-          <div class="col-6 pt-4">
-            <app-checkbox [(ngModel)]="unitPriceLessThanPurchasePrice"
-                          label="Prix unitaire &lt; Prix d'achat" />
-          </div>
-        </div>
-      </div>
-
-      <hr />
-
-      <!-- Action Buttons -->
-      <div class="d-flex gap-1">
-        <app-button (clicked)="toggleFiltersDrawer()" class="flex-fill" icon="pi pi-refresh"
-                    label="Rechercher" severity="primary" />
-        <app-split-button [items]="actionsMenuItems()" icon="pi pi-cog" label="Actions"
-                          severity="info" size="small" />
-        <app-split-button [items]="exportMenuItems()" icon="pi pi-file-pdf" label="Exporter"
-                          severity="warn" size="small" />
-        <app-button
-          (clicked)="onClearFilters()"
-          [outlined]="true"
-          class="flex-fill"
-          icon="pi pi-filter-slash"
-          label="Réinitialiser"
-          severity="secondary"
-        />
       </div>
     </div>
-  </app-offcanvas>
-</div>
+
+    <hr />
+
+    <div class="mb-2">
+      <h6 class="text-primary fw-bold mb-2"><i class="pi pi-sliders-h me-2"></i>Filtres de seuil
+      </h6>
+      <div class="row g-2">
+        <div class="col-6">
+          <label class="form-label text-sm">Filtre de seuil</label>
+          <app-select
+            [(ngModel)]="selectedSeuilFilter"
+            [clearable]="true"
+            [items]="seuilFilterOptions()"
+            [style]="{ width: '100%' }"
+            appendTo="body"
+            bindLabel="label"
+            bindValue="value"
+            placeholder="Sélectionner un filtre de seuil"
+          />
+        </div>
+        @if (selectedSeuilFilter()) {
+          <div class="col-6">
+            <label class="form-label text-sm">Valeur du seuil</label>
+            <app-input-number [(ngModel)]="seuilValue" [min]="0" [style]="{ width: '100%' }"
+                              placeholder="Entrez la valeur" />
+          </div>
+        }
+      </div>
+    </div>
+
+    <hr />
+
+    <!-- Stock Filters Section -->
+    <div class="mb-2">
+      <h6 class="text-primary fw-bold mb-2"><i class="pi pi-box me-2"></i>Filtres de stock</h6>
+      <div class="row g-2">
+        <div class="col-6">
+          <label class="form-label text-sm">Filtre de stock</label>
+          <app-select
+            [(ngModel)]="selectedStockFilter"
+            [clearable]="true"
+            [items]="stockFilterOptions()"
+            [style]="{ width: '100%' }"
+            appendTo="body"
+            bindLabel="label"
+            bindValue="value"
+            placeholder="Sélectionner un filtre de stock"
+          />
+        </div>
+        @if (selectedStockFilter() && selectedStockFilter() !== 'OUT_OF_STOCK') {
+          <div class="col-6">
+            <label class="form-label text-sm">Valeur du stock</label>
+            <app-input-number [(ngModel)]="stockValue" [style]="{ width: '100%' }" />
+          </div>
+        }
+      </div>
+    </div>
+
+    <hr />
+
+    <!-- Quantity & Price Filters Section -->
+    <div class="mb-2">
+      <h6 class="text-primary fw-bold mb-2"><i class="pi pi-shopping-cart me-2"></i>Filtres de
+        quantité et prix</h6>
+      <div class="row g-2">
+        @if (activeTab() === 'vendus') {
+          <div class="col-6">
+            <label class="form-label text-sm">Quantité minimale vendue</label>
+            <app-input-number [(ngModel)]="minQuantitySold" [style]="{ width: '100%' }" />
+          </div>
+        }
+
+        <div class="col-6 pt-4">
+          <app-checkbox [(ngModel)]="unitPriceLessThanPurchasePrice"
+                        label="Prix unitaire &lt; Prix d'achat" />
+        </div>
+      </div>
+    </div>
+
+    <hr />
+
+    <!-- Action Buttons -->
+    <div class="d-flex gap-1">
+      <app-button (clicked)="toggleFiltersDrawer()" class="flex-fill" icon="pi pi-refresh"
+                  label="Rechercher" severity="primary" />
+      <app-split-button (clicked)="createInventory()" [items]="actionsMenuItems()"
+                        icon="pi pi-cog" label="Actions"
+                        severity="info" size="small" />
+      <app-split-button (clicked)="exportToPdf()" [items]="exportMenuItems()"
+                        icon="pi pi-file-pdf" label="Exporter"
+                        severity="warn" size="small" />
+      <app-button
+        (clicked)="onClearFilters()"
+        [outlined]="true"
+        class="flex-fill"
+        icon="pi pi-filter-slash"
+        label="Réinitialiser"
+        severity="secondary"
+      />
+    </div>
+  </div>
+</app-offcanvas>
+
 <jhi-spinner #spinner></jhi-spinner>
 

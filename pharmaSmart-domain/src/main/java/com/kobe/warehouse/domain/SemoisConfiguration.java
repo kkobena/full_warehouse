@@ -1,11 +1,24 @@
 package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -39,7 +52,7 @@ public class SemoisConfiguration implements Serializable {
     private Produit produit;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "classe_criticite", length = 3, nullable = false)
+    @Column(name = "classe_criticite", length = 10, nullable = false)
     @NotNull
     private ClasseCriticite classeCriticite = ClasseCriticite.B;
 
@@ -47,8 +60,8 @@ public class SemoisConfiguration implements Serializable {
     private Integer delaiLivraisonJours;
 
     /**
-     * Surcharge de la fréquence de commande pour ce produit spécifique (nullable).
-     * {@code null} = utiliser la fréquence du groupe fournisseur (ou défaut 7 jours).
+     * Surcharge de la fréquence de commande pour ce produit spécifique (nullable). {@code null} =
+     * utiliser la fréquence du groupe fournisseur (ou défaut 7 jours).
      */
     @Column(name = "frequence_commande_jours")
     private Integer frequenceCommandeJours;
@@ -71,10 +84,9 @@ public class SemoisConfiguration implements Serializable {
     private BigDecimal facteurSaisonnierActuel = BigDecimal.ONE;
 
     /**
-     * Indique que le facteur saisonnier a été saisi manuellement par le pharmacien.
-     * Quand {@code true}, l'auto-calcul SEMOIS (Axe 4) ne l'écrasera pas.
-     * Quand {@code false} (défaut), le facteur est recalculé chaque mois depuis
-     * l'historique des ventes N-1 / N-2 du même mois.
+     * Indique que le facteur saisonnier a été saisi manuellement par le pharmacien. Quand
+     * {@code true}, l'auto-calcul SEMOIS (Axe 4) ne l'écrasera pas. Quand {@code false} (défaut),
+     * le facteur est recalculé chaque mois depuis l'historique des ventes N-1 / N-2 du même mois.
      */
     @Column(name = "facteur_saisonnier_manuel", nullable = false)
     private boolean facteurSaisonnierManuel = false;
@@ -83,22 +95,22 @@ public class SemoisConfiguration implements Serializable {
     private Boolean limitePeremption;
 
     /**
-     * Date de début de l'exclusion temporaire.
-     * {@code null} = produit actif dans SEMOIS (non exclu).
+     * Date de début de l'exclusion temporaire. {@code null} = produit actif dans SEMOIS (non
+     * exclu).
      */
     @Column(name = "exclusion_date")
     private LocalDateTime exclusionDate;
 
     /**
-     * Durée de l'exclusion en jours (défaut 30).
-     * Réintégration automatique : {@code exclusion_date + exclusion_duree_jours < NOW()}.
+     * Durée de l'exclusion en jours (défaut 30). Réintégration automatique :
+     * {@code exclusion_date + exclusion_duree_jours < NOW()}.
      */
     @Column(name = "exclusion_duree_jours")
     private Integer exclusionDureeJours = 30;
 
     /**
-     * Motif libre saisi par le pharmacien.
-     * Ex : "surstock promotionnel", "rupture fournisseur temporaire", etc.
+     * Motif libre saisi par le pharmacien. Ex : "surstock promotionnel", "rupture fournisseur
+     * temporaire", etc.
      */
     @Column(name = "exclusion_motif")
     private String exclusionMotif;
@@ -110,6 +122,14 @@ public class SemoisConfiguration implements Serializable {
     @NotNull
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
+
+    public static SemoisConfiguration createDefault(Produit produit, ClasseCriticite classe) {
+        SemoisConfiguration config = new SemoisConfiguration();
+        config.setProduit(produit);
+        config.setClasseCriticite(classe);
+        config.setFacteurSaisonnierActuel(BigDecimal.ONE);
+        return config;
+    }
 
     public Integer getId() {
         return id;
@@ -203,37 +223,56 @@ public class SemoisConfiguration implements Serializable {
         return limitePeremption;
     }
 
+    // ── S4.3 — Exclusion temporaire ──────────────────────────────────────────
+
     public void setLimitePeremption(Boolean limitePeremption) {
         this.limitePeremption = limitePeremption;
     }
 
-    // ── S4.3 — Exclusion temporaire ──────────────────────────────────────────
+    public LocalDateTime getExclusionDate() {
+        return exclusionDate;
+    }
 
-    public LocalDateTime getExclusionDate() { return exclusionDate; }
-    public void setExclusionDate(LocalDateTime exclusionDate) { this.exclusionDate = exclusionDate; }
+    public void setExclusionDate(LocalDateTime exclusionDate) {
+        this.exclusionDate = exclusionDate;
+    }
 
-    public Integer getExclusionDureeJours() { return exclusionDureeJours; }
-    public void setExclusionDureeJours(Integer exclusionDureeJours) { this.exclusionDureeJours = exclusionDureeJours; }
+    public Integer getExclusionDureeJours() {
+        return exclusionDureeJours;
+    }
 
-    public String getExclusionMotif() { return exclusionMotif; }
-    public void setExclusionMotif(String exclusionMotif) { this.exclusionMotif = exclusionMotif; }
+    public void setExclusionDureeJours(Integer exclusionDureeJours) {
+        this.exclusionDureeJours = exclusionDureeJours;
+    }
+
+    public String getExclusionMotif() {
+        return exclusionMotif;
+    }
+
+    public void setExclusionMotif(String exclusionMotif) {
+        this.exclusionMotif = exclusionMotif;
+    }
 
     /**
      * Retourne {@code true} si le produit est actuellement exclu des suggestions SEMOIS.
      * L'exclusion est active si {@code exclusionDate != null} et que la durée n'a pas expiré.
      */
     public boolean isExcluActif() {
-        if (exclusionDate == null) return false;
+        if (exclusionDate == null) {
+            return false;
+        }
         int duree = exclusionDureeJours != null ? exclusionDureeJours : 30;
         return LocalDateTime.now().isBefore(exclusionDate.plusDays(duree));
     }
 
     /**
-     * Date de fin d'exclusion calculée (exclusionDate + exclusionDureeJours).
-     * Retourne {@code null} si pas d'exclusion active.
+     * Date de fin d'exclusion calculée (exclusionDate + exclusionDureeJours). Retourne {@code null}
+     * si pas d'exclusion active.
      */
     public LocalDateTime getExclusionDateFin() {
-        if (exclusionDate == null) return null;
+        if (exclusionDate == null) {
+            return null;
+        }
         int duree = exclusionDureeJours != null ? exclusionDureeJours : 30;
         return exclusionDate.plusDays(duree);
     }
@@ -252,14 +291,6 @@ public class SemoisConfiguration implements Serializable {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public static SemoisConfiguration createDefault(Produit produit, ClasseCriticite classe) {
-        SemoisConfiguration config = new SemoisConfiguration();
-        config.setProduit(produit);
-        config.setClasseCriticite(classe);
-        config.setFacteurSaisonnierActuel(BigDecimal.ONE);
-        return config;
     }
 
     public void updateCalculs(Integer vmm, Integer margeSecurite, Integer stockObjectif) {
@@ -282,8 +313,12 @@ public class SemoisConfiguration implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SemoisConfiguration that)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof SemoisConfiguration that)) {
+            return false;
+        }
         return id != null && id.equals(that.id);
     }
 

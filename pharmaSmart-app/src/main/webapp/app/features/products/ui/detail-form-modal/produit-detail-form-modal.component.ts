@@ -9,6 +9,7 @@ import { TypeProduit } from "app/shared/model/enumerations/type-produit.model";
 import { ErrorService } from "app/shared/error.service";
 import { ProductsApiService } from "../../data-access/services/products-api.service";
 import { NotificationService } from "../../../../shared/services/notification.service";
+import { DevisePipe } from "app/shared/utils/devise";
 
 @Component({
   selector: "app-produit-detail-form-modal",
@@ -21,7 +22,8 @@ import { NotificationService } from "../../../../shared/services/notification.se
     ReactiveFormsModule,
     InputNumberComponent,
     ButtonComponent,
-    CardComponent
+    CardComponent,
+    DevisePipe,
   ]
 })
 export class ProduitDetailFormModalComponent implements OnInit, AfterViewInit {

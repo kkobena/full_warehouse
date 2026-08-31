@@ -14,7 +14,8 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.util.Objects.nonNull;
 
@@ -24,7 +25,7 @@ import static java.util.Objects.nonNull;
  */
 @ControllerAdvice
 public class ExceptionTranslator extends ResponseEntityExceptionHandler {
-    private static final Logger LOG = Logger.getLogger(ExceptionTranslator.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(ExceptionTranslator.class);
 
 
     @ExceptionHandler({OptimisticLockException.class, ObjectOptimisticLockingFailureException.class})
@@ -44,7 +45,7 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(LicenseViolationException.class)
     public ResponseEntity<Object> handleLicenseViolation(LicenseViolationException ex) {
-        LOG.warning("Opération refusée pour cause de licence: " + ex.getMessage());
+        LOG.warn("Opération refusée pour cause de licence : {}", ex.getMessage());
         Custom pd = new Custom(HttpStatus.PAYMENT_REQUIRED.value());
         pd.setTitle("Licence non valide");
         pd.setDetail(ex.getMessage());
@@ -58,9 +59,8 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleAnyException(Throwable ex, NativeWebRequest request) {
         Custom pd = customizeProblem(ex);
         if (ex instanceof BadRequestAlertException) {
-            LOG.warning("Erreur métier: " + ex.getMessage());
-        } else {
-            LOG.severe("Erreur interne non gérée: " + ex.getMessage());
+            // Règle métier refusée : le message suffit, il n'y a pas de défaut à corriger.
+            LOG.warn("Erreur métier : {}", ex.getMessage());
         }
 
         return ResponseEntity.status(pd.getStatus()).body(pd);
@@ -98,10 +98,18 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
             }
             return pd;
         }
+        // Une erreur INATTENDUE : ni règle métier, ni saisie fautive, mais un défaut du
+        // logiciel. Le client n'en apprend rien — et c'est voulu, un message technique
+        // n'aiderait personne au comptoir et renseignerait un attaquant — mais le serveur
+        // n'en gardait aucune trace non plus. Une pile d'appels perdue, c'est un HTTP 500
+        // indiagnosticable : on ne pouvait ni nommer la cause, ni savoir si elle se
+        // reproduisait. La trace est donc écrite ICI, au seul endroit par lequel toutes
+        // passent.
         Custom pd = new Custom(HttpStatus.INTERNAL_SERVER_ERROR.value());
         var errMsg = "Une erreur interne est survenue";
         pd.setDetail(errMsg);
         pd.setMessage(errMsg);
+        LOG.error("Erreur non gérée renvoyée en HTTP 500 : {}", err.toString(), err);
         return pd;
     }
 

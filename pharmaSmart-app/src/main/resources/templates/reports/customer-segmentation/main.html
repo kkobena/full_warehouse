@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Segmentation Client (RFM)</title>
+    <style th:replace="~{common/css}"></style>
+  </head>
+  <body>
+    <header th:replace="~{common/commonheader}"></header>
+    <div class="invoice">
+      <main>
+        <!--
+          RFM : Récence, Fréquence, Montant. Chaque client reçoit une note de 1 à 5 sur les
+          trois axes, et c'est leur combinaison — non le seul chiffre d'affaires — qui décide
+          du segment. Les segments « à risque » et « à réactiver » sont ceux sur lesquels une
+          relance change encore quelque chose.
+        -->
+        <div class="alert-summary">
+          <table class="summary-table">
+            <tbody>
+              <tr>
+                <td class="summary-item"><strong>Champions&nbsp;:</strong> <span th:text="${championCount}"></span></td>
+                <td class="summary-item"><strong>Fidèles&nbsp;:</strong> <span th:text="${loyalCount}"></span></td>
+                <td class="summary-item">
+                  <strong>Gros acheteurs&nbsp;:</strong> <span th:text="${bigSpenderCount}"></span>
+                </td>
+                <td class="summary-item"><strong>Actifs&nbsp;:</strong> <span th:text="${activeCount}"></span></td>
+              </tr>
+              <tr>
+                <td class="summary-item alerte"><strong>À risque&nbsp;:</strong> <span th:text="${atRiskCount}"></span></td>
+                <td class="summary-item alerte">
+                  <strong>À réactiver&nbsp;:</strong> <span th:text="${needAttentionCount}"></span>
+                </td>
+                <td class="summary-item rupture">
+                  <strong>Inactifs&nbsp;:</strong> <span th:text="${inactiveCount}"></span>
+                </td>
+                <td class="summary-item">
+                  <strong>Total&nbsp;:</strong> <span th:text="${segmentations.size()}"></span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <table class="main-table">
+          <thead>
+            <tr>
+              <th>Client</th>
+              <th>Téléphone</th>
+              <th>Dernier achat</th>
+              <th class="text-right">Absence (j)</th>
+              <th class="text-right">Achats / an</th>
+              <th class="text-right">CA annuel</th>
+              <th class="text-right">Panier moyen</th>
+              <th class="text-right">R</th>
+              <th class="text-right">F</th>
+              <th class="text-right">M</th>
+              <th>Segment</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="c : ${segmentations}">
+              <td th:text="${c.customerName}"></td>
+              <td th:text="${c.phone}"></td>
+              <td
+                th:text="${c.lastPurchaseDate != null ? #temporals.format(c.lastPurchaseDate, 'dd/MM/yyyy') : ''}"
+              ></td>
+              <td class="text-right" th:text="${c.daysSinceLastPurchase}"></td>
+              <td class="text-right" th:text="${c.nbPurchasesLastYear}"></td>
+              <td class="text-right" th:text="${#numbers.formatInteger(c.totalSpentLastYear ?: 0, 0, 'WHITESPACE')}"></td>
+              <td
+                class="text-right"
+                th:text="${c.avgBasketValue != null ? #numbers.formatDecimal(c.avgBasketValue, 1, 0) : '0'}"
+              ></td>
+              <td class="text-right" th:text="${c.recencyScore}"></td>
+              <td class="text-right" th:text="${c.frequencyScore}"></td>
+              <td class="text-right" th:text="${c.monetaryScore}"></td>
+              <td th:text="${c.customerClassification}"></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="11" class="text-right">
+                <strong>Total&nbsp;: <span th:text="${segmentations.size()}"></span> client(s)</strong>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </main>
+    </div>
+  </body>
+</html>

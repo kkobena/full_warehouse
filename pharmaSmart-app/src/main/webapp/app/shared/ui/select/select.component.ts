@@ -66,6 +66,27 @@ import { SelectBase } from './select.base';
       (blur)="onTouched()"
     />
   `,
+  styles: `
+    /*
+      Rend la valeur sélectionnée transparente au pointeur, pour que le clic atteigne le
+      conteneur — qui, lui, ouvre la liste.
+
+      ng-select refuse DÉLIBÉRÉMENT d'ouvrir quand \`searchable\` est faux et que le clic tombe
+      sur la valeur : il laisse alors le navigateur démarrer une sélection de texte, pour
+      permettre de copier le libellé (ng-select#2669). Or \`app-select\` fixe
+      \`[searchable]="false"\` : sur un select étroit, le libellé occupe presque tout le
+      conteneur, et cliquer dessus — le geste le plus naturel — ne fait rien.
+
+      L'arbitrage amont convient à un champ dont on copie la valeur ; pas à un filtre qu'on
+      vient changer. On échange donc la copie du libellé contre un select qui s'ouvre.
+
+      Cadré aux selects SIMPLES : en multi-sélection, la croix de retrait vit dans .ng-value
+      et doit rester cliquable. app-multi-select est un composant distinct, non concerné.
+    */
+    :host ::ng-deep .ng-select.ng-select-single .ng-value {
+      pointer-events: none;
+    }
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SelectComponent extends SelectBase<unknown> {}

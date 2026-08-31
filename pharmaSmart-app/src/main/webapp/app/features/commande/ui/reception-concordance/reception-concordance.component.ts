@@ -3,6 +3,7 @@ import { DecimalPipe } from '@angular/common';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { BadgeComponent } from 'app/shared/ui';
 import { IOrderLine } from '../../../../shared/model/order-line.model';
+import { DevisePipe } from 'app/shared/utils/devise';
 
 export interface ConcordanceStats {
   total: number;
@@ -20,7 +21,7 @@ export interface ConcordanceStats {
   templateUrl: './reception-concordance.component.html',
   styleUrls: ['./reception-concordance.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DecimalPipe, BadgeComponent, NgbTooltip],
+  imports: [DecimalPipe, BadgeComponent, NgbTooltip, DevisePipe],
 })
 export class ReceptionConcordanceComponent {
   /** Toutes les lignes de la commande (pas la page courante du tableau). */

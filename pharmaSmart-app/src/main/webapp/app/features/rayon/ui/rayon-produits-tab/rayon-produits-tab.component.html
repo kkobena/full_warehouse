@@ -1,18 +1,18 @@
-<div class="rpt-header">
+<div class="rpt-header" xmlns="http://www.w3.org/1999/html">
   <div class="rpt-header__count">
-    <span class="rpt-count-label">Produits</span>
-    <span class="rpt-count-badge">{{ totalItems() }}</span>
+    <span>Produits</span>
+    <span class="pharma-badge pharma-badge-success">{{ totalItems() }}</span>
   </div>
   <div class="rpt-header__search">
-    <app-select-search
-      [ngModel]="selectedProduit()" (ngModelChange)="selectedProduit.set($event)"
-      [items]="searchSuggestions()"
-      (searched)="onComplete($event)"
-      (selectionChange)="onProduitSelected($event)"
-      bindLabel="libelle"
-      placeholder="Rechercher et affecter un produit..."
-      appendTo="body"
-      [optionTemplate]="produitOption"
+    <app-select-search (ngModelChange)="selectedProduit.set($event)"
+                       (searched)="onComplete($event)"
+                       (selectionChange)="onProduitSelected($event)"
+                       [items]="searchSuggestions()"
+                       [ngModel]="selectedProduit()"
+                       [optionTemplate]="produitOption"
+                       appendTo="body"
+                       bindLabel="libelle"
+                       placeholder="Rechercher et affecter un produit..."
     />
     <ng-template #produitOption let-p>
       <div class="d-flex gap-2 align-items-center">
@@ -25,36 +25,36 @@
 
 <div class="rpt-table-wrap">
   <app-data-table
-    [value]="produits()"
-    [loading]="loading()"
-    [rows]="rows()"
-    [totalRecords]="totalItems()"
+    (onLazyLoad)="onLazyLoad($event)"
+    (selectionChange)="selectedProduits.set($any($event))"
     [lazy]="true"
+    [loading]="loading()"
     [paginator]="true"
     [rowsPerPageOptions]="[10,15,20,30,50,100]"
-    (onLazyLoad)="onLazyLoad($event)"
-    dataKey="id"
+    [rows]="rows()"
+    [selection]="selectedProduits()"
+    [totalRecords]="totalItems()"
+    [value]="produits()"
+    class="p-datatable-sm" dataKey="id"
     selectionMode="multiple"
-    [selection]="selectedProduits()" (selectionChange)="selectedProduits.set($any($event))"
-    class="p-datatable-sm"
   >
     <ng-template #caption>
       <div class="rpt-caption">
-        <app-icon-field icon="pi pi-search">
+        <app-icon-field [overlay]="true" icon="pi pi-search">
           <input
-            type="text"
+            (input)="onFilterChange($any($event.target).value)"
             class="form-control"
             placeholder="Filtrer par code CIP ou libellé..."
-            (input)="onFilterChange($any($event.target).value)"
+            type="text"
           />
         </app-icon-field>
         @if (selectedProduits().length > 0) {
           <app-button
-            icon="pi pi-arrows-h"
+            (clicked)="onMoveSelected()"
             [label]="'Déplacer (' + selectedProduits().length + ')'"
+            icon="pi pi-arrows-h"
             severity="info"
             size="small"
-            (clicked)="onMoveSelected()"
           />
         }
       </div>
@@ -82,37 +82,39 @@
           <div class="rpt-libelle-cell">
             <span class="pharma-entity-name">{{ produit.libelle }}</span>
             @if (produit.otherStorageLabels?.length) {
-              <i class="pi pi-warehouse rpt-multi-storage-icon"
-                 [ngbTooltip]="'Aussi dans : ' + produit.otherStorageLabels!.join(', ')"></i>
+              <i [ngbTooltip]="'Aussi dans : ' + produit.otherStorageLabels!.join(', ')"
+                 class="pi pi-warehouse rpt-multi-storage-icon"></i>
             }
           </div>
         </td>
-        <td style="text-align: right"><span class="pharma-qty-value">{{ produit.totalQuantity ?? 0 }}</span></td>
+        <td style="text-align: right"><span class="pharma-qty-value">{{
+            produit.totalQuantity ?? 0
+          }}</span></td>
         <td style="text-align: center">
           <div class="d-flex justify-content-center gap-1">
             @if (rayon().code === 'SANS') {
               <app-button
-                icon="pi pi-arrows-h"
-                [rounded]="true" [text]="true" severity="info"
+                (clicked)="onMove(produit)"
+                [rounded]="true" [text]="true" icon="pi pi-arrows-h"
                 ngbTooltip="Assigner à un emplacement réel"
                 placement="left"
-                (clicked)="onMove(produit)"
+                severity="info"
               />
             } @else {
               <app-button
-                icon="pi pi-copy"
-                [rounded]="true" [text]="true" severity="info"
+                (clicked)="onClone(produit)"
+                [rounded]="true" [text]="true" icon="pi pi-copy"
                 ngbTooltip="Cloner vers un autre stockage"
                 placement="left"
-                (clicked)="onClone(produit)"
+                severity="info"
               />
               @if (produit.rayonProduitId) {
                 <app-button
-                  icon="pi pi-times"
-                  [rounded]="true" [text]="true" severity="danger"
+                  (clicked)="onRetirer(produit)"
+                  [rounded]="true" [text]="true" icon="pi pi-times"
                   ngbTooltip="Retirer du rayon (choisir un remplacement)"
                   placement="left"
-                  (clicked)="onRetirer(produit)"
+                  severity="danger"
                 />
               }
             }
@@ -123,7 +125,7 @@
 
     <ng-template #emptymessage>
       <tr>
-        <td colspan="5" class="text-center text-muted py-3">Aucun produit dans ce rayon</td>
+        <td class="text-center text-muted py-3" colspan="5">Aucun produit dans ce rayon</td>
       </tr>
     </ng-template>
   </app-data-table>

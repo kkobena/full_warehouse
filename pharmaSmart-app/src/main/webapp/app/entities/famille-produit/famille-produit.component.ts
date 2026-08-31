@@ -81,8 +81,13 @@ export class FamilleProduitComponent implements OnInit {
   private onConfirmDelete(id: number): void {
     this.confirmDialog.onConfirm(
       () => {
-        this.entityService.delete(id).subscribe(() => {
-          this.loadPage(0);
+        // Le refus du serveur — « encore utilisé par N produit(s) » — était perdu : l'appel
+        // n'avait aucun gestionnaire d'erreur, la ligne restait à l'écran et l'utilisateur
+        // croyait à une suppression silencieuse. C'est pourtant le SEUL moment où l'on
+        // apprend qu'un référentiel est encore porté par des fiches.
+        this.entityService.delete(id).subscribe({
+          next: () => this.loadPage(0),
+          error: err => this.onError(err),
         });
       },
       "Suppression",

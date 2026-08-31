@@ -8,7 +8,7 @@ import { NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
 import { ITopProduct } from "app/shared/model/report/top-product.model";
 import { TopProductsReportService } from "../services/top-products-report.service";
 import { DATE_FORMAT_ISO_DATE, retriveMonthLabel } from "../../../shared/util/warehouse-util";
-import { DeviseDirective } from 'app/shared/utils/devise';
+import { DeviseDirective, DevisePipe } from 'app/shared/utils/devise';
 import {
   BadgeComponent,
   ButtonComponent,
@@ -41,7 +41,7 @@ interface ITopProductRanked extends ITopProduct {
     ToolbarComponent,
     KpiStripComponent,
     KpiItemComponent
-  ]
+  , DevisePipe]
 })
 export default class TopProductsComponent implements OnInit {
   /**

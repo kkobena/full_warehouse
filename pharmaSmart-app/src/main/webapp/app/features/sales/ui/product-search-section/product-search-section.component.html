@@ -45,7 +45,7 @@
           }
           <div class="meta-item price-display">
             <i class="pi pi-tag"></i>
-            <span>Prix: <strong>{{ selectedProduct()?.regularUnitPrice | number }} F</strong></span>
+            <span>Prix: <strong>{{ selectedProduct()?.regularUnitPrice | devise }}</strong></span>
           </div>
           @for (rayon of selectedProduct()?.rayons || []; track rayon.code) {
             <div class="meta-item">

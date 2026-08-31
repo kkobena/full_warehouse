@@ -1,22 +1,23 @@
 <app-data-table
-  [value]="produits()"
+  (onLazyLoad)="lazyLoad.emit($event)"
   [lazy]="true"
   [loading]="loading()"
   [paginator]="true"
-  [rows]="effectiveRows()"
-  [totalRecords]="totalItems()"
   [rowsPerPageOptions]="[10, 15, 20, 25, 30, 50]"
-  (onLazyLoad)="lazyLoad.emit($event)"
-  currentPageReportTemplate="{first}–{last} / {totalRecords}"
-  [showCurrentPageReport]="true"
-  class="pharma-table-sm"
-  scrollHeight="calc(100vh - 220px)"
+  [rows]="effectiveRows()"
   [scrollable]="true"
+  [showCurrentPageReport]="true"
+  [totalRecords]="totalItems()"
+  [value]="produits()"
+  class="pharma-table-sm"
+  currentPageReportTemplate="{first}–{last} / {totalRecords}"
+  scrollHeight="calc(100vh - 220px)"
 >
   <ng-template #header>
     <tr class="pharma-table-head">
       <th style="width: 36px; text-align: center">
-        <app-checkbox [ngModel]="allSelected()" (ngModelChange)="toggleAll()" />
+        <app-checkbox (ngModelChange)="toggleAll()" [ngModel]="allSelected()"
+                      ariaLabel="Tout sélectionner" />
       </th>
       <th style="width: 110px">CIP</th>
       <th>Libellé</th>
@@ -24,7 +25,8 @@
       <th
         style="width: 72px; text-align: right; cursor: default"
         title="Jours avant rupture estimés — disponible dans le panneau détail"
-      >J. stock</th>
+      >J. stock
+      </th>
       <th style="width: 68px; text-align: right" title="Marge brute : (PV − PA) / PV">Marge</th>
       <th style="width: 56px; text-align: center">Cl.</th>
       <th style="width: 120px">Rayon</th>
@@ -36,13 +38,14 @@
 
   <ng-template #body let-produit>
     <tr
-      [class.selected-row]="selectedProduit()?.id === produit.id"
-      [class.row-checked]="isChecked(produit)"
       (click)="onRowClick(produit)"
+      [class.ligne-selected]="selectedProduit()?.id === produit.id"
+      [class.row-checked]="isChecked(produit)"
       style="cursor: pointer"
     >
-      <td class="text-center" (click)="$event.stopPropagation()">
-        <app-checkbox [ngModel]="isChecked(produit)" (ngModelChange)="toggleCheckbox(produit)" />
+      <td (click)="$event.stopPropagation()" class="text-center">
+        <app-checkbox (ngModelChange)="toggleCheckbox(produit)" [ariaLabel]="'Sélectionner ' + produit.libelle"
+                      [ngModel]="isChecked(produit)" />
       </td>
       <td><span class="pharma-code">{{ produit.codeCip }}</span></td>
       <td>
@@ -57,17 +60,17 @@
       <td class="text-end">
         <app-badge
           [label]="(produit.totalQuantity ?? 0) | number"
-          [severity]="stockSeverity(produit)"
           [rounded]="true"
+          [severity]="stockSeverity(produit)"
         />
       </td>
       <td class="text-end">
         @if (joursStock(produit) != null) {
           <span
-            class="jours-stock"
             [class.jours-critical]="joursStock(produit)! <= 0"
-            [class.jours-warning]="joursStock(produit)! > 0 && joursStock(produit)! < 7"
             [class.jours-low]="joursStock(produit)! >= 7 && joursStock(produit)! < 30"
+            [class.jours-warning]="joursStock(produit)! > 0 && joursStock(produit)! < 7"
+            class="jours-stock"
             ngbTooltip="Couverture estimée sur base CMM"
           >{{ joursStock(produit) }} j</span>
         } @else {
@@ -77,10 +80,10 @@
       <td class="text-end">
         @if (tauxMarge(produit) != null) {
           <span
-            class="marge-value"
+            [class.marge-good]="tauxMarge(produit)! >= 30"
             [class.marge-low]="tauxMarge(produit)! < 15"
             [class.marge-ok]="tauxMarge(produit)! >= 15 && tauxMarge(produit)! < 30"
-            [class.marge-good]="tauxMarge(produit)! >= 30"
+            class="marge-value"
             ngbTooltip="(PV − PA) / PV × 100"
           >{{ tauxMarge(produit) }}%</span>
         } @else {
@@ -96,7 +99,8 @@
         @if (produit.rayonLibelle) {
           <span class="pharma-code" style="font-size: 0.75rem;">{{ produit.rayonLibelle }}</span>
           @if (produit.rayonPosition) {
-            <span class="text-muted ms-1" style="font-size: 0.7rem;">· {{ produit.rayonPosition }}</span>
+            <span class="text-muted ms-1"
+                  style="font-size: 0.7rem;">· {{ produit.rayonPosition }}</span>
           }
         } @else {
           <span class="text-muted" style="font-size: 0.7rem">—</span>
@@ -116,17 +120,17 @@
           <span class="pharma-badge pharma-badge-success">Actif</span>
         }
       </td>
-      <td class="text-end" (click)="$event.stopPropagation()">
-        <div ngbDropdown container="body" placement="bottom-end top-end bottom-start top-start">
+      <td (click)="$event.stopPropagation()" class="text-end">
+        <div container="body" ngbDropdown placement="bottom-end top-end bottom-start top-start">
           <button
-            type="button"
+            aria-label="Actions"
             class="btn btn-sm btn-link text-secondary app-actions-toggle"
             ngbDropdownToggle
             ngbTooltip="Actions"
             placement="left"
-            aria-label="Actions"
+            type="button"
           >
-            <i class="pi pi-ellipsis-v" aria-hidden="true"></i>
+            <i aria-hidden="true" class="pi pi-ellipsis-v"></i>
           </button>
           <div ngbDropdownMenu>
             @for (item of menuItemsFor(produit); track item.action) {
@@ -134,11 +138,11 @@
                 <div class="dropdown-divider"></div>
               }
               <button
-                type="button"
-                ngbDropdownItem
-                [disabled]="item.disabled"
-                [class.text-danger]="item.danger"
                 (click)="onMenuAction(produit, item.action)"
+                [class.text-danger]="item.danger"
+                [disabled]="item.disabled"
+                ngbDropdownItem
+                type="button"
               >
                 <i [class]="item.icon" aria-hidden="true"></i> {{ item.label }}
               </button>
@@ -151,7 +155,7 @@
 
   <ng-template #emptymessage>
     <tr>
-      <td colspan="11" class="pharma-empty-message">
+      <td class="pharma-empty-message" colspan="11">
         <div class="pharma-empty-content">
           <i class="pi pi-inbox"></i>
           <p>Aucun produit trouvé</p>

@@ -30,6 +30,9 @@ import {
   NgbConfirmDialogService
 } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import {NotificationService} from "../../shared/services/notification.service";
+import {
+  ListPrixReferenceComponent
+} from "../../features/products/ui/prix-reference/list-prix-reference/list-prix-reference.component";
 import {CommonModule} from "@angular/common";
 
 @Component({
@@ -229,6 +232,24 @@ export class TiersPayantComponent implements OnInit {
     );
   }
 
+  /**
+   * Ouvre les TARIFS PRODUITS négociés avec cet organisme.
+   *
+   * La liste sait de longue date se lire dans les deux sens — par produit ou par tiers payant
+   * — mais seul le sens « par produit » avait un point d'entrée. Vue depuis l'organisme, elle
+   * répond à la question que pose une négociation annuelle : sur quoi ce payeur applique-t-il
+   * un tarif, et lequel ?
+   */
+  voirTarifsProduits(tiersPayant: ITiersPayant): void {
+    showCommonModal(
+      this.modalService,
+      ListPrixReferenceComponent,
+      { tiersPayant, isFromProduit: false },
+      undefined,
+      "lg"
+    );
+  }
+
   confirmRemove(tiersPayant: ITiersPayant): void {
     this.confirmDialog.onConfirm(
       () => this.onDelete(tiersPayant),
@@ -241,7 +262,7 @@ export class TiersPayantComponent implements OnInit {
     this.confirmDialog.onConfirm(
       () => this.onDesable(tiersPayant),
       "DESACTIVATION DE TIERS-PAYANT",
-      "Voulez-vous vraiment désativer ce tiers-payant ?"
+      "Voulez-vous vraiment désactiver ce tiers-payant ?"
     );
   }
 

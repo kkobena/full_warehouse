@@ -18,6 +18,25 @@
  * attendu — il ne porte plus de suivi de recette (pas de statut ni de commentaire de test).
  */
 
+/**
+ * Copie d'écran illustrant une étape, produite par la campagne Playwright.
+ *
+ * **Champ généré, jamais saisi à la main.** Les captures vivent dans
+ * `e2e/captures/captures.json`, que `generate-cahier-recette-json.ts` fusionne dans le JSON
+ * livré au backend. Les écrire ici condamnerait ce fichier — édité par les développeurs — à
+ * recevoir un diff machine à chaque exécution de la campagne.
+ *
+ * Voir docs/PLAN-PLAYWRIGHT-E2E-ET-CAPTURES.md et e2e/README.md.
+ */
+export interface CaptureEcran {
+  /** Numéro de l'étape illustrée, à partir de 1. */
+  ordre: number;
+  /** Chemin servi par l'application, ex. "content/captures/VTE-01/etape-1.jpg". */
+  fichier: string;
+  /** Reprise du texte de l'étape : la légende ne peut donc pas contredire le parcours joué. */
+  legende: string;
+}
+
 export interface ScenarioRecette {
   /** Référence stable, ex. "VTE-01". */
   id: string;
@@ -31,6 +50,8 @@ export interface ScenarioRecette {
   resultatAttendu: string;
   /** Masque ce scénario de l'affichage sans le supprimer du document. Défaut : false. */
   hidden?: boolean;
+  /** Captures d'écran, injectées à la génération. Absent tant qu'aucune campagne n'a tourné. */
+  captures?: CaptureEcran[];
 }
 
 export interface FonctionnaliteRecette {
@@ -123,13 +144,13 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
           },
           {
             id: 'VTE-03',
-            titre: 'Vente avec remise automatique (produit ou client)',
-            besoin: 'Appliquer automatiquement les politiques commerciales sans calcul manuel, source d’erreur.',
+            titre: 'Vente avec remise sur grille produit',
+            besoin: 'Appliquer la politique commerciale de l’officine sans calcul manuel, source d’erreur.',
             fonctionnement:
-              'Deux dispositifs coexistent et peuvent se cumuler : la remise produit, rattachée à un code remise porté par le produit lui-même (avec une grille distinguant le taux appliqué en vente ordonnance ou hors ordonnance), et la remise client, rattachée au client sélectionné. Le prix net de la ligne est recalculé à partir du prix catalogue et du taux applicable.',
-            prerequis: 'Une grille de remise est configurée pour le produit ou le client.',
-            etapes: ['Ajouter un produit éligible à une remise (ou sélectionner un client remisé)', 'Vérifier le calcul automatique de la remise', 'Encaisser'],
-            resultatAttendu: 'Le montant remisé est déduit du total et apparaît distinctement sur le ticket.',
+              'La remise est choisie par le caissier sur la vente en cours, puis chaque ligne reçoit SON taux : le produit porte un code remise, et la grille associe à ce code deux taux — l’un pour les ventes hors ordonnance, l’autre pour les ordonnancées. Deux produits d’une même vente peuvent donc être remisés différemment. Le prix net de la ligne est recalculé à partir du prix catalogue et du taux applicable.',
+            prerequis: 'Une grille de remise est configurée et les produits portent un code remise.',
+            etapes: ['Ajouter au panier un produit portant un code remise', 'Appliquer la grille de remise à la vente', 'Contrôler le montant remisé avant d’encaisser'],
+            resultatAttendu: 'Le montant remisé est déduit du total, affiché distinctement, et le net à encaisser en tient compte.',
           },
           {
             id: 'VTE-04',
@@ -169,6 +190,22 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             resultatAttendu: 'La vente est enregistrée, le stock décrémenté, un ticket de caisse est imprimable.',
           },
           {
+            id: 'VTE-60',
+            titre: 'Laisser le solde d’une vente comptant en différé',
+            besoin: 'Servir un client qui ne peut pas — ou ne veut pas — tout régler au comptoir, sans lui refuser ses médicaments ni perdre la trace de ce qu’il doit.',
+            fonctionnement:
+              'Le différé ne se choisit pas : il se propose. Dès que le montant versé est inférieur au dû — y compris zéro —, la validation ouvre une fenêtre qui rappelle le montant dû, le montant versé et le reste à payer, et demande si ce reste part en différé. Accepter impose de désigner le client qui portera la créance, qu’on choisit dans la liste ou que l’on crée sur place, puis de motiver le différé : le commentaire est obligatoire. La vente est alors enregistrée, le stock décrémenté, et le reste vient grossir le compte différé du client, où il sera réglé plus tard.',
+            prerequis: 'Caisse ouverte.',
+            etapes: [
+              'Constituer la vente et saisir un règlement inférieur au montant dû',
+              'Valider : l’écran annonce le reste à payer et propose le différé',
+              'Désigner le client qui portera la créance',
+              'Motiver le différé et valider',
+            ],
+            resultatAttendu:
+              'La vente est enregistrée avec son règlement partiel, et le reste à payer alimente le compte différé du client désigné.',
+          },
+          {
             id: 'VTE-55',
             titre: 'Calculer automatiquement le reste à payer et la monnaie à rendre',
             besoin: 'Accélérer l’encaissement en espèces ou mixte et éviter les erreurs de calcul de rendu de monnaie au comptoir.',
@@ -180,10 +217,16 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             id: 'VTE-56',
             titre: 'Sécuriser et justifier les règlements non espèces',
             besoin: 'Retrouver la preuve d’un paiement par carte, chèque ou virement en cas de contrôle ou de réclamation.',
-            fonctionnement: 'Dès qu’un règlement utilise la carte bancaire, le chèque ou le virement, la référence bancaire devient obligatoire. La banque et la localisation peuvent également être renseignées. L’utilisateur choisit au même moment s’il souhaite produire le ticket de caisse et/ou la facture.',
+            fonctionnement:
+              'Le mode de règlement se change sur la ligne de paiement elle-même : un bouton dédié remplace le mode en place par un autre, sans défaire la vente. Dès que le règlement utilise la carte bancaire, le chèque ou le virement, un bloc « Informations complémentaires » s’ouvre et la RÉFÉRENCE devient obligatoire — la validation est refusée sans elle, panier intact. La banque et le lieu, facultatifs, complètent la preuve de paiement.',
             prerequis: 'Le règlement contient un mode carte bancaire, chèque ou virement.',
-            etapes: ['Choisir le mode non espèces', 'Renseigner la référence bancaire et, si utile, la banque et la localisation', 'Choisir les documents à imprimer', 'Valider'],
-            resultatAttendu: 'Un règlement non espèces sans référence est refusé ; après validation, les informations de paiement et les choix d’impression accompagnent la vente.',
+            etapes: [
+              'Changer le mode de règlement pour un mode non espèces',
+              'Tenter de valider sans référence : la vente est refusée',
+              'Renseigner la référence bancaire et, si utile, la banque et le lieu',
+              'Valider',
+            ],
+            resultatAttendu: 'Un règlement non espèces sans référence est refusé, la vente restant en l’état ; une fois la référence saisie, la vente est enregistrée avec ses informations de paiement.',
           },
           {
             id: 'VTE-06',
@@ -223,12 +266,48 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
           },
           {
             id: 'VTE-44',
-            titre: 'Ajouter un tiers payant complémentaire à une vente assurance',
+            titre: 'Ajouter ou retirer un tiers payant complémentaire sur une vente',
             besoin: 'Prendre en compte un client couvert par deux organismes à la fois (assurance principale + mutuelle complémentaire), la seconde prenant en charge tout ou partie du reste à charge de la première.',
-            fonctionnement: 'En plus du tiers payant principal, un second tiers payant complémentaire peut être ajouté à la vente ; la part patient restante après la prise en charge principale est alors répartie sur ce complémentaire.',
+            fonctionnement:
+              "Les organismes d'un assuré viennent de sa fiche client : le sélectionner au comptoir les charge tous, chacun avec son rang (RO, RC1) et son taux, et chacun réclame son propre numéro de bon. La vente reste modifiable : un complémentaire peut en être retiré — le client ne présente pas sa mutuelle, sa carte est expirée — et rajouté ensuite parmi ceux de sa fiche. Chaque organisme prend son pourcentage du TOTAL de la vente : les taux ne se cascadent pas, et la part patient est le complément de leur somme.",
             prerequis: 'Le client est affilié à au moins deux tiers payants (principal et complémentaire).',
-            etapes: ['Sélectionner le client et son tiers payant principal', 'Ajouter le tiers payant complémentaire', 'Vérifier la répartition des parts entre les deux tiers payants et le patient'],
-            resultatAttendu: 'La vente porte deux créances tiers payant distinctes (principal et complémentaire), et la part patient restante est réduite en conséquence.',
+            etapes: [
+              "Sélectionner l'assuré : ses deux organismes se chargent avec leurs taux",
+              'Constituer la vente et lire la répartition entre les deux organismes et le patient',
+              'Retirer le complémentaire et constater la part patient qui augmente',
+              'Rajouter le complémentaire depuis la liste des organismes du client',
+            ],
+            resultatAttendu: 'La vente porte une créance par organisme retenu, et la part patient suit immédiatement chaque ajout ou retrait.',
+          },
+          {
+            id: 'VTE-59',
+            titre: 'Vendre à un assuré couvert à 100 % par trois organismes',
+            besoin: "Servir un assuré dont les organismes couvrent l'intégralité de l'achat, sans rien lui faire payer au comptoir.",
+            fonctionnement:
+              "Le cumul des taux d'un assuré ne peut dépasser 100 %. Lorsqu'il les atteint, la totalité de la vente se répartit entre les organismes, chacun selon son taux, et « À ENCAISSER » tombe à zéro : la caisse n'est pas sollicitée, mais l'officine porte trois créances distinctes jusqu'à leur facturation.",
+            prerequis: 'Le client est affilié à trois tiers payants dont les taux cumulent 100 %.',
+            etapes: [
+              "Sélectionner l'assuré : ses trois organismes se chargent avec leurs taux",
+              'Saisir un numéro de bon par organisme, puis constituer la vente',
+              'Vérifier que les trois parts couvrent le total et que rien ne reste à encaisser',
+            ],
+            resultatAttendu:
+              'Les trois parts se répartissent le total de la vente, le montant à encaisser est nul, et la vente est finalisée sans mouvement de caisse.',
+          },
+          {
+            id: 'VTE-61',
+            titre: 'Créer un assuré sans quitter la vente',
+            besoin: 'Servir un assuré qui se présente pour la première fois, sans le renvoyer au fichier client ni abandonner la vente en cours.',
+            fonctionnement:
+              "Le bouton de création jouxte la recherche d'assuré, sur les écrans de vente assurance et carnet : on cherche le client, on ne le trouve pas, on le crée. Le formulaire demande l'identité, l'organisme, le numéro d'adhérent et le taux ; à l'enregistrement, le client est immédiatement rattaché à la vente avec sa couverture, et la saisie reprend au numéro de bon.",
+            prerequis: 'Caisse ouverte.',
+            etapes: [
+              "Chercher l'assuré, constater qu'il est inconnu, ouvrir la création",
+              "Renseigner son identité, son organisme, son matricule et son taux",
+              'Enregistrer et vérifier que la vente porte le nouvel assuré et sa couverture',
+            ],
+            resultatAttendu:
+              'Le client est créé, rattaché à la vente en cours avec son organisme et son taux, et reste disponible pour les ventes suivantes.',
           },
           {
             id: 'VTE-45',
@@ -238,6 +317,10 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             prerequis: 'Un écran client (afficheur secondaire) est connecté au poste de caisse.',
             etapes: ['Saisir le paiement d’une vente', 'Vérifier l’affichage du montant sur l’écran client'],
             resultatAttendu: 'Le montant affiché sur l’écran client correspond exactement au total de la vente en cours, et se réinitialise à la vente suivante.',
+            // Masqué : l'écran client est un SECOND AFFICHEUR physique, branché au poste de
+            // caisse. Rien ne s'en voit dans le navigateur du poste principal — une capture
+            // montrerait l'écran du pharmacien, pas celui du client.
+            hidden: true,
           },
         ],
       },
@@ -397,11 +480,12 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
           },
           {
             id: 'VTE-16',
-            titre: 'Supprimer une vente en attente',
-            besoin: 'Nettoyer une vente en attente qui ne sera finalement pas honorée par le client.',
-            fonctionnement: 'La suppression retire la vente en attente sans jamais avoir touché le stock ni la caisse.',
-            etapes: ['Ouvrir l’onglet "Ventes en cours"', 'Sélectionner la vente', 'Supprimer'],
-            resultatAttendu: 'La vente disparaît de la liste des ventes en cours.',
+            titre: 'Abandonner une vente en attente',
+            besoin: 'Se débarrasser d’une vente mise de côté que le client ne viendra pas honorer.',
+            fonctionnement:
+              'La liste des ventes en attente ne propose PAS de suppression directe : on reprend la vente, puis on l’annule depuis l’écran de vente. Elle n’a jamais touché ni le stock ni la caisse, son abandon ne laisse donc rien à rattraper.',
+            etapes: ['Ouvrir la liste des ventes en attente', 'Reprendre la vente à abandonner', 'L’annuler depuis l’écran de vente'],
+            resultatAttendu: 'La vente disparaît de la liste des ventes en attente et le compteur de la barre supérieure diminue d’autant.',
           },
         ],
       },
@@ -532,11 +616,16 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
           },
           {
             id: 'VTE-28',
-            titre: 'Utiliser un avoir client sur une nouvelle vente',
+            titre: 'Clôturer un avoir en servant le client',
             besoin: 'Permettre à un client de consommer un avoir sur un achat futur, plutôt que de lui rembourser en espèces.',
-            fonctionnement: 'Au moment de l’encaissement, l’avoir ouvert du client peut être imputé sur le total ; son solde restant est recalculé (ou il passe à "soldé" si totalement consommé).',
+            fonctionnement:
+              "L'avoir ne s'impute pas sur un ticket : il se CLÔTURE, depuis l'onglet « Avoirs clients », au moment où le client repart avec ce qu'on lui devait. L'écran vérifie d'abord que le produit attendu est bien en stock — clôturer sans pouvoir servir n'aurait pas de sens — puis enregistre le montant utilisé : l'avoir passe à « soldé » s'il est consommé en totalité, ou conserve son reste s'il ne l'est qu'en partie.",
             prerequis: 'Un avoir client ouvert existe, non expiré.',
-            etapes: ['Démarrer une nouvelle vente pour ce client', 'Appliquer l’avoir disponible', 'Encaisser le solde restant'],
+            etapes: [
+              "Retrouver l'avoir ouvert du client",
+              'Lancer sa clôture et vérifier le détail (produit, quantité, montant)',
+              'Confirmer : l’avoir est soldé ou conserve son reste',
+            ],
             resultatAttendu: 'Le montant de l’avoir est déduit du total et son solde restant est mis à jour ; un avoir expiré n’est plus proposable.',
           },
           {
@@ -547,6 +636,11 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             prerequis: 'Le client a un email ou un numéro de téléphone renseigné ; les notifications email et/ou SMS des avoirs sont activées dans les paramètres.',
             etapes: ['Clôturer un retour en mode "produits disponibles au comptoir" pour un client identifié', 'Vérifier la réception de la notification par le client'],
             resultatAttendu: 'Le client reçoit une notification (email et/ou SMS selon la configuration et ses coordonnées) l’informant que ses produits sont disponibles.',
+            // Masqué : la vérification demande l'envoi RÉEL d'un courriel ou d'un SMS à un
+            // client. Le jeu de démonstration porte des adresses fictives, et une campagne de
+            // captures ne doit pas déclencher d'envois — ni chez un client réel, ni chez un
+            // fournisseur de SMS facturé au message.
+            hidden: true,
           },
         ],
       },
@@ -569,21 +663,31 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
         scenarios: [
           {
             id: 'VTE-30',
-            titre: 'Enregistrer une vente en compte différé pour un client',
-            besoin: 'Permettre à un client de confiance (souvent institutionnel) d’acheter sans paiement immédiat, à régler plus tard.',
-            fonctionnement: 'La vente est validée normalement (stock décrémenté) mais aucun encaissement n’est exigé : son montant vient augmenter le solde du compte différé du client.',
-            prerequis: 'Client identifié avec compte différé actif.',
-            etapes: ['Sélectionner le client', 'Constituer la vente', 'Choisir le paiement différé'],
-            resultatAttendu: 'La vente est enregistrée sans encaissement immédiat et le solde du compte différé du client augmente.',
+            titre: 'Vendre au carnet (compte différé)',
+            besoin: 'Servir un client de confiance — souvent le personnel d’une entreprise partenaire — sans qu’il règle la totalité au comptoir.',
+            fonctionnement:
+              'La vente carnet se conduit comme une vente assurance : le client est rattaché à un carnet, qui joue le rôle d’organisme. Le carnet couvre en général la TOTALITÉ de l’achat — l’employeur ou la société partenaire règle tout, le porteur rembourse ensuite : « À ENCAISSER » tombe alors à zéro et la caisse n’est pas sollicitée. Le stock, lui, est décrémenté normalement.',
+            prerequis: 'Client rattaché à un carnet actif.',
+            etapes: [
+              'Choisir la vente carnet et sélectionner le porteur',
+              'Constituer la vente',
+              'Vérifier que le carnet prend la totalité, puis finaliser',
+            ],
+            resultatAttendu: 'Le montant de la vente vient augmenter le compte différé du porteur, sans aucun encaissement au comptoir.',
           },
           {
             id: 'VTE-50',
-            titre: 'Bloquer une vente carnet dépassant le plafond de crédit du client',
+            titre: 'Plafonner une vente carnet au crédit restant du porteur',
             besoin: 'Empêcher qu’un client carnet accumule une dette au-delà du plafond de crédit qui lui a été accordé.',
-            fonctionnement: 'La vente carnet est un type de vente à crédit distinct du compte différé générique, avec son propre formulaire client et son propre plafond ; si le montant de la vente ferait dépasser le plafond disponible du client, la vente est bloquée.',
+            fonctionnement:
+              "Le carnet est un crédit accordé par l'employeur, et un crédit se plafonne. Le mécanisme est celui de l'assurance : le plafond mensuel du porteur est confronté à ce qu'il a déjà consommé, et la prise en charge est ramenée au RELIQUAT. La vente n'est pas bloquée — elle serait ingérable au comptoir — mais la part qui dépasse revient au porteur, qui la règle immédiatement. Un avertissement nomme l'organisme et le montant retenu, pour que le caissier puisse l'expliquer.",
             prerequis: 'Client carnet dont le plafond de crédit disponible est inférieur au montant de la vente.',
-            etapes: ['Constituer une vente carnet dépassant le plafond disponible du client', 'Tenter de valider'],
-            resultatAttendu: 'La vente est refusée tant que le montant dépasse le plafond de crédit disponible du client.',
+            etapes: [
+              'Sélectionner un porteur dont le crédit est presque épuisé',
+              'Constituer une vente qui dépasse son reliquat',
+              'Constater le plafonnement et le reste à payer',
+            ],
+            resultatAttendu: 'La part carnet est ramenée au crédit restant, la différence passe à la charge du porteur, et un avertissement l’explique.',
           },
         ],
       },
@@ -604,7 +708,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             titre: 'Consulter la répartition du CA par période, par type de vente et par mode de paiement',
             besoin: 'Comprendre la composition du chiffre d’affaires (quand il a été fait, sous quelle forme de vente, avec quel moyen de paiement) plutôt qu’un seul chiffre agrégé.',
             fonctionnement: 'Le CA de la période est décliné selon trois axes indépendants : regroupement par sous-période (jour/semaine/mois), par type de vente (comptant, tiers payant, différé, dépôt...) et par mode de paiement (espèces, carte, mixte...).',
-            etapes: ['Ouvrir le tableau de bord des ventes', 'Basculer entre les vues "par période", "par type de vente" et "par mode de paiement"'],
+            etapes: ['Ouvrir le tableau de bord des ventes et lire l’évolution du CA dans le temps', 'Consulter la répartition par mode de paiement', 'Passer à la synthèse des ventes, ventilée par type de vente'],
             resultatAttendu: 'Chaque vue reflète une décomposition différente du même chiffre d’affaires total, cohérente entre les trois axes.',
           },
         ],
@@ -681,9 +785,10 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             id: 'VTE-39',
             titre: 'Imprimer le ticket Z',
             besoin: 'Produire le justificatif réglementaire récapitulant les ventes et mouvements de la journée de caisse.',
-            fonctionnement: 'Le ticket Z récapitule les ventes et mouvements de la journée ventilés par mode de paiement, avec le montant annulé affiché séparément pour ne pas fausser le chiffre d’affaires.',
+            fonctionnement:
+              "Le ticket Z est le récapitulatif de caisse de la journée : il ventile encaissements et mouvements par MODE DE PAIEMENT et par CAISSIER, et isole le crédit (différé et tiers payant) de ce qui est réellement entré en caisse. Il vit dans la comptabilité — onglet « Récapitulatif de caisse » — et non sur l'écran de caisse : il couvre une période, pas une session, et se produit donc aussi bien pour la journée en cours que pour une journée passée.",
             prerequis: 'La caisse a été clôturée.',
-            etapes: ['Depuis la caisse clôturée, lancer l’impression du ticket Z'],
+            etapes: ['Ouvrir le récapitulatif de caisse de la journée et lancer son impression'],
             resultatAttendu: 'Le ticket Z imprimé récapitule fidèlement les ventes et mouvements de la journée par mode de paiement.',
           },
           {
@@ -738,14 +843,15 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             titre: 'Choisir une facture provisoire ou définitive',
             besoin: 'Prévisualiser un montant à facturer sans clôturer les lignes, ou au contraire figer définitivement une facturation.',
             fonctionnement: 'Une facture provisoire est un aperçu qui ne clôt pas les lignes de vente sous-jacentes (elles restent disponibles) ; une facture définitive rend ses lignes indisponibles pour toute génération ultérieure.',
-            etapes: ['Lors de la génération, choisir "provisoire" ou "définitive"'],
+            etapes: ['Ouvrir l’édition de factures et constater le réglage par défaut : définitive', 'Basculer l’interrupteur « Factures provisoires » pour un aperçu qui laisse les lignes réutilisables'],
             resultatAttendu: 'Une facture provisoire laisse les lignes de vente réutilisables ; une facture définitive les rend définitivement indisponibles pour une nouvelle génération.',
           },
           {
             id: 'FAC-03',
             titre: 'Vérifier la numérotation séquentielle annuelle des factures',
             besoin: 'Garantir un numéro de facture unique et traçable, conforme à un usage comptable par exercice.',
-            fonctionnement: 'Chaque facture reçoit un numéro de la forme ANNÉE_0001 ; le compteur peut être remis à zéro chaque nouvelle année selon un paramètre de configuration, ou continuer sans interruption.',
+            fonctionnement:
+              'Chaque facture reçoit un numéro de la forme ANNÉE_0001 : l’exercice, puis un compteur sur quatre chiffres. Les ÉCRANS n’affichent que le compteur — l’exercice est celui qu’on filtre, et le répéter sur chaque ligne n’apprend rien ; le numéro complet reste celui qui est stocké et repris sur les éditions.',
             etapes: ['Générer une facture en début d’année', 'Vérifier le numéro attribué selon le paramètre de remise à zéro'],
             resultatAttendu: 'Le numéro attribué respecte le comportement configuré (remise à zéro ou continuité) sans jamais dupliquer un numéro existant.',
           },
@@ -786,6 +892,12 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             fonctionnement: 'Le mode "tout générer" applique la génération à l’ensemble des tiers payants ayant des lignes facturables sur la période, en une seule opération.',
             etapes: ['Choisir le mode "Tout générer"', 'Sélectionner la période', 'Générer'],
             resultatAttendu: 'Une facture est produite pour chaque tiers payant ayant des ventes facturables sur la période, avec un code de génération commun.',
+            // Masqué : aucun mode « tout générer » n'existe. L'édition offre quatre modes —
+            // par sélection de bons, par type, par tiers-payant, par groupe (FAC-04 à
+            // FAC-06) — et le mode « Sélection massive » qui s'en approchait est commenté
+            // dans `MODE_EDITIONS_FACTURE` depuis longtemps. Facturer tout revient à passer
+            // les groupes l'un après l'autre.
+            hidden: true,
           },
         ],
       },
@@ -797,8 +909,8 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             id: 'FAC-08',
             titre: 'Rechercher une facture existante',
             besoin: 'Retrouver rapidement une facture précise parmi toutes celles émises, pour suivi ou réclamation d’un tiers payant.',
-            fonctionnement: 'Le tiroir de recherche interroge la base des factures selon les critères choisis (tiers payant, période, statut).',
-            etapes: ['Ouvrir le tiroir de recherche de factures', 'Filtrer par tiers payant, période ou statut'],
+            fonctionnement: 'Les filtres de la barre d’outils interrogent la base des factures selon les critères choisis : période, statut, tiers payant, et les indicateurs « Groupées » et « Provisoires ».',
+            etapes: ['Ouvrir l’onglet « Factures »', 'Filtrer par tiers payant, période ou statut'],
             resultatAttendu: 'La liste des factures correspond exactement aux critères saisis.',
           },
           {
@@ -806,7 +918,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             titre: 'Consulter le détail d’une facture (panneau maître-détail)',
             besoin: 'Vérifier précisément quelles ventes et quels règlements composent une facture avant de la contester ou de la clôturer.',
             fonctionnement: 'Le panneau détail relie la facture sélectionnée aux ventes qui la composent et aux règlements déjà reçus, sans recalcul qui diverge de la source.',
-            etapes: ['Sélectionner une facture dans la liste', 'Ouvrir le panneau détail (lignes, ventes rattachées, règlements)'],
+            etapes: ['Sélectionner une facture dans la liste', 'Parcourir les onglets du panneau : bons facturés, versements reçus, avoirs'],
             resultatAttendu: 'Le détail affiché correspond exactement aux ventes et règlements liés à la facture.',
           },
           {
@@ -1045,11 +1157,17 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
         scenarios: [
           {
             id: 'FAC-24',
-            titre: 'Créer une planification de facturation récurrente',
+            titre: 'Rattacher des organismes à une planification de facturation',
             besoin: 'Éviter de générer manuellement chaque mois les mêmes factures pour des tiers payants récurrents.',
-            fonctionnement: 'Une planification définit une périodicité (hebdomadaire, quinzaine, mensuelle, bimensuelle), une heure de déclenchement, et si les factures générées doivent être provisoires ou définitives.',
-            etapes: ['Ouvrir l’onglet "Planification"', 'Créer une planification (périodicité, heure, provisoire/définitive)', 'Enregistrer'],
-            resultatAttendu: 'La planification est créée avec sa prochaine date d’exécution calculée automatiquement.',
+            fonctionnement:
+              'Les planifications ne se créent pas une par une : le système en pose une par périodicité (quinzaine, mensuelle, bimensuelle) et par nature de facture (définitive ou provisoire). C’est la PÉRIODICITÉ portée par chaque organisme qui l’y rattache — une planification couvre tous les tiers payants et groupes déclarés sur sa périodicité.',
+            etapes: [
+              'Ouvrir l’onglet "Automatisation" et choisir la nature des factures (définitives ou provisoires)',
+              'Ouvrir le détail d’une périodicité et son sous-onglet "Tiers payants"',
+              'Inclure ou exclure des organismes, ou leur appliquer une périodicité en lot',
+            ],
+            resultatAttendu:
+              'Les organismes retenus relèvent de la planification correspondant à leur périodicité, et seront facturés à son prochain déclenchement.',
           },
           {
             id: 'FAC-25',
@@ -1098,6 +1216,11 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             prerequis: 'Le groupe de factures contient au moins une facture tiers payant.',
             etapes: ['Ouvrir la facture groupée', 'Lancer "Certifier le groupe"'],
             resultatAttendu: 'Chaque facture membre du groupe est certifiée individuellement.',
+            // Masqué : certifier un GROUPE envoie autant de factures réelles au service de
+            // la DGI qu'il compte de membres. Une campagne de captures ne peut pas produire
+            // d'actes fiscaux, et une certification ne se rétracte pas. Le mécanisme est
+            // celui de FAC-28, appliqué en boucle aux membres du groupe.
+            hidden: true,
           },
           {
             id: 'FAC-30',
@@ -1115,6 +1238,10 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             fonctionnement: 'Un tiers payant de catégorie "carnet" est certifié avec un gabarit B2C ; les autres catégories utilisent le gabarit standard (B2B).',
             etapes: ['Certifier une facture d’un tiers payant "carnet"', 'Certifier une facture d’un tiers payant "assurance" ou autre'],
             resultatAttendu: 'Le gabarit de facture transmis à la DGI correspond à la catégorie réelle du tiers payant.',
+            // Masqué : le gabarit retenu (B2C pour un carnet, B2B sinon) ne se constate
+            // que dans le message ENVOYÉ à la DGI. L'observer supposerait de certifier pour
+            // de bon deux factures d'organismes de catégories différentes.
+            hidden: true,
           },
           {
             id: 'FAC-32',
@@ -1123,6 +1250,10 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             fonctionnement: 'Pour un tiers payant de catégorie "assurance", les lignes sont regroupées par code de TVA produit ; pour les autres catégories, le détail produit par produit de la facture est transmis tel quel.',
             etapes: ['Certifier une facture d’un tiers payant assurance', 'Vérifier le regroupement des lignes par code TVA'],
             resultatAttendu: 'Les lignes transmises à la DGI respectent le regroupement attendu selon la catégorie du tiers payant.',
+            // Masqué : le regroupement des lignes par code de TVA se lit lui aussi dans
+            // le message transmis, pas à l'écran. Même raison que FAC-31 — et le journal du
+            // serveur le trace déjà (`JSON payload`) pour qui doit le vérifier.
+            hidden: true,
           },
           {
             id: 'FAC-33',
@@ -1156,6 +1287,10 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             prerequis: 'La facture a été certifiée avec succès.',
             etapes: ['Ouvrir une facture certifiée', 'Consulter son certificat FNE', 'Lancer l’impression si besoin'],
             resultatAttendu: 'Le certificat officiel de la facture s’affiche et peut être imprimé.',
+            // Masqué : le certificat s'affiche depuis l'URL de jeton délivrée par la DGI
+            // pour une facture DÉJÀ certifiée. Le jeu de démonstration n'en contient aucune,
+            // et en fabriquer une supposerait de certifier réellement (voir FAC-28).
+            hidden: true,
           },
         ],
       },
@@ -1167,8 +1302,13 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             titre: 'Créer un tiers payant',
             besoin: 'Déclarer un nouvel organisme payeur (mutuelle, assurance, entreprise) afin de pouvoir vendre en tiers payant à ses affiliés.',
             fonctionnement: 'Le tiers payant devient sélectionnable en vente dès son enregistrement, avec son propre taux de prise en charge.',
-            etapes: ['Créer une fiche tiers payant', 'Renseigner le taux de prise en charge', 'Enregistrer'],
-            resultatAttendu: 'Le tiers payant est utilisable en vente immédiatement.',
+            etapes: [
+              'Ouvrir « Tiers payants » et lancer « Nouveau tiers payant »',
+              'Renseigner l’identité de l’organisme et ses règles de facturation (délai de règlement, périodicité, plafonds)',
+              'Enregistrer',
+            ],
+            resultatAttendu:
+              'Le tiers payant est utilisable en vente immédiatement. Le TAUX de prise en charge, lui, ne se règle pas ici : il appartient au lien entre l’organisme et chaque assuré, et se fixe sur la fiche du client (CLI-07).',
           },
           {
             id: 'FAC-37',
@@ -1307,16 +1447,16 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             titre: 'Changer le grossiste (fournisseur) d’une commande',
             besoin: 'Rediriger une commande vers un autre fournisseur (rupture chez le grossiste habituel, meilleur tarif).',
             fonctionnement: 'Le fournisseur de la commande est remplacé ; les prix d’achat des lignes peuvent être recalculés selon la grille du nouveau fournisseur.',
-            etapes: ['Ouvrir la commande', 'Choisir "Changer de grossiste"', 'Sélectionner le nouveau fournisseur', 'Valider'],
-            resultatAttendu: 'La commande est rattachée au nouveau fournisseur avec des prix cohérents.',
+            etapes: ['Ouvrir la commande à rediriger', 'Choisir le nouveau fournisseur dans le sélecteur de la commande', 'Vérifier les prix des lignes, repris de la grille du nouveau grossiste'],
+            resultatAttendu: 'La commande est rattachée au nouveau fournisseur ; chaque ligne prend le prix d’achat et le prix de vente de sa grille, et un produit qu’il ne référence pas reçoit un code provisoire.',
           },
           {
             id: 'ACH-07',
-            titre: 'Détecter une commande en cours avant d’en créer une nouvelle',
-            besoin: 'Éviter de commander deux fois le même produit au même fournisseur par inattention.',
-            fonctionnement: 'Avant validation, le système vérifie s’il existe déjà une commande non réceptionnée pour ce fournisseur et alerte l’utilisateur.',
-            etapes: ['Tenter de créer une commande pour un fournisseur ayant déjà une commande en attente'],
-            resultatAttendu: 'Un message avertit qu’une commande est déjà en cours, avec le choix de la compléter plutôt que d’en créer une nouvelle.',
+            titre: 'Repérer un produit déjà commandé et non livré',
+            besoin: 'Éviter de commander deux fois le même produit par inattention, tant que la première commande n’est pas réceptionnée.',
+            fonctionnement: 'Le contrôle porte sur le PRODUIT, pas sur le fournisseur : tout produit inscrit dans une commande non réceptionnée porte la pastille « En commande » partout où il apparaît (catalogue, fiche produit, import d’une proposition). Le calcul des suggestions va plus loin et écarte purement et simplement ces produits, ainsi que ceux reçus récemment : un réapprovisionnement automatique ne peut donc pas redemander ce qui est déjà en route.',
+            etapes: ['Ouvrir une commande en cours et relever un de ses produits', 'Rechercher ce produit au catalogue', 'Constater la pastille « En commande » sur sa ligne'],
+            resultatAttendu: 'Le produit déjà commandé est signalé partout où on le rencontre, et n’est plus proposé au réapprovisionnement tant que la commande n’est pas livrée.',
           },
           {
             id: 'ACH-08',
@@ -1335,6 +1475,14 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             prerequis: 'La commande a été finalisée par erreur.',
             etapes: ['Ouvrir la commande finalisée', 'Lancer "Rollback"', 'Confirmer'],
             resultatAttendu: 'La commande repasse en statut réceptionnable et le stock injecté par erreur est retiré.',
+            // Masqué : non exposé dans l'application, et délibérément. L'endpoint existe
+            // (`CommandServiceImpl.rollback`) mais il se borne à rebasculer le statut en
+            // REQUESTED SANS retirer le stock déjà injecté : la commande redeviendrait
+            // réceptionnable avec un stock compté deux fois. Tant que la reprise du stock
+            // n'est pas écrite, l'offrir à l'écran serait plus dangereux que de s'en passer —
+            // une réception fautive se corrige par un retour fournisseur (ACH-49) ou un
+            // ajustement d'inventaire.
+            hidden: true,
           },
           {
             id: 'ACH-10',
@@ -1386,11 +1534,15 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
           },
           {
             id: 'ACH-13',
-            titre: 'Modifier ou réinitialiser la quantité suggérée d’une ligne',
-            besoin: 'Ajuster manuellement une suggestion automatique jugée trop haute ou trop basse, ou revenir à la valeur calculée initialement.',
-            fonctionnement: 'La quantité d’une ligne peut être surchargée manuellement ; une action dédiée permet de revenir à la quantité calculée automatiquement.',
-            etapes: ['Ouvrir la ligne de suggestion', 'Modifier la quantité ou choisir "Réinitialiser"'],
-            resultatAttendu: 'La quantité affichée correspond à la valeur saisie, ou à la valeur recalculée après réinitialisation.',
+            titre: 'Corriger la quantité suggérée d’une ligne',
+            besoin: 'Ajuster une suggestion automatique jugée trop haute ou trop basse — le calcul ignore la promotion qui arrive, le colisage du grossiste et la trésorerie du mois.',
+            fonctionnement:
+              'La quantité s’édite dans la cellule, à même la grille. Une quantité corrigée est VERROUILLÉE — un cadenas la marque — et le recalcul suivant ne l’écrase pas. Deux avertissements non bloquants accompagnent la saisie : quantité non multiple du colisage, et quantité sous le minimum de commande du fournisseur. La remise à la valeur calculée n’est en revanche PAS offerte : le bouton existe dans l’écran mais y est masqué, faute d’implémentation côté serveur.',
+            etapes: [
+              'Ouvrir la proposition du fournisseur',
+              'Corriger la quantité directement dans la grille — elle est alors verrouillée contre le prochain recalcul',
+            ],
+            resultatAttendu: 'La quantité affichée correspond à la valeur saisie, et le recalcul automatique ne la reprend plus.',
           },
           {
             id: 'ACH-14',
@@ -1435,6 +1587,10 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
           },
           {
             id: 'ACH-19',
+            // L'écran ne propose pas de « rejet » : une proposition dont on ne veut pas se
+            // SUPPRIME, et c'est ce que couvre ACH-14. Masqué plutôt que réécrit, pour ne pas
+            // laisser croire à un état « rejetée » qui n'existe pas dans le modèle de données.
+            hidden: true,
             titre: 'Rejeter une suggestion',
             besoin: 'Écarter une suggestion jugée non pertinente (le produit ne doit pas être recommandé pour l’instant).',
             fonctionnement: 'Le rejet supprime purement et simplement la suggestion : il n’existe pas de statut "rejetée" conservé en base.',
@@ -1464,6 +1620,12 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             fonctionnement: 'Une liste de produits/quantités vendues est soumise ; seuls les produits éligibles (non exclus de la suggestion) génèrent une ligne de suggestion, avec option de se baser sur la quantité vendue elle-même.',
             etapes: ['Sélectionner la période ou la liste de produits vendus', 'Lancer la génération de suggestion depuis les ventes'],
             resultatAttendu: 'Une suggestion est créée uniquement pour les produits éligibles, avec des quantités cohérentes avec les ventes constatées.',
+            // Masqué : l'endpoint existe (`POST /api/suggestions/suggestion-quantite-produit-vendus`)
+            // mais AUCUN écran ne l'appelle. Il servait à l'ancienne « commande rapide »,
+            // retirée depuis. Le besoin — réapprovisionner d'après ce qui s'est vendu — est
+            // couvert par le calcul SEMOIS (ACH-26, ACH-27), qui s'appuie sur la vente
+            // moyenne mensuelle plutôt que sur une liste transmise à la main.
+            hidden: true,
           },
         ],
       },
@@ -1610,6 +1772,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             fonctionnement: 'Une requête de disponibilité est envoyée via PharmaML pour un produit donné et la réponse (quantité disponible, délai) est retournée directement.',
             etapes: ['Depuis la commande, sélectionner un produit', 'Lancer "Demander disponibilité"'],
             resultatAttendu: 'La disponibilité annoncée par le grossiste s’affiche pour ce produit.',
+            hidden: true,
           },
           {
             id: 'ACH-35',
@@ -1618,6 +1781,13 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             fonctionnement: 'Une requête de disponibilité multi-produits est envoyée en une fois ; la réponse consolidée indique la disponibilité de chaque produit, éventuellement comparée entre plusieurs grossistes.',
             etapes: ['Sélectionner plusieurs produits (ou toute la commande)', 'Lancer "Disponibilité multi"'],
             resultatAttendu: 'Le résultat affiche la disponibilité de chaque produit demandé, sans en oublier aucun.',
+            // Masqué : le répartiteur (GESCOM 3.41.06) ne connaît ni la nature d'action
+            // REQ_INFORMATION ni le corps REQ_INFOS de la norme. La seule requête qu'il
+            // accepte est une COMMANDE — « vérifier la disponibilité » reviendrait donc à
+            // commander. Les points d'entrée sont masqués dans l'application
+            // (COMPARAISON_DISPONIBILITE_ACTIVE) ; ce scénario le reste ici tant qu'aucun
+            // grossiste ne répond à une vraie demande d'information.
+            hidden: true,
           },
         ],
       },
@@ -1649,6 +1819,12 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             fonctionnement: 'Le fichier importé est analysé et ses lignes sont rapprochées des produits internes par code, avant de constituer le bon.',
             etapes: ['Ouvrir "Importer un nouveau bon"', 'Sélectionner le fichier fournisseur', 'Contrôler le rapprochement produits avant de poursuivre'],
             resultatAttendu: 'Un bon de réception est créé avec les lignes importées correctement mappées ; les lignes non reconnues sont signalées.',
+            // Masqué : l'endpoint existe (`POST /api/commandes/entree-stock/upload-new`)
+            // mais aucun écran ne l'appelle, et aucun bouton « Importer un nouveau bon »
+            // n'existe. L'import de fichier fournisseur est offert à la COMMANDE (ACH-64) ;
+            // à la réception, c'est l'import de la RÉPONSE du grossiste qui est câblé
+            // (« Importer réponse », sur le bon en cours).
+            hidden: true,
           },
           {
             id: 'ACH-39',
@@ -1662,9 +1838,9 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             id: 'ACH-40',
             titre: 'Saisir en masse les quantités reçues',
             besoin: 'Accélérer la réception d’un bon avec de nombreuses lignes en évitant de les traiter une par une.',
-            fonctionnement: 'Une liste de quantités reçues est appliquée en une seule opération à plusieurs lignes du bon.',
-            etapes: ['Sélectionner plusieurs lignes du bon', 'Saisir les quantités reçues en masse', 'Valider'],
-            resultatAttendu: 'Toutes les lignes sélectionnées portent leur quantité reçue mise à jour.',
+            fonctionnement: '« Tout valider » applique en une seule opération, à toutes les lignes non encore saisies, une quantité reçue égale à la quantité commandée. La confirmation le dit explicitement : ces lignes sont tenues pour entièrement livrées, et aucun écart ne sera signalé pour elles.',
+            etapes: ['Ouvrir le bon de réception', 'Lancer « Tout valider » et lire la confirmation', 'Confirmer et vérifier le taux de service'],
+            resultatAttendu: 'Toutes les lignes non saisies portent la quantité commandée comme quantité reçue, et le taux de service du bon passe à 100 %.',
           },
           {
             id: 'ACH-41',
@@ -1676,11 +1852,11 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
           },
           {
             id: 'ACH-42',
-            titre: 'Modifier le prix d’achat, la TVA ou la date de péremption d’une ligne',
-            besoin: 'Corriger des informations de la ligne avant finalisation (prix facturé différent de la commande, taux de TVA, date de péremption du lot livré).',
-            fonctionnement: 'Chacune de ces informations peut être corrigée indépendamment sur la ligne du bon avant sa finalisation.',
-            etapes: ['Ouvrir la ligne concernée', 'Modifier le prix d’achat, la TVA ou la date de péremption', 'Enregistrer'],
-            resultatAttendu: 'La ligne reflète la valeur corrigée.',
+            titre: 'Corriger une ligne à la réception (lot, péremption, CIP)',
+            besoin: 'Enregistrer ce que le carton apprend et que la commande ignorait : le lot livré, sa date de péremption, le code CIP définitif d’un produit qui n’avait qu’un code provisoire.',
+            fonctionnement: 'Tant que le bon n’est pas finalisé, chacune de ces informations se corrige indépendamment sur la ligne. Les PRIX, eux, ne s’éditent pas à la réception : ils se fixent sur la commande avant son envoi (ACH-03) ; un prix qui a bougé depuis est signalé en regard du tarif catalogue pour être arbitré (ACH-43), non réécrit. La péremption saisie est contrôlée à mesure : sous trois mois l’écran prévient, et la finalisation refuse un lot trop proche de sa date.',
+            etapes: ['Ouvrir le bon et sa première ligne', 'Saisir la quantité reçue, puis le numéro de lot et sa péremption', 'Ajouter le lot et vérifier qu’il figure sur la ligne'],
+            resultatAttendu: 'La ligne porte le lot saisi avec sa péremption ; une date trop proche est signalée avant même la finalisation.',
           },
           {
             id: 'ACH-43',
@@ -1712,9 +1888,9 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             id: 'ACH-46',
             titre: 'Prévisualiser le rangement avant finalisation',
             besoin: 'Savoir à l’avance où seront rangés les produits reçus (rayon, emplacement) avant de valider définitivement la réception.',
-            fonctionnement: 'Une politique de rangement est simulée sur les lignes du bon pour proposer un emplacement par produit, sans encore les affecter réellement.',
-            etapes: ['Ouvrir le bon de réception', 'Consulter la prévisualisation de rangement'],
-            resultatAttendu: 'La prévisualisation propose un emplacement cohérent avec la politique de rangement configurée, pour chaque ligne.',
+            fonctionnement: 'À la finalisation, et si la politique de rangement est en mode manuel, une simulation liste les produits dont le stock RAYON dépasserait son maximum : classe de rotation, stock rayon, maximum, excédent, et ce que la réserve détient déjà. Rien n’est encore déplacé — l’utilisateur choisit de transférer l’excédent (ACH-75) ou de l’ignorer.',
+            etapes: ['Ouvrir un bon de réception prêt à finaliser', 'Lancer la finalisation et consulter la prévisualisation de rangement', 'Ignorer le transfert et terminer la réception'],
+            resultatAttendu: 'La prévisualisation ne liste que les produits en excédent par rapport au maximum du rayon, avec l’excédent calculé et l’état de la réserve ; l’ignorer laisse la réception se terminer sans déplacer de stock.',
           },
           {
             id: 'ACH-47',
@@ -1723,7 +1899,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             fonctionnement:
               'La finalisation est bloquée par plusieurs contrôles : code CIP obligatoire sur chaque ligne ; toute ligne dont la commande d’origine est introuvable est rejetée ; si la gestion des lots est active et requise pour le produit, tous les lots doivent être renseignés ; un lot dont la péremption est trop proche (délai minimum configurable) est refusé. Une fois ces contrôles passés : le stock est incrémenté, le prix moyen pondéré du produit est recalculé, un produit qui repasse en stock positif voit ses ruptures ouvertes automatiquement résolues, et la politique de rangement est appliquée. Un bon déjà finalisé ne peut plus l’être une seconde fois.',
             prerequis: 'Le bon de réception est complet (quantités, lots si requis, CIP).',
-            etapes: ['Ouvrir le bon de réception', 'Lancer la finalisation'],
+            etapes: ['Ouvrir le bon de réception', 'Lancer la finalisation et répondre aux contrôles (écarts de prix, lignes non saisies, rangement, reliquat, étiquettes)', 'Vérifier que le bon est passé au statut clôturé'],
             resultatAttendu: 'Le stock est mis à jour, le prix moyen pondéré recalculé, les ruptures levées si applicable, et le bon passe au statut clôturé ; toute anomalie bloque la finalisation avec un message explicite.',
           },
           {
@@ -1731,7 +1907,11 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             titre: 'Réceptionner en mode séquentiel (ligne par ligne)',
             besoin: 'Traiter un bon de réception ligne par ligne au clavier, sans avoir à naviguer dans un tableau complet — utile pour une réception rapide au poste de réception.',
             fonctionnement: 'Le mode séquentiel parcourt les lignes du bon une par une avec navigation clavier ; un scan DataMatrix peut pré-remplir le lot de la ligne courante, et le CIP peut être corrigé directement pendant la saisie, avant une étape de finalisation dédiée.',
-            etapes: ['Ouvrir le bon de réception en mode séquentiel', 'Traiter chaque ligne l’une après l’autre (saisie ou scan)', 'Finaliser via la modale dédiée'],
+            etapes: [
+              'Ouvrir le bon de réception en mode séquentiel',
+              'Traiter chaque ligne l’une après l’autre (saisie ou scan)',
+              'Une fois toutes les lignes traitées, clôturer par la fenêtre de finalisation',
+            ],
             resultatAttendu: 'Chaque ligne est traitée dans l’ordre sans retour au tableau complet, puis la réception est finalisée comme en mode standard.',
           },
           {
@@ -1757,7 +1937,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             besoin: 'Étiqueter rapidement les produits réceptionnés sans rechercher et imprimer chaque article séparément.',
             fonctionnement: 'Depuis le bon reçu, l’impression génère les étiquettes liées à la réception. L’utilisateur peut choisir la position de départ sur la planche ; le document est téléchargé dans le navigateur ou transmis au circuit d’impression de l’application desktop.',
             prerequis: 'Le bon a été réceptionné.',
-            etapes: ['Ouvrir les actions du bon reçu', 'Choisir Étiquettes', 'Indiquer la position de départ', 'Lancer l’impression'],
+            etapes: ['Ouvrir les actions du bon clôturé', 'Choisir Étiquettes', 'Indiquer la position de départ sur la planche (1 à 64)'],
             resultatAttendu: 'Le fichier d’étiquettes de la réception est généré à partir de la position choisie et prêt à être imprimé.',
           },
         ],
@@ -1890,12 +2070,20 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             prerequis: 'Une réception présente un écart de quantité ou de prix par rapport à la commande.',
             etapes: ['Depuis la réception en écart, lancer "Générer avoir depuis réception"'],
             resultatAttendu: 'Un avoir fournisseur est créé automatiquement, avec un montant correspondant exactement à l’écart constaté.',
+            // Masqué : aucune action « Générer avoir depuis réception » n'existe, ni à
+            // l'écran ni dans l'API. Un avoir se constitue soit depuis la réponse du
+            // fournisseur à un retour (ACH-57), soit directement depuis les lignes d'un bon
+            // reçu — c'est `POST /api/avoirs-fournisseur/from-bon-lignes`, et c'est le
+            // scénario voisin. Un écart de réception se traite, lui, par le rapprochement de
+            // facture, qui ne produit pas d'avoir.
+            hidden: true,
           },
           {
             id: 'ACH-59',
-            titre: 'Exporter un retour (ou les retours groupés) en PDF/Excel',
+            titre: 'Exporter un retour (bon PDF) ou la sélection (Excel/CSV)',
             besoin: 'Archiver ou transmettre un bon de retour, individuel ou consolidé par fournisseur.',
-            fonctionnement: 'L’export reprend fidèlement les lignes du ou des retours sélectionnés au format demandé.',
+            fonctionnement:
+              'Deux sorties de nature différente : le PDF, imprimé depuis une ligne, est le BON lui-même — celui qui accompagne le carton chez le grossiste ; l’export Excel ou CSV, lancé depuis la barre, reprend la SÉLECTION affichée (période, statut, fournisseur) pour rapprocher ce qui est parti de ce qui a été remboursé.',
             etapes: ['Sélectionner un retour ou un groupe de retours par fournisseur', 'Lancer l’export'],
             resultatAttendu: 'Le fichier exporté contient exactement les lignes et montants des retours sélectionnés.',
           },
@@ -2049,11 +2237,13 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
           },
           {
             id: 'REF-03',
-            titre: 'Modifier rapidement un détail de la fiche produit',
-            besoin: 'Corriger un champ isolé sans rouvrir le formulaire complet.',
-            fonctionnement: 'Une mise à jour ciblée ("détail") permet de modifier un sous-ensemble de champs sans repasser par le formulaire complet.',
-            etapes: ['Ouvrir la mise à jour rapide du produit', 'Modifier le champ concerné', 'Enregistrer'],
-            resultatAttendu: 'Le champ modifié est mis à jour sans toucher au reste de la fiche.',
+            titre: 'Activer ou couper le suivi des lots d’un produit',
+            besoin:
+              'Corriger un réglage isolé sans rouvrir le formulaire complet — typiquement au moment où l’on s’aperçoit, en réception, qu’un produit réclame (ou ne réclame plus) un numéro de lot.',
+            fonctionnement:
+              'Le panneau de détail du produit porte des interrupteurs qui s’enregistrent SUR-LE-CHAMP, sans bouton de validation : le suivi des lots est le plus structurant. Activé, il exige un numéro de lot et une date de péremption à chaque réception de ce produit ; coupé, la réception se fait sans. Le reste de la fiche n’est pas touché.',
+            etapes: ['Ouvrir le panneau de détail du produit', 'Basculer le suivi des lots', 'Constater l’effet immédiat, puis rétablir le réglage'],
+            resultatAttendu: 'Le réglage est enregistré immédiatement, sans passer par le formulaire complet ni toucher au reste de la fiche.',
           },
           {
             id: 'REF-04',
@@ -2112,7 +2302,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             titre: 'Mettre en veille ou réactiver plusieurs produits en une seule action',
             besoin: 'Traiter rapidement une gamme entière temporairement indisponible ou remise en circulation, sans modifier chaque fiche séparément.',
             fonctionnement:
-              'La sélection multiple du catalogue ouvre une barre d’actions permettant de désactiver ou réactiver tous les produits sélectionnés, après confirmation pour la mise en veille.',
+              'La sélection multiple du catalogue ouvre une barre d’actions permettant de désactiver ou réactiver tous les produits sélectionnés. Les deux actions demandent une confirmation, qui rappelle le nombre de produits concernés ; la sélection est vidée une fois le traitement terminé.',
             prerequis: 'L’utilisateur dispose du droit de modification du catalogue.',
             etapes: ['Sélectionner plusieurs produits dans la liste', 'Choisir "Mettre en veille" ou "Réactiver"', 'Confirmer si demandé'],
             resultatAttendu: 'Tous les produits sélectionnés changent d’état et la sélection est automatiquement réinitialisée à la fin du traitement.',
@@ -2154,7 +2344,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             titre: 'Consulter les indicateurs clés d’un produit',
             besoin: 'Évaluer d’un coup d’œil la santé d’un produit (stock actuel, seuils, rotation) sans naviguer entre plusieurs écrans.',
             fonctionnement: 'Le panneau d’indicateurs agrège pour ce produit son stock actuel, ses seuils de réapprovisionnement et des mesures de rotation, calculés à partir des mêmes données que le reste de l’application (stock, ventes).',
-            etapes: ['Ouvrir la fiche produit', 'Consulter l’onglet "Indicateurs"'],
+            etapes: ['Ouvrir la fiche produit', 'Consulter la carte "Indicateurs clés" de l’onglet Synthèse'],
             resultatAttendu: 'Les indicateurs affichés correspondent à l’état réel du stock et des ventes du produit.',
           },
           {
@@ -2167,9 +2357,10 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
           },
           {
             id: 'REF-42',
-            titre: 'Activer les attributs réglementaires et opérationnels d’un produit',
+            titre: 'Activer les attributs réglementaires d’un produit',
             besoin: 'Signaler les contraintes propres à un produit (gestion de lot obligatoire, chaîne du froid, garde officine...) pour que le reste de l’application en tienne compte automatiquement.',
-            fonctionnement: 'Des bascules dédiées activent ou désactivent, directement depuis la fiche produit : le contrôle des lots obligatoire, le caractère thermosensible, le statut de médicament essentiel, le statut de produit de garde, et une classification personnalisée qui prévaut sur la classification ABC automatique.',
+            fonctionnement:
+              'Des bascules dédiées activent ou désactivent, directement depuis l’onglet Synthèse : le caractère thermosensible (chaîne du froid), le statut de médicament essentiel, le statut de produit de garde, et une classification personnalisée qui prévaut sur la classification ABC automatique. Le statut légal, lui, ne se bascule pas : il se lit, et se change dans le formulaire complet. Le suivi des lots, réglage opérationnel, fait l’objet de REF-03.',
             etapes: ['Ouvrir l’onglet "Synthèse" de la fiche produit', 'Activer ou désactiver l’attribut concerné'],
             resultatAttendu: 'L’attribut activé est immédiatement pris en compte par les écrans concernés (ex. gestion de lot exigée à la réception, alerte chaîne du froid).',
           },
@@ -2185,8 +2376,8 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             id: 'REF-11',
             titre: 'Consulter les lots et dates de péremption d’un produit',
             besoin: 'Savoir quels lots sont en stock et leur échéance, pour prioriser leur vente ou anticiper leur retrait.',
-            fonctionnement: 'L’onglet "Lots / péremption" liste les lots physiquement en stock avec leur quantité et leur date de péremption, alimentant aussi la Gestion des péremptions.',
-            etapes: ['Ouvrir la fiche produit', 'Ouvrir l’onglet "Lots / péremption"'],
+            fonctionnement: 'L’onglet "Stock" de la fiche produit liste les lots physiquement en stock avec leur quantité, leur date de péremption et leur état d’alerte, classés du premier expirant au dernier (FEFO). Il alimente aussi la Gestion des péremptions.',
+            etapes: ['Ouvrir la fiche produit', 'Ouvrir l’onglet "Stock", qui présente les lots par ordre de péremption'],
             resultatAttendu: 'Les lots affichés et leurs quantités correspondent au stock réel du produit.',
           },
           {
@@ -2209,8 +2400,9 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             id: 'REF-12',
             titre: 'Consulter les génériques équivalents d’un produit',
             besoin: 'Proposer une alternative générique moins chère ou disponible quand le produit princeps est en rupture.',
-            fonctionnement: 'Les produits partageant la même DCI/molécule sont listés comme équivalents génériques.',
-            etapes: ['Ouvrir la fiche produit', 'Consulter l’onglet "Génériques"'],
+            fonctionnement:
+              'L’équivalence se fonde sur la DCI — la molécule — et non sur le nom commercial : DOLIPRANE, EFFERALGAN et PARACETAMOL GE partagent la même substance et se substituent donc l’un à l’autre. L’onglet « Génériques » du panneau de détail, à côté des rayons, affiche pour chaque équivalent son prix de vente, son stock disponible et la nature de l’équivalence — générique ou substitut thérapeutique.',
+            etapes: ['Retrouver le produit au catalogue', 'Ouvrir l’onglet "Génériques" du panneau de détail'],
             resultatAttendu: 'Les produits listés partagent réellement la même DCI que le produit consulté.',
           },
           {
@@ -2371,6 +2563,12 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
         ],
       },
       {
+        // Fonctionnalité RETIRÉE VOLONTAIREMENT. La modale, l'action et son traitement
+        // existent encore de bout en bout ; c'est l'entrée de menu qui a été ôtée, et il ne
+        // faut pas la rétablir — le réapprovisionnement passe par l'écran de commande et par
+        // les suggestions, qui savent regrouper par fournisseur ce qu'une commande à
+        // l'article ne sait pas faire. Masqué plutôt que supprimé, pour garder trace de ce
+        // qui a existé et éviter qu'un prochain passage ne « répare » ce qui est un choix.
         nom: 'Commande rapide depuis la fiche produit',
         hidden: true,
         scenarios: [
@@ -2390,6 +2588,10 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
         scenarios: [
           {
             id: 'REF-13',
+            // API présente (`GET /api/classification/metriques/{produitId}`), AUCUN écran ne
+            // la consomme : les métriques du score ne s'affichent nulle part. Masqué tant que
+            // l'écran n'existe pas — le guide ne promet pas ce qu'on ne peut pas ouvrir.
+            hidden: true,
             titre: 'Consulter la classification (métriques) d’un produit',
             besoin: 'Comprendre pourquoi un produit est classé dans telle catégorie de criticité/rotation avant de contester ou d’ajuster manuellement.',
             fonctionnement: 'Les métriques affichées (ventes, rotation, valeur) sont celles ayant servi au calcul automatique de la classification du produit.',
@@ -2401,11 +2603,17 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             titre: 'Forcer manuellement la classification d’un produit (override)',
             besoin: 'Corriger une classification automatique jugée inadaptée pour un produit particulier (ex. produit saisonnier).',
             fonctionnement: 'La surcharge manuelle remplace la classe calculée automatiquement et est historisée (log) pour en garder la trace et la justification.',
-            etapes: ['Ouvrir la classification du produit', 'Forcer la classe souhaitée avec un motif'],
+            etapes: [
+              'Ouvrir la fiche produit, onglet "Approvisionnement"',
+              'Choisir la classe voulue et verrouiller le calcul automatique, puis enregistrer',
+            ],
             resultatAttendu: 'La classe forcée s’applique au produit et l’action est tracée dans le journal de classification.',
           },
           {
             id: 'REF-15',
+            // Même cas que REF-13 : `GET /api/classification/logs/{produitId}` existe, aucun
+            // écran ne l'appelle.
+            hidden: true,
             titre: 'Consulter le journal des surcharges de classification',
             besoin: 'Auditer qui a modifié manuellement la classification d’un produit, et pourquoi.',
             fonctionnement: 'Chaque surcharge manuelle est journalisée avec son auteur, sa date et son motif.',
@@ -2420,7 +2628,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     id: 'RFD',
     nom: 'Référentiel',
     icone: 'pi pi-sitemap',
-    description: 'Données de référence transversales : familles, formes, gammes, laboratoires, TVA, tableaux de classification, remises catalogue, rayons, officines et fournisseurs.',
+    description: 'Données de référence transversales : familles, formes, gammes, laboratoires, TVA, tableaux (suppléments de prix), remises catalogue, rayons, officines et fournisseurs.',
     beneficesMetier: [
       {
         titre: 'Données cohérentes',
@@ -2501,19 +2709,22 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
         scenarios: [
           {
             id: 'RFD-07',
-            titre: 'Créer ou modifier un tableau de classification',
-            besoin: 'Déclarer les catégories légales (listes, tableaux de substances) auxquelles un produit peut être rattaché, pour en tracer les contraintes réglementaires.',
-            fonctionnement: 'Un tableau est identifié par un code et une valeur numérique ; il peut ensuite recevoir des produits associés.',
+            titre: 'Créer ou modifier un tableau (supplément de prix)',
+            besoin:
+              'Répercuter une taxe, une contribution ou une majoration sur toute une catégorie de produits, sans retoucher chaque prix de vente un par un.',
+            fonctionnement:
+              'Un tableau est identifié par un code et une VALEUR, qui s’ajoute au prix de vente des produits qui le portent : un article à 1 550 rattaché à un tableau de valeur 100 se vend 1 650 en caisse. Le supplément est réappliqué à chaque réception, qui recalcule le prix depuis celui du fournisseur augmenté du tableau.',
             etapes: ['Créer ou modifier le tableau (code, valeur)', 'Enregistrer'],
-            resultatAttendu: 'Le tableau est disponible pour y associer des produits.',
+            resultatAttendu: 'Le tableau est disponible pour y associer des produits, dont le prix de vente sera majoré de sa valeur.',
           },
           {
             id: 'RFD-08',
             titre: 'Associer ou dissocier des produits à un tableau',
-            besoin: 'Rattacher en masse les produits concernés par une classification légale donnée, ou les en retirer si elle ne s’applique plus.',
+            besoin:
+              'Appliquer en masse une majoration de prix aux produits concernés, ou la lever si elle ne s’applique plus — une taxe ne vise jamais un article isolé mais une catégorie entière.',
             fonctionnement: 'Un écran à deux colonnes présente les produits non rattachés d’un côté et les produits déjà rattachés de l’autre ; chaque produit, ou la totalité, peut être déplacé d’une colonne à l’autre.',
             etapes: ['Ouvrir le tableau', 'Rechercher un produit dans la colonne des produits non rattachés', 'Le déplacer vers la colonne des produits associés (ou inversement)'],
-            resultatAttendu: 'Le produit déplacé apparaît désormais rattaché, ou détaché, du tableau.',
+            resultatAttendu: 'Le produit déplacé apparaît désormais rattaché, ou détaché, du tableau — et son prix de vente en caisse est majoré, ou non, de la valeur de celui-ci.',
           },
         ],
       },
@@ -2718,9 +2929,15 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             id: 'STK-06',
             titre: 'Saisir les quantités comptées par scan',
             besoin: 'Accélérer le comptage et éviter les erreurs de recherche produit en scannant directement le code-barres.',
-            fonctionnement: 'Le scan identifie le produit par son code et incrémente sa quantité comptée sur la ligne d’inventaire correspondante.',
+            fonctionnement: 'Le comptage par scan se fait depuis l’APPLICATION MOBILE d’inventaire, douchette en main dans les rayons : le code scanné identifie le produit et incrémente sa quantité comptée. Les comptages remontent par synchronisation (`/store-inventory-lines/batch`), et l’écran de bureau signale leur arrivée — « Des comptages ont été enregistrés depuis un autre poste » — pour se rafraîchir. Le poste de bureau, lui, n’a pas de mode scan : on y saisit (STK-05) ou on importe (STK-26).',
             etapes: ['Ouvrir l’inventaire en cours en mode scan', 'Scanner chaque produit compté'],
             resultatAttendu: 'Chaque scan incrémente la quantité comptée de la bonne ligne d’inventaire.',
+            // Masqué : le scan d'inventaire vit dans l'application MOBILE, hors du périmètre
+            // des captures de bureau. Le poste desktop n'a pas de mode scan — il saisit
+            // (STK-05) ou importe (STK-26) — et les comptages mobiles y arrivent par
+            // synchronisation, signalés par le bandeau « comptages enregistrés depuis un
+            // autre poste ».
+            hidden: true,
           },
           {
             id: 'STK-07',
@@ -2736,7 +2953,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             besoin: 'Annuler un inventaire créé par erreur ou abandonné avant sa clôture.',
             fonctionnement: 'La suppression retire l’inventaire et ses lignes de comptage, sans jamais avoir impacté le stock réel puisqu’il n’a pas été clôturé.',
             prerequis: 'L’inventaire n’est pas clôturé.',
-            etapes: ['Ouvrir l’inventaire non clôturé', 'Lancer la suppression'],
+            etapes: ['Repérer l’inventaire non clôturé dans la liste', 'Lancer la suppression et lire la confirmation, qui nomme l’inventaire', 'Confirmer et vérifier qu’il a quitté la liste'],
             resultatAttendu: 'L’inventaire disparaît de la liste, sans aucun impact sur le stock.',
           },
           {
@@ -2784,7 +3001,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             titre: 'Vérifier la génération automatique des inventaires planifiés',
             besoin: 'S’assurer que le planning produit bien les inventaires attendus, sans doublon ni oubli.',
             fonctionnement: 'Le planning génère automatiquement des inventaires selon la périodicité et le périmètre définis, en évitant de recréer un inventaire déjà généré pour la même échéance.',
-            etapes: ['Attendre ou déclencher l’échéance du planning', 'Vérifier les inventaires générés dans l’onglet "En cours"'],
+            etapes: ['Consulter le suivi du planning (exécutions passées, prochaine échéance)', 'Déclencher l’échéance avec « Exécuter maintenant » plutôt que de l’attendre', 'Vérifier l’inventaire généré dans l’onglet « En cours »'],
             resultatAttendu: 'Un inventaire est généré pour l’échéance, sans doublon si l’échéance a déjà été traitée.',
           },
           {
@@ -2792,7 +3009,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             titre: 'Modifier ou désactiver un planning tournant',
             besoin: 'Ajuster la périodicité ou le périmètre d’un planning, ou le suspendre temporairement.',
             fonctionnement: 'Un planning désactivé ne génère plus de nouveaux inventaires tant qu’il n’est pas réactivé.',
-            etapes: ['Ouvrir le planning', 'Modifier ses paramètres ou le désactiver'],
+            etapes: ['Repérer le planning et son état (actif ou inactif)', 'Ouvrir sa modification : le formulaire reprend les réglages en place', 'Le désactiver, puis le réactiver — il conserve son historique d’exécutions'],
             resultatAttendu: 'Le planning reflète la modification, ou cesse de générer des inventaires s’il est désactivé.',
           },
           {
@@ -2923,7 +3140,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             titre: 'Utiliser les raccourcis "Déjà périmés" et "À échéance sous 30 jours"',
             besoin: 'Accéder en un clic aux deux vues les plus utilisées au quotidien, sans reconstruire les filtres à chaque fois.',
             fonctionnement: 'Deux raccourcis appliquent directement un filtre prédéfini : produits dont la péremption est dépassée, ou produits périmant dans les 30 prochains jours.',
-            etapes: ['Cliquer sur le raccourci "Déjà périmés" ou "À échéance 30 jours"'],
+            etapes: ['Cliquer sur l’indicateur « Nbre de produits périmés » ou « Prochaines péremptions 30j » du bandeau'],
             resultatAttendu: 'La liste se filtre instantanément selon le raccourci choisi, sans configuration manuelle.',
           },
           {
@@ -3075,7 +3292,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             besoin: 'Empêcher de déconditionner plus de boîtes que ce qui est réellement en stock.',
             fonctionnement: 'La quantité de boîtes à déconditionner est vérifiée par rapport au stock disponible du produit conditionné avant toute validation.',
             prerequis: 'Le stock du produit conditionné est insuffisant pour la quantité demandée.',
-            etapes: ['Tenter un déconditionnement supérieur au stock disponible'],
+            etapes: ['Ouvrir le déconditionnement d’un produit conditionné', 'Saisir une quantité supérieure au stock disponible et constater le refus immédiat'],
             resultatAttendu: 'L’opération est refusée avec un message explicite.',
           },
         ],
@@ -3085,10 +3302,10 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
         scenarios: [
           {
             id: 'STK-22',
-            titre: 'Répartir du stock entre officines/dépôts',
+            titre: 'Suivre le stock détenu par un dépôt',
             besoin: 'Rééquilibrer le stock entre deux entités (ex. officine en rupture, dépôt en surstock) sans passer par une commande fournisseur.',
-            fonctionnement: 'Le transfert décrémente le stock de l’entité source et incrémente celui de l’entité destination pour la quantité transférée, avec un mouvement tracé des deux côtés.',
-            etapes: ['Sélectionner le produit et les entités source/destination', 'Saisir la quantité à transférer', 'Valider'],
+            fonctionnement: 'Le stock d’un dépôt se consulte dépôt par dépôt, produit par produit, avec sa valorisation d’achat. Il ne provient pas d’une commande fournisseur mais d’un TRANSFERT depuis l’officine — la vente dépôt (VTE-29), qui dessaisit l’officine sans encaissement ni chiffre d’affaires — et le retour dépôt fait le chemin inverse. Chaque mouvement est tracé des deux côtés.',
+            etapes: ['Ouvrir le stock des dépôts', 'Choisir le dépôt et consulter ce qu’il détient', 'Constater les deux sens du transfert : alimenter le dépôt, ou reprendre'],
             resultatAttendu: 'Le stock source diminue, le stock destination augmente, le mouvement est tracé.',
           },
           {
@@ -3098,6 +3315,11 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             fonctionnement: 'La quantité à transférer est vérifiée par rapport au stock disponible de l’entité source avant validation.',
             prerequis: 'Le stock source est insuffisant pour la quantité demandée.',
             etapes: ['Tenter une répartition supérieure au stock disponible de la source'],
+            // Masqué : le transfert vers un dépôt passe par la vente dépôt, dont le contrôle
+            // de stock est celui du comptoir — déjà couvert par VTE-41, qui montre le refus
+            // ET le forçage réservé aux habilités. Le redécrire ici ferait croire à un
+            // second mécanisme.
+            hidden: true,
             resultatAttendu: 'L’opération est refusée avec un message explicite.',
           },
         ],
@@ -3176,6 +3398,11 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             fonctionnement: 'Le fichier JSON importé est analysé et chaque client valide est créé ; les entrées invalides sont signalées.',
             etapes: ['Préparer le fichier JSON', 'Lancer l’import', 'Consulter le résultat'],
             resultatAttendu: 'Les clients valides sont créés ; les entrées invalides sont signalées sans bloquer le reste de l’import.',
+            // Masqué : l'import existe côté composant — `openJsonImport()` et son service —
+            // mais AUCUN bouton ne l'appelle dans le gabarit de la liste des clients. La
+            // fonction est donc inatteignable : rien à parcourir tant qu'un point d'entrée
+            // n'est pas rétabli.
+            hidden: true,
           },
         ],
       },
@@ -3311,6 +3538,21 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             etapes: ['Ouvrir le règlement du compte différé', 'Saisir le montant remis par le client', 'Vérifier la monnaie affichée avant de valider'],
             resultatAttendu: 'La monnaie à rendre correspond exactement à la différence entre le montant saisi et le solde dû.',
           },
+          {
+            id: 'CLI-21',
+            titre: 'Consulter l’historique des règlements différés',
+            besoin:
+              'Retrouver qui a réglé, quand et combien, pour justifier un encaissement auprès de la caisse ou répondre à un client qui conteste son solde.',
+            fonctionnement:
+              'L’onglet « Historique règlements » regroupe les versements par client sur la période choisie : total encaissé, solde restant et nombre de règlements. Chaque ligne se déplie sur le détail des versements, avec leur date et leur mode de paiement.',
+            etapes: [
+              'Ouvrir l’onglet « Historique règlements »',
+              'Choisir la période, et un client si besoin',
+              'Déplier une ligne pour consulter le détail de ses versements',
+            ],
+            resultatAttendu:
+              'Les règlements listés correspondent aux versements enregistrés sur la période, et le total encaissé de chaque client égale la somme de ses versements.',
+          },
         ],
       },
     ],
@@ -3347,6 +3589,15 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
               'Le tableau de bord réunit le tableau de bord du chiffre d’affaires, le total des dettes fournisseurs avec le nombre d’échéances dépassées, et les créances tiers payant en attente avec le nombre de factures impayées depuis plus de 30 jours. Les cartes sont actionnables : elles ouvrent directement les comptes fournisseurs ou la facturation.',
             etapes: ['Ouvrir l’onglet "Dashboard Financier"', 'Analyser le CA, les dettes, les échéances dépassées et les créances tiers payant', 'Cliquer sur une carte d’exposition pour ouvrir son écran de traitement'],
             resultatAttendu: 'Les montants et compteurs correspondent aux données financières réelles, et chaque carte actionnable conduit au bon portefeuille de dettes ou de créances.',
+            // Masqué : l'écran existe (`app-finances-dashboard`, `app-export-comptable`) mais
+            // aucune navigation ne le rend. La migration V1.6.1 a dissous le module Finances
+            // — comptes fournisseurs et remises RFA sont partis dans « facturation », où ils
+            // fonctionnent ; déclaration TVA et export comptable dans « mvt-caisse », dont le
+            // gabarit affiche ses propres onglets en dur et ne les rend jamais. Le gabarit
+            // `finances-layout`, qui saurait les afficher, interroge des codes de navigation
+            // `finances.*` qu'aucune migration ne crée. Réorganisation laissée à mi-chemin :
+            // décider où ces deux écrans doivent vivre relève du produit.
+            hidden: true,
           },
         ],
       },
@@ -3355,12 +3606,12 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
         scenarios: [
           {
             id: 'CPT-02',
-            titre: 'Générer une déclaration de TVA sur une période',
-            besoin: 'Produire les montants de TVA collectée et déductible nécessaires à la déclaration fiscale périodique, sans recalcul manuel.',
+            titre: 'Éditer le rapport de TVA collectée sur une période',
+            besoin: 'Disposer des bases HT et de la TVA collectée, taux par taux, pour préparer la déclaration fiscale périodique sans recalcul manuel.',
             fonctionnement:
-              'La déclaration calcule les bases HT, la TVA collectée sur les ventes, la TVA déductible sur les achats et la TVA nette à payer. Le détail est ventilé par taux et peut être limité à toutes les ventes, au comptant, au tiers payant ou aux différés.',
-            etapes: ['Ouvrir l’onglet "Déclaration TVA"', 'Sélectionner la période et, si nécessaire, le type de vente', 'Lancer le calcul', 'Contrôler le résumé et le détail par taux'],
-            resultatAttendu: 'Les bases HT, les TVA collectée et déductible et la TVA nette correspondent au périmètre choisi et à la ventilation par taux affichée.',
+              'Le rapport ventile les ventes de la période par taux de TVA : base HT, TVA collectée et total TTC, avec une ligne de total. Le périmètre peut être limité à un type de vente, et le regroupement se fait au jour ou au mois. La TVA déductible sur les achats n’est pas couverte par cet écran : elle se lit dans les factures fournisseurs.',
+            etapes: ['Ouvrir l’onglet "Rapport TVA"', 'Sélectionner la période et, si nécessaire, le type de vente', 'Lancer le calcul', 'Contrôler le détail par taux et la ligne de total'],
+            resultatAttendu: 'Chaque taux présent sur la période porte sa base HT, sa TVA et son TTC, et la ligne de total est la somme exacte des lignes affichées.',
           },
           {
             id: 'CPT-03',
@@ -3384,6 +3635,15 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
               'Pour la période choisie, l’utilisateur compose le dossier en incluant ou non les ventes par famille avec CA et TVA, les achats par fournisseur, les mouvements de caisse, les créances et règlements tiers payant, les différés clients et la TVA collectée, déductible et nette. Le résultat est disponible en Excel, en CSV SYSCOHADA ou en PDF récapitulatif ; aucun export ne peut être lancé si toutes les rubriques sont décochées.',
             etapes: ['Ouvrir "Export comptable"', 'Choisir la période', 'Cocher les rubriques à transmettre', 'Sélectionner Excel, CSV SYSCOHADA ou PDF récapitulatif'],
             resultatAttendu: 'Le fichier téléchargé respecte la période, le format et les seules rubriques sélectionnées ; l’action reste désactivée lorsqu’aucun contenu n’est choisi.',
+            // Masqué : l'écran existe (`app-finances-dashboard`, `app-export-comptable`) mais
+            // aucune navigation ne le rend. La migration V1.6.1 a dissous le module Finances
+            // — comptes fournisseurs et remises RFA sont partis dans « facturation », où ils
+            // fonctionnent ; déclaration TVA et export comptable dans « mvt-caisse », dont le
+            // gabarit affiche ses propres onglets en dur et ne les rend jamais. Le gabarit
+            // `finances-layout`, qui saurait les afficher, interroge des codes de navigation
+            // `finances.*` qu'aucune migration ne crée. Réorganisation laissée à mi-chemin :
+            // décider où ces deux écrans doivent vivre relève du produit.
+            hidden: true,
           },
         ],
       },
@@ -3589,6 +3849,11 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             fonctionnement: 'Les clients sont répartis en segments selon des critères de fréquence et de montant d’achat calculés sur leur historique.',
             etapes: ['Ouvrir le rapport', 'Consulter la répartition par segment'],
             resultatAttendu: 'Chaque client apparaît dans le segment cohérent avec son historique d’achat réel.',
+            // Masqué : doublon de RPT-32. Les deux scénarios décrivent le même écran —
+            // « Segmentation Clients » du pôle Partenaires —, RPT-32 en donnant la lecture
+            // complète (segments RFM, récence, fréquence, montant). Illustrer deux fois le
+            // même écran alourdirait le manuel sans rien y ajouter.
+            hidden: true,
           },
           {
             id: 'RPT-09',
@@ -3618,8 +3883,8 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             id: 'RPT-12',
             titre: 'Analyse comparative de périodes',
             besoin: 'Comparer directement deux périodes (ex. ce mois vs le mois dernier, ou vs l’an dernier) sans calcul manuel, selon différents angles (global, type de vente, famille, fournisseur).',
-            fonctionnement: 'Les mêmes indicateurs sont calculés sur deux périodes et affichés côte à côte avec leur écart, selon 4 vues sélectionnables : globale, par type de vente, par famille de produits, ou par fournisseur ; le type de comparaison (mensuel/annuel) et l’année de référence sont configurables. Les tableaux par famille et par fournisseur sont triables sur chaque colonne, dans les deux sens.',
-            etapes: ['Ouvrir le rapport', 'Choisir la vue (globale, type de vente, famille, fournisseur)', 'Sélectionner le type de comparaison et les périodes', 'Trier les tableaux si besoin'],
+            fonctionnement: 'Les mêmes indicateurs sont calculés sur deux périodes et affichés côte à côte avec leur écart, selon 3 vues sélectionnables : globale — qui porte aussi la comparaison par type de vente —, par famille de produits, ou par fournisseur ; le type de comparaison (mensuel/annuel) et l’année de référence sont configurables. Les tableaux par famille et par fournisseur sont triables sur chaque colonne, dans les deux sens.',
+            etapes: ['Ouvrir le rapport', 'Choisir la vue (globale, par famille, par fournisseur)', 'Sélectionner le type de comparaison et l’année de référence', 'Trier les tableaux si besoin'],
             resultatAttendu: 'Les valeurs et l’écart affichés dans chaque vue correspondent exactement aux données réelles des deux périodes comparées.',
           },
           {
@@ -3637,6 +3902,13 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             fonctionnement: 'Les avoirs clients émis sur la période sont agrégés par motif et par produit.',
             etapes: ['Ouvrir le rapport', 'Sélectionner une période'],
             resultatAttendu: 'Le volume d’avoirs affiché correspond aux avoirs réellement émis sur la période.',
+            // Masqué : l'écran existe et fonctionne, mais la migration V1.8.1 a désactivé son
+            // entrée de navigation (`actif = FALSE`) en même temps que celles des rapports
+            // Situation Créances, Différés Clients et Avoirs TP. Aucun autre écran ne
+            // l'héberge : il n'est donc atteignable par aucun chemin. Le suivi des créances
+            // et des différés se fait aujourd'hui depuis les modules Facturation et Différés,
+            // et le vieillissement des créances tiers payant depuis l'onglet « Créances TP ».
+            hidden: true,
           },
           {
             id: 'RPT-14',
@@ -3751,6 +4023,13 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
               'La situation consolide les encours tiers payant non réglés par groupe, avec le nombre de factures et les montants répartis en tranches 0–30, 31–60, 61–90 et plus de 90 jours. Les KPI isolent le total, la zone de surveillance 31–90 jours et le risque supérieur à 90 jours avec sa part du total ; un PDF restitue cet état.',
             etapes: ['Ouvrir "Situation Créances"', 'Comparer le total, la surveillance et le risque supérieur à 90 jours', 'Analyser la ventilation par groupe tiers payant', 'Exporter le PDF'],
             resultatAttendu: 'Les compteurs, les tranches d’ancienneté, les totaux par groupe et le PDF correspondent aux factures réellement non réglées.',
+            // Masqué : l'écran existe et fonctionne, mais la migration V1.8.1 a désactivé son
+            // entrée de navigation (`actif = FALSE`) en même temps que celles des rapports
+            // Situation Créances, Différés Clients et Avoirs TP. Aucun autre écran ne
+            // l'héberge : il n'est donc atteignable par aucun chemin. Le suivi des créances
+            // et des différés se fait aujourd'hui depuis les modules Facturation et Différés,
+            // et le vieillissement des créances tiers payant depuis l'onglet « Créances TP ».
+            hidden: true,
           },
           {
             id: 'RPT-25',
@@ -3767,6 +4046,13 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             fonctionnement: 'Les ventes différées non réglées sont réparties par tranche d’ancienneté depuis leur date de vente.',
             etapes: ['Ouvrir le rapport', 'Consulter la répartition par tranche d’ancienneté'],
             resultatAttendu: 'Chaque vente différée apparaît dans la tranche correspondant réellement à son ancienneté.',
+            // Masqué : l'écran existe et fonctionne, mais la migration V1.8.1 a désactivé son
+            // entrée de navigation (`actif = FALSE`) en même temps que celles des rapports
+            // Situation Créances, Différés Clients et Avoirs TP. Aucun autre écran ne
+            // l'héberge : il n'est donc atteignable par aucun chemin. Le suivi des créances
+            // et des différés se fait aujourd'hui depuis les modules Facturation et Différés,
+            // et le vieillissement des créances tiers payant depuis l'onglet « Créances TP ».
+            hidden: true,
           },
           {
             id: 'RPT-27',
@@ -3818,6 +4104,13 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             fonctionnement: 'Le rapport agrège les avoirs sur la période choisie : montant total des avoirs actifs (émis + imputés), montant imputé, taux d’imputation, et ventilation par statut (brouillon, émis, imputé, annulé) avec compteur et montant par statut.',
             etapes: ['Ouvrir le rapport', 'Sélectionner une période', 'Consulter les KPI et la ventilation par statut'],
             resultatAttendu: 'Les montants et compteurs par statut correspondent exactement aux avoirs de facturation réellement émis sur la période.',
+            // Masqué : l'écran existe et fonctionne, mais la migration V1.8.1 a désactivé son
+            // entrée de navigation (`actif = FALSE`) en même temps que celles des rapports
+            // Situation Créances, Différés Clients et Avoirs TP. Aucun autre écran ne
+            // l'héberge : il n'est donc atteignable par aucun chemin. Le suivi des créances
+            // et des différés se fait aujourd'hui depuis les modules Facturation et Différés,
+            // et le vieillissement des créances tiers payant depuis l'onglet « Créances TP ».
+            hidden: true,
           },
         ],
       },
@@ -3900,6 +4193,12 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             fonctionnement: 'Une planification définit un rapport, une fréquence (quotidienne, hebdomadaire, mensuelle) et une liste de destinataires ; le rapport est régénéré automatiquement à l’échéance et envoyé par email aux destinataires configurés.',
             etapes: ['Créer une planification pour un rapport', 'Choisir la fréquence et les destinataires', 'Attendre l’échéance et vérifier la réception'],
             resultatAttendu: 'Le rapport est généré et envoyé automatiquement à l’échéance prévue, aux destinataires configurés.',
+            // Masqué : la planification existe côté serveur (`ScheduledReportResource`,
+            // `ScheduledReportService`) et le service front est écrit, mais AUCUN écran ne
+            // l'appelle — ni liste des planifications, ni formulaire de création. La
+            // fonctionnalité n'est donc pas utilisable par un pharmacien : elle attend son
+            // interface.
+            hidden: true,
           },
         ],
       },
@@ -4252,6 +4551,14 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             prerequis: 'Droit d’administration du tableau de bord.',
             etapes: ['Ouvrir la configuration des tableaux de bord', 'Marquer un layout comme "par défaut" pour un rôle'],
             resultatAttendu: 'Tous les utilisateurs de ce rôle sans layout personnel voient désormais ce layout à leur prochaine connexion.',
+            // Masqué : la résolution fonctionne (elle est parcourue en HOME-01, HOME-04 et
+            // HOME-05) mais rien ne permet de la CONFIGURER depuis l'application. Le service
+            // front expose `setAsDefault` et `setDefaultForRole`, le backend les endpoints
+            // correspondants — aucun écran ne les appelle. Le tableau de bord personnalisable
+            // (`/dashboard`) existe lui aussi sans entrée de navigation. Aujourd'hui les
+            // tableaux de bord par rôle viennent des données de référence (V1.4.9) ; poser
+            // l'écran d'administration reste à faire.
+            hidden: true,
           },
           {
             id: 'HOME-03',
@@ -4260,6 +4567,14 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             fonctionnement: 'Un layout marqué par défaut au niveau personnel prend systématiquement le pas sur le layout par défaut du rôle pour cet utilisateur uniquement.',
             etapes: ['Ouvrir un tableau de bord disponible', 'Le définir comme tableau de bord personnel par défaut'],
             resultatAttendu: 'Seul cet utilisateur voit désormais ce tableau de bord à la connexion, indépendamment de la configuration de son rôle.',
+            // Masqué : la résolution fonctionne (elle est parcourue en HOME-01, HOME-04 et
+            // HOME-05) mais rien ne permet de la CONFIGURER depuis l'application. Le service
+            // front expose `setAsDefault` et `setDefaultForRole`, le backend les endpoints
+            // correspondants — aucun écran ne les appelle. Le tableau de bord personnalisable
+            // (`/dashboard`) existe lui aussi sans entrée de navigation. Aujourd'hui les
+            // tableaux de bord par rôle viennent des données de référence (V1.4.9) ; poser
+            // l'écran d'administration reste à faire.
+            hidden: true,
           },
           {
             id: 'HOME-04',
@@ -4494,23 +4809,48 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     ],
     fonctionnalites: [
       {
+        nom: 'Connexion et session',
+        description:
+          'Le premier écran que voit tout utilisateur, et le seul qu’il voit avant d’être authentifié. Deux scénarios ajoutés au cahier en écrivant les parcours : la connexion n’y figurait pas, alors qu’elle conditionne tout le reste.',
+        scenarios: [
+          {
+            id: 'ADM-15',
+            titre: 'Se connecter à l’application',
+            besoin: 'Ouvrir une session de travail nominative, à laquelle seront rattachées toutes les opérations effectuées.',
+            fonctionnement:
+              'L’authentification délivre un jeton JWT conservé par le navigateur ; l’application ouvre ensuite le tableau de bord correspondant au rôle de l’utilisateur. Des identifiants erronés donnent un message d’erreur explicite, sans préciser lequel des deux champs est en cause.',
+            etapes: ['Saisir le nom d’utilisateur et le mot de passe', 'Valider la connexion', 'Arriver sur le tableau de bord de son profil'],
+            resultatAttendu: 'La session est ouverte, le nom de l’utilisateur apparaît dans la barre de navigation et les menus affichés sont ceux de son rôle.',
+          },
+          {
+            id: 'ADM-16',
+            titre: 'Fermer sa session',
+            besoin: 'Libérer le poste sans laisser une session ouverte au comptoir — la traçabilité des ventes dépend du compte réellement connecté.',
+            fonctionnement:
+              'La déconnexion efface le jeton du navigateur et ramène à l’écran de connexion. Toute tentative d’atteindre une adresse de l’application après déconnexion y ramène également.',
+            etapes: ['Ouvrir le menu de son compte dans la barre de navigation', 'Choisir « Déconnexion »'],
+            resultatAttendu: 'L’écran de connexion réapparaît et aucun écran métier n’est accessible tant qu’une nouvelle session n’est pas ouverte.',
+          },
+        ],
+      },
+      {
         nom: 'Utilisateurs — création, édition, suppression',
         scenarios: [
           {
             id: 'ADM-01',
             titre: 'Créer un utilisateur',
-            besoin: 'Donner à un nouveau collaborateur un accès à l’application.',
-            fonctionnement: 'Le compte créé peut se connecter dès son enregistrement ; sans rôle affecté, il n’a accès à aucun menu ni action (refus par défaut).',
-            etapes: ['Créer le compte utilisateur (identifiants, informations)', 'Enregistrer'],
-            resultatAttendu: 'L’utilisateur est créé et peut se connecter, sans accès tant qu’aucun rôle ne lui est affecté.',
+            besoin: 'Donner à un nouveau collaborateur un accès à l’application, limité à son poste.',
+            fonctionnement: 'Le formulaire exige le login, le nom, le prénom ET le rôle : un compte ne peut pas être créé sans droits, ce qui évite les comptes orphelins dont personne ne sait plus ce qu’ils autorisent. Le login n’est plus modifiable ensuite.',
+            etapes: ['Renseigner le login, le nom et le prénom', 'Choisir le rôle qui définit ses droits', 'Enregistrer'],
+            resultatAttendu: 'L’utilisateur apparaît dans la liste avec son rôle et le statut actif ; il peut se connecter et n’accède qu’aux menus de ce rôle.',
           },
           {
             id: 'ADM-02',
-            titre: 'Affecter un ou plusieurs rôles à un utilisateur',
-            besoin: 'Donner à un collaborateur un accès limité à ce dont il a besoin pour son poste (caissier, gestionnaire, comptable...).',
-            fonctionnement: 'Le rôle affecté détermine, via l’arbre de navigation et les droits ABAC, les menus et actions visibles/exécutables par l’utilisateur.',
-            etapes: ['Ouvrir la fiche utilisateur', 'Lui affecter un ou plusieurs rôles', 'Enregistrer'],
-            resultatAttendu: 'L’utilisateur accède uniquement aux menus/actions autorisés par le(s) rôle(s) affecté(s).',
+            titre: 'Changer le rôle d’un utilisateur',
+            besoin: 'Suivre un changement de poste — un vendeur qui passe caissier — sans recréer de compte ni perdre l’historique de ses opérations.',
+            fonctionnement: 'Un utilisateur porte UN rôle, et c’est lui qui détermine, via l’arbre de navigation et les droits ABAC, les menus et actions dont il dispose. Le changement s’applique à sa prochaine connexion.',
+            etapes: ['Ouvrir la fiche de l’utilisateur', 'Choisir son nouveau rôle', 'Enregistrer'],
+            resultatAttendu: 'La liste des utilisateurs affiche le nouveau rôle, et l’intéressé n’accède plus qu’aux menus qu’il autorise.',
           },
           {
             id: 'ADM-03',
@@ -4604,6 +4944,127 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             fonctionnement: 'Le réordonnancement personnel ne modifie que l’affichage de l’utilisateur courant, indépendamment de la configuration par rôle.',
             etapes: ['Ouvrir ses propres réglages de menu', 'Réordonner les items', 'Enregistrer'],
             resultatAttendu: 'Seul l’utilisateur ayant fait la modification voit le nouvel ordre ; les autres utilisateurs du même rôle ne sont pas affectés.',
+            // Masqué : le réordonnancement PERSONNEL n'a pas d'interface. Le service front
+            // expose `saveUserReorder` et le serveur `PUT /api/nav/reorder`, mais l'écran de
+            // réorganisation (`app-nav-reorder`) n'appelle que la variante d'administration,
+            // qui enregistre l'ordre du RÔLE. Seul ADM-11 est donc jouable aujourd'hui.
+            hidden: true,
+          },
+          {
+            id: 'ADM-17',
+            titre: 'Renommer un menu et fixer le titre de sa barre d’outils',
+            besoin: 'Adapter le vocabulaire de l’application à celui de l’officine, sans toucher au code : ce qu’un menu s’appelle décide de la vitesse à laquelle on le trouve.',
+            fonctionnement:
+              "Chaque entrée de navigation porte deux libellés distincts : le LIBELLÉ, celui qui s'affiche dans le menu, et le TITRE LONG, celui qu'affichera la barre d'outils de l'écran ouvert. Le second ne concerne que les onglets — un menu ou une action n'ouvre pas de barre d'outils — et reprend le libellé tant qu'on ne l'a pas défini. Les deux se modifient sur place, dans la grille des autorisations, et l'enregistrement est immédiat.",
+            prerequis: 'Être administrateur.',
+            etapes: [
+              'Ouvrir le gestionnaire de navigation et repérer l’entrée à renommer',
+              'Modifier son libellé sur place',
+              'Définir le titre long affiché par la barre d’outils de l’écran',
+            ],
+            resultatAttendu:
+              'Le menu porte son nouveau nom dans la navigation, et l’écran qu’il ouvre affiche le titre long défini.',
+          },
+          {
+            id: 'ADM-18',
+            titre: 'Désactiver un compte sans le supprimer',
+            besoin: 'Couper l’accès d’un collaborateur absent, en congé ou parti, sans effacer le compte auquel son historique de ventes est rattaché.',
+            fonctionnement:
+              "La désactivation est le geste réversible que la suppression n'est pas : le compte reste, ses ventes restent lisibles, mais la connexion est refusée. Deux garde-fous encadrent l'action — on ne peut pas désactiver le compte avec lequel on est connecté, ni celui de l'administrateur principal, dont la disparition fermerait l'application à tout le monde.",
+            prerequis: 'Être administrateur.',
+            etapes: [
+              'Ouvrir la liste des utilisateurs et repérer un compte actif',
+              'Le désactiver, puis constater son nouvel état',
+              'Le réactiver',
+            ],
+            resultatAttendu:
+              'Le compte passe à « Inactif » et ne peut plus se connecter ; ses ventes passées restent attachées à son nom.',
+          },
+          {
+            id: 'ADM-19',
+            titre: 'Accorder ou révoquer toute une branche de menus d’un coup',
+            besoin: 'Ouvrir un module entier à un rôle sans cocher ses dizaines de sous-menus un par un — et pouvoir le refermer aussi vite.',
+            fonctionnement:
+              "Un menu qui a des enfants porte deux actions groupées : tout accorder, tout révoquer. Elles s'appliquent au menu ET à toute sa descendance, chaque ligne étant enregistrée pour elle-même. C'est le moyen normal d'ouvrir un module complet ; l'ajustement fin se fait ensuite ligne par ligne.",
+            prerequis: 'Être administrateur, un rôle sélectionné.',
+            etapes: [
+              'Sélectionner le rôle et repérer un menu à plusieurs niveaux',
+              'Tout révoquer sur la branche, puis tout accorder',
+            ],
+            resultatAttendu:
+              'Les droits du menu et de toute sa descendance basculent en une seule action.',
+          },
+        ],
+      },
+      {
+        nom: 'Licence & abonnement',
+        description:
+          "Écran « Gérer ma licence » : état de l'abonnement, modules couverts, empreinte du poste, activation par fichier et historique.",
+        version: '1.8.8',
+        scenarios: [
+          {
+            id: 'ADM-20',
+            titre: 'Consulter l’état de son abonnement et les modules couverts',
+            besoin:
+              'Savoir, sans appeler personne, jusqu’à quand l’officine est couverte et ce que son abonnement comprend — avant que l’échéance ne devienne un incident un matin d’ouverture.',
+            fonctionnement:
+              "L'écran « Gérer ma licence » affiche l'état en une pastille (active, bientôt expirée, expirée, absente), le type de licence, l'édition, l'officine licenciée et l'échéance avec le nombre de jours restants. En regard, la liste des MODULES SOUSCRITS : chaque module de l'application y figure, coché s'il est couvert, grisé sinon — un module non couvert n'est pas caché, il est montré comme non souscrit, ce qui rend la question « puis-je y accéder ? » lisible d'un coup d'œil. Cet écran reste atteignable même licence expirée : c'est la seule porte de sortie de l'officine.",
+            prerequis: 'Aucun droit particulier pour la consultation de l’état.',
+            etapes: [
+              'Ouvrir « Gérer ma licence »',
+              'Lire l’état, le type, l’officine licenciée et l’échéance',
+              'Parcourir la liste des modules souscrits',
+            ],
+            resultatAttendu:
+              'L’échéance et les modules couverts sont lisibles sans intervention technique ni appel au revendeur.',
+          },
+          {
+            id: 'ADM-21',
+            titre: 'Relever l’empreinte du poste et transmettre sa demande d’activation',
+            besoin:
+              'Obtenir une licence exige d’identifier le poste : l’empreinte est ce que le revendeur attend, et la recopier à la main est le meilleur moyen de se tromper d’un caractère.',
+            fonctionnement:
+              "Le panneau « Identification du poste » affiche l'empreinte calculée pour cette installation. Deux boutons évitent la recopie : « Copier l'empreinte » met la seule empreinte dans le presse-papiers, « Copier la demande » y met la demande complète — officine et empreinte — prête à être collée dans un message. Quand les coordonnées de l'éditeur sont connues, un lien « Envoyer ma demande » ouvre le courriel déjà rempli.",
+            prerequis: 'Disposer du privilège « Activer et renouveler la licence ».',
+            etapes: [
+              'Ouvrir « Gérer ma licence »',
+              'Lire l’empreinte du poste',
+              'Copier la demande complète pour l’envoyer au revendeur',
+            ],
+            resultatAttendu:
+              'L’empreinte est transmise sans recopie manuelle, et la demande contient déjà l’officine concernée.',
+          },
+          {
+            id: 'ADM-22',
+            titre: 'Activer ou renouveler la licence avec le fichier reçu',
+            besoin:
+              'Mettre en service la licence reçue — première activation ou renouvellement annuel — sans intervention technique sur le serveur.',
+            fonctionnement:
+              "Le fichier .lic se dépose dans la zone prévue ou se choisit par le sélecteur ; le bouton « Activer » n'apparaît qu'une fois un fichier retenu. La licence est signée : un fichier altéré, destiné à une autre officine ou à un autre poste est REFUSÉ avec un message qui dit pourquoi, et l'abonnement en cours reste inchangé. Une activation réussie prend effet immédiatement, sans redémarrage.",
+            prerequis: 'Disposer du privilège « Activer et renouveler la licence » et du fichier .lic reçu.',
+            etapes: [
+              'Ouvrir « Gérer ma licence »',
+              'Déposer ou choisir le fichier .lic reçu',
+              'Activer, et lire le nouvel état',
+            ],
+            resultatAttendu:
+              'La nouvelle échéance et les modules souscrits sont pris en compte immédiatement ; un fichier invalide est refusé sans altérer la licence en place.',
+          },
+          {
+            id: 'ADM-23',
+            titre: 'Consulter l’historique des activations et joindre son revendeur',
+            besoin:
+              'Retrouver quand et par qui la licence a été activée, et savoir qui appeler quand quelque chose cloche.',
+            fonctionnement:
+              "L'HISTORIQUE journalise les événements de licence — activation, expiration, refus — avec leur date, leur détail et l'utilisateur à l'origine. Les coordonnées de support, alimentées par la licence elle-même, affichent téléphones, courriels et site : celles du revendeur quand un revendeur a vendu l'abonnement, celles de l'éditeur sinon. Elles voyagent avec la licence et n'ont pas à être ressaisies poste par poste.",
+            prerequis: 'Disposer du privilège « Activer et renouveler la licence » pour l’historique.',
+            etapes: [
+              'Ouvrir « Gérer ma licence »',
+              'Lire l’historique des événements de licence',
+              'Relever les coordonnées du revendeur ou de l’éditeur',
+            ],
+            resultatAttendu:
+              'L’historique des activations est consultable dans l’application, et les coordonnées du support sont disponibles au même endroit.',
           },
         ],
       },
@@ -4625,6 +5086,204 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             fonctionnement: 'Chaque paramètre (budget mensuel de commande, délai de retour client, délai de validité d’un avoir, seuil de variation de prix à la réception, fond de caisse automatique...) est relu en direct par les modules concernés dès sa modification.',
             etapes: ['Ouvrir les paramètres métier', 'Modifier un seuil ou un délai', 'Enregistrer'],
             resultatAttendu: 'Le nouveau seuil/délai est appliqué immédiatement par le module concerné, sans redémarrage.',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'DCA',
+    nom: 'Retraitement du chiffre d’affaires',
+    icone: 'pi pi-percentage',
+    description:
+      'Le chiffre d’affaires encaissé et le chiffre d’affaires à déclarer ne sont pas le même nombre. PharmaSmart rend l’écart EXPLICITE : ce qui sort de l’assiette est décidé par des règles nommées, journalisé ligne à ligne, et contrôlé avant transmission.',
+    beneficesMetier: [
+      {
+        titre: 'Un écart justifiable',
+        description:
+          'Chaque exclusion — rayon, tiers payant, unité gratuite — est une règle posée, et chaque ligne écartée reste consultable dans son journal.',
+      },
+      {
+        titre: 'Rien qui se décide en silence',
+        description:
+          'La ponction se simule avant de s’appliquer, s’historise, et se lit ensuite en cumul face au chiffre d’affaires réel.',
+      },
+      {
+        titre: 'Des états contrôlés avant d’être transmis',
+        description:
+          'Un contrôle de cohérence vérifie que lignes de vente, ventes et règlements racontent la même chose — trois valeurs écrites séparément, que rien n’empêche de diverger.',
+      },
+    ],
+    fonctionnalites: [
+      {
+        nom: 'Règles d’exclusion de l’assiette',
+        description:
+          'Ce qui ne doit pas entrer dans le chiffre d’affaires à déclarer, décidé une fois et appliqué partout.',
+        scenarios: [
+          {
+            id: 'DCA-01',
+            titre: 'Exclure un rayon du chiffre d’affaires à déclarer',
+            besoin:
+              'Sortir de l’assiette déclarée les ventes d’un rayon qui n’en relève pas — parapharmacie, dépôt-vente, produits relevant d’un autre régime.',
+            fonctionnement:
+              'L’exclusion porte sur le RAYON, donc sur tous les produits qui y sont rattachés, et suit les affectations : un produit déplacé dans un rayon exclu en sort du même coup.',
+            etapes: ['Ouvrir l’onglet « Rayons »', 'Cocher le ou les rayons à exclure', 'Enregistrer'],
+            resultatAttendu:
+              'Les ventes des produits rattachés aux rayons exclus ne comptent plus dans le chiffre d’affaires à déclarer, et apparaissent dans le journal correspondant.',
+          },
+          {
+            id: 'DCA-02',
+            titre: 'Exclure un tiers payant du chiffre d’affaires à déclarer',
+            besoin:
+              'Sortir de l’assiette les ventes relevant d’un organisme dont le chiffre d’affaires est déclaré ailleurs, ou selon un autre régime.',
+            fonctionnement:
+              'L’exclusion sort la vente ENTIÈRE, part patient comprise : une vente relevant d’un tiers payant exclu ne compte plus du tout. C’est ce qui la distingue de l’exclusion d’unités gratuites, qui ne retire qu’une portion de la ligne.',
+            etapes: ['Ouvrir l’onglet « Tiers-payants »', 'Cocher les organismes à exclure', 'Enregistrer'],
+            resultatAttendu:
+              'Les ventes des organismes exclus sortent entièrement de l’assiette et figurent dans le journal des ventes tiers payant exclues.',
+          },
+          {
+            id: 'DCA-03',
+            titre: 'Exclure les unités gratuites du chiffre d’affaires à déclarer',
+            besoin:
+              'Ne pas déclarer un chiffre d’affaires sur des unités qui n’ont rien rapporté : les UG accordées par le grossiste sont livrées, pas vendues.',
+            fonctionnement:
+              'Le réglage est global — un interrupteur, pas une liste. Il retire la seule PORTION gratuite de chaque ligne concernée ; le reste de la ligne demeure dans l’assiette.',
+            etapes: ['Ouvrir l’onglet « Unités gratuites »', 'Activer ou désactiver l’exclusion'],
+            resultatAttendu:
+              'Les unités gratuites sortent de l’assiette déclarée, le reste des lignes concernées y demeurant.',
+          },
+        ],
+      },
+      {
+        nom: 'Journaux de ce qui a été écarté',
+        description:
+          'Une exclusion qu’on ne peut pas relire ligne à ligne n’est pas justifiable. Trois journaux, un par règle.',
+        scenarios: [
+          {
+            id: 'DCA-04',
+            titre: 'Consulter les ventes tiers payant exclues de l’assiette',
+            besoin:
+              'Justifier l’écart entre encaissé et déclaré en montrant exactement quelles ventes ont été écartées, et au titre de quel organisme.',
+            fonctionnement:
+              'Le journal liste les ventes sorties de l’assiette parce qu’elles relèvent d’un tiers payant exclu, avec leur date, leur montant et l’organisme en cause.',
+            etapes: ['Ouvrir l’onglet « Ventes tiers-payant exclues »', 'Choisir la période'],
+            resultatAttendu:
+              'Le journal reprend exactement les ventes écartées au titre de l’exclusion de tiers payant sur la période.',
+          },
+          {
+            id: 'DCA-05',
+            titre: 'Consulter les unités gratuites sorties de l’assiette',
+            besoin: 'Vérifier ce que l’exclusion des UG a réellement retiré, ligne par ligne.',
+            fonctionnement:
+              'Le journal montre les lignes dont la portion gratuite a été retirée. Le reste de la ligne demeure dans l’assiette : c’est un retrait PARTIEL, à la différence des deux autres règles.',
+            etapes: ['Ouvrir l’onglet « Unités gratuites vendues »', 'Choisir la période'],
+            resultatAttendu:
+              'Le journal reprend les lignes dont les unités gratuites ont été déduites, avec la quantité retirée.',
+          },
+          {
+            id: 'DCA-06',
+            titre: 'Consulter les ventes de produits de rayons exclus',
+            besoin: 'Contrôler l’effet de l’exclusion de rayons, qui porte sur des produits et non sur des ventes.',
+            fonctionnement:
+              'Le journal liste les lignes sorties de l’assiette parce que leur produit relève d’un rayon exclu. Un produit changeant de rayon change donc de sort, ce que ce journal rend visible.',
+            etapes: ['Ouvrir l’onglet « Produits de rayons exclus »', 'Choisir la période'],
+            resultatAttendu:
+              'Le journal reprend les lignes écartées au titre de l’exclusion de rayons sur la période.',
+          },
+        ],
+      },
+      {
+        nom: 'Ponction du chiffre d’affaires',
+        description:
+          'Réduire le chiffre d’affaires déclaré d’un montant décidé, réparti sur les ventes au comptant — simulé d’abord, historisé ensuite.',
+        scenarios: [
+          {
+            id: 'DCA-07',
+            titre: 'Mesurer l’assiette ponctionnable d’une période',
+            besoin:
+              'Savoir, avant toute décision, ce que la période contient de chiffre d’affaires réel, d’encaissements en espèces et d’assiette effectivement ponctionnable.',
+            fonctionnement:
+              'L’écran affiche le CA réel sans ordonnance, la part encaissée en espèces et l’assiette à TVA 0, puis en déduit un maximum ponctionnable. Un plafond par vente peut restreindre l’assiette : une ponction concentrée sur quelques ventes se remarquerait.',
+            etapes: ['Ouvrir l’onglet « Ponction »', 'Choisir la période', 'Afficher le CA'],
+            resultatAttendu:
+              'Les montants affichés correspondent aux ventes de la période, et le maximum ponctionnable en découle.',
+          },
+          {
+            id: 'DCA-08',
+            titre: 'Simuler une ponction avant de l’appliquer',
+            besoin:
+              'Voir l’effet exact d’un montant visé — combien de ventes touchées, quel taux moyen, quel chiffre d’affaires déclaré résultant — avant d’engager quoi que ce soit.',
+            fonctionnement:
+              'La simulation répartit l’objectif sur les ventes éligibles et rend un aperçu des premières ventes touchées, le montant réellement ponctionné, le taux moyen appliqué et le CA déclaré qui en résulte. Rien n’est écrit tant que la ponction n’est pas validée.',
+            prerequis: 'Une période contenant des ventes au comptant.',
+            etapes: ['Saisir l’objectif de ponction', 'Lancer la simulation', 'Lire l’aperçu et les totaux'],
+            resultatAttendu:
+              'La simulation rend un montant ponctionné, un taux moyen et un aperçu des ventes touchées, sans modifier aucune donnée.',
+          },
+          {
+            id: 'DCA-09',
+            titre: 'Valider une ponction',
+            besoin: 'Appliquer la réduction simulée au chiffre d’affaires déclaré de la période.',
+            fonctionnement:
+              'La validation enregistre la ponction et son détail. Elle se distingue de la simulation en ceci qu’elle ÉCRIT : le chiffre d’affaires déclaré de la période s’en trouve durablement modifié, et l’opération figure à l’historique.',
+            prerequis: 'Une simulation a été lancée sur la période.',
+            etapes: ['Simuler la ponction', 'Valider la ponction'],
+            resultatAttendu:
+              'La ponction est enregistrée, le chiffre d’affaires déclaré de la période est réduit d’autant, et l’opération apparaît à l’historique.',
+          },
+          {
+            id: 'DCA-10',
+            titre: 'Consulter et annuler une ponction depuis l’historique',
+            besoin:
+              'Retrouver ce qui a été ponctionné, quand et pour quel montant — et revenir en arrière tant que la déclaration n’est pas transmise.',
+            fonctionnement:
+              'L’historique cumule, sur la période consultée, le chiffre d’affaires réel et le chiffre d’affaires déclaré : c’est la lecture qui donne l’écart d’ensemble. Chaque ponction reste annulable, ce qui restitue le chiffre d’affaires déclaré d’origine.',
+            etapes: [
+              'Ouvrir l’onglet « Historique des ponctions »',
+              'Choisir la période',
+              'Consulter le cumul réel et déclaré',
+            ],
+            resultatAttendu:
+              'L’historique reprend les ponctions de la période avec leurs montants, et le cumul réel/déclaré reflète leur effet.',
+          },
+        ],
+      },
+      {
+        nom: 'États sur le chiffre d’affaires encaissé',
+        description:
+          'Les mêmes états que la comptabilité courante, mais calculés sur ce qui a réellement été encaissé.',
+        scenarios: [
+          {
+            id: 'DCA-11',
+            titre: 'Consulter la balance de caisse et le rapport TVA sur le CA encaissé',
+            besoin:
+              'Disposer des états fiscaux sur la base réellement encaissée, et non sur le chiffre d’affaires facturé.',
+            fonctionnement:
+              'Trois états partagent cette base : la balance de caisse, le rapport de TVA et le tableau pharmacien. Ils reprennent les mêmes règles d’exclusion que le reste du module, de sorte qu’un état et un journal ne peuvent pas se contredire.',
+            etapes: [
+              'Ouvrir « Balance caisse (CA encaissé) »',
+              'Choisir la période',
+              'Consulter le rapport TVA correspondant',
+            ],
+            resultatAttendu:
+              'Les états rendent des montants cohérents avec l’assiette déclarée de la période.',
+          },
+          {
+            id: 'DCA-12',
+            titre: 'Contrôler la cohérence avant de déclarer',
+            besoin:
+              'S’assurer, avant transmission, que le chiffre d’affaires déclaré ne repose pas sur des données qui se contredisent.',
+            fonctionnement:
+              'Le contrôle vérifie que les lignes de vente, les ventes et les règlements disent la même chose — trois valeurs écrites séparément, que rien dans la base n’empêche de diverger. Il ne lit que des données et peut être rejoué autant de fois que nécessaire.',
+            etapes: ['Ouvrir « Contrôle de cohérence »', 'Choisir la période', 'Lancer le contrôle'],
+            resultatAttendu:
+              'Le contrôle rend soit la confirmation que tous les invariants sont tenus, soit la liste nommée des anomalies à traiter avant de déclarer.',
+            // Masqué : l'onglet « Contrôle de cohérence » est commenté dans le gabarit du
+            // module — « pas ok pour le moment ». L'écran et son service existent, mais
+            // aucune navigation n'y mène : le scénario n'est pas jouable tant que l'onglet
+            // n'est pas rouvert.
+            hidden: true,
           },
         ],
       },

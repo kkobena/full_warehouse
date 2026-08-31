@@ -29,7 +29,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
   templateUrl: "./suggestion-home.component.html",
   styleUrls: ["./suggestion-home.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeviseDirective, 
+  imports: [DeviseDirective,
     CommonModule,
     FormsModule,
     SuggestionFournisseurListComponent,
@@ -293,6 +293,25 @@ export class SuggestionHomeComponent {
     const fournisseur = this.facade.selectedFournisseur();
     if (!fournisseur?.suggestionId) {
       this.notificationService.warning("Aucune suggestion sélectionnée.");
+      return;
+    }
+    const modalRef = this.modalService.open(DispoComparaisonComponent, {
+      size: "xl",
+      scrollable: true,
+      backdrop: "static",
+      centered: true,
+      injector: this.injector
+    });
+    modalRef.componentInstance.suggestionId = fournisseur.suggestionId;
+    modalRef.componentInstance.header = `Disponibilité PharmaML — ${fournisseur.libelle}`;
+  }
+
+  /**
+   * Disponibilité demandée depuis la LIGNE, sans ouvrir la proposition.
+   */
+  onVerifierDispoDirect(fournisseur: FournisseurSuggestionSummary): void {
+    if (!fournisseur?.suggestionId) {
+      this.notificationService.warning("Cette proposition n'a pas d'identifiant.");
       return;
     }
     const modalRef = this.modalService.open(DispoComparaisonComponent, {

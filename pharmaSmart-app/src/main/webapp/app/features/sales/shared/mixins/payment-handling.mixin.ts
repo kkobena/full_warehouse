@@ -7,7 +7,8 @@ import {NotificationService} from '../../../../shared/services/notification.serv
 import {CustomerDisplayService} from '../../data-access/services/customer-display.service';
 import {PaymentCompleteEvent} from '../../ui/payment-mode/payment-mode.component';
 
-import { formatCurrencyWithUnit } from 'app/shared/utils/format-utils';
+import {formatCurrencyWithUnit} from 'app/shared/utils/format-utils';
+
 /**
  * Structure d'un paiement entrant depuis l'événement de paiement
  */
@@ -30,6 +31,12 @@ export interface PaymentModeHost {
   changeExact(): number;
 
   focusFirstMode(): void;
+
+  /**
+   * Contrôles propres au règlement — référence bancaire d'un paiement non espèces,
+   * commentaire d'une vente différée. Le composant les émet lui-même en message d'erreur.
+   */
+  validate(): boolean;
 }
 
 /**
@@ -147,6 +154,16 @@ export function createPaymentHandling(context: PaymentHandlingContext) {
       return null;
     }
 
+    // Les contrôles du règlement s'appliquent AUSSI au bouton « Finaliser ».
+    //
+    // Ils n'existaient que sur le chemin clavier (`Entrée` dans le pavé de règlement, qui
+    // appelle `submit()`) : régler par carte sans référence bancaire passait donc sans un
+    // mot dès lors qu'on cliquait. La preuve de paiement manquait ensuite au contrôle, et
+    // rien, au moment de la vente, n'avait signalé l'oubli.
+    if (!paymentModeComp.validate()) {
+      return null;
+    }
+
     const selectedModes = paymentModeComp.selectedModes();
     if (!selectedModes || selectedModes.length === 0) {
       return {
@@ -179,7 +196,7 @@ export function createPaymentHandling(context: PaymentHandlingContext) {
   function validateSaleForSave(): boolean {
     const sale = currentSale();
     if (!sale || !canSave()) {
-      notificationService.warning('Vente invalide', "Veuillez ajouter au moins un produit avant d'enregistrer la vente");
+      notificationService.warning("Veuillez ajouter au moins un produit avant d'enregistrer la vente", 'Vente invalide');
       return false;
     }
     return true;
@@ -191,7 +208,9 @@ export function createPaymentHandling(context: PaymentHandlingContext) {
    */
   function finalizeSaleWithoutPayment(): void {
     const sale = currentSale();
-    if (!sale) return;
+    if (!sale) {
+      return;
+    }
 
     // Montant entièrement couvert
     sale.montantVerse = 0;
@@ -281,7 +300,7 @@ export function createPaymentHandling(context: PaymentHandlingContext) {
   function processPayment(event: PaymentCompleteEvent): void {
     const sale = currentSale();
     if (!sale) {
-      notificationService.warning('Erreur', 'Aucune vente en cours');
+      notificationService.error('Aucune vente en cours');
       return;
     }
 
@@ -335,7 +354,9 @@ export function createPaymentHandling(context: PaymentHandlingContext) {
     }
 
     const sale = currentSale();
-    if (!sale) return;
+    if (!sale) {
+      return;
+    }
 
     const amountToBePaid = sale.amountToBePaid || 0;
 

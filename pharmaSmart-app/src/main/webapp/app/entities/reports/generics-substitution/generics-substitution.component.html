@@ -1,159 +1,193 @@
-<!-- Toolbar -->
-<app-toolbar [code]="navCode()" icon="pi pi-sync" title="Génériques &amp; Substitution">
-  <ng-container ngProjectAs="[toolbarFilters]">
-    <div class="pharma-toolbar-filters">
-      <pharma-date-picker
-        label="Du"
-        id="gs-from"
-        [ngModel]="fromStruct()"
-        (ngModelChange)="fromDate.set(structToDate($event))"
-      />
-      <pharma-date-picker
-        label="Au"
-        id="gs-to"
-        [ngModel]="toStruct()"
-        (ngModelChange)="toDate.set(structToDate($event))"
-      />
-    </div>
-  </ng-container>
-
-  <ng-container ngProjectAs="[toolbarActions]">
-    <div>
-      <app-button
-        type="button"
-        icon="pi pi-search"
-        label="Rechercher"
-        [loading]="isLoading()"
-        [raised]="true"
-        severity="primary"
-        size="small"
-        (clicked)="load()"
-      />
-    </div>
-  </ng-container>
-</app-toolbar>
-
-<!-- Loading -->
-@if (isLoading()) {
-  <div class="d-flex justify-content-center align-items-center" style="min-height: 300px">
-    <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
-  </div>
-}
-
-@if (!isLoading() && stats()) {
-
-  <!-- KPI Strip -->
-  <app-kpi-strip stripClass="mt-2 mb-3">
-    <app-kpi-item [accent]="'success'" icon="pi pi-sync" iconClass="text-success" label="Produits génériques vendus" [value]="formatNumber(stats()?.produitsGeneriques)" valueClass="text-success">
-      <ng-container ngProjectAs="[kpiSub]">{{ tauxGeneriques() }}% des produits</ng-container>
-    </app-kpi-item>
-    <app-kpi-item [accent]="'warning'" icon="pi pi-exclamation-triangle" iconClass="text-warning" label="Princeps substituables vendus" [value]="formatNumber(stats()?.princepsAvecGenerique)" valueClass="text-warning">
-      <ng-container ngProjectAs="[kpiSub]">{{ tauxSubstituables() }}% des produits</ng-container>
-    </app-kpi-item>
-    <app-kpi-item [accent]="'primary'" icon="pi pi-chart-pie" iconClass="text-primary" label="CA Génériques" [value]="formatCurrency(stats()?.caGeneriques)" valueClass="text-primary">
-      <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-      <ng-container ngProjectAs="[kpiSub]">{{ tauxCaGeneriques() }}% du CA total</ng-container>
-    </app-kpi-item>
-    <app-kpi-item icon="pi pi-wallet" iconClass="text-secondary" label="Total produits distincts" [value]="formatNumber(stats()?.totalProduits)">
-      <ng-container ngProjectAs="[kpiSub]">CA: {{ formatCurrency(stats()?.caTotal) }}</ng-container>
-    </app-kpi-item>
-  </app-kpi-strip>
-
-  <!-- Chart + Detail -->
-  <div class="row g-3">
-
-    <!-- Doughnut chart -->
-    <div class="col-md-5">
-      <div class="card data-card h-100">
-        <div class="card-header">
-          <h5 class="card-title">
-            <i class="pi pi-chart-pie text-primary"></i>
-            Répartition du CA
-          </h5>
-        </div>
-        <div class="card-body" style="position: relative; height: 300px">
-          <canvas #doughnutCanvas></canvas>
-        </div>
+<div class="pharma-smart-content p-1">
+  <app-toolbar [code]="navCode()" icon="pi pi-sync" title="Génériques &amp; Substitution">
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <div class="pharma-toolbar-filters">
+        <pharma-date-picker
+          (ngModelChange)="fromDate.set(structToDate($event))"
+          [ngModel]="fromStruct()"
+          id="gs-from"
+          label="Du"
+        />
+        <pharma-date-picker
+          (ngModelChange)="toDate.set(structToDate($event))"
+          [ngModel]="toStruct()"
+          id="gs-to"
+          label="Au"
+        />
       </div>
+    </ng-container>
+
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div>
+        <app-button
+          (clicked)="load()"
+          [loading]="isLoading()"
+          [raised]="true"
+          icon="pi pi-search"
+          label="Rechercher"
+          severity="primary"
+          size="small"
+          type="button"
+        />
+      </div>
+    </ng-container>
+  </app-toolbar>
+
+  <!-- Loading -->
+  @if (isLoading()) {
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 300px">
+      <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
     </div>
+  }
 
-    <!-- Detail cards -->
-    <div class="col-md-7">
-      <div class="row g-3 h-100">
+  @if (!isLoading() && stats()) {
 
-        <div class="col-12">
-          <div class="card data-card">
-            <div class="card-header">
-              <h5 class="card-title">
-                <i class="pi pi-table text-success"></i>
-                Détail par catégorie
-              </h5>
-            </div>
-            <div class="card-body">
-              <ul class="list-group list-group-flush">
+    <!-- KPI Strip -->
+    <app-kpi-strip stripClass="mt-2 mb-3">
+      <app-kpi-item [accent]="'success'" [value]="formatNumber(stats()?.produitsGeneriques)" icon="pi pi-sync"
+                    iconClass="text-success"
+                    label="Produits génériques vendus" valueClass="text-success">
+        <ng-container ngProjectAs="[kpiSub]">{{ tauxGeneriques() }}% des produits</ng-container>
+      </app-kpi-item>
+      <app-kpi-item [accent]="'warning'" [value]="formatNumber(stats()?.princepsAvecGenerique)" icon="pi pi-exclamation-triangle"
+                    iconClass="text-warning"
+                    label="Princeps substituables vendus"
+                    valueClass="text-warning">
+        <ng-container ngProjectAs="[kpiSub]">{{ tauxSubstituables() }}% des produits</ng-container>
+      </app-kpi-item>
+      <app-kpi-item [accent]="'primary'" [value]="formatCurrency(stats()?.caGeneriques)" icon="pi pi-chart-pie"
+                    iconClass="text-primary" label="CA Génériques"
+                    valueClass="text-primary">
+        <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+        <ng-container ngProjectAs="[kpiSub]">{{ tauxCaGeneriques() }}% du CA total</ng-container>
+      </app-kpi-item>
+      <app-kpi-item [value]="formatNumber(stats()?.totalProduits)" icon="pi pi-wallet" iconClass="text-secondary"
+                    label="Total produits distincts">
+        <ng-container ngProjectAs="[kpiSub]">CA: {{
+            formatCurrency(stats()?.caTotal)
+          }}
+        </ng-container>
+      </app-kpi-item>
+    </app-kpi-strip>
 
-                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                  <div>
-                    <span class="badge bg-success-subtle text-success me-2">Génériques</span>
-                    <small class="text-muted">Produits vendus qui sont des génériques</small>
-                  </div>
-                  <div class="text-end">
-                    <div class="fw-bold text-success">{{ formatCurrency(stats()?.caGeneriques) }}</div>
-                    <small class="text-muted">{{ formatNumber(stats()?.produitsGeneriques) }} produits · {{ tauxGeneriques() }}%</small>
-                  </div>
-                </li>
+    <!-- Chart + Detail -->
+    <div class="row g-3">
 
-                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                  <div>
-                    <span class="badge bg-warning-subtle text-warning me-2">Princeps substituables</span>
-                    <small class="text-muted">Princeps vendus ayant un générique disponible</small>
-                  </div>
-                  <div class="text-end">
-                    <div class="fw-bold text-warning">{{ formatCurrency(stats()?.caPrincepsAvecGenerique) }}</div>
-                    <small class="text-muted">{{ formatNumber(stats()?.princepsAvecGenerique) }} produits · {{ tauxSubstituables() }}%</small>
-                  </div>
-                </li>
-
-                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                  <div>
-                    <span class="badge bg-secondary-subtle text-secondary me-2">Autres</span>
-                    <small class="text-muted">Sans substitut générique référencé</small>
-                  </div>
-                  <div class="text-end">
-                    <div class="fw-bold">
-                      {{ formatCurrency((stats()?.caTotal ?? 0) - (stats()?.caGeneriques ?? 0) - (stats()?.caPrincepsAvecGenerique ?? 0)) }}
-                    </div>
-                    <small class="text-muted">
-                      {{ formatNumber((stats()?.totalProduits ?? 0) - (stats()?.produitsGeneriques ?? 0) - (stats()?.princepsAvecGenerique ?? 0)) }} produits
-                    </small>
-                  </div>
-                </li>
-
-                <li class="list-group-item d-flex justify-content-between align-items-center px-0 fw-bold">
-                  <span>Total</span>
-                  <div class="text-end">
-                    <div>{{ formatCurrency(stats()?.caTotal) }}</div>
-                    <small class="text-muted">{{ formatNumber(stats()?.totalProduits) }} produits distincts</small>
-                  </div>
-                </li>
-
-              </ul>
-            </div>
+      <!-- Doughnut chart -->
+      <div class="col-md-5">
+        <div class="card data-card h-100">
+          <div class="card-header">
+            <h5 class="card-title">
+              <i class="pi pi-chart-pie text-primary"></i>
+              Répartition du CA
+            </h5>
+          </div>
+          <div class="card-body" style="position: relative; height: 300px">
+            <canvas #doughnutCanvas></canvas>
           </div>
         </div>
+      </div>
 
+      <!-- Detail cards -->
+      <div class="col-md-7">
+        <div class="row g-3 h-100">
+
+          <div class="col-12">
+            <div class="card data-card">
+              <div class="card-header">
+                <h5 class="card-title">
+                  <i class="pi pi-table text-success"></i>
+                  Détail par catégorie
+                </h5>
+              </div>
+              <div class="card-body">
+                <ul class="list-group list-group-flush">
+
+                  <li
+                    class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    <div>
+                      <span class="badge bg-success-subtle text-success me-2">Génériques</span>
+                      <small class="text-muted">Produits vendus qui sont des génériques</small>
+                    </div>
+                    <div class="text-end">
+                      <div class="fw-bold text-success">{{
+                          formatCurrency(stats()?.caGeneriques)
+                        }}
+                      </div>
+                      <small class="text-muted">{{ formatNumber(stats()?.produitsGeneriques) }}
+                        produits · {{ tauxGeneriques() }}%</small>
+                    </div>
+                  </li>
+
+                  <li
+                    class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    <div>
+                      <span
+                        class="badge bg-warning-subtle text-warning me-2">Princeps substituables</span>
+                      <small class="text-muted">Princeps vendus ayant un générique
+                        disponible</small>
+                    </div>
+                    <div class="text-end">
+                      <div class="fw-bold text-warning">{{
+                          formatCurrency(stats()?.caPrincepsAvecGenerique)
+                        }}
+                      </div>
+                      <small class="text-muted">{{ formatNumber(stats()?.princepsAvecGenerique) }}
+                        produits · {{ tauxSubstituables() }}%</small>
+                    </div>
+                  </li>
+
+                  <li
+                    class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    <div>
+                      <span class="badge bg-secondary-subtle text-secondary me-2">Autres</span>
+                      <small class="text-muted">Sans substitut générique référencé</small>
+                    </div>
+                    <div class="text-end">
+                      <div class="fw-bold">
+                        {{
+                          formatCurrency((stats()?.caTotal ?? 0) - (stats()?.caGeneriques ?? 0)
+                            - (stats()?.caPrincepsAvecGenerique ?? 0))
+                        }}
+                      </div>
+                      <small class="text-muted">
+                        {{
+                          formatNumber(
+                            (stats()?.totalProduits ?? 0) - (stats()?.produitsGeneriques ?? 0)
+                            - (stats()?.princepsAvecGenerique ?? 0))
+                        }} produits
+                      </small>
+                    </div>
+                  </li>
+
+                  <li
+                    class="list-group-item d-flex justify-content-between align-items-center px-0 fw-bold">
+                    <span>Total</span>
+                    <div class="text-end">
+                      <div>{{ formatCurrency(stats()?.caTotal) }}</div>
+                      <small class="text-muted">{{ formatNumber(stats()?.totalProduits) }} produits
+                        distincts</small>
+                    </div>
+                  </li>
+
+                </ul>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  }
+
+  @if (!isLoading() && !stats()) {
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 200px">
+      <div class="pharma-empty-content">
+        <i class="pi pi-inbox" style="font-size: 2.5rem"></i>
+        <p class="mt-2 mb-0 text-muted">Aucune donnée disponible pour cette période</p>
       </div>
     </div>
-
-  </div>
-
-}
-
-@if (!isLoading() && !stats()) {
-  <div class="d-flex justify-content-center align-items-center" style="min-height: 200px">
-    <div class="pharma-empty-content">
-      <i class="pi pi-inbox" style="font-size: 2.5rem"></i>
-      <p class="mt-2 mb-0 text-muted">Aucune donnée disponible pour cette période</p>
-    </div>
-  </div>
-}
+  }
+</div>

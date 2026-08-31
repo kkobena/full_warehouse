@@ -42,6 +42,9 @@
       flex: 1;
       font-size: 1rem;
       font-weight: 600;
+      // Le titre est un `<h1>` : neutraliser les marges que le navigateur lui donne, la
+      // barre les rendrait deux fois plus haute.
+      margin: 0;
     }
 
     .pharma-toolbar-subtitle {

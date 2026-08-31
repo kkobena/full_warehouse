@@ -1,28 +1,58 @@
-import { Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy, signal } from "@angular/core";
-import { ITEMS_PER_PAGE, PRODUIT_COMBO_RESULT_SIZE } from "../../../shared/constants/pagination.constants";
-import { TranslatePipe } from "@ngx-translate/core";
-import { FormsModule } from "@angular/forms";
-import { IProduit } from "../../../shared/model";
-import { NgxSpinnerModule } from "ngx-spinner";
-import { ProductToDestroyService } from "../product-to-destroy.service";
-import { ProductToDestroy, ProductToDestroyFilter, ProductToDestroyPayload } from "../model/product-to-destroy";
-import { ProduitAutocompleteComponent } from "../../../shared/produit-autocomplete/produit-autocomplete.component";
-import { QuantiteProdutSaisieComponent } from "../../../shared/quantite-produt-saisie/quantite-produt-saisie.component";
-import { AppTableLazyLoadEvent } from "../../../shared/ui";
-import { HttpHeaders, HttpResponse } from "@angular/common/http";
-import { PeremptionStatut } from "../model/peremption-statut";
-import { PharmaDatePickerComponent } from "../../../shared/date-picker/pharma-date-picker.component";
-import { NgbDateStruct, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import { NGB_DATE_TO_ISO } from "../../../shared/util/warehouse-util";
-import { SpinnerComponent } from "../../../shared/spinner/spinner.component";
-import { CommonModule } from "@angular/common";
-import { NgbConfirmDialogService } from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { NotificationService } from "../../../shared/services/notification.service";
-import { ErrorService } from "../../../shared/error.service";
-import { BadgeComponent, ButtonComponent, DataTableComponent, EditableCellComponent, FloatLabelComponent, IconFieldComponent, KeyFilterDirective, ToolbarComponent } from "../../../shared/ui";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+  signal,
+  viewChild
+} from "@angular/core";
+import {
+  ITEMS_PER_PAGE,
+  PRODUIT_COMBO_RESULT_SIZE
+} from "../../../shared/constants/pagination.constants";
+import {TranslatePipe} from "@ngx-translate/core";
+import {FormsModule} from "@angular/forms";
+import {IProduit} from "../../../shared/model";
+import {NgxSpinnerModule} from "ngx-spinner";
+import {ProductToDestroyService} from "../product-to-destroy.service";
+import {
+  ProductToDestroy,
+  ProductToDestroyFilter,
+  ProductToDestroyPayload
+} from "../model/product-to-destroy";
+import {
+  ProduitAutocompleteComponent
+} from "../../../shared/produit-autocomplete/produit-autocomplete.component";
+import {
+  QuantiteProdutSaisieComponent
+} from "../../../shared/quantite-produt-saisie/quantite-produt-saisie.component";
+import {
+  AppTableLazyLoadEvent,
+  BadgeComponent,
+  ButtonComponent,
+  DataTableComponent,
+  EditableCellComponent,
+  FloatLabelComponent,
+  IconFieldComponent,
+  KeyFilterDirective,
+  ToolbarComponent
+} from "../../../shared/ui";
+import {HttpHeaders, HttpResponse} from "@angular/common/http";
+import {PeremptionStatut} from "../model/peremption-statut";
+import {PharmaDatePickerComponent} from "../../../shared/date-picker/pharma-date-picker.component";
+import {NgbDateStruct, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
+import {NGB_DATE_TO_ISO} from "../../../shared/util/warehouse-util";
+import {SpinnerComponent} from "../../../shared/spinner/spinner.component";
+import {CommonModule} from "@angular/common";
+import {
+  NgbConfirmDialogService
+} from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import {NotificationService} from "../../../shared/services/notification.service";
+import {ErrorService} from "../../../shared/error.service";
 
 @Component({
-  selector: "jhi-ajout-perimes",
+  selector: "app-ajout-perimes",
   imports: [
     CommonModule,
     FloatLabelComponent,

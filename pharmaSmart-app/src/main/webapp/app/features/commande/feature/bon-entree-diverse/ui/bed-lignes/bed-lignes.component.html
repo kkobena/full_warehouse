@@ -81,8 +81,8 @@
         <td>{{ l.produitLibelle ?? '—' }}</td>
         <td><span class="pharma-code">{{ l.codeCip ?? '—' }}</span></td>
         <td class="text-end">{{ l.quantite }}</td>
-        <td class="text-end">{{ l.prixAchat | number:'1.0-0' }} F</td>
-        <td class="text-end pharma-total">{{ (l.quantite ?? 0) * (l.prixAchat ?? 0) | number:'1.0-0' }} F</td>
+        <td class="text-end">{{ l.prixAchat | devise }}</td>
+        <td class="text-end pharma-total">{{ (l.quantite ?? 0) * (l.prixAchat ?? 0) | devise }}</td>
         @if (isBrouillon()) {
           <td>
             <app-button
@@ -114,7 +114,7 @@
     <ng-template #footer>
       <tr class="bed-total-row">
         <td colspan="4" class="text-end fw-bold">Total</td>
-        <td class="text-end fw-bold pharma-total">{{ totalLignes() | number:'1.0-0' }} F</td>
+        <td class="text-end fw-bold pharma-total">{{ totalLignes() | devise }}</td>
         @if (isBrouillon()) {
           <td></td>
         }

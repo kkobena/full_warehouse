@@ -20,10 +20,12 @@ import { AgGridAngular } from 'ag-grid-angular';
 import { SuggestionProduitActionsComponent } from './suggestion-produit-actions.component';
 import { FournisseurSuggestionSummary, SuggestionLigneEnrichie } from '../../data-access/suggestion-enrichie.model';
 import { CommandeProductSearchComponent } from '../../../../ui/commande-product-search/commande-product-search.component';
+import { COMPARAISON_DISPONIBILITE_ACTIVE } from '../../../pharmaml/pharmaml.constants';
 import { ProduitSearch } from 'app/shared/model';
 
 import { formatNumber } from 'app/shared/utils/format-utils';
-import { DeviseDirective } from 'app/shared/utils/devise';
+import { DeviseDirective, DevisePipe } from 'app/shared/utils/devise';
+import {AG_GRID_LOCALE_FR} from '../../../../../../shared/ui/ag-grid/ag-grid-locale.fr';
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
 @Component({
@@ -39,9 +41,13 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
     AgGridAngular,
     DecimalPipe,
     CommandeProductSearchComponent,
-  ],
+   DevisePipe],
 })
 export class SuggestionProduitPanelComponent {
+  /** Libellés français d'AG Grid — voir shared/ui/ag-grid. */
+  protected readonly localeFr = AG_GRID_LOCALE_FR;
+  protected readonly comparaisonDisponibiliteActive = COMPARAISON_DISPONIBILITE_ACTIVE;
+
   // ─── Inputs ─────────────────────────────────────────────────────────────────
   fournisseur = input<FournisseurSuggestionSummary | null>(null);
   lignes = input<SuggestionLigneEnrichie[]>([]);

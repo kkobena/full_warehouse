@@ -23,7 +23,7 @@
     <div class="commande-search-item" [class.stockless]="item.totalQuantity <= 0">
       <span class="pharma-code">{{ item.fournisseurProduit?.codeCip }}</span>
       <span class="item-libelle">{{ item.libelle }}</span>
-      <span class="item-price">{{ item.regularUnitPrice | number }} F</span>
+      <span class="item-price">{{ item.regularUnitPrice | devise }}</span>
     </div>
   </ng-template>
 </app-float-label>

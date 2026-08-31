@@ -44,6 +44,18 @@ import {FrenchDateParserFormatter} from '../../config/french-date-parser-formatt
  */
 @Component({
   selector: 'pharma-date-picker',
+  // L'entrée s'appelle `id`, qui est AUSSI un attribut HTML natif : `<pharma-date-picker
+  // id="dateDebut">` alimente l'entrée et laisse en même temps l'attribut sur l'hôte. Le
+  // document contient alors DEUX éléments portant `dateDebut` — l'hôte et l'input interne —
+  // ce qui est invalide en HTML, rend `document.getElementById` ambigu et casse la cible du
+  // `<label for>` pour les lecteurs d'écran.
+  //
+  // L'attribut est donc retiré de l'hôte : l'identifiant n'a de sens que sur le champ de
+  // saisie, celui que le label désigne. Corrigé ici plutôt qu'en renommant l'entrée, ce qui
+  // aurait touché les 68 gabarits qui emploient ce composant.
+  host: {
+    '[attr.id]': 'null',
+  },
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [

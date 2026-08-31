@@ -60,9 +60,21 @@ public class AvoirPdfService extends CommonReportService {
     protected Map<String, Object> getParameters() {
         return this.variablesMap;
     }
+    /**
+     * Le gabarit RENDU — pas son nom.
+     *
+     * <p>C'est cette surcharge sans contexte qu'appelle {@code exportReportToPdf()}, et elle
+     * rendait {@code currentHtml}, c'est-à-dire « avoir/pdf/main » : le moteur de rendu
+     * recevait ce chemin en guise de document et refusait de l'analyser — « Contenu non
+     * autorisé dans le prologue », à la ligne 1, colonne 1. Aucun PDF d'avoir ne pouvait
+     * sortir.
+     *
+     * <p>Le champ garde le NOM du gabarit à rendre (la classe en sert deux : la fiche d'un
+     * avoir et la liste), et c'est ici qu'il est traité, avec les variables accumulées.
+     */
     @Override
     protected String getTemplateAsHtml() {
-        return currentHtml;
+        return templateEngine.process(currentHtml, super.getContextVariables());
     }
 
 

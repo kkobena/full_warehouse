@@ -35,6 +35,8 @@ import {
   ButtonComponent,
   DataTableComponent,
   FloatLabelComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   MultiSelectComponent,
   SelectComponent,
   SelectSearchComponent,
@@ -44,6 +46,7 @@ import {
 import {
   PharmaDatePickerComponent
 } from "../../../../shared/date-picker/pharma-date-picker.component";
+import {DeviseDirective} from "../../../../shared/utils/devise";
 
 interface IStatutOption {
   label: string;
@@ -69,7 +72,10 @@ interface IKpiGroup {
     SelectSearchComponent,
     SplitButtonComponent,
     ToolbarComponent,
+    KpiStripComponent,
+    KpiItemComponent,
     PharmaDatePickerComponent,
+    DeviseDirective,
     NgbTooltip
   ],
   templateUrl: "./avoir.component.html",
@@ -182,15 +188,36 @@ export class AvoirComponent implements OnInit {
       });
   }
 
-  openNouvelAvoir(prefillFactureId?: number, prefillFactureDate?: string, prefillTiersPayantId?: number): void {
+  /**
+   * Ouvre la création d'un avoir, éventuellement pré-remplie avec une facture d'origine.
+   *
+   * <p>La modal attend un `IFacture` complet — elle contrôle que le montant de l'avoir ne
+   * dépasse pas ce que le tiers payant a déjà réglé, et ce montant ne figure pas dans la
+   * ligne d'avoir affichée ici. On va donc chercher la facture par sa clé (identifiant +
+   * date) avant d'ouvrir. Sans clé, la modal s'ouvre vide et l'utilisateur cherche lui-même
+   * sa facture : c'est le chemin d'un premier avoir, quand la liste est encore déserte.
+   */
+  openNouvelAvoir(factureId?: number, factureDate?: string): void {
+    if (factureId && factureDate) {
+      this.factureApiService
+        .find({id: factureId, invoiceDate: factureDate})
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: res => this.ouvrirModalAvoir(res.body ?? undefined),
+          error: () => this.notificationService.error("Facture d'origine introuvable"),
+        });
+      return;
+    }
+    this.ouvrirModalAvoir();
+  }
+
+  private ouvrirModalAvoir(prefillFacture?: IFacture): void {
     const ref = this.modalService.open(AvoirFormModalComponent, {
       size: "lg",
       centered: true,
       backdrop: "static"
     });
-    ref.componentInstance.prefillFactureId = prefillFactureId;
-    ref.componentInstance.prefillFactureDate = prefillFactureDate;
-    ref.componentInstance.prefillTiersPayantId = prefillTiersPayantId;
+    ref.componentInstance.prefillFacture = prefillFacture;
     ref.result.then(
       (avoir: IAvoir) => {
         this.avoirs.set([avoir, ...this.avoirs()]);

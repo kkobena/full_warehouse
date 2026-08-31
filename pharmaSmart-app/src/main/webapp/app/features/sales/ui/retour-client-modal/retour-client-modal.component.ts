@@ -14,6 +14,7 @@ import {
   RetourClientRequest,
 } from "../../data-access/services/retour-client-api.service";
 import { ISales } from "../../../../shared/model";
+import { DevisePipe } from 'app/shared/utils/devise';
 
 type RetourLine = ISaleLineForRetour & {
   emballageIntact: boolean;
@@ -26,7 +27,7 @@ type RetourLine = ISaleLineForRetour & {
   templateUrl: "./retour-client-modal.component.html",
   styleUrl: "./retour-client-modal.component.scss",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, ButtonComponent, SelectSearchComponent, InputNumberComponent, CheckboxComponent, CardComponent],
+  imports: [CommonModule, FormsModule, ButtonComponent, SelectSearchComponent, InputNumberComponent, CheckboxComponent, CardComponent, DevisePipe],
 })
 export class RetourClientModalComponent {
   readonly activeModal = inject(NgbActiveModal);
@@ -172,7 +173,12 @@ export class RetourClientModalComponent {
       .subscribe({
         next: result => {
           this.submitLoading.set(false);
-          if (result.partiel) {
+          // Le récapitulatif s'affiche aussi pour un ÉCHANGE, et pas seulement quand une
+          // ligne pose problème : c'est là que se lisent le montant de l'avoir et sa
+          // référence. Sans lui, la fenêtre se refermait sans un mot sur le crédit qu'elle
+          // venait de créer — et le pharmacien devait aller le chercher dans l'onglet des
+          // avoirs pour savoir de combien il disposait.
+          if (result.partiel || result.echangeContext) {
             this.retourResult.set(result);
           } else {
             this.activeModal.close(result);

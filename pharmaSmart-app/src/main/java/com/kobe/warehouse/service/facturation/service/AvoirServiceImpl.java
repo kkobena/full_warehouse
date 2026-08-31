@@ -7,6 +7,7 @@ import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.enumeration.AvoirStatut;
+import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
 import com.kobe.warehouse.repository.AvoirTiersPayantRepository;
 import com.kobe.warehouse.repository.FactureTiersPayantRepository;
 import com.kobe.warehouse.service.StorageService;
@@ -22,7 +23,9 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Year;
 import java.util.Collections;
 import java.util.List;
@@ -58,8 +61,9 @@ public class AvoirServiceImpl implements AvoirService {
         FactureTiersPayant factureTiersPayant = factureTiersPayantRepository
             .getReferenceById(new FactureItemId(command.factureId(), command.factureDate()));
 
-        int nextNum = avoirRepository.findMaxNumeroAvoir() + 1;
-        String numAvoir = "AV-" + Year.now().getValue() + "_" + String.format("%04d", nextNum);
+        int annee = Year.now().getValue();
+        int nextNum = avoirRepository.findMaxNumeroAvoir(annee) + 1;
+        String numAvoir = "AV-" + annee + "_" + String.format("%04d", nextNum);
 
         AvoirTiersPayant avoir = new AvoirTiersPayant();
         avoir.setNumAvoir(numAvoir);
@@ -101,6 +105,18 @@ public class AvoirServiceImpl implements AvoirService {
         return toDto(avoirRepository.save(avoir));
     }
 
+    /**
+     * Impute un avoir émis sur une facture : c'est l'opération qui a un effet comptable.
+     *
+     * <p>Elle ne se contentait que de changer le statut, alors même que l'écran demande sur
+     * QUELLE facture imputer : l'avoir marqué « imputé » ne réduisait ce que doit personne, et
+     * le tiers payant restait relancé pour un montant qu'il n'avait plus à régler. L'avoir
+     * s'impute donc désormais comme un règlement sans encaissement — il augmente le montant
+     * réglé de la facture cible et fait passer celle-ci à soldée dès qu'elle l'est.
+     *
+     * <p>La facture cible est conservée sur l'avoir : elle n'est pas toujours la facture
+     * d'origine, et sans elle un solde réduit resterait inexplicable.
+     */
     @Override
     public void imputer(Long avoirId, Long factureId, LocalDate factureDate) {
         AvoirTiersPayant avoir = avoirRepository.getReferenceById(avoirId);
@@ -108,6 +124,19 @@ public class AvoirServiceImpl implements AvoirService {
             throw new IllegalStateException(
                 "L'avoir doit être en statut EMIS pour être imputé. Statut actuel: " + avoir.getStatut());
         }
+        FactureTiersPayant factureCible = factureTiersPayantRepository.getReferenceById(
+            new FactureItemId(factureId, factureDate));
+
+        int montantAvoir = avoir.getMontantAvoir().setScale(0, RoundingMode.HALF_UP).intValue();
+        int montantRegle = Objects.requireNonNullElse(factureCible.getMontantRegle(), 0) + montantAvoir;
+        int montantFacture = factureCible.getMontantTtc().setScale(0, RoundingMode.HALF_UP).intValue();
+
+        factureCible.setMontantRegle(montantRegle);
+        factureCible.setStatut(montantRegle < montantFacture ? InvoiceStatut.PARTIALLY_PAID : InvoiceStatut.PAID);
+        factureCible.setUpdated(LocalDateTime.now());
+        factureTiersPayantRepository.save(factureCible);
+
+        avoir.setFactureImputation(factureCible);
         avoir.setStatut(AvoirStatut.IMPUTE);
         avoirRepository.save(avoir);
     }

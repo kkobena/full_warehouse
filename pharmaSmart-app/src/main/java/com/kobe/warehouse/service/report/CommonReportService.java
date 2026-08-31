@@ -1,12 +1,13 @@
 package com.kobe.warehouse.service.report;
 
-import com.kobe.warehouse.service.license.DemoWatermark;
 import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.Pair;
 import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.errors.FileStorageException;
+import com.kobe.warehouse.service.license.DemoWatermark;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.DateUtil;
 import jakarta.validation.constraints.NotNull;
 import java.io.ByteArrayOutputStream;
@@ -28,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -38,17 +40,16 @@ import org.thymeleaf.context.Context;
 import org.xhtmlrenderer.layout.SharedContext;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import com.kobe.warehouse.service.settings.AppConfigurationService;
 @Component
 public abstract class CommonReportService {
 
     protected final Logger log = LoggerFactory.getLogger(CommonReportService.class);
-    private AppConfigurationService appConfigurationService;
     private final FileStorageProperties fileStorageProperties;
     private final StorageService storageService;
+    private AppConfigurationService appConfigurationService;
 
-    protected CommonReportService(FileStorageProperties fileStorageProperties, StorageService storageService) {
+    protected CommonReportService(FileStorageProperties fileStorageProperties,
+        StorageService storageService) {
         this.fileStorageProperties = fileStorageProperties;
         this.storageService = storageService;
     }
@@ -56,17 +57,20 @@ public abstract class CommonReportService {
     protected abstract List<?> getItems();
 
     protected String getDestFilePath() {
-        Path fileStorageLocation = Paths.get(fileStorageProperties.getReportsDir()).toAbsolutePath().normalize();
+        Path fileStorageLocation = Paths.get(fileStorageProperties.getReportsDir()).toAbsolutePath()
+            .normalize();
 
         try {
             Files.createDirectories(fileStorageLocation);
         } catch (IOException ex) {
-            throw new FileStorageException("Could not create the directory where the uploaded files will be stored.", ex);
+            throw new FileStorageException(
+                "Could not create the directory where the uploaded files will be stored.", ex);
         }
 
         return fileStorageLocation
             .resolve(
-                this.getGenerateFileName() + "_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss")) + ".pdf"
+                this.getGenerateFileName() + "_" + LocalDateTime.now()
+                    .format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss")) + ".pdf"
             )
             .toFile()
             .getAbsolutePath();
@@ -130,7 +134,8 @@ public abstract class CommonReportService {
                 getParameters().put(Constant.ITEMS, list);
                 getParameters().put(Constant.ITEM_SIZE, size);
                 getParameters().put(Constant.PAGE_COUNT, (i + 1) + "/" + pageNumber);
-                renderer.setDocumentFromString(DemoWatermark.apply(this.getTemplateAsHtml(context)));
+                renderer.setDocumentFromString(
+                    DemoWatermark.apply(this.getTemplateAsHtml(context)));
 
                 renderer.layout();
                 renderer.writeNextDocument();
@@ -176,14 +181,16 @@ public abstract class CommonReportService {
     /**
      * Contexte commun à tous les rapports.
      *
-     * <p>{@code devise} y est posée une fois pour toutes : les gabarits l'affichaient en dur, ce qui
+     * <p>{@code devise} y est posée une fois pour toutes : les gabarits l'affichaient en dur, ce
+     * qui
      * imposait le franc CFA à toute officine imprimant une facture. Le repli couvre le cas où le
      * service n'est pas injecté — un rapport instancié à la main dans un test, par exemple.
      */
     protected Context getContext() {
         Locale locale = Locale.forLanguageTag("fr");
         Context context = new Context(locale);
-        context.setVariable("devise", appConfigurationService != null ? appConfigurationService.getDevise() : "FCFA");
+        context.setVariable("devise",
+            appConfigurationService != null ? appConfigurationService.getDevise() : "FCFA");
         return context;
     }
 
@@ -191,10 +198,12 @@ public abstract class CommonReportService {
         StringBuilder builder = new StringBuilder();
         builder.append(title).append(" ");
         if (reportPeriode.from() != null) {
-            builder.append("du ").append(reportPeriode.from().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+            builder.append("du ")
+                .append(reportPeriode.from().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         }
         if (reportPeriode.to() != null) {
-            builder.append(" au ").append(reportPeriode.to().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+            builder.append(" au ")
+                .append(reportPeriode.to().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         }
         return builder.toString();
     }
@@ -245,8 +254,6 @@ public abstract class CommonReportService {
         // Convertir en PDF
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ITextRenderer renderer = new ITextRenderer();
-
-        //  System.err.println(e);
         renderer.setDocumentFromString(DemoWatermark.apply(this.getTemplateAsHtml()));
         renderer.layout();
         renderer.createPDF(outputStream);
@@ -259,10 +266,10 @@ public abstract class CommonReportService {
             .header(
                 HttpHeaders.CONTENT_DISPOSITION,
                 "attachment; filename=" +
-                this.getGenerateFileName() +
-                "_" +
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss")) +
-                ".pdf"
+                    this.getGenerateFileName() +
+                    "_" +
+                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss")) +
+                    ".pdf"
             )
             .contentType(MediaType.APPLICATION_PDF)
             .body(printByteArray());
@@ -281,7 +288,8 @@ public abstract class CommonReportService {
     }
 
     protected String buildPeriode(@NotNull Pair periode) {
-        return DateUtil.format((LocalDateTime) periode.key()) + " au " + DateUtil.format((LocalDateTime) periode.value());
+        return DateUtil.format((LocalDateTime) periode.key()) + " au " + DateUtil.format(
+            (LocalDateTime) periode.value());
     }
 
     protected String buildPeriode(@NotNull LocalDate from, @NotNull LocalDate to) {
@@ -332,7 +340,8 @@ public abstract class CommonReportService {
                 getParameters().put(Constant.ITEMS, list);
                 getParameters().put(Constant.ITEM_SIZE, size);
                 getParameters().put(Constant.PAGE_COUNT, (i + 1) + "/" + pageNumber);
-                renderer.setDocumentFromString(DemoWatermark.apply(this.getTemplateAsHtml(context)));
+                renderer.setDocumentFromString(
+                    DemoWatermark.apply(this.getTemplateAsHtml(context)));
                 renderer.layout();
                 renderer.writeNextDocument();
                 firstPageRowCount += maxiRowCount;

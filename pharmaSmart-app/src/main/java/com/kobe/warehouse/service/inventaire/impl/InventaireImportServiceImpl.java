@@ -120,6 +120,15 @@ public class InventaireImportServiceImpl implements InventaireImportService {
             .filter(cip -> !foundCips.contains(cip))
             .count();
 
+        // Aucun code du fichier ne correspond à une ligne de CET inventaire : rien à compter.
+        // C'est un cas ORDINAIRE — fichier d'un autre inventaire, colonnes inversées, codes
+        // d'un fournisseur non référencé — et le compte rendu doit le dire (« tout ignoré »).
+        // Il faisait échouer l'import en HTTP 500 : `applyCounts` lisait la première ligne
+        // pour retrouver l'inventaire, sur une liste vide.
+        if (lines.isEmpty()) {
+            return new ImportResultRecord(0, ignored, errors.size(), errors);
+        }
+
         applyCounts(lines, codeCipQuantity);
         storeInventoryLineRepository.saveAll(lines);
 

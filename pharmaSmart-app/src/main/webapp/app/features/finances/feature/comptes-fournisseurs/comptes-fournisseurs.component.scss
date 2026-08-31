@@ -15,10 +15,10 @@
 
 $accent-primary: #008cba;
 $accent-success: #43ac6a;
-$accent-danger:  #f04124;
+$accent-danger: #f04124;
 $accent-warning: #e99002;
 $text-muted-kpi: #888;
-$border-color:   #e2e8f0;
+$border-color: #e2e8f0;
 
 .kpi-strip {
   display: flex;
@@ -53,10 +53,21 @@ $border-color:   #e2e8f0;
     border-radius: 2px;
   }
 
-  &.primary-accent::before { background: $accent-primary; }
-  &.success-accent::before { background: $accent-success; }
-  &.danger-accent::before  { background: $accent-danger; }
-  &.warning-accent::before { background: $accent-warning; }
+  &.primary-accent::before {
+    background: $accent-primary;
+  }
+
+  &.success-accent::before {
+    background: $accent-success;
+  }
+
+  &.danger-accent::before {
+    background: $accent-danger;
+  }
+
+  &.warning-accent::before {
+    background: $accent-warning;
+  }
 
   > .pi {
     font-size: 1.05rem;
@@ -100,8 +111,12 @@ $border-color:   #e2e8f0;
 }
 
 @media (max-width: 576px) {
-  .kpi-strip-divider { display: none; }
-  .kpi-strip-item    { min-width: calc(50% - 0.5rem); }
+  .kpi-strip-divider {
+    display: none;
+  }
+  .kpi-strip-item {
+    min-width: calc(50% - 0.5rem);
+  }
 }
 
 // ── Split container ────────────────────────────────────────────────────────
@@ -174,9 +189,6 @@ $border-color:   #e2e8f0;
   padding: 0.25rem 0.5rem !important;
 }
 
-.ligne-selected {
-  background-color: rgba(#008cba, 0.06) !important;
-}
 
 .bl-detail-header {
   padding: 0.4rem 0.5rem;
@@ -205,9 +217,6 @@ $border-color:   #e2e8f0;
   background-color: rgba(#e99002, 0.06) !important;
 }
 
-.row-selected {
-  background-color: rgba(#008cba, 0.08) !important;
-}
 
 .pharma-code {
   font-family: 'Courier New', monospace;

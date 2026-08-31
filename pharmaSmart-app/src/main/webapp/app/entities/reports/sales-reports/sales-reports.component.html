@@ -1,212 +1,213 @@
-<div class="container-fluid">
-  <app-nav-sidebar (collapsedChange)="menuReplie.set($event)" [collapsed]="menuReplie()"
-                   [collapsible]="true" [nav]="nav"
-                   contentColumnClass="col-lg-10 col-xl-10 col-md-10 col-sm-8 pharma-smart-content"
-                   icon="pi pi-money-bill" menuColumnClass="col-lg-2 col-xl-2 col-md-2 col-sm-4"
-                   title="Chiffre d'Affaires">
-    <div #nav="ngbNav" (activeIdChange)="active.set($event)" [activeId]="active()"
-         class="nav flex-column nav-pills" ngbNav orientation="vertical">
+<app-nav-sidebar (collapsedChange)="menuReplie.set($event)" [collapsed]="menuReplie()"
+                 [collapsible]="true" [nav]="nav"
+                 contentColumnClass="col-lg-10 col-xl-10 col-md-10 col-sm-8"
+                 icon="pi pi-money-bill" menuColumnClass="col-lg-2 col-xl-2 col-md-2 col-sm-4"
+                 title="Chiffre d'Affaires">
+  <div #nav="ngbNav" (activeIdChange)="active.set($event)" [activeId]="active()"
+       class="nav flex-column nav-pills" ngbNav orientation="vertical">
 
-      @if (showDashboardCa()) {
-        <ng-container ngbNavItem="dashboard-ca">
-          <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="rapport-ventes.dashboard-ca"
-                                  fallbackIcon="pi pi-chart-bar"
-                                  fallbackLabel="Dashboard CA" />
-          </a>
-          <ng-template ngbNavContent>
-            @defer (on immediate) {
-              <app-dashboard-ca navCode="rapport-ventes.dashboard-ca"></app-dashboard-ca>
-            } @loading {
-              <app-skeleton height="240px" width="100%" />
-            }
-          </ng-template>
-        </ng-container>
-      }
+    @if (showDashboardCa()) {
+      <ng-container ngbNavItem="dashboard-ca">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="rapport-ventes.dashboard-ca"
+                                fallbackIcon="pi pi-chart-bar"
+                                fallbackLabel="Dashboard CA" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-dashboard-ca navCode="rapport-ventes.dashboard-ca"></app-dashboard-ca>
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-      @if (showSalesSummary()) {
-        <ng-container ngbNavItem="sales-summary">
-          <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="rapport-ventes.sales-summary"
-                                  fallbackIcon="pi pi-shopping-cart"
-                                  fallbackLabel="Synthèse des Ventes" />
-          </a>
-          <ng-template ngbNavContent>
-            @defer (on immediate) {
-              <app-sales-summary navCode="rapport-ventes.sales-summary"></app-sales-summary>
-            } @loading {
-              <app-skeleton height="240px" width="100%" />
-            }
-          </ng-template>
-        </ng-container>
-      }
+    @if (showSalesSummary()) {
+      <ng-container ngbNavItem="sales-summary">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="rapport-ventes.sales-summary"
+                                fallbackIcon="pi pi-shopping-cart"
+                                fallbackLabel="Synthèse des Ventes" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-sales-summary navCode="rapport-ventes.sales-summary"></app-sales-summary>
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-      @if (showTopProducts()) {
-        <ng-container ngbNavItem="top-products">
-          <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="rapport-ventes.top-products"
-                                  fallbackIcon="pi pi-star-fill"
-                                  fallbackLabel="Top Produits" />
-          </a>
-          <ng-template ngbNavContent>
-            @defer (on immediate) {
-              <app-top-products navCode="rapport-ventes.top-products"></app-top-products>
-            } @loading {
-              <app-skeleton height="240px" width="100%" />
-            }
-          </ng-template>
-        </ng-container>
-      }
+    @if (showTopProducts()) {
+      <ng-container ngbNavItem="top-products">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="rapport-ventes.top-products"
+                                fallbackIcon="pi pi-star-fill"
+                                fallbackLabel="Top Produits" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-top-products navCode="rapport-ventes.top-products"></app-top-products>
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-      @if (false) {
-        <!-- À SUPPRIMER après validation TNR — migré vers Finance / Analyse de Rentabilité -->
-        <ng-container ngbNavItem="profitability">
-          <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="rapport-ventes.profitability"
-                                  fallbackIcon="pi pi-chart-line"
-                                  fallbackLabel="Analyse de Rentabilité" />
-          </a>
-          <ng-template ngbNavContent>
-            <app-profitability-analysis navCode="rapport-ventes.profitability"></app-profitability-analysis>
-          </ng-template>
-        </ng-container>
-      }
+    @if (false) {
+      <!-- À SUPPRIMER après validation TNR — migré vers Finance / Analyse de Rentabilité -->
+      <ng-container ngbNavItem="profitability">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="rapport-ventes.profitability"
+                                fallbackIcon="pi pi-chart-line"
+                                fallbackLabel="Analyse de Rentabilité" />
+        </a>
+        <ng-template ngbNavContent>
+          <app-profitability-analysis
+            navCode="rapport-ventes.profitability"></app-profitability-analysis>
+        </ng-template>
+      </ng-container>
+    }
 
-      @if (showComparative()) {
-        <ng-container ngbNavItem="comparative">
-          <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="rapport-ventes.comparative"
-                                  fallbackIcon="pi pi-chart-bar"
-                                  fallbackLabel="Tableaux Comparatifs" />
-          </a>
-          <ng-template ngbNavContent>
-            @defer (on immediate) {
-              <app-comparative-analysis navCode="rapport-ventes.comparative"></app-comparative-analysis>
-            } @loading {
-              <app-skeleton height="240px" width="100%" />
-            }
-          </ng-template>
-        </ng-container>
-      }
+    @if (showComparative()) {
+      <ng-container ngbNavItem="comparative">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="rapport-ventes.comparative"
+                                fallbackIcon="pi pi-chart-bar"
+                                fallbackLabel="Tableaux Comparatifs" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-comparative-analysis
+              navCode="rapport-ventes.comparative"></app-comparative-analysis>
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-      @if (showSalesForecast()) {
-        <ng-container ngbNavItem="sales-forecast">
-          <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="rapport-ventes.sales-forecast"
-                                  fallbackIcon="pi pi-chart-line"
-                                  fallbackLabel="Prévisions de Ventes" />
-          </a>
-          <ng-template ngbNavContent>
-            @defer (on immediate) {
-              <app-sales-forecast navCode="rapport-ventes.sales-forecast"></app-sales-forecast>
-            } @loading {
-              <app-skeleton height="240px" width="100%" />
-            }
-          </ng-template>
-        </ng-container>
-      }
+    @if (showSalesForecast()) {
+      <ng-container ngbNavItem="sales-forecast">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="rapport-ventes.sales-forecast"
+                                fallbackIcon="pi pi-chart-line"
+                                fallbackLabel="Prévisions de Ventes" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-sales-forecast navCode="rapport-ventes.sales-forecast"></app-sales-forecast>
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-      @if (showMarketBasket()) {
-        <ng-container ngbNavItem="market-basket">
-          <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="rapport-ventes.market-basket"
-                                  fallbackIcon="pi pi-shopping-bag"
-                                  fallbackLabel="Analyse du Panier" />
-          </a>
-          <ng-template ngbNavContent>
-            @defer (on immediate) {
-              <app-market-basket navCode="rapport-ventes.market-basket"></app-market-basket>
-            } @loading {
-              <app-skeleton height="240px" width="100%" />
-            }
-          </ng-template>
-        </ng-container>
-      }
+    @if (showMarketBasket()) {
+      <ng-container ngbNavItem="market-basket">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="rapport-ventes.market-basket"
+                                fallbackIcon="pi pi-shopping-bag"
+                                fallbackLabel="Analyse du Panier" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-market-basket navCode="rapport-ventes.market-basket"></app-market-basket>
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-      @if (showSalesByStaff()) {
-        <ng-container ngbNavItem="sales-by-staff">
-          <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="rapport-ventes.sales-by-staff"
-                                  fallbackIcon="pi pi-users"
-                                  fallbackLabel="Performance Vendeurs" />
-          </a>
-          <ng-template ngbNavContent>
-            @defer (on immediate) {
-              <app-sales-by-staff navCode="rapport-ventes.sales-by-staff" />
-            } @loading {
-              <app-skeleton height="240px" width="100%" />
-            }
-          </ng-template>
-        </ng-container>
-      }
+    @if (showSalesByStaff()) {
+      <ng-container ngbNavItem="sales-by-staff">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="rapport-ventes.sales-by-staff"
+                                fallbackIcon="pi pi-users"
+                                fallbackLabel="Performance Vendeurs" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-sales-by-staff navCode="rapport-ventes.sales-by-staff" />
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-      @if (showSeasonality()) {
-        <ng-container ngbNavItem="seasonality">
-          <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="rapport-ventes.seasonality"
-                                  fallbackIcon="pi pi-chart-line"
-                                  fallbackLabel="Saisonnalité CA" />
-          </a>
-          <ng-template ngbNavContent>
-            @defer (on immediate) {
-              <app-seasonality navCode="rapport-ventes.seasonality" />
-            } @loading {
-              <app-skeleton height="240px" width="100%" />
-            }
-          </ng-template>
-        </ng-container>
-      }
+    @if (showSeasonality()) {
+      <ng-container ngbNavItem="seasonality">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="rapport-ventes.seasonality"
+                                fallbackIcon="pi pi-chart-line"
+                                fallbackLabel="Saisonnalité CA" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-seasonality navCode="rapport-ventes.seasonality" />
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-      @if (showGenericsSubstitution()) {
-        <ng-container ngbNavItem="generics-substitution">
-          <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="rapport-ventes.generics-substitution"
-                                  fallbackIcon="pi pi-sync"
-                                  fallbackLabel="Génériques &amp; Substitution" />
-          </a>
-          <ng-template ngbNavContent>
-            @defer (on immediate) {
-              <app-generics-substitution navCode="rapport-ventes.generics-substitution" />
-            } @loading {
-              <app-skeleton height="240px" width="100%" />
-            }
-          </ng-template>
-        </ng-container>
-      }
+    @if (showGenericsSubstitution()) {
+      <ng-container ngbNavItem="generics-substitution">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="rapport-ventes.generics-substitution"
+                                fallbackIcon="pi pi-sync"
+                                fallbackLabel="Génériques &amp; Substitution" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-generics-substitution navCode="rapport-ventes.generics-substitution" />
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-      @if (showRemisesAnalysis()) {
-        <ng-container ngbNavItem="remises-analysis">
-          <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="rapport-ventes.remises-analysis"
-                                  fallbackIcon="pi pi-tag"
-                                  fallbackLabel="Analyse des Remises" />
-          </a>
-          <ng-template ngbNavContent>
-            @defer (on immediate) {
-              <app-remises-analysis navCode="rapport-ventes.remises-analysis" />
-            } @loading {
-              <app-skeleton height="240px" width="100%" />
-            }
-          </ng-template>
-        </ng-container>
-      }
+    @if (showRemisesAnalysis()) {
+      <ng-container ngbNavItem="remises-analysis">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="rapport-ventes.remises-analysis"
+                                fallbackIcon="pi pi-tag"
+                                fallbackLabel="Analyse des Remises" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-remises-analysis navCode="rapport-ventes.remises-analysis" />
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          }
+        </ng-template>
+      </ng-container>
+    }
 
-      @if (showClientRetention()) {
-        <ng-container ngbNavItem="client-retention">
-          <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="rapport-ventes.client-retention"
-                                  fallbackIcon="pi pi-heart"
-                                  fallbackLabel="Rétention Clients" />
-          </a>
-          <ng-template ngbNavContent>
-            @defer (on immediate) {
-              <app-client-retention />
-            } @loading {
-              <app-skeleton height="240px" width="100%" />
-            }
-          </ng-template>
-        </ng-container>
-      }
-    </div>
-  </app-nav-sidebar>
-</div>
+    @if (showClientRetention()) {
+      <ng-container ngbNavItem="client-retention">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="rapport-ventes.client-retention"
+                                fallbackIcon="pi pi-heart"
+                                fallbackLabel="Rétention Clients" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-client-retention />
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          }
+        </ng-template>
+      </ng-container>
+    }
+  </div>
+</app-nav-sidebar>
+

@@ -137,10 +137,16 @@ export class NgbConfirmDialogContentComponent {
   protected readonly safeMessage = signal<SafeHtml>('');
 
   /**
-   * Garde pour empêcher l'acceptation immédiate par un Enter résiduel.
-   * Quand le modal s'ouvre en réponse à un Enter (ex: dans le champ de paiement),
-   * le ngbAutofocus met le focus sur le bouton "Oui" pendant que l'événement clavier
-   * est encore en cours. Ce délai empêche l'acceptation accidentelle.
+   * Garde contre un Enter RÉSIDUEL, et contre lui seul.
+   *
+   * Quand la modale s'ouvre en réponse à un Enter (le champ de paiement, par exemple), le
+   * `ngbAutofocus` place le focus sur « Oui » alors que l'évènement clavier est encore en
+   * cours : sans ce délai, la confirmation serait accordée sans que personne ne l'ait lue.
+   *
+   * Elle ne s'applique PAS au clic. Elle l'a fait, et rendait le bouton « Oui » inerte
+   * pendant 200 ms après l'ouverture — assez pour qu'un utilisateur rapide clique dans le
+   * vide, sans le moindre retour. Le geste à la souris ne peut pas, lui, être « résiduel » :
+   * il faut avoir vu la modale pour viser son bouton.
    */
   private ready = false;
 
@@ -154,9 +160,6 @@ export class NgbConfirmDialogContentComponent {
   }
 
   accept(): void {
-    if (!this.ready) {
-      return;
-    }
     this.activeModal.close('accept');
   }
 

@@ -58,7 +58,7 @@
         <tr
           (click)="onRowSelect(customer)"
           (dblclick)="onDbleClick(customer)"
-          [class.selected-row]="selectedCustomer()?.id === customer.id"
+          [class.ligne-selected]="selectedCustomer()?.id === customer.id"
           class="customer-row"
         >
           <td>

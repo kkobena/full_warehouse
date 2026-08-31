@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.dci.service;
 
 import com.kobe.warehouse.domain.Dci;
+import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.repository.DciRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.service.dci.dto.DciDTO;
@@ -20,6 +21,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -112,6 +114,32 @@ public class DciServiceImpl implements DciService {
                 )
             )
             .toList();
+    }
+
+    /**
+     * Rattache d'un coup plusieurs produits à une substance active.
+     *
+     * <p>La DCI se renseignait produit par produit, dans sa fiche. Or elle s'attribue par
+     * FAMILLES entières — tous les paracétamols, toutes les amoxicillines — et un catalogue
+     * repris d'un autre logiciel arrive presque toujours sans elle. Cent fiches à ouvrir
+     * une par une, c'est le genre de tâche qu'on ne fait jamais, et la substitution
+     * générique reste alors muette faute de DCI.
+     *
+     * <p>Les produits introuvables sont ignorés en silence plutôt que de faire échouer le
+     * lot : une sélection peut vieillir entre l'écran et l'envoi.
+     */
+    @Override
+    public int rattacherProduits(Integer dciId, List<Integer> produitIds) {
+        if (CollectionUtils.isEmpty(produitIds)) {
+            return 0;
+        }
+        Dci dci = this.dciRepository.findById(dciId)
+            .orElseThrow(() -> new GenericError("DCI introuvable", "dciIntrouvable"));
+
+        List<Produit> produits = this.produitRepository.findAllById(produitIds);
+        produits.forEach(produit -> produit.setDci(dci));
+        this.produitRepository.saveAll(produits);
+        return produits.size();
     }
 
     @Override

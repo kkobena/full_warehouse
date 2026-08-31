@@ -7,10 +7,10 @@
   [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
   [rows]="itemsPerPage"
   [showCurrentPageReport]="true"
+  [size]="'small'"
   [stripedRows]="true"
   [totalRecords]="store.totalItems()"
   [value]="store.factures()"
-  [size]="'small'"
   currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} factures"
   dataKey="factureId"
   selectionMode="multiple"
@@ -19,7 +19,7 @@
 
   <ng-template #header>
     <tr class="pharma-table-head">
-      <th style="width: 3rem" class="text-center">
+      <th class="text-center" style="width: 3rem">
         <app-header-checkbox />
       </th>
       <th>N° Facture</th>
@@ -40,33 +40,37 @@
   <ng-template #body let-facture>
     <tr
       (click)="onRowSelect(facture)"
-      [ngClass]="{ 'selected-row': store.selectedFacture()?.factureItemId?.id === facture.factureItemId?.id }"
+      [class.ligne-selected]="store.selectedFacture()?.factureItemId?.id === facture.factureItemId?.id"
       class="clickable-row"
     >
-      <td class="text-center" (click)="$event.stopPropagation()">
+      <td (click)="$event.stopPropagation()" class="text-center">
         <app-row-checkbox [row]="facture" />
       </td>
       <td><span class="pharma-code">{{ facture.numFacture }}</span></td>
       <td><span class="pharma-entity-name">{{ facture.tiersPayantName }}</span></td>
       <td class="text-end">{{ facture.itemsCount | number }}</td>
-      <td class="text-end"><span class="pharma-price">{{ facture.montantAttendu | number }}</span></td>
-      <td class="text-end"><span class="pharma-price">{{ facture.montantRemiseVente | number }}</span></td>
-      <td class="text-end"><span class="pharma-price">{{ facture.remiseForfetaire | number }}</span></td>
+      <td class="text-end"><span class="pharma-price">{{ facture.montant | number }}</span></td>
+      <td class="text-end"><span
+        class="pharma-price">{{ facture.montantRemiseVente | number }}</span></td>
+      <td class="text-end"><span class="pharma-price">{{ facture.remiseForfetaire | number }}</span>
+      </td>
       <td class="text-end"><span class="pharma-price">{{ facture.montantNet | number }}</span></td>
-      <td class="text-end"><span class="pharma-price">{{ facture.montantRegle | number }}</span></td>
+      <td class="text-end"><span class="pharma-price">{{ facture.montantRegle | number }}</span>
+      </td>
       <td class="text-end">
         <span [class.pharma-total]="(facture.montantRestant ?? 0) > 0">
           {{ facture.montantRestant | number }}
         </span>
       </td>
       <td>
-        <app-badge [severity]="getStatutSeverity(facture.statut)" [label]="getStatutLabel(facture.statut)" />
+        <app-badge [label]="getStatutLabel(facture.statut)"
+                   [severity]="getStatutSeverity(facture.statut)" />
         @if (facture.enRetard) {
-          <app-badge class="ms-1" severity="danger" label="En retard" />
+          <app-badge class="ms-1" label="En retard" severity="danger" />
         }
       </td>
       <td class="small text-muted">{{ facture.created | date: 'dd/MM/yyyy' }}</td>
-      <td class="text-center" (click)="$event.stopPropagation()">
+      <td (click)="$event.stopPropagation()" class="text-center">
         <div class="btn-group" role="group">
           <app-button
             (clicked)="onRowSelect(facture)"
@@ -78,7 +82,8 @@
             severity="success"
             size="small"
           />
-          @if (!facture.fneResponse && !facture.factureProvisoire && facture.statut === 'UNPAID'){
+
+          @if (!facture.fneResponse && !facture.factureProvisoire && facture.statut === 'NOT_PAID') {
             <app-button
               (clicked)="onConfirmCertification(facture)"
               [rounded]="true"
@@ -93,13 +98,13 @@
           @if (facture.fneResponse) {
             <app-button
               (clicked)="onViewFne(facture)"
+              [rounded]="true"
               [text]="true"
               icon="pi pi-verified"
-              [rounded]="true"
               ngbTooltip="Voir certificat FNE"
+              placement="left"
               severity="help"
               size="small"
-              placement="left"
             />
           }
           @if (canDelete() && facture.statut === 'NOT_PAID' && !facture.factureProvisoire) {
@@ -109,8 +114,8 @@
               [text]="true"
               icon="pi pi-trash"
               ngbTooltip="Supprimer"
-              severity="danger"
               placement="left"
+              severity="danger"
               size="small"
             />
           }
@@ -119,11 +124,11 @@
               (clicked)="onCreateAvoir(facture)"
               [rounded]="true"
               [text]="true"
-              size="small"
               icon="pi pi-file-plus"
               ngbTooltip="Créer un avoir"
-              severity="primary"
               placement="left"
+              severity="primary"
+              size="small"
             />
           }
           @if (canExport()) {
@@ -131,10 +136,11 @@
               (clicked)="exportPdf(facture)"
               [rounded]="true"
               [text]="true"
-              size="small"
+              ariaLabel="Exporter la facture en PDF"
               icon="pi pi-file-pdf"
               ngbTooltip="Exporter en Pdf"
               severity="warn"
+              size="small"
             />
           }
 

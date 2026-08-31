@@ -1,0 +1,31 @@
+{
+  // Configuration destinée à l'éditeur et au linter. Playwright transpile lui-même ces
+  // fichiers (en CommonJS, cf. src/config.ts) et ne lit pas ce tsconfig.
+  //
+  // Volontairement détaché du tsconfig racine : celui-ci vise le navigateur, avec un `baseUrl`
+  // pointant sur la webapp Angular. Les parcours tournent sous Node et importent le modèle du
+  // cahier de recette par chemin relatif.
+  "compilerOptions": {
+    "target": "es2022",
+    // node16 plutôt que commonjs/node10, déprécié en TypeScript 6. Le couple module +
+    // moduleResolution doit rester cohérent : node16 émet du CommonJS pour un package.json
+    // sans « type: module », ce qui est le cas de la racine — donc exactement ce que
+    // Playwright produit.
+    "module": "node16",
+    "moduleResolution": "node16",
+    "lib": ["es2022", "dom"],
+    "types": ["node"],
+    "strict": true,
+    "strictNullChecks": false,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true
+  },
+  "include": [
+    "**/*.ts",
+    "../pharmaSmart-app/src/main/webapp/app/features/cahier-recette/cahier-recette.model.ts"
+  ],
+  "exclude": ["captures", ".auth"]
+}

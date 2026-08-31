@@ -6,14 +6,18 @@
   <app-card [variant]="'form'">
     <div class="p-fluid p-formgrid p-grid">
       <div class="p-field p-col">
-        <label class="col-auto col-form-label">Quantité<span
+        <!-- Ce champ n'est pas une quantité mais la CASE de départ sur la planche : on
+             reprend une planche entamée là où elle s'est arrêtée, plutôt que d'en gâcher
+             une entière. Le libellé « Quantité » faisait saisir un nombre d'étiquettes. -->
+        <label class="col-auto col-form-label" for="etiquette-start">Position de départ sur la planche<span
           style="font-weight: 900; color: red">*</span></label>
-        <input #startInput [(ngModel)]="startAt" [appKeyFilter]="'int'" autocomplete="off"
-               class="form-control" type="text" />
+        <input #startInput id="etiquette-start" [(ngModel)]="startAt" [appKeyFilter]="'int'"
+               autocomplete="off" class="form-control" type="text" />
+        <small class="form-text text-muted">Case de la première étiquette, de 1 à 64.</small>
         @if (startAt === 0 || startAt > 64) {
           <div>
-            <small class="form-text text-danger" style="color: red"> Le nombre saisi doit être
-              compris entre 0 et 64 </small>
+            <small class="form-text text-danger" style="color: red"> La position doit être
+              comprise entre 1 et 64 </small>
           </div>
         }
       </div>

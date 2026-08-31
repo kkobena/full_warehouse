@@ -157,7 +157,7 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
     ) {
         Fournisseur groupeFournisseur = fournisseur.getParent() != null ? fournisseur.getParent() : fournisseur;
         String xmlPayload = serializePayload(payload);
-        IO.println(xmlPayload);
+        LOG.debug("PharmaML REQ_EMISSION : {}", xmlPayload);
         saveXmlFile(payload, "C", fileName);
 
         HttpRequest httpRequest = HttpRequest.newBuilder()
@@ -241,7 +241,10 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
     public List<InfoProduitDTO> sendInfoRequest(CsrpEnveloppe payload, Fournisseur fournisseur) {
         Fournisseur groupeFournisseur = fournisseur.getParent() != null ? fournisseur.getParent() : fournisseur;
         String xmlPayload = serializePayload(payload);
-        System.err.println(xmlPayload);
+        String refMessage = payload.getEntete() != null ? payload.getEntete().getRefMessage() : "SANSREF";
+        // Une interrogation laisse une trace comme un envoi : sans elle, une réponse vide
+        // n'est pas diagnosticable après coup.
+        saveXmlFile(payload, "I", generateFileName(refMessage, groupeFournisseur.getLibelle()));
 
         HttpRequest httpRequest = HttpRequest.newBuilder()
             .uri(URI.create(groupeFournisseur.getUrlPharmaMl()))
@@ -253,6 +256,8 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
         try {
             HttpResponse<String> httpResponse = httpClient.send(httpRequest,
                 HttpResponse.BodyHandlers.ofString());
+            saveRawResponse(httpResponse.body(),
+                "RI_" + generateFileName(refMessage, groupeFournisseur.getLibelle()));
             return parseInfosResponse(httpResponse);
         } catch (IOException | InterruptedException e) {
             LOG.error("Erreur lors de la demande de disponibilité PharmaML", e);
@@ -650,11 +655,26 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
 
     // ===================== Méthodes de parsing des réponses d'information =====================
 
+    /** Écrit la réponse telle que le répartiteur l'a renvoyée, sans passer par JAXB. */
+    private void saveRawResponse(String body, String fileName) {
+        Path path = fileStorageService.getFilePharmamlStorageLocation()
+            .resolve(fileName + ".xml");
+        try {
+            Files.writeString(path, body == null ? "" : body);
+        } catch (IOException e) {
+            LOG.warn("Impossible d'enregistrer la réponse PharmaML {} : {}", fileName,
+                e.getMessage());
+        }
+    }
+
     private List<InfoProduitDTO> parseInfosResponse(HttpResponse<String> httpResponse) {
         if (httpResponse.statusCode() != 200) {
             LOG.warn("REQ_INFORMATION: HTTP {} - réponse serveur: {}", httpResponse.statusCode(),
                 httpResponse.body());
-            return List.of();
+            // Un refus n'est pas une absence de stock : rendre une liste vide ferait passer
+            // le grossiste pour « tout en rupture » alors qu'il n'a rien répondu.
+            throw new GenericError("Le grossiste a refusé la demande de disponibilité (HTTP "
+                + httpResponse.statusCode() + ")", "pharmaMlError");
         }
         try {
             Unmarshaller unmarshaller = JAXB_RESPONSE_CONTEXT.createUnmarshaller();
@@ -668,6 +688,10 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
             if (repInfos != null && !CollectionUtils.isEmpty(repInfos.getLignes())) {
                 return repInfos.getLignes().stream().map(this::toInfoProduitDTO).toList();
             }
+            // Réponse acceptée mais sans ligne exploitable : c'est le corps brut qui dit
+            // pourquoi (code inconnu, structure inattendue, refus).
+            LOG.warn("REQ_INFORMATION: aucune ligne exploitable dans la réponse - corps: {}",
+                httpResponse.body());
             return List.of();
         } catch (JAXBException e) {
             LOG.error("Erreur de parsing de la réponse REQ_INFORMATION", e);

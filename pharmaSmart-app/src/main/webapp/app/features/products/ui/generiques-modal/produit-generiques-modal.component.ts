@@ -6,13 +6,14 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { IProduit } from "app/shared/model/produit.model";
 import { ISubstitut } from "app/shared/model/substitut.model";
 import { ProductsApiService } from "../../data-access/services/products-api.service";
+import { DevisePipe } from 'app/shared/utils/devise';
 
 @Component({
   selector: "app-produit-generiques-modal",
   templateUrl: "./produit-generiques-modal.component.html",
   styleUrls: ["./produit-generiques-modal.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ButtonComponent, DataTableComponent, BadgeComponent, CardComponent]
+  imports: [CommonModule, ButtonComponent, DataTableComponent, BadgeComponent, CardComponent, DevisePipe]
 })
 export class ProduitGeneriquesModalComponent implements OnInit {
   produit!: IProduit;

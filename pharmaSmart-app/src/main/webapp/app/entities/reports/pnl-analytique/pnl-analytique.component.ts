@@ -1,14 +1,24 @@
-import { Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { HttpResponse } from '@angular/common/http';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+  ViewChild
+} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {HttpResponse} from '@angular/common/http';
 
-import { FormsModule } from '@angular/forms';
-import { IPnlEvolution, IPnlFamille, IPnlSegment } from 'app/shared/model/report';
-import { PnlAnalytiqueService } from '../services/pnl-analytique.service';
-import { formatCurrency, formatPercent, formatNumber } from 'app/shared/utils/format-utils';
+import {FormsModule} from '@angular/forms';
+import {IPnlEvolution, IPnlFamille, IPnlSegment} from 'app/shared/model/report';
+import {PnlAnalytiqueService} from '../services/pnl-analytique.service';
+import {formatCurrency, formatNumber, formatPercent} from 'app/shared/utils/format-utils';
 
-import { Chart, ChartConfiguration, registerables } from 'chart.js';
-import { DeviseDirective } from 'app/shared/utils/devise';
+import {Chart, ChartConfiguration, registerables} from 'chart.js';
+import {DeviseDirective} from 'app/shared/utils/devise';
 import {
   AppKpiAccent,
   DataTableComponent,
@@ -36,7 +46,7 @@ const CHART_COLORS = [
   templateUrl: './pnl-analytique.component.html',
   styleUrl: './pnl-analytique.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeviseDirective, 
+  imports: [DeviseDirective,
     CommonModule,
     FormsModule,
     DataTableComponent,
@@ -96,7 +106,9 @@ export default class PnlAnalytiqueComponent implements OnInit, OnDestroy {
   protected readonly years: number[] = (() => {
     const current = new Date().getFullYear();
     const result: number[] = [];
-    for (let y = current; y >= 2025; y--) result.push(y);
+    for (let y = current; y >= 2025; y--) {
+      result.push(y);
+    }
     return result;
   })();
 
@@ -113,12 +125,6 @@ export default class PnlAnalytiqueComponent implements OnInit, OnDestroy {
   protected readonly formatCurrency = formatCurrency;
   protected readonly formatPercent = formatPercent;
   protected readonly formatNumber = formatNumber;
-
-  protected partCaPct(ca?: number, total?: number): number {
-    const t = total ?? this.totalSegment().ca;
-    return t > 0 ? ((ca ?? 0) / t) * 100 : 0;
-  }
-
   private familleEvolutionChart?: Chart;
   private segmentEvolutionChart?: Chart;
   private readonly pnlService = inject(PnlAnalytiqueService);
@@ -130,6 +136,11 @@ export default class PnlAnalytiqueComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.familleEvolutionChart?.destroy();
     this.segmentEvolutionChart?.destroy();
+  }
+
+  protected partCaPct(ca?: number, total?: number): number {
+    const t = total ?? this.totalSegment().ca;
+    return t > 0 ? ((ca ?? 0) / t) * 100 : 0;
   }
 
   protected setView(v: PnlView): void {
@@ -152,10 +163,14 @@ export default class PnlAnalytiqueComponent implements OnInit, OnDestroy {
     if (this.view() === 'evolution') {
       if (tab === 'famille') {
         const data = this.familleEvolutionData();
-        if (data) setTimeout(() => this.createFamilleEvolutionChart(data), 50);
+        if (data) {
+          setTimeout(() => this.createFamilleEvolutionChart(data), 50);
+        }
       } else {
         const data = this.segmentEvolutionData();
-        if (data) setTimeout(() => this.createSegmentEvolutionChart(data), 50);
+        if (data) {
+          setTimeout(() => this.createSegmentEvolutionChart(data), 50);
+        }
       }
     }
   }
@@ -180,32 +195,50 @@ export default class PnlAnalytiqueComponent implements OnInit, OnDestroy {
   }
 
   protected sortIcon(col: FamilleSortCol): string {
-    if (this.familleSortCol() !== col) return 'pi pi-sort-alt';
+    if (this.familleSortCol() !== col) {
+      return 'pi pi-sort-alt';
+    }
     return this.familleSortAsc() ? 'pi pi-sort-amount-up' : 'pi pi-sort-amount-down';
   }
 
   protected segmentLabel(segment?: string): string {
     switch (segment) {
-      case 'COMPTANT':  return 'Comptant';
-      case 'ASSURANCE': return 'Remboursable (Assurance)';
-      case 'CARNET':    return 'Carnet';
-      default:          return segment ?? 'Autre';
+      case 'COMPTANT':
+        return 'Comptant';
+      case 'ASSURANCE':
+        return 'Remboursable (Assurance)';
+      case 'CARNET':
+        return 'Carnet';
+      default:
+        return segment ?? 'Autre';
     }
   }
 
   protected segmentBadgeClass(segment?: string): string {
-    if (segment === 'COMPTANT') return 'pharma-badge pharma-badge-success';
-    if (segment === 'ASSURANCE') return 'pharma-badge pharma-badge-info';
-    if (segment === 'CARNET') return 'pharma-badge pharma-badge-primary';
+    if (segment === 'COMPTANT') {
+      return 'pharma-badge pharma-badge-success';
+    }
+    if (segment === 'ASSURANCE') {
+      return 'pharma-badge pharma-badge-info';
+    }
+    if (segment === 'CARNET') {
+      return 'pharma-badge pharma-badge-primary';
+    }
     return 'badge bg-secondary';
   }
 
   protected margeBadgeClass(taux?: number): string {
     const t = taux ?? 0;
-    if (t >= 30) return 'badge bg-success';
-    if (t >= 20) return 'badge bg-info text-dark';
-    if (t >= 10) return 'badge bg-warning text-dark';
-    return 'badge bg-danger';
+    if (t >= 30) {
+      return 'pharma-badge pharma-badge-success';
+    }
+    if (t >= 20) {
+      return 'pharma-badge pharma-badge-info';
+    }
+    if (t >= 10) {
+      return 'pharma-badge pharma-badge-warning';
+    }
+    return 'pharma-badge pharma-badge-danger';
   }
 
   private loadSegment(): void {
@@ -241,7 +274,8 @@ export default class PnlAnalytiqueComponent implements OnInit, OnDestroy {
           setTimeout(() => this.createFamilleEvolutionChart(data), 50);
         }
       },
-      error: () => {},
+      error: () => {
+      },
     });
   }
 
@@ -255,7 +289,8 @@ export default class PnlAnalytiqueComponent implements OnInit, OnDestroy {
           setTimeout(() => this.createSegmentEvolutionChart(data), 50);
         }
       },
-      error: () => {},
+      error: () => {
+      },
     });
   }
 
@@ -264,9 +299,13 @@ export default class PnlAnalytiqueComponent implements OnInit, OnDestroy {
     this.familleEvolutionChart = undefined;
 
     const canvas = this.familleEvolutionChartCanvas?.nativeElement;
-    if (!canvas) return;
+    if (!canvas) {
+      return;
+    }
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      return;
+    }
 
     this.familleEvolutionChart = new Chart(ctx, this.buildLineConfig(
       evolution,
@@ -279,9 +318,13 @@ export default class PnlAnalytiqueComponent implements OnInit, OnDestroy {
     this.segmentEvolutionChart = undefined;
 
     const canvas = this.segmentEvolutionChartCanvas?.nativeElement;
-    if (!canvas) return;
+    if (!canvas) {
+      return;
+    }
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      return;
+    }
 
     this.segmentEvolutionChart = new Chart(ctx, this.buildLineConfig(
       evolution,
@@ -309,7 +352,7 @@ export default class PnlAnalytiqueComponent implements OnInit, OnDestroy {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { position: 'bottom', labels: { padding: 16 } },
+          legend: {position: 'bottom', labels: {padding: 16}},
           tooltip: {
             callbacks: {
               label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)} %`,
@@ -318,10 +361,10 @@ export default class PnlAnalytiqueComponent implements OnInit, OnDestroy {
         },
         scales: {
           y: {
-            title: { display: true, text: 'Taux de marge (%)' },
-            ticks: { callback: v => v + ' %' },
+            title: {display: true, text: 'Taux de marge (%)'},
+            ticks: {callback: v => v + ' %'},
           },
-          x: { ticks: { maxRotation: 45 } },
+          x: {ticks: {maxRotation: 45}},
         },
       },
     };

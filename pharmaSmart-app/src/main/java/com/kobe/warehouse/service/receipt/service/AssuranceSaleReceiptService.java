@@ -11,7 +11,7 @@ import com.kobe.warehouse.service.receipt.dto.AssuranceReceiptItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.NumberUtil;
-import java.awt.*;
+import java.awt.Font;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,6 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
     private static final Logger LOG = LoggerFactory.getLogger(AssuranceSaleReceiptService.class);
     private ThirdPartySaleDTO thirdPartySale;
     private boolean isEdit;
-    private int avoirCount;
 
     public AssuranceSaleReceiptService(AppConfigurationService appConfigurationService) {
         super(appConfigurationService);
@@ -38,16 +37,19 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
         return thirdPartySale;
     }
 
+    /**
+     * Le nombre d'unités non servies, calculé À CHAQUE APPEL depuis la vente courante.
+     */
     @Override
     protected int getAvoirCount() {
-        return avoirCount;
+        return thirdPartySale.getSalesLines().stream()
+            .mapToInt(line -> line.getQuantityRequested() - line.getQuantitySold()).sum();
     }
 
     @Override
     public List<AssuranceReceiptItem> getItems() {
         List<AssuranceReceiptItem> items = new ArrayList<>();
         for (SaleLineDTO line : thirdPartySale.getSalesLines()) {
-            avoirCount += (line.getQuantityRequested() - line.getQuantitySold());
             items.add(fromSaleLine(line));
         }
 
@@ -61,7 +63,9 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
         var produitName = saleLineDTO.getProduitLibelle();
         item.setTotalPrice(NumberUtil.formatToString(saleLineDTO.getSalesAmount()));
 
-        item.setProduitName(produitName.length() > productNameWidth ? produitName.substring(0, productNameWidth) : produitName);
+        item.setProduitName(
+            produitName.length() > productNameWidth ? produitName.substring(0, productNameWidth)
+                : produitName);
         item.setQuantity(NumberUtil.formatToString(saleLineDTO.getQuantityRequested()));
         item.setUnitPrice(NumberUtil.formatToString(saleLineDTO.getRegularUnitPrice()));
 
@@ -88,15 +92,15 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
         headerItems.add(
             new HeaderFooterItem(
                 "ASSURE: " +
-                customer.getFullName() +
-                " | MATRICULE: " +
-                thirdPartySale
-                    .getTiersPayants()
-                    .stream()
-                    .filter(e -> e.getPriorite() == PrioriteTiersPayant.R0)
-                    .findFirst()
-                    .map(ClientTiersPayantDTO::getNum)
-                    .orElse(""),
+                    customer.getFullName() +
+                    " | MATRICULE: " +
+                    thirdPartySale
+                        .getTiersPayants()
+                        .stream()
+                        .filter(e -> e.getPriorite() == PrioriteTiersPayant.R0)
+                        .findFirst()
+                        .map(ClientTiersPayantDTO::getNum)
+                        .orElse(""),
                 1,
                 font
             )
@@ -105,10 +109,10 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
             headerItems.add(
                 new HeaderFooterItem(
                     "BENEFICIAIRE: " +
-                    thirdPartySale.getAyantDroitFirstName().concat(" ") +
-                    thirdPartySale.getAyantDroitLastName() +
-                    " | MATRICULE: " +
-                    thirdPartySale.getAyantDroitNum(),
+                        thirdPartySale.getAyantDroitFirstName().concat(" ") +
+                        thirdPartySale.getAyantDroitLastName() +
+                        " | MATRICULE: " +
+                        thirdPartySale.getAyantDroitNum(),
                     1,
                     font
                 )
@@ -149,14 +153,16 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
     /**
      * Generate ESC/POS receipt for direct thermal printer printing
      * <p>
-     * This method generates raw ESC/POS commands that can be sent directly to a thermal POS printer.
-     * Much more efficient than PNG generation - produces smaller payloads and faster printing.
+     * This method generates raw ESC/POS commands that can be sent directly to a thermal POS
+     * printer. Much more efficient than PNG generation - produces smaller payloads and faster
+     * printing.
      *
      * @param sale the third-party sale to generate receipt for
      * @return byte array containing ESC/POS commands
      * @throws IOException if generation fails
      */
-    public byte[] generateEscPosReceiptForTauri(ThirdPartySaleDTO sale, boolean isEdit) throws IOException {
+    public byte[] generateEscPosReceiptForTauri(ThirdPartySaleDTO sale, boolean isEdit)
+        throws IOException {
         this.thirdPartySale = sale;
         return generateEscPosReceipt(isEdit);
     }
@@ -166,7 +172,8 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
      */
     @Override
     protected String getAssuranceInfoText() {
-        if (thirdPartySale == null || CollectionUtils.isEmpty(thirdPartySale.getThirdPartySaleLines())) {
+        if (thirdPartySale == null || CollectionUtils.isEmpty(
+            thirdPartySale.getThirdPartySaleLines())) {
             return null;
         }
 
@@ -178,7 +185,8 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
 
             if (!thirdPartySale.isHasPriceOption()) {
                 // Display percentage
-                info.append(String.format("%-26s %7s%% %10s", priorityCode + ": " + tiersPayantName, thirdPartySaleLine.getTaux(), amount));
+                info.append(String.format("%-26s %7s%% %10s", priorityCode + ": " + tiersPayantName,
+                    thirdPartySaleLine.getTaux(), amount));
             } else {
                 // Display amount
                 info.append(

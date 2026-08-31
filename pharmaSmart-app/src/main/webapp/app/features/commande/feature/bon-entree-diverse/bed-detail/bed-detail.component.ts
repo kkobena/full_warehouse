@@ -28,6 +28,8 @@ import { NotificationService } from "app/shared/services/notification.service";
 import { NgbConfirmDialogService } from "app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 
 import { formatNumber } from 'app/shared/utils/format-utils';
+import {AG_GRID_LOCALE_FR} from '../../../../../shared/ui/ag-grid/ag-grid-locale.fr';
+import { DevisePipe } from 'app/shared/utils/devise';
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
 @Component({
@@ -43,9 +45,12 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
     BadgeComponent,
     AgGridAngular,
     CommandeProductSearchComponent
-  ]
+  , DevisePipe]
 })
 export class BedDetailComponent implements OnInit {
+  /** Libellés français d'AG Grid — voir shared/ui/ag-grid. */
+  protected readonly localeFr = AG_GRID_LOCALE_FR;
+
   readonly bed = input.required<IBed>();
   readonly retour = output<void>();
   readonly bedChange = output<IBed>();

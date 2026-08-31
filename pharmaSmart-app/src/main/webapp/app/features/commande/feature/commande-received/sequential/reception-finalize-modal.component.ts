@@ -3,13 +3,15 @@ import { CommonModule } from "@angular/common";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { ButtonComponent } from "../../../../../shared/ui";
 import { IOrderLine } from "../../../../../shared/model/order-line.model";
+import { DevisePipe } from 'app/shared/utils/devise';
+import { DeviseDirective } from "app/shared/utils/devise";
 
 @Component({
   selector: "app-reception-finalize-modal",
   templateUrl: "./reception-finalize-modal.component.html",
   styleUrls: ["./reception-finalize-modal.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ButtonComponent]
+  imports: [CommonModule, ButtonComponent, DevisePipe, DeviseDirective]
 })
 export class ReceptionFinalizeModalComponent {
   readonly activeModal = inject(NgbActiveModal);

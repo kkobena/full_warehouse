@@ -40,7 +40,8 @@
           [severity]="'secondary'"
           [text]="true"
           icon="pi pi-refresh"
-          ngbTooltip="Actualiser"
+          ariaLabel="Actualiser"
+              ngbTooltip="Actualiser"
           placement="left"
           size="small"
         />
@@ -60,7 +61,7 @@
     <div class="summary-item">
       <i class="pi pi-money-bill"></i>
       <span class="summary-label">Montant total :</span>
-      <span class="summary-value total-amount">{{ totalAmount() | number : '1.0-0' }} F</span>
+      <span class="summary-value total-amount">{{ totalAmount() | devise }}</span>
     </div>
   </div>
 
@@ -101,6 +102,7 @@
             <app-button
               [appRowToggler]="sale"
               [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+              [ariaLabel]="expanded ? 'Replier le détail' : 'Déplier le détail'"
               [rounded]="true"
               [text]="true"
               size="small"
@@ -119,7 +121,7 @@
             <span class="item-count">{{ sale.salesLines?.length || 0 }}</span>
           </td>
           <td class="text-right">
-            <span class="sale-amount">{{ sale.salesAmount | number : '1.0-0' }} F</span>
+            <span class="sale-amount">{{ sale.salesAmount | devise }}</span>
           </td>
           <td>
             <div class="customer-name">
@@ -139,7 +141,8 @@
                 [rounded]="true"
                 [text]="true"
                 icon="pi pi-play"
-                ngbTooltip="Reprendre la vente"
+                ariaLabel="Reprendre la vente"
+              ngbTooltip="Reprendre la vente"
                 severity="success"
                 size="small"
               />
@@ -201,7 +204,7 @@
                           class="price-value">{{ line.regularUnitPrice | number : '1.0-0' }}</span>
                       </td>
                       <td class="text-right">
-                        <span class="total-value">{{ line.salesAmount | number : '1.0-0' }} F</span>
+                        <span class="total-value">{{ line.salesAmount | devise }}</span>
                       </td>
                     </tr>
                   </ng-template>

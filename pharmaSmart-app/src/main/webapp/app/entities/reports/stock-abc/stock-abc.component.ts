@@ -1,15 +1,19 @@
-import { Component, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonComponent, SelectComponent } from '../../../shared/ui';
-import { ClassePareto } from 'app/shared/model/report/classe-pareto.enum';
-import { CategorieABC } from 'app/shared/model/report/stock-rotation.model';
+import {ChangeDetectionStrategy, Component, signal, ViewChild} from '@angular/core';
+import {FormsModule} from '@angular/forms';
+import {NgbNavModule} from '@ng-bootstrap/ng-bootstrap';
+import {ButtonComponent, SelectComponent} from '../../../shared/ui';
+import {ClassePareto} from 'app/shared/model/report/classe-pareto.enum';
+import {CategorieABC} from 'app/shared/model/report/stock-rotation.model';
 import ABCParetoComponent from '../abc-pareto/abc-pareto.component';
 import StockRotationComponent from '../stock-rotation/stock-rotation.component';
+import { ToolbarComponent } from 'app/shared/ui';
 
 @Component({
-  selector: 'jhi-stock-abc',
-  imports: [NgbNavModule, ABCParetoComponent, StockRotationComponent, FormsModule, SelectComponent, ButtonComponent],
+  selector: 'app-stock-abc',
+  imports: [
+    NgbNavModule, ABCParetoComponent, StockRotationComponent, FormsModule,
+    SelectComponent, ButtonComponent, ToolbarComponent,
+  ],
   templateUrl: './stock-abc.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./stock-abc.component.scss'],

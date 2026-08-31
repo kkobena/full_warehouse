@@ -40,7 +40,12 @@ public class ProduitCustomRepositoryImpl implements ProduitCustomRepository {
                 cb.sumAsLong(cb.prod(stockJoin.get(StockProduit_.qtyStock), fournisseurJoin.get(FournisseurProduit_.prixAchat))),
                 cb.sumAsLong(cb.prod(stockJoin.get(StockProduit_.qtyStock), fournisseurJoin.get(FournisseurProduit_.prixUni))),
                 cb.sum(stockJoin.get(StockProduit_.qtyStock)),
-                cb.countDistinct(root)
+                cb.countDistinct(root),
+                // Agrégat enraciné sur le PRODUIT : ni les péremptions à venir ni les bons de
+                // retour ne s'en déduisent. Les deux compteurs restent donc à zéro ici — ils
+                // n'ont de sens que sur la variante enracinée sur le lot.
+                cb.literal(0L),
+                cb.literal(0L)
             )
         );
 

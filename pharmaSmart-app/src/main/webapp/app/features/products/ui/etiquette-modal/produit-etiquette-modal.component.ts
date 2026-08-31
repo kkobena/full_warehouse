@@ -9,13 +9,14 @@ import { IProduit } from "app/shared/model/produit.model";
 import { ProductsApiService } from "../../data-access/services/products-api.service";
 import { NotificationService } from "app/shared/services/notification.service";
 import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
+import { DevisePipe } from 'app/shared/utils/devise';
 
 @Component({
   selector: "app-produit-etiquette-modal",
   templateUrl: "./produit-etiquette-modal.component.html",
   styleUrls: ["./produit-etiquette-modal.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, ButtonComponent, InputNumberComponent, CardComponent]
+  imports: [CommonModule, FormsModule, ButtonComponent, InputNumberComponent, CardComponent, DevisePipe]
 })
 export class ProduitEtiquetteModalComponent implements AfterViewInit{
   produit!: IProduit;

@@ -7,7 +7,7 @@
 --            cost_amount  = coût UNITAIRE du produit, pas le total
 --            tax_value    = taux de TVA du produit
 --   vente  : sales_amount = Σ lignes
---            ht_amount    = Σ CEIL(montant_ligne / (1 + taux/100))   ← PAR LIGNE
+--            ht_amount    = Σ CEIL(montant_ligne / (1 + taux/100))   <- PAR LIGNE
 --            tax_amount   = Σ (montant_ligne − ht_ligne)
 --            net_amount   = sales_amount − discount_amount
 --            amount_to_be_taken_into_account = sales_amount  (contrôle V2 de
@@ -42,28 +42,59 @@
 -- (les caisses de 08_caisses.sql suivent le même calendrier).
 -- ---------------------------------------------------------------------------
 CREATE TEMP TABLE tmp_vente AS
-WITH jours AS (
+WITH fenetre AS (
+    -- Part de la journée d'ouverture (08 h – 20 h) déjà écoulée au moment du
+    -- chargement. Elle sert à la journée en cours uniquement : générer une
+    -- journée pleine à 09 h du matin daterait des ventes dans le futur, ce que
+    -- 99_verification.sql refuse — et qui n'aurait aucun sens à l'écran.
+    -- Plancher à 8 % pour qu'un chargement matinal produise tout de même
+    -- quelques ventes du jour : une démo qui ouvre sur une caisse vide manque
+    -- son effet.
+    SELECT GREATEST(0.08, LEAST(1.0,
+             EXTRACT(EPOCH FROM (LOCALTIME - TIME '08:00:00')) / (12 * 3600.0)
+           ))::numeric AS part
+),
+jours AS (
     SELECT
         (CURRENT_DATE - (INTERVAL '1 day' * j))::date AS jour,
         j,
         extract(dow FROM (CURRENT_DATE - (INTERVAL '1 day' * j)))::int AS dow
-    FROM generate_series(1, 180) AS j
-    WHERE extract(dow FROM (CURRENT_DATE - (INTERVAL '1 day' * j))) <> 1
+    -- Depuis 0 et non 1 : la journée du chargement doit avoir ses ventes,
+    -- sinon la caisse du jour, le tableau de bord et les états quotidiens
+    -- s'ouvrent vides. 08_caisses.sql couvre déjà cette journée.
+    FROM generate_series(0, 180) AS j
+    -- L'officine ferme le lundi, sauf la journee du chargement : une demo
+    -- lancee un lundi n'aurait sinon ni caisse ouverte, ni vente du jour, ni
+    -- tableau de bord caissier -- un ecran vide un jour sur sept.
+    WHERE j = 0 OR extract(dow FROM (CURRENT_DATE - (INTERVAL '1 day' * j))) <> 1
 ),
 compte AS (
-    SELECT jour, j, dow,
-           CASE dow WHEN 6 THEN 35 + (j % 11)      -- samedi
-                    WHEN 0 THEN  8 + (j %  5)      -- dimanche de garde
-                    ELSE       20 + (j % 11) END AS nb
-    FROM jours
+    SELECT j.jour, j.j, j.dow,
+           -- Journée en cours : volume proportionnel au temps écoulé.
+           GREATEST(1, (
+               CASE j.dow WHEN 6 THEN 35 + (j.j % 11)      -- samedi
+                          WHEN 0 THEN  8 + (j.j %  5)      -- dimanche de garde
+                          ELSE       20 + (j.j % 11) END
+               * CASE WHEN j.j = 0 THEN f.part ELSE 1 END
+           )::int) AS nb,
+           -- Étendue horaire, en minutes, sur laquelle étaler les ventes.
+           GREATEST(30, (720 * CASE WHEN j.j = 0 THEN f.part ELSE 1 END)::int) AS minutes
+    FROM jours j CROSS JOIN fenetre f
 )
 SELECT
     nextval('id_sale_seq') AS id,
     c.jour AS sale_date,
     row_number() OVER (ORDER BY c.jour, k) AS rang,
     row_number() OVER (PARTITION BY c.jour ORDER BY k) AS rang_jour,
-    -- Amplitude 08 h – 20 h.
-    c.jour + TIME '08:00:00' + (INTERVAL '1 minute' * ((k * 43) % 720)) AS moment,
+    -- Amplitude 08 h – 20 h, réduite à la partie écoulée pour le jour même.
+    -- Le LEAST couvre le seul cas que le plancher de 8 % laisse passer : un
+    -- chargement avant l'ouverture, où même une fenêtre minimale déborderait
+    -- sur le futur. Les ventes se tassent alors sur la minute courante — peu
+    -- élégant, mais l'invariant « aucune date dans le futur » tient toujours.
+    LEAST(
+        c.jour + TIME '08:00:00' + (INTERVAL '1 minute' * ((k * 43) % c.minutes)),
+        date_trunc('minute', LOCALTIMESTAMP)
+    ) AS moment,
     -- Une vente sur deux est tiers-payant : c'est le chemin dominant du jeu.
     CASE WHEN k % 2 = 0 THEN 'CashSale' ELSE 'ThirdPartySales' END AS dtype,
     c.nb
@@ -214,12 +245,49 @@ SELECT
     t.taux AS tax_value,
     (l.quantity * p.regular_unit_price)::int AS sales_amount,
     -- HT arrondi AU PLAFOND, ligne par ligne (SaleCommonService.computeHtAmount).
+    -- Il porte sur le BRUT : la TVA est due sur le prix affiche, la remise se
+    -- deduit ensuite. C'est pourquoi `sales_amount` reste le montant brut et
+    -- que seule la remise en est retranchee au niveau de l'en-tete.
     CASE WHEN t.taux = 0 THEN (l.quantity * p.regular_unit_price)::int
          ELSE ceil((l.quantity * p.regular_unit_price)::numeric
-                   / (1 + t.taux / 100.0))::int END AS ht_amount
+                   / (1 + t.taux / 100.0))::int END AS ht_amount,
+    -- ── Remises accordees au comptoir ────────────────────────────────────
+    --
+    -- Sans elles, le rapport « Analyse des remises » s'ouvrait sur un montant
+    -- nul et la politique commerciale de l'officine restait indemontrable.
+    --
+    -- Les taux sont ceux de la grille produit (04b) : 5, 10 et 15 %. En deca,
+    -- la remise ne se voit ni sur le ticket ni dans les etats.
+    --
+    -- Une vente au comptant sur huit, et la remise porte alors sur TOUTES ses
+    -- lignes : c'est le geste reel du comptoir — on accorde une remise sur un
+    -- panier, pas sur un article isole au milieu des autres.
+    --
+    -- Les ventes tiers payant en sont exclues : la part payeur se calcule sur
+    -- le montant conventionne, et une remise y ouvrirait un ecart entre ce que
+    -- l'organisme doit et ce que le patient a paye.
+    --
+    -- Le reste 3 plutot que 0 : les ventes differees sont choisies plus bas sur
+    -- `id % 4 = 0`, et tout multiple de 8 en est un. Prendre 0 ici aurait rendu
+    -- differee CHAQUE vente remisee -- une remise que personne n'encaisse.
+    CASE WHEN v.dtype = 'CashSale' AND l.sales_id % 8 = 3
+         THEN (ARRAY[5, 10, 15])[1 + (l.sales_id % 3)::int]
+         ELSE 0 END AS taux_remise
 FROM tmp_ligne l
+JOIN tmp_vente v ON v.id = l.sales_id
 JOIN produit p ON p.id = l.produit_id
 JOIN tva t ON t.id = p.tva_id;
+
+-- La remise unitaire est un ENTIER de francs : un prix a la caisse ne porte pas
+-- de centimes. On la calcule donc apres coup, a partir du taux et du prix.
+ALTER TABLE tmp_ligne_calc ADD COLUMN discount_unit_price int;
+ALTER TABLE tmp_ligne_calc ADD COLUMN discount_amount int;
+
+UPDATE tmp_ligne_calc
+   SET discount_unit_price = round(regular_unit_price * taux_remise / 100.0)::int;
+
+UPDATE tmp_ligne_calc
+   SET discount_amount = quantity * discount_unit_price;
 
 -- ---------------------------------------------------------------------------
 -- 4. Montants d'en-tête, agrégés depuis les lignes
@@ -233,13 +301,16 @@ SELECT
     a.cost_amount,
     a.ht_amount,
     a.sales_amount - a.ht_amount AS tax_amount,
-    a.sales_amount AS net_amount            -- aucune remise dans le jeu de démo
+    a.discount_amount,
+    -- Net = brut − remise, l'invariant que controle 99_verification.
+    a.sales_amount - a.discount_amount AS net_amount
 FROM tmp_vente v
 JOIN (
     SELECT sales_id,
            sum(sales_amount)::int              AS sales_amount,
            sum(quantity * cost_amount)::int    AS cost_amount,
-           sum(ht_amount)::int                 AS ht_amount
+           sum(ht_amount)::int                 AS ht_amount,
+           sum(discount_amount)::int           AS discount_amount
       FROM tmp_ligne_calc
      GROUP BY sales_id
 ) a ON a.sales_id = v.id;
@@ -306,14 +377,17 @@ SELECT
     v.dtype, v.id, v.sale_date,
     to_char(v.sale_date, 'YYYYMMDD') || lpad(v.rang_jour::text, 3, '0'),
     v.sales_amount, v.ht_amount, v.tax_amount, v.cost_amount, v.net_amount,
-    0,
+    v.discount_amount,
     -- Part réglée par le client : tout au comptant, la part assuré en TP.
     CASE WHEN v.dtype = 'CashSale' THEN v.net_amount
          ELSE GREATEST(0, v.net_amount - COALESCE(tp.part_tp, 0)) END,
     CASE WHEN v.dtype = 'CashSale' THEN v.net_amount
          ELSE GREATEST(0, v.net_amount - COALESCE(tp.part_tp, 0)) END,
     0, 0,
-    v.sales_amount,
+    -- Le declarable est le NET : on ne declare pas un chiffre d'affaires qu'on
+    -- n'a pas facture. Sa somme sur les lignes doit retomber dessus (controle
+    -- V2 de AuditDeclarationCaService).
+    v.net_amount,
     'CLOSED', 'PAYE',
     CASE WHEN v.dtype = 'CashSale' THEN 'COMPTANT' ELSE 'ASSURANCE' END,
     'DIRECT',
@@ -355,10 +429,10 @@ INSERT INTO sales_line (
 SELECT
     l.id, l.sale_date, l.sales_id, l.sale_date, l.produit_id,
     l.quantity, l.quantity, 0, 0,
-    l.regular_unit_price, l.regular_unit_price, 0,
-    0, l.sales_amount, l.tax_value, l.cost_amount,
+    l.regular_unit_price, l.regular_unit_price - l.discount_unit_price, l.discount_unit_price,
+    l.discount_amount, l.sales_amount, l.tax_value, l.cost_amount,
     -- Contrôle V2 de l'audit CA : la somme des lignes doit égaler la vente.
-    l.sales_amount, 0, false,
+    l.sales_amount - l.discount_amount, l.taux_remise, false,
     NULL, NULL,
     '[]'::jsonb, '[]'::jsonb,
     l.moment, l.moment, l.moment
@@ -505,11 +579,36 @@ UPDATE sales_line sl
  WHERE sl.id = p.id;
 
 -- ---------------------------------------------------------------------------
+-- 10b. Ventes différées (crédit client)
+--
+-- Une vente différée est délivrée sans encaissement : le client règle plus
+-- tard, au comptoir ou par versements. Elle n'a donc AUCUN payment_transaction
+-- tant qu'elle n'est pas réglée — le règlement viendra de 14b_reglements.sql,
+-- sous forme de DifferePayment rattaché au CLIENT et non à la vente.
+--
+-- Sans ces ventes, tout le domaine « différé » reste vide : l'écran des soldes
+-- clients, l'historique des règlements (/api/reglements) et les relances
+-- n'ont rien à afficher.
+--
+-- Réservé aux clients comptant IDENTIFIÉS : on ne fait pas crédit à un client
+-- anonyme, et le solde doit pouvoir être rattaché à quelqu'un.
+-- ---------------------------------------------------------------------------
+UPDATE sales s
+   SET differe        = true,
+       payment_status = 'IMPAYE',
+       payroll_amount = 0,
+       rest_to_pay    = s.amount_to_be_paid
+ WHERE s.dtype = 'CashSale'
+   AND s.customer_id IS NOT NULL
+   AND s.amount_to_be_paid > 0
+   AND s.id % 4 = 0;
+
+-- ---------------------------------------------------------------------------
 -- 11. Règlements
 --
 -- PaymentTransaction.cashRegister est obligatoire. Une vente dont la part
 -- client est nulle — couverture à 100 % — n'a AUCUN règlement : c'est un cas
--- normal, pas un oubli.
+-- normal, pas un oubli. Les ventes différées non plus, par construction.
 -- ---------------------------------------------------------------------------
 INSERT INTO payment_transaction (
     dtype, id, transaction_date, sale_id, sale_date,
@@ -540,7 +639,8 @@ SELECT
     s.created_at
 FROM sales s
 WHERE s.amount_to_be_paid > 0
-  AND s.cash_register_id IS NOT NULL;
+  AND s.cash_register_id IS NOT NULL
+  AND NOT s.differe;
 
 -- ---------------------------------------------------------------------------
 -- 12. Recalage des caisses
@@ -582,6 +682,7 @@ DO $$
 DECLARE
     v_ventes int; v_lignes int; v_paie int;
     v_ecart int; v_ht int; v_lots int; v_neg int;
+    v_remisees int; v_net int;
 BEGIN
     SELECT count(*) INTO v_ventes FROM sales;
     SELECT count(*) INTO v_lignes FROM sales_line;
@@ -602,14 +703,25 @@ BEGIN
 
     SELECT count(*) INTO v_neg FROM stock_produit WHERE qty_stock < 0;
 
+    -- Les remises : sans elles, le rapport « Analyse des remises » est vide.
+    SELECT count(*) INTO v_remisees FROM sales WHERE discount_amount > 0;
+    SELECT count(*) INTO v_net FROM sales WHERE net_amount <> sales_amount - discount_amount;
+
     IF v_ventes < 2500 THEN RAISE EXCEPTION 'Ventes : % (attendu >= 2500)', v_ventes; END IF;
     IF v_lignes < 5000 THEN RAISE EXCEPTION 'Lignes : % (attendu >= 5000)', v_lignes; END IF;
     IF v_ecart > 0 THEN RAISE EXCEPTION '% vente(s) dont le total contredit les lignes', v_ecart; END IF;
     IF v_ht > 0 THEN RAISE EXCEPTION '% vente(s) dont HT + TVA <> TTC', v_ht; END IF;
     IF v_lots > 0 THEN RAISE EXCEPTION '% ligne(s) dont les lots ne couvrent pas la quantité vendue', v_lots; END IF;
     IF v_neg > 0 THEN RAISE EXCEPTION '% ligne(s) de stock négative(s)', v_neg; END IF;
+    IF v_remisees < 100 THEN
+        RAISE EXCEPTION 'Ventes remisées : % (attendu >= 100)', v_remisees;
+    END IF;
+    IF v_net > 0 THEN
+        RAISE EXCEPTION '% vente(s) dont le net ne vaut pas brut - remise', v_net;
+    END IF;
 
-    RAISE NOTICE '% ventes, % lignes, % règlements.', v_ventes, v_lignes, v_paie;
+    RAISE NOTICE '% ventes (dont % remisées), % lignes, % règlements.',
+                 v_ventes, v_remisees, v_lignes, v_paie;
 END $$;
 
 \echo '<< 09_ventes : terminé'

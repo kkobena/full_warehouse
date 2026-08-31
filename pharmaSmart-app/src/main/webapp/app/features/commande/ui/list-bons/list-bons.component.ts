@@ -64,6 +64,7 @@ import {ConfigurationService} from "../../../../shared/configuration.service";
 import {
   FournisseurSelectComponent
 } from "../../../partners/ui/fournisseur-select/fournisseur-select.component";
+import { DevisePipe } from 'app/shared/utils/devise';
 
 @Component({
   selector: "app-list-bons",
@@ -89,7 +90,7 @@ import {
     ReconciliationWorkspaceComponent,
     DatePipe,
     FournisseurSelectComponent
-  ]
+  , DevisePipe]
 })
 export class AppListBonsComponent implements OnInit {
   // ── Modes master/detail ────────────────────────────────────────────────────

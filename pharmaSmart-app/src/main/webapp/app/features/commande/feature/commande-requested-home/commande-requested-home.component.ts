@@ -16,6 +16,11 @@ import {filter, finalize} from 'rxjs/operators';
 import {HttpResponse} from '@angular/common/http';
 import {saveAs} from 'file-saver';
 import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {EnvoiPharmamlComponent} from '../pharmaml';
+import {
+  DispoComparaisonComponent
+} from '../pharmaml/ui/dispo-comparaison/dispo-comparaison.component';
+import {IPharmamlCommandeResponse} from 'app/shared/model/pharmaml.model';
 import {
   ButtonComponent,
   DataTableComponent,
@@ -47,6 +52,7 @@ import {
   CommandeRequestedAction,
   CommandeRequestedActionsComponent
 } from './commande-requested-actions.component';
+import { DevisePipe } from 'app/shared/utils/devise';
 
 @Component({
   selector: 'app-commande-requested-home',
@@ -65,7 +71,7 @@ import {
     RowCheckboxComponent,
     SortableHeaderDirective,
     CommandeRequestedActionsComponent,
-  ],
+   DevisePipe],
 })
 export class CommandeRequestedHomeComponent implements OnInit {
 
@@ -198,6 +204,12 @@ export class CommandeRequestedHomeComponent implements OnInit {
       case 'receptionner':
         this.onReceptionner(c);
         break;
+      case 'envoyerPharmaml':
+        this.onEnvoyerPharmaml(c);
+        break;
+      case 'comparerGrossistes':
+        this.onComparerGrossistes(c);
+        break;
       case 'exportCsv':
         this.exportCsv(c);
         break;
@@ -208,6 +220,69 @@ export class CommandeRequestedHomeComponent implements OnInit {
         this.onSupprimerCommande(c);
         break;
     }
+  }
+
+  /**
+   * Transmet la commande au grossiste sans l'ouvrir.
+   *
+   * Le même envoi que depuis la commande elle-même : au retour, on redit ce que le grossiste
+   * a accepté, et l'on recharge la liste — la commande y porte alors sa pastille PHARMAML et
+   * n'est plus modifiable.
+   */
+  onEnvoyerPharmaml(c: ICommande): void {
+    if (!c?.commandeId) {
+      return;
+    }
+    const ref = this.modalService.open(EnvoiPharmamlComponent, {
+      size: 'lg',
+      backdrop: 'static',
+      centered: true,
+    });
+    (ref.componentInstance as EnvoiPharmamlComponent).commandeId = c.commandeId;
+    ref.result.then(
+      (result: IPharmamlCommandeResponse) => {
+        if (result?.reliquatCommandeId != null) {
+          this.notificationService.info(
+            `Commande reliquat créée automatiquement (#${result.reliquatCommandeId})`,
+            'Reliquat créé',
+          );
+        } else if (result) {
+          result.success
+            ? this.notificationService.success(
+                `${result.successCount} / ${result.totalProduit} produits acceptés`,
+                'Envoi réussi',
+              )
+            : this.notificationService.warning(
+                `${result.successCount} / ${result.totalProduit} produits acceptés`,
+                'Envoi partiel',
+              );
+        }
+        this.loadPage();
+      },
+      () => {
+      },
+    );
+  }
+
+  /**
+   * Compare la disponibilité des lignes de cette commande chez plusieurs grossistes.
+   *
+   * Sans ouvrir la commande : c'est ce qu'on regarde avant d'envoyer, quand une ligne
+   * risque la rupture et qu'un autre répartiteur pourrait la servir.
+   */
+  onComparerGrossistes(c: ICommande): void {
+    if (!c?.commandeId) {
+      return;
+    }
+    const ref = this.modalService.open(DispoComparaisonComponent, {
+      size: 'lg',
+      backdrop: 'static',
+      centered: true,
+      scrollable: true,
+    });
+    const inst = ref.componentInstance as DispoComparaisonComponent;
+    inst.commandeId = c.commandeId;
+    inst.header = `Comparaison disponibilité — ${c.orderReference ?? ''}`;
   }
 
   onSupprimerCommande(c: ICommande): void {

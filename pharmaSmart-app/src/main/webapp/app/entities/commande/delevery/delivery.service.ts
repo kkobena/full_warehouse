@@ -114,27 +114,35 @@ export class DeliveryService {
   updateQuantityReceived(deliveryItem: IDeliveryItem): Observable<void> {
     return this.http.put<void>(
       this.resourceUrlTransac + "/update-order-line-quantity-received",
-      deliveryItem
-
+      this.versLiteDTO(deliveryItem)
     );
   }
 
+  /**
+   * « Tout valider » : pose la quantité reçue sur plusieurs lignes d'un coup.
+   *
+   * Le corps est RÉDUIT aux champs que le serveur lit (`DeliveryReceiptItemLiteDTO`, dont le
+   * service n'exploite que l'identifiant de ligne et la quantité). Poster la ligne entière
+   * échouait en HTTP 400 « Failed to read request » : la ligne rapportée par le serveur porte
+   * un `tva` OBJET (`{id, taux, tva}`), quand le DTO d'écriture attend un entier — et Jackson
+   * refuse tout le lot pour ce seul champ.
+   */
   batchUpdateQuantityReceived(deliveryItems: IDeliveryItem[]): Observable<void> {
-    return this.http.put<void>(
-      this.resourceUrlTransac + "/batch-quantity-received",deliveryItems
-  );
+    const payload = deliveryItems.map(item => this.versLiteDTO(item));
+    return this.http.put<void>(this.resourceUrlTransac + "/batch-quantity-received", payload);
   }
 
   updateQuantityUG(deliveryItem: IDeliveryItem): Observable<{}> {
     return this.http.put<IDeliveryItem>(
       this.resourceUrlTransac + "/update-order-line-quantity-ug",
-      this.resetdatePeremption(deliveryItem),
+      this.versLiteDTO(deliveryItem),
       {
         observe: "response"
       }
     );
   }
 
+  /** Attend un `OrderLineDTO` complet — dont le code CIP, que le DTO Lite ne porte pas. */
   updateCip(deliveryItem: IDeliveryItem): Observable<HttpResponse<{}>> {
     return this.http.put<IDeliveryItem>(this.resourceUrlTransac + "//update-provisional-cip", this.resetdatePeremption(deliveryItem), {
       observe: "response"
@@ -142,11 +150,12 @@ export class DeliveryService {
   }
 
   updateOrderUnitPriceOnStockEntry(deliveryItem: IDeliveryItem): Observable<{}> {
-    return this.http.put<IDeliveryItem>(this.resourceUrlTransac + "/update-order-line-unit-price", this.resetdatePeremption(deliveryItem), {
+    return this.http.put<IDeliveryItem>(this.resourceUrlTransac + "/update-order-line-unit-price", this.versLiteDTO(deliveryItem), {
       observe: "response"
     });
   }
 
+  /** Attend un `OrderLineDTO` complet — dont le coût d'achat qu'il vient écrire. */
   updateOrderCostAmount(deliveryItem: IDeliveryItem): Observable<{}> {
     return this.http.put<IDeliveryItem>(
       this.resourceUrlTransac + "/update-order-line-cost-amount",
@@ -160,7 +169,7 @@ export class DeliveryService {
   updateDatePeremption(deliveryItem: IDeliveryItem): Observable<{}> {
     return this.http.put<IDeliveryItem>(
       this.resourceUrlTransac + "/update-order-line-date-peremption",
-      this.resetdatePeremption(deliveryItem),
+      this.versLiteDTO(deliveryItem),
       {
         observe: "response"
       }
@@ -168,7 +177,7 @@ export class DeliveryService {
   }
 
   updateTva(deliveryItem: IDeliveryItem): Observable<{}> {
-    return this.http.put<IDeliveryItem>(this.resourceUrlTransac + "/update-order-line-tva", this.resetdatePeremption(deliveryItem), {
+    return this.http.put<IDeliveryItem>(this.resourceUrlTransac + "/update-order-line-tva", this.versLiteDTO(deliveryItem), {
       observe: "response"
     });
   }
@@ -181,8 +190,43 @@ export class DeliveryService {
     );
   }
 
+  /**
+   * Réduit une ligne de réception au corps que le serveur sait lire.
+   *
+   * Les endpoints d'écriture attendent un `DeliveryReceiptItemLiteDTO`, pas la ligne
+   * complète telle que la lecture la rapporte. La différence n'est pas une question de
+   * poids : la ligne lue porte un `tva` OBJET (`{id, taux, tva}`) là où le DTO d'écriture
+   * déclare un entier, et Jackson refuse alors TOUT le corps — HTTP 400 « Failed to read
+   * request », sans qu'aucune valeur ne soit enregistrée. La saisie de la quantité reçue,
+   * les unités gratuites, la TVA, la péremption : tout passait par là.
+   *
+   * `datePeremption` est délibérément vidée : la péremption qui compte est celle du lot en
+   * cours de saisie (`datePeremptionTmp`), et la valeur lue est une date sérialisée que le
+   * serveur ne saurait pas relire.
+   */
   private resetdatePeremption(deliveryItem: IDeliveryItem): IDeliveryItem {
     deliveryItem.datePeremption = null;
     return deliveryItem;
+  }
+
+  private versLiteDTO(deliveryItem: IDeliveryItem): Record<string, unknown> {
+    const tva = deliveryItem.tva as unknown;
+    const tauxTva =
+      typeof tva === 'number' ? tva : typeof tva === 'object' && tva !== null ? (tva as any).taux : undefined;
+    return {
+      id: deliveryItem.id,
+      orderLineId: deliveryItem.orderLineId,
+      quantityReceived: deliveryItem.quantityReceived,
+      quantityReceivedTmp: deliveryItem.quantityReceivedTmp,
+      quantityRequested: deliveryItem.quantityRequested,
+      quantityReturned: deliveryItem.quantityReturned,
+      quantityUG: deliveryItem.freeQty,
+      orderUnitPrice: deliveryItem.orderUnitPrice,
+      tva: tauxTva,
+      tvaId: (deliveryItem as any).tvaId ?? (typeof tva === 'object' && tva !== null ? (tva as any).id : undefined),
+      lots: deliveryItem.lots,
+      datePeremption: null,
+      datePeremptionTmp: deliveryItem.datePeremptionTmp,
+    };
   }
 }

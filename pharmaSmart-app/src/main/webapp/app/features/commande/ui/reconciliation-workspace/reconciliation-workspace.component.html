@@ -2,7 +2,9 @@
 
   <!-- HEADER — même pattern que commande-received et retour-workspace -->
   <div class="view-panel__header view-panel__header--detail">
-    <app-button (clicked)="onCancel()" icon="pi pi-arrow-left" [text]="true" size="small" label="Retour à la liste" />
+    <app-button (clicked)="onCancel()" [text]="true" icon="pi pi-arrow-left"
+                label="Retour à la liste"
+                size="small" />
     <span class="view-panel__title">
       <i class="pi pi-file-check me-1"></i>Rapprochement facture — {{ deliveryRef() }}
     </span>
@@ -15,14 +17,15 @@
     <span class="ms-auto"></span>
     <app-button
       (clicked)="onSubmit()"
-      icon="pi pi-save"
-      [label]="isReconcilie ? 'Valider — Réconcilié' : 'Enregistrer avec écart'"
-      [severity]="isReconcilie ? 'primary' : 'warn'"
-      size="small"
-      [loading]="saving()"
       [disabled]="!canSave || saving()"
+      [label]="isReconcilie ? 'Valider — Réconcilié' : 'Enregistrer avec écart'"
+      [loading]="saving()"
+      [severity]="isReconcilie ? 'primary' : 'warn'"
+      icon="pi pi-save"
+      size="small"
     />
-    <app-button (clicked)="onCancel()" label="Annuler" severity="secondary" [text]="true" size="small" />
+    <app-button (clicked)="onCancel()" [text]="true" label="Annuler" severity="secondary"
+                size="small" />
   </div>
 
   @if (loading()) {
@@ -42,13 +45,16 @@
 
           <div class="rw-field">
             <label class="rw-label">Référence <span class="text-danger">*</span></label>
-            <input class="form-control" [appKeyFilter]="'alphanum'" [ngModel]="factureReference()" (ngModelChange)="factureReference.set($event)"
-                   type="text" maxlength="50" placeholder="N° facture fournisseur" />
+            <input (ngModelChange)="factureReference.set($event)" [appKeyFilter]="'alphanum'"
+                   [ngModel]="factureReference()"
+                   class="form-control"
+                   maxlength="50" placeholder="N° facture fournisseur" type="text" />
           </div>
 
           <div class="rw-field">
             <label class="rw-label">Date facture</label>
-            <pharma-date-picker [ngModel]="factureDate()" (ngModelChange)="factureDate.set($event)" id="factureDate" />
+            <pharma-date-picker (ngModelChange)="factureDate.set($event)" [ngModel]="factureDate()"
+                                id="factureDate" />
           </div>
         </div>
 
@@ -67,42 +73,56 @@
 
             <div class="rw-compare__row">
               <span class="rw-row-label">Montant HT</span>
-              <span class="rw-val rw-val--ref">{{ blMontantHT | number:'1.0-0' }} F</span>
+              <span class="rw-val rw-val--ref">{{ blMontantHT | number }}</span>
               <span class="rw-val">
-                <app-input-number [ngModel]="factureMontantHT()" (ngModelChange)="factureMontantHT.set($event)" [min]="0" style="width: 115px" />
+                <app-input-number (ngModelChange)="factureMontantHT.set($event)"
+                                  [min]="0" [ngModel]="factureMontantHT()"
+                                  style="width: 115px" />
               </span>
-              <span class="rw-ecart" [class.rw-ecart--ok]="ecartHT === 0" [class.rw-ecart--err]="ecartHT !== 0">
-                @if (ecartHT === 0) { <i class="pi pi-check-circle"></i> } @else { <i class="pi pi-exclamation-triangle"></i> }
-                {{ ecartHT | number:'1.0-0' }} F
+              <span [class.rw-ecart--err]="ecartHT !== 0" [class.rw-ecart--ok]="ecartHT === 0"
+                    class="rw-ecart">
+                @if (ecartHT === 0) {
+                  <i class="pi pi-check-circle"></i>
+                } @else {
+                  <i class="pi pi-exclamation-triangle"></i>
+                }
+                {{ ecartHT | number }}
               </span>
             </div>
 
             <div class="rw-compare__row">
               <span class="rw-row-label">TVA</span>
-              <span class="rw-val rw-val--ref">{{ blTVA | number:'1.0-0' }} F</span>
+              <span class="rw-val rw-val--ref">{{ blTVA | number }}</span>
               <span class="rw-val">
-                <app-input-number [ngModel]="factureTVA()" (ngModelChange)="factureTVA.set($event)" [min]="0" style="width: 115px" />
+                <app-input-number (ngModelChange)="factureTVA.set($event)" [min]="0"
+                                  [ngModel]="factureTVA()" style="width: 115px" />
               </span>
-              <span class="rw-ecart" [class.rw-ecart--ok]="ecartTVA === 0" [class.rw-ecart--err]="ecartTVA !== 0">
-                @if (ecartTVA === 0) { <i class="pi pi-check-circle"></i> } @else { <i class="pi pi-exclamation-triangle"></i> }
-                {{ ecartTVA | number:'1.0-0' }} F
+              <span [class.rw-ecart--err]="ecartTVA !== 0" [class.rw-ecart--ok]="ecartTVA === 0"
+                    class="rw-ecart">
+                @if (ecartTVA === 0) {
+                  <i class="pi pi-check-circle"></i>
+                } @else {
+                  <i class="pi pi-exclamation-triangle"></i>
+                }
+                {{ ecartTVA | number }}
               </span>
             </div>
 
             <div class="rw-compare__row rw-compare__row--total">
               <span class="rw-row-label fw-bold">Total TTC</span>
-              <span class="rw-val rw-val--ref fw-bold">{{ blTTC | number:'1.0-0' }} F</span>
-              <span class="rw-val fw-bold">{{ factureTTC | number:'1.0-0' }} F</span>
-              <span class="rw-ecart fw-bold"
+              <span class="rw-val rw-val--ref fw-bold">{{ blTTC | number }}</span>
+              <span class="rw-val fw-bold">{{ factureTTC | number }}</span>
+              <span [class.rw-ecart--err]="ecartTTC !== 0"
                     [class.rw-ecart--ok]="ecartTTC === 0"
-                    [class.rw-ecart--err]="ecartTTC !== 0">
-                {{ ecartTTC | number:'1.0-0' }} F
+                    class="rw-ecart fw-bold">
+                {{ ecartTTC | number }}
               </span>
             </div>
 
           </div>
 
-          <div class="rw-status mt-3" [class.rw-status--ok]="isReconcilie" [class.rw-status--warn]="!isReconcilie">
+          <div [class.rw-status--ok]="isReconcilie" [class.rw-status--warn]="!isReconcilie"
+               class="rw-status mt-3">
             @if (isReconcilie) {
               <i class="pi pi-check-circle"></i>
               <span>Facture concordante — aucun écart avec le BL</span>
@@ -119,7 +139,7 @@
       <div class="rw-right">
         <div class="rw-card rw-card--full-height">
           <div class="rw-card__title"><i class="pi pi-list"></i> Lignes du bon de livraison</div>
-          <app-data-table [value]="orderLines()" scrollHeight="flex" class="p-datatable-sm">
+          <app-data-table [value]="orderLines()" class="p-datatable-sm" scrollHeight="flex">
             <ng-template #header>
               <tr class="pharma-table-head">
                 <th style="width:100px">Code</th>
@@ -133,19 +153,22 @@
               <tr>
                 <td><span class="pharma-code">{{ line.produitCip }}</span></td>
                 <td>{{ line.produitLibelle }}</td>
-                <td class="text-end"><span class="pharma-qty-value">{{ line.quantityReceived }}</span></td>
-                <td class="text-end"><span class="pharma-price">{{ line.orderCostAmount | number:'1.0-0' }}</span></td>
+                <td class="text-end"><span
+                  class="pharma-qty-value">{{ line.quantityReceived }}</span></td>
+                <td class="text-end"><span
+                  class="pharma-price">{{ line.orderCostAmount | number:'1.0-0' }}</span></td>
                 <td class="text-end">
                   <span class="pharma-price fw-semibold">
-                    {{ (line.orderCostAmount * line.quantityReceived) | number:'1.0-0' }} F
+                    {{ (line.orderCostAmount * line.quantityReceived) | number }}
                   </span>
                 </td>
               </tr>
             </ng-template>
             <ng-template #emptymessage>
               <tr>
-                <td colspan="5" class="pharma-empty-message">
-                  <div class="pharma-empty-content"><i class="pi pi-inbox"></i><p>Aucune ligne</p></div>
+                <td class="pharma-empty-message" colspan="5">
+                  <div class="pharma-empty-content"><i class="pi pi-inbox"></i>
+                    <p>Aucune ligne</p></div>
                 </td>
               </tr>
             </ng-template>

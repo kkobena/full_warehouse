@@ -22,7 +22,7 @@
           <app-select
             #tiersPayant
             (selectionChange)="onSelect($any($event))"
-            [items]="getTiersPayants()"
+            [items]="tiersPayantsDisponibles()"
             formControlName="tiersPayant"
             inputId="tiersPayant"
             bindLabel="tiersPayantFullName"

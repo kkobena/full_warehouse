@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
-import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {HttpErrorResponse, HttpHeaders, HttpResponse} from '@angular/common/http';
 import {FormeProduitService} from './forme-produit.service';
 import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
 import {IFormProduit} from '../../shared/model/form-produit.model';
@@ -11,6 +11,8 @@ import {
   SelectableRowDirective,
 } from '../../shared/ui';
 import {showCommonModal} from '../sales/selling-home/sale-helper';
+import {NotificationService} from '../../shared/services/notification.service';
+import {ErrorService} from '../../shared/error.service';
 import {FormFormeProduitComponent} from './form-forme-produit/form-forme-produit.component';
 import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {
@@ -34,6 +36,8 @@ export class FormeProduitComponent implements OnInit {
   private readonly modalService = inject(NgbModal);
   private readonly entityService = inject(FormeProduitService);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly errorService = inject(ErrorService);
 
   ngOnInit(): void {
     this.loadPage();
@@ -117,8 +121,10 @@ export class FormeProduitComponent implements OnInit {
   private confirm(id: number): void {
     this.confirmDialog.onConfirm(
       () => {
-        this.entityService.delete(id).subscribe(() => {
-          this.loadPage(0);
+
+        this.entityService.delete(id).subscribe({
+          next: () => this.loadPage(0),
+          error: err => this.onErreurSuppression(err),
         });
       },
       'Suppression',
@@ -135,5 +141,15 @@ export class FormeProduitComponent implements OnInit {
 
   private onError(): void {
     this.loading.set(false);
+  }
+
+  /**
+   * Le refus du serveur, tel quel : lui seul dit COMBIEN de produits portent encore cette
+   * forme. `onError()` ne faisait qu'éteindre le voyant de chargement, sans un mot — la
+   * suppression paraissait silencieusement aboutie alors que rien n'avait bougé.
+   */
+  private onErreurSuppression(erreur: HttpErrorResponse): void {
+    this.loading.set(false);
+    this.notificationService.error(this.errorService.getErrorMessage(erreur));
   }
 }

@@ -22,7 +22,7 @@ import { ButtonComponent, FloatLabelComponent, KeyFilterDirective } from '../ui'
           [disabled]="!isValid()"
           (keydown.enter)="onAdd()"
         />
-        <app-button (clicked)="handleEnter()" icon="pi pi-check" [disabled]="disabledButton()" severity="primary" />
+        <app-button (clicked)="handleEnter()" icon="pi pi-check" ariaLabel="Ajouter au panier" [disabled]="disabledButton()" severity="primary" />
       </div>
     </app-float-label>
   `,

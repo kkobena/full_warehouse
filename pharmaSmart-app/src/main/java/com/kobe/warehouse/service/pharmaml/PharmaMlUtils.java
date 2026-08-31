@@ -33,7 +33,6 @@ public class PharmaMlUtils {
     public static final String Z = "Z";
 
 
-
     public static final String OUI = "O";
     public static final String NON = "N";
 
@@ -50,10 +49,6 @@ public class PharmaMlUtils {
     public static final String TYPE_CODIFICATION_CIP39 = "CIP39";
     public static final String CODE_VALUE = "00";
     public static final String NATURE_ACTION_REQ_EMISSION = "REQ_EMISSION";
-    public static final String NATURE_ACTION_REQ_INFORMATION = "REQ_EMISSION";
-    public static final String NATURE_ACTION_ACQ_RECEPTION = "REQ_RECEPTION";
-    public static final String NATURE_ACTION_REQ_ANNULATION = "REQ_EMISSION";
-    public static final String NATURE_ACTION_REQ_RETOUR = "REQ_EMISSION";
     public static final String TYPE_CODIFICATION_EAN = "EAN13";
     public static final String USAGE_VALUE = "P";
 

@@ -82,6 +82,8 @@ export interface IProduit {
   remiseCode?: string;
   etatProduit?: EtatProduit;
   dciId?: number;
+  /** Libellé de la molécule (DCI) — envoyé par le serveur, affiché sur la fiche. */
+  dciLibelle?: string;
   stockReassort?: number;
   seuilMini?: number;
   stockMaxi?: number; // stock maxi rayon

@@ -22,9 +22,35 @@ utilisent un autre.
 
 ---
 
+## Encodage
+
+Les scripts sont en **UTF-8**. psql, lui, déduit son encodage client de la page de code de la
+console : sous Windows, WIN1252. Le serveur tente alors une conversion WIN1252 → UTF8 qui
+échoue sur tout octet indéfini en WIN1252 :
+
+```
+ERREUR : le caractère dont la séquence d'octets est 0x90 dans l'encodage « WIN1252 »
+         n'a pas d'équivalent dans l'encodage « UTF8 »
+```
+
+Chaque script pose donc `\encoding UTF8` avant son premier caractère non ASCII — via
+`_header.sql` pour ceux qui l'incluent, en tête de fichier pour `create_database.sql` et
+`run_all.sql`. **Rien à faire côté appelant.**
+
+À savoir si vous ajoutez du contenu : les accents français ne déclenchent pas cette erreur.
+Ils sont valides en WIN1252 et se dégradent **silencieusement** en mojibake — un défaut plus
+insidieux que l'arrêt franc ci-dessus, qui ne concerne que les caractères hors du jeu WIN1252
+(flèches, tirets longs typographiques, symboles).
+
+---
+
 ## Mise en route
 
 ### 1. Créer la base
+
+Les trois étapes sont **volontairement distinctes** : elles n'ont ni les mêmes prérequis, ni
+les mêmes droits, ni la même fréquence. Les enchaîner dans un seul script rendrait illisible
+la cause d'un échec.
 
 Avec un compte superutilisateur, depuis ce répertoire :
 
@@ -32,8 +58,17 @@ Avec un compte superutilisateur, depuis ce répertoire :
 psql -U postgres -d postgres -v ON_ERROR_STOP=1 -f create_database.sql
 ```
 
-Crée le rôle `pharma_smart`, la base `pharma_smart_demo` et le schéma `pharma_smart`.
-Idempotent : ne fait rien si l'objet existe déjà.
+Crée le rôle `pharma_smart`, la base `pharma_smart_demo`, le schéma `pharma_smart`, et lui
+accorde l'ensemble des droits — propriété de la base et du schéma, privilèges sur les objets
+existants, `ALTER DEFAULT PRIVILEGES` pour ceux que Flyway créera ensuite, et l'attribut
+`CREATEDB` pour que le rôle puisse refaire sa base sans superutilisateur.
+
+Le script **s'arrête là** : ni migration, ni chargement de données. Il se termine par un
+contrôle explicite des droits obtenus, et échoue s'ils manquent.
+
+Idempotent, y compris relancé par `pharma_smart` lui-même une fois l'attribut `CREATEDB`
+acquis : rien n'est détruit, les droits sont simplement réappliqués. C'est aussi la façon de
+réparer une base dont le propriétaire ou les privilèges auraient dérivé.
 
 Surcharges : `-v db=...`, `-v owner=...`, `-v pwd=...`
 
@@ -62,6 +97,23 @@ psql -U pharma_smart -d pharma_smart_demo ^
 > `ON_ERROR_STOP=1` est **indispensable** : sans lui, psql poursuit après une erreur et
 > laisse une base à moitié chargée.
 
+### 3 bis. Figer un instantané de référence
+
+Indispensable dès qu'on produit des **captures d'écran** pour le manuel utilisateur
+([e2e/README.md](../../e2e/README.md)).
+
+Les scripts datent tout par rapport au **jour d'exécution** : rejouer `run_all.sql` demain
+décale toutes les colonnes de date, et une campagne de captures rejouée ne montre plus les
+mêmes écrans. Le manuel se contredirait d'une édition à l'autre.
+
+```powershell
+pwsh scripts/demo-data/dump_reference.ps1              # figer
+pwsh scripts/demo-data/dump_reference.ps1 -Restore     # restaurer avant campagne
+```
+
+L'instantané (~2 Mo, format personnalisé) n'est pas versionné. Deux campagnes espacées de six
+mois produisent des captures identiques si elles partent toutes deux d'une restauration.
+
 ### 4. Redémarrer l'application
 
 `01_config.sql` modifie des clés **mises en cache** par l'application
@@ -74,7 +126,7 @@ est nécessaire si l'instance tourne déjà.
 
 | Fichier | Rôle |
 |---|---|
-| `create_database.sql` | Rôle, base et schéma. **Hors `run_all`** : vise une autre base. |
+| `create_database.sql` | Rôle, base, schéma et droits. **Hors `run_all`** : vise une autre base, et ne charge rien. |
 | `_header.sql` | En-tête commun, pose le `search_path`. Inclus par chaque script. |
 | `00_reset.sql` | Purge des données métier, préserve les référentiels Flyway. |
 | `01_config.sql` | Active la gestion de lot. |
@@ -377,8 +429,14 @@ psql -U postgres -d postgres -c "DROP DATABASE pharma_smart_demo"
 
 ## Ce qui reste à faire
 
-**Les scripts n'ont jamais été exécutés.** Le rôle `pharma_smart` n'a pas le droit `CREATEDB`,
-et la base de développement contient de vraies données que `00_reset.sql` effacerait.
+**Les scripts de chargement n'ont jamais été exécutés.** Le blocage initial est levé : la base
+`pharma_smart_demo` existe, le rôle `pharma_smart` détient `CREATEDB`, et `create_database.sql`
+a été exécuté avec succès de bout en bout — droits contrôlés, propriété de la base et du schéma
+confirmées.
+
+Restent donc l'étape 2 (Flyway) et l'étape 3 (`run_all.sql`). Rappel : les lancer sur
+`pharma_smart_demo`, jamais sur `pharma_smart` — la base de développement contient de vraies
+données que `00_reset.sql` effacerait.
 
 Les logiques les plus risquées ont été validées à blanc, en lecture seule :
 
@@ -394,10 +452,4 @@ Les logiques les plus risquées ont été validées à blanc, en lecture seule :
 Ce qui n'est **pas** vérifié : les `INSERT` eux-mêmes, les contraintes réelles, et les
 218 contrôles de `99_verification.sql`, qui ne se déclenchent qu'à l'exécution.
 
-Pour débloquer, avec un compte superutilisateur :
-
-```bash
-psql -U postgres -d postgres -v ON_ERROR_STOP=1 -f create_database.sql
-```
-
-puis Flyway, puis `run_all.sql`.
+Prochaine étape : Flyway sur `pharma_smart_demo` (§2), puis `run_all.sql` (§3).

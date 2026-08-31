@@ -7,9 +7,11 @@
           (selectionChange)="onFilterChange()"
           [(ngModel)]="selectedFilter"
           [items]="filterOptions"
+          [style]="{ 'min-width': '250px' }"
           appendTo="body"
           bindLabel="label"
           bindValue="value"
+          inputId="perfFiltre"
           placeholder="Filtre"
           size="large"
         />
@@ -34,12 +36,14 @@
 
   <!-- View toggle -->
   <div class="dashboard-periode-selector mt-2">
-    <button (click)="setView('table')" [class.active]="activeView() === 'table'" class="periode-pill"
+    <button (click)="setView('table')" [class.active]="activeView() === 'table'"
+            class="periode-pill"
             type="button">
       <i class="pi pi-table"></i>
       <span class="pill-label">Tableau</span>
     </button>
-    <button (click)="setView('evolution')" [class.active]="activeView() === 'evolution'" class="periode-pill"
+    <button (click)="setView('evolution')" [class.active]="activeView() === 'evolution'"
+            class="periode-pill"
             type="button">
       <i class="pi pi-chart-line"></i>
       <span class="pill-label">Évolution N vs N-1</span>
@@ -49,28 +53,45 @@
   <!-- KPI Strip -->
   @if (summary() && activeView() === 'table') {
     <app-kpi-strip stripClass="mt-2 mb-2">
-      <app-kpi-item [accent]="'primary'" icon="pi pi-users" iconClass="text-primary" label="Fournisseurs" [value]="formatNumber(summary()?.totalSuppliers)" valueClass="text-primary">
+      <app-kpi-item [accent]="'primary'" [value]="formatNumber(summary()?.totalSuppliers)" icon="pi pi-users"
+                    iconClass="text-primary" label="Fournisseurs"
+                    valueClass="text-primary">
         <ng-container ngProjectAs="[kpiSub]">actifs</ng-container>
       </app-kpi-item>
-      <app-kpi-item [accent]="'success'" icon="pi pi-calendar" iconClass="text-success" label="Achats 30 jours" [value]="formatCurrency(summary()?.totalPurchaseAmountLast30Days)" valueClass="text-success">
+      <app-kpi-item [accent]="'success'" [value]="formatCurrency(summary()?.totalPurchaseAmountLast30Days)" icon="pi pi-calendar"
+                    iconClass="text-success"
+                    label="Achats 30 jours"
+                    valueClass="text-success">
         <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
         <ng-container ngProjectAs="[kpiSub]">{{ formatNumber(summary()?.totalOrdersLast30Days) }}
-                  commandes</ng-container>
+          commandes
+        </ng-container>
       </app-kpi-item>
-      <app-kpi-item [accent]="'warning'" icon="pi pi-chart-line" iconClass="text-warning" label="Achats 12 mois" [value]="formatCurrency(summary()?.totalPurchaseAmountLast12Months)" valueClass="text-warning">
+      <app-kpi-item [accent]="'warning'" [value]="formatCurrency(summary()?.totalPurchaseAmountLast12Months)" icon="pi pi-chart-line"
+                    iconClass="text-warning"
+                    label="Achats 12 mois"
+                    valueClass="text-warning">
         <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
         <ng-container ngProjectAs="[kpiSub]">{{ formatNumber(summary()?.totalOrdersLast12Months) }}
-                  commandes</ng-container>
+          commandes
+        </ng-container>
       </app-kpi-item>
-      <app-kpi-item [accent]="'danger'" icon="pi pi-truck" iconClass="text-danger" label="Délai moyen" [value]="formatDecimal(summary()?.avgDeliveryDays, 1)" valueClass="text-danger">
+      <app-kpi-item [accent]="'danger'" [value]="formatDecimal(summary()?.avgDeliveryDays, 1)" icon="pi pi-truck"
+                    iconClass="text-danger" label="Délai moyen"
+                    valueClass="text-danger">
         <span ngProjectAs="[kpiValue]">&ngsp;<small>jours</small></span>
         <ng-container ngProjectAs="[kpiSub]">livraison</ng-container>
       </app-kpi-item>
-      <app-kpi-item [accent]="'primary'" icon="pi pi-check-circle" iconClass="text-primary" label="Conformité moy." [value]="formatDecimal(summary()?.avgConformityRate, 1)" valueClass="text-primary">
+      <app-kpi-item [accent]="'primary'" [value]="formatDecimal(summary()?.avgConformityRate, 1)" icon="pi pi-check-circle"
+                    iconClass="text-primary" label="Conformité moy."
+                    valueClass="text-primary">
         <span ngProjectAs="[kpiValue]">&ngsp;<small>%</small></span>
         <ng-container ngProjectAs="[kpiSub]">taux de qualité</ng-container>
       </app-kpi-item>
-      <app-kpi-item [accent]="'success'" icon="pi pi-star-fill" iconClass="text-success" label="Perf. excellente" [value]="formatNumber(summary()?.suppliersWithGoodPerformance)" valueClass="text-success">
+      <app-kpi-item [accent]="'success'" [value]="formatNumber(summary()?.suppliersWithGoodPerformance)" icon="pi pi-star-fill"
+                    iconClass="text-success"
+                    label="Perf. excellente"
+                    valueClass="text-success">
         <ng-container ngProjectAs="[kpiSub]">score ≥ 70</ng-container>
       </app-kpi-item>
     </app-kpi-strip>
@@ -477,7 +498,8 @@
 
         <div class="card mb-2" style="border-left: 3px solid #4caf50">
           <div class="card-body p-2">
-            <p class="fw-semibold text-sm mb-1">Cas 1 : Fournisseur score 85, volume 50M <span appDevise></span>/an</p>
+            <p class="fw-semibold text-sm mb-1">Cas 1 : Fournisseur score 85, volume 50M <span
+              appDevise></span>/an</p>
             <p class="text-xs text-muted mb-0">
               <strong>Action :</strong> Fournisseur stratégique et performant. Négociez une remise
               de fidélité, proposez un contrat annuel

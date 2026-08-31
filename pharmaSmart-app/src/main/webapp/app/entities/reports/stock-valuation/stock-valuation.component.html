@@ -1,128 +1,139 @@
-<div class="pharma-smart-content p-2">
-  <app-toolbar [code]="navCode()" icon="pi pi-chart-bar" title="Valorisation du Stock">
+<app-toolbar [code]="navCode()" icon="pi pi-chart-bar" title="Valorisation du Stock">
 
-    <ng-container ngProjectAs="[toolbarFilters]">
-        <div class="pharma-toolbar-filters">
-          <app-select
-            (selectionChange)="onFilterChange()"
-            [(ngModel)]="selectedFamilleProduit"
-            [items]="familleProduitOptions()"
-            [clearable]="true"
-            appendTo="body"
-            bindLabel="libelle"
+  <ng-container ngProjectAs="[toolbarFilters]">
+    <div class="pharma-toolbar-filters">
+      <app-select
+        (selectionChange)="onFilterChange()"
+        [(ngModel)]="selectedFamilleProduit"
+        [clearable]="true"
+        [items]="familleProduitOptions()"
+        appendTo="body"
+        bindLabel="libelle"
 
-            placeholder="Famille de Produit"
-            size="large"
-          />
-          <app-select
-            (selectionChange)="onFilterChange()"
-            [(ngModel)]="selectedRayon"
-            [items]="rayonOptions()"
-            [clearable]="true"
-            appendTo="body"
-            bindLabel="libelle"
-            placeholder="Rayons"
-            size="large"
-          />
-        </div>
-      </ng-container>
+        placeholder="Famille de Produit"
+        size="large"
+      />
+      <app-select
+        (selectionChange)="onFilterChange()"
+        [(ngModel)]="selectedRayon"
+        [clearable]="true"
+        [items]="rayonOptions()"
+        appendTo="body"
+        bindLabel="libelle"
+        placeholder="Rayons"
+        size="large"
+      />
+    </div>
+  </ng-container>
 
-<ng-container ngProjectAs="[toolbarActions]">
-        <div>
+  <ng-container ngProjectAs="[toolbarActions]">
+    <div>
 
-          <app-button (clicked)="exportToPdf()" class="mr-1" icon="pi pi-file-pdf" label="Exporter PDF"
-                    severity="warn" size="small" />
-          <app-button (clicked)="loadData()" icon="pi pi-refresh" label="Rafraîchir" severity="primary"
-                    size="small" />
-        </div>
-      </ng-container>
-  </app-toolbar>
+      <app-button (clicked)="exportToPdf()" class="mr-1" icon="pi pi-file-pdf"
+                  label="Exporter PDF"
+                  severity="warn" size="small" />
+      <app-button (clicked)="loadData()" icon="pi pi-refresh" label="Rafraîchir"
+                  severity="primary"
+                  size="small" />
+    </div>
+  </ng-container>
+</app-toolbar>
 
-  <!-- KPI Strip -->
-  @if (summary()) {
-    <app-kpi-strip stripClass="mt-2 mb-2">
-      <app-kpi-item [accent]="'primary'" icon="pi pi-shopping-cart" iconClass="text-primary" label="Valeur d'achat" [value]="formatCurrency(summary()!.totalPurchaseValue)" valueClass="text-primary">
-        <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-        <ng-container ngProjectAs="[kpiSub]">Coût total</ng-container>
-      </app-kpi-item>
-      <app-kpi-item [accent]="'success'" icon="pi pi-money-bill" iconClass="text-success" label="Valeur de vente" [value]="formatCurrency(summary()!.totalSalesValue)" valueClass="text-success">
-        <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-        <ng-container ngProjectAs="[kpiSub]">Prix de vente</ng-container>
-      </app-kpi-item>
-      <app-kpi-item [accent]="'warning'" icon="pi pi-percentage" iconClass="text-warning" label="Marge potentielle" [value]="formatCurrency(summary()!.totalPotentialMargin)" valueClass="text-warning">
-        <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-        <ng-container ngProjectAs="[kpiSub]">Gain possible</ng-container>
-      </app-kpi-item>
-      <app-kpi-item [accent]="'danger'" icon="pi pi-chart-line" iconClass="text-danger" label="Marge moyenne" [value]="formatDecimal(summary()!.averageMarginPercentage)" valueClass="text-danger">
-        <span ngProjectAs="[kpiValue]">&ngsp;<small>%</small></span>
-        <ng-container ngProjectAs="[kpiSub]">{{ summary()!.totalProducts }} produits</ng-container>
-      </app-kpi-item>
-    </app-kpi-strip>
-  }
+<!-- KPI Strip -->
+@if (summary()) {
+  <app-kpi-strip stripClass="mt-2 mb-2">
+    <app-kpi-item [accent]="'primary'" [value]="formatCurrency(summary()!.totalPurchaseValue)"
+                  icon="pi pi-shopping-cart"
+                  iconClass="text-primary" label="Valeur d'achat"
+                  valueClass="text-primary">
+      <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+      <ng-container ngProjectAs="[kpiSub]">Coût total</ng-container>
+    </app-kpi-item>
+    <app-kpi-item [accent]="'success'" [value]="formatCurrency(summary()!.totalSalesValue)"
+                  icon="pi pi-money-bill"
+                  iconClass="text-success" label="Valeur de vente"
+                  valueClass="text-success">
+      <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+      <ng-container ngProjectAs="[kpiSub]">Prix de vente</ng-container>
+    </app-kpi-item>
+    <app-kpi-item [accent]="'warning'" [value]="formatCurrency(summary()!.totalPotentialMargin)"
+                  icon="pi pi-percentage"
+                  iconClass="text-warning"
+                  label="Marge potentielle"
+                  valueClass="text-warning">
+      <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+      <ng-container ngProjectAs="[kpiSub]">Gain possible</ng-container>
+    </app-kpi-item>
+    <app-kpi-item [accent]="'danger'" [value]="formatDecimal(summary()!.averageMarginPercentage)"
+                  icon="pi pi-chart-line"
+                  iconClass="text-danger"
+                  label="Marge moyenne"
+                  valueClass="text-danger">
+      <span ngProjectAs="[kpiValue]">&ngsp;<small>%</small></span>
+      <ng-container ngProjectAs="[kpiSub]">{{ summary()!.totalProducts }} produits</ng-container>
+    </app-kpi-item>
+  </app-kpi-strip>
+}
 
-  <!-- Stock Valuation Table -->
-  <div class="row mt-3">
-    <div class="col-12 mb-2">
-      <div class="card h-100 data-card">
-        <div class="card-header">
-          <h5 class="card-title">
-            <i class="pi pi-chart-bar text-primary"></i>
-            Valorisation du Stock
-          </h5>
-        </div>
-        <div class="card-body p-0">
-          <app-data-table
-            [loading]="isLoading()"
-            [paginator]="true"
-            [rowsPerPageOptions]="[10, 20, 50, 100]"
-            [rows]="20"
-            [scrollable]="true"
-            [showCurrentPageReport]="true"
-            [value]="valuations()"
-            [size]="'small'"
-            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
-            scrollHeight="500px"
-          >
-              <ng-template #header>
-                <tr class="pharma-table-head">
-                  <th>Produit</th>
-                  <th>Code CIP</th>
-                  <th>Catégorie</th>
-                  <th>Emplacement</th>
-                  <th>Stock</th>
-                  <th>PA Unit.</th>
-                  <th>PV Unit.</th>
-                  <th>Valeur Achat</th>
-                  <th>Valeur Vente</th>
-                  <th>Marge Pot.</th>
-                  <th>Marge %</th>
-                </tr>
-              </ng-template>
-              <ng-template #body let-valuation>
-                <tr>
-                  <td>{{ valuation.libelle }}</td>
-                  <td>{{ valuation.codeCip }}</td>
-                  <td>{{ valuation.categorie }}</td>
-                  <td>{{ valuation.storageLocation }}</td>
-                  <td class="text-end pharma-qty-value">{{ valuation.stockQuantity || 0 }}</td>
-                  <td class="text-end pharma-price">{{ valuation.purchasePrice | number: '1.0-0' }}
-                    F
-                  </td>
-                  <td class="text-end pharma-price">{{ valuation.salesPrice | number: '1.0-0' }}F
-                  </td>
-                  <td
-                    class="text-end fw-bold pharma-price">{{ valuation.totalPurchaseValue | number: '1.0-0' }}
-                    F
-                  </td>
-                  <td
-                    class="text-end fw-bold pharma-price">{{ valuation.totalSalesValue | number: '1.0-0' }}
-                    F
-                  </td>
-                  <td
-                    class="text-end fw-bold text-success">{{ valuation.potentialMargin | number: '1.0-0' }}
-                    F
-                  </td>
-                  <td class="text-end">
+<!-- Stock Valuation Table -->
+<div class="row mt-3">
+  <div class="col-12 mb-2">
+    <div class="card h-100 data-card">
+      <div class="card-header">
+        <h5 class="card-title">
+          <i class="pi pi-chart-bar text-primary"></i>
+          Valorisation du Stock
+        </h5>
+      </div>
+      <div class="card-body p-0">
+        <app-data-table
+          [loading]="isLoading()"
+          [paginator]="true"
+          [rowsPerPageOptions]="[10, 20, 50, 100]"
+          [rows]="20"
+          [scrollable]="true"
+          [showCurrentPageReport]="true"
+          [size]="'small'"
+          [value]="valuations()"
+          currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+          scrollHeight="500px"
+        >
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th>Produit</th>
+              <th>Code CIP</th>
+              <th>Catégorie</th>
+              <!--  <th>Emplacement</th>-->
+              <th>Stock</th>
+              <th>PA Unit.</th>
+              <th>PV Unit.</th>
+              <th>Valeur Achat</th>
+              <th>Valeur Vente</th>
+              <th>Marge Pot.</th>
+              <th>Marge %</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-valuation>
+            <tr>
+              <td>{{ valuation.libelle }}</td>
+              <td>{{ valuation.codeCip }}</td>
+              <td>{{ valuation.categorie }}</td>
+              <!--<td>{{ valuation.storageLocation }}</td>-->
+              <td class="text-end pharma-qty-value">{{ valuation.stockQuantity || 0 }}</td>
+              <td class="text-end pharma-price">{{ valuation.purchasePrice | number }}
+              </td>
+              <td class="text-end pharma-price">{{ valuation.salesPrice | number }}
+              </td>
+              <td
+                class="text-end fw-bold pharma-price">{{ valuation.totalPurchaseValue | number }}
+              </td>
+              <td
+                class="text-end fw-bold pharma-price">{{ valuation.totalSalesValue | number }}
+              </td>
+              <td
+                class="text-end fw-bold text-success">{{ valuation.potentialMargin | number }}
+              </td>
+              <td class="text-end">
                     <span
                       [class]="{
                         'bg-success-subtle text-success': (valuation.marginPercentage || 0) >= 30,
@@ -134,20 +145,20 @@
                     >
                       {{ valuation.marginPercentage | number: '1.1-2' }}%
                     </span>
-                  </td>
-                </tr>
-              </ng-template>
-              <ng-template #emptymessage>
-                <tr>
-                  <td class="text-center p-4" colspan="11">
-                    <i class="pi pi-inbox text-muted" style="font-size: 3rem"></i>
-                    <p class="mt-3 text-muted">Aucune donnée disponible</p>
-                  </td>
-                </tr>
-              </ng-template>
-            </app-data-table>
-        </div>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template #emptymessage>
+            <tr>
+              <td class="text-center p-4" colspan="11">
+                <i class="pi pi-inbox text-muted" style="font-size: 3rem"></i>
+                <p class="mt-3 text-muted">Aucune donnée disponible</p>
+              </td>
+            </tr>
+          </ng-template>
+        </app-data-table>
       </div>
     </div>
   </div>
 </div>
+

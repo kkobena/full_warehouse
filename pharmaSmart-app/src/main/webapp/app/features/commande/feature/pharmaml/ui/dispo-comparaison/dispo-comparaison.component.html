@@ -74,7 +74,7 @@
                   }
                 </td>
                 <td class="text-end dc-cell-num">{{ info.stockDisponible }}</td>
-                <td class="text-end dc-cell-num">{{ info.prixAchat | number: '1.0-0' }}</td>
+                <td class="text-end dc-cell-num">{{ info.prixAchat | devise }}</td>
               } @else {
                 <td class="text-center text-muted dc-na" colspan="3">N/A</td>
               }
@@ -82,6 +82,17 @@
           </tr>
         </ng-template>
       </app-data-table>
+    </div>
+  } @else if (!loading() && comparaisonFaite()) {
+    <!-- Une interrogation sans résultat n'est pas la même chose qu'une interrogation
+         jamais lancée : le dire, sinon l'utilisateur reclique indéfiniment. -->
+    <div class="dc-empty">
+      <i class="pi pi-exclamation-triangle"></i>
+      @if (libelleEchecs()) {
+        <span>Aucune réponse exploitable de : {{ libelleEchecs() }}.</span>
+      } @else {
+        <span>Les grossistes interrogés ne connaissent aucun des codes de cette commande.</span>
+      }
     </div>
   } @else if (!loading() && colonnes().length > 0) {
     <div class="dc-empty">

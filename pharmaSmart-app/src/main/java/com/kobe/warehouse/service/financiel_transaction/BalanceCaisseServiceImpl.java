@@ -292,8 +292,12 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
             .collect(Collectors.groupingBy(BalanceCaisseDTO::getTypeVeTypeAffichage))
             .forEach((k, v) -> {
                 long amount = v.stream().mapToLong(BalanceCaisseDTO::getMontantPaye).sum();
+                // Libelle court : la carte  Mouvements de caisse  aligne un libelle et un
+                // montant sur une meme ligne etroite, ou  Reglement facture fournisseur 
+                // deborde sur le montant. La cle, elle, reste le nom de l'enum : c'est sur
+                // elle que le gabarit distingue les sorties de caisse.
                 balanceCaisseWrapper.getMvtCaisses().add(
-                    new com.kobe.warehouse.service.dto.records.Tuple(k.name(), k.getValue(),
+                    new com.kobe.warehouse.service.dto.records.Tuple(k.name(), k.getValueCourt(),
                         amount));
             });
     }

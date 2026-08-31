@@ -55,12 +55,15 @@ import {
     RowCheckboxComponent,
     RowTogglerDirective,
     CardComponent,
+
   ]
 })
 export class ImportSuggestionModalComponent implements OnInit {
   commandeId!: CommandeId;
   fournisseurId: number | null | undefined = null;
   commandeFournisseurId: number | null | undefined = null;
+  /** Grossiste PRINCIPAL de la commande — c'est lui que portent les propositions. */
+  commandeFournisseurPrincipalId: number | null | undefined = null;
 
   protected readonly searchTerm = signal("");
   protected readonly selectedFournisseurIds = signal<number[]>([]);
@@ -70,8 +73,8 @@ export class ImportSuggestionModalComponent implements OnInit {
   protected loading = signal(false);
   protected importingId = signal<number | null>(null);
   protected selectedLines = signal<Record<number, SuggestionLine[]>>({});
-  protected linesCache: Record<number, SuggestionLine[]> = {};
-  protected loadingLines: Record<number, boolean> = {};
+  protected readonly linesCache = signal<Record<number, SuggestionLine[]>>({});
+  protected readonly loadingLines = signal<Record<number, boolean>>({});
 
   // rebuilt only when selection changes
   private readonly _selectedLineIdSets = computed<Record<number, Set<number>>>(() => {
@@ -154,27 +157,27 @@ export class ImportSuggestionModalComponent implements OnInit {
 
   protected onRowExpand(suggestion: Suggestion): void {
     const id = suggestion.id;
-    if (this.linesCache[id]) {
+    if (this.linesCache()[id]) {
       return;
     }
-    this.loadingLines[id] = true;
+    this.loadingLines.update(prev => ({...prev, [id]: true}));
     this.suggestionService.queryAllLines(id).subscribe({
       next: lines => {
-        this.linesCache[id] = lines;
-        this.loadingLines[id] = false;
+        this.linesCache.update(prev => ({...prev, [id]: lines}));
+        this.loadingLines.update(prev => ({...prev, [id]: false}));
       },
       error: () => {
-        this.loadingLines[id] = false;
+        this.loadingLines.update(prev => ({...prev, [id]: false}));
       }
     });
   }
 
   protected linesOf(suggestion: Suggestion): SuggestionLine[] {
-    return this.linesCache[suggestion.id] ?? [];
+    return this.linesCache()[suggestion.id] ?? [];
   }
 
   protected filteredLinesOf(suggestion: Suggestion): SuggestionLine[] {
-    const lines = this.linesCache[suggestion.id] ?? [];
+    const lines = this.linesCache()[suggestion.id] ?? [];
     const term = (this.detailSearchTerms()[suggestion.id] ?? "").trim().toLowerCase();
     if (!term) {
       return lines;
@@ -195,7 +198,7 @@ export class ImportSuggestionModalComponent implements OnInit {
   }
 
   protected isLoadingLines(suggestion: Suggestion): boolean {
-    return !!this.loadingLines[suggestion.id];
+    return !!this.loadingLines()[suggestion.id];
   }
 
   protected statutSeverity(statut: string): "success" | "info" | "warn" | "danger" | "secondary" {
@@ -211,8 +214,21 @@ export class ImportSuggestionModalComponent implements OnInit {
     }
   }
 
+  /**
+   * La proposition vient-elle d'un AUTRE grossiste que celui de la commande ?
+   *
+   * La comparaison se fait au niveau du PRINCIPAL, et non de l'agence : une commande est
+   * adressée à une agence (Laborex Cocody), tandis qu'une proposition appartient au
+   * grossiste (Laborex-CI). Comparer les deux identifiants tels quels marquait « Fournisseur
+   * différent » toutes les propositions du grossiste même de l'agence servie — c'est à dire
+   * précisément celles qu'on voulait importer.
+   */
   protected isFournisseurMismatch(suggestion: Suggestion): boolean {
-    return this.commandeFournisseurId != null && suggestion.fournisseurId !== this.commandeFournisseurId;
+    const principalCommande = this.commandeFournisseurPrincipalId ?? this.commandeFournisseurId;
+    if (principalCommande == null) {
+      return false;
+    }
+    return suggestion.fournisseurId !== principalCommande;
   }
 
   private loadSuggestions(search = "", fournisseurIds: number[] = []): void {

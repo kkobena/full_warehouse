@@ -1,13 +1,13 @@
 import {Component, DestroyRef, ElementRef, inject, input, OnDestroy, OnInit, output, signal, viewChild, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
-import {DecimalPipe} from '@angular/common';
 import {catchError, debounceTime, filter, of, Subject, Subscription} from 'rxjs';
 import {ProduitSearch} from '../../../../shared/model';
 import {ProduitService} from '../../../../entities/produit/produit.service';
 import {ScanDetectorService, ScanEvent} from '../../../../shared/scan-detector.service';
 import {APPEND_TO, PRODUIT_COMBO_MIN_LENGTH} from '../../../../shared/constants/pagination.constants';
 import {FloatLabelComponent, SelectSearchComponent} from '../../../../shared/ui';
+import { DevisePipe } from 'app/shared/utils/devise';
 
 /**
  * Composant de recherche produit dédié au module commande.
@@ -21,7 +21,7 @@ import {FloatLabelComponent, SelectSearchComponent} from '../../../../shared/ui'
   templateUrl: './commande-product-search.component.html',
   styleUrls: ['./commande-product-search.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [SelectSearchComponent, FormsModule, FloatLabelComponent, DecimalPipe],
+  imports: [SelectSearchComponent, FormsModule, FloatLabelComponent, DevisePipe],
 })
 export class CommandeProductSearchComponent implements OnInit, OnDestroy {
   private readonly produitboxCmp = viewChild.required('produitbox', {read: SelectSearchComponent});
@@ -190,7 +190,29 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.keydownListener = (event: KeyboardEvent) => this.scanDetectorService.keyPressed(event.key);
+    // Une douchette envoie ses caractères là où est le focus, et le détecteur la reconnaît à
+    // sa VITESSE : une saisie humaine rapide lui ressemble. On ne le nourrit donc que si la
+    // frappe ne vise AUCUN champ, ou vise la recherche produit — les deux seules situations
+    // où l'on scanne réellement. Sans cette règle, taper vite un numéro de bon ou un montant
+    // déclenchait « Produit non trouvé : … » et un bip d'erreur.
+    const vientDUneModale = (event: KeyboardEvent): boolean => {
+      const cible = event.target as HTMLElement | null;
+      if (!cible) {
+        return false;
+      }
+      if (cible.closest('.modal, .modal-content')) {
+        return true;
+      }
+      const estUnChamp =
+        cible instanceof HTMLInputElement || cible instanceof HTMLTextAreaElement || cible.isContentEditable;
+      return estUnChamp && cible.id !== 'produitbox';
+    };
+    this.keydownListener = (event: KeyboardEvent) => {
+      if (vientDUneModale(event)) {
+        return;
+      }
+      this.scanDetectorService.keyPressed(event.key);
+    };
     document.addEventListener('keydown', this.keydownListener, true);
   }
 

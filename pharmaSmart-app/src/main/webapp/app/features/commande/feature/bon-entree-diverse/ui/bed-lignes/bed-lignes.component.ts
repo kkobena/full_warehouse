@@ -11,6 +11,7 @@ import { ProduitSearch } from 'app/shared/model/produit.model';
 import { ProduitService } from 'app/entities/produit/produit.service';
 import { NotificationService } from 'app/shared/services/notification.service';
 import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { DevisePipe } from 'app/shared/utils/devise';
 
 @Component({
   selector: 'app-bed-lignes',
@@ -24,7 +25,7 @@ import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ng
     DataTableComponent,
     NgbTooltip,
     SelectSearchComponent,
-  ],
+   DevisePipe],
 })
 export class BedLignesComponent {
   readonly bed = input.required<IBed>();

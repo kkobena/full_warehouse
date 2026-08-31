@@ -19,7 +19,7 @@ import {
   OffcanvasComponent
 } from '../../../shared/ui';
 
-import { DeviseDirective } from 'app/shared/utils/devise';
+import { DeviseDirective, DevisePipe } from 'app/shared/utils/devise';
 @Component({
   selector: "app-abc-pareto",
   templateUrl: "./abc-pareto.component.html",
@@ -35,7 +35,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
     OffcanvasComponent,
     KpiStripComponent,
     KpiItemComponent
-  ]
+  , DevisePipe]
 })
 export default class ABCParetoComponent implements OnInit {
   products = signal<IABCPareto[]>([]);

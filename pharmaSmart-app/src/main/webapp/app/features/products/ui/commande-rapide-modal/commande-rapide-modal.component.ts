@@ -11,13 +11,14 @@ import { CommandeService } from "app/entities/commande/commande.service";
 import { SuggestionService } from "app/entities/commande/suggestion/suggestion.service";
 import { NotificationService } from "app/shared/services/notification.service";
 import { CommandCommonService } from "app/entities/commande/command-common.service";
+import { DevisePipe } from "app/shared/utils/devise";
 
 @Component({
   selector: "app-commande-rapide-modal",
   templateUrl: "./commande-rapide-modal.component.html",
   styleUrls: ["./commande-rapide-modal.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, ButtonComponent, SelectComponent, InputNumberComponent, CardComponent]
+  imports: [CommonModule, FormsModule, ButtonComponent, SelectComponent, InputNumberComponent, CardComponent, DevisePipe]
 })
 export class CommandeRapideModalComponent implements OnInit, AfterViewInit {
   produit!: IProduit;

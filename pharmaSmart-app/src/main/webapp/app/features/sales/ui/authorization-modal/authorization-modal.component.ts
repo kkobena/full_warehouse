@@ -16,7 +16,7 @@ import { UtilisationCleSecurite } from '../../../../entities/action-autorisation
  * @example
  * const modalRef = this.modalService.open(AuthorizationModalComponent);
  * modalRef.componentInstance.saleId = 123;
- * modalRef.componentInstance.privilege = 'PR_SUPPRIME_PRODUIT_VENTE';
+ * modalRef.componentInstance.privilege = 'pr-supprimer-ligne-vente';
  * modalRef.componentInstance.saleType = 'COMPTANT';
  * modalRef.result.then(authorized => { ... });
  */
@@ -244,13 +244,13 @@ export class AuthorizationModalComponent {
 
   getPrivilegeLabel(privilege: string): string {
     switch (privilege) {
-      case 'PR_SUPPRIME_PRODUIT_VENTE':
+      case 'pr-supprimer-ligne-vente':
         return 'Suppression de produit';
-      case 'PR_AJOUTER_REMISE_VENTE':
+      case 'pr-remise-vente':
         return 'Application de remise';
-      case 'PR_MODIFIER_PRIX_VENTE':
+      case 'pr-modifier-prix':
         return 'Modification de prix';
-      case 'PR_ANNULER_VENTE':
+      case 'pr-annuler-vente':
         return 'Annulation de vente';
       default:
         return privilege;

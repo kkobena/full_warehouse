@@ -66,6 +66,75 @@ END $$ LANGUAGE plpgsql;
 
 
 -- ===========================================================================
+-- ALERTES DE STOCK
+-- ===========================================================================
+-- Les trois types d'alerte doivent avoir des cas : sans quoi le rapport
+-- « Alertes de Stock » ne peut demontrer ni ses compteurs, ni son filtre.
+SELECT pg_temp.verif_compte('stock', 'Des produits en rupture', $q$
+    SELECT sp.produit_id
+      FROM stock_produit sp
+      JOIN storage st ON st.id = sp.storage_id AND st.storage_type = 'PRINCIPAL'
+      JOIN produit p ON p.id = sp.produit_id AND p.status = 'ENABLE'
+     WHERE sp.qty_stock <= 0
+$q$, 10);
+
+SELECT pg_temp.verif_compte('stock', 'Des produits sous leur seuil mini', $q$
+    SELECT sp.produit_id
+      FROM stock_produit sp
+      JOIN storage st ON st.id = sp.storage_id AND st.storage_type = 'PRINCIPAL'
+      JOIN produit p ON p.id = sp.produit_id AND p.status = 'ENABLE'
+     WHERE sp.qty_stock > 0 AND sp.qty_stock < p.qty_seuil_mini
+$q$, 10);
+
+SELECT pg_temp.verif_compte('stock', 'Des lots proches de la péremption', $q$
+    SELECT l.id FROM lot l
+     WHERE l.statut = 'AVAILABLE' AND l.current_quantity > 0
+       AND l.expiry_date IS NOT NULL
+       AND l.expiry_date < CURRENT_DATE + INTERVAL '3 months'
+$q$, 10);
+
+
+-- ===========================================================================
+-- DEMARQUE ET AJUSTEMENTS
+-- ===========================================================================
+SELECT pg_temp.verif_compte('demarque', 'Des bons d''ajustement existent', $q$
+    SELECT id FROM ajust
+$q$, 20);
+
+-- Le rapport ne retient que les sorties de bons CLOTURES : sans elles, l'ecran
+-- s'ouvre sur « Aucune demarque sur cette periode » quelle que soit la periode.
+SELECT pg_temp.verif_compte('demarque', 'Des lignes de demarque exploitables', $q$
+    SELECT l.id FROM ajust a
+      JOIN ajustement l ON l.ajust_id = a.id
+     WHERE a.statut = 'CLOSED' AND l.type_ajust = 'AJUSTEMENT_OUT'
+$q$, 20);
+
+SELECT pg_temp.verif_vide('demarque', 'Stock après = stock avant + mouvement', $q$
+    SELECT id FROM ajustement WHERE stock_after <> stock_before + qty_mvt
+$q$);
+
+SELECT pg_temp.verif_vide('demarque', 'Signe du mouvement conforme au type', $q$
+    SELECT id FROM ajustement
+     WHERE (type_ajust = 'AJUSTEMENT_OUT' AND qty_mvt >= 0)
+        OR (type_ajust = 'AJUSTEMENT_IN'  AND qty_mvt <= 0)
+$q$);
+
+SELECT pg_temp.verif_vide('demarque', 'Toute sortie porte un motif', $q$
+    SELECT id FROM ajustement
+     WHERE type_ajust = 'AJUSTEMENT_OUT' AND motif_ajustement_id IS NULL
+$q$);
+
+-- Plusieurs motifs distincts : la ventilation du rapport n'a d'interet que si
+-- elle a plus d'une ligne.
+SELECT pg_temp.verif_compte('demarque', 'La demarque se ventile sur plusieurs motifs', $q$
+    SELECT DISTINCT l.motif_ajustement_id FROM ajust a
+      JOIN ajustement l ON l.ajust_id = a.id
+     WHERE a.statut = 'CLOSED' AND l.type_ajust = 'AJUSTEMENT_OUT'
+       AND l.motif_ajustement_id IS NOT NULL
+$q$, 3);
+
+
+-- ===========================================================================
 -- CONFIGURATION
 -- ===========================================================================
 SELECT pg_temp.verif_vide('config', 'Gestion de lot activée', $q$
@@ -113,6 +182,52 @@ $q$, 1);
 SELECT pg_temp.verif_vide('fournisseurs', 'Code renseigné (colonne NOT NULL)', $q$
     SELECT id FROM fournisseur WHERE code IS NULL OR btrim(code) = ''
 $q$);
+
+
+-- ===========================================================================
+-- RÉPARTITIONS RAYON / RÉSERVE
+--
+-- L'écran « Répartition & Transferts » et les suggestions de réassort n'ont rien
+-- à montrer sans cet historique — et un mouvement dont les stocks avant/après ne
+-- se recoupent pas ferait douter de tout le tableau.
+-- ===========================================================================
+SELECT pg_temp.verif_compte('repartitions', 'Mouvements rayon / réserve', $q$
+    SELECT 1 FROM repartition_stock_produit
+$q$, 20);
+
+SELECT pg_temp.verif_compte('repartitions', 'Mouvements automatiques', $q$
+    SELECT 1 FROM repartition_stock_produit WHERE type_repartition = 0
+$q$, 5);
+
+SELECT pg_temp.verif_compte('repartitions', 'Mouvements manuels', $q$
+    SELECT 1 FROM repartition_stock_produit WHERE type_repartition = 1
+$q$, 5);
+
+SELECT pg_temp.verif_vide('repartitions', 'Stocks avant/après cohérents', $q$
+    SELECT id FROM repartition_stock_produit
+     WHERE source_init_stock - source_final_stock <> qty_mvt
+        OR dest_final_stock - dest_init_stock <> qty_mvt
+$q$);
+
+
+-- ===========================================================================
+-- PROPOSITIONS D'ACHAT
+--
+-- Sans elles, la moitié du module d'achat s'ouvre sur un écran vide : le manuel
+-- montrerait « Aucun fournisseur » là où il doit montrer un réapprovisionnement.
+-- ===========================================================================
+SELECT pg_temp.verif_compte('suggestions', 'Propositions de réapprovisionnement', $q$
+    SELECT 1 FROM suggestion
+$q$, 3);
+
+SELECT pg_temp.verif_vide('suggestions', 'Toute proposition a des lignes', $q$
+    SELECT s.id FROM suggestion s
+     WHERE NOT EXISTS (SELECT 1 FROM suggestion_line sl WHERE sl.suggestion_id = s.id)
+$q$);
+
+SELECT pg_temp.verif_compte('suggestions', 'Une proposition validée, prête à commander', $q$
+    SELECT 1 FROM suggestion WHERE statut = 'VALIDEE'
+$q$, 1);
 
 
 -- ===========================================================================
@@ -166,10 +281,20 @@ SELECT pg_temp.verif_vide('produits', 'Tout enfant a un parent PACKAGE', $q$
      WHERE p.type_produit <> 'PACKAGE'
 $q$);
 
+-- DETAIL ne veut pas dire « vendu à l'unité » : c'est un DÉCONDITIONNÉ, l'unité
+-- issue d'une boîte. Sans parent, il n'en est pas un — et l'application, qui
+-- écarte les DETAIL du calcul de classe ABC et des suggestions de réappro,
+-- laisserait le produit hors de toute gestion.
+SELECT pg_temp.verif_vide('produits', 'Tout DETAIL est rattaché à une boîte', $q$
+    SELECT id FROM produit WHERE type_produit = 'DETAIL' AND parent_id IS NULL
+$q$);
+
+-- Le nombre d'unités par boîte n'a de sens que si la boîte se déconditionne :
+-- un produit délivré tel quel garde item_qty = 1.
 SELECT pg_temp.verif_vide('produits', 'item_qty cohérent avec le type', $q$
     SELECT id FROM produit
-     WHERE (type_produit = 'PACKAGE' AND item_qty <= 1)
-        OR (type_produit = 'DETAIL'  AND item_qty <> 1)
+     WHERE (deconditionnable AND item_qty <= 1)
+        OR (type_produit = 'DETAIL' AND item_qty <> 1)
 $q$);
 
 SELECT pg_temp.verif_vide('produits', 'Pas de produit son propre parent', $q$
@@ -347,8 +472,16 @@ SELECT pg_temp.verif_vide('fournisseur_produit', 'Prix d''achat positif', $q$
     SELECT id FROM fournisseur_produit WHERE prix_achat <= 0
 $q$);
 
-SELECT pg_temp.verif_vide('fournisseur_produit', 'code_cip dans varchar(20)', $q$
-    SELECT id FROM fournisseur_produit WHERE length(code_cip) > 20
+-- Le CIP tient sur 7 chiffres (CIP7) et ne doit JAMAIS recevoir un EAN-13 :
+-- c'est un code qu'on lit sur la boîte et qu'on saisit à la main.
+SELECT pg_temp.verif_vide('fournisseur_produit', 'code_cip d''au plus 8 caractères', $q$
+    SELECT id FROM fournisseur_produit WHERE length(code_cip) > 8
+$q$);
+
+-- L'EAN, lui, est bien le code-barres à 13 chiffres.
+SELECT pg_temp.verif_vide('fournisseur_produit', 'code_ean sur 13 chiffres', $q$
+    SELECT id FROM fournisseur_produit
+     WHERE code_ean IS NOT NULL AND code_ean !~ '^[0-9]{13}$'
 $q$);
 
 SELECT pg_temp.verif_vide('fournisseur_produit', 'Unicité (code_cip, fournisseur)', $q$
@@ -493,9 +626,11 @@ SELECT pg_temp.verif_compte('tiers-payants', 'Organismes avec plafond', $q$
     SELECT 1 FROM tiers_payant WHERE plafond_conso IS NOT NULL
 $q$, 2);
 
+-- Le seuil tient compte des porteurs de carnet : leur contrat couvre 100 %, il
+-- ne se complète donc d'aucun second payeur (cf. 04_clients.sql).
 SELECT pg_temp.verif_compte('tiers-payants', 'Contrats créés', $q$
     SELECT 1 FROM client_tiers_payant
-$q$, 170);
+$q$, 155);
 
 -- Un contrat n'a de sens que sur un AssuredCustomer.
 SELECT pg_temp.verif_vide('tiers-payants', 'Contrat porté par un assuré', $q$
@@ -669,6 +804,95 @@ SELECT pg_temp.verif_vide('commandes', 'Réceptionnée : bon et quantités rense
          OR ol.quantity_received IS NULL)
 $q$);
 
+-- Un bon partiellement servi doit l'être LIGNE À LIGNE : si toutes ses lignes sont
+-- courtes, son taux de service tombe à 0 % et l'écran ne le distingue plus d'un bon jamais
+-- compté — le parcours du reliquat n'aurait alors aucun bon à ouvrir.
+SELECT pg_temp.verif_compte('commandes', 'Un bon livré partiellement, mais pas sur toutes ses lignes', $q$
+    SELECT c.id
+      FROM commande c
+      JOIN order_line ol ON ol.commande_id = c.id AND ol.commande_order_date = c.order_date
+     WHERE c.order_status = 'RECEIVED' AND ol.is_updated
+     GROUP BY c.id
+    HAVING count(*) FILTER (WHERE ol.quantity_received < ol.quantity_requested) > 0
+       AND count(*) FILTER (WHERE ol.quantity_received >= ol.quantity_requested) > 0
+$q$, 1);
+
+-- Les deux états de saisie doivent EXISTER : sans bon « à saisir », la saisie ligne à
+-- ligne et « Tout valider » n'ont rien à exercer ; sans bon déjà saisi, aucune réception
+-- n'est finalisable.
+SELECT pg_temp.verif_compte('commandes', 'Des bons livrés restent à saisir', $q$
+    SELECT 1 FROM order_line ol
+      JOIN commande c ON c.id = ol.commande_id AND c.order_date = ol.commande_order_date
+     WHERE c.order_status = 'RECEIVED' AND NOT ol.is_updated
+$q$, 1);
+
+-- Un bon compté ET servi en entier : c'est la réception qui se finalise directement, sans
+-- reliquat ni « Tout valider » préalable. Sans lui, aucun parcours de finalisation simple.
+SELECT pg_temp.verif_compte('commandes', 'Un bon livré, compté et servi en entier', $q$
+    SELECT c.id
+      FROM commande c
+      JOIN order_line ol ON ol.commande_id = c.id AND ol.commande_order_date = c.order_date
+     WHERE c.order_status = 'RECEIVED' AND ol.is_updated
+     GROUP BY c.id
+    HAVING count(*) FILTER (WHERE ol.quantity_received < ol.quantity_requested) = 0
+$q$, 1);
+
+SELECT pg_temp.verif_compte('commandes', 'Des bons livrés sont déjà saisis', $q$
+    SELECT 1 FROM order_line ol
+      JOIN commande c ON c.id = ol.commande_id AND c.order_date = ol.commande_order_date
+     WHERE c.order_status = 'RECEIVED' AND ol.is_updated
+$q$, 1);
+
+-- Le rangement rayon → réserve proposé à la finalisation ne concerne que les produits dont
+-- le stock rayon dépasse le maximum du rayon : sans un seul, l'écran ne s'ouvre jamais.
+SELECT pg_temp.verif_compte('stock', 'Des rayons dépassent leur maximum', $q$
+    SELECT sp.produit_id
+      FROM stock_produit sp
+      JOIN storage st ON st.id = sp.storage_id AND st.storage_type = 'PRINCIPAL'
+     WHERE sp.stock_maxi > 0 AND sp.qty_stock > sp.stock_maxi
+$q$, 1);
+
+-- L'historique de prix est ce qu'on consulte avant de contester une facture : sans lui,
+-- l'écran répond « Aucun changement enregistré » et le contrôle de concordance n'a rien à
+-- quoi se comparer.
+SELECT pg_temp.verif_compte('commandes', 'Historique de prix fournisseur-produit', $q$
+    SELECT id FROM fournisseur_produit_price_history
+$q$, 20);
+
+SELECT pg_temp.verif_vide('commandes', 'Historique de prix cohérent avec la fiche', $q$
+    SELECT h.id
+      FROM fournisseur_produit_price_history h
+      JOIN fournisseur_produit fp ON fp.id = h.fournisseur_produit_id
+     WHERE h.new_prix_achat <> fp.prix_achat
+        OR h.new_prix_uni <> fp.prix_uni
+        OR h.old_prix_achat >= h.new_prix_achat
+$q$);
+
+-- Stock avant / après : l'écran du bon les affiche ligne à ligne. Un « stock
+-- après » vide sur une commande réceptionnée trahit une ligne jamais passée par
+-- StockEntryServiceImpl.saveItem.
+SELECT pg_temp.verif_vide('commandes', 'Réceptionnée : stock avant et après renseignés', $q$
+    SELECT ol.id FROM order_line ol
+      JOIN commande c ON c.id = ol.commande_id AND c.order_date = ol.commande_order_date
+     WHERE c.order_status IN ('RECEIVED', 'CLOSED')
+       AND (ol.init_stock IS NULL OR ol.final_stock IS NULL)
+$q$);
+
+SELECT pg_temp.verif_vide('commandes', 'Stock après = stock avant + reçu + gratuit', $q$
+    SELECT ol.id FROM order_line ol
+     WHERE ol.final_stock IS NOT NULL
+       AND ol.final_stock <> ol.init_stock
+                             + COALESCE(ol.quantity_received, 0)
+                             + COALESCE(ol.free_qty, 0)
+$q$);
+
+-- Avant réception, il n'y a pas encore de stock après.
+SELECT pg_temp.verif_vide('commandes', 'REQUESTED : pas de stock après', $q$
+    SELECT ol.id FROM order_line ol
+      JOIN commande c ON c.id = ol.commande_id AND c.order_date = ol.commande_order_date
+     WHERE c.order_status = 'REQUESTED' AND ol.final_stock IS NOT NULL
+$q$);
+
 SELECT pg_temp.verif_vide('commandes', 'Réception jamais supérieure à la commande', $q$
     SELECT id FROM order_line
      WHERE quantity_received IS NOT NULL AND quantity_received > quantity_requested
@@ -692,6 +916,13 @@ SELECT pg_temp.verif_vide('commandes', 'Chronologie : réception après commande
     SELECT id FROM commande
      WHERE receipt_date IS NOT NULL AND receipt_date < order_date
 $q$);
+
+-- Le tableau de bord d'accueil s'ouvre sur la journée : sans achat CLÔTURÉ daté
+-- d'aujourd'hui, son indicateur « Achats fournisseurs » reste vide et l'écran
+-- passe pour cassé.
+SELECT pg_temp.verif_compte('commandes', 'Achat clôturé daté du jour', $q$
+    SELECT 1 FROM commande WHERE order_status = 'CLOSED' AND order_date = CURRENT_DATE
+$q$, 1);
 
 SELECT pg_temp.verif_vide('commandes', 'Aucune date dans le futur', $q$
     SELECT id FROM commande
@@ -892,10 +1123,29 @@ $q$);
 
 -- Les lots entrent par le stockage principal ; la réserve se remplit par
 -- transfert. Un lot présent en réserve doit donc être passé par le rayon.
+--
+-- La ligne principale peut toutefois avoir DISPARU depuis : la vente sert au
+-- rayon, et l'emplacement tombé à zéro est supprimé (jamais laissé à zéro).
+-- Un lot entamé — current_quantity < quantity — a donc pu être vidé du rayon
+-- tout en gardant sa part de réserve. C'est l'état normal d'un lot en fin de
+-- vie, pas une réserve alimentée directement.
+-- Cas nommé : le manuel montre les deux stocks d'un produit précis (REF-48), il
+-- lui faut donc une réserve garantie et non tirée d'un « un produit sur cinq »
+-- qui dépend de l'ordre d'insertion.
+SELECT pg_temp.verif_compte('emplacements', 'Cas nommé ARNICA MONTANA 9CH en réserve', $q$
+    SELECT 1
+      FROM stock_produit sp
+      JOIN storage st ON st.id = sp.storage_id AND st.storage_type = 'SAFETY_STOCK'
+      JOIN produit p  ON p.id = sp.produit_id
+     WHERE p.libelle LIKE 'ARNICA MONTANA 9CH%' AND sp.qty_stock > 0
+$q$, 1);
+
 SELECT pg_temp.verif_vide('emplacements', 'La réserve n''est alimentée que par transfert', $q$
     SELECT lsl.id FROM lot_stock_location lsl
+      JOIN lot l ON l.id = lsl.lot_id
       JOIN storage s ON s.id = lsl.storage_id
      WHERE s.storage_type = 'SAFETY_STOCK'
+       AND l.current_quantity = l.quantity
        AND NOT EXISTS (
            SELECT 1 FROM lot_stock_location p
              JOIN storage ps ON ps.id = p.storage_id
@@ -925,14 +1175,27 @@ $q$);
 -- Le stock est PHYSIQUE : il compte tous les emplacements, y compris ceux des
 -- lots périmés. Rien ne décrémente stock_produit quand un lot périme — la
 -- marchandise reste en rayon jusqu'à destruction ou ajustement.
+--
+-- Une exception, et une seule : le RETOUR DE DÉPÔT. Le stock du dépôt est
+-- tenu sans lot ; à son retour la marchandise réintègre l'officine par un
+-- simple crédit de stock_produit — RetourDepotServiceImpl ne recrée aucun
+-- emplacement, faute de lot à créditer. Ces quantités-là sont donc dans le
+-- stock sans être dans les emplacements, et il faut les ajouter au total
+-- attendu pour ne pas transformer un comportement de l'application en anomalie
+-- du jeu de données.
 SELECT pg_temp.verif_vide('stock', 'Stock = tous les emplacements du même stockage', $q$
     SELECT sp.id FROM stock_produit sp
       JOIN produit p ON p.id = sp.produit_id AND p.gestion_lot
+      -- Stockages de l'officine seulement : le magasin DÉPÔT est tenu sans lot.
+      JOIN storage s ON s.id = sp.storage_id AND s.magasin_id = 1
      WHERE sp.qty_stock <> COALESCE((
          SELECT sum(lsl.qty) FROM lot_stock_location lsl
            JOIN lot l ON l.id = lsl.lot_id
           WHERE l.produit_id = sp.produit_id
             AND lsl.storage_id = sp.storage_id), 0)
+         + CASE WHEN s.storage_type = 'PRINCIPAL' THEN COALESCE((
+             SELECT sum(i.qty_mvt) FROM retour_depot_item i
+              WHERE i.produit_id = sp.produit_id), 0) ELSE 0 END
 $q$);
 
 -- Corollaire : une part du stock peut être invendable. Le signaler n'est pas
@@ -1065,6 +1328,34 @@ SELECT pg_temp.verif_vide('ventes', 'Net = TTC − remise', $q$
     SELECT id FROM sales WHERE net_amount <> sales_amount - discount_amount
 $q$);
 
+-- Les remises de la demonstration reprennent la grille produit : 5, 10 ou 15 %.
+-- Un taux de 1 ou 2 % ne se verrait ni sur le ticket ni dans les etats.
+SELECT pg_temp.verif_vide('ventes', 'Taux de remise pris dans la grille', $q$
+    SELECT id FROM sales_line
+     WHERE taux_remise NOT IN (0, 5, 10, 15)
+$q$);
+
+SELECT pg_temp.verif_vide('ventes', 'Remise de ligne = quantité × remise unitaire', $q$
+    SELECT id FROM sales_line
+     WHERE discount_amount <> quantity_requested * discount_unit_price
+$q$);
+
+SELECT pg_temp.verif_vide('ventes', 'Prix net = prix affiché − remise unitaire', $q$
+    SELECT id FROM sales_line
+     WHERE net_unit_price <> regular_unit_price - discount_unit_price
+$q$);
+
+-- Une remise ne se pose pas sur une vente tiers payant : la part payeur se
+-- calcule sur le montant conventionne, et l'ecart retomberait sur le patient.
+SELECT pg_temp.verif_vide('ventes', 'Aucune remise sur les ventes tiers payant', $q$
+    SELECT id FROM sales
+     WHERE dtype = 'ThirdPartySales' AND discount_amount > 0
+$q$);
+
+SELECT pg_temp.verif_compte('ventes', 'Des ventes remisées existent', $q$
+    SELECT id FROM sales WHERE discount_amount > 0
+$q$, 100);
+
 -- Contrôle V2 de AuditDeclarationCaService : le montant déclarable de la vente
 -- égale la somme de celui de ses lignes.
 SELECT pg_temp.verif_vide('ventes', 'Montant déclarable = somme des lignes', $q$
@@ -1141,14 +1432,92 @@ SELECT pg_temp.verif_vide('encaissements', 'Statut de règlement cohérent', $q$
 $q$);
 
 -- Exceptions admises : la vente tiers-payant couverte à 100 % n'a rien à
--- encaisser, et la vente dépôt reste due par construction.
+-- encaisser, la vente dépôt reste due par construction, et la vente différée
+-- est hors du champ de ce contrôle — soldée ou non, elle n'a JAMAIS de
+-- payment_transaction portant son sale_id : son règlement est un
+-- DifferePayment rattaché au CLIENT (14b_reglements.sql), relié aux ventes par
+-- differe_payment_item. Le contrôle qui lui correspond est plus bas.
 SELECT pg_temp.verif_vide('encaissements', 'Toute vente à encaisser a un règlement', $q$
     SELECT s.id FROM sales s
      WHERE s.amount_to_be_paid > 0
        AND s.dtype <> 'VenteDepot'
+       AND NOT s.differe
        AND NOT EXISTS (SELECT 1 FROM payment_transaction pt
                         WHERE pt.sale_id = s.id AND pt.sale_date = s.sale_date)
 $q$);
+
+-- ---------------------------------------------------------------------------
+-- Règlements différés et règlements de factures (14b_reglements.sql)
+-- ---------------------------------------------------------------------------
+SELECT pg_temp.verif_vide('encaissements', 'Vente différée soldée a son règlement', $q$
+    SELECT s.id FROM sales s
+     WHERE s.differe AND s.payment_status = 'PAYE'
+       AND NOT EXISTS (SELECT 1 FROM differe_payment_item i
+                        WHERE i.sale_id = s.id AND i.sale_sale_date = s.sale_date)
+$q$);
+
+SELECT pg_temp.verif_vide('encaissements', 'Vente différée non soldée sans règlement', $q$
+    SELECT s.id FROM sales s
+     WHERE s.differe AND s.payment_status = 'IMPAYE'
+       AND EXISTS (SELECT 1 FROM differe_payment_item i
+                    WHERE i.sale_id = s.id AND i.sale_sale_date = s.sale_date)
+$q$);
+
+SELECT pg_temp.verif_vide('encaissements', 'Règlement différé = somme de ses items', $q$
+    SELECT pt.id FROM payment_transaction pt
+      JOIN differe_payment_item i ON i.differe_payment_id = pt.id
+                                 AND i.differe_payment_transaction_date = pt.transaction_date
+     WHERE pt.dtype = 'DifferePayment'
+     GROUP BY pt.id, pt.paid_amount
+    HAVING sum(i.paid_amount) <> pt.paid_amount
+$q$);
+
+-- Le défaut d'origine : un statut de facture affirmant un règlement dont il
+-- n'existait aucune trace.
+SELECT pg_temp.verif_vide('encaissements', 'Facture réglée a son encaissement', $q$
+    SELECT f.id FROM facture_tiers_payant f
+     WHERE f.montant_regle > 0
+       AND NOT EXISTS (SELECT 1 FROM payment_transaction pt
+                        WHERE pt.dtype = 'InvoicePayment'
+                          AND pt.facture_tierspayant_id = f.id
+                          AND pt.facture_tierspayant_invoice_date = f.invoice_date)
+$q$);
+
+-- Le montant réglé d'une facture a deux sources, et non une seule : ce qui a
+-- été encaissé, et ce qu'un avoir imputé a effacé sans qu'un franc circule.
+-- Ne comparer qu'à l'encaissement faisait passer toute imputation pour une
+-- incohérence.
+SELECT pg_temp.verif_vide('encaissements', 'Encaissement + avoirs imputés = montant réglé', $q$
+    SELECT pt.id FROM payment_transaction pt
+      JOIN facture_tiers_payant f ON f.id = pt.facture_tierspayant_id
+                                 AND f.invoice_date = pt.facture_tierspayant_invoice_date
+     WHERE pt.dtype = 'InvoicePayment'
+       AND pt.paid_amount + COALESCE((
+             SELECT sum(a.montant_avoir)::int FROM avoir_tiers_payant a
+              WHERE a.statut = 'IMPUTE'
+                AND a.facture_imputation_id = f.id
+                AND a.facture_imputation_date = f.invoice_date
+           ), 0) <> f.montant_regle
+$q$);
+
+-- Un avoir imputé désigne la facture qu'il a soldée, et lui seul modifie un
+-- solde sans encaissement : sans ce lien, le montant réglé serait inexplicable.
+SELECT pg_temp.verif_vide('facturation', 'Avoir imputé rattaché à une facture', $q$
+    SELECT id FROM avoir_tiers_payant
+     WHERE (statut = 'IMPUTE' AND facture_imputation_id IS NULL)
+        OR (statut <> 'IMPUTE' AND facture_imputation_id IS NOT NULL)
+$q$);
+
+-- Les quatre statuts doivent avoir un exemple, sinon une transition du cycle
+-- de vie reste inatteignable à l'écran.
+SELECT pg_temp.verif_compte('facturation', 'Statuts d''avoir représentés', $q$
+    SELECT DISTINCT statut FROM avoir_tiers_payant
+$q$, 4);
+
+-- Des créances doivent subsister : sans elles, ni solde client, ni relance.
+SELECT pg_temp.verif_compte('encaissements', 'Créances clients en cours', $q$
+    SELECT 1 FROM sales WHERE differe AND payment_status = 'IMPAYE'
+$q$, 20);
 
 -- PaymentTransaction.cashRegister est optional = false.
 SELECT pg_temp.verif_vide('encaissements', 'Tout règlement est rattaché à une caisse', $q$
@@ -1482,6 +1851,71 @@ $q$);
 
 
 -- ===========================================================================
+-- REMISES, PLAFONDS ET TARIFS NÉGOCIÉS
+--
+-- Trois mécanismes de prix que rien n'exerçait avant 04b : sans ces données,
+-- les écrans de vente correspondants sont muets et les scénarios VTE-03,
+-- VTE-52 et VTE-53 ne peuvent pas être illustrés.
+--
+-- La remise attachée au CLIENT n'y figure pas : plus rien ne la lit dans le
+-- calcul d'une vente, seule la grille produit s'applique.
+-- ===========================================================================
+
+-- La grille doit couvrir les deux régimes : un code VNO sans son pendant VO
+-- laisserait les ventes ordonnancées sans remise.
+-- La plus petite pièce en FCFA vaut 5 francs : un prix qui n'est pas un multiple
+-- de 5 ne peut pas être rendu en espèces, et fait apparaître des arrondis que
+-- personne ne sait expliquer au comptoir.
+SELECT pg_temp.verif_vide('produits', 'Prix de vente multiples de 5', $q$
+    SELECT id FROM produit WHERE regular_unit_price % 5 <> 0
+$q$);
+
+SELECT pg_temp.verif_vide('produits', 'Prix fournisseur multiples de 5', $q$
+    SELECT id FROM fournisseur_produit WHERE prix_uni % 5 <> 0 OR prix_achat % 5 <> 0
+$q$);
+
+SELECT pg_temp.verif_vide('remises', 'Tarifs négociés multiples de 5', $q$
+    SELECT id FROM produit_tiers_payant_prix WHERE prix_type = 'REFERENCE' AND price % 5 <> 0
+$q$);
+
+SELECT pg_temp.verif_compte('remises', 'Grille de remise produit renseignée', $q$
+    SELECT 1 FROM grille_remise WHERE enable
+$q$, 10);
+
+SELECT pg_temp.verif_compte('remises', 'Produits répartis sur plusieurs codes remise', $q$
+    SELECT 1 FROM produit GROUP BY code_remise
+$q$, 3);
+
+-- Un plafond sans consommation engagée ne se déclenche jamais : les deux
+-- doivent exister pour que le plafonnement soit démontrable.
+SELECT pg_temp.verif_compte('remises', 'Tiers payants à plafond client', $q$
+    SELECT 1 FROM tiers_payant WHERE plafond_conso_client IS NOT NULL
+$q$, 2);
+
+SELECT pg_temp.verif_compte('remises', 'Assurés proches de leur plafond', $q$
+    SELECT 1 FROM client_tiers_payant ctp
+      JOIN tiers_payant tp ON tp.id = ctp.tierspayant_id
+     WHERE tp.plafond_conso_client IS NOT NULL
+       AND ctp.conso_mensuelle > tp.plafond_conso_client * 0.8
+$q$, 2);
+
+SELECT pg_temp.verif_compte('remises', 'Tarifs négociés par tiers payant', $q$
+    SELECT 1 FROM produit_tiers_payant_prix WHERE enabled
+$q$, 20);
+
+-- Un prix de référence doit être INFÉRIEUR au prix catalogue, sinon il n'a
+-- aucun effet et le scénario ne montre rien.
+SELECT pg_temp.verif_vide('remises', 'Prix de référence inférieur au catalogue', $q$
+    SELECT ptp.id FROM produit_tiers_payant_prix ptp
+      JOIN LATERAL (
+          SELECT x.prix_uni FROM fournisseur_produit x
+            JOIN fournisseur f ON f.id = x.fournisseur_id AND f.parent_id IS NULL
+           WHERE x.produit_id = ptp.produit_id ORDER BY x.id LIMIT 1
+      ) fp ON true
+     WHERE ptp.prix_type = 'REFERENCE' AND ptp.price >= fp.prix_uni
+$q$);
+
+-- ===========================================================================
 -- FACTURATION TIERS-PAYANT
 -- ===========================================================================
 SELECT pg_temp.verif_compte('facturation', 'Factures émises', $q$
@@ -1494,6 +1928,16 @@ SELECT pg_temp.verif_vide('facturation', 'Statut conforme à la contrainte CHECK
         OR origine_generation NOT IN ('MANUELLE', 'AUTO')
 $q$);
 
+-- Le groupe du tiers payant doit être recopié sur la facture : les synthèses de
+-- créances (accueil, vieillissement, situation) regroupent par ce champ et
+-- rendent zéro s'il est nul, sans le moindre message.
+SELECT pg_temp.verif_vide('facturation', 'Facture rattachée au groupe de son tiers payant', $q$
+    SELECT f.id FROM facture_tiers_payant f
+      JOIN tiers_payant tp ON tp.id = f.tiers_payant_id
+     WHERE tp.groupe_tiers_payant_id IS NOT NULL
+       AND f.groupe_tiers_payant_id IS DISTINCT FROM tp.groupe_tiers_payant_id
+$q$);
+
 -- Le total de la facture doit égaler la somme des bons qu'elle regroupe.
 SELECT pg_temp.verif_vide('facturation', 'Facture = somme des bons regroupés', $q$
     SELECT ft.id FROM facture_tiers_payant ft
@@ -1504,6 +1948,34 @@ SELECT pg_temp.verif_vide('facturation', 'Facture = somme des bons regroupés', 
 $q$);
 
 -- Un bon ne peut pas être facturé hors de la période qu'il couvre.
+-- Les produits VEDETTES du manuel doivent rester vendables : trente-huit
+-- parcours passent par DOLIPRANE 500MG. Un stock épuisé ferait échouer toute la
+-- série des ventes sur « Stock insuffisant », ce qui se lit comme un défaut de
+-- l'application alors que c'est le jeu de données qui est à sec.
+SELECT pg_temp.verif_compte('stock', 'Produits vedettes vendables', $q$
+    SELECT p.id
+      FROM stock_produit sp
+      JOIN produit p ON p.id = sp.produit_id
+      JOIN storage st ON st.id = sp.storage_id AND st.storage_type = 'PRINCIPAL'
+     WHERE sp.qty_stock >= 100
+       AND (p.libelle LIKE 'DOLIPRANE 500MG%'
+         OR p.libelle LIKE 'DOLIPRANE 1G%'
+         OR p.libelle LIKE 'PARACETAMOL 1G%')
+$q$, 3);
+
+-- Un organisme SANS email doit subsister : la certification fiscale (FNE) le
+-- refuse, et c'est le seul moyen de montrer ce garde-fou à l'écran.
+SELECT pg_temp.verif_compte('facturation', 'Organisme sans email (garde-fou FNE)', $q$
+    SELECT 1 FROM tiers_payant WHERE email IS NULL OR email = ''
+$q$, 1);
+
+-- ...et la majorité doit en avoir un, sinon la certification serait impossible
+-- pour tout le monde et l'écran ne montrerait plus le cas nominal.
+SELECT pg_temp.verif_compte('facturation', 'Organismes certifiables (téléphone + email)', $q$
+    SELECT 1 FROM tiers_payant
+     WHERE coalesce(email, '') <> '' AND coalesce(telephone, '') <> ''
+$q$, 8);
+
 SELECT pg_temp.verif_vide('facturation', 'Bons dans la période facturée', $q$
     SELECT t.id FROM third_party_sale_line t
       JOIN facture_tiers_payant ft ON ft.id = t.facture_tiers_payant_id

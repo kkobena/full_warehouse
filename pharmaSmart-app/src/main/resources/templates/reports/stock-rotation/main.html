@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Rotation du Stock</title>
+    <style th:replace="~{common/css}"></style>
+  </head>
+  <body>
+    <header th:replace="~{common/commonheader}"></header>
+    <div class="invoice">
+      <main>
+        <!--
+          La rotation est l'angle de la TRÉSORERIE, là où le Pareto est celui du chiffre : une
+          référence à forte marge qui tourne une fois l'an immobilise de l'argent douze mois
+          durant, et finit souvent en péremption.
+        -->
+        <div class="alert-summary">
+          <table class="summary-table">
+            <tbody>
+              <tr>
+                <td class="summary-item">
+                  <strong>A — forte rotation&nbsp;:</strong>
+                  <span th:text="${countA}"></span> réf.
+                </td>
+                <td class="summary-item">
+                  <strong>B — rotation moyenne&nbsp;:</strong>
+                  <span th:text="${countB}"></span> réf.
+                </td>
+                <td class="summary-item alerte">
+                  <strong>C — faible rotation&nbsp;:</strong>
+                  <span th:text="${countC}"></span> réf.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <table class="main-table">
+          <thead>
+            <tr>
+              <th>Produit</th>
+              <th>Code CIP</th>
+              <th>Catégorie</th>
+              <th class="text-right">Stock</th>
+              <th class="text-right">Valeur stock</th>
+              <th class="text-right">Qté 30 j</th>
+              <th class="text-right">Qté 12 mois</th>
+              <th class="text-right">Rotation / an</th>
+              <th class="text-right">Jours en stock</th>
+              <th>Classe</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="r : ${rotations}">
+              <td th:text="${r.libelle}"></td>
+              <td th:text="${r.codeCip}"></td>
+              <td th:text="${r.categorie}"></td>
+              <td class="text-right" th:text="${r.stockQuantity}"></td>
+              <td class="text-right" th:text="${#numbers.formatInteger(r.stockValue ?: 0, 0, 'WHITESPACE')}"></td>
+              <td class="text-right" th:text="${r.qtySoldLast30Days}"></td>
+              <td class="text-right" th:text="${r.qtySoldLast12Months}"></td>
+              <td
+                class="text-right"
+                th:text="${r.rotationRateAnnual != null ? #numbers.formatDecimal(r.rotationRateAnnual, 1, 2) : '0,00'}"
+              ></td>
+              <td class="text-right" th:text="${r.avgDaysInStock}"></td>
+              <td th:text="${r.categorieABC}"></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="10" class="text-right">
+                <strong>Total&nbsp;: <span th:text="${rotations.size()}"></span> référence(s)</strong>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </main>
+    </div>
+  </body>
+</html>

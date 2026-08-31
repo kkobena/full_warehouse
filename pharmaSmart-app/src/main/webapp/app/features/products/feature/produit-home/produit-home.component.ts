@@ -11,6 +11,7 @@ import {
   HintComponent,
   IconFieldComponent,
   SelectComponent,
+  SelectSearchComponent,
   SplitButtonComponent,
   ToolbarComponent,
 } from "app/shared/ui";
@@ -73,6 +74,11 @@ import {
   ProduitMergeModalComponent
 } from "../../ui/produit-merge-modal/produit-merge-modal.component";
 import {IProduitMergeResult} from "../../models/produit-merge.model";
+import {IDci} from "../../../dci/models/dci.model";
+import {DciService} from "../../../../entities/dci/dci.service";
+import {
+  DciAssignationModalComponent
+} from "../../ui/dci-assignation-modal/dci-assignation-modal.component";
 
 @Component({
   selector: "app-produit-home",
@@ -85,6 +91,7 @@ import {IProduitMergeResult} from "../../models/produit-merge.model";
     FormsModule,
     ButtonComponent,
     SelectComponent,
+    SelectSearchComponent,
     SplitButtonComponent,
     ToolbarComponent,
     HintComponent,
@@ -119,6 +126,9 @@ export class ProduitHomeComponent implements OnInit {
   protected readonly selectedFilter = signal("ENABLE");
   protected selectedFamilleId: number | null = null;
   protected selectedRayonId: number | null = null;
+  /** Substance active retenue au filtre — objet et non identifiant : le champ affiche son libellé. */
+  protected readonly selectedDci = signal<IDci | null>(null);
+  protected readonly dcis = signal<IDci[]>([]);
   protected readonly page = signal(0);
   protected readonly rows = signal(15);
   protected readonly sortField = signal("libelle");
@@ -139,6 +149,7 @@ export class ProduitHomeComponent implements OnInit {
   /** ID du produit à mettre en évidence après création/modification */
   private pendingHighlightId: number | null = null;
   private readonly api = inject(ProductsApiService);
+  private readonly dciService = inject(DciService);
   private readonly familleService = inject(FamilleProduitService);
   private readonly rayonService = inject(RayonService);
   private readonly router = inject(Router);
@@ -325,6 +336,45 @@ export class ProduitHomeComponent implements OnInit {
     }
   }
 
+  /**
+   * Affecte une DCI à toute la sélection.
+   *
+   * <p>Pas de confirmation préalable : la modal en est déjà une — elle rappelle le nombre de
+   * produits concernés et ne fait rien tant qu'aucune substance n'est choisie. Et
+   * l'opération se défait en réaffectant, contrairement à la fusion.
+   */
+  protected onBulkDci(): void {
+    const list = this.selectedProduits();
+    if (!list.length) {
+      return;
+    }
+    const ref = this.modalService.open(DciAssignationModalComponent, {
+      size: "lg",
+      centered: true,
+      backdrop: "static"
+    });
+    (ref.componentInstance as DciAssignationModalComponent).produits = list;
+    ref.closed.subscribe((resultat: { dci: { libelle?: string }; nombre: number }) => {
+      this.notificationService.success(
+        `${resultat.nombre} produit(s) rattaché(s) à « ${resultat.dci.libelle} ».`,
+        "DCI affectée"
+      );
+      this.onClearSelection();
+      this.loadPage();
+    });
+  }
+
+  protected chercherDci(terme: string): void {
+    this.dciService.queryUnpaged({search: terme}).subscribe({
+      next: res => this.dcis.set((res.body ?? []) as IDci[]),
+    });
+  }
+
+  protected onDciChange(dci: IDci | null): void {
+    this.selectedDci.set(dci);
+    this.onFilterChange();
+  }
+
   private openMergeModal(list: IProduit[]): void {
     const ref = this.modalService.open(ProduitMergeModalComponent, {
       size: "xl",
@@ -348,19 +398,44 @@ export class ProduitHomeComponent implements OnInit {
     });
   }
 
+  /**
+   * Applique le changement d'état à toute la sélection.
+   *
+   * Le décompte porte sur les réponses REÇUES, succès et échecs confondus : n'attendre que
+   * les succès laissait la sélection en place et la barre d'actions ouverte dès qu'un seul
+   * appel échouait — sans le moindre message, l'utilisateur croyait le traitement en cours.
+   * Les échecs sont désormais dits, et nommés.
+   */
   private executeBulk(list: IProduit[], status: "ENABLE" | "DISABLE"): void {
-    let completed = 0;
+    let repondus = 0;
+    const echecs: string[] = [];
+    const termine = (): void => {
+      if (repondus < list.length) {
+        return;
+      }
+      this.selectedProduits.set([]);
+      this.clearSelectionTrigger.update(v => v + 1);
+      if (echecs.length) {
+        this.notificationService.error(
+          `${echecs.length} produit(s) n'ont pas changé d'état : ${echecs.join(", ")}.`,
+          "Traitement incomplet"
+        );
+      }
+    };
+
     for (const produit of list) {
       this.api.patchStatus(produit.id!, status).subscribe({
         next: () => {
-          completed++;
+          repondus++;
           this.produits.update(all =>
             all.map(p => p.id === produit.id ? {...p, status} : p)
           );
-          if (completed === list.length) {
-            this.selectedProduits.set([]);
-            this.clearSelectionTrigger.update(v => v + 1);
-          }
+          termine();
+        },
+        error: () => {
+          repondus++;
+          echecs.push(produit.libelle ?? `#${produit.id}`);
+          termine();
         }
       });
     }
@@ -452,6 +527,9 @@ export class ProduitHomeComponent implements OnInit {
     }
     if (this.selectedRayonId) {
       req.rayonId = this.selectedRayonId;
+    }
+    if (this.selectedDci()?.id) {
+      req.dciId = this.selectedDci()!.id;
     }
 
     this.api.query(req).subscribe({

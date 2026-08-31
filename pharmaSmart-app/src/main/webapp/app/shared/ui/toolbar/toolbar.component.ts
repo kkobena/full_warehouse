@@ -45,7 +45,13 @@ import { NavStore } from 'app/core/store/nav.store';
           <i [class]="icon()" aria-hidden="true"></i>
         }
 
-        <span class="pharma-toolbar-title">{{ resolvedTitle() }}</span>
+        <!--
+          Un TITRE, pas un simple texte en gras : la barre d'outils nomme l'écran, et c'était
+          jusqu'ici un \`<span>\` — aucune page de l'application n'offrait donc de titre à la
+          navigation par en-têtes, sur laquelle repose la lecture d'écran. Le style suit la
+          classe, il ne change pas.
+        -->
+        <h1 class="pharma-toolbar-title">{{ resolvedTitle() }}</h1>
 
         @if (subtitle()) {
           <span class="pharma-toolbar-subtitle">{{ subtitle() }}</span>

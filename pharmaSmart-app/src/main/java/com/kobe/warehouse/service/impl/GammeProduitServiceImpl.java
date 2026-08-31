@@ -2,6 +2,8 @@ package com.kobe.warehouse.service.impl;
 
 import com.kobe.warehouse.domain.GammeProduit;
 import com.kobe.warehouse.repository.GammeProduitRepository;
+import com.kobe.warehouse.repository.ProduitRepository;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.repository.util.Condition;
 import com.kobe.warehouse.repository.util.SpecificationBuilder;
 import com.kobe.warehouse.service.dto.GammeProduitDTO;
@@ -36,8 +38,10 @@ public class GammeProduitServiceImpl implements GammeProduitService {
     private final Logger log = LoggerFactory.getLogger(GammeProduitServiceImpl.class);
 
     private final GammeProduitRepository gammeProduitRepository;
+    private final ProduitRepository produitRepository;
 
-    public GammeProduitServiceImpl(GammeProduitRepository gammeProduitRepository) {
+    public GammeProduitServiceImpl(GammeProduitRepository gammeProduitRepository, ProduitRepository produitRepository) {
+        this.produitRepository = produitRepository;
         this.gammeProduitRepository = gammeProduitRepository;
     }
 
@@ -101,6 +105,16 @@ public class GammeProduitServiceImpl implements GammeProduitService {
      */
     @Override
     public void delete(Integer id) {
+        // Un référentiel encore porté par des fiches ne peut pas disparaître : la
+        // requête échouerait sur la contrainte de clé étrangère, en HTTP 500 et sans
+        // rien dire d'utile. On compte d'abord, et l'on explique.
+        long rattaches = this.produitRepository.countByGammeId(id);
+        if (rattaches > 0) {
+            throw new GenericError(
+                "La gamme est encore utilisée par %d produit(s) : suppression impossible.".formatted(rattaches),
+                "referentielUtilise"
+            );
+        }
         log.debug("Request to delete GammeProduit : {}", id);
         gammeProduitRepository.deleteById(id);
     }

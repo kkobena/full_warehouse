@@ -211,6 +211,14 @@ export class NavManagerComponent implements OnInit {
   }
 
   saveTitreLong(item: FlatNavNode): void {
+    // Un seul enregistrement par saisie. `Entrée` enregistre, puis le champ perd le focus et
+    // `(blur)` rappelait cette méthode — cette fois avec un `editingTitreLong` déjà remis à
+    // zéro par `cancelEdit()`. Le second appel envoyait donc une chaîne VIDE et effaçait le
+    // titre qu'on venait de saisir. Sortir dès que l'édition n'est plus ouverte sur cette
+    // ligne referme la porte.
+    if (this.editingItemId() !== item.id || this.editingField() !== 'titreLong') {
+      return;
+    }
     const saisi = this.editingTitreLong().trim();
     // Égal au libellé, le titre long n'apporte rien : on l'efface pour que la barre suive le menu.
     const titreLong = saisi === item.libelle ? "" : saisi;
@@ -234,6 +242,11 @@ export class NavManagerComponent implements OnInit {
   }
 
   saveEdit(item: FlatNavNode): void {
+    // Même garde que pour le titre long : `Entrée` puis `(blur)` déclenchaient deux
+    // enregistrements, le second sur un champ déjà vidé.
+    if (this.editingItemId() !== item.id || this.editingField() !== 'libelle') {
+      return;
+    }
     const libelle = this.editingLibelle().trim();
     if (!libelle || libelle === item.libelle) {
       this.cancelEdit();

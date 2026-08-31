@@ -1,0 +1,70 @@
+<div class="modal-header">
+  <h4 class="modal-title">Affecter une DCI à {{ produits.length }} produit(s)</h4>
+  <button (click)="cancel()" aria-label="Fermer" class="btn-close" type="button"></button>
+</div>
+
+<div class="modal-body">
+  <app-card [variant]="'form'">
+    <div class="form-grid-compact">
+      <div class="form-field form-field-full">
+        <span class="field-label">DCI</span>
+
+
+        <app-select-search
+          (ngModelChange)="dci.set($event)"
+          (searched)="chercher($event)"
+          [items]="suggestions()"
+          [minSearchLength]="2"
+          [ngModel]="dci()"
+          [style]="{ width: '100%' }"
+          appendTo="body"
+          bindLabel="libelle"
+          inputId="dci-cible"
+          placeholder="Taper pour rechercher"
+        />
+
+        <small class="form-text text-muted">
+          Les produits retenus recevront cette substance active. Celle qu'ils portaient
+          éventuellement sera remplacée — l'opération se défait en réaffectant.
+        </small>
+      </div>
+
+      @if (produits.length) {
+        <div class="form-field form-field-full">
+          <span class="field-label">Produits concernés</span>
+          <div class="produits-retenus">
+            @for (produit of apercu(); track produit.id) {
+              <span class="pharma-badge pharma-badge-secondary">{{ produit.libelle }}</span>
+            }
+            @if (produits.length > apercu().length) {
+              <span class="text-muted small">
+                … et {{ produits.length - apercu().length }} autre(s)
+              </span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </app-card>
+</div>
+
+<div class="modal-footer">
+  <app-button
+    (clicked)="cancel()"
+    [raised]="true"
+    icon="pi pi-times"
+    label="Annuler"
+    severity="secondary"
+    type="button"
+  />
+  <app-button
+    (clicked)="valider()"
+    [disabled]="!dci()"
+    [loading]="enCours()"
+    [raised]="true"
+    icon="pi pi-check"
+    label="Affecter la DCI"
+    severity="primary"
+    type="button"
+  />
+</div>

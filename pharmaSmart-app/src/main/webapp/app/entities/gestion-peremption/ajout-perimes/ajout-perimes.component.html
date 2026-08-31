@@ -1,74 +1,75 @@
 <div class="container-fluid mt-1">
-  <div class="pharma-smart-content p-2">
-    <app-toolbar icon="pi pi-plus-circle" title="Ajout de lots périmés" [compact]="true">
-        <ng-container ngProjectAs="[toolbarFilters]">
-          <div class="pharma-toolbar-filters">
-            <div class="pharma-product-search mr-1">
-              <jhi-produit-autocomplete
-                #produitComponent
-                (selectedProduit)="onSelect($event)"
-                [ngModel]="produitSelected()" (ngModelChange)="produitSelected.set($event)"
-                [includeDetails]="includeDetail"
-                [pageSize]="PRODUIT_COMBO_RESULT_SIZE"
-              >
-              </jhi-produit-autocomplete>
-            </div>
-            <app-float-label label="{{ 'warehouseApp.gestionPerimes.labels.numLot' | translate }}" inputId="numLot" class="mr-1">
-              <input
-                #numLot
-                (keyup.enter)="onNumLot($event)"
-                [disabled]="!produitSelected()"
-                [appKeyFilter]="'alphanum'"
-                autocomplete="off"
-                class="form-control"
-                id="numLot"
-                type="text"
-              />
-            </app-float-label>
-            <div class="mr-1">
-              <pharma-date-picker
-                #datePeremention
-                [ngModel]="dateValue()" (ngModelChange)="dateValue.set($event)"
-                (selectionChange)="onDatePerementionChange($event)"
-                [disabled]="numLotIsEmpty"
-                id="datePeremtion"
-                label="{{ 'warehouseApp.gestionPerimes.labels.datePeremption' | translate }}"
-              ></pharma-date-picker>
-            </div>
-            <div>
-              <jhi-quantite-produt-saisie
-                #produitQteCmpt
-                (addQuantite)="addQuantity($event)"
-                [disabledButton]="disableButton"
-                [isValid]="canAddQuantity"
-              >
-              </jhi-quantite-produt-saisie>
-            </div>
+  <div class="pharma-smart-content p-1">
+    <app-toolbar [compact]="true" icon="pi pi-plus-circle" title="Ajout de lots périmés">
+      <ng-container ngProjectAs="[toolbarFilters]">
+        <div class="pharma-toolbar-filters">
+          <div class="pharma-product-search mr-1">
+            <jhi-produit-autocomplete
+              #produitComponent
+              (ngModelChange)="produitSelected.set($event)"
+              (selectedProduit)="onSelect($event)" [includeDetails]="includeDetail"
+              [ngModel]="produitSelected()"
+              [pageSize]="PRODUIT_COMBO_RESULT_SIZE"
+            >
+            </jhi-produit-autocomplete>
           </div>
-        </ng-container>
+          <app-float-label class="mr-1"
+                           inputId="numLot" label="{{ 'warehouseApp.gestionPerimes.labels.numLot' | translate }}">
+            <input
+              #numLot
+              (keyup.enter)="onNumLot($event)"
+              [appKeyFilter]="'alphanum'"
+              [disabled]="!produitSelected()"
+              autocomplete="off"
+              class="form-control"
+              id="numLot"
+              type="text"
+            />
+          </app-float-label>
+          <div class="mr-1">
+            <pharma-date-picker
+              #datePeremention
+              (ngModelChange)="dateValue.set($event)" (selectionChange)="onDatePerementionChange($event)"
+              [disabled]="numLotIsEmpty"
+              [ngModel]="dateValue()"
+              id="datePeremtion"
+              label="{{ 'warehouseApp.gestionPerimes.labels.datePeremption' | translate }}"
+            ></pharma-date-picker>
+          </div>
+          <div>
+            <jhi-quantite-produt-saisie
+              #produitQteCmpt
+              (addQuantite)="addQuantity($event)"
+              [disabledButton]="disableButton"
+              [isValid]="canAddQuantity"
+            >
+            </jhi-quantite-produt-saisie>
+          </div>
+        </div>
+      </ng-container>
 
-        <ng-container ngProjectAs="[toolbarActions]">
-          <div class="pharma-toolbar-actions">
-            <div class="pharma-button-group">
-              <app-button
-                (clicked)="onClose()"
-                [disabled]="data().length == 0 || isSaving()"
-                [label]="'warehouseApp.buttons.closeAction' | translate"
-                icon="pi pi-lock"
-                severity="info"
-                [raised]="true"
-              ></app-button>
-              <app-button
-                (clicked)="goBack()"
-                [label]="'warehouseApp.buttons.back' | translate"
-                icon="pi pi-arrow-left"
-                severity="secondary"
-                [raised]="true"
-              ></app-button>
-            </div>
+      <ng-container ngProjectAs="[toolbarActions]">
+        <div class="pharma-toolbar-actions">
+          <div class="pharma-button-group">
+            <app-button
+              (clicked)="onClose()"
+              [disabled]="data().length == 0 || isSaving()"
+              [label]="'warehouseApp.buttons.closeAction' | translate"
+              [raised]="true"
+              icon="pi pi-lock"
+              severity="info"
+            ></app-button>
+            <app-button
+              (clicked)="goBack()"
+              [label]="'warehouseApp.buttons.back' | translate"
+              [raised]="true"
+              icon="pi pi-arrow-left"
+              severity="secondary"
+            ></app-button>
           </div>
-        </ng-container>
-      </app-toolbar>
+        </div>
+      </ng-container>
+    </app-toolbar>
 
     <app-data-table
       (onLazyLoad)="lazyLoading($event)"
@@ -85,7 +86,8 @@
     >
       <ng-template #caption>
         <app-icon-field [overlay]="true" icon="pi pi-search">
-          <input (input)="onSearch()" [(ngModel)]="searchTerm" class="form-control" placeholder="Rechercher..." type="text" />
+          <input (input)="onSearch()" [(ngModel)]="searchTerm" class="form-control"
+                 placeholder="Rechercher..." type="text" />
         </app-icon-field>
       </ng-template>
       <ng-template #header>
@@ -105,25 +107,25 @@
       <ng-template #body let-data>
         <tr>
           <td class="pharma-product-name">
-            {{ data().produitName }}
+            {{ data.produitName }}
           </td>
 
           <td class="pharma-code">
-            {{ data().produitCodeCip }}
+            {{ data.produitCodeCip }}
           </td>
           <td class="pharma-code">
-            {{ data().numLot }}
+            {{ data.numLot }}
           </td>
           <td>
-            {{ data().datePeremption }}
+            {{ data.datePeremption }}
           </td>
           <td class="amount-column text-right">
             <app-editable-cell>
               <ng-template #input>
                 <input
                   #quantityInput
-                  (keydown.enter)="modifyProductQuantity(data(), quantityInput.value)"
-                  [(ngModel)]="data().quantity"
+                  (keydown.enter)="modifyProductQuantity(data, quantityInput.value)"
+                  [(ngModel)]="data.quantity"
                   autocomplete="off"
                   class="form-control form-control-sm text-end"
                   required
@@ -131,33 +133,34 @@
                 />
               </ng-template>
               <ng-template #output>
-                <span class="pharma-qty-value">{{ data().quantity | number }}</span>
+                <span class="pharma-qty-value">{{ data.quantity | number }}</span>
               </ng-template>
             </app-editable-cell>
           </td>
 
           <td class="text-right amount-column">
-            <span class="pharma-price">{{ data().prixAchat | number }}</span>
+            <span class="pharma-price">{{ data.prixAchat | number }}</span>
           </td>
           <td class="text-right amount-column">
-            <span class="pharma-price">{{ data().prixUni | number }}</span>
+            <span class="pharma-price">{{ data.prixUni | number }}</span>
           </td>
           <td class="text-center">
-            <app-badge [severity]="getSeverity(data().peremptionStatut)" [label]="data().peremptionStatut.libelle" />
+            <app-badge [label]="data.peremptionStatut.libelle"
+                       [severity]="getSeverity(data.peremptionStatut)" />
           </td>
 
           <td class="pharma-entity-name">
-            {{ data().fournisseur }}
+            {{ data.fournisseur }}
           </td>
 
           <td class="text-right">
             <app-button
-              (clicked)="onRemoveItem(data())"
+              (clicked)="onRemoveItem(data)"
+              [ngbTooltip]="'warehouseApp.buttons.delete' | translate"
               [rounded]="true"
               [text]="true"
               icon="pi pi-trash"
               severity="danger"
-              [ngbTooltip]="'warehouseApp.buttons.delete' | translate"
             ></app-button>
           </td>
         </tr>

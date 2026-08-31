@@ -85,7 +85,15 @@ UPDATE sales_line sl
   JOIN rayon r ON r.id = rp.rayon_id AND r.to_exclude
   JOIN storage st ON st.id = r.storage_id AND st.storage_type = 'PRINCIPAL'
  WHERE sl.produit_id = rp.produit_id
-   AND sl.exclusion_motif IS NULL;
+   AND sl.exclusion_motif IS NULL
+   -- Les ventes depot sont HORS assiette par nature : leur appliquer en plus une
+   -- exclusion de rayon n'a pas de sens, et cela leur oterait le montant
+   -- declarable de ligne que le controle du module depot exige de trouver.
+   AND EXISTS (
+       SELECT 1 FROM sales s
+        WHERE s.id = sl.sales_id AND s.sale_date = sl.sales_sale_date
+          AND s.dtype <> 'VenteDepot'
+   );
 
 -- 2b. Ventes d'un tiers-payant exclu : toutes leurs lignes sortent, part
 --     patient comprise.
@@ -113,17 +121,82 @@ UPDATE sales_line sl
 -- du logiciel est que `sales_amount` couvre toutes les unites, la portion
 -- gratuite n'etant deduite qu'a la declaration
 -- (montantUg = quantityUg x regularUnitPrice, cf. DeclarationCaServiceImpl).
-UPDATE sales_line
+UPDATE sales_line sl
    SET quantity_ug = 1
- WHERE quantity_sold >= 2
-   AND id % 40 = 0;
+ WHERE sl.quantity_sold >= 2
+   AND sl.id % 40 = 0
+   AND EXISTS (
+       SELECT 1 FROM sales s
+        WHERE s.id = sl.sales_id AND s.sale_date = sl.sales_sale_date
+          AND s.dtype <> 'VenteDepot'
+   );
 
 UPDATE sales_line sl
    SET exclusion_motif = 'UG',
        amount_to_be_taken_into_account = greatest(
            sl.sales_amount - (sl.regular_unit_price * sl.quantity_ug), 0)
  WHERE sl.quantity_ug > 0
-   AND sl.exclusion_motif IS NULL;
+   AND sl.exclusion_motif IS NULL
+   AND EXISTS (
+       SELECT 1 FROM sales s
+        WHERE s.id = sl.sales_id AND s.sale_date = sl.sales_sale_date
+          AND s.dtype <> 'VenteDepot'
+   );
+
+-- ---------------------------------------------------------------------------
+-- 2d. L'en-tete suit ses lignes
+--
+-- Le controle V2 de `AuditDeclarationCaService` exige que le montant declarable
+-- d'une vente egale la somme de celui de ses lignes. Les exclusions ci-dessus
+-- n'ont touche que les lignes : sans ce recalage, chaque vente retraitee
+-- devenait une anomalie d'audit -- et l'ecran de controle de coherence, que le
+-- module est justement cense rendre vert, s'ouvrait sur des centaines d'ecarts.
+--
+-- Les ventes depot sont exclues : leur en-tete vaut zero par construction, et
+-- leurs lignes gardent leur montant.
+-- ---------------------------------------------------------------------------
+UPDATE sales s
+   SET amount_to_be_taken_into_account = t.declarable
+  FROM (
+      SELECT sl.sales_id, sl.sales_sale_date,
+             sum(sl.amount_to_be_taken_into_account)::int AS declarable
+        FROM sales_line sl
+       GROUP BY sl.sales_id, sl.sales_sale_date
+  ) t
+ WHERE t.sales_id = s.id
+   AND t.sales_sale_date = s.sale_date
+   AND s.dtype <> 'VenteDepot'
+   AND s.amount_to_be_taken_into_account <> t.declarable;
+
+-- ---------------------------------------------------------------------------
+-- 2e. Les encaissements suivent l'assiette
+--
+-- Le controle V2b de l'audit veut qu'on ne declare jamais plus d'encaissement
+-- que de chiffre d'affaires. Les reglements ont ete ecrits avant les exclusions,
+-- sur l'assiette d'alors ; celle-ci vient de baisser, et leur montant declare la
+-- depasse desormais.
+--
+-- On les rabote au prorata de ce qui reste declarable. La somme encaissee, elle,
+-- ne bouge pas : le patient a bien paye ce qu'il a paye -- c'est la part que
+-- l'officine DECLARE qui se reduit.
+-- ---------------------------------------------------------------------------
+UPDATE payment_transaction pt
+   SET amount_to_be_taken_into_account = LEAST(pt.paid_amount, r.reste)
+  FROM (
+      SELECT p.id,
+             GREATEST(
+                 0,
+                 s.amount_to_be_taken_into_account
+                 - COALESCE(sum(p2.amount_to_be_taken_into_account) FILTER (WHERE p2.id < p.id), 0)
+             )::int AS reste
+        FROM payment_transaction p
+        JOIN sales s ON s.id = p.sale_id AND s.sale_date = p.sale_date
+        LEFT JOIN payment_transaction p2
+               ON p2.sale_id = p.sale_id AND p2.sale_date = p.sale_date
+       GROUP BY p.id, s.amount_to_be_taken_into_account
+  ) r
+ WHERE r.id = pt.id
+   AND pt.amount_to_be_taken_into_account > r.reste;
 
 -- ---------------------------------------------------------------------------
 -- 3. Les PONCTIONS : une validee, une annulee

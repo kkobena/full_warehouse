@@ -277,6 +277,33 @@ export async function assurerPanierVide(page: Page): Promise<void> {
   }
 
   await abandonnerVentesEnAttente(page);
+
+  // Retour sur l'onglet COMPTANT, qui est celui d'ouverture de l'écran.
+  //
+  // Un parcours qui a vendu en ASSURANCE laisse l'écran sur cet onglet, et le suivant compose
+  // sans le savoir une vente assurance : le panneau client n'y porte pas les mêmes boutons, et
+  // le parcours échoue sur une attente qui n'a rien à voir avec ce qu'il vérifie. La remise en
+  // état doit rendre l'écran tel qu'on le trouve en arrivant, onglet compris.
+  const comptant = page.locator('.sale-type-link', { hasText: 'Sans ordonnance' }).first();
+  if (await comptant.isVisible().catch(() => false)) {
+    await comptant.click();
+    // L'onglet peut porter sa propre vente en cours : on la défait comme les autres.
+    for (let essai = 0; essai < 3; essai++) {
+      const repris = await annuler
+        .waitFor({ state: 'visible', timeout: 2000 })
+        .then(() => true)
+        .catch(() => false);
+      if (!repris) {
+        break;
+      }
+      await annuler.click();
+      const confirmation = page.locator('.modal-content');
+      await expect(confirmation).toBeVisible();
+      await confirmation.getByRole('button', { name: 'Oui' }).click();
+      await expect(confirmation).toBeHidden();
+    }
+  }
+
   await expect(page.getByText(/Panier vide|Ajoutez des produits|Sélectionnez un client assuré/i).first()).toBeVisible();
 }
 

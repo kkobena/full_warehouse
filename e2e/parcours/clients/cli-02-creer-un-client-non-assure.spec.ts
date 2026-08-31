@@ -27,10 +27,17 @@ scenario('CLI-02', async ({ etape, page }) => {
     await chercherProduit(page, 'DOLIPRANE 500MG');
     await ajouterAuPanier(page, '1');
     // Le panneau s'ouvre en popover, et son intitulé dépend de l'état de la vente :
-    // « Choisir un client » si aucun n'est rattaché, « Changer le client » sinon.
+    // « Choisir un client » si aucun n'est rattaché, « Changer le client » sinon. Le bouton
+    // n'a pas de texte — c'est son `aria-label` qui le nomme.
+    //
+    // Il faut viser le panneau VISIBLE : les trois onglets de vente — comptant, assurance,
+    // carnet — portent chacun le leur, et `.first()` tombait sur celui d'un onglet masqué,
+    // où le clic attendait indéfiniment un bouton qui ne s'affichera jamais.
     await page
-      .getByRole('button', { name: /Choisir un client|Changer le client/ })
+      .locator('app-customer-overlay-panel')
+      .filter({ visible: true })
       .first()
+      .getByRole('button', { name: /Choisir un client|Changer le client/ })
       .click();
     await page.getByRole('button', { name: 'Nouveau client' }).click();
     await expect(modale).toContainText("FORMULAIRE D'AJOUT DE NOUVEAU CLIENT");

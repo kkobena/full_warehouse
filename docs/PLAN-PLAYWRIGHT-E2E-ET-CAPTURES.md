@@ -33,7 +33,7 @@ ce sont les sélecteurs et le jeu de données.
 | 2 — liage cahier-recette | **fait** | `npm run e2e:liage` — 5 contrôles verts sur les 476 scénarios |
 | 3 — captures et index | **fait** | chaîne prouvée hors application : images JPEG + `captures.json` légendé depuis le modèle |
 | 4 — injection dans le guide | **fait** | chaîne complète prouvée : campagne → `captures.json` → JSON du guide → actifs Angular. Backend compilé |
-| 5 — volume | **objectif dépassé** | 403 parcours illustrés sur 11 modules — accueil 23, achats 76, administration 22, clients 20, comptabilité 13, retraitement du CA 11, facturation 46, produits 57, rapports 33, stock 43, ventes 59 — soit tous les scénarios visibles hors module mobile, laissé de côté |
+| 5 — volume | **objectif dépassé** | 402 parcours illustrés sur 11 modules — accueil 23, achats 76, administration 22, clients 20, comptabilité 13, retraitement du CA 11, facturation 46, produits 57, rapports 33, stock 43, ventes 58 — soit tous les scénarios visibles hors module mobile, laissé de côté |
 
 > **Le premier parcours réel a immédiatement confirmé §3.1.** Écrit avec une assertion faible
 > (`getByText(/KOUASSI/).first()`), il passait au vert en photographiant une liste **non

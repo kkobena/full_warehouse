@@ -18,8 +18,15 @@ scenario('VTE-18', async ({ etape, page }) => {
   const lignes = page.locator('tbody tr').filter({ visible: true });
   // Une journée pleine du jeu de démonstration, close depuis longtemps : ses ventes ne
   // bougeront plus, et le total non plus.
+  //
+  // L'officine FERME LE LUNDI, et une semaine en arrière retombe sur le même jour de la
+  // semaine : un parcours lancé un lundi visait donc une journée sans la moindre vente, et le
+  // journal s'ouvrait vide — à juste titre. On recule d'un jour de plus dans ce cas.
   const jour = new Date();
   jour.setDate(jour.getDate() - 7);
+  if (jour.getDay() === 1) {
+    jour.setDate(jour.getDate() - 1);
+  }
 
   await etape(1, async () => {
     await page.goto('/sales-home/gestion');

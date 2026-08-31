@@ -741,6 +741,15 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             prerequis: 'L’allocation automatique du fond de caisse est activée dans les paramètres.',
             etapes: ['Le caissier démarre une vente sans caisse ouverte', 'Vérifier l’ouverture automatique avec le fond alloué par le responsable'],
             resultatAttendu: 'La caisse s’ouvre avec le fond alloué automatiquement, sans saisie manuelle du caissier.',
+            // Masqué : la fonctionnalité existe côté serveur — `APP_CASH_FUND` avec son
+            // montant, `checkAutomaticFundAllocation`, `openCashRegister(user, owner)` et le
+            // type de fonds AUTO — mais elle est INATTEIGNABLE depuis l'interface. Avant de
+            // finaliser une vente, l'écran vérifie seulement si l'utilisateur a une caisse
+            // ouverte (`getConnectedUserHasOpenCashRegister`) et, sinon, réclame le fonds dans
+            // une boîte de dialogue. Il ne consulte jamais le réglage d'allocation
+            // automatique — qui n'est d'ailleurs exposé par aucun endpoint —, si bien que le
+            // chemin automatique du serveur n'est jamais emprunté.
+            hidden: true,
           },
           {
             id: 'VTE-51',

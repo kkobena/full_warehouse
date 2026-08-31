@@ -10,9 +10,11 @@ import com.kobe.warehouse.domain.SuggestionLine;
 import com.kobe.warehouse.service.pharmaml.PharmaMlUtils;
 import com.kobe.warehouse.service.pharmaml.dto.Corps;
 import com.kobe.warehouse.service.pharmaml.dto.CsrpEnveloppe;
+import com.kobe.warehouse.service.pharmaml.dto.DemandeInfos;
 import com.kobe.warehouse.service.pharmaml.dto.Entete;
 import com.kobe.warehouse.service.pharmaml.dto.EnvoiParamsDTO;
 import com.kobe.warehouse.service.pharmaml.dto.Exceptionnelle;
+import com.kobe.warehouse.service.pharmaml.dto.LigneInfoDemande;
 import com.kobe.warehouse.service.pharmaml.dto.LigneN;
 import com.kobe.warehouse.service.pharmaml.dto.LigneRetour;
 import com.kobe.warehouse.service.pharmaml.dto.LigneRetourDTO;
@@ -243,6 +245,23 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
             .collect(Collectors.toList());
     }
 
+    private List<LigneInfoDemande> buildLigneInfoDemande(Commande commande) {
+        AtomicInteger count = new AtomicInteger(1);
+        return commande
+            .getOrderLines()
+            .stream()
+            .map(item -> {
+                LigneInfoDemande ligne = new LigneInfoDemande();
+                FournisseurProduit fournisseurProduit = item.getFournisseurProduit();
+                String cip = fournisseurProduit.getCodeCip();
+                ligne.setCodeProduit(cip);
+                ligne.setQuantite(item.getQuantityRequested());
+                ligne.setTypeCodification(typeCodification(cip));
+                return ligne;
+            })
+            .collect(Collectors.toList());
+    }
+
     private Normale buildNormale(Commande commande) {
         Normale n = new Normale();
         n.setLignes(buildCommandeLignes(commande));
@@ -286,17 +305,14 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
         // (GESCOM 3.41.06) refuse aussi bien la nature d'action REQ_INFORMATION que le corps
         // REQ_INFOS de la norme : chez lui, la seule façon d'obtenir une quantité par ligne
         // est de passer commande et de lire les Quantite_livree de la REP_COMMANDE.
-        com.kobe.warehouse.service.pharmaml.dto.Commande c = new com.kobe.warehouse.service.pharmaml.dto.Commande();
-        c.setRefCdeClient(refMessage);
-        c.setNormale(buildNormale(commande));
-
+        DemandeInfos demandeInfos = new DemandeInfos();
+        //  demandeInfos.setRefCdeClient(refMessage);
+        demandeInfos.setLignes(buildLigneInfoDemande(commande));
         MessageCorps mc = new MessageCorps();
-        mc.setCommande(c);
-
+        mc.setReqInfos(demandeInfos);
         MessageOfficine messageOfficine = new MessageOfficine();
         messageOfficine.setEntete(buildMessageEntete(fournisseur));
         messageOfficine.setCorps(mc);
-
         Corps corps = new Corps();
         corps.setMessageOfficine(messageOfficine);
         return corps;

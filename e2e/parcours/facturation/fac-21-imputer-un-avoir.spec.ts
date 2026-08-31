@@ -36,11 +36,15 @@ scenario('FAC-21', async ({ etape, page }) => {
 
     // Les factures cibles se cherchent au serveur, restreintes au tiers payant de l'avoir :
     // on ne crédite pas un organisme de la créance d'un autre.
-    await modal.locator('ng-select input[type="text"]').first().fill('20');
+    // Le numéro suit le format « ANNEE_0001 », mais la liste n'affiche que ce qui suit le
+    // souligné : chercher « 20 » — l'année — ne ramenait donc rien. On cherche sur le rang.
+    await modal.locator('ng-select input[type="text"]').first().fill('00');
     // Le panneau d'options est rendu SUR LE CORPS de la page (`appendTo="body"`), donc en
     // dehors de la modal : le chercher dans `.modal-content` ne trouve jamais rien.
-    await expect(page.locator('.ng-option').first()).toBeVisible({ timeout: 15000 });
-    await page.locator('.ng-option').first().click();
+    const option = page.locator('.ng-option').first();
+    await expect(option).toBeVisible({ timeout: 15000 });
+    await expect(option, 'Aucune facture cible pour cet organisme.').not.toContainText('Aucun résultat');
+    await option.click();
 
     // Le contrôle s'affiche avant toute validation : montant de l'avoir contre reste dû.
     await expect(modal).toContainText(/Montant avoir/);

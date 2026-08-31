@@ -369,7 +369,12 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
                 default:
                     break;
             }
-            typeTransactionAmounts.add(new com.kobe.warehouse.service.dto.records.Tuple(key.name(), key.getValue(), typeAmount));
+            // Libelle court : le recapitulatif aligne libelle et montant sur une meme
+            // ligne, a l'ecran comme dans le PDF. La cle reste le nom de l'enum, sur
+            // laquelle les gabarits distinguent les sorties de caisse.
+            typeTransactionAmounts.add(
+                new com.kobe.warehouse.service.dto.records.Tuple(key.name(), key.getValueCourt(), typeAmount)
+            );
         }
         mvtCaisseSumProjections
             .stream()

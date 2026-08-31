@@ -42,6 +42,29 @@
       />
     </div>
 
+    <!-- BANDEAU TOTAUX — au-dessus de la grille, là où le regard tombe en premier -->
+    <div class="grid-caption">
+      @if (selectionCount() > 0) {
+        <span class="grid-caption__count grid-caption__count--attente">
+          <i aria-hidden="true" class="pi pi-check-square"></i>
+          <strong>{{ selectionCount() }}</strong> sélectionnée(s)
+        </span>
+      }
+      <span class="grid-caption__count">
+        <i aria-hidden="true" class="pi pi-shopping-cart"></i>
+        <strong>{{ totalItems() }}</strong>
+        commande{{ totalItems() > 1 ? 's' : '' }}
+      </span>
+      <span class="grid-caption__totals ms-auto">
+        <span class="grid-caption__stat">
+          <span class="grid-caption__stat-label">Total HT</span>
+          <span class="grid-caption__stat-value grid-caption__stat-value--achat">
+            {{ totalAmount() | devise }}
+          </span>
+        </span>
+      </span>
+    </div>
+
     <!-- GRILLE COMMANDES -->
     <div class="rq-grid-wrap">
       <app-data-table
@@ -79,11 +102,19 @@
             <td><span class="pharma-code">{{ c.orderReference ?? '—' }}</span></td>
             <td class="text-end"><span class="pharma-qty-value">{{ c.itemSize }}</span></td>
             <td class="text-end">
-              <span class="pharma-total">{{ c.grossAmount != null ? (c.grossAmount | number:'1.0-0') + ' F' : '—' }}</span>
+              <span class="pharma-total">{{ c.grossAmount != null ? (c.grossAmount | devise) : '—' }}</span>
             </td>
             <td>
               @if (c.reliquatDeCommandeId != null) {
                 <span class="pharma-badge pharma-badge-warning">RELIQUAT</span>
+              }
+              <!--
+                Une commande TRANSMISE ne se modifie plus : rien ne le disait dans la liste,
+                et l'on ouvrait la commande pour découvrir son bandeau de verrouillage.
+              -->
+              @if (c.hasBeenSubmittedToPharmaML) {
+                <span class="pharma-badge pharma-badge-info"
+                      ngbTooltip="Transmise au grossiste — modifications désactivées">PHARMAML</span>
               }
             </td>
             <td class="text-end" (click)="$event.stopPropagation()">
@@ -106,22 +137,6 @@
           </tr>
         </ng-template>
       </app-data-table>
-    </div>
-
-    <!-- FOOTER TOTAUX -->
-    <div class="rq-totals-bar">
-      @if (selectionCount() > 0) {
-        <span class="rq-totals-bar__selected">
-          <i class="pi pi-check-square"></i> {{ selectionCount() }} sélectionnée(s)
-        </span>
-      }
-      <span class="ms-auto"></span>
-      <span class="rq-totals-bar__item">
-        {{ totalItems() }} commande{{ totalItems() > 1 ? 's' : '' }}
-      </span>
-      <span class="rq-totals-bar__item">
-        Total HT : <strong>{{ totalAmount() | number:'1.0-0' }} F</strong>
-      </span>
     </div>
 
     <!-- PAGINATION -->

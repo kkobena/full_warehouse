@@ -31,17 +31,6 @@ import com.kobe.warehouse.service.report.CommandeReportReportService;
 import com.kobe.warehouse.service.stock.CommandeDataService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Paths;
@@ -53,16 +42,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiPredicate;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
 public class CommandeDataServiceImpl implements CommandeDataService {
 
     private static final Logger LOG = LoggerFactory.getLogger(CommandeDataServiceImpl.class);
-
-    @PersistenceContext
-    private EntityManager em;
-
     private final CommandeRepository commandeRepository;
     private final ExportationCsvService exportationCsvService;
     private final CommandeReportReportService commandeReportService;
@@ -70,20 +65,25 @@ public class CommandeDataServiceImpl implements CommandeDataService {
     private final OrderLineRepository orderLineRepository;
     private final ObjectMapper objectMapper;
     private final PharmaMlEnvoiRepository pharmaMlEnvoiRepository;
-
     private final BiPredicate<OrderLine, String> searchPredicate = (orderLine, s) ->
         StringUtils.isEmpty(s) ||
-            (orderLine.getFournisseurProduit().getProduit().getLibelle().contains(s.toUpperCase()) ||
+            (orderLine.getFournisseurProduit().getProduit().getLibelle().contains(s.toUpperCase())
+                ||
                 orderLine.getFournisseurProduit().getCodeCip().contains(s));
     private final BiPredicate<OrderLine, FilterCommaneEnCours> searchFilterCip = (orderLine, _) -> orderLine.getProvisionalCode();
     private final BiPredicate<OrderLine, FilterCommaneEnCours> searchFilterPrix = (orderLine, _) ->
-        orderLine.getOrderCostAmount().compareTo(orderLine.getFournisseurProduit().getPrixAchat()) != 0;
-    private final Comparator<OrderLineDTO> comparingByProduitLibelle = Comparator.comparing(OrderLineDTO::getProduitLibelle);
-    private final Comparator<OrderLineDTO> comparingByProduitCip = Comparator.comparing(OrderLineDTO::getProduitCip);
+        orderLine.getOrderCostAmount().compareTo(orderLine.getFournisseurProduit().getPrixAchat())
+            != 0;
+    private final Comparator<OrderLineDTO> comparingByProduitLibelle = Comparator.comparing(
+        OrderLineDTO::getProduitLibelle);
+    private final Comparator<OrderLineDTO> comparingByProduitCip = Comparator.comparing(
+        OrderLineDTO::getProduitCip);
     private final Comparator<OrderLineDTO> comparingByDateUpdated = Comparator.comparing(
         OrderLineDTO::getUpdatedAt,
         Comparator.reverseOrder()
     );
+    @PersistenceContext
+    private EntityManager em;
 
     public CommandeDataServiceImpl(
         CommandeRepository commandeRepository,
@@ -115,7 +115,9 @@ public class CommandeDataServiceImpl implements CommandeDataService {
     }
 
     private void enrichCouverture(List<OrderLineDTO> lines) {
-        if (lines == null || lines.isEmpty()) return;
+        if (lines == null || lines.isEmpty()) {
+            return;
+        }
         List<Integer> ids = lines.stream().map(OrderLineDTO::getProduitId).toList();
         @SuppressWarnings("unchecked")
         List<Object[]> rows = em.createNativeQuery(
@@ -123,14 +125,16 @@ public class CommandeDataServiceImpl implements CommandeDataService {
         ).setParameter("ids", ids).getResultList();
         Map<Integer, Integer> map = new HashMap<>();
         for (Object[] row : rows) {
-            if (row[1] != null) map.put(((Number) row[0]).intValue(), ((Number) row[1]).intValue());
+            if (row[1] != null) {
+                map.put(((Number) row[0]).intValue(), ((Number) row[1]).intValue());
+            }
         }
         lines.forEach(l -> l.setCouvertureStockJours(map.get(l.getProduitId())));
     }
 
     @Override
     public Optional<CommandeEntryDTO> getCommandeById(CommandeId id) {
-        return Optional.ofNullable(findId(id)).map(CommandeEntryDTO::new);
+        return Optional.of(findId(id)).map(CommandeEntryDTO::new);
     }
 
     @Override
@@ -145,24 +149,30 @@ public class CommandeDataServiceImpl implements CommandeDataService {
 
     @Override
     public List<OrderLineDTO> filterCommandeLines(CommandeFilterDTO commandeFilter) {
-        List<OrderLine> orderLines = findId(new CommandeId(commandeFilter.getCommandeId(), commandeFilter.getOrderDate())).getOrderLines();
+        List<OrderLine> orderLines = findId(new CommandeId(commandeFilter.getCommandeId(),
+            commandeFilter.getOrderDate())).getOrderLines();
 
         if (StringUtils.isNotEmpty(commandeFilter.getSearch())) {
-            if (commandeFilter.getFilterCommaneEnCours() != null && commandeFilter.getFilterCommaneEnCours() != FilterCommaneEnCours.ALL) {
+            if (commandeFilter.getFilterCommaneEnCours() != null
+                && commandeFilter.getFilterCommaneEnCours() != FilterCommaneEnCours.ALL) {
                 switch (commandeFilter.getFilterCommaneEnCours()) {
                     case NOT_EQUAL:
                         return orderLines
                             .stream()
-                            .filter(orderLine -> searchFilterPrix.test(orderLine, commandeFilter.getFilterCommaneEnCours()))
-                            .filter(orderLine -> searchPredicate.test(orderLine, commandeFilter.getSearch()))
+                            .filter(orderLine -> searchFilterPrix.test(orderLine,
+                                commandeFilter.getFilterCommaneEnCours()))
+                            .filter(orderLine -> searchPredicate.test(orderLine,
+                                commandeFilter.getSearch()))
                             .map(OrderLineDTO::new)
                             .sorted(getSort(commandeFilter.getOrderBy()))
                             .toList();
                     case PROVISOL_CIP:
                         return orderLines
                             .stream()
-                            .filter(orderLine -> searchFilterCip.test(orderLine, commandeFilter.getFilterCommaneEnCours()))
-                            .filter(orderLine -> searchPredicate.test(orderLine, commandeFilter.getSearch()))
+                            .filter(orderLine -> searchFilterCip.test(orderLine,
+                                commandeFilter.getFilterCommaneEnCours()))
+                            .filter(orderLine -> searchPredicate.test(orderLine,
+                                commandeFilter.getSearch()))
                             .map(OrderLineDTO::new)
                             .sorted(getSort(commandeFilter.getOrderBy()))
                             .toList();
@@ -175,29 +185,34 @@ public class CommandeDataServiceImpl implements CommandeDataService {
                 .sorted(getSort(commandeFilter.getOrderBy()))
                 .toList();
         }
-        if (commandeFilter.getFilterCommaneEnCours() != null && commandeFilter.getFilterCommaneEnCours() != FilterCommaneEnCours.ALL) {
+        if (commandeFilter.getFilterCommaneEnCours() != null
+            && commandeFilter.getFilterCommaneEnCours() != FilterCommaneEnCours.ALL) {
             switch (commandeFilter.getFilterCommaneEnCours()) {
                 case NOT_EQUAL:
                     return orderLines
                         .stream()
-                        .filter(orderLine -> searchFilterPrix.test(orderLine, commandeFilter.getFilterCommaneEnCours()))
+                        .filter(orderLine -> searchFilterPrix.test(orderLine,
+                            commandeFilter.getFilterCommaneEnCours()))
                         .map(OrderLineDTO::new)
                         .sorted(getSort(commandeFilter.getOrderBy()))
                         .toList();
                 case PROVISOL_CIP:
                     return orderLines
                         .stream()
-                        .filter(orderLine -> searchFilterCip.test(orderLine, commandeFilter.getFilterCommaneEnCours()))
+                        .filter(orderLine -> searchFilterCip.test(orderLine,
+                            commandeFilter.getFilterCommaneEnCours()))
                         .map(OrderLineDTO::new)
                         .sorted(getSort(commandeFilter.getOrderBy()))
                         .toList();
             }
         }
-        return orderLines.stream().map(OrderLineDTO::new).sorted(getSort(commandeFilter.getOrderBy())).toList();
+        return orderLines.stream().map(OrderLineDTO::new)
+            .sorted(getSort(commandeFilter.getOrderBy())).toList();
     }
 
     @Override
-    public Page<CommandeLiteDTO> fetchCommandes(CommandeFilterDTO commandeFilterDTO, Pageable pageable) {
+    public Page<CommandeLiteDTO> fetchCommandes(CommandeFilterDTO commandeFilterDTO,
+        Pageable pageable) {
         long count = customizedCommandeService.countfetchCommandes(commandeFilterDTO);
         if (count == 0) {
             new PageImpl<>(Collections.emptyList(), pageable, count);
@@ -206,7 +221,8 @@ public class CommandeDataServiceImpl implements CommandeDataService {
             customizedCommandeService
                 .fetchCommandes(commandeFilterDTO, pageable)
                 .stream()
-                .map(commande -> new CommandeLiteDTO(commande, orderLineRepository.countByCommande((commande))))
+                .map(commande -> new CommandeLiteDTO(commande,
+                    orderLineRepository.countByCommande((commande))))
                 .toList(),
             pageable,
             count
@@ -216,7 +232,8 @@ public class CommandeDataServiceImpl implements CommandeDataService {
     @Override
     public Page<OrderLineDTO> filterCommandeLines(CommandeId commandeId, Pageable pageable) {
         return orderLineRepository
-            .findByCommandeIdAndCommandeOrderDate(commandeId.getId(), commandeId.getOrderDate(), pageable)
+            .findByCommandeIdAndCommandeOrderDate(commandeId.getId(), commandeId.getOrderDate(),
+                pageable)
             .map(OrderLineDTO::new);
     }
 
@@ -256,14 +273,20 @@ public class CommandeDataServiceImpl implements CommandeDataService {
     @Override
     public CommandeDashboardDTO getDashboard() {
         List<Commande> allRequested = commandeRepository.findAll(
-            (root, query, cb) -> cb.and(cb.equal(root.get(Commande_.orderStatus), OrderStatut.REQUESTED), cb.isNull(root.get(Commande_.motifBed)),
+            (root, query, cb) -> cb.and(
+                cb.equal(root.get(Commande_.orderStatus), OrderStatut.REQUESTED),
+                cb.isNull(root.get(Commande_.motifBed)),
                 cb.equal(root.get(Commande_.type), TypeDeliveryReceipt.ORDER)
             )
         );
         List<Commande> allReceived = commandeRepository.findAll(
-            (root, query, cb) -> cb.and(cb.equal(root.get(Commande_.orderStatus), OrderStatut.RECEIVED), cb.isNull(root.get(Commande_.motifBed)), cb.equal(root.get(Commande_.type), TypeDeliveryReceipt.ORDER))
+            (root, query, cb) -> cb.and(
+                cb.equal(root.get(Commande_.orderStatus), OrderStatut.RECEIVED),
+                cb.isNull(root.get(Commande_.motifBed)),
+                cb.equal(root.get(Commande_.type), TypeDeliveryReceipt.ORDER))
         );
-        List<PharmaMlEnvoi> envoisPending = pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(PharmaMlStatut.PENDING);
+        List<PharmaMlEnvoi> envoisPending = pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(
+            PharmaMlStatut.PENDING);
 
         List<CommandeResumeeDTO> requestedDTOs = allRequested.stream()
             .sorted(Comparator.comparing(Commande::getOrderDate).reversed())

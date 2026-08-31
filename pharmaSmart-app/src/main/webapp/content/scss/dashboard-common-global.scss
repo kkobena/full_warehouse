@@ -190,6 +190,15 @@ $gray-border: #e2e8f0;
 }
 
 // Animations
+// Une animation infinie ne doit jamais être imposée : elle gêne les personnes sujettes au
+// mal des transports, et rend la pastille impossible à cliquer pour tout outil qui attend
+// qu'un élément cesse de bouger (lecteurs d'écran pilotés, tests de bout en bout).
+@media (prefers-reduced-motion: reduce) {
+  .quick-alert-card.quick-alert-danger {
+    animation: none;
+  }
+}
+
 @keyframes pulse-danger {
   0%, 100% {
     box-shadow: 0 2px 8px rgba($danger-red, 0.3);

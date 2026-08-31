@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { ProductSearchComponent } from '../product-search/product-search.component';
 import { QuantiteProdutSaisieComponent } from '../../../../shared/quantite-produt-saisie/quantite-produt-saisie.component';
 import { ProduitSearch } from '../../../../shared/model';
+import { DevisePipe } from 'app/shared/utils/devise';
 
 @Component({
   selector: 'app-product-search-section',
   templateUrl: './product-search-section.component.html',
   styleUrls: ['./product-search-section.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ProductSearchComponent, QuantiteProdutSaisieComponent],
+  imports: [CommonModule, ProductSearchComponent, QuantiteProdutSaisieComponent, DevisePipe],
 })
 export class ProductSearchSectionComponent {
   autofocus = input<boolean>(false);

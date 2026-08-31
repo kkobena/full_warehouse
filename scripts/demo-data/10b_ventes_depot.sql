@@ -45,7 +45,7 @@ VALUES (
     'PHARMA SMART — DEPOT DE YOPOUGON',
     'DEPOT',
     'Siporex, Yopougon, Abidjan',
-    '+225 27 23 45 12 00',
+    '27 23 45 12 00',
     'depot@pharma-smart.example',
     'Dépôt extension approvisionné par l''officine',
     'Bienvenue au dépôt',
@@ -68,7 +68,10 @@ SELECT
     nextval('id_sale_seq') AS id,
     d.jour AS sale_date,
     row_number() OVER (ORDER BY d.jour) AS rang,
-    d.jour + TIME '07:30:00' AS moment,
+    -- Le transfert part à 07 h 30, avant l'ouverture. Pour la journée en cours,
+    -- borné à l'heure du chargement : un mouvement daté dans le futur serait
+    -- rejeté par 99_verification.sql, et incompréhensible à l'écran.
+    LEAST(d.jour + TIME '07:30:00', date_trunc('minute', LOCALTIMESTAMP)) AS moment,
     cr.id AS cash_register_id,
     cr.user_id AS caissier_id,
     (SELECT id FROM magasin WHERE type_magasin = 'DEPOT') AS depot_id,
@@ -77,7 +80,10 @@ SELECT
       WHERE s.storage_type = 'PRINCIPAL' LIMIT 1) AS depot_storage_id
 FROM (
     SELECT (CURRENT_DATE - (INTERVAL '1 day' * j))::date AS jour
-      FROM generate_series(1, 180) AS j
+      -- Depuis 0 : la journée du chargement doit figurer dans l'historique des
+      -- transferts, au même titre que dans celui des ventes (09_ventes.sql).
+      -- 0 % 3 = 0, elle est donc retenue par le filtre ci-dessous.
+      FROM generate_series(0, 180) AS j
      -- Lundi fermé, comme partout ailleurs dans le jeu.
      WHERE extract(dow FROM (CURRENT_DATE - (INTERVAL '1 day' * j))) <> 1
        AND j % 3 = 0

@@ -52,7 +52,12 @@ FROM (VALUES
     ('kkone',    'KOFFI',   'KONE'),
     ('atraore',  'AMINATA', 'TRAORE'),
     ('ybrou',    'YAO',     'BROU'),
-    ('mdiallo',  'MARIAM',  'DIALLO')
+    ('mdiallo',  'MARIAM',  'DIALLO'),
+    -- Le responsable stock : il ouvre les inventaires et les commandes, mais n'a PAS le
+    -- privilège de voir le stock théorique pendant le comptage. C'est le compte par lequel
+    -- se démontre le comptage « à l'aveugle » — un mode qui n'est pas une option d'écran
+    -- mais une conséquence des droits.
+    ('rkouassi', 'ROLAND',  'KOUASSI')
   ) AS v(login, prenom, nom)
 WHERE NOT EXISTS (SELECT 1 FROM app_user u WHERE u.login = v.login);
 
@@ -61,6 +66,29 @@ SELECT u.id, 'ROLE_VENDEUR'
 FROM app_user u
 WHERE u.login IN ('kkone', 'atraore', 'ybrou', 'mdiallo')
 ON CONFLICT DO NOTHING;
+
+INSERT INTO user_authority (user_id, authority_name)
+SELECT u.id, 'ROLE_RESPONSABLE_COMMANDE'
+FROM app_user u
+WHERE u.login = 'rkouassi'
+ON CONFLICT DO NOTHING;
+
+-- ---------------------------------------------------------------------------
+-- Clé de sécurité du superviseur
+--
+-- Les gestes sensibles du comptoir (supprimer une ligne, accorder une remise)
+-- demandent la clé d'un utilisateur habilité lorsque le caissier ne détient pas
+-- le privilège. `UserService.getUserByPwdOrSecurityKey` compare le SHA-256 de la
+-- saisie à `app_user.action_authority_key` : sans clé posée, aucune autorisation
+-- ne peut aboutir et l'écran répond « Vous n'avez pas les autorisations »,
+-- message qui laisse croire à un problème de droits.
+--
+-- La clé est NUMÉRIQUE (contrainte @Pattern sur l'entité). Celle de la
+-- démonstration est « 1234 » ; le hachage ci-dessous en est le SHA-256.
+-- ---------------------------------------------------------------------------
+UPDATE app_user
+   SET action_authority_key = '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4'
+ WHERE login = 'admin';
 
 INSERT INTO user_authority (user_id, authority_name)
 SELECT u.id, 'ROLE_CAISSIER'
@@ -84,7 +112,10 @@ SELECT
 FROM generate_series(0, 180) AS j
 -- L'officine ferme le lundi : c'est le jour de repos usuel après la garde
 -- du week-end, et il doit exister dans les statistiques.
-WHERE extract(dow FROM (CURRENT_DATE - (INTERVAL '1 day' * j))) <> 1;
+-- La journee du chargement fait exception. Sans elle, une demonstration lancee
+-- un lundi n'a aucune caisse ouverte : le tableau de bord Caissier s'ouvre
+-- vide, et tout ce qui suppose une session en cours reste inaccessible.
+WHERE j = 0 OR extract(dow FROM (CURRENT_DATE - (INTERVAL '1 day' * j))) <> 1;
 
 INSERT INTO cash_register (
     user_id, init_amount, final_amount, cancele_amount,

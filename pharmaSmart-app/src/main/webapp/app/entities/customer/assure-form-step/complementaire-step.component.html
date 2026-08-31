@@ -45,6 +45,7 @@
                   <label>Tiers-payant <span class="required">*</span></label>
                   <app-select-search
                     (searched)="searchTiersPayant($event)"
+                    [typeahead]="typeaheadSink$"
                     (selectionChange)="onSelectTiersPayant($event, i)"
                     [items]="tiersPayants()"
                     [minSearchLength]="minLength"

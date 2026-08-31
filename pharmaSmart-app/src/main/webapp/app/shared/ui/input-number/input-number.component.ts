@@ -32,6 +32,7 @@ import {ControlValueAccessorBase} from '../forms/control-value-accessor.base';
         <button
           class="app-input-number-btn app-input-number-btn--start"
           type="button"
+          [attr.aria-label]="decrementAriaLabel()"
           [disabled]="isDisabled() || disabled() || readonly()"
           (click)="decrement()"
         >
@@ -57,6 +58,7 @@ import {ControlValueAccessorBase} from '../forms/control-value-accessor.base';
         <button
           class="app-input-number-btn app-input-number-btn--end"
           type="button"
+          [attr.aria-label]="incrementAriaLabel()"
           [disabled]="isDisabled() || disabled() || readonly()"
           (click)="increment()"
         >
@@ -223,6 +225,17 @@ export class InputNumberComponent extends ControlValueAccessorBase<number> {
 
   /** Pas d'incrémentation/décrémentation des boutons +/-. */
   readonly step = input<number>(1);
+
+  /**
+   * Noms accessibles des deux boutons du compteur.
+   *
+   * Ils n'en avaient aucun : un lecteur d'écran annonçait « bouton, bouton » de part et
+   * d'autre du champ, et aucun outil ne pouvait les désigner. Le libellé reprend celui du
+   * champ quand il en a un — « Augmenter la quantité » vaut mieux qu'« Augmenter » quand
+   * trois compteurs se suivent dans un tableau.
+   */
+  readonly incrementAriaLabel = computed(() => (this.ariaLabel() ? `Augmenter ${this.ariaLabel()}` : 'Augmenter'));
+  readonly decrementAriaLabel = computed(() => (this.ariaLabel() ? `Diminuer ${this.ariaLabel()}` : 'Diminuer'));
 
   readonly incrementButtonIcon = input<string>('pi pi-plus');
 

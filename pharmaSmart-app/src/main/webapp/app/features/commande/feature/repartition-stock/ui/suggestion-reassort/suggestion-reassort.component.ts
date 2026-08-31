@@ -20,6 +20,7 @@ import { ILigneReassort, ISuggestionReassort } from '../../../../../../entities/
 import { RepartitionStockService } from '../../../../../../entities/repartition-stock/repartition-stock.service';
 import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import { formatNumber } from 'app/shared/util/warehouse-util';
+import {AG_GRID_LOCALE_FR} from '../../../../../../shared/ui/ag-grid/ag-grid-locale.fr';
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 @Component({
@@ -30,6 +31,9 @@ ModuleRegistry.registerModules([AllCommunityModule]);
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppSuggestionReassortComponent {
+  /** Libellés français d'AG Grid — voir shared/ui/ag-grid. */
+  protected readonly localeFr = AG_GRID_LOCALE_FR;
+
   readonly typeReassort = input<string>('RAYON');
 
   private readonly repartitionService = inject(RepartitionStockService);

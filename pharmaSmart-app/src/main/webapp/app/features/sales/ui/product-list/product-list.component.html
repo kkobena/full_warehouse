@@ -32,6 +32,7 @@
               [ngbPopover]="remisePopoverContent"
               [rounded]="true"
               [text]="true"
+              ariaLabel="Modifier la remise"
               container="body"
               icon="pi pi-pencil"
               ngbTooltip="Modifier la remise"
@@ -44,6 +45,7 @@
               (clicked)="onRemoveRemise()"
               [rounded]="true"
               [text]="true"
+              ariaLabel="Supprimer la remise"
               icon="pi pi-times"
               ngbTooltip="Supprimer la remise"
               severity="danger"
@@ -131,7 +133,7 @@
         [attr.data-line-id]="line.id"
         [ngClass]="{
           'pharma-row-warning': line.quantitySold < line.quantityRequested,
-          'selected-row': isLineSelected(line)
+          'ligne-selected': isLineSelected(line)
         }">
         <!-- # -->
         <td style="text-align: center; padding: 6px 5px">
@@ -207,7 +209,7 @@
 
         <!-- TOTAL -->
         <td style="text-align: right">
-          <span class="pharma-total">{{ getLineTotal(line) | number }}</span>
+          <span class="pharma-total">{{ line.salesAmount | number }}</span>
         </td>
 
         <!-- ACTIONS -->
@@ -217,6 +219,7 @@
             (clicked)="onRemoveLine(line); $event.stopPropagation()"
             [rounded]="true"
             [text]="true"
+            ariaLabel="Supprimer"
             icon="pi pi-trash"
             ngbTooltip="Supprimer"
             severity="danger"

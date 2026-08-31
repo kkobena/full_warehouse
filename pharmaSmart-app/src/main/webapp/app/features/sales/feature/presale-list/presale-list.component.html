@@ -101,8 +101,9 @@
                   (clicked)="editPresale(sale)"
                   [rounded]="true"
                   [text]="true"
+                  ariaLabel="Éditer la pré-vente"
                   icon="pi pi-file-edit"
-                  ngbTooltip="Editer la pré-vente"
+                  ngbTooltip="Éditer la pré-vente"
                   severity="primary"
 
                 />
@@ -112,6 +113,7 @@
                   (clicked)="confirmTransform(sale)"
                   [rounded]="true"
                   [text]="true"
+                  ariaLabel="Transformer en vente"
                   icon="pi pi-sync"
                   ngbTooltip="Transformer en vente"
                   placement="top"
@@ -123,6 +125,7 @@
                     (clicked)="confirmDelete(sale)"
                     [rounded]="true"
                     [text]="true"
+                    ariaLabel="Supprimer la pré-vente"
                     class="ml-2"
                     icon="pi pi-trash"
                     ngbTooltip="Supprimer"

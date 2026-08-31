@@ -59,6 +59,22 @@ public class AvoirTiersPayant implements Serializable {
     private FactureTiersPayant factureTiersPayant;
 
 
+    /**
+     * Facture sur laquelle l'avoir a été imputé — nulle tant qu'il ne l'est pas.
+     *
+     * <p>Ce n'est pas toujours la facture d'origine : un organisme rejette une ligne sur une
+     * période et l'on porte l'avoir sur la facture suivante, encore ouverte. L'écran demande donc
+     * laquelle, et cette référence garde la réponse.
+     */
+    @ManyToOne
+    @JoinColumns(
+        {
+            @JoinColumn(name = "facture_imputation_id", referencedColumnName = "id"),
+            @JoinColumn(name = "facture_imputation_date", referencedColumnName = "invoice_date"),
+        }
+    )
+    private FactureTiersPayant factureImputation;
+
     @NotNull
     @Column(name = "montant_avoir", precision = 15, scale = 2, nullable = false)
     private BigDecimal montantAvoir = BigDecimal.ZERO;
@@ -95,7 +111,6 @@ public class AvoirTiersPayant implements Serializable {
     private LocalDateTime updated;
 
 
-
     @OneToMany(mappedBy = "avoir", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AvoirLine> lignes = new ArrayList<>();
 
@@ -112,6 +127,14 @@ public class AvoirTiersPayant implements Serializable {
     @PreUpdate
     public void preUpdate() {
         this.updated = LocalDateTime.now();
+    }
+
+    public FactureTiersPayant getFactureImputation() {
+        return factureImputation;
+    }
+
+    public void setFactureImputation(FactureTiersPayant factureImputation) {
+        this.factureImputation = factureImputation;
     }
 
     public Long getId() {

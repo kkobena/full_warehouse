@@ -93,7 +93,7 @@
       <span class="concordance-label">
         <i class="pi pi-shopping-cart"></i>Commandé
       </span>
-      <span class="concordance-amount">{{ stats().montantCommande | number }} F</span>
+      <span class="concordance-amount">{{ stats().montantCommande | devise }}</span>
     </div>
 
     <!-- Montant reçu -->
@@ -101,7 +101,7 @@
       <span class="concordance-label">
         <i class="pi pi-truck"></i>Reçu
       </span>
-      <span class="concordance-amount">{{ stats().montantRecu | number }} F</span>
+      <span class="concordance-amount">{{ stats().montantRecu | devise }}</span>
     </div>
 
     <!-- Écart montant -->
@@ -113,7 +113,7 @@
         [ngbTooltip]="ecartMontant() < 0 ? 'Montant reçu inférieur à la commande' : ecartMontant() > 0 ? 'Montant reçu supérieur à la commande' : 'Aucun écart de montant'"
         placement="right"
       >
-        {{ ecartMontant() | number }} F
+        {{ ecartMontant() | devise }}
       </span>
     </div>
   </div>

@@ -56,11 +56,8 @@
   flex-direction: column;
 }
 
-// Ligne maître sélectionnée
-.rapr-row-selected {
-  background-color: var(--highlight-bg, #e8f4ff) !important;
-  border-left: 3px solid var(--primary-color, #0d6efd);
-}
+// La ligne sélectionnée est stylée globalement : `.ligne-selected`, dans
+// content/scss/table-common-global.scss.
 
 // Ligne facture en retard dans le détail
 .rapr-row-retard {

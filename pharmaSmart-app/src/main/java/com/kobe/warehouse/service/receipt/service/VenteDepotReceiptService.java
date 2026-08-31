@@ -1,11 +1,9 @@
 package com.kobe.warehouse.service.receipt.service;
 
-import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.DepotExtensionSaleDTO;
 import com.kobe.warehouse.service.dto.MagasinDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
-import com.kobe.warehouse.service.dto.UninsuredCustomerDTO;
 import com.kobe.warehouse.service.receipt.dto.CashSaleReceiptItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
@@ -23,7 +21,6 @@ public class VenteDepotReceiptService extends AbstractSaleReceiptService {
 
     private static final Logger LOG = LoggerFactory.getLogger(VenteDepotReceiptService.class);
     private DepotExtensionSaleDTO depotExtensionSale;
-    private int avoirCount;
 
     public VenteDepotReceiptService(AppConfigurationService appConfigurationService) {
         super(appConfigurationService);
@@ -44,16 +41,19 @@ public class VenteDepotReceiptService extends AbstractSaleReceiptService {
         return depotExtensionSale;
     }
 
+    /**
+     * Le nombre d'unités non servies, calculé À CHAQUE APPEL depuis la vente courante.
+     */
     @Override
     protected int getAvoirCount() {
-        return avoirCount;
+        return depotExtensionSale.getSalesLines().stream()
+            .mapToInt(line -> line.getQuantityRequested() - line.getQuantitySold()).sum();
     }
 
     @Override
     public List<CashSaleReceiptItem> getItems() {
         List<CashSaleReceiptItem> items = new ArrayList<>();
         for (SaleLineDTO line : depotExtensionSale.getSalesLines()) {
-            avoirCount += (line.getQuantityRequested() - line.getQuantitySold());
             items.add((CashSaleReceiptItem) fromSaleLine(line));
         }
 
@@ -94,7 +94,8 @@ public class VenteDepotReceiptService extends AbstractSaleReceiptService {
         return List.of();
     }
 
-    public byte[] generateEscPosReceiptForTauri(DepotExtensionSaleDTO sale, boolean isEdit) throws IOException {
+    public byte[] generateEscPosReceiptForTauri(DepotExtensionSaleDTO sale, boolean isEdit)
+        throws IOException {
         this.depotExtensionSale = sale;
         return generateEscPosReceipt(isEdit);
     }

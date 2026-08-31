@@ -1,11 +1,23 @@
-import { Component, computed, effect, ElementRef, inject, input, output, signal, viewChild, viewChildren, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { NgbDropdownModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
-import { InputNumberComponent, SwitchComponent } from '../../../../shared/ui';
-import { IPaymentMode } from '../../../../shared/model/payment-mode.model';
-import { PaymentModeCode } from '../../../../shared/payment-mode';
-import { PaymentModeManagerService } from '../../services/payment-mode-manager.service';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  input,
+  output,
+  signal,
+  viewChild,
+  viewChildren
+} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {NgbDropdownModule, NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
+import {InputNumberComponent, SwitchComponent} from '../../../../shared/ui';
+import {IPaymentMode} from '../../../../shared/model/payment-mode.model';
+import {PaymentModeCode} from '../../../../shared/payment-mode';
+import {PaymentModeManagerService} from '../../services/payment-mode-manager.service';
 
 /**
  * Seuil de tolérance pour considérer qu'il y a de la monnaie à rendre
@@ -59,35 +71,18 @@ export class PaymentModeComponent {
 
   // ===== Local State =====
   readonly isSmallScreen = signal<boolean>(window.innerWidth <= 1280);
-  protected venteSansBon = signal<boolean>(false);
-
   // ===== Outputs =====
   readonly paymentComplete = output<PaymentCompleteEvent>();
   readonly validationError = output<string>();
-
-  // ===== Services =====
-  private readonly paymentModeManager = inject(PaymentModeManagerService);
-
-  // ===== View Children =====
-  private readonly paymentInputs = viewChildren(InputNumberComponent);
-  private readonly commentInput = viewChild<ElementRef>('commentInput');
-
   // ===== State Signals =====
   readonly selectedModes = signal<PaymentModeEntry[]>([]);
   readonly isShowAddBtn = signal<boolean>(false);
-
-  // Use computed signals from the service
-  readonly availableModes = computed(() => {
-    const usedCodes = this.selectedModes().map(e => e.mode.code);
-    return this.paymentModeManager.modes().filter((m: IPaymentMode) => !usedCodes.includes(m.code));
-  })
   readonly comment = signal<string>('');
   readonly bankReference = signal<string>('');
   readonly bank = signal<string>('');
   readonly location = signal<string>('');
   readonly printReceipt = signal<boolean>(false);
   readonly printInvoice = signal<boolean>(false);
-
   // ===== Computed =====
   readonly totalPaid = computed(() => {
     return this.selectedModes().reduce((sum, entry) => {
@@ -98,11 +93,9 @@ export class PaymentModeComponent {
       return sum + (entry.amount || 0);
     }, 0);
   });
-
   readonly remainingAmount = computed(() => {
     return Math.max(0, this.amountToBePaid() - this.totalPaid());
   });
-
   readonly changeAmount = computed(() => {
     const cashEntry = this.selectedModes().find(m => m.mode.code === PaymentModeCode.CASH);
 
@@ -120,7 +113,6 @@ export class PaymentModeComponent {
 
     return 0;
   });
-
   readonly changeExact = computed(() => {
     const cashEntry = this.selectedModes().find(m => m.mode.code === PaymentModeCode.CASH);
 
@@ -133,9 +125,6 @@ export class PaymentModeComponent {
 
     return 0;
   });
-
-
-
   readonly isComplete = computed(() => {
     // Pour calculer si paiement complet, on considère le montant effectif payé
     // (pour CASH, c'est min(amount, amountToBePaid) car l'excédent = monnaie)
@@ -148,14 +137,22 @@ export class PaymentModeComponent {
     }, 0);
     return effectivePaid >= this.amountToBePaid();
   });
-
   readonly needsBankFields = computed(() => {
     const bankCodes = [PaymentModeCode.CB, PaymentModeCode.VIREMENT, PaymentModeCode.CH];
     return this.selectedModes().some(entry => bankCodes.includes(entry.mode.code as PaymentModeCode));
   });
-
   readonly PaymentModeCode = PaymentModeCode;
-
+  protected venteSansBon = signal<boolean>(false);
+  // ===== Services =====
+  private readonly paymentModeManager = inject(PaymentModeManagerService);
+  // Use computed signals from the service
+  readonly availableModes = computed(() => {
+    const usedCodes = this.selectedModes().map(e => e.mode.code);
+    return this.paymentModeManager.modes().filter((m: IPaymentMode) => !usedCodes.includes(m.code));
+  })
+  // ===== View Children =====
+  private readonly paymentInputs = viewChildren(InputNumberComponent);
+  private readonly commentInput = viewChild<ElementRef>('commentInput');
   /**
    * Nombre de modes lors du dernier passage de l'effect ci-dessous — sert à ne
    * déclencher le focus automatique que lors d'un véritable AJOUT de mode, pas à
@@ -188,25 +185,6 @@ export class PaymentModeComponent {
 
   // ===== Initialization =====
 
-  private initializeWithCash(): void {
-    // Get CASH mode from the manager service
-    const cashMode = this.paymentModeManager.getCashMode();
-    if (cashMode) {
-      this.selectedModes.set([{
-        mode: cashMode,
-        amount: undefined, // Don't pre-fill the amount
-        amountEntered: undefined,
-        isReadonly: cashMode.isReadonly || false,
-      }]);
-      // Initialize add button state
-      this.isShowAddBtn.set(false);
-      // Focus immediately after initialization
-      queueMicrotask(() => this.focusFirstInput());
-    }
-  }
-
-  // ===== Payment Mode Management =====
-
   onAddPaymentMode(mode: IPaymentMode): void {
     if (this.selectedModes().length >= this.maxPaymentModes()) {
       this.validationError.emit('Nombre maximum de modes de paiement atteint');
@@ -227,6 +205,8 @@ export class PaymentModeComponent {
       this.selectedModes().length < this.maxPaymentModes()
     );
   }
+
+  // ===== Payment Mode Management =====
 
   /**
    * Supprime une ligne de règlement. N'est appelée que lorsqu'il reste plusieurs
@@ -252,12 +232,12 @@ export class PaymentModeComponent {
       modes.map(m =>
         m === oldEntry
           ? {
-              mode: newMode,
-              // Si CASH → ne pas pré-remplir ; si autre mode → pré-remplir avec le montant à payer
-              amount: newMode.code === PaymentModeCode.CASH ? undefined : this.amountToBePaid(),
-              amountEntered: undefined,
-              isReadonly: newMode.isReadonly || false,
-            }
+            mode: newMode,
+            // Si CASH → ne pas pré-remplir ; si autre mode → pré-remplir avec le montant à payer
+            amount: newMode.code === PaymentModeCode.CASH ? undefined : this.amountToBePaid(),
+            amountEntered: undefined,
+            isReadonly: newMode.isReadonly || false,
+          }
           : m,
       ),
     );
@@ -267,8 +247,6 @@ export class PaymentModeComponent {
     // Focus on the replaced input
     setTimeout(() => this.focusFirstInput(), 100);
   }
-
-  // ===== Amount Handling =====
 
   /**
    * Saisie d'un montant sur une ligne. Toutes les mises à jour sont immutables
@@ -282,11 +260,11 @@ export class PaymentModeComponent {
       let updated = modes.map(m =>
         m === entry
           ? {
-              ...m,
-              amount,
-              // Pour espèces, le montant saisi est aussi le montant versé (calcul de la monnaie)
-              amountEntered: m.mode.code === PaymentModeCode.CASH ? amount : m.amountEntered,
-            }
+            ...m,
+            amount,
+            // Pour espèces, le montant saisi est aussi le montant versé (calcul de la monnaie)
+            amountEntered: m.mode.code === PaymentModeCode.CASH ? amount : m.amountEntered,
+          }
           : m,
       );
 
@@ -309,38 +287,10 @@ export class PaymentModeComponent {
     this.manageShowAddButton(this.getInputSum());
   }
 
-  /**
-   * Reverse sur la ligne `target` le solde du montant à payer non couvert par
-   * les autres lignes, de façon immutable. Pour une ligne CASH, `amountEntered`
-   * est aligné sur le nouveau montant afin que le calcul de la monnaie ne reste
-   * pas basé sur une saisie périmée.
-   */
-  private redistributeTo(modes: PaymentModeEntry[], target: PaymentModeEntry): PaymentModeEntry[] {
-    const othersSum = modes
-      .filter(m => m !== target)
-      .reduce((sum, m) => sum + (m.amount || 0), 0);
-    const amount = Math.max(0, this.amountToBePaid() - othersSum);
-
-    return modes.map(m =>
-      m === target
-        ? {
-            ...m,
-            amount,
-            amountEntered: m.mode.code === PaymentModeCode.CASH ? amount : m.amountEntered,
-          }
-        : m,
-    );
-  }
-
-  // ===== Validation & Submission =====
+  // ===== Amount Handling =====
 
   validate(): boolean {
-    // NOTE: On ne bloque plus sur montant insuffisant car le parent (sale-creation)
-    // gère la proposition de vente différée via processPaymentValidation()
-    // if (!this.isComplete()) {
-    //   this.validationError.emit(`Montant insuffisant. Reste à payer: ${this.remainingAmount()}`);
-    //   return false;
-    // }
+
 
     if (this.needsBankFields() && !this.bankReference()) {
       this.validationError.emit('Référence bancaire requise');
@@ -386,7 +336,7 @@ export class PaymentModeComponent {
     this.paymentComplete.emit(event);
   }
 
-  // ===== Helpers =====
+  // ===== Validation & Submission =====
 
   showPaymentCard(): boolean {
     return this.amountToBePaid() > 0;
@@ -396,72 +346,33 @@ export class PaymentModeComponent {
     return this.saleType() === 'VO' && this.hasSansBon();
   }
 
+  // ===== Helpers =====
+
   onSansBonChange(event: any): void {
     // Émettre l'événement si nécessaire
     console.log('Vente sans bon:', this.venteSansBon());
   }
 
-  private manageShowAddButton(inputAmount: number): void {
-    const numericAmount = this.parseAmount(inputAmount);
-    this.isShowAddBtn.set(
-      this.selectedModes().length < this.maxPaymentModes() &&
-        numericAmount > 0 &&
-        numericAmount < this.amountToBePaid()
-    );
-  }
-
-  private getInputSum(): number {
-    const modes = this.selectedModes() || [];
-    return modes.reduce((sum, entry) => {
-      const parsed = this.parseAmount(entry?.amount);
-      return sum + parsed;
-    }, 0);
-  }
-
-  private parseAmount(value: any): number {
-    if (value === null || value === undefined || value === '') {
-      return 0;
-    }
-    const num = typeof value === 'string' ? parseInt(value.trim(), 10) : value;
-    return isNaN(num) ? 0 : num;
-  }
-
-
-
-  private focusFirstInput(): void {
-    setTimeout(() => {
-      const inputs = this.paymentInputs();
-      if (inputs.length > 0) {
-        inputs[0].focus();
-        // La sélection attend que le champ soit passé en mode saisie (valeur brute)
-        setTimeout(() => inputs[0].select(), 50);
-      }
-    }, 0);
-  }
-
-  private focusLastInput(): void {
-    setTimeout(() => {
-      const inputs = this.paymentInputs();
-      if (inputs.length > 0) {
-        const lastInput = inputs[inputs.length - 1];
-        lastInput.focus();
-        // Delay select slightly to ensure focus is complete
-        setTimeout(() => lastInput.select(), 50);
-      }
-    }, 0);
-  }
-
   getPaymentModeLabel(code: string): string {
     switch (code) {
-      case PaymentModeCode.CASH: return 'Espèces';
-      case PaymentModeCode.CB: return 'Carte Bancaire';
-      case PaymentModeCode.OM: return 'Orange Money';
-      case PaymentModeCode.WAVE: return 'Wave';
-      case PaymentModeCode.MOOV: return 'Moov Money';
-      case PaymentModeCode.MTN: return 'MTN Mobile Money';
-      case PaymentModeCode.VIREMENT: return 'Virement';
-      case PaymentModeCode.CH: return 'Chèque';
-      default: return code;
+      case PaymentModeCode.CASH:
+        return 'Espèces';
+      case PaymentModeCode.CB:
+        return 'Carte Bancaire';
+      case PaymentModeCode.OM:
+        return 'Orange Money';
+      case PaymentModeCode.WAVE:
+        return 'Wave';
+      case PaymentModeCode.MOOV:
+        return 'Moov Money';
+      case PaymentModeCode.MTN:
+        return 'MTN Mobile Money';
+      case PaymentModeCode.VIREMENT:
+        return 'Virement';
+      case PaymentModeCode.CH:
+        return 'Chèque';
+      default:
+        return code;
     }
   }
 
@@ -476,16 +387,21 @@ export class PaymentModeComponent {
 
   modeIcon(code: string | undefined): string {
     switch (code) {
-      case PaymentModeCode.CASH: return 'pi pi-money-bill';
-      case PaymentModeCode.CB: return 'pi pi-credit-card';
+      case PaymentModeCode.CASH:
+        return 'pi pi-money-bill';
+      case PaymentModeCode.CB:
+        return 'pi pi-credit-card';
       case PaymentModeCode.OM:
       case PaymentModeCode.WAVE:
       case PaymentModeCode.MOOV:
       case PaymentModeCode.MTN:
         return 'pi pi-mobile';
-      case PaymentModeCode.VIREMENT: return 'pi pi-building';
-      case PaymentModeCode.CH: return 'pi pi-file';
-      default: return 'pi pi-wallet';
+      case PaymentModeCode.VIREMENT:
+        return 'pi pi-building';
+      case PaymentModeCode.CH:
+        return 'pi pi-file';
+      default:
+        return 'pi pi-wallet';
     }
   }
 
@@ -547,6 +463,94 @@ export class PaymentModeComponent {
         input.focus();
       }
     }, 100);
+  }
+
+  private initializeWithCash(): void {
+    // Get CASH mode from the manager service
+    const cashMode = this.paymentModeManager.getCashMode();
+    if (cashMode) {
+      this.selectedModes.set([{
+        mode: cashMode,
+        amount: undefined, // Don't pre-fill the amount
+        amountEntered: undefined,
+        isReadonly: cashMode.isReadonly || false,
+      }]);
+      // Initialize add button state
+      this.isShowAddBtn.set(false);
+      // Focus immediately after initialization
+      queueMicrotask(() => this.focusFirstInput());
+    }
+  }
+
+  /**
+   * Reverse sur la ligne `target` le solde du montant à payer non couvert par
+   * les autres lignes, de façon immutable. Pour une ligne CASH, `amountEntered`
+   * est aligné sur le nouveau montant afin que le calcul de la monnaie ne reste
+   * pas basé sur une saisie périmée.
+   */
+  private redistributeTo(modes: PaymentModeEntry[], target: PaymentModeEntry): PaymentModeEntry[] {
+    const othersSum = modes
+      .filter(m => m !== target)
+      .reduce((sum, m) => sum + (m.amount || 0), 0);
+    const amount = Math.max(0, this.amountToBePaid() - othersSum);
+
+    return modes.map(m =>
+      m === target
+        ? {
+          ...m,
+          amount,
+          amountEntered: m.mode.code === PaymentModeCode.CASH ? amount : m.amountEntered,
+        }
+        : m,
+    );
+  }
+
+  private manageShowAddButton(inputAmount: number): void {
+    const numericAmount = this.parseAmount(inputAmount);
+    this.isShowAddBtn.set(
+      this.selectedModes().length < this.maxPaymentModes() &&
+      numericAmount > 0 &&
+      numericAmount < this.amountToBePaid()
+    );
+  }
+
+  private getInputSum(): number {
+    const modes = this.selectedModes() || [];
+    return modes.reduce((sum, entry) => {
+      const parsed = this.parseAmount(entry?.amount);
+      return sum + parsed;
+    }, 0);
+  }
+
+  private parseAmount(value: any): number {
+    if (value === null || value === undefined || value === '') {
+      return 0;
+    }
+    const num = typeof value === 'string' ? parseInt(value.trim(), 10) : value;
+    return isNaN(num) ? 0 : num;
+  }
+
+  private focusFirstInput(): void {
+    setTimeout(() => {
+      const inputs = this.paymentInputs();
+      if (inputs.length > 0) {
+        inputs[0].focus();
+        // La sélection attend que le champ soit passé en mode saisie (valeur brute)
+        setTimeout(() => inputs[0].select(), 50);
+      }
+    }, 0);
+  }
+
+  private focusLastInput(): void {
+    setTimeout(() => {
+      const inputs = this.paymentInputs();
+      if (inputs.length > 0) {
+        const lastInput = inputs[inputs.length - 1];
+        lastInput.focus();
+        // Delay select slightly to ensure focus is complete
+        setTimeout(() => lastInput.select(), 50);
+      }
+    }, 0);
   }
 }
 

@@ -6,7 +6,8 @@
       <div class="panel-meta">
         <span class="pharma-code">{{ produit().codeCip }}</span>
         @if (produit().codeEan) {
-          <span class="text-muted ms-2" style="font-size: 0.75rem">EAN: {{ produit().codeEan }}</span>
+          <span class="text-muted ms-2"
+                style="font-size: 0.75rem">EAN: {{ produit().codeEan }}</span>
         }
         @if (produit().classeCriticite) {
           <span class="classe-badge classe-{{ produit().classeCriticite?.toLowerCase() }} ms-2">
@@ -24,21 +25,21 @@
     <div class="panel-actions">
       @if (canEdit()) {
         <app-button
+          (clicked)="onEdit()"
+          [outlined]="true"
           icon="pi pi-pencil"
           label="Modifier"
+          severity="info"
           size="small"
-          severity="secondary"
-          [outlined]="true"
-          (clicked)="onEdit()"
         />
       }
       <app-button
-        icon="pi pi-times"
-        [text]="true"
-        size="small"
-        severity="secondary"
-        ngbTooltip="Fermer"
         (clicked)="closePanel.emit()"
+        [text]="true"
+        icon="pi pi-times"
+        ngbTooltip="Fermer"
+        severity="success"
+        size="small"
       />
     </div>
   </div>
@@ -54,8 +55,8 @@
   <div class="pharma-nav-tabs-container flex-1-overflow">
     <div
       #nav="ngbNav"
-      [activeId]="activeTab()"
       (activeIdChange)="onTabChange($event)"
+      [activeId]="activeTab()"
       class="nav pharma-nav-tabs"
       ngbNav
       orientation="horizontal"
@@ -67,12 +68,12 @@
         </a>
         <ng-template ngbNavContent>
           <app-produit-synthese-tab
-            [produit]="richProduit()"
-            [indicateurs]="indicateurs()"
-            [lots]="lots()"
-            [loadingIndicateurs]="loadingIndicateurs()"
-            [canEdit]="canEdit()"
             (refreshRequested)="onRefreshRequested()"
+            [canEdit]="canEdit()"
+            [indicateurs]="indicateurs()"
+            [loadingIndicateurs]="loadingIndicateurs()"
+            [lots]="lots()"
+            [produit]="richProduit()"
           />
         </ng-template>
       </ng-container>
@@ -84,10 +85,10 @@
         </a>
         <ng-template ngbNavContent>
           <app-produit-stock-tab
-            [produit]="richProduit()"
+            (refreshRequested)="onRefreshRequested()"
             [indicateurs]="indicateurs()"
             [lots]="lots()"
-            (refreshRequested)="onRefreshRequested()"
+            [produit]="richProduit()"
           />
         </ng-template>
       </ng-container>
@@ -138,8 +139,8 @@
         </a>
         <ng-template ngbNavContent>
           <app-produit-fournisseurs-tab
-            [produit]="richProduit()"
             (refreshRequested)="onRefreshRequested()"
+            [produit]="richProduit()"
           />
         </ng-template>
       </ng-container>
@@ -151,9 +152,19 @@
         </a>
         <ng-template ngbNavContent>
           <app-produit-rayons-tab
-            [produit]="richProduit()"
             (refreshRequested)="onRefreshRequested()"
+            [produit]="richProduit()"
           />
+        </ng-template>
+      </ng-container>
+
+      <ng-container ngbNavItem="generiques">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-sync"></i>
+          <span>Génériques</span>
+        </a>
+        <ng-template ngbNavContent>
+          <app-produit-generiques-tab [produit]="richProduit()" />
         </ng-template>
       </ng-container>
 

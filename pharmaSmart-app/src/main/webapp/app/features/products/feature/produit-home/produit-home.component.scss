@@ -163,23 +163,61 @@
 }
 
 /* Ligne sélectionnée dans la liste */
-:host ::ng-deep .selected-row {
-  background-color: lighten($pharma-primary, 42%) !important;
-  border-left: 3px solid $pharma-primary;
-}
+// La ligne sélectionnée est stylée globalement : `.ligne-selected`, dans
+// content/scss/table-common-global.scss. Le `::ng-deep` qui traînait ici visait une classe
+// que le gabarit ne pose plus.
 
 /* Synthese tab - KPI grid */
+//
+// Les sections sont PAVÉES, et non empilées : le panneau détail occupe 62 % de la largeur de
+// l'écran, et une colonne unique y laissait les deux tiers de la place vides tout en imposant
+// de faire défiler pour atteindre la réglementation ou les tarifs. Elles se rangent donc
+// d'elles-mêmes en autant de colonnes que la largeur en autorise, et retombent sur une seule
+// sur un écran étroit.
+// FLEX et non grid : une grille fige ses colonnes pour toutes les rangées, et la dernière —
+// celle qui ne contient que deux cartes — gardait une colonne vide pendant que les valeurs
+// longues (dates, laboratoires) étaient tronquées juste à côté. En flex, chaque rangée se
+// partage la largeur entre les cartes qu'elle porte : deux cartes prennent la moitié chacune.
 :host ::ng-deep .synthese-grid {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 0.75rem 0.25rem;
+  flex-wrap: wrap;
+  // `flex-start` : sans quoi chaque carte s'étirerait à la hauteur de la plus haute de sa
+  // rangée, et l'espace regagné serait rendu en blanc.
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.6rem 0.25rem;
+}
+
+// Base 300 px, mais élastique : trois cartes sur un panneau large, deux sur un panneau
+// moyen, une seule sur un écran étroit — et toujours toute la largeur occupée.
+:host ::ng-deep .synthese-section {
+  flex: 1 1 300px;
+  min-width: 0;
+}
+
+// Ce qui doit tenir toute la largeur : les tarifs (un tableau) et les alertes de péremption,
+// qu'on ne veut pas voir réduites à une colonne étroite au milieu des cartes.
+:host ::ng-deep .synthese-section-full,
+:host ::ng-deep .peremption-alert {
+  flex: 1 1 100%;
+}
+
+// Et la carte des LIBELLÉS : molécule, famille, rayon s'écrivent en toutes lettres. Sur une
+// demi-rangée, ils s'abrégeaient ; sur la rangée entière, ils tiennent — à condition que ses
+// colonnes internes soient larges, sans quoi la rangée gagnée se dissoudrait en sept colonnes
+// étroites qui tronqueraient de nouveau.
+:host ::ng-deep .synthese-section-wide {
+  flex: 1 1 100%;
+
+  .kpi-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
 }
 
 :host ::ng-deep .synthese-section {
   border: 1px solid $pharma-border;
   border-radius: $pharma-radius;
-  padding: 0.75rem;
+  padding: 0.6rem 0.7rem;
   // Carte blanche sur le fond teinté du panneau détail : restaure le contraste du texte
   // muted ($pharma-text-light) sans avoir à l'assombrir globalement.
   background: $pharma-white;
@@ -195,16 +233,34 @@
   margin: 0 0 0.5rem;
 }
 
+// Deux colonnes dans une carte de 300 px, davantage dans une carte plus large : la grille
+// s'adapte au lieu d'imposer ses trois colonnes à une carte qui n'en a pas la place.
 :host ::ng-deep .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.15rem 0.75rem;
 }
 
+// Libellé à gauche, valeur à droite, SUR UNE SEULE LIGNE : la disposition empilée doublait la
+// hauteur de chacun des vingt-cinq indicateurs de l'onglet, soit un écran entier de défilement
+// pour une information qui tient en une ligne.
 :host ::ng-deep .kpi-item {
   display: flex;
-  flex-direction: column;
-  gap: 1px;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: 1.25rem;
+  // Un filet discret entre deux indicateurs : c'est lui qui rend la colonne lisible une fois
+  // les lignes resserrées.
+  border-bottom: 1px dotted rgba(0, 0, 0, 0.06);
+  padding: 0.1rem 0;
+}
+
+// Les interrupteurs gardent leur ligne, mais sans ligne de base commune : la case à cocher
+// s'aligne sur le milieu du libellé, pas sur son texte.
+:host ::ng-deep .kpi-item--toggle {
+  align-items: center;
 }
 
 :host ::ng-deep .kpi-label {
@@ -218,6 +274,13 @@
   font-size: 0.8rem;
   font-weight: 600;
   color: $pharma-text;
+  // La valeur est ce qu'on lit en diagonale : elle est alignée à droite, et cède la place au
+  // libellé plutôt que de le pousser hors de la carte quand elle est longue.
+  text-align: right;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
   &.kpi-danger {
     color: #d9534f;

@@ -99,24 +99,26 @@
                 </div>
               </div>
             } @else {
-              <app-data-table [value]="reglements()" [stripedRows]="true"
+              <app-data-table [value]="versements()" [stripedRows]="true"
                        [paginator]="true" [rows]="10" [size]="'small'">
                 <ng-template #header>
                   <tr class="pharma-table-head">
-                    <th>Opérateur</th>
+                    <th>Date</th>
+                    <th>Mode</th>
                     <th class="text-right">Versé</th>
-                    <th class="text-right">Solde après</th>
+                    <th>Opérateur</th>
                   </tr>
                 </ng-template>
-                <ng-template #body let-r>
+                <ng-template #body let-v>
                   <tr>
-                    <td>{{ r.lastName }}</td>
-                    <td class="text-right"><span class="pharma-total">{{ r.paidAmount | number }}</span></td>
-                    <td class="text-right"><span class="pharma-price">{{ r.solde | number }}</span></td>
+                    <td class="small">{{ v.mvtDate | date: 'dd/MM/yyyy' }}</td>
+                    <td><span class="pharma-badge pharma-badge-info">{{ v.libelleMode ?? '—' }}</span></td>
+                    <td class="text-right"><span class="pharma-total">{{ v.montantVerse | number }}</span></td>
+                    <td class="small text-muted">{{ v.user ?? '—' }}</td>
                   </tr>
                 </ng-template>
                 <ng-template #emptymessage>
-                  <tr><td colspan="3" class="text-center p-3 text-muted">Aucun versement</td></tr>
+                  <tr><td colspan="4" class="text-center p-3 text-muted">Aucun versement</td></tr>
                 </ng-template>
               </app-data-table>
             }

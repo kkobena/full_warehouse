@@ -1,12 +1,13 @@
 <div class="pharma-smart-content">
-  <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-exclamation-triangle" title="Lots à détruire">
+  <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-exclamation-triangle"
+               title="Lots à détruire">
     <ng-container ngProjectAs="[toolbarFilters]">
       <!-- Filtres PRIMAIRES : toujours visibles -->
       <div class="pharma-toolbar-filters">
         <app-select
-          (selectionChange)="onFilterChange()"
-          [ngModel]="selectedType()" (ngModelChange)="selectedType.set($event)"
-          [items]="types"
+          (ngModelChange)="selectedType.set($event)"
+          (selectionChange)="onFilterChange()" [items]="types"
+          [ngModel]="selectedType()"
           [style]="{ 'min-width': '180px' }"
           appendTo="body"
           bindLabel="label"
@@ -17,7 +18,7 @@
           <app-icon-field [overlay]="true" icon="pi pi-search">
             <input
               (keyup.enter)="onSearch()"
-              [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)"
+              (ngModelChange)="searchTerm.set($event)" [ngModel]="searchTerm()"
               [style]="{ 'min-width': '200px' }"
               class="form-control"
               id="searchTerm"
@@ -51,10 +52,10 @@
 
           <app-split-button
             [items]="exportMenus()"
-            [raised]="true"
+            [outlined]="true"
             icon="pi pi-download"
             label="{{ 'warehouseApp.buttons.export' | translate }}"
-            severity="help"
+            severity="warn"
           />
         </div>
       </div>
@@ -65,10 +66,10 @@
       <div class="advanced-filters-row">
         <div style="max-width: 140px">
           <pharma-date-picker
-            (selectionChange)="onFilterChange()"
-            [ngModel]="fromDate()" (ngModelChange)="fromDate.set($event)"
-            [labelPosition]="'top'"
+            (ngModelChange)="fromDate.set($event)"
+            (selectionChange)="onFilterChange()" [labelPosition]="'top'"
             [maxDate]="toDate()"
+            [ngModel]="fromDate()"
             id="dateDebut"
             label="{{ 'warehouseApp.labels.du' | translate }}"
           ></pharma-date-picker>
@@ -76,49 +77,37 @@
 
         <div style="max-width: 140px">
           <pharma-date-picker
-            (selectionChange)="onFilterChange()"
-            [ngModel]="toDate()" (ngModelChange)="toDate.set($event)"
-            [labelPosition]="'top'"
+            (ngModelChange)="toDate.set($event)"
+            (selectionChange)="onFilterChange()" [labelPosition]="'top'"
             [minDate]="fromDate()"
+            [ngModel]="toDate()"
             id="dateFin"
             label="{{ 'warehouseApp.labels.au' | translate }}"
           ></pharma-date-picker>
         </div>
 
-        @if (!isMono()) {
-          <app-float-label [style]="{ 'min-width': '200px' }" inputId="magasins"
-                           label="{{ 'warehouseApp.labels.magasin' | translate }}">
-            <app-select
-              (selectionChange)="onMagasinChange()"
-              [ngModel]="selectedMagasin()" (ngModelChange)="selectedMagasin.set($event)"
-              [clearable]="true"
-              [items]="magasins()"
-              appendTo="body"
-              bindLabel="fullName"
-              inputId="magasins"
-            />
-          </app-float-label>
-          <app-float-label [style]="{ 'min-width': '200px' }" inputId="storages"
-                           label="{{ 'warehouseApp.labels.typeStockage' | translate }}">
-            <app-select
-              (selectionChange)="onStorageChange()"
-              [ngModel]="selectedStorage()" (ngModelChange)="selectedStorage.set($event)"
-              [clearable]="true"
-              [items]="storages()"
-              appendTo="body"
-              bindLabel="name"
-              inputId="storages"
-            />
-          </app-float-label>
-        }
+
+        <app-float-label [style]="{ 'min-width': '200px' }" inputId="storages"
+                         label="{{ 'warehouseApp.labels.typeStockage' | translate }}">
+          <app-select
+            (ngModelChange)="selectedStorage.set($event)"
+            (selectionChange)="onStorageChange()" [clearable]="true"
+            [items]="storages()"
+            [ngModel]="selectedStorage()"
+            appendTo="body"
+            bindLabel="name"
+            inputId="storages"
+          />
+        </app-float-label>
+
 
         <app-float-label [style]="{ 'min-width': '300px' }" inputId="rayons"
                          label="{{ 'warehouseApp.labels.rayons' | translate }}">
           <app-select
-            (selectionChange)="onSearch()"
-            [ngModel]="selectedRayon()" (ngModelChange)="selectedRayon.set($event)"
-            [clearable]="true"
+            (ngModelChange)="selectedRayon.set($event)"
+            (selectionChange)="onSearch()" [clearable]="true"
             [items]="rayons()"
+            [ngModel]="selectedRayon()"
             appendTo="body"
             bindLabel="libelle"
             inputId="rayons"
@@ -200,7 +189,7 @@
     </app-kpi-strip>
   }
 
-  @if (data() && data().length) {
+  @if (data().length) {
     <app-data-table
       (onLazyLoad)="lazyLoading($event)"
       [(selection)]="selectedItems"
@@ -236,68 +225,53 @@
         </tr>
       </ng-template>
       <ng-template #body let-data>
-        <tr [class.table-danger]="data().peremptionStatut?.days < 0"
-            [class.table-warning]="data().peremptionStatut?.days >= 0 && data().peremptionStatut?.days <= 30">
+        <tr [class.pharma-row-danger]="data.peremptionStatut?.days < 0"
+            [class.pharma-row-warning]="data.peremptionStatut?.days >= 0 && data.peremptionStatut?.days <= 30">
           <td class="pharma-product-name">
-            {{ data().produitName }}
+            {{ data.produitName }}
           </td>
 
-          <td class="pharma-code">
-            {{ data().produitCodeCip }}
-          </td>
-          <td class="pharma-code">
-            {{ data().numLot }}
+          <td>
+            {{ data.produitCodeCip }}
           </td>
           <td>
-            {{ data().datePeremption | date:'dd/MM/yyyy' }}
+            {{ data.numLot }}
+          </td>
+          <td>
+            {{ data.datePeremption }}
           </td>
           <td class="text-right amount-column">
-            <span class="pharma-qty-value">{{ data().quantity | number }}</span>
+            <span class="pharma-qty-value">{{ data.quantity | number }}</span>
           </td>
           <td class="text-right amount-column">
-            <span class="pharma-price">{{ data().prixAchat | number }}</span>
+            <span class="pharma-price">{{ data.prixAchat | number }}</span>
           </td>
           <td class="text-right amount-column">
-            <span class="pharma-price">{{ data().prixUni | number }}</span>
+            <span class="pharma-price">{{ data.prixUni | number }}</span>
           </td>
           <td class="text-center">
-            <app-badge [label]="data().peremptionStatut?.libelle ?? ''"
-                       [severity]="getSeverity(data().peremptionStatut)" />
+            <app-badge [label]="data.peremptionStatut?.libelle ?? ''"
+                       [severity]="getSeverity(data.peremptionStatut)" />
           </td>
 
           <td class="pharma-entity-name">
-            {{ data().fournisseur }}
+            {{ data.fournisseur }}
           </td>
           <td class="text-center">
-            <app-row-checkbox [disabled]="data().destroyed" [row]="data()" />
+            <app-row-checkbox [disabled]="data.destroyed" [row]="data" />
           </td>
           <td class="text-right">
-            @if (!data().destroyed) {
+            @if (!data.destroyed) {
               <div class="btn-group">
                 <app-button
-                  (clicked)="confirmDestroyDialog(data().id)"
+                  (clicked)="confirmDestroyDialog(data.id)"
                   [rounded]="true"
                   [text]="true"
+                  ariaLabel="Détruire ce lot"
                   icon="pi pi-times"
                   ngbTooltip="Détruire"
                   severity="danger"
                 />
-              </div>
-            } @else {
-              <div class="d-flex align-items-center gap-1">
-                <app-badge
-                  [label]="'warehouseApp.gestionPerimes.labels.detruitsADateDu' | translate: { date: data().dateDestruction }" />
-                @if (data().produitId) {
-                  <a
-                    [routerLink]="['/produits', data().produitId, 'transaction']"
-                    class="btn btn-link btn-sm p-0 ms-1"
-                    ngbTooltip="Voir les transactions RETRAIT_PERIME pour ce produit"
-                    placement="left"
-                    title="Historique transactions"
-                  >
-                    <i class="pi pi-history text-info"></i>
-                  </a>
-                }
               </div>
             }
           </td>

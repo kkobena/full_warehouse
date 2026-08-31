@@ -24,6 +24,7 @@ let nextId = 0;
         [checked]="value() ?? false"
         [disabled]="isDisabled() || disabled()"
         [class.is-invalid]="invalid()"
+        [attr.aria-label]="ariaLabel() || null"
         (change)="onCheckedChange($event)"
         (blur)="onTouched()"
       />
@@ -36,6 +37,14 @@ let nextId = 0;
 })
 export class CheckboxComponent extends ControlValueAccessorBase<boolean> {
   readonly label = input<string>('');
+
+  /**
+   * Nom accessible d'une case SANS libellé visible — les cases de sélection d'un tableau,
+   * qui n'ont que leur colonne pour dire ce qu'elles cochent. Sans lui, un lecteur d'écran
+   * annonce « case à cocher » autant de fois qu'il y a de lignes, sans jamais dire laquelle.
+   * Une case qui porte un `label` visible n'en a pas besoin.
+   */
+  readonly ariaLabel = input<string>('');
 
   /** Aligne plusieurs cases sur une même ligne (`.form-check-inline`). */
   readonly inline = input<boolean>(false);

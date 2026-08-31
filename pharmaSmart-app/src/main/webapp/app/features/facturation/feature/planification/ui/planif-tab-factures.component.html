@@ -31,7 +31,8 @@
       </ng-template>
 
       <ng-template #body let-plan>
-        <tr [appSelectableRow]="plan" [class.row-selected]="selectedPlan()?.id === plan.id">
+        <!-- `appSelectableRow` pose lui-même `ligne-selected` sur la ligne retenue. -->
+        <tr [appSelectableRow]="plan">
           <td class="fw-semibold">{{ plan.libelle }}</td>
           <td>
             <span [class]="periodiciteBadgeClass()">{{ state.getPeriodiciteLabel(plan.periodicite) }}</span>
@@ -41,6 +42,12 @@
               {{ plan.prochaineExecution | date: 'dd/MM/yyyy HH:mm' }}
             } @else if (!plan.actif) {
               <span class="text-muted fst-italic">— désactivé</span>
+            } @else {
+              <!-- Active mais sans date : la prochaine échéance se calcule à l'activation,
+                   et manque donc sur une planification activée hors de l'écran. La cellule
+                   restait vide, ce qui se lisait comme « rien de prévu » alors que la
+                   planification veille. -->
+              <span class="text-warning fst-italic">à calculer</span>
             }
           </td>
           <td class="small text-muted">
@@ -88,16 +95,14 @@
                   />
                 }
 
-                <app-button
-                  (clicked)="state.onDelete(plan)"
-                  icon="pi pi-trash"
-                  [text]="true"
-                  [rounded]="true"
-                  size="small"
-                  severity="danger"
-                  ngbTooltip="Supprimer"
-                  placement="left"
-                />
+                <!--
+                  Pas de suppression ici. Les six lignes ne sont pas des créations de
+                  l'utilisateur : le système en pose une par périodicité et par nature de
+                  facture (définitive / provisoire), et l'écran n'offre aucun moyen d'en
+                  recréer une. Supprimer « Facturation mensuelle » la faisait donc disparaître
+                  pour de bon. Suspendre une planification, c'est l'interrupteur « Actif » de
+                  la colonne précédente — réversible, lui.
+                -->
               </div>
 
             </div>

@@ -44,13 +44,36 @@ public interface UserRepository extends JpaRepository<AppUser, Integer>, JpaSpec
     @Query("SELECT u FROM AppUser u JOIN u.authorities a WHERE a.name = :authorityName AND u.activated = true")
     List<AppUser> findByAuthority(@Param("authorityName") AuthorityEnum authority);
 
+    /**
+     * Les comptes proposés aux écrans métier : ni comptes techniques, ni comptes désactivés.
+     *
+     * <p>C'est la liste des personnes à qui l'on peut attribuer une vente ou un mouvement —
+     * un compte désactivé n'a rien à y faire.
+     */
     default Specification<AppUser> findspecialisation() {
-        return (root, query, cb) ->
-            cb.and(
-                cb.notEqual(root.get(AppUser_.login), Constants.SYSTEM),
-                cb.notEqual(root.get(AppUser_.login), Constants.ANONYMOUS_USER),
-                cb.notEqual(root.get(AppUser_.login), Constants.ANONYMOUS_USER_2),
-                cb.isTrue(root.get(AppUser_.activated))
-            );
+        return (root, query, cb) -> cb.and(sansComptesTechniques(root, cb), cb.isTrue(root.get(AppUser_.activated)));
+    }
+
+    /**
+     * Les comptes vus par l'ADMINISTRATION : les désactivés compris.
+     *
+     * <p>La liste d'administration filtrait elle aussi sur `activated` : un compte désactivé
+     * disparaissait donc de l'écran qui sert à le gérer, et son bouton « Activer » — pourtant
+     * présent dans le gabarit — ne pouvait jamais être atteint. Désactiver un compte revenait
+     * à le perdre.
+     */
+    default Specification<AppUser> findAdminSpecialisation() {
+        return (root, query, cb) -> sansComptesTechniques(root, cb);
+    }
+
+    private static jakarta.persistence.criteria.Predicate sansComptesTechniques(
+        jakarta.persistence.criteria.Root<AppUser> root,
+        jakarta.persistence.criteria.CriteriaBuilder cb
+    ) {
+        return cb.and(
+            cb.notEqual(root.get(AppUser_.login), Constants.SYSTEM),
+            cb.notEqual(root.get(AppUser_.login), Constants.ANONYMOUS_USER),
+            cb.notEqual(root.get(AppUser_.login), Constants.ANONYMOUS_USER_2)
+        );
     }
 }

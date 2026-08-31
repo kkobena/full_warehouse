@@ -1,5 +1,5 @@
 export class DiffereSummary {
-  saleAmout: number;
+  saleAmount: number;
   paidAmount: string;
   rest: number;
 }

@@ -44,6 +44,7 @@
         <!-- Emplacement -->
         <div class="storage-select-input">
           <app-select
+            inputId="ajustement-emplacement"
             [(ngModel)]="selectedStorage"
             [items]="facade.storages()"
             bindLabel="name"
@@ -56,6 +57,7 @@
         <div class="motif-select-input">
           <app-select
             #motifSelect
+            inputId="ajustement-motif"
             [(ngModel)]="selectedMotif"
             [items]="facade.motifs()"
             bindLabel="libelle"
@@ -114,7 +116,7 @@
           >
             <i class="pi pi-database"></i>
             <span>
-              {{ selectedStorage?.storageType === 'SAFETY_STOCK' ? 'Réserve' : 'Rayon' }} :
+              {{ selectedStorage?.type === 'SAFETY_STOCK' ? 'Réserve' : 'Rayon' }} :
               <strong>{{ facade.stockActuel() | number }}</strong>
             </span>
           </div>

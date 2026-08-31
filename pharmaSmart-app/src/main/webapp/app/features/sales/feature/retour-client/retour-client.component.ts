@@ -17,6 +17,7 @@ import {
 } from "../../data-access/services/retour-client-api.service";
 import { RetourClientModalComponent } from "../../ui/retour-client-modal/retour-client-modal.component";
 import { ISales } from "../../../../shared/model";
+import { DevisePipe } from 'app/shared/utils/devise';
 
 @Component({
   selector: "app-retour-client",
@@ -32,7 +33,7 @@ import { ISales } from "../../../../shared/model";
     ToolbarComponent,
     PharmaDatePickerComponent,
     IconFieldComponent
-  ]
+  , DevisePipe]
 })
 export class RetourClientComponent implements OnInit {
   /**

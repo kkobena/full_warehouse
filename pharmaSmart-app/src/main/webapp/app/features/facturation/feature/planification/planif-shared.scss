@@ -90,10 +90,8 @@
   }
 }
 
-// ── Row highlight on selection ───────────────────────────────
-.planif-table .row-selected td {
-  background-color: var(--blue-50, #eff6ff) !important;
-}
+// La ligne sélectionnée est stylée globalement : `.ligne-selected`, dans
+// content/scss/table-common-global.scss.
 
 // ── FNE panel ────────────────────────────────────────────────
 .fne-config-panel {

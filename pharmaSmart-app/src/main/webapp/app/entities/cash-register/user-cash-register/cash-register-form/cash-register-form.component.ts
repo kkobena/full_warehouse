@@ -47,9 +47,25 @@ export class CashRegisterFormComponent implements OnInit, AfterViewInit {
         if (otherValue) {
           this.cashFundAmount.set(parseInt(otherValue));
         }
-        this.editForm.get(['cashFundAmount']).setValue(this.cashFundAmount());
+        this.prefillCashFund();
       }
     });
+  }
+
+  /**
+   * Pose le fonds proposé — SANS écraser une saisie déjà commencée.
+   *
+   * La valeur par défaut arrive de deux sources asynchrones : la configuration (appel
+   * serveur, latence quelconque) et le `setTimeout` de la mise au point. Toutes deux peuvent
+   * survenir après les premières frappes, et écrasaient alors ce que l'utilisateur venait de
+   * taper — un montant de fonds de caisse silencieusement remplacé.
+   */
+  private prefillCashFund(): void {
+    const control = this.editForm.get(['cashFundAmount']);
+    if (control.dirty) {
+      return;
+    }
+    control.setValue(this.cashFundAmount());
   }
 
   protected openCashRegister(): void {
@@ -71,7 +87,7 @@ export class CashRegisterFormComponent implements OnInit, AfterViewInit {
     setTimeout(() => {
       const inputElement = this.cashFundAmountInput()?.nativeElement.querySelector('input');
       inputElement?.focus();
-      this.editForm.get(['cashFundAmount'])?.setValue(this.cashFundAmount());
+      this.prefillCashFund();
       inputElement?.select();
     }, 100);
   }

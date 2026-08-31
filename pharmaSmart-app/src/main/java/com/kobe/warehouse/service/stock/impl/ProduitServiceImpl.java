@@ -13,6 +13,7 @@ import com.kobe.warehouse.domain.RayonProduit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.Tva;
+import com.kobe.warehouse.domain.enumeration.MouvementProduit;
 import com.kobe.warehouse.domain.enumeration.ProduitFlag;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.StorageType;
@@ -36,6 +37,7 @@ import com.kobe.warehouse.service.dto.SubstitutDTO;
 import com.kobe.warehouse.service.dto.builder.ProduitBuilder;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.produit_prix.service.PrixRererenceService;
 import com.kobe.warehouse.service.reassort.SuggestionReassortService;
 import com.kobe.warehouse.service.stock.DataMatrixParserService;
@@ -88,7 +90,7 @@ public class ProduitServiceImpl implements ProduitService {
     private final DataMatrixParserService dataMatrixParserService;
     private final SalesLineRepository salesLineRepository;
     private final OrderLineRepository orderLineRepository;
-
+    private final InventoryTransactionService inventoryTransactionService;
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -105,7 +107,8 @@ public class ProduitServiceImpl implements ProduitService {
         PrixRererenceService prixReferenceService,
         DataMatrixParserService dataMatrixParserService,
         SalesLineRepository salesLineRepository,
-        OrderLineRepository orderLineRepository
+        OrderLineRepository orderLineRepository,
+        InventoryTransactionService inventoryTransactionService
     ) {
 
         this.produitRepository = produitRepository;
@@ -123,6 +126,7 @@ public class ProduitServiceImpl implements ProduitService {
         this.dataMatrixParserService = dataMatrixParserService;
         this.salesLineRepository = salesLineRepository;
         this.orderLineRepository = orderLineRepository;
+        this.inventoryTransactionService = inventoryTransactionService;
     }
 
     /**
@@ -227,13 +231,23 @@ public class ProduitServiceImpl implements ProduitService {
         Magasin magasin = storageService.getConnectedUserMagasin();
         Storage userStorage = storageService.getDefaultConnectedUserMainStorage();
         return findProduitById(id)
-            .map(p ->
-                ProduitBuilder.buildFromProduit(
-                    p,
-                    magasin,
-                    p.getStockProduits().stream().filter(s -> s.getStorage().equals(userStorage))
-                        .findFirst().orElse(null)
-                )
+            .map(p -> {
+                    ProduitDTO dto = ProduitBuilder.buildFromProduit(
+                        p,
+                        magasin,
+                        p.getStockProduits().stream().filter(s -> s.getStorage().equals(userStorage))
+                            .findFirst().orElse(null)
+                    );
+                    ProduitCriteria produitCriteria = new ProduitCriteria().setId(p.getId());
+
+                    dto.setLastDateOfSale(lastSale(produitCriteria));
+                    dto.setLastInventoryDate(
+                        inventoryTransactionService.fetchLastDateByTypeAndProduitId(
+                            MouvementProduit.INVENTAIRE, p.getId())
+                    );
+                    dto.setLastOrderDate(lastOrder(produitCriteria));
+                    return dto;
+                }
             );
     }
 
@@ -633,10 +647,12 @@ public class ProduitServiceImpl implements ProduitService {
         // SuggestionLine, FournisseurProduitPriceHistory et ProductsToDestroy référencent
         // FournisseurProduit (FK NOT NULL) : à supprimer avant, sous peine de violation FK au
         // moment de la suppression des FournisseurProduit.
-        for (String entityName : List.of("SuggestionLine", "FournisseurProduitPriceHistory", "ProductsToDestroy")) {
+        for (String entityName : List.of("SuggestionLine", "FournisseurProduitPriceHistory",
+            "ProductsToDestroy")) {
             entityManager
                 .createQuery(
-                    "DELETE FROM " + entityName + " e WHERE e.fournisseurProduit IN (SELECT fp FROM FournisseurProduit fp WHERE fp.produit.id = :id)"
+                    "DELETE FROM " + entityName
+                        + " e WHERE e.fournisseurProduit IN (SELECT fp FROM FournisseurProduit fp WHERE fp.produit.id = :id)"
                 )
                 .setParameter("id", id)
                 .executeUpdate();
@@ -678,7 +694,8 @@ public class ProduitServiceImpl implements ProduitService {
         // produits) — un produitRepository.delete(produit) ferait cascader Hibernate vers ces
         // collections et tenterait de re-supprimer des lignes déjà effacées ci-dessus par les
         // DELETE JPQL, provoquant "unexpected row count 0". Le bulk delete ne cascade jamais.
-        entityManager.createQuery("DELETE FROM Produit p WHERE p.id = :id").setParameter("id", id).executeUpdate();
+        entityManager.createQuery("DELETE FROM Produit p WHERE p.id = :id").setParameter("id", id)
+            .executeUpdate();
         entityManager.detach(produit);
     }
 

@@ -2,17 +2,28 @@ package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
 import com.kobe.warehouse.domain.enumeration.ClassificationType;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * Log des changements de classe de criticité des produits.
- * Permet de tracer l'historique des reclassifications automatiques et manuelles.
+ * Log des changements de classe de criticité des produits. Permet de tracer l'historique des
+ * reclassifications automatiques et manuelles.
  */
 @Entity
 @Table(
@@ -41,14 +52,14 @@ public class ClassificationCriticiteLog implements Serializable {
      * Ancienne classe de criticité (null si première classification)
      */
     @Enumerated(EnumType.STRING)
-    @Column(name = "ancienne_classe", length = 3)
+    @Column(name = "ancienne_classe", length = 10)
     private ClasseCriticite ancienneClasse;
 
     /**
      * Nouvelle classe de criticité attribuée
      */
     @Enumerated(EnumType.STRING)
-    @Column(name = "nouvelle_classe", length = 3, nullable = false)
+    @Column(name = "nouvelle_classe", length = 10, nullable = false)
     @NotNull
     private ClasseCriticite nouvelleClasse;
 
@@ -231,8 +242,12 @@ public class ClassificationCriticiteLog implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ClassificationCriticiteLog that)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ClassificationCriticiteLog that)) {
+            return false;
+        }
         return id != null && id.equals(that.id);
     }
 

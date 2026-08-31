@@ -7,6 +7,8 @@ import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {showCommonModal} from '../sales/selling-home/sale-helper';
 import {FormTvaComponent} from './form-tva/form-tva.component';
 import {CommonModule} from '@angular/common';
+import {NotificationService} from '../../shared/services/notification.service';
+import {ErrorService} from '../../shared/error.service';
 import {TranslatePipe} from '@ngx-translate/core';
 import {
   NgbConfirmDialogService
@@ -24,6 +26,8 @@ export class TvaComponent implements OnInit {
   protected selectedTva: ITva | null = null;
   protected readonly loading = signal<boolean | undefined>(undefined);
   private readonly tvaService = inject(TvaService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly errorService = inject(ErrorService);
   private readonly modalService = inject(NgbModal);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
 
@@ -44,8 +48,11 @@ export class TvaComponent implements OnInit {
   confirm(id: number): void {
     this.confirmDialog.onConfirm(
       () => {
-        this.tvaService.delete(id).subscribe(() => {
-          this.loadPage();
+        // Sans gestionnaire d'erreur, le refus du serveur — « encore utilisé par N
+        // produit(s) » — se perdait : la ligne restait et l'on croyait à un échec du clic.
+        this.tvaService.delete(id).subscribe({
+          next: () => this.loadPage(),
+          error: err => this.notificationService.error(this.errorService.getErrorMessage(err)),
         });
       },
       'Confirmation',

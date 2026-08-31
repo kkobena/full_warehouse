@@ -119,6 +119,23 @@ export default tseslint.config(
     },
   },
   {
+    // Parcours Playwright : du TypeScript exécuté sous Node, hors de la webapp Angular. Sans ce
+    // bloc, aucune configuration ne couvre ces fichiers et ESLint les ignore en silence.
+    // Règles non typées volontairement : le linter n'a pas à charger un programme TypeScript
+    // pour une poignée de fichiers.
+    files: ['e2e/**/*.ts'],
+    extends: [...tseslint.configs.recommended],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      'no-console': ['error', { allow: ['warn', 'error'] }],
+    },
+  },
+  {
     files: ['**/*.html'],
     extends: [...angular.configs.templateRecommended, ...angular.configs.templateAccessibility],
     rules: {},

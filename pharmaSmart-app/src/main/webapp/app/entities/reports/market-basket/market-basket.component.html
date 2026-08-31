@@ -1,12 +1,13 @@
-<div class="pharma-smart-content p-2">
+<div class="pharma-smart-content p-1">
   <!-- Toolbar -->
-  <app-toolbar [code]="navCode()" icon="pi pi-shopping-bag" title="Analyse du Panier (Cross-selling)">
+  <app-toolbar [code]="navCode()" icon="pi pi-shopping-bag"
+               title="Analyse du Panier (Cross-selling)">
 
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters pt-1">
         <pharma-date-picker [(ngModel)]="startDate" [style]="{ 'max-width': '180px' }" id="fromDate"
                             label="Date début" />
-        <pharma-date-picker [(ngModel)]="endDate" [style]="{ 'max-width': '180px' }" id="fromDate"
+        <pharma-date-picker [(ngModel)]="endDate" [style]="{ 'max-width': '180px' }" id="toDate"
                             label="Date fin" />
         <app-float-label inputId="supportmini" label="Support min">
           <app-input-number
@@ -29,7 +30,8 @@
           />
         </app-float-label>
         <app-float-label inputId="limit" label="Limite">
-          <app-input-number [(ngModel)]="limit" [max]="200" [min]="10" [style]="{ 'max-width': '140px' }"
+          <app-input-number [(ngModel)]="limit" [max]="200" [min]="10"
+                            [style]="{ 'max-width': '140px' }"
                             inputId="limit" />
         </app-float-label>
       </div>
@@ -52,16 +54,26 @@
     <!-- KPI Strip -->
     @if (summary(); as sum) {
       <app-kpi-strip stripClass="mt-2 mb-2">
-        <app-kpi-item [accent]="'primary'" icon="pi pi-shopping-cart" iconClass="text-primary" label="Total transactions" [value]="formatNumber(sum.totalTransactions)" valueClass="text-primary">
-          <ng-container ngProjectAs="[kpiSub]">{{ formatNumber(sum.totalProducts) }}produits uniques</ng-container>
+        <app-kpi-item [accent]="'primary'" [value]="formatNumber(sum.totalTransactions)" icon="pi pi-shopping-cart"
+                      iconClass="text-primary" label="Total transactions"
+                      valueClass="text-primary">
+          <ng-container ngProjectAs="[kpiSub]">{{ formatNumber(sum.totalProducts) }}produits
+            uniques
+          </ng-container>
         </app-kpi-item>
-        <app-kpi-item [accent]="'success'" icon="pi pi-shopping-bag" iconClass="text-success" label="Taille moy. panier" [value]="formatDecimal(sum.averageBasketSize)" valueClass="text-success">
+        <app-kpi-item [accent]="'success'" [value]="formatDecimal(sum.averageBasketSize)" icon="pi pi-shopping-bag"
+                      iconClass="text-success" label="Taille moy. panier"
+                      valueClass="text-success">
           <ng-container ngProjectAs="[kpiSub]">articles / transaction</ng-container>
         </app-kpi-item>
-        <app-kpi-item [accent]="'warning'" icon="pi pi-link" iconClass="text-warning" label="Associations trouvées" [value]="formatNumber(sum.totalAssociations)" valueClass="text-warning">
+        <app-kpi-item [accent]="'warning'" [value]="formatNumber(sum.totalAssociations)" icon="pi pi-link"
+                      iconClass="text-warning" label="Associations trouvées"
+                      valueClass="text-warning">
           <ng-container ngProjectAs="[kpiSub]">paires de produits</ng-container>
         </app-kpi-item>
-        <app-kpi-item [accent]="'danger'" icon="pi pi-chart-line" iconClass="text-danger" label="Corrélation max (lift)" [value]="formatDecimal(sum.maxLift)" valueClass="text-danger">
+        <app-kpi-item [accent]="'danger'" [value]="formatDecimal(sum.maxLift)" icon="pi pi-chart-line"
+                      iconClass="text-danger" label="Corrélation max (lift)"
+                      valueClass="text-danger">
           <ng-container ngProjectAs="[kpiSub]">{{ getLiftLabel(sum.maxLift) }}</ng-container>
         </app-kpi-item>
       </app-kpi-strip>
@@ -110,7 +122,7 @@
                   confiance</p>
               </div>
             } @else {
-              <table >
+              <table>
                 <thead class="pharma-table-head">
                 <tr>
                   <th>Produit A</th>

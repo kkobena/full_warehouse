@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { Router, RouterModule } from "@angular/router";
-import { HttpResponse } from "@angular/common/http";
+import { HttpErrorResponse, HttpResponse } from "@angular/common/http";
 import { TableauProduitService } from "./tableau-produit.service";
 import { ITableau } from "../../shared/model/tableau.model";
 import { ButtonComponent, DataTableComponent, SelectableRowDirective } from "../../shared/ui";
@@ -9,6 +9,7 @@ import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { FormTableauComponent } from "./form-tableau/form-tableau.component";
 import { NgbConfirmDialogService } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { NotificationService } from "../../shared/services/notification.service";
+import { ErrorService } from "../../shared/error.service";
 
 @Component({
   selector: "app-tableau-produit",
@@ -29,6 +30,7 @@ export class TableauProduitComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly notificationService = inject(NotificationService);
+  private readonly errorService = inject(ErrorService);
   private readonly ngModalService = inject(NgbModal);
 
   ngOnInit(): void {
@@ -52,8 +54,12 @@ export class TableauProduitComponent implements OnInit {
   protected onConfirmDialog(id: number): void {
     this.confirmDialog.onConfirm(
       () => {
-        this.entityService.delete(id).subscribe(() => {
-          this.loadPage();
+        // Le refus du serveur — « encore utilisé par N produit(s) » — était perdu : l'appel
+        // n'avait aucun gestionnaire d'erreur, et la suppression paraissait silencieusement
+        // aboutie alors que rien n'avait bougé.
+        this.entityService.delete(id).subscribe({
+          next: () => this.loadPage(),
+          error: err => this.onErreurSuppression(err),
         });
       },
       "Confirmation",
@@ -112,5 +118,11 @@ export class TableauProduitComponent implements OnInit {
   private onError(): void {
     this.loading.set(false);
     this.notificationService.error("Erreur lors du chargement des données");
+  }
+
+  /** Le message du serveur, et non un texte générique : lui seul dit COMBIEN de produits. */
+  private onErreurSuppression(erreur: HttpErrorResponse): void {
+    this.loading.set(false);
+    this.notificationService.error(this.errorService.getErrorMessage(erreur));
   }
 }

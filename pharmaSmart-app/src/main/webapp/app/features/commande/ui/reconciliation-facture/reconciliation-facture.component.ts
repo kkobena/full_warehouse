@@ -10,13 +10,14 @@ import { ICommande } from '../../../../shared/model/commande.model';
 import { DeliveryService } from '../../../../entities/commande/delevery/delivery.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { ErrorService } from '../../../../shared/error.service';
+import { DevisePipe } from 'app/shared/utils/devise';
 
 @Component({
   selector: 'app-reconciliation-facture',
   templateUrl: './reconciliation-facture.component.html',
   styleUrls: ['./reconciliation-facture.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, ButtonComponent, InputNumberComponent, PharmaDatePickerComponent, KeyFilterDirective]
+  imports: [CommonModule, FormsModule, ButtonComponent, InputNumberComponent, PharmaDatePickerComponent, KeyFilterDirective, DevisePipe]
 })
 export class ReconciliationFactureComponent implements OnInit {
   commande!: ICommande;

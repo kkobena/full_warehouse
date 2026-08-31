@@ -12,6 +12,7 @@
         appendTo="body"
         bindLabel="label"
         bindValue="value"
+        inputId="jvTypeVente"
         placeholder="Type de vente"
       />
 
@@ -166,9 +167,10 @@
             <th style="width: 9%">Référence</th>
             <th class="text-right" style="width: 5%">Articles</th>
             <th class="text-right" style="width: 8%">Montant</th>
-            <th style="width: 15%">Client</th>
-            <th style="width: 13%">Vendeur</th>
-            <th style="width: 12%">Caissier</th>
+            <th class="text-right" style="width: 7%">Remise</th>
+            <th style="width: 13%">Client</th>
+            <th style="width: 11%">Vendeur</th>
+            <th style="width: 11%">Caissier</th>
             <th style="width: 5%"></th>
           </tr>
         </ng-template>
@@ -208,6 +210,13 @@
               [ngClass]="sale.salesAmount < 0 || sale.canceled ? 'pharma-price-negative' : 'pharma-price'">
               {{ sale.salesAmount | number }}
             </td>
+            <!-- Remise : cellule vide plutôt qu'un zéro quand il n'y en a pas — une colonne
+                 de zéros se lit moins vite qu'une colonne clairsemée. -->
+            <td class="text-right">
+              @if (sale.discountAmount) {
+                <span class="pharma-price-negative">-{{ sale.discountAmount | number }}</span>
+              }
+            </td>
             <td class="pharma-entity-name">{{ sale.customer?.fullName }}</td>
             <td>{{ sale.seller?.abbrName }}</td>
             <td>{{ sale.cassier?.abbrName }}</td>
@@ -244,7 +253,7 @@
         </ng-template>
         <ng-template #expandedrow let-elRow>
           <tr class="pharma-expanded-row">
-            <td colspan="10">
+            <td colspan="11">
               <div class="expanded-row-container">
                 @if (elRow.categorie !== 'VNO') {
                   <div class="expanded-cards-container">

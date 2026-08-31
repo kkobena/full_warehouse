@@ -37,15 +37,19 @@
           placement="top"
           (clicked)="exportCsvRequest.emit()"
         />
-      <app-button
-        icon="pi pi-search"
-        label="Dispo PharmaML"
-        severity="info"
-        size="small"
-        ngbTooltip="Vérifier la disponibilité chez les grossistes"
-        placement="top"
-        (clicked)="dispoRequest.emit()"
-      />
+      <!-- Masqué : aucun grossiste ne répond à une demande d'information, et chez GESCOM
+           l'interrogation revient à passer commande (cf. COMPARAISON_DISPONIBILITE_ACTIVE). -->
+      @if (comparaisonDisponibiliteActive) {
+        <app-button
+          icon="pi pi-search"
+          label="Dispo PharmaML"
+          severity="info"
+          size="small"
+          ngbTooltip="Vérifier la disponibilité chez les grossistes"
+          placement="top"
+          (clicked)="dispoRequest.emit()"
+        />
+      }
       <!-- Le bouton de nettoyage est caché car la fonctionnalité n'est pas encore implémentée côté back-end -->
       <app-button
         label="Nettoyer"
@@ -131,7 +135,7 @@
           </span>
           <span class="meta-item">
             <i class="pi pi-tag"></i>
-            {{ produitEnCours()!.regularUnitPrice | number }} F
+            {{ produitEnCours()!.regularUnitPrice | devise }}
           </span>
           <span class="meta-item" [class.low-stock]="produitEnCours()!.totalQuantity < 10">
             <i class="pi pi-database"></i>
@@ -218,6 +222,7 @@
     <!-- GRILLE -->
     <div class="grid-body">
       <ag-grid-angular
+    [localeText]="localeFr"
         [theme]="theme"
         [columnDefs]="columnDefs"
         [defaultColDef]="defaultColDef"

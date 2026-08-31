@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject, input, signal, ChangeDetectionStrategy } from "@angular/core";
+import { Component, DestroyRef, computed, effect, inject, input, signal, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { finalize } from "rxjs/operators";
 import { NgbNavModule, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
@@ -11,7 +11,13 @@ import { TauriPrinterService } from "../../../../shared/services/tauri-printer.s
 
 import { DiffereApiService } from "../../data-access/services/differe-api.service";
 import { DiffereStore } from "../../data-access/store/differe.store";
-import { IDiffere, INewReglementDiffere, IPaymentIdDiffere, IReglementDiffere } from "../../data-access/models";
+import {
+  IDiffere,
+  INewReglementDiffere,
+  IPaymentIdDiffere,
+  IReglementDiffere,
+  IReglementDiffereItem
+} from "../../data-access/models";
 import { ReglementDiffereFormComponent } from "../reglement-differe-form/reglement-differe-form.component";
 import { CommonModule } from "@angular/common";
 
@@ -40,6 +46,21 @@ export class DiffereDetailPanelComponent {
   protected readonly isSaving = signal(false);
   protected monnaie = signal(0);
   protected reglements = signal<IReglementDiffere[]>([]);
+
+  /**
+   * Les VERSEMENTS eux-mêmes, du plus récent au plus ancien.
+   *
+   * L'API rend les règlements groupés par client, chaque groupe portant le détail de ses
+   * versements. Le panneau n'affichait que l'enveloppe — opérateur, total versé, solde — et
+   * jetait le détail pourtant déjà chargé : impossible d'y lire QUAND un client avait payé,
+   * ni COMMENT, alors que c'est la première chose qu'on lui demande. On aplatit donc les
+   * groupes.
+   */
+  protected readonly versements = computed<IReglementDiffereItem[]>(() =>
+    this.reglements()
+      .flatMap(r => r.items ?? [])
+      .sort((a, b) => new Date(b.mvtDate ?? 0).getTime() - new Date(a.mvtDate ?? 0).getTime())
+  );
 
   private currentCustomerId: number | null = null;
 

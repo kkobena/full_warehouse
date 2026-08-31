@@ -11,6 +11,7 @@ import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Produit_;
 import com.kobe.warehouse.domain.RayonProduit;
 import com.kobe.warehouse.domain.RayonProduit_;
+import com.kobe.warehouse.domain.Rayon_;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.StockProduit_;
 import com.kobe.warehouse.domain.enumeration.Status;
@@ -45,6 +46,25 @@ public interface ProduitRepository
 
     /** Nombre de produits rattachés à une substance active — garde-fou avant suppression. */
     long countByDciId(Integer dciId);
+
+    /**
+     * Combien de produits référencent encore ce référentiel.
+     *
+     * <p>Sert de garde-fou avant suppression : un référentiel encore porté par des fiches ne
+     * peut pas disparaître sans les laisser orphelines — et sans faire échouer la requête sur
+     * une contrainte de clé étrangère, ce qui ne dit rien à personne.
+     */
+    long countByFamilleId(Integer familleId);
+
+    long countByFormeId(Integer formeId);
+
+    long countByGammeId(Integer gammeId);
+
+    long countByLaboratoireId(Integer laboratoireId);
+
+    long countByTvaId(Integer tvaId);
+
+    long countByTableauId(Integer tableauId);
 
     /**
      * Produits d'une substance active, pour le détail de l'écran DCI.
@@ -162,7 +182,7 @@ public interface ProduitRepository
             Join<Produit, RayonProduit> rayonJoin = root.join(
                 Produit_.rayonProduits); // collection join
 
-            return cb.equal(rayonJoin.get(RayonProduit_.id), rayonId);
+            return cb.equal(rayonJoin.get(RayonProduit_.rayon).get(Rayon_.id), rayonId);
         };
     }
 

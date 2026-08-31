@@ -17,8 +17,8 @@
       <td>{{ det.libelle }}</td>
       <td><code>{{ det.codeCip ?? '—' }}</code></td>
       <td class="text-end">{{ det.itemQty ?? '—' }}</td>
-      <td class="text-end">{{ det.costAmount ?? 0 | number:'1.0-0' }} F</td>
-      <td class="text-end">{{ det.regularUnitPrice ?? 0 | number:'1.0-0' }} F</td>
+      <td class="text-end">{{ det.costAmount ?? 0 | devise }}</td>
+      <td class="text-end">{{ det.regularUnitPrice ?? 0 | devise }}</td>
       <td class="text-end" [class.dc-stock-zero]="(det.totalQuantity ?? 0) <= 0">
         {{ det.totalQuantity ?? 0 }}
       </td>

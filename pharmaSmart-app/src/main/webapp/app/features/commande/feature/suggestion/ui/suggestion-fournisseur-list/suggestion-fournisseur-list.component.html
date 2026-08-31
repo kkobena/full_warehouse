@@ -1,3 +1,32 @@
+<!-- BANDEAU TOTAUX — au-dessus de la liste, là où le regard tombe en premier -->
+<div class="grid-caption">
+  @if (selectionCount() > 0) {
+    <span class="grid-caption__count grid-caption__count--attente">
+      <i aria-hidden="true" class="pi pi-check-square"></i>
+      <strong>{{ selectionCount() }}</strong> sél.
+    </span>
+  }
+  @if (totalUrgents() > 0) {
+    <span class="grid-caption__count grid-caption__count--attente">
+      <i aria-hidden="true" class="pi pi-bolt"></i>
+      <strong>{{ totalUrgents() }}</strong> urgent(s)
+    </span>
+  }
+  <span class="grid-caption__count">
+    <i aria-hidden="true" class="pi pi-truck"></i>
+    <strong>{{ fournisseurs().length }}</strong>
+    fournisseur{{ fournisseurs().length > 1 ? 's' : '' }}
+  </span>
+  <span class="grid-caption__totals ms-auto">
+    <span class="grid-caption__stat">
+      <span class="grid-caption__stat-label">Total estimé</span>
+      <span class="grid-caption__stat-value grid-caption__stat-value--achat">
+        {{ totalMontant() | devise }}
+      </span>
+    </span>
+  </span>
+</div>
+
 <!-- GRILLE FOURNISSEURS -->
 <div class="sfl-grid-wrap">
   <app-data-table
@@ -46,7 +75,7 @@
           }
         </td>
         <td class="text-end">
-         <span class="pharma-total"> {{ f.montantEstime != null ? (f.montantEstime | number:'1.0-0') + ' F' : '—' }}</span>
+         <span class="pharma-total"> {{ f.montantEstime != null ? (f.montantEstime | devise) : '—' }}</span>
         </td>
         <td>
           @if (f.statut) {
@@ -75,25 +104,4 @@
       </tr>
     </ng-template>
   </app-data-table>
-</div>
-
-<!-- FOOTER TOTAUX -->
-<div class="sfl-totals-bar">
-  @if (selectionCount() > 0) {
-    <span class="sfl-totals-bar__selected">
-      <i class="pi pi-check-square"></i> {{ selectionCount() }} sél.
-    </span>
-  }
-  @if (totalUrgents() > 0) {
-    <span class="sfl-totals-bar__urgent">
-      <i class="pi pi-bolt"></i> {{ totalUrgents() }} urgent(s)
-    </span>
-  }
-  <span class="ms-auto"></span>
-  <span class="sfl-totals-bar__item">
-    {{ fournisseurs().length }} fournisseur{{ fournisseurs().length > 1 ? 's' : '' }}
-  </span>
-  <span class="sfl-totals-bar__item">
-    Total estimé : <strong>{{ totalMontant() | number:'1.0-0' }} F</strong>
-  </span>
 </div>

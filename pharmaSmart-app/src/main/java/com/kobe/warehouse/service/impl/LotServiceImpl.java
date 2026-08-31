@@ -1,5 +1,9 @@
 package com.kobe.warehouse.service.impl;
 
+import static com.kobe.warehouse.service.utils.ServiceUtil.buildPeremptionStatut;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Lot;
@@ -10,10 +14,12 @@ import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.RayonProduit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
+import com.kobe.warehouse.domain.enumeration.RetourStatut;
 import com.kobe.warehouse.domain.enumeration.StatutLot;
 import com.kobe.warehouse.repository.LotRepository;
 import com.kobe.warehouse.repository.LotStockLocationRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
+import com.kobe.warehouse.repository.RetourBonRepository;
 import com.kobe.warehouse.service.OrderLineService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.LotDTO;
@@ -27,6 +33,11 @@ import com.kobe.warehouse.service.stock.dto.LotLocationDTO;
 import com.kobe.warehouse.service.stock.dto.LotPerimeDTO;
 import com.kobe.warehouse.service.stock.dto.LotPerimeValeurSum;
 import com.kobe.warehouse.service.stock.dto.TypeFilter;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,16 +47,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import static com.kobe.warehouse.service.utils.ServiceUtil.buildPeremptionStatut;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 @Service
 @Transactional
@@ -60,6 +61,7 @@ public class LotServiceImpl implements LotService {
     private final OrderLineService orderLineService;
     private final LotStockLocationService lotStockLocationService;
     private final StorageService storageService;
+    private final RetourBonRepository retourBonRepository;
 
     public LotServiceImpl(
         LotRepository lotRepository,
@@ -69,7 +71,8 @@ public class LotServiceImpl implements LotService {
         LotServiceReportService lotServiceReportService,
         OrderLineService orderLineService,
         LotStockLocationService lotStockLocationService,
-        StorageService storageService
+        StorageService storageService,
+        RetourBonRepository retourBonRepository
     ) {
         this.lotRepository = lotRepository;
         this.lotStockLocationRepository = lotStockLocationRepository;
@@ -79,6 +82,7 @@ public class LotServiceImpl implements LotService {
         this.orderLineService = orderLineService;
         this.lotStockLocationService = lotStockLocationService;
         this.storageService = storageService;
+        this.retourBonRepository = retourBonRepository;
     }
 
     @Override
@@ -89,7 +93,8 @@ public class LotServiceImpl implements LotService {
     @Override
     public LotDTO addLot(LotDTO lot) {
         OrderLine orderLine = this.orderLineService.findOneById(lot.getReceiptItemId())
-            .orElseThrow(() -> new GenericError("Ligne de commande introuvable", "ligneCommandeIntrouvable"));
+            .orElseThrow(() -> new GenericError("Ligne de commande introuvable",
+                "ligneCommandeIntrouvable"));
         Integer qtyReceived = orderLine.getQuantityReceived();
         if (Objects.nonNull(qtyReceived) && qtyReceived > 0) {
             int alreadyCovered = orderLine.getLots().stream()
@@ -100,7 +105,8 @@ public class LotServiceImpl implements LotService {
             int total = qtyReceived + Optional.of(orderLine.getFreeQty()).orElse(0);
             if (alreadyCovered + newQty > total) {
                 throw new GenericError(
-                    "La quantité totale des lots (" + (alreadyCovered + newQty) + ") dépasserait la quantité reçue (" + total + ")",
+                    "La quantité totale des lots (" + (alreadyCovered + newQty)
+                        + ") dépasserait la quantité reçue (" + total + ")",
                     "lotsDepassentQuantiteRecue"
                 );
             }
@@ -115,7 +121,8 @@ public class LotServiceImpl implements LotService {
                     + Optional.ofNullable(lot.getFreeQty()).orElse(0);
                 existingLot.setQuantity(existingLot.getQuantity() + addQty);
                 existingLot.setCurrentQuantity(existingLot.getCurrentQuantity() + addQty);
-                existingLot.setFreeQty(existingLot.getFreeQty() + Optional.ofNullable(lot.getFreeQty()).orElse(0));
+                existingLot.setFreeQty(
+                    existingLot.getFreeQty() + Optional.ofNullable(lot.getFreeQty()).orElse(0));
                 return new LotDTO(this.lotRepository.saveAndFlush(existingLot));
             }
         }
@@ -132,7 +139,9 @@ public class LotServiceImpl implements LotService {
     @Override
     public LotDTO addLotSurProduit(LotDTO lot) {
         if (lot.getProduitId() == null) {
-            throw new GenericError("Le produitId est obligatoire pour la saisie de lot hors commande", "produitIdManquant");
+            throw new GenericError(
+                "Le produitId est obligatoire pour la saisie de lot hors commande",
+                "produitIdManquant");
         }
         if (lot.getNumLot() == null || lot.getNumLot().isBlank()) {
             throw new GenericError("Le numéro de lot est obligatoire", "numLotManquant");
@@ -162,7 +171,9 @@ public class LotServiceImpl implements LotService {
             .sum();
         if (lotQty > stockStorage) {
             throw new GenericError(
-                "La quantité du lot (" + lotQty + ") ne peut pas dépasser le stock disponible sur cet emplacement (" + stockStorage + ")",
+                "La quantité du lot (" + lotQty
+                    + ") ne peut pas dépasser le stock disponible sur cet emplacement ("
+                    + stockStorage + ")",
                 "quantiteDepasseStock"
             );
         }
@@ -172,6 +183,8 @@ public class LotServiceImpl implements LotService {
         int prixUnit = fp != null ? fp.getPrixUni() : produit.getRegularUnitPrice();
 
         Lot lotEntity = lot.toEntity();
+        // Un lot saisi HORS COMMANDE porte sur du stock DÉJÀ présent : il est disponible tout
+        lotEntity.setStatut(StatutLot.AVAILABLE);
         lotEntity.setCurrentQuantity(lotEntity.getQuantity());
         lotEntity.setCreatedDate(LocalDateTime.now());
         lotEntity.setPrixAchat(prixAchat);
@@ -189,7 +202,8 @@ public class LotServiceImpl implements LotService {
     @Override
     public LotDTO editLot(LotDTO lot) {
         Lot entity = this.lotRepository.getReferenceById(lot.getId());
-        int ug = Optional.ofNullable(lot.getUgQuantityReceived()).orElse(Optional.ofNullable(lot.getFreeQty()).orElse(0));
+        int ug = Optional.ofNullable(lot.getUgQuantityReceived())
+            .orElse(Optional.ofNullable(lot.getFreeQty()).orElse(0));
         entity.setFreeQty(ug);
         entity.setExpiryDate(lot.getExpiryDate());
         entity.setManufacturingDate(lot.getManufacturingDate());
@@ -245,16 +259,22 @@ public class LotServiceImpl implements LotService {
 
     @Override
     public void adjustLots(Produit produit, int qtyDelta) {
-        if (qtyDelta == 0) return;
+        if (qtyDelta == 0) {
+            return;
+        }
 
         if (qtyDelta < 0) {
             // AJUSTEMENT_OUT : débiter en FEFO (expiry ASC)
             int remaining = Math.abs(qtyDelta);
             List<Lot> lots = lotRepository.findByProduitId(produit.getId());
             for (Lot lot : lots) {
-                if (remaining <= 0) break;
+                if (remaining <= 0) {
+                    break;
+                }
                 int toTake = Math.min(lot.getCurrentQuantity(), remaining);
-                if (toTake <= 0) continue;
+                if (toTake <= 0) {
+                    continue;
+                }
                 lot.setCurrentQuantity(lot.getCurrentQuantity() - toTake);
                 if (lot.getCurrentQuantity() <= 0) {
                     lot.setStatut(StatutLot.SOLD);
@@ -276,7 +296,9 @@ public class LotServiceImpl implements LotService {
 
     @Override
     public void creditSpecificLot(Lot lot, int qty) {
-        if (qty <= 0) return;
+        if (qty <= 0) {
+            return;
+        }
         Lot entity = lotRepository.getReferenceById(lot.getId());
         entity.setCurrentQuantity(entity.getCurrentQuantity() + qty);
         if (entity.getStatut() == StatutLot.SOLD) {
@@ -323,15 +345,19 @@ public class LotServiceImpl implements LotService {
     @Transactional(readOnly = true)
     public LotPerimeValeurSum findPerimeSum(LotFilterParam lotFilterParam) {
         updateLotFilterParam(lotFilterParam);
-        return this.lotRepository.fetchPerimeSum(this.lotRepository.buildCombinedSpecification(lotFilterParam));
-
+        LotPerimeValeurSum agregats = this.lotRepository.fetchPerimeSum(
+            this.lotRepository.buildCombinedSpecification(lotFilterParam)
+        );
+        return agregats.avecRetours(this.retourBonRepository.countByStatutNot(RetourStatut.CLOSED));
     }
 
     private void updateLotFilterParam(LotFilterParam lotFilterParam) {
         if (isNull(lotFilterParam.getMagasinId()) && isNull(lotFilterParam.getStorageId())) {
-            lotFilterParam.setMagasinId(this.storageService.getDefaultConnectedUserMainStorage().getMagasin().getId());
+            lotFilterParam.setMagasinId(
+                this.storageService.getDefaultConnectedUserMainStorage().getMagasin().getId());
         }
-        if (isNull(lotFilterParam.getDayCount()) && (isNull(lotFilterParam.getToDate()) && isNull(lotFilterParam.getFromDate()))) {
+        if (isNull(lotFilterParam.getDayCount()) && (isNull(lotFilterParam.getToDate()) && isNull(
+            lotFilterParam.getFromDate()))) {
             lotFilterParam.setDayCount(this.appConfigurationService.getNombreJourAlertPeremption());
         }
         if (isNull(lotFilterParam.getType())) {
@@ -351,12 +377,15 @@ public class LotServiceImpl implements LotService {
     }
 
     private int computeQuantity(LotDTO lot) {
-        int ug = Optional.ofNullable(lot.getUgQuantityReceived()).orElse(Optional.ofNullable(lot.getFreeQty()).orElse(0));
+        int ug = Optional.ofNullable(lot.getUgQuantityReceived())
+            .orElse(Optional.ofNullable(lot.getFreeQty()).orElse(0));
         return lot.getQuantityReceived() + ug;
     }
 
-    private Page<LotPerimeDTO> buildLotPerimePage(LotFilterParam lotFilterParam, Pageable pageable) {
-        return this.lotRepository.findAll(this.lotRepository.buildCombinedSpecification(lotFilterParam), pageable).map(lot -> {
+    private Page<LotPerimeDTO> buildLotPerimePage(LotFilterParam lotFilterParam,
+        Pageable pageable) {
+        return this.lotRepository.findAll(
+            this.lotRepository.buildCombinedSpecification(lotFilterParam), pageable).map(lot -> {
             // Fix NPE : un lot hors commande (saisi depuis la fiche produit) n'a pas d'OrderLine
             FournisseurProduit fournisseurProduit;
             Produit produit;
@@ -427,10 +456,11 @@ public class LotServiceImpl implements LotService {
     }
 
 
-
-    private void buildCommon(LotPerimeDTO lotPerime, Produit produit, FournisseurProduit fournisseurProduit) {
+    private void buildCommon(LotPerimeDTO lotPerime, Produit produit,
+        FournisseurProduit fournisseurProduit) {
         FamilleProduit familleProduit = produit.getFamille();
-        Rayon rayon = produit.getRayonProduits().stream().findFirst().map(RayonProduit::getRayon).orElse(null);
+        Rayon rayon = produit.getRayonProduits().stream().findFirst().map(RayonProduit::getRayon)
+            .orElse(null);
         lotPerime.setFamilleProduitName(familleProduit.getLibelle());
         lotPerime.setFamilleProduitName(familleProduit.getLibelle());
         lotPerime.setPrixAchat(fournisseurProduit.getPrixAchat());

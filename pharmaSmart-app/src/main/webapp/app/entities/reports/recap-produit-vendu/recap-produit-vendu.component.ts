@@ -45,7 +45,7 @@ import {
 } from "../../../features/partners/ui/fournisseur-select/fournisseur-select.component";
 import {NotificationService} from "../../../shared/services/notification.service";
 
-import { DeviseDirective } from 'app/shared/utils/devise';
+import { DeviseDirective, DevisePipe } from 'app/shared/utils/devise';
 @Component({
   selector: "app-recap-produit-vendu",
   templateUrl: "./recap-produit-vendu.component.html",
@@ -69,7 +69,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
     FournisseurSelectComponent,
     KpiStripComponent,
     KpiItemComponent
-  ]
+  , DevisePipe]
 })
 export default class RecapProduitVenduComponent implements OnInit {
   /**

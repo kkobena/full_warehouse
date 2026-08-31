@@ -16,8 +16,15 @@
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
 
-    <!-- File logging configuration for Tauri bundled mode -->
-    <springProfile name="tauri,prod">
+    <!--
+        Journal fichier : en tauri/prod comme en DÉVELOPPEMENT.
+
+        Le dev n'écrivait que sur la console — celle du terminal qui a lancé le serveur.
+        Quand ce terminal n'est pas sous les yeux (serveur lancé depuis l'IDE, session
+        détachée, sortie déjà défilée), une erreur serveur ne laissait strictement aucune
+        trace consultable : impossible de nommer la cause d'un HTTP 500 après coup.
+    -->
+    <springProfile name="tauri,prod,dev">
         <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-${user.home}/PharmaSmart/logs}/pharmasmart.log}"/>
         <property name="FILE_LOG_PATTERN" value="${FILE_LOG_PATTERN:-%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd'T'HH:mm:ss.SSSXXX}} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- [%t] %-40.40logger{39} : %crlf(%m) %n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
 
@@ -87,15 +94,15 @@
     <property name="CONSOLE_LOG_PATTERN"
         value="${CONSOLE_LOG_PATTERN:-%clr(%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd'T'HH:mm:ss.SSSXXX}}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %crlf(%m){red} %n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
 
-    <!-- Default: Console only -->
-    <springProfile name="!tauri,!prod">
+    <!-- Profils sans journal fichier : console seule -->
+    <springProfile name="!tauri &amp; !prod &amp; !dev">
         <root>
             <appender-ref ref="CONSOLE"/>
         </root>
     </springProfile>
 
-    <!-- Tauri/Prod: Console + File -->
-    <springProfile name="tauri,prod">
+    <!-- Tauri/Prod/Dev : console + fichier -->
+    <springProfile name="tauri,prod,dev">
         <root>
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="ASYNC"/>

@@ -17,6 +17,7 @@ import { FormAyantDroitComponent } from "../../customer/form-ayant-droit/form-ay
 import { CommonModule } from "@angular/common";
 import { NotificationService } from "../../../shared/services/notification.service";
 import { ButtonComponent, CardComponent, KeyFilterDirective, KpiItemComponent, KpiStripComponent } from "../../../shared/ui";
+import { DevisePipe } from 'app/shared/utils/devise';
 
 @Component({
   selector: "app-customer-edit-modal",
@@ -33,7 +34,7 @@ import { ButtonComponent, CardComponent, KeyFilterDirective, KpiItemComponent, K
     KpiItemComponent,
     KpiStripComponent,
     NgbTooltip
-  ]
+  , DevisePipe]
 })
 export class CustomerEditModalComponent implements OnInit {
   @Input() sale: ISales;

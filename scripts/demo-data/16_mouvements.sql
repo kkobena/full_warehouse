@@ -24,6 +24,12 @@
 
 \echo '>> 16_mouvements : historique des mouvements produit'
 
+-- La table est ENTIÈREMENT dérivée des commandes, ventes, retours et
+-- destructions : on la reconstruit plutôt que d'y ajouter. Sans cela, rejouer
+-- ce seul script après correction butterait sur la contrainte d'unicité
+-- (entity_id, produit_id, mouvement_type) — ou pire, doublerait l'historique.
+TRUNCATE TABLE inventory_transaction;
+
 -- ---------------------------------------------------------------------------
 -- 1. Entrées en stock — réceptions de commande
 --
@@ -91,10 +97,19 @@ JOIN retour_depot rd ON rd.id = i.retour_depot_id
 JOIN produit p ON p.id = i.produit_id;
 
 -- Retraits de périmés.
+--
+-- Daté à la DESTRUCTION, pas à la péremption : un produit périmé reste en rayon
+-- jusqu'à son retrait effectif, et c'est ce retrait qui constitue le mouvement
+-- de stock. 12_destruction.sql garantit datedestuction >= dateperemption, donc
+-- dater à la péremption anticiperait la sortie de plusieurs semaines — et
+-- placerait created_at avant transaction_date, ce qui ne se défend pas.
+--
+-- Noter la colonne « datedestuction », sans le « r » : la faute est dans le
+-- schéma, donc dans l'entité.
 INSERT INTO tmp_mvt
 SELECT
-    d.dateperemption,
-    d.created,
+    d.datedestuction,
+    d.datedestuction + TIME '17:00:00',
     'RETRAIT_PERIME',
     fp.produit_id,
     d.quantity,
@@ -111,8 +126,19 @@ WHERE d.destroyed;
 -- 3. Reconstitution du stock avant / après
 --
 -- Le solde est parcouru chronologiquement par produit : les entrées ajoutent,
--- les sorties retranchent. Le point de départ est calculé à rebours pour que
--- le dernier mouvement retombe exactement sur le stock courant.
+-- les sorties retranchent.
+--
+-- Le point de départ ne peut PAS être simplement « stock courant moins effet
+-- net de l'historique ». 07_stock.sql fixe les stocks indépendamment des
+-- réceptions et des ventes : pour 388 produits sur 494, ce calcul fait plonger
+-- le solde intermédiaire jusqu'à -108. Écrêter à zéro à l'insertion, comme le
+-- faisait la version précédente, brisait l'arithmétique du mouvement —
+-- après <> avant ± quantité sur 3476 lignes.
+--
+-- Le départ est donc relevé au minimum nécessaire pour que le solde reste
+-- positif d'un bout à l'autre. Contrepartie : pour ces produits, l'historique
+-- ne retombe plus sur le stock compté. L'écart est soldé en 5 par un mouvement
+-- d'ajustement — ce que fait une officine réelle quand l'inventaire diverge.
 -- ---------------------------------------------------------------------------
 CREATE TEMP TABLE tmp_mvt_pos AS
 WITH signe AS (
@@ -128,16 +154,25 @@ cumul AS (
                               ROWS UNBOUNDED PRECEDING) AS cumul_apres
       FROM signe s
 ),
-total AS (
-    SELECT produit_id, sum(delta) AS delta_total FROM signe GROUP BY produit_id
+bornes AS (
+    SELECT produit_id,
+           sum(delta)      AS delta_total,
+           min(cumul_apres) AS cumul_min
+      FROM cumul GROUP BY produit_id
 )
 SELECT
     c.*,
-    -- Stock de départ : l'état courant moins l'effet net de tout l'historique.
-    COALESCE(sp.qty_stock, 0) - t.delta_total AS stock_depart,
-    c.cumul_apres - c.delta                   AS cumul_avant
+    b.delta_total,
+    COALESCE(sp.qty_stock, 0) AS stock_courant,
+    GREATEST(
+        -- ce qu'il faudrait pour retomber sur le stock courant…
+        COALESCE(sp.qty_stock, 0) - b.delta_total,
+        -- …et ce qu'il faut au minimum pour ne jamais passer sous zéro.
+        -LEAST(b.cumul_min, 0)
+    ) AS stock_depart,
+    c.cumul_apres - c.delta AS cumul_avant
 FROM cumul c
-JOIN total t ON t.produit_id = c.produit_id
+JOIN bornes b ON b.produit_id = c.produit_id
 LEFT JOIN LATERAL (
     SELECT x.qty_stock FROM stock_produit x
       JOIN storage st ON st.id = x.storage_id
@@ -148,6 +183,9 @@ LEFT JOIN LATERAL (
 
 -- ---------------------------------------------------------------------------
 -- 4. Insertion
+--
+-- Plus aucun écrêtage : le stock de départ garantit déjà la positivité, et
+-- l'invariant après = avant ± quantité tient donc exactement.
 -- ---------------------------------------------------------------------------
 INSERT INTO inventory_transaction (
     id, transaction_date, mouvement_type,
@@ -159,8 +197,8 @@ INSERT INTO inventory_transaction (
 SELECT
     nextval('id_mvt_produit_seq'), m.mvt_date, m.mouvement_type,
     m.quantity,
-    GREATEST(0, (m.stock_depart + m.cumul_avant)::int),
-    GREATEST(0, (m.stock_depart + m.cumul_apres)::int),
+    (m.stock_depart + m.cumul_avant)::int,
+    (m.stock_depart + m.cumul_apres)::int,
     m.cost_amount, m.regular_unit_price,
     m.entity_id, m.produit_id, m.user_id, 1, s.id,
     m.moment
@@ -169,6 +207,48 @@ CROSS JOIN LATERAL (
     SELECT st.id FROM storage st
      WHERE st.storage_type = 'PRINCIPAL' AND st.magasin_id = 1 LIMIT 1
 ) s;
+
+-- ---------------------------------------------------------------------------
+-- 5. Ajustement d'inventaire de clôture
+--
+-- Pour les produits dont l'historique ne retombe pas sur le stock compté, une
+-- ligne d'ajustement solde l'écart à la date du jour. Sans elle, l'écran
+-- « Suivi article » afficherait un dernier mouvement en contradiction avec la
+-- fiche produit — l'incohérence la plus visible qui soit dans une démo.
+--
+-- entity_id est NOT NULL et désigne l'objet à l'origine du mouvement. Aucun
+-- enregistrement d'ajustement n'existe ici : on y met le produit lui-même,
+-- faute de mieux, plutôt que d'inventer une table.
+-- ---------------------------------------------------------------------------
+INSERT INTO inventory_transaction (
+    id, transaction_date, mouvement_type,
+    quantity, quantity_befor, quantity_after,
+    cost_amount, regular_unit_price,
+    entity_id, produit_id, user_id, magasin_id, storage_id,
+    created_at
+)
+SELECT
+    nextval('id_mvt_produit_seq'), CURRENT_DATE,
+    CASE WHEN e.ecart > 0 THEN 'AJUSTEMENT_IN' ELSE 'AJUSTEMENT_OUT' END,
+    abs(e.ecart), e.stock_final, e.stock_courant,
+    p.cost_amount, p.regular_unit_price,
+    e.produit_id::bigint, e.produit_id, u.id, 1, s.id,
+    CURRENT_DATE + TIME '08:00:00'
+FROM (
+    SELECT DISTINCT
+        produit_id,
+        stock_courant,
+        (stock_depart + delta_total)::int          AS stock_final,
+        stock_courant - (stock_depart + delta_total)::int AS ecart
+      FROM tmp_mvt_pos
+) e
+JOIN produit p ON p.id = e.produit_id
+CROSS JOIN LATERAL (
+    SELECT st.id FROM storage st
+     WHERE st.storage_type = 'PRINCIPAL' AND st.magasin_id = 1 LIMIT 1
+) s
+CROSS JOIN LATERAL (SELECT id FROM app_user ORDER BY id LIMIT 1) u
+WHERE e.ecart <> 0;
 
 DROP TABLE tmp_mvt_pos;
 DROP TABLE tmp_mvt;
@@ -179,6 +259,7 @@ DROP TABLE tmp_mvt;
 DO $$
 DECLARE
     v_mvt int; v_types int; v_neg int; v_ecart int; v_ventes int;
+    v_ajust int; v_desaccord int;
 BEGIN
     SELECT count(*) INTO v_mvt FROM inventory_transaction;
     SELECT count(DISTINCT mouvement_type) INTO v_types FROM inventory_transaction;
@@ -188,9 +269,9 @@ BEGIN
 
     -- Le mouvement doit se refermer : après = avant ± quantité.
     SELECT count(*) INTO v_ecart FROM inventory_transaction
-     WHERE (mouvement_type IN ('ENTREE_STOCK', 'RETOUR_DEPOT')
+     WHERE (mouvement_type IN ('ENTREE_STOCK', 'RETOUR_DEPOT', 'AJUSTEMENT_IN')
             AND quantity_after <> quantity_befor + quantity)
-        OR (mouvement_type IN ('SALE', 'RETRAIT_PERIME')
+        OR (mouvement_type IN ('SALE', 'RETRAIT_PERIME', 'AJUSTEMENT_OUT')
             AND quantity_after <> quantity_befor - quantity);
 
     -- Toute ligne de vente doit avoir laissé une trace.
@@ -199,13 +280,33 @@ BEGIN
        AND NOT EXISTS (SELECT 1 FROM inventory_transaction it
                         WHERE it.mouvement_type = 'SALE' AND it.entity_id = sl.id);
 
+    SELECT count(*) INTO v_ajust FROM inventory_transaction
+     WHERE mouvement_type IN ('AJUSTEMENT_IN', 'AJUSTEMENT_OUT');
+
+    -- Le dernier mouvement de chaque produit doit retomber sur son stock réel :
+    -- c'est ce que l'écran « Suivi article » met sous les yeux de l'utilisateur.
+    SELECT count(*) INTO v_desaccord
+      FROM (
+        SELECT DISTINCT ON (it.produit_id) it.produit_id, it.quantity_after
+          FROM inventory_transaction it
+         ORDER BY it.produit_id, it.transaction_date DESC, it.id DESC
+      ) dernier
+      JOIN stock_produit sp ON sp.produit_id = dernier.produit_id
+      JOIN storage st ON st.id = sp.storage_id
+     WHERE st.storage_type = 'PRINCIPAL' AND st.magasin_id = 1
+       AND sp.qty_stock <> dernier.quantity_after;
+
     IF v_mvt < 5000 THEN RAISE EXCEPTION 'Mouvements : % (attendu >= 5000)', v_mvt; END IF;
     IF v_types < 3 THEN RAISE EXCEPTION 'Types de mouvement : % (attendu >= 3)', v_types; END IF;
     IF v_neg > 0 THEN RAISE EXCEPTION '% mouvement(s) à quantité invalide', v_neg; END IF;
     IF v_ecart > 0 THEN RAISE EXCEPTION '% mouvement(s) qui ne se referme(nt) pas', v_ecart; END IF;
     IF v_ventes > 0 THEN RAISE EXCEPTION '% ligne(s) de vente sans mouvement', v_ventes; END IF;
+    IF v_desaccord > 0 THEN
+        RAISE EXCEPTION '% produit(s) dont le dernier mouvement contredit le stock', v_desaccord;
+    END IF;
 
-    RAISE NOTICE '% mouvements, % types distincts.', v_mvt, v_types;
+    RAISE NOTICE '% mouvements, % types distincts, dont % ajustement(s) de clôture.',
+                 v_mvt, v_types, v_ajust;
 END $$;
 
 \echo '<< 16_mouvements : terminé'

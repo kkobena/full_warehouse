@@ -95,6 +95,7 @@
               [routerLink]="['./', user.login, 'view']"
               [text]="true"
               icon="pi pi-eye"
+              ariaLabel="Voir"
               ngbTooltip="Voir"
               severity="info"
             />
@@ -103,6 +104,7 @@
               [routerLink]="['./', user.login, 'edit']"
               [text]="true"
               icon="pi pi-pencil"
+              ariaLabel="Modifier"
               ngbTooltip="Modifier"
               severity="primary"
             />
@@ -113,7 +115,8 @@
                 [rounded]="true"
                 [text]="true"
                 icon="pi pi-trash"
-                ngbTooltip="Supprimer"
+                ariaLabel="Supprimer"
+              ngbTooltip="Supprimer"
                 severity="danger"
               />
             }

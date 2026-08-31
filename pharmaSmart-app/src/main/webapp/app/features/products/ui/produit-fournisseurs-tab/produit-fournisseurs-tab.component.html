@@ -49,6 +49,7 @@
             (ngModelChange)="onTogglePrincipal(fp, $event)"
             [disabled]="isDisabled()"
             [ngModel]="isPrincipal(fp)"
+            ariaLabel="Définir comme fournisseur principal"
             ngbTooltip="Définir comme fournisseur principal"
           />
         </td>
@@ -59,6 +60,7 @@
               [disabled]="isDisabled()"
               [text]="true"
               icon="pi pi-pencil"
+              ariaLabel="Modifier le fournisseur"
               ngbTooltip="Modifier"
               severity="secondary"
               size="small"
@@ -68,6 +70,7 @@
               [disabled]="isDisabled() || (isPrincipal(fp) && produit().fournisseurProduits!.length > 1)"
               [text]="true"
               icon="pi pi-trash"
+              ariaLabel="Retirer le fournisseur"
               ngbTooltip="Supprimer"
               severity="danger"
               size="small"

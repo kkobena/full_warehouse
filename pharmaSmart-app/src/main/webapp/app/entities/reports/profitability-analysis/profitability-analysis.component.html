@@ -1,88 +1,99 @@
 <div class="pharma-smart-content p-1">
 
   <!-- Toolbar -->
-  <app-toolbar [code]="navCode()" icon="pi pi-chart-line" title="Analyse de Rentabilité des Produits">
+  <app-toolbar [code]="navCode()" icon="pi pi-chart-line"
+               title="Analyse de Rentabilité des Produits">
 
     <ng-container ngProjectAs="[toolbarFilters]">
-        <div class="pharma-toolbar-filters">
-          <!-- Filtre famille produit -->
-          <app-select
-            (ngModelChange)="selectedFamilleId.set($event); onFilterChange()"
-            [ngModel]="selectedFamilleId()"
-            [items]="familleOptions()"
-            [clearable]="true"
-            appendTo="body"
-            bindLabel="label"
-            bindValue="value"
-            placeholder="Famille de produit"
-            size="large"
-          />
-          <!-- Recherche texte -->
-          <app-icon-field [overlay]="true" icon="pi pi-search">
-            <input
-              (ngModelChange)="onSearchChange($event)"
-              [ngModel]="searchQuery()"
-              placeholder="Rechercher"
-              type="text" class="form-control" />
-          </app-icon-field>
-        </div>
-      </ng-container>
+      <div class="pharma-toolbar-filters">
+        <!-- Filtre famille produit -->
+        <app-select
+          (ngModelChange)="selectedFamilleId.set($event); onFilterChange()"
+          [clearable]="true"
+          [items]="familleOptions()"
+          [ngModel]="selectedFamilleId()"
+          [style]="{ 'min-width': '250px' }"
+          appendTo="body"
+          bindLabel="label"
+          bindValue="value"
+          placeholder="Famille de produit"
+          size="large"
+        />
+        <!-- Recherche texte -->
+        <app-icon-field [overlay]="true" icon="pi pi-search">
+          <input
+            (ngModelChange)="onSearchChange($event)"
+            [ngModel]="searchQuery()"
+            class="form-control"
+            placeholder="Rechercher" type="text" />
+        </app-icon-field>
+      </div>
+    </ng-container>
 
-<ng-container ngProjectAs="[toolbarActions]">
-        <div>
-          <app-button
-            (clicked)="toggleHelpDrawer()"
-            [outlined]="true"
-            class="mr-1"
-            icon="pi pi-question-circle"
-            label="Aide"
-            severity="secondary"
-            size="small"
-          />
-          <app-button
-            (clicked)="showLowMarginProducts()"
-            [label]="'Faible marge (< ' + seuilFaibleMarge + '%)'"
-            [outlined]="showFaibleMarge()"
-            class="mr-1"
-            icon="pi pi-exclamation-triangle"
-            severity="warn"
-            size="small"
-          />
-          <app-button
-            (clicked)="onClearFilters()"
-            class="mr-1"
-            icon="pi pi-filter-slash"
-            label="Effacer les filtres"
-            severity="secondary"
-            size="small"
-          />
-          <app-button
-            (clicked)="loadProducts()"
-            icon="pi pi-refresh"
-            label="Rafraîchir"
-            severity="info"
-            size="small"
-          />
-        </div>
-      </ng-container>
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div>
+        <app-button
+          (clicked)="toggleHelpDrawer()"
+          [outlined]="true"
+          class="mr-1"
+          icon="pi pi-question-circle"
+          label="Aide"
+          severity="secondary"
+          size="small"
+        />
+        <app-button
+          (clicked)="showLowMarginProducts()"
+          [label]="'Faible marge (< ' + seuilFaibleMarge + '%)'"
+          [outlined]="showFaibleMarge()"
+          class="mr-1"
+          icon="pi pi-exclamation-triangle"
+          severity="warn"
+          size="small"
+        />
+        <app-button
+          (clicked)="onClearFilters()"
+          class="mr-1"
+          icon="pi pi-filter-slash"
+          label="Effacer les filtres"
+          severity="secondary"
+          size="small"
+        />
+        <app-button
+          (clicked)="loadProducts()"
+          icon="pi pi-refresh"
+          label="Rafraîchir"
+          severity="info"
+          size="small"
+        />
+      </div>
+    </ng-container>
   </app-toolbar>
 
   <!-- KPI Strip -->
   @if (summary()) {
     <app-kpi-strip stripClass="mt-2 mb-2">
-      <app-kpi-item [accent]="'primary'" icon="pi pi-chart-bar" iconClass="text-primary" label="CA Total" [value]="summary()!.caTotalGlobal | number: '1.0-0'" valueClass="text-primary">
+      <app-kpi-item [accent]="'primary'" [value]="summary()!.caTotalGlobal | number: '1.0-0'" icon="pi pi-chart-bar"
+                    iconClass="text-primary" label="CA Total"
+                    valueClass="text-primary">
         <span ngProjectAs="[kpiValue]">&ngsp;<small>F CFA</small></span>
         <ng-container ngProjectAs="[kpiSub]">chiffre d'affaires</ng-container>
       </app-kpi-item>
-      <app-kpi-item [accent]="'success'" icon="pi pi-money-bill" iconClass="text-success" label="Marge brute globale" [value]="summary()!.margeBruteGlobale | number: '1.0-0'" valueClass="text-success">
+      <app-kpi-item [accent]="'success'" [value]="summary()!.margeBruteGlobale | number: '1.0-0'" icon="pi pi-money-bill"
+                    iconClass="text-success"
+                    label="Marge brute globale"
+                    valueClass="text-success">
         <span ngProjectAs="[kpiValue]">&ngsp;<small>F CFA</small></span>
         <ng-container ngProjectAs="[kpiSub]">profit brut</ng-container>
       </app-kpi-item>
-      <app-kpi-item [accent]="'warning'" icon="pi pi-percentage" iconClass="text-warning" label="Taux de marge moyen" [value]="summary()!.tauxMargeMoyen | number: '1.2-2'" valueClass="text-warning">
+      <app-kpi-item [accent]="'warning'" [value]="summary()!.tauxMargeMoyen | number: '1.2-2'" icon="pi pi-percentage"
+                    iconClass="text-warning"
+                    label="Taux de marge moyen" valueClass="text-warning">
         <span ngProjectAs="[kpiValue]">&ngsp;<small>%</small></span>
         <ng-container ngProjectAs="[kpiSub]">rentabilité moyenne</ng-container>
       </app-kpi-item>
-      <app-kpi-item [accent]="'danger'" icon="pi pi-box" iconClass="text-danger" label="Produits analysés" [value]="summary()!.totalProduits | number" valueClass="text-danger">
+      <app-kpi-item [accent]="'danger'" [value]="summary()!.totalProduits | number" icon="pi pi-box"
+                    iconClass="text-danger" label="Produits analysés"
+                    valueClass="text-danger">
         <ng-container ngProjectAs="[kpiSub]">références</ng-container>
       </app-kpi-item>
     </app-kpi-strip>
@@ -135,7 +146,7 @@
             <i class="pi pi-table text-info"></i>
             Rentabilité des Produits
             @if (showFaibleMarge()) {
-              <app-badge severity="warn" class="ms-2" label="Filtre : marge faible" />
+              <app-badge class="ms-2" label="Filtre : marge faible" severity="warn" />
             }
           </h5>
         </div>
@@ -151,15 +162,15 @@
             [rows]="pageSize()"
             [scrollable]="true"
             [showCurrentPageReport]="true"
+            [size]="'small'"
             [totalRecords]="totalRecords()"
             [value]="products()"
-            [size]="'small'"
             currentPageReportTemplate="{first()} - {last} sur {totalRecords} produits"
             scrollHeight="500px"
           >
             <ng-template #header>
               <tr class="pharma-table-head">
-<th appSortableHeader="libelle">Produit</th>
+                <th appSortableHeader="libelle">Produit</th>
                 <th>Code CIP</th>
                 <th>Famille</th>
                 <th class="text-end">Nb Ventes</th>
@@ -181,8 +192,8 @@
                 <td class="text-end pharma-price">{{ p.margeBrute | number: '1.0-0' }}</td>
                 <td class="text-end">
                   <app-badge
-                    [severity]="getMarginSeverity(p.tauxMargePct)"
                     [label]="(p.tauxMargePct | number: '1.2-2') + '%'"
+                    [severity]="getMarginSeverity(p.tauxMargePct)"
                   />
                 </td>
                 <td class="text-end">{{ p.tauxRotationAnnuel | number: '1.2-2' }}x</td>
@@ -205,12 +216,12 @@
 
   <!-- Drawer Aide -->
   <app-offcanvas [(visible)]="helpDrawerVisible" position="right" width="560px">
-  <div appOffcanvasHeader>
+    <div appOffcanvasHeader>
       <div class="d-flex align-items-center gap-2">
         <i class="pi pi-question-circle text-primary" style="font-size: 1.5rem"></i>
         <span class="fw-bold fs-5">Guide — Analyse de Rentabilité</span>
       </div>
-  </div>
+    </div>
     <div class="p-3">
 
       <div class="mb-4">
@@ -314,5 +325,5 @@
       </div>
 
     </div>
-</app-offcanvas>
+  </app-offcanvas>
 </div>

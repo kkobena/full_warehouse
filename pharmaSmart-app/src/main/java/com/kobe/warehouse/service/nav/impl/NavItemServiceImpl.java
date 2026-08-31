@@ -267,7 +267,14 @@ public class NavItemServiceImpl implements NavItemService {
         List<NavNodeDTO> tree = new ArrayList<>();
         for (NavItem root : roots) {
             NavPermissionsDTO perms = permissionsMap.get(root.getId());
-            if (perms == null || !perms.canDisplay()) continue;
+            // Même règle que pour les enfants : un élément INTRA-PAGE (bouton, onglet) reste
+            // dans l'arbre même masqué, parce que c'est de l'arbre que le front tire ses
+            // habilitations. Sans cette exception, un item de ce type placé à la racine —
+            // « nouvelle-vente » l'est — perdait toute permission dès qu'on le masquait, et
+            // le bouton correspondant disparaissait des écrans qui le testent.
+            boolean isInPageItem = root.getTargetType() == NavTargetType.SECTION
+                                || root.getTargetType() == NavTargetType.ACTION;
+            if (perms == null || (!perms.canDisplay() && !isInPageItem)) continue;
             List<NavNodeDTO> children = buildChildren(root, allItems, permissionsMap, userOrderMap);
             if (root.getTargetType() == NavTargetType.GROUP && children.isEmpty()) continue;
             tree.add(toNodeDTO(root, perms, children));

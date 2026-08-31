@@ -30,6 +30,9 @@ import {
 import {ProduitVentesTabComponent} from '../produit-ventes-tab/produit-ventes-tab.component';
 import {ProduitAchatsTabComponent} from '../produit-achats-tab/produit-achats-tab.component';
 import {ProduitRayonsTabComponent} from '../produit-rayons-tab/produit-rayons-tab.component';
+import {
+  ProduitGeneriquesTabComponent
+} from '../produit-generiques-tab/produit-generiques-tab.component';
 
 @Component({
   selector: 'app-produit-detail-panel',
@@ -51,6 +54,7 @@ import {ProduitRayonsTabComponent} from '../produit-rayons-tab/produit-rayons-ta
     ProduitVentesTabComponent,
     ProduitAchatsTabComponent,
     ProduitRayonsTabComponent,
+    ProduitGeneriquesTabComponent,
   ],
 })
 export class ProduitDetailPanelComponent {

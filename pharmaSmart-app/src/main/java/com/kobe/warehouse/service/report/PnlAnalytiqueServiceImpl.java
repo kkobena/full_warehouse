@@ -78,7 +78,9 @@ public class PnlAnalytiqueServiceImpl implements PnlAnalytiqueService {
             BigDecimal taux = row[3] != null ? new BigDecimal(row[3].toString()) : BigDecimal.ZERO;
 
             String monthLabel = YearMonth.of(yr, mo).atDay(1).format(fmt);
-            if (!labels.contains(monthLabel)) labels.add(monthLabel);
+            if (!labels.contains(monthLabel)) {
+                labels.add(monthLabel);
+            }
             seriesMap.computeIfAbsent(famille, k -> new ArrayList<>()).add(taux);
         }
 
@@ -106,7 +108,9 @@ public class PnlAnalytiqueServiceImpl implements PnlAnalytiqueService {
             BigDecimal taux = row[3] != null ? new BigDecimal(row[3].toString()) : BigDecimal.ZERO;
 
             String monthLabel = YearMonth.of(yr, mo).atDay(1).format(fmt);
-            if (!labels.contains(monthLabel)) labels.add(monthLabel);
+            if (!labels.contains(monthLabel)) {
+                labels.add(monthLabel);
+            }
             seriesMap.computeIfAbsent(segment, k -> new ArrayList<>()).add(taux);
         }
 
@@ -118,12 +122,14 @@ public class PnlAnalytiqueServiceImpl implements PnlAnalytiqueService {
     }
 
     private String segmentLabel(String natureVente) {
-        if (natureVente == null) return "Autre";
+        if (natureVente == null) {
+            return "Autre";
+        }
         try {
             return switch (NatureVente.valueOf(natureVente)) {
-                case COMPTANT  -> "Comptant";
-                case ASSURANCE -> "Remboursable (Assurance)";
-                case CARNET    -> "Carnet";
+                case COMPTANT -> "Comptant";
+                case ASSURANCE -> "Ordonnancée (tiers payant)";
+                case CARNET -> "Carnet";
             };
         } catch (IllegalArgumentException e) {
             return natureVente;

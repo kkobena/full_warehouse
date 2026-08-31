@@ -1,21 +1,38 @@
-import { Component, computed, inject, input, OnInit, output, signal, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import type { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonComponent, BadgeComponent, DataTableComponent, InputNumberComponent, KeyFilterDirective } from 'app/shared/ui';
-import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
-import { NGB_DATE_TO_ISO } from 'app/shared/util/warehouse-util';
-import { forkJoin } from 'rxjs';
-import { IDelivery } from 'app/shared/model/delevery.model';
-import { IOrderLine } from 'app/shared/model/order-line.model';
 import {
-  IReconciliationFactureFournisseur,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  OnInit,
+  output,
+  signal
+} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import type {NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
+import {
+  BadgeComponent,
+  ButtonComponent,
+  DataTableComponent,
+  InputNumberComponent,
+  KeyFilterDirective
+} from 'app/shared/ui';
+import {PharmaDatePickerComponent} from 'app/shared/date-picker/pharma-date-picker.component';
+import {NGB_DATE_TO_ISO} from 'app/shared/util/warehouse-util';
+import {forkJoin} from 'rxjs';
+import {IDelivery} from 'app/shared/model/delevery.model';
+import {IOrderLine} from 'app/shared/model/order-line.model';
+import {
   IReconciliationCommand,
+  IReconciliationFactureFournisseur,
 } from 'app/shared/model/reconciliation-facture-fournisseur.model';
-import { DeliveryService } from 'app/entities/commande/delevery/delivery.service';
-import { NotificationService } from 'app/shared/services/notification.service';
-import { ErrorService } from 'app/shared/error.service';
-import { ReconciliationFournisseurService } from "../../data-access/reconciliation-fournisseur.service";
+import {DeliveryService} from 'app/entities/commande/delevery/delivery.service';
+import {NotificationService} from 'app/shared/services/notification.service';
+import {ErrorService} from 'app/shared/error.service';
+import {
+  ReconciliationFournisseurService
+} from "../../data-access/reconciliation-fournisseur.service";
 
 @Component({
   selector: 'app-reconciliation-workspace',
@@ -30,68 +47,28 @@ import { ReconciliationFournisseurService } from "../../data-access/reconciliati
     InputNumberComponent,
     PharmaDatePickerComponent,
     DataTableComponent,
-    KeyFilterDirective,
-  ],
+    KeyFilterDirective],
 })
 export class ReconciliationWorkspaceComponent implements OnInit {
-  private readonly reconciliationService = inject(ReconciliationFournisseurService);
-  private readonly deliveryService = inject(DeliveryService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly errorService = inject(ErrorService);
-
   readonly delivery = input.required<IDelivery>();
   readonly done = output<IReconciliationFactureFournisseur>();
   readonly cancelled = output<void>();
-
   readonly deliveryRef = computed<string>(() => {
     const d = this.delivery() as any;
     return d.receiptReference ?? d.orderReference ?? '';
   });
-
   protected loading = signal(true);
   protected saving = signal(false);
   protected orderLines = signal<IOrderLine[]>([]);
   protected existing = signal<IReconciliationFactureFournisseur | null>(null);
-
   protected readonly factureReference = signal('');
   protected readonly factureDate = signal<NgbDateStruct | null>(null);
   protected readonly factureMontantHT = signal<number | null>(null);
   protected readonly factureTVA = signal<number | null>(null);
-
-  private static toNgbDate(date: Date): NgbDateStruct {
-    return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
-  }
-
-  ngOnInit(): void {
-    const d = this.delivery();
-    const cmdId = d.commandeId ?? { id: d.id!, orderDate: d.orderDate ?? d.receiptDate! };
-    forkJoin({
-      commande: this.deliveryService.find(d.commandeId),
-      recon: this.reconciliationService.find(cmdId.id!, cmdId.orderDate!),
-    }).subscribe({
-      next: ({ commande, recon }) => {
-        this.orderLines.set(((commande.body as any)?.orderLines ?? []) as IOrderLine[]);
-        if (recon) {
-          this.existing.set(recon);
-          this.factureReference.set(recon.factureReference ?? '');
-          this.factureDate.set(recon.factureDate ? ReconciliationWorkspaceComponent.toNgbDate(new Date(recon.factureDate)) : null);
-          this.factureMontantHT.set(recon.factureMontantHT ?? null);
-          this.factureTVA.set(recon.factureTVA ?? null);
-        } else {
-          this.factureReference.set((d as any).receiptReference ?? '');
-          const rawDate = (d as any).receiptDate ?? (d as any).orderDate;
-          this.factureDate.set(rawDate ? ReconciliationWorkspaceComponent.toNgbDate(new Date(rawDate)) : null);
-          this.factureMontantHT.set(null);
-          this.factureTVA.set((d as any).taxAmount ?? 0);
-        }
-        this.loading.set(false);
-      },
-      error: () => {
-        this.notificationService.error('Erreur lors du chargement');
-        this.loading.set(false);
-      },
-    });
-  }
+  private readonly reconciliationService = inject(ReconciliationFournisseurService);
+  private readonly deliveryService = inject(DeliveryService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly errorService = inject(ErrorService);
 
   protected get blMontantHT(): number {
     return (this.delivery() as any).grossAmount ?? 0;
@@ -129,10 +106,47 @@ export class ReconciliationWorkspaceComponent implements OnInit {
     return !!this.factureReference()?.trim() && this.factureMontantHT() !== null;
   }
 
-  protected onSubmit(): void {
-    if (!this.canSave) return;
+  private static toNgbDate(date: Date): NgbDateStruct {
+    return {year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate()};
+  }
+
+  ngOnInit(): void {
     const d = this.delivery();
-    const cmdId = d.commandeId ?? { id: d.id!, orderDate: d.orderDate ?? d.receiptDate! };
+    const cmdId = d.commandeId ?? {id: d.id!, orderDate: d.orderDate ?? d.receiptDate!};
+    forkJoin({
+      commande: this.deliveryService.find(d.commandeId),
+      recon: this.reconciliationService.find(cmdId.id!, cmdId.orderDate!),
+    }).subscribe({
+      next: ({commande, recon}) => {
+        this.orderLines.set(((commande.body as any)?.orderLines ?? []) as IOrderLine[]);
+        if (recon) {
+          this.existing.set(recon);
+          this.factureReference.set(recon.factureReference ?? '');
+          this.factureDate.set(recon.factureDate ? ReconciliationWorkspaceComponent.toNgbDate(new Date(recon.factureDate)) : null);
+          this.factureMontantHT.set(recon.factureMontantHT ?? null);
+          this.factureTVA.set(recon.factureTVA ?? null);
+        } else {
+          this.factureReference.set((d as any).receiptReference ?? '');
+          const rawDate = (d as any).receiptDate ?? (d as any).orderDate;
+          this.factureDate.set(rawDate ? ReconciliationWorkspaceComponent.toNgbDate(new Date(rawDate)) : null);
+          this.factureMontantHT.set(null);
+          this.factureTVA.set((d as any).taxAmount ?? 0);
+        }
+        this.loading.set(false);
+      },
+      error: () => {
+        this.notificationService.error('Erreur lors du chargement');
+        this.loading.set(false);
+      },
+    });
+  }
+
+  protected onSubmit(): void {
+    if (!this.canSave) {
+      return;
+    }
+    const d = this.delivery();
+    const cmdId = d.commandeId ?? {id: d.id!, orderDate: d.orderDate ?? d.receiptDate!};
     const cmd: IReconciliationCommand = {
       factureReference: this.factureReference().trim(),
       factureDate: NGB_DATE_TO_ISO(this.factureDate()),
@@ -164,19 +178,27 @@ export class ReconciliationWorkspaceComponent implements OnInit {
 
   protected statutSeverity(statut?: string): 'success' | 'warn' | 'danger' | 'secondary' {
     switch (statut) {
-      case 'RECONCILIEE': return 'success';
-      case 'ECART': return 'warn';
-      case 'LITIGE': return 'danger';
-      default: return 'secondary';
+      case 'RECONCILIEE':
+        return 'success';
+      case 'ECART':
+        return 'warn';
+      case 'LITIGE':
+        return 'danger';
+      default:
+        return 'secondary';
     }
   }
 
   protected statutLabel(statut?: string): string {
     switch (statut) {
-      case 'RECONCILIEE': return 'Réconciliée';
-      case 'ECART': return 'Écart';
-      case 'LITIGE': return 'Litige';
-      default: return 'En attente';
+      case 'RECONCILIEE':
+        return 'Réconciliée';
+      case 'ECART':
+        return 'Écart';
+      case 'LITIGE':
+        return 'Litige';
+      default:
+        return 'En attente';
     }
   }
 }

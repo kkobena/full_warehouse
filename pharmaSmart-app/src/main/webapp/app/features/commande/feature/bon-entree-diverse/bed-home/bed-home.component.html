@@ -49,33 +49,33 @@
         <app-icon-field [overlay]="true" class="lb-search" icon="pi pi-search">
           <input
             (keyup.enter)="onSearch()"
-            [ngModel]="search()" (ngModelChange)="search.set($event)"
+            (ngModelChange)="search.set($event)" [ngModel]="search()"
             class="form-control"
             placeholder="Référence, libellé…"
             type="text" />
         </app-icon-field>
 
         <app-select
-          (selectionChange)="onSearch()"
-          [ngModel]="filterMotif()" (ngModelChange)="filterMotif.set($event)"
-          [clearable]="true"
+          (ngModelChange)="filterMotif.set($event)"
+          (selectionChange)="onSearch()" [clearable]="true"
           [items]="motifOptions"
+          [ngModel]="filterMotif()"
           bindLabel="label"
           bindValue="value"
           placeholder="Tous les motifs"
         />
 
         <pharma-date-picker
-          (selectionChange)="onSearch()"
-          [ngModel]="dtStart()" (ngModelChange)="dtStart.set($event)"
+          (ngModelChange)="dtStart.set($event)"
+          (selectionChange)="onSearch()" [ngModel]="dtStart()"
           class="lb-date"
           id="bedDtStart"
           label="Début"
         />
 
         <pharma-date-picker
-          (selectionChange)="onSearch()"
-          [ngModel]="dtEnd()" (ngModelChange)="dtEnd.set($event)"
+          (ngModelChange)="dtEnd.set($event)"
+          (selectionChange)="onSearch()" [ngModel]="dtEnd()"
           class="lb-date"
           id="bedDtEnd"
           label="Fin"
@@ -154,7 +154,7 @@
               <span class="pharma-price">{{ b.lignesCount }}</span>
             </td>
             <td class="text-end">
-              <span class="pharma-price">{{ b.grossAmount | number:'1.0-0' }} F</span>
+              <span class="pharma-price">{{ b.grossAmount | devise }}</span>
             </td>
             <td>
               <app-badge
@@ -226,9 +226,10 @@
                 }
                 <app-button
                   (clicked)="onNouveauBed()"
+                  [outlined]="true"
                   icon="pi pi-plus"
                   label="Nouveau"
-                  severity="primary"
+                  severity="success"
                   size="small"
                 />
 

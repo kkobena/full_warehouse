@@ -1,10 +1,10 @@
-import { Signal, WritableSignal } from '@angular/core';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { Observable } from 'rxjs';
-import { ICustomer } from '../../../../shared/model';
-import { SalesFacade } from '../../data-access/facades/sales.facade';
-import { CustomerSearchService } from '../../data-access/services/customer-search.service';
-import { NotificationService } from '../../../../shared/services/notification.service';
+import {Signal, WritableSignal} from '@angular/core';
+import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import {Observable} from 'rxjs';
+import {ICustomer} from '../../../../shared/model';
+import {SalesFacade} from '../../data-access/facades/sales.facade';
+import {CustomerSearchService} from '../../data-access/services/customer-search.service';
+import {NotificationService} from '../../../../shared/services/notification.service';
 
 /**
  * Configuration pour le mixin de gestion des clients
@@ -81,7 +81,7 @@ export interface CustomerHandlingContext {
  * ```
  */
 export function createCustomerHandling(context: CustomerHandlingContext) {
-  const { facade, notificationService, config, customers } = context;
+  const {facade, notificationService, config, customers} = context;
 
   /**
    * Recherche des clients par terme de recherche
@@ -101,7 +101,7 @@ export function createCustomerHandling(context: CustomerHandlingContext) {
           }
         },
         error: () => {
-          notificationService.error('Erreur', 'Erreur lors de la recherche client');
+          notificationService.error('Erreur lors de la recherche client');
           customers.set([]);
         },
       });
@@ -123,7 +123,7 @@ export function createCustomerHandling(context: CustomerHandlingContext) {
       openCustomerFormModal(null);
     } else {
       customers.set(results);
-      openCustomerListModal({ componentInputs: { customers: results } });
+      openCustomerListModal({componentInputs: {customers: results}});
     }
   }
 
@@ -184,7 +184,7 @@ export function createCustomerHandling(context: CustomerHandlingContext) {
     componentInputs?: Record<string, unknown>;
   }): NgbModalRef | null {
     if (!context.customerListComponent) {
-      notificationService.error('Erreur', 'Composant de liste client non configuré');
+      notificationService.error('Composant de liste client non configuré');
       return null;
     }
 
@@ -209,13 +209,13 @@ export function createCustomerHandling(context: CustomerHandlingContext) {
         if (customer?.id) {
           selectCustomer(customer);
         } else if (config.customerRequired) {
-          notificationService.warning('Client requis', `Un client est obligatoire pour une vente ${config.saleType}`);
+          notificationService.warning(`Un client est obligatoire pour une vente ${config.saleType}`, 'Client requis');
         }
       },
       () => {
         // Modal fermée sans sélection
         if (config.customerRequired && !hasCustomer()) {
-          notificationService.info('Information', 'Veuillez sélectionner un client pour continuer');
+          notificationService.info('Veuillez sélectionner un client pour continuer', 'Information');
         }
       },
     );
@@ -237,7 +237,7 @@ export function createCustomerHandling(context: CustomerHandlingContext) {
     },
   ): NgbModalRef | null {
     if (!context.customerFormComponent) {
-      notificationService.error('Erreur', 'Composant de formulaire client non configuré');
+      notificationService.error('Composant de formulaire client non configuré');
       return null;
     }
 
@@ -276,7 +276,9 @@ export function createCustomerHandling(context: CustomerHandlingContext) {
    * Obtient l'affichage formaté du client
    */
   function getCustomerDisplay(customer: ICustomer | null): string {
-    if (!customer) return '';
+    if (!customer) {
+      return '';
+    }
     return `${customer.firstName || ''} ${customer.lastName || ''} ${customer.phone || ''}`.trim();
   }
 

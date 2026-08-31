@@ -118,6 +118,16 @@
   --p-border-radius-xl: 12px;
 }
 
+/* Ligne sélectionnée d'un tableau : une seule teinte pour toute l'application, reprise par
+   la classe globale `.ligne-selected` (voir table-common-global.scss). Un thème n'a que ces
+   deux variables à redéfinir pour changer l'aspect de la sélection partout. */
+:root,:host {
+  --pharma-row-selected-bg: #cfe6ff;
+  --pharma-row-selected-hover-bg: #b9daff;
+  --pharma-row-selected-fg: #0a2f5c;
+  --pharma-row-selected-accent: #0d6efd;
+}
+
 :root,:host {
   --p-transition-duration: 0.2s;
   --p-overlay-select-border-radius: var(--p-border-radius-md);

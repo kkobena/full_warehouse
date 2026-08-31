@@ -11,7 +11,12 @@ import {
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {NgbPopover, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {ButtonComponent, DataTableComponent, EditableCellComponent, IconFieldComponent} from '../../../../shared/ui';
+import {
+  ButtonComponent,
+  DataTableComponent,
+  EditableCellComponent,
+  IconFieldComponent
+} from '../../../../shared/ui';
 import {IRemise, ISalesLine} from '../../../../shared/model';
 import {
   NgbConfirmDialogService
@@ -138,9 +143,6 @@ export class ProductListComponent {
     return this.selectedLineId() === line.id;
   }
 
-  getLineTotal(line: ISalesLine): number {
-    return (line.regularUnitPrice || 0) * (line.quantityRequested || 0) - (line.discountAmount || 0);
-  }
 
   // Méthodes pour le footer
   getTotalQuantityRequested(): number {
@@ -152,7 +154,7 @@ export class ProductListComponent {
   }
 
   getTotalAmount(): number {
-    return this.salesLines().reduce((sum, line) => sum + this.getLineTotal(line), 0);
+    return this.salesLines().reduce((sum, line) => sum + line.salesAmount, 0);
   }
 
   onRemoveRemise(): void {

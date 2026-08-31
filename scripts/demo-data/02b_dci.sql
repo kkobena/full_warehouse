@@ -5,8 +5,16 @@
 -- y renvoie. Exécuté entre les fournisseurs (02) et les produits (03), qui en
 -- dépendent.
 --
--- La table n'est PAS alimentée par Flyway : elle relève donc des données de
--- démonstration et le reset la vide comme les autres.
+-- La table EST alimentée par Flyway depuis la migration V1.9.4, qui y pose 1073
+-- DCI issues du référentiel produit. Deux conséquences :
+--   * `dci` figure dans la liste de préservation de 00_reset.sql — la tronquer
+--     détruirait ces données sans retour, Flyway ne rejouant pas une version
+--     déjà appliquée ;
+--   * ce script devient un COMPLÉMENT, pas une initialisation. Le ON CONFLICT
+--     ci-dessous laisse en place les libellés déjà posés par la migration et
+--     n'ajoute que ceux qui manquent au jeu de démonstration.
+-- 03_produits.sql résout la DCI par LIBELLÉ (pg_temp.dci_de) et non par code :
+-- les deux jeux, aux codes de formes différentes, cohabitent sans conflit.
 --
 -- Contraintes : code (varchar(20)) et libelle sont tous deux UNIQUES et NOT NULL.
 --

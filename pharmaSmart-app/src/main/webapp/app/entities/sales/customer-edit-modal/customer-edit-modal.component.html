@@ -151,8 +151,7 @@
             <div class="form-row">
               <div class="tp-stats-inline">
                 <span class="tp-stat-inline"><b>Taux:</b> {{ group.value.taux | number }}%</span>
-                <span class="tp-stat-inline"><b>Montant:</b> {{ group.value.montant | number }}
-                  F</span>
+                <span class="tp-stat-inline"><b>Montant:</b> {{ group.value.montant | devise }}</span>
               </div>
               <div class="form-field-inline">
                 <label>N° Bon <span class="required">*</span></label>

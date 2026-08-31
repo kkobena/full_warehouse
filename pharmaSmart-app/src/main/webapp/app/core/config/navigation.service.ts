@@ -23,7 +23,6 @@ import {
   faCalendarTimes,
   faCashRegister,
   faChartBar,
-  faClipboardCheck,
   faClipboardList,
   faClock,
   faCog,
@@ -80,7 +79,6 @@ export interface NavMenuActions {
   onLogout: () => void;
   onOpenConfigEditor: () => void;
   onOpenAppSettings: () => void;
-  onOpenCahierRecette: () => void;
 }
 
 @Injectable({
@@ -154,16 +152,10 @@ export class NavigationService {
       });
     }
 
-    const items = this.buildNavItemsFromStore({additionalAccountMenuItems: accountItems});
-    if (isAdmin) {
-      items.push({
-        id: 'cahier-recette',
-        label: 'Guide des fonctionnalités',
-        faIcon: faClipboardCheck,
-        click: actions.onOpenCahierRecette,
-      });
-    }
-    return items;
+    // « Guide des fonctionnalités » n'est plus poussé ici : il est devenu une entrée
+    // nav_item du module Administration (migration V1.9.5), donc soumise au même
+    // paramétrage de droits et au même ordre personnalisable que le reste du menu.
+    return this.buildNavItemsFromStore({additionalAccountMenuItems: accountItems});
   }
 
   /**
@@ -234,8 +226,13 @@ export class NavigationService {
       if (item.children?.length) {
         this.applyBadgesRecursively(item.children, ruptureCount, urgentCount, peremptionCount, facturationOverdueCount);
         const total = item.children.reduce((sum, c) => sum + (c.badge ?? 0), 0);
+        // La couleur du parent est celle de la plus grave de ses alertes, et non « danger »
+        // par principe : une rubrique dont le seul compteur est une facture echue s'affichait
+        // en rouge, alors que l'ecran vise, lui, la signale en orange. La rubrique disait donc
+        // une urgence que le detail dementait.
+        const urgent = item.children.some(c => (c.badge ?? 0) > 0 && (c.badgeSeverity ?? 'danger') === 'danger');
         item.badge = total > 0 ? total : undefined;
-        item.badgeSeverity = total > 0 ? 'danger' : undefined;
+        item.badgeSeverity = total > 0 ? (urgent ? 'danger' : 'warning') : undefined;
       } else if (item.routerLink === '/commande') {
         const total = Math.max(ruptureCount, urgentCount);
         item.badge = total > 0 ? total : undefined;

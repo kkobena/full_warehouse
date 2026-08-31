@@ -221,7 +221,9 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Page<AdminUserDTO> getAllManagedUsers(Pageable pageable) {
-        return userRepository.findAll(userRepository.findspecialisation(), pageable).map(AdminUserDTO::new);
+        // Spécification d'ADMINISTRATION : elle inclut les comptes désactivés, seul moyen de
+        // les retrouver — et de les réactiver.
+        return userRepository.findAll(userRepository.findAdminSpecialisation(), pageable).map(AdminUserDTO::new);
     }
 
     @Transactional(readOnly = true)

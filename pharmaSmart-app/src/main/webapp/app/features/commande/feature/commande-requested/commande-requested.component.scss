@@ -1,4 +1,5 @@
 @import 'app/shared/scss/pharma-toolbar';
+@import 'app/shared/scss/grid-caption';
 
 // Le composant occupe tout l'espace donné par detail-body (flex column)
 :host {
@@ -125,30 +126,6 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-}
-
-.grid-caption {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.35rem 0.75rem;
-  background: $gray-100;
-  border-bottom: 1px solid $gray-200;
-  flex-shrink: 0;
-
-  &__count {
-    font-size: 0.78rem;
-    color: $gray-500;
-    white-space: nowrap;
-  }
-
-  &__totals {
-    font-size: 0.78rem;
-    color: $gray-600;
-    white-space: nowrap;
-
-    strong { color: $pharma-primary; }
-  }
 }
 
 .grid-body {

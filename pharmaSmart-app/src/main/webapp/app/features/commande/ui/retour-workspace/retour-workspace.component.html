@@ -7,7 +7,7 @@
     <span class="ms-2 text-muted">{{ bon().fournisseurLibelle }}</span>
   </span>
   <span class="ms-auto pharma-price me-3">
-    Sélectionné : <strong>{{ getTotalMontant() | number:'1.0-0' }} F</strong>
+    Sélectionné : <strong>{{ getTotalMontant() | devise }}</strong>
   </span>
   <app-button (clicked)="cancel()" [outlined]="true" icon="pi pi-times" label="Annuler"
               severity="secondary" size="small" />

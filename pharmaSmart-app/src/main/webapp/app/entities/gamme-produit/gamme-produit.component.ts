@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, inject, OnInit, viewChild, signal } from '@angular/core';
-import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {HttpErrorResponse, HttpHeaders, HttpResponse} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {GammeProduitService} from './gamme-produit.service';
 
@@ -15,6 +15,8 @@ import {
   SelectableRowDirective,
 } from '../../shared/ui';
 import {showCommonModal} from '../sales/selling-home/sale-helper';
+import {NotificationService} from '../../shared/services/notification.service';
+import {ErrorService} from '../../shared/error.service';
 import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {
   FileUploadDialogComponent
@@ -44,6 +46,8 @@ export class GammeProduitComponent implements OnInit {
   private readonly modalService = inject(NgbModal);
   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly confirmDialog = inject(NgbConfirmDialogService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly errorService = inject(ErrorService);
 
   ngOnInit(): void {
     this.loadPage();
@@ -83,8 +87,13 @@ export class GammeProduitComponent implements OnInit {
   protected confirm(id: number): void {
     this.confirmDialog.onConfirm(
       () => {
-        this.entityService.delete(id).subscribe(() => {
-          this.loadPage(0);
+        // Le refus du serveur — « encore utilisé par N produit(s) » — était perdu : l'appel
+        // n'avait aucun gestionnaire d'erreur, la ligne restait à l'écran et l'utilisateur
+        // croyait à une suppression silencieuse. C'est pourtant le SEUL moment où l'on
+        // apprend qu'un référentiel est encore porté par des fiches.
+        this.entityService.delete(id).subscribe({
+          next: () => this.loadPage(0),
+          error: err => this.onErreurSuppression(err),
         });
       },
       'Suppression',
@@ -156,6 +165,15 @@ export class GammeProduitComponent implements OnInit {
 
   private onError(): void {
     this.loading.set(false);
+  }
+
+  /**
+   * Le refus du serveur, tel quel : lui seul dit COMBIEN de produits portent encore cette
+   * gamme. `onError()` ne faisait qu'éteindre le voyant de chargement, sans un mot.
+   */
+  private onErreurSuppression(erreur: HttpErrorResponse): void {
+    this.loading.set(false);
+    this.notificationService.error(this.errorService.getErrorMessage(erreur));
   }
 
   private onSaveError(): void {

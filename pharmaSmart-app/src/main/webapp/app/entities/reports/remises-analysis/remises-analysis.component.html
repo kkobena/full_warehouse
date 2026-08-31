@@ -1,151 +1,167 @@
 <!-- Toolbar -->
-<app-toolbar [code]="navCode()" icon="pi pi-tag" title="Analyse des Remises">
-  <ng-container ngProjectAs="[toolbarFilters]">
-    <div class="pharma-toolbar-filters">
-      <pharma-date-picker
-        label="Du"
-        id="ra-from"
-        [ngModel]="fromStruct()"
-        (ngModelChange)="fromDate.set(structToDate($event))"
-      />
-      <pharma-date-picker
-        label="Au"
-        id="ra-to"
-        [ngModel]="toStruct()"
-        (ngModelChange)="toDate.set(structToDate($event))"
-      />
+<div class="pharma-smart-content p-1">
+  <app-toolbar [code]="navCode()" icon="pi pi-tag" title="Analyse des Remises">
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <div class="pharma-toolbar-filters">
+        <pharma-date-picker
+          (ngModelChange)="fromDate.set(structToDate($event))"
+          [ngModel]="fromStruct()"
+          id="ra-from"
+          label="Du"
+        />
+        <pharma-date-picker
+          (ngModelChange)="toDate.set(structToDate($event))"
+          [ngModel]="toStruct()"
+          id="ra-to"
+          label="Au"
+        />
+      </div>
+    </ng-container>
+
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div>
+        <app-button
+          (clicked)="load()"
+          [loading]="isLoading()"
+          [raised]="true"
+          icon="pi pi-search"
+          label="Rechercher"
+          severity="primary"
+          size="small"
+          type="button"
+        />
+      </div>
+    </ng-container>
+  </app-toolbar>
+
+  <!-- Loading -->
+  @if (isLoading()) {
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 300px">
+      <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
     </div>
-  </ng-container>
+  }
 
-  <ng-container ngProjectAs="[toolbarActions]">
-    <div>
-      <app-button
-        type="button"
-        icon="pi pi-search"
-        label="Rechercher"
-        [loading]="isLoading()"
-        [raised]="true"
-        severity="primary"
-        size="small"
-        (clicked)="load()"
-      />
-    </div>
-  </ng-container>
-</app-toolbar>
+  @if (!isLoading() && kpi()) {
 
-<!-- Loading -->
-@if (isLoading()) {
-  <div class="d-flex justify-content-center align-items-center" style="min-height: 300px">
-    <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
-  </div>
-}
+    <!-- KPI Strip -->
+    <app-kpi-strip stripClass="mt-2 mb-3">
+      <app-kpi-item [accent]="'danger'" [value]="formatCurrency(kpi()?.totalRemise)" icon="pi pi-tag"
+                    iconClass="text-danger" label="Montant total remisé"
+                    valueClass="text-danger">
+        <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+        <ng-container ngProjectAs="[kpiSub]">taux moyen : {{ formatDecimal(kpi()?.tauxRemise, 1) }}
+          %
+        </ng-container>
+      </app-kpi-item>
+      <app-kpi-item [accent]="'primary'" [value]="formatCurrency(kpi()?.caApresRemise)" icon="pi pi-wallet"
+                    iconClass="text-primary" label="CA après remises"
+                    valueClass="text-primary">
+        <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+        <ng-container ngProjectAs="[kpiSub]">encaissé net</ng-container>
+      </app-kpi-item>
+      <app-kpi-item [accent]="'warning'" [value]="formatNumber(kpi()?.nbVentesAvecRemise)" icon="pi pi-percentage"
+                    iconClass="text-warning" label="Ventes avec remise"
+                    valueClass="text-warning">
+        <ng-container ngProjectAs="[kpiSub]">{{ tauxParticipation() }}% des ventes totales
+        </ng-container>
+      </app-kpi-item>
+      <app-kpi-item [value]="formatNumber(kpi()?.nbVentesTotal)" icon="pi pi-shopping-cart" iconClass="text-secondary"
+                    label="Total ventes">
+        <ng-container ngProjectAs="[kpiSub]">transactions</ng-container>
+      </app-kpi-item>
+    </app-kpi-strip>
 
-@if (!isLoading() && kpi()) {
+    <!-- Chart + Table -->
+    <div class="row g-3">
 
-  <!-- KPI Strip -->
-  <app-kpi-strip stripClass="mt-2 mb-3">
-    <app-kpi-item [accent]="'danger'" icon="pi pi-tag" iconClass="text-danger" label="Montant total remisé" [value]="formatCurrency(kpi()?.totalRemise)" valueClass="text-danger">
-      <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-      <ng-container ngProjectAs="[kpiSub]">taux moyen : {{ formatDecimal(kpi()?.tauxRemise, 1) }}%</ng-container>
-    </app-kpi-item>
-    <app-kpi-item [accent]="'primary'" icon="pi pi-wallet" iconClass="text-primary" label="CA après remises" [value]="formatCurrency(kpi()?.caApresRemise)" valueClass="text-primary">
-      <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-      <ng-container ngProjectAs="[kpiSub]">encaissé net</ng-container>
-    </app-kpi-item>
-    <app-kpi-item [accent]="'warning'" icon="pi pi-percentage" iconClass="text-warning" label="Ventes avec remise" [value]="formatNumber(kpi()?.nbVentesAvecRemise)" valueClass="text-warning">
-      <ng-container ngProjectAs="[kpiSub]">{{ tauxParticipation() }}% des ventes totales</ng-container>
-    </app-kpi-item>
-    <app-kpi-item icon="pi pi-shopping-cart" iconClass="text-secondary" label="Total ventes" [value]="formatNumber(kpi()?.nbVentesTotal)">
-      <ng-container ngProjectAs="[kpiSub]">transactions</ng-container>
-    </app-kpi-item>
-  </app-kpi-strip>
-
-  <!-- Chart + Table -->
-  <div class="row g-3">
-
-    <!-- Bar chart top 5 -->
-    <div class="col-md-5">
-      <div class="card data-card h-100">
-        <div class="card-header">
-          <h5 class="card-title">
-            <i class="pi pi-chart-bar text-primary"></i>
-            Top 5 produits remisés
-          </h5>
-        </div>
-        <div class="card-body" style="height: 300px">
-          @if (chartConfig()) {
-            <app-chart
-              type="bar"
-              [data]="chartConfig()!.data"
-              [options]="chartConfig()!.options"
-              height="280px"
-            />
-          }
+      <!-- Bar chart top 5 -->
+      <div class="col-md-5">
+        <div class="card data-card h-100">
+          <div class="card-header">
+            <h5 class="card-title">
+              <i class="pi pi-chart-bar text-primary"></i>
+              Top 5 produits remisés
+            </h5>
+          </div>
+          <div class="card-body" style="height: 300px">
+            @if (chartConfig()) {
+              <app-chart
+                [data]="chartConfig()!.data"
+                [options]="chartConfig()!.options"
+                height="280px"
+                type="bar"
+              />
+            }
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Top 10 table -->
-    <div class="col-md-7">
-      <div class="card data-card">
-        <div class="card-header">
-          <h5 class="card-title">
-            <i class="pi pi-list text-danger"></i>
-            Top 10 produits par montant remisé
-          </h5>
-        </div>
-        <app-data-table
-          [value]="topProducts()"
-          [scrollable]="true"
-          scrollHeight="calc(100vh - 420px)"
-          [stripedRows]="true"
-          [size]="'small'"
-        >
-          <ng-template #header>
-            <tr class="pharma-table-head">
-              <th>Produit</th>
-              <th class="text-end">Montant remisé</th>
-              <th class="text-end">Nb ventes</th>
-              <th class="text-end">Part totale</th>
-            </tr>
-          </ng-template>
-          <ng-template #body let-p>
-            <tr>
-              <td>{{ p.libelle }}</td>
-              <td class="text-end fw-semibold text-danger">{{ formatCurrency(p.montantRemise) }}</td>
-              <td class="text-end">{{ formatNumber(p.nbVentes) }}</td>
-              <td class="text-end">
-                <div class="d-flex align-items-center justify-content-end gap-1">
-                  <div class="progress flex-grow-1" style="height: 6px; min-width: 60px">
-                    <div class="progress-bar bg-danger" [style.width]="sharePercent(p.montantRemise) + '%'"></div>
+      <!-- Top 10 table -->
+      <div class="col-md-7">
+        <div class="card data-card">
+          <div class="card-header">
+            <h5 class="card-title">
+              <i class="pi pi-list text-danger"></i>
+              Top 10 produits par montant remisé
+            </h5>
+          </div>
+          <app-data-table
+            [scrollable]="true"
+            [size]="'small'"
+            [stripedRows]="true"
+            [value]="topProducts()"
+            scrollHeight="calc(100vh - 420px)"
+          >
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th>Produit</th>
+                <th class="text-end">Montant remisé</th>
+                <th class="text-end">Nb ventes</th>
+                <th class="text-end">Part totale</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-p>
+              <tr>
+                <td>{{ p.libelle }}</td>
+                <td class="text-end fw-semibold text-danger">{{
+                    formatCurrency(p.montantRemise)
+                  }}
+                </td>
+                <td class="text-end">{{ formatNumber(p.nbVentes) }}</td>
+                <td class="text-end">
+                  <div class="d-flex align-items-center justify-content-end gap-1">
+                    <div class="progress flex-grow-1" style="height: 6px; min-width: 60px">
+                      <div [style.width]="sharePercent(p.montantRemise) + '%'"
+                           class="progress-bar bg-danger"></div>
+                    </div>
+                    <span class="text-muted small">{{ sharePercent(p.montantRemise) }}%</span>
                   </div>
-                  <span class="text-muted small">{{ sharePercent(p.montantRemise) }}%</span>
-                </div>
-              </td>
-            </tr>
-          </ng-template>
-          <ng-template #emptymessage>
-            <tr>
-              <td colspan="4" class="pharma-empty-message">
-                <div class="pharma-empty-content">
-                  <i class="pi pi-inbox" style="font-size: 2rem"></i>
-                  <p class="mt-2 mb-0">Aucune remise sur cette période</p>
-                </div>
-              </td>
-            </tr>
-          </ng-template>
-        </app-data-table>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+              <tr>
+                <td class="pharma-empty-message" colspan="4">
+                  <div class="pharma-empty-content">
+                    <i class="pi pi-inbox" style="font-size: 2rem"></i>
+                    <p class="mt-2 mb-0">Aucune remise sur cette période</p>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </app-data-table>
+        </div>
+      </div>
+
+    </div>
+  }
+
+  @if (!isLoading() && !kpi()) {
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 200px">
+      <div class="pharma-empty-content">
+        <i class="pi pi-inbox" style="font-size: 2.5rem"></i>
+        <p class="mt-2 mb-0 text-muted">Aucune donnée disponible pour cette période</p>
       </div>
     </div>
-
-  </div>
-}
-
-@if (!isLoading() && !kpi()) {
-  <div class="d-flex justify-content-center align-items-center" style="min-height: 200px">
-    <div class="pharma-empty-content">
-      <i class="pi pi-inbox" style="font-size: 2.5rem"></i>
-      <p class="mt-2 mb-0 text-muted">Aucune donnée disponible pour cette période</p>
-    </div>
-  </div>
-}
+  }
+</div>

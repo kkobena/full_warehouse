@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.Sales;
+import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.SalePaymentRepository;
 import com.kobe.warehouse.repository.SalesRepository;
@@ -107,7 +108,7 @@ public class SaleStatServiceImpl implements SaleStatService {
                 periode.getLeft(),
                 periode.getRight(),
                 new String[]{ SalesStatut.CLOSED.name()},
-                new String[]{venteRecordParam.getCategorieChiffreAffaire().name()}
+                categoriesVentilees(venteRecordParam)
             );
             return objectMapper.readValue(jsonResult, new TypeReference<>() {
             });
@@ -115,6 +116,24 @@ public class SaleStatServiceImpl implements SaleStatService {
             LOG.info(e.getMessage());
             return List.of();
         }
+    }
+
+    /**
+     * Catégories de chiffre d'affaires retenues pour une VENTILATION PAR TYPE.
+     *
+     * <p>Une ventilation par type de vente qui laisserait un type dehors ne ventilerait rien :
+     * la vente dépôt porte la catégorie {@code CA_DEPOT} — c'est un transfert vers un
+     * dépositaire, hors chiffre d'affaires déclaré — et n'apparaissait donc jamais dans la
+     * répartition, alors que c'est précisément l'écran fait pour la montrer. On l'ajoute ici,
+     * et seulement ici : le chiffre d'affaires global, lui, continue de se calculer sur la
+     * seule catégorie demandée. Chaque type reste sur sa propre ligne, distinguable.
+     */
+    private String[] categoriesVentilees(VenteRecordParamDTO venteRecordParam) {
+        CategorieChiffreAffaire demandee = venteRecordParam.getCategorieChiffreAffaire();
+        if (demandee == CategorieChiffreAffaire.CA) {
+            return new String[]{CategorieChiffreAffaire.CA.name(), CategorieChiffreAffaire.CA_DEPOT.name()};
+        }
+        return new String[]{demandee.name()};
     }
 
     private Specification<SalePayment> buildSalePayementSpecification(

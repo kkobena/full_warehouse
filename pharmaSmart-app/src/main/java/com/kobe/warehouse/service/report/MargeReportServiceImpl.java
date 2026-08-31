@@ -161,11 +161,37 @@ public class MargeReportServiceImpl implements MargeReportService {
         );
     }
 
+    /** Seuils par defaut du resume, les memes que ceux de l'ecran (ProfitabilityReportResource). */
+    private static final int SEUIL_BAS_PCT = 10;
+    private static final int SEUIL_HAUT_PCT = 20;
+
+    /**
+     * Export PDF du rapport de rentabilite, sur le perimetre FILTRE.
+     *
+     * <p>L'implementation passait {@code null} comme resume et une liste vide de lignes : le
+     * gabarit dereferencait alors le resume et l'export repondait 500 a chaque appel. On
+     * reprend donc les memes donnees que l'ecran -- les marges filtrees et leur resume --,
+     * pour que le document imprime dise ce que l'utilisateur vient de lire.
+     *
+     * <p>La pagination est deliberement ouverte : un export qui ne contiendrait que la
+     * premiere page ne servirait a rien, et c'est precisement l'exhaustivite qu'on cherche en
+     * imprimant.
+     */
     @Override
     public byte[] export(Integer familleProduitId, String search) {
-        //  getMarges(Integer familleProduitId, String search, Pageable pageable)
-        //TODO: implémenter l'export avec les vrais paramètres, et pas une export générique sans filtre
-        return profitabilityPdfReportService.export(null, List.of());
+        boolean hasFamille = familleProduitId != null;
+        boolean hasSearch = StringUtils.hasText(search);
+
+        // La requete est construite ici plutot que par un appel a `getMarges` : celui-ci exige
+        // une pagination -- `Pageable.unpaged()` refuse `getPageSize()` -- et sa cle de cache ne
+        // retient que le NUMERO de page, si bien qu'un export sans limite et la premiere page de
+        // l'ecran partageraient la meme entree.
+        Query q = entityManager.createNativeQuery(
+            SELECT_COLS + buildWhere(hasFamille, hasSearch) + "ORDER BY marge_brute DESC");
+        bindParams(q, familleProduitId, search, hasFamille, hasSearch);
+
+        MargeSummaryDTO summary = getMargeSummary(familleProduitId, SEUIL_BAS_PCT, SEUIL_HAUT_PCT);
+        return profitabilityPdfReportService.export(summary, mapRows(q));
     }
 
     // -------------------------------------------------------------------------

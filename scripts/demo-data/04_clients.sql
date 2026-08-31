@@ -57,7 +57,7 @@ SELECT
          THEN n.prenoms_h[1 + (i % array_length(n.prenoms_h, 1))]
          ELSE n.prenoms_f[1 + (i % array_length(n.prenoms_f, 1))] END,
     n.noms[1 + ((i / 3) % array_length(n.noms, 1))],
-    '+225 0' || (1 + i % 7) || ' ' || lpad(((i * 37) % 100)::text, 2, '0')
+    '0' || (1 + i % 7) || ' ' || lpad(((i * 37) % 100)::text, 2, '0')
              || ' ' || lpad(((i * 53) % 100)::text, 2, '0')
              || ' ' || lpad(((i * 71) % 100)::text, 2, '0')
              || ' ' || lpad(((i * 91) % 100)::text, 2, '0'),
@@ -87,7 +87,7 @@ SELECT
          THEN n.prenoms_h[1 + (i % array_length(n.prenoms_h, 1))]
          ELSE n.prenoms_f[1 + (i % array_length(n.prenoms_f, 1))] END,
     n.noms[1 + ((i / 2) % array_length(n.noms, 1))],
-    '+225 0' || (1 + i % 7) || ' ' || lpad(((i * 41) % 100)::text, 2, '0')
+    '0' || (1 + i % 7) || ' ' || lpad(((i * 41) % 100)::text, 2, '0')
              || ' ' || lpad(((i * 59) % 100)::text, 2, '0')
              || ' ' || lpad(((i * 73) % 100)::text, 2, '0')
              || ' ' || lpad(((i * 97) % 100)::text, 2, '0'),
@@ -157,9 +157,9 @@ WHERE c.dtype = 'UninsuredCustomer'
 -- ---------------------------------------------------------------------------
 INSERT INTO groupe_tiers_payant (name, adresse, telephone, ordre_tris_facture)
 VALUES
-    ('MUTUELLES PUBLIQUES', 'Plateau, Abidjan',  '+225 27 20 21 30 00', 'NOM_TIER'),
-    ('ASSURANCES PRIVEES',  'Cocody, Abidjan',   '+225 27 22 44 55 00', 'DATE_FACTURE'),
-    ('ENTREPRISES',         'Marcory, Abidjan',  '+225 27 21 26 40 00', 'MONTANT')
+    ('MUTUELLES PUBLIQUES', 'Plateau, Abidjan',  '27 20 21 30 00', 'NOM_TIER'),
+    ('ASSURANCES PRIVEES',  'Cocody, Abidjan',   '27 22 44 55 00', 'DATE_FACTURE'),
+    ('ENTREPRISES',         'Marcory, Abidjan',  '27 21 26 40 00', 'MONTANT')
 ON CONFLICT (name) DO NOTHING;
 
 -- ---------------------------------------------------------------------------
@@ -188,30 +188,36 @@ SELECT
     false, NOW() - INTERVAL '400 days', NOW() - INTERVAL '400 days'
 FROM (VALUES
     ('CNAM',        'CAISSE NATIONALE D''ASSURANCE MALADIE',   'ASSURANCE', 'CNAM01',  'CI0001234A',
-     'Plateau, Abidjan',  '+225 27 20 25 40 00', 'facturation@cnam.example',      'MUTUELLES PUBLIQUES', NULL::bigint, NULL::int, NULL::int, 200, 5000000::bigint, 30),
+     'Plateau, Abidjan',  '27 20 25 40 00', 'facturation@cnam.example',      'MUTUELLES PUBLIQUES', NULL::bigint, NULL::int, NULL::int, 200, 5000000::bigint, 30),
     ('MUGEFCI',     'MUTUELLE GENERALE DES FONCTIONNAIRES',    'ASSURANCE', 'MUGEF01', 'CI0001235B',
-     'Plateau, Abidjan',  '+225 27 20 22 15 00', 'facturation@mugefci.example',   'MUTUELLES PUBLIQUES', 40000000, 500000, 60000, 150, 4000000, 30),
+     'Plateau, Abidjan',  '27 20 22 15 00', 'facturation@mugefci.example',   'MUTUELLES PUBLIQUES', 40000000, 500000, 60000, 150, 4000000, 30),
     ('CNPS',        'CAISSE NATIONALE DE PREVOYANCE SOCIALE',  'ASSURANCE', 'CNPS01',  'CI0001236C',
-     'Plateau, Abidjan',  '+225 27 20 25 20 00', 'sante@cnps.example',            'MUTUELLES PUBLIQUES', NULL, NULL, NULL, 120, 3000000, 30),
+     'Plateau, Abidjan',  '27 20 25 20 00', 'sante@cnps.example',            'MUTUELLES PUBLIQUES', NULL, NULL, NULL, 120, 3000000, 30),
     ('SUNU',        'SUNU ASSURANCES VIE CI',                  'ASSURANCE', 'SUNU01',  'CI0001237D',
-     'Cocody, Abidjan',   '+225 27 22 40 12 00', 'sante@sunu.example',            'ASSURANCES PRIVEES',  NULL, NULL, NULL, 100, 2500000, 45),
+     'Cocody, Abidjan',   '27 22 40 12 00', 'sante@sunu.example',            'ASSURANCES PRIVEES',  NULL, NULL, NULL, 100, 2500000, 45),
     ('NSIA',        'NSIA ASSURANCES CI',                      'ASSURANCE', 'NSIA01',  'CI0001238E',
-     'Plateau, Abidjan',  '+225 27 20 31 66 00', 'sante@nsia.example',            'ASSURANCES PRIVEES',  25000000, 400000, 50000, 100, 2500000, 45),
+     'Plateau, Abidjan',  '27 20 31 66 00', 'sante@nsia.example',            'ASSURANCES PRIVEES',  25000000, 400000, 50000, 100, 2500000, 45),
     ('ATLANTIQUE',  'ATLANTIQUE ASSURANCES CI',                'ASSURANCE', 'ATL01',   'CI0001239F',
-     'Plateau, Abidjan',  '+225 27 20 30 22 00', 'sante@atlantique.example',      'ASSURANCES PRIVEES',  NULL, NULL, NULL, 80, 2000000, 60),
+     'Plateau, Abidjan',  '27 20 30 22 00', 'sante@atlantique.example',      'ASSURANCES PRIVEES',  NULL, NULL, NULL, 80, 2000000, 60),
     ('COLINA',      'COLINA ASSURANCES CI',                    'ASSURANCE', 'COL01',   'CI0001240G',
-     'Marcory, Abidjan',  '+225 27 21 75 11 00', 'sante@colina.example',          'ASSURANCES PRIVEES',  NULL, NULL, NULL, 80, 2000000, 60),
+     'Marcory, Abidjan',  '27 21 75 11 00', 'sante@colina.example',          'ASSURANCES PRIVEES',  NULL, NULL, NULL, 80, 2000000, 60),
     ('SAHAM',       'SAHAM ASSURANCE CI',                      'ASSURANCE', 'SAH01',   'CI0001241H',
-     'Cocody, Abidjan',   '+225 27 22 48 30 00', 'sante@saham.example',           'ASSURANCES PRIVEES',  NULL, NULL, NULL, 80, 2000000, 45),
+     'Cocody, Abidjan',   '27 22 48 30 00', 'sante@saham.example',           'ASSURANCES PRIVEES',  NULL, NULL, NULL, 80, 2000000, 45),
+    -- ASACI n'a PAS d'adresse electronique, et c'est deliberé : la certification
+    -- fiscale (FNE) exige un telephone ET un email valides sur l'organisme, et
+    -- refuse l'envoi sans eux. Sans un organisme incomplet, ce garde-fou ne
+    -- serait demontrable nulle part — or c'est la cause la plus frequente d'un
+    -- refus de certification en officine, l'email n'etant jamais demande au
+    -- comptoir.
     ('ASACI',       'ASSURANCES SANTE DE COTE D''IVOIRE',      'ASSURANCE', 'ASA01',   'CI0001242I',
-     'Yopougon, Abidjan', '+225 27 23 45 60 00', 'facturation@asaci.example',     'ASSURANCES PRIVEES',  NULL, NULL, NULL, 60, 1500000, 45),
+     'Yopougon, Abidjan', '27 23 45 60 00', NULL,                            'ASSURANCES PRIVEES',  NULL, NULL, NULL, 60, 1500000, 45),
     ('SIR SANTE',   'MUTUELLE DU PERSONNEL SIR',               'ASSURANCE', 'SIR01',   'CI0001243J',
-     'Vridi, Abidjan',    '+225 27 21 75 40 00', 'mutuelle@sir.example',          'ENTREPRISES',         NULL, NULL, NULL, 50, 1200000, 30),
+     'Vridi, Abidjan',    '27 21 75 40 00', 'mutuelle@sir.example',          'ENTREPRISES',         NULL, NULL, NULL, 50, 1200000, 30),
     ('CIE SANTE',   'MUTUELLE DU PERSONNEL CIE',               'ASSURANCE', 'CIE01',   'CI0001244K',
-     'Treichville, Abidjan', '+225 27 21 23 50 00', 'mutuelle@cie.example',       'ENTREPRISES',         NULL, NULL, NULL, 50, 1200000, 30),
+     'Treichville, Abidjan', '27 21 23 50 00', 'mutuelle@cie.example',       'ENTREPRISES',         NULL, NULL, NULL, 50, 1200000, 30),
     -- Carnet : couverture par carnet de bons, pas par assurance.
     ('CARNET SOC',  'CARNET SOCIETES PARTENAIRES',             'CARNET',    'CAR01',   'CI0001245L',
-     'Plateau, Abidjan',  '+225 27 20 33 44 00', 'carnet@partenaires.example',    'ENTREPRISES',         NULL, NULL, NULL, 40, 800000, 15)
+     'Plateau, Abidjan',  '27 20 33 44 00', 'carnet@partenaires.example',    'ENTREPRISES',         NULL, NULL, NULL, 40, 800000, 15)
   ) AS v(name, full_name, categorie, code_org, ncc, adresse, tel, email,
          groupe, plafond, plafond_client, plafond_jour, nbre_bons, montant_max, delai)
 JOIN groupe_tiers_payant g ON g.name = v.groupe
@@ -287,6 +293,119 @@ WHERE
         SELECT 1 FROM client_tiers_payant x
          WHERE x.assured_customer_id = c.id AND x.tierspayant_id = tp.id
     );
+
+-- ---------------------------------------------------------------------------
+-- Le carnet couvre 100 %, et donc seul
+--
+-- Un carnet n'est pas une assurance : l'employeur (ou la société partenaire)
+-- prend la TOTALITÉ de l'achat, que le porteur remboursera ensuite. Le laisser à
+-- 70 % laissait un reste à payer au comptoir, ce qui ne correspond à aucune
+-- pratique — et un carnet ne se complète pas d'un second payeur.
+-- ---------------------------------------------------------------------------
+UPDATE client_tiers_payant ctp
+   SET taux = 100,
+       priorite = 'R0',
+       taux_historique = json_build_array(json_build_object(
+           'updatedAt', to_char(NOW() - INTERVAL '350 days', 'YYYY-MM-DD"T"HH24:MI:SS'),
+           'taux', 100
+       ))
+  FROM tiers_payant tp
+ WHERE tp.id = ctp.tierspayant_id
+   AND tp.categorie = 'CARNET';
+
+-- Les autres payeurs d'un porteur de carnet disparaissent : sans cela le cumul
+-- des taux dépasserait 100 % et le contrôle ci-dessous échouerait.
+DELETE FROM client_tiers_payant autres
+ USING client_tiers_payant carnet
+  JOIN tiers_payant tp ON tp.id = carnet.tierspayant_id AND tp.categorie = 'CARNET'
+ WHERE autres.assured_customer_id = carnet.assured_customer_id
+   AND autres.id <> carnet.id;
+
+-- ---------------------------------------------------------------------------
+-- Les cas NOMMÉS des parcours illustrés
+--
+-- La répartition ci-dessus est modulaire : le rang du client décide de ses
+-- organismes. Elle suffit à peupler les écrans, mais elle se déplace dès que
+-- la liste des organismes actifs bouge — et les matricules cités par le manuel
+-- ne désignent alors plus les mêmes situations. Les captures deviennent
+-- fausses sans qu'aucun test ne le dise.
+--
+-- On fige donc, à la main, les cinq situations que les parcours illustrent.
+-- Chaque cas remplace intégralement les contrats du client visé, désigné par
+-- son RANG (le matricule vaut `code_organisme || '-' || rang sur 6 chiffres`).
+--
+--   rang   matricule cité      situation illustrée
+--   ----   ------------------  ----------------------------------------------
+--     3    ASA01-000003        deux organismes : 70 % + 20 % (VTE-44)
+--    12    CNPS01-000012       trois organismes cumulant 100 % (VTE-59)
+--    45    CAR01-000045        carnet seul, à 100 % (VTE-30)
+--    98    CNAM01-000098       organisme plafonné (VTE-52, avec 13b)
+--   118    CIE01-000118        un seul organisme à 70 % (VTE-04)
+-- ---------------------------------------------------------------------------
+CREATE TEMP TABLE tmp_cas_nommes AS
+SELECT * FROM (VALUES
+    (3,   'ASACI',      'R0', 70),
+    (3,   'SUNU',       'R1', 20),
+    (12,  'CNPS',       'R0', 70),
+    (12,  'COLINA',     'R1', 20),
+    (12,  'CIE SANTE',  'R2', 10),
+    (45,  'CARNET SOC', 'R0', 100),
+    (98,  'CNAM',       'R0', 70),
+    (118, 'CIE SANTE',  'R0', 70)
+) AS v(rang, organisme, priorite, taux);
+
+CREATE TEMP TABLE tmp_cas_clients AS
+SELECT c.id, c.rang_client
+  FROM (
+      SELECT id, row_number() OVER (ORDER BY code) AS rang_client
+        FROM customer
+       WHERE dtype = 'AssuredCustomer' AND type_assure = 'PRINCIPAL'
+  ) c
+ WHERE c.rang_client IN (SELECT DISTINCT rang FROM tmp_cas_nommes);
+
+DELETE FROM client_tiers_payant
+ WHERE assured_customer_id IN (SELECT id FROM tmp_cas_clients);
+
+INSERT INTO client_tiers_payant (
+    assured_customer_id, tierspayant_id, num, priorite, statut, taux,
+    conso_mensuelle, consommation_json, taux_historique, created, updated
+)
+SELECT
+    cc.id,
+    tp.id,
+    tp.code_organisme || '-' || lpad(cc.rang_client::text, 6, '0'),
+    cn.priorite,
+    'ACTIF',
+    cn.taux,
+    0,
+    '[]'::json,
+    json_build_array(json_build_object(
+        'updatedAt', to_char(NOW() - INTERVAL '350 days', 'YYYY-MM-DD"T"HH24:MI:SS'),
+        'taux', cn.taux
+    )),
+    NOW() - INTERVAL '350 days',
+    NOW() - INTERVAL '350 days'
+FROM tmp_cas_nommes cn
+JOIN tmp_cas_clients cc ON cc.rang_client = cn.rang
+JOIN tiers_payant tp ON tp.name = cn.organisme;
+
+DO $$
+DECLARE v_manquants int;
+BEGIN
+    SELECT count(*) INTO v_manquants
+      FROM tmp_cas_nommes cn
+     WHERE NOT EXISTS (
+         SELECT 1 FROM client_tiers_payant ctp
+           JOIN tiers_payant tp ON tp.id = ctp.tierspayant_id AND tp.name = cn.organisme
+           JOIN tmp_cas_clients cc ON cc.id = ctp.assured_customer_id AND cc.rang_client = cn.rang
+     );
+    IF v_manquants > 0 THEN
+        RAISE EXCEPTION '% contrat(s) des cas nommés manquant(s) — les parcours illustrés ne trouveront pas leur client', v_manquants;
+    END IF;
+END $$;
+
+DROP TABLE tmp_cas_nommes;
+DROP TABLE tmp_cas_clients;
 
 DROP TABLE tmp_noms;
 

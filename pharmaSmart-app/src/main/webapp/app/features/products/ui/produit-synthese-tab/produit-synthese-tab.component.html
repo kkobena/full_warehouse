@@ -5,6 +5,27 @@
 } @else {
   <div class="synthese-grid">
 
+    <!-- Alerte péremption -->
+    @if (alertePeremption() === 'critical') {
+      <div class="peremption-alert peremption-critical">
+        <i class="pi pi-exclamation-triangle"></i>
+        <span>
+          Lot expirant dans &lt; 3 mois —
+          {{ lotLeProchePrime()?.expiryDate }}
+          (lot {{ lotLeProchePrime()?.numLot }}, qté {{ lotLeProchePrime()?.quantity }})
+        </span>
+      </div>
+    } @else if (alertePeremption() === 'warning') {
+      <div class="peremption-alert peremption-warning">
+        <i class="pi pi-clock"></i>
+        <span>
+          Péremption dans {{ lotLeProchePrime()?.peremptionStatut?.mouths }} mois —
+          {{ lotLeProchePrime()?.expiryDate }}
+          (lot {{ lotLeProchePrime()?.numLot }}, qté {{ lotLeProchePrime()?.quantity }})
+        </span>
+      </div>
+    }
+
     <!-- Indicateurs clés -->
     <div class="synthese-section">
       <h6 class="section-title">Indicateurs clés</h6>
@@ -62,27 +83,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Alerte péremption -->
-    @if (alertePeremption() === 'critical') {
-      <div class="peremption-alert peremption-critical">
-        <i class="pi pi-exclamation-triangle"></i>
-        <span>
-          Lot expirant dans &lt; 3 mois —
-          {{ lotLeProchePrime()?.expiryDate }}
-          (lot {{ lotLeProchePrime()?.numLot }}, qté {{ lotLeProchePrime()?.quantity }})
-        </span>
-      </div>
-    } @else if (alertePeremption() === 'warning') {
-      <div class="peremption-alert peremption-warning">
-        <i class="pi pi-clock"></i>
-        <span>
-          Péremption dans {{ lotLeProchePrime()?.peremptionStatut?.mouths }} mois —
-          {{ lotLeProchePrime()?.expiryDate }}
-          (lot {{ lotLeProchePrime()?.numLot }}, qté {{ lotLeProchePrime()?.quantity }})
-        </span>
-      </div>
-    }
 
     <!-- Chiffre d'affaires -->
     <div class="synthese-section">
@@ -157,25 +157,31 @@
       </div>
     </div>
 
-    <!-- Identification -->
-    <div class="synthese-section">
+    <!-- Identification : molécule, classement, dates. Les valeurs y sont des LIBELLÉS, pas
+         des nombres — famille thérapeutique, rayon, DCI — et c'est pourquoi cette carte prend
+         toute la largeur là où les autres se partagent une rangée. -->
+    <div class="synthese-section synthese-section-wide">
       <h6 class="section-title">Identification</h6>
       <div class="kpi-grid">
         <div class="kpi-item">
+          <span class="kpi-label" ngbTooltip="Dénomination commune internationale : la molécule">DCI</span>
+          <span [title]="produit().dciLibelle ?? ''" class="kpi-value">{{ produit().dciLibelle ?? '—' }}</span>
+        </div>
+        <div class="kpi-item">
           <span class="kpi-label">Famille</span>
-          <span class="kpi-value">{{ produit().familleLibelle ?? '—' }}</span>
+          <span [title]="produit().familleLibelle ?? ''" class="kpi-value">{{ produit().familleLibelle ?? '—' }}</span>
         </div>
         <div class="kpi-item">
           <span class="kpi-label">Forme</span>
-          <span class="kpi-value">{{ produit().formeLibelle ?? '—' }}</span>
+          <span [title]="produit().formeLibelle ?? ''" class="kpi-value">{{ produit().formeLibelle ?? '—' }}</span>
         </div>
         <div class="kpi-item">
           <span class="kpi-label">Laboratoire</span>
-          <span class="kpi-value">{{ produit().laboratoireLibelle ?? '—' }}</span>
+          <span [title]="produit().laboratoireLibelle ?? ''" class="kpi-value">{{ produit().laboratoireLibelle ?? '—' }}</span>
         </div>
         <div class="kpi-item">
           <span class="kpi-label">Rayon</span>
-          <span class="kpi-value">{{ produit().rayonLibelle ?? '—' }}</span>
+          <span [title]="produit().rayonLibelle ?? ''" class="kpi-value">{{ produit().rayonLibelle ?? '—' }}</span>
         </div>
         <div class="kpi-item">
           <span class="kpi-label">Dernière vente</span>
@@ -197,6 +203,7 @@
           </span>
           <app-switch
             (ngModelChange)="onToggleGestionLot($event)"
+            ariaLabel="Suivi des lots"
             [disabled]="!canEdit() || isDisabled() || gestionLotPending()"
             [ngModel]="produit().gestionLot ?? true"
             ngbTooltip="{{ (produit().gestionLot ?? false) ? 'Désactiver le suivi des lots' : 'Activer le suivi des lots' }}"
@@ -230,6 +237,7 @@
           </span>
           <app-switch
             (ngModelChange)="onToggleThermosensible($event)"
+            ariaLabel="Thermosensible"
             [disabled]="!canEdit() || isDisabled() || thermosensiblePending()"
             [ngModel]="produit().thermosensible ?? false"
             ngbTooltip="{{ (produit().thermosensible ?? false) ? 'Désactiver le flag thermosensible' : 'Activer le flag thermosensible' }}"
@@ -248,6 +256,7 @@
           </span>
           <app-switch
             (ngModelChange)="onToggleMedicamentEssentiel($event)"
+            ariaLabel="Médicament essentiel"
             [disabled]="!canEdit() || isDisabled() || medicamentEssentielPending()"
             [ngModel]="produit().estMedicamentEssentiel ?? false"
             ngbTooltip="{{ (produit().estMedicamentEssentiel ?? false) ? 'Retirer de la liste des médicaments essentiels' : 'Marquer comme médicament essentiel' }}"
@@ -266,6 +275,7 @@
           </span>
           <app-switch
             (ngModelChange)="onToggleProduitGarde($event)"
+            ariaLabel="Produit de garde"
             [disabled]="!canEdit() || isDisabled() || produitGardePending()"
             [ngModel]="produit().estProduitGarde ?? false"
             ngbTooltip="{{ (produit().estProduitGarde ?? false) ? 'Retirer des produits de garde' : 'Marquer comme produit de garde' }}"
@@ -284,6 +294,7 @@
           </span>
           <app-switch
             (ngModelChange)="onToggleClassificationOverridden($event)"
+            ariaLabel="Classification personnalisée"
             [disabled]="!canEdit() || isDisabled() || classificationOverriddenPending()"
             [ngModel]="produit().isClassificationOverridden ?? false"
             ngbTooltip="{{ (produit().isClassificationOverridden ?? false) ? 'Réactiver le calcul automatique de la classe ABC' : 'Figer la classe ABC manuellement' }}"

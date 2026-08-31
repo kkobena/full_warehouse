@@ -69,6 +69,7 @@
   </div>
 
   <ag-grid-angular
+    [localeText]="localeFr"
     (cellEditingStarted)="onCellEditingStarted($event)"
     (cellEditingStopped)="onCellEditingStopped()"
     (cellValueChanged)="onCellValueChanged($event)"

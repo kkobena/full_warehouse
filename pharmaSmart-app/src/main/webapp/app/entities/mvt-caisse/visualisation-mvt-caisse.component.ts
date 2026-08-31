@@ -292,7 +292,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, OnDestroy {
         }
       },
       "TICKET REGLEMENT",
-      "Voullez-vous imprimer le ticket ?"
+      "Voulez-vous imprimer le ticket ?"
     );
 
   }

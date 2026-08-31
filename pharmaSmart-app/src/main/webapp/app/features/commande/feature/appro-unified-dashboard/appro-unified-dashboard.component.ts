@@ -19,6 +19,7 @@ import {
 import {CommandCommonService} from "app/entities/commande/command-common.service";
 import {IReapproDashboard, ITopUrgentDTO} from "app/shared/model/semois/semois-dashboard.model";
 import {AlertBadgeService} from "app/shared/services/alert-badge.service";
+import {NotificationService} from "app/shared/services/notification.service";
 import {
   BadgeComponent,
   ButtonComponent,
@@ -38,6 +39,7 @@ import {
     DatePipe, CommonModule,
     NgbTooltip, KpiStripComponent, KpiItemComponent,
     BadgeComponent, ButtonComponent, DataTableComponent, SkeletonComponent, ToolbarComponent,
+
   ],
 })
 export class ApproUnifiedDashboardComponent implements OnInit {
@@ -61,6 +63,10 @@ export class ApproUnifiedDashboardComponent implements OnInit {
   private readonly suggestionService = inject(SuggestionService);
   private readonly router = inject(Router);
   private readonly commandCommonService = inject(CommandCommonService);
+  private readonly notificationService = inject(NotificationService);
+
+  /** Recalcul VMM en cours : le bouton reste occupe tant que le serveur travaille. */
+  readonly recalculEnCours = signal(false);
 
   get isLoading(): boolean {
     return this.loadingCommandes() || this.loadingSemois();
@@ -167,6 +173,30 @@ export class ApproUnifiedDashboardComponent implements OnInit {
   }
 
   // ─── Calculs VMM ─────────────────────────────────────────────────────────
+
+  /**
+   * Force un recalcul immediat de la VMM, puis recharge le tableau de bord.
+   *
+   * L'infobulle du badge de fraicheur invitait deja a cliquer sur "Recalculer VMM" -- mais
+   * le bouton n'existait que sur l'ecran des suggestions. Constater ici que le calcul date
+   * de trois jours et devoir changer d'ecran pour le relancer n'avait pas de sens : c'est
+   * ici qu'on lit la fraicheur, c'est ici qu'on la corrige.
+   */
+  recalculerVmm(): void {
+    this.recalculEnCours.set(true);
+    this.suggestionService.recalculerSemois().subscribe({
+      next: () => {
+        this.notificationService.success("Recalcul VMM déclenché — mise à jour dans quelques instants.", "VMM");
+        this.recalculEnCours.set(false);
+        this.loadAll();
+      },
+      error: () => {
+        this.notificationService.error("Erreur lors du recalcul VMM", "VMM");
+        this.recalculEnCours.set(false);
+      },
+    });
+  }
+
 
   navigateToReceptionEnAttente(): void {
     this.commandCommonService.navigateToBonsLivraison();

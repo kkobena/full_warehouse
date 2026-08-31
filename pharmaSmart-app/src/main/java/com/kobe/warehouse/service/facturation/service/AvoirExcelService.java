@@ -45,18 +45,24 @@ public class AvoirExcelService {
         List<AvoirStatut> statuts = !CollectionUtils.isEmpty(params.statuts())
             ? params.statuts()
             : List.of(AvoirStatut.values());
-        LocalDate start = params.startDate() != null ? params.startDate() : LocalDate.now().minusMonths(6);
+        LocalDate start =
+            params.startDate() != null ? params.startDate() : LocalDate.now().minusMonths(6);
         LocalDate end = params.endDate() != null ? params.endDate() : LocalDate.now();
-        String numAvoir = (params.numAvoir() != null && !params.numAvoir().isBlank()) ? "%" + params.numAvoir().toLowerCase() + "%" : null;
+        String numAvoir =
+            (params.numAvoir() != null && !params.numAvoir().isBlank()) ? "%" + params.numAvoir()
+                .toLowerCase() + "%" : null;
 
         List<AvoirTiersPayant> avoirs;
         if (params.tiersPayantId() != null) {
-            avoirs = avoirRepository.searchByTiersPayant(params.tiersPayantId(), start, end, statuts, numAvoir, Pageable.unpaged()).getContent();
+            avoirs = avoirRepository.searchByTiersPayant(params.tiersPayantId(), start, end,
+                statuts, numAvoir, Pageable.unpaged()).getContent();
         } else {
-            avoirs = avoirRepository.searchAll(start, end, statuts, numAvoir, Pageable.unpaged()).getContent();
+            avoirs = avoirRepository.searchAll(start, end, statuts, numAvoir, Pageable.unpaged())
+                .getContent();
         }
 
-        String title = "Avoirs / Notes de crédit — " + start.format(DATE_FMT) + " au " + end.format(DATE_FMT);
+        String title =
+            "Avoirs / Notes de crédit — " + start.format(DATE_FMT) + " au " + end.format(DATE_FMT);
         return excelService.createExcelReport(title, HEADERS, avoirs, this::fillRow);
     }
 
@@ -68,11 +74,15 @@ public class AvoirExcelService {
 
         row.createCell(0).setCellValue(avoir.getNumAvoir());
         row.createCell(1).setCellValue(facture.getNumFacture());
-        row.createCell(2).setCellValue(avoir.getAvoirDate() != null ? avoir.getAvoirDate().format(DATE_FMT) : "");
+        row.createCell(2).setCellValue(
+            avoir.getAvoirDate() != null ? avoir.getAvoirDate().format(DATE_FMT) : "");
         row.createCell(3).setCellValue(tpName);
-        row.createCell(4).setCellValue(avoir.getMontantAvoir() != null ? avoir.getMontantAvoir().doubleValue() : 0);
-        row.createCell(5).setCellValue(avoir.getMontantTva() != null ? avoir.getMontantTva().doubleValue() : 0);
-        row.createCell(6).setCellValue(avoir.getMontantHt() != null ? avoir.getMontantHt().doubleValue() : 0);
+        row.createCell(4)
+            .setCellValue(avoir.getMontantAvoir() != null ? avoir.getMontantAvoir().intValue() : 0);
+        row.createCell(5)
+            .setCellValue(avoir.getMontantTva() != null ? avoir.getMontantTva().intValue() : 0);
+        row.createCell(6)
+            .setCellValue(avoir.getMontantHt() != null ? avoir.getMontantHt().intValue() : 0);
         row.createCell(7).setCellValue(avoir.getStatut() != null ? avoir.getStatut().name() : "");
         row.createCell(8).setCellValue(avoir.getMotif() != null ? avoir.getMotif() : "");
     }

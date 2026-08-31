@@ -90,7 +90,7 @@
           </span>
           <span class="meta-item">
             <i class="pi pi-tag"></i>
-            {{ selectedProduit()?.regularUnitPrice | number }} F
+            {{ selectedProduit()?.regularUnitPrice | devise }}
           </span>
           @if (selectedProduit()?.totalQuantity !== undefined) {
             <span class="meta-item" [class.low-stock]="selectedProduit()!.totalQuantity! < 10">
@@ -110,7 +110,7 @@
       <div class="grid-caption">
         <span class="grid-caption__count">{{ lignes().length }} ligne(s)</span>
         <span class="grid-caption__totals ms-auto">
-          Total achat&nbsp;: <strong>{{ totalGross() | number }}&nbsp;F</strong>
+          Total achat&nbsp;: <strong>{{ totalGross() | devise }}</strong>
         </span>
       </div>
     }
@@ -119,6 +119,7 @@
       <div class="flex-grow-1 overflow-hidden h-100">
         @if (lignes().length > 0) {
           <ag-grid-angular
+    [localeText]="localeFr"
             [theme]="theme"
             [columnDefs]="columnDefs"
             [defaultColDef]="defaultColDef"

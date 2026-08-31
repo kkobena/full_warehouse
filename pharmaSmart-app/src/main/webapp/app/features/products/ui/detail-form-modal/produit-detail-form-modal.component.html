@@ -22,11 +22,11 @@
       <div class="df-prix-row">
         <div class="df-prix-item">
           <span class="df-prix-label">Prix achat boîte</span>
-          <span class="df-prix-value">{{ produit.costAmount ?? 0 | number:'1.0-0' }} F</span>
+          <span class="df-prix-value">{{ produit.costAmount ?? 0 | devise }}</span>
         </div>
         <div class="df-prix-item">
           <span class="df-prix-label">Prix vente boîte</span>
-          <span class="df-prix-value df-pv">{{ produit.regularUnitPrice ?? 0 | number:'1.0-0' }} F</span>
+          <span class="df-prix-value df-pv">{{ produit.regularUnitPrice ?? 0 | devise }}</span>
         </div>
       </div>
     </div>

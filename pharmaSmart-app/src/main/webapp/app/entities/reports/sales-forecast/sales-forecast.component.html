@@ -1,4 +1,4 @@
-<div class="pharma-smart-content p-2">
+<div class="pharma-smart-content p-1">
   <!-- Toolbar -->
   <app-toolbar [code]="navCode()" icon="pi pi-chart-line" title="Prévisions de Ventes">
 
@@ -13,6 +13,7 @@
           appendTo="body"
           bindLabel="label"
           bindValue="value"
+          inputId="prevMethode"
           placeholder="Méthode de prévision"
         />
 
@@ -24,6 +25,7 @@
           appendTo="body"
           bindLabel="label"
           bindValue="value"
+          inputId="prevHorizon"
           placeholder="Période"
         />
       </div>
@@ -98,35 +100,44 @@
       }
 
       <app-kpi-strip stripClass="mt-2 mb-2">
-        <app-kpi-item [accent]="'primary'" icon="pi pi-calendar" iconClass="text-primary" label="Prévision 3 Mois" [value]="formatCurrency(sum.totalForecastedCA3M)" valueClass="text-primary">
+        <app-kpi-item [accent]="'primary'" [value]="formatCurrency(sum.totalForecastedCA3M)" icon="pi pi-calendar"
+                      iconClass="text-primary" label="Prévision 3 Mois"
+                      valueClass="text-primary">
           <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
           <ng-container ngProjectAs="[kpiSub]">@if (sum.averageMonthlyGrowthPct != null) {
-                        {{ formatPercent(sum.averageMonthlyGrowthPct) }}%/mois
-                      } @else {
-                        Tendance non calculable
-                      }</ng-container>
+            {{ formatPercent(sum.averageMonthlyGrowthPct) }}%/mois
+          } @else {
+            Tendance non calculable
+          }</ng-container>
         </app-kpi-item>
-        <app-kpi-item [accent]="'success'" icon="pi pi-chart-bar" iconClass="text-success" label="Prévision 6 Mois" [value]="formatCurrency(sum.totalForecastedCA6M)" valueClass="text-success">
+        <app-kpi-item [accent]="'success'" [value]="formatCurrency(sum.totalForecastedCA6M)" icon="pi pi-chart-bar"
+                      iconClass="text-success" label="Prévision 6 Mois"
+                      valueClass="text-success">
           <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
           <ng-container ngProjectAs="[kpiSub]">{{
-                        getMethodLabel(sum.forecastMethod || 'LINEAR_REGRESSION')
-                      }}</ng-container>
+              getMethodLabel(sum.forecastMethod || 'LINEAR_REGRESSION')
+            }}
+          </ng-container>
         </app-kpi-item>
-        <app-kpi-item [accent]="'warning'" icon="pi pi-chart-line" iconClass="text-warning" label="Prévision 12 Mois" [value]="formatCurrency(sum.totalForecastedCA12M)" valueClass="text-warning">
+        <app-kpi-item [accent]="'warning'" [value]="formatCurrency(sum.totalForecastedCA12M)" icon="pi pi-chart-line"
+                      iconClass="text-warning" label="Prévision 12 Mois"
+                      valueClass="text-warning">
           <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
           <ng-container ngProjectAs="[kpiSub]">@if (sum.predictedYearlyGrowthPct != null) {
-                        Croissance : {{ formatPercent(sum.predictedYearlyGrowthPct) }}%/an
-                      } @else {
-                        Croissance non calculable
-                      }</ng-container>
+            Croissance : {{ formatPercent(sum.predictedYearlyGrowthPct) }}%/an
+          } @else {
+            Croissance non calculable
+          }</ng-container>
         </app-kpi-item>
-        <app-kpi-item [accent]="'danger'" icon="pi pi-check-circle" iconClass="text-danger" label="Précision du Modèle" valueClass="text-danger">
+        <app-kpi-item [accent]="'danger'" icon="pi pi-check-circle" iconClass="text-danger"
+                      label="Précision du Modèle" valueClass="text-danger">
           <ng-container ngProjectAs="[kpiValue]">@if (sum.modelAccuracyPct != null) {
-                        {{ formatPercent(sum.modelAccuracyPct) }} <small>%</small>
-                      } @else {
-                        <span style="font-size: 0.9rem">Non calculable</span>
-                      }</ng-container>
-          <ng-container ngProjectAs="[kpiSub]">{{ sum.dataPointsUsed }} mois de données</ng-container>
+            {{ formatPercent(sum.modelAccuracyPct) }} <small>%</small>
+          } @else {
+            <span style="font-size: 0.9rem">Non calculable</span>
+          }</ng-container>
+          <ng-container ngProjectAs="[kpiSub]">{{ sum.dataPointsUsed }} mois de données
+          </ng-container>
         </app-kpi-item>
       </app-kpi-strip>
 
@@ -367,7 +378,8 @@
         <div class="mb-3">
           <p class="fw-semibold mb-1">MAE — Erreur Absolue Moyenne (<span appDevise></span>)</p>
           <p class="text-sm text-muted mb-2">
-            Écart moyen en <span appDevise></span> entre la prévision et le réel. Plus parlant pour un pharmacien : un
+            Écart moyen en <span appDevise></span> entre la prévision et le réel. Plus parlant pour
+            un pharmacien : un
             MAE de 500 000 <span appDevise></span> signifie que la
             prévision se trompe en moyenne de 500 000 <span appDevise></span> par mois.
           </p>

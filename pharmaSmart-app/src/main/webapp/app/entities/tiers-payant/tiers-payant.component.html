@@ -53,7 +53,14 @@
           severity="help"
         />
 
+        <!--
+          L'action principale du bouton scindé n'était rattachée à rien : cliquer « Nouveau
+          tiers payant » ne faisait rien du tout, et seul le chevron menait quelque part. Elle
+          crée un organisme d'ASSURANCE, de loin le cas courant ; le menu garde les trois
+          catégories, qui n'ouvrent pas le même formulaire.
+        -->
         <app-split-button
+          (clicked)="addTiersPayantAssurance()"
           [items]="tiersPayantSplitbuttons()"
           [raised]="true"
           icon="pi pi-user-plus"
@@ -130,6 +137,17 @@
                 icon="pi pi-eye"
                 ngbTooltip="Voir détails"
                 severity="info"
+                size="small"
+              />
+
+              <app-button
+                (clicked)="voirTarifsProduits(tiersPayant)"
+                [rounded]="true"
+                [text]="true"
+                ariaLabel="Tarifs produits"
+                icon="pi pi-euro"
+                ngbTooltip="Tarifs produits négociés"
+                severity="secondary"
                 size="small"
               />
 

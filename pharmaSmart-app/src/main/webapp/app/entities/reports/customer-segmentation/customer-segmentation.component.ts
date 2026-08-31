@@ -23,14 +23,14 @@ import {CustomerSegmentationReportService} from "../services/customer-segmentati
 import {TauriPrinterService} from "../../../shared/services/tauri-printer.service";
 import {handleBlobForTauri} from "../../../shared/util/tauri-util";
 
-import {DeviseDirective} from 'app/shared/utils/devise';
+import {DeviseDirective, DevisePipe} from 'app/shared/utils/devise';
 
 @Component({
   selector: "app-customer-segmentation",
   templateUrl: "./customer-segmentation.component.html",
   styleUrl: "./customer-segmentation.component.scss",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeviseDirective, CommonModule, FormsModule, BadgeComponent, ButtonComponent, DataTableComponent, SelectComponent, ToolbarComponent, SortableHeaderDirective, KpiStripComponent, KpiItemComponent]
+  imports: [DeviseDirective, CommonModule, FormsModule, BadgeComponent, ButtonComponent, DataTableComponent, SelectComponent, ToolbarComponent, SortableHeaderDirective, KpiStripComponent, KpiItemComponent, DevisePipe]
 })
 export default class CustomerSegmentationComponent implements OnInit {
   /**

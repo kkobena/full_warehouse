@@ -12,7 +12,8 @@ import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.receipt.dto.SaleReceiptItem;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.NumberUtil;
-import java.awt.*;
+import com.kobe.warehouse.service.utils.ServiceUtil;
+import java.awt.Font;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
@@ -49,9 +50,11 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         Font font = PLAIN_FONT;
         List<HeaderFooterItem> headerItems = new ArrayList<>();
         headerItems.add(new HeaderFooterItem("TICKET: " + sale.getNumberTransaction(), 1, font));
-        headerItems.add(new HeaderFooterItem("CASSIER(RE): " + sale.getCassier().getAbbrName(), 1, font));
+        headerItems.add(
+            new HeaderFooterItem("CASSIER(RE): " + sale.getCassier().getAbbrName(), 1, font));
         if (sale.getCassierId().compareTo(sale.getSellerId()) != 0) {
-            headerItems.add(new HeaderFooterItem("VENDEUR(SE): " + sale.getSeller().getAbbrName(), 1, font));
+            headerItems.add(
+                new HeaderFooterItem("VENDEUR(SE): " + sale.getSeller().getAbbrName(), 1, font));
         }
         return headerItems;
     }
@@ -60,7 +63,9 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         CashSaleReceiptItem item = new CashSaleReceiptItem();
         int productNameWidth = getProductNameWidth();
         var produitName = saleLineDTO.getProduitLibelle();
-        item.setProduitName(produitName.length() > productNameWidth ? produitName.substring(0, productNameWidth) : produitName);
+        item.setProduitName(
+            produitName.length() > productNameWidth ? produitName.substring(0, productNameWidth)
+                : produitName);
         item.setQuantity(NumberUtil.formatToString(saleLineDTO.getQuantityRequested()));
         item.setUnitPrice(NumberUtil.formatToString(saleLineDTO.getRegularUnitPrice()));
         item.setTotalPrice(NumberUtil.formatToString(saleLineDTO.getSalesAmount()));
@@ -69,20 +74,18 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
     }
 
     /**
-     * Generate ESC/POS commands for thermal POS printer
-     * Supports pagination and multiple copies
+     * Generate ESC/POS commands for thermal POS printer Supports pagination and multiple copies
      *
      * @return byte array containing ESC/POS commands
      * @throws IOException if generation fails
      */
     public byte[] generateEscPosReceipt(boolean isEdit) throws IOException {
         magasin = appConfigurationService.getMagasin();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        SaleDTO sale = getSale();
-        List<? extends SaleReceiptItem> items = this.getItems();
-        int numberOfCopies = isEdit ? 1 : getNumberOfCopies();
 
-        try {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            SaleDTO sale = getSale();
+            List<? extends SaleReceiptItem> items = this.getItems();
+            int numberOfCopies = isEdit ? 1 : getNumberOfCopies();
             // Print multiple copies
             for (int copyNum = 1; copyNum <= numberOfCopies; copyNum++) {
                 if (copyNum > 1) {
@@ -114,7 +117,8 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
                     if (pageNum > 0) {
                         escPosSetAlignment(out, EscPosAlignment.CENTER);
                         escPosSetBold(out, true);
-                        escPosPrintLine(out, String.format("--- Page %d/%d ---", pageNum + 1, totalPages));
+                        escPosPrintLine(out,
+                            String.format("--- Page %d/%d ---", pageNum + 1, totalPages));
                         escPosSetBold(out, false);
                         escPosSetAlignment(out, EscPosAlignment.LEFT);
                         escPosFeedLines(out, 1);
@@ -122,7 +126,8 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
 
                     // Table header
                     escPosSetBold(out, true);
-                    escPosPrintLine(out, String.format("%-3s %-24s %8s %10s", "QTE", "PRODUIT", "PU", "MONTANT"));
+                    escPosPrintLine(out,
+                        String.format("%-3s %-24s %8s %10s", "QTE", "PRODUIT", "PU", "MONTANT"));
                     escPosSetBold(out, false);
                     escPosPrintSeparator(out, 48);
 
@@ -134,7 +139,9 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
                         String unitPrice = item.getUnitPrice();
                         String totalPrice = item.getTotalPrice();
 
-                        escPosPrintLine(out, String.format("%-3s %-24s %8s %10s", quantity, productName, unitPrice, totalPrice));
+                        escPosPrintLine(out,
+                            String.format("%-3s %-24s %8s %10s", quantity, productName, unitPrice,
+                                totalPrice));
                     }
 
                     escPosPrintSeparator(out, 48);
@@ -153,23 +160,22 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
                 }
 
                 // Copy indicator
-                if (numberOfCopies > 1) {
+             /*   if (numberOfCopies > 1) {
                     escPosFeedLines(out, 1);
                     escPosSetAlignment(out, EscPosAlignment.CENTER);
-                    escPosPrintLine(out, String.format("*** COPIE %d/%d ***", copyNum, numberOfCopies));
+                    escPosPrintLine(out,
+                        String.format("*** COPIE %d/%d ***", copyNum, numberOfCopies));
                     escPosSetAlignment(out, EscPosAlignment.LEFT);
-                }
+                }*/
 
                 // Cut paper after each copy
-                escPosFeedLines(out, 3);
+                //  escPosFeedLines(out, 3);
                 escPosCutPaper(out);
             }
 
             return out.toByteArray();
         } catch (Exception e) {
             throw new IOException("Failed to generate ESC/POS receipt: " + e.getMessage(), e);
-        } finally {
-            out.close();
         }
     }
 
@@ -203,7 +209,8 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
     private void printEscPosSummary(ByteArrayOutputStream out, SaleDTO sale) throws IOException {
         // Summary section
         escPosSetBold(out, true);
-        escPosPrintLine(out, String.format("%-37s %10s", MONTANT_TTC, NumberUtil.formatToString(sale.getSalesAmount())));
+        escPosPrintLine(out, String.format("%-37s %10s", MONTANT_TTC,
+            NumberUtil.formatToString(sale.getSalesAmount())));
         escPosSetBold(out, false);
 
         // Avoir section (if any)
@@ -218,7 +225,8 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
 
         // Discount (if any)
         if (sale.getDiscountAmount() > 0) {
-            escPosPrintLine(out, String.format("%-37s %10s", REMISE, NumberUtil.formatToString(sale.getDiscountAmount())));
+            escPosPrintLine(out, String.format("%-37s %10s", REMISE,
+                NumberUtil.formatToString(sale.getDiscountAmount())));
         }
 
         // Add spacing before total
@@ -227,7 +235,9 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         // Total to pay
         escPosSetBold(out, true);
         escPosSetTextSize(out, 2, 1); // Double width
-        escPosPrintLine(out, String.format("%-13s %10s", TOTAL_A_PAYER, NumberUtil.formatToString(sale.getNetAmount())));
+        escPosPrintLine(out, String.format("%-13s %10s", TOTAL_A_PAYER,
+            NumberUtil.formatToString(
+                ServiceUtil.arrondirAuMultipleDe5(sale.getAmountToBePaid()))));
         escPosSetTextSize(out, 1, 1); // Normal size
         escPosSetBold(out, false);
         escPosFeedLines(out, 1);
@@ -257,13 +267,16 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
 
             // Cash change (if any)
             if (monnaie > 0) {
-                escPosPrintLine(out, String.format("%-37s %10s", MONTANT_RENDU, NumberUtil.formatToString(monnaie)));
+                escPosPrintLine(out,
+                    String.format("%-37s %10s", MONTANT_RENDU,
+                        NumberUtil.formatToString(ServiceUtil.arrondirAuMultipleDe5(monnaie))));
             }
 
             // Remaining to pay (if any)
             if (sale.getRestToPay() > 0) {
                 escPosSetBold(out, true);
-                escPosPrintLine(out, String.format("%-37s %10s", RESTE_A_PAYER, NumberUtil.formatToString(sale.getRestToPay())));
+                escPosPrintLine(out, String.format("%-37s %10s", RESTE_A_PAYER,
+                    NumberUtil.formatToString(sale.getRestToPay())));
                 escPosSetBold(out, false);
             }
 
@@ -272,7 +285,8 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
             // Remaining to pay (if any)
             if (!(sale instanceof DepotExtensionSaleDTO) && sale.getRestToPay() > 0) {
                 escPosSetBold(out, true);
-                escPosPrintLine(out, String.format("%-37s %10s", RESTE_A_PAYER, NumberUtil.formatToString(sale.getRestToPay())));
+                escPosPrintLine(out, String.format("%-37s %10s", RESTE_A_PAYER,
+                    NumberUtil.formatToString(sale.getRestToPay())));
                 escPosSetBold(out, false);
 
                 escPosFeedLines(out, 1);
@@ -289,7 +303,8 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
             escPosFeedLines(out, 1);
 
             for (TvaEmbeded tva : sale.getTvaEmbededs()) {
-                escPosPrintLine(out, String.format("%-37s %10s", "TVA " + tva.getTva() + "%", NumberUtil.formatToString(tva.getAmount())));
+                escPosPrintLine(out, String.format("%-37s %10s", "TVA " + tva.getTva() + "%",
+                    NumberUtil.formatToString(tva.getAmount())));
             }
             escPosFeedLines(out, 1);
         }
@@ -300,7 +315,8 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         }
 
         // Print common footer with sale timestamp
-        printEscPosFooter(out, sale.getUpdatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+        printEscPosFooter(out,
+            sale.getUpdatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
     }
 
     /**

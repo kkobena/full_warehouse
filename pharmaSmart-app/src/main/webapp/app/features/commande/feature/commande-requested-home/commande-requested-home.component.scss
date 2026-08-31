@@ -1,6 +1,7 @@
 @import 'app/shared/scss/pharma-nav';
 @import 'app/shared/scss/table-common';
 @import 'app/features/commande/commande-shared';
+@import 'app/shared/scss/grid-caption';
 
 // ── OVERRIDE view-panel (même chrome que list-bons) ───────────────────────────
 .view-panel {
@@ -35,37 +36,6 @@
     background: #fffbeb !important;
     box-shadow: inset 3px 0 0 #f59e0b;
   }
-}
-
-// ── FOOTER TOTAUX ─────────────────────────────────────────────────────────────
-
-.rq-totals-bar {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  padding: 0.4rem 1rem;
-  background: $gray-100;
-  border-top: 1px solid $gray-200;
-  font-size: 0.78rem;
-  color: $gray-500;
-
-  strong { color: $pharma-primary; font-weight: 700; }
-
-  &__selected {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    padding: 2px 8px;
-    border-radius: 10px;
-    background: $pharma-primary-light;
-    color: $pharma-primary-dark;
-    font-weight: 700;
-    font-size: 0.72rem;
-    i { font-size: 0.7rem; }
-  }
-
-  &__item { white-space: nowrap; }
 }
 
 // ── DETAIL BODY ──────────────────────────────────────────────────────────────

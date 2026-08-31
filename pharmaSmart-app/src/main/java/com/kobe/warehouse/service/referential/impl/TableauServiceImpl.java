@@ -4,6 +4,7 @@ import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Tableau;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.repository.ProduitRepository;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.repository.TableauRepository;
 import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.dto.TableauDTO;
@@ -53,6 +54,16 @@ public class TableauServiceImpl implements TableauService {
     @Override
     @Transactional
     public void delete(Integer id) {
+        // Un référentiel encore porté par des fiches ne peut pas disparaître : la
+        // requête échouerait sur la contrainte de clé étrangère, en HTTP 500 et sans
+        // rien dire d'utile. On compte d'abord, et l'on explique.
+        long rattaches = this.produitRepository.countByTableauId(id);
+        if (rattaches > 0) {
+            throw new GenericError(
+                "Le tableau est encore utilisé par %d produit(s) : suppression impossible.".formatted(rattaches),
+                "referentielUtilise"
+            );
+        }
         this.tableauRepository.deleteById(id);
     }
 

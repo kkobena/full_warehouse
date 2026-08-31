@@ -1,59 +1,63 @@
-<div class="pharma-smart-content p-2">
+<div class="pharma-smart-content p-1">
 
   <!-- Toolbar -->
   <app-toolbar [code]="navCode()" icon="pi pi-chart-bar" title="Tableaux Comparatifs CA">
 
     <ng-container ngProjectAs="[toolbarFilters]">
-        <div class="pharma-toolbar-filters flex gap-2 align-items-center">
-          <app-select
-            [(ngModel)]="selectedComparisonType"
-            [items]="comparisonTypeOptions"
-            bindLabel="label"
-            bindValue="value"
-            appendTo="body"
-            (selectionChange)="onComparisonTypeChange()"
-            [style]="{ 'min-width': '180px' }"
-            placeholder="Type de comparaison"
-          />
+      <div class="pharma-toolbar-filters flex gap-2 align-items-center">
+        <app-select
+          (selectionChange)="onComparisonTypeChange()"
+          [(ngModel)]="selectedComparisonType"
+          [items]="comparisonTypeOptions"
+          [style]="{ 'min-width': '180px' }"
+          appendTo="body"
+          bindLabel="label"
+          bindValue="value"
+          inputId="compType"
+          placeholder="Type de comparaison"
+        />
 
-          <app-select
-            [(ngModel)]="selectedYear"
-            [items]="yearOptions"
-            appendTo="body"
-            (selectionChange)="onYearChange()"
-            [style]="{ 'min-width': '120px' }"
-            placeholder="Année"
-          />
+        <app-select
+          (selectionChange)="onYearChange()"
+          [(ngModel)]="selectedYear"
+          [items]="yearOptions"
+          [style]="{ 'min-width': '120px' }"
+          appendTo="body"
+          inputId="compAnnee"
+          placeholder="Année"
+        />
+      </div>
+    </ng-container>
+
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-toolbar-actions flex gap-2 align-items-center">
+        <!-- View toggle -->
+        <div class="dashboard-periode-selector">
+          <button (click)="onViewChange('global')" [class.active]="activeView() === 'global'"
+                  class="periode-pill"
+                  type="button">
+            <i class="pi pi-chart-bar"></i>
+            <span class="pill-label">Globale</span>
+          </button>
+          <button (click)="onViewChange('famille')" [class.active]="activeView() === 'famille'"
+                  class="periode-pill"
+                  type="button">
+            <i class="pi pi-sitemap"></i>
+            <span class="pill-label">Par famille</span>
+          </button>
+          <button (click)="onViewChange('fournisseur')"
+                  [class.active]="activeView() === 'fournisseur'"
+                  class="periode-pill"
+                  type="button">
+            <i class="pi pi-truck"></i>
+            <span class="pill-label">Par fournisseur</span>
+          </button>
         </div>
-      </ng-container>
 
-<ng-container ngProjectAs="[toolbarActions]">
-        <div class="pharma-toolbar-actions flex gap-2 align-items-center">
-          <!-- View toggle -->
-          <div class="dashboard-periode-selector">
-            <button type="button" class="periode-pill"
-                    [class.active]="activeView() === 'global'"
-                    (click)="onViewChange('global')">
-              <i class="pi pi-chart-bar"></i>
-              <span class="pill-label">Globale</span>
-            </button>
-            <button type="button" class="periode-pill"
-                    [class.active]="activeView() === 'famille'"
-                    (click)="onViewChange('famille')">
-              <i class="pi pi-sitemap"></i>
-              <span class="pill-label">Par famille</span>
-            </button>
-            <button type="button" class="periode-pill"
-                    [class.active]="activeView() === 'fournisseur'"
-                    (click)="onViewChange('fournisseur')">
-              <i class="pi pi-truck"></i>
-              <span class="pill-label">Par fournisseur</span>
-            </button>
-          </div>
-
-          <app-button label="Exporter PDF" icon="pi pi-file-pdf" (clicked)="exportToPdf()" severity="danger" size="small" />
-        </div>
-      </ng-container>
+        <app-button (clicked)="exportToPdf()" icon="pi pi-file-pdf" label="Exporter PDF"
+                    severity="danger" size="small" />
+      </div>
+    </ng-container>
   </app-toolbar>
 
   <!-- ═══════════════════════════════════════════════════════════════ -->
@@ -70,28 +74,49 @@
       <!-- Summary Cards -->
       @if (summary(); as sum) {
         <app-kpi-strip stripClass="mt-2 mb-2">
-          <app-kpi-item [accent]="'primary'" icon="pi pi-calendar" iconClass="text-primary" label="CA Année en cours (YTD)" [value]="formatCurrency(sum.ytdCurrentCA)" valueClass="text-primary">
+          <app-kpi-item [accent]="'primary'" [value]="formatCurrency(sum.ytdCurrentCA)"
+                        icon="pi pi-calendar"
+                        iconClass="text-primary" label="CA Année en cours (YTD)"
+                        valueClass="text-primary">
             <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-            <ng-container ngProjectAs="[kpiSub]"><span [class]="(sum.ytdEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
-                            <i [class]="'pi ' + ((sum.ytdEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
-                            {{ formatPercent(sum.ytdEvolutionPct) }}%
+            <ng-container ngProjectAs="[kpiSub]"><span
+              [class]="(sum.ytdEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
+                            <i
+                              [class]="'pi ' + ((sum.ytdEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+              {{ formatPercent(sum.ytdEvolutionPct) }}%
                           </span>
-                          vs année précédente</ng-container>
+              vs année précédente
+            </ng-container>
           </app-kpi-item>
-          <app-kpi-item [accent]="'success'" icon="pi pi-chart-line" iconClass="text-success" label="CA 12 derniers mois" [value]="formatCurrency(sum.last12MonthsCA)" valueClass="text-success">
+          <app-kpi-item [accent]="'success'" [value]="formatCurrency(sum.last12MonthsCA)"
+                        icon="pi pi-chart-line"
+                        iconClass="text-success" label="CA 12 derniers mois"
+                        valueClass="text-success">
             <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-            <ng-container ngProjectAs="[kpiSub]"><span [class]="(sum.last12MonthsEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
-                            <i [class]="'pi ' + ((sum.last12MonthsEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
-                            {{ formatPercent(sum.last12MonthsEvolutionPct) }}%
+            <ng-container ngProjectAs="[kpiSub]"><span
+              [class]="(sum.last12MonthsEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
+                            <i
+                              [class]="'pi ' + ((sum.last12MonthsEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+              {{ formatPercent(sum.last12MonthsEvolutionPct) }}%
                           </span>
-                          vs 12 mois précédents</ng-container>
+              vs 12 mois précédents
+            </ng-container>
           </app-kpi-item>
-          <app-kpi-item [accent]="'warning'" icon="pi pi-star-fill" iconClass="text-warning" label="Meilleur Mois" [value]="sum.bestMonthLabel" valueClass="text-warning">
-            <ng-container ngProjectAs="[kpiSub]">{{ formatCurrency(sum.bestMonthCA) }} <span appDevise></span></ng-container>
+          <app-kpi-item [accent]="'warning'" [value]="sum.bestMonthLabel" icon="pi pi-star-fill"
+                        iconClass="text-warning" label="Meilleur Mois"
+                        valueClass="text-warning">
+            <ng-container ngProjectAs="[kpiSub]">{{ formatCurrency(sum.bestMonthCA) }} <span
+              appDevise></span></ng-container>
           </app-kpi-item>
-          <app-kpi-item [accent]="'danger'" icon="pi pi-chart-bar" iconClass="text-danger" label="CA Moyen Mensuel" [value]="formatCurrency(sum.avgMonthlyCA)" valueClass="text-danger">
+          <app-kpi-item [accent]="'danger'" [value]="formatCurrency(sum.avgMonthlyCA)"
+                        icon="pi pi-chart-bar"
+                        iconClass="text-danger" label="CA Moyen Mensuel"
+                        valueClass="text-danger">
             <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-            <ng-container ngProjectAs="[kpiSub]">Évolution moy : {{ formatPercent(sum.avgMonthlyEvolution) }}%</ng-container>
+            <ng-container ngProjectAs="[kpiSub]">Évolution moy : {{
+                formatPercent(sum.avgMonthlyEvolution)
+              }}%
+            </ng-container>
           </app-kpi-item>
         </app-kpi-strip>
       }
@@ -143,14 +168,15 @@
                   <p class="mt-3 text-muted">Aucune donnée pour cette période</p>
                 </div>
               } @else {
-                  <table>
+                <div class="table-responsive">
+                  <table class="table table-striped mb-0">
                     <thead class="pharma-table-head">
-                      <tr>
-                        <th>Période</th>
-                        <th class="text-end">CA Actuel</th>
-                        <th class="text-end">CA Précédent</th>
-                        <th class="text-end">Évolution</th>
-                      </tr>
+                    <tr>
+                      <th>Période</th>
+                      <th class="text-end">CA Actuel</th>
+                      <th class="text-end">CA Précédent</th>
+                      <th class="text-end">Évolution</th>
+                    </tr>
                     </thead>
                     <tbody class="pharma-table-body">
                       @for (comp of comparisons(); track comp.periodLabel) {
@@ -158,11 +184,15 @@
                           <td class="fw-medium">{{ comp.periodLabel }}</td>
                           <td class="text-end">{{ formatCurrency(comp.currentCA) }}</td>
                           <td class="text-end">{{ formatCurrency(comp.previousCA) }}</td>
-                          <td class="text-end" [ngClass]="getEvolutionClass(comp.evolutionPct)">{{ formatPercent(comp.evolutionPct) }}%</td>
+                          <td [ngClass]="getEvolutionClass(comp.evolutionPct)" class="text-end">{{
+                              formatPercent(comp.evolutionPct)
+                            }}%
+                          </td>
                         </tr>
                       }
                     </tbody>
                   </table>
+                </div>
               }
             </div>
           </div>
@@ -186,30 +216,35 @@
                   <p class="mt-3 text-muted">Aucune donnée disponible</p>
                 </div>
               } @else {
-                  <table>
+                <div class="table-responsive">
+                  <table class="table table-striped mb-0">
                     <thead class="pharma-table-head">
-                      <tr>
-                        <th>Type de Vente</th>
-                        <th class="text-end">CA {{ selectedYear() }}</th>
-                        <th class="text-end">CA {{ selectedYear() - 1 }}</th>
-                        <th class="text-end">Évolution</th>
-                        <th class="text-end">Ventes {{ selectedYear() }}</th>
-                        <th class="text-end">Ventes {{ selectedYear() - 1 }}</th>
-                      </tr>
+                    <tr>
+                      <th>Type de Vente</th>
+                      <th class="text-end">CA {{ selectedYear() }}</th>
+                      <th class="text-end">CA {{ selectedYear() - 1 }}</th>
+                      <th class="text-end">Évolution</th>
+                      <th class="text-end">Ventes {{ selectedYear() }}</th>
+                      <th class="text-end">Ventes {{ selectedYear() - 1 }}</th>
+                    </tr>
                     </thead>
                     <tbody class="pharma-table-body">
                       @for (type of byType(); track type.saleType) {
                         <tr>
-                          <td class="fw-medium">{{ type.saleTypeLabel }}</td>
+                          <td class="fw-medium">{{ libelleNatureVente(type.saleType) }}</td>
                           <td class="text-end">{{ formatCurrency(type.currentYearCA) }}</td>
                           <td class="text-end">{{ formatCurrency(type.previousYearCA) }}</td>
-                          <td class="text-end" [ngClass]="getEvolutionClass(type.evolutionPct)">{{ formatPercent(type.evolutionPct) }}%</td>
+                          <td [ngClass]="getEvolutionClass(type.evolutionPct)" class="text-end">{{
+                              formatPercent(type.evolutionPct)
+                            }}%
+                          </td>
                           <td class="text-end">{{ type.currentYearCount }}</td>
                           <td class="text-end">{{ type.previousYearCount }}</td>
                         </tr>
                       }
                     </tbody>
                   </table>
+                </div>
               }
             </div>
           </div>
@@ -262,7 +297,8 @@
                 <i class="pi pi-truck text-success"></i>
                 Tous les fournisseurs — {{ selectedYear() }} vs {{ selectedYear() - 1 }}
               </h5>
-              <span class="badge bg-success-subtle text-success">{{ byFournisseur().length }} fournisseurs</span>
+              <span class="badge bg-success-subtle text-success">{{ byFournisseur().length }}
+                fournisseurs</span>
             </div>
             <div class="card-body p-0">
               @if (byFournisseur().length === 0) {
@@ -271,25 +307,26 @@
                   <p class="mt-3 text-muted">Aucune donnée disponible</p>
                 </div>
               } @else {
-                  <table>
+                <div class="table-responsive">
+                  <table class="table table-striped mb-0">
                     <thead class="pharma-table-head">
-                      <tr>
-                        <th>#</th>
-                        <th>Fournisseur</th>
-                        <th class="text-end sortable-col" (click)="onFournisseurSort('currentYearCA')">
-                          CA {{ selectedYear() }}
-                          <i [class]="fournisseurSortIcon('currentYearCA')"></i>
-                        </th>
-                        <th class="text-end sortable-col" (click)="onFournisseurSort('previousYearCA')">
-                          CA {{ selectedYear() - 1 }}
-                          <i [class]="fournisseurSortIcon('previousYearCA')"></i>
-                        </th>
-                        <th class="text-end sortable-col" (click)="onFournisseurSort('evolutionPct')">
-                          Évolution
-                          <i [class]="fournisseurSortIcon('evolutionPct')"></i>
-                        </th>
-                        <th class="text-end">Ventes {{ selectedYear() }}</th>
-                      </tr>
+                    <tr>
+                      <th>#</th>
+                      <th>Fournisseur</th>
+                      <th (click)="onFournisseurSort('currentYearCA')" class="text-end sortable-col">
+                        CA {{ selectedYear() }}
+                        <i [class]="fournisseurSortIcon('currentYearCA')"></i>
+                      </th>
+                      <th (click)="onFournisseurSort('previousYearCA')" class="text-end sortable-col">
+                        CA {{ selectedYear() - 1 }}
+                        <i [class]="fournisseurSortIcon('previousYearCA')"></i>
+                      </th>
+                      <th (click)="onFournisseurSort('evolutionPct')" class="text-end sortable-col">
+                        Évolution
+                        <i [class]="fournisseurSortIcon('evolutionPct')"></i>
+                      </th>
+                      <th class="text-end">Ventes {{ selectedYear() }}</th>
+                    </tr>
                     </thead>
                     <tbody class="pharma-table-body">
                       @for (f of sortedFournisseur(); track f.fournisseurId; let i = $index) {
@@ -298,8 +335,9 @@
                           <td class="fw-medium">{{ f.fournisseurLibelle }}</td>
                           <td class="text-end">{{ formatCurrency(f.currentYearCA) }}</td>
                           <td class="text-end text-muted">{{ formatCurrency(f.previousYearCA) }}</td>
-                          <td class="text-end" [ngClass]="getEvolutionClass(f.evolutionPct)">
-                            <i [class]="'pi ' + ((f.evolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down') + ' me-1'"></i>
+                          <td [ngClass]="getEvolutionClass(f.evolutionPct)" class="text-end">
+                            <i
+                              [class]="'pi ' + ((f.evolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down') + ' me-1'"></i>
                             {{ formatPercent(f.evolutionPct) }}%
                           </td>
                           <td class="text-end">{{ f.currentYearCount }}</td>
@@ -307,6 +345,7 @@
                       }
                     </tbody>
                   </table>
+                </div>
               }
             </div>
           </div>
@@ -368,25 +407,26 @@
                   <p class="mt-3 text-muted">Aucune donnée disponible</p>
                 </div>
               } @else {
-                  <table >
+                <div class="table-responsive">
+                  <table class="table table-striped mb-0">
                     <thead class="pharma-table-head">
-                      <tr>
-                        <th>#</th>
-                        <th>Famille</th>
-                        <th class="text-end sortable-col" (click)="onFamilySort('currentYearCA')">
-                          CA {{ selectedYear() }}
-                          <i [class]="familySortIcon('currentYearCA')"></i>
-                        </th>
-                        <th class="text-end sortable-col" (click)="onFamilySort('previousYearCA')">
-                          CA {{ selectedYear() - 1 }}
-                          <i [class]="familySortIcon('previousYearCA')"></i>
-                        </th>
-                        <th class="text-end sortable-col" (click)="onFamilySort('evolutionPct')">
-                          Évolution
-                          <i [class]="familySortIcon('evolutionPct')"></i>
-                        </th>
-                        <th class="text-end">Ventes {{ selectedYear() }}</th>
-                      </tr>
+                    <tr>
+                      <th>#</th>
+                      <th>Famille</th>
+                      <th (click)="onFamilySort('currentYearCA')" class="text-end sortable-col">
+                        CA {{ selectedYear() }}
+                        <i [class]="familySortIcon('currentYearCA')"></i>
+                      </th>
+                      <th (click)="onFamilySort('previousYearCA')" class="text-end sortable-col">
+                        CA {{ selectedYear() - 1 }}
+                        <i [class]="familySortIcon('previousYearCA')"></i>
+                      </th>
+                      <th (click)="onFamilySort('evolutionPct')" class="text-end sortable-col">
+                        Évolution
+                        <i [class]="familySortIcon('evolutionPct')"></i>
+                      </th>
+                      <th class="text-end">Ventes {{ selectedYear() }}</th>
+                    </tr>
                     </thead>
                     <tbody class="pharma-table-body">
                       @for (fam of sortedFamily(); track fam.familleId; let i = $index) {
@@ -394,9 +434,13 @@
                           <td class="text-muted small">{{ i + 1 }}</td>
                           <td class="fw-medium">{{ fam.familleLibelle }}</td>
                           <td class="text-end">{{ formatCurrency(fam.currentYearCA) }}</td>
-                          <td class="text-end text-muted">{{ formatCurrency(fam.previousYearCA) }}</td>
-                          <td class="text-end" [ngClass]="getEvolutionClass(fam.evolutionPct)">
-                            <i [class]="'pi ' + ((fam.evolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down') + ' me-1'"></i>
+                          <td class="text-end text-muted">{{
+                              formatCurrency(fam.previousYearCA)
+                            }}
+                          </td>
+                          <td [ngClass]="getEvolutionClass(fam.evolutionPct)" class="text-end">
+                            <i
+                              [class]="'pi ' + ((fam.evolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down') + ' me-1'"></i>
                             {{ formatPercent(fam.evolutionPct) }}%
                           </td>
                           <td class="text-end">{{ fam.currentYearCount }}</td>
@@ -404,6 +448,7 @@
                       }
                     </tbody>
                   </table>
+                </div>
               }
             </div>
           </div>

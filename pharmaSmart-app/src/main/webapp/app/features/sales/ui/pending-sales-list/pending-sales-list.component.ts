@@ -22,6 +22,8 @@ import {
 import {ISales, SalesStatut} from '../../../../shared/model';
 import {SalesFacade} from '../../data-access/facades/sales.facade';
 import {UserVendeurService} from '../../../../entities/sales/service/user-vendeur.service';
+import { DevisePipe } from 'app/shared/utils/devise';
+import { libelleNatureVente } from 'app/shared/constants/type-vente.constants';
 
 /**
  * PendingSalesListComponent
@@ -57,7 +59,7 @@ import {UserVendeurService} from '../../../../entities/sales/service/user-vendeu
     BadgeComponent,
     RowTogglerDirective,
 
-  ],
+   DevisePipe],
 })
 export class PendingSalesListComponent implements OnInit {
   // ===== Services =====
@@ -93,10 +95,14 @@ export class PendingSalesListComponent implements OnInit {
   // ===== Lifecycle =====
 
   ngOnInit(): void {
-    // Sélectionner l'utilisateur connecté par défaut
-    const currentSeller = this.seller();
-    if (currentSeller) {
-      this.sellerFilter.set(currentSeller.id);
+    // Filtrer par défaut sur le CAISSIER — l'utilisateur connecté — et non sur le vendeur
+    // choisi à l'écran. Les deux diffèrent dès qu'on encaisse pour quelqu'un d'autre, et le
+    // compteur du bouton « En attente » compte, lui, les ventes du caissier : filtrer ici sur
+    // le vendeur affichait un badge à 1 au-dessus d'une liste vide, sans rien pour expliquer
+    // l'écart. Le filtre par vendeur reste disponible au-dessus de la liste.
+    const caissier = this.facade.cashier();
+    if (caissier) {
+      this.sellerFilter.set(caissier.id);
     }
 
     this.facade.loadPendingSales(this.buildParameters());
@@ -136,17 +142,12 @@ export class PendingSalesListComponent implements OnInit {
 
   // ===== Helpers =====
 
+  /**
+   * Le libellé vient de la table partagée : la même liste recopiée dans chaque écran finit
+   * toujours par diverger d'un mot ou d'une majuscule.
+   */
   getSaleTypeLabel(type: string): string {
-    switch (type) {
-      case 'COMPTANT':
-        return 'Comptant';
-      case 'ASSURANCE':
-        return 'Assurance';
-      case 'CARNET':
-        return 'Carnet';
-      default:
-        return type;
-    }
+    return libelleNatureVente(type);
   }
 
   getSaleTypeSeverity(type: string): AppBadgeSeverity {

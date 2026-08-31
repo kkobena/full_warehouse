@@ -224,7 +224,10 @@ export class AjustementFacade {
       next: res => {
         const all = res.body ?? [];
         this.store.setStorages(all);
-        const principal = all.find(s => s.storageType === 'PRINCIPAL') ?? all[0] ?? null;
+        // `type` porte le CODE (PRINCIPAL, SAFETY_STOCK) ; `storageType` n'en est que le
+        // libellé affichable (« Stock rayon », « Réserve »). Comparer le libellé au code ne
+        // trouvait jamais rien, et l'écran retombait sur le premier stockage venu.
+        const principal = all.find(s => s.type === 'PRINCIPAL') ?? all[0] ?? null;
         if (principal) this.store.setStorage(principal);
       },
       error: () => {},

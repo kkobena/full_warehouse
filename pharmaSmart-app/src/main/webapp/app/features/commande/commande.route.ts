@@ -59,15 +59,12 @@ const commandeRoute: Routes = [
     },
     data: { pageTitle: 'warehouseApp.commande.home.title' },
   },
-  {
-    path: ':id/:orderDate/edit',
-    loadComponent: () =>
-      import('./feature/commande-detail/commande-detail.component').then(m => m.CommandeDetailComponent),
-    resolve: {
-      commande: CommandeResolve,
-    },
-    data: { pageTitle: 'warehouseApp.commande.home.title' },
-  },
+  // Les chemins LITTÉRAUX passent avant les chemins paramétrés : Angular retient la première
+  // route dont la forme correspond, sans chercher mieux ensuite. Déclarée après
+  // « :id/:orderDate/edit », l'édition d'un retour tombait dans ce moule — id vaut alors
+  // « retour-fournisseur » et orderDate « 1 » — et le résolveur de commande appelait
+  // /api/commandes/retour-fournisseur/1, que le serveur refusait en HTTP 400. L'écran
+  // affichait « Une erreur est survenue » sans que rien ne désigne la cause.
   {
     path: 'retour-fournisseur/new',
     loadComponent: () =>
@@ -83,6 +80,15 @@ const commandeRoute: Routes = [
         m => m.SupplierReturnsComponent,
       ),
     data: { pageTitle: 'Modifier le Retour Fournisseur' },
+  },
+  {
+    path: ':id/:orderDate/edit',
+    loadComponent: () =>
+      import('./feature/commande-detail/commande-detail.component').then(m => m.CommandeDetailComponent),
+    resolve: {
+      commande: CommandeResolve,
+    },
+    data: { pageTitle: 'warehouseApp.commande.home.title' },
   },
   {
     path: 'suggestions',

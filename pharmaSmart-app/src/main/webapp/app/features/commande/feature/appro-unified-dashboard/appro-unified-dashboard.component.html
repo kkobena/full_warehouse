@@ -39,6 +39,17 @@
           size="small"
         />
         <app-button
+          (clicked)="recalculerVmm()"
+          [loading]="recalculEnCours()"
+          [outlined]="true"
+          icon="pi pi-calculator"
+          label="Recalculer VMM"
+          ngbTooltip="Forcer un recalcul immediat de la vente mensuelle moyenne"
+          placement="bottom"
+          severity="warn"
+          size="small"
+        />
+        <app-button
           (clicked)="loadAll()"
           [loading]="isLoading"
           icon="pi pi-refresh"
@@ -333,7 +344,7 @@
                                  style="font-size:0.6rem" />
                     }
                   </td>
-                  <td class="text-end pharma-price small">{{ row.grossAmount | number }} F</td>
+                  <td class="text-end pharma-price small">{{ row.grossAmount | number }}</td>
                   <td class="text-center text-muted small">{{ row.orderDate | date: 'dd/MM/yyyy' }}
                   </td>
                   <td class="text-end">

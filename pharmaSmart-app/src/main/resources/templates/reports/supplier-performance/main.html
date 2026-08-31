@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Performance des Fournisseurs</title>
+    <style th:replace="~{common/css}"></style>
+  </head>
+  <body>
+    <header th:replace="~{common/commonheader}"></header>
+    <div class="invoice">
+      <main>
+        <!--
+          Un fournisseur ne se juge pas au seul volume : le délai de livraison et le taux de
+          conformité pèsent autant. Un grossiste moins cher et plus lent n'est pas moins cher —
+          il déplace le coût sur la rupture. Le score réunit les trois.
+        -->
+        <div class="alert-summary">
+          <table class="summary-table">
+            <tbody>
+              <tr>
+                <td class="summary-item">
+                  <strong>Fournisseurs&nbsp;:</strong> <span th:text="${summary.totalSuppliers ?: 0}"></span>
+                </td>
+                <td class="summary-item">
+                  <strong>Achats 30 j&nbsp;:</strong>
+                  <span
+                    th:text="${#numbers.formatInteger(summary.totalPurchaseAmountLast30Days ?: 0, 0, 'WHITESPACE')} + ' ' + ${devise}"
+                  ></span>
+                </td>
+                <td class="summary-item">
+                  <strong>Achats 12 mois&nbsp;:</strong>
+                  <span
+                    th:text="${#numbers.formatInteger(summary.totalPurchaseAmountLast12Months ?: 0, 0, 'WHITESPACE')} + ' ' + ${devise}"
+                  ></span>
+                </td>
+              </tr>
+              <tr>
+                <td class="summary-item">
+                  <strong>Délai moyen&nbsp;:</strong>
+                  <span
+                    th:text="${summary.avgDeliveryDays != null ? #numbers.formatDecimal(summary.avgDeliveryDays, 1, 1) : '0,0'} + ' j'"
+                  ></span>
+                </td>
+                <td class="summary-item">
+                  <strong>Conformité moyenne&nbsp;:</strong>
+                  <span
+                    th:text="${summary.avgConformityRate != null ? #numbers.formatDecimal(summary.avgConformityRate, 1, 1) : '0,0'} + ' %'"
+                  ></span>
+                </td>
+                <td class="summary-item">
+                  <strong>Performance&nbsp;:</strong>
+                  <span th:text="${summary.suppliersWithGoodPerformance ?: 0}"></span> bonne /
+                  <span th:text="${summary.suppliersWithAveragePerformance ?: 0}"></span> moyenne /
+                  <span th:text="${summary.suppliersWithPoorPerformance ?: 0}"></span> faible
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <table class="main-table">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Fournisseur</th>
+              <th>Téléphone</th>
+              <th class="text-right">Cdes 30 j</th>
+              <th class="text-right">Achats 30 j</th>
+              <th class="text-right">Cdes 12 mois</th>
+              <th class="text-right">Achats 12 mois</th>
+              <th class="text-right">Délai moyen</th>
+              <th class="text-right">Conformité</th>
+              <th class="text-right">Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="f : ${suppliers}">
+              <td th:text="${f.fournisseurCode}"></td>
+              <td th:text="${f.fournisseurName}"></td>
+              <td th:text="${f.phone != null ? f.phone : f.mobile}"></td>
+              <td class="text-right" th:text="${f.nbOrdersLast30Days}"></td>
+              <td
+                class="text-right"
+                th:text="${#numbers.formatInteger(f.purchaseAmountLast30Days ?: 0, 0, 'WHITESPACE')}"
+              ></td>
+              <td class="text-right" th:text="${f.nbOrdersLast12Months}"></td>
+              <td
+                class="text-right"
+                th:text="${#numbers.formatInteger(f.purchaseAmountLast12Months ?: 0, 0, 'WHITESPACE')}"
+              ></td>
+              <td class="text-right" th:text="${f.avgDeliveryDays} + ' j'"></td>
+              <td
+                class="text-right"
+                th:text="${f.conformityRatePct != null ? #numbers.formatDecimal(f.conformityRatePct, 1, 1) : '0,0'} + ' %'"
+              ></td>
+              <td
+                class="text-right"
+                th:text="${f.performanceScore != null ? #numbers.formatDecimal(f.performanceScore, 1, 1) : '0,0'}"
+              ></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="10" class="text-right">
+                <strong>Total&nbsp;: <span th:text="${suppliers.size()}"></span> fournisseur(s)</strong>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </main>
+    </div>
+  </body>
+</html>

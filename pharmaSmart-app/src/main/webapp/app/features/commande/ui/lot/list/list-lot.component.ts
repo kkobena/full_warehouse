@@ -89,7 +89,7 @@ export class ListLotComponent implements OnInit, OnDestroy {
           });
       },
       'Suppression',
-      'Voullez-vous supprimer ce lot  ?',
+      'Voulez-vous supprimer ce lot  ?',
     );
   }
 

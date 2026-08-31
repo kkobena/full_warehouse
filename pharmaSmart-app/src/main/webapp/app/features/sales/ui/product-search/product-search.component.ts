@@ -297,7 +297,27 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
         }
       });
 
+    // Une douchette envoie ses caractères là où est le focus, et le détecteur la reconnaît à
+    // sa VITESSE : une saisie humaine rapide lui ressemble. On ne le nourrit donc que si la
+    // frappe ne vise AUCUN champ, ou vise la recherche produit — les deux seules situations
+    // où l'on scanne réellement. Sans cette règle, taper vite un numéro de bon ou un montant
+    // déclenchait « Produit non trouvé : … » et un bip d'erreur.
+    const vientDUneModale = (event: KeyboardEvent): boolean => {
+      const cible = event.target as HTMLElement | null;
+      if (!cible) {
+        return false;
+      }
+      if (cible.closest('.modal, .modal-content')) {
+        return true;
+      }
+      const estUnChamp =
+        cible instanceof HTMLInputElement || cible instanceof HTMLTextAreaElement || cible.isContentEditable;
+      return estUnChamp && cible.id !== 'produitbox';
+    };
     this.keydownListener = (event: KeyboardEvent) => {
+      if (vientDUneModale(event)) {
+        return;
+      }
       this.scanDetectorService.keyPressed(event.key);
     };
 

@@ -15,7 +15,7 @@ import {Authority} from '../../../../shared/constants/authority.constants';
  * Opens a modal to request security key from authorized user
  *
  * @example
- * this.authService.requestAuthorization(saleId, 'PR_SUPPRIME_PRODUIT_VENTE')
+ * this.authService.requestAuthorization(saleId, Authority.PR_SUPPRIME_PRODUIT_VENTE)
  *   .subscribe(authorized => {
  *     if (authorized) {
  *       // Proceed with protected action
@@ -59,28 +59,28 @@ export class AuthorizationService {
    * Request authorization to delete a product from sale
    */
   requestDeleteProductAuthorization(saleId: number | undefined, saleType: 'COMPTANT' | 'ASSURANCE' | 'CARNET' = 'COMPTANT'): Observable<boolean> {
-    return this.requestAuthorization(saleId, 'PR_SUPPRIME_PRODUIT_VENTE', saleType);
+    return this.requestAuthorization(saleId, Authority.PR_SUPPRIME_PRODUIT_VENTE, saleType);
   }
 
   /**
    * Request authorization to apply discount
    */
   requestDiscountAuthorization(saleId: number | undefined, saleType: 'COMPTANT' | 'ASSURANCE' | 'CARNET' = 'COMPTANT'): Observable<boolean> {
-    return this.requestAuthorization(saleId, 'PR_AJOUTER_REMISE_VENTE', saleType);
+    return this.requestAuthorization(saleId, Authority.PR_AJOUTER_REMISE_VENTE, saleType);
   }
 
   /**
    * Request authorization to modify price
    */
   requestPriceModificationAuthorization(saleId: number | undefined, saleType: 'COMPTANT' | 'ASSURANCE' | 'CARNET' = 'COMPTANT'): Observable<boolean> {
-    return this.requestAuthorization(saleId, 'PR_MODIFIER_PRIX_VENTE', saleType);
+    return this.requestAuthorization(saleId, Authority.PR_MODIFIER_PRIX, saleType);
   }
 
   /**
    * Request authorization to cancel sale
    */
   requestCancelSaleAuthorization(saleId: number | undefined, saleType: 'COMPTANT' | 'ASSURANCE' | 'CARNET' = 'COMPTANT'): Observable<boolean> {
-    return this.requestAuthorization(saleId, 'PR_ANNULER_VENTE', saleType);
+    return this.requestAuthorization(saleId, Authority.PR_ANNULATION_VENTE, saleType);
   }
 
   /**

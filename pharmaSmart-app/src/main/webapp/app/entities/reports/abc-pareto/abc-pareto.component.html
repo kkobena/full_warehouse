@@ -78,7 +78,7 @@
             <td>{{ product.libelle }}</td>
             <td>{{ product.codeCip }}</td>
             <td>{{ product.famille }}</td>
-            <td class="text-end">{{ product.caTotal | number: '1.0-0' }} F</td>
+            <td class="text-end">{{ product.caTotal | devise }}</td>
             <td class="text-end">{{ product.qteVendue | number }}</td>
             <td class="text-end">{{ product.frequenceMois }}</td>
             <td class="text-end">

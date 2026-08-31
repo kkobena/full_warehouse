@@ -248,13 +248,19 @@ export class SaleLifecycleFacade {
     console.error('Error creating sale:', error);
     const { errorMessage, errorKey } = extractApiError(error, defaultMessage);
 
-    if (errorKey === 'stock' || errorKey === 'stockChInsufisant') {
+    // `stock.reserve.available` fait partie du lot : c'est un manque de stock EN RAYON que la
+    // réserve peut combler, et l'écran sait le proposer (« Effectuer un transfert réserve →
+    // rayon et continuer ? »). Il manquait ici, si bien que la proposition n'apparaissait que
+    // sur la DEUXIÈME ligne d'une vente : pour la première, la vente échouait sur un simple
+    // message d'erreur, alors que la marchandise était disponible deux mètres plus loin.
+    if (errorKey === 'stock' || errorKey === 'stockChInsufisant' || errorKey === 'stock.reserve.available') {
       this.store.setError(errorMessage);
       this.store.setLastErrorDetails({
         errorKey,
         originalError: error,
         attemptedLine: initialLine,
         isFromTableCellEdit: false,
+        reserveInfo: error.error?.payload,
       });
       this.store.setLoading(false);
       return EMPTY;

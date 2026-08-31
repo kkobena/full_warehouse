@@ -3,6 +3,8 @@ package com.kobe.warehouse.service.impl;
 import com.kobe.warehouse.domain.Categorie;
 import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.repository.CategorieRepository;
+import com.kobe.warehouse.repository.ProduitRepository;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.repository.FamilleProduitRepository;
 import com.kobe.warehouse.service.dto.FamilleProduitDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
@@ -33,9 +35,11 @@ public class FamilleProduitServiceImpl implements FamilleProduitService {
     private final Logger log = LoggerFactory.getLogger(FamilleProduitServiceImpl.class);
 
     private final FamilleProduitRepository familleProduitRepository;
+    private final ProduitRepository produitRepository;
     private final CategorieRepository categorieRepository;
 
-    public FamilleProduitServiceImpl(FamilleProduitRepository familleProduitRepository, CategorieRepository categorieRepository) {
+    public FamilleProduitServiceImpl(FamilleProduitRepository familleProduitRepository, CategorieRepository categorieRepository, ProduitRepository produitRepository) {
+        this.produitRepository = produitRepository;
         this.familleProduitRepository = familleProduitRepository;
         this.categorieRepository = categorieRepository;
     }
@@ -87,6 +91,16 @@ public class FamilleProduitServiceImpl implements FamilleProduitService {
      */
     @Override
     public void delete(Integer id) {
+        // Un référentiel encore porté par des fiches ne peut pas disparaître : la
+        // requête échouerait sur la contrainte de clé étrangère, en HTTP 500 et sans
+        // rien dire d'utile. On compte d'abord, et l'on explique.
+        long rattaches = this.produitRepository.countByFamilleId(id);
+        if (rattaches > 0) {
+            throw new GenericError(
+                "La famille est encore utilisée par %d produit(s) : suppression impossible.".formatted(rattaches),
+                "referentielUtilise"
+            );
+        }
         log.debug("Request to delete FamilleProduit : {}", id);
 
         familleProduitRepository.deleteById(id);

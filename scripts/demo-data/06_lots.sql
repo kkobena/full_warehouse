@@ -149,7 +149,7 @@ LIMIT 60;
 INSERT INTO lot (
     num_lot, produit_id, order_line_id, commande_order_date,
     quantity, current_quantity, quantity_received_ug,
-    prixachat, prixunit,                    -- ← sans underscore, voir en-tête
+    prixachat, prixunit,                    -- <- sans underscore, voir en-tête
     expiry_date, manufacturing_date, statut, serial_number,
     created_date, updated
 )

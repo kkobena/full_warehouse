@@ -36,13 +36,13 @@ INSERT INTO fournisseur (
     addresse_postal, phone, mobile, email, site
 ) VALUES
     ('LABOREX-CI',          'LABOREXCI',  1, NULL, 1, 2, 45, 15, 250000000, 2,
-     '01 BP 1237 Abidjan 01',  '+225 27 21 75 90 00', '+225 07 07 12 34 56', 'commandes@laborex-ci.example', 'www.laborex-ci.example'),
+     '01 BP 1237 Abidjan 01',  '27 21 75 90 00', '07 07 12 34 56', 'commandes@laborex-ci.example', 'www.laborex-ci.example'),
     ('DPCI',                'DPCI',       2, NULL, 1, 2, 30, 10, 180000000, 2,
-     '01 BP 3456 Abidjan 01',  '+225 27 21 24 55 00', '+225 05 05 22 33 44', 'commandes@dpci.example', NULL),
+     '01 BP 3456 Abidjan 01',  '27 21 24 55 00', '05 05 22 33 44', 'commandes@dpci.example', NULL),
     ('COPHARMED',           'COPHARMED',  3, NULL, 2, 3, 30, 10, 120000000, 1,
-     '18 BP 890 Abidjan 18',   '+225 27 21 35 60 00', NULL, 'commandes@copharmed.example', NULL),
+     '18 BP 890 Abidjan 18',   '27 21 35 60 00', NULL, 'commandes@copharmed.example', NULL),
     ('UBIPHARM CI',         'UBIPHARMCI', 4, NULL, 2, 3, 60, 20, 300000000, 3,
-     '01 BP 4477 Abidjan 01',  '+225 27 21 27 88 00', '+225 01 01 44 55 66', 'commandes@ubipharm-ci.example', 'www.ubipharm-ci.example'),
+     '01 BP 4477 Abidjan 01',  '27 21 27 88 00', '01 01 44 55 66', 'commandes@ubipharm-ci.example', 'www.ubipharm-ci.example'),
     -- Sans agence : les commandes lui sont passées directement.
     ('DIVERS FOURNISSEURS', 'DIVERS',   100, NULL, 5, 7, 15,  5, NULL, NULL,
      'Abidjan',                NULL, NULL, NULL, NULL)
@@ -61,21 +61,21 @@ INSERT INTO fournisseur (
 SELECT v.libelle, v.code, v.odre, p.id, v.delai, v.adresse, v.phone, v.email
   FROM (VALUES
     -- LABOREX-CI
-    ('LABOREX-CI',  'LABOREX ABIDJAN TREICHVILLE', 'LBX-TRE', 11,    1, 'Bd de Marseille, Treichville, Abidjan', '+225 27 21 75 90 10', 'treichville@laborex-ci.example'),
-    ('LABOREX-CI',  'LABOREX ABIDJAN COCODY',      'LBX-COC', 12,    1, 'Bd Latrille, Cocody, Abidjan',          '+225 27 22 44 12 10', 'cocody@laborex-ci.example'),
-    ('LABOREX-CI',  'LABOREX BOUAKE',              'LBX-BKE', 13, NULL, 'Quartier Commerce, Bouaké',             '+225 27 31 63 20 10', 'bouake@laborex-ci.example'),
+    ('LABOREX-CI',  'LABOREX ABIDJAN TREICHVILLE', 'LBX-TRE', 11,    1, 'Bd de Marseille, Treichville, Abidjan', '27 21 75 90 10', 'treichville@laborex-ci.example'),
+    ('LABOREX-CI',  'LABOREX ABIDJAN COCODY',      'LBX-COC', 12,    1, 'Bd Latrille, Cocody, Abidjan',          '27 22 44 12 10', 'cocody@laborex-ci.example'),
+    ('LABOREX-CI',  'LABOREX BOUAKE',              'LBX-BKE', 13, NULL, 'Quartier Commerce, Bouaké',             '27 31 63 20 10', 'bouake@laborex-ci.example'),
     -- DPCI
-    ('DPCI',        'DPCI ABIDJAN MARCORY',        'DPC-MAR', 21,    1, 'Zone 4, Marcory, Abidjan',              '+225 27 21 24 55 10', 'marcory@dpci.example'),
-    ('DPCI',        'DPCI ABIDJAN YOPOUGON',       'DPC-YOP', 22,    2, 'Siporex, Yopougon, Abidjan',            '+225 27 23 46 70 10', 'yopougon@dpci.example'),
-    ('DPCI',        'DPCI DALOA',                  'DPC-DAL', 23, NULL, 'Quartier Commerce, Daloa',              '+225 27 32 78 40 10', NULL),
+    ('DPCI',        'DPCI ABIDJAN MARCORY',        'DPC-MAR', 21,    1, 'Zone 4, Marcory, Abidjan',              '27 21 24 55 10', 'marcory@dpci.example'),
+    ('DPCI',        'DPCI ABIDJAN YOPOUGON',       'DPC-YOP', 22,    2, 'Siporex, Yopougon, Abidjan',            '27 23 46 70 10', 'yopougon@dpci.example'),
+    ('DPCI',        'DPCI DALOA',                  'DPC-DAL', 23, NULL, 'Quartier Commerce, Daloa',              '27 32 78 40 10', NULL),
     -- COPHARMED
-    ('COPHARMED',   'COPHARMED ABIDJAN PLATEAU',   'COP-PLA', 31,    2, 'Av. Franchet d''Esperey, Plateau, Abidjan', '+225 27 20 22 30 10', 'plateau@copharmed.example'),
-    ('COPHARMED',   'COPHARMED ABIDJAN ADJAME',    'COP-ADJ', 32,    2, 'Bd Nangui Abrogoua, Adjamé, Abidjan',   '+225 27 20 37 45 10', NULL),
-    ('COPHARMED',   'COPHARMED SAN-PEDRO',         'COP-SPE', 33, NULL, 'Zone portuaire, San-Pédro',             '+225 27 34 71 55 10', NULL),
+    ('COPHARMED',   'COPHARMED ABIDJAN PLATEAU',   'COP-PLA', 31,    2, 'Av. Franchet d''Esperey, Plateau, Abidjan', '27 20 22 30 10', 'plateau@copharmed.example'),
+    ('COPHARMED',   'COPHARMED ABIDJAN ADJAME',    'COP-ADJ', 32,    2, 'Bd Nangui Abrogoua, Adjamé, Abidjan',   '27 20 37 45 10', NULL),
+    ('COPHARMED',   'COPHARMED SAN-PEDRO',         'COP-SPE', 33, NULL, 'Zone portuaire, San-Pédro',             '27 34 71 55 10', NULL),
     -- UBIPHARM CI
-    ('UBIPHARM CI', 'UBIPHARM ABIDJAN KOUMASSI',   'UBI-KOU', 41,    2, 'Zone industrielle, Koumassi, Abidjan',  '+225 27 21 36 12 10', 'koumassi@ubipharm-ci.example'),
-    ('UBIPHARM CI', 'UBIPHARM ABIDJAN ABOBO',      'UBI-ABO', 42,    3, 'Abobo Gare, Abidjan',                   '+225 27 24 39 80 10', NULL),
-    ('UBIPHARM CI', 'UBIPHARM YAMOUSSOUKRO',       'UBI-YAM', 43, NULL, 'Quartier Millionnaire, Yamoussoukro',   '+225 27 30 64 25 10', NULL)
+    ('UBIPHARM CI', 'UBIPHARM ABIDJAN KOUMASSI',   'UBI-KOU', 41,    2, 'Zone industrielle, Koumassi, Abidjan',  '27 21 36 12 10', 'koumassi@ubipharm-ci.example'),
+    ('UBIPHARM CI', 'UBIPHARM ABIDJAN ABOBO',      'UBI-ABO', 42,    3, 'Abobo Gare, Abidjan',                   '27 24 39 80 10', NULL),
+    ('UBIPHARM CI', 'UBIPHARM YAMOUSSOUKRO',       'UBI-YAM', 43, NULL, 'Quartier Millionnaire, Yamoussoukro',   '27 30 64 25 10', NULL)
   ) AS v(parent_libelle, libelle, code, odre, delai, adresse, phone, email)
   JOIN fournisseur p ON p.libelle = v.parent_libelle AND p.parent_id IS NULL
 ON CONFLICT (libelle) DO NOTHING;

@@ -33,7 +33,7 @@
         @if (produit.regularUnitPrice) {
           <div class="cr-prix-item">
             <span class="cr-prix-label">Prix de vente</span>
-            <span class="cr-prix-value cr-pv">{{ produit.regularUnitPrice | number:'1.0-0' }} F</span>
+            <span class="cr-prix-value cr-pv">{{ produit.regularUnitPrice | devise }}</span>
           </div>
         }
         @if (produit.totalQuantity != null) {
@@ -63,12 +63,12 @@
       <div class="cr-details-row mb-3">
         <div class="cr-detail-item">
           <span class="cr-detail-label">Prix d'achat</span>
-          <span class="cr-detail-value">{{ selectedFournisseurProduit().prixAchat | number:'1.0-0' }} F</span>
+          <span class="cr-detail-value">{{ selectedFournisseurProduit().prixAchat | devise }}</span>
         </div>
         @if (selectedFournisseurProduit().prixUni) {
           <div class="cr-detail-item">
             <span class="cr-detail-label">Prix uni frs</span>
-            <span class="cr-detail-value">{{ selectedFournisseurProduit().prixUni | number:'1.0-0' }} F</span>
+            <span class="cr-detail-value">{{ selectedFournisseurProduit().prixUni | devise }}</span>
           </div>
         }
         @if (selectedFournisseurProduit().qteColis) {
@@ -98,7 +98,7 @@
     @if (selectedFournisseurProduit()?.prixAchat && quantite() > 0) {
       <div class="cr-total">
         <span class="cr-total-label">Montant estimé (achat)</span>
-        <span class="cr-total-value">{{ totalEstime | number:'1.0-0' }} F</span>
+        <span class="cr-total-value">{{ totalEstime | devise }}</span>
       </div>
     }
   }

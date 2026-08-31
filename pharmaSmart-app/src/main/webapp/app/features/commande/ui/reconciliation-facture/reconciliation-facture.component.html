@@ -19,7 +19,7 @@
     <!-- Ligne HT -->
     <div class="rf-compare__row">
       <span class="rf-row-label">Montant HT</span>
-      <span class="rf-val rf-val--ref">{{ blMontantHT | number }} F</span>
+      <span class="rf-val rf-val--ref">{{ blMontantHT | devise }}</span>
       <span class="rf-val">
         <app-input-number
           [ngModel]="factureMontantHT()" (ngModelChange)="factureMontantHT.set($event)"
@@ -34,14 +34,14 @@
         } @else {
           <i class="pi pi-exclamation-triangle"></i>
         }
-        {{ ecartHT | number }} F
+        {{ ecartHT | devise }}
       </span>
     </div>
 
     <!-- Ligne TVA -->
     <div class="rf-compare__row">
       <span class="rf-row-label">TVA</span>
-      <span class="rf-val rf-val--ref">{{ blTVA | number }} F</span>
+      <span class="rf-val rf-val--ref">{{ blTVA | devise }}</span>
       <span class="rf-val">
         <app-input-number
           [ngModel]="factureTVA()" (ngModelChange)="factureTVA.set($event)"
@@ -56,19 +56,19 @@
         } @else {
           <i class="pi pi-exclamation-triangle"></i>
         }
-        {{ ecartTVA | number }} F
+        {{ ecartTVA | devise }}
       </span>
     </div>
 
     <!-- Total TTC -->
     <div class="rf-compare__row rf-compare__row--total">
       <span class="rf-row-label fw-bold">Total TTC</span>
-      <span class="rf-val rf-val--ref fw-bold">{{ totalBL | number }} F</span>
-      <span class="rf-val fw-bold">{{ totalFacture | number }} F</span>
+      <span class="rf-val rf-val--ref fw-bold">{{ totalBL | devise }}</span>
+      <span class="rf-val fw-bold">{{ totalFacture | devise }}</span>
       <span class="rf-val rf-ecart fw-bold"
             [class.rf-ecart--ok]="ecartHT === 0 && ecartTVA === 0"
             [class.rf-ecart--err]="ecartHT !== 0 || ecartTVA !== 0">
-        {{ (totalFacture - totalBL) | number }} F
+        {{ (totalFacture - totalBL) | devise }}
       </span>
     </div>
   </div>

@@ -77,7 +77,7 @@ export default class UserManagementComponent implements OnInit {
         error: err => this.notificationService.error(`Impossible de supprimer l'utilisateur "${user.firstName} ${user.lastName}".`, "Erreur lors de la suppression")
       }),
       "Suppression",
-      `Voulez-vous supprimer ce utilisateur "${user.firstName} ${user.lastName}" ?`
+      `Voulez-vous supprimer l'utilisateur "${user.firstName} ${user.lastName}" ?`
     );
 
   }

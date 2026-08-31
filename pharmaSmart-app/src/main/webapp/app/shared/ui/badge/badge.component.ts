@@ -1,6 +1,14 @@
 import {ChangeDetectionStrategy, Component, computed, input, output} from '@angular/core';
 
-export type AppBadgeSeverity = 'primary' | 'secondary' | 'success' | 'info' | 'warn' | 'danger' | 'help' | 'contrast';
+export type AppBadgeSeverity =
+  'primary'
+  | 'secondary'
+  | 'success'
+  | 'info'
+  | 'warn'
+  | 'danger'
+  | 'help'
+  | 'contrast';
 
 /**
  * Badge du Design System — remplace `p-tag`, `p-badge` et `p-chip`.
@@ -25,8 +33,11 @@ export type AppBadgeSeverity = 'primary' | 'secondary' | 'success' | 'info' | 'w
       <i [class]="icon()" aria-hidden="true"></i>
     }
     <span>{{ label() }}</span>
+
+    <ng-content />
     @if (dismissible()) {
-      <button type="button" class="app-badge__close" [attr.aria-label]="dismissAriaLabel()" (click)="dismissed.emit()">
+      <button type="button" class="app-badge__close" [attr.aria-label]="dismissAriaLabel()"
+              (click)="dismissed.emit()">
         <i class="pi pi-times" aria-hidden="true"></i>
       </button>
     }
@@ -101,7 +112,9 @@ export class BadgeComponent {
 
   protected readonly hostClasses = computed(() => {
     const classes = ['app-badge', `app-badge--${this.severity()}`];
-    if (this.rounded()) classes.push('app-badge--rounded');
+    if (this.rounded()) {
+      classes.push('app-badge--rounded');
+    }
     return classes.join(' ');
   });
 }

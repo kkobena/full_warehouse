@@ -53,6 +53,7 @@
 
             <app-select-search
               (searched)="searchTiersPayant($event)"
+              [typeahead]="typeaheadSink$"
               (selectionChange)="onSelectTiersPayant($event)"
               [items]="tiersPayants()"
               [minSearchLength]="PRODUIT_COMBO_MIN_LENGTH"

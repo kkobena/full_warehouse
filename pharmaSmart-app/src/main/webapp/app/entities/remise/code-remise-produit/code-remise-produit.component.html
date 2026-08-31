@@ -1,46 +1,138 @@
-<div class="pharma-smart-content p-2">
-  <div class="pharma-toolbar">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-tag"></i>
-      <span class="pharma-toolbar-title">Codes remise</span>
-    </div>
+<app-page-layout ariaLabel="Codes de remise" class="pharma-smart-content py-1" density="compact">
+  <app-toolbar [compact]="true" icon="pi pi-tag" ngProjectAs="[pageHeader]" title="Codes remise" />
 
-  </div>
+  <!-- Masqué dès qu'un détail est ouvert : le conseil n'a alors plus d'objet. -->
+  <app-hint [visible]="!panelOpen()" ngProjectAs="[pageGuidance]" storageKey="code-remise-produit">
+    Cliquez sur un code pour voir les produits auxquels il s'applique.
+  </app-hint>
 
-  <div class="mt-2">
-    <table class="table table-striped table-hover">
-      <thead class="pharma-table-head">
-        <tr>
-          <th scope="col">Code</th>
-          <th scope="col">Remise associé</th>
-          <th scope="col">Remise VNO</th>
-          <th scope="col">Remise VO</th>
-          <th scope="col"></th>
-        </tr>
-      </thead>
-      <tbody class="table-group-divider">
-        @for (code of entites(); track code.value; let i = $index) {
-          <tr>
-            <td>{{ code.value }}</td>
+  <!-- Split : les codes à gauche, les produits du code retenu à droite. -->
+  <div [class.panel-open]="panelOpen()" class="split-container">
+    <div class="list-column">
+      <app-data-table
+        (selectionChange)="onSelection($any($event))"
+        [selection]="selection()"
+        [stripedRows]="true"
+        [value]="entites() ?? []"
+        dataKey="value"
+        emptyMessage="Aucun code de remise."
+        selectionMode="single"
+        size="small"
+      >
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th style="width: 5rem">Code</th>
+            <th>Remise associée</th>
+            <th class="text-end" style="width: 7rem">Remise VNO</th>
+            <th class="text-end" style="width: 7rem">Remise VO</th>
+            <th style="width: 12rem; text-align: center">Actions</th>
+          </tr>
+        </ng-template>
+
+        <ng-template #body let-code>
+          <tr [appSelectableRow]="code">
+            <td><span class="pharma-code">{{ code.value }}</span></td>
             @if (code.value !== '0') {
-              <td>{{ code.remise?.valeur }}</td>
-              <td>{{ getVnoTaux(code.remise) }}</td>
-              <td>{{ getVoTaux(code.remise) }}</td>
+              <td><span class="pharma-entity-name">{{ code.remise?.valeur }}</span></td>
+              <td class="text-end">{{ getVnoTaux(code.remise) }}</td>
+              <td class="text-end">{{ getVoTaux(code.remise) }}</td>
             } @else {
-              <td>Produits non remisable</td>
-              <td>0%</td>
-              <td>0%</td>
+              <!-- Le code 0 n'est pas une grille : c'est l'absence de remise. -->
+              <td class="text-muted">Produits non remisables</td>
+              <td class="text-end text-muted">0 %</td>
+              <td class="text-end text-muted">0 %</td>
             }
-
-            <td class="text-right">
-              <button (click)="onOpenModal(code)" type="button" class="btn btn-success btn-sm">
-                <fa-icon icon="pencil-alt"></fa-icon>
-                Assosier des produits
-              </button>
+            <td style="text-align: right">
+              <div class="btn-group">
+                <app-button
+                  (clicked)="voirDetail(code, $event)"
+                  [rounded]="true"
+                  [text]="true"
+                  icon="pi pi-eye"
+                  ngbTooltip="Voir les produits rattachés"
+                  severity="info"
+                  size="small"
+                />
+                <app-button
+                  (clicked)="onOpenModal(code, $event)"
+                  [rounded]="true"
+                  [text]="true"
+                  icon="pi pi-link"
+                  ngbTooltip="Associer des produits"
+                  severity="success"
+                  size="small"
+                />
+              </div>
             </td>
           </tr>
-        }
-      </tbody>
-    </table>
+        </ng-template>
+      </app-data-table>
+    </div>
+
+    @if (panelOpen()) {
+      <div class="detail-column">
+        <app-card [withHeader]="true" class="d-block" header="Produits rattachés" icon="pi pi-box">
+          <div cardActions>
+            <app-button
+              (clicked)="fermerDetail()"
+              [iconOnly]="true"
+              [text]="true"
+              icon="pi pi-times"
+              label="Fermer"
+              severity="secondary"
+            />
+          </div>
+
+          <p class="text-muted small">
+            Code <span class="pharma-badge pharma-badge-success">{{ selection()!.value }}</span>&nbsp;&nbsp;
+            @if (!chargementDetail()) {
+              <span class="pharma-badge pharma-badge-info">  {{ totalProduits() | number }}</span>
+              produit(s)
+            }
+          </p>
+
+
+          <app-data-table
+            (onLazyLoad)="onLazyLoad($any($event))"
+            [first]="premierRang()"
+            [lazy]="true"
+            [loading]="chargementDetail()"
+            [paginator]="true"
+            [rowsPerPageOptions]="[10, 15, 25, 50]"
+            [rows]="taillePage()"
+            [scrollable]="true"
+            [showCurrentPageReport]="true"
+            [totalRecords]="totalProduits()"
+            [value]="produits()"
+            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+            emptyMessage="Aucun produit ne porte ce code de remise."
+            scrollHeight="calc(100vh - 26rem)"
+            size="small"
+          >
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th>Produit</th>
+                <th style="width: 9rem">CIP</th>
+                <th class="text-end" style="width: 7rem">Prix</th>
+              </tr>
+            </ng-template>
+
+            <ng-template #body let-produit>
+              <tr>
+                <td><span class="pharma-entity-name">{{ produit.libelle }}</span></td>
+                <td>
+                  @if (produit.codeCip) {
+                    <span class="pharma-code">{{ produit.codeCip }}</span>
+                  } @else {
+                    <span class="text-muted small">—</span>
+                  }
+                </td>
+                <td class="text-end">{{ produit.regularUnitPrice | number: '1.0-0' }}</td>
+              </tr>
+            </ng-template>
+          </app-data-table>
+        </app-card>
+      </div>
+    }
   </div>
-</div>
+</app-page-layout>

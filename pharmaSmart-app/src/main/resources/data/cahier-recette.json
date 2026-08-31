@@ -34,7 +34,24 @@
               "Choisir la quantité",
               "Ajouter à la vente en cours"
             ],
-            "resultatAttendu": "La ligne apparaît dans le panier avec son prix net et sa quantité."
+            "resultatAttendu": "La ligne apparaît dans le panier avec son prix net et sa quantité.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-01/etape-1.jpg",
+                "legende": "Rechercher le produit par nom ou scanner son code-barres"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-01/etape-2.jpg",
+                "legende": "Choisir la quantité"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/VTE-01/etape-3.jpg",
+                "legende": "Ajouter à la vente en cours"
+              }
+            ]
           },
           {
             "id": "VTE-02",
@@ -45,20 +62,49 @@
               "Sélectionner la ligne dans le panier",
               "Modifier la quantité ou la supprimer"
             ],
-            "resultatAttendu": "Le panier et le total reflètent la correction, sans impact sur le stock avant validation."
+            "resultatAttendu": "Le panier et le total reflètent la correction, sans impact sur le stock avant validation.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-02/etape-1.jpg",
+                "legende": "Sélectionner la ligne dans le panier"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-02/etape-2.jpg",
+                "legende": "Modifier la quantité ou la supprimer"
+              }
+            ]
           },
           {
             "id": "VTE-03",
-            "titre": "Vente avec remise automatique (produit ou client)",
-            "besoin": "Appliquer automatiquement les politiques commerciales sans calcul manuel, source d’erreur.",
-            "fonctionnement": "Deux dispositifs coexistent et peuvent se cumuler : la remise produit, rattachée à un code remise porté par le produit lui-même (avec une grille distinguant le taux appliqué en vente ordonnance ou hors ordonnance), et la remise client, rattachée au client sélectionné. Le prix net de la ligne est recalculé à partir du prix catalogue et du taux applicable.",
-            "prerequis": "Une grille de remise est configurée pour le produit ou le client.",
+            "titre": "Vente avec remise sur grille produit",
+            "besoin": "Appliquer la politique commerciale de l’officine sans calcul manuel, source d’erreur.",
+            "fonctionnement": "La remise est choisie par le caissier sur la vente en cours, puis chaque ligne reçoit SON taux : le produit porte un code remise, et la grille associe à ce code deux taux — l’un pour les ventes hors ordonnance, l’autre pour les ordonnancées. Deux produits d’une même vente peuvent donc être remisés différemment. Le prix net de la ligne est recalculé à partir du prix catalogue et du taux applicable.",
+            "prerequis": "Une grille de remise est configurée et les produits portent un code remise.",
             "etapes": [
-              "Ajouter un produit éligible à une remise (ou sélectionner un client remisé)",
-              "Vérifier le calcul automatique de la remise",
-              "Encaisser"
+              "Ajouter au panier un produit portant un code remise",
+              "Appliquer la grille de remise à la vente",
+              "Contrôler le montant remisé avant d’encaisser"
             ],
-            "resultatAttendu": "Le montant remisé est déduit du total et apparaît distinctement sur le ticket."
+            "resultatAttendu": "Le montant remisé est déduit du total, affiché distinctement, et le net à encaisser en tient compte.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-03/etape-1.jpg",
+                "legende": "Ajouter au panier un produit portant un code remise"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-03/etape-2.jpg",
+                "legende": "Appliquer la grille de remise à la vente"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/VTE-03/etape-3.jpg",
+                "legende": "Contrôler le montant remisé avant d’encaisser"
+              }
+            ]
           },
           {
             "id": "VTE-04",
@@ -72,7 +118,29 @@
               "Valider le calcul part assurance / part patient",
               "Encaisser la part patient"
             ],
-            "resultatAttendu": "Le ticket distingue la part prise en charge et la part patient ; la créance tiers payant est constituée pour la facturation."
+            "resultatAttendu": "Le ticket distingue la part prise en charge et la part patient ; la créance tiers payant est constituée pour la facturation.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-04/etape-1.jpg",
+                "legende": "Sélectionner le client assuré"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-04/etape-2.jpg",
+                "legende": "Renseigner les informations d’assurance sur la vente"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/VTE-04/etape-3.jpg",
+                "legende": "Valider le calcul part assurance / part patient"
+              },
+              {
+                "ordre": 4,
+                "fichier": "content/captures/VTE-04/etape-4.jpg",
+                "legende": "Encaisser la part patient"
+              }
+            ]
           },
           {
             "id": "VTE-52",
@@ -84,7 +152,19 @@
               "Vendre à un client dont la consommation du mois approche ou dépasse le plafond de son tiers payant",
               "Valider le calcul part assurance / part patient"
             ],
-            "resultatAttendu": "La part assurance est automatiquement réduite au montant encore disponible sous le ou les plafonds applicables, la part patient augmente d’autant, et un avertissement affiche le plafonnement appliqué."
+            "resultatAttendu": "La part assurance est automatiquement réduite au montant encore disponible sous le ou les plafonds applicables, la part patient augmente d’autant, et un avertissement affiche le plafonnement appliqué.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-52/etape-1.jpg",
+                "legende": "Vendre à un client dont la consommation du mois approche ou dépasse le plafond de son tiers payant"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-52/etape-2.jpg",
+                "legende": "Valider le calcul part assurance / part patient"
+              }
+            ]
           },
           {
             "id": "VTE-53",
@@ -96,7 +176,19 @@
               "Vendre à un client dont le tiers payant a un tarif négocié sur un produit de la vente",
               "Vérifier la base de calcul et le taux appliqués sur la ligne"
             ],
-            "resultatAttendu": "La part assurance de la ligne est calculée sur le tarif négocié (et son taux propre s’il en porte un) plutôt que sur le prix catalogue et le taux standard du tiers payant."
+            "resultatAttendu": "La part assurance de la ligne est calculée sur le tarif négocié (et son taux propre s’il en porte un) plutôt que sur le prix catalogue et le taux standard du tiers payant.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-53/etape-1.jpg",
+                "legende": "Vendre à un client dont le tiers payant a un tarif négocié sur un produit de la vente"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-53/etape-2.jpg",
+                "legende": "Vérifier la base de calcul et le taux appliqués sur la ligne"
+              }
+            ]
           },
           {
             "id": "VTE-05",
@@ -108,7 +200,55 @@
               "Choisir un ou deux modes de paiement au maximum",
               "Valider l’encaissement"
             ],
-            "resultatAttendu": "La vente est enregistrée, le stock décrémenté, un ticket de caisse est imprimable."
+            "resultatAttendu": "La vente est enregistrée, le stock décrémenté, un ticket de caisse est imprimable.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-05/etape-1.jpg",
+                "legende": "Choisir un ou deux modes de paiement au maximum"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-05/etape-2.jpg",
+                "legende": "Valider l’encaissement"
+              }
+            ]
+          },
+          {
+            "id": "VTE-60",
+            "titre": "Laisser le solde d’une vente comptant en différé",
+            "besoin": "Servir un client qui ne peut pas — ou ne veut pas — tout régler au comptoir, sans lui refuser ses médicaments ni perdre la trace de ce qu’il doit.",
+            "fonctionnement": "Le différé ne se choisit pas : il se propose. Dès que le montant versé est inférieur au dû — y compris zéro —, la validation ouvre une fenêtre qui rappelle le montant dû, le montant versé et le reste à payer, et demande si ce reste part en différé. Accepter impose de désigner le client qui portera la créance, qu’on choisit dans la liste ou que l’on crée sur place, puis de motiver le différé : le commentaire est obligatoire. La vente est alors enregistrée, le stock décrémenté, et le reste vient grossir le compte différé du client, où il sera réglé plus tard.",
+            "prerequis": "Caisse ouverte.",
+            "etapes": [
+              "Constituer la vente et saisir un règlement inférieur au montant dû",
+              "Valider : l’écran annonce le reste à payer et propose le différé",
+              "Désigner le client qui portera la créance",
+              "Motiver le différé et valider"
+            ],
+            "resultatAttendu": "La vente est enregistrée avec son règlement partiel, et le reste à payer alimente le compte différé du client désigné.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-60/etape-1.jpg",
+                "legende": "Constituer la vente et saisir un règlement inférieur au montant dû"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-60/etape-2.jpg",
+                "legende": "Valider : l’écran annonce le reste à payer et propose le différé"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/VTE-60/etape-3.jpg",
+                "legende": "Désigner le client qui portera la créance"
+              },
+              {
+                "ordre": 4,
+                "fichier": "content/captures/VTE-60/etape-4.jpg",
+                "legende": "Motiver le différé et valider"
+              }
+            ]
           },
           {
             "id": "VTE-55",
@@ -121,21 +261,65 @@
               "Ajouter si besoin un second mode pour le solde",
               "Vérifier la monnaie proposée"
             ],
-            "resultatAttendu": "Le reste à payer, la répartition entre les modes et la monnaie à rendre sont recalculés sans addition manuelle."
+            "resultatAttendu": "Le reste à payer, la répartition entre les modes et la monnaie à rendre sont recalculés sans addition manuelle.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-55/etape-1.jpg",
+                "legende": "Ouvrir l’encaissement d’une vente"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-55/etape-2.jpg",
+                "legende": "Saisir le montant remis en espèces"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/VTE-55/etape-3.jpg",
+                "legende": "Ajouter si besoin un second mode pour le solde"
+              },
+              {
+                "ordre": 4,
+                "fichier": "content/captures/VTE-55/etape-4.jpg",
+                "legende": "Vérifier la monnaie proposée"
+              }
+            ]
           },
           {
             "id": "VTE-56",
             "titre": "Sécuriser et justifier les règlements non espèces",
             "besoin": "Retrouver la preuve d’un paiement par carte, chèque ou virement en cas de contrôle ou de réclamation.",
-            "fonctionnement": "Dès qu’un règlement utilise la carte bancaire, le chèque ou le virement, la référence bancaire devient obligatoire. La banque et la localisation peuvent également être renseignées. L’utilisateur choisit au même moment s’il souhaite produire le ticket de caisse et/ou la facture.",
+            "fonctionnement": "Le mode de règlement se change sur la ligne de paiement elle-même : un bouton dédié remplace le mode en place par un autre, sans défaire la vente. Dès que le règlement utilise la carte bancaire, le chèque ou le virement, un bloc « Informations complémentaires » s’ouvre et la RÉFÉRENCE devient obligatoire — la validation est refusée sans elle, panier intact. La banque et le lieu, facultatifs, complètent la preuve de paiement.",
             "prerequis": "Le règlement contient un mode carte bancaire, chèque ou virement.",
             "etapes": [
-              "Choisir le mode non espèces",
-              "Renseigner la référence bancaire et, si utile, la banque et la localisation",
-              "Choisir les documents à imprimer",
+              "Changer le mode de règlement pour un mode non espèces",
+              "Tenter de valider sans référence : la vente est refusée",
+              "Renseigner la référence bancaire et, si utile, la banque et le lieu",
               "Valider"
             ],
-            "resultatAttendu": "Un règlement non espèces sans référence est refusé ; après validation, les informations de paiement et les choix d’impression accompagnent la vente."
+            "resultatAttendu": "Un règlement non espèces sans référence est refusé, la vente restant en l’état ; une fois la référence saisie, la vente est enregistrée avec ses informations de paiement.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-56/etape-1.jpg",
+                "legende": "Changer le mode de règlement pour un mode non espèces"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-56/etape-2.jpg",
+                "legende": "Tenter de valider sans référence : la vente est refusée"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/VTE-56/etape-3.jpg",
+                "legende": "Renseigner la référence bancaire et, si utile, la banque et le lieu"
+              },
+              {
+                "ordre": 4,
+                "fichier": "content/captures/VTE-56/etape-4.jpg",
+                "legende": "Valider"
+              }
+            ]
           },
           {
             "id": "VTE-06",
@@ -147,7 +331,19 @@
               "Rechercher la vente",
               "Lancer la réimpression du ticket"
             ],
-            "resultatAttendu": "Le ticket réimprimé est identique à l’original."
+            "resultatAttendu": "Le ticket réimprimé est identique à l’original.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-06/etape-1.jpg",
+                "legende": "Rechercher la vente"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-06/etape-2.jpg",
+                "legende": "Lancer la réimpression du ticket"
+              }
+            ]
           },
           {
             "id": "VTE-41",
@@ -159,7 +355,19 @@
               "Ajouter un produit en quantité supérieure au stock disponible",
               "Confirmer le forçage de la vente"
             ],
-            "resultatAttendu": "La ligne est ajoutée malgré le stock insuffisant et reste tracée comme une vente forcée."
+            "resultatAttendu": "La ligne est ajoutée malgré le stock insuffisant et reste tracée comme une vente forcée.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-41/etape-1.jpg",
+                "legende": "Ajouter un produit en quantité supérieure au stock disponible"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-41/etape-2.jpg",
+                "legende": "Confirmer le forçage de la vente"
+              }
+            ]
           },
           {
             "id": "VTE-42",
@@ -171,7 +379,19 @@
               "Ajouter un produit dont le stock rayon est insuffisant",
               "Accepter le transfert proposé depuis la réserve"
             ],
-            "resultatAttendu": "La quantité manquante est transférée de la réserve au rayon, puis le produit est ajouté normalement à la vente."
+            "resultatAttendu": "La quantité manquante est transférée de la réserve au rayon, puis le produit est ajouté normalement à la vente.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-42/etape-1.jpg",
+                "legende": "Ajouter un produit dont le stock rayon est insuffisant"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-42/etape-2.jpg",
+                "legende": "Accepter le transfert proposé depuis la réserve"
+              }
+            ]
           },
           {
             "id": "VTE-43",
@@ -183,20 +403,115 @@
               "Ajouter un produit unitaire en rupture",
               "Accepter le déconditionnement automatique proposé"
             ],
-            "resultatAttendu": "Le produit conditionné parent est déconditionné pour couvrir le manque, puis le produit est ajouté à la vente."
+            "resultatAttendu": "Le produit conditionné parent est déconditionné pour couvrir le manque, puis le produit est ajouté à la vente.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-43/etape-1.jpg",
+                "legende": "Ajouter un produit unitaire en rupture"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-43/etape-2.jpg",
+                "legende": "Accepter le déconditionnement automatique proposé"
+              }
+            ]
           },
           {
             "id": "VTE-44",
-            "titre": "Ajouter un tiers payant complémentaire à une vente assurance",
+            "titre": "Ajouter ou retirer un tiers payant complémentaire sur une vente",
             "besoin": "Prendre en compte un client couvert par deux organismes à la fois (assurance principale + mutuelle complémentaire), la seconde prenant en charge tout ou partie du reste à charge de la première.",
-            "fonctionnement": "En plus du tiers payant principal, un second tiers payant complémentaire peut être ajouté à la vente ; la part patient restante après la prise en charge principale est alors répartie sur ce complémentaire.",
+            "fonctionnement": "Les organismes d'un assuré viennent de sa fiche client : le sélectionner au comptoir les charge tous, chacun avec son rang (RO, RC1) et son taux, et chacun réclame son propre numéro de bon. La vente reste modifiable : un complémentaire peut en être retiré — le client ne présente pas sa mutuelle, sa carte est expirée — et rajouté ensuite parmi ceux de sa fiche. Chaque organisme prend son pourcentage du TOTAL de la vente : les taux ne se cascadent pas, et la part patient est le complément de leur somme.",
             "prerequis": "Le client est affilié à au moins deux tiers payants (principal et complémentaire).",
             "etapes": [
-              "Sélectionner le client et son tiers payant principal",
-              "Ajouter le tiers payant complémentaire",
-              "Vérifier la répartition des parts entre les deux tiers payants et le patient"
+              "Sélectionner l'assuré : ses deux organismes se chargent avec leurs taux",
+              "Constituer la vente et lire la répartition entre les deux organismes et le patient",
+              "Retirer le complémentaire et constater la part patient qui augmente",
+              "Rajouter le complémentaire depuis la liste des organismes du client"
             ],
-            "resultatAttendu": "La vente porte deux créances tiers payant distinctes (principal et complémentaire), et la part patient restante est réduite en conséquence."
+            "resultatAttendu": "La vente porte une créance par organisme retenu, et la part patient suit immédiatement chaque ajout ou retrait.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-44/etape-1.jpg",
+                "legende": "Sélectionner l'assuré : ses deux organismes se chargent avec leurs taux"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-44/etape-2.jpg",
+                "legende": "Constituer la vente et lire la répartition entre les deux organismes et le patient"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/VTE-44/etape-3.jpg",
+                "legende": "Retirer le complémentaire et constater la part patient qui augmente"
+              },
+              {
+                "ordre": 4,
+                "fichier": "content/captures/VTE-44/etape-4.jpg",
+                "legende": "Rajouter le complémentaire depuis la liste des organismes du client"
+              }
+            ]
+          },
+          {
+            "id": "VTE-59",
+            "titre": "Vendre à un assuré couvert à 100 % par trois organismes",
+            "besoin": "Servir un assuré dont les organismes couvrent l'intégralité de l'achat, sans rien lui faire payer au comptoir.",
+            "fonctionnement": "Le cumul des taux d'un assuré ne peut dépasser 100 %. Lorsqu'il les atteint, la totalité de la vente se répartit entre les organismes, chacun selon son taux, et « À ENCAISSER » tombe à zéro : la caisse n'est pas sollicitée, mais l'officine porte trois créances distinctes jusqu'à leur facturation.",
+            "prerequis": "Le client est affilié à trois tiers payants dont les taux cumulent 100 %.",
+            "etapes": [
+              "Sélectionner l'assuré : ses trois organismes se chargent avec leurs taux",
+              "Saisir un numéro de bon par organisme, puis constituer la vente",
+              "Vérifier que les trois parts couvrent le total et que rien ne reste à encaisser"
+            ],
+            "resultatAttendu": "Les trois parts se répartissent le total de la vente, le montant à encaisser est nul, et la vente est finalisée sans mouvement de caisse.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-59/etape-1.jpg",
+                "legende": "Sélectionner l'assuré : ses trois organismes se chargent avec leurs taux"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-59/etape-2.jpg",
+                "legende": "Saisir un numéro de bon par organisme, puis constituer la vente"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/VTE-59/etape-3.jpg",
+                "legende": "Vérifier que les trois parts couvrent le total et que rien ne reste à encaisser"
+              }
+            ]
+          },
+          {
+            "id": "VTE-61",
+            "titre": "Créer un assuré sans quitter la vente",
+            "besoin": "Servir un assuré qui se présente pour la première fois, sans le renvoyer au fichier client ni abandonner la vente en cours.",
+            "fonctionnement": "Le bouton de création jouxte la recherche d'assuré, sur les écrans de vente assurance et carnet : on cherche le client, on ne le trouve pas, on le crée. Le formulaire demande l'identité, l'organisme, le numéro d'adhérent et le taux ; à l'enregistrement, le client est immédiatement rattaché à la vente avec sa couverture, et la saisie reprend au numéro de bon.",
+            "prerequis": "Caisse ouverte.",
+            "etapes": [
+              "Chercher l'assuré, constater qu'il est inconnu, ouvrir la création",
+              "Renseigner son identité, son organisme, son matricule et son taux",
+              "Enregistrer et vérifier que la vente porte le nouvel assuré et sa couverture"
+            ],
+            "resultatAttendu": "Le client est créé, rattaché à la vente en cours avec son organisme et son taux, et reste disponible pour les ventes suivantes.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-61/etape-1.jpg",
+                "legende": "Chercher l'assuré, constater qu'il est inconnu, ouvrir la création"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-61/etape-2.jpg",
+                "legende": "Renseigner son identité, son organisme, son matricule et son taux"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/VTE-61/etape-3.jpg",
+                "legende": "Enregistrer et vérifier que la vente porte le nouvel assuré et sa couverture"
+              }
+            ]
           },
           {
             "id": "VTE-45",
@@ -226,7 +541,19 @@
               "Tenter de supprimer une ligne de la vente en cours",
               "Saisir le code d’un utilisateur habilité dans la demande d’autorisation"
             ],
-            "resultatAttendu": "La ligne n’est supprimée qu’après validation du code d’un utilisateur habilité ; sans autorisation valide, la suppression est refusée."
+            "resultatAttendu": "La ligne n’est supprimée qu’après validation du code d’un utilisateur habilité ; sans autorisation valide, la suppression est refusée.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-46/etape-1.jpg",
+                "legende": "Tenter de supprimer une ligne de la vente en cours"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-46/etape-2.jpg",
+                "legende": "Saisir le code d’un utilisateur habilité dans la demande d’autorisation"
+              }
+            ]
           },
           {
             "id": "VTE-47",
@@ -238,7 +565,19 @@
               "Tenter d’appliquer ou de retirer une remise sur la vente en cours",
               "Saisir le code d’un utilisateur habilité dans la demande d’autorisation"
             ],
-            "resultatAttendu": "La remise n’est appliquée ou retirée qu’après validation du code d’un utilisateur habilité."
+            "resultatAttendu": "La remise n’est appliquée ou retirée qu’après validation du code d’un utilisateur habilité.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-47/etape-1.jpg",
+                "legende": "Tenter d’appliquer ou de retirer une remise sur la vente en cours"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-47/etape-2.jpg",
+                "legende": "Saisir le code d’un utilisateur habilité dans la demande d’autorisation"
+              }
+            ]
           }
         ]
       },
@@ -257,7 +596,29 @@
               "Le sélectionner si plusieurs résultats sont proposés",
               "Renseigner les références de bons des organismes"
             ],
-            "resultatAttendu": "L’assuré et ses tiers payants sont rattachés à la vente sans ressaisie de leurs informations de couverture."
+            "resultatAttendu": "L’assuré et ses tiers payants sont rattachés à la vente sans ressaisie de leurs informations de couverture.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-57/etape-1.jpg",
+                "legende": "Choisir la vente assurance"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-57/etape-2.jpg",
+                "legende": "Rechercher l’assuré par son identité ou son matricule"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/VTE-57/etape-3.jpg",
+                "legende": "Le sélectionner si plusieurs résultats sont proposés"
+              },
+              {
+                "ordre": 4,
+                "fichier": "content/captures/VTE-57/etape-4.jpg",
+                "legende": "Renseigner les références de bons des organismes"
+              }
+            ]
           },
           {
             "id": "VTE-58",
@@ -271,7 +632,29 @@
               "Vérifier son identité et son matricule",
               "Poursuivre la vente"
             ],
-            "resultatAttendu": "La vente identifie sans ambiguïté l’assuré principal et le bénéficiaire réel, tout en conservant les couvertures applicables."
+            "resultatAttendu": "La vente identifie sans ambiguïté l’assuré principal et le bénéficiaire réel, tout en conservant les couvertures applicables.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-58/etape-1.jpg",
+                "legende": "Ouvrir la liste des ayants droit de l’assuré"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-58/etape-2.jpg",
+                "legende": "Sélectionner un bénéficiaire ou en créer un"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/VTE-58/etape-3.jpg",
+                "legende": "Vérifier son identité et son matricule"
+              },
+              {
+                "ordre": 4,
+                "fichier": "content/captures/VTE-58/etape-4.jpg",
+                "legende": "Poursuivre la vente"
+              }
+            ]
           }
         ]
       },
@@ -289,7 +672,24 @@
               "Utiliser les raccourcis clavier pour naviguer et finaliser la vente sans la souris",
               "Appuyer sur F1 pour afficher l’aide des raccourcis et vérifier ceux disponibles selon le mode (Web ou Desktop)"
             ],
-            "resultatAttendu": "Chaque raccourci déclenche l’action attendue (focus ou opération) sans nécessiter la souris. F1 affiche l’aide avec la distinction claire entre raccourcis communs (F-keys, Alt+lettre) et raccourcis exclusifs à l’application de bureau (Ctrl+lettre)."
+            "resultatAttendu": "Chaque raccourci déclenche l’action attendue (focus ou opération) sans nécessiter la souris. F1 affiche l’aide avec la distinction claire entre raccourcis communs (F-keys, Alt+lettre) et raccourcis exclusifs à l’application de bureau (Ctrl+lettre).",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-48/etape-1.jpg",
+                "legende": "Ouvrir l’écran de vente"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-48/etape-2.jpg",
+                "legende": "Utiliser les raccourcis clavier pour naviguer et finaliser la vente sans la souris"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/VTE-48/etape-3.jpg",
+                "legende": "Appuyer sur F1 pour afficher l’aide des raccourcis et vérifier ceux disponibles selon le mode (Web ou Desktop)"
+              }
+            ]
           }
         ]
       },
@@ -305,7 +705,19 @@
               "Créer une pré-vente avec les produits souhaités",
               "Enregistrer"
             ],
-            "resultatAttendu": "La pré-vente apparaît dans la liste, sans impact sur le stock."
+            "resultatAttendu": "La pré-vente apparaît dans la liste, sans impact sur le stock.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-07/etape-1.jpg",
+                "legende": "Créer une pré-vente avec les produits souhaités"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-07/etape-2.jpg",
+                "legende": "Enregistrer"
+              }
+            ]
           },
           {
             "id": "VTE-08",
@@ -316,7 +728,19 @@
               "Ouvrir la pré-vente dans la liste",
               "Modifier ses lignes ou la supprimer"
             ],
-            "resultatAttendu": "La pré-vente reflète la modification, ou disparaît si supprimée."
+            "resultatAttendu": "La pré-vente reflète la modification, ou disparaît si supprimée.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-08/etape-1.jpg",
+                "legende": "Ouvrir la pré-vente dans la liste"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-08/etape-2.jpg",
+                "legende": "Modifier ses lignes ou la supprimer"
+              }
+            ]
           },
           {
             "id": "VTE-09",
@@ -329,7 +753,24 @@
               "La transformer en vente",
               "Encaisser"
             ],
-            "resultatAttendu": "Une vente est créée avec exactement les lignes de la pré-vente ; celle-ci disparaît de la liste."
+            "resultatAttendu": "Une vente est créée avec exactement les lignes de la pré-vente ; celle-ci disparaît de la liste.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-09/etape-1.jpg",
+                "legende": "Retrouver la pré-vente dans la liste"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-09/etape-2.jpg",
+                "legende": "La transformer en vente"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/VTE-09/etape-3.jpg",
+                "legende": "Encaisser"
+              }
+            ]
           }
         ]
       },
@@ -345,7 +786,19 @@
               "Créer un devis avec produits et quantités",
               "Enregistrer"
             ],
-            "resultatAttendu": "Le devis est créé et consultable dans la liste des devis."
+            "resultatAttendu": "Le devis est créé et consultable dans la liste des devis.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-10/etape-1.jpg",
+                "legende": "Créer un devis avec produits et quantités"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-10/etape-2.jpg",
+                "legende": "Enregistrer"
+              }
+            ]
           },
           {
             "id": "VTE-11",
@@ -356,7 +809,19 @@
               "Ouvrir le devis",
               "Modifier ses lignes ou le supprimer"
             ],
-            "resultatAttendu": "Le devis reflète la modification, ou disparaît de la liste s’il est supprimé."
+            "resultatAttendu": "Le devis reflète la modification, ou disparaît de la liste s’il est supprimé.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-11/etape-1.jpg",
+                "legende": "Ouvrir le devis"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-11/etape-2.jpg",
+                "legende": "Modifier ses lignes ou le supprimer"
+              }
+            ]
           },
           {
             "id": "VTE-12",
@@ -367,7 +832,19 @@
               "Ouvrir le devis",
               "Lancer l’impression ou l’export"
             ],
-            "resultatAttendu": "Le document produit est fidèle aux lignes du devis."
+            "resultatAttendu": "Le document produit est fidèle aux lignes du devis.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-12/etape-1.jpg",
+                "legende": "Ouvrir le devis"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-12/etape-2.jpg",
+                "legende": "Lancer l’impression ou l’export"
+              }
+            ]
           },
           {
             "id": "VTE-13",
@@ -380,7 +857,24 @@
               "Lancer \"Convertir en vente\"",
               "Encaisser"
             ],
-            "resultatAttendu": "La vente créée reprend exactement les lignes du devis d’origine."
+            "resultatAttendu": "La vente créée reprend exactement les lignes du devis d’origine.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-13/etape-1.jpg",
+                "legende": "Ouvrir le devis"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-13/etape-2.jpg",
+                "legende": "Lancer \"Convertir en vente\""
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/VTE-13/etape-3.jpg",
+                "legende": "Encaisser"
+              }
+            ]
           }
         ]
       },
@@ -397,7 +891,19 @@
               "Démarrer une vente",
               "La mettre en attente"
             ],
-            "resultatAttendu": "La vente apparaît dans l’onglet \"Ventes en cours\" avec toutes ses lignes."
+            "resultatAttendu": "La vente apparaît dans l’onglet \"Ventes en cours\" avec toutes ses lignes.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-14/etape-1.jpg",
+                "legende": "Démarrer une vente"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-14/etape-2.jpg",
+                "legende": "La mettre en attente"
+              }
+            ]
           },
           {
             "id": "VTE-15",
@@ -410,19 +916,53 @@
               "Sélectionner la vente à reprendre",
               "Finaliser l’encaissement"
             ],
-            "resultatAttendu": "La vente est finalisée avec exactement les lignes qu’elle portait à sa mise en attente."
+            "resultatAttendu": "La vente est finalisée avec exactement les lignes qu’elle portait à sa mise en attente.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-15/etape-1.jpg",
+                "legende": "Ouvrir l’onglet \"Ventes en cours\""
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-15/etape-2.jpg",
+                "legende": "Sélectionner la vente à reprendre"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/VTE-15/etape-3.jpg",
+                "legende": "Finaliser l’encaissement"
+              }
+            ]
           },
           {
             "id": "VTE-16",
-            "titre": "Supprimer une vente en attente",
-            "besoin": "Nettoyer une vente en attente qui ne sera finalement pas honorée par le client.",
-            "fonctionnement": "La suppression retire la vente en attente sans jamais avoir touché le stock ni la caisse.",
+            "titre": "Abandonner une vente en attente",
+            "besoin": "Se débarrasser d’une vente mise de côté que le client ne viendra pas honorer.",
+            "fonctionnement": "La liste des ventes en attente ne propose PAS de suppression directe : on reprend la vente, puis on l’annule depuis l’écran de vente. Elle n’a jamais touché ni le stock ni la caisse, son abandon ne laisse donc rien à rattraper.",
             "etapes": [
-              "Ouvrir l’onglet \"Ventes en cours\"",
-              "Sélectionner la vente",
-              "Supprimer"
+              "Ouvrir la liste des ventes en attente",
+              "Reprendre la vente à abandonner",
+              "L’annuler depuis l’écran de vente"
             ],
-            "resultatAttendu": "La vente disparaît de la liste des ventes en cours."
+            "resultatAttendu": "La vente disparaît de la liste des ventes en attente et le compteur de la barre supérieure diminue d’autant.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-16/etape-1.jpg",
+                "legende": "Ouvrir la liste des ventes en attente"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-16/etape-2.jpg",
+                "legende": "Reprendre la vente à abandonner"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/VTE-16/etape-3.jpg",
+                "legende": "L’annuler depuis l’écran de vente"
+              }
+            ]
           }
         ]
       },
@@ -439,7 +979,19 @@
               "Ouvrir l’onglet \"Journal des ventes\"",
               "Filtrer par période, caissier ou mode de paiement"
             ],
-            "resultatAttendu": "La liste correspond exactement aux critères saisis."
+            "resultatAttendu": "La liste correspond exactement aux critères saisis.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-17/etape-1.jpg",
+                "legende": "Ouvrir l’onglet \"Journal des ventes\""
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-17/etape-2.jpg",
+                "legende": "Filtrer par période, caissier ou mode de paiement"
+              }
+            ]
           },
           {
             "id": "VTE-18",
@@ -450,7 +1002,19 @@
               "Filtrer le journal sur une période connue",
               "Comparer le total affiché à la somme manuelle du détail"
             ],
-            "resultatAttendu": "Le total affiché correspond exactement à la somme des lignes filtrées."
+            "resultatAttendu": "Le total affiché correspond exactement à la somme des lignes filtrées.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-18/etape-1.jpg",
+                "legende": "Filtrer le journal sur une période connue"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-18/etape-2.jpg",
+                "legende": "Comparer le total affiché à la somme manuelle du détail"
+              }
+            ]
           }
         ]
       },
@@ -469,7 +1033,24 @@
               "Sélectionner le motif d’annulation",
               "Valider l’annulation"
             ],
-            "resultatAttendu": "Le stock est réajusté et la vente apparaît dans l’onglet \"Annulations\" avec traçabilité du motif et de l’auteur."
+            "resultatAttendu": "Le stock est réajusté et la vente apparaît dans l’onglet \"Annulations\" avec traçabilité du motif et de l’auteur.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-19/etape-1.jpg",
+                "legende": "Rechercher la vente à annuler"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-19/etape-2.jpg",
+                "legende": "Sélectionner le motif d’annulation"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/VTE-19/etape-3.jpg",
+                "legende": "Valider l’annulation"
+              }
+            ]
           }
         ]
       },
@@ -488,7 +1069,24 @@
               "Rechercher la vente d’origine",
               "Sélectionner les lignes et quantités à retourner et le motif"
             ],
-            "resultatAttendu": "Les lignes sélectionnées sont proposées au retour avec leur quantité maximale retournable."
+            "resultatAttendu": "Les lignes sélectionnées sont proposées au retour avec leur quantité maximale retournable.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-20/etape-1.jpg",
+                "legende": "Ouvrir \"Retour client\""
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-20/etape-2.jpg",
+                "legende": "Rechercher la vente d’origine"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/VTE-20/etape-3.jpg",
+                "legende": "Sélectionner les lignes et quantités à retourner et le motif"
+              }
+            ]
           },
           {
             "id": "VTE-21",
@@ -499,7 +1097,14 @@
             "etapes": [
               "Tenter de retourner un produit à statut légal restrictif"
             ],
-            "resultatAttendu": "La ligne est rejetée avec un motif explicite renvoyant vers la destruction réglementaire, sans remise en stock."
+            "resultatAttendu": "La ligne est rejetée avec un motif explicite renvoyant vers la destruction réglementaire, sans remise en stock.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-21/etape-1.jpg",
+                "legende": "Tenter de retourner un produit à statut légal restrictif"
+              }
+            ]
           },
           {
             "id": "VTE-22",
@@ -510,7 +1115,19 @@
               "Retourner un produit thermosensible ou déclaré non conforme",
               "Renseigner l’état du produit (emballage, lot, péremption)"
             ],
-            "resultatAttendu": "Le produit est écarté du stock vendable avec un motif explicite (destruction ou quarantaine), même si le retour lui-même est validé."
+            "resultatAttendu": "Le produit est écarté du stock vendable avec un motif explicite (destruction ou quarantaine), même si le retour lui-même est validé.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-22/etape-1.jpg",
+                "legende": "Retourner un produit thermosensible ou déclaré non conforme"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-22/etape-2.jpg",
+                "legende": "Renseigner l’état du produit (emballage, lot, péremption)"
+              }
+            ]
           },
           {
             "id": "VTE-23",
@@ -522,7 +1139,19 @@
               "Retourner une ligne d’une vente avec tiers payant",
               "Vérifier la répartition du montant remboursé"
             ],
-            "resultatAttendu": "Le montant remboursé au patient et le montant réduit sur la créance tiers payant respectent le taux d’origine."
+            "resultatAttendu": "Le montant remboursé au patient et le montant réduit sur la créance tiers payant respectent le taux d’origine.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-23/etape-1.jpg",
+                "legende": "Retourner une ligne d’une vente avec tiers payant"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-23/etape-2.jpg",
+                "legende": "Vérifier la répartition du montant remboursé"
+              }
+            ]
           },
           {
             "id": "VTE-24",
@@ -533,7 +1162,14 @@
             "etapes": [
               "Tenter un retour sur une vente ancienne"
             ],
-            "resultatAttendu": "Un avertissement de délai dépassé est affiché."
+            "resultatAttendu": "Un avertissement de délai dépassé est affiché.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-24/etape-1.jpg",
+                "legende": "Tenter un retour sur une vente ancienne"
+              }
+            ]
           },
           {
             "id": "VTE-25",
@@ -544,7 +1180,19 @@
               "Choisir le mode de règlement du retour",
               "Valider"
             ],
-            "resultatAttendu": "Le stock des produits restockables est réintégré, et un avoir est généré uniquement si ce mode a été choisi."
+            "resultatAttendu": "Le stock des produits restockables est réintégré, et un avoir est généré uniquement si ce mode a été choisi.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-25/etape-1.jpg",
+                "legende": "Choisir le mode de règlement du retour"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-25/etape-2.jpg",
+                "legende": "Valider"
+              }
+            ]
           },
           {
             "id": "VTE-26",
@@ -555,7 +1203,19 @@
               "Effectuer le retour en cochant \"avec échange\"",
               "Renseigner la référence de la nouvelle vente de remplacement"
             ],
-            "resultatAttendu": "L’avoir du retour est automatiquement rattaché à la vente d’échange, sans étape de recherche manuelle."
+            "resultatAttendu": "L’avoir du retour est automatiquement rattaché à la vente d’échange, sans étape de recherche manuelle.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-26/etape-1.jpg",
+                "legende": "Effectuer le retour en cochant \"avec échange\""
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-26/etape-2.jpg",
+                "legende": "Renseigner la référence de la nouvelle vente de remplacement"
+              }
+            ]
           },
           {
             "id": "VTE-49",
@@ -567,7 +1227,19 @@
               "Réduire la quantité servie par rapport à la quantité demandée au moment de l’encaissement",
               "Confirmer l’enregistrement en avoir"
             ],
-            "resultatAttendu": "La vente est enregistrée comme avoir pour l’écart constaté, et non comme une vente standard."
+            "resultatAttendu": "La vente est enregistrée comme avoir pour l’écart constaté, et non comme une vente standard.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-49/etape-1.jpg",
+                "legende": "Réduire la quantité servie par rapport à la quantité demandée au moment de l’encaissement"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-49/etape-2.jpg",
+                "legende": "Confirmer l’enregistrement en avoir"
+              }
+            ]
           }
         ]
       },
@@ -584,20 +1256,49 @@
               "Ouvrir \"Avoirs clients\"",
               "Rechercher le client"
             ],
-            "resultatAttendu": "Seuls les avoirs ouverts et non expirés du client apparaissent, avec leur date d’expiration."
+            "resultatAttendu": "Seuls les avoirs ouverts et non expirés du client apparaissent, avec leur date d’expiration.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-27/etape-1.jpg",
+                "legende": "Ouvrir \"Avoirs clients\""
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-27/etape-2.jpg",
+                "legende": "Rechercher le client"
+              }
+            ]
           },
           {
             "id": "VTE-28",
-            "titre": "Utiliser un avoir client sur une nouvelle vente",
+            "titre": "Clôturer un avoir en servant le client",
             "besoin": "Permettre à un client de consommer un avoir sur un achat futur, plutôt que de lui rembourser en espèces.",
-            "fonctionnement": "Au moment de l’encaissement, l’avoir ouvert du client peut être imputé sur le total ; son solde restant est recalculé (ou il passe à \"soldé\" si totalement consommé).",
+            "fonctionnement": "L'avoir ne s'impute pas sur un ticket : il se CLÔTURE, depuis l'onglet « Avoirs clients », au moment où le client repart avec ce qu'on lui devait. L'écran vérifie d'abord que le produit attendu est bien en stock — clôturer sans pouvoir servir n'aurait pas de sens — puis enregistre le montant utilisé : l'avoir passe à « soldé » s'il est consommé en totalité, ou conserve son reste s'il ne l'est qu'en partie.",
             "prerequis": "Un avoir client ouvert existe, non expiré.",
             "etapes": [
-              "Démarrer une nouvelle vente pour ce client",
-              "Appliquer l’avoir disponible",
-              "Encaisser le solde restant"
+              "Retrouver l'avoir ouvert du client",
+              "Lancer sa clôture et vérifier le détail (produit, quantité, montant)",
+              "Confirmer : l’avoir est soldé ou conserve son reste"
             ],
-            "resultatAttendu": "Le montant de l’avoir est déduit du total et son solde restant est mis à jour ; un avoir expiré n’est plus proposable."
+            "resultatAttendu": "Le montant de l’avoir est déduit du total et son solde restant est mis à jour ; un avoir expiré n’est plus proposable.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-28/etape-1.jpg",
+                "legende": "Retrouver l'avoir ouvert du client"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-28/etape-2.jpg",
+                "legende": "Lancer sa clôture et vérifier le détail (produit, quantité, montant)"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/VTE-28/etape-3.jpg",
+                "legende": "Confirmer : l’avoir est soldé ou conserve son reste"
+              }
+            ]
           },
           {
             "id": "VTE-54",
@@ -627,7 +1328,24 @@
               "Constituer la vente pour le dépôt concerné",
               "Valider"
             ],
-            "resultatAttendu": "La vente est rattachée au bon dépôt et le stock du dépôt est correctement décrémenté."
+            "resultatAttendu": "La vente est rattachée au bon dépôt et le stock du dépôt est correctement décrémenté.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-29/etape-1.jpg",
+                "legende": "Ouvrir l’onglet \"Ventes dépôt\""
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-29/etape-2.jpg",
+                "legende": "Constituer la vente pour le dépôt concerné"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/VTE-29/etape-3.jpg",
+                "legende": "Valider"
+              }
+            ]
           }
         ]
       },
@@ -636,28 +1354,63 @@
         "scenarios": [
           {
             "id": "VTE-30",
-            "titre": "Enregistrer une vente en compte différé pour un client",
-            "besoin": "Permettre à un client de confiance (souvent institutionnel) d’acheter sans paiement immédiat, à régler plus tard.",
-            "fonctionnement": "La vente est validée normalement (stock décrémenté) mais aucun encaissement n’est exigé : son montant vient augmenter le solde du compte différé du client.",
-            "prerequis": "Client identifié avec compte différé actif.",
+            "titre": "Vendre au carnet (compte différé)",
+            "besoin": "Servir un client de confiance — souvent le personnel d’une entreprise partenaire — sans qu’il règle la totalité au comptoir.",
+            "fonctionnement": "La vente carnet se conduit comme une vente assurance : le client est rattaché à un carnet, qui joue le rôle d’organisme. Le carnet couvre en général la TOTALITÉ de l’achat — l’employeur ou la société partenaire règle tout, le porteur rembourse ensuite : « À ENCAISSER » tombe alors à zéro et la caisse n’est pas sollicitée. Le stock, lui, est décrémenté normalement.",
+            "prerequis": "Client rattaché à un carnet actif.",
             "etapes": [
-              "Sélectionner le client",
+              "Choisir la vente carnet et sélectionner le porteur",
               "Constituer la vente",
-              "Choisir le paiement différé"
+              "Vérifier que le carnet prend la totalité, puis finaliser"
             ],
-            "resultatAttendu": "La vente est enregistrée sans encaissement immédiat et le solde du compte différé du client augmente."
+            "resultatAttendu": "Le montant de la vente vient augmenter le compte différé du porteur, sans aucun encaissement au comptoir.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-30/etape-1.jpg",
+                "legende": "Choisir la vente carnet et sélectionner le porteur"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-30/etape-2.jpg",
+                "legende": "Constituer la vente"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/VTE-30/etape-3.jpg",
+                "legende": "Vérifier que le carnet prend la totalité, puis finaliser"
+              }
+            ]
           },
           {
             "id": "VTE-50",
-            "titre": "Bloquer une vente carnet dépassant le plafond de crédit du client",
+            "titre": "Plafonner une vente carnet au crédit restant du porteur",
             "besoin": "Empêcher qu’un client carnet accumule une dette au-delà du plafond de crédit qui lui a été accordé.",
-            "fonctionnement": "La vente carnet est un type de vente à crédit distinct du compte différé générique, avec son propre formulaire client et son propre plafond ; si le montant de la vente ferait dépasser le plafond disponible du client, la vente est bloquée.",
+            "fonctionnement": "Le carnet est un crédit accordé par l'employeur, et un crédit se plafonne. Le mécanisme est celui de l'assurance : le plafond mensuel du porteur est confronté à ce qu'il a déjà consommé, et la prise en charge est ramenée au RELIQUAT. La vente n'est pas bloquée — elle serait ingérable au comptoir — mais la part qui dépasse revient au porteur, qui la règle immédiatement. Un avertissement nomme l'organisme et le montant retenu, pour que le caissier puisse l'expliquer.",
             "prerequis": "Client carnet dont le plafond de crédit disponible est inférieur au montant de la vente.",
             "etapes": [
-              "Constituer une vente carnet dépassant le plafond disponible du client",
-              "Tenter de valider"
+              "Sélectionner un porteur dont le crédit est presque épuisé",
+              "Constituer une vente qui dépasse son reliquat",
+              "Constater le plafonnement et le reste à payer"
             ],
-            "resultatAttendu": "La vente est refusée tant que le montant dépasse le plafond de crédit disponible du client."
+            "resultatAttendu": "La part carnet est ramenée au crédit restant, la différence passe à la charge du porteur, et un avertissement l’explique.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-50/etape-1.jpg",
+                "legende": "Sélectionner un porteur dont le crédit est presque épuisé"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-50/etape-2.jpg",
+                "legende": "Constituer une vente qui dépasse son reliquat"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/VTE-50/etape-3.jpg",
+                "legende": "Constater le plafonnement et le reste à payer"
+              }
+            ]
           }
         ]
       },
@@ -701,7 +1454,19 @@
               "Saisir le fond de caisse initial",
               "Valider l’ouverture"
             ],
-            "resultatAttendu": "La caisse passe en statut ouvert et les ventes peuvent être encaissées."
+            "resultatAttendu": "La caisse passe en statut ouvert et les ventes peuvent être encaissées.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-33/etape-1.jpg",
+                "legende": "Saisir le fond de caisse initial"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-33/etape-2.jpg",
+                "legende": "Valider l’ouverture"
+              }
+            ]
           },
           {
             "id": "VTE-34",
@@ -712,7 +1477,14 @@
             "etapes": [
               "Tenter d’ouvrir une nouvelle caisse alors qu’une est déjà ouverte pour cet utilisateur"
             ],
-            "resultatAttendu": "L’ouverture est refusée tant que la caisse déjà ouverte n’est pas clôturée."
+            "resultatAttendu": "L’ouverture est refusée tant que la caisse déjà ouverte n’est pas clôturée.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-34/etape-1.jpg",
+                "legende": "Tenter d’ouvrir une nouvelle caisse alors qu’une est déjà ouverte pour cet utilisateur"
+              }
+            ]
           },
           {
             "id": "VTE-35",
@@ -737,7 +1509,24 @@
               "Lancer l’encaissement",
               "Ouvrir la caisse depuis la modale proposée"
             ],
-            "resultatAttendu": "La caisse s’ouvre sans quitter l’écran de vente, et la vente en cours se finalise automatiquement une fois la caisse ouverte."
+            "resultatAttendu": "La caisse s’ouvre sans quitter l’écran de vente, et la vente en cours se finalise automatiquement une fois la caisse ouverte.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-51/etape-1.jpg",
+                "legende": "Constituer une vente sans caisse ouverte"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-51/etape-2.jpg",
+                "legende": "Lancer l’encaissement"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/VTE-51/etape-3.jpg",
+                "legende": "Ouvrir la caisse depuis la modale proposée"
+              }
+            ]
           }
         ]
       },
@@ -754,7 +1543,24 @@
               "Saisir un mouvement avec motif, type et montant",
               "Valider"
             ],
-            "resultatAttendu": "Le mouvement apparaît dans l’historique et impacte le solde théorique de la caisse selon son type."
+            "resultatAttendu": "Le mouvement apparaît dans l’historique et impacte le solde théorique de la caisse selon son type.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-36/etape-1.jpg",
+                "legende": "Ouvrir le module mouvements de caisse"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-36/etape-2.jpg",
+                "legende": "Saisir un mouvement avec motif, type et montant"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/VTE-36/etape-3.jpg",
+                "legende": "Valider"
+              }
+            ]
           },
           {
             "id": "VTE-37",
@@ -765,7 +1571,19 @@
               "Lancer la clôture de caisse",
               "Saisir le nombre de billets/pièces de chaque coupure"
             ],
-            "resultatAttendu": "Le montant compté total est calculé automatiquement à partir du détail saisi."
+            "resultatAttendu": "Le montant compté total est calculé automatiquement à partir du détail saisi.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-37/etape-1.jpg",
+                "legende": "Lancer la clôture de caisse"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-37/etape-2.jpg",
+                "legende": "Saisir le nombre de billets/pièces de chaque coupure"
+              }
+            ]
           },
           {
             "id": "VTE-38",
@@ -777,18 +1595,37 @@
               "Comparer montant théorique et montant compté",
               "Valider la clôture"
             ],
-            "resultatAttendu": "La caisse passe en statut fermé, l’écart éventuel reste tracé et consultable."
+            "resultatAttendu": "La caisse passe en statut fermé, l’écart éventuel reste tracé et consultable.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-38/etape-1.jpg",
+                "legende": "Comparer montant théorique et montant compté"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/VTE-38/etape-2.jpg",
+                "legende": "Valider la clôture"
+              }
+            ]
           },
           {
             "id": "VTE-39",
             "titre": "Imprimer le ticket Z",
             "besoin": "Produire le justificatif réglementaire récapitulant les ventes et mouvements de la journée de caisse.",
-            "fonctionnement": "Le ticket Z récapitule les ventes et mouvements de la journée ventilés par mode de paiement, avec le montant annulé affiché séparément pour ne pas fausser le chiffre d’affaires.",
+            "fonctionnement": "Le ticket Z est le récapitulatif de caisse de la journée : il ventile encaissements et mouvements par MODE DE PAIEMENT et par CAISSIER, et isole le crédit (différé et tiers payant) de ce qui est réellement entré en caisse. Il vit dans la comptabilité — onglet « Récapitulatif de caisse » — et non sur l'écran de caisse : il couvre une période, pas une session, et se produit donc aussi bien pour la journée en cours que pour une journée passée.",
             "prerequis": "La caisse a été clôturée.",
             "etapes": [
-              "Depuis la caisse clôturée, lancer l’impression du ticket Z"
+              "Ouvrir le récapitulatif de caisse de la journée et lancer son impression"
             ],
-            "resultatAttendu": "Le ticket Z imprimé récapitule fidèlement les ventes et mouvements de la journée par mode de paiement."
+            "resultatAttendu": "Le ticket Z imprimé récapitule fidèlement les ventes et mouvements de la journée par mode de paiement.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-39/etape-1.jpg",
+                "legende": "Ouvrir le récapitulatif de caisse de la journée et lancer son impression"
+              }
+            ]
           },
           {
             "id": "VTE-40",
@@ -799,7 +1636,14 @@
             "etapes": [
               "Tenter de relancer une clôture sur une caisse déjà fermée"
             ],
-            "resultatAttendu": "L’opération est refusée avec un message explicite."
+            "resultatAttendu": "L’opération est refusée avec un message explicite.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/VTE-40/etape-1.jpg",
+                "legende": "Tenter de relancer une clôture sur une caisse déjà fermée"
+              }
+            ]
           }
         ]
       }
@@ -927,12 +1771,24 @@
             "id": "FAC-08",
             "titre": "Rechercher une facture existante",
             "besoin": "Retrouver rapidement une facture précise parmi toutes celles émises, pour suivi ou réclamation d’un tiers payant.",
-            "fonctionnement": "Le tiroir de recherche interroge la base des factures selon les critères choisis (tiers payant, période, statut).",
+            "fonctionnement": "Les filtres de la barre d’outils interrogent la base des factures selon les critères choisis : période, statut, tiers payant, et les indicateurs « Groupées » et « Provisoires ».",
             "etapes": [
-              "Ouvrir le tiroir de recherche de factures",
+              "Ouvrir l’onglet « Factures »",
               "Filtrer par tiers payant, période ou statut"
             ],
-            "resultatAttendu": "La liste des factures correspond exactement aux critères saisis."
+            "resultatAttendu": "La liste des factures correspond exactement aux critères saisis.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/FAC-08/etape-1.jpg",
+                "legende": "Ouvrir l’onglet « Factures »"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/FAC-08/etape-2.jpg",
+                "legende": "Filtrer par tiers payant, période ou statut"
+              }
+            ]
           },
           {
             "id": "FAC-09",
@@ -941,9 +1797,21 @@
             "fonctionnement": "Le panneau détail relie la facture sélectionnée aux ventes qui la composent et aux règlements déjà reçus, sans recalcul qui diverge de la source.",
             "etapes": [
               "Sélectionner une facture dans la liste",
-              "Ouvrir le panneau détail (lignes, ventes rattachées, règlements)"
+              "Parcourir les onglets du panneau : bons facturés, versements reçus, avoirs"
             ],
-            "resultatAttendu": "Le détail affiché correspond exactement aux ventes et règlements liés à la facture."
+            "resultatAttendu": "Le détail affiché correspond exactement aux ventes et règlements liés à la facture.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/FAC-09/etape-1.jpg",
+                "legende": "Sélectionner une facture dans la liste"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/FAC-09/etape-2.jpg",
+                "legende": "Parcourir les onglets du panneau : bons facturés, versements reçus, avoirs"
+              }
+            ]
           },
           {
             "id": "FAC-10",
@@ -1653,7 +2521,19 @@
               "Ouvrir le tableau de bord des commandes",
               "Vérifier les indicateurs"
             ],
-            "resultatAttendu": "Les compteurs affichés correspondent au statut réel des commandes en base."
+            "resultatAttendu": "Les compteurs affichés correspondent au statut réel des commandes en base.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/ACH-10/etape-1.jpg",
+                "legende": "Ouvrir le tableau de bord des commandes"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/ACH-10/etape-2.jpg",
+                "legende": "Vérifier les indicateurs"
+              }
+            ]
           },
           {
             "id": "ACH-64",
@@ -2612,7 +3492,19 @@
               "Renseigner désignation, code-barres, prix d’achat/vente, TVA, rayon, famille",
               "Enregistrer"
             ],
-            "resultatAttendu": "Le produit est disponible en recherche vente/commande avec toutes ses données de référence."
+            "resultatAttendu": "Le produit est disponible en recherche vente/commande avec toutes ses données de référence.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-01/etape-1.jpg",
+                "legende": "Renseigner désignation, code-barres, prix d’achat/vente, TVA, rayon, famille"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-01/etape-2.jpg",
+                "legende": "Enregistrer"
+              }
+            ]
           },
           {
             "id": "REF-02",
@@ -2624,19 +3516,53 @@
               "Modifier les champs concernés",
               "Enregistrer"
             ],
-            "resultatAttendu": "La fiche reflète la modification pour les ventes futures, sans altérer l’historique des ventes passées."
+            "resultatAttendu": "La fiche reflète la modification pour les ventes futures, sans altérer l’historique des ventes passées.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-02/etape-1.jpg",
+                "legende": "Ouvrir la fiche produit"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-02/etape-2.jpg",
+                "legende": "Modifier les champs concernés"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/REF-02/etape-3.jpg",
+                "legende": "Enregistrer"
+              }
+            ]
           },
           {
             "id": "REF-03",
-            "titre": "Modifier rapidement un détail de la fiche produit",
-            "besoin": "Corriger un champ isolé sans rouvrir le formulaire complet.",
-            "fonctionnement": "Une mise à jour ciblée (\"détail\") permet de modifier un sous-ensemble de champs sans repasser par le formulaire complet.",
+            "titre": "Activer ou couper le suivi des lots d’un produit",
+            "besoin": "Corriger un réglage isolé sans rouvrir le formulaire complet — typiquement au moment où l’on s’aperçoit, en réception, qu’un produit réclame (ou ne réclame plus) un numéro de lot.",
+            "fonctionnement": "Le panneau de détail du produit porte des interrupteurs qui s’enregistrent SUR-LE-CHAMP, sans bouton de validation : le suivi des lots est le plus structurant. Activé, il exige un numéro de lot et une date de péremption à chaque réception de ce produit ; coupé, la réception se fait sans. Le reste de la fiche n’est pas touché.",
             "etapes": [
-              "Ouvrir la mise à jour rapide du produit",
-              "Modifier le champ concerné",
-              "Enregistrer"
+              "Ouvrir le panneau de détail du produit",
+              "Basculer le suivi des lots",
+              "Constater l’effet immédiat, puis rétablir le réglage"
             ],
-            "resultatAttendu": "Le champ modifié est mis à jour sans toucher au reste de la fiche."
+            "resultatAttendu": "Le réglage est enregistré immédiatement, sans passer par le formulaire complet ni toucher au reste de la fiche.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-03/etape-1.jpg",
+                "legende": "Ouvrir le panneau de détail du produit"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-03/etape-2.jpg",
+                "legende": "Basculer le suivi des lots"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/REF-03/etape-3.jpg",
+                "legende": "Constater l’effet immédiat, puis rétablir le réglage"
+              }
+            ]
           },
           {
             "id": "REF-04",
@@ -2648,7 +3574,19 @@
               "Ouvrir la fiche produit",
               "Lancer la suppression"
             ],
-            "resultatAttendu": "Le produit est supprimé s’il n’a aucun mouvement associé ; sinon la suppression est refusée avec un message explicite."
+            "resultatAttendu": "Le produit est supprimé s’il n’a aucun mouvement associé ; sinon la suppression est refusée avec un message explicite.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-04/etape-1.jpg",
+                "legende": "Ouvrir la fiche produit"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-04/etape-2.jpg",
+                "legende": "Lancer la suppression"
+              }
+            ]
           },
           {
             "id": "REF-05",
@@ -2660,7 +3598,24 @@
               "Saisir un nom, CIP ou EAN",
               "Combiner si besoin un filtre de famille, de rayon ou d’état"
             ],
-            "resultatAttendu": "La liste isole immédiatement les produits correspondant à l’ensemble des critères choisis."
+            "resultatAttendu": "La liste isole immédiatement les produits correspondant à l’ensemble des critères choisis.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-05/etape-1.jpg",
+                "legende": "Ouvrir le catalogue produits"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-05/etape-2.jpg",
+                "legende": "Saisir un nom, CIP ou EAN"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/REF-05/etape-3.jpg",
+                "legende": "Combiner si besoin un filtre de famille, de rayon ou d’état"
+              }
+            ]
           },
           {
             "id": "REF-06",
@@ -2672,7 +3627,19 @@
               "Lancer l’import CSV ou JSON",
               "Consulter le résultat et le rapport de rejet"
             ],
-            "resultatAttendu": "Les lignes valides sont importées ; les lignes en erreur sont listées dans un rapport de rejet consultable."
+            "resultatAttendu": "Les lignes valides sont importées ; les lignes en erreur sont listées dans un rapport de rejet consultable.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-06/etape-1.jpg",
+                "legende": "Préparer le fichier d’import"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-06/etape-2.jpg",
+                "legende": "Lancer l’import CSV ou JSON"
+              }
+            ]
           },
           {
             "id": "REF-07",
@@ -2683,7 +3650,19 @@
               "Ouvrir la fiche produit",
               "Lancer l’impression des étiquettes"
             ],
-            "resultatAttendu": "L’étiquette imprimée est fidèle aux données actuelles de la fiche produit (code, prix)."
+            "resultatAttendu": "L’étiquette imprimée est fidèle aux données actuelles de la fiche produit (code, prix).",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-07/etape-1.jpg",
+                "legende": "Ouvrir la fiche produit"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-07/etape-2.jpg",
+                "legende": "Lancer l’impression des étiquettes"
+              }
+            ]
           },
           {
             "id": "REF-39",
@@ -2696,7 +3675,29 @@
               "Vérifier qu’il n’est plus vendable",
               "Réactiver le produit"
             ],
-            "resultatAttendu": "Le produit suspendu n’apparaît plus en vente ; une fois réactivé, il redevient vendable avec toutes ses données intactes."
+            "resultatAttendu": "Le produit suspendu n’apparaît plus en vente ; une fois réactivé, il redevient vendable avec toutes ses données intactes.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-39/etape-1.jpg",
+                "legende": "Ouvrir la fiche ou la liste produits"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-39/etape-2.jpg",
+                "legende": "Suspendre le produit"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/REF-39/etape-3.jpg",
+                "legende": "Vérifier qu’il n’est plus vendable"
+              },
+              {
+                "ordre": 4,
+                "fichier": "content/captures/REF-39/etape-4.jpg",
+                "legende": "Réactiver le produit"
+              }
+            ]
           },
           {
             "id": "REF-40",
@@ -2709,20 +3710,54 @@
               "Mettre le produit en veille",
               "Le retrouver au besoin avec le filtre des produits désactivés"
             ],
-            "resultatAttendu": "Le produit ne perturbe plus la gestion courante, mais ses données restent conservées et consultables."
+            "resultatAttendu": "Le produit ne perturbe plus la gestion courante, mais ses données restent conservées et consultables.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-40/etape-1.jpg",
+                "legende": "Ouvrir la liste produits"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-40/etape-2.jpg",
+                "legende": "Mettre le produit en veille"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/REF-40/etape-3.jpg",
+                "legende": "Le retrouver au besoin avec le filtre des produits désactivés"
+              }
+            ]
           },
           {
             "id": "REF-60",
             "titre": "Mettre en veille ou réactiver plusieurs produits en une seule action",
             "besoin": "Traiter rapidement une gamme entière temporairement indisponible ou remise en circulation, sans modifier chaque fiche séparément.",
-            "fonctionnement": "La sélection multiple du catalogue ouvre une barre d’actions permettant de désactiver ou réactiver tous les produits sélectionnés, après confirmation pour la mise en veille.",
+            "fonctionnement": "La sélection multiple du catalogue ouvre une barre d’actions permettant de désactiver ou réactiver tous les produits sélectionnés. Les deux actions demandent une confirmation, qui rappelle le nombre de produits concernés ; la sélection est vidée une fois le traitement terminé.",
             "prerequis": "L’utilisateur dispose du droit de modification du catalogue.",
             "etapes": [
               "Sélectionner plusieurs produits dans la liste",
               "Choisir \"Mettre en veille\" ou \"Réactiver\"",
               "Confirmer si demandé"
             ],
-            "resultatAttendu": "Tous les produits sélectionnés changent d’état et la sélection est automatiquement réinitialisée à la fin du traitement."
+            "resultatAttendu": "Tous les produits sélectionnés changent d’état et la sélection est automatiquement réinitialisée à la fin du traitement.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-60/etape-1.jpg",
+                "legende": "Sélectionner plusieurs produits dans la liste"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-60/etape-2.jpg",
+                "legende": "Choisir \"Mettre en veille\" ou \"Réactiver\""
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/REF-60/etape-3.jpg",
+                "legende": "Confirmer si demandé"
+              }
+            ]
           },
           {
             "id": "REF-62",
@@ -2737,7 +3772,34 @@
               "Consulter l’analyse (dont le sort du déconditionné rattaché s’il y en a un) et trancher chaque conflit de lot proposé",
               "Confirmer la fusion"
             ],
-            "resultatAttendu": "Les données des produits fusionnés (stocks, lots, tarifs, fournisseurs, rayons, ventes...) sont réaffectées ou fusionnées sur le produit cible selon les choix effectués ; le déconditionné rattaché est re-parenté ou ses ventes fusionnées selon le cas ; les produits fusionnés sont archivés (désactivés) et un ajustement manuel de stock reste signalé si un conflit d’emplacement (boîte ou déconditionné) n’a pas été résorbé."
+            "resultatAttendu": "Les données des produits fusionnés (stocks, lots, tarifs, fournisseurs, rayons, ventes...) sont réaffectées ou fusionnées sur le produit cible selon les choix effectués ; le déconditionné rattaché est re-parenté ou ses ventes fusionnées selon le cas ; les produits fusionnés sont archivés (désactivés) et un ajustement manuel de stock reste signalé si un conflit d’emplacement (boîte ou déconditionné) n’a pas été résorbé.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-62/etape-1.jpg",
+                "legende": "Sélectionner au moins deux produits doublons dans le catalogue (boîtes et/ou déconditionnés)"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-62/etape-2.jpg",
+                "legende": "Lancer \"Fusionner\" et confirmer l’action"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/REF-62/etape-3.jpg",
+                "legende": "Choisir le produit à conserver à l’aide du tableau comparatif"
+              },
+              {
+                "ordre": 4,
+                "fichier": "content/captures/REF-62/etape-4.jpg",
+                "legende": "Consulter l’analyse (dont le sort du déconditionné rattaché s’il y en a un) et trancher chaque conflit de lot proposé"
+              },
+              {
+                "ordre": 5,
+                "fichier": "content/captures/REF-62/etape-5.jpg",
+                "legende": "Confirmer la fusion"
+              }
+            ]
           }
         ]
       },
@@ -2755,7 +3817,24 @@
               "Choisir la période, l’emplacement éventuel et les types à analyser",
               "Comparer les totaux d’entrées, de sorties et le stock final"
             ],
-            "resultatAttendu": "L’évolution du stock est explicable jour par jour, avec une ventilation et des totaux cohérents pour chaque type de mouvement."
+            "resultatAttendu": "L’évolution du stock est explicable jour par jour, avec une ventilation et des totaux cohérents pour chaque type de mouvement.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-08/etape-1.jpg",
+                "legende": "Ouvrir la fiche produit puis l’onglet \"Mouvements\""
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-08/etape-2.jpg",
+                "legende": "Choisir la période, l’emplacement éventuel et les types à analyser"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/REF-08/etape-3.jpg",
+                "legende": "Comparer les totaux d’entrées, de sorties et le stock final"
+              }
+            ]
           },
           {
             "id": "REF-09",
@@ -2764,9 +3843,21 @@
             "fonctionnement": "Le panneau d’indicateurs agrège pour ce produit son stock actuel, ses seuils de réapprovisionnement et des mesures de rotation, calculés à partir des mêmes données que le reste de l’application (stock, ventes).",
             "etapes": [
               "Ouvrir la fiche produit",
-              "Consulter l’onglet \"Indicateurs\""
+              "Consulter la carte \"Indicateurs clés\" de l’onglet Synthèse"
             ],
-            "resultatAttendu": "Les indicateurs affichés correspondent à l’état réel du stock et des ventes du produit."
+            "resultatAttendu": "Les indicateurs affichés correspondent à l’état réel du stock et des ventes du produit.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-09/etape-1.jpg",
+                "legende": "Ouvrir la fiche produit"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-09/etape-2.jpg",
+                "legende": "Consulter la carte \"Indicateurs clés\" de l’onglet Synthèse"
+              }
+            ]
           },
           {
             "id": "REF-41",
@@ -2777,18 +3868,42 @@
               "Ouvrir la fiche produit",
               "Consulter l’onglet \"Synthèse\""
             ],
-            "resultatAttendu": "La marge, la couverture de stock, la rotation et le statut légal affichés correspondent aux données réelles du produit."
+            "resultatAttendu": "La marge, la couverture de stock, la rotation et le statut légal affichés correspondent aux données réelles du produit.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-41/etape-1.jpg",
+                "legende": "Ouvrir la fiche produit"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-41/etape-2.jpg",
+                "legende": "Consulter l’onglet \"Synthèse\""
+              }
+            ]
           },
           {
             "id": "REF-42",
-            "titre": "Activer les attributs réglementaires et opérationnels d’un produit",
+            "titre": "Activer les attributs réglementaires d’un produit",
             "besoin": "Signaler les contraintes propres à un produit (gestion de lot obligatoire, chaîne du froid, garde officine...) pour que le reste de l’application en tienne compte automatiquement.",
-            "fonctionnement": "Des bascules dédiées activent ou désactivent, directement depuis la fiche produit : le contrôle des lots obligatoire, le caractère thermosensible, le statut de médicament essentiel, le statut de produit de garde, et une classification personnalisée qui prévaut sur la classification ABC automatique.",
+            "fonctionnement": "Des bascules dédiées activent ou désactivent, directement depuis l’onglet Synthèse : le caractère thermosensible (chaîne du froid), le statut de médicament essentiel, le statut de produit de garde, et une classification personnalisée qui prévaut sur la classification ABC automatique. Le statut légal, lui, ne se bascule pas : il se lit, et se change dans le formulaire complet. Le suivi des lots, réglage opérationnel, fait l’objet de REF-03.",
             "etapes": [
               "Ouvrir l’onglet \"Synthèse\" de la fiche produit",
               "Activer ou désactiver l’attribut concerné"
             ],
-            "resultatAttendu": "L’attribut activé est immédiatement pris en compte par les écrans concernés (ex. gestion de lot exigée à la réception, alerte chaîne du froid)."
+            "resultatAttendu": "L’attribut activé est immédiatement pris en compte par les écrans concernés (ex. gestion de lot exigée à la réception, alerte chaîne du froid).",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-42/etape-1.jpg",
+                "legende": "Ouvrir l’onglet \"Synthèse\" de la fiche produit"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-42/etape-2.jpg",
+                "legende": "Activer ou désactiver l’attribut concerné"
+              }
+            ]
           },
           {
             "id": "REF-10",
@@ -2800,18 +3915,47 @@
               "Choisir une période prédéfinie ou personnalisée",
               "Afficher le graphique"
             ],
-            "resultatAttendu": "Le graphique met en évidence l’évolution réelle des quantités vendues et du montant net sur la période sélectionnée."
+            "resultatAttendu": "Le graphique met en évidence l’évolution réelle des quantités vendues et du montant net sur la période sélectionnée.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-10/etape-1.jpg",
+                "legende": "Ouvrir la fiche produit puis l’onglet \"Ventes\""
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-10/etape-2.jpg",
+                "legende": "Choisir une période prédéfinie ou personnalisée"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/REF-10/etape-3.jpg",
+                "legende": "Afficher le graphique"
+              }
+            ]
           },
           {
             "id": "REF-11",
             "titre": "Consulter les lots et dates de péremption d’un produit",
             "besoin": "Savoir quels lots sont en stock et leur échéance, pour prioriser leur vente ou anticiper leur retrait.",
-            "fonctionnement": "L’onglet \"Lots / péremption\" liste les lots physiquement en stock avec leur quantité et leur date de péremption, alimentant aussi la Gestion des péremptions.",
+            "fonctionnement": "L’onglet \"Stock\" de la fiche produit liste les lots physiquement en stock avec leur quantité, leur date de péremption et leur état d’alerte, classés du premier expirant au dernier (FEFO). Il alimente aussi la Gestion des péremptions.",
             "etapes": [
               "Ouvrir la fiche produit",
-              "Ouvrir l’onglet \"Lots / péremption\""
+              "Ouvrir l’onglet \"Stock\", qui présente les lots par ordre de péremption"
             ],
-            "resultatAttendu": "Les lots affichés et leurs quantités correspondent au stock réel du produit."
+            "resultatAttendu": "Les lots affichés et leurs quantités correspondent au stock réel du produit.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-11/etape-1.jpg",
+                "legende": "Ouvrir la fiche produit"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-11/etape-2.jpg",
+                "legende": "Ouvrir l’onglet \"Stock\", qui présente les lots par ordre de péremption"
+              }
+            ]
           },
           {
             "id": "REF-43",
@@ -2822,7 +3966,19 @@
               "Ouvrir l’onglet \"Lots / péremption\" d’un produit ayant plusieurs lots",
               "Vérifier l’ordre et la mise en avant des lots proches de péremption"
             ],
-            "resultatAttendu": "Les lots apparaissent triés du plus proche au plus lointain de péremption, avec le code couleur correspondant à leur urgence réelle."
+            "resultatAttendu": "Les lots apparaissent triés du plus proche au plus lointain de péremption, avec le code couleur correspondant à leur urgence réelle.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-43/etape-1.jpg",
+                "legende": "Ouvrir l’onglet \"Lots / péremption\" d’un produit ayant plusieurs lots"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-43/etape-2.jpg",
+                "legende": "Vérifier l’ordre et la mise en avant des lots proches de péremption"
+              }
+            ]
           },
           {
             "id": "REF-44",
@@ -2834,18 +3990,47 @@
               "Saisir un nouveau lot (numéro, péremption, quantité, officine)",
               "Enregistrer"
             ],
-            "resultatAttendu": "Le lot saisi apparaît dans la liste des lots du produit avec sa quantité ajoutée au stock."
+            "resultatAttendu": "Le lot saisi apparaît dans la liste des lots du produit avec sa quantité ajoutée au stock.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-44/etape-1.jpg",
+                "legende": "Ouvrir l’onglet \"Lots / péremption\" de la fiche produit"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-44/etape-2.jpg",
+                "legende": "Saisir un nouveau lot (numéro, péremption, quantité, officine)"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/REF-44/etape-3.jpg",
+                "legende": "Enregistrer"
+              }
+            ]
           },
           {
             "id": "REF-12",
             "titre": "Consulter les génériques équivalents d’un produit",
             "besoin": "Proposer une alternative générique moins chère ou disponible quand le produit princeps est en rupture.",
-            "fonctionnement": "Les produits partageant la même DCI/molécule sont listés comme équivalents génériques.",
+            "fonctionnement": "L’équivalence se fonde sur la DCI — la molécule — et non sur le nom commercial : DOLIPRANE, EFFERALGAN et PARACETAMOL GE partagent la même substance et se substituent donc l’un à l’autre. L’onglet « Génériques » du panneau de détail, à côté des rayons, affiche pour chaque équivalent son prix de vente, son stock disponible et la nature de l’équivalence — générique ou substitut thérapeutique.",
             "etapes": [
-              "Ouvrir la fiche produit",
-              "Consulter l’onglet \"Génériques\""
+              "Retrouver le produit au catalogue",
+              "Ouvrir l’onglet \"Génériques\" du panneau de détail"
             ],
-            "resultatAttendu": "Les produits listés partagent réellement la même DCI que le produit consulté."
+            "resultatAttendu": "Les produits listés partagent réellement la même DCI que le produit consulté.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-12/etape-1.jpg",
+                "legende": "Retrouver le produit au catalogue"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-12/etape-2.jpg",
+                "legende": "Ouvrir l’onglet \"Génériques\" du panneau de détail"
+              }
+            ]
           },
           {
             "id": "REF-58",
@@ -2858,7 +4043,29 @@
               "Analyser le détail et les totaux",
               "Exporter le relevé en PDF si nécessaire"
             ],
-            "resultatAttendu": "Le détail, les totaux et le PDF reflètent les ventes réelles du produit sur la période choisie."
+            "resultatAttendu": "Le détail, les totaux et le PDF reflètent les ventes réelles du produit sur la période choisie.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-58/etape-1.jpg",
+                "legende": "Ouvrir l’onglet \"Ventes\" du produit"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-58/etape-2.jpg",
+                "legende": "Choisir la période"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/REF-58/etape-3.jpg",
+                "legende": "Analyser le détail et les totaux"
+              },
+              {
+                "ordre": 4,
+                "fichier": "content/captures/REF-58/etape-4.jpg",
+                "legende": "Exporter le relevé en PDF si nécessaire"
+              }
+            ]
           },
           {
             "id": "REF-59",
@@ -2871,7 +4078,29 @@
               "Comparer le tableau, les totaux et le graphique",
               "Exporter en PDF si besoin"
             ],
-            "resultatAttendu": "Les achats du produit sont restitués avec leurs volumes, leur valorisation et leur tendance sur la période sélectionnée."
+            "resultatAttendu": "Les achats du produit sont restitués avec leurs volumes, leur valorisation et leur tendance sur la période sélectionnée.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-59/etape-1.jpg",
+                "legende": "Ouvrir l’onglet \"Achats\" du produit"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-59/etape-2.jpg",
+                "legende": "Choisir une période prédéfinie ou personnalisée"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/REF-59/etape-3.jpg",
+                "legende": "Comparer le tableau, les totaux et le graphique"
+              },
+              {
+                "ordre": 4,
+                "fichier": "content/captures/REF-59/etape-4.jpg",
+                "legende": "Exporter en PDF si besoin"
+              }
+            ]
           },
           {
             "id": "REF-61",
@@ -2883,7 +4112,24 @@
               "Afficher le graphique d’évolution",
               "Lancer l’export PDF ou Excel"
             ],
-            "resultatAttendu": "Le graphique et les fichiers exportés correspondent au même périmètre de mouvements que celui analysé à l’écran."
+            "resultatAttendu": "Le graphique et les fichiers exportés correspondent au même périmètre de mouvements que celui analysé à l’écran.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-61/etape-1.jpg",
+                "legende": "Filtrer les mouvements du produit"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-61/etape-2.jpg",
+                "legende": "Afficher le graphique d’évolution"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/REF-61/etape-3.jpg",
+                "legende": "Lancer l’export PDF ou Excel"
+              }
+            ]
           }
         ]
       },
@@ -2901,7 +4147,24 @@
               "Assigner ou déplacer le produit vers un rayon",
               "Enregistrer"
             ],
-            "resultatAttendu": "Le rayon affiché sur la fiche produit correspond à l’emplacement enregistré."
+            "resultatAttendu": "Le rayon affiché sur la fiche produit correspond à l’emplacement enregistré.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-45/etape-1.jpg",
+                "legende": "Ouvrir l’onglet \"Rayons\" de la fiche produit"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-45/etape-2.jpg",
+                "legende": "Assigner ou déplacer le produit vers un rayon"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/REF-45/etape-3.jpg",
+                "legende": "Enregistrer"
+              }
+            ]
           },
           {
             "id": "REF-46",
@@ -2913,7 +4176,24 @@
               "Affecter le produit à un stockage supplémentaire",
               "Choisir son rayon dans ce stockage"
             ],
-            "resultatAttendu": "Le produit apparaît placé dans chacun des stockages auxquels il a été affecté, avec un rayon propre à chacun."
+            "resultatAttendu": "Le produit apparaît placé dans chacun des stockages auxquels il a été affecté, avec un rayon propre à chacun.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-46/etape-1.jpg",
+                "legende": "Ouvrir l’onglet \"Rayons\" de la fiche produit"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-46/etape-2.jpg",
+                "legende": "Affecter le produit à un stockage supplémentaire"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/REF-46/etape-3.jpg",
+                "legende": "Choisir son rayon dans ce stockage"
+              }
+            ]
           },
           {
             "id": "REF-47",
@@ -2926,7 +4206,19 @@
               "Choisir le stockage cible",
               "Valider"
             ],
-            "resultatAttendu": "Le produit est placé dans le stockage cible, au même rayon que dans le stockage d’origine."
+            "resultatAttendu": "Le produit est placé dans le stockage cible, au même rayon que dans le stockage d’origine.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-47/etape-1.jpg",
+                "legende": "Depuis la liste produits, sélectionner \"Cloner le rayon\""
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-47/etape-2.jpg",
+                "legende": "Choisir le stockage cible"
+              }
+            ]
           }
         ]
       },
@@ -2943,7 +4235,19 @@
               "Ouvrir l’onglet \"Stock\" de la fiche produit",
               "Consulter le stock rayon et le stock réserve"
             ],
-            "resultatAttendu": "Les deux stocks affichés correspondent aux quantités réellement détenues en rayon et en réserve."
+            "resultatAttendu": "Les deux stocks affichés correspondent aux quantités réellement détenues en rayon et en réserve.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-48/etape-1.jpg",
+                "legende": "Ouvrir l’onglet \"Stock\" de la fiche produit"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-48/etape-2.jpg",
+                "legende": "Consulter le stock rayon et le stock réserve"
+              }
+            ]
           },
           {
             "id": "REF-49",
@@ -2955,7 +4259,24 @@
               "Choisir le sens du transfert et la quantité",
               "Valider"
             ],
-            "resultatAttendu": "Le stock source diminue et le stock destination (rayon ou réserve) augmente de la quantité transférée."
+            "resultatAttendu": "Le stock source diminue et le stock destination (rayon ou réserve) augmente de la quantité transférée.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-49/etape-1.jpg",
+                "legende": "Ouvrir l’onglet \"Stock\" de la fiche produit"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-49/etape-2.jpg",
+                "legende": "Choisir le sens du transfert et la quantité"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/REF-49/etape-3.jpg",
+                "legende": "Valider"
+              }
+            ]
           },
           {
             "id": "REF-50",
@@ -2966,7 +4287,19 @@
               "Ouvrir l’onglet \"Stock\" d’un produit à rotation régulière",
               "Comparer le seuil recommandé au seuil paramétré"
             ],
-            "resultatAttendu": "Un écart entre le seuil recommandé (calculé) et le seuil paramétré est clairement signalé lorsque le seuil paramétré est insuffisant."
+            "resultatAttendu": "Un écart entre le seuil recommandé (calculé) et le seuil paramétré est clairement signalé lorsque le seuil paramétré est insuffisant.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-50/etape-1.jpg",
+                "legende": "Ouvrir l’onglet \"Stock\" d’un produit à rotation régulière"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-50/etape-2.jpg",
+                "legende": "Comparer le seuil recommandé au seuil paramétré"
+              }
+            ]
           }
         ]
       },
@@ -2983,7 +4316,19 @@
               "Ouvrir l’onglet \"Fournisseurs\" de la fiche produit",
               "Ajouter un fournisseur avec son prix d’achat et son délai de livraison"
             ],
-            "resultatAttendu": "Le fournisseur ajouté apparaît dans la liste avec son prix et son délai propres."
+            "resultatAttendu": "Le fournisseur ajouté apparaît dans la liste avec son prix et son délai propres.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-51/etape-1.jpg",
+                "legende": "Ouvrir l’onglet \"Fournisseurs\" de la fiche produit"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-51/etape-2.jpg",
+                "legende": "Ajouter un fournisseur avec son prix d’achat et son délai de livraison"
+              }
+            ]
           },
           {
             "id": "REF-52",
@@ -2995,7 +4340,19 @@
               "Ouvrir l’onglet \"Fournisseurs\" de la fiche produit",
               "Marquer un autre fournisseur comme principal"
             ],
-            "resultatAttendu": "Un seul fournisseur est marqué principal à la fois, et c’est lui qui est utilisé pour le réapprovisionnement."
+            "resultatAttendu": "Un seul fournisseur est marqué principal à la fois, et c’est lui qui est utilisé pour le réapprovisionnement.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-52/etape-1.jpg",
+                "legende": "Ouvrir l’onglet \"Fournisseurs\" de la fiche produit"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-52/etape-2.jpg",
+                "legende": "Marquer un autre fournisseur comme principal"
+              }
+            ]
           }
         ]
       },
@@ -3013,7 +4370,24 @@
               "Créer un prix de référence pour le couple produit/tiers payant",
               "Choisir le type (montant fixe, pourcentage, mixte)"
             ],
-            "resultatAttendu": "Le prix de référence est enregistré pour ce couple produit/tiers payant, avec le type choisi."
+            "resultatAttendu": "Le prix de référence est enregistré pour ce couple produit/tiers payant, avec le type choisi.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-53/etape-1.jpg",
+                "legende": "Ouvrir \"Prix de référence\" depuis la fiche produit ou depuis le tiers payant"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-53/etape-2.jpg",
+                "legende": "Créer un prix de référence pour le couple produit/tiers payant"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/REF-53/etape-3.jpg",
+                "legende": "Choisir le type (montant fixe, pourcentage, mixte)"
+              }
+            ]
           },
           {
             "id": "REF-54",
@@ -3024,7 +4398,19 @@
               "Ouvrir la fiche du tiers payant",
               "Consulter la liste de ses prix de référence produit"
             ],
-            "resultatAttendu": "La liste affichée correspond exactement aux prix de référence enregistrés pour ce tiers payant."
+            "resultatAttendu": "La liste affichée correspond exactement aux prix de référence enregistrés pour ce tiers payant.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-54/etape-1.jpg",
+                "legende": "Ouvrir la fiche du tiers payant"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-54/etape-2.jpg",
+                "legende": "Consulter la liste de ses prix de référence produit"
+              }
+            ]
           }
         ]
       },
@@ -3042,7 +4428,19 @@
               "Associer ou créer le produit détail correspondant",
               "Enregistrer"
             ],
-            "resultatAttendu": "Le produit est marqué déconditionnable et son produit détail associé est enregistré."
+            "resultatAttendu": "Le produit est marqué déconditionnable et son produit détail associé est enregistré.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-55/etape-1.jpg",
+                "legende": "Ouvrir la configuration de déconditionnement du produit"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-55/etape-2.jpg",
+                "legende": "Associer ou créer le produit détail correspondant"
+              }
+            ]
           },
           {
             "id": "REF-56",
@@ -3053,7 +4451,19 @@
               "Ouvrir la fiche du produit conditionné",
               "Consulter l’onglet \"Déconditionnements\""
             ],
-            "resultatAttendu": "L’historique affiché correspond exactement aux déconditionnements réellement réalisés sur ce produit."
+            "resultatAttendu": "L’historique affiché correspond exactement aux déconditionnements réellement réalisés sur ce produit.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-56/etape-1.jpg",
+                "legende": "Ouvrir la fiche du produit conditionné"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-56/etape-2.jpg",
+                "legende": "Consulter l’onglet \"Déconditionnements\""
+              }
+            ]
           }
         ]
       },
@@ -3082,6 +4492,7 @@
         "scenarios": [
           {
             "id": "REF-13",
+            "hidden": true,
             "titre": "Consulter la classification (métriques) d’un produit",
             "besoin": "Comprendre pourquoi un produit est classé dans telle catégorie de criticité/rotation avant de contester ou d’ajuster manuellement.",
             "fonctionnement": "Les métriques affichées (ventes, rotation, valeur) sont celles ayant servi au calcul automatique de la classification du produit.",
@@ -3096,13 +4507,26 @@
             "besoin": "Corriger une classification automatique jugée inadaptée pour un produit particulier (ex. produit saisonnier).",
             "fonctionnement": "La surcharge manuelle remplace la classe calculée automatiquement et est historisée (log) pour en garder la trace et la justification.",
             "etapes": [
-              "Ouvrir la classification du produit",
-              "Forcer la classe souhaitée avec un motif"
+              "Ouvrir la fiche produit, onglet \"Approvisionnement\"",
+              "Choisir la classe voulue et verrouiller le calcul automatique, puis enregistrer"
             ],
-            "resultatAttendu": "La classe forcée s’applique au produit et l’action est tracée dans le journal de classification."
+            "resultatAttendu": "La classe forcée s’applique au produit et l’action est tracée dans le journal de classification.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/REF-14/etape-1.jpg",
+                "legende": "Ouvrir la fiche produit, onglet \"Approvisionnement\""
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/REF-14/etape-2.jpg",
+                "legende": "Choisir la classe voulue et verrouiller le calcul automatique, puis enregistrer"
+              }
+            ]
           },
           {
             "id": "REF-15",
+            "hidden": true,
             "titre": "Consulter le journal des surcharges de classification",
             "besoin": "Auditer qui a modifié manuellement la classification d’un produit, et pourquoi.",
             "fonctionnement": "Chaque surcharge manuelle est journalisée avec son auteur, sa date et son motif.",
@@ -3535,7 +4959,19 @@
               "Ouvrir l’onglet \"En cours\"",
               "Consulter la progression de l’inventaire"
             ],
-            "resultatAttendu": "La progression affichée correspond au nombre réel de lignes déjà comptées."
+            "resultatAttendu": "La progression affichée correspond au nombre réel de lignes déjà comptées.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/STK-07/etape-1.jpg",
+                "legende": "Ouvrir l’onglet \"En cours\""
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/STK-07/etape-2.jpg",
+                "legende": "Consulter la progression de l’inventaire"
+              }
+            ]
           },
           {
             "id": "STK-08",
@@ -3658,7 +5094,19 @@
               "Ouvrir le tableau de bord de l’inventaire tournant",
               "Consulter les indicateurs et les prochaines échéances"
             ],
-            "resultatAttendu": "Les indicateurs affichés (plannings actifs, inventaires du mois, taux de couverture, prochaines échéances) reflètent l’état réel des plannings."
+            "resultatAttendu": "Les indicateurs affichés (plannings actifs, inventaires du mois, taux de couverture, prochaines échéances) reflètent l’état réel des plannings.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/STK-30/etape-1.jpg",
+                "legende": "Ouvrir le tableau de bord de l’inventaire tournant"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/STK-30/etape-2.jpg",
+                "legende": "Consulter les indicateurs et les prochaines échéances"
+              }
+            ]
           }
         ]
       },
@@ -3701,7 +5149,19 @@
               "Ouvrir le résumé des écarts de l’inventaire",
               "Consulter la répartition par cause"
             ],
-            "resultatAttendu": "Le nombre de lignes et la valeur totale affichés par cause correspondent exactement aux qualifications enregistrées."
+            "resultatAttendu": "Le nombre de lignes et la valeur totale affichés par cause correspondent exactement aux qualifications enregistrées.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/STK-14/etape-1.jpg",
+                "legende": "Ouvrir le résumé des écarts de l’inventaire"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/STK-14/etape-2.jpg",
+                "legende": "Consulter la répartition par cause"
+              }
+            ]
           },
           {
             "id": "STK-15",
@@ -3725,7 +5185,19 @@
               "Ouvrir la valorisation de l’inventaire clôturé",
               "Choisir le regroupement (famille, rayon, emplacement)"
             ],
-            "resultatAttendu": "La valeur affichée par groupe correspond à la somme des lignes appartenant réellement à ce groupe."
+            "resultatAttendu": "La valeur affichée par groupe correspond à la somme des lignes appartenant réellement à ce groupe.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/STK-16/etape-1.jpg",
+                "legende": "Ouvrir la valorisation de l’inventaire clôturé"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/STK-16/etape-2.jpg",
+                "legende": "Choisir le regroupement (famille, rayon, emplacement)"
+              }
+            ]
           },
           {
             "id": "STK-17",
@@ -3778,7 +5250,19 @@
               "Ouvrir \"Gestion des péremptions\"",
               "Consulter la liste triée par échéance"
             ],
-            "resultatAttendu": "Les produits concernés apparaissent avec le nombre de jours restants et une alerte visuelle."
+            "resultatAttendu": "Les produits concernés apparaissent avec le nombre de jours restants et une alerte visuelle.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/STK-18/etape-1.jpg",
+                "legende": "Ouvrir \"Gestion des péremptions\""
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/STK-18/etape-2.jpg",
+                "legende": "Consulter la liste triée par échéance"
+              }
+            ]
           },
           {
             "id": "STK-32",
@@ -3790,7 +5274,24 @@
               "Combiner un ou plusieurs critères",
               "Consulter la liste filtrée"
             ],
-            "resultatAttendu": "Seuls les produits correspondant à tous les critères sélectionnés apparaissent dans la liste."
+            "resultatAttendu": "Seuls les produits correspondant à tous les critères sélectionnés apparaissent dans la liste.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/STK-32/etape-1.jpg",
+                "legende": "Ouvrir les filtres avancés de \"Gestion des péremptions\""
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/STK-32/etape-2.jpg",
+                "legende": "Combiner un ou plusieurs critères"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/STK-32/etape-3.jpg",
+                "legende": "Consulter la liste filtrée"
+              }
+            ]
           },
           {
             "id": "STK-33",
@@ -3798,9 +5299,16 @@
             "besoin": "Accéder en un clic aux deux vues les plus utilisées au quotidien, sans reconstruire les filtres à chaque fois.",
             "fonctionnement": "Deux raccourcis appliquent directement un filtre prédéfini : produits dont la péremption est dépassée, ou produits périmant dans les 30 prochains jours.",
             "etapes": [
-              "Cliquer sur le raccourci \"Déjà périmés\" ou \"À échéance 30 jours\""
+              "Cliquer sur l’indicateur « Nbre de produits périmés » ou « Prochaines péremptions 30j » du bandeau"
             ],
-            "resultatAttendu": "La liste se filtre instantanément selon le raccourci choisi, sans configuration manuelle."
+            "resultatAttendu": "La liste se filtre instantanément selon le raccourci choisi, sans configuration manuelle.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/STK-33/etape-1.jpg",
+                "legende": "Cliquer sur l’indicateur « Nbre de produits périmés » ou « Prochaines péremptions 30j » du bandeau"
+              }
+            ]
           },
           {
             "id": "STK-34",
@@ -4125,7 +5633,19 @@
               "Ouvrir la recherche client",
               "Saisir un critère"
             ],
-            "resultatAttendu": "Les résultats correspondent exactement au critère saisi."
+            "resultatAttendu": "Les résultats correspondent exactement au critère saisi.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/CLI-05/etape-1.jpg",
+                "legende": "Ouvrir la recherche client"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/CLI-05/etape-2.jpg",
+                "legende": "Saisir un critère"
+              }
+            ]
           },
           {
             "id": "CLI-06",
@@ -4204,7 +5724,19 @@
               "Ouvrir l’onglet \"Différés\"",
               "Consulter la liste des clients"
             ],
-            "resultatAttendu": "Seuls les clients ayant un solde différé réel apparaissent dans la liste."
+            "resultatAttendu": "Seuls les clients ayant un solde différé réel apparaissent dans la liste.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/CLI-11/etape-1.jpg",
+                "legende": "Ouvrir l’onglet \"Différés\""
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/CLI-11/etape-2.jpg",
+                "legende": "Consulter la liste des clients"
+              }
+            ]
           },
           {
             "id": "CLI-12",
@@ -4228,7 +5760,29 @@
               "Affiner éventuellement par client et période",
               "Ouvrir un compte pour consulter ses ventes"
             ],
-            "resultatAttendu": "La liste et le détail correspondent au périmètre de créances demandé, avec une ventilation fidèle du payé et du restant."
+            "resultatAttendu": "La liste et le détail correspondent au périmètre de créances demandé, avec une ventilation fidèle du payé et du restant.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/CLI-13/etape-1.jpg",
+                "legende": "Ouvrir les différés"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/CLI-13/etape-2.jpg",
+                "legende": "Choisir \"En cours\" ou \"Soldé\""
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/CLI-13/etape-3.jpg",
+                "legende": "Affiner éventuellement par client et période"
+              },
+              {
+                "ordre": 4,
+                "fichier": "content/captures/CLI-13/etape-4.jpg",
+                "legende": "Ouvrir un compte pour consulter ses ventes"
+              }
+            ]
           },
           {
             "id": "CLI-14",
@@ -4319,6 +5873,35 @@
               "Vérifier la monnaie affichée avant de valider"
             ],
             "resultatAttendu": "La monnaie à rendre correspond exactement à la différence entre le montant saisi et le solde dû."
+          },
+          {
+            "id": "CLI-21",
+            "titre": "Consulter l’historique des règlements différés",
+            "besoin": "Retrouver qui a réglé, quand et combien, pour justifier un encaissement auprès de la caisse ou répondre à un client qui conteste son solde.",
+            "fonctionnement": "L’onglet « Historique règlements » regroupe les versements par client sur la période choisie : total encaissé, solde restant et nombre de règlements. Chaque ligne se déplie sur le détail des versements, avec leur date et leur mode de paiement.",
+            "etapes": [
+              "Ouvrir l’onglet « Historique règlements »",
+              "Choisir la période, et un client si besoin",
+              "Déplier une ligne pour consulter le détail de ses versements"
+            ],
+            "resultatAttendu": "Les règlements listés correspondent aux versements enregistrés sur la période, et le total encaissé de chaque client égale la somme de ses versements.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/CLI-21/etape-1.jpg",
+                "legende": "Ouvrir l’onglet « Historique règlements »"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/CLI-21/etape-2.jpg",
+                "legende": "Choisir la période, et un client si besoin"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/CLI-21/etape-3.jpg",
+                "legende": "Déplier une ligne pour consulter le détail de ses versements"
+              }
+            ]
           }
         ]
       }
@@ -4366,16 +5949,38 @@
         "scenarios": [
           {
             "id": "CPT-02",
-            "titre": "Générer une déclaration de TVA sur une période",
-            "besoin": "Produire les montants de TVA collectée et déductible nécessaires à la déclaration fiscale périodique, sans recalcul manuel.",
-            "fonctionnement": "La déclaration calcule les bases HT, la TVA collectée sur les ventes, la TVA déductible sur les achats et la TVA nette à payer. Le détail est ventilé par taux et peut être limité à toutes les ventes, au comptant, au tiers payant ou aux différés.",
+            "titre": "Éditer le rapport de TVA collectée sur une période",
+            "besoin": "Disposer des bases HT et de la TVA collectée, taux par taux, pour préparer la déclaration fiscale périodique sans recalcul manuel.",
+            "fonctionnement": "Le rapport ventile les ventes de la période par taux de TVA : base HT, TVA collectée et total TTC, avec une ligne de total. Le périmètre peut être limité à un type de vente, et le regroupement se fait au jour ou au mois. La TVA déductible sur les achats n’est pas couverte par cet écran : elle se lit dans les factures fournisseurs.",
             "etapes": [
-              "Ouvrir l’onglet \"Déclaration TVA\"",
+              "Ouvrir l’onglet \"Rapport TVA\"",
               "Sélectionner la période et, si nécessaire, le type de vente",
               "Lancer le calcul",
-              "Contrôler le résumé et le détail par taux"
+              "Contrôler le détail par taux et la ligne de total"
             ],
-            "resultatAttendu": "Les bases HT, les TVA collectée et déductible et la TVA nette correspondent au périmètre choisi et à la ventilation par taux affichée."
+            "resultatAttendu": "Chaque taux présent sur la période porte sa base HT, sa TVA et son TTC, et la ligne de total est la somme exacte des lignes affichées.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/CPT-02/etape-1.jpg",
+                "legende": "Ouvrir l’onglet \"Rapport TVA\""
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/CPT-02/etape-2.jpg",
+                "legende": "Sélectionner la période et, si nécessaire, le type de vente"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/CPT-02/etape-3.jpg",
+                "legende": "Lancer le calcul"
+              },
+              {
+                "ordre": 4,
+                "fichier": "content/captures/CPT-02/etape-4.jpg",
+                "legende": "Contrôler le détail par taux et la ligne de total"
+              }
+            ]
           },
           {
             "id": "CPT-03",
@@ -4421,7 +6026,19 @@
               "Ouvrir l’onglet \"Balance\"",
               "Sélectionner une période"
             ],
-            "resultatAttendu": "Le solde de balance correspond à la somme des mouvements de caisse (entrées/sorties) réellement enregistrés sur la période."
+            "resultatAttendu": "Le solde de balance correspond à la somme des mouvements de caisse (entrées/sorties) réellement enregistrés sur la période.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/CPT-05/etape-1.jpg",
+                "legende": "Ouvrir l’onglet \"Balance\""
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/CPT-05/etape-2.jpg",
+                "legende": "Sélectionner une période"
+              }
+            ]
           }
         ]
       },
@@ -4439,7 +6056,24 @@
               "Sélectionner la période",
               "Choisir le regroupement journalier ou mensuel"
             ],
-            "resultatAttendu": "Chaque colonne (comptant, crédit, remise, montant net, nb clients, avoirs, achats nets) correspond aux données réelles de vente/achat de la période."
+            "resultatAttendu": "Chaque colonne (comptant, crédit, remise, montant net, nb clients, avoirs, achats nets) correspond aux données réelles de vente/achat de la période.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/CPT-06/etape-1.jpg",
+                "legende": "Ouvrir l’onglet \"Tableau pharmacien\""
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/CPT-06/etape-2.jpg",
+                "legende": "Sélectionner la période"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/CPT-06/etape-3.jpg",
+                "legende": "Choisir le regroupement journalier ou mensuel"
+              }
+            ]
           },
           {
             "id": "CPT-07",
@@ -4592,7 +6226,24 @@
               "Sélectionner une période (raccourci ou personnalisée)",
               "Consulter les répartitions par mode de paiement et par famille"
             ],
-            "resultatAttendu": "Le CA, les répartitions par mode de paiement/famille et le panier moyen glissant affichés correspondent exactement aux ventes clôturées réelles."
+            "resultatAttendu": "Le CA, les répartitions par mode de paiement/famille et le panier moyen glissant affichés correspondent exactement aux ventes clôturées réelles.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/RPT-01/etape-1.jpg",
+                "legende": "Ouvrir le rapport"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/RPT-01/etape-2.jpg",
+                "legende": "Sélectionner une période (raccourci ou personnalisée)"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/RPT-01/etape-3.jpg",
+                "legende": "Consulter les répartitions par mode de paiement et par famille"
+              }
+            ]
           },
           {
             "id": "RPT-37",
@@ -4615,7 +6266,24 @@
               "Sélectionner une période",
               "Filtrer éventuellement par type de vente"
             ],
-            "resultatAttendu": "CA, nombre de tickets et panier moyen affichés pour chaque jour correspondent au détail du journal des ventes de ce jour, pour le type de vente sélectionné."
+            "resultatAttendu": "CA, nombre de tickets et panier moyen affichés pour chaque jour correspondent au détail du journal des ventes de ce jour, pour le type de vente sélectionné.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/RPT-02/etape-1.jpg",
+                "legende": "Ouvrir le rapport"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/RPT-02/etape-2.jpg",
+                "legende": "Sélectionner une période"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/RPT-02/etape-3.jpg",
+                "legende": "Filtrer éventuellement par type de vente"
+              }
+            ]
           },
           {
             "id": "RPT-03",
@@ -4661,7 +6329,24 @@
               "Sélectionner une période et la taille du classement (Top 10/20/50/100)",
               "Consulter le classement par CA ou par quantité et son évolution vs le mois précédent"
             ],
-            "resultatAttendu": "Le classement, les quantités/CA et l’évolution de rang affichés correspondent aux ventes réellement enregistrées sur la période et le mois précédent."
+            "resultatAttendu": "Le classement, les quantités/CA et l’évolution de rang affichés correspondent aux ventes réellement enregistrées sur la période et le mois précédent.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/RPT-06/etape-1.jpg",
+                "legende": "Ouvrir le rapport"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/RPT-06/etape-2.jpg",
+                "legende": "Sélectionner une période et la taille du classement (Top 10/20/50/100)"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/RPT-06/etape-3.jpg",
+                "legende": "Consulter le classement par CA ou par quantité et son évolution vs le mois précédent"
+              }
+            ]
           },
           {
             "id": "RPT-08",
@@ -4795,7 +6480,29 @@
               "Sélectionner un ou plusieurs types d’alerte",
               "Consulter le détail ou exporter le PDF"
             ],
-            "resultatAttendu": "Les compteurs, les lignes et le PDF correspondent aux alertes réelles et aux types sélectionnés."
+            "resultatAttendu": "Les compteurs, les lignes et le PDF correspondent aux alertes réelles et aux types sélectionnés.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/RPT-18/etape-1.jpg",
+                "legende": "Ouvrir \"Alertes de Stock\""
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/RPT-18/etape-2.jpg",
+                "legende": "Comparer les trois compteurs"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/RPT-18/etape-3.jpg",
+                "legende": "Sélectionner un ou plusieurs types d’alerte"
+              },
+              {
+                "ordre": 4,
+                "fichier": "content/captures/RPT-18/etape-4.jpg",
+                "legende": "Consulter le détail ou exporter le PDF"
+              }
+            ]
           },
           {
             "id": "RPT-19",
@@ -4808,7 +6515,29 @@
               "Affiner avec les filtres avancés si besoin",
               "Consulter le résumé et le détail par produit"
             ],
-            "resultatAttendu": "Les produits et montants affichés dans chaque onglet correspondent exactement aux critères de filtre appliqués."
+            "resultatAttendu": "Les produits et montants affichés dans chaque onglet correspondent exactement aux critères de filtre appliqués.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/RPT-19/etape-1.jpg",
+                "legende": "Ouvrir le rapport"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/RPT-19/etape-2.jpg",
+                "legende": "Choisir l’onglet Vendus ou Invendus"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/RPT-19/etape-3.jpg",
+                "legende": "Affiner avec les filtres avancés si besoin"
+              },
+              {
+                "ordre": 4,
+                "fichier": "content/captures/RPT-19/etape-4.jpg",
+                "legende": "Consulter le résumé et le détail par produit"
+              }
+            ]
           },
           {
             "id": "RPT-35",
@@ -4957,7 +6686,29 @@
               "Basculer entre segments et familles",
               "Trier les familles ou afficher la vue évolution"
             ],
-            "resultatAttendu": "Les totaux et tendances de CA, coût et marge correspondent aux ventes de l’année et à l’angle d’analyse sélectionné."
+            "resultatAttendu": "Les totaux et tendances de CA, coût et marge correspondent aux ventes de l’année et à l’angle d’analyse sélectionné.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/RPT-29/etape-1.jpg",
+                "legende": "Ouvrir \"Marges & Résultat\""
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/RPT-29/etape-2.jpg",
+                "legende": "Choisir l’année"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/RPT-29/etape-3.jpg",
+                "legende": "Basculer entre segments et familles"
+              },
+              {
+                "ordre": 4,
+                "fichier": "content/captures/RPT-29/etape-4.jpg",
+                "legende": "Trier les familles ou afficher la vue évolution"
+              }
+            ]
           },
           {
             "id": "RPT-30",
@@ -5011,7 +6762,24 @@
               "Filtrer par classification, ou utiliser un raccourci (\"Champions\" ou \"À risque\")",
               "Consulter les indicateurs par client"
             ],
-            "resultatAttendu": "La classification, la dépense et la récence affichées pour chaque client correspondent à son historique d’achat réel."
+            "resultatAttendu": "La classification, la dépense et la récence affichées pour chaque client correspondent à son historique d’achat réel.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/RPT-32/etape-1.jpg",
+                "legende": "Ouvrir le rapport de segmentation clients"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/RPT-32/etape-2.jpg",
+                "legende": "Filtrer par classification, ou utiliser un raccourci (\"Champions\" ou \"À risque\")"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/RPT-32/etape-3.jpg",
+                "legende": "Consulter les indicateurs par client"
+              }
+            ]
           },
           {
             "id": "RPT-45",
@@ -5034,7 +6802,24 @@
               "Choisir un segment de performance ou rechercher un partenaire",
               "Comparer volumes, délais, conformité et score"
             ],
-            "resultatAttendu": "Les KPI et le classement correspondent aux commandes et réceptions réelles de chaque fournisseur."
+            "resultatAttendu": "Les KPI et le classement correspondent aux commandes et réceptions réelles de chaque fournisseur.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/RPT-33/etape-1.jpg",
+                "legende": "Ouvrir \"Performance Fournisseurs\""
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/RPT-33/etape-2.jpg",
+                "legende": "Choisir un segment de performance ou rechercher un partenaire"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/RPT-33/etape-3.jpg",
+                "legende": "Comparer volumes, délais, conformité et score"
+              }
+            ]
           },
           {
             "id": "RPT-47",
@@ -5581,7 +7366,24 @@
               "Comparer les pastilles Péremptions, Ruptures, À commander, Ajustements et Modif. Prix",
               "Utiliser un raccourci Péremptions, À commander ou Ajustements"
             ],
-            "resultatAttendu": "Aucune pastille à zéro n’encombre l’accueil ; chaque compteur positif est visible et les trois raccourcis validés ouvrent leur écran de traitement."
+            "resultatAttendu": "Aucune pastille à zéro n’encombre l’accueil ; chaque compteur positif est visible et les trois raccourcis validés ouvrent leur écran de traitement.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/HOME-06/etape-1.jpg",
+                "legende": "Ouvrir le tableau de bord Pharmacien"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/HOME-06/etape-2.jpg",
+                "legende": "Comparer les pastilles Péremptions, Ruptures, À commander, Ajustements et Modif. Prix"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/HOME-06/etape-3.jpg",
+                "legende": "Utiliser un raccourci Péremptions, À commander ou Ajustements"
+              }
+            ]
           },
           {
             "id": "HOME-07",
@@ -5593,7 +7395,24 @@
               "Sélectionner une période",
               "Comparer chaque indicateur affiché aux données du module correspondant"
             ],
-            "resultatAttendu": "Chaque indicateur de la bande correspond exactement aux données réelles du module dont il est issu (ventes, achats, stock, créances, différés) pour la période choisie."
+            "resultatAttendu": "Chaque indicateur de la bande correspond exactement aux données réelles du module dont il est issu (ventes, achats, stock, créances, différés) pour la période choisie.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/HOME-07/etape-1.jpg",
+                "legende": "Ouvrir le tableau de bord Pharmacien"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/HOME-07/etape-2.jpg",
+                "legende": "Sélectionner une période"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/HOME-07/etape-3.jpg",
+                "legende": "Comparer chaque indicateur affiché aux données du module correspondant"
+              }
+            ]
           },
           {
             "id": "HOME-08",
@@ -5604,7 +7423,19 @@
               "Ouvrir le tableau de bord Pharmacien",
               "Consulter les deux blocs \"Mode de règlement\" et \"Ventes par tiers payant\""
             ],
-            "resultatAttendu": "Les montants par mode de règlement et par tiers payant correspondent aux encaissements réels de la période."
+            "resultatAttendu": "Les montants par mode de règlement et par tiers payant correspondent aux encaissements réels de la période.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/HOME-08/etape-1.jpg",
+                "legende": "Ouvrir le tableau de bord Pharmacien"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/HOME-08/etape-2.jpg",
+                "legende": "Consulter les deux blocs \"Mode de règlement\" et \"Ventes par tiers payant\""
+              }
+            ]
           },
           {
             "id": "HOME-09",
@@ -5616,7 +7447,24 @@
               "Basculer entre la vue 30 jours et 12 mois",
               "Consulter le classement des fournisseurs"
             ],
-            "resultatAttendu": "Le classement, les scores et délais affichés correspondent aux commandes/réceptions réelles de la période choisie."
+            "resultatAttendu": "Le classement, les scores et délais affichés correspondent aux commandes/réceptions réelles de la période choisie.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/HOME-09/etape-1.jpg",
+                "legende": "Ouvrir le tableau de bord Pharmacien"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/HOME-09/etape-2.jpg",
+                "legende": "Basculer entre la vue 30 jours et 12 mois"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/HOME-09/etape-3.jpg",
+                "legende": "Consulter le classement des fournisseurs"
+              }
+            ]
           },
           {
             "id": "HOME-10",
@@ -5628,7 +7476,24 @@
               "Consulter les classements \"Meilleures ventes\"",
               "Basculer l’onglet Pareto entre quantité et montant"
             ],
-            "resultatAttendu": "Les classements et les pourcentages cumulés affichés correspondent aux ventes réelles de la période sélectionnée."
+            "resultatAttendu": "Les classements et les pourcentages cumulés affichés correspondent aux ventes réelles de la période sélectionnée.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/HOME-10/etape-1.jpg",
+                "legende": "Ouvrir le tableau de bord Pharmacien"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/HOME-10/etape-2.jpg",
+                "legende": "Consulter les classements \"Meilleures ventes\""
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/HOME-10/etape-3.jpg",
+                "legende": "Basculer l’onglet Pareto entre quantité et montant"
+              }
+            ]
           },
           {
             "id": "HOME-11",
@@ -5639,7 +7504,19 @@
               "Ouvrir le tableau de bord Pharmacien",
               "Basculer sur \"Vue Graphique\""
             ],
-            "resultatAttendu": "Les valeurs représentées dans les graphiques sont rigoureusement identiques à celles des tableaux."
+            "resultatAttendu": "Les valeurs représentées dans les graphiques sont rigoureusement identiques à celles des tableaux.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/HOME-11/etape-1.jpg",
+                "legende": "Ouvrir le tableau de bord Pharmacien"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/HOME-11/etape-2.jpg",
+                "legende": "Basculer sur \"Vue Graphique\""
+              }
+            ]
           }
         ]
       },
@@ -5846,30 +7723,123 @@
     ],
     "fonctionnalites": [
       {
+        "nom": "Connexion et session",
+        "description": "Le premier écran que voit tout utilisateur, et le seul qu’il voit avant d’être authentifié. Deux scénarios ajoutés au cahier en écrivant les parcours : la connexion n’y figurait pas, alors qu’elle conditionne tout le reste.",
+        "scenarios": [
+          {
+            "id": "ADM-15",
+            "titre": "Se connecter à l’application",
+            "besoin": "Ouvrir une session de travail nominative, à laquelle seront rattachées toutes les opérations effectuées.",
+            "fonctionnement": "L’authentification délivre un jeton JWT conservé par le navigateur ; l’application ouvre ensuite le tableau de bord correspondant au rôle de l’utilisateur. Des identifiants erronés donnent un message d’erreur explicite, sans préciser lequel des deux champs est en cause.",
+            "etapes": [
+              "Saisir le nom d’utilisateur et le mot de passe",
+              "Valider la connexion",
+              "Arriver sur le tableau de bord de son profil"
+            ],
+            "resultatAttendu": "La session est ouverte, le nom de l’utilisateur apparaît dans la barre de navigation et les menus affichés sont ceux de son rôle.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/ADM-15/etape-1.jpg",
+                "legende": "Saisir le nom d’utilisateur et le mot de passe"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/ADM-15/etape-2.jpg",
+                "legende": "Valider la connexion"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/ADM-15/etape-3.jpg",
+                "legende": "Arriver sur le tableau de bord de son profil"
+              }
+            ]
+          },
+          {
+            "id": "ADM-16",
+            "titre": "Fermer sa session",
+            "besoin": "Libérer le poste sans laisser une session ouverte au comptoir — la traçabilité des ventes dépend du compte réellement connecté.",
+            "fonctionnement": "La déconnexion efface le jeton du navigateur et ramène à l’écran de connexion. Toute tentative d’atteindre une adresse de l’application après déconnexion y ramène également.",
+            "etapes": [
+              "Ouvrir le menu de son compte dans la barre de navigation",
+              "Choisir « Déconnexion »"
+            ],
+            "resultatAttendu": "L’écran de connexion réapparaît et aucun écran métier n’est accessible tant qu’une nouvelle session n’est pas ouverte.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/ADM-16/etape-1.jpg",
+                "legende": "Ouvrir le menu de son compte dans la barre de navigation"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/ADM-16/etape-2.jpg",
+                "legende": "Choisir « Déconnexion »"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "nom": "Utilisateurs — création, édition, suppression",
         "scenarios": [
           {
             "id": "ADM-01",
             "titre": "Créer un utilisateur",
-            "besoin": "Donner à un nouveau collaborateur un accès à l’application.",
-            "fonctionnement": "Le compte créé peut se connecter dès son enregistrement ; sans rôle affecté, il n’a accès à aucun menu ni action (refus par défaut).",
+            "besoin": "Donner à un nouveau collaborateur un accès à l’application, limité à son poste.",
+            "fonctionnement": "Le formulaire exige le login, le nom, le prénom ET le rôle : un compte ne peut pas être créé sans droits, ce qui évite les comptes orphelins dont personne ne sait plus ce qu’ils autorisent. Le login n’est plus modifiable ensuite.",
             "etapes": [
-              "Créer le compte utilisateur (identifiants, informations)",
+              "Renseigner le login, le nom et le prénom",
+              "Choisir le rôle qui définit ses droits",
               "Enregistrer"
             ],
-            "resultatAttendu": "L’utilisateur est créé et peut se connecter, sans accès tant qu’aucun rôle ne lui est affecté."
+            "resultatAttendu": "L’utilisateur apparaît dans la liste avec son rôle et le statut actif ; il peut se connecter et n’accède qu’aux menus de ce rôle.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/ADM-01/etape-1.jpg",
+                "legende": "Renseigner le login, le nom et le prénom"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/ADM-01/etape-2.jpg",
+                "legende": "Choisir le rôle qui définit ses droits"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/ADM-01/etape-3.jpg",
+                "legende": "Enregistrer"
+              }
+            ]
           },
           {
             "id": "ADM-02",
-            "titre": "Affecter un ou plusieurs rôles à un utilisateur",
-            "besoin": "Donner à un collaborateur un accès limité à ce dont il a besoin pour son poste (caissier, gestionnaire, comptable...).",
-            "fonctionnement": "Le rôle affecté détermine, via l’arbre de navigation et les droits ABAC, les menus et actions visibles/exécutables par l’utilisateur.",
+            "titre": "Changer le rôle d’un utilisateur",
+            "besoin": "Suivre un changement de poste — un vendeur qui passe caissier — sans recréer de compte ni perdre l’historique de ses opérations.",
+            "fonctionnement": "Un utilisateur porte UN rôle, et c’est lui qui détermine, via l’arbre de navigation et les droits ABAC, les menus et actions dont il dispose. Le changement s’applique à sa prochaine connexion.",
             "etapes": [
-              "Ouvrir la fiche utilisateur",
-              "Lui affecter un ou plusieurs rôles",
+              "Ouvrir la fiche de l’utilisateur",
+              "Choisir son nouveau rôle",
               "Enregistrer"
             ],
-            "resultatAttendu": "L’utilisateur accède uniquement aux menus/actions autorisés par le(s) rôle(s) affecté(s)."
+            "resultatAttendu": "La liste des utilisateurs affiche le nouveau rôle, et l’intéressé n’accède plus qu’aux menus qu’il autorise.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/ADM-02/etape-1.jpg",
+                "legende": "Ouvrir la fiche de l’utilisateur"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/ADM-02/etape-2.jpg",
+                "legende": "Choisir son nouveau rôle"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/ADM-02/etape-3.jpg",
+                "legende": "Enregistrer"
+              }
+            ]
           },
           {
             "id": "ADM-03",
@@ -5881,7 +7851,24 @@
               "Modifier les champs concernés",
               "Enregistrer"
             ],
-            "resultatAttendu": "La fiche reflète la modification, et les nouveaux droits s’appliquent à la prochaine connexion."
+            "resultatAttendu": "La fiche reflète la modification, et les nouveaux droits s’appliquent à la prochaine connexion.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/ADM-03/etape-1.jpg",
+                "legende": "Ouvrir la fiche utilisateur"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/ADM-03/etape-2.jpg",
+                "legende": "Modifier les champs concernés"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/ADM-03/etape-3.jpg",
+                "legende": "Enregistrer"
+              }
+            ]
           },
           {
             "id": "ADM-04",
@@ -5892,7 +7879,19 @@
               "Ouvrir la fiche utilisateur",
               "Lancer la suppression"
             ],
-            "resultatAttendu": "L’utilisateur ne peut plus se connecter ; l’historique de ses actions passées reste consultable."
+            "resultatAttendu": "L’utilisateur ne peut plus se connecter ; l’historique de ses actions passées reste consultable.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/ADM-04/etape-1.jpg",
+                "legende": "Ouvrir la fiche utilisateur"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/ADM-04/etape-2.jpg",
+                "legende": "Lancer la suppression"
+              }
+            ]
           },
           {
             "id": "ADM-05",
@@ -5903,7 +7902,19 @@
               "Ouvrir la liste des utilisateurs",
               "Filtrer par critère"
             ],
-            "resultatAttendu": "Les résultats correspondent exactement au critère de recherche."
+            "resultatAttendu": "Les résultats correspondent exactement au critère de recherche.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/ADM-05/etape-1.jpg",
+                "legende": "Ouvrir la liste des utilisateurs"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/ADM-05/etape-2.jpg",
+                "legende": "Filtrer par critère"
+              }
+            ]
           }
         ]
       },
@@ -5920,7 +7931,19 @@
               "Créer le rôle avec son nom",
               "Enregistrer"
             ],
-            "resultatAttendu": "Le rôle est disponible pour être affecté à des utilisateurs et configuré avec des droits."
+            "resultatAttendu": "Le rôle est disponible pour être affecté à des utilisateurs et configuré avec des droits.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/ADM-06/etape-1.jpg",
+                "legende": "Créer le rôle avec son nom"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/ADM-06/etape-2.jpg",
+                "legende": "Enregistrer"
+              }
+            ]
           },
           {
             "id": "ADM-07",
@@ -5931,7 +7954,19 @@
               "Ouvrir la liste des rôles",
               "Supprimer le rôle"
             ],
-            "resultatAttendu": "Le rôle disparaît de la liste ; les utilisateurs qui le portaient perdent les accès qu’il donnait."
+            "resultatAttendu": "Le rôle disparaît de la liste ; les utilisateurs qui le portaient perdent les accès qu’il donnait.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/ADM-07/etape-1.jpg",
+                "legende": "Ouvrir la liste des rôles"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/ADM-07/etape-2.jpg",
+                "legende": "Supprimer le rôle"
+              }
+            ]
           },
           {
             "id": "ADM-08",
@@ -5942,7 +7977,19 @@
               "Ouvrir le rôle",
               "Consulter ses droits"
             ],
-            "resultatAttendu": "Les droits affichés correspondent exactement à ce qui est réellement configuré pour ce rôle."
+            "resultatAttendu": "Les droits affichés correspondent exactement à ce qui est réellement configuré pour ce rôle.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/ADM-08/etape-1.jpg",
+                "legende": "Ouvrir le rôle"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/ADM-08/etape-2.jpg",
+                "legende": "Consulter ses droits"
+              }
+            ]
           },
           {
             "id": "ADM-09",
@@ -5955,7 +8002,24 @@
               "Se connecter avec un utilisateur de ce rôle",
               "Tenter l’action restreinte"
             ],
-            "resultatAttendu": "L’action est refusée (bouton masqué ou accès API rejeté) pour un utilisateur non autorisé."
+            "resultatAttendu": "L’action est refusée (bouton masqué ou accès API rejeté) pour un utilisateur non autorisé.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/ADM-09/etape-1.jpg",
+                "legende": "Retirer le privilège au rôle testé"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/ADM-09/etape-2.jpg",
+                "legende": "Se connecter avec un utilisateur de ce rôle"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/ADM-09/etape-3.jpg",
+                "legende": "Tenter l’action restreinte"
+              }
+            ]
           },
           {
             "id": "ADM-10",
@@ -5966,7 +8030,19 @@
               "Ouvrir le gestionnaire de navigation",
               "Assigner un item de menu au rôle"
             ],
-            "resultatAttendu": "Les utilisateurs du rôle voient désormais ce menu après reconnexion."
+            "resultatAttendu": "Les utilisateurs du rôle voient désormais ce menu après reconnexion.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/ADM-10/etape-1.jpg",
+                "legende": "Ouvrir le gestionnaire de navigation"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/ADM-10/etape-2.jpg",
+                "legende": "Assigner un item de menu au rôle"
+              }
+            ]
           }
         ]
       },
@@ -5984,7 +8060,24 @@
               "Modifier la visibilité/l’ordre d’un menu pour un rôle",
               "Enregistrer"
             ],
-            "resultatAttendu": "Les utilisateurs du rôle concerné voient immédiatement la nouvelle organisation du menu après reconnexion."
+            "resultatAttendu": "Les utilisateurs du rôle concerné voient immédiatement la nouvelle organisation du menu après reconnexion.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/ADM-11/etape-1.jpg",
+                "legende": "Ouvrir le gestionnaire de navigation"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/ADM-11/etape-2.jpg",
+                "legende": "Modifier la visibilité/l’ordre d’un menu pour un rôle"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/ADM-11/etape-3.jpg",
+                "legende": "Enregistrer"
+              }
+            ]
           },
           {
             "id": "ADM-12",
@@ -5997,6 +8090,212 @@
               "Enregistrer"
             ],
             "resultatAttendu": "Seul l’utilisateur ayant fait la modification voit le nouvel ordre ; les autres utilisateurs du même rôle ne sont pas affectés."
+          },
+          {
+            "id": "ADM-17",
+            "titre": "Renommer un menu et fixer le titre de sa barre d’outils",
+            "besoin": "Adapter le vocabulaire de l’application à celui de l’officine, sans toucher au code : ce qu’un menu s’appelle décide de la vitesse à laquelle on le trouve.",
+            "fonctionnement": "Chaque entrée de navigation porte deux libellés distincts : le LIBELLÉ, celui qui s'affiche dans le menu, et le TITRE LONG, celui qu'affichera la barre d'outils de l'écran ouvert. Le second ne concerne que les onglets — un menu ou une action n'ouvre pas de barre d'outils — et reprend le libellé tant qu'on ne l'a pas défini. Les deux se modifient sur place, dans la grille des autorisations, et l'enregistrement est immédiat.",
+            "prerequis": "Être administrateur.",
+            "etapes": [
+              "Ouvrir le gestionnaire de navigation et repérer l’entrée à renommer",
+              "Modifier son libellé sur place",
+              "Définir le titre long affiché par la barre d’outils de l’écran"
+            ],
+            "resultatAttendu": "Le menu porte son nouveau nom dans la navigation, et l’écran qu’il ouvre affiche le titre long défini.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/ADM-17/etape-1.jpg",
+                "legende": "Ouvrir le gestionnaire de navigation et repérer l’entrée à renommer"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/ADM-17/etape-2.jpg",
+                "legende": "Modifier son libellé sur place"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/ADM-17/etape-3.jpg",
+                "legende": "Définir le titre long affiché par la barre d’outils de l’écran"
+              }
+            ]
+          },
+          {
+            "id": "ADM-18",
+            "titre": "Désactiver un compte sans le supprimer",
+            "besoin": "Couper l’accès d’un collaborateur absent, en congé ou parti, sans effacer le compte auquel son historique de ventes est rattaché.",
+            "fonctionnement": "La désactivation est le geste réversible que la suppression n'est pas : le compte reste, ses ventes restent lisibles, mais la connexion est refusée. Deux garde-fous encadrent l'action — on ne peut pas désactiver le compte avec lequel on est connecté, ni celui de l'administrateur principal, dont la disparition fermerait l'application à tout le monde.",
+            "prerequis": "Être administrateur.",
+            "etapes": [
+              "Ouvrir la liste des utilisateurs et repérer un compte actif",
+              "Le désactiver, puis constater son nouvel état",
+              "Le réactiver"
+            ],
+            "resultatAttendu": "Le compte passe à « Inactif » et ne peut plus se connecter ; ses ventes passées restent attachées à son nom.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/ADM-18/etape-1.jpg",
+                "legende": "Ouvrir la liste des utilisateurs et repérer un compte actif"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/ADM-18/etape-2.jpg",
+                "legende": "Le désactiver, puis constater son nouvel état"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/ADM-18/etape-3.jpg",
+                "legende": "Le réactiver"
+              }
+            ]
+          },
+          {
+            "id": "ADM-19",
+            "titre": "Accorder ou révoquer toute une branche de menus d’un coup",
+            "besoin": "Ouvrir un module entier à un rôle sans cocher ses dizaines de sous-menus un par un — et pouvoir le refermer aussi vite.",
+            "fonctionnement": "Un menu qui a des enfants porte deux actions groupées : tout accorder, tout révoquer. Elles s'appliquent au menu ET à toute sa descendance, chaque ligne étant enregistrée pour elle-même. C'est le moyen normal d'ouvrir un module complet ; l'ajustement fin se fait ensuite ligne par ligne.",
+            "prerequis": "Être administrateur, un rôle sélectionné.",
+            "etapes": [
+              "Sélectionner le rôle et repérer un menu à plusieurs niveaux",
+              "Tout révoquer sur la branche, puis tout accorder"
+            ],
+            "resultatAttendu": "Les droits du menu et de toute sa descendance basculent en une seule action.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/ADM-19/etape-1.jpg",
+                "legende": "Sélectionner le rôle et repérer un menu à plusieurs niveaux"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/ADM-19/etape-2.jpg",
+                "legende": "Tout révoquer sur la branche, puis tout accorder"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "nom": "Licence & abonnement",
+        "description": "Écran « Gérer ma licence » : état de l'abonnement, modules couverts, empreinte du poste, activation par fichier et historique.",
+        "version": "1.8.8",
+        "scenarios": [
+          {
+            "id": "ADM-20",
+            "titre": "Consulter l’état de son abonnement et les modules couverts",
+            "besoin": "Savoir, sans appeler personne, jusqu’à quand l’officine est couverte et ce que son abonnement comprend — avant que l’échéance ne devienne un incident un matin d’ouverture.",
+            "fonctionnement": "L'écran « Gérer ma licence » affiche l'état en une pastille (active, bientôt expirée, expirée, absente), le type de licence, l'édition, l'officine licenciée et l'échéance avec le nombre de jours restants. En regard, la liste des MODULES SOUSCRITS : chaque module de l'application y figure, coché s'il est couvert, grisé sinon — un module non couvert n'est pas caché, il est montré comme non souscrit, ce qui rend la question « puis-je y accéder ? » lisible d'un coup d'œil. Cet écran reste atteignable même licence expirée : c'est la seule porte de sortie de l'officine.",
+            "prerequis": "Aucun droit particulier pour la consultation de l’état.",
+            "etapes": [
+              "Ouvrir « Gérer ma licence »",
+              "Lire l’état, le type, l’officine licenciée et l’échéance",
+              "Parcourir la liste des modules souscrits"
+            ],
+            "resultatAttendu": "L’échéance et les modules couverts sont lisibles sans intervention technique ni appel au revendeur.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/ADM-20/etape-1.jpg",
+                "legende": "Ouvrir « Gérer ma licence »"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/ADM-20/etape-2.jpg",
+                "legende": "Lire l’état, le type, l’officine licenciée et l’échéance"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/ADM-20/etape-3.jpg",
+                "legende": "Parcourir la liste des modules souscrits"
+              }
+            ]
+          },
+          {
+            "id": "ADM-21",
+            "titre": "Relever l’empreinte du poste et transmettre sa demande d’activation",
+            "besoin": "Obtenir une licence exige d’identifier le poste : l’empreinte est ce que le revendeur attend, et la recopier à la main est le meilleur moyen de se tromper d’un caractère.",
+            "fonctionnement": "Le panneau « Identification du poste » affiche l'empreinte calculée pour cette installation. Deux boutons évitent la recopie : « Copier l'empreinte » met la seule empreinte dans le presse-papiers, « Copier la demande » y met la demande complète — officine et empreinte — prête à être collée dans un message. Quand les coordonnées de l'éditeur sont connues, un lien « Envoyer ma demande » ouvre le courriel déjà rempli.",
+            "prerequis": "Disposer du privilège « Activer et renouveler la licence ».",
+            "etapes": [
+              "Ouvrir « Gérer ma licence »",
+              "Lire l’empreinte du poste",
+              "Copier la demande complète pour l’envoyer au revendeur"
+            ],
+            "resultatAttendu": "L’empreinte est transmise sans recopie manuelle, et la demande contient déjà l’officine concernée.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/ADM-21/etape-1.jpg",
+                "legende": "Ouvrir « Gérer ma licence »"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/ADM-21/etape-2.jpg",
+                "legende": "Lire l’empreinte du poste"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/ADM-21/etape-3.jpg",
+                "legende": "Copier la demande complète pour l’envoyer au revendeur"
+              }
+            ]
+          },
+          {
+            "id": "ADM-22",
+            "titre": "Activer ou renouveler la licence avec le fichier reçu",
+            "besoin": "Mettre en service la licence reçue — première activation ou renouvellement annuel — sans intervention technique sur le serveur.",
+            "fonctionnement": "Le fichier .lic se dépose dans la zone prévue ou se choisit par le sélecteur ; le bouton « Activer » n'apparaît qu'une fois un fichier retenu. La licence est signée : un fichier altéré, destiné à une autre officine ou à un autre poste est REFUSÉ avec un message qui dit pourquoi, et l'abonnement en cours reste inchangé. Une activation réussie prend effet immédiatement, sans redémarrage.",
+            "prerequis": "Disposer du privilège « Activer et renouveler la licence » et du fichier .lic reçu.",
+            "etapes": [
+              "Ouvrir « Gérer ma licence »",
+              "Déposer ou choisir le fichier .lic reçu",
+              "Activer, et lire le nouvel état"
+            ],
+            "resultatAttendu": "La nouvelle échéance et les modules souscrits sont pris en compte immédiatement ; un fichier invalide est refusé sans altérer la licence en place.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/ADM-22/etape-1.jpg",
+                "legende": "Ouvrir « Gérer ma licence »"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/ADM-22/etape-2.jpg",
+                "legende": "Déposer ou choisir le fichier .lic reçu"
+              }
+            ]
+          },
+          {
+            "id": "ADM-23",
+            "titre": "Consulter l’historique des activations et joindre son revendeur",
+            "besoin": "Retrouver quand et par qui la licence a été activée, et savoir qui appeler quand quelque chose cloche.",
+            "fonctionnement": "L'HISTORIQUE journalise les événements de licence — activation, expiration, refus — avec leur date, leur détail et l'utilisateur à l'origine. Les coordonnées de support, alimentées par la licence elle-même, affichent téléphones, courriels et site : celles du revendeur quand un revendeur a vendu l'abonnement, celles de l'éditeur sinon. Elles voyagent avec la licence et n'ont pas à être ressaisies poste par poste.",
+            "prerequis": "Disposer du privilège « Activer et renouveler la licence » pour l’historique.",
+            "etapes": [
+              "Ouvrir « Gérer ma licence »",
+              "Lire l’historique des événements de licence",
+              "Relever les coordonnées du revendeur ou de l’éditeur"
+            ],
+            "resultatAttendu": "L’historique des activations est consultable dans l’application, et les coordonnées du support sont disponibles au même endroit.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/ADM-23/etape-1.jpg",
+                "legende": "Ouvrir « Gérer ma licence »"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/ADM-23/etape-2.jpg",
+                "legende": "Lire l’historique des événements de licence"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/ADM-23/etape-3.jpg",
+                "legende": "Relever les coordonnées du revendeur ou de l’éditeur"
+              }
+            ]
           }
         ]
       },
@@ -6013,7 +8312,24 @@
               "Modifier une valeur",
               "Enregistrer"
             ],
-            "resultatAttendu": "La modification est prise en compte immédiatement dans l’application (ex. sur les documents imprimés)."
+            "resultatAttendu": "La modification est prise en compte immédiatement dans l’application (ex. sur les documents imprimés).",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/ADM-13/etape-1.jpg",
+                "legende": "Ouvrir les paramètres"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/ADM-13/etape-2.jpg",
+                "legende": "Modifier une valeur"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/ADM-13/etape-3.jpg",
+                "legende": "Enregistrer"
+              }
+            ]
           },
           {
             "id": "ADM-14",
@@ -6025,7 +8341,24 @@
               "Modifier un seuil ou un délai",
               "Enregistrer"
             ],
-            "resultatAttendu": "Le nouveau seuil/délai est appliqué immédiatement par le module concerné, sans redémarrage."
+            "resultatAttendu": "Le nouveau seuil/délai est appliqué immédiatement par le module concerné, sans redémarrage.",
+            "captures": [
+              {
+                "ordre": 1,
+                "fichier": "content/captures/ADM-14/etape-1.jpg",
+                "legende": "Ouvrir les paramètres métier"
+              },
+              {
+                "ordre": 2,
+                "fichier": "content/captures/ADM-14/etape-2.jpg",
+                "legende": "Modifier un seuil ou un délai"
+              },
+              {
+                "ordre": 3,
+                "fichier": "content/captures/ADM-14/etape-3.jpg",
+                "legende": "Enregistrer"
+              }
+            ]
           }
         ]
       }

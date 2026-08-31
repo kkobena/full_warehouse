@@ -113,8 +113,7 @@ export default class SidebarComponent implements OnInit {
         onLogin: () => this.login(),
         onLogout: () => this.logout(),
         onOpenConfigEditor: () => this.openConfigEditor(),
-        onOpenAppSettings: () => this.openAppSettings(),
-        onOpenCahierRecette: () => this.openCahierRecette()
+        onOpenAppSettings: () => this.openAppSettings()
       });
       // `applyNavBadges` lit les compteurs d'alerte : appelée dans l'effet, la
       // lecture y est tracée et l'effet reste abonné à chacun d'eux.
@@ -250,10 +249,6 @@ export default class SidebarComponent implements OnInit {
 
   protected openConfigEditor(): void {
     void this.router.navigate(["/app-config"]);
-  }
-
-  protected openCahierRecette(): void {
-    void this.router.navigate(["/cahier-recette"]);
   }
 
 

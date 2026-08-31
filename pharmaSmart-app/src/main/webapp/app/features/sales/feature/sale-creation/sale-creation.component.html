@@ -84,6 +84,7 @@
         <app-payment-mode
           #paymentMode
           (paymentComplete)="onPaymentComplete($event)"
+          (validationError)="onPaymentError($event)"
           [amountToBePaid]="currentSale()!.amountToBePaid ||  0"
           [isDiffere]="isDiffere()"
           [maxPaymentModes]="2"

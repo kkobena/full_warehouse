@@ -67,15 +67,14 @@
               <span class="text-muted small ms-2">{{ getABCDescription(rotation.categorieABC) }}</span>
             </td>
             <td class="text-end pharma-qty-value">{{ rotation.stockQuantity || 0 }}</td>
-            <td class="text-end fw-bold pharma-price">{{ rotation.stockValue | number: '1.0-0' }} F</td>
-            <td class="text-end">{{ rotation.caLast30Days | number: '1.0-0' }} F</td>
+            <td class="text-end fw-bold pharma-price">{{ rotation.stockValue | devise }}</td>
+            <td class="text-end">{{ rotation.caLast30Days | devise }}</td>
             <td class="text-end">{{ rotation.qtySoldLast30Days || 0 }}</td>
-            <td class="text-end fw-bold">{{ rotation.caLast12Months | number: '1.0-0' }} F</td>
+            <td class="text-end fw-bold">{{ rotation.caLast12Months | devise }}</td>
             <td class="text-end fw-bold">{{ rotation.qtySoldLast12Months || 0 }}</td>
             <td class="text-end">
-              <app-badge [severity]="getRotationRateSeverity(rotation.rotationRateAnnual)">
-                {{ rotation.rotationRateAnnual | number: '1.2-2' }}x/an
-              </app-badge>
+              <app-badge [label]="(rotation.rotationRateAnnual | number: '1.2-2') + 'x/an'"
+                         [severity]="getRotationRateSeverity(rotation.rotationRateAnnual)" />
             </td>
             <td class="text-end">
               <span

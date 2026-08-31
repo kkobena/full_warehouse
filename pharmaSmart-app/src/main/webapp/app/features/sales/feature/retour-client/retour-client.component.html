@@ -16,10 +16,13 @@
     <ng-container ngProjectAs="[toolbarActions]">
       <app-button (clicked)="onSearch()" class="mr-1" icon="pi pi-search" label="Rechercher"
                   severity="info" size="small" />
-      <app-button (clicked)="openRetourModal()" [disabled]="!saleIdInput" [raised]="true"
-                  icon="pi pi-plus"
-                  label="Nouveau retour" severity="primary"
-                  size="small" />
+      <!--
+        Pas de bouton « Nouveau retour » ici : un retour part TOUJOURS d'une vente, qu'il
+        faut d'abord retrouver. Le bouton existait, mais sa condition d'activation
+        (`saleIdInput`) n'était alimentée par aucun champ de cet écran : il restait grisé en
+        permanence, promesse d'une action impossible. Le chemin réel est le menu « Actions »
+        de la ligne, dans le journal des ventes → « Retour client ».
+      -->
     </ng-container>
   </app-toolbar>
 
@@ -57,7 +60,7 @@
         <td>{{ r.customerName ?? '—' }}</td>
         <td>{{ r.originalSaleRef ?? '—' }}</td>
         <td>{{ motifLabelOf(r.motif) }}</td>
-        <td class="retour-amount" style="text-align:right">{{ r.montantTotal | number:'1.0-0' }}F
+        <td class="retour-amount" style="text-align:right">{{ r.montantTotal | devise }}
         </td>
         <td>
           @if (r.modeReglement) {

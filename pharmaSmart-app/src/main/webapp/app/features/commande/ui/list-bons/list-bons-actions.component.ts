@@ -60,6 +60,11 @@ export class ListBonsActionsComponent {
 
   protected readonly menuItems = computed<MenuEntry[]>(() => {
     const d = this.delivery();
+    // ATTENTION au vocabulaire : `RECEIVED` désigne un bon LIVRÉ PAR LE GROSSISTE mais dont
+    // la saisie n'est pas faite — d'où « Saisir la réception » juste en dessous. Un bon
+    // effectivement entré en stock est `CLOSED`. C'est pourquoi les retours et le
+    // rapprochement de facture vivent dans la branche `!received` : on ne renvoie ni ne
+    // rapproche ce qui n'est pas encore entré.
     const received = d.orderStatus === 'RECEIVED' || (d as any).statut === 'RECEIVED';
     const items: MenuEntry[] = [];
 
@@ -83,9 +88,15 @@ export class ListBonsActionsComponent {
       items.push({ label: 'Retour complet', icon: 'pi pi-replay', action: 'retourComplet' });
       items.push({ label: 'Retour par ligne', icon: 'pi pi-list-check', action: 'retourParLigne' });
       items.push({ separator: true });
+      // Un rapprochement EXISTE dès qu'il porte un statut, y compris « en écart » ou
+      // « en litige » : ce sont précisément les cas qu'on rouvre pour les traiter avec le
+      // grossiste. Ne reconnaître que RECONCILIEE laissait l'action affichée comme un
+      // premier rapprochement, et rien à l'écran ne disait qu'un contrôle avait déjà été
+      // fait — ni qu'il signalait un écart.
+      const dejaRapproche = !!d.reconciliationStatut && d.reconciliationStatut !== 'EN_ATTENTE';
       items.push({
-        label: d.reconciliationStatut === 'RECONCILIEE' ? 'Modifier la réconciliation' : 'Rapprocher la facture',
-        icon: d.reconciliationStatut === 'RECONCILIEE' ? 'pi pi-pencil' : 'pi pi-file-check',
+        label: dejaRapproche ? 'Modifier la réconciliation' : 'Rapprocher la facture',
+        icon: dejaRapproche ? 'pi pi-pencil' : 'pi pi-file-check',
         action: 'reconcilierFacture',
       });
     }

@@ -60,7 +60,7 @@
             >{{ s.typeSubstitutLibelle }}</span>
           </td>
           <td style="text-align: right; font-size: 0.82rem">
-            {{ s.produit.regularUnitPrice | number:'1.0-0' }} F
+            {{ s.produit.regularUnitPrice | devise }}
           </td>
           <td style="text-align: right">
             <app-badge

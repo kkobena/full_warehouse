@@ -1,6 +1,6 @@
-import { Directive, computed, inject, input } from '@angular/core';
+import {computed, Directive, inject, input} from '@angular/core';
 
-import { AppTableHost } from './table.types';
+import {AppTableHost} from './table.types';
 
 /**
  * Rend une ligne sélectionnable — remplace `pSelectableRow`.
@@ -17,6 +17,7 @@ import { AppTableHost } from './table.types';
 @Directive({
   selector: '[appSelectableRow]',
   host: {
+    '[class.ligne-selected]': 'selected()',
     '[class.table-active]': 'selected()',
     '[attr.aria-selected]': 'selected()',
     '[class.app-table__row--selectable]': 'true',
@@ -24,7 +25,7 @@ import { AppTableHost } from './table.types';
   },
 })
 export class SelectableRowDirective {
-  readonly row = input.required<unknown>({ alias: 'appSelectableRow' });
+  readonly row = input.required<unknown>({alias: 'appSelectableRow'});
 
   private readonly host = inject(AppTableHost);
 

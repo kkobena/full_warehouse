@@ -1,6 +1,6 @@
 <div class="modal-header">
   <h4 class="modal-title">{{ title() }}</h4>
-  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
+  <button (click)="cancel()" aria-label="Fermer" class="btn-close" type="button"></button>
 </div>
 <div class="modal-body">
   <app-card [variant]="'form'">
@@ -39,7 +39,7 @@
     (clicked)="onUpload()"
     [disabled]="!isFileUploadValid || isSaving()"
     icon="pi pi-upload"
-    label="Enrégistrer"
+    label="Enregistrer"
     severity="primary"
     type="submit"
   />

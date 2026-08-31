@@ -1,131 +1,134 @@
-<div class="container-fluid p-0">
+<!--
+  `app-toolbar` et non un `<div class="pharma-toolbar">` recopié : les emplacements
+  `ngProjectAs="[toolbarFilters]"` et `[toolbarActions]` ne projettent QUE dans un composant
+  qui les déclare. Posés dans un div ordinaire, ils étaient inertes — filtres et actions se
+  rendaient à la suite, hors de la structure attendue — et le titre restait un `<span>`, donc
+  invisible pour la navigation par en-têtes.
 
-  <!-- Toolbar fusionné — avant les onglets -->
-  <div class="pharma-toolbar">
-    <div class="pharma-toolbar-header">
+  Le titre et l'icône suivent l'onglet actif : la barre nomme ce qu'on regarde.
+-->
+<app-toolbar [icon]="active() === 'pareto' ? 'pi pi-chart-pie' : 'pi pi-sync'"
+             [title]="active() === 'pareto' ? 'Analyse ABC Pareto (5 classes)' : 'Rotation du Stock (Analyse ABC)'">
+  <ng-container ngProjectAs="[toolbarFilters]">
       @if (active() === 'pareto') {
-        <i class="pi pi-chart-pie"></i>
-        <span class="pharma-toolbar-title">Analyse ABC Pareto (5 classes)</span>
-      } @else {
-        <i class="pi pi-sync"></i>
-        <span class="pharma-toolbar-title">Rotation du Stock (Analyse ABC)</span>
+        <app-select
+          (ngModelChange)="onParetoFamilleChange($event)"
+          [clearable]="true"
+          [items]="paretoComp?.familleOptions() ?? []"
+          [ngModel]="paretoComp?.selectedFamille()"
+          [style]="{ 'min-width': '300px' }"
+          appendTo="body"
+          bindLabel="label"
+          bindValue="value"
+          inputId="abcFamille"
+
+          placeholder="Famille"
+        />
+        <app-select
+          (ngModelChange)="onParetoClasseChange($event)"
+          [clearable]="true"
+          [items]="paretoComp?.classeParetoOptions() ?? []"
+          [ngModel]="paretoComp?.selectedClassePareto()"
+          [style]="{ 'width': '220px' }"
+          appendTo="body"
+          bindLabel="label"
+          bindValue="value"
+          inputId="abcClasse"
+          placeholder="Classe Pareto"
+          size="large"
+        />
       }
-    </div>
-    <ng-container ngProjectAs="[toolbarFilters]">
-        <div class="pharma-toolbar-filters">
-          @if (active() === 'pareto') {
-            <app-select
-              [ngModel]="paretoComp?.selectedFamille()"
-              (ngModelChange)="onParetoFamilleChange($event)"
-              [items]="paretoComp?.familleOptions() ?? []"
-              [clearable]="true"
-              appendTo="body"
-              bindLabel="label"
-              bindValue="value"
-              placeholder="Famille"
-              size="large"
-            />
-            <app-select
-              [ngModel]="paretoComp?.selectedClassePareto()"
-              (ngModelChange)="onParetoClasseChange($event)"
-              [items]="paretoComp?.classeParetoOptions() ?? []"
-              [clearable]="true"
-              appendTo="body"
-              bindLabel="label"
-              bindValue="value"
-              placeholder="Classe Pareto"
-              size="large"
-            />
-          }
-          @if (active() === 'rotation') {
-            <app-select
-              [ngModel]="rotationComp?.selectedCategorie()"
-              (ngModelChange)="onRotationCategorieChange($event)"
-              [disabled]="rotationComp?.showSlowMovingOnly() ?? false"
-              [items]="rotationComp?.categorieOptions() ?? []"
-              [clearable]="true"
-              appendTo="body"
-              bindLabel="label"
-              bindValue="value"
-              placeholder="Catégorie"
-              size="large"
-            />
-            <app-select
-              [ngModel]="rotationComp?.selectedABC()"
-              (ngModelChange)="onRotationABCChange($event)"
-              [disabled]="rotationComp?.showSlowMovingOnly() ?? false"
-              [items]="rotationComp?.abcOptions ?? []"
-              [clearable]="true"
-              appendTo="body"
-              bindLabel="label"
-              bindValue="value"
-              placeholder="Classification ABC"
-              size="large"
-            />
-          }
-        </div>
-      </ng-container>
+      @if (active() === 'rotation') {
+        <app-select
+          (ngModelChange)="onRotationCategorieChange($event)"
+          [clearable]="true"
+          [disabled]="rotationComp?.showSlowMovingOnly() ?? false"
+          [items]="rotationComp?.categorieOptions() ?? []"
+          [ngModel]="rotationComp?.selectedCategorie()"
+          appendTo="body"
+          bindLabel="label"
+          bindValue="value"
+          inputId="rotCategorie"
+          placeholder="Catégorie"
+          size="large"
+        />
+        <app-select
+          (ngModelChange)="onRotationABCChange($event)"
+          [clearable]="true"
+          [disabled]="rotationComp?.showSlowMovingOnly() ?? false"
+          [items]="rotationComp?.abcOptions ?? []"
+          [ngModel]="rotationComp?.selectedABC()"
+          appendTo="body"
+          bindLabel="label"
+          bindValue="value"
+          inputId="rotClassification"
+          placeholder="Classification ABC"
+          size="large"
+        />
+      }
+  </ng-container>
 
-<ng-container ngProjectAs="[toolbarActions]">
-        @if (active() === 'pareto') {
-          <div class="flex gap-2">
-            <app-button (clicked)="paretoComp?.toggleHelpDrawer()" [outlined]="true"
-                      icon="pi pi-question-circle" label="Aide" severity="secondary" size="small" />
-            <app-button (clicked)="paretoComp?.showTopContributors()"
-                      icon="pi pi-star" label="Top 50 Contributeurs" severity="info" size="small" />
-            <app-button (clicked)="paretoComp?.loadABCPareto()"
-                      icon="pi pi-refresh" label="Rafraîchir" severity="primary" size="small" />
-          </div>
-        }
-        @if (active() === 'rotation') {
-          <div class="flex gap-2">
-            <app-button (clicked)="rotationComp?.toggleHelpDrawer()" [outlined]="true"
-                      icon="pi pi-question-circle" label="Aide" severity="secondary" size="small" />
-            <app-button (clicked)="rotationComp?.onClearFilters()"
-                      icon="pi pi-filter-slash" label="Effacer les filtres" severity="secondary" size="small" />
-            <app-button (clicked)="rotationComp?.exportToPdf()"
-                      icon="pi pi-file-pdf" label="Exporter PDF" severity="danger" size="small" />
-            <app-button (clicked)="rotationComp?.loadRotations()"
-                      icon="pi pi-refresh" label="Rafraîchir" severity="primary" size="small" />
-          </div>
-        }
-      </ng-container>
+  <ng-container ngProjectAs="[toolbarActions]">
+    @if (active() === 'pareto') {
+      <div class="flex gap-2">
+        <app-button (clicked)="paretoComp?.toggleHelpDrawer()" [outlined]="true"
+                    icon="pi pi-question-circle" label="Aide" severity="secondary" size="small" />
+        <app-button (clicked)="paretoComp?.showTopContributors()"
+                    icon="pi pi-star" label="Top 50 Contributeurs" severity="info" size="small" />
+        <app-button (clicked)="paretoComp?.loadABCPareto()"
+                    icon="pi pi-refresh" label="Rafraîchir" severity="primary" size="small" />
+      </div>
+    }
+    @if (active() === 'rotation') {
+      <div class="flex gap-2">
+        <app-button (clicked)="rotationComp?.toggleHelpDrawer()" [outlined]="true"
+                    icon="pi pi-question-circle" label="Aide" severity="secondary" size="small" />
+        <app-button (clicked)="rotationComp?.onClearFilters()"
+                    icon="pi pi-filter-slash" label="Effacer les filtres" severity="secondary"
+                    size="small" />
+        <app-button (clicked)="rotationComp?.exportToPdf()"
+                    icon="pi pi-file-pdf" label="Exporter PDF" severity="danger" size="small" />
+        <app-button (clicked)="rotationComp?.loadRotations()"
+                    icon="pi pi-refresh" label="Rafraîchir" severity="primary" size="small" />
+      </div>
+    }
+  </ng-container>
+</app-toolbar>
+
+<!-- Onglets -->
+<div class="pharma-nav-tabs-container">
+  <div
+    #nav="ngbNav"
+    (activeIdChange)="onActiveChange($event)"
+    [activeId]="active()"
+    class="nav pharma-nav-tabs"
+    ngbNav
+    orientation="horizontal"
+  >
+    <ng-container [ngbNavItem]="'pareto'">
+      <a class="pharma-nav-tab-link" ngbNavLink>
+        <i class="pi pi-sort-amount-down me-1"></i>
+        Par chiffre d'affaires (Pareto)
+      </a>
+      <ng-template ngbNavContent>
+        <app-abc-pareto />
+      </ng-template>
+    </ng-container>
+
+    <ng-container [ngbNavItem]="'rotation'">
+      <a class="pharma-nav-tab-link" ngbNavLink>
+        <i class="pi pi-sync me-1"></i>
+        Par rotation
+      </a>
+      <ng-template ngbNavContent>
+        <app-stock-rotation />
+      </ng-template>
+    </ng-container>
   </div>
 
-  <!-- Onglets -->
-  <div class="pharma-nav-tabs-container">
-    <div
-      #nav="ngbNav"
-      [activeId]="active()"
-      (activeIdChange)="onActiveChange($event)"
-      class="nav pharma-nav-tabs"
-      ngbNav
-      orientation="horizontal"
-    >
-      <ng-container [ngbNavItem]="'pareto'">
-        <a class="pharma-nav-tab-link" ngbNavLink>
-          <i class="pi pi-sort-amount-down me-1"></i>
-          Par chiffre d'affaires (Pareto)
-        </a>
-        <ng-template ngbNavContent>
-          <app-abc-pareto />
-        </ng-template>
-      </ng-container>
-
-      <ng-container [ngbNavItem]="'rotation'">
-        <a class="pharma-nav-tab-link" ngbNavLink>
-          <i class="pi pi-sync me-1"></i>
-          Par rotation
-        </a>
-        <ng-template ngbNavContent>
-          <jhi-stock-rotation />
-        </ng-template>
-      </ng-container>
-    </div>
-
-    <div class="pharma-nav-tabs-outlet">
-      <div [ngbNavOutlet]="nav"></div>
-    </div>
+  <div class="pharma-nav-tabs-outlet">
+    <div [ngbNavOutlet]="nav"></div>
   </div>
-
 </div>
+
+

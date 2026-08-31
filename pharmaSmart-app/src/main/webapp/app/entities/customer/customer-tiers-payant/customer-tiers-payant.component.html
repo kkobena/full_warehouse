@@ -15,6 +15,7 @@
             <label for="field_firstName">Tiers payant<span class="required">*</span></label>
             <app-select-search
               (searched)="searchTiersPayant($event)"
+              [typeahead]="typeaheadSink$"
               [items]="tiersPayants()"
               [minSearchLength]="minLength"
               [style]="{ width: '100%' }"

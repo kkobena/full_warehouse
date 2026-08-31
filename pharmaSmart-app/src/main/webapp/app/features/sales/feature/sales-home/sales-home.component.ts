@@ -304,6 +304,32 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
    * Gère les raccourcis globaux (navigation inter-onglets, ventes en attente).
    * Les F-keys contextuelles (F1-F10) sont gérées par les composants enfants.
    */
+  /**
+   * La frappe vient-elle d'un HUMAIN dans un champ de saisie ?
+   *
+   * Une douchette envoie ses caractères là où est le focus, et le détecteur HID la reconnaît
+   * à sa VITESSE. Une saisie humaine rapide lui ressemble donc à s'y méprendre : un numéro de
+   * bon, un montant, une quantité, un formulaire de fenêtre modale — et l'écran répondait
+   * « Produit non trouvé : BON20260829 » avec un bip d'erreur, au milieu d'une saisie
+   * parfaitement normale.
+   *
+   * La règle retenue : on ne nourrit le détecteur que si la frappe ne vise AUCUN champ, ou
+   * vise la recherche produit — les deux seules situations où l'on scanne réellement. Tout
+   * autre champ, y compris dans une modale, appartient à l'utilisateur.
+   */
+  private frappeHumaine(event: KeyboardEvent): boolean {
+    const cible = event.target as HTMLElement | null;
+    if (!cible) {
+      return false;
+    }
+    if (cible.closest('.modal, .modal-content')) {
+      return true;
+    }
+    const estUnChamp =
+      cible instanceof HTMLInputElement || cible instanceof HTMLTextAreaElement || cible.isContentEditable;
+    return estUnChamp && cible.id !== 'produitbox';
+  }
+
   handleGlobalKeyboardEvent(event: KeyboardEvent): void {
     // 1. Raccourcis clavier (Alt+1/2/3, F11)
     // Utilise event.code (indépendant du layout clavier) pour éviter l'insertion
@@ -336,6 +362,16 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     }
 
     // 2. Scanner global - délègue à SalesScannerService (no-op si mode SERIAL actif)
+    //
+    // Sauf si la frappe vient d'une fenêtre MODALE : on y remplit un formulaire (création de
+    // client, autorisation, motif d'annulation), et le détecteur HID reconnaît une frappe
+    // rapide comme un code-barres. L'écran répondait alors « Produit non trouvé : … » par
+    // -dessus le formulaire — un message alarmant au milieu d'une saisie parfaitement normale,
+    // et un bip d'erreur avec.
+    if (this.frappeHumaine(event)) {
+      return;
+    }
+
     const result = this.salesScanner.processKeyEvent(event);
     if (result.isScanInProgress) {
       // Ne pas bloquer la saisie dans les inputs en mode TIMING

@@ -23,7 +23,15 @@
           <span>Paliers RFA</span>
         </a>
         <ng-template ngbNavContent>
-          <app-data-table [value]="rfas()" [loading]="isLoading()" class="p-datatable-sm p-datatable-striped">
+          <!-- Pagination : un palier RFA se suit fournisseur par fournisseur, et ils sont
+               nombreux ; la liste les rendait tous d'un bloc. -->
+          <app-data-table [value]="rfas()" [loading]="isLoading()"
+                          [paginator]="true"
+                          [rows]="15"
+                          [rowsPerPageOptions]="[10, 15, 25, 50]"
+                          [showCurrentPageReport]="true"
+                          currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} fournisseurs"
+                          class="p-datatable-sm p-datatable-striped">
             <ng-template #header>
               <tr class="pharma-table-head">
                 <th>Fournisseur</th>
@@ -47,11 +55,20 @@
                 <td class="text-end">{{ r.palierRfa ? (r.palierRfa | devise) : '—' }}</td>
                 <td class="text-end">{{ formatCurrency(r.caCommandeN) }}</td>
                 <td class="text-end">
+                  <!--
+                    La barre a besoin d'une PISTE : sans elle, le remplissage était le seul
+                    enfant d'une boîte flex et s'étirait sur toute la largeur, quelle que soit
+                    la valeur liée. Toutes les jauges paraissaient donc pleines, et bleues —
+                    la couleur des paliers les plus bas, majoritaires.
+                  -->
                   <div class="progress-rfa">
-                    <div class="progress-bar-rfa" [style.width.%]="Math.min(r.pourcentageAtteint, 100)"
-                         [class.progress-ok]="r.pourcentageAtteint >= 100"
-                         [class.progress-close]="r.pourcentageAtteint >= 80 && r.pourcentageAtteint < 100"
-                         [class.progress-low]="r.pourcentageAtteint < 80">
+                    <div class="progress-track">
+                      <div class="progress-bar-rfa"
+                           [style.width.%]="Math.min(r.pourcentageAtteint ?? 0, 100)"
+                           [class.progress-ok]="(r.pourcentageAtteint ?? 0) >= 100"
+                           [class.progress-close]="(r.pourcentageAtteint ?? 0) >= 80 && (r.pourcentageAtteint ?? 0) < 100"
+                           [class.progress-low]="(r.pourcentageAtteint ?? 0) < 80">
+                      </div>
                     </div>
                     <span class="progress-label">{{ r.pourcentageAtteint | number: '1.0-1' }}%</span>
                   </div>
@@ -78,7 +95,14 @@
           <span>Avoirs reçus ({{ avoirs().length }})</span>
         </a>
         <ng-template ngbNavContent>
-          <app-data-table [value]="avoirs()" class="p-datatable-sm p-datatable-striped">
+          <!-- Les avoirs reçus se paginent comme les paliers : même écran, même besoin. -->
+          <app-data-table [value]="avoirs()"
+                          [paginator]="true"
+                          [rows]="15"
+                          [rowsPerPageOptions]="[10, 15, 25, 50]"
+                          [showCurrentPageReport]="true"
+                          currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} avoirs"
+                          class="p-datatable-sm p-datatable-striped">
             <ng-template #header>
               <tr class="pharma-table-head">
                 <th>Fournisseur</th>

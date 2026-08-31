@@ -28,6 +28,7 @@ import {
 import {formatCurrency} from "app/shared/utils/format-utils";
 import {NGB_DATE_TO_ISO, TODAY_NGB_DATE} from "app/shared/util/warehouse-util";
 import {NotificationService} from "app/shared/services/notification.service";
+import {ErrorService} from "app/shared/error.service";
 import {
   NgbConfirmDialogService
 } from "app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
@@ -146,6 +147,7 @@ export class ComptesFournisseursComponent implements OnInit {
   private readonly api = inject(FournisseurApApiService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly notification = inject(NotificationService);
+  private readonly errorService = inject(ErrorService);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly blobDownload = inject(BlobDownloadService);
 
@@ -154,6 +156,26 @@ export class ComptesFournisseursComponent implements OnInit {
       .get("montant")!
       .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(val => this.montantSaisi.set(val ?? 0));
+
+    // La RÉFÉRENCE n'est exigée que d'un règlement NON espèces : un chèque a son numéro, un
+    // virement sa référence, une carte son ticket — des espèces n'ont rien de tel. Le champ
+    // était obligatoire quel que soit le mode, ce qui contraignait à inventer une référence
+    // pour enregistrer un paiement en liquide.
+    this.reglementForm
+      .get("modeReglement")!
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(mode => this.appliquerObligationReference(mode));
+  }
+
+  /** Pose ou retire l'obligation de référence selon le mode de règlement choisi. */
+  private appliquerObligationReference(mode: string | null): void {
+    const reference = this.reglementForm.get("reference")!;
+    if (mode === "CASH") {
+      reference.clearValidators();
+    } else {
+      reference.setValidators([Validators.required]);
+    }
+    reference.updateValueAndValidity({ emitEvent: false });
   }
 
   ngOnInit(): void {
@@ -449,9 +471,14 @@ export class ComptesFournisseursComponent implements OnInit {
           this.loadComptes();
           this.loadLignes(0);
         },
-        error: () => {
+        error: (err: unknown) => {
           this.isSaving.set(false);
-          this.notification.error("Erreur lors de l'enregistrement du règlement.");
+          // Le message du SERVEUR, pas un message générique : « Votre caisse est fermée » dit
+          // quoi faire, « Erreur lors de l'enregistrement » ne dit rien et laisse chercher.
+          this.notification.error(
+            this.errorService.getErrorMessage(err, "Erreur lors de l'enregistrement du règlement."),
+            "Règlement refusé"
+          );
         }
       });
   }

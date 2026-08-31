@@ -1,4 +1,13 @@
-import {Component, computed, inject, input, OnDestroy, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  OnDestroy,
+  OnInit,
+  signal
+} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {interval, Subscription, switchMap, takeWhile, tap} from 'rxjs';
@@ -7,10 +16,8 @@ import {
   BadgeComponent,
   ButtonComponent,
   DataTableComponent,
-  SplitButtonComponent,
 } from '../../../../../shared/ui';
 import {
-  IInfoProduit,
   IPharmamlCommandeResponse,
   IPharmaMlEnvoi,
   ISubstitutionProposee,
@@ -18,15 +25,13 @@ import {
 } from '../../../../../shared/model/pharmaml.model';
 import {CommandeId} from '../../../../../shared/model/abstract-commande.model';
 import {OrderStatut} from '../../../../../shared/model/enumerations/order-statut.model';
-import {AnnulationPharmamlComponent} from '../ui/annulation/annulation-pharmaml.component';
 import {EnvoiPharmamlComponent} from '../ui/envoi/envoi-pharmaml.component';
 import {ReponsePharmamlComponent} from '../ui/reponse/reponse-pharmaml.component';
-import {RetourPharmamlComponent} from '../ui/retour/retour-pharmaml.component';
 import {SubstitutionPharmamlComponent} from '../ui/substitution/substitution-pharmaml.component';
 import {PharmamlApiService} from '../../../data-access/pharmaml-api.service';
 import {NotificationService} from '../../../../../shared/services/notification.service';
-import {ErrorService} from '../../../../../shared/error.service';
 import {DispoComparaisonComponent} from '../ui/dispo-comparaison/dispo-comparaison.component';
+import {COMPARAISON_DISPONIBILITE_ACTIVE} from '../pharmaml.constants';
 
 const POLL_INTERVAL_MS = 5000;
 const TERMINAL_STATUTS: PharmaMlStatut[] = ['SUBMITTED', 'PARTIAL', 'REJECTED', 'ERROR'];
@@ -38,7 +43,7 @@ const TERMINAL_STATUTS: PharmaMlStatut[] = ['SUBMITTED', 'PARTIAL', 'REJECTED', 
  */
 @Component({
   selector: 'app-pharmaml-home',
-  imports: [CommonModule, ButtonComponent, SplitButtonComponent, BadgeComponent, DataTableComponent, NgbTooltip],
+  imports: [CommonModule, ButtonComponent, BadgeComponent, DataTableComponent, NgbTooltip],
   templateUrl: './pharmaml-home.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./pharmaml-home.scss'],
@@ -55,13 +60,9 @@ export class PharmamlHomeComponent implements OnInit, OnDestroy {
   readonly loadingHistorique = signal(false);
   readonly polling = signal(false);
   readonly substitutionsEnAttente = signal<ISubstitutionProposee[]>([]);
-  readonly disponibilites = signal<IInfoProduit[]>([]);
-  readonly showDisponibilite = signal(false);
-  readonly loadingDisponibilite = signal(false);
   private readonly modal = inject(NgbModal);
   private readonly notificationService = inject(NotificationService);
   private readonly api = inject(PharmamlApiService);
-  private readonly errorService = inject(ErrorService);
   private pollSub: Subscription | null = null;
 
   ngOnInit(): void {
@@ -75,7 +76,7 @@ export class PharmamlHomeComponent implements OnInit, OnDestroy {
 
   openEnvoi(): void {
     const ref = this.modal.open(EnvoiPharmamlComponent, {
-      size: 'lg',
+      size: 'xl',
       backdrop: 'static',
       centered: true
     });
@@ -130,50 +131,10 @@ export class PharmamlHomeComponent implements OnInit, OnDestroy {
     this.showHistorique.update(v => !v);
   }
 
-  openAnnulation(): void {
-    const ref = this.modal.open(AnnulationPharmamlComponent, {
-      size: 'md',
-      backdrop: 'static',
-      centered: true
-    });
-    const instance = ref.componentInstance as AnnulationPharmamlComponent;
-    instance.commandeId = this.commandeId();
-    ref.result.then(
-      (result: string) => {
-        if (result === 'annulee') {
-          this.notificationService.success(`Démande d'annulation transmise au grossiste`, 'Commande annulée');
-          this.loadHistorique();
-        }
-      },
-      () => {
-      },
-    );
-  }
-
-  openRetour(): void {
-    const ref = this.modal.open(RetourPharmamlComponent, {
-      size: 'xl',
-      backdrop: 'static',
-      centered: true
-    });
-    const instance = ref.componentInstance as RetourPharmamlComponent;
-    instance.commandeId = this.commandeId();
-    instance.commandeRef = this.commandeRef();
-    ref.result.then(
-      (result: string) => {
-        if (result === 'retourne') {
-          this.notificationService.success(`Démande transmise au grossiste`, 'Retour envoyé');
-        }
-      },
-      () => {
-      },
-    );
-  }
-
 
   ouvrirComparaison(): void {
     const ref = this.modal.open(DispoComparaisonComponent, {
-      size: 'lg',
+      size: 'xl',
       backdrop: 'static',
       centered: true,
       scrollable: true
@@ -183,24 +144,6 @@ export class PharmamlHomeComponent implements OnInit, OnDestroy {
     instance.header = `Comparaison disponibilité multi-grossistes — commande ${this.commandeRef()}`;
   }
 
-  verifierDisponibilite(): void {
-    if (this.loadingDisponibilite()) {
-      return;
-    }
-    const id = this.commandeId();
-    this.loadingDisponibilite.set(true);
-    this.showDisponibilite.set(true);
-    this.api.disponibilite(id.id, id.orderDate).subscribe({
-      next: res => {
-        this.disponibilites.set(res.body ?? []);
-        this.loadingDisponibilite.set(false);
-      },
-      error: (err) => {
-        this.loadingDisponibilite.set(false);
-        this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur');
-      },
-    });
-  }
 
   statutSeverity(statut: PharmaMlStatut): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
     switch (statut) {
@@ -237,20 +180,18 @@ export class PharmamlHomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  private readonly utilsMenuItems = (): AppSplitButtonItem[] => [
-    {
-      label: 'Vérifier disponibilité',
-      icon: 'pi pi-search',
-      separatorBefore: true,
-      command: () => this.verifierDisponibilite()
-    },
-    {
-      label: 'Comparer multi-grossistes',
-      icon: 'pi pi-chart-bar',
-      command: () => this.ouvrirComparaison()
-    },
-    {label: 'Historique des envois', icon: 'pi pi-history', command: () => this.toggleHistorique()},
-  ];
+  // Masqué tant que le répartiteur ne sait pas répondre à une demande d'information :
+  // cf. COMPARAISON_DISPONIBILITE_ACTIVE.
+  private readonly utilsMenuItems = (): AppSplitButtonItem[] =>
+    COMPARAISON_DISPONIBILITE_ACTIVE
+      ? [
+        {
+          label: 'Comparer multi-grossistes',
+          icon: 'pi pi-chart-bar',
+          command: () => this.ouvrirComparaison()
+        }
+      ]
+      : [];
 
   /** Actions du SplitButton en mode REQUESTED */
   readonly actionsRequested = computed<AppSplitButtonItem[]>(() => [

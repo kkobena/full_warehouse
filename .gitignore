@@ -307,3 +307,15 @@ sales-android/fastlane/readme.md
 /pharmaSmart-license-cli/
 /mobile-inventory/build/reports/
 /mobile-inventory/build/reports/problems/
+
+# Captures d'écran du guide des fonctionnalités.
+# Miroir généré par scripts/generate-cahier-recette-json.ts depuis e2e/captures :
+# jamais édité à la main, reconstruit à chaque build.
+pharmaSmart-app/src/main/webapp/content/captures/
+
+# Instantané de référence de la base de démonstration (scripts/demo-data).
+# Plusieurs Mo, régénérable par dump_reference.ps1 : hors dépôt.
+scripts/demo-data/reference/
+
+# Configuration PharmaML réelle (identifiants d'un grossiste) : hors dépôt.
+scripts/demo-data/98_pharmaml_local.sql

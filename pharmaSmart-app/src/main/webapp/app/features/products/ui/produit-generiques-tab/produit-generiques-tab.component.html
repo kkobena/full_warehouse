@@ -1,0 +1,55 @@
+@if (loading()) {
+  <div class="text-center py-4">
+    <i class="pi pi-spin pi-spinner" style="font-size: 1.5rem; color: var(--bs-primary)"></i>
+  </div>
+} @else if (substituts().length === 0) {
+  <div class="pharma-empty-message">
+    <div class="pharma-empty-content">
+      <i class="pi pi-inbox"></i>
+      <p>Aucun générique ni substitut enregistré</p>
+      <small>L'équivalence se fonde sur la molécule (DCI) du produit</small>
+    </div>
+  </div>
+} @else {
+  <app-data-table [scrollable]="true" [value]="substituts()" scrollHeight="calc(100vh - 320px)">
+    <ng-template #header>
+      <tr class="pharma-table-head">
+        <th style="width: 38%">Libellé</th>
+        <th style="width: 18%">CIP</th>
+        <th style="width: 16%">Type</th>
+        <th style="width: 14%; text-align: right">Prix de vente</th>
+        <th style="width: 14%; text-align: right">Stock</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-s>
+      <tr>
+        <td>
+          <span class="pharma-product-name">{{ s.produit.libelle }}</span>
+          @if (s.produit.status === 'DISABLE') {
+            <span class="pharma-badge pharma-badge-secondary ms-1">Veille</span>
+          }
+        </td>
+        <td>
+          @if (s.produit.codeCip) {
+            <span class="pharma-code">{{ s.produit.codeCip }}</span>
+          }
+        </td>
+        <td>
+          <app-badge
+            [label]="s.typeSubstitutLibelle"
+            [severity]="s.typeSubstitut === 'GENERIQUE' ? 'info' : 'secondary'"
+          />
+        </td>
+        <td class="text-end">
+          <span class="pharma-price">{{ s.produit.regularUnitPrice | devise }}</span>
+        </td>
+        <td class="text-end">
+          <app-badge
+            [label]="(s.produit.totalQuantity ?? 0) | number"
+            [severity]="stockSeverity(s.produit)"
+          />
+        </td>
+      </tr>
+    </ng-template>
+  </app-data-table>
+}

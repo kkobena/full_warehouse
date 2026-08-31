@@ -1,15 +1,15 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
-import { HttpResponse } from "@angular/common/http";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
+import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from "@angular/core";
+import {HttpResponse} from "@angular/common/http";
+import {CommonModule} from "@angular/common";
+import {FormsModule} from "@angular/forms";
 
 
-import { CategorieABC, IStockRotation } from "app/shared/model/report/stock-rotation.model";
-import { StockRotationReportService } from "../services/stock-rotation-report.service";
-import { formatCurrency } from "app/shared/utils/format-utils";
-import { handleBlobForTauri } from "../../../shared/util/tauri-util";
-import { TauriPrinterService } from "../../../shared/services/tauri-printer.service";
-import { DeviseDirective } from 'app/shared/utils/devise';
+import {CategorieABC, IStockRotation} from "app/shared/model/report/stock-rotation.model";
+import {StockRotationReportService} from "../services/stock-rotation-report.service";
+import {formatCurrency} from "app/shared/utils/format-utils";
+import {handleBlobForTauri} from "../../../shared/util/tauri-util";
+import {TauriPrinterService} from "../../../shared/services/tauri-printer.service";
+import {DeviseDirective, DevisePipe} from 'app/shared/utils/devise';
 import {
   AppBadgeSeverity,
   BadgeComponent,
@@ -20,11 +20,11 @@ import {
 } from '../../../shared/ui';
 
 @Component({
-  selector: "jhi-stock-rotation",
+  selector: "app-stock-rotation",
   templateUrl: "./stock-rotation.component.html",
   styleUrl: "./stock-rotation.component.scss",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeviseDirective, 
+  imports: [DeviseDirective,
     CommonModule,
     FormsModule,
     BadgeComponent,
@@ -32,11 +32,11 @@ import {
     OffcanvasComponent,
     KpiStripComponent,
     KpiItemComponent
-  ]
+    , DevisePipe]
 })
 export default class StockRotationComponent implements OnInit {
   rotations = signal<IStockRotation[]>([]);
-  abcCounts = signal<Record<CategorieABC, number>>({ A: 0, B: 0, C: 0 });
+  abcCounts = signal<Record<CategorieABC, number>>({A: 0, B: 0, C: 0});
   isLoading = signal<boolean>(false);
   selectedCategorie = signal<string | null>(null);
   selectedABC = signal<CategorieABC | null>(null);
@@ -45,10 +45,10 @@ export default class StockRotationComponent implements OnInit {
 
   categorieOptions = signal<{ label: string; value: string }[]>([]);
   abcOptions = [
-    { label: "Toutes les classifications", value: null },
-    { label: "A - Forte rotation (z ≥ 1.96)", value: CategorieABC.A },
-    { label: "B - Rotation moyenne (z ≥ 1.65)", value: CategorieABC.B },
-    { label: "C - Faible rotation (z < 1.65)", value: CategorieABC.C }
+    {label: "Toutes les classifications", value: null},
+    {label: "A - Forte rotation (z ≥ 1.96)", value: CategorieABC.A},
+    {label: "B - Rotation moyenne (z ≥ 1.65)", value: CategorieABC.B},
+    {label: "C - Faible rotation (z < 1.65)", value: CategorieABC.C}
   ];
   // Format methods using shared utilities
   formatCurrency = formatCurrency;
@@ -92,7 +92,7 @@ export default class StockRotationComponent implements OnInit {
   loadABCCounts(): void {
     this.stockRotationService.getStockRotationCountByABCClassification().subscribe({
       next: (res: HttpResponse<Record<CategorieABC, number>>) => {
-        this.abcCounts.set(res.body ?? { A: 0, B: 0, C: 0 });
+        this.abcCounts.set(res.body ?? {A: 0, B: 0, C: 0});
       },
       error() {
         console.error("Error loading ABC counts");
@@ -139,19 +139,27 @@ export default class StockRotationComponent implements OnInit {
 
   getABCClass(abc: CategorieABC | undefined): string {
     switch (abc) {
-      case CategorieABC.A: return 'rotation-badge rotation-a';
-      case CategorieABC.B: return 'rotation-badge rotation-b';
-      case CategorieABC.C: return 'rotation-badge rotation-c';
-      default:             return 'rotation-badge rotation-c';
+      case CategorieABC.A:
+        return 'rotation-badge rotation-a';
+      case CategorieABC.B:
+        return 'rotation-badge rotation-b';
+      case CategorieABC.C:
+        return 'rotation-badge rotation-c';
+      default:
+        return 'rotation-badge rotation-c';
     }
   }
 
   getABCDescription(abc: CategorieABC | undefined): string {
     switch (abc) {
-      case CategorieABC.A: return 'Forte rotation';
-      case CategorieABC.B: return 'Rotation moyenne';
-      case CategorieABC.C: return 'Faible rotation';
-      default:             return '';
+      case CategorieABC.A:
+        return 'Forte rotation';
+      case CategorieABC.B:
+        return 'Rotation moyenne';
+      case CategorieABC.C:
+        return 'Faible rotation';
+      default:
+        return '';
     }
   }
 
@@ -212,6 +220,6 @@ export default class StockRotationComponent implements OnInit {
     this.categorieOptions.set([{
       label: "Toutes les catégories",
       value: ""
-    }, ...categories.map(c => ({ label: c, value: c }))]);
+    }, ...categories.map(c => ({label: c, value: c}))]);
   }
 }

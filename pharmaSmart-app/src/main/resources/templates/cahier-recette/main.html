@@ -178,6 +178,28 @@
       margin-bottom: 10px;
     }
 
+    /*
+      Captures d'écran. Flying Saucer ne connaît ni flex ni grid : la mise en page reste en
+      blocs et en largeurs fixes. La largeur est exprimée en pouces parce que le document est
+      paginé, pas affiché — 5,5 in tient dans la zone imprimable d'un A4 en portrait avec les
+      marges du document.
+    */
+    .capture {
+      page-break-inside: avoid;
+      margin: 8px 0;
+    }
+
+    .capture img {
+      width: 5.5in;
+      border: 1px solid #c8ccd4;
+    }
+
+    .capture-legende {
+      font-size: 8.5pt;
+      color: #55606e;
+      margin-top: 2px;
+    }
+
     /* Table des matières */
     table.toc {
       width: 100%;
@@ -285,6 +307,23 @@
       <ol>
         <li th:each="etape : ${scenario.etapes}" th:text="${etape}">Étape</li>
       </ol>
+
+      <!--
+        Captures produites par la campagne Playwright. Le src reste relatif : c'est l'agent
+        utilisateur de CahierRecettePdfService qui le résout depuis le classpath.
+        page-break-inside évite qu'une image soit coupée entre deux pages.
+      -->
+      <th:block th:if="${scenario.captures != null and !scenario.captures.isEmpty()}">
+        <div class="captures">
+          <div class="capture" th:each="capture : ${scenario.captures}">
+            <img th:src="${capture.fichier}" th:alt="${capture.legende}" />
+            <div class="capture-legende">
+              <span th:text="${capture.ordre}">1</span>.
+              <span th:text="${capture.legende}">Légende</span>
+            </div>
+          </div>
+        </div>
+      </th:block>
 
       <div class="field-label">Résultat attendu</div>
       <p th:text="${scenario.resultatAttendu}">Résultat attendu</p>

@@ -12,6 +12,7 @@ import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Produit_;
 import com.kobe.warehouse.domain.RayonProduit;
 import com.kobe.warehouse.domain.RayonProduit_;
+import com.kobe.warehouse.domain.Rayon_;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.StatutLot;
 import com.kobe.warehouse.service.stock.dto.LotFilterParam;
@@ -139,7 +140,7 @@ public interface LotRepository
         return (root, query, cb) -> {
             Join<Lot, Produit> produitJoin = root.join(Lot_.produit);
             Join<Produit, RayonProduit> rayonJoin = produitJoin.join(Produit_.rayonProduits);
-            return cb.equal(rayonJoin.get(RayonProduit_.id), rayonId);
+            return cb.equal(rayonJoin.get(RayonProduit_.rayon).get(Rayon_.id), rayonId);
         };
     }
 

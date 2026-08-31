@@ -1,2 +1,17 @@
+// Le patron maître / détail est partagé : le redéfinir ici le ferait diverger des autres
+// écrans qui l'emploient (DCI, rapprochement, différés…).
+@use 'app/shared/scss/split-panel' as *;
+
 @import 'app/shared/scss/table-common';
 @import 'app/shared/scss/pharma-toolbar';
+
+
+.pharma-code {
+  font-family: var(--bs-font-monospace, monospace);
+  font-size: 0.82rem;
+  color: var(--p-text-muted-color);
+}
+
+.pharma-entity-name {
+  font-weight: 500;
+}

@@ -17,6 +17,7 @@
           container="body"
           popoverClass="customer-search-popover"
           placement="bottom"
+          ariaLabel="Changer le client"
           ngbTooltip="Changer le client"
           icon="pi pi-pencil"
           severity="info"
@@ -29,6 +30,7 @@
         <!-- Remove button -->
         <app-button
           (clicked)="remove()"
+          ariaLabel="Supprimer le client"
           ngbTooltip="Supprimer le client"
           placement="top"
           icon="pi pi-times"
@@ -46,6 +48,7 @@
           container="body"
           popoverClass="customer-search-popover"
           placement="bottom"
+          ariaLabel="Choisir un client"
           [ngbTooltip]="getLabel()"
           icon="pi pi-user-plus"
           severity="success"

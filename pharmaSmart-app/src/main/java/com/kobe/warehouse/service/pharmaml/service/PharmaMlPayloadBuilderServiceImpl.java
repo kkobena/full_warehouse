@@ -71,7 +71,7 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
         ce.setVersionProtocole(PharmaMlUtils.VERSION_PROTOCLE_VALUE);
         ce.setVersionLogiciel(PharmaMlUtils.VERSION_LOGICIEL_VALUE);
         ce.setIdLogiciel(PharmaMlUtils.ID_LOGICIEL_VALUE);
-        ce.setNatureAction(PharmaMlUtils.NATURE_ACTION_REQ_INFORMATION);
+        ce.setNatureAction(PharmaMlUtils.NATURE_ACTION_REQ_EMISSION);
         ce.setEntete(buildEntete(fournisseur, refMessage));
         ce.setCorps(buildCorpsInfo(commande, fournisseur, refMessage));
         return ce;
@@ -85,7 +85,7 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
         ce.setVersionProtocole(PharmaMlUtils.VERSION_PROTOCLE_VALUE);
         ce.setVersionLogiciel(PharmaMlUtils.VERSION_LOGICIEL_VALUE);
         ce.setIdLogiciel(PharmaMlUtils.ID_LOGICIEL_VALUE);
-        ce.setNatureAction(PharmaMlUtils.NATURE_ACTION_REQ_INFORMATION);
+        ce.setNatureAction(PharmaMlUtils.NATURE_ACTION_REQ_EMISSION);
         ce.setEntete(buildEntete(fournisseur, refMessage));
         ce.setCorps(buildCorpsInfoFromSuggestionLines(lignes, fournisseur, refMessage));
         return ce;
@@ -99,7 +99,7 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
         ce.setVersionProtocole(PharmaMlUtils.VERSION_PROTOCLE_VALUE);
         ce.setVersionLogiciel(PharmaMlUtils.VERSION_LOGICIEL_VALUE);
         ce.setIdLogiciel(PharmaMlUtils.ID_LOGICIEL_VALUE);
-        ce.setNatureAction(PharmaMlUtils.NATURE_ACTION_REQ_RETOUR);
+        ce.setNatureAction(PharmaMlUtils.NATURE_ACTION_REQ_EMISSION);
         ce.setEntete(buildEntete(fournisseur, refMessage));
         ce.setCorps(buildCorpsRetour(commande, fournisseur, lignes));
         return ce;
@@ -282,6 +282,10 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
 
 
     private Corps buildCorpsInfo(Commande commande, Fournisseur fournisseur, String refMessage) {
+        // ATTENTION : ce message est une ÉMISSION, pas une consultation. Le répartiteur
+        // (GESCOM 3.41.06) refuse aussi bien la nature d'action REQ_INFORMATION que le corps
+        // REQ_INFOS de la norme : chez lui, la seule façon d'obtenir une quantité par ligne
+        // est de passer commande et de lire les Quantite_livree de la REP_COMMANDE.
         com.kobe.warehouse.service.pharmaml.dto.Commande c = new com.kobe.warehouse.service.pharmaml.dto.Commande();
         c.setRefCdeClient(refMessage);
         c.setNormale(buildNormale(commande));

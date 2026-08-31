@@ -1,12 +1,14 @@
 import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   ElementRef,
   inject,
   OnInit,
-  AfterViewInit,
-  viewChild,
-  ChangeDetectionStrategy, signal } from '@angular/core';
+  signal,
+  viewChild
+} from '@angular/core';
 import {
   ClientTiersPayant,
   IClientTiersPayant
@@ -23,10 +25,16 @@ import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {CustomerService} from '../../../../customer/customer.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {finalize} from 'rxjs/operators';
-import {ButtonComponent, CardComponent, KeyFilterDirective, SelectComponent, SwitchComponent} from '../../../../../shared/ui';
+import {
+  ButtonComponent,
+  CardComponent,
+  KeyFilterDirective,
+  SelectComponent,
+  SwitchComponent
+} from '../../../../../shared/ui';
 
 @Component({
-  selector: 'jhi-add-complementaire',
+  selector: 'app-add-complementaire',
   imports: [
     ReactiveFormsModule,
     FormsModule,
@@ -41,13 +49,13 @@ import {ButtonComponent, CardComponent, KeyFilterDirective, SelectComponent, Swi
   styleUrls: ['./add-complementaire.component.scss'],
 })
 export class AddComplementaireComponent implements OnInit, AfterViewInit {
-  tiersPayant = viewChild.required('tiersPayant', { read: ElementRef<HTMLElement> });
+  tiersPayant = viewChild.required('tiersPayant', {read: ElementRef<HTMLElement>});
   numBon = viewChild.required<ElementRef>('numBon');
   assure?: ICustomer | null;
+  tiersPayantsExisting: IClientTiersPayant[] = [];
   protected readonly isSaving = signal(false);
   protected readonly isValid = signal(true);
-  tiersPayantsExisting: IClientTiersPayant[] = [];
-
+  protected readonly tiersPayantsDisponibles = signal<IClientTiersPayant[]>([]);
   protected readonly selectedTiersPayant = signal<IClientTiersPayant | null>(null);
   protected originalTiersPayant: IClientTiersPayant | null = null;
   protected readonly showPrioriteSwitch = signal(false);
@@ -82,6 +90,7 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
+    this.tiersPayantsDisponibles.set(this.calculerTiersPayantsDisponibles());
     this.editForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.checkForChanges();
     });
@@ -135,12 +144,21 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
     this.prioriteValue.set(checked ? 0 : this.selectedTiersPayant()?.categorie);
   }
 
-  protected getTiersPayants(): IClientTiersPayant[] {
+  /**
+   * Les organismes de l'assuré qui ne sont pas DÉJÀ sur la vente.
+   *
+   * Calculé une fois, dans un signal, et non rendu par une méthode appelée depuis le
+   * gabarit : `app-select` repose sur ng-select, qui compare ses options par référence. Une
+   * méthode rend un tableau NEUF à chaque détection de changement — les options se
+   * redessinent alors sous le pointeur et le clic ne sélectionne rien, sans la moindre
+   * erreur. Le symptôme se lit comme une liste morte.
+   */
+  private calculerTiersPayantsDisponibles(): IClientTiersPayant[] {
+    const tousLesOrganismes = this.assure?.tiersPayants ?? [];
     if (this.tiersPayantsExisting && this.tiersPayantsExisting.length > 0) {
-      return this.assure.tiersPayants.filter(e => !this.tiersPayantsExisting.some(i => i.id === e.id));
-    } else {
-      return this.assure.tiersPayants;
+      return tousLesOrganismes.filter(e => !this.tiersPayantsExisting.some(i => i.id === e.id));
     }
+    return tousLesOrganismes;
   }
 
   private updateForm(tp: IClientTiersPayant): void {

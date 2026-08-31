@@ -25,6 +25,7 @@ let nextId = 0;
         [checked]="value() ?? false"
         [disabled]="isDisabled() || disabled()"
         [class.is-invalid]="invalid()"
+        [attr.aria-label]="ariaLabel() || null"
         (change)="onCheckedChange($event)"
         (blur)="onTouched()"
       />
@@ -37,6 +38,14 @@ let nextId = 0;
 })
 export class SwitchComponent extends ControlValueAccessorBase<boolean> {
   readonly label = input<string>('');
+
+  /**
+   * Nom accessible d'un interrupteur SANS libellé visible — ceux des panneaux où le libellé
+   * vit dans une cellule voisine, hors du composant. Une infobulle n'en tient pas lieu : elle
+   * n'entre pas dans le calcul du nom accessible, et l'interrupteur s'annonce alors « case à
+   * cocher » sans dire ce qu'elle commande.
+   */
+  readonly ariaLabel = input<string>('');
 
   readonly inline = input<boolean>(false);
 

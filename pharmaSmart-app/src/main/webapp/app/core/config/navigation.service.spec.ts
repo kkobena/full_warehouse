@@ -24,7 +24,6 @@ const noopActions: NavMenuActions = {
   onLogout: jest.fn(),
   onOpenConfigEditor: jest.fn(),
   onOpenAppSettings: jest.fn(),
-  onOpenCahierRecette: jest.fn(),
 };
 
 describe('NavigationService', () => {
@@ -108,14 +107,6 @@ describe('NavigationService', () => {
 
       expect(items.map(i => i.id)).toEqual(['ventes', 'account']);
       expect(find(items, 'account.logout')).toBeDefined();
-    });
-
-    it('réserve le guide des fonctionnalités aux administrateurs', () => {
-      expect(find(service.buildNavItems(noopActions), 'cahier-recette')).toBeUndefined();
-
-      currentAccount.set(account(['ROLE_ADMIN']));
-
-      expect(find(service.buildNavItems(noopActions), 'cahier-recette')).toBeDefined();
     });
 
     it('réserve la configuration avancée aux administrateurs sous Tauri', () => {

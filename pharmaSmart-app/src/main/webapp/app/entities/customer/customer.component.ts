@@ -229,7 +229,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
   }
 
   confirmDesactivation(customer: ICustomer): void {
-    this.confirmDialog.onConfirm(() => this.lock(customer), "DESACTIVATION DE CLIENT", "Voulez-vous vraiment désativer ce client ?");
+    this.confirmDialog.onConfirm(() => this.lock(customer), "DESACTIVATION DE CLIENT", "Voulez-vous vraiment désactiver ce client ?");
   }
 
   sort(): string[] {

@@ -2,6 +2,8 @@ package com.kobe.warehouse.service.impl;
 
 import com.kobe.warehouse.domain.Laboratoire;
 import com.kobe.warehouse.repository.LaboratoireRepository;
+import com.kobe.warehouse.repository.ProduitRepository;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.repository.util.Condition;
 import com.kobe.warehouse.repository.util.SpecificationBuilder;
 import com.kobe.warehouse.service.LaboratoireService;
@@ -36,8 +38,10 @@ public class LaboratoireServiceImpl implements LaboratoireService {
     private final Logger log = LoggerFactory.getLogger(LaboratoireServiceImpl.class);
 
     private final LaboratoireRepository laboratoireRepository;
+    private final ProduitRepository produitRepository;
 
-    public LaboratoireServiceImpl(LaboratoireRepository laboratoireRepository) {
+    public LaboratoireServiceImpl(LaboratoireRepository laboratoireRepository, ProduitRepository produitRepository) {
+        this.produitRepository = produitRepository;
         this.laboratoireRepository = laboratoireRepository;
     }
 
@@ -96,6 +100,16 @@ public class LaboratoireServiceImpl implements LaboratoireService {
      */
     @Override
     public void delete(Integer id) {
+        // Un référentiel encore porté par des fiches ne peut pas disparaître : la
+        // requête échouerait sur la contrainte de clé étrangère, en HTTP 500 et sans
+        // rien dire d'utile. On compte d'abord, et l'on explique.
+        long rattaches = this.produitRepository.countByLaboratoireId(id);
+        if (rattaches > 0) {
+            throw new GenericError(
+                "Le laboratoire est encore utilisé par %d produit(s) : suppression impossible.".formatted(rattaches),
+                "referentielUtilise"
+            );
+        }
         log.debug("Request to delete Laboratoire : {}", id);
 
         laboratoireRepository.deleteById(id);

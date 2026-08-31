@@ -5,6 +5,8 @@ import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.service.ProductActivityService;
 import com.kobe.warehouse.service.dto.ProductActivityDTO;
+import com.kobe.warehouse.domain.enumeration.CodeRemise;
+import org.springframework.util.StringUtils;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.dto.SubstitutDTO;
@@ -132,6 +134,11 @@ public class ProduitResource {
         @RequestParam(required = false, name = "familleId") Integer familleId,
         @RequestParam(required = false, name = "tableauId") Integer tableauId,
         @RequestParam(required = false, name = "tableauNot") Integer tableauNot,
+        // Le code de remise circule par sa VALEUR d'affichage — « 1 », « 2 »… — et non par
+        // le nom de la constante : c'est ce que porte le DTO côté écran, et le conserver
+        // évite au front de connaître le vocabulaire interne de l'énumération.
+        @RequestParam(required = false, name = "dciId") Integer dciId,
+        @RequestParam(required = false, name = "codeRemise") String codeRemise,
         Pageable pageable
     ) {
         Page<ProduitDTO> page = produitService.findAll(
@@ -144,6 +151,8 @@ public class ProduitResource {
                 .setTableauId(tableauId)
                 .setTableauNot(tableauNot)
                 .setRayonId(rayonId)
+                .setDciId(dciId)
+                .setCodeRemise(StringUtils.hasText(codeRemise) ? CodeRemise.fromValue(codeRemise) : null)
                 .setStorageId(storageId),
             pageable
         );

@@ -48,7 +48,14 @@
           <app-button (clicked)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher"
                       severity="info"></app-button>
 
+          <!--
+            L'action principale du bouton scindé n'était rattachée à rien : cliquer
+            « Nouveau client » ne faisait rien, et seul le chevron menait quelque part. Elle
+            crée un ASSURÉ, de loin le cas courant ; le menu garde les trois types, qui
+            n'ouvrent pas le même formulaire.
+          -->
           <app-split-button
+            (clicked)="addAssureCustomer('ASSURANCE')"
             [items]="newCustomerbuttons()"
             [raised]="true"
             icon="pi pi-user-plus"
@@ -183,7 +190,7 @@
                   [rounded]="true"
                   [text]="true"
                   icon="pi pi-lock"
-                  ngbTooltip="Désativer"
+                  ngbTooltip="Désactiver"
                   severity="warn"
                   type="button"
                 >

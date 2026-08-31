@@ -16,15 +16,25 @@
   min-width: 120px;
 }
 
-.progress-bar-rfa {
+/* La piste : c'est elle qui occupe la largeur, et qui donne à la jauge sa référence. */
+.progress-track {
+  flex: 1;
   height: 8px;
   border-radius: 4px;
-  flex: 1;
+  background: rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.progress-bar-rfa {
+  height: 100%;
+  border-radius: 4px;
   transition: width 0.4s ease;
 
+  /* Palier atteint, en vue, encore loin — les trois couleurs disent l'écart au palier,
+     et non un simple état d'information. */
   &.progress-ok    { background: #43ac6a; }
   &.progress-close { background: #e99002; }
-  &.progress-low   { background: #008cba; }
+  &.progress-low   { background: #6c757d; }
 }
 
 .progress-label {

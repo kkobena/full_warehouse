@@ -256,6 +256,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
         changeAmount: () => comp.changeAmount(),
         changeExact: () => comp.changeExact(),
         focusFirstMode: () => comp.focusFirstMode(),
+        validate: () => comp.validate(),
       };
     },
     openCashRegister: () => this.openCashRegister(),

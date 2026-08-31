@@ -40,9 +40,17 @@ public class MvtCaisseDTO {
         return this;
     }
 
+    /**
+     * Libellé COURT du type de mouvement.
+     *
+     * <p>C'est la liste des mouvements qui consomme ce champ, et sa colonne « Type » est
+     * étroite : « Règlement facture fournisseur » y débordait et écrasait les colonnes
+     * voisines. Le libellé long reste disponible sur le ticket et le détail, où la place ne
+     * manque pas.
+     */
     public String getTransactionType() {
         if (Objects.nonNull(type)) {
-            transactionType = type.getValue();
+            transactionType = type.getTransactionTypeAffichage().getValueCourt();
         }
         return transactionType;
     }

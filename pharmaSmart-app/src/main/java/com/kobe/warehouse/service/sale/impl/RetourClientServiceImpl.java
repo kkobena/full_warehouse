@@ -245,7 +245,6 @@ public class RetourClientServiceImpl implements RetourClientService {
                 .setOriginalSalesLineId(sl.getId().getId())
                 .setOriginalSalesLineDate(sl.getSaleDate());
             retourLines.add(line);
-            inventoryTransactionService.save(line);
         }
 
         if (retourLines.isEmpty()) {
@@ -254,7 +253,15 @@ public class RetourClientServiceImpl implements RetourClientService {
         }
 
         retour.setMontantTotal(total).setLines(retourLines);
-        RetourClient saved = retourClientRepository.save(retour);
+        RetourClient saved = retourClientRepository.saveAndFlush(retour);
+
+        // Les mouvements de stock s'écrivent APRÈS l'enregistrement, et pas pendant la boucle.
+        //
+        // `InventoryTransactionBuilder` inscrit l'identifiant de la ligne de retour dans le
+        // mouvement (`Long.parseLong(ligne.getId() + "")`) : appelé avant l'insertion, cet
+        // identifiant est nul, la conversion échoue, et TOUT retour client se soldait par une
+        // erreur 500 — la fenêtre restant ouverte sur « Une erreur est survenue ».
+        saved.getLines().forEach(inventoryTransactionService::save);
 
         List<AvoirClient> avoirs = List.of();
         if (modeReglement == ModeReglementRetour.AVOIR_CLIENT) {

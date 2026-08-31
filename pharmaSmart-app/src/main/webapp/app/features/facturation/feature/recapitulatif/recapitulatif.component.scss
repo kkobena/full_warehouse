@@ -2,6 +2,7 @@
 @use 'app/shared/scss/table-common' as common;
 @use 'app/shared/scss/panel-header' as header;
 @use 'app/shared/scss/split-panel';
+
 :host {
   display: flex;
   flex-direction: column;
@@ -53,10 +54,6 @@
   flex-direction: column;
 }
 
-.recap-row-selected {
-  background-color: var(--highlight-bg, #e8f4ff) !important;
-  border-left: 3px solid var(--primary-color, #0d6efd);
-}
 
 .recap-detail-solde-prev {
   padding: 0.4rem 1rem;

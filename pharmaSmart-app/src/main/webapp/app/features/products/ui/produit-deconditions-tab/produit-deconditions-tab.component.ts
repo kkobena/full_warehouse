@@ -2,13 +2,14 @@ import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DataTableComponent } from 'app/shared/ui';
 import { IProduit } from 'app/shared/model/produit.model';
+import { DevisePipe } from "app/shared/utils/devise";
 
 @Component({
   selector: 'app-produit-deconditions-tab',
   templateUrl: './produit-deconditions-tab.component.html',
   styleUrls: ['./produit-deconditions-tab.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, DataTableComponent],
+  imports: [CommonModule, DataTableComponent, DevisePipe],
 })
 export class ProduitDeconditionsTabComponent {
   readonly produit = input.required<IProduit>();

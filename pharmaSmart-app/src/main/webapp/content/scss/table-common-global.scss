@@ -184,7 +184,9 @@ table {
         background: #fff3cd !important;
         box-shadow: inset 3px 0 0 $pharma-warning;
 
-        &:hover { background: #ffe8a1 !important; }
+        &:hover {
+          background: #ffe8a1 !important;
+        }
       }
 
       // Ligne avec succès
@@ -192,7 +194,9 @@ table {
         background: #d4edda !important;
         box-shadow: inset 3px 0 0 $pharma-success;
 
-        &:hover { background: #c3e6cb !important; }
+        &:hover {
+          background: #c3e6cb !important;
+        }
       }
 
       // Ligne avec danger
@@ -200,7 +204,9 @@ table {
         background: #f8d7da !important;
         box-shadow: inset 3px 0 0 $pharma-danger;
 
-        &:hover { background: #f5c6cb !important; }
+        &:hover {
+          background: #f5c6cb !important;
+        }
       }
     }
   }
@@ -710,3 +716,43 @@ table {
   text-align: right !important;
 }
 
+
+// ====================================
+// LIGNE SÉLECTIONNÉE — classe globale
+// ====================================
+//
+// Le même besoin — « cette ligne-là est celle qu'on regarde » — était écrit neuf fois sous
+// neuf noms : `selected-row`, `row-selected`, `rapr-row-selected`, `recap-row-selected`,
+// `ae-row-selected`, `rw-row-selected`, `crpf-row-selected`, `ligne-selected`… chacun avec
+// sa propre teinte, et l'un d'eux — `ligne-selected`, sur le détail des comptes fournisseurs
+// — sans aucun style : la ligne se posait, la sélection ne se voyait pas.
+//
+// `ligne-selected` devient donc le nom commun, défini ici une fois pour toutes. Un gabarit
+// écrit `[class.ligne-selected]="…"` sur son `<tr>` et n'a plus rien à styler.
+//
+// Le style est global — donc hors encapsulation de composant — parce que la ligne est rendue
+// par `app-data-table`, dans le contexte du parent : une règle posée dans le SCSS du parent
+// ne l'atteindrait qu'au prix d'un `::ng-deep`.
+
+tr.ligne-selected {
+  > td,
+  > th {
+    background-color: var(--pharma-row-selected-bg, #cfe6ff) !important;
+    color: var(--pharma-row-selected-fg, #0a2f5c) !important;
+    font-weight: 600;
+  }
+
+  // Le liseré porte l'essentiel de l'information : il tient même quand le fond est perdu
+  // dans un thème sombre ou une impression en niveaux de gris.
+  > td:first-child,
+  > th:first-child {
+    box-shadow: inset 4px 0 0 0 var(--pharma-row-selected-accent, #0d6efd);
+  }
+
+  // Le survol de Bootstrap repose sa propre couleur sur `td` : sans cette reprise, passer
+  // la souris sur la ligne sélectionnée l'éteignait le temps du survol.
+  &:hover > td,
+  &:hover > th {
+    background-color: var(--pharma-row-selected-hover-bg, #b9daff) !important;
+  }
+}

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Rapport de Valorisation du Stock</title>
+    <style th:replace="~{common/css}"></style>
+  </head>
+  <body>
+    <header th:replace="~{common/commonheader}"></header>
+    <div class="invoice">
+      <main>
+        <!--
+          Les deux faces du stock, et l'écart entre elles.
+
+          La valeur d'achat est ce que l'officine a DÉJÀ sorti ; la valeur de vente ce qu'elle
+          rentrerait si tout se vendait ; la marge potentielle leur différence. « Potentielle »
+          est le mot juste : elle n'est acquise que si le produit part avant de périmer.
+        -->
+        <div class="alert-summary">
+          <table class="summary-table">
+            <tbody>
+              <tr>
+                <td class="summary-item">
+                  <strong>Valeur d'achat&nbsp;:</strong>
+                  <span
+                    th:text="${#numbers.formatInteger(summary.totalPurchaseValue ?: 0, 0, 'WHITESPACE')} + ' ' + ${devise}"
+                  ></span>
+                </td>
+                <td class="summary-item">
+                  <strong>Valeur de vente&nbsp;:</strong>
+                  <span
+                    th:text="${#numbers.formatInteger(summary.totalSalesValue ?: 0, 0, 'WHITESPACE')} + ' ' + ${devise}"
+                  ></span>
+                </td>
+                <td class="summary-item alerte">
+                  <strong>Marge potentielle&nbsp;:</strong>
+                  <span
+                    th:text="${#numbers.formatInteger(summary.totalPotentialMargin ?: 0, 0, 'WHITESPACE')} + ' ' + ${devise}"
+                  ></span>
+                </td>
+              </tr>
+              <tr>
+                <td class="summary-item">
+                  <strong>Taux de marge moyen&nbsp;:</strong>
+                  <span
+                    th:text="${summary.averageMarginPercentage != null ? #numbers.formatDecimal(summary.averageMarginPercentage, 1, 2) : '0,00'} + ' %'"
+                  ></span>
+                </td>
+                <td class="summary-item">
+                  <strong>Références&nbsp;:</strong>
+                  <span th:text="${summary.totalProducts ?: 0}"></span>
+                </td>
+                <td class="summary-item">
+                  <strong>Quantité en stock&nbsp;:</strong>
+                  <span th:text="${#numbers.formatInteger(summary.totalQuantity ?: 0, 0, 'WHITESPACE')}"></span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <table class="main-table">
+          <thead>
+            <tr>
+              <th>Produit</th>
+              <th>Code CIP</th>
+              <th>Catégorie</th>
+              <th class="text-right">Stock</th>
+              <th class="text-right">PA unit.</th>
+              <th class="text-right">PV unit.</th>
+              <th class="text-right">Valeur achat</th>
+              <th class="text-right">Valeur vente</th>
+              <th class="text-right">Marge pot.</th>
+              <th class="text-right">Marge %</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="ligne : ${valuations}">
+              <td th:text="${ligne.libelle}"></td>
+              <td th:text="${ligne.codeCip}"></td>
+              <td th:text="${ligne.categorie}"></td>
+              <td class="text-right" th:text="${ligne.stockQuantity}"></td>
+              <td class="text-right" th:text="${#numbers.formatInteger(ligne.purchasePrice ?: 0, 0, 'WHITESPACE')}"></td>
+              <td class="text-right" th:text="${#numbers.formatInteger(ligne.salesPrice ?: 0, 0, 'WHITESPACE')}"></td>
+              <td
+                class="text-right"
+                th:text="${#numbers.formatInteger(ligne.totalPurchaseValue ?: 0, 0, 'WHITESPACE')}"
+              ></td>
+              <td
+                class="text-right"
+                th:text="${#numbers.formatInteger(ligne.totalSalesValue ?: 0, 0, 'WHITESPACE')}"
+              ></td>
+              <td
+                class="text-right"
+                th:text="${#numbers.formatInteger(ligne.potentialMargin ?: 0, 0, 'WHITESPACE')}"
+              ></td>
+              <td
+                class="text-right"
+                th:text="${ligne.marginPercentage != null ? #numbers.formatDecimal(ligne.marginPercentage, 1, 1) : '0,0'} + ' %'"
+              ></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="6" class="text-right"><strong>Total</strong></td>
+              <td class="text-right">
+                <strong th:text="${#numbers.formatInteger(summary.totalPurchaseValue ?: 0, 0, 'WHITESPACE')}"></strong>
+              </td>
+              <td class="text-right">
+                <strong th:text="${#numbers.formatInteger(summary.totalSalesValue ?: 0, 0, 'WHITESPACE')}"></strong>
+              </td>
+              <td class="text-right">
+                <strong th:text="${#numbers.formatInteger(summary.totalPotentialMargin ?: 0, 0, 'WHITESPACE')}"></strong>
+              </td>
+              <td class="text-right">
+                <strong th:text="${valuations.size()} + ' réf.'"></strong>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </main>
+    </div>
+  </body>
+</html>

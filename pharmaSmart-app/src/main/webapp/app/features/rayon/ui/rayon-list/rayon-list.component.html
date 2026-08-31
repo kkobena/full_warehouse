@@ -1,15 +1,15 @@
 <app-data-table
-  [value]="rayons()"
-  [totalRecords]="totalItems()"
-  [rows]="rows()"
+  (onLazyLoad)="onLazyLoad($event)"
   [first]="first()"
-  [loading]="loading()"
   [lazy]="true"
+  [loading]="loading()"
   [paginator]="true"
   [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
-  (onLazyLoad)="onLazyLoad($event)"
-  dataKey="id"
+  [rows]="rows()"
+  [totalRecords]="totalItems()"
+  [value]="rayons()"
   class="p-datatable-sm"
+  dataKey="id"
 >
   <ng-template #header>
     <tr class="pharma-table-head">
@@ -24,8 +24,8 @@
 
   <ng-template #body let-rayon>
     <tr
-      [class.selected-row]="isSelected(rayon)"
       (click)="onRowClick(rayon)"
+      [class.ligne-selected]="isSelected(rayon)"
       style="cursor: pointer"
     >
       <td><span class="pharma-entity-name">{{ rayon.storageType }}</span></td>
@@ -40,40 +40,40 @@
       <td style="text-align: right">
         <div class="btn-group">
           <app-button
-            size="small"
-            icon="pi pi-eye"
-            [rounded]="true" [text]="true" severity="info"
-            ngbTooltip="Voir détail"
             (clicked)="onViewDetail(rayon, $event)"
+            [rounded]="true"
+            [text]="true" icon="pi pi-eye" ngbTooltip="Voir détail"
+            severity="info"
+            size="small"
           />
           <app-button
-            size="small"
-            icon="pi pi-list-check"
-            [rounded]="true" [text]="true" severity="help"
-            ngbTooltip="Lancer un inventaire"
             (clicked)="onLancerInventaire(rayon, $event)"
+            [rounded]="true"
+            [text]="true" icon="pi pi-list-check" ngbTooltip="Lancer un inventaire"
+            severity="help"
+            size="small"
           />
           @if (rayon.code !== 'SANS') {
             <app-button
-              icon="pi pi-copy"
-              size="small"
-              [rounded]="true" [text]="true" severity="info"
-              ngbTooltip="Cloner vers d'autres stockages"
               (clicked)="onClone(rayon, $event)"
+              [rounded]="true"
+              [text]="true" icon="pi pi-copy" ngbTooltip="Cloner vers d'autres stockages"
+              severity="info"
+              size="small"
             />
             <app-button
-              icon="pi pi-pencil"
-              size="small"
-              [rounded]="true" [text]="true" severity="success"
-              ngbTooltip="Modifier"
               (clicked)="onEdit(rayon, $event)"
+              [rounded]="true"
+              [text]="true" icon="pi pi-pencil" ngbTooltip="Modifier"
+              severity="success"
+              size="small"
             />
             <app-button
-              size="small"
-              icon="pi pi-trash"
-              [rounded]="true" [text]="true" severity="danger"
-              ngbTooltip="Supprimer"
               (clicked)="onDelete(rayon, $event)"
+              [rounded]="true"
+              [text]="true" icon="pi pi-trash" ngbTooltip="Supprimer"
+              severity="danger"
+              size="small"
             />
           }
         </div>

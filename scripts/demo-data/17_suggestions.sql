@@ -124,7 +124,13 @@ INSERT INTO semois_configuration (
     produit_id, classe_criticite, delai_livraison_jours, frequence_commande_jours,
     facteur_saisonnier_actuel, facteur_saisonnier_manuel, limite_peremption,
     marge_securite, vmm_calcule, stock_objectif_calcule,
-    date_dernier_calcul, created_at, updated_at
+    date_dernier_calcul, created_at, updated_at,
+    -- `exclusion_duree_jours` porte un DEFAULT de 30 en base : c'est la duree
+    -- proposee par l'ecran quand on exclut un produit. Laissee au defaut ici,
+    -- elle donnerait a chaque ligne une duree sans date d'exclusion -- une
+    -- exclusion qui ne commence jamais. On la pose explicitement a NULL : les
+    -- trois colonnes d'exclusion vont ensemble ou pas du tout.
+    exclusion_duree_jours
 )
 SELECT
     p.id,
@@ -142,7 +148,8 @@ SELECT
                       WHEN 'A_PLUS' THEN 15 WHEN 'A' THEN 10 WHEN 'B' THEN 7 ELSE 5 END),
     NOW() - INTERVAL '6 hours',         -- calcul du matin meme
     NOW() - INTERVAL '180 days',
-    NOW() - INTERVAL '6 hours'
+    NOW() - INTERVAL '6 hours',
+    NULL
 FROM produit p
 JOIN (
     SELECT sl.produit_id,
